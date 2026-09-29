@@ -33,5 +33,5 @@ Annotate the already-reviewed Cursor, Gemini, and GPT-5.6 family or plan claims 
 
 ## Related
 
-- [v4.9 WN-1](../../../releases/v4/v4.9/known-gaps.md) - the source-scope warning this decision addresses
+- [v4.9 WN-1](../../../archives/v4/v4.9/known-gaps.md) - the source-scope warning this decision addresses
 - [Prompting profile schema](../../../../catalog/skills/ai-development/model-prompting-research/references/schema.md) - the versioned claim contract

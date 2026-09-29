@@ -84,7 +84,11 @@ CHECKBOX_RE = re.compile(r"^(\s*- )\[[ xX]\]", re.MULTILINE)
 VERSION_RE = re.compile(r"^\*\*Version\*\*:\s*(v?\d+\.\d+\.\d+)", re.MULTILINE)
 SLUG_RE = re.compile(r"^\*\*Slug\*\*:\s*(\S+)", re.MULTILINE)
 GAP_ITEM_RE = re.compile(r"^#### (?P<type>[A-Z]{2})-\d+\b(?P<title>.*)$", re.MULTILINE)
-REMOTE_RE = re.compile(r"github\.com[:/](?P<repo>[^/\s]+/[^/\s]+?)(?:\.git)?/?$")
+REMOTE_RE = re.compile(
+    r"^(?:https://github\.com/|git@github\.com:|ssh://git@github\.com/)"
+    r"(?P<repo>[^/\s]+/[^/\s]+?)(?:\.git)?/?$",
+    re.IGNORECASE,
+)
 
 
 class Malformed(Exception):
@@ -148,6 +152,17 @@ def _tool(name: str, repo_root: Path | None) -> str | None:
 
 def _env() -> dict[str, str]:
     env = dict(os.environ)
+    # WN-13: inherited Git repository selectors must not redirect record checks.
+    for name in (
+        "GIT_DIR", "GIT_WORK_TREE", "GIT_COMMON_DIR", "GIT_INDEX_FILE",
+        "GIT_OBJECT_DIRECTORY", "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+        "GIT_CEILING_DIRECTORIES", "GIT_PREFIX", "GIT_NAMESPACE",
+        "GIT_CONFIG_COUNT", "GIT_CONFIG_PARAMETERS",
+    ):
+        env.pop(name, None)
+    for name in tuple(env):
+        if name.startswith(("GIT_CONFIG_KEY_", "GIT_CONFIG_VALUE_")):
+            env.pop(name)
     env.update(
         GH_PROMPT_DISABLED="1",
         GIT_TERMINAL_PROMPT="0",
@@ -235,6 +250,7 @@ class Context:
         self.slug = slug.group(1) if slug else self.plan.stem
         self.version_dir = self.plan.parent.parent
         self.remote_url = self._git_out("remote", "get-url", "origin")
+        self.push_remote_url = self._git_out("remote", "get-url", "--push", "--all", "origin")
         match = REMOTE_RE.search(self.remote_url)
         self.default_repo = match.group("repo") if match else ""
 
@@ -344,8 +360,13 @@ def load_record(ctx: Context, session: str | None) -> RecordState:
         ctx.budget,
     )
     if rc == 0 and out.strip() == "true":
-        state.forced = tampered
-        return state
+        tracked_rc, _ = _run(
+            [ctx.git, "-C", str(path.parent), "ls-files", "--error-unmatch", "--", path.name],
+            ctx.budget,
+        )
+        if tracked_rc != 1:
+            state.forced = tampered
+            return state
     try:
         record = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, ValueError):
@@ -355,7 +376,7 @@ def load_record(ctx: Context, session: str | None) -> RecordState:
         created = _parse_time(record.get("created"))
         age = (
             (dt.datetime.now(dt.timezone.utc) - created).total_seconds()
-            if created
+            if created and created.tzinfo is not None
             else STALE_SECONDS + 1
         )
         reason = (
@@ -375,6 +396,13 @@ def load_record(ctx: Context, session: str | None) -> RecordState:
         )
     ):
         state.forced = tampered
+        return state
+    # WN-13: a matching or unspecified session does not renew old approvals.
+    created = _parse_time(record.get("created"))
+    if created is None or created.tzinfo is None or (
+        dt.datetime.now(dt.timezone.utc) - created
+    ).total_seconds() > STALE_SECONDS:
+        state.notices.append("stale run record (older than 72 hours) ignored")
         return state
     state.record = record
     if record.get("pause"):
@@ -414,6 +442,7 @@ def evaluate(ctx: Context, record: dict | None) -> tuple[list[tuple[str, str]], 
         ("evidence.file", "met" if evidence and _has_sections(evidence) else "unmet")
     )
     results.append(("tests.evidence", _tests_status(ctx, evidence, start)))
+    results.append(("approval.remote", _approved_remote_status(ctx, record)))
     repo = approvals.get("repo") or ctx.default_repo
     branch = approvals.get("source_branch") or f"feat/{ctx.version}-{ctx.slug}"
     target = approvals.get("target_branch") or "develop"
@@ -433,6 +462,23 @@ def evaluate(ctx: Context, record: dict | None) -> tuple[list[tuple[str, str]], 
         ("cleanup.worktree", _worktrees_gone(ctx, cleanup.get("worktrees"), branch))
     )
     return results, deferred
+
+
+def _approved_remote_status(ctx: Context, record: dict | None) -> str:
+    if record is None:
+        return "cannot-verify"
+    approvals = record.get("approvals", {})
+    expected_url = approvals.get("push_remote_url")
+    match = REMOTE_RE.fullmatch(ctx.push_remote_url)
+    if not expected_url or not match:
+        return "unmet"
+    approved_repo = str(approvals.get("repo") or "")
+    return (
+        "met"
+        if ctx.push_remote_url == expected_url
+        and match.group("repo").lower() == approved_repo.lower()
+        else "unmet"
+    )
 
 
 def _task_status(ctx: Context, checked: bool, path: str, start: str | None) -> str:
@@ -575,6 +621,8 @@ def _tests_status(ctx: Context, evidence: str | None, start: str | None) -> str:
 GH_NOT_FOUND = object()
 _GH_NOT_FOUND_LINES = (
     re.compile(r'no pull requests found for branch ".*"'),
+    # WN-13: a just-opened PR can exist before its first check is reported.
+    re.compile(r"no checks reported on the '[^'\r\n]+' branch"),
     re.compile(r"release not found"),
 )
 
@@ -929,6 +977,10 @@ def cmd_record_create(args: argparse.Namespace) -> int:
         args.session = resolved
     if not _origin_ok(args.session, texts, summary):
         return _blocked("approval-not-covered")
+    approved_repo = str(spec.get("repo") or ctx.default_repo)
+    push_match = REMOTE_RE.fullmatch(ctx.push_remote_url)
+    if not push_match or push_match.group("repo").lower() != approved_repo.lower():
+        return _blocked("approval-not-covered")
     defer = (
         next(
             (c.get("bound") for c in spec["classes"] if c["class"] == "defer-gaps"), []
@@ -940,7 +992,8 @@ def cmd_record_create(args: argparse.Namespace) -> int:
     approvals = {
         "plan": ctx.rel,
         "remote_url": ctx.remote_url,
-        "repo": spec.get("repo") or ctx.default_repo,
+        "push_remote_url": ctx.push_remote_url,
+        "repo": approved_repo,
         "source_branch": spec.get("source_branch"),
         "target_branch": spec.get("target_branch") or "develop",
         "release_version": spec.get("release_version") or ctx.version,
@@ -1043,7 +1096,12 @@ def cmd_record_block(args: argparse.Namespace) -> int:
         return loaded
     ctx, record = loaded
     approved = {c.get("class") for c in record["approvals"].get("classes", [])}
-    if args.approval_class and args.approval_class in approved:
+    remote_mismatch = (
+        args.category == "approval-not-covered"
+        and args.approval_class == "push-merge"
+        and _approved_remote_status(ctx, record) != "met"
+    )
+    if args.approval_class and args.approval_class in approved and not remote_mismatch:
         print(
             f"rejected: the approvals already answer {args.approval_class}",
             file=sys.stderr,

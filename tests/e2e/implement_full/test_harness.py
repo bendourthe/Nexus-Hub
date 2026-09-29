@@ -26,6 +26,8 @@ def test_stub_agent_reaches_plan_complete(tmp_path: Path) -> None:
             "stub",
             "--out",
             str(tmp_path / "out"),
+            "--ledger",
+            str(tmp_path / "ledger.jsonl"),
         ],
         capture_output=True,
         text=True,

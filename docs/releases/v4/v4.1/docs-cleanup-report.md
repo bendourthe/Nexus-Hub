@@ -16,7 +16,7 @@
 
 | Path | Category | Disposition |
 |---|---|---|
-| `docs/releases/v4/v4.1/known-gaps.md` | Active release gap ledger | Keep; Phase 1 records zero open or resolved items. |
+| `docs/archives/v4/v4.1/known-gaps.md` | Active release gap ledger | Keep; Phase 1 records zero open or resolved items. |
 | `docs/releases/v4/v4.1/docs-cleanup-report.md` | Active release audit record | Keep and append later phase audits until release close. |
 | `docs/releases/v4/v4.1/development/history/2026-08-27_v4.1.0-adoption-skill-trial-records-phase-1-procedural-anchor.md` | Active phase evidence | Keep under the current version's development history. |
 

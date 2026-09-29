@@ -30,6 +30,7 @@ Ids are fixed strings. "Cannot verify" always counts as unmet: offline, unauthen
 | `gaps.version` | Every open item in `<version_dir>/known-gaps.md` under this plan's `## v<version>` subsection is resolved, or carries a gap type (`NI`, `DF`, `BG`, `MT`, `WN`, `QG`) the user named for deferral in the upfront round; an item added during the run whose Source phase names one of this plan's own tasks is never deferrable | The gaps file; the record's `deferrable_gap_types` and `start_head` | The gaps file is unreadable |
 | `evidence.file` | `<version_dir>/development/<version>-last-phase-evidence.md` exists with every required section heading (see "Required evidence sections"). The legacy `last-phase-evidence.md` counts only when it names this plan's filename | The evidence file | Never (a missing file is `unmet`) |
 | `tests.evidence` | The evidence file's `## Full-suite testing and stabilization` section quotes a passing command and names at least one test path this run changed | The evidence file; `git diff --name-only <start_head>..HEAD` | No run record, so the changed set cannot be computed (`cannot-verify`) |
+| `approval.remote` | The live `git remote get-url --push --all origin` returns exactly one URL matching the push URL frozen in the signed approvals, and that URL names the approved GitHub `owner/repo` | The run record; `git remote get-url --push --all origin` | No run record; a missing, unrecognized, changed, or additional push URL is `unmet` |
 | `integration.merged` | The plan branch's pull request into the integration branch is merged | `gh pr view <branch> --repo <owner/repo> --json state,mergeCommit` | `gh` missing, unauthenticated, offline, or over budget |
 | `integration.checks` | Every required check on that pull request concluded success. Required-ness comes from `docs/policy/required-checks.json` when present, else `gh pr checks --required`, else it cannot be verified | The manifest; `gh pr checks` | As above, or no source of required-ness |
 | `release.tag` | Tag `v<version>` exists locally and on the remote | `git tag -l`; `git ls-remote --tags <remote>` | Remote unreachable |
@@ -42,7 +43,7 @@ Ids are fixed strings. "Cannot verify" always counts as unmet: offline, unauthen
 
 Post-integration predicates (`release.*`, `cleanup.*`) are derived from repository and hosting state, never from checkboxes, because the tasks that produce them are ticked by the same agent the checker is judging.
 
-Every hosting call is pinned with `--repo <owner/repo>` from the record's frozen approvals, runs with `GH_PROMPT_DISABLED=1` and `GIT_TERMINAL_PROMPT=0`, resolves `git` and `gh` to absolute paths outside the working tree, and shares one 20-second wall-clock budget for the whole check. Local predicates run first so an offline check still reports them.
+Every hosting call is pinned with `--repo <owner/repo>` from the record's frozen approvals, runs with `GH_PROMPT_DISABLED=1` and `GIT_TERMINAL_PROMPT=0`, resolves `git` and `gh` to absolute paths outside the working tree, and shares one 20-second wall-clock budget for the whole check. `record create` refuses a push URL that does not name that approved repository; a later push-URL change makes `approval.remote` unmet and permits an `approval-not-covered` blocker even when `push-merge` was approved. Local predicates run first so an offline check still reports them.
 
 A hosting answer that the pull request or release does not exist (`gh`'s whole stderr line is `no pull requests found for branch "<branch>"` or `release not found`) is `unmet`, not `cannot-verify`: GitHub was reached and the run's next step is to create it. Only an unreachable, unauthenticated, or over-budget call is `cannot-verify`. The agent probes hosting the same way, always with `--repo <owner/repo>` from the record; an un-pinned `gh` call that fails is not evidence that the platform is unavailable, and never justifies merging, tagging, or releasing through `git` alone.
 
@@ -56,7 +57,7 @@ The evidence file must carry these `##` headings, matching the implement-phase r
 |---|---|
 | Every task, phase, and known gap | `task.T###`, `gaps.version` |
 | Green CI with the tests the work needs | `tests.evidence`, `integration.checks` |
-| The merged integration | `integration.merged` |
+| The merged integration | `approval.remote`, `integration.merged` |
 | The full release | `release.tag`, `release.changelog`, `release.version-sync`, `release.github`, `release.main` |
 | Removal of merged branches and worktrees | `cleanup.branches`, `cleanup.worktree` |
 | Last-phase duties recorded | `evidence.file` |
@@ -71,7 +72,9 @@ Fields: `schema` (currently `1`), `plan` (repository-relative path), `plan_sha25
 
 ### Approvals as exact actions
 
-Each approval is a tuple of exact values plus the verbatim user text that granted it: the plan path; the remote URL and `owner/repo`; source and target branch; release version and tag name; the branches and worktrees to remove; and each approval class with its bound. The classes are: `push-merge`, `release` (version, tag, publication, release pull requests, and back-merge for that one version), `repush` (after a locally reproduced fix, bound 3), `release-notes`, `refactor-moves` (inside plan-touched folders only), `spend` (a USD cap per vendor), and one `ask-first:<surface>` per "Ask first" surface the plan names. CI workflow, permission, and secret changes are never approvable in advance; they are always a `ci-security-change` blocker.
+Each approval is a tuple of exact values plus the verbatim user text that granted it: the plan path; the fetch remote URL, push remote URL, and `owner/repo`; source and target branch; release version and tag name; the branches and worktrees to remove; and each approval class with its bound. The classes are: `push-merge`, `release` (version, tag, publication, release pull requests, and back-merge for that one version), `repush` (after a locally reproduced fix, bound 3), `release-notes`, `refactor-moves` (inside plan-touched folders only), `spend` (a USD cap per vendor), and one `ask-first:<surface>` per "Ask first" surface the plan names. CI workflow, permission, and secret changes are never approvable in advance; they are always a `ci-security-change` blocker.
+
+An older signed record without `push_remote_url` yields `approval.remote unmet`; creating a fresh record from a current user approval is required before publication. A changed destination cannot be authorized by editing the old record.
 
 `approvals_hmac` is an HMAC-SHA256 over the canonical JSON of `approvals`, `plan_sha256`, `session_id`, `repo`, `deferrable_gap_types`, `start_head`, `nonce`, and `created`, keyed by the owner-only secret `~/.nexus-hub/runs/.secret`, which `record create` creates when it is absent. `pause` and `blockers` are not yet signed (v4.13.2 known gap WN-8). No prompt text, command, or skill references the secret's content.
 

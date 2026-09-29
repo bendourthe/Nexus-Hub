@@ -4,7 +4,7 @@ This frozen v4.8 follow-up records how to run the original Bash hook test suite 
 
 ## Historical failure and current run
 
-The original `WN-3` run resolved `bash` to Windows `system32\bash.EXE` (WSL), which returned exit 127 for a Windows-path shell script. The original failure remains in the [active known-gaps ledger](../../../../releases/v4/v4.8/known-gaps.md).
+The original `WN-3` run resolved `bash` to Windows `system32\bash.EXE` (WSL), which returned exit 127 for a Windows-path shell script. The original failure remains in the [active known-gaps ledger](../known-gaps.md).
 
 On 2026-09-24, an isolated worktree at `origin/develop` (`8e55ebcb`) ran `catalog/hooks/tests/test_lint_autofix.py` with `C:\Program Files\Git\bin` and the Python user-script directory prepended to that process's `PATH`. The selected executables were Git Bash `bash.exe` and installed `ruff.exe`. The exact test file completed with **7 passed, 0 skipped** in 9.02 seconds. No hook source or test file was changed to obtain this result.
 

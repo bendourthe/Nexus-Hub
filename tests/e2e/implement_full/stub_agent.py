@@ -35,8 +35,11 @@ SECTIONS = (
 
 
 def git(*args: str) -> str:
+    binary = shutil.which("git")
+    if binary is None:
+        raise SystemExit("git stand-in not on PATH")
     return subprocess.run(
-        ["git", *args], capture_output=True, text=True, check=True
+        [binary, *args], capture_output=True, text=True, check=True
     ).stdout.strip()
 
 

@@ -172,54 +172,58 @@ This table is the single-file working inventory of residual v4.0-v4.12 items as 
 
 | Source item | Current disposition | Owner and next action |
 |---|---|---|
-| [v4.0 MT-1](../v4.0/known-gaps.md) | Open measurement limit: no runtime check proves a live reply follows the communication contract. | Agent-communication owner: retain human review or define a tested observable subset; do not claim prose compliance from static checks. |
-| [v4.1.0 DF-1](../v4.1/known-gaps.md) | Open live Codex roster qualification; overlaps v4.7 DF-2 and v4.9 MT-1. | Prompting-profile owner: use the source-backed calibration workflow when the host roster is available; keep unverified models explicit. |
-| [v4.1.1 DF-1](../v4.1/known-gaps.md) | Open optional host-scanner exercise, not a required CI gate. | Security-audit owner on a host with the tools: retain `security-audit` receipts with none, some, and all applicable scanners. |
-| [v4.2.2/v4.2.3 DF-2](../v4.2/known-gaps.md) | Open five-person Training workshop; repeated across patches, counted once. | Guide owner and five participants: run the eight-step walkthrough and record stalls. |
-| [v4.3 DF-4](../v4.3/known-gaps.md) | Accepted implementation limit: OpenClaw interception needs a typed plugin and remains not covered. | OpenClaw integration owner: implement and test the typed boundary only in a separately scoped plan. |
-| [v4.3 WN-3](../v4.3/known-gaps.md) | Open optional-platform read-back; the 2026-09-27 Antigravity CLI list was empty and its interactive path stopped at sign-in and invalid existing settings, so discovery was not proved. | Platform-contract owner: coordinate an authenticated host read-back, Cursor UI check, dated workflow decision, and remaining project-local paths. |
-| [v4.4 HT-1 / HT-4 / MT-446-1](../v4.4/known-gaps.md) | Open human comprehension and final visual review, one carried obligation; the rejected v4.4.6 redesign is not revived. | Guide owner and representative readers: use the retained unassisted exercise and record actual answers and corrections. |
-| [v4.4 HT-2](../v4.4/known-gaps.md) | Accepted unmet real-host installer duty; later isolated installer proof does not certify the user's installation. | Installation owner: first inspect the current host and repair only if needed; obtain separate approval before a real-host reinstall. |
-| [v4.4 HT-3](../v4.4/known-gaps.md) | Closed for current refs on 2026-09-27: the historical 17 candidates are absent; only protected branches and unrelated PR #222 remain on `origin`. | Repository owner: retain the dated source-ledger audit; do not delete PR #222 or other-session worktrees as part of this historical cleanup. |
-| [v4.4 GA-1](../v4.4/known-gaps.md) | Open stylesheet dead-selector coverage; the rejected guide redesign did not perform a global sweep. | Guide owner: run a bounded selector-to-markup audit on the retained guide and verify any removal visually. |
-| [v4.4 MT-446-2](../v4.4/known-gaps.md) | Open native zoom, visual scrolling, and OS occlusion delivery; 200% reflow evidence is narrower. | Guide owner on the target browser and OS: retain native observations and correct only reproduced failures. |
-| [v4.4 CQ-1](../v4.4/known-gaps.md) | Accepted historical PR-ref alert #236; current `develop` rescan closed WN-446-2, not GitHub's retained PR ref. | Security owner: do not treat the old PR ref as a current-code defect; recheck only if its input boundary changes. |
-| [v4.4 WN-3](../v4.4/known-gaps.md) | Accepted historical CodeQL false-positive dispositions; automatic `main` baseline refresh was suggested but not established here. | CI owner: decide whether a `main` push analysis is warranted in the next pipeline change; recheck the guide alert if its input boundary changes. |
-| [v4.5 DF-1 / MT-1](../v4.5/known-gaps.md) | Open human judgement of Writing Discipline on two platforms; MT-1 also names separate manual checks. | Writing Discipline owner: compare live responses and record benefit versus stiffness; retain the separate installer and false-positive checks in MT-1. |
-| [v4.5 DF-2 / MT-1](../v4.5/known-gaps.md) | Open agent isolation: bounded service/reachability inventories exist, but the shared checkout fails the isolation minimum and egress closure is unproven. | Agent-isolation owner: isolate sessions, enumerate shared writable services and transitive reachability, and test the controls on the real surface. |
-| [v4.5 MT-1, tests 1 and 3](../v4.5/known-gaps.md) | Open manual distribution read-path and prose false-positive exercises, separate from DF-1 and DF-2. | Installation and writing owners: use throwaway installs on three non-Claude platforms and judge samples of the maintainer's own writing; retain observations. |
-| [v4.7 DF-2](../v4.7/known-gaps.md) | Open Codex CLI model-picker mismatch; related to v4.1.0 DF-1 and v4.9 MT-1, not a second profile implementation task. | Prompting-profile owner: recheck the live picker and reconcile the model map with official evidence. |
-| [v4.7 DF-4 / DF-5](../v4.7/known-gaps.md) | Accepted exclusions: reusable CI workflow factoring and per-skill presentation metadata have no authorized implementation in this release. | CI and catalog owners: reconsider only with an actual consumer and a separate scoped decision. |
-| [v4.7 WN-2](../v4.7/known-gaps.md) | Open `main` scheduled supply-chain result; the `develop` repair does not qualify the unreleased default branch. | Release owner: recheck the schedule on `main` after the next authorized release; preserve the failed historical run. |
-| [v4.8 WN-F](../v4.8/known-gaps.md) | Manual per-release obligation, not an unimplemented regex: the 24 mappings passed the 2026-09-23 source/body audit. | Framework-mapping owner: repeat the source-to-body review at release time and record drift. |
-| [v4.8 WN-K](../v4.8/known-gaps.md) | Installer staging mode is now owner-only in the current tree; the old release CodeQL baseline and required-context policy are separate decisions. | Security/CI owner: verify the relevant alert on the next `main` scan and decide any CodeQL gate change explicitly. |
-| [v4.9 MT-1](../v4.9/known-gaps.md) | Open live Claude prompting-roster completeness; the account-backed picker offers Opus 5.5, but exposes display names rather than a complete canonical ID roster. | Prompting-profile owner: obtain a complete live model-ID enumeration, then calibrate only available models through the deterministic writer; keep the old roster date until then. |
-| [v4.9 MT-3](../v4.9/known-gaps.md) | Open real-artifact slide-check coverage: the pre-rule LVEDP deck has zero static stages and three `unchecked` checks. A [runtime render](../../../archives/v4/v4.9/development/runtime-deck-render-2026-09-27/verification.md) reached 15 real slides; its viewport-floor failures were invalidated by the [stage-height correction](../../../archives/v4/v4.9/development/runtime-deck-stage-floor-correction-2026-09-27/verification.md). The [four-viewport build-state follow-up](../../../archives/v4/v4.9/development/runtime-deck-four-viewport-build-state-2026-09-27/verification.md) sampled 292 fragment completions and found slides 2 and 6 over the eight-fragment budget. Semantic build order, figure re-layout, and all-state rendered coverage remain unqualified. | Handbook-validation owner: use a preserved `.slide-stage` deck or verify a runtime path for structure, builds, figure scaling, and rendered states with negative controls. |
-| [v4.10 EV-1 / EV-2](../v4.10/known-gaps.md) | Accepted fail-closed eval limits for Gemini CLI and OpenCode: no proven all-configuration isolation. | Eval-pipeline owner: enable either provider only after documented, tested exclusion of every configuration layer. |
-| [v4.11 SEC-1](../v4.11/known-gaps.md) | Open hosted `main` CodeQL transition: eight original alerts 278-285 remain open on `main` as of the 2026-09-27 read-only check. | Security/release owner: run the next authorized `main` analysis and record each alert's state; do not dismiss without a justified finding. |
-| [v4.11 QG-2](../v4.11/known-gaps.md) | Closed as unmet: each family passed separately, but three simultaneous bounded passes were not established. | Future qualification owner: improve per-family reliability before proposing a new joint gate; do not restamp the old six rounds. |
-| [v4.12 QG-1](../v4.12/known-gaps.md) | Accepted GitHub boundary: read-only `refs/pull/*` remain outside writable-ref publication. | Repository owner: request a supported GitHub disposition only if erasing those refs becomes a requirement. |
-| [v4.12 QG-2](../v4.12/known-gaps.md) | Open public Code-sidebar discrepancy; the API and Insights evidence do not prove the rendered sidebar is corrected. | Repository owner: use the prepared GitHub Support handoff or obtain a fresh rendered correction; no history rewrite is justified. |
-| [v4.12 DF-1](../v4.12/known-gaps.md) | Open dated Antigravity workflow retirement check, due after 2026-11-01. | Antigravity integration owner: verify the vendor date, then retire workflow emission and rerun the platform contract if it has taken effect. |
+| [v4.0 MT-1](../../../archives/v4/v4.0/known-gaps.md) | Open measurement limit: no runtime check proves a live reply follows the communication contract. | Agent-communication owner: retain human review or define a tested observable subset; do not claim prose compliance from static checks. |
+| [v4.1.0 DF-1](../../../archives/v4/v4.1/known-gaps.md) | Open live Codex roster qualification; overlaps v4.7 DF-2 and v4.9 MT-1. | Prompting-profile owner: use the source-backed calibration workflow when the host roster is available; keep unverified models explicit. |
+| [v4.1.1 DF-1](../../../archives/v4/v4.1/known-gaps.md) | Open optional host-scanner exercise, not a required CI gate. | Security-audit owner on a host with the tools: retain `security-audit` receipts with none, some, and all applicable scanners. |
+| [v4.2.2/v4.2.3 DF-2](../../../archives/v4/v4.2/known-gaps.md) | Open five-person Training workshop; repeated across patches, counted once. | Guide owner and five participants: run the eight-step walkthrough and record stalls. |
+| [v4.3 DF-4](../../../archives/v4/v4.3/known-gaps.md) | Accepted implementation limit: OpenClaw interception needs a typed plugin and remains not covered. | OpenClaw integration owner: implement and test the typed boundary only in a separately scoped plan. |
+| [v4.3 WN-3](../../../archives/v4/v4.3/known-gaps.md) | Open optional-platform read-back; the 2026-09-27 Antigravity CLI list was empty and its interactive path stopped at sign-in and invalid existing settings, so discovery was not proved. | Platform-contract owner: coordinate an authenticated host read-back, Cursor UI check, dated workflow decision, and remaining project-local paths. |
+| [v4.4 HT-1 / HT-4 / MT-446-1](../../../archives/v4/v4.4/known-gaps.md) | Open human comprehension and final visual review, one carried obligation; the rejected v4.4.6 redesign is not revived. | Guide owner and representative readers: use the retained unassisted exercise and record actual answers and corrections. |
+| [v4.4 HT-2](../../../archives/v4/v4.4/known-gaps.md) | Accepted unmet real-host installer duty; later isolated installer proof does not certify the user's installation. | Installation owner: first inspect the current host and repair only if needed; obtain separate approval before a real-host reinstall. |
+| [v4.4 HT-3](../../../archives/v4/v4.4/known-gaps.md) | Closed for current refs on 2026-09-27: the historical 17 candidates are absent; only protected branches and unrelated PR #222 remain on `origin`. | Repository owner: retain the dated source-ledger audit; do not delete PR #222 or other-session worktrees as part of this historical cleanup. |
+| [v4.4 GA-1](../../../archives/v4/v4.4/known-gaps.md) | Open stylesheet dead-selector coverage; the rejected guide redesign did not perform a global sweep. | Guide owner: run a bounded selector-to-markup audit on the retained guide and verify any removal visually. |
+| [v4.4 MT-446-2](../../../archives/v4/v4.4/known-gaps.md) | Open native zoom, visual scrolling, and OS occlusion delivery; 200% reflow evidence is narrower. | Guide owner on the target browser and OS: retain native observations and correct only reproduced failures. |
+| [v4.4 CQ-1](../../../archives/v4/v4.4/known-gaps.md) | Accepted historical PR-ref alert #236; current `develop` rescan closed WN-446-2, not GitHub's retained PR ref. | Security owner: do not treat the old PR ref as a current-code defect; recheck only if its input boundary changes. |
+| [v4.4 WN-3](../../../archives/v4/v4.4/known-gaps.md) | Accepted historical CodeQL false-positive dispositions; automatic `main` baseline refresh was suggested but not established here. | CI owner: decide whether a `main` push analysis is warranted in the next pipeline change; recheck the guide alert if its input boundary changes. |
+| [v4.5 DF-1 / MT-1](../../../archives/v4/v4.5/known-gaps.md) | Open human judgement of Writing Discipline on two platforms; MT-1 also names separate manual checks. | Writing Discipline owner: compare live responses and record benefit versus stiffness; retain the separate installer and false-positive checks in MT-1. |
+| [v4.5 DF-2 / MT-1](../../../archives/v4/v4.5/known-gaps.md) | Open agent isolation: bounded service/reachability inventories exist, but the shared checkout fails the isolation minimum and egress closure is unproven. | Agent-isolation owner: isolate sessions, enumerate shared writable services and transitive reachability, and test the controls on the real surface. |
+| [v4.5 MT-1, tests 1 and 3](../../../archives/v4/v4.5/known-gaps.md) | Open manual distribution read-path and prose false-positive exercises, separate from DF-1 and DF-2. | Installation and writing owners: use throwaway installs on three non-Claude platforms and judge samples of the maintainer's own writing; retain observations. |
+| [v4.7 DF-2](../../../archives/v4/v4.7/known-gaps.md) | Open Codex CLI model-picker mismatch; related to v4.1.0 DF-1 and v4.9 MT-1, not a second profile implementation task. | Prompting-profile owner: recheck the live picker and reconcile the model map with official evidence. |
+| [v4.7 DF-4 / DF-5](../../../archives/v4/v4.7/known-gaps.md) | Accepted exclusions: reusable CI workflow factoring and per-skill presentation metadata have no authorized implementation in this release. | CI and catalog owners: reconsider only with an actual consumer and a separate scoped decision. |
+| [v4.7 WN-2](../../../archives/v4/v4.7/known-gaps.md) | Open `main` supply-chain result: the released workflow pins patched setuptools, but two 2026-09-28 dispatches stopped on PyPI lookups for editable Nexus projects before an advisory verdict. | CI/release owner: integrate the `--skip-editable` correction, then observe a passing `main` run after its protected release; preserve every failed run. |
+| [v4.8 WN-F](../../../archives/v4/v4.8/known-gaps.md) | Manual per-release obligation, not an unimplemented regex: the 24 mappings passed the 2026-09-23 source/body audit. | Framework-mapping owner: repeat the source-to-body review at release time and record drift. |
+| [v4.8 WN-K](../../../archives/v4/v4.8/known-gaps.md) | Installer staging mode is now owner-only in the current tree; the old release CodeQL baseline and required-context policy are separate decisions. | Security/CI owner: verify the relevant alert on the next `main` scan and decide any CodeQL gate change explicitly. |
+| [v4.9 MT-1](../../../archives/v4/v4.9/known-gaps.md) | Open live Claude prompting-roster completeness; the account-backed picker offers Opus 5.5, but exposes display names rather than a complete canonical ID roster. | Prompting-profile owner: obtain a complete live model-ID enumeration, then calibrate only available models through the deterministic writer; keep the old roster date until then. |
+| [v4.9 MT-3](../../../archives/v4/v4.9/known-gaps.md) | Open real-artifact slide-check coverage: the pre-rule LVEDP deck has zero static stages and three `unchecked` checks. A [runtime render](../../../archives/v4/v4.9/development/runtime-deck-render-2026-09-27/verification.md) reached 15 real slides; its viewport-floor failures were invalidated by the [stage-height correction](../../../archives/v4/v4.9/development/runtime-deck-stage-floor-correction-2026-09-27/verification.md). The [four-viewport build-state follow-up](../../../archives/v4/v4.9/development/runtime-deck-four-viewport-build-state-2026-09-27/verification.md) sampled 292 fragment completions and found slides 2 and 6 over the eight-fragment budget. The [all-state text and SVG-box follow-up](../../../archives/v4/v4.9/development/runtime-deck-all-state-2026-09-27/verification.md) ran three times over 352 states, checking 8,527-8,584 text-node instances and 456-461 visible SVG-box instances without floor or outer-box failures, with both mutations rejected in every run. The [semantic flow-order follow-up](../../../archives/v4/v4.9/development/runtime-deck-all-state-2026-09-27/semantic-order-verification.md) checked 14 nodes and 13 connectors on three authored flow slides at four viewports, with both order and geometry mutations rejected. The [chart-layout probe](../../../archives/v4/v4.9/development/runtime-deck-all-state-2026-09-27/figure-layout-verification.md) found no extra SVG scale in 14 model-backed slide charts and rejected a half-scale mutation at four viewports, but the reading page has no corresponding chart instances for a source-aspect comparison. The [flow paint probe](../../../archives/v4/v4.9/development/runtime-deck-all-state-2026-09-27/flow-paint-verification.md) qualified 52 settled connector-body observations and 12 invisible controls. Other build semantics, the known fragment-budget failures, other internal SVG rendering, and true figure re-layout remain unqualified. | Handbook-validation owner: use a preserved `.slide-stage` deck or verify a runtime path for structure, builds, figure scaling, and rendered states with negative controls. |
+| [v4.10 EV-1 / EV-2](../../../archives/v4/v4.10/known-gaps.md) | Accepted fail-closed eval limits for Gemini CLI and OpenCode: no proven all-configuration isolation. | Eval-pipeline owner: enable either provider only after documented, tested exclusion of every configuration layer. |
+| [v4.11 SEC-1](../../../archives/v4/v4.11/known-gaps.md) | Closed for the eight original alerts: the 2026-09-28 `main` CodeQL run passed and GitHub marked 278-285 `fixed` without dismissal. | Security/release owner: retain the hosted closure record; triage any new alert independently. |
+| [v4.11 QG-2](../../../archives/v4/v4.11/known-gaps.md) | Closed as unmet: each family passed separately, but three simultaneous bounded passes were not established. | Future qualification owner: improve per-family reliability before proposing a new joint gate; do not restamp the old six rounds. |
+| [v4.12 QG-1](../../../archives/v4/v4.12/known-gaps.md) | Accepted GitHub boundary: read-only `refs/pull/*` remain outside writable-ref publication. | Repository owner: request a supported GitHub disposition only if erasing those refs becomes a requirement. |
+| [v4.12 QG-2](../../../archives/v4/v4.12/known-gaps.md) | Open public Code-sidebar discrepancy; the API and Insights evidence do not prove the rendered sidebar is corrected. | Repository owner: use the prepared GitHub Support handoff or obtain a fresh rendered correction; no history rewrite is justified. |
+| [v4.12 DF-1](../../../archives/v4/v4.12/known-gaps.md) | Open dated Antigravity workflow retirement check, due after 2026-11-01. | Antigravity integration owner: verify the vendor date, then retire workflow emission and rerun the platform contract if it has taken effect. |
 
 The v4.4 `RV-1` through `RV-5` visual choices belong to the user-rejected guide composition and are superseded in that ledger; its `QG-446-1` default-host interpreter gate closed in PR #319. v4.5 `WN-2` and v4.7 `WN-1` record surfaced model-effort deviations, not present-tree defects. v4.8 `WN-K` is retained above for hosted-security disposition even though its installer mode is repaired. v4.11 `MT-9` closed for the declared-control method in PR #298 after a complete retained-pilot control census; arbitrary future controls without an inventory remain `unchecked`, not a reopened implementation gap. No source gap is marked resolved merely because it appears in this inventory. The archived unchecked plan boxes below remain evidence requiring case-by-case interpretation, not a second implementation queue.
 
+The v4.9 MT-3 [chart-line paint follow-up](../../../archives/v4/v4.9/development/runtime-deck-all-state-2026-09-27/chart-line-paint-verification.md) checked all 31 settled SVG line paths across 14 real-deck charts at four viewports with invisible-line and null-stroke controls. It narrows internal SVG evidence but does not close MT-3 or change the other-mark, build-budget, static-stage, or figure-map limits in the inventory row.
+
+**Archive relocation, 2026-09-28**: all 12 source ledgers matched the hashes previously recorded below at pre-move `develop` commit `42490dca`. They then moved to `docs/archives/v4/<minor>/known-gaps.md`; relative links inside and into them were repaired without changing any gap status or ID. The hashes below now bind the archived, link-repaired bytes. The pre-move hashes and files remain recoverable from `42490dca`; v4.13 gaps were not transferred or moved.
+
 | Minor | Source ledger | Normalized SHA-256 |
 |---|---|---|
-| v4.0 | [ledger](../v4.0/known-gaps.md) | `63542bc6347a49d5f1ed4d37e0b65966b0578784368db91d794c435998950f0a` |
-| v4.1 | [ledger](../v4.1/known-gaps.md) | `40f451ff14a0efff8e9d339f87787298eca9d07ac2394e34facab7349c30eeab` |
-| v4.2 | [ledger](../v4.2/known-gaps.md) | `fc4e4cff09baa649522c40aab2979a07e66361985a5c84e6b7a8837baeb26fbc` |
-| v4.3 | [ledger](../v4.3/known-gaps.md) | `c8d3d2ad11010111ebddefbc02cb351c5981d503d5c78dfadde24e6ef73f81de` |
-| v4.4 | [ledger](../v4.4/known-gaps.md) | `baddda620e53acd1870df1cc341ee84f61404fc5c3b4d31b6813fb46a26ab4e7` |
-| v4.5 | [ledger](../v4.5/known-gaps.md) | `e793ab381025b760eaa6cf35c41e57749bb73ec6c2828b1369bcccad129ea24c` |
-| v4.7 | [ledger](../v4.7/known-gaps.md) | `52c01a05534b203bf8b2901c24a6b69e6aaa85a75c78140d3371469ef26b6e1d` |
-| v4.8 | [ledger](../v4.8/known-gaps.md) | `0dd85eddc8f04c1e85c2d72357674b627288fb23bdd1a3b9f4f039585c95cab2` |
-| v4.9 | [ledger](../v4.9/known-gaps.md) | `0b8c0971a193263b394d1c23dfc2ffa25369b3b205ce2a10a01fc34870a26a0d` |
-| v4.10 | [ledger](../v4.10/known-gaps.md) | `f8e1d71999b90c0d06499fa6e1517169935ddd27b21d521032886e701ab84f94` |
-| v4.11 | [ledger](../v4.11/known-gaps.md) | `e03f73d0327c193527a53ba50501762522b40e999d9bd483abe092ee9735df9b` |
-| v4.12 | [ledger](../v4.12/known-gaps.md) | `817f31fc03aa2c029112b999c526739245ee735a8cc50d6ae46a026e04ce7abe` |
+| v4.0 | [ledger](../../../archives/v4/v4.0/known-gaps.md) | `c23e5407203ded6534572d4623e3f1eaf79833f64cdbd22d2e6e81206a5d0bef` |
+| v4.1 | [ledger](../../../archives/v4/v4.1/known-gaps.md) | `37ac0efa79e931732ad35c8a457d4505ce037f88a120e37faf34a7d5d2e08479` |
+| v4.2 | [ledger](../../../archives/v4/v4.2/known-gaps.md) | `a4d0a59eda36b082658eba9e487fad2e814e67abfc03ba5cf8e97e5dd895be5c` |
+| v4.3 | [ledger](../../../archives/v4/v4.3/known-gaps.md) | `8e8e0a158dfb393fcfb30a2159a3132ed50828a07d343eb2d89a378456515b93` |
+| v4.4 | [ledger](../../../archives/v4/v4.4/known-gaps.md) | `46a8af3244fcd4c3349882d0300208e2d53c29d5800b955e6b33fdf2f606ed43` |
+| v4.5 | [ledger](../../../archives/v4/v4.5/known-gaps.md) | `ed0ec93219eb703cc90fca65321eaf5263435bebeac4943a6337362c52db87fb` |
+| v4.7 | [ledger](../../../archives/v4/v4.7/known-gaps.md) | `c2784033a6af2f4732dba11faade29f7d15ca2d169f6a680f4ed6919438cb1e9` |
+| v4.8 | [ledger](../../../archives/v4/v4.8/known-gaps.md) | `f7453e6a9ecaa8319bd981de2191c6e1482bc4a744e06cb4ae47855a9973abd0` |
+| v4.9 | [ledger](../../../archives/v4/v4.9/known-gaps.md) | `f146cc02b42123d88e85500511e67cb9058d74c6d76763f4000fc5c40b03edd2` |
+| v4.10 | [ledger](../../../archives/v4/v4.10/known-gaps.md) | `47a5346796ff0bd72ad0e7301ca57a8ae4c15046455fd2267a139e6e2d405c56` |
+| v4.11 | [ledger](../../../archives/v4/v4.11/known-gaps.md) | `a863d4a81ffa7d2611b05629c663c3daade4f1442b3f87e7bfb9c23de351a5cb` |
+| v4.12 | [ledger](../../../archives/v4/v4.12/known-gaps.md) | `b33b58bf6c5083728bd52b0be944f9afef927a0076b2f03d43ebb9a5bf5264c2` |
 
-v4.6.0 was never cut. Its unimplemented plan was retargeted through v4.8.0 and completed as the [v4.9.0 adoption plan](../../../archives/v4/v4.9/plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md); the [v4.8 ledger](../v4.8/known-gaps.md) preserves the retargeting history. There is no v4.6 ledger or plan directory to archive. The v4.13.0 entries above already live in this file. The v4.13.1 through v4.13.4 plans are excluded from this historical transfer and remain active in their own worktrees.
+v4.6.0 was never cut. Its unimplemented plan was retargeted through v4.8.0 and completed as the [v4.9.0 adoption plan](../../../archives/v4/v4.9/plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md); the [v4.8 ledger](../../../archives/v4/v4.8/known-gaps.md) preserves the retargeting history. There is no v4.6 ledger or plan directory to archive. The v4.13.0 entries above already live in this file. v4.13.1 through v4.13.3 are released and excluded from this historical transfer; v4.13.4 remains in flight in a separate worktree.
 
 Two older plans retain unchecked strict task lines for historical reasons. Their boxes are not silently marked complete or imported as new implementation work; the cited evidence supplies their disposition. The normalized plan hashes bind these exceptions to the exact reviewed documents.
 
@@ -329,41 +333,17 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 7 | 0 |
 | Bugs / regressions (BG) | 0 | 9 |
-| Warnings (WN) | 12 | 1 |
+| Warnings (WN) | 7 | 6 |
 | Missing tests / coverage gaps (MT) | 2 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
 ### Open Items
-
-#### WN-1: The approved repository is not bound to the remote a push goes to
-
-**Source phase**: Phase 8 (T017), end-to-end pilot 6. **Plan reference**: [v4.13.2 plan, Phase 8](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: the run record freezes the approved `owner/repo`, and every hosting call is pinned to it with `--repo`, but `git push` goes to whatever `origin` resolves to and the checker never compares the two. In pilot 6 the approval named `acme/demo` while `origin` was a local bare repository; the agent noticed and stopped, but `record block --category approval-not-covered` was refused because a push-merge approval exists, so it had to file the stop as `platform-unavailable` with the mismatch in the evidence. A less careful agent could push to an unapproved remote under a valid approval.
-
-**Owner**: catalog maintainer. **Status**: open. **Suggested next step**: record the approved remote URL alongside `owner/repo` at `record create`, have the checker report an `approval.remote` predicate from `git remote get-url --push origin`, and accept `approval-not-covered` when they differ.
-
-#### WN-2: Codex refuses to load the grandfathered skills whose descriptions exceed 1024 characters
-
-**Source phase**: Phase 8 (T017), Codex pilot 1. **Plan reference**: [v4.13.2 plan, Phase 8](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: Codex CLI 0.136.0 logged `failed to load skill ... invalid description: exceeds maximum length of 1024 characters` for each such skill, so every grandfathered over-long description (`check_agentskills_conformance.py` lists them by name) is silently absent on Codex. The conformance guard grandfathers them as information, not as a failure; the platform enforces the limit.
-
-**Owner**: catalog maintainer. **Status**: open. **Suggested next step**: shorten each grandfathered description to 1024 characters or fewer, keeping its trigger phrases and SKIP clause, then remove the grandfather list so the guard fails on any new over-long description.
 
 #### WN-4: A headless OpenCode run cannot create a run record, so it cannot reach `PLAN COMPLETE`
 
 **Source phase**: Phase 8 (T017), OpenCode pilot 3. **Plan reference**: [v4.13.2 plan, Phase 8, condition C](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: `record create` accepts an approval only from a captured prompt or from `yes` typed on the terminal device, and fails closed otherwise. OpenCode documents no prompt-submit lever (`docs/policy/completion-levers.json`, checked 2026-09-25), and `opencode run` attaches no terminal, so a scripted headless first turn can never be recorded. The plan's condition C assumed it could. The pilot showed the consequence before the runbook rule existed: the agent restated the approvals in a table and pushed, tagged, and released without a record.
 
 **Owner**: catalog maintainer. **Status**: open. **Suggested next step**: measure OpenCode interactively (the user answers `yes` at the terminal), or capture approvals through a documented OpenCode event once one exists; never infer a prompt-submit lever from `message.*` events.
-
-#### WN-5: An unattended Codex run needs setup that Nexus-Hub does not document
-
-**Source phase**: Phase 8 (T017), Codex pilots B4 to B7. **Plan reference**: [v4.13.2 plan, Phase 8](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: three Codex behaviors each stop a full run on a fresh install. Codex skips every hook until the user trusts it through `/hooks` ([learn.chatgpt.com/docs/hooks](https://learn.chatgpt.com/docs/hooks), fetched 2026-09-27), so approval capture and the completion gate do not run; the shipped profile is read-only, so the user must grant writes; and Codex keeps `.git` read-only inside a writable root, so the project's `.git` needs its own write entry (measured with Codex CLI 0.157.1: no commit without it).
-
-**Owner**: catalog maintainer. **Status**: open. **Suggested next step**: document the one-time `/hooks` trust and the per-project write entries (`"<project>" = "write"`, `"<project>/.git" = "write"`) in the Codex section of the platform guide, and have the installer's Codex summary point to it.
-
-#### WN-6: A failed extension build aborts `installer.sh`
-
-**Source phase**: Phase 8 (T017), Codex run in WSL. **Plan reference**: [v4.13.2 plan, Phase 8](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: the usage-monitor build runs `npm install` inside the checkout under `set -euo pipefail`; when npm could not replace a `node_modules` tree built by Windows over `/mnt/c` (`rm: cannot remove node_modules/handlebars`), the whole install exited 1. Seen only with one checkout shared between Windows and WSL, but any build failure has the same effect.
-
-**Owner**: catalog maintainer. **Status**: open. **Suggested next step**: make each extension build fail soft with a warning, as the MCP server venv step now does (BG-4).
 
 #### WN-7: On OpenCode a full run proceeds on in-prompt approvals without a run record
 
@@ -389,12 +369,6 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 
 **Owner**: catalog maintainer. **Status**: open. **Suggested next step**: issue a per-round nonce in the upfront question, require the user's answer to carry the class and nonce, match the whole prompt rather than a line, and refuse a capture the agent's own tool call produced.
 
-#### WN-10: Completion plugins start Python by bare name
-
-**Source phase**: Phase 9 (T024), Tier 3 adversarial pass. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: the OpenCode, OpenClaw, Pi, and Hermes plugins call `spawn("python" | "python3", ...)`, and Node on Windows searches the working directory first, so a `python.exe` planted at the repository root runs at every turn end. The checker and runner now resolve executables from PATH's absolute entries only (fixed in this phase); the plugins do not.
-
-**Owner**: catalog maintainer. **Status**: open. **Suggested next step**: pass the installed interpreter's absolute path into each plugin at install time, or resolve it in the plugin from PATH's absolute entries.
-
 #### WN-11: `run-plan` checks only global settings for an approval bypass
 
 **Source phase**: Phase 9 (T024), Tier 3 adversarial pass. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: `bypass_configured` reads the platform's global config with regular expressions. A committed project `.claude/settings.json` with `defaultMode: bypassPermissions`, a single-quoted `approval_policy = 'never'`, or the Cursor, Copilot, OpenCode, and Kimi rows (no check at all) pass unnoticed.
@@ -411,7 +385,7 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 
 **Source phase**: Phase 9 (T024), Tier 3 adversarial pass. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: three low-severity cases. A pull request opened moments ago may answer `no checks reported on the '<branch>' branch`, which is not in the not-found list and reads as `cannot-verify` (text reasoned from `gh`'s source, not reproduced). A record bound to the same session never expires, so a session resumed weeks later still carries its approvals. A home directory that is itself a git working tree, or a `GIT_DIR` in the environment, makes every record read as tampered.
 
-**Owner**: catalog maintainer. **Status**: open. **Suggested next step**: capture the real `gh pr checks` message on a fresh pull request and add it to the not-found list; expire same-session records after 72 hours; strip `GIT_*` variables and test `git ls-files --error-unmatch` on the record path.
+**Owner**: catalog maintainer. **Status**: open, partially repaired and integrated through [PR #374](https://github.com/bendourthe/Nexus-Hub/pull/374) at `510fd987`; its required checks passed with one expected skip, and [post-merge run 36455108200](https://github.com/bendourthe/Nexus-Hub/actions/runs/36455108200) passed smoke and provenance. Same-session and unspecified-session records older than 72 hours are now ignored, and inherited Git repository selectors no longer misclassify an untracked private record inside a home Git tree; a tracked record still blocks as tampered. The 104 focused checker and runner tests passed, including negative controls for an extra `gh` error and a tracked record. The fresh-PR `no checks reported` text is handled in the checker and stub tests, but the exact stderr remains unverified: `gh pr checks 374` already showed pending jobs immediately after PR creation. **Suggested next step**: capture the live no-checks response on a future newly opened PR and compare it to the guarded pattern before closing this item; keep malformed or additional errors as `cannot-verify`.
 
 #### DF-5: Approval capture is missing on Pi, OpenClaw, Hermes, and Windsurf
 
@@ -462,6 +436,30 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 **Owner**: catalog maintainer, via `[[platform-contract-verification]]`. **Status**: open. **Suggested next step**: verify both config locations against first-party pages, then either write the enablement through the platform's own CLI when it is detected or seed the config key under the platform-defaults do-not-invent rule.
 
 ### Resolved Items
+
+#### WN-1: The approved repository is not bound to the remote a push goes to - RESOLVED 2026-09-28
+
+**Source phase**: Phase 8 (T017), end-to-end pilot 6. **Plan reference**: [v4.13.2 plan, Phase 8](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: the run record freezes the approved `owner/repo`, and every hosting call is pinned to it with `--repo`, but `git push` goes to whatever `origin` resolves to and the checker never compares the two. In pilot 6 the approval named `acme/demo` while `origin` was a local bare repository; the agent noticed and stopped, but `record block --category approval-not-covered` was refused because a push-merge approval exists, so it had to file the stop as `platform-unavailable` with the mismatch in the evidence. A less careful agent could push to an unapproved remote under a valid approval.
+
+**Owner**: catalog maintainer. **Status**: resolved and integrated through [PR #372](https://github.com/bendourthe/Nexus-Hub/pull/372); 24 hosted checks passed with one expected skip, and [post-merge run 36437678274](https://github.com/bendourthe/Nexus-Hub/actions/runs/36437678274) passed smoke and provenance at `1d39f75a`. `record create` now requires exactly one GitHub push URL naming the approved `owner/repo` and signs that URL; the checker reports `approval.remote` from every push URL, so a changed or additional destination blocks completion. The runbook requires the check immediately before every push, and `record block --category approval-not-covered --approval-class push-merge` accepts a remote mismatch. A planted local destination, lookalike host, wrong repository, post-approval URL change, second destination, and signed-field tampering were each exercised; 123 affected tests and the 17-check fast gate passed locally. A direct hosted push-safety replay remains unmeasured.
+
+#### WN-2: Codex refuses to load the grandfathered skills whose descriptions exceed 1024 characters - RESOLVED LOCALLY 2026-09-28
+
+**Source phase**: Phase 8 (T017), Codex pilot 1. **Plan reference**: [v4.13.2 plan, Phase 8](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Original defect**: Codex CLI 0.136.0 logged `failed to load skill ... invalid description: exceeds maximum length of 1024 characters` for the grandfathered over-long descriptions, so those skills were absent on Codex while the conformance guard reported only information. **Resolution**: the twelve descriptions still over the cap were shortened to 250 characters or fewer with trigger phrases and SKIP clauses; the stale thirteenth allowlist name was already under the cap. The allowlist is removed, so every future over-1024 description fails the guard. The real-catalog scan passed for 338 skills with zero grandfathered entries, 11 focused conformance tests passed, strict registry mirrors passed, and the whole-catalog routing gate passed 520 cases with zero failures and zero unallowlisted collisions; the fast profile passed 17/17. [PR #371](https://github.com/bendourthe/Nexus-Hub/pull/371) merged at `3393ed19`, and [post-merge run 36427536393](https://github.com/bendourthe/Nexus-Hub/actions/runs/36427536393) passed. This verifies the file-length cause and routing fixtures, not a new live Codex skill-load session. **Owner**: catalog maintainer. **Status**: resolved and integrated.
+
+#### WN-5: An unattended Codex run needs setup that Nexus-Hub did not document - RESOLVED 2026-09-28
+
+**Source phase**: Phase 8 (T017), Codex pilots B4 to B7. **Plan reference**: [v4.13.2 plan, Phase 8](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Original defect**: a fresh Codex install skips hooks until the user trusts them through `/hooks`, starts read-only, and keeps `.git` read-only even when the project root is writable. **Resolution**: `docs/permissions-setup.md` now states the one-time hook trust and the project and `.git` write entries, while the Codex installer summary points to those steps. Nine focused Codex integration tests and the 17-check fast profile passed. This is a setup-documentation repair; a new live Codex pilot is not claimed. **Owner**: catalog maintainer. **Status**: resolved and integrated through [PR #373](https://github.com/bendourthe/Nexus-Hub/pull/373) at `e0dcdcd3`; the required checks passed with one expected skip, and [post-merge run 36449066391](https://github.com/bendourthe/Nexus-Hub/actions/runs/36449066391) passed smoke and provenance.
+
+#### WN-6: A failed extension build aborts `installer.sh` - RESOLVED 2026-09-28
+
+**Source phase**: Phase 8 (T017), Codex run in WSL. **Plan reference**: [v4.13.2 plan, Phase 8](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Original defect**: under `set -euo pipefail`, an optional usage-monitor `npm install` failure aborted the whole installer; the pilot observed this when a Windows-built `node_modules` tree was shared through `/mnt/c`. **Resolution**: both optional extension builds now warn and continue on install or build failure, while successful builds still install normally. The 23 focused build tests, Bash syntax and ShellCheck checks, installer parity checks, and the 17-check fast profile passed. **Owner**: catalog maintainer. **Status**: resolved and integrated through [PR #373](https://github.com/bendourthe/Nexus-Hub/pull/373) at `e0dcdcd3`; the required checks passed with one expected skip, and [post-merge run 36449066391](https://github.com/bendourthe/Nexus-Hub/actions/runs/36449066391) passed smoke and provenance.
+
+#### WN-10: Completion plugins start Python by bare name - RESOLVED 2026-09-28
+
+**Source phase**: Phase 9 (T024), Tier 3 adversarial pass. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Original defect**: the OpenCode, OpenClaw, and Pi plugins called `spawn("python" | "python3", ...)`, and Node on Windows searched the working directory first, so a planted `python.exe` could run at every turn end. Hermes already used `sys.executable`; the checker and runner already resolved executables from PATH's absolute entries only.
+
+**Owner**: catalog maintainer. **Resolution**: the three TypeScript plugins now pass absolute interpreter paths resolved from absolute PATH entries with `shell: false`. The planted-executable reproduction and all 25 focused plugin tests passed after the fix. [PR #368](https://github.com/bendourthe/Nexus-Hub/pull/368) passed its Linux and Windows test jobs and required checks, merged into `develop` at `ebe2f0d4`, and [post-merge run 36414815780](https://github.com/bendourthe/Nexus-Hub/actions/runs/36414815780) passed smoke and provenance. This closes implicit working-directory search; trust in explicitly configured PATH directories remains a separate environment boundary. The merged worktree and local and remote topic branches were removed.
 
 #### BG-1: Both installers copy `plan_status.py` over the installed `generate_report.py` - RESOLVED 2026-09-27
 
@@ -533,8 +531,8 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 6 | 1 |
-| Bugs / regressions (BG) | 1 | 1 |
+| Deferred (DF) | 7 | 1 |
+| Bugs / regressions (BG) | 0 | 2 |
 | Warnings (WN) | 4 | 2 |
 | Missing tests / coverage gaps (MT) | 1 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
@@ -543,7 +541,7 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 
 #### DF-1 (v4.13.3): Flip the skill-index pointer on by default, and decide todos-on-demand
 
-**Plan reference**: Resolved decisions 1 and 4. **Reason**: the pointer ships opt-in. Flipping it needs organic-selection evidence that skills the model saw in the table are still chosen when it sees only a pointer; the todos-on-demand question needs the same instruction-size evidence. **Evidence**: [`rendered-context-baseline.md`](development/rendered-context-baseline.md) (the index is 81-84% of each rendered file; the pointer removes 99.5% of it). **Owner**: `v4.16.0-instruction-necessity-review`. **Suggested next step**: run the organic-selection comparison once DF-2 exists, then decide the default.
+**Plan reference**: Resolved decisions 1 and 4. **Reason**: the pointer ships opt-in. Flipping it needs organic-selection evidence that skills the model saw in the table are still chosen when it sees only a pointer; the todos-on-demand question needs the same instruction-size evidence. **Evidence**: [`rendered-context-baseline.md`](development/rendered-context-baseline.md) (the index is 81-84% of each rendered file; the pointer removes 99.5% of it). **Owner**: `v4.17.3-adoption-harness-economics-and-portable-engineering-system` (moved from `v4.16.0-instruction-necessity-review` on 2026-09-28: the organic-selection evidence comes from the v4.17.3 pairing evaluator, and the v4.16.0 plan never took the item on; see [`v4.17.3-comparison-harness-economics-delta.md`](../v4.17/comparisons/v4.17.3-comparison-harness-economics-delta.md) D4). **Suggested next step**: run the evaluator's required `NEXUS_HUB_SKILL_INDEX=full` against `pointer` variant pair, recording organic skill selection including guard skills, then decide the default.
 
 #### DF-2 (v4.13.3): Pilot variant mode for instruction-file comparisons
 
@@ -569,9 +567,9 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 
 **Source phase**: Phase 4. **Reason**: `docs/decisions/implemented/tooling/2026-09-24-legacy-instruction-block-removal.md` describes shipped behavior once v4.13.3 is released. The record format requires a rewrite (Decision in present tense, Consequences) and a move, not a Status edit. **Owner**: `/update release` for v4.13.3. **Status**: resolved at the v4.13.3 release: the record moved to `docs/decisions/implemented/tooling/` with a Decision section and a Consequences section, and the capability-usage entry ships in the release notes.
 
-#### BG-8 (v4.13.3): Historical Windows legacy backups retain inherited read access
+#### DF-8 (v4.13.3): Per-agent `omitClaudeMd` for catalog agents
 
-**Source phase**: Phase 4 post-merge security follow-up, 2026-09-26. **Plan reference**: [`v4.13.3-adoption-agent-practice-and-harness-token-efficiency`](plans/v4.13.3-adoption-agent-practice-and-harness-token-efficiency.md), Phase 4 legacy removal. **Reason**: the original backup writer used `os.chmod`, which did not remove inherited Windows access rules. A read-only ACL audit found the existing backup directory and 21 files unprotected, with one other principal granted read access; no backup content or filename was read. [PR #335](https://github.com/bendourthe/Nexus-Hub/pull/335) now fails closed on backup-permission errors and applies owner-only ACLs to new or subsequently touched backups, but it does not sweep untouched historical files. **Owner**: local profile owner. **Suggested next step**: after explicit approval, save the current ACLs for rollback, restrict only the audited directory and 21 files, and verify each ACL by read-back without reading or deleting backup content.
+**Source**: [`v4.17.3-comparison-harness-economics-delta.md`](../v4.17/comparisons/v4.17.3-comparison-harness-economics-delta.md) D5, recorded 2026-09-28. **Reason**: Claude Code 2.1.271 added agent frontmatter `omitClaudeMd`, which lets a subagent run without user, project and local `CLAUDE.md` files (managed policy still loads). Each catalog agent now inherits the full rendered instruction files, measured at about 29k estimated tokens on the maintainer machine. **Owner**: `v4.16.2-adoption-agent-tooling-and-subagent-cost`. **Constraints**: decide agent by agent; exclude `project-standards-reviewer` and any agent that enforces repository conventions; confirm the Gemini and Codex agent loaders ignore an unknown frontmatter key, or emit the key only in the Claude copy. **Suggested next step**: accept a change only with a v4.17.3 pairing receipt showing lower cost at an unchanged pass rate.
 
 #### WN-1 (v4.13.3): An uncooperative writer can race the final hash check
 
@@ -607,8 +605,47 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 |---|---|---|---|
 | WN-3 | `context-manager` frontmatter advertised delegated concerns | v4.13.3 metadata follow-up | Description, summary, overview, index, registry, and OpenAI wrapper now advertise file relationships and change-impact mapping; strict registry, whole-catalog routing, and 106 validator tests pass. |
 | WN-4 | Legacy-candidate diff files accumulated across file states | v4.13.3 diff-retention follow-up | A resolved-path hash scopes each diff filename. A successful report retains every current span and prunes only that file's prior states, including after consented removal; a failed write preserves prior reports. Pre-change consent-only filenames have no safe owner mapping and are left untouched. The current local profile had no historical `legacy-candidates` directory. |
+| BG-8 | Historical Windows legacy backups retained inherited read access | 2026-09-28 local ACL read-back | Phase 4 post-merge follow-up to the [v4.13.3 plan](plans/v4.13.3-adoption-agent-practice-and-harness-token-efficiency.md). The 2026-09-26 audit found the directory and 21 files readable by another principal; [PR #335](https://github.com/bendourthe/Nexus-Hub/pull/335) secured new backups but did not sweep historical ones. After the user's approval for a targeted repair, a fresh read-only audit of `~/.nexus-hub/state/backups/` found the directory and all 53 current files owned by the user's account, with no allow rule except `OWNER RIGHTS` (SID `S-1-3-4`); 18 inherited rules were also owner-only. Because the full current set already meets the requested ACL boundary, no ACL was changed, no rollback export was needed, and no backup contents were read. This proves the current host state, not when or how it changed. |
 | BG-9 | Legacy-candidate diffs could inherit Windows read access | v4.13.3 diff-retention follow-up | The diff directory and staged file now require owner-only permissions before atomic publication; ACL failure yields no report. Windows ACL read-back and failure-path tests pass. |
 
 ### Reconciliation across other registers (2026-09-25)
 
 All 45 `docs/**/known-gaps.md` files were searched for open items in the areas this plan changed (session hooks, the skill index, legacy or duplicated instruction blocks, instruction-merge behavior, CRLF handling). None is closed by v4.13.3; the only instruction-merge item found, v3.15 WN-3, was already resolved in v3.15. Every other open item stays with its existing owner, unchanged by this plan.
+
+## v4.13.4
+
+Gaps from the Training rebuild ([`v4.13.4-guide-training-rebuild`](plans/v4.13.4-guide-training-rebuild.md)). Both open items were found by the final-phase visual sweep and reproduce unchanged on the pre-rebuild guide, so neither is a regression; evidence is in [`v4.13.4-last-phase-evidence.md`](development/v4.13.4-last-phase-evidence.md).
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 6 |
+| Warnings (WN) | 2 | 1 |
+| Missing tests / coverage gaps (MT) | 0 | 1 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+#### WN-1 (v4.13.4): The header navigation overflows under the matrix's 200% CSS zoom at 1280x720
+
+**Evidence**: `tests/guides/tools/browser_matrix.py --groups zoom` fails four cases (`zoom200-describe-review-*` and `zoom200-presentify-*` at 1280x720) on `horizontalOverflow` alone, with no page error, missing region, or overlap. The overflowing elements are `#navLinks` and `#themeToggle` (document `scrollWidth` 1324 against a 1280 viewport). The pre-rebuild guide on `develop` measures the same 1324 with 28 overflowing elements instead of 6, and a real 640x720 viewport, which is what 200% of 1280 represents, has no overflow on either revision. **Reason**: `document.documentElement.style.zoom` does not change the width that CSS media queries see, so the header never switches to its narrow layout under this emulation; native browser zoom does change that width but is not measured here. **Owner**: guide owner, together with the open [v4.4 MT-446-2](../../../archives/v4/v4.4/known-gaps.md) native-zoom item. **Suggested next step**: measure native 200% zoom on a real browser; if the header overflows there, collapse it by container width rather than viewport width, otherwise change the matrix's zoom cases to emulate native zoom.
+
+#### WN-2 (v4.13.4): An idle game labels its toggle "Pause game"
+
+**Evidence**: before a game starts, its primary control reads "Pause game" while the HUD state reads `idle` (1440 px and 420 px section captures). `syncHud` derives the label only from the manual and pointer pause reasons, and the v4.4.x baseline uses the same expression. **Owner**: guide owner. **Suggested next step**: label the idle control from the lifecycle ("Start game" when idle, "Pause game" while running, "Resume game" when paused) and assert all three labels in `tests/guides/test_arcade_shooter_game.py`.
+
+### Resolved Items
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+| BG-1 | The no-canvas fallback described every game as buggy | Phase 7 | The fallback text is rebuilt from each instance's damage and movement settings whenever they change; a browser test forces canvas unavailability on all three games. |
+| BG-2 | Clicking the current section link scrolled to the page top | Phase 7 | A same-hash click or keypress calls the section router instead of the page-top routine; regression-tested. |
+| BG-3 | Without `IntersectionObserver`, a game started through the API kept running on a hidden page | Phase 7 | A `page-hidden` pause reason follows Training page visibility independently of viewport observation; the tick is asserted to stop after navigating away. |
+| BG-4 | Long commands were clipped against the Run button at desktop width | Phase 7 | Training command text wraps at every width. |
+| BG-5 | The retained browser matrix clicked the removed presentation control and used an ambiguous game selector | Phase 8 | Its Training groups now target the seven section routes, section-scoped geometry, and the `buggy` instance; `tests/guides/test_v4134_browser_matrix.py` guards the mapping. |
+| BG-6 | Seven browser tests failed on a runner without Playwright | Phase 8, PR #382 | The first hosted `tests` job (Linux, no Playwright) failed seven v4.13.4 tests that imported Playwright directly instead of skipping like their module fixtures. Reproduced locally by hiding Playwright; each module now routes its fixture and standalone tests through one `_sync_playwright()` helper, which skips, or fails under `NEXUS_REQUIRE_RENDER=1`. |
+| WN-3 | An agent could not select the `/review` simulation through `window.NexusTraining` | Phase 7 | `selectAction(sectionId, commandOrIndex)` shares the button path and is documented in `guides/website/README.md`. |
+| MT-1 | The browser flow stopped after `/review`, and section headings could drift from the scene source | Phase 7 | A browser test runs every later command and asserts section output and cumulative files; a parity test binds each `h2` to its scene record. |

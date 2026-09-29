@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: finalized
-**Last updated**: 2026-08-24
+**Last updated**: 2026-09-28
 
 ## v3.20.3
 
@@ -130,7 +130,7 @@ None. Existing `ci.yml` already classifies non-docs paths as relevant (so `catal
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 5 | 0 |
 | Bugs / regressions (BG) | 0 | 1 |
-| Warnings (WN) | 2 | 0 |
+| Warnings (WN) | 1 | 1 |
 | Missing tests / coverage gaps (MT) | 1 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
@@ -183,13 +183,6 @@ None open. The version-directory lexical-sort defect is resolved below.
 
 #### Warnings
 
-##### WN-1 - Thirteen SKILL.md descriptions exceed the agentskills.io 1024-character cap
-
-- **Source phase**: Phase 1 - Framework and conformance tooling
-- **Plan reference**: `docs/v3/v3.20/plans/v3.20.1-adoption-cybersecurity-skills.md` (sub-task 1.3)
-- **Reason**: Nexus-Hub's pushy-description convention (verbatim trigger phrases plus a SKIP clause) predates the conformance guard. Enforcing 1024 as a hard error on the current catalog would fail `make validate` on 13 existing skills, contradicting the phase acceptance criterion that the guard exits 0 on the current catalog. Those names are grandfathered in `OVERLONG_DESCRIPTION_ALLOWLIST`; a new over-long description is still a hard error.
-- **Suggested next step**: Trim the 13 descriptions under 1024 characters (without dropping trigger phrases or SKIP clauses), then remove each name from the allowlist.
-
 ##### WN-2 - Sixty-five SKILL.md bodies still exceed the 500-line warning tier
 
 - **Source phase**: Phase 3 - Size-norm remediation; recounted Phase 5
@@ -211,6 +204,13 @@ None open. The version-directory lexical-sort defect is resolved below.
 None. This release introduces no new opt-in capability, installer flag, or host surface.
 
 ### Resolved
+
+##### WN-1 - Thirteen SKILL.md descriptions exceed the agentskills.io 1024-character cap
+
+- **Source phase**: Phase 1 - Framework and conformance tooling
+- **Plan reference**: `docs/v3/v3.20/plans/v3.20.1-adoption-cybersecurity-skills.md` (sub-task 1.3)
+- **Original reason**: Nexus-Hub's pushy-description convention (verbatim trigger phrases plus a SKIP clause) predated the conformance guard. Enforcing 1024 as a hard error on that catalog would have failed `make validate` on 13 existing skills, so their names were grandfathered in `OVERLONG_DESCRIPTION_ALLOWLIST` while new over-long descriptions remained errors.
+- **Resolution, 2026-09-28**: Twelve descriptions remained over the cap before the v4.13.2 WN-2 repair; the thirteenth allowlist entry had already been shortened. All twelve are now at most 250 characters, the allowlist is removed, and `check_agentskills_conformance.py --json` reports 338 scanned, zero failures, and zero grandfathered descriptions. The whole-catalog routing gate passed 520 cases, and the fast profile passed 17/17. Protected integration and a live Codex load remain separate verification boundaries; see v4.13.2 WN-2.
 
 ##### BG-1 - Comparison skill walked version directories in lexical order
 

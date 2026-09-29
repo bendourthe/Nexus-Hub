@@ -1311,8 +1311,8 @@ def test_no_unexpected_persistent_overlays(guide_text: str) -> None:
     made the page unreadable.
     """
     css = guide_text.split("<style>", 1)[-1].split("</style>", 1)[0]
-    allowed_fixed = {"#constellation", ".nht.is-present"}
-    allowed_sticky = {".site-header", ".nht.is-present .nht-bar", ".cx-preview-bar"}
+    allowed_fixed = {"#constellation"}
+    allowed_sticky = {".site-header", ".cx-preview-bar"}
     for prop, allowed in (("fixed", allowed_fixed), ("sticky", allowed_sticky)):
         for match in re.finditer(r"([^{}]+)\{[^}]*position:\s*" + prop, css):
             selector = match.group(1).strip().splitlines()[-1].strip().rstrip(",")
@@ -1334,28 +1334,17 @@ def test_training_scenes_are_data_driven_json(parsed: GuideParser) -> None:
     assert parsed.json_script_contents, "expected application/json scene block"
 
 
-def test_every_scene_exposes_gate_and_next_scene(parsed: GuideParser) -> None:
+def test_training_sections_and_actions_cover_the_command_loop(parsed: GuideParser) -> None:
     assert parsed.json_script_contents
     data = json.loads(parsed.json_script_contents[0])
-    scenes = data["scenes"] if isinstance(data, dict) and "scenes" in data else data
-    ids = []
-    for scene in scenes:
-        ids.append(scene["id"])
-        assert "gate" in scene
-    required = [
-        "describe",
-        "review",
-        "plan",
-        "implement",
-        "compare",
-        "test",
-        "update",
-        "presentify",
+    sections = data["scenes"]
+    assert [section["id"] for section in sections] == [
+        "game", "describe-review", "plan", "implement", "fixed-game", "compare", "presentify"
     ]
-    for rid in required:
-        assert rid in ids
-    assert len(ids) == 8
-    assert len(ids) <= 12
+    assert [len(section["actions"]) for section in sections] == [0, 2, 1, 1, 0, 1, 1]
+    commands = [action["command"].split()[0] for section in sections for action in section["actions"]]
+    assert commands == ["/describe", "/review", "/plan", "/implement", "/compare", "/presentify"]
+    assert all(action["gate"]["status"] == "pass" for section in sections for action in section["actions"])
 
 
 def test_script_close_in_test_local_fixture_does_not_break_document() -> None:
@@ -1401,79 +1390,69 @@ def test_training_scene_schema_is_strict_and_cumulative(parsed: GuideParser) -> 
 
     current = {item["path"]: item["content"] for item in initial_files}
     seen_actions: set[str] = set()
-    for scene in data["scenes"]:
-        assert set(scene) == {
-            "id",
-            "stage",
-            "title",
-            "intent",
-            "command",
-            "tools",
-            "output",
-            "game",
-            "files",
-            "focus_file",
-            "artifact",
-            "gate",
-            "takeaway",
-        }
-        assert re.search(r"\byou\b", scene["intent"], re.IGNORECASE)
-        assert scene["command"].startswith(f"/{scene['id']}")
-        assert scene["tools"] and all(
-            set(tool) == {"name", "purpose"} and all(tool.values())
-            for tool in scene["tools"]
-        )
-        assert scene["output"] and all(
-            isinstance(line, str) and line.strip() for line in scene["output"]
-        )
-        assert set(scene["game"]) == {
-            "damageMode",
-            "verticalMovementEnabled",
-            "fixture",
-        }
-        assert scene["game"]["damageMode"] in {"buggy", "fixed"}
-        assert isinstance(scene["game"]["verticalMovementEnabled"], bool)
-        assert scene["game"]["fixture"] in {"enemy-hit", "asteroid-hit", "play"}
-        assert scene["files"]
-        for file_change in scene["files"]:
-            assert set(file_change) >= {"path", "action", "language", "content"}
-            action = file_change["action"]
-            path = file_change["path"]
-            seen_actions.add(action)
-            assert action in {"create", "modify"}
-            assert file_change["content"].strip(), f"{path} needs real file content"
-            if action == "create":
-                assert path not in current, f"{path} cannot be created twice"
-            else:
-                assert path in current, f"{path} must exist before it is modified"
-                assert current[path] != file_change["content"], (
-                    f"{path} modify action must change its content"
-                )
-            current[path] = file_change["content"]
-        assert scene["focus_file"] in current
-        assert set(scene["artifact"]) == {"path", "summary"}
-        assert set(scene["gate"]) == {"name", "status", "prompt"}
-        assert scene["gate"]["status"] == "pass"
-        assert scene["takeaway"].strip()
+    for section in data["scenes"]:
+        assert {"id", "heading", "intent", "actions", "takeaway"} <= set(section)
+        assert set(section) <= {"id", "heading", "intent", "actions", "takeaway", "game", "phases", "finalPhase"}
+        assert section["heading"].strip() and section["intent"].strip() and section["takeaway"].strip()
+        assert "stage" not in section
+        if "game" in section:
+            assert set(section["game"]) == {"damageMode", "verticalMovementEnabled", "fixture"}
+            assert section["game"]["damageMode"] in {"buggy", "fixed"}
+            assert isinstance(section["game"]["verticalMovementEnabled"], bool)
+            assert section["game"]["fixture"] in {"enemy-hit", "asteroid-hit", "play"}
+        for action_record in section["actions"]:
+            assert set(action_record) == {"command", "tools", "output", "files", "focus_file", "artifact", "gate"}
+            assert action_record["command"].startswith("/")
+            assert action_record["tools"] and all(set(tool) == {"name", "purpose"} and all(tool.values()) for tool in action_record["tools"])
+            assert action_record["output"] and all(isinstance(line, str) and line.strip() for line in action_record["output"])
+            assert set(action_record["artifact"]) == {"path", "summary"}
+            assert set(action_record["gate"]) == {"name", "status", "prompt"}
+            assert action_record["gate"]["status"] == "pass"
+            for file_change in action_record["files"]:
+                assert set(file_change) >= {"path", "action", "language", "content"}
+                change = file_change["action"]
+                path = file_change["path"]
+                seen_actions.add(change)
+                assert change in {"create", "modify"}
+                assert file_change["content"].strip(), f"{path} needs real file content"
+                if change == "create":
+                    assert path not in current, f"{path} cannot be created twice"
+                else:
+                    assert path in current, f"{path} must exist before it is modified"
+                    assert current[path] != file_change["content"], f"{path} modify action must change its content"
+                current[path] = file_change["content"]
+            assert action_record["focus_file"] in current
+        if "finalPhase" in section:
+            assert section["id"] == "implement"
+            assert [beat["name"] for beat in section["finalPhase"]["beats"]] == [
+                "Automatic review", "Known-gaps reconciliation", "Tests to green", "Update release"
+            ]
+            for file_change in section["finalPhase"]["files"]:
+                assert file_change["path"] not in current or file_change["action"] == "modify"
+                current[file_change["path"]] = file_change["content"]
+        if "phases" in section:
+            assert section["id"] == "plan"
+            assert all(set(phase) == {"name", "tier", "effort", "summary"} for phase in section["phases"])
     assert seen_actions == {"create", "modify"}
 
 
 def test_training_game_state_changes_at_implement_and_compare(parsed: GuideParser) -> None:
     scenes = json.loads(parsed.json_script_contents[0])["scenes"]
-    states = {scene["id"]: scene["game"] for scene in scenes}
-    for scene_id in ("describe", "review", "plan"):
-        assert states[scene_id]["damageMode"] == "buggy"
-        assert states[scene_id]["verticalMovementEnabled"] is False
-    assert states["implement"] == {
+    states = {scene["id"]: scene["game"] for scene in scenes if "game" in scene}
+    assert states["game"] == {
+        "damageMode": "buggy",
+        "verticalMovementEnabled": False,
+        "fixture": "enemy-hit",
+    }
+    assert states["fixed-game"] == {
         "damageMode": "fixed",
         "verticalMovementEnabled": False,
         "fixture": "enemy-hit",
     }
-    for scene_id in ("compare", "test", "update", "presentify"):
-        assert states[scene_id]["damageMode"] == "fixed"
-        assert states[scene_id]["verticalMovementEnabled"] is True
+    assert states["compare"]["damageMode"] == "fixed"
+    assert states["compare"]["verticalMovementEnabled"] is True
     compare = next(scene for scene in scenes if scene["id"] == "compare")
-    assert any("Follow-on /plan and /implement" in line for line in compare["output"])
+    assert any("Follow-on /plan and /implement" in line for line in compare["actions"][0]["output"])
 
 
 def _training_engine(guide_text: str) -> str:
@@ -1528,8 +1507,8 @@ def test_training_runtime_exposes_deterministic_state_contract(guide_text: str) 
         assert member in engine
     assert "Object.freeze" in engine
     assert "parsed.initial" in engine
-    assert "projectStateThrough" in engine
-    assert "appliedThrough" in engine
+    assert "projectFilesFor" in engine
+    assert "completedKey" in engine
     assert "scene.booth" not in engine
     assert "scene.editor" not in engine
     assert "config.preset" not in engine
@@ -1546,74 +1525,48 @@ def test_training_engine_uses_shooter_damage_contract(guide_text: str) -> None:
         assert retired not in engine, retired + " belongs to the retired Asteroids engine"
 
 
-def test_training_has_game_terminal_and_present_mode(guide_text: str) -> None:
+def test_training_has_three_games_scoped_widgets_and_jump_links(guide_text: str) -> None:
     training = guide_text.split('id="page-training"', 1)[-1].split('id="page-cheatsheets"', 1)[0]
-    assert "data-arcade-game" in training
+    assert training.count("data-arcade-game") == 3
     assert 'data-nht="terminal"' in training
     assert 'data-nht="run"' in training
-    assert 'id="nhtPresent"' in training
-    assert 'data-nht="outline"' in training
+    assert 'aria-label="Training sections"' in training
+    assert 'data-nht-section="describe-review"' in training
+    assert 'id="nhtPresent"' not in training
+
+
+def test_training_action_choices_have_current_state(guide_text: str) -> None:
     engine = _training_engine(guide_text)
-    assert "requestFullscreen" in engine
-    assert "is-present" in engine, "overlay fallback class for denied fullscreen"
-    assert "fullscreenchange" in engine
+    assert 'setAttribute("data-nht-action-index"' in engine
+    assert 'setAttribute("aria-current"' in engine
+    assert 'button.textContent = action.command' in engine
 
 
-def test_training_progress_names_the_loop_stage(guide_text: str) -> None:
-    """v4.2.3: eight anonymous bars became named, current-marked stages."""
-    engine = _training_engine(guide_text)
-    assert "nht-seg" in engine, "progress segments are built per stage"
-    assert 'setAttribute("aria-current", "step")' in engine
-    assert 'seg.setAttribute("aria-label"' in engine, "each segment names its stage"
-    assert ".nht-seg.is-now" in guide_text and ".nht-seg.is-done" in guide_text
-
-
-def test_training_position_is_plain_language(guide_text: str) -> None:
-    """'step 2 / 8 . beat 1 / 2' meant nothing to most readers."""
-    engine = _training_engine(guide_text)
-    assert '" of " + SCENES.length' in engine, "position reads as 'N of 8'"
-    where_assignment = re.search(
-        r"els\.where\.textContent\s*=\s*([\s\S]*?);",
-        engine,
-    )
-    assert where_assignment, "expected the Training position-label assignment"
-    assert "beat" not in where_assignment.group(1).lower()
+def test_training_position_uses_plain_section_names(guide_text: str) -> None:
     training = guide_text.split('id="page-training"', 1)[-1].split(
         'id="page-cheatsheets"', 1
     )[0]
-    assert 'data-nht="where"' in training
-    assert "beat" not in re.sub(r"<[^>]+>", " ", training).lower(), (
-        "the internal beat vocabulary must not surface in the UI"
-    )
-    # the URL grammar is a compatibility contract and keeps beats
-    assert "beat=" in guide_text
+    assert 'aria-label="Training sections"' in training
+    assert training.count('data-nht-section=') == 7
+    assert 'data-nht="where"' not in training
 
 
-def test_training_controls_are_bottom_right_icons(guide_text: str) -> None:
+def test_training_sections_have_local_action_controls(guide_text: str) -> None:
     training = guide_text.split('id="page-training"', 1)[-1].split(
         'id="page-cheatsheets"', 1
     )[0]
-    controls = re.search(r'<div class="nht-controls">([\s\S]*?)</div>', training)
-    assert controls, "expected the control cluster"
-    for action in ("prev", "next", "restart"):
-        btn = re.search(
-            r'<button[^>]*data-nht="' + action + r'"[^>]*>', controls.group(1)
-        )
-        assert btn, f"missing {action} control"
-        assert "aria-label=" in btn.group(0), f"{action} icon needs an accessible name"
-    assert training.index('class="nht-takeaway"') < training.index('class="nht-controls"'), (
-        "controls sit after the takeaway, at the bottom of the slide"
-    )
-    rule = re.search(r"\.nht-controls \{([^}]+)\}", guide_text)
-    assert rule and "flex-end" in rule.group(1), "cluster is right-aligned"
+    assert 'data-nht-action-list' in training
+    assert 'data-nht-action-panel' in training
+    assert 'data-nht="run"' in training
+    for retired in ('data-nht="prev"', 'data-nht="next"', 'data-nht="restart"'):
+        assert retired not in training
 
 
-def test_present_mode_fills_the_viewport(guide_text: str) -> None:
-    block = guide_text.split("/* Full-screen slide mode (v4.4.1 Phase 6)", 1)[-1].split("@media", 1)[0]
-    assert ".nht.is-present .nht-slide" in block
-    assert "flex: 1 1 auto" in block, "the slide grows to consume the height"
-    assert ".nht.is-present .nht-grid" in block
-    assert "overflow-y: auto" in block, "the terminal keeps the one bounded secondary scroll"
+def test_training_sections_keep_fluid_game_stages(guide_text: str) -> None:
+    css = guide_text.split("<style>", 1)[-1].split("</style>", 1)[0]
+    assert ".nht-section" in css
+    assert "aspect-ratio:8 / 5" in css
+    assert ".nht.is-present" not in css
 
 
 def test_no_hardcoded_text_width_caps_remain(guide_text: str) -> None:
@@ -1621,22 +1574,20 @@ def test_no_hardcoded_text_width_caps_remain(guide_text: str) -> None:
     css = guide_text.split("<style>", 1)[-1].split("</style>", 1)[0]
     # Only declarations, never `@media (max-width: ...)` breakpoints.
     caps = re.findall(r"(?<!\()max-width:\s*(\d+)(ch|px)", css)
-    allowed_px = {"1600"}  # present-mode stage bound, not a body-copy cap
+    allowed_px = {"1600", "700"}  # the Training section's fluid card bound is not a body-copy cap
     offenders = [
         f"{v}{u}" for v, u in caps if u == "ch" or (u == "px" and v not in allowed_px)
     ]
     assert not offenders, f"hardcoded text width caps remain: {offenders}"
 
 
-def test_training_deep_link_clamps_unknown_scene_and_ignores_legacy_beat(
+def test_training_deep_link_clamps_unknown_section_and_maps_legacy_routes(
     guide_text: str,
 ) -> None:
     engine = _training_engine(guide_text)
-    sync = engine.split("syncFromHash", 1)[-1]
-    assert "if (idx < 0) idx = step;" in sync, "unknown scene id must clamp"
-    assert re.search(r"syncFromHash:\s*function\s*\(sceneId\)", engine)
-    assert "beatIndex" not in sync, "legacy beat values no longer control scene state"
-    assert r"(?:\?beat=([^&]+))?" in engine, "old deep links remain parse-compatible"
+    assert 'var aliases = { describe: "describe-review", review: "describe-review", test: "implement", update: "implement" }' in engine
+    assert 'return 0;' in engine.split("function sectionIndex", 1)[1].split("function goTo", 1)[0]
+    assert "beatIndex" not in engine.split("function sectionIndex", 1)[1]
 
 
 # ---------------------------------------------------------------------------

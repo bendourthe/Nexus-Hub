@@ -47,7 +47,7 @@ orphans: 0 | after allowlist: 0
 Every `docs/**/known-gaps.md` was enumerated with its Status line. Exactly one is open:
 
 ```
-docs/releases/v4/v4.0/known-gaps.md                  in-progress
+docs/archives/v4/v4.0/known-gaps.md                  in-progress
 ```
 
 All 28 others read `finalized` or carry a closed per-cycle summary; per the note already in the v4.0 file, an older file whose Status is not literally `finalized` is a historical record of its own cycle, not a live queue.
