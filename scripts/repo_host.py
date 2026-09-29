@@ -107,20 +107,21 @@ def _default_runner(budget: Budget | None) -> Runner:
 
 
 def accepted_hosts() -> set[str]:
-    """`github.com`, plus the host part of `GH_HOST` when it is set."""
-    hosts = {"github.com"}
+    """The one host `gh --repo owner/repo` queries: `GH_HOST` when set, else `github.com`.
+
+    Accepting any other host would pin hosting calls to a same-named repository on a
+    different server from the one the remote pushes to.
+    """
     configured = os.environ.get("GH_HOST", "").strip().lower()
-    if configured:
-        configured = re.sub(r"^https?://", "", configured).split("/", 1)[0].split(":", 1)[0]
-        if configured:
-            hosts.add(configured)
-    return hosts
+    configured = re.sub(r"^https?://", "", configured).split("/", 1)[0].split(":", 1)[0]
+    return {configured} if configured else {"github.com"}
 
 
 def parse_remote(url: str) -> tuple[str, str, bool] | None:
     """(host, owner/repo, via_ssh) for a recognized remote URL, else None."""
     url = url.strip()
-    if not url or any(c.isspace() for c in url):
+    # `#`, `?`, and `\` end or confuse an authority, so a regex would read a host git never contacts.
+    if not url or any(c.isspace() for c in url) or any(c in url for c in "#?\\"):
         return None
     for pattern, via_ssh in ((HTTPS_RE, False), (SSH_URL_RE, True)):
         match = pattern.match(url)
@@ -130,7 +131,8 @@ def parse_remote(url: str) -> tuple[str, str, bool] | None:
         if "://" in url:
             return None
         match, via_ssh = SCP_RE.match(url), True
-        if not match:
+        # git reads `C:owner/repo` as a drive-relative local path on Windows, never as ssh host `c`.
+        if not match or len(match.group("host")) == 1:
             return None
     path = REPO_PATH_RE.match(match.group("path"))
     if not path:
@@ -144,11 +146,14 @@ def _ssh_hostname(alias: str, ssh: str, run: Runner) -> str | None:
     rc, out = run([ssh, "-G", alias], None)
     if rc != 0:
         return None
+    settings: dict[str, str] = {}
     for line in out.splitlines():
         key, _, value = line.strip().partition(" ")
-        if key.lower() == "hostname" and value.strip():
-            return value.strip().lower()
-    return None
+        settings.setdefault(key.lower(), value.strip())
+    # A proxy decides where the connection really goes, whatever `hostname` says.
+    if any(settings.get(key, "none").lower() != "none" for key in ("proxycommand", "proxyjump")):
+        return None
+    return settings.get("hostname", "").lower() or None
 
 
 def repo_from_url(

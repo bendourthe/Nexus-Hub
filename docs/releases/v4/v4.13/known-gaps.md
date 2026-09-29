@@ -332,7 +332,7 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 7 | 0 |
-| Bugs / regressions (BG) | 0 | 9 |
+| Bugs / regressions (BG) | 0 | 10 |
 | Warnings (WN) | 7 | 6 |
 | Missing tests / coverage gaps (MT) | 2 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
@@ -522,6 +522,10 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 **Owner**: catalog maintainer. **Status**: resolved: the adapters pass raw bytes (with the guard hooks' `[Console]::In` fallback) and close the raw stream, the core strips `\ufeff`, and Python is resolved as the guard hooks do. `test_ps1_hooks_work_under_a_utf8_console_input_encoding` fails on the previous adapters and passes now.
 
 
+#### BG-10: The completion checker could not resolve an SSH-alias remote - RESOLVED 2026-09-28
+
+**Source**: the v4.13.1-v4.13.3 release on 2026-09-28. **Reason**: `check_plan_completion.py` parsed `owner/repo` with a regex that accepted only a host literally named `github.com`. This repository's origin is `git@github-bendourthe:bendourthe/Nexus-Hub.git`, so the default repository was empty and `integration.merged`, `integration.checks`, and `release.github` were `cannot-verify` on every shipped plan; a full run could not reach `PLAN COMPLETE` here. **Resolution**: [v4.13.5](plans/v4.13.5-completion-checker-remote-resolution.md) adds `scripts/repo_host.py`, which accepts a path only from `github.com` or `GH_HOST`, resolves an SSH alias through `ssh -G`, and cross-checks `gh repo view` when no run record exists. On this plan the fixed checker reports every integration, release, and cleanup predicate `met`, which closed T029.
+
 ## v4.13.3
 
 Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.13.3-adoption-agent-practice-and-harness-token-efficiency`](plans/v4.13.3-adoption-agent-practice-and-harness-token-efficiency.md)). Items DF-1 to DF-5 are the plan's own parked handoffs; the rest were found while implementing it.
@@ -649,3 +653,41 @@ Gaps from the Training rebuild ([`v4.13.4-guide-training-rebuild`](plans/v4.13.4
 | BG-6 | Seven browser tests failed on a runner without Playwright | Phase 8, PR #382 | The first hosted `tests` job (Linux, no Playwright) failed seven v4.13.4 tests that imported Playwright directly instead of skipping like their module fixtures. Reproduced locally by hiding Playwright; each module now routes its fixture and standalone tests through one `_sync_playwright()` helper, which skips, or fails under `NEXUS_REQUIRE_RENDER=1`. |
 | WN-3 | An agent could not select the `/review` simulation through `window.NexusTraining` | Phase 7 | `selectAction(sectionId, commandOrIndex)` shares the button path and is documented in `guides/website/README.md`. |
 | MT-1 | The browser flow stopped after `/review`, and section headings could drift from the scene source | Phase 7 | A browser test runs every later command and asserts section output and cumulative files; a parity test binds each `h2` to its scene record. |
+
+## v4.13.5
+
+Gaps from the completion-checker remote-resolution fix ([`v4.13.5-completion-checker-remote-resolution`](plans/v4.13.5-completion-checker-remote-resolution.md)); evidence is in [`v4.13.5-last-phase-evidence.md`](development/v4.13.5-last-phase-evidence.md).
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 4 |
+| Warnings (WN) | 3 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+#### WN-1 (v4.13.5): A stray scratch script has shipped at the repository root since v4.11.2
+
+**Evidence**: `scratch_p6cmd.py` sits at the repository root; it was added by `adaa1f85` and is not referenced by any installer, test, or document. **Reason**: this plan's scope is the checker; removing a tracked file shipped for several releases is a separate, reviewable change. **Owner**: catalog maintainer. **Suggested next step**: confirm nothing reads it, then delete it in a cleanup change with a CHANGELOG `Removed` note.
+
+#### WN-2 (v4.13.5): Git transport overrides can redirect a push the checker verified
+
+**Evidence**: the final-phase adversarial review showed that `core.sshCommand`, `GIT_SSH`, `GIT_SSH_COMMAND`, a `Host github.com` override in `~/.ssh/config`, `http.curloptResolve`, or a proxy setting can send a push somewhere other than the host `repo_host.py` verified, while `approval.remote` stays `met` because the push URL string is unchanged. `repo_host.py` also resolves an alias with the `ssh` it finds on PATH, which may differ from the one git runs (on Windows, Git's bundled ssh can read a different config). This predates v4.13.5; the removed regex had the same gap for a literal github.com remote. **Owner**: [v4.13.6](plans/v4.13.6-minor-scope-implement-and-verified-cleanup.md), which hardens the approval boundary. **Suggested next step**: treat any of these overrides as `cannot-verify` for `approval.remote`, and resolve SSH hosts with the same command git will run.
+
+#### WN-3 (v4.13.5): `approval.remote` checks origin while a push can use another remote
+
+**Evidence**: `remote.pushDefault` or `branch.<name>.pushRemote` makes a plain `git push` go to a remote other than origin, while the checker reads only origin's push URL. Pre-existing since v4.13.2 WN-1. **Owner**: [v4.13.6](plans/v4.13.6-minor-scope-implement-and-verified-cleanup.md). **Suggested next step**: resolve the effective push remote for the source branch and require it to be origin.
+
+### Resolved Items
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+| BG-1 | An authority trick could read as a GitHub host | Phase 2 | The final-phase adversarial probe found that `https://evil.com#@github.com/acme/demo` parsed as host `github.com`, although git ends the authority at `#`. `parse_remote` now rejects any remote containing `#`, `?`, or a backslash; four regression cases cover the `#`, `?`, backslash, and `ssh://` forms. |
+| BG-2 | A Windows drive-relative path read as an SSH host | Phase 2 | git treats `C:owner/repo` as a local directory on Windows, but the parser read host `c`; one `Host c` entry mapping to github.com would have shown `approval.remote met` for a push to a local folder. Single-letter scp hosts are now rejected on every OS. |
+| BG-3 | An SSH alias routed through a proxy counted as verified | Phase 2 | Only the `hostname` line of `ssh -G` was read, so a `ProxyCommand` or `ProxyJump` to another server passed. Either setting other than `none` now leaves the alias unverified. |
+| BG-4 | With `GH_HOST` set, a github.com remote was checked against the enterprise host | Phase 2 | Both `github.com` and `GH_HOST` were accepted, but `gh --repo owner/repo` queries only one of them. The accepted host is now exactly the one `gh` queries: `GH_HOST` when set, otherwise `github.com`. |

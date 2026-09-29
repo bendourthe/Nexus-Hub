@@ -67,10 +67,36 @@ def test_parse_remote_accepts_each_form(url: str, expected: tuple[str, str, bool
         "https://github.com/acme/demo/extra",
         "git@github.com:/acme/demo.git",
         "https://github.com/acme/demo.git\nhttps://github.com/evil/fork.git",
+        "ssh://git@github.com:evil.com/acme/demo.git",
+        "git@github.com:acme/demo/../../evil/fork.git",
+        "C:owner/repo",
+        "c:acme/demo.git",
     ],
 )
 def test_parse_remote_rejects_unparseable_urls(url: str) -> None:
     assert repo_host.parse_remote(url) is None
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        "https://evil.com#@github.com/acme/demo.git",
+        "https://evil.com?@github.com/acme/demo.git",
+        "https://evil.com\\@github.com/acme/demo.git",
+        "ssh://git@evil.com#@github.com/acme/demo.git",
+    ],
+)
+def test_an_authority_trick_never_reads_as_github(url: str) -> None:
+    # git and curl end the authority at `#` or `?`, so the regex's "github.com" is not the host contacted.
+    assert repo_host.parse_remote(url) is None
+
+
+@pytest.mark.parametrize(
+    "url",
+    ["https://github.com@evil.com/acme/demo.git", "https://GITHUB.COM./acme/demo.git"],
+)
+def test_look_alike_hosts_stay_unverified(url: str) -> None:
+    assert repo_host.repo_from_url(url, run=_runner({}), ssh="ssh") == (None, "unverified-host")
 
 
 def test_literal_github_hosts_need_no_ssh() -> None:
@@ -132,6 +158,31 @@ def test_gh_host_is_accepted_directly_and_through_an_alias(monkeypatch: pytest.M
     run = _runner({"ssh -G": (0, "hostname ghe.example.com\n")})
     assert repo_host.repo_from_url("https://ghe.example.com/acme/demo.git", run=run, ssh="ssh")[0] == "acme/demo"
     assert repo_host.repo_from_url("git@ghe-work:acme/demo.git", run=run, ssh="ssh")[0] == "acme/demo"
+
+
+def test_with_gh_host_set_a_github_com_remote_is_unverified(monkeypatch: pytest.MonkeyPatch) -> None:
+    # `gh --repo acme/demo` would query GH_HOST, not the github.com repository the remote pushes to.
+    monkeypatch.setenv("GH_HOST", "ghe.example.com")
+    got = repo_host.repo_from_url("https://github.com/acme/demo.git", run=_runner({}), ssh="ssh")
+    assert got == (None, "unverified-host")
+
+
+@pytest.mark.parametrize(
+    "answer",
+    [
+        "hostname github.com\nproxycommand nc evil.example 22\n",
+        "hostname github.com\nproxyjump evil.example\n",
+    ],
+)
+def test_an_alias_routed_through_a_proxy_is_unverified(answer: str) -> None:
+    run = _runner({"ssh -G": (0, answer)})
+    got = repo_host.repo_from_url("git@gh:acme/demo.git", run=run, ssh="ssh")
+    assert got == (None, "ssh-unavailable")
+
+
+def test_an_alias_with_proxy_set_to_none_is_accepted() -> None:
+    run = _runner({"ssh -G": (0, "hostname github.com\nproxycommand none\nproxyjump none\n")})
+    assert repo_host.repo_from_url("git@gh:acme/demo.git", run=run, ssh="ssh") == ("acme/demo", "remote-alias")
 
 
 def _repo_answers(url: str, gh: tuple[int, str] | None) -> dict[str, tuple[int, str]]:
