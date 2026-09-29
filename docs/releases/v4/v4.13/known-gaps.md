@@ -531,7 +531,7 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 6 | 1 |
+| Deferred (DF) | 7 | 1 |
 | Bugs / regressions (BG) | 0 | 2 |
 | Warnings (WN) | 4 | 2 |
 | Missing tests / coverage gaps (MT) | 1 | 0 |
@@ -541,7 +541,7 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 
 #### DF-1 (v4.13.3): Flip the skill-index pointer on by default, and decide todos-on-demand
 
-**Plan reference**: Resolved decisions 1 and 4. **Reason**: the pointer ships opt-in. Flipping it needs organic-selection evidence that skills the model saw in the table are still chosen when it sees only a pointer; the todos-on-demand question needs the same instruction-size evidence. **Evidence**: [`rendered-context-baseline.md`](development/rendered-context-baseline.md) (the index is 81-84% of each rendered file; the pointer removes 99.5% of it). **Owner**: `v4.16.0-instruction-necessity-review`. **Suggested next step**: run the organic-selection comparison once DF-2 exists, then decide the default.
+**Plan reference**: Resolved decisions 1 and 4. **Reason**: the pointer ships opt-in. Flipping it needs organic-selection evidence that skills the model saw in the table are still chosen when it sees only a pointer; the todos-on-demand question needs the same instruction-size evidence. **Evidence**: [`rendered-context-baseline.md`](development/rendered-context-baseline.md) (the index is 81-84% of each rendered file; the pointer removes 99.5% of it). **Owner**: `v4.17.3-adoption-harness-economics-and-portable-engineering-system` (moved from `v4.16.0-instruction-necessity-review` on 2026-09-28: the organic-selection evidence comes from the v4.17.3 pairing evaluator, and the v4.16.0 plan never took the item on; see [`v4.17.3-comparison-harness-economics-delta.md`](../v4.17/comparisons/v4.17.3-comparison-harness-economics-delta.md) D4). **Suggested next step**: run the evaluator's required `NEXUS_HUB_SKILL_INDEX=full` against `pointer` variant pair, recording organic skill selection including guard skills, then decide the default.
 
 #### DF-2 (v4.13.3): Pilot variant mode for instruction-file comparisons
 
@@ -566,6 +566,10 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 #### DF-7 (v4.13.3): Move the legacy-removal decision record to `implemented` - RESOLVED 2026-09-28
 
 **Source phase**: Phase 4. **Reason**: `docs/decisions/implemented/tooling/2026-09-24-legacy-instruction-block-removal.md` describes shipped behavior once v4.13.3 is released. The record format requires a rewrite (Decision in present tense, Consequences) and a move, not a Status edit. **Owner**: `/update release` for v4.13.3. **Status**: resolved at the v4.13.3 release: the record moved to `docs/decisions/implemented/tooling/` with a Decision section and a Consequences section, and the capability-usage entry ships in the release notes.
+
+#### DF-8 (v4.13.3): Per-agent `omitClaudeMd` for catalog agents
+
+**Source**: [`v4.17.3-comparison-harness-economics-delta.md`](../v4.17/comparisons/v4.17.3-comparison-harness-economics-delta.md) D5, recorded 2026-09-28. **Reason**: Claude Code 2.1.271 added agent frontmatter `omitClaudeMd`, which lets a subagent run without user, project and local `CLAUDE.md` files (managed policy still loads). Each catalog agent now inherits the full rendered instruction files, measured at about 29k estimated tokens on the maintainer machine. **Owner**: `v4.16.2-adoption-agent-tooling-and-subagent-cost`. **Constraints**: decide agent by agent; exclude `project-standards-reviewer` and any agent that enforces repository conventions; confirm the Gemini and Codex agent loaders ignore an unknown frontmatter key, or emit the key only in the Claude copy. **Suggested next step**: accept a change only with a v4.17.3 pairing receipt showing lower cost at an unchanged pass rate.
 
 #### WN-1 (v4.13.3): An uncooperative writer can race the final hash check
 
