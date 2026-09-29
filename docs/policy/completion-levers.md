@@ -30,6 +30,43 @@ Every VERIFIED cell links the first-party vendor page fetched on 2026-09-25. "No
 | `windsurf` | `windsurf` | none documented | none documented | none documented | [VERIFIED](https://docs.devin.ai/desktop/cascade/hooks) `pre_user_prompt` |
 | `windsurf/devin-cli` | `windsurf` | none documented | [VERIFIED](https://docs.devin.ai/cli/extensibility/hooks/lifecycle-hooks) `top-level-block` | [VERIFIED](https://docs.devin.ai/cli/reference/commands) | [VERIFIED](https://docs.devin.ai/cli/extensibility/hooks/lifecycle-hooks) `UserPromptSubmit` |
 
+## Goal capture
+
+The `goal_capture` field (checked 2026-09-29) records whether a typed `/goal ...` line reaches the platform's prompt-submit hook with its text verbatim. The approval page chooses its paste layout from it, because the approval is bound to the exact pasted line. Reasoning and sources: [`2026-09-28-approval-paste-sets-native-goal.md`](../decisions/proposed/policy/2026-09-28-approval-paste-sets-native-goal.md).
+
+| Value | Meaning | Approval page behavior |
+|---|---|---|
+| `verbatim` | A probe showed the hook receives the `/goal` line unchanged. | One paste line that starts with `/goal`; it approves the run and sets the native goal. |
+| `not-captured` | A goal command exists, but the hook cannot see the typed line. | The plain approval line first, then the `/goal` line second. |
+| `no-goal` | First-party docs list the commands and none is a goal command. | The plain approval line only. |
+| `unverified` | The docs do not settle it. | The plain approval line, plus the printed goal line where a goal command exists. |
+
+`verbatim` is accepted only from a recorded probe of a typed `/goal` line (`"probe_mode": "interactive"`), never from a headless `-p` probe and never by analogy to another platform. `tests/validators/test_completion_levers.py` fails when a row lacks the field, uses another value, lacks an ISO date, or states a settled value without a source.
+
+| Row | Goal capture |
+|---|---|
+| `aider` | `no-goal` ([source](https://aider.chat/docs/usage/modes.html)) |
+| `antigravity` | `unverified` ([source](https://antigravity.google/docs/slash-commands/)) |
+| `antigravity2` | `not-captured` ([source](https://antigravity.google/docs/hooks/)) |
+| `antigravity2/cli` | `not-captured` ([source](https://antigravity.google/docs/hooks/)) |
+| `claude` | `unverified` (headless probe only; typed probe pending, see the decision record) |
+| `codex` | `unverified` ([source](https://learn.chatgpt.com/docs/hooks)) |
+| `copilot` | `unverified` ([source](https://docs.github.com/en/copilot/reference/hooks-reference)) |
+| `copilot/cli` | `unverified` ([source](https://docs.github.com/en/copilot/reference/hooks-reference)) |
+| `copilot/vscode` | `unverified` ([source](https://raw.githubusercontent.com/microsoft/vscode-docs/main/docs/agents/reference/hooks-reference.md)) |
+| `cursor` | `unverified` ([source](https://cursor.com/docs/agent/hooks)) |
+| `gemini` | `unverified` ([source](https://antigravity.google/docs/slash-commands/)) |
+| `gemini-cli` | `no-goal` ([source](https://geminicli.com/docs/reference/commands/)) |
+| `hermes` | `unverified` ([source](https://hermes-agent.nousresearch.com/docs/user-guide/features/hooks)) |
+| `kimi` | `unverified` ([source](https://www.kimi.com/code/docs/en/kimi-code-cli/customization/hooks.html)) |
+| `nexus-ai` | `unverified` ([source](https://github.com/bendourthe/Nexus-AI)) |
+| `openclaw` | `unverified` ([source](https://docs.openclaw.ai/plugins/hooks/reference)) |
+| `opencode` | `no-goal` ([source](https://opencode.ai/docs/tui/)) |
+| `pi` | `unverified` ([source](https://raw.githubusercontent.com/badlogic/pi-mono/main/packages/coding-agent/docs/cli.md)) |
+| `qwen` | `unverified` ([source](https://qwenlm.github.io/qwen-code-docs/en/users/features/hooks/)) |
+| `windsurf` | `unverified` ([source](https://docs.devin.ai/desktop/cascade/hooks)) |
+| `windsurf/devin-cli` | `no-goal` ([source](https://docs.devin.ai/cli/reference/commands)) |
+
 ## Continuation formats
 
 The gate emits exactly one shape per format id. The vendor wording for each row is preserved in the JSON as `vendor_shape`.

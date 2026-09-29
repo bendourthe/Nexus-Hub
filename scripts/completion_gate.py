@@ -6,8 +6,9 @@ catalog adapters `completion-gate.{sh,ps1}` and `approval-capture.{sh,ps1}`.
 
     completion_gate.py stop      read a turn-end payload; refuse or continue the
                                  stop while the run's checker verdict is INCOMPLETE
-    completion_gate.py capture   read a prompt-submit payload; store digests of the
-                                 user's prompt for the approval-origin rule
+    completion_gate.py capture   read a prompt-submit payload; store the digest of the
+                                 user's whole prompt for the approval-origin rule
+                                 (skipped when NEXUS_RUNNER_LAUNCH=1)
 
 The definition of "done" belongs to the completion contract
 (catalog/skills/workflow/implement-phase/references/completion-contract.md) and
@@ -314,21 +315,25 @@ def cmd_capture() -> int:
     if "cursor_version" in payload:
         # Cursor's prompt-submit parser expects one JSON object on stdout.
         sys.stdout.write('{"continue":true}\n')
+    if os.environ.get("NEXUS_RUNNER_LAUNCH") == "1":
+        # A prompt the runner launched is not the user's (v4.13.2 WN-9).
+        return 0
     session, prompt = _session(payload), _prompt(payload)
     if not session or not prompt:
         return 0
-    digests = [_digest(prompt)] + [
-        _digest(line) for line in prompt.splitlines() if line.strip()
-    ]
+    # Only the whole prompt is stored: an approval must equal an entire submitted
+    # prompt, so a line inside a longer prompt never counts (v4.13.2 WN-9).
+    whole = _digest(prompt)
     prompts = _runs_dir() / "prompts"
     try:
         prompts.mkdir(parents=True, exist_ok=True)
         os.chmod(prompts.parent, 0o700)
         path = prompts / f"{hashlib.sha256(session.encode('utf-8')).hexdigest()}.jsonl"
         with path.open("a", encoding="utf-8") as handle:
-            handle.write(
-                json.dumps({"session": session, "digests": sorted(set(digests))}) + "\n"
-            )
+            # `at` lets record create require a prompt from before the round was
+            # rendered, so a fresh agent-launched session cannot carry the paste.
+            entry = {"session": session, "prompt": whole, "digests": [whole], "at": time.time()}
+            handle.write(json.dumps(entry) + "\n")
         os.chmod(path, 0o600)
         _prune(prompts)
     except OSError:

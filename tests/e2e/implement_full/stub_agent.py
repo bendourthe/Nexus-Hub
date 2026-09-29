@@ -19,6 +19,7 @@ from pathlib import Path
 
 PLAN = os.environ["E2E_PLAN"]
 CHECKER = os.environ["E2E_CHECKER"]
+STUB_SESSION = "e2e-stub-session"
 REPO_SLUG = "acme/demo"
 BRANCH = "feat/v0.2.0-demo"
 SECTIONS = (
@@ -91,6 +92,31 @@ def phase_1() -> None:
         ),
         encoding="utf-8",
     )
+    # The checker renders the page and generates the exact line; only the user's
+    # whole-prompt paste of that line, captured by the real capture core as the
+    # approval-capture hook would, lets `record create` record it (v4.13.2 WN-9).
+    # The stub stands in for the user's typing, which is also the open WN-9
+    # residual: a process piping into the capture core is not detectable.
+    def submit(prompt: str) -> None:
+        subprocess.run(
+            [sys.executable, str(Path(CHECKER).with_name("completion_gate.py")), "capture"],
+            input=json.dumps({"hook_event_name": "UserPromptSubmit", "session_id": STUB_SESSION,
+                              "prompt": prompt}),
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+
+    # The user's session already holds the /implement request before the page renders.
+    submit(f"/implement {PLAN}")
+    rendered = subprocess.run(
+        [sys.executable, CHECKER, "record", "render", PLAN, "--session", "auto",
+         "--approvals", str(approvals)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    submit(rendered.stdout.splitlines()[0])
     subprocess.run(
         [
             sys.executable,

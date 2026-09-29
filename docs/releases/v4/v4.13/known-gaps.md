@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: released; PR #230 merged the complete 34-task plan and tag `v4.13.0` was published on 2026-09-21. Two bounded warning-class findings remain owned for future measurement work. GitHub branch protection passed a live pull-request gate test; the second trigger pilot stopped on an unproven spend bound.
-**Last updated**: 2026-09-28
+**Last updated**: 2026-09-29
 
 Release-scoped gaps for the evidence-driven agent improvement plan. Planned future-phase work is tracked in the plan rather than reported as completed here.
 
@@ -363,11 +363,17 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 
 **Owner**: catalog maintainer. **Status**: open. **Suggested next step**: have every writer re-sign through one checker function, then add both fields to the signed payload.
 
-#### WN-9: Approval capture binds typed text, not the approval class
+#### WN-9: Approval capture binds typed text, not the approval class - PARTIALLY RESOLVED 2026-09-29
 
-**Source phase**: Phase 9 (T024), Tier 3 adversarial pass. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: `approval-capture` stores a digest of every submitted prompt line, and `record create` accepts an approval whose text matches any captured line. A short reply such as `ok`, a pasted issue body containing "I approve release", or the agent piping a fabricated payload into `completion_gate.py capture` can therefore back an approval class the user never approved. Severity high: this is the threat the contract names.
+**Source phase**: Phase 9 (T024), Tier 3 adversarial pass. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Original defect**: `approval-capture` stores a digest of every submitted prompt line, and `record create` accepts an approval whose text matches any captured line. A short reply such as `ok`, a pasted issue body containing "I approve release", or the agent piping a fabricated payload into `completion_gate.py capture` can therefore back an approval class the user never approved. Severity high: this is the threat the contract names.
 
-**Owner**: catalog maintainer. **Status**: open. **Suggested next step**: issue a per-round nonce in the upfront question, require the user's answer to carry the class and nonce, match the whole prompt rather than a line, and refuse a capture the agent's own tool call produced.
+**Resolved part**: [v4.13.6 Phase 1](plans/v4.13.6-minor-scope-implement-and-verified-cleanup.md) binds every user-origin record write (`record create`, `record answer`, `record pause`, `record resume`) to the exact line the checker generated. `record render` builds the canonical page data, draws a fresh 128-bit round nonce, derives an 8-character single-use code from `HMAC-SHA256(runs secret, page and nonce)`, and writes an owner-only pending round sealed by an HMAC over every field. The write then requires the seal and the live page's code to verify, the bound session (and, for a mid-run answer, pause, or resume, the run record's session), exactly one captured whole prompt equal to the line, and an earlier prompt in that session from before the render, and consumes the round. The capture hook stores only whole-prompt digests with a capture time and skips sessions marked `NEXUS_RUNNER_LAUNCH=1`, which `run_plan.py` sets for every session it launches. The terminal fallback was removed: a missing capture file now refuses, because a process that owns the console or a pty can type into it. So a lone "ok", a quoted code, a pasted body, a replayed or superseded line, a runner-launched prompt, an edited pending round, a fresh headless session opened only to submit the line, and an answer captured in another session never record. The rule is owned by the completion contract's Approval origin section.
+
+**Still open**: the third bypass this item names, an approval the agent itself originates. The agent can pipe a fabricated payload into `completion_gate.py capture`, append a line to the capture file, or pre-seed a nested headless session (`claude -p` with `--session-id`, then resume it with the line), and the capture is indistinguishable from the user's paste. `tests/e2e/implement_full/stub_agent.py` does exactly the first of these to stand in for the user, and the harness passes. The original suggested step "refuse a capture the agent's own tool call produced" is not done; no signal the agent cannot also set (environment, session id, process tree) was found in this pass. Two related limits: the round expires 30 minutes after render, not when the session ends, so a later session can record a line pasted in an earlier one (bound to the session where it was captured); and on a platform with no prompt-submit capture no approval can be recorded at all, so the run asks at each approval point (see WN-4 and DF-5).
+
+**Evidence**: `tests/validators/test_approval_binding.py` (29 passed, 1 POSIX-only skip on Windows): `test_exact_line_records_once_then_reads_code_used`, `test_a_prompt_that_is_not_the_whole_line_never_records[lone-ok|quoted-code|pasted-body|line-plus-text]`, `test_a_line_replayed_from_an_earlier_consumed_round_is_refused`, `test_a_newer_render_invalidates_the_older_code`, `test_a_runner_launched_prompt_is_never_captured`, `test_record_create_refuses_inside_a_runner_launched_session`, `test_a_plan_edit_after_render_reads_page_changed`, `test_an_expired_code_is_refused`, `test_a_mid_run_answer_needs_its_own_exact_line`, `test_a_fresh_session_that_only_carries_the_line_is_refused[auto|nested-agent]`, `test_an_edited_pending_round_is_refused[paste_digests|paste_lines|expires_at|rendered_at|session]`, `test_a_mid_run_answer_captured_in_another_session_is_refused`, `test_a_session_with_no_capture_file_refuses_without_a_terminal_fallback`, `test_pending_file_is_owner_only_on_posix`; plus `test_capture_skips_a_runner_launched_session` and `test_runner_launched_capture_drains_a_large_payload` (both hook implementations) and `test_every_launched_session_is_marked_runner_launched`.
+
+**Owner**: catalog maintainer. **Status**: open (agent-originated capture); the resolved part is local in v4.13.6 Phase 1 and not yet integrated. **Suggested next step**: find a capture signal the agent's own tool calls cannot produce (for example a host-issued per-prompt attestation, if a platform documents one); until then, keep the threat model's statement that a deliberately forged user origin is not detected.
 
 #### WN-11: `run-plan` checks only global settings for an approval bypass
 
@@ -389,7 +395,7 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 
 #### DF-5: Approval capture is missing on Pi, OpenClaw, Hermes, and Windsurf
 
-**Source phase**: Phase 9 (T024), Tier 3 code-vs-plan convergence. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: `docs/policy/completion-levers.json` records a VERIFIED prompt-submit lever for these four platforms, but only Claude-format registrations and Cursor carry `approval-capture`, so on them `record create` falls back to the terminal and a headless run cannot record its approvals (the same effect as WN-4 on OpenCode).
+**Source phase**: Phase 9 (T024), Tier 3 code-vs-plan convergence. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: `docs/policy/completion-levers.json` records a VERIFIED prompt-submit lever for these four platforms, but only Claude-format registrations and Cursor carry `approval-capture`, so on them `record create` cannot record an approval (the same effect as WN-4 on OpenCode). **Update (v4.13.6 Phase 1)**: the terminal fallback was removed, so on these platforms `record create` now refuses with `approval-not-captured` even in an interactive session until capture is added.
 
 **Owner**: catalog maintainer. **Status**: open. **Suggested next step**: add capture on each platform's documented prompt event in its plugin or hook adapter, with a parity test.
 
@@ -409,7 +415,7 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 
 **Source phase**: Phase 9 (T024), Tier 3 code-vs-plan convergence. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: every passing Phase 8 run on Claude Code and Codex reached `PLAN COMPLETE` in its first turn, so the turn-end gate's refusal and the runner's resume are proven by stub tests (`test_harness.py`, `test_completion_gate.py`) and never by a paid session.
 
-**Owner**: catalog maintainer. **Status**: open. **Suggested next step**: run one paid condition with a fixture that cannot finish in one turn (for example a phase whose test only passes after a second commit) and record the gate and runner cycles.
+**Owner**: catalog maintainer. **Status**: open. **Suggested next step**: run one paid condition with a fixture that cannot finish in one turn (for example a phase whose test only passes after a second commit) and record the gate and runner cycles. **Update (v4.13.6 Phase 1)**: under exact binding, the paid conditions in `tests/e2e/implement_full/run_e2e.py` (`--agent claude|codex|opencode`) cannot record: their first turn states the approvals verbatim in the prompt, which never equals a line `record render` generates, so `record create` refuses (`approval-not-captured` or `session-too-new`) and the run cannot reach `PLAN COMPLETE`. Owner: v4.13.6 Phase 7. The paid first turn needs a render step whose printed line is then fed as a second scripted user turn in the same session, before any paid run is spent on this item.
 
 #### DF-1: Devin Desktop reads `.devin/hooks.json`, which the Windsurf integration does not model
 
@@ -692,3 +698,29 @@ Gaps from the completion-checker remote-resolution fix ([`v4.13.5-completion-che
 | BG-3 | An SSH alias routed through a proxy counted as verified | Phase 2 | Only the `hostname` line of `ssh -G` was read, so a `ProxyCommand` or `ProxyJump` to another server passed. Either setting other than `none` now leaves the alias unverified. |
 | BG-4 | With `GH_HOST` set, a github.com remote was checked against the enterprise host | Phase 2 | Both `github.com` and `GH_HOST` were accepted, but `gh --repo owner/repo` queries only one of them. The accepted host is now exactly the one `gh` queries: `GH_HOST` when set, otherwise `github.com`. |
 | BG-5 | CodeQL flagged a no-effect statement in `repo_host.py` | Phase 2, PR #387 | The `...` body of the `Budget` protocol method raised "Statement has no effect" (alert 328), and the unresolved review thread blocked the merge under `develop`'s conversation-resolution rule. The body is now a docstring. |
+
+## v4.13.6
+
+Gaps from the minor-scope implement plan ([`v4.13.6-minor-scope-implement-and-verified-cleanup`](plans/v4.13.6-minor-scope-implement-and-verified-cleanup.md)). v4.13.5 WN-2 and WN-3 name this plan as owner and are tracked here until closed.
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 1 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+#### WN-1 (v4.13.6): Claude Code interactive `/goal` capture is observed only headless
+
+**Evidence**: the Phase 1 probe (Claude Code 2.1.283, 2026-09-29) ran `claude -p "/goal test condition"`: the `UserPromptSubmit` payload's `prompt` field was exactly `/goal test condition` and the transcript shows `Goal set: test condition`. A person typing `/goal` in the interactive terminal was not exercised, so the `claude` row of `docs/policy/completion-levers.json` stays `goal_capture: unverified` with `probe_mode: headless`, and the validator accepts `verbatim` only from an interactive probe. **Owner**: catalog maintainer. **Suggested next step**: type `/goal test condition` in an interactive session of a scratch project whose `UserPromptSubmit` hook logs its payload, and set the row to `verbatim` with `probe_mode: interactive` if the logged prompt matches.
+
+### Resolved Items
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|

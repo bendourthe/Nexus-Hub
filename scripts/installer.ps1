@@ -2786,6 +2786,13 @@ function Install-Templates {
         Safe-Copy -Source $repoHostSource -Destination (Join-Path $scriptsDest "repo_host.py") -Confirm:$true -CustomMessage "✓ Repository resolver installed at: $scriptsDest\repo_host.py"
     }
 
+    # Copy the approval binder (v4.13.6). The completion checker imports it as
+    # a sibling to bind each approval to the exact line it generated.
+    $approvalBindingSource = Join-Path $RepoRoot "scripts\approval_binding.py"
+    if (Test-Path $approvalBindingSource) {
+        Safe-Copy -Source $approvalBindingSource -Destination (Join-Path $scriptsDest "approval_binding.py") -Confirm:$true -CustomMessage "✓ Approval binder installed at: $scriptsDest\approval_binding.py"
+    }
+
     # Copy the completion-gate core (v4.13.2). The completion-gate and
     # approval-capture hooks run it from this installed path only.
     $completionGateSource = Join-Path $RepoRoot "scripts\completion_gate.py"

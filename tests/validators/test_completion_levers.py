@@ -50,6 +50,11 @@ SURFACE_ROWS = {
     "copilot/cli",
 }
 _ISO_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+# Whether a typed `/goal ...` line reaches the prompt-submit hook verbatim
+# (v4.13.6 Phase 1.1). The approval page chooses its paste layout from this.
+GOAL_CAPTURE_VALUES = {"verbatim", "not-captured", "no-goal", "unverified"}
+# Values that assert a settled fact and therefore need a first-party source.
+GOAL_CAPTURE_SETTLED = {"verbatim", "not-captured", "no-goal"}
 
 
 @pytest.fixture(scope="module")
@@ -129,3 +134,67 @@ def test_companion_lists_every_row(matrix: dict) -> None:
     text = COMPANION.read_text(encoding="utf-8")
     for row_id in matrix["rows"]:
         assert f"`{row_id}`" in text, f"companion table omits {row_id}"
+
+
+def _goal_captures(matrix: dict):
+    for row_id, row in matrix["rows"].items():
+        yield row_id, row.get("goal_capture")
+
+
+def test_every_row_carries_goal_capture(matrix: dict) -> None:
+    for row_id, entry in _goal_captures(matrix):
+        assert isinstance(entry, dict), f"{row_id}: missing goal_capture object"
+        assert entry.get("value") in GOAL_CAPTURE_VALUES, (
+            f"{row_id}.goal_capture: bad value {entry.get('value')!r}"
+        )
+        assert _ISO_DATE.match(entry.get("verified", "")), (
+            f"{row_id}.goal_capture: missing ISO verified date"
+        )
+        assert isinstance(entry.get("source_url"), str), (
+            f"{row_id}.goal_capture: missing source_url"
+        )
+        assert entry.get("evidence"), f"{row_id}.goal_capture: missing evidence"
+
+
+def test_settled_goal_capture_cites_a_source(matrix: dict) -> None:
+    for row_id, entry in _goal_captures(matrix):
+        if entry["value"] not in GOAL_CAPTURE_SETTLED:
+            continue
+        url = entry["source_url"]
+        if entry.get("probe") is True:
+            # A local probe cites its repository record instead of a vendor page.
+            assert (REPO_ROOT / url).is_file(), (
+                f"{row_id}.goal_capture: probe record {url!r} does not exist"
+            )
+        else:
+            assert url.startswith("https://"), (
+                f"{row_id}.goal_capture: {entry['value']} without an https source"
+            )
+
+
+def test_verbatim_goal_capture_requires_a_probe(matrix: dict) -> None:
+    # Never verbatim by analogy: no vendor page states slash-command text
+    # reaches the hook, so verbatim is only accepted from a recorded probe.
+    for row_id, entry in _goal_captures(matrix):
+        if entry["value"] == "verbatim":
+            assert entry.get("probe") is True, (
+                f"{row_id}.goal_capture: verbatim without a recorded probe"
+            )
+            # The approval is a typed paste, so a headless `-p` probe does not settle it.
+            assert entry.get("probe_mode") == "interactive", (
+                f"{row_id}.goal_capture: verbatim needs a typed (interactive) probe"
+            )
+
+
+def test_goal_capture_needs_a_goal_command(matrix: dict) -> None:
+    for row_id, entry in _goal_captures(matrix):
+        if entry["value"] in {"verbatim", "not-captured"}:
+            assert matrix["rows"][row_id]["native_goal"]["status"] == "VERIFIED", (
+                f"{row_id}.goal_capture: {entry['value']} but no VERIFIED native goal"
+            )
+
+
+def test_companion_documents_goal_capture_values(matrix: dict) -> None:
+    text = COMPANION.read_text(encoding="utf-8")
+    for value in GOAL_CAPTURE_VALUES:
+        assert f"`{value}`" in text, f"companion omits goal_capture value {value}"

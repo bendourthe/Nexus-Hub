@@ -13,7 +13,8 @@ documented resume flag, and three cycles without progress record a
 
 What this runner never does:
   - create approvals (the run record must already exist from /implement's
-    upfront round),
+    upfront round); every session it launches carries NEXUS_RUNNER_LAUNCH=1,
+    so the capture hook skips its prompts and `record create` refuses there,
   - add a permission-bypass, auto-approve, or config-override flag (a denylist
     is asserted per platform in tests), or launch when the platform's own
     configuration already bypasses approvals, unless the user approved the
@@ -304,9 +305,12 @@ class Lock:
 
 
 def _launch(argv: list[str], backoff: float) -> int:
+    # Every session this runner launches is marked, so its prompts are never
+    # captured, and never recorded, as the user's approval (v4.13.2 WN-9).
+    env = {**os.environ, "NEXUS_RUNNER_LAUNCH": "1"}
     for attempt in (1, 2):
         try:
-            code = subprocess.run(argv, check=False).returncode
+            code = subprocess.run(argv, check=False, env=env).returncode
         except OSError:
             code = -1
         if code == 0 or attempt == 2:

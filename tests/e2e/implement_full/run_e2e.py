@@ -18,7 +18,6 @@ environment; the harness never copies a user's credentials.
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import os
 import shutil
@@ -382,16 +381,9 @@ def run_condition(
     if agent == "stub":
         env["E2E_REAL_GIT"] = real_git
         env["E2E_STUB_REMOTE_MIRROR"] = str(root / "remote.git")
-        # The stub stands in for the approval-capture hook: it records the digest
-        # of the scripted first-turn approval exactly as the hook would.
-        session = "e2e-stub-session"
-        prompts = runs / "prompts"
-        prompts.mkdir()
-        digest = hashlib.sha256(" ".join(approval.split()).encode()).hexdigest()
-        (prompts / f"{hashlib.sha256(session.encode()).hexdigest()}.jsonl").write_text(
-            json.dumps({"session": session, "digests": [digest]}) + "\n",
-            encoding="utf-8",
-        )
+        # The stub renders the approval page itself and stands in for the user
+        # pasting the generated line (stub_agent.phase_1); a digest planted here
+        # in advance could never match, because the line carries a fresh code.
     started = time.monotonic()
     # The scripted first turn: /implement with the upfront approvals answered in
     # the same prompt, never mid-run. It creates the run record; the runner then

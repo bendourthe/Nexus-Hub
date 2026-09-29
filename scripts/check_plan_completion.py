@@ -9,6 +9,8 @@ executes them.
 Subcommands:
     check <plan> [--json] [--session ID]   verdict line first, then one line per predicate
     score <plan> [--session ID]            "<met-count> <head> <latest-ci-run-id|->"
+    record render <plan> --session ID [--approvals F | --action A]
+                                           open an approval round; print the exact paste line
     record create|answer|pause|resume|block <plan> ...
                                            write the run record (approval-origin enforced)
 
@@ -36,6 +38,7 @@ from pathlib import Path
 _SCRIPT_DIR = str(Path(__file__).resolve().parent)
 if _SCRIPT_DIR not in sys.path:
     sys.path.insert(0, _SCRIPT_DIR)
+import approval_binding  # noqa: E402  (installed as a sibling in ~/.nexus-hub/scripts/)
 import repo_host  # noqa: E402  (installed as a sibling in ~/.nexus-hub/scripts/)
 
 EXIT_COMPLETE, EXIT_INCOMPLETE, EXIT_MALFORMED, EXIT_BLOCKED, EXIT_PAUSED = (
@@ -270,13 +273,8 @@ def _secret(create: bool) -> bytes | None:
     return path.read_bytes()
 
 
-def _restrict(path: Path, directory: bool) -> None:
-    """Owner-only permissions; on Windows chmod is best-effort (ACLs are inherited from the profile)."""
-    try:
-        os.chmod(path, 0o700 if directory else 0o600)
-    except OSError:
-        # Windows ACLs are inherited from the profile, so a failed chmod is not a leak.
-        pass
+# One owner-only helper for records and pending approval rounds alike.
+_restrict = approval_binding.restrict
 
 
 def _canonical(obj: object) -> bytes:
@@ -837,81 +835,11 @@ def cmd_score(args: argparse.Namespace) -> int:
 
 
 def normalize(text: str) -> str:
-    return " ".join(text.split())
+    return approval_binding.normalize(text)
 
 
 def _digest(text: str) -> str:
-    return hashlib.sha256(normalize(text).encode("utf-8")).hexdigest()
-
-
-def _captured_digests(session: str) -> set[str] | None:
-    """Digests the approval-capture hook stored for this session, or None when no capture exists."""
-    path = (
-        _runs_dir()
-        / "prompts"
-        / f"{hashlib.sha256(session.encode('utf-8')).hexdigest()}.jsonl"
-    )
-    if not path.is_file():
-        return None
-    digests: set[str] = set()
-    for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
-        try:
-            digests.update(json.loads(line).get("digests", []))
-        except (ValueError, AttributeError):
-            continue
-    return digests
-
-
-def _resolve_session(texts: list[str]) -> str | None:
-    """Return the session whose captured prompts contain every approval text.
-
-    Binds `--session auto` to the session in which the user actually typed the
-    approvals, which is also how an agent learns its own session id on platforms
-    that never expose it to the model. Newest capture file first.
-    """
-    prompts = _runs_dir() / "prompts"
-    if not prompts.is_dir():
-        return None
-    wanted = {_digest(t) for t in texts}
-    for path in sorted(
-        prompts.glob("*.jsonl"), key=lambda p: p.stat().st_mtime, reverse=True
-    ):
-        session, digests = None, set()
-        for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
-            try:
-                entry = json.loads(line)
-            except ValueError:
-                continue
-            if isinstance(entry, dict):
-                session = entry.get("session") or session
-                digests.update(entry.get("digests", []))
-        if session and wanted <= digests:
-            return str(session)
-    return None
-
-
-def _terminal_confirm(summary: str) -> bool:
-    """Read 'yes' from the terminal device itself; never stdin or arguments. Fail closed."""
-    names = ("CONIN$", "CONOUT$") if os.name == "nt" else ("/dev/tty", "/dev/tty")
-    try:
-        with (
-            open(names[0], encoding="utf-8") as reader,
-            open(names[1], "w", encoding="utf-8") as writer,
-        ):
-            if not os.isatty(reader.fileno()):
-                return False
-            writer.write(summary + "\nType yes to confirm: ")
-            writer.flush()
-            return reader.readline().strip().lower() == "yes"
-    except OSError:
-        return False
-
-
-def _origin_ok(session: str, texts: list[str], summary: str) -> bool:
-    captured = _captured_digests(session)
-    if captured is not None:
-        return all(_digest(t) in captured for t in texts)
-    return _terminal_confirm(summary)
+    return approval_binding.digest(text)
 
 
 def _approvals_from_file(path: str) -> dict:
@@ -926,8 +854,9 @@ def _approvals_from_file(path: str) -> dict:
         name = str(entry.get("class", ""))
         if not (name in APPROVAL_CLASSES or name.startswith("ask-first:")):
             raise Malformed(f"approval class not approvable in advance: {name}")
-        if not str(entry.get("text", "")).strip():
-            raise Malformed(f"approval {name} lacks the user's verbatim text")
+    defer = next((c.get("bound") for c in classes if c["class"] == "defer-gaps"), []) or []
+    if not set(defer) <= GAP_TYPES:
+        raise Malformed("defer-gaps bound must list gap types from NI DF BG MT WN QG")
     return spec
 
 
@@ -936,32 +865,130 @@ def _blocked(category: str) -> int:
     return EXIT_BLOCKED
 
 
+def _refused(reason: str) -> int:
+    """An approval that was not recorded: the blocker line first, then the fixed reason id."""
+    print("BLOCKED: approval-not-covered")
+    print(f"reason: {reason}")
+    return EXIT_BLOCKED
+
+
+def _create_page(ctx: Context, spec: dict) -> dict:
+    return approval_binding.create_page(
+        rel=ctx.rel,
+        version=ctx.version,
+        plan_sha256=ctx.plan_hash(),
+        repo=str(spec.get("repo") or ctx.default_repo),
+        head=ctx._git_out("rev-parse", "HEAD"),
+        spec=spec,
+    )
+
+
+def _action_page(ctx: Context, record: dict, action: str, blocker: int | None) -> dict:
+    category = None
+    if action == "answer":
+        blockers = record.get("blockers", [])
+        if blocker is None or not 0 <= blocker < len(blockers) or not blockers[blocker].get("open"):
+            raise Malformed("no open blocker at that index")
+        category = blockers[blocker].get("category")
+    return approval_binding.action_page(
+        action,
+        rel=ctx.rel,
+        version=ctx.version,
+        record_nonce=str(record.get("nonce", "")),
+        blocker=blocker,
+        category=category,
+    )
+
+
+def _round_key(ctx: Context) -> str:
+    """One approval round per record: a newer render replaces the older one."""
+    return ctx.record_path().stem
+
+
+def _consume(
+    ctx: Context,
+    action: str,
+    page: dict,
+    session: str,
+    text: str | None,
+    required_session: str | None = None,
+) -> tuple[dict, str] | int:
+    try:
+        pending, bound = approval_binding.consume(
+            _runs_dir(),
+            _round_key(ctx),
+            _secret(create=False),
+            action=action,
+            live_page=page,
+            session=session,
+            required_session=required_session,
+        )
+    except approval_binding.Refusal as refusal:
+        return _refused(refusal.reason)
+    if text is not None and normalize(text) not in {normalize(x) for x in pending["paste_lines"]}:
+        # The round is spent either way: a claimed text that is not the pasted line is not an approval.
+        return _refused("approval-not-captured")
+    return pending, bound
+
+
+def cmd_record_render(args: argparse.Namespace) -> int:
+    ctx = Context(args.plan, Budget(BUDGET_SECONDS))
+    if args.action == "create":
+        if not args.approvals:
+            raise Malformed("record render --action create needs --approvals")
+        page = _create_page(ctx, _approvals_from_file(args.approvals))
+    else:
+        loaded = _load_for_update(args)
+        if isinstance(loaded, int):
+            return loaded
+        page = _action_page(ctx, loaded[1], args.action, args.blocker)
+    session = None if args.session == "auto" else args.session
+    try:
+        pending = approval_binding.render(
+            _runs_dir(),
+            _round_key(ctx),
+            _secret(create=True) or b"",
+            action=args.action,
+            scope=ctx.version,
+            page=page,
+            session=session,
+            blocker=args.blocker if args.action == "answer" else None,
+        )
+    except approval_binding.Refusal as refusal:
+        return _refused(refusal.reason)
+    if args.json:
+        print(
+            json.dumps(
+                {
+                    "paste": pending["paste_lines"],
+                    "page": pending["page"],
+                    "expires_at": pending["expires_at"],
+                },
+                sort_keys=True,
+            )
+        )
+    else:
+        for line in pending["paste_lines"]:
+            print(line)
+    return 0
+
+
 def cmd_record_create(args: argparse.Namespace) -> int:
     ctx = Context(args.plan, Budget(BUDGET_SECONDS))
     spec = _approvals_from_file(args.approvals)
-    texts = [str(c["text"]) for c in spec["classes"]]
-    summary = f"Approve full run of {ctx.rel}: " + ", ".join(
-        str(c["class"]) for c in spec["classes"]
-    )
-    if args.session == "auto":
-        resolved = _resolve_session(texts)
-        if resolved is None:
-            return _blocked("approval-not-covered")
-        args.session = resolved
-    if not _origin_ok(args.session, texts, summary):
-        return _blocked("approval-not-covered")
-    approved_repo = str(spec.get("repo") or ctx.default_repo)
+    page = _create_page(ctx, spec)
+    consumed = _consume(ctx, "create", page, args.session, None)
+    if isinstance(consumed, int):
+        return consumed
+    pending, session = consumed
+    approved_repo = str(page["repo"])
     pushed_repo = ctx.url_repo(ctx.push_remote_url)
     if not pushed_repo or pushed_repo.lower() != approved_repo.lower():
-        return _blocked("approval-not-covered")
-    defer = (
-        next(
-            (c.get("bound") for c in spec["classes"] if c["class"] == "defer-gaps"), []
-        )
-        or []
-    )
-    if not set(defer) <= GAP_TYPES:
-        raise Malformed("defer-gaps bound must list gap types from NI DF BG MT WN QG")
+        return _refused("push-remote-outside-approval")
+    paste = " / ".join(pending["paste_lines"])
+    defer = next(
+        (c.get("bound") for c in spec["classes"] if c["class"] == "defer-gaps"), []
+    ) or []
     approvals = {
         "plan": ctx.rel,
         "remote_url": ctx.remote_url,
@@ -972,7 +999,9 @@ def cmd_record_create(args: argparse.Namespace) -> int:
         "release_version": spec.get("release_version") or ctx.version,
         "tag": spec.get("tag") or ctx.version,
         "cleanup": spec.get("cleanup") or {"branches": [], "worktrees": []},
-        "classes": spec["classes"],
+        # The user approved the page, and the pasted line is their verbatim text.
+        "classes": [{**c, "text": paste} for c in spec["classes"]],
+        "page_sha256": hashlib.sha256(approval_binding.canonical(page)).hexdigest(),
     }
     record = {
         "schema": SCHEMA,
@@ -981,10 +1010,11 @@ def cmd_record_create(args: argparse.Namespace) -> int:
         "repo_root": str(ctx.root),
         "remote_url": ctx.remote_url,
         "repo": approvals["repo"],
-        "session_id": args.session,
+        "session_id": session,
         "worktree": str(ctx.root),
-        "start_head": ctx._git_out("rev-parse", "HEAD"),
-        "nonce": secrets.token_hex(8),
+        "start_head": page["head"],
+        # The round nonce the approval was bound to becomes the run's nonce.
+        "nonce": pending["nonce"],
         "created": _now(),
         "approvals": approvals,
         "deferrable_gap_types": sorted(defer),
@@ -1000,7 +1030,8 @@ def cmd_record_create(args: argparse.Namespace) -> int:
 
 def _load_for_update(args: argparse.Namespace) -> tuple[Context, dict] | int:
     ctx = Context(args.plan, Budget(BUDGET_SECONDS))
-    state = load_record(ctx, args.session)
+    session = None if getattr(args, "session", None) == "auto" else args.session
+    state = load_record(ctx, session)
     if state.record is None:
         if state.forced:
             return (
@@ -1013,21 +1044,32 @@ def _load_for_update(args: argparse.Namespace) -> tuple[Context, dict] | int:
     return ctx, state.record
 
 
-def cmd_record_answer(args: argparse.Namespace) -> int:
+def _consume_action(
+    args: argparse.Namespace, action: str
+) -> tuple[Context, dict, dict] | int:
     loaded = _load_for_update(args)
     if isinstance(loaded, int):
         return loaded
     ctx, record = loaded
-    blockers = record.get("blockers", [])
-    if not 0 <= args.blocker < len(blockers) or not blockers[args.blocker].get("open"):
-        raise Malformed("no open blocker at that index")
-    if not _origin_ok(
-        args.session, [args.text], f"Answer blocker {args.blocker} of {ctx.rel}"
-    ):
-        return _blocked("approval-not-covered")
-    blockers[args.blocker].update(open=False, answered=_now())
+    page = _action_page(ctx, record, action, getattr(args, "blocker", None))
+    # The paste must land in the session the record is bound to: an answer captured
+    # in any other session, such as one the agent launched, clears nothing.
+    consumed = _consume(
+        ctx, action, page, args.session, args.text, str(record.get("session_id") or "")
+    )
+    if isinstance(consumed, int):
+        return consumed
+    return ctx, record, consumed[0]
+
+
+def cmd_record_answer(args: argparse.Namespace) -> int:
+    consumed = _consume_action(args, "answer")
+    if isinstance(consumed, int):
+        return consumed
+    ctx, record, pending = consumed
+    record["blockers"][args.blocker].update(open=False, answered=_now())
     record["approvals"]["classes"].append(
-        {"class": "answer", "blocker": args.blocker, "text": args.text}
+        {"class": "answer", "blocker": args.blocker, "text": " / ".join(pending["paste_lines"])}
     )
     record["approvals_hmac"] = _sign(record, _secret(create=False) or b"")
     _write_record(ctx.record_path(), record)
@@ -1036,25 +1078,21 @@ def cmd_record_answer(args: argparse.Namespace) -> int:
 
 
 def cmd_record_pause(args: argparse.Namespace) -> int:
-    loaded = _load_for_update(args)
-    if isinstance(loaded, int):
-        return loaded
-    ctx, record = loaded
-    if not _origin_ok(args.session, [args.text], f"Pause the run of {ctx.rel}"):
-        return _blocked("approval-not-covered")
-    record["pause"] = {"at": _now(), "text_sha256": _digest(args.text)}
+    consumed = _consume_action(args, "pause")
+    if isinstance(consumed, int):
+        return consumed
+    ctx, record, pending = consumed
+    record["pause"] = {"at": _now(), "text_sha256": pending["paste_digests"][0]}
     _write_record(ctx.record_path(), record)
     print("PAUSED")
     return 0
 
 
 def cmd_record_resume(args: argparse.Namespace) -> int:
-    loaded = _load_for_update(args)
-    if isinstance(loaded, int):
-        return loaded
-    ctx, record = loaded
-    if not _origin_ok(args.session, [args.text], f"Resume the run of {ctx.rel}"):
-        return _blocked("approval-not-covered")
+    consumed = _consume_action(args, "resume")
+    if isinstance(consumed, int):
+        return consumed
+    ctx, record, _pending = consumed
     record["pause"] = None
     _write_record(ctx.record_path(), record)
     print("RESUMED")
@@ -1113,30 +1151,46 @@ def build_parser() -> argparse.ArgumentParser:
     record = sub.add_parser("record", help="write the run record").add_subparsers(
         dest="action", required=True
     )
+    render = record.add_parser(
+        "render", help="open an approval round and print the exact line the user pastes"
+    )
+    render.add_argument("plan")
+    render.add_argument(
+        "--session",
+        required=True,
+        help="session id, or 'auto' to bind whichever session captures the paste",
+    )
+    render.add_argument(
+        "--action", choices=approval_binding.ACTIONS, default="create"
+    )
+    render.add_argument("--approvals", help="JSON file of approval classes (create)")
+    render.add_argument("--blocker", type=int, help="open blocker index (answer)")
+    render.add_argument("--json", action="store_true")
+    render.set_defaults(func=cmd_record_render)
     create = record.add_parser("create")
     create.add_argument("plan")
     create.add_argument(
         "--session",
         required=True,
-        help="session id, or 'auto' to bind the session that captured the approvals",
+        help="session id, or 'auto' to bind the session that captured the paste line",
     )
     create.add_argument(
         "--approvals",
         required=True,
-        help="JSON file of approval tuples with verbatim user text",
+        help="the same JSON file of approval classes the page was rendered from",
     )
     create.set_defaults(func=cmd_record_create)
     answer = record.add_parser("answer")
     answer.add_argument("plan")
     answer.add_argument("--session", required=True)
     answer.add_argument("--blocker", type=int, required=True)
-    answer.add_argument("--text", required=True)
+    answer.add_argument("--text", help="when given, must equal the pasted line")
     answer.set_defaults(func=cmd_record_answer)
     for name, func in (("pause", cmd_record_pause), ("resume", cmd_record_resume)):
         action = record.add_parser(name)
         action.add_argument("plan")
         action.add_argument("--session", required=True)
-        action.add_argument("--text", required=True)
+        action.add_argument("--text", help="when given, must equal the pasted line")
         action.set_defaults(func=func)
     block = record.add_parser("block")
     block.add_argument("plan")

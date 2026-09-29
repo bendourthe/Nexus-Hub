@@ -2656,6 +2656,13 @@ install_templates() {
         safe_copy "$repo_host_source" "$scripts_dest/repo_host.py" true "[OK] Repository resolver installed at: $scripts_dest/repo_host.py"
     fi
 
+    # Copy the approval binder (v4.13.6). The completion checker imports it as
+    # a sibling to bind each approval to the exact line it generated.
+    local approval_binding_source="$repo_root/scripts/approval_binding.py"
+    if [ -f "$approval_binding_source" ]; then
+        safe_copy "$approval_binding_source" "$scripts_dest/approval_binding.py" true "[OK] Approval binder installed at: $scripts_dest/approval_binding.py"
+    fi
+
     # Copy the completion-gate core (v4.13.2). The completion-gate and
     # approval-capture hooks run it from this installed path only.
     local completion_gate_source="$repo_root/scripts/completion_gate.py"
