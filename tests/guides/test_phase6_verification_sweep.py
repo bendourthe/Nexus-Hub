@@ -15,13 +15,12 @@ THEMES = ("dark", "light")
 # off-by-one error is caught on the pixel where it happens, not averaged away between 420 and 900.
 WIDTHS = (320, 420, 720, 721, 900, 1440)
 TRAINING_SCENES = (
-    "describe",
-    "review",
+    "game",
+    "describe-review",
     "plan",
     "implement",
+    "fixed-game",
     "compare",
-    "test",
-    "update",
     "presentify",
 )
 
@@ -495,7 +494,7 @@ def test_all_pages_meet_contrast_and_overflow_matrix(render_gate: object) -> Non
                                         scene,
                                     )
                                     page.wait_for_function(
-                                        "scene => window.NexusTraining.snapshot().sceneId === scene",
+                                        "scene => window.NexusTraining.snapshot().sectionId === scene",
                                         arg=scene,
                                     )
                                     scene_audit = page.evaluate(PAGE_AUDIT)
@@ -875,14 +874,14 @@ def test_keyboard_and_reduced_motion_are_complete(render_gate: object) -> None:
                 page.keyboard.press("Enter")
                 page.wait_for_function("document.body.dataset.page === 'foundations'")
 
-                page.goto(f"{guide_url}#training/describe", wait_until="load")
+                page.goto(f"{guide_url}#training/game", wait_until="load")
                 page.wait_for_function("window.NexusTraining && window.NexusShooter")
                 # The idle gate means Space fires only in a STARTED, focused game, and
                 # this sweep runs under reduced motion, so the tick that spawns the shot
                 # is driven manually through the public step seam. Keyboard start is
                 # proven with a direct focus plus Enter; the full tab-ownership walk
                 # lives in test_arcade_shooter_game.py.
-                page.locator("[data-arcade-start]").focus()
+                page.locator('[data-arcade-id="buggy"] [data-arcade-start]').focus()
                 assert page.evaluate(
                     "document.activeElement.hasAttribute('data-arcade-start')"
                 ), "the start control must be keyboard-focusable"
@@ -903,7 +902,7 @@ def test_keyboard_and_reduced_motion_are_complete(render_gate: object) -> None:
                     "window.NexusShooter.snapshot().playerShots.length"
                 ) > before_shots
 
-                first_file = '[data-nht="file"]'
+                first_file = '[data-nht-section="game"] [data-nht="file"]'
                 _focus_by_tab_from_previous(page, first_file)
                 file_paths = page.locator(first_file).evaluate_all(
                     "items => items.map(item => item.dataset.filePath)"
@@ -927,9 +926,9 @@ def test_keyboard_and_reduced_motion_are_complete(render_gate: object) -> None:
                     "document.activeElement && document.activeElement.dataset.filePath"
                 ) == file_paths[-1]
                 page.keyboard.press("Space")
-                assert page.locator('[data-nht="file-path"]').inner_text() == file_paths[-1]
+                assert page.locator('[data-nht-section="game"] [data-nht="file-path"]').inner_text() == file_paths[-1]
                 assert page.locator(
-                    f'[data-nht="file"][data-file-path="{file_paths[-1]}"]'
+                    f'[data-nht-section="game"] [data-nht="file"][data-file-path="{file_paths[-1]}"]'
                 ).get_attribute("aria-selected") == "true"
 
                 page.keyboard.press("Home")
@@ -937,9 +936,9 @@ def test_keyboard_and_reduced_motion_are_complete(render_gate: object) -> None:
                     "document.activeElement && document.activeElement.dataset.filePath"
                 ) == file_paths[0]
                 page.keyboard.press("Enter")
-                assert page.locator('[data-nht="file-path"]').inner_text() == file_paths[0]
+                assert page.locator('[data-nht-section="game"] [data-nht="file-path"]').inner_text() == file_paths[0]
                 assert page.locator(
-                    f'[data-nht="file"][data-file-path="{file_paths[0]}"]'
+                    f'[data-nht-section="game"] [data-nht="file"][data-file-path="{file_paths[0]}"]'
                 ).get_attribute("aria-selected") == "true"
 
                 _focus_by_tab_from_previous(
@@ -948,12 +947,12 @@ def test_keyboard_and_reduced_motion_are_complete(render_gate: object) -> None:
                 page.keyboard.press("Enter")
                 page.wait_for_function("document.body.dataset.page === 'cheatsheets'")
 
-                page.goto(f"{guide_url}#training/describe", wait_until="load")
+                page.goto(f"{guide_url}#training/game", wait_until="load")
                 page.wait_for_function("window.NexusShooter")
                 # Hash navigation is same-document, so the earlier keyboard block may
                 # already have consumed the start overlay; only click it if it is showing.
-                if page.locator("[data-arcade-start]").is_visible():
-                    page.locator("[data-arcade-start]").click()
+                if page.locator('[data-arcade-id="buggy"] [data-arcade-start]').is_visible():
+                    page.locator('[data-arcade-id="buggy"] [data-arcade-start]').click()
                 page.wait_for_function(
                     "window.NexusShooter.snapshot().lifecycle === 'paused'"
                 )
@@ -963,7 +962,7 @@ def test_keyboard_and_reduced_motion_are_complete(render_gate: object) -> None:
                 assert page.evaluate("window.NexusShooter.snapshot().tick") == before[
                     "tick"
                 ]
-                step_button = page.locator("[data-arcade-step]")
+                step_button = page.locator('[data-arcade-id="buggy"] [data-arcade-step]')
                 assert step_button.is_visible() and step_button.is_enabled()
                 step_button.click()
                 stepped = page.evaluate("window.NexusShooter.snapshot()")

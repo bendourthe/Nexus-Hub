@@ -1,0 +1,66 @@
+{
+    "allowlist":  null,
+    "file":  "guides/website/nexus-hub-guide.html",
+    "findings":  [
+                     {
+                         "measurements":  {
+                                              "client_width_px":  88,
+                                              "excess_px":  4,
+                                              "overflow_x":  "visible",
+                                              "scroll_width_px":  92,
+                                              "tolerance_px":  1
+                                          },
+                         "message":  "Content overflows horizontally without an overflow-x scroller",
+                         "rule":  "horizontal-overflow",
+                         "selector":  "body \u003e div \u003e main \u003e section:nth-of-type(3) \u003e div \u003e div:nth-of-type(2) \u003e nav \u003e button:nth-of-type(4)",
+                         "severity":  "high",
+                         "viewport":  {
+                                          "height":  900,
+                                          "width":  420
+                                      }
+                     },
+                     {
+                         "measurements":  {
+                                              "client_width_px":  88,
+                                              "excess_px":  13,
+                                              "overflow_x":  "visible",
+                                              "scroll_width_px":  101,
+                                              "tolerance_px":  1
+                                          },
+                         "message":  "Content overflows horizontally without an overflow-x scroller",
+                         "rule":  "horizontal-overflow",
+                         "selector":  "body \u003e div \u003e main \u003e section:nth-of-type(3) \u003e div \u003e div:nth-of-type(2) \u003e nav \u003e button:nth-of-type(8)",
+                         "severity":  "high",
+                         "viewport":  {
+                                          "height":  900,
+                                          "width":  420
+                                      }
+                     }
+                 ],
+    "font_floor_px":  12.0,
+    "fragment":  "training",
+    "gate_findings":  2,
+    "minimum_text_box_px":  {
+                                "height":  12.0,
+                                "width":  16.0
+                            },
+    "page_pass":  false,
+    "status":  "fail",
+    "suppressed_findings":  0,
+    "theme":  null,
+    "tolerance_px":  1.0,
+    "viewports":  [
+                      {
+                          "height":  900,
+                          "width":  420
+                      },
+                      {
+                          "height":  900,
+                          "width":  900
+                      },
+                      {
+                          "height":  900,
+                          "width":  1440
+                      }
+                  ]
+}
