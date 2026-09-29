@@ -38,9 +38,9 @@ def test_game_sleeps_and_resumes_without_duplicate_frame_loops(browser):
     before = page.evaluate("gameFrames")
     page.wait_for_timeout(150)
     assert page.evaluate("gameFrames") == before
-    page.evaluate("location.hash = 'training/describe'")
-    page.locator("[data-arcade-game]").scroll_into_view_if_needed()
-    page.locator("[data-arcade-start]").click()
+    page.evaluate("location.hash = 'training/game'")
+    page.locator('[data-arcade-id="buggy"]').scroll_into_view_if_needed()
+    page.locator('[data-arcade-id="buggy"] [data-arcade-start]').click()
     page.wait_for_function("NexusShooter.snapshot().tick > 2")
     page.evaluate("NexusShooter.pause('manual')")
     before = page.evaluate("gameFrames")
