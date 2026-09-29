@@ -12,14 +12,21 @@ GUIDE = Path(__file__).resolve().parents[2] / "guides" / "website" / "nexus-hub-
 REQUIRE_RENDER = os.environ.get("NEXUS_REQUIRE_RENDER") == "1"
 
 
-@pytest.fixture()
-def page():
+
+def _sync_playwright():
+    """Import Playwright, skipping (or failing under NEXUS_REQUIRE_RENDER=1) when it is absent."""
     try:
         from playwright.sync_api import sync_playwright
     except ImportError:
         if REQUIRE_RENDER:
             pytest.fail("NEXUS_REQUIRE_RENDER=1 but playwright is not installed")
         pytest.skip("playwright is not installed")
+    return sync_playwright
+
+
+@pytest.fixture()
+def page():
+    sync_playwright = _sync_playwright()
 
     with sync_playwright() as pw:
         browser = pw.chromium.launch()
@@ -53,7 +60,7 @@ def test_three_game_roots_keep_independent_state(page):
 
 
 def test_duplicate_game_ids_fail_before_partial_boot(tmp_path):
-    from playwright.sync_api import sync_playwright
+    sync_playwright = _sync_playwright()
 
     source = GUIDE.read_text(encoding="utf-8")
     marker = "  var registry = [];"

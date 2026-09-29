@@ -13,14 +13,20 @@ REQUIRE_RENDER = os.environ.get("NEXUS_REQUIRE_RENDER") == "1"
 ARCHETYPES = {"interceptor", "gunship", "lancer", "drone"}
 
 
-@pytest.fixture()
-def page():
+def _sync_playwright():
+    """Import Playwright, skipping (or failing under NEXUS_REQUIRE_RENDER=1) when it is absent."""
     try:
         from playwright.sync_api import sync_playwright
     except ImportError:
         if REQUIRE_RENDER:
             pytest.fail("NEXUS_REQUIRE_RENDER=1 but playwright is not installed")
         pytest.skip("playwright is not installed")
+    return sync_playwright
+
+
+@pytest.fixture()
+def page():
+    sync_playwright = _sync_playwright()
     with sync_playwright() as pw:
         browser = pw.chromium.launch()
         pg = browser.new_page(viewport={"width": 1440, "height": 940})
@@ -95,7 +101,7 @@ def test_lancers_become_more_common_after_early_wave(page):
 
 
 def _run_model_probe(tmp_path, body):
-    from playwright.sync_api import sync_playwright
+    sync_playwright = _sync_playwright()
 
     source = GUIDE.read_text(encoding="utf-8")
     marker = "  var registry = [];"

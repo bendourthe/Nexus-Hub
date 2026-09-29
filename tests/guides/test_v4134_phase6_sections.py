@@ -16,14 +16,20 @@ REQUIRE_RENDER = os.environ.get("NEXUS_REQUIRE_RENDER") == "1"
 EXPECTED = ["game", "describe-review", "plan", "implement", "fixed-game", "compare", "presentify"]
 
 
-@pytest.fixture()
-def page():
+def _sync_playwright():
+    """Import Playwright, skipping (or failing under NEXUS_REQUIRE_RENDER=1) when it is absent."""
     try:
         from playwright.sync_api import sync_playwright
     except ImportError:
         if REQUIRE_RENDER:
             pytest.fail("NEXUS_REQUIRE_RENDER=1 but playwright is not installed")
         pytest.skip("playwright is not installed")
+    return sync_playwright
+
+
+@pytest.fixture()
+def page():
+    sync_playwright = _sync_playwright()
 
     with sync_playwright() as pw:
         browser = pw.chromium.launch()
@@ -203,7 +209,7 @@ def test_current_section_jump_returns_to_section(page):
 
 
 def test_canvas_fallback_reports_each_game_mode():
-    from playwright.sync_api import sync_playwright
+    sync_playwright = _sync_playwright()
 
     with sync_playwright() as pw:
         browser = pw.chromium.launch()
@@ -248,7 +254,7 @@ def test_fixed_and_featured_games_accept_visible_controls_independently(page):
 
 
 def test_animated_command_can_finish_or_switch_actions():
-    from playwright.sync_api import sync_playwright
+    sync_playwright = _sync_playwright()
 
     with sync_playwright() as pw:
         browser = pw.chromium.launch()
@@ -281,7 +287,7 @@ def test_long_presentation_command_wraps_in_its_terminal(page):
 
 
 def test_hidden_training_page_pauses_game_without_intersection_observer():
-    from playwright.sync_api import sync_playwright
+    sync_playwright = _sync_playwright()
 
     with sync_playwright() as pw:
         browser = pw.chromium.launch()
