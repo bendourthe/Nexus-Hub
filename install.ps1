@@ -73,7 +73,7 @@ function Test-CommandExists {
 # which ignores that flag without a separate per-application opt-in.
 #
 # The catalog reaches 298 characters repo-relative under
-# docs/releases/v4/v4.9/development/security-audit-benchmark/, whose ledger entry
+# docs/archives/v4/v4.9/development/security-audit-benchmark/, whose ledger entry
 # filenames concatenate two SHA-256 hashes (148 characters). Any install prefix
 # pushes those past the limit, so extracting the catalog and then re-running the
 # bootstrap fails for every Windows user on a stock shell.

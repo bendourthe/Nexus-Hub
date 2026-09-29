@@ -1,7 +1,7 @@
 # Session History - v3.16.0 Phase 1: Defaults contract, generator, and guard
 
 **Date**: 2026-08-08
-**Plan**: [docs/releases/v3/v3.16/plans/v3.16.0-platform-defaults-config.md](../../../../../releases/v3/v3.16/plans/v3.16.0-platform-defaults-config.md)
+**Plan**: [docs/archives/v3/v3.16/plans/v3.16.0-platform-defaults-config.md](../../plans/v3.16.0-platform-defaults-config.md)
 **Phase**: 1 of 5 (not the final phase; no release-readiness workflow ran)
 **Branch**: `feat/platform-defaults-config`, cut from `develop`
 **Outcome**: Complete. All four quality gates passed.
@@ -67,7 +67,7 @@ End-to-end verification: a real `nexus-hub init` into a throwaway project wrote 
 
 ## Known gaps appended
 
-DF-1 (no CI path filter), DF-2 (closed, silent fallback), NI-1 (`configs/` not distributed), BG-1 (pre-existing bootstrap tar failure), WN-1 (stale worktree admin entries). Recorded in [docs/releases/v3/v3.16/known-gaps.md](../../known-gaps.md) under `## v3.16.0 - platform-defaults-config`.
+DF-1 (no CI path filter), DF-2 (closed, silent fallback), NI-1 (`configs/` not distributed), BG-1 (pre-existing bootstrap tar failure), WN-1 (stale worktree admin entries). Recorded in [docs/archives/v3/v3.16/known-gaps.md](../../known-gaps.md) under `## v3.16.0 - platform-defaults-config`.
 
 ## Next steps
 

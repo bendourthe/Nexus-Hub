@@ -462,7 +462,7 @@ The installer above is the primary path: every platform, hooks, and `nexus-hub u
 
 This is not a replacement for the installer. It does not install hooks, other platforms, or the `nexus-hub` CLI.
 
-If Anthropic later lists Nexus-Hub in `claude-plugins-official`, that listing is pinned to a git SHA that can lag tagged releases. Marketplace users may trail `main`. Prefer the installer, or this repo's marketplace added from a release tag, when you need the current release. The maintainer submission draft is [`docs/releases/v3/v3.20/development/claude-marketplace-submission.md`](docs/releases/v3/v3.20/development/claude-marketplace-submission.md).
+If Anthropic later lists Nexus-Hub in `claude-plugins-official`, that listing is pinned to a git SHA that can lag tagged releases. Marketplace users may trail `main`. Prefer the installer, or this repo's marketplace added from a release tag, when you need the current release. The maintainer submission draft is [`docs/archives/v3/v3.20/development/claude-marketplace-submission.md`](docs/archives/v3/v3.20/development/claude-marketplace-submission.md).
 
 ### Installing a subset (selective installation)
 

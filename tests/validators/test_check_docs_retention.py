@@ -365,7 +365,7 @@ def test_unproven_or_contradicted_closure_never_reports_a_minor(tmp_path: Path) 
 
 def test_real_v318_open_gap_prevents_archival() -> None:
     repo = _SCRIPT.resolve().parents[1]
-    gaps = repo / "docs" / "releases" / "v3" / "v3.18" / "known-gaps.md"
+    gaps = repo / "docs" / "archives" / "v3" / "v3.18" / "known-gaps.md"
     assert gaps.is_file()
     assert "BG-2" in gaps.read_text(encoding="utf-8")
     import importlib.util

@@ -1,7 +1,7 @@
 # Session History -- v3.3.0 adoption-loop-engineering Phase 4: Catalog integration, validation, and release readiness
 
 **Date**: 2026-06-11
-**Plan**: [`docs/releases/v3/v3.3/plans/adoption-loop-engineering.md`](../../../../../releases/v3/v3.3/plans/adoption-loop-engineering.md)
+**Plan**: [`docs/archives/v3/v3.3/plans/adoption-loop-engineering.md`](../../plans/adoption-loop-engineering.md)
 **Phase**: 4 of 4 (final) -- Catalog integration, validation, and release readiness
 **Branch**: `feat/adoption-loop-engineering` (Phases 1-3 already complete on the branch)
 **Outcome**: complete; all Phase 4 sub-tasks closed and the Phase 4 exit checklist is checked. The plan is complete and ready for the develop-to-main release via `/update version` (MINOR -> v3.3.0).
@@ -48,7 +48,7 @@ None. `make` unavailability is the standing WN-v33-1 local limitation (gate emul
 
 ## Known gaps
 
-See [`docs/releases/v3/v3.3/known-gaps.md`](../known-gaps.md). Phase 4 resolved DF-v33-1 (allowlist) and recorded two new items, both pre-existing and out of scope:
+See [`docs/archives/v3/v3.3/known-gaps.md`](../known-gaps.md). Phase 4 resolved DF-v33-1 (allowlist) and recorded two new items, both pre-existing and out of scope:
 
 - **WN-v33-4** (WN): three other pushy-description skills (`ai-attack-patterns`, `pentest-reporting`, `git-branching-workflow`) are not in the allowlist, so the strict `--allow-existing` pass shows 3 errors. Not a `make validate` gate. Suggested fix: allowlist them (or shorten) in a dedicated drain pass.
 - **BG-v33-1** (BG): `session-teach-back/SKILL.md` has a dangling `[[generate-session-history]]` link (introduced v3.2.0, commit db9db4b); the real skill is `session-history`. Suggested fix: repoint to `[[session-history]]` in a cross-link cleanup pass.

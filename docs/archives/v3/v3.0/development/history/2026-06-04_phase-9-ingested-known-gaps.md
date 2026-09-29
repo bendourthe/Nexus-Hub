@@ -1,7 +1,7 @@
 # Session History -- v3.0.0 Phase 9: Ingested known-gaps (Swift/Kotlin extractors, heading cleanup, NI-v24-1)
 
 **Date**: 2026-06-04
-**Plan**: [`docs/releases/v3/v3.0/plans/command-consolidation-skill-security.md`](../../../../../releases/v3/v3.0/plans/command-consolidation-skill-security.md)
+**Plan**: [`docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md`](../../plans/command-consolidation-skill-security.md)
 **Phase**: 9 of 10 -- Ingested known-gaps (carried forward from v2.4.0)
 **Outcome**: complete; all sub-tasks (T040-T043) closed, all applicable quality gates green.
 
@@ -44,7 +44,7 @@ Resolve the three actionable v2.4.0 known-gaps ingested into the v3.0.0 plan: ad
 
 ## Known gaps
 
-See [`docs/releases/v3/v3.0/known-gaps.md`](../../known-gaps.md). Two new open items this phase: DF-v30-5 (the remaining ~8 code-search languages plus framework/parameter parity, carried forward from DF-v24-7) and WN-v30-7 (local `make` / `shellcheck` unavailable on the Windows host -- gate emulated directly all-green, no shell surface this phase, covered by CI). Three ingested gaps resolved: NI-v24-1 (won't-do, by convention), DF-v24-7 (Swift/Kotlin shipped; remainder -> DF-v30-5), WN-v24-2 (duplicate headings merged). Summary: 12 open (5 DF, 7 WN), 3 resolved.
+See [`docs/archives/v3/v3.0/known-gaps.md`](../../known-gaps.md). Two new open items this phase: DF-v30-5 (the remaining ~8 code-search languages plus framework/parameter parity, carried forward from DF-v24-7) and WN-v30-7 (local `make` / `shellcheck` unavailable on the Windows host -- gate emulated directly all-green, no shell surface this phase, covered by CI). Three ingested gaps resolved: NI-v24-1 (won't-do, by convention), DF-v24-7 (Swift/Kotlin shipped; remainder -> DF-v30-5), WN-v24-2 (duplicate headings merged). Summary: 12 open (5 DF, 7 WN), 3 resolved.
 
 ## Next steps
 

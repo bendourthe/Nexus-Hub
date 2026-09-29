@@ -1,7 +1,7 @@
 # Session History -- v3.0.0 Phase 5: Remaining commands + permanent aliases
 
 **Date**: 2026-06-03
-**Plan**: [`docs/releases/v3/v3.0/plans/command-consolidation-skill-security.md`](../../../../../releases/v3/v3.0/plans/command-consolidation-skill-security.md)
+**Plan**: [`docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md`](../../plans/command-consolidation-skill-security.md)
 **Phase**: 5 of 10 -- Remaining commands + permanent aliases
 **Outcome**: complete; all sub-tasks (T018-T025) closed, all applicable quality gates green.
 
@@ -52,7 +52,7 @@ Ship the remaining eight verb-first commands (`/compare`, `/research`, `/skills`
 
 ## Known gaps
 
-See [`docs/releases/v3/v3.0/known-gaps.md`](../../known-gaps.md). No new open items this phase. WN-v30-1 (Phase 1, ShellCheck deferred to CI) and WN-v30-2 (Phase 2, build_skills_catalog.py drift) remain open and unchanged; the summary stays at 2 open WN.
+See [`docs/archives/v3/v3.0/known-gaps.md`](../../known-gaps.md). No new open items this phase. WN-v30-1 (Phase 1, ShellCheck deferred to CI) and WN-v30-2 (Phase 2, build_skills_catalog.py drift) remain open and unchanged; the summary stays at 2 open WN.
 
 ## Next steps
 

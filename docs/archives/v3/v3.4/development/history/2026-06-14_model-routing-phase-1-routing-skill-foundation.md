@@ -1,7 +1,7 @@
 # Session History -- v3.4.0 model-routing Phase 1: Routing skill foundation
 
 **Date**: 2026-06-14
-**Plan**: [`docs/releases/v3/v3.4/plans/model-routing.md`](../../../../../releases/v3/v3.4/plans/model-routing.md)
+**Plan**: [`docs/archives/v3/v3.4/plans/model-routing.md`](../../plans/model-routing.md)
 **Phase**: 1 of 4 -- Routing skill foundation (skill-native)
 **Branch**: `develop` (integration branch; no version tag cut this phase)
 **Outcome**: complete; all Phase 1 sub-tasks closed and the Phase 1 exit checklist is satisfied.
@@ -51,7 +51,7 @@ None. The plan's sub-task 1.4 referenced `total_skills` "in `statistics`" of `ma
 
 ## Known gaps
 
-See [`docs/releases/v3/v3.4/known-gaps.md`](../../known-gaps.md). Three open items: DF-v34-1 (helper ShellCheck/pytest gate deferred to Phase 2.4), WN-v33-1 (local `make`/ShellCheck unavailable; validators run directly), WN-v33-2 (benign pre-existing global-audit warnings outside this work). No resolved items yet.
+See [`docs/archives/v3/v3.4/known-gaps.md`](../../known-gaps.md). Three open items: DF-v34-1 (helper ShellCheck/pytest gate deferred to Phase 2.4), WN-v33-1 (local `make`/ShellCheck unavailable; validators run directly), WN-v33-2 (benign pre-existing global-audit warnings outside this work). No resolved items yet.
 
 ## Next steps
 

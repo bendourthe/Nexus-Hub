@@ -1,7 +1,7 @@
 # Session History -- v3.2.0 adoption-teach Phase 2: Modes + interaction enhancements
 
 **Date**: 2026-06-08
-**Plan**: [`docs/releases/v3/v3.2/plans/adoption-teach.md`](../../../../../releases/v3/v3.2/plans/adoption-teach.md)
+**Plan**: [`docs/archives/v3/v3.2/plans/adoption-teach.md`](../../plans/adoption-teach.md)
 **Phase**: 2 of 3 -- modes + interaction enhancements
 **Branch**: `feat/adoption-teach`
 **Outcome**: complete; all four sub-tasks (T004-T007) closed, all quality gates green.
@@ -46,7 +46,7 @@ Extend the `session-teach-back` skill body (shipped in Phase 1) with the four re
 
 ## Known gaps
 
-See [`docs/releases/v3/v3.2/known-gaps.md`](../../known-gaps.md). 0 new open items this phase, 0 resolved; 3 WN open total. WN-v32-1 was updated (description grew 828 -> 923 chars with the two teaching-mode trigger phrases; still allowlisted, still not a gate) and WN-v32-2 was re-confirmed for Phase 2 (local make/shellcheck absent; phase added only Markdown + JSON). WN-v32-3 (count-prose reconciliation at the release bump) is unchanged -- the catalog is still 251.
+See [`docs/archives/v3/v3.2/known-gaps.md`](../../known-gaps.md). 0 new open items this phase, 0 resolved; 3 WN open total. WN-v32-1 was updated (description grew 828 -> 923 chars with the two teaching-mode trigger phrases; still allowlisted, still not a gate) and WN-v32-2 was re-confirmed for Phase 2 (local make/shellcheck absent; phase added only Markdown + JSON). WN-v32-3 (count-prose reconciliation at the release bump) is unchanged -- the catalog is still 251.
 
 ## Next steps
 

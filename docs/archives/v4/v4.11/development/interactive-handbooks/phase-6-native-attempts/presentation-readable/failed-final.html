@@ -1,0 +1,728 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aster service review</title><style>
+[data-dv-zoom-view]{max-height:320px;overflow:auto}[data-dv-zoom-view]>svg{max-width:none;width:100%;display:block}.dv-figure-tools{display:flex;gap:1rem;align-items:center;flex-wrap:wrap}.dv-figure-tools label{display:flex;gap:.5rem;align-items:center}[data-region][data-selected=true]{stroke:currentColor;stroke-width:4}html{font:18px/1.55 system-ui,sans-serif;scrollbar-color:#52677b transparent}body{margin:0;background:#f5f3ec;color:#15283c}*{box-sizing:border-box}button,input,select{font:inherit}button{cursor:pointer;min-height:44px}header,[data-dv-section]{padding:clamp(1.25rem,4vw,4rem)}header h1{font-size:clamp(2rem,5vw,4rem);line-height:1.1}header>svg{width:240px;max-height:60px}[data-theme=dark]{background:#142235;color:#f5f3ec}[data-theme=light]{background:#f5f3ec;color:#15283c}h2{overflow-wrap:anywhere}[data-dv-section] h2{font-size:clamp(1.5rem,3vw,2.7rem);line-height:1.15}.dv-top-menu{display:flex;justify-content:space-between;background:#f5f3ec;color:#15283c;padding:.5rem;z-index:2}figure svg text:not([fill]),figure svg marker path:not([fill]){fill:currentColor}figure{margin:0;min-width:0}figure>svg{width:100%;max-height:220px}figcaption{font-size:1rem}.dv-chart svg{width:100%;min-width:650px;max-height:290px}.dv-chart svg text{font-size:24px;fill:currentColor;stroke:none}.dv-chart [data-dv-native]{overflow:auto}.dv-legend{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap}.dv-legend button{background:transparent;color:inherit;border:1px solid currentColor;border-radius:.5rem}.dv-directory{max-height:200px;overflow:auto;scrollbar-color:currentColor transparent}table{border-collapse:collapse;font-size:1rem}td,th{padding:.3rem .7rem;border-bottom:1px solid currentColor;text-align:left}pre{font-size:1rem}.dv-image{border:0;background:transparent;padding:0}.dv-image img{object-fit:contain;max-width:100%;max-height:240px}.dv-brand{position:absolute;right:1rem;top:1rem;max-width:120px}.dv-brand svg{width:100%}[data-dv-slide]>.dv-brand~*{min-width:0}[data-dv-slide]:has(.dv-brand)>h2{padding-right:140px}[data-dv-slide]>[data-dv-unit]{min-width:0}[data-dv-slide] details[open]{overflow:auto;max-height:180px}[data-dv-map] input{width:100%}[data-dv-region][hidden]{display:none!important}[data-dv-region]{display:block;width:100%;text-align:left}.dv-enlargement{max-width:94vw;max-height:90vh}.dv-enlargement img{max-width:85vw;max-height:75vh;object-fit:contain}dialog::backdrop{background:#101820cc}@media(max-width:760px){[data-dv-slide]:has(.dv-brand)>h2{padding-right:0;padding-top:3rem}}@media print{.dv-top-menu,button,input,select,dialog,[data-dv-deck]{display:none!important}[data-dv-page]{display:block!important}[data-dv-section]{break-inside:avoid}[data-dv-page]{print-color-adjust:exact;-webkit-print-color-adjust:exact}}
+@media print{
+  [data-dv-page] .dv-directory,[data-dv-page] [data-dv-native],[data-dv-page] [data-dv-zoom-view]{height:auto!important;max-height:none!important;overflow:visible!important}
+  [data-dv-page] .dv-image,[data-dv-page] .dv-directory [data-dv-region]{display:block!important}
+  [data-dv-page] .dv-legend button{display:inline-flex!important}
+  [data-dv-page] .dv-image img{max-height:none;max-width:100%}
+  [data-dv-page] .dv-figure-tools,[data-dv-page] [data-dv-map]>label{display:none!important}
+  [data-dv-page] details::details-content{content-visibility:visible!important}
+  [data-dv-page] summary{list-style:none}
+}
+/* Namespaced mechanics; project authors retain composition and brand tokens. */
+[data-dv-deck][hidden], [data-dv-slide][hidden] { display: none !important; }
+[data-dv-open], [data-dv-chapter] { display: none; }
+[data-dv-ready] [data-dv-open], [data-dv-ready] [data-dv-chapter] { display: inline-flex; }
+[data-dv-deck] {
+  --dv-bg: #f5f3ec; --dv-fg: #15283c; --dv-muted: #45566a;
+  box-sizing: border-box; position: fixed; inset: 0; z-index: 1000;
+  width: 100%; height: 100dvh; color: var(--dv-fg); background: var(--dv-bg);
+  display: grid; grid-template-rows: minmax(0, 1fr) auto;
+  font: 1.125rem/1.45 system-ui, sans-serif;
+}
+[data-dv-deck][data-theme="dark"] { --dv-bg: #142235; --dv-fg: #f5f3ec; --dv-muted: #c2d1df; color-scheme: dark; }
+[data-dv-deck][data-theme="light"] { color-scheme: light; }
+[data-dv-deck] *, [data-dv-page] * { box-sizing: border-box; }
+.dv-stage { min-width: 0; min-height: 0; display: grid; }
+[data-dv-slide] {
+  min-width: 0; min-height: 0; padding: clamp(1rem, 3vw, 3rem);
+  display: flex; flex-direction: column; justify-content: center; gap: clamp(.5rem, 1.4vh, 1.5rem);
+  position: relative; background: var(--dv-bg); color: var(--dv-fg);
+}
+[data-dv-slide] h1, [data-dv-slide] h2 { font-size: clamp(1.5rem, 3vw, 3.5rem); line-height: 1.1; margin: 0; overflow-wrap: anywhere; }
+[data-dv-slide] p { margin: 0; }
+[data-dv-slide] input, [data-dv-slide] button, [data-dv-slide] select { font: inherit; min-height: 44px; max-width: 100%; }
+[data-dv-slide] button { align-self: flex-start; }
+[data-dv-slide] h2:focus, [data-dv-slide] h1:focus { outline: none; }
+[data-dv-slide] img { max-width: 100%; max-height: 42vh; object-fit: contain; }
+[data-dv-slide] svg { max-width: 100%; }
+[data-dv-controls] {
+  display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
+  gap: .5rem; padding: .6rem; border-top: 1px solid currentColor;
+  background: var(--dv-bg); color: var(--dv-fg);
+}
+[data-dv-controls] button, [data-dv-controls] select {
+  color: inherit; background: transparent; border: 1px solid currentColor;
+  border-radius: .5rem; padding: .4rem .65rem; font: inherit; min-height: 44px;
+}
+[data-dv-controls] select { max-width: min(30vw, 16rem); }
+[data-dv-controls] button { display: inline-flex; align-items: center; gap: .3rem; }
+[data-dv-controls] button:disabled { opacity: .45; }
+[data-dv-controls] svg { width: 1.25rem; height: 1.25rem; fill: none; stroke: currentColor; stroke-width: 2; }
+[data-dv-deck] :focus-visible, [data-dv-page] :focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
+[data-dv-native] { overflow: auto; scrollbar-width: thin; scrollbar-color: currentColor transparent; }
+[data-dv-page] { scrollbar-color: #52677b transparent; }
+[data-dv-page] [data-theme="dark"] { scrollbar-color: #c2d1df transparent; }
+[data-dv-native]::-webkit-scrollbar { width: 10px; height: 10px; }
+[data-dv-native]::-webkit-scrollbar-track { background: transparent; }
+[data-dv-native]::-webkit-scrollbar-thumb { background: var(--dv-muted, #52677b); border-radius: 1rem; }
+[data-dv-native]::-webkit-scrollbar-thumb:hover { background: currentColor; }
+[data-dv-slide] dialog { max-width: min(90vw, 60rem); max-height: 80dvh; color: inherit; background: var(--dv-bg); }
+@media (max-width: 760px) {
+  .dv-stage { overflow-y: auto; }
+  [data-dv-slide] { justify-content: flex-start; align-self: start; height: auto; min-height: 100%; }
+  [data-dv-slide] > * { flex-shrink: 0; }
+  [data-dv-controls] { gap: .25rem; }
+  [data-dv-controls] button { padding: .3rem; font-size: 1rem; }
+  [data-dv-controls] select { max-width: 40vw; }
+}
+@media (forced-colors: active) { [data-dv-native], [data-dv-page] { scrollbar-color: auto; } }
+@media (prefers-reduced-motion: reduce) { [data-dv-deck] *, [data-dv-page] * { animation: none !important; transition: none !important; } }
+@media print { [data-dv-deck], [data-dv-open], [data-dv-chapter], [data-dv-status] { display: none !important; } [data-dv-page] { display: block !important; } }
+/* Aster Fieldworks service review - retained authored stylesheet.
+   Direction: warm-paper editorial dossier. Palette pinned by inputs/brand.json.
+   Width contract: the builder's own [data-dv-page] standard column is the single
+   primary responsive container; no text-bearing selector carries a px or ch cap. */
+:root{
+  --ed-paper:#f7f3e9; --ed-surface:#efe7d6; --ed-ink:#172b3b;
+  --ed-muted-text:#3f5568; --ed-accent-text:#94491d; --ed-accent-rule:#b5632f;
+  --ed-rule:#d8ccb4; --ed-shadow:0 1px 2px rgba(23,43,59,.06), 0 10px 26px rgba(23,43,59,.07);
+  --ed-step-1:clamp(1rem,.12vw + .96rem,1.15rem);
+  --ed-step-2:clamp(1rem,.2vw + .94rem,1.2rem);
+  --ed-step-3:clamp(1.2rem,.5vw + 1.05rem,1.7rem);
+  --ed-step-4:clamp(1.7rem,1.6vw + 1.1rem,3rem);
+  --ed-step-5:clamp(2.3rem,3.2vw + 1.1rem,4.6rem);
+  --ed-gap:clamp(1rem,1.8vw,2.4rem);
+  --ed-band:clamp(1.5rem,3.4vw,3.6rem);
+}
+html{font-size:clamp(1rem,0.5vw + 0.55rem,1.6rem);font-family:Arial,Helvetica,sans-serif}
+body{background:var(--ed-surface);color:var(--ed-ink);font-family:Arial,Helvetica,sans-serif}
+[data-dv-page] [data-theme=light]{background:var(--ed-paper);color:var(--ed-ink)}
+[data-dv-page] [data-theme=dark]{background:var(--ed-ink);color:var(--ed-paper);
+  --ed-muted-text:#c9d6e0; --ed-accent-text:#e0a06a; --ed-rule:#33485c; --ed-surface:#22384c; --ed-paper:#172b3b;
+  --ed-shadow:0 1px 2px rgba(0,0,0,.3), 0 12px 30px rgba(0,0,0,.28)}
+[data-dv-deck][data-theme=light]{--dv-bg:#f7f3e9;--dv-fg:#172b3b;--dv-muted:#3f5568}
+[data-dv-deck][data-theme=dark]{--dv-bg:#172b3b;--dv-fg:#f7f3e9;--dv-muted:#c9d6e0}
+[data-dv-deck][data-theme=dark] [data-dv-slide]{--ed-accent-text:#e0a06a;--ed-rule:#33485c;--ed-surface:#22384c;--ed-muted-text:#c9d6e0;--ed-paper:#172b3b}
+[data-dv-deck][data-theme=light] [data-dv-slide]{--ed-accent-text:#94491d;--ed-rule:#d8ccb4;--ed-surface:#efe7d6;--ed-muted-text:#3f5568;--ed-paper:#f7f3e9}
+[data-dv-slide]{font-family:Arial,Helvetica,sans-serif}
+[data-dv-page] header{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;
+  column-gap:var(--ed-gap);row-gap:.4rem;
+  padding:clamp(1rem,2.2vw,2.2rem) var(--ed-band);background:var(--ed-surface);border-bottom:2px solid var(--ed-rule)}
+[data-dv-page] header>svg{grid-row:1;grid-column:1;width:min(260px,52vw);max-height:52px;justify-self:start}
+[data-dv-page] header h1{grid-row:2;grid-column:1;font-size:var(--ed-step-3);letter-spacing:.01em;margin:0;font-weight:700}
+[data-dv-page] header [data-dv-open]{grid-row:1 / span 2;grid-column:2;justify-self:end}
+.dv-top-menu{position:static;background:var(--ed-surface);color:var(--ed-ink);
+  padding:.45rem var(--ed-band);border-bottom:1px solid var(--ed-rule);align-items:center;gap:var(--ed-gap)}
+.dv-top-menu a{color:var(--ed-accent-text);font-weight:700;text-decoration:none;font-size:var(--ed-step-1);
+  border-bottom:2px solid transparent;padding:.35rem .15rem}
+.dv-top-menu a:hover,.dv-top-menu a:focus-visible{border-bottom-color:var(--ed-accent-rule)}
+[data-dv-open]{background:var(--ed-accent-text);color:#ffffff;border:0;border-radius:.55rem;
+  padding:.6rem 1.1rem;font-size:var(--ed-step-1);font-weight:700;letter-spacing:.02em;box-shadow:var(--ed-shadow)}
+[data-dv-open]:hover{background:var(--ed-ink)}
+[data-dv-page] [data-dv-section]{padding:var(--ed-band);scroll-margin-top:4.6rem;position:relative}
+[data-dv-page] [data-dv-section] h2{font-size:var(--ed-step-4);font-weight:700;letter-spacing:-.01em;
+  margin:0 0 .5em;text-wrap:balance}
+[data-dv-page] [data-dv-section]:target h2{color:var(--ed-accent-text)}
+[data-dv-page] p{font-size:var(--ed-step-2);line-height:1.6;margin:0 0 .8em}
+[data-dv-page] li{font-size:var(--ed-step-2);line-height:1.6}
+.ed-lede{font-size:var(--ed-step-3);line-height:1.4;color:var(--ed-muted-text);text-wrap:pretty}
+.ed-eyebrow{font-size:var(--ed-step-1);font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ed-accent-text);margin:0 0 .6em}
+.ed-caveat{font-size:var(--ed-step-1);color:var(--ed-muted-text);border-left:3px solid var(--ed-accent-rule);padding-left:.9em}
+.ed-hero{display:grid;gap:var(--ed-gap);grid-template-columns:minmax(0,1fr)}
+.ed-question{font-size:var(--ed-step-3);font-weight:400;font-style:italic;color:var(--ed-muted-text);margin:0;text-wrap:pretty}
+.ed-answer p{font-size:clamp(1.5rem,1.1vw + 1rem,2.2rem);line-height:1.2;font-weight:700;
+  letter-spacing:-.015em;margin:0;text-wrap:balance}
+.ed-note p{font-size:var(--ed-step-1);color:var(--ed-muted-text);margin:0;letter-spacing:.02em}
+.ed-stats{list-style:none;margin:0;padding:0;display:grid;gap:clamp(.6rem,1vw,1.1rem);
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,12rem),1fr))}
+.ed-stats li{display:grid;gap:.15rem;padding:clamp(.8rem,1.2vw,1.3rem);background:var(--ed-surface);
+  border-radius:.9rem;border:1px solid var(--ed-rule);box-shadow:var(--ed-shadow)}
+.ed-stat-n{font-size:var(--ed-step-5);line-height:1;font-weight:700;color:var(--ed-accent-text);letter-spacing:-.03em}
+.ed-stat-l{font-size:var(--ed-step-1);color:var(--ed-muted-text);letter-spacing:.06em;text-transform:uppercase}
+@media (max-width:880px){.ed-stats{grid-template-columns:repeat(auto-fit,minmax(min(100%,9rem),1fr))}}
+.ed-agenda,.ed-evidence,.ed-bounds{display:grid;gap:var(--ed-gap)}
+.ed-agenda-grid{display:grid;gap:var(--ed-gap);grid-template-columns:repeat(auto-fit,minmax(min(100%,20rem),1fr));align-items:start}
+.ed-agenda-list{background:var(--ed-surface);border:1px solid var(--ed-rule);border-radius:.9rem;
+  padding:clamp(.9rem,1.4vw,1.5rem)}
+.ed-agenda-list ol,.ed-agenda-list ul{margin:0;padding-left:1.2em}
+.ed-agenda-list li{margin:.4em 0}
+.ed-jump{display:grid;gap:.7rem}
+.ed-jump a{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto auto;column-gap:1rem;
+  align-items:baseline;text-decoration:none;color:inherit;background:var(--ed-surface);
+  border:1px solid var(--ed-rule);border-radius:.9rem;padding:clamp(.8rem,1.2vw,1.2rem);
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+.ed-jump a:hover,.ed-jump a:focus-visible{transform:translateY(-2px);box-shadow:var(--ed-shadow);border-color:var(--ed-accent-rule)}
+.ed-jump-n{grid-row:1 / span 2;font-size:var(--ed-step-4);font-weight:700;color:var(--ed-accent-text);line-height:1}
+.ed-jump-t{font-size:var(--ed-step-3);font-weight:700}
+.ed-jump-d{font-size:var(--ed-step-1);color:var(--ed-muted-text)}
+[data-dv-page]:has(#service-path:target) .ed-jump a[href="#service-path"],
+[data-dv-page]:has(#visits:target) .ed-jump a[href="#visits"],
+[data-dv-page]:has(#boundaries:target) .ed-jump a[href="#boundaries"]{border-color:var(--ed-accent-rule);
+  border-left-width:6px;background:var(--ed-paper)}
+.ed-split,.ed-evidence-grid{display:grid;gap:var(--ed-gap);align-items:start;grid-template-columns:minmax(0,1fr)}
+.ed-bounds-grid{display:grid;gap:var(--ed-gap);align-items:start;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,22rem),1fr))}
+.ed-split>*,.ed-evidence-grid>*,.ed-bounds-grid>*{min-width:0}
+.ed-split-figure,.ed-evidence-figure{background:var(--ed-surface);border:1px solid var(--ed-rule);
+  border-radius:1.1rem;padding:clamp(.8rem,1.6vw,1.6rem);box-shadow:var(--ed-shadow);min-width:0}
+.ed-split-figure figure,.ed-evidence-figure figure,.ed-slide-process-figure figure{overflow-x:auto;
+  scrollbar-width:thin;scrollbar-color:currentColor transparent}
+.ed-split-figure figure>svg{width:100%;min-width:660px;max-width:1100px;max-height:none;height:auto}
+.ed-split-figure figcaption,.ed-evidence-figure figcaption{font-size:var(--ed-step-1);color:var(--ed-muted-text);margin-top:.6em}
+.ed-dossier{margin-top:var(--ed-gap);border:1px solid var(--ed-rule);border-radius:.9rem;
+  background:var(--ed-surface);padding:0 clamp(.8rem,1.2vw,1.2rem)}
+.ed-dossier summary{cursor:pointer;padding:.9rem 0;font-size:var(--ed-step-2);font-weight:700;color:var(--ed-accent-text)}
+.ed-dossier summary:hover,.ed-dossier summary:focus-visible{text-decoration:underline;text-underline-offset:.25em}
+.ed-dossier[open]{padding-bottom:clamp(.6rem,1vw,1rem)}
+.ed-dossier dl{margin:0}
+.ed-dossier dt{font-weight:700;color:var(--ed-accent-text);font-size:var(--ed-step-2);margin-top:.7em}
+.ed-dossier dd{margin:.15em 0 0;font-size:var(--ed-step-2);line-height:1.55}
+.ed-dossier ul{margin:0 0 .8em;padding-left:1.2em}
+.ed-bounds-uncertain{background:var(--ed-surface);border:1px solid var(--ed-rule);border-left:6px solid var(--ed-accent-rule);
+  border-radius:1.1rem;padding:clamp(1rem,1.8vw,1.8rem);box-shadow:var(--ed-shadow)}
+.ed-bounds-uncertain .ed-dossier{background:transparent}
+.ed-bounds-stated{padding-top:.2rem}
+.dv-chart figcaption{font-size:var(--ed-step-2);font-weight:700;margin-bottom:.5em}
+.dv-chart svg text{font-size:26px}
+.dv-legend{justify-content:flex-start;margin-top:.6rem}
+.dv-legend button{background:var(--ed-paper);color:inherit;border:1px solid var(--ed-rule);
+  border-radius:.6rem;padding:.4rem .9rem;font-size:var(--ed-step-1);font-weight:700}
+.dv-legend button:hover,.dv-legend button:focus-visible{border-color:var(--ed-accent-rule)}
+.dv-legend button[aria-pressed=false]{opacity:.6;text-decoration:line-through}
+.dv-figure-tools{margin-top:.7rem;font-size:var(--ed-step-1)}
+.dv-figure-tools button{background:transparent;color:inherit;border:1px solid var(--ed-rule);border-radius:.6rem;padding:.35rem .8rem}
+.dv-figure-tools button:hover,.dv-figure-tools button:focus-visible{border-color:var(--ed-accent-rule)}
+.dv-chart details summary{cursor:pointer;font-size:var(--ed-step-1);font-weight:700;color:var(--ed-accent-text);padding:.6rem 0}
+.dv-chart table{font-size:var(--ed-step-1)}
+.dv-chart tbody tr:hover{background:var(--ed-paper)}
+[data-dv-page] .dv-chart [data-dv-zoom-view]{max-height:none}
+[data-dv-page] figure img,[data-dv-page] .dv-image img{max-height: 80vh;object-fit: contain;max-width:100%}
+[data-dv-slide]{padding:clamp(.7rem,2.4vh,2.6rem) clamp(1.2rem,3.6vw,4rem);gap:clamp(.4rem,1.4vh,1.3rem)}
+[data-dv-slide] h2{font-size:clamp(1.4rem,2.6vw,2.9rem);font-weight:700;letter-spacing:-.015em;text-wrap:balance}
+[data-dv-slide] p,[data-dv-slide] li{font-size:clamp(1rem,1.1vw,1.45rem);line-height:1.45}
+[data-dv-slide] ul{margin:0;padding-left:1.2em}
+[data-dv-slide] .dv-brand{max-width:min(190px,22vw)}
+.ed-slide-cover{display:grid;gap:clamp(.6rem,1.8vh,1.5rem);align-content:center}
+.ed-slide-answer p{font-size:clamp(1.4rem,2.5vw,2.9rem);line-height:1.18;font-weight:700;margin:0;letter-spacing:-.02em;text-wrap:balance}
+.ed-slide-foot{display:grid;gap:.3rem;border-top:2px solid var(--ed-accent-rule);padding-top:clamp(.5rem,1.2vh,1rem)}
+.ed-slide-meta{font-size:clamp(1rem,.8vw,1.1rem);color:var(--ed-muted-text);margin:0}
+.ed-slide-agenda{display:grid;gap:clamp(.6rem,1.6vh,1.4rem);align-content:center}
+.ed-slide-agenda-list ol,.ed-slide-agenda-list ul{margin:0;padding-left:1.3em}
+.ed-slide-agenda-list li{margin:.45em 0;font-size:clamp(1.1rem,1.8vw,2.1rem);font-weight:700}
+.ed-slide-process{display:grid;gap:clamp(.6rem,1.6vh,1.3rem);min-height:0;align-content:center}
+.ed-slide-process-figure{min-height:0;min-width:0;background:var(--ed-surface);border:1px solid var(--ed-rule);
+  border-radius:1rem;padding:clamp(.5rem,1.2vw,1.1rem)}
+.ed-slide-process-figure figure>svg{max-height:min(30vh,360px);width:100%;min-width:660px}
+.ed-slide-process-figure figcaption{font-size:clamp(1rem,.8vw,1.1rem);color:var(--ed-muted-text)}
+.ed-slide-evidence{display:grid;gap:var(--ed-gap);grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);align-items:center;min-height:0}
+.ed-slide-evidence-figure{min-width:0;background:var(--ed-surface);border:1px solid var(--ed-rule);
+  border-radius:1rem;padding:clamp(.5rem,1.2vw,1.1rem)}
+.ed-slide-evidence-figure .dv-chart svg{max-height:min(26vh,240px)}
+.ed-slide-evidence-figure .dv-chart [data-dv-zoom-view]{max-height:min(30vh,270px)}
+[data-dv-slide] .dv-figure-tools{margin-top:.4rem}
+[data-dv-slide] .dv-legend{margin-top:.35rem}
+.ed-slide-evidence-text{display:grid;gap:.7rem;min-width:0}
+.ed-slide-bounds{display:grid;gap:var(--ed-gap);grid-template-columns:repeat(auto-fit,minmax(min(100%,18rem),1fr));align-items:start}
+.ed-slide-bounds>*{min-width:0}
+.ed-slide-bounds-b{background:var(--ed-surface);border-left:6px solid var(--ed-accent-rule);border-radius:.9rem;
+  padding:clamp(.8rem,1.6vw,1.4rem)}
+.ed-slide-bounds-b .ed-eyebrow{margin-bottom:.4em}
+@media (max-width:1100px){.ed-slide-evidence{grid-template-columns:minmax(0,1fr)}}
+/* Measured-space omission: below 900px the upper-right corner is occupied by the
+   slide title, so the per-slide mark is omitted rather than rendered illegibly. */
+@media (max-width:900px){[data-dv-slide] .dv-brand{display:none}[data-dv-slide]:has(.dv-brand)>h2{padding-top:0}}
+@supports (animation-timeline:view()){
+  @media (prefers-reduced-motion:no-preference){
+    [data-dv-page] [data-dv-section]:not(:first-of-type) > *{
+      animation:ed-rise linear both;animation-timeline:view();animation-range:entry 5% cover 24%}
+  }
+}
+@keyframes ed-rise{from{opacity:.45;transform:translateY(18px)}to{opacity:1;transform:none}}
+@media print{.ed-dossier,.dv-chart details{border:0}}
+[data-dv-page]{max-width:1180px;margin-inline:auto}</style><main data-dv-page data-aspect="standard">
+<header><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 70"><path d="M5 35L30 5L55 35L30 65Z" fill="#b5632f" /><text x="72" y="45" font-family="Arial,sans-serif" font-size="30" fill="#172b3b">Aster Fieldworks</text></svg><h1>Aster service review</h1>
+<button data-dv-open>Presentation Mode</button>
+</header>
+<nav class="dv-top-menu"><a href="#page-title">Top</a><button data-dv-open>Presentation Mode</button></nav>
+<span id="page-title"></span>
+<section id="cover" data-dv-section="cover" data-theme="light">
+<span id="source-slide-1"></span>
+<h2>Aster service review</h2><div class="ed-hero">
+<p class="ed-eyebrow">Aster Fieldworks · field service</p>
+<p class="ed-question">Where did the four-stage service path deliver, and what does this review deliberately not claim?</p>
+<div class="ed-answer"><div data-dv-unit="cover-answer"><p>45 visits completed across three regions: East 10, Central 15, West 20.</p></div></div>
+<div class="ed-note"><div data-dv-unit="cover-note"><p>Synthetic field service results; no real customer data.</p></div></div>
+<ul class="ed-stats">
+<li ><span class="ed-stat-n">45</span><span class="ed-stat-l">visits completed</span></li>
+<li ><span class="ed-stat-n">3</span><span class="ed-stat-l">regions reported</span></li>
+<li ><span class="ed-stat-n">4</span><span class="ed-stat-l">path stages</span></li>
+</ul>
+</div>
+</section>
+<section id="agenda" data-dv-section="agenda" data-theme="dark">
+<span id="source-slide-2"></span>
+<h2>Agenda</h2><div class="ed-agenda">
+<p class="ed-lede">Three topics, in the order the source presents them. Each links to its section; Presentation Mode covers the same three topics as slides 3 to 5.</p>
+<div class="ed-agenda-grid">
+<div class="ed-agenda-list"><div data-dv-unit="agenda-list"><ul class="block-bullets"><li>1. Service path</li><li>2. Completed visits</li><li>3. Boundaries</li></ul></div></div>
+<div class="ed-jump" role="navigation" aria-label="Jump to a section">
+<a href="#service-path"><span class="ed-jump-n">1</span><span class="ed-jump-t">Service path</span><span class="ed-jump-d">Four stages and one return path</span></a>
+<a href="#visits"><span class="ed-jump-n">2</span><span class="ed-jump-t">Completed visits</span><span class="ed-jump-d">East 10, Central 15, West 20</span></a>
+<a href="#boundaries"><span class="ed-jump-n">3</span><span class="ed-jump-t">Boundaries</span><span class="ed-jump-d">What the source does not supply</span></a>
+</div>
+</div>
+</div>
+</section>
+<section id="service-path" data-dv-section="service-path" data-theme="light">
+<span id="source-slide-3"></span>
+<h2>Service path</h2><div class="ed-split">
+<div class="ed-split-text">
+<p class="ed-lede">The path runs forward through four stages. One documented exception sends work back rather than onward.</p>
+<div data-dv-unit="path-points"><ul class="block-bullets"><li>Request -&gt; Dispatch -&gt; Field visit -&gt; Review</li><li>A failed review returns to Dispatch.</li></ul></div>
+<details class="ed-dossier"><summary >Stage dossier: what each stage names</summary>
+<dl >
+<dt >Request</dt><dd >Stage 1, where the service path begins.</dd>
+<dt >Dispatch</dt><dd >Stage 2, and the return target of a failed review.</dd>
+<dt >Field visit</dt><dd >Stage 3, the visit counted in the next section.</dd>
+<dt >Review</dt><dd >Stage 4. A failure here returns to Dispatch instead of closing.</dd>
+</dl>
+<p class="ed-caveat">Stage numbering is the reading order of the source sequence. The source states the four stage names and the single return path; it supplies no stage durations, owners or volumes.</p>
+</details>
+</div>
+<div class="ed-split-figure"><div data-dv-unit="path-diagram"><figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 300" role="img" aria-label="Service path: Request to Dispatch to Field visit to Review, with a failed review returning to Dispatch">
+<defs><marker id="dv-page-figure-8-arrow" viewBox="0 0 6 6" refX="6" refY="3" markerWidth="6" markerHeight="6" orient="auto" markerUnits="strokeWidth"><path d="M0 0L6 3L0 6Z" /></marker></defs>
+<g data-dv-animate="process" data-dv-step="0"><rect x="20" y="60" width="170" height="74" rx="12" fill="none" stroke="currentColor" stroke-width="2" /><rect x="20" y="60" width="7" height="74" rx="3" fill="#b5632f" /><text x="105" y="94" text-anchor="middle" font-size="26" font-family="Arial, sans-serif">Request</text><text x="105" y="122" text-anchor="middle" font-size="20" font-family="Arial, sans-serif" opacity="0.75">stage 1</text></g>
+<path data-dv-animate="process" data-dv-step="1" d="M190 97Q220 80 250 97" fill="none" stroke="currentColor" stroke-width="3" marker-end="url(#dv-page-figure-8-arrow)" />
+<g data-dv-animate="process" data-dv-step="2"><rect x="250" y="60" width="170" height="74" rx="12" fill="none" stroke="currentColor" stroke-width="2" /><rect x="250" y="60" width="7" height="74" rx="3" fill="#b5632f" /><text x="335" y="94" text-anchor="middle" font-size="26" font-family="Arial, sans-serif">Dispatch</text><text x="335" y="122" text-anchor="middle" font-size="20" font-family="Arial, sans-serif" opacity="0.75">stage 2</text></g>
+<path data-dv-animate="process" data-dv-step="3" d="M420 97Q450 80 480 97" fill="none" stroke="currentColor" stroke-width="3" marker-end="url(#dv-page-figure-8-arrow)" />
+<g data-dv-animate="process" data-dv-step="4"><rect x="480" y="60" width="170" height="74" rx="12" fill="none" stroke="currentColor" stroke-width="2" /><rect x="480" y="60" width="7" height="74" rx="3" fill="#b5632f" /><text x="565" y="94" text-anchor="middle" font-size="26" font-family="Arial, sans-serif">Field visit</text><text x="565" y="122" text-anchor="middle" font-size="20" font-family="Arial, sans-serif" opacity="0.75">stage 3</text></g>
+<path data-dv-animate="process" data-dv-step="5" d="M650 97Q680 80 710 97" fill="none" stroke="currentColor" stroke-width="3" marker-end="url(#dv-page-figure-8-arrow)" />
+<g data-dv-animate="process" data-dv-step="6"><rect x="710" y="60" width="170" height="74" rx="12" fill="none" stroke="currentColor" stroke-width="2" /><rect x="710" y="60" width="7" height="74" rx="3" fill="#b5632f" /><text x="795" y="94" text-anchor="middle" font-size="26" font-family="Arial, sans-serif">Review</text><text x="795" y="122" text-anchor="middle" font-size="20" font-family="Arial, sans-serif" opacity="0.75">stage 4</text></g>
+<g data-dv-animate="process" data-dv-step="7"><path d="M795 134C795 226 700 246 565 246C430 246 335 226 335 134" fill="none" stroke="currentColor" stroke-width="3" stroke-dasharray="9 7" marker-end="url(#dv-page-figure-8-arrow)" /><text x="565" y="278" text-anchor="middle" font-size="22" font-family="Arial, sans-serif">A failed review returns to Dispatch</text></g>
+<text x="20" y="30" font-size="20" font-family="Arial, sans-serif" opacity="0.8">Four stages, one documented return path</text>
+</svg><figcaption>Service path: Request, Dispatch, Field visit and Review in sequence, with a dashed return path from Review back to Dispatch for a failed review.</figcaption></figure></div></div>
+</div>
+</section>
+<section id="visits" data-dv-section="visits" data-theme="dark">
+<span id="source-slide-4"></span>
+<h2>Completed visits</h2><div class="ed-evidence">
+<p class="ed-lede">Three regions, forty-five completed visits. Toggle the series, zoom the plot, or open the exact values below the chart.</p>
+<div class="ed-evidence-grid">
+<div class="ed-evidence-figure"><div data-dv-unit="visits-chart"><figure data-dv-figure="dv-page-figure-11" class="dv-chart"><figcaption>Completed visits by region (counts)</figcaption><div data-dv-native data-dv-zoom-view tabindex="0" aria-label="Chart plot; scroll to inspect"><svg viewBox="0 0 760 340" role="img" aria-label="Completed visits by region (counts)"><path d="M150 240.000H660" fill="none" stroke="currentColor" opacity=".3"/><text x="140" y="246.000" text-anchor="end">0</text><path d="M150 135.000H660" fill="none" stroke="currentColor" opacity=".3"/><text x="140" y="141.000" text-anchor="end">10.0</text><path d="M150 30.000H660" fill="none" stroke="currentColor" opacity=".3"/><text x="140" y="36.000" text-anchor="end">20</text><text x="235.000" y="272" text-anchor="middle">East</text><text x="405.000" y="272" text-anchor="middle">Central</text><text x="575.000" y="272" text-anchor="middle">West</text><g data-dv-series-marks="0" fill="#b65b14" stroke="#b65b14"><rect data-dv-animate="comparison" data-dv-mark x="175.500" y="135.000" width="117.000" height="105.000"><title>Visits, East: 10 visits</title></rect><rect data-dv-animate="comparison" data-dv-mark x="345.500" y="82.500" width="117.000" height="157.500"><title>Visits, Central: 15 visits</title></rect><rect data-dv-animate="comparison" data-dv-mark x="515.500" y="30.000" width="117.000" height="210.000"><title>Visits, West: 20 visits</title></rect></g><text x="405" y="310" text-anchor="middle">Region</text><text transform="translate(36 135) rotate(-90)" text-anchor="middle">Visits</text></svg></div><div class="dv-legend"><button data-dv-series="0" aria-pressed="true">Visits</button></div><div class="dv-figure-tools"><label>Zoom <input data-dv-zoom type="range" min="1" max="3" step=".25" value="1"></label><button data-dv-figure-reset>Reset figure</button></div><details><summary>Exact chart values</summary><table><thead><tr><th>Category</th><th>Visits</th></tr></thead><tbody><tr><th>East</th><td>10</td></tr><tr><th>Central</th><td>15</td></tr><tr><th>West</th><td>20</td></tr></tbody></table></details></figure></div></div>
+<div class="ed-evidence-side">
+<div data-dv-unit="visits-points"><ul class="block-bullets"><li>East 10; Central 15; West 20. Total 45 visits.</li><li>These are counts, not rates.</li></ul></div>
+<details class="ed-dossier"><summary >Reading dossier: how to read these numbers</summary>
+<p >East 10, Central 15 and West 20 sum to the stated total of 45. The source labels them counts, not rates, so no denominator, population or exposure is available to convert them into per-region rates.</p>
+<p class="ed-caveat">A larger count is not evidence of a higher rate. Comparing regions on these bars compares volume only.</p>
+</details>
+</div>
+</div>
+</div>
+</section>
+<section id="boundaries" data-dv-section="boundaries" data-theme="light">
+<span id="source-slide-5"></span>
+<h2>Boundaries</h2><div class="ed-bounds">
+<p class="ed-lede">The source is explicit about its own limits. They are reproduced here unchanged rather than filled in.</p>
+<div class="ed-bounds-grid">
+<div class="ed-bounds-stated"><div data-dv-unit="bounds-points"><ul class="block-bullets"><li>Five source slides including this page.</li><li>Costs unavailable. No forecast or confidence interval was supplied.</li></ul></div></div>
+<div class="ed-bounds-uncertain">
+<p class="ed-eyebrow">Uncertainty carried forward</p>
+<div data-dv-unit="bounds-uncertainty"><p>Two limits are stated by the source rather than estimated here: costs are unavailable, and no forecast or confidence interval was supplied. The visit figures are counts, not rates, so no per-region rate can be derived from them.</p></div>
+<details class="ed-dossier"><summary >Unresolved items, verbatim</summary>
+<ul >
+<li >Costs: unavailable. No cost figure of any kind appears in the source.</li>
+<li >Forecast: not supplied. No projection of future visits was provided.</li>
+<li >Confidence interval: not supplied. The counts carry no stated uncertainty range.</li>
+<li >Rates: not derivable. The source states these are counts, not rates.</li>
+</ul>
+<p class="ed-caveat">Nothing in this list has been estimated, interpolated or inferred. Each item is unavailable in the source and stays unavailable here.</p>
+</details>
+</div>
+</div>
+</div>
+</section>
+</main><p data-dv-status role="status"></p>
+<div data-dv-deck hidden><div class="dv-stage">
+<section id="slide-1" data-dv-slide="s-cover" data-theme="dark" class="dv-composition-cover" hidden><h2>Aster service review</h2>
+<div class="dv-brand"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 70"><path d="M5 35L30 5L55 35L30 65Z" fill="#b5632f" /><text x="72" y="45" font-family="Arial,sans-serif" font-size="30" fill="#f7f3e9">Aster Fieldworks</text></svg></div>
+<div class="ed-slide-cover">
+<p class="ed-eyebrow">Aster Fieldworks · field service review</p>
+<div class="ed-slide-answer"><div data-dv-unit="cover-answer"><p>45 visits completed across three regions: East 10, Central 15, West 20.</p></div></div>
+<div class="ed-slide-foot"><div class="ed-note"><div data-dv-unit="cover-note"><p>Synthetic field service results; no real customer data.</p></div></div><p class="ed-slide-meta">Five slides · deep-dive coverage of the reading page</p></div>
+</div>
+
+</section>
+<section id="slide-2" data-dv-slide="s-agenda" data-theme="light" class="dv-composition-agenda" hidden><h2>Agenda</h2>
+<div class="dv-brand"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 70"><path d="M5 35L30 5L55 35L30 65Z" fill="#b5632f" /><text x="72" y="45" font-family="Arial,sans-serif" font-size="30" fill="#172b3b">Aster Fieldworks</text></svg></div>
+<div class="ed-slide-agenda">
+<p class="ed-lede">The three topics that follow, in source order.</p>
+<div class="ed-slide-agenda-list"><div data-dv-unit="agenda-list"><ul class="block-bullets"><li>1. Service path</li><li>2. Completed visits</li><li>3. Boundaries</li></ul></div></div>
+<p class="ed-slide-meta">Slide 3 covers the path, slide 4 the counts, slide 5 the boundaries.</p>
+</div>
+
+</section>
+<section id="slide-3" data-dv-slide="s-path" data-theme="light" class="dv-composition-process" hidden><h2>Service path</h2>
+<div class="dv-brand"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 70"><path d="M5 35L30 5L55 35L30 65Z" fill="#b5632f" /><text x="72" y="45" font-family="Arial,sans-serif" font-size="30" fill="#172b3b">Aster Fieldworks</text></svg></div>
+<div class="ed-slide-process">
+<div class="ed-slide-process-figure"><div data-dv-unit="path-diagram"><figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 300" role="img" aria-label="Service path: Request to Dispatch to Field visit to Review, with a failed review returning to Dispatch">
+<defs><marker id="dv-deck-figure-22-arrow" viewBox="0 0 6 6" refX="6" refY="3" markerWidth="6" markerHeight="6" orient="auto" markerUnits="strokeWidth"><path d="M0 0L6 3L0 6Z" /></marker></defs>
+<g data-dv-animate="process" data-dv-step="0"><rect x="20" y="60" width="170" height="74" rx="12" fill="none" stroke="currentColor" stroke-width="2" /><rect x="20" y="60" width="7" height="74" rx="3" fill="#b5632f" /><text x="105" y="94" text-anchor="middle" font-size="26" font-family="Arial, sans-serif">Request</text><text x="105" y="122" text-anchor="middle" font-size="20" font-family="Arial, sans-serif" opacity="0.75">stage 1</text></g>
+<path data-dv-animate="process" data-dv-step="1" d="M190 97Q220 80 250 97" fill="none" stroke="currentColor" stroke-width="3" marker-end="url(#dv-deck-figure-22-arrow)" />
+<g data-dv-animate="process" data-dv-step="2"><rect x="250" y="60" width="170" height="74" rx="12" fill="none" stroke="currentColor" stroke-width="2" /><rect x="250" y="60" width="7" height="74" rx="3" fill="#b5632f" /><text x="335" y="94" text-anchor="middle" font-size="26" font-family="Arial, sans-serif">Dispatch</text><text x="335" y="122" text-anchor="middle" font-size="20" font-family="Arial, sans-serif" opacity="0.75">stage 2</text></g>
+<path data-dv-animate="process" data-dv-step="3" d="M420 97Q450 80 480 97" fill="none" stroke="currentColor" stroke-width="3" marker-end="url(#dv-deck-figure-22-arrow)" />
+<g data-dv-animate="process" data-dv-step="4"><rect x="480" y="60" width="170" height="74" rx="12" fill="none" stroke="currentColor" stroke-width="2" /><rect x="480" y="60" width="7" height="74" rx="3" fill="#b5632f" /><text x="565" y="94" text-anchor="middle" font-size="26" font-family="Arial, sans-serif">Field visit</text><text x="565" y="122" text-anchor="middle" font-size="20" font-family="Arial, sans-serif" opacity="0.75">stage 3</text></g>
+<path data-dv-animate="process" data-dv-step="5" d="M650 97Q680 80 710 97" fill="none" stroke="currentColor" stroke-width="3" marker-end="url(#dv-deck-figure-22-arrow)" />
+<g data-dv-animate="process" data-dv-step="6"><rect x="710" y="60" width="170" height="74" rx="12" fill="none" stroke="currentColor" stroke-width="2" /><rect x="710" y="60" width="7" height="74" rx="3" fill="#b5632f" /><text x="795" y="94" text-anchor="middle" font-size="26" font-family="Arial, sans-serif">Review</text><text x="795" y="122" text-anchor="middle" font-size="20" font-family="Arial, sans-serif" opacity="0.75">stage 4</text></g>
+<g data-dv-animate="process" data-dv-step="7"><path d="M795 134C795 226 700 246 565 246C430 246 335 226 335 134" fill="none" stroke="currentColor" stroke-width="3" stroke-dasharray="9 7" marker-end="url(#dv-deck-figure-22-arrow)" /><text x="565" y="278" text-anchor="middle" font-size="22" font-family="Arial, sans-serif">A failed review returns to Dispatch</text></g>
+<text x="20" y="30" font-size="20" font-family="Arial, sans-serif" opacity="0.8">Four stages, one documented return path</text>
+</svg><figcaption>Service path: Request, Dispatch, Field visit and Review in sequence, with a dashed return path from Review back to Dispatch for a failed review.</figcaption></figure></div></div>
+<div class="ed-slide-process-text"><div data-dv-unit="path-points"><ul class="block-bullets"><li>Request -&gt; Dispatch -&gt; Field visit -&gt; Review</li><li>A failed review returns to Dispatch.</li></ul></div></div>
+</div>
+
+</section>
+<section id="slide-4" data-dv-slide="s-visits" data-theme="dark" class="dv-composition-evidence" hidden><h2>Completed visits</h2>
+<div class="dv-brand"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 70"><path d="M5 35L30 5L55 35L30 65Z" fill="#b5632f" /><text x="72" y="45" font-family="Arial,sans-serif" font-size="30" fill="#f7f3e9">Aster Fieldworks</text></svg></div>
+<div class="ed-slide-evidence">
+<div class="ed-slide-evidence-figure"><div data-dv-unit="visits-chart"><figure data-dv-figure="dv-deck-figure-25" class="dv-chart"><figcaption>Completed visits by region (counts)</figcaption><div data-dv-native data-dv-zoom-view tabindex="0" aria-label="Chart plot; scroll to inspect"><svg viewBox="0 0 760 340" role="img" aria-label="Completed visits by region (counts)"><path d="M150 240.000H660" fill="none" stroke="currentColor" opacity=".3"/><text x="140" y="246.000" text-anchor="end">0</text><path d="M150 135.000H660" fill="none" stroke="currentColor" opacity=".3"/><text x="140" y="141.000" text-anchor="end">10.0</text><path d="M150 30.000H660" fill="none" stroke="currentColor" opacity=".3"/><text x="140" y="36.000" text-anchor="end">20</text><text x="235.000" y="272" text-anchor="middle">East</text><text x="405.000" y="272" text-anchor="middle">Central</text><text x="575.000" y="272" text-anchor="middle">West</text><g data-dv-series-marks="0" fill="#b65b14" stroke="#b65b14"><rect data-dv-animate="comparison" data-dv-mark x="175.500" y="135.000" width="117.000" height="105.000"><title>Visits, East: 10 visits</title></rect><rect data-dv-animate="comparison" data-dv-mark x="345.500" y="82.500" width="117.000" height="157.500"><title>Visits, Central: 15 visits</title></rect><rect data-dv-animate="comparison" data-dv-mark x="515.500" y="30.000" width="117.000" height="210.000"><title>Visits, West: 20 visits</title></rect></g><text x="405" y="310" text-anchor="middle">Region</text><text transform="translate(36 135) rotate(-90)" text-anchor="middle">Visits</text></svg></div><div class="dv-legend"><button data-dv-series="0" aria-pressed="true">Visits</button></div><div class="dv-figure-tools"><label>Zoom <input data-dv-zoom type="range" min="1" max="3" step=".25" value="1"></label><button data-dv-figure-reset>Reset figure</button></div><details><summary>Exact chart values</summary><table><thead><tr><th>Category</th><th>Visits</th></tr></thead><tbody><tr><th>East</th><td>10</td></tr><tr><th>Central</th><td>15</td></tr><tr><th>West</th><td>20</td></tr></tbody></table></details></figure></div></div>
+<div class="ed-slide-evidence-text"><div data-dv-unit="visits-points"><ul class="block-bullets"><li>East 10; Central 15; West 20. Total 45 visits.</li><li>These are counts, not rates.</li></ul></div><p class="ed-slide-meta">10 + 15 + 20 = 45. Counts only; no rate is derivable.</p></div>
+</div>
+
+</section>
+<section id="slide-5" data-dv-slide="s-bounds" data-theme="light" class="dv-composition-limits" hidden><h2>Boundaries</h2>
+<div class="dv-brand"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 70"><path d="M5 35L30 5L55 35L30 65Z" fill="#b5632f" /><text x="72" y="45" font-family="Arial,sans-serif" font-size="30" fill="#172b3b">Aster Fieldworks</text></svg></div>
+<div class="ed-slide-bounds">
+<div class="ed-slide-bounds-a"><div data-dv-unit="bounds-points"><ul class="block-bullets"><li>Five source slides including this page.</li><li>Costs unavailable. No forecast or confidence interval was supplied.</li></ul></div></div>
+<div class="ed-slide-bounds-b"><p class="ed-eyebrow">Uncertainty carried forward</p><div data-dv-unit="bounds-uncertainty"><p>Two limits are stated by the source rather than estimated here: costs are unavailable, and no forecast or confidence interval was supplied. The visit figures are counts, not rates, so no per-region rate can be derived from them.</p></div></div>
+</div>
+
+</section>
+</div><nav data-dv-controls aria-label="Presentation controls"><button data-dv-prev><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M16 4L8 12L16 20"/></svg>Back</button><button data-dv-replay><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 8A8 8 0 1 1 4 16M5 2V8H11"/></svg>Replay</button><span data-dv-count aria-live="polite"></span><select data-dv-picker aria-label="Go to slide"></select><button data-dv-next><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M8 4L16 12L8 20"/></svg>Next</button><button data-dv-fullscreen><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M3 9V3H9M15 3H21V9M21 15V21H15M9 21H3V15"/></svg>Fullscreen</button><button data-dv-exit><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 5L19 19M19 5L5 19"/></svg>Exit</button></nav></div>
+<script type="application/json" id="handbook-record">{"build": {"assets/dual-view-figures.js": "1891f3f4eaabc43c743d5360a6615338d65cf50ed8cc02a771d32a07c194e17d", "assets/dual-view-runtime.js": "f7892e0de19b83f40cf27680ef81199a4e6fd72b2c5c26f9d3f42ec570adcaff", "assets/dual-view.css": "e60e94cd26d4ba622ede429d9c7862a82dea491ac1b174bd86023ac5e5245c35", "assets/theme.json": "46a8d331bb277f1d6049da735f3ae5adf8ac60cfd81968685e3d3cc2ae321604", "scripts/build_presentation.py": "5c1525156ed9875703791c9f3293970356e64e8ec6b5de3c0c37904232bacea2", "scripts/dual_view.py": "2e9c79c7027310bdcead71cdfb8381a9be59e8f6a2b1093b9cc2c3c449fb47aa"}, "design": {"aliases": {"source-slide-1": "cover", "source-slide-2": "agenda", "source-slide-3": "service-path", "source-slide-4": "visits", "source-slide-5": "boundaries"}, "brand_asset": "private/build/brand-light.svg", "brand_variants": {"dark": "private/build/brand-dark.svg", "light": "private/build/brand-light.svg"}, "content_intent": {"assumptions": [{"class": "accepted", "text": "The PPTX is the only authoritative source of facts for this artifact."}, {"class": "accepted", "text": "The data is synthetic and carries no real customer information, as the source states."}, {"class": "accepted", "text": "The five-slide source ceiling equals the five-slide deck budget."}, {"class": "bounded", "text": "Stage ordering in the diagram follows the source arrow sequence; the source supplies no stage durations or owners."}, {"class": "material-risk", "text": "No rate, cost or forecast can be derived from the supplied counts."}], "decision_to_enable": "Whether the reported regional visit volumes can support any operational judgement, given that the source supplies counts only and withholds costs, forecast and confidence interval.", "exclusions": ["No costs, forecasts or confidence intervals are shown; the source supplies none.", "No additional imagery: no stock, no AI generation, no network research.", "No slides beyond the frozen five-slide budget."], "scope_class": "working-demonstration", "source_relationship": "standalone"}, "declared_scroll_regions": "The chart plot wrapper ([data-dv-zoom-view], min-width 650px) scrolls horizontally below roughly 700 CSS px of available figure width, with a visible themed scrollbar and keyboard focus. Reading view removes its height cap.", "direction": "Warm-paper editorial dossier", "entropy_brief": "corporate: light teal / warm-paper / mixed-contrast / editorial-grid-pull-elements / crisp-instant / move: tabbed-dossiers (seed 10160717564168266118)", "entropy_seed": 10160717564168266118, "imagery": "none (Tier 1 procedural only: authored inline SVG, CSS gradients-free flat editorial surfaces). No fetch, no generation, no credits section required.", "intake_provenance": "every axis explicit; see private/build/intake-resolved.json", "interactivity": "balanced", "layout": "standard", "motion": "crisp-instant: 180ms hover transitions, scroll-linked section rise via animation-timeline: view(), disabled under prefers-reduced-motion", "palette": {"accent_graphic": "#b5632f", "accent_text_on_dark": "#e0a06a", "accent_text_on_light": "#94491d", "ink": "#172b3b", "paper": "#f7f3e9", "surface": "#efe7d6"}, "qa_depth": "deep", "reading_themes": ["light", "dark", "light", "dark", "light"], "signature_move": "tabbed-dossiers, realised as native keyboard-navigable \u003cdetails> dossiers (the retained-fragment contract accepts no buttons or script, so disclosure replaces JS tabs)", "sticky_layers": "One per scroll context: .dv-top-menu on the reading page. No sticky layer inside the deck stage.", "stylesheet": "private/build/style.css", "type": "Arial / Helvetica system stack, bound by inputs/brand.json (overrides the rolled Georgia heading voice; contrast is carried by weight, size and letter-spacing instead)", "verbosity": "comprehensive", "visual_contracts": [{"encoding": "Node-link flow; solid marker-terminated forward connectors, a dashed curved return connector labelled below the curve.", "evidence": "Source bullets 'Request -> Dispatch -> Field visit -> Review' and 'A failed review returns to Dispatch.'", "fallback": "Static SVG with all labels present.", "figure": "path-diagram", "message": "Four forward stages with one documented return edge from Review to Dispatch.", "question": "What is the order of the service path, and where does a failure send work?", "states": "Automatic process build on slide entry: eight steps, nodes and edges alternating, the return path last.", "subtractive_test": "Removing it leaves the return path as prose only; the sequence and the single back-edge are the section's whole content, so the diagram is retained.", "trigger": "dv:activate on slide 3; static and complete without JavaScript and under reduced motion."}, {"encoding": "Vertical bars on a linear 0-20 axis with an exact-values table.", "evidence": "Native PPTX chart part, provenance native-chart.", "fallback": "The exact-values table carries every number without the chart.", "figure": "visits-chart", "message": "West 20 > Central 15 > East 10, summing to the stated 45.", "question": "How do the three regions compare on completed visits?", "states": "Comparison build on slide entry; series toggle, zoom and reset in both views.", "subtractive_test": "Removing it leaves three numbers in a sentence; the ordered comparison is the section's point, so the chart is retained.", "trigger": "dv:activate and user controls."}]}, "figures": [], "presentation": {"compact_breakpoint": 760, "depth": "deep-dive", "enabled": true, "initial_slide": 1, "omissions": {}, "slide_budget": 5, "slides": [{"brand": true, "composition": "cover", "fragments": {"cover": "private/build/fragments/deck-cover.html"}, "heading": "Aster service review", "id": "s-cover", "source_ids": ["cover"]}, {"brand": true, "composition": "agenda", "fragments": {"agenda": "private/build/fragments/deck-agenda.html"}, "heading": "Agenda", "id": "s-agenda", "source_ids": ["agenda"]}, {"brand": true, "composition": "process", "fragments": {"service-path": "private/build/fragments/deck-service-path.html"}, "heading": "Service path", "id": "s-path", "source_ids": ["service-path"]}, {"brand": true, "composition": "evidence", "fragments": {"visits": "private/build/fragments/deck-visits.html"}, "heading": "Completed visits", "id": "s-visits", "source_ids": ["visits"]}, {"brand": true, "composition": "limits", "fragments": {"boundaries": "private/build/fragments/deck-boundaries.html"}, "heading": "Boundaries", "id": "s-bounds", "source_ids": ["boundaries"]}], "source_slide_count": 5, "theme": "mixed", "theme_sequence": ["dark", "light", "light", "dark", "light"]}, "schema_version": 1, "sections": ["cover", "agenda", "service-path", "visits", "boundaries"], "sources": {"inputs/brand.json": "945007214e619f98b9efc85691064c462f773d739c145d98dcbf0a20576bedde", "inputs/brand.svg": "42fab0b554686f8c158d1b474816f0a898eef8f90e332a812b761b8fd6701642", "inputs/brief.md": "b4498487be1b95613b1c0f914400c98db576bb53d6e5712f1c65d43d827086f0", "inputs/service-review.pptx": "994b418c0653c428182bb2bcc11707d04e8d4b03ec72356a45531a0748fd1843", "private/build/brand-dark.svg": "37709d737dc9e3ab213d9622d00f21b23db84fd5e29a6fc82097a8299a4e4c1d", "private/build/brand-light.svg": "42fab0b554686f8c158d1b474816f0a898eef8f90e332a812b761b8fd6701642", "private/build/design-brief.json": "473a768db79214edcd64b048c8a289bb4c1b5048558e161b368bf68806847732", "private/build/figures/service-path.svg": "7c06f6369b9d6d7241feb5c60ddeed7d9123b5b1e35643a71ad7eeb01008d011", "private/build/fragments/agenda.html": "1ab39bd06890b89375dd60552a89fd1f0269ac38439836b15410a66c0b1e2222", "private/build/fragments/boundaries.html": "5cea9ea64e527228f2f2ceaa8f316a8630d3513445061760e9bf3aed776372ec", "private/build/fragments/cover.html": "85f20e62ecdbeca0013def7270520aacd2f9a137b1615444cb0f1950dcaff248", "private/build/fragments/deck-agenda.html": "430d2e40e8e35007b446a25977f8b828b226624b2bc55ccfdc6d3981962b5a64", "private/build/fragments/deck-boundaries.html": "d5c28c900a233c9b7d4cf3c3ce8ceee72a64d874590f25510c9c38f45fbc76d3", "private/build/fragments/deck-cover.html": "bbf8f874e4a46eb82e965d81003009fda3e98ccb6c91fe306ea32326ce03beb4", "private/build/fragments/deck-service-path.html": "aa00b2b5b692e5a446e061345f502d9c81f06e6faf4eaa0a36ff81e59f07d2c2", "private/build/fragments/deck-visits.html": "01d13ffbb2acd2532318221a9642b9ca538ceca59b992a769b95798510584b6d", "private/build/fragments/service-path.html": "19661894253752a70cfb9cbbb7458e9ea1d0e53dd886df86f6e09b526cb1e80c", "private/build/fragments/visits.html": "0de470f7db56d7e9c4996cf45f571390e20da74d5f19188bf1fa7c1bd213acdb", "private/build/handbook.model.json": "2cbaab6c4edc2ab50514280b97cab542c7e5625f7687cc7750b0484c0c2c06ba", "private/build/intake-resolved.json": "2bff67e194c075702ace3febf7df9d529ae199883f741fee1ff06ac763d085ef", "private/build/model.json": "1f444c5de70a3c86bf0d8b12150008713339c96c2e11a2e5d49ca7406a409457", "private/build/source-inventory.json": "d1fb5714f73bd05160ef1eab360b16d63915cda7702139156bfa7fd1698d7625", "private/build/style.css": "6a2589667ae422f10417698f63082829261f6d3a805c381a7174411e8e2aba90"}, "status": "requires-rendered-factual-and-design-qualification"}</script>
+<script>/* Independent figure interactions for either view; canonical data stays untouched. */
+(() => {
+  'use strict';
+  document.addEventListener('click', event => {
+    const reset = event.target.closest('[data-dv-figure-reset]');
+    if (reset) {
+      const figure = reset.closest('figure');
+      const zoom = figure.querySelector('[data-dv-zoom]');
+      zoom.value = '1';
+      zoom.dispatchEvent(new Event('input', { bubbles: true }));
+      figure.querySelectorAll('[data-dv-series][aria-pressed="false"]').forEach(button => button.click());
+      figure.querySelectorAll('[data-dv-zoom-view]').forEach(view => view.scrollTo(0, 0));
+    }
+    const toggle = event.target.closest('[data-dv-series]');
+    if (toggle) {
+      const figure = toggle.closest('[data-dv-figure]');
+      const visible = toggle.getAttribute('aria-pressed') !== 'true';
+      toggle.setAttribute('aria-pressed', String(visible));
+      figure.querySelectorAll('[data-dv-series-marks]').forEach(group => {
+        if (group.dataset.dvSeriesMarks === toggle.dataset.dvSeries) group.style.display = visible ? '' : 'none';
+      });
+    }
+    const region = event.target.closest('[data-dv-region]');
+    if (region) {
+      const figure = region.closest('[data-dv-map]');
+      figure.querySelector('[data-dv-map-status]').textContent = region.dataset.dvRegion;
+      figure.querySelectorAll('[data-region]').forEach(node => {
+        node.dataset.selected = String(node.dataset.region === region.dataset.dvRegion);
+      });
+    }
+    const enlarge = event.target.closest('[data-dv-enlarge]');
+    if (enlarge) {
+      const image = enlarge.querySelector('img').cloneNode(true);
+      image.removeAttribute('id');
+      const dialog = document.createElement('dialog');
+      dialog.className = 'dv-enlargement';
+      dialog.setAttribute('aria-label', image.alt || 'Enlarged image');
+      const close = document.createElement('button');
+      close.textContent = 'Close image';
+      close.addEventListener('click', () => dialog.close());
+      dialog.append(image, close);
+      (enlarge.closest('[data-dv-deck]') || document.body).append(dialog);
+      dialog.addEventListener('close', () => { dialog.remove(); enlarge.focus({ preventScroll: true }); }, { once: true });
+      dialog.showModal();
+      close.focus();
+    }
+  });
+  document.addEventListener('input', event => {
+    if (event.target.matches('[data-dv-zoom]')) {
+      const svg = event.target.closest('figure').querySelector('[data-dv-zoom-view] > svg');
+      svg.style.maxWidth = 'none';
+      svg.style.width = `${Number(event.target.value) * 100}%`;
+      svg.style.maxHeight = Number(event.target.value) === 1 ? '' : 'none';
+      return;
+    }
+    if (!event.target.matches('[data-dv-map-search]')) return;
+    const query = event.target.value.toLocaleLowerCase();
+    const figure = event.target.closest('[data-dv-map]');
+    let count = 0;
+    figure.querySelectorAll('[data-dv-region]').forEach(region => {
+      region.hidden = !region.dataset.dvRegion.toLocaleLowerCase().includes(query);
+      if (!region.hidden) count += 1;
+    });
+    figure.querySelector('[data-dv-map-status]').textContent = `${count} matching regions`;
+  });
+})();
+</script>
+<script>/* Offline presentation lifecycle for retained, independently authored views. */
+(() => {
+  'use strict';
+  const page = document.querySelector('[data-dv-page]');
+  const deck = document.querySelector('[data-dv-deck]');
+  if (!page || !deck) return;
+  const slides = Array.from(deck.querySelectorAll('[data-dv-slide]'));
+  const controls = deck.querySelector('[data-dv-controls]');
+  const count = deck.querySelector('[data-dv-count]');
+  const picker = deck.querySelector('[data-dv-picker]');
+  const status = document.querySelector('[data-dv-status]');
+  const motion = matchMedia('(prefers-reduced-motion: reduce)');
+  const events = new AbortController();
+  const signal = events.signal;
+  let active = false, index = 0, generation = 0, origin = null;
+  let scroll = 0, readingURL = location.href, oldOverflow = '';
+  let wasFullscreen = false, keepFitted = false, touch = null;
+  let fullscreenExitPending = null;
+  let animations = [];
+  let readingAnimations = [];
+  const nativeInput = 'input,textarea,select,button,a,[contenteditable]:not([contenteditable="false"]),[data-dv-native],dialog[open]';
+  const on = (target, event, callback, options = {}) =>
+    target.addEventListener(event, callback, { ...options, signal });
+  const announce = message => { if (status) status.textContent = message; };
+  const focusables = () => Array.from(deck.querySelectorAll('button,a[href],input,select,textarea,[tabindex]'))
+    .filter(el => !el.disabled && el.tabIndex >= 0 && !el.closest('[hidden],[inert]') && el.getClientRects().length);
+
+  function stopMotion() {
+    animations.forEach(animation => animation.cancel());
+    animations = [];
+    slides.forEach(slide => slide.dispatchEvent(new CustomEvent('dv:deactivate')));
+  }
+
+  function play() {
+    stopMotion();
+    if (!active || document.hidden) return;
+    const slide = slides[index];
+    slide.dispatchEvent(new CustomEvent('dv:activate', { detail: { reducedMotion: motion.matches } }));
+    if (motion.matches) return;
+    slide.querySelectorAll('[data-dv-animate]').forEach(el => {
+      const step = Math.max(0, Number(el.dataset.dvStep) || 0);
+      const delay = el.dataset.dvAnimate === 'process' ? step * 130 : 0;
+      const mark = el.hasAttribute('data-dv-mark');
+      const frames = mark
+        ? [{ clipPath: 'inset(0 100% 0 0)', opacity: 0 }, { clipPath: 'inset(0 0 0 0)', opacity: 1 }]
+        : [{ opacity: 0 }, { opacity: 1 }];
+      animations.push(el.animate(frames, { duration: 550, delay, fill: 'both', easing: 'ease-out' }));
+    });
+  }
+
+  function fit() {
+    if (controls) deck.style.setProperty('--dv-controls-height', `${controls.getBoundingClientRect().height}px`);
+  }
+
+  function show(next, history = true) {
+    if (!active || !Number.isInteger(next)) return;
+    index = Math.max(0, Math.min(slides.length - 1, next));
+    slides.forEach((slide, i) => {
+      slide.hidden = i !== index;
+      slide.inert = i !== index;
+      slide.setAttribute('aria-hidden', String(i !== index));
+    });
+    deck.dataset.theme = slides[index].dataset.theme || 'light';
+    count.textContent = `${index + 1} / ${slides.length}`;
+    if (picker) picker.value = String(index);
+    const previous = deck.querySelector('[data-dv-prev]');
+    const nextButton = deck.querySelector('[data-dv-next]');
+    if (previous) previous.disabled = index === 0;
+    if (nextButton) nextButton.disabled = index === slides.length - 1;
+    if (history && location.hash !== `#slide-${index + 1}`)
+      window.history.pushState(null, '', `#slide-${index + 1}`);
+    const heading = slides[index].querySelector('h1,h2,h3');
+    if (heading) { heading.tabIndex = -1; heading.focus({ preventScroll: true }); }
+    play();
+    fit();
+  }
+
+  async function fullscreen() {
+    if (!deck.requestFullscreen || !active) return;
+    const request = generation;
+    try {
+      if (fullscreenExitPending) await fullscreenExitPending;
+      if (request !== generation || !active) return;
+      await deck.requestFullscreen();
+      if (request !== generation || !active) {
+        if (document.fullscreenElement === deck && !active) await document.exitFullscreen();
+        return;
+      }
+      wasFullscreen = document.fullscreenElement === deck;
+      fit();
+    } catch (_) {
+      if (active) announce('Fullscreen unavailable. Presentation remains available in this window.');
+    }
+  }
+
+  function open(next = 0, userGesture = false, history = true) {
+    if (!Number.isInteger(next)) { announce('Invalid presentation target.'); return; }
+    if (!active) {
+      generation += 1;
+      origin = document.activeElement;
+      scroll = window.scrollY;
+      readingURL = location.hash.startsWith('#slide-') ? location.href.split('#')[0] : location.href;
+      oldOverflow = document.documentElement.style.overflow;
+      active = true;
+      deck.hidden = false;
+      deck.inert = false;
+      page.inert = true;
+      page.setAttribute('aria-hidden', 'true');
+      readingAnimations = page.getAnimations({ subtree: true }).filter(animation => animation.playState === 'running');
+      readingAnimations.forEach(animation => animation.pause());
+      page.hidden = true;
+      page.dispatchEvent(new CustomEvent('dv:deactivate'));
+      document.documentElement.style.overflow = 'hidden';
+    }
+    show(next, history);
+    if (userGesture) void fullscreen();
+  }
+
+  function close(history = true) {
+    if (!active) return;
+    generation += 1;
+    const closingGeneration = generation;
+    active = false;
+    wasFullscreen = false;
+    keepFitted = false;
+    const fullscreenExit = fullscreenExitPending || (document.fullscreenElement === deck
+      ? document.exitFullscreen().catch(() => {}) : null);
+    fullscreenExitPending = fullscreenExit;
+    stopMotion();
+    deck.querySelectorAll('dialog[open]').forEach(dialog => dialog.close());
+    deck.hidden = true;
+    deck.inert = true;
+    page.inert = false;
+    page.hidden = false;
+    page.removeAttribute('aria-hidden');
+    readingAnimations.forEach(animation => animation.play());
+    readingAnimations = [];
+    page.dispatchEvent(new CustomEvent('dv:activate', { detail: { reducedMotion: motion.matches } }));
+    document.documentElement.style.overflow = oldOverflow;
+    if (history) window.history.replaceState(null, '', readingURL);
+    const restoreReading = () => {
+      if (fullscreenExitPending === fullscreenExit) fullscreenExitPending = null;
+      if (active) {
+        if (!deck.contains(document.activeElement))
+          slides[index].querySelector('h1,h2,h3')?.focus({ preventScroll: true });
+        return;
+      }
+      if (generation !== closingGeneration) return;
+      window.scrollTo(0, scroll);
+      if (origin && origin.isConnected) origin.focus({ preventScroll: true });
+    };
+    if (fullscreenExit) void fullscreenExit.then(restoreReading);
+    else restoreReading();
+  }
+
+  function fromHash() {
+    const match = /^#slide-([1-9]\d*)$/.exec(location.hash);
+    if (match && Number(match[1]) <= slides.length) open(Number(match[1]) - 1, false, false);
+    else {
+      if (active) close(false);
+      if (location.hash.startsWith('#slide-')) announce('Unknown slide. The reading page remains available.');
+    }
+  }
+
+  if (!slides.length || !controls || !count) {
+    announce('Presentation is unavailable: the retained storyboard is empty or incomplete.');
+    return;
+  }
+  deck.setAttribute('role', 'dialog');
+  deck.setAttribute('aria-modal', 'true');
+  deck.setAttribute('aria-label', 'Presentation');
+  deck.inert = true;
+  slides.forEach((slide, i) => { if (!slide.id) slide.id = `slide-${i + 1}`; });
+  document.documentElement.dataset.dvReady = 'true';
+  if (picker) slides.forEach((slide, i) => {
+    const option = document.createElement('option');
+    option.value = String(i);
+    option.textContent = `${i + 1}. ${slide.dataset.title || slide.querySelector('h1,h2,h3')?.textContent || 'Slide'}`;
+    picker.append(option);
+  });
+  on(document, 'click', event => {
+    const trigger = event.target.closest('[data-dv-open],[data-dv-chapter]');
+    if (!trigger || trigger.closest('[inert]')) return;
+    if (trigger.hasAttribute('data-dv-open')) open(0, true);
+    else {
+      const target = slides.findIndex(slide => slide.dataset.dvSlide === trigger.dataset.dvChapter);
+      if (target >= 0) open(target, true);
+      else announce('This chapter has no presentation target.');
+    }
+  });
+  on(deck, 'click', event => {
+    const button = event.target.closest('button');
+    if (!button) return;
+    if (button.hasAttribute('data-dv-exit')) close();
+    if (button.hasAttribute('data-dv-next')) show(index + 1);
+    if (button.hasAttribute('data-dv-prev')) show(index - 1);
+    if (button.hasAttribute('data-dv-replay')) play();
+    if (button.hasAttribute('data-dv-fullscreen')) {
+      if (document.fullscreenElement === deck) {
+        keepFitted = true;
+        void document.exitFullscreen().catch(() => { keepFitted = false; });
+      } else void fullscreen();
+    }
+  });
+  if (picker) on(picker, 'change', () => show(Number(picker.value)));
+  on(document, 'keydown', event => {
+    if (!active || event.isComposing || event.altKey || event.ctrlKey || event.metaKey) return;
+    const nested = deck.querySelector('dialog[open]');
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      if (nested && document.fullscreenElement !== deck) nested.close();
+      else close();
+      return;
+    }
+    if (nested) return;
+    if (event.key === 'Tab') {
+      const items = focusables();
+      const current = items.indexOf(document.activeElement);
+      if (items.length && (current < 0 || (event.shiftKey && current === 0) || (!event.shiftKey && current === items.length - 1))) {
+        event.preventDefault();
+        items[event.shiftKey ? items.length - 1 : 0].focus();
+      }
+      return;
+    }
+    if (event.target.closest(nativeInput)) return;
+    const delta = { ArrowRight: 1, ArrowDown: 1, PageDown: 1, ' ': 1, ArrowLeft: -1, ArrowUp: -1, PageUp: -1 }[event.key];
+    if (delta) { event.preventDefault(); show(index + delta); }
+    if (event.key === 'Home' || event.key === 'End') {
+      event.preventDefault(); show(event.key === 'Home' ? 0 : slides.length - 1);
+    }
+  });
+  on(deck, 'pointerdown', event => {
+    touch = event.pointerType === 'touch' && !event.target.closest(nativeInput)
+      ? { x: event.clientX, y: event.clientY, id: event.pointerId } : null;
+  });
+  on(deck, 'pointerup', event => {
+    if (!touch || event.pointerId !== touch.id) return;
+    const dx = event.clientX - touch.x, dy = event.clientY - touch.y;
+    touch = null;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 2) show(index + (dx < 0 ? 1 : -1));
+  });
+  on(deck, 'pointercancel', () => { touch = null; });
+  on(document, 'fullscreenchange', () => {
+    if (fullscreenExitPending) { fit(); return; }
+    if (document.fullscreenElement === deck) wasFullscreen = true;
+    else if (wasFullscreen) {
+      wasFullscreen = false;
+      if (keepFitted) keepFitted = false;
+      else close();
+    }
+    fit();
+  });
+  on(window, 'hashchange', fromHash);
+  on(window, 'popstate', fromHash);
+  on(window, 'resize', fit);
+  on(document, 'visibilitychange', () => document.hidden ? stopMotion() : play());
+  on(motion, 'change', play);
+  const resize = new ResizeObserver(fit);
+  resize.observe(controls);
+  window.NexusDualView = Object.freeze({
+    open: next => open(next), close, next: () => show(index + 1), previous: () => show(index - 1), replay: play,
+    snapshot: () => ({ active, index, count: slides.length, animations: animations.length, fullscreen: document.fullscreenElement === deck }),
+    destroy: () => { close(); events.abort(); resize.disconnect(); delete document.documentElement.dataset.dvReady; }
+  });
+  fromHash();
+})();
+</script>
+</html>

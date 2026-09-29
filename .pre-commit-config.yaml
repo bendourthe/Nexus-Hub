@@ -39,9 +39,10 @@ repos:
         # Retained release artifacts are captured output, not authored prose:
         # trailing whitespace in a recorded test log is part of what the run
         # actually printed. See the end-of-file-fixer note below.
-        exclude: '\.(md)$|^docs/releases/.*/development/.*\.(json|html|txt|csv)$|^tests/fixtures/interactive-handbooks-qualification/'
+        exclude: '\.(md)$|^docs/(releases|archives)/.*/development/.*\.(json|html|txt|csv)$|^tests/fixtures/interactive-handbooks-qualification/'
       - id: end-of-file-fixer
-        # Release evidence under docs/releases/**/assets/ holds approved-bytes-only
+        # Release evidence under docs/releases/**/assets/ (and, once archived,
+        # docs/archives/**/assets/) holds approved-bytes-only
         # artifacts whose SHA-256 is pinned in an asset-provenance ledger and matched
         # against the bytes embedded in the guide. Appending a newline would change
         # every hash and break that discipline, so the fixer must not touch them.
@@ -61,7 +62,7 @@ repos:
         # rebuilt from byte-identical inputs. Appending newlines to eight of its
         # files to satisfy this hook silently invalidated the manifest, and the
         # test that guards it caught the regression in CI.
-        exclude: '^docs/releases/.*/assets/|^docs/releases/.*/development/.*\.(json|html|txt|csv)$|^tests/fixtures/interactive-handbooks-qualification/'
+        exclude: '^docs/(releases|archives)/.*/assets/|^docs/(releases|archives)/.*/development/.*\.(json|html|txt|csv)$|^tests/fixtures/interactive-handbooks-qualification/'
       - id: check-yaml
         exclude: 'templates.json|skills.json'
       - id: check-json
@@ -81,7 +82,7 @@ repos:
         # normalising those would edit the record rather than fix a defect. The
         # frozen qualification corpus is pinned the same way, by its own
         # frozen-manifest.json.
-        exclude: '\.cmd$|^docs/releases/.*/development/.*\.(json|html|txt|csv)$|^tests/fixtures/interactive-handbooks-qualification/'
+        exclude: '\.cmd$|^docs/(releases|archives)/.*/development/.*\.(json|html|txt|csv)$|^tests/fixtures/interactive-handbooks-qualification/'
 
   - repo: https://github.com/shellcheck-py/shellcheck-py
     rev: v0.10.0.1

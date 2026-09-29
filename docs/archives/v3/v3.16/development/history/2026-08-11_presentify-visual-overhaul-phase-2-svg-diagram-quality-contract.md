@@ -1,7 +1,7 @@
 # Session History - v3.16.5 Phase 2: SVG diagram-quality contract
 
 **Date**: 2026-08-11
-**Plan**: [docs/releases/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md](../../../../../releases/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md)
+**Plan**: [docs/archives/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md](../../plans/v3.16.5-presentify-visual-overhaul.md)
 **Phase**: 2 of 7 (not the terminal phase)
 **Branch**: `feat/v3.16.5-presentify-visual-overhaul`, worktree at `.claude/worktrees/v3.16.5-presentify`
 **Model**: Opus 5. The plan recommends the **strong** tier at high effort for this phase; Opus 5 IS the strong tier in the plan's own model map, so the pre-flight agreed with the plan and no switch was needed.
@@ -65,7 +65,7 @@ A `PostToolUse` hook flagged the stdlib `xml.etree.ElementTree` import for XXE a
 
 ## Known gaps appended
 
-Two new open, one closed, zero blockers. BG-1 closed (sub-AA runtime accents). WN-2 (the scorer cannot see script-assigned palette values) and NI-3 (SVG rules 2-3 not automated) both route to Phase 3. MT-1, NI-2, WN-1, DF-1 from Phase 1 unchanged. See [docs/releases/v3/v3.16/known-gaps.md](../../known-gaps.md).
+Two new open, one closed, zero blockers. BG-1 closed (sub-AA runtime accents). WN-2 (the scorer cannot see script-assigned palette values) and NI-3 (SVG rules 2-3 not automated) both route to Phase 3. MT-1, NI-2, WN-1, DF-1 from Phase 1 unchanged. See [docs/archives/v3/v3.16/known-gaps.md](../../known-gaps.md).
 
 ## Next steps
 

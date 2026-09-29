@@ -6,7 +6,7 @@ Renumber note, 2026-09-14: this historical cache-track evidence was authored und
 **Phase**: 2 - Cache stability guidance
 **Date**: 2026-09-10
 **Branch**: `feat/v4.11.0-cache-and-diagram`
-**Evidence**: [phase-2-cache-guidance.md](../../../../../releases/v4/v4.11/development/phase-2-cache-guidance.md)
+**Evidence**: [phase-2-cache-guidance.md](../phase-2-cache-guidance.md)
 
 ## Subtasks completed
 
@@ -19,7 +19,7 @@ Renumber note, 2026-09-14: this historical cache-track evidence was authored und
 - `catalog/skills/ai-development/prompt-engineering/references/step-8-optimize-cost-and-latency.md` - checklist, currency note, and worked-cases table.
 - `catalog/skills/ai-development/claude-agent-sdk/SKILL.md` - one-line handoff at the append-only-history guidance.
 - `catalog/skills/orchestration/prompt-token-optimization/SKILL.md` - one-line handoff at the lossless-levers paragraph.
-- `docs/releases/v4/v4.11/development/phase-2-cache-guidance.md` - new; phase evidence.
+- `docs/archives/v4/v4.11/development/phase-2-cache-guidance.md` - new; phase evidence.
 
 ## Test results
 

@@ -28,7 +28,7 @@ GUIDE = REPO_ROOT / "guides" / "website" / "nexus-hub-guide.html"
 PHASE_DIR = (
     REPO_ROOT
     / "docs"
-    / "releases"
+    / "archives"
     / "v4"
     / "v4.4"
     / "development"

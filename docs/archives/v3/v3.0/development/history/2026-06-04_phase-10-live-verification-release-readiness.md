@@ -1,7 +1,7 @@
 # Session History -- v3.0.0 Phase 10: Live verification + release readiness (v3.0.0 release)
 
 **Date**: 2026-06-04
-**Plan**: [`docs/releases/v3/v3.0/plans/command-consolidation-skill-security.md`](../../../../../releases/v3/v3.0/plans/command-consolidation-skill-security.md)
+**Plan**: [`docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md`](../../plans/command-consolidation-skill-security.md)
 **Phase**: 10 of 10 -- Live verification + release readiness (FINAL)
 **Outcome**: complete; all sub-tasks (T044-T049) closed; full gate green at v3.0.0; release prepared (commit + annotated tag) pending the user's push/tag confirmation.
 
@@ -45,7 +45,7 @@ Run the full green gate, dogfood the skill-scanner on Nexus-Hub itself, run or r
 
 ## Known gaps
 
-See [`docs/releases/v3/v3.0/known-gaps.md`](../../known-gaps.md) (finalized). 13 open: WN-v30-2 (build_skills_catalog generator drift), DF-v30-1/-2 (scanner pattern-set + taint-tracking depth), DF-v30-3 (optional-module starter content), DF-v30-4 (v4.0.0 shim removal), DF-v30-5 (remaining ~8 code-search languages), DF-v30-6/-7 + BG-v30-1 (live-eval re-deferrals + the harness/CLI flag-mismatch defect), DF-v30-8 + WN-v30-8 (cross-OS smoke + Antigravity probe), DF-v30-9 (visual-brainstorming server). 8 resolved this version: WN-v30-1/-3/-5/-7 (ShellCheck/local-verification caveats discharged at the gate), WN-v30-6 (245 -> 247 reconciled), and the three Phase 9 ingests (NI-v24-1, DF-v24-7, WN-v24-2). Summary: 13 open (9 DF, 3 WN, 1 BG), 8 resolved.
+See [`docs/archives/v3/v3.0/known-gaps.md`](../../known-gaps.md) (finalized). 13 open: WN-v30-2 (build_skills_catalog generator drift), DF-v30-1/-2 (scanner pattern-set + taint-tracking depth), DF-v30-3 (optional-module starter content), DF-v30-4 (v4.0.0 shim removal), DF-v30-5 (remaining ~8 code-search languages), DF-v30-6/-7 + BG-v30-1 (live-eval re-deferrals + the harness/CLI flag-mismatch defect), DF-v30-8 + WN-v30-8 (cross-OS smoke + Antigravity probe), DF-v30-9 (visual-brainstorming server). 8 resolved this version: WN-v30-1/-3/-5/-7 (ShellCheck/local-verification caveats discharged at the gate), WN-v30-6 (245 -> 247 reconciled), and the three Phase 9 ingests (NI-v24-1, DF-v24-7, WN-v24-2). Summary: 13 open (9 DF, 3 WN, 1 BG), 8 resolved.
 
 ## Next steps
 

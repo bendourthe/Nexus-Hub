@@ -4,7 +4,7 @@
 **Phase**: 3 - Authoring-time wiring
 **Date**: 2026-09-10
 **Branch**: `feat/v4.10.0-plan-queue-continuity`
-**Evidence**: [phase-3-authoring-wiring.md](../../../../../releases/v4/v4.10/development/phase-3-authoring-wiring.md)
+**Evidence**: [phase-3-authoring-wiring.md](../phase-3-authoring-wiring.md)
 
 ## Subtasks completed
 
@@ -17,7 +17,7 @@
 - `catalog/skills/workflow/cross-project-comparison/SKILL.md` - Step 6.5 rewired, Step 6.6 added, checklist line.
 - `catalog/skills/workflow/implementation-plan/SKILL.md` - template section and checklist line.
 - `catalog/commands/plan.md` - guarantee section.
-- `docs/releases/v4/v4.10/development/phase-3-authoring-wiring.md` - new, phase evidence.
+- `docs/archives/v4/v4.10/development/phase-3-authoring-wiring.md` - new, phase evidence.
 
 ## Test results
 

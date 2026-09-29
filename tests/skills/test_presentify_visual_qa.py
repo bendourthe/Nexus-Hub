@@ -1315,7 +1315,7 @@ def test_unsupported_geometry_is_unchecked_not_passed():
 def test_retained_process_diagrams_have_decidable_connector_geometry():
     pilot = (
         _ROOT
-        / "docs/releases/v4/v4.11/development/interactive-handbooks/"
+        / "docs/archives/v4/v4.11/development/interactive-handbooks/"
         "phase-6-native-attempts/report-final/pilot.html"
     ).read_text(encoding="utf-8")
     blocks = scorer._svg_blocks(pilot)
@@ -1327,7 +1327,7 @@ def test_retained_process_diagrams_have_decidable_connector_geometry():
 def test_retained_return_curve_detects_an_inserted_unrelated_node():
     pilot = (
         _ROOT
-        / "docs/releases/v4/v4.11/development/interactive-handbooks/"
+        / "docs/archives/v4/v4.11/development/interactive-handbooks/"
         "phase-6-native-attempts/report-final/pilot.html"
     ).read_text(encoding="utf-8")
     diagram = scorer._svg_blocks(pilot)[7]

@@ -22,7 +22,7 @@ SUBJECT_TREES = (
     "extensions/nexus-code-search/src",
 )
 SUBJECT_FILES = (
-    "docs/releases/v4/v4.9/development/repro/record-benchmark-unavailability.py",
+    "docs/archives/v4/v4.9/development/repro/record-benchmark-unavailability.py",
     ROUTING,
     "catalog/skills/workflow/agent-presets/references/security-audit-routing.md",
     "catalog/skills/workflow/agent-presets/scripts/resolve-security-audit-routing.py",

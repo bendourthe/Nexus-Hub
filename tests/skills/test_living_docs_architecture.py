@@ -99,7 +99,7 @@ def test_v4_lifespan_plan_consumes_handbooks_equivalent() -> None:
     )
     text = _read(path)
     assert "has no equivalent" not in text
-    assert "docs/releases/v3/v3.21/plans/v3.21.0-plan-implement-lifecycle-and-docs-architecture.md" in text
+    assert "docs/archives/v3/v3.21/plans/v3.21.0-plan-implement-lifecycle-and-docs-architecture.md" in text
     assert "docs/archives/v<M>/v<M>.<m>/handbooks/" in text
     assert "regenerate-and-fail-on-stale" in text
     assert "docs/handbooks/" in text

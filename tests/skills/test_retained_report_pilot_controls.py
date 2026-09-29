@@ -21,7 +21,7 @@ sync_playwright = playwright_sync.sync_playwright
 ROOT = Path(__file__).resolve().parents[2]
 PILOT = (
     ROOT
-    / "docs/releases/v4/v4.11/development/interactive-handbooks"
+    / "docs/archives/v4/v4.11/development/interactive-handbooks"
     / "phase-6-native-attempts/report-final/pilot.html"
 )
 

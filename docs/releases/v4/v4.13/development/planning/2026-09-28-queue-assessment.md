@@ -39,6 +39,8 @@ Version order is execution order. Only the positions that moved or were created 
 
 Impact on the harness is a maintainer judgement, not a computed score. The one judgement made today is that the Copilot Usage Monitor and the automatic handoff outrank the v4.14 to v4.18 work: the usage-limit cutoffs that stopped these six sessions mid-task are the failure the handoff exists to prevent, and a Copilot usage percentage is its input on that platform.
 
+**Reorder note (2026-09-29)**: At the maintainer's request, v4.13.7 is queued immediately after v4.13.6 and starts only once v4.13.6 is released. Position 4 above already reflected that order; the predecessor tables in both plans now state it explicitly. The two plans share no edited file beyond different regions of the installers; v4.13.7's `usage-guard` hook joins the `UserPromptSubmit` and `Stop` events that v4.13.6's `approval-capture.sh` and `completion-gate.sh` use.
+
 ## Parallel-compatible groups
 
 Touched-path intersections from the inventory (a lower bound, per the skill):

@@ -1,7 +1,7 @@
 # Session History - v3.16.5 Phase 1: fluid layout and readability contract
 
 **Date**: 2026-08-11
-**Plan**: [docs/releases/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md](../../../../../releases/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md)
+**Plan**: [docs/archives/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md](../../plans/v3.16.5-presentify-visual-overhaul.md)
 **Phase**: 1 of 7 (not the terminal phase)
 **Branch**: `feat/v3.16.5-presentify-visual-overhaul`, in an isolated git worktree at `.claude/worktrees/v3.16.5-presentify`
 **Model**: Opus 5 (strong tier). The plan recommends the frontier tier at high effort; the maintainer chose to proceed on the session model after the delta was surfaced, on the basis that contract authoring plus stdlib parsing sits inside Opus 5's range and the plan's frontier call was about downstream propagation risk rather than raw difficulty.
@@ -62,7 +62,7 @@ Three of the four most useful findings were in the checker rather than in the fi
 
 ## Known gaps appended
 
-Three open, one accepted-and-documented, none a release blocker. Recorded as v3.16.5 MT-1 / NI-2 / WN-1 / DF-1 in [docs/releases/v3/v3.16/known-gaps.md](../../known-gaps.md). MT-1 (fixture unhomed and unguarded; committed at the repo root in this phase so the fixes are not at risk) routes to Phase 7; NI-2 (contract rules 2-3 have no deterministic check) and WN-1 (status colors outside the automated contrast set) both route to Phase 3, which is the phase that acquires the rendered screenshots those judgments require.
+Three open, one accepted-and-documented, none a release blocker. Recorded as v3.16.5 MT-1 / NI-2 / WN-1 / DF-1 in [docs/archives/v3/v3.16/known-gaps.md](../../known-gaps.md). MT-1 (fixture unhomed and unguarded; committed at the repo root in this phase so the fixes are not at risk) routes to Phase 7; NI-2 (contract rules 2-3 have no deterministic check) and WN-1 (status colors outside the automated contrast set) both route to Phase 3, which is the phase that acquires the rendered screenshots those judgments require.
 
 ## Next steps
 

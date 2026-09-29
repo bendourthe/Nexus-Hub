@@ -12,7 +12,7 @@
 
 - **Source**: found running the full suite to verify the documentation-gate repairs.
 - **What was observed**: `tests/guides/test_nexus_hub_guide.py::test_file_size_budget` asserts the guide is under 500000 bytes. The artifact measures 499799, leaving **201 bytes**, or 0.04 percent. The next content addition of any size breaks the build.
-- **Why it is not just a number to raise**: the budget exists because the guide is a single self-contained offline HTML document that a browser downloads in full. Raising the ceiling to clear a red test would spend the constraint rather than honor it. The v4.4.x guide cycle already fought for bytes (`docs/releases/v4/v4.4/` history), so the compaction levers are documented.
+- **Why it is not just a number to raise**: the budget exists because the guide is a single self-contained offline HTML document that a browser downloads in full. Raising the ceiling to clear a red test would spend the constraint rather than honor it. The v4.4.x guide cycle already fought for bytes (`docs/archives/v4/v4.4/` history), so the compaction levers are documented.
 - **Suggested next step**: decide deliberately, ahead of the next guide edit, between compacting existing content and raising the budget with a recorded rationale. Do not decide it inside a phase that merely needs the test green.
 - **Qualified locally 2026-09-23**: The user chose to preserve the 500,000-byte ceiling. Reusing the exact reviewed Claude, ChatGPT, and Cursor vector geometry in local SVG symbols reduced the current guide from 498,735 to 495,467 normalized bytes, increasing headroom from 1,265 to 4,533 bytes. Gemini remains inline: a proposed symbol reuse made its masked icon disappear in Chromium and was rejected by visual review. Four reduced-motion Home browser renders (dark/light at 420 and 1440 px) had near-zero mean image difference; native-size review found only slight Cursor edge antialiasing, not a shape change. The approved-asset hash test resolves the three local references before comparison. See [verification](development/guide-byte-headroom/verification.md). Publication and post-merge verification remain open.
 - **Closed after protected integration, 2026-09-23**: PR #267 passed 21 hosted checks, merged as `dc439012`, and post-merge run 35935340043 passed smoke and provenance. The strict ceiling remains 500,000 bytes; the integrated guide measures 495,467 normalized bytes. The [archived verification](development/guide-byte-headroom/verification.md) keeps the browser evidence and the rejected Gemini experiment distinct from hosted CI.
@@ -154,7 +154,7 @@ Split out from the PowerShell half above, because they turned out to be unrelate
 - **Source**: found at the v4.8.0 release, on the `develop` to `main` pull request (#186).
 - **What was observed**: `CodeQL` reported fail while both `Analyze` jobs succeeded and all five REQUIRED contexts passed. `CodeQL` is not a required context, so it did not block; the red is an artifact of comparing against a `main` that was 72 commits behind, which surfaces the whole accumulated line's alerts as new relative to that base. Every open high alert predates v4.8.0 and none was introduced by it, verified per-alert with `git blame`.
 - **The one that matters**: `py/overly-permissive-file` at `scripts/lib/integrations/_owned.py:105`. `_atomic_replace_bytes` creates its temporary file with mode `0o666` before moving it into place, so between `os.open` and the rename the file is world-writable subject only to the caller's umask. This is DISTRIBUTED code: it ships in `scripts/` and runs on a user's machine during install. `0o600` (or `0o644` where readability matters) would close it with no behavioral cost, since the file is immediately renamed over the destination. Untouched by this release and therefore deliberately not changed inside a release flow.
-- **The rest, for completeness**: `py/clear-text-logging-sensitive-data` at `scripts/validate_skills.py:1017` is an argparse help string from v1.2.0 whose wording mentions a secret scan, a false-positive-prone shape for that rule; two `py/bad-tag-filter` and two `js/xss-through-dom` alerts sit in `docs/releases/v3/v3.12/development/` worked examples, which are documentation and are not installed (`docs/` is outside the installer's copy roots).
+- **The rest, for completeness**: `py/clear-text-logging-sensitive-data` at `scripts/validate_skills.py:1017` is an argparse help string from v1.2.0 whose wording mentions a secret scan, a false-positive-prone shape for that rule; two `py/bad-tag-filter` and two `js/xss-through-dom` alerts sit in `docs/archives/v3/v3.12/development/` worked examples, which are documentation and are not installed (`docs/` is outside the installer's copy roots).
 - **Suggested next step**: fix the `_owned.py` mode in the next patch and re-run the scan, then triage the remaining four with `[[security-review]]` and either fix or dismiss each with a recorded reason. Separately, decide deliberately whether `CodeQL` should become a required context: today it can be red on a release pull request without blocking, which is either correct (it compares against a stale base and would wedge releases) or a gap (a real new vulnerability would also not block). That is a decision record, not a release-time edit.
 - **Why it did not hold the release**: the required gate was fully green, the finding is pre-existing, and the one alert in distributed code is a file-mode hardening rather than an exploitable path in the install flow. Recorded rather than fixed, per the rule that a release-time finding becomes a known gap plus a follow-up patch.
 
@@ -179,11 +179,11 @@ Not-implemented, and 3 Bugs.
 **The true figure is below 141, because some remaining entries are resolved in the tree without
 saying so.** Two were spot-verified on 2026-09-06:
 
-- `docs/releases/v3/v3.14/known-gaps.md` **BG-1** (`verify_platform_contracts.py` registered in
+- `docs/archives/v3/v3.14/known-gaps.md` **BG-1** (`verify_platform_contracts.py` registered in
   neither installer) carries its own `Resolution (Phase 6.3): RESOLVED` line while sitting under
   `Open Items`. Confirmed: the script is in `DEV_ONLY_SCRIPTS` in
   `catalog/hooks/tests/test_installer_smoke.py`.
-- `docs/releases/v3/v3.15/known-gaps.md` **BG-16** (a bootstrap test whose verdict depended on the
+- `docs/archives/v3/v3.15/known-gaps.md` **BG-16** (a bootstrap test whose verdict depended on the
   launching shell, because GNU `tar` from Git Bash shadowed `System32	ar.exe`) still reads
   `Status: Open`. It is fixed: `install.ps1` has a `Resolve-TarExe` helper that prefers
   `System32	ar.exe` explicitly, added in commit `69924673` ("fix: close every open v3.18 known
@@ -235,7 +235,7 @@ the counts were recomputed from the merged catalog in this landing and now sum t
 #### WN-1 - New pushy skill descriptions exceed the 250-char full-mode length check
 
 - **Source phase**: Phase 1 (1.1, 1.2), Phase 2 (2.1)
-- **Plan reference**: `docs/releases/v3/v3.14/plans/v3.14.0-agentic-setup-adoption.md` sub-tasks 1.1-1.2, 2.1
+- **Plan reference**: `docs/archives/v3/v3.14/plans/v3.14.0-agentic-setup-adoption.md` sub-tasks 1.1-1.2, 2.1
 - **Reason**: `false-confidence-test-audit`, `commit-sweep`, and `lint-repair-loop` carry pushy descriptions (verbatim trigger phrases plus a SKIP clause) well over 250 characters, so `validate_skills.py` FULL mode would flag them. This is the known catalog-wide pushy-description-vs-250-char tension (the WN-v3121 family); `make validate` does not run full mode and is clean. Intentional per the AGENTS.md description-style rule (combat under-triggering).
 - **Suggested next step**: None required. Track with the catalog-wide description-length decision; do not shorten at the cost of trigger coverage.
 
@@ -253,7 +253,7 @@ the counts were recomputed from the merged catalog in this landing and now sum t
 #### MT-1 - capture_screenshot.py was not unit-tested - RESOLVED 2026-09-23
 
 - **Source phase**: Phase 4 (4.2)
-- **Plan reference**: `docs/releases/v3/v3.14/plans/v3.14.0-agentic-setup-adoption.md` sub-task 4.2
+- **Plan reference**: `docs/archives/v3/v3.14/plans/v3.14.0-agentic-setup-adoption.md` sub-task 4.2
 - **Reason**: `capture_screenshot.py` drives a headless Chromium-family browser, which is not reliably present in CI or on the dev host, so it is documented and degrades gracefully (exit 3 with an install hint) rather than unit-tested. The perceptual-diff core (`perceptual_diff.py`) IS fully tested (7 cases, Pillow-gated), and `Pillow` was added to the CI tests job so those run.
 - **Suggested next step**: Add a browser-gated smoke test in a CI job that installs a headless browser, or exercise it in the Phase 7 end-of-shift orchestrator's visual-regression step when a browser is available.
 

@@ -1,7 +1,7 @@
 # Session History -- v3.0.0 Phase 3: Core lifecycle commands I (describe, plan, implement, test)
 
 **Date**: 2026-06-03
-**Plan**: [`docs/releases/v3/v3.0/plans/command-consolidation-skill-security.md`](../../../../../releases/v3/v3.0/plans/command-consolidation-skill-security.md)
+**Plan**: [`docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md`](../../plans/command-consolidation-skill-security.md)
 **Phase**: 3 of 10 -- core lifecycle commands I
 **Outcome**: complete; all five sub-tasks (T010-T014) closed, all applicable quality gates green.
 
@@ -47,7 +47,7 @@ Ship the first four verb-first lifecycle commands (`/describe`, `/plan`, `/imple
 
 ## Known gaps
 
-See [`docs/releases/v3/v3.0/known-gaps.md`](../../known-gaps.md). No new open items this phase. WN-v30-1 (Phase 1, ShellCheck deferred to CI) and WN-v30-2 (Phase 2, build_skills_catalog.py drift) remain open and unchanged; the summary stays at 2 open WN.
+See [`docs/archives/v3/v3.0/known-gaps.md`](../../known-gaps.md). No new open items this phase. WN-v30-1 (Phase 1, ShellCheck deferred to CI) and WN-v30-2 (Phase 2, build_skills_catalog.py drift) remain open and unchanged; the summary stays at 2 open WN.
 
 ## Next steps
 

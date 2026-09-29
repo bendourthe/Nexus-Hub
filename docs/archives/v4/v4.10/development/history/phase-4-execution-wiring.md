@@ -4,7 +4,7 @@
 **Phase**: 4 - Execution-time wiring
 **Date**: 2026-09-10
 **Branch**: `feat/v4.10.0-plan-queue-continuity`
-**Evidence**: [phase-4-execution-wiring.md](../../../../../releases/v4/v4.10/development/phase-4-execution-wiring.md)
+**Evidence**: [phase-4-execution-wiring.md](../phase-4-execution-wiring.md)
 
 ## Subtasks completed
 
@@ -15,7 +15,7 @@
 
 - `catalog/skills/workflow/implement-phase/references/implement-phase-runbook.md` - the re-assessment step.
 - `catalog/commands/implement.md` - guarantee section.
-- `docs/releases/v4/v4.10/development/phase-4-execution-wiring.md` - new, phase evidence.
+- `docs/archives/v4/v4.10/development/phase-4-execution-wiring.md` - new, phase evidence.
 
 ## Test results
 
