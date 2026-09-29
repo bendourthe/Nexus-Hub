@@ -183,7 +183,7 @@ def _which_on_path(name: str) -> str | None:
 
     `shutil.which` on Windows searches the current directory first, so a `claude.cmd`
     planted at the repository root would be launched as the platform CLI. Same rule
-    as `check_plan_completion._which_on_path`; kept local so the runner has no import
+    as `repo_host._which_on_path`; kept local so the runner has no import
     dependency on the checker it invokes as a subprocess.
     """
     exts = [""]
