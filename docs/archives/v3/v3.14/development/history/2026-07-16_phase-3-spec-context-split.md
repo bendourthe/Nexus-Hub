@@ -2,7 +2,7 @@
 
 **Date**: 2026-07-16
 **Branch**: `feat/codex-lb-adoption` (off `develop`)
-**Plan**: [docs/releases/v3/v3.14/plans/v3.14.0-codex-lb-adoption.md](../../../../../releases/v3/v3.14/plans/v3.14.0-codex-lb-adoption.md), Phase 3 of 6 (not the final phase)
+**Plan**: [docs/archives/v3/v3.14/plans/v3.14.0-codex-lb-adoption.md](../../plans/v3.14.0-codex-lb-adoption.md), Phase 3 of 6 (not the final phase)
 **Scope**: one body-only skill edit + `CHANGELOG.md` + the v3.14 ledger/devlog/history docs. No new skill, no frontmatter change, no registry update.
 
 ## Goal
@@ -30,7 +30,7 @@ Adopt codex-lb's OpenSpec discipline as a Nexus-Hub convention (C5) - a normativ
 
 ## Known gaps added
 
-- None new. Status advanced to Phases 1-3 complete; the Phase 3 capabilities bullet was added. HO-1 (skill-name collision for `review-trapdoors`) still pending the Phase 6.4 dry-run install. See [docs/releases/v3/v3.14/known-gaps.md](../../known-gaps.md).
+- None new. Status advanced to Phases 1-3 complete; the Phase 3 capabilities bullet was added. HO-1 (skill-name collision for `review-trapdoors`) still pending the Phase 6.4 dry-run install. See [docs/archives/v3/v3.14/known-gaps.md](../../known-gaps.md).
 
 ## Next steps
 

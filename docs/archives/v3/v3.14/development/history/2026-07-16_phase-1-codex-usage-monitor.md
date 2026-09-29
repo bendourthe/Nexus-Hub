@@ -2,7 +2,7 @@
 
 **Date**: 2026-07-16
 **Branch**: `feat/codex-lb-adoption` (off `develop`)
-**Plan**: [docs/releases/v3/v3.14/plans/v3.14.0-codex-lb-adoption.md](../../../../../releases/v3/v3.14/plans/v3.14.0-codex-lb-adoption.md), Phase 1 of 6 (not the final phase)
+**Plan**: [docs/archives/v3/v3.14/plans/v3.14.0-codex-lb-adoption.md](../../plans/v3.14.0-codex-lb-adoption.md), Phase 1 of 6 (not the final phase)
 **Scope**: `extensions/claude-usage-monitor/**` and `CHANGELOG.md` only (no catalog metadata, installer, or base-template)
 
 ## Goal
@@ -38,7 +38,7 @@ No CI edit this phase. The extension is not yet exercised in CI (Python extensio
 
 ## Known gaps added
 
-- DF-1 (exact Codex-app credential path/shape unverified), DF-2 (undocumented `wham/usage` durability), MT-1 (UI modules untested without a VS Code host), QG-1 (extension not in CI). See [docs/releases/v3/v3.14/known-gaps.md](../../known-gaps.md).
+- DF-1 (exact Codex-app credential path/shape unverified), DF-2 (undocumented `wham/usage` durability), MT-1 (UI modules untested without a VS Code host), QG-1 (extension not in CI). See [docs/archives/v3/v3.14/known-gaps.md](../../known-gaps.md).
 
 ## Next steps
 

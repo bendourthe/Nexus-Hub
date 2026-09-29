@@ -217,7 +217,7 @@ When re-verifying, check three things per platform: that the documented key name
 
 ### 2026-09-08 - v4.9.0 release follow-up
 
-The [17-row official-source sweep](../releases/v4/v4.9/development/qualification/v4.9-platform-verification.md) found one default-value mismatch. Copilot new installs now seed the documented string `disable` for `permissions.disableBypassPermissionsMode`, confirmed again in the [official configuration reference](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-config-dir-reference). Existing user settings remain seed-if-absent; no user configuration migration was performed. Fourteen rows have documented keys, three remain UNVERIFIED, and this advisory contract has no release freshness gate.
+The [17-row official-source sweep](../archives/v4/v4.9/development/qualification/v4.9-platform-verification.md) found one default-value mismatch. Copilot new installs now seed the documented string `disable` for `permissions.disableBypassPermissionsMode`, confirmed again in the [official configuration reference](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-config-dir-reference). Existing user settings remain seed-if-absent; no user configuration migration was performed. Fourteen rows have documented keys, three remain UNVERIFIED, and this advisory contract has no release freshness gate.
 
 ### 2026-09-14 - v4.12 portable attribution
 

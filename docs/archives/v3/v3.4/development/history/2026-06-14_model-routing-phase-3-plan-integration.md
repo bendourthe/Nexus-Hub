@@ -1,7 +1,7 @@
 # Session History -- v3.4.0 model-routing Phase 3: /plan integration (planning-time routing)
 
 **Date**: 2026-06-14
-**Plan**: [`docs/releases/v3/v3.4/plans/model-routing.md`](../../../../../releases/v3/v3.4/plans/model-routing.md)
+**Plan**: [`docs/archives/v3/v3.4/plans/model-routing.md`](../../plans/model-routing.md)
 **Phase**: 3 of 4 -- `/plan` integration (planning-time routing)
 **Branch**: `feat/model-routing` (off `develop`; no version tag cut this phase)
 **Outcome**: complete; all Phase 3 sub-tasks closed and the Phase 3 exit checklist is satisfied.
@@ -52,7 +52,7 @@ None. The phase edited catalog Markdown (`plan.md`, `implementation-plan/SKILL.m
 
 ## Known gaps
 
-See [`docs/releases/v3/v3.4/known-gaps.md`](../../known-gaps.md). Open: DF-v34-1 (Phase 1-2 helper unit-test residual, untouched this phase), WN-v33-1 (local `make`/ShellCheck unavailable; validators run directly -- re-confirmed for Phase 3), WN-v33-2 (benign pre-existing global-audit warnings outside this work). No new gaps introduced and none resolved this phase.
+See [`docs/archives/v3/v3.4/known-gaps.md`](../../known-gaps.md). Open: DF-v34-1 (Phase 1-2 helper unit-test residual, untouched this phase), WN-v33-1 (local `make`/ShellCheck unavailable; validators run directly -- re-confirmed for Phase 3), WN-v33-2 (benign pre-existing global-audit warnings outside this work). No new gaps introduced and none resolved this phase.
 
 ## Next steps
 

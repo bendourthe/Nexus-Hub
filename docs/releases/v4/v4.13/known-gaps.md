@@ -206,21 +206,21 @@ The v4.4 `RV-1` through `RV-5` visual choices belong to the user-rejected guide 
 
 The v4.9 MT-3 [chart-line paint follow-up](../../../archives/v4/v4.9/development/runtime-deck-all-state-2026-09-27/chart-line-paint-verification.md) checked all 31 settled SVG line paths across 14 real-deck charts at four viewports with invisible-line and null-stroke controls. It narrows internal SVG evidence but does not close MT-3 or change the other-mark, build-budget, static-stage, or figure-map limits in the inventory row.
 
-**Archive relocation, 2026-09-28**: all 12 source ledgers matched the hashes previously recorded below at pre-move `develop` commit `42490dca`. They then moved to `docs/archives/v4/<minor>/known-gaps.md`; relative links inside and into them were repaired without changing any gap status or ID. The hashes below now bind the archived, link-repaired bytes. The pre-move hashes and files remain recoverable from `42490dca`; v4.13 gaps were not transferred or moved.
+**Archive relocation, 2026-09-28**: all 12 source ledgers matched the hashes previously recorded below at pre-move `develop` commit `42490dca`. They then moved to `docs/archives/v4/<minor>/known-gaps.md`; relative links inside and into them were repaired without changing any gap status or ID. The hashes below now bind the archived, link-repaired bytes. The pre-move hashes and files remain recoverable from `42490dca`; v4.13 gaps were not transferred or moved. **Re-binding, 2026-09-29**: the whole-minor archive of v3 and the remaining v4.0-v4.11 content rewrote links and path mentions inside ten of the bound files (nine ledgers and the v4.4.6 plan) so they resolve to `docs/archives/`; no gap status, ID, or task box changed. The affected hashes below were recomputed to bind those repaired bytes.
 
 | Minor | Source ledger | Normalized SHA-256 |
 |---|---|---|
-| v4.0 | [ledger](../../../archives/v4/v4.0/known-gaps.md) | `c23e5407203ded6534572d4623e3f1eaf79833f64cdbd22d2e6e81206a5d0bef` |
-| v4.1 | [ledger](../../../archives/v4/v4.1/known-gaps.md) | `37ac0efa79e931732ad35c8a457d4505ce037f88a120e37faf34a7d5d2e08479` |
+| v4.0 | [ledger](../../../archives/v4/v4.0/known-gaps.md) | `6c5e0e0b004962e069b6e64d64a4d798040c41af6dfbf68649baa65120c5cece` |
+| v4.1 | [ledger](../../../archives/v4/v4.1/known-gaps.md) | `88d897f04f39fccd2d9f8510eb2e2087eef002c6e0105567471b6ad8220ae92f` |
 | v4.2 | [ledger](../../../archives/v4/v4.2/known-gaps.md) | `a4d0a59eda36b082658eba9e487fad2e814e67abfc03ba5cf8e97e5dd895be5c` |
-| v4.3 | [ledger](../../../archives/v4/v4.3/known-gaps.md) | `8e8e0a158dfb393fcfb30a2159a3132ed50828a07d343eb2d89a378456515b93` |
-| v4.4 | [ledger](../../../archives/v4/v4.4/known-gaps.md) | `46a8af3244fcd4c3349882d0300208e2d53c29d5800b955e6b33fdf2f606ed43` |
-| v4.5 | [ledger](../../../archives/v4/v4.5/known-gaps.md) | `ed0ec93219eb703cc90fca65321eaf5263435bebeac4943a6337362c52db87fb` |
+| v4.3 | [ledger](../../../archives/v4/v4.3/known-gaps.md) | `5b1938c1fc8c82d8ac3ed9d336f67bb4fda837613a56862eca72f3d1049d5bfe` |
+| v4.4 | [ledger](../../../archives/v4/v4.4/known-gaps.md) | `61eb0551a28455c05278b5e2ac8f9537d7d345290a7d776abd92cff788f9ebee` |
+| v4.5 | [ledger](../../../archives/v4/v4.5/known-gaps.md) | `e710101fc0703f881213a3878db25bb90fee00d3ecd42cbb1f3d87baba8e0821` |
 | v4.7 | [ledger](../../../archives/v4/v4.7/known-gaps.md) | `c2784033a6af2f4732dba11faade29f7d15ca2d169f6a680f4ed6919438cb1e9` |
-| v4.8 | [ledger](../../../archives/v4/v4.8/known-gaps.md) | `f7453e6a9ecaa8319bd981de2191c6e1482bc4a744e06cb4ae47855a9973abd0` |
-| v4.9 | [ledger](../../../archives/v4/v4.9/known-gaps.md) | `f146cc02b42123d88e85500511e67cb9058d74c6d76763f4000fc5c40b03edd2` |
-| v4.10 | [ledger](../../../archives/v4/v4.10/known-gaps.md) | `47a5346796ff0bd72ad0e7301ca57a8ae4c15046455fd2267a139e6e2d405c56` |
-| v4.11 | [ledger](../../../archives/v4/v4.11/known-gaps.md) | `a863d4a81ffa7d2611b05629c663c3daade4f1442b3f87e7bfb9c23de351a5cb` |
+| v4.8 | [ledger](../../../archives/v4/v4.8/known-gaps.md) | `2cfc2e926c7c047e196912380f5b3f2a84fba1a1a81d2deda435312b12344145` |
+| v4.9 | [ledger](../../../archives/v4/v4.9/known-gaps.md) | `d8ad404447d2781b2ee004a965a9a64abde6ce73463ec5fda12bb60934f04e73` |
+| v4.10 | [ledger](../../../archives/v4/v4.10/known-gaps.md) | `2f401dcaddcee1152ac8496b0b43f181d2d8ef5503be3b3db03bf34bd03cd8f6` |
+| v4.11 | [ledger](../../../archives/v4/v4.11/known-gaps.md) | `4477c11bbfafe6417c219c2a6da5571b6745c06077b9b6e7f9d0bc419bd8b54c` |
 | v4.12 | [ledger](../../../archives/v4/v4.12/known-gaps.md) | `b33b58bf6c5083728bd52b0be944f9afef927a0076b2f03d43ebb9a5bf5264c2` |
 
 v4.6.0 was never cut. Its unimplemented plan was retargeted through v4.8.0 and completed as the [v4.9.0 adoption plan](../../../archives/v4/v4.9/plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md); the [v4.8 ledger](../../../archives/v4/v4.8/known-gaps.md) preserves the retargeting history. There is no v4.6 ledger or plan directory to archive. The v4.13.0 entries above already live in this file. v4.13.1 through v4.13.3 are released and excluded from this historical transfer; v4.13.4 remains in flight in a separate worktree.
@@ -230,7 +230,7 @@ Two older plans retain unchecked strict task lines for historical reasons. Their
 | Historical plan | Normalized SHA-256 | Disposition | Evidence |
 |---|---|---|---|
 | [plan](../../../archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md) | `dd60b8ac2b1c8def0615e28f54420bb2480f93dbd7afeabf0081a45b89d7e8e0` | implemented-evidence; 62 retained boxes | [task reconciliation](../../../archives/v4/v4.0/development/ci-cd-task-reconciliation.md) |
-| [plan](../../../archives/v4/v4.4/plans/v4.4.6-guide-learning-experience.md) | `11f2c8648c8526cceba37ed67e10cd22efc8c2b7ff3dece8890bb43a7ed1d990` | superseded-by-user; 3 retained boxes | [restoration verification](../v4.4/development/guide-learning-experience/restoration/verification.md) |
+| [plan](../../../archives/v4/v4.4/plans/v4.4.6-guide-learning-experience.md) | `62adff744844a699ba8318412e21e176b2ec0ed9f1d8ed02b135d33dc125f997` | superseded-by-user; 3 retained boxes | [restoration verification](../../../archives/v4/v4.4/development/guide-learning-experience/restoration/verification.md) |
 
 ### Historical unchecked checklist inventory
 

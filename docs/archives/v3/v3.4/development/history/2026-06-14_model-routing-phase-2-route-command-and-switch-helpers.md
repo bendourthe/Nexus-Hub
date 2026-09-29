@@ -1,7 +1,7 @@
 # Session History -- v3.4.0 model-routing Phase 2: The /route command + switch helpers
 
 **Date**: 2026-06-14
-**Plan**: [`docs/releases/v3/v3.4/plans/model-routing.md`](../../../../../releases/v3/v3.4/plans/model-routing.md)
+**Plan**: [`docs/archives/v3/v3.4/plans/model-routing.md`](../../plans/model-routing.md)
 **Phase**: 2 of 4 -- The `/route` command + switch helpers (skill-native)
 **Branch**: `feat/model-routing` (off `develop`; no version tag cut this phase)
 **Outcome**: complete; all Phase 2 sub-tasks closed and the Phase 2 exit checklist is satisfied.
@@ -56,7 +56,7 @@ None material. The plan's sub-task 2.3 says to update `data/marketplace.json` `t
 
 ## Known gaps
 
-See [`docs/releases/v3/v3.4/known-gaps.md`](../../known-gaps.md). Open: DF-v34-1 (now narrowed -- `switch-model.sh` is pytest-gated and CI ShellChecks skill scripts; residual is a direct unit test for `detect-platform`/`enumerate-models`), WN-v33-1 (local `make`/ShellCheck unavailable; validators run directly), WN-v33-2 (benign pre-existing global-audit warnings outside this work). No resolved items this phase.
+See [`docs/archives/v3/v3.4/known-gaps.md`](../../known-gaps.md). Open: DF-v34-1 (now narrowed -- `switch-model.sh` is pytest-gated and CI ShellChecks skill scripts; residual is a direct unit test for `detect-platform`/`enumerate-models`), WN-v33-1 (local `make`/ShellCheck unavailable; validators run directly), WN-v33-2 (benign pre-existing global-audit warnings outside this work). No resolved items this phase.
 
 ## Next steps
 

@@ -8,7 +8,7 @@ Usage:
     python tests/guides/tools/render_guide.py --label phase-1
     python tests/guides/tools/render_guide.py --label phase-4 --pages training
     python tests/guides/tools/render_guide.py --label phase-3 --reduced-motion
-    python tests/guides/tools/render_guide.py --label phase-1 --output-dir docs/releases/v4/v4.4/development/guide-rebuild/renders
+    python tests/guides/tools/render_guide.py --label phase-1 --output-dir docs/archives/v4/v4.4/development/guide-rebuild/renders
 
 Requires Playwright for rendering (the focused pytest smoke skips unless the browser is required):
     pip install playwright && playwright install chromium

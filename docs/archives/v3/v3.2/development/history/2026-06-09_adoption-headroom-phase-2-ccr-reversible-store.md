@@ -1,7 +1,7 @@
 # Session History -- v3.2.0 adoption-headroom Phase 2: CCR reversible store
 
 **Date**: 2026-06-09
-**Plan**: [`docs/releases/v3/v3.2/plans/adoption-headroom.md`](../../../../../releases/v3/v3.2/plans/adoption-headroom.md)
+**Plan**: [`docs/archives/v3/v3.2/plans/adoption-headroom.md`](../../plans/adoption-headroom.md)
 **Phase**: 2 of 7 -- CCR reversible store (re-full)
 **Branch**: `feat/adoption-headroom` (continuing from Phase 1)
 **Outcome**: complete; all three sub-tasks (T005-T007) closed, all quality gates green (GO).
@@ -48,7 +48,7 @@ Make the compression non-lossy. Phase 1's SmartCrusher already emits `<<ccr:HASH
 
 ## Known gaps
 
-See [`docs/releases/v3/v3.2/known-gaps.md`](../../known-gaps.md). **1 new DF this phase** (DF-v32hr-4: CCR-store auto-eviction scheduling deferred to the Phase 4 hook/MCP runtime; the `prune` primitive exists and is tested, only the policy/scheduling is deferred), 0 resolved; 7 open total (4 DF + 3 carried-over teach WN). The Phase 1 SmartCrusher deferrals (DF-v32hr-1..3) are unaffected.
+See [`docs/archives/v3/v3.2/known-gaps.md`](../../known-gaps.md). **1 new DF this phase** (DF-v32hr-4: CCR-store auto-eviction scheduling deferred to the Phase 4 hook/MCP runtime; the `prune` primitive exists and is tested, only the policy/scheduling is deferred), 0 resolved; 7 open total (4 DF + 3 carried-over teach WN). The Phase 1 SmartCrusher deferrals (DF-v32hr-1..3) are unaffected.
 
 ## Next steps
 

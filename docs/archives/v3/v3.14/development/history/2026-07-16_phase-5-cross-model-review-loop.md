@@ -2,7 +2,7 @@
 
 **Date**: 2026-07-16
 **Branch**: `feat/codex-lb-adoption` (off `develop`)
-**Plan**: [docs/releases/v3/v3.14/plans/v3.14.0-codex-lb-adoption.md](../../../../../releases/v3/v3.14/plans/v3.14.0-codex-lb-adoption.md), Phase 5 of 6 (not the final phase)
+**Plan**: [docs/archives/v3/v3.14/plans/v3.14.0-codex-lb-adoption.md](../../plans/v3.14.0-codex-lb-adoption.md), Phase 5 of 6 (not the final phase)
 **Scope**: one body-only skill edit + `CHANGELOG.md` + the v3.14 ledger/devlog/history docs. No new skill, no frontmatter change, no registry update, no bundled script.
 
 ## Goal
@@ -35,7 +35,7 @@ Stated explicitly and cited to the MCP Registry Policy generation-as-service har
 
 ## Known gaps added
 
-- None new. Status advanced to Phases 1-5 complete. Carried forward for Phase 6: BG-1 (installer registration for `verify_platform_contracts.py`), HO-1 (`review-trapdoors` skill-name collision check in the dry-run install), the v3.14.0 numbering collision with `feat/agentic-setup-adoption`, and the two DF endpoint/credential items from Phase 1. See [docs/releases/v3/v3.14/known-gaps.md](../../known-gaps.md).
+- None new. Status advanced to Phases 1-5 complete. Carried forward for Phase 6: BG-1 (installer registration for `verify_platform_contracts.py`), HO-1 (`review-trapdoors` skill-name collision check in the dry-run install), the v3.14.0 numbering collision with `feat/agentic-setup-adoption`, and the two DF endpoint/credential items from Phase 1. See [docs/archives/v3/v3.14/known-gaps.md](../../known-gaps.md).
 
 ## Next steps
 

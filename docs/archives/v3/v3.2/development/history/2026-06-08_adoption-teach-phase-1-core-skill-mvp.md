@@ -1,7 +1,7 @@
 # Session History -- v3.2.0 adoption-teach Phase 1: Core skill (solo-mode MVP)
 
 **Date**: 2026-06-08
-**Plan**: [`docs/releases/v3/v3.2/plans/adoption-teach.md`](../../../../../releases/v3/v3.2/plans/adoption-teach.md)
+**Plan**: [`docs/archives/v3/v3.2/plans/adoption-teach.md`](../../plans/adoption-teach.md)
 **Phase**: 1 of 3 -- core skill (solo-mode MVP)
 **Branch**: `feat/adoption-teach` (created off `origin/develop`, `--no-track`)
 **Outcome**: complete; all three sub-tasks (T001-T003) closed, all quality gates green.
@@ -47,7 +47,7 @@ Ship one new `workflow` skill, `session-teach-back`, that adds a Socratic master
 
 ## Known gaps
 
-See [`docs/releases/v3/v3.2/known-gaps.md`](../../known-gaps.md). Three new open items this phase, all WN: WN-v32-1 (the default-mode 250-char description cap is not a gate and conflicts with the pushy-description rule; the long description was kept and allowlisted by design), WN-v32-2 (local make/shellcheck absent, covered by CI), WN-v32-3 (count-prose surfaces on `develop` predate the v3.1.0 release reconciliation; all count surfaces reconcile to the truthful total at the v3.2.0 release bump). 0 resolved (Phase 1 is the first phase).
+See [`docs/archives/v3/v3.2/known-gaps.md`](../../known-gaps.md). Three new open items this phase, all WN: WN-v32-1 (the default-mode 250-char description cap is not a gate and conflicts with the pushy-description rule; the long description was kept and allowlisted by design), WN-v32-2 (local make/shellcheck absent, covered by CI), WN-v32-3 (count-prose surfaces on `develop` predate the v3.1.0 release reconciliation; all count surfaces reconcile to the truthful total at the v3.2.0 release bump). 0 resolved (Phase 1 is the first phase).
 
 ## Next steps
 

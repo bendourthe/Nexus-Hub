@@ -1,7 +1,7 @@
 # Session History -- v3.3.0 adoption-loop-engineering Phase 2: Goal-based stopping and the independent-evaluator pattern
 
 **Date**: 2026-06-11
-**Plan**: [`docs/releases/v3/v3.3/plans/adoption-loop-engineering.md`](../../../../../releases/v3/v3.3/plans/adoption-loop-engineering.md)
+**Plan**: [`docs/archives/v3/v3.3/plans/adoption-loop-engineering.md`](../../plans/adoption-loop-engineering.md)
 **Phase**: 2 of 4 -- Goal-based stopping + independent-evaluator pattern
 **Branch**: `feat/adoption-loop-engineering` (Phase 1 already merged in; the branch was synced with `develop` at v3.2.2 before this phase)
 **Outcome**: complete; all Phase 2 sub-tasks closed and the Phase 2 exit checklist is checked.
@@ -44,7 +44,7 @@ None. The validators unaffected by Markdown body edits (version-sync, supply-cha
 
 ## Known gaps
 
-See [`docs/releases/v3/v3.3/known-gaps.md`](../known-gaps.md). Phase 2 introduced no new gaps. The four open items carry forward unchanged: DF-v33-1 (pushy-description allowlist, owned by Phase 4), WN-v33-1 (local `make` / temp-access limitation), WN-v33-2 (pre-existing global audit warnings outside this phase), and WN-v33-3 (headline count prose deferred to release reconciliation).
+See [`docs/archives/v3/v3.3/known-gaps.md`](../known-gaps.md). Phase 2 introduced no new gaps. The four open items carry forward unchanged: DF-v33-1 (pushy-description allowlist, owned by Phase 4), WN-v33-1 (local `make` / temp-access limitation), WN-v33-2 (pre-existing global audit warnings outside this phase), and WN-v33-3 (headline count prose deferred to release reconciliation).
 
 ## Next steps
 

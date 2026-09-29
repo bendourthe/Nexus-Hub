@@ -1,7 +1,7 @@
 # Session History - v3.16.0 Phase 2: Per-platform lever research and verification
 
 **Date**: 2026-08-08
-**Plan**: [docs/releases/v3/v3.16/plans/v3.16.0-platform-defaults-config.md](../../../../../releases/v3/v3.16/plans/v3.16.0-platform-defaults-config.md)
+**Plan**: [docs/archives/v3/v3.16/plans/v3.16.0-platform-defaults-config.md](../../plans/v3.16.0-platform-defaults-config.md)
 **Phase**: 2 of 5 (not the final phase; no release-readiness workflow ran)
 **Branch**: `feat/platform-defaults-config`
 **Outcome**: Complete. All four quality gates passed. One CI defect found and fixed in-phase.
@@ -69,7 +69,7 @@ Added `tests/validators/test_platform_defaults_levers.py` (18 cases). The roster
 
 ## Known gaps appended
 
-QG-1 (closed in-phase), NI-2 (`copilot` surface mismatch), NI-3 (`~/.gemini` shared home), NI-4 (the four UNVERIFIED platforms awaiting a Phase 5.2 disposition), plus five observations. Recorded in [docs/releases/v3/v3.16/known-gaps.md](../../known-gaps.md).
+QG-1 (closed in-phase), NI-2 (`copilot` surface mismatch), NI-3 (`~/.gemini` shared home), NI-4 (the four UNVERIFIED platforms awaiting a Phase 5.2 disposition), plus five observations. Recorded in [docs/archives/v3/v3.16/known-gaps.md](../../known-gaps.md).
 
 ## Next steps
 

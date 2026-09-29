@@ -1,7 +1,7 @@
 # Session History -- v3.2.0 adoption-teach Phase 3: Integration + discoverability
 
 **Date**: 2026-06-09
-**Plan**: [`docs/releases/v3/v3.2/plans/adoption-teach.md`](../../../../../releases/v3/v3.2/plans/adoption-teach.md)
+**Plan**: [`docs/archives/v3/v3.2/plans/adoption-teach.md`](../../plans/adoption-teach.md)
 **Phase**: 3 of 3 -- integration + discoverability (final phase)
 **Branch**: `feat/adoption-teach`
 **Outcome**: complete; all three sub-tasks (T008-T010) closed, all quality gates green. This is the plan's final phase; release work routes to `/update release` at the develop -> main bump.
@@ -44,7 +44,7 @@ Wire the `session-teach-back` skill (shipped in Phases 1-2) into the catalog's c
 
 ## Known gaps
 
-See [`docs/releases/v3/v3.2/known-gaps.md`](../../known-gaps.md). 0 new open items this phase, 0 resolved; 3 WN open total. WN-v32-2 was re-confirmed for Phase 3 (local make/shellcheck absent; phase added only Markdown) and the Status + Last-updated lines were advanced to "All 3 of 3 phases complete" / 2026-06-09. WN-v32-1 (allowlisted pushy-description length) and WN-v32-3 (count-prose reconciliation at the release bump) are unchanged -- the catalog is still 251.
+See [`docs/archives/v3/v3.2/known-gaps.md`](../../known-gaps.md). 0 new open items this phase, 0 resolved; 3 WN open total. WN-v32-2 was re-confirmed for Phase 3 (local make/shellcheck absent; phase added only Markdown) and the Status + Last-updated lines were advanced to "All 3 of 3 phases complete" / 2026-06-09. WN-v32-1 (allowlisted pushy-description length) and WN-v32-3 (count-prose reconciliation at the release bump) are unchanged -- the catalog is still 251.
 
 ## Next steps
 

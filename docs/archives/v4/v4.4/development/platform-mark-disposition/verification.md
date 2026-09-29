@@ -4,7 +4,7 @@ The v4.4.0 ledger accurately recorded three text treatments at its release check
 
 ## Approval and artifact
 
-The [v4.4.1 asset ledger](../../../../../releases/v4/v4.4/development/guide-visual-and-arcade-rebuild/asset-provenance.md) records maintainer approval on 2026-09-01 and sanitized SHA-256 hashes for Claude, ChatGPT, Gemini, Cursor, and GitHub Copilot. It identifies the source and licensing or trademark treatment of each asset, including the two documented substitutions, and records review of a rendered both-theme contact sheet. The current [guide](../../../../../../guides/website/nexus-hub-guide.html) carries five marks; its Home rail labels the products, and the byte-identity tests resolve local symbol references before comparing the embedded geometry with the approved files.
+The [v4.4.1 asset ledger](../guide-visual-and-arcade-rebuild/asset-provenance.md) records maintainer approval on 2026-09-01 and sanitized SHA-256 hashes for Claude, ChatGPT, Gemini, Cursor, and GitHub Copilot. It identifies the source and licensing or trademark treatment of each asset, including the two documented substitutions, and records review of a rendered both-theme contact sheet. The current [guide](../../../../../../guides/website/nexus-hub-guide.html) carries five marks; its Home rail labels the products, and the byte-identity tests resolve local symbol references before comparing the embedded geometry with the approved files.
 
 ## Fresh verification, 2026-09-24
 

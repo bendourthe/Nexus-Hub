@@ -1,7 +1,7 @@
 # Session History -- v3.0.0 Phase 6: nexus-skill-scanner engine (re-full)
 
 **Date**: 2026-06-03
-**Plan**: [`docs/releases/v3/v3.0/plans/command-consolidation-skill-security.md`](../../../../../releases/v3/v3.0/plans/command-consolidation-skill-security.md)
+**Plan**: [`docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md`](../../plans/command-consolidation-skill-security.md)
 **Phase**: 6 of 10 -- nexus-skill-scanner engine (re-full)
 **Outcome**: complete; all sub-tasks (T026-T032) closed, all applicable quality gates green.
 
@@ -50,7 +50,7 @@ Build the local internal static skill-security scanner that backs the `/skills s
 
 ## Known gaps
 
-See [`docs/releases/v3/v3.0/known-gaps.md`](../../known-gaps.md). Three new open items this phase: DF-v30-1 (the scanner ships the highest-signal pattern subset per class and grows per release; class 14 YARA + OSV are Phase 7, not gaps), DF-v30-2 (taint tracking is a conservative module-scoped heuristic, not a flow-sensitive dataflow pass), WN-v30-3 (local lint/make partial on the Windows host, covered by CI). WN-v30-1 and WN-v30-2 remain open and unchanged. Summary: 5 open (2 DF, 3 WN), 0 resolved.
+See [`docs/archives/v3/v3.0/known-gaps.md`](../../known-gaps.md). Three new open items this phase: DF-v30-1 (the scanner ships the highest-signal pattern subset per class and grows per release; class 14 YARA + OSV are Phase 7, not gaps), DF-v30-2 (taint tracking is a conservative module-scoped heuristic, not a flow-sensitive dataflow pass), WN-v30-3 (local lint/make partial on the Windows host, covered by CI). WN-v30-1 and WN-v30-2 remain open and unchanged. Summary: 5 open (2 DF, 3 WN), 0 resolved.
 
 ## Next steps
 

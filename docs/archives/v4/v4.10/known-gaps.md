@@ -59,7 +59,7 @@ Unfinished work, deferrals, and defects found during v4.10.0 that did not reach 
 
 - **Source phase**: Phase 5 (T015, T016).
 - **Plan reference**: v4.10.0 D6, "residual-reference check that fails on a single survivor".
-- **What was observed**: `--check-residual` walks `*.md`. The one surviving reference found while replaying the three renumbers was in `docs/releases/v4/v4.9/development/qualification/v4.9-layout-public.json`, which the check would not have reached.
+- **What was observed**: `--check-residual` walks `*.md`. The one surviving reference found while replaying the three renumbers was in `docs/archives/v4/v4.9/development/qualification/v4.9-layout-public.json`, which the check would not have reached.
 - **Reason it is open**: widening the scan to all file types would sweep in generated inventories, lockfiles, and frozen evidence snapshots whose purpose is to record a past state, producing failures that must all be exempted. Every reference class in the Phase 1 acceptance surface is Markdown, so the current scope is sufficient for the documented procedure and insufficient as a repository-wide guarantee. That distinction is stated in the Phase 5 evidence.
 - **Suggested next step**: if a future renumber touches a non-Markdown reference, extend the scan with an explicit include-list of file types rather than a blanket walk, and keep the frozen-evidence exemption.
 

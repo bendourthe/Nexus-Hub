@@ -174,7 +174,7 @@ Machine checks cannot cover these; each needs a person:
 
 1. **Run `nexus-hub upgrade` on a clean machine** and confirm the `## Documentation Layout` block appears in the instruction file of at least one guardrails-only platform (Aider's `CONVENTIONS.md` or Windsurf's rules file). Phase 5 proved this through isolated workspace renders, not a real global install - and BG-2 records that the global `--target` seam does not isolate, so a real install is the only honest way to see it.
 2. **Migrate a second, unrelated repository** with `/update refactor --canonicalize-layout`. Nexus-Hub's own tree was already two-level and its archive already canonical inside the container; a repo on the flat `docs/<vSEMVER>/` or three-level `docs/versions/` shape exercises code paths this dogfood run did not.
-3. **Confirm the presentify job actually triggers** on a change to `docs/releases/v3/v3.12/development/fixtures/gen_fixtures.py`. The filter fix is static-checked only, and its failure mode is silence.
+3. **Confirm the presentify job actually triggers** on a change to `docs/archives/v3/v3.12/development/fixtures/gen_fixtures.py`. The filter fix is static-checked only, and its failure mode is silence.
 4. **Open the migrated tree in an editor and navigate by clicking links** from `README.md` and `docs/README.md`. The set diff proves resolution, not that a human can find their way around.
 5. **Verify the GitHub repository description** now matches the README skill count.
 

@@ -29,12 +29,12 @@
     },
     "build": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.10/development/v4.10.1-overview-build-evidence.json",
+      "evidence": "docs/archives/v4/v4.10/development/v4.10.1-overview-build-evidence.json",
       "evidence_sha256": "934500a671d5502019af7fcf9cebfcdeba218a67e43d1df49e1094e0d2f07ad3"
     },
     "rendered": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.10/development/v4.10.1-overview-rendered.json",
+      "evidence": "docs/archives/v4/v4.10/development/v4.10.1-overview-rendered.json",
       "evidence_sha256": "8c1ebccc433599b21d76d79f71543df7064256c47777b01e6ae9e064ece4372e",
       "browser": "Chromium 151.0.7922.34",
       "output_sha256": "d061c7bf54f5a86aa9fb04ff46bc2aae412321c7bf9a9b06c1c845e6ec8be7ca"

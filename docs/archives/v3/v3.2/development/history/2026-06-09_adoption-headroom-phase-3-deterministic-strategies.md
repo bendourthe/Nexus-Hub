@@ -1,7 +1,7 @@
 # Session History -- v3.2.0 adoption-headroom Phase 3: Remaining deterministic strategies
 
 **Date**: 2026-06-09
-**Plan**: [`docs/releases/v3/v3.2/plans/adoption-headroom.md`](../../../../../releases/v3/v3.2/plans/adoption-headroom.md)
+**Plan**: [`docs/archives/v3/v3.2/plans/adoption-headroom.md`](../../plans/adoption-headroom.md)
 **Phase**: 3 of 7 -- Remaining deterministic strategies (re-full)
 **Branch**: `feat/adoption-headroom` (continuing from Phase 2)
 **Outcome**: complete; all four sub-tasks (T008-T011) closed, all quality gates green (GO).
@@ -54,7 +54,7 @@ The session opened on `feat/usage-monitor-fable` (an unrelated Fable-5 usage-mon
 
 ## Known gaps
 
-See [`docs/releases/v3/v3.2/known-gaps.md`](../../known-gaps.md). **4 new DF this phase** (DF-v32hr-5 ContentRouter prose-embedded arrays not isolated; DF-v32hr-6 regex fallback best-effort, multi-line brace signatures + string/comment-unaware depth; DF-v32hr-7 `compress()` runtime wiring is Phase 4; DF-v32hr-8 spaCy NER default-off / regex epoch-version over-match), 0 resolved; 11 open total (8 DF + 3 carried-over teach WN). DF-v32hr-1 and DF-v32hr-3 updated to record that CacheAligner shipped and ContentRouter was kept minimal (error-preservation re-deferred to Phase 5).
+See [`docs/archives/v3/v3.2/known-gaps.md`](../../known-gaps.md). **4 new DF this phase** (DF-v32hr-5 ContentRouter prose-embedded arrays not isolated; DF-v32hr-6 regex fallback best-effort, multi-line brace signatures + string/comment-unaware depth; DF-v32hr-7 `compress()` runtime wiring is Phase 4; DF-v32hr-8 spaCy NER default-off / regex epoch-version over-match), 0 resolved; 11 open total (8 DF + 3 carried-over teach WN). DF-v32hr-1 and DF-v32hr-3 updated to record that CacheAligner shipped and ContentRouter was kept minimal (error-preservation re-deferred to Phase 5).
 
 ## Next steps
 

@@ -14,7 +14,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, 'catalog/skills/specialized-domains/document-to-interactive-html/scripts')
 import visual_qa_score as scorer
-html = Path('docs/releases/v4/v4.11/development/interactive-handbooks/phase-6-native-attempts/report-final/pilot.html').read_text(encoding='utf-8')
+html = Path('docs/archives/v4/v4.11/development/interactive-handbooks/phase-6-native-attempts/report-final/pilot.html').read_text(encoding='utf-8')
 blocks = scorer._svg_blocks(html)
 for index in (7, 8, 17, 18):
     for name, check in (('occlusion', scorer.check_svg_label_occlusion), ('routing', scorer.check_svg_connector_routing)):

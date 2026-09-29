@@ -2,7 +2,7 @@
 
 **Date**: 2026-07-16
 **Branch**: `feat/codex-lb-adoption` (off `develop`)
-**Plan**: [docs/releases/v3/v3.14/plans/v3.14.0-codex-lb-adoption.md](../../../../../releases/v3/v3.14/plans/v3.14.0-codex-lb-adoption.md), Phase 4 of 6 (not the final phase)
+**Plan**: [docs/archives/v3/v3.14/plans/v3.14.0-codex-lb-adoption.md](../../plans/v3.14.0-codex-lb-adoption.md), Phase 4 of 6 (not the final phase)
 **Scope**: `catalog/hooks/` (schema, three hooks, shared helper, test, settings.json registration), `catalog/style-guides/`, `CHANGELOG.md`, AGENTS.md hook count, the v3.14 ledger/devlog/history docs.
 
 ## Goal
@@ -31,7 +31,7 @@ The `.py` hooks ship no `.ps1` sibling; they run cross-platform via the `python3
 
 ## Known gaps added
 
-- BG-1 (pre-existing installer-registration failure for `verify_platform_contracts.py`; fix separately or in Phase 6.3). HO-1 (review-trapdoors skill-name collision) still pending Phase 6.4. See [docs/releases/v3/v3.14/known-gaps.md](../../known-gaps.md).
+- BG-1 (pre-existing installer-registration failure for `verify_platform_contracts.py`; fix separately or in Phase 6.3). HO-1 (review-trapdoors skill-name collision) still pending Phase 6.4. See [docs/archives/v3/v3.14/known-gaps.md](../../known-gaps.md).
 
 ## Next steps
 

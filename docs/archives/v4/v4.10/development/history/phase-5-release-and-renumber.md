@@ -4,7 +4,7 @@
 **Phase**: 5 - Release review and assisted renumber
 **Date**: 2026-09-10
 **Branch**: `feat/v4.10.0-plan-queue-continuity`
-**Evidence**: [phase-5-release-and-renumber.md](../../../../../releases/v4/v4.10/development/phase-5-release-and-renumber.md)
+**Evidence**: [phase-5-release-and-renumber.md](../phase-5-release-and-renumber.md)
 
 ## Subtasks completed
 
@@ -20,7 +20,7 @@
 - `scripts/enumerate_plan_queue.py` - `--check-residual` and `find_residual_references`.
 - `tests/validators/test_plan_renumber_references.py` - new, 12 tests.
 - `data/skills.json` - `statistics` block corrected (see finding 3).
-- `docs/releases/v4/v4.10/development/phase-5-release-and-renumber.md` - new, phase evidence.
+- `docs/archives/v4/v4.10/development/phase-5-release-and-renumber.md` - new, phase evidence.
 
 ## Test results
 

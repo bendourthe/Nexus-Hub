@@ -17,7 +17,7 @@
 
 | Source path | Category | Destination | Evidence |
 |---|---|---|---|
-| `docs/releases/v4/v4.10/development/history/2026-09-22-phase-7-final-qualification.md` | Cat 2 | `docs/archives/v4/v4.10/development/history/2026-09-22-phase-7-final-qualification.md` | The source and copy had SHA-256 `84609F1B02D2E06061A0E173F067EDA304EE2AB65C53B7FC8DDD2B69586F39BA`; the post-move link baseline found zero newly broken links. |
+| `docs/archives/v4/v4.10/development/history/2026-09-22-phase-7-final-qualification.md` | Cat 2 | `docs/archives/v4/v4.10/development/history/2026-09-22-phase-7-final-qualification.md` | The source and copy had SHA-256 `84609F1B02D2E06061A0E173F067EDA304EE2AB65C53B7FC8DDD2B69586F39BA`; the post-move link baseline found zero newly broken links. |
 
 ## Lifespan contradictions
 
@@ -25,7 +25,7 @@ None was auto-moved. This record was added during the v4.10.1 final integration 
 
 ## Target tree
 
-The v4.10 `plans/`, `comparisons/`, `known-gaps.md`, and non-history `development/` content remain under `docs/releases/v4/v4.10/`. The single late history file joins the existing six files in `docs/archives/v4/v4.10/development/history/`.
+The v4.10 `plans/`, `comparisons/`, `known-gaps.md`, and non-history `development/` content remain under `docs/archives/v4/v4.10/`. The single late history file joins the existing six files in `docs/archives/v4/v4.10/development/history/`.
 
 ## Self-classification
 
@@ -37,12 +37,12 @@ The earlier summary and target-tree statement above describe the 2026-09-22 one-
 
 | Source directory | Disposition | Archived files |
 |---|---|---:|
-| `docs/releases/v4/v4.0/plans/` | Cat 2 - transfer-qualified | 3 |
+| `docs/archives/v4/v4.0/plans/` | Cat 2 - transfer-qualified | 3 |
 | `docs/releases/v4/v4.1/plans/` and `comparisons/` | Cat 2 - transfer-qualified | 8 |
 | `docs/releases/v4/v4.3/plans/` | Cat 2 - transfer-qualified | 1 |
 | `docs/releases/v4/v4.4/plans/` | Cat 2 - transfer-qualified | 7 |
 | `docs/releases/v4/v4.9/plans/` and `comparisons/` | Cat 2 - transfer-qualified | 3 |
-| `docs/releases/v4/v4.10/plans/` and `comparisons/` | Cat 2 - transfer-qualified | 3 |
+| `docs/archives/v4/v4.10/plans/` and `comparisons/` | Cat 2 - transfer-qualified | 3 |
 | `docs/releases/v4/v4.11/plans/` and `comparisons/` | Cat 2 - transfer-qualified | 4 |
 
 Each of the 29 files was copied, checked for equal byte length and SHA-256, and only then removed from its source path. Every archive destination was checked against `.gitignore` before moving. The [archive index](../../../archives/README.md) lists every old and new file path. The two plans with retained strict task boxes remain unchanged in task disposition: the v4.0 CI plan is supported by its task reconciliation, and the v4.4.6 guide plan is explicitly superseded by the user. Their post-reference-repair hashes are bound in [v4.13 known gaps](known-gaps.md).
@@ -55,4 +55,4 @@ The post-move transfer predicate passed for all twelve existing source ledgers. 
 
 A fresh `audit-docs.py lifespan-contradictions` scan after the 29-file pass found one more active v4.0 file, `development/last-phase-evidence.md`. It is a dated v4.0.0 final-phase record, not a living document or CI input, so this pass archived it at `docs/archives/v4/v4.0/development/last-phase-evidence.md`. The 15,534-byte source and copied destination had matching SHA-256 `895f20f701031893790d65da2807edbee7c7500bbc0f713728368ba0e9e9ca1b` before the destination's relative plan link was repaired. The inbound session-history link and archive index were updated; no active-version document was moved.
 
-The rename-aware link baseline reported 465 unresolved targets before and after, with zero newly broken. The candidate-tree lifespan scan reported zero files under `docs/releases/v4/v4.0/`; findings in other release buckets remain outside this v4.0 disposition. The CI plan's 62 retained strict boxes are bound to its [task reconciliation](../../../archives/v4/v4.0/development/ci-cd-task-reconciliation.md), and the [v4.0 ledger](../../../archives/v4/v4.0/known-gaps.md) records WN-2's source-level resolution without editing the historical plan.
+The rename-aware link baseline reported 465 unresolved targets before and after, with zero newly broken. The candidate-tree lifespan scan reported zero files under `docs/archives/v4/v4.0/`; findings in other release buckets remain outside this v4.0 disposition. The CI plan's 62 retained strict boxes are bound to its [task reconciliation](../../../archives/v4/v4.0/development/ci-cd-task-reconciliation.md), and the [v4.0 ledger](../../../archives/v4/v4.0/known-gaps.md) records WN-2's source-level resolution without editing the historical plan.

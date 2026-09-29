@@ -1,7 +1,7 @@
 # Session History -- v3.0.0 Phase 2: skill-native adoptions (reverse-engineer-first)
 
 **Date**: 2026-06-03
-**Plan**: [`docs/releases/v3/v3.0/plans/command-consolidation-skill-security.md`](../../../../../releases/v3/v3.0/plans/command-consolidation-skill-security.md)
+**Plan**: [`docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md`](../../plans/command-consolidation-skill-security.md)
 **Phase**: 2 of 10 -- skill-native adoptions (reverse-engineer-first)
 **Outcome**: complete; all five sub-tasks (T005-T009) closed, all quality gates green.
 
@@ -46,7 +46,7 @@ Ship the two zero-code skill replacements that close the orchestration and skill
 
 ## Known gaps
 
-See [`docs/releases/v3/v3.0/known-gaps.md`](../../known-gaps.md). One new open item this phase: WN-v30-2 (build_skills_catalog.py regenerates a materially different catalog than the committed one; hand-registration used; reconcile the generator before `make build-catalog` is safe). WN-v30-1 (Phase 1, ShellCheck deferred to CI) remains open.
+See [`docs/archives/v3/v3.0/known-gaps.md`](../../known-gaps.md). One new open item this phase: WN-v30-2 (build_skills_catalog.py regenerates a materially different catalog than the committed one; hand-registration used; reconcile the generator before `make build-catalog` is safe). WN-v30-1 (Phase 1, ShellCheck deferred to CI) remains open.
 
 ## Next steps
 

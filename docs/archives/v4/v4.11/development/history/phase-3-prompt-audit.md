@@ -6,7 +6,7 @@ Renumber note, 2026-09-14: this historical cache-track evidence was authored und
 **Phase**: 3 - Bounded prompt audit
 **Date**: 2026-09-10
 **Branch**: `feat/v4.11.0-cache-and-diagram`
-**Evidence**: [phase-3-prompt-audit.md](../../../../../releases/v4/v4.11/development/phase-3-prompt-audit.md)
+**Evidence**: [phase-3-prompt-audit.md](../phase-3-prompt-audit.md)
 
 ## Subtasks completed
 
@@ -18,7 +18,7 @@ Renumber note, 2026-09-14: this historical cache-track evidence was authored und
 
 - `catalog/skills/ai-development/prompt-engineering/references/prompt-audit.md` - new; the worksheet.
 - `catalog/skills/ai-development/prompt-engineering/SKILL.md` - new short section linking it on demand.
-- `docs/releases/v4/v4.11/development/phase-3-prompt-audit.md` - new; phase evidence.
+- `docs/archives/v4/v4.11/development/phase-3-prompt-audit.md` - new; phase evidence.
 
 ## Test results
 
