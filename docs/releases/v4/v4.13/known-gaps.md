@@ -664,7 +664,7 @@ Gaps from the completion-checker remote-resolution fix ([`v4.13.5-completion-che
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
-| Bugs / regressions (BG) | 0 | 4 |
+| Bugs / regressions (BG) | 0 | 5 |
 | Warnings (WN) | 3 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
@@ -691,3 +691,4 @@ Gaps from the completion-checker remote-resolution fix ([`v4.13.5-completion-che
 | BG-2 | A Windows drive-relative path read as an SSH host | Phase 2 | git treats `C:owner/repo` as a local directory on Windows, but the parser read host `c`; one `Host c` entry mapping to github.com would have shown `approval.remote met` for a push to a local folder. Single-letter scp hosts are now rejected on every OS. |
 | BG-3 | An SSH alias routed through a proxy counted as verified | Phase 2 | Only the `hostname` line of `ssh -G` was read, so a `ProxyCommand` or `ProxyJump` to another server passed. Either setting other than `none` now leaves the alias unverified. |
 | BG-4 | With `GH_HOST` set, a github.com remote was checked against the enterprise host | Phase 2 | Both `github.com` and `GH_HOST` were accepted, but `gh --repo owner/repo` queries only one of them. The accepted host is now exactly the one `gh` queries: `GH_HOST` when set, otherwise `github.com`. |
+| BG-5 | CodeQL flagged a no-effect statement in `repo_host.py` | Phase 2, PR #387 | The `...` body of the `Budget` protocol method raised "Statement has no effect" (alert 328), and the unresolved review thread blocked the merge under `develop`'s conversation-resolution rule. The body is now a docstring. |

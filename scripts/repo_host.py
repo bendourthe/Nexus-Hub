@@ -40,7 +40,8 @@ ALIAS_RE = re.compile(r"^[A-Za-z0-9_.-]+$")
 
 
 class Budget(Protocol):
-    def remaining(self) -> float: ...
+    def remaining(self) -> float:
+        """Seconds left in the caller's shared time budget."""
 
 
 # --------------------------------------------------------------------------- tools
