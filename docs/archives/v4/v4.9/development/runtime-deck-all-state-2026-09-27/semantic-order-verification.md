@@ -1,6 +1,6 @@
 # v4.9.2 retained runtime-deck semantic flow-order qualification
 
-This record tests the three authored flow diagrams in the unchanged historical LVEDP deck against the v4.9.2 content-order rule. It is a bounded addition to [MT-3](../../../../../releases/v4/v4.9/known-gaps.md), not a whole-deck pass or a replacement for the [all-state typography and outer-box record](verification.md).
+This record tests the three authored flow diagrams in the unchanged historical LVEDP deck against the v4.9.2 content-order rule. It is a bounded addition to [MT-3](../../known-gaps.md), not a whole-deck pass or a replacement for the [all-state typography and outer-box record](verification.md).
 
 ## Functional exercise
 

@@ -9,6 +9,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.13.5] - 2026-09-29
+
+### Fixed
+
+- **The completion checker verifies hosting state behind an SSH host alias (v4.13.5).** It parsed `owner/repo` only from a remote whose host was spelled `github.com`, so a repository using an alias such as `git@github-work:owner/repo.git` reported every hosting predicate as `cannot-verify` and a full `/implement` run could never finish. The new `scripts/repo_host.py`, installed beside the checker by both installers, accepts a path only when the host git contacts is the one `gh` queries (`GH_HOST` when set, otherwise `github.com`), resolves an alias through `ssh -G`, refuses an alias routed through a proxy, and cross-checks `gh repo view` when no run record exists. Anything it cannot verify stays `cannot-verify` rather than becoming a lookup of a same-named github.com repository. `approval.remote` keeps its exact push-URL binding. Decision: `docs/decisions/implemented/tooling/2026-09-28-verified-repository-resolution-for-hosting-predicates.md`.
+
+### Capability usage
+
+- No opt-in capability, installer flag, managed skill, or host surface changed in v4.13.5.
+
+## [4.13.4] - 2026-09-28
+
+### Changed
+
+- **The guide's Training tab is seven headed sections instead of an eight-slide deck (v4.13.4).** A reader now scrolls one command loop in order: play the buggy game, `/describe` then `/review` it, `/plan` the repair, run the whole plan with one `/implement` (whose final phase covers review, known gaps, tests to green, and `/update release`), play the fixed game, add vertical movement with `/compare`, and brief the result with `/presentify`. Each section owns its terminal, tools, artifact, gate, and file explorer, so running one command never changes another section. The maintainer source `guides/website/example/training-scenes.json` and the embedded copy stay byte-identical, and the eight-scene source is preserved as release evidence. Legacy `#training/describe`, `review`, `test`, and `update` links open the section that now holds that command.
+    - Three independent games (`buggy`, `fixed`, `featured`) run on one page. Each pauses when it scrolls out of view or when the Training page is hidden, and its no-canvas fallback describes that game's own damage and movement settings.
+    - The arcade is a landscape 640x400 arena drawn at the device pixel ratio. Enemies come in four seeded archetypes with distinct silhouettes, movement, and fire (a bolt, a three-way spread, and a beam with a visible charge-up); asteroids drift, spin, fragment, and each has its own outline; the player ship banks and shows thrust. The seeded first-hit bug and its one-life-per-hit repair are unchanged.
+    - Agents and browser tests can drive the page through `window.NexusTraining` (`go`, `selectAction`, `run`, `snapshot`) and `window.NexusShooter.get(id)`, documented in `guides/website/README.md`.
+    - The guide stays under its 500,000-byte ceiling at 488,675 bytes; a favicon and inline image were re-encoded, with before and after captures, to make room.
+
+- **The v4.0 through v4.12 known-gaps ledgers moved to `docs/archives/v4/<minor>/` (v4.13.4).** Their open items are carried, with source hashes, in the v4.13 ledger's historical inventory, and every incoming link was repaired. The documentation-retention check still reports an archived ledger whose plans are active.
+
+### Fixed
+
+- **Completion approvals are bound to the approved push destination (v4.13.2 WN-1).** The signed run record now freezes the single origin push URL, and `approval.remote` is unmet when that URL is missing, changed, added to, or names another repository, even when push-merge was approved.
+- **Completion records expire and ignore inherited Git settings (v4.13.2 WN-13).** An approval older than 72 hours, or one with a timezone-naive timestamp, no longer counts even in its original session; inherited `GIT_DIR`-style selectors can no longer make an untracked private record look tampered; and GitHub's exact "no checks" reply on a fresh pull request reads as unmet rather than unreachable.
+- **Completion plugins never launch a Python planted in the working directory (v4.13.2 WN-10).** The OpenCode, Pi, and OpenClaw plugins resolve `python` or `py` only from absolute PATH entries before starting the installed completion gate.
+- **Every skill description fits the 1024-character standard (v4.13.2 WN-2).** Twelve over-long descriptions were shortened and the grandfather allowlist removed, so the conformance check has no exemptions.
+- **Codex setup guidance and optional extension builds (v4.13.2 WN-5, WN-6).** The Codex install summary points to the one-time hook-trust step and the project write access Codex needs, and a failing optional extension build now warns instead of aborting the Bash installer.
+- **The scheduled supply-chain watch audits third-party packages only (v4.7 WN-2).** Both `pip-audit` calls skip first-party editable installs while still auditing every third-party dependency. The warning closes once a scheduled `main` run passes with this workflow.
+
+### Removed
+
+- **Training presentation mode and deck navigation (v4.13.4).** The fullscreen presenter, its Outline, and the Previous and Next controls were replaced by ordinary in-page section links that work by keyboard. Tests that asserted the deck's layout were rewritten to assert the same geometry, keyboard, and isolation guarantees on the stacked sections.
+
+### Capability usage
+
+- No opt-in capability, installer flag, managed skill, or host surface changed in v4.13.4.
+
 ## [4.13.3] - 2026-09-28
 
 ### Added
@@ -320,7 +359,7 @@ This release changes no installer flag, no managed skill, and no new host surfac
 - Authority: activation grants NO network access, no new credential and no new dependency. The audit reads a local render only. Exit 2 means unverified, never a pass.
 - Docs: `catalog/rules/html/visual-self-verification.md` and the skill's `## Post-generation gate`.
 
-**Honest limit on the quality claim.** Every gate fires correctly on a fixture built for it, and the repository's own handbooks pass all of them with zero findings. That is NOT the same as proving a first generated draft survives inspection, and no end-to-end qualification run was attempted in this cycle. The weaker claim is the one that ships. See the [v4.11 ledger](docs/releases/v4/v4.11/known-gaps.md) for MT-5, which is half closed, and the four tells that rest on an attestation rather than a check.
+**Honest limit on the quality claim.** Every gate fires correctly on a fixture built for it, and the repository's own handbooks pass all of them with zero findings. That is NOT the same as proving a first generated draft survives inspection, and no end-to-end qualification run was attempted in this cycle. The weaker claim is the one that ships. See the [v4.11 ledger](docs/archives/v4/v4.11/known-gaps.md) for MT-5, which is half closed, and the four tells that rest on an attestation rather than a check.
 
 **On the version number.** There is no v4.11.1 release. That slot holds a planned but unimplemented cache-and-diagram plan, and renumbering this work into it would contradict its own documentation. As with the skipped v4.10.0, only the slot is skipped.
 
@@ -376,7 +415,7 @@ A changed default, not an opt-in addition: it alters distributed behaviour witho
 - Authority: activation does NOT grant network access at build or view time, any outbound call, any new credential, or any new dependency. The output is one offline file and the gates read the local render only. Generating a handbook does not authorise publishing it anywhere.
 - Docs: `catalog/commands/presentify.md` and `catalog/skills/specialized-domains/document-to-interactive-html/SKILL.md`.
 
-**Honest limit on the quality claim.** Each of the three source families - report, presentation, repository - has been independently qualified to pass, and the tooling that judges them is verified and negative-controlled. Delivering all three simultaneously from a single invocation within a bounded repair budget is NOT established: the best sustained result across six qualification rounds and roughly fifteen hours of runtime was two of three. That gate is recorded as UNMET and carried forward rather than waived. See the [v4.11 ledger](docs/releases/v4/v4.11/known-gaps.md). The second weekly bar appears automatically for any account whose usage API reports a model-scoped weekly limit, requires no setting, and grants the extension no access it did not already have: it is read from the same single authenticated request to `api.anthropic.com/api/oauth/usage` the monitor already made. The plan-queue assessment runs inside commands the user already invokes and adds no outbound call, credential, or dependency.
+**Honest limit on the quality claim.** Each of the three source families - report, presentation, repository - has been independently qualified to pass, and the tooling that judges them is verified and negative-controlled. Delivering all three simultaneously from a single invocation within a bounded repair budget is NOT established: the best sustained result across six qualification rounds and roughly fifteen hours of runtime was two of three. That gate is recorded as UNMET and carried forward rather than waived. See the [v4.11 ledger](docs/archives/v4/v4.11/known-gaps.md). The second weekly bar appears automatically for any account whose usage API reports a model-scoped weekly limit, requires no setting, and grants the extension no access it did not already have: it is read from the same single authenticated request to `api.anthropic.com/api/oauth/usage` the monitor already made. The plan-queue assessment runs inside commands the user already invokes and adds no outbound call, credential, or dependency.
 
 ## [4.9.0] - 2026-09-08
 
@@ -493,7 +532,7 @@ Docs: [Platform read-contracts](https://github.com/bendourthe/Nexus-Hub/blob/v4.
     | Authority | Enabling it grants NO network access, does NOT commit or push, does NOT bypass any other guardrail hook, and makes NO LLM call. It never touches a file with unstaged changes, so it cannot silently stage work in progress, and it is fail-open: it always exits 0 and never blocks a commit. |
     | Docs | `catalog/hooks/lint-autofix.sh` header and `catalog/skills/code-cleanup/lint-repair-loop/SKILL.md`. |
 
-- **A measured statement of known-gaps ledger condition**, recorded in `docs/releases/v4/v4.8/known-gaps.md` for T023 of the retargeted v4.8.0 plan, whose stated job is reconciling every reachable ledger. Three counts of the same thing disagree: the Summary tables sum to 175 open, 157 entries sit under an `Open Items` heading, and 16 of those declare `RESOLVED` in their own heading, leaving 141. The true figure is lower still, because some remaining entries are fixed in the tree without saying so - two were spot-verified (a v3.14 installer-registration bug that is allowlisted, and a v3.15 bootstrap test whose shell-dependent verdict was fixed by an explicit `Resolve-TarExe` helper). The measurement is recorded rather than the fix, because reconciling ahead of the implementation T023 reconciles would be redone.
+- **A measured statement of known-gaps ledger condition**, recorded in `docs/archives/v4/v4.8/known-gaps.md` for T023 of the retargeted v4.8.0 plan, whose stated job is reconciling every reachable ledger. Three counts of the same thing disagree: the Summary tables sum to 175 open, 157 entries sit under an `Open Items` heading, and 16 of those declare `RESOLVED` in their own heading, leaving 141. The true figure is lower still, because some remaining entries are fixed in the tree without saying so - two were spot-verified (a v3.14 installer-registration bug that is allowlisted, and a v3.15 bootstrap test whose shell-dependent verdict was fixed by an explicit `Resolve-TarExe` helper). The measurement is recorded rather than the fix, because reconciling ahead of the implementation T023 reconciles would be redone.
 - **A decision record establishing that a plan checkbox is not completion evidence** (`docs/decisions/implemented/process/2026-09-06-plan-checkboxes-are-not-completion-evidence.md`). Counting open boxes across the v4 plans suggested a third of the released line was unimplemented; splitting them by section showed 499 of 738 were per-phase process bookkeeping ticked at exactly the moment a long `/implement` session is most likely to end. The authoritative completion signal is the release tag plus `last-phase-evidence.md`. 156 boxes across eight plans were reconciled against per-class artifacts and 343 were left open because no artifact proves them - 38 of those assert a negative, "no branch push occurred", that nothing records. v4.6.0 is confirmed as the only unimplemented version in the v4 line.
 - **A decision record for the seventh framework** (`docs/decisions/implemented/policy/2026-09-07-owasp-agentic-top-10-as-seventh-framework-field.md`) with five alternatives and five consequences, including two the mapping cannot guarantee.
 - Layout-drift regression guards in both documentation-gate test suites. Every pre-existing test built its fixtures from the same constant the checker used, so the suites validated the bug rather than catching it. The new guards assert against the **real repository**, and specifically that the configured prefix yields a non-empty set of version directories - existence alone is insufficient, because `docs/` existed for the entire period both gates were reading nothing. Reverting either constant to its historical value now fails the suite.
@@ -600,7 +639,7 @@ This release changes no opt-in capability, installer flag, or host surface. The 
 
 ### Known gaps
 
-Recorded in `docs/releases/v4/v4.5/known-gaps.md`, none blocking: `DF-1` (whether the always-on clause improves replies is unverified by a person), `DF-2` (no transitive-reachability or shared-writable-service enumeration has been performed on this repository's own agent surface), `DF-3` (mannered prose and the stranded auxiliary rely on model judgment; the detector cannot express them), `WN-2` (three phases ran at high effort against a max recommendation, with no observed impact), `WN-3` (the model-prompting profile layer lists `claude-fable-5` while the live roster has `claude-fable-5-1`; `/tune-prompting` refreshes it), and `MT-1` (the plan's four human tests are unrun).
+Recorded in `docs/archives/v4/v4.5/known-gaps.md`, none blocking: `DF-1` (whether the always-on clause improves replies is unverified by a person), `DF-2` (no transitive-reachability or shared-writable-service enumeration has been performed on this repository's own agent surface), `DF-3` (mannered prose and the stranded auxiliary rely on model judgment; the detector cannot express them), `WN-2` (three phases ran at high effort against a max recommendation, with no observed impact), `WN-3` (the model-prompting profile layer lists `claude-fable-5` while the live roster has `claude-fable-5-1`; `/tune-prompting` refreshes it), and `MT-1` (the plan's four human tests are unrun).
 
 ---
 
@@ -646,7 +685,7 @@ This release changes no opt-in capability, installer flag, or host surface.
 
 ### Known gaps
 
-Carried forward, all pre-existing and none introduced by this release: v4.4.0 `DF-1` (three platform entries use text treatments until a vendor publishes a distributable standalone mark), v4.4.1 `WN-1` (Phase 1 ran one tier below its recommendation, recorded as a deliberate choice), and v4.4.1 `WN-2` (an incomplete superseded-assertion register). Full ledger: `docs/releases/v4/v4.4/known-gaps.md`.
+Carried forward, all pre-existing and none introduced by this release: v4.4.0 `DF-1` (three platform entries use text treatments until a vendor publishes a distributable standalone mark), v4.4.1 `WN-1` (Phase 1 ran one tier below its recommendation, recorded as a deliberate choice), and v4.4.1 `WN-2` (an incomplete superseded-assertion register). Full ledger: `docs/archives/v4/v4.4/known-gaps.md`.
 
 ---
 
@@ -698,7 +737,7 @@ This release adds no opt-in capability, installer flag, or host surface. It does
 
 The advisory model-prompting freshness check reports DRIFTED: the three live Codex ids (`gpt-5.6-sol`, `gpt-5.6-terra`, `gpt-5.6-luna`) remain unprofiled. This is the separately tracked v4.1.0 `DF-1`, is advisory by design, and does not gate this release.
 
-One deferred item remains open for this version: `DF-1`, three platform entries (ChatGPT, Gemini, GitHub Copilot) use labelled text treatments because their vendors publish no distributable standalone product mark. See `docs/releases/v4/v4.4/known-gaps.md`.
+One deferred item remains open for this version: `DF-1`, three platform entries (ChatGPT, Gemini, GitHub Copilot) use labelled text treatments because their vendors publish no distributable standalone product mark. See `docs/archives/v4/v4.4/known-gaps.md`.
 
 ---
 

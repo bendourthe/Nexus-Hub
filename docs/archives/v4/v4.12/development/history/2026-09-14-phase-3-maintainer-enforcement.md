@@ -28,7 +28,7 @@ The canonical validation profile exposed a Phase 1 decision-record header defect
 
 ## 4. Known Issues
 
-Two pre-existing Ruff findings in `scripts/ci/profiles.py` are retained as WN-1 in the [ledger](../../../../../releases/v4/v4.12/known-gaps.md). Baseline verification used the committed parent bytes. They were not introduced by the one-command addition and are not suppressed. GitHub publication and contributor-page proof remain final-phase duties.
+Two pre-existing Ruff findings in `scripts/ci/profiles.py` are retained as WN-1 in the [ledger](../../known-gaps.md). Baseline verification used the committed parent bytes. They were not introduced by the one-command addition and are not suppressed. GitHub publication and contributor-page proof remain final-phase duties.
 
 ## 5. Plan Discrepancies
 

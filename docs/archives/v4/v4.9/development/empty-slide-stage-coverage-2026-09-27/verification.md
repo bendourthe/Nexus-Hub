@@ -1,6 +1,6 @@
 # v4.9.2 empty-stage slide-check follow-up
 
-This bounded follow-up to the [real-deck scorer proof](../real-deck-score-2026-09-27/verification.md) repairs three false passes on a slide-declared page with no static slide stages. It does not close [v4.9 MT-3](../../../../../releases/v4/v4.9/known-gaps.md) or establish the rendered stage-type floor on a real deck.
+This bounded follow-up to the [real-deck scorer proof](../real-deck-score-2026-09-27/verification.md) repairs three false passes on a slide-declared page with no static slide stages. It does not close [v4.9 MT-3](../../known-gaps.md) or establish the rendered stage-type floor on a real deck.
 
 ## Artifact and experiment
 

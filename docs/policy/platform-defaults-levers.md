@@ -226,3 +226,11 @@ Claude attribution is VERIFIED for the documented `attribution.commit` and `attr
 ### 2026-09-16 - v4.12.1 read-contract pass (lever rows rechecked in passing)
 
 Scope: the nine vendor pages fetched for the v4.12.1 read-contract verification were also checked for lever drift while open. No lever key, config path, or allowed-value set was observed to change, and no lever was removed. Two host moves are recorded for the record: Codex documentation 308-redirects from `developers.openai.com` to `learn.chatgpt.com`, and the Windsurf documentation host now resolves to `docs.devin.ai` following the Devin rebrand; neither changed a documented lever key. `kimi` and `pi` were NOT rechecked this cycle and retain their prior classification. This was a passing recheck during a read-contract pass, not a dedicated lever research sweep, and no row was promoted from UNVERIFIED on its basis. This contract remains advisory with no release freshness gate.
+
+### 2026-09-28 - v4.13.4 targeted read-contract pass (no lever recheck)
+
+Scope: the v4.13.4 release re-fetched only the Claude, Cursor, and Codex skill-discovery pages for the read-contract stamp. Those pages do not document the effort, model, or approval levers, so no lever row was rechecked or reclassified this cycle; every lever keeps the classification from its last recorded check. This contract remains advisory with no release freshness gate.
+
+### 2026-09-29 - v4.13.5 targeted read-contract pass (no lever recheck)
+
+Scope: the v4.13.5 release re-fetched only the Claude, Cursor, and Codex skill-discovery pages for the read-contract stamp. Those pages do not document the effort, model, or approval levers, so no lever row was rechecked or reclassified this cycle. This contract remains advisory with no release freshness gate.

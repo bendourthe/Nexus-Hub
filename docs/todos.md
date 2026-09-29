@@ -1,17 +1,20 @@
 # Nexus-Hub Progress Dashboard
 
 **Integration branch:** `develop`
-**Active work:** Historical v4.0-v4.12 plan closure is integrated; v4.13.1 through v4.13.3 are released and back-merged, while v4.13.4 Training rebuild remains in its Claude-owned worktree. Bounded vendor, manual, and artifact-coverage gaps remain open in their known-gaps ledgers.
-**Closeout boundary:** One future-plan PR (#222, with a v4.15.1 slot collision), recovery backups with unique Git history, historical local backup ACL remediation, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim. The former 47-file recovery branch was removed after its patch was proven identical to the merged PR #259 commit.
+**Active work:** Historical v4.0-v4.12 plan closure is integrated and v4.13.1 through v4.13.5 are released. v4.13.6 (minor-scope implement and verified cleanup) is next; it needs a human read-back of its approval page and owns v4.13.5 WN-2 and WN-3. Bounded vendor, manual, and artifact-coverage gaps remain open in their known-gaps ledgers.
+**Closeout boundary:** One future-plan PR (#222, with a v4.15.1 slot collision), recovery backups with unique Git history, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim. The former 47-file recovery branch was removed after its patch was proven identical to the merged PR #259 commit.
 **Last refreshed:** 2026-09-28
 
-This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/releases/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
+This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its source `known-gaps.md` under `docs/releases/` or `docs/archives/`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
 
 Refreshing this file to the active plan (rather than appending another version's section) keeps the dashboard from drifting to an old feature branch.
+
+- [x] Finish the [v4.13.4 Training rebuild](releases/v4/v4.13/plans/v4.13.4-guide-training-rebuild.md): all eight phases shipped through [PR #382](https://github.com/bendourthe/Nexus-Hub/pull/382), merged at `13de23c0` after one stabilization re-push; [post-merge run 36526412742](https://github.com/bendourthe/Nexus-Hub/actions/runs/36526412742) passed. The [last-phase evidence](releases/v4/v4.13/development/v4.13.4-last-phase-evidence.md) records the full local gate, review lenses, and visual sweep; WN-1 and WN-2 stay open in the v4.13 ledger.
 
 - [x] Historical v4.0-v4.13 plan closure is integrated. PR #232 passed the required Linux, Windows, guide-render, host-load, CodeQL, and aggregate checks; post-merge run 35789442554 passed smoke and provenance without rerunning the full suite.
 - [x] Publish the verified v4.0-v4.12 gap transfer and 29-file plan/comparison archive through PR #322, merged at `7be37f95`; [post-merge run 36210893664](https://github.com/bendourthe/Nexus-Hub/actions/runs/36210893664) passed smoke and provenance. The [v4.13 cleanup addendum](releases/v4/v4.13/docs-cleanup-report.md) records the zero-new-break link proof; older open items remain open and v4.13.1-v4.13.4 work is excluded.
 - [x] Publish the item-level v4.0-v4.12 residual inventory in [v4.13 known gaps](releases/v4/v4.13/known-gaps.md#actionable-historical-inventory): [PR #350](https://github.com/bendourthe/Nexus-Hub/pull/350) merged at `402fd5ee` after all required checks passed, and [post-merge run 36344282221](https://github.com/bendourthe/Nexus-Hub/actions/runs/36344282221) passed smoke and provenance. Source IDs and closure notes remain intact; historical plans remain archived, and transfer does not mark residuals implemented.
+- [x] Publish the v4.0-v4.12 source-ledger archive through [PR #377](https://github.com/bendourthe/Nexus-Hub/pull/377), merged at `ebe252f7` after 24 checks passed and one expected skip; [post-merge run 36466316919](https://github.com/bendourthe/Nexus-Hub/actions/runs/36466316919) passed smoke and provenance. All 12 source ledgers remain hash-bound from v4.13, v4.6 had no ledger, and the move-aware link diff found zero newly broken links. Source-open items remain open.
 - [x] Re-audit v4.4 HT-3 against current remote refs and local merge state: the 17 historical cleanup candidates are absent, while protected branches, unrelated PR #222, and other-session worktrees remain untouched. Record the dated closure in the v4.4 source ledger and v4.13 inventory.
 - [x] Evaluate v4.13.2 end to end: Claude Code 3 of 3 and Codex 1 of 1 runs reach `PLAN COMPLETE`; OpenCode ships as known gaps WN-4 and WN-7 by the user's decision; nine product defects fixed; USD 38.12 spent ([evidence](releases/v4/v4.13/development/v4.13.2-e2e.md)).
 - [x] Publish v4.13.2 through [PR #365](https://github.com/bendourthe/Nexus-Hub/pull/365), release v4.13.1 through v4.13.3 at `0c2c2997`, and back-merge through [PR #369](https://github.com/bendourthe/Nexus-Hub/pull/369); [post-merge run 36411716432](https://github.com/bendourthe/Nexus-Hub/actions/runs/36411716432) passed. The second Codex pilot remains open as MT-1 pending quota.
@@ -28,7 +31,7 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Publish and post-merge verify the bounded WN-13 repair through [PR #374](https://github.com/bendourthe/Nexus-Hub/pull/374): required checks passed with one expected skip, [post-merge run 36455108200](https://github.com/bendourthe/Nexus-Hub/actions/runs/36455108200) passed smoke and provenance at `510fd987`, and its clean worktree and local branch were removed.
 - [ ] Capture the exact live fresh-PR `gh pr checks` no-checks stderr before marking v4.13.2 WN-13 fully resolved; PR #374 already had pending checks on the first immediate query.
 - [x] Publish the v4.13.3 owner-only legacy-backup repair through [PR #335](https://github.com/bendourthe/Nexus-Hub/pull/335): 24 current-base checks passed with one intentional skip, and [post-merge run 36233611334](https://github.com/bendourthe/Nexus-Hub/actions/runs/36233611334) passed smoke and provenance at `e5b8a32e`.
-- [ ] Remediate v4.13.3 BG-8's 21 untouched local backup files and directory after explicit approval: preserve current ACLs for rollback, restrict access, and verify ACL read-back without reading or deleting content.
+- [x] Close v4.13.3 BG-8 after user approval and a fresh read-only ACL audit: the backup directory and all 53 current files are account-owned, with only `OWNER RIGHTS` allow rules; no ACL or backup content was changed.
 - [x] Resolve v4.13.3 WN-3's `context-manager` metadata drift: align its four mirrors with the body-owned file-map and change-impact scope, pass strict registry and whole-catalog routing checks, and pass 106 focused validator tests.
 - [x] Qualify v4.13.3 WN-4 and BG-9 locally: path-scoped diff pruning, owner-only diff ACLs, atomic publication, 45 focused integration passes with two platform skips, and 17/17 diff-aware fast checks.
 - [x] Publish and verify the v4.13.3 WN-4/BG-9 diff-report follow-up through [PR #340](https://github.com/bendourthe/Nexus-Hub/pull/340): 24 hosted checks passed with one intentional skip, and [post-merge run 36302873973](https://github.com/bendourthe/Nexus-Hub/actions/runs/36302873973) passed smoke and provenance at `6f42c0c1`.
@@ -144,6 +147,7 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
+| v4.13.4 Training rebuild phases complete | 8 | 8 | 0 |
 | v4.12.0 implementation tasks complete | 28 | 28 | 0 |
 | v4.12.0 implementation phases complete | 4 | 5 | 1 |
 | v4.11.0 interactive-handbook phases complete | 7 | 7 | 0 |

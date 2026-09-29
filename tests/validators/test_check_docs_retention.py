@@ -235,6 +235,24 @@ def test_reviewed_legacy_transfer_reports_plan_for_archival(tmp_path: Path) -> N
     assert "docs/archives/v4/v4.0" in proc.stdout
 
 
+def test_archived_legacy_ledger_still_reports_active_plan(tmp_path: Path) -> None:
+    root, current, _ = _make_legacy_transfer(tmp_path)
+    source = root / "docs" / "releases" / "v4" / "v4.0" / "known-gaps.md"
+    archived = root / "docs" / "archives" / "v4" / "v4.0" / "known-gaps.md"
+    archived.parent.mkdir(parents=True)
+    source.rename(archived)
+    current.write_text(
+        current.read_text(encoding="utf-8").replace(
+            "../v4.0/known-gaps.md", "../../../archives/v4/v4.0/known-gaps.md"
+        ),
+        encoding="utf-8",
+    )
+
+    assert "v4.0 closed by transfer" in _run(root).stdout
+    archived.write_text(archived.read_text(encoding="utf-8") + "\nChanged.\n", encoding="utf-8")
+    assert "v4.0 closed by transfer" not in _run(root).stdout
+
+
 def test_stale_or_missing_legacy_transfer_never_reports_plan(tmp_path: Path) -> None:
     root, current, _ = _make_legacy_transfer(tmp_path)
     current.write_text(current.read_text(encoding="utf-8").replace("| v4.0 |", "| v4.1 |"), encoding="utf-8")
@@ -317,8 +335,9 @@ def test_real_v4_historical_transfer_stays_bound_after_archival() -> None:
     rows = [match.group(1) for match in module._LEGACY_LEDGER_ROW.finditer(index.read_text(encoding="utf-8"))]
     expected = [f"v4.{minor}" for minor in range(13) if minor != 6]
     assert sorted(rows) == sorted(expected), "historical ledger rows are missing or duplicated"
+    archives = repo / module.ARCHIVES_ROOT / "v4"
     stale = [minor for minor in expected if not module.legacy_transfer_is_complete(
-        repo, v4 / minor, v4 / minor / "known-gaps.md"
+        repo, v4 / minor, archives / minor / "known-gaps.md"
     )]
     assert stale == [], f"historical carry-forward is stale: {stale}"
 

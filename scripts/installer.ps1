@@ -153,7 +153,7 @@ function Get-SanitizedBranchName {
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "4.13.3"
+$script:NexusHubVersion = "4.13.5"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"
@@ -2777,6 +2777,13 @@ function Install-Templates {
     $completionCheckerSource = Join-Path $RepoRoot "scripts\check_plan_completion.py"
     if (Test-Path $completionCheckerSource) {
         Safe-Copy -Source $completionCheckerSource -Destination (Join-Path $scriptsDest "check_plan_completion.py") -Confirm:$true -CustomMessage "✓ Plan-completion checker installed at: $scriptsDest\check_plan_completion.py"
+    }
+
+    # Copy the repository resolver (v4.13.5). The completion checker imports it
+    # as a sibling to pin hosting calls to the verified GitHub owner/repo.
+    $repoHostSource = Join-Path $RepoRoot "scripts\repo_host.py"
+    if (Test-Path $repoHostSource) {
+        Safe-Copy -Source $repoHostSource -Destination (Join-Path $scriptsDest "repo_host.py") -Confirm:$true -CustomMessage "✓ Repository resolver installed at: $scriptsDest\repo_host.py"
     }
 
     # Copy the completion-gate core (v4.13.2). The completion-gate and

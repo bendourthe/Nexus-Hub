@@ -34,18 +34,18 @@ Release-owner triage of all 40 tracked canonical, archived and legacy known-gaps
 | [v3.7](../../../../../docs/releases/v3/v3.7/known-gaps.md) | Retain recorded status; no new attribution evidence closes a historical item. | Existing ledger owners; recheck original criteria in their next owning plan. |
 | [v3.8](../../../../../docs/releases/v3/v3.8/known-gaps.md) | Retain recorded status; no new attribution evidence closes a historical item. | Existing ledger owners; recheck original criteria in their next owning plan. |
 | [v3.9](../../../../../docs/releases/v3/v3.9/known-gaps.md) | Retain recorded status; no new attribution evidence closes a historical item. | Existing ledger owners; recheck original criteria in their next owning plan. |
-| [v4.0](../../../../../docs/releases/v4/v4.0/known-gaps.md) | Retain recorded status; no new attribution evidence closes a historical item. | Existing ledger owners; recheck original criteria in their next owning plan. |
-| [v4.1](../../../../../docs/releases/v4/v4.1/known-gaps.md) | Retain recorded status; no new attribution evidence closes a historical item. | Existing ledger owners; recheck original criteria in their next owning plan. |
-| [v4.10](../../../../../docs/releases/v4/v4.10/known-gaps.md) | No active candidate found by status/open-section scan; retain historical record. | Existing ledger owners; recheck original criteria in their next owning plan. |
-| [v4.11](../../../../../docs/releases/v4/v4.11/known-gaps.md) | Retain native-authoring UNMET, intermediate-animation and inert-control gaps; handbook freshness is separate proof. | Existing ledger owners; recheck original criteria in their next owning plan. |
-| [v4.12](../../../../releases/v4/v4.12/known-gaps.md) | Current attribution findings reconciled in this phase. | Repository and CI maintainers; see current ledger. |
-| [v4.2](../../../../../docs/releases/v4/v4.2/known-gaps.md) | Retain recorded status; no new attribution evidence closes a historical item. | Existing ledger owners; recheck original criteria in their next owning plan. |
-| [v4.3](../../../../../docs/releases/v4/v4.3/known-gaps.md) | Retain recorded status; no new attribution evidence closes a historical item. | Existing ledger owners; recheck original criteria in their next owning plan. |
-| [v4.4](../../../../../docs/releases/v4/v4.4/known-gaps.md) | Retain guide/brand/QA gaps; WN-446-1 report-artifact deficiency also applies to this CI comparison. | Existing ledger owners; recheck original criteria in their next owning plan. |
-| [v4.5](../../../../../docs/releases/v4/v4.5/known-gaps.md) | Retain recorded status; no new attribution evidence closes a historical item. | Existing ledger owners; recheck original criteria in their next owning plan. |
-| [v4.7](../../../../../docs/releases/v4/v4.7/known-gaps.md) | Retain recorded status; no new attribution evidence closes a historical item. | Existing ledger owners; recheck original criteria in their next owning plan. |
-| [v4.8](../../../../../docs/releases/v4/v4.8/known-gaps.md) | No active candidate found by status/open-section scan; retain historical record. | Existing ledger owners; recheck original criteria in their next owning plan. |
-| [v4.9](../../../../../docs/releases/v4/v4.9/known-gaps.md) | Retain private-cleanup and host-proof ownership; current attribution run does not retest the application-security closure. | Existing ledger owners; recheck original criteria in their next owning plan. |
+| [v4.0](../../v4.0/known-gaps.md) | Retain recorded status; no new attribution evidence closes a historical item. | Existing ledger owners; recheck original criteria in their next owning plan. |
+| [v4.1](../../v4.1/known-gaps.md) | Retain recorded status; no new attribution evidence closes a historical item. | Existing ledger owners; recheck original criteria in their next owning plan. |
+| [v4.10](../../v4.10/known-gaps.md) | No active candidate found by status/open-section scan; retain historical record. | Existing ledger owners; recheck original criteria in their next owning plan. |
+| [v4.11](../../v4.11/known-gaps.md) | Retain native-authoring UNMET, intermediate-animation and inert-control gaps; handbook freshness is separate proof. | Existing ledger owners; recheck original criteria in their next owning plan. |
+| [v4.12](../known-gaps.md) | Current attribution findings reconciled in this phase. | Repository and CI maintainers; see current ledger. |
+| [v4.2](../../v4.2/known-gaps.md) | Retain recorded status; no new attribution evidence closes a historical item. | Existing ledger owners; recheck original criteria in their next owning plan. |
+| [v4.3](../../v4.3/known-gaps.md) | Retain recorded status; no new attribution evidence closes a historical item. | Existing ledger owners; recheck original criteria in their next owning plan. |
+| [v4.4](../../v4.4/known-gaps.md) | Retain guide/brand/QA gaps; WN-446-1 report-artifact deficiency also applies to this CI comparison. | Existing ledger owners; recheck original criteria in their next owning plan. |
+| [v4.5](../../v4.5/known-gaps.md) | Retain recorded status; no new attribution evidence closes a historical item. | Existing ledger owners; recheck original criteria in their next owning plan. |
+| [v4.7](../../v4.7/known-gaps.md) | Retain recorded status; no new attribution evidence closes a historical item. | Existing ledger owners; recheck original criteria in their next owning plan. |
+| [v4.8](../../v4.8/known-gaps.md) | No active candidate found by status/open-section scan; retain historical record. | Existing ledger owners; recheck original criteria in their next owning plan. |
+| [v4.9](../../v4.9/known-gaps.md) | Retain private-cleanup and host-proof ownership; current attribution run does not retest the application-security closure. | Existing ledger owners; recheck original criteria in their next owning plan. |
 
 ## Scope and evidence
 

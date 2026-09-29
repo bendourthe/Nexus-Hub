@@ -124,7 +124,7 @@ Fixed in `38e1c717`; the overlap work is staged for the Phase 7 commit.
 ### Derived counts
 
 ```
-grep -o "^#### [A-Z]*-[0-9]* - [A-Z]*" docs/releases/v4/v4.11/known-gaps.md
+grep -o "^#### [A-Z]*-[0-9]* - [A-Z]*" docs/archives/v4/v4.11/known-gaps.md
      13 RESOLVED
       2 CLOSED
       2 open (MT-5, MT-9)

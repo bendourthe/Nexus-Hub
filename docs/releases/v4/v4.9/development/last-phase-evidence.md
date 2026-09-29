@@ -24,7 +24,7 @@ The in-scope co-location failure was repaired by adding a v4.9 adoption record t
 
 All 37 reachable canonical/archive ledgers have source hashes, recorded open identifiers, and owner/disposition entries in the scan JSON. Legacy singular archive/version layouts contain no tracked ledgers. Historical recorded IDs are not asserted to be current defect totals. Phase 7 does not edit another release's ledger; existing v4.3 CI migration and v4.0 documentation migration ownership is retained. The inherited retarget commit `fb573c8a` appends a plan-location note to the v4.8 ledger without changing its prior findings; that existing branch delta is preserved and distinguished from this phase's reconciliation.
 
-The audit subsection of [known gaps](../known-gaps.md) owns Windows/POSIX coverage qualification (MT-2), terminal CI selection and remote proof (QG-1), and the ancillary private verification-harness cleanup limitation. No malformed graph, corpus, scorer, binding, redaction, retention, mutation, or Goal failure has been deferred. The two graph findings were corrected in shared deep-pass cycle 1.
+The audit subsection of [known gaps](../../../../archives/v4/v4.9/known-gaps.md) owns Windows/POSIX coverage qualification (MT-2), terminal CI selection and remote proof (QG-1), and the ancillary private verification-harness cleanup limitation. No malformed graph, corpus, scorer, binding, redaction, retention, mutation, or Goal failure has been deferred. The two graph findings were corrected in shared deep-pass cycle 1.
 
 Fresh v4.5 sequencing evidence:
 
