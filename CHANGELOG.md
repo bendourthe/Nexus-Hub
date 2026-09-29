@@ -9,9 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.13.5] - 2026-09-29
+
 ### Fixed
 
 - **The completion checker verifies hosting state behind an SSH host alias (v4.13.5).** It parsed `owner/repo` only from a remote whose host was spelled `github.com`, so a repository using an alias such as `git@github-work:owner/repo.git` reported every hosting predicate as `cannot-verify` and a full `/implement` run could never finish. The new `scripts/repo_host.py`, installed beside the checker by both installers, accepts a path only when the host git contacts is the one `gh` queries (`GH_HOST` when set, otherwise `github.com`), resolves an alias through `ssh -G`, refuses an alias routed through a proxy, and cross-checks `gh repo view` when no run record exists. Anything it cannot verify stays `cannot-verify` rather than becoming a lookup of a same-named github.com repository. `approval.remote` keeps its exact push-URL binding. Decision: `docs/decisions/implemented/tooling/2026-09-28-verified-repository-resolution-for-hosting-predicates.md`.
+
+### Capability usage
+
+- No opt-in capability, installer flag, managed skill, or host surface changed in v4.13.5.
 
 ## [4.13.4] - 2026-09-28
 

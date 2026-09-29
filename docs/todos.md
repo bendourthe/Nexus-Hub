@@ -1,7 +1,7 @@
 # Nexus-Hub Progress Dashboard
 
 **Integration branch:** `develop`
-**Active work:** Historical v4.0-v4.12 plan closure is integrated and v4.13.1 through v4.13.4 are released. v4.13.5 (completion-checker remote resolution) has both phases committed and is being integrated; v4.13.6 follows its release. Bounded vendor, manual, and artifact-coverage gaps remain open in their known-gaps ledgers.
+**Active work:** Historical v4.0-v4.12 plan closure is integrated and v4.13.1 through v4.13.5 are released. v4.13.6 (minor-scope implement and verified cleanup) is next; it needs a human read-back of its approval page and owns v4.13.5 WN-2 and WN-3. Bounded vendor, manual, and artifact-coverage gaps remain open in their known-gaps ledgers.
 **Closeout boundary:** One future-plan PR (#222, with a v4.15.1 slot collision), recovery backups with unique Git history, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim. The former 47-file recovery branch was removed after its patch was proven identical to the merged PR #259 commit.
 **Last refreshed:** 2026-09-28
 
