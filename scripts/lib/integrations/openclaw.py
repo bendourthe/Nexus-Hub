@@ -31,6 +31,7 @@ import os
 from pathlib import Path
 from typing import Any, ClassVar
 
+from ._completion_plugins import PLUGIN_ID, install_completion_plugin
 from .base import InstallContext, MarkdownIntegration, SkillsIntegration
 from .result import WriteResult
 
@@ -677,6 +678,12 @@ class OpenClawIntegration(MarkdownIntegration, SkillsIntegration):
             return result
         result = self._write_workspace(workspace, ctx)
         result.detected = True
+        if not ctx.instruction_only and state_dir.is_dir():
+            # v4.13.2: completion-gate plugin in the user's extensions root. Only
+            # into a state directory that already exists: a configured workspace
+            # can resolve a state path the user does not have, and creating it
+            # would plant executable code in a directory OpenClaw never made.
+            install_completion_plugin(self, ctx, "openclaw", state_dir / "extensions" / PLUGIN_ID, result)
         return result
 
 

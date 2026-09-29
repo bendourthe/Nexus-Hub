@@ -4,9 +4,9 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.13.0 -->
+<!-- nexus-hub-version: 4.13.3 -->
 
-Nexus-Hub is the upstream skill catalog for AI coding assistants: 337 skills, 19 commands, 35 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
+Nexus-Hub is the upstream skill catalog for AI coding assistants: 338 skills, 19 commands, 37 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
 ## Interactive Guide -- start here
 
@@ -30,10 +30,46 @@ Nexus-Hub is the upstream skill catalog for AI coding assistants: 337 skills, 19
 
 Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of the same idea, split along a deliberate seam.
 
-- **Nexus-Hub (this repo)** is the catalog: 337 curated skills, 19 commands, 35 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`) and the local `nexus-memory` CLI store. It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
+- **Nexus-Hub (this repo)** is the catalog: 338 curated skills, 19 commands, 37 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`) and the local `nexus-memory` CLI store. It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
+
+---
+
+## What's New in v4.13.3
+
+**Leftover instruction blocks from old installs can be removed, only with your consent.** Every install now reports each stale span it finds outside the managed block, with its line range, token cost, a diff, and a consent token bound to that exact span and file state, after keeping a verified backup. Nothing is removed unless the next install carries `--remove-legacy-instructions=<token>` (`-RemoveLegacyInstructions` on Windows).
+
+**Smaller instruction files, opt in.** `NEXUS_HUB_SKILL_INDEX=pointer` replaces the embedded skill table, 81 to 84 percent of each rendered instruction file, with a short pointer on platforms that read an installed skills tree. `scripts/measure_rendered_context.py` measures what a model actually receives.
+
+**Session hooks state facts.** `session-start` prints the installed version and the index location read from real files, the session digest is one line, and instruction files keep their line endings.
+
+---
+
+## What's New in v4.13.2
+
+**`/implement <plan>` now runs the whole plan.** It asks every approval the run needs once, up front, freezes them in a run record, then implements every phase through green CI, the merged integration, the release, and cleanup, stopping only on a named blocker or your pause. `phase <N>`, `next`, and `phase-by-phase` keep the stepwise modes.
+
+**A checker decides when a run is done, and the platforms enforce it.** `check_plan_completion.py` reads repository, hosting, and record state and prints `PLAN COMPLETE`, `INCOMPLETE`, `BLOCKED`, or `PAUSED`. A turn-end gate keeps a run going on hook platforms, typed plugins do the same on OpenCode, OpenClaw, Pi, and Hermes, and `nexus-hub run-plan` resumes a session that ended anyway.
+
+**Measured end to end.** In paid runs against a fixture plan, Claude Code finished 3 of 3 runs and Codex 1 of 1 without an unplanned stop. OpenCode cannot record approvals headlessly, and in two runs it proceeded on the prompt's approvals instead of stopping (known gaps WN-4 and WN-7).
+
+**Fixes the runs found.** A Windows install that left out Claude Code skipped every other platform, OpenCode refused to start on the installed agents, a Linux install aborted without `python3-venv`, Codex could not run any command on Linux with the shipped permissions, and the Windows completion hooks did nothing under a UTF-8 console.
+
+**Honest limit.** Approval capture checks that the approval text came from a prompt you typed, not which approval it names (known gap WN-9, high severity).
+
+---
+
+## What's New in v4.13.1
+
+**An agent no longer overwrites a file you changed.** Every installed instruction file now tells the agent to check a file with `edit_guard.py` before changing it, and the new `user-edit-preservation` skill records what the agent last read or wrote. On hook platforms the `user-edit-guard` hook blocks a write onto a file you changed outside a git worktree (and warns inside one), including a generator script's own copy onto your document. In the replay of the incident that prompted it, the user's edit survived every run.
+
+**No AI attribution on any publishing route.** The `attribution-guard` hook blocks agent co-author trailers, generated-with footers, and robot badges in commit and tag messages, pull request, issue, and release bodies, and warns on the same patterns in changelogs and docs.
+
+**Honest limit.** The hooks see only writes made through the agent's own tools, and edits made between sessions can still go unreported (v4.13.1 known gaps WN-1 and WN-2).
+
+Catalog: **338 skills** (one added), **19 commands**, and **23 agents**; two hooks added.
 
 ---
 
@@ -99,7 +135,7 @@ Presentation reveal-order and incomplete-evidence checks, structured prompt-cach
 
 **The Claude Usage Monitor gained a model-scoped weekly bar**, taking its label from the display name the usage API itself returns, so the label follows the account instead of a hardcoded string. It is omitted entirely when no scoped limit is reported.
 
-**Honest limit on the quality claim.** Each of the three source families - report, presentation, repository - has been independently qualified to pass, and the tooling that judges them is verified and negative-controlled. Delivering all three simultaneously from a single invocation within a bounded repair budget is NOT established: the best sustained result across six qualification rounds and roughly fifteen hours of runtime was two of three. That gate ships recorded as UNMET and carried forward rather than waived. See the [v4.11 ledger](docs/releases/v4/v4.11/known-gaps.md).
+**Honest limit on the quality claim.** Each of the three source families - report, presentation, repository - has been independently qualified to pass, and the tooling that judges them is verified and negative-controlled. Delivering all three simultaneously from a single invocation within a bounded repair budget is NOT established: the best sustained result across six qualification rounds and roughly fifteen hours of runtime was two of three. That gate ships recorded as UNMET and carried forward rather than waived. See the [v4.11 ledger](docs/archives/v4/v4.11/known-gaps.md).
 
 **On the version number.** There is no v4.10.0 release. That work - plan-queue continuity, the usage-monitor bar, and a git-trust test fix - was completed and merged but never tagged, so it ships here under v4.11.0 rather than being retrofitted to a number its own documentation never used. Catalog counts are **337 skills**, 19 commands, 35 hooks, and 23 agents.
 
@@ -400,7 +436,7 @@ That is the whole setup -- no prompts. The installer prechecks its dependencies 
 
 After the installer completes:
 
-- **Globally**: your user profile has all 337 skills, 19 commands, 35 hooks, 23 agents, plus Gemini and Codex instructions.
+- **Globally**: your user profile has all 338 skills, 19 commands, 37 hooks, 23 agents, plus Gemini and Codex instructions.
 - **Locally**: your project has `copilot-instructions.md` and `AGENTS.md` tailored to your language.
 
 **Power-user flags**: `--workspace <path>` installs into a single repo instead of globally; `--platforms <comma-list>` limits the install to a subset of assistants; `--yes` runs fully unattended (refreshes managed files with no prompt -- ideal for CI). Prefer to clone first? `git clone` the repo and run `./install.sh` (macOS / Linux) or `install.bat` (Windows) -- the in-repo path still works exactly as before.
@@ -515,11 +551,9 @@ Open an AI chatbot (Claude.ai or ChatGPT) and brainstorm: problem, users, core f
 
 #### 3. Development (core loop)
 
-Create ONE feature branch for the whole plan (`feat/<slug>`), then for each phase:
+Run `/implement <slug>` once. It asks every approval the run needs in one upfront round, then runs the whole plan in its own worktree: every subtask of every phase, tests and fixes, `/update gitignore` + `/update docs`, a session-history file, and a local commit per phase, then the single publication, the release, and cleanup. It stops only when the completion checker reports a terminal verdict, on a named blocker, or when you run `/implement pause`; `/implement <slug>` resumes.
 
-1. Open a fresh Claude Code session.
-2. Run `/implement <slug> <phase>` -- walks every subtask, generates and runs tests, applies fixes, runs `/update gitignore` + `/update docs`, generates a session-history file, and produces a commit message.
-3. Commit locally. Repeat for the next phase.
+To work one phase at a time instead, run `/implement <slug> phase <N>` (or `next`) in a fresh session per phase, or `/implement <slug> phase-by-phase` to review and commit after each phase.
 
 **Non-final phases do not push** (v4.0.0). A remote pipeline run per phase bills to validate work the plan itself calls incomplete, and a red check on incomplete work teaches you to stop reading red checks. One branch, one commit per phase, all local.
 
@@ -558,7 +592,7 @@ For projects you have inherited or need to audit.
 For each change:
 
 1. Brainstorm in a chatbot, then run `/plan` to produce a structured implementation plan saved to `docs/<version>/plans/<slug>.md`.
-2. Run `/implement <slug> <phase>` per phase -- identical to the New Project Workflow's development loop.
+2. Run `/implement <slug>` to run the whole plan, or `/implement <slug> phase <N>` per phase -- identical to the New Project Workflow's development loop.
 3. (Optional) Use git worktrees for parallel work:
 
     ```bash

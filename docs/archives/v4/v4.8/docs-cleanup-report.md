@@ -13,7 +13,7 @@ Every documentation file this phase created or changed is already at its canonic
 | File | Placement | Correct because |
 |---|---|---|
 | `docs/archives/v4/v4.8/development/history/2026-09-07_...phase-1-loop-intake-and-run-contract.md` | Active release tree, `development/` subtree | Per-phase evidence stops changing when the release closes, so it belongs to the release tree and ages out under the retention policy. |
-| `docs/releases/v4/v4.8/known-gaps.md` | Active release tree, root | The gap ledger is release-scoped by design and never ages out. |
+| `docs/archives/v4/v4.8/known-gaps.md` | Active release tree, root | The gap ledger is release-scoped by design and never ages out. |
 | `docs/archives/v4/v4.8/docs-cleanup-report.md` (this file) | Active release tree, root | Audit output for one release; superseded when the next release audits itself. |
 
 No scratch, draft, or working document was created outside those paths, so there is nothing to propose cleaning up and no reference to repair.

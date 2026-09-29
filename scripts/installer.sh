@@ -7,7 +7,7 @@ set -e
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-NEXUS_HUB_VERSION="4.13.0"
+NEXUS_HUB_VERSION="4.13.3"
 
 # --- Window Title ---
 printf '\033]0;Nexus-Hub Installer\007'
@@ -2310,6 +2310,10 @@ invoke_registry_platform() {
     args+=("--var" "LINT_CMD=${LINT_CMD:-}")
     args+=("--var" "NON_OBVIOUS_TOOLING=${NON_OBVIOUS_TOOLING:-}")
     args+=("--var" "OS_CONTEXT=${OS_CONTEXT:-}")
+    local legacy_token
+    for legacy_token in ${LEGACY_CONSENTS[@]+"${LEGACY_CONSENTS[@]}"}; do
+        args+=("--remove-legacy-instructions=$legacy_token")
+    done
     if "$py" "${args[@]}"; then
         render_platform_from_summary "$summary_file" "$key" "$provider" "$display" "$py"
     else
@@ -2317,7 +2321,35 @@ invoke_registry_platform() {
         write_item "$display" "$GRAY"
         write_item "install reported a non-zero exit; continuing." "$YELLOW"
     fi
+    if [ -n "$LEGACY_REPORT_DIR" ] && [ -s "$summary_file" ]; then
+        local legacy_count
+        legacy_count="$(find "$LEGACY_REPORT_DIR" -name '*.json' | wc -l | tr -d ' ')"
+        cp "$summary_file" "$LEGACY_REPORT_DIR/$(printf '%04d' "$legacy_count").json" 2>/dev/null || true
+    fi
     rm -f "$summary_file"
+}
+
+# Print the combined legacy-instruction report once, after every runner call,
+# so each consent token shown matches its file's final bytes.
+write_legacy_report() {
+    local repo_root="$1"
+    [ -n "$LEGACY_REPORT_DIR" ] && [ -d "$LEGACY_REPORT_DIR" ] || return 0
+    local py
+    if py=$(resolve_python_executable); then
+        local report_args=("$repo_root/scripts/lib/integrations/runner.py" "legacy-report" "--summaries" "$LEGACY_REPORT_DIR" "--form" "sh")
+        local legacy_token
+        for legacy_token in ${LEGACY_CONSENTS[@]+"${LEGACY_CONSENTS[@]}"}; do
+            report_args+=("--token" "$legacy_token")
+        done
+        local report
+        report="$("$py" "${report_args[@]}" 2>/dev/null || true)"
+        if [ -n "$report" ]; then
+            write_section_banner "LEGACY INSTRUCTIONS"
+            printf '%s\n' "$report"
+        fi
+    fi
+    rm -rf -- "$LEGACY_REPORT_DIR"
+    LEGACY_REPORT_DIR=""
 }
 
 install_vscode_extensions() {
@@ -2466,11 +2498,19 @@ build_and_install_one_extension() {
 
     write_item "Building ${display_name} extension..." "$RESET"
 
-    pushd "$extension_dir" > /dev/null || return
+    # WN-6: this optional build must not abort the core install under errexit.
+    if ! pushd "$extension_dir" > /dev/null; then
+        write_item "Skipping ${display_name}: could not enter the extension directory." "$YELLOW"
+        return 0
+    fi
 
     # Clean compiled output so deleted source files don't linger as stale JS
     if [ -d "$extension_dir/out" ]; then
-        rm -rf "$extension_dir/out"
+        if ! rm -rf "$extension_dir/out"; then
+            write_item "Skipping ${display_name}: failed to clean compiled output." "$YELLOW"
+            popd > /dev/null || true
+            return 0
+        fi
     fi
 
     # A node_modules tree copied in from another OS (e.g. zipping a Windows
@@ -2478,7 +2518,11 @@ build_and_install_one_extension() {
     # exec, so `tsc` resolves to "command not found" and the build fails with a
     # confusing error. Removing it forces a clean, OS-correct dependency tree.
     if [ -d node_modules ]; then
-        rm -rf node_modules
+        if ! rm -rf node_modules; then
+            write_item "Skipping ${display_name}: failed to clean dependencies." "$YELLOW"
+            popd > /dev/null || true
+            return 0
+        fi
     fi
 
     write_item "  Installing dependencies..." "$GRAY"
@@ -2507,9 +2551,13 @@ build_and_install_one_extension() {
     # belt-and-suspenders: if any future warning reappears it auto-confirms instead
     # of blocking an unattended install (harmless when there is no prompt).
     write_item "Packaging extension as VSIX..." "$RESET"
-    echo "y" | npx vsce package --no-dependencies 2>/dev/null
+    if ! echo "y" | npx vsce package --no-dependencies 2>/dev/null; then
+        write_item "VSIX packaging failed for ${display_name}." "$YELLOW"
+        popd > /dev/null || true
+        return 0
+    fi
     local vsix_file
-    vsix_file=$(ls -t "$extension_dir"/*.vsix 2>/dev/null | head -1)
+    vsix_file=$(ls -t "$extension_dir"/*.vsix 2>/dev/null | head -1 || true)
 
     if [ -z "$vsix_file" ]; then
         write_item "VSIX packaging failed." "$RED"
@@ -2582,9 +2630,36 @@ install_templates() {
 
     # Copy report generator script
     local script_source="$repo_root/scripts/generate_report.py"
-    local script_source="$repo_root/scripts/plan_status.py"
     if [ -f "$script_source" ]; then
         safe_copy "$script_source" "$scripts_dest/generate_report.py" true "[OK] Report generator installed at: $scripts_dest/generate_report.py"
+    fi
+
+    # Copy the plan progress renderer (per-phase progress table and next-plan hand-off)
+    script_source="$repo_root/scripts/plan_status.py"
+    if [ -f "$script_source" ]; then
+        safe_copy "$script_source" "$scripts_dest/plan_status.py" true "[OK] Plan progress renderer installed at: $scripts_dest/plan_status.py"
+    fi
+
+    # Copy the plan-completion checker (v4.13.2). Decides whether a full
+    # /implement run is complete from repository, hosting, and run-record
+    # state; the completion gate, run-plan runner, and /update release call
+    # it from this installed path, never from a working tree.
+    local completion_checker_source="$repo_root/scripts/check_plan_completion.py"
+    if [ -f "$completion_checker_source" ]; then
+        safe_copy "$completion_checker_source" "$scripts_dest/check_plan_completion.py" true "[OK] Plan-completion checker installed at: $scripts_dest/check_plan_completion.py"
+    fi
+
+    # Copy the completion-gate core (v4.13.2). The completion-gate and
+    # approval-capture hooks run it from this installed path only.
+    local completion_gate_source="$repo_root/scripts/completion_gate.py"
+    if [ -f "$completion_gate_source" ]; then
+        safe_copy "$completion_gate_source" "$scripts_dest/completion_gate.py" true "[OK] Completion gate installed at: $scripts_dest/completion_gate.py"
+    fi
+
+    # Copy the full-run runner (v4.13.2). `nexus-hub run-plan` forwards to it.
+    local run_plan_source="$repo_root/scripts/run_plan.py"
+    if [ -f "$run_plan_source" ]; then
+        safe_copy "$run_plan_source" "$scripts_dest/run_plan.py" true "[OK] Full-run runner installed at: $scripts_dest/run_plan.py"
     fi
 
     # Copy MCP benchmark script (v1.0.0+). Benchmarks the three internal MCPs
@@ -3173,14 +3248,27 @@ install_skill_discovery() {
     # Create venv and install
     local venv_path="$nexus_home/mcp-server-venv"
 
+    # Everything below installs into this venv, so a venv that cannot be built skips
+    # only the local MCP servers. Under `set -e` a bare failure here aborted the whole
+    # install on a stock Debian/Ubuntu host, which ships python3 without python3-venv.
+    local venv_ok=1
     if command -v uv >/dev/null 2>&1; then
         write_item "  Creating venv with uv..." "$RESET"
-        uv venv "$venv_path" >/dev/null 2>&1
-        uv pip install --python "$venv_path/bin/python" -e "$mcp_dest" >/dev/null 2>&1
+        if ! { uv venv "$venv_path" >/dev/null 2>&1 \
+                && uv pip install --python "$venv_path/bin/python" -e "$mcp_dest" >/dev/null 2>&1; }; then
+            venv_ok=0
+        fi
     else
         write_item "  Creating venv with $python_cmd..." "$RESET"
-        "$python_cmd" -m venv "$venv_path" >/dev/null 2>&1
-        "$venv_path/bin/pip" install -q -e "$mcp_dest" >/dev/null 2>&1
+        if ! { "$python_cmd" -m venv "$venv_path" >/dev/null 2>&1 \
+                && "$venv_path/bin/pip" install -q -e "$mcp_dest" >/dev/null 2>&1; }; then
+            venv_ok=0
+        fi
+    fi
+    if [ "$venv_ok" -eq 0 ]; then
+        write_item "  Could not build the MCP server venv; skipping the local MCP servers." "$YELLOW"
+        write_item "  On Debian/Ubuntu: sudo apt install python3-venv, then re-run the installer." "$YELLOW"
+        return 0
     fi
 
     write_item "  MCP server venv created at $venv_path" "$GREEN"
@@ -3453,6 +3541,11 @@ WORKSPACE_PATH=""   # set by --workspace <path>; empty => global scope (default)
 PLATFORMS_ARG=""    # set by --platforms <csv>; empty => all platforms (default)
 YES_FLAG=0          # --yes : non-interactive, auto-confirm + refresh
 FORCE_FLAG=0        # --force : overwrite existing managed files without asking
+# v4.13.3 -- span-bound consent tokens (--remove-legacy-instructions, repeatable)
+# and the directory that collects each runner call's summary for the combined
+# legacy-instruction report printed after the install.
+LEGACY_CONSENTS=()
+LEGACY_REPORT_DIR=""
 
 # v3.15.6 / AC5 -- opt-in hardened permission posture.
 # Default 0 keeps the convenience default (allow-only auto-approve, no prompts)
@@ -3537,6 +3630,12 @@ Options:
                  TTY, e.g. a piped curl|bash install).
   --force        Overwrite existing managed files with the Nexus-Hub version
                  without asking (implies --yes for prompting).
+  --remove-legacy-instructions=<token>
+                 Remove one block of text an older install left outside the
+                 managed markers. The 64-hex token comes from the previous
+                 install report and binds that exact file state; copy it from
+                 the most recent report. Repeatable. --yes never removes
+                 anything; a verified backup is kept first.
   --enterprise   Install the standalone Gemini CLI integration. Requires a paid
                  Gemini API key. After 2026-06-18 (per the 2026-05-21 Google
                  Developers Blog announcement), Gemini CLI stops serving free /
@@ -3943,6 +4042,24 @@ while [ $# -gt 0 ]; do
             PASSTHRU_ARGS+=("$1")
             shift
             ;;
+        --remove-legacy-instructions|--remove-legacy-instructions=*)
+            if [ "$1" = "--remove-legacy-instructions" ]; then
+                legacy_token="${2:-}"
+                shift_by=2
+            else
+                legacy_token="${1#--remove-legacy-instructions=}"
+                shift_by=1
+            fi
+            # Whole-string match: a line-based grep would accept a value with an
+            # embedded newline as long as one line was 64 hex characters.
+            if [[ ! "$legacy_token" =~ ^[0-9a-fA-F]{64}$ ]]; then
+                echo "--remove-legacy-instructions requires the 64-hex consent token from an install report" >&2
+                exit 2
+            fi
+            LEGACY_CONSENTS+=("$legacy_token")
+            PASSTHRU_ARGS+=("--remove-legacy-instructions=$legacy_token")
+            shift "$shift_by"
+            ;;
         --yes|-y)
             YES_FLAG=1
             PASSTHRU_ARGS+=("--yes")
@@ -4171,10 +4288,14 @@ if [ -n "$WORKSPACE_PATH" ]; then
         echo "Workspace path not found: $WORKSPACE_PATH" >&2
         exit 2
     fi
+    LEGACY_REPORT_DIR="$(mktemp -d 2>/dev/null || true)"
     install_workspace "$REPO_ROOT" "$WORKSPACE_PATH"
+    write_legacy_report "$REPO_ROOT"
 else
     SCOPE_LABEL="Global"
+    LEGACY_REPORT_DIR="$(mktemp -d 2>/dev/null || true)"
     install_global "$REPO_ROOT"
+    write_legacy_report "$REPO_ROOT"
 fi
 
 # CROSS-PLATFORM TOOLS: for a global install this header (plus the skill-discovery

@@ -1,6 +1,6 @@
 # AGENTS.md
 
-<!-- nexus-hub-version: 4.13.0 -->
+<!-- nexus-hub-version: 4.13.3 -->
 
 This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, Gemini CLI, etc.) when working with code in this repository.
 
@@ -8,7 +8,7 @@ This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, G
 
 Nexus-Hub is a production-grade skill harness for AI coding assistants. It is the **upstream catalog** consumed by Nexus (the local-first desktop AI Studio, see `https://github.com/bendourthe/Nexus-AI`) and by every other major agent platform: Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, and GitHub CLI. Skills, commands, hooks, agents, and rules are distributed via installer scripts into users' `~/.nexus-hub/` directory and into their AI assistant's per-platform config locations.
 
-Current catalog: **337 skills** across 23 categories, 19 commands (plus 3 permanent aliases), 35 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
+Current catalog: **338 skills** across 23 categories, 19 commands (plus 3 permanent aliases), 37 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
 
 ## Project Structure
 
@@ -24,7 +24,7 @@ Nexus-Hub/
 │   ├── mcp-configs/          # MCP server registry
 │   ├── memory/               # Memory template files
 │   ├── rules/                # Language, security, and artifact rules
-|   `-- skills/               # 337 skills across 23 categories
+|   `-- skills/               # 338 skills across 23 categories
 │       └── <category>/
 │           └── <skill-name>/
 │               └── SKILL.md
@@ -160,7 +160,7 @@ These fields exist so a downstream generator (e.g. `scripts/build_framework_cove
 
 #### agentskills.io conformance
 
-Nexus-Hub SKILL.md files target the [agentskills.io](https://agentskills.io) open standard: `name` and `description` are required and non-empty, `name` is 1-64 characters matching `^[a-z0-9]+(-[a-z0-9]+)*$`, and `description` is 1-1024 characters. `scripts/check_agentskills_conformance.py` proves that contract in `make validate` and CI; it is a repo-internal guard (listed in `DEV_ONLY_SCRIPTS`) and is not installer-copied. Extra top-level keys Nexus-Hub adds (`summary_l0`, `overview_l1`, framework-mapping fields, invocation-policy booleans) are permitted by the standard and reported as information, not failures. Thirteen pre-existing pushy descriptions exceed 1024 characters and are grandfathered by name; a new over-long description is a hard error. The guard does not re-check name-equals-directory (already a hard rule in `scripts/validate_skills.py`) and does not ban `<`/`>` in frontmatter (the v3.15.2 placeholder lint is the more precise check).
+Nexus-Hub SKILL.md files target the [agentskills.io](https://agentskills.io) open standard: `name` and `description` are required and non-empty, `name` is 1-64 characters matching `^[a-z0-9]+(-[a-z0-9]+)*$`, and `description` is 1-1024 characters. `scripts/check_agentskills_conformance.py` proves that contract in `make validate` and CI; it is a repo-internal guard (listed in `DEV_ONLY_SCRIPTS`) and is not installer-copied. Extra top-level keys Nexus-Hub adds (`summary_l0`, `overview_l1`, framework-mapping fields, invocation-policy booleans) are permitted by the standard and reported as information, not failures. Every over-long description is a hard error; no skill is grandfathered. The guard does not re-check name-equals-directory (already a hard rule in `scripts/validate_skills.py`) and does not ban `<`/`>` in frontmatter (the v3.15.2 placeholder lint is the more precise check).
 
 Required body sections (in order):
 

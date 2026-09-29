@@ -1,8 +1,8 @@
 {
   "meta": {
-    "last_verified": "2026-09-21",
-    "verified_for_version": "4.13.0",
-    "verified_for_version_note": "v4.13.0: re-fetched this cycle from first-party vendor documentation on 2026-09-21 and classified MATCH: claude (~/.claude/skills/<name>/SKILL.md, plus documented upward traversal to repo root and lazy load below the start dir), cursor (~/.cursor/skills and .cursor/skills, RECURSIVE, and it also reads .claude/.codex skill dirs at both scopes), codex (now learn.chatgpt.com after the documented 308 from developers.openai.com; $HOME/.agents/skills, $CWD/.agents/skills upward to repo root, and /etc/codex/skills, one level deep, folder-per-skill), antigravity2 (workspace .agents/skills/<name>/SKILL.md and .agents/workflows/<name>.md; global ~/.gemini/config/skills and ~/.gemini/config/workflows; workflow retirement still dated 2026-11-01 and skills still take precedence), and copilot (workspace .github/skills, .claude/skills, .agents/skills; user ~/.copilot/skills, ~/.claude/skills, ~/.agents/skills). CARRIED FORWARD from the 2026-09-16 v4.12.1 pass, not re-fetched this cycle: gemini, gemini-cli, openclaw, qwen and windsurf, all MATCH at that date. kimi, pi and nexus-ai remain UNVERIFIED as before (no dedicated vendor discovery page; kimi and pi follow the SKILL.md standard, nexus-ai is a private source). One observation worth recording although it is not drift: Copilot's USER scope now documents ~/.claude/skills, which Nexus-Hub already populates, so Copilot surfaces the catalog's skills globally without the opt-in .github/skills wrapper set. The wrapper set remains the only way to get a COMMIT-VISIBLE project surface. scripts/verify_platform_contracts.py reported OK for all 14 platforms against this JSON. No unexpected redirect to a new host was observed on any page fetched this cycle.",
+    "last_verified": "2026-09-28",
+    "verified_for_version": "4.13.3",
+    "verified_for_version_note": "v4.13.3: all 14 platforms enumerated; 13 re-fetched from first-party vendor documentation on 2026-09-28 (nexus-ai stays UNVERIFIED as a private source). Every contracted install read-path MATCHES on claude, codex, cursor, copilot, opencode, gemini, antigravity2, qwen, openclaw, kimi, and pi. Kimi (kimi.com/code/docs, skills, agents, hooks, data locations) and Pi (pi.dev/docs/latest and its official repository docs) now have first-party pages; both MATCH, so their skill read paths are documented rather than inferred. DRIFT, recorded as v4.13.3 WN-5 and not yet changed in the adapters: gemini-cli documents a root GEMINI.md rather than <project>/.gemini/GEMINI.md and no rules directory; openclaw adds a named-profile workspace (OPENCLAW_PROFILE) and per-agent agents.entries.*.workspace, precedence not fully stated; copilot VS Code prompt files are deprecated for Agent Host sessions (still loaded by the Local agent); windsurf workspace hooks prefer .devin/hooks.json (already v4.13.2 DF-1). Redirects, same vendor: docs.windsurf.com to docs.devin.ai, developers.openai.com/codex paths to learn.chatgpt.com, the VS Code prompt-files page to /docs/agent-customization/prompt-files, and kimi.com/coding/docs to /code/docs. Lever drift (advisory) is logged in platform-defaults-levers.md. scripts/verify_platform_contracts.py reports OK for all 14 platforms against this JSON.",
     "description": "Machine-readable single source for the platform read-contract guards. The human-readable surface table, formats, and source URLs live alongside in platform-read-contracts.md. Consumed by: scripts/verify_platform_contracts.py (contract_checks, code-vs-contract), scripts/lib/integrations/runner.py _verify_checks (install_verify, install-vs-reality), and scripts/check_platform_contract_freshness.py (meta, the release freshness gate). Re-verified against each platform's current docs and re-stamped (last_verified + verified_for_version) at every /update release by the platform-contract-verification skill.",
     "path_tokens": "In install_verify paths, '~/' resolves to the user home, '{project}/' resolves to the workspace/target root, and '{openclaw_workspace}/' resolves through agents.defaults.workspace, OPENCLAW_WORKSPACE_DIR, or the active state directory's documented workspace default, in that order.",
     "verification_method": "v4.4.5 pass: RE-VERIFICATION of the live discovery contract, no correction required. Twelve of thirteen platforms re-fetched from first-party vendor documentation on 2026-09-04 and classified MATCH; nexus-ai UNVERIFIED (private source). scripts/verify_platform_contracts.py reported OK for all 13 platforms against this JSON. No redirect to a new host was observed on any page fetched this cycle. The same visit found a LEVER drift for claude (effortLevel now documents max; CLAUDE_CODE_EFFORT_LEVEL does not; new modelSettings key), recorded in docs/policy/platform-defaults-levers.md and configs/platform-defaults.json per the lever lockstep."
@@ -1241,5 +1241,303 @@
     },
     "summary": "Trigger A is expressible on exactly TWO verified platforms (Claude Code via Notification, Codex via PermissionRequest). Trigger B is verified on four (Claude Code, Cursor, Qwen, and Codex) and renamed-but-verified on a fifth (Gemini CLI's AfterAgent). As of v3.15.11 both triggers are delivered to Claude Code and Codex, and trigger B to Cursor. Qwen and Gemini CLI remain expressible-but-undelivered; Kimi's event set is still unenumerated. Copilot and OpenCode are permanently out of reach for notifications and are fully covered by the end-of-task summary rule.",
     "df1_settlement": "DF-1 SETTLED 2026-08-04 against first-party Cursor documentation, and the v3.15.9 finding is OVERTURNED. cursor.com/docs/skills documents FOUR skills read-paths, two of them user-level: '.agents/skills/', '.cursor/skills/', '~/.agents/skills/' (global), and '~/.cursor/skills/' (global), plus backward-compatible '.claude/skills/' and '.codex/skills/'. Discovery walks the root RECURSIVELY. So the global ~/.cursor/skills write is CORRECT and load-bearing, and the v3.15.9 release note that extended DF-1 to that path on secondary evidence was wrong; that extension is withdrawn. The COMMANDS half is different: Cursor's own docs no longer document a commands directory at all, Cursor 2.4 ships a /migrate-to-skills skill that converts both user-level and workspace-level commands into skills with disable-model-invocation:true, and a community bug report titled 'Commands are not detected in the global cursor directory' reports the global path does not work. Nexus-Hub already delivers every command as a command-skill through the verified skills path, so the global ~/.cursor/commands write is REDUNDANT rather than load-bearing. It is RETAINED unchanged for now (writing a directory Cursor ignores is harmless; removing one it does read would silently drop coverage), and flagged for deliberate removal in a later release."
+  },
+  "skill_read_paths": {
+    "_comment": "Per-platform, per-scope directories the vendor's own documentation says are scanned for skills. Only VERIFIED entries (first-party source, verified date) count toward Native Skill Enumeration, and only when a skills tree was actually installed there (scripts/lib/integrations/skill_read_paths.py). A platform or scope absent here is not eligible for the Skill-Index Pointer. Re-verified from first-party pages on 2026-09-25 (v4.13.3 Phase 5), with a targeted Copilot in VS Code user-path follow-up on 2026-09-27.",
+    "claude": {
+      "global": [
+        {
+          "path": "~/.claude/skills",
+          "status": "VERIFIED",
+          "source": "https://code.claude.com/docs/en/skills",
+          "verified": "2026-09-25"
+        }
+      ],
+      "workspace": [
+        {
+          "path": ".claude/skills",
+          "status": "VERIFIED",
+          "source": "https://code.claude.com/docs/en/skills",
+          "verified": "2026-09-25"
+        }
+      ]
+    },
+    "cursor": {
+      "global": [
+        {
+          "path": "~/.cursor/skills",
+          "status": "VERIFIED",
+          "source": "https://cursor.com/docs/skills",
+          "verified": "2026-09-25"
+        },
+        {
+          "path": "~/.agents/skills",
+          "status": "VERIFIED",
+          "source": "https://cursor.com/docs/skills",
+          "verified": "2026-09-25"
+        }
+      ],
+      "workspace": [
+        {
+          "path": ".cursor/skills",
+          "status": "VERIFIED",
+          "source": "https://cursor.com/docs/skills",
+          "verified": "2026-09-25"
+        },
+        {
+          "path": ".agents/skills",
+          "status": "VERIFIED",
+          "source": "https://cursor.com/docs/skills",
+          "verified": "2026-09-25"
+        }
+      ]
+    },
+    "codex": {
+      "global": [
+        {
+          "path": "~/.agents/skills",
+          "status": "VERIFIED",
+          "source": "https://learn.chatgpt.com/docs/build-skills",
+          "verified": "2026-09-25"
+        },
+        {
+          "path": "~/.codex/skills",
+          "status": "UNVERIFIED",
+          "note": "Written for compatibility; absent from current documentation."
+        }
+      ],
+      "workspace": [
+        {
+          "path": ".agents/skills",
+          "status": "VERIFIED",
+          "source": "https://learn.chatgpt.com/docs/build-skills",
+          "verified": "2026-09-25"
+        }
+      ]
+    },
+    "antigravity2": {
+      "global": [
+        {
+          "path": "~/.gemini/config/skills",
+          "status": "VERIFIED",
+          "source": "https://codelabs.developers.google.com/getting-started-with-antigravity-skills",
+          "verified": "2026-09-25"
+        }
+      ],
+      "workspace": [
+        {
+          "path": ".agents/skills",
+          "status": "VERIFIED",
+          "source": "https://codelabs.developers.google.com/getting-started-with-antigravity-skills",
+          "verified": "2026-09-25"
+        }
+      ]
+    },
+    "copilot": {
+      "global": [
+        {
+          "path": "~/.copilot/skills",
+          "status": "VERIFIED",
+          "source": "https://docs.github.com/en/copilot/concepts/agents/about-agent-skills",
+          "verified": "2026-09-25"
+        },
+        {
+          "path": "~/.agents/skills",
+          "status": "VERIFIED",
+          "source": "https://docs.github.com/en/copilot/concepts/agents/about-agent-skills",
+          "verified": "2026-09-25"
+        },
+        {
+          "path": "~/.claude/skills",
+          "status": "VERIFIED",
+          "host": "vscode",
+          "source": "https://code.visualstudio.com/docs/agent-customization/agent-skills",
+          "verified": "2026-09-27",
+          "note": "VS Code only. The Copilot CLI reference omits this personal path; shared personal instructions remain pointer-ineligible from this path alone."
+        }
+      ],
+      "workspace": [
+        {
+          "path": ".github/skills",
+          "status": "VERIFIED",
+          "source": "https://docs.github.com/en/copilot/concepts/agents/about-agent-skills",
+          "verified": "2026-09-25"
+        },
+        {
+          "path": ".claude/skills",
+          "status": "VERIFIED",
+          "source": "https://docs.github.com/en/copilot/concepts/agents/about-agent-skills",
+          "verified": "2026-09-25"
+        },
+        {
+          "path": ".agents/skills",
+          "status": "VERIFIED",
+          "source": "https://docs.github.com/en/copilot/concepts/agents/about-agent-skills",
+          "verified": "2026-09-25"
+        }
+      ]
+    },
+    "gemini-cli": {
+      "global": [
+        {
+          "path": "~/.gemini/skills",
+          "status": "VERIFIED",
+          "source": "https://geminicli.com/docs/cli/using-agent-skills/",
+          "verified": "2026-09-25"
+        },
+        {
+          "path": "~/.agents/skills",
+          "status": "VERIFIED",
+          "source": "https://geminicli.com/docs/cli/using-agent-skills/",
+          "verified": "2026-09-25"
+        }
+      ],
+      "workspace": [
+        {
+          "path": ".gemini/skills",
+          "status": "VERIFIED",
+          "source": "https://geminicli.com/docs/cli/using-agent-skills/",
+          "verified": "2026-09-25"
+        },
+        {
+          "path": ".agents/skills",
+          "status": "VERIFIED",
+          "source": "https://geminicli.com/docs/cli/using-agent-skills/",
+          "verified": "2026-09-25"
+        }
+      ]
+    },
+    "opencode": {
+      "global": [
+        {
+          "path": "~/.config/opencode/skills",
+          "status": "VERIFIED",
+          "source": "https://opencode.ai/docs/skills/",
+          "verified": "2026-09-25"
+        },
+        {
+          "path": "~/.claude/skills",
+          "status": "VERIFIED",
+          "source": "https://opencode.ai/docs/skills/",
+          "verified": "2026-09-25"
+        },
+        {
+          "path": "~/.agents/skills",
+          "status": "VERIFIED",
+          "source": "https://opencode.ai/docs/skills/",
+          "verified": "2026-09-25"
+        }
+      ],
+      "workspace": [
+        {
+          "path": ".opencode/skills",
+          "status": "VERIFIED",
+          "source": "https://opencode.ai/docs/skills/",
+          "verified": "2026-09-25"
+        },
+        {
+          "path": ".claude/skills",
+          "status": "VERIFIED",
+          "source": "https://opencode.ai/docs/skills/",
+          "verified": "2026-09-25"
+        },
+        {
+          "path": ".agents/skills",
+          "status": "VERIFIED",
+          "source": "https://opencode.ai/docs/skills/",
+          "verified": "2026-09-25"
+        }
+      ]
+    },
+    "qwen": {
+      "global": [
+        {
+          "path": "~/.qwen/skills",
+          "status": "VERIFIED",
+          "source": "https://qwenlm.github.io/qwen-code-docs/en/users/features/skills/",
+          "verified": "2026-09-25"
+        }
+      ],
+      "workspace": [
+        {
+          "path": ".qwen/skills",
+          "status": "VERIFIED",
+          "source": "https://qwenlm.github.io/qwen-code-docs/en/users/features/skills/",
+          "verified": "2026-09-25"
+        }
+      ]
+    },
+    "windsurf": {
+      "global": [
+        {
+          "path": "~/.codeium/windsurf/skills",
+          "status": "VERIFIED",
+          "source": "https://docs.devin.ai/desktop/cascade/skills",
+          "verified": "2026-09-25"
+        },
+        {
+          "path": "~/.agents/skills",
+          "status": "VERIFIED",
+          "source": "https://docs.devin.ai/desktop/cascade/skills",
+          "verified": "2026-09-25"
+        }
+      ],
+      "workspace": [
+        {
+          "path": ".windsurf/skills",
+          "status": "VERIFIED",
+          "source": "https://docs.devin.ai/desktop/cascade/skills",
+          "verified": "2026-09-25"
+        },
+        {
+          "path": ".agents/skills",
+          "status": "VERIFIED",
+          "source": "https://docs.devin.ai/desktop/cascade/skills",
+          "verified": "2026-09-25"
+        }
+      ]
+    },
+    "hermes": {
+      "global": [
+        {
+          "path": "~/.hermes/skills",
+          "status": "VERIFIED",
+          "source": "https://hermes-agent.nousresearch.com/docs/user-guide/features/skills/",
+          "verified": "2026-09-25"
+        }
+      ],
+      "workspace": [
+        {
+          "path": ".hermes/skills",
+          "status": "VERIFIED",
+          "source": "https://hermes-agent.nousresearch.com/docs/user-guide/features/skills/",
+          "verified": "2026-09-25"
+        },
+        {
+          "path": ".agents/skills",
+          "status": "VERIFIED",
+          "source": "https://hermes-agent.nousresearch.com/docs/user-guide/features/skills/",
+          "verified": "2026-09-25"
+        }
+      ]
+    },
+    "gemini": {
+      "global": [
+        {
+          "path": "~/.gemini/skills",
+          "status": "UNVERIFIED",
+          "note": "Gemini Code Assist IDE skill discovery is not documented."
+        }
+      ]
+    },
+    "kimi": {
+      "global": [
+        {
+          "path": "~/.kimi-code/skills",
+          "status": "UNVERIFIED",
+          "note": "No dedicated first-party discovery page this cycle."
+        }
+      ]
+    }
   }
 }

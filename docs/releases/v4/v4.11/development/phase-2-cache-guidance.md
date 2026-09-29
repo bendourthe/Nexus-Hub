@@ -2,7 +2,7 @@
 
 Renumber note, 2026-09-14: this historical cache-track evidence was authored under v4.11.0; its current plan is v4.11.1. Historical test results and phase dates remain unchanged.
 
-Evidence for Phase 2 (T004-T006) of the [v4.11.0 adoption plan](../plans/v4.11.1-adoption-cache-and-diagram-quality.md). Records the source refresh with fetch dates and supported boundaries, the checklist and worked cases added to the cache owner, the two ownership handoffs, and the validation run. Read this to confirm D2 before Phase 3 adds the prompt-audit worksheet.
+Evidence for Phase 2 (T004-T006) of the [v4.11.0 adoption plan](../../../../archives/v4/v4.11/plans/v4.11.1-adoption-cache-and-diagram-quality.md). Records the source refresh with fetch dates and supported boundaries, the checklist and worked cases added to the cache owner, the two ownership handoffs, and the validation run. Read this to confirm D2 before Phase 3 adds the prompt-audit worksheet.
 
 ## T004 - Cache-stability checklist
 

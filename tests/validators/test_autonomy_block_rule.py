@@ -36,6 +36,11 @@ _PRECEDENCE_MARKER = (
 _DISCLOSURE_MARKER = (
     "name the skill, link its `SKILL.md`, and quote the line you set aside"
 )
+# v4.13.1: the always-loaded trigger for user-edit preservation; the procedure lives in the skill.
+_USER_EDIT_MARKER = (
+    "run `edit_guard.py check` from `user-edit-preservation`, never an ad-hoc comparison"
+)
+_USER_EDIT_SKILL = "never overwrite or restore yours"
 _CD_REFERENCE = "The boundary itself is stated once, in `## Autonomous Operation`"
 _SD_ORIGINAL = "Do not mention the skill lookup to the user."
 _SD_CROSS_REFERENCE = "is governed by `## Autonomous Operation`"
@@ -66,6 +71,8 @@ def check_template(path: Path) -> list[str]:
         )
     if _DISCLOSURE_MARKER not in joined:
         findings.append(f"{path.name}: block lacks the disclosed-deviation instruction")
+    if _USER_EDIT_MARKER not in joined or _USER_EDIT_SKILL not in joined:
+        findings.append(f"{path.name}: block lacks the user-edit preservation rule")
     return findings
 
 

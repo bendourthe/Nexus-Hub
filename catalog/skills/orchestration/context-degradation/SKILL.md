@@ -149,29 +149,13 @@ Then proceed with only [specific next task]."
 
 **When**: Context is at 70%+ capacity with any degradation pattern.
 
-- **Anchored summary**: Create a structured summary that preserves key decisions, file modifications, and next steps (see `context-compression` skill for detailed procedures)
-- **Session handoff**: Write a complete context document to file and start a new session with it
-- **Tool output cleanup**: Replace verbose tool outputs in memory with compact summaries
-
-**Template**:
-```
-"Please write a complete session summary to `tasks/session-handoff.md` including:
-1. Original task and current status
-2. All files modified (with what changed)
-3. Key decisions (with rationale)
-4. Remaining work items
-5. Known issues or blockers
-
-This will serve as the starting context for a fresh session."
-```
+Choosing this bucket is this skill's call; the compression procedure itself (anchored summary, observation masking, session handoff document, and its validation probes) is owned by `[[context-compression]]`, so hand off to it with the diagnosed pattern and severity as input.
 
 #### Bucket 4: Isolating Sub-Tasks
 
 **When**: Context Confusion or complex multi-concern tasks.
 
-- **Sub-agent delegation**: Offload specific sub-tasks to fresh agent contexts
-- **File-based communication**: Have sub-agents write results to files rather than passing through the main context
-- **Sequential focus**: Address one concern at a time instead of juggling multiple
+Choosing isolation as the mitigation is this skill's call; the subagent isolation pattern and how to size each subtask are owned by `[[prompt-token-optimization]]` (Step 6), so hand off to it for the split.
 
 **Template**:
 ```
@@ -213,10 +197,8 @@ After applying mitigation, verify that context quality has been restored.
 ## Best Practices
 
 - **Monitor proactively**: Run probe questions every 15-20 turns in long sessions
-- **Compress early**: Start summarizing at 70% context, not 95%
+- **Compression timing and practice are handed off**: when to compress, writing large outputs to files, and re-reading rather than recalling are owned by `[[context-compression]]`; this skill supplies the severity signal
 - **One concern at a time**: Context confusion almost always comes from juggling too many concerns simultaneously
-- **Write findings to files**: Any time the agent produces a large analysis, have it write to a file and reference the path rather than keeping it all in context
-- **Re-read, don't recall**: If you need the agent to use specific file content, have it re-read the file rather than relying on earlier context
 - **Explicit over implicit**: Restate important constraints rather than assuming the agent remembers them
 - **Session boundaries are features**: Starting a fresh session with a good handoff document often produces better results than fighting degradation
 

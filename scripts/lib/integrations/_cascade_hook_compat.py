@@ -326,6 +326,30 @@ def _reason(stderr: str, payload: dict[str, Any], fallback: str) -> str:
     return fallback
 
 
+def _translate_stop(
+    host: str, child: dict[str, Any], payload: dict[str, Any], stderr: str, returncode: int
+) -> tuple[dict[str, Any], int]:
+    """Translate a Claude-shaped turn-end result (v4.13.2 completion gate).
+
+    A block is either JSON `decision: "block"` or exit 2 with the reason on
+    stderr. Anything else lets the turn end: a Stop hook that errors must never
+    trap the session, and "ask" has no meaning at a turn end.
+    """
+    blocked = returncode == 2 or child.get("decision") == "block"
+    if not blocked:
+        return {}, 0
+    reason = _reason(stderr, payload, "Nexus-Hub completion gate: the run is not complete.")
+    if host == "antigravity":
+        return {"decision": "continue", "reason": reason}, 0
+    # Copilot CLI reads the top-level fields; VS Code reads hookSpecificOutput.
+    # Both read ~/.copilot/hooks/, so one object carries both documented shapes.
+    return {
+        "decision": "block",
+        "reason": reason,
+        "hookSpecificOutput": {"hookEventName": "Stop", "decision": "block", "reason": reason},
+    }, 0
+
+
 def translate_child_result(
     host: str,
     event: str,
@@ -339,6 +363,9 @@ def translate_child_result(
     payload = _json_object(stdout)
     specific = payload.get("hookSpecificOutput")
     child = specific if isinstance(specific, dict) else payload
+
+    if event == "Stop" and host in {"antigravity", "copilot"}:
+        return _translate_stop(host, child, payload, stderr, returncode)
 
     if host == "antigravity":
         if returncode == 2:

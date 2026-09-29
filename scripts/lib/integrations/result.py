@@ -14,6 +14,13 @@ The six action values map to the cloned CodeGraph reference
     removed     A file (or directory) was deleted (uninstall / legacy cleanup).
     not-found   The install path looked for a file that did not exist (typically a source template).
     kept        A file was found at the destination and intentionally left untouched (skip-existing).
+
+Two report-only actions (v4.13.3) describe the Legacy Instruction Block
+cleanup; they never mean Nexus-Hub owns the path and are not recorded in the
+install manifest:
+
+    detected    A candidate legacy span was found in an instruction file (report only).
+    backed-up   A verified, content-addressed backup of an instruction file exists.
 """
 
 from __future__ import annotations
@@ -29,11 +36,16 @@ Action = Literal[
     "removed",
     "not-found",
     "kept",
+    "detected",
+    "backed-up",
 ]
 
 VALID_ACTIONS: frozenset[str] = frozenset(
-    {"created", "updated", "unchanged", "removed", "not-found", "kept"}
+    {"created", "updated", "unchanged", "removed", "not-found", "kept", "detected", "backed-up"}
 )
+
+#: Actions that report on a path without claiming it; the manifest skips them.
+REPORT_ACTIONS: frozenset[str] = frozenset({"detected", "backed-up"})
 
 
 @dataclass(frozen=True)
@@ -118,4 +130,4 @@ class WriteResult:
         return counts
 
 
-__all__ = ["Action", "FileAction", "VALID_ACTIONS", "WriteResult"]
+__all__ = ["Action", "FileAction", "REPORT_ACTIONS", "VALID_ACTIONS", "WriteResult"]

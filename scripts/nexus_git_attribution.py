@@ -550,7 +550,294 @@ def hook_run(root: Path, hook: str, args: list[str]) -> int:
     return 0
 
 
+# --- agent-hook scan ------------------------------------------------------------
+#
+# `scan` reads a PreToolUse payload on stdin for the attribution-guard .sh and .ps1
+# siblings. It blocks (exit 2) AI attribution in trailer or footer position on every
+# publishing route: git commit/tag messages, gh pr/issue/release bodies (including
+# --body-file and --fill), gh api body fields, and GitHub MCP tools. Text that names a
+# tool as a subject ("generated with pandoc") passes. A body that cannot be read safely
+# warns and passes; a device or FIFO is never opened.
+
+SCAN_HOOK = "attribution-guard"
+VENDOR = (r"(?:claude(?:\s+code)?|codex|copilot|cursor|gemini|devin|kimi|qwen|anthropic|openai|"
+          r"chatgpt|aider|windsurf|antigravity)")
+MODEL_WORDS = (r"(?:\s+(?:opus|sonnet|haiku|pro|flash|mini|nano|turbo|max|ultra|preview|code|cli|agent|"
+               r"v?\d[\w.]*))*")
+AGENT_NAME = re.compile(r"^" + VENDOR + MODEL_WORDS + r"$", re.IGNORECASE)
+FOOTER = re.compile(
+    r"^\s*(?:[^\w\s]+\s*)?(?:generated|made|created|written|authored)\s+(?:with|by|using)\s+"
+    r"(?:\[\s*)?" + VENDOR + MODEL_WORDS + r"(?:\s*\])?(?:\s*(?:\([^)]*\)|\[[^\]]*\]))?"
+    r"(?:\s+by\s+" + VENDOR + r")?"
+    r"(?:\s*[-:,|]\s*(?:https?://\S*|\S+(?:\s+\S+){0,3}))?[\s.!]*$",
+    re.IGNORECASE,
+)
+MARKUP = re.compile(r"<[^>]+>|[_*`~]")
+BADGE = re.compile(r"\U0001F916|:robot(?:_face)?:", re.IGNORECASE)
+VENDOR_NOREPLY = re.compile(
+    r"@(?:users\.noreply\.)?(?:anthropic\.com|claude\.ai|openai\.com|chatgpt\.com|cursor\.com|cursor\.sh)\b",
+    re.IGNORECASE,
+)
+FOOTER_WINDOW = 6
+BODY_FILE_CAP = 1024 * 1024
+BODY_FIELDS = {"body", "message", "commit_message", "notes", "description", "title"}
+MCP_PREFIXES = ("mcp__github__", "mcp__plugin_github_github__")
+
+
+def attribution_pattern(text: str) -> tuple[str, str] | None:
+    """(pattern id, offending line) for the first attribution in trailer or footer position."""
+    lines = text.splitlines()
+    for line in lines:
+        if TRAILER.match(line):
+            key, _, value = line.partition(":")
+            key = key.strip().casefold()
+            if key == "co-authored-by":
+                if _agent_coauthor(value):
+                    return f"trailer:{key}", line
+            elif key in ("ai-generated", "claude-session") or AGENT.search(value) or VENDOR_NOREPLY.search(value):
+                return f"trailer:{key}", line
+    tail = [line for line in lines if line.strip()][-FOOTER_WINDOW:]
+    for line in tail:
+        if FOOTER.match(MARKUP.sub("", line)):
+            return "footer:generated-with-agent", line
+        if BADGE.search(line):
+            return "badge:robot", line
+    return None
+
+
+def _agent_coauthor(value: str) -> bool:
+    """A co-author trailer names an agent: the same identity rule the Git hooks apply to authors."""
+    match = re.match(r"\s*(.*?)\s*<([^>]*)>", value)
+    name, email = (match.group(1), match.group(2)) if match else (value.strip(), "someone@example.com")
+    if VENDOR_NOREPLY.search("@" + email.partition("@")[2]) or AGENT_NAME.match(name.strip()):
+        return True
+    try:
+        human(name or "unknown", email if "@" in email else "someone@example.com")
+    except GuardError as exc:
+        return "Agent/bot" in str(exc)
+    return False
+
+
+def _snippet(text: str) -> str:
+    return "".join(ch if ch.isprintable() and ord(ch) < 128 else "?" for ch in text)[:80]
+
+
+def _read_body_file(path: str, cwd: Path) -> tuple[str | None, str | None]:
+    """(text, None) for a safe regular file; (None, reason) otherwise."""
+    if path == "-":
+        return None, "body read from stdin"
+    if "$" in path:
+        return None, "body file named by an unexpanded variable"
+    target = Path(path) if Path(path).is_absolute() else cwd / path
+    try:
+        info = os.lstat(target)
+    except OSError:
+        return None, "body file is missing"
+    import stat as stat_mod
+
+    if not stat_mod.S_ISREG(info.st_mode):
+        return None, "body file is not a regular file"
+    if info.st_size > BODY_FILE_CAP:
+        return None, "body file is over 1 MB"
+    try:
+        body = target.read_bytes()
+        if b"\x00" in body:
+            return None, "body file contains NUL bytes"
+        return body.decode("utf-8", errors="replace"), None
+    except OSError:
+        return None, "body file is unreadable"
+
+
+def _words(command: str) -> list[list[str]]:
+    lexer = shlex.shlex(command.replace("\\", "/"), posix=True, punctuation_chars=";&|")
+    lexer.whitespace_split = True
+    lexer.commenters = ""
+    try:
+        tokens = list(lexer)
+    except ValueError:
+        tokens = command.split()
+    segments: list[list[str]] = [[]]
+    for token in tokens:
+        if token in {";", "&&", "||", "|", "&"}:
+            segments.append([])
+        else:
+            segments[-1].append(token)
+    return [s for s in segments if s]
+
+
+def _option_values(args: list[str], names: set[str]) -> list[str]:
+    values: list[str] = []
+    for index, arg in enumerate(args):
+        for name in names:
+            if arg == name and index + 1 < len(args):
+                values.append(args[index + 1])
+            elif name.startswith("--") and arg.startswith(name + "="):
+                values.append(arg.split("=", 1)[1])
+            elif not name.startswith("--") and len(name) == 2 and arg.startswith(name) and len(arg) > 2:
+                values.append(arg[2:])
+    return values
+
+
+def _fill_messages(args: list[str], cwd: Path) -> tuple[str | None, str | None]:
+    base = (_option_values(args, {"--base", "-B"}) or ["origin/HEAD"])[0]
+    try:
+        result = subprocess.run(
+            ["git", "log", "-n", "200", "--format=%B", f"{base}..HEAD"],
+            cwd=cwd, capture_output=True, timeout=3, check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return None, "could not read the commit range for --fill"
+    if result.returncode:
+        return None, "could not read the commit range for --fill"
+    return result.stdout.decode("utf-8", "replace"), None
+
+
+def _route_bodies(words: list[str], cwd: Path) -> tuple[str, list[str], list[str]] | None:
+    """(route, bodies, unverifiable reasons) for a publishing command, else None."""
+    while words and (re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*=.*", words[0])
+                     or words[0] in ("env", "sudo", "command", "exec", "nohup", "time", "builtin")):
+        words = words[1:]
+    if not words:
+        return None
+    head = Path(words[0]).name.lower().removesuffix(".exe")
+    bodies: list[str] = []
+    reasons: list[str] = []
+
+    def files(values: list[str]) -> None:
+        for value in values:
+            text, reason = _read_body_file(value, cwd)
+            if text is not None:
+                bodies.append(text)
+            else:
+                reasons.append(reason or "body cannot be read")
+
+    if head == "git":
+        rest = words[1:]
+        while rest and rest[0].startswith("-"):
+            takes_value = rest[0] in ("-C", "-c", "--git-dir", "--work-tree", "--namespace", "--exec-path")
+            rest = rest[2:] if takes_value else rest[1:]
+        if not rest or rest[0] not in ("commit", "tag", "merge"):
+            return None
+        args = rest[1:]
+        bodies += _option_values(args, {"-m", "--message"})
+        bodies += [re.sub(r"^([\w-]+)\s*=", r"\1:", value) for value in _option_values(args, {"--trailer"})]
+        files(_option_values(args, {"-F", "--file"}))
+        return f"git {rest[0]}", bodies, reasons
+    if head != "gh" or len(words) < 2:
+        return None
+    if words[1] == "api":
+        args = words[2:]
+        files(_option_values(args, {"--input"}))
+        for field in _option_values(args, {"-f", "-F", "--field", "--raw-field"}):
+            key, _, value = field.partition("=")
+            if key.strip().casefold() in BODY_FIELDS:
+                if value.startswith("@"):
+                    files([value[1:]])
+                else:
+                    bodies.append(value)
+        return "gh api", bodies, reasons
+    if len(words) < 3 or words[1] not in ("pr", "issue", "release") or words[2] not in (
+        "create", "edit", "comment", "review", "merge"
+    ):
+        return None
+    args = words[3:]
+    bodies += _option_values(args, {"--body", "-b", "--notes", "-n", "--title", "-t", "--subject"})
+    files(_option_values(args, {"--body-file", "-F", "--notes-file"}))
+    if any(a in ("--fill", "--fill-first", "--fill-verbose", "-f") for a in args) and words[1] == "pr":
+        text, reason = _fill_messages(args, cwd)
+        if text is not None:
+            bodies.append(text)
+        else:
+            reasons.append(reason or "--fill range unreadable")
+    return f"gh {words[1]} {words[2]}", bodies, reasons
+
+
+HEREDOC = re.compile(r"<<-?\s*(['\"]?)([^\s'\"]+)\1[^\n]*\n(.*?)\n\s*\2\s*(?:\n|$)", re.DOTALL)
+
+
+def _mcp_bodies(value: object) -> list[str]:
+    if isinstance(value, dict):
+        found: list[str] = []
+        for key, item in value.items():
+            if isinstance(item, str) and key.casefold() in BODY_FIELDS:
+                found.append(item)
+            elif isinstance(item, (dict, list)):
+                found += _mcp_bodies(item)
+        return found
+    if isinstance(value, list):
+        return [text for item in value for text in _mcp_bodies(item)]
+    return []
+
+
+def _scan_block(route: str, pattern: str, line: str) -> int:
+    print(f"[{SCAN_HOOK}] BLOCKED: {route} carries AI attribution (pattern {pattern}).", file=sys.stderr)
+    print(f"Line: {_snippet(line.strip())}", file=sys.stderr)
+    print("Remove the co-author trailer, generated-with footer, or badge; your own identity is the "
+          "only author. Naming a tool as the subject of a sentence is fine.", file=sys.stderr)
+    return 2
+
+
+def scan(payload: dict) -> int:
+    tool = str(payload.get("tool_name") or "")
+    tool_input = payload.get("tool_input") or {}
+    cwd = Path(payload.get("cwd") or os.getcwd())
+    if tool.startswith(MCP_PREFIXES):
+        for text in _mcp_bodies(tool_input):
+            found = attribution_pattern(text)
+            if found:
+                return _scan_block(tool, *found)
+        return 0
+    if tool in ("Write", "Edit", "MultiEdit"):
+        path = str(tool_input.get("file_path") or "").replace("\\", "/")
+        if path.rsplit("/", 1)[-1] == "CHANGELOG.md" or "/docs/" in f"/{path}":
+            text = str(tool_input.get("content") or tool_input.get("new_string") or "")
+            found = attribution_pattern(text)
+            if found:
+                print(f"[{SCAN_HOOK}] WARNING: {_snippet(path)} would carry AI attribution "
+                      f"(pattern {found[0]}); remove it unless the text describes the pattern.", file=sys.stderr)
+        return 0
+    if tool not in ("Bash", "PowerShell"):
+        return 0
+    command = str(tool_input.get("command") or "")
+    heredocs = [m.group(3) for m in HEREDOC.finditer(command)]
+    unverified: list[str] = []
+    for words in _words(HEREDOC.sub("\n", command)):
+        found = _route_bodies(words, cwd)
+        if found is None:
+            continue
+        route, bodies, reasons = found
+        for text in bodies + heredocs:
+            found = attribution_pattern(text)
+            if found:
+                return _scan_block(route, *found)
+        if not heredocs:
+            unverified += [f"{route}: {reason}" for reason in reasons]
+    for reason in dict.fromkeys(unverified):
+        print(f"[{SCAN_HOOK}] WARNING: cannot verify body ({reason}); check it for AI attribution "
+              "before publishing.", file=sys.stderr)
+    return 0
+
+
+def cmd_scan() -> int:
+    try:
+        # A launcher may add a byte-order mark before or after the payload; it must never
+        # make the JSON unparseable, which would silently allow the tool call.
+        payload = json.loads(sys.stdin.read().replace("\ufeff", "").strip() or "null")
+    except ValueError:
+        return 0
+    if not isinstance(payload, dict):
+        return 0
+    try:
+        return scan(payload)
+    except Exception as exc:  # noqa: BLE001 - the hook must degrade to a warning, never crash
+        print(f"[{SCAN_HOOK}] WARNING: cannot verify body ({type(exc).__name__}).", file=sys.stderr)
+        return 0
+
+
 def main(argv: list[str] | None = None) -> int:
+    argv = sys.argv[1:] if argv is None else argv
+    if argv[:1] == ["scan"]:
+        return cmd_scan()
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
     for name in ("install", "uninstall"):

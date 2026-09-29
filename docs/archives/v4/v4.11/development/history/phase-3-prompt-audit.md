@@ -2,7 +2,7 @@
 
 Renumber note, 2026-09-14: this historical cache-track evidence was authored under v4.11.0; its current plan is v4.11.1. Historical test results and phase dates remain unchanged.
 
-**Plan**: [v4.11.0-adoption-cache-and-diagram-quality](../../../../../releases/v4/v4.11/plans/v4.11.1-adoption-cache-and-diagram-quality.md)
+**Plan**: [v4.11.0-adoption-cache-and-diagram-quality](../../plans/v4.11.1-adoption-cache-and-diagram-quality.md)
 **Phase**: 3 - Bounded prompt audit
 **Date**: 2026-09-10
 **Branch**: `feat/v4.11.0-cache-and-diagram`

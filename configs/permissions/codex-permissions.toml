@@ -17,8 +17,14 @@ approval_policy = "on-request"
 default_permissions = "default"
 
 [permissions.default.filesystem]
-# Grant read access to project directories; write remains blocked by default.
-":project_roots" = "read"
+# ":minimal" is the documented set of system essentials. Without it the Linux sandbox
+# exposes no system directory, so Codex cannot even find /bin/sh and every command fails
+# (measured 2026-09-27, Codex CLI 0.157.1 on Ubuntu 24.04). ":workspace_roots" is the
+# documented key for the open project; the previous ":project_roots" is not in the
+# reference (https://learn.chatgpt.com/docs/config-file/config-reference, fetched 2026-09-27).
+# Both grant read only; write remains blocked by default.
+":minimal" = "read"
+":workspace_roots" = "read"
 
 [permissions.default.network]
 # Limit network access to trusted documentation and registry domains.

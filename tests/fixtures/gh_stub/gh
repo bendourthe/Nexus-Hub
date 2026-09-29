@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+set -euo pipefail
+exec "${GH_STUB_PYTHON:-python3}" "$(dirname "$0")/gh_stub.py" "$@"

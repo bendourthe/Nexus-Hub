@@ -319,7 +319,8 @@ def test_secret_scan_ps1_does_not_echo_the_secret(
 # responsive-layout guard does honor them as its documented per-session escape.
 _CONTROLLED = sorted(
     (SH_STEMS & PS1_STEMS)
-    - {"secret-scan", "memory-store-guard", "require-description",
+    - {"secret-scan", "memory-store-guard", "user-edit-guard", "attribution-guard",
+       "require-description",
        "require-powershell-description",
        "compress-output", "claude-diff-review", "gemini-diff-review",
        "codex-diff-review", "opencode-diff-review", "antigravity-cli-diff-review"}

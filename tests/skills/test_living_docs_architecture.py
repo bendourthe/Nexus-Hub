@@ -91,7 +91,7 @@ def test_v4_lifespan_plan_consumes_handbooks_equivalent() -> None:
     path = (
         ROOT
         / "docs"
-        / "releases"
+        / "archives"
         / "v4"
         / "v4.0"
         / "plans"

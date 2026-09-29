@@ -40,7 +40,7 @@ import shlex
 import sys
 from pathlib import Path
 
-from scripts.lib.installer.instruction_merge import merge_marker_section
+from scripts.lib.installer.instruction_merge import merge_instruction
 
 from ._catalog_adapters import (
     catalog_skill_names,
@@ -56,6 +56,7 @@ from ._hooks_common import (
     script_for_host,
     sibling_scripts,
 )
+from ._hooks_json_merge import merge_flat_hooks, prune_flat_hooks
 from .base import (
     InstallContext,
     MarkdownIntegration,
@@ -99,6 +100,10 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
         "git-guardrails.sh",
         "_notify_common.sh",
         "notify-on-complete.sh",
+        # v4.13.2: the full-run completion gate (Cursor `stop`, answered with
+        # `followup_message`) and prompt capture (`beforeSubmitPrompt`).
+        "completion-gate.sh",
+        "approval-capture.sh",
     )
 
     def _hook_registration(self, command_for) -> dict:
@@ -134,7 +139,11 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
                     },
                 ],
                 "stop": [
+                    {"command": command_for("completion-gate.sh")},
                     {"command": command_for("notify-on-complete.sh")},
+                ],
+                "beforeSubmitPrompt": [
+                    {"command": command_for("approval-capture.sh")},
                 ],
             },
         }
@@ -172,12 +181,7 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
             result.files.append(FileAction(path=str(template), action="not-found"))
         else:
             rendered = self._render(template, ctx)
-            action = merge_marker_section(
-                instr_dst,
-                rendered,
-                legacy_header="## Nexus-Hub",
-                dry_run=ctx.dry_run,
-            )
+            action = merge_instruction(instr_dst, rendered, ctx=ctx, legacy_header="## Nexus-Hub")
             ctx.manifest.track_shared(self.key, str(instr_dst))
             result.files.append(action)
 
@@ -331,17 +335,55 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
         dst = cursor_root / "hooks.json"
         if dst.exists():
             if dst.read_bytes() == content_bytes:
-                ctx.manifest.track(self.key, str(dst))
+                ctx.manifest.track_shared(self.key, str(dst))
                 return FileAction(path=str(dst), action="unchanged")
             if not ctx.overwrite:
-                ctx.manifest.log(self.key, f"skip-existing: {dst}")
-                return FileAction(path=str(dst), action="kept")
+                # v4.13.2: merge ours in and keep every user entry, instead of
+                # keeping the whole file and silently skipping new hooks.
+                return merge_flat_hooks(
+                    ctx, self.key, dst, registration, self._owned_predicate(base, helper)
+                )
         existed = dst.exists()
         if not ctx.dry_run:
             dst.parent.mkdir(parents=True, exist_ok=True)
             dst.write_bytes(content_bytes)
-        ctx.manifest.track(self.key, str(dst))
+        ctx.manifest.track_shared(self.key, str(dst))
         return FileAction(path=str(dst), action="updated" if existed else "created")
+
+    @staticmethod
+    def _owned_predicate(base: str, helper: str):
+        """An entry is Nexus-Hub's when its command points into our hooks dir or helper."""
+
+        def owned(entry: dict) -> bool:
+            command = entry.get("command")
+            return isinstance(command, str) and (base in command or helper in command)
+
+        return owned
+
+    def teardown(self, ctx: InstallContext) -> WriteResult:
+        """Prune only Nexus-Hub entries from each shared hooks.json, then tear down.
+
+        hooks.json is shared with the user's own hooks, so it must never reach the
+        base teardown, which would unlink an owned file or strip Markdown markers
+        from a shared one.
+        """
+        result = WriteResult()
+        for dst_str in list(ctx.manifest.shared_for(self.key)):
+            dst = Path(dst_str)
+            if dst.name != "hooks.json":
+                continue
+            base = (dst.parent / self.config["hooks_subdir"]).as_posix()
+            relative = f"{self.config['workspace_dir']}/{self.config['hooks_subdir']}"
+            helper = ".nexus-hub/scripts/nexus_git_attribution.py"
+
+            def owned(entry: dict, base=base, relative=relative, helper=helper) -> bool:
+                command = entry.get("command")
+                return isinstance(command, str) and any(s in command for s in (base, relative, helper))
+
+            result.files.append(prune_flat_hooks(dst, owned, ctx.dry_run))
+            ctx.manifest.untrack_shared(self.key, dst_str)
+        result.extend(super().teardown(ctx))
+        return result
 
     def wire_project_surfaces(self, ctx: InstallContext) -> WriteResult:
         """Seed the project-scoped Cursor surfaces for ``nexus-hub init``.

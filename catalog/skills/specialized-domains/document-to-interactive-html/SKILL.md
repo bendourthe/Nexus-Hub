@@ -186,6 +186,39 @@ verified, shareable interactive .html
     - **Verify a non-HTML handoff in its OWN format, not in its source properties.** When the run also delivers a native PPTX or DOCX, run `python scripts/inspect_native_office.py --pptx <deck> --docx <doc> --json <evidence>`. Two defect classes are invisible to the file itself: PowerPoint SYNTHESISES a chart title at render time from the single series name when `c:autoTitleDeleted` is absent or `val="0"`, so `python-pptx` and COM both report `has_title=False` while the deck ships an unstyled near-black title (that exact defect passed a dark-slide deck through every structural gate); and Word resolves a table layout that its declared cell widths disagree with, so only Word's own geometry reveals a table overflowing the printable page. The chart check is pure XML and runs anywhere, CI included; the table check needs Windows plus Word and reports `unverified` with a reason rather than a pass when either is absent. Exit 2 means unverified, never passed.
     - **Robust either way (the degradation ladder).** WITH a browser, grade from screenshots (measure band widths and image boxes, compare overlays to the source, confirm integrated imagery). WITHOUT one - only after the provisioning offer was made and declined or failed - degrade to the STRUCTURAL subset (`scripts/visual_qa_score.py` plus a careful markup / computed-CSS read) and state the degradation in one line in the final report. Orthogonally, when Dynamic Workflows are absent the fan-out degrades to isolated subagents, then to a single sequential pass. NEVER hard-fail the run on a missing browser or a missing workflow runtime.
 
+## Existing-Deliverable Revision
+
+Once a deliverable exists, the user may have edited it, so revising it follows `user-edit-preservation`, which owns this procedure:
+
+1. Before changing the file, run `edit_guard.py check <file>` from that skill. On any exit other than 0, do not write: run `diff` (with no record, exit 4, run `diff <file> --against <your own generated copy>`, for example `out/deck.pptx`), and end your turn with that skill's three-part reply (what the user changed, suggestions on their edits or "None", and your plan ending in a question). Write only after the user says yes.
+2. Edit the current file: open it with the library and change only the targeted topics or slides. Do not rerun the generator over it.
+3. If a rebuild is unavoidable, save to a working path (for example `handbook.revised.html`), merge the user's edits in from `edit_guard.py diff`, show the result, and ask before replacing the original.
+4. Never save or copy directly onto a file the user can open (their folder, OneDrive, SharePoint, or a shared drive).
+5. After every save, run `edit_guard.py record <file> --from write`.
+6. A retained handbook rebuild (`build_presentation.py ... --out`) regenerates the whole HTML from its sources: when the user edited the published HTML, carry those edits into the retained sources first, or build to a working path and merge, never straight over their file.
+
+Every example under `references/` that saves over a file which may already exist calls `guard_existing()` first and `record_saved()` after:
+
+```python
+import subprocess
+import sys
+from pathlib import Path
+
+# The installed user-edit-preservation skill folder (for example ~/.claude/skills/ on Claude Code).
+EDIT_GUARD = Path("~/.claude/skills/user-edit-preservation/scripts/edit_guard.py").expanduser()
+
+
+def guard_existing(path) -> None:
+    """Refuse to overwrite a file the user changed since it was last recorded (or never recorded)."""
+    if Path(path).exists() and subprocess.run([sys.executable, str(EDIT_GUARD), "check", str(path)]).returncode:
+        raise SystemExit(f"{path} changed or cannot be verified: follow user-edit-preservation before saving")
+
+
+def record_saved(path) -> None:
+    """Record what the agent just wrote, so a later user edit is detectable."""
+    subprocess.run([sys.executable, str(EDIT_GUARD), "record", str(path), "--from", "write"], check=False)
+```
+
 ## Common Rationalizations
 
 | Rationalization | Reality |

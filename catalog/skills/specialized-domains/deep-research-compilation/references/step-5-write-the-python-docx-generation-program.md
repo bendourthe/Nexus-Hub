@@ -360,7 +360,9 @@ def emit_references(doc, canonical, profile):
 #### M. Saving
 
 ```python
+guard_existing(output_path)  # user-edit-preservation: never overwrite a user-edited file
 doc.save(output_path)
+record_saved(output_path)
 ```
 
 No `.close()`. python-docx handles the file lifecycle via the context of save.
@@ -406,7 +408,9 @@ def main():
         page_break_paragraph(doc)
         emit_references(doc, refs["canonical"], profile)
 
+    guard_existing(output_path)  # user-edit-preservation: never overwrite a user-edited file
     doc.save(output_path)
+    record_saved(output_path)
     print(f"Wrote {output_path}")
 
 if __name__ == "__main__":

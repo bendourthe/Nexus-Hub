@@ -1,7 +1,7 @@
 # Last-Phase Evidence - v4.3.0 Agentic Verification Discipline
 
 **Date**: 2026-08-30
-**Plan**: `docs/releases/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md`
+**Plan**: `docs/archives/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md`
 **Phase**: 5 - Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
 **Branch**: `feat/v4.2.2-guide-cinematic-rebuild`
 **v4.3 feature base**: `8ace852a8cc9ff8c0ff56ea58fdfaf5d8e9a7f02`
@@ -32,7 +32,7 @@ The durable architectural choice is recorded at `docs/decisions/implemented/proc
 
 Every `known-gaps.md` ledger was inspected. Exactly three ledgers have `**Status**: in-progress`: v4.1, v4.2, and v4.3. Older ledgers retain their append-only finalized, released, or custom lifecycle states and were not rewritten.
 
-- v4.1.0 DF-1, WN-1, and QG-1 plus v4.1.1 DF-1 remain owned by `docs/releases/v4/v4.1/known-gaps.md`; that ledger explicitly says not to absorb them. The prompting freshness advisory for this phase returned `UNKNOWN` because no live roster was supplied, so it writes nothing and remains covered by v4.1.0 DF-1 rather than becoming a duplicate v4.3 item.
+- v4.1.0 DF-1, WN-1, and QG-1 plus v4.1.1 DF-1 remain owned by `docs/archives/v4/v4.1/known-gaps.md`; that ledger explicitly says not to absorb them. The prompting freshness advisory for this phase returned `UNKNOWN` because no live roster was supplied, so it writes nothing and remains covered by v4.1.0 DF-1 rather than becoming a duplicate v4.3 item.
 
 - v4.2.3 DF-1 remains open because the Unicode validator still excludes `.html` and does not identify every wrong-script glyph. The detector and responsive hook do not change that validator.
 
@@ -42,7 +42,7 @@ Every `known-gaps.md` ledger was inspected. Exactly three ledgers have `**Status
 
 - v4.3 WN-1 records the live repository description advertising 328 skills while README and the catalog advertise 329. Its owner is the release publication flow; the next step is an authorized remote description update followed by `python scripts/check_release_preconditions.py --branches --repo-settings`.
 
-- The CI approval decision is closed and its outcome is reconciled into the ledger. The three declined-or-deferred CI differences are recorded as v4.3 DF-1 (inline validators outside profiles), DF-2 (pip caches not keyed by manifests), and DF-3 (report profile does not aggregate or publish), and the UI-only settings remainder is WN-2. `docs/releases/v4/v4.3/known-gaps.md` now carries 4 open DF, 3 open WN, and 3 resolved BG items.
+- The CI approval decision is closed and its outcome is reconciled into the ledger. The three declined-or-deferred CI differences are recorded as v4.3 DF-1 (inline validators outside profiles), DF-2 (pip caches not keyed by manifests), and DF-3 (report profile does not aggregate or publish), and the UI-only settings remainder is WN-2. `docs/archives/v4/v4.3/known-gaps.md` now carries 4 open DF, 3 open WN, and 3 resolved BG items.
 
 ## Living docs architecture
 
@@ -204,7 +204,7 @@ Reviewed by a session that did not implement Phases 1-4 and did not author any a
 | Blast-radius scaling is objective | PASS | `catalog/skills/testing/functional-verification/references/deep-pass.md:17-30` decides depth from the final diff against the integration base using five enumerated triggers, defaults ambiguous classification to `run`, and permits `no-op` only for release evidence or living prose that changes no command, contract, generated output, or user workflow. |
 | Every artifact reaches a real install | PASS | The rule, hook pair, skill, bundled detector script, and deep-pass reference all sit inside the recursively copied `catalog/rules/`, `catalog/hooks/`, and `catalog/skills/` trees, so no installer name-list edit was required; `configs/installer-parity.json` records the one POSIX-only settings-write helper with its reason. `python -m pytest tests/installer/test_verify_read_paths.py tests/skills/test_functional_verification_crosslinks.py` passed 38 tests in 1.15s, proving destination read-paths and skill cross-links resolve. |
 
-**Gaps found**: none that leave a Goal clause unsatisfied. Every clause is satisfied by a shipped artifact rather than by a plan checkbox. The four deferred CI items (DF-1 through DF-3, WN-2) and the three warnings recorded in `docs/releases/v4/v4.3/known-gaps.md` are outside the Goal text and remain owned by that ledger; none of them removes a Goal clause from the catalog.
+**Gaps found**: none that leave a Goal clause unsatisfied. Every clause is satisfied by a shipped artifact rather than by a plan checkbox. The four deferred CI items (DF-1 through DF-3, WN-2) and the three warnings recorded in `docs/archives/v4/v4.3/known-gaps.md` are outside the Goal text and remain owned by that ledger; none of them removes a Goal clause from the catalog.
 
 **Scope note honestly recorded**: this review verifies that the discipline is present, wired, and executable. It does not and cannot verify that the discipline is *pleasant* to run or that a stranger can follow the deep-pass runbook unaided; both are human questions and are listed under `## Human/manual testing suggestions` rather than claimed here.
 
@@ -278,7 +278,7 @@ Reporting limitation stated honestly: both full runs used `--quiet`, which repor
 
 **Branch-name decision (recorded, not deferred)**: the branch stays `feat/v4.2.2-guide-cinematic-rebuild`. The plan required either a proposed rename or a recorded reason; the maintainer chose to keep it. Reason: PR [#146](https://github.com/bendourthe/Nexus-Hub/pull/146) already exists against this ref and is referenced from the plan and this evidence file. Renaming rewrites the remote ref at the final step and risks detaching the existing pull request, which is real risk for a cosmetic gain. The name under-describes the branch contents (it carries v4.2.2, v4.2.3, and v4.3.0); the pull-request title and body carry that description instead.
 
-**Commit scope decision**: the untracked `docs/releases/v4/v4.4/plans/v4.4.0-guide-depth-and-training-rebuild.md` is included in the Phase 5 commit. Sub-task 5.1 explicitly scoped this branch as carrying "a v4.4.0 plan authored but unimplemented" and required the docs tree to be coherent across all four versions; `check_docs_conventions.py` already passes on that tree. Committing it makes the tracked tree match what this evidence file describes.
+**Commit scope decision**: the untracked `docs/archives/v4/v4.4/plans/v4.4.0-guide-depth-and-training-rebuild.md` is included in the Phase 5 commit. Sub-task 5.1 explicitly scoped this branch as carrying "a v4.4.0 plan authored but unimplemented" and required the docs tree to be coherent across all four versions; `check_docs_conventions.py` already passes on that tree. Committing it makes the tracked tree match what this evidence file describes.
 
 **Authorization**: the maintainer authorized ONE push updating PR #146 and the required-check wait. Merge is NOT authorized and requires a separate explicit approval after the checks reach a terminal state.
 

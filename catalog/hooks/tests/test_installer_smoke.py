@@ -552,6 +552,13 @@ def test_installer_ps1_fallback_literal_matches_template():
 # so a future contributor can tell whether a new script belongs here or in the
 # installer copy blocks.
 DEV_ONLY_SCRIPTS = {
+    # Repo-internal legacy-instruction tooling (v4.13.3): the fingerprint
+    # builder walks git history of the shipped templates, and the measurement
+    # script reports rendered instruction-file size and candidate legacy spans.
+    # Both need a checkout; the user-facing detection ships as the
+    # scripts/lib/installer/ module plus its committed fingerprint set.
+    "build_legacy_fingerprints.py",
+    "measure_rendered_context.py",
     # Maintainer GitHub-attribution hygiene, not a user-facing script.
     "check_commit_attribution.py",
     # Repo-internal co-location guard (v3.17.7): enforces that a /compare
@@ -737,6 +744,34 @@ def test_installers_copy_every_scripts_dir_py_file():
         raise AssertionError("\n".join(msg_lines))
 
 
+def test_installers_copy_every_script_to_its_own_name():
+    """A name appearing as a copy SOURCE is not enough: both installers once
+    assigned plan_status.py as the source and copied it onto generate_report.py,
+    so plan_status.py was never installed and the report generator was replaced
+    while the name-presence guard above still passed. Assert each user-facing
+    script is a copy DESTINATION under its own basename in both installers.
+    """
+    import re
+
+    names = sorted(
+        p.name
+        for p in (REPO_ROOT / "scripts").glob("*.py")
+        if p.is_file() and p.name not in DEV_ONLY_SCRIPTS and p.name != "__init__.py"
+    )
+    sh_body = INSTALLER_SH.read_text(encoding="utf-8")
+    ps1_body = INSTALLER_PS1.read_text(encoding="utf-8")
+    missing_sh = [n for n in names if f'$scripts_dest/{n}"' not in sh_body]
+    missing_ps1 = [
+        n
+        for n in names
+        if not re.search(r'Join-Path \$scriptsDest "' + re.escape(n) + '"', ps1_body)
+    ]
+    assert not missing_sh and not missing_ps1, (
+        "Scripts not copied to a destination of their own name "
+        f"(installer.sh: {missing_sh}; installer.ps1: {missing_ps1})"
+    )
+
+
 # --- (3) Bundled v0.9.7 artifacts must exist at source paths -----------------
 
 V0_9_7_ARTIFACTS = [
@@ -802,6 +837,17 @@ def test_installer_sh_bash_syntax_clean():
     assert result.returncode == 0, (
         f"bash -n failed on installer.sh:\n{result.stderr}"
     )
+
+
+def test_installer_ps1_passes_the_project_name_as_one_token():
+    """Windows PowerShell 5.1 drops an empty-string argument to a native program. With
+    `--project-name` and its value as two elements, a global install without Claude Code
+    (the branch that sets the name) left the flag bare, the registry runner exited 2, and
+    Codex, Gemini, and every other registry platform silently received nothing.
+    """
+    body = INSTALLER_PS1.read_text(encoding="utf-8")
+    assert '"--project-name=$($script:ProjectName)"' in body
+    assert '@("--project-name",' not in body
 
 
 def test_installer_ps1_ast_parse_clean():

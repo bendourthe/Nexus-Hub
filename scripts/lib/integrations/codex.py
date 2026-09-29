@@ -98,7 +98,7 @@ class CodexIntegration(MarkdownIntegration, SkillsIntegration):
             agents_root = (ctx.global_root / ".agents").resolve()
             result.files.extend(self._mirror_codex(codex_root, agents_root, ctx))
             result.files.extend(self._install_native(codex_root, ctx, scope="global"))
-            result.notes.extend(self._trust_notes())
+            result.notes.extend(self._trust_notes(ctx.repo_root))
         return result
 
     def install_workspace(self, ctx: InstallContext) -> WriteResult:
@@ -122,7 +122,7 @@ class CodexIntegration(MarkdownIntegration, SkillsIntegration):
             self._ensure_dir(codex_root, ctx)
             result.files.extend(self._mirror_codex(codex_root, agents_root, ctx))
             result.files.extend(self._install_native(codex_root, ctx, scope="workspace"))
-            result.notes.extend(self._trust_notes())
+            result.notes.extend(self._trust_notes(ctx.repo_root))
         return result
 
     # ----- mirror helper ---------------------------------------------------
@@ -159,7 +159,7 @@ class CodexIntegration(MarkdownIntegration, SkillsIntegration):
     # ----- native agent + hook surfaces (v3.15.8) --------------------------
 
     @staticmethod
-    def _trust_notes() -> list[str]:
+    def _trust_notes(repo_root: Path) -> list[str]:
         """Report what the user still has to do for hooks to run.
 
         Codex requires every non-managed hook to be reviewed and trusted before
@@ -170,7 +170,8 @@ class CodexIntegration(MarkdownIntegration, SkillsIntegration):
         return [
             (
                 "Codex hooks are installed but inert until reviewed: run /hooks in "
-                "Codex to inspect and trust them."
+                "Codex to inspect and trust them. See "
+                f"{repo_root / 'docs' / 'permissions-setup.md'} for project and Git write setup."
             ),
         ]
 

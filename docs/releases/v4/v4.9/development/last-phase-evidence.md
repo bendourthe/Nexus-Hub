@@ -4,7 +4,7 @@ This active release record covers the local audit implementation, its whole-plan
 
 **Status**: LOCAL STABILIZATION PASS; INTEGRATION PENDING. The original local gate passed and was published as `4922fd9756b57f70af9c5355e4ba92e76e313092` in PR 190. The first hosted run exposed two test-setup assumptions and Windows golden-fixture line-ending conversion; all were reproduced and corrected, and affected full-file reruns pass. Exact-SHA hosted qualification remains required before integration.
 
-**Plan**: [Local Agentic Application-Security Audit Pipeline](../plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md).
+**Plan**: [Local Agentic Application-Security Audit Pipeline](../../../../archives/v4/v4.9/plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md).
 
 **Review inputs**: user authorization to implement the entire plan; Phase 6 commit `ae630cd50cf1458e6c836a4265ab34eed4920925`; integration base `843c147dead74e20c13dd296a8567753e8948a5d`; current Phase 7 working-tree corrections. The final local commit will identify the exact published tree without embedding its own future SHA in this file.
 
@@ -24,7 +24,7 @@ The in-scope co-location failure was repaired by adding a v4.9 adoption record t
 
 All 37 reachable canonical/archive ledgers have source hashes, recorded open identifiers, and owner/disposition entries in the scan JSON. Legacy singular archive/version layouts contain no tracked ledgers. Historical recorded IDs are not asserted to be current defect totals. Phase 7 does not edit another release's ledger; existing v4.3 CI migration and v4.0 documentation migration ownership is retained. The inherited retarget commit `fb573c8a` appends a plan-location note to the v4.8 ledger without changing its prior findings; that existing branch delta is preserved and distinguished from this phase's reconciliation.
 
-The audit subsection of [known gaps](../known-gaps.md) owns Windows/POSIX coverage qualification (MT-2), terminal CI selection and remote proof (QG-1), and the ancillary private verification-harness cleanup limitation. No malformed graph, corpus, scorer, binding, redaction, retention, mutation, or Goal failure has been deferred. The two graph findings were corrected in shared deep-pass cycle 1.
+The audit subsection of [known gaps](../../../../archives/v4/v4.9/known-gaps.md) owns Windows/POSIX coverage qualification (MT-2), terminal CI selection and remote proof (QG-1), and the ancillary private verification-harness cleanup limitation. No malformed graph, corpus, scorer, binding, redaction, retention, mutation, or Goal failure has been deferred. The two graph findings were corrected in shared deep-pass cycle 1.
 
 Fresh v4.5 sequencing evidence:
 

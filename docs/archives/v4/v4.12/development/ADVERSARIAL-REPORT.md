@@ -12,7 +12,7 @@ The assigned surfaces were raw commit author/committer metadata, attribution-mes
 
 **AF-1: Public all-ref claim exceeds writable GitHub scope.** The reviewer reported that both local mirrors contain the same 139 local refs but no GitHub pull-request refs. The remote advertises 212 read-only `refs/pull/*` in addition to 119 writable heads/tags. Force-push cannot rewrite the read-only namespace. Independently reproduced by the implementing agent's `git ls-remote --refs` inventory and verified against [GitHub's documented contract](https://docs.github.com/en/pull-requests/how-tos/review-pull-requests/checking-out-pull-requests-locally).
 
-**Disposition**: QG-1 in the current [ledger](../../../../releases/v4/v4.12/known-gaps.md). Keep the local all-ref proof, but never describe a clean normal-clone result as a purge of every ref GitHub retains. The contributor-page outcome still requires direct post-publication observation. No remote mutation occurred.
+**Disposition**: QG-1 in the current [ledger](../known-gaps.md). Keep the local all-ref proof, but never describe a clean normal-clone result as a purge of every ref GitHub retains. The contributor-page outcome still requires direct post-publication observation. No remote mutation occurred.
 
 ## Incomplete review
 

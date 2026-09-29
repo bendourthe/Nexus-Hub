@@ -2,7 +2,7 @@
 
 **Date**: 2026-08-27
 **Mode**: audit only; no files moved
-**Plan**: `docs/releases/v4/v4.1/plans/v4.1.0-adoption-skill-trial-records-and-low-evidence-ts.md`
+**Plan**: `docs/archives/v4/v4.1/plans/v4.1.0-adoption-skill-trial-records-and-low-evidence-ts.md`
 
 ## Phase 1 - Procedural-Anchor Authoring Rule
 
@@ -16,7 +16,7 @@
 
 | Path | Category | Disposition |
 |---|---|---|
-| `docs/releases/v4/v4.1/known-gaps.md` | Active release gap ledger | Keep; Phase 1 records zero open or resolved items. |
+| `docs/archives/v4/v4.1/known-gaps.md` | Active release gap ledger | Keep; Phase 1 records zero open or resolved items. |
 | `docs/releases/v4/v4.1/docs-cleanup-report.md` | Active release audit record | Keep and append later phase audits until release close. |
 | `docs/releases/v4/v4.1/development/history/2026-08-27_v4.1.0-adoption-skill-trial-records-phase-1-procedural-anchor.md` | Active phase evidence | Keep under the current version's development history. |
 
@@ -70,7 +70,7 @@ No documentation move, duplicate, scratch artifact, or lifespan contradiction wa
 
 **Date**: 2026-08-28
 **Mode**: audit only; no files moved
-**Plan**: `docs/releases/v4/v4.1/plans/v4.1.2-adoption-minimal-construction.md`
+**Plan**: `docs/archives/v4/v4.1/plans/v4.1.2-adoption-minimal-construction.md`
 
 ### Layout check
 
@@ -116,7 +116,7 @@ No tracked obsolete file, empty directory, redundant directory, misplaced docume
 
 **Date**: 2026-08-28
 **Mode**: audit only; no files moved
-**Plan**: `docs/releases/v4/v4.1/plans/v4.1.1-adoption-openworker-security-refinement.md`
+**Plan**: `docs/archives/v4/v4.1/plans/v4.1.1-adoption-openworker-security-refinement.md`
 
 ### Layout check
 
@@ -137,7 +137,7 @@ No duplicate, orphaned, scratch, or misplaced documentation was created by v4.1.
 
 **Date**: 2026-08-28
 **Mode**: audit only; no files moved
-**Plan**: `docs/releases/v4/v4.1/plans/v4.1.1-adoption-openworker-security-refinement.md`
+**Plan**: `docs/archives/v4/v4.1/plans/v4.1.1-adoption-openworker-security-refinement.md`
 
 ### Layout check
 
@@ -151,7 +151,7 @@ No duplicate, orphaned, scratch, or misplaced documentation was created by v4.1.
 
 **Date**: 2026-08-28
 **Mode**: audit only; no files moved
-**Plan**: `docs/releases/v4/v4.1/plans/v4.1.1-adoption-openworker-security-refinement.md`
+**Plan**: `docs/archives/v4/v4.1/plans/v4.1.1-adoption-openworker-security-refinement.md`
 
 ### Layout check
 
@@ -165,7 +165,7 @@ No duplicate, orphaned, scratch, or misplaced documentation was created by v4.1.
 
 **Date**: 2026-08-28
 **Mode**: audit only; no files moved
-**Plan**: `docs/releases/v4/v4.1/plans/v4.1.1-adoption-openworker-security-refinement.md`
+**Plan**: `docs/archives/v4/v4.1/plans/v4.1.1-adoption-openworker-security-refinement.md`
 
 ### Layout check
 
@@ -179,7 +179,7 @@ No duplicate, orphaned, scratch, or misplaced documentation was created by v4.1.
 
 **Date**: 2026-08-28
 **Mode**: audit only; no files moved
-**Plan**: `docs/releases/v4/v4.1/plans/v4.1.1-adoption-openworker-security-refinement.md`
+**Plan**: `docs/archives/v4/v4.1/plans/v4.1.1-adoption-openworker-security-refinement.md`
 
 ### Layout check
 
@@ -193,7 +193,7 @@ No duplicate, orphaned, scratch, or misplaced documentation was created by v4.1.
 
 **Date**: 2026-08-28
 **Mode**: audit only; no files moved
-**Plan**: `docs/releases/v4/v4.1/plans/v4.1.2-adoption-minimal-construction.md`
+**Plan**: `docs/archives/v4/v4.1/plans/v4.1.2-adoption-minimal-construction.md`
 
 ### Layout check
 
@@ -214,7 +214,7 @@ No duplicate, orphaned, scratch, or misplaced documentation was created by v4.1.
 
 **Date**: 2026-08-28
 **Mode**: audit only; no files moved
-**Plan**: `docs/releases/v4/v4.1/plans/v4.1.2-adoption-minimal-construction.md`
+**Plan**: `docs/archives/v4/v4.1/plans/v4.1.2-adoption-minimal-construction.md`
 
 ### Layout check
 
@@ -228,7 +228,7 @@ No documentation move, duplicate, scratch artifact, or release-tree contradictio
 
 **Date**: 2026-08-28
 **Mode**: audit only; no files moved
-**Plan**: `docs/releases/v4/v4.1/plans/v4.1.2-adoption-minimal-construction.md`
+**Plan**: `docs/archives/v4/v4.1/plans/v4.1.2-adoption-minimal-construction.md`
 
 ### Layout check
 
@@ -242,7 +242,7 @@ No documentation move, duplicate, scratch artifact, or release-tree contradictio
 
 **Date**: 2026-08-28
 **Mode**: audit only; no files moved
-**Plan**: `docs/releases/v4/v4.1/plans/v4.1.2-adoption-minimal-construction.md`
+**Plan**: `docs/archives/v4/v4.1/plans/v4.1.2-adoption-minimal-construction.md`
 
 ### Layout check
 

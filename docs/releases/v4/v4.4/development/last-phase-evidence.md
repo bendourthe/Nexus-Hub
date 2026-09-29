@@ -187,7 +187,7 @@ python scripts/check_interpreter_resolution.py --gate
 
 With `C:\Program Files\Git\bin` prepended to PATH, the corrected repository-native `platform` profile passed overall in 1,100.4 seconds: 4 commands passed across 3 groups, and the empty `shell-lint` group was expectedly skipped on Windows.
 
-The first repository-native `full` profile attempt ran in the primary dirty worktree for 4,036.7 seconds. It reported 42 commands passed and 1 failed. The only failure was `validate_no_personal_paths`, which found four personal-path forms in the untracked future-release file `docs/releases/v4/v4.4/plans/v4.4.1-guide-visual-and-arcade-rebuild.md`. That file is outside the v4.4.0 candidate and remains untouched.
+The first repository-native `full` profile attempt ran in the primary dirty worktree for 4,036.7 seconds. It reported 42 commands passed and 1 failed. The only failure was `validate_no_personal_paths`, which found four personal-path forms in the untracked future-release file `docs/archives/v4/v4.4/plans/v4.4.1-guide-visual-and-arcade-rebuild.md`. That file is outside the v4.4.0 candidate and remains untouched.
 
 The exact staged tree was then materialized in an isolated detached worktree with the v4.4.1 plan absent. Its preflight passed cached diff, decision-record, living-doc, docs-convention, and personal-path gates. The authoritative rerun was terminal green:
 
@@ -355,10 +355,10 @@ Both canonical (`docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/known-gaps.md`) and leg
 ```text
 known-gaps ledgers found: 34
 genuinely open (in-progress status OR non-empty Open Items): 19
-this plan's ledger: docs/releases/v4/v4.4/known-gaps.md
+this plan's ledger: docs/archives/v4/v4.4/known-gaps.md
 ```
 
-Only `docs/releases/v4/v4.4/known-gaps.md` was edited, because this plan's mutation authority is limited to v4.4.1-traceable work. The other 18 open ledgers are recorded here without modification; they belong to earlier, separately owned release cycles.
+Only `docs/archives/v4/v4.4/known-gaps.md` was edited, because this plan's mutation authority is limited to v4.4.1-traceable work. The other 18 open ledgers are recorded here without modification; they belong to earlier, separately owned release cycles.
 
 v4.4.1 dispositions written this cycle: `BG-1` through `BG-11` are closed with their fixes described, and one item is deferred with an owner and next step (the Outline panel reflowing the presentation slide while open, which restores exactly on close and is covered by no acceptance criterion).
 
@@ -645,7 +645,7 @@ Unrelated candidates recorded without mutation: 17 merged remote branches (see `
 ```text
 known-gaps ledgers found (canonical + legacy layouts, from git ls-files): 34
 genuinely open (in-progress status OR non-empty Open Items): 19
-edited by this plan: docs/releases/v4/v4.4/known-gaps.md only
+edited by this plan: docs/archives/v4/v4.4/known-gaps.md only
 ```
 
 The v4.4.2 section records two closed defects (`BG-13` sequencer contrast, `BG-14` ghost contrast), the closed carried P3 (Outline reflow, now an overlay proven by test), per-phase notes for every phase, and the deviations (title-scale minimum bound, stage-height floor 0.45, `fx-stack` on four scenes, the token tuned to 2.4). `HT-1` (no human cohort) is re-issued below. `HT-2` (real current-host installer duty) stays owned by the v4.4.1 release; see `## CI/CD coverage`. The other 18 open ledgers belong to earlier cycles and are recorded, not touched.
@@ -1089,7 +1089,7 @@ No P0 and no P1. Every task in the plan is measured. Three items are the operato
 
 ## v4.4.6 final record - 2026-09-04
 
-This append-only record belongs to [v4.4.6 guide-learning-experience](../plans/v4.4.6-guide-learning-experience.md). Earlier v4.4.0-v4.4.5 records above remain historical evidence. Current status: six phases committed; final local evidence prepared, with the full repository result, reader review, and publication gates open. The [phase history](guide-learning-experience/phase-7/verification.md) is the detailed receipt.
+This append-only record belongs to [v4.4.6 guide-learning-experience](../../../../archives/v4/v4.4/plans/v4.4.6-guide-learning-experience.md). Earlier v4.4.0-v4.4.5 records above remain historical evidence. Current status: six phases committed; final local evidence prepared, with the full repository result, reader review, and publication gates open. The [phase history](guide-learning-experience/phase-7/verification.md) is the detailed receipt.
 
 ## Architecture refactor
 
@@ -1101,7 +1101,7 @@ The [repository audit](guide-learning-experience/phase-7/repository-audit.json) 
 
 > Discovery: 33 canonical and legacy known-gap files, each with a source hash and status observation. Current guide ledger: nine open items (three bugs, three coverage gaps, two warnings, one quality-gate gap) and seven resolved defects.
 
-The [current ledger](../known-gaps.md#v446---guide-learning-experience) carries technical/non-technical review, native zoom/occlusion observation, retained CI reports, the historical CodeQL rescan, and the timed-out full-suite result. Fresh isolated Windows/Linux installer proof addresses the available part of HT-2; retired illustration issues are superseded. Other release owners and their history are preserved. Counts describe this release's current section, not all historical open rows.
+The [current ledger](../../../../archives/v4/v4.4/known-gaps.md#v446---guide-learning-experience) carries technical/non-technical review, native zoom/occlusion observation, retained CI reports, the historical CodeQL rescan, and the timed-out full-suite result. Fresh isolated Windows/Linux installer proof addresses the available part of HT-2; retired illustration issues are superseded. Other release owners and their history are preserved. Counts describe this release's current section, not all historical open rows.
 
 ## Living docs architecture
 

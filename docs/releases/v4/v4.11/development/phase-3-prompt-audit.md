@@ -2,7 +2,7 @@
 
 Renumber note, 2026-09-14: this historical cache-track evidence was authored under v4.11.0; its current plan is v4.11.1. Historical test results and phase dates remain unchanged.
 
-Evidence for Phase 3 (T007-T009) of the [v4.11.0 adoption plan](../plans/v4.11.1-adoption-cache-and-diagram-quality.md). Checks both synthetic audits against D3, records which requirements and proving commands survived each one, states the cross-owner contracts that were preserved, and marks the behavioural evidence this phase explicitly does not produce.
+Evidence for Phase 3 (T007-T009) of the [v4.11.0 adoption plan](../../../../archives/v4/v4.11/plans/v4.11.1-adoption-cache-and-diagram-quality.md). Checks both synthetic audits against D3, records which requirements and proving commands survived each one, states the cross-owner contracts that were preserved, and marks the behavioural evidence this phase explicitly does not produce.
 
 ## T007 - The audit procedure
 
@@ -53,7 +53,7 @@ Both cases are labelled synthetic in the reference. The closing section states t
 ## Cross-owner contracts preserved
 
 - **`[[verification-before-completion]]`**: no rule owned by that skill was changed. The reference distinguishes a redundant in-turn self-re-check (category 1, mergeable) from evidence for a claim made to a human (preserved by default), and Case A demonstrates the distinction rather than asserting it.
-- **v4.9 WN-2**: the gap's status is unchanged. The reference explains why the vendor claim and the catalog skill are not the same rule, and states that reconciling them would be a decision record rather than a prompting edit. No edit to `docs/releases/v4/v4.9/known-gaps.md` was made.
+- **v4.9 WN-2**: the gap's status is unchanged. The reference explains why the vendor claim and the catalog skill are not the same rule, and states that reconciling them would be a decision record rather than a prompting edit. No edit to `docs/archives/v4/v4.9/known-gaps.md` was made.
 - **Source screening and prompt-injection defence**: reinforced by Case B rather than restated as a new rule; the owning skills keep the rule.
 - **Hard budgets**: listed in the origin table with the budget owner named as the only party who may remove one.
 

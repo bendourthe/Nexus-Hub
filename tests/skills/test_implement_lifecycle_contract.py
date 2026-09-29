@@ -119,7 +119,7 @@ def test_non_final_phase_is_commit_only_in_every_mode(runbook: str):
 
 def test_one_phase_non_final_offers_no_push_option(runbook: str):
     step = _step_811(runbook)
-    ask = step.split("**One-phase (default), non-final:**", 1)[1].split("\n    -", 1)[0]
+    ask = step.split("**One-phase (`phase <N>` or `next`), non-final:**", 1)[1].split("\n    -", 1)[0]
     assert "1. Commit only" in ask
     assert "2. Amend" in ask
     assert "3. Stop" in ask
@@ -280,7 +280,7 @@ def test_tier_3_deep_pass_is_a_required_evidence_section(runbook: str):
     assert "[[functional-verification]]" in gate
     assert "references/deep-pass.md" in gate
     assert "`## Tier 3 deep pass`" in gate
-    assert "<version_dir>/development/last-phase-evidence.md" in gate
+    assert "<version_dir>/development/<version>-last-phase-evidence.md" in gate
     assert "ambiguous evidence selects `run`" in gate
 
 

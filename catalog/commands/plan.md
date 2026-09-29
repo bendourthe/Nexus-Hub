@@ -74,7 +74,7 @@ Every generated plan records the plans already queued around it. Before decompos
 
 ## Mandatory final phase (planning scopes)
 
-Every plan ends with a fail-closed last phase - "Architecture Refactor, Known-Gaps Reconciliation, and CI/CD" - that includes independent Goal-vs-codebase review, a last-phase evidence file, and the living handbook architecture check. Automated tests still end every phase; human/manual testing suggestions wait until that last phase. New plans are written to the current version dir. This is part of the plan contract, not a dispatcher responsibility: the template and the duties live in the `[[implementation-plan]]` skill. This dispatcher only surfaces the guarantee; it does not duplicate the template.
+Every plan ends with a fail-closed last phase - "Architecture Refactor, Known-Gaps Reconciliation, and CI/CD" - that includes independent Goal-vs-codebase review, a last-phase evidence file, and the living handbook architecture check. Automated tests still end every phase; human/manual testing suggestions wait until that last phase. A new plan takes the version the placement rule in `[[plan-queue-assessment]]` assigns by priority (applied in `[[implementation-plan]]` Step 4.6), so version order matches build order; when that needs existing plans renumbered, the proposal is shown for confirmation first. This is part of the plan contract, not a dispatcher responsibility: the template and the duties live in the `[[implementation-plan]]` skill. This dispatcher only surfaces the guarantee; it does not duplicate the template.
 
 ## Plan lifecycle (guarantee)
 

@@ -49,7 +49,7 @@ jobs:
         # the stdlib-first default install.
         run: |
           set -euo pipefail
-          python -m pip install --quiet --upgrade pip pip-audit
+          python -m pip install --quiet --upgrade pip pip-audit 'setuptools==84.0.0'
           for ext in extensions/*/pyproject.toml; do
             dir="$(dirname "$ext")"
             extras="$(python - "$ext" <<'PY'
@@ -69,13 +69,14 @@ jobs:
         # pip-audit exits 1 when a vulnerability is found and non-zero when the
         # advisory source cannot be reached; both fail the job on purpose. The
         # JSON report is the structured artifact; the step summary carries the
-        # human-readable table.
+        # human-readable table. Skip only local editable Nexus packages, not
+        # their installed third-party dependencies.
         run: |
           set -uo pipefail
           mkdir -p reports
-          python -m pip_audit --progress-spinner off --format json --output reports/pip-audit.json
+          python -m pip_audit --skip-editable --progress-spinner off --format json --output reports/pip-audit.json
           status=$?
-          python -m pip_audit --progress-spinner off --format markdown >> "$GITHUB_STEP_SUMMARY" || true
+          python -m pip_audit --skip-editable --progress-spinner off --format markdown >> "$GITHUB_STEP_SUMMARY" || true
           if [ "$status" -ne 0 ]; then
             echo "pip-audit exited $status: advisories found or the advisory source was unreachable. See reports/pip-audit.json." >&2
             exit "$status"

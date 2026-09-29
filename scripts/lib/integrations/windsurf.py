@@ -19,7 +19,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from scripts.lib.installer.instruction_merge import merge_marker_section
+from scripts.lib.installer.instruction_merge import merge_instruction
 
 from ._catalog_adapters import (
     catalog_skill_names,
@@ -117,11 +117,8 @@ class WindsurfIntegration(MarkdownIntegration):
             return FileAction(path=str(template), action="not-found")
         if not ctx.dry_run:
             dst.parent.mkdir(parents=True, exist_ok=True)
-        action = merge_marker_section(
-            dst,
-            self._render(template, ctx),
-            legacy_header=legacy_header,
-            dry_run=ctx.dry_run,
+        action = merge_instruction(
+            dst, self._render(template, ctx), ctx=ctx, legacy_header=legacy_header
         )
         ctx.manifest.track_shared(self.key, str(dst))
         return action
@@ -175,12 +172,7 @@ class WindsurfIntegration(MarkdownIntegration):
         memories_dir = windsurf_root / "memories"
         self._ensure_dir(memories_dir, ctx)
         global_rules = memories_dir / "global_rules.md"
-        action = merge_marker_section(
-            global_rules,
-            _GLOBAL_RULE,
-            legacy_header="## Nexus-Hub",
-            dry_run=ctx.dry_run,
-        )
+        action = merge_instruction(global_rules, _GLOBAL_RULE, ctx=ctx, legacy_header="## Nexus-Hub")
         ctx.manifest.track_shared(self.key, str(global_rules))
         result.files.append(action)
         if not ctx.instruction_only:

@@ -17,7 +17,7 @@ Phase 1 adds only release-scoped design evidence and a focused test module. Path
 | `docs/archives/v4/v4.2/plans/v4.2.0-interactive-guide-redesign.md` | Active plan | Keep. |
 | `docs/archives/v4/v4.2/development/guide-redesign-baseline/` | Active phase evidence | Keep; static baseline until Phase 7 adds rendered captures. |
 | `docs/archives/v4/v4.2/development/guide-redesign-content-map.md` | Active contract | Keep; later phases update in place. |
-| `docs/releases/v4/v4.2/known-gaps.md` | Active release gap ledger | Keep. |
+| `docs/archives/v4/v4.2/known-gaps.md` | Active release gap ledger | Keep. |
 | `docs/archives/v4/v4.2/docs-cleanup-report.md` | Active release audit record | Keep and append later phase audits until release close. |
 | `docs/archives/v4/v4.2/development/history/2026-08-29_v4.2.0-interactive-guide-redesign-phase-1-baseline.md` | Active phase evidence | Keep under the current version's development history. |
 
@@ -101,7 +101,7 @@ Phase 1 adds a dated v4.2.1 section to the existing content map, a v4.2.1 known-
 |---|---|---|
 | `docs/archives/v4/v4.2/plans/v4.2.1-guide-visual-education.md` | Active plan | Keep. |
 | `docs/archives/v4/v4.2/development/guide-redesign-content-map.md` | Active contract | Keep; v4.2.1 section appended in place. |
-| `docs/releases/v4/v4.2/known-gaps.md` | Active release gap ledger | Keep; new patch subsection, header unchanged. |
+| `docs/archives/v4/v4.2/known-gaps.md` | Active release gap ledger | Keep; new patch subsection, header unchanged. |
 | `docs/archives/v4/v4.2/development/history/2026-08-29_v4.2.1-guide-visual-education-phase-1-contract.md` | Active phase evidence | Keep under the current version's development history. |
 
 ### Result

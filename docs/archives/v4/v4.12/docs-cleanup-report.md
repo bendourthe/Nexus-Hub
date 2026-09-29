@@ -22,7 +22,7 @@
 | `docs/archives/v4/v4.12/development/attribution-policy.md` | Cat 4 | Active release evidence; preserve in place. |
 | `docs/archives/v4/v4.12/development/history/2026-09-14-phase-1-attribution-checker.md` | Cat 4 | Active release evidence; preserve in place. |
 | `docs/archives/v4/v4.12/development/phase-1-queue-assessment.md` | Cat 4 | Active release evidence; preserve in place. |
-| `docs/releases/v4/v4.12/known-gaps.md` | Cat 4 | Active release evidence; preserve in place. |
+| `docs/archives/v4/v4.12/known-gaps.md` | Cat 4 | Active release evidence; preserve in place. |
 | `docs/archives/v4/v4.12/plans/v4.12.0-sole-contributor-attribution.md` | Cat 4 | Active release evidence; preserve in place. |
 | `docs/archives/v4/v4.12/docs-cleanup-report.md` | Cat 4 | Active release evidence; preserve in place. |
 | `docs/decisions/proposed/process/2026-09-06-sole-contributor-history-rewrite.md` | Cat 3 | Append-only proposed decision; preserve until publication disposition. |
