@@ -1,7 +1,11 @@
 # Known Gaps - v3.15
 
 **Project**: Nexus-Hub
-**Status**: `v3.15.0` through `v3.15.9` are all released and tagged (10 releases). v3.15.10 Phases 1-4 are complete locally on `feat/v3.15.10-end-of-task-behavior`: two purposeful notification triggers with repo+branch labels and a run-time kill switch, the end-of-task summary rule in all 12 substantive instruction templates, per-platform notification-coverage verification with delivery to Cursor, and the terminal gate. Awaiting `/update release`.
+**Status**: finalized; archived 2026-09-29; 0 open items (33 migrated to v4.13 as AR-05, AR-08, AR-09, AR-18, AR-19, AR-33, AR-34, AR-37, AR-44, AR-45, AR-46, AR-47, AR-48, AR-49, AR-50, AR-51, AR-52, AR-53, AR-54, AR-55, AR-56, AR-57). Per-section status lines below are historical and were written before release.
+
+**Open items**: 0
+
+**Status at last pre-archive update**: `v3.15.0` through `v3.15.9` are all released and tagged (10 releases). v3.15.10 Phases 1-4 are complete locally on `feat/v3.15.10-end-of-task-behavior`: two purposeful notification triggers with repo+branch labels and a run-time kill switch, the end-of-task summary rule in all 12 substantive instruction templates, per-platform notification-coverage verification with delivery to Cursor, and the terminal gate. Awaiting `/update release`.
 **Last updated**: 2026-08-08 (v3.15.14 Phase 4 final reconciliation; release-ready, handed to `/update release`)
 
 **Current v3.15.9 status**: Phases 1-7 run on `feat/v3.15.9-cross-provider-routing`, based on the released v3.15.8 `develop`. Claude/Codex/GitHub monitors install only into VS Code; Cursor Usage Monitor installs only into Cursor. Focused CI builds/packages the Cursor VSIX and degrades E2E when the hosted runner lacks the Cursor CLI, pointing at the live-smoke checklist. Phase 7 reconciled this ledger, confirmed CI coverage and optimization, and completed the README/CHANGELOG record; the remaining steps are the maintainer-approved branch push, the integration PR to protected `develop`, and `/update release` after green integration.
@@ -177,7 +181,7 @@ Each item checked against the tree rather than assumed from the phase reports:
 - **Reason**: The frontmatter `overview_l1` lists "project structure definition, boundaries (Always/Ask/Never)" among the skill's key capabilities. After Phase 1 the body scopes those to project-level context rather than to a feature spec. The statement is not false (the skill still teaches them, in their correct home), but the phrasing predates the split and reads as though they belong in the spec. It was deliberately left alone: `overview_l1` is Tier-1 always-loaded metadata, edits to it change routing vocabulary, and the trigger-and-routing gate is the surface that would surface a regression. Changing it inside a phase whose gate is about template authority would conflate two risks.
 - **Suggested next step**: Reword the two clauses during Phase 2 (which already edits this file's motivation prose) or in Phase 4's refactor, then re-run `python scripts/run_trigger_evals.py --gate` to confirm no routing regression.
 
-##### NI-2 - OPEN: the `A1` example still phrases a Non-Goal as an Assumption
+##### NI-2 - OPEN: the `A1` example still phrases a Non-Goal as an Assumption - CLOSED 2026-09-29
 
 - **Source phase**: v3.15.14 Phase 1.1
 - **Plan reference**: same plan, sub-task 1.1 (which instructed "leave `A1`'s text alone")
@@ -217,7 +221,7 @@ Each item checked against the tree rather than assumed from the phase reports:
 
 #### Hand-offs
 
-##### BG-16 - OPEN: `test_ps_standalone_extracts_and_hands_off` passes or fails depending on which shell launched pytest
+##### BG-16 - OPEN: `test_ps_standalone_extracts_and_hands_off` passes or fails depending on which shell launched pytest - RESOLVED 2026-09-29
 
 - **Status**: Open. A test-harness defect, not a product defect. Recorded rather than fixed, because the fix touches a bootstrap test outside this version's scope.
 - **Symptom**: `tests/installer/test_bootstrap.py::test_ps_standalone_extracts_and_hands_off` fails deterministically when the suite is launched from Git Bash (`/usr/bin/tar: unexpected end of file`, `Child returned status 128`) and passes deterministically when launched from PowerShell. Its four siblings in the same file pass either way. Verified by three consecutive failing runs from Git Bash and a clean `5 passed` from PowerShell on the same tree.
@@ -437,9 +441,9 @@ HO-6 is new and open. It is not a defect: it is the honest result of discovering
 
 | Item | Why it is open |
 |---|---|
-| **HO-6** | Narrowed to **one command the maintainer runs**. `GitHub Billing: Diagnose Authorization` acquires a session, probes once, and records the verdict. It cannot be closed by an agent: a VS Code session exists only inside the editor, and reading its token from the OS keychain is an explicit non-goal. Until it runs, an unprobed target reports `unknown`, and `unknown` is never treated as `supported` |
-| **QG-4 / QG-5 / MT-5** | Maintainer-only interactive smokes. **Scope widened this version**: QG-4/QG-5 now also cover the Cursor on-demand bar (currency labels, shared-scope note, over-limit clamp, dropped-bar fallback), and MT-5 now also covers the renamed GitHub surfaces and the new Authorization panel section |
-| **WN-3** | Unchanged. `test_instruction_merge.py` depends on installer-suite import order (v3.15.7). Untouched by this release |
+| **HO-6** - CLOSED 2026-09-29 | Narrowed to **one command the maintainer runs**. `GitHub Billing: Diagnose Authorization` acquires a session, probes once, and records the verdict. It cannot be closed by an agent: a VS Code session exists only inside the editor, and reading its token from the OS keychain is an explicit non-goal. Until it runs, an unprobed target reports `unknown`, and `unknown` is never treated as `supported` |
+| **QG-4 / QG-5 / MT-5** - MIGRATED to v4.13 (AR-44) | Maintainer-only interactive smokes. **Scope widened this version**: QG-4/QG-5 now also cover the Cursor on-demand bar (currency labels, shared-scope note, over-limit clamp, dropped-bar fallback), and MT-5 now also covers the renamed GitHub surfaces and the new Authorization panel section |
+| **WN-3** - RESOLVED 2026-09-29 | Unchanged. `test_instruction_merge.py` depends on installer-suite import order (v3.15.7). Untouched by this release |
 | **DF-14 / DF-16 / DF-17** | Out of scope; carried unchanged |
 
 #### Re-checked
@@ -498,7 +502,7 @@ HO-6's affirmative resolution. The scope candidates are GitHub's own answers rat
 #### Still open after Phase 4
 
 - **The `vscode-oauth` leg of T022c is unrun.** A session needs the editor, so per-app authorization and SSO for `GitHub for VS Code` specifically remain unverified; the `gh` result does not transfer. The in-editor diagnostic is the remaining piece, and the code is written so that target simply reports `unknown` until it is probed rather than assuming either answer.
-- **Enterprise scope is unprobed** (no enterprise slug on the reference account).
+- **Enterprise scope is unprobed** (no enterprise slug on the reference account). - CLOSED 2026-09-29
 - **MT-5** still applies: none of the new panel copy has been seen rendered in a real VS Code window.
 
 ### v3.15.12 Phase 4 Summary
@@ -657,7 +661,7 @@ Plus **DF-1's skills half**, resolved in Nexus-Hub's favor by first-party docume
 
 #### Hand-offs and by-design (unchanged, carried from earlier versions)
 
-- **HO-5**: live Cursor transport stays disabled until the maintainer authorizes the bounded probe. Intended shipped state, not a defect.
+- **HO-5**: live Cursor transport stays disabled until the maintainer authorizes the bounded probe. Intended shipped state, not a defect. - CLOSED 2026-09-29
 - **WN-4**: transitive `@vscode/vsce` deprecation notices; `npm audit` clean. Upstream-bounded.
 - **WN-3**: `test_instruction_merge.py` depends on installer-suite import order (v3.15.7). Untouched by this release.
 
@@ -671,18 +675,18 @@ These require a human at a real IDE and are the reason "all known gaps addressed
 
 #### Deferred, introduced by v3.15.10
 
-- **DF-14 - trigger B deferred on four platforms.** Qwen (`Stop`, verified) and Gemini CLI (`AfterAgent`, verified) each need a writer for their own `settings.json` layout plus a test surface; Gemini CLI is additionally enterprise-only opt-in, making it the lowest-value target. Codex (`Stop` likely) and Kimi have event sets that reachable first-party docs never enumerate, so nothing was delivered for them. Deferring is the honest output of a verification-gated phase.
+- **DF-14 - trigger B deferred on four platforms.** Qwen (`Stop`, verified) and Gemini CLI (`AfterAgent`, verified) each need a writer for their own `settings.json` layout plus a test surface; Gemini CLI is additionally enterprise-only opt-in, making it the lowest-value target. Codex (`Stop` likely) and Kimi have event sets that reachable first-party docs never enumerate, so nothing was delivered for them. Deferring is the honest output of a verification-gated phase. - MIGRATED to v4.13 (AR-45)
 - **DF-15 - Codex `PermissionRequest` unsettled.** Secondary sources describe an event that would make Codex the only platform besides Claude Code able to express "blocked on the human". `openai/codex` has no `docs/hooks.md` and the reachable `docs/config.md` "Lifecycle hooks" section does not enumerate events. Highest-value open item from Phase 3, because the payoff is a genuinely new capability rather than a port.
-- **DF-16 - Windows notification linger not shortened.** The 5.5-second post-`ShowBalloonTip` sleep keeps a `powershell.exe` alive per notification. Disposing a `NotifyIcon` early can cancel a queued toast on Windows 10/11, and the shortest safe value requires observing a rendered toast on a live desktop, which no test here can do. Exposed as `NEXUS_NOTIFY_LINGER_MS` to be measured rather than guessed.
-- **DF-17 - DF-1 commands residual.** The global `~/.cursor/commands` write is now documented as redundant (Cursor no longer documents a commands directory, Cursor 2.4 migrates commands into skills, and Nexus-Hub already ships each command as a command-skill). Retained deliberately because the risk is asymmetric: writing a directory Cursor ignores is harmless, removing one it does read silently drops coverage. Remove deliberately in a later release.
+- **DF-16 - Windows notification linger not shortened.** The 5.5-second post-`ShowBalloonTip` sleep keeps a `powershell.exe` alive per notification. Disposing a `NotifyIcon` early can cancel a queued toast on Windows 10/11, and the shortest safe value requires observing a rendered toast on a live desktop, which no test here can do. Exposed as `NEXUS_NOTIFY_LINGER_MS` to be measured rather than guessed. - MIGRATED to v4.13 (AR-46)
+- **DF-17 - DF-1 commands residual.** The global `~/.cursor/commands` write is now documented as redundant (Cursor no longer documents a commands directory, Cursor 2.4 migrates commands into skills, and Nexus-Hub already ships each command as a command-skill). Retained deliberately because the risk is asymmetric: writing a directory Cursor ignores is harmless, removing one it does read silently drops coverage. Remove deliberately in a later release. - MIGRATED to v4.13 (AR-47)
 
 #### Advisory (pre-existing or out of scope, recorded so they are not lost)
 
-- **The parity guard covers five of twelve substantive templates.** `check_base_template_parity.py` is scoped to the lockstep five by design. `tests/validators/test_end_of_task_rule.py` closes the gap for the end-of-task rule specifically, but a future shared section added to all twelve would drift silently on the other seven. A general "all substantive templates agree" guard is a candidate for a later release.
-- **`session-summary.sh` carries the same `basename "$(pwd)"` weakness** the notification hooks just shed, so its project label degrades in exactly the same way. NOT fixed here: it is a different hook with a different purpose, and changing it does not trace to this release's scope. Worth a targeted follow-on.
-- **Exit checkboxes are un-ticked in six released plans.** `v3.15.0` through `v3.15.4` and `v3.15.6` carry unchecked exit-checklist items even though all ten of `v3.15.0`-`v3.15.9` are tagged and released. This is a documentation-hygiene artifact, not unfinished work: the release and its tag are the completion evidence. Deliberately NOT mass-ticked, because an exit checkbox is a verification record and ticking it retroactively without re-running the verification would fabricate one. Resolve by re-verifying, or by replacing the boxes with a dated "released" note.
-- **Seven empty skill scaffolds remain** under `catalog/skills/` (maintainer work-in-progress). Since v3.15.9 the installers skip any skill directory with no `SKILL.md` and the validator warns about them, so they no longer break anything. Left in place.
-- **Pre-existing Ruff findings** (`RUF022`, `ISC004`, `I001`, plus 7 in `test_installer_smoke.py`) untouched, per the v3.15.9 disposition.
+- **The parity guard covers five of twelve substantive templates.** `check_base_template_parity.py` is scoped to the lockstep five by design. `tests/validators/test_end_of_task_rule.py` closes the gap for the end-of-task rule specifically, but a future shared section added to all twelve would drift silently on the other seven. A general "all substantive templates agree" guard is a candidate for a later release. - MIGRATED to v4.13 (AR-50)
+- **`session-summary.sh` carries the same `basename "$(pwd)"` weakness** the notification hooks just shed, so its project label degrades in exactly the same way. NOT fixed here: it is a different hook with a different purpose, and changing it does not trace to this release's scope. Worth a targeted follow-on. - MIGRATED to v4.13 (AR-48)
+- **Exit checkboxes are un-ticked in six released plans.** `v3.15.0` through `v3.15.4` and `v3.15.6` carry unchecked exit-checklist items even though all ten of `v3.15.0`-`v3.15.9` are tagged and released. This is a documentation-hygiene artifact, not unfinished work: the release and its tag are the completion evidence. Deliberately NOT mass-ticked, because an exit checkbox is a verification record and ticking it retroactively without re-running the verification would fabricate one. Resolve by re-verifying, or by replacing the boxes with a dated "released" note. - CLOSED 2026-09-29
+- **Seven empty skill scaffolds remain** under `catalog/skills/` (maintainer work-in-progress). Since v3.15.9 the installers skip any skill directory with no `SKILL.md` and the validator warns about them, so they no longer break anything. Left in place. - RESOLVED 2026-09-29
+- **Pre-existing Ruff findings** (`RUF022`, `ISC004`, `I001`, plus 7 in `test_installer_smoke.py`) untouched, per the v3.15.9 disposition. - MIGRATED to v4.13 (AR-34)
 
 ### v3.15.10 Summary
 
@@ -878,7 +882,7 @@ HO-5 remains open by design and carries beyond v3.15.9: live Cursor transport st
 
 #### Warnings
 
-WN-4 remains open: a clean `npm ci` of the latest `@vscode/vsce` toolchain still emits the two transitive deprecation notices (`whatwg-encoding@3.1.1`, `prebuild-install@7.1.3`); `npm audit` remains at zero vulnerabilities. Re-check on the next `@vscode/vsce` update.
+WN-4 remains open: a clean `npm ci` of the latest `@vscode/vsce` toolchain still emits the two transitive deprecation notices (`whatwg-encoding@3.1.1`, `prebuild-install@7.1.3`); `npm audit` remains at zero vulnerabilities. Re-check on the next `@vscode/vsce` update. - MIGRATED to v4.13 (AR-49)
 
 #### Deferred (added during the v3.15.9 release contract re-verification)
 
@@ -894,7 +898,7 @@ WN-4 remains open: a clean `npm ci` of the latest `@vscode/vsce` toolchain still
 
 MT-5 (GitHub monitor Extension Development Host activation coverage) and QG-4 (interactive light/dark/high-contrast visual smoke) remain open in the v3.15.8 section below; both are consolidated into the maintainer's local release-readiness pass together with this release's Cursor live-smoke checklist (`docs/v3/v3.15/development/cursor-usage-live-smoke.md`). None of them blocks the v3.15.9 integration push.
 
-**QG-5 (NEW, open at release): the Cursor live smoke was NOT executed for v3.15.9.** The checklist at `docs/v3/v3.15/development/cursor-usage-live-smoke.md` requires a human driving a real Cursor instance to confirm the status bar, meters, dashboard, threshold warning, and theme rendering; it cannot be performed by an automated agent and no local Cursor host ran it before the tag. The maintainer authorized the release to proceed without it (2026-08-04). What IS proven for the Cursor monitor is the automated surface: 132 extension tests green with coverage thresholds held, packaging verified in CI, and installer host isolation asserted by test. What is NOT proven is the rendered visual result on a live Cursor host. Close QG-5 by running the checklist post-release and recording the outcome here; treat any finding as a v3.15.10 fix candidate. This entry exists so the release record does not imply a verification that never happened.
+**QG-5 (NEW, open at release): the Cursor live smoke was NOT executed for v3.15.9.** The checklist at `docs/v3/v3.15/development/cursor-usage-live-smoke.md` requires a human driving a real Cursor instance to confirm the status bar, meters, dashboard, threshold warning, and theme rendering; it cannot be performed by an automated agent and no local Cursor host ran it before the tag. The maintainer authorized the release to proceed without it (2026-08-04). What IS proven for the Cursor monitor is the automated surface: 132 extension tests green with coverage thresholds held, packaging verified in CI, and installer host isolation asserted by test. What is NOT proven is the rendered visual result on a live Cursor host. Close QG-5 by running the checklist post-release and recording the outcome here; treat any finding as a v3.15.10 fix candidate. This entry exists so the release record does not imply a verification that never happened. - MIGRATED to v4.13 (AR-44)
 
 ### v3.15.9 Phase 7 Summary
 
@@ -932,10 +936,10 @@ One bug was found and resolved inside Phase 7 (BG resolved: the skill-directory 
 
 ### v3.15.0 Release-readiness residuals (open, non-blocking)
 
-- **DF-1(a)** - Cursor global `~/.cursor/commands/` UNVERIFIED (kept, tracked; the confirmed project `.cursor/commands/` is the load-bearing surface).
+- **DF-1(a)** - Cursor global `~/.cursor/commands/` UNVERIFIED (kept, tracked; the confirmed project `.cursor/commands/` is the load-bearing surface). - MIGRATED to v4.13 (AR-47)
 - **WN-1** - `test_bootstrap.py` fails in the Windows Git-Bash dev env (environmental `tar`); confirmed to be verified green in CI at `/update release`.
-- **DF-5 residual** - Copilot's new native custom-agents (`.github/agents/*.agent.md`) + Preview hooks (`.github/hooks/*.json`) surfaces are not yet populated (future release).
-- **OpenCode `rules_subdir`** - the contract records "no rules/ folder" yet the integration writes a `rules_subdir`; a pre-existing note flagged in Phase 3 for a future rules-surface review (not a v3.15.0 change).
+- **DF-5 residual** - Copilot's new native custom-agents (`.github/agents/*.agent.md`) + Preview hooks (`.github/hooks/*.json`) surfaces are not yet populated (future release). - RESOLVED 2026-09-29
+- **OpenCode `rules_subdir`** - the contract records "no rules/ folder" yet the integration writes a `rules_subdir`; a pre-existing note flagged in Phase 3 for a future rules-surface review (not a v3.15.0 change). - MIGRATED to v4.13 (AR-51)
 
 ### v3.15.0 Summary
 
@@ -957,7 +961,7 @@ One bug was found and resolved inside Phase 7 (BG resolved: the skill-directory 
 
 #### Deferred
 
-##### DF-1 - Cursor global commands path UNVERIFIED (residual; hooks.json schema RESOLVED in Phase 2)
+##### DF-1 - Cursor global commands path UNVERIFIED (residual; hooks.json schema RESOLVED in Phase 2) - MIGRATED to v4.13 (AR-47)
 
 - **Source phase**: v3.15.0 Phase 1.2; actioned in Phase 2 (2026-07-21)
 - **Plan reference**: Phase 2 (Cursor parity - skills, hooks.json, agents, project commands)
@@ -993,7 +997,7 @@ One bug was found and resolved inside Phase 7 (BG resolved: the skill-directory 
 
 #### Warnings
 
-##### WN-1 - `test_bootstrap.py::test_ps_standalone_extracts_and_hands_off` fails in the Windows Git-Bash dev env (pre-existing, environmental)
+##### WN-1 - `test_bootstrap.py::test_ps_standalone_extracts_and_hands_off` fails in the Windows Git-Bash dev env (pre-existing, environmental) - RESOLVED 2026-09-29
 
 - **Source phase**: surfaced during v3.15.0 Phase 6's `tests/installer` run (pre-existing, NOT caused by any v3.15.0 phase)
 - **Reason**: the standalone-bootstrap test drives `install.ps1`, which shells out to extract the downloaded `main` tarball; on this Windows Git-Bash host `/usr/bin/tar` fails with `unexpected end of file` (a local `tar`-binary quirk, not a code defect). `tests/installer` is otherwise 120 passed / 15 skipped.
@@ -1001,7 +1005,7 @@ One bug was found and resolved inside Phase 7 (BG resolved: the skill-directory 
 
 #### Quality-gate gaps
 
-##### QG-1 - `make validate` compression-accuracy eval not run in Phase 1 (unrelated to Phase 1 scope)
+##### QG-1 - `make validate` compression-accuracy eval not run in Phase 1 (unrelated to Phase 1 scope) - CLOSED 2026-09-29
 
 - **Source phase**: v3.15.0 Phase 1.4
 - **Reason**: `make` is unavailable in the dev environment, so the `make validate` steps were run individually. The context-compressor accuracy-regression eval was not run in Phase 1 because Phase 1 does not touch `extensions/nexus-context-compressor`. Every other `make validate` step passed.
@@ -1015,7 +1019,7 @@ One bug was found and resolved inside Phase 7 (BG resolved: the skill-directory 
 
 #### Deferred
 
-##### DF-3 - Additional frameworks / ORMs / component libs / event patterns deferred (explicit coverage, not silent)
+##### DF-3 - Additional frameworks / ORMs / component libs / event patterns deferred (explicit coverage, not silent) - MIGRATED to v4.13 (AR-52)
 
 - **Source phase**: v3.15.1 adoption-codesight Phase 2 (2.1) + Phase 3 (3.1, 3.2)
 - **Plan reference**: Phase 2.1 / Phase 3.1 / Phase 3.2 ("verifying each with a fixture before adding the next ... Do NOT attempt every framework at once")
@@ -1028,13 +1032,13 @@ One bug was found and resolved inside Phase 7 (BG resolved: the skill-directory 
 
 #### Warnings
 
-##### WN-1 - Pre-existing unused `json` import in scripts/nexus_hub_cli.py
+##### WN-1 - Pre-existing unused `json` import in scripts/nexus_hub_cli.py - RESOLVED 2026-09-29
 
 - **Source phase**: v3.15.1 adoption-codesight Phase 1 (1.2)
 - **Reason**: ruff flags `F401 json imported but unused` in `scripts/nexus_hub_cli.py`. The import is PRE-EXISTING (present on `develop`), not introduced by this phase, and `scripts/` is not ruff-gated in this repo's CI. Left untouched per the no-out-of-scope-cleanup rule.
 - **Suggested next step**: remove the unused import as part of a dedicated `scripts/` lint pass.
 
-##### WN-2 - Pre-existing ruff findings in graph/affected.py
+##### WN-2 - Pre-existing ruff findings in graph/affected.py - MIGRATED to v4.13 (AR-34)
 
 - **Source phase**: v3.15.1 adoption-codesight Phase 4 (4.1)
 - **Reason**: ruff flags an unused `EdgeKind` import (F401) and an unused `frontier` local (F841) in `graph/affected.py`. Both are PRE-EXISTING; Phase 4 only ADDED `most_imported_files` (ruff-clean). The extension `src/` is not ruff-gated in this repo's CI. Left untouched per the no-out-of-scope-cleanup rule.
@@ -1042,13 +1046,13 @@ One bug was found and resolved inside Phase 7 (BG resolved: the skill-directory 
 
 #### Missing tests / coverage gaps
 
-##### MT-2 - Benchmark `--update-baseline` write path not automated-tested
+##### MT-2 - Benchmark `--update-baseline` write path not automated-tested - MIGRATED to v4.13 (AR-08)
 
 - **Source phase**: v3.15.1 adoption-codesight Phase 5 (5.1)
 - **Reason**: `measured_baseline()` is unit-tested, but the `benchmark --update-baseline` CLI branch that OVERWRITES the committed `benchmark_baseline.json` is deliberately not exercised (a test that ran it would clobber the committed baseline). The gate path (`--check`), JSON/report output, and `--repo` mode are all tested.
 - **Suggested next step**: if desired, test `--update-baseline` against a monkeypatched `BASELINE_PATH` pointing at a temp file. Low value.
 
-##### MT-1 - Repo-level `nexus-hub map` dispatch has no automated test
+##### MT-1 - Repo-level `nexus-hub map` dispatch has no automated test - MIGRATED to v4.13 (AR-08)
 
 - **Source phase**: v3.15.1 adoption-codesight Phase 1 (1.2)
 - **Reason**: the extension test suite fully covers the map surface (generator, model, tokens, the `generate_context_map` MCP handler, and `nexus_code_search.contextmap.cli`; tool-vs-CLI byte-identity is asserted). The thin dispatch in `scripts/nexus_hub_cli.py` (a 3-line verbatim forward) is verified only by a manual smoke run, not an automated repo-level test.
@@ -1114,7 +1118,7 @@ RESOLVED: DF-1 (frameworks line P2 + Most-Imported Files P4), DF-2 (extension ve
 
 #### Deferred
 
-##### DF-2 - Hermes not yet first-class installer-wired (registry-only)
+##### DF-2 - Hermes not yet first-class installer-wired (registry-only) - MIGRATED to v4.13 (AR-05)
 
 - **Source phase**: v3.15.2 Phase 5.1 / 5.2.
 - **Plan reference**: Phase 5.1 ("no installer copy-step edit is needed because the runner is invoked automatically").
@@ -1123,7 +1127,7 @@ RESOLVED: DF-1 (frameworks line P2 + Most-Imported Files P4), DF-2 (extension ve
 
 #### Warnings
 
-##### WN-1 - Windows-local dry-run install of the new copy block not executed
+##### WN-1 - Windows-local dry-run install of the new copy block not executed - CLOSED 2026-09-29
 
 - **Source phase**: v3.15.2 Phase 1.4.
 - **Plan reference**: Phase 1.4 ("do a dry-run install into a throwaway directory and confirm the script lands at `~/.nexus-hub/scripts/`").
@@ -1132,7 +1136,7 @@ RESOLVED: DF-1 (frameworks line P2 + Most-Imported Files P4), DF-2 (extension ve
 
 #### Missing tests / coverage gaps
 
-##### MT-1 - trigger-cases.json routing coverage is a first tranche (6/267 skills)
+##### MT-1 - trigger-cases.json routing coverage is a first tranche (6/267 skills) - MIGRATED to v4.13 (AR-09)
 
 - **Source phase**: v3.15.2 Phase 3.3.
 - **Plan reference**: Phase 3.3 ("leave the rest of the catalog on the WARN path for incremental authoring in later releases") and Phase 6.2 ("Explicitly record the deferred incremental work ... skills still on the WARN path").
@@ -1184,7 +1188,7 @@ Resolution path (user-owned): reconcile the parallel re-stamp, confirm the versi
 
 #### Deferred
 
-##### DF-1 - promote the self-check eval-loop pattern into a reusable authoring convention
+##### DF-1 - promote the self-check eval-loop pattern into a reusable authoring convention - MIGRATED to v4.13 (AR-53)
 
 - **Source phase**: v3.15.3 Phase 3.2 (deferred follow-up).
 - **Plan reference**: Phase 3.2 ("Record any deferred anti-slop follow-ups, for example promoting the self-check eval pattern into a reusable authoring convention").
@@ -1193,7 +1197,7 @@ Resolution path (user-owned): reconcile the parallel re-stamp, confirm the versi
 
 #### Not implemented
 
-##### NI-1 - description carries 3 of the 5 plan-listed trigger phrases verbatim (250-char ceiling; mitigated)
+##### NI-1 - description carries 3 of the 5 plan-listed trigger phrases verbatim (250-char ceiling; mitigated) - CLOSED 2026-09-29
 
 - **Source phase**: v3.15.3 Phase 1.1.
 - **Plan reference**: Phase 1.1 (description trigger phrases: "make this less AI-sounding", "does this read as AI", "de-slop this", "remove AI patterns", "audit this draft for slop").
@@ -1250,21 +1254,21 @@ OPEN and carried as documented, non-blocking deferrals: NI-1 (description carrie
 
 #### Deferred
 
-##### DF-3 - overlay-annotation detection is a geometric heuristic (full-slide-background text is captured)
+##### DF-3 - overlay-annotation detection is a geometric heuristic (full-slide-background text is captured) - MIGRATED to v4.13 (AR-18)
 
 - **Source phase**: v3.15.4 Phase 3.3.
 - **Plan reference**: Phase 3.3 (capture author-added overlay shapes over a picture).
 - **Reason**: the extractor assigns a non-picture shape as an annotation when its CENTER lies inside a picture AND its area is smaller than the picture. This correctly captures region rectangles and callout labels over a figure, but a full-slide BACKGROUND picture with body text on top would capture that body text as annotations (the text is, arguably, overlaid on the image). The LLM-native path re-reads under the confidence gate and applies judgment; the deterministic builder renders whatever `annotations` carries. Documented in the `extraction-runbook.md` PPTX gotchas.
 - **Suggested next step**: if this over-capture is observed in practice, tighten the heuristic (for example, skip pictures whose `page_fraction` is ~1.0 unless they are classified `map`/`diagram`/annotated, or require the annotation shape to carry a fill or a short label). Non-blocking; the primary consumer applies judgment.
 
-##### DF-1 - baseline builder does not group images into a `.gallery` (styles are latent)
+##### DF-1 - baseline builder does not group images into a `.gallery` (styles are latent) - MIGRATED to v4.13 (AR-18)
 
 - **Source phase**: v3.15.4 Phase 2.3.
 - **Plan reference**: Phase 2.3 (template image / gallery styles) and 2.1 (prominence rules; the primary target is the LLM-native authoring path).
 - **Reason**: the Phase 2.3 template now carries a token-driven `.gallery` grid with a bounded per-tile cap, but the deterministic baseline builder (`build_presentation.py`) renders each image as its own stacked `<figure>` and does not emit a `.gallery` wrapper or classify hero-vs-secondary from `page_fraction`. So on the baseline path several small images stack (each bounded by `max-height: 80vh` + `max-width`, so none crops or distorts) rather than forming a grid. The prominence-aware hero/secondary sizing and the gallery grid are the LLM-native path's job per the reference; the baseline is the "plain draft to elevate".
 - **Suggested next step**: if the baseline should render a true gallery, teach the builder to group a run of comparable-`page_fraction` images into a `.gallery` wrapper (and size a high-`page_fraction` image as a hero) in a later phase. Non-blocking.
 
-##### DF-2 - PDF embedded-raster `page_fraction` is null when the pdfplumber image-bbox count does not match the extracted raster count
+##### DF-2 - PDF embedded-raster `page_fraction` is null when the pdfplumber image-bbox count does not match the extracted raster count - MIGRATED to v4.13 (AR-18)
 
 - **Source phase**: v3.15.4 Phase 2.2 (discovered while confirming the signals).
 - **Plan reference**: Phase 2.2 ("If any is missing or frequently null, add it").
@@ -1293,7 +1297,7 @@ OPEN and carried as documented, non-blocking deferrals: NI-1 (description carrie
 - **CLOSED 2026-08-11 by v3.16.5 Phase 5** (appended, not rewritten - the record above stands as written). The item deferred end-to-end grading of consented per-section integration to "the Phase 5 visual-QA loop", and that loop now exists (v3.16.5 Phase 3) with the placement pass running inside it. What closes the gap is not more agent instruction but a DETERMINISTIC record check: the placement pass must write an `IMAGERY PLACEMENTS` block to the design record with one decision per section, and `visual_qa_score.py` verifies that record against the page - failing a consented run that embedded assets but left no decision trail, a record claiming more embedded assets than the page contains, or a decline with no reason. That converts "the agent should integrate or explain" from an instruction into a checkable artifact, which is what the original item was missing. The agent-vision half (is THIS image relevant to THIS section?) remains a screenshot judgment by design and is graded by rubric criterion 4.
 - **Status after v3.16.5 Phase 3** (appended, not rewritten): still OPEN, and deliberately so. Phase 3 built the render loop that HOSTS the end-to-end grading this item defers to, and the rubric's imagery-integration criterion is now graded from real screenshots rather than from markup. The remaining half - deciding WHERE imagery helps and verifying each candidate's contextual relevance - is v3.16.5 Phase 5's placement pass. Recorded here so a reader of this ledger is not left assuming Phase 3 closed it.
 
-##### MT-3 - the visual-QA loop's agent-vision grading, fan-out, and end-to-end sample-deck smoke are behavioral (the structural scorer is the unit-tested backbone)
+##### MT-3 - the visual-QA loop's agent-vision grading, fan-out, and end-to-end sample-deck smoke are behavioral (the structural scorer is the unit-tested backbone) - MIGRATED to v4.13 (AR-19)
 
 - **Source phase**: v3.15.4 Phase 5.5.
 - **Plan reference**: Phase 5.5 ("a test that the workflow template degrades ... an end-to-end smoke test on the sample board deck fixture asserting the loop reaches the pass bar").
@@ -1395,7 +1399,7 @@ OPEN and carried as documented, non-blocking items (all reconciled in Phase 7 as
 - **Reason**: Phase 1 intentionally ships the bundle data with no `SKILL.md`. `scripts/validate_skills.py::find_skill_dirs` discovers a skill only by the presence of `SKILL.md`, so the directory is currently invisible to the catalog validators (no orphan-bundle warning, no placeholder-lint error, no registry drift) and is not picked up by the installer's skill enumeration. This is the desired intermediate state: an unfinished skill must not surface in the catalog. `references/schema.md` carries the forward reference so Phase 2 wires `SKILL.md` to `schema.md`, `profiles-index.json`, and `claude-opus-5.md`.
 - **RESOLVED in Phase 2.1**: `SKILL.md` now exists and references `references/schema.md`, `references/research-runbook.md`, `references/models/claude-opus-5.md`, `assets/profiles-index.json`, `assets/research-workflow.js`, and `scripts/write_model_prompting_profile.py`. The bundle is therefore discoverable by the installer's skill enumeration and is now under the orphan-bundle audit, which reports 0 unreferenced files for it. Registry visibility is a separate, still-open item: see NI-3.
 
-##### NI-2 - three of four rostered models are UNVERIFIED (no profile), and the one seed claim is unverified
+##### NI-2 - three of four rostered models are UNVERIFIED (no profile), and the one seed claim is unverified - RESOLVED 2026-09-29
 
 - **Source phase**: v3.15.5 Phase 1.1.
 - **Plan reference**: Phase 1.1 ("Seed one real current model ... otherwise hand-seed one entry with a TODO") and Phase 2.2 (the research fan-out that writes real profiles).
@@ -1412,7 +1416,7 @@ OPEN and carried as documented, non-blocking items (all reconciled in Phase 7 as
 - **Suggested next step**: decide in Phase 6 (or as its own cycle) whether to add a repo-internal `check_model_specific_leakage.py` gate. It would need an allowlist for legitimate mentions and a triage pass over the 16 existing ones. It would need NO installer edit (it belongs in the `DEV_ONLY_SCRIPTS` allowlist in `catalog/hooks/tests/test_installer_smoke.py`, alongside the three existing repo-internal guards). Until then, the residual is documented rather than closed.
 - **DISPOSITION (Phase 6.2/6.4): ACCEPTED as a documented residual, and the DoD wording corrected in the confirmation table above.** The maintainer deferred this decision to Phase 6, and the call is to accept rather than build the catalog-wide gate in this release, for three reasons. First, the DoD's *intent* is met: the autonomous path (the only one this release creates) provably cannot write model-specific content into a shared body, proven by a paired test rather than asserted. Second, the gate's blocking cost lands on pre-existing content, not on this feature: 6 matches across the `base-*.md` set and 10 SKILL.md files would fail on day one, several legitimately (`model-routing` documents tiers by name, `claude-api` names model ids), so shipping it would mean either a triage pass over unrelated skills or an allowlist large enough to blunt the guard. Third, the residual is bounded and visible: it is a human hand-edit, which already goes through review, and the corrected mechanism is now documented in three places (`references/edit-routing.md` with the three-case evidence, the SKILL.md hard-rail section, and the `/tune-prompting` command's safety posture) so no future reader inherits the false premise. **Carried forward, not closed**: a repo-internal `check_model_specific_leakage.py` remains the right long-term fix. It needs no installer edit (the `DEV_ONLY_SCRIPTS` allowlist in `catalog/hooks/tests/test_installer_smoke.py` covers repo-internal guards, with three precedents) but does need the triage pass. Recorded here for the next `/plan` ingest rather than as a v3.15.5 blocker.
 
-##### DF-1 - the new CI gate rides the existing validate job instead of a separately path-filtered job
+##### DF-1 - the new CI gate rides the existing validate job instead of a separately path-filtered job - CLOSED 2026-09-29
 
 - **Source phase**: v3.15.5 Phase 1.5.
 - **Plan reference**: Phase 1.5 ("Create or update the CI workflow to run the new validator and pytests, with a path filter scoped to the skill bundle + the two scripts").
@@ -1428,21 +1432,21 @@ OPEN and carried as documented, non-blocking items (all reconciled in Phase 7 as
 - **Reason**: the validator itself is covered by 62 tests, but nothing asserts that the `Makefile` `validate` target and the `ci.yml` `validate` job actually invoke it. A future edit could silently drop either line and every test would still pass. The repo has no existing precedent for asserting Makefile-target or CI-step contents (no other gate is guarded this way), so this is a pre-existing class of gap rather than a new one. `make` is also not installed on the dev host, so the target cannot be executed locally to prove the wiring.
 - **RESOLVED in Phase 5.3**, without being the goal of that phase. `tests/skills/test_release_staleness_step.py::test_the_structural_sibling_IS_wired_into_every_gate` asserts that `verify_model_prompting_profiles.py` appears in BOTH the `Makefile` and `ci.yml`, which is exactly what this item asked for; its paired test asserts the advisory checker does NOT. So the wiring for this release's gate is now machine-checked in both directions. The broader generalization (a guard covering every `scripts/*.py` gate name, in the shape of `test_installers_copy_every_scripts_dir_py_file`) remains un-built and is a pre-existing catalog-wide gap rather than a v3.15.5 one; it is not carried forward as a v3.15.5 item.
 
-##### MT-4 - the apply loop's DEFAULT guard suite is not exercised end to end; tests inject fake guards
+##### MT-4 - the apply loop's DEFAULT guard suite is not exercised end to end; tests inject fake guards - MIGRATED to v4.13 (AR-08)
 
 - **Source phase**: v3.15.5 Phase 3.4.
 - **Plan reference**: Phase 3.2 ("run the full guard suite") and 3.4 ("the per-edit guard loop with an injected guard failure").
 - **Reason**: the loop's control flow (apply, guard, keep-or-revert, quarantine, continue) is fully tested with injected pass/fail guards, which is what keeps the tests fast and deterministic. Running the real five-gate suite once per edit takes minutes, so no test executes `DEFAULT_GUARDS` end to end. **The realistic half of this gap was closed in-phase**: `test_every_default_guard_points_at_a_script_that_exists` asserts each default guard names a `.py` script that is actually present, and `test_the_default_suite_covers_the_gates_the_plan_requires` pins the three gates the plan names. A renamed or moved gate now fails at test time instead of quarantining every edit on a live run.
 - **Suggested next step**: what remains is a genuine end-to-end run of the real suite (one slow-marked test applying a trivial edit under `DEFAULT_GUARDS`). Phase 6.3 is the natural home. Non-blocking, and the failure direction is safe: a broken guard quarantines edits rather than letting them through.
 
-##### MT-3 - the research fan-out itself is agent behavior over live web calls and is not unit-run
+##### MT-3 - the research fan-out itself is agent behavior over live web calls and is not unit-run - CLOSED 2026-09-29
 
 - **Source phase**: v3.15.5 Phase 2.2 and 2.4.
 - **Plan reference**: Phase 2.4 ("Test the deterministic parts without live web calls ... use fixtures/mocks for search/fetch results").
 - **Reason**: the middle of the pipeline (search, fetch, extract claims, refute) is irreducibly agent work against live vendor documentation, so it cannot be asserted deterministically. What IS covered: the two deterministic ends (the planner's work-list mapping and the writer's validate-and-merge, 91% branch coverage, cross-checked against the repo structural gate) and static assertions that the workflow template carries the three mandatory rules, its cross-links, the budget kill switch, every degradation rung, and no runtime-forbidden clock or RNG call. What is NOT covered: that a real fan-out actually retrieves primary sources, that the refuter panel rejects a bad claim in practice, and that the degradation ladder selects the right rung at runtime. This mirrors the v3.15.4 MT-3 precedent, where the structural scorer was the unit-tested backbone of an otherwise behavioral visual-QA loop.
 - **Suggested next step**: the first real `/tune-prompting` run (Phase 4 onward) is the behavioral proof, and its output is reviewable because every claim carries a citation. If stronger coverage is wanted later, record a fixture of captured search/fetch responses and replay it through a single sequential-agent run. Non-blocking.
 
-##### MT-2 - subprocess-invoked validator tests need explicit coverage plumbing, so coverage is not measured in CI
+##### MT-2 - subprocess-invoked validator tests need explicit coverage plumbing, so coverage is not measured in CI - MIGRATED to v4.13 (AR-33)
 
 - **Source phase**: v3.15.5 Phase 1.5.
 - **Plan reference**: Phase 1.5 (stabilization) and the implement-phase coverage gate.
@@ -1527,7 +1531,7 @@ Beyond the two fixes: the init carve-out is implemented as a writer-identity sig
 
 #### Not implemented (scope boundaries, tracked rather than silent)
 
-##### NI-1 - full cross-executor trust-seam instrumentation is not locally achievable (the dropped half of AC3)
+##### NI-1 - full cross-executor trust-seam instrumentation is not locally achievable (the dropped half of AC3) - CLOSED 2026-09-29
 
 - **Source phase**: v3.15.6 Phase 3.2, recorded explicitly in Phase 4.2 per the plan's instruction.
 - **Plan reference**: Phase 3.2 ("Document the honest boundary ... the un-achievable cross-executor instrumentation is explicitly out of scope") and the comparison's `re-partial` classification of AC3.
@@ -1535,7 +1539,7 @@ Beyond the two fixes: the init carve-out is implemented as a writer-identity sig
 - **Where it is documented for users**: the "Limits and Honest Boundaries" section of `agentic-endpoint-hardening/SKILL.md`, the header of both `provenance-ledger` implementations, and the matrix row for AC3.
 - **Suggested next step**: none. Reconsider only if Nexus-Hub ever ships a component that legitimately observes other processes, which would be a different product. Recording it here prevents a future reader from mistaking the local ledger for endpoint detection.
 
-##### NI-2 - the git guardrail is a fixed-pattern denylist, not argv decomposition (the AC4 limitation)
+##### NI-2 - the git guardrail is a fixed-pattern denylist, not argv decomposition (the AC4 limitation) - CLOSED 2026-09-29
 
 - **Source phase**: v3.15.6 Phase 2.2, recorded explicitly in Phase 4.2 per the plan's instruction.
 - **Plan reference**: Phase 2.2 ("document the limitation honestly: this is a fixed-pattern denylist over the raw command string, not an argv decomposition") and the comparison's Step 7 conflict note.
@@ -1545,14 +1549,14 @@ Beyond the two fixes: the init carve-out is implemented as a writer-identity sig
 
 #### Deferred
 
-##### DF-3 - `defaultMode` deliberately omitted from the strict overlay pending enum verification
+##### DF-3 - `defaultMode` deliberately omitted from the strict overlay pending enum verification - MIGRATED to v4.13 (AR-54)
 
 - **Source phase**: v3.15.6 Phase 3.1.
 - **Plan reference**: Phase 3.1 ("with `defaultMode` set to ask/deny rather than auto-approve").
 - **Reason**: the instruction is not implementable as written (`ask` and `deny` are sibling array keys, not `defaultMode` values), and the key's valid value set is unverified in this repo: it appears nowhere in `guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md`, and `docs/v3/v3.16/plans/v3.17.0-agent-autonomy-toggle.md` Phase 2 schedules confirming it against official documentation. Writing an unverified enum into a user's `settings.json` risks breaking their config for no benefit, because the safest documented value (`default`) is already Claude Code's behavior. The overlay ships the verified `deny` and `ask` keys instead, and a test pins the omission so it cannot drift back in accidentally.
 - **Suggested next step**: after v3.17.0 Phase 2 verifies the `defaultMode` enum against official docs, decide whether the strict overlay should also set it. If yes, add it plus a test; if no, keep the omission and record the reasoning there. Non-blocking: the deny/ask entries deliver the hardening on their own.
 
-##### DF-1 - `ai-agent-governance` carries no SKIP clause (reciprocal carve-out not added)
+##### DF-1 - `ai-agent-governance` carries no SKIP clause (reciprocal carve-out not added) - MIGRATED to v4.13 (AR-55)
 
 - **Source phase**: v3.15.6 Phase 1.1 / 1.4.
 - **Plan reference**: Phase 1.1 (the description's SKIP clause fencing off deployed-service agent governance).
@@ -1854,7 +1858,7 @@ Phase 7 audited the repository and active v3.15 documentation layout, reconciled
 
 #### Deferred
 
-##### DF-6 - Durable monotonic-scrutiny store remains deferred
+##### DF-6 - Durable monotonic-scrutiny store remains deferred - MIGRATED to v4.13 (AR-37)
 
 - **Source phase**: v3.15.7 Phase 7 - Known-gaps reconciliation.
 - **Plan reference**: `docs/v3/v3.15/plans/v3.15.7-adoption-raptor-loop-hunt.md` (sub-task 7.2; comparison candidate B11).
@@ -1936,7 +1940,7 @@ Phase 1 converted DF-9 and the GitHub monitor requirements into explicit ownersh
 
 #### Deferred
 
-##### DF-10 - Exact GitHub status SVG and redistribution evidence remain unavailable
+##### DF-10 - Exact GitHub status SVG and redistribution evidence remain unavailable - CLOSED 2026-09-29
 
 - **Source phase**: v3.15.8 Phase 1.3 - Fix the Visual Contract.
 - **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 1.3).
@@ -2014,7 +2018,7 @@ Phase 3 adds the GitHub Usage Monitor status item, detailed hover, theme-adaptiv
 
 #### Missing tests / coverage gaps
 
-##### MT-5 - Extension activation and live VS Code lifecycle branches remain below 80 percent file coverage
+##### MT-5 - Extension activation and live VS Code lifecycle branches remain below 80 percent file coverage - CLOSED 2026-09-29
 
 - **Source phase**: v3.15.8 Phase 3.5 - Testing and Stabilization.
 - **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 3.5).
@@ -2023,7 +2027,7 @@ Phase 3 adds the GitHub Usage Monitor status item, detailed hover, theme-adaptiv
 
 #### Quality-gate gaps
 
-##### QG-4 - Interactive light, dark, and high-contrast visual smoke remains unobserved
+##### QG-4 - Interactive light, dark, and high-contrast visual smoke remains unobserved - CLOSED 2026-09-29
 
 - **Source phase**: v3.15.8 Phase 3.5 - Testing and Stabilization.
 - **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 3.5).
@@ -2060,7 +2064,7 @@ Two decisions are worth recording. The focused workflow deliberately does not tr
 
 #### Deferred
 
-##### DF-11 - Focused monitor workflow does not trigger on installer changes
+##### DF-11 - Focused monitor workflow does not trigger on installer changes - CLOSED 2026-09-29
 
 - **Source phase**: v3.15.8 Phase 4.2 - Add Focused CI.
 - **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 4.2, T028).
@@ -2099,7 +2103,7 @@ Two upstream constraints shaped the design and are surfaced rather than papered 
 
 #### Hand-offs
 
-##### HO-4 - Codex hooks stay inert until the user trusts them via `/hooks`
+##### HO-4 - Codex hooks stay inert until the user trusts them via `/hooks` - CLOSED 2026-09-29
 
 - **Source phase**: v3.15.8 Phase 5.2 - Codex Native Hooks.
 - **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 5.2).
@@ -2108,7 +2112,7 @@ Two upstream constraints shaped the design and are surfaced rather than papered 
 
 #### Missing tests / coverage gaps
 
-##### MT-6 - Codex agent and hook delivery is not observed against a real Codex install
+##### MT-6 - Codex agent and hook delivery is not observed against a real Codex install - MIGRATED to v4.13 (AR-57)
 
 - **Source phase**: v3.15.8 Phase 5.3 - Testing and Stabilization.
 - **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 5.3).
@@ -2145,7 +2149,7 @@ Two constraints shaped the design. Neither platform has Codex's `commandWindows`
 
 #### Deferred
 
-##### DF-12 - Gemini CLI extension-packaged hooks are a cleaner write path left unused
+##### DF-12 - Gemini CLI extension-packaged hooks are a cleaner write path left unused - MIGRATED to v4.13 (AR-56)
 
 - **Source phase**: v3.15.8 Phase 6.1 - Map Gemini CLI Hooks.
 - **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 6.1).
@@ -2154,7 +2158,7 @@ Two constraints shaped the design. Neither platform has Codex's `commandWindows`
 
 #### Missing tests / coverage gaps
 
-##### MT-7 - Windows shell dispatch for these two platforms is asserted, not observed
+##### MT-7 - Windows shell dispatch for these two platforms is asserted, not observed - MIGRATED to v4.13 (AR-57)
 
 - **Source phase**: v3.15.8 Phase 6.3 - Testing and Stabilization.
 - **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 6.3).
@@ -2196,7 +2200,7 @@ Two incidental corrections came out of the work. `IntegrationBase._copy_file` is
 
 #### Deferred
 
-##### DF-13 - Kimi has no project-scoped hook path, so workspace hooks are undeliverable
+##### DF-13 - Kimi has no project-scoped hook path, so workspace hooks are undeliverable - MIGRATED to v4.13 (AR-56)
 
 - **Source phase**: v3.15.8 Phase 7.2 - Merge Kimi TOML Hooks.
 - **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 7.2).
@@ -2205,7 +2209,7 @@ Two incidental corrections came out of the work. `IntegrationBase._copy_file` is
 
 #### Missing tests / coverage gaps
 
-##### MT-8 - Kimi agent and hook delivery is not observed against a real Kimi install
+##### MT-8 - Kimi agent and hook delivery is not observed against a real Kimi install - MIGRATED to v4.13 (AR-57)
 
 - **Source phase**: v3.15.8 Phase 7.3 - Testing and Stabilization.
 - **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 7.3).
@@ -2314,3 +2318,67 @@ Every v3.15.8 gap now has a disposition, an owner, and a next step. This is the 
 **Monitor-specific findings recorded explicitly**, per 9.2's requirement: GitHub's billing summary APIs remain public preview and may change shape without notice (the provider normalizes defensively and keeps unknown quotas percentage-free); personal-scope endpoints omit managed Copilot seats; no authorized billing credential was ever available in this plan, so every live billing path is unexercised (HO-3's original subject, resolved by choosing the fine-grained-token fallback); and the supplied brand asset limitation is DF-10 above. No monitor claims a percentage it cannot compute, and nothing is scraped.
 
 The existing Copilot skills selector is unchanged and asserted non-regressed (off by default, bundle-id or `all`, never overwriting a committed file). Existing deny controls are unaffected -- and in Copilot's case they were already active through the Claude path, which is precisely what this phase established. Phase 8 introduces no skipped implementation, known production bug, suppressed warning, or bypassed hard gate.
+
+## Archive reconciliation - 2026-09-29
+
+Before this minor moved to `docs/archives/`, every item that this file did not already record as resolved, closed, accepted, or declined was audited against the current tree. Sections re-list items per phase, so the rows below target each patch's authoritative entry. Each row gives the one disposition applied, and the item's own line carries the same marker. Migrated items are tracked in `docs/releases/v4/v4.13/known-gaps.md`, section "Migrated from archived minors (v3.x, v4.0-v4.11) - 2026-09-29". Two recorded inconsistencies are noted rather than rewritten: the v3.15.7 summary counts one open hand-off although no HO item exists in that section (the pending release steps it most likely meant are complete, since tag `v3.15.7` exists), and v3.15.8 DF-10 reads resolved in the Phase 3 table but retained in the Phase 9.2 table (closed above as superseded either way).
+
+| Item | Disposition | Evidence, reason, or destination |
+|---|---|---|
+| NI-2 (line 180) | Closed | Transferred to v3.16 as TR-1 (migrated from there as AR-14) |
+| BG-16 (line 220) | Resolved | `install.ps1` `Resolve-TarExe` now prefers the Windows `System32\tar.exe` (commit `69924673`); `docs/archives/v4/v4.8/known-gaps.md` records a passing re-run from Git Bash on 2026-09-06 |
+| HO-6 (line 440) | Closed | Superseded: the GitHub usage monitor was removed in v3.18.2 (`docs/decisions/implemented/architecture/2026-08-22-withdraw-the-github-usage-monitor.md`) |
+| QG-4 / QG-5 / MT-5 (line 441) | Migrated | AR-44: the Cursor usage-monitor live visual smoke (status bar, three bars, three themes) was never run; the GitHub-monitor halves of QG-4 and MT-5 are superseded by its removal |
+| WN-3 (line 442) | Resolved | Fixed later in this file (deferred `FileAction` import plus an isolated-import regression test); the v4.13 ledger confirms it |
+| Enterprise scope (line 501) | Closed | Superseded: the GitHub usage monitor was removed in v3.18.2 (`docs/decisions/implemented/architecture/2026-08-22-withdraw-the-github-usage-monitor.md`) |
+| HO-5 (line 660) | Closed | Superseded by HO-7: `extensions/cursor-usage-monitor/src/liveTransport.ts` records the verified wire transport |
+| DF-14 (line 674) | Migrated | AR-45: completion notification (trigger B) is still undelivered or unverified on Qwen, Gemini CLI, and Kimi (`docs/policy/platform-read-contracts.json`); check that `_notify_common` ships wherever the Stop hook is registered |
+| DF-16 (line 676) | Migrated | AR-46: the Windows notification linger is still 5500 ms (`catalog/hooks/_notify_common.sh`) and was never measured |
+| DF-17 (line 677) | Migrated | AR-47: the redundant legacy Cursor global `~/.cursor/commands` write is still performed (`scripts/lib/integrations/cursor.py`) |
+| parity guard (line 681) | Migrated | AR-50: `scripts/check_base_template_parity.py` still guards only the five lockstep templates |
+| session-summary.sh (line 682) | Migrated | AR-48: `catalog/hooks/session-summary.sh` still names the project with `basename "$(pwd)"` |
+| Exit checkboxes (line 683) | Closed | Closed at archive: the released plans move to `docs/archives/` with their boxes preserved as historical evidence; the tags are the release record |
+| empty skill scaffolds (line 684) | Resolved | Removed in v3.15.14 Phase 4.1 (recorded in this file) |
+| Ruff findings (line 685) | Migrated | AR-34: repository Ruff baseline; `ruff check` still reports findings |
+| WN-4 (line 881) | Migrated | AR-49: `@vscode/vsce` transitive deprecation warnings persist in all three extension lockfiles; upstream-bounded |
+| QG-5 (line 897) | Migrated | AR-44: duplicate of the Cursor live smoke above |
+| DF-1(a) (line 935) | Migrated | AR-47: the Cursor global commands path is still UNVERIFIED (`scripts/lib/integrations/cursor.py`) |
+| DF-5 residual (line 937) | Resolved | `scripts/lib/integrations/copilot.py` now sets `agents_subdir` and `hooks_subdir` (v3.15.8 Phase 8) |
+| OpenCode `rules_subdir` (line 938) | Migrated | AR-51: `scripts/lib/integrations/opencode.py` still writes a `rules` folder that the read contract does not record |
+| DF-1 (line 960) | Migrated | AR-47: same residual as DF-1(a) |
+| WN-1 (line 996) | Resolved | `install.ps1` `Resolve-TarExe` now prefers the Windows `System32\tar.exe` (commit `69924673`); `docs/archives/v4/v4.8/known-gaps.md` records a passing re-run from Git Bash on 2026-09-06 |
+| QG-1 (line 1004) | Closed | Not applicable: the compression eval runs in CI and at release, and v3.15.0 was tagged |
+| DF-3 (line 1018) | Migrated | AR-52: contextmap still lists TypeORM, Drizzle, ActiveRecord, GORM, Vue, and Svelte detectors as deferred |
+| WN-1 (line 1031) | Resolved | `json` is now used in `scripts/nexus_hub_cli.py`, and Ruff F401/F841 report nothing for the file |
+| WN-2 (line 1037) | Migrated | AR-34: `graph/affected.py` still has F401 `EdgeKind` and F841 `frontier` |
+| MT-2 (line 1045) | Migrated | AR-08: no test covers `benchmark --update-baseline` |
+| MT-1 (line 1051) | Migrated | AR-08: no test covers the repo-level `nexus-hub map` dispatch |
+| DF-2 (line 1117) | Migrated | AR-05: Hermes still has zero references in either installer |
+| WN-1 (line 1126) | Closed | Not applicable: the CI `bootstrap` and `install-smoke` jobs are the named authority, and the release shipped |
+| MT-1 (line 1135) | Migrated | AR-09: trigger-case coverage is 88 of 338 skills |
+| DF-1 (line 1187) | Migrated | AR-53: no reusable self-check eval-loop authoring convention exists beyond the Markdown self-check |
+| NI-1 (line 1196) | Closed | Accepted by design: routing is shown by the trigger gate, as recorded |
+| DF-3 (line 1253) | Migrated | AR-18: presentify builder and extractor limits; merged with the v3.9, v3.12, and v3.13 extractor items (overlay-annotation over-capture) |
+| DF-1 (line 1260) | Migrated | AR-18: presentify builder and extractor limits; merged with the v3.9, v3.12, and v3.13 extractor items (`build_presentation.py` has no gallery grouping) |
+| DF-2 (line 1267) | Migrated | AR-18: presentify builder and extractor limits; merged with the v3.9, v3.12, and v3.13 extractor items (null PDF raster `page_fraction` on bbox-count mismatch) |
+| MT-3 (line 1296) | Migrated | AR-19: a sample-deck scorer smoke inside the render job is unconfirmed |
+| NI-2 (line 1398) | Resolved | `model-prompting-research` now ships 16 dated, sourced profiles (`assets/profiles-index.json`, `last_verified` 2026-09-08) |
+| DF-1 (line 1415) | Closed | By decision: same call as v3.15.1 QG-1 and v3.15.2 DF-1 |
+| MT-4 (line 1431) | Migrated | AR-08: the `DEFAULT_GUARDS` suite has no end-to-end test (`tests/skills/test_model_prompting_edit_routing.py` checks names and paths only) |
+| MT-3 (line 1438) | Closed | Superseded: real `/tune-prompting` runs produced the cited, dated profiles recorded under NI-2 |
+| MT-2 (line 1445) | Migrated | AR-33: duplicate of v3.17.6 MT-2 (no subprocess coverage plumbing) |
+| NI-1 (line 1530) | Closed | Accepted by design as a scope boundary |
+| NI-2 (line 1538) | Closed | Accepted by design as a documented limitation |
+| DF-3 (line 1548) | Migrated | AR-54: `configs/permissions/claude-permissions-strict.json` still has no `defaultMode`, and the decision was never closed |
+| DF-1 (line 1555) | Migrated | AR-55: `ai-agent-governance` description still has no SKIP clause |
+| DF-6 (line 1857) | Migrated | AR-37: conditional candidate (durable prior-cycle review-signal store) |
+| DF-10 (line 1939) | Closed | Superseded: the GitHub usage monitor was removed in v3.18.2 (`docs/decisions/implemented/architecture/2026-08-22-withdraw-the-github-usage-monitor.md`) |
+| MT-5 (line 2017) | Closed | Superseded: the GitHub usage monitor was removed in v3.18.2 (`docs/decisions/implemented/architecture/2026-08-22-withdraw-the-github-usage-monitor.md`); the coverage figure was the GitHub monitor's `extension.ts` |
+| QG-4 (line 2026) | Closed | Superseded: the GitHub usage monitor was removed in v3.18.2 (`docs/decisions/implemented/architecture/2026-08-22-withdraw-the-github-usage-monitor.md`) |
+| DF-11 (line 2063) | Closed | Superseded: the GitHub usage monitor was removed in v3.18.2 (`docs/decisions/implemented/architecture/2026-08-22-withdraw-the-github-usage-monitor.md`) |
+| HO-4 (line 2102) | Closed | Accepted by design: Codex hooks require the user's own trust step |
+| MT-6 (line 2111) | Migrated | AR-57: agent and hook delivery on Codex, Gemini CLI, Qwen, and Kimi was never observed on a real install (the planned v3.15.8 live pass has no recorded result) |
+| DF-12 (line 2148) | Migrated | AR-56: upstream-blocked hook surfaces (Gemini CLI extension-packaged hooks, Kimi project-scoped hooks); re-check at the next platform-contract pass |
+| MT-7 (line 2157) | Migrated | AR-57: agent and hook delivery on Codex, Gemini CLI, Qwen, and Kimi was never observed on a real install (the planned v3.15.8 live pass has no recorded result) |
+| DF-13 (line 2199) | Migrated | AR-56: upstream-blocked hook surfaces (Gemini CLI extension-packaged hooks, Kimi project-scoped hooks); re-check at the next platform-contract pass |
+| MT-8 (line 2208) | Migrated | AR-57: agent and hook delivery on Codex, Gemini CLI, Qwen, and Kimi was never observed on a real install (the planned v3.15.8 live pass has no recorded result) |

@@ -1,7 +1,11 @@
 # Known Gaps - v3.21
 
 **Project**: Nexus-Hub
-**Status**: finalized
+**Status**: finalized; archived 2026-09-29; 0 open items (1 migrated to v4.13 as AR-41). Per-section status lines below are historical and were written before release.
+
+**Open items**: 0
+
+**Status at last pre-archive update**: finalized
 **Last updated**: 2026-08-25
 
 ## v3.21.0
@@ -25,7 +29,7 @@ None.
 
 #### Deferred
 
-##### DF-1 - Nexus-Hub catalog has no product atlas HTML
+##### DF-1 - Nexus-Hub catalog has no product atlas HTML - MIGRATED to v4.13 (AR-41)
 
 - **Source phase**: Phase 5 - Living docs, git hygiene, CI/CD, Goal review
 - **Plan reference**: `docs/releases/v3/v3.21/plans/v3.21.0-plan-implement-lifecycle-and-docs-architecture.md` (sub-task 5.3)
@@ -57,3 +61,11 @@ None. Existing `ci.yml` already covers `catalog/skills/**`, `catalog/commands/**
 - **Resolved in**: v4.1.0 Phase 1 on 2026-08-27
 - **Evidence**: `docs/todos.md` now names `feat/v4.1.0-adoption-skill-trial-records-and-low-evidence-ts`, links the active v4.1 plan, reports current catalog counts, and uses the short replace-rather-than-append dashboard contract.
 - **Resolution**: The stale `feat/presentify-slide-navigation` dashboard and earlier-minor scores were replaced; no historical ledger was deleted.
+
+## Archive reconciliation - 2026-09-29
+
+Before this minor moved to `docs/archives/`, every item that this file did not already record as resolved, closed, accepted, or declined was audited against the current tree. Each row below gives the one disposition applied, and the item's own line carries the same marker. Migrated items are tracked in `docs/releases/v4/v4.13/known-gaps.md`, section "Migrated from archived minors (v3.x, v4.0-v4.11) - 2026-09-29".
+
+| Item | Disposition | Evidence, reason, or destination |
+|---|---|---|
+| DF-1 (line 28) | Migrated | AR-41: product atlas; `docs/handbooks/overview.html` may satisfy it (commit `0b164f06`), but `docs/README.md` still says no atlas exists, so a maintainer decision is needed |

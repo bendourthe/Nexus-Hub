@@ -1,7 +1,11 @@
 # Known Gaps - v3.17
 
 **Project**: Nexus-Hub
-**Status**: v3.17.6 RELEASED 2026-08-21 (tag `v3.17.6`, commit `1e154769`). All six phases shipped. A post-release reconciliation on 2026-08-21 walked every item: 11 closed, 5 accepted or deferred with an owner, and 1 carried into v3.17.7 (the platform read-contract full pass). MT-4 was resolved on the same day, and doing so uncovered pre-existing encoding corruption in 14 distributed template files that the obvious fix would have made permanent. No item carries a stale OPEN marker. Prior v3.17.0 through v3.17.5 records remain below.
+**Status**: finalized; archived 2026-09-29; 0 open items (10 migrated to v4.13 as AR-05, AR-16, AR-17, AR-32, AR-33, AR-34). Per-section status lines below are historical and were written before release.
+
+**Open items**: 0
+
+**Status at last pre-archive update**: v3.17.6 RELEASED 2026-08-21 (tag `v3.17.6`, commit `1e154769`). All six phases shipped. A post-release reconciliation on 2026-08-21 walked every item: 11 closed, 5 accepted or deferred with an owner, and 1 carried into v3.17.7 (the platform read-contract full pass). MT-4 was resolved on the same day, and doing so uncovered pre-existing encoding corruption in 14 distributed template files that the obvious fix would have made permanent. No item carries a stale OPEN marker. Prior v3.17.0 through v3.17.5 records remain below.
 **Last updated**: 2026-08-21 (post-release reconciliation + MT-4 resolution)
 
 > **File-lifecycle note**: this ledger was opened by the v3.17.0 Phase 1 append. Each subsequent v3.17.N implementation appends its own `## v3.17.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `MT-#` / `QG-#` numbering.
@@ -73,7 +77,7 @@
 - **Why it now matters much less**: `docs/policy/required-checks.json` no longer contains any `job (leg)` context, and `tests/validators/test_ci_required_gate.py` fails if one is added back. The unresolvable case has been designed out of the required set rather than solved.
 - **Suggested next step**: none required.
 
-### MT-2 - DEFERRED to its own version (2026-08-21): the repository has no coverage instrumentation
+### MT-2 - DEFERRED to its own version (2026-08-21): the repository has no coverage instrumentation - MIGRATED to v4.13 (AR-33)
 
 - **Target files**: `tests/validators/conftest.py`
 - **What it is**: every validator test invokes its script as a subprocess, deliberately, so the test exercises the CLI a maintainer runs. `coverage` therefore records nothing without `--parallel-mode` plus a `COVERAGE_PROCESS_START` shim, and the repository defines no threshold, `[tool.coverage]` section, or `--cov` flag anywhere.
@@ -310,7 +314,7 @@ v3.17.6 shipped on 2026-08-21 (tag `v3.17.6`, commit `1e154769`). This pass walk
 
 **Carried forward as a v3.17.7 obligation:**
 
-- The platform read-contract was stamped for 3.17.6 as an explicit **carry-forward**, not a fresh pass. The full ten-platform verification was 2026-08-18. The stamp's own note requires a full pass next release rather than a second carry-forward, and `check_platform_contract_freshness.py` will fail the 3.17.7 bump until one is run.
+- The platform read-contract was stamped for 3.17.6 as an explicit **carry-forward**, not a fresh pass. The full ten-platform verification was 2026-08-18. The stamp's own note requires a full pass next release rather than a second carry-forward, and `check_platform_contract_freshness.py` will fail the 3.17.7 bump until one is run. - CLOSED 2026-09-29
 
 ### MT-4 resolution (2026-08-21): the 1042 warnings were two problems, and `--fix` would have destroyed one
 
@@ -408,7 +412,7 @@ v3.17.6 shipped on 2026-08-21 (tag `v3.17.6`, commit `1e154769`). This pass walk
     - `nexus-ai` - none IMPLEMENTED, and surveyed differently on purpose. It is the first-party sibling, with an empty `sources` list in the read-contracts because there is no vendor page; the authoritative source is its own public repository, where a code search for both field names returns zero hits. Recorded as "none implemented" to keep it distinguishable from a third-party platform that might implement an undocumented lever.
 - **Impact confirmed unchanged**: every one of the four receives `SKILL.md` verbatim, so a declared field reaches them and is ignored. The gap was in the record, and the record is now complete.
 
-### MT-6 - OPEN observation: the Codex invocation mapping is built but unexercised
+### MT-6 - OPEN observation: the Codex invocation mapping is built but unexercised - RESOLVED 2026-09-29
 
 - **Target files**: `scripts/lib/integrations/_catalog_adapters.py`
 - **What it is**: no catalog skill declares `disable-model-invocation`, so `codex_invocation_policy` currently emits nothing on every install.
@@ -416,7 +420,7 @@ v3.17.6 shipped on 2026-08-21 (tag `v3.17.6`, commit `1e154769`). This pass walk
 - **Containment**: `tests/integrations/test_codex_invocation_policy.py::test_the_shipped_catalog_declares_no_manual_only_skill` asserts today's state and fails when the first skill declares the field, which is the moment to re-check installer smoke expectations.
 - **Re-verified 2026-08-22 and deliberately left open**: still accurate - no catalog skill declares the field in frontmatter, and the containment test passes. One near-miss worth recording so the next reader does not repeat the check: `catalog/skills/workflow/skill-create/SKILL.md` MENTIONS both field names, but as prose documenting the optional fields a new skill may declare, not as a frontmatter declaration. A grep for the field name hits it; the test's structured check correctly does not. Nothing to fix here - the trade-off was taken deliberately and the guard works.
 
-### DF-2 - DEFERRED by design: B5 gate-DAG runner for `make validate`
+### DF-2 - DEFERRED by design: B5 gate-DAG runner for `make validate` - CLOSED 2026-09-29
 
 - **What it is**: the comparison's B5 item, a dependency-aware scheduler (needs-graph, cycle detection, `allowFailure`, bounded concurrency) replacing the sequential `make validate` chain.
 - **Why deferred, not dropped**: the `Boundaries` scope-fit rule in `AGENTS.md` says not to add the structure before the pain. This plan added three validators, taking the chain to roughly thirty sequential steps that still complete in seconds. A DAG scheduler would be real machinery with no measured problem to solve.
@@ -430,7 +434,7 @@ v3.17.6 shipped on 2026-08-21 (tag `v3.17.6`, commit `1e154769`). This pass walk
 - **Suggested disposition**: fold into a prose pass that re-runs the trigger-eval gate, rather than a release-eve edit.
 - **RESOLVED, verified by measurement 2026-08-22**: a scan of every `SKILL.md` frontmatter field across the catalog finds **zero** em-dashes, and a scan of all of `catalog/` finds zero em-dashes, en-dashes, curly quotes, or ellipsis characters of any kind. A later unicode-safety pass closed this; the item simply outlived its cause. `validate_unicode_safety.py --strict` and the trigger-eval gate both pass, so no prose pass is owed.
 
-### NI-1 - NOT IMPLEMENTED by design: `docs/solutions/` remains absent
+### NI-1 - NOT IMPLEMENTED by design: `docs/solutions/` remains absent - CLOSED 2026-09-29
 
 - The three-surface split written in `docs/decisions/README.md` names `docs/solutions/` as the home for solved problems with reproduction context. The directory does not exist yet, and the `solution-knowledge-base` skill creates it on first use.
 - Recorded here so the split's third surface is a known future consolidation rather than an apparent inconsistency in the README. Nothing is broken by its absence: the split defines boundaries, and an empty boundary is still a boundary.
@@ -442,7 +446,7 @@ v3.17.6 shipped on 2026-08-21 (tag `v3.17.6`, commit `1e154769`). This pass walk
 - **Resolution**: the totals are now DERIVED from `len(skills["skills"])` inside that test, so it asserts consistency without freezing a number that changes every time a skill is added. The count invariant itself is owned by `test_registry_consistency.py`, which derives it from disk in both directions. A grep confirmed no other test hardcodes the old total.
 - **Root-cause fix beyond the immediate break**: the change-surface table added to `verification-before-completion` in Phase 3 had no row for this case. It does now: a catalog-wide count is a global invariant, so a change to it requires grepping the old value across the whole test tree rather than reasoning about which suite "should" own it. The discipline this plan shipped is what failed here, so the discipline was the thing to repair.
 
-### WN-1 - OPEN (carried, environmental): re-confirmed during v3.17.5 Phase 2
+### WN-1 - OPEN (carried, environmental): re-confirmed during v3.17.5 Phase 2 - RESOLVED 2026-09-29
 
 - `tests/installer/test_bootstrap.py::test_ps_standalone_extracts_and_hands_off` failed again in the Windows Git-Bash development environment on the same `/usr/bin/tar: unexpected end of file` quirk. Phase 2 touched no installer or bootstrap file, so this is the carried v3.15.0 item, not a regression. CI remains authoritative and passes.
 
@@ -527,7 +531,7 @@ v3.17.6 shipped on 2026-08-21 (tag `v3.17.6`, commit `1e154769`). This pass walk
 - **Compatibility window**: the helper remained available through v3.17.3 so delayed upgrades from v3.17.0 and v3.17.1 retained their recovery path.
 - **Resolution**: v3.17.4 removes the helper, SessionStart registration, installer wiring, and migration-specific tests. The hook count returns from 32 to 31, while the v3.17.2 record remains the historical description of the completed migration.
 
-### WN-5 - OPEN advisory: per-model prompting profiles lag the current model roster
+### WN-5 - OPEN advisory: per-model prompting profiles lag the current model roster - CLOSED 2026-09-29
 
 - **Target files**: `catalog/skills/ai-development/model-prompting-research/` and its recorded profile roster
 - **Source phase**: v3.17.2 release preparation model-prompting freshness advisory
@@ -552,7 +556,7 @@ v3.17.6 shipped on 2026-08-21 (tag `v3.17.6`, commit `1e154769`). This pass walk
 
 **Status**: Phase 6 finalized (2026-08-15). 12 open (NI-1, NI-2, NI-3, DF-1, DF-2, DF-3, DF-4, DF-5, WN-1, WN-2, WN-4, MT-1) and 8 closed (BG-1, BG-2, BG-3, BG-4, BG-5, BG-6, BG-7, WN-3), 0 release blockers. The full local repository suite exceeded the bounded 15-minute Windows run; focused suites and hard validators are green, and protected-branch remote CI passed on the integrated `develop` tree. Plan: [plans/v3.17.0-agent-autonomy-toggle.md](plans/v3.17.0-agent-autonomy-toggle.md).
 
-### NI-1 - OPEN: output redirection under an explicit allow rule is UNVERIFIED
+### NI-1 - OPEN: output redirection under an explicit allow rule is UNVERIFIED - MIGRATED to v4.13 (AR-16)
 
 - **Target file**: [development/permission-matcher-findings.md](development/permission-matcher-findings.md) (Finding 2), `scripts/validate_permission_baseline.py` (the `redirect` rule)
 - **Source phase**: v3.17.0 Phase 1, sub-task 1.1
@@ -561,7 +565,7 @@ v3.17.6 shipped on 2026-08-21 (tag `v3.17.6`, commit `1e154769`). This pass walk
 - **Why it is load-bearing**: `> file` truncates its target regardless of what the command emits (`Write-Host x > f` writes nothing to the file and still truncates it). If the native matcher admits redirects under allow rules, then EVERY baseline pattern carrying a trailing wildcard is a file-destruction primitive, and no per-entry rescoping repairs that. This is a global property of the matcher, not a defect of any individual entry, which is why Phase 1.1 did not attempt to fix it per-entry.
 - **Suggested next step**: run the empirical probe named in Finding 2 against a throwaway project and a current Claude Code build: add one `Bash(echo *)` allow rule and observe whether `echo x > /tmp/probe` prompts. Phase 4 verified hook independence but did not execute this separate native-matcher probe, so the evidence remains UNVERIFIED.
 
-### NI-2 - OPEN: whether Gemini's matcher splits compound commands at all
+### NI-2 - OPEN: whether Gemini's matcher splits compound commands at all - MIGRATED to v4.13 (AR-16)
 
 - **Target file**: `configs/permissions/gemini-permissions.json`, [development/permission-matcher-findings.md](development/permission-matcher-findings.md) (Finding 1)
 - **Source phase**: v3.17.0 Phase 1, sub-task 1.1
@@ -569,7 +573,7 @@ v3.17.6 shipped on 2026-08-21 (tag `v3.17.6`, commit `1e154769`). This pass walk
 - **Why it matters**: under prefix semantics with no splitting, `run_shell_command(git status)` would admit `git status; rm -rf .`. The validator's conservative mode does not make that safe; it only stops Nexus-Hub from shipping patterns that depend on splitting.
 - **Suggested next step**: run a dedicated Gemini CLI matcher probe and record a MATCH, DRIFT, or UNVERIFIED verdict beside the permission findings. Phase 2 verified autonomy levers, not compound-command matcher semantics. If splitting is absent, harden the Gemini baseline under prefix-without-splitting assumptions before expanding its Windows-shell coverage.
 
-### NI-3 - OPEN by design: eight integrations have no autonomy descriptor
+### NI-3 - OPEN by design: eight integrations have no autonomy descriptor - CLOSED earlier in this file
 
 - **Target files**: `docs/policy/platform-read-contracts.json`, `docs/policy/platform-read-contracts.md`, `scripts/lib/integrations/`
 - **Source phase**: v3.17.0 Phase 2, sub-tasks 2.2 and 2.4
@@ -577,7 +581,7 @@ v3.17.6 shipped on 2026-08-21 (tag `v3.17.6`, commit `1e154769`). This pass walk
 - **Why it remains open**: absence is the safe behavior. The descriptor accessor returns none and the UI or CLI reports the unsupported platform rather than approximating a broader or incomplete authority state.
 - **Suggested next step**: re-run `platform-contract-verification` when a vendor publishes a new persistent autonomy contract. Add a descriptor only after its verdict becomes MATCH and its scope fits the workspace-bound product rule.
 
-### DF-1 - OPEN: `gemini-permissions.json` ships no PowerShell or `cmd.exe` read-only set
+### DF-1 - OPEN: `gemini-permissions.json` ships no PowerShell or `cmd.exe` read-only set - MIGRATED to v4.13 (AR-16)
 
 - **Target file**: `configs/permissions/gemini-permissions.json`, `docs/permissions-research.md`
 - **Source phase**: v3.17.0 Phase 1, sub-task 1.1 (observation only, by instruction)
@@ -585,28 +589,28 @@ v3.17.6 shipped on 2026-08-21 (tag `v3.17.6`, commit `1e154769`). This pass walk
 - **Reason it is open**: a Windows Gemini user receives a POSIX-shaped allowlist plus a bare `run_shell_command(dir)`, so their real shell is effectively uncovered. Expanding coverage is a different risk decision from rescoping and belongs with the platform-coverage work.
 - **Suggested next step**: `docs/permissions-research.md` now documents the gap. Resolve NI-2 before designing a PowerShell or general `cmd.exe` baseline, because the safe pattern shape depends on whether the matcher splits compound commands.
 
-### DF-2 - OPEN: three of four platforms have no project-scoped permission target
+### DF-2 - OPEN: three of four platforms have no project-scoped permission target - MIGRATED to v4.13 (AR-17)
 
 - **Target file**: `scripts/installer.sh` and `scripts/installer.ps1` (`install_permissions` / `Install-Permissions`, workspace branch)
 - **Source phase**: v3.17.0 Phase 1, sub-task 1.2
 - **Reason it is open**: workspace scope is now wired and load-bearing, but only Claude Code has a confirmed target (`.claude/settings.local.json`). The other three skip WITH A NOTE, each for a stated reason: **Gemini** and **Codex** have no project-scoped permission path documented well enough to write, and a guessed path is worse than none because it reads as configured; **Copilot**'s only surface is `.vscode/settings.json`, which is commit-visible and therefore forbidden here without an explicit maintainer decision (the same reasoning that made the v3.11.0 Copilot `.github/skills/` surface opt-in).
 - **Suggested next step**: run a permission-path-specific contract sweep for Gemini and Codex; the Phase 2 autonomy sweep answered a different question. The Copilot half needs a maintainer decision about writing to a commit-visible file, not more research.
 
-### DF-3 - OPEN: `Install-Nexus-Hub-Permissions.ps1` still has no cross-platform equivalent
+### DF-3 - OPEN: `Install-Nexus-Hub-Permissions.ps1` still has no cross-platform equivalent - MIGRATED to v4.13 (AR-17)
 
 - **Target file**: `scripts/Install-Nexus-Hub-Permissions.ps1`, `scripts/nexus_hub_cli.py`
 - **Source phase**: v3.17.0 Phase 1, sub-task 1.2 (deferred by that sub-task's own instruction)
 - **Reason it is open**: that helper provides install, uninstall, and backup-repair paths for all four platforms and has no bash sibling, so POSIX users have no equivalent repair route. Sub-task 1.2 forbids porting it to bash, and correctly: a second shell script would recreate exactly the dual-implementation drift this phase removed.
 - **Suggested next step**: expose install / uninstall / repair through the cross-platform `nexus-hub` CLI, whose `scripts/nexus_hub_cli.py` now includes the Phase 5 `autonomy` subcommand. One implementation, three operating systems. Phase 5 shipped autonomy only, so this separate lifecycle gap carries forward.
 
-### DF-4 - OPEN (carried from v3.15.2): Hermes is registered but not installer-wired
+### DF-4 - OPEN (carried from v3.15.2): Hermes is registered but not installer-wired - MIGRATED to v4.13 (AR-05)
 
 - **Target files**: `scripts/lib/integrations/hermes.py`, `scripts/installer.sh`, `scripts/installer.ps1`
 - **Source phase**: v3.15.2 DF-2, rechecked in v3.17.0 Phases 2 and 6
 - **Reason it is open**: Hermes exists in the 16-platform integration registry but is absent from both installers' 14-platform delivery roster. Hermes is currently UNVERIFIED for autonomy, so the omission does not suppress a descriptor in this release; it would become user-visible immediately if its contract later verifies.
 - **Suggested next step**: add Hermes to both installer manifests and real-installer smoke coverage in the same change that makes any Hermes integration artifact user-facing. Do not add one installer arm without the other.
 
-### DF-5 - OPEN by design: the read-only baseline covers only four of 16 integrations
+### DF-5 - OPEN by design: the read-only baseline covers only four of 16 integrations - MIGRATED to v4.13 (AR-17)
 
 - **Target files**: `configs/permissions/`, `scripts/installer.sh`, `scripts/installer.ps1`, `docs/permissions-research.md`
 - **Source phase**: v3.17.0 Phase 6 reconciliation of the Phase 1 and Phase 2 coverage boundaries
@@ -614,14 +618,14 @@ v3.17.6 shipped on 2026-08-21 (tag `v3.17.6`, commit `1e154769`). This pass walk
 - **Why it remains open**: autonomy coverage and read-only allowlist coverage are independent. This release widened the former and deliberately did not invent permission matchers for platforms whose safe read-only contracts were not researched.
 - **Suggested next step**: handle one platform at a time through a permission-contract research and validator cycle. Do not infer baseline safety from the existence of an autonomy descriptor.
 
-### WN-1 - OPEN (carried, environmental): `test_bootstrap.py` PowerShell hand-off failure
+### WN-1 - OPEN (carried, environmental): `test_bootstrap.py` PowerShell hand-off failure - RESOLVED 2026-09-29
 
 - **Target file**: `tests/installer/test_bootstrap.py::test_ps_standalone_extracts_and_hands_off`
 - **Source phase**: v3.17.0 Phase 1, sub-task 1.4 (confirmed pre-existing, not caused here)
 - **Reason it is open**: this fails in the Windows Git-Bash development environment on an environmental `tar` quirk. It is the v3.15.0 WN-1 item, which the v3.17.0 plan's dependency section predicted would recur during installer work. CI is authoritative for this test and passes.
 - **Suggested next step**: none in this cycle. Do not treat a local failure of this one test as a regression from Phase 1; the phase touched neither the bootstrap scripts nor the tarball path.
 
-### WN-2 - OPEN (pre-existing tooling debt): integration framework has no clean repository-wide Ruff baseline
+### WN-2 - OPEN (pre-existing tooling debt): integration framework has no clean repository-wide Ruff baseline - MIGRATED to v4.13 (AR-34)
 
 - **Target file**: `scripts/lib/integrations/`
 - **Source phase**: v3.17.0 Phase 2, sub-task 2.4 (lint verification)
@@ -635,7 +639,7 @@ v3.17.6 shipped on 2026-08-21 (tag `v3.17.6`, commit `1e154769`). This pass walk
 - **Plan reference**: 5.4 requires both extension suites and coverage gates to run cleanly.
 - **Resolution**: both configs were renamed from `.ts` to `.mts`, matching the warning-free convention already used by the GitHub and Cursor monitors. Claude passed 11 tests and Codex passed 81 tests under Vitest 4.1.10 with no native-loader warning.
 
-### WN-4 - OPEN (bounded verification): hook independence is verified only for Claude Code 2.1.156
+### WN-4 - OPEN (bounded verification): hook independence is verified only for Claude Code 2.1.156 - CLOSED earlier in this file
 
 - **Target files**: `docs/policy/platform-read-contracts.md`, `docs/archive/v3/v3.17/development/history/2026-08-14_agent-autonomy-toggle-phase-4-deny-layer-and-hook-independence.md`
 - **Source phase**: v3.17.0 Phase 4, sub-task 4.1
@@ -643,7 +647,7 @@ v3.17.6 shipped on 2026-08-21 (tag `v3.17.6`, commit `1e154769`). This pass walk
 - **Why it remains open**: the result is a versioned empirical contract, not a vendor guarantee that all future permission or hook architectures preserve the same ordering.
 - **Suggested next step**: repeat the six-case probe during `platform-contract-verification` after a material Claude permission or hook architecture change. Do not generalize this evidence to other platforms.
 
-### MT-1 - OPEN (pre-existing coverage debt): Claude Usage Monitor lacks an extension-wide coverage baseline
+### MT-1 - OPEN (pre-existing coverage debt): Claude Usage Monitor lacks an extension-wide coverage baseline - MIGRATED to v4.13 (AR-32)
 
 - **Target file**: `extensions/claude-usage-monitor/src/`, `extensions/claude-usage-monitor/vitest.config.ts`
 - **Source phase**: v3.17.0 Phase 5, sub-tasks 5.2 and 5.4
@@ -751,21 +755,21 @@ v3.17.6 shipped on 2026-08-21 (tag `v3.17.6`, commit `1e154769`). This pass walk
 
 ### Open Items
 
-### NI-4 - Copilot organization precedence remains advisory
+### NI-4 - Copilot organization precedence remains advisory - CLOSED 2026-09-29
 
 - **Source phase**: v3.17.4 Phase 6, sub-task 6.2
 - **Plan reference**: `docs/v3/v3.17/plans/v3.17.4-org-knowledge-layer.md` (sub-task 6.2)
 - **Reason**: GitHub documents personal and repository custom instructions as higher-priority context than organization instructions. Nexus-Hub can project portable guidance into Copilot's local instruction surface, but it cannot make that local block non-overridable or describe it as vendor-enforced policy.
 - **Suggested next step**: Keep `nexus-hub org status` advisory for Copilot. Organizations needing stronger control should configure GitHub's documented Business or Enterprise administrative surface and reinforce blocking requirements through permissions, hooks, or CI.
 
-### DF-7 - Catalog-content suppression is outside the organization-layer contract
+### DF-7 - Catalog-content suppression is outside the organization-layer contract - CLOSED 2026-09-29
 
 - **Source phase**: v3.17.4 Phase 6, sub-task 6.2
 - **Plan reference**: `docs/v3/v3.17/plans/v3.17.4-org-knowledge-layer.md` (sub-task 6.2)
 - **Reason**: The confirmed design makes organization guidance additive and higher-priority; it does not let a bundle remove or suppress generic Nexus-Hub catalog content. Adding negative-selection semantics would change bundle validation, materialization, conflict handling, and cross-platform guarantees beyond this release's approved scope.
 - **Suggested next step**: If a real organization requires suppression, define a separate opt-in filtering contract with explicit ownership, conflict, audit, and uninstall semantics before adding it to a future plan.
 
-### DF-8 - Platform-native enforcement generation remains administrator-owned
+### DF-8 - Platform-native enforcement generation remains administrator-owned - CLOSED 2026-09-29
 
 - **Source phase**: v3.17.4 Phase 6, sub-task 6.2
 - **Plan reference**: `docs/v3/v3.17/plans/v3.17.4-org-knowledge-layer.md` (sub-task 6.2)
@@ -851,3 +855,32 @@ Two are **environmental or pre-existing tooling debt**:
 | WN-2 / WN-4 / MT-1 - Ruff baseline, bounded hook verification, monitor coverage baseline | Pre-existing debt predating this plan, each needing its own measurement cycle |
 
 **Why the fourteen were not closed with something.** Writing a plausible answer where evidence is missing is precisely the failure this repository has already paid for: the fabricated `.kimi/agent.yaml` shipped and had to be withdrawn in v3.15.0, and that incident is frozen as a rejected-decision record. A gap honestly marked open is a smaller cost than a gap closed with an invention.
+
+## Archive reconciliation - 2026-09-29
+
+Before this minor moved to `docs/archives/`, every item that this file did not already record as resolved, closed, accepted, or declined was audited against the current tree. Each row below gives the one disposition applied, and the item's own line carries the same marker. Migrated items are tracked in `docs/releases/v4/v4.13/known-gaps.md`, section "Migrated from archived minors (v3.x, v4.0-v4.11) - 2026-09-29".
+
+| Item | Disposition | Evidence, reason, or destination |
+|---|---|---|
+| MT-2 (line 76) | Migrated | AR-33: no Python coverage instrumentation for the subprocess-driven validator tests (no coverage configuration in the repository) |
+| carry-forward (line 313) | Closed | Superseded: v3.17.7 was never cut, and `docs/policy/platform-read-contracts.json` records a full pass for v4.13.x |
+| MT-6 (line 411) | Resolved | Since v3.20.3 `codex_invocation_policy` writes the `agents/openai.yaml` sidecar for command-derived skills (`tests/integrations/test_codex_invocation_policy.py::test_dry_run_plans_command_sidecars_from_source_when_dest_is_empty`) |
+| DF-2 (line 419) | Closed | Not applicable: CI runs through `scripts/ci/run.py` profiles and no slow-validation problem is recorded; reopen as a new request if one appears |
+| NI-1 (line 433) | Closed | Design boundary, not a defect: `docs/solutions/` is created on demand |
+| WN-1 (line 445) | Resolved | `install.ps1` `Resolve-TarExe` now prefers the Windows `System32\tar.exe` (commits `69924673`, `43bae404`); the v3.18 ledger records WN-1 RESOLVED with `test_bootstrap.py` passing 5 of 5 |
+| WN-5 (line 530) | Closed | Superseded: `model-prompting-research/assets/profiles-index.json` was re-verified 2026-09-08; remaining roster freshness is v4.9 MT-1 in the v4.13 inventory |
+| NI-1 (line 555) | Migrated | AR-16: permission-matcher probes (output redirection under an allow rule, Gemini compound-command splitting, Gemini PowerShell / `cmd.exe` read-only set); `development/permission-matcher-findings.md` still says UNVERIFIED |
+| NI-2 (line 564) | Migrated | AR-16: permission-matcher probes (output redirection under an allow rule, Gemini compound-command splitting, Gemini PowerShell / `cmd.exe` read-only set); `development/permission-matcher-findings.md` still says UNVERIFIED |
+| NI-3 (line 572) | Closed earlier (stale marker) | Retired in the v3.17.2 section (autonomy descriptors removed) |
+| DF-1 (line 580) | Migrated | AR-16: permission-matcher probes (output redirection under an allow rule, Gemini compound-command splitting, Gemini PowerShell / `cmd.exe` read-only set); `development/permission-matcher-findings.md` still says UNVERIFIED |
+| DF-2 (line 588) | Migrated | AR-17: permission distribution coverage (project-scoped targets for Gemini / Codex / Copilot, a cross-platform `nexus-hub` permissions command, baseline for 4 of 16 integrations) |
+| DF-3 (line 595) | Migrated | AR-17: permission distribution coverage (project-scoped targets for Gemini / Codex / Copilot, a cross-platform `nexus-hub` permissions command, baseline for 4 of 16 integrations) |
+| DF-4 (line 602) | Migrated | AR-05: Hermes is registered (`scripts/lib/integrations/__init__.py`) but neither installer wires it; merged with v3.15.2 DF-2 and v3.16.0 NI-6 |
+| DF-5 (line 609) | Migrated | AR-17: permission distribution coverage (project-scoped targets for Gemini / Codex / Copilot, a cross-platform `nexus-hub` permissions command, baseline for 4 of 16 integrations) |
+| WN-1 (line 617) | Resolved | `install.ps1` `Resolve-TarExe` now prefers the Windows `System32\tar.exe` (commits `69924673`, `43bae404`); the v3.18 ledger records WN-1 RESOLVED with `test_bootstrap.py` passing 5 of 5 |
+| WN-2 (line 624) | Migrated | AR-34: no repository-wide Ruff baseline; `ruff check` still reports findings |
+| WN-4 (line 638) | Closed earlier (stale marker) | Retired in the v3.17.2 section (historical evidence only) |
+| MT-1 (line 646) | Migrated | AR-32: usage-monitor extension test coverage (Claude `recommendations.ts`, `warningView`, `extension.ts`; no coverage threshold in `claude-usage-monitor`) and live render check; merged with v3.14.0, v3.14.4, v3.14.5 MT-1 and v3.17.0 MT-1 |
+| NI-4 (line 754) | Closed | By design and documented: `guides/ORG_KNOWLEDGE_LAYER.md` states that no precedence row is enforced; the limit is vendor-side |
+| DF-7 (line 761) | Closed | Not applicable: the organization layer is additive by contract (`guides/ORG_KNOWLEDGE_LAYER.md`); reopen if an organization requests suppression |
+| DF-8 (line 768) | Closed | By design and documented in the Enforcement Escalation section of `guides/ORG_KNOWLEDGE_LAYER.md` |

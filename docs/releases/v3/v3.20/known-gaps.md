@@ -1,7 +1,11 @@
 # Known Gaps - v3.20
 
 **Project**: Nexus-Hub
-**Status**: finalized
+**Status**: finalized; archived 2026-09-29; 0 open items (4 migrated to v4.13 as AR-07, AR-09, AR-38, AR-39). Per-section status lines below are historical and were written before release.
+
+**Open items**: 0
+
+**Status at last pre-archive update**: finalized
 **Last updated**: 2026-09-28
 
 ## v3.20.3
@@ -27,14 +31,14 @@ None.
 
 #### Deferred
 
-##### DF-1 - No native invocation mapping for platforms with no vendor lever
+##### DF-1 - No native invocation mapping for platforms with no vendor lever - MIGRATED to v4.13 (AR-38)
 
 - **Source phase**: Phase 4 - Invocation-policy metadata
 - **Plan reference**: `docs/v3/v3.20/plans/v3.20.3-skills-craft-and-prime-agent.md` (sub-task 4.1)
 - **Reason**: Antigravity, OpenCode, Kimi, Hermes, and Nexus-AI document no per-skill invocation-policy field. Generated command-skills still carry `disable-model-invocation: true` in SKILL.md; those hosts ignore the unknown key. Inventing a sidecar would repeat the v3.15.0 fabricated-companion failure.
 - **Suggested next step**: Revisit when a first-party vendor document names a lever. Until then keep the honest gap note in `docs/policy/skill-invocation-policy-levers.md`.
 
-##### DF-2 - Official Claude plugin directory listing not submitted
+##### DF-2 - Official Claude plugin directory listing not submitted - MIGRATED to v4.13 (AR-39)
 
 - **Source phase**: Phase 5 - Official Claude plugin marketplace listing
 - **Plan reference**: `docs/v3/v3.20/plans/v3.20.3-skills-craft-and-prime-agent.md` (sub-task 5.1)
@@ -96,7 +100,7 @@ None open.
 
 #### Warnings
 
-##### WN-3 - Full-tree `validate_no_personal_paths.py` is too slow to finish in the implement loop on OneDrive
+##### WN-3 - Full-tree `validate_no_personal_paths.py` is too slow to finish in the implement loop on OneDrive - RESOLVED 2026-09-29
 
 - **Source phase**: Phase 1 - Authoring-standard foundation
 - **Plan reference**: `docs/v3/v3.20/plans/v3.20.2-interface-craft-skills.md` (sub-task 1.4)
@@ -142,35 +146,35 @@ None. None of the 40 planned skills were deferred.
 
 #### Deferred
 
-##### DF-1 - Comparison item X1: outbound enrichment scripts
+##### DF-1 - Comparison item X1: outbound enrichment scripts - CLOSED 2026-09-29
 
 - **Source phase**: Phase 5 - Architecture refactor, known-gaps, CI/CD
 - **Plan reference**: `docs/v3/v3.20/plans/v3.20.1-adoption-cybersecurity-skills.md` (comparison items, Complexity Tracking)
 - **Reason**: The comparison catalog ships hundreds of scripts that call third-party intel APIs. Nexus-Hub's reverse-engineering-first policy forbids new outbound calls, credentials, and runtime dependencies. Phase 4 skills describe how a human or existing local toolchain would do the work; they do not wrap VirusTotal, urlscan, MISP, or similar.
 - **Suggested next step**: Keep refused. A future skill may document how to consume a user-supplied local cache, never a new installer-copied client.
 
-##### DF-2 - Comparison item X2: verbatim comparison-catalog prose
+##### DF-2 - Comparison item X2: verbatim comparison-catalog prose - CLOSED 2026-09-29
 
 - **Source phase**: Phase 5
 - **Plan reference**: same plan, licensing gate 4.0; decision `docs/decisions/implemented/policy/2026-08-23-security-content-independent-authorship.md`
 - **Reason**: Source is Apache-2.0; Nexus-Hub is MIT. Copying or close-paraphrasing SKILL.md bodies would mix licenses in the distributed catalog.
 - **Suggested next step**: Keep refused. New security skills continue to be written from public primary sources.
 
-##### DF-3 - Comparison item X3: vendor-SKU skills
+##### DF-3 - Comparison item X3: vendor-SKU skills - CLOSED 2026-09-29
 
 - **Source phase**: Phase 5
 - **Plan reference**: same plan, Phase 4 consolidation; decision `docs/decisions/implemented/architecture/2026-08-23-vendor-neutral-capability-consolidation.md`
 - **Reason**: One-skill-per-product would explode Tier-1 tokens and duplicate capability. Coverage landed as 40 vendor-neutral jobs (~4.3:1).
 - **Suggested next step**: Keep refused unless a later decision re-opens vendor-named identity.
 
-##### DF-4 - Comparison item X4: `allowed-tools` frontmatter
+##### DF-4 - Comparison item X4: `allowed-tools` frontmatter - CLOSED 2026-09-29
 
 - **Source phase**: Phase 5
 - **Plan reference**: same plan; decision `docs/decisions/rejected/policy/2026-08-23-adopt-allowed-tools-frontmatter.md`
 - **Reason**: No fetched official vendor document names the field. Inventing it would repeat the fabricated companion-file failure withdrawn in v3.15.0.
 - **Suggested next step**: Revisit only after a vendor document with `source_url` and a verified date classifies the lever VERIFIED.
 
-##### DF-5 - Comparison item X5: free-text taxonomy fields
+##### DF-5 - Comparison item X5: free-text taxonomy fields - CLOSED 2026-09-29
 
 - **Source phase**: Phase 5
 - **Plan reference**: same plan, comparison drop list
@@ -183,7 +187,7 @@ None open. The version-directory lexical-sort defect is resolved below.
 
 #### Warnings
 
-##### WN-2 - Sixty-five SKILL.md bodies still exceed the 500-line warning tier
+##### WN-2 - Sixty-five SKILL.md bodies still exceed the 500-line warning tier - MIGRATED to v4.13 (AR-07)
 
 - **Source phase**: Phase 3 - Size-norm remediation; recounted Phase 5
 - **Plan reference**: same plan, Phase 3 (plan cited 107; live count after relocation is 65; none exceed the 800-line hard cap)
@@ -192,7 +196,7 @@ None open. The version-directory lexical-sort defect is resolved below.
 
 #### Missing Tests / Coverage Gaps
 
-##### MT-1 - Most catalog skills still lack `evals/trigger-cases.json`
+##### MT-1 - Most catalog skills still lack `evals/trigger-cases.json` - MIGRATED to v4.13 (AR-09)
 
 - **Source phase**: Phase 4 / Phase 5
 - **Plan reference**: same plan, sub-task 4.3 (evals are optional; missing is WARN, never FAIL)
@@ -262,3 +266,20 @@ None.
 
 - **Source phase**: Phase 3
 - **Resolved**: 2026-08-23. Live catalog was 274 before Phase 1 and 275 after. Plan success metric and registry prompt updated to 275 / 274 -> 275. No product gap.
+
+## Archive reconciliation - 2026-09-29
+
+Before this minor moved to `docs/archives/`, every item that this file did not already record as resolved, closed, accepted, or declined was audited against the current tree. Each row below gives the one disposition applied, and the item's own line carries the same marker. Migrated items are tracked in `docs/releases/v4/v4.13/known-gaps.md`, section "Migrated from archived minors (v3.x, v4.0-v4.11) - 2026-09-29".
+
+| Item | Disposition | Evidence, reason, or destination |
+|---|---|---|
+| DF-1 (line 30) | Migrated | AR-38: no documented invocation-policy lever on Antigravity, OpenCode, Kimi, Hermes, or Nexus-AI (`docs/policy/skill-invocation-policy-levers.md`) |
+| DF-2 (line 37) | Migrated | AR-39: the official Claude plugin directory submission was never made |
+| WN-3 (line 99) | Resolved | `python scripts/validate_no_personal_paths.py` completed in 12.5 s with exit 0 on 2026-09-29, skips `archive/` and `archives/`, and runs in the CI hygiene group |
+| DF-1 (line 145) | Closed | Refused by design under the reverse-engineering-first policy (`docs/policy/mcp-reverse-engineering-matrix.md`) |
+| DF-2 (line 152) | Closed | Decided: `docs/decisions/implemented/policy/2026-08-23-security-content-independent-authorship.md` |
+| DF-3 (line 159) | Closed | Decided: `docs/decisions/implemented/architecture/2026-08-23-vendor-neutral-capability-consolidation.md` |
+| DF-4 (line 166) | Closed | Decided: `docs/decisions/rejected/policy/2026-08-23-adopt-allowed-tools-frontmatter.md` |
+| DF-5 (line 173) | Closed | Marked drop-outright in the v3.20.1 comparison |
+| WN-2 (line 186) | Migrated | AR-07: 68 SKILL.md files exceed 500 lines including frontmatter (2026-09-29 count) |
+| MT-1 (line 195) | Migrated | AR-09: 88 of 338 skills have `evals/trigger-cases.json` (2026-09-29 count) |

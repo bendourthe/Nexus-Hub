@@ -1,7 +1,11 @@
 # Known Gaps - v3.16
 
 **Project**: Nexus-Hub
-**Status**: v3.16.3 `github-usage-monitor-ux` is RELEASED (all six phases; 8 closed, 8 carried, 0 release blockers). v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (all 5 phases complete; reconciled and release-ready, unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
+**Status**: finalized; archived 2026-09-29; 0 open items (14 migrated to v4.13 as AR-02, AR-05, AR-07, AR-10, AR-12, AR-13, AR-14, AR-15, AR-19, AR-30). Per-section status lines below are historical and were written before release.
+
+**Open items**: 0
+
+**Status at last pre-archive update**: v3.16.3 `github-usage-monitor-ux` is RELEASED (all six phases; 8 closed, 8 carried, 0 release blockers). v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (all 5 phases complete; reconciled and release-ready, unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
 **Last updated**: 2026-08-14 (v3.16.8 `adoption-watermark-hygiene` reconciled at its terminal Phase 3: 4 closed, 2 carried, 0 release blockers. The carried pair are WN-1, an accepted CJK ideographic-variation limitation with a named revisit trigger, and BG-1, pre-existing and environmental.) Previously 2026-08-13 (v3.16.7 section opened: Phase 1 shipped in `0dbc170f`, plan reverse-engineered and held OPEN at Phase 3 for incoming live-session lessons; BG-1 the frontmatter-breaking BOM, DF-1 the missing plan artifact and DF-2 the cross-session changelog contamination all closed.)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot, so it began with only the `## Comparison-Sourced Deferrals` section. Each v3.16 version-implementation phase **appends** its own `## v3.16.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` and `TR-#` ids used above.
@@ -14,14 +18,14 @@ Items the v3.15.14 plan deliberately excluded from its own scope, transferred he
 
 **Source**: [docs/releases/v3/v3.15/plans/v3.15.14-spec-driven-development.md](../v3.15/plans/v3.15.14-spec-driven-development.md) sub-task 4.3, reconciled 2026-08-08. The full v3.15.14 open/closed set stays in [docs/releases/v3/v3.15/known-gaps.md](../v3.15/known-gaps.md); only the deliberately out-of-scope remainder lands here.
 
-### TR-1 - OPEN: the `A1` example in `spec-template.md` phrases a Non-Goal as an Assumption
+### TR-1 - OPEN: the `A1` example in `spec-template.md` phrases a Non-Goal as an Assumption - MIGRATED to v4.13 (AR-14)
 
 - **Target file**: `catalog/templates/spec-template.md` (the `A1` bullet under `## Assumptions`)
 - **Reason it is open**: `A1` reads "Authentication uses the existing session-cookie middleware; JWT is out of scope for this feature". The second clause is a Non-Goal under the boundary the new `## Non-Goals` authoring note defines, not an Assumption. The v3.15.14 plan instructed Phase 1.1 to leave `A1`'s text alone and instead document the boundary, which is what shipped: the Non-Goals note now names `A1` explicitly as the illustration of getting it wrong.
 - **Suggested next step**: rewrite `A1` into a clean Assumption (keep the session-cookie default, drop the scope clause) and move the scope clause into the Non-Goals example, which already carries a reason. Roughly a two-line edit. Whichever cycle next touches the spec template should absorb it.
 - **Why it was not done in v3.15.14**: teaching the distinction and then silently fixing the example would have removed the worked illustration the note points at. Fixing it is correct once the note has been read by real authors; doing both in one release removes the evidence.
 
-### TR-2 - OPEN: v3.11.0 spec-kit items S5, S6, and S8 carry no status claim
+### TR-2 - OPEN: v3.11.0 spec-kit items S5, S6, and S8 carry no status claim - MIGRATED to v4.13 (AR-15)
 
 - **Target**: the v3.11.0 spec-kit adoption ledger
 - **Reason it is open**: the v3.15.14 comparison was article-scoped, not a repository-delta pass against `github/spec-kit`, so S5, S6, and S8 were never re-examined. The honest position is that they carry **no status claim** from this cycle rather than an implied "still open" or "now closed".
@@ -47,21 +51,21 @@ Items that a `/compare` pass classified as genuine but too small to justify a re
 
 #### Deferred
 
-##### CD-1 - nested-invocation (re-entrancy) guard for loop-engineering
+##### CD-1 - nested-invocation (re-entrancy) guard for loop-engineering - MIGRATED to v4.13 (AR-12)
 
 - **Source**: no-mistakes delta comparison, candidate M1 (upstream `v1.41.2` #567 "prevent recursive validation runs", plus the `NO_MISTAKES_GATE` environment marker and `nested_gate_context` error observed in the upstream agent skill).
 - **Target**: `catalog/skills/workflow/loop-engineering/SKILL.md`, alongside the existing `iteration_cap`, exit-signal protocol, and stall/fault-detection material.
 - **Reason**: `loop-engineering` bounds a loop's iterations but says nothing about a loop running *inside itself*. Iteration caps apply per level, so they do not bound the recursion: an agent operating inside a bounded loop or verification gate that triggers the same loop again can multiply its own budget without tripping any cap. A catalog-wide search found no re-entrancy or nested-invocation language in any skill body.
 - **Suggested next step**: add a re-entrancy rule stating that an agent must detect it is already inside an instance of this loop or gate (via an environment marker set by the outer invocation) and refuse the inner instance rather than proceeding, reporting the nesting instead. State the cap-does-not-bound-recursion failure mode explicitly. Cross-link `[[ai-billing-safeguards]]` (nesting is a budget-multiplication path) and `[[using-git-worktrees]]` (isolation does not imply non-re-entrancy). **Phrase it as a guard against unintended re-entrancy into the same instance, NOT as a prohibition on depth**: deliberate nesting (a workflow spawning subagents that themselves loop) is legitimate, so cross-link `[[agent-orchestration-primitives]]` so fan-out is not discouraged. Per the reverse-engineering attribution rule, do not name the external project in the skill body; add the provenance row to `docs/policy/mcp-reverse-engineering-matrix.md` if the fold lands. Non-blocking; nothing is broken today.
 
-##### CD-2 - extend egress-redaction beyond the egress boundary
+##### CD-2 - extend egress-redaction beyond the egress boundary - MIGRATED to v4.13 (AR-13)
 
 - **Source**: no-mistakes delta comparison, candidate M2 (upstream `v1.40.3` #469 "redact embedded credentials from stored upstream URLs and error surfaces").
 - **Target**: `catalog/skills/security/egress-redaction/SKILL.md`, whose scope is currently stated as detecting credentials "in a prompt, file, or generated output before it leaves the host" (line 17).
 - **Reason**: the skill is framed on a single boundary, egress. A credential embedded in a persisted remote URL (the `scheme://user:token@host/path` form, routinely written by clone and remote-add flows) or leaked into an error message, stack trace, or log line never crosses an egress boundary, yet still lands in plaintext on local disk. The data class and verdict already exist (Credentials are classified BLOCK at lines 57 and 89); only the boundary list is too narrow.
 - **Suggested next step**: add two boundaries to the same existing policy. First, **local persistence**: redact before writing a credential into stored configuration or state, naming the embedded-credential URL form as the canonical example. Second, **error surfaces**: redact before a credential reaches an error message, stack trace, or log. State why this is a distinct gap (neither is an egress boundary, so an egress-framed skill does not cover them). **Do not add a parallel policy table** duplicating the data classes or the BLOCK verdict, which would create two sources of truth for one classification. Attribution and matrix handling as in CD-1. Non-blocking.
 
-##### CD-3 - repair-loop prompt-size cross-link (optional, lowest priority)
+##### CD-3 - repair-loop prompt-size cross-link (optional, lowest priority) - MIGRATED to v4.13 (AR-12)
 
 - **Source**: no-mistakes delta comparison, candidate M3 (upstream `v1.40.2` #526 "handle oversized Claude repair prompts").
 - **Target**: `catalog/skills/workflow/loop-engineering/SKILL.md`, cross-linking `[[context-compression]]` and `[[prompt-token-optimization]]`.
@@ -90,7 +94,7 @@ Items that a `/compare` pass classified as genuine but too small to justify a re
 
 Gaps recorded during implementation of [plans/v3.16.0-platform-defaults-config.md](plans/v3.16.0-platform-defaults-config.md). Appended at Phase 1 (post-phase step 8.4); later phases append to this same section. Ids use the per-version `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` namespace, distinct from the `CD-#` and `TR-#` ids above.
 
-### DF-1 - OPEN: no per-job CI path filter for the drift check
+### DF-1 - OPEN: no per-job CI path filter for the drift check - CLOSED earlier in this file
 
 - **Source phase**: Phase 1, sub-task 1.5.
 - **Plan reference**: 1.5 asks to "create or update the CI workflow to cover the new script and tests with a path filter scoped to `configs/` plus the script plus its tests".
@@ -105,21 +109,21 @@ Gaps recorded during implementation of [plans/v3.16.0-platform-defaults-config.m
 - **What shipped instead**: absence of the source degrades **silently**; only a source that exists but cannot be parsed prints a one-line note to stderr. The plan's wording treated absence as exceptional, but it is the normal case: the installers read `configs/permissions/` from a checkout and never copy `configs/` into `~/.nexus-hub`, so an unconditional note would print on every `nexus-hub init` for installed users. A second candidate path (`~/.nexus-hub/src/configs/`, which the one-line bootstrap materializes) was added so an installed tree still picks up the live value where one exists.
 - **Status**: confirmed with the maintainer at implementation time and closed as a deliberate, documented deviation. Covered by `test_stub_falls_back_silently_when_the_source_is_absent` and `test_stub_notes_once_when_the_source_is_malformed`.
 
-### NI-1 - OPEN: `configs/` is not distributed, so some installed trees use the fallback
+### NI-1 - OPEN: `configs/` is not distributed, so some installed trees use the fallback - MIGRATED to v4.13 (AR-30)
 
 - **Source phase**: Phase 1, sub-task 1.3.
 - **Reason it is open**: `configs/platform-defaults.json` is a repo-internal source. An installed tree with no bootstrap-materialized checkout under `~/.nexus-hub/src/` finds no candidate and uses the module's hardcoded fallback. The fallback cannot silently rot (the `--check` guard compares it to the declared values), so the values are always correct at ship time; what such a tree loses is the ability to change the default by editing one file locally.
 - **Why it was not done in Phase 1**: the fix is an installer copy step, and modifying the installers is ask-first under AGENTS.md. The plan explicitly scopes the installers as untouched so this release adds no `jq` dependency and stays independent of the v3.17.0 `jq` removal.
 - **Suggested next step**: decide deliberately in a later cycle whether `configs/platform-defaults.json` should become a distributed artifact. If yes, it needs a copy step in BOTH `scripts/installer.sh` and `scripts/installer.ps1` and a row in the AGENTS.md distribution table. If no, record that end users configure via their own `settings.json` and the source is a maintainer surface only.
 
-### BG-1 - OPEN (pre-existing, not introduced here): PowerShell bootstrap tarball test fails locally
+### BG-1 - OPEN (pre-existing, not introduced here): PowerShell bootstrap tarball test fails locally - RESOLVED 2026-09-29
 
 - **Source phase**: Phase 1, sub-task 1.5 (observed, not caused).
 - **Symptom**: `tests/installer/test_bootstrap.py::test_ps_standalone_extracts_and_hands_off` fails with `/usr/bin/tar: unexpected end of file` / `Child returned status 128`. `install.ps1` shells out to `tar`, which on a Windows host with Git Bash ahead of the system `tar` on PATH resolves to the MSYS binary and rejects the fixture archive.
 - **Evidence it is pre-existing**: reproduced identically (3.6s) in a detached `git worktree` at the base `develop` commit with none of this phase's changes present. The full run was 1750 passed / 1 failed / 53 skipped, and this is the one.
 - **Suggested next step**: pin the extraction binary in `install.ps1` (prefer `$env:SystemRoot\System32\tar.exe` on Windows) or skip the test when `tar` resolves to an MSYS path. CI is unaffected because its runners have a consistent `tar`. Fold into whichever cycle next touches the bootstrap.
 
-### WN-1 - OPEN (environmental): stale git worktree admin entries cannot be pruned
+### WN-1 - OPEN (environmental): stale git worktree admin entries cannot be pruned - CLOSED earlier in this file
 
 - **Source phase**: Phase 1, sub-task 1.5 (observed while classifying BG-1).
 - **Symptom**: `git worktree prune` reports `failed to delete '.git/worktrees/<name>': Permission denied` for `v3.15.8-platform-parity` and `v3157-phase1-tests`, left over from earlier cycles on this OneDrive-backed checkout.
@@ -134,21 +138,21 @@ Gaps recorded during implementation of [plans/v3.16.0-platform-defaults-config.m
 - **Why `paths` rather than a negation inside `paths-ignore`**: GitHub Actions supports the `!` negation character in `paths` **only**, never in `paths-ignore`, and the two filters cannot both be set for one event. This was verified against GitHub's own workflow-syntax documentation rather than assumed; the first-drafted fix (adding `- '!docs/policy/**'` to the existing `paths-ignore`) would have been silently invalid.
 - **Scope note**: the hole was pre-existing and affected the read-contract guards too, so the fix benefits more than this plan. Applied here rather than deferred to Phase 5 at the maintainer's direction.
 
-### NI-2 - OPEN: `copilot` has a VERIFIED lever on a surface Nexus-Hub does not integrate
+### NI-2 - OPEN: `copilot` has a VERIFIED lever on a surface Nexus-Hub does not integrate - CLOSED earlier in this file
 
 - **Source phase**: Phase 2, sub-task 2.1.
 - **Finding**: GitHub documents `~/.copilot/settings.json` with a `model` key plus `permissions.disableBypassPermissionsMode`, `sandbox.enabled`, and `sandbox.allowBypass`. That is a genuine, first-party-documented lever, so the row is VERIFIED.
 - **Why it is open**: the lever belongs to the **Copilot CLI**, while Nexus-Hub's `copilot` integration targets Copilot's instruction surface (`.github/copilot-instructions.md` plus VS Code user-profile prompt files). The integration has no `global_dir` and installs nothing into `~/.copilot`. It is recorded with Surface alignment **Mismatch** for exactly this reason.
 - **Suggested next step**: Phase 3 must decide deliberately: either extend the `copilot` integration to write `~/.copilot/settings.json` (a new product surface, which is a scope decision rather than a mechanical one), or record Copilot as declared-but-not-writable with the reason. It must NOT write the file merely because a lever was found.
 
-### NI-3 - OPEN: `gemini` and `gemini-cli` share one home, so `~/.gemini/settings.json` needs a single owner
+### NI-3 - OPEN: `gemini` and `gemini-cli` share one home, so `~/.gemini/settings.json` needs a single owner - CLOSED earlier in this file
 
 - **Source phase**: Phase 2, sub-task 2.1.
 - **Finding**: the registry keeps `gemini` and `gemini-cli` as two integrations, but both resolve to the `~/.gemini` home. Google's configuration reference documents `~/.gemini/settings.json` (`model.name`, `general.defaultApprovalMode`) for the Gemini CLI. `gemini` is classified UNVERIFIED because no official document names a behavioral-default lever for that specific surface, and transferring the CLI's lever by analogy is what the do-not-invent rule forbids.
 - **Why it is open**: a default written to `~/.gemini/settings.json` on behalf of `gemini-cli` is also visible to anything else using that home. If Phase 3 ever declares a lever for `gemini` as well, two integrations would race to own one file.
 - **Suggested next step**: Phase 3 must assign the `~/.gemini/settings.json` write to exactly one platform id and state which. Note that `gemini-cli` is enterprise-only post-2026-06-18 and installs only under `--enterprise`, so the owning id determines whether the default reaches a default install at all.
 
-### NI-4 - OPEN: four platforms are deliberate non-implementations awaiting a Phase 5 disposition
+### NI-4 - OPEN: four platforms are deliberate non-implementations awaiting a Phase 5 disposition - CLOSED earlier in this file
 
 - **Source phase**: Phase 2, sub-tasks 2.1 and 2.2.
 - **The four**: `antigravity` (Antigravity 1.0 documents in-app settings-panel controls only, naming no config file), `gemini` (see NI-3), `nexus-ai` (the repository is private, so no publicly-citable first-party document exists; an authenticated inspection found no user-facing behavioral-default configuration surface), and `windsurf` (mode, model, and approval behavior are in-app or admin-dashboard controls, with no documented disk file).
@@ -180,14 +184,14 @@ Gaps recorded during implementation of [plans/v3.16.0-platform-defaults-config.m
 - **Decision**: the maintainer chose to extend the `copilot` integration to write `~/.copilot/settings.json`, adopting the Copilot CLI as a new product surface rather than recording Copilot as declared-but-not-writable. The defaults entry carries a `notes` field stating plainly that this is a surface expansion, so a future reader does not mistake it for a pre-existing capability.
 - **What is seeded**: `model: "auto"` (the one vendor-documented self-selecting model value in this release), `permissions.disableBypassPermissionsMode: true`, and `sandbox.enabled: true`.
 
-### NI-5 - OPEN: four verified platforms are declared but not writable
+### NI-5 - OPEN: four verified platforms are declared but not writable - CLOSED earlier in this file
 
 - **Source phase**: Phase 3, sub-task 3.2.
 - **The four, each with a distinct reason**: `antigravity2` (the vendor names `toolPermission` and `artifactReviewPolicy` but does NOT enumerate their allowed values, so any seeded value would be invented), `opencode` (model keys are provider-scoped with no documented safe default, and the `permission` key's full schema is not enumerated), `openclaw` (its only documented lever is a provider-scoped model pin), and `aider` (see DF-3).
 - **Why it is open**: each is a declared-for-the-record entry with an empty `settings` object, asserted by `test_not_writable_platforms_declare_no_settings_and_state_a_reason`. These are correct outcomes, not omissions.
 - **Suggested next step**: re-verify at the next lever-contract pass. `antigravity2` in particular becomes seedable the moment Google enumerates the allowed values for its two documented keys.
 
-### NI-6 - OPEN: hermes is seedable but not installed by default
+### NI-6 - OPEN: hermes is seedable but not installed by default - MIGRATED to v4.13 (AR-05)
 
 - **Source phase**: Phase 3, sub-task 3.2.
 - **Finding**: `hermes` is VERIFIED, has Exact surface alignment, and is declared writable, but it appears in neither installer's platform list (`invoke_registry_platform` / `Invoke-RegistryPlatform`). Its seeded default therefore reaches only an explicit `runner.py install --integrations hermes` run.
@@ -275,13 +279,13 @@ Appended by Phase 1 (Evaluation Contract and RAG Metrics) on 2026-08-08. Own `DF
 - **Why it was not fixed in Phase 1**: this plan's Lifecycle Contract reserves pipeline edits for Phase 8 unless a phase's explicit deliverable requires them. Phase 1's deliverables were two documents and a test.
 - **Resolution (Phase 8.3)**: added `- 'docs/v*/*/development/*.md'` to the `paths` filter on BOTH the `push` and `pull_request` events (GitHub Actions configures them independently). The glob is scoped deliberately: a `*` never crosses a `/`, so it matches the contract docs directly under a `development/` directory and NOT `development/history/*.md` one level deeper. Session histories are frozen records no test reads, and re-including them would run the full matrix on every phase write-up for no signal. Verified on both events; `validate_workflow_security.py` still passes. Full reasoning in [v3.16.1-ci-cd-comparison.md](development/v3.16.1-ci-cd-comparison.md).
 
-### WN-1 - OPEN (environmental): no Python linter or ShellCheck on the implementation host
+### WN-1 - OPEN (environmental): no Python linter or ShellCheck on the implementation host - CLOSED 2026-09-29
 
 - **What happened**: `ruff` is not installed on the implementation host, so the Phase 3 lint/format step could not run against the new test module. `make` and `shellcheck` are likewise absent, so `make lint` could not be invoked either.
 - **Impact assessed as low**: `make lint` covers shell scripts only (`scripts/installer.sh`, `install.sh`), and this phase changed no shell file. The one new Python file was hand-checked for style against the neighboring `tests/skills/` modules and is exercised by 74 passing assertions. CI runs the suite on Linux and Windows, so the module is not unlinted in the pipeline sense - only on this machine.
 - **Suggested next step**: none required for correctness. If the repo wants a Python lint gate it does not currently have one in the `Makefile`, which is a separate decision, not a v3.16.1 gap.
 
-### BG-1 - OPEN (pre-existing, inherited): PowerShell bootstrap tarball test fails on this host
+### BG-1 - OPEN (pre-existing, inherited): PowerShell bootstrap tarball test fails on this host - RESOLVED 2026-09-29
 
 - **Failing test**: `tests/installer/test_bootstrap.py::test_ps_standalone_extracts_and_hands_off`, the only failure in a full-suite run of 1818 passed / 20 skipped.
 - **Why it is not this phase's**: the signature is `/usr/bin/tar: Child returned status 128 ... Error is not recoverable`, the MSYS `tar` behavior already recorded as v3.16.0's BG-1 and reproduced there on a clean `develop` worktree with none of that plan's changes present. Phase 1 changed three Markdown documents, one skill body, and one Python test module; it touched no installer, no shell script, and no PowerShell file.
@@ -445,7 +449,7 @@ Two notes on existing entries:
 - **What was wrong**: `Remove-SelectionStage` was written in Phase 6.2 and **never called**. The Bash side cleans its staging tree with `trap cleanup_selection_stage EXIT`; the PowerShell equivalent had no caller, so every focused install left a full copy of the selected skills in `%TEMP%`. Eight leaked stages were found on the development host.
 - **Resolution**: called on the normal completion path. Verified by stage count across a successful focused install (8 -> 8, rc=0, 13 skills).
 
-### NI-6 - OPEN (documented, bounded): one PowerShell early-exit path still leaks a stage
+### NI-6 - OPEN (documented, bounded): one PowerShell early-exit path still leaks a stage - MIGRATED to v4.13 (AR-10)
 
 - **What remains**: an exit taken after `Resolve-Selection` but before completion (observed via the "Workspace path not found" validation) leaves its staging directory behind.
 - **Why it is not fixed**: a `Register-EngineEvent PowerShell.Exiting` handler was written and then deliberately removed. Engine-event actions run in a separate scope where the `$script:`-scoped stage path is not reliably visible, so the cleanup could not be verified to run. An unverifiable cleanup is worse than a documented gap: it reads as covered while doing nothing.
@@ -470,33 +474,33 @@ Two were **pre-existing defects the work exposed**: NI-1 (four bundle references
 
 Appended by Phase 1 (Loop schema: gates, evidence freshness, instance state) on 2026-08-09. Own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` / `MT-#` namespace, separate from v3.16.0's and v3.16.1's.
 
-### MT-1 - OPEN: the three new schema concepts carry no mechanical assertion
+### MT-1 - OPEN: the three new schema concepts carry no mechanical assertion - MIGRATED to v4.13 (AR-12)
 
 - **Target files**: `catalog/skills/workflow/loop-engineering/references/loop-schema.md`, `catalog/skills/workflow/loop-engineering/references/loop-library.md`
 - **What is missing**: `gates`, `evidence_freshness`, and the Instance State section are prose in a Tier-3 reference file. `validate_skills.py` audits bundle references and orphans, not reference-file content, and `run_trigger_evals.py` scores routing rather than schema shape. Nothing fails today if a later edit deletes a Fields-table row, renames a gate type, or lets the worked example drift out of step with the library entry. The drift risk is now concrete rather than hypothetical: the identical `gates` block for `ship-pr-until-green` exists in **two** files, because the schema's worked example and the library entry are the same loop.
 - **Why it was not done in Phase 1**: the phase's Stability Gate is documentation-scoped, and the plan routes all test construction to Phase 5, which is where this cycle's pytest surface is created. Building a one-off test module here would have put a test directory in front of the phase that must name it in `ci.yml` (v3.15.8 QG-2).
 - **Suggested next step**: when Phase 5 adds its test module, add two cheap assertions alongside it - that the four gate types in the Fields table match those in the Human-Judgment Gates table, and that the `ship-pr-until-green` `gates` block is byte-identical in `loop-schema.md` and `loop-library.md`.
 
-### WN-1 - OPEN (environmental, inherited): no `make` on the implementation host
+### WN-1 - OPEN (environmental, inherited): no `make` on the implementation host - CLOSED 2026-09-29
 
 - **What happened**: `make` is absent on this machine, so neither `make validate` nor `make test` could be invoked as targets. Same condition recorded as v3.16.1 WN-1 and carried forward there.
 - **How it was handled rather than skipped**: every command inside both targets was read out of the `Makefile` and run individually. Seven `validate` guards (`validate_skills.py --bundles-only`, `validate_skills.py --quality`, `run_trigger_evals.py --gate`, `validate_no_personal_paths.py`, `validate_unicode_safety.py`, `check_version_sync.py`, `check_base_template_parity.py`) all pass, and all five extension suites plus `tests/` and `catalog/hooks/tests` were run to completion.
 - **Suggested next step**: none for correctness. CI runs the authoritative gate on Linux and Windows.
 
-### BG-1 - OPEN (pre-existing, inherited): PowerShell bootstrap tarball test fails on this host
+### BG-1 - OPEN (pre-existing, inherited): PowerShell bootstrap tarball test fails on this host - RESOLVED 2026-09-29
 
 - **What happened**: `tests/installer/test_bootstrap.py::test_ps_standalone_extracts_and_hands_off` fails with an MSYS `tar` error. It is the single failure in a 2178-test `tests/` run (2157 passed, 20 skipped).
 - **Why it is not this phase's**: Phase 1 changed three Markdown files inside one skill bundle and touched no bootstrap, installer, or shell file. The failure signature is byte-identical to the one recorded under v3.16.0 BG-1 and v3.16.1 BG-1, where it was reproduced on a clean `develop` worktree carrying none of that cycle's changes.
 - **Bound**: affects a Windows host whose PATH resolves `tar` to the Git Bash binary. CI runners are unaffected.
 
-### NI-1 - OPEN (pre-existing, found in Phase 2): `catalog/commands/update.md` references a `nexus-hub doctor` that does not exist
+### NI-1 - OPEN (pre-existing, found in Phase 2): `catalog/commands/update.md` references a `nexus-hub doctor` that does not exist - CLOSED earlier in this file
 
 - **Target file**: `catalog/commands/update.md`, the `config` delegation line and the `config scope` section
 - **What is wrong**: both name `nexus-hub doctor` as an existing delegate ("`config-consistency-checker` / `nexus-hub doctor`"). No `doctor` subcommand exists in either installer today. The command file promises a surface a user cannot invoke.
 - **How it was found**: while adding the Phase 2 capability gate to the same file. It is pre-existing and unrelated to this plan's edits, but it is the identical defect class the gate itself guards against - documentation asserting a capability the user cannot actually operate.
 - **Suggested next step**: Phase 5.1 and 5.2 build exactly this subcommand, which closes the gap by making the reference true. Re-verify at Phase 5 rather than editing the prose now; deleting a reference that Phase 5 is about to make correct would be churn.
 
-### DF-1 - DEFERRED by design: the capability usage gate has no mechanical checker
+### DF-1 - DEFERRED by design: the capability usage gate has no mechanical checker - CLOSED earlier in this file
 
 - **Target**: governance step 6 in `catalog/commands/update.md`
 - **What is deferred**: the gate is currently a human read of the release notes. `scripts/check_release_capability_docs.py`, which asserts the five elements per named surface, is Phase 5.3's deliverable.
@@ -514,7 +518,7 @@ The plan asked whether the gate would have caught anything real. Applied retroac
 
 One fail and one out-of-scope is the outcome that makes the gate worth having: it discriminates rather than firing on every release. Per the plan, neither release's notes were retroactively edited.
 
-### BG-2 - OPEN (pre-existing, found in Phase 3): `secret-scan.sh` fails OPEN on a host without `jq`
+### BG-2 - OPEN (pre-existing, found in Phase 3): `secret-scan.sh` fails OPEN on a host without `jq` - MIGRATED to v4.13 (AR-02)
 
 - **Target file**: `catalog/hooks/secret-scan.sh`
 - **What is wrong**: the hook extracts `file_path` and `content` with `jq`, and when `jq` is absent it takes an explicit `exit 0` path commented "Without jq we cannot reliably extract content; allow the write". It therefore scans nothing and blocks nothing. This was found by verifying the hook rather than reading its matcher: on this host (no `jq`), a payload carrying a well-formed AWS access key ID returned exit 0 with no output.
@@ -528,7 +532,7 @@ One fail and one out-of-scope is the outcome that makes the gate worth having: i
 - **Resolution**: added `- 'docs/incidents/**'` to the `paths` filter on BOTH the `push` and `pull_request` events, with a comment stating the rule the re-inclusion follows: a docs path earns a CI trigger only when a guard actually reads it. The guard that earns it (`scripts/check_incident_notes.py`) was built in the same phase and wired into the `validate` job and `make validate`.
 - **Note on the plan's instruction**: sub-task 3.4 asked for the path filter unconditionally. Adding it without a guard would have run the full matrix on every incident note for zero signal, contradicting the reasoning already written into `ci.yml` for session histories. Building the guard first is what makes the instruction correct rather than costly.
 
-### NI-2 - OPEN (pre-existing, surfaced in Phase 4): two edited skills are over the 500-line body target
+### NI-2 - OPEN (pre-existing, surfaced in Phase 4): two edited skills are over the 500-line body target - MIGRATED to v4.13 (AR-07)
 
 - **Target files**: `catalog/skills/infrastructure/observability-setup/SKILL.md` (763 lines), `catalog/skills/orchestration/multi-agent-coordinator/SKILL.md` (703 lines)
 - **What is wrong, and what is not**: both were already over the 500-line target before this phase (742 and 685), so they are grandfathered under the AGENTS.md rule that the norm is forward-looking. Both remain under the 800-line hard cap. Phase 4.5's instruction to "confirm both edited skills stayed within the 500-line body target" therefore describes a check that could not pass, and the honest report is that the target was already exceeded rather than that the check passed.
@@ -557,7 +561,7 @@ The `nexus-hub doctor` reference in `catalog/commands/update.md` (raised in Phas
 
 `scripts/check_release_capability_docs.py` exists, is wired into `DEV_ONLY_SCRIPTS`, and is now named in `update.md`'s governance step 6 with its real invocation. It ships ADVISORY (exits 0 while reporting) per the comparison's sequencing recommendation; `--strict` is the flip a future promotion turns on.
 
-### NI-3 - OPEN (deliberate bound): `doctor --repair` prints remediation and never executes it
+### NI-3 - OPEN (deliberate bound): `doctor --repair` prints remediation and never executes it - CLOSED 2026-09-29
 
 - **What it does**: `--repair` prints the exact remediation command for each failing platform and states plainly that nothing was changed.
 - **Why it does not execute**: the remediation for most failures is re-running the installer, which writes across every platform surface. A diagnostic that mutates an install is how a preflight becomes the thing that breaks you, and the plan's own constraint is that doctor is read-only by default with any repair stating what it will change first. Printing the command satisfies the intent; executing it would put a write path inside a command users will reach for precisely when their install is already in an unknown state.
@@ -567,7 +571,7 @@ The `nexus-hub doctor` reference in `catalog/commands/update.md` (raised in Phas
 
 Phase 1 recorded WN-1 (no `make`) as environmental and the v3.16.1 ledger carried a broader "no ruff or shellcheck" note. Phase 5 needed ShellCheck for the new Bash code and found it present and working: it flagged SC2088 on the first draft of `doctor_resolve_path`, which was then restructured rather than suppressed. `make` remains absent; `shellcheck` does not. Recording the correction so the next cycle does not skip a lint pass on a stale assumption.
 
-### NI-4 - OPEN (opportunity, found at release governance step 4): GitHub Copilot now documents a user-global skills path
+### NI-4 - OPEN (opportunity, found at release governance step 4): GitHub Copilot now documents a user-global skills path - RESOLVED 2026-09-29
 
 - **What changed on the vendor side**: Copilot's agent-skills documentation now lists **personal** skills at `~/.copilot/skills` or `~/.agents/skills`, and project skills at `.github/skills`, `.claude/skills`, **or** `.agents/skills`. Source: [docs.github.com](https://docs.github.com/en/copilot/concepts/agents/about-agent-skills), fetched 2026-08-09.
 - **Where Nexus-Hub stands**: Copilot is a behavioral-guardrails-only integration plus an OPT-IN `.github/skills/` project wrapper behind `NEXUS_HUB_COPILOT_SKILLS` (off by default because that directory is commit-visible). No user-global Copilot skills surface is written.
@@ -575,7 +579,7 @@ Phase 1 recorded WN-1 (no `make`) as environmental and the v3.16.1 ledger carrie
 - **Why it was not done in this release**: adding a new per-platform delivery surface is a feature with installer, adapter, contract, and test consequences across both installers. Implementing it inside a release commit is exactly the scope creep the Phase 4 scope-fit gate rejects.
 - **Suggested next step**: a dedicated cycle. Measure what `.agents/skills` already surfaces to Copilot first, then decide whether `~/.copilot/skills` needs a separate write or whether the shared path suffices.
 
-### NI-5 - OPEN (low): `~/.codex/skills` is no longer a documented Codex read-path
+### NI-5 - OPEN (low): `~/.codex/skills` is no longer a documented Codex read-path - RESOLVED 2026-09-29
 
 - **What changed**: Codex documents user-scope skill discovery at `$HOME/.agents/skills` only, plus `.agents/skills` scanned from the working directory up to the repo root. `~/.codex/skills` is absent from the current discovery list. Source: [learn.chatgpt.com](https://learn.chatgpt.com/docs/build-skills.md), fetched 2026-08-09.
 - **Impact: none on coverage.** Nexus-Hub writes BOTH paths, and the one Codex reads is populated. The `~/.codex/skills` write is redundant rather than load-bearing, and its `install_verify` surface now asserts a path the vendor does not promise.
@@ -649,7 +653,7 @@ The phase's own residual risk (named in the comparison) is that the incident arc
 
 Appended by Phase 1 (Rename to GitHub Usage Monitor, with settings migration) on 2026-08-09. Own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` / `MT-#` namespace, separate from v3.16.0's, v3.16.1's, and v3.16.2's.
 
-### DF-1 - DEFERRED by design: the old `githubUsage.*` configuration keys are not deleted
+### DF-1 - DEFERRED by design: the old `githubUsage.*` configuration keys are not deleted - CLOSED 2026-09-29
 
 - **Target file**: `extensions/github-usage-monitor/src/migration.ts`
 - **What is deferred**: v3.16.3 copies every user-set `githubUsage.*` value to `githubUsageMonitor.*` and then leaves the old key exactly where it is. The user's `settings.json` therefore carries both namespaces for one release.
@@ -663,26 +667,26 @@ Appended by Phase 1 (Rename to GitHub Usage Monitor, with settings migration) on
 - **How it was closed**: the installers were updated with explicit maintainer approval (AGENTS.md lists installer edits under "Ask first"). The test file was rewritten and renamed to `tests/installer/test_github_monitor_naming.py`, keeping every durable invariant (the extension id never moves, both installers agree, exactly one install invocation, no teardown step) and re-deriving every naming assertion from a single `DISPLAY_NAME` constant, so the next rename is a one-line change rather than a ten-test rewrite. One assertion was added: the installer's status hint must match the label `statusBarManager.ts` actually renders, which is the drift this class of test was closest to missing.
 - **Why it is recorded rather than dropped**: the plan's scope note is used by Phase 6 to bound the refactor sweep. A reader who trusts it would miss both surfaces.
 
-### MT-1 - OPEN (pre-existing): `extension.ts` is the least-covered module, and the migration call site is only covered indirectly
+### MT-1 - OPEN (pre-existing): `extension.ts` is the least-covered module, and the migration call site is only covered indirectly - CLOSED earlier in this file
 
 - **Target file**: `extensions/github-usage-monitor/src/extension.ts` (36.81% statements, 40.38% lines)
 - **What is missing**: `migration.ts` itself is well covered (89.65% statements, 100% functions) by 12 direct unit tests. Its *call site* inside `activate()` is exercised only as a side effect of the three test files that call `activate()`, none of which assert that the migration actually ran before the first configuration read. The ordering is the load-bearing property, and nothing pins it.
 - **Why it was not done in Phase 1**: `extension.ts` was already the module's coverage floor before this phase, and the phase's Stability Gate is scoped to the rename and the migration's own behavior, both of which are covered. The repository thresholds pass with room (81.78% statements against 80, 85.67% lines against 80).
 - **Suggested next step**: Phase 3 adds a first-run connection sequence to `activate()` and will need an activation-ordering test harness anyway. Add one assertion there that a configuration read observed the migrated value, not the default.
 
-### WN-1 - OPEN (environmental, inherited): no `make` on the implementation host
+### WN-1 - OPEN (environmental, inherited): no `make` on the implementation host - CLOSED 2026-09-29
 
 - **What happened**: `make` is absent on this machine, so neither `make validate` nor `make test` could be invoked as targets. Same condition recorded as v3.16.1 WN-1 and v3.16.2 WN-1.
 - **How it was handled rather than skipped**: every command inside both targets was read out of the `Makefile` and run individually. Fifteen `validate` guards pass; ShellCheck is clean on both installers once the Windows working copy is LF-normalized (see BG-2); all five MCP extension suites, `catalog/hooks/tests` (993 passed, 36 skipped), the extension's own Vitest suite (219 passed), and `tests/` were run to completion.
 - **Suggested next step**: none for correctness. CI runs the authoritative gate on Linux and Windows.
 
-### BG-1 - OPEN (pre-existing, inherited): PowerShell bootstrap tarball test fails on this host
+### BG-1 - OPEN (pre-existing, inherited): PowerShell bootstrap tarball test fails on this host - RESOLVED 2026-09-29
 
 - **What happened**: `tests/installer/test_bootstrap.py::test_ps_standalone_extracts_and_hands_off` fails with `/usr/bin/tar: Child returned status 128`. It is the single failure in the `tests/` run.
 - **Why it is not this phase's**: the failure signature is byte-identical to the one recorded under v3.16.0 BG-1, v3.16.1 BG-1, and v3.16.2 BG-1, where it was reproduced on a clean `develop` worktree. This phase's only installer edit is two display strings inside the extension-install block, which the standalone bootstrap path does not reach.
 - **Bound**: affects a Windows host whose PATH resolves `tar` to the Git Bash binary. CI runners are unaffected.
 
-### BG-2 - OPEN (environmental, newly characterized): ShellCheck reports SC1017 on every line of both shell installers on this host
+### BG-2 - OPEN (environmental, newly characterized): ShellCheck reports SC1017 on every line of both shell installers on this host - CLOSED 2026-09-29
 
 - **What happened**: `shellcheck --severity=warning scripts/installer.sh install.sh` emits SC1017 ("Literal carriage return") on essentially every line, producing 41 KB of output that reads as a total lint failure.
 - **What it actually is**: git normalizes these files to LF on commit (`git diff` prints "CRLF will be replaced by LF the next time Git touches it"), so the CRLF exists only in the Windows working copy. Running ShellCheck against `git show HEAD:scripts/installer.sh` produces zero findings, and piping the working copy through `tr -d '\r'` first is clean for both files.
@@ -706,20 +710,20 @@ The phase's own residual risk is that the settings migration is untestable in th
 - **Decision**: ship the historical published values, chosen with the maintainer, because GitHub once stated them outright where a price ratio never was. The card labels the figure a reconstruction rather than presenting it as GitHub's own.
 - **Suggested next step**: re-check the multiplier path at each release (it is on the probe document's re-verification checklist). If GitHub republishes the basis, replace the constants and delete the caveat. An account with private macOS usage below the cap would also settle it.
 
-### NI-3 - OPEN: the two billing endpoints use different SKU vocabularies
+### NI-3 - OPEN: the two billing endpoints use different SKU vocabularies - CLOSED earlier in this file
 
 - **Target file**: `extensions/github-usage-monitor/src/providers/drawdown.ts` (`classifySku`)
 - **What is wrong**: `/settings/billing/usage` returns `Actions Linux`; `/usage/summary` returns `actions_linux`. The classifier handles both only because its patterns are substring-based - a rule written against either vocabulary alone would silently misclassify the other endpoint's items, and a misclassified runner is excluded from the drawdown without a trace.
 - **Suggested next step**: pin both vocabularies in the fixtures (the `Actions *` forms already are; add the `actions_*` forms) and state the hazard in a header comment on the pattern constants.
 
-### MT-2 - OPEN: the self-hosted and larger-runner rules are unvalidated against real strings
+### MT-2 - OPEN: the self-hosted and larger-runner rules are unvalidated against real strings - CLOSED 2026-09-29
 
 - **Target file**: `extensions/github-usage-monitor/src/providers/drawdown.ts`
 - **What is missing**: the measured account emitted only `Actions Linux`, `Actions Windows`, `Actions macOS 3-core`, `Actions storage`, and `Git LFS storage`. No self-hosted or larger-runner SKU appeared, so those exclusion rules are tested against **invented** strings only. Both are load-bearing: a larger-runner SKU wrongly counted inflates the drawdown, and a self-hosted one inflates it further.
 - **Why it was not done in Phase 2**: no account was available that uses either runner class, and inventing a plausible string then asserting against it tests the rule against itself.
 - **Suggested next step**: capture a real SKU inventory from an account using larger or self-hosted runners via `scripts/reconcile-drawdown.js`, which prints the inventory and flags anything unrecognized. Treat both rules as provisional until then.
 
-### NI-4 - OPEN (policy, raised by the maintainer): this extension is held to a stricter rule than its three siblings
+### NI-4 - OPEN (policy, raised by the maintainer): this extension is held to a stricter rule than its three siblings - CLOSED 2026-09-29
 
 - **What surfaced**: the Claude, Codex, and Cursor monitors each read a usage endpoint returning used and limit together (`api.anthropic.com/api/oauth/usage`, `chatgpt.com/backend-api/wham/usage`, `api2.cursor.sh`). Two of those three are **not public APIs**. GitHub has an equivalent internal endpoint - it renders the very bars this phase spent its entire budget reconstructing - and the GitHub monitor is barred from it by its own data contract ("never scrapes GitHub.com, reads browser cookies").
 - **Why it matters**: the honest answer to "why can't the GitHub monitor do what the others do" is not that it cannot, but that a rule written for this one extension forbids it. Phase 2's whole difficulty follows from that asymmetry.
@@ -744,7 +748,7 @@ The phase's own residual risk is that the shipped percentage is a **reconstructi
 - **How it was closed**: Phase 3 needed an activation harness for the first-run sequence, which is exactly what MT-1's suggested next step anticipated. The vscode stub gained an ordered configuration-access log, and `first-run.test.ts` asserts that the migration WRITE precedes the first READ of the same key, then that the read observed the migrated value rather than the default. Asserting the final value alone would have passed even if the read won the race.
 - **Residual**: `extension.ts` remains the module's coverage floor. That is a breadth gap, not the specific ordering gap MT-1 named, and it is not carried forward as MT-1.
 
-### NI-5 - OPEN (small): the first-run sequence resolves an owner before the session exists
+### NI-5 - OPEN (small): the first-run sequence resolves an owner before the session exists - CLOSED earlier in this file
 
 - **Target file**: `extensions/github-usage-monitor/src/extension.ts` (the activation tail)
 - **What is imperfect**: on a truly fresh install there is no session, so `resolveOwnerForFetch` returns null and the sequence falls back to `{ scope: <configured>, name: "pending" }` purely to pick scope candidates. The placeholder name is never used for a billing request - the refresh that follows re-resolves the owner from the now-established session - but a reader could reasonably mistake it for a real owner.
@@ -763,7 +767,7 @@ The phase's own residual risk is the failure mode it exists to prevent: a modal 
 - **How it was closed**: `FirstRunDependencies` now takes `scope: BillingScope`. The sequence constructs the throwaway owner internally with a comment stating that `peekBinding` and `logInToMonitor` read the name from it never - they take an owner only to derive scope candidates. Folded into Phase 4 because that phase was already in `extension.ts`, exactly as the gap's suggested next step proposed.
 - **Caught by the change**: the test fixture kept passing `owner`, and because Vitest transpiles without type-checking, the missing `scope` surfaced as five runtime failures rather than a compile error. Worth remembering: a signature change in this codebase is only type-checked by `npm run compile`, not by the test run.
 
-### NI-6 - OPEN (small): the settings section is read-only
+### NI-6 - OPEN (small): the settings section is read-only - CLOSED earlier in this file
 
 - **Target file**: `extensions/github-usage-monitor/src/settingsPanel.ts` (`settingsSectionHtml`)
 - **What is incomplete**: the section renders every value and every relocated command, but the fields themselves are static text. Changing a threshold still means opening VS Code settings via the "Edit in VS Code settings" button.
@@ -788,7 +792,7 @@ The phase's own residual risk is that the settings section now shares one webvie
 - **How it was found**: a Phase 5 test fixture that deliberately omitted a metric to exercise the unavailable-selection path. It surfaced two crashes neither the fixture nor the phase was aiming at.
 - **Class**: the same one Phase 2 hit with a `NaN` drawdown. **Cached state outlives the version that wrote it**, so every access to a field added after 0.1.0 must tolerate absence. Worth checking the remaining surfaces in Phase 6.
 
-### NI-7 - OPEN (small): the webview write-back has no dirty/save affordance
+### NI-7 - OPEN (small): the webview write-back has no dirty/save affordance - CLOSED 2026-09-29
 
 - **Target file**: `extensions/github-usage-monitor/src/settingsPanel.ts`
 - **What is different from the sibling**: the Claude monitor's inline settings collect a draft and expose Save / Reset buttons; this one writes each field on `change`. Immediate write is simpler and matches the plan's wording ("each writing back through `postMessage`"), but it means there is no undo and no visible confirmation that a change landed.
@@ -863,14 +867,14 @@ It is deliberately **not** decided here. It affects four extensions, it is a que
     - **Guarding**: three standing tests plus a CI step. `test_calibration_fixture_passes_every_structural_criterion` fails on any high-severity regression, `test_calibration_fixture_has_no_stale_palette_literals` pins the superseded pre-v3.16.5 palette out of live markup, `test_calibration_fixture_holds_the_e5_rules` covers the render-surfaced defect classes, and the seven-case mutation suite proves the checks still detect what they claim. The `render` job also scores it directly.
     - **One gap the move itself introduced, and closed**: the workflow path-filtered `tests/skills/**` but not `tests/fixtures/**`, so a fixture-only edit would no longer have triggered the job that scores it - the standing gate would have silently stopped gating the exact file it guards. `tests/fixtures/presentify/**` was added to both filter lists.
 
-### NI-2 - OPEN by design: contract rules 2 and 3 have no deterministic check
+### NI-2 - OPEN by design: contract rules 2 and 3 have no deterministic check - CLOSED earlier in this file
 
 - **Target file**: `catalog/skills/specialized-domains/document-to-interactive-html/scripts/visual_qa_score.py`
 - **Source phase**: v3.16.5 Phase 1, sub-tasks 1.1 and 1.2
 - **Reason it is open**: rule 2 ("wrapping serves the viewport") is a rendered-geometry judgment - whether a paragraph sits beside dead space depends on the resolved track width, the actual `ch` width of the chosen font, and the reflow breakpoint, none of which are knowable from the markup. It is specified as an AGENT-VISION criterion in `references/visual-qa-rubric.md` criterion 6 and graded from a screenshot. Rule 3 ("scale declared once as custom properties") is partially enforced: the scorer now resolves `var()` against declared properties, so a malformed step token IS caught, but nothing asserts that the scale is declared once on `:root` rather than scattered.
 - **Suggested next step**: Phase 3's real render loop closes the rule-2 half by measuring band and text-block boxes from an actual screenshot (this is the same measurement `measure_widest_band` already performs for full-width). The rule-3 half needs no code: a page whose tokens are wrong now fails `font-floor`, so the remaining gap is stylistic rather than a readability defect. Do not add a "declared once" parser check without a defect to point at.
 
-### WN-1 - OPEN: semantic status colors are excluded from the automated contrast set
+### WN-1 - OPEN: semantic status colors are excluded from the automated contrast set - CLOSED earlier in this file
 
 - **Target file**: `catalog/skills/specialized-domains/document-to-interactive-html/scripts/visual_qa_score.py` (`_STATUS_NAME_RE`)
 - **Source phase**: v3.16.5 Phase 1, sub-task 1.2
@@ -891,14 +895,14 @@ It is deliberately **not** decided here. It affects four extensions, it is a que
 - **Why Phase 1 could not have caught it**: the values live in HTML attributes and JavaScript string literals, not in CSS declarations, so the `contrast` check never saw them. Phase 1's gate passed truthfully on what it could observe.
 - **Resolution**: all six accents were replaced with hue-preserving values clearing AA (rose 4.36 -> 6.22, steel 3.20 -> 6.25, green 3.79 -> 6.17, olive 4.03 -> 5.65, terracotta 4.33 -> 5.67), and the canvas label color moved to the corrected `--ink-faint` value. The residual CHECKER gap is tracked separately as WN-2.
 
-### WN-2 - OPEN: the scorer cannot see runtime-injected palette values
+### WN-2 - OPEN: the scorer cannot see runtime-injected palette values - MIGRATED to v4.13 (AR-19)
 
 - **Target file**: `catalog/skills/specialized-domains/document-to-interactive-html/scripts/visual_qa_score.py` (`check_contrast`)
 - **Source phase**: v3.16.5 Phase 2 (the checker gap behind BG-1)
 - **Reason it is open**: `check_contrast` grades declared CSS custom properties. A page that assigns `--accent` from a `data-*` attribute in script, or paints canvas text with a literal, can pass the check and still render sub-AA text - which is exactly what BG-1 was. Statically resolving what a script assigns at runtime is not a job for a markup heuristic.
 - **Suggested next step**: Phase 3 closes this by construction rather than by more parsing. A real screenshot shows the rendered color, so the AGENT-VISION half of rubric criterion 7 grades what the page actually paints. Do NOT attempt to interpret the script statically. A cheap partial guard is possible if it proves useful: collect hex literals from `data-accent`-style attributes and grade them alongside the declared tokens.
 
-### NI-3 - OPEN by design: SVG contract rules 2 and 3 have no deterministic check
+### NI-3 - OPEN by design: SVG contract rules 2 and 3 have no deterministic check - CLOSED earlier in this file
 
 - **Target file**: `catalog/skills/specialized-domains/document-to-interactive-html/references/svg-diagram-quality.md` (rules 2 and 3)
 - **Source phase**: v3.16.5 Phase 2, sub-tasks 2.1 and 2.2
@@ -917,7 +921,7 @@ It is deliberately **not** decided here. It affects four extensions, it is a que
 - **And a horizontal-overflow regression introduced by Phase 2**: at 390px the document scrolled to 512px. Root cause was not the pinned graphic itself but the mobile media queries overriding `grid-template-columns` to `1fr`, dropping the `minmax(0, ...)` the desktop rules use - and `1fr` means `minmax(auto, 1fr)`, whose `auto` minimum is the content's min-content, so a wide `<pre>` stretched the track past the viewport. All five single-column overrides now keep `minmax(0, 1fr)`.
 - **Why this matters more than the individual fixes**: every one of these passed a green structural gate. This is the concrete evidence for the phase's premise, and it is now pinned by a parametrized mutation test that seeds each defect class back into the fixture and asserts detection.
 
-### WN-3 - OPEN: `em`-relative font sizes are render-verified only
+### WN-3 - OPEN: `em`-relative font sizes are render-verified only - CLOSED earlier in this file
 
 - **Target file**: `catalog/skills/specialized-domains/document-to-interactive-html/scripts/visual_qa_score.py` (`check_font_floor`)
 - **Source phase**: v3.16.5 Phase 3, sub-task 3.4
@@ -947,7 +951,7 @@ It is deliberately **not** decided here. It affects four extensions, it is a que
 
 **Nothing deferred.** The E7 2560x1300 capture surfaced no new defects on the canonical fixture: no horizontal overflow, two sticky layers at distinct offsets, every anchor target carrying `scroll-margin-top`, and 0 of 5 `pre` blocks clipping.
 
-### NI-4 - OPEN by design: the intake questions themselves are agent behavior
+### NI-4 - OPEN by design: the intake questions themselves are agent behavior - CLOSED earlier in this file
 
 - **Target files**: `catalog/skills/specialized-domains/document-to-interactive-html/SKILL.md` (Steps 2 and 5), `catalog/commands/presentify.md`
 - **Source phase**: v3.16.5 Phase 4, sub-tasks 4.1 and 4.2
@@ -962,7 +966,7 @@ It is deliberately **not** decided here. It affects four extensions, it is a que
 - **Why it is accepted rather than avoided**: the alternative is a fifth option (`bare`) that exists only to preserve a mode the plan deliberately removed - R8 makes procedural the baseline precisely because a page with no visuals at all is not an outcome worth offering. The change is disclosed in both surfaces with the words "no longer exists", and a test asserts that disclosure so it cannot be quietly dropped later.
 - **Residual risk**: a saved command line still runs and still produces a good page; it just produces a slightly richer one than before. No error, no silent data loss.
 
-### NI-5 - OPEN by design: placement RELEVANCE is a screenshot judgment
+### NI-5 - OPEN by design: placement RELEVANCE is a screenshot judgment - CLOSED earlier in this file
 
 - **Target file**: `catalog/skills/specialized-domains/document-to-interactive-html/references/visual-qa-rubric.md` (criterion 4, the AGENT-VISION half)
 - **Source phase**: v3.16.5 Phase 5, sub-tasks 5.1 and 5.2
@@ -970,7 +974,7 @@ It is deliberately **not** decided here. It affects four extensions, it is a que
 - **What IS deterministic, and why it is enough to close v3.15 MT-2**: the placement RECORD. A consented run must write an `IMAGERY PLACEMENTS` block with one decision per section, and the checker fails a run that embedded assets but left no decision trail, a record claiming more embedded assets than the page contains, or a decline with no reason. That converts "the agent should integrate or explain" from an instruction into a checkable artifact - the thing MT-2 was actually missing. A skip is now distinguishable from a miss.
 - **Suggested next step**: none. Do not attempt image-content analysis; it would need a vision model inside a stdlib-only offline scorer, and the render loop already has vision available at exactly the moment the judgment is needed.
 
-### WN-4 - OPEN: a background scrim below ~75% opacity defeats the static contrast check
+### WN-4 - OPEN: a background scrim below ~75% opacity defeats the static contrast check - CLOSED earlier in this file
 
 - **Target file**: `catalog/skills/specialized-domains/document-to-interactive-html/references/interactive-features.md` (the background overlay recipe)
 - **Source phase**: v3.16.5 Phase 5, sub-task 5.1
@@ -978,7 +982,7 @@ It is deliberately **not** decided here. It affects four extensions, it is a que
 - **Why it is a warning rather than a check**: the scorer cannot tell which `--base`-ish color a given band composites to without rendering, and the threshold is a judgment about how much image show-through is acceptable rather than a boundary with a right answer. The contract states the number and the reason, the rubric assigns the composited-contrast judgment to the AGENT-VISION half, and a rationalization row rebuts "it looks readable to me".
 - **Suggested next step**: if a future page needs a lighter scrim, the contract's answer is to move the text off the image rather than to lower the threshold. A rendered check is possible in principle (sample the composited pixels behind the text box) and would belong in the Phase 3 loop, not the static scorer - only worth building if a real page pushes on it.
 
-### DF-3 - DEFERRED with a reason: the local knockout helper is NOT adopted
+### DF-3 - DEFERRED with a reason: the local knockout helper is NOT adopted - CLOSED earlier in this file
 
 - **Decision required by**: v3.16.5 Phase 6 sub-task 6.3, which explicitly says to decide the optional local knockout helper and, if out of scope, "record an explicit DEFER - no half-wired orphan".
 - **What it would have been**: `scripts/knockout_background.py`, a local PIL flood-fill that makes a still's border-connected background transparent, for diorama-style floating subjects in a cinematic scene. The upstream pack ships an equivalent; it is genuinely local, needs no network, and Pillow is already a lazy-imported dependency elsewhere in this bundle, so the dependency is not the obstacle.
@@ -1053,7 +1057,7 @@ Worth noting from Phase 1: the most valuable defect that phase found was not in 
 
 **Status**: COMPLETE and reconciled (Phase 2 TERMINAL 2026-08-12, plus one release-flow finding). Both phases done and merged to `develop`; 2 carried (NI-1 by design; WN-1 the manifest-generator environment dependence, routed onward), 3 closed (DF-1, QG-1, BG-1), 0 release blockers. Plan: [plans/v3.16.6-presentify-verbosity-intake.md](plans/v3.16.6-presentify-verbosity-intake.md).
 
-### NI-1 - OPEN by design: the verbosity contract is agent behavior with no deterministic check
+### NI-1 - OPEN by design: the verbosity contract is agent behavior with no deterministic check - CLOSED 2026-09-29
 
 - **Target file**: `catalog/skills/specialized-domains/document-to-interactive-html/SKILL.md` (Step 5 round-2 question, Step 6 depth rules) and `references/visual-qa-rubric.md` (criterion 10)
 - **Source phase**: v3.16.6 Phase 1, sub-tasks 1.1-1.3
@@ -1075,7 +1079,7 @@ Worth noting from Phase 1: the most valuable defect that phase found was not in 
 - **Source phase**: v3.16.6 release flow (found when the routine manifest regeneration diffed 520 entries instead of the ~5 the release touched)
 - **What was wrong**: the v3.16.5 release was cut in a Windows worktree where ~520 catalog files materialized with CRLF endings, and `generate_manifest.py` hashes working-tree bytes - so the SHIPPED v3.16.5 manifest recorded CRLF hashes that do not match the LF bytes a GitHub-tarball install materializes. `nexus-hub verify` against a clean v3.16.5 install would have reported ~520 spurious mismatches. Verified precisely: for a spot-checked file the old manifest entry equals the sha256 of the blob's CRLF conversion, and the new entry equals the blob's own sha256.
 - **Resolution (the data half)**: the v3.16.6 manifest is regenerated over LF bytes matching the committed blobs, so `verify` works against tarball installs again.
-- **WN-1 - OPEN (the checker half)**: `generate_manifest.py` remains generation-environment-dependent; cutting a release from a CRLF-materialized tree would reintroduce the defect silently. Suggested next step: newline-normalize text files (or hash committed blob bytes via `git cat-file`) in the generator, plus a one-entry self-check comparing a known file's manifest hash against its blob hash. Route to the next cycle that touches `scripts/`.
+- **WN-1 - OPEN (the checker half)**: `generate_manifest.py` remains generation-environment-dependent; cutting a release from a CRLF-materialized tree would reintroduce the defect silently. Suggested next step: newline-normalize text files (or hash committed blob bytes via `git cat-file`) in the generator, plus a one-entry self-check comparing a known file's manifest hash against its blob hash. Route to the next cycle that touches `scripts/`. - CLOSED earlier in this file
 
 ### QG-1 - CLOSED in Phase 1: the CI path filter missed the command file the tests assert against
 
@@ -1120,14 +1124,14 @@ Worth noting from Phase 1: the most valuable defect that phase found was not in 
 - **Why it was open**: the maintainer was running `/presentify` on another project and expected further first-shot lessons. The plan held Phase 3 open so the whole batch shipped in v3.16.7 rather than half of it, and the intake protocol required each lesson to name an OBSERVED defect, since a guard with no observed defect behind it is declined by the `AGENTS.md` scope-fit rule.
 - **Resolution**: the VectorCAST decision-brief session supplied 26 backlog items (`PRES-01` through `PRES-26`) plus five proposed gates on 2026-08-13. The intake closed, six sub-tasks were specified, and all six were built the same day. Every one traces to a defect observed in that session, so the scope-fit bar held without exception.
 
-### NI-2 - OPEN: Gates A, B, and E are agent behavior with no deterministic checker
+### NI-2 - OPEN: Gates A, B, and E are agent behavior with no deterministic checker - MIGRATED to v4.13 (AR-19)
 
 - **Target file**: `catalog/skills/specialized-domains/document-to-interactive-html/references/visual-qa-rubric.md`, `references/content-intent.md`
 - **Source phase**: v3.16.7 Phase 3 (sub-tasks 3.1, 3.3, 3.6)
 - **Reason it is open**: `scripts/visual_qa_score.py` can check a `content_intent` block's PRESENCE and shape, but not whether a `scope_class` is the right one, whether an assumption was genuinely accepted, or whether a visual explains its section. Those are judgments, and the same reasoning the maintainer applied to rubric criterion 10 in v3.16.5 applies here: a crude deterministic proxy produces false positives and trains the agent to satisfy the proxy. Enforcement is therefore record plus rubric, exactly as criterion 10 is.
 - **Suggested next step**: consider a NARROW structural check for the mechanically-decidable half only, namely the `content_intent` block's presence and field completeness, and the `standalone` banned-phrase scan (a literal string search over visible text, which is decidable). Leave the judgments to the rubric. Do not attempt to score decision coverage.
 
-### NI-3 - OPEN: the composition probes are specified but not implemented in a helper
+### NI-3 - OPEN: the composition probes are specified but not implemented in a helper - MIGRATED to v4.13 (AR-19)
 
 - **Target file**: `catalog/skills/specialized-domains/document-to-interactive-html/SKILL.md` Step 9
 - **Source phase**: v3.16.7 Phase 3 (sub-task 3.5)
@@ -1141,7 +1145,7 @@ Worth noting from Phase 1: the most valuable defect that phase found was not in 
 - **What was wrong**: `ruff check` reported two `PLW1510` findings (`subprocess.run` without an explicit `check=`) on the two `fit_map_projection.py` invocation tests. Verified pre-existing at the Phase 3 gate by stashing and re-running against the Phase 1 baseline, then deliberately left alone: the `AGENTS.md` scope rule declines adjacent cleanup inside a feature phase.
 - **Resolution**: `check=False` added to both calls in Phase 4, where a cleanliness pass is in scope by definition. The module now reports 0 ruff findings, down from 2.
 
-### WN-3 - OPEN (accepted, style-consistency): `generate_manifest.py` uses legacy `typing` generics
+### WN-3 - OPEN (accepted, style-consistency): `generate_manifest.py` uses legacy `typing` generics - CLOSED 2026-09-29
 
 - **Target file**: `scripts/generate_manifest.py`, `tests/validators/test_verify_install.py`
 - **Source phase**: v3.16.7 Phase 4.2
@@ -1249,7 +1253,7 @@ Opened at Phase 1 (validator coverage + fix mode) and extended at Phase 2 (`/pla
 - **Reason**: measured before deciding. VS16 occurs 90 times in the scanned tree and every occurrence follows an emoji base (`U+26A0` warning sign 76, `U+1F5FA` world map 7, `U+2764` heart 7, plus `U+2328` and `U+2139`); VS1-VS15 and the supplement occur zero times. The literal rule would therefore have flagged 90 legitimate characters, caught nothing, broken the phase's own byte-identical-baseline stability gate, and (once Phase 2's release gate landed) silently rewritten emoji in `CHANGELOG.md` and the active docs tree. The user was shown the measurement and chose the exemption.
 - **Suggested next step**: none required. Recorded so a future reader comparing plan text to shipped behavior finds the reason rather than an unexplained gap.
 
-### WN-1 - OPEN (accepted): a CJK ideographic variation sequence would be reported
+### WN-1 - OPEN (accepted): a CJK ideographic variation sequence would be reported - CLOSED 2026-09-29
 
 - **Source phase**: Phase 1, sub-task 1.1.
 - **Symptom**: the emoji-base exemption covers VS16 only, so VS1-VS3 following a CJK ideograph (a legitimate ideographic variation sequence) would be reported.
@@ -1263,7 +1267,7 @@ Opened at Phase 1 (validator coverage + fix mode) and extended at Phase 2 (`/pla
 - **Mitigating coverage**: CI runs `python -m pytest tests/validators -v` on its Linux runner, where the test executes.
 - **Reconciliation verdict (Phase 3)**: CLOSED. The CI leg was verified rather than assumed: `.github/workflows/ci.yml` line 497 runs `python -m pytest tests/validators -v` on the Linux runner, and line 576 runs `tests/installer tests/validators -q` on the Windows one, so the suite executes on both platforms and the mode assertion executes where file modes exist. The local skip is correct behavior, not a coverage gap.
 
-### BG-1 - OPEN (pre-existing, not introduced here): PowerShell bootstrap tarball test
+### BG-1 - OPEN (pre-existing, not introduced here): PowerShell bootstrap tarball test - RESOLVED 2026-09-29
 
 - **Source phase**: observed during Phase 1 sub-task 1.4's full-suite run, not caused by it.
 - **Symptom**: `tests/installer/test_bootstrap.py::test_ps_standalone_extracts_and_hands_off` fails with `/usr/bin/tar: Unexpected end of file` / `Child returned status 128`.
@@ -1321,3 +1325,64 @@ The single "removed" entry deserves a caveat rather than action: `claude-haiku-4
 | v3.16.7 version-implementation gaps (all 4 phases, reconciled) | 3 (NI-2 Gates A/B/E are agent behavior by the same reasoning as criterion 10; NI-3 composition probes specified inline like the existing probes, no bundled helper yet; WN-3 legacy `typing` generics kept for module consistency, advisory only since ruff is not a CI gate) | 6 closed (BG-1 the frontmatter-breaking BOM; DF-1 the missing plan artifact; DF-2 the cross-session changelog contamination; NI-1 the open intake, closed by the VectorCAST lessons; **WN-1 the manifest generator, carried since v3.16.5 and root-caused here by hashing git blob bytes**; WN-2 the two ruff findings) |
 
 The three comparison-sourced items remain non-blocking prose folds with named target files. Of the v3.16.0 items, BG-1 is pre-existing and reproduces without this plan's changes, WN-1 is environmental, DF-1 is a reasoned non-implementation, NI-1 is a deliberate scope boundary the plan requires, and NI-2 / NI-3 / NI-4 are Phase 2 findings that Phase 3 and Phase 5 are already scheduled to dispose of. Phase 5 dispositioned every open item: 13 closed, 3 carried forward. **None gates the v3.16.0 release.** NI-1 and NI-6 are scope decisions for cycles already touching the relevant surfaces, and BG-1 is pre-existing, reproduced on a clean `develop` worktree, and confined to a Windows host whose PATH resolves `tar` to the Git Bash binary. Of the 13 closed, three (BG-2, BG-3, and QG-3) were caught by the test suite rather than by review, which is this cycle's strongest argument for running the full suite before declaring a phase done.
+
+## Archive reconciliation - 2026-09-29
+
+Before this minor moved to `docs/archives/`, every item that this file did not already record as resolved, closed, accepted, or declined was audited against the current tree. Each row below gives the one disposition applied, and the item's own line carries the same marker. Migrated items are tracked in `docs/releases/v4/v4.13/known-gaps.md`, section "Migrated from archived minors (v3.x, v4.0-v4.11) - 2026-09-29". v3.16.4 is tagged but has no plan or section. In the v3.16.1 plan, task T059's `v3.16.1-final-audit.md` was never created; the v3.16.1 final disposition section and tag `v3.16.1` are the release record instead.
+
+| Item | Disposition | Evidence, reason, or destination |
+|---|---|---|
+| TR-1 (line 17) | Migrated | AR-14: `catalog/templates/spec-template.md` A1 example still phrases a Non-Goal as an Assumption |
+| TR-2 (line 24) | Migrated | AR-15: v3.11 spec-kit items S5, S6, and S8 still carry no status claim |
+| CD-1 (line 50) | Migrated | AR-12: loop-engineering still has no nested-invocation guard |
+| CD-2 (line 57) | Migrated | AR-13: egress-redaction scope is still the egress boundary only |
+| CD-3 (line 64) | Migrated | AR-12: optional context-compression cross-link, merged with CD-1 (same file) |
+| DF-1 (line 93) | Closed earlier (stale marker) | Closed in the v3.16.0 Phase 5 reconciliation table |
+| NI-1 (line 108) | Migrated | AR-30: `configs/` is still not distributed; `scripts/lib/integrations/platform_defaults.py` candidates unchanged |
+| BG-1 (line 115) | Resolved | `install.ps1` `Resolve-TarExe` now prefers the Windows `System32\tar.exe` (commits `69924673`, `43bae404`); the v3.18 ledger records WN-1 RESOLVED with `test_bootstrap.py` passing 5 of 5 |
+| WN-1 (line 122) | Closed earlier (stale marker) | Closed in the v3.16.0 Phase 5 reconciliation table |
+| NI-2 (line 137) | Closed earlier (stale marker) | Resolved at the v3.16.0 NI-2 RESOLVED heading below |
+| NI-3 (line 144) | Closed earlier (stale marker) | Closed in the v3.16.0 Phase 5 reconciliation table |
+| NI-4 (line 151) | Closed earlier (stale marker) | Closed in the v3.16.0 Phase 5 reconciliation table |
+| NI-5 (line 183) | Closed earlier (stale marker) | Closed in the v3.16.0 Phase 5 reconciliation table |
+| NI-6 (line 190) | Migrated | AR-05: Hermes is registered (`scripts/lib/integrations/__init__.py`) but neither installer wires it; merged with v3.15.2 DF-2 and v3.16.0 NI-6 |
+| WN-1 (line 278) | Closed | Environmental property of one development host, not a code defect; CI is the authoritative gate for these tools |
+| BG-1 (line 284) | Resolved | `install.ps1` `Resolve-TarExe` now prefers the Windows `System32\tar.exe` (commits `69924673`, `43bae404`); the v3.18 ledger records WN-1 RESOLVED with `test_bootstrap.py` passing 5 of 5 |
+| NI-6 (line 448) | Migrated | AR-10: `scripts/installer.ps1` still documents one early-exit path that leaks the staging directory |
+| MT-1 (line 473) | Migrated | AR-12: loop-schema gate-type table parity and the `ship-pr-until-green` duplicate-block check are still unasserted (partial coverage in `tests/validators/test_loop_engineering_bundle.py`) |
+| WN-1 (line 480) | Closed | Environmental property of one development host, not a code defect; CI is the authoritative gate for these tools |
+| BG-1 (line 486) | Resolved | `install.ps1` `Resolve-TarExe` now prefers the Windows `System32\tar.exe` (commits `69924673`, `43bae404`); the v3.18 ledger records WN-1 RESOLVED with `test_bootstrap.py` passing 5 of 5 |
+| NI-1 (line 492) | Closed earlier (stale marker) | Resolved at the NI-1 RESOLVED in Phase 5 heading below |
+| DF-1 (line 499) | Closed earlier (stale marker) | Resolved at the DF-1 RESOLVED in Phase 5 heading below |
+| BG-2 (line 517) | Migrated | AR-02: `catalog/hooks/secret-scan.sh` still exits 0 without `jq` (verified 2026-09-29); security-relevant |
+| NI-2 (line 531) | Migrated | AR-07: skill bodies over the 500-line target (observability-setup 763, multi-agent-coordinator 714) |
+| NI-3 (line 560) | Closed | Accepted as a deliberate bound: `doctor --repair` prints remediation and never executes it |
+| NI-4 (line 570) | Resolved | Copilot reads the shared `~/.agents/skills` path wired in v4.13.3, pinned by `tests/integrations/test_skill_index_pointer.py` |
+| NI-5 (line 578) | Resolved | The duplicate `~/.codex/skills` write is intentionally absent (`scripts/lib/integrations/codex.py`, commit `342db59e`) |
+| DF-1 (line 652) | Closed | Superseded: the GitHub usage monitor was removed in v3.18.2 (`docs/decisions/implemented/architecture/2026-08-22-withdraw-the-github-usage-monitor.md`; `extensions/github-usage-monitor` no longer exists) |
+| MT-1 (line 666) | Closed earlier (stale marker) | Resolved at the MT-1 RESOLVED in Phase 3 heading below |
+| WN-1 (line 673) | Closed | Environmental property of one development host, not a code defect; CI is the authoritative gate for these tools |
+| BG-1 (line 679) | Resolved | `install.ps1` `Resolve-TarExe` now prefers the Windows `System32\tar.exe` (commits `69924673`, `43bae404`); the v3.18 ledger records WN-1 RESOLVED with `test_bootstrap.py` passing 5 of 5 |
+| BG-2 (line 685) | Closed | Environmental: SC1017 comes from the Windows CRLF working copy; the committed blobs are clean |
+| NI-3 (line 709) | Closed earlier (stale marker) | Resolved at the NI-3 RESOLVED in Phase 6 heading below |
+| MT-2 (line 715) | Closed | Superseded: the GitHub usage monitor was removed in v3.18.2 (`docs/decisions/implemented/architecture/2026-08-22-withdraw-the-github-usage-monitor.md`; `extensions/github-usage-monitor` no longer exists); closed as moot in the v3.18.2 section of the v3.18 ledger |
+| NI-4 (line 722) | Closed | Superseded: the GitHub usage monitor was removed in v3.18.2 (`docs/decisions/implemented/architecture/2026-08-22-withdraw-the-github-usage-monitor.md`; `extensions/github-usage-monitor` no longer exists) |
+| NI-5 (line 747) | Closed earlier (stale marker) | Resolved at the NI-5 RESOLVED in Phase 4 heading below |
+| NI-6 (line 766) | Closed earlier (stale marker) | Resolved at the NI-6 RESOLVED in Phase 5 heading below |
+| NI-7 (line 791) | Closed | Superseded: the GitHub usage monitor was removed in v3.18.2 (`docs/decisions/implemented/architecture/2026-08-22-withdraw-the-github-usage-monitor.md`; `extensions/github-usage-monitor` no longer exists) |
+| NI-2 (line 866) | Closed earlier (stale marker) | Accepted by design in the v3.16.5 Phase 7 terminal reconciliation |
+| WN-1 (line 873) | Closed earlier (stale marker) | Accepted by design in the v3.16.5 Phase 7 terminal reconciliation |
+| WN-2 (line 894) | Migrated | AR-19: presentify verification residuals (rendered QA, live media smoke, agent-behavior gates without a checker); this item was missing from the v3.16.5 terminal table |
+| NI-3 (line 901) | Closed earlier (stale marker) | Accepted by design in the v3.16.5 Phase 7 terminal reconciliation |
+| WN-3 (line 920) | Closed earlier (stale marker) | Accepted by design in the v3.16.5 Phase 7 terminal reconciliation |
+| NI-4 (line 950) | Closed earlier (stale marker) | Accepted by design in the v3.16.5 Phase 7 terminal reconciliation |
+| NI-5 (line 965) | Closed earlier (stale marker) | Accepted by design in the v3.16.5 Phase 7 terminal reconciliation |
+| WN-4 (line 973) | Closed earlier (stale marker) | Accepted by design in the v3.16.5 Phase 7 terminal reconciliation |
+| DF-3 (line 981) | Closed earlier (stale marker) | Not adopted, recorded in the v3.16.5 Phase 7 terminal reconciliation (no call site) |
+| NI-1 (line 1056) | Closed | Accepted by design (maintainer decision recorded in the v3.16.6 plan, sub-task 1.3) |
+| WN-1 (line 1078) | Closed earlier (stale marker) | Closed in the v3.16.7 section (WN-1 CLOSED, root-caused) |
+| NI-2 (line 1123) | Migrated | AR-19: presentify verification residuals (rendered QA, live media smoke, agent-behavior gates without a checker) |
+| NI-3 (line 1130) | Migrated | AR-19: presentify verification residuals (rendered QA, live media smoke, agent-behavior gates without a checker) |
+| WN-3 (line 1144) | Closed | Accepted: its trigger (a repository Ruff configuration) has not fired; Ruff hygiene is tracked as AR-34 |
+| WN-1 (line 1252) | Closed | Accepted and documented in `scripts/validate_unicode_safety.py` |
+| BG-1 (line 1266) | Resolved | `install.ps1` `Resolve-TarExe` now prefers the Windows `System32\tar.exe` (commits `69924673`, `43bae404`); the v3.18 ledger records WN-1 RESOLVED with `test_bootstrap.py` passing 5 of 5 |

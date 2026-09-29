@@ -1,7 +1,11 @@
 # Known Gaps - v3.12
 
 **Project**: Nexus-Hub
-**Status**: release-ready (pending `/update release` commit / merge / tag / push)
+**Status**: finalized; archived 2026-09-29; 0 open items (7 migrated to v4.13 as AR-18, AR-36). Per-section status lines below are historical and were written before release.
+
+**Open items**: 0
+
+**Status at last pre-archive update**: release-ready (pending `/update release` commit / merge / tag / push)
 **v3.12.1 note**: the cross-platform-install-adapters patch appends its `## v3.12.1` gaps below; the `## v3.12.0` presentify sections are retained unchanged.
 **Last updated**: 2026-07-11 (Phase 6 final reconciliation: WN-2 and MT-1 resolved this phase; DF-v39-presentify-1/-2/-3 marked resolved in the v3.9 ledger; DF-v39-presentify-4/-5 carried in as DF-4/DF-5)
 
@@ -22,35 +26,35 @@
 
 #### Deferred
 
-##### DF-1 - PDF text/figure interleaving is approximate
+##### DF-1 - PDF text/figure interleaving is approximate - MIGRATED to v4.13 (AR-18)
 
 - **Source phase**: Phase 1 (1.2)
 - **Plan reference**: `docs/v3/v3.12/plans/v3.12.0-presentify-fidelity-and-variety.md` sub-task 1.2
 - **Reason**: Within a PDF page section, extracted figure images are placed after the page's text and tables (ordered among themselves by vertical position) rather than interleaved at their exact in-flow position; true interleaving would require full layout reflow, which is out of scope. Documented as a runbook gotcha.
 - **Suggested next step**: The `page` + `caption` metadata is sufficient for the authoring stage to place figures sensibly (proven in the Phase 5 worked example); revisit only if authoring proves to need exact in-flow positions.
 
-##### DF-2 - Caption text remains duplicated in page paragraph text
+##### DF-2 - Caption text remains duplicated in page paragraph text - MIGRATED to v4.13 (AR-18)
 
 - **Source phase**: Phase 1 (1.2)
 - **Plan reference**: sub-task 1.2 (caption pairing)
 - **Reason**: A detected caption is ATTACHED to its figure block, not moved: the same line also remains inside the page's paragraph text. Removing it from the text flow risks dropping content on false-positive matches, so the extractor keeps both. Documented as a runbook gotcha.
 - **Suggested next step**: The authoring stage should prefer the block `caption` and drop the duplicate line; consider extractor-side dedup once caption matching has real-world mileage.
 
-##### DF-3 - OCR table recovery is geometry-based; pytesseract path recovers paragraphs only
+##### DF-3 - OCR table recovery is geometry-based; pytesseract path recovers paragraphs only - MIGRATED to v4.13 (AR-18)
 
 - **Source phase**: Phase 1 (1.5)
 - **Plan reference**: sub-task 1.5 (two-tier OCR path)
 - **Reason**: Tier-A table reconstruction clusters OCR boxes into aligned multi-cell rows, which works on well-separated columns (fixture-verified) but not on dense or borderless tables; the `pytesseract` fallback emits paragraphs only. The tier-B scanned-page image plus the figure-reconstruction protocol's transcription/verification pass are the accuracy backstop in all cases.
 - **Suggested next step**: Revisit only if real scans show tier-A table recovery failing where it matters; the mandatory numeric verification already guards correctness.
 
-##### DF-4 - Video / audio media embedding (carried from v3.9, DF-v39-presentify-4)
+##### DF-4 - Video / audio media embedding (carried from v3.9, DF-v39-presentify-4) - MIGRATED to v4.13 (AR-18)
 
 - **Source phase**: v3.9 presentify-interactive-html Phase 1; re-affirmed by v3.12 Phase 6
 - **Plan reference**: v3.12 plan Phase 6 (6.2)
 - **Reason**: Media in any source format is ignored: the output is a single self-contained offline HTML file, and embedded media would break the offline / size guarantee.
 - **Suggested next step**: Revisit only if embedded media becomes a stated requirement; would need a size + offline strategy.
 
-##### DF-5 - Brand custom-font embedding in the baseline builder (carried from v3.9, DF-v39-presentify-5)
+##### DF-5 - Brand custom-font embedding in the baseline builder (carried from v3.9, DF-v39-presentify-5) - MIGRATED to v4.13 (AR-18)
 
 - **Source phase**: v3.9 presentify-interactive-html Phase 2; re-affirmed by v3.12 Phase 6
 - **Plan reference**: v3.12 plan Phase 6 (6.2)
@@ -59,7 +63,7 @@
 
 #### Warnings
 
-##### WN-1 - Pre-existing local test failures on the Windows dev host (unrelated to this version)
+##### WN-1 - Pre-existing local test failures on the Windows dev host (unrelated to this version) - RESOLVED 2026-09-29
 
 - **Source phase**: Phase 1 (1.6 validation)
 - **Plan reference**: sub-task 1.6
@@ -106,18 +110,18 @@ Cross-platform install adapters + per-release format verification (the cross-pla
 
 | ID | Source | Reason | Severity |
 |---|---|---|---|
-| DF-v3121-codex-skills-alias | Phase 2 (Codex) | The new ChatGPT desktop app reads skills, but docs do not state whether it prefers `~/.codex/skills` or the cross-tool `~/.agents/skills`; we write BOTH (additive), so discovery works either way. Confirm the canonical root on a live desktop-app install. | Low |
-| DF-v3121-agy-cli-workflows | Phase 3 (Antigravity) | The `agy` CLI global SKILLS path is confirmed (`~/.gemini/antigravity-cli/skills/`); the CLI global WORKFLOW dir is undocumented and written best-effort. IDE global slash works via `~/.gemini/config/global_workflows/`. | Low |
-| DF-v3121-antigravity-global-hooks | Phase 3 (Antigravity) | Global hooks path not documented by the codelabs; hooks + hooks.json are written under each surface root best-effort (the hook scripts are fail-open). | Low |
-| DF-v3121-opencode-global-dir | Phase 4 (sweep) | OpenCode docs cite `~/.config/opencode/skills` as the canonical global dir; we flatten to `~/.opencode/skills`. Mitigated: OpenCode also reads `~/.claude/skills` + `~/.agents/skills`, both flattened on a full install. | Low |
-| DF-v3121-gemini-ide-skill-dir | Phase 4 (sweep) | `~/.gemini/skills` flattening is confirmed for Gemini CLI; the Gemini IDE (Code Assist) skill dir is applied on weight-of-evidence. The SKILL_INDEX in GEMINI.md covers Code Assist regardless. | Low |
-| DF-v3121-antigravity-project-instruction | Phase 3 (carried from v3.11 C4) | Project instruction is written to `.agents/AGENTS.md`; the platform may also read a project-root `AGENTS.md`. The global `~/.gemini/GEMINI.md` + project `.agents/` surfaces carry the instruction. | Low |
+| DF-v3121-codex-skills-alias - RESOLVED 2026-09-29 | Phase 2 (Codex) | The new ChatGPT desktop app reads skills, but docs do not state whether it prefers `~/.codex/skills` or the cross-tool `~/.agents/skills`; we write BOTH (additive), so discovery works either way. Confirm the canonical root on a live desktop-app install. | Low |
+| DF-v3121-agy-cli-workflows - MIGRATED to v4.13 (AR-36) | Phase 3 (Antigravity) | The `agy` CLI global SKILLS path is confirmed (`~/.gemini/antigravity-cli/skills/`); the CLI global WORKFLOW dir is undocumented and written best-effort. IDE global slash works via `~/.gemini/config/global_workflows/`. | Low |
+| DF-v3121-antigravity-global-hooks - RESOLVED 2026-09-29 | Phase 3 (Antigravity) | Global hooks path not documented by the codelabs; hooks + hooks.json are written under each surface root best-effort (the hook scripts are fail-open). | Low |
+| DF-v3121-opencode-global-dir - RESOLVED 2026-09-29 | Phase 4 (sweep) | OpenCode docs cite `~/.config/opencode/skills` as the canonical global dir; we flatten to `~/.opencode/skills`. Mitigated: OpenCode also reads `~/.claude/skills` + `~/.agents/skills`, both flattened on a full install. | Low |
+| DF-v3121-gemini-ide-skill-dir - MIGRATED to v4.13 (AR-36) | Phase 4 (sweep) | `~/.gemini/skills` flattening is confirmed for Gemini CLI; the Gemini IDE (Code Assist) skill dir is applied on weight-of-evidence. The SKILL_INDEX in GEMINI.md covers Code Assist regardless. | Low |
+| DF-v3121-antigravity-project-instruction - RESOLVED 2026-09-29 | Phase 3 (carried from v3.11 C4) | Project instruction is written to `.agents/AGENTS.md`; the platform may also read a project-root `AGENTS.md`. The global `~/.gemini/GEMINI.md` + project `.agents/` surfaces carry the instruction. | Low |
 
 ### Warnings
 
 | ID | Source | Reason | Severity |
 |---|---|---|---|
-| WN-v3121-skill-description-length | Phase 5 (new skill) | `validate_skills.py` full mode flags `platform-contract-verification`'s frontmatter `description` as >250 chars (683) - the catalog-wide pushy-description vs 250-char tension (164 skills already carry it; full mode is not part of `make validate`, which is clean). | Low |
+| WN-v3121-skill-description-length - CLOSED 2026-09-29 | Phase 5 (new skill) | `validate_skills.py` full mode flags `platform-contract-verification`'s frontmatter `description` as >250 chars (683) - the catalog-wide pushy-description vs 250-char tension (164 skills already carry it; full mode is not part of `make validate`, which is clean). | Low |
 
 ### Notes
 
@@ -128,3 +132,23 @@ Cross-platform install adapters + per-release format verification (the cross-pla
 ### Resolved
 
 _None resolved in v3.12.1 yet._
+
+## Archive reconciliation - 2026-09-29
+
+Before this minor moved to `docs/archives/`, every item that this file did not already record as resolved, closed, accepted, or declined was audited against the current tree. Each row below gives the one disposition applied, and the item's own line carries the same marker. Migrated items are tracked in `docs/releases/v4/v4.13/known-gaps.md`, section "Migrated from archived minors (v3.x, v4.0-v4.11) - 2026-09-29".
+
+| Item | Disposition | Evidence, reason, or destination |
+|---|---|---|
+| DF-1 (line 25) | Migrated | AR-18: presentify extractor limits recorded as accepted in `extraction-runbook.md`; merged across v3.9, v3.12, and v3.13 |
+| DF-2 (line 32) | Migrated | AR-18: presentify extractor limits recorded as accepted in `extraction-runbook.md`; merged across v3.9, v3.12, and v3.13 |
+| DF-3 (line 39) | Migrated | AR-18: presentify extractor limits recorded as accepted in `extraction-runbook.md`; merged across v3.9, v3.12, and v3.13 |
+| DF-4 (line 46) | Migrated | AR-18: presentify extractor limits recorded as accepted in `extraction-runbook.md`; merged across v3.9, v3.12, and v3.13 (carried again as v3.13 DF-4) |
+| DF-5 (line 53) | Migrated | AR-18: presentify extractor limits recorded as accepted in `extraction-runbook.md`; merged across v3.9, v3.12, and v3.13 (carried again as v3.13 DF-5) |
+| WN-1 (line 62) | Resolved | Fixed by the v3.15.6 test-PATH repair; the v3.15 ledger records all five extension suites green (670 passed) |
+| DF-v3121-codex-skills-alias (line 109) | Resolved | `~/.agents/skills` is the verified Codex path in `docs/policy/platform-read-contracts.md`, and the `~/.codex/skills` copy is intentionally absent (`scripts/lib/integrations/codex.py`) |
+| DF-v3121-agy-cli-workflows (line 110) | Migrated | AR-36: pointer; already tracked as v4.3 WN-3 and v4.12 DF-1 in the v4.13 historical inventory |
+| DF-v3121-antigravity-global-hooks (line 111) | Resolved | The 2026-09-24 recheck confirms `~/.gemini/config/hooks.json` (read contract; `scripts/lib/integrations/antigravity.py`) |
+| DF-v3121-opencode-global-dir (line 112) | Resolved | `scripts/lib/integrations/opencode.py` uses `~/.config/opencode` (v3.14.5) |
+| DF-v3121-gemini-ide-skill-dir (line 113) | Migrated | AR-36: Gemini Code Assist skill directory is still a read-contract residual |
+| DF-v3121-antigravity-project-instruction (line 114) | Resolved | `scripts/lib/integrations/antigravity.py` writes the workspace-root `AGENTS.md`, verified in the read contract |
+| WN-v3121-skill-description-length (line 120) | Closed | Accepted by design: long trigger-rich descriptions are the AGENTS.md authoring rule; the description is 820 characters, under the 1024 agentskills.io cap; the cap conflict itself is AR-06 |

@@ -261,6 +261,372 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 | [v4.11.2 document and deck](../../../archives/v4/v4.11/plans/v4.11.2-adoption-document-and-deck-quality.md) | 1 | 0 |
 | [v4.12.0 attribution](../../../archives/v4/v4.12/plans/v4.12.0-sole-contributor-attribution.md) | 5 | 0 |
 
+## Migrated from archived minors (v3.x, v4.0-v4.11) - 2026-09-29
+
+On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.3, v4.4, v4.5, v4.9, v4.10, and v4.11 moved to `docs/archives/`. Before the move, each open item in the v3.0-v3.21 ledgers was audited against the tree: items with concrete evidence were marked resolved in their source file, items made moot by a removal or a recorded decision were closed there with the reason, and the items below are the ones still genuinely open. Duplicates recorded by several minors are merged into one entry. Each source ledger now states `**Open items**: 0` and ends with an `Archive reconciliation - 2026-09-29` table naming every disposition. The v4.0-v4.11 ledgers were already archived and routed by the historical inventory above; their open items stay there and are not repeated here. v3.5 had no known-gaps register; its only plan has no unchecked boxes and tag `v3.5.0` exists.
+
+**Migrated items**: 57 open (0 resolved), from 137 source rows. Migration transfers tracking only: each entry below stays open until its own evidence closes it.
+
+### Security-relevant
+
+#### AR-02: `secret-scan.sh` allows every write on a host without `jq`
+
+- **Current state**: `catalog/hooks/secret-scan.sh` exits 0 when `jq` is missing, so the secret scan silently does nothing there.
+- **Owner and next step**: hooks maintainer; reuse the Python fallback already used by `old-version-docs-guard.sh` (v4.0 BG-5), with a test that removes `jq` from PATH.
+- **Migrated from**: v3.16.2#BG-2 on 2026-09-29 (reason: still open; verified by reading the hook on 2026-09-29).
+
+#### AR-03: The presentify repository walk has no secret redaction
+
+- **Current state**: the extractor copies repository text into the generated site; the extraction runbook only warns about secrets.
+- **Owner and next step**: presentify owner; route repository-walk text through `egress-redaction` rules before it reaches the output.
+- **Migrated from**: v3.13#DF-3 on 2026-09-29 (reason: still open).
+
+### Installer and CLI
+
+#### AR-01: `nexus-hub init` is unreachable through the launcher
+
+- **Current state**: `python scripts/nexus_hub_cli.py init --help` exits with "invalid choice: 'init'" (observed 2026-09-29). The installer tells users to run `nexus-hub init`, and `nexus-hub-autoseed.sh` calls it and ignores the failure. `init` exists only in `scripts/lib/integrations/runner.py` and as an installer subcommand; the monorepo `--target` support (spec-kit S8) is therefore unreachable too.
+- **Owner and next step**: installer/CLI maintainer; add an `init` passthrough to `nexus_hub_cli.py` with a launcher-level test, then close S8 once `nexus-hub init --target <subdir>` works end to end.
+- **Migrated from**: v3.11#DF-1 (launcher part) and v3.11#DF-v311-speckit-S8 on 2026-09-29 (reason: live defect found during the audit).
+
+#### AR-05: Hermes is registered but not wired into either installer
+
+- **Current state**: registered in `scripts/lib/integrations/__init__.py`; zero references in `scripts/installer.sh` and `scripts/installer.ps1`.
+- **Owner and next step**: installer maintainer; wire both installer arms and their smoke tests in one change, or record Hermes as registry-only by decision.
+- **Migrated from**: v3.15.2#DF-2, v3.16.0#NI-6, and v3.17.0#DF-4 on 2026-09-29 (reason: one obligation recorded three times, still open).
+
+#### AR-10: A PowerShell early-exit path leaks the selection staging directory
+
+- **Current state**: documented as a residual in `scripts/installer.ps1`.
+- **Owner and next step**: installer maintainer; wrap the post-`Resolve-Selection` flow in try/finally.
+- **Migrated from**: v3.16.1#NI-6 on 2026-09-29 (reason: still open).
+
+#### AR-11: Antigravity skill seeding can exceed the Windows path limit in a deep repository
+
+- **Current state**: `scripts/lib/integrations/base.py` copies skill trees with plain `shutil.copytree`. The same limit broke a plain Python move of the v4.9 benchmark evidence during this archive pass.
+- **Owner and next step**: installer maintainer; use extended-length paths on Windows or shorten the deepest bundled paths.
+- **Migrated from**: v3.11#WN-2 on 2026-09-29 (reason: still open).
+
+#### AR-20: Workspace-scope install output is not grouped like the global install
+
+- **Current state**: `install_workspace` and `Install-Workspace` never call the undetected-platform grouping and still print the verbose Claude block.
+- **Owner and next step**: installer maintainer; apply the global checklist and grouping to the workspace path in both installers.
+- **Migrated from**: v3.14.5#DF-1 on 2026-09-29 (reason: still open).
+
+#### AR-21: `nexus-hub verify` does not cover `extensions/`
+
+- **Current state**: `scripts/generate_manifest.py` `COVERED_ROOTS` is still `catalog`, `templates`, `scripts`, `data`.
+- **Owner and next step**: installer maintainer; extend the manifest to the distributed MCP-server sources or record the exclusion by decision.
+- **Migrated from**: v3.10#DF-v310-ruflo-P4-extensions (also carried in v3.11) on 2026-09-29 (reason: still open).
+
+#### AR-26: No live macOS installer smoke has been recorded
+
+- **Current state**: every step in the v3.7 `development/mac-smoke-test.md` is still pending; CI covers the tarball bootstrap only.
+- **Owner and next step**: installation owner on a macOS host; run `curl | bash` and a `--branch` install and record results. Related to v4.4 HT-2 in the inventory above.
+- **Migrated from**: v3.0#DF-v30-8 and v3.7, v3.8, v3.9#WN-v37-1 on 2026-09-29 (reason: one obligation recorded four times, still open).
+
+#### AR-30: `configs/` is not distributed to installed trees
+
+- **Current state**: `scripts/lib/integrations/platform_defaults.py` falls back when the source file is absent; AGENTS.md calls the file repo-internal but no decision closes this item.
+- **Owner and next step**: maintainer; record "maintainer surface only" by decision, or add a copy step to both installers.
+- **Migrated from**: v3.16.0#NI-1 on 2026-09-29 (reason: still open).
+
+#### AR-40: Two installer tests fail intermittently in long local runs
+
+- **Current state**: possibly the real-home leak that v4.13.1 BG-2 fixed for `test_selection_parity.py` (commit `ad768ca9`); unproven, and `test_org_cli.py` is not covered by that fix.
+- **Owner and next step**: installer/test maintainer; close after v4.13.1 BG-2 is verified in hosted CI and a full local installer run is clean.
+- **Migrated from**: v3.18.2#BG-2 on 2026-09-29 (reason: still open).
+
+### Permissions and platform contracts
+
+#### AR-16: Permission-matcher behaviors remain unprobed
+
+- **Current state**: output redirection under an explicit allow rule, whether Gemini splits compound commands, and a Gemini PowerShell / `cmd.exe` read-only set are all still UNVERIFIED in the v3.17 `development/permission-matcher-findings.md` and `configs/permissions/gemini-permissions.json`.
+- **Owner and next step**: `platform-contract-verification` owner; run the recorded probes against current builds.
+- **Migrated from**: v3.17.0#NI-1, v3.17.0#NI-2, and v3.17.0#DF-1 on 2026-09-29 (reason: still open).
+
+#### AR-17: Permission distribution covers few platforms and scopes
+
+- **Current state**: only Claude is wired at workspace scope; `Install-Nexus-Hub-Permissions.ps1` has no cross-platform equivalent; `configs/permissions/` covers 4 of 16 integrations.
+- **Owner and next step**: installer maintainer; research Gemini and Codex project paths, decide Copilot `.vscode/settings.json`, and add a `nexus-hub` permissions command.
+- **Migrated from**: v3.17.0#DF-2, v3.17.0#DF-3, and v3.17.0#DF-5 on 2026-09-29 (reason: still open).
+
+#### AR-36: Unverified platform read-path residuals
+
+- **Current state**: Antigravity CLI agent/workflow directories, Cursor global commands, and the Gemini Code Assist skill directory are still residuals in `docs/policy/platform-read-contracts.md`. The Antigravity part is also tracked as v4.3 WN-3 and v4.12 DF-1 above.
+- **Owner and next step**: platform-contract owner; resolve at the next authenticated read-back.
+- **Migrated from**: v3.11#DF-1 (D5, D7), v3.12.1#DF-v3121-agy-cli-workflows, and v3.12.1#DF-v3121-gemini-ide-skill-dir on 2026-09-29 (reason: still open).
+
+#### AR-38: No invocation-policy lever on five platforms
+
+- **Current state**: `docs/policy/skill-invocation-policy-levers.md` still documents none for Antigravity, OpenCode, Kimi, Hermes, and Nexus-AI.
+- **Owner and next step**: platform-contract owner; re-check each release and close when a first-party vendor document names a field.
+- **Migrated from**: v3.20.3#DF-1 on 2026-09-29 (reason: vendor-dependent, still open).
+
+#### AR-45: Completion notification is undelivered or unverified on Qwen, Gemini CLI, and Kimi
+
+- **Current state**: `docs/policy/platform-read-contracts.json` records Qwen and Gemini as expressible but undelivered and does not list Kimi's events. The shared Stop-hook registration may reach those platforms without `_notify_common` shipping there.
+- **Owner and next step**: installer/platform maintainer; deliver or explicitly exclude trigger B, confirm the shared module ships, and enumerate Kimi's events.
+- **Migrated from**: v3.15.10#DF-14 on 2026-09-29 (reason: still open).
+
+#### AR-47: The legacy Cursor global commands write is unverified and redundant
+
+- **Current state**: `scripts/lib/integrations/cursor.py` still writes both command directories and labels the global one UNVERIFIED.
+- **Owner and next step**: installer maintainer; confirm at the next Cursor contract pass, then remove the redundant write with a test.
+- **Migrated from**: v3.15.0#DF-1(a) and v3.15.10#DF-17 on 2026-09-29 (reason: still open).
+
+#### AR-51: OpenCode writes a `rules` folder the read contract does not record
+
+- **Current state**: `scripts/lib/integrations/opencode.py` sets `rules_subdir`.
+- **Owner and next step**: platform-contract owner; review against the OpenCode rules documentation and keep or drop.
+- **Migrated from**: v3.15.0 (OpenCode `rules_subdir` residual) on 2026-09-29 (reason: still open).
+
+#### AR-54: The strict Claude permissions overlay has no `defaultMode` decision
+
+- **Current state**: `configs/permissions/claude-permissions-strict.json` omits `defaultMode`, pending enum verification that was never closed.
+- **Owner and next step**: permissions owner; decide, then add or document the omission with a test.
+- **Migrated from**: v3.15.6#DF-3 on 2026-09-29 (reason: still open).
+
+#### AR-56: Upstream-blocked hook surfaces
+
+- **Current state**: the Gemini CLI extension-packaged hook path is unused, and Kimi has no project-scoped hook path.
+- **Owner and next step**: platform-contract owner; re-check vendor docs at the next pass.
+- **Migrated from**: v3.15.8#DF-12 and v3.15.8#DF-13 on 2026-09-29 (reason: vendor-dependent, still open).
+
+#### AR-57: Agent and hook delivery never observed on real Codex, Gemini CLI, Qwen, and Kimi installs
+
+- **Current state**: the v3.15.8 consolidated live pass has no recorded result.
+- **Owner and next step**: maintainer on a host with those tools; one live pass recorded in the read-contract verification block.
+- **Migrated from**: v3.15.8#MT-6, v3.15.8#MT-7, and v3.15.8#MT-8 on 2026-09-29 (reason: still open).
+
+### Catalog, validators, and tests
+
+#### AR-04: The skill-description eval harness builds CLI flags that do not exist
+
+- **Current state**: `scripts/optimize_skill_description.py` still adds `--skill` and `--prompt` (verified 2026-09-29), so live trigger runs and technique checks cannot run through it. `scripts/run_trigger_pilot.py` has a working `stream-json` path.
+- **Owner and next step**: eval-pipeline owner; port the pilot's invocation, then run the recorded live checks.
+- **Migrated from**: v3.0#BG-v30-1, v3.0#DF-v30-6, and v3.0#DF-v30-7 on 2026-09-29 (reason: live defect, still open).
+
+#### AR-06: The 250-character description cap conflicts with the trigger-rich description rule
+
+- **Current state**: `scripts/validate_skills.py` `DESCRIPTION_MAX_CHARS = 250`; many descriptions exceed it by design, and `--allow-existing` fails. Related to v4.8 WN-1.
+- **Owner and next step**: catalog maintainer; decide the cap (for example the 1024 agentskills.io limit) or the allowlist, then gate CI on it.
+- **Migrated from**: v3.1#WN-v31cr-1, v3.2#WN-v32-1, and v3.14.2#WN-1 on 2026-09-29 (reason: one obligation recorded three times, still open).
+
+#### AR-07: Many SKILL.md bodies exceed the 500-line target
+
+- **Current state**: 68 of 338 exceed 500 lines including frontmatter on 2026-09-29 (for example observability-setup and multi-agent-coordinator).
+- **Owner and next step**: catalog maintainer; move long sections into `references/` whenever a skill is next edited.
+- **Migrated from**: v3.16.2#NI-2 and v3.20.1#WN-2 on 2026-09-29 (reason: still open).
+
+#### AR-08: Missing direct tests
+
+- **Current state**: no test covers `validate_frontmatter_strict_yaml`, `detect-platform.sh` / `enumerate-models.sh`, `benchmark --update-baseline`, the `nexus-hub map` dispatch, or the model-prompting `DEFAULT_GUARDS` suite end to end.
+- **Owner and next step**: owners of each surface; add one focused test per item.
+- **Migrated from**: v3.4#DF-v34-1 (residual), v3.14.3#MT-1, v3.15.1#MT-1, v3.15.1#MT-2, and v3.15.5#MT-4 on 2026-09-29 (reason: still open).
+
+#### AR-09: Most skills lack trigger-case evals
+
+- **Current state**: 88 of 338 skills have `evals/trigger-cases.json`. Related to v4.13.0 WN-3.
+- **Owner and next step**: catalog maintainer; add cases as skills are rewritten.
+- **Migrated from**: v3.15.2#MT-1 and v3.20.1#MT-1 on 2026-09-29 (reason: still open).
+
+#### AR-12: loop-engineering lacks a re-entrancy guard and schema assertions
+
+- **Current state**: no nested-invocation guard, no optional context-compression cross-link, and the gate-type table parity and `ship-pr-until-green` duplicate-block check are still unasserted (partial coverage in `tests/validators/test_loop_engineering_bundle.py`).
+- **Owner and next step**: loop-engineering maintainer.
+- **Migrated from**: v3.16#CD-1, v3.16#CD-3, and v3.16.2#MT-1 on 2026-09-29 (reason: still open).
+
+#### AR-13: egress-redaction covers only the egress boundary
+
+- **Current state**: local persistence and error surfaces are out of scope in the skill.
+- **Owner and next step**: security skills owner; extend the scope.
+- **Migrated from**: v3.16#CD-2 on 2026-09-29 (reason: still open).
+
+#### AR-14: The spec template's A1 example phrases a Non-Goal as an Assumption
+
+- **Current state**: `catalog/templates/spec-template.md` A1 is unchanged.
+- **Owner and next step**: next spec-template edit; rewrite A1 and move the scope clause to Non-Goals.
+- **Migrated from**: v3.16#TR-1 (originally v3.15.14#NI-2) on 2026-09-29 (reason: still open).
+
+#### AR-15: v3.11 spec-kit items S5, S6, and S8 carry no status claim
+
+- **Current state**: no later record states their status; S8's functional half is AR-01.
+- **Owner and next step**: next spec-kit delta pass; re-verify and record.
+- **Migrated from**: v3.16#TR-2 on 2026-09-29 (reason: still open).
+
+#### AR-22: `make build-catalog` would overwrite hand-curated registry files
+
+- **Current state**: `build_skills_catalog.py` is unchanged since v2.0.0 and the target still exists, while hand-editing checked by `check_registry_entries.py --check --strict` is the convention.
+- **Owner and next step**: catalog maintainer; remove or guard the target and its AGENTS.md mention.
+- **Migrated from**: v3.0#WN-v30-2 on 2026-09-29 (reason: still open).
+
+#### AR-23: The hook rewrite field `updatedInput` is undocumented
+
+- **Current state**: no mention in `guides/`.
+- **Owner and next step**: docs owner; document it in the settings reference.
+- **Migrated from**: v3.2#WN-v32hr-1 on 2026-09-29 (reason: still open).
+
+#### AR-28: Retired slash-command names remain in skill bodies
+
+- **Current state**: 134 mentions such as `/generate-plan` and `/tasks-to-issues`.
+- **Owner and next step**: catalog maintainer; one modernization sweep.
+- **Migrated from**: v3.2#DF-v32cmd-1 on 2026-09-29 (reason: still open).
+
+#### AR-33: Subprocess-driven validator tests have no coverage measurement
+
+- **Current state**: no coverage configuration or `COVERAGE_PROCESS_START` anywhere.
+- **Owner and next step**: CI/test infrastructure owner; add subprocess coverage plumbing and a threshold.
+- **Migrated from**: v3.15.5#MT-2 and v3.17.6#MT-2 on 2026-09-29 (reason: still open).
+
+#### AR-34: No repository-wide Ruff baseline
+
+- **Current state**: `ruff check` still reports findings (for example F401 and F841 in `graph/affected.py`, and findings in `scripts/lib/integrations/`); Ruff runs only in `presentify-extractor.yml`.
+- **Owner and next step**: CI owner; set a baseline, fix the small findings, and gate new ones.
+- **Migrated from**: v3.15.1#WN-2, v3.15.10 (Ruff advisory), and v3.17.0#WN-2 on 2026-09-29 (reason: still open).
+
+#### AR-50: The template parity guard covers only the five lockstep templates
+
+- **Current state**: `scripts/check_base_template_parity.py` guards the lockstep five; companion validators cover only named blocks on the other templates.
+- **Owner and next step**: template maintainer; extend the guard or record the scope by decision.
+- **Migrated from**: v3.15.10 (parity-guard advisory) on 2026-09-29 (reason: still open).
+
+#### AR-53: No reusable self-check eval-loop authoring convention
+
+- **Current state**: only the Markdown style self-check exists.
+- **Owner and next step**: catalog maintainer; write the convention and an optional reference template.
+- **Migrated from**: v3.15.3#DF-1 on 2026-09-29 (reason: still open).
+
+#### AR-55: `ai-agent-governance` has no reciprocal SKIP clause
+
+- **Current state**: its description still lacks one.
+- **Owner and next step**: catalog maintainer; add a SKIP pointing to `agentic-endpoint-hardening` and sync `data/skills.json`.
+- **Migrated from**: v3.15.6#DF-1 on 2026-09-29 (reason: still open).
+
+### Presentify
+
+#### AR-18: Presentify builder and extractor limits
+
+- **Current state**: approximate PDF text/figure interleaving, duplicated caption text, geometry-only OCR tables, best-effort `.gitignore` matching, a minimal Markdown parser, no video/audio embedding, no brand web-font embedding, no Coverr/Mixkit fetch, no image gallery grouping, null PDF raster `page_fraction` on bbox mismatch, and overlay-annotation over-capture. Most are recorded as limits in `extraction-runbook.md`.
+- **Owner and next step**: presentify owner; accept each explicitly by decision or schedule the ones with user value (font embedding, gallery grouping).
+- **Migrated from**: v3.9#DF-v39-presentify-4, v3.9#DF-v39-presentify-5, v3.12#DF-1 to DF-5, v3.13#DF-1, DF-2, DF-4, DF-5, DF-6, and v3.15.4#DF-1, DF-2, DF-3 on 2026-09-29 (reason: still open; duplicates merged).
+
+#### AR-19: Presentify verification residuals
+
+- **Current state**: no rendered QA of the v3.13 samples is recorded; no live or scheduled media-fetch smoke; a sample-deck scorer smoke in the render job is unconfirmed; the scorer cannot see runtime-injected palettes; Gates A, B, and E and the composition probes have no checker or helper.
+- **Owner and next step**: presentify owner; add the smoke to the render job and accept or build each checker.
+- **Migrated from**: v3.13#WN-1, v3.13#MT-2, v3.15.4#MT-3, v3.16.5#WN-2, v3.16.7#NI-2, and v3.16.7#NI-3 on 2026-09-29 (reason: still open).
+
+### Extensions
+
+#### AR-24: nexus-context-compressor deferred refinements
+
+- **Current state**: near-duplicate detection, auto-sized keep budget, explicit error preservation, automatic store cleanup (`prune` has no caller), JSON arrays in prose, fallback parser limits, optional spaCy pass, CacheAligner and the ML token-dropper outside the runtime path, sub-word dropping, no live semantic benchmark, no token-reduction floor, no `[ml]` CI lane, and a short reformatter handler list. The `smart_crusher.py` docstring still marks them deferred.
+- **Owner and next step**: compressor maintainer; take each only when a real fixture or benchmark shows the need.
+- **Migrated from**: v3.2#DF-v32hr-1 to DF-v32hr-6, DF-v32hr-8, DF-v32hr-9, DF-v32hr-12 to DF-v32hr-15, MT-v32hr-1, and v3.19.2#DF-3 on 2026-09-29 (reason: still open).
+
+#### AR-25: Skill-scanner coverage limits
+
+- **Current state**: a thin pattern set per class, module-level taint tracking, and 12 starter `.yar` rules with 5 offline OSV advisories.
+- **Owner and next step**: scanner owner; expand or accept as a documented limit.
+- **Migrated from**: v3.0#DF-v30-1, DF-v30-2, and DF-v30-3 on 2026-09-29 (reason: still open).
+
+#### AR-27: Code-search covers 12 languages
+
+- **Current state**: `extensions/nexus-code-search` still has 12 extractors.
+- **Owner and next step**: code-search owner; add languages on demand.
+- **Migrated from**: v3.0#DF-v30-5 on 2026-09-29 (reason: still open).
+
+#### AR-32: Usage-monitor extension test coverage
+
+- **Current state**: Claude `recommendations.ts`, `warningView`, and `extension.ts` lack tests; `claude-usage-monitor` has no coverage threshold while the Codex and Cursor monitors do; no live render check of the theme icon; the Codex `icon.png` is still the reconstructed 512x512 asset.
+- **Owner and next step**: extensions owner; add the tests and threshold, reuse the installed-VSIX method that closed v4.10 MT-2, and swap or accept the icon.
+- **Migrated from**: v3.14.0#MT-1, v3.14.4#MT-1, v3.14.4#DF-1, v3.14.5#MT-1, and v3.17.0#MT-1 on 2026-09-29 (reason: still open).
+
+#### AR-44: The Cursor usage-monitor live visual smoke was never run
+
+- **Current state**: `cursor-usage-live-smoke.md` has no recorded result.
+- **Owner and next step**: maintainer on a live Cursor host; run status bar, three bars, and three themes and record the result.
+- **Migrated from**: v3.15.9#QG-5 and v3.15.12#QG-4 (Cursor half) on 2026-09-29 (reason: still open).
+
+#### AR-49: `@vscode/vsce` transitive deprecation warnings
+
+- **Current state**: still present in all three extension lockfiles; `npm audit` is clean.
+- **Owner and next step**: extensions owner; re-check at the next toolchain bump or accept as upstream-bounded.
+- **Migrated from**: v3.15.9#WN-4 on 2026-09-29 (reason: upstream, still open).
+
+#### AR-52: contextmap detectors deferred
+
+- **Current state**: TypeORM, Drizzle, ActiveRecord, GORM, Vue, and Svelte are still listed as deferred.
+- **Owner and next step**: code-search owner; one detector plus fixture per target, on demand.
+- **Migrated from**: v3.15.1#DF-3 on 2026-09-29 (reason: still open).
+
+### Hooks and notifications
+
+#### AR-46: The Windows notification linger was never measured
+
+- **Current state**: the default is still 5500 ms in `catalog/hooks/_notify_common.sh` and its `.ps1` sibling.
+- **Owner and next step**: maintainer on a live Windows 10/11 desktop; measure the shortest safe `NEXUS_NOTIFY_LINGER_MS`.
+- **Migrated from**: v3.15.10#DF-16 on 2026-09-29 (reason: still open).
+
+#### AR-48: `session-summary.sh` labels projects by the working directory
+
+- **Current state**: still `basename "$(pwd)"`.
+- **Owner and next step**: hooks maintainer; derive the name from the git top-level, as the notify hooks do, in both siblings.
+- **Migrated from**: v3.15.10 (session-summary advisory) on 2026-09-29 (reason: still open).
+
+### Documentation
+
+#### AR-29: `README_zh.md` needs a full re-translation
+
+- **Current state**: 271 lines against the English README's 792.
+- **Owner and next step**: docs owner.
+- **Migrated from**: v3.8#WN-v38-1 on 2026-09-29 (reason: still open).
+
+#### AR-31: `docs/specs/README.md` still describes "legacy installer copy blocks"
+
+- **Current state**: the stale framing moved there from AGENTS.md.
+- **Owner and next step**: docs owner; say that Claude has the one custom installer block and every other platform goes through the integration registry.
+- **Migrated from**: v3.14.5#DF-3 on 2026-09-29 (reason: still open).
+
+#### AR-35: Optional provider failover and settlement reference for `multi-provider-ai`
+
+- **Current state**: never written.
+- **Owner and next step**: catalog maintainer; write it or close as won't-do.
+- **Migrated from**: v3.14.0#DF-3 on 2026-09-29 (reason: optional, still open).
+
+#### AR-39: The official Claude plugin directory submission was never made
+
+- **Current state**: README still says "If Anthropic later lists..."; the submission draft is `docs/archives/v3/v3.20/development/claude-marketplace-submission.md`.
+- **Owner and next step**: maintainer (manual form); submit, then add the install line to the README.
+- **Migrated from**: v3.20.3#DF-2 on 2026-09-29 (reason: still open).
+
+### Maintainer decisions pending
+
+#### AR-37: Conditional adoption candidates awaiting build-or-decline
+
+- **Current state**: visual-brainstorming server, portable YAML orchestration engine, after-the-fact intent recovery in `session-query`, the quality-gate naming note, remaining worker-check hooks, and a durable prior-cycle review-signal store. None was built; none has a decline record.
+- **Owner and next step**: maintainer; record a decline (for example a reverse-engineering-matrix row) or scope a plan.
+- **Migrated from**: v3.0#DF-v30-9, v3.6 to v3.9#DF-v36-2, v3.9#DF-v39-nomistakes-1, v3.10#DF-v310-ruflo-A6, v3.10#DF-v310-ruflo-A10-rest, and v3.15.7#DF-6 on 2026-09-29 (reason: conditional, still open).
+
+#### AR-41: Product atlas
+
+- **Current state**: `docs/handbooks/overview.html` (commit `0b164f06`) may satisfy it, but `docs/README.md` still says no atlas exists.
+- **Owner and next step**: maintainer; confirm the overview handbook counts, then close and correct `docs/README.md`.
+- **Migrated from**: v3.21.0#DF-1 on 2026-09-29 (reason: decision pending).
+
+#### AR-42: The docs-convention checker scans only the active minor
+
+- **Current state**: `scripts/check_docs_conventions.py` still scans only the active minor, and its docstring is stale.
+- **Owner and next step**: maintainer; record the grandfathering decision, then close and fix the docstring.
+- **Migrated from**: v3.19.2#DF-2 on 2026-09-29 (reason: decision pending).
+
+#### AR-43: Signed execution contracts remain a design study
+
+- **Current state**: no decision record exists.
+- **Owner and next step**: maintainer; promote the study's deferral recommendation to a decision record, then close.
+- **Migrated from**: v3.19.2#DF-4 on 2026-09-29 (reason: decision pending).
+
 ## v4.13.1
 
 ### Summary

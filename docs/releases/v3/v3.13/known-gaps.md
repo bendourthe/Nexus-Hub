@@ -1,7 +1,11 @@
 # Known Gaps - v3.13
 
 **Project**: Nexus-Hub
-**Status**: release-ready - both the universal-ingestion overhaul and the imagery-and-interactivity follow-on (all 5 phases) are complete; pending `/update release` (version bump / merge / tag / push)
+**Status**: finalized; archived 2026-09-29; 0 open items (8 migrated to v4.13 as AR-03, AR-18, AR-19). Per-section status lines below are historical and were written before release.
+
+**Open items**: 0
+
+**Status at last pre-archive update**: release-ready - both the universal-ingestion overhaul and the imagery-and-interactivity follow-on (all 5 phases) are complete; pending `/update release` (version bump / merge / tag / push)
 **Last updated**: 2026-07-15 (Phase 5 reconciliation for the presentify imagery-and-interactivity follow-on)
 
 ## v3.13.0
@@ -37,35 +41,35 @@
 
 #### Deferred
 
-##### DF-1 - `.gitignore` matching is best-effort
+##### DF-1 - `.gitignore` matching is best-effort - MIGRATED to v4.13 (AR-18)
 
 - **Source phase**: Phase 1 (1.2)
 - **Reason**: The walk reads the root `.gitignore` and supports leading-`/` anchoring plus basename / path globs via `fnmatch`, but does NOT implement negation (`!pattern`) or git's full `**` semantics. Documented as a runbook limit.
 - **Suggested next step**: Adopt a vetted local `.gitignore`-spec library only if real repos show meaningful mismatch; the current matcher plus the ignore-dir list covers the common cases.
 
-##### DF-2 - Markdown parser is intentionally minimal
+##### DF-2 - Markdown parser is intentionally minimal - MIGRATED to v4.13 (AR-18)
 
 - **Source phase**: Phase 1 (1.3)
 - **Reason**: The in-house Markdown parser handles ATX / setext headings, fenced code, bullets, pipe tables, and standalone local images; it is not a full CommonMark implementation (reference-style links, footnotes, and HTML blocks pass through as prose). Standard-library-only by design (no Markdown dependency).
 - **Suggested next step**: Revisit only if richer Markdown fidelity is needed; a lazy-imported CommonMark parser could be added behind the same lazy-import discipline.
 
-##### DF-3 - No secret redaction on the repository walk
+##### DF-3 - No secret redaction on the repository walk - MIGRATED to v4.13 (AR-03)
 
 - **Source phase**: Phase 1 (1.2)
 - **Reason**: The walk ingests text / config files by extension; dotfiles with no recognized extension (`.env`) are not ingested, but a file such as `secrets.yaml` would be. There is no content-based secret detection.
 - **Suggested next step**: Users should not point `/presentify` at a repository holding plaintext secrets; a future pass could integrate the `egress-redaction` skill's typed policy before ingestion.
 
-##### DF-4 - Video / audio media embedding (carried from v3.9 / v3.12)
+##### DF-4 - Video / audio media embedding (carried from v3.9 / v3.12) - MIGRATED to v4.13 (AR-18)
 
 - **Reason**: Media in any source format is ignored; embedded media would break the single-file offline / size guarantee. Unchanged by this version.
 - **Suggested next step**: Out of scope for the self-contained-HTML deliverable.
 
-##### DF-5 - Brand web-font embedding (carried from v3.9 / v3.12)
+##### DF-5 - Brand web-font embedding (carried from v3.9 / v3.12) - MIGRATED to v4.13 (AR-18)
 
 - **Reason**: Fonts stay as system stacks or base64 `@font-face`; fetching a brand web font would break the offline guarantee. Unchanged by this version.
 - **Suggested next step**: A base64 `@font-face` embed path could be added; never an external fetch.
 
-##### DF-6 - Tier 2 stock: Coverr / Mixkit sources and general video fetch not implemented
+##### DF-6 - Tier 2 stock: Coverr / Mixkit sources and general video fetch not implemented - MIGRATED to v4.13 (AR-18)
 
 - **Source phase**: Phase 2 (2.1)
 - **Reason**: `fetch_stock_media.py` implements Openverse (default, keyless), Wikimedia Commons (keyless), and Pexels (API-key-gated) for images. Coverr / Mixkit are accepted on the CLI for interface parity but have no keyless search API in this helper, so they degrade with a note; video is supported only via a Pexels key. This keeps the helper honest rather than shipping unverified API integrations. Video also inherits the base64 size ceiling: any fetched asset is base64-embedded and rejected past `--max-bytes`, so a large video degrades rather than bloating the single-file output (video embedding at scale remains constrained by the offline single-file guarantee, per DF-4).
@@ -73,13 +77,13 @@
 
 #### Warnings
 
-##### WN-1 - Full-repo validators and browser visual-QA unavailable on the Windows dev host
+##### WN-1 - Full-repo validators and browser visual-QA unavailable on the Windows dev host - MIGRATED to v4.13 (AR-19)
 
 - **Source phase**: Phases 1-5
 - **Reason**: `validate_unicode_safety.py` / `validate_no_personal_paths.py` (full-repo scans) and the compression eval time out on the dev host, and no headless browser is installed, so the rendered visual-QA loop (screenshots) and the per-aspect / hero-vs-gallery rendered demonstrations could not run locally. Change-relevant validators were run directly (bundle audit, JSON integrity, version-sync, ASCII, ruff); edited files are ASCII-verified. The imagery-and-interactivity Phase 1 Tier-1 sample (`development/worked-example/tier1-imagery-sample.html`) was likewise reviewed statically (offline-refs grep clean, tag-balance and ASCII checked), not browser-rendered.
 - **Suggested next step**: Rely on CI for the full validator chain; run the rendered visual-QA of the Tier-1 sample and the universal-ingestion worked example in a browser-capable session.
 
-##### WN-2 - Deck-PDF prominence path not exercised end-to-end locally
+##### WN-2 - Deck-PDF prominence path not exercised end-to-end locally - RESOLVED 2026-09-29
 
 - **Source phase**: Phase 2
 - **Reason**: `pdfplumber` / `python-pptx` are not installed on the dev host, so the PDF path falls back to `pypdf` (no bbox geometry) and the PPTX path was not run; the PDF/PPTX `page_fraction` geometry was validated by code review plus the common-sink unit-check (rounding / clamp / absence). CI installs `pdfplumber` / `python-pptx`.
@@ -87,13 +91,13 @@
 
 #### Missing tests / coverage gaps
 
-##### MT-1 - No automated verifier check for PDF / PPTX `page_fraction` geometry
+##### MT-1 - No automated verifier check for PDF / PPTX `page_fraction` geometry - RESOLVED 2026-09-29
 
 - **Source phase**: Phase 2 / Phase 5
 - **Reason**: `verify_universal_ingestion.py` (28 checks) covers the text / code / CSV / image walk, repository assembly, determinism, caps, and the prominence sink (rounding / clamp / absence / native dims), but not the PDF-bbox / PPTX-shape `page_fraction` computation end-to-end. The v3.12 `verify_phase1.py` exercises PDF/PPTX extraction but predates `page_fraction`.
 - **Suggested next step**: Add a `page_fraction` assertion to `verify_phase1.py` (it already generates a PDF/PPTX fixture with `reportlab` / `python-pptx` in CI), or a small dedicated fixture check, in a follow-up.
 
-##### MT-2 - Live Tier-2 fetch paths and Tier-3 generation not exercised in CI (residual)
+##### MT-2 - Live Tier-2 fetch paths and Tier-3 generation not exercised in CI (residual) - MIGRATED to v4.13 (AR-19)
 
 - **Source phase**: Phase 2 (2.1-2.3), Phase 3 (3.1-3.2), Phase 5 (5.3)
 - **Status**: the committed automated verifier is DELIVERED - `docs/v3/v3.13/development/fixtures/verify_imagery.py` (34 offline checks: license filter incl. nc/nd rejection, CC-BY attribution builder, `accept_candidate`, the credits-manifest / asset shape via a stubbed download, the consent-default-offline invariant via a stubbed transport, and the Tier-3 model-license registry / `parse_size` / degrade / no-network-import invariants), wired into `presentify-extractor.yml`. It runs on a plain ubuntu runner with no extra dependency, network, or GPU.
@@ -102,7 +106,7 @@
 
 #### Hand-offs
 
-##### HO-1 - Stale-duplicate-install / skill-name collision (belongs to the flattening migration)
+##### HO-1 - Stale-duplicate-install / skill-name collision (belongs to the flattening migration) - RESOLVED 2026-09-29
 
 - **Source phase**: Discovered during the investigation that motivated this plan
 - **Reason**: Under `~/.claude/skills/` (and `~/.gemini/...`) a flat skill directory and a category-nested directory can both declare the same `name`, so they collide, and a stale flat copy can shadow the correct one (the original reported bad `/presentify` output came from a stale pre-fidelity flat copy shadowing the v3.12.0 one). Three stale copies were removed manually during this session. The ROOT cause is the skill-flattening install migration (the v3.12.1 cross-platform-adapters work), not this presentify skill.
@@ -112,3 +116,21 @@
 ### Deferred to the Phase 5 release-readiness / a browser-capable run
 
 - The rendered visual-QA screenshots for the worked example (WN-1) and the deck-PDF prominence demonstration (WN-2 / MT-1).
+
+## Archive reconciliation - 2026-09-29
+
+Before this minor moved to `docs/archives/`, every item that this file did not already record as resolved, closed, accepted, or declined was audited against the current tree. Each row below gives the one disposition applied, and the item's own line carries the same marker. Migrated items are tracked in `docs/releases/v4/v4.13/known-gaps.md`, section "Migrated from archived minors (v3.x, v4.0-v4.11) - 2026-09-29".
+
+| Item | Disposition | Evidence, reason, or destination |
+|---|---|---|
+| DF-1 (line 40) | Migrated | AR-18: presentify extractor limits recorded as accepted in `extraction-runbook.md`; merged across v3.9, v3.12, and v3.13 |
+| DF-2 (line 46) | Migrated | AR-18: presentify extractor limits recorded as accepted in `extraction-runbook.md`; merged across v3.9, v3.12, and v3.13 |
+| DF-3 (line 52) | Migrated | AR-03: the presentify repository walk still has no secret redaction (the runbook warns about it); security-relevant |
+| DF-4 (line 58) | Migrated | AR-18: presentify extractor limits recorded as accepted in `extraction-runbook.md`; merged across v3.9, v3.12, and v3.13 |
+| DF-5 (line 63) | Migrated | AR-18: presentify extractor limits recorded as accepted in `extraction-runbook.md`; merged across v3.9, v3.12, and v3.13 |
+| DF-6 (line 68) | Migrated | AR-18: presentify extractor limits recorded as accepted in `extraction-runbook.md`; merged across v3.9, v3.12, and v3.13 |
+| WN-1 (line 76) | Migrated | AR-19: presentify verification residuals (rendered QA, live media smoke, agent-behavior gates without a checker) |
+| WN-2 (line 82) | Resolved | Covered with MT-1 by `tests/skills/test_presentify_extractor_prominence.py` |
+| MT-1 (line 90) | Resolved | `tests/skills/test_presentify_extractor_prominence.py` (commit `9f439403`, v3.15.4) runs in `presentify-extractor.yml` |
+| MT-2 (line 96) | Migrated | AR-19: presentify verification residuals (rendered QA, live media smoke, agent-behavior gates without a checker) |
+| HO-1 (line 105) | Resolved | Both installers delete category directories left by an older nested install (commit `13f333d9`, v3.14.3); the v3.14 ledger records a dry-run install with no collision |

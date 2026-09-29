@@ -1,7 +1,11 @@
 # Known Gaps - v3.18
 
 **Project**: Nexus-Hub
-**Status**: v3.18.0 (`docs-lifecycle-retention`) released. v3.18.1 (`github-usage-monitor-accuracy`) Phases 1-6 implemented on `feat/v3.18.1-github-usage-monitor-accuracy`. **Zero release blockers across both.**
+**Status**: finalized; archived 2026-09-29; 0 open items (1 migrated to v4.13 as AR-40). Per-section status lines below are historical and were written before release.
+
+**Open items**: 0
+
+**Status at last pre-archive update**: v3.18.0 (`docs-lifecycle-retention`) released. v3.18.1 (`github-usage-monitor-accuracy`) Phases 1-6 implemented on `feat/v3.18.1-github-usage-monitor-accuracy`. **Zero release blockers across both.**
 **Last updated**: 2026-08-22 (post-v3.18.2 housekeeping: v3.18.2 MT-1 closed by the v3.16 history archive pass; BG-2 recorded as an environment-only local-run flake)
 
 > **File-lifecycle note**: this ledger is opened by the v3.18.0 Phase 5 reconciliation. Each subsequent v3.18.N implementation appends its own `## v3.18.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `MT-#` / `QG-#` numbering.
@@ -219,7 +223,7 @@ Every item raised during v3.18.0 is closed: five fixed in code, three closed by 
 - **Scope note**: only `development/history` moved. The four `development/` contract documents (`evaluation-artifact-contract.md`, `github-entitlement-probe.md`, `install-selection-contract.md`, `selective-install-baseline.md`), plus `plans/`, `comparisons/`, and `known-gaps.md`, stay in the active tree - the retention policy ages out session histories, not contracts.
 - **Also corrected**: `docs/archive/README.md` documented only whole-major archival, so the `docs/archive/v3/` subtree created by the v3.18.0 retention pass was undocumented. It now states both rules and carries a v3 index row.
 
-### BG-2 - OPEN, environment-only: two installer tests fail non-deterministically in long local runs on OneDrive
+### BG-2 - OPEN, environment-only: two installer tests fail non-deterministically in long local runs on OneDrive - MIGRATED to v4.13 (AR-40)
 
 - **Observed**: 2026-08-22, post-release, on this Windows working tree (an OneDrive-synced folder). Two separate long local runs each failed **one** test, and **a different one each time**: `tests/installer/test_org_cli.py::test_disconnect_requires_confirmation_and_yes_removes_state_and_cache` (1 failed / 3888 passed, full suite, 60 min) and `tests/installer/test_selection_parity.py::test_powershell_filtered_install_matches_bash` (1 failed / 417 passed, `tests/installer` only, 5 min).
 - **Both pass in isolation** (5.1s and 7.1s respectively) and **both pass in CI**: `tests (ubuntu-latest)`, `installer-smoke` on ubuntu / macos / **windows**, and `install-smoke` were all green on the v3.18.2 PRs.
@@ -311,3 +315,11 @@ Every open item across the whole v3.18 ledger was walked, not only this plan's o
 
 **None.** The one item still open across all of v3.18 is BG-2, which is environment-only, passes in CI on every platform, and passed locally in this session too.
  The phase changes only documentation surfaces the installers already copy recursively, adds no catalog artifact, and leaves `data/marketplace.json` counts and the 273-skill total unchanged.
+
+## Archive reconciliation - 2026-09-29
+
+Before this minor moved to `docs/archives/`, every item that this file did not already record as resolved, closed, accepted, or declined was audited against the current tree. Each row below gives the one disposition applied, and the item's own line carries the same marker. Migrated items are tracked in `docs/releases/v4/v4.13/known-gaps.md`, section "Migrated from archived minors (v3.x, v4.0-v4.11) - 2026-09-29".
+
+| Item | Disposition | Evidence, reason, or destination |
+|---|---|---|
+| BG-2 (line 222) | Migrated | AR-40: intermittent local installer-test failures in long runs; possibly the real-home leak fixed for `test_selection_parity.py` in v4.13.1 BG-2 (commit `ad768ca9`), unproven for `test_org_cli.py` |
