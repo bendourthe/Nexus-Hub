@@ -671,7 +671,7 @@ Gaps from the completion-checker remote-resolution fix ([`v4.13.5-completion-che
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
 | Bugs / regressions (BG) | 0 | 5 |
-| Warnings (WN) | 3 | 0 |
+| Warnings (WN) | 1 | 2 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
@@ -680,14 +680,6 @@ Gaps from the completion-checker remote-resolution fix ([`v4.13.5-completion-che
 #### WN-1 (v4.13.5): A stray scratch script has shipped at the repository root since v4.11.2
 
 **Evidence**: `scratch_p6cmd.py` sits at the repository root; it was added by `adaa1f85` and is not referenced by any installer, test, or document. **Reason**: this plan's scope is the checker; removing a tracked file shipped for several releases is a separate, reviewable change. **Owner**: catalog maintainer. **Suggested next step**: confirm nothing reads it, then delete it in a cleanup change with a CHANGELOG `Removed` note.
-
-#### WN-2 (v4.13.5): Git transport overrides can redirect a push the checker verified
-
-**Evidence**: the final-phase adversarial review showed that `core.sshCommand`, `GIT_SSH`, `GIT_SSH_COMMAND`, a `Host github.com` override in `~/.ssh/config`, `http.curloptResolve`, or a proxy setting can send a push somewhere other than the host `repo_host.py` verified, while `approval.remote` stays `met` because the push URL string is unchanged. `repo_host.py` also resolves an alias with the `ssh` it finds on PATH, which may differ from the one git runs (on Windows, Git's bundled ssh can read a different config). This predates v4.13.5; the removed regex had the same gap for a literal github.com remote. **Owner**: [v4.13.6](plans/v4.13.6-minor-scope-implement-and-verified-cleanup.md), which hardens the approval boundary. **Suggested next step**: treat any of these overrides as `cannot-verify` for `approval.remote`, and resolve SSH hosts with the same command git will run.
-
-#### WN-3 (v4.13.5): `approval.remote` checks origin while a push can use another remote
-
-**Evidence**: `remote.pushDefault` or `branch.<name>.pushRemote` makes a plain `git push` go to a remote other than origin, while the checker reads only origin's push URL. Pre-existing since v4.13.2 WN-1. **Owner**: [v4.13.6](plans/v4.13.6-minor-scope-implement-and-verified-cleanup.md). **Suggested next step**: resolve the effective push remote for the source branch and require it to be origin.
 
 ### Resolved Items
 
@@ -698,10 +690,12 @@ Gaps from the completion-checker remote-resolution fix ([`v4.13.5-completion-che
 | BG-3 | An SSH alias routed through a proxy counted as verified | Phase 2 | Only the `hostname` line of `ssh -G` was read, so a `ProxyCommand` or `ProxyJump` to another server passed. Either setting other than `none` now leaves the alias unverified. |
 | BG-4 | With `GH_HOST` set, a github.com remote was checked against the enterprise host | Phase 2 | Both `github.com` and `GH_HOST` were accepted, but `gh --repo owner/repo` queries only one of them. The accepted host is now exactly the one `gh` queries: `GH_HOST` when set, otherwise `github.com`. |
 | BG-5 | CodeQL flagged a no-effect statement in `repo_host.py` | Phase 2, PR #387 | The `...` body of the `Budget` protocol method raised "Statement has no effect" (alert 328), and the unresolved review thread blocked the merge under `develop`'s conversation-resolution rule. The body is now a docstring. |
+| WN-2 | Git transport overrides could redirect a push the checker verified | v4.13.6 Phase 2 | `repo_host.verify_push_route` makes `approval.remote` `cannot-verify` for `GIT_SSH`, `GIT_SSH_COMMAND`, and `core.sshCommand` (SSH); for HTTPS, anything that weakens or replaces TLS verification (`http.sslVerify` false, `GIT_SSL_NO_VERIFY`, a CA bundle from the environment or from a user-writable config scope) and `http.curloptResolve`; and for any remote `remote.origin.vcs`, a `<transport>::` URL, `GIT_EXEC_PATH`, config injected through `GIT_CONFIG_PARAMETERS` or `GIT_CONFIG_COUNT`, an `insteadOf` rule that changes which verified repository is named, and an ssh config block (including `Match user` and port-specific blocks, probed as `ssh -G [-p port] user@host`) that changes the hostname or adds a proxy. A proxy with TLS verification intact is deliberately not an override, since it cannot present github.com's certificate. SSH hosts are resolved with the ssh git itself runs, and an undeterminable ssh is `cannot-verify`. Tests in `tests/validators/test_completion_minor_record.py`: `test_an_environment_override_is_cannot_verify`, `test_a_config_override_is_cannot_verify`, `test_a_remote_helper_url_is_never_met`, `test_a_proxy_with_tls_verification_intact_is_met`, `test_a_system_scope_ca_bundle_is_not_an_override`, `test_a_rewrite_to_the_same_repository_is_met`, `test_a_rewrite_to_another_repository_is_cannot_verify`, `test_an_ssh_config_host_override_is_cannot_verify`, `test_a_match_user_block_is_probed_with_the_user_git_sends`, `test_a_port_specific_block_is_probed_with_the_port_git_sends`, `test_an_alias_is_resolved_with_the_ssh_git_runs`, `test_an_undeterminable_git_ssh_is_cannot_verify`, `test_a_git_cmd_wrapper_does_not_break_the_route_check`, `test_the_checker_reports_a_redirected_push_on_approval_remote`. The rule is owned by the completion contract's Push route subsection. |
+| WN-3 | `approval.remote` checked origin while a push could use another remote | v4.13.6 Phase 2 | The effective push remote for the source branch is resolved in git's order (`branch.<b>.pushRemote`, `remote.pushDefault`, `branch.<b>.remote`, then `origin`) and must be `origin`, otherwise `approval.remote` is `unmet` with the notice `push-remote-not-verified-remote`. Tests: `test_a_push_remote_other_than_origin_is_unmet`, `test_a_push_remote_set_to_origin_is_met`, `test_the_checker_reports_a_redirected_push_on_approval_remote`. |
 
 ## v4.13.6
 
-Gaps from the minor-scope implement plan ([`v4.13.6-minor-scope-implement-and-verified-cleanup`](plans/v4.13.6-minor-scope-implement-and-verified-cleanup.md)). v4.13.5 WN-2 and WN-3 name this plan as owner and are tracked here until closed.
+Gaps from the minor-scope implement plan ([`v4.13.6-minor-scope-implement-and-verified-cleanup`](plans/v4.13.6-minor-scope-implement-and-verified-cleanup.md)). v4.13.5 WN-2 and WN-3 named this plan as owner; Phase 2 closed both, and they are recorded under v4.13.5's Resolved Items.
 
 ### Summary
 

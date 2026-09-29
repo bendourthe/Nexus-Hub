@@ -37,7 +37,7 @@ from pathlib import Path
 ROUND_SECONDS = 30 * 60
 SUPERSEDED_KEEP = 20
 RUNNER_ENV = "NEXUS_RUNNER_LAUNCH"
-ACTIONS = ("create", "answer", "pause", "resume")
+ACTIONS = ("create", "answer", "pause", "resume", "retire")
 SCOPE_RE = re.compile(r"^v\d+\.\d+(?:\.\d+)?$")
 CODE_RE = re.compile(r"^[A-Z2-7]{8}$")
 DIGEST_RE = re.compile(r"^[0-9a-f]{64}$")

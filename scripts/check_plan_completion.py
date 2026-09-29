@@ -13,6 +13,10 @@ Subcommands:
                                            open an approval round; print the exact paste line
     record create|answer|pause|resume|block <plan> ...
                                            write the run record (approval-origin enforced)
+    record retire <plan>                   move a per-plan record aside (never deletes it)
+    members <vX.Y>                         a minor's member plans, in version order
+    record render|create|pause|resume|path --minor <vX.Y> ...
+                                           the schema-2 minor record (completion_minor.py)
 
 Exit codes: 0 PLAN COMPLETE, 1 INCOMPLETE, 3 BLOCKED, 4 PAUSED, 2 malformed input.
 
@@ -33,7 +37,9 @@ import secrets
 import subprocess
 import sys
 import time
+from collections.abc import Callable
 from pathlib import Path
+from types import ModuleType
 
 _SCRIPT_DIR = str(Path(__file__).resolve().parent)
 if _SCRIPT_DIR not in sys.path:
@@ -49,6 +55,7 @@ EXIT_COMPLETE, EXIT_INCOMPLETE, EXIT_MALFORMED, EXIT_BLOCKED, EXIT_PAUSED = (
     4,
 )
 SCHEMA = 1
+SCHEMA_MINOR = 2
 BUDGET_SECONDS = 20.0
 STALE_SECONDS = 72 * 3600
 
@@ -71,7 +78,13 @@ APPROVAL_CLASSES = {
     "spend",
     "defer-gaps",
     "unattended-with-bypass",
+    # Minor-level classes (schema 2). `cleanup-merged` is also offered to a one-plan run.
+    "cleanup-merged",
+    "gap-migration",
+    "archive-minor",
+    "minor-close-pr",
 }
+MINOR_ONLY_CLASSES = {"gap-migration", "archive-minor", "minor-close-pr"}
 GAP_TYPES = {"NI", "DF", "BG", "MT", "WN", "QG"}
 REQUIRED_SECTIONS = (
     "Architecture refactor",
@@ -89,6 +102,11 @@ REQUIRED_SECTIONS = (
 PLAN_REL_RE = re.compile(r"^docs/(?:[^/]+/)*plans/[^/]+\.md$")
 TASK_RE = re.compile(r"^- \[([ xX])\]\s+(T\d{3,})\b(.*)$", re.MULTILINE)
 CHECKBOX_RE = re.compile(r"^(\s*- )\[[ xX]\]", re.MULTILINE)
+STATUS_LINE_RE = re.compile(r"^\*\*Status\*\*:[^\n]*$", re.MULTILINE)
+STATUS_VALUE_RE = re.compile(
+    r"^\*\*Status\*\*:[ \t]*(`?)(queued|in-progress|complete|superseded|shipped|blocked)\1[ \t]*\r?$"
+)
+FIRST_SECTION_RE = re.compile(r"^## ", re.MULTILINE)
 VERSION_RE = re.compile(r"^\*\*Version\*\*:\s*(v?\d+\.\d+\.\d+)", re.MULTILINE)
 SLUG_RE = re.compile(r"^\*\*Slug\*\*:\s*(\S+)", re.MULTILINE)
 GAP_ITEM_RE = re.compile(r"^#### (?P<type>[A-Z]{2})-\d+\b(?P<title>.*)$", re.MULTILINE)
@@ -120,7 +138,7 @@ def _env() -> dict[str, str]:
     for name in (
         "GIT_DIR", "GIT_WORK_TREE", "GIT_COMMON_DIR", "GIT_INDEX_FILE",
         "GIT_OBJECT_DIRECTORY", "GIT_ALTERNATE_OBJECT_DIRECTORIES",
-        "GIT_CEILING_DIRECTORIES", "GIT_PREFIX", "GIT_NAMESPACE",
+        "GIT_CEILING_DIRECTORIES", "GIT_PREFIX", "GIT_NAMESPACE", "GIT_EXEC_PATH",
         "GIT_CONFIG_COUNT", "GIT_CONFIG_PARAMETERS",
     ):
         env.pop(name, None)
@@ -169,20 +187,44 @@ def _run_with_stderr(
 # --------------------------------------------------------------------------- plan
 
 
-class Context:
-    def __init__(self, plan_arg: str, budget: Budget) -> None:
+def plan_hash_text(text: str) -> str:
+    """sha256 of a plan with every checkbox and the header Status value normalized.
+
+    Ticks and the Status value change as the run progresses, so neither counts as an
+    edit. Only the FIRST `**Status**:` line above the first `## ` heading is
+    normalized, and only when its whole value is one known token (optionally in
+    backticks); any other text on it, and every other Status line, is hashed, so an
+    instruction appended there is an edit like any other.
+    """
+    text = CHECKBOX_RE.sub(r"\1[ ]", text)
+    section = FIRST_SECTION_RE.search(text)
+    header_end = section.start() if section else len(text)
+    status = STATUS_LINE_RE.search(text, 0, header_end)
+    if status and STATUS_VALUE_RE.match(status.group(0)):
+        text = text[: status.start()] + "**Status**:" + text[status.end() :]
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def legacy_plan_hash_text(text: str) -> str:
+    """The pre-v4.13.6 hash (checkboxes only), still accepted for older records."""
+    return hashlib.sha256(CHECKBOX_RE.sub(r"\1[ ]", text).encode("utf-8")).hexdigest()
+
+
+def record_key(root: Path, repo: str, scope: str) -> str:
+    """sha256 of the repository root, the resolved owner/repo, and `plan:<path>` or `minor:vX.Y`."""
+    return hashlib.sha256("\n".join((str(root), repo, scope)).encode("utf-8")).hexdigest()
+
+
+class RepoContext:
+    """The repository a check runs in: absolute tools, remotes, and the record key repo."""
+
+    def __init__(self, start: Path, budget: Budget) -> None:
         self.budget = budget
-        plan = Path(plan_arg).expanduser()
-        if not plan.is_file():
-            raise Malformed(f"plan not found: {plan_arg}")
-        self.plan = plan.resolve()
+        self.notices: list[str] = []
         self.git = repo_host.absolute_tool("git", None)
         if not self.git:
             raise Malformed("git not found")
-        rc, out = _run(
-            [self.git, "-C", str(self.plan.parent), "rev-parse", "--show-toplevel"],
-            budget,
-        )
+        rc, out = _run([self.git, "-C", str(start), "rev-parse", "--show-toplevel"], budget)
         if rc != 0:
             raise Malformed("plan is not inside a git repository")
         self.root = Path(out.strip()).resolve()
@@ -191,6 +233,62 @@ class Context:
         if not self.git:
             raise Malformed("git resolves inside the working tree; refusing")
         self.gh = repo_host.absolute_tool("gh", self.root)
+        self.remote_url = self._git_out("remote", "get-url", "origin")
+        self.push_remote_url = self._git_out("remote", "get-url", "--push", "--all", "origin")
+        self._default_repo: str | None = None
+        self._key_repo: str | None = None
+
+    def run(self, argv: list[str], cwd: Path | None = None) -> tuple[int, str]:
+        return _run(argv, self.budget, cwd)
+
+    @property
+    def default_repo(self) -> str:
+        """The verified origin repository, resolved only when no frozen repo exists."""
+        if self._default_repo is None:
+            repo, _reason = repo_host.resolve_repo(
+                self.root, git=self.git, gh=self.gh or "", run=self.run
+            )
+            self._default_repo = repo or ""
+        return self._default_repo
+
+    @property
+    def key_repo(self) -> str:
+        """The owner/repo a record key names: the verified push URL's, else the fetch URL's.
+
+        No `gh` call, so the key does not depend on the network; an unresolvable
+        remote keys on the empty string.
+        """
+        if self._key_repo is None:
+            self._key_repo = (
+                self.url_repo(self.push_remote_url) or self.url_repo(self.remote_url) or ""
+            ).lower()
+        return self._key_repo
+
+    def url_repo(self, url: str) -> str | None:
+        """The verified repository one remote URL names, or None.
+
+        An SSH alias is resolved with the ssh git itself runs (v4.13.5 WN-2).
+        """
+        repo, _reason = repo_host.repo_from_url(
+            url, repo_root=self.root, run=self.run, git=self.git
+        )
+        return repo
+
+    def _git_out(self, *args: str) -> str:
+        rc, out = _run([self.git, "-C", str(self.root), *args], self.budget)
+        return out.strip() if rc == 0 else ""
+
+    def scoped_record_path(self, scope: str) -> Path:
+        return _runs_dir() / f"{record_key(self.root, self.key_repo, scope)}.json"
+
+
+class Context(RepoContext):
+    def __init__(self, plan_arg: str, budget: Budget) -> None:
+        plan = Path(plan_arg).expanduser()
+        if not plan.is_file():
+            raise Malformed(f"plan not found: {plan_arg}")
+        self.plan = plan.resolve()
+        super().__init__(self.plan.parent, budget)
         self.rel = self.plan.relative_to(self.root).as_posix()
         if not PLAN_REL_RE.match(self.rel):
             raise Malformed("plan path must match docs/**/plans/*.md")
@@ -213,43 +311,81 @@ class Context:
         slug = SLUG_RE.search(self.text)
         self.slug = slug.group(1) if slug else self.plan.stem
         self.version_dir = self.plan.parent.parent
-        self.remote_url = self._git_out("remote", "get-url", "origin")
-        self.push_remote_url = self._git_out("remote", "get-url", "--push", "--all", "origin")
-        self._default_repo: str | None = None
-
-    def run(self, argv: list[str], cwd: Path | None = None) -> tuple[int, str]:
-        return _run(argv, self.budget, cwd)
-
-    @property
-    def default_repo(self) -> str:
-        """The verified origin repository, resolved only when no frozen repo exists."""
-        if self._default_repo is None:
-            repo, _reason = repo_host.resolve_repo(
-                self.root, git=self.git, gh=self.gh or "", run=self.run
-            )
-            self._default_repo = repo or ""
-        return self._default_repo
-
-    def url_repo(self, url: str) -> str | None:
-        """The verified repository one remote URL names, or None."""
-        repo, _reason = repo_host.repo_from_url(url, repo_root=self.root, run=self.run)
-        return repo
-
-    def _git_out(self, *args: str) -> str:
-        rc, out = _run([self.git, "-C", str(self.root), *args], self.budget)
-        return out.strip() if rc == 0 else ""
 
     def plan_hash(self) -> str:
-        """sha256 of the plan with every checkbox normalized, so ticks do not count as edits."""
-        return hashlib.sha256(
-            CHECKBOX_RE.sub(r"\1[ ]", self.text).encode("utf-8")
-        ).hexdigest()
+        """The plan hash a new record freezes (see `plan_hash_text`)."""
+        return plan_hash_text(self.text)
+
+    def plan_hash_matches(self, frozen: object) -> bool:
+        """True when a frozen hash equals the current plan under either hash rule."""
+        return frozen in (plan_hash_text(self.text), legacy_plan_hash_text(self.text))
+
+    def record_paths(self) -> list[Path]:
+        """[the `plan:<path>` key, the pre-v4.13.6 key], in lookup order."""
+        return plan_record_paths(self.root, self.key_repo, self.remote_url, self.rel)
 
     def record_path(self) -> Path:
-        key = hashlib.sha256(
-            "\n".join((str(self.root), self.remote_url, self.rel)).encode("utf-8")
-        ).hexdigest()
-        return _runs_dir() / f"{key}.json"
+        """The existing record for this plan, else where a new one is written."""
+        paths = self.record_paths()
+        found = next((p for p in paths if p.is_file()), None)
+        if found is None:
+            found = find_record_by_content(
+                self.root, lambda r: r.get("schema") == SCHEMA and r.get("plan") == self.rel
+            )
+        return found or paths[0]
+
+
+def find_records_by_content(root: Path, match: Callable[[dict], bool]) -> list[Path]:
+    """Every record for this repository root that `match` accepts, wherever its key points.
+
+    The key names the resolved owner/repo, which a remote-URL change moves. Without
+    this lookup a changed remote would hide the record, and the run would read as
+    having none instead of reporting `approval.remote unmet`; and a per-plan record
+    off its key would be invisible to the one-authority rule.
+    """
+    runs = _runs_dir()
+    if not runs.is_dir():
+        return []
+    found: list[Path] = []
+    for path in sorted(runs.glob("*.json")):
+        if path.name.endswith(".gate.json"):
+            continue
+        try:
+            record = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError, UnicodeDecodeError):
+            continue
+        if isinstance(record, dict) and record.get("repo_root") == str(root) and match(record):
+            found.append(path)
+    return found
+
+
+def find_record_by_content(root: Path, match: Callable[[dict], bool]) -> Path | None:
+    """The first record `find_records_by_content` returns, or None."""
+    return next(iter(find_records_by_content(root, match)), None)
+
+
+def plan_record_files(root: Path, key_repo: str, remote_url: str, rel: str) -> list[Path]:
+    """Every existing per-plan record for `rel`: its keys, then any found by content."""
+    found = [p for p in plan_record_paths(root, key_repo, remote_url, rel) if p.is_file()]
+    for path in find_records_by_content(
+        root, lambda r: r.get("schema") == SCHEMA and r.get("plan") == rel
+    ):
+        if path not in found:
+            found.append(path)
+    return found
+
+
+def plan_record_paths(root: Path, key_repo: str, remote_url: str, rel: str) -> list[Path]:
+    """Where a per-plan record lives: the v4.13.6 key first, then the legacy key.
+
+    The legacy key hashed the root, the raw fetch URL, and the path; it is still read
+    so a run recorded before the upgrade keeps its authority.
+    """
+    legacy = hashlib.sha256("\n".join((str(root), remote_url, rel)).encode("utf-8")).hexdigest()
+    return [
+        _runs_dir() / f"{record_key(root, key_repo, 'plan:' + rel)}.json",
+        _runs_dir() / f"{legacy}.json",
+    ]
 
 
 def _task_path(rest: str) -> str:
@@ -283,22 +419,30 @@ def _canonical(obj: object) -> bytes:
     ).encode("utf-8")
 
 
+_SIGNED_FIELDS = (
+    "approvals",
+    "plan_sha256",
+    "session_id",
+    "repo",
+    "deferrable_gap_types",
+    # Fixed at `record create` and never rewritten: deleting `start_head` turned
+    # every ticked task `met` with no commit check.
+    "start_head",
+    "nonce",
+    "created",
+)
+# A schema-2 record also signs what makes it a minor record, so removing `scope`,
+# `minor`, or a member, or relabelling it schema 1, fails verification.
+_SIGNED_MINOR_FIELDS = ("schema", "scope", "minor", "members")
+
+
 def _hmac_payload(record: dict) -> dict:
-    return {
-        k: record.get(k)
-        for k in (
-            "approvals",
-            "plan_sha256",
-            "session_id",
-            "repo",
-            "deferrable_gap_types",
-            # Fixed at `record create` and never rewritten: deleting `start_head` turned
-            # every ticked task `met` with no commit check.
-            "start_head",
-            "nonce",
-            "created",
-        )
-    }
+    fields = _SIGNED_FIELDS
+    if record.get("schema") != SCHEMA:
+        # Anything that is not a schema-1 record signs the minor fields too; a schema-1
+        # payload stays exactly as it was, so existing records still verify.
+        fields = _SIGNED_FIELDS + _SIGNED_MINOR_FIELDS
+    return {k: record.get(k) for k in fields}
 
 
 def _sign(record: dict, key: bytes) -> str:
@@ -325,12 +469,14 @@ class RecordState:
         self.notices: list[str] = []
 
 
-def load_record(ctx: Context, session: str | None) -> RecordState:
-    state = RecordState()
-    path = ctx.record_path()
-    if not path.is_file():
-        return state
-    tampered = ("BLOCKED: record-tampered", EXIT_BLOCKED)
+TAMPERED = ("BLOCKED: record-tampered", EXIT_BLOCKED)
+
+
+def read_record(ctx: RepoContext, path: Path) -> dict | None:
+    """The raw record at `path`, or None when it sits in a working tree or is unreadable.
+
+    Callers treat None for an existing file as `record-tampered`.
+    """
     rc, out = _run(
         [ctx.git, "-C", str(path.parent), "rev-parse", "--is-inside-work-tree"],
         ctx.budget,
@@ -341,13 +487,36 @@ def load_record(ctx: Context, session: str | None) -> RecordState:
             ctx.budget,
         )
         if tracked_rc != 1:
-            state.forced = tampered
-            return state
+            return None
     try:
         record = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, ValueError):
-        state.forced = tampered
+    except (OSError, ValueError, UnicodeDecodeError):
+        return None
+    return record if isinstance(record, dict) else None
+
+
+def load_record(ctx: Context, session: str | None) -> RecordState:
+    """Load this plan's record, dispatching on `schema`.
+
+    Schema 1 is the per-plan record, unchanged. A schema-2 (minor) record lives
+    under a `minor:vX.Y` key and is loaded by `completion_minor.load_minor`; one
+    found under a plan key is tampered, as is any unknown schema.
+    """
+    state = RecordState()
+    path = ctx.record_path()
+    if not path.is_file():
         return state
+    record = read_record(ctx, path)
+    if record is None or record.get("schema") != SCHEMA:
+        state.forced = TAMPERED
+        return state
+    return _load_schema1(ctx, record, session, state)
+
+
+def _load_schema1(
+    ctx: Context, record: dict, session: str | None, state: RecordState
+) -> RecordState:
+    tampered = TAMPERED
     if session and record.get("session_id") != session:
         created = _parse_time(record.get("created"))
         age = (
@@ -366,7 +535,7 @@ def load_record(ctx: Context, session: str | None) -> RecordState:
     if (
         record.get("schema") != SCHEMA
         or key is None
-        or record.get("plan_sha256") != ctx.plan_hash()
+        or not ctx.plan_hash_matches(record.get("plan_sha256"))
         or not hmac.compare_digest(
             str(record.get("approvals_hmac", "")), _sign(record, key)
         )
@@ -388,6 +557,62 @@ def load_record(ctx: Context, session: str | None) -> RecordState:
     if open_blockers:
         state.forced = (f"BLOCKED: {open_blockers[0]['category']}", EXIT_BLOCKED)
     return state
+
+
+def project(record: dict, version: str) -> dict | None:
+    """The per-plan view of a record, so `evaluate`, the gates, and the runner keep one path.
+
+    A schema-1 record is its own view. A schema-2 record yields the member whose
+    `version` matches (members are identified by version, never by path), with the
+    record's frozen remote and repository and the member's own branches, tag,
+    cleanup, and classes plus the minor-level classes. Returns None when no member
+    has that version.
+    """
+    if record.get("schema") == SCHEMA:
+        return record
+    member = next(
+        (m for m in record.get("members") or [] if isinstance(m, dict) and m.get("version") == version),
+        None,
+    )
+    if member is None:
+        return None
+    minor = record.get("approvals") or {}
+    own = member.get("approvals") or {}
+    cleanup = own.get("cleanup") or {"branches": [], "worktrees": []}
+    approvals = {
+        "plan": member.get("plan_path"),
+        "remote_url": minor.get("remote_url"),
+        "push_remote_url": minor.get("push_remote_url"),
+        "repo": record.get("repo"),
+        "source_branch": member.get("source_branch"),
+        "target_branch": member.get("target_branch") or "develop",
+        "release_version": member.get("release_version") or version,
+        "tag": member.get("tag") or version,
+        "cleanup": cleanup,
+        "classes": [*(own.get("classes") or []), *(minor.get("classes") or [])],
+        "page_sha256": minor.get("page_sha256"),
+    }
+    return {
+        "schema": record.get("schema"),
+        "scope": "member",
+        "minor": record.get("minor"),
+        "plan": member.get("plan_path"),
+        "plan_sha256": member.get("plan_sha256"),
+        "repo_root": record.get("repo_root"),
+        "remote_url": record.get("remote_url"),
+        "repo": record.get("repo"),
+        "session_id": record.get("session_id"),
+        "worktree": member.get("worktree") or record.get("worktree"),
+        "start_head": member.get("start_head") or record.get("start_head"),
+        "nonce": record.get("nonce"),
+        "created": record.get("created"),
+        "approvals": approvals,
+        # Minor runs have no deferrable state: a gap is fixed or migrated.
+        "deferrable_gap_types": [],
+        "cleanup": cleanup,
+        "blockers": record.get("blockers") or [],
+        "pause": record.get("pause"),
+    }
 
 
 def _parse_time(value: object) -> dt.datetime | None:
@@ -447,7 +672,15 @@ def _approved_remote_status(ctx: Context, record: dict | None) -> str:
     expected_url = approvals.get("push_remote_url")
     if not expected_url or ctx.push_remote_url != expected_url:
         return "unmet"
-    pushed_repo = ctx.url_repo(ctx.push_remote_url)
+    branch = str(approvals.get("source_branch") or f"feat/{ctx.version}-{ctx.slug}")
+    # v4.13.5 WN-2 and WN-3: the push must go to origin, over a route no override
+    # can redirect, to a host resolved with the ssh git itself runs.
+    status, pushed_repo, reason = repo_host.verify_push_route(
+        ctx.root, ctx.push_remote_url, git=ctx.git, run=ctx.run, branch=branch
+    )
+    if status != "met":
+        ctx.notices.append(f"approval.remote {status}: {reason}")
+        return status
     approved_repo = str(approvals.get("repo") or "")
     return "met" if pushed_repo and pushed_repo.lower() == approved_repo.lower() else "unmet"
 
@@ -785,7 +1018,7 @@ def verdict(
 def cmd_check(args: argparse.Namespace) -> int:
     ctx = Context(args.plan, Budget(BUDGET_SECONDS))
     line, code, results, state = verdict(ctx, args.session)
-    for notice in state.notices:
+    for notice in [*state.notices, *ctx.notices]:
         print(f"notice: {notice}", file=sys.stderr)
     print(line)
     if args.json:
@@ -842,18 +1075,22 @@ def _digest(text: str) -> str:
     return approval_binding.digest(text)
 
 
-def _approvals_from_file(path: str) -> dict:
+def _approvals_from_file(path: str, minor: bool = False) -> dict:
     try:
         spec = json.loads(Path(path).read_text(encoding="utf-8"))
     except (OSError, ValueError) as exc:
         raise Malformed(f"approvals file unreadable: {exc.__class__.__name__}") from exc
+    if not isinstance(spec, dict):
+        raise Malformed("approvals file must hold a JSON object")
     classes = spec.get("classes")
-    if not isinstance(classes, list) or not classes:
+    if not isinstance(classes, list) or not classes or not all(isinstance(c, dict) for c in classes):
         raise Malformed("approvals file needs a non-empty 'classes' list")
     for entry in classes:
         name = str(entry.get("class", ""))
         if not (name in APPROVAL_CLASSES or name.startswith("ask-first:")):
             raise Malformed(f"approval class not approvable in advance: {name}")
+        if name in MINOR_ONLY_CLASSES and not minor:
+            raise Malformed(f"approval class {name} belongs to a minor run (record ... --minor vX.Y)")
     defer = next((c.get("bound") for c in classes if c["class"] == "defer-gaps"), []) or []
     if not set(defer) <= GAP_TYPES:
         raise Malformed("defer-gaps bound must list gap types from NI DF BG MT WN QG")
@@ -931,12 +1168,50 @@ def _consume(
     return pending, bound
 
 
+def _minor_module() -> ModuleType:
+    """The minor-scope sibling, imported only when a minor scope is named."""
+    import completion_minor  # installed as a sibling in ~/.nexus-hub/scripts/
+
+    return completion_minor
+
+
+def _scoped(args: argparse.Namespace) -> bool:
+    """True for a `--minor vX.Y` invocation; exactly one of plan and --minor is required."""
+    minor = getattr(args, "minor", None)
+    if bool(minor) == bool(getattr(args, "plan", None)):
+        raise Malformed("name one plan, or one minor with --minor vX.Y")
+    return bool(minor)
+
+
+def cmd_members(args: argparse.Namespace) -> int:
+    return _minor_module().cmd_members(sys.modules[__name__], args)
+
+
+def _covering_minor(ctx: Context) -> int | None:
+    """The refusal when a valid, uncompleted minor record covers this plan's version."""
+    token = _minor_module().covering_minor(sys.modules[__name__], ctx, ctx.version)
+    if token is None:
+        return None
+    print(f"BLOCKED: approval-not-covered (minor record {token} covers {ctx.version})")
+    return EXIT_BLOCKED
+
+
 def cmd_record_render(args: argparse.Namespace) -> int:
+    if _scoped(args):
+        return _minor_module().cmd_record_render(sys.modules[__name__], args)
     ctx = Context(args.plan, Budget(BUDGET_SECONDS))
     if args.action == "create":
         if not args.approvals:
             raise Malformed("record render --action create needs --approvals")
+        covered = _covering_minor(ctx)
+        if covered is not None:
+            return covered
         page = _create_page(ctx, _approvals_from_file(args.approvals))
+    elif args.action == "retire":
+        page = _retire_page(ctx)
+        if page is None:
+            print("no live run record to retire for this plan", file=sys.stderr)
+            return EXIT_MALFORMED
     else:
         loaded = _load_for_update(args)
         if isinstance(loaded, int):
@@ -974,7 +1249,12 @@ def cmd_record_render(args: argparse.Namespace) -> int:
 
 
 def cmd_record_create(args: argparse.Namespace) -> int:
+    if _scoped(args):
+        return _minor_module().cmd_record_create(sys.modules[__name__], args)
     ctx = Context(args.plan, Budget(BUDGET_SECONDS))
+    covered = _covering_minor(ctx)
+    if covered is not None:
+        return covered
     spec = _approvals_from_file(args.approvals)
     page = _create_page(ctx, spec)
     consumed = _consume(ctx, "create", page, args.session, None)
@@ -1023,8 +1303,96 @@ def cmd_record_create(args: argparse.Namespace) -> int:
         "pause": None,
     }
     record["approvals_hmac"] = _sign(record, _secret(create=True) or b"")
-    _write_record(ctx.record_path(), record)
+    new_path, legacy_path = ctx.record_paths()
+    _write_record(new_path, record)
+    if legacy_path.is_file():
+        # A new record replaces a pre-v4.13.6 one, which would otherwise still be read.
+        _retire(legacy_path)
     print(f"RECORDED {ctx.rel} nonce={record['nonce']}")
+    return 0
+
+
+def _retire(path: Path) -> Path:
+    """Move a record aside to `runs/retired/`, never deleting it."""
+    retired = _runs_dir() / "retired" / f"{path.stem}.{int(time.time())}.json"
+    retired.parent.mkdir(parents=True, exist_ok=True)
+    _restrict(retired.parent, directory=True)
+    os.replace(path, retired)
+    return retired
+
+
+def lock_live(record_path: Path) -> bool:
+    """True when a runner holds the lock beside this record (run_plan.py's naming)."""
+    lock = record_path.with_name(record_path.stem + ".runner.lock")
+    try:
+        age = time.time() - lock.stat().st_mtime
+    except OSError:
+        return False
+    try:
+        import run_plan  # a sibling, imported only when a lock exists
+
+        stale = float(run_plan.LOCK_STALE_SECONDS)
+    except ImportError:
+        stale = 6 * 3600.0
+    return age <= stale
+
+
+def record_live(ctx: RepoContext, path: Path) -> tuple[bool, dict | None]:
+    """(live, record): created within 72 hours, or unreadable (counted as someone's)."""
+    record = read_record(ctx, path)
+    created = _parse_time((record or {}).get("created"))
+    if record is None or created is None or created.tzinfo is None:
+        return True, record
+    age = (dt.datetime.now(dt.timezone.utc) - created).total_seconds()
+    return age <= STALE_SECONDS, record
+
+
+def _retire_page(ctx: Context) -> dict | None:
+    """The page a retire paste approves: the nonces of the live records it moves aside."""
+    live = []
+    for path in plan_record_files(ctx.root, ctx.key_repo, ctx.remote_url, ctx.rel):
+        is_live, record = record_live(ctx, path)
+        if is_live:
+            live.append(str((record or {}).get("nonce") or path.stem))
+    if not live:
+        return None
+    return approval_binding.action_page(
+        "retire", rel=ctx.rel, version=ctx.version, record_nonce=",".join(sorted(live))
+    )
+
+
+def cmd_record_retire(args: argparse.Namespace) -> int:
+    """Move this plan's per-plan records aside, so a minor run can hold the only authority.
+
+    A stale record (older than 72 hours) or one bound to the caller's own `--session`
+    moves at once. Another session's live record moves only after the user pastes
+    the line `record render <plan> --action retire` printed, because retiring it
+    removes that run's authority, pause, and blockers.
+    """
+    ctx = Context(args.plan, Budget(BUDGET_SECONDS))
+    found = plan_record_files(ctx.root, ctx.key_repo, ctx.remote_url, ctx.rel)
+    if not found:
+        print("no run record for this plan", file=sys.stderr)
+        return 1
+    if any(lock_live(p) for p in found):
+        return _blocked("owned-by-another-run (a runner holds this record)")
+    session = getattr(args, "session", None)
+    foreign = []
+    for path in found:
+        is_live, record = record_live(ctx, path)
+        own = bool(session) and session != "auto" and (record or {}).get("session_id") == session
+        if is_live and not own:
+            foreign.append(path)
+    if foreign:
+        page = _retire_page(ctx)
+        if not session or page is None:
+            return _refused("not-rendered")
+        consumed = _consume(ctx, "retire", page, session, getattr(args, "text", None))
+        if isinstance(consumed, int):
+            return consumed
+    for path in found:
+        _retire(path)
+    print(f"RETIRED {ctx.rel}")
     return 0
 
 
@@ -1078,6 +1446,8 @@ def cmd_record_answer(args: argparse.Namespace) -> int:
 
 
 def cmd_record_pause(args: argparse.Namespace) -> int:
+    if _scoped(args):
+        return _minor_module().cmd_record_action(sys.modules[__name__], args, "pause")
     consumed = _consume_action(args, "pause")
     if isinstance(consumed, int):
         return consumed
@@ -1089,6 +1459,8 @@ def cmd_record_pause(args: argparse.Namespace) -> int:
 
 
 def cmd_record_resume(args: argparse.Namespace) -> int:
+    if _scoped(args):
+        return _minor_module().cmd_record_action(sys.modules[__name__], args, "resume")
     consumed = _consume_action(args, "resume")
     if isinstance(consumed, int):
         return consumed
@@ -1148,13 +1520,21 @@ def build_parser() -> argparse.ArgumentParser:
     score.add_argument("plan")
     score.add_argument("--session")
     score.set_defaults(func=cmd_score)
+    members = sub.add_parser(
+        "members", help="list a minor's member plans in version order (excluded ones on stderr)"
+    )
+    members.add_argument("minor", help="a minor scope token such as v0.5")
+    members.add_argument("--integration-branch", default="develop")
+    members.add_argument("--repo", default=".", help="a path inside the repository")
+    members.set_defaults(func=cmd_members)
     record = sub.add_parser("record", help="write the run record").add_subparsers(
         dest="action", required=True
     )
     render = record.add_parser(
         "render", help="open an approval round and print the exact line the user pastes"
     )
-    render.add_argument("plan")
+    render.add_argument("plan", nargs="?")
+    _add_minor_scope(render)
     render.add_argument(
         "--session",
         required=True,
@@ -1168,7 +1548,8 @@ def build_parser() -> argparse.ArgumentParser:
     render.add_argument("--json", action="store_true")
     render.set_defaults(func=cmd_record_render)
     create = record.add_parser("create")
-    create.add_argument("plan")
+    create.add_argument("plan", nargs="?")
+    _add_minor_scope(create)
     create.add_argument(
         "--session",
         required=True,
@@ -1188,7 +1569,8 @@ def build_parser() -> argparse.ArgumentParser:
     answer.set_defaults(func=cmd_record_answer)
     for name, func in (("pause", cmd_record_pause), ("resume", cmd_record_resume)):
         action = record.add_parser(name)
-        action.add_argument("plan")
+        action.add_argument("plan", nargs="?")
+        _add_minor_scope(action)
         action.add_argument("--session", required=True)
         action.add_argument("--text", help="when given, must equal the pasted line")
         action.set_defaults(func=func)
@@ -1200,13 +1582,31 @@ def build_parser() -> argparse.ArgumentParser:
     block.add_argument("--approval-class")
     block.set_defaults(func=cmd_record_block)
     where = record.add_parser("path", help="print the run record's path; exit 1 when none exists")
-    where.add_argument("plan")
+    where.add_argument("plan", nargs="?")
+    _add_minor_scope(where)
     where.set_defaults(func=cmd_record_path)
+    retire = record.add_parser(
+        "retire", help="move a per-plan record aside so a minor run can hold the only authority"
+    )
+    retire.add_argument("plan")
+    retire.add_argument(
+        "--session", help="your session id; another session's live record needs the rendered retire line"
+    )
+    retire.add_argument("--text", help="when given, must equal the pasted line")
+    retire.set_defaults(func=cmd_record_retire)
     return parser
 
 
+def _add_minor_scope(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--minor", help="a minor scope token such as v0.5 (schema-2 record)")
+    parser.add_argument("--repo", default=".", help="with --minor: a path inside the repository")
+
+
 def cmd_record_path(args: argparse.Namespace) -> int:
-    path = Context(args.plan, Budget(BUDGET_SECONDS)).record_path()
+    if _scoped(args):
+        path = _minor_module().minor_record_path(sys.modules[__name__], args)
+    else:
+        path = Context(args.plan, Budget(BUDGET_SECONDS)).record_path()
     print(path)
     return 0 if path.is_file() else 1
 

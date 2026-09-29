@@ -29,6 +29,18 @@ GH_STUB = REPO_ROOT / "tests" / "fixtures" / "gh_stub"
 PLAN_REL = "docs/releases/v0/v0.2/plans/v0.2.0-demo.md"
 EVIDENCE_REL = "docs/releases/v0/v0.2/development/v0.2.0-last-phase-evidence.md"
 SESSION = "session-one"
+TRANSPORT_OVERRIDE_ENV = (
+    "GIT_SSH",
+    "GIT_SSH_COMMAND",
+    "GIT_CONFIG_PARAMETERS",
+    "GIT_CONFIG_COUNT",
+    "http_proxy",
+    "https_proxy",
+    "all_proxy",
+    "HTTP_PROXY",
+    "HTTPS_PROXY",
+    "ALL_PROXY",
+)
 APPROVAL_TEXT = "Yes, push, merge, and release v0.2.0 for acme/demo."
 SECTIONS = (
     "Architecture refactor",
@@ -95,6 +107,10 @@ class Fixture:
         }
         self.save_state()
         self.env = dict(os.environ)
+        # approval.remote treats these as push-route overrides (v4.13.5 WN-2); a host
+        # that sets one must not change what these fixtures observe.
+        for name in (*TRANSPORT_OVERRIDE_ENV, "GH_HOST"):
+            self.env.pop(name, None)
         self.env.update(
             PATH=str(GH_STUB) + os.pathsep + os.environ.get("PATH", ""),
             GH_STUB_STATE=str(self.state_file),
@@ -185,7 +201,7 @@ def _ssh_stub(fx: Fixture, hosts: dict[str, str]) -> None:
     (stub / "ssh_stub.py").write_text(
         "import json, os, sys\n"
         "hosts = json.loads(os.environ['SSH_STUB_HOSTS'])\n"
-        "alias = sys.argv[-1]\n"
+        "alias = sys.argv[-1].rsplit('@', 1)[-1]  # ssh -G user@host reports the host alone\n"
         "print('user git')\n"
         "print('hostname ' + hosts.get(alias, alias))\n",
         encoding="utf-8",

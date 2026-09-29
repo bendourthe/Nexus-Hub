@@ -2663,6 +2663,13 @@ install_templates() {
         safe_copy "$approval_binding_source" "$scripts_dest/approval_binding.py" true "[OK] Approval binder installed at: $scripts_dest/approval_binding.py"
     fi
 
+    # Copy the minor-scope resolver (v4.13.6). The completion checker dispatches
+    # `members` and `record ... --minor` to it as a sibling.
+    local completion_minor_source="$repo_root/scripts/completion_minor.py"
+    if [ -f "$completion_minor_source" ]; then
+        safe_copy "$completion_minor_source" "$scripts_dest/completion_minor.py" true "[OK] Minor-scope resolver installed at: $scripts_dest/completion_minor.py"
+    fi
+
     # Copy the completion-gate core (v4.13.2). The completion-gate and
     # approval-capture hooks run it from this installed path only.
     local completion_gate_source="$repo_root/scripts/completion_gate.py"

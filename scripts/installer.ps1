@@ -2793,6 +2793,13 @@ function Install-Templates {
         Safe-Copy -Source $approvalBindingSource -Destination (Join-Path $scriptsDest "approval_binding.py") -Confirm:$true -CustomMessage "✓ Approval binder installed at: $scriptsDest\approval_binding.py"
     }
 
+    # Copy the minor-scope resolver (v4.13.6). The completion checker dispatches
+    # `members` and `record ... --minor` to it as a sibling.
+    $completionMinorSource = Join-Path $RepoRoot "scripts\completion_minor.py"
+    if (Test-Path $completionMinorSource) {
+        Safe-Copy -Source $completionMinorSource -Destination (Join-Path $scriptsDest "completion_minor.py") -Confirm:$true -CustomMessage "✓ Minor-scope resolver installed at: $scriptsDest\completion_minor.py"
+    }
+
     # Copy the completion-gate core (v4.13.2). The completion-gate and
     # approval-capture hooks run it from this installed path only.
     $completionGateSource = Join-Path $RepoRoot "scripts\completion_gate.py"

@@ -6,6 +6,8 @@ mirroring the rule that hosting calls are pinned to the approved repository;
 a call without it fails, as does any call when the state sets "fail": true
 (standing in for offline or unauthenticated). A missing pull request or release
 prints real `gh`'s not-found line, or the state's "not_found_stderr" text when set.
+A "releases" map ({tag: isDraft}) answers `release view` per tag instead of the
+single "release_draft" value.
 """
 
 from __future__ import annotations
@@ -40,6 +42,13 @@ def main(argv: list[str]) -> int:
             print(state["no_checks_stderr"], file=sys.stderr)
             return 1
         print(json.dumps(state.get("checks", [])))
+    elif head == ["release", "view"] and "releases" in state:
+        # Per-tag releases ({tag: isDraft}) for minor-scope fixtures with several plans.
+        tag = argv[2]
+        if tag not in state["releases"]:
+            print(state.get("not_found_stderr", "release not found"), file=sys.stderr)
+            return 1
+        print(json.dumps({"isDraft": state["releases"][tag]}))
     elif head == ["release", "view"]:
         if "release_draft" not in state:
             print(state.get("not_found_stderr", "release not found"), file=sys.stderr)
