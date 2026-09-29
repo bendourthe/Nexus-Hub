@@ -1,7 +1,7 @@
 # Nexus-Hub Progress Dashboard
 
 **Integration branch:** `develop`
-**Active work:** Historical v4.0-v4.12 plan closure is integrated; v4.13.1 through v4.13.3 are released and back-merged, while v4.13.4 Training rebuild remains in its Claude-owned worktree. Bounded vendor, manual, and artifact-coverage gaps remain open in their known-gaps ledgers.
+**Active work:** Historical v4.0-v4.12 plan closure is integrated and v4.13.1 through v4.13.3 are released. The v4.13.4 Training rebuild has committed Phases 1-7 in an isolated worktree; its final phase, integration, and release are in progress, followed by v4.13.5 and v4.13.6. Bounded vendor, manual, and artifact-coverage gaps remain open in their known-gaps ledgers.
 **Closeout boundary:** One future-plan PR (#222, with a v4.15.1 slot collision), recovery backups with unique Git history, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim. The former 47-file recovery branch was removed after its patch was proven identical to the merged PR #259 commit.
 **Last refreshed:** 2026-09-28
 
@@ -9,7 +9,7 @@ This dashboard tracks the work in flight right now. It is deliberately short. Fi
 
 Refreshing this file to the active plan (rather than appending another version's section) keeps the dashboard from drifting to an old feature branch.
 
-- [ ] Finish the [v4.13.4 Training rebuild](releases/v4/v4.13/plans/v4.13.4-guide-training-rebuild.md): Phases 1-5 are committed locally. Phase 5 bound Training actions and file explorers to isolated section roots while preserving the eight-scene deck; the final guide suite passed 372 tests with one optional skip and fast passed 17/17. The guide is 496,389 normalized bytes. Phases 6-8 and the integration PR remain open. The two baseline-identical mobile navigation overflows remain owned by Phase 6.
+- [ ] Finish the [v4.13.4 Training rebuild](releases/v4/v4.13/plans/v4.13.4-guide-training-rebuild.md): Phases 1-7 are committed locally. Phase 6 replaced the deck with seven scoped sections and three independent games; Phase 7 authored the section content and fixed six review findings. The full rendered guide suite passed 376 tests with one existing skip, fast passed 17/17, and the guide is 488,675 bytes. The final phase, the integration PR, and release remain open.
 
 - [x] Historical v4.0-v4.13 plan closure is integrated. PR #232 passed the required Linux, Windows, guide-render, host-load, CodeQL, and aggregate checks; post-merge run 35789442554 passed smoke and provenance without rerunning the full suite.
 - [x] Publish the verified v4.0-v4.12 gap transfer and 29-file plan/comparison archive through PR #322, merged at `7be37f95`; [post-merge run 36210893664](https://github.com/bendourthe/Nexus-Hub/actions/runs/36210893664) passed smoke and provenance. The [v4.13 cleanup addendum](releases/v4/v4.13/docs-cleanup-report.md) records the zero-new-break link proof; older open items remain open and v4.13.1-v4.13.4 work is excluded.
@@ -147,7 +147,7 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| v4.13.4 Training rebuild phases complete | 5 | 8 | 3 |
+| v4.13.4 Training rebuild phases complete | 7 | 8 | 1 |
 | v4.12.0 implementation tasks complete | 28 | 28 | 0 |
 | v4.12.0 implementation phases complete | 4 | 5 | 1 |
 | v4.11.0 interactive-handbook phases complete | 7 | 7 | 0 |

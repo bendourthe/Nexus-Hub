@@ -1311,8 +1311,8 @@ def test_no_unexpected_persistent_overlays(guide_text: str) -> None:
     made the page unreadable.
     """
     css = guide_text.split("<style>", 1)[-1].split("</style>", 1)[0]
-    allowed_fixed = {"#constellation", ".nht.is-present"}
-    allowed_sticky = {".site-header", ".nht.is-present .nht-bar", ".cx-preview-bar"}
+    allowed_fixed = {"#constellation"}
+    allowed_sticky = {".site-header", ".cx-preview-bar"}
     for prop, allowed in (("fixed", allowed_fixed), ("sticky", allowed_sticky)):
         for match in re.finditer(r"([^{}]+)\{[^}]*position:\s*" + prop, css):
             selector = match.group(1).strip().splitlines()[-1].strip().rstrip(",")

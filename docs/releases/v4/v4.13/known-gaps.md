@@ -607,3 +607,40 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 ### Reconciliation across other registers (2026-09-25)
 
 All 45 `docs/**/known-gaps.md` files were searched for open items in the areas this plan changed (session hooks, the skill index, legacy or duplicated instruction blocks, instruction-merge behavior, CRLF handling). None is closed by v4.13.3; the only instruction-merge item found, v3.15 WN-3, was already resolved in v3.15. Every other open item stays with its existing owner, unchanged by this plan.
+
+## v4.13.4
+
+Gaps from the Training rebuild ([`v4.13.4-guide-training-rebuild`](plans/v4.13.4-guide-training-rebuild.md)). Both open items were found by the final-phase visual sweep and reproduce unchanged on the pre-rebuild guide, so neither is a regression; evidence is in [`v4.13.4-last-phase-evidence.md`](development/v4.13.4-last-phase-evidence.md).
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 5 |
+| Warnings (WN) | 2 | 1 |
+| Missing tests / coverage gaps (MT) | 0 | 1 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+#### WN-1 (v4.13.4): The header navigation overflows under the matrix's 200% CSS zoom at 1280x720
+
+**Evidence**: `tests/guides/tools/browser_matrix.py --groups zoom` fails four cases (`zoom200-describe-review-*` and `zoom200-presentify-*` at 1280x720) on `horizontalOverflow` alone, with no page error, missing region, or overlap. The overflowing elements are `#navLinks` and `#themeToggle` (document `scrollWidth` 1324 against a 1280 viewport). The pre-rebuild guide on `develop` measures the same 1324 with 28 overflowing elements instead of 6, and a real 640x720 viewport, which is what 200% of 1280 represents, has no overflow on either revision. **Reason**: `document.documentElement.style.zoom` does not change the width that CSS media queries see, so the header never switches to its narrow layout under this emulation; native browser zoom does change that width but is not measured here. **Owner**: guide owner, together with the open [v4.4 MT-446-2](../../../archives/v4/v4.4/known-gaps.md) native-zoom item. **Suggested next step**: measure native 200% zoom on a real browser; if the header overflows there, collapse it by container width rather than viewport width, otherwise change the matrix's zoom cases to emulate native zoom.
+
+#### WN-2 (v4.13.4): An idle game labels its toggle "Pause game"
+
+**Evidence**: before a game starts, its primary control reads "Pause game" while the HUD state reads `idle` (1440 px and 420 px section captures). `syncHud` derives the label only from the manual and pointer pause reasons, and the v4.4.x baseline uses the same expression. **Owner**: guide owner. **Suggested next step**: label the idle control from the lifecycle ("Start game" when idle, "Pause game" while running, "Resume game" when paused) and assert all three labels in `tests/guides/test_arcade_shooter_game.py`.
+
+### Resolved Items
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+| BG-1 | The no-canvas fallback described every game as buggy | Phase 7 | The fallback text is rebuilt from each instance's damage and movement settings whenever they change; a browser test forces canvas unavailability on all three games. |
+| BG-2 | Clicking the current section link scrolled to the page top | Phase 7 | A same-hash click or keypress calls the section router instead of the page-top routine; regression-tested. |
+| BG-3 | Without `IntersectionObserver`, a game started through the API kept running on a hidden page | Phase 7 | A `page-hidden` pause reason follows Training page visibility independently of viewport observation; the tick is asserted to stop after navigating away. |
+| BG-4 | Long commands were clipped against the Run button at desktop width | Phase 7 | Training command text wraps at every width. |
+| BG-5 | The retained browser matrix clicked the removed presentation control and used an ambiguous game selector | Phase 8 | Its Training groups now target the seven section routes, section-scoped geometry, and the `buggy` instance; `tests/guides/test_v4134_browser_matrix.py` guards the mapping. |
+| WN-3 | An agent could not select the `/review` simulation through `window.NexusTraining` | Phase 7 | `selectAction(sectionId, commandOrIndex)` shares the button path and is documented in `guides/website/README.md`. |
+| MT-1 | The browser flow stopped after `/review`, and section headings could drift from the scene source | Phase 7 | A browser test runs every later command and asserts section output and cumulative files; a parity test binds each `h2` to its scene record. |

@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **The guide's Training tab is seven headed sections instead of an eight-slide deck (v4.13.4).** A reader now scrolls one command loop in order: play the buggy game, `/describe` then `/review` it, `/plan` the repair, run the whole plan with one `/implement` (whose final phase covers review, known gaps, tests to green, and `/update release`), play the fixed game, add vertical movement with `/compare`, and brief the result with `/presentify`. Each section owns its terminal, tools, artifact, gate, and file explorer, so running one command never changes another section. The maintainer source `guides/website/example/training-scenes.json` and the embedded copy stay byte-identical, and the eight-scene source is preserved as release evidence. Legacy `#training/describe`, `review`, `test`, and `update` links open the section that now holds that command.
+    - Three independent games (`buggy`, `fixed`, `featured`) run on one page. Each pauses when it scrolls out of view or when the Training page is hidden, and its no-canvas fallback describes that game's own damage and movement settings.
+    - The arcade is a landscape 640x400 arena drawn at the device pixel ratio. Enemies come in four seeded archetypes with distinct silhouettes, movement, and fire (a bolt, a three-way spread, and a beam with a visible charge-up); asteroids drift, spin, fragment, and each has its own outline; the player ship banks and shows thrust. The seeded first-hit bug and its one-life-per-hit repair are unchanged.
+    - Agents and browser tests can drive the page through `window.NexusTraining` (`go`, `selectAction`, `run`, `snapshot`) and `window.NexusShooter.get(id)`, documented in `guides/website/README.md`.
+    - The guide stays under its 500,000-byte ceiling at 488,675 bytes; a favicon and inline image were re-encoded, with before and after captures, to make room.
+
+### Removed
+
+- **Training presentation mode and deck navigation (v4.13.4).** The fullscreen presenter, its Outline, and the Previous and Next controls were replaced by ordinary in-page section links that work by keyboard. Tests that asserted the deck's layout were rewritten to assert the same geometry, keyboard, and isolation guarantees on the stacked sections.
+
+### Capability usage
+
+- No opt-in capability, installer flag, managed skill, or host surface changed in v4.13.4.
+
 ## [4.13.3] - 2026-09-28
 
 ### Added
