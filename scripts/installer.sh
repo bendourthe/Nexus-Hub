@@ -7,7 +7,7 @@ set -e
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-NEXUS_HUB_VERSION="4.13.4"
+NEXUS_HUB_VERSION="4.13.5"
 
 # --- Window Title ---
 printf '\033]0;Nexus-Hub Installer\007'
@@ -2647,6 +2647,13 @@ install_templates() {
     local completion_checker_source="$repo_root/scripts/check_plan_completion.py"
     if [ -f "$completion_checker_source" ]; then
         safe_copy "$completion_checker_source" "$scripts_dest/check_plan_completion.py" true "[OK] Plan-completion checker installed at: $scripts_dest/check_plan_completion.py"
+    fi
+
+    # Copy the repository resolver (v4.13.5). The completion checker imports it
+    # as a sibling to pin hosting calls to the verified GitHub owner/repo.
+    local repo_host_source="$repo_root/scripts/repo_host.py"
+    if [ -f "$repo_host_source" ]; then
+        safe_copy "$repo_host_source" "$scripts_dest/repo_host.py" true "[OK] Repository resolver installed at: $scripts_dest/repo_host.py"
     fi
 
     # Copy the completion-gate core (v4.13.2). The completion-gate and
