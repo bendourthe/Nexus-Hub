@@ -2649,6 +2649,13 @@ install_templates() {
         safe_copy "$completion_checker_source" "$scripts_dest/check_plan_completion.py" true "[OK] Plan-completion checker installed at: $scripts_dest/check_plan_completion.py"
     fi
 
+    # Copy the repository resolver (v4.13.5). The completion checker imports it
+    # as a sibling to pin hosting calls to the verified GitHub owner/repo.
+    local repo_host_source="$repo_root/scripts/repo_host.py"
+    if [ -f "$repo_host_source" ]; then
+        safe_copy "$repo_host_source" "$scripts_dest/repo_host.py" true "[OK] Repository resolver installed at: $scripts_dest/repo_host.py"
+    fi
+
     # Copy the completion-gate core (v4.13.2). The completion-gate and
     # approval-capture hooks run it from this installed path only.
     local completion_gate_source="$repo_root/scripts/completion_gate.py"

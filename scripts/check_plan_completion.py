@@ -33,6 +33,11 @@ import sys
 import time
 from pathlib import Path
 
+_SCRIPT_DIR = str(Path(__file__).resolve().parent)
+if _SCRIPT_DIR not in sys.path:
+    sys.path.insert(0, _SCRIPT_DIR)
+import repo_host  # noqa: E402  (installed as a sibling in ~/.nexus-hub/scripts/)
+
 EXIT_COMPLETE, EXIT_INCOMPLETE, EXIT_MALFORMED, EXIT_BLOCKED, EXIT_PAUSED = (
     0,
     1,
@@ -84,11 +89,6 @@ CHECKBOX_RE = re.compile(r"^(\s*- )\[[ xX]\]", re.MULTILINE)
 VERSION_RE = re.compile(r"^\*\*Version\*\*:\s*(v?\d+\.\d+\.\d+)", re.MULTILINE)
 SLUG_RE = re.compile(r"^\*\*Slug\*\*:\s*(\S+)", re.MULTILINE)
 GAP_ITEM_RE = re.compile(r"^#### (?P<type>[A-Z]{2})-\d+\b(?P<title>.*)$", re.MULTILINE)
-REMOTE_RE = re.compile(
-    r"^(?:https://github\.com/|git@github\.com:|ssh://git@github\.com/)"
-    r"(?P<repo>[^/\s]+/[^/\s]+?)(?:\.git)?/?$",
-    re.IGNORECASE,
-)
 
 
 class Malformed(Exception):
@@ -109,45 +109,6 @@ class Budget:
 def _runs_dir() -> Path:
     override = os.environ.get("NEXUS_HUB_RUNS_DIR")
     return Path(override) if override else Path.home() / ".nexus-hub" / "runs"
-
-
-def _is_inside(path: Path, root: Path) -> bool:
-    try:
-        path.resolve().relative_to(root.resolve())
-        return True
-    except ValueError:
-        return False
-
-
-def _which_on_path(name: str) -> str | None:
-    """Find `name` on PATH's absolute entries only, never in the current directory.
-
-    `shutil.which` on Windows searches the current directory first even when given an
-    explicit path, so a `git.bat` planted at a repository root would run before the
-    inside-the-tree refusal could see it.
-    """
-    exts = [""]
-    if os.name == "nt":
-        exts = [e.lower() for e in os.environ.get("PATHEXT", ".COM;.EXE;.BAT;.CMD").split(";") if e]
-    for entry in os.environ.get("PATH", "").split(os.pathsep):
-        base = Path(entry)
-        if not entry or not base.is_absolute():
-            continue
-        for ext in exts:
-            candidate = base / (name + ext)
-            if candidate.is_file() and (os.name == "nt" or os.access(candidate, os.X_OK)):
-                return str(candidate)
-    return None
-
-
-def _tool(name: str, repo_root: Path | None) -> str | None:
-    """Resolve an executable once, refusing one that lives inside the working tree."""
-    found = _which_on_path(name)
-    if not found:
-        return None
-    if repo_root is not None and _is_inside(Path(found), repo_root):
-        return None
-    return found
 
 
 def _env() -> dict[str, str]:
@@ -212,7 +173,7 @@ class Context:
         if not plan.is_file():
             raise Malformed(f"plan not found: {plan_arg}")
         self.plan = plan.resolve()
-        self.git = _tool("git", None)
+        self.git = repo_host.absolute_tool("git", None)
         if not self.git:
             raise Malformed("git not found")
         rc, out = _run(
@@ -223,10 +184,10 @@ class Context:
             raise Malformed("plan is not inside a git repository")
         self.root = Path(out.strip()).resolve()
         # Re-resolve git outside the tree now that the tree is known.
-        self.git = _tool("git", self.root)
+        self.git = repo_host.absolute_tool("git", self.root)
         if not self.git:
             raise Malformed("git resolves inside the working tree; refusing")
-        self.gh = _tool("gh", self.root)
+        self.gh = repo_host.absolute_tool("gh", self.root)
         self.rel = self.plan.relative_to(self.root).as_posix()
         if not PLAN_REL_RE.match(self.rel):
             raise Malformed("plan path must match docs/**/plans/*.md")
@@ -251,8 +212,25 @@ class Context:
         self.version_dir = self.plan.parent.parent
         self.remote_url = self._git_out("remote", "get-url", "origin")
         self.push_remote_url = self._git_out("remote", "get-url", "--push", "--all", "origin")
-        match = REMOTE_RE.search(self.remote_url)
-        self.default_repo = match.group("repo") if match else ""
+        self._default_repo: str | None = None
+
+    def run(self, argv: list[str], cwd: Path | None = None) -> tuple[int, str]:
+        return _run(argv, self.budget, cwd)
+
+    @property
+    def default_repo(self) -> str:
+        """The verified origin repository, resolved only when no frozen repo exists."""
+        if self._default_repo is None:
+            repo, _reason = repo_host.resolve_repo(
+                self.root, git=self.git, gh=self.gh or "", run=self.run
+            )
+            self._default_repo = repo or ""
+        return self._default_repo
+
+    def url_repo(self, url: str) -> str | None:
+        """The verified repository one remote URL names, or None."""
+        repo, _reason = repo_host.repo_from_url(url, repo_root=self.root, run=self.run)
+        return repo
 
     def _git_out(self, *args: str) -> str:
         rc, out = _run([self.git, "-C", str(self.root), *args], self.budget)
@@ -469,16 +447,11 @@ def _approved_remote_status(ctx: Context, record: dict | None) -> str:
         return "cannot-verify"
     approvals = record.get("approvals", {})
     expected_url = approvals.get("push_remote_url")
-    match = REMOTE_RE.fullmatch(ctx.push_remote_url)
-    if not expected_url or not match:
+    if not expected_url or ctx.push_remote_url != expected_url:
         return "unmet"
+    pushed_repo = ctx.url_repo(ctx.push_remote_url)
     approved_repo = str(approvals.get("repo") or "")
-    return (
-        "met"
-        if ctx.push_remote_url == expected_url
-        and match.group("repo").lower() == approved_repo.lower()
-        else "unmet"
-    )
+    return "met" if pushed_repo and pushed_repo.lower() == approved_repo.lower() else "unmet"
 
 
 def _task_status(ctx: Context, checked: bool, path: str, start: str | None) -> str:
@@ -978,8 +951,8 @@ def cmd_record_create(args: argparse.Namespace) -> int:
     if not _origin_ok(args.session, texts, summary):
         return _blocked("approval-not-covered")
     approved_repo = str(spec.get("repo") or ctx.default_repo)
-    push_match = REMOTE_RE.fullmatch(ctx.push_remote_url)
-    if not push_match or push_match.group("repo").lower() != approved_repo.lower():
+    pushed_repo = ctx.url_repo(ctx.push_remote_url)
+    if not pushed_repo or pushed_repo.lower() != approved_repo.lower():
         return _blocked("approval-not-covered")
     defer = (
         next(

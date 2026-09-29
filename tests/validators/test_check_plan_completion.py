@@ -157,15 +157,46 @@ class Fixture:
         path.write_text(json.dumps(record), encoding="utf-8")
 
 
-def _build(tmp: Path, *extra_classes: dict, plan: str = PLAN) -> Fixture:
+def _ssh_stub(fx: Fixture, hosts: dict[str, str]) -> None:
+    """Put an `ssh` stand-in first on PATH whose `-G <alias>` prints the mapped hostname."""
+    stub = fx.tmp / "ssh_stub"
+    stub.mkdir()
+    (stub / "ssh_stub.py").write_text(
+        "import json, os, sys\n"
+        "hosts = json.loads(os.environ['SSH_STUB_HOSTS'])\n"
+        "alias = sys.argv[-1]\n"
+        "print('user git')\n"
+        "print('hostname ' + hosts.get(alias, alias))\n",
+        encoding="utf-8",
+    )
+    (stub / "ssh.cmd").write_text('@echo off\r\n"%SSH_STUB_PYTHON%" "%~dp0ssh_stub.py" %*\r\n', encoding="utf-8")
+    posix = stub / "ssh"
+    posix.write_text('#!/usr/bin/env bash\nexec "$SSH_STUB_PYTHON" "$(dirname "$0")/ssh_stub.py" "$@"\n', encoding="utf-8")
+    posix.chmod(0o755)
+    fx.env.update(
+        PATH=str(stub) + os.pathsep + fx.env["PATH"],
+        SSH_STUB_HOSTS=json.dumps(hosts),
+        SSH_STUB_PYTHON=sys.executable,
+    )
+
+
+def _build(
+    tmp: Path,
+    *extra_classes: dict,
+    plan: str = PLAN,
+    push_url: str = "https://github.com/acme/demo.git",
+    ssh_hosts: dict[str, str] | None = None,
+) -> Fixture:
     fx = Fixture(tmp)
+    if ssh_hosts is not None:
+        _ssh_stub(fx, ssh_hosts)
     _git(tmp, "init", "--bare", "-q", "-b", "main", str(fx.remote))
     fx.work.mkdir()
     _git(fx.work, "init", "-q", "-b", "main")
     _git(fx.work, "config", "user.email", "t@example.invalid")
     _git(fx.work, "config", "user.name", "Test")
     _git(fx.work, "remote", "add", "origin", str(fx.remote))
-    _git(fx.work, "remote", "set-url", "--push", "origin", "https://github.com/acme/demo.git")
+    _git(fx.work, "remote", "set-url", "--push", "origin", push_url)
     fx.write(PLAN_REL, plan.format(a=" ", b=" "))
     fx.write("CHANGELOG.md", "# Changelog\n")
     _git(fx.work, "add", "-A")
@@ -211,7 +242,8 @@ def test_complete_run_reports_plan_complete(complete: Fixture) -> None:
 
 
 @pytest.mark.parametrize(
-    "changed_url", ["https://github.com/evil/fork.git", "git@github.com:acme/demo.git"]
+    "changed_url",
+    ["https://github.com/evil/fork.git", "git@github.com:acme/demo.git", "git@github-work:evil/fork.git"],
 )
 def test_changed_push_remote_blocks_completion_and_allows_an_approval_stop(
     complete: Fixture, changed_url: str,
@@ -707,6 +739,55 @@ def test_record_create_accepts_an_approved_ssh_push_remote(tmp_path: Path) -> No
     assert record["approvals"]["push_remote_url"] == "git@github.com:acme/demo.git"
 
 
+def test_an_approved_ssh_alias_push_remote_reaches_plan_complete(tmp_path: Path) -> None:
+    fx = _build(tmp_path, push_url="git@github-work:acme/demo.git", ssh_hosts={"github-work": "github.com"})
+    record = json.loads(fx.record_path().read_text(encoding="utf-8"))
+    assert record["approvals"]["push_remote_url"] == "git@github-work:acme/demo.git"
+    result = fx.check()
+    assert "approval.remote met" in result.stdout
+    assert result.returncode == 0, result.stdout
+
+
+def test_record_create_refuses_an_alias_whose_real_host_is_not_github(tmp_path: Path) -> None:
+    fx = Fixture(tmp_path)
+    _ssh_stub(fx, {"gitlab-work": "gitlab.com"})
+    _git(tmp_path, "init", "-q", "-b", "main", str(fx.work))
+    _git(fx.work, "remote", "add", "origin", "git@gitlab-work:acme/demo.git")
+    fx.write(PLAN_REL, PLAN.format(a=" ", b=" "))
+    fx.capture(SESSION, APPROVAL_TEXT)
+    result = fx.run(
+        "record", "create", PLAN_REL, "--session", SESSION,
+        "--approvals", str(fx.approvals()),
+    )
+    assert result.returncode == 3
+    assert result.stdout.strip() == "BLOCKED: approval-not-covered"
+    assert not list(fx.runs.glob("*.json"))
+
+
+@pytest.mark.parametrize(
+    ("origin", "hosts", "expected"),
+    [
+        ("git@gitlab-work:acme/tool.git", {"gitlab-work": "gitlab.com"}, "cannot-verify"),
+        ("git@github-work:acme/tool.git", {"github-work": "github.com"}, "met"),
+    ],
+)
+def test_without_a_record_the_hosting_repo_comes_from_the_verified_origin(
+    tmp_path: Path, origin: str, hosts: dict[str, str], expected: str
+) -> None:
+    fx = Fixture(tmp_path)
+    _ssh_stub(fx, hosts)
+    log = tmp_path / "gh.log"
+    fx.env["GH_STUB_LOG"] = str(log)
+    _git(tmp_path, "init", "-q", "-b", "main", str(fx.work))
+    _git(fx.work, "remote", "add", "origin", origin)
+    fx.write(PLAN_REL, PLAN.format(a="x", b="x"))
+    result = fx.check(session=None)
+    assert f"release.github {expected}" in result.stdout
+    calls = [json.loads(line) for line in log.read_text(encoding="utf-8").splitlines()] if log.exists() else []
+    pinned = {call[call.index("--repo") + 1] for call in calls if "--repo" in call}
+    assert pinned == (set() if expected == "cannot-verify" else {"acme/tool"})
+
+
 def test_record_create_rejects_multiple_push_destinations(tmp_path: Path) -> None:
     fx = Fixture(tmp_path)
     _git(tmp_path, "init", "-q", "-b", "main", str(fx.work))
@@ -900,7 +981,7 @@ def test_a_git_planted_in_the_working_directory_is_never_resolved(
     # path, so a git.bat at a repository root resolved before the inside-the-tree refusal.
     import importlib.util
 
-    spec = importlib.util.spec_from_file_location("cpc_under_test", CHECKER)
+    spec = importlib.util.spec_from_file_location("repo_host_under_test", CHECKER.with_name("repo_host.py"))
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     for name in ("git.bat", "git.cmd", "git"):
@@ -909,5 +990,5 @@ def test_a_git_planted_in_the_working_directory_is_never_resolved(
         planted.chmod(0o755)
     monkeypatch.chdir(tmp_path)
     monkeypatch.delenv("NoDefaultCurrentDirectoryInExePath", raising=False)
-    found = module._tool("git", None)
+    found = module.absolute_tool("git", None)
     assert found is None or Path(found).resolve().parent != tmp_path.resolve(), found
