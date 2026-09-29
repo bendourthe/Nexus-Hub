@@ -1,7 +1,7 @@
 # Session History -- v3.1.0 adoption-claude-red Phase 3: Web AppSec methodology fold-in
 
 **Date**: 2026-06-08
-**Plan**: [`docs/releases/v3/v3.1/plans/adoption-claude-red.md`](../../../../../releases/v3/v3.1/plans/adoption-claude-red.md)
+**Plan**: [`docs/archives/v3/v3.1/plans/adoption-claude-red.md`](../../plans/adoption-claude-red.md)
 **Phase**: 3 of 5 -- web AppSec methodology fold-in
 **Branch**: `feat/adoption-claude-red` (continued from Phase 2 tip `4595ee5`)
 **Outcome**: complete; all three sub-tasks (T007-T009) closed, all quality gates green.
@@ -69,7 +69,7 @@ Both skills changed metadata, so per the plan ("re-register in `data/` only if m
 
 ## Known gaps
 
-See [`docs/releases/v3/v3.1/known-gaps.md`](../../known-gaps.md). 0 new open items this phase, 0 resolved. WN-v31cr-1 was extended to record that the two Phase 3 enriched skills now also carry >250-char pushy descriptions (same non-gate). Carried forward: WN-v31cr-1/-2/-3/-4. Total 4 WN open.
+See [`docs/archives/v3/v3.1/known-gaps.md`](../../known-gaps.md). 0 new open items this phase, 0 resolved. WN-v31cr-1 was extended to record that the two Phase 3 enriched skills now also carry >250-char pushy descriptions (same non-gate). Carried forward: WN-v31cr-1/-2/-3/-4. Total 4 WN open.
 
 ## Next steps
 

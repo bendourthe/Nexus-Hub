@@ -1,7 +1,7 @@
 # Session History -- v3.3.0 adoption-loop-engineering Phase 1: Foundation skill, schema, and local library
 
 **Date**: 2026-06-10
-**Plan**: [`docs/releases/v3/v3.3/plans/adoption-loop-engineering.md`](../../../../../releases/v3/v3.3/plans/adoption-loop-engineering.md)
+**Plan**: [`docs/archives/v3/v3.3/plans/adoption-loop-engineering.md`](../../plans/adoption-loop-engineering.md)
 **Phase**: 1 of 4 -- Foundation: loop-engineering skill + schema + seeded library
 **Branch**: `codex/adoption-loop-engineering-phase-1` (created from `develop`; branch creation required host Git access because `.git` writes are sandbox-restricted)
 **Outcome**: complete; all Phase 1 sub-tasks closed and the Phase 1 exit checklist is checked.
@@ -47,7 +47,7 @@ None. Environment limitations are captured as warnings in `docs/v3/v3.3/known-ga
 
 ## Known gaps
 
-See [`docs/releases/v3/v3.3/known-gaps.md`](../../known-gaps.md). Four open items were recorded: DF-v33-1 (pushy-description allowlist deferred to Phase 4), WN-v33-1 (local `make`/temp access limitations), WN-v33-2 (pre-existing global audit warnings outside this phase), and WN-v33-3 (headline count prose deferred to release reconciliation). No resolved items yet.
+See [`docs/archives/v3/v3.3/known-gaps.md`](../../known-gaps.md). Four open items were recorded: DF-v33-1 (pushy-description allowlist deferred to Phase 4), WN-v33-1 (local `make`/temp access limitations), WN-v33-2 (pre-existing global audit warnings outside this phase), and WN-v33-3 (headline count prose deferred to release reconciliation). No resolved items yet.
 
 ## Next steps
 

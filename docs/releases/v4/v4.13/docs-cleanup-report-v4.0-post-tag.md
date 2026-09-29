@@ -21,7 +21,7 @@ After rebasing this proposal onto `d052af9e`, the detector still returned exactl
 
 ## Dispositions
 
-| Current path under `docs/releases/v4/v4.0/` | Category | Evidence and lifespan | Proposed destination or hold |
+| Current path under `docs/archives/v4/v4.0/` | Category | Evidence and lifespan | Proposed destination or hold |
 |---|---|---|---|
 | `development/ci-cd-profile-guide.md` | Cat 3 | Introduced in v4.0.0 but edited in three CI-profile commits on 2026-09-22; [README](../../../../README.md) links to it as the current usage guide. It must describe the live runner, not a frozen v4.0 state. | Propose `docs/guides/repository-native-ci-profiles.md`, with a content refresh and inbound-link repair, at the confirmation gate. |
 | `development/github-ci-settings-runbook.md` | Cat 3 | Introduced in v4.0.0, updated on 2026-08-30, and linked by the v4.0 lifecycle contract and final audit. It tells an operator how to verify current GitHub settings. | Propose `docs/runbooks/github-ci-settings.md`, with a settings read-back and inbound-link repair, at the confirmation gate. |
@@ -34,8 +34,8 @@ The two Cat 3 documents are not deletion candidates. The retention policy explic
 
 | Path | Why refresh is required before a move | Proposed action |
 |---|---|---|
-| `docs/releases/v4/v4.0/development/ci-cd-profile-guide.md` | It claims to document current profile commands and costs. | Compare its command and profile table with `scripts/ci/`, then repair the README and other inbound references. |
-| `docs/releases/v4/v4.0/development/github-ci-settings-runbook.md` | It instructs current account-backed repository settings checks. | Re-read the protected-branch and required-check settings before relocating the runbook. |
+| `docs/archives/v4/v4.0/development/ci-cd-profile-guide.md` | It claims to document current profile commands and costs. | Compare its command and profile table with `scripts/ci/`, then repair the README and other inbound references. |
+| `docs/archives/v4/v4.0/development/github-ci-settings-runbook.md` | It instructs current account-backed repository settings checks. | Re-read the protected-branch and required-check settings before relocating the runbook. |
 
 ## Lifespan contradictions
 
@@ -70,7 +70,7 @@ Two frozen records now have post-tag link-maintenance edits: `development/ci-cd-
 
 ## Bounded application - contract and audit disposition - 2026-09-25
 
-After PR #305 merged at `85d40806`, the normative lifecycle contract moved from `docs/releases/v4/v4.0/development/` to `docs/policy/ci-cd-lifecycle-contract.md`. The dated final, workflow, and harness audits moved to `docs/archives/v4/v4.0/development/`; no plan or whole-minor directory moved. The four original SHA-256 hashes were `2959377164B8A483409BD34CAD4D1133373C4E1849B73FB9AA3971DD729850CC`, `910A7415C8307F77761936696B1A791893F93FA386333D366E78DD4EFA063826`, `94F7A680D87824A9292DF2ECAEB8E87EA24D5323D5FF04F5C553D5EDBD06870B`, and `C0A2487EB2AE7A2F123C877D55B58EA6913B49A2D98F83B638299A5132049633`, respectively; each copy matched its source before the source was removed.
+After PR #305 merged at `85d40806`, the normative lifecycle contract moved from `docs/archives/v4/v4.0/development/` to `docs/policy/ci-cd-lifecycle-contract.md`. The dated final, workflow, and harness audits moved to `docs/archives/v4/v4.0/development/`; no plan or whole-minor directory moved. The four original SHA-256 hashes were `2959377164B8A483409BD34CAD4D1133373C4E1849B73FB9AA3971DD729850CC`, `910A7415C8307F77761936696B1A791893F93FA386333D366E78DD4EFA063826`, `94F7A680D87824A9292DF2ECAEB8E87EA24D5323D5FF04F5C553D5EDBD06870B`, and `C0A2487EB2AE7A2F123C877D55B58EA6913B49A2D98F83B638299A5132049633`, respectively; each copy matched its source before the source was removed.
 
 The moved files' relative links, current code and workflow citations, two living CI documents, AGENTS.md, and the contract tests now target their new locations. Historical literal paths in the 2026-09-06 decision and v4.4 phase evidence remain as records of their original checks. The staged rename-map link comparison found zero newly broken links against 465 normalized pre-existing unresolved references. On the committed relocation tree, the lifespan detector exited 1 with 1,386 findings across release buckets and exactly two in v4.0, both historical plans. At this local gate, protected publication was still pending; WN-2 stayed open because those plans, including 62 historical unchecked CI task boxes, had not received a retention disposition.
 

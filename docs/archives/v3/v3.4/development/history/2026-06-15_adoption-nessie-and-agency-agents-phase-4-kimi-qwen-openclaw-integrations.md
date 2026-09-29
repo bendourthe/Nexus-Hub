@@ -1,7 +1,7 @@
 # Session History -- v3.4.0 adoption-nessie-and-agency-agents Phase 4: Kimi + Qwen + OpenClaw integrations
 
 **Date**: 2026-06-15
-**Plan**: [`docs/releases/v3/v3.4/plans/adoption-nessie-and-agency-agents.md`](../../../../../releases/v3/v3.4/plans/adoption-nessie-and-agency-agents.md)
+**Plan**: [`docs/archives/v3/v3.4/plans/adoption-nessie-and-agency-agents.md`](../../plans/adoption-nessie-and-agency-agents.md)
 **Phase**: 4 of 5 -- Optional Kimi / Qwen / OpenClaw integrations (A3-ext, re-full)
 **Branch**: `develop` (integration branch; no version tag cut this phase)
 **Outcome**: complete; all Phase 4 sub-tasks closed and the Phase 4 exit checklist is satisfied.
@@ -50,7 +50,7 @@ Modified both installer scripts (`scripts/installer.sh`, `scripts/installer.ps1`
 
 ## Known gaps
 
-See [`docs/releases/v3/v3.4/known-gaps.md`](../../known-gaps.md). No new gaps introduced this phase. WN-v33-1 re-confirmed and updated to record that Phase 4 shipped `.sh`/`.ps1` edits verified by `bash -n` + the PowerShell AST parser (ShellCheck unavailable locally; CI runs it). DF-v34-1 and WN-v33-2 carried forward, untouched.
+See [`docs/archives/v3/v3.4/known-gaps.md`](../../known-gaps.md). No new gaps introduced this phase. WN-v33-1 re-confirmed and updated to record that Phase 4 shipped `.sh`/`.ps1` edits verified by `bash -n` + the PowerShell AST parser (ShellCheck unavailable locally; CI runs it). DF-v34-1 and WN-v33-2 carried forward, untouched.
 
 ## Next steps
 

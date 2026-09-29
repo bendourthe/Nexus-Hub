@@ -1,7 +1,7 @@
 # Session History -- v3.2.0 adoption-headroom Phase 7: Methodology cross-links + docs
 
 **Date**: 2026-06-10
-**Plan**: [`docs/releases/v3/v3.2/plans/adoption-headroom.md`](../../../../../releases/v3/v3.2/plans/adoption-headroom.md)
+**Plan**: [`docs/archives/v3/v3.2/plans/adoption-headroom.md`](../../plans/adoption-headroom.md)
 **Phase**: 7 of 7 -- Methodology cross-links + docs (re-partial); the final phase of the plan
 **Branch**: `feat/adoption-headroom` (continuing from Phase 6)
 **Outcome**: complete; all three sub-tasks (T021-T023) closed, all quality gates green (GO). adoption-headroom is now complete end-to-end. DF-v32hr-11 resolved; no new Phase 7 deferrals.
@@ -49,7 +49,7 @@ Close the adoption by connecting the new engine to the existing methodology skil
 
 ## Known gaps
 
-Logged in [`docs/releases/v3/v3.2/known-gaps.md`](../../known-gaps.md): **DF-v32hr-11 moved to Resolved** (the verbatim rtk setup is gone from `context-optimization`; the engine is cross-linked in all three context skills). No new Phase 7 deferrals. Open total 20, resolved 3. The remaining open items are all prior-phase enhancements (CCR auto-eviction DF-v32hr-4, CacheAligner runtime wiring DF-v32hr-9, ML auto-wiring DF-v32hr-14, the live-ONNX CI lane MT-v32hr-1, and the Windows-verification WN class), none of which affect the local-first / reversible / zero-outbound guarantees.
+Logged in [`docs/archives/v3/v3.2/known-gaps.md`](../../known-gaps.md): **DF-v32hr-11 moved to Resolved** (the verbatim rtk setup is gone from `context-optimization`; the engine is cross-linked in all three context skills). No new Phase 7 deferrals. Open total 20, resolved 3. The remaining open items are all prior-phase enhancements (CCR auto-eviction DF-v32hr-4, CacheAligner runtime wiring DF-v32hr-9, ML auto-wiring DF-v32hr-14, the live-ONNX CI lane MT-v32hr-1, and the Windows-verification WN class), none of which affect the local-first / reversible / zero-outbound guarantees.
 
 ## Next steps
 

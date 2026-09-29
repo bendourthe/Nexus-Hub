@@ -1,7 +1,7 @@
 # Session History -- v3.2.0 adoption-headroom Phase 1: Foundation + SmartCrusher
 
 **Date**: 2026-06-09
-**Plan**: [`docs/releases/v3/v3.2/plans/adoption-headroom.md`](../../../../../releases/v3/v3.2/plans/adoption-headroom.md)
+**Plan**: [`docs/archives/v3/v3.2/plans/adoption-headroom.md`](../../plans/adoption-headroom.md)
 **Phase**: 1 of 7 -- Foundation + SmartCrusher (re-full)
 **Branch**: `feat/adoption-headroom` (off the post-teach `develop` merge `8523281`)
 **Outcome**: complete; all four sub-tasks (T001-T004) closed, all quality gates green (GO).
@@ -52,7 +52,7 @@ Neither changes plan scope; both are recorded here and in the DEVLOG.
 
 ## Known gaps
 
-See [`docs/releases/v3/v3.2/known-gaps.md`](../../known-gaps.md). **3 new DF this phase**, 0 resolved; 6 open total (3 DF + the 3 carried-over teach WN). DF-v32hr-1 (fuzzy near-duplicate fingerprinting), DF-v32hr-2 (information-theoretic auto-sizing of the keep budget), and DF-v32hr-3 (explicit error/outlier preservation) are all intentionally out of scope for the v1 deterministic port and are referenced from the SmartCrusher docstring; each has a suggested follow-up tied to Phase 3 (CacheAligner / ContentRouter) or the Phase 5 accuracy harness.
+See [`docs/archives/v3/v3.2/known-gaps.md`](../../known-gaps.md). **3 new DF this phase**, 0 resolved; 6 open total (3 DF + the 3 carried-over teach WN). DF-v32hr-1 (fuzzy near-duplicate fingerprinting), DF-v32hr-2 (information-theoretic auto-sizing of the keep budget), and DF-v32hr-3 (explicit error/outlier preservation) are all intentionally out of scope for the v1 deterministic port and are referenced from the SmartCrusher docstring; each has a suggested follow-up tied to Phase 3 (CacheAligner / ContentRouter) or the Phase 5 accuracy harness.
 
 ## Next steps
 

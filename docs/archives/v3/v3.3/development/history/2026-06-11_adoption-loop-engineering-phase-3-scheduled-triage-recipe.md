@@ -1,7 +1,7 @@
 # Session History -- v3.3.0 adoption-loop-engineering Phase 3: Scheduled-triage recipe and named loop anti-patterns
 
 **Date**: 2026-06-11
-**Plan**: [`docs/releases/v3/v3.3/plans/adoption-loop-engineering.md`](../../../../../releases/v3/v3.3/plans/adoption-loop-engineering.md)
+**Plan**: [`docs/archives/v3/v3.3/plans/adoption-loop-engineering.md`](../../plans/adoption-loop-engineering.md)
 **Phase**: 3 of 4 -- Scheduled-triage recipe + named loop anti-patterns
 **Branch**: `feat/adoption-loop-engineering` (Phases 1-2 already complete on the branch)
 **Outcome**: complete; all Phase 3 sub-tasks closed and the Phase 3 exit checklist is checked.
@@ -44,7 +44,7 @@ None. The validators unaffected by Markdown body edits (version-sync, supply-cha
 
 ## Known gaps
 
-See [`docs/releases/v3/v3.3/known-gaps.md`](../known-gaps.md). Phase 3 introduced no new gaps. The four open items carry forward unchanged: DF-v33-1 (pushy-description allowlist, owned by Phase 4), WN-v33-1 (local `make` / temp-access limitation), WN-v33-2 (pre-existing global audit warnings outside this phase), and WN-v33-3 (headline count prose deferred to release reconciliation).
+See [`docs/archives/v3/v3.3/known-gaps.md`](../known-gaps.md). Phase 3 introduced no new gaps. The four open items carry forward unchanged: DF-v33-1 (pushy-description allowlist, owned by Phase 4), WN-v33-1 (local `make` / temp-access limitation), WN-v33-2 (pre-existing global audit warnings outside this phase), and WN-v33-3 (headline count prose deferred to release reconciliation).
 
 ## Next steps
 

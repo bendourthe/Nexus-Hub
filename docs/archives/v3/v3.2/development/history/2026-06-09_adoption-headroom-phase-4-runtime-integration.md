@@ -1,7 +1,7 @@
 # Session History -- v3.2.0 adoption-headroom Phase 4: Runtime integration + retire rtk
 
 **Date**: 2026-06-09
-**Plan**: [`docs/releases/v3/v3.2/plans/adoption-headroom.md`](../../../../../releases/v3/v3.2/plans/adoption-headroom.md)
+**Plan**: [`docs/archives/v3/v3.2/plans/adoption-headroom.md`](../../plans/adoption-headroom.md)
 **Phase**: 4 of 7 -- Runtime integration + retire rtk (re-full)
 **Branch**: `feat/adoption-headroom` (continuing from Phase 3)
 **Outcome**: complete; all four sub-tasks (T012-T015) closed, all quality gates green (GO).
@@ -60,7 +60,7 @@ The session opened on `develop` with `HEAD` at a loop-engineering docs commit; o
 
 ## Known gaps
 
-Logged in [`docs/releases/v3/v3.2/known-gaps.md`](../../known-gaps.md): DF-v32hr-7 resolved (compress wired + hook/MCP shipped); new DF-v32hr-9 (CacheAligner not wired into the runtime path), DF-v32hr-10 (free-text/log compression deferred to Phase 6), DF-v32hr-11 (methodology-skill cross-links deferred to Phase 7), WN-v32hr-1 (hook relies on `updatedInput`), WN-v32hr-2 (partial local verification); DF-v32hr-4 (auto-prune) refined and kept open.
+Logged in [`docs/archives/v3/v3.2/known-gaps.md`](../../known-gaps.md): DF-v32hr-7 resolved (compress wired + hook/MCP shipped); new DF-v32hr-9 (CacheAligner not wired into the runtime path), DF-v32hr-10 (free-text/log compression deferred to Phase 6), DF-v32hr-11 (methodology-skill cross-links deferred to Phase 7), WN-v32hr-1 (hook relies on `updatedInput`), WN-v32hr-2 (partial local verification); DF-v32hr-4 (auto-prune) refined and kept open.
 
 ## Next steps
 

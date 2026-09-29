@@ -1,7 +1,7 @@
 # Session History -- v3.0.0 Phase 7: scanner optional modules (re-partial)
 
 **Date**: 2026-06-04
-**Plan**: [`docs/releases/v3/v3.0/plans/command-consolidation-skill-security.md`](../../../../../releases/v3/v3.0/plans/command-consolidation-skill-security.md)
+**Plan**: [`docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md`](../../plans/command-consolidation-skill-security.md)
 **Phase**: 7 of 10 -- scanner optional modules (re-partial)
 **Outcome**: complete; all sub-tasks (T033-T035) closed, all applicable quality gates green. Recovered from an interrupted prior session whose network drop lost the conversation but left the working-tree changes intact.
 
@@ -43,7 +43,7 @@ The phase was begun in a prior session that was lost to a network interruption. 
 
 ## Known gaps
 
-See [`docs/releases/v3/v3.0/known-gaps.md`](../../known-gaps.md). Two new open items this phase: DF-v30-3 (the two optional modules ship deliberately minimal starter content -- 12 signature rules, 5-advisory offline seed -- to grow per release, mirroring DF-v30-1's philosophy) and WN-v30-4 (local `make` unavailable on the Windows host, gate emulated directly all-green; no shell surface this phase so no ShellCheck concern; covered by CI). DF-v30-1's note that "class 14 YARA + OSV are Phase 7, not gaps" is now discharged -- both modules have landed. Summary: 7 open (3 DF, 4 WN), 0 resolved.
+See [`docs/archives/v3/v3.0/known-gaps.md`](../../known-gaps.md). Two new open items this phase: DF-v30-3 (the two optional modules ship deliberately minimal starter content -- 12 signature rules, 5-advisory offline seed -- to grow per release, mirroring DF-v30-1's philosophy) and WN-v30-4 (local `make` unavailable on the Windows host, gate emulated directly all-green; no shell surface this phase so no ShellCheck concern; covered by CI). DF-v30-1's note that "class 14 YARA + OSV are Phase 7, not gaps" is now discharged -- both modules have landed. Summary: 7 open (3 DF, 4 WN), 0 resolved.
 
 ## Next steps
 

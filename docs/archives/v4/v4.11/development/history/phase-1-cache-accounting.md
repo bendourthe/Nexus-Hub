@@ -6,7 +6,7 @@ Renumber note, 2026-09-14: this historical cache-track evidence was authored und
 **Phase**: 1 - Cache accounting and baseline
 **Date**: 2026-09-10
 **Branch**: `feat/v4.11.0-cache-and-diagram`
-**Evidence**: [phase-1-cache-accounting.md](../../../../../releases/v4/v4.11/development/phase-1-cache-accounting.md)
+**Evidence**: [phase-1-cache-accounting.md](../phase-1-cache-accounting.md)
 
 ## Context
 
@@ -22,7 +22,7 @@ This plan occupied the v4.12.0 slot when it was written. The maintainer swapped 
 
 - `catalog/skills/ai-development/prompt-engineering/references/step-8-optimize-cost-and-latency.md` - corrected example, worked-outcomes table, two explanatory paragraphs.
 - `tests/skills/test_cache_share_example.py` - new; 18 tests executing the shipped snippet.
-- `docs/releases/v4/v4.11/development/phase-1-cache-accounting.md` - new; phase evidence.
+- `docs/archives/v4/v4.11/development/phase-1-cache-accounting.md` - new; phase evidence.
 
 ## Test results
 

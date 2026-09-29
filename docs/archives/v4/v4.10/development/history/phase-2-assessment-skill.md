@@ -4,7 +4,7 @@
 **Phase**: 2 - Assessment and ranking skill
 **Date**: 2026-09-10
 **Branch**: `feat/v4.10.0-plan-queue-continuity`
-**Evidence**: [phase-2-assessment-skill.md](../../../../../releases/v4/v4.10/development/phase-2-assessment-skill.md)
+**Evidence**: [phase-2-assessment-skill.md](../phase-2-assessment-skill.md)
 
 ## Subtasks completed
 
@@ -19,7 +19,7 @@
 - `.claude-plugin/plugin.json`, `README.md`, `AGENTS.md` - prose count 336 to 337.
 - `scripts/enumerate_plan_queue.py` - touched-path extractor reads both conventions.
 - `tests/validators/test_enumerate_plan_queue.py` - three added tests (21 total).
-- `docs/releases/v4/v4.10/development/phase-2-assessment-skill.md` - new, phase evidence.
+- `docs/archives/v4/v4.10/development/phase-2-assessment-skill.md` - new, phase evidence.
 
 ## Test results
 

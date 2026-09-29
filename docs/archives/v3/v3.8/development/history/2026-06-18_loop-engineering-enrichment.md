@@ -2,8 +2,8 @@
 
 **Date**: 2026-06-18
 **Version**: v3.8.0
-**Plan**: [docs/releases/v3/v3.8/plans/adoption-ralph-claude-code.md](../../../../../releases/v3/v3.8/plans/adoption-ralph-claude-code.md)
-**Comparison**: [docs/releases/v3/v3.8/comparisons/v3.8.0-comparison-ralph-claude-code.md](../../comparison-ralph-claude-code.md)
+**Plan**: [docs/archives/v3/v3.8/plans/adoption-ralph-claude-code.md](../../plans/adoption-ralph-claude-code.md)
+**Comparison**: [docs/archives/v3/v3.8/comparisons/v3.8.0-comparison-ralph-claude-code.md](../../comparison-ralph-claude-code.md)
 **Branch**: `feat/loop-engineering-enrichment` -> merged to `develop`
 
 ## Goal
@@ -42,4 +42,4 @@ Per-phase: `validate_skills.py --bundles-only` PASS (0 errors), JSON catalogs OK
 ## Release prep
 
 - Relocated the Ralph plan + comparison from `docs/v3/v3.7/` to `docs/v3/v3.8/` with full reference repair (no stale `v3.7.0` Ralph references remain).
-- Closed two carried-forward known gaps: WN-v37-3 (`README_zh` counts) and WN-v33-2 (two over-limit `overview_l1` fields). See [docs/releases/v3/v3.8/known-gaps.md](../../known-gaps.md).
+- Closed two carried-forward known gaps: WN-v37-3 (`README_zh` counts) and WN-v33-2 (two over-limit `overview_l1` fields). See [docs/archives/v3/v3.8/known-gaps.md](../../known-gaps.md).

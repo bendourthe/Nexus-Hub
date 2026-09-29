@@ -6,7 +6,7 @@ Status: implemented - v4.4.2 Phase 2 (`guide-production-ready-rebuild`, sub-task
 
 The v4.4.1 guide showed a collapsed `Trademarks and credits` disclosure under the Home platform rail. The operator's visual review asked for that text to be removed from Home.
 
-Removing it is not only a styling change. `docs/releases/v4/v4.4/development/guide-visual-and-arcade-rebuild/asset-provenance.md` records the GitHub Copilot mark as taken from Microsoft's Codicons icon set under CC BY 4.0, which requires attribution reasonably visible to the audience for as long as the mark is used. The other four marks are trademark-use notices; they carry no licence obligation, but the sentence stating that they identify supported assistants and imply no affiliation is the standard fair-use framing and is worth keeping wherever the marks appear.
+Removing it is not only a styling change. `docs/archives/v4/v4.4/development/guide-visual-and-arcade-rebuild/asset-provenance.md` records the GitHub Copilot mark as taken from Microsoft's Codicons icon set under CC BY 4.0, which requires attribution reasonably visible to the audience for as long as the mark is used. The other four marks are trademark-use notices; they carry no licence obligation, but the sentence stating that they identify supported assistants and imply no affiliation is the standard fair-use framing and is worth keeping wherever the marks appear.
 
 ## Decision
 

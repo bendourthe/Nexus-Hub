@@ -15,7 +15,7 @@ Usage::
 
     python tests/guides/tools/browser_matrix.py --label phase-7
     python tests/guides/tools/browser_matrix.py --label phase-7 --groups home,fullscreen
-    python tests/guides/tools/browser_matrix.py --label phase-9 --out docs/releases/v4/v4.4/development/guide-illustration-clarity-rebuild/renders
+    python tests/guides/tools/browser_matrix.py --label phase-9 --out docs/archives/v4/v4.4/development/guide-illustration-clarity-rebuild/renders
 
 If one invocation would exceed the 20 minute focused-runtime ceiling, run the groups in
 labelled batches with ``--groups`` rather than dropping a declared case. Evidence must stay

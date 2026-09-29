@@ -6,7 +6,7 @@ This frozen record qualifies the DOM-text temporal guard on the tracked five-sli
 
 The source is `tests/fixtures/interactive-handbooks-qualification/presentation/inputs/service-review.pptx`, SHA-256 `994b418c0653c428182bb2bcc11707d04e8d4b03ec72356a45531a0748fd1843`. Slide 4's native chart contains 10, 15 and 20; the slide text says `East 10; Central 15; West 20. Total 45 visits.`. The three chart values sum to 45. The [inventory](real-artifact-inventory.json) maps the rendered total and sentence on slide `completed-visits`. Its total expectation, `45completed visits`, is the DOM's exact text-node concatenation of the source-backed 45 and source title `Completed visits`; the missing space is a serialization detail, not a different source value. Selectors identify only the two visible source-backed DOM strings, not SVG bar geometry, tooltips or generated axis ticks.
 
-The measured artifact is the unchanged `docs/releases/v4/v4.11/development/interactive-handbooks/phase-6-native-attempts/presentation-final/first-build.html`, SHA-256 `9684417c7371db0c3968fab4e4023b2017c19e9c94ec6b6566f3a1a2801b880b`. It remains a historical non-pass.
+The measured artifact is the unchanged `docs/archives/v4/v4.11/development/interactive-handbooks/phase-6-native-attempts/presentation-final/first-build.html`, SHA-256 `9684417c7371db0c3968fab4e4023b2017c19e9c94ec6b6566f3a1a2801b880b`. It remains a historical non-pass.
 
 ## Observed result
 

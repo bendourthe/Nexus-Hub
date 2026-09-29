@@ -1,7 +1,7 @@
 # Session History -- v3.2.0 adoption-headroom Phase 5: Accuracy-regression harness
 
 **Date**: 2026-06-09
-**Plan**: [`docs/releases/v3/v3.2/plans/adoption-headroom.md`](../../../../../releases/v3/v3.2/plans/adoption-headroom.md)
+**Plan**: [`docs/archives/v3/v3.2/plans/adoption-headroom.md`](../../plans/adoption-headroom.md)
 **Phase**: 5 of 7 -- Accuracy-regression harness (re-full)
 **Branch**: `feat/adoption-headroom` (continuing from Phase 4)
 **Outcome**: complete; all three sub-tasks (T016-T018) closed, all quality gates green (GO).
@@ -50,7 +50,7 @@ Prove the engine's compression preserves answer quality so aggressive ratios can
 
 ## Known gaps
 
-Logged in [`docs/releases/v3/v3.2/known-gaps.md`](../../known-gaps.md): new DF-v32hr-12 (structural-fidelity gate, no live-LLM semantic benchmark), DF-v32hr-13 (effectiveness gated on char reduction, token ratio reported but not gated), WN-v32hr-3 (partial Windows local verification). The Phase 1-3 deferred refinements (DF-v32hr-1 near-dup fingerprinting, DF-v32hr-2 adaptive sizing, DF-v32hr-3 error/outlier preservation, DF-v32hr-5 prose-embedded arrays) now have the measurement tool they were waiting on, but remain open enhancements -- the harness is the gate, not the implementation.
+Logged in [`docs/archives/v3/v3.2/known-gaps.md`](../../known-gaps.md): new DF-v32hr-12 (structural-fidelity gate, no live-LLM semantic benchmark), DF-v32hr-13 (effectiveness gated on char reduction, token ratio reported but not gated), WN-v32hr-3 (partial Windows local verification). The Phase 1-3 deferred refinements (DF-v32hr-1 near-dup fingerprinting, DF-v32hr-2 adaptive sizing, DF-v32hr-3 error/outlier preservation, DF-v32hr-5 prose-embedded arrays) now have the measurement tool they were waiting on, but remain open enhancements -- the harness is the gate, not the implementation.
 
 ## Next steps
 
