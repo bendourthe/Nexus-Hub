@@ -61,6 +61,35 @@ def make_stub(bin_dir: Path, name: str, script: Path, python: str = sys.executab
     return exe
 
 
+def path_order_git_dir() -> Path | None:
+    """A directory whose `git` runs its shell with PATH in the caller's order, or None.
+
+    `repo_host.git_ssh` asks git's own shell which ssh a push runs. Git for Windows'
+    launchers (`cmd\\git.exe`, `bin\\git.exe`), which a CI runner or a non-Git-Bash
+    shell finds first, put the bundled `usr\\bin` ahead of PATH there, so an ssh
+    stand-in first on PATH never wins; `mingw64\\bin\\git.exe` keeps PATH as given.
+    Tests that inject an ssh stand-in put this directory right after it, so the
+    checker resolves this git and git's shell resolves the stand-in, exactly as it
+    would resolve a user's own ssh placed first. On POSIX git already keeps PATH
+    order, so there is nothing to add.
+    """
+    if sys.platform != "win32":
+        return None
+    import shutil
+    import subprocess
+
+    git = shutil.which("git")
+    if not git:
+        return None
+    exec_path = subprocess.run(
+        [git, "--exec-path"], capture_output=True, text=True, check=False
+    ).stdout.strip()
+    if not exec_path:
+        return None
+    candidate = Path(exec_path).parent.parent / "bin" / "git.exe"  # <prefix>/mingw64/bin
+    return candidate.parent if candidate.is_file() else None
+
+
 _GH_DIR: Path | None = None
 
 

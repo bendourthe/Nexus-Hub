@@ -32,6 +32,7 @@ from .test_check_plan_completion import (  # noqa: F401  (autouse fixture re-exp
     TRANSPORT_OVERRIDE_ENV,
     _git,
     _isolated_git_config,
+    path_order_git_dir,
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -885,7 +886,12 @@ def _ssh_stub(tmp: Path, monkeypatch: pytest.MonkeyPatch, hosts: dict[str, str],
     posix = stub / "ssh"
     posix.write_text('#!/usr/bin/env bash\nexec "$SSH_STUB_PYTHON" "$(dirname "$0")/ssh_stub.py" "$@"\n', encoding="utf-8")
     posix.chmod(0o755)
-    monkeypatch.setenv("PATH", str(stub) + os.pathsep + os.environ.get("PATH", ""))
+    # git's own shell must resolve the stand-in, as it would a user's ssh placed first
+    # (Git for Windows' launchers put the bundled ssh ahead of PATH; see launcher.py).
+    git_dir = path_order_git_dir()
+    monkeypatch.setenv(
+        "PATH", os.pathsep.join([str(stub), *([str(git_dir)] if git_dir else []), os.environ.get("PATH", "")])
+    )
     monkeypatch.setenv("SSH_STUB_HOSTS", json.dumps(hosts))
     monkeypatch.setenv("SSH_STUB_PROXIED", json.dumps(list(proxied)))
     monkeypatch.setenv("SSH_STUB_PYTHON", sys.executable)
@@ -1073,6 +1079,21 @@ def test_an_alias_is_resolved_with_the_ssh_git_runs(route_repo: Path, tmp_path: 
     # An alias whose Match-user block points elsewhere is resolved with that user too.
     monkeypatch.setenv("SSH_STUB_HOSTS", json.dumps({"github-work": "github.com", "git@github-work": "evil.example"}))
     assert _route(route_repo, "git@github-work:acme/demo.git")[0] == "unmet"
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Git for Windows launchers only")
+def test_git_ssh_follows_the_ssh_git_runs_not_the_callers_path(route_repo: Path, tmp_path: Path) -> None:
+    """Through Git for Windows' `cmd\git.exe` launcher, git's shell runs its bundled ssh
+    even when another ssh is first on the caller's PATH, and `git_ssh` must report that
+    one: it is the ssh a push really runs (the GitHub Windows runner case)."""
+    git_dir = path_order_git_dir()
+    launcher = git_dir.parent.parent / "cmd" / "git.exe" if git_dir else None
+    bundled = git_dir.parent.parent / "usr" / "bin" / "ssh.exe" if git_dir else None
+    if not (launcher and launcher.is_file() and bundled and bundled.is_file()):
+        pytest.skip("no Git for Windows launcher and bundled ssh on this host")
+    found = repo_host.git_ssh(route_repo, git=str(launcher), run=repo_host._default_runner(None))
+    assert found and os.path.samefile(found, bundled)
+    assert not os.path.samefile(Path(found).parent, tmp_path / "ssh_stub")
 
 
 def test_an_undeterminable_git_ssh_is_cannot_verify(route_repo: Path) -> None:

@@ -26,7 +26,7 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CHECKER = REPO_ROOT / "scripts" / "check_plan_completion.py"
 sys.path.insert(0, str(REPO_ROOT / "tests" / "fixtures" / "gh_stub"))
-from launcher import gh_stub_dir, make_stub
+from launcher import gh_stub_dir, make_stub, path_order_git_dir
 
 # A real executable `gh` stand-in: the resolver never runs a Windows .cmd or .bat.
 GH_STUB = gh_stub_dir()
@@ -212,8 +212,11 @@ def _ssh_stub(fx: Fixture, hosts: dict[str, str]) -> None:
     )
     # A real executable (ssh.exe on Windows): the resolver never runs a .cmd or .bat.
     make_stub(stub, "ssh", stub / "ssh_stub.py")
+    # git's own shell must resolve the stand-in, as it would a user's ssh placed first
+    # (Git for Windows' launchers put the bundled ssh ahead of PATH; see launcher.py).
+    git_dir = path_order_git_dir()
     fx.env.update(
-        PATH=str(stub) + os.pathsep + fx.env["PATH"],
+        PATH=os.pathsep.join([str(stub), *([str(git_dir)] if git_dir else []), fx.env["PATH"]]),
         SSH_STUB_HOSTS=json.dumps(hosts),
         SSH_STUB_PYTHON=sys.executable,
     )

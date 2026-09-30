@@ -39,7 +39,7 @@ The `goal_capture` field (checked 2026-09-29) records whether a typed `/goal ...
 | `verbatim` | A probe showed the hook receives the `/goal` line unchanged. | One paste line that starts with `/goal`; it approves the run and sets the native goal. |
 | `not-captured` | A goal command exists, but the hook cannot see the typed line. | The plain approval line first, then the `/goal` line second. |
 | `no-goal` | First-party docs list the commands and none is a goal command. | The plain approval line only. |
-| `unverified` | The docs do not settle it. | The plain approval line, plus the printed goal line where a goal command exists. |
+| `unverified` | The docs do not settle it. | The plain approval line; where a goal command exists, the optional goal line is printed under the page's Details. |
 
 The native goal is advisory. Every goal evaluator listed here is a model judging the transcript, so the page's goal condition names the completion check's first output line (`MINOR COMPLETE vX.Y` for a minor, `PLAN COMPLETE` followed by the plan file for a plan) rather than a string the agent could simply print, and the deterministic completion checker stays the only authority on done. On a platform with no deterministic Stop gate behind its goal (Codex: its docs never tie `/goal` to the Stop hook the completion gate uses), the goal's judgment that the work is finished is not the definition of done: only the checker's verdict is. The page layout lives in [`approval-page.md`](../../catalog/skills/workflow/implement-phase/references/approval-page.md), and `approval_page.py` carries a copy of this column that `tests/validators/test_approval_page.py` keeps in step.
 

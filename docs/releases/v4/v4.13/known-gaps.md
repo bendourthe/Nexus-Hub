@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: released; PR #230 merged the complete 34-task plan and tag `v4.13.0` was published on 2026-09-21. Two bounded warning-class findings remain owned for future measurement work. GitHub branch protection passed a live pull-request gate test; the second trigger pilot stopped on an unproven spend bound.
-**Last updated**: 2026-09-29
+**Last updated**: 2026-09-30
 
 Release-scoped gaps for the evidence-driven agent improvement plan. Planned future-phase work is tracked in the plan rather than reported as completed here.
 
@@ -1077,7 +1077,7 @@ Gaps from the minor-scope implement plan ([`v4.13.6-minor-scope-implement-and-ve
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 1 | 0 |
 | Bugs / regressions (BG) | 0 | 10 |
-| Warnings (WN) | 6 | 0 |
+| Warnings (WN) | 5 | 1 |
 | Missing tests / coverage gaps (MT) | 1 | 0 |
 | Quality-gate gaps (QG) | 2 | 0 |
 
@@ -1095,10 +1095,6 @@ Gaps from the minor-scope implement plan ([`v4.13.6-minor-scope-implement-and-ve
 
 **Evidence**: `test_rendered_scopes_match_their_command_files` in `tests/guides/test_nexus_hub_guide.py` searches for a bare `<code>` tag, but every Cheatsheets scope is rendered as `<code data-ty="code">`, so the test passes without comparing any scope with its command file. Found while adding `tests/guides/test_cheatsheet_command_sync.py`, which covers the `/implement` card only. **Owner**: catalog maintainer. **Suggested next step**: match the attribute form and extend the comparison to every command card, then confirm it fails on a deliberately stale card.
 
-#### WN-3 (v4.13.6): One approval-page sentence reads as engineering shorthand
-
-**Evidence**: the rendered two-plan fixture page (Phase 8) ends the approving list with "Push, open, and merge one final pull request that closes v0.5, then merge it back. The approvals file sets its limit to 3." A non-engineer cannot tell what is merged back where, or what the limit counts. `scripts/approval_page.py` (the `minor-close-pr` sentence) deliberately does not invent a meaning because the completion contract does not define what that class's bound counts. **Owner**: catalog maintainer. **Suggested next step**: define the `minor-close-pr` bound in the completion contract, reword the sentence in plain language (for example "then copy the result back to develop"), and confirm it with the pending read-back (QG-1).
-
 #### WN-4 (v4.13.6): The whole website guide reports 100 detector findings on views this plan did not touch
 
 **Evidence**: `detect_visual_defects.py guides/website/nexus-hub-guide.html` (default viewports 420, 900, 1440; light and dark) reports the capped 100 findings, 10 `parent-padding-escape` (the first is the landing view's `h1 > b`) and 90 `svg-viewbox-overflow`, with the same distribution at base `7067df15`, so none comes from this plan. The Cheatsheets view this plan edited passes with 0 findings in both themes at base and head. **Owner**: guide maintainer. **Suggested next step**: run the detector per view with `--fragment`, fix or allowlist each finding with a recorded reason, and add the whole-page run to the guide render gate.
@@ -1113,7 +1109,7 @@ Gaps from the minor-scope implement plan ([`v4.13.6-minor-scope-implement-and-ve
 
 #### QG-1 (v4.13.6): The non-engineer read-back of the approval page is pending
 
-**Evidence**: Definition of Done 6 requires one non-engineer read-back recorded in the final phase. The page was rendered from the two-plan fixture on 2026-09-30 and handed to the user for the read-back; no result is recorded yet. The automated half (jargon list, sentence ceiling, risk order, paste line without paths) passes in `tests/validators/test_approval_page.py`. **Owner**: the user, via the orchestrator. **Suggested next step**: record pass or fail with the page version in `development/v4.13.6-last-phase-evidence.md`.
+**Evidence**: Definition of Done 6 requires one non-engineer read-back recorded in the final phase. **Read-back result, 2026-09-30**: the user read the ten-section page rendered from the two-plan fixture (`approval_page.py` at `219513b3`) and found it too wordy, noting that many users will not read it. That result led to the redesign: a results table (released, fixed, archived, cleaned up, and permission prompts when they are turned off), two bold limits, and the paste line, all within 80 words, with the technical sections moved under "Details (optional)". The redesigned page has not been read back yet, so this item stays open. The automated half (jargon list, sentence ceiling, risk order, paste line without paths) passes in `tests/validators/test_approval_page.py`. **Owner**: the user, via the orchestrator. **Suggested next step**: have a non-engineer read the redesigned page (the two-plan fixture render, saved beside the first read-back as `readback-page-v2.md`), then record pass or fail with the page version in `development/v4.13.6-last-phase-evidence.md`.
 
 #### QG-2 (v4.13.6): The edited guide card had no full accessibility or design audit
 
@@ -1127,6 +1123,7 @@ Gaps from the minor-scope implement plan ([`v4.13.6-minor-scope-implement-and-ve
 
 | ID | Title | Resolved in | Notes |
 |---|---|---|---|
+| WN-3 | One approval-page sentence reads as engineering shorthand | 2026-09-30 (page redesign after the QG-1 read-back) | The `minor-close-pr` sentence now reads "Open one final pull request that closes v0.5 and merge it once its checks pass, then copy any newer main changes into develop. If a required check fails, it may push a fix up to 3 times." The bound's meaning comes from the runbook's Minor close step 7 (re-push "within the recorded `minor-close-pr` repush bound"), so the page no longer reports an undefined number. `tests/validators/test_approval_page.py::test_the_minor_close_sentence_says_what_its_bound_counts`. |
 | BG-1 | `secret-scan.sh` never matched a private key | Phase 8 | Found by the new `test_secret_scan.py` parity cases: the four private-key patterns start with `-----`, so `grep -qE "$PATTERN"` read each one as an option, exited 2 silently, and never matched, on every host, while the `.ps1` blocked. The hook now passes `-e`; `test_a_secret_is_blocked[sh-python-private-key-on-a-later-line]` failed before the fix and passes after it. Pre-existing, not introduced by this plan. |
 | BG-5 | `secret-scan.sh` allowed a large write whose secret sat near the start | Phase 8 (Tier 3 cycle 1) | ADV-1 (P1, pre-existing): under `set -o pipefail`, `echo "$CONTENT" \| grep -q` exited on the first match, `echo` took SIGPIPE, and the `if` read a real match as no match, so a key on line 1 of a 20000-line write was allowed (rc 0) while the `.ps1` blocked. The scans now read a here-string (`grep ... <<<"$CONTENT"`, `grep -m1` for the matched line). `test_a_secret_at_the_start_of_a_large_write_is_blocked` fails on the old hook and passes on the fix. |
 | BG-6 | A Python 2 `python` counted as the secret-scan parser | Phase 8 (Tier 3 cycle 1) | ADV-8: the probe `-c 'import json'` passes on Python 2, whose `sys.stdin.buffer` then fails inside the field reader, leaving no content and allowing the write. The probe now requires Python 3. `test_a_python2_named_python3_is_not_a_parser` fails on the old probe and passes on the fix. |

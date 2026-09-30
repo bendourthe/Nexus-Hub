@@ -39,7 +39,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[2]
 sys.path.insert(0, str(REPO / "tests" / "fixtures" / "gh_stub"))
-from launcher import make_stub
+from launcher import make_stub, path_order_git_dir
 
 SSH_URL = "git@github-work:acme/demo.git"
 SSH_HOSTS = {"github-work": "github.com"}
@@ -194,7 +194,10 @@ def run(out: Path, max_cycles: int) -> dict:
     for name, script in (("gh", "gh_e2e.py"), ("git", "git_e2e.py"), ("claude", "stub_agent.py"),
                          ("ssh", "ssh_e2e.py")):
         _stub_bin(bin_dir, name, HERE / script)
-    real_git = shutil.which("git")
+    # git's own shell must resolve the ssh stand-in in `bin_dir`, as it would a user's ssh
+    # placed first; Git for Windows' launchers would run the bundled ssh (see launcher.py).
+    git_dir = path_order_git_dir()
+    real_git = str(git_dir / "git.exe") if git_dir else shutil.which("git")
     assert real_git is not None, "git is required by the fixture"
     env = {k: v for k, v in os.environ.items() if k not in TRANSPORT_OVERRIDES}
     env.update(

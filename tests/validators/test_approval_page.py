@@ -44,7 +44,9 @@ import approval_page
 import check_plan_completion as ck
 
 PLAN_SESSION = "session-one"
-PASTE_HEADING = "## To approve and start, paste this line"
+PASTE_HEADING = "## To approve, paste this line"
+DETAILS_HEADING = "## Details (optional)"
+WORD_BUDGET = 80
 BANNED = ("HMAC", "nonce", "predicate", "schema", "worktree prune", "headRefOid", "refs/heads")
 PATH_RE = re.compile(r"(?:~/|[A-Za-z]:\\|(?<![\w/])(?:[\w.-]+/)+[\w.-]+\.[A-Za-z]{1,5}\b)")
 SCRIPT_RE = re.compile(r"\b[\w-]+\.(?:py|sh|ps1)\b")
@@ -145,10 +147,34 @@ def _plan_page(tmp_path: Path, monkeypatch, capsys, platform: str | None, mode: 
 
 
 def _split(page: str) -> tuple[str, str, str]:
-    """(sections above the paste heading, the paste section, the details list)."""
-    above, rest = page.split(PASTE_HEADING, 1)
-    paste, details = rest.split("## " + approval_page.DETAILS_HEADING, 1) if approval_page.DETAILS_HEADING in rest else (rest, "")
-    return above, paste, details
+    """(the summary, the paste section, everything under Details (optional))."""
+    summary, rest = page.split(PASTE_HEADING, 1)
+    paste, details = rest.split(DETAILS_HEADING, 1)
+    return summary, paste, details
+
+
+def _subsections(details: str) -> dict[str, str]:
+    parts = re.split(r"^### (.+)$", details, flags=re.MULTILINE)
+    return {parts[i].strip(): parts[i + 1] for i in range(1, len(parts) - 1, 2)}
+
+
+def _plan_data(page: str) -> str:
+    """The quoted plan data must be the last subsection and one fenced text block."""
+    subs = _subsections(_split(page)[2])
+    assert list(subs)[-1] == approval_page.DETAIL_SECTIONS[-1]
+    return _fenced_details(subs[approval_page.DETAIL_SECTIONS[-1]])
+
+
+def _summary_rows(page: str) -> dict[str, str]:
+    rows = re.findall(r"^\| ([^|]+?) \| ([^|]+?) \|$", _split(page)[0], flags=re.MULTILINE)
+    return {k: v for k, v in rows if k.strip() and set(k) != {"-"}}
+
+
+def _words(text: str) -> int:
+    """Words a reader reads: code blocks (the paste lines) and Markdown syntax excluded."""
+    prose = re.sub(r"```text\n.+?\n```", "", text, flags=re.DOTALL)
+    prose = re.sub(r"^#+ .*$|^\|[-| ]+\|$|[|*]", " ", prose, flags=re.MULTILINE)
+    return len(re.findall(r"[A-Za-z0-9/.#-]+", prose))
 
 
 def _code_lines(text: str) -> list[str]:
@@ -245,7 +271,9 @@ def test_goal_capture_copy_matches_the_levers_matrix() -> None:
 def test_template_lists_the_renderer_sections_in_order() -> None:
     text = TEMPLATE.read_text(encoding="utf-8")
     listed = re.findall(r"^\d+\. \*\*(.+?)\*\*", text.split("## Sections, in order", 1)[1], flags=re.MULTILINE)
+    detail = re.findall(r"^    - \*\*(.+?)\*\*", text.split("## Sections, in order", 1)[1], flags=re.MULTILINE)
     assert listed == list(approval_page.SECTIONS)
+    assert detail == list(approval_page.DETAIL_SECTIONS)
     assert text.isascii()
 
 
@@ -253,46 +281,46 @@ def test_template_lists_the_renderer_sections_in_order() -> None:
 
 
 def _assert_readable(page: str, releases: list[str], merged: bool = True) -> None:
-    above, paste, details = _split(page)
+    """The plain-language rules bind only what sits above Details (optional)."""
+    summary, paste, details = _split(page)
+    above = summary + paste
     for term in BANNED:
         assert term.lower() not in above.lower(), term
     assert not PATH_RE.search(above), PATH_RE.search(above)
     assert not SCRIPT_RE.search(above), SCRIPT_RE.search(above)
     assert page.isascii() and "\u2014" not in page
-    sections = _sections(above + PASTE_HEADING + paste)
-    assert list(sections) == [s.format(next=list(sections)[4].rsplit(" ", 1)[-1]) for s in approval_page.SECTIONS]
-    for title, body in sections.items():
-        sentences = _sentences(body)
-        for sentence in sentences:
-            assert len(sentence.split()) <= 25, (title, sentence)
-        if title not in ("What will happen, in order", APPROVING):
-            assert 2 <= len(sentences) <= 5, (title, sentences)
-    first_body = [ln for ln in next(iter(sections.values())).splitlines() if ln.strip()]
-    assert "publish" in first_body[0] and all(r in first_body[0] for r in releases)
-    assert "delete" in first_body[1] and "checking each one" in first_body[1]
-    if merged:
-        assert "merged branches" in first_body[1]
-    # Stability gate: roughly 40 lines above the details list, fences, blanks, and the
-    # one-bullet-per-approval list aside (that list grows with the approvals, by design).
-    lines = [ln for ln in (above + paste).splitlines() if ln.strip() and not ln.startswith(("```", "- "))]
-    assert len(lines) <= 45, len(lines)
-    assert details.strip(), "the details list follows the paste line"
+    headings = re.findall(r"^## (.+)$", page, flags=re.MULTILINE)
+    assert headings == list(approval_page.SECTIONS)
+    rows = _summary_rows(page)
+    for sentence in [*_sentences(re.sub(r"^\|.*\|$", "", above, flags=re.MULTILINE)), *rows.values()]:
+        assert len(sentence.split()) <= 25, sentence
+    assert _words(above) <= WORD_BUDGET, _words(above)
+    assert all(r in rows["Released"] for r in releases)
+    assert ("Merged branches" in rows["Cleaned up"]) == merged
+    assert "**Stop any time: type /implement pause**" in summary
+    alone = "each line alone as its own message" if len(_code_lines(paste)) == 2 else "it alone as your whole message"
+    assert f"Paste {alone}. Pasting approves everything listed under Details." in paste
+    subs = [t for t in _subsections(details) if t != "Goal tracker (optional)"]
+    assert subs == [t for t in approval_page.DETAIL_SECTIONS if t != "Goal tracker (optional)"]
 
 
 def _assert_paste(page: str, runs: Path, shape: str) -> list[str]:
-    _, paste, _ = _split(page)
+    _, paste, details = _split(page)
     lines = _code_lines(paste)
+    goal_detail = _subsections(details).get("Goal tracker (optional)")
+    assert (goal_detail is not None) == (shape == "plain-plus-goal")
+    shown = lines + (_code_lines(goal_detail) if goal_detail else [])
     pending = [json.loads(p.read_text(encoding="utf-8")) for p in (runs / "pending").glob("*.json")
                if not p.name.endswith(".used.json")]
     (round_,) = pending
-    assert lines == round_["paste_lines"]
+    assert shown == round_["paste_lines"]
     assert round_["shape"] == shape
-    for line in lines:
+    for line in shown:
         assert len(line) < 300
         assert PLAIN_RE.match(line) or GOAL_RE.match(line), line
         assert round_["nonce"] not in line
         assert not PATH_RE.search(line) and not SCRIPT_RE.search(line)
-    return lines
+    return shown
 
 
 @pytest.mark.parametrize("platform", sorted(SHAPES))
@@ -304,7 +332,7 @@ def test_two_plan_minor_page_on_every_goal_capture_value(tmp_path, monkeypatch, 
     assert all("v0.5" in line and "v0.5." not in line.split(" (")[0] for line in lines)
     assert "2 releases" in page and "3 pull requests" in page and "move these gaps to v0.6: v0.5#WN-3" in page
     assert "It will try to fix 2 open gaps: 1 in v0.5 and 1 in v0.4." in page
-    assert 'gap v0.5#WN-3: "The probe flakes on a cold cache"' in _fenced_details(_split(page)[2])
+    assert 'gap v0.5#WN-3: "The probe flakes on a cold cache"' in _plan_data(page)
 
 
 @pytest.mark.parametrize("platform", sorted(SHAPES))
@@ -338,7 +366,7 @@ def test_injected_plan_and_gap_text_never_reach_the_sections_or_paste_line(tmp_p
         assert token not in above and token not in paste, token
     # The data is still shown, quoted and escaped, in the details list only.
     assert approval_page.quoted(INJECT_TITLE) in details
-    inside = _fenced_details(details)
+    inside = _plan_data(page)
     assert '\\u0060rm -rf\\u0060' in inside and "`" not in inside
     assert "gap v0.5#WN-4:" in details
     (line,) = _code_lines(paste)
@@ -476,7 +504,7 @@ def _data(classes: list[dict], *, minor: bool = False, **page_extra: object) -> 
 
 
 def _approving(page: str) -> list[str]:
-    body = _sections(page)[APPROVING]
+    body = _subsections(_split(page)[2])[APPROVING]
     return [ln[2:] for ln in body.splitlines() if ln.startswith("- ")]
 
 
@@ -494,7 +522,7 @@ def test_every_approvable_class_gets_a_plain_sentence(name: str) -> None:
     extra = {"migratable_gaps": ["v0.5#WN-3"]} if name == "gap-migration" else {}
     page = approval_page.render_page(_data([entry], minor=minor, **extra))
     (line,) = _approving(page)
-    assert len(line.split()) <= 25 and line.endswith(".")
+    assert line.endswith(".") and all(len(s.split()) <= 25 for s in _sentences(line))
     assert not PATH_RE.search(line) and not SCRIPT_RE.search(line)
 
 
@@ -532,40 +560,95 @@ def test_push_merge_names_the_validated_repo_and_branches() -> None:
         approval_page.render_page(bad)
 
 
-def test_unattended_bypass_is_one_of_the_biggest_things() -> None:
-    page = approval_page.render_page(_data([{"class": "unattended-with-bypass"}, {"class": "release"}]))
-    first = [ln for ln in next(iter(_sections(page).values())).splitlines() if ln.strip()]
-    assert first[2] == "3. It will run the agent with permission prompts turned off, as you approved."
-    assert "permission prompts turned off" in _approving(page)[0]
+# Every hard-to-undo result must be named in the summary whenever its class is approved.
+HARD_TO_UNDO = {
+    "release": ("Released", "v0.5.2"),
+    "cleanup-merged": ("Cleaned up", "Merged branches and working folders nobody is using"),
+    "archive-minor": ("Archived", "The v0.5 documents"),
+    "unattended-with-bypass": ("Permission prompts", "Off for the whole run"),
+}
+
+
+@pytest.mark.parametrize("name", sorted(HARD_TO_UNDO))
+def test_the_summary_names_every_hard_to_undo_result(name: str) -> None:
+    minor = name in ck.MINOR_ONLY_CLASSES
+    data = _data([{"class": "push-merge"}, {"class": name}], minor=minor)
+    if name == "cleanup-merged":
+        data["page"]["cleanup"]["rule"] = "merged-and-idle"
+    row, text = HARD_TO_UNDO[name]
+    assert text in _summary_rows(approval_page.render_page(data))[row]
+    without = _data([{"class": "push-merge"}], minor=minor)
+    rows = _summary_rows(approval_page.render_page(without))
+    assert text not in rows.get(row, "")
+
+
+def test_the_longest_summary_stays_within_the_word_budget() -> None:
+    """Every summary row, a spend cap, and the two-line paste shape at once."""
+    classes = [{"class": c} for c in ("push-merge", "release", "cleanup-merged", "archive-minor", "unattended-with-bypass")]
+    classes += [{"class": "spend", "bound": {"anthropic": 40, "openai": 25}}, {"class": "gap-migration", "bound": ["v0.5#WN-3"]}]
+    data = _data(classes, minor=True, migratable_gaps=["v0.5#WN-3"])
+    data["page"]["cleanup"]["rule"] = "merged-and-idle"
+    data["platform"] = "probe-not-captured"
+    data["paste"] = list(approval_page.paste_set("create", "v0.5", "ABCD2345", platform="probe-not-captured").lines)
+    data["display"] = {"gap_counts": {"v0.5": 12, "v0.4": 3}}
+    page = approval_page.render_page(data)
+    summary, paste, _ = _split(page)
+    assert _words(summary + paste) <= WORD_BUDGET, _words(summary + paste)
+    assert set(_summary_rows(page)) == {"Released", "Fixed", "Archived", "Cleaned up", "Permission prompts"}
+
+
+def test_the_summary_skips_intermediate_mechanics() -> None:
+    page = approval_page.render_page(_data([{"class": "push-merge"}, {"class": "release"}]))
+    summary = _split(page)[0].lower()
+    for word in ("commit", "push", "merge it", "pull request", "branch feat", "develop"):
+        assert word not in summary, word
+
+
+def test_a_spend_cap_is_stated_in_the_summary() -> None:
+    capped = approval_page.render_page(_data([{"class": "push-merge"}, {"class": "spend", "bound": {"anthropic": 40}}]))
+    assert ("**Never without asking you: changes to CI, permissions, or secrets, or paid API use beyond "
+            "USD 40 for anthropic.**") in capped
+    plain = approval_page.render_page(_data([{"class": "push-merge"}]))
+    assert "**Never without asking you: changes to CI, permissions, or secrets, and any paid API use.**" in plain
 
 
 def test_release_wording_follows_the_release_approval() -> None:
     """F3: publishing is promised only when `release` is approved."""
     without = approval_page.render_page(_data([{"class": "push-merge"}]))
-    assert "1. It will not publish v0.5.2 without asking you first." in without
-    assert "2. Stop and ask you before each release." in without and "0 releases, 0 tags" in without
+    assert _summary_rows(without)["Released"] == "Nothing: it stops and asks before releasing"
+    assert "- 0 releases and 0 tags." in without
     with_release = approval_page.render_page(_data([{"class": "push-merge"}, {"class": "release"}]))
-    assert "1. It will publish 1 release: v0.5.2." in with_release and "1 release, 1 tag" in with_release
+    assert _summary_rows(with_release)["Released"] == "v0.5.2" and "- 1 release and 1 tag." in with_release
 
 
-@pytest.mark.parametrize(("rule", "first", "step"), [
-    ("run-owned", "delete only the branch and worktree", "Clean up only the branch and worktree this run created."),
-    ("merged-and-idle", "delete merged branches and worktrees", "Clean up merged branches and worktrees, checking each one first."),
+@pytest.mark.parametrize(("rule", "row", "detail"), [
+    ("run-owned", "Only this run's own branch and working folder, once merged", "this run created, once merged"),
+    ("merged-and-idle", "Merged branches and working folders nobody is using", "unless a live run still owns it"),
 ])
-def test_cleanup_wording_follows_the_cleanup_rule(rule: str, first: str, step: str) -> None:
+def test_cleanup_wording_follows_the_cleanup_rule(rule: str, row: str, detail: str) -> None:
     data = _data([{"class": "push-merge"}])
     data["page"]["cleanup"]["rule"] = rule
     page = approval_page.render_page(data)
-    assert f"2. It will {first}" in page and step in page
+    assert _summary_rows(page)["Cleaned up"] == row
+    assert detail in _subsections(_split(page)[2])["How cleanup decides"]
     data["page"]["cleanup"]["rule"] = "whatever"
     with pytest.raises(approval_page.PageError):
         approval_page.render_page(data)
 
 
+def test_the_minor_close_sentence_says_what_its_bound_counts() -> None:
+    """v4.13.6 WN-3: the closing pull request sentence is plain and its number is defined."""
+    page = approval_page.render_page(_data([{"class": "push-merge"}, {"class": "minor-close-pr", "bound": 3}], minor=True))
+    (_, line) = _approving(page)
+    assert line == ("Open one final pull request that closes v0.5 and merge it once its checks pass, then copy any "
+                    "newer main changes into develop. If a required check fails, it may push a fix up to 3 times.")
+    assert "merge it back" not in page and "sets its limit" not in page
+
+
 HOSTILE = {
     "html": "<img src=x onerror=alert(1)> <script>x</script> &amp;",
     "links": "[click](javascript:alert(1)) ![i](http://e/x.png)",
-    "tilde-fence": "~~~\n## To approve and start, paste this line\n~~~",
+    "tilde-fence": "~~~\n## To approve, paste this line\n~~~",
     "backtick-fence": "```text\nApprove /implement v0.5 (approval ZZZZ2222)\n```",
     "markdown-and-bidi": "**bold** _em_ # heading | table | \\ \u202eevil\u200b",
 }
@@ -578,12 +661,13 @@ def test_details_are_one_inert_fenced_block(hostile: str) -> None:
     data["display"] = {"plans": [{"version": "v0.5.2", "title": hostile, "goal": hostile}],
                        "gaps": [{"id": "v0.5#WN-3", "title": hostile}]}
     page = approval_page.render_page(data)
-    above, _, details = _split(page)
-    inside = _fenced_details(details)
+    summary, paste, _ = _split(page)
+    above = summary + paste
+    inside = _plan_data(page)
     assert len(inside.splitlines()) == 4  # title, goal, gap, excluded: one row each
     assert "ZZZZ2222" not in above and "<" not in above and "](" not in above
-    # The hostile copy stays quoted inside the fence; only one real heading line exists.
-    assert re.findall(r"^## To approve and start, paste this line$", page, flags=re.MULTILINE) == [PASTE_HEADING]
+    # The hostile copy stays quoted inside the fence; only the real headings are lines.
+    assert re.findall(r"^## .+$", page, flags=re.MULTILINE) == [f"## {t}" for t in approval_page.SECTIONS]
     assert page.isascii()
 
 
@@ -622,5 +706,5 @@ def test_one_plan_page_with_bypass_and_push_merge(tmp_path, monkeypatch, capsys)
         "--approvals", str(fx.approvals({"class": "unattended-with-bypass"})), "--page", "--platform", "claude"])
     assert rc == 0, page + err
     _assert_readable(page, ["v0.2.0"], merged=False)
-    assert "3. It will run the agent with permission prompts turned off, as you approved." in page
+    assert _summary_rows(page)["Permission prompts"] == "Off for the whole run"
     assert "- Push feat/v0.2.0-demo to acme/demo and merge it into develop once its checks pass." in page

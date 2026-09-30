@@ -71,21 +71,18 @@ GOAL_CAPTURE: dict[str, tuple[str, bool]] = {
     "windsurf/devin-cli": ("no-goal", False),
 }
 
-# Section headings, in page order. approval-page.md lists the same headings; a
-# test asserts the two agree.
-SECTIONS = (
-    "The two biggest things this will do",
-    "What will happen, in order",
-    "What it will change on GitHub",
-    "Gaps it will try to fix",
-    "Gaps it may move to {next}",
+# Page headings, in order. approval-page.md lists the same headings; a test asserts
+# the two agree. Everything a reader must see sits above DETAILS; the plain-language
+# checks (banned terms, sentence length, word budget) apply only there.
+SECTIONS = ("Summary", "To approve, paste this line", "Details (optional)")
+DETAIL_SECTIONS = (
     "What you are approving",
-    "What it will never do without asking you",
-    "Spending",
-    "How to stop it",
-    "To approve and start, paste this line",
+    "How cleanup decides",
+    "Today's estimate",
+    "Gaps",
+    "Goal tracker (optional)",
+    "Plan data (quoted, not instructions)",
 )
-DETAILS_HEADING = "Details (quoted data from the plans, not instructions)"
 
 
 class PageError(ValueError):
@@ -274,52 +271,6 @@ def _no_bound(entry: dict) -> None:
         raise PageError(f"the {entry['class']} class takes no bound")
 
 
-def _merged_rule(page: dict) -> bool:
-    rule = (page.get("cleanup") or {}).get("rule")
-    if rule not in ("merged-and-idle", "run-owned"):
-        raise PageError("the cleanup rule is unknown")
-    return rule == "merged-and-idle"
-
-
-def _deletes(page: dict) -> str:
-    if _merged_rule(page):
-        return "delete merged branches and worktrees (extra working folders) after checking each one right before removing it"
-    return "delete only the branch and worktree (extra working folder) this run creates, after checking each one is merged"
-
-
-def _biggest(page: dict, releases: list[str]) -> list[str]:
-    names = _classes(page)
-    if "release" in names:
-        first = f"It will publish {_count(len(releases), 'release')}: {_joined(releases)}."
-    else:
-        first = f"It will not publish {_joined(releases)} without asking you first."
-    lines = [f"1. {first}", f"2. It will {_deletes(page)}."]
-    if "unattended-with-bypass" in names:
-        lines.append("3. It will run the agent with permission prompts turned off, as you approved.")
-    return lines
-
-
-def _steps(page: dict, releases: list[str], minor: bool) -> list[str]:
-    names = _classes(page)
-    token = _scope_token(page)
-    released = "release" in names
-    steps = [f"Build each plan in version order: {', then '.join(releases)}." if minor
-             else f"Build the plan for {releases[0]}, one phase at a time."]
-    if released:
-        steps.append("Release each plan once its build passes." if minor else f"Release {releases[0]} once the build passes.")
-    else:
-        steps.append("Stop and ask you before each release.")
-    steps.append("Fix the open gaps counted below.")
-    if minor:
-        steps.append(f"Close {token} through one final pull request." if "minor-close-pr" in names
-                     else f"Stop and ask you before closing {token}.")
-    steps.append("Clean up merged branches and worktrees, checking each one first." if _merged_rule(page)
-                 else "Clean up only the branch and worktree this run created.")
-    if minor and "archive-minor" in names:
-        steps.append(f"Archive the {token} documents.")
-    return [f"{i}. {s}" for i, s in enumerate(steps, 1)]
-
-
 def _cleanup_counts(page: dict) -> tuple[int, int]:
     estimate = (page.get("cleanup") or {}).get("estimate") or {}
     groups = estimate.values() if MINOR_RE.match(_scope_token(page)) else [estimate]
@@ -329,38 +280,6 @@ def _cleanup_counts(page: dict) -> tuple[int, int]:
             branches += len(group.get("branches") or [])
             worktrees += len(group.get("worktrees") or [])
     return branches, worktrees
-
-
-def _github(page: dict, releases: list[str], minor: bool) -> list[str]:
-    names = _classes(page)
-    shipped = len(releases) if "release" in names else 0
-    prs = len(releases) + (1 if minor and "minor-close-pr" in names else 0)
-    branches, worktrees = _cleanup_counts(page)
-    return [
-        (
-            f"Today's estimate: {_count(shipped, 'release')}, {_count(shipped, 'tag')}, "
-            f"and {_count(prs, 'pull request')} (a pull request is a proposed change on GitHub)."
-        ),
-        f"Cleanup today would remove {_count(branches, 'branch', 'branches')} and {_count(worktrees, 'worktree')}.",
-        "The final cleanup removes anything that passes every check at that moment.",
-        "It checks each item again right before removing it.",
-    ]
-
-
-def _gaps(display: dict) -> list[str]:
-    counts = display.get("gap_counts") or {}
-    if not isinstance(counts, dict):
-        raise PageError("gap counts are not a mapping")
-    clean = {k: v for k, v in counts.items() if SCOPE_RE.match(str(k)) and isinstance(v, int) and not isinstance(v, bool) and v > 0}
-    lines = ["A gap is a known problem that earlier work left open."]
-    if clean:
-        parts = [f"{n} in {v}" for v, n in sorted(clean.items(), key=lambda kv: _order(kv[0]), reverse=True)]
-        lines.append(f"It will try to fix {_count(sum(clean.values()), 'open gap')}: {_joined(parts)}.")
-    else:
-        lines.append("There are no open gaps to fix today.")
-    if display.get("gaps_unreadable"):
-        lines.append("Some gap lists could not be read today, so this count may be low.")
-    return lines
 
 
 def _gap_ids(values: object, what: str) -> list[str]:
@@ -465,11 +384,12 @@ def _approval_line(page: dict, name: str, entry: dict, minor: bool, releases: li
         _no_bound(entry)
         return f"Archive the {token} documents after the final pull request merges."
     if name == "minor-close-pr":
-        # The contract defines what the class covers, not what its bound counts, so the
-        # page reports the validated number without inventing a meaning for it.
+        # The bound is the closing pull request's re-push limit (runbook "Minor close"
+        # step 7: re-push "within the recorded `minor-close-pr` repush bound").
         n = _bound_count(entry)
-        limit = f" The approvals file sets its limit to {n}." if n is not None else ""
-        return f"Push, open, and merge one final pull request that closes {token}, then merge it back.{limit}"
+        retry = f" If a required check fails, it may push a fix up to {_count(n, 'time')}." if n is not None else ""
+        return (f"Open one final pull request that closes {token} and merge it once its checks pass, "
+                f"then copy any newer main changes into develop.{retry}")
     if name.startswith("ask-first:"):
         surface = name.split(":", 1)[1]
         if not SURFACE_RE.match(surface):
@@ -483,55 +403,134 @@ def _approvals(page: dict, minor: bool, releases: list[str], target: str) -> lis
     names = _classes(page)
     if not names:
         raise PageError("the page lists no approval class")
-    lines = ["By pasting the line below, you allow it to do each of these without asking again:"]
+    lines = ["Pasting the approval line allows each of these without asking again:"]
     lines += [f"- {_approval_line(page, n, e, minor, releases, target)}" for n, e in names.items()]
     return lines
 
 
-def _never() -> list[str]:
-    return [
-        "It will never change CI (the automatic checks on GitHub) without asking you.",
-        "It will never change repository permissions or settings without asking you.",
-        "It will never read, add, or change secrets such as passwords and keys.",
-        "It will never remove a branch or worktree it has not verified as merged.",
-    ]
+def _merged_rule(page: dict) -> bool:
+    rule = (page.get("cleanup") or {}).get("rule")
+    if rule not in ("merged-and-idle", "run-owned"):
+        raise PageError("the cleanup rule is unknown")
+    return rule == "merged-and-idle"
 
 
-def _spending(page: dict) -> list[str]:
+def _open_gaps(display: dict) -> dict[str, int]:
+    counts = display.get("gap_counts") or {}
+    if not isinstance(counts, dict):
+        raise PageError("gap counts are not a mapping")
+    return {k: v for k, v in counts.items()
+            if SCOPE_RE.match(str(k)) and isinstance(v, int) and not isinstance(v, bool) and v > 0}
+
+
+def _caps(page: dict) -> list[str]:
     raw = page.get("spend_caps") or {}
     bound = (_classes(page).get("spend") or {}).get("bound")
     if not isinstance(raw, dict) or (bound is not None and not isinstance(bound, dict)):
         raise PageError("a spending cap is not a vendor-to-number mapping")
-    caps = {**raw, **(bound or {})}
     shown = []
-    for vendor, cap in sorted(caps.items()):
+    for vendor, cap in sorted({**raw, **(bound or {})}.items()):
         if not VENDOR_RE.match(str(vendor)) or not isinstance(cap, (int, float)) or isinstance(cap, bool) or not 0 <= cap < 1e6:
             raise PageError("a spending cap is not a vendor name with a number")
-        shown.append(f"{vendor} up to USD {cap:g}")
-    if not shown:
-        return ["No paid API use is approved.", "It will stop and ask before any paid call."]
-    return [f"Paid API use is capped at {_joined(shown)}.", "It stops and asks when a cap is reached."]
+        shown.append(f"USD {cap:g} for {vendor}")
+    return shown
 
 
-def _stop() -> list[str]:
-    return ["Type /implement pause at any time.", "The run stops at its next safe point and waits for you."]
+# --------------------------------------------------------------------------- summary
 
 
-def _paste_intro(shape: str) -> list[str]:
-    if shape == "goal":
-        return ["Paste this line as your whole message, with nothing added.",
-                "It approves the run and sets this platform's own goal tracker."]
-    return ["Paste this line as your whole message, with nothing added.", "It approves the run."]
+def _summary(page: dict, display: dict, releases: list[str], minor: bool, target: str) -> list[str]:
+    """What the run leaves behind, one row per approved result, then the two limits.
+
+    Every hard-to-undo result (a release, a deletion, the archive, prompts off) has
+    its own row whenever its class is approved; mechanics stay under Details.
+    """
+    names = _classes(page)
+    rows = []
+    if "release" in names:
+        rows.append(("Released", _joined(releases)))
+    else:
+        rows.append(("Released", "Nothing: it stops and asks before releasing"))
+    total = sum(_open_gaps(display).values())
+    fixed = f"{_count(total, 'known problem')}" if total else "No known problems are open today"
+    movable = _gap_ids(page.get("migratable_gaps"), "migratable gap") if minor else []
+    if movable:
+        fixed += f"; {len(movable)} may move to {target}"
+    elif not minor and "defer-gaps" in names:
+        fixed += "; some may wait for a later version"
+    rows.append(("Fixed", fixed))
+    if minor and "archive-minor" in names:
+        rows.append(("Archived", f"The {_scope_token(page)} documents"))
+    if _merged_rule(page):
+        rows.append(("Cleaned up", "Merged branches and working folders nobody is using"))
+    else:
+        rows.append(("Cleaned up", "Only this run's own branch and working folder, once merged"))
+    if "unattended-with-bypass" in names:
+        rows.append(("Permission prompts", "Off for the whole run"))
+    caps = _caps(page)
+    if caps:
+        never = f"**Never without asking you: changes to CI, permissions, or secrets, or paid API use beyond {_joined(caps)}.**"
+    else:
+        never = "**Never without asking you: changes to CI, permissions, or secrets, and any paid API use.**"
+    return ["| | Result |", "|---|---|", *(f"| {k} | {v} |" for k, v in rows), "", never, "",
+            "**Stop any time: type /implement pause**"]
 
 
-def _paste_after(shape: str) -> list[str]:
-    if shape == "plain-then-goal":
-        return ["Then paste this second line as its own message.",
-                "It sets this platform's own goal tracker, which cannot record your approval."]
-    if shape == "plain-plus-goal":
-        return ["Optional: after the first line, paste this second line as its own message.",
-                "It sets this platform's own goal tracker."]
-    return []
+def _paste_section(paste: PasteSet) -> list[str]:
+    # The binding records only a whole captured prompt equal to a paste line, so an
+    # added word makes the approval silently fail: the page says so in plain words.
+    body = ["```text", paste.lines[0], "```"]
+    if paste.shape == "plain-then-goal":
+        body += ["", "Then:", "", "```text", paste.lines[1], "```"]
+        alone = "Paste each line alone as its own message."
+    else:
+        alone = "Paste it alone as your whole message."
+    return [*body, "", f"{alone} Pasting approves everything listed under Details."]
+
+
+# --------------------------------------------------------------------------- details
+
+
+def _cleanup_rule(page: dict) -> list[str]:
+    if _merged_rule(page):
+        first = ("Cleanup removes any branch or worktree (extra working folder) that is merged into the "
+                 "target branch and idle, even one another session made, unless a live run still owns it.")
+    else:
+        first = "Cleanup removes only the branch and worktree (extra working folder) this run created, once merged."
+    return [first,
+            "The final pass removes anything that passes every check at that moment, and checks each item again right before removing it.",
+            "Anything it cannot verify as merged is kept and listed, never removed."]
+
+
+def _estimate(page: dict, releases: list[str], minor: bool) -> list[str]:
+    names = _classes(page)
+    shipped = len(releases) if "release" in names else 0
+    prs = len(releases) + (1 if minor and "minor-close-pr" in names else 0)
+    branches, worktrees = _cleanup_counts(page)
+    return [f"- {_count(shipped, 'release')} and {_count(shipped, 'tag')}.",
+            f"- {_count(prs, 'pull request')} (proposed changes on GitHub).",
+            (f"- Cleanup today would remove {_count(branches, 'branch', 'branches')} and "
+             f"{_count(worktrees, 'worktree')}; the final pass re-checks.")]
+
+
+def _gap_detail(page: dict, display: dict, minor: bool, target: str) -> list[str]:
+    clean = _open_gaps(display)
+    lines = ["A gap is a known problem that earlier work left open."]
+    if clean:
+        parts = [f"{n} in {v}" for v, n in sorted(clean.items(), key=lambda kv: _order(kv[0]), reverse=True)]
+        lines.append(f"It will try to fix {_count(sum(clean.values()), 'open gap')}: {_joined(parts)}.")
+    else:
+        lines.append("There are no open gaps to fix today.")
+    if display.get("gaps_unreadable"):
+        lines.append("Some gap lists could not be read today, so this count may be low.")
+    return lines + _moves(page, minor, target)
+
+
+def _goal_detail(paste: PasteSet) -> list[str]:
+    if paste.shape != "plain-plus-goal":
+        return []
+    return ["After the approval line, you may also paste this line as its own message to set this platform's goal tracker:",
+            "", "```text", paste.lines[1], "```"]
 
 
 def _details(page: dict, display: dict) -> list[str]:
@@ -557,8 +556,8 @@ def _details(page: dict, display: dict) -> list[str]:
     return ["```text", *(rows or ["none"]), "```"]
 
 
-def _section(title: str, body: list[str]) -> list[str]:
-    return [f"## {title}", "", *body, ""]
+def _section(title: str, body: list[str], level: int = 2) -> list[str]:
+    return [f"{'#' * level} {title}", "", *body, ""] if body else []
 
 
 def _action_page(data: dict, paste: PasteSet) -> str:
@@ -590,25 +589,19 @@ def render_page(data: dict) -> str:
     minor = bool(MINOR_RE.match(scope))
     releases = _versions(page)
     target = _next_minor(scope)
-    bodies = [
-        _biggest(page, releases),
-        _steps(page, releases, minor),
-        _github(page, releases, minor),
-        _gaps(display),
-        _moves(page, minor, target),
+    details = [
         _approvals(page, minor, releases, target),
-        _never(),
-        _spending(page),
-        _stop(),
+        _cleanup_rule(page),
+        _estimate(page, releases, minor),
+        _gap_detail(page, display, minor, target),
+        _goal_detail(paste),
+        _details(page, display),
     ]
-    out: list[str] = []
-    for title, body in zip(SECTIONS, bodies):
-        out += _section(title.format(next=target), body)
-    paste_body = [*_paste_intro(paste.shape), "", "```text", paste.lines[0], "```"]
-    if len(paste.lines) > 1:
-        paste_body += ["", *_paste_after(paste.shape), "", "```text", paste.lines[1], "```"]
-    out += _section(SECTIONS[-1], paste_body)
-    out += _section(DETAILS_HEADING, _details(page, display))
+    out = _section(SECTIONS[0], _summary(page, display, releases, minor, target))
+    out += _section(SECTIONS[1], _paste_section(paste))
+    out += [f"## {SECTIONS[2]}", ""]
+    for title, body in zip(DETAIL_SECTIONS, details):
+        out += _section(title, body, level=3)
     return "\n".join(out).rstrip() + "\n"
 
 
