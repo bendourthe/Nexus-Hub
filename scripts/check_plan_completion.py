@@ -812,7 +812,12 @@ def _pending_migration(ctx: Context, record: dict | None, text: str, heading: st
         return False
     item = next((i for i in cm.parse_ledger(text) if i.gid == found.group(1)), None)
     # An item the ledger parser cannot see is treated as sensitive: never deferred on a guess.
-    return item is not None and (not item.sensitive() or pid in named)
+    if item is None or (item.sensitive() and pid not in named):
+        return False
+    # The same gate the close uses, so an item that could never migrate there (created
+    # during the run, or sensitive at the record's start) is never deferred here either.
+    status, _reason = cm.migration_gate(ctx, record, cm.minor_of(str(record["minor"])), item.gid, item)
+    return status == "met"
 
 
 def _section(text: str, heading: str, level: str, titled: bool = False) -> str | None:

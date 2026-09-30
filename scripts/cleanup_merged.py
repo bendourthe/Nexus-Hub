@@ -6,7 +6,7 @@ Dry-run by default: nothing is removed without `--apply`.
 
     cleanup_merged.py [--dry-run | --apply] [--integration-branch develop]
                       [--idle-hours 24] [--json] [--repo PATH]
-                      [--plan PLAN | --minor vX.Y] [--receipt]
+                      [--plan PLAN | --minor vX.Y] [--session ID] [--receipt]
 
 One line per item: `REMOVE <item>` or `KEEP <item> <check>` (a failed removal is
 `KEEP <item> removal-failed <reason>`), where `<item>` is `worktree:<path>`,
@@ -28,7 +28,10 @@ worktree, because `git worktree remove` deletes ignored files with the tree.
 `--receipt` (with `--apply` and the run's `--plan` or `--minor`) writes the final-pass
 receipt beside the run record, sealed under the runs secret; the completion
 contract's `cleanup.merged` predicate reads it through `receipt_status`. The
-receipt is written only when the record carries the `cleanup-merged` approval.
+receipt is written only when the record carries the `cleanup-merged` approval and is
+bound to the caller's `--session`. Naming a `--plan` or `--minor` exempts its record
+from the owned-by-run check only when that record is the calling session's own
+verified record; another session's run keeps every item it owns.
 
 Exit codes: 0 done (items may be kept), 1 at least one removal failed, 2 usage or
 not a git repository, 3 blocked (another cleanup holds the lock, or the record does
@@ -51,7 +54,7 @@ import stat
 import subprocess
 import sys
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
 from types import ModuleType
@@ -334,19 +337,41 @@ def _other_remotes(host: Host) -> dict[str, dict[str, str]]:
     return tracking
 
 
-def _pull_requests(host: Host, branch: str | None) -> dict[str, list[dict]] | None:
-    """Pull requests grouped by head branch; None when any answer is unknown or truncated."""
+def _pull_requests(host: Host, branch: str | None, names: Iterable[str] = ()) -> dict[str, list[dict]] | None:
+    """Pull requests grouped by head branch; None when any answer is unknown or truncated.
+
+    The bulk query (no `branch`) lists open and merged pull requests once. A
+    repository with `PR_LIMIT` or more of either would truncate it, so a full
+    page falls back to one `--head=<name>` query per candidate branch in
+    `names`, the same query the pre-removal re-read uses, rather than leaving
+    every item unknown for good.
+    """
     fields = "number,headRefName,headRefOid,baseRefName,isCrossRepository,state"
     queries = [["--state", "all", "--head=" + branch]] if branch else [["--state", "open"], ["--state", "merged"]]
     grouped: dict[str, list[dict]] = {}
     for query in queries:
         data = host.gh_json("pr", "list", "--repo", str(host.repo), *query,
                             "--limit", str(PR_LIMIT), "--json", fields)
-        if not isinstance(data, list) or len(data) >= PR_LIMIT:
+        if not isinstance(data, list):
             return None
+        if len(data) >= PR_LIMIT:
+            if branch:
+                return None
+            return _pull_requests_per_branch(host, names)
         for pr in data:
             if isinstance(pr, dict) and isinstance(pr.get("headRefName"), str):
                 grouped.setdefault(pr["headRefName"], []).append(pr)
+    return grouped
+
+
+def _pull_requests_per_branch(host: Host, names: Iterable[str]) -> dict[str, list[dict]] | None:
+    grouped: dict[str, list[dict]] = {}
+    for name in sorted(set(names)):
+        one = _pull_requests(host, name)
+        if one is None:
+            return None
+        for head, prs in one.items():
+            grouped.setdefault(head, []).extend(prs)
     return grouped
 
 
@@ -430,16 +455,22 @@ def owned_names(host: Host, worktrees: list[Worktree], own: Path | None) -> tupl
 
 def read_state(host: Host, own: Path | None, pr_branch: str | None = None) -> State:
     worktrees = list_worktrees(host)
+    local = _refs(host, "refs/heads/")
+    remote_heads = _remote_heads(host)
+    tracking = _other_remotes(host)
     prs = protected = None
     if host.repo:
-        prs = _pull_requests(host, pr_branch)
+        names = {*local, *(remote_heads or {}), *(w.branch for w in worktrees if w.branch)}
+        for refs in tracking.values():
+            names.update(refs)
+        prs = _pull_requests(host, pr_branch, names)
         protected = _protected(host)
     owned_b, owned_p, records_ok = owned_names(host, worktrees, own)
     return State(
-        local=_refs(host, "refs/heads/"),
+        local=local,
         worktrees=worktrees,
-        remote_heads=_remote_heads(host),
-        tracking=_other_remotes(host),
+        remote_heads=remote_heads,
+        tracking=tracking,
         prs=prs,
         protected=protected,
         owned_branches=owned_b,
@@ -966,21 +997,39 @@ def run_pass(host: Host, idle_hours: float, apply: bool, own: Path | None) -> li
     return final
 
 
-def _record_for_receipt(args: argparse.Namespace, host: Host) -> tuple[Path, dict, str] | int:
+def _load_scope_record(args: argparse.Namespace, host: Host, budget: float) -> tuple[Path, object, str]:
+    """(record path, loaded state, scope) for the `--plan` or `--minor` the caller named,
+    verified and bound to the caller's `--session` (a record of another session loads as
+    no record)."""
     ck = _checker()
     if args.minor:
         minor = ck._minor_module()
-        rctx = ck.RepoContext(host.current, ck.Budget(120.0))
-        state = minor.load_minor(ck, rctx, args.minor, None)
-        path, scope = minor.record_file(ck, rctx, args.minor), "minor:" + args.minor
-    else:
-        ctx = ck.Context(args.plan, ck.Budget(120.0))
-        state = ck.load_record(ctx, None)
-        path, scope = ctx.record_path(), "plan:" + ctx.rel
+        rctx = ck.RepoContext(host.current, ck.Budget(budget))
+        state = minor.load_minor(ck, rctx, args.minor, args.session)
+        return minor.record_file(ck, rctx, args.minor), state, "minor:" + args.minor
+    ctx = ck.Context(args.plan, ck.Budget(budget))
+    return ctx.record_path(), ck.load_record(ctx, args.session), "plan:" + ctx.rel
+
+
+def _is_own(state: object, session: str | None) -> bool:
+    record = getattr(state, "record", None)
+    return bool(session) and isinstance(record, dict) and record.get("session_id") == session
+
+
+def _record_for_receipt(args: argparse.Namespace, host: Host) -> tuple[Path, dict, str] | int:
+    if not args.session:
+        print("BLOCKED: approval-not-covered")
+        print("reason: session-required")
+        return EXIT_BLOCKED
+    path, state, scope = _load_scope_record(args, host, 120.0)
     if state.forced is not None:
         print(state.forced[0])
         return EXIT_BLOCKED
     record = state.record
+    if record is None and path.is_file():
+        print("BLOCKED: approval-not-covered")
+        print("reason: record-bound-to-another-session")
+        return EXIT_BLOCKED
     classes = {c.get("class") for c in ((record or {}).get("approvals") or {}).get("classes") or [] if isinstance(c, dict)}
     if record is None or "cleanup-merged" not in classes:
         print("BLOCKED: approval-not-covered")
@@ -990,13 +1039,16 @@ def _record_for_receipt(args: argparse.Namespace, host: Host) -> tuple[Path, dic
 
 
 def _own_record(args: argparse.Namespace, host: Host) -> Path | None:
+    """The named scope's record path, exempt from owned-by-run only when it is the
+    calling session's own verified record. Naming another session's plan or minor
+    never lifts that run's protection: its record stays in the ownership scan."""
     if not (args.plan or args.minor):
         return None
-    ck = _checker()
-    if args.minor:
-        minor = ck._minor_module()
-        return minor.record_file(ck, ck.RepoContext(host.current, ck.Budget(60.0)), args.minor)
-    return ck.Context(args.plan, ck.Budget(60.0)).record_path()
+    path, state, _scope = _load_scope_record(args, host, 60.0)
+    if _is_own(state, args.session):
+        return path
+    host.notices.append("scope-record-not-own")
+    return None
 
 
 def _idle_hours(text: str) -> float:
@@ -1023,6 +1075,8 @@ def build_parser() -> argparse.ArgumentParser:
     scope.add_argument("--plan", help="the calling run's plan (its own record is not 'another run')")
     scope.add_argument("--minor", help="the calling run's minor token vX.Y")
     parser.add_argument("--receipt", action="store_true", help="write the final-pass receipt (needs --apply)")
+    parser.add_argument("--session", help="the calling session's id: only its own verified run record "
+                        "is exempt from the owned-by-run check, and a receipt needs it")
     return parser
 
 

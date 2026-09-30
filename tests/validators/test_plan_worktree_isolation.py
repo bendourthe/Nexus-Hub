@@ -251,9 +251,13 @@ def test_cleanup_happens_before_tagging() -> None:
     "needle",
     [
         "git branch --merged",              # merged-branch proof
-        "status --porcelain` MUST be empty",  # clean-tree proof
+        # v4.13.6: the release cleanup runs cleanup_merged.py, whose per-item
+        # `dirty` and `untracked` checks are the clean-tree proof
+        # (tests/validators/test_cleanup_merged.py WORKTREE_CASES); the step
+        # itself must still refuse to override a KEEP or to force.
+        "A `KEEP` line is never overridden by hand",  # a failed check is final
         "git worktree prune",               # records pruned
-        "never `--force`d away",            # no forcing past a dirty tree
+        "`-D`, `--force`, and `worktree remove --force` are never used",  # no forcing
     ],
 )
 def test_cleanup_step_is_fail_closed(needle: str) -> None:

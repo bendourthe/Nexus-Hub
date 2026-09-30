@@ -239,6 +239,50 @@ def test_security_item_needs_individual_naming(repo: Close) -> None:
     assert "#### BG-1: Security token is logged" in repo.read(GAPS06)
 
 
+HIGH_WN5 = (
+    "#### WN-5: Cache key collides across tenants\n\n"
+    "- **Severity**: high\n- **Reason**: needs the vendor fix\n\n"
+)
+
+
+def test_lowering_the_severity_after_approval_does_not_lift_naming(repo: Close) -> None:
+    """BG-2 (ADV-2): sensitivity is judged at the record's start too, not only on the
+    current text, so editing `**Severity**: high` to low during the run cannot let an
+    unnamed high-severity gap migrate."""
+    repo.standard(WN3 + HIGH_WN5, wn_open=2)
+    repo.forge(bound=("v0.5#WN-3", "v0.5#WN-5"))  # frozen, not named; start_head = the high text
+    repo.write(GAPS05, repo.read(GAPS05).replace("**Severity**: high", "**Severity**: low"))
+    before = repo.read(GAPS05)
+    refused = repo.migrate("v0.5#WN-5")
+    assert refused.returncode == 3 and refused.stdout.strip() == "REFUSED: security-not-named (v0.5#WN-5)"
+    assert repo.read(GAPS05) == before and "WN-5" not in (repo.read(GAPS06) if (repo.work / GAPS06).exists() else "")
+
+
+def test_the_verify_path_uses_the_same_baseline(repo: Close) -> None:
+    """The minor verdict's gate reads the start text: a named-free migration of a gap that
+    was high-severity at the start never verifies, even after its text was lowered."""
+    repo.standard(WN3 + HIGH_WN5, wn_open=2)
+    record = repo.forge(bound=("v0.5#WN-3", "v0.5#WN-5"))
+    rctx = repo.rctx()
+    lowered = cm.parse_ledger(repo.read(GAPS05).replace("**Severity**: high", "**Severity**: low"))
+    item = next(i for i in lowered if i.gid == "WN-5")
+    assert not item.sensitive()
+    assert cm.migration_gate(rctx, record, (0, 5), "WN-5", item) == ("unmet", "security-not-named")
+    named = repo.forge(bound=("v0.5#WN-3", "v0.5#WN-5"), named=("v0.5#WN-5",))
+    assert cm.migration_gate(rctx, named, (0, 5), "WN-5", item) == ("met", "approved")
+
+
+def test_a_gap_resolved_at_the_start_never_migrates(repo: Close) -> None:
+    """An id that was already RESOLVED when the run was approved cannot be reused for a
+    gap reopened or created during the run."""
+    repo.standard(WN3.replace("#### WN-3: The probe flakes on a cold cache",
+                              "#### WN-3: The probe flakes on a cold cache - RESOLVED"), wn_open=0)
+    repo.forge(bound=("v0.5#WN-3",))
+    repo.write(GAPS05, repo.read(GAPS05).replace(" - RESOLVED", ""))
+    refused = repo.migrate("v0.5#WN-3")
+    assert refused.returncode == 3 and refused.stdout.strip() == "REFUSED: not-open-at-start (v0.5#WN-3)"
+
+
 def test_gap_created_during_the_run_never_migrates(repo: Close) -> None:
     repo.standard()
     repo.forge(bound=("v0.5#WN-3", "v0.5#WN-9"))
@@ -599,7 +643,8 @@ def test_archive_minor_predicate_reads_the_integration_branch(repo: Close) -> No
     _git(repo.work, "merge", "-q", "--no-ff", "-m", "close v0.5", "chore/close-v0.5")
     repo.publish("develop")
     assert cm.archive_minor_status(ck, rctx, "v0.5", repo.load(None).record) == "met"
-    assert cm.archive_minor_status(ck, rctx, "v0.5", None) == "n/a"
+    # BG-3: a minor completes only once archived, so a missing approval is unmet, never n/a.
+    assert cm.archive_minor_status(ck, rctx, "v0.5", None) == "unmet"
 
 
 @pytest.mark.parametrize(

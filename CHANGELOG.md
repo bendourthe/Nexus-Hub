@@ -9,13 +9,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`/implement vX.Y` runs a whole minor under one approval (v4.13.6).** It resolves the minor's queued plans (not shipped, not owned by another live run) and runs each through the per-plan driver in version order, releasing each patch, fixing the gap scope, migrating only unfixable gaps to the next minor, and closing and archiving the minor through one final pull request. `check_plan_completion.py check-minor vX.Y` is the only authority on done: it prints `MINOR COMPLETE vX.Y <head> <nonce>` only when every member is complete, the gap scope is empty, the final cleanup ran after the last merge, the closing pull request merged, and the minor is archived. New scripts, installed by both installers: `approval_binding.py`, `completion_minor.py`, `cleanup_merged.py`, `approval_page.py`, and `minor_close.py`.
+- **A plain-language approval page (v4.13.6).** The page leads with the two highest-risk effects, stays under a sentence-length ceiling, passes a banned-jargon list, and ends with one paste line that carries no file path or script name. Where a platform's own `/goal` command is verified, the paste line doubles as the native goal; the checker stays the only authority.
+- **Verified merged-and-idle cleanup (v4.13.6).** `cleanup_merged.py` removes a branch or worktree only when every per-item check passes, re-read immediately before removal, and never uses `-D`, `--force`, or `worktree remove --force`; ignored files outside an allowlist are never deleted, and every kept item is listed with the check it failed. `check_release_preconditions.py --branches` now reports through the same engine.
+
+### Changed
+
+- **Approvals bind to the exact paste line (v4.13.6).** An approval is recorded only when the submitted prompt equals, as a whole, the line the checker generated for that page, including a single-use code derived from the page's data. A lone "ok", a quoted code, a pasted issue body, or a prompt the runner launched no longer counts. v4.13.2 WN-9 is partly closed; the agent-originated capture remainder stays open.
+- **Push-route verification (v4.13.6).** `approval.remote` is `cannot-verify` when Git transport overrides, TLS-weakening settings, URL rewrites, or ssh config blocks could redirect a verified push, and `unmet` when the effective push remote is not `origin` (closes v4.13.5 WN-2 and WN-3).
+- **The goal is restated in `/implement`, the mandatory final-phase template, and `/update release`**, each naming the same checker verdict, and the website guide's `/implement` card lists every mode and scope form (enforced by `tests/guides/test_cheatsheet_command_sync.py`).
+
+### Fixed
+
+- **`nexus-hub init` works (v4.13.6, AR-01).** The CLI both launchers call had no `init` subcommand, so every call, including the on-open autoseed hook's, failed with "invalid choice: 'init'". It now forwards to the integration runner of a source tree holding the runner and the catalog (`NEXUS_HUB_SRC`, the checkout, then `~/.nexus-hub/src`), and exits 2 with a remedy when none exists.
+- **`secret-scan.sh` scans without `jq` (v4.13.6, AR-02).** It exited 0 on a host without `jq`, allowing every write unscanned; it now falls back to Python 3 and blocks when it has neither parser. Its four private-key patterns, which start with `-----`, were read by `grep` as options and never matched on any host; they now pass `-e`. Under `pipefail`, `echo | grep -q` also turned an early match in a large write into "no match"; the scans now read a here-string, and a Python 2 interpreter no longer counts as a parser.
+- **Minor-scope hardening found by the final deep pass (v4.13.6).** `cleanup_merged.py` falls back to per-branch pull-request queries when the bulk list is a full 1000-row page, instead of blocking cleanup for good; scope, code, and id tokens reject a trailing newline and non-ASCII digits; and `nexus-hub init` refuses a `NEXUS_HUB_SRC` that is not a source tree rather than silently using another one.
+- **Minor-scope approval boundaries (v4.13.6).** A security or high-severity gap migrates only when the approval names it, judged on its text at the run's start as well as now, in every migrate, verify, and member-deferral path; the page refuses a frozen gap whose ledger entry is not open. A minor run now requires the `cleanup-merged`, `archive-minor`, and `minor-close-pr` approvals, and `check-minor` never reads their absence as `n/a`, so `MINOR COMPLETE` always means cleaned up, closed through a merged pull request, and archived. `cleanup_merged.py` gained `--session`: a named `--plan` or `--minor` record is exempt from the owned-by-run check only when it is the caller's own verified record, and `--receipt` needs that session.
+
+### Removed
+
+- **`scratch_p6cmd.py`**, a one-off v4.11.2 edit script shipped at the repository root and read by nothing (v4.13.5 WN-1).
+
 ### Changed
 
 - **The v3 releases and the remaining v4.0-v4.11 release content are archived.** Every v3.0-v3.21 known-gaps ledger was reconciled item by item against the current tree (281 dispositions: resolved with cited evidence, closed with a cited reason, or migrated), and each now states `**Open items**: 0`. The 137 still-open source rows are merged into 57 items (AR-01 to AR-57), plus AR-58 for installer comments that still cite the pre-archive contract path because the distribution handbook binds the installers' bytes, in a new section of `docs/releases/v4/v4.13/known-gaps.md`. All 22 v3 minor directories and the `development/`, `analysis/`, and cleanup-report content of v4.0, v4.1, v4.3, v4.4, v4.5, v4.9, v4.10, and v4.11 moved to `docs/archives/` (1731 files); `docs/releases/v3/` no longer exists. Links, path mentions, the `presentify-extractor.yml` fixture steps, and the affected tests were repointed; the link baseline reports no newly broken link. The decision is recorded in `docs/decisions/implemented/policy/2026-09-29-archive-reconciled-v3-and-early-v4-minors-whole.md`.
 
 ### Capability usage
 
-- No opt-in capability, installer flag, managed skill, or host surface changed.
+- **Minor-scope `/implement vX.Y` (v4.13.6).** Activation: type `/implement vX.Y`, read the approval page, and paste its line as the whole message. Validation: `python ~/.nexus-hub/scripts/check_plan_completion.py check-minor vX.Y` prints `MINOR COMPLETE`, `INCOMPLETE`, `BLOCKED`, or `PAUSED`. Disable or roll back: never paste the line, or type `/implement pause`; a released patch is rolled back like any release. Boundary: the approval never covers a CI, permission, or secret change, never removes an item that fails a cleanup check, and never acts on a later minor's gaps. Documentation: `catalog/skills/workflow/implement-phase/references/completion-contract.md` and `references/approval-page.md`.
+- **`cleanup_merged.py --apply` (v4.13.6).** Activation: `python ~/.nexus-hub/scripts/cleanup_merged.py --apply`, or the `cleanup-merged` approval inside a run; the default is `--dry-run`. Validation: `cleanup_merged.py --dry-run` lists every item as REMOVE or KEEP with its failed check. Disable: omit `--apply`. Boundary: it never force-deletes, never deletes a branch whose pull request closed unmerged or that merged without one, and never deletes gitignored files outside the allowlist. Documentation: `docs/decisions/proposed/policy/2026-09-28-verified-merged-and-idle-cleanup.md`.
+- The archive change above changes no opt-in capability, installer flag, managed skill, or host surface.
 
 ## [4.13.5] - 2026-09-29
 

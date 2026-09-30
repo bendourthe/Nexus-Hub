@@ -183,16 +183,16 @@ A blocker in any member stops the whole minor run: record it with `CK record blo
 
 Run once, after the last member is `PLAN COMPLETE` and its back-merge is on `origin/develop`. Record every step's command and output in `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/development/vX.Y-minor-close-evidence.md`, which moves with the archive.
 
-1. **Nothing to close?** When the record's `gap-migration` list is empty and it carries no `archive-minor`, skip steps 2 to 9: `minor.close-pr` is `n/a`. Go to step 10.
+1. **There is always a close.** Every minor record carries `archive-minor`, `minor-close-pr`, and `cleanup-merged` (the checker refuses a minor spec without them), and the archive travels in the closing pull request, so steps 2 to 10 always run. When the `gap-migration` list is empty, the close carries only the archive.
 2. **Cut the closing branch** from the post-release `origin/develop`: `git fetch origin` then `git switch -c chore/close-vX.Y origin/develop`.
 3. **Migrate** each frozen unfixable gap: `python ~/.nexus-hub/scripts/minor_close.py migrate --minor vX.Y --id <id> --reason <reason> --evidence <text>` (Migrate mode of `[[known-gaps-tracker]]`). Fix every fixable gap instead of migrating it.
-4. **Archive** when `archive-minor` is recorded: `python ~/.nexus-hub/scripts/minor_close.py archive --minor vX.Y --apply` ("Archive a closed minor" in `[[docs-layout-refactor]]`). It commits once on the closing branch.
+4. **Archive** (the record always carries `archive-minor`): `python ~/.nexus-hub/scripts/minor_close.py archive --minor vX.Y --apply` ("Archive a closed minor" in `[[docs-layout-refactor]]`). It commits once on the closing branch.
 5. **Local fast gate**: the project's fast profile (Nexus-Hub: `python scripts/ci/run.py --profile fast`) must pass.
 6. **Push once and open one pull request** to develop under `minor-close-pr`: `git push -u origin chore/close-vX.Y`, then `gh pr create --base develop --head chore/close-vX.Y`.
 7. **Wait for the required checks.** A red required check: reproduce it locally, fix it narrowly on the closing branch, and re-push within the recorded `minor-close-pr` repush bound; never re-run it blindly. When develop moved since the branch was cut, merge `origin/develop` into the closing branch (never rebase) and re-run step 5 before the re-push.
 8. **Merge** the pull request under `minor-close-pr` once its required checks pass.
 9. **Back-merge** `main` into `develop` when `main` has commits develop lacks (`git merge-base --is-ancestor origin/main origin/develop` fails), under `minor-close-pr`.
-10. **Final cleanup pass**: `python ~/.nexus-hub/scripts/cleanup_merged.py --apply --receipt --minor vX.Y`, after the last merge (the closing pull request, or the last member's when step 1 skipped the close), under the recorded `cleanup-merged` approval.
+10. **Final cleanup pass**: `python ~/.nexus-hub/scripts/cleanup_merged.py --apply --receipt --minor vX.Y --session <id>`, after the last merge (the closing pull request, or the last member's when step 1 skipped the close), under the recorded `cleanup-merged` approval.
 11. **Verdict**: `CK check-minor vX.Y`. The run is over only when it prints `MINOR COMPLETE vX.Y <head> <nonce>`; an `INCOMPLETE` line names the next unmet id.
 
 ## Phase 9: Final-phase completion workflow (release-readiness)

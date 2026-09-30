@@ -32,11 +32,11 @@ import re
 import sys
 from dataclasses import dataclass
 
-SCOPE_RE = re.compile(r"^v\d+\.\d+(?:\.\d+)?$")
-MINOR_RE = re.compile(r"^v\d+\.\d+$")
-CODE_RE = re.compile(r"^[A-Z2-7]{8}$")
-GAP_ID_RE = re.compile(r"^v\d+\.\d+(?:\.\d+)?#[A-Z]{2,4}-[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$")
-VENDOR_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,31}$")
+SCOPE_RE = re.compile(r"^v\d+\.\d+(?:\.\d+)?\Z", re.ASCII)
+MINOR_RE = re.compile(r"^v\d+\.\d+\Z", re.ASCII)
+CODE_RE = re.compile(r"^[A-Z2-7]{8}\Z", re.ASCII)
+GAP_ID_RE = re.compile(r"^v\d+\.\d+(?:\.\d+)?#[A-Z]{2,4}-[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*\Z", re.ASCII)
+VENDOR_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,31}\Z", re.ASCII)
 ACTIONS = ("create", "answer", "pause", "resume", "retire")
 MAX_PASTE = 300
 DETAIL_MAX = 200
@@ -182,10 +182,10 @@ def paste_set(
 
 # Strict shapes for every bound value the page states in words. A value outside
 # them renders nothing (PageError), so no approvals-file text reaches the page.
-BRANCH_RE = re.compile(r"^(?!refs/)(?!-)(?!.*\.\.)(?!.*//)(?!.*\.lock$)[A-Za-z0-9][A-Za-z0-9._/-]{0,99}(?<![./])$")
-REPO_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9-]{0,38}/[A-Za-z0-9._-]{1,100}$")
-REMOTE_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,39}$")
-SURFACE_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,39}$")
+BRANCH_RE = re.compile(r"^(?!refs/)(?!-)(?!.*\.\.)(?!.*//)(?!.*\.lock$)[A-Za-z0-9][A-Za-z0-9._/-]{0,99}(?<![./])\Z", re.ASCII)
+REPO_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9-]{0,38}/[A-Za-z0-9._-]{1,100}\Z", re.ASCII)
+REMOTE_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,39}\Z", re.ASCII)
+SURFACE_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,39}\Z", re.ASCII)
 GAP_TYPES = ("NI", "DF", "BG", "MT", "WN", "QG")
 MAX_BOUND_COUNT = 20
 

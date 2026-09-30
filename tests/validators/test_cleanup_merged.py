@@ -422,6 +422,24 @@ def test_recent_local_reflog_keeps_the_branch(fx: Fixture, capsys: pytest.Captur
     assert fx.local_has("feat/x")
 
 
+def test_a_truncated_pull_request_list_falls_back_to_per_branch_queries(
+    fx: Fixture, capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """ADV-3: a repository with PR_LIMIT or more merged pull requests must still clean up.
+
+    The bulk list is a full page here (two unrelated merged pull requests at a
+    limit of 2), which previously made every item unknown for good.
+    """
+    fx.branch("feat/merged")
+    fx.pr("old/one", "0" * 40)
+    fx.pr("old/two", "1" * 40)
+    monkeypatch.setattr(cm, "PR_LIMIT", 2)
+    code, verdicts, out = fx.run(capsys=capsys)
+    assert code == 0, out
+    assert verdicts["branch:feat/merged"] == ("REMOVE", ""), out
+    assert any("--head=feat/merged" in a for a in fx.argv)
+
+
 def test_missing_gh_keeps_everything(fx: Fixture, capsys: pytest.CaptureFixture[str],
                                      monkeypatch: pytest.MonkeyPatch) -> None:
     fx.branch("feat/x")
@@ -638,7 +656,7 @@ def _routed(fx: Fixture) -> Callable[[list[str], Path | None], tuple[int, str]]:
 def test_receipt_is_written_sealed_and_satisfies_the_predicate(fx: Fixture, capsys: pytest.CaptureFixture[str]) -> None:
     fx.branch("feat/x")
     record_path = _signed_record(fx, ["cleanup-merged"])
-    code, verdicts, out = fx.run("--apply", "--receipt", "--plan", str(fx.work / PLAN_REL), capsys=capsys)
+    code, verdicts, out = fx.run("--apply", "--receipt", "--plan", str(fx.work / PLAN_REL), "--session", "s1", capsys=capsys)
     assert code == 0, out
     assert verdicts["branch:feat/x"] == ("REMOVE", "")
     receipt = cm.receipt_path(record_path)
@@ -664,10 +682,37 @@ def test_receipt_is_written_sealed_and_satisfies_the_predicate(fx: Fixture, caps
     assert cm.receipt_status(fx.work, git, _routed(fx), record_path, "0" * 32, merge, "develop") == "unmet"
 
 
+def test_naming_another_sessions_plan_keeps_its_owned_items(fx: Fixture, capsys: pytest.CaptureFixture[str]) -> None:
+    """BG-4 (ADV-7): only the calling session's own verified record is exempt from ownership.
+
+    Session s1's live record owns feat/plan, which is merged and idle. A caller that
+    names that plan without being s1 must still keep feat/plan as owned-by-run.
+    """
+    fx.branch("feat/plan")
+    _signed_record(fx, ["cleanup-merged"])
+    plan = str(fx.work / PLAN_REL)
+    for session in ((), ("--session", "s2")):
+        code, verdicts, out = fx.run("--dry-run", "--plan", plan, *session, capsys=capsys)
+        assert code == 0, out
+        assert verdicts["branch:feat/plan"] == ("KEEP", "owned-by-run"), (session, out)
+    code, verdicts, out = fx.run("--dry-run", "--plan", plan, "--session", "s1", capsys=capsys)
+    assert verdicts["branch:feat/plan"] == ("REMOVE", ""), out
+
+
+def test_a_receipt_needs_the_records_own_session(fx: Fixture, capsys: pytest.CaptureFixture[str]) -> None:
+    fx.branch("feat/x")
+    record_path = _signed_record(fx, ["cleanup-merged"])
+    code, _verdicts, out = fx.run("--apply", "--receipt", "--plan", str(fx.work / PLAN_REL),
+                                  "--session", "s2", capsys=capsys)
+    assert code == 3
+    assert out.splitlines()[:2] == ["BLOCKED: approval-not-covered", "reason: record-bound-to-another-session"]
+    assert fx.local_has("feat/x") and not cm.receipt_path(record_path).exists()
+
+
 def test_receipt_needs_the_cleanup_merged_approval(fx: Fixture, capsys: pytest.CaptureFixture[str]) -> None:
     fx.branch("feat/x")
     record_path = _signed_record(fx, ["push-merge"])
-    code, _verdicts, out = fx.run("--apply", "--receipt", "--plan", str(fx.work / PLAN_REL), capsys=capsys)
+    code, _verdicts, out = fx.run("--apply", "--receipt", "--plan", str(fx.work / PLAN_REL), "--session", "s1", capsys=capsys)
     assert code == 3
     assert out.splitlines()[:2] == ["BLOCKED: approval-not-covered", "reason: no-cleanup-merged-approval"]
     assert fx.local_has("feat/x") and not cm.receipt_path(record_path).exists()
@@ -688,7 +733,7 @@ def test_checker_reports_cleanup_merged_only_with_the_class(fx: Fixture, capsys:
     record = ck.load_record(ctx, None).record
     status = dict(ck.evaluate(ctx, record)[0])
     assert status["cleanup.merged"] == "unmet"  # no receipt yet
-    fx.run("--apply", "--receipt", "--plan", str(fx.work / PLAN_REL), capsys=capsys)
+    fx.run("--apply", "--receipt", "--plan", str(fx.work / PLAN_REL), "--session", "s1", capsys=capsys)
     assert cm.receipt_path(record_path).is_file()
     status = dict(ck.evaluate(ctx, ck.load_record(ctx, None).record)[0])
     assert status["cleanup.merged"] == "met"
@@ -844,7 +889,7 @@ def test_r7_no_receipt_when_the_pass_could_not_see(fx: Fixture, capsys: pytest.C
     record_path = _signed_record(fx, ["cleanup-merged"])
     fx.state["prs_fail"] = True
     fx.save()
-    code, verdicts, out = fx.run("--apply", "--receipt", "--plan", str(fx.work / PLAN_REL), capsys=capsys)
+    code, verdicts, out = fx.run("--apply", "--receipt", "--plan", str(fx.work / PLAN_REL), "--session", "s1", capsys=capsys)
     assert code == 3
     assert out.splitlines()[0] == "BLOCKED: cannot-verify"
     assert verdicts["branch:feat/x"] == ("KEEP", "gh-unavailable")
@@ -856,7 +901,7 @@ def test_r7_receipt_binds_the_idle_window_and_the_target_branch(
 ) -> None:
     fx.branch("feat/x")
     record_path = _signed_record(fx, ["cleanup-merged"])
-    code, _verdicts, out = fx.run("--apply", "--receipt", "--plan", str(fx.work / PLAN_REL), capsys=capsys)
+    code, _verdicts, out = fx.run("--apply", "--receipt", "--plan", str(fx.work / PLAN_REL), "--session", "s1", capsys=capsys)
     assert code == 0, out
     receipt = cm.receipt_path(record_path)
     body = json.loads(receipt.read_text(encoding="utf-8"))

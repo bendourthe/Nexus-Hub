@@ -44,9 +44,9 @@ ROUND_SECONDS = 30 * 60
 SUPERSEDED_KEEP = 20
 RUNNER_ENV = "NEXUS_RUNNER_LAUNCH"
 ACTIONS = ("create", "answer", "pause", "resume", "retire")
-SCOPE_RE = re.compile(r"^v\d+\.\d+(?:\.\d+)?$")
-CODE_RE = re.compile(r"^[A-Z2-7]{8}$")
-DIGEST_RE = re.compile(r"^[0-9a-f]{64}$")
+SCOPE_RE = re.compile(r"^v\d+\.\d+(?:\.\d+)?\Z", re.ASCII)
+CODE_RE = re.compile(r"^[A-Z2-7]{8}\Z", re.ASCII)
+DIGEST_RE = re.compile(r"^[0-9a-f]{64}\Z", re.ASCII)
 
 # Refusal reasons, each a fixed id so the checker can print it safely.
 REASONS = (

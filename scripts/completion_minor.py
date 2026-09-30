@@ -42,16 +42,16 @@ import approval_page  # installed as a sibling in ~/.nexus-hub/scripts/
 if TYPE_CHECKING:
     from check_plan_completion import RepoContext
 
-MINOR_RE = re.compile(r"^v(0|[1-9]\d*)\.(0|[1-9]\d*)$")
+MINOR_RE = re.compile(r"^v(0|[1-9]\d*)\.(0|[1-9]\d*)\Z", re.ASCII)
 PLAN_VERSION_RE = re.compile(
     r"^\*\*Version\*\*:\s*v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)\b", re.MULTILINE
 )
 ANY_VERSION_RE = re.compile(r"^\*\*Version\*\*:\s*v?\d+\.\d+\.\d+\b", re.MULTILINE)
 STATUS_RE = re.compile(r"^\*\*Status\*\*:\s*`?([A-Za-z-]+)", re.MULTILINE)
 SLUG_RE = re.compile(r"^\*\*Slug\*\*:\s*([A-Za-z0-9._-]+)", re.MULTILINE)
-GAP_ID_RE = re.compile(r"^v\d+\.\d+(?:\.\d+)?#[A-Z]{2,4}-[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$")
-BRANCH_RE = re.compile(r"^[A-Za-z0-9._/-]+$")
-PLAN_TOKEN_RE = re.compile(r"^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$")
+GAP_ID_RE = re.compile(r"^v\d+\.\d+(?:\.\d+)?#[A-Z]{2,4}-[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*\Z", re.ASCII)
+BRANCH_RE = re.compile(r"^[A-Za-z0-9._/-]+\Z", re.ASCII)
+PLAN_TOKEN_RE = re.compile(r"^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)\Z", re.ASCII)
 
 DONE_STATUSES = {"complete", "superseded", "shipped"}
 MINOR_VALID_SECONDS = 14 * 24 * 3600
@@ -378,6 +378,16 @@ def minor_spec(ck: ModuleType, path: str) -> dict:
             named = entry.get("named", [])
             if not isinstance(named, list) or not set(named) <= set(ids):
                 raise ck.Malformed("gap-migration named must list ids that are also in bound")
+    # Definition of Done 2: a minor completes only after the final cleanup pass, the
+    # merged closing pull request, and the archive, so a minor run cannot be approved
+    # without the three classes that authorize them.
+    present = {entry.get("class") for entry in spec["classes"]}
+    missing = [name for name in REQUIRED_MINOR_CLASSES if name not in present]
+    if missing:
+        raise ck.Malformed(
+            "a minor run needs the " + ", ".join(missing) + " approval(s): it completes only after "
+            "the final cleanup, the merged closing pull request, and the archive"
+        )
     overrides = spec.get("members") or {}
     if not isinstance(overrides, dict):
         raise ck.Malformed("members must map a version to its overrides")
@@ -391,6 +401,10 @@ def minor_spec(ck: ModuleType, path: str) -> dict:
     if not BRANCH_RE.match(str(target)):
         raise ck.Malformed("target_branch is not a valid ref name")
     return spec
+
+
+# The closing classes every minor run needs (Definition of Done 2).
+REQUIRED_MINOR_CLASSES = ("cleanup-merged", "archive-minor", "minor-close-pr")
 
 
 # Run-wide classes: copying `spend` into each member would multiply its cap by the
@@ -434,6 +448,7 @@ def create_page(ck: ModuleType, rctx: RepoContext, token: str, spec: dict, membe
     _, minor_classes = _split_classes(ck, spec)
     names = {c.get("class") for c in minor_classes}
     migratable = next((c.get("bound") for c in minor_classes if c.get("class") == "gap-migration"), []) or []
+    check_migratable(ck, rctx.root, minor_classes)
     return {
         "action": "create",
         "scope": {"kind": "minor", "minor": token},
@@ -460,6 +475,39 @@ def create_page(ck: ModuleType, rctx: RepoContext, token: str, spec: dict, membe
             for c in spec["classes"]
         ],
     }
+
+
+def check_migratable(ck: ModuleType, root: Path, minor_classes: list[dict]) -> None:
+    """Refuse a page whose frozen `gap-migration` list the ledgers do not support.
+
+    A listed id that a ledger holds must be one open, unambiguous gap there, and a
+    listed id that is security or high-severity must also be in `named`, so the page
+    shows it on its own line. An id no ledger holds yet is allowed: it can never
+    migrate, because `migration_gate` requires it open at the record's start. The
+    same page is rendered and consumed, so this holds for `record render` and
+    `record create` alike.
+    """
+    entry = next((c for c in minor_classes if c.get("class") == "gap-migration"), None)
+    if entry is None:
+        return
+    named = {normalize_gap_id(str(i)) for i in entry.get("named") or []}
+    ledgers, _unreadable = load_ledgers(root)
+    for raw in entry.get("bound") or []:
+        pid = normalize_gap_id(str(raw))
+        if pid is None:
+            raise ck.Malformed(f"gap-migration bound lists {raw!r}, which is not a gap id")
+        token, gid = pid.split("#")
+        held = [i for l in ledgers if l.minor == minor_of(token) for i in l.items if i.gid == gid]
+        if not held:
+            continue
+        found = [i for i in held if i.state == "open"]
+        if len(found) != 1:
+            state = "ambiguous" if found else "not an open gap"
+            raise ck.Malformed(f"gap-migration bound lists {pid}, which is {state} in its ledger")
+        if any(i.sensitive() for i in held) and pid not in named:
+            raise ck.Malformed(
+                f"gap-migration bound lists {pid}, a security or high-severity gap; list it in named too"
+            )
 
 
 _TITLE_RE = re.compile(r"^#\s+(.+?)\s*$", re.MULTILINE)
@@ -918,7 +966,7 @@ LEDGER_GLOBS = (
 ACTIVE_TREES = ("docs/releases/v{M}/v{M}.{m}", "docs/v{M}/v{M}.{m}", "docs/versions/v{M}/v{M}.{m}", "docs/v{M}.{m}")
 ARCHIVE_TREE = "docs/archives/v{M}/v{M}.{m}"
 
-_MINOR_DIR_RE = re.compile(r"^v(0|[1-9]\d*)\.(0|[1-9]\d*)$")
+_MINOR_DIR_RE = re.compile(r"^v(0|[1-9]\d*)\.(0|[1-9]\d*)\Z", re.ASCII)
 # An ATX heading per CommonMark: up to three spaces, 1-6 `#`, and an optional closing run.
 _HEADING_RE = re.compile(r"^ {0,3}(#{1,6})(?:[ \t]+(.*?))?(?:[ \t]+#+)?[ \t]*$")
 _FENCE_OPEN_RE = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
@@ -1270,6 +1318,59 @@ def existed_at(rctx: RepoContext, commit: str, minor: tuple[int, int], gid: str)
     return "unmet"
 
 
+def items_at(rctx: RepoContext, commit: str, minor: tuple[int, int], gid: str) -> tuple[str, list[GapItem]]:
+    """("met", the items with id `gid`) in the minor's ledger as committed at `commit`.
+
+    `unmet` with no items when no ledger held the id then; `cannot-verify` when git
+    cannot answer. Every layout path is tried, so an archived ledger still resolves.
+    """
+    for rel in ledger_rels(*minor):
+        rc, _ = rctx.run([rctx.git, "-C", str(rctx.root), "cat-file", "-e", f"{commit}:{rel}"])
+        if rc == -1:
+            return "cannot-verify", []
+        if rc != 0:
+            continue
+        rc, out = rctx.run([rctx.git, "-C", str(rctx.root), "show", f"{commit}:{rel}"])
+        if rc != 0:
+            return "cannot-verify", []
+        found = [item for item in parse_ledger(out) if item.gid == gid]
+        if found:
+            return "met", found
+    return "unmet", []
+
+
+def migration_gate(
+    rctx: RepoContext, record: dict | None, source_minor: tuple[int, int], gid: str,
+    current: GapItem | None,
+) -> tuple[str, str]:
+    """(status, reason) for whether gap `source#gid` may migrate under `record`.
+
+    The one gate every write and verify path shares (the migrate helper, the
+    minor verdict, and a member's deferral of a frozen gap). The id must be in the
+    frozen `gap-migration` list, and the item must have existed, open and
+    unambiguous, at the record's `start_head`: the approved baseline. A security
+    or high-severity item must also be named individually, and sensitivity is
+    judged on the baseline text as well as the current text, so editing a
+    `**Severity**` line during the run cannot lift the naming requirement.
+    """
+    pid = "v{}.{}#{}".format(*source_minor, gid)
+    bound, named = migration_class(record)
+    if pid not in bound:
+        return "unmet", "migration-not-approved"
+    start = str((record or {}).get("minor_start_head") or (record or {}).get("start_head") or "")
+    if not start:
+        return "cannot-verify", "no-start-head"
+    status, baseline = items_at(rctx, start, source_minor, gid)
+    if status != "met":
+        return status, "created-during-run" if status == "unmet" else "history-unreadable"
+    open_then = [item for item in baseline if item.state == "open"]
+    if len(open_then) != 1:
+        return "unmet", "not-open-at-start" if not open_then else "gap-ambiguous"
+    if (open_then[0].sensitive() or (current is not None and current.sensitive())) and pid not in named:
+        return "unmet", "security-not-named"
+    return "met", "approved"
+
+
 def verify_migration(
     rctx: RepoContext, record: dict | None, run_token: str,
     ledgers: list[Ledger], ledger: Ledger, item: GapItem,
@@ -1301,21 +1402,12 @@ def verify_migration(
     if "v{}.{}".format(*target_minor) != next_minor(run_token):
         return "unmet", "migration-target-not-next-minor"
     copy = found[1]
-    bound, named = migration_class(record)
-    pid = f"{source}#{item.gid}"
-    if pid not in bound:
-        return "unmet", "migration-not-approved"
-    if item.sensitive() and pid not in named:
-        return "unmet", "security-not-named"
+    gate, reason = migration_gate(rctx, record, ledger.minor, item.gid, item)
+    if gate != "met":
+        return gate, reason
     reasons = [r for m, i, r in copy.provenance() if m == source and i == item.gid]
     if not reasons or reasons[-1] not in MIGRATION_REASONS:
         return "unmet", "migration-reason-invalid"
-    start = str((record or {}).get("minor_start_head") or (record or {}).get("start_head") or "")
-    if not start:
-        return "cannot-verify", "no-start-head"
-    existed = existed_at(rctx, start, ledger.minor, item.gid)
-    if existed != "met":
-        return existed, "created-during-run" if existed == "unmet" else "history-unreadable"
     return "met", "approved-migration"
 
 
@@ -1539,12 +1631,13 @@ def gaps_minor_status(
 
 
 def archive_minor_status(ck: ModuleType, rctx: RepoContext, token: str, record: dict | None) -> str:
-    """`archive.minor`: `n/a` without an `archive-minor` approval; else met when every
-    active tree of the minor is absent on the integration branch and the archive tree
-    is present there (the remote-tracking ref first, then the local branch)."""
+    """`archive.minor`: `unmet` without an `archive-minor` approval (a minor completes
+    only once archived, so the absence is never `n/a`); else met when every active tree
+    of the minor is absent on the integration branch and the archive tree is present
+    there (the remote-tracking ref first, then the local branch)."""
     classes = ((record or {}).get("approvals") or {}).get("classes") or []
     if not any(isinstance(c, dict) and c.get("class") == "archive-minor" for c in classes):
-        return "n/a"
+        return "unmet"
     major, minor = parse_minor(ck, token)
     target = str(((record or {}).get("approvals") or {}).get("target_branch") or "develop")
     ref = _integration_ref(rctx, target)
@@ -1802,12 +1895,9 @@ def frozen_unresolved(record: dict, ledgers: list[Ledger]) -> list[tuple[Ledger,
 
 
 def close_required(record: dict, ledgers: list[Ledger]) -> bool:
-    """The closing pull request is needed while a frozen id is unresolved or the archive was approved.
-
-    A frozen id that was fixed instead of migrated needs no close; with nothing left
-    to migrate and the archive declined, `minor.close-pr` is `n/a`.
-    """
-    return bool(frozen_unresolved(record, ledgers)) or "archive-minor" in _classes(record)
+    """The closing pull request is always required: it carries the archive, which every
+    minor needs (Definition of Done 2), plus any migrations. `minor.close-pr` is never `n/a`."""
+    return True
 
 
 def close_carries(
@@ -1892,7 +1982,7 @@ def cleanup_minor_status(
 ) -> str:
     """`cleanup.merged` for a minor: the sealed final-pass receipt postdates the minor's last merge."""
     if "cleanup-merged" not in _classes(record):
-        return "n/a"
+        return "unmet"  # the final cleanup pass is part of done, never optional
     branch = last_merge_branch(record, token, close_status)
     if not branch:
         return "cannot-verify"
@@ -1963,6 +2053,9 @@ def check_minor(ck: ModuleType, rctx: RepoContext, token: str, session: str | No
         notices.extend(gap_notices)
         close = close_pr_status(ck, rctx, record, token, repo, loaded[0], notices)
     path = record_file(ck, rctx, token)
+    for name, predicate in (("cleanup-merged", "cleanup.merged"), ("archive-minor", "archive.minor")):
+        if name not in _classes(record):
+            notices.append(f"{predicate} needs the {name} approval")
     lines = [
         ("members.approved", approved),
         ("gaps.minor", gaps),

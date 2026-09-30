@@ -259,17 +259,13 @@ def test_secret_scan_blocks_a_real_secret(
     tmp_path: Path,
     isolated_env: dict[str, str],
 ) -> None:
-    """Both implementations must block a planted credential WHERE THEY CAN SCAN.
+    """Both implementations must block a planted credential on every host.
 
-    Asymmetry is expected and documented here, so this is not an exit-code parity
-    case: secret-scan.sh requires `jq` to extract multi-line content and exits 0
-    when it is absent, meaning it cannot scan at all on a jq-less host. The .ps1
-    parses JSON natively and always scans. That difference is in the safe direction
-    (it blocks strictly more, never less), so the assertion is conditional on jq for
-    bash and unconditional for PowerShell.
+    Until v4.13.6 this asserted the opposite for bash on a jq-less host: the .sh
+    exited 0 without jq and scanned nothing (AR-02). It now falls back to Python
+    3 and fails closed with neither, so the assertion is unconditional. The
+    forced no-jq and no-parser cases live in `test_secret_scan.py`.
     """
-    import shutil as _shutil
-
     payload = json.dumps({"tool_input": {"file_path": "cfg.py",
                                          "content": "AWS_KEY = 'AKIA1234567890ABCDEF'\n"}})
     work = tmp_path / "work"
@@ -282,13 +278,7 @@ def test_secret_scan_blocks_a_real_secret(
     assert ps_rc == 2, "secret-scan.ps1 must block a planted AWS key"
 
     sh_rc = _run([bash_bin, str(_HOOKS_DIR / "secret-scan.sh")], payload, work, isolated_env)
-    if _shutil.which("jq"):
-        assert sh_rc == 2, "secret-scan.sh must block a planted AWS key when jq is present"
-    else:
-        assert sh_rc == 0, (
-            "without jq secret-scan.sh cannot scan and documents that it allows; "
-            f"got {sh_rc}"
-        )
+    assert sh_rc == 2, "secret-scan.sh must block a planted AWS key with or without jq"
 
 
 def test_secret_scan_ps1_does_not_echo_the_secret(

@@ -523,7 +523,7 @@ def plan_migration(
     rctx: ck.RepoContext, token: str, record: dict, pid: str, reason: str, evidence: str, date: str,
 ) -> MigrationPlan:
     """Every check the Migrate mode requires, then the two files' new text, unwritten."""
-    bound, named = cm.migration_class(record)
+    bound, _named = cm.migration_class(record)
     if pid not in bound:
         raise Refused("migration-not-approved", pid)
     source_token, gid = pid.split("#")
@@ -546,13 +546,13 @@ def plan_migration(
     if not open_items:
         raise Refused("already-migrated" if any(i.state == "migrated" for i in matches) else "gap-not-open", pid)
     item = open_items[0]
-    if item.sensitive() and pid not in named:
-        raise Refused("security-not-named", pid)
-    existed = cm.existed_at(rctx, str(record.get("start_head") or ""), source_minor, gid) if record.get("start_head") else "cannot-verify"
-    if existed == "unmet":
-        raise Refused("created-during-run", pid)
-    if existed != "met":
+    # The shared gate: frozen id, open at the record's start, and named when the item
+    # is security or high-severity now OR at the start (an edited Severity line counts).
+    gate, why = cm.migration_gate(rctx, record, source_minor, gid, item)
+    if gate == "cannot-verify":
         raise Refused("cannot-verify", "ledger history at the record start")
+    if gate != "met":
+        raise Refused(why, pid)
     target_token = cm.next_minor(token)
     target_version = target_token + ".0"
     tmin = cm.minor_of(target_token)
@@ -680,7 +680,7 @@ def cmd_migrate(args: argparse.Namespace) -> int:
 _UNCHECKED_TASK_RE = re.compile(r"^- \[ \] T\d+\b", re.MULTILINE)
 _STATUS_RE = re.compile(r"^\*\*Status\*\*\s*:(.*)$", re.MULTILINE | re.IGNORECASE)
 _ZERO_OPEN_RE = re.compile(r"^\*\*Open items\*\*\s*:\s*0\s*$", re.MULTILINE | re.IGNORECASE)
-_PLAN_REL_RE = re.compile(r"^docs/(?:[^/]+/)*plans/[^/]+\.md$")
+_PLAN_REL_RE = re.compile(r"^docs/(?:[^/]+/)*plans/[^/]+\.md\Z", re.ASCII)
 
 
 def source_tree(rctx: ck.RepoContext, major: int, minor: int) -> str | None:

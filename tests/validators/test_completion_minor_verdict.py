@@ -9,8 +9,9 @@ committed `gh` stand-in:
 - the member gate: `record member-start` refusing a stale fetch, an unfinished
   previous member, and a missing back-merge, and `check-minor` refusing a member
   whose recorded base predates the previous release;
-- `minor.close-pr` with a red check, the local fix, and the back-merge, the `n/a`
-  close, and `cleanup.merged` keyed on the minor's last merge;
+- `minor.close-pr` with a red check, the local fix, and the back-merge; a minor
+  record without the closing classes never completing (BG-3); and `cleanup.merged`
+  keyed on the minor's last merge;
 - a two-plan walk from the record to `MINOR COMPLETE v0.5` through both releases,
   the migration, the archive, the closing pull request, and the final cleanup pass;
 - resuming in a new session with the resume paste;
@@ -304,7 +305,8 @@ def test_skipping_member_start_never_reaches_minor_complete(walk: Walk) -> None:
     walk.both_released(start=False)
     verdict = walk.verdict()
     assert not verdict.line.startswith("MINOR COMPLETE")
-    assert verdict.ids() == ["v0.5.10:member.gate"]
+    # The record carries no closing classes, which BG-3 also reads as unmet.
+    assert verdict.ids() == ["v0.5.10:member.gate", "minor.close-pr", "cleanup.merged", "archive.minor"]
     assert {m.version: m.gate for m in verdict.members} == {"v0.5.2": "n/a", "v0.5.10": "unmet"}
 
 
@@ -318,7 +320,10 @@ def test_a_start_head_that_is_not_under_the_merged_branch_is_blocked(walk: Walk)
     """Review finding 2: the recorded base must be an ancestor of the member's merge commit."""
     walk.forge_minor(bound=(), archive=False, extra=())
     walk.both_released()
-    assert walk.verdict().line.startswith("MINOR COMPLETE")
+    before = walk.verdict()
+    # Without closing classes the minor stays INCOMPLETE (BG-3), but both member gates pass.
+    assert {m.version: m.gate for m in before.members} == {"v0.5.2": "met", "v0.5.10": "met"}
+    assert before.line == "INCOMPLETE: minor.close-pr cleanup.merged archive.minor"
     _git(walk.work, "checkout", "-q", "--orphan", "elsewhere")
     walk.commit("an unrelated history")
     unrelated = walk.head()
@@ -430,35 +435,45 @@ def test_an_uncommitted_migration_never_completes_the_minor(walk: Walk) -> None:
     assert lines["gaps.minor"] == "unmet" and lines["minor.close-pr"] == "unmet"
 
 
-def test_nothing_to_migrate_and_no_archive_is_an_na_close(walk: Walk) -> None:
+def test_a_minor_record_without_the_closing_classes_never_completes(walk: Walk) -> None:
+    """BG-3 (ADV-6): Definition of Done 2 needs the final cleanup, the merged closing
+    pull request, and the archive, so none of them can read `n/a` for a minor."""
     record = walk.forge_minor(bound=(), archive=False)
+    record["approvals"]["classes"] = [
+        c for c in record["approvals"]["classes"] if c["class"] not in cm.REQUIRED_MINOR_CLASSES
+    ]
     rctx = walk.rctx()
-    assert cm.close_pr_status(ck, rctx, record, "v0.5", "acme/demo", [], []) == "n/a"
-    # The last merge is then the last member's own pull request, in version order.
-    assert cm.last_merge_branch(record, "v0.5", "n/a") == "feat/v0.5.10-omega"
-    walk.pr("feat/v0.5.10-omega", "MERGED", GREEN, walk.head())
+    notices: list[str] = []
+    assert cm.close_pr_status(ck, rctx, record, "v0.5", "acme/demo", [], notices) == "unmet"
+    assert "minor.close-pr needs the minor-close-pr approval" in notices
+    assert cm.last_merge_branch(record, "v0.5", "unmet") == "chore/close-v0.5"
     path = cm.record_file(ck, rctx, "v0.5")
-    assert cm.cleanup_minor_status(ck, rctx, record, path, "v0.5", "acme/demo", "n/a") == "unmet"  # no receipt
-    record["approvals"]["classes"] = [c for c in record["approvals"]["classes"] if c["class"] != "cleanup-merged"]
-    assert cm.cleanup_minor_status(ck, rctx, record, path, "v0.5", "acme/demo", "n/a") == "n/a"
-    lines = dict(walk.verdict().minor)
-    assert lines["minor.close-pr"] == "n/a" and lines["archive.minor"] == "n/a"
+    assert cm.cleanup_minor_status(ck, rctx, record, path, "v0.5", "acme/demo", "unmet") == "unmet"
+    assert cm.archive_minor_status(ck, rctx, "v0.5", record) == "unmet"
 
 
-def test_a_frozen_id_fixed_instead_of_migrated_needs_no_close(walk: Walk) -> None:
-    """Review finding 6: the close depends on what is still unresolved, not on the frozen list alone."""
+@pytest.mark.parametrize("missing", ["cleanup-merged", "archive-minor", "minor-close-pr"])
+def test_a_minor_spec_without_a_closing_class_is_refused(walk: Walk, missing: str) -> None:
+    spec = json.loads(walk.approvals().read_text(encoding="utf-8"))
+    spec["classes"] = [c for c in spec["classes"] if c["class"] != missing]
+    path = walk.tmp / "partial-approvals.json"
+    path.write_text(json.dumps(spec), encoding="utf-8")
+    with pytest.raises(ck.Malformed, match=missing):
+        cm.minor_spec(ck, str(path))
+
+
+def test_a_frozen_id_fixed_instead_of_migrated_still_needs_the_close(walk: Walk) -> None:
+    """The close always carries the archive, so fixing every frozen id does not remove it."""
     walk.gaps_ledger()
     record = walk.forge_minor(archive=False)
     rctx = walk.rctx()
-    ledgers = cm.load_ledgers_at(rctx, "refs/remotes/origin/develop")[0]
-    assert cm.close_required(record, ledgers)  # WN-3 is still open on develop
     walk.write(GAPS05, walk.read(GAPS05).replace("#### WN-3: The probe flakes on a cold cache",
                                                  "#### WN-3: The probe flakes on a cold cache - RESOLVED"))
     walk.commit("fix WN-3")
     walk.integrate()
     ledgers = cm.load_ledgers_at(rctx, "refs/remotes/origin/develop")[0]
-    assert not cm.close_required(record, ledgers)
-    assert cm.close_pr_status(ck, rctx, record, "v0.5", "acme/demo", ledgers, []) == "n/a"
+    assert cm.close_required(record, ledgers)
+    assert cm.close_pr_status(ck, rctx, record, "v0.5", "acme/demo", ledgers, []) != "n/a"
 
 
 def test_a_sensitive_gap_not_named_is_never_deferred(walk: Walk) -> None:
@@ -523,7 +538,7 @@ def test_two_plan_minor_walks_to_minor_complete(walk: Walk) -> None:
 
     cleanup = subprocess.run(
         [sys.executable, str(SCRIPTS / "cleanup_merged.py"), "--apply", "--receipt", "--minor", "v0.5",
-         "--repo", str(walk.work)],
+         "--session", SESSION, "--repo", str(walk.work)],
         cwd=walk.work, env=walk.env, capture_output=True, text=True, check=False, timeout=300,
     )
     assert cleanup.returncode in (0, 1), cleanup.stdout + cleanup.stderr

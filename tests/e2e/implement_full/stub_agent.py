@@ -337,7 +337,8 @@ def minor_close() -> None:
     _publish(CLOSE_BRANCH, f"Close {MINOR}")
     git("fetch", "-q", "origin")
     git("merge-base", "--is-ancestor", "origin/main", "origin/develop")  # step 9: no back-merge needed
-    _script("cleanup", "cleanup_merged.py", "--apply", "--receipt", "--minor", MINOR, "--repo", ".", ok=(0, 1))
+    _script("cleanup", "cleanup_merged.py", "--apply", "--receipt", "--minor", MINOR, "--session", STUB_SESSION,
+            "--repo", ".", ok=(0, 1))
     _script("check-minor", "check_plan_completion.py", "check-minor", MINOR, ok=(0, 1, 3, 4))
 
 

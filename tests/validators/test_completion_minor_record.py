@@ -70,6 +70,33 @@ def _no_transport_overrides(monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.delenv(name, raising=False)
 
 
+MINOR_LEDGER = """# Known Gaps - v0.5
+
+**Project**: demo
+**Status**: in-progress
+**Last updated**: 2026-09-01
+
+## v0.5.2
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Warnings (WN) | 1 | 0 |
+
+### Open Items
+
+#### WN-3: The probe flakes on a cold cache
+
+- **Reason**: vendor API missing
+
+### Resolved
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+"""
+
+
 class Minor:
     """A repository whose v0.5 minor holds v0.5.2 and v0.5.10, both queued."""
 
@@ -354,6 +381,37 @@ def test_an_empty_minor_starts_nothing(minor: Minor) -> None:
 
 
 # --------------------------------------------------------------------------- schema-2 record
+
+
+def test_a_frozen_security_gap_must_be_named_before_the_page_renders(minor: Minor) -> None:
+    """BG-2: the page refuses a frozen high-severity gap that is not also named, and a
+    frozen id whose ledger entry is not open, so the user always sees a sensitive gap on
+    its own line before approving."""
+    gaps = minor.work / MINOR_DIR.rsplit("/", 1)[0] / "known-gaps.md"
+    gaps.write_text(MINOR_LEDGER.replace("- **Reason**", "- **Severity**: high\n- **Reason**"), encoding="utf-8")
+    minor.commit("WN-3 is high severity")
+    minor.capture(SESSION, "/implement v0.5")
+    refused = minor.render(SESSION, "--approvals", str(minor.approvals()))
+    assert refused.returncode == 2
+    assert "v0.5#WN-3, a security or high-severity gap; list it in named too" in refused.stderr
+    named = minor.approvals()
+    spec = json.loads(named.read_text(encoding="utf-8"))
+    for entry in spec["classes"]:
+        if entry["class"] == "gap-migration":
+            entry["named"] = ["v0.5#WN-3"]
+    named.write_text(json.dumps(spec), encoding="utf-8")
+    assert minor.render(SESSION, "--approvals", str(named)).returncode == 0
+    missing = minor.approvals({"class": "noop"})
+    spec = json.loads(missing.read_text(encoding="utf-8"))
+    for entry in spec["classes"]:
+        if entry["class"] == "gap-migration":
+            entry["bound"] = ["v0.5#WN-3"]
+    spec["classes"] = [c for c in spec["classes"] if c["class"] != "noop"]
+    missing.write_text(json.dumps(spec), encoding="utf-8")
+    gaps.write_text(MINOR_LEDGER.replace("cold cache", "cold cache - RESOLVED"), encoding="utf-8")
+    minor.commit("WN-3 resolved")
+    refused = minor.render(SESSION, "--approvals", str(missing))
+    assert refused.returncode == 2 and "v0.5#WN-3, which is not an open gap" in refused.stderr
 
 
 def test_schema2_round_trip_records_every_member(minor: Minor) -> None:
