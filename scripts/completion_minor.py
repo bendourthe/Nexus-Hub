@@ -37,6 +37,7 @@ from types import ModuleType
 from typing import TYPE_CHECKING
 
 import approval_binding  # installed as a sibling in ~/.nexus-hub/scripts/
+import approval_page  # installed as a sibling in ~/.nexus-hub/scripts/
 
 if TYPE_CHECKING:
     from check_plan_completion import RepoContext
@@ -461,6 +462,47 @@ def create_page(ck: ModuleType, rctx: RepoContext, token: str, spec: dict, membe
     }
 
 
+_TITLE_RE = re.compile(r"^#\s+(.+?)\s*$", re.MULTILINE)
+_GOAL_RE = re.compile(r"^\*\*Goal\*\*:\s*(.+?)\s*$", re.MULTILINE)
+DISPLAY_GAPS = 50
+
+
+def page_display(root: Path, scope: str, plans: list[tuple[str, str, str]], *, earlier: bool) -> dict:
+    """What the approval page shows beside the hashed page, never bound by the code.
+
+    `plans` is (version, repository-relative path, plan text) per member. Gap counts
+    are the open items in each ledger at `scope`'s minor and, when `earlier`, every
+    earlier minor too (a minor run's gap scope). Titles and goals are raw text: the
+    page renders them only as quoted data in its details list.
+    """
+    shown = []
+    for version, rel, text in plans:
+        title = _TITLE_RE.search(text)
+        goal = _GOAL_RE.search(text)
+        shown.append({"version": version, "path": rel, "title": title.group(1) if title else "",
+                      "goal": goal.group(1) if goal else ""})
+    major, minor = minor_of(scope)
+    try:
+        ledgers, unreadable = load_ledgers(root)
+    except OSError:
+        ledgers, unreadable = [], ["?"]
+    counts: dict[str, int] = {}
+    gaps: list[dict] = []
+    for ledger in ledgers:
+        if ledger.minor > (major, minor) or (not earlier and ledger.minor != (major, minor)):
+            continue
+        open_items = [i for i in ledger.items if i.state == "open"]
+        if open_items:
+            counts[ledger.token()] = counts.get(ledger.token(), 0) + len(open_items)
+        gaps += [{"id": f"{ledger.token()}#{i.gid}", "title": i.title.lstrip(":").strip()} for i in open_items]
+    return {
+        "plans": shown,
+        "gap_counts": counts,
+        "gaps": gaps[:DISPLAY_GAPS],
+        "gaps_unreadable": bool(unreadable) or any(l.problems for l in ledgers),
+    }
+
+
 def action_page(token: str, action: str, record_nonce: str) -> dict:
     return {"action": action, "scope": {"kind": "minor", "minor": token}, "record_nonce": record_nonce}
 
@@ -679,6 +721,7 @@ def _round_key(rctx: RepoContext, token: str) -> str:
 
 
 def cmd_record_render(ck: ModuleType, args: argparse.Namespace) -> int:
+    mode = ck.render_mode(args)  # a flag conflict is refused before any round opens
     rctx = repo_context(ck, args)
     token = args.minor
     parse_minor(ck, token)
@@ -690,11 +733,15 @@ def cmd_record_render(ck: ModuleType, args: argparse.Namespace) -> int:
         if isinstance(found, int):
             return found
         page = create_page(ck, rctx, token, spec, *found)
+        display = page_display(
+            rctx.root, token, [(p.version, p.rel, p.text) for p in found[0].members], earlier=True
+        )
     elif args.action in ("pause", "resume"):
         record = _record_for_action(ck, rctx, token, args.action, args.session)
         if isinstance(record, int):
             return record
         page = action_page(token, args.action, str(record.get("nonce", "")))
+        display = None
     else:
         raise ck.Malformed("a minor run answers blockers through its member plans")
     session = None if args.session == "auto" else args.session
@@ -707,16 +754,18 @@ def cmd_record_render(ck: ModuleType, args: argparse.Namespace) -> int:
             scope=token,
             page=page,
             session=session,
+            platform=args.platform,
+            check=lambda pending: approval_page.render_page(
+                approval_page.render_data(pending, scope=token, blocker=None, display=display)
+            ),
         )
     except approval_binding.Refusal as refusal:
         return ck._refused(refusal.reason)
-    if args.json:
-        print(json.dumps({"paste": pending["paste_lines"], "page": pending["page"],
-                          "expires_at": pending["expires_at"]}, sort_keys=True))
-    else:
-        for line in pending["paste_lines"]:
-            print(line)
-    return 0
+    except approval_page.PageError as exc:
+        print(f"approval page not rendered: {exc}", file=sys.stderr)
+        return ck.EXIT_MALFORMED
+    data = approval_page.render_data(pending, scope=token, blocker=None, display=display)
+    return approval_page.emit(data, mode)
 
 
 def _consume(ck: ModuleType, rctx: RepoContext, token: str, action: str, page: dict, session: str,

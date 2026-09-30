@@ -50,6 +50,7 @@ _SCRIPT_DIR = str(Path(__file__).resolve().parent)
 if _SCRIPT_DIR not in sys.path:
     sys.path.insert(0, _SCRIPT_DIR)
 import approval_binding
+import approval_page
 import repo_host
 
 EXIT_COMPLETE, EXIT_INCOMPLETE, EXIT_MALFORMED, EXIT_BLOCKED, EXIT_PAUSED = (
@@ -1292,9 +1293,11 @@ def _covering_minor(ctx: Context) -> int | None:
 
 
 def cmd_record_render(args: argparse.Namespace) -> int:
+    mode = render_mode(args)  # a flag conflict is refused before any round opens
     if _scoped(args):
         return _minor_module().cmd_record_render(sys.modules[__name__], args)
     ctx = Context(args.plan, Budget(BUDGET_SECONDS))
+    display: dict | None = None
     if args.action == "create":
         if not args.approvals:
             raise Malformed("record render --action create needs --approvals")
@@ -1302,6 +1305,9 @@ def cmd_record_render(args: argparse.Namespace) -> int:
         if covered is not None:
             return covered
         page = _create_page(ctx, _approvals_from_file(args.approvals))
+        display = _minor_module().page_display(
+            ctx.root, ctx.version, [(ctx.version, ctx.rel, ctx.text)], earlier=False
+        )
     elif args.action == "retire":
         page = _retire_page(ctx)
         if page is None:
@@ -1313,6 +1319,11 @@ def cmd_record_render(args: argparse.Namespace) -> int:
             return loaded
         page = _action_page(ctx, loaded[1], args.action, args.blocker)
     session = None if args.session == "auto" else args.session
+    blocker = args.blocker if args.action == "answer" else None
+
+    def data_of(pending: dict) -> dict:
+        return approval_page.render_data(pending, scope=ctx.version, blocker=blocker, display=display)
+
     try:
         pending = approval_binding.render(
             _runs_dir(),
@@ -1322,25 +1333,23 @@ def cmd_record_render(args: argparse.Namespace) -> int:
             scope=ctx.version,
             page=page,
             session=session,
-            blocker=args.blocker if args.action == "answer" else None,
+            blocker=blocker,
+            platform=args.platform,
+            check=lambda pending: approval_page.render_page(data_of(pending)),
         )
     except approval_binding.Refusal as refusal:
         return _refused(refusal.reason)
-    if args.json:
-        print(
-            json.dumps(
-                {
-                    "paste": pending["paste_lines"],
-                    "page": pending["page"],
-                    "expires_at": pending["expires_at"],
-                },
-                sort_keys=True,
-            )
-        )
-    else:
-        for line in pending["paste_lines"]:
-            print(line)
-    return 0
+    except approval_page.PageError as exc:
+        print(f"approval page not rendered: {exc}", file=sys.stderr)
+        return EXIT_MALFORMED
+    return approval_page.emit(data_of(pending), mode)
+
+
+def render_mode(args: argparse.Namespace) -> str:
+    """`record render` prints JSON, the plain-language page, or the bare paste line(s)."""
+    if args.json and args.page:
+        raise Malformed("choose one of --json and --page")
+    return "json" if args.json else "page" if args.page else "lines"
 
 
 def cmd_record_create(args: argparse.Namespace) -> int:
@@ -1655,7 +1664,15 @@ def build_parser() -> argparse.ArgumentParser:
     )
     render.add_argument("--approvals", help="JSON file of approval classes (create)")
     render.add_argument("--blocker", type=int, help="open blocker index (answer)")
-    render.add_argument("--json", action="store_true")
+    render.add_argument("--json", action="store_true", help="print the canonical page data")
+    render.add_argument(
+        "--page", action="store_true", help="print the plain-language approval page"
+    )
+    render.add_argument(
+        "--platform",
+        help="completion-levers row (e.g. claude, codex); picks the paste shape. "
+        "Absent or unknown means unverified: the plain approval line approves",
+    )
     render.set_defaults(func=cmd_record_render)
     create = record.add_parser("create")
     create.add_argument("plan", nargs="?")

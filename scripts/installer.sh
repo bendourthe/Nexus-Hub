@@ -2684,6 +2684,13 @@ install_templates() {
         safe_copy "$minor_close_source" "$scripts_dest/minor_close.py" true "[OK] Minor-close executor installed at: $scripts_dest/minor_close.py"
     fi
 
+    # Copy the approval-page renderer (v4.13.6). approval_binding.py imports it for
+    # the paste-line templates, and run_plan.py for the headless goal line.
+    local approval_page_source="$repo_root/scripts/approval_page.py"
+    if [ -f "$approval_page_source" ]; then
+        safe_copy "$approval_page_source" "$scripts_dest/approval_page.py" true "[OK] Approval-page renderer installed at: $scripts_dest/approval_page.py"
+    fi
+
     # Copy the completion-gate core (v4.13.2). The completion-gate and
     # approval-capture hooks run it from this installed path only.
     local completion_gate_source="$repo_root/scripts/completion_gate.py"

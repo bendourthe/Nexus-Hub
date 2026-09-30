@@ -39,9 +39,13 @@ import re
 import subprocess
 import sys
 import time
+from collections.abc import Callable
 from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
+sys.path.insert(0, str(SCRIPT_DIR))
+import approval_page  # installed as a sibling in ~/.nexus-hub/scripts/
+
 NO_PROGRESS_CYCLES = 3
 DEFAULT_MAX_CYCLES = 20
 LOCK_STALE_SECONDS = 6 * 3600
@@ -69,7 +73,11 @@ DENYLIST = (
 )
 
 
-# row id -> (launch(prompt), resume(prompt), supports a headless goal entry point)
+# row id -> (launch(prompt), resume(prompt), supports a headless goal entry point).
+# A headless goal is set only where the vendor documents `<cli> -p "/goal ..."`
+# (docs/policy/completion-levers.json `native_goal.headless_entry`): Claude Code,
+# Qwen Code, and Kimi Code CLI. Copilot CLI's documented headless path is
+# `copilot --autopilot -p` with a bypass flag, not /goal, so it stays interactive.
 TEMPLATES: dict[str, tuple] = {
     "claude": (
         lambda p: ["claude", "-p", p],
@@ -145,6 +153,19 @@ TEMPLATES: dict[str, tuple] = {
         False,
     ),
 }
+
+# Extra flags on the goal-setting launch. Claude Code documents stream-json with
+# --verbose so a long goal loop shows progress instead of looking stuck.
+GOAL_FLAGS: dict[str, list[str]] = {"claude": ["--output-format", "stream-json", "--verbose"]}
+# Kimi's prompt-mode goal exits 3 when the goal is blocked and 6 when it is paused
+# (completion-levers.json `kimi.native_goal.goal_exit_codes`). Such an exit counts as
+# a run, not a launch failure, only when the checker then reports BLOCKED or PAUSED;
+# otherwise it is retried and, on the first cycle, recorded as platform-unavailable.
+GOAL_EXITS: dict[str, set[int]] = {"kimi": {3, 6}}
+# Rows whose goal command is documented for interactive use only: the runner cannot
+# set it, so it prints the line for the user to type in that session.
+INTERACTIVE_GOAL_ROWS = {"codex", "cursor", "copilot", "copilot/cli", "antigravity2/cli", "hermes", "openclaw"}
+PLAN_VERSION = re.compile(r"^(v\d+\.\d+\.\d+)(?:-|\.md$)")
 
 
 class RunnerError(Exception):
@@ -259,18 +280,14 @@ def bypass_configured(row: str) -> str | None:
     return None
 
 
-def goal_prompt(plan: str, nonce: str) -> str:
-    if MINOR_TOKEN.match(plan):
-        return (
-            f"/goal Complete /implement {plan}. The goal is met only when "
-            f"check_plan_completion.py check-minor {plan} prints a first line starting with "
-            f"MINOR COMPLETE {plan} and ending with the run nonce {nonce}."
-        )
-    return (
-        f"/goal Complete /implement {plan}. The goal is met only when "
-        f"check_plan_completion.py check {plan} prints a first line starting with "
-        f"PLAN COMPLETE and ending with the run nonce {nonce}."
-    )
+def goal_prompt(scope: str) -> str | None:
+    """The approval page's goal line without an approval code, or None when the
+    scope is not a version token. Runner-launched sessions are never captured, so
+    the line sets only the goal; the checker stays the authority on done."""
+    try:
+        return approval_page.goal_line(scope)
+    except approval_page.PageError:
+        return None
 
 
 class Scope:
@@ -279,6 +296,8 @@ class Scope:
     def __init__(self, target: str) -> None:
         self.minor = bool(MINOR_TOKEN.match(target))
         self.label = target if self.minor else validate_plan(target).as_posix()
+        found = PLAN_VERSION.match(Path(self.label).name)
+        self.version = target if self.minor else (found.group(1) if found else "")
 
     def path(self) -> list[str]:
         return ["record", "path", "--minor", self.label] if self.minor else ["record", "path", self.label]
@@ -357,7 +376,9 @@ def record_blocker(scope: Scope, category: str, evidence: str) -> int:
     return 2
 
 
-def _launch(argv: list[str], backoff: float) -> int:
+def _launch(argv: list[str], backoff: float, settled: Callable[[int], bool] | None = None) -> int:
+    """Run one session, retrying once. `settled(code)` may accept a non-zero exit
+    (returning 0 for it) when the checker confirms what that exit claims."""
     # Every session this runner launches is marked, so its prompts are never
     # captured, and never recorded, as the user's approval (v4.13.2 WN-9).
     env = {**os.environ, "NEXUS_RUNNER_LAUNCH": "1"}
@@ -366,6 +387,8 @@ def _launch(argv: list[str], backoff: float) -> int:
             code = subprocess.run(argv, check=False, env=env).returncode
         except OSError:
             code = -1
+        if code != 0 and settled is not None and settled(code):
+            return 0
         if code == 0 or attempt == 2:
             return code
         time.sleep(backoff)
@@ -410,6 +433,9 @@ def run(plan_arg: str, row: str, max_cycles: int) -> int:
             raise RunnerError(f"checker exited {rc}")
         best = -1
         stalled = 0
+        goal = goal_prompt(scope.version)
+        if goal and row in INTERACTIVE_GOAL_ROWS:
+            print(f"run-plan: {row} sets its goal only when you type it; to add it, type: {goal}", file=sys.stderr)
         for cycle in range(1, max_cycles + 1):
             lock.refresh()
             # Every cycle RESUMES: the run record exists only because /implement's
@@ -417,8 +443,9 @@ def run(plan_arg: str, row: str, max_cycles: int) -> int:
             # different session id, so the turn-end gate bound to the record would
             # never fire in it. The first cycle also sets the goal where a platform
             # documents a headless goal entry point.
-            if cycle == 1 and headless_goal:
-                argv = resume(goal_prompt(label, str(record.get("nonce", "-"))))
+            goal_cycle = cycle == 1 and headless_goal and goal is not None
+            if goal_cycle:
+                argv = [*resume(goal), *GOAL_FLAGS.get(row, [])]
             else:
                 argv = resume(
                     f"Continue /implement {label}. The completion checker still reports it incomplete."
@@ -431,7 +458,12 @@ def run(plan_arg: str, row: str, max_cycles: int) -> int:
                 ),
             ]
             check_argv(argv)
-            if _launch(argv, backoff) != 0 and cycle == 1:
+            documented = GOAL_EXITS.get(row, set()) if goal_cycle else set()
+
+            def settled(code: int) -> bool:
+                return code in documented and _checker_run(scope.check())[0] in (3, 4)
+
+            if _launch(argv, backoff, settled) != 0 and cycle == 1:
                 return record_blocker(scope, "platform-unavailable", f"{row} CLI failed twice on the first cycle")
             rc, out = _checker_run(scope.check())
             verdict = out.splitlines()[0] if out else ""

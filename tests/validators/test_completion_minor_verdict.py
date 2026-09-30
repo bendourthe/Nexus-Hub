@@ -613,7 +613,8 @@ def test_runner_no_progress_applies_to_the_minor_score(runner: Env) -> None:
 def test_runner_goal_names_the_minor_verdict(runner: Env) -> None:
     runner.run("v0.5", "--platform", "claude")
     prompt = runner.calls("cli")[0][2]
-    assert "check-minor v0.5" in prompt and "MINOR COMPLETE v0.5" in prompt and "n0nce" in prompt
+    # v4.13.6 Phase 6: the approval page's goal line, naming the checker's tool result, no nonce.
+    assert "first output line starts with MINOR COMPLETE v0.5" in prompt and "n0nce" not in prompt
 
 
 def test_runner_terminal_minor_verdict_launches_nothing(runner: Env) -> None:

@@ -10,16 +10,19 @@ this module executes is owned by the completion contract
     render   build the canonical page, draw a fresh round nonce, derive the
              single-use code from HMAC-SHA256(runs secret, page + nonce), and
              write an owner-only pending file holding the page, code, nonce,
-             expiry, session, and the digests of the exact paste line(s), sealed
-             by an HMAC over the whole round so no field can be edited
+             expiry, session, the exact paste line(s) the page shows, and the
+             digests of the line(s) that approve, sealed by an HMAC over the whole
+             round so no field can be edited
     consume  refuse unless the seal verifies, the live page still yields the same
              code, the round has not expired or been used, the session already
              had a captured prompt before the round was rendered, and it captured
              each paste line as a whole prompt exactly once; then delete the
              pending file and leave a used marker so a replay reads `code-used`
 
-Only this module generates codes. Paste lines are built from validated fields
-only (a version token, a blocker index, a base32 code), never from plan text.
+Only this module generates codes. Paste lines come from approval_page.py (the one
+place their templates live), built from validated fields only (a version token, a
+blocker index, a base32 code), never from plan text. Which line(s) a create round
+shows, and which of them approve, follows the platform's goal capture there.
 """
 
 from __future__ import annotations
@@ -32,7 +35,10 @@ import os
 import re
 import secrets
 import time
+from collections.abc import Callable
 from pathlib import Path
+
+import approval_page  # installed as a sibling in ~/.nexus-hub/scripts/
 
 ROUND_SECONDS = 30 * 60
 SUPERSEDED_KEEP = 20
@@ -111,27 +117,19 @@ def compute_code(secret: bytes, page: dict, nonce: str) -> str:
 
 
 def paste_lines(
-    action: str, scope: str, code: str, blocker: int | None = None
+    action: str,
+    scope: str,
+    code: str,
+    blocker: int | None = None,
+    platform: str | None = None,
 ) -> list[str]:
-    """The exact line(s) the user pastes. The one place the template lives.
+    """The exact line(s) the page shows, in paste order (templates: approval_page).
 
     Every field is validated first, so no plan, gap, git, or gh text can reach
-    the line. Phase 6 of v4.13.6 replaces the template with a /goal-shaped line;
-    consumers compare against the digests stored at render, never this template.
+    the line; a validation failure raises ValueError. Consumers compare against
+    the digests stored at render, never this template.
     """
-    if action not in ACTIONS:
-        raise ValueError(f"unknown approval action: {action}")
-    if not SCOPE_RE.match(scope):
-        raise ValueError("scope must be a version token such as v1.2.3")
-    if not CODE_RE.match(code):
-        raise ValueError("code must be 8 base32 characters")
-    if action == "create":
-        return [f"Approve /implement {scope} (approval {code})"]
-    if action == "answer":
-        if not isinstance(blocker, int) or isinstance(blocker, bool) or blocker < 0:
-            raise ValueError("an answer names a non-negative blocker index")
-        return [f"Continue /implement {scope} past blocker {blocker} (approval {code})"]
-    return [f"{action.capitalize()} /implement {scope} (approval {code})"]
+    return list(approval_page.paste_set(action, scope, code, blocker, platform).lines)
 
 
 # --------------------------------------------------------------------------- pages
@@ -314,8 +312,19 @@ def render(
     page: dict,
     session: str | None,
     blocker: int | None = None,
+    platform: str | None = None,
+    check: Callable[[dict], object] | None = None,
 ) -> dict:
-    """Open a new approval round for `key`, invalidating any older round."""
+    """Open a new approval round for `key`, invalidating any older round.
+
+    `check` receives the sealed round before anything is written and may raise
+    (approval_page.PageError when the page cannot be rendered): then no file
+    changes, so the user's previous valid round stays open and unsuperseded.
+
+    `platform` is a completion-levers row; it picks the create round's paste
+    shape (approval_page.paste_set). An unknown or absent platform is treated as
+    `unverified`, so the plain approval line is the one that approves.
+    """
     if runner_launched():
         raise Refusal("runner-launched")
     path = pending_path(runs, key)
@@ -328,7 +337,7 @@ def render(
             superseded = []
     nonce = secrets.token_hex(16)  # 128-bit round nonce
     code = compute_code(secret, page, nonce)
-    lines = paste_lines(action, scope, code, blocker)
+    shown = approval_page.paste_set(action, scope, code, blocker, platform)
     now = _clock()
     pending = {
         "action": action,
@@ -339,11 +348,17 @@ def render(
         "rendered_at": now,
         "expires_at": int(now) + ROUND_SECONDS,
         "session": session,
-        "paste_lines": lines,
-        "paste_digests": [digest(line) for line in lines],
+        "platform": platform,
+        "shape": shown.shape,
+        # Every line the page shows; only `paste_digests` (the approving lines) must be
+        # captured. A goal line the platform's hook cannot see is shown, never required.
+        "paste_lines": list(shown.lines),
+        "paste_digests": [digest(line) for line in shown.approve],
         "superseded": superseded[-SUPERSEDED_KEEP:],
     }
     pending["mac"] = _seal(secret, pending)
+    if check is not None:
+        check(pending)
     _write_private(path, pending)
     used_path(runs, key).unlink(missing_ok=True)
     return pending

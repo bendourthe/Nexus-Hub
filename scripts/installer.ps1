@@ -2814,6 +2814,13 @@ function Install-Templates {
         Safe-Copy -Source $minorCloseSource -Destination (Join-Path $scriptsDest "minor_close.py") -Confirm:$true -CustomMessage "✓ Minor-close executor installed at: $scriptsDest\minor_close.py"
     }
 
+    # Copy the approval-page renderer (v4.13.6). approval_binding.py imports it for
+    # the paste-line templates, and run_plan.py for the headless goal line.
+    $approvalPageSource = Join-Path $RepoRoot "scripts\approval_page.py"
+    if (Test-Path $approvalPageSource) {
+        Safe-Copy -Source $approvalPageSource -Destination (Join-Path $scriptsDest "approval_page.py") -Confirm:$true -CustomMessage "✓ Approval-page renderer installed at: $scriptsDest\approval_page.py"
+    }
+
     # Copy the completion-gate core (v4.13.2). The completion-gate and
     # approval-capture hooks run it from this installed path only.
     $completionGateSource = Join-Path $RepoRoot "scripts\completion_gate.py"

@@ -482,6 +482,7 @@
         "status": "VERIFIED",
         "summary": "/goal starts goal mode: a persistent objective worked toward across automatically continuing turns, with completion checked each cycle. In manual permission mode it may pause for tool approvals.",
         "headless_entry": "kimi -p \"/goal ...\" (prompt mode supports only goal creation); exit codes 0 = completed, 3 = blocked, 6 = paused",
+      "goal_exit_codes": {"0": "completed", "3": "blocked", "6": "paused", "source_url": "https://www.kimi.com/help/kimi-code/cli-goals", "verified": "2026-09-25"},
         "source_url": "https://www.kimi.com/help/kimi-code/cli-goals",
         "verified": "2026-09-25"
       },

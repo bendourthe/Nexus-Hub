@@ -13,6 +13,8 @@ The complete, ordered procedure is in [`references/implement-phase-runbook.md`](
 
 What "done" means for a full run (the predicates, verdicts, run record, blockers, and pause) is owned by [`references/completion-contract.md`](references/completion-contract.md) and decided by the plan-completion checker (`python ~/.nexus-hub/scripts/check_plan_completion.py`, installed with Nexus-Hub); this skill refers to that contract and does not restate its predicates.
 
+The upfront approval page's words, sections, and paste-line shapes live in [`references/approval-page.md`](references/approval-page.md); the page is printed by `record render ... --page`.
+
 ## When to Use This Skill
 
 - Implementing a specific phase of an existing plan ("implement phase 3", "build the next phase", "continue the plan").

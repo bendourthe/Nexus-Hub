@@ -43,6 +43,8 @@ if args[:2] == ["record", "block"]:
         print("BLOCKED: record-tampered"); sys.exit(3)
     print("BLOCKED: " + args[args.index("--category") + 1]); sys.exit(3)
 if args[0] == "check":
+    if count >= state.get("blocked_at", 99):
+        print("BLOCKED: goal-blocked"); sys.exit(3)
     if state.get("terminal"):
         print(state["terminal"][0]); sys.exit(state["terminal"][1])
     if count >= state.get("complete_at", 99):
@@ -166,11 +168,16 @@ def test_terminal_verdict_before_the_first_cycle_launches_nothing(
     assert env.calls("cli") == []
 
 
-def test_first_cycle_sets_a_headless_goal_naming_the_nonce(env: Env) -> None:
+def test_first_cycle_sets_the_approval_page_goal_line_headlessly(env: Env) -> None:
+    """v4.13.6 Phase 6: the runner sends the page's goal line, with no code or nonce."""
+    import approval_page
+
     env.run(PLAN_REL, "--platform", "claude")
     first = env.calls("cli")[0]
     assert first[1] == "-p"
-    assert first[2].startswith("/goal ") and "n0nce" in first[2] and "PLAN COMPLETE" in first[2]
+    assert first[2] == approval_page.goal_line("v0.2.0")
+    assert "n0nce" not in first[2] and "approval" not in first[2]
+    assert first[3:] == ["--continue", "--output-format", "stream-json", "--verbose"]
 
 
 def test_openclaw_addresses_one_session_by_nonce(env: Env) -> None:
