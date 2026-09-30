@@ -180,6 +180,10 @@ When the release just published is the last member of a minor-scope run, the run
 
 The run is complete only when `python ~/.nexus-hub/scripts/check_plan_completion.py check-minor vX.Y` prints `MINOR COMPLETE vX.Y <head> <nonce>`; what that line requires is owned by the completion contract ("Minor verdict").
 
+## release scope: run goal
+
+The run ends on the completion checker's tool result: `PLAN COMPLETE` for a plan run and `MINOR COMPLETE` for a minor run, as `check_plan_completion.py check <plan>` or `check_plan_completion.py check-minor vX.Y` prints it. A published release is one step toward that line, never the goal itself. What each verdict requires is owned by the completion contract (`implement-phase/references/completion-contract.md`). The native goal should already be set by the user's approval paste. If it is missing in an interactive session, ask the user to paste the printed goal line again, because an agent cannot set it. `nexus-hub run-plan` is the only fully automatic path.
+
 ## release scope: branch hygiene and repository settings (advisory, before the commit)
 
 ```bash

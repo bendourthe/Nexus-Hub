@@ -31,6 +31,10 @@ A full run asks once. Before the first phase, `/implement` presents one round (u
 
 What "done" means is owned by the completion contract (`implement-phase/references/completion-contract.md`) and decided by the plan-completion checker (`python ~/.nexus-hub/scripts/check_plan_completion.py`, installed with Nexus-Hub); this command does not restate it. On platforms that support it, a turn-end gate and the `nexus-hub run-plan` runner keep the run going until the checker's verdict is terminal. Context pressure is handled by compaction and the runner, not by stopping.
 
+## Run goal
+
+The run ends on the completion checker's tool result: `PLAN COMPLETE` for a plan run and `MINOR COMPLETE` for a minor run, as `check_plan_completion.py check <plan>` or `check_plan_completion.py check-minor vX.Y` prints it. What each verdict requires is owned by the completion contract (`implement-phase/references/completion-contract.md`). The native goal should already be set by the user's approval paste. If it is missing in an interactive session, ask the user to paste the printed goal line again, because an agent cannot set it. `nexus-hub run-plan` is the only fully automatic path.
+
 ## Delegation
 
 Dispatch to the retained skill:
