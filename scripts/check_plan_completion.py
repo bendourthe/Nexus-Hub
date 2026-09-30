@@ -15,10 +15,15 @@ Subcommands:
                                            write the run record (approval-origin enforced)
     record retire <plan>                   move a per-plan record aside (never deletes it)
     members <vX.Y>                         a minor's member plans, in version order
-    record render|create|pause|resume|path --minor <vX.Y> ...
+    record render|create|pause|resume|block|path --minor <vX.Y> ...
                                            the schema-2 minor record (completion_minor.py)
+    record member-start --minor <vX.Y> --member <vX.Y.Z> --session ID --head SHA
+                                           pass the member gate; record the member's start_head
+    check-minor <vX.Y> [--json] [--session ID]
+                                           the minor verdict, then per-member and minor lines
+    score-minor <vX.Y> [--session ID]      the minor's progress score
 
-Exit codes: 0 PLAN COMPLETE, 1 INCOMPLETE, 3 BLOCKED, 4 PAUSED, 2 malformed input.
+Exit codes: 0 PLAN COMPLETE (or MINOR COMPLETE), 1 INCOMPLETE, 3 BLOCKED, 4 PAUSED, 2 malformed input.
 
 Output never carries free text from the plan, the gaps file, git, or gh: only
 fixed predicate ids and statuses, so a gate can hand it to a model safely.
@@ -432,8 +437,10 @@ _SIGNED_FIELDS = (
     "created",
 )
 # A schema-2 record also signs what makes it a minor record, so removing `scope`,
-# `minor`, or a member, or relabelling it schema 1, fails verification.
-_SIGNED_MINOR_FIELDS = ("schema", "scope", "minor", "members")
+# `minor`, or a member, or relabelling it schema 1, fails verification. `excluded`
+# is signed because it decides which late plans count as approved exclusions, and
+# `completed` because it ends the record's authority (a forged one would silence it).
+_SIGNED_MINOR_FIELDS = ("schema", "scope", "minor", "members", "excluded", "completed")
 
 
 def _hmac_payload(record: dict) -> dict:
@@ -746,6 +753,11 @@ def _gaps_status(ctx: Context, record: dict | None) -> tuple[str, int]:
         # per-plan run has no migration, so the marker alone stays unmet.
         if MIGRATED_MARKER_RE.search(item.group("title")) and _migration_met(ctx, record, gaps, item.group(0)):
             continue
+        # A minor member's open item whose id is in the frozen migratable list waits for
+        # the minor close, where `gaps.minor` decides it; the member gate must not wait on it.
+        if _pending_migration(ctx, record, text, item.group(0)):
+            deferred += 1
+            continue
         source = re.search(r"\*\*Source phase\*\*:([^\n]*)", body)
         from_own_task = bool(
             source and set(re.findall(r"T\d{3,}", source.group(1))) & own_tasks
@@ -778,6 +790,28 @@ def _migration_met(ctx: Context, record: dict | None, gaps: Path, heading: str) 
         return False
     status, _reason = cm.verify_migration(ctx, record, str(record["minor"]), ledgers, ledger, item)
     return status == "met"
+
+
+def _pending_migration(ctx: Context, record: dict | None, text: str, heading: str) -> bool:
+    """True for a minor member's open item listed in the record's frozen `gap-migration` ids.
+
+    A security or high-severity item is deferred only when the approval also names it
+    individually; otherwise it blocks the member's `gaps.version`, since it could never
+    migrate at the close.
+    """
+    if not record or record.get("scope") != "member" or not record.get("minor"):
+        return False
+    found = re.match(r"^#### ([A-Z]{2}-\d+)\b", heading)
+    if found is None:
+        return False
+    cm = _minor_module()
+    bound, named = cm.migration_class(record)
+    pid = f"{record['minor']}#{found.group(1)}"
+    if pid not in bound:
+        return False
+    item = next((i for i in cm.parse_ledger(text) if i.gid == found.group(1)), None)
+    # An item the ledger parser cannot see is treated as sensitive: never deferred on a guess.
+    return item is not None and (not item.sensitive() or pid in named)
 
 
 def _section(text: str, heading: str, level: str, titled: bool = False) -> str | None:
@@ -1236,6 +1270,18 @@ def cmd_members(args: argparse.Namespace) -> int:
     return _minor_module().cmd_members(sys.modules[__name__], args)
 
 
+def cmd_check_minor(args: argparse.Namespace) -> int:
+    return _minor_module().cmd_check_minor(sys.modules[__name__], args)
+
+
+def cmd_score_minor(args: argparse.Namespace) -> int:
+    return _minor_module().cmd_score_minor(sys.modules[__name__], args)
+
+
+def cmd_record_member_start(args: argparse.Namespace) -> int:
+    return _minor_module().cmd_record_member_start(sys.modules[__name__], args)
+
+
 def _covering_minor(ctx: Context) -> int | None:
     """The refusal when a valid, uncompleted minor record covers this plan's version."""
     token = _minor_module().covering_minor(sys.modules[__name__], ctx, ctx.version)
@@ -1521,6 +1567,10 @@ def cmd_record_resume(args: argparse.Namespace) -> int:
 
 
 def cmd_record_block(args: argparse.Namespace) -> int:
+    if _scoped(args):
+        return _minor_module().cmd_record_block(sys.modules[__name__], args)
+    if args.member:
+        raise Malformed("--member applies only with --minor")
     if args.category not in BLOCKER_CATEGORIES:
         raise Malformed(f"unknown blocker category: {args.category}")
     loaded = _load_for_update(args)
@@ -1569,6 +1619,17 @@ def build_parser() -> argparse.ArgumentParser:
     score.add_argument("plan")
     score.add_argument("--session")
     score.set_defaults(func=cmd_score)
+    check_minor = sub.add_parser("check-minor", help="print the minor verdict (schema-2 record)")
+    check_minor.add_argument("minor", help="a minor scope token such as v0.5")
+    check_minor.add_argument("--repo", default=".", help="a path inside the repository")
+    check_minor.add_argument("--json", action="store_true")
+    check_minor.add_argument("--session")
+    check_minor.set_defaults(func=cmd_check_minor)
+    score_minor = sub.add_parser("score-minor", help="print the minor's monotonic progress score")
+    score_minor.add_argument("minor", help="a minor scope token such as v0.5")
+    score_minor.add_argument("--repo", default=".", help="a path inside the repository")
+    score_minor.add_argument("--session")
+    score_minor.set_defaults(func=cmd_score_minor)
     members = sub.add_parser(
         "members", help="list a minor's member plans in version order (excluded ones on stderr)"
     )
@@ -1624,12 +1685,25 @@ def build_parser() -> argparse.ArgumentParser:
         action.add_argument("--text", help="when given, must equal the pasted line")
         action.set_defaults(func=func)
     block = record.add_parser("block")
-    block.add_argument("plan")
+    block.add_argument("plan", nargs="?")
+    _add_minor_scope(block)
+    block.add_argument("--member", help="with --minor: the member version the blocker stops")
     block.add_argument("--session")
     block.add_argument("--category", required=True)
     block.add_argument("--evidence", required=True)
     block.add_argument("--approval-class")
     block.set_defaults(func=cmd_record_block)
+    start = record.add_parser(
+        "member-start", help="pass the member gate and record the member's start_head (minor runs)"
+    )
+    start.add_argument("--minor", required=True)
+    start.add_argument("--member", required=True, help="the member version, such as v0.5.2")
+    start.add_argument("--session", required=True)
+    start.add_argument(
+        "--head", required=True, help="the new member branch's base; must be the live integration tip"
+    )
+    start.add_argument("--repo", default=".", help="a path inside the repository")
+    start.set_defaults(func=cmd_record_member_start)
     where = record.add_parser("path", help="print the run record's path; exit 1 when none exists")
     where.add_argument("plan", nargs="?")
     _add_minor_scope(where)

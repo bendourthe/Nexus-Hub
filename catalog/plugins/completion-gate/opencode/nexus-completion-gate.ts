@@ -6,6 +6,8 @@
 // record are never touched. Installed user-global only; remove with the
 // Nexus-Hub uninstaller or opt out with NEXUS_HUB_COMPLETION_PLUGINS=0.
 // Policy: catalog/skills/workflow/implement-phase/references/completion-contract.md
+// A schema-2 (minor) record needs nothing here: the core judges it through
+// check-minor and score-minor inside this plugin's budget (v4.13.6).
 // Shared gate call, copied verbatim into each TypeScript plugin because a
 // user-global plugin must not import files outside its own directory.
 // Runs the installed core with an argument array and no shell, sends the

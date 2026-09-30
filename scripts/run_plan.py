@@ -2,6 +2,7 @@
 """Relaunch a platform's headless CLI until a full /implement run reaches a terminal verdict.
 
     nexus-hub run-plan <plan> --platform <row> [--max-cycles N]
+    nexus-hub run-plan vX.Y --platform <row> [--max-cycles N]     (a whole minor)
 
 The completion gate keeps a live session going; this runner is the layer that
 continues past a session that ended anyway (a platform's consecutive-block cap,
@@ -9,7 +10,9 @@ a crash, a closed terminal). After each cycle it asks
 `check_plan_completion.py` for the verdict: a terminal verdict ends the loop, an
 INCOMPLETE verdict with a higher progress score relaunches with the platform's
 documented resume flag, and three cycles without progress record a
-`no-progress` blocker and stop.
+`no-progress` blocker and stop. A `vX.Y` scope drives the schema-2 minor record
+the same way through `check-minor` and `score-minor`, so `no-progress` applies to
+the minor score; the per-plan path is unchanged.
 
 What this runner never does:
   - create approvals (the run record must already exist from /implement's
@@ -43,6 +46,7 @@ NO_PROGRESS_CYCLES = 3
 DEFAULT_MAX_CYCLES = 20
 LOCK_STALE_SECONDS = 6 * 3600
 SAFE_PLAN = re.compile(r"^[A-Za-z0-9._/\\:-]+$")
+MINOR_TOKEN = re.compile(r"^v(0|[1-9]\d*)\.(0|[1-9]\d*)$")
 CMD_METACHARACTERS = set('&|<>^%!"')
 
 # Flags that bypass approvals or override configuration. Never emitted by any
@@ -256,11 +260,38 @@ def bypass_configured(row: str) -> str | None:
 
 
 def goal_prompt(plan: str, nonce: str) -> str:
+    if MINOR_TOKEN.match(plan):
+        return (
+            f"/goal Complete /implement {plan}. The goal is met only when "
+            f"check_plan_completion.py check-minor {plan} prints a first line starting with "
+            f"MINOR COMPLETE {plan} and ending with the run nonce {nonce}."
+        )
     return (
         f"/goal Complete /implement {plan}. The goal is met only when "
         f"check_plan_completion.py check {plan} prints a first line starting with "
         f"PLAN COMPLETE and ending with the run nonce {nonce}."
     )
+
+
+class Scope:
+    """The checker arguments for one plan or one minor; everything else in the loop is shared."""
+
+    def __init__(self, target: str) -> None:
+        self.minor = bool(MINOR_TOKEN.match(target))
+        self.label = target if self.minor else validate_plan(target).as_posix()
+
+    def path(self) -> list[str]:
+        return ["record", "path", "--minor", self.label] if self.minor else ["record", "path", self.label]
+
+    def check(self) -> list[str]:
+        return ["check-minor", self.label] if self.minor else ["check", self.label]
+
+    def score(self) -> list[str]:
+        return ["score-minor", self.label] if self.minor else ["score", self.label]
+
+    def block(self, category: str, evidence: str) -> list[str]:
+        scope = ["--minor", self.label] if self.minor else [self.label]
+        return ["record", "block", *scope, "--category", category, "--evidence", evidence]
 
 
 class Lock:
@@ -304,6 +335,28 @@ class Lock:
                 self.path.unlink(missing_ok=True)
 
 
+def record_blocker(scope: Scope, category: str, evidence: str) -> int:
+    """Write a blocker and report it only when the checker confirms it was written.
+
+    `record block` prints `BLOCKED: <category>` and exits 3 once the blocker is in the
+    record. Any other answer (a tampered record, no record, a refusal) means nothing
+    was written: that verdict is printed instead, never the blocker this runner meant.
+    """
+    rc, out = _checker_run(scope.block(category, evidence))
+    first = out.splitlines()[0] if out else ""
+    if rc == 3 and first == f"BLOCKED: {category}":
+        print(first)
+        return 3
+    print(
+        f"run-plan: the {category} blocker was not recorded (checker exit {rc}: {first or 'no output'})",
+        file=sys.stderr,
+    )
+    if rc in (3, 4) and first:
+        print(first)
+        return rc
+    return 2
+
+
 def _launch(argv: list[str], backoff: float) -> int:
     # Every session this runner launches is marked, so its prompts are never
     # captured, and never recorded, as the user's approval (v4.13.2 WN-9).
@@ -324,12 +377,13 @@ def run(plan_arg: str, row: str, max_cycles: int) -> int:
         raise RunnerError(
             f"unknown platform {row!r}; choose one of: {', '.join(sorted(TEMPLATES))}"
         )
-    plan = validate_plan(plan_arg)
+    scope = Scope(plan_arg)
+    label = scope.label
     launch, resume, headless_goal = TEMPLATES[row]
-    rc, out = _checker_run(["record", "path", str(plan)])
+    rc, out = _checker_run(scope.path())
     if rc != 0:
         raise RunnerError(
-            f"no run record for {plan.as_posix()}; run /implement {plan.as_posix()} first to record the upfront approvals"
+            f"no run record for {label}; run /implement {label} first to record the upfront approvals"
         )
     record_path = Path(out.strip())
     try:
@@ -348,7 +402,7 @@ def run(plan_arg: str, row: str, max_cycles: int) -> int:
         # A run whose verdict is already terminal (the first turn completed it, a
         # blocker was recorded, or the user paused it) has nothing to resume, and a
         # resumed session there only spends money restating the stop.
-        rc, out = _checker_run(["check", str(plan)])
+        rc, out = _checker_run(scope.check())
         if rc in (0, 3, 4):
             print(out.splitlines()[0] if out else "")
             return rc
@@ -364,10 +418,10 @@ def run(plan_arg: str, row: str, max_cycles: int) -> int:
             # never fire in it. The first cycle also sets the goal where a platform
             # documents a headless goal entry point.
             if cycle == 1 and headless_goal:
-                argv = resume(goal_prompt(plan.as_posix(), str(record.get("nonce", "-"))))
+                argv = resume(goal_prompt(label, str(record.get("nonce", "-"))))
             else:
                 argv = resume(
-                    f"Continue /implement {plan.as_posix()}. The completion checker still reports it incomplete."
+                    f"Continue /implement {label}. The completion checker still reports it incomplete."
                 )
             argv = [
                 binary,
@@ -378,45 +432,21 @@ def run(plan_arg: str, row: str, max_cycles: int) -> int:
             ]
             check_argv(argv)
             if _launch(argv, backoff) != 0 and cycle == 1:
-                _checker_run(
-                    [
-                        "record",
-                        "block",
-                        str(plan),
-                        "--category",
-                        "platform-unavailable",
-                        "--evidence",
-                        f"{row} CLI failed twice on the first cycle",
-                    ]
-                )
-                print("BLOCKED: platform-unavailable")
-                return 3
-            rc, out = _checker_run(["check", str(plan)])
+                return record_blocker(scope, "platform-unavailable", f"{row} CLI failed twice on the first cycle")
+            rc, out = _checker_run(scope.check())
             verdict = out.splitlines()[0] if out else ""
             if rc in (0, 3, 4):
                 print(verdict)
                 return rc
             if rc != 1:
                 raise RunnerError(f"checker exited {rc}")
-            _, score_out = _checker_run(["score", str(plan)])
+            _, score_out = _checker_run(scope.score())
             met = int(score_out.split()[0]) if score_out.split() else -1
             stalled = 0 if met > best else stalled + 1
             best = max(best, met)
             print(f"cycle {cycle}: {verdict}", file=sys.stderr)
             if stalled >= NO_PROGRESS_CYCLES:
-                _checker_run(
-                    [
-                        "record",
-                        "block",
-                        str(plan),
-                        "--category",
-                        "no-progress",
-                        "--evidence",
-                        f"score {best} unchanged over {stalled} runner cycles",
-                    ]
-                )
-                print("BLOCKED: no-progress")
-                return 3
+                return record_blocker(scope, "no-progress", f"score {best} unchanged over {stalled} runner cycles")
         print(f"INCOMPLETE after {max_cycles} cycles")
         return 1
 
@@ -427,7 +457,7 @@ def build_parser() -> argparse.ArgumentParser:
         description="Relaunch a platform's headless CLI until the plan's completion verdict is terminal.",
         epilog="Platforms: " + ", ".join(sorted(TEMPLATES)),
     )
-    parser.add_argument("plan", help="docs/**/plans/<plan>.md")
+    parser.add_argument("plan", help="docs/**/plans/<plan>.md, or a minor scope such as v0.5")
     parser.add_argument("--platform", required=True, choices=sorted(TEMPLATES))
     parser.add_argument("--max-cycles", type=int, default=DEFAULT_MAX_CYCLES)
     return parser

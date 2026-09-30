@@ -17,6 +17,11 @@ answers the "protected" names, and `.../activity` with `-f ref=refs/heads/<b>` a
 no `--repo`, so an `api` call is accepted when its endpoint names `repos/`. A
 "merge_commit" value adds `mergeCommit` to `pr view`. "api_fail" fails every
 `api` call; "prs_fail" fails every `pr list` call.
+
+For minor-scope fixtures with several pull requests, "pr_by_branch" ({branch: {"state",
+"merge_commit", "checks"}}) answers `pr view` and `pr checks` for a listed branch; an
+unlisted branch falls back to the single "pr_state" values above. "sleep" (seconds)
+delays every call, standing in for a slow host when a budget is under test.
 """
 
 from __future__ import annotations
@@ -24,12 +29,15 @@ from __future__ import annotations
 import json
 import os
 import sys
+import time
 import urllib.parse
 
 
 def main(argv: list[str]) -> int:
     with open(os.environ["GH_STUB_STATE"], encoding="utf-8") as handle:
         state = json.load(handle)
+    if state.get("sleep"):
+        time.sleep(float(state["sleep"]))
     log = os.environ.get("GH_STUB_LOG")
     if log:
         with open(log, "a", encoding="utf-8") as handle:
@@ -43,7 +51,15 @@ def main(argv: list[str]) -> int:
         return _api(state, next(a for a in argv[1:] if a.startswith("repos/")), fields)
     head = argv[:2]
     missing_pr = state.get("not_found_stderr", f'no pull requests found for branch "{argv[2]}"')
-    if head == ["pr", "view"]:
+    branch_pr = (state.get("pr_by_branch") or {}).get(argv[2]) if head[:1] == ["pr"] and len(argv) > 2 else None
+    if head == ["pr", "view"] and branch_pr is not None:
+        answer = {"state": branch_pr.get("state", "OPEN")}
+        if "merge_commit" in branch_pr:
+            answer["mergeCommit"] = {"oid": branch_pr["merge_commit"]}
+        print(json.dumps(answer))
+    elif head == ["pr", "checks"] and branch_pr is not None:
+        print(json.dumps(branch_pr.get("checks", [])))
+    elif head == ["pr", "view"]:
         if "pr_state" not in state:
             print(missing_pr, file=sys.stderr)
             return 1

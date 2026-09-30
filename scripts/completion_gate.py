@@ -16,6 +16,12 @@ to scripts/check_plan_completion.py; this module never evaluates a predicate.
 
 Rules this module keeps:
   - A session with no bound run record is never touched: exit 0, no output.
+  - A schema-2 (minor) record is judged by one `check-minor --json` run, whose
+    verdict and met count come from the same evaluation, so the no-progress rule
+    applies to the minor score; a schema-1 record keeps `check` then `score`.
+  - A refusal counts toward no-progress only when a score was read; a score that
+    timed out or could not be parsed never does. Part of the budget is reserved for
+    writing the blocker.
   - A gate that cannot evaluate (checker missing, too slow) allows the stop and
     says so on stderr. Trapping a session is worse than letting the runner resume.
   - `stop_hook_active` is never a release condition.
@@ -35,6 +41,7 @@ import time
 from pathlib import Path
 
 BUDGET_SECONDS = 30.0
+BLOCK_RESERVE_SECONDS = 5.0  # kept back from the evaluation for the blocker write
 NO_PROGRESS_REFUSALS = 3
 PROMPT_RETENTION_SECONDS = 72 * 3600
 FORMATS = (
@@ -183,6 +190,39 @@ def _run_checker(args: list[str], budget_end: float, cwd: str) -> tuple[int, str
     return proc.returncode, proc.stdout
 
 
+def _scope_args(record: dict, repo_root: Path, session: str) -> tuple[list[str], list[str], list[str]] | None:
+    """(check argv, score argv, block argv prefix) for the record's scope, or None when unusable."""
+    if record.get("schema") == 2:
+        minor = record.get("minor")
+        if record.get("scope") != "minor" or not isinstance(minor, str) or not minor:
+            return None
+        scope = ["--repo", str(repo_root), "--session", session]
+        # One run: `--json` carries the met count and head, so there is no score argv.
+        return (
+            ["check-minor", minor, *scope, "--json"],
+            [],
+            ["record", "block", "--minor", minor, *scope],
+        )
+    plan = str(repo_root / str(record.get("plan", "")))
+    return (
+        ["check", plan, "--session", session],
+        ["score", plan, "--session", session],
+        ["record", "block", plan, "--session", session],
+    )
+
+
+def _json_score(out: str) -> list[str]:
+    """[met, head] from a `check-minor --json` line, or [] when it is absent or unreadable."""
+    for line in out.splitlines()[1:]:
+        try:
+            body = json.loads(line)
+        except ValueError:
+            continue
+        if isinstance(body, dict) and isinstance(body.get("met"), int) and isinstance(body.get("head"), str):
+            return [str(body["met"]), body["head"]]
+    return []
+
+
 def _load_gate_state(path: Path) -> dict:
     try:
         state = json.loads(path.read_text(encoding="utf-8"))
@@ -212,11 +252,17 @@ def cmd_stop() -> int:
             file=sys.stderr,
         )
         return 0
-    plan = str(repo_root / str(record.get("plan", "")))
-    budget_end = time.monotonic() + _budget()
-    rc, out = _run_checker(
-        ["check", plan, "--session", session], budget_end, str(repo_root)
-    )
+    scope = _scope_args(record, repo_root, session)
+    if scope is None:
+        return 0
+    check_args, score_args, block_args = scope
+    budget = _budget()
+    budget_end = time.monotonic() + budget
+    # The evaluation stops early enough that a blocker can still be written.
+    eval_end = budget_end - min(BLOCK_RESERVE_SECONDS, budget * 0.3)
+    # check-minor spreads its own budget over the members; keep it inside the evaluation's.
+    os.environ["NEXUS_CHECK_MINOR_BUDGET_SECONDS"] = str(max(1, int(eval_end - time.monotonic()) - 2))
+    rc, out = _run_checker(check_args, eval_end, str(repo_root))
     if rc == -1:
         print(
             "completion-gate: checker did not finish in time; allowing stop",
@@ -228,11 +274,7 @@ def cmd_stop() -> int:
     if rc == 2:
         _run_checker(
             [
-                "record",
-                "block",
-                plan,
-                "--session",
-                session,
+                *block_args,
                 "--category",
                 "record-tampered",
                 "--evidence",
@@ -244,29 +286,30 @@ def cmd_stop() -> int:
         return 0
     first = out.splitlines()[0] if out else "INCOMPLETE:"
     ids = first.removeprefix("INCOMPLETE:").split()
-    score_rc, score_out = _run_checker(
-        ["score", plan, "--session", session], budget_end, str(repo_root)
-    )
-    score = score_out.split()[:2] if score_rc == 0 else []
+    if score_args:
+        score_rc, score_out = _run_checker(score_args, eval_end, str(repo_root))
+        score = score_out.split()[:2] if score_rc == 0 else []
+        if len(score) != 2 or not score[0].isdigit():
+            score = []
+    else:
+        score = _json_score(out)
     state_path = record_path.with_name(record_path.stem + ".gate.json")
     state = _load_gate_state(state_path)
-    progressed = bool(score) and (
-        int(score[0]) > int(state.get("met", -1)) or score[1] != state.get("head")
-    )
-    refusals = 0 if progressed else int(state.get("refusals", 0)) + 1
+    refusals = int(state.get("refusals", 0))
     if score:
+        progressed = int(score[0]) > int(state.get("met", -1)) or score[1] != state.get("head")
+        refusals = 0 if progressed else refusals + 1
         state.update(met=int(score[0]), head=score[1])
+    else:
+        # An unreadable score is not evidence of no progress: the counter stays where it was.
+        print("completion-gate: progress score unavailable; refusal not counted", file=sys.stderr)
     state["refusals"] = refusals
     state["updated"] = dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
     _save_gate_state(state_path, state)
     if refusals >= NO_PROGRESS_REFUSALS:
         _run_checker(
             [
-                "record",
-                "block",
-                plan,
-                "--session",
-                session,
+                *block_args,
                 "--category",
                 "no-progress",
                 "--evidence",

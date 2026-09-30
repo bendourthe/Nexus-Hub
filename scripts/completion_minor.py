@@ -28,6 +28,7 @@ import datetime as dt
 import hashlib
 import hmac
 import json
+import os
 import re
 import sys
 from dataclasses import dataclass, field
@@ -49,6 +50,7 @@ STATUS_RE = re.compile(r"^\*\*Status\*\*:\s*`?([A-Za-z-]+)", re.MULTILINE)
 SLUG_RE = re.compile(r"^\*\*Slug\*\*:\s*([A-Za-z0-9._-]+)", re.MULTILINE)
 GAP_ID_RE = re.compile(r"^v\d+\.\d+(?:\.\d+)?#[A-Z]{2,4}-[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$")
 BRANCH_RE = re.compile(r"^[A-Za-z0-9._/-]+$")
+PLAN_TOKEN_RE = re.compile(r"^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$")
 
 DONE_STATUSES = {"complete", "superseded", "shipped"}
 MINOR_VALID_SECONDS = 14 * 24 * 3600
@@ -486,7 +488,9 @@ def minor_record_path(ck: ModuleType, args: argparse.Namespace) -> Path:
     return record_file(ck, repo_context(ck, args), args.minor)
 
 
-def load_minor(ck: ModuleType, rctx: RepoContext, token: str, session: str | None) -> MinorState:
+def load_minor(
+    ck: ModuleType, rctx: RepoContext, token: str, session: str | None, *, accept_completed: bool = False,
+) -> MinorState:
     """Load and verify the schema-2 record for `token`.
 
     Integrity (any failure is `record-tampered`): outside every working tree,
@@ -496,6 +500,9 @@ def load_minor(ck: ModuleType, rctx: RepoContext, token: str, session: str | Non
     marked complete, is ignored; bound to another session is ignored until a
     resume paste adopts it; a pause is PAUSED; an open blocker is BLOCKED; and a
     member now owned by another run is `BLOCKED: owned-by-another-run (vX.Y.Z)`.
+    A blocker recorded against one member reads `BLOCKED: <category> (vX.Y.Z)`.
+    `accept_completed` keeps a completed record loaded, so `check-minor` still
+    reports `MINOR COMPLETE` after it marked the record complete.
     """
     state = MinorState()
     path = record_file(ck, rctx, token)
@@ -511,7 +518,7 @@ def load_minor(ck: ModuleType, rctx: RepoContext, token: str, session: str | Non
     ).total_seconds() > MINOR_VALID_SECONDS:
         state.notices.append("minor run record older than 14 days ignored")
         return state
-    if record.get("completed"):
+    if record.get("completed") and not accept_completed:
         state.notices.append("minor run record already complete ignored")
         return state
     if session and record.get("session_id") != session:
@@ -524,7 +531,10 @@ def load_minor(ck: ModuleType, rctx: RepoContext, token: str, session: str | Non
         return state
     open_blockers = [b for b in record.get("blockers", []) if isinstance(b, dict) and b.get("open")]
     if open_blockers:
-        state.forced = (f"BLOCKED: {open_blockers[0].get('category')}", ck.EXIT_BLOCKED)
+        first = open_blockers[0]
+        version = first.get("version")
+        suffix = f" ({version})" if isinstance(version, str) and PLAN_TOKEN_RE.match(version) else ""
+        state.forced = (f"BLOCKED: {first.get('category')}{suffix}", ck.EXIT_BLOCKED)
         return state
     owned = _owned_member(ck, rctx, record, path)
     if owned:
@@ -1116,6 +1126,37 @@ def load_ledgers(root: Path) -> tuple[list[Ledger], list[str]]:
     return sorted(ledgers, key=lambda l: (l.minor, l.layout != "active", l.rel)), unreadable
 
 
+def load_ledgers_at(rctx: RepoContext, ref: str) -> tuple[list[Ledger], list[str]] | None:
+    """Every ledger at a layout path as committed on `ref`, and the paths git could not show.
+
+    None when git cannot list the ref. The minor verdict reads ledgers here, never from
+    the working tree: an uncommitted or unmerged migration is not a closed gap.
+    """
+    rc, out = rctx.run([rctx.git, "-C", str(rctx.root), "ls-tree", "-r", "--name-only", ref, "--", "docs"])
+    if rc != 0:
+        return None
+    ledgers: list[Ledger] = []
+    unreadable: list[str] = []
+    for rel in (line.strip() for line in out.splitlines()):
+        parts = rel.split("/")
+        if parts[-1] != "known-gaps.md" or len(parts) < 3:
+            continue
+        match = _MINOR_DIR_RE.match(parts[-2])
+        if not match:
+            continue
+        minor = (int(match.group(1)), int(match.group(2)))
+        layout = _layout_of(rel, *minor)
+        if layout is None:
+            continue
+        rc, text = rctx.run([rctx.git, "-C", str(rctx.root), "show", f"{ref}:{rel}"])
+        if rc != 0:
+            unreadable.append(rel)
+            continue
+        items, problems = parse_ledger_full(text)
+        ledgers.append(Ledger(rctx.root / rel, rel, minor, layout, text, items, problems))
+    return sorted(ledgers, key=lambda l: (l.minor, l.layout != "active", l.rel)), unreadable
+
+
 def normalize_gap_id(value: str) -> str | None:
     """`v0.5.2#WN-3` and `v0.5#WN-3` both name `v0.5#WN-3`: ids are unique per minor file."""
     match = re.match(r"^v(0|[1-9]\d*)\.(0|[1-9]\d*)(?:\.\d+)?#(" + GAP_ID + r")$", value or "")
@@ -1398,6 +1439,7 @@ def excluded_ledgers(
 
 def gaps_minor_status(
     ck: ModuleType, rctx: RepoContext, token: str, record: dict | None,
+    loaded: tuple[list[Ledger], list[str]] | None = None,
 ) -> tuple[str, list[str]]:
     """(`gaps.minor` status, notices of fixed ids and repository-relative paths only).
 
@@ -1406,11 +1448,14 @@ def gaps_minor_status(
     Ledgers for later versions are out of scope, so a migrated copy there never
     reopens the verdict. There is no deferrable state. `cannot-verify` when a ledger is
     unreadable or has a parse problem, when the scope cannot be decided, or when a
-    ledger excluded for another live run's work still holds an open item.
+    ledger excluded for another live run's work still holds an open item. `loaded`
+    supplies the ledgers (the minor verdict passes those on the integration branch);
+    without it the working tree is read, as `minor_close.py status` does on the
+    closing branch.
     """
     parse_minor(ck, token)
     run_minor = minor_of(token)
-    ledgers, unreadable = load_ledgers(rctx.root)
+    ledgers, unreadable = loaded if loaded is not None else load_ledgers(rctx.root)
     notices = [f"gaps.minor unreadable {rel}" for rel in unreadable]
     if unreadable:
         return "cannot-verify", notices
@@ -1469,3 +1514,598 @@ def archive_minor_status(ck: ModuleType, rctx: RepoContext, token: str, record: 
             return "unmet"
     state = present(ARCHIVE_TREE.format(M=major, m=minor))
     return "cannot-verify" if state is None else ("met" if state else "unmet")
+
+
+# --------------------------------------------------------------------------- minor verdict
+#
+# `check-minor` and `score-minor`. The verdicts, their precedence, the member gate,
+# and every minor-level predicate are owned by the completion contract, "Minor
+# verdict"; this section executes them and restates none of them.
+
+CHECK_MINOR_TOTAL_SECONDS = 120.0  # the cap for one whole check-minor, members included
+MEMBER_BUDGET_SECONDS = 20.0  # each member's own share: the per-plan check's budget
+MEMBER_MIN_SECONDS = 1.0  # below this a member is not evaluated and reads cannot-verify
+CLOSE_BRANCH = "chore/close-{token}"
+_MET = ("met", "deferred", "n/a")
+
+
+@dataclass
+class MemberResult:
+    version: str
+    status: str = "unmet"  # met | unmet | cannot-verify
+    gate: str = "n/a"  # member.gate: met | n/a | unmet | cannot-verify
+    lines: list[tuple[str, str]] = field(default_factory=list)
+    exhausted: bool = False
+
+
+@dataclass
+class MinorVerdict:
+    line: str
+    code: int
+    members: list[MemberResult] = field(default_factory=list)
+    minor: list[tuple[str, str]] = field(default_factory=list)
+    notices: list[str] = field(default_factory=list)
+    record: dict | None = None
+
+    def ids(self) -> list[str]:
+        """Every unmet or unverifiable id, member ids prefixed by their version."""
+        out: list[str] = []
+        for member in self.members:
+            if member.exhausted:
+                out.append(f"member.{member.version}")
+                continue
+            if member.gate not in _MET:
+                out.append(f"{member.version}:member.gate")
+            out.extend(f"{member.version}:{pid}" for pid, status in member.lines if status not in _MET)
+        out.extend(pid for pid, status in self.minor if status not in _MET)
+        return out
+
+    def met(self) -> int:
+        count = sum(1 for m in self.members for _, status in m.lines if status in _MET)
+        count += sum(1 for m in self.members if m.gate in _MET and not m.exhausted)
+        return count + sum(1 for _, status in self.minor if status in _MET)
+
+
+def check_minor_seconds() -> float:
+    """The total budget; a caller with a shorter limit (the turn-end gate) may lower it, never raise it."""
+    try:
+        requested = float(os.environ.get("NEXUS_CHECK_MINOR_BUDGET_SECONDS", CHECK_MINOR_TOTAL_SECONDS))
+    except ValueError:
+        return CHECK_MINOR_TOTAL_SECONDS
+    if requested != requested:  # NaN
+        return CHECK_MINOR_TOTAL_SECONDS
+    return min(CHECK_MINOR_TOTAL_SECONDS, max(1.0, requested))
+
+
+def minor_context(ck: ModuleType, repo: str) -> RepoContext:
+    return ck.RepoContext(Path(repo or ".").resolve(), ck.Budget(check_minor_seconds()))
+
+
+def version_order(version: str) -> tuple[int, ...]:
+    return tuple(int(p) for p in version.lstrip("v").split("."))
+
+
+def ordered_members(record: dict) -> list[dict]:
+    members = [
+        m for m in record.get("members") or []
+        if isinstance(m, dict) and PLAN_TOKEN_RE.match(str(m.get("version")))
+    ]
+    return sorted(members, key=lambda m: version_order(str(m["version"])))
+
+
+def _classes(record: dict | None) -> set[str]:
+    return {
+        str(c.get("class")) for c in ((record or {}).get("approvals") or {}).get("classes") or []
+        if isinstance(c, dict)
+    }
+
+
+def _target(record: dict | None) -> str:
+    return str(((record or {}).get("approvals") or {}).get("target_branch") or "develop")
+
+
+def _tag_in(rctx: RepoContext, tag: str, commit: str) -> str:
+    """`met` when `commit` contains `tag`; `unmet` when it does not or the tag exists nowhere.
+
+    A tag present on origin but not fetched is `cannot-verify`: fetch tags and ask again.
+    """
+    rc, _ = rctx.run([rctx.git, "-C", str(rctx.root), "rev-parse", "--verify", "-q", f"refs/tags/{tag}^{{commit}}"])
+    if rc == -1:
+        return "cannot-verify"
+    if rc != 0:
+        rc, out = rctx.run([rctx.git, "-C", str(rctx.root), "ls-remote", "--tags", "origin", f"refs/tags/{tag}"])
+        if rc != 0 or out.strip():
+            return "cannot-verify"
+        return "unmet"
+    rc, _ = rctx.run([rctx.git, "-C", str(rctx.root), "merge-base", "--is-ancestor", f"refs/tags/{tag}", commit])
+    return "met" if rc == 0 else "unmet" if rc == 1 else "cannot-verify"
+
+
+def _ancestor(rctx: RepoContext, older: str, newer: str) -> str:
+    rc, _ = rctx.run([rctx.git, "-C", str(rctx.root), "merge-base", "--is-ancestor", older, newer])
+    return "met" if rc == 0 else "unmet" if rc == 1 else "cannot-verify"
+
+
+def _merge_commit(ck: ModuleType, rctx: RepoContext, repo: str, branch: str) -> tuple[str, str | None]:
+    """("merged", oid) | ("not-merged", None) | ("cannot-verify", None) for `branch`'s pull request."""
+    data = ck._gh_json(rctx, repo, "pr", "view", branch, "--json", "state,mergeCommit")
+    if data is ck.GH_NOT_FOUND:
+        return "not-merged", None
+    if not isinstance(data, dict):
+        return "cannot-verify", None
+    if data.get("state") != "MERGED":
+        return "not-merged", None
+    commit = data.get("mergeCommit")
+    oid = commit.get("oid") if isinstance(commit, dict) else None
+    return ("merged", str(oid)) if oid else ("cannot-verify", None)
+
+
+GATE_VIOLATED = "violated"
+
+
+def member_gate(ck: ModuleType, rctx: RepoContext, repo: str, previous: dict | None, member: dict) -> str:
+    """`member.gate` for one member: `met`, `n/a`, `unmet`, `cannot-verify`, or `violated`.
+
+    Every member after the first must have passed `record member-start`: without a
+    recorded `start_head` it is `unmet`, never `n/a`, so skipping the gate can never
+    reach MINOR COMPLETE. A recorded base must contain the previous member's release
+    tag, and once the member's pull request is merged the base must be an ancestor
+    of that merge; either failure is `violated` (the verdict is BLOCKED). The first
+    member without a recorded start is `n/a`.
+    """
+    start = member.get("start_head")
+    if not isinstance(start, str) or not start:
+        return "n/a" if previous is None else "unmet"
+    if previous is not None:
+        tag = _tag_in(rctx, str(previous.get("tag") or previous.get("version")), start)
+        if tag != "met":
+            return GATE_VIOLATED if tag == "unmet" else tag
+    state, merge = _merge_commit(ck, rctx, repo, str(member.get("source_branch") or ""))
+    if state == "cannot-verify":
+        return "cannot-verify"
+    if merge:
+        based = _ancestor(rctx, start, merge)
+        if based != "met":
+            return GATE_VIOLATED if based == "unmet" else based
+    return "met"
+
+
+def new_members(ck: ModuleType, rctx: RepoContext, record: dict, repo: str) -> tuple[str, str | None]:
+    """(`members.approved` status, the first version added to the minor after approval)."""
+    major, minor = parse_minor(ck, str(record.get("minor")))
+    known = {str(m.get("version")) for m in record.get("members") or [] if isinstance(m, dict)}
+    known |= {str(e.get("version")) for e in record.get("excluded") or [] if isinstance(e, dict)}
+    try:
+        plans = scan_plans(rctx.root, major, minor)
+    except MinorMalformed:
+        return "cannot-verify", None
+    for plan in plans:
+        # Decided by the release, never by the Status line: a Status edit is not a release.
+        if plan.version in known:
+            continue
+        state = shipped(ck, rctx, repo, plan.version)
+        if state == "met":
+            continue
+        if state == "cannot-verify":
+            return "cannot-verify", None
+        return "unmet", plan.version
+    return "met", None
+
+
+def evaluate_member(
+    ck: ModuleType, rctx: RepoContext, record: dict, member: dict, plan: Plan, notices: list[str],
+) -> MemberResult:
+    """One member through `project()` and the per-plan `evaluate`, inside its own budget."""
+    version = str(member["version"])
+    result = MemberResult(version)
+    total = rctx.budget
+    if total.remaining() < MEMBER_MIN_SECONDS:
+        result.status, result.exhausted = "cannot-verify", True
+        notices.append(f"check-minor budget exhausted before {version}")
+        return result
+    budget = ck.Budget(min(MEMBER_BUDGET_SECONDS, total.remaining()))
+    try:
+        ctx = ck.Context(str(rctx.root / plan.rel), budget)
+    except ck.Malformed:
+        if budget.remaining() > 0:
+            raise
+        result.status, result.exhausted = "cannot-verify", True
+        notices.append(f"check-minor budget exhausted in {version}")
+        return result
+    results, _deferred = ck.evaluate(ctx, ck.project(record, version))
+    notices.extend(f"{version}: {n}" for n in ctx.notices)
+    if budget.remaining() <= 0:
+        notices.append(f"check-minor member budget exhausted in {version}")
+    result.lines = results
+    statuses = {status for _, status in results}
+    result.status = "met" if statuses <= set(_MET) else "unmet" if "unmet" in statuses else "cannot-verify"
+    return result
+
+
+def _combine(*statuses: str) -> str:
+    if all(s in _MET for s in statuses):
+        return "met"
+    return "unmet" if "unmet" in statuses else "cannot-verify"
+
+
+def back_merged(rctx: RepoContext, target: str) -> str:
+    """`met` when the live integration branch contains the live `main` tip."""
+    rc, out = rctx.run(
+        [rctx.git, "-C", str(rctx.root), "ls-remote", "origin", "refs/heads/main", f"refs/heads/{target}"]
+    )
+    if rc != 0:
+        return "cannot-verify"
+    tips = {ref: sha for sha, _, ref in (line.partition("\t") for line in out.splitlines())}
+    main, integration = tips.get("refs/heads/main"), tips.get(f"refs/heads/{target}")
+    if not main or not integration:
+        return "cannot-verify"
+    rc, _ = rctx.run([rctx.git, "-C", str(rctx.root), "merge-base", "--is-ancestor", main, integration])
+    return "met" if rc == 0 else "unmet" if rc == 1 else "cannot-verify"
+
+
+def frozen_unresolved(record: dict, ledgers: list[Ledger]) -> list[tuple[Ledger, GapItem]]:
+    """Frozen migratable items that are not resolved in `ledgers`: still open, or migrated."""
+    bound, _named = migration_class(record)
+    return [
+        (ledger, item) for ledger in ledgers for item in ledger.items
+        if f"{ledger.token()}#{item.gid}" in bound and item.state != "resolved"
+    ]
+
+
+def close_required(record: dict, ledgers: list[Ledger]) -> bool:
+    """The closing pull request is needed while a frozen id is unresolved or the archive was approved.
+
+    A frozen id that was fixed instead of migrated needs no close; with nothing left
+    to migrate and the archive declined, `minor.close-pr` is `n/a`.
+    """
+    return bool(frozen_unresolved(record, ledgers)) or "archive-minor" in _classes(record)
+
+
+def close_carries(
+    rctx: RepoContext, record: dict, ledgers: list[Ledger], token: str, base: str, merge: str,
+) -> tuple[str, str | None]:
+    """(status, missing path) for whether the closing merge brought the migrations and the archive.
+
+    No frozen id may still be open on the integration branch. Each ledger holding a
+    migrated frozen id must differ between the last member's
+    release and the merge, and, when the archive is approved, something under the
+    archive tree must too. When only the archive remains, only the archive is required.
+    """
+    unresolved = frozen_unresolved(record, ledgers)
+    still_open = next((f"{ledger.token()}#{item.gid}" for ledger, item in unresolved if item.state == "open"), None)
+    if still_open:
+        # A merged close that leaves a frozen id open carried neither its fix nor its migration.
+        return "unmet", still_open
+    required = sorted({ledger.rel for ledger, item in unresolved if item.state == "migrated"})
+    rc, out = rctx.run([rctx.git, "-C", str(rctx.root), "diff", "--name-only", base, merge])
+    if rc != 0:
+        return "cannot-verify", None
+    changed = {line.strip() for line in out.splitlines() if line.strip()}
+    for rel in required:
+        if rel not in changed:
+            return "unmet", rel
+    if "archive-minor" in _classes(record):
+        prefix = ARCHIVE_TREE.format(M=minor_of(token)[0], m=minor_of(token)[1]) + "/"
+        if not any(path.startswith(prefix) for path in changed):
+            return "unmet", prefix
+    return "met", None
+
+
+def close_pr_status(
+    ck: ModuleType, rctx: RepoContext, record: dict, token: str, repo: str, ledgers: list[Ledger],
+    notices: list[str],
+) -> str:
+    """`minor.close-pr` (completion contract, "Minor verdict").
+
+    The closing pull request merged; its merge commit is on the target branch and
+    descends from both the record's `start_head` and the last member's release tag,
+    so it was merged after the approval and after the last release; the merge brought
+    the migrations and the archive (`close_carries`); its required checks passed; and
+    main is back-merged. A branch name alone never satisfies it.
+    """
+    if not close_required(record, ledgers):
+        return "n/a"
+    if "minor-close-pr" not in _classes(record):
+        notices.append("minor.close-pr needs the minor-close-pr approval")
+        return "unmet"
+    branch = CLOSE_BRANCH.format(token=token)
+    target = _target(record)
+    state, merge = _merge_commit(ck, rctx, repo, branch)
+    if state != "merged" or not merge:
+        return "unmet" if state == "not-merged" else "cannot-verify"
+    integration = _integration_ref(rctx, target)
+    members = ordered_members(record)
+    if integration is None or not members:
+        return "cannot-verify"
+    last_tag = f"refs/tags/{members[-1].get('tag') or members[-1].get('version')}"
+    checks = [_ancestor(rctx, merge, integration), _ancestor(rctx, str(record.get("start_head") or ""), merge)]
+    checks.append(_ancestor(rctx, last_tag, merge))
+    if "unmet" in checks:
+        notices.append("minor.close-pr merge is not on the target branch after the last release")
+    if all(c == "met" for c in checks):
+        carried, missing = close_carries(rctx, record, ledgers, token, last_tag, merge)
+        if carried == "unmet":
+            notices.append(f"minor.close-pr merge does not carry {missing}")
+        checks.append(carried)
+    checks += [ck._pr_checks(rctx, repo, branch, target), back_merged(rctx, target)]
+    return _combine(*checks)
+
+
+def last_merge_branch(record: dict, token: str, close_status: str) -> str | None:
+    if close_status != "n/a":
+        return CLOSE_BRANCH.format(token=token)
+    members = ordered_members(record)
+    return str(members[-1].get("source_branch")) if members else None
+
+
+def cleanup_minor_status(
+    ck: ModuleType, rctx: RepoContext, record: dict, record_path: Path, token: str, repo: str, close_status: str,
+) -> str:
+    """`cleanup.merged` for a minor: the sealed final-pass receipt postdates the minor's last merge."""
+    if "cleanup-merged" not in _classes(record):
+        return "n/a"
+    branch = last_merge_branch(record, token, close_status)
+    if not branch:
+        return "cannot-verify"
+    data = ck._gh_json(rctx, repo, "pr", "view", branch, "--json", "state,mergeCommit")
+    if data is ck.GH_NOT_FOUND:
+        return "unmet"
+    if not isinstance(data, dict):
+        return "cannot-verify"
+    if data.get("state") != "MERGED":
+        return "unmet"
+    commit = data.get("mergeCommit")
+    merge = commit.get("oid") if isinstance(commit, dict) else None
+    try:
+        import cleanup_merged  # a sibling in ~/.nexus-hub/scripts/, imported only when needed
+    except ImportError:
+        return "cannot-verify"
+    return cleanup_merged.receipt_status(
+        rctx.root, rctx.git, rctx.run, record_path, record.get("nonce"), merge, _target(record)
+    )
+
+
+def check_minor(ck: ModuleType, rctx: RepoContext, token: str, session: str | None) -> MinorVerdict:
+    """The minor verdict (completion contract, "Minor verdict")."""
+    parse_minor(ck, token)
+    state = load_minor(ck, rctx, token, session, accept_completed=True)
+    if state.forced is not None:
+        # Tampered, paused, and blocked verdicts print no predicate lines: nothing a
+        # member reports can change them, and evaluating every member spends the budget.
+        return MinorVerdict(state.forced[0], state.forced[1], notices=state.notices, record=state.record)
+    record = state.record
+    if record is None:
+        return MinorVerdict(
+            "INCOMPLETE: record.minor", ck.EXIT_INCOMPLETE, minor=[("record.minor", "unmet")], notices=state.notices
+        )
+    notices = list(state.notices)
+    repo = str(record.get("repo") or hosting_repo(ck, rctx))
+    major, minor = parse_minor(ck, token)
+    by_version = {p.version: p for p in scan_plans(rctx.root, major, minor)}
+    members = ordered_members(record)
+    gates: list[str] = []
+    previous: dict | None = None
+    for member in members:
+        gates.append(member_gate(ck, rctx, repo, previous, member))
+        previous = member
+    for member, gate in zip(members, gates):
+        if gate == GATE_VIOLATED:
+            return MinorVerdict(
+                f"BLOCKED: member-gate ({member['version']})", ck.EXIT_BLOCKED, notices=notices, record=record
+            )
+    approved, added = new_members(ck, rctx, record, repo)
+    if added:
+        notices.append("a plan added after approval needs a new approval round")
+        return MinorVerdict(
+            f"BLOCKED: new-member-not-approved ({added})", ck.EXIT_BLOCKED, notices=notices, record=record
+        )
+    results: list[MemberResult] = []
+    for member, gate in zip(members, gates):
+        result = evaluate_member(ck, rctx, record, member, by_version[str(member["version"])], notices)
+        result.gate = gate
+        results.append(result)
+    integration = _integration_ref(rctx, _target(record))
+    loaded = load_ledgers_at(rctx, integration) if integration else None
+    if loaded is None:
+        notices.append("gaps.minor integration branch unreadable")
+        gaps = close = "cannot-verify"
+    else:
+        gaps, gap_notices = gaps_minor_status(ck, rctx, token, record, loaded)
+        notices.extend(gap_notices)
+        close = close_pr_status(ck, rctx, record, token, repo, loaded[0], notices)
+    path = record_file(ck, rctx, token)
+    lines = [
+        ("members.approved", approved),
+        ("gaps.minor", gaps),
+        ("minor.close-pr", close),
+        ("cleanup.merged", cleanup_minor_status(ck, rctx, record, path, token, repo, close)),
+        ("archive.minor", archive_minor_status(ck, rctx, token, record)),
+    ]
+    verdict = MinorVerdict("", ck.EXIT_INCOMPLETE, results, lines, notices, record)
+    unmet = verdict.ids()
+    if unmet:
+        verdict.line = "INCOMPLETE: " + " ".join(unmet)
+        return verdict
+    head = rctx._git_out("rev-parse", "HEAD") or "-"
+    verdict.line, verdict.code = f"MINOR COMPLETE {token} {head} {record.get('nonce', '-')}", ck.EXIT_COMPLETE
+    if not record.get("completed"):
+        # `completed` is signed: it ends the record's authority (contract, "Schema 2", Validity).
+        record["completed"] = {"at": ck._now(), "head": head}
+        record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+        ck._write_record(path, record)
+    return verdict
+
+
+def cmd_check_minor(ck: ModuleType, args: argparse.Namespace) -> int:
+    rctx = minor_context(ck, args.repo)
+    verdict = check_minor(ck, rctx, args.minor, args.session)
+    for notice in [*verdict.notices, *rctx.notices]:
+        print(f"notice: {notice}", file=sys.stderr)
+    print(verdict.line)
+    if args.json:
+        body = {
+            "verdict": verdict.line,
+            "exit": verdict.code,
+            # The score from this same run, so a gate never needs a second evaluation.
+            "met": verdict.met(),
+            "head": rctx._git_out("rev-parse", "HEAD") or "-",
+            "members": {
+                m.version: {"status": m.status, "gate": m.gate, "predicates": dict(m.lines)} for m in verdict.members
+            },
+            "minor": dict(verdict.minor),
+        }
+        print(json.dumps(body, sort_keys=True))
+        return verdict.code
+    for member in verdict.members:
+        print(f"member.{member.version} {member.status}")
+        print(f"{member.version}:member.gate {member.gate}")
+        for pid, status in member.lines:
+            print(f"{member.version}:{pid} {status}")
+    for pid, status in verdict.minor:
+        print(f"{pid} {status}")
+    return verdict.code
+
+
+def score_branch(record: dict | None, verdict: MinorVerdict, token: str) -> str | None:
+    """The branch whose latest CI run the score names: the first unfinished member's, else the closing branch."""
+    if record is None:
+        return None
+    by_version = {str(m.get("version")): m for m in ordered_members(record)}
+    for member in verdict.members:
+        if member.status != "met":
+            return str(by_version.get(member.version, {}).get("source_branch") or "") or None
+    return CLOSE_BRANCH.format(token=token)
+
+
+def cmd_score_minor(ck: ModuleType, args: argparse.Namespace) -> int:
+    """`<met-count> <head> <latest-ci-run-id|->`, summed over members and the minor-level lines."""
+    rctx = minor_context(ck, args.repo)
+    verdict = check_minor(ck, rctx, args.minor, args.session)
+    head = rctx._git_out("rev-parse", "HEAD") or "-"
+    record = verdict.record
+    branch = score_branch(record, verdict, args.minor)
+    run_id = "-"
+    if branch and record is not None:
+        runs = ck._gh_json(
+            rctx, str(record.get("repo") or ""), "run", "list", "--branch", branch, "--limit", "1", "--json", "databaseId"
+        )
+        if isinstance(runs, list) and runs and isinstance(runs[0], dict) and "databaseId" in runs[0]:
+            run_id = str(runs[0]["databaseId"])
+    print(f"{verdict.met()} {head} {run_id}")
+    return 0
+
+
+# --------------------------------------------------------------------------- member gate and blockers
+
+
+def _ls_remote_tip(rctx: RepoContext, branch: str) -> str | None:
+    rc, out = rctx.run([rctx.git, "-C", str(rctx.root), "ls-remote", "origin", f"refs/heads/{branch}"])
+    if rc != 0:
+        return None
+    tips = (line.partition("\t") for line in out.splitlines())
+    return next((sha for sha, _, ref in tips if ref == f"refs/heads/{branch}"), "")
+
+
+def _gate_refusal(ck: ModuleType, version: str, reason: str) -> int:
+    print(f"BLOCKED: member-gate ({version})")
+    print(f"reason: {reason}")
+    return ck.EXIT_BLOCKED
+
+
+def cmd_record_member_start(ck: ModuleType, args: argparse.Namespace) -> int:
+    """Pass the member gate and record the member's `start_head`, re-signing the record.
+
+    Refuses (exit 3, `BLOCKED: member-gate (vX.Y.Z)` and a fixed reason) unless the
+    previous member is PLAN COMPLETE, the local `origin/<target>` equals the live
+    remote tip (the caller fetched), that tip contains the previous member's release
+    tag (main was back-merged), and `--head`, when given, is that tip. Idempotent for
+    an unchanged `start_head`; a different one is refused, because moving a member's
+    base after it started would hide work done on the stale one.
+    """
+    rctx = repo_context(ck, args)
+    token, version = args.minor, args.member
+    parse_minor(ck, token)
+    if not PLAN_TOKEN_RE.match(version or ""):
+        raise ck.Malformed("--member must be a plan version such as v0.5.2")
+    state = load_minor(ck, rctx, token, args.session)
+    if state.forced is not None:
+        print(state.forced[0])
+        return state.forced[1]
+    record = state.record
+    if record is None:
+        for notice in state.notices:
+            print(f"notice: {notice}", file=sys.stderr)
+        print("no minor run record for this scope and session", file=sys.stderr)
+        return ck.EXIT_MALFORMED
+    members = ordered_members(record)
+    index = next((i for i, m in enumerate(members) if m.get("version") == version), None)
+    if index is None:
+        raise ck.Malformed(f"{version} is not a member of {token}")
+    member = members[index]
+    target = _target(record)
+    tip = _ls_remote_tip(rctx, target)
+    if not tip:
+        return _gate_refusal(ck, version, "integration-branch-unreadable")
+    if rctx._git_out("rev-parse", "--verify", "-q", f"refs/remotes/origin/{target}") != tip:
+        return _gate_refusal(ck, version, "fetch-stale")
+    if args.head and rctx._git_out("rev-parse", "--verify", "-q", f"{args.head}^{{commit}}") != tip:
+        return _gate_refusal(ck, version, "head-not-integration-tip")
+    if index > 0:
+        previous = members[index - 1]
+        major, minor = parse_minor(ck, token)
+        plan = {p.version: p for p in scan_plans(rctx.root, major, minor)}[str(previous["version"])]
+        result = evaluate_member(ck, rctx, record, previous, plan, [])
+        if result.status != "met":
+            return _gate_refusal(ck, version, f"previous-member-incomplete ({previous['version']})")
+        if _tag_in(rctx, str(previous.get("tag") or previous["version"]), tip) != "met":
+            return _gate_refusal(ck, version, "back-merge-missing")
+    existing = member.get("start_head")
+    if existing:
+        if existing == tip:
+            print(f"STARTED {version} start_head={tip}")
+            return 0
+        return _gate_refusal(ck, version, "already-started")
+    member["start_head"] = tip
+    member["started"] = ck._now()
+    # `members` is signed, so the gate's write is a signed update, never an unsigned edit.
+    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+    ck._write_record(record_file(ck, rctx, token), record)
+    print(f"STARTED {version} start_head={tip}")
+    return 0
+
+
+def cmd_record_block(ck: ModuleType, args: argparse.Namespace) -> int:
+    """Append an open blocker to the minor record, naming the member when one is given."""
+    rctx = repo_context(ck, args)
+    token = args.minor
+    parse_minor(ck, token)
+    if args.category not in ck.BLOCKER_CATEGORIES:
+        raise ck.Malformed(f"unknown blocker category: {args.category}")
+    session = None if args.session in (None, "auto") else args.session
+    # A completed record still takes a blocker: its completion is signed, so this cannot be forged.
+    state = load_minor(ck, rctx, token, session, accept_completed=True)
+    record = state.record
+    if record is None:
+        if state.forced is not None:
+            print(state.forced[0])
+            return state.forced[1]
+        print("no minor run record for this scope and session", file=sys.stderr)
+        return ck.EXIT_MALFORMED
+    member = None
+    if args.member:
+        member = next((m for m in record["members"] if m.get("version") == args.member), None)
+        if member is None:
+            raise ck.Malformed(f"{args.member} is not a member of {token}")
+    member_classes = ((member or {}).get("approvals") or {}).get("classes") or []
+    approved = _classes(record) | {str(c.get("class")) for c in member_classes if isinstance(c, dict)}
+    if args.approval_class and args.approval_class in approved:
+        print(f"rejected: the approvals already answer {args.approval_class}", file=sys.stderr)
+        return ck.EXIT_MALFORMED
+    entry = {"category": args.category, "evidence": args.evidence[:2000], "open": True, "at": ck._now()}
+    if member is not None:
+        entry["version"] = args.member
+    record.setdefault("blockers", []).append(entry)
+    ck._write_record(record_file(ck, rctx, token), record)
+    suffix = f" ({args.member})" if member is not None else ""
+    print(f"BLOCKED: {args.category}{suffix}")
+    return ck.EXIT_BLOCKED

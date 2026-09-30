@@ -7,6 +7,9 @@ the ``nexus-hub run-plan`` runner is Hermes' primary continuation layer and this
 plugin is best-effort. Hermes plugins load only when listed in ``plugins.enabled``
 (``hermes plugins enable nexus-completion-gate``).
 
+A schema-2 (minor) record needs nothing here: the core judges it through
+``check-minor`` and ``score-minor`` inside this plugin's budget (v4.13.6).
+
 Policy: catalog/skills/workflow/implement-phase/references/completion-contract.md
 """
 

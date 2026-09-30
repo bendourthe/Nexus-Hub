@@ -165,6 +165,36 @@ Used only when the resolved mode is `full` (alias `in-full`) or `phase-by-phase`
 4. After a successful last phase, require `<version_dir>/development/<version>-last-phase-evidence.md`, run integration, then `/update release` under the recorded release approvals, then cleanup. The run is over when the checker prints `PLAN COMPLETE`.
 5. If the user is mid-`full` and chooses to stop, leave a continuation line they can paste.
 
+## Minor driver (`/implement vX.Y`)
+
+Used only for a minor scope. It runs every member plan from `record create --minor` through the driver loop above, one member at a time in the recorded version order, then closes the minor through one pull request. The verdicts, the member gate's refusals, and every minor-level predicate are owned by the completion contract ("Minor verdict"); this section is the procedure. `CK` below is `python ~/.nexus-hub/scripts/check_plan_completion.py`.
+
+### Member gate (before each member's first phase)
+
+1. **The previous member is done.** For every member after the first, the previous member must be `PLAN COMPLETE` under the minor record (a `deferred` gap waiting for migration counts): `CK check-minor vX.Y` shows its summary as `member.<version> met`.
+2. **Fetch.** `git fetch origin --tags` so `origin/<target>` equals the live remote tip.
+3. **Back-merge.** Confirm `origin/develop` contains `main` (the previous release's back-merge): `git merge-base --is-ancestor origin/main origin/develop`. When it does not, the release's back-merge is not finished; finish it under that member's recorded `release` approval before continuing.
+4. **Branch from the gate's base.** Create the member's worktree and branch from that `origin/develop` HEAD, as in Phase 0b.
+5. **Record the start.** `CK record member-start --minor vX.Y --member vX.Y.Z --session <id> --head <that HEAD>`. It re-checks steps 1 to 3, records `start_head` in the member entry, and re-signs the record; only `STARTED vX.Y.Z start_head=<sha>` lets the member's first phase begin. `BLOCKED: member-gate (vX.Y.Z)` with its `reason:` id means the base is stale or the previous member is not done: fix that cause, never edit the record.
+
+A blocker in any member stops the whole minor run: record it with `CK record block --minor vX.Y --member vX.Y.Z --category <category> --evidence <text>` and report it; do not start the next member.
+
+### Minor close (after the last member's release)
+
+Run once, after the last member is `PLAN COMPLETE` and its back-merge is on `origin/develop`. Record every step's command and output in `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/development/vX.Y-minor-close-evidence.md`, which moves with the archive.
+
+1. **Nothing to close?** When the record's `gap-migration` list is empty and it carries no `archive-minor`, skip steps 2 to 9: `minor.close-pr` is `n/a`. Go to step 10.
+2. **Cut the closing branch** from the post-release `origin/develop`: `git fetch origin` then `git switch -c chore/close-vX.Y origin/develop`.
+3. **Migrate** each frozen unfixable gap: `python ~/.nexus-hub/scripts/minor_close.py migrate --minor vX.Y --id <id> --reason <reason> --evidence <text>` (Migrate mode of `[[known-gaps-tracker]]`). Fix every fixable gap instead of migrating it.
+4. **Archive** when `archive-minor` is recorded: `python ~/.nexus-hub/scripts/minor_close.py archive --minor vX.Y --apply` ("Archive a closed minor" in `[[docs-layout-refactor]]`). It commits once on the closing branch.
+5. **Local fast gate**: the project's fast profile (Nexus-Hub: `python scripts/ci/run.py --profile fast`) must pass.
+6. **Push once and open one pull request** to develop under `minor-close-pr`: `git push -u origin chore/close-vX.Y`, then `gh pr create --base develop --head chore/close-vX.Y`.
+7. **Wait for the required checks.** A red required check: reproduce it locally, fix it narrowly on the closing branch, and re-push within the recorded `minor-close-pr` repush bound; never re-run it blindly. When develop moved since the branch was cut, merge `origin/develop` into the closing branch (never rebase) and re-run step 5 before the re-push.
+8. **Merge** the pull request under `minor-close-pr` once its required checks pass.
+9. **Back-merge** `main` into `develop` when `main` has commits develop lacks (`git merge-base --is-ancestor origin/main origin/develop` fails), under `minor-close-pr`.
+10. **Final cleanup pass**: `python ~/.nexus-hub/scripts/cleanup_merged.py --apply --receipt --minor vX.Y`, after the last merge (the closing pull request, or the last member's when step 1 skipped the close), under the recorded `cleanup-merged` approval.
+11. **Verdict**: `CK check-minor vX.Y`. The run is over only when it prints `MINOR COMPLETE vX.Y <head> <nonce>`; an `INCOMPLETE` line names the next unmet id.
+
 ## Phase 9: Final-phase completion workflow (release-readiness)
 
 For a Nexus-Hub candidate, the read-only `python scripts/check_release_preconditions.py --handbooks` must pass before publication. A full inventory and final content/rendered evidence are required; known gaps cannot waive a failed document.

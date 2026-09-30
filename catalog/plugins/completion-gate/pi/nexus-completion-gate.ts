@@ -7,6 +7,8 @@
 // refusals without progress. `pi.exec` ignores stdin, so node:child_process is
 // used directly. Installed user-global only (~/.pi/agent/extensions/).
 // Policy: catalog/skills/workflow/implement-phase/references/completion-contract.md
+// A schema-2 (minor) record needs nothing here: the core judges it through
+// check-minor and score-minor inside this plugin's budget (v4.13.6).
 // Shared gate call, copied verbatim into each TypeScript plugin because a
 // user-global plugin must not import files outside its own directory.
 // Runs the installed core with an argument array and no shell, sends the

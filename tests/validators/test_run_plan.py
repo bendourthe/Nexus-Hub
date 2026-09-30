@@ -39,7 +39,9 @@ if args[:2] == ["record", "path"]:
     print(state.get("record") or "/nonexistent")
     sys.exit(0 if state.get("record") else 1)
 if args[:2] == ["record", "block"]:
-    sys.exit(3)
+    if state.get("block_fails"):
+        print("BLOCKED: record-tampered"); sys.exit(3)
+    print("BLOCKED: " + args[args.index("--category") + 1]); sys.exit(3)
 if args[0] == "check":
     if state.get("terminal"):
         print(state["terminal"][0]); sys.exit(state["terminal"][1])
