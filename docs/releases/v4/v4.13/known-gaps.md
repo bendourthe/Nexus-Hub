@@ -1076,7 +1076,7 @@ Gaps from the minor-scope implement plan ([`v4.13.6-minor-scope-implement-and-ve
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
 | Bugs / regressions (BG) | 0 | 0 |
-| Warnings (WN) | 1 | 0 |
+| Warnings (WN) | 2 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
@@ -1085,6 +1085,10 @@ Gaps from the minor-scope implement plan ([`v4.13.6-minor-scope-implement-and-ve
 #### WN-1 (v4.13.6): Claude Code interactive `/goal` capture is observed only headless
 
 **Evidence**: the Phase 1 probe (Claude Code 2.1.283, 2026-09-29) ran `claude -p "/goal test condition"`: the `UserPromptSubmit` payload's `prompt` field was exactly `/goal test condition` and the transcript shows `Goal set: test condition`. A person typing `/goal` in the interactive terminal was not exercised, so the `claude` row of `docs/policy/completion-levers.json` stays `goal_capture: unverified` with `probe_mode: headless`, and the validator accepts `verbatim` only from an interactive probe. **Owner**: catalog maintainer. **Suggested next step**: type `/goal test condition` in an interactive session of a scratch project whose `UserPromptSubmit` hook logs its payload, and set the row to `verbatim` with `probe_mode: interactive` if the logged prompt matches.
+
+#### WN-2 (v4.13.6): Most older known-gaps ledgers read cannot-verify for a minor-scope run
+
+**Evidence**: a read-only `python scripts/minor_close.py status --minor v4.13` on 2026-09-29 reads `gaps.minor unmet`, with 369 open item headings; 30 of the 41 ledgers in scope read `cannot-verify` (663 rows that look like item ids but are not items, and 11 header `**Open items**` counts that disagree with the parsed count). The stricter Phase 4 parser is correct to refuse them: a looser reader would let open work pass as closed. **Owner**: catalog maintainer, before the first real minor-scope run (v4.17). **Suggested next step**: normalize those ledgers to the known-gaps-tracker format (one heading per item, a terminal RESOLVED, CLOSED, or MIGRATED marker, and a matching header count) in a docs-only change, then re-run the status command until every ledger parses.
 
 ### Resolved Items
 

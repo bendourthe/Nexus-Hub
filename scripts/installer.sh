@@ -2677,6 +2677,13 @@ install_templates() {
         safe_copy "$cleanup_merged_source" "$scripts_dest/cleanup_merged.py" true "[OK] Cleanup executor installed at: $scripts_dest/cleanup_merged.py"
     fi
 
+    # Copy the minor-close executor (v4.13.6). Gap migration and the closed-minor
+    # archive run it as a sibling of the completion checker.
+    local minor_close_source="$repo_root/scripts/minor_close.py"
+    if [ -f "$minor_close_source" ]; then
+        safe_copy "$minor_close_source" "$scripts_dest/minor_close.py" true "[OK] Minor-close executor installed at: $scripts_dest/minor_close.py"
+    fi
+
     # Copy the completion-gate core (v4.13.2). The completion-gate and
     # approval-capture hooks run it from this installed path only.
     local completion_gate_source="$repo_root/scripts/completion_gate.py"

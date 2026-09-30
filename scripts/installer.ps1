@@ -2807,6 +2807,13 @@ function Install-Templates {
         Safe-Copy -Source $cleanupMergedSource -Destination (Join-Path $scriptsDest "cleanup_merged.py") -Confirm:$true -CustomMessage "✓ Cleanup executor installed at: $scriptsDest\cleanup_merged.py"
     }
 
+    # Copy the minor-close executor (v4.13.6). Gap migration and the closed-minor
+    # archive run it as a sibling of the completion checker.
+    $minorCloseSource = Join-Path $RepoRoot "scripts\minor_close.py"
+    if (Test-Path $minorCloseSource) {
+        Safe-Copy -Source $minorCloseSource -Destination (Join-Path $scriptsDest "minor_close.py") -Confirm:$true -CustomMessage "✓ Minor-close executor installed at: $scriptsDest\minor_close.py"
+    }
+
     # Copy the completion-gate core (v4.13.2). The completion-gate and
     # approval-capture hooks run it from this installed path only.
     $completionGateSource = Join-Path $RepoRoot "scripts\completion_gate.py"

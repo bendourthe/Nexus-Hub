@@ -604,6 +604,8 @@ def project(record: dict, version: str) -> dict | None:
         "session_id": record.get("session_id"),
         "worktree": member.get("worktree") or record.get("worktree"),
         "start_head": member.get("start_head") or record.get("start_head"),
+        # The run began at the minor record's start: a gap created after it never migrates.
+        "minor_start_head": record.get("start_head"),
         "nonce": record.get("nonce"),
         "created": record.get("created"),
         "approvals": approvals,
@@ -739,6 +741,11 @@ def _gaps_status(ctx: Context, record: dict | None) -> tuple[str, int]:
         # never the word inside a title such as "Unresolved flake".
         if RESOLVED_MARKER_RE.search(item.group("title")):
             continue
+        # A minor member's gap migrated at the minor close is closed only when the
+        # migration verifies (completion contract, "Minor gaps and archive"); a
+        # per-plan run has no migration, so the marker alone stays unmet.
+        if MIGRATED_MARKER_RE.search(item.group("title")) and _migration_met(ctx, record, gaps, item.group(0)):
+            continue
         source = re.search(r"\*\*Source phase\*\*:([^\n]*)", body)
         from_own_task = bool(
             source and set(re.findall(r"T\d{3,}", source.group(1))) & own_tasks
@@ -753,6 +760,24 @@ def _gaps_status(ctx: Context, record: dict | None) -> tuple[str, int]:
 
 
 RESOLVED_MARKER_RE = re.compile(r"\s-{1,2}\s*RESOLVED\b")
+MIGRATED_MARKER_RE = re.compile(r"\s-{1,2}\s*MIGRATED to v\d+\.\d+\.\d+\s*$")
+
+
+def _migration_met(ctx: Context, record: dict | None, gaps: Path, heading: str) -> bool:
+    """True when this migrated item of a minor member verifies against the minor record."""
+    if not record or record.get("scope") != "member" or not record.get("minor"):
+        return False
+    cm = _minor_module()
+    ledgers, _unreadable = cm.load_ledgers(ctx.root)
+    ledger = next((l for l in ledgers if l.path.resolve() == gaps.resolve()), None)
+    found = cm.LEDGER_ITEM_RE.match(heading.lstrip("#").strip())
+    if ledger is None or found is None:
+        return False
+    item = next((i for i in ledger.items if i.gid == found.group("id") and i.state == "migrated"), None)
+    if item is None:
+        return False
+    status, _reason = cm.verify_migration(ctx, record, str(record["minor"]), ledgers, ledger, item)
+    return status == "met"
 
 
 def _section(text: str, heading: str, level: str, titled: bool = False) -> str | None:
