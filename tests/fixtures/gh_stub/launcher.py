@@ -14,6 +14,7 @@ An extensionless `#!/bin/sh` copy is also written on Windows, for Git Bash calle
 
 from __future__ import annotations
 
+import os
 import sys
 import tempfile
 from pathlib import Path
@@ -61,33 +62,24 @@ def make_stub(bin_dir: Path, name: str, script: Path, python: str = sys.executab
     return exe
 
 
-def path_order_git_dir() -> Path | None:
-    """A directory whose `git` runs its shell with PATH in the caller's order, or None.
+FIXED_SSH_DIR = HERE.parent / "fixed_ssh"
+SCRIPTS_DIR = HERE.parents[2] / "scripts"
 
-    `repo_host.git_ssh` asks git's own shell which ssh a push runs. Git for Windows'
-    launchers (`cmd\\git.exe`, `bin\\git.exe`), which a CI runner or a non-Git-Bash
-    shell finds first, put the bundled `usr\\bin` ahead of PATH there, so an ssh
-    stand-in first on PATH never wins; `mingw64\\bin\\git.exe` keeps PATH as given.
-    Tests that inject an ssh stand-in put this directory right after it, so the
-    checker resolves this git and git's shell resolves the stand-in, exactly as it
-    would resolve a user's own ssh placed first. On POSIX git already keeps PATH
-    order, so there is nothing to add.
+
+def fixed_ssh_env(ssh: Path, environ: dict[str, str]) -> dict[str, str]:
+    """Environment entries that make every Python child resolve `ssh` as git's ssh.
+
+    `tests/fixtures/fixed_ssh/sitecustomize.py` replaces `repo_host.git_ssh` in each
+    child process when these are set, so a route test does not depend on which ssh
+    the host's git shell prefers (a GitHub Windows runner's prefers Git's bundled
+    one, whatever PATH says). Production code reads none of them.
     """
-    if sys.platform != "win32":
-        return None
-    import shutil
-    import subprocess
-
-    git = shutil.which("git")
-    if not git:
-        return None
-    exec_path = subprocess.run(
-        [git, "--exec-path"], capture_output=True, text=True, check=False
-    ).stdout.strip()
-    if not exec_path:
-        return None
-    candidate = Path(exec_path).parent.parent / "bin" / "git.exe"  # <prefix>/mingw64/bin
-    return candidate.parent if candidate.is_file() else None
+    python_path = [str(FIXED_SSH_DIR), *[p for p in environ.get("PYTHONPATH", "").split(os.pathsep) if p]]
+    return {
+        "PYTHONPATH": os.pathsep.join(python_path),
+        "NEXUS_TEST_FIXED_SSH": str(ssh),
+        "NEXUS_TEST_SCRIPTS_DIR": str(SCRIPTS_DIR),
+    }
 
 
 _GH_DIR: Path | None = None

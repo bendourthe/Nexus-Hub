@@ -26,7 +26,7 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CHECKER = REPO_ROOT / "scripts" / "check_plan_completion.py"
 sys.path.insert(0, str(REPO_ROOT / "tests" / "fixtures" / "gh_stub"))
-from launcher import gh_stub_dir, make_stub, path_order_git_dir
+from launcher import fixed_ssh_env, gh_stub_dir, make_stub
 
 # A real executable `gh` stand-in: the resolver never runs a Windows .cmd or .bat.
 GH_STUB = gh_stub_dir()
@@ -199,7 +199,11 @@ class Fixture:
 
 
 def _ssh_stub(fx: Fixture, hosts: dict[str, str]) -> None:
-    """Put an `ssh` stand-in first on PATH whose `-G <alias>` prints the mapped hostname."""
+    """Make an `ssh` stand-in, whose `-G <alias>` prints the mapped hostname, the ssh git runs.
+
+    The checker subprocesses resolve it through `fixed_ssh_env`, not PATH order: a
+    GitHub Windows runner's git shell prefers Git's bundled ssh whatever PATH says.
+    """
     stub = fx.tmp / "ssh_stub"
     stub.mkdir()
     (stub / "ssh_stub.py").write_text(
@@ -211,12 +215,10 @@ def _ssh_stub(fx: Fixture, hosts: dict[str, str]) -> None:
         encoding="utf-8",
     )
     # A real executable (ssh.exe on Windows): the resolver never runs a .cmd or .bat.
-    make_stub(stub, "ssh", stub / "ssh_stub.py")
-    # git's own shell must resolve the stand-in, as it would a user's ssh placed first
-    # (Git for Windows' launchers put the bundled ssh ahead of PATH; see launcher.py).
-    git_dir = path_order_git_dir()
+    ssh = make_stub(stub, "ssh", stub / "ssh_stub.py")
     fx.env.update(
-        PATH=os.pathsep.join([str(stub), *([str(git_dir)] if git_dir else []), fx.env["PATH"]]),
+        PATH=str(stub) + os.pathsep + fx.env["PATH"],
+        **fixed_ssh_env(ssh, fx.env),
         SSH_STUB_HOSTS=json.dumps(hosts),
         SSH_STUB_PYTHON=sys.executable,
     )

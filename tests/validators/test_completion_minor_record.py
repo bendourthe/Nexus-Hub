@@ -32,7 +32,6 @@ from .test_check_plan_completion import (  # noqa: F401  (autouse fixture re-exp
     TRANSPORT_OVERRIDE_ENV,
     _git,
     _isolated_git_config,
-    path_order_git_dir,
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -48,6 +47,10 @@ import check_plan_completion as ck  # noqa: E402
 import completion_minor as cm  # noqa: E402
 import repo_host  # noqa: E402
 import run_plan  # noqa: E402
+from launcher import make_stub  # noqa: E402  (tests/fixtures/gh_stub, on sys.path via the import above)
+
+# The product resolver, kept before any test pins it to a stand-in.
+REAL_GIT_SSH = repo_host.git_ssh
 
 SESSION = "minor-session"
 PUSH_URL = "https://github.com/acme/demo.git"
@@ -860,7 +863,7 @@ def test_a_schema2_member_with_the_legacy_plan_hash_is_tampering(minor: Minor) -
 
 
 def _ssh_stub(tmp: Path, monkeypatch: pytest.MonkeyPatch, hosts: dict[str, str], proxied: tuple[str, ...] = ()) -> Path:
-    """An `ssh` first on PATH whose `-G [-p port] [user@]host` answers like OpenSSH.
+    """An `ssh` stand-in whose `-G [-p port] [user@]host` answers like OpenSSH; returns its path.
 
     `hosts` maps a target to a hostname; a key may be `host`, `user@host`, or
     `user@host:port`, so a `Match user` or port-specific block can be emulated.
@@ -882,20 +885,12 @@ def _ssh_stub(tmp: Path, monkeypatch: pytest.MonkeyPatch, hosts: dict[str, str],
         "print('proxycommand ' + ('nc evil.example 22' if any(k in proxied for k in keys) else 'none'))\n",
         encoding="utf-8",
     )
-    (stub / "ssh.cmd").write_text('@echo off\r\n"%SSH_STUB_PYTHON%" "%~dp0ssh_stub.py" %*\r\n', encoding="utf-8")
-    posix = stub / "ssh"
-    posix.write_text('#!/usr/bin/env bash\nexec "$SSH_STUB_PYTHON" "$(dirname "$0")/ssh_stub.py" "$@"\n', encoding="utf-8")
-    posix.chmod(0o755)
-    # git's own shell must resolve the stand-in, as it would a user's ssh placed first
-    # (Git for Windows' launchers put the bundled ssh ahead of PATH; see launcher.py).
-    git_dir = path_order_git_dir()
-    monkeypatch.setenv(
-        "PATH", os.pathsep.join([str(stub), *([str(git_dir)] if git_dir else []), os.environ.get("PATH", "")])
-    )
+    ssh = make_stub(stub, "ssh", stub / "ssh_stub.py")
+    monkeypatch.setenv("PATH", str(stub) + os.pathsep + os.environ.get("PATH", ""))
     monkeypatch.setenv("SSH_STUB_HOSTS", json.dumps(hosts))
     monkeypatch.setenv("SSH_STUB_PROXIED", json.dumps(list(proxied)))
     monkeypatch.setenv("SSH_STUB_PYTHON", sys.executable)
-    return stub
+    return ssh
 
 
 @pytest.fixture
@@ -904,7 +899,12 @@ def route_repo(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     work.mkdir()
     _git(work, "init", "-q", "-b", "main")
     _git(work, "remote", "add", "origin", PUSH_URL)
-    _ssh_stub(tmp_path, monkeypatch, {"github-work": "github.com", "evil-alias": "evil.example"})
+    ssh = _ssh_stub(tmp_path, monkeypatch, {"github-work": "github.com", "evil-alias": "evil.example"})
+    # The route tests prove what the checker does with a resolved ssh, so the ssh is
+    # pinned here rather than left to the host: a GitHub Windows runner's git shell
+    # resolves Git's bundled ssh whatever PATH says. How the product resolves git's
+    # ssh is proven against git itself in test_git_ssh_matches_what_git_itself_reports.
+    monkeypatch.setattr(repo_host, "git_ssh", lambda root, *, git, run: str(ssh))
     return work
 
 
@@ -1071,32 +1071,60 @@ def test_a_port_specific_block_is_probed_with_the_port_git_sends(monkeypatch: py
     assert (status, reason) == ("cannot-verify", "transport-override-ssh-config-host")
 
 
-def test_an_alias_is_resolved_with_the_ssh_git_runs(route_repo: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    git = repo_host.absolute_tool("git", route_repo)
-    found = repo_host.git_ssh(route_repo, git=git, run=repo_host._default_runner(None))
-    assert found and os.path.samefile(Path(found).parent, tmp_path / "ssh_stub")
+def test_an_alias_is_resolved_with_the_ssh_git_runs(route_repo: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """An alias is resolved with git's ssh (the pinned stand-in), with the user git sends."""
     assert _route(route_repo, "git@evil-alias:acme/demo.git")[0] == "unmet"
     # An alias whose Match-user block points elsewhere is resolved with that user too.
     monkeypatch.setenv("SSH_STUB_HOSTS", json.dumps({"github-work": "github.com", "git@github-work": "evil.example"}))
     assert _route(route_repo, "git@github-work:acme/demo.git")[0] == "unmet"
 
 
-@pytest.mark.skipif(os.name != "nt", reason="Git for Windows launchers only")
-def test_git_ssh_follows_the_ssh_git_runs_not_the_callers_path(route_repo: Path, tmp_path: Path) -> None:
-    """Through Git for Windows' `cmd\git.exe` launcher, git's shell runs its bundled ssh
-    even when another ssh is first on the caller's PATH, and `git_ssh` must report that
-    one: it is the ssh a push really runs (the GitHub Windows runner case)."""
-    git_dir = path_order_git_dir()
-    launcher = git_dir.parent.parent / "cmd" / "git.exe" if git_dir else None
-    bundled = git_dir.parent.parent / "usr" / "bin" / "ssh.exe" if git_dir else None
-    if not (launcher and launcher.is_file() and bundled and bundled.is_file()):
-        pytest.skip("no Git for Windows launcher and bundled ssh on this host")
-    found = repo_host.git_ssh(route_repo, git=str(launcher), run=repo_host._default_runner(None))
-    assert found and os.path.samefile(found, bundled)
-    assert not os.path.samefile(Path(found).parent, tmp_path / "ssh_stub")
+def _git_reports_ssh(root: Path, git: str) -> Path:
+    """The ssh git itself reports, asked independently of `repo_host` through git's shell."""
+    def ask(*argv: str) -> str:
+        out = subprocess.run([git, "-C", str(root), *argv], capture_output=True, text=True, check=True).stdout
+        return out.strip().splitlines()[-1].strip()
+
+    answer = ask("-c", "alias.test-which-ssh=!command -v ssh", "test-which-ssh")
+    if os.name == "nt" and answer.startswith("/"):
+        answer = ask("-c", "alias.test-win-path=!cygpath -w", "test-win-path", answer)
+    found = Path(answer)
+    if os.name == "nt" and not found.suffix and found.with_name(found.name + ".exe").is_file():
+        found = found.with_name(found.name + ".exe")
+    return found
 
 
-def test_an_undeterminable_git_ssh_is_cannot_verify(route_repo: Path) -> None:
+def _git_variants(tmp_path: Path) -> list[str]:
+    real = repo_host.absolute_tool("git", None)
+    assert real
+    variants = [real]
+    if os.name == "nt":
+        # A `git.cmd` wrapper: cmd.exe re-parses the arguments, so the probe must carry
+        # no shell metacharacter (v4.13.6 Phase 2).
+        wrapper = tmp_path / "gitwrap" / "git.cmd"
+        wrapper.parent.mkdir()
+        wrapper.write_text(f'@echo off\r\n"{real}" %*\r\n', encoding="utf-8")
+        variants.append(str(wrapper))
+    return variants
+
+
+def test_git_ssh_matches_what_git_itself_reports(route_repo: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """The product runs the ssh git itself would run, on any host.
+
+    Compared with git's own answer, never with a stub path: which ssh git's shell
+    prefers is host-specific (Git for Windows' bundled ssh on a GitHub runner, the
+    first ssh on PATH elsewhere), and the product must follow git in every case.
+    """
+    monkeypatch.setattr(repo_host, "git_ssh", REAL_GIT_SSH)
+    for git in _git_variants(tmp_path):
+        found = repo_host.git_ssh(route_repo, git=git, run=repo_host._default_runner(None))
+        expected = _git_reports_ssh(route_repo, git)
+        assert found and Path(found).is_file(), git
+        assert os.path.samefile(found, expected), (git, found, expected)
+
+
+def test_an_undeterminable_git_ssh_is_cannot_verify(route_repo: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(repo_host, "git_ssh", REAL_GIT_SSH)  # the resolver itself is under test
     real = repo_host._default_runner(None)
 
     def run(argv: list[str], cwd: Path | None = None) -> tuple[int, str]:
