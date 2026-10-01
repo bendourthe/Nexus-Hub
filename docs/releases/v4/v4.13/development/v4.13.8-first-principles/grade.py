@@ -17,7 +17,9 @@ HERE = Path(__file__).resolve().parent
 EVALS = HERE / "evals" / "bug-localization.json"
 RUNS = HERE / "runs"
 ARMS = ("baseline", "first-principles", "control")
-_LINE = re.compile(r"^\s*ROOT CAUSE:\s*(.+?)\s*$", re.MULTILINE)
+# Markdown decoration (list marker, quote marker, bold) is tolerated identically in every arm,
+# so formatting cannot differ between arms; the label itself must be ROOT CAUSE: in capitals.
+_PREFIX = re.compile(r"^(?:[-*+>]\s+|>\s*)*(?:\*\*)?ROOT CAUSE:(?:\*\*)?\s*(.+?)\s*$")
 
 
 def normalize(name: str) -> str:
@@ -25,10 +27,17 @@ def normalize(name: str) -> str:
 
 
 def grade(prompt_id: str, answer: str | None, references: dict[str, str]) -> dict:
-    """Blind grade: both assertions must hold for a pass."""
-    matches = _LINE.findall(answer or "")
-    present = bool(matches)
-    named = normalize(matches[-1]) if present else None
+    """Blind grade: both assertions must hold for a pass.
+
+    The answer-format instruction asks for the reply to finish with the ROOT CAUSE line, so
+    only the final non-empty line is read. A reply holding more than one ROOT CAUSE line is
+    a hedge between candidates and fails.
+    """
+    lines = [ln for ln in (answer or "").splitlines() if ln.strip()]
+    labelled = [ln for ln in lines if _PREFIX.match(ln.strip())]
+    final = _PREFIX.match(lines[-1].strip()) if lines else None
+    present = final is not None and len(labelled) == 1
+    named = normalize(final.group(1)) if final else None
     equals = present and named == references[prompt_id].lower()
     return {"root_cause_line_present": present, "named": named,
             "root_cause_equals": equals, "pass": present and equals}
@@ -43,7 +52,7 @@ def main() -> int:
         answer = None if run["errored"] else (run["cli_output"] or {}).get("result")
         verdict = grade(run["prompt_id"], answer, refs)  # arm label not passed in
         table[run["prompt_id"]][run["arm"]] = "pass" if verdict["pass"] else "fail"
-        print(f"{run['cell']}: named={verdict['named']} pass={verdict['pass']}")
+        print(f"{run['cell']}: named={verdict['named']!a} pass={verdict['pass']}")
     print("\n| Prompt | " + " | ".join(ARMS) + " |")
     print("|---|" + "---|" * len(ARMS))
     for pid in refs:

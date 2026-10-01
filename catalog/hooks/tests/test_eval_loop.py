@@ -945,6 +945,28 @@ class TestOptimizerSplit:
                 key = optimizer_module.group_key(entry)
                 assert owner.setdefault(key, idx) == idx, f"group {key} spans two splits"
 
+    def test_unlabelled_entries_are_positive_for_splitter_and_scorer(self, optimizer_module) -> None:
+        # AV-1: 14 labelled positives plus 10 unlabelled entries hold no scored
+        # negatives, so the class minimum must reject three-way mode.
+        evals = [{"id": f"p{i}", "query": f"positive {i}", "should_trigger": True} for i in range(14)]
+        evals += [{"id": f"u{i}", "query": f"unlabelled {i}"} for i in range(10)]
+        assert optimizer_module.is_positive({"query": "x"}) is True
+        assert optimizer_module.split_three_way(evals) is None
+        assert optimizer_module.resolve_split(evals)["mode"] == "two-way"
+
+    def test_fallback_on_a_large_set_states_its_reason(self, optimizer_module, capsys) -> None:
+        evals = [{"id": f"p{i}", "query": f"pos {i}", "should_trigger": True} for i in range(27)]
+        evals += [{"id": f"n{i}", "query": f"neg {i}", "should_trigger": False} for i in range(3)]
+        optimizer_module.resolve_split(evals)
+        assert "three-way split not used" in capsys.readouterr().err
+
+    def test_one_turn_entry_and_query_share_a_group_and_non_string_group_counts(
+        self, optimizer_module
+    ) -> None:
+        gk = optimizer_module.group_key
+        assert gk({"query": "Fix the bug!"}) == gk({"turns": ["fix the bug"]})
+        assert gk({"query": "a", "group": 7}) == gk({"query": "b", "group": "7"})
+
     def test_two_way_dry_run_keeps_old_keys_and_adds_labels(self, optimizer_module) -> None:
         evals = _balanced_evals(3)
         train, test = optimizer_module.split_train_test(evals)

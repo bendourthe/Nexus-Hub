@@ -122,7 +122,7 @@ This skill owns one reporting rule for any claim that a change saves cost or tok
 - **Count the whole cost of producing the saving.** A cost or token saving claim includes every helper model call and tool call the saving depends on, and every failed or retried attempt, not only the main model's tokens. A saving that leaves the helper out describes a system that does not run.
 - **Restate the headline whenever the accounting changes.** When a later measurement adds a cost the earlier one left out, or a later release changes the result, rewrite the headline in the same place and keep the earlier figure visible, marked superseded, rather than replacing it silently.
 
-Worked example: a retrieval helper is reported as cutting the main agent's cost by more than a quarter. Counting the helper's own model calls shrinks the saving, and a later release of the helper turns it into a small net increase. The honest record shows all three figures in order, each with its accounting, and the current headline is the last one.
+Worked example: a retrieval helper is reported as cutting the main agent's cost by a sizable share. Counting the helper's own model calls shrinks the saving, and a later release of the helper turns it into a small net increase. The honest record shows all three figures in order, each with its accounting, and the current headline is the last one.
 
 An audit that finds a saving claim leaving out helper or failed-attempt cost records it as a HIGH gap: the pipeline reports a real signal about a system other than the one that runs.
 

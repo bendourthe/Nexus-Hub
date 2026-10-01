@@ -21,7 +21,7 @@ Use this skill when the user wants to:
 - Iterate on a skill across multiple rounds with measurable pass-rate deltas
 - Set up a regression eval set so future skill edits do not silently regress earlier wins
 - Compare two candidate descriptions, instructions blocks, or rationalizations tables on the same prompts
-- Score a skill's effective trigger rate on a held-out test set the agent has not seen during authoring
+- Score a skill's effective trigger rate on queries the agent has not seen during authoring (a true held-out score needs the optimizer's three-way mode)
 
 **Trigger phrases**: "evaluate a skill", "benchmark a skill", "A/B test a skill", "optimize a skill description", "run an eval set", "score a skill against test prompts", "iterate on a skill", "skill regression", "with-skill vs without-skill", "eval harness", "eval workspace", "paired runs", "eval iteration", "make this skill actually work".
 

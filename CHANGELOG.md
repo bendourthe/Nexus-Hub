@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **A Claude Sonnet 5.5 prompting profile (v4.13.8).** `model-prompting-research` now carries a `claude-sonnet-5-5` profile of 36 sourced claims (32 high and 4 medium confidence after three adversarial verification rounds), written through the governed writer. The `claude-code` roster was refreshed from the live Models API and grew from 16 to 26 ids; the nine newly rostered Claude models remain unprofiled (v4.13.8 DF-3).
+- **A cost-claim reporting rule (v4.13.8).** `eval-pipeline-audit` owns one rule for any reported cost or token saving: count every helper model, tool call, and failed or retried attempt, and restate the headline whenever the accounting changes. `skill-eval-loop`'s reproducible receipts point to it instead of restating it.
+- **A grouped train/validation/test split for the description optimizer (v4.13.8).** `scripts/optimize_skill_description.py --split auto` (the default) uses a three-way, class-stratified split, with equivalent queries kept in one split, when the eval set has 24 or more entries and at least 2 of each `should_trigger` class per split. Validation selects the winner, and the untouched test split is scored once, for the final and the original description, in `final.json`. Every catalog eval set is smaller than 24 today, so every current run stays two-way. `--split two-way` always keeps the legacy split.
+- **Two guidance additions (v4.13.8).** `context-degradation` gains a five-step check to run before blaming a model change for a quality dip, and `direct-corpus-interaction` gains an excerpt-first output contract for evidence handed to another agent.
+
+### Changed
+
+- **Optimizer results say when their score is optimistic (v4.13.8).** In two-way mode the split that picks `best_description` also produces the reported `test_trigger_rate`, so every result now carries `split_mode`, `selection_split`, `reported_split`, and `reported_optimistic: true`. Every old key keeps its value. The `skill-eval-loop` docs stop calling that split "held-out", replace the claim that 8 to 12 evals give reasonable statistical power, and add an eval-saturation check and a starter-set rule. Decision: `docs/decisions/proposed/tooling/2026-09-30-optimizer-selection-reporting-split.md`.
+- **The first-principles pilot was run and stopped by its own rule (v4.13.8).** One approved smoke run (USD 0.04) passed, but Claude Code 2.1.283 reports `claude-sonnet-5-5` as an unrecognized model and exposes no effort setting, so the pre-registered rule stopped the pilot after one of 15 runs. The question was not tested, and no shared instruction surface changed. The re-run is v4.13.8 DF-4, and the adapter's stale `--skill` command is v4.13.8 WN-4.
+
 ## [4.13.6] - 2026-09-30
 
 ### Added

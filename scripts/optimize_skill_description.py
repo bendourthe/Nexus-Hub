@@ -140,20 +140,30 @@ def _normalize_text(text: str) -> str:
     return " ".join(re.sub(r"[^\w\s]", " ", text.lower()).split())
 
 
+def is_positive(entry: dict[str, Any]) -> bool:
+    """An entry's class. A missing `should_trigger` means positive, the same
+    default `estimate_trigger_rate` scores with, so the splitter's class
+    balance is the balance that actually gets scored."""
+    return bool(entry.get("should_trigger", True))
+
+
 def group_key(entry: dict[str, Any]) -> str:
     """The key that keeps equivalent entries in one split.
 
-    An explicit `group` field wins; a multi-turn entry groups by its joined
-    turns; anything else groups by its normalized query text, so case,
-    spacing, and punctuation variants of one prompt cannot straddle splits.
+    An explicit `group` field wins (any non-empty value, compared as text), so
+    every variant of one prompt must carry the same `group` once any does.
+    Otherwise entries group by their normalized text: the query, or a
+    multi-turn entry's joined turns. A one-turn entry and a query with the same
+    text share a key, and case, spacing, and punctuation variants cannot
+    straddle splits.
     """
     group = entry.get("group")
-    if isinstance(group, str) and group.strip():
-        return "group:" + group.strip()
+    if group is not None and not isinstance(group, bool) and str(group).strip():
+        return "group:" + str(group).strip()
     turns = entry.get("turns")
     if isinstance(turns, list) and turns:
-        return "turns:" + _normalize_text(" ".join(str(t) for t in turns))
-    return "query:" + _normalize_text(str(entry.get("query", "")))
+        return "text:" + _normalize_text(" ".join(str(t) for t in turns))
+    return "text:" + _normalize_text(str(entry.get("query", "")))
 
 
 def split_three_way(
@@ -175,8 +185,8 @@ def split_three_way(
         groups.setdefault(group_key(entry), []).append(entry)
     by_class: dict[bool, list[list[dict[str, Any]]]] = {True: [], False: []}
     for members in groups.values():
-        cls = bool(members[0].get("should_trigger"))
-        if any(bool(m.get("should_trigger")) != cls for m in members):
+        cls = is_positive(members[0])
+        if any(is_positive(m) != cls for m in members):
             return None
         by_class[cls].append(members)
 
@@ -204,7 +214,7 @@ def split_three_way(
 
     for part in (train, validation, test):
         for cls in (True, False):
-            if sum(1 for e in part if bool(e.get("should_trigger")) == cls) < _THREE_WAY_MIN_PER_CLASS:
+            if sum(1 for e in part if is_positive(e) == cls) < _THREE_WAY_MIN_PER_CLASS:
                 return None
     return train, validation, test
 
@@ -222,6 +232,15 @@ def resolve_split(
             train, validation, test = three
             return {"mode": "three-way", "train": train, "validation": validation,
                     "test": test, "reported_optimistic": False}
+        if len(evals) >= _THREE_WAY_MIN_ENTRIES:
+            # Large enough to qualify by size, so say why it fell back rather
+            # than leaving the user to wonder why the score is labelled optimistic.
+            print(
+                "Note: three-way split not used: a group mixes should_trigger classes, "
+                f"or a split would hold fewer than {_THREE_WAY_MIN_PER_CLASS} entries of a "
+                "class. Using the two-way split (ungrouped; reported_optimistic: true).",
+                file=sys.stderr,
+            )
     train, test = split_train_test(evals, train_fraction, seed)
     return {"mode": "two-way", "train": train, "validation": None, "test": test,
             "reported_optimistic": True}
@@ -462,7 +481,7 @@ def estimate_trigger_rate(
         successes = 0
         total = 0
         for q in queries:
-            should_trigger = bool(q.get("should_trigger", True))
+            should_trigger = is_positive(q)
             q_model = resolve_pinned_model(
                 model, q.get("model"), eval_id=str(q.get("id", "<unknown>"))
             )

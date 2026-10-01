@@ -4,6 +4,8 @@ Applies the T319 dispatch contract from docs/releases/v4/v4.13/development/v4.13
 one `claude -p --bare` run per (prompt, arm) cell, effort fixed with --effort high, no tools,
 the skill body appended as a system prompt, the API key passed only through the child
 environment, a fail-closed ledger checked before every dispatch, and one inert .json file per run.
+Run one wrapper process at a time: the ledger is not locked, so two concurrent processes could
+together exceed the cap.
 
 Usage:
     python wrapper.py smoke    # the single smoke cell (baseline, p1)
@@ -75,7 +77,17 @@ def load_order(prompts: list[dict]) -> list[list[str]]:
 def load_ledger() -> dict:
     if LEDGER.exists():
         return json.loads(LEDGER.read_text(encoding="utf-8"))
+    if RUNS.exists() and any(RUNS.glob("*.json")):
+        # A missing ledger beside recorded runs would restart the cap from zero.
+        raise SystemExit("ledger.json is missing but runs/ holds records; refusing to start")
     return {"cap_usd": CAP_USD, "per_run_ceiling_usd": PER_RUN_CEILING_USD, "spent_usd": 0.0, "runs": []}
+
+
+def as_text(value: object) -> str:
+    """TimeoutExpired carries bytes on POSIX even with text=True."""
+    if isinstance(value, bytes):
+        return value.decode("utf-8", errors="replace")
+    return value or ""
 
 
 def build_prompt(entry: dict, instruction: str, arm: str) -> str:
@@ -110,17 +122,22 @@ def dispatch(entry: dict, instruction: str, arm: str, ledger: dict) -> dict:
     env["ANTHROPIC_API_KEY"] = secret
     prompt = build_prompt(entry, instruction, arm)
     cell = f"{entry['id']}__{arm}"
+    # Pre-charge the ceiling before dispatch, so a crash after a paid call can
+    # only over-count; the measured cost replaces it once the run is recorded.
+    spent_before = ledger["spent_usd"]
+    ledger["spent_usd"] = round(spent_before + PER_RUN_CEILING_USD, 6)
+    write_checked(LEDGER, ledger)
     append_log({"cell": cell, "status": "started", "at": now()})
     with tempfile.TemporaryDirectory(prefix="fp-pilot-") as scratch:
         try:
             proc = subprocess.run(
                 [exe, *args], input=prompt, capture_output=True, text=True,
-                encoding="utf-8", cwd=scratch, env=env, timeout=TIMEOUT_S,
+                encoding="utf-8", cwd=scratch, env=env, timeout=TIMEOUT_S, check=False,
             )
             exit_code, stdout, stderr = proc.returncode, proc.stdout, proc.stderr
         except subprocess.TimeoutExpired as exc:
-            exit_code, stdout, stderr = None, exc.stdout or "", f"timeout after {TIMEOUT_S}s"
-    stdout, stderr = scrub(stdout or "", secret), scrub(stderr or "", secret)
+            exit_code, stdout, stderr = None, exc.stdout, f"timeout after {TIMEOUT_S}s"
+    stdout, stderr = scrub(as_text(stdout), secret), scrub(as_text(stderr), secret)
     try:
         cli_output = json.loads(stdout) if stdout.strip() else None
     except json.JSONDecodeError:
@@ -140,7 +157,7 @@ def dispatch(entry: dict, instruction: str, arm: str, ledger: dict) -> dict:
     }
     RUNS.mkdir(exist_ok=True)
     write_checked(RUNS / f"{cell}.json", record)
-    ledger["spent_usd"] = round(ledger["spent_usd"] + charged, 6)
+    ledger["spent_usd"] = round(spent_before + charged, 6)
     ledger["runs"].append({"cell": cell, "charged_usd": charged, "measured_cost_usd": cost})
     write_checked(LEDGER, ledger)
     append_log({"cell": cell, "status": "done", "at": now(), "errored": record["errored"],

@@ -82,7 +82,7 @@ or pin a single eval to a model with the optional `model` field:
 }
 ```
 
-**How to read the output.** The dry-run report echoes the resolved `model` (so you can confirm the flag took effect without spending a call). After a real run, compare `test_trigger_rate` across the default-model and cheap-model iteration records: a meaningful drop on the cheaper model means the description leans on inference the cheaper model does not do - add verbatim trigger phrases per `references/improvement-heuristics.md` until the cheap-model rate recovers.
+**How to read the output.** The dry-run report echoes the resolved `model` (so you can confirm the flag took effect without spending a call). After a real run, compare the `selection_metric` score (`test_trigger_rate` in two-way mode, `validation_trigger_rate` in three-way mode) across the default-model and cheap-model iteration records: a meaningful drop on the cheaper model means the description leans on inference the cheaper model does not do - add verbatim trigger phrases per `references/improvement-heuristics.md` until the cheap-model rate recovers.
 
 ## When to use each
 
