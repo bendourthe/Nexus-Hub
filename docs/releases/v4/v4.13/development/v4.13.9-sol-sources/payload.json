@@ -1,0 +1,113 @@
+{
+  "platform": "codex",
+  "roster_source": "api",
+  "verified_at": "2026-10-01",
+  "roster": [
+    "gpt-5.5",
+    "gpt-5.4",
+    "gpt-5.4-mini",
+    "gpt-5.3-codex",
+    "gpt-5.2",
+    "codex-auto-review"
+  ],
+  "models": {
+    "gpt-6.1-sol": [
+      {
+        "claim": "Reasoning effort accepts low, medium (the default), high, xhigh, and max.",
+        "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-6-astra",
+        "confidence": "high",
+        "scope": "model-specific",
+        "evidence_scope": "model",
+        "note": "Quote: \"Set reasoning.effort to low, medium (default), high, xhigh, or max.\" Verified 2026-10-01."
+      },
+      {
+        "claim": "The none and minimal reasoning efforts are not supported; callers that used none should start with low.",
+        "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-6-astra",
+        "confidence": "high",
+        "scope": "model-specific",
+        "evidence_scope": "model",
+        "note": "Quote: \"The none and minimal reasoning efforts are not supported.\"; Quote: \"GPT-6 Astra and GPT-6.1 Sol do not support none; use low instead.\" Verified 2026-10-01."
+      },
+      {
+        "claim": "Tool calling requires the Responses API; Chat Completions supports requests without tools.",
+        "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-6-astra",
+        "confidence": "high",
+        "scope": "model-specific",
+        "evidence_scope": "model",
+        "note": "Quote: \"Use the Responses API for tool calling. Chat Completions supports requests without tools.\" Verified 2026-10-01."
+      },
+      {
+        "claim": "When reasoning effort is not none, remove temperature, top_p, and top_logprobs, and on Chat Completions also remove logprobs.",
+        "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-6-astra",
+        "confidence": "medium",
+        "scope": "model-specific",
+        "evidence_scope": "model-family",
+        "note": "Quote: \"When reasoning effort is not none, remove temperature, top_p, and top_logprobs. For Chat Completions, also remove logprobs.\". Stated in the migration checklist that opens with setting model to gpt-6-astra, gpt-6.1-sol, or gpt-6-luna. Verified 2026-10-01."
+      },
+      {
+        "claim": "When migrating from GPT-5.5 or earlier, replace prompt_cache_retention with prompt_cache_options.ttl set to 30m.",
+        "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-6-astra",
+        "confidence": "medium",
+        "scope": "model-specific",
+        "evidence_scope": "model-family",
+        "note": "Quote: \"When migrating from GPT-5.5 or earlier, replace prompt_cache_retention with prompt_cache_options.ttl set to \"30m\".\". Same migration checklist as above. Verified 2026-10-01."
+      },
+      {
+        "claim": "When an application changes reasoning effort between responses, use configuration_update items in standard single-agent requests and keep request-level effort unchanged to preserve the cached prefix.",
+        "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-6-astra",
+        "confidence": "medium",
+        "scope": "model-specific",
+        "evidence_scope": "model-family",
+        "note": "Quote: \"If your application changes effort between responses, use configuration_update items in standard, single-agent requests. Keep request-level reasoning.effort unchanged to preserve the prompt prefix for caching.\". Same migration checklist as above. Verified 2026-10-01."
+      },
+      {
+        "claim": "The vendor positions it for complex coding, computer use, and professional work when near-Astra performance at a lower cost is wanted, and tells callers to compare it with Astra on their own tasks.",
+        "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-6-astra",
+        "confidence": "high",
+        "scope": "model-specific",
+        "evidence_scope": "model",
+        "note": "Quote: \"Use GPT-6.1 Sol for complex coding, computer use, and professional work when you want near-Astra performance at a lower cost.\"; Quote: \"Compare it with Astra on your tasks to assess the tradeoff between quality and cost.\" Verified 2026-10-01."
+      },
+      {
+        "claim": "Callers already on gpt-6-sol are directed to the migration guidance before switching to GPT-6.1 Sol.",
+        "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-6-astra",
+        "confidence": "high",
+        "scope": "model-specific",
+        "evidence_scope": "model",
+        "note": "Quote: \"If you already use gpt-6-sol, review the migration guidance before switching to GPT-6.1 Sol.\" Verified 2026-10-01."
+      },
+      {
+        "claim": "The models catalog lists it at 2 US dollars per million input tokens and 10 per million output tokens, one fifth of gpt-6-astra's listed 10 and 50.",
+        "source_url": "https://developers.openai.com/api/docs/models",
+        "confidence": "high",
+        "scope": "model-specific",
+        "evidence_scope": "model",
+        "note": "Quote: \"$2 / Input MTok\"; Quote: \"$10 / Output MTok\"; Quote: \"Near-Astra performance for complex work at a lower cost.\". Astra's row on the same page lists $10 / Input MTok and $50 / Output MTok. The page states the prices, not a benchmark. Verified 2026-10-01."
+      },
+      {
+        "claim": "The models catalog lists a 1.05M-token context window, 128K maximum output tokens, an April 30, 2026 knowledge cutoff, and Functions, Web search, File search, and Computer use tools, the same values as gpt-6-astra's row.",
+        "source_url": "https://developers.openai.com/api/docs/models",
+        "confidence": "high",
+        "scope": "model-specific",
+        "evidence_scope": "model",
+        "note": "Quote: \"Near-Astra performance for complex work at a lower cost.\". Row values read from the saved models.txt lines following 'Model ID gpt-6.1-sol': Max output 128K tokens; Context window 1.05M; Knowledge cutoff Apr 30, 2026. Verified 2026-10-01."
+      },
+      {
+        "claim": "The guide's prompting best practices address behavior observed with GPT-6 Astra, and the vendor says to evaluate them with the chosen model; none is stated as measured on GPT-6.1 Sol.",
+        "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-6-astra",
+        "confidence": "medium",
+        "scope": "model-specific",
+        "evidence_scope": "model-family",
+        "note": "Quote: \"They address behavior observed with GPT-6 Astra; evaluate them with your chosen model and workload.\" Verified 2026-10-01."
+      },
+      {
+        "claim": "The guide's delegation prompt tells the model to parallelize work by delegating tasks to another agent whenever it could save time or improve quality.",
+        "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-6-astra",
+        "confidence": "medium",
+        "scope": "model-specific",
+        "evidence_scope": "model-family",
+        "note": "Quote withheld: it is an imperative addressed to an agent. Recorded and deliberately NOT adopted into any shared body: the catalog's agent-orchestration-primitives overrides it with the named-problem escalation gate, as for gpt-6-astra. Verified 2026-10-01."
+      }
+    ]
+  }
+}

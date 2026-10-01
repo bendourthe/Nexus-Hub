@@ -1156,7 +1156,7 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 4 | 0 |
+| Deferred (DF) | 3 | 1 |
 | Bugs / regressions (BG) | 0 | 0 |
 | Warnings (WN) | 6 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
@@ -1169,12 +1169,6 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 - **Source phase**: Phase 1. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T304.
 - **Reason**: Anthropic announced Claude Haiku 5.5 "in the coming weeks" and it is not yet in the models overview, so no prompting profile or model-map cell can be verified against a primary source.
 - **Suggested next step**: when the models overview lists it, run `/tune-prompting <haiku-5-5-id> --profiles-only` and refresh the `fast` tier cell of the model map.
-
-#### DF-2 (v4.13.8): The bundled model-map snapshot lists superseded models
-
-- **Source phase**: Phase 1. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T304.
-- **Reason**: `catalog/skills/ai-development/model-routing/references/last-known-model-map.json` (verified 2026-09-22) still lists `claude-sonnet-5` at standard and `gpt-6-sol` at strong, both superseded. It is the offline fallback that `/plan` renders when web access is unavailable, so a stale cell reaches a user who is offline.
-- **Suggested next step**: refresh the snapshot from a validated map through `model-map.py`. The queued v4.13.9 plan (task T407) does this for the `standard`/Anthropic and `strong`/OpenAI cells; otherwise model-routing's own refresh cycle owns it.
 
 #### DF-3 (v4.13.8): Nine newly rostered Claude models have no prompting profile
 
@@ -1227,7 +1221,12 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 
 ### Resolved Items
 
-None yet.
+#### DF-2 (v4.13.8): The bundled model-map snapshot lists superseded models
+
+- **Source phase**: Phase 1. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T304.
+- **Reason**: `catalog/skills/ai-development/model-routing/references/last-known-model-map.json` (verified 2026-09-22) still lists `claude-sonnet-5` at standard and `gpt-6-sol` at strong, both superseded. It is the offline fallback that `/plan` renders when web access is unavailable, so a stale cell reaches a user who is offline.
+- **Suggested next step**: refresh the snapshot from a validated map through `model-map.py`. The queued v4.13.9 plan (task T407) does this for the `standard`/Anthropic and `strong`/OpenAI cells; otherwise model-routing's own refresh cycle owns it.
+- **Resolved**: 2026-10-01 by v4.13.9 T407. `last-known-model-map.json` now reads `verified_as_of` 2026-10-01, `standard`/Anthropic `claude-sonnet-5-5`, and `strong`/OpenAI `gpt-6.1-sol`, with dated notes. `model-map.py validate` gives `{"valid": true, "verified_as_of": "2026-10-01", "tiers": 4, "providers": 4}`.
 
 ## v4.13.9
 

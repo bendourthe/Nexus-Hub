@@ -1,0 +1,247 @@
+For the complete documentation index, see llms.txt. Markdown versions of documentation pages are available by appending
+.md to the page URL.
+ChatGPT
+Start searching
+API Dashboard
+Try ChatGPT
+Home
+API
+Overview
+Get started with the OpenAI API
+Models
+Explore models and compare capabilities
+Agents
+Build persistent agents on hosted infrastructure
+Tools
+Connect models to tools and data
+Audio & voice
+Build speech and realtime voice experiences
+Production
+Deploy and scale your API integrations
+API reference
+Explore endpoints, parameters, and responses
+ChatGPT
+Sign in with ChatGPT
+Apps powered by your user's ChatGPT plan
+Plugins
+Extend ChatGPT and Codex
+Workspace Agents
+Trigger published ChatGPT workspace agents
+Commerce
+Build commerce flows in ChatGPT
+Ads
+Publish and measure ads in ChatGPT
+ChatGPT + Codex user docs
+Guides and product docs for ChatGPT and Codex
+Use cases
+Example workflows and tasks teams can take on with ChatGPT or Codex
+Docs
+Use cases
+Training
+Resources
+Resources
+Showcase
+Demo apps to get inspired
+Blog
+Learnings and experiences from developers
+Cookbook
+Notebook examples for building with OpenAI models
+Learn
+Docs, videos, and demo apps for building with OpenAI
+Community
+Programs, meetups, and support for builders
+Overview Models Agents Tools Audio & voice Production API reference
+Primary navigation
+API ChatGPT Docs Use cases Training Resources Resources
+Search docs
+Suggested
+responses createreasoning_effortrealtimeprompt caching
+Overview Models Agents Tools Audio & voice Production API reference
+OverviewModelsAgentsToolsAudio & voiceProductionAPI reference
+Model catalog
+Choose a model
+Pricing
+Model selection
+Text and code
+Text generation
+Code generation
+Structured output
+Prompting
+Overview
+Prompt engineering
+Citation formatting
+Migration guide
+Prompt generation
+Frontend prompting
+Reasoning
+Reasoning models
+Reasoning best practices
+Images
+Images and vision
+Image input cost calculator
+Image generation
+Overview
+Image prompting
+Realtime and audio
+Audio and speech
+Getting started
+Voice agents
+Specialized models
+Deep research
+Embeddings
+Moderation
+API Dashboard
+Try ChatGPT
+Model catalog
+Choose a model
+Pricing
+Model selection
+Text and code
+Text generation
+Code generation
+Structured output
+Prompting
+Overview
+Prompt engineering
+Citation formatting
+Migration guide
+Prompt generation
+Frontend prompting
+Reasoning
+Reasoning models
+Reasoning best practices
+Images
+Images and vision
+Image input cost calculator
+Image generation
+Overview
+Image prompting
+Realtime and audio
+Audio and speech
+Getting started
+Voice agents
+Specialized models
+Deep research
+Embeddings
+Moderation
+Models
+Choosing a model
+If you're not sure where to start, use GPT-6 Astra, our flagship model for complex reasoning and coding. Choose GPT-6.1 Sol to balance intelligence and cost, or GPT-6 Luna for cost-sensitive, high-volume workloads.
+All latest OpenAI models support text and image input, text output, multilingual capabilities, and vision. Models are available via the Responses API and our Client SDKs.
+Flagship models
+Start with GPT-6 Astra for complex reasoning and coding, choose GPT-6.1 Sol to balance intelligence and cost, or use GPT-6 Luna for cost-sensitive, high-volume workloads.
+View allCompare models
+GPT-6 Astra
+Our most capable model for the most demanding work.
+Model ID
+gpt-6-astra
+Reasoning
+lowmediumhighxhighmax
+Input price
+$10 / Input MTok
+Output price
+$50 / Output MTok
+Max output
+128K tokens
+Context window
+1.05M
+Knowledge cutoff
+Apr 30, 2026
+Tools
+Functions, Web search, File search, Computer use
+GPT-6.1 Sol
+Near-Astra performance for complex work at a lower cost.
+Model ID
+gpt-6.1-sol
+Reasoning
+lowmediumhighxhighmax
+Input price
+$2 / Input MTok
+Output price
+$10 / Output MTok
+Max output
+128K tokens
+Context window
+1.05M
+Knowledge cutoff
+Apr 30, 2026
+Tools
+Functions, Web search, File search, Computer use
+GPT-6 Luna
+Our most efficient model for focused, high-volume tasks.
+Model ID
+gpt-6-luna
+Reasoning
+nonelowmediumhighxhighmax
+Input price
+$0.1 / Input MTok
+Output price
+$0.5 / Output MTok
+Max output
+128K tokens
+Context window
+1.05M
+Knowledge cutoff
+May 18, 2026
+Tools
+Functions, Web search, File search, Computer use
+View more
+Specialized models
+Purpose-built for specific tasks.
+OpenAI Daybreak
+Advanced cyber models for defenders
+GPT-5.6 Cyber
+Our most advanced cybersecurity model for authorized vulnerability research and security testing.
+Daybreak Red
+An alias for advanced cybersecurity models for authorized vulnerability research and security testing.
+Daybreak Blue
+An alias for flagship general-purpose models with safeguards for defensive cybersecurity work.
+Life sciences
+Models for life sciences research
+GPT-RosalindLife sciences reasoning for approved organizations
+Image
+Models for image generation and editing
+GPT-Image-2.5 Sunburst
+Our most capable model for image generation and editing
+GPT-Image-2.5 Flare
+Fast, high-quality everyday image generation
+Realtime
+Models for realtime speech and translation
+GPT-Live 1
+Our premier model for natural, expressive voice conversations with smooth interruption handling.
+GPT-Realtime-2.1
+Reasoning model with tool use
+GPT-Realtime-2.1 Mini
+Reasoning model with tool use
+GPT-Realtime-2
+Reasoning model with tool use
+GPT-Realtime-Translate
+Streaming speech-to-speech translation model
+GPT-Realtime-1.5
+The best voice model for audio in, audio out
+GPT-Realtime Mini
+Deprecated
+A cost-efficient version of GPT-Realtime
+Speech generation
+Models for generating natural-sounding speech from text
+GPT-4o Mini TTS
+Text-to-speech model powered by GPT-4o Mini
+Transcription
+Models for transcribing speech into text
+GPT-Transcribe
+High-accuracy speech-to-text model for file and Realtime input transcription
+GPT-Live-Transcribe
+Low-latency speech-to-text model for realtime transcription
+GPT-Realtime-Whisper
+Streaming speech-to-text model for realtime transcription
+GPT-4o Transcribe
+Speech-to-text model powered by GPT-4o
+GPT-4o Mini Transcribe
+Speech-to-text model powered by GPT-4o Mini
+Browse our full catalog of models
+Diverse models for a variety of tasks
+View all modelsCompare models
+How we use your data·Deprecated models
+Ask AI
+Docs agent
+Loading docs agent...
