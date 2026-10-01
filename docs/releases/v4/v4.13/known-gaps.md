@@ -1076,3 +1076,36 @@ Gaps from the completion-checker remote-resolution fix ([`v4.13.5-completion-che
 | BG-3 | An SSH alias routed through a proxy counted as verified | Phase 2 | Only the `hostname` line of `ssh -G` was read, so a `ProxyCommand` or `ProxyJump` to another server passed. Either setting other than `none` now leaves the alias unverified. |
 | BG-4 | With `GH_HOST` set, a github.com remote was checked against the enterprise host | Phase 2 | Both `github.com` and `GH_HOST` were accepted, but `gh --repo owner/repo` queries only one of them. The accepted host is now exactly the one `gh` queries: `GH_HOST` when set, otherwise `github.com`. |
 | BG-5 | CodeQL flagged a no-effect statement in `repo_host.py` | Phase 2, PR #387 | The `...` body of the `Budget` protocol method raised "Statement has no effect" (alert 328), and the unresolved review thread blocked the merge under `develop`'s conversation-resolution rule. The body is now a docstring. |
+
+## v4.13.8
+
+Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test`](plans/v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md)); the admission record is [`v4.13.8-admission.md`](development/v4.13.8-admission.md).
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 2 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+#### DF-1 (v4.13.8): Claude Haiku 5.5 is announced but has no profile or map cell
+
+- **Source phase**: Phase 1. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T304.
+- **Reason**: Anthropic announced Claude Haiku 5.5 "in the coming weeks" and it is not yet in the models overview, so no prompting profile or model-map cell can be verified against a primary source.
+- **Suggested next step**: when the models overview lists it, run `/tune-prompting <haiku-5-5-id> --profiles-only` and refresh the `fast` tier cell of the model map.
+
+#### DF-2 (v4.13.8): The bundled model-map snapshot lists superseded models
+
+- **Source phase**: Phase 1. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T304.
+- **Reason**: `catalog/skills/ai-development/model-routing/references/last-known-model-map.json` (verified 2026-09-22) still lists `claude-sonnet-5` at standard and `gpt-6-sol` at strong, both superseded. It is the offline fallback that `/plan` renders when web access is unavailable, so a stale cell reaches a user who is offline.
+- **Suggested next step**: refresh the snapshot from a validated map through `model-map.py`. The queued v4.13.9 plan (task T407) does this for the `standard`/Anthropic and `strong`/OpenAI cells; otherwise model-routing's own refresh cycle owns it.
+
+### Resolved Items
+
+None yet.
