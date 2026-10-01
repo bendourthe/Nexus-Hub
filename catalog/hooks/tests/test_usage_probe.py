@@ -1446,3 +1446,78 @@ def test_sourced_modules_on_the_real_catalog():
         "_notify_common.sh",
         "_notify_common.ps1",
     }
+
+
+# ----- single-flight fetch and process-local backoff (Phase 7 review, F5) -------
+
+
+def _fetch_lock(env: types.SimpleNamespace, platform: str = "claude") -> Path:
+    return env.nexus / "state" / "usage-probe" / f".{platform}.fetch.lock"
+
+
+def test_a_fetch_in_progress_returns_the_cached_value_without_fetching(env):
+    write_claude_creds(env.home)
+    env.http.queue(CLAUDE_PAYLOAD)
+    env.probe.probe("claude")
+    env.clock.now += 400  # past the TTL
+    lock = _fetch_lock(env)
+    lock.write_text("", encoding="utf-8")
+    os.utime(lock, (env.clock.now, env.clock.now))
+
+    busy = env.probe.probe("claude")
+
+    assert busy.status == "stale" and busy.reason == "fetch in progress"
+    assert windows(busy) == {"five_hour": 42.0, "weekly": 77.5}
+    assert len(env.http.calls) == 1
+    assert lock.exists(), "a loser must not remove the winner's lock"
+
+
+def test_a_fetch_in_progress_with_no_cache_is_unavailable(env):
+    write_claude_creds(env.home)
+    lock = _fetch_lock(env)
+    lock.parent.mkdir(parents=True)
+    lock.write_text("", encoding="utf-8")
+    os.utime(lock, (env.clock.now, env.clock.now))
+
+    result = env.probe.probe("claude")
+
+    assert (result.status, result.reason) == ("unavailable", "fetch in progress")
+    assert env.http.calls == []
+
+
+def test_a_stale_fetch_lock_is_broken_and_released(env):
+    write_claude_creds(env.home)
+    lock = _fetch_lock(env)
+    lock.parent.mkdir(parents=True)
+    lock.write_text("", encoding="utf-8")
+    old = env.clock.now - 60
+    os.utime(lock, (old, old))
+    env.http.queue(CLAUDE_PAYLOAD)
+
+    assert env.probe.probe("claude").status == "ok"
+    assert not lock.exists()
+
+
+def test_the_winner_releases_the_lock_after_a_failure(env):
+    write_claude_creds(env.home)
+    env.http.queue(TimeoutError())
+    env.probe.probe("claude")
+    assert not _fetch_lock(env).exists()
+
+
+def test_process_local_backoff_holds_when_the_cache_is_unwritable(env, monkeypatch):
+    write_claude_creds(env.home)
+    env.nexus.mkdir(parents=True)
+    (env.nexus / "state").write_text("not a directory", encoding="utf-8")
+    env.http.queue(urllib.error.URLError("offline"))
+    assert env.probe.probe("claude").reason == "endpoint unreachable"
+    env.clock.now += 30
+
+    again = env.probe.probe("claude")
+
+    assert again.reason == "endpoint unreachable"
+    assert len(env.http.calls) == 1, "no second fetch inside the backoff"
+    env.clock.now += 31
+    env.http.queue(CLAUDE_PAYLOAD)
+    assert env.probe.probe("claude").status == "ok"
+    assert len(env.http.calls) == 2

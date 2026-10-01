@@ -104,6 +104,9 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
         # `followup_message`) and prompt capture (`beforeSubmitPrompt`).
         "completion-gate.sh",
         "approval-capture.sh",
+        # v4.13.7: the usage-limit hand-off guard and the probe it imports.
+        "usage-guard.py",
+        "_usage_probe.py",
     )
 
     def _hook_registration(self, command_for) -> dict:
@@ -128,6 +131,14 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
 
         `subagentStop` also exists in Cursor and is deliberately NOT wired: a
         sub-task milestone is not a reason to interrupt a human.
+
+        `usage-guard` (v4.13.7) runs on `postToolUse` (answered with
+        `additional_context`) and `stop` (answered with `followup_message`).
+        `beforeSubmitPrompt` has no context field, so it is not registered there;
+        the first tool call after the prompt carries the directive. This native
+        registration is the only Cursor path: the guard is silent when Cursor runs
+        it from an imported `.claude/hooks/` registration, so one event never
+        injects the directive twice.
         """
         return {
             "version": 1,
@@ -138,8 +149,12 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
                         "failClosed": True,
                     },
                 ],
+                "postToolUse": [
+                    {"command": command_for("usage-guard.py"), "timeout": 10},
+                ],
                 "stop": [
                     {"command": command_for("completion-gate.sh")},
+                    {"command": command_for("usage-guard.py"), "timeout": 10},
                     {"command": command_for("notify-on-complete.sh")},
                 ],
                 "beforeSubmitPrompt": [
@@ -316,6 +331,10 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
             host_script = script_for_host(script, windows)
             hook_command = host_command_for(host_script, base, windows)
             python_runner = "python" if windows else "python3"
+            if host_script.endswith(".py"):
+                # Quoted like the launcher path: a global hooks dir under a user
+                # profile can contain a space.
+                hook_command = f'{python_runner} "{base}/{host_script}"'
             compat_path = f'{base}/cursor-hook-compat.py'
             return f'{python_runner} "{compat_path}" {hook_command}'
 

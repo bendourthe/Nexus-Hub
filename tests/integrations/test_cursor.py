@@ -118,7 +118,11 @@ def test_cursor_windows_registration_uses_powershell(
     assert commands
     assert all(command.startswith("python ") for command in commands)
     assert all("cursor-hook-compat.py" in command for command in commands)
-    assert all(".ps1" in command and ".sh" not in command for command in commands)
+    shell = [c for c in commands if not c.endswith('.py"')]
+    assert shell
+    assert all(".ps1" in command and ".sh" not in command for command in shell)
+    # v4.13.7: the Python usage-guard runs under the Windows `python` runner.
+    assert any(c.endswith('/usage-guard.py"') and ' python "' in c for c in commands)
     assert data["hooks"]["sessionStart"][0]["command"].startswith('"')
     assert data["hooks"]["sessionStart"][0]["command"].endswith('nexus_git_attribution.py" context')
 
@@ -137,7 +141,11 @@ def test_cursor_posix_registration_uses_bash(
     assert commands
     assert all(command.startswith("python3 ") for command in commands)
     assert all("cursor-hook-compat.py" in command for command in commands)
-    assert all("bash " in command and ".sh" in command and ".ps1" not in command for command in commands)
+    shell = [c for c in commands if not c.endswith('.py"')]
+    assert shell
+    assert all("bash " in command and ".sh" in command and ".ps1" not in command for command in shell)
+    # v4.13.7: the Python usage-guard runs under `python3`, never through bash.
+    assert any(c.endswith('/usage-guard.py"') and ' python3 "' in c and "bash " not in c for c in commands)
     assert "python" in data["hooks"]["sessionStart"][0]["command"]
     assert "nexus_git_attribution.py" in data["hooks"]["sessionStart"][0]["command"]
 

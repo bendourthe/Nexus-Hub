@@ -1,4 +1,12 @@
-"""Build GitHub Copilot native hook files from the catalog registration."""
+"""Build GitHub Copilot native hook files from the catalog registration.
+
+``usage-guard`` (v4.13.7) is derived from ``settings.json`` with no filter, so it
+lands on ``UserPromptSubmit``, ``PostToolUse`` (no matcher), and ``Stop``, with
+``_usage_probe.py`` beside it. VS Code's ``UserPromptSubmit`` has no context
+field, so the guard answers only ``PostToolUse`` (``additionalContext``) and
+``Stop`` (``decision: block``), and only when the Copilot Usage Monitor's state
+file supplies a percentage.
+"""
 
 from __future__ import annotations
 

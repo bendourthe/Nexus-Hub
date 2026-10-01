@@ -35,6 +35,10 @@ never refreshes a token, so it never writes to a vendor's credential store.
 
 Each live fetch (credential read, Keychain, DNS, connect, reads) runs under a
 3-second wall-clock deadline, inside the guard's 5-second hook budget.
+Fetches are single-flight per provider (an O_EXCL lock file beside the cache):
+a caller that finds a fetch in progress returns the cached or stale value, or
+``unavailable``, instead of fetching too. A failed fetch also backs off in
+process memory, so the backoff holds even when the cache cannot be written.
 
 Switches: ``NEXUS_USAGE_PROBE_DISABLED=1`` turns the probe off;
 ``NEXUS_USAGE_PROBE_PROVIDERS`` (comma-separated subset of
@@ -116,6 +120,7 @@ FIXED_REASONS = frozenset(
         "unexpected response: not JSON",
         "unexpected response: too large",
         "unexpected response: no tracked window",
+        "fetch in progress",
     }
 )
 HTTP_REASON_RE = re.compile(
@@ -852,6 +857,53 @@ def _ttl_for(windows: list[Window]) -> int:
     return TTL_SECONDS
 
 
+# Process-local failure backoff, so a long-lived caller with an unwritable cache
+# directory (where the on-disk backoff cannot be recorded) still waits.
+_LOCAL_FAILURES: dict[str, tuple[float, str]] = {}
+
+FETCH_LOCK_STALE_SECONDS = FETCH_DEADLINE_SECONDS + 7.0
+
+
+def _fetch_lock_path(platform: str) -> Path:
+    return state_dir() / f".{platform}.fetch.lock"
+
+
+def _acquire_fetch_lock(platform: str, now: float) -> str:
+    """Single-flight: ``held`` (we fetch), ``busy`` (another caller is), ``none``.
+
+    ``none`` means no lock could be created at all (an unwritable directory); the
+    caller then fetches without one rather than never fetching.
+    """
+    path = _fetch_lock_path(platform)
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+    except OSError:
+        return "none"
+    for _ in range(2):
+        try:
+            fd = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            os.close(fd)
+            return "held"
+        except FileExistsError:
+            try:
+                if now - path.stat().st_mtime > FETCH_LOCK_STALE_SECONDS:
+                    path.unlink()
+                    continue
+            except OSError:
+                pass
+            return "busy"
+        except OSError:
+            return "none"
+    return "busy"
+
+
+def _release_fetch_lock(platform: str) -> None:
+    try:
+        _fetch_lock_path(platform).unlink()
+    except OSError:
+        pass
+
+
 _FETCHERS: dict[str, Callable[[], list[Window]]] = {
     "claude": _fetch_claude,
     "codex": _fetch_codex,
@@ -915,12 +967,33 @@ def _probe_network(platform: str, now: float) -> ProbeResult:
     if failed_at is not None and 0 <= now - failed_at < FAILURE_BACKOFF_SECONDS:
         reason = _safe_reason(cache.get("reason") if cache else None)
         return _fallback(platform, windows, data_at, age, reason)
+    local = _LOCAL_FAILURES.get(platform)
+    if local is not None and 0 <= now - local[0] < FAILURE_BACKOFF_SECONDS:
+        return _fallback(platform, windows, data_at, age, local[1])
 
+    lock = _acquire_fetch_lock(platform, now)
+    if lock == "busy":
+        return _fallback(platform, windows, data_at, age, "fetch in progress")
+    try:
+        return _fetch_and_store(platform, now, windows, data_at, age)
+    finally:
+        if lock == "held":
+            _release_fetch_lock(platform)
+
+
+def _fetch_and_store(
+    platform: str,
+    now: float,
+    windows: list[Window],
+    data_at: float | None,
+    age: float | None,
+) -> ProbeResult:
     try:
         fresh = _run_with_deadline(_FETCHERS[platform])
         if not fresh:
             raise ProbeError("unexpected response: no tracked window")
     except ProbeError as exc:
+        _LOCAL_FAILURES[platform] = (now, exc.reason)
         _write_cache(
             platform,
             {
@@ -943,6 +1016,7 @@ def _probe_network(platform: str, now: float) -> ProbeResult:
             "windows": [w.to_dict() for w in fresh],
         },
     )
+    _LOCAL_FAILURES.pop(platform, None)
     return ProbeResult(platform, "ok", fresh, cached=False, fetched_at=_iso(now))
 
 
