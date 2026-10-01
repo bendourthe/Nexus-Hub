@@ -1228,3 +1228,48 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 ### Resolved Items
 
 None yet.
+
+## v4.13.9
+
+Gaps from the inline visualization, Codex disk-write, draft review comments, and GPT-6.1 Sol plan ([`v4.13.9-adoption-inline-visualize-codex-disk-writes-review-flow-gpt-6-1-sol`](plans/v4.13.9-adoption-inline-visualize-codex-disk-writes-review-flow-gpt-6-1-sol.md)); the admission record is [`v4.13.9-admission.md`](development/v4.13.9-admission.md).
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 1 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 3 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+#### WN-1 (v4.13.9): The GPT-6.1 Sol announcement could not be read
+
+- **Source phase**: Phase 1. **Plan reference**: `v4.13.9-adoption-inline-visualize-codex-disk-writes-review-flow-gpt-6-1-sol.md`, T403.
+- **Reason**: `openai.com/index/introducing-gpt-6-1-sol/` returned HTTP 403 on 2026-09-30. The announcement's "a fifth of the price" and "Near-Astra" headline is therefore verified only as far as the wording of OpenAI's model catalog. Nothing in the Sol profile may rest on the announcement.
+- **Suggested next step**: re-fetch the announcement from a session that is not blocked. If it is readable, check the profile claims against it and add any primary-source fact through the writer's `write --input` path.
+
+#### WN-2 (v4.13.9): Cursor's primary documentation for `/visualize` was not read
+
+- **Source phase**: Phase 1. **Plan reference**: `v4.13.9-adoption-inline-visualize-codex-disk-writes-review-flow-gpt-6-1-sol.md`, T402 and T403.
+- **Reason**: the comparison relied on a newsletter summary of Cursor's `/visualize`. On 2026-10-01 a `cursor.com` search and a fetch of `https://cursor.com/docs/agent/chat/commands` stated nothing about a built-in `/visualize`, about how a same-named user command takes precedence, or about where commands are stored. Only the discovery locations (`.cursor/commands/`, `~/.cursor/commands/`) were found.
+- **Suggested next step**: when Cursor documents `/visualize` or command-name precedence, re-run T402's decision against that page. Option (b), mirroring everywhere, stands until then.
+
+#### WN-3 (v4.13.9): The Codex fix version is not verified against OpenAI's primary sources
+
+- **Source phase**: Phase 1. **Plan reference**: `v4.13.9-adoption-inline-visualize-codex-disk-writes-review-flow-gpt-6-1-sol.md`, T403 (to be closed or restated by T424).
+- **Reason**: three outlets report Codex 0.142.0 as the release that fixed the reported disk-write behavior, but no OpenAI primary source (release notes, changelog, or repository tag) has confirmed it. The Phase 5 runbook must not present the version as verified.
+- **Suggested next step**: T424 reads the Codex release notes or tag history and either closes this item with the primary citation or restates the version as unverified in the runbook.
+
+#### DF-1 (v4.13.9): The Codex `doctor` advisory was cut from this plan
+
+- **Source phase**: Phase 1. **Plan reference**: `v4.13.9-adoption-inline-visualize-codex-disk-writes-review-flow-gpt-6-1-sol.md`, T403 and the Non-Goals.
+- **Reason**: interview Q2 chose a runbook only. The `doctor` advisory, its `DIAGNOSTIC_ADVISORY` constant, a host-hazard module, and a host-hazard data file are out of scope.
+- **Suggested next step**: reopen only when two primary OpenAI sources confirm the fix version and a second host hazard appears, as the Non-Goals state.
+
+### Resolved Items
+
+None yet.
