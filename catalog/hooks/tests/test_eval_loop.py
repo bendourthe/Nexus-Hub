@@ -874,5 +874,150 @@ class TestReleaseGateAndBlindingContract:
         assert "Locked regression sets and per-slice floors" in text
 
 
+# ── 6. Optimizer selection/reporting split (v4.13.8 Phase 4 / T315-T318) ─────
+
+
+def _balanced_evals(n_per_class: int, prefix: str = "q") -> list[dict]:
+    """A set with n_per_class entries of each should_trigger class, distinct queries."""
+    out = []
+    for i in range(n_per_class):
+        out.append({"id": f"{prefix}-pos-{i}", "query": f"build dashboard number {i}", "should_trigger": True})
+        out.append({"id": f"{prefix}-neg-{i}", "query": f"unrelated chore number {i}", "should_trigger": False})
+    return out
+
+
+def _class_count(entries: list[dict], cls: bool) -> int:
+    return sum(1 for e in entries if bool(e["should_trigger"]) == cls)
+
+
+class TestOptimizerSplit:
+    """T318: three-way split eligibility, integrity, labels, and loop scoring."""
+
+    def test_large_balanced_set_splits_three_ways_with_class_minimum(self, optimizer_module) -> None:
+        split = optimizer_module.resolve_split(_balanced_evals(12))
+        assert split["mode"] == "three-way"
+        assert split["reported_optimistic"] is False
+        parts = (split["train"], split["validation"], split["test"])
+        assert sum(len(p) for p in parts) == 24
+        for part in parts:
+            assert _class_count(part, True) >= 2
+            assert _class_count(part, False) >= 2
+        # train keeps its 0.6 fraction of each class; the remainder splits evenly.
+        # Per class: train round(12 * 0.6) = 7, remainder 5 -> validation 2, test 3.
+        assert (len(split["train"]), len(split["validation"]), len(split["test"])) == (14, 4, 6)
+
+    @pytest.mark.parametrize("size", [2, 6, 12, 23])
+    def test_small_sets_stay_two_way_and_labelled_optimistic(self, optimizer_module, size) -> None:
+        evals = [
+            {"id": f"e{i}", "query": f"query {i}", "should_trigger": i % 2 == 0} for i in range(size)
+        ]
+        split = optimizer_module.resolve_split(evals)
+        assert split["mode"] == "two-way"
+        assert split["validation"] is None
+        assert split["reported_optimistic"] is True
+
+    def test_class_minimum_forces_two_way_on_a_lopsided_large_set(self, optimizer_module) -> None:
+        evals = [{"id": f"p{i}", "query": f"pos {i}", "should_trigger": True} for i in range(27)]
+        evals += [{"id": f"n{i}", "query": f"neg {i}", "should_trigger": False} for i in range(3)]
+        assert optimizer_module.split_three_way(evals) is None
+        assert optimizer_module.resolve_split(evals)["mode"] == "two-way"
+
+    def test_three_way_split_is_deterministic_for_a_seed(self, optimizer_module) -> None:
+        evals = _balanced_evals(15)
+        first = optimizer_module.split_three_way(evals, seed=7)
+        second = optimizer_module.split_three_way(list(evals), seed=7)
+        assert first is not None
+        assert [[e["id"] for e in p] for p in first] == [[e["id"] for e in p] for p in second]
+
+    def test_no_group_spans_two_splits(self, optimizer_module) -> None:
+        evals = []
+        for i in range(10):
+            # Three spellings of one prompt: case, spacing, and punctuation variants.
+            evals.append({"id": f"a{i}", "query": f"Build Dashboard {i}!", "should_trigger": True})
+            evals.append({"id": f"b{i}", "query": f"build   dashboard {i}", "should_trigger": True})
+            evals.append({"id": f"c{i}", "query": f"unrelated chore {i}", "should_trigger": False,
+                          "group": f"chore-{i % 5}"})
+        split = optimizer_module.split_three_way(evals)
+        assert split is not None
+        owner: dict[str, int] = {}
+        for idx, part in enumerate(split):
+            for entry in part:
+                key = optimizer_module.group_key(entry)
+                assert owner.setdefault(key, idx) == idx, f"group {key} spans two splits"
+
+    def test_two_way_dry_run_keeps_old_keys_and_adds_labels(self, optimizer_module) -> None:
+        evals = _balanced_evals(3)
+        train, test = optimizer_module.split_train_test(evals)
+        report = optimizer_module.render_dry_run(
+            skill_path=Path("SKILL.md"), evals_path=Path("evals.json"), train=train, test=test,
+            description="d", cli="claude", max_iterations=1, seed=42,
+        )
+        assert report["selection_metric"] == "test_trigger_rate"
+        assert report["split"] == {"train_ids": [q["id"] for q in train], "test_ids": [q["id"] for q in test]}
+        assert "n_validation" not in report
+        assert report["split_mode"] == "two-way"
+        assert report["selection_split"] == report["reported_split"] == report["split"]["test_ids"]
+        assert report["reported_optimistic"] is True
+
+    def _stub_scorer(self, optimizer_module, monkeypatch, split):
+        """Score by description and by which split a call reads; record every call."""
+        val_ids = {e["id"] for e in split["validation"]}
+        test_ids = {e["id"] for e in split["test"]}
+        calls: list[tuple[str, str]] = []
+
+        def fake_rate(cli, skill_path, description, queries, repeats, model=None):
+            ids = {q["id"] for q in queries}
+            where = "test" if ids <= test_ids else "validation" if ids <= val_ids else "train"
+            calls.append((description, where))
+            # VAL_WINNER is best on validation; TEST_WINNER is best on test.
+            table = {"VAL_WINNER": {"validation": 0.9, "test": 0.1},
+                     "TEST_WINNER": {"validation": 0.2, "test": 1.0}}
+            return table.get(description, {}).get(where, 0.5)
+
+        monkeypatch.setattr(optimizer_module, "estimate_trigger_rate", fake_rate)
+        monkeypatch.setattr(optimizer_module, "generate_candidates",
+                            lambda *a, **k: ["VAL_WINNER", "TEST_WINNER"])
+        return calls
+
+    def test_three_way_selects_on_validation_and_scores_test_once_each(
+        self, optimizer_module, monkeypatch, tmp_path
+    ) -> None:
+        split = optimizer_module.resolve_split(_balanced_evals(12))
+        assert split["mode"] == "three-way"
+        calls = self._stub_scorer(optimizer_module, monkeypatch, split)
+        final = optimizer_module.optimize(
+            cli="claude", skill_path=tmp_path / "SKILL.md", split=split, description="ORIGINAL",
+            repeats=1, model="m", max_iterations=1, optimizer_dir=tmp_path,
+        )
+        assert final is not None
+        assert final["best_description"] == "VAL_WINNER"
+        assert final["selection_metric"] == "validation_trigger_rate"
+        assert final["selection_split"] == final["split"]["validation_ids"]
+        assert final["reported_split"] == final["split"]["test_ids"]
+        assert final["reported_optimistic"] is False
+        test_calls = [c for c in calls if c[1] == "test"]
+        assert sorted(test_calls) == [("ORIGINAL", "test"), ("VAL_WINNER", "test")]
+        assert calls[-2:] == [("VAL_WINNER", "test"), ("ORIGINAL", "test")]
+        assert final["test_trigger_rate"] == 0.1
+        assert final["original_test_trigger_rate"] == 0.5
+        assert json.loads((tmp_path / "final.json").read_text(encoding="utf-8")) == final
+
+    def test_two_way_loop_keeps_old_selection(self, optimizer_module, monkeypatch, tmp_path) -> None:
+        split = optimizer_module.resolve_split(_balanced_evals(4))
+        assert split["mode"] == "two-way"
+        fake_split = dict(split, validation=[])
+        self._stub_scorer(optimizer_module, monkeypatch, fake_split)
+        final = optimizer_module.optimize(
+            cli="claude", skill_path=tmp_path / "SKILL.md", split=split, description="ORIGINAL",
+            repeats=1, model="m", max_iterations=1, optimizer_dir=tmp_path,
+        )
+        assert final is not None
+        assert final["best_description"] == "TEST_WINNER"
+        assert final["selection_metric"] == "test_trigger_rate"
+        assert set(final["split"]) == {"train_ids", "test_ids"}
+        assert "original_test_trigger_rate" not in final
+        assert final["reported_optimistic"] is True
+
+
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-v"]))

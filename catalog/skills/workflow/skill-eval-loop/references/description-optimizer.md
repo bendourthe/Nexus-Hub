@@ -8,15 +8,19 @@ The main loop iterates on the entire skill: description, body, instructions, rat
 
 1. The description is high-leverage: a wrong description hides the entire body. A wrong instructions step hides one step.
 2. The description is short: candidate generation is cheap (3 candidates per iteration cost ~3-5K tokens, vs 20-50K tokens to re-run a full body iteration).
-3. The description is testable on a tiny eval set: trigger / no-trigger is binary, so 8-12 evals cover the trigger surface with reasonable statistical power.
+3. The description is testable on a small eval set because trigger / no-trigger is binary. Small is not the same as precise, though: 8 to 12 evals are enough to catch a description that clearly fails, but a 40% test split of them is 3 to 5 queries, whose score moves in steps of 20 to 33 points. Treat a score from a set that size as a coarse signal, not a measured rate.
 
-## 60/40 train-test split
+## Splits and the `reported_optimistic` label
 
-The optimizer splits the user's `evals.json` 60% train / 40% held-out test. Train is what the candidate-generation prompt SEES; test is reserved for `best_description` selection.
+The optimizer chooses between two split modes with `--split` (default `auto`).
 
-Why? Without a held-out split, the optimizer would pick the description that wins on the prompts the candidate-generation step saw. That description tends to be longer and more verbose - it memorizes the train queries verbatim. Across the held-out test, that same description performs no better than a shorter, more general one because the train-specific phrasing does not transfer.
+**Two-way (the legacy 60/40 split).** Train is what the candidate-generation prompt SEES; the remaining 40% is the test split, which both selects `best_description` and produces the reported `test_trigger_rate`. Selecting on a split never shown to candidate generation still prevents the main failure: a description that memorizes the train queries verbatim and does not transfer. But because the winner is the candidate that scored best on that same split, its score is biased upward: on new queries it will usually do somewhat worse. The output therefore carries `reported_optimistic: true`, and that score must not be described as held-out.
 
-The split is deterministic: the script seeds Python's `random` with a fixed seed (default `42`, configurable via `--seed`) so re-runs produce the same train/test partition. This lets the user re-run the optimizer with hyperparameter changes (more iterations, different `--max-candidates`) without the partition shifting underneath them.
+**Three-way (train / validation / test).** `--split auto` uses it only when the set has 24 or more entries AND every split can hold at least 2 entries of each `should_trigger` class; below that the test split would be too small for its score to mean anything, so the two-way split is kept and labelled. Train takes its `--train-fraction` (default 0.6) of each class, and validation and test divide the rest evenly. Validation selects; the test split is scored exactly once, after the loop, for the final description and for the original, so its score is a real held-out figure and `reported_optimistic` is `false`. Equivalent queries are grouped before assignment so one group never spans two splits: an explicit `group` field wins, otherwise the query text normalized for case, whitespace, and punctuation, or a multi-turn entry's joined turns.
+
+Every catalog eval set today has fewer than 24 entries, so every run is two-way and labelled. `--split two-way` forces the legacy split on a large set.
+
+Both modes are deterministic: the script seeds Python's `random` with a fixed seed (default `42`, configurable via `--seed`) so re-runs produce the same partition. This lets the user re-run the optimizer with hyperparameter changes (more iterations, different `--max-candidates`) without the partition shifting underneath them.
 
 For eval sets smaller than N=8, the optimizer warns and recommends growing the eval set first. At N=5, a 60/40 split yields 3 train + 2 test - too thin for stable selection. The optimizer still runs in that case but flags the result with `low_confidence: true`.
 
@@ -27,22 +31,25 @@ For eval sets smaller than N=8, the optimizer warns and recommends growing the e
 ├── iteration-1.json
 ├── iteration-2.json
 ├── ...
-└── final.json   # symlink or copy of the iteration with the best held-out test score
+└── final.json   # copy of the last iteration; in three-way mode it also carries the one-time test scores
 ```
 
 Each `iteration-N.json` (schema at `references/schemas.md`) contains:
 
-- `split` - the train/test partition
-- `baseline` - the description being iterated FROM, plus its train and test trigger rates
-- `candidates` - the 3 candidate rewrites generated this iteration, each with train and test trigger rates
-- `best_description` - the candidate (or the baseline, if no candidate beat it) selected by held-out test score
-- `selection_metric` - always `test_trigger_rate`; surfaced as a field so the schema is self-describing
+- `split` - the partition: `train_ids` and `test_ids`, plus `validation_ids` in three-way mode
+- `baseline` - the description being iterated FROM, plus its train score and its selection-split score
+- `candidates` - the 3 candidate rewrites generated this iteration, each with the same two scores
+- `best_description` - the candidate (or the baseline, if no candidate beat it) with the best selection-split score
+- `selection_metric` - `test_trigger_rate` in two-way mode, `validation_trigger_rate` in three-way mode
+- `split_mode`, `selection_split`, `reported_split`, `reported_optimistic` - which mode ran, which entry ids chose the winner, which produced the reported score, and whether that score is biased upward
 
 Across iterations, the baseline of iteration `N+1` is the `best_description` from iteration `N`. The optimizer terminates when:
 
 - `--max-iterations` is reached (default 5), OR
-- two consecutive iterations show no improvement in held-out test score (early-stop), OR
-- `test_trigger_rate` reaches 1.0 (perfect score on held-out test - more iterations can only overfit).
+- two consecutive iterations show no improvement in the selection-split score (early-stop), OR
+- the selection-split score reaches 1.0 (more iterations can only overfit).
+
+In three-way mode the iterations never read the test split. After the loop, `final.json` gains `test_trigger_rate` (the final description) and `original_test_trigger_rate` (the description the run started from), each scored once.
 
 ## Candidate generation prompt
 
@@ -75,25 +82,25 @@ Rules:
 Output:
 ```
 
-The 3 candidates are then evaluated on train AND test. The CLI's response is parsed with `json.loads`; if parsing fails, the optimizer logs the raw response under `<workspace>/optimizer/iteration-N-raw.txt` and falls back to a single-candidate iteration (the original description) so the loop does not crash.
+The 3 candidates are then evaluated on train and on the selection split. The CLI's response is parsed with `json.loads`; if parsing fails, the optimizer logs the raw response under `<workspace>/optimizer/iteration-N-raw.txt` and falls back to a single-candidate iteration (the original description) so the loop does not crash.
 
-## Held-out test selection
+## Selection rule
 
-The selection rule is:
+The selection rule, where `metric` is the run's `selection_metric`:
 
 ```python
-def select_best(baseline: dict, candidates: list[dict]) -> dict:
+def select_best(baseline: dict, candidates: list[dict], metric: str) -> dict:
     pool = [baseline, *candidates]
-    return max(pool, key=lambda c: c["test_trigger_rate"])
+    return max(pool, key=lambda c: c[metric])
 ```
 
-Ties on `test_trigger_rate` are broken by `train_trigger_rate` (the more general description wins among equally-effective candidates on test). Ties on both are broken by description length (shorter wins - shorter descriptions cost fewer always-loaded Tier 1 tokens per the AGENTS.md three-tier loading model).
+Ties on the selection score are broken by `train_trigger_rate` (the more general description wins among equally-effective candidates). Ties on both are broken by description length (shorter wins - shorter descriptions cost fewer always-loaded Tier 1 tokens per the AGENTS.md three-tier loading model).
 
 This selection rule is what prevents the train-overfitting failure mode. Without it, the optimizer's `best_description` would drift toward a 300-word run-on sentence that memorizes the train phrasing.
 
 ## `--dry-run` mode
 
-`scripts/optimize_skill_description.py --dry-run` does not call the CLI. Instead it prints what it would evaluate (the train/test split, the baseline description, the candidate-generation prompt template) and exits 0. The pytest test at `catalog/hooks/tests/test_eval_loop.py::TestOptimizerDryRun` runs this mode against a fixture eval set and asserts the train/test split is correct and the output JSON has the right shape.
+`scripts/optimize_skill_description.py --dry-run` does not call the CLI. Instead it prints what it would evaluate (the split mode and partition, the baseline description, the candidate-generation prompt template) and exits 0. The pytest test at `catalog/hooks/tests/test_eval_loop.py::TestOptimizerDryRun` runs this mode against a fixture eval set and asserts the train/test split is correct and the output JSON has the right shape.
 
 ## CLI parity
 

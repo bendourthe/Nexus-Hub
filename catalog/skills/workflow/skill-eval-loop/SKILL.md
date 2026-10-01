@@ -204,11 +204,15 @@ Document the changes in a one-line `iteration-N/decisions.md` so iteration `N+2`
 
 Spawn iteration `N+1` (steps 3-8 again). The loop terminates when:
 
-- **Pass-rate stabilizes** for two consecutive iterations on the held-out portion of the eval set (the optimizer's 40% test split, or a manually-marked subset).
+- **Pass-rate stabilizes** for two consecutive iterations on the selection portion of the eval set: the optimizer's validation split in three-way mode, its test split in two-way mode (a selection score, so it is optimistic), or a manually-marked subset.
 - **OR** the user explicitly accepts the current state (the "good enough" call).
 - **OR** pass-rate regresses for two consecutive iterations - in that case roll back to the last winning iteration and adjust the eval set itself (the prompts may have drifted off-target).
 
 Do NOT run more than 5 iterations without a measurable pass-rate trajectory. If pass-rate is flat across 3 iterations, the bottleneck is the assertions or the eval set, not the skill - go fix those first.
+
+**Saturation check.** When every prompt passes in every arm for two consecutive iterations, the eval set no longer discriminates between versions: a better skill and a worse one score the same. Add harder cases before reading any further result as progress.
+
+**Starter set.** Seed the first eval prompts from real failures, known gaps, or bug reports rather than invented examples, and start with at least 2 to 3. A starter set says whether the skill handles the cases that prompted it; it is too small to measure a trigger rate.
 
 ## Persistence discipline (crash-safe long runs)
 
@@ -246,12 +250,14 @@ This strengthens the benchmark flow above (steps 6-8): the aggregated `benchmark
 
 The description-optimizer is a specialized form of the loop that targets only the skill's `description` frontmatter field. Run `scripts/optimize_skill_description.py --skill <path> --evals <evals.json> --cli <name>`. The optimizer:
 
-1. Splits the eval set 60% train / 40% held-out test.
+1. Splits the eval set. With `--split auto` (the default) and 24 or more entries holding at least 2 of each `should_trigger` class in every split, it splits three ways (train / validation / test), keeping equivalent queries in one split. Otherwise it keeps the 60% train / 40% test split.
 2. Evaluates the current description on each train query 3 times (for stable trigger rate).
 3. Asks the chosen CLI to PROPOSE 3 candidate description rewrites based on which train queries failed.
-4. Evaluates each candidate on train AND held-out test.
+4. Evaluates each candidate on train and on the selection split (validation in three-way mode, test in two-way mode).
 5. Iterates up to `--max-iterations` (default 5).
-6. Emits a JSON result with `best_description` selected by **held-out test score** (not train) - this is what prevents overfitting to the prompts the agent saw during candidate generation.
+6. Emits a JSON result with `best_description` selected by the selection-split score (never train), which prevents overfitting to the prompts the agent saw during candidate generation.
+
+**Read the label before quoting the score.** In two-way mode the split that picks the winner is the split whose score is reported, so `test_trigger_rate` overstates how the description will do on new queries; the output says so with `reported_optimistic: true`. Only three-way mode reports a held-out score: it scores the untouched test split once, for the final description and for the original, in `final.json`. Every catalog eval set today is smaller than 24 entries, so every run is two-way and labelled.
 
 Full schema and worked example at `references/description-optimizer.md`. The optimizer reuses the same CLI dispatcher as the main loop (no cross-CLI fallback; parity-test enforced).
 
@@ -337,12 +343,13 @@ Every gate in this file continues to apply inside that chain: the user approves,
 | "I can just eyeball the skill output - no need for paired runs" | Eyeballing N=1 is how you ship a skill that wins on the prompt you authored against and fails on every prompt that drifts an inch. Paired runs against an explicit baseline measure the skill's MARGINAL value, not its absolute value. |
 | "Two prompts is enough - I'll get to N=10 later" | If "later" is a separate session, the prompts authored later will be biased by the failures you saw in iteration 1. Three deliberate prompts (1 positive, 1 negative, 1 ambiguous) authored ONCE survive the iteration loop; prompts authored after iteration 3 leak the iteration-3 outputs into the eval set and become a vibes-confirmation. |
 | "Tokens and duration don't matter for a skill - it's just guidance" | Skills that 3x token consumption for a 5% pass-rate gain ship and then quietly degrade everyone's session economics. The aggregator surfaces the trade-off so the user makes an informed call instead of an unmeasured one. |
-| "Held-out test split is overkill for a 10-prompt eval set" | The optimizer specifically uses held-out test for `best_description` selection because train-only optimization will pick a description that is verbose enough to memorize the train queries verbatim and lose generalizability. Even at N=10, a 60/40 split prevents that overfitting failure mode. |
+| "A separate selection split is overkill for a 10-prompt eval set" | The optimizer selects `best_description` on a split that candidate generation never saw, because train-only optimization picks a description verbose enough to memorize the train queries verbatim and lose generalizability. Even at N=10, the 60/40 split prevents that overfitting. What it cannot do at that size is also give an unbiased score, which is why the result is labelled `reported_optimistic: true`. |
+| "The optimizer reported 0.9, so the description triggers 90% of the time" | In two-way mode that 0.9 is the score of the split that chose the winner, so it is biased upward. Quote it with its `reported_optimistic` label, or grow the set to 24+ entries so a three-way run can report an untouched test score. |
 | "I'll grade the outputs myself - I don't need a grader sub-agent" | Manual grading drifts across an iteration loop: the grader (the user, mid-iteration) starts seeing what they want to see. The grader sub-agent reads the assertion text and the output cold, every time, and writes structured `evidence` per assertion. The user then reviews the grader's calls in the viewer - that is two passes, not one. |
 | "I'll run with-skill and look at it, then later run baseline if needed" | "Later" never happens. The iteration directory is structured to hold both runs from the start because the marginal-value question is the only one that matters for skill iteration. A with-skill-only run is a demo, not an eval. |
 | "The planted finding is the answer key, so extra findings should lose points" | Penalizing incidental valid findings teaches the executor to suppress discoveries that were not in the seed manifest. Score the planted discipline on its own axis and retain extra valid results as observations. |
 | "The four-CLI parity test is bureaucracy" | The test exists because the v1.1.3 four-hook precedent was reverse-engineered from a real bug (a hook fell through to a different CLI when its primary was missing, silently doing the wrong thing). The parity test is a regression guard for that bug class - it costs ~50 lines of pytest and prevents a class of failure that is invisible in production. |
-| "I'll run iterations until I feel good about the skill" | The stop condition is data-driven: pass-rate stable across two consecutive iterations on held-out test. "Feel good" is what produced the original draft you are now iterating on. |
+| "I'll run iterations until I feel good about the skill" | The stop condition is data-driven: pass-rate stable across two consecutive iterations on the selection split. "Feel good" is what produced the original draft you are now iterating on. |
 | "The aggregate still passes, so one weak slice is noise" | A slice floor exists so a release cannot hide a collapsed fixture behind a healthy mean. Fail the gate; do not average the miss away. |
 | "I'll lower the threshold in the same PR so CI goes green" | Lowering a floor to hide a regression is the regression. It needs its own change with a historical comparison. |
 | "The weighted average is high, so one dangerous answer is acceptable" | A blocker is a hard veto. Averaging it into a score lets safe cases conceal a dangerous or contract-violating output. |
@@ -364,7 +371,7 @@ Binary checklist - each item must describe an observable artifact or state.
 - [ ] `<workspace>/iteration-N/benchmark.json` and `benchmark.md` exist and parse cleanly.
 - [ ] The viewer can be launched in either server mode (`scripts/skill_eval_viewer.py <iter>`) or static mode (`--static <path>`), and the static-mode HTML opens without errors in a browser.
 - [ ] `<workspace>/iteration-N/feedback.json` exists after a viewer review pass.
-- [ ] If the optimizer was run, `<workspace>/optimizer/iteration-N.json` exists with a `best_description` field selected by held-out test score (NOT train score).
+- [ ] If the optimizer was run, `<workspace>/optimizer/iteration-N.json` exists with a `best_description` field selected by the `selection_metric` it names (NOT train score), and any reported score is quoted with its `reported_optimistic` value.
 - [ ] For a multi-iteration run, an append-only `<workspace>/run-log.jsonl` exists and every completed experiment has a crash-recovery marker with `status: done`; a simulated resume recomputes no already-`done` experiment.
 - [ ] Every adversarial axis records a tempting shortcut, disciplined pass condition, and objective artifact comparison; no verdict depends on the executor's prose claim.
 - [ ] Deterministic adversarial axes run without a model on every relevant change, while live-model results report the exact seed count and do not label one seed a benchmark.
@@ -385,7 +392,7 @@ Binary checklist - each item must describe an observable artifact or state.
 - `references/schemas.md` - JSON schemas for `evals.json`, `run_metadata.json`, `grading.json`, `benchmark.json`, `feedback.json`, and the optimizer result schema.
 - `references/improvement-heuristics.md` - the five improvement heuristics applied at step 9 (pushy descriptions, explain-the-why, repeated-work elimination, negative-space coverage, assertion calibration), each with a worked example.
 - `references/cli-adapter.md` - the option-A vs option-B design rationale, the per-CLI invocation patterns for `claude` / `gemini` / `codex` / `opencode`, and the parity-test specification.
-- `references/description-optimizer.md` - the 60/40 train-test split rationale, the candidate-generation prompt template, and the held-out-test selection rule for `best_description`.
+- `references/description-optimizer.md` - the two-way and three-way split rules, the `reported_optimistic` label, the candidate-generation prompt template, and the selection rule for `best_description`.
 - `references/trigger-testing.md` - the three trigger-testing techniques (premature-action detection, multi-turn conversation triggering, cheap-model fragility), what each catches, how to author an eval that exercises it, and how to read the new output fields.
 - `references/headroom-estimation.md` - the perfect-information oracle procedure for estimating a proposed gate's ceiling before implementation.
 
