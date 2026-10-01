@@ -17,6 +17,7 @@
     Runtime controls (checked on EVERY invocation):
       Disable by name:          $env:NEXUS_DISABLED_HOOKS = "approval-capture"
       Skip non-essential hooks: $env:NEXUS_HOOK_PROFILE = "minimal"
+      Runner-launched session:  NEXUS_RUNNER_LAUNCH=1 (set by run_plan.py) skips capture
 #>
 
 $ErrorActionPreference = "Continue"
@@ -25,6 +26,15 @@ $hookName = "approval-capture"
 $disabled = ($env:NEXUS_DISABLED_HOOKS -split ",") | ForEach-Object { $_.Trim() }
 if ($disabled -contains $hookName) { exit 0 }
 if ($env:NEXUS_HOOK_PROFILE -eq "minimal") { exit 0 }
+# A session that `nexus-hub run-plan` launched has no user typing: its prompts
+# are the runner's, so they are never captured as approvals (v4.13.2 WN-9).
+if ($env:NEXUS_RUNNER_LAUNCH -eq "1") {
+    # Drain the payload as the .sh sibling does, so a large prompt never breaks the parent's pipe.
+    if ([Console]::IsInputRedirected) {
+        try { [Console]::OpenStandardInput().CopyTo([System.IO.Stream]::Null) } catch { }
+    }
+    exit 0
+}
 
 $homeDir = if ($env:USERPROFILE) { $env:USERPROFILE } else { $env:HOME }
 $core = Join-Path $homeDir ".nexus-hub\scripts\completion_gate.py"

@@ -33,13 +33,18 @@ counter_file = os.environ["STUB_COUNTER"]
 count = int(open(counter_file).read()) if os.path.exists(counter_file) else 0
 with open(os.environ["STUB_LOG"], "a", encoding="utf-8") as h:
     h.write(json.dumps(["checker", *sys.argv[1:]]) + "\n")
+    h.write(json.dumps(["checker-env", os.environ.get("NEXUS_RUNNER_LAUNCH", "")]) + "\n")
 args = sys.argv[1:]
 if args[:2] == ["record", "path"]:
     print(state.get("record") or "/nonexistent")
     sys.exit(0 if state.get("record") else 1)
 if args[:2] == ["record", "block"]:
-    sys.exit(3)
+    if state.get("block_fails"):
+        print("BLOCKED: record-tampered"); sys.exit(3)
+    print("BLOCKED: " + args[args.index("--category") + 1]); sys.exit(3)
 if args[0] == "check":
+    if count >= state.get("blocked_at", 99):
+        print("BLOCKED: goal-blocked"); sys.exit(3)
     if state.get("terminal"):
         print(state["terminal"][0]); sys.exit(state["terminal"][1])
     if count >= state.get("complete_at", 99):
@@ -53,6 +58,7 @@ STUB_CLI = r'''
 import json, os, sys
 with open(os.environ["STUB_LOG"], "a", encoding="utf-8") as h:
     h.write(json.dumps(["cli", os.path.basename(sys.argv[0]), *sys.argv[1:]]) + "\n")
+    h.write(json.dumps(["cli-env", os.environ.get("NEXUS_RUNNER_LAUNCH", "")]) + "\n")
 counter_file = os.environ["STUB_COUNTER"]
 count = int(open(counter_file).read()) if os.path.exists(counter_file) else 0
 open(counter_file, "w").write(str(count + 1))
@@ -125,6 +131,19 @@ def test_resumes_with_the_documented_flag_until_complete(env: Env) -> None:
     assert clis[1][4] == f"Continue /implement {PLAN_REL}. The completion checker still reports it incomplete."
 
 
+def test_every_launched_session_is_marked_runner_launched(env: Env) -> None:
+    """WN-9: prompts in a runner-launched session are never the user's approval."""
+    result = env.run(PLAN_REL, "--platform", "codex")
+    assert result.returncode == 0, result.stderr
+    marks = env.calls("cli-env")
+    assert len(marks) == len(env.calls("cli")) >= 2
+    assert all(mark == ["1"] for mark in marks)
+    # The runner's own checker calls are not marked; only the launched sessions are.
+    checker_marks = env.calls("checker-env")
+    assert len(checker_marks) == len(env.calls("checker")) >= 1
+    assert all(mark == [""] for mark in checker_marks)
+
+
 def test_no_progress_writes_a_blocker_and_stops(env: Env) -> None:
     env.state.update(progress=False, complete_at=99)
     result = env.run(PLAN_REL, "--platform", "codex")
@@ -149,11 +168,16 @@ def test_terminal_verdict_before_the_first_cycle_launches_nothing(
     assert env.calls("cli") == []
 
 
-def test_first_cycle_sets_a_headless_goal_naming_the_nonce(env: Env) -> None:
+def test_first_cycle_sets_the_approval_page_goal_line_headlessly(env: Env) -> None:
+    """v4.13.6 Phase 6: the runner sends the page's goal line, with no code or nonce."""
+    import approval_page
+
     env.run(PLAN_REL, "--platform", "claude")
     first = env.calls("cli")[0]
     assert first[1] == "-p"
-    assert first[2].startswith("/goal ") and "n0nce" in first[2] and "PLAN COMPLETE" in first[2]
+    assert first[2] == approval_page.goal_line("v0.2.0")
+    assert "n0nce" not in first[2] and "approval" not in first[2]
+    assert first[3:] == ["--continue", "--output-format", "stream-json", "--verbose"]
 
 
 def test_openclaw_addresses_one_session_by_nonce(env: Env) -> None:

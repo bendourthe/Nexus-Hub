@@ -111,7 +111,7 @@ This ordering is the release-side half of the plan lifecycle. The plan's final p
 
 A full `/implement` run collects its release approval once, in the upfront round, and freezes it in a run record (`~/.nexus-hub/runs/`, rules in `implement-phase/references/completion-contract.md`). This command is the only place that approval is consumed, and it is consumed action by action, never as a blanket yes:
 
-1. **Find the record.** `python ~/.nexus-hub/scripts/check_plan_completion.py record path <plan>` prints the record for the plan being released. Use it only when its `session_id` is this session's and the checker does not report `BLOCKED: record-tampered`. A standalone `/update release` with no bound record ignores run records entirely and keeps every gate.
+1. **Find the record.** `python ~/.nexus-hub/scripts/check_plan_completion.py record path <plan>` prints the record for the plan being released. Use it only when its `session_id` is this session's and the checker does not report `BLOCKED: record-tampered`. A standalone `/update release` with no bound record ignores run records entirely and keeps every gate. In a minor-scope run (`/implement vX.Y`) the record is the minor's: `record path --minor vX.Y`, and each member's release consumes that member's own `release` class, bound to its version.
 2. **Compare each action to what the record froze, immediately before acting**: the repository, the release version and tag, and the values the matching approval class names (for example the release pull requests and their target branches, or the back-merge). A match skips that one confirmation; any difference, however small, re-asks. A value the record does not name (a head SHA at merge, the commit a tag points at, a release title, the notes) is confirmed as it would be without a record. The computed next version is compared too: a record approving `v0.2.0` never covers `v0.2.1`.
 3. **Log the approval used.** Each skipped confirmation prints one line naming the action and the approval class it consumed (`release`, `release-notes`, `push-merge`), so the release transcript shows what ran on a recorded approval and what was asked.
 4. **Never widen it.** Pipeline, permission, and secret changes are never covered, and the pre-tag branch assertion, the integration gate, and the artifact round-trip still run and still stop the release on failure. The record replaces the question, not the check.
@@ -130,11 +130,17 @@ Merging the release straight to `main` is the failure this ordering prevents. It
 
 ### 2. Clear what the release consumed, BEFORE tagging
 
-Once the release is on `develop` and its checks are green, retire the branches and worktrees it just integrated. Each check is fail-closed and stops the release rather than forcing past it:
+Once the release is on `develop` and its checks are green, retire the branches and worktrees it just integrated, and every other one that is verifiably merged and idle, with the cleanup executor. Do not delete branches or worktrees by hand here:
 
-1. **Every merged plan branch** is deleted locally and on the remote. Verify with `git branch --merged <integration-branch>`; a branch absent from that list is NOT deleted, and its presence is reported instead. Before any REMOTE deletion, confirm the remote tip equals the merged pull request's `headRefOid` (`gh pr view <branch> --repo <owner/repo> --json headRefOid`), so a commit pushed after the merge is never deleted with the branch; refuse `main`, `develop`, the repository's default branch, and any protected branch outright. A squash-merged branch that `git branch -d` refuses is recorded and left in place, never force-deleted with `-D`.
-2. **Every worktree whose branch merged** is removed via `[[using-git-worktrees]]`, its directory deleted, and `git worktree prune` run. Before removal, `git -C <worktree> status --porcelain` MUST be empty; a dirty tree stops the teardown and is reported, never `--force`d away.
-3. **`git worktree list`** is re-read afterwards and must no longer show the removed paths.
+1. **Dry run first**, and quote its output:
+
+    ```bash
+    python ~/.nexus-hub/scripts/cleanup_merged.py --dry-run --integration-branch develop
+    ```
+
+    Each line is `REMOVE <item>` or `KEEP <item> <check>`. The checks, and why each exists, are in `docs/decisions/proposed/policy/2026-09-28-verified-merged-and-idle-cleanup.md`. The dry run makes network calls (`git ls-remote` and the user's own authenticated `gh`); offline, every item is kept. A branch merged without a pull request is never a candidate, so it stays and is removed by hand if wanted.
+2. **Apply only under an approval.** Under a run record that carries `cleanup-merged`, run `python ~/.nexus-hub/scripts/cleanup_merged.py --apply --receipt --plan <plan> --session <id>` (or `--minor vX.Y`), which also writes the final-pass receipt the completion contract reads. With no record, show the dry-run output and ask for an explicit confirmation before running `--apply`; a reply that does not confirm removes nothing. Quote the apply output. A `KEEP` line is never overridden by hand: the item stays and is reported, and `-D`, `--force`, and `worktree remove --force` are never used.
+3. **Exit 3** (`BLOCKED: cleanup-running` or `BLOCKED: approval-not-covered`) stops the release cleanup and is reported; exit 1 means at least one `KEEP <item> removal-failed <reason>` line, which is reported with its partial state while the release continues.
 
 Ordering matters here too. Cleaning before the tag means the tagged tree reflects the repository a user will actually clone, and it means stale worktrees never accumulate across releases. Ten shipped releases that each skip this leave ten orphaned checkouts, each pinning objects and each indistinguishable from the real repository at a glance.
 
@@ -142,7 +148,7 @@ Ordering matters here too. Cleaning before the tag means the tagged tree reflect
 
 `main` receives the already-integrated, already-cleaned result. The pre-tag branch assertion below is the last check before `git tag`.
 
-Self-gates: a repository with a single long-lived branch skips step 1 and merges nothing, and a release that consumed no worktree-backed plan skips step 2. Both are silent no-ops, not warnings.
+Self-gates: a repository with a single long-lived branch merges nothing, and a dry run with no `REMOVE` line applies nothing. Both are silent no-ops, not warnings.
 
 ## release scope: pre-tag branch assertion (the LAST check before `git tag`)
 
@@ -167,6 +173,16 @@ git checkout develop && git merge --no-ff main && git push
 ```
 
 A PR-based release leaves a merge commit on `main` that `develop` does not have. Under `strict` branch protection ("require branches to be up to date"), that missing commit blocks the NEXT release PR until someone back-merges by hand, which is a self-inflicted delay discovered at the worst moment. Keep the existing confirmation gate: this pushes to a protected branch.
+
+## release scope: the minor close (after a minor-scope run's last release)
+
+When the release just published is the last member of a minor-scope run, the run is not over until the minor closes. After this release's back-merge is on `origin/develop`, run the "Minor close" procedure in `implement-phase/references/implement-phase-runbook.md` ("Minor driver") under the minor record's approvals, never by hand: cut `chore/close-vX.Y` from the post-release `origin/develop`, migrate the frozen unfixable gaps, archive the minor when `archive-minor` is recorded (step 2a2 below), run the local fast gate, push once, open one pull request to develop, wait for its required checks, merge it under `minor-close-pr`, back-merge `main` into `develop` when needed, and then run the final `cleanup_merged.py --apply --receipt --minor vX.Y --session <id>` pass. Each step's output goes into `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/development/vX.Y-minor-close-evidence.md`, which moves with the archive. A red required check on the closing pull request is reproduced locally and fixed narrowly within the recorded repush bound, and a develop that moved is merged into the closing branch, never rebased. There is always a closing pull request, because it carries the archive every minor needs; when nothing migrates, it carries only the archive.
+
+The run is complete only when `python ~/.nexus-hub/scripts/check_plan_completion.py check-minor vX.Y` prints `MINOR COMPLETE vX.Y <head> <nonce>`; what that line requires is owned by the completion contract ("Minor verdict").
+
+## release scope: run goal
+
+The run ends on the completion checker's tool result: `PLAN COMPLETE` for a plan run and `MINOR COMPLETE` for a minor run, as `check_plan_completion.py check <plan>` or `check_plan_completion.py check-minor vX.Y` prints it. A published release is one step toward that line, never the goal itself. What each verdict requires is owned by the completion contract (`implement-phase/references/completion-contract.md`). The native goal should already be set by the user's approval paste. If it is missing in an interactive session, ask the user to paste the printed goal line again, because an agent cannot set it. `nexus-hub run-plan` is the only fully automatic path.
 
 ## release scope: branch hygiene and repository settings (advisory, before the commit)
 
@@ -242,7 +258,16 @@ Before stopping for any governance confirmation below, follow the active instruc
 2a. **Generated-doc regenerate-and-fail-on-stale**: use the handbook refresh owner and its source/output map for every live output, including topic folders and native generators. Fail the release when generated output is missing or stale, or required content/rendered evidence is absent. Run this as the first content step after green integration prerequisites and before version mutation; governance numbering does not move it after a version bump. For Nexus-Hub, `python scripts/check_release_preconditions.py --pre-version` is the read-only evidence gate. Unchanged verified dependencies reuse final-phase output; missing trees or build sources are never a no-op. After version-dependent mutation, rebuild only affected documents and recheck final-byte evidence before release qualification. A known-gap note cannot waive a failed required handbook.
 2a2. **Closed-minor archival report**: list every minor under `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/` that is fully closed - its `known-gaps.md` explicitly states a finalized or closed Status and `**Open items**: 0`, has no contradictory `OPEN` marker, in-progress or open status, unchecked box, or `NI-`/`DF-`/`BG-`/`WN-`/`MT-`/`QG-` id under Open Items, and none of its plans carries an unchecked task line - yet still holds `plans/` or `comparisons/` in the active tree. Those two subtrees move to `docs/archives/`; `known-gaps.md` stays active so the next `/plan` reads it without a directory hop. For Nexus-Hub, `python scripts/check_docs_retention.py` produces this list; it is repo-internal tooling and is not installed, so in any other repository apply the same closure test by reading the files. A minor with no `known-gaps.md` has no closure proof and is not reported as closed. Self-gates to a silent no-op in a repository with no `docs/releases/` tree. The move itself belongs to `[[docs-layout-refactor]]`.
 
-    **Report here; move under `[[docs-layout-refactor]]` with confirmation.** Relocating a directory tree and repairing its references is not something a release flow performs unattended, so this step surfaces the list and stops. The detector is deliberately conservative: an unparseable or ambiguous register and a minor with no register at all both read as OPEN, because a false "closed" archives live work while a false "open" costs one advisory line. Those two errors are not symmetric, which is why the check leans to the cheap one.
+    **Under a minor record's `archive-minor` approval, archive; otherwise report and ask.** When the release closes a minor-scope run (`/implement vX.Y`) and that minor's run record carries `archive-minor`, run the "Archive a closed minor" procedure of `[[docs-layout-refactor]]` for that minor on the closing branch, dry run first, and quote both outputs:
+
+    ```bash
+    python ~/.nexus-hub/scripts/minor_close.py archive --minor vX.Y --dry-run
+    python ~/.nexus-hub/scripts/minor_close.py archive --minor vX.Y --apply
+    ```
+
+    Expected: `ARCHIVED vX.Y <tree> -> docs/archives/vM/vM.m commit=<sha> ... newly_broken=0`. Any `REFUSED:` line (an open gap, an unreleased or unlisted plan, a live worktree, an unmerged branch touching the tree, a newly broken link, a locked directory) leaves the tree unmoved: report it, fix its cause, and never move the tree by hand. The procedure's closure test counts a verified migration as closed; which migrations verify is owned by the completion contract ("Minor gaps and archive"). Every other minor on the list keeps the rule below.
+
+    **Report here; move under `[[docs-layout-refactor]]` with confirmation.** Relocating a directory tree and repairing its references is not something a release flow performs unattended without that recorded approval, so for any other minor this step surfaces the list and stops. The detector is deliberately conservative: an unparseable or ambiguous register and a minor with no register at all both read as OPEN, because a false "closed" archives live work while a false "open" costs one advisory line. Those two errors are not symmetric, which is why the check leans to the cheap one.
 
 2b. **Living-reference snapshot**: snapshot living reference sources, including the source/output map, build inputs and verified outputs from `docs/handbooks/`, into `docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/` at release close, with handbooks under `docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/handbooks/`. Name every snapshot for the version its content describes, not the release that merely prompted the copy. Require last-phase evidence (`<version_dir>/development/<version>-last-phase-evidence.md`) when a plan is in flight.
 3. **CI/CD create/update/optimize**: ensure the pipeline covers every change in the release and is optimized to reduce action minutes (path filters, concurrency cancel-in-progress, caching, gating expensive-OS/matrix jobs) while keeping comprehensive testing.

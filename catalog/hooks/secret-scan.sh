@@ -28,6 +28,43 @@ COLOR_RESET='\033[0m'
 INPUT=$(cat)
 
 # --- Extract content ---
+# jq is preferred. A host without it must not lose the scan: this hook blocks,
+# so a silent allow is indistinguishable from a clean pass. Python 3 is the
+# fallback (every supported platform already requires it). With neither, the
+# hook fails CLOSED, because it cannot tell a clean write from a leaking one.
+# A malformed payload is allowed when a parser ran, as in the .ps1 sibling; with no
+# parser the hook cannot tell, so it blocks. A Python 2 interpreter does not count.
+_find_python() {
+  local candidate
+  for candidate in python3 python; do
+    if command -v "$candidate" >/dev/null 2>&1 \
+      && "$candidate" -c 'import json, sys; sys.exit(sys.version_info[0] < 3)' >/dev/null 2>&1; then
+      printf '%s' "$candidate"
+      return 0
+    fi
+  done
+  return 1
+}
+
+# Print one tool_input field (first non-empty of the given keys) as UTF-8.
+# Exits 0 with no output on a malformed payload; exits 3 only on an internal
+# failure, which the caller treats as "cannot scan".
+_py_field() {
+  printf '%s' "$INPUT" | "$PY" -c 'import json, sys
+try:
+    data = json.loads(sys.stdin.buffer.read().decode("utf-8"))
+    tool_input = data.get("tool_input") or {}
+    if not isinstance(tool_input, dict):
+        tool_input = {}
+except Exception:
+    sys.exit(0)
+for key in sys.argv[1:]:
+    value = tool_input.get(key)
+    if value:
+        sys.stdout.buffer.write(str(value).encode("utf-8"))
+        break' "$@"
+}
+
 if command -v jq >/dev/null 2>&1; then
   if ! FILE_PATH=$(printf '%s' "$INPUT" | jq -r '.tool_input.file_path // .tool_input.path // empty' 2>/dev/null); then
     exit 0
@@ -35,9 +72,15 @@ if command -v jq >/dev/null 2>&1; then
   if ! CONTENT=$(printf '%s' "$INPUT" | jq -r '.tool_input.content // .tool_input.new_string // empty' 2>/dev/null); then
     exit 0
   fi
+elif PY=$(_find_python); then
+  if ! FILE_PATH=$(_py_field file_path path) || ! CONTENT=$(_py_field content new_string); then
+    echo "[secret-scan] BLOCKED: the payload could not be parsed, so the write was not scanned." >&2
+    exit 2
+  fi
 else
-  # Without jq we cannot reliably extract content; allow the write
-  exit 0
+  echo "[secret-scan] BLOCKED: neither jq nor Python 3 is available, so the write cannot be scanned." >&2
+  echo "Install jq or Python 3 so the scan can run." >&2
+  exit 2
 fi
 
 # If no content to scan, allow
@@ -70,17 +113,20 @@ for entry in "${SECRET_PATTERNS[@]}"; do
   PATTERN="${entry%%:::*}"
   DESC="${entry##*:::}"
 
-  if echo "$CONTENT" | grep -qE "$PATTERN" 2>/dev/null; then
+  # -e: the private-key patterns start with "-----" and would otherwise parse as options.
+  # A here-string, not a pipe: under pipefail, `grep -q` exiting on an early match
+  # would SIGPIPE the writer and turn a real match into "no match" on a large write.
+  if grep -qE -e "$PATTERN" <<<"$CONTENT" 2>/dev/null; then
     FOUND_SECRETS+=("$DESC")
   fi
 done
 
 # --- Check for password/secret assignments in config-like files ---
 # Match: password = "value", secret: 'value', TOKEN="value" (8+ char values)
-if echo "$CONTENT" | grep -qiE "(password|secret|token|api_key|apikey|auth_token|access_token)[[:space:]]*[:=][[:space:]]*[\"'][^\"']{8,}" 2>/dev/null; then
-  MATCH_LINE=$(echo "$CONTENT" | grep -iE "(password|secret|token|api_key|apikey|auth_token|access_token)[[:space:]]*[:=][[:space:]]*[\"'][^\"']{8,}" 2>/dev/null | head -1)
+if grep -qiE "(password|secret|token|api_key|apikey|auth_token|access_token)[[:space:]]*[:=][[:space:]]*[\"'][^\"']{8,}" <<<"$CONTENT" 2>/dev/null; then
+  MATCH_LINE=$(grep -m1 -iE "(password|secret|token|api_key|apikey|auth_token|access_token)[[:space:]]*[:=][[:space:]]*[\"'][^\"']{8,}" <<<"$CONTENT" 2>/dev/null || true)
   # Exclude common false positives (placeholder values, env var references)
-  if ! echo "$MATCH_LINE" | grep -qiE '(your[-_]|example|placeholder|changeme|xxx|process\.env|os\.environ|\$\{|\$\()' 2>/dev/null; then
+  if ! grep -qiE '(your[-_]|example|placeholder|changeme|xxx|process\.env|os\.environ|\$\{|\$\()' <<<"$MATCH_LINE" 2>/dev/null; then
     FOUND_SECRETS+=("Hardcoded password/secret/token assignment")
   fi
 fi

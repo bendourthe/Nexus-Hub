@@ -13,6 +13,7 @@ Maintain `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/known-gaps.md` as a per-minor-
 
 - **Inside `/implement-phase` Phase 8**: after `/update-gitignore`, append any new gaps discovered during the phase.
 - **Inside `/wrap-up-session` Phase 4**: after `/update-devlog`, sweep the live conversation for uncaptured gaps; on a version bump in Phase 6, flip the file's `Status` to `finalized`.
+- **At a minor-scope `/implement vX.Y` close** (Migrate mode): move each approved, truly unfixable gap to the next minor so the run's minor can be archived.
 - **Inside `/generate-plan` Step 0.6** (right after Step 0.5 From-comparison mode): read the immediately prior version's `known-gaps.md` plus any older still-in-progress files, and offer to ingest open items into the new plan.
 
 **When NOT to use**: do not duplicate forward-looking sprint planning that belongs in `docs/todos.md` (managed by `dev-progress-tracker`). `known-gaps.md` records what slipped during the version that just shipped or is shipping; `docs/todos.md` describes the live forward roadmap. Also distinct from `docs/<next-version>/review/00-known-gaps.md` produced by `/run-deep-review`, which is a one-shot pre-release aggregation across many sources - this file is one of the sources that aggregation should read.
@@ -160,6 +161,32 @@ ID prefixes are stable: `NI-`, `DF-`, `BG-`, `WN-`, `MT-`, `QG-`. Numbers are mo
 6. After the new plan file is written, edit each ingested item in its source `known-gaps.md`: move it from `## Open Items` to the `## Resolved` table with `Resolved in: transferred to <new-version> plan`. Items are not yet *fixed* - just transferred to a different tracking surface.
 7. If an ingested source is bound by a historical carry-forward hash, update that hash in the same change after reviewing the source edit; never leave an index that silently points at changed content.
 
+### Migrate (during a minor-scope `/implement vX.Y` close)
+
+A minor run fixes every fixable gap in its minor and every earlier version, and moves only the truly unfixable ones to the next minor so the current one can close and be archived. There is no third state: in a minor run a gap is fixed or migrated, never deferred. Which items the scope covers and when a migration counts as closed are owned by the completion contract, "Minor gaps and archive"; this mode only performs the move. Always run the helper; never hand-write a migration, because the checker rejects a marker pair it cannot trace to the approval.
+
+1. **Confirm the item may migrate.** All of these must hold, and the helper refuses otherwise:
+    - its id (such as `v0.5#WN-3`, source minor plus item id) is in the minor record's frozen `gap-migration` list, shown on the approval page;
+    - a security or high-severity item (a heading or `###` subsection naming security, a `**Security**` field, or a `**Severity**` of high or critical) is also in that class's `named` list, so the page called it out on its own line;
+    - it is open (not RESOLVED, not already migrated), in a ledger for a version at or below the run's minor;
+    - it already existed at the record's `start_head`: an item created during the run never migrates, it is fixed;
+    - neither ledger is excluded for another live run's work (owned by it, or changed on a live branch), and neither has a parse problem (`REFUSED: ledger-unparsed`).
+2. **Pick one reason** from the closed set, with evidence of why the gap cannot be fixed in this minor: `vendor-feature` (it needs a feature the vendor has not shipped), `user-credential` (it needs an account, key, or host only the user has), or `user-deferred` (the user chose to move it, on record).
+3. **Run the move**, dry run first:
+
+    ```bash
+    python ~/.nexus-hub/scripts/minor_close.py migrate --minor v0.5 --id v0.5#WN-3 \
+        --reason vendor-feature --evidence "<one line>" --dry-run
+    python ~/.nexus-hub/scripts/minor_close.py migrate --minor v0.5 --id v0.5#WN-3 \
+        --reason vendor-feature --evidence "<one line>"
+    ```
+
+    Expected: `MIGRATED v0.5#WN-3 -> v0.6#WN-1 (v0.6.0) docs/releases/v0/v0.6/known-gaps.md`. Any `REFUSED: <reason> (<id>)` line stops the move with nothing written; report it, never work around it.
+4. **What the helper writes.** The target is always the minor after the run's minor, whatever version the gap came from, so a migration only ever moves forward; a marker naming the item's own minor or an earlier one never verifies. When the target `known-gaps.md` is missing it is created from this skill's File Format with `Status: in-progress`. The item is copied under the target's `## vX.Y.0` Open Items with the next free id of its type (ids are never reused), its relative links re-expressed from the target's directory, and two lines: `- **Migrated from**: <minor>#<id> on <date> (reason: <reason>)` and `- **Migration evidence**: <text>`. The source heading gets the suffix ` - MIGRATED to vX.Y.0`. Both files' Summary Open cell for that type and the file-level `**Open items**` total are re-derived from the headings (a table that disagrees with its headings before the change is a hard stop, as in Append), and `Last updated` is set.
+5. **A gap migrated twice** keeps its earlier `**Migrated from**` line and gains a second one, so the chain back to the first minor stays readable; it is never duplicated as a second entry. A re-run after a partial write finds the existing copy and only marks the source.
+6. **A concurrent edit** of either ledger between the read and the write stops the move with `REFUSED: source-changed` or `target-changed`; the helper never writes half a move, and a failed source write restores the target.
+7. Commit the two ledgers with the other closing-branch changes; `/update release` carries them in the closing pull request.
+
 ## Monotonic Scrutiny Across Cycles
 
 Any durable record carried across review, hunt, or implementation cycles may only RAISE attention. It stores no "this was checked and is fine" signal, never deprioritizes an item because a prior cycle placed it out of scope, and never excludes an item from re-examination. Prior work is a PRIORITY and RECHECK signal, never a coverage claim.
@@ -180,6 +207,7 @@ This phase adopts doctrine only. A separate durable cross-run scrutiny store is 
 | "This warning isn't really a gap" | If a future version would benefit from fixing it, it is a gap. Record at the appropriate severity - `WN` is fine for low-impact items. Better to over-record and let `/generate-plan` Step 0.6's "pick a subset" option filter than to lose the signal entirely. |
 | "I already wrote this up in the session history" | Session-history files are per-session, not per-version. The known-gaps file aggregates across every phase of a single version and is the only artifact `/generate-plan` reads to pull work forward. |
 | "A prior cycle marked this safe, so the next review can skip it" | A prior result may be stale against the current revision or scope. Cross-cycle memory may raise priority and require a recheck, but it can never serve as current coverage or suppress examination. |
+| "This gap is hard, so I will mark it MIGRATED by hand and let the next minor deal with it" | A hand-written marker pair is exactly what the completion contract's minor gap check rejects: an id missing from the frozen list, or an item created during the run, reads `unmet` and the minor never closes. Only `minor_close.py migrate` writes a migration, and only for an id the user approved on the page. |
 | "We will never do this, so I will log it as DF in known-gaps" | Deferred still means later. Never-do belongs in `docs/policy/out-of-scope/<topic-slug>.md`. A DF row here would be ingested by `/generate-plan` as candidate scope. |
 
 ## Verification
@@ -194,6 +222,10 @@ This phase adopts doctrine only. A separate durable cross-run scrutiny store is 
 - [ ] Any cross-cycle record is used only to raise priority or require re-examination; no prior "safe", out-of-scope, or resolved state suppresses current coverage work.
 - [ ] The durable cross-run scrutiny store is recorded as deferred work and was not built or implied by this doctrine-only change.
 - [ ] Never-do items were routed to `docs/policy/out-of-scope/<topic-slug>.md`, not appended as known-gaps `DF` rows.
+- [ ] Every migration was made by `minor_close.py migrate`, which printed `MIGRATED <minor>#<id> -> <next minor>#<id> (vX.Y.0)` for an id on the record's frozen list, with a reason from `vendor-feature`, `user-credential`, or `user-deferred`.
+- [ ] Each migrated item's target entry carries `**Migrated from**: <minor>#<id> on <date> (reason: <reason>)` (a second such line for a second migration, never a duplicate entry), and its source heading ends with ` - MIGRATED to vX.Y.0`.
+- [ ] Both ledgers' Summary Open cells and `**Open items**` totals equal the counts derived from their headings after the migration.
+- [ ] `minor_close.py status --minor vX.Y` reports the minor's gap check as met before the minor is archived.
 
 ## Related Skills
 

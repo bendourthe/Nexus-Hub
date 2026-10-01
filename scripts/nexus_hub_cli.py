@@ -571,6 +571,63 @@ def cmd_run_plan(argv: list[str]) -> int:
     return subprocess.run([sys.executable, str(helper), *argv], check=False).returncode
 
 
+def _is_source_tree(root: Path) -> bool:
+    runner = root / "scripts" / "lib" / "integrations" / "runner.py"
+    return runner.is_file() and (root / "catalog").is_dir()
+
+
+def _init_source_root() -> Path | None:
+    """Return the first source tree that can seed a project, or None.
+
+    `init` copies catalog files into the project, so it needs a tree holding
+    both the integration runner and `catalog/`. The installed tree under
+    `~/.nexus-hub/scripts` has the runner but no catalog, so it never
+    qualifies. Order: the checkout this CLI runs from, then the bootstrap's
+    materialized source (`~/.nexus-hub/src`). `NEXUS_HUB_SRC`, when set, is the
+    only candidate: cmd_init refuses an override that does not qualify rather
+    than silently seeding from a different tree.
+    """
+    override = os.environ.get("NEXUS_HUB_SRC")
+    if override:
+        root = Path(override)
+        return root if _is_source_tree(root) else None
+    for root in (Path(__file__).resolve().parent.parent, install_home() / "src"):
+        if _is_source_tree(root):
+            return root
+    return None
+
+
+def cmd_init(argv: list[str]) -> int:
+    """Forward `nexus-hub init` to the integration runner's `init` subcommand.
+
+    Mirrors `installer.sh init` / `installer.ps1 init`: the same runner, the
+    same `NEXUS_HUB_INIT=1` intent marker, and every token forwarded verbatim
+    (`--target`, `--dry-run`, `--overwrite`, `--project-name`, `--quiet`).
+    """
+    root = _init_source_root()
+    override = os.environ.get("NEXUS_HUB_SRC")
+    if root is None and override:
+        _eprint(
+            f"NEXUS_HUB_SRC={override} is not a Nexus-Hub source tree "
+            "(it needs scripts/lib/integrations/runner.py and catalog/). "
+            "Point it at a checkout, or unset it to use the installed source."
+        )
+        return 2
+    if root is None:
+        _eprint(
+            "nexus-hub init needs the Nexus-Hub source tree (runner and catalog), "
+            f"but none was found (checked NEXUS_HUB_SRC and {install_home() / 'src'}). "
+            "Re-run the one-line installer, set NEXUS_HUB_SRC to a checkout, or run "
+            "`bash <checkout>/scripts/installer.sh init` from the project."
+        )
+        return 2
+    runner = root / "scripts" / "lib" / "integrations" / "runner.py"
+    env = dict(os.environ, NEXUS_HUB_INIT="1")
+    return subprocess.run(
+        [sys.executable, str(runner), "init", *argv], check=False, env=env
+    ).returncode
+
+
 def cmd_map(argv: list[str]) -> int:
     """Dispatch `nexus-hub map` to the nexus-code-search context-map CLI.
 
@@ -1185,6 +1242,13 @@ def build_parser() -> argparse.ArgumentParser:
         add_help=False,
         help="Relaunch a platform's headless CLI until a full /implement run is complete.",
     )
+    # `init` forwards its tokens (--target, --dry-run, ...) verbatim to the
+    # integration runner; registered here only so `nexus-hub --help` lists it.
+    sub.add_parser(
+        "init",
+        add_help=False,
+        help="Seed this project's surfaces (Antigravity .agents/, Cursor rules, Claude stub).",
+    )
     return parser
 
 
@@ -1216,6 +1280,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if raw and raw[0] == "run-plan":
         return cmd_run_plan(raw[1:])
+
+    if raw and raw[0] == "init":
+        return cmd_init(raw[1:])
 
     parser = build_parser()
     args = parser.parse_args(raw)

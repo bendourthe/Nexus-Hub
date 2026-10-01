@@ -12,6 +12,7 @@
 # Runtime controls (checked on EVERY invocation):
 #   Disable by name:          export NEXUS_DISABLED_HOOKS=approval-capture
 #   Skip non-essential hooks: export NEXUS_HOOK_PROFILE=minimal
+#   Runner-launched session:  NEXUS_RUNNER_LAUNCH=1 (set by run_plan.py) skips capture
 set -uo pipefail
 
 _HOOK_NAME="approval-capture"
@@ -20,6 +21,12 @@ case ",${NEXUS_DISABLED_HOOKS:-}," in
   *",$_HOOK_NAME,"*) exit 0 ;;
 esac
 if [ "${NEXUS_HOOK_PROFILE:-}" = "minimal" ]; then
+  exit 0
+fi
+# A session that `nexus-hub run-plan` launched has no user typing: its prompts
+# are the runner's, so they are never captured as approvals (v4.13.2 WN-9).
+if [ "${NEXUS_RUNNER_LAUNCH:-}" = "1" ]; then
+  if [ ! -t 0 ]; then cat >/dev/null 2>&1 || true; fi
   exit 0
 fi
 

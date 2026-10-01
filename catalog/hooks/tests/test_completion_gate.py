@@ -218,9 +218,50 @@ def test_capture_stores_digests_not_text(run, home: Home) -> None:
     assert result.stdout.strip() == ""
     entries = _captured(home)
     assert entries and entries[0]["session"] == SESSION
-    wanted = hashlib.sha256(b"Also release v0.2.0.").hexdigest()
-    assert wanted in entries[0]["digests"]
+    whole = hashlib.sha256(b"Yes, push and merge. Also release v0.2.0.").hexdigest()
+    assert entries[0]["prompt"] == whole
+    # WN-9: a line inside a longer prompt is never stored, so it can never back an approval.
+    line = hashlib.sha256(b"Also release v0.2.0.").hexdigest()
+    assert line not in json.dumps(entries)
     assert "release" not in json.dumps(entries)
+
+
+def test_capture_skips_a_runner_launched_session(run, home: Home) -> None:
+    payload = {"hook_event_name": "UserPromptSubmit", "session_id": SESSION,
+               "prompt": "Approve /implement v0.2.0 (approval ABCDEFGH)"}
+    result = run("approval-capture", payload, NEXUS_RUNNER_LAUNCH="1")
+    assert result.returncode == 0, result.stderr
+    assert _captured(home) == []
+    # The same prompt from the user's own session is captured.
+    assert run("approval-capture", payload).returncode == 0
+    assert len(_captured(home)) == 1
+
+
+@pytest.mark.parametrize("impl", ["sh", "ps1"])
+def test_runner_launched_capture_drains_a_large_payload(
+    impl: str, bash_bin: str, powershell_bin: str, home: Home
+) -> None:
+    # subprocess.run swallows a broken stdin pipe, so write the payload directly:
+    # a hook that exits without reading it breaks the host's pipe above the buffer size.
+    argv = (
+        [bash_bin, str(HOOKS / "approval-capture.sh")]
+        if impl == "sh"
+        else [powershell_bin, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
+              str(HOOKS / "approval-capture.ps1")]
+    )
+    body = json.dumps({"hook_event_name": "UserPromptSubmit", "session_id": SESSION,
+                       "prompt": "x" * 400_000}).encode("utf-8")
+    proc = subprocess.Popen(argv, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL,
+                            stderr=subprocess.DEVNULL, cwd=str(home.repo),
+                            env=home.env(NEXUS_RUNNER_LAUNCH="1"))
+    try:
+        assert proc.stdin is not None
+        proc.stdin.write(body)
+        proc.stdin.close()
+    finally:
+        rc = proc.wait(timeout=120)
+    assert rc == 0
+    assert _captured(home) == []
 
 
 def test_cursor_capture_answers_with_continue(run) -> None:

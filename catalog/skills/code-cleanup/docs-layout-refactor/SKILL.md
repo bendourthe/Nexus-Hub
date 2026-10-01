@@ -403,6 +403,21 @@ Re-run `audit-docs.py refgraph` against the new tree for non-Markdown inbound pa
 
 Run the seven binary checks (see Verification section below). On any FAIL, loop back to step 9 up to three times. Surface unresolved items to the user.
 
+## Archive a closed minor
+
+Moves one fully closed minor's whole active tree (`docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/`, or its legacy layout) to `docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/` in one commit on the closing branch (`chore/close-vX.Y`). It runs under a minor record's `archive-minor` approval (the minor close of `/implement vX.Y` and `/update release` step 2a2), or, only when no minor record exists, after this skill's Step 7 confirmation with `--confirmed`. It is a separate procedure from Steps 1-10: its unit is the whole minor, and it uses `git mv` so history follows every file. The deterministic helper does all of it; do not reproduce it by hand.
+
+```bash
+python ~/.nexus-hub/scripts/minor_close.py archive --minor v0.5 --dry-run
+python ~/.nexus-hub/scripts/minor_close.py archive --minor v0.5 --apply
+```
+
+1. **Closure.** The helper refuses, naming every reason, unless: the minor's `known-gaps.md` states a finalized or closed Status and `**Open items**: 0`, has no open item (a verified migration counts as closed), no open status, and no unchecked box; every plan is released or superseded with no unchecked task line; no queued plan sits outside the frozen members; no live worktree holds one of its branches; no unmerged remote branch touches its tree; the working tree is clean; and the current branch is the closing branch.
+2. **Move and repair.** `git mv` the tree (file by file into an archive directory that already exists, refusing any collision), then repair all seven reference classes of the `[[plan-queue-assessment]]` renumber procedure, re-expressing each link from its referring file's pre-move location; plain path mentions change only in trackers, plans, indexes, and scripts or tests, never inside URLs, code, or other archives.
+3. **Prove and commit.** It refuses first when a repair would rewrite a plan another live run froze. `link-baseline.py` runs before and after with the rename map; any newly broken link, a failed commit, a locked directory, or any other error mid-way restores the tree unmoved and refuses. Otherwise it commits once and re-freezes the minor record's member paths.
+
+Expected: `ARCHIVED v0.5 <tree> -> docs/archives/v0/v0.5 commit=<sha> links=N mentions=M files=K newly_broken=0`. The refusal list, the reference classes, and what stays byte-exact: [`references/archive-closed-minor.md`](references/archive-closed-minor.md).
+
 ## Categorization Heuristics - Worked Examples
 
 | File | Signals matched | Resulting category | Why |
@@ -460,6 +475,7 @@ Run after step 9. Each check is binary; FAIL on any item loops back up to three 
 - [ ] **Report self-classified as Cat 4** - sanity check that the report does not claim to be ready for archival immediately.
 - [ ] **No lifespan contradiction was auto-moved** - every Signal 9 result appears under *Lifespan contradictions* with the bucket, release close date, and offending commit date.
 - [ ] **Snapshot names assert their content version** - each frozen snapshot directory names the version described by the copied content.
+- [ ] **A closed-minor archive** printed `ARCHIVED ... newly_broken=0`, left `git status --porcelain` empty, and `members vX.Y` still lists the archived plans (on stderr, as shipped or complete).
 
 ## Related Skills
 

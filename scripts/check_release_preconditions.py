@@ -17,15 +17,18 @@ to read HEAD at the last possible moment, immediately before `git tag`, because 
 checkout that failed is exactly the state being guarded against. So this check
 reads live git state on every invocation and caches nothing.
 
-`--branches` reports two distinct categories: remote branches already merged
-into the integration branch, and branches that survive a CLOSED, unmerged PR.
-The second matters because `delete_branch_on_merge` only fires on a MERGE, so
-with that setting enabled the first list is usually empty while stale refs still
-accumulate -- which is exactly what Nexus-Hub found on itself.
-It NEVER deletes anything and never proposes deleting a protected branch or one
-with an open pull request. Reporting-only is deliberate: a merged branch is
-sometimes still wanted, and this runs inside a release flow where a surprise
-deletion would be the worst possible time.
+`--branches` reports two distinct categories: the cleanup executor's dry run
+(`cleanup_merged.py`, the one source of cleanup-candidate logic: `REMOVE` for an
+item that is merged and idle, `KEEP` with the first failed check otherwise), and
+branches that survive a CLOSED, unmerged PR. The second matters because
+`delete_branch_on_merge` only fires on a MERGE, so with that setting enabled the
+first list is usually empty while stale refs still accumulate -- which is exactly
+what Nexus-Hub found on itself.
+It NEVER deletes anything: removal happens only through
+`cleanup_merged.py --apply` under an approval. A branch merged without a pull
+request is never a candidate (the executor keeps it as `no-merged-pr`). Reporting-only is deliberate here,
+because this runs inside a release flow where a surprise deletion would be the
+worst possible time.
 
 `--repo-settings` reports whether `delete_branch_on_merge` is enabled, and (when a
 catalog is present) whether the repository DESCRIPTION still agrees with the counts
@@ -33,8 +36,10 @@ README.md declares. Nexus-Hub's own description read "256 curated skills, 15 com
 hooks" against an actual 273/18/31, drifted for many releases because no
 version-carrying surface covers a GitHub setting.
 
-Local-first. `--pre-tag` and `--branches` use local `git` only, with no network
-and no credential. `--repo-settings` shells out to the user's own authenticated
+Local-first. `--pre-tag` uses local `git` only, with no network and no
+credential. `--branches` makes network calls: `git ls-remote` and the user's own
+authenticated `gh`, through the executor's dry run, which keeps every item it
+cannot verify. `--repo-settings` shells out to the user's own authenticated
 `gh` and degrades to a skip when `gh` is absent, unauthenticated, or the
 repository is not on GitHub; it only ever READS, and enabling
 `delete_branch_on_merge` is left to the human, since Nexus-Hub has no credentials
@@ -156,43 +161,6 @@ def check_pre_tag(release_branch: str, cwd: Path | None = None) -> list[str]:
 # ---------------------------------------------------------------------------
 
 
-def open_pr_branches() -> set[str]:
-    """Branch names with an open PR, via the user's own gh. Empty when absent.
-
-    Failing to an EMPTY set is deliberate and is the conservative direction here:
-    this function only ever removes branches from a deletion-candidate list, so an
-    empty answer can only make the report more cautious, never less.
-    """
-    if shutil.which("gh") is None:
-        return set()
-    try:
-        out = subprocess.run(
-            [
-                "gh",
-                "pr",
-                "list",
-                "--state",
-                "open",
-                "--json",
-                "headRefName",
-                "--limit",
-                "200",
-            ],
-            capture_output=True,
-            text=True,
-            check=True,
-        ).stdout
-        return {entry["headRefName"] for entry in json.loads(out)}
-    except (
-        OSError,
-        subprocess.CalledProcessError,
-        json.JSONDecodeError,
-        KeyError,
-        TypeError,
-    ):
-        return set()
-
-
 def closed_unmerged_pr_branches(cwd: Path | None = None) -> list[str]:
     """Remote branches whose PR was CLOSED without merging, and which still exist.
 
@@ -256,30 +224,24 @@ def closed_unmerged_pr_branches(cwd: Path | None = None) -> list[str]:
     return sorted(name for name in closed & existing if name not in ALWAYS_PROTECTED)
 
 
-def merged_branch_candidates(
-    integration_branch: str, cwd: Path | None = None
-) -> tuple[list[str], set[str]]:
-    """Remote branches merged into the integration branch and safe to propose."""
-    raw = git("branch", "-r", "--merged", f"origin/{integration_branch}", cwd=cwd)
-    with_open_pr = open_pr_branches()
+def cleanup_report(integration_branch: str, cwd: Path | None = None) -> tuple[list[str], list[str]] | None:
+    """(the executor's dry-run lines, its notices), or None when it is not installed.
 
-    candidates: list[str] = []
-    for line in raw.splitlines():
-        ref = line.strip()
-        if not ref or "->" in ref:  # skip the origin/HEAD -> origin/main pointer
-            continue
-        if not ref.startswith("origin/"):
-            continue
-        name = ref[len("origin/") :]
-        if name in ALWAYS_PROTECTED:
-            continue
-        if name == integration_branch:
-            continue
-        if name in with_open_pr:
-            continue
-        candidates.append(name)
-
-    return sorted(candidates), with_open_pr
+    The candidate logic lives only in `cleanup_merged.py` (a sibling in
+    ~/.nexus-hub/scripts/); this report never re-derives it and never removes.
+    """
+    here = str(Path(__file__).resolve().parent)
+    if here not in sys.path:
+        sys.path.insert(0, here)
+    try:
+        import cleanup_merged
+    except ImportError:
+        return None
+    try:
+        verdicts, notices = cleanup_merged.report(cwd or Path.cwd(), integration_branch)
+    except RuntimeError as exc:
+        raise GitUnavailable(str(exc)) from exc
+    return [v.line() for v in verdicts], sorted(set(notices))
 
 
 # ---------------------------------------------------------------------------
@@ -394,16 +356,18 @@ def report_pre_tag(release_branch: str, root: Path) -> int:
 
 
 def report_branches(integration_branch: str, root: Path) -> int:
-    print(f"Branch hygiene (merged into origin/{integration_branch})")
-    candidates, with_open_pr = merged_branch_candidates(integration_branch, cwd=root)
-    if candidates:
-        print(f"  {len(candidates)} merged branch(es) are cleanup candidates:")
-        for name in candidates:
-            print(f"    - origin/{name}")
-        if with_open_pr:
-            print(f"  ({len(with_open_pr)} branch(es) with an open PR were excluded)")
+    print(f"Branch hygiene (merged and idle, integration branch {integration_branch})")
+    report = cleanup_report(integration_branch, cwd=root)
+    if report is None:
+        print("  cleanup_merged.py is not installed; no cleanup candidates reported")
     else:
-        print("  OK: no merged remote branches to clean up")
+        lines, notices = report
+        for line in lines:
+            print(f"  {line}")
+        removable = sum(line.startswith("REMOVE ") for line in lines)
+        print(f"  {removable} item(s) would be removed by cleanup_merged.py --apply; the rest are kept")
+        for notice in notices:
+            print(f"  notice: {notice}")
 
     # Second, distinct category. `delete_branch_on_merge` removes a branch when
     # its PR MERGES and does nothing when a PR is closed unmerged, so on a repo

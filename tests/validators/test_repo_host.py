@@ -110,7 +110,8 @@ def test_a_github_alias_resolves_through_ssh_config() -> None:
     run = _runner({"ssh -G": (0, "user git\nhostname github.com\nport 22\n")})
     got = repo_host.repo_from_url("git@github-work:acme/demo.git", run=run, ssh="ssh")
     assert got == ("acme/demo", "remote-alias")
-    assert run.calls == [["ssh", "-G", "github-work"]]
+    # The probe carries the user git sends, so a `Match user` block applies (v4.13.6 review).
+    assert run.calls == [["ssh", "-G", "git@github-work"]]
 
 
 def test_an_ssh_url_alias_resolves_through_ssh_config() -> None:

@@ -18,7 +18,6 @@ environment; the harness never copies a user's credentials.
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import os
 import shutil
@@ -29,6 +28,8 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[2]
+sys.path.insert(0, str(REPO / "tests" / "fixtures" / "gh_stub"))
+from launcher import make_stub
 PLAN_REL = "docs/releases/v0/v0.2/plans/v0.2.0-demo.md"
 # The approval names the remote the push really goes to: origin is a local bare mirror, and
 # an approval naming only acme/demo leaves a careful agent unable to push anywhere it names.
@@ -119,20 +120,10 @@ def _stub_bin(bin_dir: Path, name: str, target: Path, python: str) -> None:
     # paths the run grants, and the harness source tree is not one of them.
     copy = bin_dir / f"_{target.name}"
     shutil.copyfile(target, copy)
-    target = copy
-    if os.name == "nt":
-        (bin_dir / f"{name}.cmd").write_text(
-            f'@echo off\r\n"{python}" "{target}" %*\r\n', encoding="utf-8"
-        )
-    # Also an extensionless script on Windows: an agent's Bash tool is Git Bash, which never
-    # resolves `name.cmd`, so without it a bare `gh` falls through to the real GitHub CLI.
-    path = bin_dir / name
-    path.write_text(
-        f'#!/bin/sh\nexec "{Path(python).as_posix()}" "{Path(target).as_posix()}" "$@"\n',
-        encoding="utf-8",
-        newline="\n",
-    )
-    path.chmod(0o755)
+    # A real executable (an .exe on Windows, plus an extensionless sh script for Git
+    # Bash): the checker's resolver never runs a .cmd or .bat, whose arguments cmd.exe
+    # would re-parse.
+    make_stub(bin_dir, name, copy, python)
 
 
 def install_into(home: Path, platform: str, env: dict) -> int:
@@ -382,16 +373,9 @@ def run_condition(
     if agent == "stub":
         env["E2E_REAL_GIT"] = real_git
         env["E2E_STUB_REMOTE_MIRROR"] = str(root / "remote.git")
-        # The stub stands in for the approval-capture hook: it records the digest
-        # of the scripted first-turn approval exactly as the hook would.
-        session = "e2e-stub-session"
-        prompts = runs / "prompts"
-        prompts.mkdir()
-        digest = hashlib.sha256(" ".join(approval.split()).encode()).hexdigest()
-        (prompts / f"{hashlib.sha256(session.encode()).hexdigest()}.jsonl").write_text(
-            json.dumps({"session": session, "digests": [digest]}) + "\n",
-            encoding="utf-8",
-        )
+        # The stub renders the approval page itself and stands in for the user
+        # pasting the generated line (stub_agent.phase_1); a digest planted here
+        # in advance could never match, because the line carries a fresh code.
     started = time.monotonic()
     # The scripted first turn: /implement with the upfront approvals answered in
     # the same prompt, never mid-run. It creates the run record; the runner then
