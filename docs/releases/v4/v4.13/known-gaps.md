@@ -1156,9 +1156,9 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 3 | 0 |
+| Deferred (DF) | 4 | 0 |
 | Bugs / regressions (BG) | 0 | 0 |
-| Warnings (WN) | 3 | 0 |
+| Warnings (WN) | 4 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
@@ -1199,6 +1199,18 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 - **Source phase**: Phase 2. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T306 and T309.
 - **Reason**: the `claude-code` roster in `profiles-index.json` was recorded on 2026-09-08 from `config` as a multi-vendor union (Claude, Cursor, Gemini, and GPT-5.6 ids). The 2026-09-30 write refreshed it from the live Models API, and by design the writer unions the live ids with every already-profiled model, so no profile was orphaned. The result is 26 ids labelled `roster_source: api`, of which 16 did not come from the API. `check_model_prompting_freshness.py --advisory` against the 13 live Claude ids therefore reports DRIFTED, listing the non-Claude ids and the `claude-haiku-4-5` alias as "no longer live". The check is advisory and blocks nothing.
 - **Suggested next step**: move the Cursor, Gemini, and GPT-5.6 profiles onto their own `meta.platforms` entries (schema 1.1.0), as was done for `codex`, so the `claude-code` roster holds only Claude ids and its freshness check can read IN SYNC. Decide the `claude-haiku-4-5` alias at the same time (see DF-3).
+
+#### DF-4 (v4.13.8): The first-principles pilot stopped at the smoke run because effort could not be confirmed
+
+- **Source phase**: Phase 5. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T321 to T324; record [`v4.13.8-first-principles-pilot.md`](development/v4.13.8-first-principles-pilot.md).
+- **Reason**: the pre-registered rule in `## T319` stops the pilot when the run metadata cannot confirm `--effort high`. On the one smoke run (2026-09-30, baseline, prompt 1, passed, USD 0.0396), Claude Code 2.1.283 reported `claude-sonnet-5-5` as an unrecognized model, recorded `costBasis: "unknown"` and a fallback `maxOutputTokens` of 32000, and exposed no effort field and 0 thinking tokens. The other 14 cells were not run, and the first-principles question is untested: this is not evidence for or against the instruction.
+- **Suggested next step**: once a Claude Code release recognizes `claude-sonnet-5-5` and its run metadata can show the effort in effect, re-run the identical approved matrix (same arms, prompts, model, effort, 15 runs, USD 20 cap) with `python wrapper.py run` after deleting the stale smoke result, and decide go or not shown at this power from the rule recorded in `## T319`. Any change to the matrix needs a new approval.
+
+#### WN-4 (v4.13.8): The skill-eval-loop Claude adapter command no longer matches the installed CLI
+
+- **Source phase**: Phase 5. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T319 and T321.
+- **Reason**: `catalog/skills/workflow/skill-eval-loop/references/cli-adapter.md` documents the Claude runner as `claude -p "<prompt>" --setting-sources "" --model <model> --skill <path/to/SKILL.md>` (verified 2026-09-21), and `scripts/optimize_skill_description.py` builds that command. Claude Code 2.1.283's `--help` (checked 2026-09-30) documents no `--skill` option. The pilot used `--append-system-prompt-file` instead, without changing the shared adapter. The same CLI also reports `claude-sonnet-5-5` as an unrecognized model (see DF-4).
+- **Suggested next step**: owner `skill-eval-loop`. Re-verify the Claude runner against the current official Claude Code CLI reference. If `--skill` is gone, choose and document the replacement (for example `--bare` with `--append-system-prompt-file`, or `--add-dir` with skill resolution), update the adapter and the optimizer's command builder together, and keep `TestEvalLoopCLIAdapter` parity green.
 
 ### Resolved Items
 

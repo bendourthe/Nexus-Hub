@@ -1,0 +1,12 @@
+{
+  "cap_usd": 20.0,
+  "per_run_ceiling_usd": 1.0,
+  "spent_usd": 0.039563,
+  "runs": [
+    {
+      "cell": "p1-invoice-keyerror__baseline",
+      "charged_usd": 0.039563,
+      "measured_cost_usd": 0.039563
+    }
+  ]
+}
