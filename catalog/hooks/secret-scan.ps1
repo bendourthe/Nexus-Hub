@@ -20,10 +20,10 @@
     pattern set, the same false-positive exclusions, the same stderr report shape,
     and the same exit 2. Do not soften it without changing the .sh in lockstep.
 
-    One deliberate difference, in the safe direction: the bash version needs `jq`
-    and exits 0 silently without it, so on a host with no jq it scans nothing.
-    PowerShell parses JSON natively, so this version always scans. It blocks in
-    strictly more cases, never fewer.
+    PowerShell parses JSON natively, so this version always scans. The bash
+    version uses `jq`, falls back to Python 3 without it (v4.13.6, AR-02; it
+    previously allowed every write on a host without jq), and blocks when it has
+    neither, a case that cannot arise here.
 
     It reports only the CATEGORY of each finding, never the matched value, so the
     hook's own output cannot become the leak.

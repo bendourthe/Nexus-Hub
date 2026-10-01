@@ -39,7 +39,7 @@ Every generated plan MUST end with a fail-closed last phase dedicated to archite
 #### N.4 - Git-tree hygiene
 **Objective**: Report branch and repository-settings hygiene without deleting anything.
 **Prompt**:
-> Run `python ~/.nexus-hub/scripts/check_release_preconditions.py --branches --repo-settings`. Quote the output in the evidence file under `## Git-tree hygiene`. Report only; never delete branches.
+> Run `python ~/.nexus-hub/scripts/check_release_preconditions.py --branches --repo-settings`. Quote the output in the evidence file under `## Git-tree hygiene`. Report branch hygiene; removal happens only through `cleanup_merged.py --apply` under a recorded approval.
 
 #### N.5 - Terminal CI/CD reconciliation
 **Objective**: The repository's pipeline is compared field by field against the canonical contract, and every difference is either applied with approval or recorded as a known gap.
@@ -70,6 +70,9 @@ Every generated plan MUST end with a fail-closed last phase dedicated to archite
 **Objective**: Publish the completed branch once, validate the merge result remotely, and hand a green integration to the release flow.
 **Prompt**:
 > Create the final local commit for this phase. Then present the resolved branching model, remote, branch name, and pull-request target, and obtain EXPLICIT approval before the plan's first branch push (explicit approval, or the matching approval recorded in the run record when its remote, repository, and branches match exactly). Push once, open the integration pull request against the integration branch, and report the exact required checks expected. Wait until every required check reaches a terminal state. A red check REOPENS this phase: classify the failure, reproduce it locally, apply the narrow fix, re-run the local gate, update known gaps and session history, then amend the final commit or add one narrowly scoped stabilization commit and push again with approval (explicit, or the recorded `repush` approval, at most 3 re-pushes). Never re-run a red check without a local reproduction; a re-run without one is a guess. Merge only after every required check is green and the user approves (explicitly, or through the recorded `push-merge` approval when the head SHA and target branch match). Confirm the post-merge workflow performed only its intended smoke, publication, or provenance work and did not rerun the complete suite. Only then hand off to `/update release`, which owns the version bump, changelog, tag, push, and GitHub Release behind its own confirmation gates. Quote the required-check results in the evidence file under `## Publication and integration`.
+
+> **Run goal.** The run ends on the completion checker's tool result: `PLAN COMPLETE` for a plan run and `MINOR COMPLETE` for a minor run, as `check_plan_completion.py check <plan>` or `check_plan_completion.py check-minor vX.Y` prints it. What each verdict requires is owned by the completion contract (`implement-phase/references/completion-contract.md`). The native goal should already be set by the user's approval paste. If it is missing in an interactive session, ask the user to paste the printed goal line again, because an agent cannot set it. `nexus-hub run-plan` is the only fully automatic path.
+> When the run record's scope is minor, the minor close in the runbook follows the last member's release.
 ```
 
 ## Candidate-aware handbook gate

@@ -89,6 +89,15 @@ ALLOWED_LEGACY_LINES = {
         "templates/ai-instructions/base-antigravity-cli.md",
         f"This file is a thin alias for {BT}base-antigravity-20.md{BT}. The Antigravity CLI and the Antigravity 2.0 desktop IDE share a backend and on-disk conventions per the 2026-05-21 Google Developers Blog announcement (legacy migration-source path {BT}docs/archive/v2/v2.2/antigravity-cli-probe.md{BT}), so the {BT}Antigravity20Integration{BT} in {BT}scripts/lib/integrations/antigravity.py{BT} covers both surfaces with a single class.",
     ),
+    # v4.13.6: the minor-scope checker reads (never writes) plans and ledgers in the legacy layouts.
+    (
+        'catalog/skills/workflow/implement-phase/references/completion-contract.md',
+        "**Scope.** Every ledger at a layout path for a version at or below the run's minor: `docs/releases/vM/vM.m/`, the legacy `docs/vM/vM.m/`, `docs/versions/vM/vM.m/`, and `docs/vM.m/`, and the archives `docs/archives/vM/vM.m/`, `docs/archive/vM/vM.m/`, and `docs/archive/versions/vM/vM.m/`. Ledgers for later versions are out of scope, so a migrated copy there never reopens the verdict and a later version's own gaps are never acted on. A ledger of an earlier minor that another live run is working on is excluded and reported as `gaps.minor excluded <path> (<reason>)`, never edited: one changed by a live branch not merged into the integration branch (`changed-on-live-branch`), or one whose minor has a not-done plan a live run owns (`owned-by-another-run`: a live per-plan record or runner lock, another live minor record listing the version, or a live `feat/<version>-*` branch; plans are read one by one, so a historical minor with two plans of one version still resolves, while an unreadable plan leaves ownership undecided). A branch is live only when it is checked out in another worktree, named as a source branch by a live run record other than this run's, or the head of an open pull request; a stale branch excludes nothing. The run's own minor is never excluded, and the run's own branches (its members' source branches, the current branch, and `chore/close-vX.Y`) are never another run's. An excluded ledger that still holds an item not resolved makes `gaps.minor` `cannot-verify`, never met.",
+    ),
+    (
+        'catalog/skills/workflow/implement-phase/references/completion-contract.md',
+        'This section owns which plans a minor run covers. `check_plan_completion.py members vX.Y`, implemented in the sibling `completion_minor.py`, prints one repository-relative plan path per member in semantic-version order by parsed integers (`v0.5.2` before `v0.5.10`), and one `<version> <reason>` line per excluded plan on stderr. It reads every plan under `docs/releases/vM/vM.m/plans/`, the legacy `docs/vM/vM.m/`, `docs/versions/vM/vM.m/`, and `docs/vM.m/` layouts, and the archive layouts `docs/archives/vM/vM.m/`, `docs/archive/vM/vM.m/`, and `docs/archive/versions/vM/vM.m/`, and keeps only plans whose own `**Version**` line is in the minor. Tokens are canonical: a minor token or a plan version with a leading zero (`v0.05`, `v0.05.2`) is refused, so one minor has exactly one record key.',
+    ),
 }
 
 

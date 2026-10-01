@@ -2786,6 +2786,41 @@ function Install-Templates {
         Safe-Copy -Source $repoHostSource -Destination (Join-Path $scriptsDest "repo_host.py") -Confirm:$true -CustomMessage "✓ Repository resolver installed at: $scriptsDest\repo_host.py"
     }
 
+    # Copy the approval binder (v4.13.6). The completion checker imports it as
+    # a sibling to bind each approval to the exact line it generated.
+    $approvalBindingSource = Join-Path $RepoRoot "scripts\approval_binding.py"
+    if (Test-Path $approvalBindingSource) {
+        Safe-Copy -Source $approvalBindingSource -Destination (Join-Path $scriptsDest "approval_binding.py") -Confirm:$true -CustomMessage "✓ Approval binder installed at: $scriptsDest\approval_binding.py"
+    }
+
+    # Copy the minor-scope resolver (v4.13.6). The completion checker dispatches
+    # `members` and `record ... --minor` to it as a sibling.
+    $completionMinorSource = Join-Path $RepoRoot "scripts\completion_minor.py"
+    if (Test-Path $completionMinorSource) {
+        Safe-Copy -Source $completionMinorSource -Destination (Join-Path $scriptsDest "completion_minor.py") -Confirm:$true -CustomMessage "✓ Minor-scope resolver installed at: $scriptsDest\completion_minor.py"
+    }
+
+    # Copy the merged-and-idle cleanup executor (v4.13.6). The release flow and the
+    # completion checker's `cleanup.merged` predicate run it as a sibling.
+    $cleanupMergedSource = Join-Path $RepoRoot "scripts\cleanup_merged.py"
+    if (Test-Path $cleanupMergedSource) {
+        Safe-Copy -Source $cleanupMergedSource -Destination (Join-Path $scriptsDest "cleanup_merged.py") -Confirm:$true -CustomMessage "✓ Cleanup executor installed at: $scriptsDest\cleanup_merged.py"
+    }
+
+    # Copy the minor-close executor (v4.13.6). Gap migration and the closed-minor
+    # archive run it as a sibling of the completion checker.
+    $minorCloseSource = Join-Path $RepoRoot "scripts\minor_close.py"
+    if (Test-Path $minorCloseSource) {
+        Safe-Copy -Source $minorCloseSource -Destination (Join-Path $scriptsDest "minor_close.py") -Confirm:$true -CustomMessage "✓ Minor-close executor installed at: $scriptsDest\minor_close.py"
+    }
+
+    # Copy the approval-page renderer (v4.13.6). approval_binding.py imports it for
+    # the paste-line templates, and run_plan.py for the headless goal line.
+    $approvalPageSource = Join-Path $RepoRoot "scripts\approval_page.py"
+    if (Test-Path $approvalPageSource) {
+        Safe-Copy -Source $approvalPageSource -Destination (Join-Path $scriptsDest "approval_page.py") -Confirm:$true -CustomMessage "✓ Approval-page renderer installed at: $scriptsDest\approval_page.py"
+    }
+
     # Copy the completion-gate core (v4.13.2). The completion-gate and
     # approval-capture hooks run it from this installed path only.
     $completionGateSource = Join-Path $RepoRoot "scripts\completion_gate.py"

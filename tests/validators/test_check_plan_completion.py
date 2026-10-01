@@ -18,16 +18,33 @@ import os
 import shutil
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CHECKER = REPO_ROOT / "scripts" / "check_plan_completion.py"
-GH_STUB = REPO_ROOT / "tests" / "fixtures" / "gh_stub"
+sys.path.insert(0, str(REPO_ROOT / "tests" / "fixtures" / "gh_stub"))
+from launcher import fixed_ssh_env, gh_stub_dir, make_stub
+
+# A real executable `gh` stand-in: the resolver never runs a Windows .cmd or .bat.
+GH_STUB = gh_stub_dir()
 PLAN_REL = "docs/releases/v0/v0.2/plans/v0.2.0-demo.md"
 EVIDENCE_REL = "docs/releases/v0/v0.2/development/v0.2.0-last-phase-evidence.md"
 SESSION = "session-one"
+TRANSPORT_OVERRIDE_ENV = (
+    "GIT_SSH",
+    "GIT_SSH_COMMAND",
+    "GIT_CONFIG_PARAMETERS",
+    "GIT_CONFIG_COUNT",
+    "http_proxy",
+    "https_proxy",
+    "all_proxy",
+    "HTTP_PROXY",
+    "HTTPS_PROXY",
+    "ALL_PROXY",
+)
 APPROVAL_TEXT = "Yes, push, merge, and release v0.2.0 for acme/demo."
 SECTIONS = (
     "Architecture refactor",
@@ -94,6 +111,10 @@ class Fixture:
         }
         self.save_state()
         self.env = dict(os.environ)
+        # approval.remote treats these as push-route overrides (v4.13.5 WN-2); a host
+        # that sets one must not change what these fixtures observe.
+        for name in (*TRANSPORT_OVERRIDE_ENV, "GH_HOST"):
+            self.env.pop(name, None)
         self.env.update(
             PATH=str(GH_STUB) + os.pathsep + os.environ.get("PATH", ""),
             GH_STUB_STATE=str(self.state_file),
@@ -125,12 +146,32 @@ class Fixture:
         return self.run("check", PLAN_REL, *extra)
 
     def capture(self, session: str, *texts: str) -> None:
+        """Store each text as one whole submitted prompt, as approval-capture does."""
         prompts = self.runs / "prompts"
         prompts.mkdir(parents=True, exist_ok=True)
         path = prompts / f"{hashlib.sha256(session.encode()).hexdigest()}.jsonl"
         with path.open("a", encoding="utf-8") as handle:
             for text in texts:
-                handle.write(json.dumps({"digests": [_digest(text)]}) + "\n")
+                d = _digest(text)
+                entry = {"session": session, "prompt": d, "digests": [d], "at": time.time()}
+                handle.write(json.dumps(entry) + "\n")
+
+    def render(self, session: str, *args: str) -> str:
+        """Open an approval round and return the exact line the checker generated."""
+        rendered = self.run("record", "render", PLAN_REL, "--session", session, *args)
+        assert rendered.returncode == 0, rendered.stderr + rendered.stdout
+        return rendered.stdout.splitlines()[0]
+
+    def paste(self, session: str, *args: str) -> str:
+        """Render a round and capture its exact line as the user's whole prompt.
+
+        The user's own session already holds an earlier prompt (the /implement
+        request), which record create requires from before the round was rendered.
+        """
+        self.capture(session, f"/implement {PLAN_REL}")
+        line = self.render(session, *args)
+        self.capture(session, line)
+        return line
 
     def approvals(self, *extra_classes: dict) -> Path:
         spec = {
@@ -158,23 +199,26 @@ class Fixture:
 
 
 def _ssh_stub(fx: Fixture, hosts: dict[str, str]) -> None:
-    """Put an `ssh` stand-in first on PATH whose `-G <alias>` prints the mapped hostname."""
+    """Make an `ssh` stand-in, whose `-G <alias>` prints the mapped hostname, the ssh git runs.
+
+    The checker subprocesses resolve it through `fixed_ssh_env`, not PATH order: a
+    GitHub Windows runner's git shell prefers Git's bundled ssh whatever PATH says.
+    """
     stub = fx.tmp / "ssh_stub"
     stub.mkdir()
     (stub / "ssh_stub.py").write_text(
         "import json, os, sys\n"
         "hosts = json.loads(os.environ['SSH_STUB_HOSTS'])\n"
-        "alias = sys.argv[-1]\n"
+        "alias = sys.argv[-1].rsplit('@', 1)[-1]  # ssh -G user@host reports the host alone\n"
         "print('user git')\n"
         "print('hostname ' + hosts.get(alias, alias))\n",
         encoding="utf-8",
     )
-    (stub / "ssh.cmd").write_text('@echo off\r\n"%SSH_STUB_PYTHON%" "%~dp0ssh_stub.py" %*\r\n', encoding="utf-8")
-    posix = stub / "ssh"
-    posix.write_text('#!/usr/bin/env bash\nexec "$SSH_STUB_PYTHON" "$(dirname "$0")/ssh_stub.py" "$@"\n', encoding="utf-8")
-    posix.chmod(0o755)
+    # A real executable (ssh.exe on Windows): the resolver never runs a .cmd or .bat.
+    ssh = make_stub(stub, "ssh", stub / "ssh_stub.py")
     fx.env.update(
         PATH=str(stub) + os.pathsep + fx.env["PATH"],
+        **fixed_ssh_env(ssh, fx.env),
         SSH_STUB_HOSTS=json.dumps(hosts),
         SSH_STUB_PYTHON=sys.executable,
     )
@@ -201,7 +245,8 @@ def _build(
     fx.write("CHANGELOG.md", "# Changelog\n")
     _git(fx.work, "add", "-A")
     _git(fx.work, "commit", "-q", "-m", "start")
-    fx.capture(SESSION, APPROVAL_TEXT)
+    approvals = fx.approvals(*extra_classes)
+    fx.paste(SESSION, "--approvals", str(approvals))
     created = fx.run(
         "record",
         "create",
@@ -209,7 +254,7 @@ def _build(
         "--session",
         SESSION,
         "--approvals",
-        str(fx.approvals(*extra_classes)),
+        str(approvals),
     )
     assert created.returncode == 0, created.stderr + created.stdout
     fx.write("src/a.txt", "a\n")
@@ -555,7 +600,8 @@ def test_blocker_blocks_and_answer_clears(complete: Fixture) -> None:
     )
     assert blocked.returncode == 3
     assert complete.check().stdout.splitlines()[0] == "BLOCKED: no-progress"
-    complete.capture(SESSION, "Keep going, the score is flat because CI is slow.")
+    line = complete.paste(SESSION, "--action", "answer", "--blocker", "0")
+    assert line.startswith("Continue /implement v0.2.0 past blocker 0 (approval ")
     answered = complete.run(
         "record",
         "answer",
@@ -565,7 +611,7 @@ def test_blocker_blocks_and_answer_clears(complete: Fixture) -> None:
         "--blocker",
         "0",
         "--text",
-        "Keep going, the score is flat because CI is slow.",
+        line,
     )
     assert answered.returncode == 0, answered.stderr
     assert complete.check().returncode == 0
@@ -607,26 +653,17 @@ def test_pause_wins_over_blocker_and_resume_restores(complete: Fixture) -> None:
         "--evidence",
         "x",
     )
-    complete.capture(SESSION, "pause the run", "resume the run")
+    complete.paste(SESSION, "--action", "pause")
     assert (
-        complete.run(
-            "record", "pause", PLAN_REL, "--session", SESSION, "--text", "pause the run"
-        ).returncode
+        complete.run("record", "pause", PLAN_REL, "--session", SESSION).returncode
         == 0
     )
     paused = complete.check()
     assert paused.returncode == 4
     assert paused.stdout.splitlines()[0] == "PAUSED"
+    complete.paste(SESSION, "--action", "resume")
     assert (
-        complete.run(
-            "record",
-            "resume",
-            PLAN_REL,
-            "--session",
-            SESSION,
-            "--text",
-            "resume the run",
-        ).returncode
+        complete.run("record", "resume", PLAN_REL, "--session", SESSION).returncode
         == 0
     )
     assert complete.check().stdout.splitlines()[0] == "BLOCKED: no-progress"
@@ -643,7 +680,12 @@ def test_pause_text_must_come_from_the_user(complete: Fixture) -> None:
         "agent-invented pause",
     )
     assert result.returncode == 3
-    assert result.stdout.strip() == "BLOCKED: approval-not-covered"
+    assert result.stdout.splitlines() == ["BLOCKED: approval-not-covered", "reason: not-rendered"]
+    complete.capture(SESSION, "pause the run")
+    complete.render(SESSION, "--action", "pause")
+    typed = complete.run("record", "pause", PLAN_REL, "--session", SESSION)
+    assert typed.stdout.splitlines() == ["BLOCKED: approval-not-covered", "reason: approval-not-captured"]
+    assert complete.check().returncode == 0
 
 
 @pytest.mark.parametrize(
@@ -686,6 +728,7 @@ def test_record_create_rejects_an_approval_the_user_never_typed(tmp_path: Path) 
     _git(tmp_path, "init", "-q", "-b", "main", str(fx.work))
     fx.write(PLAN_REL, PLAN.format(a=" ", b=" "))
     fx.capture(SESSION, "something else entirely")
+    fx.render(SESSION, "--approvals", str(fx.approvals()))
     result = fx.run(
         "record",
         "create",
@@ -696,7 +739,7 @@ def test_record_create_rejects_an_approval_the_user_never_typed(tmp_path: Path) 
         str(fx.approvals()),
     )
     assert result.returncode == 3
-    assert result.stdout.strip() == "BLOCKED: approval-not-covered"
+    assert result.stdout.splitlines() == ["BLOCKED: approval-not-covered", "reason: approval-not-captured"]
     assert not list(fx.runs.glob("*.json"))
 
 
@@ -714,13 +757,15 @@ def test_record_create_rejects_a_push_remote_outside_the_approved_repo(
         str(fx.remote) if push_url == "local" else push_url,
     )
     fx.write(PLAN_REL, PLAN.format(a=" ", b=" "))
-    fx.capture(SESSION, APPROVAL_TEXT)
+    fx.paste(SESSION, "--approvals", str(fx.approvals()))
     result = fx.run(
         "record", "create", PLAN_REL, "--session", SESSION,
         "--approvals", str(fx.approvals()),
     )
     assert result.returncode == 3
-    assert result.stdout.strip() == "BLOCKED: approval-not-covered"
+    assert result.stdout.splitlines() == [
+        "BLOCKED: approval-not-covered", "reason: push-remote-outside-approval"
+    ]
     assert not list(fx.runs.glob("*.json"))
 
 
@@ -729,7 +774,7 @@ def test_record_create_accepts_an_approved_ssh_push_remote(tmp_path: Path) -> No
     _git(tmp_path, "init", "-q", "-b", "main", str(fx.work))
     _git(fx.work, "remote", "add", "origin", "git@github.com:acme/demo.git")
     fx.write(PLAN_REL, PLAN.format(a=" ", b=" "))
-    fx.capture(SESSION, APPROVAL_TEXT)
+    fx.paste(SESSION, "--approvals", str(fx.approvals()))
     result = fx.run(
         "record", "create", PLAN_REL, "--session", SESSION,
         "--approvals", str(fx.approvals()),
@@ -754,13 +799,15 @@ def test_record_create_refuses_an_alias_whose_real_host_is_not_github(tmp_path: 
     _git(tmp_path, "init", "-q", "-b", "main", str(fx.work))
     _git(fx.work, "remote", "add", "origin", "git@gitlab-work:acme/demo.git")
     fx.write(PLAN_REL, PLAN.format(a=" ", b=" "))
-    fx.capture(SESSION, APPROVAL_TEXT)
+    fx.paste(SESSION, "--approvals", str(fx.approvals()))
     result = fx.run(
         "record", "create", PLAN_REL, "--session", SESSION,
         "--approvals", str(fx.approvals()),
     )
     assert result.returncode == 3
-    assert result.stdout.strip() == "BLOCKED: approval-not-covered"
+    assert result.stdout.splitlines() == [
+        "BLOCKED: approval-not-covered", "reason: push-remote-outside-approval"
+    ]
     assert not list(fx.runs.glob("*.json"))
 
 
@@ -798,13 +845,15 @@ def test_record_create_rejects_multiple_push_destinations(tmp_path: Path) -> Non
         "https://github.com/evil/fork.git",
     )
     fx.write(PLAN_REL, PLAN.format(a=" ", b=" "))
-    fx.capture(SESSION, APPROVAL_TEXT)
+    fx.paste(SESSION, "--approvals", str(fx.approvals()))
     result = fx.run(
         "record", "create", PLAN_REL, "--session", SESSION,
         "--approvals", str(fx.approvals()),
     )
     assert result.returncode == 3
-    assert result.stdout.strip() == "BLOCKED: approval-not-covered"
+    assert result.stdout.splitlines() == [
+        "BLOCKED: approval-not-covered", "reason: push-remote-outside-approval"
+    ]
 
 
 def test_record_create_without_capture_or_terminal_fails_closed(tmp_path: Path) -> None:
@@ -816,6 +865,7 @@ def test_record_create_without_capture_or_terminal_fails_closed(tmp_path: Path) 
         if os.name == "nt"
         else {"start_new_session": True}
     )
+    fx.render("no-capture", "--approvals", str(fx.approvals()))
     result = fx.run(
         "record",
         "create",
@@ -828,7 +878,7 @@ def test_record_create_without_capture_or_terminal_fails_closed(tmp_path: Path) 
         **detach,
     )
     assert result.returncode == 3
-    assert result.stdout.strip() == "BLOCKED: approval-not-covered"
+    assert result.stdout.splitlines() == ["BLOCKED: approval-not-covered", "reason: approval-not-captured"]
 
 
 def test_record_create_rejects_a_ci_security_class(tmp_path: Path) -> None:
@@ -884,13 +934,9 @@ def test_record_create_auto_binds_the_session_that_captured_the_approvals(
     _git(fx.work, "remote", "add", "origin", "https://github.com/acme/demo.git")
     fx.write(PLAN_REL, PLAN.format(a=" ", b=" "))
     fx.capture("other-session", "unrelated prompt")
-    prompts = fx.runs / "prompts"
-    path = prompts / f"{hashlib.sha256(b'the-real-session').hexdigest()}.jsonl"
-    path.write_text(
-        json.dumps({"session": "the-real-session", "digests": [_digest(APPROVAL_TEXT)]})
-        + "\n",
-        encoding="utf-8",
-    )
+    fx.capture("the-real-session", f"/implement {PLAN_REL}")
+    line = fx.render("auto", "--approvals", str(fx.approvals()))
+    fx.capture("the-real-session", line)
     result = fx.run(
         "record",
         "create",
@@ -911,6 +957,7 @@ def test_record_create_auto_without_a_matching_capture_is_blocked(
     _git(tmp_path, "init", "-q", "-b", "main", str(fx.work))
     fx.write(PLAN_REL, PLAN.format(a=" ", b=" "))
     fx.capture("other-session", "unrelated prompt")
+    fx.render("auto", "--approvals", str(fx.approvals()))
     result = fx.run(
         "record",
         "create",
@@ -921,7 +968,7 @@ def test_record_create_auto_without_a_matching_capture_is_blocked(
         str(fx.approvals()),
     )
     assert result.returncode == 3
-    assert result.stdout.strip() == "BLOCKED: approval-not-covered"
+    assert result.stdout.splitlines() == ["BLOCKED: approval-not-covered", "reason: approval-not-captured"]
 
 
 def test_record_path_reports_existence(complete: Fixture) -> None:

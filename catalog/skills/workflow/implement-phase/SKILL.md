@@ -13,6 +13,8 @@ The complete, ordered procedure is in [`references/implement-phase-runbook.md`](
 
 What "done" means for a full run (the predicates, verdicts, run record, blockers, and pause) is owned by [`references/completion-contract.md`](references/completion-contract.md) and decided by the plan-completion checker (`python ~/.nexus-hub/scripts/check_plan_completion.py`, installed with Nexus-Hub); this skill refers to that contract and does not restate its predicates.
 
+The upfront approval page's words, sections, and paste-line shapes live in [`references/approval-page.md`](references/approval-page.md); the page is printed by `record render ... --page`.
+
 ## When to Use This Skill
 
 - Implementing a specific phase of an existing plan ("implement phase 3", "build the next phase", "continue the plan").
@@ -34,7 +36,7 @@ What "done" means for a full run (the predicates, verdicts, run record, blockers
 
 The runbook defines ten stages; the load-bearing ones:
 
-- **Phase 0 - Resolve and detect.** Resolve the plan and mode (full by default; one phase only with `phase <N>` or `next`); set `is_final_phase` from the five signals (phase ordering, title heuristics, prior-phase completion, plan metadata, adjacent plans). One-phase mode shows a pre-flight summary and waits; full mode runs the upfront approval round (Phase 0a) once and records it.
+- **Phase 0 - Resolve and detect.** Resolve the plan and mode (full by default; one phase only with `phase <N>` or `next`; a minor token `vX.Y` resolves to that minor's member plans, run in version order under one approval, per the runbook's Phase 0 and the completion contract); set `is_final_phase` from the five signals (phase ordering, title heuristics, prior-phase completion, plan metadata, adjacent plans). One-phase mode shows a pre-flight summary and waits; full mode runs the upfront approval round (Phase 0a) once and records it.
 - **Phases 1-2 - Review and implement.** Review the plan against the codebase, then implement subtask by subtask, in scope, logging `# DEVIATION:` markers.
 - **Phases 3-7 - Lint, test, gate.** Lint/format; run the tests in THIS phase's blast radius (the files Phase 2 touched, plus the repo's fast gate) rather than the whole suite; write tests for genuinely new behavior; troubleshoot failures (max 3 iterations, classified IMPL/TEST/ENV); apply the five-part GO/NO-GO gate (0 failures in scope, no coverage regression on touched files, 0 lint errors, build succeeds, and the phase's feature matches expected behavior through a cheap real-boundary smoke delegated to `[[functional-verification]]`).
 - **Phase 8 - Post-phase sequence (every phase).** The eleven steps 8.1-8.11 run in strict order. 8.3 RECORDS this phase's CI impact against `[[cicd-architect]]` and does NOT author or optimize a pipeline file unless CI/CD is this phase's explicit deliverable. 8.4 always writes `## Plan delta` in the current phase's session history and escalates only a blocking Wrong, Incomplete, or False assumption disposition. 8.11 is COMMIT-ONLY on every non-final phase in every mode: one-phase asks Commit / Amend / Stop, `full` auto-commits, and `phase-by-phase` uses a three-option menu. Push, pull request, and remote CI belong to the final phase alone.
