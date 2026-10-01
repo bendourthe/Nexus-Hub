@@ -1,7 +1,7 @@
 # Session History -- v3.1.0 adoption-claude-red Phase 4: Auth attack methodology fold-in
 
 **Date**: 2026-06-08
-**Plan**: [`docs/releases/v3/v3.1/plans/adoption-claude-red.md`](../../../../../releases/v3/v3.1/plans/adoption-claude-red.md)
+**Plan**: [`docs/archives/v3/v3.1/plans/adoption-claude-red.md`](../../plans/adoption-claude-red.md)
 **Phase**: 4 of 5 -- auth attack methodology fold-in
 **Branch**: `feat/adoption-claude-red` (continued from Phase 3 tip `437026f`)
 **Outcome**: complete; both sub-tasks (T010-T011) closed, all quality gates green.
@@ -67,7 +67,7 @@ The skill changed metadata, so per the plan ("re-register in `data/` only if met
 
 ## Known gaps
 
-See [`docs/releases/v3/v3.1/known-gaps.md`](../../known-gaps.md). 1 new open item this phase (WN-v31cr-5: the enriched body is 903 lines, over the 800-line hard cap -- grandfathered, deep detail externalized, future split recommended), 0 resolved. WN-v31cr-1 was extended to record the fifth >250-char pushy description and its allowlist registration. Carried forward: WN-v31cr-1/-2/-3/-4. Total 5 WN open.
+See [`docs/archives/v3/v3.1/known-gaps.md`](../../known-gaps.md). 1 new open item this phase (WN-v31cr-5: the enriched body is 903 lines, over the 800-line hard cap -- grandfathered, deep detail externalized, future split recommended), 0 resolved. WN-v31cr-1 was extended to record the fifth >250-char pushy description and its allowlist registration. Carried forward: WN-v31cr-1/-2/-3/-4. Total 5 WN open.
 
 ## Next steps
 

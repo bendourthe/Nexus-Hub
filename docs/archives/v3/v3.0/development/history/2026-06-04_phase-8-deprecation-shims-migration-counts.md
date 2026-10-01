@@ -1,7 +1,7 @@
 # Session History -- v3.0.0 Phase 8: Deprecation shims + migration + count reconciliation
 
 **Date**: 2026-06-04
-**Plan**: [`docs/releases/v3/v3.0/plans/command-consolidation-skill-security.md`](../../../../../releases/v3/v3.0/plans/command-consolidation-skill-security.md)
+**Plan**: [`docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md`](../../plans/command-consolidation-skill-security.md)
 **Phase**: 8 of 10 -- Deprecation shims + migration + count reconciliation
 **Outcome**: complete; all sub-tasks (T036-T039) closed, all applicable quality gates green.
 
@@ -42,7 +42,7 @@ Keep every old command working after the 41 -> 14 consolidation, document the mi
 
 ## Known gaps
 
-See [`docs/releases/v3/v3.0/known-gaps.md`](../../known-gaps.md). Three new open items this phase: DF-v30-4 (the 40 deprecation shims and the historical "41 -> 14" count references are intentionally retained through v3.x and removed at v4.0.0), WN-v30-5 (local `make` unavailable on the Windows host, gate emulated directly all-green; no shell surface this phase; covered by CI), and WN-v30-6 (the pre-existing 245-vs-247 skill-count prose drift in the `marketplace.json` / `plugin.json` descriptions; reconcile at the Phase 10 `/update release`, and consider extending the count-consistency guard to non-version counts). Summary: 10 open (4 DF, 6 WN), 0 resolved.
+See [`docs/archives/v3/v3.0/known-gaps.md`](../../known-gaps.md). Three new open items this phase: DF-v30-4 (the 40 deprecation shims and the historical "41 -> 14" count references are intentionally retained through v3.x and removed at v4.0.0), WN-v30-5 (local `make` unavailable on the Windows host, gate emulated directly all-green; no shell surface this phase; covered by CI), and WN-v30-6 (the pre-existing 245-vs-247 skill-count prose drift in the `marketplace.json` / `plugin.json` descriptions; reconcile at the Phase 10 `/update release`, and consider extending the count-consistency guard to non-version counts). Summary: 10 open (4 DF, 6 WN), 0 resolved.
 
 ## Next steps
 

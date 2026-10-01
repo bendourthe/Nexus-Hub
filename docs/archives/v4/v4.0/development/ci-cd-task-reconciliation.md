@@ -6,7 +6,7 @@
 
 ## Artifact and phase evidence
 
-Each of the 62 strict `T001` through `T062` lines was parsed separately. All 62 trailing paths exist after mapping `docs/v3/v3.16/` to `docs/releases/v4/v4.0/` and `docs/archive/v3/v3.16/` to `docs/archives/v4/v4.0/`. The stale paths are plan text retained from its v3.19.0 origin; they are not missing deliverables. Artifact existence alone does not prove a task's behavior, so the phase commits and histories below are the second part of the check.
+Each of the 62 strict `T001` through `T062` lines was parsed separately. All 62 trailing paths exist after mapping `docs/v3/v3.16/` to `docs/archives/v4/v4.0/` and `docs/archive/v3/v3.16/` to `docs/archives/v4/v4.0/`. The stale paths are plan text retained from its v3.19.0 origin; they are not missing deliverables. Artifact existence alone does not prove a task's behavior, so the phase commits and histories below are the second part of the check.
 
 | Tasks | Phase commit | Surviving task and test evidence |
 |---|---|---|

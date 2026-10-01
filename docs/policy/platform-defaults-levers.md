@@ -217,7 +217,7 @@ When re-verifying, check three things per platform: that the documented key name
 
 ### 2026-09-08 - v4.9.0 release follow-up
 
-The [17-row official-source sweep](../releases/v4/v4.9/development/qualification/v4.9-platform-verification.md) found one default-value mismatch. Copilot new installs now seed the documented string `disable` for `permissions.disableBypassPermissionsMode`, confirmed again in the [official configuration reference](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-config-dir-reference). Existing user settings remain seed-if-absent; no user configuration migration was performed. Fourteen rows have documented keys, three remain UNVERIFIED, and this advisory contract has no release freshness gate.
+The [17-row official-source sweep](../archives/v4/v4.9/development/qualification/v4.9-platform-verification.md) found one default-value mismatch. Copilot new installs now seed the documented string `disable` for `permissions.disableBypassPermissionsMode`, confirmed again in the [official configuration reference](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-config-dir-reference). Existing user settings remain seed-if-absent; no user configuration migration was performed. Fourteen rows have documented keys, three remain UNVERIFIED, and this advisory contract has no release freshness gate.
 
 ### 2026-09-14 - v4.12 portable attribution
 
@@ -234,3 +234,7 @@ Scope: the v4.13.4 release re-fetched only the Claude, Cursor, and Codex skill-d
 ### 2026-09-29 - v4.13.5 targeted read-contract pass (no lever recheck)
 
 Scope: the v4.13.5 release re-fetched only the Claude, Cursor, and Codex skill-discovery pages for the read-contract stamp. Those pages do not document the effort, model, or approval levers, so no lever row was rechecked or reclassified this cycle. This contract remains advisory with no release freshness gate.
+
+### 2026-09-30 - v4.13.6 targeted read-contract pass (no lever recheck)
+
+Scope: the v4.13.6 release re-fetched only the Claude, Cursor, and Codex skill-discovery pages for the read-contract stamp. Those pages do not document the effort, model, or approval levers, so no lever row was rechecked or reclassified this cycle. This contract remains advisory with no release freshness gate.

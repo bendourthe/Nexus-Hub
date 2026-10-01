@@ -73,8 +73,9 @@ def test_full_is_canonical_and_in_full_is_the_compatibility_alias() -> None:
     assert "`/implement <slug> full` (alias `in-full`)" in readme
     # The v4.19 type-token migration added data-ty to <code>, so the check
     # tolerates attributes while still pinning the element and its exact text.
+    # v4.13.6 rewrote the card: `<plan> full` is an alias for the whole-plan default.
     assert re.search(
-        r"<code[^>]*>full</code><span>Run every incomplete phase in order \(alias: in-full\)\.",
+        r"<code[^>]*>&lt;plan&gt; full</code><span>Accepted alias for the default \(also in-full\)\.",
         guide,
     ), "the guide cheatsheet must name full as canonical with in-full as its alias"
     assert "implement the plan, implement phase N" in registry

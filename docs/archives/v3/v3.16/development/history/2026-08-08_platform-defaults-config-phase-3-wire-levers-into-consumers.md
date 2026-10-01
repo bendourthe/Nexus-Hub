@@ -1,7 +1,7 @@
 # Session History - v3.16.0 Phase 3: Wire the verified levers into the defaults and their consumers
 
 **Date**: 2026-08-08
-**Plan**: [docs/releases/v3/v3.16/plans/v3.16.0-platform-defaults-config.md](../../../../../releases/v3/v3.16/plans/v3.16.0-platform-defaults-config.md)
+**Plan**: [docs/archives/v3/v3.16/plans/v3.16.0-platform-defaults-config.md](../../plans/v3.16.0-platform-defaults-config.md)
 **Phase**: 3 of 5 (not the final phase)
 **Branch**: `feat/platform-defaults-config`
 **Outcome**: Complete. All four quality gates passed. Two defects found by the test suite and fixed in-phase.
@@ -57,7 +57,7 @@ Two defects, both caught by the integration suite rather than by review.
 
 ## Known gaps
 
-BG-2, BG-3, DF-3, QG-2 closed in-phase; NI-2 resolved. NI-5 (four declared-but-not-writable platforms) and NI-6 (hermes is seedable but not installed by default) opened. Recorded in [docs/releases/v3/v3.16/known-gaps.md](../../known-gaps.md).
+BG-2, BG-3, DF-3, QG-2 closed in-phase; NI-2 resolved. NI-5 (four declared-but-not-writable platforms) and NI-6 (hermes is seedable but not installed by default) opened. Recorded in [docs/archives/v3/v3.16/known-gaps.md](../../known-gaps.md).
 
 ## Next steps
 

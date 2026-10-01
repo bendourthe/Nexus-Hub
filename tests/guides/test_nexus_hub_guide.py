@@ -643,7 +643,7 @@ def test_home_lists_the_five_approved_platforms_from_ledger_bytes(guide_text: st
     staged_dir = (
         _ROOT
         / "docs"
-        / "releases"
+        / "archives"
         / "v4"
         / "v4.4"
         / "development"

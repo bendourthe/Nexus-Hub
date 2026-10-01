@@ -4,7 +4,7 @@
 **Phase**: 1 - Queue enumeration and baseline
 **Date**: 2026-09-10
 **Branch**: `feat/v4.10.0-plan-queue-continuity`
-**Evidence**: [phase-1-enumeration.md](../../../../../releases/v4/v4.10/development/phase-1-enumeration.md)
+**Evidence**: [phase-1-enumeration.md](../phase-1-enumeration.md)
 
 ## Context
 
@@ -22,7 +22,7 @@ This plan was authored in the v4.11.0 slot and swapped to v4.10.0 on the same da
 - `scripts/enumerate_plan_queue.py` - new.
 - `tests/validators/test_enumerate_plan_queue.py` - new, 18 tests.
 - `catalog/hooks/tests/test_installer_smoke.py` - one `DEV_ONLY_SCRIPTS` entry with its reason.
-- `docs/releases/v4/v4.10/development/phase-1-enumeration.md` - new, phase evidence.
+- `docs/archives/v4/v4.10/development/phase-1-enumeration.md` - new, phase evidence.
 
 ## Test results
 

@@ -1,7 +1,7 @@
 # Session History -- v3.2.0 adoption-headroom Phase 6: Optional ML token-dropper
 
 **Date**: 2026-06-09
-**Plan**: [`docs/releases/v3/v3.2/plans/adoption-headroom.md`](../../../../../releases/v3/v3.2/plans/adoption-headroom.md)
+**Plan**: [`docs/archives/v3/v3.2/plans/adoption-headroom.md`](../../plans/adoption-headroom.md)
 **Phase**: 6 of 7 -- Optional ML token-dropper (re-partial)
 **Branch**: `feat/adoption-headroom` (continuing from Phase 5)
 **Outcome**: complete; both sub-tasks (T019-T020) closed, all quality gates green (GO). Reconciled on 2026-06-10 with a parallel duplicate implementation (see Reconciliation below): the pushed lossy base was kept and CCR-reversibility was grafted onto it per the maintainer's decision.
@@ -58,7 +58,7 @@ Add the free-text compression path the deterministic engine deliberately lacks. 
 
 ## Known gaps
 
-Logged in [`docs/releases/v3/v3.2/known-gaps.md`](../../known-gaps.md): DF-v32hr-10 moved to Resolved (the scheduled free-text mechanism shipped, opt-in/default-off); new DF-v32hr-14 (ML dropper not auto-wired into the default runtime pipeline), DF-v32hr-15 (whitespace-word vs upstream sub-word granularity), MT-v32hr-1 (live ONNX inference glue unrunnable in CI without the `[ml]` deps + weights), WN-v32hr-4 (partial Windows local verification). Open total 21, resolved 2.
+Logged in [`docs/archives/v3/v3.2/known-gaps.md`](../../known-gaps.md): DF-v32hr-10 moved to Resolved (the scheduled free-text mechanism shipped, opt-in/default-off); new DF-v32hr-14 (ML dropper not auto-wired into the default runtime pipeline), DF-v32hr-15 (whitespace-word vs upstream sub-word granularity), MT-v32hr-1 (live ONNX inference glue unrunnable in CI without the `[ml]` deps + weights), WN-v32hr-4 (partial Windows local verification). Open total 21, resolved 2.
 
 ## Next steps
 

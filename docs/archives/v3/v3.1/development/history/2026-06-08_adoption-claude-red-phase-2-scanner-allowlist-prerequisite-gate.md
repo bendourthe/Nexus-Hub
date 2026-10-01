@@ -1,7 +1,7 @@
 # Session History -- v3.1.0 adoption-claude-red Phase 2: Scanner allowlist prerequisite gate
 
 **Date**: 2026-06-08
-**Plan**: [`docs/releases/v3/v3.1/plans/adoption-claude-red.md`](../../../../../releases/v3/v3.1/plans/adoption-claude-red.md)
+**Plan**: [`docs/archives/v3/v3.1/plans/adoption-claude-red.md`](../../plans/adoption-claude-red.md)
 **Phase**: 2 of 5 -- scanner allowlist prerequisite gate
 **Branch**: `feat/adoption-claude-red` (continued from Phase 1 tip `3c815fe`)
 **Outcome**: complete; both sub-tasks (T005-T006) closed, all quality gates green.
@@ -57,7 +57,7 @@ Conclusion: the one residual HIGH path on a markdown security skill body is the 
 
 ## Known gaps
 
-See [`docs/releases/v3/v3.1/known-gaps.md`](../../known-gaps.md). One new open item this phase: WN-v31cr-4 (pre-existing unused `import pytest` in the validator test file left untouched; the scanner package is non-ruff-format-clean by convention -- both deferred to a dedicated lint-hygiene change, not gated by CI/make). 0 resolved. Carried forward: WN-v31cr-1/-2/-3. Total 4 WN open.
+See [`docs/archives/v3/v3.1/known-gaps.md`](../../known-gaps.md). One new open item this phase: WN-v31cr-4 (pre-existing unused `import pytest` in the validator test file left untouched; the scanner package is non-ruff-format-clean by convention -- both deferred to a dedicated lint-hygiene change, not gated by CI/make). 0 resolved. Carried forward: WN-v31cr-1/-2/-3. Total 4 WN open.
 
 ## Next steps
 

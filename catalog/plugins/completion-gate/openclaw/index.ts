@@ -7,6 +7,8 @@
 // Needs plugins.entries.nexus-completion-gate.enabled and
 // hooks.allowConversationAccess (see `openclaw plugins enable`).
 // Policy: catalog/skills/workflow/implement-phase/references/completion-contract.md
+// A schema-2 (minor) record needs nothing here: the core judges it through
+// check-minor and score-minor inside this plugin's budget (v4.13.6).
 import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
 // Shared gate call (see the OpenCode and Pi plugins for the same block).
 import { spawn } from "node:child_process";

@@ -1,6 +1,6 @@
 # Retained report pilot control qualification
 
-This record qualifies v4.11 MT-9 against the retained report pilot at `docs/releases/v4/v4.11/development/interactive-handbooks/phase-6-native-attempts/report-final/pilot.html`. It is for maintainers deciding whether every meaningful control in that artifact was exercised; it does not turn the pilot's separate whole-page visual result into a pass or reconstruct the original unretained four-button artifact.
+This record qualifies v4.11 MT-9 against the retained report pilot at `docs/archives/v4/v4.11/development/interactive-handbooks/phase-6-native-attempts/report-final/pilot.html`. It is for maintainers deciding whether every meaningful control in that artifact was exercised; it does not turn the pilot's separate whole-page visual result into a pass or reconstruct the original unretained four-button artifact.
 
 ## Artifact and inventory
 

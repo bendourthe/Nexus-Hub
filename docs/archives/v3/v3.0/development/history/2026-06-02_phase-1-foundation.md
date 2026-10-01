@@ -1,7 +1,7 @@
 # Session History -- v3.0.0 Phase 1: Foundation (version-sync guard + command scaffolding)
 
 **Date**: 2026-06-02
-**Plan**: [`docs/releases/v3/v3.0/plans/command-consolidation-skill-security.md`](../../../../../releases/v3/v3.0/plans/command-consolidation-skill-security.md)
+**Plan**: [`docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md`](../../plans/command-consolidation-skill-security.md)
 **Phase**: 1 of 10 -- Foundation: version-sync guard + command scaffolding
 **Outcome**: complete; all four sub-tasks (T001-T004) closed, all quality gates green.
 
@@ -44,7 +44,7 @@ Close the v2.4.0-class CI version-drift failure systemically (installers were pi
 
 ## Known gaps
 
-See [`docs/releases/v3/v3.0/known-gaps.md`](../../known-gaps.md). One open item: WN-v30-1 (local lint verification partial; ShellCheck deferred to CI; low severity, covered by CI).
+See [`docs/archives/v3/v3.0/known-gaps.md`](../../known-gaps.md). One open item: WN-v30-1 (local lint verification partial; ShellCheck deferred to CI; low severity, covered by CI).
 
 ## Next steps
 

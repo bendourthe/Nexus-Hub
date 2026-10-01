@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: released; PR #230 merged the complete 34-task plan and tag `v4.13.0` was published on 2026-09-21. Two bounded warning-class findings remain owned for future measurement work. GitHub branch protection passed a live pull-request gate test; the second trigger pilot stopped on an unproven spend bound.
-**Last updated**: 2026-09-28
+**Last updated**: 2026-09-30
 
 Release-scoped gaps for the evidence-driven agent improvement plan. Planned future-phase work is tracked in the plan rather than reported as completed here.
 
@@ -206,21 +206,21 @@ The v4.4 `RV-1` through `RV-5` visual choices belong to the user-rejected guide 
 
 The v4.9 MT-3 [chart-line paint follow-up](../../../archives/v4/v4.9/development/runtime-deck-all-state-2026-09-27/chart-line-paint-verification.md) checked all 31 settled SVG line paths across 14 real-deck charts at four viewports with invisible-line and null-stroke controls. It narrows internal SVG evidence but does not close MT-3 or change the other-mark, build-budget, static-stage, or figure-map limits in the inventory row.
 
-**Archive relocation, 2026-09-28**: all 12 source ledgers matched the hashes previously recorded below at pre-move `develop` commit `42490dca`. They then moved to `docs/archives/v4/<minor>/known-gaps.md`; relative links inside and into them were repaired without changing any gap status or ID. The hashes below now bind the archived, link-repaired bytes. The pre-move hashes and files remain recoverable from `42490dca`; v4.13 gaps were not transferred or moved.
+**Archive relocation, 2026-09-28**: all 12 source ledgers matched the hashes previously recorded below at pre-move `develop` commit `42490dca`. They then moved to `docs/archives/v4/<minor>/known-gaps.md`; relative links inside and into them were repaired without changing any gap status or ID. The hashes below now bind the archived, link-repaired bytes. The pre-move hashes and files remain recoverable from `42490dca`; v4.13 gaps were not transferred or moved. **Re-binding, 2026-09-29**: the whole-minor archive of v3 and the remaining v4.0-v4.11 content rewrote links and path mentions inside ten of the bound files (nine ledgers and the v4.4.6 plan) so they resolve to `docs/archives/`; no gap status, ID, or task box changed. The affected hashes below were recomputed to bind those repaired bytes.
 
 | Minor | Source ledger | Normalized SHA-256 |
 |---|---|---|
-| v4.0 | [ledger](../../../archives/v4/v4.0/known-gaps.md) | `c23e5407203ded6534572d4623e3f1eaf79833f64cdbd22d2e6e81206a5d0bef` |
-| v4.1 | [ledger](../../../archives/v4/v4.1/known-gaps.md) | `37ac0efa79e931732ad35c8a457d4505ce037f88a120e37faf34a7d5d2e08479` |
+| v4.0 | [ledger](../../../archives/v4/v4.0/known-gaps.md) | `6c5e0e0b004962e069b6e64d64a4d798040c41af6dfbf68649baa65120c5cece` |
+| v4.1 | [ledger](../../../archives/v4/v4.1/known-gaps.md) | `88d897f04f39fccd2d9f8510eb2e2087eef002c6e0105567471b6ad8220ae92f` |
 | v4.2 | [ledger](../../../archives/v4/v4.2/known-gaps.md) | `a4d0a59eda36b082658eba9e487fad2e814e67abfc03ba5cf8e97e5dd895be5c` |
-| v4.3 | [ledger](../../../archives/v4/v4.3/known-gaps.md) | `8e8e0a158dfb393fcfb30a2159a3132ed50828a07d343eb2d89a378456515b93` |
-| v4.4 | [ledger](../../../archives/v4/v4.4/known-gaps.md) | `46a8af3244fcd4c3349882d0300208e2d53c29d5800b955e6b33fdf2f606ed43` |
-| v4.5 | [ledger](../../../archives/v4/v4.5/known-gaps.md) | `ed0ec93219eb703cc90fca65321eaf5263435bebeac4943a6337362c52db87fb` |
+| v4.3 | [ledger](../../../archives/v4/v4.3/known-gaps.md) | `5b1938c1fc8c82d8ac3ed9d336f67bb4fda837613a56862eca72f3d1049d5bfe` |
+| v4.4 | [ledger](../../../archives/v4/v4.4/known-gaps.md) | `61eb0551a28455c05278b5e2ac8f9537d7d345290a7d776abd92cff788f9ebee` |
+| v4.5 | [ledger](../../../archives/v4/v4.5/known-gaps.md) | `e710101fc0703f881213a3878db25bb90fee00d3ecd42cbb1f3d87baba8e0821` |
 | v4.7 | [ledger](../../../archives/v4/v4.7/known-gaps.md) | `c2784033a6af2f4732dba11faade29f7d15ca2d169f6a680f4ed6919438cb1e9` |
-| v4.8 | [ledger](../../../archives/v4/v4.8/known-gaps.md) | `f7453e6a9ecaa8319bd981de2191c6e1482bc4a744e06cb4ae47855a9973abd0` |
-| v4.9 | [ledger](../../../archives/v4/v4.9/known-gaps.md) | `f146cc02b42123d88e85500511e67cb9058d74c6d76763f4000fc5c40b03edd2` |
-| v4.10 | [ledger](../../../archives/v4/v4.10/known-gaps.md) | `47a5346796ff0bd72ad0e7301ca57a8ae4c15046455fd2267a139e6e2d405c56` |
-| v4.11 | [ledger](../../../archives/v4/v4.11/known-gaps.md) | `a863d4a81ffa7d2611b05629c663c3daade4f1442b3f87e7bfb9c23de351a5cb` |
+| v4.8 | [ledger](../../../archives/v4/v4.8/known-gaps.md) | `2cfc2e926c7c047e196912380f5b3f2a84fba1a1a81d2deda435312b12344145` |
+| v4.9 | [ledger](../../../archives/v4/v4.9/known-gaps.md) | `d8ad404447d2781b2ee004a965a9a64abde6ce73463ec5fda12bb60934f04e73` |
+| v4.10 | [ledger](../../../archives/v4/v4.10/known-gaps.md) | `2f401dcaddcee1152ac8496b0b43f181d2d8ef5503be3b3db03bf34bd03cd8f6` |
+| v4.11 | [ledger](../../../archives/v4/v4.11/known-gaps.md) | `4477c11bbfafe6417c219c2a6da5571b6745c06077b9b6e7f9d0bc419bd8b54c` |
 | v4.12 | [ledger](../../../archives/v4/v4.12/known-gaps.md) | `b33b58bf6c5083728bd52b0be944f9afef927a0076b2f03d43ebb9a5bf5264c2` |
 
 v4.6.0 was never cut. Its unimplemented plan was retargeted through v4.8.0 and completed as the [v4.9.0 adoption plan](../../../archives/v4/v4.9/plans/v4.9.0-adoption-visa-vulnerability-agentic-harness.md); the [v4.8 ledger](../../../archives/v4/v4.8/known-gaps.md) preserves the retargeting history. There is no v4.6 ledger or plan directory to archive. The v4.13.0 entries above already live in this file. v4.13.1 through v4.13.3 are released and excluded from this historical transfer; v4.13.4 remains in flight in a separate worktree.
@@ -230,7 +230,7 @@ Two older plans retain unchecked strict task lines for historical reasons. Their
 | Historical plan | Normalized SHA-256 | Disposition | Evidence |
 |---|---|---|---|
 | [plan](../../../archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md) | `dd60b8ac2b1c8def0615e28f54420bb2480f93dbd7afeabf0081a45b89d7e8e0` | implemented-evidence; 62 retained boxes | [task reconciliation](../../../archives/v4/v4.0/development/ci-cd-task-reconciliation.md) |
-| [plan](../../../archives/v4/v4.4/plans/v4.4.6-guide-learning-experience.md) | `11f2c8648c8526cceba37ed67e10cd22efc8c2b7ff3dece8890bb43a7ed1d990` | superseded-by-user; 3 retained boxes | [restoration verification](../v4.4/development/guide-learning-experience/restoration/verification.md) |
+| [plan](../../../archives/v4/v4.4/plans/v4.4.6-guide-learning-experience.md) | `62adff744844a699ba8318412e21e176b2ec0ed9f1d8ed02b135d33dc125f997` | superseded-by-user; 3 retained boxes | [restoration verification](../../../archives/v4/v4.4/development/guide-learning-experience/restoration/verification.md) |
 
 ### Historical unchecked checklist inventory
 
@@ -260,6 +260,392 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 | [v4.11.0 interactive authoring](../../../archives/v4/v4.11/plans/v4.11.0-interactive-handbooks-and-presentation-default.md) | 9 | 0 |
 | [v4.11.2 document and deck](../../../archives/v4/v4.11/plans/v4.11.2-adoption-document-and-deck-quality.md) | 1 | 0 |
 | [v4.12.0 attribution](../../../archives/v4/v4.12/plans/v4.12.0-sole-contributor-attribution.md) | 5 | 0 |
+
+## Migrated from archived minors (v3.x, v4.0-v4.11) - 2026-09-29
+
+On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.3, v4.4, v4.5, v4.9, v4.10, and v4.11 moved to `docs/archives/`. Before the move, each open item in the v3.0-v3.21 ledgers was audited against the tree: items with concrete evidence were marked resolved in their source file, items made moot by a removal or a recorded decision were closed there with the reason, and the items below are the ones still genuinely open. Duplicates recorded by several minors are merged into one entry. Each source ledger now states `**Open items**: 0` and ends with an `Archive reconciliation - 2026-09-29` table naming every disposition. The v4.0-v4.11 ledgers were already archived and routed by the historical inventory above; their open items stay there and are not repeated here. v3.5 had no known-gaps register; its only plan has no unchecked boxes and tag `v3.5.0` exists.
+
+**Migrated items**: 58 open (2 resolved: AR-01 and AR-02 in v4.13.6 Phase 8): 57 from 137 source rows, plus AR-58 raised by the archive pass itself, plus AR-59 and AR-60 recovered on 2026-09-30 from an unmerged local ledger draft. Migration transfers tracking only: each entry below stays open until its own evidence closes it.
+
+### Security-relevant
+
+#### AR-02: `secret-scan.sh` allows every write on a host without `jq` - RESOLVED 2026-09-30
+
+- **Current state**: `catalog/hooks/secret-scan.sh` exits 0 when `jq` is missing, so the secret scan silently does nothing there.
+- **Owner and next step**: hooks maintainer; reuse the Python fallback already used by `old-version-docs-guard.sh` (v4.0 BG-5), with a test that removes `jq` from PATH.
+- **Migrated from**: v3.16.2#BG-2 on 2026-09-29 (reason: still open; verified by reading the hook on 2026-09-29).
+- **Resolution** (v4.13.6 Phase 8): root cause was the `else exit 0` branch taken whenever `jq` was missing. The hook now reads the payload with jq, falls back to Python 3 (the same fallback `old-version-docs-guard.sh` uses), and fails closed (exit 2, "cannot be scanned") with neither; a malformed payload is still allowed on every path, as in the `.ps1`. The new parity suite also exposed an older defect on every host: the four private-key patterns start with `-----`, so `grep -qE "$PATTERN"` read them as options and never matched; the hook now passes `-e`. Tests: `catalog/hooks/tests/test_secret_scan.py` (each case parametrized over `sh-jq`, `sh-python` with a PATH that holds no jq, and `ps1`: `test_a_secret_is_blocked`, `test_a_secret_in_an_edit_new_string_is_blocked`, `test_clean_content_is_allowed`, `test_a_payload_without_content_is_allowed`, `test_the_report_names_the_category_not_the_secret`, plus `test_the_sh_fails_closed_with_neither_jq_nor_python`) and `test_hook_sibling_parity.py::test_secret_scan_blocks_a_real_secret`, which previously asserted the fail-open exit 0.
+
+#### AR-03: The presentify repository walk has no secret redaction
+
+- **Current state**: the extractor copies repository text into the generated site; the extraction runbook only warns about secrets.
+- **Owner and next step**: presentify owner; route repository-walk text through `egress-redaction` rules before it reaches the output.
+- **Migrated from**: v3.13#DF-3 on 2026-09-29 (reason: still open).
+
+### Installer and CLI
+
+#### AR-01: `nexus-hub init` is unreachable through the launcher - RESOLVED 2026-09-30
+
+- **Current state**: `python scripts/nexus_hub_cli.py init --help` exits with "invalid choice: 'init'" (observed 2026-09-29). The installer tells users to run `nexus-hub init`, and `nexus-hub-autoseed.sh` calls it and ignores the failure. `init` exists only in `scripts/lib/integrations/runner.py` and as an installer subcommand; the monorepo `--target` support (spec-kit S8) is therefore unreachable too.
+- **Owner and next step**: installer/CLI maintainer; add an `init` passthrough to `nexus_hub_cli.py` with a launcher-level test, then close S8 once `nexus-hub init --target <subdir>` works end to end.
+- **Migrated from**: v3.11#DF-1 (launcher part) and v3.11#DF-v311-speckit-S8 on 2026-09-29 (reason: live defect found during the audit).
+- **Resolution** (v4.13.6 Phase 8): root cause was that `scripts/nexus_hub_cli.py`, which both launchers call, never registered `init`; only `installer.sh init` / `installer.ps1 init` reached the runner. The CLI now forwards `init` and every token verbatim to `scripts/lib/integrations/runner.py init`, with the same `NEXUS_HUB_INIT=1` marker the installers set, from the first tree that holds both the runner and `catalog/` (`NEXUS_HUB_SRC`, the checkout the CLI runs from, then `~/.nexus-hub/src`); the installed `scripts/` tree has no catalog, so with no source tree it exits 2 with a remedy instead of an argparse error. No installer or hook edit was needed. Observed: `python scripts/nexus_hub_cli.py init --help` prints the runner's usage, and `init --target <dir> --dry-run` lists the Antigravity, Cursor, and Claude surfaces. Tests: `tests/installer/test_init_cli.py` (`test_init_forwards_every_token_and_the_intent_marker`, `test_init_returns_the_runner_exit_code`, `test_nexus_hub_src_takes_precedence_over_the_bootstrap_tree`, `test_a_runner_without_a_catalog_is_not_a_source_tree`, `test_init_is_no_longer_an_invalid_choice_from_the_checkout`, `test_init_is_listed_in_the_top_level_help`, `test_the_real_runner_seeds_a_monorepo_subdirectory_through_the_cli`, which also closes the spec-kit S8 `--target <subdir>` half, `test_the_posix_launcher_reaches_init`, `test_the_windows_launcher_reaches_init`).
+
+#### AR-05: Hermes is registered but not wired into either installer
+
+- **Current state**: registered in `scripts/lib/integrations/__init__.py`; zero references in `scripts/installer.sh` and `scripts/installer.ps1`.
+- **Owner and next step**: installer maintainer; wire both installer arms and their smoke tests in one change, or record Hermes as registry-only by decision.
+- **Migrated from**: v3.15.2#DF-2, v3.16.0#NI-6, and v3.17.0#DF-4 on 2026-09-29 (reason: one obligation recorded three times, still open).
+
+#### AR-10: A PowerShell early-exit path leaks the selection staging directory
+
+- **Current state**: documented as a residual in `scripts/installer.ps1`.
+- **Owner and next step**: installer maintainer; wrap the post-`Resolve-Selection` flow in try/finally.
+- **Migrated from**: v3.16.1#NI-6 on 2026-09-29 (reason: still open).
+
+#### AR-11: Antigravity skill seeding can exceed the Windows path limit in a deep repository
+
+- **Current state**: `scripts/lib/integrations/base.py` copies skill trees with plain `shutil.copytree`. The same limit broke a plain Python move of the v4.9 benchmark evidence during this archive pass.
+- **Owner and next step**: installer maintainer; use extended-length paths on Windows or shorten the deepest bundled paths.
+- **Migrated from**: v3.11#WN-2 on 2026-09-29 (reason: still open).
+
+#### AR-20: Workspace-scope install output is not grouped like the global install
+
+- **Current state**: `install_workspace` and `Install-Workspace` never call the undetected-platform grouping and still print the verbose Claude block.
+- **Owner and next step**: installer maintainer; apply the global checklist and grouping to the workspace path in both installers.
+- **Migrated from**: v3.14.5#DF-1 on 2026-09-29 (reason: still open).
+
+#### AR-21: `nexus-hub verify` does not cover `extensions/`
+
+- **Current state**: `scripts/generate_manifest.py` `COVERED_ROOTS` is still `catalog`, `templates`, `scripts`, `data`.
+- **Owner and next step**: installer maintainer; extend the manifest to the distributed MCP-server sources or record the exclusion by decision.
+- **Migrated from**: v3.10#DF-v310-ruflo-P4-extensions (also carried in v3.11) on 2026-09-29 (reason: still open).
+
+#### AR-26: No live macOS installer smoke has been recorded
+
+- **Current state**: every step in the v3.7 `development/mac-smoke-test.md` is still pending; CI covers the tarball bootstrap only.
+- **Owner and next step**: installation owner on a macOS host; run `curl | bash` and a `--branch` install and record results. Related to v4.4 HT-2 in the inventory above.
+- **Migrated from**: v3.0#DF-v30-8 and v3.7, v3.8, v3.9#WN-v37-1 on 2026-09-29 (reason: one obligation recorded four times, still open).
+
+#### AR-30: `configs/` is not distributed to installed trees
+
+- **Current state**: `scripts/lib/integrations/platform_defaults.py` falls back when the source file is absent; AGENTS.md calls the file repo-internal but no decision closes this item.
+- **Owner and next step**: maintainer; record "maintainer surface only" by decision, or add a copy step to both installers.
+- **Migrated from**: v3.16.0#NI-1 on 2026-09-29 (reason: still open).
+
+#### AR-40: Two installer tests fail intermittently in long local runs
+
+- **Current state**: possibly the real-home leak that v4.13.1 BG-2 fixed for `test_selection_parity.py` (commit `ad768ca9`); unproven, and `test_org_cli.py` is not covered by that fix.
+- **Owner and next step**: installer/test maintainer; close after v4.13.1 BG-2 is verified in hosted CI and a full local installer run is clean.
+- **Migrated from**: v3.18.2#BG-2 on 2026-09-29 (reason: still open).
+
+### Permissions and platform contracts
+
+#### AR-16: Permission-matcher behaviors remain unprobed
+
+- **Current state**: output redirection under an explicit allow rule, whether Gemini splits compound commands, and a Gemini PowerShell / `cmd.exe` read-only set are all still UNVERIFIED in the v3.17 `development/permission-matcher-findings.md` and `configs/permissions/gemini-permissions.json`.
+- **Owner and next step**: `platform-contract-verification` owner; run the recorded probes against current builds.
+- **Migrated from**: v3.17.0#NI-1, v3.17.0#NI-2, and v3.17.0#DF-1 on 2026-09-29 (reason: still open).
+
+#### AR-17: Permission distribution covers few platforms and scopes
+
+- **Current state**: only Claude is wired at workspace scope; `Install-Nexus-Hub-Permissions.ps1` has no cross-platform equivalent; `configs/permissions/` covers 4 of 16 integrations.
+- **Owner and next step**: installer maintainer; research Gemini and Codex project paths, decide Copilot `.vscode/settings.json`, and add a `nexus-hub` permissions command.
+- **Migrated from**: v3.17.0#DF-2, v3.17.0#DF-3, and v3.17.0#DF-5 on 2026-09-29 (reason: still open).
+
+#### AR-36: Unverified platform read-path residuals
+
+- **Current state**: Antigravity CLI agent/workflow directories, Cursor global commands, and the Gemini Code Assist skill directory are still residuals in `docs/policy/platform-read-contracts.md`. The Antigravity part is also tracked as v4.3 WN-3 and v4.12 DF-1 above.
+- **Owner and next step**: platform-contract owner; resolve at the next authenticated read-back.
+- **Migrated from**: v3.11#DF-1 (D5, D7), v3.12.1#DF-v3121-agy-cli-workflows, and v3.12.1#DF-v3121-gemini-ide-skill-dir on 2026-09-29 (reason: still open).
+
+#### AR-38: No invocation-policy lever on five platforms
+
+- **Current state**: `docs/policy/skill-invocation-policy-levers.md` still documents none for Antigravity, OpenCode, Kimi, Hermes, and Nexus-AI.
+- **Owner and next step**: platform-contract owner; re-check each release and close when a first-party vendor document names a field.
+- **Migrated from**: v3.20.3#DF-1 on 2026-09-29 (reason: vendor-dependent, still open).
+
+#### AR-45: Completion notification is undelivered or unverified on Qwen, Gemini CLI, and Kimi
+
+- **Current state**: `docs/policy/platform-read-contracts.json` records Qwen and Gemini as expressible but undelivered and does not list Kimi's events. The shared Stop-hook registration may reach those platforms without `_notify_common` shipping there.
+- **Owner and next step**: installer/platform maintainer; deliver or explicitly exclude trigger B, confirm the shared module ships, and enumerate Kimi's events.
+- **Migrated from**: v3.15.10#DF-14 on 2026-09-29 (reason: still open).
+
+#### AR-47: The legacy Cursor global commands write is unverified and redundant
+
+- **Current state**: `scripts/lib/integrations/cursor.py` still writes both command directories and labels the global one UNVERIFIED.
+- **Owner and next step**: installer maintainer; confirm at the next Cursor contract pass, then remove the redundant write with a test.
+- **Migrated from**: v3.15.0#DF-1(a) and v3.15.10#DF-17 on 2026-09-29 (reason: still open).
+
+#### AR-51: OpenCode writes a `rules` folder the read contract does not record
+
+- **Current state**: `scripts/lib/integrations/opencode.py` sets `rules_subdir`.
+- **Owner and next step**: platform-contract owner; review against the OpenCode rules documentation and keep or drop.
+- **Migrated from**: v3.15.0 (OpenCode `rules_subdir` residual) on 2026-09-29 (reason: still open).
+
+#### AR-54: The strict Claude permissions overlay has no `defaultMode` decision
+
+- **Current state**: `configs/permissions/claude-permissions-strict.json` omits `defaultMode`, pending enum verification that was never closed.
+- **Owner and next step**: permissions owner; decide, then add or document the omission with a test.
+- **Migrated from**: v3.15.6#DF-3 on 2026-09-29 (reason: still open).
+
+#### AR-56: Upstream-blocked hook surfaces
+
+- **Current state**: the Gemini CLI extension-packaged hook path is unused, and Kimi has no project-scoped hook path.
+- **Owner and next step**: platform-contract owner; re-check vendor docs at the next pass.
+- **Migrated from**: v3.15.8#DF-12 and v3.15.8#DF-13 on 2026-09-29 (reason: vendor-dependent, still open).
+
+#### AR-57: Agent and hook delivery never observed on real Codex, Gemini CLI, Qwen, and Kimi installs
+
+- **Current state**: the v3.15.8 consolidated live pass has no recorded result.
+- **Owner and next step**: maintainer on a host with those tools; one live pass recorded in the read-contract verification block.
+- **Migrated from**: v3.15.8#MT-6, v3.15.8#MT-7, and v3.15.8#MT-8 on 2026-09-29 (reason: still open).
+
+### Catalog, validators, and tests
+
+#### AR-04: The skill-description eval harness builds CLI flags that do not exist
+
+- **Current state**: `scripts/optimize_skill_description.py` still adds `--skill` and `--prompt` (verified 2026-09-29), so live trigger runs and technique checks cannot run through it. `scripts/run_trigger_pilot.py` has a working `stream-json` path.
+- **Owner and next step**: eval-pipeline owner; port the pilot's invocation, then run the recorded live checks.
+- **Migrated from**: v3.0#BG-v30-1, v3.0#DF-v30-6, and v3.0#DF-v30-7 on 2026-09-29 (reason: live defect, still open).
+
+#### AR-06: The 250-character description cap conflicts with the trigger-rich description rule
+
+- **Current state**: `scripts/validate_skills.py` `DESCRIPTION_MAX_CHARS = 250`; many descriptions exceed it by design, and `--allow-existing` fails. Related to v4.8 WN-1.
+- **Owner and next step**: catalog maintainer; decide the cap (for example the 1024 agentskills.io limit) or the allowlist, then gate CI on it.
+- **Migrated from**: v3.1#WN-v31cr-1, v3.2#WN-v32-1, and v3.14.2#WN-1 on 2026-09-29 (reason: one obligation recorded three times, still open).
+
+#### AR-07: Many SKILL.md bodies exceed the 500-line target
+
+- **Current state**: 68 of 338 exceed 500 lines including frontmatter on 2026-09-29 (for example observability-setup and multi-agent-coordinator).
+- **Owner and next step**: catalog maintainer; move long sections into `references/` whenever a skill is next edited.
+- **Migrated from**: v3.16.2#NI-2 and v3.20.1#WN-2 on 2026-09-29 (reason: still open).
+
+#### AR-08: Missing direct tests
+
+- **Current state**: no test covers `validate_frontmatter_strict_yaml`, `detect-platform.sh` / `enumerate-models.sh`, `benchmark --update-baseline`, the `nexus-hub map` dispatch, or the model-prompting `DEFAULT_GUARDS` suite end to end.
+- **Owner and next step**: owners of each surface; add one focused test per item.
+- **Migrated from**: v3.4#DF-v34-1 (residual), v3.14.3#MT-1, v3.15.1#MT-1, v3.15.1#MT-2, and v3.15.5#MT-4 on 2026-09-29 (reason: still open).
+
+#### AR-09: Most skills lack trigger-case evals
+
+- **Current state**: 88 of 338 skills have `evals/trigger-cases.json`. Related to v4.13.0 WN-3.
+- **Owner and next step**: catalog maintainer; add cases as skills are rewritten.
+- **Migrated from**: v3.15.2#MT-1 and v3.20.1#MT-1 on 2026-09-29 (reason: still open).
+
+#### AR-12: loop-engineering lacks a re-entrancy guard and schema assertions
+
+- **Current state**: no nested-invocation guard, no optional context-compression cross-link, and the gate-type table parity and `ship-pr-until-green` duplicate-block check are still unasserted (partial coverage in `tests/validators/test_loop_engineering_bundle.py`).
+- **Owner and next step**: loop-engineering maintainer.
+- **Migrated from**: v3.16#CD-1, v3.16#CD-3, and v3.16.2#MT-1 on 2026-09-29 (reason: still open).
+
+#### AR-13: egress-redaction covers only the egress boundary
+
+- **Current state**: local persistence and error surfaces are out of scope in the skill.
+- **Owner and next step**: security skills owner; extend the scope.
+- **Migrated from**: v3.16#CD-2 on 2026-09-29 (reason: still open).
+
+#### AR-14: The spec template's A1 example phrases a Non-Goal as an Assumption
+
+- **Current state**: `catalog/templates/spec-template.md` A1 is unchanged.
+- **Owner and next step**: next spec-template edit; rewrite A1 and move the scope clause to Non-Goals.
+- **Migrated from**: v3.16#TR-1 (originally v3.15.14#NI-2) on 2026-09-29 (reason: still open).
+
+#### AR-15: v3.11 spec-kit items S5, S6, and S8 carry no status claim
+
+- **Current state**: no later record states their status; S8's functional half is AR-01.
+- **Owner and next step**: next spec-kit delta pass; re-verify and record.
+- **Migrated from**: v3.16#TR-2 on 2026-09-29 (reason: still open).
+
+#### AR-22: `make build-catalog` would overwrite hand-curated registry files
+
+- **Current state**: `build_skills_catalog.py` is unchanged since v2.0.0 and the target still exists, while hand-editing checked by `check_registry_entries.py --check --strict` is the convention.
+- **Owner and next step**: catalog maintainer; remove or guard the target and its AGENTS.md mention.
+- **Migrated from**: v3.0#WN-v30-2 on 2026-09-29 (reason: still open).
+
+#### AR-23: The hook rewrite field `updatedInput` is undocumented
+
+- **Current state**: no mention in `guides/`.
+- **Owner and next step**: docs owner; document it in the settings reference.
+- **Migrated from**: v3.2#WN-v32hr-1 on 2026-09-29 (reason: still open).
+
+#### AR-28: Retired slash-command names remain in skill bodies
+
+- **Current state**: 134 mentions such as `/generate-plan` and `/tasks-to-issues`.
+- **Owner and next step**: catalog maintainer; one modernization sweep.
+- **Migrated from**: v3.2#DF-v32cmd-1 on 2026-09-29 (reason: still open).
+
+#### AR-33: Subprocess-driven validator tests have no coverage measurement
+
+- **Current state**: no coverage configuration or `COVERAGE_PROCESS_START` anywhere.
+- **Owner and next step**: CI/test infrastructure owner; add subprocess coverage plumbing and a threshold.
+- **Migrated from**: v3.15.5#MT-2 and v3.17.6#MT-2 on 2026-09-29 (reason: still open).
+
+#### AR-34: No repository-wide Ruff baseline
+
+- **Current state**: `ruff check` still reports findings (for example F401 and F841 in `graph/affected.py`, and findings in `scripts/lib/integrations/`); Ruff runs only in `presentify-extractor.yml`.
+- **Owner and next step**: CI owner; set a baseline, fix the small findings, and gate new ones.
+- **Migrated from**: v3.15.1#WN-2, v3.15.10 (Ruff advisory), and v3.17.0#WN-2 on 2026-09-29 (reason: still open).
+
+#### AR-50: The template parity guard covers only the five lockstep templates
+
+- **Current state**: `scripts/check_base_template_parity.py` guards the lockstep five; companion validators cover only named blocks on the other templates.
+- **Owner and next step**: template maintainer; extend the guard or record the scope by decision.
+- **Migrated from**: v3.15.10 (parity-guard advisory) on 2026-09-29 (reason: still open).
+
+#### AR-53: No reusable self-check eval-loop authoring convention
+
+- **Current state**: only the Markdown style self-check exists.
+- **Owner and next step**: catalog maintainer; write the convention and an optional reference template.
+- **Migrated from**: v3.15.3#DF-1 on 2026-09-29 (reason: still open).
+
+#### AR-55: `ai-agent-governance` has no reciprocal SKIP clause
+
+- **Current state**: its description still lacks one.
+- **Owner and next step**: catalog maintainer; add a SKIP pointing to `agentic-endpoint-hardening` and sync `data/skills.json`.
+- **Migrated from**: v3.15.6#DF-1 on 2026-09-29 (reason: still open).
+
+### Presentify
+
+#### AR-18: Presentify builder and extractor limits
+
+- **Current state**: approximate PDF text/figure interleaving, duplicated caption text, geometry-only OCR tables, best-effort `.gitignore` matching, a minimal Markdown parser, no video/audio embedding, no brand web-font embedding, no Coverr/Mixkit fetch, no image gallery grouping, null PDF raster `page_fraction` on bbox mismatch, and overlay-annotation over-capture. Most are recorded as limits in `extraction-runbook.md`.
+- **Owner and next step**: presentify owner; accept each explicitly by decision or schedule the ones with user value (font embedding, gallery grouping).
+- **Migrated from**: v3.9#DF-v39-presentify-4, v3.9#DF-v39-presentify-5, v3.12#DF-1 to DF-5, v3.13#DF-1, DF-2, DF-4, DF-5, DF-6, and v3.15.4#DF-1, DF-2, DF-3 on 2026-09-29 (reason: still open; duplicates merged).
+
+#### AR-19: Presentify verification residuals
+
+- **Current state**: no rendered QA of the v3.13 samples is recorded; no live or scheduled media-fetch smoke; a sample-deck scorer smoke in the render job is unconfirmed; the scorer cannot see runtime-injected palettes; Gates A, B, and E and the composition probes have no checker or helper.
+- **Owner and next step**: presentify owner; add the smoke to the render job and accept or build each checker.
+- **Migrated from**: v3.13#WN-1, v3.13#MT-2, v3.15.4#MT-3, v3.16.5#WN-2, v3.16.7#NI-2, and v3.16.7#NI-3 on 2026-09-29 (reason: still open).
+
+### Extensions
+
+#### AR-24: nexus-context-compressor deferred refinements
+
+- **Current state**: near-duplicate detection, auto-sized keep budget, explicit error preservation, automatic store cleanup (`prune` has no caller), JSON arrays in prose, fallback parser limits, optional spaCy pass, CacheAligner and the ML token-dropper outside the runtime path, sub-word dropping, no live semantic benchmark, no token-reduction floor, no `[ml]` CI lane, and a short reformatter handler list. The `smart_crusher.py` docstring still marks them deferred.
+- **Owner and next step**: compressor maintainer; take each only when a real fixture or benchmark shows the need.
+- **Migrated from**: v3.2#DF-v32hr-1 to DF-v32hr-6, DF-v32hr-8, DF-v32hr-9, DF-v32hr-12 to DF-v32hr-15, MT-v32hr-1, and v3.19.2#DF-3 on 2026-09-29 (reason: still open).
+
+#### AR-25: Skill-scanner coverage limits
+
+- **Current state**: a thin pattern set per class, module-level taint tracking, and 12 starter `.yar` rules with 5 offline OSV advisories.
+- **Owner and next step**: scanner owner; expand or accept as a documented limit.
+- **Migrated from**: v3.0#DF-v30-1, DF-v30-2, and DF-v30-3 on 2026-09-29 (reason: still open).
+
+#### AR-27: Code-search covers 12 languages
+
+- **Current state**: `extensions/nexus-code-search` still has 12 extractors.
+- **Owner and next step**: code-search owner; add languages on demand.
+- **Migrated from**: v3.0#DF-v30-5 on 2026-09-29 (reason: still open).
+
+#### AR-32: Usage-monitor extension test coverage
+
+- **Current state**: Claude `recommendations.ts`, `warningView`, and `extension.ts` lack tests; `claude-usage-monitor` has no coverage threshold while the Codex and Cursor monitors do; no live render check of the theme icon; the Codex `icon.png` is still the reconstructed 512x512 asset.
+- **Owner and next step**: extensions owner; add the tests and threshold, reuse the installed-VSIX method that closed v4.10 MT-2, and swap or accept the icon.
+- **Migrated from**: v3.14.0#MT-1, v3.14.4#MT-1, v3.14.4#DF-1, v3.14.5#MT-1, and v3.17.0#MT-1 on 2026-09-29 (reason: still open).
+
+#### AR-44: The Cursor usage-monitor live visual smoke was never run
+
+- **Current state**: `cursor-usage-live-smoke.md` has no recorded result.
+- **Owner and next step**: maintainer on a live Cursor host; run status bar, three bars, and three themes and record the result.
+- **Migrated from**: v3.15.9#QG-5 and v3.15.12#QG-4 (Cursor half) on 2026-09-29 (reason: still open).
+
+#### AR-49: `@vscode/vsce` transitive deprecation warnings
+
+- **Current state**: still present in all three extension lockfiles; `npm audit` is clean.
+- **Owner and next step**: extensions owner; re-check at the next toolchain bump or accept as upstream-bounded.
+- **Migrated from**: v3.15.9#WN-4 on 2026-09-29 (reason: upstream, still open).
+
+#### AR-52: contextmap detectors deferred
+
+- **Current state**: TypeORM, Drizzle, ActiveRecord, GORM, Vue, and Svelte are still listed as deferred.
+- **Owner and next step**: code-search owner; one detector plus fixture per target, on demand.
+- **Migrated from**: v3.15.1#DF-3 on 2026-09-29 (reason: still open).
+
+#### AR-58: The installers still cite the pre-archive path of the install-selection contract
+
+- **Current state**: comments in `scripts/installer.sh` and `scripts/installer.ps1` (three lines) still name `docs/releases/v3/v3.16/development/install-selection-contract.md`, which now lives at `docs/archives/v3/v3.16/development/install-selection-contract.md`. They were deliberately not repointed: the `distribution` handbook binds the installers' bytes in `docs/handbooks/_sources/distribution/evidence.json`, so any edit makes `check_handbooks.py` report stale evidence until a content, build, and rendered review is re-run.
+- **Owner and next step**: handbook owner; repoint the three comments at the next distribution-handbook refresh and record new evidence.
+- **Migrated from**: raised by the 2026-09-29 archive pass (reason: repointing requires a handbook evidence refresh outside this change).
+
+#### AR-59: Extension devDependencies are declared as caret ranges
+
+- **Current state**: the three usage-monitor extensions (`claude-usage-monitor`, `codex-usage-monitor`, `cursor-usage-monitor`) declare 11, 11, and 7 devDependencies as caret ranges (re-counted on `develop` on 2026-09-30). The immediate risk is bounded: all three have a `package-lock.json`, CI installs with `npm ci`, which resolves from the lock and not from the ranges, and each `.npmrc` sets `save-exact=true` and `min-release-age=2`, so new dependencies are recorded exactly and the range surface does not grow. Pinning the existing ranges was deliberately not done when the supply-chain hardening landed, because it changes what a fresh resolve installs, and an unverified pin breaks builds for reasons unrelated to the change that caused it.
+- **Owner and next step**: extensions owner; pin each manifest to the version its lockfile already resolves, one extension at a time, running that extension's build and Vitest suite before moving to the next.
+- **Migrated from**: recovered on 2026-09-30 from an unmerged local draft of the v4.1.0 Pi-adoption ledger (source: comparison item A3, supply-chain install hardening). The archived v4.1 ledger does not carry it (reason: still open; the manifest, lockfile, and `.npmrc` facts were re-verified on `develop` on 2026-09-30).
+
+#### AR-60: Extension build workflows install with lifecycle scripts enabled
+
+- **Current state**: `.github/workflows/claude-usage-monitor.yml` (line 46), `codex-usage-monitor.yml` (line 46), and `cursor-usage-monitor.yml` (line 52) run plain `npm ci`, not `npm ci --ignore-scripts` (line numbers as of 2026-09-30). The flag was held back for a specific reason: `ttf2woff2` is a native module that commonly relies on an install-time build step, so disabling lifecycle scripts could break icon generation in a way that only surfaces in CI. It is declared in all three manifests (the original draft said two of three; re-counted 2026-09-30). `.github/workflows/npm-audit.yml` does use `--ignore-scripts`, safely, because it installs only to read the dependency tree and never builds.
+- **Owner and next step**: extensions owner; run each extension's full build locally with `npm ci --ignore-scripts` and confirm the VSIX is byte-comparable. Where a native module genuinely needs its install step, add an explicit lifecycle-script allowlist rather than dropping the flag for the whole tree.
+- **Migrated from**: recovered on 2026-09-30 from the same unmerged draft as AR-59 (source: comparison item A3) (reason: still open; the workflow lines and manifest facts were re-verified on `develop` on 2026-09-30).
+
+### Hooks and notifications
+
+#### AR-46: The Windows notification linger was never measured
+
+- **Current state**: the default is still 5500 ms in `catalog/hooks/_notify_common.sh` and its `.ps1` sibling.
+- **Owner and next step**: maintainer on a live Windows 10/11 desktop; measure the shortest safe `NEXUS_NOTIFY_LINGER_MS`.
+- **Migrated from**: v3.15.10#DF-16 on 2026-09-29 (reason: still open).
+
+#### AR-48: `session-summary.sh` labels projects by the working directory
+
+- **Current state**: still `basename "$(pwd)"`.
+- **Owner and next step**: hooks maintainer; derive the name from the git top-level, as the notify hooks do, in both siblings.
+- **Migrated from**: v3.15.10 (session-summary advisory) on 2026-09-29 (reason: still open).
+
+### Documentation
+
+#### AR-29: `README_zh.md` needs a full re-translation
+
+- **Current state**: 271 lines against the English README's 792.
+- **Owner and next step**: docs owner.
+- **Migrated from**: v3.8#WN-v38-1 on 2026-09-29 (reason: still open).
+
+#### AR-31: `docs/specs/README.md` still describes "legacy installer copy blocks"
+
+- **Current state**: the stale framing moved there from AGENTS.md.
+- **Owner and next step**: docs owner; say that Claude has the one custom installer block and every other platform goes through the integration registry.
+- **Migrated from**: v3.14.5#DF-3 on 2026-09-29 (reason: still open).
+
+#### AR-35: Optional provider failover and settlement reference for `multi-provider-ai`
+
+- **Current state**: never written.
+- **Owner and next step**: catalog maintainer; write it or close as won't-do.
+- **Migrated from**: v3.14.0#DF-3 on 2026-09-29 (reason: optional, still open).
+
+#### AR-39: The official Claude plugin directory submission was never made
+
+- **Current state**: README still says "If Anthropic later lists..."; the submission draft is `docs/archives/v3/v3.20/development/claude-marketplace-submission.md`.
+- **Owner and next step**: maintainer (manual form); submit, then add the install line to the README.
+- **Migrated from**: v3.20.3#DF-2 on 2026-09-29 (reason: still open).
+
+### Maintainer decisions pending
+
+#### AR-37: Conditional adoption candidates awaiting build-or-decline
+
+- **Current state**: visual-brainstorming server, portable YAML orchestration engine, after-the-fact intent recovery in `session-query`, the quality-gate naming note, remaining worker-check hooks, and a durable prior-cycle review-signal store. None was built; none has a decline record.
+- **Owner and next step**: maintainer; record a decline (for example a reverse-engineering-matrix row) or scope a plan.
+- **Migrated from**: v3.0#DF-v30-9, v3.6 to v3.9#DF-v36-2, v3.9#DF-v39-nomistakes-1, v3.10#DF-v310-ruflo-A6, v3.10#DF-v310-ruflo-A10-rest, and v3.15.7#DF-6 on 2026-09-29 (reason: conditional, still open).
+
+#### AR-41: Product atlas
+
+- **Current state**: `docs/handbooks/overview.html` (commit `0b164f06`) may satisfy it, but `docs/README.md` still says no atlas exists.
+- **Owner and next step**: maintainer; confirm the overview handbook counts, then close and correct `docs/README.md`.
+- **Migrated from**: v3.21.0#DF-1 on 2026-09-29 (reason: decision pending).
+
+#### AR-42: The docs-convention checker scans only the active minor
+
+- **Current state**: `scripts/check_docs_conventions.py` still scans only the active minor, and its docstring is stale.
+- **Owner and next step**: maintainer; record the grandfathering decision, then close and fix the docstring.
+- **Migrated from**: v3.19.2#DF-2 on 2026-09-29 (reason: decision pending).
+
+#### AR-43: Signed execution contracts remain a design study
+
+- **Current state**: no decision record exists.
+- **Owner and next step**: maintainer; promote the study's deferral recommendation to a decision record, then close.
+- **Migrated from**: v3.19.2#DF-4 on 2026-09-29 (reason: decision pending).
 
 ## v4.13.1
 
@@ -363,11 +749,17 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 
 **Owner**: catalog maintainer. **Status**: open. **Suggested next step**: have every writer re-sign through one checker function, then add both fields to the signed payload.
 
-#### WN-9: Approval capture binds typed text, not the approval class
+#### WN-9: Approval capture binds typed text, not the approval class - PARTIALLY RESOLVED 2026-09-29
 
-**Source phase**: Phase 9 (T024), Tier 3 adversarial pass. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: `approval-capture` stores a digest of every submitted prompt line, and `record create` accepts an approval whose text matches any captured line. A short reply such as `ok`, a pasted issue body containing "I approve release", or the agent piping a fabricated payload into `completion_gate.py capture` can therefore back an approval class the user never approved. Severity high: this is the threat the contract names.
+**Source phase**: Phase 9 (T024), Tier 3 adversarial pass. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Original defect**: `approval-capture` stores a digest of every submitted prompt line, and `record create` accepts an approval whose text matches any captured line. A short reply such as `ok`, a pasted issue body containing "I approve release", or the agent piping a fabricated payload into `completion_gate.py capture` can therefore back an approval class the user never approved. Severity high: this is the threat the contract names.
 
-**Owner**: catalog maintainer. **Status**: open. **Suggested next step**: issue a per-round nonce in the upfront question, require the user's answer to carry the class and nonce, match the whole prompt rather than a line, and refuse a capture the agent's own tool call produced.
+**Resolved part**: [v4.13.6 Phase 1](plans/v4.13.6-minor-scope-implement-and-verified-cleanup.md) binds every user-origin record write (`record create`, `record answer`, `record pause`, `record resume`) to the exact line the checker generated. `record render` builds the canonical page data, draws a fresh 128-bit round nonce, derives an 8-character single-use code from `HMAC-SHA256(runs secret, page and nonce)`, and writes an owner-only pending round sealed by an HMAC over every field. The write then requires the seal and the live page's code to verify, the bound session (and, for a mid-run answer, pause, or resume, the run record's session), exactly one captured whole prompt equal to the line, and an earlier prompt in that session from before the render, and consumes the round. The capture hook stores only whole-prompt digests with a capture time and skips sessions marked `NEXUS_RUNNER_LAUNCH=1`, which `run_plan.py` sets for every session it launches. The terminal fallback was removed: a missing capture file now refuses, because a process that owns the console or a pty can type into it. So a lone "ok", a quoted code, a pasted body, a replayed or superseded line, a runner-launched prompt, an edited pending round, a fresh headless session opened only to submit the line, and an answer captured in another session never record. The rule is owned by the completion contract's Approval origin section.
+
+**Still open**: the third bypass this item names, an approval the agent itself originates. The agent can pipe a fabricated payload into `completion_gate.py capture`, append a line to the capture file, or pre-seed a nested headless session (`claude -p` with `--session-id`, then resume it with the line), and the capture is indistinguishable from the user's paste. `tests/e2e/implement_full/stub_agent.py` does exactly the first of these to stand in for the user, and the harness passes. The original suggested step "refuse a capture the agent's own tool call produced" is not done; no signal the agent cannot also set (environment, session id, process tree) was found in this pass. Two related limits: the round expires 30 minutes after render, not when the session ends, so a later session can record a line pasted in an earlier one (bound to the session where it was captured); and on a platform with no prompt-submit capture no approval can be recorded at all, so the run asks at each approval point (see WN-4 and DF-5).
+
+**Evidence**: `tests/validators/test_approval_binding.py` (29 passed, 1 POSIX-only skip on Windows): `test_exact_line_records_once_then_reads_code_used`, `test_a_prompt_that_is_not_the_whole_line_never_records[lone-ok|quoted-code|pasted-body|line-plus-text]`, `test_a_line_replayed_from_an_earlier_consumed_round_is_refused`, `test_a_newer_render_invalidates_the_older_code`, `test_a_runner_launched_prompt_is_never_captured`, `test_record_create_refuses_inside_a_runner_launched_session`, `test_a_plan_edit_after_render_reads_page_changed`, `test_an_expired_code_is_refused`, `test_a_mid_run_answer_needs_its_own_exact_line`, `test_a_fresh_session_that_only_carries_the_line_is_refused[auto|nested-agent]`, `test_an_edited_pending_round_is_refused[paste_digests|paste_lines|expires_at|rendered_at|session]`, `test_a_mid_run_answer_captured_in_another_session_is_refused`, `test_a_session_with_no_capture_file_refuses_without_a_terminal_fallback`, `test_pending_file_is_owner_only_on_posix`; plus `test_capture_skips_a_runner_launched_session` and `test_runner_launched_capture_drains_a_large_payload` (both hook implementations) and `test_every_launched_session_is_marked_runner_launched`.
+
+**Owner**: catalog maintainer. **Status**: open (agent-originated capture); the resolved part is local in v4.13.6 Phase 1 and not yet integrated. **Suggested next step**: find a capture signal the agent's own tool calls cannot produce (for example a host-issued per-prompt attestation, if a platform documents one); until then, keep the threat model's statement that a deliberately forged user origin is not detected.
 
 #### WN-11: `run-plan` checks only global settings for an approval bypass
 
@@ -389,7 +781,7 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 
 #### DF-5: Approval capture is missing on Pi, OpenClaw, Hermes, and Windsurf
 
-**Source phase**: Phase 9 (T024), Tier 3 code-vs-plan convergence. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: `docs/policy/completion-levers.json` records a VERIFIED prompt-submit lever for these four platforms, but only Claude-format registrations and Cursor carry `approval-capture`, so on them `record create` falls back to the terminal and a headless run cannot record its approvals (the same effect as WN-4 on OpenCode).
+**Source phase**: Phase 9 (T024), Tier 3 code-vs-plan convergence. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: `docs/policy/completion-levers.json` records a VERIFIED prompt-submit lever for these four platforms, but only Claude-format registrations and Cursor carry `approval-capture`, so on them `record create` cannot record an approval (the same effect as WN-4 on OpenCode). **Update (v4.13.6 Phase 1)**: the terminal fallback was removed, so on these platforms `record create` now refuses with `approval-not-captured` even in an interactive session until capture is added.
 
 **Owner**: catalog maintainer. **Status**: open. **Suggested next step**: add capture on each platform's documented prompt event in its plugin or hook adapter, with a parity test.
 
@@ -409,7 +801,7 @@ Twenty-two archived plans retain 384 lines beginning `- [ ]`, including the 65 s
 
 **Source phase**: Phase 9 (T024), Tier 3 code-vs-plan convergence. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: every passing Phase 8 run on Claude Code and Codex reached `PLAN COMPLETE` in its first turn, so the turn-end gate's refusal and the runner's resume are proven by stub tests (`test_harness.py`, `test_completion_gate.py`) and never by a paid session.
 
-**Owner**: catalog maintainer. **Status**: open. **Suggested next step**: run one paid condition with a fixture that cannot finish in one turn (for example a phase whose test only passes after a second commit) and record the gate and runner cycles.
+**Owner**: catalog maintainer. **Status**: open. **Suggested next step**: run one paid condition with a fixture that cannot finish in one turn (for example a phase whose test only passes after a second commit) and record the gate and runner cycles. **Update (v4.13.6 Phase 1)**: under exact binding, the paid conditions in `tests/e2e/implement_full/run_e2e.py` (`--agent claude|codex|opencode`) cannot record: their first turn states the approvals verbatim in the prompt, which never equals a line `record render` generates, so `record create` refuses (`approval-not-captured` or `session-too-new`) and the run cannot reach `PLAN COMPLETE`. Owner: v4.13.6 Phase 7. The paid first turn needs a render step whose printed line is then fed as a second scripted user turn in the same session, before any paid run is spent on this item.
 
 #### DF-1: Devin Desktop reads `.devin/hooks.json`, which the Windsurf integration does not model
 
@@ -665,23 +1057,13 @@ Gaps from the completion-checker remote-resolution fix ([`v4.13.5-completion-che
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
 | Bugs / regressions (BG) | 0 | 5 |
-| Warnings (WN) | 3 | 0 |
+| Warnings (WN) | 0 | 3 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
 ### Open Items
 
-#### WN-1 (v4.13.5): A stray scratch script has shipped at the repository root since v4.11.2
-
-**Evidence**: `scratch_p6cmd.py` sits at the repository root; it was added by `adaa1f85` and is not referenced by any installer, test, or document. **Reason**: this plan's scope is the checker; removing a tracked file shipped for several releases is a separate, reviewable change. **Owner**: catalog maintainer. **Suggested next step**: confirm nothing reads it, then delete it in a cleanup change with a CHANGELOG `Removed` note.
-
-#### WN-2 (v4.13.5): Git transport overrides can redirect a push the checker verified
-
-**Evidence**: the final-phase adversarial review showed that `core.sshCommand`, `GIT_SSH`, `GIT_SSH_COMMAND`, a `Host github.com` override in `~/.ssh/config`, `http.curloptResolve`, or a proxy setting can send a push somewhere other than the host `repo_host.py` verified, while `approval.remote` stays `met` because the push URL string is unchanged. `repo_host.py` also resolves an alias with the `ssh` it finds on PATH, which may differ from the one git runs (on Windows, Git's bundled ssh can read a different config). This predates v4.13.5; the removed regex had the same gap for a literal github.com remote. **Owner**: [v4.13.6](plans/v4.13.6-minor-scope-implement-and-verified-cleanup.md), which hardens the approval boundary. **Suggested next step**: treat any of these overrides as `cannot-verify` for `approval.remote`, and resolve SSH hosts with the same command git will run.
-
-#### WN-3 (v4.13.5): `approval.remote` checks origin while a push can use another remote
-
-**Evidence**: `remote.pushDefault` or `branch.<name>.pushRemote` makes a plain `git push` go to a remote other than origin, while the checker reads only origin's push URL. Pre-existing since v4.13.2 WN-1. **Owner**: [v4.13.6](plans/v4.13.6-minor-scope-implement-and-verified-cleanup.md). **Suggested next step**: resolve the effective push remote for the source branch and require it to be origin.
+None.
 
 ### Resolved Items
 
@@ -692,3 +1074,75 @@ Gaps from the completion-checker remote-resolution fix ([`v4.13.5-completion-che
 | BG-3 | An SSH alias routed through a proxy counted as verified | Phase 2 | Only the `hostname` line of `ssh -G` was read, so a `ProxyCommand` or `ProxyJump` to another server passed. Either setting other than `none` now leaves the alias unverified. |
 | BG-4 | With `GH_HOST` set, a github.com remote was checked against the enterprise host | Phase 2 | Both `github.com` and `GH_HOST` were accepted, but `gh --repo owner/repo` queries only one of them. The accepted host is now exactly the one `gh` queries: `GH_HOST` when set, otherwise `github.com`. |
 | BG-5 | CodeQL flagged a no-effect statement in `repo_host.py` | Phase 2, PR #387 | The `...` body of the `Budget` protocol method raised "Statement has no effect" (alert 328), and the unresolved review thread blocked the merge under `develop`'s conversation-resolution rule. The body is now a docstring. |
+| WN-1 | A stray scratch script has shipped at the repository root since v4.11.2 | v4.13.6 Phase 8 | `scratch_p6cmd.py` (a one-off v4.11.2 edit script that rewrites files under a hard-coded absolute path to a developer working copy) was deleted after `git grep` found no reader in any installer, test, script, or workflow; only historical docs mention it. `check_python_floor.py` and the full local profile pass without it. |
+| WN-2 | Git transport overrides could redirect a push the checker verified | v4.13.6 Phase 2 | `repo_host.verify_push_route` makes `approval.remote` `cannot-verify` for `GIT_SSH`, `GIT_SSH_COMMAND`, and `core.sshCommand` (SSH); for HTTPS, anything that weakens or replaces TLS verification (`http.sslVerify` false, `GIT_SSL_NO_VERIFY`, a CA bundle from the environment or from a user-writable config scope) and `http.curloptResolve`; and for any remote `remote.origin.vcs`, a `<transport>::` URL, `GIT_EXEC_PATH`, config injected through `GIT_CONFIG_PARAMETERS` or `GIT_CONFIG_COUNT`, an `insteadOf` rule that changes which verified repository is named, and an ssh config block (including `Match user` and port-specific blocks, probed as `ssh -G [-p port] user@host`) that changes the hostname or adds a proxy. A proxy with TLS verification intact is deliberately not an override, since it cannot present github.com's certificate. SSH hosts are resolved with the ssh git itself runs, and an undeterminable ssh is `cannot-verify`. Tests in `tests/validators/test_completion_minor_record.py`: `test_an_environment_override_is_cannot_verify`, `test_a_config_override_is_cannot_verify`, `test_a_remote_helper_url_is_never_met`, `test_a_proxy_with_tls_verification_intact_is_met`, `test_a_system_scope_ca_bundle_is_not_an_override`, `test_a_rewrite_to_the_same_repository_is_met`, `test_a_rewrite_to_another_repository_is_cannot_verify`, `test_an_ssh_config_host_override_is_cannot_verify`, `test_a_match_user_block_is_probed_with_the_user_git_sends`, `test_a_port_specific_block_is_probed_with_the_port_git_sends`, `test_an_alias_is_resolved_with_the_ssh_git_runs`, `test_an_undeterminable_git_ssh_is_cannot_verify`, `test_a_git_cmd_wrapper_does_not_break_the_route_check`, `test_the_checker_reports_a_redirected_push_on_approval_remote`. The rule is owned by the completion contract's Push route subsection. |
+| WN-3 | `approval.remote` checked origin while a push could use another remote | v4.13.6 Phase 2 | The effective push remote for the source branch is resolved in git's order (`branch.<b>.pushRemote`, `remote.pushDefault`, `branch.<b>.remote`, then `origin`) and must be `origin`, otherwise `approval.remote` is `unmet` with the notice `push-remote-not-verified-remote`. Tests: `test_a_push_remote_other_than_origin_is_unmet`, `test_a_push_remote_set_to_origin_is_met`, `test_the_checker_reports_a_redirected_push_on_approval_remote`. |
+
+## v4.13.6
+
+Gaps from the minor-scope implement plan ([`v4.13.6-minor-scope-implement-and-verified-cleanup`](plans/v4.13.6-minor-scope-implement-and-verified-cleanup.md)). v4.13.5 WN-2 and WN-3 named this plan as owner; Phase 2 closed both, and they are recorded under v4.13.5's Resolved Items.
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 1 | 0 |
+| Bugs / regressions (BG) | 0 | 10 |
+| Warnings (WN) | 5 | 1 |
+| Missing tests / coverage gaps (MT) | 1 | 0 |
+| Quality-gate gaps (QG) | 2 | 0 |
+
+### Open Items
+
+#### WN-1 (v4.13.6): Claude Code interactive `/goal` capture is observed only headless
+
+**Evidence**: the Phase 1 probe (Claude Code 2.1.283, 2026-09-29) ran `claude -p "/goal test condition"`: the `UserPromptSubmit` payload's `prompt` field was exactly `/goal test condition` and the transcript shows `Goal set: test condition`. A person typing `/goal` in the interactive terminal was not exercised, so the `claude` row of `docs/policy/completion-levers.json` stays `goal_capture: unverified` with `probe_mode: headless`, and the validator accepts `verbatim` only from an interactive probe. **Owner**: catalog maintainer. **Suggested next step**: type `/goal test condition` in an interactive session of a scratch project whose `UserPromptSubmit` hook logs its payload, and set the row to `verbatim` with `probe_mode: interactive` if the logged prompt matches.
+
+#### WN-2 (v4.13.6): Most older known-gaps ledgers read cannot-verify for a minor-scope run
+
+**Evidence**: a read-only `python scripts/minor_close.py status --minor v4.13` on 2026-09-29 reads `gaps.minor unmet`, with 369 open item headings; 30 of the 41 ledgers in scope read `cannot-verify` (663 rows that look like item ids but are not items, and 11 header `**Open items**` counts that disagree with the parsed count). The stricter Phase 4 parser is correct to refuse them: a looser reader would let open work pass as closed. **Owner**: catalog maintainer, before the first real minor-scope run (v4.17). **Suggested next step**: normalize those ledgers to the known-gaps-tracker format (one heading per item, a terminal RESOLVED, CLOSED, or MIGRATED marker, and a matching header count) in a docs-only change, then re-run the status command until every ledger parses. The 2026-09-30 re-run (Phase 8, after AR-01, AR-02, and v4.13.5 WN-1 were resolved) reads 368 open headings and 674 unparsed rows; it also shows that this file restarts ids in each patch section, so `v4.13#WN-1` names four items. `minor_close.py migrate` refuses such an id with `gap-ambiguous`, which is safe, but the normalization must also make ids unique per minor file.
+
+#### MT-1 (v4.13.6): The guide's scope-matching test checks no scope
+
+**Evidence**: `test_rendered_scopes_match_their_command_files` in `tests/guides/test_nexus_hub_guide.py` searches for a bare `<code>` tag, but every Cheatsheets scope is rendered as `<code data-ty="code">`, so the test passes without comparing any scope with its command file. Found while adding `tests/guides/test_cheatsheet_command_sync.py`, which covers the `/implement` card only. **Owner**: catalog maintainer. **Suggested next step**: match the attribute form and extend the comparison to every command card, then confirm it fails on a deliberately stale card.
+
+#### WN-4 (v4.13.6): The whole website guide reports 100 detector findings on views this plan did not touch
+
+**Evidence**: `detect_visual_defects.py guides/website/nexus-hub-guide.html` (default viewports 420, 900, 1440; light and dark) reports the capped 100 findings, 10 `parent-padding-escape` (the first is the landing view's `h1 > b`) and 90 `svg-viewbox-overflow`, with the same distribution at base `7067df15`, so none comes from this plan. The Cheatsheets view this plan edited passes with 0 findings in both themes at base and head. **Owner**: guide maintainer. **Suggested next step**: run the detector per view with `--fragment`, fix or allowlist each finding with a recorded reason, and add the whole-page run to the guide render gate.
+
+#### WN-5 (v4.13.6): v4.13.2 WN-9 is only partly closed
+
+**Evidence**: Definition of Done 3 says it closes v4.13.2 WN-9 for every record type. Every bypass it names (a lone "ok", a quoted code, a pasted issue body, a runner-launched prompt) is refused by `tests/validators/test_approval_binding.py`, but the agent can still originate its own capture (pipe a payload into `completion_gate.py capture`, append to the capture file, or pre-seed a nested session), which is why that entry reads PARTIALLY RESOLVED. This pointer keeps the remainder visible in this plan's section; the item itself stays tracked under v4.13.2 WN-9. **Owner**: catalog maintainer. **Suggested next step**: bind a capture to a platform-authenticated user-turn signal where one exists, and record `cannot-verify` otherwise.
+
+#### DF-1 (v4.13.6): Copilot CLI sets no native goal headlessly
+
+**Evidence**: `scripts/run_plan.py` keeps `copilot/cli` in `INTERACTIVE_GOAL_ROWS` because its headless path is `copilot --autopilot -p` with a bypass flag, not `/goal`; the plan's cut-line allowed this slip (sub-task 6.3, T051). Claude, Qwen, and Kimi launch the goal headlessly. **Owner**: catalog maintainer. **Target version**: v4.17, with v4.13.2 DF-6. **Suggested next step**: re-check the Copilot CLI documentation for a headless goal entry point and add the row when one is documented.
+
+#### QG-1 (v4.13.6): The non-engineer read-back of the approval page is pending
+
+**Evidence**: Definition of Done 6 requires one non-engineer read-back recorded in the final phase. **Read-back result, 2026-09-30**: the user read the ten-section page rendered from the two-plan fixture (`approval_page.py` at `219513b3`) and found it too wordy, noting that many users will not read it. That result led to the redesign: a results table (released, fixed, archived, cleaned up, and permission prompts when they are turned off), two bold limits, and the paste line, all within 80 words, with the technical sections moved under "Details (optional)". The redesigned page has not been read back yet, so this item stays open. The automated half (jargon list, sentence ceiling, risk order, paste line without paths) passes in `tests/validators/test_approval_page.py`. **Owner**: the user, via the orchestrator. **Suggested next step**: have a non-engineer read the redesigned page (the two-plan fixture render, saved beside the first read-back as `readback-page-v2.md`), then record pass or fail with the page version in `development/v4.13.6-last-phase-evidence.md`.
+
+#### QG-2 (v4.13.6): The edited guide card had no full accessibility or design audit
+
+**Evidence**: the Tier 3 pass covered the edited Cheatsheets `/implement` card with the visual-defect detector (0 findings), clipped captures at 1440 and 420 px (no horizontal overflow, inspected), and a control probe (both copy buttons named "Copy to clipboard" and focusable; scope text 16 px). The full `[[accessibility-engineering]]` and `[[hallmark-design]]` audits were not run in this phase. **Owner**: guide maintainer. **Suggested next step**: run both audits on the Cheatsheets view before the next guide release and record the result here.
+
+#### WN-6 (v4.13.6): Unusual branch, surface, and vendor names reach the approval page as written
+
+**Evidence**: Tier 3 adversarial finding ADV-5 (P3). `render_page` with source branch `feat/refs/heads/check_plan_completion.py`, class `ask-first:hmac-nonce-schema`, and spend vendor `predicate` put every banned-list term and a script name above the paste line; the paste line itself stayed clean, and the allowed character sets rule out spaces, so no sentence can be injected. The plain-language guarantee is enforced by tests on fixture inputs, not at render time. **Owner**: catalog maintainer. **Suggested next step**: run the banned-term and path or script checks inside `render_page` (raising `PageError`), or move these values into the quoted details block.
+
+### Resolved Items
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+| WN-3 | One approval-page sentence reads as engineering shorthand | 2026-09-30 (page redesign after the QG-1 read-back) | The `minor-close-pr` sentence now reads "Open one final pull request that closes v0.5 and merge it once its checks pass, then copy any newer main changes into develop. If a required check fails, it may push a fix up to 3 times." The bound's meaning comes from the runbook's Minor close step 7 (re-push "within the recorded `minor-close-pr` repush bound"), so the page no longer reports an undefined number. `tests/validators/test_approval_page.py::test_the_minor_close_sentence_says_what_its_bound_counts`. |
+| BG-1 | `secret-scan.sh` never matched a private key | Phase 8 | Found by the new `test_secret_scan.py` parity cases: the four private-key patterns start with `-----`, so `grep -qE "$PATTERN"` read each one as an option, exited 2 silently, and never matched, on every host, while the `.ps1` blocked. The hook now passes `-e`; `test_a_secret_is_blocked[sh-python-private-key-on-a-later-line]` failed before the fix and passes after it. Pre-existing, not introduced by this plan. |
+| BG-5 | `secret-scan.sh` allowed a large write whose secret sat near the start | Phase 8 (Tier 3 cycle 1) | ADV-1 (P1, pre-existing): under `set -o pipefail`, `echo "$CONTENT" \| grep -q` exited on the first match, `echo` took SIGPIPE, and the `if` read a real match as no match, so a key on line 1 of a 20000-line write was allowed (rc 0) while the `.ps1` blocked. The scans now read a here-string (`grep ... <<<"$CONTENT"`, `grep -m1` for the matched line). `test_a_secret_at_the_start_of_a_large_write_is_blocked` fails on the old hook and passes on the fix. |
+| BG-6 | A Python 2 `python` counted as the secret-scan parser | Phase 8 (Tier 3 cycle 1) | ADV-8: the probe `-c 'import json'` passes on Python 2, whose `sys.stdin.buffer` then fails inside the field reader, leaving no content and allowing the write. The probe now requires Python 3. `test_a_python2_named_python3_is_not_a_parser` fails on the old probe and passes on the fix. |
+| BG-7 | An invalid `NEXUS_HUB_SRC` was ignored silently | Phase 8 (Tier 3 cycle 1) | ADV-9: `nexus-hub init` fell back to another tree when the override did not qualify. A set override is now the only candidate, and one that is not a source tree exits 2 with a message. `test_an_invalid_nexus_hub_src_is_refused_not_ignored`. |
+| BG-8 | Scope and code tokens accepted a trailing newline and non-ASCII digits | Phase 8 (Tier 3 cycle 1) | ADV-4 (P3): `$` matched before a trailing newline and `\d` matched any Unicode digit, so `v4.13\n` or `v4.1` with an Arabic-Indic three validated as a minor and could key a second record. The validators in `completion_minor.py`, `approval_page.py`, `approval_binding.py`, and `minor_close.py` now use `\Z` and `re.ASCII`. `tests/validators/test_canonical_tokens.py` (15 cases). |
+| BG-9 | Cleanup never removed anything once a repository had 1000 merged pull requests | Phase 8 (Tier 3 cycle 1) | ADV-3 (P2): a full `gh pr list --limit 1000` page made every item `gh-unavailable`, so `cleanup.merged` could never be met. A truncated bulk list now falls back to one `--head=<branch>` query per candidate branch. `test_a_truncated_pull_request_list_falls_back_to_per_branch_queries`. |
+| BG-10 | Four existing tests still pinned text that Phases 2-7 rewrote | Phase 8 (full-suite stabilization) | The first full local profile found them; the phase-level runs had not included these groups. `tests/skills/test_implement_driver_modes.py::test_full_is_canonical_and_in_full_is_the_compatibility_alias` pinned the old `/implement` card row (now `<plan> full`, "Accepted alias for the default (also in-full)."); `tests/validators/test_docs_layout_prescription.py::test_catalog_has_only_exactly_allowlisted_legacy_layout_lines` flagged two completion-contract lines that list the legacy layouts the minor checker reads, now allowlisted as read-only descriptions; and two `test_plan_worktree_isolation.py::test_cleanup_step_is_fail_closed` cases looked for the pre-`cleanup_merged.py` prose, now repointed at the step's no-override and no-force sentences, with the clean-tree proof owned by `test_cleanup_merged.py`'s `dirty` and `untracked` cases. |
+| BG-2 | A security gap could migrate without being named on the approval page | Phase 8 (coordinator follow-up) | ADV-2 (P2, security). One gate, `completion_minor.migration_gate`, now decides every write and verify path: `minor_close.py migrate`, `verify_migration` (the minor verdict), and a member's deferral of a frozen gap (`_pending_migration`). It requires the id in the frozen list, the item present, open, and unambiguous at the record's `start_head`, and `named` whenever the item is security or high-severity either now or at `start_head`, so editing `**Severity**: high` down during the run cannot lift the naming. `record render` and `create --minor` also refuse a frozen id whose ledger entry is not open, or a sensitive one not in `named` (`check_migratable`); an id no ledger holds yet renders but can never migrate. Tests: `test_gap_migration_and_archive.py::test_lowering_the_severity_after_approval_does_not_lift_naming`, `::test_the_verify_path_uses_the_same_baseline`, `::test_a_gap_resolved_at_the_start_never_migrates` (the first and third fail on the pre-fix scripts), and `test_completion_minor_record.py::test_a_frozen_security_gap_must_be_named_before_the_page_renders`. |
+| BG-3 | `MINOR COMPLETE` was reachable with no archive, closing pull request, or final cleanup | Phase 8 (coordinator follow-up) | ADV-6. Decision: a minor run requires `cleanup-merged`, `archive-minor`, and `minor-close-pr`, matching Definition of Done 2 ("the final cleanup pass has run after the last merge, the closing pull request is merged, and the minor is archived"). `minor_spec` refuses a spec without all three, so `record render` and `create --minor` cannot approve one; `check-minor` reads a missing class as `unmet` with a notice, never `n/a`; and `minor.close-pr` is never `n/a`, because the close always carries the archive (with nothing to migrate it carries only the archive). The completion contract, the runbook's Minor close, and `/update` now say the same. Tests: `test_completion_minor_verdict.py::test_a_minor_record_without_the_closing_classes_never_completes`, `::test_a_minor_spec_without_a_closing_class_is_refused` (three cases), `::test_a_frozen_id_fixed_instead_of_migrated_still_needs_the_close`, and `test_gap_migration_and_archive.py::test_archive_minor_predicate_reads_the_integration_branch`. |
+| BG-4 | Naming another session's scope lifted its owned-by-run protection | Phase 8 (coordinator follow-up) | ADV-7, reproduced first: with session s1's live record owning the merged, idle `feat/plan`, `cleanup_merged.py --dry-run --plan <plan>` from another caller printed `REMOVE branch:feat/plan`. `cleanup_merged.py` gained `--session`: the named `--plan` or `--minor` record is exempt from the owned-by-run scan only when it loads verified and is bound to that session (otherwise it stays in the scan, with the notice `scope-record-not-own`), and `--receipt` needs the record's own session (`BLOCKED: approval-not-covered`, reason `session-required` or `record-bound-to-another-session`). `/update`, the runbook, the contract, and the e2e stub pass `--session`. Tests: `test_cleanup_merged.py::test_naming_another_sessions_plan_keeps_its_owned_items` (failed before the fix) and `::test_a_receipt_needs_the_records_own_session`. |

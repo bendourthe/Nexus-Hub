@@ -1,10 +1,10 @@
 # Platform Read-Contracts (living)
 
-This is the durable, sourced source of truth for where every supported platform READS each surface (instruction file, slash commands, skills, agents, rules, hooks) and where the Nexus-Hub installer WRITES it. It supersedes the point-in-time snapshot at `docs/releases/v3/v3.11/platform-read-contracts.md` (which resolved the v3.11.0 Phase 7 audit but left the Codex and Antigravity contracts flagged as unverified).
+This is the durable, sourced source of truth for where every supported platform READS each surface (instruction file, slash commands, skills, agents, rules, hooks) and where the Nexus-Hub installer WRITES it. It supersedes the point-in-time snapshot at `docs/archives/v3/v3.11/platform-read-contracts.md` (which resolved the v3.11.0 Phase 7 audit but left the Codex and Antigravity contracts flagged as unverified).
 
-**Last verified**: 2026-09-29 for v4.13.5. v4.13.5: targeted re-fetch. This release changes no discovery path, adapter write target, `contract_checks` row, or `install_verify` row; its installer change copies `scripts/repo_host.py` into `~/.nexus-hub/scripts/`. Re-fetched from first-party documentation with no redirect: claude MATCH, cursor MATCH, and codex MATCH for its contracted `.agents/skills` ladder (`~/.codex/skills` still undocumented and UNVERIFIED). Every other platform is CARRIED FORWARD from the full v4.13.3 pass of 2026-09-28, not re-fetched, including its WN-5 drift items; nexus-ai stays UNVERIFIED. scripts/verify_platform_contracts.py reports OK for all 14 platforms against the JSON.
+**Last verified**: 2026-09-30 for v4.13.6. v4.13.6: targeted re-fetch. This release changes no discovery path, adapter write target, `contract_checks` row, or `install_verify` row; its installer change copies five scripts (`approval_binding.py`, `completion_minor.py`, `cleanup_merged.py`, `minor_close.py`, `approval_page.py`) into `~/.nexus-hub/scripts/`. Re-fetched from first-party documentation with no redirect: claude MATCH, cursor MATCH, and codex MATCH for its contracted `.agents/skills` ladder (`~/.codex/skills` still undocumented and UNVERIFIED). Every other platform is CARRIED FORWARD from the full v4.13.3 pass of 2026-09-28, not re-fetched, including its WN-5 drift items; nexus-ai stays UNVERIFIED. scripts/verify_platform_contracts.py reports OK for all 14 platforms against the JSON.
 
-**Prior entry, retained for the record** -- Last verified 2026-09-28 for v4.13.4. v4.13.4: targeted same-day re-fetch. This release changes no discovery path, adapter write target, `contract_checks` row, or `install_verify` row. Re-fetched from first-party documentation with no redirect: claude MATCH, cursor MATCH, and codex MATCH for its contracted `.agents/skills` ladder (`~/.codex/skills` still undocumented and UNVERIFIED). Every other platform is CARRIED FORWARD from the same-day full v4.13.3 pass below, not re-fetched, including its WN-5 drift items; nexus-ai stays UNVERIFIED. scripts/verify_platform_contracts.py reports OK for all 14 platforms against the JSON.
+**Prior entry, retained for the record** -- Last verified 2026-09-29 for v4.13.5. v4.13.5: targeted re-fetch. This release changes no discovery path, adapter write target, `contract_checks` row, or `install_verify` row; its installer change copies `scripts/repo_host.py` into `~/.nexus-hub/scripts/`. Re-fetched from first-party documentation with no redirect: claude MATCH, cursor MATCH, and codex MATCH for its contracted `.agents/skills` ladder (`~/.codex/skills` still undocumented and UNVERIFIED). Every other platform is CARRIED FORWARD from the full v4.13.3 pass of 2026-09-28, not re-fetched, including its WN-5 drift items; nexus-ai stays UNVERIFIED. scripts/verify_platform_contracts.py reports OK for all 14 platforms against the JSON.
 
 **Targeted 2026-09-24 follow-up, not a release re-stamp**: [Google's Antigravity hooks reference](https://antigravity.google/docs/hooks?tab=cli) now confirms that the CLI reads `~/.gemini/config/hooks.json`, already emitted by this installer for the IDE, and `.agents/hooks.json` in a workspace. [Nexus-AI's current catalog reader](https://github.com/bendourthe/Nexus-AI/blob/198ff9c877f258c775092761e3c67a6bed56b1d2/desktop/sidecar/src/skills/hubSkillReader.ts) resolves skills beneath the global catalog root defined in [its storage paths](https://github.com/bendourthe/Nexus-AI/blob/198ff9c877f258c775092761e3c67a6bed56b1d2/core/storage/paths.ts); this qualifies the global skills read path, not every mirrored surface or the project-local mirror. The [archived bounded recheck](../archives/v4/v4.3/development/optional-platform-surface-recheck.md) records the remaining unknowns. The full-platform `last_verified` and JSON freshness marker above are unchanged.
 
@@ -169,6 +169,17 @@ The catalog itself is never reorganized per platform. Each integration is an ada
 ## Re-verification log
 
 **v4.3.0 cut (re-stamp, no new pass).** The 2026-08-30 full correction pass below is the verification behind the v4.3.0 stamp. It ran while the canonical version still read 4.1.2, and nothing between that pass and this cut changed a discovery path, an adapter write-target, or a `contract_checks` entry, so the stamp moves without a new fetch rather than a new pass being claimed. `scripts/verify_platform_contracts.py` exits 0 on the cut tree.
+
+### 2026-09-30 (v4.13.6 release - targeted re-fetch)
+
+v4.13.6 adds minor-scope `/implement` runs, the approval page, and verified merged-and-idle cleanup. It changes no discovery path: installer diffs since v4.13.5 are the version constants and five script copies into `~/.nexus-hub/scripts/`, and the one `scripts/lib/integrations/copilot.py` change is a docstring path. The skill-discovery pages below were re-fetched; the remaining platforms are unchanged from the full v4.13.3 pass:
+
+- Claude MATCH: `~/.claude/skills`, `.claude/skills`, and `.claude/commands` still documented. [Source](https://code.claude.com/docs/en/skills)
+- Cursor MATCH: `.cursor/skills`, `~/.cursor/skills`, `.agents/skills`, and `disable-model-invocation` still documented. [Source](https://cursor.com/docs/skills)
+- Codex MATCH for the contracted ladder: `$HOME/.agents/skills`, `.agents/skills`, and `/etc/codex/skills`; `~/.codex/skills` is still absent and stays UNVERIFIED. [Source](https://learn.chatgpt.com/docs/build-skills)
+- Other platforms: unchanged from the full v4.13.3 pass, including its WN-5 drift items. Nexus-AI UNVERIFIED.
+
+No adapter, installer path, `contract_checks` row, or `install_verify` row changed.
 
 ### 2026-09-29 (v4.13.5 release - targeted re-fetch)
 
@@ -420,7 +431,7 @@ v3.14.6 is a usage-monitor + installer-log fix release: it changed no platform r
 
 ### 2026-07-19 (v3.14.5 release)
 
-A full web re-verification of all supported platforms against current official docs. Dead-path bugs (our installer wrote where the platform no longer reads) were fixed in this release; additive drift (platforms that GAINED skills/agents/hooks surfaces we do not yet use) is deferred to v3.15.0 (platform parity), tracked in `docs/releases/v3/v3.14/known-gaps.md`.
+A full web re-verification of all supported platforms against current official docs. Dead-path bugs (our installer wrote where the platform no longer reads) were fixed in this release; additive drift (platforms that GAINED skills/agents/hooks surfaces we do not yet use) is deferred to v3.15.0 (platform parity), tracked in `docs/archives/v3/v3.14/known-gaps.md`.
 
 **Fixed in v3.14.5:**
 
@@ -630,4 +641,4 @@ If broader per-file distribution to a new platform is needed, add a new subclass
 
 ## v4.9.0 release verification
 
-The 2026-09-08 [platform sweep](../releases/v4/v4.9/development/qualification/v4.9-platform-verification.md) covers all 14 discovery rows and preserves each UNVERIFIED surface. Release follow-up corrected the Antigravity 2 global workflow destination to `~/.gemini/config/workflows/`, as confirmed by the [official migration table](https://antigravity.google/docs/migration/workflows-to-skills). Existing files in the previous directory are retained; native command-skills remain the primary delivery path. No native host execution is claimed.
+The 2026-09-08 [platform sweep](../archives/v4/v4.9/development/qualification/v4.9-platform-verification.md) covers all 14 discovery rows and preserves each UNVERIFIED surface. Release follow-up corrected the Antigravity 2 global workflow destination to `~/.gemini/config/workflows/`, as confirmed by the [official migration table](https://antigravity.google/docs/migration/workflows-to-skills). Existing files in the previous directory are retained; native command-skills remain the primary delivery path. No native host execution is claimed.

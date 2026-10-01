@@ -94,7 +94,7 @@ Run these PowerShell steps from the repository root after creating `.nexus/secur
 ```powershell
 $repo = (Get-Location).Path
 $manager = Join-Path $repo 'catalog/skills/code-review/security-review/scripts/manage-security-audit-benchmark.py'
-$candidates = Join-Path $repo 'docs/releases/v4/v4.9/development/security-audit-benchmark/candidates'
+$candidates = Join-Path $repo 'docs/archives/v4/v4.9/development/security-audit-benchmark/candidates'
 $answers = Join-Path $repo '.nexus/security-audit-answers'
 $context = Join-Path $repo '.nexus/security-audit-context.json'
 $prepared = python $manager prepare-candidate --root $repo --candidates $candidates --answer-archive $answers --context $context | ConvertFrom-Json
@@ -115,7 +115,7 @@ After both terminal entries exist:
 ```powershell
 python $manager score-candidate --root $repo --candidates $candidates --answer-archive $answers --candidate-id $candidate
 python $manager verify-candidate --root $repo --candidates $candidates --answer-archive $answers --candidate-id $candidate
-$report = Join-Path $repo 'docs/releases/v4/v4.9/development/security-audit-benchmark.md'
+$report = Join-Path $repo 'docs/archives/v4/v4.9/development/security-audit-benchmark.md'
 python $manager render-report --root $repo --candidates $candidates --answer-archive $answers --candidate-id $candidate --output $report
 ```
 

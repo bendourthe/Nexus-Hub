@@ -2,7 +2,7 @@
 
 **Date**: 2026-07-16
 **Branch**: `feat/codex-lb-adoption` (off `develop`)
-**Plan**: [docs/releases/v3/v3.14/plans/v3.14.0-codex-lb-adoption.md](../../../../../releases/v3/v3.14/plans/v3.14.0-codex-lb-adoption.md), Phase 2 of 6 (not the final phase)
+**Plan**: [docs/archives/v3/v3.14/plans/v3.14.0-codex-lb-adoption.md](../../plans/v3.14.0-codex-lb-adoption.md), Phase 2 of 6 (not the final phase)
 **Scope**: `catalog/` (skills + style-guides), the three `data/` registry files, `AGENTS.md` count sync, `CHANGELOG.md`. No installer or base-template.
 
 ## Goal
@@ -35,7 +35,7 @@ Adopt three composing agentic-review disciplines (C4 + C3 + C6) as catalog conte
 
 ## Known gaps added
 
-- HO-1 now engages: the flat/nested skill-name-collision check applies to `review-trapdoors`, to be verified in the Phase 6.4 dry-run install. See [docs/releases/v3/v3.14/known-gaps.md](../../known-gaps.md).
+- HO-1 now engages: the flat/nested skill-name-collision check applies to `review-trapdoors`, to be verified in the Phase 6.4 dry-run install. See [docs/archives/v3/v3.14/known-gaps.md](../../known-gaps.md).
 
 ## Next steps
 

@@ -21,7 +21,7 @@ GUIDE = _ROOT / "guides" / "website" / "nexus-hub-guide.html"
 STAGED = (
     _ROOT
     / "docs"
-    / "releases"
+    / "archives"
     / "v4"
     / "v4.4"
     / "development"

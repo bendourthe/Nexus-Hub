@@ -13,6 +13,9 @@
     A session with no bound full-run record is never affected: the core exits 0
     with no output. If Python or the core is missing, this hook allows the event.
 
+    A schema-2 (minor) record is judged by the core through check-minor and
+    score-minor; this adapter has no scope logic (v4.13.6).
+
 .NOTES
     Runtime controls (checked on EVERY invocation):
       Disable by name:          $env:NEXUS_DISABLED_HOOKS = "completion-gate"

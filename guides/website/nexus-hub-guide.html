@@ -2116,21 +2116,24 @@ html:not(.js) #page-foundations{display:block;}html:not(.js) .ml-panel[hidden]{d
         <p data-ty="body">The only commands here that write source. Non-final phases commit locally and never push.</p>
 
         <article class="cs-cmd">
-          <div class="cs-head"><span data-ty="code" class="cs-name">/implement</span><span data-ty="body-sm" class="cs-desc">Implement one plan phase end to end: code, lint, test, troubleshoot, document, commit.</span></div>
+          <div class="cs-head"><span data-ty="code" class="cs-name">/implement</span><span data-ty="body-sm" class="cs-desc">Implement a whole plan, or every queued plan in a minor, end to end. One approval paste starts the run and sets the native goal where the platform supports it; the run stops only on a checker verdict, a named blocker, or a pause.</span></div>
           <div class="cs-body">
             <div class="cs-scopes">
-              <div class="cs-scope"><code data-ty="code">(bare)</code><span>Find the plan, then ask which phase to run.</span></div>
-              <div class="cs-scope"><code data-ty="code">&lt;slug&gt;</code><span>Use that plan (or a path to the plan file).</span></div>
-              <div class="cs-scope"><code data-ty="code">&lt;slug&gt; phase-N</code><span>Implement that specific phase.</span></div>
-              <div class="cs-scope"><code data-ty="code">&lt;slug&gt; next</code><span>Implement the first phase not yet complete.</span></div>
-              <div class="cs-scope"><code data-ty="code">full</code><span>Run every incomplete phase in order (alias: in-full).</span></div>
-              <div class="cs-scope"><code data-ty="code">phase-by-phase</code><span>Same loop, pausing for a choice after each phase.</span></div>
+              <div class="cs-scope"><code data-ty="code">&lt;plan&gt;</code><span>Run the whole plan by default: every phase, then publish, release, and clean up. A slug, a plan file path, or a vX.Y.Z version.</span></div>
+              <div class="cs-scope"><code data-ty="code">vX.Y</code><span>Run every queued plan in that minor, in version order, under one approval.</span></div>
+              <div class="cs-scope"><code data-ty="code">(bare)</code><span>Run the whole next queued plan.</span></div>
+              <div class="cs-scope"><code data-ty="code">&lt;plan&gt; phase &lt;N&gt;</code><span>Step mode: run exactly one phase (also phase-N).</span></div>
+              <div class="cs-scope"><code data-ty="code">&lt;plan&gt; next</code><span>Step mode: run the first phase not yet complete.</span></div>
+              <div class="cs-scope"><code data-ty="code">&lt;plan&gt; phase-by-phase</code><span>Step mode: the full loop, pausing for a choice after each phase.</span></div>
+              <div class="cs-scope"><code data-ty="code">&lt;plan&gt; full</code><span>Accepted alias for the default (also in-full).</span></div>
+              <div class="cs-scope"><code data-ty="code">pause</code><span>Pause the current run at the next safe point.</span></div>
             </div>
             <div class="cs-usage">
             <div class="term term--mini">
               <div class="term-bar"><span data-ty="code" class="label">type it like this</span></div>
               <div class="term-body">
-                <div class="cmd-line"><span data-ty="code" class="t-teal" aria-hidden="true">&gt;</span> <code data-ty="code" class="inv" data-copy="/implement my-plan phase-1"><span data-ty="code" class="inv-cmd">/implement</span><span data-ty="code" class="inv-arg"> my-plan phase-1</span></code></div>
+                <div class="cmd-line"><span data-ty="code" class="t-teal" aria-hidden="true">&gt;</span> <code data-ty="code" class="inv" data-copy="/implement v0.5"><span data-ty="code" class="inv-cmd">/implement</span><span data-ty="code" class="inv-arg"> v0.5</span></code></div>
+                <div class="cmd-line"><span data-ty="code" class="t-teal" aria-hidden="true">&gt;</span> <code data-ty="code" class="inv" data-copy="/implement my-plan"><span data-ty="code" class="inv-cmd">/implement</span><span data-ty="code" class="inv-arg"> my-plan</span></code></div>
               </div>
             </div>
             <p data-ty="caption" class="cs-teach"><a href="#training/implement" data-go="training">See it in Training</a></p>
@@ -2195,7 +2198,7 @@ html:not(.js) #page-foundations{display:block;}html:not(.js) .ml-panel[hidden]{d
           <div class="cs-head"><span data-ty="code" class="cs-name">/update</span><span data-ty="body-sm" class="cs-desc">Sync the repo to its current state and, at release scope, ship it.</span></div>
           <div class="cs-body">
             <div class="cs-scopes">
-              <div class="cs-scope"><code data-ty="code">release</code><span>The full ship flow: commit, tag, push, publish the release.</span></div>
+              <div class="cs-scope"><code data-ty="code">release</code><span>The full ship flow: commit, tag, push, publish the release. After the last release of a minor run, one closing pull request, then a checked cleanup that removes only merged, idle branches and worktrees.</span></div>
               <div class="cs-scope"><code data-ty="code">docs</code><span>Sync README, API docs, architecture docs, inline guides.</span></div>
               <div class="cs-scope"><code data-ty="code">devlog</code><span>Refresh the DEVLOG index line for this release.</span></div>
               <div class="cs-scope"><code data-ty="code">gitignore</code><span>Audit .gitignore, clean the index, recommend LFS.</span></div>

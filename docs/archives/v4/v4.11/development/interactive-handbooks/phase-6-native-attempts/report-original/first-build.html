@@ -1,0 +1,804 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tide sensor pilot</title><style>
+[data-dv-zoom-view]{max-height:320px;overflow:auto}[data-dv-zoom-view]>svg{max-width:none;width:100%;display:block}.dv-figure-tools{display:flex;gap:1rem;align-items:center;flex-wrap:wrap}.dv-figure-tools label{display:flex;gap:.5rem;align-items:center}[data-region][data-selected=true]{stroke:currentColor;stroke-width:4}html{font:18px/1.55 system-ui,sans-serif;scrollbar-color:#52677b transparent}body{margin:0;background:#f5f3ec;color:#15283c}*{box-sizing:border-box}button,input,select{font:inherit}button{cursor:pointer;min-height:44px}header,[data-dv-section]{padding:clamp(1.25rem,4vw,4rem)}header h1{font-size:clamp(2rem,5vw,4rem);line-height:1.1}header>svg{width:240px;max-height:60px}[data-theme=dark]{background:#142235;color:#f5f3ec}[data-theme=light]{background:#f5f3ec;color:#15283c}h2{overflow-wrap:anywhere}[data-dv-section] h2{font-size:clamp(1.5rem,3vw,2.7rem);line-height:1.15}.dv-top-menu{display:flex;justify-content:space-between;background:#f5f3ec;color:#15283c;padding:.5rem;z-index:2}figure svg text:not([fill]),figure svg marker path:not([fill]){fill:currentColor}figure{margin:0;min-width:0}figure>svg{width:100%;max-height:220px}figcaption{font-size:1rem}.dv-chart svg{width:100%;min-width:650px;max-height:290px}.dv-chart svg text{font-size:24px;fill:currentColor;stroke:none}.dv-chart [data-dv-native]{overflow:auto}.dv-legend{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap}.dv-legend button{background:transparent;color:inherit;border:1px solid currentColor;border-radius:.5rem}.dv-directory{max-height:200px;overflow:auto;scrollbar-color:currentColor transparent}table{border-collapse:collapse;font-size:1rem}td,th{padding:.3rem .7rem;border-bottom:1px solid currentColor;text-align:left}pre{font-size:1rem}.dv-image{border:0;background:transparent;padding:0}.dv-image img{object-fit:contain;max-width:100%;max-height:240px}.dv-brand{position:absolute;right:1rem;top:1rem;max-width:120px}.dv-brand svg{width:100%}[data-dv-slide]>.dv-brand~*{min-width:0}[data-dv-slide]:has(.dv-brand)>h2{padding-right:140px}[data-dv-slide]>[data-dv-unit]{min-width:0}[data-dv-slide] details[open]{overflow:auto;max-height:180px}[data-dv-map] input{width:100%}[data-dv-region][hidden]{display:none!important}[data-dv-region]{display:block;width:100%;text-align:left}.dv-enlargement{max-width:94vw;max-height:90vh}.dv-enlargement img{max-width:85vw;max-height:75vh;object-fit:contain}dialog::backdrop{background:#101820cc}@media(max-width:760px){[data-dv-slide]:has(.dv-brand)>h2{padding-right:0;padding-top:3rem}}@media print{.dv-top-menu,button,input,select,dialog,[data-dv-deck]{display:none!important}[data-dv-page]{display:block!important}[data-dv-section]{break-inside:avoid;background:white;color:black}}
+/* Namespaced mechanics; project authors retain composition and brand tokens. */
+[data-dv-deck][hidden], [data-dv-slide][hidden] { display: none !important; }
+[data-dv-open], [data-dv-chapter] { display: none; }
+[data-dv-ready] [data-dv-open], [data-dv-ready] [data-dv-chapter] { display: inline-flex; }
+[data-dv-deck] {
+  --dv-bg: #f5f3ec; --dv-fg: #15283c; --dv-muted: #45566a;
+  box-sizing: border-box; position: fixed; inset: 0; z-index: 1000;
+  width: 100%; height: 100dvh; color: var(--dv-fg); background: var(--dv-bg);
+  display: grid; grid-template-rows: minmax(0, 1fr) auto;
+  font: 1.125rem/1.45 system-ui, sans-serif;
+}
+[data-dv-deck][data-theme="dark"] { --dv-bg: #142235; --dv-fg: #f5f3ec; --dv-muted: #c2d1df; color-scheme: dark; }
+[data-dv-deck][data-theme="light"] { color-scheme: light; }
+[data-dv-deck] *, [data-dv-page] * { box-sizing: border-box; }
+.dv-stage { min-width: 0; min-height: 0; display: grid; }
+[data-dv-slide] {
+  min-width: 0; min-height: 0; padding: clamp(1rem, 3vw, 3rem);
+  display: flex; flex-direction: column; justify-content: center; gap: clamp(.5rem, 1.4vh, 1.5rem);
+  position: relative; background: var(--dv-bg); color: var(--dv-fg);
+}
+[data-dv-slide] h1, [data-dv-slide] h2 { font-size: clamp(1.5rem, 3vw, 3.5rem); line-height: 1.1; margin: 0; overflow-wrap: anywhere; }
+[data-dv-slide] p { margin: 0; }
+[data-dv-slide] input, [data-dv-slide] button, [data-dv-slide] select { font: inherit; min-height: 44px; max-width: 100%; }
+[data-dv-slide] button { align-self: flex-start; }
+[data-dv-slide] h2:focus, [data-dv-slide] h1:focus { outline: none; }
+[data-dv-slide] img { max-width: 100%; max-height: 42vh; object-fit: contain; }
+[data-dv-slide] svg { max-width: 100%; }
+[data-dv-controls] {
+  display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
+  gap: .5rem; padding: .6rem; border-top: 1px solid currentColor;
+  background: var(--dv-bg); color: var(--dv-fg);
+}
+[data-dv-controls] button, [data-dv-controls] select {
+  color: inherit; background: transparent; border: 1px solid currentColor;
+  border-radius: .5rem; padding: .4rem .65rem; font: inherit; min-height: 44px;
+}
+[data-dv-controls] select { max-width: min(30vw, 16rem); }
+[data-dv-controls] button { display: inline-flex; align-items: center; gap: .3rem; }
+[data-dv-controls] button:disabled { opacity: .45; }
+[data-dv-controls] svg { width: 1.25rem; height: 1.25rem; fill: none; stroke: currentColor; stroke-width: 2; }
+[data-dv-deck] :focus-visible, [data-dv-page] :focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
+[data-dv-native] { overflow: auto; scrollbar-width: thin; scrollbar-color: currentColor transparent; }
+[data-dv-page] { scrollbar-color: #52677b transparent; }
+[data-dv-page] [data-theme="dark"] { scrollbar-color: #c2d1df transparent; }
+[data-dv-native]::-webkit-scrollbar { width: 10px; height: 10px; }
+[data-dv-native]::-webkit-scrollbar-track { background: transparent; }
+[data-dv-native]::-webkit-scrollbar-thumb { background: var(--dv-muted, #52677b); border-radius: 1rem; }
+[data-dv-native]::-webkit-scrollbar-thumb:hover { background: currentColor; }
+[data-dv-slide] dialog { max-width: min(90vw, 60rem); max-height: 80dvh; color: inherit; background: var(--dv-bg); }
+@media (max-width: 760px) {
+  .dv-stage { overflow-y: auto; }
+  [data-dv-slide] { justify-content: flex-start; align-self: start; height: auto; min-height: 100%; }
+  [data-dv-slide] > * { flex-shrink: 0; }
+  [data-dv-controls] { gap: .25rem; }
+  [data-dv-controls] button { padding: .3rem; font-size: 1rem; }
+  [data-dv-controls] select { max-width: 40vw; }
+}
+@media (forced-colors: active) { [data-dv-native], [data-dv-page] { scrollbar-color: auto; } }
+@media (prefers-reduced-motion: reduce) { [data-dv-deck] *, [data-dv-page] * { animation: none !important; transition: none !important; } }
+@media print { [data-dv-deck], [data-dv-open], [data-dv-chapter], [data-dv-status] { display: none !important; } [data-dv-page] { display: block !important; } }
+:root{--paper:#f7f3e9;--ink:#102f44;--accent:#067b83;--page-max:clamp(20rem,78vw,62rem);--gutter:clamp(1.25rem,4vw,4rem);--tide-gap:clamp(1rem,2.5vw,3rem)}
+html{font-size:clamp(1rem,.5vw + .55rem,1.6rem);font-family:Arial,sans-serif;scroll-behavior:smooth;scroll-padding-top:7rem;scrollbar-color:var(--accent) var(--paper)}
+body{font:1.125rem/1.55 Arial,sans-serif;background:var(--paper);color:var(--ink)}
+[data-dv-page]{max-width:min(100%,var(--page-max))!important;box-shadow:0 8px 30px #102f4410}
+[data-theme=light]{--tide-ground:var(--paper);--tide-foreground:var(--ink);--tide-action:var(--accent);background:var(--tide-ground);color:var(--tide-foreground)}
+[data-theme=dark]{--tide-ground:var(--ink);--tide-foreground:var(--paper);--tide-action:var(--paper);background:var(--tide-ground);color:var(--tide-foreground)}
+[data-dv-deck]{--dv-bg:var(--paper);--dv-fg:var(--ink);--dv-muted:var(--accent);font-family:Arial,sans-serif}
+[data-dv-deck][data-theme=dark]{--dv-bg:var(--ink);--dv-fg:var(--paper);--dv-muted:var(--paper)}
+[data-dv-section]{padding:clamp(1.5rem,4vw,4rem);position:relative;scroll-margin-top:5rem}
+[data-dv-section] h2{font-size:2.25rem;letter-spacing:-.04em;line-height:1.12;margin:0 0 1.2rem;overflow-wrap:normal;text-wrap:balance}
+h3{font-size:1.35rem;letter-spacing:-.02em;line-height:1.25;margin:0 0 .7rem}
+p{margin:0 0 1rem;max-width:72ch}
+button,select,summary,input{font:inherit;color:inherit}
+button,select{border:1px solid currentColor;border-radius:6px;background:transparent;padding:.45rem .7rem;min-height:44px}
+button{display:inline-flex;align-items:center;gap:.45rem;cursor:pointer}
+button:hover,a:hover,summary:hover{background:#067b831a}
+[data-theme=dark] button:hover,[data-theme=dark] a:hover{background:#f7f3e922}
+button:active{transform:translateY(1px)}
+a{color:inherit;text-underline-offset:.22em;text-decoration-thickness:1px}
+:focus-visible{outline:3px solid currentColor;outline-offset:4px}
+select option{color:var(--ink);background:var(--paper)}
+.dv-top-menu{position:sticky;top:0;display:flex;flex-wrap:wrap;gap:.55rem;align-items:center;padding:clamp(.6rem,1vw,1rem);background:var(--paper);color:var(--ink);border-bottom:1px solid #102f4428;z-index:3}
+.dv-top-menu::after{content:"";position:absolute;bottom:-1px;left:0;right:0;height:3px;background:var(--accent);transform:scaleX(var(--tide-progress,0));transform-origin:left;transition:transform .15s linear}
+.dv-top-menu button{font-size:.9rem;border-color:var(--accent);color:var(--accent)}
+.tide-menu-links{display:flex;flex-wrap:wrap;gap:clamp(.4rem,1vw,1.1rem);font-size:.9rem}
+.tide-menu-links a{text-decoration:none;padding:.3rem .15rem}
+.tide-menu-links a[aria-current=true]{font-weight:bold;text-decoration:underline}
+.tide-cover-head{display:flex;align-items:flex-start;flex-direction:column;gap:clamp(1rem,2vw,2rem)}
+.tide-cover-head>svg{width:clamp(13rem,25vw,20rem);height:auto;max-height:5rem}
+.tide-cover-head h1{font-size:3.4rem;font-weight:700;line-height:1.02;letter-spacing:-.06em;margin:0;max-width:none;text-wrap:balance}
+.tide-cover-head button{background:var(--accent);border-color:var(--accent);color:var(--paper)}
+.tide-cover-copy{margin-top:clamp(1rem,2vw,2rem);max-width:46ch}
+.tide-cover-copy p{font-size:1.2rem}
+.tide-reading-link{font-size:1rem}
+.tide-agenda{display:grid;grid-template-columns:minmax(0,.7fr) minmax(0,1.3fr);gap:var(--tide-gap);align-items:start}
+.tide-agenda ol{list-style:none;margin:0;padding:0}
+.tide-agenda li{border-top:1px solid #f7f3e944;padding:clamp(.7rem,1.5vw,1.2rem) 0}
+.tide-agenda li:last-child{padding-bottom:0}
+.tide-agenda li a{display:flex;gap:1rem;font-size:1.35rem;text-decoration:none;line-height:1.25}
+.tide-agenda li a span{font-size:.85rem;line-height:2;opacity:.85}
+.tide-agenda li p{font-size:1rem;margin:.5rem 0 0 2.1rem}
+.tide-counts-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:var(--tide-gap);align-items:start}
+.tide-plot-column,.tide-evidence-column{min-width:0}
+.tide-total-comparison{display:grid;grid-template-columns:1fr 1fr;gap:clamp(.8rem,1.5vw,1.5rem);border-bottom:1px solid #102f4438;padding-bottom:1rem;margin-bottom:1rem}
+.tide-total-comparison span{display:block;font-size:.85rem}
+.tide-total-comparison strong{display:block;font-size:3.5rem;line-height:1.1;letter-spacing:-.06em;font-weight:700}
+[data-dv-unit=discrepancy] p{font-size:1rem}
+[data-dv-unit=reliability] p{font-size:1rem;font-weight:bold}
+.dv-chart svg{width:100%;min-width:0;max-height:clamp(10rem,27vh,18rem)}
+.dv-chart svg text{font-size:28px;fill:currentColor}
+.dv-chart [data-dv-series-marks]{fill:var(--accent);stroke:var(--accent)}
+.dv-chart figcaption{font-weight:bold;font-size:1rem;margin-bottom:.25rem}
+.dv-chart [data-dv-zoom-view]{max-height:clamp(10rem,29vh,19rem)}
+.dv-figure-tools{gap:.45rem;justify-content:space-between;margin-top:.5rem;font-size:.85rem}
+.dv-figure-tools label{gap:.4rem}
+.dv-figure-tools input{width:clamp(4rem,8vw,7rem);accent-color:var(--accent);min-height:24px}
+.dv-figure-tools button,.dv-legend button{font-size:.85rem}
+.dv-legend{justify-content:center;margin:.1rem 0}
+.dv-legend [aria-pressed=false]{text-decoration:line-through;opacity:.65}
+.dv-chart details{font-size:.9rem;margin-top:.55rem}
+.dv-chart details table{width:100%;font-size:1rem}
+.tide-axis-control{font-size:.85rem;margin-top:.7rem}
+.tide-axis-control label{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.tide-axis-control select{max-width:100%;font-size:1em;padding:.3rem .4rem}
+.dv-directory{max-height:none;overflow:visible}
+table{width:100%;font-size:1rem;border-collapse:collapse}
+td,th{border-bottom:1px solid #102f4438;padding:.55rem .5rem;text-align:left;vertical-align:top}
+th{font-weight:bold}
+tbody tr:hover,tbody tr:focus{background:#067b8314}
+.tide-review-copy{max-width:72ch}
+.tide-review-copy p{font-size:1.05rem}
+.tide-flow-wide figure>svg{display:block;width:100%;max-height:clamp(13rem,34vh,23rem);margin:auto}
+.tide-flow-wide figure figcaption,.tide-flow-compact figure figcaption{font-size:.85rem;margin-top:.5rem}
+.tide-flow-wide svg text,.tide-flow-compact svg text{fill:currentColor}
+.tide-flow-wide{margin:clamp(.5rem,1vw,1rem) 0}
+.tide-flow-compact{display:none}
+.tide-inspection-tools{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1rem;font-size:.9rem}
+.tide-scope-grid{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:var(--tide-gap)}
+.tide-source-register table{font-size:1rem}
+.tide-source-register td:first-child{white-space:nowrap}
+[data-dv-unit=scope-reminder]{border-top:1px solid #102f4438;padding-top:1rem;margin-top:1rem}
+[data-dv-unit=scope-reminder] p{font-size:1rem}
+[data-dv-slide]{padding:clamp(1rem,3vh,3rem) clamp(1.25rem,4vw,5rem);gap:clamp(.5rem,1vh,1rem);font-size:1rem}
+[data-dv-slide]>h2{font-size:2.5rem;letter-spacing:-.04em;line-height:1.1;margin-bottom:clamp(.4rem,1vh,.8rem);overflow-wrap:normal}
+[data-dv-slide] .dv-brand{width:clamp(11rem,16vw,15rem);max-width:none;top:clamp(1rem,2vh,2rem);right:clamp(1rem,3vw,3rem)}
+[data-dv-slide]:has(.dv-brand)>h2{padding-right:clamp(12rem,20vw,18rem)}
+[data-dv-slide] .tide-counts-grid{align-items:center}
+[data-dv-slide] .tide-total-comparison strong{font-size:4rem}
+[data-dv-slide] .tide-review-copy{max-width:85ch}
+[data-dv-slide] .tide-flow-wide{width:100%;max-width:65rem;align-self:center}
+[data-dv-slide] .tide-agenda{grid-template-columns:minmax(0,.65fr) minmax(0,1.35fr);gap:clamp(2rem,6vw,7rem)}
+[data-dv-slide] .tide-agenda li a{font-size:1.7rem}
+[data-dv-slide] .tide-agenda li p{font-size:1rem}
+.dv-composition-cover>h2{font-size:4rem;max-width:17ch;padding-right:0!important;margin-top:1.6rem}
+.dv-composition-cover .tide-cover-copy{font-size:1.3rem;max-width:42ch;margin-top:1.5rem}
+.dv-composition-cover .tide-reading-link{display:none}
+.dv-composition-cover::after{content:"";height:8px;width:clamp(6rem,15vw,15rem);background:var(--accent);margin-top:clamp(1rem,3vh,3rem)}
+.dv-composition-appendix .tide-scope-grid{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr)}
+[data-dv-controls]{padding:clamp(.4rem,1vh,.7rem);font-size:.85rem;gap:.4rem}
+[data-dv-controls] select{font-size:.9rem}
+[data-dv-controls] button{font-size:.85rem}
+[data-dv-controls] svg{width:1.1rem;height:1.1rem}
+.tide-modal{width:min(92vw,72rem);max-width:92vw;max-height:90dvh;border:1px solid currentColor;border-radius:10px;color:var(--ink);background:var(--paper);padding:clamp(1rem,3vw,2rem)}
+.tide-modal h2{font-size:1.5rem}
+.tide-modal-tools{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1rem}
+.tide-modal-view{max-height:65dvh;overflow:auto;scrollbar-color:var(--accent) transparent}
+.tide-modal-view>svg{width:100%;height:auto;min-width:600px;max-width:none}
+.tide-modal-view img{max-width:none!important;max-height:none!important;width:100%;min-width:800px}
+@media(max-width:760px){
+ :root{--page-max:100%;--gutter:1.25rem}
+ .dv-top-menu{gap:.35rem;padding:.5rem .75rem}
+ .tide-menu-links{width:100%;justify-content:space-between;font-size:.8rem;gap:.25rem}
+ .dv-top-menu button{font-size:.85rem;min-height:40px}
+ [data-dv-section]{padding:clamp(1.25rem,5vw,2rem)}
+ .tide-cover-head h1{font-size:2.7rem;max-width:11ch}
+ [data-dv-section] h2{font-size:1.9rem}
+ .tide-agenda,.tide-counts-grid,.tide-scope-grid,.dv-composition-appendix .tide-scope-grid,[data-dv-slide] .tide-agenda{grid-template-columns:minmax(0,1fr);gap:clamp(1.5rem,5vw,2rem)}
+ .tide-evidence-column{border-top:1px solid #102f4438;padding-top:1.5rem}
+ .dv-chart svg{max-height:none}
+ .dv-chart svg text{font-size:36px}
+ .dv-chart [data-dv-zoom-view]{max-height:300px}
+ .tide-flow-wide{display:none}
+ .tide-flow-compact{display:block}
+ .tide-flow-compact figure>svg{display:block;width:100%;max-height:none}
+ .tide-source-register td:first-child{white-space:normal;overflow-wrap:anywhere}
+ [data-dv-slide]{padding:clamp(1.25rem,5vw,2rem);gap:1rem}
+ [data-dv-slide]>h2{font-size:2rem;margin-bottom:1rem}
+ [data-dv-slide] .dv-brand{position:static;order:-1;width:13rem;margin-bottom:.5rem}
+ [data-dv-slide]:has(.dv-brand)>h2{padding:0}
+ .dv-composition-cover>h2{font-size:3rem}
+ [data-dv-controls]{gap:.25rem;font-size:.85rem}
+ [data-dv-controls] button{font-size:.8rem;padding:.3rem .4rem}
+ [data-dv-controls] select{font-size:.8rem;max-width:42vw}
+ .tide-modal-view>svg{min-width:650px}
+}
+@media(max-height:850px) and (min-width:761px){[data-dv-slide]{padding-block:clamp(.8rem,2vh,1.5rem)}[data-dv-slide]>h2{font-size:2.2rem}[data-dv-slide] .tide-total-comparison strong{font-size:3.2rem}[data-dv-slide] .tide-agenda li{padding:.7rem 0}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.dv-top-menu::after{transition:none}button:active{transform:none}}
+@media print{
+ @page{size:A4;margin:16mm}
+ html{font-size:11pt}body{background:white;color:var(--ink);font-size:11pt}
+ [data-dv-page]{max-width:100%!important;box-shadow:none}
+ .dv-top-menu,.tide-reading-link,.tide-inspection-tools,.tide-axis-control,.dv-figure-tools,.dv-legend,[data-dv-status]{display:none!important}
+ [data-dv-section]{padding:5mm 0;background:white!important;color:var(--ink)!important;break-inside:avoid}
+ [data-dv-section] h2{font-size:21pt}
+ [data-dv-section=overview]{padding-top:0}
+ .tide-cover-head h1{font-size:30pt}
+ .tide-cover-head>svg{width:55mm}
+ .tide-cover-copy{margin-top:4mm}
+ .tide-cover-copy p{font-size:11pt}
+ [data-dv-section=agenda]{display:none}
+ .tide-counts-grid,.tide-scope-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:7mm}
+ [data-dv-section=review]{break-before:page}
+ .tide-flow-wide{display:block}.tide-flow-compact{display:none}
+ .tide-flow-wide figure>svg{max-height:60mm}
+ .dv-chart svg{max-height:60mm}
+ .dv-chart svg text{font-size:28px}
+ .dv-chart [data-dv-zoom-view]{max-height:none;overflow:visible}
+ .dv-chart details{display:none}
+ .tide-total-comparison strong{font-size:30pt}
+ p,table,td,th,[data-dv-unit=scope-reminder] p{font-size:11pt}
+}
+[data-dv-page]{max-width:46rem;margin-inline:auto}</style></head><body data-aspect="portrait"><main data-dv-page data-aspect="portrait">
+
+<nav class="dv-top-menu"><div class="tide-menu-links"><a href="#overview">Overview</a><a href="#agenda">Contents</a><a href="#counts">Counts</a><a href="#review">Review</a><a href="#scope">Scope</a></div><button data-dv-open>Presentation Mode</button></nav>
+<span id="page-title"></span>
+<section id="overview" data-dv-section="overview" data-theme="light">
+<div class="tide-cover-head"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 70"><path d="M5 35L30 5L55 35L30 65Z" fill="#067b83" /><text x="72" y="45" font-family="Arial,sans-serif" font-size="30" fill="#102f44">Tide Research</text></svg><h1>Tide sensor pilot</h1>
+<button data-dv-open>Presentation Mode</button>
+</div><div class="tide-cover-copy"><div data-dv-unit="overview-text"><p>Synthetic measurements for illustration; not operational or clinical results.</p></div><a class="tide-reading-link" href="#agenda">Explore the report</a></div>
+</section>
+<section id="agenda" data-dv-section="agenda" data-theme="dark">
+<h2>Inside this report</h2><div class="tide-agenda"><div ><div data-dv-unit="agenda-text"><p>Read the observations, follow the review path, then check the scope of the trial.</p></div></div><ol ><li ><a href="#counts" data-tide-chapter="counts-slide"><span >01</span>Observed counts</a><p >Station values and the unresolved total.</p></li><li ><a href="#review" data-tide-chapter="review-slide"><span >02</span>Review path</a><p >Acceptance, archive and the rejected return.</p></li><li ><a href="#scope" data-tide-chapter="scope-slide"><span >03</span>Scope and sources</a><p >Limits of interpretation and source register.</p></li></ol></div>
+</section>
+<section id="counts" data-dv-section="counts" data-theme="light">
+<span id="observed-counts"></span>
+<h2>Observed counts</h2><div class="tide-counts-grid"><div class="tide-plot-column"><div data-dv-unit="count-chart"><figure data-dv-figure="dv-page-figure-6" class="dv-chart"><figcaption>Observations by station</figcaption><div data-dv-native data-dv-zoom-view tabindex="0" aria-label="Chart plot; scroll to inspect"><svg viewBox="0 0 760 340" role="img" aria-label="Observations by station"><path d="M100 240.000H660" fill="none" stroke="currentColor" opacity=".3"/><text x="90" y="246.000" text-anchor="end">0</text><path d="M100 135.000H660" fill="none" stroke="currentColor" opacity=".3"/><text x="90" y="141.000" text-anchor="end">10.0</text><path d="M100 30.000H660" fill="none" stroke="currentColor" opacity=".3"/><text x="90" y="36.000" text-anchor="end">20</text><text x="240.000" y="272" text-anchor="middle">North</text><text x="520.000" y="272" text-anchor="middle">South</text><g data-dv-series-marks="0" fill="#b65b14" stroke="#b65b14"><rect data-dv-animate="comparison" data-dv-mark x="142.000" y="114.000" width="194.000" height="126.000"><title>Observed count, North: 12 observations</title></rect><rect data-dv-animate="comparison" data-dv-mark x="422.000" y="51.000" width="194.000" height="189.000"><title>Observed count, South: 18 observations</title></rect></g><text x="380" y="310" text-anchor="middle">Station</text><text transform="translate(36 135) rotate(-90)" text-anchor="middle">Observations</text></svg></div><div class="dv-legend"><button data-dv-series="0" aria-pressed="true">Observed count</button></div><div class="dv-figure-tools"><label>Zoom <input data-dv-zoom type="range" min="1" max="3" step=".25" value="1"></label><button data-dv-figure-reset>Reset figure</button></div><details><summary>Exact chart values</summary><table><thead><tr><th>Category</th><th>Observed count</th></tr></thead><tbody><tr><th>North</th><td>12</td></tr><tr><th>South</th><td>18</td></tr></tbody></table></details></figure></div><div class="tide-axis-control"></div></div><div class="tide-evidence-column"><div class="tide-total-comparison"><div ><span >Reported total</span><strong >31</strong></div><div ><span >Computed total</span><strong >30</strong></div></div><div data-dv-unit="discrepancy"><p>The reported total is 31; the component values sum to 30. The discrepancy remains unresolved.</p></div><div data-dv-unit="reliability"><p>Reliability is unavailable.</p></div><div data-dv-unit="station-table"><div data-dv-native tabindex="0" class="dv-directory"><table><thead><tr><th>Station</th><th>Observed count</th></tr></thead><tbody><tr><td>North</td><td>12</td></tr><tr><td>South</td><td>18</td></tr></tbody></table></div></div></div></div>
+</section>
+<section id="review" data-dv-section="review" data-theme="dark">
+<span id="review-path"></span>
+<h2>Review path</h2><div class="tide-review-copy"><div data-dv-unit="review-text"><p>Instrument sends observations to Queue; Queue sends them to Analyst; Analyst sends accepted records to Archive. Rejected records return from Analyst to Queue.</p></div></div><div class="tide-flow-wide"><div data-dv-unit="diagram-wide"><figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 300" role="img" aria-label="Instrument to Queue to Analyst to Archive. Rejected records return from Analyst to Queue."><defs><marker id="dv-page-figure-12-arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto" markerUnits="strokeWidth"><path d="M0 0L10 5L0 10Z" fill="currentColor" /></marker></defs><g class="tide-flow-edges" fill="none" stroke="currentColor" stroke-width="3" marker-end="url(#dv-page-figure-12-arrow)"><path data-dv-animate="process" data-dv-step="0" d="M210 100H270" /><path data-dv-animate="process" data-dv-step="1" d="M450 100H510" /><path data-dv-animate="process" data-dv-step="2" d="M690 100H750" /><path data-dv-animate="process" data-dv-step="3" d="M600 145C600 260 360 260 360 145" /></g><g fill="none" stroke="currentColor" stroke-width="2"><rect x="30" y="55" width="180" height="90" rx="16" /><rect x="270" y="55" width="180" height="90" rx="16" /><rect x="510" y="55" width="180" height="90" rx="16" /><rect x="750" y="55" width="180" height="90" rx="16" /></g><g fill="currentColor" font-family="Arial,sans-serif" font-size="28" text-anchor="middle"><text x="120" y="110">Instrument</text><text x="360" y="110">Queue</text><text x="600" y="110">Analyst</text><text x="840" y="110">Archive</text><text x="725" y="35" font-size="25">Accepted</text><text x="480" y="285" font-size="25">Rejected</text></g></svg><figcaption>Review path. Reconstructed from the supplied diagram.</figcaption></figure></div></div><div class="tide-flow-compact"><div data-dv-unit="diagram-compact"><figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 510" role="img" aria-label="Instrument to Queue to Analyst to Archive. Rejected records return from Analyst to Queue."><defs><marker id="dv-page-figure-13-arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto" markerUnits="strokeWidth"><path d="M0 0L10 5L0 10Z" fill="currentColor" /></marker></defs><g fill="none" stroke="currentColor" stroke-width="3" marker-end="url(#dv-page-figure-13-arrow)"><path data-dv-animate="process" data-dv-step="0" d="M140 100V155" /><path data-dv-animate="process" data-dv-step="1" d="M140 225V280" /><path data-dv-animate="process" data-dv-step="2" d="M140 350V405" /><path data-dv-animate="process" data-dv-step="3" d="M230 315C330 315 330 190 230 190" /></g><g fill="none" stroke="currentColor" stroke-width="2"><rect x="50" y="30" width="180" height="70" rx="14" /><rect x="50" y="155" width="180" height="70" rx="14" /><rect x="50" y="280" width="180" height="70" rx="14" /><rect x="50" y="405" width="180" height="70" rx="14" /></g><g fill="currentColor" font-family="Arial,sans-serif" font-size="26" text-anchor="middle"><text x="140" y="74">Instrument</text><text x="140" y="199">Queue</text><text x="140" y="324">Analyst</text><text x="140" y="449">Archive</text><text x="214" y="387" font-size="21">Accepted</text><text x="286" y="145" font-size="21">Rejected</text></g></svg><figcaption>Review path. Reconstructed from the supplied diagram.</figcaption></figure></div></div><div class="tide-inspection-tools"></div>
+</section>
+<section id="scope" data-dv-section="scope" data-theme="light">
+<h2>Scope and sources</h2><div class="tide-scope-grid"><div class="tide-scope-copy"><div data-dv-unit="scope-text"><p>The trial covers two stations. Counts are observations, not percentages. No error bars or confidence intervals were provided.</p></div><div data-dv-unit="scope-reminder"><p>Synthetic measurements for illustration; not operational or clinical results.</p></div></div><div class="tide-source-register"><h3 >Source register</h3><div data-dv-unit="source-register"><div data-dv-native tabindex="0" class="dv-directory"><table><thead><tr><th>Source</th><th>Content</th></tr></thead><tbody><tr><td>pilot.docx</td><td>Overview, observed counts, review path and scope</td></tr><tr><td>observations.csv</td><td>North: 12; South: 18</td></tr><tr><td>review-path.svg</td><td>Four nodes; three forward edges and one rejected return edge</td></tr></tbody></table></div></div></div></div>
+</section>
+</main><p data-dv-status role="status"></p>
+<div data-dv-deck hidden><div class="dv-stage">
+<section id="slide-1" data-dv-slide="overview-slide" data-theme="light" class="dv-composition-cover" hidden><h2>Tide sensor pilot</h2>
+<div class="dv-brand"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 70"><path d="M5 35L30 5L55 35L30 65Z" fill="#067b83" /><text x="72" y="45" font-family="Arial,sans-serif" font-size="30" fill="#102f44">Tide Research</text></svg></div>
+<div class="tide-cover-copy"><div data-dv-unit="overview-text"><p>Synthetic measurements for illustration; not operational or clinical results.</p></div><a class="tide-reading-link" href="#agenda">Explore the report</a></div>
+
+</section>
+<section id="slide-2" data-dv-slide="agenda-slide" data-theme="dark" class="dv-composition-agenda" hidden><h2>Inside this report</h2>
+<div class="dv-brand"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 70"><path d="M5 35L30 5L55 35L30 65Z" fill="#f7f3e9" /><text x="72" y="45" font-family="Arial,sans-serif" font-size="30" fill="#f7f3e9">Tide Research</text></svg></div>
+<div class="tide-agenda"><div ><div data-dv-unit="agenda-text"><p>Read the observations, follow the review path, then check the scope of the trial.</p></div></div><ol ><li ><a href="#counts" data-tide-chapter="counts-slide"><span >01</span>Observed counts</a><p >Station values and the unresolved total.</p></li><li ><a href="#review" data-tide-chapter="review-slide"><span >02</span>Review path</a><p >Acceptance, archive and the rejected return.</p></li><li ><a href="#scope" data-tide-chapter="scope-slide"><span >03</span>Scope and sources</a><p >Limits of interpretation and source register.</p></li></ol></div>
+
+</section>
+<section id="slide-3" data-dv-slide="counts-slide" data-theme="light" class="dv-composition-comparison" hidden><h2>Observed counts</h2>
+<div class="tide-counts-grid"><div class="tide-plot-column"><div data-dv-unit="count-chart"><figure data-dv-figure="dv-deck-figure-23" class="dv-chart"><figcaption>Observations by station</figcaption><div data-dv-native data-dv-zoom-view tabindex="0" aria-label="Chart plot; scroll to inspect"><svg viewBox="0 0 760 340" role="img" aria-label="Observations by station"><path d="M100 240.000H660" fill="none" stroke="currentColor" opacity=".3"/><text x="90" y="246.000" text-anchor="end">0</text><path d="M100 135.000H660" fill="none" stroke="currentColor" opacity=".3"/><text x="90" y="141.000" text-anchor="end">10.0</text><path d="M100 30.000H660" fill="none" stroke="currentColor" opacity=".3"/><text x="90" y="36.000" text-anchor="end">20</text><text x="240.000" y="272" text-anchor="middle">North</text><text x="520.000" y="272" text-anchor="middle">South</text><g data-dv-series-marks="0" fill="#b65b14" stroke="#b65b14"><rect data-dv-animate="comparison" data-dv-mark x="142.000" y="114.000" width="194.000" height="126.000"><title>Observed count, North: 12 observations</title></rect><rect data-dv-animate="comparison" data-dv-mark x="422.000" y="51.000" width="194.000" height="189.000"><title>Observed count, South: 18 observations</title></rect></g><text x="380" y="310" text-anchor="middle">Station</text><text transform="translate(36 135) rotate(-90)" text-anchor="middle">Observations</text></svg></div><div class="dv-legend"><button data-dv-series="0" aria-pressed="true">Observed count</button></div><div class="dv-figure-tools"><label>Zoom <input data-dv-zoom type="range" min="1" max="3" step=".25" value="1"></label><button data-dv-figure-reset>Reset figure</button></div><details><summary>Exact chart values</summary><table><thead><tr><th>Category</th><th>Observed count</th></tr></thead><tbody><tr><th>North</th><td>12</td></tr><tr><th>South</th><td>18</td></tr></tbody></table></details></figure></div><div class="tide-axis-control"></div></div><div class="tide-evidence-column"><div class="tide-total-comparison"><div ><span >Reported total</span><strong >31</strong></div><div ><span >Computed total</span><strong >30</strong></div></div><div data-dv-unit="discrepancy"><p>The reported total is 31; the component values sum to 30. The discrepancy remains unresolved.</p></div><div data-dv-unit="reliability"><p>Reliability is unavailable.</p></div><div data-dv-unit="station-table"><div data-dv-native tabindex="0" class="dv-directory"><table><thead><tr><th>Station</th><th>Observed count</th></tr></thead><tbody><tr><td>North</td><td>12</td></tr><tr><td>South</td><td>18</td></tr></tbody></table></div></div></div></div>
+
+</section>
+<section id="slide-4" data-dv-slide="review-slide" data-theme="dark" class="dv-composition-process" hidden><h2>Review path</h2>
+<div class="tide-review-copy"><div data-dv-unit="review-text"><p>Instrument sends observations to Queue; Queue sends them to Analyst; Analyst sends accepted records to Archive. Rejected records return from Analyst to Queue.</p></div></div><div class="tide-flow-wide"><div data-dv-unit="diagram-wide"><figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 300" role="img" aria-label="Instrument to Queue to Analyst to Archive. Rejected records return from Analyst to Queue."><defs><marker id="dv-deck-figure-29-arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto" markerUnits="strokeWidth"><path d="M0 0L10 5L0 10Z" fill="currentColor" /></marker></defs><g class="tide-flow-edges" fill="none" stroke="currentColor" stroke-width="3" marker-end="url(#dv-deck-figure-29-arrow)"><path data-dv-animate="process" data-dv-step="0" d="M210 100H270" /><path data-dv-animate="process" data-dv-step="1" d="M450 100H510" /><path data-dv-animate="process" data-dv-step="2" d="M690 100H750" /><path data-dv-animate="process" data-dv-step="3" d="M600 145C600 260 360 260 360 145" /></g><g fill="none" stroke="currentColor" stroke-width="2"><rect x="30" y="55" width="180" height="90" rx="16" /><rect x="270" y="55" width="180" height="90" rx="16" /><rect x="510" y="55" width="180" height="90" rx="16" /><rect x="750" y="55" width="180" height="90" rx="16" /></g><g fill="currentColor" font-family="Arial,sans-serif" font-size="28" text-anchor="middle"><text x="120" y="110">Instrument</text><text x="360" y="110">Queue</text><text x="600" y="110">Analyst</text><text x="840" y="110">Archive</text><text x="725" y="35" font-size="25">Accepted</text><text x="480" y="285" font-size="25">Rejected</text></g></svg><figcaption>Review path. Reconstructed from the supplied diagram.</figcaption></figure></div></div><div class="tide-flow-compact"><div data-dv-unit="diagram-compact"><figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 510" role="img" aria-label="Instrument to Queue to Analyst to Archive. Rejected records return from Analyst to Queue."><defs><marker id="dv-deck-figure-30-arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto" markerUnits="strokeWidth"><path d="M0 0L10 5L0 10Z" fill="currentColor" /></marker></defs><g fill="none" stroke="currentColor" stroke-width="3" marker-end="url(#dv-deck-figure-30-arrow)"><path data-dv-animate="process" data-dv-step="0" d="M140 100V155" /><path data-dv-animate="process" data-dv-step="1" d="M140 225V280" /><path data-dv-animate="process" data-dv-step="2" d="M140 350V405" /><path data-dv-animate="process" data-dv-step="3" d="M230 315C330 315 330 190 230 190" /></g><g fill="none" stroke="currentColor" stroke-width="2"><rect x="50" y="30" width="180" height="70" rx="14" /><rect x="50" y="155" width="180" height="70" rx="14" /><rect x="50" y="280" width="180" height="70" rx="14" /><rect x="50" y="405" width="180" height="70" rx="14" /></g><g fill="currentColor" font-family="Arial,sans-serif" font-size="26" text-anchor="middle"><text x="140" y="74">Instrument</text><text x="140" y="199">Queue</text><text x="140" y="324">Analyst</text><text x="140" y="449">Archive</text><text x="214" y="387" font-size="21">Accepted</text><text x="286" y="145" font-size="21">Rejected</text></g></svg><figcaption>Review path. Reconstructed from the supplied diagram.</figcaption></figure></div></div><div class="tide-inspection-tools"></div>
+
+</section>
+<section id="slide-5" data-dv-slide="scope-slide" data-theme="light" class="dv-composition-appendix" hidden><h2>Scope and sources</h2>
+<div class="dv-brand"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 70"><path d="M5 35L30 5L55 35L30 65Z" fill="#067b83" /><text x="72" y="45" font-family="Arial,sans-serif" font-size="30" fill="#102f44">Tide Research</text></svg></div>
+<div class="tide-scope-grid"><div class="tide-scope-copy"><div data-dv-unit="scope-text"><p>The trial covers two stations. Counts are observations, not percentages. No error bars or confidence intervals were provided.</p></div><div data-dv-unit="scope-reminder"><p>Synthetic measurements for illustration; not operational or clinical results.</p></div></div><div class="tide-source-register"><h3 >Source register</h3><div data-dv-unit="source-register"><div data-dv-native tabindex="0" class="dv-directory"><table><thead><tr><th>Source</th><th>Content</th></tr></thead><tbody><tr><td>pilot.docx</td><td>Overview, observed counts, review path and scope</td></tr><tr><td>observations.csv</td><td>North: 12; South: 18</td></tr><tr><td>review-path.svg</td><td>Four nodes; three forward edges and one rejected return edge</td></tr></tbody></table></div></div></div></div>
+
+</section>
+</div><nav data-dv-controls aria-label="Presentation controls"><button data-dv-prev><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M16 4L8 12L16 20"/></svg>Back</button><button data-dv-replay><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 8A8 8 0 1 1 4 16M5 2V8H11"/></svg>Replay</button><span data-dv-count aria-live="polite"></span><select data-dv-picker aria-label="Go to slide"></select><button data-dv-next><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M8 4L16 12L8 20"/></svg>Next</button><button data-dv-fullscreen><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M3 9V3H9M15 3H21V9M21 15V21H15M9 21H3V15"/></svg>Fullscreen</button><button data-dv-exit><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 5L19 19M19 5L5 19"/></svg>Exit</button></nav></div>
+<script type="application/json" id="handbook-record">{"build": {"assets/dual-view-figures.js": "1891f3f4eaabc43c743d5360a6615338d65cf50ed8cc02a771d32a07c194e17d", "assets/dual-view-runtime.js": "cca036e45febefee365bf5eb6a4e23b0388f6c0a0fc69889445c68c0177b2cb4", "assets/dual-view.css": "e60e94cd26d4ba622ede429d9c7862a82dea491ac1b174bd86023ac5e5245c35", "assets/theme.json": "46a8d331bb277f1d6049da735f3ae5adf8ac60cfd81968685e3d3cc2ae321604", "scripts/build_presentation.py": "5c1525156ed9875703791c9f3293970356e64e8ec6b5de3c0c37904232bacea2", "scripts/dual_view.py": "6fe19a7058bf8a5f9b7e501ed95296e278580b8310baaf112b28b0451a082daa"}, "design": {"aliases": {"observed-counts": "counts", "review-path": "review"}, "approved_brief": "brief.md", "brand_asset": "private/rebuild/inputs/brand.svg", "brand_variants": {"dark": "private/rebuild/assets/brand-dark.svg", "light": "private/rebuild/inputs/brand.svg"}, "breakpoints": [760], "content_intent": {"assumptions": [{"statement": "Synthetic, non-operational, non-clinical report", "status": "accepted"}, {"statement": "Two stations and count units", "status": "accepted"}, {"statement": "Reliability is unavailable", "status": "needs-verification"}], "audience_familiarity": "low", "decision_to_enable": "Interpret these illustrative observations with the unresolved total and uncertainty visible.", "exclusions": ["Operational claims", "Clinical claims", "Invented uncertainty estimates", "Network imagery", "Additional logical slides"], "scope_class": "working-demonstration", "source_relationship": "faithful-adaptation"}, "height_roles": {"agenda": "content-height", "counts": "content-height", "overview": "content-height", "review": "content-height", "scope": "content-height"}, "imagery": "none", "interactivity": "balanced", "layout": "portrait", "name": "Tide field report", "provenance": {"complete_source": "explicit", "images": "explicit", "interactivity": "explicit", "layout": "explicit", "presentation": "explicit", "presentation_depth": "explicit", "presentation_theme": "explicit", "slide_budget": "explicit", "style": "explicit", "theme": "explicit", "verbosity": "explicit"}, "reading_themes": ["light", "dark", "light", "dark", "light"], "reading_verbosity": "comprehensive", "section_count_target": 5, "seed": 909, "seed_adaptation": "Asymmetric split, editorial sans and progress spine retained. Brand paper/ink/teal and Arial override sampler color/type. Restrained progress transitions replace spring bounce under the approved balanced brief.", "slide_budget": 5, "sticky_layers": [{"context": "reading document", "purpose": "navigation and current section", "selector": ".dv-top-menu"}], "stylesheet": "private/rebuild/style.css", "visual_contracts": [{"encoding": "Equal-width bars, common zero baseline, count axis", "evidence": "pilot.docx table and observations.csv", "fallback": "station table", "message": "12 North and 18 South; the sum does not reconcile with reported 31.", "question": "How many observations are assigned to each station?", "states": ["initial 0-20", "series hidden", "zoom", "axis 0-30", "exact values"], "trigger": "explicit controls", "visual": "Count bars"}, {"encoding": "Directed paths between all four named nodes", "evidence": "review-path.svg and pilot.docx", "fallback": "complete prose description", "message": "Accepted records reach Archive; rejected records return to Queue.", "question": "Where do accepted and rejected observations go?", "states": ["wide", "compact", "inspector", "original"], "trigger": "viewport or inspection button", "visual": "Review path"}], "wrap_plan": {"agenda": "1 desktop; 2 mobile", "counts": "1 desktop; 1-2 mobile", "overview": "1 desktop line; 2-3 mobile lines", "review": "1 at all widths", "scope": "1 desktop; 2 mobile"}}, "figures": ["observations", "flow-wide", "flow-compact"], "presentation": {"depth": "deep-dive", "enabled": true, "initial_slide": 1, "omissions": {}, "slide_budget": 5, "slides": [{"brand": true, "composition": "cover", "fragments": {"overview": "private/rebuild/fragments/overview.html"}, "heading": "Tide sensor pilot", "id": "overview-slide", "source_ids": ["overview"]}, {"brand": true, "composition": "agenda", "fragments": {"agenda": "private/rebuild/fragments/agenda.html"}, "heading": "Inside this report", "id": "agenda-slide", "source_ids": ["agenda"]}, {"brand": false, "composition": "comparison", "fragments": {"counts": "private/rebuild/fragments/counts.html"}, "heading": "Observed counts", "id": "counts-slide", "source_ids": ["counts"]}, {"brand": false, "composition": "process", "fragments": {"review": "private/rebuild/fragments/review.html"}, "heading": "Review path", "id": "review-slide", "source_ids": ["review"]}, {"brand": true, "composition": "appendix", "fragments": {"scope": "private/rebuild/fragments/scope.html"}, "heading": "Scope and sources", "id": "scope-slide", "source_ids": ["scope"]}], "theme": "mixed", "theme_sequence": ["light", "dark", "light", "dark", "light"]}, "schema_version": 1, "sections": ["overview", "agenda", "counts", "review", "scope"], "sources": {"private/rebuild/assets/brand-dark.svg": "7dd2f8205daec986d88525c54da21a8085e11f1b6bea2fcd3493c8b37698d535", "private/rebuild/assets/flow-compact.svg": "0200d71ee27bd5651839caf0885fce42b6a6f031a7d70edebde1b7918d667098", "private/rebuild/assets/flow-wide.svg": "5b0bec871bf8f10891d035f1775d050ba690586b6954c4d635bb70c6ab7cac0c", "private/rebuild/design-seed.json": "1124b2cb0e68530f04295324dc291142dd1fe991b814bc82d2d974f029da7197", "private/rebuild/enhance.js": "e60ffd4482f3aea203cde5a9661a4ccdc47bbb9167bfbc46b080899c98cc6c51", "private/rebuild/facts.json": "02d0f09ff22786870f60c8afb2bf58b588a6f06fd8a3375f34b4c9233f88ca93", "private/rebuild/figure-worksheet.json": "a20b056ff5b6971d72c1ef5a8c35200849642c0a747925ff6ead7598ad999706", "private/rebuild/fragments/agenda.html": "1d5322a26ac6afd4708ee0c48ac414751cdfcb59361ee4c2398ca5331397d8ee", "private/rebuild/fragments/counts.html": "a893ea9d6dad089adbe3a161fddd08d8080f1cff312537e4d1bd4b84dde7494c", "private/rebuild/fragments/overview.html": "fd4e2cc4d67127d36bdd5e010adbb63adcb2b534467cac9cbdf12f8d59ed7f8f", "private/rebuild/fragments/review.html": "945babca040d7b39aec91f8c992d76809b2ebe6056f65f6154c8edbc5f19c45a", "private/rebuild/fragments/scope.html": "d7102fc4b066bba3edf409fd31d21eddd2078c5603743271c714c940dd1aa0c3", "private/rebuild/inputs/brand.json": "e016a8e75963c9f6f18dc75f399fccad003c437f61ecc43e2d0c7671fdf03e08", "private/rebuild/inputs/brand.svg": "d6e0c308638d150cbc75d7c7f75117830320d749963376caf4f3a83d23034141", "private/rebuild/inputs/brief.md": "b4498487be1b95613b1c0f914400c98db576bb53d6e5712f1c65d43d827086f0", "private/rebuild/inputs/observations.csv": "c332dff832017390085b3f3eeb173565b9aad9ee626f46855dac0e6decc9587b", "private/rebuild/inputs/pilot.docx": "8eb9a960dfdb6ac5c724828d6b3abd732637dca22cd8e3bd8c387956fc2306b7", "private/rebuild/inputs/review-path.svg": "1a3c3cd1457afec66f38acc9921984aa2ac6ed6c84fbb90b5e9134bc9fe86c39", "private/rebuild/resolved-options.json": "52ec3b44e8e4562c7fd4e3f476a01b83a9a9adb8321b6ac4174d318bf6de9a51", "private/rebuild/style.css": "9eb9d0d00f0fa3f900c986602c273ac2fa492a4813d5e47fe3557faf585804a4"}, "status": "requires-rendered-factual-and-design-qualification"}</script>
+<script>/* Independent figure interactions for either view; canonical data stays untouched. */
+(() => {
+  'use strict';
+  document.addEventListener('click', event => {
+    const reset = event.target.closest('[data-dv-figure-reset]');
+    if (reset) {
+      const figure = reset.closest('figure');
+      const zoom = figure.querySelector('[data-dv-zoom]');
+      zoom.value = '1';
+      zoom.dispatchEvent(new Event('input', { bubbles: true }));
+      figure.querySelectorAll('[data-dv-series][aria-pressed="false"]').forEach(button => button.click());
+      figure.querySelectorAll('[data-dv-zoom-view]').forEach(view => view.scrollTo(0, 0));
+    }
+    const toggle = event.target.closest('[data-dv-series]');
+    if (toggle) {
+      const figure = toggle.closest('[data-dv-figure]');
+      const visible = toggle.getAttribute('aria-pressed') !== 'true';
+      toggle.setAttribute('aria-pressed', String(visible));
+      figure.querySelectorAll('[data-dv-series-marks]').forEach(group => {
+        if (group.dataset.dvSeriesMarks === toggle.dataset.dvSeries) group.style.display = visible ? '' : 'none';
+      });
+    }
+    const region = event.target.closest('[data-dv-region]');
+    if (region) {
+      const figure = region.closest('[data-dv-map]');
+      figure.querySelector('[data-dv-map-status]').textContent = region.dataset.dvRegion;
+      figure.querySelectorAll('[data-region]').forEach(node => {
+        node.dataset.selected = String(node.dataset.region === region.dataset.dvRegion);
+      });
+    }
+    const enlarge = event.target.closest('[data-dv-enlarge]');
+    if (enlarge) {
+      const image = enlarge.querySelector('img').cloneNode(true);
+      image.removeAttribute('id');
+      const dialog = document.createElement('dialog');
+      dialog.className = 'dv-enlargement';
+      dialog.setAttribute('aria-label', image.alt || 'Enlarged image');
+      const close = document.createElement('button');
+      close.textContent = 'Close image';
+      close.addEventListener('click', () => dialog.close());
+      dialog.append(image, close);
+      (enlarge.closest('[data-dv-deck]') || document.body).append(dialog);
+      dialog.addEventListener('close', () => { dialog.remove(); enlarge.focus({ preventScroll: true }); }, { once: true });
+      dialog.showModal();
+      close.focus();
+    }
+  });
+  document.addEventListener('input', event => {
+    if (event.target.matches('[data-dv-zoom]')) {
+      const svg = event.target.closest('figure').querySelector('[data-dv-zoom-view] > svg');
+      svg.style.maxWidth = 'none';
+      svg.style.width = `${Number(event.target.value) * 100}%`;
+      svg.style.maxHeight = Number(event.target.value) === 1 ? '' : 'none';
+      return;
+    }
+    if (!event.target.matches('[data-dv-map-search]')) return;
+    const query = event.target.value.toLocaleLowerCase();
+    const figure = event.target.closest('[data-dv-map]');
+    let count = 0;
+    figure.querySelectorAll('[data-dv-region]').forEach(region => {
+      region.hidden = !region.dataset.dvRegion.toLocaleLowerCase().includes(query);
+      if (!region.hidden) count += 1;
+    });
+    figure.querySelector('[data-dv-map-status]').textContent = `${count} matching regions`;
+  });
+})();
+</script>
+<script>/* Offline presentation lifecycle for retained, independently authored views. */
+(() => {
+  'use strict';
+  const page = document.querySelector('[data-dv-page]');
+  const deck = document.querySelector('[data-dv-deck]');
+  if (!page || !deck) return;
+  const slides = Array.from(deck.querySelectorAll('[data-dv-slide]'));
+  const controls = deck.querySelector('[data-dv-controls]');
+  const count = deck.querySelector('[data-dv-count]');
+  const picker = deck.querySelector('[data-dv-picker]');
+  const status = document.querySelector('[data-dv-status]');
+  const motion = matchMedia('(prefers-reduced-motion: reduce)');
+  const events = new AbortController();
+  const signal = events.signal;
+  let active = false, index = 0, generation = 0, origin = null;
+  let scroll = 0, readingURL = location.href, oldOverflow = '';
+  let wasFullscreen = false, keepFitted = false, touch = null;
+  let animations = [];
+  let readingAnimations = [];
+  const nativeInput = 'input,textarea,select,button,a,[contenteditable]:not([contenteditable="false"]),[data-dv-native],dialog[open]';
+  const on = (target, event, callback, options = {}) =>
+    target.addEventListener(event, callback, { ...options, signal });
+  const announce = message => { if (status) status.textContent = message; };
+  const focusables = () => Array.from(deck.querySelectorAll('button,a[href],input,select,textarea,[tabindex]'))
+    .filter(el => !el.disabled && el.tabIndex >= 0 && !el.closest('[hidden],[inert]') && el.getClientRects().length);
+
+  function stopMotion() {
+    animations.forEach(animation => animation.cancel());
+    animations = [];
+    slides.forEach(slide => slide.dispatchEvent(new CustomEvent('dv:deactivate')));
+  }
+
+  function play() {
+    stopMotion();
+    if (!active || document.hidden) return;
+    const slide = slides[index];
+    slide.dispatchEvent(new CustomEvent('dv:activate', { detail: { reducedMotion: motion.matches } }));
+    if (motion.matches) return;
+    slide.querySelectorAll('[data-dv-animate]').forEach(el => {
+      const step = Math.max(0, Number(el.dataset.dvStep) || 0);
+      const delay = el.dataset.dvAnimate === 'process' ? step * 130 : 0;
+      const mark = el.hasAttribute('data-dv-mark');
+      const frames = mark
+        ? [{ clipPath: 'inset(0 100% 0 0)', opacity: 0 }, { clipPath: 'inset(0 0 0 0)', opacity: 1 }]
+        : [{ opacity: 0 }, { opacity: 1 }];
+      animations.push(el.animate(frames, { duration: 550, delay, fill: 'both', easing: 'ease-out' }));
+    });
+  }
+
+  function fit() {
+    if (controls) deck.style.setProperty('--dv-controls-height', `${controls.getBoundingClientRect().height}px`);
+  }
+
+  function show(next, history = true) {
+    if (!active || !Number.isInteger(next)) return;
+    index = Math.max(0, Math.min(slides.length - 1, next));
+    slides.forEach((slide, i) => {
+      slide.hidden = i !== index;
+      slide.inert = i !== index;
+      slide.setAttribute('aria-hidden', String(i !== index));
+    });
+    deck.dataset.theme = slides[index].dataset.theme || 'light';
+    count.textContent = `${index + 1} / ${slides.length}`;
+    if (picker) picker.value = String(index);
+    const previous = deck.querySelector('[data-dv-prev]');
+    const nextButton = deck.querySelector('[data-dv-next]');
+    if (previous) previous.disabled = index === 0;
+    if (nextButton) nextButton.disabled = index === slides.length - 1;
+    if (history && location.hash !== `#slide-${index + 1}`)
+      window.history.pushState(null, '', `#slide-${index + 1}`);
+    const heading = slides[index].querySelector('h1,h2,h3');
+    if (heading) { heading.tabIndex = -1; heading.focus({ preventScroll: true }); }
+    play();
+    fit();
+  }
+
+  async function fullscreen() {
+    if (!deck.requestFullscreen || !active) return;
+    const request = generation;
+    try {
+      await deck.requestFullscreen();
+      if (request !== generation || !active) {
+        if (document.fullscreenElement === deck && !active) await document.exitFullscreen();
+        return;
+      }
+      wasFullscreen = document.fullscreenElement === deck;
+      fit();
+    } catch (_) {
+      if (active) announce('Fullscreen unavailable. Presentation remains available in this window.');
+    }
+  }
+
+  function open(next = 0, userGesture = false, history = true) {
+    if (!Number.isInteger(next)) { announce('Invalid presentation target.'); return; }
+    if (!active) {
+      generation += 1;
+      origin = document.activeElement;
+      scroll = window.scrollY;
+      readingURL = location.hash.startsWith('#slide-') ? location.href.split('#')[0] : location.href;
+      oldOverflow = document.documentElement.style.overflow;
+      active = true;
+      deck.hidden = false;
+      deck.inert = false;
+      page.inert = true;
+      page.setAttribute('aria-hidden', 'true');
+      readingAnimations = page.getAnimations({ subtree: true }).filter(animation => animation.playState === 'running');
+      readingAnimations.forEach(animation => animation.pause());
+      page.hidden = true;
+      page.dispatchEvent(new CustomEvent('dv:deactivate'));
+      document.documentElement.style.overflow = 'hidden';
+    }
+    show(next, history);
+    if (userGesture) void fullscreen();
+  }
+
+  function close(history = true) {
+    if (!active) return;
+    generation += 1;
+    active = false;
+    stopMotion();
+    deck.querySelectorAll('dialog[open]').forEach(dialog => dialog.close());
+    deck.hidden = true;
+    deck.inert = true;
+    page.inert = false;
+    page.hidden = false;
+    page.removeAttribute('aria-hidden');
+    readingAnimations.forEach(animation => animation.play());
+    readingAnimations = [];
+    page.dispatchEvent(new CustomEvent('dv:activate', { detail: { reducedMotion: motion.matches } }));
+    document.documentElement.style.overflow = oldOverflow;
+    wasFullscreen = false;
+    if (document.fullscreenElement === deck) void document.exitFullscreen().catch(() => {});
+    if (history) window.history.replaceState(null, '', readingURL);
+    window.scrollTo(0, scroll);
+    if (origin && origin.isConnected) origin.focus({ preventScroll: true });
+  }
+
+  function fromHash() {
+    const match = /^#slide-([1-9]\d*)$/.exec(location.hash);
+    if (match && Number(match[1]) <= slides.length) open(Number(match[1]) - 1, false, false);
+    else {
+      if (active) close(false);
+      if (location.hash.startsWith('#slide-')) announce('Unknown slide. The reading page remains available.');
+    }
+  }
+
+  if (!slides.length || !controls || !count) {
+    announce('Presentation is unavailable: the retained storyboard is empty or incomplete.');
+    return;
+  }
+  deck.setAttribute('role', 'dialog');
+  deck.setAttribute('aria-modal', 'true');
+  deck.setAttribute('aria-label', 'Presentation');
+  deck.inert = true;
+  slides.forEach((slide, i) => { if (!slide.id) slide.id = `slide-${i + 1}`; });
+  document.documentElement.dataset.dvReady = 'true';
+  if (picker) slides.forEach((slide, i) => {
+    const option = document.createElement('option');
+    option.value = String(i);
+    option.textContent = `${i + 1}. ${slide.dataset.title || slide.querySelector('h1,h2,h3')?.textContent || 'Slide'}`;
+    picker.append(option);
+  });
+  on(document, 'click', event => {
+    const trigger = event.target.closest('[data-dv-open],[data-dv-chapter]');
+    if (!trigger || trigger.closest('[inert]')) return;
+    if (trigger.hasAttribute('data-dv-open')) open(0, true);
+    else {
+      const target = slides.findIndex(slide => slide.dataset.dvSlide === trigger.dataset.dvChapter);
+      if (target >= 0) open(target, true);
+      else announce('This chapter has no presentation target.');
+    }
+  });
+  on(deck, 'click', event => {
+    const button = event.target.closest('button');
+    if (!button) return;
+    if (button.hasAttribute('data-dv-exit')) close();
+    if (button.hasAttribute('data-dv-next')) show(index + 1);
+    if (button.hasAttribute('data-dv-prev')) show(index - 1);
+    if (button.hasAttribute('data-dv-replay')) play();
+    if (button.hasAttribute('data-dv-fullscreen')) {
+      if (document.fullscreenElement === deck) {
+        keepFitted = true;
+        void document.exitFullscreen().catch(() => { keepFitted = false; });
+      } else void fullscreen();
+    }
+  });
+  if (picker) on(picker, 'change', () => show(Number(picker.value)));
+  on(document, 'keydown', event => {
+    if (!active || event.isComposing || event.altKey || event.ctrlKey || event.metaKey) return;
+    const nested = deck.querySelector('dialog[open]');
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      if (nested && document.fullscreenElement !== deck) nested.close();
+      else close();
+      return;
+    }
+    if (nested) return;
+    if (event.key === 'Tab') {
+      const items = focusables();
+      const current = items.indexOf(document.activeElement);
+      if (items.length && (current < 0 || (event.shiftKey && current === 0) || (!event.shiftKey && current === items.length - 1))) {
+        event.preventDefault();
+        items[event.shiftKey ? items.length - 1 : 0].focus();
+      }
+      return;
+    }
+    if (event.target.closest(nativeInput)) return;
+    const delta = { ArrowRight: 1, ArrowDown: 1, PageDown: 1, ' ': 1, ArrowLeft: -1, ArrowUp: -1, PageUp: -1 }[event.key];
+    if (delta) { event.preventDefault(); show(index + delta); }
+    if (event.key === 'Home' || event.key === 'End') {
+      event.preventDefault(); show(event.key === 'Home' ? 0 : slides.length - 1);
+    }
+  });
+  on(deck, 'pointerdown', event => {
+    touch = event.pointerType === 'touch' && !event.target.closest(nativeInput)
+      ? { x: event.clientX, y: event.clientY, id: event.pointerId } : null;
+  });
+  on(deck, 'pointerup', event => {
+    if (!touch || event.pointerId !== touch.id) return;
+    const dx = event.clientX - touch.x, dy = event.clientY - touch.y;
+    touch = null;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 2) show(index + (dx < 0 ? 1 : -1));
+  });
+  on(deck, 'pointercancel', () => { touch = null; });
+  on(document, 'fullscreenchange', () => {
+    if (document.fullscreenElement === deck) wasFullscreen = true;
+    else if (wasFullscreen) {
+      wasFullscreen = false;
+      if (keepFitted) keepFitted = false;
+      else close();
+    }
+    fit();
+  });
+  on(window, 'hashchange', fromHash);
+  on(window, 'popstate', fromHash);
+  on(window, 'resize', fit);
+  on(document, 'visibilitychange', () => document.hidden ? stopMotion() : play());
+  on(motion, 'change', play);
+  const resize = new ResizeObserver(fit);
+  resize.observe(controls);
+  window.NexusDualView = Object.freeze({
+    open: next => open(next), close, next: () => show(index + 1), previous: () => show(index - 1), replay: play,
+    snapshot: () => ({ active, index, count: slides.length, animations: animations.length, fullscreen: document.fullscreenElement === deck }),
+    destroy: () => { close(); events.abort(); resize.disconnect(); delete document.documentElement.dataset.dvReady; }
+  });
+  fromHash();
+})();
+</script>
+<script type="application/json" id="tide-source-svg">"\u003csvg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 800 200\">\u003cdefs>\u003cmarker id=\"arrow\" viewBox=\"0 0 10 10\" refX=\"8\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto\">\u003cpath d=\"M0 0L10 5L0 10Z\" fill=\"#067b83\"/>\u003c/marker>\u003c/defs>\u003cg font-family=\"Arial\" font-size=\"24\" fill=\"#102f44\">\u003ctext x=\"20\" y=\"85\">Instrument\u003c/text>\u003ctext x=\"255\" y=\"85\">Queue\u003c/text>\u003ctext x=\"440\" y=\"85\">Analyst\u003c/text>\u003ctext x=\"655\" y=\"85\">Archive\u003c/text>\u003c/g>\u003cg fill=\"none\" stroke=\"#067b83\" stroke-width=\"3\" marker-end=\"url(#arrow)\">\u003cpath d=\"M155 78H240\"/>\u003cpath d=\"M335 78H420\"/>\u003cpath d=\"M530 78H640\"/>\u003cpath d=\"M490 110Q400 185 295 110\"/>\u003c/g>\u003ctext x=\"350\" y=\"185\" font-family=\"Arial\" font-size=\"20\">Rejected\u003c/text>\u003c/svg>"</script><script>/* Local enhancements to the installed navigation and figure runtime. */
+(() => {
+  'use strict';
+  const page = document.querySelector('[data-dv-page]');
+  const sections = [...page.querySelectorAll('[data-dv-section]')];
+  const links = [...document.querySelectorAll('.tide-menu-links a')];
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  const playIcon = '<svg viewBox="0 0 24 24" aria-hidden="true" width="20" height="20"><path d="M7 4L20 12L7 20Z" fill="currentColor"/></svg>';
+  document.querySelectorAll('.tide-axis-control').forEach(host => {
+    const label=document.createElement('label');label.textContent='Axis maximum ';
+    const select=document.createElement('select');select.setAttribute('data-tide-axis','');
+    [20,30,40].forEach(value=>{const option=document.createElement('option');option.value=String(value);option.textContent=value+' observations';select.append(option);});
+    label.append(select);host.append(label);
+  });
+  document.querySelectorAll('.tide-inspection-tools').forEach(host=>{
+    [['data-tide-inspect','Inspect diagram'],['data-tide-original','View source diagram']].forEach(([attr,text])=>{const button=document.createElement('button');button.setAttribute(attr,'');button.textContent=text;host.append(button);});
+  });
+  document.querySelectorAll('[data-dv-open]').forEach(button => button.insertAdjacentHTML('afterbegin', playIcon));
+  function updateProgress() {
+    if (window.NexusDualView.snapshot().active) return;
+    const y = scrollY + 160;
+    const current = sections.filter(section => section.offsetTop <= y).at(-1) || sections[0];
+    links.forEach(link => link.setAttribute('aria-current', String(link.hash === '#' + current.id)));
+    const total = document.documentElement.scrollHeight - innerHeight;
+    page.style.setProperty('--tide-progress', total > 0 ? Math.min(1, scrollY / total) : 1);
+  }
+  addEventListener('scroll', updateProgress, {passive:true});
+  addEventListener('resize', updateProgress);
+  updateProgress();
+  document.querySelectorAll('tbody tr').forEach(row => {row.tabIndex = 0;});
+  document.querySelectorAll('.dv-chart').forEach(figure => {
+    const bars = [...figure.querySelectorAll('[data-dv-series-marks] rect')];
+    bars.forEach((bar, i) => {bar.tabIndex = 0;bar.setAttribute('aria-label', (i === 0 ? 'North: 12' : 'South: 18') + ' observations');});
+  });
+  document.addEventListener('change', event => {
+    if (!event.target.matches('[data-tide-axis]')) return;
+    const maximum = Number(event.target.value);
+    const figure = event.target.closest('.tide-plot-column').querySelector('.dv-chart');
+    const svg = figure.querySelector('svg');
+    const ticks = [...svg.querySelectorAll(':scope > text')].slice(0,3);
+    ticks.forEach((tick, index) => {tick.textContent = String([0, maximum/2, maximum][index]);});
+    figure.querySelectorAll('[data-dv-series-marks] rect').forEach((bar, index) => {
+      const height = 210 * [12,18][index] / maximum;
+      bar.setAttribute('y', String(240 - height));bar.setAttribute('height', String(height));
+    });
+    figure.dataset.tideAxis = String(maximum);
+  });
+  document.addEventListener('click', event => {
+    const chapter = event.target.closest('[data-tide-chapter]');
+    if (chapter && chapter.closest('[data-dv-deck]')) {
+      event.preventDefault();
+      const slides = [...document.querySelectorAll('[data-dv-slide]')];
+      window.NexusDualView.open(slides.findIndex(s => s.dataset.dvSlide === chapter.dataset.tideChapter));
+    }
+    const reset = event.target.closest('[data-dv-figure-reset]');
+    if (reset) {
+      const control = reset.closest('.tide-plot-column').querySelector('[data-tide-axis]');
+      control.value = '20';control.dispatchEvent(new Event('change', {bubbles:true}));
+    }
+    const trigger = event.target.closest('[data-tide-inspect],[data-tide-original]');
+    if (!trigger) return;
+    const original = trigger.hasAttribute('data-tide-original');
+    const dialog = document.createElement('dialog');
+    dialog.className = 'tide-modal';dialog.setAttribute('aria-label', original ? 'Source review-path diagram' : 'Review-path inspector');
+    const title = document.createElement('h2');title.textContent = original ? 'Source review-path diagram' : 'Review-path inspector';
+    const tools = document.createElement('div');tools.className = 'tide-modal-tools';
+    const label = document.createElement('label');label.textContent = 'Zoom ';
+    const zoom = document.createElement('input');zoom.type='range';zoom.min='1';zoom.max='3';zoom.step='.25';zoom.value='1';label.append(zoom);
+    const close = document.createElement('button');close.textContent='Close diagram';tools.append(label,close);
+    const viewport = document.createElement('div');viewport.className='tide-modal-view';viewport.tabIndex=0;viewport.setAttribute('data-dv-native','');viewport.setAttribute('aria-label','Diagram; scroll to pan');
+    let graphic;
+    if (original) {
+      graphic = document.createElement('img');graphic.alt='Instrument to Queue to Analyst to Archive; rejected return from Analyst to Queue.';
+      graphic.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(JSON.parse(document.getElementById('tide-source-svg').textContent));
+    } else {
+      graphic = trigger.closest('[data-dv-section],[data-dv-slide]').querySelector('.tide-flow-wide svg').cloneNode(true);
+      graphic.querySelectorAll('[id]').forEach(node => {const old=node.id;node.id='tide-inspector-'+old;graphic.querySelectorAll('[marker-end]').forEach(path=>{if(path.getAttribute('marker-end')==='url(#'+old+')')path.setAttribute('marker-end','url(#'+node.id+')');});});
+    }
+    viewport.append(graphic);dialog.append(title,tools,viewport);
+    (trigger.closest('[data-dv-deck]') || document.body).append(dialog);
+    zoom.addEventListener('input',()=>{graphic.style.width=(Number(zoom.value)*100)+'%';});
+    close.addEventListener('click',()=>dialog.close());
+    dialog.addEventListener('close',()=>{dialog.remove();trigger.focus({preventScroll:true});},{once:true});
+    dialog.showModal();close.focus();
+  });
+})();
+</script><!-- DESIGN RECORD
+{
+  "name": "Tide field report",
+  "layout": "portrait",
+  "stylesheet": "private/rebuild/style.css",
+  "reading_themes": [
+    "light",
+    "dark",
+    "light",
+    "dark",
+    "light"
+  ],
+  "brand_asset": "private/rebuild/inputs/brand.svg",
+  "brand_variants": {
+    "light": "private/rebuild/inputs/brand.svg",
+    "dark": "private/rebuild/assets/brand-dark.svg"
+  },
+  "aliases": {
+    "observed-counts": "counts",
+    "review-path": "review"
+  },
+  "approved_brief": "brief.md",
+  "seed": 909,
+  "seed_adaptation": "Asymmetric split, editorial sans and progress spine retained. Brand paper/ink/teal and Arial override sampler color/type. Restrained progress transitions replace spring bounce under the approved balanced brief.",
+  "provenance": {
+    "complete_source": "explicit",
+    "images": "explicit",
+    "interactivity": "explicit",
+    "layout": "explicit",
+    "presentation": "explicit",
+    "presentation_depth": "explicit",
+    "presentation_theme": "explicit",
+    "slide_budget": "explicit",
+    "style": "explicit",
+    "theme": "explicit",
+    "verbosity": "explicit"
+  },
+  "content_intent": {
+    "source_relationship": "faithful-adaptation",
+    "audience_familiarity": "low",
+    "decision_to_enable": "Interpret these illustrative observations with the unresolved total and uncertainty visible.",
+    "scope_class": "working-demonstration",
+    "assumptions": [
+      {
+        "statement": "Synthetic, non-operational, non-clinical report",
+        "status": "accepted"
+      },
+      {
+        "statement": "Two stations and count units",
+        "status": "accepted"
+      },
+      {
+        "statement": "Reliability is unavailable",
+        "status": "needs-verification"
+      }
+    ],
+    "exclusions": [
+      "Operational claims",
+      "Clinical claims",
+      "Invented uncertainty estimates",
+      "Network imagery",
+      "Additional logical slides"
+    ]
+  },
+  "visual_contracts": [
+    {
+      "visual": "Count bars",
+      "question": "How many observations are assigned to each station?",
+      "message": "12 North and 18 South; the sum does not reconcile with reported 31.",
+      "encoding": "Equal-width bars, common zero baseline, count axis",
+      "states": [
+        "initial 0-20",
+        "series hidden",
+        "zoom",
+        "axis 0-30",
+        "exact values"
+      ],
+      "trigger": "explicit controls",
+      "fallback": "station table",
+      "evidence": "pilot.docx table and observations.csv"
+    },
+    {
+      "visual": "Review path",
+      "question": "Where do accepted and rejected observations go?",
+      "message": "Accepted records reach Archive; rejected records return to Queue.",
+      "encoding": "Directed paths between all four named nodes",
+      "states": [
+        "wide",
+        "compact",
+        "inspector",
+        "original"
+      ],
+      "trigger": "viewport or inspection button",
+      "fallback": "complete prose description",
+      "evidence": "review-path.svg and pilot.docx"
+    }
+  ],
+  "height_roles": {
+    "overview": "content-height",
+    "agenda": "content-height",
+    "counts": "content-height",
+    "review": "content-height",
+    "scope": "content-height"
+  },
+  "sticky_layers": [
+    {
+      "selector": ".dv-top-menu",
+      "context": "reading document",
+      "purpose": "navigation and current section"
+    }
+  ],
+  "wrap_plan": {
+    "overview": "1 desktop line; 2-3 mobile lines",
+    "agenda": "1 desktop; 2 mobile",
+    "counts": "1 desktop; 1-2 mobile",
+    "review": "1 at all widths",
+    "scope": "1 desktop; 2 mobile"
+  },
+  "breakpoints": [
+    760
+  ],
+  "reading_verbosity": "comprehensive",
+  "section_count_target": 5,
+  "interactivity": "balanced",
+  "imagery": "none",
+  "slide_budget": 5
+}
+COVERAGE RECONCILIATION: pilot.docx table rendered; observations.csv values rendered as count bars and exact table; review-path.svg reconstructed with 4 nodes and 4 directed edges, source inspector retained. ACCOUNTED: 0 unaccounted.
+--></body></html>

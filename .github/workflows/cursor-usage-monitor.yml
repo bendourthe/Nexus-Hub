@@ -100,7 +100,7 @@ jobs:
           echo "Packaged VSIX: ${VSIX}"
           if ! command -v cursor >/dev/null 2>&1; then
             echo "::notice::Cursor CLI not available on this runner; skipping profile install E2E."
-            echo "Required local verification: docs/releases/v3/v3.15/development/cursor-usage-live-smoke.md"
+            echo "Required local verification: docs/archives/v3/v3.15/development/cursor-usage-live-smoke.md"
             exit 0
           fi
           PROFILE_DIR="${RUNNER_TEMP}/cursor-nexus-e2e-profile"

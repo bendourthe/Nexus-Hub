@@ -1,7 +1,7 @@
 # Session History -- v3.1.0 adoption-claude-red Phase 1: Low-collision skill-native ships
 
 **Date**: 2026-06-08
-**Plan**: [`docs/releases/v3/v3.1/plans/adoption-claude-red.md`](../../../../../releases/v3/v3.1/plans/adoption-claude-red.md)
+**Plan**: [`docs/archives/v3/v3.1/plans/adoption-claude-red.md`](../../plans/adoption-claude-red.md)
 **Phase**: 1 of 5 -- low-collision skill-native ships
 **Branch**: `feat/adoption-claude-red` (fast-forwarded to `develop` tip `d55c5c6` before starting)
 **Outcome**: complete; all four sub-tasks (T001-T004) closed, all quality gates green.
@@ -47,7 +47,7 @@ Ship the two highest-value, lowest-collision offensive-knowledge skills (`securi
 
 ## Known gaps
 
-See [`docs/releases/v3/v3.1/known-gaps.md`](../../known-gaps.md). Three new open items this phase, all WN: WN-v31cr-1 (the default-mode 250-char description cap is not a gate and conflicts with the pushy-description rule; long descriptions kept by design), WN-v31cr-2 (local make/shellcheck absent, covered by CI), WN-v31cr-3 (both v3.1.0 feature branches write `docs/v3/v3.1/known-gaps.md`, so the file needs a manual merge at develop-integration; IDs namespaced `-v31cr-` to avoid entry collisions). 0 resolved (Phase 1 is the first phase).
+See [`docs/archives/v3/v3.1/known-gaps.md`](../../known-gaps.md). Three new open items this phase, all WN: WN-v31cr-1 (the default-mode 250-char description cap is not a gate and conflicts with the pushy-description rule; long descriptions kept by design), WN-v31cr-2 (local make/shellcheck absent, covered by CI), WN-v31cr-3 (both v3.1.0 feature branches write `docs/v3/v3.1/known-gaps.md`, so the file needs a manual merge at develop-integration; IDs namespaced `-v31cr-` to avoid entry collisions). 0 resolved (Phase 1 is the first phase).
 
 ## Next steps
 
