@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: released; PR #230 merged the complete 34-task plan and tag `v4.13.0` was published on 2026-09-21. Two bounded warning-class findings remain owned for future measurement work. GitHub branch protection passed a live pull-request gate test; the second trigger pilot stopped on an unproven spend bound.
-**Last updated**: 2026-09-30
+**Last updated**: 2026-10-01
 
 Release-scoped gaps for the evidence-driven agent improvement plan. Planned future-phase work is tracked in the plan rather than reported as completed here.
 
@@ -1146,3 +1146,32 @@ Gaps from the minor-scope implement plan ([`v4.13.6-minor-scope-implement-and-ve
 | BG-2 | A security gap could migrate without being named on the approval page | Phase 8 (coordinator follow-up) | ADV-2 (P2, security). One gate, `completion_minor.migration_gate`, now decides every write and verify path: `minor_close.py migrate`, `verify_migration` (the minor verdict), and a member's deferral of a frozen gap (`_pending_migration`). It requires the id in the frozen list, the item present, open, and unambiguous at the record's `start_head`, and `named` whenever the item is security or high-severity either now or at `start_head`, so editing `**Severity**: high` down during the run cannot lift the naming. `record render` and `create --minor` also refuse a frozen id whose ledger entry is not open, or a sensitive one not in `named` (`check_migratable`); an id no ledger holds yet renders but can never migrate. Tests: `test_gap_migration_and_archive.py::test_lowering_the_severity_after_approval_does_not_lift_naming`, `::test_the_verify_path_uses_the_same_baseline`, `::test_a_gap_resolved_at_the_start_never_migrates` (the first and third fail on the pre-fix scripts), and `test_completion_minor_record.py::test_a_frozen_security_gap_must_be_named_before_the_page_renders`. |
 | BG-3 | `MINOR COMPLETE` was reachable with no archive, closing pull request, or final cleanup | Phase 8 (coordinator follow-up) | ADV-6. Decision: a minor run requires `cleanup-merged`, `archive-minor`, and `minor-close-pr`, matching Definition of Done 2 ("the final cleanup pass has run after the last merge, the closing pull request is merged, and the minor is archived"). `minor_spec` refuses a spec without all three, so `record render` and `create --minor` cannot approve one; `check-minor` reads a missing class as `unmet` with a notice, never `n/a`; and `minor.close-pr` is never `n/a`, because the close always carries the archive (with nothing to migrate it carries only the archive). The completion contract, the runbook's Minor close, and `/update` now say the same. Tests: `test_completion_minor_verdict.py::test_a_minor_record_without_the_closing_classes_never_completes`, `::test_a_minor_spec_without_a_closing_class_is_refused` (three cases), `::test_a_frozen_id_fixed_instead_of_migrated_still_needs_the_close`, and `test_gap_migration_and_archive.py::test_archive_minor_predicate_reads_the_integration_branch`. |
 | BG-4 | Naming another session's scope lifted its owned-by-run protection | Phase 8 (coordinator follow-up) | ADV-7, reproduced first: with session s1's live record owning the merged, idle `feat/plan`, `cleanup_merged.py --dry-run --plan <plan>` from another caller printed `REMOVE branch:feat/plan`. `cleanup_merged.py` gained `--session`: the named `--plan` or `--minor` record is exempt from the owned-by-run scan only when it loads verified and is bound to that session (otherwise it stays in the scan, with the notice `scope-record-not-own`), and `--receipt` needs the record's own session (`BLOCKED: approval-not-covered`, reason `session-required` or `record-bound-to-another-session`). `/update`, the runbook, the contract, and the e2e stub pass `--session`. Tests: `test_cleanup_merged.py::test_naming_another_sessions_plan_keeps_its_owned_items` (failed before the fix) and `::test_a_receipt_needs_the_records_own_session`. |
+
+## v4.13.7
+
+Gaps from the Copilot usage monitor and usage-limit handoff plan ([`v4.13.7-copilot-usage-monitor-and-usage-limit-handoff`](plans/v4.13.7-copilot-usage-monitor-and-usage-limit-handoff.md)). Recorded by sub-task 4.1; Phase 4 ran before Phases 1-3, which wait on the maintainer's live Copilot readings.
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 1 | 0 |
+| Warnings (WN) | 1 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+#### BG-1 (v4.13.7): `/usage` dispatches to a `check-usage` skill that does not exist
+
+**Evidence**: `catalog/commands/usage.md` delegates every invocation to `check-usage` ("(any invocation) -> check-usage"), and no `catalog/skills/*/check-usage/` directory exists on `feat/v4.13.7-copilot-usage-monitor-and-usage-limit-handoff` after the 2026-10-01 merge of `develop` at `81d7e544`. The command therefore has no procedure behind it on any platform. Pre-existing; out of scope for this plan (plan Overview, "Out of scope"). **Owner**: catalog maintainer. **Suggested next step**: back `/usage` with `catalog/hooks/_usage_probe.py` (built in Phase 6) in a later release, either as a restored `check-usage` skill or by pointing the dispatcher at a skill that calls the probe.
+
+#### WN-1 (v4.13.7): `skill-activation-suggest.py` silently loses `_skill_rules` on adapters that copy only registered scripts
+
+**Evidence**: `catalog/hooks/skill-activation-suggest.py` wraps `from _skill_rules import ...` in a `try` that degrades to a no-op on `ImportError`. The Codex, Copilot, Antigravity, and Windsurf adapters copy registered scripts plus `sourced_modules()` from `scripts/lib/integrations/_hooks_common.py`, which collects only `_*.sh` and `_*.ps1` helpers (`p.suffix in (".sh", ".ps1")`), so `_skill_rules.py` is never delivered beside the hook there and the suggestion hook does nothing without saying so. **Owner**: this plan, sub-task 6.1. **Suggested next step**: resolved by the `sourced_modules` extension in 6.1 (collect `_*.py` modules a registered `.py` hook imports); verify `_skill_rules.py` lands in an installed Codex hook directory and close.
+
+### Resolved Items
+
+None yet.
