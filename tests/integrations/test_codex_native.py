@@ -444,6 +444,16 @@ def test_shared_module_ships_with_the_hooks_that_source_it(repo_root: Path):
     )
 
 
+def test_python_helper_module_ships_with_the_hooks_that_import_it(repo_root: Path):
+    """A .py hook that imports a _*.py helper is inert without it (WN-1)."""
+    _, scripts, _ = _entries(repo_root / "catalog" / "hooks")
+
+    assert "skill-activation-suggest.py" in scripts
+    assert "_skill_rules.py" in scripts, (
+        "skill-activation-suggest.py imports _skill_rules; without it the hook no-ops"
+    )
+
+
 def test_codex_never_registers_a_notifier_on_a_subagent_event(repo_root: Path):
     """A sub-task milestone must never interrupt a human."""
     events, _, _ = _entries(repo_root / "catalog" / "hooks")

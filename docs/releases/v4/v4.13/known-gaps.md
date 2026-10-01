@@ -1172,6 +1172,10 @@ Gaps from the Copilot usage monitor and usage-limit handoff plan ([`v4.13.7-copi
 
 **Evidence**: `catalog/hooks/skill-activation-suggest.py` wraps `from _skill_rules import ...` in a `try` that degrades to a no-op on `ImportError`. The Codex, Copilot, Antigravity, and Windsurf adapters copy registered scripts plus `sourced_modules()` from `scripts/lib/integrations/_hooks_common.py`, which collects only `_*.sh` and `_*.ps1` helpers (`p.suffix in (".sh", ".ps1")`), so `_skill_rules.py` is never delivered beside the hook there and the suggestion hook does nothing without saying so. **Owner**: this plan, sub-task 6.1. **Suggested next step**: resolved by the `sourced_modules` extension in 6.1 (collect `_*.py` modules a registered `.py` hook imports); verify `_skill_rules.py` lands in an installed Codex hook directory and close.
 
+#### WN-1 (v4.13.7): The all-refs attribution scan fails on fetched Dependabot branches
+
+**Evidence**: `python scripts/check_commit_attribution.py --all-refs`, run by the fast profile, uses `git log --all` and allows only approved identities, so the three `origin/dependabot/*` branches fetched into this repository on 2026-10-01 produce three `dependabot[bot]` author findings and fail the step. Commits still succeed, because the commit hook runs only the message and pending-identity checks. Merging a Dependabot pull request would put bot-authored commits into history and fail the scan permanently. **Owner**: catalog maintainer (attribution policy decision). **Suggested next step**: scope the all-refs scan to local branches, `origin/main`, `origin/develop`, and the current pull request head, and decide separately whether `dependabot[bot]` is an allowed author.
+
 ### Resolved Items
 
 None yet.
