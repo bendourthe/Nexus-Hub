@@ -263,7 +263,8 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | using-git-worktrees | workflow | "Set up isolated worktree workspaces safely, preferring the native tool over raw git" | catalog/skills/workflow/using-git-worktrees/SKILL.md |
 | hallmark-design | developer-experience | "Produce and audit UI that avoids the 'AI-generated' look using anti-slop gates" | catalog/skills/developer-experience/hallmark-design/SKILL.md |
 | anti-slop-editing | developer-experience | "Remove named AI-slop prose patterns while preserving voice, or detect slop without rewriting" | catalog/skills/developer-experience/anti-slop-editing/SKILL.md |
-| html-output-conventions | developer-experience | "Decide when an artifact should be HTML over Markdown, using four self-contained templates" | catalog/skills/developer-experience/html-output-conventions/SKILL.md |
+| html-output-conventions | developer-experience | "Decide when an artifact should be HTML over Markdown, using five self-contained templates" | catalog/skills/developer-experience/html-output-conventions/SKILL.md |
+| inline-visualization | developer-experience | "Chart or diagram data at the lowest sufficient rung, escaped, redacted, with a tier line" | catalog/skills/developer-experience/inline-visualization/SKILL.md |
 | advanced-attack-patterns | security | "Advanced and web-app attack surfaces: state desync, cache poisoning, SSRF, XXE, deserialization, request smuggling, IDOR" | catalog/skills/security/advanced-attack-patterns/SKILL.md |
 | business-logic-abuse | security | "Business-logic abuse: race conditions, TOCTOU, double-spending, workflow bypass, pricing/refund abuse, anti-fraud defeat" | catalog/skills/security/business-logic-abuse/SKILL.md |
 | solution-knowledge-base | workflow | "Document a solved problem into a categorized docs/solutions/ knowledge base for future reuse" | catalog/skills/workflow/solution-knowledge-base/SKILL.md |
@@ -343,4 +344,4 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | setup-wizard-generator | developer-experience | "Generate a resumable human-only setup wizard with bash and PowerShell templates" | catalog/skills/developer-experience/setup-wizard-generator/SKILL.md |
 | decision-questionnaire | business-product | "Write an async Markdown questionnaire for the one stakeholder who can unblock" | catalog/skills/business-product/decision-questionnaire/SKILL.md |
 | functional-verification | testing | "Exercise built artifacts through real boundaries and record observable behavioral evidence" | catalog/skills/testing/functional-verification/SKILL.md |
-**Total: 338 skills across 23 categories**
+**Total: 339 skills across 23 categories**

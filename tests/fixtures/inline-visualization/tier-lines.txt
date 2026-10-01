@@ -1,0 +1,5 @@
+sample.html	Tier: HTML artifact (inline-SVG chart) | Why: two measures across four services, one as bars and one as a line, read better plotted than in a four-row table; the table is kept under the chart | Redaction: ran, 0 values changed | Host capability: checked: headless Chromium present
+sample.mmd	Tier: Mermaid diagram | Why: a 8-node dependency graph needs edges a table cannot show and stays under about a dozen nodes, so no HTML page | Redaction: ran, 0 values changed | Host capability: assumed (no Mermaid parse check run)
+hostile.html	Tier: HTML artifact (inline-SVG chart) | Why: exercise of the HTML rung on hostile data | Redaction: ran, 7 values changed | Host capability: checked: headless Chromium present
+hostile-table.md	Tier: Small table | Why: four rows and three columns answer the question without a chart | Redaction: ran, 3 values changed | Host capability: checked: none needed
+hostile.mmd	Tier: Mermaid diagram | Why: exercise of the Mermaid rung on hostile labels | Redaction: ran, 0 values changed | Host capability: assumed (no Mermaid parse check run)

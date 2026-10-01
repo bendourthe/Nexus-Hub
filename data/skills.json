@@ -6,7 +6,7 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 338,
+    "total_skills": 339,
     "categories": {
       "ai-development": 14,
       "architecture": 7,
@@ -15,7 +15,7 @@
       "code-cleanup": 12,
       "code-review": 16,
       "compliance": 9,
-      "developer-experience": 42,
+      "developer-experience": 43,
       "documentation": 6,
       "framework-specialists": 6,
       "infrastructure": 19,
@@ -9245,10 +9245,10 @@
     {
       "name": "html-output-conventions",
       "title": "html-output-conventions",
-      "description": "Decide when a human-facing artifact should be HTML rather than Markdown, and produce it from four self-contained reference templates (grid comparison, annotated diff, interactive tuning, tabbed document)",
+      "description": "Decide when a human-facing artifact should be HTML rather than Markdown, and produce it from five self-contained reference templates (grid comparison, annotated diff, interactive tuning, tabbed document, inline-SVG chart)",
       "long_description": "Prefer HTML over Markdown for human-facing artifacts that will actually be read, compared, or interacted with. Markdown is the right default for short prose; it stops being the right default the moment an artifact needs a table, an SVG, an interactive control, spatial data, or simply runs long enoug...",
-      "summary_l0": "\"Decide when an artifact should be HTML over Markdown, using four self-contained templates\"",
-      "overview_l1": "\"This skill codifies when the agent should emit an HTML artifact instead of Markdown, and how. HTML wins when an artifact needs tables, SVG, interactive controls, or spatial data, when it runs past roughly 100 lines, when it should be shared as a link, or when it should round-trip state to the agent (copy-as-JSON). Markdown stays right for short notes, README front matter, and commit messages. The skill ships four self-contained reference templates: a grid comparison layout, an annotated diff display with color-coded severity margins for code review, an interactive tuning interface with copy-as-JSON controls, and a tabbed layout for long documents. It composes with hallmark-design, which governs whether the chosen HTML looks designed rather than AI-generated. Use it on Coding-pillar review surfaces, the session replay timeline, and the operator-actions dashboard. Anti-patterns: ASCII diagrams (use SVG) and defaulting to Markdown when an HTML artifact would actually be read.\"",
+      "summary_l0": "\"Decide when an artifact should be HTML over Markdown, using five self-contained templates\"",
+      "overview_l1": "\"This skill codifies when the agent should emit an HTML artifact instead of Markdown, and how. HTML wins when an artifact needs tables, SVG, interactive controls, or spatial data, when it runs past roughly 100 lines, when it should be shared as a link, or when it should round-trip state to the agent (copy-as-JSON). Markdown stays right for short notes, README front matter, and commit messages. The skill ships five self-contained reference templates: a grid comparison layout, an annotated diff display with color-coded severity margins for code review, an interactive tuning interface with copy-as-JSON controls, a tabbed layout for long documents, and a chart. It composes with hallmark-design, which governs whether the chosen HTML looks designed rather than AI-generated. Use it on Coding-pillar review surfaces, the session replay timeline, and the operator-actions dashboard. Anti-patterns: ASCII diagrams (use SVG) and defaulting to Markdown when an HTML artifact would actually be read.\"",
       "version": "1.0.0",
       "author": "Benjamin Dourthe",
       "category": "developer-experience",
@@ -9276,6 +9276,50 @@
         "lines": 84,
         "characters": 8452,
         "tokens_estimate": 1253
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "inline-visualization",
+      "title": "inline-visualization",
+      "description": "Turn data or a described structure into the smallest visual that answers the question, a table, a Mermaid diagram, or a script-free inline-SVG chart page, always ending with a tier line that says which rung was used and why. Use when the user says visualize this, chart this data, plot, show me a graph of, draw the architecture, draw a flow or dependency diagram, turns CSV, JSON, or log data into a chart, or runs /visualize. Escapes and redacts what it renders. SKIP one-off static images, slide decks (pptx-generation), charts inside an xlsx workbook (xlsx-generation), generative or creative-coding art (generative-art), a whole-repository architecture survey (analyze-codebase), turning a document into an interactive reading site (document-to-interactive-html), and any case where a sentence or a small table already answers the question.",
+      "long_description": "Turn data, or a structure the user describes, into the smallest visual that answers the question. The rung choice is governed by the output ladder in `[[html-output-conventions]]`; this skill adds what a chart needs on top of it: which rungs can express which chart form, how data is taken in safely, how every rendered string is escaped, and a closing tier line so the reader always knows what was chosen and why.",
+      "summary_l0": "\"Chart or diagram data at the lowest sufficient rung, escaped, redacted, with a tier line\"",
+      "overview_l1": "\"This skill turns data or a described structure into a visual without overbuilding it. It reuses the output ladder owned by html-output-conventions and stops at the first rung that answers the question: prose, a small table, a Mermaid diagram, or a script-free inline-SVG chart page. It owns three things the ladder does not: a map from chart form to the rungs that can express it, data intake limits that refuse secret stores and oversized files, and a closing tier line naming the rung used, why a lower or higher rung was not, whether redaction ran, and whether host capability was checked or assumed. Data is treated as data, never instructions. Every data-derived string is escaped for its context, generated HTML carries a restrictive Content-Security-Policy, and anything leaving the session passes through egress-redaction first. Trigger phrases: visualize this, chart this data, plot, show me a graph of, draw the architecture, /visualize.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "developer-experience",
+      "language": "Markdown",
+      "tags": [
+        "visualization",
+        "charts",
+        "diagrams",
+        "mermaid",
+        "svg",
+        "html",
+        "data",
+        "security"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Bash",
+        "Read",
+        "Write"
+      ],
+      "path": "catalog/skills/developer-experience/inline-visualization/",
+      "file": "catalog/skills/developer-experience/inline-visualization/SKILL.md",
+      "size": {
+        "lines": 120,
+        "characters": 12261,
+        "tokens_estimate": 1816
       },
       "downloads": 0,
       "status": "production",

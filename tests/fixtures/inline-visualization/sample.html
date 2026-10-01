@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:" />
+<title>Requests and p95 latency by service</title>
+<style>
+  :root {
+    --ink: #1c1f26;
+    --muted: #5b626e;
+    --line: #d9dde3;
+    --bg: #fbfbfc;
+    --surface: #ffffff;
+    --series-a: #2f6f4f;
+    --series-b: #8a4b08;
+    --space: 8px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #e8eaee;
+      --muted: #a4abb6;
+      --line: #3a404a;
+      --bg: #15171b;
+      --surface: #1d2026;
+      --series-a: #7cc39d;
+      --series-b: #f0a35e;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.5;
+  }
+  .wrap {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: calc(var(--space) * 4) clamp(16px, 4vw, 32px);
+  }
+  h1 { font-size: 1.375rem; margin: 0 0 var(--space); text-wrap: balance; }
+  .lede { color: var(--muted); margin: 0 0 calc(var(--space) * 3); }
+  /* The figure is the chart's immediate scrolling wrapper: below the SVG's minimum
+     width it scrolls sideways itself, so the page never does and the scaled SVG text
+     stays legible (12px at 640 units is about 10.5px at the 560px floor). */
+  figure { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: calc(var(--space) * 2); overflow-x: auto; }
+  svg { display: block; width: 100%; min-width: 560px; height: auto; }
+  .axis line, .axis path { stroke: var(--muted); }
+  .grid line { stroke: var(--line); }
+  .tick text, .axis-label, .legend text { fill: var(--ink); font-size: 12px; }
+  .axis-label { fill: var(--muted); }
+  .bar { fill: var(--series-a); }
+  .series-line { fill: none; stroke: var(--series-b); stroke-width: 2.5; }
+  .point { fill: var(--series-b); }
+  .legend .swatch-a { fill: var(--series-a); }
+  .legend .swatch-b { fill: var(--series-b); }
+  figcaption { color: var(--muted); font-size: 0.875rem; margin-top: var(--space); }
+  .table-wrap { overflow-x: auto; margin-top: calc(var(--space) * 3); }
+  table { border-collapse: collapse; font-size: 0.875rem; }
+  th, td { border-bottom: 1px solid var(--line); padding: 4px calc(var(--space) * 1.5); text-align: left; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <h1>Requests and p95 latency by service</h1>
+  <p class="lede">Weekly totals from the sample export</p>
+  <figure>
+    <svg viewBox="0 0 640 360" role="img" aria-labelledby="chart-title chart-desc">
+      <title id="chart-title">Requests and p95 latency by service</title>
+      <desc id="chart-desc">Requests (thousands) as bars and p95 latency (ms) as a line, by Service</desc>
+      <g class="grid">
+        <line x1="64" y1="40" x2="608" y2="40" />
+        <line x1="64" y1="120" x2="608" y2="120" />
+        <line x1="64" y1="200" x2="608" y2="200" />
+      </g>
+      <g class="axis">
+        <line x1="64" y1="280" x2="608" y2="280" />
+        <line x1="64" y1="40" x2="64" y2="280" />
+      </g>
+      <g class="tick">
+        <text x="56" y="284" text-anchor="end">0</text>
+        <text x="56" y="204" text-anchor="end">87</text>
+        <text x="56" y="124" text-anchor="end">173</text>
+        <text x="56" y="44" text-anchor="end">260</text>
+      </g>
+      <g>
+        <rect class="bar" x="96" y="169" width="72" height="111"><title>auth: 120</title></rect>
+        <rect class="bar" x="232" y="86" width="72" height="194"><title>search: 210</title></rect>
+        <rect class="bar" x="368" y="225" width="72" height="55"><title>billing: 60</title></rect>
+        <rect class="bar" x="504" y="40" width="72" height="240"><title>notify: 260</title></rect>
+      </g>
+      <polyline class="series-line" points="132,206 268,151 404,192 540,225" />
+      <g>
+        <circle class="point" cx="132" cy="206" r="4" />
+        <circle class="point" cx="268" cy="151" r="4" />
+        <circle class="point" cx="404" cy="192" r="4" />
+        <circle class="point" cx="540" cy="225" r="4" />
+      </g>
+      <g class="tick">
+        <text x="132" y="300" text-anchor="middle">auth</text>
+        <text x="268" y="300" text-anchor="middle">search</text>
+        <text x="404" y="300" text-anchor="middle">billing</text>
+        <text x="540" y="300" text-anchor="middle">notify</text>
+      </g>
+      <text class="axis-label" x="336" y="330" text-anchor="middle">Service</text>
+      <text class="axis-label" x="18" y="160" text-anchor="middle" transform="rotate(-90 18 160)">Requests (thousands)</text>
+      <g class="legend">
+        <rect class="swatch-a" x="440" y="4" width="12" height="12" />
+        <text x="458" y="14">Requests (thousands)</text>
+        <rect class="swatch-b" x="440" y="25" width="12" height="3" />
+        <text x="458" y="31">p95 latency (ms)</text>
+      </g>
+    </svg>
+    <figcaption>Source: sample data supplied for this chart</figcaption>
+  </figure>
+  <div class="table-wrap">
+    <table>
+      <caption class="lede">The same values as a table</caption>
+      <thead><tr><th scope="col">Service</th><th scope="col">Requests (thousands)</th><th scope="col">p95 latency (ms)</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">auth</th><td class="num">120</td><td class="num">80</td></tr>
+        <tr><th scope="row">search</th><td class="num">210</td><td class="num">140</td></tr>
+        <tr><th scope="row">billing</th><td class="num">60</td><td class="num">95</td></tr>
+        <tr><th scope="row">notify</th><td class="num">260</td><td class="num">60</td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+</body>
+</html>

@@ -13,6 +13,14 @@ manifest-scoped: only files THIS integration previously tracked in THIS
 directory are ever removed, so a user's own commands living in the same folder
 are never touched.
 
+Collisions (v4.13.9). Writes go through ``write_owned_file``: a file of the same
+name that the manifest does not record as ours is the user's, so it is kept,
+never overwritten or adopted (a byte-identical one is adopted, since it is
+indistinguishable from ours). A stale tracked file is pruned only while its
+content still matches the sha256 the last install recorded; a user-edited one is
+kept and untracked, so it becomes the user's. With no recorded hash (a manifest
+older than action recording), the prune behaves as before.
+
 Used by the Cursor and Copilot integrations, both of which were confirmed
 (empirically, on a repo with no local install) to surface these global files as
 slash commands.
@@ -22,7 +30,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from ._owned import is_owned, write_owned_file
 from .base import InstallContext
+from .manifest import _hash_path
 from .result import FileAction
 
 
@@ -50,17 +60,18 @@ def mirror_command_surface(
         current_names.add(out_name)
         dst = dst_dir / out_name
         content = md.read_bytes()
-        if dst.exists() and dst.read_bytes() == content:
+        if (
+            dst.is_file()
+            and not dst.is_symlink()
+            and not is_owned(ctx, key, dst)
+            and dst.read_bytes() == content
+        ):
+            # Byte-identical to what we would write: adopt it rather than call
+            # it the user's, so a reinstall over a lost manifest stays a no-op.
             ctx.manifest.track(key, str(dst))
             actions.append(FileAction(path=str(dst), action="unchanged"))
             continue
-        existed = dst.exists()
-        if not ctx.dry_run:
-            dst.write_bytes(content)
-        ctx.manifest.track(key, str(dst))
-        actions.append(
-            FileAction(path=str(dst), action="updated" if existed else "created")
-        )
+        actions.append(write_owned_file(ctx, key, dst, content, managed_root=dst_dir))
 
     # Prune: command files this integration previously installed into dst_dir
     # that are no longer in the catalog. Manifest-scoped so a user's own files
@@ -69,6 +80,10 @@ def mirror_command_surface(
         dst_resolved = dst_dir.resolve()
     except OSError:
         dst_resolved = dst_dir
+    recorded = {
+        str(entry.get("path")): entry.get("sha256")
+        for entry in ctx.manifest.actions_for(key)
+    }
     for tracked in list(ctx.manifest.files_for(key)):
         tp = Path(tracked)
         if not tp.name.endswith(suffix) or tp.name in current_names:
@@ -78,6 +93,13 @@ def mirror_command_surface(
         except OSError:
             same_dir = False
         if not same_dir:
+            continue
+        expected = recorded.get(tracked)
+        if tp.exists() and expected is not None and _hash_path(tp) != expected:
+            # Edited since we wrote it: the user's now. Keep it and stop tracking it.
+            ctx.manifest.log(key, f"keep-user-edited (changed since install): {tp}")
+            ctx.manifest.untrack(key, tracked)
+            actions.append(FileAction(path=str(tp), action="kept", reason="user-edited"))
             continue
         if tp.exists() and not ctx.dry_run:
             tp.unlink()
