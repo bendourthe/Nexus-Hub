@@ -1156,9 +1156,9 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 2 | 0 |
+| Deferred (DF) | 3 | 0 |
 | Bugs / regressions (BG) | 0 | 0 |
-| Warnings (WN) | 0 | 0 |
+| Warnings (WN) | 3 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
@@ -1175,6 +1175,30 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 - **Source phase**: Phase 1. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T304.
 - **Reason**: `catalog/skills/ai-development/model-routing/references/last-known-model-map.json` (verified 2026-09-22) still lists `claude-sonnet-5` at standard and `gpt-6-sol` at strong, both superseded. It is the offline fallback that `/plan` renders when web access is unavailable, so a stale cell reaches a user who is offline.
 - **Suggested next step**: refresh the snapshot from a validated map through `model-map.py`. The queued v4.13.9 plan (task T407) does this for the `standard`/Anthropic and `strong`/OpenAI cells; otherwise model-routing's own refresh cycle owns it.
+
+#### DF-3 (v4.13.8): Nine newly rostered Claude models have no prompting profile
+
+- **Source phase**: Phase 2. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T306.
+- **Reason**: the live Claude roster read from the Models API on 2026-09-30 added nine ids that this plan does not research, by design (it calibrates on `claude-sonnet-5-5` only): `claude-fable-5`, `claude-haiku-4-5-20251001`, `claude-opus-4-5-20251101`, `claude-opus-4-6`, `claude-opus-4-7`, `claude-opus-4-8`, `claude-opus-5-5`, `claude-sonnet-4-5-20250929`, and `claude-sonnet-4-6`. Each is now a rostered UNVERIFIED model. The live id `claude-haiku-4-5-20251001` sits beside the existing `claude-haiku-4-5` profile, which uses the alias.
+- **Suggested next step**: `claude-opus-5-5` first, through `v4.17.6`, which already plans that profile; then `/tune-prompting <id> --profiles-only` per remaining current model. Decide whether the dated Haiku id and the alias should share one profile before profiling either again.
+
+#### WN-1 (v4.13.8): A reasoning example asks the model to write its analysis into the reply
+
+- **Source phase**: Phase 2. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T308 (sweep finding SW-1).
+- **Reason**: `catalog/skills/ai-development/prompt-engineering/references/step-2-apply-reasoning-techniques.md` lines 92 to 101 tell the model to "Think through this step-by-step" and to structure its response as `<thinking>[Your step-by-step analysis]</thinking>` followed by an answer. On Claude Sonnet 5.5, instructions that ask for reasoning in the response invite `reasoning_extraction` declines. The classifier routed the finding `profile-only`, so no shared body was edited.
+- **Suggested next step**: owner `prompt-engineering`. Revise the example to rely on the model's own thinking (adaptive thinking, with summarized thinking blocks when the reasoning must be read), or label it as written for older models. Route the change through `apply_prompting_edits.py` as a model-agnostic candidate only if it names no model.
+
+#### WN-2 (v4.13.8): A self-consistency example asks for written-out step-by-step reasoning
+
+- **Source phase**: Phase 2. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T308 (sweep finding SW-2).
+- **Reason**: the same file, line 127, prompts "Think step-by-step, then provide your final answer on the last line". The traced Sonnet 5.5 item and the classifier route are the same as WN-1.
+- **Suggested next step**: owner `prompt-engineering`; fix together with WN-1 in one change.
+
+#### WN-3 (v4.13.8): The primary roster mixes vendors, so its freshness check always reads DRIFTED
+
+- **Source phase**: Phase 2. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T306 and T309.
+- **Reason**: the `claude-code` roster in `profiles-index.json` was recorded on 2026-09-08 from `config` as a multi-vendor union (Claude, Cursor, Gemini, and GPT-5.6 ids). The 2026-09-30 write refreshed it from the live Models API, and by design the writer unions the live ids with every already-profiled model, so no profile was orphaned. The result is 26 ids labelled `roster_source: api`, of which 16 did not come from the API. `check_model_prompting_freshness.py --advisory` against the 13 live Claude ids therefore reports DRIFTED, listing the non-Claude ids and the `claude-haiku-4-5` alias as "no longer live". The check is advisory and blocks nothing.
+- **Suggested next step**: move the Cursor, Gemini, and GPT-5.6 profiles onto their own `meta.platforms` entries (schema 1.1.0), as was done for `codex`, so the `claude-code` roster holds only Claude ids and its freshness check can read IN SYNC. Decide the `claude-haiku-4-5` alias at the same time (see DF-3).
 
 ### Resolved Items
 
