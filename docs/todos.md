@@ -1,7 +1,7 @@
 # Nexus-Hub Progress Dashboard
 
 **Integration branch:** `develop`
-**Active work:** Historical v4.0-v4.12 plan closure is integrated and v4.13.1 through v4.13.5 are released. v4.13.6 ([minor-scope implement and verified cleanup](releases/v4/v4.13/plans/v4.13.6-minor-scope-implement-and-verified-cleanup.md)) has all eight phases done locally and awaits publication; its approval-page read-back by a non-engineer is still pending. v4.13.7 ([Copilot usage monitor and usage-limit handoff](releases/v4/v4.13/plans/v4.13.7-copilot-usage-monitor-and-usage-limit-handoff.md)) follows once v4.13.6 is released. Bounded vendor, manual, and artifact-coverage gaps remain open in their known-gaps ledgers.
+**Active work:** Historical v4.0-v4.12 plan closure is integrated and v4.13.1 through v4.13.6 are released. v4.13.6 ([minor-scope implement and verified cleanup](releases/v4/v4.13/plans/v4.13.6-minor-scope-implement-and-verified-cleanup.md)) shipped through PR #394; its approval-page read-back by a non-engineer is still pending. v4.13.7 ([Copilot usage monitor and usage-limit handoff](releases/v4/v4.13/plans/v4.13.7-copilot-usage-monitor-and-usage-limit-handoff.md)) is next. Bounded vendor, manual, and artifact-coverage gaps remain open in their known-gaps ledgers.
 **Closeout boundary:** Recovery backups with unique Git history, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim. The former 47-file recovery branch was removed after its patch was proven identical to the merged PR #259 commit.
 **Last refreshed:** 2026-09-30
 
@@ -10,7 +10,8 @@ This dashboard tracks the work in flight right now. It is deliberately short. Fi
 Refreshing this file to the active plan (rather than appending another version's section) keeps the dashboard from drifting to an old feature branch.
 
 - [x] Implement v4.13.6 Phases 1-8 locally: exact approval binding, minor membership and run record, verified merged-and-idle cleanup, gap migration and minor archive, the minor verdict and closing pull request, the plain-language approval page, goal restatements, and a two-plan end-to-end proof. The final phase also fixed archived gaps AR-01 (`nexus-hub init` was an invalid choice) and AR-02 (`secret-scan.sh` allowed every write without `jq`) and deleted the stray `scratch_p6cmd.py` (v4.13.5 WN-1). See the [last-phase evidence](releases/v4/v4.13/development/v4.13.6-last-phase-evidence.md).
-- [ ] Publish v4.13.6 once, integrate it green, and record one non-engineer read-back of a rendered approval page (plan DoD 6).
+- [x] Publish v4.13.6, integrate it green, and release it: PR #394 merged into `develop` at `fc279158` with every required check green, released as v4.13.6 on 2026-09-30.
+- [ ] Record one non-engineer read-back of a rendered v4.13.6 approval page (plan DoD 6).
 - [x] Finish the [v4.13.4 Training rebuild](releases/v4/v4.13/plans/v4.13.4-guide-training-rebuild.md): all eight phases shipped through [PR #382](https://github.com/bendourthe/Nexus-Hub/pull/382), merged at `13de23c0` after one stabilization re-push; [post-merge run 36526412742](https://github.com/bendourthe/Nexus-Hub/actions/runs/36526412742) passed. The [last-phase evidence](releases/v4/v4.13/development/v4.13.4-last-phase-evidence.md) records the full local gate, review lenses, and visual sweep; WN-1 and WN-2 stay open in the v4.13 ledger.
 
 - [x] Historical v4.0-v4.13 plan closure is integrated. PR #232 passed the required Linux, Windows, guide-render, host-load, CodeQL, and aggregate checks; post-merge run 35789442554 passed smoke and provenance without rerunning the full suite.
@@ -150,7 +151,7 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| v4.13.6 minor-scope implement phases complete (local) | 8 | 8 | 0 |
+| v4.13.6 minor-scope implement phases complete (released) | 8 | 8 | 0 |
 | v4.13.4 Training rebuild phases complete | 8 | 8 | 0 |
 | v4.12.0 implementation tasks complete | 28 | 28 | 0 |
 | v4.12.0 implementation phases complete | 4 | 5 | 1 |

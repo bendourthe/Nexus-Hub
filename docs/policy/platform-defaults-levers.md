@@ -234,3 +234,7 @@ Scope: the v4.13.4 release re-fetched only the Claude, Cursor, and Codex skill-d
 ### 2026-09-29 - v4.13.5 targeted read-contract pass (no lever recheck)
 
 Scope: the v4.13.5 release re-fetched only the Claude, Cursor, and Codex skill-discovery pages for the read-contract stamp. Those pages do not document the effort, model, or approval levers, so no lever row was rechecked or reclassified this cycle. This contract remains advisory with no release freshness gate.
+
+### 2026-09-30 - v4.13.6 targeted read-contract pass (no lever recheck)
+
+Scope: the v4.13.6 release re-fetched only the Claude, Cursor, and Codex skill-discovery pages for the read-contract stamp. Those pages do not document the effort, model, or approval levers, so no lever row was rechecked or reclassified this cycle. This contract remains advisory with no release freshness gate.
