@@ -30,6 +30,45 @@ Every VERIFIED cell links the first-party vendor page fetched on 2026-09-25. "No
 | `windsurf` | `windsurf` | none documented | none documented | none documented | [VERIFIED](https://docs.devin.ai/desktop/cascade/hooks) `pre_user_prompt` |
 | `windsurf/devin-cli` | `windsurf` | none documented | [VERIFIED](https://docs.devin.ai/cli/extensibility/hooks/lifecycle-hooks) `top-level-block` | [VERIFIED](https://docs.devin.ai/cli/reference/commands) | [VERIFIED](https://docs.devin.ai/cli/extensibility/hooks/lifecycle-hooks) `UserPromptSubmit` |
 
+## Goal capture
+
+The `goal_capture` field (checked 2026-09-29) records whether a typed `/goal ...` line reaches the platform's prompt-submit hook with its text verbatim. The approval page chooses its paste layout from it, because the approval is bound to the exact pasted line. Reasoning and sources: [`2026-09-28-approval-paste-sets-native-goal.md`](../decisions/proposed/policy/2026-09-28-approval-paste-sets-native-goal.md).
+
+| Value | Meaning | Approval page behavior |
+|---|---|---|
+| `verbatim` | A probe showed the hook receives the `/goal` line unchanged. | One paste line that starts with `/goal`; it approves the run and sets the native goal. |
+| `not-captured` | A goal command exists, but the hook cannot see the typed line. | The plain approval line first, then the `/goal` line second. |
+| `no-goal` | First-party docs list the commands and none is a goal command. | The plain approval line only. |
+| `unverified` | The docs do not settle it. | The plain approval line; where a goal command exists, the optional goal line is printed under the page's Details. |
+
+The native goal is advisory. Every goal evaluator listed here is a model judging the transcript, so the page's goal condition names the completion check's first output line (`MINOR COMPLETE vX.Y` for a minor, `PLAN COMPLETE` followed by the plan file for a plan) rather than a string the agent could simply print, and the deterministic completion checker stays the only authority on done. On a platform with no deterministic Stop gate behind its goal (Codex: its docs never tie `/goal` to the Stop hook the completion gate uses), the goal's judgment that the work is finished is not the definition of done: only the checker's verdict is. The page layout lives in [`approval-page.md`](../../catalog/skills/workflow/implement-phase/references/approval-page.md), and `approval_page.py` carries a copy of this column that `tests/validators/test_approval_page.py` keeps in step.
+
+`verbatim` is accepted only from a recorded probe of a typed `/goal` line (`"probe_mode": "interactive"`), never from a headless `-p` probe and never by analogy to another platform. `tests/validators/test_completion_levers.py` fails when a row lacks the field, uses another value, lacks an ISO date, or states a settled value without a source.
+
+| Row | Goal capture |
+|---|---|
+| `aider` | `no-goal` ([source](https://aider.chat/docs/usage/modes.html)) |
+| `antigravity` | `unverified` ([source](https://antigravity.google/docs/slash-commands/)) |
+| `antigravity2` | `not-captured` ([source](https://antigravity.google/docs/hooks/)) |
+| `antigravity2/cli` | `not-captured` ([source](https://antigravity.google/docs/hooks/)) |
+| `claude` | `unverified` (headless probe only; typed probe pending, see the decision record) |
+| `codex` | `unverified` ([source](https://learn.chatgpt.com/docs/hooks)) |
+| `copilot` | `unverified` ([source](https://docs.github.com/en/copilot/reference/hooks-reference)) |
+| `copilot/cli` | `unverified` ([source](https://docs.github.com/en/copilot/reference/hooks-reference)) |
+| `copilot/vscode` | `unverified` ([source](https://raw.githubusercontent.com/microsoft/vscode-docs/main/docs/agents/reference/hooks-reference.md)) |
+| `cursor` | `unverified` ([source](https://cursor.com/docs/agent/hooks)) |
+| `gemini` | `unverified` ([source](https://antigravity.google/docs/slash-commands/)) |
+| `gemini-cli` | `no-goal` ([source](https://geminicli.com/docs/reference/commands/)) |
+| `hermes` | `unverified` ([source](https://hermes-agent.nousresearch.com/docs/user-guide/features/hooks)) |
+| `kimi` | `unverified` ([source](https://www.kimi.com/code/docs/en/kimi-code-cli/customization/hooks.html)) |
+| `nexus-ai` | `unverified` ([source](https://github.com/bendourthe/Nexus-AI)) |
+| `openclaw` | `unverified` ([source](https://docs.openclaw.ai/plugins/hooks/reference)) |
+| `opencode` | `no-goal` ([source](https://opencode.ai/docs/tui/)) |
+| `pi` | `unverified` ([source](https://raw.githubusercontent.com/badlogic/pi-mono/main/packages/coding-agent/docs/cli.md)) |
+| `qwen` | `unverified` ([source](https://qwenlm.github.io/qwen-code-docs/en/users/features/hooks/)) |
+| `windsurf` | `unverified` ([source](https://docs.devin.ai/desktop/cascade/hooks)) |
+| `windsurf/devin-cli` | `no-goal` ([source](https://docs.devin.ai/cli/reference/commands)) |
+
 ## Continuation formats
 
 The gate emits exactly one shape per format id. The vendor wording for each row is preserved in the JSON as `vendor_shape`.
@@ -51,5 +90,5 @@ Copilot CLI and VS Code Copilot both read `~/.copilot/hooks/` but expect differe
 - **Documented caps end a run the gate cannot extend.** Claude Code, Copilot CLI, and Qwen override a Stop hook after 8 consecutive blocks; Cursor's `loop_limit` defaults to 5; OpenClaw allows at most three revisions; Hermes' `max_verify_nudges` defaults to 3. These are why the `run-plan` runner exists: it resumes the session after a platform ends the turn.
 - **Three platforms have no continuation lever.** Windsurf/Devin Desktop's `post_cascade_response` is asynchronous and cannot refuse a stop; Aider has no hooks; Nexus-AI documents none. They receive the completion contract as instructions, plus the runner where a headless CLI is documented (Aider, Devin CLI).
 - **Two plugin levers are weaker than the others.** OpenCode documents `session.idle` and `client.session.prompt` separately but never shows them composed into a continuation. Hermes' `pre_verify` fires only on turns where the agent edited code. For both, the runner is the primary layer and the plugin is best-effort.
-- **Headless goal entry points are documented only for Claude Code, Qwen, Kimi, and Copilot CLI.** Codex, Cursor, Antigravity CLI, and Hermes document `/goal` interactively but not in a one-shot run, so `run-plan` prints an interactive goal line for them instead of setting one.
+- **Headless goal entry points are documented only for Claude Code, Qwen, Kimi, and Copilot CLI.** `run-plan` sets the goal itself for the first three, from their documented `-p "/goal ..."` entries (Claude Code with `--output-format stream-json --verbose`; Kimi's documented goal exits 3 (blocked) and 6 (paused), recorded as `goal_exit_codes`, count as a run only when the checker then reports BLOCKED or PAUSED; otherwise they are a launch failure). Copilot CLI's documented headless path is `copilot --autopilot -p` with a bypass flag, not `/goal`, so it stays interactive until a follow-up patch. Codex, Cursor, Antigravity CLI, Hermes, and OpenClaw document `/goal` interactively but not in a one-shot run, so `run-plan` prints the interactive goal line for them instead of setting one.
 - **Antigravity 1.0 remains unverified.** The Antigravity hooks page covers "Antigravity 2.0, Antigravity CLI, and Antigravity IDE" without saying whether that IDE is the 1.0 product; see the v4.13.2 known gaps.

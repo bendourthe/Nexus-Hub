@@ -2656,6 +2656,41 @@ install_templates() {
         safe_copy "$repo_host_source" "$scripts_dest/repo_host.py" true "[OK] Repository resolver installed at: $scripts_dest/repo_host.py"
     fi
 
+    # Copy the approval binder (v4.13.6). The completion checker imports it as
+    # a sibling to bind each approval to the exact line it generated.
+    local approval_binding_source="$repo_root/scripts/approval_binding.py"
+    if [ -f "$approval_binding_source" ]; then
+        safe_copy "$approval_binding_source" "$scripts_dest/approval_binding.py" true "[OK] Approval binder installed at: $scripts_dest/approval_binding.py"
+    fi
+
+    # Copy the minor-scope resolver (v4.13.6). The completion checker dispatches
+    # `members` and `record ... --minor` to it as a sibling.
+    local completion_minor_source="$repo_root/scripts/completion_minor.py"
+    if [ -f "$completion_minor_source" ]; then
+        safe_copy "$completion_minor_source" "$scripts_dest/completion_minor.py" true "[OK] Minor-scope resolver installed at: $scripts_dest/completion_minor.py"
+    fi
+
+    # Copy the merged-and-idle cleanup executor (v4.13.6). The release flow and the
+    # completion checker's `cleanup.merged` predicate run it as a sibling.
+    local cleanup_merged_source="$repo_root/scripts/cleanup_merged.py"
+    if [ -f "$cleanup_merged_source" ]; then
+        safe_copy "$cleanup_merged_source" "$scripts_dest/cleanup_merged.py" true "[OK] Cleanup executor installed at: $scripts_dest/cleanup_merged.py"
+    fi
+
+    # Copy the minor-close executor (v4.13.6). Gap migration and the closed-minor
+    # archive run it as a sibling of the completion checker.
+    local minor_close_source="$repo_root/scripts/minor_close.py"
+    if [ -f "$minor_close_source" ]; then
+        safe_copy "$minor_close_source" "$scripts_dest/minor_close.py" true "[OK] Minor-close executor installed at: $scripts_dest/minor_close.py"
+    fi
+
+    # Copy the approval-page renderer (v4.13.6). approval_binding.py imports it for
+    # the paste-line templates, and run_plan.py for the headless goal line.
+    local approval_page_source="$repo_root/scripts/approval_page.py"
+    if [ -f "$approval_page_source" ]; then
+        safe_copy "$approval_page_source" "$scripts_dest/approval_page.py" true "[OK] Approval-page renderer installed at: $scripts_dest/approval_page.py"
+    fi
+
     # Copy the completion-gate core (v4.13.2). The completion-gate and
     # approval-capture hooks run it from this installed path only.
     local completion_gate_source="$repo_root/scripts/completion_gate.py"

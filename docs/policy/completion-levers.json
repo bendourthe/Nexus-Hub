@@ -1,5 +1,5 @@
 {
-  "_comment": "Per-platform completion levers for the full /implement run (v4.13.2). One row per integration key registered in scripts/lib/integrations/__init__.py, plus surface rows for surfaces that share an integration (owner names the registering integration). Each lever is VERIFIED (first-party vendor URL fetched on the verified date) or 'none documented'. The completion gate reads continuation.format; run-plan lists rows whose headless lever is VERIFIED but hard-codes its own launch flags and never reads them from here. Validated by tests/validators/test_completion_levers.py. Human companion: completion-levers.md. Re-verify a row before relying on it; vendor pages move.",
+  "_comment": "Per-platform completion levers for the full /implement run (v4.13.2). One row per integration key registered in scripts/lib/integrations/__init__.py, plus surface rows for surfaces that share an integration (owner names the registering integration). Each lever is VERIFIED (first-party vendor URL fetched on the verified date) or 'none documented'. The completion gate reads continuation.format; run-plan lists rows whose headless lever is VERIFIED but hard-codes its own launch flags and never reads them from here. Validated by tests/validators/test_completion_levers.py. Human companion: completion-levers.md. Re-verify a row before relying on it; vendor pages move. goal_capture (v4.13.6 Phase 1.1) records whether a typed /goal line reaches the prompt-submit hook verbatim: verbatim, not-captured, no-goal, or unverified; see the 2026-09-28 approval-paste decision record.",
   "schema": 1,
   "fetched": "2026-09-25",
   "rows": {
@@ -28,7 +28,13 @@
         "checked_url": "https://aider.chat/docs/config/options.html",
         "checked": "2026-09-25"
       },
-      "notes": "No hook system documented in the options reference."
+      "notes": "No hook system documented in the options reference.",
+      "goal_capture": {
+        "value": "no-goal",
+        "source_url": "https://aider.chat/docs/usage/modes.html",
+        "verified": "2026-09-29",
+        "evidence": "Modes page lists code, ask, architect, and help modes (/code, /architect, /ask, /help, /chat-mode) and no /goal or until-condition mode."
+      }
     },
     "antigravity": {
       "owner": "antigravity",
@@ -45,7 +51,13 @@
       "prompt_submit": {
         "status": "none documented"
       },
-      "notes": "https://antigravity.google/docs/hooks/ says hooks work across \"Antigravity 2.0, Antigravity CLI, and Antigravity IDE\"; it is not stated whether \"Antigravity IDE\" means the 1.0 product. Needs a manual check before claiming coverage for 1.0."
+      "notes": "https://antigravity.google/docs/hooks/ says hooks work across \"Antigravity 2.0, Antigravity CLI, and Antigravity IDE\"; it is not stated whether \"Antigravity IDE\" means the 1.0 product. Needs a manual check before claiming coverage for 1.0.",
+      "goal_capture": {
+        "value": "unverified",
+        "source_url": "https://antigravity.google/docs/slash-commands/",
+        "verified": "2026-09-29",
+        "evidence": "No first-party page scopes /goal or a prompt-submit event to Antigravity 1.0; not settled."
+      }
     },
     "antigravity2": {
       "owner": "antigravity2",
@@ -74,7 +86,13 @@
         "checked_url": "https://antigravity.google/docs/hooks/",
         "checked": "2026-09-25"
       },
-      "notes": "Desktop app; headless entry lives on the CLI row."
+      "notes": "Desktop app; headless entry lives on the CLI row.",
+      "goal_capture": {
+        "value": "not-captured",
+        "source_url": "https://antigravity.google/docs/hooks/",
+        "verified": "2026-09-29",
+        "evidence": "/goal exists (slash-commands page), but the hooks page documents only PreToolUse, PostToolUse, PreInvocation, PostInvocation, and Stop, with no prompt-submit event, so no hook can see typed /goal text. Judgement call: no page states that slash commands skip a hook."
+      }
     },
     "antigravity2/cli": {
       "owner": "antigravity2",
@@ -107,7 +125,13 @@
         "checked_url": "https://antigravity.google/docs/hooks/",
         "checked": "2026-09-25"
       },
-      "notes": "-p documented at https://antigravity.google/docs/cli/best-practices/ (agy -p \"...\" --cwd $(pwd))."
+      "notes": "-p documented at https://antigravity.google/docs/cli/best-practices/ (agy -p \"...\" --cwd $(pwd)).",
+      "goal_capture": {
+        "value": "not-captured",
+        "source_url": "https://antigravity.google/docs/hooks/",
+        "verified": "2026-09-29",
+        "evidence": "Slash-commands page lists /goal for Antigravity CLI; the same five-event hooks page has no prompt-submit event. Whether agy -p \"/goal ...\" runs the goal loop is undocumented. Same judgement-call caveat as antigravity2."
+      }
     },
     "claude": {
       "owner": "claude",
@@ -142,7 +166,15 @@
         "source_url": "https://code.claude.com/docs/en/hooks",
         "verified": "2026-09-25"
       },
-      "notes": "A first WebFetch summary of /docs/en/hooks claimed Stop decision is nested in hookSpecificOutput; the hooks guide states verbatim that PostToolUse and Stop use a top-level decision: \"block\". Top-level is the documented form."
+      "notes": "A first WebFetch summary of /docs/en/hooks claimed Stop decision is nested in hookSpecificOutput; the hooks guide states verbatim that PostToolUse and Stop use a top-level decision: \"block\". Top-level is the documented form.",
+      "goal_capture": {
+        "value": "unverified",
+        "source_url": "docs/decisions/proposed/policy/2026-09-28-approval-paste-sets-native-goal.md",
+        "verified": "2026-09-29",
+        "evidence": "Local probe, Claude Code 2.1.283, Windows 11, headless claude -p \"/goal test condition\" from PowerShell: UserPromptSubmit fired once with prompt exactly \"/goal test condition\", and the transcript shows \"Goal set: test condition\". The interactive typed path, which the approval paste uses, was not exercised, so the row stays unverified until a typed /goal probe is logged. Hook reference: https://code.claude.com/docs/en/hooks.",
+        "probe": true,
+        "probe_mode": "headless"
+      }
     },
     "codex": {
       "owner": "codex",
@@ -175,7 +207,13 @@
         "source_url": "https://learn.chatgpt.com/docs/hooks",
         "verified": "2026-09-25"
       },
-      "notes": "developers.openai.com/codex/* now 308-redirects to learn.chatgpt.com. Docs do not say whether /goal works under codex exec; no continuation cap documented."
+      "notes": "developers.openai.com/codex/* now 308-redirects to learn.chatgpt.com. Docs do not say whether /goal works under codex exec; no continuation cap documented.",
+      "goal_capture": {
+        "value": "unverified",
+        "source_url": "https://learn.chatgpt.com/docs/hooks",
+        "verified": "2026-09-29",
+        "evidence": "/goal is typed after enabling features.goals (https://learn.chatgpt.com/use-cases/follow-goals). UserPromptSubmit receives the prompt about to be sent; the docs never say whether a typed slash command reaches the hook or in what form."
+      }
     },
     "copilot": {
       "owner": "copilot",
@@ -210,7 +248,13 @@
         "source_url": "https://docs.github.com/en/copilot/reference/hooks-reference",
         "verified": "2026-09-25"
       },
-      "notes": "Formats differ per surface; never treat the umbrella row as a single contract."
+      "notes": "Formats differ per surface; never treat the umbrella row as a single contract.",
+      "goal_capture": {
+        "value": "unverified",
+        "source_url": "https://docs.github.com/en/copilot/reference/hooks-reference",
+        "verified": "2026-09-29",
+        "evidence": "Umbrella row; see copilot/cli (unverified) and copilot/vscode (unverified). Not assessed separately."
+      }
     },
     "copilot/cli": {
       "owner": "copilot",
@@ -245,7 +289,13 @@
         "source_url": "https://docs.github.com/en/copilot/reference/hooks-reference",
         "verified": "2026-09-25"
       },
-      "notes": "Autopilot page itself does not mention /goal; /goal is documented in the CLI command reference. Autopilot non-interactive example from https://docs.github.com/en/copilot/concepts/agents/copilot-cli/autopilot."
+      "notes": "Autopilot page itself does not mention /goal; /goal is documented in the CLI command reference. Autopilot non-interactive example from https://docs.github.com/en/copilot/concepts/agents/copilot-cli/autopilot.",
+      "goal_capture": {
+        "value": "unverified",
+        "source_url": "https://docs.github.com/en/copilot/reference/hooks-reference",
+        "verified": "2026-09-29",
+        "evidence": "/autopilot and /goal [OBJECTIVE] start or refocus autopilot (https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference); headless entry is copilot --autopilot -p. userPromptSubmitted carries prompt, but neither page says whether slash commands fire it."
+      }
     },
     "copilot/vscode": {
       "owner": "copilot",
@@ -275,7 +325,13 @@
         "source_url": "https://raw.githubusercontent.com/microsoft/vscode-docs/main/docs/agents/reference/hooks-reference.md",
         "verified": "2026-09-25"
       },
-      "notes": "code.visualstudio.com returned 404 for every page via WebFetch in this pass; content read from the official microsoft/vscode-docs repository (same source the site renders). Rendered URLs: https://code.visualstudio.com/docs/agents/reference/hooks-reference and https://code.visualstudio.com/docs/agents/run/approvals."
+      "notes": "code.visualstudio.com returned 404 for every page via WebFetch in this pass; content read from the official microsoft/vscode-docs repository (same source the site renders). Rendered URLs: https://code.visualstudio.com/docs/agents/reference/hooks-reference and https://code.visualstudio.com/docs/agents/run/approvals.",
+      "goal_capture": {
+        "value": "unverified",
+        "source_url": "https://raw.githubusercontent.com/microsoft/vscode-docs/main/docs/agents/reference/hooks-reference.md",
+        "verified": "2026-09-29",
+        "evidence": "Autopilot is a mode-picker setting, not a typed goal command; whether a typed goal line reaches UserPromptSubmit was not assessed."
+      }
     },
     "cursor": {
       "owner": "cursor",
@@ -310,7 +366,13 @@
         "source_url": "https://cursor.com/docs/agent/hooks",
         "verified": "2026-09-25"
       },
-      "notes": "CLI changelog (Jan 2026) lists \"Stop hooks with follow-up loops (autonomous 'keep going' patterns)\" for the CLI, so the stop hook applies to Cursor CLI too."
+      "notes": "CLI changelog (Jan 2026) lists \"Stop hooks with follow-up loops (autonomous 'keep going' patterns)\" for the CLI, so the stop hook applies to Cursor CLI too.",
+      "goal_capture": {
+        "value": "unverified",
+        "source_url": "https://cursor.com/docs/agent/hooks",
+        "verified": "2026-09-29",
+        "evidence": "CLI changelog (https://cursor.com/docs/cli/changelog) adds /goal (gated rollout). beforeSubmitPrompt runs after send with a prompt field; the hooks page says nothing about slash commands or the CLI."
+      }
     },
     "gemini": {
       "owner": "gemini",
@@ -327,7 +389,13 @@
       "prompt_submit": {
         "status": "none documented"
       },
-      "notes": "No first-party page fetched that is specific to Antigravity 1.0. Do not infer from antigravity2."
+      "notes": "No first-party page fetched that is specific to Antigravity 1.0. Do not infer from antigravity2.",
+      "goal_capture": {
+        "value": "unverified",
+        "source_url": "https://antigravity.google/docs/slash-commands/",
+        "verified": "2026-09-29",
+        "evidence": "Row aliases the Antigravity 1.0 IDE surface, which is itself unverified."
+      }
     },
     "gemini-cli": {
       "owner": "gemini-cli",
@@ -360,7 +428,13 @@
         "source_url": "https://geminicli.com/docs/hooks/reference/",
         "verified": "2026-09-25"
       },
-      "notes": "A search-result snippet claimed AfterAgent ignores flow control; the fetched reference page contradicts it (only SessionEnd and PreCompress ignore flow control). Product is enterprise-only after 2026-06-18 per repo roster."
+      "notes": "A search-result snippet claimed AfterAgent ignores flow control; the fetched reference page contradicts it (only SessionEnd and PreCompress ignore flow control). Product is enterprise-only after 2026-06-18 per repo roster.",
+      "goal_capture": {
+        "value": "no-goal",
+        "source_url": "https://geminicli.com/docs/reference/commands/",
+        "verified": "2026-09-29",
+        "evidence": "Commands reference lists no /goal and no goal or until-condition mode; the closest is /plan, a read-only planning mode."
+      }
     },
     "hermes": {
       "owner": "hermes",
@@ -394,7 +468,13 @@
         "source_url": "https://hermes-agent.nousresearch.com/docs/user-guide/features/hooks",
         "verified": "2026-09-25"
       },
-      "notes": "Goals docs are silent on one-shot runs: the lead 'not in one-shot' is neither confirmed nor refuted. The pre_verify code-edit gate means it is not a general turn-end continuation hook."
+      "notes": "Goals docs are silent on one-shot runs: the lead 'not in one-shot' is neither confirmed nor refuted. The pre_verify code-edit gate means it is not a general turn-end continuation hook.",
+      "goal_capture": {
+        "value": "unverified",
+        "source_url": "https://hermes-agent.nousresearch.com/docs/user-guide/features/hooks",
+        "verified": "2026-09-29",
+        "evidence": "/goal <text> sets a standing goal and starts the first turn (https://hermes-agent.nousresearch.com/docs/user-guide/features/goals). pre_llm_call carries the user's original message; neither page says whether /goal is that message or is handled before the hook."
+      }
     },
     "kimi": {
       "owner": "kimi",
@@ -402,6 +482,7 @@
         "status": "VERIFIED",
         "summary": "/goal starts goal mode: a persistent objective worked toward across automatically continuing turns, with completion checked each cycle. In manual permission mode it may pause for tool approvals.",
         "headless_entry": "kimi -p \"/goal ...\" (prompt mode supports only goal creation); exit codes 0 = completed, 3 = blocked, 6 = paused",
+      "goal_exit_codes": {"0": "completed", "3": "blocked", "6": "paused", "source_url": "https://www.kimi.com/help/kimi-code/cli-goals", "verified": "2026-09-25"},
         "source_url": "https://www.kimi.com/help/kimi-code/cli-goals",
         "verified": "2026-09-25"
       },
@@ -428,7 +509,13 @@
         "source_url": "https://www.kimi.com/code/docs/en/kimi-code-cli/customization/hooks.html",
         "verified": "2026-09-25"
       },
-      "notes": "Whether the JSON deny shape (vs exit 2) continues a Stop was not stated precisely; exit 2 is the safe documented path."
+      "notes": "Whether the JSON deny shape (vs exit 2) continues a Stop was not stated precisely; exit 2 is the safe documented path.",
+      "goal_capture": {
+        "value": "unverified",
+        "source_url": "https://www.kimi.com/code/docs/en/kimi-code-cli/customization/hooks.html",
+        "verified": "2026-09-29",
+        "evidence": "Goals page (https://www.kimi.com/help/kimi-code/cli-goals) says Kimi saves the objective and sends it as the next user message, so the hook may see the objective rather than the raw /goal line; the hooks page does not say. Only goal creation works under kimi -p."
+      }
     },
     "nexus-ai": {
       "owner": "nexus-ai",
@@ -453,7 +540,13 @@
         "checked_url": "https://github.com/bendourthe/Nexus-AI",
         "checked": "2026-09-25"
       },
-      "notes": "README only, per scope. It mentions headless and scheduled agent runs with an Ask inbox, but no CLI flags or resume. Auto mode may qualify as a goal lever; the maintainer should confirm from the Nexus-AI source."
+      "notes": "README only, per scope. It mentions headless and scheduled agent runs with an Ask inbox, but no CLI flags or resume. Auto mode may qualify as a goal lever; the maintainer should confirm from the Nexus-AI source.",
+      "goal_capture": {
+        "value": "unverified",
+        "source_url": "https://github.com/bendourthe/Nexus-AI",
+        "verified": "2026-09-29",
+        "evidence": "README describes an Auto mode but neither a goal command nor a prompt-submit event is documented; not settled."
+      }
     },
     "openclaw": {
       "owner": "openclaw",
@@ -486,6 +579,12 @@
         "event": "message_received (observe inbound); before_prompt_build runs during turn preparation",
         "source_url": "https://docs.openclaw.ai/plugins/hooks/reference",
         "verified": "2026-09-25"
+      },
+      "goal_capture": {
+        "value": "unverified",
+        "source_url": "https://docs.openclaw.ai/plugins/hooks/reference",
+        "verified": "2026-09-29",
+        "evidence": "/goal start <objective> sets session goal state (https://docs.openclaw.ai/tools/goal). message_received observes inbound content; neither page says whether slash commands reach it."
       }
     },
     "opencode": {
@@ -519,7 +618,13 @@
         "checked_url": "https://opencode.ai/docs/plugins/",
         "checked": "2026-09-25"
       },
-      "notes": "session.prompt documented at https://opencode.ai/docs/sdk/. Treat continuation as a composed pattern, weaker evidence than a documented refuse-stop contract."
+      "notes": "session.prompt documented at https://opencode.ai/docs/sdk/. Treat continuation as a composed pattern, weaker evidence than a documented refuse-stop contract.",
+      "goal_capture": {
+        "value": "no-goal",
+        "source_url": "https://opencode.ai/docs/tui/",
+        "verified": "2026-09-29",
+        "evidence": "TUI slash-command list (/connect, /compact, /init, /new, /undo, and others) and the CLI page (https://opencode.ai/docs/cli/) name no /goal or until-condition mode."
+      }
     },
     "pi": {
       "owner": "pi",
@@ -552,7 +657,13 @@
         "source_url": "https://raw.githubusercontent.com/badlogic/pi-mono/main/packages/coding-agent/docs/extensions.md",
         "verified": "2026-09-25"
       },
-      "notes": "Repo now shows as earendil-works/pi; badlogic/pi-mono URLs still resolve. No documented cap on continuations."
+      "notes": "Repo now shows as earendil-works/pi; badlogic/pi-mono URLs still resolve. No documented cap on continuations.",
+      "goal_capture": {
+        "value": "unverified",
+        "source_url": "https://raw.githubusercontent.com/badlogic/pi-mono/main/packages/coding-agent/docs/cli.md",
+        "verified": "2026-09-29",
+        "evidence": "CLI page names no goal command, but no first-party page lists the interactive slash commands, so absence is not settled."
+      }
     },
     "qwen": {
       "owner": "qwen",
@@ -586,6 +697,12 @@
         "event": "UserPromptSubmit (also runs on headless submissions)",
         "source_url": "https://qwenlm.github.io/qwen-code-docs/en/users/features/hooks/",
         "verified": "2026-09-25"
+      },
+      "goal_capture": {
+        "value": "unverified",
+        "source_url": "https://qwenlm.github.io/qwen-code-docs/en/users/features/hooks/",
+        "verified": "2026-09-29",
+        "evidence": "Headless entry qwen -p \"/goal ...\" is documented. UserPromptSubmit carries submitted_prompt, locally acting commands fire no hook, and a separate UserPromptExpansion fires when a slash command expands into a prompt; /goal is never named, so its path is unsettled."
       }
     },
     "windsurf": {
@@ -612,7 +729,13 @@
         "source_url": "https://docs.devin.ai/desktop/cascade/hooks",
         "verified": "2026-09-25"
       },
-      "notes": "docs.windsurf.com/windsurf/cascade/hooks now redirects to docs.devin.ai/desktop/cascade/hooks."
+      "notes": "docs.windsurf.com/windsurf/cascade/hooks now redirects to docs.devin.ai/desktop/cascade/hooks.",
+      "goal_capture": {
+        "value": "unverified",
+        "source_url": "https://docs.devin.ai/desktop/cascade/hooks",
+        "verified": "2026-09-29",
+        "evidence": "Only the Cascade hooks page was checked; it mentions no goal mode, but it is not a command reference, so absence is not settled."
+      }
     },
     "windsurf/devin-cli": {
       "owner": "windsurf",
@@ -645,7 +768,13 @@
         "source_url": "https://docs.devin.ai/cli/extensibility/hooks/lifecycle-hooks",
         "verified": "2026-09-25"
       },
-      "notes": "Config locations from https://docs.devin.ai/cli/extensibility/hooks/overview. Docs warn blocking Stop hooks can loop; no cap documented."
+      "notes": "Config locations from https://docs.devin.ai/cli/extensibility/hooks/overview. Docs warn blocking Stop hooks can loop; no cap documented.",
+      "goal_capture": {
+        "value": "no-goal",
+        "source_url": "https://docs.devin.ai/cli/reference/commands",
+        "verified": "2026-09-29",
+        "evidence": "Commands reference lists mode, session, and workspace slash commands and /loop <prompt>, but no /goal or until-condition command."
+      }
     }
   }
 }

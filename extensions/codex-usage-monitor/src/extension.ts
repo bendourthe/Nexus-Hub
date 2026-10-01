@@ -53,7 +53,7 @@ const REFRESH_COMMAND = "codex-usage.refresh";
 const SETTINGS_COMMAND = "codex-usage.settings";
 
 // The ChatGPT usage/limits page (opened from the dashboard as a manual cross-check).
-const CODEX_USAGE_PAGE_URL = "https://chatgpt.com/codex/settings/usage";
+const CODEX_USAGE_PAGE_URL = "https://chatgpt.com/settings/usage?tab=overview";
 
 let consecutiveFailures = 0;
 let lastFetchError: ProviderFetchError | undefined;

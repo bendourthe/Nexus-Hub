@@ -14,9 +14,10 @@ for a release gate:
   branch. An over-strict assertion that blocks a real release trains people to
   bypass it, which is how the whole class of defect in v3.17.6 started.
 
-The branch reporter is asserted never to propose deleting a protected branch or
-one with an open PR, because it runs inside a release flow where a wrong
-suggestion is most likely to be acted on without thinking.
+The branch reporter is asserted to quote the cleanup executor's dry run (its one
+source of candidate logic), never to delete, and never to propose a protected
+branch, because it runs inside a release flow where a wrong suggestion is most
+likely to be acted on without thinking.
 """
 
 from __future__ import annotations
@@ -228,66 +229,55 @@ def repo_with_branches(repo: Path) -> Path:
     return repo
 
 
-def test_reports_merged_but_not_unmerged(
-    repo_with_branches: Path, monkeypatch: pytest.MonkeyPatch
+def test_branch_report_prints_the_executor_dry_run(
+    repo_with_branches: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
+    """Candidate logic has one source: the report quotes cleanup_merged's dry run."""
     mod = module()
-    monkeypatch.setattr(mod, "open_pr_branches", lambda: set())
-    candidates, _ = mod.merged_branch_candidates("develop", cwd=repo_with_branches)
-    assert "feat/merged" in candidates
-    assert "feat/unmerged" not in candidates
+    import cleanup_merged
+
+    verdicts = [
+        cleanup_merged.Verdict(cleanup_merged.Item("branch", "feat/merged"), "REMOVE"),
+        cleanup_merged.Verdict(cleanup_merged.Item("branch", "feat/unmerged"), "KEEP", "no-merged-pr"),
+    ]
+    calls: list[tuple[Path, str]] = []
+
+    def fake_report(repo: Path, integration: str) -> tuple[list, list[str]]:
+        calls.append((repo, integration))
+        return verdicts, ["repository-unverified: unparseable"]
+
+    monkeypatch.setattr(cleanup_merged, "report", fake_report)
+    monkeypatch.setattr(mod, "closed_unmerged_pr_branches", lambda cwd=None: [])
+    assert mod.report_branches("develop", repo_with_branches) == 0
+    out = capsys.readouterr().out
+    assert calls == [(repo_with_branches, "develop")]
+    assert "  REMOVE branch:feat/merged" in out.splitlines()
+    assert "  KEEP branch:feat/unmerged no-merged-pr" in out.splitlines()
+    assert "Reporting only -- nothing was deleted." in out
 
 
-def test_never_proposes_a_protected_branch(
-    repo_with_branches: Path, monkeypatch: pytest.MonkeyPatch
+def test_branch_report_never_deletes_and_never_proposes_a_protected_branch(
+    repo_with_branches: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    """main and develop are merged into develop by construction; both must be excluded."""
+    """The real dry run is read-only, and main and develop are always KEEP protected."""
     mod = module()
-    monkeypatch.setattr(mod, "open_pr_branches", lambda: set())
-    candidates, _ = mod.merged_branch_candidates("develop", cwd=repo_with_branches)
-    for protected in ("main", "develop", "master", "HEAD"):
-        assert protected not in candidates
-
-
-def test_never_proposes_a_branch_with_an_open_pr(
-    repo_with_branches: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    """A merged branch whose PR is still open is excluded.
-
-    A branch can be merged and still have an open PR (a second PR from the same
-    head, or a PR retargeted after merge), and deleting it would close that PR.
-    """
-    mod = module()
-    monkeypatch.setattr(mod, "open_pr_branches", lambda: {"feat/merged"})
-    candidates, with_open_pr = mod.merged_branch_candidates(
-        "develop", cwd=repo_with_branches
-    )
-    assert "feat/merged" not in candidates
-    assert with_open_pr == {"feat/merged"}
-
-
-def test_branch_report_never_deletes(
-    repo_with_branches: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    """The reporter is read-only; the branch set must be identical afterwards."""
-    mod = module()
-    monkeypatch.setattr(mod, "open_pr_branches", lambda: set())
-    before = git(repo_with_branches, "branch", "-r")
+    before = git(repo_with_branches, "for-each-ref", "--format=%(refname) %(objectname)")
     mod.report_branches("develop", repo_with_branches)
-    assert git(repo_with_branches, "branch", "-r") == before
+    out = capsys.readouterr().out.splitlines()
+    assert git(repo_with_branches, "for-each-ref", "--format=%(refname) %(objectname)") == before
+    assert "  KEEP branch:main protected" in out
+    assert "  KEEP branch:develop protected" in out
+    assert not any(line.strip().startswith("REMOVE ") for line in out)
 
 
-def test_open_pr_branches_returns_empty_when_gh_missing(
-    monkeypatch: pytest.MonkeyPatch,
+def test_branch_report_without_the_executor_reports_nothing(
+    repo_with_branches: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    """No gh means no exclusions, which is the cautious direction.
-
-    This function only ever REMOVES branches from a deletion-candidate list, so an
-    empty answer can make the report more conservative, never less.
-    """
     mod = module()
-    monkeypatch.setattr(mod.shutil, "which", lambda name: None)
-    assert mod.open_pr_branches() == set()
+    monkeypatch.setitem(sys.modules, "cleanup_merged", None)  # an install that predates the executor
+    monkeypatch.setattr(mod, "closed_unmerged_pr_branches", lambda cwd=None: [])
+    assert mod.report_branches("develop", repo_with_branches) == 0
+    assert "cleanup_merged.py is not installed" in capsys.readouterr().out
 
 
 def test_closed_unmerged_pr_branches_reports_surviving_refs(
