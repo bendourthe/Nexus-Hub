@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.13.5 -->
+<!-- nexus-hub-version: 4.13.6 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 338 skills, 19 commands, 37 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -36,6 +36,14 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v4.13.6
+
+**One paste runs a whole minor.** `/implement v4.13` shows a short plain-language approval page that leads with the two riskiest effects and ends with one line to paste. That line is the approval: it runs each queued plan in the minor in version order, releases each patch, moves only gaps it cannot fix to the next minor, then closes and archives the minor through one final pull request. The run is done only when `check_plan_completion.py check-minor` prints `MINOR COMPLETE`.
+
+**Cleanup removes only what is verifiably merged and idle.** `cleanup_merged.py` lists every branch and worktree as REMOVE or KEEP with the check that kept it, runs as a dry run by default, and never force-deletes.
+
+**Fixes.** `nexus-hub init` works again, `secret-scan.sh` scans on hosts without `jq` and its private-key patterns now match, and the Codex Usage Monitor opens the current ChatGPT usage page.
 
 ## What's New in v4.13.5
 
