@@ -238,6 +238,8 @@ No headline number ships without a reproducible receipt. A pass rate, a win rate
 
 - **Repeated trials report `pass@k` or `pass^k`, never a single pass or fail.** `[[ai-output-evaluation]]` owns the definitions and the counting rules (errored trials count as non-passes; a retry is not an independent trial); this loop runs the k trials, records each result individually in the per-run `grading.json` files, and reports the figure with k stated, so `pass@3` is written as three recorded results and an aggregate, not as one green mark.
 
+- **A cost or token saving follows the cost-claim reporting rule.** `[[eval-pipeline-audit]]` owns that rule; these receipts are what it relies on.
+
 This strengthens the benchmark flow above (steps 6-8): the aggregated `benchmark.json` is the receipt, the aggregator is the recompute step, and the interval is what keeps a two-iteration pass-rate comparison honest rather than a coin flip dressed as progress. The same receipt-and-interval discipline, applied to general output scoring, lives in `[[ai-output-evaluation]]`.
 
 ## Description optimizer (A7)
