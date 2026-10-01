@@ -10,7 +10,7 @@ This is a thin dispatcher over the `inline-visualization` skill, following the c
 
 ## Scope resolution
 
-Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scopes: `chart`, `diagram`, `auto`.
+Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scopes: `chart`, `diagram`, `diff`, `auto`.
 
 - If `$ARGUMENTS` names a recognized scope, set SCOPE and skip the menu.
 - If `$ARGUMENTS` starts with something that is not a recognized scope and is not a file path or data, reply with the recognized scopes and do nothing else.
@@ -22,6 +22,7 @@ Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scop
         1. auto     (recommended) - infer chart or diagram from the input
         2. chart    - data to a chart (bar, line, scatter, distribution)
         3. diagram  - a flow, a dependency graph, or an architecture diagram
+        4. diff     - explain a change set as a changed-modules diagram
 
       Reply with a number or a scope name.
 
@@ -32,6 +33,7 @@ Dispatch the resolved scope to the skill:
       auto     -> inline-visualization (infer the form from the data shape, then pick the lowest eligible rung)
       chart    -> inline-visualization (chart forms only)
       diagram  -> inline-visualization (flow, dependency, and architecture forms only)
+      diff     -> inline-visualization (references/diff-explanation.md; read-only diff, same scope rules as /review changes)
 
 Pass the remaining arguments (the file path or the data) through unchanged.
 

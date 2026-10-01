@@ -85,7 +85,7 @@ def test_body_sections_are_present_in_order():
 def test_every_reference_file_is_linked_from_the_skill():
     body = _text(_SKILL)
     refs = sorted((_SKILL_DIR / "references").glob("*.md"))
-    assert {p.name for p in refs} == {"form-to-tier.md", "data-intake.md"}
+    assert {p.name for p in refs} == {"form-to-tier.md", "data-intake.md", "diff-explanation.md"}
     for ref in refs:
         assert f"references/{ref.name}" in body, ref.name
 
@@ -116,7 +116,7 @@ def test_command_is_thin_and_delegates():
     text = _text(_COMMAND)
     assert len(text.splitlines()) < 120
     assert "inline-visualization" in text
-    for scope in ("`chart`", "`diagram`", "`auto`"):
+    for scope in ("`chart`", "`diagram`", "`diff`", "`auto`"):
         assert scope in text, scope
     assert "never fabricate sample data" in text.lower()
     assert "never installs a dependency" in text.lower()

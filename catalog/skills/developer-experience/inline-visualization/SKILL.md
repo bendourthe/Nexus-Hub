@@ -53,7 +53,7 @@ Apply the intake rules and the numeric limits in `references/data-intake.md`. In
 
 ### 3. Choose the chart form from the data shape
 
-Read the shape before choosing: one categorical column and one measure is a bar chart; a time or ordered axis with a measure is a line; two measures is a scatter; one measure's spread is a distribution; steps with order are a flow; nodes and edges are a dependency graph; components and their connections are an architecture diagram. If the user named a form, use it unless the data cannot support it, and say why.
+Read the shape before choosing: one categorical column and one measure is a bar chart; a time or ordered axis with a measure is a line; two measures is a scatter; one measure's spread is a distribution; steps with order are a flow; nodes and edges are a dependency graph; components and their connections are an architecture diagram. If the user named a form, use it unless the data cannot support it, and say why. To explain a change set (`/visualize diff`), follow `references/diff-explanation.md`: it maps a diff to a changed-modules dependency graph.
 
 ### 4. Pick the lowest eligible rung
 
