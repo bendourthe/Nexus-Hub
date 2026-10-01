@@ -42,7 +42,7 @@ from .test_completion_minor_record import (  # noqa: F401  (autouse fixture re-e
     SESSION,
     _no_transport_overrides,
 )
-from .test_gap_migration_and_archive import BG2, CLOSE, GAPS05, LINK_CHECKER, V05, WN3, Close, ledger, section
+from .test_gap_migration_and_archive import BG2, GAPS05, LINK_CHECKER, V05, WN3, Close, ledger, section
 from .test_run_plan import Env
 
 REPO_ROOT = Path(__file__).resolve().parents[2]

@@ -35,6 +35,7 @@ import argparse
 import datetime as dt
 import hashlib
 import hmac
+import importlib
 import json
 import os
 import re
@@ -1072,7 +1073,7 @@ def _cleanup_merged_status(ctx: Context, record: dict, repo: str, branch: str) -
         return "unmet"
     merge = (data.get("mergeCommit") or {}).get("oid") if isinstance(data.get("mergeCommit"), dict) else None
     try:
-        import cleanup_merged  # a sibling in ~/.nexus-hub/scripts/, imported only when needed
+        cleanup_merged = _sibling("cleanup_merged")  # call-time only: it imports this module
     except ImportError:
         return "cannot-verify"
     target = str((record.get("approvals") or {}).get("target_branch") or "develop")
@@ -1257,11 +1258,21 @@ def _consume(
     return pending, bound
 
 
+def _sibling(name: str) -> ModuleType:
+    """Import sibling script `name` at call time.
+
+    Layering is one-way: siblings such as `completion_minor` and `cleanup_merged`
+    import this module, so this module never imports them statically (that would be
+    an import cycle). Both layouts resolve the plain name, because this file puts its
+    own directory on `sys.path`: the flat `~/.nexus-hub/scripts/` install and the
+    repository's `scripts/` directory alike.
+    """
+    return importlib.import_module(name)
+
+
 def _minor_module() -> ModuleType:
     """The minor-scope sibling, imported only when a minor scope is named."""
-    import completion_minor  # installed as a sibling in ~/.nexus-hub/scripts/
-
-    return completion_minor
+    return _sibling("completion_minor")
 
 
 def _scoped(args: argparse.Namespace) -> bool:

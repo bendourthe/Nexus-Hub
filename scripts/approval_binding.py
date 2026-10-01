@@ -84,8 +84,12 @@ def restrict(path: Path, directory: bool) -> None:
     """
     try:
         os.chmod(path, 0o700 if directory else 0o600)
-    except OSError:
-        pass
+    except PermissionError:
+        # Deliberately ignored: a path this user does not own (a shared parent such as
+        # the runs directory's parent) or a Windows ACL that refuses the POSIX bits. The
+        # file keeps its inherited, owner-scoped permissions, so nothing is exposed;
+        # any other OSError (a missing path, a read-only volume) still propagates.
+        return
 
 
 def canonical(obj: object) -> bytes:

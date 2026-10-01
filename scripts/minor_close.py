@@ -486,8 +486,7 @@ def _insert_entry(text: str, version: str, item: cm.GapItem, gid: str, body: str
         )
         if cat_at is None:
             text = text[:open_end] + f"#### {category or item.kind}" + nl + nl + text[open_end:]
-            cat_at = open_end
-            open_end = _block_end(text, open_at, 3)
+            cat_at = open_end  # the new category ends where Open Items did: at the next `###`
         insert_at = _block_end(text, cat_at, 4)
     before = text[:insert_at]
     if before and not before.endswith(nl + nl):
