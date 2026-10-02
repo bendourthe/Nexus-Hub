@@ -299,6 +299,10 @@ def translate_copilot_payload(payload: dict[str, Any], event: str) -> dict[str, 
         ("cwd", "cwd"),
         ("transcriptPath", "transcript_path"),
         ("transcript_path", "transcript_path"),
+        # v4.13.7: usage-guard needs VS Code's ISO `timestamp` for its Copilot
+        # signature and `stop_hook_active` to bound its turn-end continuation.
+        ("timestamp", "timestamp"),
+        ("stop_hook_active", "stop_hook_active"),
     ):
         if source in payload and target not in translated:
             translated[target] = payload[source]
@@ -425,6 +429,13 @@ def translate_child_result(
         context = child.get("additionalContext")
         if isinstance(context, str) and context:
             output["additionalContext"] = context
+            # Copilot CLI reads the top-level field; VS Code Local hooks read
+            # hookSpecificOutput (hooks reference, PostToolUse output, 2026-10-01).
+            if event == "PostToolUse":
+                output["hookSpecificOutput"] = {
+                    "hookEventName": event,
+                    "additionalContext": context,
+                }
         return output, 0
 
     return payload, returncode

@@ -140,6 +140,17 @@ A blocker whose question the frozen approvals already answer is rejected at writ
 
 `/implement pause` writes a user-origin `pause` entry (subject to the approval-origin rule, so the user pastes the rendered pause line) and is always honored; the checker then reports `PAUSED`. `/implement <plan>` resumes: the upfront round shows any open blocker and the pause, records the user's pasted answer or resume line as an approval, and clears them.
 
+### Usage-limit handoff
+
+This contract is the single owner of how the turn-end gate treats a usage-limit handoff (v4.13.7). The `usage-guard` hook and the `session-handoff` skill only produce the evidence.
+
+On a turn end the gate allows the stop, counts no refusal, writes no blocker, and leaves the record unchanged (never complete, never paused) only when both hold:
+
+1. The repository's `.nexus-hub/handoff.md`, found by walking up to the git root, has a first line `# Handoff | TIMESTAMP | PLATFORM | usage-limit WINDOW PERCENT` whose timestamp is later than the gate's last refusal for this session (or, before any refusal, the record's `created`).
+2. The usage probe (`_usage_probe.py`, through `usage-guard`'s platform detection) reports `ok`, or `stale` under 30 minutes, with a tracked window at or over `NEXUS_HANDOFF_THRESHOLD` (default 99).
+
+The gate then prints one line on stderr saying the run stopped for a usage-limit handoff and resumes when the user pastes the handoff prompt. The run resumes through `/implement <plan>` as usual. When the probe is unavailable or below the threshold, the platform is unrecognized, or either module is missing, the gate behaves exactly as before, so writing a handoff file alone never releases a run. The gate loads `usage-guard.py` and `_usage_probe.py` only from the calling hook's own directory (`NEXUS_GATE_HOOK_DIR`, set by the adapter) and never from inside the repository, so a workspace-scoped install, whose hooks live in the repository, never takes this exception. A process with the user's file access could still write a probe cache under `~/.nexus-hub/state/usage-probe/`; that residual is the same home-directory boundary as the threat model above.
+
 ### Hook-owned state
 
 The refusal counter and the last progress score live beside the record at `~/.nexus-hub/runs/<key>.gate.json`, never inside it, so writing them never invalidates the HMAC.

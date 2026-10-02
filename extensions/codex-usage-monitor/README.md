@@ -72,6 +72,7 @@ Open the Command Palette (`Ctrl+Shift+P`) and search:
 | `Codex Usage: Recommend` | View recommendation and tips |
 | `Codex Usage: Clear Data` | Reset all stored usage data |
 | `Codex Usage: Settings` | Open the thresholds and colors settings panel |
+| `Codex Usage: Save Raw Usage Response` | Save one redacted copy of the usage response under the extension's global storage (opt-in; see below) |
 
 ### Settings
 
@@ -85,6 +86,8 @@ Open Settings (`Ctrl+,`) and search "Codex Usage":
 | `codexUsage.showInStatusBar` | `true` | Show/hide the status bar item |
 | `codexUsage.thresholds.*` | `50` / `75` / `95` | Moderate / High / Critical urgency thresholds |
 | `codexUsage.thresholdMetric` | `highest` | Which metric the thresholds evaluate against |
+
+The thresholds and colors are application-scoped: they are read from your user settings only, so a workspace's `.vscode/settings.json` cannot change them. `refreshInterval` is clamped to 1-120 minutes.
 
 ## How It Works
 
@@ -117,6 +120,18 @@ Codex has no cheaper model tier to switch to, so recommendations are framed as p
 | 95-100% | Critical | Wait for the reset, or rotate to another Codex account |
 
 The thresholds (50 / 75 / 95) and the per-bucket guidance can be customized in `Codex Usage: Settings`. Notifications auto-dismiss after `codexUsage.notificationTimeoutSeconds` (default 12 seconds) so they never stack while VS Code is in the background.
+
+### Limit Resets
+
+ChatGPT can grant a one-time reset of your usage limits. When the usage response reports one, the dashboard shows a **Limit Resets** row, for example "1 reset available", with an **Open reset page** button. The button opens the ChatGPT usage page, where you press ChatGPT's own reset button, and the dashboard refreshes once a minute later so it catches up. With no reset available the row reads "No reset available" and the button is disabled. When the response carries no reset field at all, the dashboard shows nothing about resets.
+
+The monitor never uses a reset. A reset is a one-time, expiring credit, and spending it is your decision on ChatGPT's page; no command, button, or setting here sends a request that uses one.
+
+The usage response reports a reset count only (`rate_limit_reset_credits.available_count` and `applicable_available_count`), not the reset's kind or expiry date, so the dashboard shows the count and no date. ChatGPT's own page shows the expiry.
+
+### Save Raw Usage Response
+
+`Codex Usage: Save Raw Usage Response` sends the same single request as a refresh and writes `raw-usage-response.json` under the extension's VS Code global storage. Keys, numbers, booleans, dates, and short lowercase words such as a plan type are kept; every other string, any value under an id-, name-, email-, account-, or secret-shaped key (in snake_case or camelCase), and any key that itself looks like an id or an email are replaced with placeholders. Nothing is uploaded. It runs only when you invoke it, and it exists so a maintainer can check which fields ChatGPT serves without asking for anything identifying.
 
 ## Data Storage
 

@@ -7,6 +7,8 @@ import {
   ClaudeUsageProvider,
   describeProviderError,
 } from "./providers";
+import { USAGE_API_URL } from "./providers/claude";
+import { saveRawUsageResponse } from "./rawUsageResponse";
 import { DashboardPanel } from "./dashboardPanel";
 import { WarningViewProvider, WARNING_VIEW_ID, WARNING_ACTIVE_CONTEXT } from "./warningView";
 import { getRecommendation, getActiveUrgency, pickTriggerMetric, buildUsageSuggestion, classifyUrgency } from "./recommendations";
@@ -51,6 +53,7 @@ const RESET_COMMAND = "claude-usage.reset";
 const DASHBOARD_COMMAND = "claude-usage.dashboard";
 const REFRESH_COMMAND = "claude-usage.refresh";
 const SETTINGS_COMMAND = "claude-usage.settings";
+const SAVE_RAW_COMMAND = "claude-usage.saveRawResponse";
 
 let consecutiveFailures = 0;
 let lastFetchError: ProviderFetchError | undefined;
@@ -208,6 +211,26 @@ export function activate(context: vscode.ExtensionContext): void {
     DashboardPanel.revealSettings();
   });
 
+  // Command: Save Raw Usage Response (opt-in, local only). Sends the same
+  // requests as a refresh and writes a redacted copy under global storage.
+  const saveRawCommand = vscode.commands.registerCommand(SAVE_RAW_COMMAND, async () => {
+    const result = await provider.fetchRawUsage();
+    if (!result.success) {
+      void vscode.window.showWarningMessage(
+        `Claude Usage: could not read the usage response - ${describeProviderError(result.error)}`,
+      );
+      return;
+    }
+    const file = saveRawUsageResponse(context.globalStorageUri.fsPath, USAGE_API_URL, result.raw);
+    const action = await vscode.window.showInformationMessage(
+      `Claude Usage: saved a redacted copy of the usage response to ${file}. Nothing was sent anywhere.`,
+      "Open File",
+    );
+    if (action === "Open File") {
+      await vscode.window.showTextDocument(vscode.Uri.file(file));
+    }
+  });
+
   // Command: Clear stored data
   const resetCommand = vscode.commands.registerCommand(RESET_COMMAND, async () => {
     const confirm = await vscode.window.showWarningMessage(
@@ -276,6 +299,7 @@ export function activate(context: vscode.ExtensionContext): void {
     recommendCommand,
     resetCommand,
     settingsCommand,
+    saveRawCommand,
     configWatcher,
     { dispose: () => statusBar.dispose() },
   );

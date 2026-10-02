@@ -1,3 +1,4 @@
+import * as crypto from "crypto";
 import * as vscode from "vscode";
 import { UsageData, formatModelName } from "./types";
 import { formatResetLabel, nextMonthlyResetLabel } from "./usageStore";
@@ -8,7 +9,7 @@ import {
   buildUsageSuggestion,
 } from "./recommendations";
 import {
-  DraftState,
+  parseDraft,
   currentSettings,
   saveSettings,
   resetSettings,
@@ -39,7 +40,13 @@ export class DashboardPanel {
     this.panel.onDidDispose(() => this.dispose(), null, this.disposables);
 
     this.panel.webview.onDidReceiveMessage(
-      async (message: { command: string; draft?: DraftState }) => {
+      async (raw: unknown) => {
+        // The webview is untrusted input: accept only known commands, and only
+        // a fully valid settings draft.
+        if (raw == null || typeof raw !== "object" || typeof (raw as { command?: unknown }).command !== "string") {
+          return;
+        }
+        const message = raw as { command: string; draft?: unknown };
         switch (message.command) {
           case "refresh":
             this.panel.webview.postMessage({ command: "setLoading" });
@@ -52,7 +59,11 @@ export class DashboardPanel {
             // Persist the inline settings form. The extension's config watcher
             // re-renders this dashboard; we also echo the stored values back so
             // the form reflects them immediately.
-            const persisted = await saveSettings(message.draft as DraftState);
+            const draft = parseDraft(message.draft);
+            if (!draft) {
+              break;
+            }
+            const persisted = await saveSettings(draft);
             this.panel.webview.postMessage({ command: "loadSettings", settings: persisted });
             break;
           }
@@ -153,7 +164,7 @@ export class DashboardPanel {
       ? `<div class="error-banner">
           <span class="error-icon">&#9888;</span>
           <span>${escapeHtml(describeProviderError(this.fetchError!))}</span>
-          <button onclick="send('refresh')" class="retry-btn">Retry</button>
+          <button data-command="refresh" class="retry-btn">Retry</button>
         </div>`
       : "";
 
@@ -168,7 +179,7 @@ export class DashboardPanel {
           <h2>No Usage Data</h2>
           <p>${escapeHtml(emptyMessage)}</p>
           <div class="actions">
-            <button id="refreshBtn" onclick="send('refresh')">Fetch Now</button>
+            <button id="refreshBtn" data-command="refresh">Fetch Now</button>
           </div>
         </div>
       `);
@@ -234,9 +245,9 @@ export class DashboardPanel {
       <div class="divider"></div>
 
       <div class="actions">
-        <button id="refreshBtn" onclick="send('refresh')">Refresh Now</button>
-        <button onclick="send('openUsagePage')" class="secondary">Open Usage Page</button>
-        <button onclick="toggleSettings()" class="icon-btn" title="Settings" aria-label="Settings">
+        <button id="refreshBtn" data-command="refresh">Refresh Now</button>
+        <button data-command="openUsagePage" class="secondary">Open Usage Page</button>
+        <button data-click="toggleSettings" class="icon-btn" title="Settings" aria-label="Settings">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
             <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.687.706-1.99 1.99l.169.31a1.464 1.464 0 0 1-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.697 1.283.707 2.687 1.99 1.99l.311-.17a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.687-.706 1.99-1.99l-.169-.31a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.697-1.283-.707-2.687-1.99-1.99l-.311.17a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/>
           </svg>
@@ -261,10 +272,15 @@ export class DashboardPanel {
   }
 
   private wrapHtml(body: string): string {
+    // A nonce-gated Content-Security-Policy: no inline handlers, no other
+    // script, no network. Inline style attributes stay allowed for the bars.
+    const nonce = crypto.randomBytes(16).toString("base64");
+    const csp = `default-src 'none'; style-src ${this.panel.webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}';`;
     return `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="${csp}">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
@@ -461,7 +477,7 @@ export class DashboardPanel {
 </head>
 <body>
   ${body}
-  <script>
+  <script nonce="${nonce}">
     const vscode = acquireVsCodeApi();
     function send(command) {
       vscode.postMessage({ command });

@@ -27,6 +27,7 @@ import argparse
 import hashlib
 import hmac
 import json
+import math
 import os
 import re
 import sys
@@ -1214,7 +1215,7 @@ def parse_ledger_full(text: str) -> tuple[list[GapItem], list[str]]:
             subsection=subsection, level=level, start=start, heading_end=start + text_end,
             end=end, body=text[body_start:end],
         ))
-    section = subsection = ""
+    subsection = ""
     for index, raw in enumerate(lines):
         if mask[index] or index in item_lines:
             continue
@@ -1768,7 +1769,7 @@ def check_minor_seconds() -> float:
         requested = float(os.environ.get("NEXUS_CHECK_MINOR_BUDGET_SECONDS", CHECK_MINOR_TOTAL_SECONDS))
     except ValueError:
         return CHECK_MINOR_TOTAL_SECONDS
-    if requested != requested:  # NaN
+    if math.isnan(requested):
         return CHECK_MINOR_TOTAL_SECONDS
     return min(CHECK_MINOR_TOTAL_SECONDS, max(1.0, requested))
 

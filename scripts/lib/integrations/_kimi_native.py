@@ -48,6 +48,10 @@ parses and re-emits the user's TOML. It only splices one region. The result is
 parsed with ``tomllib`` before it is committed, and a parse failure rolls the
 write back, so a merge can never leave Kimi with a config it refuses to load.
 
+``usage-guard`` (v4.13.7) is delivered here from ``settings.json`` and stays
+silent: a Kimi payload (``session_title`` plus ``client_type``) is recognized and
+ignored, because Kimi has no usage source the probe can read.
+
 This module is stdlib-only and makes no outbound calls.
 """
 

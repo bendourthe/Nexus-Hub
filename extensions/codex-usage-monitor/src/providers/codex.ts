@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
 import * as vscode from "vscode";
-import { CreditUsageInfo, UsageMetric, UsageMetricRow, UNTRACKED_METRIC, isTracked } from "../types";
+import { CreditUsageInfo, UsageMetric, UsageMetricRow, UsageResets, UNTRACKED_METRIC, isTracked } from "../types";
 import { formatResetTime, nextMonthlyResetAt } from "../usageStore";
 import {
   UsageProvider,
@@ -14,7 +14,8 @@ import {
   CredentialFailureReason,
 } from "./types";
 
-const CODEX_USAGE_URL = "https://chatgpt.com/backend-api/wham/usage";
+/** The only URL this extension sends a request to. */
+export const CODEX_USAGE_URL = "https://chatgpt.com/backend-api/wham/usage";
 const REQUEST_TIMEOUT_MS = 30_000;
 
 /**
@@ -442,6 +443,43 @@ function readExtraCredits(payload: Record<string, unknown>, nowMs: number): Cred
   return undefined;
 }
 
+/** A count as served: a finite integer of 0 or more, else undefined. */
+function resetCount(value: unknown): number | undefined {
+  return typeof value === "number" && Number.isInteger(value) && value >= 0 ? value : undefined;
+}
+
+let malformedResetsLogged = false;
+
+/**
+ * Read `rate_limit_reset_credits` (recorded 2026-10-01 from a live response, see
+ * v4.13.7-decisions.md "Usage-limit resets"). It carries two counts and nothing
+ * else: `available_count` and `applicable_available_count`. The applicable
+ * count is used whenever its key is present, because it is the stricter of the
+ * two; `available_count` is read only when that key is absent, so a malformed
+ * stricter count never falls back to the looser one. Absent means not reported
+ * (undefined, no reset row). A present but malformed value is treated the same
+ * way and logged once; a count is never guessed.
+ */
+export function readResets(payload: Record<string, unknown>): UsageResets | undefined {
+  if (!("rate_limit_reset_credits" in payload) || payload.rate_limit_reset_credits == null) {
+    return undefined;
+  }
+  const rec = asRecord(payload.rate_limit_reset_credits);
+  const available = rec
+    ? "applicable_available_count" in rec
+      ? resetCount(rec.applicable_available_count)
+      : resetCount(rec.available_count)
+    : undefined;
+  if (available === undefined) {
+    if (!malformedResetsLogged) {
+      malformedResetsLogged = true;
+      console.warn("Codex Usage: rate_limit_reset_credits has an unrecognized shape; reset availability is hidden.");
+    }
+    return undefined;
+  }
+  return { available };
+}
+
 /**
  * Map a raw `wham/usage` payload onto the normalized {@link UsageModel}. Verified
  * against the live endpoint (2026-07): the two windows are nested under
@@ -498,6 +536,7 @@ export function mapCodexUsageResponse(raw: unknown): UsageModel | null {
   );
   const creditsSummary = formatCreditsSummary(payload.credits ?? payload.credit_balance);
   const extraCredits = readExtraCredits(payload, now);
+  const resets = readResets(payload);
 
   return {
     session,
@@ -509,6 +548,7 @@ export function mapCodexUsageResponse(raw: unknown): UsageModel | null {
     ...(additionalLimits.length > 0 ? { additionalLimits } : {}),
     ...(creditsSummary ? { creditsSummary } : {}),
     ...(extraCredits ? { extraCredits } : {}),
+    ...(resets ? { resets } : {}),
   };
 }
 
@@ -546,14 +586,30 @@ export class CodexUsageProvider implements UsageProvider {
     return result.ok ? { ok: true } : { ok: false, reason: result.reason };
   }
 
-  private fail(code: ProviderFetchErrorCode, extra?: Partial<ProviderFetchError>): ProviderFetchResult {
+  private fail(code: ProviderFetchErrorCode, extra?: Partial<ProviderFetchError>): { success: false; error: ProviderFetchError } {
     return { success: false, error: { code, ...extra } };
   }
 
   async fetchUsage(_currentModel?: string): Promise<ProviderFetchResult> {
     // Codex usage is account-wide; there is no per-model dimension to pass.
     void _currentModel;
+    const raw = await this.fetchRawUsage();
+    if (!raw.success) {
+      return raw;
+    }
+    const model = mapCodexUsageResponse(raw.raw);
+    if (!model) {
+      return this.fail("usage-unavailable");
+    }
+    return { success: true, data: model };
+  }
 
+  /**
+   * The single `wham/usage` GET, returning the decoded body unmapped. Used by
+   * {@link fetchUsage} and by the opt-in "Save Raw Usage Response" command, so
+   * both send exactly the same request.
+   */
+  async fetchRawUsage(): Promise<{ success: true; raw: unknown } | { success: false; error: ProviderFetchError }> {
     const read = this.readCodexCredential();
     if (!read.ok) {
       return this.fail(read.reason === "missing" ? "no-credentials" : "invalid-credentials");
@@ -596,13 +652,8 @@ export class CodexUsageProvider implements UsageProvider {
     try {
       raw = await response.json();
     } catch {
-      return this.fail("usage-unavailable");
+      return { success: false, error: { code: "usage-unavailable" } };
     }
-
-    const model = mapCodexUsageResponse(raw);
-    if (!model) {
-      return this.fail("usage-unavailable");
-    }
-    return { success: true, data: model };
+    return { success: true, raw };
   }
 }

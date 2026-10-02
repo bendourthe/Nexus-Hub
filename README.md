@@ -6,7 +6,7 @@
 
 <!-- nexus-hub-version: 4.13.6 -->
 
-Nexus-Hub is the upstream skill catalog for AI coding assistants: 338 skills, 19 commands, 37 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
+Nexus-Hub is the upstream skill catalog for AI coding assistants: 339 skills, 20 commands, 36 registered hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
 ## Interactive Guide -- start here
 
@@ -30,7 +30,7 @@ Nexus-Hub is the upstream skill catalog for AI coding assistants: 338 skills, 19
 
 Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of the same idea, split along a deliberate seam.
 
-- **Nexus-Hub (this repo)** is the catalog: 338 curated skills, 19 commands, 37 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`) and the local `nexus-memory` CLI store. It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
+- **Nexus-Hub (this repo)** is the catalog: 339 curated skills, 20 commands, 36 registered hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`) and the local `nexus-memory` CLI store. It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
@@ -454,7 +454,7 @@ That is the whole setup -- no prompts. The installer prechecks its dependencies 
 
 After the installer completes:
 
-- **Globally**: your user profile has all 338 skills, 19 commands, 37 hooks, 23 agents, plus Gemini and Codex instructions.
+- **Globally**: your user profile has all 339 skills, 20 commands, 36 registered hooks, 23 agents, plus Gemini and Codex instructions.
 - **Locally**: your project has `copilot-instructions.md` and `AGENTS.md` tailored to your language.
 
 **Power-user flags**: `--workspace <path>` installs into a single repo instead of globally; `--platforms <comma-list>` limits the install to a subset of assistants; `--yes` runs fully unattended (refreshes managed files with no prompt -- ideal for CI). Prefer to clone first? `git clone` the repo and run `./install.sh` (macOS / Linux) or `install.bat` (Windows) -- the in-repo path still works exactly as before.
@@ -737,13 +737,14 @@ Installed automatically by the Nexus-Hub installer. Requires `curl` and `jq`.
 
 ### VS Code and Cursor Extensions
 
-Monitor your AI coding usage from the editor status bar with a full dashboard. Three separate, independently-installable extensions - one per tool - that install and run side by side:
+Monitor your AI coding usage from the editor status bar with a full dashboard. Four separate, independently-installable extensions - one per tool - that install and run side by side:
 
 - **Claude Usage Monitor** (`nexus-hub.claude-usage-monitor`): Claude Code (Anthropic) session and weekly limits, with model and effort recommendations. See [extensions/claude-usage-monitor/](extensions/claude-usage-monitor/).
-- **Codex Usage Monitor** (`nexus-hub.codex-usage-monitor`): Codex (ChatGPT / OpenAI) usage, with the plan tier, extra rate-limit windows, a credits line, and throttle / pacing recommendations (periwinkle `#5244BB` progress bars). See [extensions/codex-usage-monitor/](extensions/codex-usage-monitor/).
+- **Codex Usage Monitor** (`nexus-hub.codex-usage-monitor`): Codex (ChatGPT / OpenAI) usage, with the plan tier, extra rate-limit windows, a credits line, and throttle / pacing recommendations (periwinkle `#5244BB` progress bars). When ChatGPT reports a one-time limit reset on the account, the dashboard shows it with an **Open reset page** button that opens the ChatGPT usage page; the monitor never uses the reset itself. See [extensions/codex-usage-monitor/](extensions/codex-usage-monitor/).
+- **Copilot Usage Monitor** (`nexus-hub.copilot-usage-monitor`): GitHub Copilot usage with teal `#0E8A85` progress bars. On a personal plan it shows the monthly quota as a percentage; on a Business or Enterprise seat without billing access it shows credits used and no percentage, because GitHub sets no personal limit; once an owner or billing manager connects a read-only organization token it shows the organization's shared AI-credit pool. See [extensions/copilot-usage-monitor/](extensions/copilot-usage-monitor/).
 - **Cursor Usage Monitor** (`nexus-hub.cursor-usage-monitor`): personal Cursor Models and Other Models included-usage meters with on-demand spend context (steel-blue `#4682B4` progress bars), for the Cursor IDE only. This release ships with live fetch disabled entirely - cached or manually-entered dashboard values drive the UI until a bounded, authorized session-reuse probe verifies a safe live path. See [extensions/cursor-usage-monitor/](extensions/cursor-usage-monitor/).
 
-Each shows usage in the status bar with a theme-aware hover and a full dashboard, and makes at most a single outbound call only to your own account. Each reads a usage figure its vendor actually serves, rather than reconstructing one: the Claude and Codex monitors read your local OAuth token and query the vendor's own usage endpoint. None of them scrape a billing website or read browser cookies. A fourth monitor for GitHub billing was withdrawn in v3.18.2 because GitHub serves no such figure and the reconstruction could not be made reliable; see the decision record for the full reasoning. The installer isolates extensions by editor host: the Claude and Codex monitors install only through the VS Code CLI, and the Cursor monitor installs only through the Cursor CLI - never cross-installed. Install any one alone by pointing `code --install-extension` (or `cursor --install-extension`) at its VSIX.
+Each shows usage in the status bar with a theme-aware hover and a full dashboard, and calls only its own vendor's API, for your own account (the Copilot monitor adds two organization reads when an organization is connected). Each reads a usage figure its vendor actually serves, rather than reconstructing one: the Claude and Codex monitors read your local OAuth token and query the vendor's own usage endpoint, and the Copilot monitor uses the GitHub account VS Code has signed in for it. None of them scrape a billing website or read browser cookies. An earlier monitor for GitHub Actions billing was withdrawn in v3.18.2 because GitHub serves no such figure and the reconstruction could not be made reliable; see the decision record for the full reasoning. The Copilot monitor does not repeat that problem, because GitHub serves every figure it shows. The installer isolates extensions by editor host: the Claude, Codex, and Copilot monitors install only through the VS Code CLI, and the Cursor monitor installs only through the Cursor CLI - never cross-installed. Install any one alone by pointing `code --install-extension` (or `cursor --install-extension`) at its VSIX.
 
 ### `/usage` Command
 

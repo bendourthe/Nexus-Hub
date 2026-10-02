@@ -1,5 +1,6 @@
+import * as crypto from "crypto";
 import * as vscode from "vscode";
-import { UsageData, isTracked } from "./types";
+import { UsageData, UsageResets, isTracked } from "./types";
 import { formatCreditUsageLine, formatResetLabel } from "./usageStore";
 import { ProviderFetchError, describeProviderError } from "./providers";
 import {
@@ -8,7 +9,7 @@ import {
   buildUsageSuggestion,
 } from "./recommendations";
 import {
-  DraftState,
+  parseDraft,
   currentSettings,
   saveSettings,
   resetSettings,
@@ -20,6 +21,8 @@ import {
 export interface DashboardCallbacks {
   onRefresh: () => void;
   onOpenUsagePage: () => void;
+  /** Opens the ChatGPT usage page, where the user presses the reset button; never calls an API. */
+  onOpenResetPage: () => void;
 }
 
 export class DashboardPanel {
@@ -39,7 +42,13 @@ export class DashboardPanel {
     this.panel.onDidDispose(() => this.dispose(), null, this.disposables);
 
     this.panel.webview.onDidReceiveMessage(
-      async (message: { command: string; draft?: DraftState }) => {
+      async (raw: unknown) => {
+        // The webview is untrusted input: accept only known commands, and only
+        // a fully valid settings draft.
+        if (raw == null || typeof raw !== "object" || typeof (raw as { command?: unknown }).command !== "string") {
+          return;
+        }
+        const message = raw as { command: string; draft?: unknown };
         switch (message.command) {
           case "refresh":
             this.panel.webview.postMessage({ command: "setLoading" });
@@ -48,11 +57,21 @@ export class DashboardPanel {
           case "openUsagePage":
             this.callbacks.onOpenUsagePage();
             break;
+          case "openResetPage":
+            // The button is disabled without a reset; a forged message is ignored too.
+            if (resetAvailable(this.data?.resets)) {
+              this.callbacks.onOpenResetPage();
+            }
+            break;
           case "save": {
             // Persist the inline settings form. The extension's config watcher
             // re-renders this dashboard; we also echo the stored values back so
             // the form reflects them immediately.
-            const persisted = await saveSettings(message.draft as DraftState);
+            const draft = parseDraft(message.draft);
+            if (!draft) {
+              break;
+            }
+            const persisted = await saveSettings(draft);
             this.panel.webview.postMessage({ command: "loadSettings", settings: persisted });
             break;
           }
@@ -144,6 +163,11 @@ export class DashboardPanel {
     DashboardPanel.currentPanel?.panel.webview.postMessage({ command: "openSettings" });
   }
 
+  /** The rendered document, exposed for tests. */
+  static currentHtml(): string | undefined {
+    return DashboardPanel.currentPanel?.panel.webview.html;
+  }
+
   private getHtml(): string {
     const data = this.data;
 
@@ -157,7 +181,7 @@ export class DashboardPanel {
       ? `<div class="error-banner">
           <span class="error-icon">&#9888;</span>
           <span>${escapeHtml(describeProviderError(this.fetchError!))}</span>
-          <button onclick="send('refresh')" class="retry-btn">Retry</button>
+          <button data-command="refresh" class="retry-btn">Retry</button>
         </div>`
       : "";
 
@@ -172,8 +196,8 @@ export class DashboardPanel {
           <h2>No Usage Data</h2>
           <p>${escapeHtml(emptyMessage)}</p>
           <div class="actions">
-            <button id="refreshBtn" onclick="send('refresh')">Retry</button>
-            <button onclick="send('openUsagePage')" class="secondary">Open Usage Page</button>
+            <button id="refreshBtn" data-command="refresh">Retry</button>
+            <button data-command="openUsagePage" class="secondary">Open Usage Page</button>
           </div>
         </div>
       `);
@@ -240,6 +264,7 @@ export class DashboardPanel {
 
       ${additionalRows}
       ${creditsSection}
+      ${resetSection(data.resets)}
 
       <div class="divider"></div>
 
@@ -267,9 +292,9 @@ export class DashboardPanel {
       <div class="divider"></div>
 
       <div class="actions">
-        <button id="refreshBtn" onclick="send('refresh')">Refresh Now</button>
-        <button onclick="send('openUsagePage')" class="secondary">Open Usage Page</button>
-        <button onclick="toggleSettings()" class="icon-btn" title="Settings" aria-label="Settings">
+        <button id="refreshBtn" data-command="refresh">Refresh Now</button>
+        <button data-command="openUsagePage" class="secondary">Open Usage Page</button>
+        <button data-click="toggleSettings" class="icon-btn" title="Settings" aria-label="Settings">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
             <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.687.706-1.99 1.99l.169.31a1.464 1.464 0 0 1-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.697 1.283.707 2.687 1.99 1.99l.311-.17a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.687-.706 1.99-1.99l-.169-.31a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.697-1.283-.707-2.687-1.99-1.99l-.311.17a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/>
           </svg>
@@ -300,10 +325,15 @@ export class DashboardPanel {
   }
 
   private wrapHtml(body: string): string {
+    // A nonce-gated Content-Security-Policy: no inline handlers, no other
+    // script, no network. Inline style attributes stay allowed for the bars.
+    const nonce = crypto.randomBytes(16).toString("base64");
+    const csp = `default-src 'none'; style-src ${this.panel.webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}';`;
     return `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="${csp}">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
@@ -496,12 +526,30 @@ export class DashboardPanel {
     .empty-state .actions {
       justify-content: center;
     }
+    .reset-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-size: 13px;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+    .note {
+      font-size: 12px;
+      opacity: 0.8;
+      line-height: 1.4;
+      margin: 6px 0 0 0;
+    }
     ${settingsStylesCss()}
   </style>
 </head>
 <body>
   ${body}
-  <script>
+  <script nonce="${nonce}">
     const vscode = acquireVsCodeApi();
     function send(command) {
       vscode.postMessage({ command });
@@ -575,6 +623,36 @@ export class DashboardPanel {
  */
 function activeSuggestion(data: UsageData): string | null {
   return buildUsageSuggestion(data, pickTriggerMetric(data))?.message ?? null;
+}
+
+/** True only for a served, positive reset count. */
+function resetAvailable(resets: UsageResets | undefined): boolean {
+  return resets != null && resets.available > 0;
+}
+
+/**
+ * The "Limit Resets" row and its link button. Nothing renders when the response
+ * did not report resets. The button opens the ChatGPT usage page, where the user
+ * applies the reset; this extension never applies one.
+ */
+function resetSection(resets: UsageResets | undefined): string {
+  if (resets == null) {
+    return "";
+  }
+  const n = resets.available;
+  const text = n > 0 ? `${n} reset${n === 1 ? "" : "s"} available` : "No reset available";
+  const button = n > 0
+    ? `<button data-command="openResetPage" class="secondary" title="Use the reset on the ChatGPT usage page">Open reset page</button>`
+    : `<span title="No reset available"><button data-command="openResetPage" class="secondary" disabled aria-disabled="true">Open reset page</button></span>`;
+  return `
+      <div class="section">
+        <h3>Limit Resets</h3>
+        <div class="reset-row">
+          <span>${escapeHtml(text)}</span>
+          ${button}
+        </div>
+        <p class="note">This monitor never uses a reset. Press the reset button on the ChatGPT usage page; the dashboard refreshes a minute later.</p>
+      </div>`;
 }
 
 function escapeHtml(text: string): string {

@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { UsageData, UrgencyLevel, ColorConfig, getColorConfig, getThresholdConfig, WORKBENCH_COLOR_KEYS, syncActiveColorToWorkbench, isTracked } from "./types";
+import { UsageData, UrgencyLevel, ColorConfig, getColorConfig, getRefreshIntervalMinutes, getThresholdConfig, WORKBENCH_COLOR_KEYS, syncActiveColorToWorkbench, isTracked } from "./types";
 import { getActiveUrgency, pickTriggerMetric } from "./recommendations";
 import { UsageStore, formatCreditUsageLine, formatResetLabel } from "./usageStore";
 
@@ -153,8 +153,7 @@ export class StatusBarManager {
   }
 
   private isDataStale(data: UsageData): boolean {
-    const config = vscode.workspace.getConfiguration("codexUsage");
-    const intervalMinutes = config.get<number>("refreshInterval", 5);
+    const intervalMinutes = getRefreshIntervalMinutes();
     const staleThresholdMs = intervalMinutes * 2 * 60_000;
     return Date.now() - data.lastUpdated > staleThresholdMs;
   }
@@ -277,8 +276,7 @@ export class StatusBarManager {
    * still scales both paths.
    */
   private computeRefreshDelayMs(): number {
-    const config = vscode.workspace.getConfiguration("codexUsage");
-    const intervalMinutes = config.get<number>("refreshInterval", 10);
+    const intervalMinutes = getRefreshIntervalMinutes();
     const baseMs = intervalMinutes * 60_000 * this.backoffMultiplier;
 
     const data = this.store.getWithFreshCountdowns();

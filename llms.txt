@@ -141,3 +141,4 @@ data/workflows.json       18 goal-based workflow definitions
 data/bundles.json         11 role-based bundle definitions
 extensions/claude-usage-monitor/  VS Code extension: Claude Code usage monitoring
 extensions/codex-usage-monitor/   VS Code extension: Codex (ChatGPT) usage monitoring
+extensions/copilot-usage-monitor/ VS Code extension: GitHub Copilot usage monitoring

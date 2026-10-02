@@ -1,0 +1,16 @@
+.vscode/**
+node_modules/**
+coverage/**
+src/**
+icons/*.png
+fonts/*.ttf
+fonts/*.svg
+scripts/**
+tsconfig.json
+.fantasticonrc.json
+test/**
+vitest.config.ts
+vitest.config.mts
+.gitignore
+.npmrc
+**/*.map

@@ -32,6 +32,10 @@ docs/archive/v2/v2.2/antigravity-cli-probe.md):
 
 Residual CLI workflow and agent paths remain unverified. The adapter does not
 guess those destinations; a future official contract can enable them.
+
+``usage-guard`` (v4.13.7) is deliberately absent from the curated hook list:
+Antigravity has no usage source the probe can read, so the checkpoint rule and
+``/handoff`` cover it.
 """
 
 from __future__ import annotations

@@ -242,7 +242,7 @@ def test_installers_use_claude_usage_monitor_banner():
 
 
 # Every usage monitor the installers must build, in the vendor order both shells
-# present them (Anthropic, OpenAI for VS Code; Anysphere/Cursor last).
+# present them (Anthropic, OpenAI, Microsoft for VS Code; Anysphere/Cursor last).
 # Adding a monitor means adding a row here; the tests below then enforce presence
 # AND ordering in both shells, so a monitor cannot be wired into one installer
 # and forgotten in the other, and the two cannot drift out of order.
@@ -250,11 +250,14 @@ USAGE_MONITORS = (
     ("claude-usage-monitor", "nexus-hub.claude-usage-monitor", "Claude Usage Monitor"),
     ("codex-usage-monitor", "nexus-hub.codex-usage-monitor", "Codex Usage Monitor"),
     # The GitHub monitor was WITHDRAWN in v3.18.2; see RETIRED_EXTENSION_IDS below.
+    # The Copilot monitor (v4.13.7) reads Copilot's own served quota, not the
+    # Actions allowance the withdrawn monitor had to reconstruct.
+    ("copilot-usage-monitor", "nexus-hub.copilot-usage-monitor", "Copilot Usage Monitor"),
     ("cursor-usage-monitor", "nexus-hub.cursor-usage-monitor", "Cursor Usage Monitor"),
 )
 
-VS_CODE_USAGE_MONITORS = USAGE_MONITORS[:2]
-CURSOR_USAGE_MONITOR = USAGE_MONITORS[2]
+VS_CODE_USAGE_MONITORS = USAGE_MONITORS[:-1]
+CURSOR_USAGE_MONITOR = USAGE_MONITORS[-1]
 
 #: Extensions a previous release installed that the installers must now UNINSTALL.
 #: Unshipping alone is not enough: an extension already on a user's machine keeps
@@ -322,6 +325,26 @@ def test_installers_uninstall_retired_extensions_from_both_hosts():
         assert '"code", "cursor"' in body or "for cli in code cursor" in body, (
             f"{path.name} must sweep BOTH hosts for retired extensions"
         )
+
+
+def test_installers_never_retire_a_shipped_usage_monitor():
+    """No monitor the installers build may sit in a legacy uninstall list.
+
+    The retirement arrays remove ``nexus-hub.github-usage-monitor``. The Copilot
+    monitor shares its vendor, so an over-eager edit could add the new id there,
+    and the installer would then install it and remove it in the same run.
+    """
+    for path in (INSTALLER_SH, INSTALLER_PS1):
+        body = path.read_text(encoding="utf-8")
+        marker = "legacy_ids=(" if path is INSTALLER_SH else "$legacyIds = @("
+        start = body.index(marker)
+        array = body[start : body.index(")", start)]
+        for _, extension_id, _ in USAGE_MONITORS:
+            assert extension_id not in array, (
+                f"{path.name} lists the shipped {extension_id} in its legacy "
+                f"uninstall array"
+            )
+            assert extension_id not in RETIRED_EXTENSION_IDS
 
 
 def test_installers_agree_on_usage_monitor_order():
