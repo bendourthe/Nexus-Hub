@@ -513,9 +513,70 @@ def check_migratable(ck: ModuleType, root: Path, minor_classes: list[dict]) -> N
 _TITLE_RE = re.compile(r"^#\s+(.+?)\s*$", re.MULTILINE)
 _GOAL_RE = re.compile(r"^\*\*Goal\*\*:\s*(.+?)\s*$", re.MULTILINE)
 DISPLAY_GAPS = 50
+DISPLAY_PHASES = 40
+_PHASE_RE = re.compile(r"^## Phase (\d+):", re.MULTILINE)
+_TIER_RE = re.compile(r"^\*\*Recommended model tier\*\*:\s*`?([a-z]+)`?", re.MULTILINE)
+_EFFORT_RE = re.compile(r"^\*\*Recommended effort level\*\*:\s*`?([a-z]+)`?", re.MULTILINE)
+_OPEN_TASK_RE = re.compile(r"^- \[ \] T\d{3,}\b", re.MULTILINE)
+_SUMMARY_VERSION_RE = re.compile(r"^v\d+\.\d+\.\d+\Z", re.ASCII)
+_SUMMARY_SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,99}\Z", re.ASCII)
 
 
-def page_display(root: Path, scope: str, plans: list[tuple[str, str, str]], *, earlier: bool) -> dict:
+def plan_phases(version: str, text: str) -> list[dict]:
+    """Each `## Phase N:` section's recommended tier and effort and its open task count.
+
+    The values are raw tokens; the page renders only those that match its fixed
+    tier and effort lists, so no other plan text reaches the summary.
+    """
+    found = list(_PHASE_RE.finditer(text))
+    phases = []
+    for index, match in enumerate(found):
+        end = found[index + 1].start() if index + 1 < len(found) else len(text)
+        body = text[match.end():end]
+        tier, effort = _TIER_RE.search(body), _EFFORT_RE.search(body)
+        phases.append({
+            "version": version,
+            "phase": int(match.group(1)),
+            "tier": tier.group(1) if tier else "",
+            "effort": effort.group(1) if effort else "",
+            "tasks": len(_OPEN_TASK_RE.findall(body)),
+        })
+    return phases
+
+
+def summary_input(ck: ModuleType, root: Path, path: str | None) -> dict:
+    """The agent's `--summary` file: plain outcome bullets and the parallel-plan check.
+
+    `{"outcomes": [str, ...], "parallel": {"checked": bool, "plans": [{"version",
+    "slug"}]}}`. The page validates every outcome before showing it; here each named
+    parallel plan must exist as a plan file, so the page never names a plan that is
+    not there. No file means the summary says the parallel check was not run.
+    """
+    if not path:
+        return {}
+    try:
+        data = json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        raise ck.Malformed(f"--summary is not a readable JSON file: {exc}") from None
+    if not isinstance(data, dict) or not set(data) <= {"outcomes", "parallel"}:
+        raise ck.Malformed("--summary holds only outcomes and parallel")
+    parallel = data.get("parallel") or {"checked": False, "plans": []}
+    plans = parallel.get("plans") if isinstance(parallel, dict) else None
+    if not isinstance(plans, list) or not isinstance(parallel.get("checked"), bool):
+        raise ck.Malformed("--summary parallel needs checked (true or false) and a plans list")
+    for entry in plans:
+        version = str((entry or {}).get("version", "")) if isinstance(entry, dict) else ""
+        slug = str(entry.get("slug", "")) if isinstance(entry, dict) else ""
+        if not _SUMMARY_VERSION_RE.match(version) or not _SUMMARY_SLUG_RE.match(slug):
+            raise ck.Malformed("--summary parallel plans need a vX.Y.Z version and a plain slug")
+        if not any((root / "docs").glob(f"**/plans/{version}-{slug}.md")):
+            raise ck.Malformed(f"--summary names {version}-{slug}, which is not a plan file")
+    return {"outcomes": data.get("outcomes") or [], "parallel": {"checked": parallel["checked"], "plans": plans}}
+
+
+def page_display(
+    root: Path, scope: str, plans: list[tuple[str, str, str]], *, earlier: bool, summary: dict | None = None
+) -> dict:
     """What the approval page shows beside the hashed page, never bound by the code.
 
     `plans` is (version, repository-relative path, plan text) per member. Gap counts
@@ -523,8 +584,9 @@ def page_display(root: Path, scope: str, plans: list[tuple[str, str, str]], *, e
     earlier minor too (a minor run's gap scope). Titles and goals are raw text: the
     page renders them only as quoted data in its details list.
     """
-    shown = []
+    shown, phases = [], []
     for version, rel, text in plans:
+        phases += plan_phases(version, text)
         title = _TITLE_RE.search(text)
         goal = _GOAL_RE.search(text)
         shown.append({"version": version, "path": rel, "title": title.group(1) if title else "",
@@ -548,6 +610,8 @@ def page_display(root: Path, scope: str, plans: list[tuple[str, str, str]], *, e
         "gap_counts": counts,
         "gaps": gaps[:DISPLAY_GAPS],
         "gaps_unreadable": bool(unreadable) or any(l.problems for l in ledgers),
+        "phases": phases[:DISPLAY_PHASES],
+        **(summary or {}),
     }
 
 
@@ -782,7 +846,8 @@ def cmd_record_render(ck: ModuleType, args: argparse.Namespace) -> int:
             return found
         page = create_page(ck, rctx, token, spec, *found)
         display = page_display(
-            rctx.root, token, [(p.version, p.rel, p.text) for p in found[0].members], earlier=True
+            rctx.root, token, [(p.version, p.rel, p.text) for p in found[0].members], earlier=True,
+            summary=summary_input(ck, rctx.root, getattr(args, "summary", None)),
         )
     elif args.action in ("pause", "resume"):
         record = _record_for_action(ck, rctx, token, args.action, args.session)
@@ -849,7 +914,7 @@ def cmd_record_create(ck: ModuleType, args: argparse.Namespace) -> int:
     pushed = rctx.url_repo(rctx.push_remote_url)
     if not pushed or pushed.lower() != str(page["repo"]).lower():
         return ck._refused("push-remote-outside-approval")
-    paste = " / ".join(pending["paste_lines"])
+    paste = approval_binding.pasted(pending)
     members = [member_entry(ck, spec, plan) for plan in membership.members]
     for member in members:
         member["approvals"]["classes"] = [{**c, "text": paste} for c in member["approvals"]["classes"]]

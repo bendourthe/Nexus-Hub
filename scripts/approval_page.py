@@ -7,9 +7,11 @@ for the headless goal line. The page layout is documented in
 catalog/skills/workflow/implement-phase/references/approval-page.md; the rule it
 serves is the completion contract's "Approval origin" section.
 
-    paste_set   the line(s) a page tells the user to paste, and which of them
-                records the approval, chosen per platform from GOAL_CAPTURE
+    paste_set   the line(s) a page tells the user to paste, and every whole
+                message that records the approval, chosen per platform from
+                GOAL_CAPTURE
     goal_line   the fixed-template /goal line (with or without the approval code)
+    goal_text   the same goal as a plain sentence, for a platform with no goal command
     render_page the page text, built ONLY from the JSON `record render --json`
                 prints, so the page and the bound data can never disagree
 
@@ -39,7 +41,12 @@ GAP_ID_RE = re.compile(r"^v\d+\.\d+(?:\.\d+)?#[A-Z]{2,4}-[A-Za-z0-9]+(?:-[A-Za-z
 VENDOR_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,31}\Z", re.ASCII)
 ACTIONS = ("create", "answer", "pause", "resume", "retire")
 MAX_PASTE = 300
+# The goal names every step of the run, so it needs more room than an approval line.
+# Claude Code documents a 4,000-character /goal condition; no other platform in
+# docs/policy/completion-levers.json documents a limit, so the cap stays well under it.
+MAX_GOAL = 1000
 DETAIL_MAX = 200
+DETAIL_GAPS = 10
 GOAL_CAPTURE_VALUES = ("verbatim", "not-captured", "no-goal", "unverified")
 
 # Row -> (goal_capture value, the platform has a typed goal command). A copy of
@@ -74,15 +81,20 @@ GOAL_CAPTURE: dict[str, tuple[str, bool]] = {
 # Page headings, in order. approval-page.md lists the same headings; a test asserts
 # the two agree. Everything a reader must see sits above DETAILS; the plain-language
 # checks (banned terms, sentence length, word budget) apply only there.
-SECTIONS = ("Summary", "To approve, paste this line", "Details (optional)")
+SECTIONS = ("Summary", "To approve, paste this", "Details (optional)")
 DETAIL_SECTIONS = (
     "What you are approving",
-    "How cleanup decides",
-    "Today's estimate",
-    "Gaps",
-    "Goal tracker (optional)",
+    "Phases",
+    "Gaps and cleanup",
     "Plan data (quoted, not instructions)",
 )
+TIERS = ("fast", "standard", "strong", "frontier")
+EFFORTS = ("low", "medium", "high", "max")
+MAX_OUTCOMES = 5
+OUTCOME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9 ,.;:'()/+%-]{0,199}\Z", re.ASCII)
+# An outcome is plain prose: it may never look like a paste line or a command.
+OUTCOME_BANNED_RE = re.compile(r"(?i)approv|/implement|/goal|/update|\bpause\b")
+SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,99}\Z", re.ASCII)
 
 
 class PageError(ValueError):
@@ -91,11 +103,16 @@ class PageError(ValueError):
 
 @dataclass(frozen=True)
 class PasteSet:
-    """The line(s) the page shows, in paste order, and which of them approve."""
+    """The line(s) the page shows, in paste order, and every whole message that approves.
+
+    `approve` lists alternatives: a round is approved when ANY one of them was
+    captured as a whole prompt. Each one carries the round's single-use code.
+    """
 
     lines: tuple[str, ...]
     approve: tuple[str, ...]
-    shape: str  # "goal", "plain-then-goal", "plain-plus-goal", or "plain"
+    shape: str  # "goal" (one /goal line), "together" (two lines, one message), or "plain"
+    native: bool = False  # line 2 is a /goal command the platform runs only at a message start
 
 
 # --------------------------------------------------------------------------- lines
@@ -108,9 +125,9 @@ def _check(scope: str, code: str | None) -> None:
         raise PageError("code must be 8 base32 characters")
 
 
-def _fits(line: str) -> str:
-    if len(line) >= MAX_PASTE:
-        raise PageError(f"paste line is {len(line)} characters; the limit is {MAX_PASTE - 1}")
+def _fits(line: str, limit: int = MAX_PASTE) -> str:
+    if len(line) >= limit:
+        raise PageError(f"paste line is {len(line)} characters; the limit is {limit - 1}")
     return line
 
 
@@ -128,6 +145,39 @@ def plain_line(action: str, scope: str, code: str, blocker: int | None = None) -
     return _fits(f"{action.capitalize()} /implement {scope} (approval {code})")
 
 
+def _goal_body(scope: str, code: str | None) -> str:
+    """The run's steps and its done condition: one fixed template, no plan text."""
+    _check(scope, code)
+    approval = f" (approval {code})" if code else ""
+    if MINOR_RE.match(scope):
+        done = f"starts with MINOR COMPLETE {scope}"
+        steps = (
+            f"1) implement every task in every phase of every {scope} plan; "
+            "2) add or update the tests and CI/CD the work needs, and make both pass on the final tree; "
+            "3) fix the open known gaps; "
+            "4) run /update release for each plan; "
+            "5) merge every pull request, then delete the merged branches, worktrees, and their local copies; "
+            "6) move every gap still open to the next minor's known-gaps file; "
+            f"7) archive the {scope} folder and delete any folder left empty."
+        )
+    else:
+        done = f"starts with PLAN COMPLETE followed by the {scope} plan file"
+        steps = (
+            "1) implement every task in every phase of the plan; "
+            "2) add or update the tests and CI/CD the work needs, and make both pass on the final tree; "
+            "3) fix the open known gaps; "
+            "4) run /update release; "
+            "5) merge every pull request, then delete the merged branches, worktrees, and their local copies; "
+            "6) record every gap still open in the next version's known-gaps section; "
+            "7) when this is the last plan in its version folder, archive that folder and delete any folder left empty."
+        )
+    return (
+        f"Finish /implement {scope}{approval}. Do every step: {steps} "
+        f"Done only when the completion check's first output line {done}; "
+        "stop and report when it starts with BLOCKED or PAUSED."
+    )
+
+
 def goal_line(scope: str, code: str | None = None) -> str:
     """The native goal line. With a code it is also an approval line; without one
     (a runner-launched session, which is never captured) it only sets the goal.
@@ -135,17 +185,20 @@ def goal_line(scope: str, code: str | None = None) -> str:
     The condition names the completion check's verdict line (`MINOR COMPLETE vX.Y
     <head> <nonce>`, or `PLAN COMPLETE <plan file> <head> <nonce>`), never a string
     the agent could simply print, because the goal evaluator reads the transcript.
+    The numbered steps restate what the run must do; the checker, not the goal,
+    decides whether it is done.
     """
-    _check(scope, code)
-    approval = f" (approval {code})" if code else ""
-    if MINOR_RE.match(scope):
-        done = f"starts with MINOR COMPLETE {scope}"
-    else:
-        done = f"starts with PLAN COMPLETE followed by the {scope} plan file"
-    return _fits(
-        f"/goal Finish /implement {scope}{approval}. Done only when the completion check's "
-        f"first output line {done}; stop and report when it starts with BLOCKED or PAUSED."
-    )
+    return _fits("/goal " + _goal_body(scope, code), MAX_GOAL)
+
+
+def goal_text(scope: str, code: str | None = None) -> str:
+    """The same goal as a plain sentence, for a platform without a goal command."""
+    return _fits("Goal: " + _goal_body(scope, code), MAX_GOAL)
+
+
+def _together(first: str, second: str) -> tuple[str, str]:
+    """Both orders of a two-line message; a capture compares whitespace-normalized text."""
+    return f"{first}\n{second}", f"{second}\n{first}"
 
 
 def platform_capture(platform: str | None) -> tuple[str, bool]:
@@ -160,19 +213,29 @@ def paste_set(
     blocker: int | None = None,
     platform: str | None = None,
 ) -> PasteSet:
-    """The exact paste line(s) for a round. Only a create round sets a goal."""
+    """The exact paste line(s) for a round. Only a create round sets a goal.
+
+    A create round always shows the goal, and one pasted message always approves,
+    on every platform. Where the hook sees a typed /goal (`verbatim`) the /goal line
+    alone is the paste. Everywhere else the page shows two lines to paste together
+    as one ordinary message, which every hook captures: the approval line, then the
+    /goal line (or the goal as a sentence, where there is no goal command). Pasting
+    either line alone, or both together, also approves, so a user who sends them as
+    two messages or as one is never refused. The /goal line alone is not accepted
+    where the hook cannot see it (`not-captured`), because it can never arrive there.
+    """
     plain = plain_line(action, scope, code, blocker)
     if action != "create":
         return PasteSet((plain,), (plain,), "plain")
     capture, has_goal = platform_capture(platform)
     if capture == "verbatim":
         goal = goal_line(scope, code)
-        return PasteSet((goal,), (goal,), "goal")
-    if capture == "not-captured":
-        return PasteSet((plain, goal_line(scope, code)), (plain,), "plain-then-goal")
-    if capture == "unverified" and has_goal:
-        return PasteSet((plain, goal_line(scope, code)), (plain,), "plain-plus-goal")
-    return PasteSet((plain,), (plain,), "plain")
+        return PasteSet((goal,), (goal, plain, *_together(plain, goal)), "goal")
+    second = goal_line(scope, code) if has_goal else goal_text(scope, code)
+    accepted = (plain, *_together(plain, second))
+    if capture != "not-captured":
+        accepted += (second,)
+    return PasteSet((plain, second), accepted, "together", native=has_goal)
 
 
 # --------------------------------------------------------------------------- page
@@ -368,7 +431,7 @@ def _approval_line(page: dict, name: str, entry: dict, minor: bool, releases: li
         _no_bound(entry)
         return "Move or rename files, but only inside folders the plan already touches."
     if name == "spend":
-        return "Use paid services within the caps listed under Spending."
+        return "Use paid services within the spending caps the summary names."
     if name == "defer-gaps":
         return _defer(entry)
     if name == "unattended-with-bypass":
@@ -403,7 +466,7 @@ def _approvals(page: dict, minor: bool, releases: list[str], target: str) -> lis
     names = _classes(page)
     if not names:
         raise PageError("the page lists no approval class")
-    lines = ["Pasting the approval line allows each of these without asking again:"]
+    lines = ["Your paste allows each of these without asking again:"]
     lines += [f"- {_approval_line(page, n, e, minor, releases, target)}" for n, e in names.items()]
     return lines
 
@@ -436,16 +499,104 @@ def _caps(page: dict) -> list[str]:
     return shown
 
 
+# --------------------------------------------------------------------------- plan profile
+
+# A rough guide only: minutes of building per open task at each effort level, then
+# testing and fixing as a share of building, then a fixed time per release. These
+# numbers set the summary's time estimate; tune them here, nowhere else.
+MINUTES_PER_TASK = {"low": 10, "medium": 20, "high": 30, "max": 40}
+TESTING_SHARE = 0.3
+FIXING_SHARE = 0.2
+RELEASE_MINUTES = 45
+
+
+def _phases(display: dict) -> list[dict]:
+    """The plan phases whose tier, effort, and task count all pass a strict check."""
+    found = []
+    for entry in display.get("phases") or []:
+        if not isinstance(entry, dict):
+            continue
+        version, tier, effort = str(entry.get("version", "")), entry.get("tier"), entry.get("effort")
+        phase, tasks = entry.get("phase"), entry.get("tasks")
+        if (SCOPE_RE.match(version) and tier in TIERS and effort in EFFORTS
+                and isinstance(phase, int) and not isinstance(phase, bool) and 0 < phase < 100
+                and isinstance(tasks, int) and not isinstance(tasks, bool) and 0 <= tasks < 1000):
+            found.append({"version": version, "phase": phase, "tier": tier, "effort": effort, "tasks": tasks})
+    return found
+
+
+def whole_run_setting(phases: list[dict]) -> tuple[str, str, list[dict]] | None:
+    """(tier, effort, phases that want more) for a reader who will not switch per phase.
+
+    The task-weighted average of each scale, rounded to the nearest step (a half
+    rounds up); every phase above it is listed so the reader can switch for those.
+    """
+    if not phases:
+        return None
+    weights = [max(p["tasks"], 1) for p in phases]
+
+    def average(scale: tuple[str, ...], key: str) -> int:
+        total = sum(w * scale.index(p[key]) for w, p in zip(weights, phases))
+        return min(len(scale) - 1, (2 * total + sum(weights)) // (2 * sum(weights)))
+
+    tier, effort = average(TIERS, "tier"), average(EFFORTS, "effort")
+    above = [p for p in phases if TIERS.index(p["tier"]) > tier or EFFORTS.index(p["effort"]) > effort]
+    return TIERS[tier], EFFORTS[effort], above
+
+
+def time_estimate(phases: list[dict], releases: int) -> dict[str, float]:
+    """Rough hours per part of the run: building, testing, fixing, releasing."""
+    build = sum(MINUTES_PER_TASK[p["effort"]] * max(p["tasks"], 1) for p in phases) / 60
+    parts = {"building": build, "testing": build * TESTING_SHARE, "fixing": build * FIXING_SHARE,
+             "releasing": releases * RELEASE_MINUTES / 60}
+    return {k: round(v * 2) / 2 for k, v in parts.items()}
+
+
+def _hours(value: float) -> str:
+    return f"{value:g} h"
+
+
+def _phase_label(entry: dict, minor: bool) -> str:
+    return f"{entry['version']} phase {entry['phase']}" if minor else f"phase {entry['phase']}"
+
+
+def _outcomes(display: dict) -> list[str]:
+    raw = display.get("outcomes") or []
+    if not isinstance(raw, list) or len(raw) > MAX_OUTCOMES:
+        raise PageError(f"the summary outcomes are not a list of at most {MAX_OUTCOMES}")
+    shown = []
+    for item in raw:
+        text = " ".join(str(item).split()) if isinstance(item, str) else ""
+        if not OUTCOME_RE.match(text) or OUTCOME_BANNED_RE.search(text) or len(text.split()) > 25:
+            raise PageError("a summary outcome is not one plain sentence of at most 25 words")
+        shown.append(text if text.endswith(".") else text + ".")
+    return shown
+
+
+def _parallel(display: dict) -> str:
+    parallel = display.get("parallel")
+    if not isinstance(parallel, dict) or parallel.get("checked") is not True:
+        return "Not checked yet"
+    plans = []
+    for entry in parallel.get("plans") or []:
+        version, slug = str((entry or {}).get("version", "")), str((entry or {}).get("slug", ""))
+        if not SCOPE_RE.match(version) or not SLUG_RE.match(slug):
+            raise PageError("a parallel plan is not a version and a plain slug")
+        plans.append(version)
+    return _joined(plans) if plans else "No other queued plan can"
+
+
 # --------------------------------------------------------------------------- summary
 
 
 def _summary(page: dict, display: dict, releases: list[str], minor: bool, target: str) -> list[str]:
-    """What the run leaves behind, one row per approved result, then the two limits.
+    """What the run does and leaves behind, how to run it, and the two limits.
 
     Every hard-to-undo result (a release, a deletion, the archive, prompts off) has
     its own row whenever its class is approved; mechanics stay under Details.
     """
     names = _classes(page)
+    outcomes = _outcomes(display) or ["The plan's own goal is quoted under Details."]
     rows = []
     if "release" in names:
         rows.append(("Released", _joined(releases)))
@@ -467,70 +618,85 @@ def _summary(page: dict, display: dict, releases: list[str], minor: bool, target
         rows.append(("Cleaned up", "Only this run's own branch and working folder, once merged"))
     if "unattended-with-bypass" in names:
         rows.append(("Permission prompts", "Off for the whole run"))
+    phases = _phases(display)
+    setting = whole_run_setting(phases)
+    if setting:
+        tier, effort, above = setting
+        more = f"; more for {_count(len(above), 'phase')}, see Phases" if above else ""
+        rows.append(("Run it on", f"{tier.capitalize()} models at {effort} effort{more}"))
+        hours = time_estimate(phases, len(releases) if "release" in names else 0)
+        rows.append(("Time", f"About {_hours(sum(hours.values()))}, rough: " + ", ".join(
+            f"{_hours(v)} {k}" for k, v in hours.items())))
+    rows.append(("In parallel", _parallel(display)))
     caps = _caps(page)
     if caps:
         never = f"**Never without asking you: changes to CI, permissions, or secrets, or paid API use beyond {_joined(caps)}.**"
     else:
         never = "**Never without asking you: changes to CI, permissions, or secrets, and any paid API use.**"
-    return ["| | Result |", "|---|---|", *(f"| {k} | {v} |" for k, v in rows), "", never, "",
+    return ["**What this run will do:**", "", *(f"- {o}" for o in outcomes), "",
+            "| | Result |", "|---|---|", *(f"| {k} | {v} |" for k, v in rows), "", never, "",
             "**Stop any time: type /implement pause**"]
 
 
 def _paste_section(paste: PasteSet) -> list[str]:
-    # The binding records only a whole captured prompt equal to a paste line, so an
-    # added word makes the approval silently fail: the page says so in plain words.
-    body = ["```text", paste.lines[0], "```"]
-    if paste.shape == "plain-then-goal":
-        body += ["", "Then:", "", "```text", paste.lines[1], "```"]
-        alone = "Paste each line alone as its own message."
-    else:
-        alone = "Paste it alone as your whole message."
-    return [*body, "", f"{alone} Pasting approves everything listed under Details."]
+    # The binding records only a whole captured prompt equal to an approving message,
+    # so an added word makes the approval silently fail: the page says so plainly.
+    body = ["```text", *paste.lines, "```", ""]
+    if paste.shape == "goal":
+        return [*body, ("Paste this line as one message, with nothing added. "
+                        "It approves everything listed under Details and sets the run's goal.")]
+    body.append("Copy both lines and paste them as one message, with nothing added. "
+                "It approves everything listed under Details and gives the run its goal.")
+    if paste.native:
+        body += ["", "Then send the second line again by itself to start this tool's goal tracker."]
+    return body
 
 
 # --------------------------------------------------------------------------- details
 
 
-def _cleanup_rule(page: dict) -> list[str]:
-    if _merged_rule(page):
-        first = ("Cleanup removes any branch or worktree (extra working folder) that is merged into the "
-                 "target branch and idle, even one another session made, unless a live run still owns it.")
+def _phase_detail(display: dict, minor: bool) -> list[str]:
+    phases = _phases(display)
+    setting = whole_run_setting(phases)
+    if not setting:
+        return ["The plan names no per-phase model or effort, so no setting or time estimate is shown."]
+    tier, effort, above = setting
+    rows = [f"| {_phase_label(p, minor)} | {p['tasks']} | {p['tier']} | {p['effort']} |" for p in phases]
+    lines = ["| Phase | Open tasks | Model | Effort |", "|---|---|---|---|", *rows, "",
+             f"- Whole run on one setting: {tier} models at {effort} effort, the task-weighted average."]
+    if above:
+        lines.append(f"- Switch up for {_joined([_phase_label(p, minor) for p in above])} if you can.")
+    minutes = _joined([str(m) for m in MINUTES_PER_TASK.values()])
+    lines.append(f"- The time allows {minutes} minutes per open task at {_joined(list(MINUTES_PER_TASK))} effort, "
+                 f"plus {round(TESTING_SHARE * 100)}% for testing, "
+                 f"{round(FIXING_SHARE * 100)}% for fixing, and {RELEASE_MINUTES} minutes per release.")
+    return lines
+
+
+def _gaps_and_cleanup(page: dict, display: dict, releases: list[str], minor: bool, target: str) -> list[str]:
+    clean = _open_gaps(display)
+    if clean:
+        parts = [f"{n} in {v}" for v, n in sorted(clean.items(), key=lambda kv: _order(kv[0]), reverse=True)]
+        lines = [f"- It will try to fix {_count(sum(clean.values()), 'open gap')}: {_joined(parts)}."]
     else:
-        first = "Cleanup removes only the branch and worktree (extra working folder) this run created, once merged."
-    return [first,
-            "The final pass removes anything that passes every check at that moment, and checks each item again right before removing it.",
-            "Anything it cannot verify as merged is kept and listed, never removed."]
-
-
-def _estimate(page: dict, releases: list[str], minor: bool) -> list[str]:
+        lines = ["- There are no open gaps to fix today."]
+    if display.get("gaps_unreadable"):
+        lines.append("- Some gap lists could not be read today, so this count may be low.")
+    lines += [f"- {line}" for line in _moves(page, minor, target)]
+    if _merged_rule(page):
+        lines.append("- Cleanup removes any branch or worktree merged into the target branch and idle, "
+                     "even one another session made, unless a live run still owns it.")
+    else:
+        lines.append("- Cleanup removes only the branch and worktree this run created, once merged.")
+    lines.append("- Each item is checked again right before removal; anything not verified as merged is kept and listed.")
     names = _classes(page)
     shipped = len(releases) if "release" in names else 0
     prs = len(releases) + (1 if minor and "minor-close-pr" in names else 0)
     branches, worktrees = _cleanup_counts(page)
-    return [f"- {_count(shipped, 'release')} and {_count(shipped, 'tag')}.",
-            f"- {_count(prs, 'pull request')} (proposed changes on GitHub).",
-            (f"- Cleanup today would remove {_count(branches, 'branch', 'branches')} and "
-             f"{_count(worktrees, 'worktree')}; the final pass re-checks.")]
-
-
-def _gap_detail(page: dict, display: dict, minor: bool, target: str) -> list[str]:
-    clean = _open_gaps(display)
-    lines = ["A gap is a known problem that earlier work left open."]
-    if clean:
-        parts = [f"{n} in {v}" for v, n in sorted(clean.items(), key=lambda kv: _order(kv[0]), reverse=True)]
-        lines.append(f"It will try to fix {_count(sum(clean.values()), 'open gap')}: {_joined(parts)}.")
-    else:
-        lines.append("There are no open gaps to fix today.")
-    if display.get("gaps_unreadable"):
-        lines.append("Some gap lists could not be read today, so this count may be low.")
-    return lines + _moves(page, minor, target)
-
-
-def _goal_detail(paste: PasteSet) -> list[str]:
-    if paste.shape != "plain-plus-goal":
-        return []
-    return ["After the approval line, you may also paste this line as its own message to set this platform's goal tracker:",
-            "", "```text", paste.lines[1], "```"]
+    lines.append(f"- Expect {_count(shipped, 'release')}, {_count(shipped, 'tag')}, and {_count(prs, 'pull request')}; "
+                 f"cleanup would remove {_count(branches, 'branch', 'branches')} and "
+                 f"{_count(worktrees, 'worktree')} today.")
+    return lines
 
 
 def _details(page: dict, display: dict) -> list[str]:
@@ -547,9 +713,14 @@ def _details(page: dict, display: dict) -> list[str]:
             rows.append(f"{label} goal: {quoted(member['goal'])}")
         if member.get("path"):
             rows.append(f"{label} file: {quoted(member['path'])}")
-    for gap in display.get("gaps") or []:
-        if isinstance(gap, dict) and GAP_ID_RE.match(str(gap.get("id", ""))):
-            rows.append(f"gap {gap['id']}: {quoted(gap.get('title', ''))}")
+    gaps = [g for g in display.get("gaps") or [] if isinstance(g, dict) and GAP_ID_RE.match(str(g.get("id", "")))]
+    rows += [f"gap {gap['id']}: {quoted(gap.get('title', ''))}" for gap in gaps[:DETAIL_GAPS]]
+    if len(gaps) > DETAIL_GAPS:
+        rows.append(f"and {len(gaps) - DETAIL_GAPS} more open gaps in the known-gaps files")
+    parallel = display.get("parallel") if isinstance(display.get("parallel"), dict) else {}
+    for entry in parallel.get("plans") or []:
+        if isinstance(entry, dict) and SCOPE_RE.match(str(entry.get("version", ""))):
+            rows.append(f"can run in parallel: {entry['version']} {quoted(entry.get('slug', ''))}")
     for excluded in page.get("excluded") or []:
         if isinstance(excluded, dict):
             rows.append(f"not included: {quoted(excluded.get('version', ''))} ({quoted(excluded.get('reason', ''))})")
@@ -591,10 +762,8 @@ def render_page(data: dict) -> str:
     target = _next_minor(scope)
     details = [
         _approvals(page, minor, releases, target),
-        _cleanup_rule(page),
-        _estimate(page, releases, minor),
-        _gap_detail(page, display, minor, target),
-        _goal_detail(paste),
+        _phase_detail(display, minor),
+        _gaps_and_cleanup(page, display, releases, minor, target),
         _details(page, display),
     ]
     out = _section(SECTIONS[0], _summary(page, display, releases, minor, target))
