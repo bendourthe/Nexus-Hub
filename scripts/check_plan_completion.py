@@ -64,7 +64,6 @@ EXIT_COMPLETE, EXIT_INCOMPLETE, EXIT_MALFORMED, EXIT_BLOCKED, EXIT_PAUSED = (
 SCHEMA = 1
 SCHEMA_MINOR = 2
 BUDGET_SECONDS = 20.0
-STALE_SECONDS = 72 * 3600
 
 BLOCKER_CATEGORIES = (
     "approval-not-covered",
@@ -87,11 +86,23 @@ APPROVAL_CLASSES = {
     "unattended-with-bypass",
     # Minor-level classes (schema 2). `cleanup-merged` is also offered to a one-plan run.
     "cleanup-merged",
+    "carry-gaps",
     "gap-migration",
     "archive-minor",
     "minor-close-pr",
 }
 MINOR_ONLY_CLASSES = {"gap-migration", "archive-minor", "minor-close-pr"}
+# A one-plan run that is the last of its minor archives it through the same two
+# classes; `carry-gaps` records the gaps a one-plan run leaves open in the next
+# version (completion contract, "Single-plan carry and archive").
+PLAN_CLOSE_CLASSES = {"archive-minor", "minor-close-pr"}
+PLAN_ONLY_CLASSES = {"carry-gaps"}
+
+# On Windows, a console program started by a process with no console of its own
+# (a hook or agent launched without one, or a detached test) opens a visible
+# window that takes keyboard focus. Every child here has its output captured and
+# its prompts disabled, so it never needs a window.
+NO_WINDOW: dict = {"creationflags": subprocess.CREATE_NO_WINDOW} if os.name == "nt" else {}
 GAP_TYPES = {"NI", "DF", "BG", "MT", "WN", "QG"}
 REQUIRED_SECTIONS = (
     "Architecture refactor",
@@ -185,6 +196,7 @@ def _run_with_stderr(
             encoding="utf-8",
             errors="replace",
             timeout=timeout,
+            **NO_WINDOW,
         )
     except (OSError, subprocess.TimeoutExpired):
         return -1, "", ""
@@ -447,6 +459,10 @@ _SIGNED_MINOR_FIELDS = ("schema", "scope", "minor", "members", "excluded", "comp
 
 def _hmac_payload(record: dict) -> dict:
     fields = _SIGNED_FIELDS
+    if record.get("schema") == SCHEMA and "completed" in record:
+        # The completion stamp ends a one-plan record's liveness, so it is signed once
+        # present; a record without it signs exactly as before and still verifies.
+        fields = _SIGNED_FIELDS + ("completed",)
     if record.get("schema") != SCHEMA:
         # Anything that is not a schema-1 record signs the minor fields too; a schema-1
         # payload stays exactly as it was, so existing records still verify.
@@ -527,18 +543,7 @@ def _load_schema1(
 ) -> RecordState:
     tampered = TAMPERED
     if session and record.get("session_id") != session:
-        created = _parse_time(record.get("created"))
-        age = (
-            (dt.datetime.now(dt.timezone.utc) - created).total_seconds()
-            if created and created.tzinfo is not None
-            else STALE_SECONDS + 1
-        )
-        reason = (
-            "stale run record (older than 72 hours) ignored"
-            if age > STALE_SECONDS
-            else "run record bound to another session ignored"
-        )
-        state.notices.append(reason)
+        state.notices.append("run record bound to another session ignored")
         return state
     key = _secret(create=False)
     if (
@@ -551,13 +556,8 @@ def _load_schema1(
     ):
         state.forced = tampered
         return state
-    # WN-13: a matching or unspecified session does not renew old approvals.
-    created = _parse_time(record.get("created"))
-    if created is None or created.tzinfo is None or (
-        dt.datetime.now(dt.timezone.utc) - created
-    ).total_seconds() > STALE_SECONDS:
-        state.notices.append("stale run record (older than 72 hours) ignored")
-        return state
+    # No expiry: an approval holds until its run completes or the user retires it
+    # (completion contract, "Run record lifetime"), however long the run takes.
     state.record = record
     if record.get("pause"):
         state.forced = ("PAUSED", EXIT_PAUSED)
@@ -677,7 +677,29 @@ def evaluate(ctx: Context, record: dict | None) -> tuple[list[tuple[str, str]], 
     # A minor member's projection never carries it: the minor verdict owns the final pass.
     if record is not None and record.get("schema") == SCHEMA and "cleanup-merged" in classes:
         results.append(("cleanup.merged", _cleanup_merged_status(ctx, record, repo, branch)))
+    if record is None or record.get("schema") == SCHEMA:
+        results += _plan_close_results(ctx, record, repo)
     return results, deferred
+
+
+def _plan_close_results(ctx: Context, record: dict | None, repo: str) -> list[tuple[str, str]]:
+    """`gaps.carried`, `archive.minor`, and `archive.empty-dirs` for a one-plan run.
+
+    A minor member's projection never reaches here: the minor close owns its gaps
+    and its archive (completion contract, "Single-plan carry and archive").
+    """
+    cm, me = _minor_module(), sys.modules[__name__]
+    last = cm.last_plan_status(me, ctx, ctx.version, repo)
+    results = [("gaps.carried", cm.gaps_carried_status(me, ctx, ctx.version, record, last))]
+    if last == "unmet":
+        return results + [("archive.minor", "n/a"), ("archive.empty-dirs", "n/a")]
+    if last == "cannot-verify":
+        return results + [("archive.minor", "cannot-verify"), ("archive.empty-dirs", "cannot-verify")]
+    token = "v{}.{}".format(*cm.minor_of(ctx.version))
+    return results + [
+        ("archive.minor", cm.archive_minor_status(me, ctx, token, record)),
+        ("archive.empty-dirs", cm.empty_dirs_status(ctx)),
+    ]
 
 
 def _approved_remote_status(ctx: Context, record: dict | None) -> str:
@@ -753,7 +775,9 @@ def _gaps_status(ctx: Context, record: dict | None) -> tuple[str, int]:
         # A minor member's gap migrated at the minor close is closed only when the
         # migration verifies (completion contract, "Minor gaps and archive"); a
         # per-plan run has no migration, so the marker alone stays unmet.
-        if MIGRATED_MARKER_RE.search(item.group("title")) and _migration_met(ctx, record, gaps, item.group(0)):
+        if MIGRATED_MARKER_RE.search(item.group("title")) and (
+            _migration_met(ctx, record, gaps, item.group(0)) or _plan_migration_met(ctx, record, gaps, item.group(0))
+        ):
             continue
         # A minor member's open item whose id is in the frozen migratable list waits for
         # the minor close, where `gaps.minor` decides it; the member gate must not wait on it.
@@ -775,6 +799,25 @@ def _gaps_status(ctx: Context, record: dict | None) -> tuple[str, int]:
 
 RESOLVED_MARKER_RE = re.compile(r"\s-{1,2}\s*RESOLVED\b")
 MIGRATED_MARKER_RE = re.compile(r"\s-{1,2}\s*MIGRATED to v\d+\.\d+\.\d+\s*$")
+
+
+def _plan_migration_met(ctx: Context, record: dict | None, gaps: Path, heading: str) -> bool:
+    """True when a one-plan run carrying `carry-gaps` moved this item to the next minor."""
+    if not record or record.get("schema") != SCHEMA or not _has_class(record, "carry-gaps"):
+        return False
+    cm = _minor_module()
+    ledgers, _unreadable = cm.load_ledgers(ctx.root)
+    ledger = next((l for l in ledgers if l.path.resolve() == gaps.resolve()), None)
+    found = cm.LEDGER_ITEM_RE.match(heading.lstrip("#").strip())
+    if ledger is None or found is None:
+        return False
+    item = next((i for i in ledger.items if i.gid == found.group("id") and i.state == "migrated"), None)
+    return item is not None and cm.plan_migration_met(ledgers, ledger, item)
+
+
+def _has_class(record: dict | None, name: str) -> bool:
+    classes = ((record or {}).get("approvals") or {}).get("classes") or []
+    return any(isinstance(c, dict) and c.get("class") == name for c in classes)
 
 
 def _migration_met(ctx: Context, record: dict | None, gaps: Path, heading: str) -> bool:
@@ -1108,6 +1151,9 @@ def verdict(
 def cmd_check(args: argparse.Namespace) -> int:
     ctx = Context(args.plan, Budget(BUDGET_SECONDS))
     line, code, results, state = verdict(ctx, args.session)
+    record = state.record
+    if code == EXIT_COMPLETE and record is not None and record.get("schema") == SCHEMA:
+        mark_completed(ctx, record, line.split()[3] if len(line.split()) > 3 else "-")
     for notice in [*state.notices, *ctx.notices]:
         print(f"notice: {notice}", file=sys.stderr)
     print(line)
@@ -1179,7 +1225,9 @@ def _approvals_from_file(path: str, minor: bool = False) -> dict:
         name = str(entry.get("class", ""))
         if not (name in APPROVAL_CLASSES or name.startswith("ask-first:")):
             raise Malformed(f"approval class not approvable in advance: {name}")
-        if name in MINOR_ONLY_CLASSES and not minor:
+        if name in PLAN_ONLY_CLASSES and minor:
+            raise Malformed(f"approval class {name} belongs to a one-plan run; a minor run migrates gaps")
+        if name in MINOR_ONLY_CLASSES - PLAN_CLOSE_CLASSES and not minor:
             raise Malformed(f"approval class {name} belongs to a minor run (record ... --minor vX.Y)")
     defer = next((c.get("bound") for c in classes if c["class"] == "defer-gaps"), []) or []
     if not set(defer) <= GAP_TYPES:
@@ -1460,13 +1508,26 @@ def lock_live(record_path: Path) -> bool:
 
 
 def record_live(ctx: RepoContext, path: Path) -> tuple[bool, dict | None]:
-    """(live, record): created within 72 hours, or unreadable (counted as someone's)."""
+    """(live, record): not yet stamped complete, or unreadable (counted as someone's)."""
     record = read_record(ctx, path)
-    created = _parse_time((record or {}).get("created"))
-    if record is None or created is None or created.tzinfo is None:
+    if record is None:
         return True, record
-    age = (dt.datetime.now(dt.timezone.utc) - created).total_seconds()
-    return age <= STALE_SECONDS, record
+    return not record.get("completed"), record
+
+
+def mark_completed(ctx: Context, record: dict, head: str) -> None:
+    """Stamp a one-plan record complete once its check reports PLAN COMPLETE, and re-sign it.
+
+    The stamp ends the record's liveness, so another run may take the plan and
+    cleanup no longer protects its branches; the record still verifies, so the same
+    check keeps reporting PLAN COMPLETE.
+    """
+    key = _secret(create=False)
+    if key is None or record.get("completed"):
+        return
+    record["completed"] = {"at": _now(), "head": head}
+    record["approvals_hmac"] = _sign(record, key)
+    _write_record(ctx.record_path(), record)
 
 
 def _retire_page(ctx: Context) -> dict | None:
@@ -1486,8 +1547,7 @@ def _retire_page(ctx: Context) -> dict | None:
 def cmd_record_retire(args: argparse.Namespace) -> int:
     """Move this plan's per-plan records aside, so a minor run can hold the only authority.
 
-    A stale record (older than 72 hours) or one bound to the caller's own `--session`
-    moves at once. Another session's live record moves only after the user pastes
+    A completed record or one bound to the caller's own `--session` moves at once. Another session's live record moves only after the user pastes
     the line `record render <plan> --action retire` printed, because retiring it
     removes that run's authority, pause, and blockers.
     """

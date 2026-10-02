@@ -24,7 +24,6 @@ plan paths, validated version tokens, and fixed reason ids.
 from __future__ import annotations
 
 import argparse
-import datetime as dt
 import hashlib
 import hmac
 import json
@@ -55,7 +54,6 @@ BRANCH_RE = re.compile(r"^[A-Za-z0-9._/-]+\Z", re.ASCII)
 PLAN_TOKEN_RE = re.compile(r"^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)\Z", re.ASCII)
 
 DONE_STATUSES = {"complete", "superseded", "shipped"}
-MINOR_VALID_SECONDS = 14 * 24 * 3600
 MINOR_BUDGET_SECONDS = 60.0
 EXIT_EMPTY = 1
 EXIT_MINOR_MALFORMED = 3  # a duplicate version or an unreadable plan stops the run
@@ -258,11 +256,8 @@ def plan_records(ck: ModuleType, rctx: RepoContext, rel: str) -> list[Path]:
 
 
 def _minor_record_live(ck: ModuleType, record: dict) -> bool:
-    created = ck._parse_time(record.get("created"))
-    if created is None or created.tzinfo is None:
-        return True  # unreadable time: someone's record, never absorbed
-    age = (dt.datetime.now(dt.timezone.utc) - created).total_seconds()
-    return age <= MINOR_VALID_SECONDS and not record.get("completed")
+    """Live until MINOR COMPLETE stamps it `completed`; there is no expiry."""
+    return not record.get("completed")
 
 
 def other_minor_owns(ck: ModuleType, rctx: RepoContext, version: str, own: Path | None) -> bool:
@@ -651,8 +646,8 @@ def load_minor(
     Integrity (any failure is `record-tampered`): outside every working tree,
     `schema` 2 with `scope` "minor" and this `minor`, a verifying HMAC, and every
     member, found BY VERSION across the canonical, legacy, and archive layouts,
-    hashing to its frozen `plan_sha256`. Then validity: older than 14 days, or
-    marked complete, is ignored; bound to another session is ignored until a
+    hashing to its frozen `plan_sha256`. Then validity: marked complete is
+    ignored (there is no expiry); bound to another session is ignored until a
     resume paste adopts it; a pause is PAUSED; an open blocker is BLOCKED; and a
     member now owned by another run is `BLOCKED: owned-by-another-run (vX.Y.Z)`.
     A blocker recorded against one member reads `BLOCKED: <category> (vX.Y.Z)`.
@@ -666,12 +661,6 @@ def load_minor(
     record = ck.read_record(rctx, path)
     if record is None or not _verified(ck, rctx, token, record):
         state.forced = ck.TAMPERED
-        return state
-    created = ck._parse_time(record.get("created"))
-    if created is None or created.tzinfo is None or (
-        dt.datetime.now(dt.timezone.utc) - created
-    ).total_seconds() > MINOR_VALID_SECONDS:
-        state.notices.append("minor run record older than 14 days ignored")
         return state
     if record.get("completed") and not accept_completed:
         state.notices.append("minor run record already complete ignored")
@@ -2317,3 +2306,132 @@ def cmd_record_block(ck: ModuleType, args: argparse.Namespace) -> int:
     suffix = f" ({args.member})" if member is not None else ""
     print(f"BLOCKED: {args.category}{suffix}")
     return ck.EXIT_BLOCKED
+
+
+# --------------------------------------------------------------------------- single-plan carry and archive
+#
+# A one-plan run ends by recording every gap it leaves open in the next version and,
+# when it is the last unshipped plan of its minor, by archiving the minor. The rules
+# are owned by the completion contract, "Single-plan carry and archive"; the writes
+# are `minor_close.py carry --plan` and `minor_close.py archive --plan`.
+
+CARRIED_FROM_RE = re.compile(r"^\s*-\s*\*\*Carried from\*\*:\s*(?P<version>v\d+\.\d+\.\d+)\b", re.MULTILINE)
+_SECTION_VERSION_RE = re.compile(r"^(v\d+\.\d+\.\d+)\b")
+PLAN_CARRY_REASON = "user-deferred"
+
+
+def section_version(section: str) -> str | None:
+    """The `vX.Y.Z` a ledger `## ` section heading names, or None."""
+    found = _SECTION_VERSION_RE.match(section.strip())
+    return found.group(1) if found else None
+
+
+def carry_target(version: str, last: bool) -> str:
+    """Where a plan's open gaps go: the next patch's section, or the next minor's `.0`."""
+    major, minor, patch = version_order(version)[:3]
+    return f"v{major}.{minor + 1}.0" if last else f"v{major}.{minor}.{patch + 1}"
+
+
+def last_plan_status(ck: ModuleType, rctx: RepoContext, version: str, repo: str) -> str:
+    """`met` when every other non-superseded plan of the version's minor is shipped.
+
+    Then this plan is the minor's last, so its run carries every open gap of the
+    minor to the next minor and archives the minor. `cannot-verify` when a plan's
+    release cannot be read.
+    """
+    major, minor = minor_of(version)
+    try:
+        plans = scan_plans(rctx.root, major, minor, strict=False)
+    except MinorMalformed:
+        return "cannot-verify"
+    for plan in plans:
+        if plan.version == version or plan.status == "superseded":
+            continue
+        state = shipped(ck, rctx, repo, plan.version)
+        if state != "met":
+            return "unmet" if state == "unmet" else "cannot-verify"
+    return "met"
+
+
+def _ledger_items_at(rctx: RepoContext, commit: str, minor: tuple[int, int]) -> list[GapItem] | None:
+    """Every item of the minor's ledger as committed at `commit`; [] when none existed."""
+    for rel in ledger_rels(*minor):
+        rc, _ = rctx.run([rctx.git, "-C", str(rctx.root), "cat-file", "-e", f"{commit}:{rel}"])
+        if rc == -1:
+            return None
+        if rc != 0:
+            continue
+        rc, out = rctx.run([rctx.git, "-C", str(rctx.root), "show", f"{commit}:{rel}"])
+        return parse_ledger(out) if rc == 0 else None
+    return []
+
+
+def plan_migration_met(ledgers: list[Ledger], ledger: Ledger, item: GapItem) -> bool:
+    """A last plan's `- MIGRATED to vX.(Y+1).0` item: its copy names it in the next minor."""
+    if item.state != "migrated" or str(item.target) != next_minor(ledger.token()) + ".0":
+        return False
+    return find_migrated_copy(ledgers, str(item.target), ledger.token(), item.gid) is not None
+
+
+def gaps_carried_status(
+    ck: ModuleType, rctx: RepoContext, version: str, record: dict | None, last: str,
+) -> str:
+    """`gaps.carried` for a one-plan run (completion contract, "Single-plan carry and archive")."""
+    if last == "cannot-verify":
+        return "cannot-verify"
+    minor = minor_of(version)
+    ledgers, unreadable = load_ledgers(rctx.root)
+    own = [l for l in ledgers if l.minor == minor]
+    if unreadable and any(minor_of_rel(r) == minor for r in unreadable):
+        return "cannot-verify"
+    if not own:
+        return "met"
+    if len(own) > 1 or own[0].problems:
+        return "cannot-verify"
+    ledger = own[0]
+    for item in ledger.items:
+        mine = section_version(item.section) == version
+        if last == "met":
+            if item.state == "open" or (item.state == "migrated" and not plan_migration_met(ledgers, ledger, item)):
+                return "unmet"
+        elif mine and item.state != "resolved":
+            return "unmet"
+    start = str((record or {}).get("start_head") or "")
+    if not start:
+        return "met"
+    baseline = _ledger_items_at(rctx, start, minor)
+    if baseline is None:
+        return "cannot-verify"
+    now = {item.gid: item for item in ledger.items}
+    for old in baseline:
+        if section_version(old.section) != version or old.state != "open":
+            continue
+        current = now.get(old.gid)
+        if current is None:
+            return "unmet"  # deleted, never recorded anywhere
+        if section_version(current.section) == version:
+            continue  # judged above
+        later = section_version(current.section)
+        carried = [m.group("version") for m in CARRIED_FROM_RE.finditer(current.body)]
+        if later is None or version_order(later) <= version_order(version) or version not in carried:
+            return "unmet"
+    return "met"
+
+
+def minor_of_rel(rel: str) -> tuple[int, int] | None:
+    found = re.search(r"v(\d+)\.(\d+)/known-gaps\.md$", rel)
+    return (int(found.group(1)), int(found.group(2))) if found else None
+
+
+def empty_dirs_status(rctx: RepoContext) -> str:
+    """`archive.empty-dirs`: no directory under docs/releases/ is left empty."""
+    base = rctx.root / "docs" / "releases"
+    if not base.is_dir():
+        return "met"
+    for path in sorted(base.rglob("*"), key=lambda p: len(p.parts), reverse=True):
+        try:
+            if path.is_dir() and not any(path.iterdir()):
+                return "unmet"
+        except OSError:
+            return "cannot-verify"
+    return "met"

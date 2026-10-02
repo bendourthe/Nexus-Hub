@@ -287,6 +287,11 @@ def _classes(page: dict) -> dict[str, dict]:
     return found
 
 
+def _minor_token(token: str) -> str:
+    """`vX.Y` for a version token of either length."""
+    return "v" + ".".join(token.lstrip("v").split(".")[:2])
+
+
 def _scope_token(page: dict) -> str:
     scope = page.get("scope") or {}
     token = scope.get("minor") if scope.get("kind") == "minor" else scope.get("version")
@@ -355,6 +360,9 @@ def _gap_ids(values: object, what: str) -> list[str]:
 
 def _moves(page: dict, minor: bool, target: str) -> list[str]:
     if not minor:
+        if "carry-gaps" in _classes(page):
+            return ["Any gap it leaves open is recorded in the next version's known-gaps section.",
+                    "Each recorded gap keeps a note saying where it came from."]
         if "defer-gaps" in _classes(page):
             return ["A single-plan run moves no gaps to another version.", "It may leave some open gaps for later, as listed below."]
         return ["A single-plan run moves no gaps to another version.", "Any gap it cannot fix stays open and stops the run."]
@@ -445,13 +453,23 @@ def _approval_line(page: dict, name: str, entry: dict, minor: bool, releases: li
         return f"Move the {_count(len(ids), 'listed gap')} to {target} when a gap cannot be fixed in this run."
     if name == "archive-minor":
         _no_bound(entry)
-        return f"Archive the {token} documents after the final pull request merges."
+        if MINOR_RE.match(token):
+            return f"Archive the {token} documents after the final pull request merges."
+        return (f"Archive the {_minor_token(token)} documents, and delete any folder left empty, "
+                "if this is the last plan of that version.")
+    if name == "carry-gaps":
+        named = _gap_ids(entry.get("named"), "carry-gaps named")
+        line = ("Record every gap this run leaves open in the next version's known-gaps section, "
+                "with a note saying where it came from.")
+        if named:
+            line += f" These involve security or high severity and are approved by name: {_joined(named)}."
+        return line
     if name == "minor-close-pr":
         # The bound is the closing pull request's re-push limit (runbook "Minor close"
         # step 7: re-push "within the recorded `minor-close-pr` repush bound").
         n = _bound_count(entry)
         retry = f" If a required check fails, it may push a fix up to {_count(n, 'time')}." if n is not None else ""
-        return (f"Open one final pull request that closes {token} and merge it once its checks pass, "
+        return (f"Open one final pull request that closes {_minor_token(token)} and merge it once its checks pass, "
                 f"then copy any newer main changes into develop.{retry}")
     if name.startswith("ask-first:"):
         surface = name.split(":", 1)[1]
@@ -612,6 +630,8 @@ def _summary(page: dict, display: dict, releases: list[str], minor: bool, target
     rows.append(("Fixed", fixed))
     if minor and "archive-minor" in names:
         rows.append(("Archived", f"The {_scope_token(page)} documents"))
+    elif "archive-minor" in names:
+        rows.append(("Archived", f"The {_minor_token(_scope_token(page))} documents, if this is their last plan"))
     if _merged_rule(page):
         rows.append(("Cleaned up", "Merged branches and working folders nobody is using"))
     else:
@@ -794,7 +814,6 @@ def render_data(pending: dict, *, scope: str, blocker: int | None, display: dict
         "paste": list(pending["paste_lines"]),
         "page": pending["page"],
         "display": display or {},
-        "expires_at": pending["expires_at"],
     }
 
 

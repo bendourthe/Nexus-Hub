@@ -10,12 +10,12 @@ this module executes is owned by the completion contract
     render   build the canonical page, draw a fresh round nonce, derive the
              single-use code from HMAC-SHA256(runs secret, page + nonce), and
              write an owner-only pending file holding the page, code, nonce,
-             expiry, session, the exact paste line(s) the page shows, and the
+             render time, session, the exact paste line(s) the page shows, and the
              digests of every whole message that approves (alternatives: any one
              of them), sealed by an HMAC over the whole round so no field can be
              edited
     consume  refuse unless the seal verifies, the live page still yields the same
-             code, the round has not expired or been used, the session already
+             code, the round has not been used or replaced, the session already
              had a captured prompt before the round was rendered, and it captured
              one approving message as a whole prompt exactly once; then delete the
              pending file and leave a used marker so a replay reads `code-used`
@@ -41,7 +41,6 @@ from pathlib import Path
 
 import approval_page  # installed as a sibling in ~/.nexus-hub/scripts/
 
-ROUND_SECONDS = 30 * 60
 SUPERSEDED_KEEP = 20
 RUNNER_ENV = "NEXUS_RUNNER_LAUNCH"
 ACTIONS = ("create", "answer", "pause", "resume", "retire")
@@ -56,7 +55,6 @@ REASONS = (
     "pending-unreadable",
     "code-used",
     "code-superseded",
-    "code-expired",
     "session-mismatch",
     "session-too-new",
     "page-changed",
@@ -241,7 +239,6 @@ def _read_pending(path: Path, secret: bytes) -> dict:
         or not isinstance(pending.get("page"), dict)
         or not isinstance(pending.get("nonce"), str)
         or not CODE_RE.match(str(pending.get("code", "")))
-        or not isinstance(pending.get("expires_at"), (int, float))
         or not isinstance(pending.get("rendered_at"), (int, float))
         or not isinstance(pending.get("paste_digests"), list)
         or not pending["paste_digests"]
@@ -361,7 +358,6 @@ def render(
         "code": code,
         "created_at": int(now),
         "rendered_at": now,
-        "expires_at": int(now) + ROUND_SECONDS,
         "session": session,
         "platform": platform,
         "shape": shown.shape,
@@ -407,8 +403,8 @@ def consume(
     pending = _read_pending(path, secret)
     if pending.get("action") != action:
         raise Refusal("not-rendered")
-    if _clock() > float(pending["expires_at"]):
-        raise Refusal("code-expired")
+    # No expiry: a round stays open until it is consumed once or replaced by a newer
+    # render for the same record, so the user may paste it whenever they come back.
     if not hmac.compare_digest(
         compute_code(secret, live_page, pending["nonce"]), str(pending["code"])
     ) or canonical(live_page) != canonical(pending["page"]):
