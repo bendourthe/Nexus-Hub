@@ -92,6 +92,12 @@ def build_fixture(root: Path, *, stub: bool = False) -> Path:
     _git(work, "remote", "add", "origin", str(remote))
     files = {
         PLAN_REL: PLAN,
+        # A queued sibling keeps v0.2.0 from being its minor's last plan, so this
+        # one-plan run is not also an archive run (minor_e2e.py covers archiving).
+        "docs/releases/v0/v0.2/plans/v0.2.1-next.md": (
+            "# Plan -- Next\n\n**Version**: v0.2.1\n**Slug**: next\n**Status**: queued\n\n"
+            "## Phase 1\n\n- [ ] T001 Build src/next.py\n"
+        ),
         "docs/releases/v0/v0.2/known-gaps.md": GAPS,
         "src/calc.py": "def add(a, b):\n    return a - b\n",
         "CHANGELOG.md": "# Changelog\n\n## [Unreleased]\n",

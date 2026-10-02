@@ -11,6 +11,8 @@ two writes a minor close makes:
                            [--closing-branch chore/close-vX.Y] [--integration-branch develop]
                            [--session ID] [--link-checker PATH] [--repo PATH]
     minor_close.py status --minor vX.Y [--repo PATH]   the gaps.minor and archive.minor lines
+    minor_close.py carry --plan PLAN [--id ID]... [--date YYYY-MM-DD] [--session ID] [--dry-run]
+    minor_close.py archive --minor vX.Y --plan PLAN --apply [...]   archive on a one-plan run's approval
 
 `migrate` copies one open item whose id is in the minor record's frozen
 `gap-migration` list into the next minor's known-gaps.md with a
@@ -362,7 +364,9 @@ def _block_end(text: str, start: int, level: int) -> int:
 
 def _find_heading(text: str, level: int, predicate: Callable[[str], bool], start: int = 0, end: int | None = None) -> int | None:
     end = len(text) if end is None else end
-    for match in re.finditer(r"^(#{1,6})[ \t]+(.*?)[ \t]*$", text[start:end], re.MULTILINE):
+    # `\r` too: a ledger checked out with CRLF endings must still match its headings,
+    # or the summary-count check and update would silently be skipped.
+    for match in re.finditer(r"^(#{1,6})[ \t]+(.*?)[ \t\r]*$", text[start:end], re.MULTILINE):
         if len(match.group(1)) == level and predicate(match.group(2)):
             return start + match.start()
     return None
@@ -553,7 +557,22 @@ def plan_migration(
     if gate != "met":
         raise Refused(why, pid)
     target_token = cm.next_minor(token)
-    target_version = target_token + ".0"
+    tmin = cm.minor_of(target_token)
+    target_path, target_rel, target_before = _target_ledger(rctx, ledgers, target_token)
+    scoped = [source, cm.Ledger(target_path, target_rel, tmin, "active", target_before or "", [])]
+    excluded = cm.excluded_ledgers(ck, rctx, token, record, scoped)
+    if excluded is None:
+        raise Refused("cannot-verify", "which branches touch the ledgers")
+    if source.rel in excluded:
+        raise Refused("source-" + excluded[source.rel], source.rel)
+    if target_rel in excluded:
+        raise Refused("target-" + excluded[target_rel], target_rel)
+    return _migration_texts(rctx, pid, source, item, target_token, (target_path, target_rel, target_before),
+                            reason, evidence, date)
+
+
+def _target_ledger(rctx: ck.RepoContext, ledgers: list[cm.Ledger], target_token: str) -> tuple[Path, str, str | None]:
+    """(path, repository-relative path, current text or None) of the next minor's active ledger."""
     tmin = cm.minor_of(target_token)
     targets = [l for l in ledgers if l.minor == tmin]
     active = [l for l in targets if l.layout == "active"]
@@ -564,19 +583,20 @@ def plan_migration(
     if active:
         if active[0].problems:
             raise Refused("ledger-unparsed", f"{active[0].rel} {active[0].problems[0]}")
-        target_path, target_rel, target_before = active[0].path, active[0].rel, active[0].text
-    else:
-        target_rel = cm.ledger_rels(*tmin)[0]
-        target_path, target_before = rctx.root / target_rel, None
-    scoped = [source, cm.Ledger(target_path, target_rel, tmin, "active", target_before or "", [])]
-    excluded = cm.excluded_ledgers(ck, rctx, token, record, scoped)
-    if excluded is None:
-        raise Refused("cannot-verify", "which branches touch the ledgers")
-    if source.rel in excluded:
-        raise Refused("source-" + excluded[source.rel], source.rel)
-    if target_rel in excluded:
-        raise Refused("target-" + excluded[target_rel], target_rel)
+        return active[0].path, active[0].rel, active[0].text
+    target_rel = cm.ledger_rels(*tmin)[0]
+    return rctx.root / target_rel, target_rel, None
 
+
+def _migration_texts(
+    rctx: ck.RepoContext, pid: str, source: cm.Ledger, item: cm.GapItem, target_token: str,
+    target: tuple[Path, str, str | None], reason: str, evidence: str, date: str,
+) -> MigrationPlan:
+    """Both files' new text for moving one open item to the next minor's `.0` section."""
+    gid = item.gid
+    target_path, target_rel, target_before = target
+    target_version = target_token + ".0"
+    tmin = cm.minor_of(target_token)
     nl = _newline(source.text)
     target_text = target_before if target_before is not None else _template(
         target_token, target_version, _project_name(rctx.root, source.text), date, nl
@@ -611,7 +631,7 @@ def plan_migration(
 
 
 def _section_heading(text: str, version: str) -> str:
-    for match in re.finditer(r"^## (.*?)[ \t]*$", text, re.MULTILINE):
+    for match in re.finditer(r"^## (.*?)[ \t\r]*$", text, re.MULTILINE):
         if match.group(1).split() and match.group(1).split()[0] == version:
             return match.group(1)
     return version
@@ -673,6 +693,106 @@ def cmd_migrate(args: argparse.Namespace) -> int:
     return EXIT_OK
 
 
+# --------------------------------------------------------------------------- one-plan carry
+
+
+def _plan_record(plan: str, session: str | None) -> tuple[ck.Context, dict]:
+    """The plan's context and its verified schema-1 run record, or a refusal."""
+    ctx = ck.Context(plan, ck.Budget(BUDGET_SECONDS))
+    state = ck.load_record(ctx, session)
+    if state.forced is not None:
+        raise Forced(state.forced[0])
+    if state.record is None or state.record.get("schema") != ck.SCHEMA:
+        raise Refused("approval-not-covered", "no verified run record for this plan")
+    return ctx, state.record
+
+
+def _named(record: dict, name: str) -> set[str]:
+    entry = next((c for c in (record.get("approvals") or {}).get("classes") or []
+                  if isinstance(c, dict) and c.get("class") == name), {})
+    return {pid for pid in (cm.normalize_gap_id(str(i)) for i in entry.get("named") or []) if pid}
+
+
+def _last_plan(ctx: ck.Context, record: dict) -> bool:
+    repo = (record.get("approvals") or {}).get("repo") or ctx.default_repo
+    state = cm.last_plan_status(ck, ctx, ctx.version, repo)
+    if state == "cannot-verify":
+        raise Refused("cannot-verify", "whether this is the last plan of its minor")
+    return state == "met"
+
+
+def _source_ledger(ctx: ck.Context) -> tuple[list[cm.Ledger], cm.Ledger]:
+    minor = cm.minor_of(ctx.version)
+    ledgers, unreadable = cm.load_ledgers(ctx.root)
+    if unreadable:
+        raise Refused("ledger-unreadable", unreadable[0])
+    own = [l for l in ledgers if l.minor == minor and l.layout == "active"]
+    if len(own) != 1:
+        raise Refused("source-ledger-missing" if not own else "source-ledger-ambiguous", ctx.version)
+    if own[0].problems:
+        raise Refused("ledger-unparsed", f"{own[0].rel} {own[0].problems[0]}")
+    return ledgers, own[0]
+
+
+def carry_within(text: str, item: cm.GapItem, target: str, version: str, date: str) -> str:
+    """Move one open item, id unchanged, into the next patch's section of the same ledger."""
+    removed = text[: item.start] + text[item.end:]
+    lines = [f"- **Carried from**: {version} on {date}"]
+    moved = _insert_entry(removed, target, item, item.gid, item.body, lines)
+    moved = _adjust_summary(moved, item.section, item.kind, text)
+    moved = _adjust_summary(moved, _section_heading(moved, target), item.kind, text)
+    return _set_header(moved, date)
+
+
+def cmd_carry(args: argparse.Namespace) -> int:
+    ctx, record = _plan_record(args.plan, args.session)
+    if not ck._has_class(record, "carry-gaps"):
+        raise Refused("approval-not-covered", "the run record does not carry carry-gaps")
+    date = args.date or _today()
+    if not re.match(r"^\d{4}-\d{2}-\d{2}$", date):
+        raise ck.Malformed("--date must be YYYY-MM-DD")
+    last = _last_plan(ctx, record)
+    token = "v{}.{}".format(*cm.minor_of(ctx.version))
+    ledgers, source = _source_ledger(ctx)
+    chosen = [i for i in source.items if i.state == "open"
+              and (last or cm.section_version(i.section) == ctx.version)]
+    if args.id:
+        wanted = {(cm.normalize_gap_id(i if "#" in i else f"{token}#{i}") or "").split("#")[-1] for i in args.id}
+        missing = wanted - {i.gid for i in chosen}
+        if missing:
+            raise Refused("gap-not-open", ", ".join(sorted(missing)))
+        chosen = [i for i in chosen if i.gid in wanted]
+    named = _named(record, "carry-gaps")
+    unnamed = [f"{token}#{i.gid}" for i in chosen if i.sensitive() and f"{token}#{i.gid}" not in named]
+    if unnamed:
+        raise Refused("security-not-named", ", ".join(unnamed))
+    target = cm.carry_target(ctx.version, last)
+    verb = "WOULD " if args.dry_run else ""
+    for gid in [i.gid for i in chosen]:
+        ledgers, source = _source_ledger(ctx)
+        item = next(i for i in source.items if i.gid == gid and i.state == "open")
+        if last:
+            target_token = cm.next_minor(token)
+            plan = _migration_texts(
+                ctx, f"{token}#{gid}", source, item, target_token,
+                _target_ledger(ctx, ledgers, target_token), cm.PLAN_CARRY_REASON,
+                f"left open by {ctx.version}, the last plan of {token}", date,
+            )
+            if not args.dry_run:
+                apply_migration(plan)
+            print(f"{verb}MIGRATED {token}#{gid} -> {target_token}#{plan.new_gid} ({target}) {plan.target_rel}")
+            continue
+        after = carry_within(source.text, item, target, ctx.version, date)
+        if not args.dry_run:
+            if _read_exact(source.path) != source.text:
+                raise Refused("source-changed", source.rel)
+            _write_atomic(source.path, after)
+        print(f"{verb}CARRIED {token}#{gid} -> {target} {source.rel}")
+    if not chosen:
+        print(f"NOTHING TO CARRY {ctx.version}")
+    return EXIT_OK
+
+
 # --------------------------------------------------------------------------- archive
 
 
@@ -705,9 +825,14 @@ def register_refusals(
     if ledger is None:
         return [Refused("no-register", rel)]
     out = [Refused("register-unparsed", f"{rel} {problem}") for problem in ledger.problems]
+    plan_run = (record or {}).get("schema") == ck.SCHEMA
     for item in ledger.items:
         if item.state == "open":
             out.append(Refused("open-gap", f"{token}#{item.gid}"))
+        elif item.state == "migrated" and plan_run:
+            # A one-plan run's migration (completion contract, "Single-plan carry and archive").
+            if not cm.plan_migration_met(ledgers, ledger, item):
+                out.append(Refused("unverified-migration", f"{token}#{item.gid} migration-target-missing"))
         elif item.state == "migrated":
             status, reason = cm.verify_migration(rctx, record, token, ledgers, ledger, item)
             if status != "met":
@@ -949,6 +1074,33 @@ def refreeze(rctx: ck.RepoContext, record: dict, record_path: Path, token: str) 
     ck._write_record(record_path, record)
 
 
+def refreeze_plan(ctx: ck.Context, record: dict, record_path: Path, tree: str, dest: str) -> str:
+    """Re-point a one-plan run record at its archived plan: new path, hash, signature, and key."""
+    new_rel = dest + ctx.rel[len(tree):] if ctx.rel.startswith(tree + "/") else ctx.rel
+    text = (ctx.root / new_rel).read_text(encoding="utf-8")
+    record["plan"] = new_rel
+    record["plan_sha256"] = ck.plan_hash_text(text)
+    record["approvals_hmac"] = ck._sign(record, ck._secret(create=False) or b"")
+    new_path = ck.plan_record_paths(ctx.root, ctx.key_repo, ctx.remote_url, new_rel)[0]
+    ck._write_record(new_path, record)
+    if record_path.resolve() != new_path.resolve():
+        record_path.unlink(missing_ok=True)
+    return new_rel
+
+
+def remove_empty_dirs(root: Path) -> list[str]:
+    """Remove every empty directory under docs/releases/, deepest first; return them."""
+    base = root / "docs" / "releases"
+    removed: list[str] = []
+    if not base.is_dir():
+        return removed
+    for path in sorted(base.rglob("*"), key=lambda p: len(p.parts), reverse=True):
+        if path.is_dir() and not any(path.iterdir()):
+            path.rmdir()
+            removed.append(path.relative_to(root).as_posix())
+    return removed
+
+
 def _authority(record: dict | None, confirmed: bool) -> str:
     """`record` under the record's `archive-minor`; `confirmed` only when there is no record.
 
@@ -1030,7 +1182,17 @@ def cmd_archive(args: argparse.Namespace) -> int:
     major, minor = cm.parse_minor(ck, token)
     dest = cm.ARCHIVE_TREE.format(M=major, m=minor)
     closing = args.closing_branch or f"chore/close-{token}"
-    record, record_path = _record(rctx, token, args.session)
+    plan_ctx: ck.Context | None = None
+    if args.plan:
+        # A one-plan run archives its minor only as its last plan, on its own record.
+        plan_ctx, record = _plan_record(args.plan, args.session)
+        record_path = plan_ctx.record_path()
+        if "v{}.{}".format(*cm.minor_of(plan_ctx.version)) != token:
+            raise Refused("out-of-scope", f"{plan_ctx.version} is not in {token}")
+        if not _last_plan(plan_ctx, record):
+            raise Refused("not-last-plan", plan_ctx.version)
+    else:
+        record, record_path = _record(rctx, token, args.session)
     tree = source_tree(rctx, major, minor)
     if tree is None:
         if (rctx.root / dest).is_dir():
@@ -1069,8 +1231,14 @@ def cmd_archive(args: argparse.Namespace) -> int:
     assert checker is not None
     _apply_archive(rctx, token, tree, dest, files, checker)
     head = rctx._git_out("rev-parse", "--short", "HEAD")
-    if authority == "record" and record is not None:
+    emptied = remove_empty_dirs(rctx.root)
+    if authority == "record" and record is not None and plan_ctx is not None:
+        new_rel = refreeze_plan(plan_ctx, record, record_path, tree, dest)
+        print(f"RE-POINTED run record -> {new_rel}")
+    elif authority == "record" and record is not None:
         refreeze(rctx, record, record_path, token)
+    for rel in emptied:
+        print(f"REMOVED empty {rel}")
     print(f"ARCHIVED {token} {tree} -> {dest} commit={head} {summary} newly_broken=0")
     return EXIT_OK
 
@@ -1115,8 +1283,16 @@ def build_parser() -> argparse.ArgumentParser:
     archive.add_argument("--integration-branch", default="develop")
     archive.add_argument("--session")
     archive.add_argument("--link-checker")
+    archive.add_argument("--plan", help="archive on this one-plan run's record (its last plan only)")
     archive.add_argument("--repo", default=".")
     archive.set_defaults(func=cmd_archive)
+    carry = sub.add_parser("carry", help="record a one-plan run's open gaps in the next version")
+    carry.add_argument("--plan", required=True)
+    carry.add_argument("--id", action="append", help="carry only this gap (repeatable), such as WN-3")
+    carry.add_argument("--date")
+    carry.add_argument("--session")
+    carry.add_argument("--dry-run", action="store_true")
+    carry.set_defaults(func=cmd_carry)
     status = sub.add_parser("status", help="print the gaps.minor and archive.minor lines")
     status.add_argument("--minor", required=True)
     status.add_argument("--repo", default=".")
