@@ -132,6 +132,11 @@ describe("Save Raw Usage Response", () => {
     expect(redacted.usedPercent).toBe(42);
   });
 
+  it("rebuilds kept keys and values from fixed alphabets and placeholders anything outside them", () => {
+    const redacted = redactUsagePayload({ "plän": 1, used_percent: 12.5, big: 1e21, reached: false, kind: "five_hour" });
+    expect(redacted).toEqual({ "<key 0>": 1, used_percent: 12.5, big: 1e21, reached: false, kind: "five_hour" });
+  });
+
   it("writes one redacted file under the given storage folder", () => {
     const body = captured();
     body.account_email = "someone@example.com";

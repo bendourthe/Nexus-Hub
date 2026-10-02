@@ -54,6 +54,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import os
 import re
 import sys
@@ -293,7 +294,7 @@ def classify_windows(
         name = window.get("name")
         if not isinstance(name, str) or not name or isinstance(percent, bool):
             continue
-        if not isinstance(percent, (int, float)) or percent != percent:
+        if not isinstance(percent, (int, float)) or math.isnan(percent):
             continue
         resets = window.get("resets_at")
         entry = {
@@ -393,6 +394,8 @@ class StateLock:
                         self.path.unlink()
                         continue
                 except OSError:
+                    # The holder released or another waiter reaped the lock between
+                    # stat and unlink; fall through to the bounded wait and retry.
                     pass
                 if time.monotonic() >= end:
                     return self
@@ -405,6 +408,8 @@ class StateLock:
             try:
                 self.path.unlink()
             except OSError:
+                # Releasing must never fail the hook; a lock left behind is
+                # reaped by the next waiter once it is LOCK_STALE_SECONDS old.
                 pass
 
 
@@ -426,6 +431,8 @@ def save_state(path: Path, state: dict[str, Any]) -> bool:
         try:
             tmp.unlink()
         except OSError:
+            # Best-effort cleanup of a temp file that may never have been
+            # created; the caller already learns of the failure via False.
             pass
         return False
     return True

@@ -1292,6 +1292,8 @@ def test_no_credential_reaches_any_output_cache_or_log(
         try:
             written.append(Path(src).read_text(encoding="utf-8", errors="replace"))
         except OSError:
+            # Recording is observational: a source the test cannot read is left
+            # for real_replace below to handle (or fail on) exactly as unpatched.
             pass
         real_replace(src, dst, *args, **kwargs)
 

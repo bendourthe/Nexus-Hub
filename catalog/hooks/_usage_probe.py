@@ -848,6 +848,8 @@ def _write_cache(platform: str, payload: dict[str, Any]) -> None:
         try:
             os.unlink(temp)
         except OSError:
+            # The cache is best-effort: a leftover temp file is harmless and a
+            # failed write only means the next call fetches again.
             pass
 
 
@@ -890,6 +892,8 @@ def _acquire_fetch_lock(platform: str, now: float) -> str:
                     path.unlink()
                     continue
             except OSError:
+                # The holder released or another caller reaped the lock between
+                # stat and unlink; treat the fetch as in progress elsewhere.
                 pass
             return "busy"
         except OSError:
@@ -901,6 +905,8 @@ def _release_fetch_lock(platform: str) -> None:
     try:
         _fetch_lock_path(platform).unlink()
     except OSError:
+        # Releasing must never fail the probe; a lock left behind is reaped
+        # once it is FETCH_LOCK_STALE_SECONDS old.
         pass
 
 

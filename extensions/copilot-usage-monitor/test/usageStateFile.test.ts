@@ -169,8 +169,10 @@ describe("UsageController and the state file", () => {
     __setStubConfig("copilotUsage", "writeUsageState", false);
     const { controller } = controllerFor([personal()], file);
     await controller.refresh(FETCHED);
-    expect(fs.existsSync(file)).toBe(false);
-    fs.writeFileSync(file, "{}");
+    // A listing, not a path check, followed by an exclusive create: "wx" throws if
+    // the file exists, so absence is proven with no check-then-use gap on the path.
+    expect(fs.readdirSync(dir)).toEqual([]);
+    fs.writeFileSync(file, "{}", { flag: "wx" });
     controller.stateWritingDisabled();
     expect(fs.existsSync(file)).toBe(false);
   });

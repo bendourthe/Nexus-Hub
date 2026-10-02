@@ -66,8 +66,11 @@ describe("F1: the dashboard webview cannot be scripted through settings", () => 
     expect(csp).not.toBeNull();
     expect(csp![1]).toContain("default-src 'none'");
     const nonce = csp![1].match(/script-src 'nonce-([^']+)'/)![1];
-    const scripts = [...html.matchAll(/<script([^>]*)>/g)].map((m) => m[1]);
+    // Case-insensitive so <SCRIPT>, <Script> and friends cannot slip past the count.
+    const scripts = [...html.matchAll(/<script\b([^>]*)>/gi)].map((m) => m[1]);
     expect(scripts).toEqual([` nonce="${nonce}"`]);
+    // Exactly one closing tag in any case, spacing, or attribute variant (</SCRIPT >, </script foo>).
+    expect([...html.matchAll(/<\/script\b[^>]*>/gi)]).toHaveLength(1);
   });
 
   it("contains no inline event handler attributes, with data or without", () => {
