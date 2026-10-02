@@ -794,7 +794,6 @@ def render_data(pending: dict, *, scope: str, blocker: int | None, display: dict
         "paste": list(pending["paste_lines"]),
         "page": pending["page"],
         "display": display or {},
-        "expires_at": pending["expires_at"],
     }
 
 
