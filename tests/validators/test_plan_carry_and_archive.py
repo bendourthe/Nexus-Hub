@@ -16,6 +16,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 from .test_check_plan_completion import (  # noqa: F401  (autouse fixture)
     EVIDENCE_REL,
     PLAN_REL,
@@ -51,7 +53,7 @@ def _close(fx: Fixture, *args: str) -> subprocess.CompletedProcess:
                           capture_output=True, text=True, check=False)
 
 
-def _build(tmp: Path, *classes: dict, sibling: bool = True, items: str = WN3, wn: int = 1) -> Fixture:
+def _build(tmp: Path, *classes: dict, sibling: bool = True, items: str = WN3, wn: int = 1, bg: int = 0) -> Fixture:
     """A finished one-plan run whose v0.2.0 section still holds open gaps."""
     fx = Fixture(tmp)
     _git(tmp, "init", "--bare", "-q", "-b", "main", str(fx.remote))
@@ -61,7 +63,7 @@ def _build(tmp: Path, *classes: dict, sibling: bool = True, items: str = WN3, wn
                  ("remote", "set-url", "--push", "origin", "https://github.com/acme/demo.git")):
         _git(fx.work, *args)
     fx.write(PLAN_REL, PLAN.format(status="in-progress", a=" ", b=" "))
-    fx.write(GAPS, ledger("v0.2", section("v0.2.0", wn, items)))
+    fx.write(GAPS, ledger("v0.2", section("v0.2.0", wn, items, bg_open=bg)))
     if sibling:
         fx.write(SIBLING, PLAN.format(status="queued", a=" ", b=" ")
                  .replace("v0.2.0", "v0.2.1").replace("demo", "next"))
@@ -144,11 +146,11 @@ def test_carry_needs_the_carry_gaps_approval(tmp_path: Path) -> None:
 
 
 def test_a_security_gap_is_carried_only_when_named(tmp_path: Path) -> None:
-    fx = _build(tmp_path, CARRY, items=BG2, wn=0)
+    fx = _build(tmp_path, CARRY, items=BG2, wn=0, bg=1)
     refused = _close(fx, "carry", "--plan", PLAN_REL, "--session", SESSION)
     assert refused.stdout.splitlines()[0] == "REFUSED: security-not-named (v0.2#BG-2)"
     (tmp_path / "named").mkdir()
-    named = _build(tmp_path / "named", {"class": "carry-gaps", "named": ["v0.2#BG-2"]}, items=BG2, wn=0)
+    named = _build(tmp_path / "named", {"class": "carry-gaps", "named": ["v0.2#BG-2"]}, items=BG2, wn=0, bg=1)
     done = _close(named, "carry", "--plan", PLAN_REL, "--session", SESSION)
     assert done.returncode == 0, done.stdout + done.stderr
     assert done.stdout.startswith("CARRIED v0.2#BG-2 -> v0.2.1")
@@ -225,3 +227,22 @@ def test_removing_empty_folders_climbs_until_a_folder_holds_something(tmp_path: 
     assert removed == ["docs/releases/v9/v9.1/plans", "docs/releases/v9/v9.1", "docs/releases/v9"]
     assert (tmp_path / "docs/releases/v8/v8.2/known-gaps.md").is_file()
     assert (tmp_path / "docs/releases").is_dir()  # the canonical root itself is kept
+
+
+@pytest.mark.parametrize("newline", ["\n", "\r\n"], ids=["lf", "crlf"])
+def test_carry_keeps_summary_counts_in_step_on_any_line_ending(newline: str) -> None:
+    """A ledger checked out with CRLF endings (Windows) still has its counts checked and updated."""
+    sys.path.insert(0, str(REPO_ROOT / "scripts"))
+    import completion_minor as cm
+    import minor_close
+
+    text = ledger("v0.2", section("v0.2.0", 1, WN3)).replace("\n", newline)
+    (item,) = cm.parse_ledger(text)
+    moved = minor_close.carry_within(text, item, "v0.2.1", "v0.2.0", "2026-10-02")
+    summaries = moved.split("### Summary")
+    assert "| Warnings (WN) | 0 | 0 |" in summaries[1]  # v0.2.0 no longer holds it
+    assert "| Warnings (WN) | 1 | 0 |" in summaries[2]  # v0.2.1 does
+    wrong = text.replace("| Warnings (WN) | 1 |", "| Warnings (WN) | 5 |")
+    with pytest.raises(minor_close.Refused) as refused:
+        minor_close.carry_within(wrong, item, "v0.2.1", "v0.2.0", "2026-10-02")
+    assert refused.value.reason == "summary-mismatch"

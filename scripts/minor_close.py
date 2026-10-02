@@ -364,7 +364,9 @@ def _block_end(text: str, start: int, level: int) -> int:
 
 def _find_heading(text: str, level: int, predicate: Callable[[str], bool], start: int = 0, end: int | None = None) -> int | None:
     end = len(text) if end is None else end
-    for match in re.finditer(r"^(#{1,6})[ \t]+(.*?)[ \t]*$", text[start:end], re.MULTILINE):
+    # `\r` too: a ledger checked out with CRLF endings must still match its headings,
+    # or the summary-count check and update would silently be skipped.
+    for match in re.finditer(r"^(#{1,6})[ \t]+(.*?)[ \t\r]*$", text[start:end], re.MULTILINE):
         if len(match.group(1)) == level and predicate(match.group(2)):
             return start + match.start()
     return None
@@ -629,7 +631,7 @@ def _migration_texts(
 
 
 def _section_heading(text: str, version: str) -> str:
-    for match in re.finditer(r"^## (.*?)[ \t]*$", text, re.MULTILINE):
+    for match in re.finditer(r"^## (.*?)[ \t\r]*$", text, re.MULTILINE):
         if match.group(1).split() and match.group(1).split()[0] == version:
             return match.group(1)
     return version
