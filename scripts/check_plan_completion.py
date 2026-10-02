@@ -1321,8 +1321,10 @@ def cmd_record_render(args: argparse.Namespace) -> int:
         if covered is not None:
             return covered
         page = _create_page(ctx, _approvals_from_file(args.approvals))
-        display = _minor_module().page_display(
-            ctx.root, ctx.version, [(ctx.version, ctx.rel, ctx.text)], earlier=False
+        minor = _minor_module()
+        display = minor.page_display(
+            ctx.root, ctx.version, [(ctx.version, ctx.rel, ctx.text)], earlier=False,
+            summary=minor.summary_input(sys.modules[__name__], ctx.root, args.summary),
         )
     elif args.action == "retire":
         page = _retire_page(ctx)
@@ -1385,7 +1387,7 @@ def cmd_record_create(args: argparse.Namespace) -> int:
     pushed_repo = ctx.url_repo(ctx.push_remote_url)
     if not pushed_repo or pushed_repo.lower() != approved_repo.lower():
         return _refused("push-remote-outside-approval")
-    paste = " / ".join(pending["paste_lines"])
+    paste = approval_binding.pasted(pending)
     defer = next(
         (c.get("bound") for c in spec["classes"] if c["class"] == "defer-gaps"), []
     ) or []
@@ -1557,7 +1559,7 @@ def cmd_record_answer(args: argparse.Namespace) -> int:
     ctx, record, pending = consumed
     record["blockers"][args.blocker].update(open=False, answered=_now())
     record["approvals"]["classes"].append(
-        {"class": "answer", "blocker": args.blocker, "text": " / ".join(pending["paste_lines"])}
+        {"class": "answer", "blocker": args.blocker, "text": approval_binding.pasted(pending)}
     )
     record["approvals_hmac"] = _sign(record, _secret(create=False) or b"")
     _write_record(ctx.record_path(), record)
@@ -1679,6 +1681,10 @@ def build_parser() -> argparse.ArgumentParser:
         "--action", choices=approval_binding.ACTIONS, default="create"
     )
     render.add_argument("--approvals", help="JSON file of approval classes (create)")
+    render.add_argument(
+        "--summary",
+        help="JSON file of the page's plain outcome bullets and parallel-plan check (create)",
+    )
     render.add_argument("--blocker", type=int, help="open blocker index (answer)")
     render.add_argument("--json", action="store_true", help="print the canonical page data")
     render.add_argument(
