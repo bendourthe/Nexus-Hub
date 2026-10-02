@@ -1,8 +1,8 @@
 {
   "name": "nexus-hub",
   "displayName": "Nexus Hub",
-  "description": "Enterprise-grade skill harness for AI coding assistants -- the upstream catalog for the Nexus desktop app and every major agent (Claude Code, OpenAI Codex, Antigravity, GitHub Copilot, Cursor, GitHub CLI). 338 curated skills, 18 commands, 23 agents. This plugin is the Claude Code subscribe path; the installer remains the primary multi-platform path and the only path that installs hooks.",
-  "version": "4.13.6",
+  "description": "Enterprise-grade skill harness for AI coding assistants -- the upstream catalog for the Nexus desktop app and every major agent (Claude Code, OpenAI Codex, Antigravity, GitHub Copilot, Cursor, GitHub CLI). 339 curated skills, 20 commands, 23 agents. This plugin is the Claude Code subscribe path; the installer remains the primary multi-platform path and the only path that installs hooks.",
+  "version": "4.13.7",
   "author": {
     "name": "Benjamin Dourthe",
     "url": "https://github.com/bendourthe"

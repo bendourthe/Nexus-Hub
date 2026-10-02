@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.13.6 -->
+<!-- nexus-hub-version: 4.13.7 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 339 skills, 20 commands, 36 registered hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -36,6 +36,14 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v4.13.7
+
+**Hit a usage limit without losing the session.** `/handoff` writes `.nexus-hub/handoff.md` and prints one prompt that any agent can resume from. A new usage guard hook watches the running platform's own usage (Claude Code, Codex, Cursor, and GitHub Copilot) and, at 99% of a tracked window, tells the agent to finish the current step and hand off. Every instruction template also asks for a rolling checkpoint after each verified milestone.
+
+**See GitHub Copilot usage in the status bar.** The new Copilot Usage Monitor shows your monthly quota, or, with an organization connected, the shared AI-credit pool. The Codex monitor now shows when a one-time limit reset is available and opens the reset page; it never uses a reset itself.
+
+**Approvals that last.** An approval page no longer expires before you paste it, the approval and goal lines can be pasted together, and a one-plan run now records its leftover gaps and archives its minor when it is the last plan. Windows test and agent runs no longer flash console windows.
 
 ## What's New in v4.13.6
 
