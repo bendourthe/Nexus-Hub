@@ -63,11 +63,18 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import shutil
 import subprocess
 import sys
 from pathlib import Path
+
+# On Windows, a console program started by a process with no console of its own
+# (a hook or agent launched without one, or a detached test) opens a visible
+# window that takes keyboard focus. Every child here has its output captured and
+# its prompts disabled, so it never needs a window.
+NO_WINDOW: dict = {"creationflags": subprocess.CREATE_NO_WINDOW} if os.name == "nt" else {}
 
 DEFAULT_RELEASE_BRANCH = "main"
 DEFAULT_INTEGRATION_BRANCH = "develop"
@@ -91,6 +98,7 @@ def git(*args: str, cwd: Path | None = None) -> str:
             capture_output=True,
             text=True,
             check=True,
+            **NO_WINDOW,
         )
     except subprocess.CalledProcessError as exc:
         raise GitUnavailable(
@@ -194,6 +202,7 @@ def closed_unmerged_pr_branches(cwd: Path | None = None) -> list[str]:
             capture_output=True,
             text=True,
             check=True,
+            **NO_WINDOW,
         ).stdout
         closed = {
             entry["headRefName"]
@@ -255,7 +264,7 @@ def gh_json(*args: str) -> dict | None:
         return None
     try:
         out = subprocess.run(
-            ["gh", *args], capture_output=True, text=True, check=True
+            ["gh", *args], capture_output=True, text=True, check=True, **NO_WINDOW
         ).stdout
         return json.loads(out)
     except (OSError, subprocess.CalledProcessError, json.JSONDecodeError):

@@ -40,6 +40,12 @@ import sys
 import time
 from pathlib import Path
 
+# On Windows, a console program started by a process with no console of its own
+# (a hook or agent launched without one, or a detached test) opens a visible
+# window that takes keyboard focus. Every child here has its output captured and
+# its prompts disabled, so it never needs a window.
+NO_WINDOW: dict = {"creationflags": subprocess.CREATE_NO_WINDOW} if os.name == "nt" else {}
+
 BUDGET_SECONDS = 30.0
 BLOCK_RESERVE_SECONDS = 5.0  # kept back from the evaluation for the blocker write
 NO_PROGRESS_REFUSALS = 3
@@ -184,6 +190,7 @@ def _run_checker(args: list[str], budget_end: float, cwd: str) -> tuple[int, str
             errors="replace",
             timeout=remaining,
             check=False,
+            **NO_WINDOW,
         )
     except (OSError, subprocess.TimeoutExpired):
         return -1, ""
