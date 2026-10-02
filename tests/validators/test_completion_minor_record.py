@@ -525,7 +525,9 @@ def test_a_live_minor_runner_lock_refuses_a_concurrent_run(minor: Minor) -> None
 
 def test_a_minor_only_class_is_refused_in_a_per_plan_approval(minor: Minor) -> None:
     spec = minor.tmp / "plan-approvals.json"
-    spec.write_text(json.dumps({"classes": [{"class": "archive-minor"}]}), encoding="utf-8")
+    # `archive-minor` and `minor-close-pr` are also a last plan's (completion contract,
+    # "Single-plan carry and archive"); `gap-migration` stays a minor run's alone.
+    spec.write_text(json.dumps({"classes": [{"class": "gap-migration", "bound": ["v0.5#WN-3"]}]}), encoding="utf-8")
     result = minor.run("record", "render", f"{MINOR_DIR}/v0.5.2-alpha.md", "--session", SESSION, "--approvals", str(spec))
     assert result.returncode == ck.EXIT_MALFORMED
     assert "belongs to a minor run" in result.stderr
@@ -633,7 +635,14 @@ def test_project_gives_the_same_verdicts_as_a_schema1_record(minor: Minor) -> No
     for key in ("repo", "source_branch", "target_branch", "tag", "cleanup", "push_remote_url"):
         assert projected["approvals"][key] == schema1["approvals"][key], key
     assert projected["start_head"] == schema1["start_head"]
-    assert ck.evaluate(ctx, projected) == ck.evaluate(ctx, schema1)
+    # A member's projection never carries the one-plan close predicates: the minor
+    # close owns its gaps and its archive. Everything else is the same verdict.
+    plan_close = {"gaps.carried", "archive.minor", "archive.empty-dirs"}
+    member, member_deferred = ck.evaluate(ctx, projected)
+    alone, alone_deferred = ck.evaluate(ctx, schema1)
+    assert not plan_close & {pid for pid, _ in member}
+    assert plan_close <= {pid for pid, _ in alone}
+    assert member == [r for r in alone if r[0] not in plan_close] and member_deferred == alone_deferred
 
 
 def test_a_new_per_plan_record_uses_the_plan_key_and_the_legacy_key_is_still_read(minor: Minor) -> None:

@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **A one-plan run now must record its leftover gaps and, as its minor's last plan, archive the minor.** These are the run goal's last two steps, now checked by the completion checker instead of only stated.
+    - **Recording gaps:** `minor_close.py carry --plan <plan>`, under the new `carry-gaps` approval, moves every gap still open in the plan's section into the next patch's section of the same ledger, with its id unchanged and a `**Carried from**` line. When the plan is the last unshipped plan of its minor, every open gap of the minor migrates to the next minor's `.0` section instead.
+    - **Archiving:** `minor_close.py archive --minor vX.Y --plan <plan> --apply` archives the minor on the plan's own `archive-minor` approval, removes every folder left empty under `docs/releases/`, and re-points the run record at the archived plan, so the checker still finds it there.
+    - **New checks:** `gaps.carried` also catches a gap that was deleted instead of recorded. `archive.minor` and `archive.empty-dirs` apply only to a last plan, and are `n/a` otherwise.
+    - **Rules:** documented in the completion contract's new "Single-plan carry and archive" section.
+
+### Changed
+
+- **A deferred gap no longer completes a one-plan run where it sits.** A gap of a type the user allowed to be deferred used to let the run finish with `(N deferred)` while the gap stayed in the plan's own section. The run now records it in the next version first.
+
 ### Fixed
 
 - **An approval no longer expires.** v4.13.6 gave every approval round a 30-minute life, so a page read and pasted later was refused as `code-expired` and had to be rendered again, which broke runs approved now and checked much later. A round now stays open until it is used once or replaced by a newer page for the same plan. Single use, the whole-message paste rule, and the page check are unchanged: a round whose plan, branches, or `HEAD` changed since it was shown still refuses as `page-changed`. The `code-expired` reason is gone.
