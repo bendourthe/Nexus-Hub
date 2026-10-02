@@ -7,6 +7,7 @@ This tree splits **living** docs (edited in place, describing current `main`) fr
 - [DEVLOG.md](DEVLOG.md) -- one index line per release
 - [todos.md](todos.md) -- forward dashboard (may lag the branch; see v3.21 known-gaps)
 - [decisions/](decisions/README.md) -- ADRs; never release-scoped
+- [guides/](guides/) -- user guides: [usage-limit handoff](guides/usage-limit-handoff.md), [repository-native CI profiles](guides/repository-native-ci-profiles.md), and [user attribution](guides/user-attribution.md)
 - [handbooks/](handbooks/README.md) -- markdown source of truth plus generated HTML. This catalog has no product atlas HTML yet; do not invent one
 - [policy/](policy/) -- installer, platform-contract, and MCP policy
 

@@ -52,6 +52,11 @@
         "command": "codex-usage.settings",
         "title": "Codex Usage: Settings",
         "category": "Codex Usage"
+      },
+      {
+        "command": "codex-usage.saveRawResponse",
+        "title": "Codex Usage: Save Raw Usage Response",
+        "category": "Codex Usage"
       }
     ],
     "icons": {
@@ -114,6 +119,7 @@
         },
         "codexUsage.thresholds.moderate": {
           "type": "number",
+          "scope": "application",
           "default": 50,
           "minimum": 1,
           "maximum": 99,
@@ -121,6 +127,7 @@
         },
         "codexUsage.thresholds.high": {
           "type": "number",
+          "scope": "application",
           "default": 75,
           "minimum": 1,
           "maximum": 99,
@@ -128,6 +135,7 @@
         },
         "codexUsage.thresholds.critical": {
           "type": "number",
+          "scope": "application",
           "default": 95,
           "minimum": 1,
           "maximum": 99,
@@ -142,16 +150,19 @@
         },
         "codexUsage.colors.moderate": {
           "type": "string",
+          "scope": "application",
           "default": "#cca700",
           "description": "Status bar background color when usage is at the Moderate level. Use a hex color (e.g. #cca700) or 'none' to disable highlighting."
         },
         "codexUsage.colors.high": {
           "type": "string",
+          "scope": "application",
           "default": "#f0643c",
           "description": "Status bar background color when usage is at the High level. Use a hex color (e.g. #f0643c) or 'none' to disable highlighting."
         },
         "codexUsage.colors.critical": {
           "type": "string",
+          "scope": "application",
           "default": "#e05555",
           "description": "Status bar background color when usage is at the Critical level. Use a hex color (e.g. #e05555) or 'none' to disable highlighting."
         },

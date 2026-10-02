@@ -7,7 +7,7 @@ Covers v4.13.6 Phase 2 (T012-T020) and v4.13.5 WN-2 / WN-3:
   committed `gh` stand-in (a two-digit patch, a shipped plan whose Status is
   stale, owned plans, a duplicate version, an empty minor);
 - the schema-2 record: round trip through the exact paste, tamper detection,
-  schema-1 compatibility, the per-plan-record refusal, the 14-day and
+  schema-1 compatibility, the per-plan-record refusal, the no-expiry and
   cross-session resume rules, the runner lock, and `project()` equivalence;
 - `repo_host.verify_push_route`: every transport override is `cannot-verify`,
   a push remote other than origin is `unmet`, and a clean config is `met`.
@@ -497,9 +497,15 @@ def test_the_members_own_source_branches_do_not_block_the_run(minor: Minor) -> N
 def test_a_per_plan_record_for_a_member_is_refused_and_retired_on_request(minor: Minor) -> None:
     rel = f"{MINOR_DIR}/v0.5.2-alpha.md"
     old = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=5)).isoformat(timespec="seconds")
-    path = minor.plan_record_paths(rel)[1]  # a pre-v4.13.6 key, stale so not a live owner
+    path = minor.plan_record_paths(rel)[1]  # a pre-v4.13.6 key, completed so not a live owner
     path.parent.mkdir(parents=True, exist_ok=True)
+    # Age alone no longer ends a record's life ("Run record lifetime"): an unfinished
+    # five-day-old record still owns its plan, so the minor leaves the plan out.
     path.write_text(json.dumps({"schema": 1, "created": old, "plan": rel}), encoding="utf-8")
+    _out, err, _rc = minor.members()
+    assert "v0.5.2 owned-by-another-run" in err
+    path.write_text(json.dumps({"schema": 1, "created": old, "plan": rel,
+                                "completed": {"at": old, "head": "-"}}), encoding="utf-8")
     refused = minor.render(SESSION, "--approvals", str(minor.approvals()))
     assert refused.returncode == ck.EXIT_BLOCKED
     assert refused.stdout.splitlines() == [
@@ -525,7 +531,9 @@ def test_a_live_minor_runner_lock_refuses_a_concurrent_run(minor: Minor) -> None
 
 def test_a_minor_only_class_is_refused_in_a_per_plan_approval(minor: Minor) -> None:
     spec = minor.tmp / "plan-approvals.json"
-    spec.write_text(json.dumps({"classes": [{"class": "archive-minor"}]}), encoding="utf-8")
+    # `archive-minor` and `minor-close-pr` are also a last plan's (completion contract,
+    # "Single-plan carry and archive"); `gap-migration` stays a minor run's alone.
+    spec.write_text(json.dumps({"classes": [{"class": "gap-migration", "bound": ["v0.5#WN-3"]}]}), encoding="utf-8")
     result = minor.run("record", "render", f"{MINOR_DIR}/v0.5.2-alpha.md", "--session", SESSION, "--approvals", str(spec))
     assert result.returncode == ck.EXIT_MALFORMED
     assert "belongs to a minor run" in result.stderr
@@ -541,16 +549,15 @@ def test_defer_gaps_is_refused_in_a_minor_run(minor: Minor) -> None:
 # --------------------------------------------------------------------------- validity and resume
 
 
-@pytest.mark.parametrize(("days", "valid"), [(13, True), (15, False)])
-def test_a_minor_record_is_valid_for_fourteen_days(minor: Minor, days: int, valid: bool) -> None:
+@pytest.mark.parametrize("days", [13, 15, 90])
+def test_a_minor_record_never_expires(minor: Minor, days: int) -> None:
+    """An approval holds until MINOR COMPLETE stamps it, however long the run takes."""
     assert minor.create().returncode == 0
     record = minor.record()
     record["created"] = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=days)).isoformat(timespec="seconds")
     minor.write_record(record, resign=True)
     state = minor.load()
-    assert (state.record is not None) is valid
-    if not valid:
-        assert state.notices == ["minor run record older than 14 days ignored"]
+    assert state.record is not None and not state.notices
 
 
 def test_a_new_session_needs_the_resume_paste_then_rebinds(minor: Minor) -> None:
@@ -633,7 +640,14 @@ def test_project_gives_the_same_verdicts_as_a_schema1_record(minor: Minor) -> No
     for key in ("repo", "source_branch", "target_branch", "tag", "cleanup", "push_remote_url"):
         assert projected["approvals"][key] == schema1["approvals"][key], key
     assert projected["start_head"] == schema1["start_head"]
-    assert ck.evaluate(ctx, projected) == ck.evaluate(ctx, schema1)
+    # A member's projection never carries the one-plan close predicates: the minor
+    # close owns its gaps and its archive. Everything else is the same verdict.
+    plan_close = {"gaps.carried", "archive.minor", "archive.empty-dirs"}
+    member, member_deferred = ck.evaluate(ctx, projected)
+    alone, alone_deferred = ck.evaluate(ctx, schema1)
+    assert not plan_close & {pid for pid, _ in member}
+    assert plan_close <= {pid for pid, _ in alone}
+    assert member == [r for r in alone if r[0] not in plan_close] and member_deferred == alone_deferred
 
 
 def test_a_new_per_plan_record_uses_the_plan_key_and_the_legacy_key_is_still_read(minor: Minor) -> None:
@@ -693,7 +707,7 @@ def test_an_off_key_per_plan_record_is_refused_and_retired(minor: Minor) -> None
     """Finding 4: a per-plan authority found only by content still blocks the minor record."""
     rel = f"{MINOR_DIR}/v0.5.2-alpha.md"
     old = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=5)).isoformat(timespec="seconds")
-    planted = _write_off_key(minor, {"schema": 1, "plan": rel, "created": old})
+    planted = _write_off_key(minor, {"schema": 1, "plan": rel, "created": old, "completed": {"at": old, "head": "-"}})
     refused = minor.render(SESSION, "--approvals", str(minor.approvals()))
     assert refused.stdout.splitlines()[0] == "BLOCKED: approval-not-covered (per-plan record exists for v0.5.2)"
     assert minor.run("record", "retire", rel).returncode == 0

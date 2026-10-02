@@ -74,15 +74,38 @@ export const workspace = {
 export const window = {
   activeColorTheme: { kind: 1 },
   createWebviewPanel(_viewType: string, _title: string, _col?: unknown, _opts?: unknown): Record<string, any> {
+    let messageHandler: ((message: unknown) => unknown) | undefined;
+    let disposeHandler: (() => void) | undefined;
     const panel: Record<string, any> = {
       webview: {
         html: "",
-        onDidReceiveMessage: () => ({ dispose() {} }),
-        postMessage: () => {},
+        cspSource: "vscode-webview:",
+        postedMessages: [] as unknown[],
+        onDidReceiveMessage: (handler: (message: unknown) => unknown) => {
+          messageHandler = handler;
+          return { dispose() { messageHandler = undefined; } };
+        },
+        postMessage: (message: unknown) => {
+          panel.webview.postedMessages.push(message);
+          return Promise.resolve(true);
+        },
+        __dispatchMessage: async (message: unknown) => {
+          await messageHandler?.(message);
+        },
       },
-      onDidDispose: () => ({ dispose() {} }),
+      onDidDispose: (handler: () => void) => {
+        disposeHandler = handler;
+        return { dispose() { disposeHandler = undefined; } };
+      },
       reveal() {},
-      dispose() {},
+      dispose() {
+        if (panel.disposed) {
+          return;
+        }
+        panel.disposed = true;
+        disposeHandler?.();
+      },
+      disposed: false,
       iconPath: undefined,
     };
     createdWebviewPanels.push(panel);

@@ -32,6 +32,8 @@ from launcher import fixed_ssh_env, gh_stub_dir, make_stub
 GH_STUB = gh_stub_dir()
 PLAN_REL = "docs/releases/v0/v0.2/plans/v0.2.0-demo.md"
 EVIDENCE_REL = "docs/releases/v0/v0.2/development/v0.2.0-last-phase-evidence.md"
+SIBLING_REL = "docs/releases/v0/v0.2/plans/v0.2.1-next.md"
+SIBLING_PLAN = "# Plan -- Next\n\n**Version**: v0.2.1\n**Slug**: next\n**Status**: queued\n\n## Phase 1\n\n- [ ] T001 Build src/n.txt\n"
 SESSION = "session-one"
 TRANSPORT_OVERRIDE_ENV = (
     "GIT_SSH",
@@ -242,6 +244,9 @@ def _build(
     _git(fx.work, "remote", "add", "origin", str(fx.remote))
     _git(fx.work, "remote", "set-url", "--push", "origin", push_url)
     fx.write(PLAN_REL, plan.format(a=" ", b=" "))
+    # A queued sibling keeps v0.2.0 from being its minor's last plan, so these tests
+    # are not also an archive run (tests/validators/test_plan_carry_and_archive.py).
+    fx.write(SIBLING_REL, SIBLING_PLAN)
     fx.write("CHANGELOG.md", "# Changelog\n")
     _git(fx.work, "add", "-A")
     _git(fx.work, "commit", "-q", "-m", "start")
@@ -501,52 +506,65 @@ def test_plan_rewrite_blocks_but_ticks_do_not(complete: Fixture) -> None:
     assert complete.check().stdout.splitlines()[0] == "BLOCKED: record-tampered"
 
 
-def test_stale_record_from_another_session_is_ignored(complete: Fixture) -> None:
-    old = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(hours=73)).isoformat()
-    complete.edit_record(session_id="someone-else", created=old)
+def test_a_record_from_another_session_is_ignored(complete: Fixture) -> None:
+    complete.edit_record(session_id="someone-else")
     result = complete.check()
-    assert "stale" in result.stderr
+    assert "run record bound to another session ignored" in result.stderr
     assert result.returncode == 1
+
+
+def _resign(complete: Fixture, record: dict) -> None:
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("cpc_for_resign", CHECKER)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    record["approvals_hmac"] = module._sign(record, (complete.runs / ".secret").read_bytes())
+    complete.record_path().write_text(json.dumps(record), encoding="utf-8")
 
 
 @pytest.mark.parametrize("session", [SESSION, None])
-def test_old_record_expires_even_in_its_original_session(
-    complete: Fixture, session: str | None,
-) -> None:
-    # WN-13: a validly signed record must not retain approval indefinitely.
+def test_an_old_record_never_expires(complete: Fixture, session: str | None) -> None:
+    """An approval holds however long the run takes (completion contract, "Run record lifetime")."""
+    record = json.loads(complete.record_path().read_text(encoding="utf-8"))
+    record["created"] = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=30)).isoformat()
+    _resign(complete, record)
+    result = complete.check(session)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert result.stdout.startswith("PLAN COMPLETE") and "stale" not in result.stderr
+
+
+def test_plan_complete_stamps_the_record_and_ends_its_liveness(complete: Fixture) -> None:
     import importlib.util
 
-    path = complete.record_path()
-    record = json.loads(path.read_text(encoding="utf-8"))
-    record["created"] = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(hours=73)).isoformat()
-    spec = importlib.util.spec_from_file_location("cpc_for_expiry", CHECKER)
+    spec = importlib.util.spec_from_file_location("cpc_for_live", CHECKER)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    record["approvals_hmac"] = module._sign(record, (complete.runs / ".secret").read_bytes())
+    ctx = module.RepoContext(complete.work, module.Budget(60))
+    path = complete.record_path()
+    assert module.record_live(ctx, path)[0] is True
+    first = complete.check()
+    assert first.returncode == 0, first.stdout
+    record = json.loads(path.read_text(encoding="utf-8"))
+    assert record["completed"]["head"] == _git(complete.work, "rev-parse", "HEAD")
+    assert module.record_live(ctx, path)[0] is False
+    again = complete.check()
+    assert again.returncode == 0 and again.stdout.startswith("PLAN COMPLETE"), again.stdout
+    # The stamp is signed: removing it to make the record live again reads as tampering.
+    record.pop("completed")
     path.write_text(json.dumps(record), encoding="utf-8")
-
-    result = complete.check(session)
-    assert result.returncode == 1
-    assert "stale run record" in result.stderr
-    assert not result.stdout.startswith("PLAN COMPLETE")
+    assert complete.check().stdout.splitlines()[0] == "BLOCKED: record-tampered"
 
 
-@pytest.mark.parametrize("session", [SESSION, "different-session"])
-def test_naive_record_timestamp_is_ignored(complete: Fixture, session: str) -> None:
+def test_a_record_without_a_stamp_keeps_its_pre_existing_signature(complete: Fixture) -> None:
     import importlib.util
 
-    path = complete.record_path()
-    record = json.loads(path.read_text(encoding="utf-8"))
-    record["created"] = dt.datetime.now(dt.timezone.utc).replace(tzinfo=None).isoformat()
-    spec = importlib.util.spec_from_file_location("cpc_for_naive_time", CHECKER)
+    spec = importlib.util.spec_from_file_location("cpc_for_payload", CHECKER)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    record["approvals_hmac"] = module._sign(record, (complete.runs / ".secret").read_bytes())
-    path.write_text(json.dumps(record), encoding="utf-8")
-
-    result = complete.check(session)
-    assert result.returncode == 1
-    assert "stale run record" in result.stderr
+    record = json.loads(complete.record_path().read_text(encoding="utf-8"))
+    assert "completed" not in module._hmac_payload(record)
+    assert set(module._hmac_payload(record)) == set(module._SIGNED_FIELDS)
 
 
 def test_inherited_git_dir_does_not_reclassify_private_record(complete: Fixture) -> None:
@@ -704,8 +722,11 @@ def test_deferral_only_for_named_types_and_not_own_tasks(
     result = fx.check()
     first = result.stdout.splitlines()[0]
     if deferred:
-        assert result.returncode == 0
-        assert first.endswith("(1 deferred)")
+        # A deferrable gap no longer completes the run where it sits: the run records
+        # it in the next version first (completion contract, "Single-plan carry and archive").
+        assert result.returncode == 1
+        assert "gaps.version deferred" in result.stdout
+        assert first.split()[1:] == ["gaps.carried"]
     else:
         assert result.returncode == 1
         assert "gaps.version" in first.split()
@@ -921,7 +942,7 @@ def test_missing_plan_exits_2(tmp_path: Path) -> None:
 def test_score_reports_met_count_head_and_run(complete: Fixture) -> None:
     result = complete.run("score", PLAN_REL, "--session", SESSION)
     met, head, run_id = result.stdout.split()
-    assert int(met) == 15  # 2 tasks + 13 contract predicates, all met
+    assert int(met) == 18  # 2 tasks + 16 contract predicates, met or n/a
     assert head == _git(complete.work, "rev-parse", "HEAD")
     assert run_id == "7"
 

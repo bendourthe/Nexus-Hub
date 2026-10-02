@@ -57,6 +57,12 @@ import time
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
+
+# On Windows, a console program started by a process with no console of its own
+# (a hook or agent launched without one, or a detached test) opens a visible
+# window that takes keyboard focus. Every child here has its output captured and
+# its prompts disabled, so it never needs a window.
+NO_WINDOW: dict = {"creationflags": subprocess.CREATE_NO_WINDOW} if os.name == "nt" else {}
 from types import ModuleType
 
 _SCRIPT_DIR = str(Path(__file__).resolve().parent)
@@ -130,7 +136,8 @@ def _exec(argv: list[str], cwd: Path | None = None) -> tuple[int, str, str]:
         env.pop(name, None)
     try:
         proc = subprocess.run(argv, cwd=cwd, env=env, capture_output=True, text=True, check=False,
-                              encoding="utf-8", errors="replace", timeout=CALL_TIMEOUT_SECONDS)
+                              encoding="utf-8", errors="replace", timeout=CALL_TIMEOUT_SECONDS,
+                              **NO_WINDOW)
     except (OSError, subprocess.TimeoutExpired):
         return -1, "", ""
     return proc.returncode, proc.stdout, proc.stderr
@@ -411,13 +418,9 @@ def _collect_names(value: object, key: str, branches: set[str], paths: set[str])
 def _record_live(ck: ModuleType, record: dict, path: Path) -> bool:
     if ck.lock_live(path):
         return True
-    created = ck._parse_time(record.get("created"))
-    if created is None or created.tzinfo is None:
-        return True  # an unreadable time is someone's record
-    age = (dt.datetime.now(dt.timezone.utc) - created).total_seconds()
-    if record.get("schema") == ck.SCHEMA_MINOR:
-        return age <= 14 * 24 * 3600 and not record.get("completed")
-    return age <= ck.STALE_SECONDS
+    # A run's record protects its branches until the run is stamped complete;
+    # there is no expiry (completion contract, "Run record lifetime").
+    return not record.get("completed")
 
 
 def owned_names(host: Host, worktrees: list[Worktree], own: Path | None) -> tuple[set[str], set[str], bool]:

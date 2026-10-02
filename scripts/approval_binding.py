@@ -10,13 +10,14 @@ this module executes is owned by the completion contract
     render   build the canonical page, draw a fresh round nonce, derive the
              single-use code from HMAC-SHA256(runs secret, page + nonce), and
              write an owner-only pending file holding the page, code, nonce,
-             expiry, session, the exact paste line(s) the page shows, and the
-             digests of the line(s) that approve, sealed by an HMAC over the whole
-             round so no field can be edited
+             render time, session, the exact paste line(s) the page shows, and the
+             digests of every whole message that approves (alternatives: any one
+             of them), sealed by an HMAC over the whole round so no field can be
+             edited
     consume  refuse unless the seal verifies, the live page still yields the same
-             code, the round has not expired or been used, the session already
+             code, the round has not been used or replaced, the session already
              had a captured prompt before the round was rendered, and it captured
-             each paste line as a whole prompt exactly once; then delete the
+             one approving message as a whole prompt exactly once; then delete the
              pending file and leave a used marker so a replay reads `code-used`
 
 Only this module generates codes. Paste lines come from approval_page.py (the one
@@ -40,7 +41,6 @@ from pathlib import Path
 
 import approval_page  # installed as a sibling in ~/.nexus-hub/scripts/
 
-ROUND_SECONDS = 30 * 60
 SUPERSEDED_KEEP = 20
 RUNNER_ENV = "NEXUS_RUNNER_LAUNCH"
 ACTIONS = ("create", "answer", "pause", "resume", "retire")
@@ -55,7 +55,6 @@ REASONS = (
     "pending-unreadable",
     "code-used",
     "code-superseded",
-    "code-expired",
     "session-mismatch",
     "session-too-new",
     "page-changed",
@@ -240,7 +239,6 @@ def _read_pending(path: Path, secret: bytes) -> dict:
         or not isinstance(pending.get("page"), dict)
         or not isinstance(pending.get("nonce"), str)
         or not CODE_RE.match(str(pending.get("code", "")))
-        or not isinstance(pending.get("expires_at"), (int, float))
         or not isinstance(pending.get("rendered_at"), (int, float))
         or not isinstance(pending.get("paste_digests"), list)
         or not pending["paste_digests"]
@@ -282,8 +280,18 @@ def captured_prompts(runs: Path, session: str) -> list[tuple[str, float | None]]
     return prompts
 
 
+def approved_text(message: str) -> str:
+    """One recorded line for a pasted message: its lines joined with ` / `."""
+    return " / ".join(line.strip() for line in message.splitlines() if line.strip())
+
+
+def pasted(pending: dict) -> str:
+    """What a consumed round's user pasted, or every shown line for an older round."""
+    return str(pending.get("pasted") or " / ".join(pending["paste_lines"]))
+
+
 def resolve_session(runs: Path, wanted: list[str]) -> str | None:
-    """The newest captured session whose whole prompts include every wanted digest."""
+    """The newest captured session whose whole prompts include any accepted digest."""
     prompts = runs / "prompts"
     if not prompts.is_dir():
         return None
@@ -298,7 +306,7 @@ def resolve_session(runs: Path, wanted: list[str]) -> str | None:
                 session = entry.get("session") or session
                 if DIGEST_RE.match(str(entry.get("prompt", ""))):
                     seen.add(str(entry["prompt"]))
-        if session and set(wanted) <= seen:
+        if session and seen & set(wanted):
             return str(session)
     return None
 
@@ -350,13 +358,13 @@ def render(
         "code": code,
         "created_at": int(now),
         "rendered_at": now,
-        "expires_at": int(now) + ROUND_SECONDS,
         "session": session,
         "platform": platform,
         "shape": shown.shape,
-        # Every line the page shows; only `paste_digests` (the approving lines) must be
-        # captured. A goal line the platform's hook cannot see is shown, never required.
+        # Every line the page shows, and `paste_digests`: every whole message that
+        # approves. Any ONE of them, captured once, approves the round (paste_set).
         "paste_lines": list(shown.lines),
+        "approve_lines": list(shown.approve),
         "paste_digests": [digest(line) for line in shown.approve],
         "superseded": superseded[-SUPERSEDED_KEEP:],
     }
@@ -395,8 +403,8 @@ def consume(
     pending = _read_pending(path, secret)
     if pending.get("action") != action:
         raise Refusal("not-rendered")
-    if _clock() > float(pending["expires_at"]):
-        raise Refusal("code-expired")
+    # No expiry: a round stays open until it is consumed once or replaced by a newer
+    # render for the same record, so the user may paste it whenever they come back.
     if not hmac.compare_digest(
         compute_code(secret, live_page, pending["nonce"]), str(pending["code"])
     ) or canonical(live_page) != canonical(pending["page"]):
@@ -413,7 +421,8 @@ def consume(
         raise Refusal("session-mismatch")
     captured = captured_prompts(runs, session)
     digests = [d for d, _ in captured]
-    if any(digests.count(d) != 1 for d in wanted):
+    matched = next((d for d in wanted if digests.count(d) == 1), None)
+    if matched is None:
         if superseded & set(digests):
             raise Refusal("code-superseded")
         raise Refusal("approval-not-captured")
@@ -424,6 +433,10 @@ def consume(
     if not any(at is not None and at < rendered_at and d not in wanted for d, at in captured):
         raise Refusal("session-too-new")
     path.unlink()
+    # The message the user actually pasted, so the record stores what was approved.
+    lines = pending.get("approve_lines") or []
+    if len(lines) == len(wanted):
+        pending["pasted"] = approved_text(lines[wanted.index(matched)])
     _write_private(
         used_path(runs, key),
         {"action": action, "code_sha256": digest(pending["code"]), "used_at": int(_clock())},

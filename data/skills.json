@@ -6,7 +6,7 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 338,
+    "total_skills": 339,
     "categories": {
       "ai-development": 14,
       "architecture": 7,
@@ -27,7 +27,7 @@
       "specialized-domains": 14,
       "testing": 5,
       "tests-generation": 20,
-      "workflow": 49,
+      "workflow": 50,
       "security-operations": 29,
       "ot-security": 5,
       "mobile-security": 5
@@ -6540,6 +6540,41 @@
         "lines": 330,
         "characters": 20464,
         "tokens_estimate": 2991
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "session-handoff",
+      "title": "session-handoff",
+      "description": "Write the cross-platform resume artifact, .nexus-hub/handoff.md, and print a paste-ready prompt another agent on any platform can continue from. Make sure to use this skill whenever the user says \"hand off\", \"handoff\", \"/handoff\", \"write a handoff\", \"I am about to hit my usage limit\", \"usage limit\", \"continue this in another tool\", \"switch to Claude Code\", \"switch to Codex\", \"switch to Cursor\", \"switch to Copilot\", \"save my progress for another agent\", or \"pick this up somewhere else\"; whenever a hook message starting \"Usage limit:\" tells the agent to run the session-handoff procedure; whenever the platform itself warns that a usage limit is near; and for the rolling checkpoint refresh after a verified milestone in multi-step work. SKIP - end-of-session history documents (use session-history), compaction or summarizing within the same session (use context-compression), next-plan release handoffs (owned by /update release), and usage reporting (use /usage).",
+      "long_description": "Write the cross-platform resume artifact, .nexus-hub/handoff.md, and print a paste-ready prompt another agent on any platform can continue from. Make sure to use this skill whenever the user says \"hand off\", \"handoff\", \"/handoff\", \"write a handoff\", \"I am about to hit my usage limit\", \"usage limit\", \"continue this in another tool\", \"switch to Claude Code\", \"switch to Codex\", \"switch to Cursor\", \"switch to Copilot\", \"save my progress for another agent\", or \"pick this up somewhere else\"; whenever a hook message starting \"Usage limit:\" tells the agent to run the session-handoff procedure; whenever the platform itself warns that a usage limit is near; and for the rolling checkpoint refresh after a verified milestone in multi-step work. SKIP - end-of-session history documents (use session-history), compaction or summarizing within the same session (use context-compression), next-plan release handoffs (owned by /update release), and usage reporting (use /usage).",
+      "summary_l0": "\"Write .nexus-hub/handoff.md and a paste-ready prompt so another platform's agent can resume\"",
+      "overview_l1": "\"This skill owns one artifact: the cross-platform resume record. It writes .nexus-hub/handoff.md in the project root in a fixed format (a parseable header line with timestamp, platform, and trigger, then Goal, Done and verified, In progress, Next steps, Files touched, Constraints and decisions the user stated, Open questions and blockers, and Repository state) and prints one fenced, self-contained prompt that embeds the file, so an agent on any platform can verify the repository state and continue from Next steps without redoing finished work. Modes: manual (/handoff), usage-limit (finish or safely stop the current step, hand off, start no new work), and checkpoint (refresh after a verified milestone, no prompt). It never writes secrets, keeps .nexus-hub/ out of git through the exclude file without touching .gitignore, and carries forward unfinished steps from an earlier handoff.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "workflow",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Bash",
+        "Read",
+        "Write"
+      ],
+      "path": "catalog/skills/workflow/session-handoff/",
+      "file": "catalog/skills/workflow/session-handoff/SKILL.md",
+      "size": {
+        "lines": 244,
+        "characters": 16827,
+        "tokens_estimate": 2403
       },
       "downloads": 0,
       "status": "production",

@@ -226,7 +226,7 @@ def test_a_focused_install_keeps_most_commands(catalog, available) -> None:
     """Sanity bound on the surface-requirement declarations.
 
     Declaring too aggressively would make focused installs lose commands
-    wholesale. Six of twenty commands are declared, and each names exactly one
+    wholesale. Seven of twenty commands are declared, and each names exactly one
     delegate skill, so a selection that includes that skill keeps its command.
     """
     plan = resolve(catalog, SelectionRequest.from_args(modules=["workflow"]), available)
@@ -236,4 +236,19 @@ def test_a_focused_install_keeps_most_commands(catalog, available) -> None:
     )
     assert "implement" in plan.commands, (
         "the workflow module contains implement-phase, so /implement must survive"
+    )
+
+
+def test_handoff_ships_only_with_its_skill(catalog, available) -> None:
+    """`/handoff` is a thin dispatcher over `session-handoff` (v4.13.7).
+
+    A focused install that drops the skill must drop the command, and the
+    `workflow` module, which holds the skill's category, must carry both.
+    """
+    with_skill = resolve(catalog, SelectionRequest.from_args(modules=["workflow"]), available)
+    assert "session-handoff" in with_skill.skills and "handoff" in with_skill.commands
+    without = resolve(catalog, SelectionRequest.from_args(modules=["testing"]), available)
+    assert "session-handoff" not in without.skills
+    assert "handoff" not in without.commands, (
+        "a selection without session-handoff installed /handoff, which then dispatches to nothing"
     )
