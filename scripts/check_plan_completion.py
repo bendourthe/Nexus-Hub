@@ -92,6 +92,12 @@ APPROVAL_CLASSES = {
     "minor-close-pr",
 }
 MINOR_ONLY_CLASSES = {"gap-migration", "archive-minor", "minor-close-pr"}
+
+# On Windows, a console program started by a process with no console of its own
+# (a hook or agent launched without one, or a detached test) opens a visible
+# window that takes keyboard focus. Every child here has its output captured and
+# its prompts disabled, so it never needs a window.
+NO_WINDOW: dict = {"creationflags": subprocess.CREATE_NO_WINDOW} if os.name == "nt" else {}
 GAP_TYPES = {"NI", "DF", "BG", "MT", "WN", "QG"}
 REQUIRED_SECTIONS = (
     "Architecture refactor",
@@ -185,6 +191,7 @@ def _run_with_stderr(
             encoding="utf-8",
             errors="replace",
             timeout=timeout,
+            **NO_WINDOW,
         )
     except (OSError, subprocess.TimeoutExpired):
         return -1, "", ""

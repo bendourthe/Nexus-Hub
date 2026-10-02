@@ -861,6 +861,7 @@ def _link_run(checker: Path, *args: str) -> tuple[int, str]:
         proc = subprocess.run(
             [sys.executable, str(checker), *args], capture_output=True, text=True,
             encoding="utf-8", errors="replace", timeout=LINK_CHECK_TIMEOUT, env=ck._env(), check=False,
+            **ck.NO_WINDOW,
         )
     except (OSError, subprocess.TimeoutExpired):
         return -1, ""
