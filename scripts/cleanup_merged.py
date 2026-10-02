@@ -57,6 +57,12 @@ import time
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
+
+# On Windows, a console program started by a process with no console of its own
+# (a hook or agent launched without one, or a detached test) opens a visible
+# window that takes keyboard focus. Every child here has its output captured and
+# its prompts disabled, so it never needs a window.
+NO_WINDOW: dict = {"creationflags": subprocess.CREATE_NO_WINDOW} if os.name == "nt" else {}
 from types import ModuleType
 
 _SCRIPT_DIR = str(Path(__file__).resolve().parent)
@@ -130,7 +136,8 @@ def _exec(argv: list[str], cwd: Path | None = None) -> tuple[int, str, str]:
         env.pop(name, None)
     try:
         proc = subprocess.run(argv, cwd=cwd, env=env, capture_output=True, text=True, check=False,
-                              encoding="utf-8", errors="replace", timeout=CALL_TIMEOUT_SECONDS)
+                              encoding="utf-8", errors="replace", timeout=CALL_TIMEOUT_SECONDS,
+                              **NO_WINDOW)
     except (OSError, subprocess.TimeoutExpired):
         return -1, "", ""
     return proc.returncode, proc.stdout, proc.stderr
