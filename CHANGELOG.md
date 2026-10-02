@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Pasting the approval and goal lines together no longer fails.** The capture hook stores only the digest of the whole message, and a round accepted only one fixed line, so a user who pasted the two lines the page showed in one message got `reason: approval-not-captured`. A create round now accepts any one of its approving messages, each carrying the round's single-use code: the approval line, the goal line, or both lines together in either order. The `/goal` line alone still does not approve where the platform's hook cannot see it (`not-captured`). The record stores the message the user actually pasted.
+
+### Changed
+
+- **The approval page shows what a reader needs before approving, and the goal is never optional.** The summary now opens with two to five plain-language outcome bullets, then adds a whole-run model tier and effort (the task-weighted average of the plan's per-phase recommendations, with the phases that want more named), a rough time estimate split into building, testing, fixing, and releasing, and the queued plans that can run in parallel. The paste section is one block to copy and paste as one message on every platform: the `/goal` line alone where the hook sees it, otherwise the approval line followed by the `/goal` line (or the goal as a sentence where there is no goal command). The goal now lists the whole run as numbered steps: every task, tests and CI/CD passing, known gaps, `/update release`, merging and deleting merged branches and worktrees, recording the remaining gaps in the next version, and archiving the version folder after its last plan. Details are regrouped into four subsections: approvals, a per-phase table, gaps and cleanup, and the quoted plan data. `record render` takes a new `--summary <file>` for the outcome bullets and the parallel-plan check; the layout is documented in `catalog/skills/workflow/implement-phase/references/approval-page.md`.
+
 ## [4.13.6] - 2026-09-30
 
 ### Added
