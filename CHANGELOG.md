@@ -9,6 +9,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`session-handoff` skill and `/handoff` command (v4.13.7).** `/handoff` writes `.nexus-hub/handoff.md` in the project root, in a fixed format with a parseable header (`# Handoff | TIMESTAMP | PLATFORM | TRIGGER`) and the same eight sections every time, and prints one paste-ready prompt that an agent on any platform can resume from. A new handoff carries forward every unfinished step of the previous one, never writes secrets, and keeps `.nexus-hub/` out of git through `info/exclude` without touching `.gitignore`. Catalog: 339 skills, 20 commands. `/handoff` is a slash command only where the platform has a slash surface; elsewhere the agent runs the same procedure when asked to "write a handoff", through its instruction file.
+- **Session Handoff rule in every instruction template (v4.13.7).** All 13 substantive templates carry a parity-guarded block that asks the agent to refresh `.nexus-hub/handoff.md` after each verified milestone, and to finish or safely stop the current step and hand off on a usage-limit warning. The rolling checkpoint is what leaves a resumable record when a cap cuts a session off without warning.
+- **Automatic usage-limit guard (v4.13.7).** The new `usage-guard` hook reads the running platform's own usage through a shared, stdlib-only probe (`catalog/hooks/_usage_probe.py`) and, at 99% of a tracked window (Claude Code 5-hour and weekly, Codex weekly, Cursor monthly, GitHub Copilot monthly), tells the agent to finish the current step, run the handoff, and start no new work; a turn that ends without the handoff gets one continuation. Gemini CLI, Qwen Code, and Kimi Code CLI receive the hook and stay silent (no usage source); Windsurf and Antigravity do not register it. Copilot coverage depends on the Copilot Usage Monitor, which has its own entry in this release: the hook reads only the monitor's percentages-only file and no credential. Known limitation: on a 5-hour window one large turn can use more than the last 1%, so the directive can arrive after the cap; the rolling checkpoint covers that case. Guide: [`docs/guides/usage-limit-handoff.md`](docs/guides/usage-limit-handoff.md).
+
+### Changed
+
+- **The completion gate yields to a confirmed usage-limit handoff (v4.13.7).** During a full `/implement` run, `scripts/completion_gate.py` lets a turn end without counting a refusal or recording a blocker only when `.nexus-hub/handoff.md` carries a `usage-limit` header newer than the gate's last refusal and the probe confirms a tracked window at or over `NEXUS_HANDOFF_THRESHOLD`. A handoff file alone never releases a run, and a workspace-scoped install never takes the exception. The rule is owned by the "Usage-limit handoff" section of the completion contract; the reasoning is in `docs/decisions/proposed/tooling/2026-09-28-usage-limit-handoff.md`.
+- **The Copilot hook wrapper passes `timestamp` and `stop_hook_active` through (v4.13.7),** and emits `hookSpecificOutput` beside the top-level `additionalContext` for `PostToolUse`, the shape the VS Code hooks reference reads.
+
+### Capability usage
+
+- **`usage-guard` hook, default-on (v4.13.7).** This surface is on by default after install, not opt-in; it is listed here because it changes host behavior on every tool call.
+
+    - Activation: automatic after a global install on Claude Code, Codex, Cursor, and GitHub Copilot. On Codex, run `/hooks` once and trust the `usage-guard` entries, because Codex skips an untrusted hook silently. On Copilot, the Copilot Usage Monitor must be running to supply the percentage.
+    - Validation: `python ~/.claude/hooks/_usage_probe.py --platform claude --json` prints one JSON line with `status` and per-window percentages (Codex: `~/.codex/hooks/`, `--platform codex`; Cursor: `~/.cursor/hooks/`, `--platform cursor`; Copilot: `~/.copilot/hooks/nexus-hub-scripts/`, `--platform copilot`).
+    - Rollback: set `NEXUS_DISABLED_HOOKS=usage-guard`, or `NEXUS_USAGE_PROBE_DISABLED=1` to stop every usage read, or `NEXUS_HOOK_PROFILE=minimal`; `NEXUS_HANDOFF_THRESHOLD` (integer 1-100, default 99) moves the trigger.
+    - Authority: it adds no new destination, stores or sends no token anywhere, and never switches platforms; the handoff is written locally and printed, never sent. The probe reads only the running platform's own sign-in: the Claude Code OAuth file `~/.claude/.credentials.json` or the macOS Keychain item `Claude Code-credentials` (one-time "Always Allow"), the Codex `auth.json`, and the `cursorAuth/accessToken` key of Cursor's `state.vscdb` opened read-only; on Copilot it reads no credential, only `~/.nexus-hub/state/usage-probe/copilot.json`. Each token goes only to its own vendor host over HTTPS with redirects refused, and the cache holds percentages and reset times only. The Codex (`chatgpt.com/backend-api/wham/usage`) and Cursor (`api2.cursor.sh`) endpoints are undocumented and can change without notice, in which case the guard goes silent.
+    - Docs: [`docs/guides/usage-limit-handoff.md`](docs/guides/usage-limit-handoff.md).
+
+- The `session-handoff` skill, `/handoff`, and the Session Handoff template rule change no opt-in capability, installer flag, or host surface.
+
 ## [4.13.6] - 2026-09-30
 
 ### Added
