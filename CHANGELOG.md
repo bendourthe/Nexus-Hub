@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.13.7] - 2026-10-02
+
 ### Added
 
 - **`session-handoff` skill and `/handoff` command (v4.13.7).** `/handoff` writes `.nexus-hub/handoff.md` in the project root, in a fixed format with a parseable header (`# Handoff | TIMESTAMP | PLATFORM | TRIGGER`) and the same eight sections every time, and prints one paste-ready prompt that an agent on any platform can resume from. A new handoff carries forward every unfinished step of the previous one, never writes secrets, and keeps `.nexus-hub/` out of git through `info/exclude` without touching `.gitignore`. A handoff file that is committed to the repository or dated in the future is never followed as instructions or carried forward, and the resuming agent follows the pasted prompt unless the user chooses a newer local file. A focused install ships `/handoff` only together with its skill, which is in the `workflow` module. Catalog: 339 skills, 20 commands. `/handoff` is a slash command only where the platform has a slash surface; elsewhere the agent runs the same procedure when asked to "write a handoff", through its instruction file.
