@@ -418,13 +418,9 @@ def _collect_names(value: object, key: str, branches: set[str], paths: set[str])
 def _record_live(ck: ModuleType, record: dict, path: Path) -> bool:
     if ck.lock_live(path):
         return True
-    created = ck._parse_time(record.get("created"))
-    if created is None or created.tzinfo is None:
-        return True  # an unreadable time is someone's record
-    age = (dt.datetime.now(dt.timezone.utc) - created).total_seconds()
-    if record.get("schema") == ck.SCHEMA_MINOR:
-        return age <= 14 * 24 * 3600 and not record.get("completed")
-    return age <= ck.STALE_SECONDS
+    # A run's record protects its branches until the run is stamped complete;
+    # there is no expiry (completion contract, "Run record lifetime").
+    return not record.get("completed")
 
 
 def owned_names(host: Host, worktrees: list[Worktree], own: Path | None) -> tuple[set[str], set[str], bool]:

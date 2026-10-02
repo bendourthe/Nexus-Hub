@@ -64,7 +64,6 @@ EXIT_COMPLETE, EXIT_INCOMPLETE, EXIT_MALFORMED, EXIT_BLOCKED, EXIT_PAUSED = (
 SCHEMA = 1
 SCHEMA_MINOR = 2
 BUDGET_SECONDS = 20.0
-STALE_SECONDS = 72 * 3600
 
 BLOCKER_CATEGORIES = (
     "approval-not-covered",
@@ -454,6 +453,10 @@ _SIGNED_MINOR_FIELDS = ("schema", "scope", "minor", "members", "excluded", "comp
 
 def _hmac_payload(record: dict) -> dict:
     fields = _SIGNED_FIELDS
+    if record.get("schema") == SCHEMA and "completed" in record:
+        # The completion stamp ends a one-plan record's liveness, so it is signed once
+        # present; a record without it signs exactly as before and still verifies.
+        fields = _SIGNED_FIELDS + ("completed",)
     if record.get("schema") != SCHEMA:
         # Anything that is not a schema-1 record signs the minor fields too; a schema-1
         # payload stays exactly as it was, so existing records still verify.
@@ -534,18 +537,7 @@ def _load_schema1(
 ) -> RecordState:
     tampered = TAMPERED
     if session and record.get("session_id") != session:
-        created = _parse_time(record.get("created"))
-        age = (
-            (dt.datetime.now(dt.timezone.utc) - created).total_seconds()
-            if created and created.tzinfo is not None
-            else STALE_SECONDS + 1
-        )
-        reason = (
-            "stale run record (older than 72 hours) ignored"
-            if age > STALE_SECONDS
-            else "run record bound to another session ignored"
-        )
-        state.notices.append(reason)
+        state.notices.append("run record bound to another session ignored")
         return state
     key = _secret(create=False)
     if (
@@ -558,13 +550,8 @@ def _load_schema1(
     ):
         state.forced = tampered
         return state
-    # WN-13: a matching or unspecified session does not renew old approvals.
-    created = _parse_time(record.get("created"))
-    if created is None or created.tzinfo is None or (
-        dt.datetime.now(dt.timezone.utc) - created
-    ).total_seconds() > STALE_SECONDS:
-        state.notices.append("stale run record (older than 72 hours) ignored")
-        return state
+    # No expiry: an approval holds until its run completes or the user retires it
+    # (completion contract, "Run record lifetime"), however long the run takes.
     state.record = record
     if record.get("pause"):
         state.forced = ("PAUSED", EXIT_PAUSED)
@@ -1115,6 +1102,9 @@ def verdict(
 def cmd_check(args: argparse.Namespace) -> int:
     ctx = Context(args.plan, Budget(BUDGET_SECONDS))
     line, code, results, state = verdict(ctx, args.session)
+    record = state.record
+    if code == EXIT_COMPLETE and record is not None and record.get("schema") == SCHEMA:
+        mark_completed(ctx, record, line.split()[3] if len(line.split()) > 3 else "-")
     for notice in [*state.notices, *ctx.notices]:
         print(f"notice: {notice}", file=sys.stderr)
     print(line)
@@ -1467,13 +1457,26 @@ def lock_live(record_path: Path) -> bool:
 
 
 def record_live(ctx: RepoContext, path: Path) -> tuple[bool, dict | None]:
-    """(live, record): created within 72 hours, or unreadable (counted as someone's)."""
+    """(live, record): not yet stamped complete, or unreadable (counted as someone's)."""
     record = read_record(ctx, path)
-    created = _parse_time((record or {}).get("created"))
-    if record is None or created is None or created.tzinfo is None:
+    if record is None:
         return True, record
-    age = (dt.datetime.now(dt.timezone.utc) - created).total_seconds()
-    return age <= STALE_SECONDS, record
+    return not record.get("completed"), record
+
+
+def mark_completed(ctx: Context, record: dict, head: str) -> None:
+    """Stamp a one-plan record complete once its check reports PLAN COMPLETE, and re-sign it.
+
+    The stamp ends the record's liveness, so another run may take the plan and
+    cleanup no longer protects its branches; the record still verifies, so the same
+    check keeps reporting PLAN COMPLETE.
+    """
+    key = _secret(create=False)
+    if key is None or record.get("completed"):
+        return
+    record["completed"] = {"at": _now(), "head": head}
+    record["approvals_hmac"] = _sign(record, key)
+    _write_record(ctx.record_path(), record)
 
 
 def _retire_page(ctx: Context) -> dict | None:
@@ -1493,8 +1496,7 @@ def _retire_page(ctx: Context) -> dict | None:
 def cmd_record_retire(args: argparse.Namespace) -> int:
     """Move this plan's per-plan records aside, so a minor run can hold the only authority.
 
-    A stale record (older than 72 hours) or one bound to the caller's own `--session`
-    moves at once. Another session's live record moves only after the user pastes
+    A completed record or one bound to the caller's own `--session` moves at once. Another session's live record moves only after the user pastes
     the line `record render <plan> --action retire` printed, because retiring it
     removes that run's authority, pause, and blockers.
     """
