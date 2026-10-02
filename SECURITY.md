@@ -61,9 +61,13 @@ The hooks in `catalog/hooks/` run inside Claude Code sessions with the permissio
 
 ### OAuth token access (usage-monitor extensions)
 
-The VS Code extension `extensions/claude-usage-monitor/` and the `usage-display.sh` hook read your Claude Code OAuth token from `~/.claude/.credentials.json` to query usage data. This token is sent only to `api.anthropic.com`; never to any other destination.
+The VS Code extension `extensions/claude-usage-monitor/` and the `usage-display.sh` hook read your Claude Code OAuth token from `~/.claude/.credentials.json` (on macOS the extension also reads the Keychain item) to query usage data. The access token is sent only to `api.anthropic.com`, for the usage read. The extension also sends your refresh token to `console.anthropic.com/v1/oauth/token`, Anthropic's token endpoint, when the access token has expired or the usage read is rate-limited, and writes the new tokens back to the same credential file or Keychain item. The `usage-display.sh` hook calls only `api.anthropic.com`. Neither sends a token to any other destination.
 
-The separate VS Code extension `extensions/codex-usage-monitor/` reads your local Codex-app (ChatGPT) OAuth token from `~/.codex/auth.json` (or a configured path) and sends it only to `chatgpt.com/backend-api/wham/usage` to query your own account usage; never to any other destination. Each extension reads only its own provider's token and calls only that provider's account endpoint.
+The separate VS Code extension `extensions/codex-usage-monitor/` reads your local Codex-app (ChatGPT) OAuth token from `~/.codex/auth.json` (or a configured path) and sends it only to `chatgpt.com/backend-api/wham/usage` to query your own account usage; never to any other destination. Each extension reads only its own provider's token and calls only that provider's account endpoint. The Codex monitor's "Open reset page" button only opens the ChatGPT usage page in your browser; no monitor sends a request that uses or triggers a usage-limit reset.
+
+The separate VS Code extension `extensions/copilot-usage-monitor/` uses the GitHub sign-in VS Code holds for it (signing in from the monitor asks only for the `read:user` scope) only for `api.github.com/copilot_internal/user`, to read your own Copilot quota. An optional organization token, a read-only fine-grained token an organization owner or billing manager pastes with **Copilot Usage: Connect Organization**, is stored only in VS Code secret storage and sent only to `api.github.com`; **Copilot Usage: Disconnect Organization** deletes it. The extension never reads a repository remote, git identity, or the `gh` CLI login. It writes a percentages-only state file, `~/.nexus-hub/state/usage-probe/copilot.json`, for the `usage-guard` hook; that file holds no token, account name, or organization name.
+
+The Claude and Codex monitors' **Save Raw Usage Response** commands are opt-in and local: each sends the same request as a refresh and writes one redacted copy of the response (ids, emails, names, and other strings replaced) under the extension's VS Code global storage. Nothing is uploaded.
 
 ### Internal MCP servers
 

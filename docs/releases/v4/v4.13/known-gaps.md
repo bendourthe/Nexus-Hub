@@ -1158,7 +1158,7 @@ Gaps from the Copilot usage monitor and usage-limit handoff plan ([`v4.13.7-copi
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
 | Bugs / regressions (BG) | 1 | 0 |
-| Warnings (WN) | 2 | 1 |
+| Warnings (WN) | 3 | 2 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
@@ -1172,12 +1172,17 @@ Gaps from the Copilot usage monitor and usage-limit handoff plan ([`v4.13.7-copi
 
 **Evidence**: `python scripts/check_commit_attribution.py --all-refs`, run by the fast profile, uses `git log --all` and allows only approved identities, so the three `origin/dependabot/*` branches fetched into this repository on 2026-10-01 produce three `dependabot[bot]` author findings and fail the step. Commits still succeed, because the commit hook runs only the message and pending-identity checks. Merging a Dependabot pull request would put bot-authored commits into history and fail the scan permanently. **Owner**: catalog maintainer (attribution policy decision). **Suggested next step**: scope the all-refs scan to local branches, `origin/main`, `origin/develop`, and the current pull request head, and decide separately whether `dependabot[bot]` is an allowed author.
 
-#### WN-2 (v4.13.7): The Codex and Claude monitors' dashboards have no Content-Security-Policy and read unscoped settings
+#### WN-4 (v4.13.7): Dependabot does not track the Copilot Usage Monitor's npm dependencies
 
-**Evidence**: an independent review of the Phase 2 Copilot monitor on 2026-10-02 found two defects the monitor inherited from `extensions/codex-usage-monitor/`, and both are still present there and in `extensions/claude-usage-monitor/`. (F1) The dashboard webview sets no Content-Security-Policy, wires controls with inline `onclick`/`oninput` handlers, interpolates threshold and color settings into attributes unescaped (a color is accepted when it merely starts with `#`), and embeds settings with `JSON.stringify` in an inline `<script>` without escaping `</script>`. A trusted workspace's `.vscode/settings.json` can therefore inject script that posts `save` (writing Global settings). (F6) The thresholds and colors settings declare no `scope`, so a workspace file can set them, and `refreshInterval` is not clamped at runtime, so `0` reschedules the refresh with no delay. The Copilot monitor fixed both in Phase 2 (nonce CSP, delegated listeners, validated and escaped values, a validated message payload, `"scope": "application"`, and a 1-120 minute clamp) with regression tests in `extensions/copilot-usage-monitor/test/review-regressions.test.ts`. **Owner**: catalog maintainer. **Suggested next step**: port the CSP, the validation, the setting scopes, and the interval clamp to the Codex and Claude monitors in sub-task 3.6, which edits both dashboards anyway, and reuse the Copilot monitor's regression tests.
+**Evidence**: `.github/dependabot.yml` has npm entries for the Claude, Codex, and Cursor monitors only, so `extensions/copilot-usage-monitor/` (added in Phase 2, installed from Phase 3) receives no dependency or security update pull requests. Adding the entry is a CI-configuration change that was not in the Phase 3 approval, and `tests/workflows/test_cursor_usage_monitor_workflow.py::test_dependabot_tracks_the_new_extension` asserts exactly three npm monitor entries, so the test has to change with it. **Owner**: catalog maintainer (CI configuration). **Suggested next step**: with approval, add an npm entry for `/extensions/copilot-usage-monitor` that ignores `@types/vscode` like its siblings, and change that assertion to four.
+
+#### WN-5 (v4.13.7): `codexUsage.authPath` can still be set by a workspace
+
+**Evidence**: Phase 3 made the Codex monitor's thresholds and colors `"scope": "application"` (WN-2), but `codexUsage.authPath` in `extensions/codex-usage-monitor/package.json` declares no scope. A trusted workspace's `.vscode/settings.json` can therefore point the monitor at another file, whose token the monitor reads and sends to `chatgpt.com/backend-api/wham/usage`. The destination stays fixed, so the exposure is limited to that one vendor endpoint, but which local credential is read is still decided by the workspace. **Owner**: catalog maintainer. **Suggested next step**: set `"scope": "machine"` or `"application"` on `codexUsage.authPath`, add it to the scope assertion in `extensions/codex-usage-monitor/test/review-regressions.test.ts`, and note in the README that a workspace value is ignored.
 
 ### Resolved Items
 
 | ID | Title | Resolved in | Notes |
 |---|---|---|---|
 | WN-1 | `skill-activation-suggest.py` silently lost `_skill_rules` on adapters that copy only registered scripts | Phase 6 | `scripts/lib/integrations/_hooks_common.py` `sourced_modules()` now ships every `_*.py` helper a delivered hook imports; `tests/integrations/test_codex_native.py` asserts `_skill_rules.py` lands beside `skill-activation-suggest.py`. |
+| WN-2 | The Codex and Claude monitors' dashboards had no Content-Security-Policy and read unscoped settings | Phase 3 | Ported from the Copilot monitor in sub-task 3.6: nonce CSP, delegated listeners, validated and escaped thresholds and colors, a validated `save` payload, `"scope": "application"` on thresholds and colors, and a 1-120 minute `refreshInterval` clamp. Regression tests: `extensions/codex-usage-monitor/test/review-regressions.test.ts` and `extensions/claude-usage-monitor/test/review-regressions.test.ts`. |

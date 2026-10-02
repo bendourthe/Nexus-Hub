@@ -1,0 +1,65 @@
+{
+  "_comment": "Sanitized from a live wham/usage response captured 2026-10-01 (v4.13.7-decisions.md, Usage-limit resets). Every id, email, and amount string is a placeholder; keys and value types are as served.",
+  "account_id": "00000000-0000-4000-8000-000000000000",
+  "additional_rate_limits": null,
+  "chatpass": {
+    "windows": [
+      {
+        "limit_window_seconds": 604800,
+        "reset_after_seconds": 604800,
+        "reset_at": 1791513683,
+        "used_percent": 0
+      }
+    ]
+  },
+  "code_review_rate_limit": null,
+  "credits": {
+    "approx_cloud_messages": null,
+    "approx_local_messages": null,
+    "balance": null,
+    "has_credits": true,
+    "overage_limit_reached": false,
+    "unlimited": false
+  },
+  "email": "user@example.invalid",
+  "model_usage": {
+    "example-model": {
+      "available": true,
+      "available_at": null,
+      "credits_would_enable": false
+    }
+  },
+  "plan_type": "self_serve_business_prolite",
+  "promo": null,
+  "rate_limit": {
+    "allowed": true,
+    "limit_reached": false,
+    "primary_window": {
+      "limit_window_seconds": 604800,
+      "reset_after_seconds": 604800,
+      "reset_at": 1791700000,
+      "used_percent": 0
+    },
+    "secondary_window": null
+  },
+  "rate_limit_reached_type": null,
+  "rate_limit_reset_credits": {
+    "applicable_available_count": 0,
+    "available_count": 0
+  },
+  "spend_control": {
+    "individual_limit": {
+      "limit": "0000",
+      "remaining": "000000",
+      "remaining_percent": 100,
+      "reset_after_seconds": 2582317,
+      "reset_at": 1793491200,
+      "source": "placeholder_source",
+      "unit": "credit",
+      "used": "000",
+      "used_percent": 0
+    },
+    "reached": false
+  },
+  "user_id": "user-placeholder0000000000000"
+}
