@@ -1,0 +1,215 @@
+{
+  "name": "copilot-usage-monitor",
+  "displayName": "Copilot Usage Monitor",
+  "description": "Monitor your GitHub Copilot usage in the status bar: your plan's own quota, or your organization's shared AI-credit pool once an owner connects a read-only token",
+  "version": "0.1.0",
+  "publisher": "nexus-hub",
+  "icon": "icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bendourthe/Nexus-Hub.git",
+    "directory": "extensions/copilot-usage-monitor"
+  },
+  "homepage": "https://github.com/bendourthe/Nexus-Hub/tree/main/extensions/copilot-usage-monitor#readme",
+  "bugs": {
+    "url": "https://github.com/bendourthe/Nexus-Hub/issues"
+  },
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0",
+    "node": ">=22.0.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "copilot-usage.dashboard",
+        "title": "Copilot Usage: Dashboard",
+        "category": "Copilot Usage"
+      },
+      {
+        "command": "copilot-usage.refresh",
+        "title": "Copilot Usage: Refresh",
+        "category": "Copilot Usage"
+      },
+      {
+        "command": "copilot-usage.recommend",
+        "title": "Copilot Usage: Recommend",
+        "category": "Copilot Usage"
+      },
+      {
+        "command": "copilot-usage.reset",
+        "title": "Copilot Usage: Clear Data",
+        "category": "Copilot Usage"
+      },
+      {
+        "command": "copilot-usage.settings",
+        "title": "Copilot Usage: Settings",
+        "category": "Copilot Usage"
+      },
+      {
+        "command": "copilot-usage.connectOrganization",
+        "title": "Copilot Usage: Connect Organization",
+        "category": "Copilot Usage"
+      },
+      {
+        "command": "copilot-usage.disconnectOrganization",
+        "title": "Copilot Usage: Disconnect Organization",
+        "category": "Copilot Usage"
+      },
+      {
+        "command": "copilot-usage.signIn",
+        "title": "Copilot Usage: Sign in to GitHub",
+        "category": "Copilot Usage"
+      },
+      {
+        "command": "copilot-usage.switchAccount",
+        "title": "Copilot Usage: Switch GitHub Account",
+        "category": "Copilot Usage"
+      }
+    ],
+    "icons": {
+      "copilot-icon": {
+        "description": "GitHub Copilot icon",
+        "default": {
+          "fontPath": "./fonts/copilot-icons.woff2",
+          "fontCharacter": "\\E104"
+        }
+      }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "copilotUsageWarning",
+          "title": "Copilot Usage Warning",
+          "icon": "icons/warning.svg"
+        }
+      ]
+    },
+    "views": {
+      "copilotUsageWarning": [
+        {
+          "id": "copilotUsageWarningView",
+          "name": "Usage Warning",
+          "type": "webview",
+          "when": "copilotUsage.warningActive"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Copilot Usage Monitor",
+      "properties": {
+        "copilotUsage.organization": {
+          "type": "string",
+          "scope": "application",
+          "default": "",
+          "description": "The login of a GitHub organization whose shared Copilot AI-credit pool to show. Set it with 'Copilot Usage: Connect Organization', which also stores the read-only token in VS Code secret storage. Leave empty to show your own plan only. Application-scoped: a workspace cannot set it."
+        },
+        "copilotUsage.writeUsageState": {
+          "type": "boolean",
+          "scope": "application",
+          "default": true,
+          "description": "Write the Copilot usage percentage to ~/.nexus-hub/state/usage-probe/copilot.json so the Nexus-Hub usage-guard hook can read it. The file holds percentages, reset times, and the figure's source only: no login, organization name, or token."
+        },
+        "copilotUsage.autoFetch": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically fetch Copilot usage from GitHub on startup and at regular intervals"
+        },
+        "copilotUsage.refreshInterval": {
+          "type": "number",
+          "default": 10,
+          "minimum": 1,
+          "maximum": 120,
+          "description": "How often (in minutes) to fetch usage data from GitHub"
+        },
+        "copilotUsage.showInStatusBar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show Copilot usage in the status bar"
+        },
+        "copilotUsage.compactStatusBar": {
+          "type": "boolean",
+          "default": false,
+          "description": "Use a compact status-bar label: '<icon> X% (pool)' instead of '<icon> Copilot Usage: X% (pool)'."
+        },
+        "copilotUsage.thresholds.moderate": {
+          "type": "number",
+          "scope": "application",
+          "default": 50,
+          "minimum": 1,
+          "maximum": 99,
+          "description": "Usage percentage at which the Moderate urgency level is triggered"
+        },
+        "copilotUsage.thresholds.high": {
+          "type": "number",
+          "scope": "application",
+          "default": 75,
+          "minimum": 1,
+          "maximum": 99,
+          "description": "Usage percentage at which the High urgency level is triggered"
+        },
+        "copilotUsage.thresholds.critical": {
+          "type": "number",
+          "scope": "application",
+          "default": 95,
+          "minimum": 1,
+          "maximum": 99,
+          "description": "Usage percentage at which the Critical urgency level is triggered"
+        },
+        "copilotUsage.notificationTimeoutSeconds": {
+          "type": "number",
+          "default": 12,
+          "minimum": 3,
+          "maximum": 60,
+          "description": "How long (in seconds) Copilot Usage notifications stay on screen before auto-dismissing. Set this so notifications never stack while VS Code is in the background. Manual dismiss via the X button is always available."
+        },
+        "copilotUsage.colors.moderate": {
+          "type": "string",
+          "scope": "application",
+          "default": "#cca700",
+          "description": "Status bar background color when usage is at the Moderate level. Use a hex color (e.g. #cca700) or 'none' to disable highlighting."
+        },
+        "copilotUsage.colors.high": {
+          "type": "string",
+          "scope": "application",
+          "default": "#f0643c",
+          "description": "Status bar background color when usage is at the High level. Use a hex color (e.g. #f0643c) or 'none' to disable highlighting."
+        },
+        "copilotUsage.colors.critical": {
+          "type": "string",
+          "scope": "application",
+          "default": "#e05555",
+          "description": "Status bar background color when usage is at the Critical level. Use a hex color (e.g. #e05555) or 'none' to disable highlighting."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "package": "vsce package --no-dependencies",
+    "generate:icons": "node scripts/generate-icon-font.js"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.41",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.0.0",
+    "@vitest/coverage-v8": "^4.1.11",
+    "fantasticon": "^4.1.0",
+    "svg2ttf": "^6.1.0",
+    "svgpath": "^2.6.0",
+    "ttf2woff2": "^8.0.0",
+    "typescript": "^5.3.0",
+    "vitest": "^4.1.11"
+  }
+}

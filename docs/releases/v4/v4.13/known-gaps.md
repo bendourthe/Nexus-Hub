@@ -1158,7 +1158,7 @@ Gaps from the Copilot usage monitor and usage-limit handoff plan ([`v4.13.7-copi
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
 | Bugs / regressions (BG) | 1 | 0 |
-| Warnings (WN) | 1 | 0 |
+| Warnings (WN) | 2 | 1 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
@@ -1168,14 +1168,16 @@ Gaps from the Copilot usage monitor and usage-limit handoff plan ([`v4.13.7-copi
 
 **Evidence**: `catalog/commands/usage.md` delegates every invocation to `check-usage` ("(any invocation) -> check-usage"), and no `catalog/skills/*/check-usage/` directory exists on `feat/v4.13.7-copilot-usage-monitor-and-usage-limit-handoff` after the 2026-10-01 merge of `develop` at `81d7e544`. The command therefore has no procedure behind it on any platform. Pre-existing; out of scope for this plan (plan Overview, "Out of scope"). **Owner**: catalog maintainer. **Suggested next step**: back `/usage` with `catalog/hooks/_usage_probe.py` (built in Phase 6) in a later release, either as a restored `check-usage` skill or by pointing the dispatcher at a skill that calls the probe.
 
-#### WN-1 (v4.13.7): `skill-activation-suggest.py` silently loses `_skill_rules` on adapters that copy only registered scripts
-
-**Evidence**: `catalog/hooks/skill-activation-suggest.py` wraps `from _skill_rules import ...` in a `try` that degrades to a no-op on `ImportError`. The Codex, Copilot, Antigravity, and Windsurf adapters copy registered scripts plus `sourced_modules()` from `scripts/lib/integrations/_hooks_common.py`, which collects only `_*.sh` and `_*.ps1` helpers (`p.suffix in (".sh", ".ps1")`), so `_skill_rules.py` is never delivered beside the hook there and the suggestion hook does nothing without saying so. **Owner**: this plan, sub-task 6.1. **Suggested next step**: resolved by the `sourced_modules` extension in 6.1 (collect `_*.py` modules a registered `.py` hook imports); verify `_skill_rules.py` lands in an installed Codex hook directory and close.
-
-#### WN-1 (v4.13.7): The all-refs attribution scan fails on fetched Dependabot branches
+#### WN-3 (v4.13.7): The all-refs attribution scan fails on fetched Dependabot branches
 
 **Evidence**: `python scripts/check_commit_attribution.py --all-refs`, run by the fast profile, uses `git log --all` and allows only approved identities, so the three `origin/dependabot/*` branches fetched into this repository on 2026-10-01 produce three `dependabot[bot]` author findings and fail the step. Commits still succeed, because the commit hook runs only the message and pending-identity checks. Merging a Dependabot pull request would put bot-authored commits into history and fail the scan permanently. **Owner**: catalog maintainer (attribution policy decision). **Suggested next step**: scope the all-refs scan to local branches, `origin/main`, `origin/develop`, and the current pull request head, and decide separately whether `dependabot[bot]` is an allowed author.
 
+#### WN-2 (v4.13.7): The Codex and Claude monitors' dashboards have no Content-Security-Policy and read unscoped settings
+
+**Evidence**: an independent review of the Phase 2 Copilot monitor on 2026-10-02 found two defects the monitor inherited from `extensions/codex-usage-monitor/`, and both are still present there and in `extensions/claude-usage-monitor/`. (F1) The dashboard webview sets no Content-Security-Policy, wires controls with inline `onclick`/`oninput` handlers, interpolates threshold and color settings into attributes unescaped (a color is accepted when it merely starts with `#`), and embeds settings with `JSON.stringify` in an inline `<script>` without escaping `</script>`. A trusted workspace's `.vscode/settings.json` can therefore inject script that posts `save` (writing Global settings). (F6) The thresholds and colors settings declare no `scope`, so a workspace file can set them, and `refreshInterval` is not clamped at runtime, so `0` reschedules the refresh with no delay. The Copilot monitor fixed both in Phase 2 (nonce CSP, delegated listeners, validated and escaped values, a validated message payload, `"scope": "application"`, and a 1-120 minute clamp) with regression tests in `extensions/copilot-usage-monitor/test/review-regressions.test.ts`. **Owner**: catalog maintainer. **Suggested next step**: port the CSP, the validation, the setting scopes, and the interval clamp to the Codex and Claude monitors in sub-task 3.6, which edits both dashboards anyway, and reuse the Copilot monitor's regression tests.
+
 ### Resolved Items
 
-None yet.
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+| WN-1 | `skill-activation-suggest.py` silently lost `_skill_rules` on adapters that copy only registered scripts | Phase 6 | `scripts/lib/integrations/_hooks_common.py` `sourced_modules()` now ships every `_*.py` helper a delivered hook imports; `tests/integrations/test_codex_native.py` asserts `_skill_rules.py` lands beside `skill-activation-suggest.py`. |
