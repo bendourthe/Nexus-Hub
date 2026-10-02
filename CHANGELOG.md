@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **An approval no longer expires.** v4.13.6 gave every approval round a 30-minute life, so a page read and pasted later was refused as `code-expired` and had to be rendered again, which broke runs approved now and checked much later. A round now stays open until it is used once or replaced by a newer page for the same plan. Single use, the whole-message paste rule, and the page check are unchanged: a round whose plan, branches, or `HEAD` changed since it was shown still refuses as `page-changed`. The `code-expired` reason is gone.
 - **Pasting the approval and goal lines together no longer fails.** The capture hook stores only the digest of the whole message, and a round accepted only one fixed line, so a user who pasted the two lines the page showed in one message got `reason: approval-not-captured`. A create round now accepts any one of its approving messages, each carrying the round's single-use code: the approval line, the goal line, or both lines together in either order. The `/goal` line alone still does not approve where the platform's hook cannot see it (`not-captured`). The record stores the message the user actually pasted.
 
 ### Changed
