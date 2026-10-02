@@ -24,7 +24,6 @@ plan paths, validated version tokens, and fixed reason ids.
 from __future__ import annotations
 
 import argparse
-import datetime as dt
 import hashlib
 import hmac
 import json
@@ -54,7 +53,6 @@ BRANCH_RE = re.compile(r"^[A-Za-z0-9._/-]+\Z", re.ASCII)
 PLAN_TOKEN_RE = re.compile(r"^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)\Z", re.ASCII)
 
 DONE_STATUSES = {"complete", "superseded", "shipped"}
-MINOR_VALID_SECONDS = 14 * 24 * 3600
 MINOR_BUDGET_SECONDS = 60.0
 EXIT_EMPTY = 1
 EXIT_MINOR_MALFORMED = 3  # a duplicate version or an unreadable plan stops the run
@@ -257,11 +255,8 @@ def plan_records(ck: ModuleType, rctx: RepoContext, rel: str) -> list[Path]:
 
 
 def _minor_record_live(ck: ModuleType, record: dict) -> bool:
-    created = ck._parse_time(record.get("created"))
-    if created is None or created.tzinfo is None:
-        return True  # unreadable time: someone's record, never absorbed
-    age = (dt.datetime.now(dt.timezone.utc) - created).total_seconds()
-    return age <= MINOR_VALID_SECONDS and not record.get("completed")
+    """Live until MINOR COMPLETE stamps it `completed`; there is no expiry."""
+    return not record.get("completed")
 
 
 def other_minor_owns(ck: ModuleType, rctx: RepoContext, version: str, own: Path | None) -> bool:
@@ -650,8 +645,8 @@ def load_minor(
     Integrity (any failure is `record-tampered`): outside every working tree,
     `schema` 2 with `scope` "minor" and this `minor`, a verifying HMAC, and every
     member, found BY VERSION across the canonical, legacy, and archive layouts,
-    hashing to its frozen `plan_sha256`. Then validity: older than 14 days, or
-    marked complete, is ignored; bound to another session is ignored until a
+    hashing to its frozen `plan_sha256`. Then validity: marked complete is
+    ignored (there is no expiry); bound to another session is ignored until a
     resume paste adopts it; a pause is PAUSED; an open blocker is BLOCKED; and a
     member now owned by another run is `BLOCKED: owned-by-another-run (vX.Y.Z)`.
     A blocker recorded against one member reads `BLOCKED: <category> (vX.Y.Z)`.
@@ -665,12 +660,6 @@ def load_minor(
     record = ck.read_record(rctx, path)
     if record is None or not _verified(ck, rctx, token, record):
         state.forced = ck.TAMPERED
-        return state
-    created = ck._parse_time(record.get("created"))
-    if created is None or created.tzinfo is None or (
-        dt.datetime.now(dt.timezone.utc) - created
-    ).total_seconds() > MINOR_VALID_SECONDS:
-        state.notices.append("minor run record older than 14 days ignored")
         return state
     if record.get("completed") and not accept_completed:
         state.notices.append("minor run record already complete ignored")
