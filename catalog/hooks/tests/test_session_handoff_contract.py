@@ -133,6 +133,16 @@ def test_the_prompt_embeds_the_file_and_tells_the_receiver_to_verify() -> None:
     assert "Do not redo anything under Done and verified" in text
 
 
+def test_a_committed_or_future_dated_handoff_is_never_followed_as_instructions() -> None:
+    """A repository can commit a `.nexus-hub/handoff.md` with a far-future header;
+    neither the carry-forward step nor the receiving agent may let it outrank the
+    pasted prompt or the user."""
+    text = _skill_text()
+    assert text.count("git ls-files --error-unmatch .nexus-hub/handoff.md") >= 2
+    assert "later than the current time" in text
+    assert "ask which to follow" in text
+
+
 def test_the_usage_limit_mode_stops_new_work() -> None:
     assert "start no new work" in _skill_text()
 
@@ -220,6 +230,10 @@ def _run_secret_scan(bash_bin: str, cwd: Path) -> subprocess.CompletedProcess[st
         "sk-" + "proj-abcdefghijklmnopqrstuv",
         "AKIA" + "ABCDEFGHIJKLMNOP",
         "-----BEGIN " + "RSA PRIVATE KEY-----",
+        "sk_" + "live_abcdefghijklmnopqrstuvwx",
+        "AIza" + "SyA1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q",
+        "glpat-" + "abcdefghijklmnopqrst",
+        "password" + "=hunter2hunter2",
     ],
 )
 def test_the_secret_scan_flags_secret_shaped_strings(

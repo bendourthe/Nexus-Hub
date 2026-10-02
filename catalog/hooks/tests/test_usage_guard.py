@@ -403,6 +403,24 @@ def test_a_non_usage_limit_handoff_does_not_suppress(guard, dirs, project, trigg
     assert run(guard, dirs, "claude", payload("claude", "stop", project)) is not None
 
 
+def test_a_future_dated_handoff_header_is_ignored(guard, dirs, project):
+    """A header dated beyond the clock-skew allowance (for example a committed
+    `2099` header) must not silence the turn-end reminder or satisfy the
+    completion gate's newer-than-the-refusal test."""
+    guard.readings["claude"] = reading("claude", 100)
+    run(guard, dirs, "claude", payload("claude", "tool", project))
+    _write_handoff(project, time.time() + 24 * 3600, "usage-limit weekly 100")
+    assert guard.usage_limit_handoff_time("claude", payload("claude", "stop", project)) is None
+    assert run(guard, dirs, "claude", payload("claude", "stop", project)) is not None
+
+
+def test_a_handoff_within_the_clock_skew_allowance_still_counts(guard, dirs, project):
+    guard.readings["claude"] = reading("claude", 100)
+    run(guard, dirs, "claude", payload("claude", "tool", project))
+    _write_handoff(project, time.time() + 60, "usage-limit weekly 100")
+    assert run(guard, dirs, "claude", payload("claude", "stop", project)) is None
+
+
 def test_a_handoff_older_than_the_trigger_does_not_suppress(guard, dirs, project):
     guard.readings["claude"] = reading("claude", 100)
     _write_handoff(project, time.time() - 3600, "usage-limit weekly 99.4")

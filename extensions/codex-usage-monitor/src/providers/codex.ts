@@ -454,9 +454,11 @@ let malformedResetsLogged = false;
  * Read `rate_limit_reset_credits` (recorded 2026-10-01 from a live response, see
  * v4.13.7-decisions.md "Usage-limit resets"). It carries two counts and nothing
  * else: `available_count` and `applicable_available_count`. The applicable
- * count is used when present, because it is the stricter of the two. Absent
- * means not reported (undefined, no reset row). A present but malformed value is
- * treated the same way and logged once; a count is never guessed.
+ * count is used whenever its key is present, because it is the stricter of the
+ * two; `available_count` is read only when that key is absent, so a malformed
+ * stricter count never falls back to the looser one. Absent means not reported
+ * (undefined, no reset row). A present but malformed value is treated the same
+ * way and logged once; a count is never guessed.
  */
 export function readResets(payload: Record<string, unknown>): UsageResets | undefined {
   if (!("rate_limit_reset_credits" in payload) || payload.rate_limit_reset_credits == null) {
@@ -464,7 +466,9 @@ export function readResets(payload: Record<string, unknown>): UsageResets | unde
   }
   const rec = asRecord(payload.rate_limit_reset_credits);
   const available = rec
-    ? resetCount(rec.applicable_available_count) ?? resetCount(rec.available_count)
+    ? "applicable_available_count" in rec
+      ? resetCount(rec.applicable_available_count)
+      : resetCount(rec.available_count)
     : undefined;
   if (available === undefined) {
     if (!malformedResetsLogged) {

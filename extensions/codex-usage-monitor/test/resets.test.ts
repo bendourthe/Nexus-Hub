@@ -73,6 +73,14 @@ describe("mapping rate_limit_reset_credits", () => {
     expect(readResets({ rate_limit_reset_credits: { available_count: 2 } })).toEqual({ available: 2 });
   });
 
+  it("never falls back to the looser count when the applicable count is present but malformed", () => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    for (const applicable of [null, -1, "0", 1.5, Number.NaN, []]) {
+      const value = { applicable_available_count: applicable, available_count: 4 };
+      expect(readResets({ rate_limit_reset_credits: value }), JSON.stringify(value)).toBeUndefined();
+    }
+  });
+
   it("treats a malformed field as not reported, logs at most once, and never guesses", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     for (const value of ["1", 1, [], { available_count: -1 }, { available_count: 1.5 }, { applicable_available_count: "1" }, {}]) {
@@ -255,6 +263,30 @@ describe("Save Raw Usage Response", () => {
     expect(redacted.when).toBe("2026-10-29T00:00:00Z");
     expect(redacted.rate_limit_reset_credits).toEqual({ available_count: 1, applicable_available_count: 1 });
     expect((redacted.nested as Array<Record<string, unknown>>)[0].limit_reached).toBe(true);
+  });
+
+  it("redacts camelCase, run-together, and secret-word keys as well as snake_case ones", () => {
+    const body: Record<string, unknown> = {
+      userId: 123456789,
+      accountId: 987654,
+      orgUuid: "acme",
+      displayName: "benjamin",
+      userEmail: "benjamin",
+      username: "bdourthe",
+      password: "hunter",
+      sessiontoken: "abcdefghijklmnopqrstuvwxyz",
+      phone: 15551234567,
+      ownerHandle: "octo",
+      planType: "plus",
+      usedPercent: 42,
+    };
+    const redacted = redactUsagePayload(body) as Record<string, unknown>;
+    const text = JSON.stringify(redacted);
+    for (const secret of ["123456789", "987654", "acme", "benjamin", "bdourthe", "hunter", "abcdefghijklmnopqrstuvwxyz", "15551234567", "octo"]) {
+      expect(text.includes(secret), secret).toBe(false);
+    }
+    expect(redacted.planType).toBe("plus");
+    expect(redacted.usedPercent).toBe(42);
   });
 
   it("writes one file under the given storage folder and replaces it on the next save", () => {

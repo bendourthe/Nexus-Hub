@@ -11,7 +11,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DashboardPanel } from "../src/dashboardPanel";
 import { ClaudeUsageProvider } from "../src/providers";
 import { USAGE_API_URL, mapClaudeUsageResponse } from "../src/providers/claude";
-import { RAW_RESPONSE_FILE, saveRawUsageResponse } from "../src/rawUsageResponse";
+import { RAW_RESPONSE_FILE, redactUsagePayload, saveRawUsageResponse } from "../src/rawUsageResponse";
 import { __resetStubState, createdWebviewPanels } from "./vscode-stub";
 
 const SRC = path.join(__dirname, "..", "src");
@@ -107,6 +107,30 @@ describe("Save Raw Usage Response", () => {
     dir = fs.mkdtempSync(path.join(os.tmpdir(), "claude-raw-"));
   });
   afterEach(() => fs.rmSync(dir, { recursive: true, force: true }));
+
+  it("redacts camelCase, run-together, and secret-word keys as well as snake_case ones", () => {
+    const body: Record<string, unknown> = {
+      userId: 123456789,
+      accountId: 987654,
+      orgUuid: "acme",
+      displayName: "benjamin",
+      userEmail: "benjamin",
+      username: "bdourthe",
+      password: "hunter",
+      sessiontoken: "abcdefghijklmnopqrstuvwxyz",
+      phone: 15551234567,
+      ownerHandle: "octo",
+      planType: "plus",
+      usedPercent: 42,
+    };
+    const redacted = redactUsagePayload(body) as Record<string, unknown>;
+    const text = JSON.stringify(redacted);
+    for (const secret of ["123456789", "987654", "acme", "benjamin", "bdourthe", "hunter", "abcdefghijklmnopqrstuvwxyz", "15551234567", "octo"]) {
+      expect(text.includes(secret), secret).toBe(false);
+    }
+    expect(redacted.planType).toBe("plus");
+    expect(redacted.usedPercent).toBe(42);
+  });
 
   it("writes one redacted file under the given storage folder", () => {
     const body = captured();

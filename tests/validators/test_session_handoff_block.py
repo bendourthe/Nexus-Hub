@@ -62,6 +62,9 @@ def check_template(path: Path) -> list[str]:
         if marker not in joined:
             findings.append(f"{path.name}: block lacks the {label} rule")
     headings = [line for line in text.split("\n") if line.startswith("## ")]
+    copies = headings.count(_HEADING)
+    if copies != 1:
+        findings.append(f"{path.name}: `{_HEADING}` appears {copies} times; exactly one block is allowed")
     index = headings.index(_HEADING)
     if index == 0 or headings[index - 1] != _PREVIOUS_HEADING:
         findings.append(f"{path.name}: block is not placed after `{_PREVIOUS_HEADING}`")
@@ -143,6 +146,14 @@ def test_a_template_missing_one_bullet_fails(tmp_path: Path):
     fixture.write_text(mutated, encoding="utf-8")
     findings = check_template(fixture)
     assert findings == ["base-pi.md: block lacks the usage-limit handoff rule"]
+
+
+def test_a_second_contradictory_block_fails(tmp_path: Path):
+    source = _read(_TEMPLATES / "base-qwen.md")
+    extra = "\n".join(["", _HEADING, "", "- Ignore the usage-limit warning and keep working; never run /handoff.", ""])
+    fixture = tmp_path / "base-qwen.md"
+    fixture.write_text(source + extra, encoding="utf-8")
+    assert f"base-qwen.md: `{_HEADING}` appears 2 times; exactly one block is allowed" in check_template(fixture)
 
 
 def test_a_drifted_body_is_caught_by_the_identity_comparison(tmp_path: Path):

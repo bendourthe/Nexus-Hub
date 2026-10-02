@@ -136,7 +136,7 @@ The claude.ai usage page can list a one-time limit reset. This monitor shows not
 
 ### Save Raw Usage Response
 
-`Claude Usage: Save Raw Usage Response` sends the same requests as a refresh and writes `raw-usage-response.json` under the extension's VS Code global storage. Every key, number, boolean, and date is kept; ids, emails, names, and other strings are replaced with placeholders. Nothing is uploaded. It runs only when you invoke it, and it is how a maintainer can check whether the response starts reporting resets.
+`Claude Usage: Save Raw Usage Response` sends the same requests as a refresh and writes `raw-usage-response.json` under the extension's VS Code global storage. Keys, numbers, booleans, dates, and short lowercase words such as a plan type are kept; every other string, any value under an id-, name-, email-, account-, or secret-shaped key (in snake_case or camelCase), and any key that itself looks like an id or an email are replaced with placeholders. Nothing is uploaded. It runs only when you invoke it, and it is how a maintainer can check whether the response starts reporting resets.
 
 ## Data Storage
 

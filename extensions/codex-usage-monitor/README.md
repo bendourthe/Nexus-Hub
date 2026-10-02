@@ -131,7 +131,7 @@ The usage response reports a reset count only (`rate_limit_reset_credits.availab
 
 ### Save Raw Usage Response
 
-`Codex Usage: Save Raw Usage Response` sends the same single request as a refresh and writes `raw-usage-response.json` under the extension's VS Code global storage. Every key, number, boolean, and date is kept; ids, emails, names, and other strings are replaced with placeholders. Nothing is uploaded. It runs only when you invoke it, and it exists so a maintainer can check which fields ChatGPT serves without asking for anything identifying.
+`Codex Usage: Save Raw Usage Response` sends the same single request as a refresh and writes `raw-usage-response.json` under the extension's VS Code global storage. Keys, numbers, booleans, dates, and short lowercase words such as a plan type are kept; every other string, any value under an id-, name-, email-, account-, or secret-shaped key (in snake_case or camelCase), and any key that itself looks like an id or an email are replaced with placeholders. Nothing is uploaded. It runs only when you invoke it, and it exists so a maintainer can check which fields ChatGPT serves without asking for anything identifying.
 
 ## Data Storage
 

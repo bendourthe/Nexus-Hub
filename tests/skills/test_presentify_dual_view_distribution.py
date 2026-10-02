@@ -73,10 +73,26 @@ def test_installed_bundle_runs_offline(tmp_path, shell):
             "specialized-domains",
             "--yes",
         ]
+    # Even a workspace install writes the shared ~/.nexus-hub tree (scripts,
+    # VERSION, permissions manifest), so every home the installers can resolve
+    # is redirected: PowerShell reads USERPROFILE, not HOME (v4.13.1 BG-2).
+    profile = tmp_path / "profile"
+    for folder in (profile, tmp_path / "appdata", tmp_path / "localappdata"):
+        folder.mkdir()
+    env = {
+        **os.environ,
+        "HOME": str(profile),
+        "USERPROFILE": str(profile),
+        "APPDATA": str(tmp_path / "appdata"),
+        "LOCALAPPDATA": str(tmp_path / "localappdata"),
+        "NEXUS_HUB_HOME": str(profile / ".nexus-hub"),
+        "GIT_CONFIG_GLOBAL": str(profile / ".gitconfig"),
+    }
     result = subprocess.run(
         command,
         check=False,
         cwd=ROOT,
+        env=env,
         capture_output=True,
         text=True,
         encoding="utf-8",

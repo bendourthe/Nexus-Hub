@@ -74,6 +74,10 @@ STATE_RETENTION_SECONDS = 7 * 24 * 3600
 STATE_SCHEMA = 2
 HYSTERESIS_POINTS = 5.0
 PERIOD_SHIFT_SECONDS = 1800
+# A handoff header dated further ahead than this is ignored: no honest writer
+# stamps the future, and a committed far-future header would otherwise silence
+# the turn-end reminder and satisfy the completion gate forever.
+FUTURE_SKEW_SECONDS = 300
 MAX_STDIN_BYTES = 8 * 1024 * 1024
 
 DISPLAY_NAMES = {
@@ -476,9 +480,11 @@ def usage_limit_handoff_time(
     Looks for ``.nexus-hub/handoff.md`` in ``extra_roots`` and in the payload's
     project directories, each walked up to its git root. Only a first line that
     matches the session-handoff header grammar with a ``usage-limit`` trigger
-    counts; a checkpoint or manual handoff printed no paste-ready prompt.
+    counts; a checkpoint or manual handoff printed no paste-ready prompt. A
+    header dated more than ``FUTURE_SKEW_SECONDS`` ahead of the clock is ignored.
     """
     newest: float | None = None
+    latest_allowed = time.time() + FUTURE_SKEW_SECONDS
     roots = list(extra_roots) + _handoff_roots(platform, payload)
     for root in dict.fromkeys(roots):
         path = root / ".nexus-hub" / "handoff.md"
@@ -491,7 +497,9 @@ def usage_limit_handoff_time(
         if not match or not match.group("trigger").startswith("usage-limit"):
             continue
         written = _parse_iso(match.group("ts"))
-        if written is not None and (newest is None or written > newest):
+        if written is None or written > latest_allowed:
+            continue
+        if newest is None or written > newest:
             newest = written
     return newest
 
