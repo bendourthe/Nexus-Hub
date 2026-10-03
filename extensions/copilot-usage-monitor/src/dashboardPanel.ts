@@ -1,7 +1,9 @@
 import * as crypto from "crypto";
 import * as vscode from "vscode";
 import { BAR_FILL, OrganizationUsage, PersonalUsage, UsageData } from "./types";
-import { formatCreditCount, formatCredits, formatElapsed, formatPercent, formatResetLabel } from "./usageStore";
+import { formatCreditCount, formatElapsed, formatPercent, formatResetLabel } from "./usageStore";
+import { NOT_CONNECTED_HINT } from "./recommendations";
+import { WINDOW_LABEL } from "./types";
 import { ProviderFetchError, ProviderFetchErrorCode, describeProviderError } from "./providers";
 import { getRecommendation } from "./recommendations";
 import {
@@ -28,7 +30,7 @@ export interface DashboardCallbacks {
 const SIGN_IN_CODES: ReadonlySet<ProviderFetchErrorCode> = new Set(["no-credentials", "token-invalid"]);
 
 const ROUNDING_NOTE =
-  "Used credits are shown with two decimals and the percentage is computed from the unrounded sum. GitHub's AI usage page rounds its headline to a whole number, so 0.91 here can read 1 there.";
+  "The percentage is computed from GitHub's unrounded usage. GitHub's AI usage page rounds its headline to whole credits, so the two can differ by a fraction of a percent.";
 
 export class DashboardPanel {
   private static currentPanel: DashboardPanel | undefined;
@@ -197,7 +199,7 @@ export class DashboardPanel {
       ${staleNote("personal", data.personal?.stale, data.personal?.fetchedAt ?? data.lastUpdated)}
 
       ${data.organization ? organizationSection(data.organization) : ""}
-      ${data.personal ? personalSection(data.personal) : ""}
+      ${data.personal ? personalSection(data.personal, Boolean(data.organization)) : ""}
 
       <div class="divider"></div>
 
@@ -502,17 +504,17 @@ function organizationSection(org: OrganizationUsage): string {
   }
   notes.push("Covers this organization only. A seat removed outright this cycle still counts toward the pool but is missing from the seat count, so the total can read low.");
   const planName = org.planType === "enterprise" ? "Enterprise" : org.planType === "business" ? "Business" : "";
-  const models = org.models.length > 0
-    ? `<ul class="tips">${org.models.map((m) => `<li>${escapeHtml(m.model)}: ${formatCredits(m.used)} credits</li>`).join("")}</ul>`
+  // Each model's share of the pool, as a percentage; never a credit count.
+  const models = org.models.length > 0 && org.total > 0
+    ? `<ul class="tips">${org.models.map((m) => `<li>${escapeHtml(m.model)}: ${formatPercent((m.used / org.total) * 100)}% of the pool</li>`).join("")}</ul>`
     : "";
 
   if (org.percent == null) {
     return `
       <div class="section">
         <h3>Organization Pool</h3>
-        <div class="extra-credits-info" title="${escapeHtml(ROUNDING_NOTE)}">${formatCredits(org.used)} credits used this month</div>
+        <div class="extra-credits-info">--% (${WINDOW_LABEL})</div>
         <p class="note">GitHub reported no Copilot seats for this organization, so there is no pool total and no percentage.</p>
-        ${models}
       </div>`;
   }
   const approx = org.approximate ? " (approximate)" : "";
@@ -523,7 +525,7 @@ function organizationSection(org: OrganizationUsage): string {
           org.percent,
           `${org.approximate ? "~" : ""}${formatPercent(org.percent)}%`,
           formatResetLabel(org.resetsAt),
-          `${formatCredits(org.used)} of ${formatCreditCount(org.total)} credits used${org.approximate ? ", approximate total" : ""}`,
+          `Pool: ${formatCreditCount(org.total)} credits${org.approximate ? ", approximate total" : ""} (${WINDOW_LABEL})`,
           ROUNDING_NOTE,
         )}
         <p class="note">${org.seats} ${planName} seat${org.seats === 1 ? "" : "s"} x ${formatCreditCount(org.creditsPerSeat)} credits per seat.</p>
@@ -540,13 +542,17 @@ function staleNote(which: string, stale: boolean | undefined, fetchedAt: number)
   return `<p class="note">The last refresh failed, so the ${which} figure below is from ${escapeHtml(formatElapsed(Date.now() - fetchedAt))}.</p>`;
 }
 
-function personalSection(personal: PersonalUsage): string {
+function personalSection(personal: PersonalUsage, organizationConnected: boolean): string {
   if (personal.quotas.length === 0) {
+    if (organizationConnected) {
+      return "";
+    }
     return `
       <div class="section">
         <h3>${escapeHtml(personal.planLabel)}</h3>
-        <div class="extra-credits-info">${formatCredits(personal.creditsUsed)} credits used this month</div>
-        <p class="note">Your organization shares one pool of AI credits and sets no personal limit for this seat, so there is no percentage to show.</p>
+        <div class="extra-credits-info">--% (${WINDOW_LABEL})</div>
+        <p class="note">${escapeHtml(NOT_CONNECTED_HINT)}</p>
+        <button data-command="connectOrganization" class="retry-btn">Connect Organization</button>
         <span class="progress-subtitle">${escapeHtml(formatResetLabel(personal.resetsAt))}</span>
       </div>`;
   }
@@ -557,9 +563,8 @@ function personalSection(personal: PersonalUsage): string {
         <h3>${escapeHtml(q.label)}</h3>
         ${progressBar(
           q.percent,
-          `${formatPercent(q.percent)}%`,
+          `${formatPercent(q.percent)}% (${WINDOW_LABEL})`,
           formatResetLabel(personal.resetsAt),
-          `${formatCreditCount(q.entitlement - q.remaining)} of ${formatCreditCount(q.entitlement)} used`,
         )}
       </div>`,
     )

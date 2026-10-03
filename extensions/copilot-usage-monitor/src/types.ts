@@ -105,13 +105,24 @@ export type Headline =
       stale: boolean;
       fetchedAt: number;
     }
-  | { kind: "credits"; creditsUsed: number; label: string }
+  | { kind: "no-percent"; reason: NoPercentReason; label: string }
   | { kind: "none" };
 
 /**
+ * Why no percentage exists. `not-connected`: a seat with no personal limit whose
+ * organization pool is not connected (or the user is not an owner who can connect
+ * it). `no-pool-total`: the organization is connected but GitHub reported no seats.
+ */
+export type NoPercentReason = "not-connected" | "no-pool-total";
+
+/** Every Copilot window resets monthly (the 1st, 00:00 UTC), so this is the label shown. */
+export const WINDOW_LABEL = "month";
+
+/**
  * Status-bar precedence (plan 2.4): the organization pool percentage when
- * connected, else the personal-plan percentage, else credits used with no
- * percentage. The state file uses the same precedence (plan 2.5).
+ * connected, else the personal-plan percentage, else no percentage. A credit
+ * count is never shown (v4.13.8 Phase 6). The state file uses the same
+ * precedence (plan 2.5).
  */
 export function headlineOf(data: UsageData | undefined): Headline {
   if (!data) {
@@ -143,11 +154,11 @@ export function headlineOf(data: UsageData | undefined): Headline {
       fetchedAt: personal.fetchedAt ?? data.lastUpdated,
     };
   }
-  if (personal) {
-    return { kind: "credits", creditsUsed: personal.creditsUsed, label: personal.planLabel };
-  }
   if (org) {
-    return { kind: "credits", creditsUsed: org.used, label: "Organization pool" };
+    return { kind: "no-percent", reason: "no-pool-total", label: "Organization pool" };
+  }
+  if (personal) {
+    return { kind: "no-percent", reason: "not-connected", label: personal.planLabel };
   }
   return { kind: "none" };
 }

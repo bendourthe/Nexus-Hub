@@ -1197,9 +1197,16 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 | Bugs / regressions (BG) | 0 | 0 |
 | Warnings (WN) | 0 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
-| Quality-gate gaps (QG) | 0 | 0 |
+| Quality-gate gaps (QG) | 1 | 0 |
 
 ### Open Items
+
+#### QG-9 (v4.13.8): The owner-account Connect run is not recorded yet
+
+- **Source phase**: Phase 6 (Copilot Usage Monitor connect and percent display)
+- **Plan reference**: [v4.13.8 plan, sub-task 6.8 (T343)](plans/v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md)
+- **Reason**: GitHub documents `read:org` for `GET /orgs/{org}/copilot/billing` but lists no token types or scopes for `GET /organizations/{org}/settings/billing/ai_credit/usage`, so whether Connect's token-free route reaches the AI-credit pool is unknown until an organization owner runs it. Automated tests prove both routes against a fake GitHub; they cannot prove GitHub's real answer. Until the reading is recorded, the token-free route is unverified, and Connect falls back to the guided token whenever GitHub refuses it.
+- **Suggested next step**: The maintainer follows [`v4.13.8-copilot-connect-verification.md`](development/v4.13.8-copilot-connect-verification.md) on the owner account, records the route and each status code there, cites it in the decision record amendment, and resolves this gap.
 
 ### Resolved Items
 

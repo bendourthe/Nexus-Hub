@@ -10,11 +10,13 @@ import {
   getColorConfig,
   getRefreshIntervalMinutes,
   getThresholdConfig,
+  WINDOW_LABEL,
   headlineOf,
   syncActiveColorToWorkbench,
 } from "./types";
 import { getActiveUrgency, triggerPercent } from "./recommendations";
-import { UsageStore, formatCreditCount, formatCredits, formatElapsed, formatPercent, formatResetLabel } from "./usageStore";
+import { UsageStore, formatCreditCount, formatElapsed, formatPercent, formatResetLabel } from "./usageStore";
+import { NOT_CONNECTED_HINT } from "./recommendations";
 import type { ProviderFetchError } from "./providers/types";
 
 /** The GitHub Copilot glyph, contributed as an icon font in package.json. */
@@ -26,24 +28,17 @@ const NEAR_THRESHOLD_INTERVAL_MS = 60_000;
 
 /**
  * The status-bar text for a cached figure, with the precedence of
- * {@link headlineOf}: "~" marks an approximate pool total, "(pool)" an
- * organization figure, "(month)" a personal plan's monthly quota, and a member
- * seat with no personal limit shows credits used with no percent sign.
+ * {@link headlineOf}: a percentage of the month's window, "~" for an
+ * approximate pool total, and `--% (month)` whenever no percentage exists. A
+ * credit count is never shown (v4.13.8 Phase 6).
  */
 export function statusText(data: UsageData | undefined, compact: boolean, staleLabel = ""): string {
-  const label = compact ? "" : "Copilot Usage: ";
+  const label = compact ? "" : "Copilot: ";
   const headline = headlineOf(data);
-  let body: string;
-  switch (headline.kind) {
-    case "percent":
-      body = `${headline.approximate ? "~" : ""}${formatPercent(headline.percent)}% (${headline.source === "organization" ? "pool" : "month"})`;
-      break;
-    case "credits":
-      body = `${formatCredits(headline.creditsUsed)} credits used`;
-      break;
-    default:
-      body = "--";
-  }
+  const body =
+    headline.kind === "percent"
+      ? `${headline.approximate ? "~" : ""}${formatPercent(headline.percent)}% (${WINDOW_LABEL})`
+      : `--% (${WINDOW_LABEL})`;
   return `${COPILOT_ICON}${ICON_GAP}${label}${body}${staleLabel}`;
 }
 
@@ -158,7 +153,7 @@ export class StatusBarManager {
       case "choose-account":
         return "Choose which GitHub account to read. Click to open the dashboard.";
       default:
-        return "Click to view the Copilot usage dashboard";
+        return `${NOT_CONNECTED_HINT} Click to open the dashboard.`;
     }
   }
 
@@ -212,26 +207,23 @@ export class StatusBarManager {
       if (org.percent != null) {
         const approx = org.approximate ? "~" : "";
         parts.push(
-          bar("Organization pool", org.percent, `${approx}${formatPercent(org.percent)}%`) +
-            `${formatCredits(org.used)} of ${formatCreditCount(org.total)} credits used${org.approximate ? " (approximate total)" : ""}<br>` +
+          bar(`Organization pool (${WINDOW_LABEL})`, org.percent, `${approx}${formatPercent(org.percent)}%`) +
+            `Pool: ${formatCreditCount(org.total)} credits${org.approximate ? " (approximate total)" : ""}<br>` +
             `<em>${formatResetLabel(org.resetsAt)}</em><br><br>`,
         );
       } else {
-        parts.push(`Organization pool: ${formatCredits(org.used)} credits used (no seat count to compare against)<br><br>`);
+        parts.push(`Organization pool: --% (${WINDOW_LABEL}). GitHub reported no Copilot seats, so there is no pool total.<br><br>`);
       }
     }
     const personal = data.personal;
     if (personal) {
       if (personal.quotas.length > 0) {
         for (const quota of personal.quotas) {
-          parts.push(bar(quota.label, quota.percent, `${formatPercent(quota.percent)}%`));
+          parts.push(bar(`${quota.label} (${WINDOW_LABEL})`, quota.percent, `${formatPercent(quota.percent)}%`));
         }
         parts.push(`<em>${escapeHtml(personal.planLabel)}, ${formatResetLabel(personal.resetsAt)}</em><br><br>`);
-      } else {
-        parts.push(
-          `${escapeHtml(personal.planLabel)}: ${formatCredits(personal.creditsUsed)} credits used this month<br>` +
-            `<em>No personal limit is set for this seat.</em><br><br>`,
-        );
+      } else if (!org) {
+        parts.push(`${escapeHtml(personal.planLabel)}: --% (${WINDOW_LABEL})<br><em>${escapeHtml(NOT_CONNECTED_HINT)}</em><br><br>`);
       }
     }
     parts.push(`<span style="opacity:0.6">Last updated: ${this.store.getTimeSinceUpdate()}</span>`);

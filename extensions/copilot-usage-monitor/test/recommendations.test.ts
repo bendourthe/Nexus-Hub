@@ -1,5 +1,12 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { buildUsageSuggestion, classifyUrgency, getActiveUrgency, getRecommendation, triggerPercent } from "../src/recommendations";
+import {
+  NOT_CONNECTED_HINT,
+  buildUsageSuggestion,
+  classifyUrgency,
+  getActiveUrgency,
+  getRecommendation,
+  triggerPercent,
+} from "../src/recommendations";
 import type { QuotaRow, UsageData } from "../src/types";
 import { headlineOf } from "../src/types";
 import { __resetStubState, __setStubConfig } from "./vscode-stub";
@@ -26,7 +33,8 @@ describe("recommendations", () => {
     expect(triggerPercent(member)).toBe(-1);
     expect(triggerPercent(undefined)).toBe(-1);
     expect(buildUsageSuggestion(member)).toBeNull();
-    expect(getRecommendation(member).message).toBe("GitHub sets no personal limit for this seat, so there is no percentage to track.");
+    expect(getRecommendation(member).message).toBe(NOT_CONNECTED_HINT);
+    expect(getRecommendation(member).message).not.toMatch(/credit/i);
     expect(getRecommendation(undefined).message).toContain("No Copilot usage figure yet");
   });
 
@@ -47,13 +55,14 @@ describe("recommendations", () => {
     expect(getRecommendation(personalAt(10)).message).toBe("Copilot usage is healthy. Keep working normally.");
   });
 
-  it("falls back to the pool's credits when the organization has no seat count and no personal figure", () => {
+  it("shows no percentage, and no credit count, when the organization has no seat count", () => {
     const data: UsageData = {
       organization: { used: 3, total: 0, percent: null, seats: 0, planType: "unknown", creditsPerSeat: 0, approximate: false, approximateReasons: [], resetsAt: 0, models: [] },
       lastUpdated: 0,
       dataSource: "api",
     };
-    expect(headlineOf(data)).toEqual({ kind: "credits", creditsUsed: 3, label: "Organization pool" });
+    expect(headlineOf(data)).toEqual({ kind: "no-percent", reason: "no-pool-total", label: "Organization pool" });
+    expect(getRecommendation(data).message).not.toMatch(/\d+(\.\d+)? credits/);
     expect(headlineOf({ lastUpdated: 0, dataSource: "api" })).toEqual({ kind: "none" });
   });
 });
