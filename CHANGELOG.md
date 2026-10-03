@@ -21,6 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Optimizer results say when their score is optimistic (v4.13.8).** In two-way mode the split that picks `best_description` also produces the reported `test_trigger_rate`, so every result now carries `split_mode`, `selection_split`, `reported_split`, and `reported_optimistic: true`. Every old key keeps its value. The `skill-eval-loop` docs stop calling that split "held-out", replace the claim that 8 to 12 evals give reasonable statistical power, and add an eval-saturation check and a starter-set rule. Decision: `docs/decisions/proposed/tooling/2026-09-30-optimizer-selection-reporting-split.md`.
 - **The first-principles pilot was run and stopped by its own rule (v4.13.8).** One approved smoke run (USD 0.04) passed, but Claude Code 2.1.283 reports `claude-sonnet-5-5` as an unrecognized model and exposes no effort setting, so the pre-registered rule stopped the pilot after one of 15 runs. The question was not tested, and no shared instruction surface changed. The re-run is v4.13.8 DF-4, and the adapter's stale `--skill` command is v4.13.8 WN-4.
 
+### Fixed
+
+- **Carrying a gap works on ledgers whose ids repeat across versions.** This repository's known-gaps ledgers number gaps per version section, so `WN-3` can appear under v4.13.7 and v4.13.8 at once. The v4.13.7 carry and archive checks identified a gap by its id alone, so they could pick the wrong version's gap, and carrying into a section that already used the id made a duplicate. A gap is now identified by its section's version and its id. A carried gap takes the next free id in the file, its title's version tag follows it, and its `**Carried from**` line names the old version and id. A last plan's migration names the full source version too. The shared entry writer also no longer leaves two blank lines after a moved gap's heading.
+
 ## [4.13.7] - 2026-10-02
 
 ### Added
