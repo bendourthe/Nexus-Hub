@@ -84,19 +84,21 @@ describe("account selection follows the extension's pinned account (decision 1b)
     expect(h.fake.calls).toHaveLength(1);
     expect(h.fake.calls[0].authorization).toBe(`token ${WORK_TOKEN}`);
     expect(JSON.stringify(h.fake.calls)).not.toContain(PERSONAL_TOKEN);
-    expect(h.item().text).toBe("$(copilot-icon)\u2002Copilot Usage: 0.00 credits used");
-    expect(h.item().text).not.toContain("%");
+    // A Business seat with no personal limit: no percentage, and never a credit count.
+    expect(h.item().text).toBe("$(copilot-icon)\u2002Copilot: --% (month)");
+    expect(h.item().text).not.toContain("credits");
     DashboardPanel.show(h.store.get(), "just now", undefined, { configured: false, connected: false }, callbacks);
     const memberHtml = createdWebviewPanels[0].webview.html;
     expect(memberHtml).toContain("Copilot Business");
-    expect(memberHtml).toContain("sets no personal limit for this seat");
+    expect(memberHtml).toContain("--% (month)");
+    expect(memberHtml).toContain("Connect Organization");
 
     // Switch the pin only; the workspace and its git identity stay the same.
     auth.preference = "personal-id";
     await h.controller.refresh();
     expect(h.fake.calls).toHaveLength(2);
     expect(h.fake.calls[1].authorization).toBe(`token ${PERSONAL_TOKEN}`);
-    expect(h.item().text).toBe("$(copilot-icon)\u2002Copilot Usage: 0% (month)");
+    expect(h.item().text).toBe("$(copilot-icon)\u2002Copilot: 0% (month)");
     DashboardPanel.updateIfOpen(h.store.get(), "just now", undefined);
     expect(createdWebviewPanels[0].webview.html).toContain("Copilot Free");
     expect(workspace.workspaceFolders?.[0].uri.fsPath).toBe(workspaceDir);
@@ -107,7 +109,7 @@ describe("account selection follows the extension's pinned account (decision 1b)
     auth.preference = "work-id";
     const h = harness(auth);
     await h.controller.refresh();
-    expect(h.item().text).toContain("credits used");
+    expect(h.item().text).toContain("--% (month)");
 
     auth.pickOnPrompt = "personal-id";
     expect(await switchAccount(auth)).toBe(true);
@@ -122,7 +124,7 @@ describe("account selection follows the extension's pinned account (decision 1b)
     expect(h.fake.calls).toHaveLength(0);
     expect(auth.calls.every((c) => c.options.silent === true && !c.options.createIfNone)).toBe(true);
     expect(h.controller.lastFetchError).toEqual({ code: "choose-account" });
-    expect(h.item().text).toBe("$(copilot-icon)\u2002Copilot Usage: --");
+    expect(h.item().text).toBe("$(copilot-icon)\u2002Copilot: --% (month)");
     expect(h.item().tooltip).toContain("Choose which GitHub account");
     DashboardPanel.show(undefined, "never", h.controller.lastFetchError, { configured: false, connected: false }, callbacks);
     expect(createdWebviewPanels[0].webview.html).toContain("Choose GitHub account");

@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [4.13.8] - 2026-10-02
+## [4.13.8] - 2026-10-03
 
 ### Added
 
@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Copilot Usage Monitor: guided Connect and a percentage-only display (v4.13.8).** Connect Organization now finds the organization from your Copilot seat (one is confirmed, several are offered in a list, none falls back to typing). It first tries without a token, using the read-only `read:org` permission on VS Code's own GitHub sign-in. Only if GitHub refuses that does it guide you through a read-only token: **Open GitHub** opens GitHub's token page with the name, organization, both read-only permissions, and a 366-day expiry already filled in, and you click Generate token, Copy, and paste. A refused token gets a plain-words fix. The status bar now reads `Copilot: <pct>% (month)`, or `Copilot: --% (month)` before an owner connects the organization, and the hover and dashboard explain the one-time Connect step. No status bar, hover, or dashboard text shows a count of credits used any more; the pool's size may still appear. Decision: the v4.13.8 amendment in `docs/decisions/proposed/architecture/2026-09-28-copilot-usage-monitor.md`. Whether the token-free route reaches GitHub's AI-credit endpoint is confirmed only by an owner's first Connect run, which is recorded in `docs/releases/v4/v4.13/development/v4.13.8-copilot-connect-verification.md`.
+
 - **Optimizer results say when their score is optimistic (v4.13.8).** In two-way mode the split that picks `best_description` also produces the reported `test_trigger_rate`, so every result now carries `split_mode`, `selection_split`, `reported_split`, and `reported_optimistic: true`. Every old key keeps its value. The `skill-eval-loop` docs stop calling that split "held-out", replace the claim that 8 to 12 evals give reasonable statistical power, and add an eval-saturation check and a starter-set rule. Decision: `docs/decisions/proposed/tooling/2026-09-30-optimizer-selection-reporting-split.md`.
 - **The first-principles pilot was run and stopped by its own rule (v4.13.8).** One approved smoke run (USD 0.04) passed, but Claude Code 2.1.283 reports `claude-sonnet-5-5` as an unrecognized model and exposes no effort setting, so the pre-registered rule stopped the pilot after one of 15 runs. The question was not tested, and no shared instruction surface changed. The re-run is v4.13.8 DF-4, and the adapter's stale `--skill` command is v4.13.8 WN-4.
 
@@ -29,7 +31,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Capability usage
 
-- No opt-in capability, installer flag, managed skill, or host surface is introduced or changed in v4.13.8. The optimizer's `--split auto` is a script option of a repository tool, not an installed surface.
+- **Copilot organization connect (amended in v4.13.8), opt-in.** Off until an organization owner connects it.
+
+    - Activation: run **Copilot Usage: Connect Organization** (or select **Connect Organization** in the dashboard), confirm or pick the organization, then accept VS Code's consent prompt for `read:org`. If GitHub refuses that route, follow the guided token: **Open GitHub**, **Generate token**, **Copy**, paste.
+    - Validation: the status bar reads `Copilot: <pct>% (month)`, and the dashboard's Organization Pool percentage matches the organization's AI usage page (`github.com/organizations/<org>/settings/billing/ai_usage`) to the rounding the dashboard notes. The **Copilot Usage Monitor** channel in VS Code's Output panel lists which route connected and each endpoint's status code.
+    - Rollback: run **Copilot Usage: Disconnect Organization**, which deletes any stored token and clears the organization setting; the status bar returns to `Copilot: --% (month)`. To also remove the `read:org` grant, sign out of GitHub in VS Code's Accounts menu or revoke **Visual Studio Code** under GitHub **Settings** > **Applications** > **Authorized OAuth Apps**, because VS Code gives an extension no way to return a granted scope. Or uninstall with `code --uninstall-extension nexus-hub.copilot-usage-monitor`.
+    - Authority: `read:org` on VS Code's GitHub session is read-only, and the token's two permissions are read-only; no write scope (`manage_billing:copilot`, `admin:org`) is ever requested. Either credential goes only to `api.github.com`, a token stays in VS Code secret storage, the seat's organization list is read to offer a choice and never stored, and the usage-guard state file stays percentages-only.
+    - Docs: [`extensions/copilot-usage-monitor/README.md`](extensions/copilot-usage-monitor/README.md).
 
 ## [4.13.7] - 2026-10-02
 

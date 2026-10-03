@@ -45,6 +45,8 @@ The two projects are designed to be useful independently: you can install Nexus-
 
 **Gap carry-over that copes with repeated ids.** Carrying a known gap into the next version now works on ledgers that reuse the same id across versions, which this repository's own ledgers do.
 
+**Copilot usage as a percentage, with a guided Connect.** The Copilot Usage Monitor now shows `Copilot: <pct>% (month)`, or `--% (month)` until an organization owner connects the shared pool, and never a count of credits used. Connect finds your organization from your Copilot seat, tries without a token first, and otherwise opens GitHub's token page with everything filled in, so an owner only clicks Generate, Copy, and paste.
+
 ## What's New in v4.13.7
 
 **Hit a usage limit without losing the session.** `/handoff` writes `.nexus-hub/handoff.md` and prints one prompt that any agent can resume from. A new usage guard hook watches the running platform's own usage (Claude Code, Codex, Cursor, and GitHub Copilot) and, at 99% of a tracked window, tells the agent to finish the current step and hand off. Every instruction template also asks for a rolling checkpoint after each verified milestone.

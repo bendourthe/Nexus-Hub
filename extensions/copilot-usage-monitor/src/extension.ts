@@ -4,14 +4,13 @@ import { StatusBarManager } from "./statusBarManager";
 import {
   CopilotOrganizationProvider,
   CopilotUsageProvider,
-  ORG_TOKEN_SECRET_KEY,
   connectOrganization,
   describeProviderError,
   disconnectOrganization,
   signIn,
   switchAccount,
 } from "./providers";
-import { configuredOrganization } from "./providers/copilotOrganization";
+import { configuredOrganization, disconnectMessage, organizationRoute } from "./providers/copilotOrganization";
 import { DashboardPanel } from "./dashboardPanel";
 import type { OrganizationStatus } from "./settingsPanel";
 import { WarningViewProvider, WARNING_VIEW_ID, WARNING_ACTIVE_CONTEXT } from "./warningView";
@@ -74,12 +73,7 @@ export function activate(context: vscode.ExtensionContext): void {
   const controller = new UsageController(store, service, statusBar);
 
   const orgStatus = async (): Promise<OrganizationStatus> => {
-    let connected = false;
-    try {
-      connected = Boolean(await context.secrets.get(ORG_TOKEN_SECRET_KEY));
-    } catch {
-      connected = false;
-    }
+    const connected = (await organizationRoute(context.secrets)) !== "none";
     return { configured: configuredOrganization() !== "", connected };
   };
 
@@ -208,10 +202,10 @@ export function activate(context: vscode.ExtensionContext): void {
       await redrawDashboard();
     }),
     vscode.commands.registerCommand(DISCONNECT_COMMAND, async () => {
-      await disconnectOrganization(context.secrets);
+      const route = await disconnectOrganization(context.secrets);
       await controller.organizationRemoved();
       await redrawDashboard();
-      void vscode.window.showInformationMessage("Copilot Usage: organization disconnected and its token deleted.");
+      void vscode.window.showInformationMessage(disconnectMessage(route));
     }),
     vscode.commands.registerCommand(SIGN_IN_COMMAND, async () => {
       if (await signIn()) {

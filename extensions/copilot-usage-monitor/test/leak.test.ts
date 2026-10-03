@@ -35,6 +35,8 @@ import {
   createdStatusBarItems,
   createdWebviewPanels,
   inputBoxAnswers,
+  messageAnswers,
+  messageOptions,
   outputLines,
   shownMessages,
 } from "./vscode-stub";
@@ -112,6 +114,9 @@ describe("no token or identity leaks from any surface", () => {
         if (mode.personal !== 200) return jsonResponse({ message: `Bad credentials ${authorization}` }, mode.personal);
         return jsonResponse(fixture(authorization === `token ${WORK_TOKEN}` ? "copilot-internal-user.business-member.json" : "copilot-internal-user.personal.json"));
       }
+      // The organization refuses the VS Code session (third-party OAuth restricted),
+      // so Connect falls back to the guided token on every attempt.
+      if (authorization !== `Bearer ${ORG_TOKEN}`) return jsonResponse({ message: `denied ${authorization}` }, 403);
       if (url.pathname.endsWith("/copilot/billing")) {
         return mode.billing === 200 ? jsonResponse(fixture("copilot-billing.json")) : jsonResponse({ message: `denied ${authorization}` }, mode.billing);
       }
@@ -160,7 +165,9 @@ describe("no token or identity leaks from any surface", () => {
       if (fs.existsSync(statePath)) stateFiles.push(fs.readFileSync(statePath, "utf-8"));
     };
 
-    // Connect with the organization token, then fetch the full picture.
+    // Connect: the work seat lists another organization, so pick Other, type the
+    // login, then follow the guided token after the token-free route is refused.
+    messageAnswers.push("Other organization", "Open GitHub");
     inputBoxAnswers.push(ORG_LOGIN, ORG_TOKEN);
     expect(await connectOrganization(secrets.asSecretStorage(), fake.fetch)).toBe("connected");
     await controller.refresh();
@@ -185,6 +192,7 @@ describe("no token or identity leaks from any surface", () => {
 
     // Reconnect, refresh, switch to the personal account, then disconnect.
     mode = { personal: 200, billing: 200, usage: "ai-credit-usage.over-pool.synthetic.json" };
+    messageAnswers.push("Other organization", "Open GitHub");
     inputBoxAnswers.push(ORG_LOGIN, ORG_TOKEN);
     await connectOrganization(secrets.asSecretStorage(), fake.fetch);
     await controller.refresh();
@@ -196,12 +204,20 @@ describe("no token or identity leaks from any surface", () => {
     await controller.organizationRemoved();
     await capture();
     // A connect attempt with a bad token stores nothing and says nothing identifying.
+    // The personal seat lists no organization, so Connect goes straight to typing.
     mode = { personal: 200, billing: 401, usage: "ai-credit-usage.json" };
+    messageAnswers.push("Open GitHub");
     inputBoxAnswers.push(ORG_LOGIN, ORG_TOKEN);
     expect(await connectOrganization(secrets.asSecretStorage(), fake.fetch)).toBe("rejected");
 
     const cache = JSON.stringify(memento.keys().map((k) => memento.get(k)));
-    const messages = shownMessages.map((m) => m.message);
+    // Connect's modal confirmation names the seat's organization to the user by
+    // design (v4.13.8 Phase 6); it is shown, never stored or logged. Every other
+    // message is a leak surface.
+    const isConnectConfirm = (i: number): boolean =>
+      messageOptions[i]?.modal === true && shownMessages[i].message.startsWith("Connect ");
+    expect(shownMessages.some((_m, i) => isConnectConfirm(i))).toBe(true);
+    const messages = shownMessages.filter((_m, i) => !isConnectConfirm(i)).map((m) => m.message);
     const settingsOther = configurationUpdates.filter((u) => !(u.section === "copilotUsage" && u.key === "organization"));
     const settingsOrg = configurationUpdates.filter((u) => u.section === "copilotUsage" && u.key === "organization");
 
@@ -228,14 +244,17 @@ describe("no token or identity leaks from any surface", () => {
     // Secret storage holds the organization token under its single key, and nothing else.
     expect(new Set(secrets.stored.map((s) => s.key))).toEqual(new Set([ORG_TOKEN_SECRET_KEY]));
 
-    // Tokens travel only to api.github.com, each only to its own endpoints.
+    // Tokens travel only to api.github.com: the organization token only to the
+    // chosen organization's endpoints, and a session token to those only as the
+    // token-free check during Connect.
     for (const call of fake.calls) {
       expect(new URL(call.url).origin).toBe("https://api.github.com");
       expect(call.init.redirect).toBe("error");
-      if (call.authorization?.includes(ORG_TOKEN)) {
-        expect(call.url).toMatch(/^https:\/\/api\.github\.com\/(orgs|organizations)\/acme-co\//);
+      if (call.url === "https://api.github.com/copilot_internal/user") {
+        expect(call.authorization).not.toContain(ORG_TOKEN);
       } else {
-        expect(call.url).toBe("https://api.github.com/copilot_internal/user");
+        expect(call.url).toMatch(/^https:\/\/api\.github\.com\/(orgs|organizations)\/acme-co\//);
+        expect(call.authorization?.startsWith("Bearer ")).toBe(true);
       }
     }
     expect(fake.calls.some((c) => c.authorization === `Bearer ${ORG_TOKEN}`)).toBe(true);
