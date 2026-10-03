@@ -53,6 +53,15 @@ export const inputBoxCalls: Array<Record<string, unknown>> = [];
 export const inputBoxAnswers: Array<string | undefined> = [];
 /** Commands executed through commands.executeCommand. */
 export const executedCommands: Array<{ command: string; args: unknown[] }> = [];
+/** Answers returned, in order, by show*Message calls that offer buttons. */
+export const messageAnswers: Array<string | undefined> = [];
+/** Options of each message call (modal, detail), in the order of shownMessages. */
+export const messageOptions: Array<Record<string, unknown> | undefined> = [];
+/** Items and options passed to each showQuickPick call, and the queued indexes it picks. */
+export const quickPickCalls: Array<{ items: unknown[]; options: Record<string, unknown> | undefined }> = [];
+export const quickPickAnswers: Array<number | undefined> = [];
+/** URIs passed to env.openExternal. */
+export const openedExternal: string[] = [];
 
 export function __resetStubState(): void {
   createdStatusBarItems.length = 0;
@@ -63,6 +72,11 @@ export function __resetStubState(): void {
   inputBoxCalls.length = 0;
   inputBoxAnswers.length = 0;
   executedCommands.length = 0;
+  messageAnswers.length = 0;
+  messageOptions.length = 0;
+  quickPickCalls.length = 0;
+  quickPickAnswers.length = 0;
+  openedExternal.length = 0;
   for (const k of Object.keys(stubConfig)) {
     delete stubConfig[k];
   }
@@ -99,9 +113,12 @@ export const workspace = {
 };
 
 function message(level: "info" | "warning" | "error") {
-  return (text: string): Promise<undefined> => {
+  return (text: string, ...rest: unknown[]): Promise<string | undefined> => {
     shownMessages.push({ level, message: text });
-    return Promise.resolve(undefined);
+    const options = rest.find((r) => r != null && typeof r === "object") as Record<string, unknown> | undefined;
+    messageOptions.push(options);
+    // Only a call that offers buttons consumes a queued answer.
+    return Promise.resolve(rest.some((r) => typeof r === "string") ? messageAnswers.shift() : undefined);
   };
 }
 
@@ -181,6 +198,18 @@ export const window = {
   async showInputBox(options: Record<string, unknown>): Promise<string | undefined> {
     inputBoxCalls.push(options);
     return inputBoxAnswers.shift();
+  },
+  async showQuickPick<T>(items: readonly T[], options?: Record<string, unknown>): Promise<T | undefined> {
+    quickPickCalls.push({ items: [...items], options });
+    const index = quickPickAnswers.shift();
+    return index == null ? undefined : items[index];
+  },
+};
+
+export const env = {
+  async openExternal(uri: { path: string }): Promise<boolean> {
+    openedExternal.push(uri.path);
+    return true;
   },
 };
 

@@ -141,7 +141,8 @@ function resetOf(payload: Record<string, unknown>): number | null {
  * Map a `copilot_internal/user` payload to the personal figure. Returns null
  * only when `quota_snapshots` is missing, which the fetcher reports as
  * `usage-unavailable`. Unknown fields are ignored; the login, ids, and
- * organization list are never read.
+ * organization list are never read here (Connect reads the list through
+ * {@link mapSeatOrganizations}, and never stores it).
  */
 export function mapCopilotUser(raw: unknown): PersonalUsage | null {
   const payload = asRecord(raw);
@@ -166,6 +167,68 @@ export function mapCopilotUser(raw: unknown): PersonalUsage | null {
   const primary =
     QUOTA_ORDER.map((id) => quotas.find((q) => q.id === id)).find((q) => q != null) ?? null;
   return { planLabel: planLabel(payload), quotas, primary, creditsUsed, resetsAt: resetOf(payload) };
+}
+
+/** An organization the signed-in seat belongs to, as Connect offers it. */
+export interface SeatOrganization {
+  login: string;
+  name: string;
+}
+
+/** A GitHub organization login: alphanumerics and single hyphens, at most 39 characters. */
+const ORG_LOGIN = /^[A-Za-z0-9](?:[A-Za-z0-9]|-(?=[A-Za-z0-9])){0,38}$/;
+
+/**
+ * The seat's organizations from `organization_list` (v4.13.8 Phase 6): only
+ * entries with a valid login are kept, ids are dropped, duplicates collapse,
+ * and a missing name falls back to the login. A personal plan returns [].
+ */
+export function mapSeatOrganizations(raw: unknown): SeatOrganization[] {
+  const list = asRecord(raw)?.organization_list;
+  if (!Array.isArray(list)) {
+    return [];
+  }
+  const seen = new Map<string, SeatOrganization>();
+  for (const entry of list) {
+    const rec = asRecord(entry);
+    const login = typeof rec?.login === "string" ? rec.login.trim() : "";
+    if (!ORG_LOGIN.test(login) || seen.has(login.toLowerCase())) {
+      continue;
+    }
+    const name = typeof rec?.name === "string" && rec.name.trim() ? rec.name.trim() : login;
+    seen.set(login.toLowerCase(), { login, name });
+  }
+  return [...seen.values()];
+}
+
+/**
+ * The organizations of the account VS Code already signed in for this
+ * extension, read silently for Connect. Any failure returns [], which Connect
+ * answers with typed entry.
+ */
+export async function fetchSeatOrganizations(
+  auth: GitHubAuthentication = vscode.authentication,
+  fetchImpl: FetchLike = (input, init) => fetch(input, init),
+): Promise<SeatOrganization[]> {
+  let session: vscode.AuthenticationSession | undefined;
+  try {
+    session = await auth.getSession(GITHUB_PROVIDER_ID, BACKGROUND_SCOPES, { createIfNone: false, silent: true });
+  } catch {
+    session = undefined;
+  }
+  if (!session) {
+    return [];
+  }
+  const response = await githubGet(
+    githubApiUrl(USER_PATH),
+    `token ${session.accessToken}`,
+    { Accept: "application/json" },
+    fetchImpl,
+  );
+  if (response.kind === "network-error" || response.status < 200 || response.status >= 300 || !response.parsed) {
+    return [];
+  }
+  return mapSeatOrganizations(response.body);
 }
 
 function errorFor(status: number, statusText: string, rateLimited: boolean): ProviderFetchError {

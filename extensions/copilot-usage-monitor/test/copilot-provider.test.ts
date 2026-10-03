@@ -168,7 +168,7 @@ describe("describeProviderError", () => {
     ["parse-error", "does not recognize"],
     ["usage-unavailable", "does not recognize"],
     ["org-not-connected", "Connect Organization"],
-    ["org-access-denied", "organization owner or billing manager"],
+    ["org-access-denied", "Only an organization owner can read the shared pool"],
     ["org-token-rejected", "Reconnect"],
   ])("renders %s", (code, fragment) => {
     const statusCode = code === "token-invalid" ? 401 : code === "api-error" ? 502 : undefined;
