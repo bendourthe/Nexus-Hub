@@ -116,12 +116,12 @@ def test_an_open_gap_blocks_until_it_is_carried_to_the_next_patch(tmp_path: Path
     assert before["archive.minor"] == "n/a" and before["archive.empty-dirs"] == "n/a"
     carried = _close(fx, "carry", "--plan", PLAN_REL, "--session", SESSION, "--date", "2026-10-02")
     assert carried.returncode == 0, carried.stdout + carried.stderr
-    assert carried.stdout.splitlines() == [f"CARRIED v0.2#WN-3 -> v0.2.1 {GAPS}"]
+    assert carried.stdout.splitlines() == [f"CARRIED v0.2.0#WN-3 -> v0.2.1#WN-4 {GAPS}"]
     text = _read(fx, GAPS)
     head, tail = text.split("## v0.2.1", 1)
     assert "WN-3" not in head.split("### Open Items", 1)[1].split("### Resolved")[0]
-    assert "#### WN-3: The probe flakes on a cold cache" in tail
-    assert "- **Carried from**: v0.2.0 on 2026-10-02" in tail
+    assert "#### WN-4: The probe flakes on a cold cache" in tail
+    assert "- **Carried from**: v0.2.0#WN-3 on 2026-10-02" in tail
     assert "**Open items**: 1" in text  # the item still counts, now in v0.2.1
     _commit_and_ship(fx, "carry")
     after = _predicates(fx)
@@ -153,7 +153,7 @@ def test_a_security_gap_is_carried_only_when_named(tmp_path: Path) -> None:
     named = _build(tmp_path / "named", {"class": "carry-gaps", "named": ["v0.2#BG-2"]}, items=BG2, wn=0, bg=1)
     done = _close(named, "carry", "--plan", PLAN_REL, "--session", SESSION)
     assert done.returncode == 0, done.stdout + done.stderr
-    assert done.stdout.startswith("CARRIED v0.2#BG-2 -> v0.2.1")
+    assert done.stdout.startswith("CARRIED v0.2.0#BG-2 -> v0.2.1#BG-3")
 
 
 # --------------------------------------------------------------------------- the last plan
@@ -164,9 +164,9 @@ def test_the_last_plan_moves_every_open_gap_to_the_next_minor(tmp_path: Path) ->
     assert _predicates(fx)["gaps.carried"] == "unmet"
     moved = _close(fx, "carry", "--plan", PLAN_REL, "--session", SESSION, "--date", "2026-10-02")
     assert moved.returncode == 0, moved.stdout + moved.stderr
-    assert moved.stdout.splitlines() == [f"MIGRATED v0.2#WN-3 -> v0.3#WN-1 (v0.3.0) {NEXT_GAPS}"]
+    assert moved.stdout.splitlines() == [f"MIGRATED v0.2.0#WN-3 -> v0.3#WN-1 (v0.3.0) {NEXT_GAPS}"]
     assert "#### WN-3: The probe flakes on a cold cache - MIGRATED to v0.3.0" in _read(fx, GAPS)
-    assert "- **Migrated from**: v0.2#WN-3 on 2026-10-02 (reason: user-deferred)" in _read(fx, NEXT_GAPS)
+    assert "- **Migrated from**: v0.2.0#WN-3 on 2026-10-02 (reason: user-deferred)" in _read(fx, NEXT_GAPS)
     _commit_and_ship(fx, "carry")
     after = _predicates(fx)
     assert after["gaps.version"] == "met" and after["gaps.carried"] == "met"
@@ -238,7 +238,7 @@ def test_carry_keeps_summary_counts_in_step_on_any_line_ending(newline: str) -> 
 
     text = ledger("v0.2", section("v0.2.0", 1, WN3)).replace("\n", newline)
     (item,) = cm.parse_ledger(text)
-    moved = minor_close.carry_within(text, item, "v0.2.1", "v0.2.0", "2026-10-02")
+    moved, _gid = minor_close.carry_within(text, item, "v0.2.1", "v0.2.0", "2026-10-02")
     summaries = moved.split("### Summary")
     assert "| Warnings (WN) | 0 | 0 |" in summaries[1]  # v0.2.0 no longer holds it
     assert "| Warnings (WN) | 1 | 0 |" in summaries[2]  # v0.2.1 does
@@ -246,3 +246,47 @@ def test_carry_keeps_summary_counts_in_step_on_any_line_ending(newline: str) -> 
     with pytest.raises(minor_close.Refused) as refused:
         minor_close.carry_within(wrong, item, "v0.2.1", "v0.2.0", "2026-10-02")
     assert refused.value.reason == "summary-mismatch"
+
+
+# Ids repeat across a ledger's version sections in practice (`#### WN-3 (v0.2.0): ...`
+# and `#### WN-3 (v0.2.1): ...`), so an item is its section's version plus its id.
+SHARED = (
+    "#### WN-3 (v0.2.1): Another warning that happens to share the id\n\n"
+    "- **Reason**: unrelated\n\n"
+)
+WN3_TAGGED = WN3.replace("#### WN-3: ", "#### WN-3 (v0.2.0): ")
+
+
+def test_a_repeated_id_in_another_section_is_never_confused_with_this_plans_gap() -> None:
+    sys.path.insert(0, str(REPO_ROOT / "scripts"))
+    import completion_minor as cm
+    import minor_close
+
+    text = ledger("v0.2", section("v0.2.0", 1, WN3_TAGGED) + section("v0.2.1", 1, SHARED))
+    item = next(i for i in cm.parse_ledger(text) if cm.section_version(i.section) == "v0.2.0")
+    moved, new_gid = minor_close.carry_within(text, item, "v0.2.1", "v0.2.0", "2026-10-02")
+    assert new_gid == "WN-4"
+    items = cm.parse_ledger(moved)
+    in_next = [i for i in items if cm.section_version(i.section) == "v0.2.1"]
+    assert sorted(i.gid for i in in_next) == ["WN-3", "WN-4"]  # the existing WN-3 is untouched
+    carried = next(i for i in in_next if i.gid == "WN-4")
+    assert carried.title.startswith(" (v0.2.1): The probe flakes")
+    assert "- **Carried from**: v0.2.0#WN-3 on 2026-10-02" in carried.body
+    ledger_now = cm.Ledger(Path("x"), "x", (0, 2), "active", moved, items)
+    assert cm.carried_copy(ledger_now, "v0.2.0", "WN-3")
+    # The other section's own WN-3 was never carried from v0.2.0, so it proves nothing.
+    untouched = ledger("v0.2", section("v0.2.0", 0, "") + section("v0.2.1", 1, SHARED))
+    assert not cm.carried_copy(cm.Ledger(Path("x"), "x", (0, 2), "active", untouched, cm.parse_ledger(untouched)),
+                               "v0.2.0", "WN-3")
+
+
+def test_carrying_with_a_repeated_id_reaches_plan_complete(tmp_path: Path) -> None:
+    fx = _build(tmp_path, CARRY, items=WN3_TAGGED)
+    text = _read(fx, GAPS) + "\n" + section("v0.2.1", 1, SHARED)
+    fx.write(GAPS, text)
+    _commit_and_ship(fx, "a later section shares the id")
+    carried = _close(fx, "carry", "--plan", PLAN_REL, "--session", SESSION, "--date", "2026-10-02")
+    assert carried.stdout.splitlines() == [f"CARRIED v0.2.0#WN-3 -> v0.2.1#WN-4 {GAPS}"], carried.stdout + carried.stderr
+    _commit_and_ship(fx, "carry")
+    after = _predicates(fx)
+    assert after["gaps.version"] == "met" and after["gaps.carried"] == "met", after

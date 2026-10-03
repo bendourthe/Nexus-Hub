@@ -811,7 +811,9 @@ def _plan_migration_met(ctx: Context, record: dict | None, gaps: Path, heading: 
     found = cm.LEDGER_ITEM_RE.match(heading.lstrip("#").strip())
     if ledger is None or found is None:
         return False
-    item = next((i for i in ledger.items if i.gid == found.group("id") and i.state == "migrated"), None)
+    # Ids repeat across version sections, so only this plan's own section counts.
+    item = next((i for i in ledger.items if i.gid == found.group("id") and i.state == "migrated"
+                 and cm.section_version(i.section) == ctx.version), None)
     return item is not None and cm.plan_migration_met(ledgers, ledger, item)
 
 
