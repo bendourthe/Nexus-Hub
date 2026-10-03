@@ -6,6 +6,8 @@ import {
   formatCredits,
   formatElapsed,
   formatPercent,
+  formatShare,
+  poolUsageLine,
   formatResetLabel,
   nextMonthlyResetAt,
 } from "../src/usageStore";
@@ -46,14 +48,29 @@ describe("UsageStore", () => {
 describe("formatters", () => {
   it.each([
     [0, "0"],
-    [0.0068198, "0.01"],
-    [99.2481, "99.25"],
+    [0.0068198, "0"],
+    [1.3, "1"],
+    [99.2481, "99"],
     [100, "100"],
     [120, "100"],
     [-3, "0"],
-    [42.5, "42.5"],
-  ])("formatPercent(%f) = %s", (value, text) => {
+    [42.5, "43"],
+  ])("formatPercent(%f) = %s (whole numbers, like the Claude and Codex monitors)", (value, text) => {
     expect(formatPercent(value)).toBe(text);
+  });
+
+  it.each([
+    [0, "0"],
+    [0.0068198, "<1"],
+    [0.49, "<1"],
+    [12.6, "13"],
+  ])("formatShare(%f) = %s", (value, text) => {
+    expect(formatShare(value)).toBe(text);
+  });
+
+  it("writes the pool usage line with whole used and total credits", () => {
+    expect(poolUsageLine(172.9, 13_300)).toBe("Shared organization pool usage: 173 / 13,300 credits");
+    expect(poolUsageLine(0.9069921, 13_300)).toBe("Shared organization pool usage: 1 / 13,300 credits");
   });
 
   it("formats credits with two decimals and counts as whole numbers", () => {

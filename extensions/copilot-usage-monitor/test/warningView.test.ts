@@ -53,7 +53,7 @@ describe("WarningViewProvider", () => {
     expect(executedCommands[0]).toEqual({ command: "setContext", args: [WARNING_ACTIVE_CONTEXT, true] });
     expect(view.shown).toBe(1);
     const html = view.webview.html;
-    expect(html).toContain('<div class="ring-pct">99.25%</div>');
+    expect(html).toContain('<div class="ring-pct">99%</div>');
     expect(html).toContain("Organization pool");
     expect(html).toContain("Pause non-essential Copilot work, or ask an owner about additional usage");
     expect(html).toContain("Usage will reset on November 1.");
