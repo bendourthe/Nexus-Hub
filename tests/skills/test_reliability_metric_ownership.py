@@ -47,6 +47,13 @@ _RULES = {
         _SK / "orchestration" / "agent-orchestration-primitives" / "SKILL.md",
         ["Non-blocking delegation", "separate wait tool"],
     ),
+    "cost-claim-reporting": (
+        _SK / "ai-development" / "eval-pipeline-audit" / "SKILL.md",
+        [
+            "Count the whole cost of producing the saving",
+            "Restate the headline whenever the accounting changes",
+        ],
+    ),
 }
 _TEST_COMMAND = _ROOT / "catalog" / "commands" / "test.md"
 
@@ -85,3 +92,12 @@ def test_each_rule_is_present_in_its_owner(rule: str):
 def test_the_test_scope_boundary_is_findable_from_both_sides():
     assert "test-scope-decision.md" in _read(_TEST_COMMAND)
     assert "test-scope-decision.md" in _read(_RULES["scope-restraint"][0])
+
+
+def test_cost_claim_rule_is_stated_once_and_referenced_from_the_receipts():
+    owner, markers = _RULES["cost-claim-reporting"]
+    for marker in markers:
+        holders = [p for p in sorted(_SK.rglob("SKILL.md")) if marker in _read(p)]
+        assert holders == [owner], f"{marker!r} is stated in {[p.parent.name for p in holders]}"
+    receipts = _read(_SK / "workflow" / "skill-eval-loop" / "SKILL.md")
+    assert "[[eval-pipeline-audit]]" in receipts

@@ -15,6 +15,9 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Implement v4.13.6 Phases 1-8 locally: exact approval binding, minor membership and run record, verified merged-and-idle cleanup, gap migration and minor archive, the minor verdict and closing pull request, the plain-language approval page, goal restatements, and a two-plan end-to-end proof. The final phase also fixed archived gaps AR-01 (`nexus-hub init` was an invalid choice) and AR-02 (`secret-scan.sh` allowed every write without `jq`) and deleted the stray `scratch_p6cmd.py` (v4.13.5 WN-1). See the [last-phase evidence](releases/v4/v4.13/development/v4.13.6-last-phase-evidence.md).
 - [x] Publish v4.13.6, integrate it green, and release it: PR #394 merged into `develop` at `fc279158` with every required check green, released as v4.13.6 on 2026-09-30.
 - [ ] Record one non-engineer read-back of a rendered v4.13.6 approval page (plan DoD 6).
+- [x] Implement v4.13.8 Phases 1-5 and the Phase 6 local duties ([Sonnet 5.5 profile and first-principles pilot](releases/v4/v4.13/plans/v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md)): the `claude-sonnet-5-5` prompting profile, the cost-claim reporting rule, the optimizer's `reported_optimistic` label and three-way split, and a pilot that stopped by its own effort rule after one run. See the [last-phase evidence](releases/v4/v4.13/development/v4.13.8-last-phase-evidence.md).
+- [ ] Publish v4.13.8 once `v4.13.7` is tagged, integrate it green, and release it.
+- [ ] Re-run the first-principles pilot's identical matrix once Claude Code recognizes `claude-sonnet-5-5` (v4.13.8 DF-4).
 - [x] Finish the [v4.13.4 Training rebuild](releases/v4/v4.13/plans/v4.13.4-guide-training-rebuild.md): all eight phases shipped through [PR #382](https://github.com/bendourthe/Nexus-Hub/pull/382), merged at `13de23c0` after one stabilization re-push; [post-merge run 36526412742](https://github.com/bendourthe/Nexus-Hub/actions/runs/36526412742) passed. The [last-phase evidence](releases/v4/v4.13/development/v4.13.4-last-phase-evidence.md) records the full local gate, review lenses, and visual sweep; WN-1 and WN-2 stay open in the v4.13 ledger.
 
 - [x] Historical v4.0-v4.13 plan closure is integrated. PR #232 passed the required Linux, Windows, guide-render, host-load, CodeQL, and aggregate checks; post-merge run 35789442554 passed smoke and provenance without rerunning the full suite.
@@ -154,6 +157,7 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
+| v4.13.8 Sonnet 5.5 profile and pilot phases complete | 5 | 6 | 1 |
 | v4.13.7 Copilot monitor and handoff phases complete (released) | 9 | 9 | 0 |
 | v4.13.6 minor-scope implement phases complete (released) | 8 | 8 | 0 |
 | v4.13.4 Training rebuild phases complete | 8 | 8 | 0 |

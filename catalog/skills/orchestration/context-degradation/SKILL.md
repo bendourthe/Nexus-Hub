@@ -49,6 +49,16 @@ Context degradation manifests in 5 distinct patterns. Identifying the correct pa
 | **Context Confusion** | Agent conflates similar but distinct concepts (e.g., two services with similar names) | Semantically similar tokens in context cause cross-contamination of representations | HIGH |
 | **Context Clash** | Agent produces contradictory outputs or oscillates between approaches | Conflicting instructions, outdated decisions still in context, or contradictory code patterns | HIGH |
 
+**Before blaming a model change for a quality dip**, rule out the session itself. Check, in order:
+
+1. Which model is actually selected for this session, and whether it changed.
+2. The effort or reasoning setting in effect, which can differ from the one you expect after a switch.
+3. How full the context is (see the severity bands in Step 2).
+4. How much of the context is standing load: memory files, instruction files, and tool definitions that load on every turn.
+5. Whether one bad turn is anchoring the turns after it. If so, prefer rewinding to the last good checkpoint over correcting it in the same thread, because every correction keeps the bad turn in context (see Context Poisoning above).
+
+Only when all five check out is a model regression the likely explanation. Compression and handoff options are in Step 3, Bucket 3; this list does not replace them.
+
 **Quick Diagnostic Questions** (ask the agent these to detect degradation):
 
 ```markdown

@@ -43,7 +43,7 @@ A discipline skill is never done after one green run, because closing one ration
 1. Re-run the scenario (and variants at higher pressure) with the green skill loaded.
 2. Capture any NEW rationalization the agent reaches for now that the obvious ones are blocked.
 3. Add a rebuttal row for each, re-run, repeat.
-4. Stop when the agent stops finding new escape hatches across two consecutive runs at the highest pressure you can construct, OR when `skill-eval-loop` reports a stable pass-rate on the held-out portion of the eval set (see the loop's stop condition).
+4. Stop when the agent stops finding new escape hatches across two consecutive runs at the highest pressure you can construct, OR when `skill-eval-loop` reports a stable pass-rate on the selection portion of the eval set (see the loop's stop condition).
 
 Refactoring also covers the usual structural cleanup: if the body grows past the 500-line target while accumulating rebuttals, move worked examples into a `references/` file and keep the gate, the rationalization table, and the verification checklist in the body where they fire.
 

@@ -1,0 +1,67 @@
+{
+  "pilot": "v4.13.8 first-principles pilot (T320)",
+  "note": "Scaffolding kept as evidence only; never shipped in catalog/. No train, validation, or test roles: nothing in the pilot is tuned. Every prompt ends with the same answer-format instruction in all arms; the arm sentence, if any, is appended after it.",
+  "answer_format_instruction": "Finish your reply with one final line in exactly this form: ROOT CAUSE: <name of the function that contains the defect>",
+  "prompts": [
+    {
+      "id": "p1-invoice-keyerror",
+      "prompt": "Our invoice export crashes on every CSV row. Traceback:\n\n```\nTraceback (most recent call last):\n  File \"export.py\", line 31, in <module>\n    print(render_invoice(row))\n  File \"export.py\", line 22, in render_invoice\n    return f\"{row['Customer']}: {row['Total']:.2f}\"\nKeyError: 'Customer'\n```\n\nThe CSV header line is `Customer,Total` and the file is UTF-8.\n\n```python\nimport csv\n\ndef normalize_key(key):\n    return key.strip().lower()\n\ndef parse_row(header, values):\n    row = {}\n    for key, value in zip(header, values):\n        row[normalize_key(key)] = value\n    row['Total'] = float(row.get('total', 0))\n    return row\n\ndef render_invoice(row):\n    return f\"{row['Customer']}: {row['Total']:.2f}\"\n\nwith open('invoices.csv', encoding='utf-8') as fh:\n    reader = csv.reader(fh)\n    header = next(reader)\n    for values in reader:\n        row = parse_row(header, values)\n        print(render_invoice(row))\n```\n\nWhere is the defect, and what is the fix?",
+      "reference_root_cause": "parse_row",
+      "symptom_function": "render_invoice",
+      "reference_solution": "parse_row stores every key lowercased via normalize_key but then writes 'Total' back with its original case and never restores 'Customer', so the row has 'customer' and 'Total'. Fix parse_row to use one key convention (for example keep the original header keys, or lowercase consistently and read lowercase keys everywhere). normalize_key itself does what its name says; the defect is parse_row mixing conventions.",
+      "assertions": [
+        {"type": "root_cause_line_present"},
+        {"type": "root_cause_equals", "value": "parse_row"}
+      ],
+      "leakage_review": "Reviewed once 2026-09-30: the prompt never names parse_row as faulty; the traceback points at render_invoice; normalize_key is a plausible red herring. The assertion checks only the final line's function name."
+    },
+    {
+      "id": "p2-discount-hundredfold",
+      "prompt": "Checkout shows $1,250.00 for an item priced $12.50 when a 0% discount code is applied. Without a code it shows $12.50 correctly.\n\n```javascript\nfunction toCents(dollars) {\n  return Math.round(dollars * 100);\n}\n\nfunction formatPrice(cents) {\n  return '$' + (cents / 100).toLocaleString('en-US', { minimumFractionDigits: 2 });\n}\n\nfunction applyDiscount(priceCents, percent) {\n  const discounted = priceCents * (1 - percent / 100);\n  return toCents(discounted);\n}\n\nfunction checkoutTotal(item, code) {\n  let cents = toCents(item.price);\n  if (code) {\n    cents = applyDiscount(cents, code.percent);\n  }\n  return formatPrice(cents);\n}\n\nconsole.log(checkoutTotal({ price: 12.5 }, { percent: 0 }));\n```\n\nWhere is the defect, and what is the fix?",
+      "reference_root_cause": "applyDiscount",
+      "symptom_function": "formatPrice",
+      "reference_solution": "applyDiscount receives a value already in cents and converts it to cents again with toCents, multiplying by 100 a second time. Fix applyDiscount to return Math.round(discounted) instead of toCents(discounted). formatPrice and toCents are correct.",
+      "assertions": [
+        {"type": "root_cause_line_present"},
+        {"type": "root_cause_equals", "value": "applyDiscount"}
+      ],
+      "leakage_review": "Reviewed once 2026-09-30: the symptom is a display value, inviting formatPrice; toCents is the tempting wrong answer because it does the multiplication; the defect is the second call inside applyDiscount. The assertion checks only the function name."
+    },
+    {
+      "id": "p3-tags-leak",
+      "prompt": "Each blog post should carry only its own tags, but the third post printed below shows tags from the first two posts as well.\n\n```python\ndef add_tag(tag, tags=[]):\n    if tag not in tags:\n        tags.append(tag)\n    return tags\n\ndef build_post(title, raw_tags):\n    tags = None\n    for t in raw_tags.split(','):\n        tags = add_tag(t.strip())\n    return {'title': title, 'tags': tags or []}\n\nposts = [\n    build_post('Intro', 'python, basics'),\n    build_post('Async', 'python, asyncio'),\n    build_post('Release notes', 'news'),\n]\nprint(posts[2])\n# {'title': 'Release notes', 'tags': ['python', 'basics', 'asyncio', 'news']}\n```\n\nWhere is the defect, and what is the fix?",
+      "reference_root_cause": "add_tag",
+      "symptom_function": "build_post",
+      "reference_solution": "add_tag uses a mutable default argument (tags=[]), so every call without an explicit list appends to the same list object shared across calls. Fix add_tag with tags=None and tags = [] if tags is None inside, and have build_post pass its own list. build_post shows the symptom but its own logic only works around the shared default.",
+      "assertions": [
+        {"type": "root_cause_line_present"},
+        {"type": "root_cause_equals", "value": "add_tag"}
+      ],
+      "leakage_review": "Reviewed once 2026-09-30: the wrong output is printed from build_post, and build_post's `tags = None` reassignment looks suspicious, which makes it a credible wrong answer. The assertion checks only the function name."
+    },
+    {
+      "id": "p4-missing-last-page",
+      "prompt": "The nightly export of 2,501 customer records writes only 2,500. No error is logged.\n\n```python\nPAGE_SIZE = 100\n\ndef page_count(total):\n    return total // PAGE_SIZE\n\ndef fetch_page(records, page):\n    start = page * PAGE_SIZE\n    return records[start:start + PAGE_SIZE]\n\ndef export_all(records, write):\n    written = 0\n    for page in range(page_count(len(records))):\n        for record in fetch_page(records, page):\n            write(record)\n            written += 1\n    return written\n\nprint(export_all(list(range(2501)), lambda r: None))  # prints 2500\n```\n\nWhere is the defect, and what is the fix?",
+      "reference_root_cause": "page_count",
+      "symptom_function": "export_all",
+      "reference_solution": "page_count uses floor division, so a partial final page is never counted: 2501 // 100 is 25 pages, dropping record 2500. Fix page_count to round up, for example -(-total // PAGE_SIZE) or math.ceil(total / PAGE_SIZE). fetch_page's slicing is correct and export_all's loop is correct given a correct page count.",
+      "assertions": [
+        {"type": "root_cause_line_present"},
+        {"type": "root_cause_equals", "value": "page_count"}
+      ],
+      "leakage_review": "Reviewed once 2026-09-30: the prompt reports the count from export_all and fetch_page's slice arithmetic invites an off-by-one suspicion; nothing names page_count as faulty. The assertion checks only the function name."
+    },
+    {
+      "id": "p5-cache-collision",
+      "prompt": "Some users see another user's recommendations. User 1 viewing item 23 sometimes gets the result computed for user 12 viewing item 3. The recommendation model is deterministic and has been verified separately.\n\n```python\n_cache = {}\n\ndef cache_key(user_id, item_id):\n    return f\"{user_id}{item_id}\"\n\ndef compute_recommendation(user_id, item_id):\n    return f\"recs-for-user-{user_id}-item-{item_id}\"\n\ndef get_recommendation(user_id, item_id):\n    key = cache_key(user_id, item_id)\n    if key not in _cache:\n        _cache[key] = compute_recommendation(user_id, item_id)\n    return _cache[key]\n\nget_recommendation(12, 3)\nprint(get_recommendation(1, 23))  # recs-for-user-12-item-3\n```\n\nWhere is the defect, and what is the fix?",
+      "reference_root_cause": "cache_key",
+      "symptom_function": "get_recommendation",
+      "reference_solution": "cache_key concatenates the two ids without a separator, so (12, 3) and (1, 23) both produce '123' and collide. Fix cache_key to return an unambiguous key such as the tuple (user_id, item_id) or f\"{user_id}:{item_id}\". get_recommendation's caching logic is correct given unique keys.",
+      "assertions": [
+        {"type": "root_cause_line_present"},
+        {"type": "root_cause_equals", "value": "cache_key"}
+      ],
+      "leakage_review": "Reviewed once 2026-09-30: the prompt describes users swapping results, which invites a concurrency or cache-invalidation theory in get_recommendation; the example ids hint at the collision without naming the function. This is the easiest prompt and the one a baseline run most plausibly passes. The assertion checks only the function name."
+    }
+  ]
+}
