@@ -79,3 +79,14 @@ The maintainer, an owner of a Business organization (7 seats, a 13,300-credit po
 **Keep showing credits used where no percentage exists.** Rejected by the maintainer: a credit count with no denominator does not answer "how close am I", and `--% (month)` with a Connect explanation does.
 
 **Trade-off accepted.** `read:org` on the VS Code session is read-only but broader than a token scoped to one organization: it can read the membership of every organization the account belongs to. The maintainer chose token-free first on 2026-10-02 knowing this; a user who prefers the narrower token can decline VS Code's consent prompt and the guided token flow follows.
+
+### Owner-account reading and second amendment (2026-10-03)
+
+**Reading (T343).** The maintainer ran Connect as the owner of SupiraMedical (Business, 7 seats). VS Code's `read:org` session did not connect: Connect fell back to the guided token, which connected, and the dashboard showed the pool at 1.3% of 13,300 credits. The token-free route is therefore not proven for any organization; it stays first because it costs one consent click where it works, and the fallback is automatic. The page also showed that an organization can cap token life below GitHub's own 366-day limit: SupiraMedical caps it at 365 days, so `expires_in=366` was dropped with a warning. Record: [`v4.13.8-copilot-connect-verification.md`](../../../releases/v4/v4.13/development/v4.13.8-copilot-connect-verification.md).
+
+**Second amendment, by the maintainer after that run:**
+
+- The pre-filled page asks for no expiration (`expires_in=none`), and the guided steps tell the owner to check that the Expiration field says No expiration, since an organization policy can still override it.
+- The guided box lists four steps to read in full before **Open GitHub**, because the box closes on that click: open GitHub, check the expiration, generate and copy the token at once (GitHub shows it only once), and paste it back. A **Paste token** notification reopens the paste box if it closed.
+- Percentages display as whole numbers, as the Claude and Codex monitors show them. A model's share below 1% reads "<1%".
+- The hover and dashboard show "Shared organization pool usage: X / Y credits" in whole credits. This supersedes the first amendment's "no used-credit count" for the connected pool line only. The status bar still shows no credit count, and a member seat that is not connected still shows `--% (month)` with no count.

@@ -12,6 +12,7 @@ import {
   CopilotOrganizationProvider,
   NO_SEAT_ORGANIZATION,
   OPEN_GITHUB,
+  PASTE_ACTION,
   ORG_READ_SCOPES,
   ORG_ROUTE_SECRET_KEY,
   ORG_TOKEN_SECRET_KEY,
@@ -267,13 +268,13 @@ describe("guided read-only token (T339)", () => {
   const refusedSession = () => scopedAuth({ readOrg: WORK_TOKEN });
   const sessionRefused = (status: number) => (a: string | undefined) => (a === `Bearer ${WORK_TOKEN}` ? 403 : status);
 
-  it("pre-fills GitHub's token page with the documented parameters and a 366-day expiry", () => {
+  it("pre-fills GitHub's token page with the documented parameters and no expiration", () => {
     expect(tokenCreationUrl(ORG)).toBe(
       "https://github.com/settings/personal-access-tokens/new" +
         "?name=Copilot+Usage+Monitor" +
         "&description=Read-only+Copilot+AI-credit+pool+for+the+VS+Code+Copilot+Usage+Monitor" +
         "&target_name=acme-co" +
-        "&expires_in=366" +
+        "&expires_in=none" +
         "&organization_administration=read" +
         "&organization_copilot_seat_management=read",
     );
@@ -281,7 +282,7 @@ describe("guided read-only token (T339)", () => {
     expect(tokenCreationUrl(ORG)).not.toContain("write");
   });
 
-  it("walks three steps: Open GitHub, Generate token then Copy, paste", async () => {
+  it("shows all four steps before GitHub opens, then the paste box", async () => {
     const secrets = new FakeSecretStorage();
     messageAnswers.push(OPEN_GITHUB);
     inputBoxAnswers.push(ORG, ORG_TOKEN);
@@ -289,9 +290,17 @@ describe("guided read-only token (T339)", () => {
     expect(await connectOrganization(secrets.asSecretStorage(), fake.fetch, refusedSession(), OCT_2)).toBe("connected");
     const guide = messageOptions.find((o) => typeof o?.detail === "string");
     expect(guide).toMatchObject({ modal: true });
-    expect(String(guide?.detail)).toContain("Step 1: Open GitHub.");
-    expect(String(guide?.detail)).toContain("Step 2: Click Generate token, then Copy.");
-    expect(String(guide?.detail)).toContain("Step 3: Paste it");
+    expect(shownMessages.find((m) => m.message.startsWith("This organization needs"))?.message).toContain(
+      "Read all four steps before you click Open GitHub",
+    );
+    const steps = String(guide?.detail);
+    expect(steps).toContain("Step 1: Click Open GitHub.");
+    expect(steps).toContain("Step 2: On that page, set Expiration to No expiration");
+    expect(steps).toContain("leave everything else as it is");
+    expect(steps).toContain("Step 3: Click Generate token, then copy the token right away. GitHub shows it only once");
+    expect(steps).toContain("Step 4: Come back to VS Code and paste it");
+    // Opening GitHub is the only thing the button does: the steps are read before it.
+    expect(openedExternal).toHaveLength(1);
     const tokenBox = inputBoxCalls[1];
     expect(tokenBox.password).toBe(true);
     expect(tokenBox.prompt).toBe(TOKEN_PROMPT);
@@ -315,6 +324,17 @@ describe("guided read-only token (T339)", () => {
     expect(configurationUpdates).toEqual([]);
     expect(shownMessages.at(-1)?.level).toBe("warning");
     expect(shownMessages.at(-1)?.message).toContain(message);
+  });
+
+  it("reopens the paste box from a Paste token notification when it closed while the owner was on GitHub", async () => {
+    const secrets = new FakeSecretStorage();
+    messageAnswers.push(OPEN_GITHUB, PASTE_ACTION);
+    inputBoxAnswers.push(ORG, undefined, ORG_TOKEN);
+    const fake = orgFetch(sessionRefused(200), "copilot-internal-user.personal.json");
+    expect(await connectOrganization(secrets.asSecretStorage(), fake.fetch, refusedSession(), OCT_2)).toBe("connected");
+    expect(shownMessages.some((m) => m.message.includes("click Paste token"))).toBe(true);
+    expect(inputBoxCalls.filter((c) => c.password === true)).toHaveLength(2);
+    expect(secrets.stored).toEqual([{ key: ORG_TOKEN_SECRET_KEY, value: ORG_TOKEN }]);
   });
 
   it("names all three plain-words fixes for a refused token", () => {
@@ -383,7 +403,7 @@ describe("end to end: Connect, refresh, Disconnect (Phase 6 verification expecta
       expect(await connectOrganization(secrets.asSecretStorage(), fake.fetch, auth, OCT_2)).toBe("connected");
       expect(secrets.values.has(ORG_TOKEN_SECRET_KEY)).toBe(false);
       await controller.refresh(OCT_2);
-      expect(text()).toContain("Copilot: 99.25% (month)");
+      expect(text()).toContain("Copilot: 99% (month)");
       const state = fs.readFileSync(statePath, "utf-8");
       expect(state).toContain('"percent": 99.25');
       expect(state).not.toContain(SEAT_ORG);

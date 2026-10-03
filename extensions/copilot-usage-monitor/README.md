@@ -1,6 +1,6 @@
 # Copilot Usage Monitor
 
-A VS Code and Cursor extension that shows your GitHub Copilot usage in the status bar, with a hover tooltip and a dashboard. It displays a percentage only when GitHub serves the figures behind it: your own plan's quota, or your organization's shared AI-credit pool once an organization owner connects it. It never estimates an allowance GitHub does not report, and it never shows a count of credits used.
+A VS Code and Cursor extension that shows your GitHub Copilot usage in the status bar, with a hover tooltip and a dashboard. It displays a percentage only when GitHub serves the figures behind it: your own plan's quota, or your organization's shared AI-credit pool once an organization owner connects it. It never estimates an allowance GitHub does not report. The status bar shows a whole-number percentage only; the hover and dashboard add the shared pool's credits used over its total.
 
 > The Claude, Codex, and Cursor usage monitors are separate extensions (`nexus-hub.claude-usage-monitor`, `nexus-hub.codex-usage-monitor`, `nexus-hub.cursor-usage-monitor`). This one is Copilot-only, and all four run side by side.
 
@@ -10,11 +10,11 @@ The status bar shows one percentage of the current month's window, chosen in thi
 
 | Account state | Status bar | Source |
 |---|---|---|
-| Organization connected | `Copilot: 0.01% (month)` | Pool used over pool total |
+| Organization connected | `Copilot: 1% (month)` | Pool used over pool total |
 | Personal plan with a quota (Free, Pro, Pro+) | `Copilot: 0% (month)` | Your plan's quota, as GitHub serves it |
 | Business or Enterprise seat, organization not connected | `Copilot: --% (month)` | No percentage: the seat draws on the organization's shared pool and has no limit of its own. The hover and dashboard explain the one-time Connect step |
 
-Every Copilot window resets monthly, at 00:00 UTC on the first day of the month. A leading `~` (for example `~0.01% (month)`) marks an approximate pool total; the dashboard says why. The dashboard may show the pool's size (for example "Pool: 13,300 credits"), but never how many credits were used. Hover for teal progress bars, click for the dashboard.
+Every Copilot window resets monthly, at 00:00 UTC on the first day of the month. Percentages are whole numbers, as in the Claude and Codex monitors. A leading `~` (for example `~1% (month)`) marks an approximate pool total; the dashboard says why. With an organization connected, the hover and dashboard also show "Shared organization pool usage: 173 / 13,300 credits", in whole credits. A member seat that is not connected shows no credit count. Hover for teal progress bars, click for the dashboard.
 
 ## Setup
 
@@ -30,7 +30,12 @@ Run **Copilot Usage: Connect Organization**, or select **Connect Organization** 
 
 1. **It finds the organization.** It reads the organizations your Copilot seat belongs to. With one, it asks you to confirm it; with several, it offers a list; with none, it asks you to type the organization's login.
 2. **It tries without a token first.** VS Code asks you once to let the extension read your organizations (GitHub's read-only `read:org` permission). If GitHub then serves both pool figures, you are connected and no token is stored.
-3. **Otherwise it guides you through a read-only token.** Select **Open GitHub**: GitHub's token page opens with everything filled in (the name, your organization, read-only Administration and GitHub Copilot Business permissions, and the longest expiry GitHub allows, 366 days). Click **Generate token**, then **Copy**, and paste it into the box that opens in VS Code.
+3. **Otherwise it guides you through a read-only token.** A box lists four steps. Read them all first, because the box closes when you click **Open GitHub**:
+
+    1. Click **Open GitHub**. GitHub's token page opens with the name, your organization, and both read-only permissions (Administration and GitHub Copilot Business) already filled in.
+    2. Set **Expiration** to **No expiration** if it is not already, and leave everything else as it is.
+    3. Click **Generate token**, then copy the token right away. GitHub shows it only once; after you leave that page it can never be shown again.
+    4. Come back to VS Code and paste it into the box at the top of the window. If that box has closed, click **Paste token** in the notification.
 
 Connect checks the result with GitHub before saving anything. If GitHub refuses a token, the message names the fix: the token's resource owner must be the organization, both permissions must be read-only, and an organization that requires approval needs an owner to approve the request under the organization's **Settings** > **Personal access tokens** > **Pending requests**.
 

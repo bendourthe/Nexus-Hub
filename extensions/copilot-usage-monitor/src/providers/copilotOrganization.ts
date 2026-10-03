@@ -42,8 +42,19 @@ export function isValidOrganizationLogin(value: string): boolean {
 
 /** Shown in the password input box, after GitHub's pre-filled page has opened. */
 export const TOKEN_PROMPT =
-  "Paste the token you copied from GitHub. " +
+  "Paste the token you copied from GitHub (it starts with github_pat_). " +
   "It is stored in VS Code secret storage and sent only to api.github.com.";
+
+/** The guided steps, shown in full before GitHub opens, because the box closes on the click. */
+export const GUIDED_STEPS = [
+  "Step 1: Click Open GitHub. A new token page opens with its name, your organization, and both read-only permissions already filled in.",
+  "Step 2: On that page, set Expiration to No expiration if it is not already, and leave everything else as it is.",
+  "Step 3: Click Generate token, then copy the token right away. GitHub shows it only once: after you leave that page it can never be shown again.",
+  "Step 4: Come back to VS Code and paste it into the box at the top of the window. If that box has closed, click Paste token in the notification.",
+].join("\n");
+
+/** The notification button that reopens the paste box. */
+export const PASTE_ACTION = "Paste token";
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value != null && typeof value === "object" && !Array.isArray(value)
@@ -282,15 +293,18 @@ export const ORG_READ_SCOPES: readonly string[] = ["read:org"];
 
 /**
  * GitHub's pre-filled fine-grained token page (documented URL parameters):
- * the name, description, resource owner, the longest expiry GitHub allows (366
- * days), and the two read-only organization permissions. Nothing else.
+ * the name, description, resource owner, no expiration, and the two read-only
+ * organization permissions. Nothing else. `expires_in=none` (maintainer, 2026-10-03):
+ * an organization can cap token life below GitHub's 366 days (SupiraMedical caps
+ * it at 365), and a value over the cap is dropped with a warning, so the guided
+ * steps also tell the owner to check the Expiration field.
  */
 export function tokenCreationUrl(org: string): string {
   const params = new URLSearchParams({
     name: "Copilot Usage Monitor",
     description: "Read-only Copilot AI-credit pool for the VS Code Copilot Usage Monitor",
     target_name: org,
-    expires_in: "366",
+    expires_in: "none",
     organization_administration: "read",
     organization_copilot_seat_management: "read",
   });
@@ -451,30 +465,36 @@ async function connectWithToken(
   nowMs: number,
 ): Promise<ConnectOutcome> {
   const open = await vscode.window.showInformationMessage(
-    "This organization needs a read-only token to share its Copilot pool.",
-    {
-      modal: true,
-      detail:
-        "Step 1: Open GitHub. The token's name, organization, read-only permissions, and longest expiry are already filled in.\n" +
-        "Step 2: Click Generate token, then Copy.\n" +
-        "Step 3: Paste it into the box that opens here.",
-    },
+    "This organization needs a read-only token. Read all four steps before you click Open GitHub: this box closes when you do.",
+    { modal: true, detail: GUIDED_STEPS },
     OPEN_GITHUB,
   );
   if (open !== OPEN_GITHUB) {
     return "cancelled";
   }
   await vscode.env.openExternal(vscode.Uri.parse(tokenCreationUrl(org)));
-  const token = await vscode.window.showInputBox({
-    title: "Connect Organization (step 3 of 3)",
-    prompt: TOKEN_PROMPT,
-    password: true,
-    ignoreFocusOut: true,
-    validateInput: (value) => (value.trim() ? undefined : "Paste the token to continue."),
-  });
-  if (token === undefined || !token.trim()) {
-    return "cancelled";
+  const pasteBox = (): Thenable<string | undefined> =>
+    vscode.window.showInputBox({
+      title: "Connect Organization (step 4 of 4)",
+      prompt: TOKEN_PROMPT,
+      password: true,
+      ignoreFocusOut: true,
+      validateInput: (value) => (value.trim() ? undefined : "Paste the token to continue."),
+    });
+  let pasted = await pasteBox();
+  // A closed box is not a cancel while the owner is still on GitHub: a
+  // notification keeps a Paste token button until they come back or dismiss it.
+  while (pasted === undefined || !pasted.trim()) {
+    const again = await vscode.window.showInformationMessage(
+      "Copilot Usage: when you have copied the token from GitHub, click Paste token.",
+      PASTE_ACTION,
+    );
+    if (again !== PASTE_ACTION) {
+      return "cancelled";
+    }
+    pasted = await pasteBox();
   }
+  const token = pasted;
 
   const { error, statuses } = await checkBothEndpoints(org, `Bearer ${token.trim()}`, fetchImpl, nowMs);
   log(`Connect: token route, ${statuses}.`);
