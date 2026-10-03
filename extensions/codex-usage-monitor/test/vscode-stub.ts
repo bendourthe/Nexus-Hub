@@ -38,6 +38,7 @@ export const createdStatusBarItems: Array<Record<string, unknown>> = [];
 export interface StubWebviewPanel {
   webview: {
     html: string;
+    cspSource: string;
     postedMessages: unknown[];
     postMessage(message: unknown): Promise<boolean>;
     onDidReceiveMessage(handler: (message: unknown) => void | Promise<void>): { dispose(): void };
@@ -111,6 +112,7 @@ export const window = {
     const panel: StubWebviewPanel = {
       webview: {
         html: "",
+        cspSource: "vscode-webview:",
         postedMessages: [],
         async postMessage(message: unknown): Promise<boolean> {
           panel.webview.postedMessages.push(message);

@@ -32,5 +32,13 @@ if [ -z "$_python" ] || [ ! -f "$_core" ]; then
   exit 0
 fi
 
+# v4.13.7: the core reads usage-guard.py and _usage_probe.py from this hook's
+# own directory to confirm a usage-limit handoff (never from the repository).
+_hook_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd || true)"
+if [ -n "$_hook_dir" ] && command -v cygpath >/dev/null 2>&1; then
+  _hook_dir="$(cygpath -m "$_hook_dir" 2>/dev/null || printf '%s' "$_hook_dir")"
+fi
+export NEXUS_GATE_HOOK_DIR="$_hook_dir"
+
 "$_python" "$_core" stop
 exit $?

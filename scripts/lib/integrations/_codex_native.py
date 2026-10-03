@@ -33,6 +33,11 @@ convention: the POSIX command goes in ``command`` and the PowerShell sibling in
 ``commandWindows``, so a Windows user gets the same guardrail from the same
 registration instead of a silently absent one.
 
+``usage-guard`` (v4.13.7) reaches Codex on ``UserPromptSubmit``, ``PostToolUse``
+(no matcher, so every tool counts), and ``Stop``, derived from ``settings.json``
+with its 10-second ``timeout``. Codex skips an untrusted hook silently, so the
+guard is inert until the user trusts it once through ``/hooks``.
+
 This module is stdlib-only and makes no outbound calls.
 """
 
@@ -305,6 +310,11 @@ def build_hook_entries(
                             f"-File {command_base}/{sibling}"
                         )
                 entry["statusMessage"] = f"Nexus-Hub {Path(script).stem}"
+                # A catalog `timeout` (seconds) carries over; Codex reads the same
+                # field. usage-guard sets 10 so its 5-second budget has headroom.
+                timeout = handler.get("timeout")
+                if isinstance(timeout, int) and not isinstance(timeout, bool) and timeout > 0:
+                    entry["timeout"] = timeout
                 handlers.append(entry)
             if not handlers:
                 continue

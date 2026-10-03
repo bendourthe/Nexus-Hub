@@ -76,6 +76,38 @@ def _repair_bash_on_path() -> str | None:
     return None
 
 
+def _hide_child_consoles() -> bool:
+    """Start every Windows child process without a console window (keep in step with the other conftest).
+
+    A console program started by a process with no visible console of its own (an
+    agent's shell, or a test that detaches the code under test) gets a new window
+    that takes keyboard focus. A suite that starts thousands of git, bash,
+    PowerShell, and Python children then flashes windows for minutes and keeps
+    taking the keyboard from whoever is typing. CREATE_NO_WINDOW gives each child a
+    console with no window instead, which its own children inherit; output is
+    captured through pipes either way. A child that asks for its own console or for
+    detachment is left as it asked, because a test may depend on that.
+
+    Runs at import time, before any test module starts a process. No-op off Windows.
+    """
+    if os.name != "nt" or getattr(subprocess.Popen.__init__, "_nexus_no_window", False):
+        return False
+    original = subprocess.Popen.__init__
+    keep = subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_CONSOLE
+
+    def init(self, *args, **kwargs):
+        flags = kwargs.get("creationflags") or 0
+        if len(args) <= 1 and not flags & keep:
+            kwargs["creationflags"] = flags | subprocess.CREATE_NO_WINDOW
+        original(self, *args, **kwargs)
+
+    init._nexus_no_window = True
+    subprocess.Popen.__init__ = init
+    return True
+
+
+CHILD_CONSOLES_HIDDEN = _hide_child_consoles()
+
 # Executed at collection time, before any test module is imported.
 BASH_PATH_REPAIRED_WITH = _repair_bash_on_path()
 

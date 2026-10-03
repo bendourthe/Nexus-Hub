@@ -1,0 +1,60 @@
+name: copilot-usage-monitor
+
+# Path-filtered: runs only when the copilot-usage-monitor extension changes, so it
+# costs action minutes only for that surface (mirrors codex-usage-monitor.yml).
+# The extension is a Node/TypeScript VSIX with a Vitest suite; the repo-wide
+# ci.yml covers Python only, so this workflow is the extension's gate.
+#
+# The workflow-level path filter is safe only because this check is NOT listed
+# in docs/policy/required-checks.json: a required check from an untriggered
+# workflow would sit Pending forever (AGENTS.md, Required Status Checks).
+#
+# scripts/installer.{sh,ps1} are deliberately NOT trigger paths even though both
+# install this extension. ci.yml already runs
+# catalog/hooks/tests/test_installer_smoke.py on every non-docs change.
+on:
+  # Pull requests only: under a pull-request-only merge policy the post-merge
+  # push is the same tree the pull request already validated. See
+  # docs/policy/ci-cd-lifecycle-contract.md section 4.
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'extensions/copilot-usage-monitor/**'
+      - '.github/workflows/copilot-usage-monitor.yml'
+
+# Read-only: the job builds, tests, and packages, and publishes nothing.
+permissions:
+  contents: read
+
+# Cancel superseded runs of the same ref (the single largest action-minute saver).
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: extensions/copilot-usage-monitor
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: extensions/copilot-usage-monitor/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Compile (tsc)
+        run: npm run compile
+
+      - name: Unit tests with coverage (Vitest)
+        run: npm run test:coverage
+
+      - name: Package VSIX
+        run: npm run package

@@ -170,7 +170,9 @@ class CodexIntegration(MarkdownIntegration, SkillsIntegration):
         return [
             (
                 "Codex hooks are installed but inert until reviewed: run /hooks in "
-                "Codex to inspect and trust them. See "
+                "Codex to inspect and trust them. Codex skips an untrusted hook "
+                "silently, so a newly added hook such as usage-guard needs this "
+                "once before it runs. See "
                 f"{repo_root / 'docs' / 'permissions-setup.md'} for project and Git write setup."
             ),
         ]

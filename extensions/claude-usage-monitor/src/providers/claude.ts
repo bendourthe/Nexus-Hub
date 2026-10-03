@@ -88,7 +88,8 @@ const CREDENTIALS_PATH = path.join(os.homedir(), ".claude", ".credentials.json")
 // "Claude Code" too as a defensive fallback in case a build differs.
 const KEYCHAIN_SERVICES = ["Claude Code-credentials", "Claude Code"];
 const IS_MACOS = process.platform === "darwin";
-const USAGE_API_URL = "https://api.anthropic.com/api/oauth/usage";
+/** The usage read; with the OAuth token refresh below, the only requests this extension sends. */
+export const USAGE_API_URL = "https://api.anthropic.com/api/oauth/usage";
 const ANTHROPIC_BETA_HEADER = "oauth-2025-04-20";
 const TOKEN_REFRESH_URL = "https://console.anthropic.com/v1/oauth/token";
 const CLAUDE_CODE_CLIENT_ID = "9d1c250a-e61b-44d9-88ed-5944d1962f5e";
@@ -216,6 +217,22 @@ export class ClaudeUsageProvider implements UsageProvider {
     return Date.now() >= credentials.expiresAt;
   }
 
+  /** The last decoded usage body, kept only for the opt-in raw save. */
+  private lastRawResponse: unknown;
+
+  /**
+   * Run exactly the requests a refresh sends and return the decoded usage body
+   * unmapped, for the opt-in "Save Raw Usage Response" command.
+   */
+  async fetchRawUsage(): Promise<{ success: true; raw: unknown } | { success: false; error: ProviderFetchError }> {
+    this.lastRawResponse = undefined;
+    const result = await this.fetchUsage();
+    if (!result.success) {
+      return result;
+    }
+    return { success: true, raw: this.lastRawResponse };
+  }
+
   async fetchUsage(currentModel?: string): Promise<ProviderFetchResult> {
     let credentials = this.readCredentials();
     if (!credentials) {
@@ -286,6 +303,7 @@ export class ClaudeUsageProvider implements UsageProvider {
               } catch {
                 return this.fail("parse-error");
               }
+              this.lastRawResponse = apiData;
               return { success: true, data: this.mapApiResponse(apiData, currentModel ?? "claude-opus-4-6[1m]") };
             }
             // Retry also failed - fall through to rate-limited
@@ -313,6 +331,7 @@ export class ClaudeUsageProvider implements UsageProvider {
     } catch {
       return this.fail("parse-error");
     }
+    this.lastRawResponse = apiData;
 
     return {
       success: true,

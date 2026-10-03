@@ -7,6 +7,9 @@ import {
   CodexUsageProvider,
   describeProviderError,
 } from "./providers";
+import { CODEX_USAGE_URL } from "./providers/codex";
+import { saveRawUsageResponse } from "./rawUsageResponse";
+import { EarlyRefresh } from "./earlyRefresh";
 import { DashboardPanel } from "./dashboardPanel";
 import { WarningViewProvider, WARNING_VIEW_ID, WARNING_ACTIVE_CONTEXT } from "./warningView";
 import { getRecommendation, getActiveUrgency, pickTriggerMetric, buildUsageSuggestion, classifyUrgency } from "./recommendations";
@@ -51,8 +54,10 @@ const RESET_COMMAND = "codex-usage.reset";
 const DASHBOARD_COMMAND = "codex-usage.dashboard";
 const REFRESH_COMMAND = "codex-usage.refresh";
 const SETTINGS_COMMAND = "codex-usage.settings";
+const SAVE_RAW_COMMAND = "codex-usage.saveRawResponse";
 
-// The ChatGPT usage/limits page (opened from the dashboard as a manual cross-check).
+// The ChatGPT usage/limits page (opened from the dashboard as a manual cross-check,
+// and by "Open reset page", since the page carries the vendor's own reset button).
 const CODEX_USAGE_PAGE_URL = "https://chatgpt.com/settings/usage?tab=overview";
 
 let consecutiveFailures = 0;
@@ -95,6 +100,9 @@ export function activate(context: vscode.ExtensionContext): void {
   // Wire up reset-expiry detection: when a cached reset timestamp passes, refetch
   statusBar.setResetExpiredCallback(() => autoFetchAndUpdate(provider, store, statusBar));
 
+  // One early refresh after "Open reset page", so a reset the user just used shows up.
+  const earlyRefresh = new EarlyRefresh(() => autoFetchAndUpdate(provider, store, statusBar));
+
   // Apply user color settings to workbench.colorCustomizations on startup
   syncColorsToWorkbench(getColorConfig());
 
@@ -115,7 +123,33 @@ export function activate(context: vscode.ExtensionContext): void {
       },
       onOpenUsagePage: () =>
         vscode.env.openExternal(vscode.Uri.parse(CODEX_USAGE_PAGE_URL)),
+      // Opens the page only. The reset is a one-time credit the user spends by
+      // pressing the vendor's own button; this extension never calls a reset API.
+      onOpenResetPage: () => {
+        void vscode.env.openExternal(vscode.Uri.parse(CODEX_USAGE_PAGE_URL));
+        earlyRefresh.schedule();
+      },
     }, context.extensionUri);
+  });
+
+  // Command: Save Raw Usage Response (opt-in, local only). Sends the same single
+  // usage GET as a refresh and writes a redacted copy under global storage.
+  const saveRawCommand = vscode.commands.registerCommand(SAVE_RAW_COMMAND, async () => {
+    const result = await provider.fetchRawUsage();
+    if (!result.success) {
+      void vscode.window.showWarningMessage(
+        `Codex Usage: could not read the usage response - ${describeProviderError(result.error)}`,
+      );
+      return;
+    }
+    const file = saveRawUsageResponse(context.globalStorageUri.fsPath, CODEX_USAGE_URL, result.raw);
+    const action = await vscode.window.showInformationMessage(
+      `Codex Usage: saved a redacted copy of the usage response to ${file}. Nothing was sent anywhere.`,
+      "Open File",
+    );
+    if (action === "Open File") {
+      await vscode.window.showTextDocument(vscode.Uri.file(file));
+    }
   });
 
   // Command: Refresh
@@ -260,7 +294,9 @@ export function activate(context: vscode.ExtensionContext): void {
     recommendCommand,
     resetCommand,
     settingsCommand,
+    saveRawCommand,
     configWatcher,
+    earlyRefresh,
     { dispose: () => statusBar.dispose() },
   );
 }

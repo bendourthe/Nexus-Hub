@@ -1,14 +1,17 @@
 # Nexus-Hub Progress Dashboard
 
 **Integration branch:** `develop`
-**Active work:** Historical v4.0-v4.12 plan closure is integrated and v4.13.1 through v4.13.6 are released. v4.13.6 ([minor-scope implement and verified cleanup](releases/v4/v4.13/plans/v4.13.6-minor-scope-implement-and-verified-cleanup.md)) shipped through PR #394; its approval-page read-back by a non-engineer is still pending. v4.13.7 ([Copilot usage monitor and usage-limit handoff](releases/v4/v4.13/plans/v4.13.7-copilot-usage-monitor-and-usage-limit-handoff.md)) is next. Bounded vendor, manual, and artifact-coverage gaps remain open in their known-gaps ledgers.
+**Active work:** Historical v4.0-v4.12 plan closure is integrated and v4.13.1 through v4.13.7 are released. v4.13.6 ([minor-scope implement and verified cleanup](releases/v4/v4.13/plans/v4.13.6-minor-scope-implement-and-verified-cleanup.md)) shipped through PR #394; its approval-page read-back by a non-engineer is still pending. v4.13.7 ([Copilot usage monitor and usage-limit handoff](releases/v4/v4.13/plans/v4.13.7-copilot-usage-monitor-and-usage-limit-handoff.md)) shipped through PR #411; its real-editor and live-limit checks (QG-1) are still pending. v4.13.8 and v4.13.9 are implemented in their own worktrees and may now be released. Bounded vendor, manual, and artifact-coverage gaps remain open in their known-gaps ledgers.
 **Closeout boundary:** Recovery backups with unique Git history, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim. The former 47-file recovery branch was removed after its patch was proven identical to the merged PR #259 commit.
-**Last refreshed:** 2026-10-01
+**Last refreshed:** 2026-10-02
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its source `known-gaps.md` under `docs/releases/` or `docs/archives/`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
 
 Refreshing this file to the active plan (rather than appending another version's section) keeps the dashboard from drifting to an old feature branch.
 
+- [x] Implement v4.13.7 Phases 1-9 locally: the Copilot Usage Monitor (personal quota, organization pool, member credits, percentages-only state file), installer distribution and its workflow, reset availability in the Codex monitor, the `session-handoff` skill and `/handoff`, the Session Handoff rule in all 13 templates, the shared usage probe, and the `usage-guard` hook. The final phase fixed seven deep-pass findings and two CodeQL warnings; see the [last-phase evidence](releases/v4/v4.13/development/v4.13.7-last-phase-evidence.md).
+- [x] Publish v4.13.7, integrate it green, and release it: PR #411 merged into `develop` at `e6b0c51a` with every required check green, released as v4.13.7 on 2026-10-02.
+- [ ] Run the v4.13.7 real-editor and live-limit checks (v4.13.7 QG-1) and decide the Cursor install question (WN-6).
 - [x] Implement v4.13.6 Phases 1-8 locally: exact approval binding, minor membership and run record, verified merged-and-idle cleanup, gap migration and minor archive, the minor verdict and closing pull request, the plain-language approval page, goal restatements, and a two-plan end-to-end proof. The final phase also fixed archived gaps AR-01 (`nexus-hub init` was an invalid choice) and AR-02 (`secret-scan.sh` allowed every write without `jq`) and deleted the stray `scratch_p6cmd.py` (v4.13.5 WN-1). See the [last-phase evidence](releases/v4/v4.13/development/v4.13.6-last-phase-evidence.md).
 - [x] Publish v4.13.6, integrate it green, and release it: PR #394 merged into `develop` at `fc279158` with every required check green, released as v4.13.6 on 2026-09-30.
 - [ ] Record one non-engineer read-back of a rendered v4.13.6 approval page (plan DoD 6).
@@ -155,6 +158,7 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
 | v4.13.8 Sonnet 5.5 profile and pilot phases complete | 5 | 6 | 1 |
+| v4.13.7 Copilot monitor and handoff phases complete (released) | 9 | 9 | 0 |
 | v4.13.6 minor-scope implement phases complete (released) | 8 | 8 | 0 |
 | v4.13.4 Training rebuild phases complete | 8 | 8 | 0 |
 | v4.12.0 implementation tasks complete | 28 | 28 | 0 |

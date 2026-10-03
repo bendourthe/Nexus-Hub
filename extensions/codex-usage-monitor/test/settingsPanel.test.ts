@@ -162,7 +162,7 @@ describe("inline settings assets", () => {
     const script = settingsScriptJs(draft);
 
     expect(html).toContain('<option value="weekly"  selected>');
-    expect(html).toContain('id="compact-toggle" onchange="onCompact(this)" checked');
+    expect(html).toContain('id="compact-toggle" data-change="onCompact" checked');
     expect(html).toContain('id="picker-critical"');
     expect(html).toContain('placeholder="none"');
     expect(css).toContain(".settings-section");

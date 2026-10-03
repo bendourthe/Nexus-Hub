@@ -25,8 +25,10 @@ function renderDashboard(data: UsageData): string {
     data: UsageData;
     timeSince: string;
     fetchError: undefined;
+    panel: { webview: { cspSource: string } };
     getHtml(): string;
   };
+  renderable.panel = { webview: { cspSource: "vscode-webview:" } };
   renderable.data = data;
   renderable.timeSince = "just now";
   renderable.fetchError = undefined;

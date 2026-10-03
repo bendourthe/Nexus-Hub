@@ -4,7 +4,9 @@ import {
   getColorConfig,
   getThresholdMetric,
   DEFAULT_URGENCY_COLORS,
+  HEX_COLOR,
   URGENCY_THRESHOLDS,
+  validThreshold,
   syncColorsToWorkbench,
   ColorConfig,
   ThresholdMetric,
@@ -224,10 +226,62 @@ export function settingsStylesCss(): string {
   #saveBtn.dirty:hover { background: var(--vscode-button-hoverBackground); }`;
 }
 
+/** Escape a value for an HTML attribute. */
+function escapeAttr(value: string): string {
+  return value.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+/**
+ * JSON for embedding in an inline <script>: "<" becomes \u003c, so no value
+ * can close the script element.
+ */
+export function jsonForScript(value: unknown): string {
+  return JSON.stringify(value).replace(/</g, "\\u003c").replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value != null && typeof value === "object" && !Array.isArray(value);
+}
+
+const METRICS: readonly ThresholdMetric[] = ["highest", "session", "weekly", "weeklyScoped"];
+
+/**
+ * Validate a draft posted by the webview before anything is written. Returns
+ * null for any malformed field, so a forged message writes nothing.
+ */
+export function parseDraft(raw: unknown): DraftState | null {
+  if (!isRecord(raw) || !isRecord(raw.thresholds) || !isRecord(raw.colors) || typeof raw.compact !== "boolean") {
+    return null;
+  }
+  const metric = raw.metric;
+  if (typeof metric !== "string" || !(METRICS as readonly string[]).includes(metric)) {
+    return null;
+  }
+  const levels: Level[] = ["moderate", "high", "critical"];
+  const thresholds = { moderate: 0, high: 0, critical: 0 };
+  const colors = { moderate: "", high: "", critical: "" };
+  for (const level of levels) {
+    const t = raw.thresholds[level];
+    const c = raw.colors[level];
+    if (typeof t !== "number" || validThreshold(t, -1) !== t) {
+      return null;
+    }
+    if (typeof c !== "string" || (c !== "none" && !HEX_COLOR.test(c))) {
+      return null;
+    }
+    thresholds[level] = t;
+    colors[level] = c;
+  }
+  return { metric: metric as ThresholdMetric, thresholds, colors, compact: raw.compact };
+}
+
 function levelSection(level: Level, label: string, description: string, threshold: number, color: string): string {
+  // Values come from settings a workspace could once set, so they are validated
+  // and escaped before they reach an attribute.
+  const safeThreshold = validThreshold(threshold, URGENCY_THRESHOLDS[level]);
   const isNone = color === "none";
-  const pickerValue = isNone || !color.startsWith("#") ? DEFAULT_URGENCY_COLORS[level] : color;
-  const hexDisplay = isNone ? "" : pickerValue;
+  const pickerValue = isNone || !HEX_COLOR.test(color) ? DEFAULT_URGENCY_COLORS[level] : color;
+  const hexDisplay = escapeAttr(isNone ? "" : pickerValue);
   return `
         <div class="level-section">
           <div class="level-header">
@@ -237,18 +291,18 @@ function levelSection(level: Level, label: string, description: string, threshol
           <div class="field-row">
             <label class="field-label">Threshold</label>
             <div class="slider-group">
-              <input type="range" min="1" max="99" value="${threshold}" class="threshold-slider" data-level="${level}" oninput="onSlider(this)" />
-              <span class="slider-value" id="val-${level}">${threshold}%</span>
+              <input type="range" min="1" max="99" value="${safeThreshold}" class="threshold-slider" data-level="${level}" data-input="onSlider" />
+              <span class="slider-value" id="val-${level}">${safeThreshold}%</span>
             </div>
           </div>
           <div class="field-row">
             <label class="field-label">Status bar color</label>
             <div class="color-group">
               <div class="picker-wrapper${isNone ? " dimmed" : ""}" id="wrapper-${level}">
-                <input type="color" class="color-input" id="picker-${level}" data-level="${level}" value="${pickerValue}" oninput="onColorPick(this)" ${isNone ? "disabled" : ""} />
+                <input type="color" class="color-input" id="picker-${level}" data-level="${level}" value="${escapeAttr(pickerValue)}" data-input="onColorPick" ${isNone ? "disabled" : ""} />
               </div>
-              <input type="text" class="hex-input${isNone ? " dimmed" : ""}" id="hex-${level}" data-level="${level}" value="${hexDisplay}" placeholder="${isNone ? "none" : "#rrggbb"}" maxlength="7" oninput="onHexInput(this)" onblur="onHexBlur(this)" ${isNone ? "disabled" : ""} />
-              <button class="none-btn${isNone ? " active" : ""}" id="none-${level}" data-level="${level}" onclick="onNone(this)">None</button>
+              <input type="text" class="hex-input${isNone ? " dimmed" : ""}" id="hex-${level}" data-level="${level}" value="${hexDisplay}" placeholder="${isNone ? "none" : "#rrggbb"}" maxlength="7" data-input="onHexInput" data-blur="onHexBlur" ${isNone ? "disabled" : ""} />
+              <button class="none-btn${isNone ? " active" : ""}" id="none-${level}" data-level="${level}" data-click="onNone">None</button>
             </div>
           </div>
         </div>`;
@@ -265,7 +319,7 @@ export function settingsSectionHtml(state: DraftState): string {
 
         <div class="metric-section">
           <label class="metric-label" for="metric-select">Apply thresholds to</label>
-          <select id="metric-select" class="metric-select" onchange="onMetric(this)">
+          <select id="metric-select" class="metric-select" data-change="onMetric">
             <option value="highest" ${metric === "highest" ? "selected" : ""}>Highest (auto)</option>
             <option value="session" ${metric === "session" ? "selected" : ""}>Current Session</option>
             <option value="weekly"  ${metric === "weekly"  ? "selected" : ""}>Weekly</option>
@@ -276,7 +330,7 @@ export function settingsSectionHtml(state: DraftState): string {
         <div class="metric-section toggle-row">
           <span class="metric-label">Compact status bar</span>
           <label class="toggle-switch">
-            <input type="checkbox" id="compact-toggle" onchange="onCompact(this)" ${compact ? "checked" : ""}/>
+            <input type="checkbox" id="compact-toggle" data-change="onCompact" ${compact ? "checked" : ""}/>
             <span class="toggle-track"></span>
           </label>
           <span class="toggle-hint">Hide the "Claude Usage: " label in the status bar</span>
@@ -287,8 +341,8 @@ export function settingsSectionHtml(state: DraftState): string {
         ${levelSection("critical", "Critical", "Maximum alert level",  thresholds.critical, colors.critical)}
 
         <div class="settings-footer">
-          <button id="resetBtn" class="footer-btn" onclick="onReset()" disabled>Reset to Defaults</button>
-          <button id="saveBtn"  class="footer-btn" onclick="onSave()"  disabled>Save changes</button>
+          <button id="resetBtn" class="footer-btn" data-click="onReset" disabled>Reset to Defaults</button>
+          <button id="saveBtn"  class="footer-btn" data-click="onSave"  disabled>Save changes</button>
         </div>
       </div>`;
 }
@@ -300,8 +354,8 @@ export function settingsSectionHtml(state: DraftState): string {
  * message listener calls `applySettings` on the `loadSettings` message.
  */
 export function settingsScriptJs(state: DraftState): string {
-  const initialJson = JSON.stringify(state);
-  const defaultsJson = JSON.stringify(SETTINGS_DEFAULTS);
+  const initialJson = jsonForScript(state);
+  const defaultsJson = jsonForScript(SETTINGS_DEFAULTS);
   return `
     const HEX_RE = /^#[0-9a-fA-F]{6}$/;
     const SETTINGS_DEFAULTS = ${defaultsJson};
@@ -411,5 +465,24 @@ export function settingsScriptJs(state: DraftState): string {
         if (st.settingsOpen) { const s = document.getElementById('settings-section'); if (s) s.removeAttribute('hidden'); }
       } catch (e) {}
       updateButtons();
-    })();`;
+    })();
+    // Every control is wired here rather than with inline handlers, which the
+    // dashboard's Content-Security-Policy forbids. Only these names and these
+    // commands can be reached from markup.
+    const SETTINGS_HANDLERS = { onSlider, onColorPick, onHexInput, onHexBlur, onNone, onMetric, onCompact, onSave, onReset, toggleSettings };
+    const WEBVIEW_COMMANDS = ['refresh', 'openUsagePage'];
+    function dispatch(attr, event) {
+      const el = event.target && event.target.closest ? event.target.closest('[' + attr + ']') : null;
+      if (!el) return;
+      const name = el.getAttribute(attr);
+      if (attr === 'data-command') {
+        if (WEBVIEW_COMMANDS.indexOf(name) !== -1) vscode.postMessage({ command: name });
+        return;
+      }
+      if (Object.prototype.hasOwnProperty.call(SETTINGS_HANDLERS, name)) SETTINGS_HANDLERS[name](el);
+    }
+    document.addEventListener('click', function (e) { dispatch('data-command', e); dispatch('data-click', e); });
+    document.addEventListener('input', function (e) { dispatch('data-input', e); });
+    document.addEventListener('change', function (e) { dispatch('data-change', e); });
+    document.addEventListener('focusout', function (e) { dispatch('data-blur', e); });`;
 }
