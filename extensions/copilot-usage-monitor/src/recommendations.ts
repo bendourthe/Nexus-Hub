@@ -1,5 +1,5 @@
 import { formatPercent, formatResetLabel } from "./usageStore";
-import { Headline, Recommendation, UrgencyLevel, UsageData, getThresholdConfig, headlineOf } from "./types";
+import { Headline, PersonalUsage, Recommendation, UrgencyLevel, UsageData, getThresholdConfig, headlineOf, isOrganizationSeat } from "./types";
 
 export function classifyUrgency(percent: number): UrgencyLevel {
   const t = getThresholdConfig();
@@ -76,6 +76,14 @@ export const NOT_CONNECTED_HINT =
   "Your organization shares one Copilot pool, so this seat has no percentage of its own. " +
   "An organization owner can show the pool's percentage by running Connect Organization once.";
 
+/** Why a personal plan with no served quota shows `--% (month)`. */
+export const NO_PERSONAL_QUOTA_HINT = "GitHub serves no usage limit for this plan, so there is no percentage to show.";
+
+/** The right explanation for a seat with no percentage: Connect for an organization seat only. */
+export function noPercentHint(personal: PersonalUsage | undefined): string {
+  return personal && !isOrganizationSeat(personal) ? NO_PERSONAL_QUOTA_HINT : NOT_CONNECTED_HINT;
+}
+
 export function getRecommendation(data: UsageData | undefined): Recommendation {
   const urgency = getActiveUrgency(data);
   const headline = headlineOf(data);
@@ -86,7 +94,9 @@ export function getRecommendation(data: UsageData | undefined): Recommendation {
           message: "GitHub reported no Copilot seats for this organization, so there is no pool percentage.",
           tips: [],
         }
-      : { urgency: "low", message: NOT_CONNECTED_HINT, tips: ["Connect Organization needs an organization owner."] };
+      : headline.reason === "no-personal-quota"
+        ? { urgency: "low", message: NO_PERSONAL_QUOTA_HINT, tips: [] }
+        : { urgency: "low", message: NOT_CONNECTED_HINT, tips: ["Connect Organization needs an organization owner."] };
   }
   if (headline.kind === "none") {
     return { urgency: "low", message: "No Copilot usage figure yet. Refresh to fetch one.", tips: [] };

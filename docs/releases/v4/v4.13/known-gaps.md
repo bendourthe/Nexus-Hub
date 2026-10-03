@@ -1195,7 +1195,7 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
 | Bugs / regressions (BG) | 0 | 0 |
-| Warnings (WN) | 0 | 0 |
+| Warnings (WN) | 1 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 1 | 0 |
 
@@ -1207,6 +1207,13 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 - **Plan reference**: [v4.13.8 plan, sub-task 6.8 (T343)](plans/v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md)
 - **Reason**: GitHub documents `read:org` for `GET /orgs/{org}/copilot/billing` but lists no token types or scopes for `GET /organizations/{org}/settings/billing/ai_credit/usage`, so whether Connect's token-free route reaches the AI-credit pool is unknown until an organization owner runs it. Automated tests prove both routes against a fake GitHub; they cannot prove GitHub's real answer. Until the reading is recorded, the token-free route is unverified, and Connect falls back to the guided token whenever GitHub refuses it.
 - **Suggested next step**: The maintainer follows [`v4.13.8-copilot-connect-verification.md`](development/v4.13.8-copilot-connect-verification.md) on the owner account, records the route and each status code there, cites it in the decision record amendment, and resolves this gap.
+
+#### WN-34 (v4.13.8): The governance test group outgrows its 2700 s local cap on Windows
+
+- **Source phase**: Phase 7 (final-phase full suite, re-run over Phase 6)
+- **Plan reference**: [v4.13.8 plan, sub-task 7.9 (T334)](plans/v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md)
+- **Reason**: `repo-tests-governance` in `scripts/ci/profiles.py` has `timeout=2700`. In the full profile on 2026-10-02 it hit that cap; re-run alone on the same Windows 11 machine it passed (2874 passed, 22 skipped) in 3063.9 s, above the cap. The v4.13.4 evidence recorded 1785.1 s for the same group, so the group has grown or the machine has slowed. A local full run therefore reports a timeout that is not a test failure, and a reader cannot tell the two apart from the verdict line.
+- **Suggested next step**: Profile the slowest governance tests (`pytest --durations=25` on that group), then either split the group the way `repo-tests-integrations-*` was split, or raise the cap with a recorded measurement. Keep the hosted job's timing as the reference.
 
 ### Resolved Items
 

@@ -1,6 +1,6 @@
 # Decision: Ship a Copilot usage monitor that shows a percentage only from figures GitHub serves
 
-Status: proposed - a Copilot usage monitor shows a personal quota percentage or an organization pool percentage (documented usage over served seats times the published per-seat rate), and credits used with no percentage everywhere else; data contract verified against paired API and billing-page readings on 2026-10-01 and 2026-10-02
+Status: proposed - a Copilot usage monitor shows a personal quota percentage or an organization pool percentage (documented usage over served seats times the published per-seat rate), and `--% (month)` with no credit count everywhere else (amended in v4.13.8: an owner connects token-free through `read:org` when GitHub allows it, else through a guided pre-filled read-only token); data contract verified against paired API and billing-page readings on 2026-10-01 and 2026-10-02
 
 ## Problem
 
@@ -12,7 +12,7 @@ Add `extensions/copilot-usage-monitor/` (extension id `nexus-hub.copilot-usage-m
 
 1. **Personal plan**: the percentage of the plan quota, from `GET https://api.github.com/copilot_internal/user` with the user's VS Code GitHub session, the endpoint the Copilot extension's own usage popup reads. The endpoint is undocumented and treated as fragile: unknown fields are ignored, and a response with no quota field shows credits used with no percentage. A percentage is shown only for a quota GitHub marks limited (`unlimited` false, `entitlement` above 0), as the Copilot Free capture of 2026-10-01 serves. The extension reads the GitHub account the user pins for it in VS Code (Accounts > Manage Extension Account Preferences), never passes an account of its own choosing, and never reads the open repository's remote, the git identity, or the `gh` login, so a user whose Copilot seat is on a work account sees that seat's usage while working in a personal repository. Background refreshes call `getSession("github", [], { silent: true })`, which matches the pinned account's existing session of any scope; only the user's own "Sign in" click requests `["read:user"]`.
 2. **Organization pool** (opt-in, owner or administrator only): used is the sum of `usageItems[].discountQuantity` for Copilot AI-credit items from the documented `GET /organizations/{org}/settings/billing/ai_credit/usage`; total is `GET /orgs/{org}/copilot/billing` `.seat_breakdown.total` times the per-seat rate GitHub publishes for the plan (1,900 Business, 3,900 Enterprise). The total is labeled approximate whenever a seat was added or is pending cancellation this cycle, because GitHub documents that added seats grow the pool immediately and removed seats do not shrink it until the next cycle. The owner connects once by pasting a read-only fine-grained token, stored in VS Code secret storage and sent only to `api.github.com`.
-3. **Member without billing access**: credits used, no percentage. A Business seat's response marks every quota `unlimited` with `entitlement` 0, no documented endpoint lets a member read a user-level budget, and the monitor never divides by the per-seat rate to invent a "fair share".
+3. **Member without billing access** (superseded by the v4.13.8 amendment below: `--% (month)` and no credit count): credits used, no percentage. A Business seat's response marks every quota `unlimited` with `entitlement` 0, no documented endpoint lets a member read a user-level budget, and the monitor never divides by the per-seat rate to invent a "fair share".
 
 The monitor writes a percentages-only state file, `~/.nexus-hub/state/usage-probe/copilot.json`, so the v4.13.7 handoff guard can read Copilot usage without ever holding a GitHub token.
 
@@ -38,7 +38,7 @@ With this monitor Nexus-Hub ships four usage monitors again (Claude, Codex, Curs
 
 - On a personal account the status bar shows a percentage computed from the quota and used fields GitHub returns, with no constant supplied by Nexus-Hub.
 - On a connected organization the status bar shows the pool percentage from the documented usage endpoint and the served seat count, and marks it approximate under the seat-change rule.
-- On a member account without billing access the status bar shows credits used and no percentage.
+- On a member account without billing access the status bar shows credits used and no percentage. (Superseded by the v4.13.8 amendment: it shows `Copilot: --% (month)`.)
 - With a work and a personal GitHub account both signed in and the extension pinned to the work account, opening a repository whose remote and git identity belong to the personal account still shows the work account's usage; switching the pin switches the view with no workspace change. A Phase 2 test asserts this, and a static check finds no read of git config, a remote URL, or the `gh` login in the extension source.
 - Used credits display with two decimals, with the percentage computed from the unrounded sum, because GitHub's page headline rounds to whole credits while its breakdown shows two decimals.
 - No GitHub token appears in settings, logs, the state file, or the repository, and the organization token is sent only to `api.github.com`.
@@ -46,7 +46,7 @@ With this monitor Nexus-Hub ships four usage monitors again (Claude, Codex, Curs
 
 ## Risks
 
-- **The personal endpoint is undocumented.** It can change shape or start rejecting the VS Code session without notice. Mitigation: unknown fields ignored, no-quota responses show credits used only, and the documented per-user usage endpoint remains as the used-figure fallback.
+- **The personal endpoint is undocumented.** It can change shape or start rejecting the VS Code session without notice. Mitigation: unknown fields ignored, no-quota responses show `--% (month)` with no credit count (v4.13.8 amendment), and the documented per-user usage endpoint remains as the used-figure fallback.
 - **Discount reason is not in the line-item schema.** If GitHub starts discounting Copilot usage for a second reason (a promotion, a free model), summing `discountQuantity` overstates pool use. Mitigation: sum only Copilot AI-credit SKUs observed in the capture, and compare against the billing page on each fresh capture.
 - **Proration and removed seats.** GitHub does not document whether an added seat contributes a full or prorated allowance, and a seat removed this cycle may vanish from `seat_breakdown.total` while still counting toward the pool. Mitigation: the approximate label and a dashboard note; the percentage can read high, never silently low by more than the removed seats' allowance.
 - **The published rate changes.** Mitigation: the rate table lives in one place with its source URL and verification date, and is re-checked against the billing page at each release that touches the monitor.

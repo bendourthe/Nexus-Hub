@@ -269,7 +269,7 @@ describe("dashboard per account state", () => {
   it("keeps the personal view when the organization half fails, with the right action", () => {
     const access = { ...personalFree(), organizationError: { code: "org-access-denied", statusCode: 403 } };
     const html = dashboard(access).html;
-    expect(html).toContain("This needs a read-only token from an organization owner or billing manager.");
+    expect(html).toContain("Only an organization owner can read the shared pool");
     expect(html).toContain("Copilot Free");
     const rejected = { ...personalFree(), organizationError: { code: "org-token-rejected", statusCode: 401 } };
     expect(dashboard(rejected).html).toContain('data-command="connectOrganization" class="retry-btn">Reconnect');

@@ -401,8 +401,9 @@ async function saveConnection(secrets: vscode.SecretStorage, org: string, token:
 /**
  * The token-free route (v4.13.8 Phase 6): ask VS Code's GitHub sign-in for the
  * read-only `read:org` scope, then check both pool endpoints with it. Returns
- * "connected", "unreachable" on a network failure, or null to fall back to the
- * guided token: when GitHub refuses the session, and when the user declines the
+ * "connected", "unreachable" when GitHub cannot answer (a network drop, a rate
+ * limit, or a server error), or null to fall back to the guided token: when
+ * GitHub refuses the session (401, 403, 404), and when the user declines the
  * consent prompt, which is how an owner who prefers a token scoped to one
  * organization over `read:org` reaches it (decision record amendment).
  */
@@ -429,11 +430,17 @@ async function connectWithSession(
     await saveConnection(secrets, org, null);
     return "connected";
   }
-  if (error.code === "network-error") {
-    void vscode.window.showWarningMessage("Copilot Usage: could not reach GitHub. Check your connection and try again.");
-    return "unreachable";
+  if (error.code === "org-token-rejected" || error.code === "org-access-denied") {
+    return null;
   }
-  return null;
+  // A network drop, a rate limit, or a GitHub error says nothing about whether
+  // the session can read the pool, so it never pushes the owner to a token.
+  void vscode.window.showWarningMessage(
+    error.code === "network-error"
+      ? "Copilot Usage: could not reach GitHub. Check your connection and try again."
+      : "Copilot Usage: GitHub could not answer right now. Run Connect Organization again in a few minutes.",
+  );
+  return "unreachable";
 }
 
 /** The guided read-only token: open GitHub's pre-filled page, then paste the token. */

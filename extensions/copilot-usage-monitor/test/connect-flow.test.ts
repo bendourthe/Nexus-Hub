@@ -5,6 +5,8 @@ import type * as vscode from "vscode";
 import { afterEach, describe, expect, it } from "vitest";
 import { __resetLog } from "../src/log";
 import { CopilotUsageProvider, fetchSeatOrganizations, mapSeatOrganizations } from "../src/providers/copilot";
+import { NOT_CONNECTED_HINT, NO_PERSONAL_QUOTA_HINT, getRecommendation, noPercentHint } from "../src/recommendations";
+import { headlineOf } from "../src/types";
 import {
   CONNECT_CHOICE,
   CopilotOrganizationProvider,
@@ -199,6 +201,29 @@ describe("route selection (T338)", () => {
     expect(tokenCalls).toEqual([`/orgs/${SEAT_ORG}/copilot/billing`, `/organizations/${SEAT_ORG}/settings/billing/ai_credit/usage`]);
   });
 
+  it.each([401, 404])("%i on the token-free route also falls back to the guided token", async (status) => {
+    const secrets = new FakeSecretStorage();
+    const auth = scopedAuth({ seat: WORK_TOKEN, readOrg: WORK_TOKEN });
+    const fake = orgFetch((a) => (a === `Bearer ${ORG_TOKEN}` ? 200 : status));
+    messageAnswers.push(CONNECT_CHOICE, OPEN_GITHUB);
+    inputBoxAnswers.push(ORG_TOKEN);
+    expect(await connectOrganization(secrets.asSecretStorage(), fake.fetch, auth, OCT_2)).toBe("connected");
+    expect(outputLines.join("\n")).toContain(`token-free route, copilot/billing ${status}`);
+    expect(secrets.stored).toEqual([{ key: ORG_TOKEN_SECRET_KEY, value: ORG_TOKEN }]);
+  });
+
+  it.each([429, 500, 503])("%i on the token-free route stops without pushing the owner to a token", async (status) => {
+    const secrets = new FakeSecretStorage();
+    const auth = scopedAuth({ seat: WORK_TOKEN, readOrg: WORK_TOKEN });
+    messageAnswers.push(CONNECT_CHOICE, OPEN_GITHUB);
+    const fake = orgFetch(() => status);
+    expect(await connectOrganization(secrets.asSecretStorage(), fake.fetch, auth, OCT_2)).toBe("unreachable");
+    expect(openedExternal).toEqual([]);
+    expect(inputBoxCalls).toHaveLength(0);
+    expect(secrets.stored).toEqual([]);
+    expect(shownMessages.at(-1)?.message).toContain("could not answer right now");
+  });
+
   it("a declined consent prompt is not an error: it offers the narrower guided token instead", async () => {
     const secrets = new FakeSecretStorage();
     const fake = orgFetch((a) => (a === `Bearer ${ORG_TOKEN}` ? 200 : 403));
@@ -371,4 +396,28 @@ describe("end to end: Connect, refresh, Disconnect (Phase 6 verification expecta
       fs.rmSync(dir, { recursive: true, force: true });
     }
   });
+});
+
+describe("hints and recommendations never show a credit count", () => {
+  const seat = (planLabel: string) => ({ planLabel, quotas: [], primary: null, creditsUsed: 12.5, resetsAt: null });
+
+  it("an organization seat is told about Connect; a personal plan with no quota is not", () => {
+    const business = { personal: seat("Copilot Business"), lastUpdated: 0, dataSource: "api" as const };
+    const individual = { personal: seat("Copilot individual plan"), lastUpdated: 0, dataSource: "api" as const };
+    expect(headlineOf(business)).toMatchObject({ kind: "no-percent", reason: "not-connected" });
+    expect(headlineOf(individual)).toMatchObject({ kind: "no-percent", reason: "no-personal-quota" });
+    expect(getRecommendation(business).message).toBe(NOT_CONNECTED_HINT);
+    expect(getRecommendation(individual).message).toBe(NO_PERSONAL_QUOTA_HINT);
+    expect(noPercentHint(individual.personal)).not.toContain("organization");
+  });
+
+  it.each(["Copilot Business", "Copilot Enterprise", "Copilot individual plan", "GitHub Copilot"])(
+    "recommendation output for %s holds no used-credit figure",
+    (planLabel) => {
+      const recommendation = getRecommendation({ personal: seat(planLabel), lastUpdated: 0, dataSource: "api" });
+      const text = [recommendation.message, ...recommendation.tips].join(" ");
+      expect(text).not.toMatch(/credits used/i);
+      expect(text).not.toContain("12.5");
+    },
+  );
 });

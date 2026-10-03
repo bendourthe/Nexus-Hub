@@ -1,8 +1,8 @@
 import type { ProviderFetchError } from "./types";
 
-/** The message shown when an organization endpoint answers 403 or 404 (plan 2.3). */
+/** The message shown when an organization endpoint answers 403 or 404 (plan 2.3, v4.13.8 Phase 6). */
 export const ORG_ACCESS_MESSAGE =
-  "This needs a read-only token from an organization owner or billing manager.";
+  "GitHub refused the organization's Copilot billing data. Only an organization owner can read the shared pool: run Connect Organization as an owner.";
 
 /**
  * Render a fetch error into a message for the dashboard and notifications. The
@@ -32,10 +32,10 @@ export function describeProviderError(error: ProviderFetchError): string {
     case "usage-unavailable":
       return `GitHub returned a Copilot usage response this monitor does not recognize${suffix}. Press Retry; if it persists, the undocumented endpoint may have changed.`;
     case "org-not-connected":
-      return "The organization is set but no token is stored. Run Copilot Usage: Connect Organization.";
+      return "The organization is set but not connected: no token is stored, and VS Code's GitHub sign-in no longer grants read:org. Run Copilot Usage: Connect Organization.";
     case "org-access-denied":
       return ORG_ACCESS_MESSAGE;
     case "org-token-rejected":
-      return "The organization token was rejected or has expired, so it was removed. Select Reconnect to add a new one.";
+      return "GitHub rejected the organization's credential (a token expired or was revoked, or the VS Code sign-in changed), so it was forgotten. Select Reconnect.";
   }
 }

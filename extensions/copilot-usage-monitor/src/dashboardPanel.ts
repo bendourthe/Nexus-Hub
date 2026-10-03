@@ -2,8 +2,8 @@ import * as crypto from "crypto";
 import * as vscode from "vscode";
 import { BAR_FILL, OrganizationUsage, PersonalUsage, UsageData } from "./types";
 import { formatCreditCount, formatElapsed, formatPercent, formatResetLabel } from "./usageStore";
-import { NOT_CONNECTED_HINT } from "./recommendations";
-import { WINDOW_LABEL } from "./types";
+import { noPercentHint } from "./recommendations";
+import { WINDOW_LABEL, isOrganizationSeat } from "./types";
 import { ProviderFetchError, ProviderFetchErrorCode, describeProviderError } from "./providers";
 import { getRecommendation } from "./recommendations";
 import {
@@ -551,8 +551,8 @@ function personalSection(personal: PersonalUsage, organizationConnected: boolean
       <div class="section">
         <h3>${escapeHtml(personal.planLabel)}</h3>
         <div class="extra-credits-info">--% (${WINDOW_LABEL})</div>
-        <p class="note">${escapeHtml(NOT_CONNECTED_HINT)}</p>
-        <button data-command="connectOrganization" class="retry-btn">Connect Organization</button>
+        <p class="note">${escapeHtml(noPercentHint(personal))}</p>
+        ${isOrganizationSeat(personal) ? '<button data-command="connectOrganization" class="retry-btn">Connect Organization</button>' : ""}
         <span class="progress-subtitle">${escapeHtml(formatResetLabel(personal.resetsAt))}</span>
       </div>`;
   }

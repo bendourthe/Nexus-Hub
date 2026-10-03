@@ -16,7 +16,7 @@ import {
 } from "./types";
 import { getActiveUrgency, triggerPercent } from "./recommendations";
 import { UsageStore, formatCreditCount, formatElapsed, formatPercent, formatResetLabel } from "./usageStore";
-import { NOT_CONNECTED_HINT } from "./recommendations";
+import { NOT_CONNECTED_HINT, noPercentHint } from "./recommendations";
 import type { ProviderFetchError } from "./providers/types";
 
 /** The GitHub Copilot glyph, contributed as an icon font in package.json. */
@@ -223,7 +223,7 @@ export class StatusBarManager {
         }
         parts.push(`<em>${escapeHtml(personal.planLabel)}, ${formatResetLabel(personal.resetsAt)}</em><br><br>`);
       } else if (!org) {
-        parts.push(`${escapeHtml(personal.planLabel)}: --% (${WINDOW_LABEL})<br><em>${escapeHtml(NOT_CONNECTED_HINT)}</em><br><br>`);
+        parts.push(`${escapeHtml(personal.planLabel)}: --% (${WINDOW_LABEL})<br><em>${escapeHtml(noPercentHint(personal))}</em><br><br>`);
       }
     }
     parts.push(`<span style="opacity:0.6">Last updated: ${this.store.getTimeSinceUpdate()}</span>`);

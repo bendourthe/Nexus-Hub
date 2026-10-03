@@ -113,7 +113,12 @@ export type Headline =
  * organization pool is not connected (or the user is not an owner who can connect
  * it). `no-pool-total`: the organization is connected but GitHub reported no seats.
  */
-export type NoPercentReason = "not-connected" | "no-pool-total";
+export type NoPercentReason = "not-connected" | "no-personal-quota" | "no-pool-total";
+
+/** A Business or Enterprise seat draws on an organization's pool, unlike a personal plan. */
+export function isOrganizationSeat(personal: PersonalUsage): boolean {
+  return personal.planLabel === "Copilot Business" || personal.planLabel === "Copilot Enterprise";
+}
 
 /** Every Copilot window resets monthly (the 1st, 00:00 UTC), so this is the label shown. */
 export const WINDOW_LABEL = "month";
@@ -158,7 +163,11 @@ export function headlineOf(data: UsageData | undefined): Headline {
     return { kind: "no-percent", reason: "no-pool-total", label: "Organization pool" };
   }
   if (personal) {
-    return { kind: "no-percent", reason: "not-connected", label: personal.planLabel };
+    return {
+      kind: "no-percent",
+      reason: isOrganizationSeat(personal) ? "not-connected" : "no-personal-quota",
+      label: personal.planLabel,
+    };
   }
   return { kind: "none" };
 }
