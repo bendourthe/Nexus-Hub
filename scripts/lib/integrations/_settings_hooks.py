@@ -48,6 +48,10 @@ re-triggering its untrusted-hook warning on every install. The installed hooks
 directory is checked as a second signal so a handler a user renamed by hand is
 still recognized as ours rather than duplicated.
 
+``usage-guard`` (v4.13.7) reaches both platforms through ``settings.json`` like any
+other hook, and stays silent there: its platform detection matches no Gemini CLI
+or Qwen payload, because neither has a usage source the probe can read.
+
 This module is stdlib-only and makes no outbound calls.
 """
 

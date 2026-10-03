@@ -27,18 +27,32 @@ Rules this module keeps:
   - `stop_hook_active` is never a release condition.
   - The continuation reason names only predicate ids, never text from the plan.
   - The output shape follows NEXUS_GATE_FORMAT when set, else the payload shape.
+  - Usage-limit handoff (v4.13.7): the stop is allowed, with no refusal counted
+    and no blocker written, only when BOTH a usage-limit handoff header newer
+    than the last refusal exists in the repository AND the usage probe confirms a
+    tracked window at or over NEXUS_HANDOFF_THRESHOLD. The record is never marked
+    complete or paused. The usage-guard and probe modules are read from the
+    calling hook's directory (NEXUS_GATE_HOOK_DIR, set by the adapter) and never
+    from inside the repository, so a repository cannot plant the evidence.
 """
 
 from __future__ import annotations
 
 import datetime as dt
 import hashlib
+import importlib.util
 import json
 import os
 import subprocess
 import sys
 import time
 from pathlib import Path
+
+# On Windows, a console program started by a process with no console of its own
+# (a hook or agent launched without one, or a detached test) opens a visible
+# window that takes keyboard focus. Every child here has its output captured and
+# its prompts disabled, so it never needs a window.
+NO_WINDOW: dict = {"creationflags": subprocess.CREATE_NO_WINDOW} if os.name == "nt" else {}
 
 BUDGET_SECONDS = 30.0
 BLOCK_RESERVE_SECONDS = 5.0  # kept back from the evaluation for the blocker write
@@ -53,6 +67,11 @@ FORMATS = (
     "exit-2",
     "plugin",
 )
+USAGE_LIMIT_NOTE = (
+    "completion-gate: the run stopped for a usage-limit handoff; it resumes when "
+    "the user pastes the handoff prompt."
+)
+USAGE_PROBE_SECONDS = 4.5
 REASON = (
     "The full /implement run is not complete ({ids}). Continue with the next unmet "
     "item; stop only when scripts/check_plan_completion.py reports a terminal verdict."
@@ -184,6 +203,7 @@ def _run_checker(args: list[str], budget_end: float, cwd: str) -> tuple[int, str
             errors="replace",
             timeout=remaining,
             check=False,
+            **NO_WINDOW,
         )
     except (OSError, subprocess.TimeoutExpired):
         return -1, ""
@@ -237,6 +257,67 @@ def _save_gate_state(path: Path, state: dict) -> None:
     os.replace(tmp, path)
 
 
+def _parse_time(value: object) -> float | None:
+    if not isinstance(value, str) or not value:
+        return None
+    try:
+        parsed = dt.datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=dt.timezone.utc)
+    return parsed.timestamp()
+
+
+def _usage_guard(repo_root: Path):
+    """(usage-guard module, its directory) from the calling hook's directory, or None.
+
+    Both usage-guard.py and _usage_probe.py must sit outside the repository: a
+    repository that could supply them could also report any usage it liked.
+    """
+    raw = os.environ.get("NEXUS_GATE_HOOK_DIR", "").strip()
+    if not raw:
+        return None
+    directory = Path(raw)
+    guard, probe = directory / "usage-guard.py", directory / "_usage_probe.py"
+    if not guard.is_file() or not probe.is_file():
+        return None
+    if _is_inside(guard, repo_root) or _is_inside(probe, repo_root):
+        return None
+    try:
+        spec = importlib.util.spec_from_file_location("nexus_usage_guard_for_gate", guard)
+        if spec is None or spec.loader is None:
+            return None
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+    except Exception:  # noqa: BLE001 - an unloadable guard means "no exception applies"
+        return None
+    return module, directory
+
+
+def usage_limit_stop(payload: dict, record_path: Path, record: dict, repo_root: Path, budget_end: float) -> bool:
+    """True when this stop is a confirmed usage-limit handoff (see the module docstring)."""
+    loaded = _usage_guard(repo_root)
+    if loaded is None:
+        return False
+    guard, directory = loaded
+    try:
+        platform = guard.detect_platform(payload, directory)
+        if platform is None:
+            return False
+        state = _load_gate_state(record_path.with_name(record_path.stem + ".gate.json"))
+        since = _parse_time(state.get("updated")) or _parse_time(record.get("created"))
+        if since is None:
+            since = record_path.stat().st_mtime
+        written = guard.usage_limit_handoff_time(platform, payload, (repo_root,))
+        if written is None or written <= since:
+            return False
+        deadline = min(time.monotonic() + USAGE_PROBE_SECONDS, budget_end - BLOCK_RESERVE_SECONDS)
+        return guard.usage_limit_window(payload, directory, deadline) is not None
+    except Exception:  # noqa: BLE001 - any failure keeps today's behavior
+        return False
+
+
 def cmd_stop() -> int:
     payload = _read_payload()
     session = _session(payload)
@@ -258,6 +339,9 @@ def cmd_stop() -> int:
     check_args, score_args, block_args = scope
     budget = _budget()
     budget_end = time.monotonic() + budget
+    if usage_limit_stop(payload, record_path, record, repo_root, budget_end):
+        print(USAGE_LIMIT_NOTE, file=sys.stderr)
+        return 0
     # The evaluation stops early enough that a blocker can still be written.
     eval_end = budget_end - min(BLOCK_RESERVE_SECONDS, budget * 0.3)
     # check-minor spreads its own budget over the members; keep it inside the evaluation's.

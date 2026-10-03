@@ -73,6 +73,9 @@ $utf8 = New-Object System.Text.UTF8Encoding($false)
 $psi.StandardOutputEncoding = $utf8
 $psi.StandardErrorEncoding = $utf8
 $psi.EnvironmentVariables["PYTHONIOENCODING"] = "utf-8"
+# v4.13.7: the core reads usage-guard.py and _usage_probe.py from this hook's
+# own directory to confirm a usage-limit handoff (never from the repository).
+$psi.EnvironmentVariables["NEXUS_GATE_HOOK_DIR"] = $PSScriptRoot
 $proc = [System.Diagnostics.Process]::Start($psi)
 try {
     $proc.StandardInput.BaseStream.Write($inputBytes, 0, $inputBytes.Length)

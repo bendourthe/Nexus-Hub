@@ -192,24 +192,22 @@ def test_a_ticked_checkbox_is_not_a_page_change(tmp_path: Path) -> None:
     assert _create(fx).returncode == 0
 
 
-def test_an_expired_code_is_refused(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys) -> None:
+def test_a_round_never_expires(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys) -> None:
+    """A run can be approved whenever the user comes back: 30 days later still records, once."""
     fx = _fixture(tmp_path)
     line = _render(fx)
     _hook(fx, SESSION, line)
-    rendered_at = float(_pending(fx)["created_at"])
+    pending = _pending(fx)
+    assert "expires_at" not in pending
     for name, value in fx.env.items():
         monkeypatch.setenv(name, value)
     monkeypatch.chdir(fx.work)
-    monkeypatch.setattr(approval_binding, "_clock", lambda: rendered_at + approval_binding.ROUND_SECONDS + 1)
-    rc = check_plan_completion.main(
-        ["record", "create", PLAN_REL, "--session", SESSION, "--approvals", str(fx.approvals())]
-    )
-    assert rc == 3
-    assert capsys.readouterr().out.splitlines() == [REFUSED, "reason: code-expired"]
-    monkeypatch.setattr(approval_binding, "_clock", lambda: rendered_at + approval_binding.ROUND_SECONDS - 60)
-    assert check_plan_completion.main(
-        ["record", "create", PLAN_REL, "--session", SESSION, "--approvals", str(fx.approvals())]
-    ) == 0
+    monkeypatch.setattr(approval_binding, "_clock", lambda: float(pending["created_at"]) + 30 * 24 * 3600)
+    argv = ["record", "create", PLAN_REL, "--session", SESSION, "--approvals", str(fx.approvals())]
+    assert check_plan_completion.main(argv) == 0, capsys.readouterr().out
+    capsys.readouterr()
+    assert check_plan_completion.main(argv) == 3
+    assert capsys.readouterr().out.splitlines() == [REFUSED, "reason: code-used"]
 
 
 def test_missing_and_unreadable_pending_rounds_are_refused(tmp_path: Path) -> None:
@@ -240,7 +238,7 @@ def test_the_records_helper_writes_the_pending_file(tmp_path: Path, monkeypatch:
     )
     assert ("k" * 64 + ".json", False) in calls
     assert ("pending", True) in calls and ("runs", True) in calls
-    assert pending["expires_at"] - pending["created_at"] == 30 * 60
+    assert "expires_at" not in pending
 
 
 @pytest.mark.skipif(os.name == "nt", reason="POSIX permission bits; Windows inherits profile ACLs")
@@ -298,7 +296,7 @@ def test_a_fresh_session_that_only_carries_the_line_is_refused(tmp_path: Path, r
     [
         ("paste_digests", [approval_binding.digest("sounds good")]),
         ("paste_lines", ["sounds good"]),
-        ("expires_at", 4_102_444_800),
+        ("created_at", 0),
         ("rendered_at", 0),
         ("session", None),
     ],

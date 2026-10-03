@@ -207,6 +207,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | plan-before-code | workflow | "Plan before coding with exploration, task assessment, and implementation design" | catalog/skills/workflow/plan-before-code/SKILL.md |
 | pr-description-writer | workflow | "Author reviewer-friendly PR descriptions with summary, how-to-test, risk, and reviewer notes" | catalog/skills/workflow/pr-description-writer/SKILL.md |
 | research-plan-implement | workflow | "Execute Research-Plan-Implement workflows with GO/NO-GO gates and artifact tracking" | catalog/skills/workflow/research-plan-implement/SKILL.md |
+| session-handoff | workflow | "Write .nexus-hub/handoff.md and a paste-ready prompt so another platform's agent can resume" | catalog/skills/workflow/session-handoff/SKILL.md |
 | session-history | workflow | "Write standalone session histories only in release-scoped evidence trees" | catalog/skills/workflow/session-history/SKILL.md |
 | shipping-and-launch | workflow | "Execute safe production deployments with pre-flight checks, go/no-go decisions, and post-launch verification" | catalog/skills/workflow/shipping-and-launch/SKILL.md |
 | using-nexus-hub | workflow | "Orient an AI session to Nexus-Hub's skill catalog, commands, and hooks in under 2 minutes" | catalog/skills/workflow/using-nexus-hub/SKILL.md |

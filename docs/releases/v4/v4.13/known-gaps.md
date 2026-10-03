@@ -2,7 +2,8 @@
 
 **Project**: Nexus-Hub
 **Status**: released; PR #230 merged the complete 34-task plan and tag `v4.13.0` was published on 2026-09-21. Two bounded warning-class findings remain owned for future measurement work. GitHub branch protection passed a live pull-request gate test; the second trigger pilot stopped on an unproven spend bound.
-**Last updated**: 2026-09-30
+**Last updated**: 2026-10-02
+**Open items**: 130
 
 Release-scoped gaps for the evidence-driven agent improvement plan. Planned future-phase work is tracked in the plan rather than reported as completed here.
 
@@ -668,6 +669,8 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 **Local repair (2026-09-27)**: the Bash and PowerShell selection-parity installer tests now provide a disposable `HOME`, `USERPROFILE`, `APPDATA`, `LOCALAPPDATA`, `NEXUS_HUB_HOME`, and Git global-config path; both real installer tests passed, and the PowerShell test confirmed the attribution script landed under the disposable Nexus home. The instruction merger's state root now honors `NEXUS_HUB_HOME` for workspace installs while retaining explicit global-target precedence; a red-then-green root test and 42 organization/merger tests passed. The local full profile was not rerun against the real account. **Status**: open until protected hosted integration verifies this repair; audit any remaining full-profile home writers separately.
 
+**Second writer found (2026-10-02, v4.13.7 Phase 9)**: the v4.13.7 full profile rewrote 52 files under the real `~/.nexus-hub/scripts/`, `permissions-manifest.json`, and `VERSION` (content unchanged at 4.13.6) at 14:51 UTC, while `repo-tests-skills` ran; the rewritten scripts were byte-identical to the v4.13.7 worktree. The writer was `tests/skills/test_presentify_dual_view_distribution.py::test_installed_bundle_runs_offline`, which ran both real installers with the inherited environment. It now redirects the same six variables; rerun alone, it gave `2 passed` with a real-home snapshot identical before and after (v4.13.7 BG-8). The attribution script still matched the durable guard and `nexus-hub attribution check` printed `VERIFIED`. Other full-profile groups were not audited for writers one by one, so this item stays open.
+
 #### WN-7: A generated-with footer followed by a long clause passes the attribution hook
 
 **Source phase**: Phase 9 (adversarial pass). **Plan reference**: T014. **Reason**: to let descriptive sentences pass, a footer counts only when it ends at the agent's name, a link, or a clause of at most four words after `-`, `:`, `,`, or `|`. "Generated with Claude Code, then reviewed and edited by hand before merge" therefore passes on `gh` routes; the Git commit-msg hook still blocks it on commits. **Owner**: catalog maintainer. **Status**: open, accepted trade-off. **Suggested next step**: collect real footers from harness defaults and tune the clause limit against them.
@@ -1147,6 +1150,40 @@ Gaps from the minor-scope implement plan ([`v4.13.6-minor-scope-implement-and-ve
 | BG-3 | `MINOR COMPLETE` was reachable with no archive, closing pull request, or final cleanup | Phase 8 (coordinator follow-up) | ADV-6. Decision: a minor run requires `cleanup-merged`, `archive-minor`, and `minor-close-pr`, matching Definition of Done 2 ("the final cleanup pass has run after the last merge, the closing pull request is merged, and the minor is archived"). `minor_spec` refuses a spec without all three, so `record render` and `create --minor` cannot approve one; `check-minor` reads a missing class as `unmet` with a notice, never `n/a`; and `minor.close-pr` is never `n/a`, because the close always carries the archive (with nothing to migrate it carries only the archive). The completion contract, the runbook's Minor close, and `/update` now say the same. Tests: `test_completion_minor_verdict.py::test_a_minor_record_without_the_closing_classes_never_completes`, `::test_a_minor_spec_without_a_closing_class_is_refused` (three cases), `::test_a_frozen_id_fixed_instead_of_migrated_still_needs_the_close`, and `test_gap_migration_and_archive.py::test_archive_minor_predicate_reads_the_integration_branch`. |
 | BG-4 | Naming another session's scope lifted its owned-by-run protection | Phase 8 (coordinator follow-up) | ADV-7, reproduced first: with session s1's live record owning the merged, idle `feat/plan`, `cleanup_merged.py --dry-run --plan <plan>` from another caller printed `REMOVE branch:feat/plan`. `cleanup_merged.py` gained `--session`: the named `--plan` or `--minor` record is exempt from the owned-by-run scan only when it loads verified and is bound to that session (otherwise it stays in the scan, with the notice `scope-record-not-own`), and `--receipt` needs the record's own session (`BLOCKED: approval-not-covered`, reason `session-required` or `record-bound-to-another-session`). `/update`, the runbook, the contract, and the e2e stub pass `--session`. Tests: `test_cleanup_merged.py::test_naming_another_sessions_plan_keeps_its_owned_items` (failed before the fix) and `::test_a_receipt_needs_the_records_own_session`. |
 
+## v4.13.7
+
+Gaps from the Copilot usage monitor and usage-limit handoff plan ([`v4.13.7-copilot-usage-monitor-and-usage-limit-handoff`](plans/v4.13.7-copilot-usage-monitor-and-usage-limit-handoff.md)). Recorded by sub-task 4.1; Phase 4 ran before Phases 1-3, which wait on the maintainer's live Copilot readings. Reconciled by Phase 9 on 2026-10-02 (final-phase evidence: [`v4.13.7-last-phase-evidence.md`](development/v4.13.7-last-phase-evidence.md)).
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 7 |
+| Warnings (WN) | 0 | 4 |
+| Missing tests / coverage gaps (MT) | 0 | 1 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+### Resolved Items
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+| WN-1 | `skill-activation-suggest.py` silently lost `_skill_rules` on adapters that copy only registered scripts | Phase 6 | `scripts/lib/integrations/_hooks_common.py` `sourced_modules()` now ships every `_*.py` helper a delivered hook imports; `tests/integrations/test_codex_native.py` asserts `_skill_rules.py` lands beside `skill-activation-suggest.py`. |
+| WN-2 | The Codex and Claude monitors' dashboards had no Content-Security-Policy and read unscoped settings | Phase 3 | Ported from the Copilot monitor in sub-task 3.6: nonce CSP, delegated listeners, validated and escaped thresholds and colors, a validated `save` payload, `"scope": "application"` on thresholds and colors, and a 1-120 minute `refreshInterval` clamp. Regression tests: `extensions/codex-usage-monitor/test/review-regressions.test.ts` and `extensions/claude-usage-monitor/test/review-regressions.test.ts`. |
+| WN-10 | Two CodeQL warnings left from v4.13.6 in `scripts/completion_minor.py` | Phase 9 | Alert 375 (`py/comparison-of-identical-expressions`): the deliberate NaN self-comparison in `check_minor_seconds` is now `math.isnan(requested)`; alert 368 (`py/unused-local-variable`): the unused `section` reset before the second scan in `parse_ledger_full` was removed. Behavior is unchanged (`nan`, `5`, `99999`, `abc`, `inf`, and `-inf` give the same budgets as before). |
+| WN-11 | The stated hook count (38) matched no definition | Phase 9 | `stamp_guide_counts.py` counts the 36 distinct scripts registered in `catalog/hooks/settings.json`; the prose figure had drifted since v4.13.1 (35 when 31 were registered, 37 when 33 were). `AGENTS.md`, `README.md`, and `data/marketplace.json` now say "36 registered hooks". The GitHub repository description (an external setting, still "37 hooks") is updated by hand at release. |
+| BG-2 | A committed, future-dated `.nexus-hub/handoff.md` outranked the pasted prompt and survived carry-forward | Phase 9 (Tier 3 cycle 1) | Adversarial finding ADV-1 (P2). `session-handoff` Step 3 now carries nothing forward from a committed (`git ls-files --error-unmatch` succeeds) or future-dated file and tells the user; prompt rule 1 says to follow the pasted copy and only offer a newer, uncommitted, not-future file to the user. Test: `test_a_committed_or_future_dated_handoff_is_never_followed_as_instructions` (failed before, passes after). |
+| BG-3 | A future-dated usage-limit header silenced the guard's turn-end reminder and satisfied the completion gate | Phase 9 (Tier 3 cycle 1) | ADV-2 (P3). `usage_limit_handoff_time` in `catalog/hooks/usage-guard.py` ignores a header dated more than `FUTURE_SKEW_SECONDS` (300) ahead of the clock; `scripts/completion_gate.py` calls the same function. Tests: `test_a_future_dated_handoff_header_is_ignored` (failed before) and `test_a_handoff_within_the_clock_skew_allowance_still_counts`. |
+| BG-4 | The handoff secret scan missed Stripe, Google, GitLab keys and password pairs | Phase 9 (Tier 3 cycle 1) | ADV-3 (P3). The Step 6 `grep -nE` pattern now covers `sk_live_`/`sk_test_`, `AIza...`, `glpat-...`, and `password`/`secret`/`api_key`/`token` `=`/`:` pairs, and the skill says the pattern is a floor below the `egress-redaction` taxonomy. Four new cases in `test_the_secret_scan_flags_secret_shaped_strings` failed before and pass after. |
+| MT-1 | The Session Handoff validator passed a template carrying a second, contradictory block | Phase 9 (Tier 3 cycle 1) | ADV-4 (P3). `check_template` in `tests/validators/test_session_handoff_block.py` now reports any count of `## Session Handoff` other than one. Test: `test_a_second_contradictory_block_fails` (failed before). |
+| BG-5 | A malformed stricter reset count fell back to the looser one in the Codex monitor | Phase 9 (Tier 3 cycle 1) | ADV3-1 (P3). `readResets` reads `available_count` only when `applicable_available_count` is absent, so a present but malformed stricter count hides the row instead of enabling the button. Test: "never falls back to the looser count ..." in `extensions/codex-usage-monitor/test/resets.test.ts` (failed before). |
+| BG-6 | The raw-response redactor missed camelCase and run-together identity keys | Phase 9 (Tier 3 cycle 1) | ADV3-2 (P3). Both monitors' `rawUsageResponse.ts` split keys into words before matching and also match secret words inside run-together keys (`sessiontoken`); `userId`, `displayName`, `password`, `phone`, and similar values are now replaced. Output on every captured vendor fixture is unchanged. The README and SECURITY.md claims now state what is kept and what is replaced. Test: "redacts camelCase, run-together, and secret-word keys ..." in both monitors (failed before). |
+| BG-7 | A focused install could ship `/handoff` without `session-handoff`, and the `workflow` module lacked the skill | Phase 9 (Tier 3 cycle 2) | Found by the deep pass's real-installer exercise: `installer.sh --workspace ... --modules ai-engineering` installed `.claude/commands/handoff.md` but no `session-handoff` skill, because Phase 4 registered the skill only in the `core-developer` bundle and `/handoff`, a thin dispatcher over one skill, was missing from `surface_requirements.commands` in `data/bundles.json`. The skill is now in the `workflow` module (its category, like `session-history`) and `handoff` requires `session-handoff`. Re-run: `--modules workflow` installs both, `--modules testing` installs neither, and `usage-guard.py` lands in both. Test: `test_handoff_ships_only_with_its_skill` in `tests/integrations/test_selective_install.py` (failed before). |
+| BG-8 | A full-profile test ran both real installers against the real home | Phase 9 (full-suite stabilization) | Pre-existing. A snapshot of the real `~/.nexus-hub` taken before the full profile showed 52 scripts, `permissions-manifest.json`, and `VERSION` rewritten at 14:51 UTC, byte-identical to this worktree, while `repo-tests-skills` ran. `tests/skills/test_presentify_dual_view_distribution.py` passed no environment to its installer subprocesses; it now redirects `HOME`, `USERPROFILE`, `APPDATA`, `LOCALAPPDATA`, `NEXUS_HUB_HOME`, and `GIT_CONFIG_GLOBAL` to `tmp_path`. Rerun: `2 passed`, real-home snapshot unchanged. The real home still holds the worktree copies until the next real install; see v4.13.1 BG-2, which stays open. The real VS Code and Cursor extension lists were identical before and after the profile. |
+
 ## v4.13.8
 
 Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test`](plans/v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md)); the admission record is [`v4.13.8-admission.md`](development/v4.13.8-admission.md).
@@ -1156,92 +1193,39 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 3 | 1 |
+| Deferred (DF) | 0 | 0 |
 | Bugs / regressions (BG) | 0 | 0 |
-| Warnings (WN) | 6 | 0 |
+| Warnings (WN) | 1 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
-| Quality-gate gaps (QG) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 1 |
 
 ### Open Items
 
-#### DF-1 (v4.13.8): Claude Haiku 5.5 is announced but has no profile or map cell
+#### WN-34 (v4.13.8): The governance test group outgrows its 2700 s local cap on Windows
 
-- **Source phase**: Phase 1. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T304.
-- **Reason**: Anthropic announced Claude Haiku 5.5 "in the coming weeks" and it is not yet in the models overview, so no prompting profile or model-map cell can be verified against a primary source.
-- **Suggested next step**: when the models overview lists it, run `/tune-prompting <haiku-5-5-id> --profiles-only` and refresh the `fast` tier cell of the model map.
-
-#### DF-3 (v4.13.8): Nine newly rostered Claude models have no prompting profile
-
-- **Source phase**: Phase 2. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T306.
-- **Reason**: the live Claude roster read from the Models API on 2026-09-30 added nine ids that this plan does not research, by design (it calibrates on `claude-sonnet-5-5` only): `claude-fable-5`, `claude-haiku-4-5-20251001`, `claude-opus-4-5-20251101`, `claude-opus-4-6`, `claude-opus-4-7`, `claude-opus-4-8`, `claude-opus-5-5`, `claude-sonnet-4-5-20250929`, and `claude-sonnet-4-6`. Each is now a rostered UNVERIFIED model. The live id `claude-haiku-4-5-20251001` sits beside the existing `claude-haiku-4-5` profile, which uses the alias.
-- **Suggested next step**: `claude-opus-5-5` first, through `v4.17.6`, which already plans that profile; then `/tune-prompting <id> --profiles-only` per remaining current model. Decide whether the dated Haiku id and the alias should share one profile before profiling either again.
-
-#### WN-1 (v4.13.8): A reasoning example asks the model to write its analysis into the reply
-
-- **Source phase**: Phase 2. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T308 (sweep finding SW-1).
-- **Reason**: `catalog/skills/ai-development/prompt-engineering/references/step-2-apply-reasoning-techniques.md` lines 92 to 101 tell the model to "Think through this step-by-step" and to structure its response as `<thinking>[Your step-by-step analysis]</thinking>` followed by an answer. On Claude Sonnet 5.5, instructions that ask for reasoning in the response invite `reasoning_extraction` declines. The classifier routed the finding `profile-only`, so no shared body was edited.
-- **Suggested next step**: owner `prompt-engineering`. Revise the example to rely on the model's own thinking (adaptive thinking, with summarized thinking blocks when the reasoning must be read), or label it as written for older models. Route the change through `apply_prompting_edits.py` as a model-agnostic candidate only if it names no model.
-
-#### WN-2 (v4.13.8): A self-consistency example asks for written-out step-by-step reasoning
-
-- **Source phase**: Phase 2. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T308 (sweep finding SW-2).
-- **Reason**: the same file, line 127, prompts "Think step-by-step, then provide your final answer on the last line". The traced Sonnet 5.5 item and the classifier route are the same as WN-1.
-- **Suggested next step**: owner `prompt-engineering`; fix together with WN-1 in one change.
-
-#### WN-3 (v4.13.8): The primary roster mixes vendors, so its freshness check always reads DRIFTED
-
-- **Source phase**: Phase 2. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T306 and T309.
-- **Reason**: the `claude-code` roster in `profiles-index.json` was recorded on 2026-09-08 from `config` as a multi-vendor union (Claude, Cursor, Gemini, and GPT-5.6 ids). The 2026-09-30 write refreshed it from the live Models API, and by design the writer unions the live ids with every already-profiled model, so no profile was orphaned. The result is 26 ids labelled `roster_source: api`, of which 16 did not come from the API. `check_model_prompting_freshness.py --advisory` against the 13 live Claude ids therefore reports DRIFTED, listing the non-Claude ids and the `claude-haiku-4-5` alias as "no longer live". The check is advisory and blocks nothing.
-- **Suggested next step**: move the Cursor, Gemini, and GPT-5.6 profiles onto their own `meta.platforms` entries (schema 1.1.0), as was done for `codex`, so the `claude-code` roster holds only Claude ids and its freshness check can read IN SYNC. Decide the `claude-haiku-4-5` alias at the same time (see DF-3).
-
-#### DF-4 (v4.13.8): The first-principles pilot stopped at the smoke run because effort could not be confirmed
-
-- **Source phase**: Phase 5. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T321 to T324; record [`v4.13.8-first-principles-pilot.md`](development/v4.13.8-first-principles-pilot.md).
-- **Reason**: the pre-registered rule in `## T319` stops the pilot when the run metadata cannot confirm `--effort high`. On the one smoke run (2026-09-30, baseline, prompt 1, passed, USD 0.0396), Claude Code 2.1.283 reported `claude-sonnet-5-5` as an unrecognized model, recorded `costBasis: "unknown"` and a fallback `maxOutputTokens` of 32000, and exposed no effort field and 0 thinking tokens. The other 14 cells were not run, and the first-principles question is untested: this is not evidence for or against the instruction.
-- **Suggested next step**: once a Claude Code release recognizes `claude-sonnet-5-5` and its run metadata can show the effort in effect, re-run the identical approved matrix (same arms, prompts, model, effort, 15 runs, USD 20 cap) with `python wrapper.py run` after deleting the stale smoke result, and decide go or not shown at this power from the rule recorded in `## T319`. Any change to the matrix needs a new approval.
-
-#### WN-4 (v4.13.8): The skill-eval-loop Claude adapter command no longer matches the installed CLI
-
-- **Source phase**: Phase 5. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T319 and T321.
-- **Reason**: `catalog/skills/workflow/skill-eval-loop/references/cli-adapter.md` documents the Claude runner as `claude -p "<prompt>" --setting-sources "" --model <model> --skill <path/to/SKILL.md>` (verified 2026-09-21), and `scripts/optimize_skill_description.py` builds that command. Claude Code 2.1.283's `--help` (checked 2026-09-30) documents no `--skill` option. The pilot used `--append-system-prompt-file` instead, without changing the shared adapter. The same CLI also reports `claude-sonnet-5-5` as an unrecognized model (see DF-4).
-- **Suggested next step**: owner `skill-eval-loop`. Re-verify the Claude runner against the current official Claude Code CLI reference. If `--skill` is gone, choose and document the replacement (for example `--bare` with `--append-system-prompt-file`, or `--add-dir` with skill resolution), update the adapter and the optimizer's command builder together, and keep `TestEvalLoopCLIAdapter` parity green.
-
-#### WN-5 (v4.13.8): The profiling-harness test fails intermittently under host load
-
-- **Source phase**: Phase 6. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T334.
-- **Reason**: during the v4.13.8 full local gate on 2026-10-01, `tests/skills/test_profiling_harness.py::test_profile_run_emits_profile` failed once (`assert any("work" in fn["name"] ...)` was False: the profiled `work()` function was missing from the top 10 entries) while several suites shared the host. It passed 3 of 3 runs alone on the branch and 2 of 2 on `develop`. The test was last changed in v3.14.0, and this plan touches neither it nor the harness.
-- **Suggested next step**: owner `code-optimizer`. Make the assertion independent of timing rank (for example look up `work` in the full function list, or raise `--top`), so host load cannot evict it from the reported entries.
-
-#### WN-6 (v4.13.8): Open Dependabot branches make the all-refs attribution check fail
-
-- **Source phase**: Phase 6. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T330 and T334.
-- **Reason**: `scripts/check_commit_attribution.py --all-refs` (fast and full profiles, `hygiene` group) scans every commit reachable from every ref against a closed author allowlist. On 2026-10-01 Dependabot opened PRs #402 to #404, and their branches carry `dependabot[bot]` commits (`3a940eede996`, `904486f2affb`, `16c5fc389a19`). Once those branches are fetched, the check reports `3 findings` and exits 1. None of the three commits is in this branch's history: `git merge-base --is-ancestor` is false for each, and every commit in `origin/develop..HEAD` is authored by the owner identity. The `validate` job checks out with `fetch-depth: 0`, so the hosted check sees the same refs: on PR #402 (run 36897160501) `validate` failed with `check_commit_attribution` reporting `3 findings` on Dependabot commits, which turned the required `ci-required` red. Every pull request is affected while those branches exist.
-- **Mitigation applied 2026-10-01**: with the maintainer's approval, PRs #402 to #404 were closed and their branches deleted. After `git fetch --prune`, the check reads `2282 commits scanned; 0 findings` and the fast profile passes 17 of 17. The item stays open because the next scheduled Dependabot run will reintroduce such branches.
-- **Suggested next step**: owner, the catalog maintainer, as a CI policy decision. Either close or merge the Dependabot PRs under the owner identity, or scope the all-refs scan to the branch under test plus the protected branches. Changing the check or the workflow is a CI security change that needs explicit approval.
+- **Source phase**: Phase 7 (final-phase full suite, re-run over Phase 6)
+- **Plan reference**: [v4.13.8 plan, sub-task 7.9 (T334)](plans/v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md)
+- **Reason**: `repo-tests-governance` in `scripts/ci/profiles.py` has `timeout=2700`. In the full profile on 2026-10-02 it hit that cap; re-run alone on the same Windows 11 machine it passed (2874 passed, 22 skipped) in 3063.9 s, above the cap. The v4.13.4 evidence recorded 1785.1 s for the same group, so the group has grown or the machine has slowed. A local full run therefore reports a timeout that is not a test failure, and a reader cannot tell the two apart from the verdict line.
+- **Suggested next step**: Profile the slowest governance tests (`pytest --durations=25` on that group), then either split the group the way `repo-tests-integrations-*` was split, or raise the cap with a recorded measurement. Keep the hosted job's timing as the reference.
 
 ### Resolved Items
 
-#### DF-2 (v4.13.8): The bundled model-map snapshot lists superseded models
-
-- **Source phase**: Phase 1. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T304.
-- **Reason**: `catalog/skills/ai-development/model-routing/references/last-known-model-map.json` (verified 2026-09-22) still lists `claude-sonnet-5` at standard and `gpt-6-sol` at strong, both superseded. It is the offline fallback that `/plan` renders when web access is unavailable, so a stale cell reaches a user who is offline.
-- **Suggested next step**: refresh the snapshot from a validated map through `model-map.py`. The queued v4.13.9 plan (task T407) does this for the `standard`/Anthropic and `strong`/OpenAI cells; otherwise model-routing's own refresh cycle owns it.
-- **Resolved**: 2026-10-01 by v4.13.9 T407. `last-known-model-map.json` now reads `verified_as_of` 2026-10-01, `standard`/Anthropic `claude-sonnet-5-5`, and `strong`/OpenAI `gpt-6.1-sol`, with dated notes. `model-map.py validate` gives `{"valid": true, "verified_as_of": "2026-10-01", "tiers": 4, "providers": 4}`.
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+| QG-9 | The owner-account Connect run is not recorded yet | v4.13.8, 2026-10-03 | The maintainer ran Connect as the SupiraMedical owner: the token-free `read:org` route did not connect, and the guided token did. Per-endpoint status codes were not captured. Reading: [`v4.13.8-copilot-connect-verification.md`](development/v4.13.8-copilot-connect-verification.md) |
 
 ## v4.13.9
-
-Gaps from the inline visualization, Codex disk-write, draft review comments, and GPT-6.1 Sol plan ([`v4.13.9-adoption-inline-visualize-codex-disk-writes-review-flow-gpt-6-1-sol`](plans/v4.13.9-adoption-inline-visualize-codex-disk-writes-review-flow-gpt-6-1-sol.md)); the admission record is [`v4.13.9-admission.md`](development/v4.13.9-admission.md).
 
 ### Summary
 
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 1 | 0 |
-| Bugs / regressions (BG) | 0 | 0 |
-| Warnings (WN) | 3 | 0 |
+| Deferred (DF) | 4 | 1 |
+| Bugs / regressions (BG) | 1 | 0 |
+| Warnings (WN) | 16 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
-| Quality-gate gaps (QG) | 0 | 0 |
+| Quality-gate gaps (QG) | 2 | 0 |
 
 ### Open Items
 
@@ -1269,6 +1253,162 @@ Gaps from the inline visualization, Codex disk-write, draft review comments, and
 - **Reason**: interview Q2 chose a runbook only. The `doctor` advisory, its `DIAGNOSTIC_ADVISORY` constant, a host-hazard module, and a host-hazard data file are out of scope.
 - **Suggested next step**: reopen only when two primary OpenAI sources confirm the fix version and a second host hazard appears, as the Non-Goals state.
 
-### Resolved Items
+#### DF-9 (v4.13.9): Claude Haiku 5.5 is announced but has no profile or map cell
 
-None yet.
+- **Source phase**: Phase 1. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T304.
+- **Reason**: Anthropic announced Claude Haiku 5.5 "in the coming weeks" and it is not yet in the models overview, so no prompting profile or model-map cell can be verified against a primary source.
+- **Suggested next step**: when the models overview lists it, run `/tune-prompting <haiku-5-5-id> --profiles-only` and refresh the `fast` tier cell of the model map.
+
+- **Carried from**: v4.13.8#DF-1 on 2026-10-02
+
+#### DF-11 (v4.13.9): Nine newly rostered Claude models have no prompting profile
+
+- **Source phase**: Phase 2. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T306.
+- **Reason**: the live Claude roster read from the Models API on 2026-09-30 added nine ids that this plan does not research, by design (it calibrates on `claude-sonnet-5-5` only): `claude-fable-5`, `claude-haiku-4-5-20251001`, `claude-opus-4-5-20251101`, `claude-opus-4-6`, `claude-opus-4-7`, `claude-opus-4-8`, `claude-opus-5-5`, `claude-sonnet-4-5-20250929`, and `claude-sonnet-4-6`. Each is now a rostered UNVERIFIED model. The live id `claude-haiku-4-5-20251001` sits beside the existing `claude-haiku-4-5` profile, which uses the alias.
+- **Suggested next step**: `claude-opus-5-5` first, through `v4.17.6`, which already plans that profile; then `/tune-prompting <id> --profiles-only` per remaining current model. Decide whether the dated Haiku id and the alias should share one profile before profiling either again.
+
+- **Carried from**: v4.13.8#DF-3 on 2026-10-02
+
+#### WN-21 (v4.13.9): A reasoning example asks the model to write its analysis into the reply
+
+- **Source phase**: Phase 2. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T308 (sweep finding SW-1).
+- **Reason**: `catalog/skills/ai-development/prompt-engineering/references/step-2-apply-reasoning-techniques.md` lines 92 to 101 tell the model to "Think through this step-by-step" and to structure its response as `<thinking>[Your step-by-step analysis]</thinking>` followed by an answer. On Claude Sonnet 5.5, instructions that ask for reasoning in the response invite `reasoning_extraction` declines. The classifier routed the finding `profile-only`, so no shared body was edited.
+- **Suggested next step**: owner `prompt-engineering`. Revise the example to rely on the model's own thinking (adaptive thinking, with summarized thinking blocks when the reasoning must be read), or label it as written for older models. Route the change through `apply_prompting_edits.py` as a model-agnostic candidate only if it names no model.
+
+- **Carried from**: v4.13.8#WN-1 on 2026-10-02
+
+#### WN-22 (v4.13.9): A self-consistency example asks for written-out step-by-step reasoning
+
+- **Source phase**: Phase 2. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T308 (sweep finding SW-2).
+- **Reason**: the same file, line 127, prompts "Think step-by-step, then provide your final answer on the last line". The traced Sonnet 5.5 item and the classifier route are the same as WN-1.
+- **Suggested next step**: owner `prompt-engineering`; fix together with WN-1 in one change.
+
+- **Carried from**: v4.13.8#WN-2 on 2026-10-02
+
+#### WN-23 (v4.13.9): The primary roster mixes vendors, so its freshness check always reads DRIFTED
+
+- **Source phase**: Phase 2. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T306 and T309.
+- **Reason**: the `claude-code` roster in `profiles-index.json` was recorded on 2026-09-08 from `config` as a multi-vendor union (Claude, Cursor, Gemini, and GPT-5.6 ids). The 2026-09-30 write refreshed it from the live Models API, and by design the writer unions the live ids with every already-profiled model, so no profile was orphaned. The result is 26 ids labelled `roster_source: api`, of which 16 did not come from the API. `check_model_prompting_freshness.py --advisory` against the 13 live Claude ids therefore reports DRIFTED, listing the non-Claude ids and the `claude-haiku-4-5` alias as "no longer live". The check is advisory and blocks nothing.
+- **Suggested next step**: move the Cursor, Gemini, and GPT-5.6 profiles onto their own `meta.platforms` entries (schema 1.1.0), as was done for `codex`, so the `claude-code` roster holds only Claude ids and its freshness check can read IN SYNC. Decide the `claude-haiku-4-5` alias at the same time (see DF-3).
+
+- **Carried from**: v4.13.8#WN-3 on 2026-10-02
+
+#### DF-12 (v4.13.9): The first-principles pilot stopped at the smoke run because effort could not be confirmed
+
+- **Source phase**: Phase 5. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T321 to T324; record [`v4.13.8-first-principles-pilot.md`](development/v4.13.8-first-principles-pilot.md).
+- **Reason**: the pre-registered rule in `## T319` stops the pilot when the run metadata cannot confirm `--effort high`. On the one smoke run (2026-09-30, baseline, prompt 1, passed, USD 0.0396), Claude Code 2.1.283 reported `claude-sonnet-5-5` as an unrecognized model, recorded `costBasis: "unknown"` and a fallback `maxOutputTokens` of 32000, and exposed no effort field and 0 thinking tokens. The other 14 cells were not run, and the first-principles question is untested: this is not evidence for or against the instruction.
+- **Suggested next step**: once a Claude Code release recognizes `claude-sonnet-5-5` and its run metadata can show the effort in effect, re-run the identical approved matrix (same arms, prompts, model, effort, 15 runs, USD 20 cap) with `python wrapper.py run` after deleting the stale smoke result, and decide go or not shown at this power from the rule recorded in `## T319`. Any change to the matrix needs a new approval.
+
+- **Carried from**: v4.13.8#DF-4 on 2026-10-02
+
+#### WN-24 (v4.13.9): The skill-eval-loop Claude adapter command no longer matches the installed CLI
+
+- **Source phase**: Phase 5. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T319 and T321.
+- **Reason**: `catalog/skills/workflow/skill-eval-loop/references/cli-adapter.md` documents the Claude runner as `claude -p "<prompt>" --setting-sources "" --model <model> --skill <path/to/SKILL.md>` (verified 2026-09-21), and `scripts/optimize_skill_description.py` builds that command. Claude Code 2.1.283's `--help` (checked 2026-09-30) documents no `--skill` option. The pilot used `--append-system-prompt-file` instead, without changing the shared adapter. The same CLI also reports `claude-sonnet-5-5` as an unrecognized model (see DF-4).
+- **Suggested next step**: owner `skill-eval-loop`. Re-verify the Claude runner against the current official Claude Code CLI reference. If `--skill` is gone, choose and document the replacement (for example `--bare` with `--append-system-prompt-file`, or `--add-dir` with skill resolution), update the adapter and the optimizer's command builder together, and keep `TestEvalLoopCLIAdapter` parity green.
+
+- **Carried from**: v4.13.8#WN-4 on 2026-10-02
+
+#### WN-25 (v4.13.9): The profiling-harness test fails intermittently under host load
+
+- **Source phase**: Phase 6. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T334.
+- **Reason**: during the v4.13.8 full local gate on 2026-10-01, `tests/skills/test_profiling_harness.py::test_profile_run_emits_profile` failed once (`assert any("work" in fn["name"] ...)` was False: the profiled `work()` function was missing from the top 10 entries) while several suites shared the host. It passed 3 of 3 runs alone on the branch and 2 of 2 on `develop`. The test was last changed in v3.14.0, and this plan touches neither it nor the harness.
+- **Suggested next step**: owner `code-optimizer`. Make the assertion independent of timing rank (for example look up `work` in the full function list, or raise `--top`), so host load cannot evict it from the reported entries.
+
+- **Carried from**: v4.13.8#WN-5 on 2026-10-02
+
+#### WN-26 (v4.13.9): Open Dependabot branches make the all-refs attribution check fail
+
+- **Source phase**: Phase 6. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T330 and T334.
+- **Reason**: `scripts/check_commit_attribution.py --all-refs` (fast and full profiles, `hygiene` group) scans every commit reachable from every ref against a closed author allowlist. On 2026-10-01 Dependabot opened PRs #402 to #404, and their branches carry `dependabot[bot]` commits (`3a940eede996`, `904486f2affb`, `16c5fc389a19`). Once those branches are fetched, the check reports `3 findings` and exits 1. None of the three commits is in this branch's history: `git merge-base --is-ancestor` is false for each, and every commit in `origin/develop..HEAD` is authored by the owner identity. The `validate` job checks out with `fetch-depth: 0`, so the hosted check sees the same refs: on PR #402 (run 36897160501) `validate` failed with `check_commit_attribution` reporting `3 findings` on Dependabot commits, which turned the required `ci-required` red. Every pull request is affected while those branches exist.
+- **Mitigation applied 2026-10-01**: with the maintainer's approval, PRs #402 to #404 were closed and their branches deleted. After `git fetch --prune`, the check reads `2282 commits scanned; 0 findings` and the fast profile passes 17 of 17. The item stays open because the next scheduled Dependabot run will reintroduce such branches.
+- **Suggested next step**: owner, the catalog maintainer, as a CI policy decision. Either close or merge the Dependabot PRs under the owner identity, or scope the all-refs scan to the branch under test plus the protected branches. Changing the check or the workflow is a CI security change that needs explicit approval.
+
+- **Carried from**: v4.13.8#WN-6 on 2026-10-02
+
+#### BG-12 (v4.13.9): `/usage` dispatches to a `check-usage` skill that does not exist
+
+**Evidence**: `catalog/commands/usage.md` delegates every invocation to `check-usage` ("(any invocation) -> check-usage"), and no `catalog/skills/*/check-usage/` directory exists on `feat/v4.13.7-copilot-usage-monitor-and-usage-limit-handoff` after the 2026-10-01 merge of `develop` at `81d7e544`. The command therefore has no procedure behind it on any platform. Pre-existing; out of scope for this plan (plan Overview, "Out of scope"). **Owner**: catalog maintainer. **Suggested next step**: back `/usage` with `catalog/hooks/_usage_probe.py` (built in Phase 6) in a later release, either as a restored `check-usage` skill or by pointing the dispatcher at a skill that calls the probe.
+
+- **Carried from**: v4.13.7#BG-1 on 2026-10-02
+
+- **Carried from**: v4.13.8#BG-11 on 2026-10-02
+
+#### WN-27 (v4.13.9): The all-refs attribution scan fails on fetched Dependabot branches
+
+**Evidence**: `python scripts/check_commit_attribution.py --all-refs`, run by the fast profile, uses `git log --all` and allows only approved identities, so the three `origin/dependabot/*` branches fetched into this repository on 2026-10-01 produce three `dependabot[bot]` author findings and fail the step. Commits still succeed, because the commit hook runs only the message and pending-identity checks. Merging a Dependabot pull request would put bot-authored commits into history and fail the scan permanently. **Owner**: catalog maintainer (attribution policy decision). **Suggested next step**: scope the all-refs scan to local branches, `origin/main`, `origin/develop`, and the current pull request head, and decide separately whether `dependabot[bot]` is an allowed author.
+
+- **Carried from**: v4.13.7#WN-3 on 2026-10-02
+
+- **Carried from**: v4.13.8#WN-14 on 2026-10-02
+
+#### WN-28 (v4.13.9): Dependabot does not track the Copilot Usage Monitor's npm dependencies
+
+**Evidence**: `.github/dependabot.yml` has npm entries for the Claude, Codex, and Cursor monitors only, so `extensions/copilot-usage-monitor/` (added in Phase 2, installed from Phase 3) receives no dependency or security update pull requests. Adding the entry is a CI-configuration change that was not in the Phase 3 approval, and `tests/workflows/test_cursor_usage_monitor_workflow.py::test_dependabot_tracks_the_new_extension` asserts exactly three npm monitor entries, so the test has to change with it. **Owner**: catalog maintainer (CI configuration). **Suggested next step**: with approval, add an npm entry for `/extensions/copilot-usage-monitor` that ignores `@types/vscode` like its siblings, and change that assertion to four.
+
+- **Carried from**: v4.13.7#WN-4 on 2026-10-02
+
+- **Carried from**: v4.13.8#WN-15 on 2026-10-02
+
+#### WN-29 (v4.13.9): `codexUsage.authPath` can still be set by a workspace
+
+**Evidence**: Phase 3 made the Codex monitor's thresholds and colors `"scope": "application"` (WN-2), but `codexUsage.authPath` in `extensions/codex-usage-monitor/package.json` declares no scope. A trusted workspace's `.vscode/settings.json` can therefore point the monitor at another file, whose token the monitor reads and sends to `chatgpt.com/backend-api/wham/usage`. The destination stays fixed, so the exposure is limited to that one vendor endpoint, but which local credential is read is still decided by the workspace. **Owner**: catalog maintainer. **Suggested next step**: set `"scope": "machine"` or `"application"` on `codexUsage.authPath`, add it to the scope assertion in `extensions/codex-usage-monitor/test/review-regressions.test.ts`, and note in the README that a workspace value is ignored.
+
+- **Carried from**: v4.13.7#WN-5 on 2026-10-02
+
+- **Carried from**: v4.13.8#WN-16 on 2026-10-02
+
+#### WN-30 (v4.13.9): Definition of Done 1 says "VS Code and Cursor"; the installers install the Copilot monitor into VS Code only
+
+**Evidence**: Definition of Done 1 reads "installed into VS Code and Cursor by both installers", while sub-task 3.1 asked for the VS Code CLI. Both installers install the Copilot monitor exactly like its Claude and Codex siblings: `build_and_install_one_extension ... "$vscode_cli" "$vscode_label"` in `scripts/installer.sh` and `-CodeCli $vscodeCli -CodeLabel $vscodeLabel` in `scripts/installer.ps1`, and the banner both print says "Claude/Codex/Copilot install into VS Code only". Neither sibling installs into Cursor, so per the Phase 9 instruction the behavior was not changed. The optional second-host parameter (`also_cli` / `-AlsoCodeCli`) that would do it exists in both installers but no call passes it; it is left from the withdrawn GitHub monitor (v3.16.4). The Phase 9 run of both installers' real extension step confirmed the routing: the `code` stub received the three VS Code monitors and the `cursor` stub only the Cursor monitor. **Owner**: catalog maintainer (installer change, ask first). **Suggested next step**: decide whether Copilot users in Cursor are a supported surface. If yes, pass `"$cursor_cli" "$cursor_label"` (and `-AlsoCodeCli $cursorCli -AlsoCodeLabel $cursorLabel`) as the second host in both installers, update the banner line and `catalog/hooks/tests/test_installer_smoke.py`, and refresh the two installer hashes in `docs/handbooks/_sources/distribution/evidence.json`; if no, amend the Definition of Done wording to "VS Code".
+
+- **Carried from**: v4.13.7#WN-6 on 2026-10-02
+
+- **Carried from**: v4.13.8#WN-17 on 2026-10-02
+
+#### WN-31 (v4.13.9): Definition of Done 7 asks for a reset's expiry; Codex serves a count and no expiry
+
+**Evidence**: the 2026-10-01 capture recorded in `v4.13.7-decisions.md` ("Usage-limit resets", item 1) shows `rate_limit_reset_credits` carrying only `available_count` and `applicable_available_count`, with no kind and no expiry, although the ChatGPT page shows "Full reset, expires Oct 29". The Codex monitor therefore shows "1 reset available" with no date; `extensions/codex-usage-monitor/README.md` says why. Definition of Done 7's fallback covers only the case where no reset field exists at all, so a count without an expiry is a partial result, not a pass. The Claude monitor's no-field branch is met (no reset row; its README explains). **Owner**: extensions owner. **Suggested next step**: when a reset is next available, run `Codex Usage: Save Raw Usage Response` and check for an expiry field; map it into the reset row if one appears, otherwise amend the Definition of Done to "shows it with its expiry when the vendor data carries one".
+
+- **Carried from**: v4.13.7#WN-7 on 2026-10-02
+
+- **Carried from**: v4.13.8#WN-18 on 2026-10-02
+
+#### WN-32 (v4.13.9): The monitor workflows differ in packaging checks, and two do not trigger on their own file
+
+**Evidence**: Phase 9's field-by-field comparison (comments stripped, names normalized) found `.github/workflows/copilot-usage-monitor.yml` identical to the Claude and Codex monitor workflows except that it also triggers on its own file and runs `npm run package`; the Cursor workflow additionally runs `npm run verify:package` and uploads the VSIX as an artifact with a retention period. So the Copilot workflow builds the package but never checks its contents in CI (the Phase 2 history records a manual check: 49 files, no test, fixture, source, or map file), and the Claude and Codex workflows do not run when their own workflow file changes. These are pipeline changes outside the approved Copilot workflow, so they were recorded, not applied. **Owner**: CI owner. **Suggested next step**: with approval, add a `verify:package` script and step to the Copilot monitor (mirroring the Cursor monitor's), and add each workflow's own path to the Claude and Codex workflow filters.
+
+- **Carried from**: v4.13.7#WN-8 on 2026-10-02
+
+- **Carried from**: v4.13.8#WN-19 on 2026-10-02
+
+#### WN-33 (v4.13.9): Redirecting HOME does not isolate the usage probe's Cursor reader on Windows
+
+**Evidence**: `cursor_state_path()` in `catalog/hooks/_usage_probe.py` finds Cursor's `state.vscdb` through `%APPDATA%`, which is correct for Cursor but means a probe run with only `HOME` and `USERPROFILE` redirected still reads the real Cursor token. During the Phase 9 adversarial review one such run read the maintainer's real token and made one POST to `api2.cursor.sh` (Cursor's own host; the allowlist held, the token was not printed, and the cache file the run wrote held no token and was deleted). The shipped hook behaves as designed; the gap is that nothing tells a tester how to isolate the probe. **Owner**: catalog maintainer. **Suggested next step**: state in `docs/guides/usage-limit-handoff.md` that an isolated probe run must also redirect `APPDATA` (or exclude Cursor through `NEXUS_USAGE_PROBE_PROVIDERS`), and consider an explicit offline switch for testing.
+
+- **Carried from**: v4.13.7#WN-9 on 2026-10-02
+
+- **Carried from**: v4.13.8#WN-20 on 2026-10-02
+
+#### QG-7 (v4.13.9): The real-editor and live-limit checks are manual and pending
+
+**Evidence**: every automated check ran against stubs, fixtures, and throwaway homes. Not yet observed on the maintainer's machine: installing the VSIX into the real VS Code (and, if WN-6 is resolved that way, Cursor); the pinned work account's personal view and the organization pool percentage against the organization's AI usage page; the state file `~/.nexus-hub/state/usage-probe/copilot.json` written by the running monitor; the Codex reset row while a reset is available; and a live 99% crossing (with `NEXUS_HANDOFF_THRESHOLD=1`) on Codex, Cursor, and Copilot followed by pasting the prompt into a different platform. Claude Code's crossing was observed in Phase 7. **Owner**: maintainer. **Suggested next step**: run the checks listed under "Human/manual testing suggestions" in the final-phase evidence and record each result here.
+
+- **Carried from**: v4.13.7#QG-1 on 2026-10-02
+
+- **Carried from**: v4.13.8#QG-5 on 2026-10-02
+
+#### QG-8 (v4.13.9): The run record was never captured, so the checker cannot sign off the run
+
+- **Source phase**: Phase 6 (release)
+- **Plan reference**: [v4.13.8 plan](plans/v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md)
+- **Reason**: The upfront approval round on 2026-10-01 was never recorded: pasting the approval and goal lines as one message was refused (`approval-not-captured`), the failure v4.13.7 fixed in #406. With no run record, `check_plan_completion.py check` reports `approval.remote` as `cannot-verify` and can never print `PLAN COMPLETE` for v4.13.8. A record created now would start at today's `HEAD`, so every finished task would read unmet. On 2026-10-02 the user chose to release v4.13.8 on the chat approval of 2026-10-01 and record this gap.
+- **Suggested next step**: None for v4.13.8. If a lost approval round recurs, add a recovery path: `record render` and `record create` taking the plan's first commit as the run's start, shown on the page the user approves.
+
+- **Carried from**: v4.13.8#QG-6 on 2026-10-02
+
+### Resolved
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+| DF-10 | The bundled model-map snapshot lists superseded models | v4.13.9, 2026-10-01 | Carried from v4.13.8 DF-2. Fixed by v4.13.9 T407: `last-known-model-map.json` reads `verified_as_of` 2026-10-01, `standard`/Anthropic `claude-sonnet-5-5`, and `strong`/OpenAI `gpt-6.1-sol`; `model-map.py validate` reports valid. |

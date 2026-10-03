@@ -72,6 +72,7 @@ Open the Command Palette (`Ctrl+Shift+P`) and search:
 | `Claude Usage: Recommend Model` | View recommendation and tips |
 | `Claude Usage: Clear Data` | Reset all stored usage data |
 | `Claude Usage: Settings` | Open the thresholds and colors settings panel |
+| `Claude Usage: Save Raw Usage Response` | Save one redacted copy of the usage response under the extension's global storage (opt-in; see below) |
 
 ### Settings
 
@@ -84,6 +85,8 @@ Open Settings (`Ctrl+,`) and search "Claude Usage":
 | `claudeUsage.showInStatusBar` | `true` | Show/hide the status bar item |
 | `claudeUsage.thresholds.*` | `50` / `75` / `95` | Moderate / High / Critical urgency thresholds |
 | `claudeUsage.thresholdMetric` | `highest` | Which metric the thresholds evaluate against: highest session/all-models weekly, session, all-models weekly, or opt-in model-scoped weekly. If the scoped limit is absent, scoped selection raises no threshold alert. |
+
+The thresholds and colors are application-scoped: they are read from your user settings only, so a workspace's `.vscode/settings.json` cannot change them. `refreshInterval` is clamped to 1-120 minutes.
 
 ## How It Works
 
@@ -126,6 +129,14 @@ Based on your current model and usage level, the dashboard also shows model-spec
 - **Opus users at high usage**: Switch to Sonnet for routine tasks
 - **Sonnet users at high usage**: Switch to Haiku for simple tasks
 - **Session near capacity**: Wait for the session reset (typically a few minutes)
+
+### Usage-limit resets
+
+The claude.ai usage page can list a one-time limit reset. This monitor shows nothing about resets, because the usage response it reads (`api.anthropic.com/api/oauth/usage`) does not report them: a capture on 2026-10-01 had no reset field. The monitor does not infer a reset from percentages or dates. Check the claude.ai usage page (**Open Usage Page** in the dashboard) for resets.
+
+### Save Raw Usage Response
+
+`Claude Usage: Save Raw Usage Response` sends the same requests as a refresh and writes `raw-usage-response.json` under the extension's VS Code global storage. Keys, numbers, booleans, dates, and short lowercase words such as a plan type are kept; every other string, any value under an id-, name-, email-, account-, or secret-shaped key (in snake_case or camelCase), and any key that itself looks like an id or an email are replaced with placeholders. Nothing is uploaded. It runs only when you invoke it, and it is how a maintainer can check whether the response starts reporting resets.
 
 ## Data Storage
 

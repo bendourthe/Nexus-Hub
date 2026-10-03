@@ -71,6 +71,18 @@ export interface UsageData {
   creditsSummary?: string;
   /** Detailed monthly Extra Credits usage, rendered as a progress bar when available. */
   extraCredits?: CreditUsageInfo;
+  /**
+   * One-time usage-limit resets the account holds, from `rate_limit_reset_credits`.
+   * Absent when the response does not report them, so the dashboard shows nothing
+   * about resets. The endpoint serves a count only: no kind and no expiry.
+   */
+  resets?: UsageResets;
+}
+
+/** Available one-time limit resets, as reported by `wham/usage`. */
+export interface UsageResets {
+  /** Resets the account can apply now; 0 when none is available. */
+  available: number;
 }
 
 export interface Recommendation {
@@ -143,34 +155,49 @@ export interface ColorConfig {
   critical: ColorOption;
 }
 
+/** A stored color: exactly `#rrggbb`. Anything else falls back to the default. */
+export const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
+
+/** A threshold as stored, or `fallback` unless it is a finite number from 1 to 99. */
+export function validThreshold(raw: unknown, fallback: number): number {
+  return typeof raw === "number" && Number.isFinite(raw) && raw >= 1 && raw <= 99 ? raw : fallback;
+}
+
 /** Read threshold settings from VS Code configuration, falling back to hardcoded defaults. */
 export function getThresholdConfig(): ThresholdConfig {
   const c = vscode.workspace.getConfiguration("codexUsage");
   return {
-    moderate: c.get<number>("thresholds.moderate", URGENCY_THRESHOLDS.moderate),
-    high:     c.get<number>("thresholds.high",     URGENCY_THRESHOLDS.high),
-    critical: c.get<number>("thresholds.critical", URGENCY_THRESHOLDS.critical),
+    moderate: validThreshold(c.get<unknown>("thresholds.moderate"), URGENCY_THRESHOLDS.moderate),
+    high:     validThreshold(c.get<unknown>("thresholds.high"),     URGENCY_THRESHOLDS.high),
+    critical: validThreshold(c.get<unknown>("thresholds.critical"), URGENCY_THRESHOLDS.critical),
   };
+}
+
+/** The refresh interval in minutes, clamped to the documented 1 to 120 (10 when unusable), so 0 cannot spin. */
+export function getRefreshIntervalMinutes(): number {
+  const raw = vscode.workspace.getConfiguration("codexUsage").get<unknown>("refreshInterval");
+  if (typeof raw !== "number" || !Number.isFinite(raw)) {
+    return 10;
+  }
+  return Math.min(120, Math.max(1, raw));
 }
 
 /**
  * Migrate old enum values ("warning", "error") stored by previous versions to hex.
  * Returns the hex string, or "none" as-is, falling back to the provided default.
  */
-function migrateColorValue(raw: string | undefined, defaultHex: string): string {
-  if (!raw || raw === "warning" || raw === "error") {
-    return defaultHex;
-  }
-  return raw;
+function migrateColorValue(raw: unknown, defaultHex: string): string {
+  // A workspace or a hand edit can store anything; only "none" and #rrggbb pass.
+  return typeof raw === "string" && (raw === "none" || HEX_COLOR.test(raw)) ? raw : defaultHex;
 }
 
 /** Read color settings from VS Code configuration, migrating legacy enum values. */
 export function getColorConfig(): ColorConfig {
   const c = vscode.workspace.getConfiguration("codexUsage");
   return {
-    moderate: migrateColorValue(c.get<string>("colors.moderate"), DEFAULT_URGENCY_COLORS.moderate),
-    high:     migrateColorValue(c.get<string>("colors.high"),     DEFAULT_URGENCY_COLORS.high),
-    critical: migrateColorValue(c.get<string>("colors.critical"), DEFAULT_URGENCY_COLORS.critical),
+    moderate: migrateColorValue(c.get<unknown>("colors.moderate"), DEFAULT_URGENCY_COLORS.moderate),
+    high:     migrateColorValue(c.get<unknown>("colors.high"),     DEFAULT_URGENCY_COLORS.high),
+    critical: migrateColorValue(c.get<unknown>("colors.critical"), DEFAULT_URGENCY_COLORS.critical),
   };
 }
 

@@ -1,0 +1,117 @@
+{
+  "_comment": "Sanitized from a live api.anthropic.com/api/oauth/usage response captured 2026-10-01 (v4.13.7-decisions.md, Usage-limit resets). Keys and value types are as served; it carries no reset field. The plan records the claude.ai usage page listing a full reset on 2026-09-30.",
+  "five_hour": {
+    "utilization": 21.0,
+    "resets_at": "2026-10-02T04:30:00.297746+00:00",
+    "limit_dollars": null,
+    "used_dollars": null,
+    "remaining_dollars": null,
+    "locked_reason": null
+  },
+  "seven_day": {
+    "utilization": 4.0,
+    "resets_at": "2026-10-06T14:00:00.297767+00:00",
+    "limit_dollars": null,
+    "used_dollars": null,
+    "remaining_dollars": null,
+    "locked_reason": null
+  },
+  "seven_day_oauth_apps": null,
+  "seven_day_opus": null,
+  "seven_day_sonnet": null,
+  "seven_day_cowork": null,
+  "seven_day_omelette": null,
+  "tangelo": null,
+  "iguana_necktie": null,
+  "omelette_promotional": null,
+  "nimbus_quill": null,
+  "cinder_cove": null,
+  "copper_kite": null,
+  "brass_thimble": null,
+  "harbor_lantern": null,
+  "wattle_ember": null,
+  "amber_ladder": null,
+  "amber_cistern": null,
+  "juniper_tide": null,
+  "cedar_ember": null,
+  "amber_gauge": null,
+  "extra_usage": {
+    "is_enabled": true,
+    "monthly_limit": 50000,
+    "used_credits": 0.0,
+    "utilization": null,
+    "currency": "USD",
+    "decimal_places": 2,
+    "disabled_reason": null,
+    "user_disabled": false,
+    "spend_limit_reached": false,
+    "credits_ever_enabled": true,
+    "daily": null,
+    "weekly": null
+  },
+  "limits": [
+    {
+      "kind": "session",
+      "group": "session",
+      "percent": 21,
+      "severity": "normal",
+      "resets_at": "2026-10-02T04:30:00.297746+00:00",
+      "scope": null,
+      "is_active": true
+    },
+    {
+      "kind": "weekly_all",
+      "group": "weekly",
+      "percent": 4,
+      "severity": "normal",
+      "resets_at": "2026-10-06T14:00:00.297767+00:00",
+      "scope": null,
+      "is_active": false
+    },
+    {
+      "kind": "weekly_scoped",
+      "group": "weekly",
+      "percent": 0,
+      "severity": "normal",
+      "resets_at": "2026-10-06T14:00:00+00:00",
+      "scope": {
+        "model": {
+          "id": null,
+          "display_name": "Fable"
+        },
+        "surface": null
+      },
+      "is_active": false
+    }
+  ],
+  "spend": {
+    "used": {
+      "amount_minor": 0,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "limit": {
+      "amount_minor": 50000,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "percent": 0,
+    "severity": "normal",
+    "enabled": true,
+    "disabled_reason": null,
+    "cap": {
+      "money": null,
+      "credits": {
+        "amount_minor": 50000,
+        "exponent": 2
+      }
+    },
+    "balance": null,
+    "auto_reload": null,
+    "disclaimer": "Placeholder disclaimer text.",
+    "can_purchase_credits": false,
+    "can_toggle": false
+  },
+  "member_dashboard_available": false,
+  "seven_day_breakdown": null
+}

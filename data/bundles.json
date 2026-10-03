@@ -512,6 +512,7 @@
         "product-strategy",
         "project-constitution",
         "research-plan-implement",
+        "session-handoff",
         "session-history",
         "session-query",
         "session-teach-back",
@@ -573,7 +574,8 @@
         "strategic-comments",
         "pre-commit-checklist",
         "research-plan-implement",
-        "user-edit-preservation"
+        "user-edit-preservation",
+        "session-handoff"
       ]
     },
     {
@@ -856,6 +858,9 @@
       ],
       "describe": [
         "analyze-codebase"
+      ],
+      "handoff": [
+        "session-handoff"
       ],
       "implement": [
         "implement-phase"

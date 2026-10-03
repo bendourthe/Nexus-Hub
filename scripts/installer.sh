@@ -7,7 +7,7 @@ set -e
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-NEXUS_HUB_VERSION="4.13.6"
+NEXUS_HUB_VERSION="4.13.8"
 
 # --- Window Title ---
 printf '\033]0;Nexus-Hub Installer\007'
@@ -2355,8 +2355,8 @@ write_legacy_report() {
 install_vscode_extensions() {
     local repo_root="$1"
 
-    write_item "Usage Monitor extensions show Claude Code, Codex (ChatGPT), GitHub, and" "$RESET"
-    write_item "Cursor usage in the status bar. Claude/Codex/GitHub install into VS Code only;" "$RESET"
+    write_item "Usage Monitor extensions show Claude Code, Codex (ChatGPT), GitHub Copilot, and" "$RESET"
+    write_item "Cursor usage in the status bar. Claude/Codex/Copilot install into VS Code only;" "$RESET"
     write_item "Cursor Usage Monitor installs into Cursor only. Never cross-installed." "$RESET"
     echo ""
 
@@ -2459,13 +2459,16 @@ install_vscode_extensions() {
 
     # Build each extension under its own vendor header. VS Code monitors install
     # only via vscode_cli; the Cursor monitor installs only via cursor_cli. The
-    # vendor order (Anthropic, OpenAI, Anysphere) is asserted by the
+    # vendor order (Anthropic, OpenAI, Microsoft, Anysphere) is asserted by the
     # installer smoke test and must match scripts/installer.ps1.
     write_header "ANTHROPIC"
     build_and_install_one_extension "$repo_root/extensions/claude-usage-monitor" "nexus-hub.claude-usage-monitor" "Claude Usage Monitor" "Claude: --%" "$vscode_cli" "$vscode_label"
 
     write_header "OPENAI"
     build_and_install_one_extension "$repo_root/extensions/codex-usage-monitor" "nexus-hub.codex-usage-monitor" "Codex Usage Monitor" "Codex: --%" "$vscode_cli" "$vscode_label"
+
+    write_header "MICROSOFT"
+    build_and_install_one_extension "$repo_root/extensions/copilot-usage-monitor" "nexus-hub.copilot-usage-monitor" "Copilot Usage Monitor" "Copilot: --%" "$vscode_cli" "$vscode_label"
 
     write_header "ANYSPHERE"
     build_and_install_one_extension "$repo_root/extensions/cursor-usage-monitor" "nexus-hub.cursor-usage-monitor" "Cursor Usage Monitor" "Cursor: --%" "$cursor_cli" "$cursor_label"

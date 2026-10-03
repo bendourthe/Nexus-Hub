@@ -19,7 +19,9 @@ RUNS = HERE / "runs"
 ARMS = ("baseline", "first-principles", "control")
 # Markdown decoration (list marker, quote marker, bold) is tolerated identically in every arm,
 # so formatting cannot differ between arms; the label itself must be ROOT CAUSE: in capitals.
-_PREFIX = re.compile(r"^(?:[-*+>]\s+|>\s*)*(?:\*\*)?ROOT CAUSE:(?:\*\*)?\s*(.+?)\s*$")
+# `>` belongs to one alternative only: when both could match it, a line of repeated `> `
+# made the engine backtrack exponentially (CodeQL py/redos). The accepted lines are unchanged.
+_PREFIX = re.compile(r"^(?:[-*+]\s+|>\s*)*(?:\*\*)?ROOT CAUSE:(?:\*\*)?\s*(.+?)\s*$")
 
 
 def normalize(name: str) -> str:

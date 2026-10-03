@@ -114,6 +114,12 @@ The user's instructions take precedence over guidelines in a skill. Routine skil
 - Keep it scannable and factual: do not restate the conversation or add preamble
 - Output-minimization rules never apply to this summary: suppress verbose logs, never the closing summary
 
+## Session Handoff
+
+- During multi-step work, update `.nexus-hub/handoff.md` after each verified milestone (`session-handoff` checkpoint mode).
+- On a usage-limit warning from a hook or the platform, finish or safely stop the current step, run `session-handoff`, print its prompt, and start no new work.
+- The user can run `/handoff` at any time.
+
 ## Construction Discipline
 - After reading the real flow, stop at the first sufficient rung: skip, reuse this codebase, stdlib, native feature, installed dependency, one line, then minimum.
 - Governs what you build, not how you talk. Do not drop trust-boundary, data-loss, security, accessibility, or a proving command owned by `verification-before-completion`.

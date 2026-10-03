@@ -24,10 +24,10 @@ plan paths, validated version tokens, and fixed reason ids.
 from __future__ import annotations
 
 import argparse
-import datetime as dt
 import hashlib
 import hmac
 import json
+import math
 import os
 import re
 import sys
@@ -54,7 +54,6 @@ BRANCH_RE = re.compile(r"^[A-Za-z0-9._/-]+\Z", re.ASCII)
 PLAN_TOKEN_RE = re.compile(r"^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)\Z", re.ASCII)
 
 DONE_STATUSES = {"complete", "superseded", "shipped"}
-MINOR_VALID_SECONDS = 14 * 24 * 3600
 MINOR_BUDGET_SECONDS = 60.0
 EXIT_EMPTY = 1
 EXIT_MINOR_MALFORMED = 3  # a duplicate version or an unreadable plan stops the run
@@ -257,11 +256,8 @@ def plan_records(ck: ModuleType, rctx: RepoContext, rel: str) -> list[Path]:
 
 
 def _minor_record_live(ck: ModuleType, record: dict) -> bool:
-    created = ck._parse_time(record.get("created"))
-    if created is None or created.tzinfo is None:
-        return True  # unreadable time: someone's record, never absorbed
-    age = (dt.datetime.now(dt.timezone.utc) - created).total_seconds()
-    return age <= MINOR_VALID_SECONDS and not record.get("completed")
+    """Live until MINOR COMPLETE stamps it `completed`; there is no expiry."""
+    return not record.get("completed")
 
 
 def other_minor_owns(ck: ModuleType, rctx: RepoContext, version: str, own: Path | None) -> bool:
@@ -513,9 +509,70 @@ def check_migratable(ck: ModuleType, root: Path, minor_classes: list[dict]) -> N
 _TITLE_RE = re.compile(r"^#\s+(.+?)\s*$", re.MULTILINE)
 _GOAL_RE = re.compile(r"^\*\*Goal\*\*:\s*(.+?)\s*$", re.MULTILINE)
 DISPLAY_GAPS = 50
+DISPLAY_PHASES = 40
+_PHASE_RE = re.compile(r"^## Phase (\d+):", re.MULTILINE)
+_TIER_RE = re.compile(r"^\*\*Recommended model tier\*\*:\s*`?([a-z]+)`?", re.MULTILINE)
+_EFFORT_RE = re.compile(r"^\*\*Recommended effort level\*\*:\s*`?([a-z]+)`?", re.MULTILINE)
+_OPEN_TASK_RE = re.compile(r"^- \[ \] T\d{3,}\b", re.MULTILINE)
+_SUMMARY_VERSION_RE = re.compile(r"^v\d+\.\d+\.\d+\Z", re.ASCII)
+_SUMMARY_SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,99}\Z", re.ASCII)
 
 
-def page_display(root: Path, scope: str, plans: list[tuple[str, str, str]], *, earlier: bool) -> dict:
+def plan_phases(version: str, text: str) -> list[dict]:
+    """Each `## Phase N:` section's recommended tier and effort and its open task count.
+
+    The values are raw tokens; the page renders only those that match its fixed
+    tier and effort lists, so no other plan text reaches the summary.
+    """
+    found = list(_PHASE_RE.finditer(text))
+    phases = []
+    for index, match in enumerate(found):
+        end = found[index + 1].start() if index + 1 < len(found) else len(text)
+        body = text[match.end():end]
+        tier, effort = _TIER_RE.search(body), _EFFORT_RE.search(body)
+        phases.append({
+            "version": version,
+            "phase": int(match.group(1)),
+            "tier": tier.group(1) if tier else "",
+            "effort": effort.group(1) if effort else "",
+            "tasks": len(_OPEN_TASK_RE.findall(body)),
+        })
+    return phases
+
+
+def summary_input(ck: ModuleType, root: Path, path: str | None) -> dict:
+    """The agent's `--summary` file: plain outcome bullets and the parallel-plan check.
+
+    `{"outcomes": [str, ...], "parallel": {"checked": bool, "plans": [{"version",
+    "slug"}]}}`. The page validates every outcome before showing it; here each named
+    parallel plan must exist as a plan file, so the page never names a plan that is
+    not there. No file means the summary says the parallel check was not run.
+    """
+    if not path:
+        return {}
+    try:
+        data = json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        raise ck.Malformed(f"--summary is not a readable JSON file: {exc}") from None
+    if not isinstance(data, dict) or not set(data) <= {"outcomes", "parallel"}:
+        raise ck.Malformed("--summary holds only outcomes and parallel")
+    parallel = data.get("parallel") or {"checked": False, "plans": []}
+    plans = parallel.get("plans") if isinstance(parallel, dict) else None
+    if not isinstance(plans, list) or not isinstance(parallel.get("checked"), bool):
+        raise ck.Malformed("--summary parallel needs checked (true or false) and a plans list")
+    for entry in plans:
+        version = str((entry or {}).get("version", "")) if isinstance(entry, dict) else ""
+        slug = str(entry.get("slug", "")) if isinstance(entry, dict) else ""
+        if not _SUMMARY_VERSION_RE.match(version) or not _SUMMARY_SLUG_RE.match(slug):
+            raise ck.Malformed("--summary parallel plans need a vX.Y.Z version and a plain slug")
+        if not any((root / "docs").glob(f"**/plans/{version}-{slug}.md")):
+            raise ck.Malformed(f"--summary names {version}-{slug}, which is not a plan file")
+    return {"outcomes": data.get("outcomes") or [], "parallel": {"checked": parallel["checked"], "plans": plans}}
+
+
+def page_display(
+    root: Path, scope: str, plans: list[tuple[str, str, str]], *, earlier: bool, summary: dict | None = None
+) -> dict:
     """What the approval page shows beside the hashed page, never bound by the code.
 
     `plans` is (version, repository-relative path, plan text) per member. Gap counts
@@ -523,8 +580,9 @@ def page_display(root: Path, scope: str, plans: list[tuple[str, str, str]], *, e
     earlier minor too (a minor run's gap scope). Titles and goals are raw text: the
     page renders them only as quoted data in its details list.
     """
-    shown = []
+    shown, phases = [], []
     for version, rel, text in plans:
+        phases += plan_phases(version, text)
         title = _TITLE_RE.search(text)
         goal = _GOAL_RE.search(text)
         shown.append({"version": version, "path": rel, "title": title.group(1) if title else "",
@@ -548,6 +606,8 @@ def page_display(root: Path, scope: str, plans: list[tuple[str, str, str]], *, e
         "gap_counts": counts,
         "gaps": gaps[:DISPLAY_GAPS],
         "gaps_unreadable": bool(unreadable) or any(l.problems for l in ledgers),
+        "phases": phases[:DISPLAY_PHASES],
+        **(summary or {}),
     }
 
 
@@ -586,8 +646,8 @@ def load_minor(
     Integrity (any failure is `record-tampered`): outside every working tree,
     `schema` 2 with `scope` "minor" and this `minor`, a verifying HMAC, and every
     member, found BY VERSION across the canonical, legacy, and archive layouts,
-    hashing to its frozen `plan_sha256`. Then validity: older than 14 days, or
-    marked complete, is ignored; bound to another session is ignored until a
+    hashing to its frozen `plan_sha256`. Then validity: marked complete is
+    ignored (there is no expiry); bound to another session is ignored until a
     resume paste adopts it; a pause is PAUSED; an open blocker is BLOCKED; and a
     member now owned by another run is `BLOCKED: owned-by-another-run (vX.Y.Z)`.
     A blocker recorded against one member reads `BLOCKED: <category> (vX.Y.Z)`.
@@ -601,12 +661,6 @@ def load_minor(
     record = ck.read_record(rctx, path)
     if record is None or not _verified(ck, rctx, token, record):
         state.forced = ck.TAMPERED
-        return state
-    created = ck._parse_time(record.get("created"))
-    if created is None or created.tzinfo is None or (
-        dt.datetime.now(dt.timezone.utc) - created
-    ).total_seconds() > MINOR_VALID_SECONDS:
-        state.notices.append("minor run record older than 14 days ignored")
         return state
     if record.get("completed") and not accept_completed:
         state.notices.append("minor run record already complete ignored")
@@ -782,7 +836,8 @@ def cmd_record_render(ck: ModuleType, args: argparse.Namespace) -> int:
             return found
         page = create_page(ck, rctx, token, spec, *found)
         display = page_display(
-            rctx.root, token, [(p.version, p.rel, p.text) for p in found[0].members], earlier=True
+            rctx.root, token, [(p.version, p.rel, p.text) for p in found[0].members], earlier=True,
+            summary=summary_input(ck, rctx.root, getattr(args, "summary", None)),
         )
     elif args.action in ("pause", "resume"):
         record = _record_for_action(ck, rctx, token, args.action, args.session)
@@ -849,7 +904,7 @@ def cmd_record_create(ck: ModuleType, args: argparse.Namespace) -> int:
     pushed = rctx.url_repo(rctx.push_remote_url)
     if not pushed or pushed.lower() != str(page["repo"]).lower():
         return ck._refused("push-remote-outside-approval")
-    paste = " / ".join(pending["paste_lines"])
+    paste = approval_binding.pasted(pending)
     members = [member_entry(ck, spec, plan) for plan in membership.members]
     for member in members:
         member["approvals"]["classes"] = [{**c, "text": paste} for c in member["approvals"]["classes"]]
@@ -1160,7 +1215,7 @@ def parse_ledger_full(text: str) -> tuple[list[GapItem], list[str]]:
             subsection=subsection, level=level, start=start, heading_end=start + text_end,
             end=end, body=text[body_start:end],
         ))
-    section = subsection = ""
+    subsection = ""
     for index, raw in enumerate(lines):
         if mask[index] or index in item_lines:
             continue
@@ -1714,7 +1769,7 @@ def check_minor_seconds() -> float:
         requested = float(os.environ.get("NEXUS_CHECK_MINOR_BUDGET_SECONDS", CHECK_MINOR_TOTAL_SECONDS))
     except ValueError:
         return CHECK_MINOR_TOTAL_SECONDS
-    if requested != requested:  # NaN
+    if math.isnan(requested):
         return CHECK_MINOR_TOTAL_SECONDS
     return min(CHECK_MINOR_TOTAL_SECONDS, max(1.0, requested))
 
@@ -2251,3 +2306,155 @@ def cmd_record_block(ck: ModuleType, args: argparse.Namespace) -> int:
     suffix = f" ({args.member})" if member is not None else ""
     print(f"BLOCKED: {args.category}{suffix}")
     return ck.EXIT_BLOCKED
+
+
+# --------------------------------------------------------------------------- single-plan carry and archive
+#
+# A one-plan run ends by recording every gap it leaves open in the next version and,
+# when it is the last unshipped plan of its minor, by archiving the minor. The rules
+# are owned by the completion contract, "Single-plan carry and archive"; the writes
+# are `minor_close.py carry --plan` and `minor_close.py archive --plan`.
+
+# Gap ids repeat across a ledger's version sections (`#### WN-3 (v4.13.7): ...` and
+# `#### WN-3 (v4.13.8): ...`), so a one-plan carry names its source by version and id.
+CARRIED_FROM_RE = re.compile(
+    r"^\s*-\s*\*\*Carried from\*\*:\s*(?P<version>v\d+\.\d+\.\d+)(?:#(?P<id>" + GAP_ID + r"))?(?![A-Za-z0-9-])",
+    re.MULTILINE,
+)
+PLAN_MIGRATED_FROM_RE = re.compile(
+    r"\*\*Migrated from\*\*:\s*(?P<version>v\d+\.\d+\.\d+)#(?P<id>" + GAP_ID + r")(?![A-Za-z0-9-])"
+)
+_SECTION_VERSION_RE = re.compile(r"^(v\d+\.\d+\.\d+)\b")
+PLAN_CARRY_REASON = "user-deferred"
+
+
+def section_version(section: str) -> str | None:
+    """The `vX.Y.Z` a ledger `## ` section heading names, or None."""
+    found = _SECTION_VERSION_RE.match(section.strip())
+    return found.group(1) if found else None
+
+
+def carry_target(version: str, last: bool) -> str:
+    """Where a plan's open gaps go: the next patch's section, or the next minor's `.0`."""
+    major, minor, patch = version_order(version)[:3]
+    return f"v{major}.{minor + 1}.0" if last else f"v{major}.{minor}.{patch + 1}"
+
+
+def last_plan_status(ck: ModuleType, rctx: RepoContext, version: str, repo: str) -> str:
+    """`met` when every other non-superseded plan of the version's minor is shipped.
+
+    Then this plan is the minor's last, so its run carries every open gap of the
+    minor to the next minor and archives the minor. `cannot-verify` when a plan's
+    release cannot be read.
+    """
+    major, minor = minor_of(version)
+    try:
+        plans = scan_plans(rctx.root, major, minor, strict=False)
+    except MinorMalformed:
+        return "cannot-verify"
+    for plan in plans:
+        if plan.version == version or plan.status == "superseded":
+            continue
+        state = shipped(ck, rctx, repo, plan.version)
+        if state != "met":
+            return "unmet" if state == "unmet" else "cannot-verify"
+    return "met"
+
+
+def _ledger_items_at(rctx: RepoContext, commit: str, minor: tuple[int, int]) -> list[GapItem] | None:
+    """Every item of the minor's ledger as committed at `commit`; [] when none existed."""
+    for rel in ledger_rels(*minor):
+        rc, _ = rctx.run([rctx.git, "-C", str(rctx.root), "cat-file", "-e", f"{commit}:{rel}"])
+        if rc == -1:
+            return None
+        if rc != 0:
+            continue
+        rc, out = rctx.run([rctx.git, "-C", str(rctx.root), "show", f"{commit}:{rel}"])
+        return parse_ledger(out) if rc == 0 else None
+    return []
+
+
+def plan_migration_met(ledgers: list[Ledger], ledger: Ledger, item: GapItem) -> bool:
+    """A last plan's `- MIGRATED to vX.(Y+1).0` item: a copy in the next minor names its
+    version and id (`**Migrated from**: vX.Y.Z#ID`), so a repeated id never matches."""
+    if item.state != "migrated" or str(item.target) != next_minor(ledger.token()) + ".0":
+        return False
+    label = f"{section_version(item.section)}#{item.gid}"
+    target = minor_of(str(item.target))
+    return any(
+        f"{m.group('version')}#{m.group('id')}" == label
+        for other in ledgers if other.minor == target
+        for copy in other.items
+        for m in PLAN_MIGRATED_FROM_RE.finditer(copy.body)
+    )
+
+
+def carried_copy(ledger: Ledger, version: str, gid: str) -> bool:
+    """True when a later version's section holds an item carried from `version#gid`."""
+    for item in ledger.items:
+        later = section_version(item.section)
+        if later is None or version_order(later) <= version_order(version):
+            continue
+        if any(m.group("version") == version and (m.group("id") or item.gid) == gid
+               for m in CARRIED_FROM_RE.finditer(item.body)):
+            return True
+    return False
+
+
+def gaps_carried_status(
+    ck: ModuleType, rctx: RepoContext, version: str, record: dict | None, last: str,
+) -> str:
+    """`gaps.carried` for a one-plan run (completion contract, "Single-plan carry and archive")."""
+    if last == "cannot-verify":
+        return "cannot-verify"
+    minor = minor_of(version)
+    ledgers, unreadable = load_ledgers(rctx.root)
+    own = [l for l in ledgers if l.minor == minor]
+    if unreadable and any(minor_of_rel(r) == minor for r in unreadable):
+        return "cannot-verify"
+    if not own:
+        return "met"
+    if len(own) > 1 or own[0].problems:
+        return "cannot-verify"
+    ledger = own[0]
+    for item in ledger.items:
+        mine = section_version(item.section) == version
+        if last == "met":
+            if item.state == "open" or (item.state == "migrated" and not plan_migration_met(ledgers, ledger, item)):
+                return "unmet"
+        elif mine and item.state != "resolved":
+            return "unmet"
+    start = str((record or {}).get("start_head") or "")
+    if not start:
+        return "met"
+    baseline = _ledger_items_at(rctx, start, minor)
+    if baseline is None:
+        return "cannot-verify"
+    for old in baseline:
+        if section_version(old.section) != version or old.state != "open":
+            continue
+        # An item is its section's version plus its id: ids repeat across sections.
+        if any(section_version(i.section) == version and i.gid == old.gid for i in ledger.items):
+            continue  # still in its section: judged above
+        if not carried_copy(ledger, version, old.gid):
+            return "unmet"  # deleted, or moved without saying where it came from
+    return "met"
+
+
+def minor_of_rel(rel: str) -> tuple[int, int] | None:
+    found = re.search(r"v(\d+)\.(\d+)/known-gaps\.md$", rel)
+    return (int(found.group(1)), int(found.group(2))) if found else None
+
+
+def empty_dirs_status(rctx: RepoContext) -> str:
+    """`archive.empty-dirs`: no directory under docs/releases/ is left empty."""
+    base = rctx.root / "docs" / "releases"
+    if not base.is_dir():
+        return "met"
+    for path in sorted(base.rglob("*"), key=lambda p: len(p.parts), reverse=True):
+        try:
+            if path.is_dir() and not any(path.iterdir()):
+                return "unmet"
+        except OSError:
+            return "cannot-verify"
+    return "met"

@@ -24,7 +24,9 @@ This module is stdlib-only and makes no outbound calls.
 
 from __future__ import annotations
 
+import ast
 import os
+import re
 from pathlib import Path
 
 # Every Nexus-Hub handler that carries a platform-supported ``name`` field uses
@@ -102,25 +104,111 @@ def sibling_scripts(script: str) -> tuple[str, str]:
     return f"{stem}.sh", f"{stem}.ps1"
 
 
+def _shippable_helpers(src_hooks_dir: Path) -> dict[str, Path]:
+    """Top-level ``_*`` helper files a delivered hook may need.
+
+    Only the hooks directory itself is scanned, never ``tests/``, and dunder
+    names (``__init__.py``, ``__pycache__``) are excluded, so a test-only
+    helper is never shipped.
+    """
+    return {
+        p.name: p
+        for p in src_hooks_dir.glob("_*")
+        if p.is_file()
+        and not p.name.startswith("__")
+        and p.suffix in (".sh", ".ps1", ".py")
+    }
+
+
+def _py_imports(body: str) -> set[str]:
+    """Top-level module names a Python body imports.
+
+    Uses the parser, so ``import os, _b``, ``import _c as c``, and
+    ``importlib.import_module("_d")`` with a literal name are all found, while
+    a name inside a docstring or comment is not.
+    """
+    try:
+        tree = ast.parse(body)
+    except (SyntaxError, ValueError):
+        return set()
+    names: set[str] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            names.update(alias.name.split(".")[0] for alias in node.names)
+        elif isinstance(node, ast.ImportFrom) and node.module and not node.level:
+            names.add(node.module.split(".")[0])
+        elif (
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and node.func.attr == "import_module"
+            and node.args
+            and isinstance(node.args[0], ast.Constant)
+            and isinstance(node.args[0].value, str)
+        ):
+            names.add(node.args[0].value.split(".")[0])
+    return names
+
+
+def _shell_code(body: str) -> str:
+    """Shell or PowerShell text with comments removed (line and block)."""
+    body = re.sub(r"<#.*?#>", "", body, flags=re.DOTALL)
+    lines = body.splitlines()
+    return "\n".join(line for line in lines if not line.lstrip().startswith("#"))
+
+
+def _helpers_needed(name: str, body: str, helpers: dict[str, Path]) -> set[str]:
+    """Helper file names one hook or helper body depends on directly."""
+    needed: set[str] = set()
+    if name.endswith(".py"):
+        for module in _py_imports(body):
+            if f"{module}.py" in helpers:
+                needed.add(f"{module}.py")
+        return needed - {name}
+    code = _shell_code(body)
+    for helper in helpers:
+        # A .py helper is matched only in executable shell text, so a comment
+        # that names a Python module does not ship it. .sh/.ps1 helpers keep
+        # the original whole-body match.
+        haystack = code if helper.endswith(".py") else body
+        if helper != name and helper in haystack:
+            needed.add(helper)
+            if not helper.endswith(".py"):
+                stem = Path(helper).stem
+                for sibling in (f"{stem}.sh", f"{stem}.ps1"):
+                    if sibling in helpers:
+                        needed.add(sibling)
+    return needed
+
+
 def sourced_modules(scripts: set[str], src_hooks_dir: Path) -> set[str]:
-    """Return underscore-prefixed sibling modules sourced by delivered hooks."""
+    """Return underscore-prefixed sibling modules delivered hooks depend on.
+
+    Shell hooks name their ``_*.sh`` / ``_*.ps1`` helpers (or a ``_*.py``
+    they run) in their body; Python hooks import their ``_*.py`` helpers.
+    Dependencies of a shipped helper are followed to a fixed point. Every one
+    must land beside the hook, because a hook that cannot load its helper
+    degrades to a silent no-op.
+    """
+    helpers = _shippable_helpers(src_hooks_dir)
     found: set[str] = set()
-    modules = [p for p in src_hooks_dir.glob("_*") if p.suffix in (".sh", ".ps1")]
-    for script in sorted(scripts):
-        path = src_hooks_dir / script
-        if path.suffix not in (".sh", ".ps1") or not path.exists():
+    pending = sorted(scripts)
+    seen: set[str] = set()
+    while pending:
+        name = pending.pop()
+        if name in seen:
+            continue
+        seen.add(name)
+        path = src_hooks_dir / name
+        if path.suffix not in (".sh", ".ps1", ".py") or not path.is_file():
             continue
         try:
             body = path.read_text(encoding="utf-8", errors="replace")
         except OSError:
             continue
-        for module in modules:
-            if module.name == script or module.name not in body:
-                continue
-            found.add(module.name)
-            sibling = module.with_suffix(".ps1" if module.suffix == ".sh" else ".sh")
-            if sibling.exists():
-                found.add(sibling.name)
+        for helper in _helpers_needed(name, body, helpers):
+            if helper not in scripts:
+                found.add(helper)
+            pending.append(helper)
     return found
 
 
