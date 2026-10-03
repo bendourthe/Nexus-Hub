@@ -21,15 +21,15 @@ describe("mapCopilotUser (decision item 1)", () => {
     expect(usage!.creditsUsed).toBe(0);
   });
 
-  it("maps the captured Business seat to credits used with no quota and no percentage", () => {
+  it("maps the captured Business seat to no quota and no percentage, pending Connect", () => {
     const usage = mapCopilotUser(fixture("copilot-internal-user.business-member.json"));
     expect(usage!.planLabel).toBe("Copilot Business");
     expect(usage!.quotas).toEqual([]);
     expect(usage!.primary).toBeNull();
     expect(usage!.creditsUsed).toBe(0);
     expect(headlineOf({ personal: usage!, lastUpdated: 0, dataSource: "api" })).toEqual({
-      kind: "credits",
-      creditsUsed: 0,
+      kind: "no-percent",
+      reason: "not-connected",
       label: "Copilot Business",
     });
   });
@@ -130,7 +130,7 @@ describe("mapOrganizationUsage (decision items 2 and 3)", () => {
     expect(org.creditsPerSeat).toBe(1_900);
     expect(org.approximate).toBe(false);
     expect(org.percent).toBeCloseTo((0.9069921 / 13_300) * 100, 9);
-    expect(formatPercent(org.percent!)).toBe("0.01");
+    expect(formatPercent(org.percent!)).toBe("0");
     expect(org.resetsAt).toBe(Date.UTC(2026, 10, 1));
     expect(org.models).toEqual([{ model: "Auto: GPT-6 Luna", used: 0.9069921 }]);
   });
@@ -139,7 +139,7 @@ describe("mapOrganizationUsage (decision items 2 and 3)", () => {
     const org = mapOrganizationUsage(fixture("copilot-billing.json"), fixture("ai-credit-usage.near-limit.synthetic.json"), OCT_2)!;
     expect(org.used).toBe(13_200);
     expect(org.percent).toBeCloseTo(99.2481, 3);
-    expect(formatPercent(org.percent!)).toBe("99.25");
+    expect(formatPercent(org.percent!)).toBe("99");
   });
 
   it("caps the over-pool synthetic fixture at the discounted pool: 100%", () => {
@@ -172,7 +172,11 @@ describe("mapOrganizationUsage (decision items 2 and 3)", () => {
     const org = mapOrganizationUsage(billing, fixture("ai-credit-usage.json"), OCT_2)!;
     expect(org.total).toBe(0);
     expect(org.percent).toBeNull();
-    expect(headlineOf({ organization: org, lastUpdated: 0, dataSource: "api" }).kind).toBe("credits");
+    expect(headlineOf({ organization: org, lastUpdated: 0, dataSource: "api" })).toEqual({
+      kind: "no-percent",
+      reason: "no-pool-total",
+      label: "Organization pool",
+    });
   });
 
   it("leaves non-Copilot line items out of the sum and logs that once, without values", () => {

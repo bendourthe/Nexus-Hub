@@ -175,11 +175,29 @@ Produced by `scripts/optimize_skill_description.py` at `<workspace>/optimizer/it
     }
   ],
   "best_description": "Drive a structured evaluation iteration loop. Trigger phrases: ...",
-  "selection_metric": "test_trigger_rate"
+  "selection_metric": "test_trigger_rate",
+  "split_mode": "two-way",
+  "selection_split": ["eval-004", "eval-005"],
+  "reported_split": ["eval-004", "eval-005"],
+  "reported_optimistic": true
 }
 ```
 
-The `best_description` is selected by `test_trigger_rate` (held-out test), never by `train_trigger_rate`. The full optimizer reasoning is at `references/description-optimizer.md`.
+This is the two-way shape, which every catalog eval set produces today. The `best_description` is selected by `test_trigger_rate`, never by `train_trigger_rate`. Because that same split also produces the reported score, `selection_split` equals `reported_split` and `reported_optimistic` is `true`: the score is biased upward and is not a held-out figure.
+
+**Three-way mode** (24+ entries, at least 2 of each `should_trigger` class per split) changes the meaning of three keys and adds others:
+
+| Key | Two-way | Three-way |
+|---|---|---|
+| `split` | `train_ids`, `test_ids` | adds `validation_ids` |
+| `baseline` / `candidates[]` scores | `train_trigger_rate`, `test_trigger_rate` | `train_trigger_rate`, `validation_trigger_rate`; no test score per iteration |
+| `selection_metric` | `test_trigger_rate` | `validation_trigger_rate` |
+| `selection_split` | `split.test_ids` | `split.validation_ids` |
+| `reported_split` | `split.test_ids` | `split.test_ids` (untouched during the loop) |
+| `reported_optimistic` | `true` | `false` |
+| `final.json` extras | none | `test_trigger_rate` (final description) and `original_test_trigger_rate`, each scored once after the loop |
+
+The dry-run report carries the same `split`, `selection_metric`, and four label keys, plus `n_validation` in three-way mode. The full optimizer reasoning is at `references/description-optimizer.md`.
 
 ## Interoperable behavioral-eval schema (interop)
 

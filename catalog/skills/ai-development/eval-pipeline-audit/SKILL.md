@@ -115,6 +115,17 @@ Deliver three things and nothing else:
 
 Cap the recommendation list at three. An audit that returns fourteen action items returns none.
 
+## Cost-claim reporting
+
+This skill owns one reporting rule for any claim that a change saves cost or tokens. It states only what is new. Run counts, confidence intervals, and the rule that a single run does not establish equivalence stay with `[[skill-eval-loop]]` ("Reproducible receipts"); reference them, do not restate them.
+
+- **Count the whole cost of producing the saving.** A cost or token saving claim includes every helper model call and tool call the saving depends on, and every failed or retried attempt, not only the main model's tokens. A saving that leaves the helper out describes a system that does not run.
+- **Restate the headline whenever the accounting changes.** When a later measurement adds a cost the earlier one left out, or a later release changes the result, rewrite the headline in the same place and keep the earlier figure visible, marked superseded, rather than replacing it silently.
+
+Worked example: a retrieval helper is reported as cutting the main agent's cost by a sizable share. Counting the helper's own model calls shrinks the saving, and a later release of the helper turns it into a small net increase. The honest record shows all three figures in order, each with its accounting, and the current headline is the last one.
+
+An audit that finds a saving claim leaving out helper or failed-attempt cost records it as a HIGH gap: the pipeline reports a real signal about a system other than the one that runs.
+
 ## Local-data handling
 
 Evaluation inputs are among the most sensitive artifacts a project holds: real user prompts, production traces, and human labels about real interactions. This skill reads them and must not spread them.
@@ -134,6 +145,7 @@ Evaluation inputs are among the most sensitive artifacts a project holds: real u
 | "Answers look bad, so I will start with the generation prompt." | In a RAG system this skips concern 6 and the retrieval-first order. A passage never retrieved cannot be used, and every hour spent on the prompt is spent on the half that was working. Measure retrieval first. |
 | "I already know the main problem, so a full inventory is wasted effort." | The ten-concern walk is what separates the gap you noticed from the gap that is actually blocking. Starting from a conclusion reliably finds the MEDIUM item you already had in mind and misses the missing split behind it. |
 | "I will just explain how to validate a judge while I am here." | That method belongs to `ai-output-evaluation`, and a second copy of it starts drifting the day it is written. Routing keeps one authoritative version; explaining creates two. |
+| "The helper model is cheap, so its cost is noise in the saving." | The helper runs on every request the saving depends on. In the worked example, counting its calls cut the reported saving and a later release reversed it into a net cost, so the headline the team acted on was never true of the running system. |
 
 ## Verification
 
@@ -145,6 +157,7 @@ Evaluation inputs are among the most sensitive artifacts a project holds: real u
 - [ ] The recommendation list contains at most three items, each with an observable closing condition
 - [ ] Every quoted excerpt is bounded and has identifiers replaced with typed markers
 - [ ] No trace, label, prompt, or example left the host without an explicit authorization step
+- [ ] Every cost or token saving claim counts helper model and tool calls and failed attempts, and its headline was restated after any change in accounting, with earlier figures marked superseded
 
 ## Related Skills
 

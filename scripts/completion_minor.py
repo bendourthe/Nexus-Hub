@@ -2315,7 +2315,15 @@ def cmd_record_block(ck: ModuleType, args: argparse.Namespace) -> int:
 # are owned by the completion contract, "Single-plan carry and archive"; the writes
 # are `minor_close.py carry --plan` and `minor_close.py archive --plan`.
 
-CARRIED_FROM_RE = re.compile(r"^\s*-\s*\*\*Carried from\*\*:\s*(?P<version>v\d+\.\d+\.\d+)\b", re.MULTILINE)
+# Gap ids repeat across a ledger's version sections (`#### WN-3 (v4.13.7): ...` and
+# `#### WN-3 (v4.13.8): ...`), so a one-plan carry names its source by version and id.
+CARRIED_FROM_RE = re.compile(
+    r"^\s*-\s*\*\*Carried from\*\*:\s*(?P<version>v\d+\.\d+\.\d+)(?:#(?P<id>" + GAP_ID + r"))?(?![A-Za-z0-9-])",
+    re.MULTILINE,
+)
+PLAN_MIGRATED_FROM_RE = re.compile(
+    r"\*\*Migrated from\*\*:\s*(?P<version>v\d+\.\d+\.\d+)#(?P<id>" + GAP_ID + r")(?![A-Za-z0-9-])"
+)
 _SECTION_VERSION_RE = re.compile(r"^(v\d+\.\d+\.\d+)\b")
 PLAN_CARRY_REASON = "user-deferred"
 
@@ -2367,10 +2375,30 @@ def _ledger_items_at(rctx: RepoContext, commit: str, minor: tuple[int, int]) -> 
 
 
 def plan_migration_met(ledgers: list[Ledger], ledger: Ledger, item: GapItem) -> bool:
-    """A last plan's `- MIGRATED to vX.(Y+1).0` item: its copy names it in the next minor."""
+    """A last plan's `- MIGRATED to vX.(Y+1).0` item: a copy in the next minor names its
+    version and id (`**Migrated from**: vX.Y.Z#ID`), so a repeated id never matches."""
     if item.state != "migrated" or str(item.target) != next_minor(ledger.token()) + ".0":
         return False
-    return find_migrated_copy(ledgers, str(item.target), ledger.token(), item.gid) is not None
+    label = f"{section_version(item.section)}#{item.gid}"
+    target = minor_of(str(item.target))
+    return any(
+        f"{m.group('version')}#{m.group('id')}" == label
+        for other in ledgers if other.minor == target
+        for copy in other.items
+        for m in PLAN_MIGRATED_FROM_RE.finditer(copy.body)
+    )
+
+
+def carried_copy(ledger: Ledger, version: str, gid: str) -> bool:
+    """True when a later version's section holds an item carried from `version#gid`."""
+    for item in ledger.items:
+        later = section_version(item.section)
+        if later is None or version_order(later) <= version_order(version):
+            continue
+        if any(m.group("version") == version and (m.group("id") or item.gid) == gid
+               for m in CARRIED_FROM_RE.finditer(item.body)):
+            return True
+    return False
 
 
 def gaps_carried_status(
@@ -2402,19 +2430,14 @@ def gaps_carried_status(
     baseline = _ledger_items_at(rctx, start, minor)
     if baseline is None:
         return "cannot-verify"
-    now = {item.gid: item for item in ledger.items}
     for old in baseline:
         if section_version(old.section) != version or old.state != "open":
             continue
-        current = now.get(old.gid)
-        if current is None:
-            return "unmet"  # deleted, never recorded anywhere
-        if section_version(current.section) == version:
-            continue  # judged above
-        later = section_version(current.section)
-        carried = [m.group("version") for m in CARRIED_FROM_RE.finditer(current.body)]
-        if later is None or version_order(later) <= version_order(version) or version not in carried:
-            return "unmet"
+        # An item is its section's version plus its id: ids repeat across sections.
+        if any(section_version(i.section) == version and i.gid == old.gid for i in ledger.items):
+            continue  # still in its section: judged above
+        if not carried_copy(ledger, version, old.gid):
+            return "unmet"  # deleted, or moved without saying where it came from
     return "met"
 
 

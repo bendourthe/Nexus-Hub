@@ -1,0 +1,145 @@
+{
+  "cell": "p1-invoice-keyerror__baseline",
+  "prompt_id": "p1-invoice-keyerror",
+  "arm": "baseline",
+  "model": "claude-sonnet-5-5",
+  "effort": "high",
+  "cli_args": [
+    "-p",
+    "--bare",
+    "--setting-sources",
+    "",
+    "--model",
+    "claude-sonnet-5-5",
+    "--effort",
+    "high",
+    "--tools",
+    "",
+    "--no-session-persistence",
+    "--output-format",
+    "json",
+    "--max-budget-usd",
+    "1.00",
+    "--append-system-prompt-file",
+    "catalog/skills/bug-fixing/bug-localization/SKILL.md"
+  ],
+  "prompt_length": 1075,
+  "exit_code": 0,
+  "errored": false,
+  "cli_output": {
+    "duration_api_ms": 9447,
+    "stop_reason": "end_turn",
+    "session_id": "7ad5d858-9201-4705-aee1-cbf84385ef92",
+    "total_cost_usd": 0.039563,
+    "usage": {
+      "input_tokens": 2,
+      "cache_creation_input_tokens": 4205,
+      "cache_read_input_tokens": 0,
+      "output_tokens": 862,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 4205
+      },
+      "inference_geo": "global",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 862,
+          "cache_read_input_tokens": 0,
+          "cache_creation_input_tokens": 4205,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 4205,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "modelUsage": {
+      "claude-haiku-4-5-20251001": {
+        "inputTokens": 1230,
+        "outputTokens": 12,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 0,
+        "webSearchRequests": 0,
+        "costUSD": 0.00129,
+        "contextWindow": 200000,
+        "maxOutputTokens": 32000,
+        "thinkingTokens": 0,
+        "canonicalModel": "claude-haiku-4-5",
+        "provider": "firstParty",
+        "costBasis": "list"
+      },
+      "claude-sonnet-5-5": {
+        "inputTokens": 2,
+        "outputTokens": 862,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 4205,
+        "webSearchRequests": 0,
+        "costUSD": 0.038273,
+        "contextWindow": 200000,
+        "maxOutputTokens": 32000,
+        "thinkingTokens": 0,
+        "canonicalModel": "claude-sonnet-5-5",
+        "provider": "firstParty",
+        "costBasis": "unknown"
+      }
+    },
+    "permission_denials": [],
+    "terminal_reason": "completed",
+    "fast_mode_state": "off",
+    "subagent_stats": {
+      "spawned": 0,
+      "requested": {
+        "background": 0,
+        "foreground": 0,
+        "unset": 0
+      },
+      "started_in_background": 0,
+      "max_depth": 0,
+      "spawned_by_subagents": 0,
+      "completed": 0,
+      "failed": 0,
+      "killed": {
+        "parent": 0,
+        "user": 0,
+        "system": 0
+      },
+      "refused": {
+        "depth_limit": 0,
+        "concurrency_limit": 0,
+        "budget": 0
+      },
+      "by_type": {}
+    },
+    "is_error": false,
+    "num_turns": 1,
+    "subtype": "success",
+    "api_error_status": null,
+    "result": "**Where the defect is:** `parse_row`, not `render_invoice`.\n\n**Why it crashes**\n\nPython tracebacks put the fault point at the bottom, so the `KeyError` is raised in `render_invoice` at line 22. But that function only reads a key that was never created.\n\nIn `parse_row`, every header is passed through `normalize_key`, which lowercases it. So `Customer` is stored as `'customer'`. Then the code adds a single capitalized key by hand: `row['Total'] = float(row.get('total', 0))`. The resulting dict has these keys:\n\n- `'customer'` (normalized)\n- `'total'` (normalized, still a string)\n- `'Total'` (the hand-added float)\n\n`render_invoice` asks for `row['Customer']`, which doesn't exist, so it fails on every row. `'Total'` only works by accident, because `parse_row` special-cases it. The two functions disagree about key casing: the parser lowercases, the renderer expects capitalized names.\n\nAlso worth noting: `row.get('total', 0)` silently defaults to 0 if the column is missing, which would hide a bad header instead of reporting it.\n\n**Fix**\n\nMake the key convention consistent. The simplest way is to keep the normalized lowercase keys everywhere and update the renderer:\n\n```python\ndef parse_row(header, values):\n    row = {}\n    for key, value in zip(header, values):\n        row[normalize_key(key)] = value\n    row['total'] = float(row['total'])   # fail loudly if the column is missing\n    return row\n\ndef render_invoice(row):\n    return f\"{row['customer']}: {row['total']:.2f}\"\n```\n\nChanges:\n1. `render_invoice` uses `row['customer']` and `row['total']`, matching the normalized keys.\n2. `parse_row` overwrites `'total'` with the float instead of creating a separate `'Total'` key.\n3. `row['total']` replaces `row.get('total', 0)`, so a missing or misnamed column raises an error instead of quietly exporting zeros.\n\n**Check:** a regression test with header `Customer,Total` and row `Acme,12.5` should render `Acme: 12.50`. A second test with a header such as ` customer , TOTAL ` should render the same, which confirms normalization.\n\nOne thing to rule out: if the file has a UTF-8 BOM, the first header would read `\\ufeffCustomer`, and `strip()` does not remove it. You said the file is UTF-8, and the error would then persist after the fix above. If it does, open the file with `encoding='utf-8-sig'`.\n\nROOT CAUSE: parse_row",
+    "ttft_ms": 7134,
+    "type": "result",
+    "duration_ms": 7216,
+    "uuid": "4cc9e83c-2aa8-4a5a-99d2-a899daa210e1",
+    "ttft_stream_ms": 1149,
+    "time_to_request_ms": 90,
+    "first_content_frame_ms": 1149,
+    "queued_turn_count": 0,
+    "result_index": 0
+  },
+  "stdout_raw": null,
+  "stderr": "[claude-code:unrecognized_model] {\"model\":\"claude-sonnet-5-5\",\"query_source\":\"sdk\"}\n",
+  "measured_cost_usd": 0.039563,
+  "charged_usd": 0.039563,
+  "finished_at": "2026-10-01T05:48:20.155103Z",
+  "note": "cli_args skill path rewritten repo-relative on 2026-09-30 to remove a machine path; the run's measured output is unchanged."
+}

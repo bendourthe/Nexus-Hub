@@ -283,7 +283,7 @@ Never tag and never publish a release here; that is `/update release`.
 
 ### 9A2. Record the gaps this run leaves open
 
-After 9A's triage, and before the final commit, record every item still open in this plan's `## v<version>` section: `python ~/.nexus-hub/scripts/minor_close.py carry --plan <plan> --session <id>` (`--dry-run` first). It moves each item, id unchanged, into the next patch's section with a `**Carried from**` line, or, when this is the last plan of its minor, migrates every open item of the minor to the next minor's `.0` section. The ledger change then travels in the plan's own pull request. What counts as recorded is owned by the completion contract's "Single-plan carry and archive" section.
+After 9A's triage, and before the final commit, record every item still open in this plan's `## v<version>` section: `python ~/.nexus-hub/scripts/minor_close.py carry --plan <plan> --session <id>` (`--dry-run` first). It moves each item into the next patch's section under the next free id, with a `**Carried from**` line naming its version and old id, or, when this is the last plan of its minor, migrates every open item of the minor to the next minor's `.0` section. The ledger change then travels in the plan's own pull request. What counts as recorded is owned by the completion contract's "Single-plan carry and archive" section.
 
 ### 9C-9E. Hand off to `/update release`
 

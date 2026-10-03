@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.13.7 -->
+<!-- nexus-hub-version: 4.13.8 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 339 skills, 20 commands, 36 registered hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -36,6 +36,16 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v4.13.8
+
+**A prompting profile for Claude Sonnet 5.5.** `model-prompting-research` now carries a sourced profile for the newest Sonnet, so prompts written for it follow how it reads instructions.
+
+**Honest cost claims and a fairer optimizer score.** One rule now governs any reported cost or token saving, and the description optimizer can hold out a test split it never trained on, saying plainly when its score is optimistic.
+
+**Gap carry-over that copes with repeated ids.** Carrying a known gap into the next version now works on ledgers that reuse the same id across versions, which this repository's own ledgers do.
+
+**Copilot usage as a percentage, with a guided Connect.** The Copilot Usage Monitor now shows a whole-number `Copilot: <pct>% (month)`, or `--% (month)` until an organization owner connects the shared pool, and its hover and dashboard show "Shared organization pool usage: X / Y credits". Connect finds your organization from your Copilot seat, tries without a token first, and otherwise walks the owner through four short steps on GitHub's pre-filled token page: open it, keep No expiration, generate and copy the token, and paste it back.
 
 ## What's New in v4.13.7
 

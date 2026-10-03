@@ -1,5 +1,5 @@
 import { formatPercent, formatResetLabel } from "./usageStore";
-import { Headline, Recommendation, UrgencyLevel, UsageData, getThresholdConfig, headlineOf } from "./types";
+import { Headline, PersonalUsage, Recommendation, UrgencyLevel, UsageData, getThresholdConfig, headlineOf, isOrganizationSeat } from "./types";
 
 export function classifyUrgency(percent: number): UrgencyLevel {
   const t = getThresholdConfig();
@@ -68,15 +68,35 @@ export function buildUsageSuggestion(data: UsageData | undefined): UsageSuggesti
   return { ...base, bucket: t.moderate, advice, message: `${headline.label} at ${pct}%. ${advice}.${resetClause}` };
 }
 
+/**
+ * Why a seat with no personal limit shows `--% (month)`, and the one-time step
+ * that fixes it. Never a credit count (v4.13.8 Phase 6).
+ */
+export const NOT_CONNECTED_HINT =
+  "Your organization shares one Copilot pool, so this seat has no percentage of its own. " +
+  "An organization owner can show the pool's percentage by running Connect Organization once.";
+
+/** Why a personal plan with no served quota shows `--% (month)`. */
+export const NO_PERSONAL_QUOTA_HINT = "GitHub serves no usage limit for this plan, so there is no percentage to show.";
+
+/** The right explanation for a seat with no percentage: Connect for an organization seat only. */
+export function noPercentHint(personal: PersonalUsage | undefined): string {
+  return personal && !isOrganizationSeat(personal) ? NO_PERSONAL_QUOTA_HINT : NOT_CONNECTED_HINT;
+}
+
 export function getRecommendation(data: UsageData | undefined): Recommendation {
   const urgency = getActiveUrgency(data);
   const headline = headlineOf(data);
-  if (headline.kind === "credits") {
-    return {
-      urgency: "low",
-      message: "GitHub sets no personal limit for this seat, so there is no percentage to track.",
-      tips: ["An organization owner or billing manager can connect the organization to see the shared pool."],
-    };
+  if (headline.kind === "no-percent") {
+    return headline.reason === "no-pool-total"
+      ? {
+          urgency: "low",
+          message: "GitHub reported no Copilot seats for this organization, so there is no pool percentage.",
+          tips: [],
+        }
+      : headline.reason === "no-personal-quota"
+        ? { urgency: "low", message: NO_PERSONAL_QUOTA_HINT, tips: [] }
+        : { urgency: "low", message: NOT_CONNECTED_HINT, tips: ["Connect Organization needs an organization owner."] };
   }
   if (headline.kind === "none") {
     return { urgency: "low", message: "No Copilot usage figure yet. Refresh to fetch one.", tips: [] };

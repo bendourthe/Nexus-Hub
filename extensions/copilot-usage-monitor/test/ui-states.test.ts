@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { DashboardPanel } from "../src/dashboardPanel";
+import { NOT_CONNECTED_HINT } from "../src/recommendations";
 import { mapCopilotUser } from "../src/providers/copilot";
 import { mapOrganizationUsage } from "../src/providers/copilotOrganization";
 import { StatusBarManager, statusText } from "../src/statusBarManager";
@@ -40,15 +41,24 @@ const orgPool = (usage: string, billing = "copilot-billing.json"): UsageData => 
   organization: mapOrganizationUsage(fixture(billing), fixture(usage), NOW)!,
 });
 
-/** The five account states the plan's verification names, with the expected status-bar text. */
+/**
+ * The five account states the plan's verification names, with the expected
+ * status-bar text: a percentage of the month's window, or `--% (month)` when
+ * none exists (v4.13.8 Phase 6). Never a credit count.
+ */
 const STATES: Array<[string, () => UsageData, string]> = [
   ["personal Copilot Free", personalFree, "0% (month)"],
-  ["Business member without billing access", businessMember, "0.00 credits used"],
-  ["organization pool 0.907 of 13,300", () => orgPool("ai-credit-usage.json"), "0.01% (pool)"],
-  ["organization pool near the limit", () => orgPool("ai-credit-usage.near-limit.synthetic.json"), "99.25% (pool)"],
-  ["organization pool exhausted", () => orgPool("ai-credit-usage.over-pool.synthetic.json"), "100% (pool)"],
-  ["organization pool, seat added", () => orgPool("ai-credit-usage.json", "copilot-billing.seat-added.synthetic.json"), "~0.01% (pool)"],
+  ["Business member without billing access", businessMember, "--% (month)"],
+  ["organization pool 0.907 of 13,300", () => orgPool("ai-credit-usage.json"), "0% (month)"],
+  ["organization pool near the limit", () => orgPool("ai-credit-usage.near-limit.synthetic.json"), "99% (month)"],
+  ["organization pool exhausted", () => orgPool("ai-credit-usage.over-pool.synthetic.json"), "100% (month)"],
+  ["organization pool, seat added", () => orgPool("ai-credit-usage.json", "copilot-billing.seat-added.synthetic.json"), "~0% (month)"],
 ];
+
+/** The text of every tooltip bar: each is an SVG image whose source is URL-encoded. */
+function svgText(tooltip: string): string {
+  return [...tooltip.matchAll(/data:image\/svg\+xml,([^"]+)/g)].map((m) => decodeURIComponent(m[1])).join("\n");
+}
 
 function storeWith(data: UsageData | undefined): UsageStore {
   const store = new UsageStore(createMemento());
@@ -78,22 +88,42 @@ describe("status bar per account state", () => {
   it.each(STATES)("%s", (_name, make, body) => {
     const mgr = new StatusBarManager(storeWith(make()), "copilot-usage.dashboard");
     mgr.refresh();
-    expect(createdStatusBarItems[0].text).toBe(`$(copilot-icon)\u2002Copilot Usage: ${body}`);
+    expect(createdStatusBarItems[0].text).toBe(`$(copilot-icon)\u2002Copilot: ${body}`);
   });
 
-  it("drops the label in compact mode and shows -- with no data", () => {
+  it("drops the label in compact mode and shows --% (month) with no data", () => {
     __setStubConfig("copilotUsage", "compactStatusBar", true);
-    expect(statusText(orgPool("ai-credit-usage.near-limit.synthetic.json"), true)).toBe("$(copilot-icon)\u200299.25% (pool)");
+    expect(statusText(orgPool("ai-credit-usage.near-limit.synthetic.json"), true)).toBe("$(copilot-icon)\u200299% (month)");
     const mgr = new StatusBarManager(storeWith(undefined), "x");
     mgr.refresh();
-    expect(createdStatusBarItems[0].text).toBe("$(copilot-icon)\u2002--");
+    expect(createdStatusBarItems[0].text).toBe("$(copilot-icon)\u2002--% (month)");
   });
 
-  it("never shows a percent sign for the member state", () => {
+  it("shows --% (month) for the member state, and the hover explains Connect", () => {
     const mgr = new StatusBarManager(storeWith(businessMember()), "x");
     mgr.refresh();
-    expect(createdStatusBarItems[0].text).not.toContain("%");
-    expect((createdStatusBarItems[0].tooltip as { value: string }).value).toContain("No personal limit is set for this seat.");
+    expect(createdStatusBarItems[0].text).toBe("$(copilot-icon)\u2002Copilot: --% (month)");
+    const tooltip = (createdStatusBarItems[0].tooltip as { value: string }).value;
+    expect(tooltip).toContain("Copilot Business: --% (month)");
+    expect(tooltip).toContain(NOT_CONNECTED_HINT);
+  });
+
+  it.each(STATES)("shows a whole percentage, and credits only as the shared pool line: %s", (_name, make) => {
+    const mgr = new StatusBarManager(storeWith(make()), "x");
+    mgr.refresh();
+    const status = String(createdStatusBarItems[0].text);
+    expect(status).not.toMatch(/credit/i);
+    expect(status).not.toMatch(/\d\.\d+%/);
+    const { html } = dashboard(make());
+    const tooltip = (createdStatusBarItems[0].tooltip as { value: string }).value;
+    for (const text of [tooltip, html]) {
+      expect(text).not.toMatch(/credits used/i);
+      // Two-decimal usage figures (0.91, 13,200.00) are gone; only whole counts appear.
+      expect(text).not.toMatch(/\b(0\.91|13,200\.00|13,300\.00)\b/);
+      if (make().organization?.percent != null) {
+        expect(text).toMatch(/Shared organization pool usage: [\d,]+ \/ [\d,]+ credits/);
+      }
+    }
   });
 
   it("colors the item by the headline's urgency: critical near the limit, none when low", () => {
@@ -113,10 +143,12 @@ describe("status bar per account state", () => {
     const mgr = new StatusBarManager(storeWith(orgPool("ai-credit-usage.json", "copilot-billing.seat-added.synthetic.json")), "x");
     mgr.refresh();
     const tooltip = (createdStatusBarItems[0].tooltip as { value: string }).value;
-    expect(decodeURIComponent(tooltip)).toContain(`fill="${BAR_FILL}"`);
-    expect(tooltip).toContain("0.91 of 15,200 credits used (approximate total)");
+    expect(svgText(tooltip)).toContain(`fill="${BAR_FILL}"`);
+    expect(svgText(tooltip)).toContain(">Organization pool (month)<");
+    expect(tooltip).toContain("Shared organization pool usage: 1 / 15,200 credits (approximate total)");
     expect(tooltip).toContain("Resets on November 1");
-    expect(tooltip).toContain("Copilot Business: 0.00 credits used this month");
+    // Connected: the member line with no percentage of its own is left out.
+    expect(tooltip).not.toContain("Copilot Business:");
   });
 
   it("lists every personal quota in the tooltip, and the pool without a seat count", () => {
@@ -125,9 +157,9 @@ describe("status bar per account state", () => {
     const mgr = new StatusBarManager(storeWith(data), "x");
     mgr.refresh();
     const tooltip = (createdStatusBarItems[0].tooltip as { value: string }).value;
-    expect(tooltip).toContain("Organization pool: 0.91 credits used (no seat count to compare against)");
-    expect(decodeURIComponent(tooltip)).toContain(">Chat<");
-    expect(decodeURIComponent(tooltip)).toContain(">Code completions<");
+    expect(tooltip).toContain("Organization pool: --% (month). GitHub reported no Copilot seats");
+    expect(svgText(tooltip)).toContain(">Chat (month)<");
+    expect(svgText(tooltip)).toContain(">Code completions (month)<");
     expect(createdStatusBarItems[0].text).toContain("0% (month)");
   });
 
@@ -144,7 +176,7 @@ describe("status bar per account state", () => {
     expect(createdStatusBarItems[1].tooltip).toContain("Sign in to GitHub");
     empty.setLastError({ code: "network-error" });
     empty.refresh();
-    expect(createdStatusBarItems[1].tooltip).toBe("Click to view the Copilot usage dashboard");
+    expect(createdStatusBarItems[1].tooltip).toBe(`${NOT_CONNECTED_HINT} Click to open the dashboard.`);
     empty.showLoading();
     expect(createdStatusBarItems[1].text).toContain("Refreshing");
   });
@@ -171,53 +203,51 @@ describe("dashboard per account state", () => {
     expect(html).toContain('<div class="model-name">Copilot Free</div>');
     expect(html).toContain("<h3>Chat</h3>");
     expect(html).toContain("<h3>Code completions</h3>");
-    expect(html).toContain("0 of 200 used");
-    expect(html).toContain("0 of 2,000 used");
+    expect(html).toContain("0% (month)");
+    expect(html).not.toContain("of 200 used");
     expect(html).not.toContain("Premium requests");
     expect(html).toContain(`background: ${BAR_FILL};`);
     expect(html).toContain("Resets on November 1");
   });
 
-  it("Business member: credits used, the one-sentence explanation, and no percentage", () => {
+  it("Business member: --% (month), the Connect explanation, and a Connect button", () => {
     const { html } = dashboard(businessMember());
     expect(html).toContain("<h3>Copilot Business</h3>");
-    expect(html).toContain("0.00 credits used this month");
-    expect(html).toContain(
-      "Your organization shares one pool of AI credits and sets no personal limit for this seat, so there is no percentage to show.",
-    );
+    expect(html).toContain("--% (month)");
+    expect(html).toContain("Your organization shares one Copilot pool, so this seat has no percentage of its own.");
+    expect(html).toContain('data-command="connectOrganization"');
     expect(html).not.toContain('class="progress-label"');
-    expect(html).toContain("GitHub sets no personal limit for this seat");
   });
 
   it("organization pool: both bars, seat arithmetic, the rounding note, and the scope note", () => {
     const data = { ...orgPool("ai-credit-usage.json"), personal: personalFree().personal };
     const { html } = dashboard(data);
     expect(html).toContain("<h3>Organization Pool</h3>");
-    expect(html).toContain('<span class="progress-label">0.01%</span>');
-    expect(html).toContain("0.91 of 13,300 credits used");
+    expect(html).toContain('<span class="progress-label">0%</span>');
+    expect(html).toContain("Shared organization pool usage: 1 / 13,300 credits (month)");
     expect(html).toContain("7 Business seats x 1,900 credits per seat.");
-    expect(html).toContain("rounds its headline to a whole number");
+    expect(html).toContain("rounds its headline to whole credits");
     expect(html).toContain("Covers this organization only.");
-    expect(html).toContain("Auto: GPT-6 Luna: 0.91 credits");
+    expect(html).toContain("Auto: GPT-6 Luna: <1% of the pool");
     expect(html.indexOf("Organization Pool")).toBeLessThan(html.indexOf("Copilot Free"));
   });
 
   it("near the limit and exhausted: the percentage and a critical recommendation", () => {
     const near = dashboard(orgPool("ai-credit-usage.near-limit.synthetic.json")).html;
-    expect(near).toContain('<span class="progress-label">99.25%</span>');
-    expect(near).toContain("13,200.00 of 13,300 credits used");
+    expect(near).toContain('<span class="progress-label">99%</span>');
+    expect(near).toContain("Shared organization pool usage: 13,200 / 13,300 credits (month)");
     expect(near).toContain("urgency-critical");
-    expect(near).toContain("Organization pool at 99.25%. Pause non-essential Copilot work, or ask an owner about additional usage. It resets on November 1.");
+    expect(near).toContain("Organization pool at 99%. Pause non-essential Copilot work, or ask an owner about additional usage. It resets on November 1.");
     const over = dashboard(orgPool("ai-credit-usage.over-pool.synthetic.json")).html;
     expect(over).toContain('<span class="progress-label">100%</span>');
-    expect(over).toContain("13,300.00 of 13,300 credits used");
+    expect(over).toContain("Shared organization pool usage: 13,300 / 13,300 credits (month)");
   });
 
   it("labels an approximate total", () => {
     const { html } = dashboard(orgPool("ai-credit-usage.json", "copilot-billing.seat-added.synthetic.json"));
     expect(html).toContain("<h3>Organization Pool (approximate)</h3>");
-    expect(html).toContain('<span class="progress-label">~0.01%</span>');
-    expect(html).toContain("0.91 of 15,200 credits used, approximate total");
+    expect(html).toContain('<span class="progress-label">~0%</span>');
+    expect(html).toContain("Shared organization pool usage: 1 / 15,200 credits, approximate total (month)");
     expect(html).toContain("GitHub does not publish how an added seat is prorated");
   });
 
@@ -245,7 +275,7 @@ describe("dashboard per account state", () => {
   it("keeps the personal view when the organization half fails, with the right action", () => {
     const access = { ...personalFree(), organizationError: { code: "org-access-denied", statusCode: 403 } };
     const html = dashboard(access).html;
-    expect(html).toContain("This needs a read-only token from an organization owner or billing manager.");
+    expect(html).toContain("Only an organization owner can read the shared pool");
     expect(html).toContain("Copilot Free");
     const rejected = { ...personalFree(), organizationError: { code: "org-token-rejected", statusCode: 401 } };
     expect(dashboard(rejected).html).toContain('data-command="connectOrganization" class="retry-btn">Reconnect');

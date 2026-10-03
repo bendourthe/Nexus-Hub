@@ -70,6 +70,17 @@ If retrieval returns thin or contradictory results, that is signal, not failure.
 
 Do not discard candidate matches before reasoning over them because they "look irrelevant". Retrieval quality depends on the resolution of the interface (grep, trace, read), not on better embeddings or a larger context window. Let the agent see the raw corpus and decide.
 
+## Output contract
+
+When DCI answers a question for another agent or a later step, hand back evidence in a fixed shape, so the caller can act without re-reading the files:
+
+1. A one-line summary of what was found, or a plain statement that nothing was.
+2. A compact list of the relevant files.
+3. Verbatim excerpts, each with its `file:line` reference.
+4. Where the relevant symbols are declared, and where they are called.
+
+The output is evidence for the caller, not a generated answer: the caller draws the conclusion. A summary line that claims more than the excerpts show is the defect this contract prevents.
+
 ## Hybrid retrieval: where DCI fits
 
 DCI is not "grep instead of vectors" -- it is the precision verification layer on top of broad semantic recall. The recommended end-state is hybrid:

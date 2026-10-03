@@ -42,7 +42,7 @@ import subprocess
 import sys
 import tempfile
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from urllib.parse import quote, unquote, urlsplit
 
@@ -450,7 +450,7 @@ def _set_header(text: str, date: str) -> str:
 
 def _entry(item: cm.GapItem, gid: str, level: int, body: str, lines: list[str], nl: str) -> str:
     title = item.title
-    kept = body.rstrip()
+    kept = body.strip("\r\n").rstrip()  # one blank line after the heading, never two
     parts = [f"{'#' * level} {gid}{title}", ""]
     if kept:
         parts += [kept, ""]
@@ -591,9 +591,15 @@ def _target_ledger(rctx: ck.RepoContext, ledgers: list[cm.Ledger], target_token:
 def _migration_texts(
     rctx: ck.RepoContext, pid: str, source: cm.Ledger, item: cm.GapItem, target_token: str,
     target: tuple[Path, str, str | None], reason: str, evidence: str, date: str,
+    label: str | None = None,
 ) -> MigrationPlan:
-    """Both files' new text for moving one open item to the next minor's `.0` section."""
+    """Both files' new text for moving one open item to the next minor's `.0` section.
+
+    `label` names the source as `vX.Y.Z#ID` for a one-plan run, whose ledger repeats
+    ids across version sections; a minor close names it `vX.Y#ID`.
+    """
     gid = item.gid
+    source_label = label or f"{source.token()}#{gid}"
     target_path, target_rel, target_before = target
     target_version = target_token + ".0"
     tmin = cm.minor_of(target_token)
@@ -601,10 +607,18 @@ def _migration_texts(
     target_text = target_before if target_before is not None else _template(
         target_token, target_version, _project_name(rctx.root, source.text), date, nl
     )
-    existing = cm.find_migrated_copy(
-        [cm.Ledger(target_path, target_rel, tmin, "active", target_text, cm.parse_ledger(target_text))],
-        target_version, source.token(), gid,
-    )
+    target_items = cm.parse_ledger(target_text)
+    if label is None:
+        existing = cm.find_migrated_copy(
+            [cm.Ledger(target_path, target_rel, tmin, "active", target_text, target_items)],
+            target_version, source.token(), gid,
+        )
+    else:
+        existing = next(
+            ((None, copy) for copy in target_items
+             if any(f"{m.group('version')}#{m.group('id')}" == label for m in cm.PLAN_MIGRATED_FROM_RE.finditer(copy.body))),
+            None,
+        )
     if existing is not None:
         # A re-run after a partial write: the copy exists, so never write a duplicate entry.
         target_after, new_gid, reused = target_text, existing[1].gid, True
@@ -616,7 +630,7 @@ def _migration_texts(
         # A second migration keeps the earlier `**Migrated from**` line in the body
         # and adds this one, so the chain back to the first minor stays readable.
         lines = [
-            f"- **Migrated from**: {source.token()}#{gid} on {date} (reason: {reason})",
+            f"- **Migrated from**: {source_label} on {date} (reason: {reason})",
             f"- **Migration evidence**: {evidence}",
         ]
         target_after = _insert_entry(target_text, target_version, item, new_gid, body, lines)
@@ -734,14 +748,25 @@ def _source_ledger(ctx: ck.Context) -> tuple[list[cm.Ledger], cm.Ledger]:
     return ledgers, own[0]
 
 
-def carry_within(text: str, item: cm.GapItem, target: str, version: str, date: str) -> str:
-    """Move one open item, id unchanged, into the next patch's section of the same ledger."""
+_TITLE_VERSION_RE = re.compile(r"^(\s*)\(v\d+\.\d+\.\d+\)")
+
+
+def carry_within(text: str, item: cm.GapItem, target: str, version: str, date: str) -> tuple[str, str]:
+    """Move one open item into the next patch's section under the next free id.
+
+    Ids repeat across a ledger's version sections, so the item takes the next free id
+    of its kind, its title's `(vX.Y.Z)` tag becomes the target's, and a
+    `**Carried from**: <version>#<old id>` line keeps its origin exact.
+    Returns (new text, new id).
+    """
     removed = text[: item.start] + text[item.end:]
-    lines = [f"- **Carried from**: {version} on {date}"]
-    moved = _insert_entry(removed, target, item, item.gid, item.body, lines)
+    new_gid = _next_gid(text, item.kind)
+    title = _TITLE_VERSION_RE.sub(lambda m: f"{m.group(1)}({target})", item.title, count=1)
+    lines = [f"- **Carried from**: {version}#{item.gid} on {date}"]
+    moved = _insert_entry(removed, target, replace(item, title=title), new_gid, item.body, lines)
     moved = _adjust_summary(moved, item.section, item.kind, text)
     moved = _adjust_summary(moved, _section_heading(moved, target), item.kind, text)
-    return _set_header(moved, date)
+    return _set_header(moved, date), new_gid
 
 
 def cmd_carry(args: argparse.Namespace) -> int:
@@ -757,37 +782,43 @@ def cmd_carry(args: argparse.Namespace) -> int:
     chosen = [i for i in source.items if i.state == "open"
               and (last or cm.section_version(i.section) == ctx.version)]
     if args.id:
-        wanted = {(cm.normalize_gap_id(i if "#" in i else f"{token}#{i}") or "").split("#")[-1] for i in args.id}
-        missing = wanted - {i.gid for i in chosen}
+        # `WN-3`, or `v4.13.7#WN-3` when the same id is open in more than one section.
+        wanted = {(raw.split("#", 1)[0] if "#" in raw else None, raw.split("#")[-1]) for raw in args.id}
+
+        def hit(item: cm.GapItem, want: tuple[str | None, str]) -> bool:
+            return want[1] == item.gid and want[0] in (None, cm.section_version(item.section))
+
+        missing = sorted(f"{v}#{g}" if v else g for v, g in wanted if not any(hit(i, (v, g)) for i in chosen))
         if missing:
-            raise Refused("gap-not-open", ", ".join(sorted(missing)))
-        chosen = [i for i in chosen if i.gid in wanted]
+            raise Refused("gap-not-open", ", ".join(missing))
+        chosen = [i for i in chosen if any(hit(i, w) for w in wanted)]
     named = _named(record, "carry-gaps")
     unnamed = [f"{token}#{i.gid}" for i in chosen if i.sensitive() and f"{token}#{i.gid}" not in named]
     if unnamed:
         raise Refused("security-not-named", ", ".join(unnamed))
     target = cm.carry_target(ctx.version, last)
     verb = "WOULD " if args.dry_run else ""
-    for gid in [i.gid for i in chosen]:
+    for key in [(cm.section_version(i.section), i.gid) for i in chosen]:
         ledgers, source = _source_ledger(ctx)
-        item = next(i for i in source.items if i.gid == gid and i.state == "open")
+        item = next(i for i in source.items if (cm.section_version(i.section), i.gid) == key and i.state == "open")
+        label = f"{key[0]}#{key[1]}"
         if last:
             target_token = cm.next_minor(token)
             plan = _migration_texts(
-                ctx, f"{token}#{gid}", source, item, target_token,
+                ctx, f"{token}#{key[1]}", source, item, target_token,
                 _target_ledger(ctx, ledgers, target_token), cm.PLAN_CARRY_REASON,
-                f"left open by {ctx.version}, the last plan of {token}", date,
+                f"left open by {ctx.version}, the last plan of {token}", date, label=label,
             )
             if not args.dry_run:
                 apply_migration(plan)
-            print(f"{verb}MIGRATED {token}#{gid} -> {target_token}#{plan.new_gid} ({target}) {plan.target_rel}")
+            print(f"{verb}MIGRATED {label} -> {target_token}#{plan.new_gid} ({target}) {plan.target_rel}")
             continue
-        after = carry_within(source.text, item, target, ctx.version, date)
+        after, new_gid = carry_within(source.text, item, target, ctx.version, date)
         if not args.dry_run:
             if _read_exact(source.path) != source.text:
                 raise Refused("source-changed", source.rel)
             _write_atomic(source.path, after)
-        print(f"{verb}CARRIED {token}#{gid} -> {target} {source.rel}")
+        print(f"{verb}CARRIED {label} -> {target}#{new_gid} {source.rel}")
     if not chosen:
         print(f"NOTHING TO CARRY {ctx.version}")
     return EXIT_OK

@@ -52,7 +52,7 @@ A discipline skill is ready to ship when:
 - The agent takes the disciplined action across two consecutive runs at the highest combined pressure you can construct, with no new rationalization appearing.
 - Every rationalization in the baseline transcript (and every one surfaced during REFACTOR) has a rebuttal that names a concrete failure, and the agent stops reaching for new ones.
 - The meta-testing question yields no remaining open seam: there is no technically-compliant action that defeats the skill's purpose.
-- `skill-eval-loop` reports a stable pass-rate on the held-out portion of the eval set, and the trigger-negative entries do not fire (the gate is tight, not just loud).
+- `skill-eval-loop` reports a stable pass-rate on the selection portion of the eval set, and the trigger-negative entries do not fire (the gate is tight, not just loud).
 - The skill survives a cheap-model run (see the trigger-testing techniques in the eval harness): a gate that only holds on the strongest model will leak in practice.
 
 ## Common Rationalizations (about pressure-testing itself)
