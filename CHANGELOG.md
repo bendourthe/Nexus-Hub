@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Carrying a gap works on ledgers whose ids repeat across versions.** This repository's known-gaps ledgers number gaps per version section, so `WN-3` can appear under v4.13.7 and v4.13.8 at once. The v4.13.7 carry and archive checks identified a gap by its id alone, so they could pick the wrong version's gap, and carrying into a section that already used the id made a duplicate. A gap is now identified by its section's version and its id. A carried gap takes the next free id in the file, its title's version tag follows it, and its `**Carried from**` line names the old version and id. A last plan's migration names the full source version too. The shared entry writer also no longer leaves two blank lines after a moved gap's heading.
+
 ## [4.13.7] - 2026-10-02
 
 ### Added
