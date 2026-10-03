@@ -15,7 +15,7 @@ import {
   syncActiveColorToWorkbench,
 } from "./types";
 import { getActiveUrgency, triggerPercent } from "./recommendations";
-import { UsageStore, formatCreditCount, formatElapsed, formatPercent, formatResetLabel } from "./usageStore";
+import { UsageStore, formatElapsed, formatPercent, formatResetLabel, poolUsageLine } from "./usageStore";
 import { NOT_CONNECTED_HINT, noPercentHint } from "./recommendations";
 import type { ProviderFetchError } from "./providers/types";
 
@@ -208,7 +208,7 @@ export class StatusBarManager {
         const approx = org.approximate ? "~" : "";
         parts.push(
           bar(`Organization pool (${WINDOW_LABEL})`, org.percent, `${approx}${formatPercent(org.percent)}%`) +
-            `Pool: ${formatCreditCount(org.total)} credits${org.approximate ? " (approximate total)" : ""}<br>` +
+            `${poolUsageLine(org.used, org.total)}${org.approximate ? " (approximate total)" : ""}<br>` +
             `<em>${formatResetLabel(org.resetsAt)}</em><br><br>`,
         );
       } else {

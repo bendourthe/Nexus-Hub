@@ -1,7 +1,7 @@
 import * as crypto from "crypto";
 import * as vscode from "vscode";
 import { BAR_FILL, OrganizationUsage, PersonalUsage, UsageData } from "./types";
-import { formatCreditCount, formatElapsed, formatPercent, formatResetLabel } from "./usageStore";
+import { formatCreditCount, formatElapsed, formatPercent, formatResetLabel, formatShare, poolUsageLine } from "./usageStore";
 import { noPercentHint } from "./recommendations";
 import { WINDOW_LABEL, isOrganizationSeat } from "./types";
 import { ProviderFetchError, ProviderFetchErrorCode, describeProviderError } from "./providers";
@@ -504,9 +504,9 @@ function organizationSection(org: OrganizationUsage): string {
   }
   notes.push("Covers this organization only. A seat removed outright this cycle still counts toward the pool but is missing from the seat count, so the total can read low.");
   const planName = org.planType === "enterprise" ? "Enterprise" : org.planType === "business" ? "Business" : "";
-  // Each model's share of the pool, as a percentage; never a credit count.
+  // Each model's share of the pool, as a percentage.
   const models = org.models.length > 0 && org.total > 0
-    ? `<ul class="tips">${org.models.map((m) => `<li>${escapeHtml(m.model)}: ${formatPercent((m.used / org.total) * 100)}% of the pool</li>`).join("")}</ul>`
+    ? `<ul class="tips">${org.models.map((m) => `<li>${escapeHtml(m.model)}: ${formatShare((m.used / org.total) * 100)}% of the pool</li>`).join("")}</ul>`
     : "";
 
   if (org.percent == null) {
@@ -525,7 +525,7 @@ function organizationSection(org: OrganizationUsage): string {
           org.percent,
           `${org.approximate ? "~" : ""}${formatPercent(org.percent)}%`,
           formatResetLabel(org.resetsAt),
-          `Pool: ${formatCreditCount(org.total)} credits${org.approximate ? ", approximate total" : ""} (${WINDOW_LABEL})`,
+          `${poolUsageLine(org.used, org.total)}${org.approximate ? ", approximate total" : ""} (${WINDOW_LABEL})`,
           ROUNDING_NOTE,
         )}
         <p class="note">${org.seats} ${planName} seat${org.seats === 1 ? "" : "s"} x ${formatCreditCount(org.creditsPerSeat)} credits per seat.</p>
