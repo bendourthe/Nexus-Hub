@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.13.8] - 2026-10-02
+
 ### Added
 
 - **A Claude Sonnet 5.5 prompting profile (v4.13.8).** `model-prompting-research` now carries a `claude-sonnet-5-5` profile of 36 sourced claims (32 high and 4 medium confidence after three adversarial verification rounds), written through the governed writer. The `claude-code` roster was refreshed from the live Models API and grew from 16 to 26 ids; the nine newly rostered Claude models remain unprofiled (v4.13.8 DF-3).
@@ -24,6 +26,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - **Carrying a gap works on ledgers whose ids repeat across versions.** This repository's known-gaps ledgers number gaps per version section, so `WN-3` can appear under v4.13.7 and v4.13.8 at once. The v4.13.7 carry and archive checks identified a gap by its id alone, so they could pick the wrong version's gap, and carrying into a section that already used the id made a duplicate. A gap is now identified by its section's version and its id. A carried gap takes the next free id in the file, its title's version tag follows it, and its `**Carried from**` line names the old version and id. A last plan's migration names the full source version too. The shared entry writer also no longer leaves two blank lines after a moved gap's heading.
+
+### Capability usage
+
+- No opt-in capability, installer flag, managed skill, or host surface is introduced or changed in v4.13.8. The optimizer's `--split auto` is a script option of a repository tool, not an installed surface.
 
 ## [4.13.7] - 2026-10-02
 
