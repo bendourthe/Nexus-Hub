@@ -3,7 +3,7 @@
 **Project**: Nexus-Hub
 **Status**: released; PR #230 merged the complete 34-task plan and tag `v4.13.0` was published on 2026-09-21. Two bounded warning-class findings remain owned for future measurement work. GitHub branch protection passed a live pull-request gate test; the second trigger pilot stopped on an unproven spend bound.
 **Last updated**: 2026-10-03
-**Open items**: 134
+**Open items**: 136
 
 Release-scoped gaps for the evidence-driven agent improvement plan. Planned future-phase work is tracked in the plan rather than reported as completed here.
 
@@ -1215,8 +1215,8 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 4 | 1 |
-| Bugs / regressions (BG) | 1 | 0 |
-| Warnings (WN) | 17 | 0 |
+| Bugs / regressions (BG) | 2 | 0 |
+| Warnings (WN) | 18 | 1 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 2 | 0 |
 
@@ -1233,12 +1233,6 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 - **Source phase**: Phase 1. **Plan reference**: `v4.13.9-adoption-inline-visualize-codex-disk-writes-review-flow-gpt-6-1-sol.md`, T402 and T403.
 - **Reason**: the comparison relied on a newsletter summary of Cursor's `/visualize`. On 2026-10-01 a `cursor.com` search and a fetch of `https://cursor.com/docs/agent/chat/commands` stated nothing about a built-in `/visualize`, about how a same-named user command takes precedence, or about where commands are stored. Only the discovery locations (`.cursor/commands/`, `~/.cursor/commands/`) were found.
 - **Suggested next step**: when Cursor documents `/visualize` or command-name precedence, re-run T402's decision against that page. Option (b), mirroring everywhere, stands until then.
-
-#### WN-3 (v4.13.9): The Codex fix version is not verified against OpenAI's primary sources
-
-- **Source phase**: Phase 1. **Plan reference**: `v4.13.9-adoption-inline-visualize-codex-disk-writes-review-flow-gpt-6-1-sol.md`, T403 (to be closed or restated by T424).
-- **Reason**: three outlets report Codex 0.142.0 as the release that fixed the reported disk-write behavior, but no OpenAI primary source (release notes, changelog, or repository tag) has confirmed it. The Phase 5 runbook must not present the version as verified.
-- **Suggested next step**: T424 reads the Codex release notes or tag history and either closes this item with the primary citation or restates the version as unverified in the runbook.
 
 #### DF-1 (v4.13.9): The Codex `doctor` advisory was cut from this plan
 
@@ -1409,8 +1403,27 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 
 - **Carried from**: v4.13.8#WN-34 on 2026-10-03
 
+#### BG-13 (v4.13.9): `auto-devlog.sh` silently drops every entry after a heading reaches line 1
+
+- **Source phase**: Phase 5. **Plan reference**: `v4.13.9-adoption-inline-visualize-codex-disk-writes-review-flow-gpt-6-1-sol.md`, T423.
+- **Reason**: the size-bound test's liveness check found that once a `## [` entry heading reaches line 1 of `DEVLOG.md`, the computed insert line is 0, which `awk`'s `NR == 0` never matches, so every later entry is dropped while the hook still prints that the entry was prepended. The second entry also lands above the `# Dev Log` title. The `.ps1` sibling inserts correctly, so the pair disagrees. This plan changes no hook (T423 failure mode), so the defect is recorded, and the test holds it as a strict expected failure that turns red once it is fixed. Measurement: [`v4.13.9-hook-size-bound.md`](development/v4.13.9-hook-size-bound.md).
+- **Suggested next step**: fix the insert-line computation in `catalog/hooks/auto-devlog.sh` so a line-1 heading inserts before it, add an exit-code and output parity case to the hook's tests, then remove its `KNOWN_BREACHES` entry in `catalog/hooks/tests/test_hook_size_bound.py`.
+
+#### WN-36 (v4.13.9): Five file-writing hooks copy a field without truncation
+
+- **Source phase**: Phase 5. **Plan reference**: `v4.13.9-adoption-inline-visualize-codex-disk-writes-review-flow-gpt-6-1-sol.md`, T423.
+- **Reason**: one oversized event (64 KiB fields) grows a file by 65 to 132 KB, measured 2026-10-03: `learning-capture` copies the event and tool names whole (131549 bytes .sh, 131543 .ps1), `provenance-ledger` copies the file path whole and rotates by lines rather than bytes (65699), `session-summary` copies the session duration whole into its log and digest (.ps1 always; .sh when `jq` is present), `auto-devlog.ps1` lists commit subjects whole, and `skill-tracker.py` stores the skill name whole. Ordinary events stay at 70 to 1100 bytes. The test records each as a known breach, so a fix shows up as a failing expected-failure. Measurement: [`v4.13.9-hook-size-bound.md`](development/v4.13.9-hook-size-bound.md).
+- **Suggested next step**: truncate each copied field the way `learning-capture` already truncates its prompt sample, bound the provenance ledger by bytes as well as lines, and remove the matching `KNOWN_BREACHES` entries.
+
+#### WN-37 (v4.13.9): Multi-byte text grows two to six times in hook output on Windows
+
+- **Source phase**: Phase 5. **Plan reference**: `v4.13.9-adoption-inline-visualize-codex-disk-writes-review-flow-gpt-6-1-sol.md`, T422.
+- **Reason**: the multi-byte payload measured larger on Windows than its UTF-8 length (for example `session-summary.ps1` 3568 bytes and `auto-devlog.ps1` 4574 bytes for one event), consistent with input decoded through a legacy code page: Windows PowerShell 5.1 standard input and git output, and Python standard input read as cp1252. The size test records this and does not assert it. Measurement: [`v4.13.9-hook-size-bound.md`](development/v4.13.9-hook-size-bound.md).
+- **Suggested next step**: read hook standard input as UTF-8 explicitly in the `.ps1` siblings and the Python hooks, then re-measure the multi-byte column.
+
 ### Resolved
 
 | ID | Title | Resolved in | Notes |
 |---|---|---|---|
+| WN-3 | The Codex fix version is not verified against OpenAI's primary sources | v4.13.9, 2026-10-03 | Closed by T424: the `rust-v0.142.0` release notes (2026-06-22) list the persistent-log reduction citing #29432 and #29457, and #29432's merge commit lies between the `rust-v0.141.0` and `rust-v0.142.0` tags. Runbook: [`docs/guides/host-agent-disk-writes.md`](../../../guides/host-agent-disk-writes.md) |
 | DF-10 | The bundled model-map snapshot lists superseded models | v4.13.9, 2026-10-01 | Carried from v4.13.8 DF-2. Fixed by v4.13.9 T407: `last-known-model-map.json` reads `verified_as_of` 2026-10-01, `standard`/Anthropic `claude-sonnet-5-5`, and `strong`/OpenAI `gpt-6.1-sol`; `model-map.py validate` reports valid. |
