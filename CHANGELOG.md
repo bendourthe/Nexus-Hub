@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.13.8] - 2026-10-03
+
 ### Added
 
 - **A Claude Sonnet 5.5 prompting profile (v4.13.8).** `model-prompting-research` now carries a `claude-sonnet-5-5` profile of 36 sourced claims (32 high and 4 medium confidence after three adversarial verification rounds), written through the governed writer. The `claude-code` roster was refreshed from the live Models API and grew from 16 to 26 ids; the nine newly rostered Claude models remain unprofiled (v4.13.8 DF-3).
