@@ -99,3 +99,43 @@ def test_the_update_card_names_the_closing_pull_request_and_the_checked_cleanup(
     assert release, "the /update card has no release scope"
     assert "closing pull request" in release.group(1)
     assert "checked cleanup" in release.group(1) and "merged, idle" in release.group(1)
+
+
+COMMANDS_DIR = ROOT / "catalog" / "commands"
+_SCOPES = re.compile(r"Recognized scopes: ((?:`[^`]+`(?:, )?)+)\.")
+
+
+def _cheatsheet_card(name: str) -> str | None:
+    text = GUIDE.read_text(encoding="utf-8").split('id="page-cheatsheets"', 1)[1]
+    marker = f'class="cs-name">/{name}</span>'
+    if marker not in text:
+        return None
+    return text.split(marker, 1)[1].split("</article>", 1)[0]
+
+
+@pytest.mark.parametrize("command", sorted(p.stem for p in COMMANDS_DIR.glob("*.md")))
+def test_every_command_file_has_a_cheatsheet_card(command: str) -> None:
+    # v4.13.9: /visualize shipped without a card because only /implement was compared.
+    assert _cheatsheet_card(command) is not None, f"/{command} has no card on the Cheatsheets page"
+
+
+def _declared_scopes() -> list[tuple[str, str]]:
+    pairs = []
+    for path in sorted(COMMANDS_DIR.glob("*.md")):
+        match = _SCOPES.search(path.read_text(encoding="utf-8"))
+        if match:
+            pairs += [(path.stem, scope) for scope in re.findall(r"`([^`]+)`", match.group(1))]
+    return pairs
+
+
+@pytest.mark.parametrize(("command", "scope"), _declared_scopes())
+def test_every_declared_scope_appears_on_its_card(command: str, scope: str) -> None:
+    card = _cheatsheet_card(command)
+    assert card is not None, f"/{command} has no card"
+    assert f'<code data-ty="code">{html.escape(scope)}</code>' in card, f"/{command} card does not list the `{scope}` scope"
+
+
+def test_the_review_card_teaches_the_one_commit_form_and_drafts() -> None:
+    card = html.unescape(_cheatsheet_card("review") or "")
+    assert "changes <sha>" in card
+    assert "never posts" in card

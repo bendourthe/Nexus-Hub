@@ -1,0 +1,3 @@
+oversized.csv: refused: no usable lines after intake
+outside-junction/viz-outside-target.csv: refused: viz-outside-target.csv resolves outside the named path
+.env: refused: .env looks like a secret store; confirm the exact file to use it

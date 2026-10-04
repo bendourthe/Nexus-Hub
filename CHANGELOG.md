@@ -9,6 +9,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.13.9] - 2026-10-04
+
+### Added
+
+- **`/visualize` command and the `inline-visualization` skill (v4.13.9).** Turns data (CSV, JSON, a log excerpt, a pasted table) or a described structure into the smallest visual that answers the question: a sentence, a small table, a Mermaid diagram, or a script-free inline-SVG chart page. Every answer ends with a tier line naming the rung it used and why. Scopes are `chart`, `diagram`, `diff`, and `auto`. It never fabricates data, installs a dependency, or calls a network service. `html-output-conventions` gains a fifth self-contained template, an inline-SVG bar and line chart. Catalog: 340 skills, 21 commands. See Capability usage.
+- **A GPT-6.1 Sol prompting profile (v4.13.9).** `model-prompting-research` now carries a `gpt-6.1-sol` profile of 12 sourced claims, written through the governed writer from OpenAI's own pages.
+- **Draft review comments (v4.13.9).** `multi-agent-code-review` can draft review comments (path, line, severity, body, evidence) for `CONFIRMED` findings only, listing `PLAUSIBLE` ones separately, to the chat or to a file the user names. It never posts them. `/review changes <sha>` reviews one commit through a validated `commit` sub-mode, and `/visualize diff` draws a changed-modules diagram of a change set. See Capability usage.
+- **A Codex disk-write runbook and a hook size bound (v4.13.9).** [`docs/guides/host-agent-disk-writes.md`](docs/guides/host-agent-disk-writes.md) explains the reported Codex CLI disk-write problem, how to check and update Codex, and how to read SSD wear yourself with read-only tools. The fix version, Codex CLI 0.142.0, is verified against OpenAI's release notes and pull request. A new test, `catalog/hooks/tests/test_hook_size_bound.py`, measures and caps the files Nexus-Hub's own hooks write, per class; the hooks it found copying a field without truncation are recorded as known gaps (BG-13, WN-36, WN-37).
+
+### Changed
+
+- **Model map refreshed (v4.13.9).** The bundled offline model map now reads `claude-sonnet-5-5` at the `standard` tier for Anthropic and `gpt-6.1-sol` at the `strong` tier for OpenAI, verified 2026-10-01.
+- **The guide's Cheatsheets page is current (v4.13.9).** It adds a `/visualize` card, teaches `/review changes <sha>` and that a review can draft comments it never posts, and lists the `/plan grill` scope its card was missing. A new test fails when any command lacks a card or a declared scope is missing from its card.
+- **Codex defaults re-verified (v4.13.9).** The recorded Codex documentation statements in `configs/platform-defaults.json` now match the vendor's current config reference: the reasoning effort is a model-advertised string, `untrusted` is no longer an approval policy, and a trusted project may override approval and sandbox settings. The seeded values are unchanged.
+
+### Fixed
+
+- **Command mirroring keeps your own files (v4.13.9).** Installing commands into a platform's command folder no longer overwrites a file of the same name that you wrote, adopts a byte-identical one, and prunes a stale file only when it still matches what Nexus-Hub installed.
+
+### Capability usage
+
+- **`/visualize` (v4.13.9), a new command surface.** It is a slash command on platforms that have one (Claude Code, Gemini, Codex, Cursor, Copilot, Antigravity 2.0, and Qwen Code) and a skill everywhere skills are read.
+
+    - Activation: type `/visualize` with a file path or pasted data, optionally after a scope (`chart`, `diagram`, `diff`, `auto`); with no data, it asks for some.
+    - Validation: `/visualize chart` on a small CSV ends with a line of the form `Tier: <rung used> | Why: <reason> | ...`, and an inline-SVG page it writes opens offline and contains no script.
+    - Rollback: do not invoke it; it runs only when called. To remove it, uninstall Nexus-Hub, or delete `visualize.md` from your platform's command folder. Cursor's Agents Window has a built-in feature of the same name; which one a `/visualize` reaches there is decided by Cursor, not by Nexus-Hub, and Cursor's primary documentation for it has not been read (WN-2).
+    - Authority: it reads only the data you give it, writes an output file only where you ask, installs nothing, and makes no network call.
+    - Docs: [`catalog/commands/visualize.md`](catalog/commands/visualize.md) and `catalog/skills/developer-experience/inline-visualization/SKILL.md`.
+
+- **Draft review comments (v4.13.9), opt-in per review.** Off unless you ask for drafts.
+
+    - Activation: ask a review for draft comments, for example "draft review comments for this PR", optionally naming a file for them.
+    - Validation: the output lists drafted entries for `CONFIRMED` findings and a separate "Not drafted (PLAUSIBLE)" table, and nothing appears on the pull request.
+    - Rollback: do not ask for drafts; delete the file if you named one.
+    - Authority: drafting never posts anything, through a command-line client, an HTTP call, or an MCP or connector tool, and it never overwrites an existing file or follows a symbolic link.
+    - Docs: `catalog/skills/code-review/multi-agent-code-review/references/draft-review-comments.md`.
+
 ## [4.13.8] - 2026-10-03
 
 ### Added

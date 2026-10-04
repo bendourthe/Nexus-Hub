@@ -23,7 +23,7 @@ Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scop
         4. coverage    - test-coverage analysis and gap identification
         5. security    - security audit (secrets, auth, input validation, dangerous patterns)
         6. pentest     - assess supplied penetration-test evidence and author a report
-        7. changes     - multi-agent persona review of the pending diff
+        7. changes     - multi-agent persona review of the pending diff (or one commit: `changes <sha>`)
         8. skill-scan  - security-scan a skill (or the whole catalog) before install
         9. sbom        - generate a Software Bill of Materials
        10. deps        - dependency CVE / license / supply-chain scan
@@ -80,5 +80,6 @@ For very large read-only audits ("audit every endpoint for missing auth", "scan 
 
 ## Notes
 
+- `changes <sha>` reviews exactly one commit. `multi-agent-code-review` validates the SHA before any `git` call. Asked for review comments, `changes` writes drafts only: never call any tool that writes to a pull request, merge request, or issue, including MCP and connector tools. Posting is the user's manual step.
 - All scopes are unconditionally read-only. Never consume an approval receipt, launch remediation, apply a patch, or mutate the target. Recommend a separately authorized `security-patch-advisor` invocation when findings need changes; the separate owning skill must obtain its own trusted, current, exact-patch and scope-bound approval.
 - Keep this dispatcher thin. The review procedures live in the retained skills; this file owns only scope resolution and delegation.

@@ -329,7 +329,8 @@
         "ui-component-generation",
         "web-artifacts-builder",
         "web-typography",
-        "writing-editing"
+        "writing-editing",
+        "inline-visualization"
       ]
     },
     {
