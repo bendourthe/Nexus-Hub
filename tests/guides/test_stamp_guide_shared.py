@@ -116,6 +116,24 @@ def test_unknown_fragment_in_a_page_list_is_an_error(tmp_path: Path) -> None:
     assert "unknown fragment(s) ghost" in result.stderr
 
 
+def test_wrapped_data_is_placed_verbatim_and_guarded(tmp_path: Path) -> None:
+    web = _site(tmp_path)
+    manifest = json.loads((web / "shared" / "fragments.json").read_text(encoding="utf-8"))
+    (web / "shared" / "data.json").write_text('{"x": "{{not-a-placeholder}}"}\n', encoding="utf-8")
+    manifest["fragments"]["data"] = {"syntax": "html", "file": "data.json", "wrap": ['<script type="application/json" id="d">\n', "</script>\n"]}
+    manifest["pages"]["a.html"]["fragments"] = ["foot"]
+    (web / "shared" / "fragments.json").write_text(json.dumps(manifest), encoding="utf-8")
+    (web / "b.html").write_text(
+        "<!-- shared:foot -->\n<!-- /shared:foot -->\n<!-- shared:data -->\n<!-- /shared:data -->\n",
+        encoding="utf-8", newline="\n",
+    )
+    assert _run(tmp_path).returncode == 0
+    assert '<script type="application/json" id="d">\n{"x": "{{not-a-placeholder}}"}\n</script>\n' in (web / "b.html").read_text(encoding="utf-8")
+    (web / "shared" / "data.json").write_text('{"x": "</script><script>alert(1)</script>"}\n', encoding="utf-8")
+    result = _run(tmp_path)
+    assert result.returncode == 2 and "may not contain" in result.stderr
+
+
 def test_the_real_guide_pages_are_current() -> None:
     result = subprocess.run([sys.executable, str(SCRIPT), "--check"], capture_output=True, text=True, check=False)
     assert result.returncode == 0, result.stderr

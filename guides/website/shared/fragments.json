@@ -72,6 +72,18 @@
     "sky-sentinel-js": {
       "syntax": "js",
       "file": "../src/sky-sentinel.js"
+    },
+    "training-story-js": {
+      "syntax": "js",
+      "file": "../src/training-story.js"
+    },
+    "training-story-json": {
+      "syntax": "html",
+      "file": "../src/training-story.json",
+      "wrap": [
+        "<script type=\"application/json\" id=\"nh-training-story\">\n",
+        "</script>\n"
+      ]
     }
   },
   "pages": {

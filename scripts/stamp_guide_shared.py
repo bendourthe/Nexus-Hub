@@ -22,7 +22,9 @@ a pair of markers whose comment syntax matches where it sits::
 A page carries every fragment unless its manifest entry lists the ones it holds in
 ``fragments``. A fragment may hold ``{{name}}`` placeholders, filled from the page's ``vars`` in
 the manifest, so one header source can link in-page in one file and across pages
-in the other. Markers sit at the start of their line; the fragment text sits
+in the other. A fragment with ``wrap`` (two strings) is data, such as a JSON file: it is
+placed between the two strings unchanged, without placeholder filling, and may not
+contain ``</script``. Markers sit at the start of their line; the fragment text sits
 between them unchanged.
 
 Usage::
@@ -61,6 +63,7 @@ class Fragment:
     name: str
     syntax: str
     text: str
+    wrap: tuple[str, str] | None = None
 
     def markers(self) -> tuple[str, str]:
         left, right = SYNTAX[self.syntax]
@@ -89,7 +92,14 @@ def load(root: Path) -> tuple[list[Fragment], dict[str, tuple[dict[str, str], li
         text, _ = _read_lf(src)
         if not text.endswith("\n"):
             text += "\n"
-        fragments.append(Fragment(name, syntax, text))
+        wrap = spec.get("wrap")
+        if wrap is not None:
+            if not (isinstance(wrap, list) and len(wrap) == 2 and all(isinstance(w, str) for w in wrap)):
+                raise StampError(f"fragment {name}: wrap must be a list of two strings")
+            if "</script" in text.lower():
+                raise StampError(f"fragment {name}: wrapped data may not contain '</script'")
+            wrap = (wrap[0], wrap[1])
+        fragments.append(Fragment(name, syntax, text, wrap))
     by_name = {fragment.name: fragment for fragment in fragments}
     pages: dict[str, tuple[dict[str, str], list[Fragment]]] = {}
     for page, spec in manifest.get("pages", {}).items():
@@ -104,6 +114,10 @@ def load(root: Path) -> tuple[list[Fragment], dict[str, tuple[dict[str, str], li
 
 
 def render(fragment: Fragment, page: str, values: dict[str, str]) -> str:
+    if fragment.wrap is not None:
+        # Wrapped fragments carry data (for example JSON): no placeholder filling.
+        return fragment.wrap[0] + fragment.text + fragment.wrap[1]
+
     def fill(match: re.Match[str]) -> str:
         key = match.group(1)
         if key not in values:

@@ -212,6 +212,90 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .tr-steps [data-state="mapped"] a{opacity:.62;border-style:dashed;}
 .tr-steps [data-state="current"] a{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent),0 0 18px 0 var(--accent-glow,rgba(45,212,191,.35));}
 @media (max-width:720px){.tr-steps{grid-template-columns:repeat(3,minmax(0,1fr));}.tr-steps a{min-height:52px;padding:8px;}}
+/* ---------- Stage banner and model badge ---------- Every stage opens with where the reader is, what to do now, and (for agent steps) what the agent uses: tier, effort, and the model that tier maps to today. */
+.tr-banner{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,380px);gap:var(--sp-4);align-items:start;margin:0 0 var(--sp-4);padding:var(--sp-4) var(--sp-5);border:1px solid color-mix(in srgb,var(--accent) 45%,var(--border));border-radius:16px;background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 12%,var(--surface)),var(--surface) 70%);}
+.tr-banner:not(:has(.tr-badge,.tr-callout)){grid-template-columns:minmax(0,1fr);}
+.tr-banner:has(.tr-callout){grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);align-items:center;}
+.tr-banner .tr-callout{margin:0;}
+.tr-step{margin:0;font-family:var(--mono);font-size:var(--ty-body-sm);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--teal-soft);}
+.tr-title{margin:6px 0 10px;text-wrap:balance;}
+.tr-now{margin:0;color:var(--ink);font-size:var(--ty-lead);line-height:1.5;}
+.tr-now b{color:var(--teal-soft);}
+.tr-badge{padding:12px 14px;border:1px solid var(--border);border-radius:12px;background:var(--bg-0);}
+.tr-badge-grid{display:grid;grid-template-columns:auto auto minmax(0,1fr);gap:14px;margin:0;}
+.tr-badge-pair{min-width:0;}
+.tr-badge dt{font-size:var(--ty-micro);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-dim);}
+.tr-badge dd{margin:2px 0 0;font-family:var(--mono);font-size:var(--ty-body-sm);font-weight:700;color:var(--ink);overflow-wrap:anywhere;}
+.tr-badge-pair:first-child dd{color:var(--teal-soft);}
+.tr-badge-model{color:var(--ink);}
+.tr-badge-why{margin:10px 0;color:var(--ink-dim);font-size:var(--ty-body-sm);line-height:1.45;}
+.tr-provider{display:flex;flex-wrap:wrap;gap:6px;}
+.tr-provider button{min-height:32px;padding:3px 11px;border:1px solid var(--border);border-radius:999px;background:transparent;color:var(--ink-dim);font:inherit;font-size:var(--ty-micro);cursor:pointer;}
+.tr-provider button:hover{border-color:var(--accent);color:var(--ink);}
+.tr-provider button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+.tr-provider button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--bg-0);font-weight:700;}
+/* ---------- Agent session and project files ---------- The report reads like a real agent's: the command, a summary, headed sections, checks, and diffs. The file panel takes at least half the width and grows with its content, so neither needs a scroll bar. */
+.tr-work{display:grid;grid-template-columns:minmax(0,.94fr) minmax(0,1.06fr);gap:var(--sp-4);align-items:stretch;}
+.tr-main,.tr-side{display:flex;flex-direction:column;gap:var(--sp-4);min-width:0;}
+.tr-grow{flex:1 1 auto;}
+.tr-snippet code,.tr-code code,.tr-cmd code{background:transparent;border:0;padding:0;border-radius:0;font-size:inherit;color:inherit;}
+.tr-session,.tr-files{min-width:0;padding:var(--sp-4);border:1px solid var(--border);border-radius:14px;background:var(--surface);}
+.tr-cmd{margin:0 0 10px;font-family:var(--mono);font-size:var(--ty-body);color:var(--ink);}
+.tr-cmd code{font-weight:700;}
+.tr-prompt{margin-right:8px;color:var(--teal-soft);}
+.tr-summary{margin:0;color:var(--ink);font-size:var(--ty-lead);line-height:1.55;}
+.tr-section{margin-top:var(--sp-4);}
+.tr-section-title{margin:0 0 6px;font-size:var(--ty-h4);color:var(--teal-soft);}
+.tr-items{margin:0;padding-left:1.15em;color:var(--ink-dim);line-height:1.55;}
+.tr-items li{margin:4px 0;}
+.tr-snippet,.tr-diff{margin:8px 0 0;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--bg-deep);}
+.tr-snippet figcaption,.tr-diff figcaption{padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:var(--ty-micro);color:var(--ink-dim);}
+.tr-snippet pre,.tr-diff pre,.tr-code{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;font-family:var(--mono);font-size:var(--ty-code);line-height:1.6;color:var(--ink);}
+.tr-snippet pre{padding:10px 12px;}
+.tr-diff pre{padding:6px 0;}
+.tr-diff-line{display:block;padding:0 12px;}
+.tr-diff-line[data-op="add"]{background:rgba(34,197,94,.14);}
+.tr-diff-line[data-op="del"]{background:rgba(239,68,68,.14);}
+.tr-diff[data-long] pre{max-height:640px;overflow-y:auto;}
+.tr-checks{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:6px;}
+.tr-checks li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:baseline;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg-0);}
+.tr-check-mark{font-weight:800;}
+.tr-checks [data-result="pass"] .tr-check-mark{color:#22c55e;}
+.tr-checks [data-result="fail"] .tr-check-mark{color:#f87171;}
+.tr-check-name{color:var(--ink);}
+.tr-check-result{font-family:var(--mono);font-size:var(--ty-micro);color:var(--ink-dim);text-transform:uppercase;}
+.tr-details{margin-top:var(--sp-4);border-top:1px solid var(--border);padding-top:var(--sp-3);}
+.tr-details summary{cursor:pointer;min-height:36px;display:flex;align-items:center;color:var(--ink-dim);font-weight:600;}
+.tr-details summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+.tr-details dl{margin:6px 0 0;display:grid;gap:6px;}
+.tr-details dt{font-size:var(--ty-micro);text-transform:uppercase;letter-spacing:.06em;color:var(--ink-dim);}
+.tr-details dd{margin:0;font-family:var(--mono);font-size:var(--ty-body-sm);color:var(--ink);overflow-wrap:anywhere;}
+.tr-files-head{margin:0 0 10px;font-weight:700;color:var(--ink);}
+.tr-session-more[hidden]{display:none;}
+.tr-activity{padding:var(--sp-4);border:1px solid var(--border);border-radius:14px;background:var(--surface);}
+.tr-activity ol{list-style:none;margin:0;padding:0;display:grid;gap:7px;}
+.tr-activity li{display:grid;grid-template-columns:76px minmax(0,1fr);gap:10px;align-items:baseline;}
+.tr-tool{padding:2px 8px;border:1px solid var(--border);border-radius:6px;font-family:var(--mono);font-size:var(--ty-micro);font-weight:700;letter-spacing:.05em;text-align:center;text-transform:uppercase;color:var(--teal-soft);}
+.tr-tool[data-tool="run"]{color:#60a5fa;border-color:rgba(96,165,250,.45);}
+.tr-tool[data-tool="edit"],.tr-tool[data-tool="write"]{color:#f59e0b;border-color:rgba(245,158,11,.45);}
+.tr-target{font-family:var(--mono);font-size:var(--ty-body-sm);color:var(--ink);overflow-wrap:anywhere;}
+.tr-tree{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px;}
+.tr-tab{display:inline-flex;align-items:center;gap:8px;min-height:36px;max-width:100%;padding:4px 10px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--ink-dim);font-family:var(--mono);font-size:var(--ty-micro);cursor:pointer;}
+.tr-tab-path{overflow-wrap:anywhere;}
+.tr-tab[aria-selected="true"]{border-color:var(--accent);color:var(--ink);background:color-mix(in srgb,var(--accent) 12%,transparent);}
+.tr-tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+.tr-tab-status{padding:1px 7px;border-radius:999px;border:1px solid var(--border);font-size:11px;}
+.tr-tab-status[data-status="created"]{color:#16a34a;border-color:rgba(22,163,74,.5);}
+.tr-tab-status[data-status="modified"]{color:#d97706;border-color:rgba(217,119,6,.5);}
+.tr-code{padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:var(--bg-deep);}
+/* ---------- Play callouts ---------- */
+.tr-callout{margin:0 0 var(--sp-3);padding:var(--sp-3) var(--sp-4);border:1px solid rgba(245,158,11,.55);border-left:5px solid #f59e0b;border-radius:12px;background:color-mix(in srgb,#f59e0b 10%,var(--surface));}
+.tr-callout-title{margin:0 0 4px;font-weight:800;color:var(--ink);font-size:var(--ty-lead);}
+.tr-callout ul{margin:0;padding-left:1.15em;color:var(--ink);}
+.tr-callout-hidden{margin:8px 0 0;color:var(--ink-dim);}
+.tr-after{margin:var(--sp-3) 0 0;color:var(--ink-dim);}
+@media (max-width:980px){.tr-banner{grid-template-columns:minmax(0,1fr);}.tr-work{grid-template-columns:minmax(0,1fr);}}
+@media (max-width:720px){.tr-banner{padding:var(--sp-3) var(--sp-4);}.tr-badge-grid{grid-template-columns:auto minmax(0,1fr);}.tr-badge-pair:last-child{grid-column:1 / -1;}}
 /* ---------- Sky Sentinel (the game) ---------- The arena spans the full content width; the HUD and touch controls are HTML so screen readers and tests read text, not pixels. */
 .ss{display:grid;gap:10px;margin:var(--sp-4) 0;}
 .ss-stage{position:relative;border:1px solid var(--border);border-radius:16px;overflow:hidden;background:#040c11;}
@@ -364,7 +448,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
     <section class="page tr-stage" data-stage="intro" aria-labelledby="st-intro"><div class="container">
       <div class="pg-open">
         <h1 data-ty="h1" class="pg-open-title" id="st-intro">Learn the Nexus loop by <span class="gtext">fixing a game</span></h1>
-        <p data-ty="lead" class="pg-open-lead">Training walks the whole loop from the Home page on one small arcade game that ships with two bugs. You play it, watch an agent describe, review, plan, implement, test, and update the code, then play again. A second, shorter loop catches the bug the first one could not see.</p>
+        <p data-ty="lead" class="pg-open-lead">Training walks the whole loop from the Home page on one small arcade game that ships with two bugs. Play it, watch an agent describe, review, plan, implement, test, and update the code, then play again. A second, shorter loop catches the bug the first one could not see.</p>
         <ol class="pg-map" aria-label="The Training journey">
           <li><span class="pg-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg></span><div><b>Introduction</b><span>How Training works and what each stage does</span></div><a href="#intro" aria-label="Introduction: How Training works and what each stage does"></a></li>
           <li><span class="pg-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 9h6v8a3 3 0 0 1-6 0V9Z"/><path d="M9 9a3 3 0 0 1 6 0M4 12h5M15 12h5M5 18l4-2M19 18l-4-2M5 6l4 3M19 6l-4 3"/></svg></span><div><b>Play the buggy game</b><span>Meet the bug the loop will fix</span></div><a href="#play-buggy" aria-label="Play the buggy game: Meet the bug the loop will fix"></a></li>
@@ -400,6 +484,917 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 <!-- /shared:footer -->
 </div>
 
+<!-- shared:training-story-json -->
+<script type="application/json" id="nh-training-story">
+{
+  "version": 1,
+  "project": "sky-sentinel",
+  "defaultProvider": "Anthropic",
+  "providers": [
+    "Anthropic",
+    "OpenAI",
+    "Google",
+    "Cursor"
+  ],
+  "stages": [
+    {
+      "id": "intro",
+      "kind": "intro"
+    },
+    {
+      "id": "play-buggy",
+      "kind": "play",
+      "game": "buggy",
+      "banner": {
+        "step": "Before the loop",
+        "title": "Play the buggy game",
+        "now": "Start the game and let one enemy shot reach the ship."
+      },
+      "callout": {
+        "title": "This build has a bug",
+        "items": [
+          "The first enemy hit destroys the ship, even with three lives left."
+        ],
+        "hidden": "One more defect hides in this build. The first loop cannot see it yet; the second loop finds it."
+      },
+      "after": "When the run ends, the HUD still shows lives left. That gap between the rules and the game is what the loop starts from."
+    },
+    {
+      "id": "loop1/describe",
+      "kind": "session",
+      "loop": 1,
+      "step": "describe",
+      "command": "/describe structure",
+      "banner": {
+        "step": "Loop 1, step 1 of 6",
+        "title": "Map the code before touching it",
+        "now": "Read the map: four source files and no tests."
+      },
+      "badge": {
+        "tier": "standard",
+        "effort": "medium",
+        "reason": "Reading and summarising a small codebase needs breadth, not deep reasoning."
+      },
+      "session": {
+        "summary": "Sky Sentinel is a small canvas shooter: a game loop, a damage handler, a hazards module, and a renderer. Nothing is tested automatically; behaviour is checked by playing.",
+        "sections": [
+          {
+            "heading": "Map",
+            "items": [
+              "src/game.js runs the loop: input, movement, collisions, then rendering, 60 times a second.",
+              "src/damage.js decides what a hit does to the ship.",
+              "src/hazards.js moves asteroids and runs timed hazards.",
+              "src/render.js draws the frame; it reads state and never changes it."
+            ]
+          },
+          {
+            "heading": "What the reader should know first",
+            "items": [
+              "Every rule about lives lives in src/damage.js, so a damage bug starts there.",
+              "There is no tests/ folder yet."
+            ]
+          }
+        ]
+      },
+      "files": [
+        {
+          "path": "src/game.js",
+          "status": "existing",
+          "code": "import { applyEnemyHit } from './damage.js';\nimport { tickHazards } from './hazards.js';\n\nexport function step(state, input, rng) {\n  state = moveShip(state, input);\n  state = tickHazards(state, rng);\n  for (const shot of hitsOnShip(state)) {\n    state = { ...state, ship: applyEnemyHit(state.ship) };\n  }\n  return state;\n}"
+        },
+        {
+          "path": "src/damage.js",
+          "status": "existing",
+          "code": "// Applies one enemy hit to the ship.\nexport function applyEnemyHit(ship) {\n  // TODO: lives were added to the design, but this handler predates them.\n  return { ...ship, destroyed: true };\n}"
+        }
+      ],
+      "activity": [
+        {
+          "tool": "Search",
+          "target": "files under src/"
+        },
+        {
+          "tool": "Read",
+          "target": "src/game.js"
+        },
+        {
+          "tool": "Read",
+          "target": "src/damage.js"
+        },
+        {
+          "tool": "Read",
+          "target": "src/hazards.js"
+        },
+        {
+          "tool": "Read",
+          "target": "src/render.js"
+        },
+        {
+          "tool": "Search",
+          "target": "test files: none found"
+        }
+      ]
+    },
+    {
+      "id": "loop1/review",
+      "kind": "session",
+      "loop": 1,
+      "step": "review",
+      "command": "/review quality",
+      "banner": {
+        "step": "Loop 1, step 2 of 6",
+        "title": "Find the first bug, with evidence",
+        "now": "Read the finding and the reproduction, then the note on what the review could not check."
+      },
+      "badge": {
+        "tier": "frontier",
+        "effort": "high",
+        "reason": "Judging behaviour against the rules and proving it with a reproduction is the step where a weaker model misses things."
+      },
+      "session": {
+        "summary": "One confirmed defect: a hit ignores lives. Seeded runs end at the first hit, with all three lives still showing.",
+        "sections": [
+          {
+            "heading": "Finding P1: the first hit destroys the ship",
+            "items": [
+              "applyEnemyHit returns destroyed: true for every hit and never reads ship.lives.",
+              "The design says a hit costs one life, with a short invulnerability window after it."
+            ],
+            "code": {
+              "label": "src/damage.js, lines 2-5",
+              "text": "export function applyEnemyHit(ship) {\n  // TODO: lives were added to the design, but this handler predates them.\n  return { ...ship, destroyed: true };\n}"
+            }
+          },
+          {
+            "heading": "Reproduction",
+            "checks": [
+              {
+                "name": "seed 4242: first hit at 8.5 s, ship destroyed, lives shown 3",
+                "result": "fail"
+              },
+              {
+                "name": "seed 7: first hit at 11.2 s, ship destroyed, lives shown 3",
+                "result": "fail"
+              },
+              {
+                "name": "seed 90210: first hit at 9.8 s, ship destroyed, lives shown 3",
+                "result": "fail"
+              }
+            ]
+          },
+          {
+            "heading": "Not checked",
+            "items": [
+              "Every run ended at the first hit, before 13 seconds. Nothing that happens later in a run was observed."
+            ]
+          }
+        ]
+      },
+      "files": [
+        {
+          "path": "src/damage.js",
+          "status": "existing",
+          "code": "// Applies one enemy hit to the ship.\nexport function applyEnemyHit(ship) {\n  // TODO: lives were added to the design, but this handler predates them.\n  return { ...ship, destroyed: true };\n}"
+        }
+      ],
+      "activity": [
+        {
+          "tool": "Read",
+          "target": "src/damage.js"
+        },
+        {
+          "tool": "Read",
+          "target": "src/game.js"
+        },
+        {
+          "tool": "Search",
+          "target": "'lives' across src/"
+        },
+        {
+          "tool": "Run",
+          "target": "game --seed 4242 --until first-hit"
+        },
+        {
+          "tool": "Run",
+          "target": "game --seed 7 --until first-hit"
+        },
+        {
+          "tool": "Run",
+          "target": "game --seed 90210 --until first-hit"
+        }
+      ]
+    },
+    {
+      "id": "loop1/plan",
+      "kind": "session",
+      "loop": 1,
+      "step": "plan",
+      "command": "/plan feature",
+      "banner": {
+        "step": "Loop 1, step 3 of 6",
+        "title": "Turn the finding into a plan",
+        "now": "Check the three phases and the definition of done."
+      },
+      "badge": {
+        "tier": "strong",
+        "effort": "high",
+        "reason": "Sequencing a fix with its tests and release needs care, but the problem is already understood."
+      },
+      "session": {
+        "summary": "Plan v1.0.1 has three phases, each ending in one local commit; only the last one publishes.",
+        "sections": [
+          {
+            "heading": "Goal",
+            "items": [
+              "A hit costs one life and gives 120 ticks of invulnerability; the last life ends the run."
+            ]
+          },
+          {
+            "heading": "Phases",
+            "items": [
+              "1. Fix applyEnemyHit to count lives and add the invulnerability window.",
+              "2. Add unit tests for one hit, a hit during invulnerability, and the last life.",
+              "3. Update the changelog and release v1.0.1."
+            ]
+          },
+          {
+            "heading": "Definition of done",
+            "items": [
+              "The three seeded reproductions from the review survive their first hit.",
+              "The new tests pass, and the full suite stays green."
+            ]
+          }
+        ]
+      },
+      "files": [
+        {
+          "path": "docs/plans/v1.0.1-damage-fix.md",
+          "status": "created",
+          "code": "# Plan - Damage fix\n\n**Version**: v1.0.1\n**Goal**: A hit costs one life, not the ship.\n\n## Phase 1: Count lives in applyEnemyHit\n## Phase 2: Unit tests for damage\n## Phase 3: Changelog and release"
+        }
+      ],
+      "activity": [
+        {
+          "tool": "Read",
+          "target": "the review's finding P1"
+        },
+        {
+          "tool": "Read",
+          "target": "src/damage.js"
+        },
+        {
+          "tool": "Write",
+          "target": "docs/plans/v1.0.1-damage-fix.md"
+        }
+      ]
+    },
+    {
+      "id": "loop1/implement",
+      "kind": "session",
+      "loop": 1,
+      "step": "implement",
+      "command": "/implement v1.0.1",
+      "banner": {
+        "step": "Loop 1, step 4 of 6",
+        "title": "Change the code, phase by phase",
+        "now": "Read the diff: the handler now counts lives."
+      },
+      "badge": {
+        "tier": "strong",
+        "effort": "medium",
+        "reason": "A small, well-specified change in one file; the plan already settled the hard questions."
+      },
+      "session": {
+        "summary": "Phase 1 is done: applyEnemyHit counts lives and starts the invulnerability window. Lint and build pass.",
+        "sections": [
+          {
+            "heading": "What changed",
+            "diff": {
+              "path": "src/damage.js",
+              "lines": [
+                "+export const INVULNERABLE_TICKS = 120;",
+                " ",
+                "-// Applies one enemy hit to the ship.",
+                "+// Applies one enemy hit: one life lost, then a short invulnerability window.",
+                " export function applyEnemyHit(ship) {",
+                "-  // TODO: lives were added to the design, but this handler predates them.",
+                "-  return { ...ship, destroyed: true };",
+                "+  if (ship.invulnerableTicks > 0) return ship;",
+                "+  const lives = ship.lives - 1;",
+                "+  return {",
+                "+    ...ship,",
+                "+    lives,",
+                "+    destroyed: lives <= 0,",
+                "+    invulnerableTicks: lives > 0 ? INVULNERABLE_TICKS : 0,",
+                "+  };",
+                " }"
+              ]
+            }
+          },
+          {
+            "heading": "Checks",
+            "checks": [
+              {
+                "name": "lint",
+                "result": "pass"
+              },
+              {
+                "name": "build",
+                "result": "pass"
+              },
+              {
+                "name": "seed 4242 survives its first hit (lives 3 to 2)",
+                "result": "pass"
+              }
+            ]
+          }
+        ]
+      },
+      "files": [
+        {
+          "path": "src/damage.js",
+          "status": "modified",
+          "code": "export const INVULNERABLE_TICKS = 120;\n\n// Applies one enemy hit: one life lost, then a short invulnerability window.\nexport function applyEnemyHit(ship) {\n  if (ship.invulnerableTicks > 0) return ship;\n  const lives = ship.lives - 1;\n  return {\n    ...ship,\n    lives,\n    destroyed: lives <= 0,\n    invulnerableTicks: lives > 0 ? INVULNERABLE_TICKS : 0,\n  };\n}"
+        }
+      ],
+      "activity": [
+        {
+          "tool": "Read",
+          "target": "docs/plans/v1.0.1-damage-fix.md"
+        },
+        {
+          "tool": "Edit",
+          "target": "src/damage.js"
+        },
+        {
+          "tool": "Run",
+          "target": "npm run lint"
+        },
+        {
+          "tool": "Run",
+          "target": "npm run build"
+        },
+        {
+          "tool": "Run",
+          "target": "game --seed 4242 --until first-hit"
+        }
+      ]
+    },
+    {
+      "id": "loop1/test",
+      "kind": "session",
+      "loop": 1,
+      "step": "test",
+      "command": "/test unit",
+      "banner": {
+        "step": "Loop 1, step 5 of 6",
+        "title": "Prove the fix with tests",
+        "now": "Read the three tests and their results."
+      },
+      "badge": {
+        "tier": "standard",
+        "effort": "medium",
+        "reason": "Writing unit tests for a small pure function is routine once the rules are written down."
+      },
+      "session": {
+        "summary": "Three unit tests now pin the damage rules. All pass, and the suite runs in under a second.",
+        "sections": [
+          {
+            "heading": "Tests added",
+            "items": [
+              "A hit costs one life, not the ship.",
+              "A hit during invulnerability costs nothing.",
+              "The last life ends the run."
+            ]
+          },
+          {
+            "heading": "Results",
+            "checks": [
+              {
+                "name": "a hit costs one life, not the ship",
+                "result": "pass"
+              },
+              {
+                "name": "a hit during invulnerability costs nothing",
+                "result": "pass"
+              },
+              {
+                "name": "the last life ends the run",
+                "result": "pass"
+              }
+            ]
+          }
+        ]
+      },
+      "files": [
+        {
+          "path": "tests/damage.test.js",
+          "status": "created",
+          "code": "import { applyEnemyHit } from '../src/damage.js';\n\ntest('a hit costs one life, not the ship', () => {\n  const ship = applyEnemyHit({ lives: 3, invulnerableTicks: 0 });\n  expect(ship.lives).toBe(2);\n  expect(ship.destroyed).toBe(false);\n});\n\ntest('a hit during invulnerability costs nothing', () => {\n  const ship = { lives: 2, invulnerableTicks: 30 };\n  expect(applyEnemyHit(ship)).toBe(ship);\n});\n\ntest('the last life ends the run', () => {\n  expect(applyEnemyHit({ lives: 1, invulnerableTicks: 0 }).destroyed).toBe(true);\n});"
+        }
+      ],
+      "activity": [
+        {
+          "tool": "Read",
+          "target": "src/damage.js"
+        },
+        {
+          "tool": "Write",
+          "target": "tests/damage.test.js"
+        },
+        {
+          "tool": "Run",
+          "target": "npm test"
+        }
+      ]
+    },
+    {
+      "id": "loop1/update",
+      "kind": "session",
+      "loop": 1,
+      "step": "update",
+      "command": "/update release",
+      "banner": {
+        "step": "Loop 1, step 6 of 6",
+        "title": "Ship it and record what changed",
+        "now": "Read the changelog entry, then play the new build."
+      },
+      "badge": {
+        "tier": "fast",
+        "effort": "low",
+        "reason": "Bumping a version and writing a changelog entry from a finished plan is mechanical."
+      },
+      "session": {
+        "summary": "v1.0.1 is released: version bumped, changelog written, tag created after the checks went green.",
+        "sections": [
+          {
+            "heading": "Release",
+            "checks": [
+              {
+                "name": "full test suite",
+                "result": "pass"
+              },
+              {
+                "name": "version 1.0.0 to 1.0.1",
+                "result": "pass"
+              },
+              {
+                "name": "tag v1.0.1",
+                "result": "pass"
+              }
+            ]
+          }
+        ]
+      },
+      "files": [
+        {
+          "path": "CHANGELOG.md",
+          "status": "modified",
+          "code": "## [1.0.1]\n\n### Fixed\n\n- A hit now costs one life, with a short invulnerability window,\n  instead of destroying the ship outright."
+        }
+      ],
+      "activity": [
+        {
+          "tool": "Run",
+          "target": "npm test"
+        },
+        {
+          "tool": "Edit",
+          "target": "package.json: 1.0.0 to 1.0.1"
+        },
+        {
+          "tool": "Edit",
+          "target": "CHANGELOG.md"
+        },
+        {
+          "tool": "Run",
+          "target": "git tag v1.0.1"
+        }
+      ]
+    },
+    {
+      "id": "play-partial",
+      "kind": "play",
+      "game": "partial",
+      "banner": {
+        "step": "Between the loops",
+        "title": "Play the fixed build, for longer",
+        "now": "Survive past 20 seconds and watch the ship."
+      },
+      "callout": {
+        "title": "One bug fixed, one still hiding",
+        "items": [
+          "A hit now costs one life, as it should.",
+          "Play long enough: the ship sometimes explodes with nothing touching it."
+        ]
+      },
+      "after": "The first review could not see this: every run it watched ended at the first hit, before the hidden bug had time to fire."
+    },
+    {
+      "id": "loop2/review",
+      "kind": "session",
+      "loop": 2,
+      "step": "review",
+      "command": "/review quality",
+      "banner": {
+        "step": "Loop 2, step 2 of 6",
+        "title": "Review again, with longer runs",
+        "now": "Read the new finding and why the first review missed it."
+      },
+      "badge": {
+        "tier": "frontier",
+        "effort": "max",
+        "reason": "An intermittent defect that appears only after 20 seconds needs the most careful reasoning and the most evidence."
+      },
+      "session": {
+        "summary": "One new confirmed defect: a leftover self-test in src/hazards.js destroys the ship at random after 20 seconds of play.",
+        "sections": [
+          {
+            "heading": "Finding P1: random explosions with no hit",
+            "items": [
+              "tickHazards still runs a self-test from the debris prototype: after tick 1,200 it blows the ship up with a small chance every tick.",
+              "The comment says it was meant to be removed before release."
+            ],
+            "code": {
+              "label": "src/hazards.js, lines 7-12",
+              "text": "  // Self-test from the debris prototype: blows the ship up to check the\n  // respawn path. It was meant to be removed before release.\n  if (state.tick > SELF_TEST_AFTER && rng() < SELF_TEST_CHANCE) {\n    return explodeShip(state, 'self-test');\n  }"
+            }
+          },
+          {
+            "heading": "Evidence",
+            "checks": [
+              {
+                "name": "seed 4242: life lost at 24.1 s with no collision event",
+                "result": "fail"
+              },
+              {
+                "name": "seed 7: life lost at 31.8 s with no collision event",
+                "result": "fail"
+              },
+              {
+                "name": "500 seeds, threats off: every life lost had no hit",
+                "result": "fail"
+              }
+            ]
+          },
+          {
+            "heading": "Why loop 1 missed it",
+            "items": [
+              "The first-hit bug ended every observed run before 13 seconds, so the self-test never had time to fire."
+            ]
+          }
+        ]
+      },
+      "files": [
+        {
+          "path": "src/hazards.js",
+          "status": "existing",
+          "code": "import { explodeShip } from './damage.js';\n\nconst SELF_TEST_AFTER = 1200;   // ticks\nconst SELF_TEST_CHANCE = 0.004; // per tick\n\nexport function tickHazards(state, rng) {\n  // Self-test from the debris prototype: blows the ship up to check the\n  // respawn path. It was meant to be removed before release.\n  if (state.tick > SELF_TEST_AFTER && rng() < SELF_TEST_CHANCE) {\n    return explodeShip(state, 'self-test');\n  }\n  return moveAsteroids(state);\n}"
+        }
+      ],
+      "activity": [
+        {
+          "tool": "Run",
+          "target": "500 seeded runs, 20,000 ticks, threats off"
+        },
+        {
+          "tool": "Search",
+          "target": "life-loss events with no matching hit"
+        },
+        {
+          "tool": "Read",
+          "target": "src/hazards.js"
+        },
+        {
+          "tool": "Search",
+          "target": "'explodeShip' across src/"
+        },
+        {
+          "tool": "Read",
+          "target": "git log -- src/hazards.js"
+        }
+      ]
+    },
+    {
+      "id": "loop2/plan",
+      "kind": "session",
+      "loop": 2,
+      "step": "plan",
+      "command": "/plan feature",
+      "banner": {
+        "step": "Loop 2, step 3 of 6",
+        "title": "A smaller plan for a smaller fix",
+        "now": "Check the two phases and the test that must stay green."
+      },
+      "badge": {
+        "tier": "strong",
+        "effort": "medium",
+        "reason": "The cause is known and the fix is a deletion; the plan mostly decides how to prove it."
+      },
+      "session": {
+        "summary": "Plan v1.0.2 has two phases: remove the self-test, then add a test that fails if a life is ever lost without a hit.",
+        "sections": [
+          {
+            "heading": "Phases",
+            "items": [
+              "1. Remove the self-test and its constants from src/hazards.js, and add the no-loss-without-hit test.",
+              "2. Update the changelog and release v1.0.2."
+            ]
+          },
+          {
+            "heading": "Definition of done",
+            "items": [
+              "Across 500 seeded runs of 20,000 ticks, every life lost has a matching hit."
+            ]
+          }
+        ]
+      },
+      "files": [
+        {
+          "path": "docs/plans/v1.0.2-remove-self-test.md",
+          "status": "created",
+          "code": "# Plan - Remove the leftover self-test\n\n**Version**: v1.0.2\n**Goal**: No life is ever lost without a hit.\n\n## Phase 1: Remove the self-test, add the property test\n## Phase 2: Changelog and release"
+        }
+      ],
+      "activity": [
+        {
+          "tool": "Read",
+          "target": "the review's new finding"
+        },
+        {
+          "tool": "Write",
+          "target": "docs/plans/v1.0.2-remove-self-test.md"
+        }
+      ]
+    },
+    {
+      "id": "loop2/implement",
+      "kind": "session",
+      "loop": 2,
+      "step": "implement",
+      "command": "/implement v1.0.2",
+      "banner": {
+        "step": "Loop 2, step 4 of 6",
+        "title": "Delete the leftover code",
+        "now": "Read the diff: the self-test is gone."
+      },
+      "badge": {
+        "tier": "strong",
+        "effort": "medium",
+        "reason": "Removing a known block of code is small, but it must not disturb asteroid movement."
+      },
+      "session": {
+        "summary": "The self-test, its two constants, and the unused import are removed. Asteroid movement is unchanged.",
+        "sections": [
+          {
+            "heading": "What changed",
+            "diff": {
+              "path": "src/hazards.js",
+              "lines": [
+                "-import { explodeShip } from './damage.js';",
+                "-",
+                "-const SELF_TEST_AFTER = 1200;   // ticks",
+                "-const SELF_TEST_CHANCE = 0.004; // per tick",
+                "-",
+                "-export function tickHazards(state, rng) {",
+                "-  // Self-test from the debris prototype: blows the ship up to check the",
+                "-  // respawn path. It was meant to be removed before release.",
+                "-  if (state.tick > SELF_TEST_AFTER && rng() < SELF_TEST_CHANCE) {",
+                "-    return explodeShip(state, 'self-test');",
+                "-  }",
+                "+export function tickHazards(state) {",
+                "   return moveAsteroids(state);",
+                " }"
+              ]
+            }
+          },
+          {
+            "heading": "Checks",
+            "checks": [
+              {
+                "name": "lint",
+                "result": "pass"
+              },
+              {
+                "name": "build",
+                "result": "pass"
+              }
+            ]
+          }
+        ]
+      },
+      "files": [
+        {
+          "path": "src/hazards.js",
+          "status": "modified",
+          "code": "export function tickHazards(state) {\n  return moveAsteroids(state);\n}"
+        }
+      ],
+      "activity": [
+        {
+          "tool": "Read",
+          "target": "docs/plans/v1.0.2-remove-self-test.md"
+        },
+        {
+          "tool": "Edit",
+          "target": "src/hazards.js"
+        },
+        {
+          "tool": "Run",
+          "target": "npm run lint"
+        },
+        {
+          "tool": "Run",
+          "target": "npm run build"
+        }
+      ]
+    },
+    {
+      "id": "loop2/test",
+      "kind": "session",
+      "loop": 2,
+      "step": "test",
+      "command": "/test unit",
+      "banner": {
+        "step": "Loop 2, step 5 of 6",
+        "title": "Prove it across many runs",
+        "now": "Read the property test: one rule checked over 500 seeds."
+      },
+      "badge": {
+        "tier": "strong",
+        "effort": "high",
+        "reason": "A rare, random defect needs a test over many seeded runs, not a single example."
+      },
+      "session": {
+        "summary": "A property test checks 500 seeded runs of 20,000 ticks: every life lost has a matching hit. It passes, and it would have failed before the fix.",
+        "sections": [
+          {
+            "heading": "Results",
+            "checks": [
+              {
+                "name": "no life is lost without a hit, across 500 seeds",
+                "result": "pass"
+              },
+              {
+                "name": "the same test on v1.0.1 (control)",
+                "result": "fail"
+              },
+              {
+                "name": "damage unit tests from loop 1",
+                "result": "pass"
+              }
+            ]
+          }
+        ]
+      },
+      "files": [
+        {
+          "path": "tests/hazards.test.js",
+          "status": "created",
+          "code": "import { runSeeded } from './helpers/run.js';\n\ntest('no life is lost without a hit, across 500 seeds', () => {\n  for (let seed = 1; seed <= 500; seed++) {\n    const run = runSeeded({ seed, ticks: 20000, threats: false });\n    expect(run.lifeLosses).toEqual(run.hits);\n  }\n});"
+        }
+      ],
+      "activity": [
+        {
+          "tool": "Write",
+          "target": "tests/hazards.test.js"
+        },
+        {
+          "tool": "Run",
+          "target": "npm test"
+        },
+        {
+          "tool": "Run",
+          "target": "the same test against v1.0.1 (control)"
+        }
+      ]
+    },
+    {
+      "id": "loop2/update",
+      "kind": "session",
+      "loop": 2,
+      "step": "update",
+      "command": "/update release",
+      "banner": {
+        "step": "Loop 2, step 6 of 6",
+        "title": "Ship the second fix",
+        "now": "Read the changelog, then play the fixed game."
+      },
+      "badge": {
+        "tier": "fast",
+        "effort": "low",
+        "reason": "The same mechanical release steps as before."
+      },
+      "session": {
+        "summary": "v1.0.2 is released with both fixes. The game now has nothing left in its known-bugs list.",
+        "sections": [
+          {
+            "heading": "Release",
+            "checks": [
+              {
+                "name": "full test suite, including the 500-seed property test",
+                "result": "pass"
+              },
+              {
+                "name": "version 1.0.1 to 1.0.2",
+                "result": "pass"
+              },
+              {
+                "name": "tag v1.0.2",
+                "result": "pass"
+              }
+            ]
+          }
+        ]
+      },
+      "files": [
+        {
+          "path": "CHANGELOG.md",
+          "status": "modified",
+          "code": "## [1.0.2]\n\n### Fixed\n\n- Removed a leftover self-test that destroyed the ship at random\n  after 20 seconds of play.\n\n## [1.0.1]\n\n### Fixed\n\n- A hit now costs one life, with a short invulnerability window,\n  instead of destroying the ship outright."
+        }
+      ],
+      "activity": [
+        {
+          "tool": "Run",
+          "target": "npm test"
+        },
+        {
+          "tool": "Edit",
+          "target": "package.json: 1.0.1 to 1.0.2"
+        },
+        {
+          "tool": "Edit",
+          "target": "CHANGELOG.md"
+        },
+        {
+          "tool": "Run",
+          "target": "git tag v1.0.2"
+        }
+      ]
+    },
+    {
+      "id": "play-fixed",
+      "kind": "play",
+      "game": "fixed",
+      "banner": {
+        "step": "After both loops",
+        "title": "Play the fixed game",
+        "now": "Play as long as the ship lasts."
+      },
+      "callout": {
+        "title": "Both bugs are fixed",
+        "items": [
+          "A hit costs one life, with a short invulnerability window.",
+          "No life is ever lost without a hit."
+        ]
+      },
+      "after": "Two loops, two releases, and every claim backed by a test that would fail if the bug came back."
+    }
+  ]
+}
+</script>
+<!-- /shared:training-story-json -->
+<!-- models:nh-training-models -->
+<script type="application/json" id="nh-training-models">
+{
+ "source": "catalog/skills/ai-development/model-routing/references/last-known-model-map.json",
+ "verified_as_of": "2026-10-01",
+ "providers": [
+  "Anthropic",
+  "OpenAI",
+  "Google",
+  "Cursor"
+ ],
+ "tiers": {
+  "frontier": {
+   "Anthropic": "claude-fable-5-1",
+   "OpenAI": "gpt-6-astra",
+   "Google": "gemini-3.8-flash",
+   "Cursor": "grok-4.7"
+  },
+  "strong": {
+   "Anthropic": "claude-opus-5-5",
+   "OpenAI": "gpt-6.1-sol",
+   "Google": "gemini-3.7-flash",
+   "Cursor": "grok-4.6"
+  },
+  "standard": {
+   "Anthropic": "claude-sonnet-5-5",
+   "OpenAI": "gpt-5.6-sol",
+   "Google": "gemini-3.6-flash",
+   "Cursor": "composer-2.5"
+  },
+  "fast": {
+   "Anthropic": "claude-haiku-4-5",
+   "OpenAI": "gpt-6-luna",
+   "Google": "gemini-3.5-flash-lite",
+   "Cursor": "composer-2.5-fast"
+  }
+ }
+}
+</script>
+<!-- /models:nh-training-models -->
 <script>
 /* shared:sky-sentinel-js */
 /* ===================================================================== Sky Sentinel (v4.13.10)
@@ -960,6 +1955,396 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
   };
 })();
 /* /shared:sky-sentinel-js */
+
+/* shared:training-story-js */
+/* ===================================================================== Training story renderer (v4.13.10)
+   Reads the story (#nh-training-story) and the stamped model map (#nh-training-models)
+   and builds each stage: the step banner with its model badge, the play callouts, the
+   structured agent sessions, and the project file panel. Text is only ever set with
+   textContent. A story that is missing a required field renders nothing and names the
+   field in the page notice instead. Inlined into training.html by
+   scripts/stamp_guide_shared.py: edit this file, not the page.
+   ===================================================================== */
+window.NexusTrainingStory = (function () {
+  "use strict";
+
+  var PROVIDER_KEY = "nh-training-provider";
+  var CHECK = "✓", CROSS = "✗";
+
+  function el(tag, cls, text) {
+    var node = document.createElement(tag);
+    if (cls) node.className = cls;
+    if (text != null) node.textContent = text;
+    return node;
+  }
+  function readJson(id) {
+    var node = document.getElementById(id);
+    if (!node) throw new Error("the page has no #" + id + " block");
+    return JSON.parse(node.textContent);
+  }
+
+  /* -------------------------------------------------- validation (the fields rendering relies on) */
+  function need(obj, path, key, kind) {
+    var v = obj == null ? undefined : obj[key];
+    var ok = kind === "array" ? Array.isArray(v) && v.length > 0 : kind === "string" ? typeof v === "string" && v.length > 0 : v != null && typeof v === "object";
+    if (!ok) throw new Error("field " + path + "." + key + " is missing or empty");
+    return v;
+  }
+  function validate(story) {
+    need(story, "story", "stages", "array");
+    need(story, "story", "providers", "array");
+    story.stages.forEach(function (st, i) {
+      var p = "stages[" + i + "]";
+      need(st, p, "id", "string");
+      need(st, p, "kind", "string");
+      if (st.kind === "intro") return;
+      var banner = need(st, p, "banner", "object");
+      ["step", "title", "now"].forEach(function (k) { need(banner, p + ".banner", k, "string"); });
+      if (st.kind === "play") {
+        need(st, p, "game", "string");
+        need(need(st, p, "callout", "object"), p + ".callout", "items", "array");
+      } else if (st.kind === "session") {
+        need(st, p, "command", "string");
+        var badge = need(st, p, "badge", "object");
+        ["tier", "effort", "reason"].forEach(function (k) { need(badge, p + ".badge", k, "string"); });
+        var session = need(st, p, "session", "object");
+        need(session, p + ".session", "summary", "string");
+        need(session, p + ".session", "sections", "array");
+        need(st, p, "files", "array");
+      } else {
+        throw new Error("field " + p + ".kind has an unknown value " + JSON.stringify(st.kind));
+      }
+    });
+  }
+
+  /* -------------------------------------------------- provider choice */
+  var models = null, provider = null, badges = [];
+  function storedProvider() {
+    try { return window.localStorage.getItem(PROVIDER_KEY); } catch (err) { return null; }
+  }
+  function setProvider(name) {
+    if (!models || models.providers.indexOf(name) === -1) return;
+    provider = name;
+    try { window.localStorage.setItem(PROVIDER_KEY, name); } catch (err) { /* storage blocked: the choice lasts this visit */ }
+    badges.forEach(paintBadge);
+  }
+  function paintBadge(b) {
+    var row = models.tiers[b.tier] || {};
+    b.model.textContent = row[provider] || "not in the bundled map";
+    b.model.setAttribute("data-provider", provider);
+    for (var i = 0; i < b.buttons.length; i++) {
+      b.buttons[i].setAttribute("aria-pressed", b.buttons[i].getAttribute("data-provider") === provider ? "true" : "false");
+    }
+  }
+
+  /* -------------------------------------------------- pieces */
+  function badgeFor(st) {
+    var box = el("div", "tr-badge");
+    box.setAttribute("data-tier", st.badge.tier);
+    box.setAttribute("aria-label", "What the agent uses for this step");
+    var grid = el("dl", "tr-badge-grid");
+    function pair(k, v, cls) {
+      var wrap = el("div", "tr-badge-pair");
+      wrap.appendChild(el("dt", null, k));
+      var dd = el("dd", cls || null, v);
+      wrap.appendChild(dd);
+      grid.appendChild(wrap);
+      return dd;
+    }
+    pair("Tier", st.badge.tier);
+    pair("Effort", st.badge.effort);
+    var model = pair("Model", "", "tr-badge-model");
+    model.setAttribute("data-tier-model", st.badge.tier);
+    box.appendChild(grid);
+    box.appendChild(el("p", "tr-badge-why", st.badge.reason));
+    var group = el("div", "tr-provider");
+    group.setAttribute("role", "group");
+    group.setAttribute("aria-label", "Show the model for");
+    var buttons = [];
+    models.providers.forEach(function (name) {
+      var btn = el("button", null, name);
+      btn.type = "button";
+      btn.setAttribute("data-provider", name);
+      btn.addEventListener("click", function () { setProvider(name); });
+      group.appendChild(btn);
+      buttons.push(btn);
+    });
+    box.appendChild(group);
+    var b = { tier: st.badge.tier, model: model, buttons: buttons };
+    badges.push(b);
+    paintBadge(b);
+    return box;
+  }
+
+  function bannerFor(st, heading) {
+    var header = el("header", "tr-banner");
+    var lead = el("div", "tr-banner-copy");
+    lead.appendChild(el("p", "tr-step", st.banner.step));
+    heading.textContent = st.banner.title;
+    heading.classList.add("tr-title");
+    lead.appendChild(heading);
+    var now = el("p", "tr-now");
+    now.appendChild(el("b", null, "Now: "));
+    now.appendChild(document.createTextNode(st.banner.now));
+    lead.appendChild(now);
+    header.appendChild(lead);
+    if (st.badge) header.appendChild(badgeFor(st));
+    return header;
+  }
+
+  function checksFor(list) {
+    var ul = el("ul", "tr-checks");
+    list.forEach(function (c) {
+      var li = el("li");
+      li.setAttribute("data-result", c.result);
+      li.appendChild(el("span", "tr-check-mark", c.result === "pass" ? CHECK : CROSS));
+      li.appendChild(el("span", "tr-check-name", c.name));
+      li.appendChild(el("span", "tr-check-result", c.result === "pass" ? "pass" : "fail"));
+      ul.appendChild(li);
+    });
+    return ul;
+  }
+
+  function diffFor(diff) {
+    var fig = el("figure", "tr-diff");
+    if (diff.lines.length > 40) fig.setAttribute("data-long", "");
+    fig.appendChild(el("figcaption", null, diff.path));
+    var pre = el("pre");
+    diff.lines.forEach(function (line) {
+      var row = el("span", "tr-diff-line", line.length > 1 ? line : line + " ");
+      row.setAttribute("data-op", line.charAt(0) === "+" ? "add" : line.charAt(0) === "-" ? "del" : "ctx");
+      pre.appendChild(row);
+    });
+    fig.appendChild(pre);
+    return fig;
+  }
+
+  function sessionFor(st) {
+    var art = el("article", "tr-session");
+    art.setAttribute("aria-label", "Agent session for " + st.command);
+    var cmd = el("p", "tr-cmd");
+    cmd.appendChild(el("span", "tr-prompt", ">"));
+    cmd.appendChild(el("code", null, st.command));
+    art.appendChild(cmd);
+    art.appendChild(el("p", "tr-summary", st.session.summary));
+    var parts = [];
+    st.session.sections.forEach(function (sec) {
+      var box = el("section", "tr-section");
+      parts.push(box);
+      box.appendChild(el("h2", "tr-section-title", sec.heading));
+      if (sec.items) {
+        var ul = el("ul", "tr-items");
+        sec.items.forEach(function (t) { ul.appendChild(el("li", null, t)); });
+        box.appendChild(ul);
+      }
+      if (sec.code) {
+        var fig = el("figure", "tr-snippet");
+        fig.appendChild(el("figcaption", null, sec.code.label));
+        var pre = el("pre");
+        pre.appendChild(el("code", null, sec.code.text));
+        fig.appendChild(pre);
+        box.appendChild(fig);
+      }
+      if (sec.diff) box.appendChild(diffFor(sec.diff));
+      if (sec.checks) box.appendChild(checksFor(sec.checks));
+      art.appendChild(box);
+    });
+    var details = el("details", "tr-details");
+    details.appendChild(el("summary", null, "Show technical details"));
+    var dl = el("dl");
+    function row(k, v) { var w = el("div"); w.appendChild(el("dt", null, k)); w.appendChild(el("dd", null, v)); dl.appendChild(w); }
+    row("Command", st.command);
+    row("Files", st.files.map(function (f) { return f.path + " (" + f.status + ")"; }).join(", "));
+    row("Model map", "verified " + models.verified_as_of + ", from " + models.source);
+    details.appendChild(dl);
+    art.appendChild(details);
+    return { article: art, parts: parts };
+  }
+
+  function activityFor(st) {
+    var box = el("section", "tr-activity");
+    box.setAttribute("aria-label", "What the agent did, in order");
+    box.appendChild(el("p", "tr-files-head", "Agent activity"));
+    var ol = el("ol");
+    st.activity.forEach(function (a) {
+      var li = el("li");
+      var tool = el("span", "tr-tool", a.tool);
+      tool.setAttribute("data-tool", a.tool.toLowerCase());
+      li.appendChild(tool);
+      li.appendChild(el("span", "tr-target", a.target));
+      ol.appendChild(li);
+    });
+    box.appendChild(ol);
+    return box;
+  }
+
+  /* Keep the two columns close in height. With the columns side by side, two moves are
+     measured each time a stage is shown: the report's trailing sections may continue under
+     the file panel, and the activity log may sit under the report instead of under the
+     files. The arrangement whose column bottoms end closest wins; reading order inside the
+     report never changes. With one column, everything stays in its natural order. */
+  var works = [];
+  function place(w, k, activityLeft) {
+    for (var i = 0; i < w.parts.length; i++) {
+      if (i < k) w.article.insertBefore(w.parts[i], w.details);
+      else w.more.appendChild(w.parts[i]);
+    }
+    w.more.hidden = k >= w.parts.length;
+    if (activityLeft) w.main.appendChild(w.activity);
+    else w.side.insertBefore(w.activity, w.more);
+    /* The last visible card in each column grows, so both columns end flush. */
+    [w.main, w.side].forEach(function (col) {
+      var last = null;
+      for (var c = 0; c < col.children.length; c++) {
+        col.children[c].classList.remove("tr-grow");
+        if (!col.children[c].hidden) last = col.children[c];
+      }
+      if (last) last.classList.add("tr-grow");
+    });
+  }
+  function rebalance(w) {
+    var n = w.parts.length;
+    if (!w.grid.offsetParent) return;
+    place(w, n, false);
+    var sideBySide = w.side.getBoundingClientRect().top < w.main.getBoundingClientRect().bottom - 1;
+    if (!sideBySide) return;
+    var best = [n, false], bestGap = Infinity;
+    [false, true].forEach(function (left) {
+      for (var k = n; k >= 1; k--) {
+        place(w, k, left);
+        var gap = Math.abs(w.main.getBoundingClientRect().bottom - w.side.getBoundingClientRect().bottom);
+        if (gap < bestGap - 1) { bestGap = gap; best = [k, left]; }
+      }
+    });
+    place(w, best[0], best[1]);
+  }
+
+  function filesFor(st) {
+    var aside = el("aside", "tr-files");
+    aside.setAttribute("aria-label", "Project files");
+    var head = el("p", "tr-files-head", "Project files");
+    aside.appendChild(head);
+    var list = el("div", "tr-tree");
+    list.setAttribute("role", "tablist");
+    list.setAttribute("aria-label", "Files the step read or changed");
+    var code = el("pre", "tr-code");
+    code.setAttribute("role", "tabpanel");
+    var codeText = el("code");
+    code.appendChild(codeText);
+    var tabs = [];
+    function select(i) {
+      for (var k = 0; k < tabs.length; k++) {
+        tabs[k].setAttribute("aria-selected", k === i ? "true" : "false");
+        tabs[k].tabIndex = k === i ? 0 : -1;
+      }
+      codeText.textContent = st.files[i].code;
+      code.setAttribute("aria-label", st.files[i].path);
+    }
+    st.files.forEach(function (f, i) {
+      var tab = el("button", "tr-tab");
+      tab.type = "button";
+      tab.setAttribute("role", "tab");
+      tab.appendChild(el("span", "tr-tab-path", f.path));
+      var tag = el("span", "tr-tab-status", f.status);
+      tag.setAttribute("data-status", f.status);
+      tab.appendChild(tag);
+      tab.addEventListener("click", function () { select(i); });
+      tab.addEventListener("keydown", function (ev) {
+        if (ev.key !== "ArrowRight" && ev.key !== "ArrowLeft" && ev.key !== "ArrowDown" && ev.key !== "ArrowUp") return;
+        ev.preventDefault();
+        var n = (i + (ev.key === "ArrowRight" || ev.key === "ArrowDown" ? 1 : -1) + tabs.length) % tabs.length;
+        select(n);
+        tabs[n].focus();
+      });
+      list.appendChild(tab);
+      tabs.push(tab);
+    });
+    aside.appendChild(list);
+    aside.appendChild(code);
+    select(st.files.length - 1);
+    return aside;
+  }
+
+  function calloutFor(st) {
+    var box = el("aside", "tr-callout");
+    box.setAttribute("role", "note");
+    box.appendChild(el("p", "tr-callout-title", st.callout.title));
+    var ul = el("ul");
+    st.callout.items.forEach(function (t) { ul.appendChild(el("li", null, t)); });
+    box.appendChild(ul);
+    if (st.callout.hidden) box.appendChild(el("p", "tr-callout-hidden", st.callout.hidden));
+    return box;
+  }
+
+  /* -------------------------------------------------- build */
+  function render(sectionFor, notice) {
+    var story, problem = null;
+    try {
+      story = readJson("nh-training-story");
+      models = readJson("nh-training-models");
+      validate(story);
+    } catch (err) {
+      problem = err && err.message ? err.message : String(err);
+    }
+    if (problem) {
+      notice.textContent = "The Training story could not be shown: " + problem + ".";
+      notice.hidden = false;
+      notice.setAttribute("data-story-error", "");
+      return null;
+    }
+    var stored = storedProvider();
+    provider = models.providers.indexOf(stored) !== -1 ? stored : story.defaultProvider;
+    story.stages.forEach(function (st) {
+      if (st.kind === "intro") return;
+      var section = sectionFor(st.id);
+      var box = section && section.querySelector(".container");
+      if (!box) return;
+      var heading = box.querySelector("h1");
+      var host = box.querySelector("[data-ss-id]");
+      var banner = bannerFor(st, heading);
+      box.insertBefore(banner, box.firstChild);
+      if (st.kind === "play") {
+        banner.appendChild(calloutFor(st));
+        var after = el("p", "tr-after", st.after);
+        if (host && host.nextSibling) box.insertBefore(after, host.nextSibling); else box.appendChild(after);
+      } else {
+        var grid = el("div", "tr-work");
+        var report = sessionFor(st);
+        var main = el("div", "tr-main");
+        main.appendChild(report.article);
+        var side = el("div", "tr-side");
+        side.appendChild(filesFor(st));
+        var activity = activityFor(st);
+        side.appendChild(activity);
+        var more = el("div", "tr-session tr-session-more");
+        more.setAttribute("aria-label", "Agent session for " + st.command + ", continued");
+        more.hidden = true;
+        side.appendChild(more);
+        grid.appendChild(main);
+        grid.appendChild(side);
+        box.appendChild(grid);
+        works.push({
+          id: st.id, grid: grid, main: main, article: report.article, side: side, activity: activity,
+          more: more, parts: report.parts, details: report.article.querySelector(".tr-details")
+        });
+      }
+    });
+    var timer = null;
+    window.addEventListener("resize", function () {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(function () { works.forEach(rebalance); }, 120);
+    });
+    return {
+      story: story,
+      provider: function () { return provider; },
+      setProvider: setProvider,
+      rebalance: function (id) { works.forEach(function (w) { if (!id || w.id === id) rebalance(w); }); }
+    };
+  }
+
+  return { render: render };
+})();
+/* /shared:training-story-js */
 </script>
 
 <script>
@@ -1428,6 +2813,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
     root.setAttribute("data-tr-stage", id);
     syncTracker(id);
     if (outline) outline.refresh();
+    if (story) story.rebalance(id);
     for (var gid in games) if (games[gid] && !sectionFor(id).contains(document.querySelector('[data-ss-id="' + gid + '"]'))) games[gid].pause("stage");
   }
 
@@ -1441,7 +2827,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       notice.hidden = false;
       id = "intro";
       try { window.history.replaceState(null, "", "#intro"); } catch (err) {}
-    } else {
+    } else if (!notice.hasAttribute("data-story-error")) {
       notice.hidden = true;
     }
     show(id);
@@ -1461,6 +2847,8 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
     });
   }
 
+  var story = window.NexusTrainingStory.render(sectionFor, notice);
+
   outline = window.NexusOutline.mount(document.getElementById("trOutline"), PARTS, {
     mode: "route", label: "Training", current: function () { return partOf(stage); }
   });
@@ -1472,7 +2860,8 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
     stage: function () { return stage; },
     go: function (id) { window.location.hash = "#" + id; },
     tracker: tracker,
-    games: function () { return Object.keys(games); }
+    games: function () { return Object.keys(games); },
+    story: function () { return story; }
   };
 })();
 </script>

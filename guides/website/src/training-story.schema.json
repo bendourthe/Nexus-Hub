@@ -1,0 +1,398 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "nexus-hub/training-story.schema.json",
+  "title": "Training story",
+  "description": "The single source for the Training page's stages, sessions, files, and model badges (v4.13.10). Rendering, the tracker, the outline, and the tests all read this data.",
+  "type": "object",
+  "required": [
+    "version",
+    "project",
+    "defaultProvider",
+    "providers",
+    "stages"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "const": 1
+    },
+    "project": {
+      "type": "string",
+      "minLength": 1
+    },
+    "defaultProvider": {
+      "enum": [
+        "Anthropic",
+        "OpenAI",
+        "Google",
+        "Cursor"
+      ]
+    },
+    "providers": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "Anthropic",
+          "OpenAI",
+          "Google",
+          "Cursor"
+        ]
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "stages": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/stage"
+      }
+    }
+  },
+  "$defs": {
+    "text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "banner": {
+      "type": "object",
+      "required": [
+        "step",
+        "title",
+        "now"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "step": {
+          "$ref": "#/$defs/text"
+        },
+        "title": {
+          "$ref": "#/$defs/text"
+        },
+        "now": {
+          "$ref": "#/$defs/text"
+        }
+      }
+    },
+    "badge": {
+      "type": "object",
+      "required": [
+        "tier",
+        "effort",
+        "reason"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "tier": {
+          "enum": [
+            "frontier",
+            "strong",
+            "standard",
+            "fast"
+          ]
+        },
+        "effort": {
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "max"
+          ]
+        },
+        "reason": {
+          "$ref": "#/$defs/text"
+        }
+      }
+    },
+    "check": {
+      "type": "object",
+      "required": [
+        "name",
+        "result"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/text"
+        },
+        "result": {
+          "enum": [
+            "pass",
+            "fail"
+          ]
+        }
+      }
+    },
+    "section": {
+      "type": "object",
+      "required": [
+        "heading"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "heading": {
+          "$ref": "#/$defs/text"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/text"
+          }
+        },
+        "code": {
+          "type": "object",
+          "required": [
+            "label",
+            "text"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "label": {
+              "$ref": "#/$defs/text"
+            },
+            "text": {
+              "$ref": "#/$defs/text"
+            }
+          }
+        },
+        "diff": {
+          "type": "object",
+          "required": [
+            "path",
+            "lines"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "path": {
+              "$ref": "#/$defs/text"
+            },
+            "lines": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[-+ ]"
+              },
+              "minItems": 1
+            }
+          }
+        },
+        "checks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/check"
+          }
+        }
+      }
+    },
+    "file": {
+      "type": "object",
+      "required": [
+        "path",
+        "status",
+        "code"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/text"
+        },
+        "status": {
+          "enum": [
+            "existing",
+            "modified",
+            "created"
+          ]
+        },
+        "code": {
+          "$ref": "#/$defs/text"
+        }
+      }
+    },
+    "stage": {
+      "type": "object",
+      "required": [
+        "id",
+        "kind"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/text"
+        },
+        "kind": {
+          "enum": [
+            "intro",
+            "play",
+            "session"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "play"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "game",
+              "banner",
+              "callout",
+              "after"
+            ],
+            "properties": {
+              "id": {
+                "pattern": "^play-"
+              },
+              "game": {
+                "enum": [
+                  "buggy",
+                  "partial",
+                  "fixed"
+                ]
+              },
+              "banner": {
+                "$ref": "#/$defs/banner"
+              },
+              "callout": {
+                "type": "object",
+                "required": [
+                  "title",
+                  "items"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "title": {
+                    "$ref": "#/$defs/text"
+                  },
+                  "items": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "$ref": "#/$defs/text"
+                    }
+                  },
+                  "hidden": {
+                    "$ref": "#/$defs/text"
+                  }
+                }
+              },
+              "after": {
+                "$ref": "#/$defs/text"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "session"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "loop",
+              "step",
+              "command",
+              "banner",
+              "badge",
+              "session",
+              "files",
+              "activity"
+            ],
+            "properties": {
+              "id": {
+                "pattern": "^loop[12]/(describe|review|plan|implement|test|update)$"
+              },
+              "loop": {
+                "enum": [
+                  1,
+                  2
+                ]
+              },
+              "step": {
+                "enum": [
+                  "describe",
+                  "review",
+                  "plan",
+                  "implement",
+                  "test",
+                  "update"
+                ]
+              },
+              "command": {
+                "pattern": "^/[a-z]+( [a-z0-9.]+)?$"
+              },
+              "banner": {
+                "$ref": "#/$defs/banner"
+              },
+              "badge": {
+                "$ref": "#/$defs/badge"
+              },
+              "session": {
+                "type": "object",
+                "required": [
+                  "summary",
+                  "sections"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "summary": {
+                    "$ref": "#/$defs/text"
+                  },
+                  "sections": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "$ref": "#/$defs/section"
+                    }
+                  }
+                }
+              },
+              "files": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "$ref": "#/$defs/file"
+                }
+              },
+              "activity": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "$ref": "#/$defs/activity"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "activity": {
+      "type": "object",
+      "required": [
+        "tool",
+        "target"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "tool": {
+          "enum": [
+            "Read",
+            "Search",
+            "Run",
+            "Edit",
+            "Write"
+          ]
+        },
+        "target": {
+          "$ref": "#/$defs/text"
+        }
+      }
+    }
+  }
+}

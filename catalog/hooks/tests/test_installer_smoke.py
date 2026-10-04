@@ -635,6 +635,9 @@ DEV_ONLY_SCRIPTS = {
     # Repo-internal shared-fragment stamper (v4.13.10): inlines guides/website/shared/
     # into both guide pages; --check fails on drift. Edits this repository only.
     "stamp_guide_shared.py",
+    # Repo-internal model-map stamper (v4.13.10): copies the bundled model map into
+    # guides/website/training.html so no model id there is hand-typed; --check fails on drift.
+    "stamp_training_models.py",
     # One-shot cross-catalog maintenance utility that injects iterative-refinement
     # text into SKILL.md / command .md files. Maintainer tool only.
     "apply_iterative_workflow.py",
