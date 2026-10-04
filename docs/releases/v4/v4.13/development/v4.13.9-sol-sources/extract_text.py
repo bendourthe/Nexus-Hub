@@ -58,11 +58,13 @@ class _Visible(HTMLParser):
 def main() -> int:
     src, dst = sys.argv[1], sys.argv[2]
     parser = _Visible()
-    parser.feed(open(src, encoding="utf-8", errors="replace").read())
+    with open(src, encoding="utf-8", errors="replace") as fh:
+        parser.feed(fh.read())
     text = "".join(parser.out)
     lines = [" ".join(line.split()) for line in text.splitlines()]
     cleaned = "\n".join(line for line in lines if line)
-    open(dst, "w", encoding="utf-8", newline="\n").write(cleaned + "\n")
+    with open(dst, "w", encoding="utf-8", newline="\n") as fh:
+        fh.write(cleaned + "\n")
     print(f"{dst}: {len(cleaned)} chars, {cleaned.count(chr(10)) + 1} lines")
     return 0
 
