@@ -74,7 +74,7 @@ s = s[:m.start()] + (
     '        <ol class="pg-map" aria-label="What this page covers">\n' + f_tiles +
     '        </ol>\n'
     '      </div>\n'
-    '      <div class="pg-outline-host" data-outline-page="foundations"></div>\n'
+    '      <div data-outline-page="foundations"></div>\n'
 ) + s[m.end():]
 
 # 3. Cheatsheets opening (the jump bar becomes the outline).
@@ -97,10 +97,10 @@ s = s[:c_start] + (
     '      <div class="hero pg-open">\n'
     '        <h1 data-ty="h1" class="pg-open-title">Every command, <span class="gtext">every scope</span></h1>\n'
     f'        <p data-ty="lead" class="pg-open-lead">{lead}</p>\n'
-    '        <ol class="pg-map" aria-label="Command groups">\n' + c_tiles +
+    '        <ol class="pg-map" aria-label="Command groups" data-count="7">\n' + c_tiles +
     '        </ol>\n'
     '      </div>\n'
-    '      <div class="pg-outline-host" data-outline-page="cheatsheets"></div>\n'
+    '      <div data-outline-page="cheatsheets"></div>\n'
 ) + s[c_end:]
 
 # 4. Router: Foundations sub-routes scroll like Cheatsheets ones.
@@ -151,12 +151,44 @@ rep("  /* -------------------------------------------------- boot */\n", '''  /*
   /* -------------------------------------------------- boot */
 ''')
 
+# 6. The generic reduced-motion rules move to the shared motion-css fragment, which sits where
+#    they were so the cascade order is unchanged.
+GENERIC = [
+    "html{scroll-behavior:auto;}\n",
+    "#constellation{transition:none;}\n",
+    ".js .page.active{animation:none;}\n",
+    ".js .reveal{opacity:1;transform:none;transition:none;}\n",
+    ".js .seq-fade,.js .seq-rise,.js .seq-draw,.js .seq-glow,.js .ann,.js .ann-legend-row{transition-duration:0s;}\n",
+    ".js .seq-rise{opacity:1;transform:none;}\n",
+    ".js .seq-fade{opacity:1;}\n",
+]
+anchor = s.index("html{scroll-behavior:auto;}\n")
+block_start = s.rfind("@media (prefers-reduced-motion:reduce){", 0, anchor)
+depth, i = 0, block_start
+while True:
+    if s[i] == "{":
+        depth += 1
+    elif s[i] == "}":
+        depth -= 1
+        if depth == 0:
+            break
+    i += 1
+block_end = i + 2
+block = s[block_start:block_end]
+for line in GENERIC:
+    assert block.count(line) == 1, line
+    block = block.replace(line, "", 1)
+note = block[block.index("/* v4.4.4: a step must never be HIDDEN"):]
+note = note[: note.index("*/") + 3]
+block = block.replace(note, "", 1)
+s = s[:block_start] + block + "/* shared:motion-css */\n/* /shared:motion-css */\n" + s[block_end:]
+
 G.write_bytes((s.replace("\n", "\r\n") if crlf else s).encode("utf-8"))
 
 mf = Path("guides/website/shared/fragments.json")
 d = json.loads(mf.read_text(encoding="utf-8"))
-d["fragments"]["opening-css"] = {"syntax": "css", "file": "opening.css"}
-d["fragments"]["outline-css"] = {"syntax": "css", "file": "outline.css"}
-d["fragments"]["outline-js"] = {"syntax": "js", "file": "outline.js"}
+for name in ("opening-css", "outline-css", "outline-js", "motion-css"):
+    if name not in d["pages"]["nexus-hub-guide.html"]["fragments"]:
+        d["pages"]["nexus-hub-guide.html"]["fragments"].append(name)
 mf.write_text(json.dumps(d, indent=2) + "\n", encoding="utf-8", newline="\n")
 print("guide edited")

@@ -4,6 +4,7 @@
 .js .page.active{animation:none;}
 .js .reveal{opacity:1;transform:none;transition:none;}
 .js .seq-fade,.js .seq-rise,.js .seq-draw,.js .seq-glow,.js .ann,.js .ann-legend-row{transition-duration:0s;}
+/* v4.4.4: a step must never be HIDDEN under reduced motion. Zeroing the transition made the reveal instant but still waited for the observer to play the sequence, so a reader who had asked for less motion saw an empty strip until they scrolled it into view. */
 .js .seq-rise{opacity:1;transform:none;}
 .js .seq-fade{opacity:1;}
 }

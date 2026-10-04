@@ -133,8 +133,9 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .pg-open-title{margin:var(--sp-5) auto 0;text-align:center;text-wrap:balance;color:var(--ink);}
 .pg-open .gtext{color:var(--ink);background:linear-gradient(90deg,var(--cyan),var(--teal));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
 .pg-open-lead{margin:var(--sp-3) auto 0;text-align:center;color:var(--ink-dim);text-wrap:pretty;}
-.pg-map{list-style:none;margin:var(--sp-5) 0 0;padding:0;display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr));text-align:left;}
-.pg-map li{position:relative;display:flex;gap:12px;align-items:flex-start;min-width:0;padding:12px 14px;border:1px solid var(--border);border-radius:14px;background:var(--surface);}
+/* Tiles wrap and grow, so every row ends flush whatever the count: six tiles fill one row, seven wrap as four and three. */
+.pg-map{list-style:none;margin:var(--sp-5) 0 0;padding:0;display:flex;flex-wrap:wrap;gap:10px;text-align:left;}
+.pg-map li{flex:1 1 160px;position:relative;display:flex;gap:12px;align-items:flex-start;min-width:0;padding:12px 14px;border:1px solid var(--border);border-radius:14px;background:var(--surface);}
 .pg-map a{position:absolute;inset:0;border-radius:inherit;}
 .pg-map a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 .pg-map li:hover{border-color:color-mix(in srgb,var(--accent) 55%,var(--border));}
@@ -143,16 +144,18 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .pg-map b{display:block;color:var(--ink);font-size:var(--ty-body);line-height:1.3;}
 .pg-map span{display:block;color:var(--ink-dim);font-size:var(--ty-body-sm);line-height:1.4;overflow-wrap:anywhere;}
 .pg-map .pg-count{display:inline-block;margin-top:4px;font-family:var(--mono);font-size:var(--ty-micro);color:var(--teal-soft);}
-@media (max-width:720px){.pg-map{grid-template-columns:repeat(2,minmax(0,1fr));}.pg-map li{padding:10px;gap:8px;}.pg-glyph{width:28px;height:28px;}.pg-glyph svg{width:16px;height:16px;}}
+.pg-map[data-count="7"] li{flex-basis:230px;}
+@media (max-width:720px){.pg-map li,.pg-map[data-count="7"] li{flex-basis:140px;padding:10px;gap:8px;}.pg-glyph{width:28px;height:28px;}.pg-glyph svg{width:16px;height:16px;}}
 /* /shared:opening-css */
 /* shared:outline-css */
 /* ---------- Page outline (v4.13.10, shared) ---------- A sticky "On this page" bar under the site header. Wide screens show every entry as a chip; phones collapse it to one line naming the current section. It sits above the content rather than beside it so no scene loses width. */
 .pg-outline{position:sticky;top:59px;z-index:30;margin:var(--sp-2) 0 var(--sp-4);background:color-mix(in srgb,var(--page-bg) 90%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);}
-.pg-outline details{padding:8px 0;}
+.pg-outline details{padding:8px 0;margin:0;border:0;border-radius:0;background:transparent;box-shadow:none;}
+.pg-outline summary{padding:0;margin:0;border:0;background:transparent;}
 .pg-outline summary{display:none;cursor:pointer;list-style:none;align-items:center;gap:8px;min-height:44px;color:var(--ink);font-weight:600;}
 .pg-outline summary::-webkit-details-marker{display:none;}
 .pg-outline summary small{color:var(--ink-dim);font-weight:400;}
-.pg-outline summary::after{content:"";margin-left:auto;width:8px;height:8px;border-right:2px solid var(--ink-dim);border-bottom:2px solid var(--ink-dim);transform:rotate(45deg);transition:transform .2s var(--ease);}
+.pg-outline summary::after{content:"";margin-left:auto;margin-right:3px;flex-shrink:0;width:8px;height:8px;border-right:2px solid var(--ink-dim);border-bottom:2px solid var(--ink-dim);transform:rotate(45deg);transition:transform .2s var(--ease);}
 .pg-outline details[open] summary::after{transform:rotate(-135deg);}
 .pg-outline ol{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
 .pg-outline .pg-outline-label{color:var(--ink-dim);font-size:var(--ty-body-sm);margin-right:4px;}
@@ -185,6 +188,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .js .page.active{animation:none;}
 .js .reveal{opacity:1;transform:none;transition:none;}
 .js .seq-fade,.js .seq-rise,.js .seq-draw,.js .seq-glow,.js .ann,.js .ann-legend-row{transition-duration:0s;}
+/* v4.4.4: a step must never be HIDDEN under reduced motion. Zeroing the transition made the reveal instant but still waited for the observer to play the sequence, so a reader who had asked for less motion saw an empty strip until they scrolled it into view. */
 .js .seq-rise{opacity:1;transform:none;}
 .js .seq-fade{opacity:1;}
 }
@@ -260,8 +264,11 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .tr-checks{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:6px;}
 .tr-checks li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:baseline;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg-0);}
 .tr-check-mark{font-weight:800;}
-.tr-checks [data-result="pass"] .tr-check-mark{color:#22c55e;}
+.tr-checks [data-result="pass"] .tr-check-mark{color:#4ade80;}
 .tr-checks [data-result="fail"] .tr-check-mark{color:#f87171;}
+/* v4.13.10: deeper shades on the light theme keep the marks and status labels at WCAG AA (>= 5.4:1 on every light background). */
+html[data-theme="light"] .tr-checks [data-result="pass"] .tr-check-mark{color:#166534;}
+html[data-theme="light"] .tr-checks [data-result="fail"] .tr-check-mark{color:#b91c1c;}
 .tr-check-name{color:var(--ink);}
 .tr-check-result{font-family:var(--mono);font-size:var(--ty-micro);color:var(--ink-dim);text-transform:uppercase;}
 .tr-details{margin-top:var(--sp-4);border-top:1px solid var(--border);padding-top:var(--sp-3);}
@@ -278,6 +285,8 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .tr-tool{padding:2px 8px;border:1px solid var(--border);border-radius:6px;font-family:var(--mono);font-size:var(--ty-micro);font-weight:700;letter-spacing:.05em;text-align:center;text-transform:uppercase;color:var(--teal-soft);}
 .tr-tool[data-tool="run"]{color:#60a5fa;border-color:rgba(96,165,250,.45);}
 .tr-tool[data-tool="edit"],.tr-tool[data-tool="write"]{color:#f59e0b;border-color:rgba(245,158,11,.45);}
+html[data-theme="light"] .tr-tool[data-tool="run"]{color:#1d4ed8;border-color:rgba(29,78,216,.4);}
+html[data-theme="light"] .tr-tool[data-tool="edit"],html[data-theme="light"] .tr-tool[data-tool="write"]{color:#92400e;border-color:rgba(146,64,14,.4);}
 .tr-target{font-family:var(--mono);font-size:var(--ty-body-sm);color:var(--ink);overflow-wrap:anywhere;}
 .tr-tree{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px;}
 .tr-tab{display:inline-flex;align-items:center;gap:8px;min-height:36px;max-width:100%;padding:4px 10px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--ink-dim);font-family:var(--mono);font-size:var(--ty-micro);cursor:pointer;}
@@ -285,8 +294,10 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .tr-tab[aria-selected="true"]{border-color:var(--accent);color:var(--ink);background:color-mix(in srgb,var(--accent) 12%,transparent);}
 .tr-tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 .tr-tab-status{padding:1px 7px;border-radius:999px;border:1px solid var(--border);font-size:11px;}
-.tr-tab-status[data-status="created"]{color:#16a34a;border-color:rgba(22,163,74,.5);}
-.tr-tab-status[data-status="modified"]{color:#d97706;border-color:rgba(217,119,6,.5);}
+.tr-tab-status[data-status="created"]{color:#4ade80;border-color:rgba(74,222,128,.5);}
+.tr-tab-status[data-status="modified"]{color:#fbbf24;border-color:rgba(251,191,36,.5);}
+html[data-theme="light"] .tr-tab-status[data-status="created"]{color:#166534;border-color:rgba(22,101,52,.45);}
+html[data-theme="light"] .tr-tab-status[data-status="modified"]{color:#92400e;border-color:rgba(146,64,14,.45);}
 .tr-code{padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:var(--bg-deep);}
 /* ---------- Play callouts ---------- */
 .tr-callout{margin:0 0 var(--sp-3);padding:var(--sp-3) var(--sp-4);border:1px solid rgba(245,158,11,.55);border-left:5px solid #f59e0b;border-radius:12px;background:color-mix(in srgb,#f59e0b 10%,var(--surface));}
@@ -435,7 +446,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 
   <main id="app">
     <div class="container">
-      <div class="pg-outline-host" id="trOutline"></div>
+      <div id="trOutline"></div>
       <p class="tr-notice" id="trNotice" role="status" hidden></p>
       <div class="tr-track" id="trTrack" aria-label="Where you are in the Nexus loop">
         <p class="tr-track-head"><b id="trTrackLoop">Loop 1</b><span id="trTrackNote">The six steps from the Home page, run on one game.</span></p>
@@ -2255,6 +2266,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       last = 0; acc = 0;
       emit("start", { tick: S.tick });
       sync();
+      wake();
       canvas.focus({ preventScroll: true });
     }
     function pause(reason) {
@@ -2273,6 +2285,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       last = 0; acc = 0;
       emit("resume", {});
       sync();
+      wake();
     }
     function withRunning(fn) {
       if (!S || S.state === "over") return false;
@@ -2305,6 +2318,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       start: start,
       pause: pause,
       resume: resume,
+      running: function () { return !!S && S.state === "running"; },
       reset: function () { reset(); },
       jumpToBoss: function () {
         if (!cfg.boss) return false;
@@ -2441,11 +2455,25 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
   }
 
   /* -------------------------------------------------- shared loop and page events */
-  function loop(now) {
-    if (!manual) for (var k in instances) instances[k].frame(now);
+  /* The loop asks for a frame only while some game is running, so an idle, paused, or hidden game
+     costs a reading tab nothing. start and resume wake it; one pending request at most, so waking
+     twice can never start a second loop. */
+  var scheduled = false;
+  function anyRunning() {
+    for (var k in instances) if (instances[k].running()) return true;
+    return false;
+  }
+  function wake() {
+    if (scheduled || manual) return;
+    scheduled = true;
     window.requestAnimationFrame(loop);
   }
-  window.requestAnimationFrame(loop);
+  function loop(now) {
+    scheduled = false;
+    if (manual) return;
+    for (var k in instances) instances[k].frame(now);
+    if (anyRunning()) wake();
+  }
   document.addEventListener("visibilitychange", function () {
     if (document.visibilityState === "hidden") for (var k in instances) instances[k].pause("hidden");
   });
@@ -2455,7 +2483,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
     create: create,
     get: function (id) { return instances[id] || null; },
     ids: function () { return Object.keys(instances); },
-    manual: function (on) { manual = !!on; },
+    manual: function (on) { manual = !!on; if (!manual && anyRunning()) wake(); },
     defectSchedule: defectSchedule,
     constants: {
       HZ: HZ, GRACE_TICKS: GRACE_TICKS, FIRST_SHOT_CLEARANCE: FIRST_SHOT_CLEARANCE, EARLIEST_EXPLOSION: EARLIEST_EXPLOSION,
@@ -2760,9 +2788,13 @@ window.NexusTrainingStory = (function () {
       tab.appendChild(tag);
       tab.addEventListener("click", function () { select(i); });
       tab.addEventListener("keydown", function (ev) {
-        if (ev.key !== "ArrowRight" && ev.key !== "ArrowLeft" && ev.key !== "ArrowDown" && ev.key !== "ArrowUp") return;
+        var n;
+        if (ev.key === "ArrowRight" || ev.key === "ArrowDown") n = (i + 1) % tabs.length;
+        else if (ev.key === "ArrowLeft" || ev.key === "ArrowUp") n = (i - 1 + tabs.length) % tabs.length;
+        else if (ev.key === "Home") n = 0;
+        else if (ev.key === "End") n = tabs.length - 1;
+        else return;
         ev.preventDefault();
-        var n = (i + (ev.key === "ArrowRight" || ev.key === "ArrowDown" ? 1 : -1) + tabs.length) % tabs.length;
         select(n);
         tabs[n].focus();
       });

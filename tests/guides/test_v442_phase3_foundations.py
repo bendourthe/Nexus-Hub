@@ -50,7 +50,7 @@ def _open(browser, width: int = 1440, **ctx):
     context = browser.new_context(viewport={"width": width, "height": 900}, **ctx)
     page = context.new_page()
     page.goto(GUIDE.as_uri() + "#foundations")
-    page.wait_for_function("window.NexusSeq && window.NexusTraining")
+    page.wait_for_function("window.NexusSeq")
     page.wait_for_timeout(150)
     return context, page
 

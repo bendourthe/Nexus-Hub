@@ -73,7 +73,7 @@ def _scene(browser, width: int = 1440):
 
 
 def test_there_is_exactly_one_harness_scene(guide_text: str) -> None:
-    fx = guide_text[guide_text.index('id="page-foundations"') : guide_text.index('id="page-training"')]
+    fx = guide_text[guide_text.index('id="page-foundations"') : guide_text.index('id="page-cheatsheets"')]
     assert fx.count('id="fx-harness"') == 1
     assert "fx-practice" not in guide_text, "the second harness scene must be gone, markup and styles"
     assert "fx-hstack" not in guide_text, "the retired SVG figure must not survive anywhere"
@@ -125,7 +125,7 @@ def test_every_class_used_in_foundations_has_a_style_rule(guide_text: str) -> No
     """
     css = guide_text.split("<style>", 1)[1].split("</style>", 1)[0]
     declared = set(re.findall(r"\.([A-Za-z][\w-]*)", css))
-    fx = guide_text[guide_text.index('id="page-foundations"') : guide_text.index('id="page-training"')]
+    fx = guide_text[guide_text.index('id="page-foundations"') : guide_text.index('id="page-cheatsheets"')]
     used: set[str] = set()
     for match in re.finditer(r'class="([^"]+)"', fx):
         used.update(match.group(1).split())

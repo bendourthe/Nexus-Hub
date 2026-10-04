@@ -533,7 +533,7 @@ def test_foundations_phase2_diagrams_are_legible_at_release_and_breakpoint_width
             browser.close()
 
 
-def test_training_cold_deep_link_accepts_and_discards_legacy_beat(
+def test_legacy_training_deep_link_redirects_to_the_training_page(
     render_gate: object,
 ) -> None:
     _require_browser(render_gate)
@@ -549,24 +549,19 @@ def test_training_cold_deep_link_accepts_and_discards_legacy_beat(
             context.route(re.compile(r"^https?://"), lambda route: route.abort())
             page = context.new_page()
             try:
+                # v4.13.10: an old link, even one carrying the retired ?beat= query,
+                # lands on the matching stage of the separate Training page.
                 page.goto(
                     f"{guide_url}#training/review?beat=1",
                     wait_until="load",
                 )
-                page.wait_for_selector(
-                    '.page.active[data-page="training"]',
-                    state="visible",
-                    timeout=3000,
-                )
+                page.wait_for_url(re.compile(r"training\.html#loop1/review$"), timeout=3000)
                 page.wait_for_function(
-                    "() => window.NexusTraining && window.NexusTraining.snapshot().sectionId === 'describe-review'",
+                    "() => window.NexusTrainingPage && NexusTrainingPage.stage() === 'loop1/review'",
                     timeout=3000,
                 )
-                assert page.evaluate("window.NexusTraining.snapshot().actionIndex") == 0
-                section = page.locator('[data-nht-section="describe-review"]')
-                assert section.locator("h2").inner_text() == "Map the bug, then review it"
-                section.locator('[data-nht-action-index="1"]').click()
-                assert section.locator('[data-nht="command"]').inner_text() == "/review"
+                stage = page.locator('section[data-stage="loop1/review"]')
+                assert "/review" in stage.locator(".tr-cmd").first.inner_text()
             finally:
                 context.close()
         finally:
@@ -594,18 +589,16 @@ def test_training_page_navigation_does_not_overflow_at_320px(
             )
             page = context.new_page()
             try:
-                page.goto(f"{guide_url}#training", wait_until="load")
-                page.wait_for_selector(
-                    '.page.active[data-page="training"]',
-                    state="visible",
+                # v4.13.10: Training is training.html, whose stage outline is its page navigation.
+                page.goto(f"{renderer.TRAINING.resolve().as_uri()}#intro", wait_until="load")
+                page.wait_for_function(
+                    "() => window.NexusTrainingPage && NexusTrainingPage.stage() === 'intro'",
                     timeout=3000,
                 )
                 page.add_style_tag(
-                    content=".pagenav, .pagenav * { font-family: Arial, sans-serif !important; }"
+                    content=".pg-outline, .pg-outline * { font-family: Arial, sans-serif !important; }"
                 )
-                metrics = page.locator(
-                    '.page.active[data-page="training"] .pagenav'
-                ).evaluate(
+                metrics = page.locator(".pg-outline").evaluate(
                     """
                     nav => ({
                       documentWidth: document.documentElement.scrollWidth,

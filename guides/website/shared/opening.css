@@ -3,8 +3,9 @@
 .pg-open-title{margin:var(--sp-5) auto 0;text-align:center;text-wrap:balance;color:var(--ink);}
 .pg-open .gtext{color:var(--ink);background:linear-gradient(90deg,var(--cyan),var(--teal));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
 .pg-open-lead{margin:var(--sp-3) auto 0;text-align:center;color:var(--ink-dim);text-wrap:pretty;}
-.pg-map{list-style:none;margin:var(--sp-5) 0 0;padding:0;display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr));text-align:left;}
-.pg-map li{position:relative;display:flex;gap:12px;align-items:flex-start;min-width:0;padding:12px 14px;border:1px solid var(--border);border-radius:14px;background:var(--surface);}
+/* Tiles wrap and grow, so every row ends flush whatever the count: six tiles fill one row, seven wrap as four and three. */
+.pg-map{list-style:none;margin:var(--sp-5) 0 0;padding:0;display:flex;flex-wrap:wrap;gap:10px;text-align:left;}
+.pg-map li{flex:1 1 160px;position:relative;display:flex;gap:12px;align-items:flex-start;min-width:0;padding:12px 14px;border:1px solid var(--border);border-radius:14px;background:var(--surface);}
 .pg-map a{position:absolute;inset:0;border-radius:inherit;}
 .pg-map a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 .pg-map li:hover{border-color:color-mix(in srgb,var(--accent) 55%,var(--border));}
@@ -13,4 +14,5 @@
 .pg-map b{display:block;color:var(--ink);font-size:var(--ty-body);line-height:1.3;}
 .pg-map span{display:block;color:var(--ink-dim);font-size:var(--ty-body-sm);line-height:1.4;overflow-wrap:anywhere;}
 .pg-map .pg-count{display:inline-block;margin-top:4px;font-family:var(--mono);font-size:var(--ty-micro);color:var(--teal-soft);}
-@media (max-width:720px){.pg-map{grid-template-columns:repeat(2,minmax(0,1fr));}.pg-map li{padding:10px;gap:8px;}.pg-glyph{width:28px;height:28px;}.pg-glyph svg{width:16px;height:16px;}}
+.pg-map[data-count="7"] li{flex-basis:230px;}
+@media (max-width:720px){.pg-map li,.pg-map[data-count="7"] li{flex-basis:140px;padding:10px;gap:8px;}.pg-glyph{width:28px;height:28px;}.pg-glyph svg{width:16px;height:16px;}}

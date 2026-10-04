@@ -851,6 +851,7 @@
       last = 0; acc = 0;
       emit("start", { tick: S.tick });
       sync();
+      wake();
       canvas.focus({ preventScroll: true });
     }
     function pause(reason) {
@@ -869,6 +870,7 @@
       last = 0; acc = 0;
       emit("resume", {});
       sync();
+      wake();
     }
     function withRunning(fn) {
       if (!S || S.state === "over") return false;
@@ -901,6 +903,7 @@
       start: start,
       pause: pause,
       resume: resume,
+      running: function () { return !!S && S.state === "running"; },
       reset: function () { reset(); },
       jumpToBoss: function () {
         if (!cfg.boss) return false;
@@ -1037,11 +1040,25 @@
   }
 
   /* -------------------------------------------------- shared loop and page events */
-  function loop(now) {
-    if (!manual) for (var k in instances) instances[k].frame(now);
+  /* The loop asks for a frame only while some game is running, so an idle, paused, or hidden game
+     costs a reading tab nothing. start and resume wake it; one pending request at most, so waking
+     twice can never start a second loop. */
+  var scheduled = false;
+  function anyRunning() {
+    for (var k in instances) if (instances[k].running()) return true;
+    return false;
+  }
+  function wake() {
+    if (scheduled || manual) return;
+    scheduled = true;
     window.requestAnimationFrame(loop);
   }
-  window.requestAnimationFrame(loop);
+  function loop(now) {
+    scheduled = false;
+    if (manual) return;
+    for (var k in instances) instances[k].frame(now);
+    if (anyRunning()) wake();
+  }
   document.addEventListener("visibilitychange", function () {
     if (document.visibilityState === "hidden") for (var k in instances) instances[k].pause("hidden");
   });
@@ -1051,7 +1068,7 @@
     create: create,
     get: function (id) { return instances[id] || null; },
     ids: function () { return Object.keys(instances); },
-    manual: function (on) { manual = !!on; },
+    manual: function (on) { manual = !!on; if (!manual && anyRunning()) wake(); },
     defectSchedule: defectSchedule,
     constants: {
       HZ: HZ, GRACE_TICKS: GRACE_TICKS, FIRST_SHOT_CLEARANCE: FIRST_SHOT_CLEARANCE, EARLIEST_EXPLOSION: EARLIEST_EXPLOSION,

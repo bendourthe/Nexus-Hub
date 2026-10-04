@@ -291,9 +291,13 @@ window.NexusTrainingStory = (function () {
       tab.appendChild(tag);
       tab.addEventListener("click", function () { select(i); });
       tab.addEventListener("keydown", function (ev) {
-        if (ev.key !== "ArrowRight" && ev.key !== "ArrowLeft" && ev.key !== "ArrowDown" && ev.key !== "ArrowUp") return;
+        var n;
+        if (ev.key === "ArrowRight" || ev.key === "ArrowDown") n = (i + 1) % tabs.length;
+        else if (ev.key === "ArrowLeft" || ev.key === "ArrowUp") n = (i - 1 + tabs.length) % tabs.length;
+        else if (ev.key === "Home") n = 0;
+        else if (ev.key === "End") n = tabs.length - 1;
+        else return;
         ev.preventDefault();
-        var n = (i + (ev.key === "ArrowRight" || ev.key === "ArrowDown" ? 1 : -1) + tabs.length) % tabs.length;
         select(n);
         tabs[n].focus();
       });

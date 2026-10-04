@@ -14,14 +14,24 @@ THEMES = ("dark", "light")
 # v4.4.1 Phase 2 widened this set. 720 and 721 straddle the narrow-layout breakpoint so an
 # off-by-one error is caught on the pixel where it happens, not averaged away between 420 and 900.
 WIDTHS = (320, 420, 720, 721, 900, 1440)
+TRAINING = GUIDE.with_name("training.html")
+# v4.13.10: the "training" route is the separate training.html, audited stage by stage.
 TRAINING_SCENES = (
-    "game",
-    "describe-review",
-    "plan",
-    "implement",
-    "fixed-game",
-    "compare",
-    "presentify",
+    "intro",
+    "play-buggy",
+    "loop1/describe",
+    "loop1/review",
+    "loop1/plan",
+    "loop1/implement",
+    "loop1/test",
+    "loop1/update",
+    "play-partial",
+    "loop2/review",
+    "loop2/plan",
+    "loop2/implement",
+    "loop2/test",
+    "loop2/update",
+    "play-fixed",
 )
 
 
@@ -345,7 +355,9 @@ def _collect_audit_failures(
     expected_route: str,
     expected_theme: str,
 ) -> None:
-    if audit["route"] != expected_route:
+    # v4.13.10: training.html is its own document, with no in-page router and no progress dots.
+    is_training = expected_route == "training"
+    if not is_training and audit["route"] != expected_route:
         failures.append(f"{case}: active route is {audit['route']!r}")
     if audit["theme"] != expected_theme:
         failures.append(f"{case}: applied theme is {audit['theme']!r}")
@@ -365,10 +377,13 @@ def _collect_audit_failures(
             f"{case}: WCAG AA failures: {audit['lowContrast'][:12]}"
         )
 
+    if is_training:
+        return
     progress_dots = audit["progressDots"]
-    if len(progress_dots) != len(PAGES):
+    guide_pages = [page for page in PAGES if page != "training"]
+    if len(progress_dots) != len(guide_pages):
         failures.append(
-            f"{case}: expected {len(PAGES)} progress-dot anchors, "
+            f"{case}: expected {len(guide_pages)} progress-dot anchors, "
             f"found {len(progress_dots)}"
         )
         return
@@ -399,6 +414,7 @@ def test_all_pages_meet_contrast_and_overflow_matrix(render_gate: object) -> Non
     from playwright.sync_api import sync_playwright
 
     guide_url = GUIDE.resolve().as_uri()
+    training_url = TRAINING.resolve().as_uri()
     failures: list[str] = []
     measurements: dict[str, dict[str, dict[str, object]]] = {
         theme: {
@@ -444,14 +460,20 @@ def test_all_pages_meet_contrast_and_overflow_matrix(render_gate: object) -> Non
                             runtime_errors.clear()
                             external_requests.clear()
                             case = f"{route}/{theme}/{width}"
-                            page.goto(f"{guide_url}#{route}", wait_until="load")
-                            page.wait_for_function(
-                                "route => document.body.dataset.page === route",
-                                arg=route,
-                            )
                             if route == "training":
+                                page.goto(
+                                    f"{training_url}#{TRAINING_SCENES[0]}",
+                                    wait_until="load",
+                                )
                                 page.wait_for_function(
-                                    "window.NexusTraining && window.NexusShooter"
+                                    "s => window.NexusTrainingPage && NexusTrainingPage.stage() === s",
+                                    arg=TRAINING_SCENES[0],
+                                )
+                            else:
+                                page.goto(f"{guide_url}#{route}", wait_until="load")
+                                page.wait_for_function(
+                                    "route => document.body.dataset.page === route",
+                                    arg=route,
                                 )
                             audit = page.evaluate(PAGE_AUDIT)
 
@@ -490,11 +512,11 @@ def test_all_pages_meet_contrast_and_overflow_matrix(render_gate: object) -> Non
                                 }
                                 for scene in TRAINING_SCENES[1:]:
                                     page.evaluate(
-                                        "scene => window.NexusTraining.go(scene)",
+                                        "scene => NexusTrainingPage.go(scene)",
                                         scene,
                                     )
                                     page.wait_for_function(
-                                        "scene => window.NexusTraining.snapshot().sectionId === scene",
+                                        "scene => NexusTrainingPage.stage() === scene",
                                         arg=scene,
                                     )
                                     scene_audit = page.evaluate(PAGE_AUDIT)
@@ -630,7 +652,7 @@ def _focus_by_tab_from_previous(page: Any, selector: str) -> None:
               && Number(style.opacity) > 0.01 && rect.width > 0 && rect.height > 0;
           };
           const candidates = Array.from(document.querySelectorAll(
-            'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), '
+            'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), summary, '
               + 'textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
           )).filter(visible);
           const target = document.querySelector(selector);
@@ -660,6 +682,7 @@ def test_keyboard_and_reduced_motion_are_complete(render_gate: object) -> None:
     from playwright.sync_api import sync_playwright
 
     guide_url = GUIDE.resolve().as_uri()
+    training_url = TRAINING.resolve().as_uri()
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(headless=True)
         try:
@@ -677,16 +700,22 @@ def test_keyboard_and_reduced_motion_are_complete(render_gate: object) -> None:
                 failures: list[str] = []
                 motion_measurements: dict[str, dict[str, object]] = {}
                 for route in PAGES:
-                    page.goto(f"{guide_url}#{route}", wait_until="load")
-                    page.wait_for_function(
-                        "route => document.body.dataset.page === route",
-                        arg=route,
-                    )
+                    if route == "training":
+                        page.goto(f"{training_url}#intro", wait_until="load")
+                        page.wait_for_function(
+                            "window.NexusTrainingPage && NexusTrainingPage.stage() === 'intro'"
+                        )
+                    else:
+                        page.goto(f"{guide_url}#{route}", wait_until="load")
+                        page.wait_for_function(
+                            "route => document.body.dataset.page === route",
+                            arg=route,
+                        )
                     page.wait_for_timeout(120)
                     state = page.evaluate(
                         r"""
                         () => {
-                          const active = document.querySelector(".page.active");
+                          const active = document.querySelector(".page.active") || document.querySelector("main");
                           const canvas = document.getElementById("constellation");
                           const running = document.getAnimations({subtree: true})
                             .filter((animation) => animation.playState === "running")
@@ -874,103 +903,61 @@ def test_keyboard_and_reduced_motion_are_complete(render_gate: object) -> None:
                 page.keyboard.press("Enter")
                 page.wait_for_function("document.body.dataset.page === 'foundations'")
 
-                page.goto(f"{guide_url}#training/game", wait_until="load")
-                page.wait_for_function("window.NexusTraining && window.NexusShooter")
-                # The idle gate means Space fires only in a STARTED, focused game, and
-                # this sweep runs under reduced motion, so the tick that spawns the shot
-                # is driven manually through the public step seam. Keyboard start is
-                # proven with a direct focus plus Enter; the full tab-ownership walk
-                # lives in test_arcade_shooter_game.py.
-                page.locator('[data-arcade-id="buggy"] [data-arcade-start]').focus()
+                # v4.13.10: Training is training.html. Its game starts from the keyboard and
+                # takes key ownership; its file tabs follow the WAI-ARIA tabs pattern.
+                page.goto(f"{training_url}#play-buggy", wait_until="load")
+                page.wait_for_function(
+                    "window.NexusTrainingPage && NexusTrainingPage.stage() === 'play-buggy' && window.SkySentinel"
+                )
+                game = "SkySentinel.get('buggy').state()"
+                page.locator('[data-ss-id="buggy"] .ss-start').focus()
                 assert page.evaluate(
-                    "document.activeElement.hasAttribute('data-arcade-start')"
+                    "document.activeElement.classList.contains('ss-start')"
                 ), "the start control must be keyboard-focusable"
                 page.keyboard.press("Enter")
-                page.wait_for_function(
-                    "window.NexusShooter.snapshot().lifecycle !== 'idle'"
-                )
+                page.wait_for_function(f"{game}.state === 'running'")
                 assert page.evaluate(
-                    "document.activeElement.hasAttribute('data-arcade-game')"
+                    "document.activeElement.classList.contains('ss-canvas')"
                 ), "starting must hand key ownership to the game"
-                before_shots = page.evaluate(
-                    "window.NexusShooter.snapshot().playerShots.length"
-                )
                 page.keyboard.down("Space")
-                page.evaluate("window.NexusShooter.step()")
+                page.wait_for_function(f"{game}.shots > 0", timeout=3000)
                 page.keyboard.up("Space")
-                assert page.evaluate(
-                    "window.NexusShooter.snapshot().playerShots.length"
-                ) > before_shots
+                page.keyboard.press("Escape")
+                page.wait_for_function(f"{game}.pausedBy === 'escape'")
 
-                first_file = '[data-nht-section="game"] [data-nht="file"]'
-                _focus_by_tab_from_previous(page, first_file)
-                file_paths = page.locator(first_file).evaluate_all(
-                    "items => items.map(item => item.dataset.filePath)"
-                )
-                assert len(file_paths) >= 2
-                assert page.evaluate(
-                    "document.activeElement && document.activeElement.dataset.filePath"
-                ) == file_paths[0]
+                # loop1/describe is the stage that reads two files, so it carries a real tab list.
+                page.evaluate("NexusTrainingPage.go('loop1/describe')")
+                page.wait_for_function("NexusTrainingPage.stage() === 'loop1/describe'")
+                tabs = 'section[data-stage="loop1/describe"] .tr-files [role="tab"]'
+                _focus_by_tab_from_previous(page, tabs + '[aria-selected="true"]')
+                count = page.locator(tabs).count()
+                assert count >= 2, "the describe step must show at least two files"
+                focused = "[...document.querySelectorAll('" + tabs + "')].indexOf(document.activeElement)"
+                selected = "[...document.querySelectorAll('" + tabs + "')].findIndex(t => t.getAttribute('aria-selected') === 'true')"
+                start = page.evaluate(selected)
+                assert page.evaluate(focused) == start, "Tab must land on the selected file"
+                steps = (("ArrowDown", (start + 1) % count), ("ArrowUp", start), ("End", count - 1),
+                         ("Home", 0), ("ArrowLeft", count - 1))
+                for key, expected in steps:
+                    page.keyboard.press(key)
+                    assert page.evaluate(focused) == expected, f"{key}: focus"
+                    assert page.evaluate(selected) == expected, f"{key}: selection"
 
-                page.keyboard.press("ArrowDown")
-                assert page.evaluate(
-                    "document.activeElement && document.activeElement.dataset.filePath"
-                ) == file_paths[1]
-                page.keyboard.press("ArrowUp")
-                assert page.evaluate(
-                    "document.activeElement && document.activeElement.dataset.filePath"
-                ) == file_paths[0]
-
-                page.keyboard.press("End")
-                assert page.evaluate(
-                    "document.activeElement && document.activeElement.dataset.filePath"
-                ) == file_paths[-1]
-                page.keyboard.press("Space")
-                assert page.locator('[data-nht-section="game"] [data-nht="file-path"]').inner_text() == file_paths[-1]
-                assert page.locator(
-                    f'[data-nht-section="game"] [data-nht="file"][data-file-path="{file_paths[-1]}"]'
-                ).get_attribute("aria-selected") == "true"
-
-                page.keyboard.press("Home")
-                assert page.evaluate(
-                    "document.activeElement && document.activeElement.dataset.filePath"
-                ) == file_paths[0]
+                _focus_by_tab_from_previous(page, '.pg-outline a[href="#play-fixed"]')
                 page.keyboard.press("Enter")
-                assert page.locator('[data-nht-section="game"] [data-nht="file-path"]').inner_text() == file_paths[0]
-                assert page.locator(
-                    f'[data-nht-section="game"] [data-nht="file"][data-file-path="{file_paths[0]}"]'
-                ).get_attribute("aria-selected") == "true"
+                page.wait_for_function("NexusTrainingPage.stage() === 'play-fixed'")
 
-                _focus_by_tab_from_previous(
-                    page, ".page.active .pagenav .next[href]"
-                )
-                page.keyboard.press("Enter")
-                page.wait_for_function("document.body.dataset.page === 'cheatsheets'")
-
-                page.goto(f"{guide_url}#training/game", wait_until="load")
-                page.wait_for_function("window.NexusShooter")
-                # Hash navigation is same-document, so the earlier keyboard block may
-                # already have consumed the start overlay; only click it if it is showing.
-                if page.locator('[data-arcade-id="buggy"] [data-arcade-start]').is_visible():
-                    page.locator('[data-arcade-id="buggy"] [data-arcade-start]').click()
-                page.wait_for_function(
-                    "window.NexusShooter.snapshot().lifecycle === 'paused'"
-                )
-                before = page.evaluate("window.NexusShooter.snapshot()")
-                assert "reduced-motion" in before["pauseReasons"]
+                # Reduced motion calms the effects but never changes play: the game runs,
+                # and a pause holds the tick exactly.
+                assert page.evaluate("matchMedia('(prefers-reduced-motion: reduce)').matches")
+                fixed = "SkySentinel.get('fixed').state()"
+                page.locator('[data-ss-id="fixed"] .ss-start').click()
+                page.wait_for_function(f"{fixed}.state === 'running' && {fixed}.tick > 5")
+                page.keyboard.press("Escape")
+                page.wait_for_function(f"{fixed}.state === 'paused'")
+                tick = page.evaluate(f"{fixed}.tick")
                 page.wait_for_timeout(160)
-                assert page.evaluate("window.NexusShooter.snapshot().tick") == before[
-                    "tick"
-                ]
-                step_button = page.locator('[data-arcade-id="buggy"] [data-arcade-step]')
-                assert step_button.is_visible() and step_button.is_enabled()
-                step_button.click()
-                stepped = page.evaluate("window.NexusShooter.snapshot()")
-                assert stepped["tick"] == before["tick"] + 1
-                page.wait_for_timeout(160)
-                assert page.evaluate("window.NexusShooter.snapshot().tick") == stepped[
-                    "tick"
-                ]
+                assert page.evaluate(f"{fixed}.tick") == tick
 
                 print(
                     "PHASE6_MOTION_AUDIT "

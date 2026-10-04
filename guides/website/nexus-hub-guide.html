@@ -140,7 +140,6 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .fx-plat-name{color:var(--ink);white-space:nowrap;}
 /* Overrides the global panel-style details: attribution is a quiet legal note, not a card. */
 
-
 /* ---------- Hero statement (v4.1.2 template, restored in v4.4.2) ---------- The gradient is painted through text-fill-color while `color` stays var(--ink), so the contrast sweep measures the real fallback colour instead of `transparent`. */:root{--grad-text:linear-gradient(90deg,var(--cyan),var(--teal));}
 .hero-subtitle{margin:var(--sp-5) auto 0;text-align:center;text-wrap:balance;color:var(--ink);}
 .gtext{color:var(--ink);background:var(--grad-text);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
@@ -286,12 +285,60 @@ to{transform:scaleX(1);}
 .tbl-migrate .muted{display:block;color:var(--ink-faint);margin-top:3px;}
 .tbl-migrate td:nth-child(3){color:var(--ink);}
 .tbl-migrate .muted-cell{color:var(--ink-faint);}
+.trn-missing{margin:var(--sp-4) 0 0;padding:var(--sp-3) var(--sp-4);border:1px solid rgba(245,158,11,.55);border-left:5px solid #f59e0b;border-radius:12px;background:color-mix(in srgb,#f59e0b 10%,var(--surface));color:var(--ink);}
+.trn-missing[hidden]{display:none;}
 /* shared:footer-css */
 /* ---------- Site footer (attribution lives here; decision 2026-09-02) ---------- */
 .site-footer{border-top:1px solid var(--border);margin-top:var(--sp-8);padding:var(--sp-5) 0 var(--sp-6);color:var(--ink-faint);font-size:15px;line-height:1.6;text-align:center;}
 .site-footer p{margin:0 auto;}
 .site-footer a{color:var(--ink-dim);text-decoration:underline;}
 /* /shared:footer-css */
+/* shared:opening-css */
+/* ---------- Page opening (v4.13.10, shared) ---------- Foundations, Cheatsheets, and Training open the same way: a centred title in the Home hero-subtitle style with one gradient phrase, a one-paragraph description, then a full-width visual summary of what the page holds. */
+.pg-open{text-align:center;padding:var(--sp-5) 0 var(--sp-4);}
+.pg-open-title{margin:var(--sp-5) auto 0;text-align:center;text-wrap:balance;color:var(--ink);}
+.pg-open .gtext{color:var(--ink);background:linear-gradient(90deg,var(--cyan),var(--teal));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+.pg-open-lead{margin:var(--sp-3) auto 0;text-align:center;color:var(--ink-dim);text-wrap:pretty;}
+/* Tiles wrap and grow, so every row ends flush whatever the count: six tiles fill one row, seven wrap as four and three. */
+.pg-map{list-style:none;margin:var(--sp-5) 0 0;padding:0;display:flex;flex-wrap:wrap;gap:10px;text-align:left;}
+.pg-map li{flex:1 1 160px;position:relative;display:flex;gap:12px;align-items:flex-start;min-width:0;padding:12px 14px;border:1px solid var(--border);border-radius:14px;background:var(--surface);}
+.pg-map a{position:absolute;inset:0;border-radius:inherit;}
+.pg-map a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+.pg-map li:hover{border-color:color-mix(in srgb,var(--accent) 55%,var(--border));}
+.pg-glyph{flex:none;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--teal-soft);}
+.pg-glyph svg{width:20px;height:20px;}
+.pg-map b{display:block;color:var(--ink);font-size:var(--ty-body);line-height:1.3;}
+.pg-map span{display:block;color:var(--ink-dim);font-size:var(--ty-body-sm);line-height:1.4;overflow-wrap:anywhere;}
+.pg-map .pg-count{display:inline-block;margin-top:4px;font-family:var(--mono);font-size:var(--ty-micro);color:var(--teal-soft);}
+.pg-map[data-count="7"] li{flex-basis:230px;}
+@media (max-width:720px){.pg-map li,.pg-map[data-count="7"] li{flex-basis:140px;padding:10px;gap:8px;}.pg-glyph{width:28px;height:28px;}.pg-glyph svg{width:16px;height:16px;}}
+/* /shared:opening-css */
+/* shared:outline-css */
+/* ---------- Page outline (v4.13.10, shared) ---------- A sticky "On this page" bar under the site header. Wide screens show every entry as a chip; phones collapse it to one line naming the current section. It sits above the content rather than beside it so no scene loses width. */
+.pg-outline{position:sticky;top:59px;z-index:30;margin:var(--sp-2) 0 var(--sp-4);background:color-mix(in srgb,var(--page-bg) 90%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);}
+.pg-outline details{padding:8px 0;margin:0;border:0;border-radius:0;background:transparent;box-shadow:none;}
+.pg-outline summary{padding:0;margin:0;border:0;background:transparent;}
+.pg-outline summary{display:none;cursor:pointer;list-style:none;align-items:center;gap:8px;min-height:44px;color:var(--ink);font-weight:600;}
+.pg-outline summary::-webkit-details-marker{display:none;}
+.pg-outline summary small{color:var(--ink-dim);font-weight:400;}
+.pg-outline summary::after{content:"";margin-left:auto;margin-right:3px;flex-shrink:0;width:8px;height:8px;border-right:2px solid var(--ink-dim);border-bottom:2px solid var(--ink-dim);transform:rotate(45deg);transition:transform .2s var(--ease);}
+.pg-outline details[open] summary::after{transform:rotate(-135deg);}
+.pg-outline ol{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+.pg-outline .pg-outline-label{color:var(--ink-dim);font-size:var(--ty-body-sm);margin-right:4px;}
+.pg-outline a{display:inline-flex;align-items:center;min-height:36px;padding:5px 13px;border:1px solid var(--border);border-radius:999px;color:var(--ink-dim);font-size:var(--ty-body-sm);font-weight:600;text-decoration:none;}
+.pg-outline a:hover{color:var(--ink);border-color:var(--accent);}
+.pg-outline a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+.pg-outline a[aria-current]{color:var(--bg-0);background:var(--accent);border-color:var(--accent);}
+[data-outline-target]{scroll-margin-top:132px;}
+@media (max-width:720px){
+  .pg-outline summary{display:flex;}
+  .pg-outline .pg-outline-label{display:none;}
+  .pg-outline ol{flex-direction:column;align-items:stretch;gap:4px;padding-top:6px;}
+  .pg-outline a{min-height:44px;border-radius:12px;}
+  [data-outline-target]{scroll-margin-top:118px;}
+}
+@media (prefers-reduced-motion:reduce){.pg-outline summary::after{transition:none;}}
+/* /shared:outline-css */
 @media (max-width:900px){.grid-4,.grid-3{grid-template-columns:repeat(2,minmax(0,1fr));}
 .guard-grid{grid-template-columns:1fr;}
 }
@@ -351,10 +398,6 @@ to{transform:scaleX(1);}
 
 /* Shared guide scene styles. */
 
-
-
-
-
 .hx-rows{display:grid;gap:6px;margin:8px 0 0;}
 .hx-row{padding:7px 9px;border-radius:7px;border:1px solid var(--border);background:var(--surface);}
 .hx-row b{display:block;font:700 15px var(--sans);letter-spacing:.07em;text-transform:uppercase;color:var(--ink-faint);}
@@ -368,19 +411,14 @@ to{transform:scaleX(1);}
 }
 /* ---------- Agentic anatomy and boundary settings (v4.4.5) ---------- From the operator's mockup. Three of its ideas arrive here and three of its constructions do not: its three settings were buttons whose best lesson only fired if the reader pressed the read-only one, and its six-layer anatomy came with a 720x520 SVG map that positions every label by absolute offset. The list carries the teaching; the map carried the risk. */
 
-
 .ap-eq-cell b{display:block;color:var(--ink);font-weight:700;}
 .ap-eq-cell span{display:block;margin-top:2px;color:var(--ink-faint);}
 
-
 .ap-eq-note{margin:7px 0 0;color:var(--ink-dim);}
-
 
 .ap-bset li b{display:block;color:var(--ink);font-weight:650;}
 
-
 .ap-bset .ap-bset--stop b{color:var(--amber);}
-
 
 .ap-anat dt{color:var(--teal-soft);}
 .ap-anat dd{margin:3px 0 0;color:var(--ink-dim);}
@@ -398,7 +436,6 @@ to{transform:scaleX(1);}
 .hxf{list-style:none;display:grid;gap:0;margin:0;padding:0;}
 .hxf-step{padding:12px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);}
 .hxf-step--model{border-color:var(--border-bright);}
-
 
 .hxf-step--out{border-color:var(--green);}
 
@@ -482,10 +519,6 @@ html[data-theme="light"] .ap-step::before{color:#fffdf8;}
 .hx{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;}
 
 .hx-tag--nexus{color:var(--accent);}
-
-
-
-
 
 .hx-lane--with{border-color:var(--accent);}
 @media (max-width:760px){.hx-trail{grid-template-columns:minmax(0,1fr);}
@@ -652,18 +685,14 @@ details[open] summary{margin-bottom:var(--sp-2);color:var(--ink);}
 .fx-flow-link{display:flex;justify-content:center;}
 .fx-flow-link .fx-inline-arrow{transform:rotate(90deg);}
 
-
-
 .fx-mini-card--report{border-color:var(--accent);}
 .fx-mini-tag{display:block;color:var(--teal-soft);font-size:15px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
-
 
 .fx-pass-track--duo{grid-template-columns:repeat(2,minmax(0,1fr));}
 
 .fx-effort{display:grid;gap:5px;}
 
 .fx-effort-name{color:var(--ink-dim);font-size:15px;}
-
 
 .fx-effort-bar--hot::after{background:var(--accent);}
 .fx-cycle-ring{fill:none;stroke:var(--border-bright);stroke-width:3;}
@@ -674,10 +703,6 @@ to{transform:rotate(360deg);}
 .fx-out{margin:0;min-width:0;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg-0);}
 .fx-out-tag{color:var(--teal-soft);font-size:15px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
 
-
-
-
-
 .fx-boundary{padding:10px 14px;border:1.5px dashed var(--accent);border-radius:var(--radius-sm);background:color-mix(in srgb,var(--accent) 6%,var(--surface));}
 .fx-boundary-tag { display:block;color:var(--teal-soft);font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
 
@@ -687,9 +712,6 @@ to{transform:rotate(360deg);}
 
 .fx-layer-tag{display:block;color:var(--teal-soft);font-weight:700;letter-spacing:.07em;text-transform:uppercase;overflow-wrap:break-word;}
 .fx-layer-note{margin:4px 0 0;color:var(--ink-faint);font-size:15px;}
-
-
-
 
 .fx-trail{margin-top:14px;}
 /* Placed after every definition above: @media adds no specificity, so position is load-bearing. */
@@ -712,9 +734,7 @@ to{transform:rotate(360deg);}
 /* Shared guide scene styles. */
 .fx-cv{display:grid;gap:9px;}
 
-
 .cv-shared p{margin:4px 0 0;color:var(--ink);}
-
 
 .cv-zones{display:grid;gap:6px;margin:0 0 10px;}
 
@@ -724,7 +744,6 @@ to{transform:rotate(360deg);}
 .cv-zone-state{color:var(--ink-faint);}
 .cv-zone--reached .cv-zone-state{color:var(--accent);}
 .cv-art{width:34px;height:26px;display:block;overflow:visible;}
-
 
 .cv-zone--reached .cv-art .cv-line{stroke:var(--accent);}
 
@@ -821,7 +840,6 @@ to{transform:rotate(360deg);}
 .fxt--warn{fill:var(--amber);font-weight:700;letter-spacing:.06em;}
 /* Side colouring: the unaided path is muted/warning, the harnessed path is accent/positive, applied to lanes and nodes, not just the outcome badge. */
 
-
 .fxchip--warn{stroke:color-mix(in srgb,var(--amber) 55%,transparent);}
 .fxchip--good{stroke:color-mix(in srgb,var(--accent) 65%,transparent);}
 
@@ -829,7 +847,6 @@ to{transform:rotate(360deg);}
 
 .fxmeter-fill{fill:color-mix(in srgb,var(--accent) 72%,var(--surface));}
 .fxmeter-noise{fill:color-mix(in srgb,var(--amber) 74%,var(--surface));}
-
 
 .fx-hookdot{fill:var(--green);stroke:var(--surface);stroke-width:2;}
 /* entry animations (gated on scene .in) */
@@ -848,139 +865,12 @@ to{transform:rotate(360deg);}
 @media (max-width:980px){.fx-scene{grid-template-columns:minmax(0,1fr);gap:var(--sp-4);}
 }
 /* Training sections are readable in document order; jump links never hide earlier work. */
-.nht-sections{display:grid;gap:var(--sp-5);margin-top:var(--sp-4);}
-.nht-jumps{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:var(--sp-2);}
-.nht-jumps a{padding:6px 10px;border:1px solid var(--border);border-radius:999px;color:var(--ink-dim);font-size:15px;}
-.nht-jumps a:hover,.nht-jumps a:focus-visible{color:var(--ink);border-color:var(--accent);}
-.nht-section{min-width:0;padding:var(--sp-5);border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);scroll-margin-top:90px;}
-.nht-section > h2{margin:0 0 var(--sp-2);}
-.nht-section > [data-nht="intent"]{color:var(--ink-dim);margin:0 0 var(--sp-4);}
-.nht-section-body{max-width:700px;}
-.nht-section-widgets{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--sp-4);align-items:start;margin-top:var(--sp-4);}
-.nht-section-widgets > [data-nht-action-panel],.nht-section-widgets > .nht-explorer{min-width:0;}
-.nht-section-widgets > .nht-explorer{margin-top:0;}
-.nht-section-widgets > .nht-takeaway{grid-column:1 / -1;margin-top:0;}
-.nht-action-list{display:flex;flex-wrap:wrap;gap:8px;}
-.nht-action-choice{padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--surface-2);color:var(--ink-dim);font:600 15px var(--sans);cursor:pointer;}
-.nht-action-choice:hover,.nht-action-choice[aria-current="true"]{border-color:var(--accent);color:var(--ink);}
-.nht-phase-list{display:grid;gap:var(--sp-3);margin:var(--sp-4) 0 0;padding-left:var(--sp-5);}
-.nht-phase-list li{padding-left:var(--sp-2);}
-.nht-phase-list strong,.nht-phase-model{display:block;}
-.nht-phase-model{color:var(--teal-soft);font:15px var(--mono);}
-.nht-phase-list p{margin:4px 0 0;color:var(--ink-dim);}
-.nht-game{max-width:700px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-1);overflow:hidden;}
-.nag-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 12px;border-bottom:1px solid var(--border);background:var(--surface-2);}
-.nag-title{font-family:var(--mono);letter-spacing:.1em;color:var(--ink-faint);}
-.nag-tag{font-weight:700;padding:1px 7px;border-radius:999px;border:1px solid var(--red);color:var(--red);}
-.nag-tag.is-fixed{border-color:var(--green);color:var(--green);}
 /* The 8:5 stage keeps the logical world contained at every section width. */
-.nag-stage{position:relative;aspect-ratio:8 / 5;width:100%;margin-inline:auto;min-height:0;background:var(--bg-deep);border-bottom:1px solid var(--border);overflow:hidden;}
-.nag-start{position:absolute;inset:0;display:flex;flex-direction:column;gap:10px;align-items:center;justify-content:center;background:color-mix(in srgb,var(--bg-deep) 72%,transparent);}
-.nag-start[hidden]{display:none;}
-.nag-start-btn{padding:10px 22px;border:1px solid var(--accent);border-radius:999px;background:var(--surface);color:var(--ink);font-size:15px;font-weight:700;cursor:pointer;}
-.nag-start-btn:focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
-.nag-start-hint{color:var(--ink-faint);}
-.nag-canvas{width:100%;height:100%;display:block;touch-action:none;outline:0;}
 
-.nag-overlay[hidden]{display:none;}
 
-.nag-cue.is-hit{border-color:var(--green);color:#a9f1c7;}
-.nag-cue[hidden]{display:none;}
-.nag-fallback{min-height:190px;padding:var(--sp-5);display:grid;place-content:center;text-align:center;color:var(--ink-dim);}
-.nag-fallback[hidden]{display:none;}
-.nag-hud{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border-bottom:1px solid var(--border);}
-.nag-stat{padding:3px 9px;line-height:1.25;background:var(--surface);text-align:center;color:var(--ink-faint);}
-.nag-stat b{display:block;margin-top:0;color:var(--ink);}
-.nag-controls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;padding:7px 10px 5px;}
-.nag-control,.nag-action{min-height:38px;padding:6px 8px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--ink-dim);font-family:var(--mono);font-size:15px;font-weight:700;cursor:pointer;touch-action:none;}
-.nag-control:hover,.nag-action:hover{border-color:var(--accent);color:var(--ink);}
-.nag-control:active,.nag-control.is-held{background:color-mix(in srgb,var(--accent) 18%,var(--surface));color:var(--accent);}
-.nag-actions{display:flex;flex-wrap:wrap;gap:6px;padding:5px 10px 3px;}
-.nag-action{flex:1 1 90px;}
-.nag-action--primary{background:var(--accent);border-color:transparent;color:var(--bg-deep);}
-.nag-step{display:none;}
 /* v4.4.2: fine pointers read a key guide; coarse pointers keep the touch buttons. The actions (Pause / Resume, Reset, Advance one step) sit beside the HUD on every pointer type. */
-.nag-guide{list-style:none;margin:0;padding:8px 12px 10px;display:none;flex-wrap:wrap;gap:6px 14px;font-size:15px;color:var(--ink-dim);border-top:1px solid var(--border);}
-.nag-guide li{display:inline-flex;align-items:center;gap:4px;}
-.nag-guide kbd{color:var(--ink);background:var(--bg-0);border:1px solid var(--border-bright);border-bottom-width:2px;border-radius:5px;padding:1px 6px;}
-@media (pointer:fine){.nag-guide{display:flex;}
-.nag-controls{display:none;}
-}
-@media (pointer:coarse){.nag-guide{display:none;}
-.nag-controls{display:grid;}
-}
-.nht-game.no-canvas .nag-guide{display:none;}
-.nag-note{margin:0;padding:10px 12px;border-top:1px solid var(--border);background:var(--surface);color:var(--ink-dim);}
-.nag-note strong{color:var(--ink);}
-.nht-game.no-canvas .nag-stage{aspect-ratio:auto;}
-.nht-game.no-canvas .nag-controls,.nht-game.no-canvas .nag-actions{display:none;}
-@media (prefers-reduced-motion:reduce){.nag-step{display:inline-block;}
-.nag-action--primary{display:none;}
-}
 /* simulated terminal */
-.term--nht{margin:0;}
-.nht-cmd{border-bottom:1px solid var(--term-border);padding-bottom:8px;margin-bottom:8px;}
-.nht-cmd code[data-nht="command"]{white-space:normal;overflow-x:visible;overflow-wrap:anywhere;}
-.nht-run{flex:none;padding:3px 12px;font-size:15px;font-weight:700;font-family:var(--sans);color:var(--bg-deep);background:var(--accent);border:1px solid transparent;border-radius:6px;cursor:pointer;}
-html[data-theme="light"] .nht-run{color:#fffdf8;}
-.nht-run:disabled{opacity:.5;cursor:default;}
-.nht-out{min-height:122px;font-size:15px;line-height:1.65;}
-.nht-out div{opacity:0;transform:translateY(3px);transition:opacity .3s var(--ease),transform .3s var(--ease);}
-.nht-out div.on{opacity:1;transform:none;}
-.nht-out div.echo{color:var(--term-prompt);}
-.nht-hint{margin:6px 0 0;color:var(--term-dim);}
-.nht-idle{margin:0;padding:var(--sp-5) 0;text-align:center;color:var(--term-dim);border:1px dashed var(--term-border);border-radius:var(--radius-sm);}
-.term--nht.has-run .nht-idle{display:none;}
-.nht-tools{display:flex;flex-wrap:wrap;gap:6px;margin-top:var(--sp-3);}
-.nht-tool{font-family:var(--mono);color:var(--ink-faint);border:1px solid var(--border);border-radius:6px;padding:2px 8px;}
-.nht-tool b{color:var(--teal-soft);font-weight:700;}
-.nht-after{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);margin-top:var(--sp-3);}
-.nht-artifact,.nht-gate{border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;background:var(--bg-1);}
-.nht-artifact{border-left:3px solid var(--accent);}
-.na-k,.ng-k{display:block;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-faint);margin-bottom:3px;}
-.nht-gate b,.ng-prompt{display:block;}
-.ng-prompt{margin-top:4px;}
-.nht-artifact code{background:transparent;border:0;padding:0;color:var(--ink);word-break:break-all;}
-.nht-artifact p,.nht-gate p{margin:4px 0 0;color:var(--ink-dim);}
-.nht-gate{border-left:3px solid var(--border-bright);}
-.nht-gate.pass{border-left-color:var(--green);}
-.nht-gate.hold{border-left-color:var(--amber);}
-.nht-gate.pass .ng-k{color:var(--green);}
-.nht-gate.hold .ng-k{color:var(--amber);}
-.nht-explorer{display:grid;grid-template-columns:minmax(190px,3fr) minmax(0,7fr);min-height:250px;margin-top:var(--sp-4);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;background:var(--bg-1);}
-.nht-tree{min-width:0;border-right:1px solid var(--border);background:var(--surface);}
-.nht-treebar,.nht-filebar{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:34px;padding:6px 10px;border-bottom:1px solid var(--border);background:var(--surface-2);color:var(--ink-faint);font-family:var(--mono);font-size:15px;letter-spacing:.04em;}
-.nht-filetree{padding:6px;max-height:260px;overflow:auto;}
-.nht-fileitem{display:flex;align-items:center;gap:7px;width:100%;padding:6px 7px;border:1px solid transparent;border-radius:6px;background:transparent;color:var(--ink-dim);font:15px/1.35 var(--mono);text-align:left;cursor:pointer;}
-.nht-fileitem:hover{color:var(--ink);background:color-mix(in srgb,var(--accent) 6%,transparent);}
-.nht-fileitem[aria-selected="true"]{color:var(--ink);border-color:var(--border);background:color-mix(in srgb,var(--accent) 10%,transparent);}
-.nht-fileitem:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;}
-.nht-file-name{min-width:0;overflow-wrap:anywhere;}
-.nht-file-badge{flex:none;margin-left:auto;padding:1px 5px;border-radius:999px;font:700 15px/1.4 var(--mono);text-transform:uppercase;}
-.nht-file-badge.new{color:var(--green);border:1px solid var(--green);}
-.nht-file-badge.changed{color:var(--amber);border:1px solid var(--amber);}
-.nht-file-badge.pending{color:var(--ink-faint);border:1px dashed var(--border-bright);}
-.nht-file{min-width:0;}
-.nht-filebar code{min-width:0;overflow-wrap:anywhere;color:var(--ink);background:transparent;border:0;padding:0;}
-.nht-filebody{margin:0;padding:10px 12px;max-height:260px;overflow:auto;color:var(--ink-dim);white-space:pre-wrap;word-break:break-word;}
-.nht-filebody .diff-add,.nht-filebody .diff-remove,.nht-filebody .diff-line{display:block;min-height:1.6em;}
-.nht-filebody .diff-add{color:var(--green);background:color-mix(in srgb,var(--green) 8%,transparent);}
-.nht-filebody .diff-remove{color:#ffb4ab;background:color-mix(in srgb,var(--red) 8%,transparent);}
-.nht-filebody.is-pending{display:grid;place-content:center;min-height:215px;color:var(--ink-faint);text-align:center;}
-.nht-takeaway{margin:var(--sp-4) 0 0;padding-top:var(--sp-3);border-top:1px solid var(--border);color:var(--ink);}
-.nht-takeaway b{color:var(--teal-soft);}
-@media (max-width:900px){.nht-section-widgets{grid-template-columns:1fr;}
-.nht-explorer{grid-template-columns:1fr;}
-.nht-tree{border-right:0;border-bottom:1px solid var(--border);}
-.nht-after{grid-template-columns:1fr;}
-}
-@media (max-width:420px){.nht-section{padding:var(--sp-3);}
-.nag-controls{grid-template-columns:repeat(2,minmax(0,1fr));}
-.nag-overlay{flex-wrap:wrap;justify-content:center;text-align:center;}
-.nht-cmd{flex-wrap:wrap;align-items:flex-start;}
-.nht-cmd .nht-run{flex:1 1 100%;margin-left:20px;}
-}
-@media (prefers-reduced-motion:reduce){.nht-out div{opacity:1;transform:none;transition:none;}
+@media (max-width:420px){
 }
 /* ---------- Cheatsheets ---------- */
 .cs-jump{display:flex;flex-wrap:wrap;gap:6px;margin:var(--sp-4) 0 var(--sp-2);}
@@ -1030,14 +920,6 @@ body{font-size:15.5px;}
 }
 /* ---------- Reduced motion: static equivalents ---------- */
 @media (prefers-reduced-motion:reduce){.gf-cell::after{transform:scaleX(1);}
-html{scroll-behavior:auto;}
-#constellation{transition:none;}
-.js .page.active{animation:none;}
-.js .reveal{opacity:1;transform:none;transition:none;}
-.js .seq-fade,.js .seq-rise,.js .seq-draw,.js .seq-glow,.js .ann,.js .ann-legend-row{transition-duration:0s;}
-/* v4.4.4: a step must never be HIDDEN under reduced motion. Zeroing the transition made the reveal instant but still waited for the observer to play the sequence, so a reader who had asked for less motion saw an empty strip until they scrolled it into view. */
-.js .seq-rise{opacity:1;transform:none;}
-.js .seq-fade{opacity:1;}
 .js .hero-lockup.reveal .hero-mark{opacity:1;transform:none;transition:none;}
 .js .hero-lockup.live .hero-lockup-float{animation:none;}
 .js .pe-tip{animation:none;}
@@ -1054,6 +936,18 @@ html{scroll-behavior:auto;}
 .js .fx-scene .fx-sweep{stroke-dasharray:none;stroke-dashoffset:0;transition:none;}
 .js .ph-dot{animation:none;}
 }
+/* shared:motion-css */
+/* ---------- Reduced motion, shared base (v4.13.10) ---------- The page-independent half of the guide's reduced-motion block: no smooth scrolling, no page or reveal animation, and sequence steps shown at once rather than waiting for an observer. Page-specific motion rules stay with their page. */
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}
+#constellation{transition:none;}
+.js .page.active{animation:none;}
+.js .reveal{opacity:1;transform:none;transition:none;}
+.js .seq-fade,.js .seq-rise,.js .seq-draw,.js .seq-glow,.js .ann,.js .ann-legend-row{transition-duration:0s;}
+/* v4.4.4: a step must never be HIDDEN under reduced motion. Zeroing the transition made the reveal instant but still waited for the observer to play the sequence, so a reader who had asked for less motion saw an empty strip until they scrolled it into view. */
+.js .seq-rise{opacity:1;transform:none;}
+.js .seq-fade{opacity:1;}
+}
+/* /shared:motion-css */
 
 .ml-defs{position:absolute;width:0;height:0;overflow:hidden;}
 #fx-model-lifecycle h3{margin:0;color:var(--ink);}
@@ -1399,7 +1293,6 @@ html{scroll-behavior:auto;}
 @media(prefers-reduced-motion:reduce){#fx-model-lifecycle *,#fx-model-lifecycle *::before{animation:none!important;transition:none!important;}}
 html:not(.js) #page-foundations{display:block;}html:not(.js) .ml-panel[hidden]{display:block;}html:not(.js) .ml-tabs{display:none;}
 
-
 /* v4.7.0 guide stabilization. */
 /* The guardrail pills missed WCAG AA in light mode (4.462 against 4.5) at 12px. */
 [data-theme="light"] .gf-hooks li{color:#0d655c;}
@@ -1534,7 +1427,7 @@ html:not(.js) #page-foundations{display:block;}html:not(.js) .ml-panel[hidden]{d
       <div class="nav-links" id="navLinks">
         <a href="#home" data-go="home">Home</a>
         <a href="#foundations" data-go="foundations">Foundations</a>
-        <a href="#training" data-go="training">Training</a>
+        <a href="training.html" data-training-link>Training</a>
         <a href="#cheatsheets" data-go="cheatsheets">Cheatsheets</a>
         <a class="nav-gh" href="https://github.com/bendourthe/Nexus-Hub" target="_blank" rel="noopener" aria-label="Nexus Hub on GitHub"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.53-.49-.36-.92-.88-1.16-.88-1.16-.72-.49.05-.48.05-.48.8.06 1.22.82 1.22.82.71 1.21 1.87.86 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.65 7.65 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
         <button type="button" class="nhg-theme" id="themeToggle" aria-pressed="true" aria-label="Switch to light theme"><svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 14.5A8.5 8.5 0 1 1 9.5 3 7 7 0 0 0 21 14.5z"/></svg></button>
@@ -1544,6 +1437,7 @@ html:not(.js) #page-foundations{display:block;}html:not(.js) .ml-panel[hidden]{d
 <!-- /shared:header -->
 
   <main id="app">
+    <div class="container"><p class="trn-missing" id="trainingMissing" role="status" hidden>Training is a second page, <code>training.html</code>, and it is not in this folder. Keep it next to this guide to open Training; both files ship together.</p></div>
 
   <!-- =====================================================================
        PAGE: HOME
@@ -1561,7 +1455,7 @@ html:not(.js) #page-foundations{display:block;}html:not(.js) .ml-panel[hidden]{d
             <span class="platform-mark" data-mark="github-copilot" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="currentColor"><path d="M47.801 34.003c-1.72 2.988-11.706 10.037-23.82 10.037S1.881 36.991.161 34.003a1.309 1.309 0 0 1-.161-.57v-5.615c.012-.17.047-.338.11-.498.744-1.867 2.692-4.58 5.206-5.308.333-.855.826-2.106 1.287-3.029a20.112 20.112 0 0 1-.104-2.171c0-2.659.563-4.992 2.262-6.729.793-.811 1.777-1.433 2.945-1.901C14.502 5.911 18.483 4 23.938 4c5.455 0 9.523 1.911 12.319 4.182 1.167.468 2.151 1.09 2.944 1.901 1.699 1.737 2.263 4.07 2.263 6.729 0 .736-.027 1.465-.105 2.171.461.923.954 2.174 1.288 3.029 2.513.728 4.461 3.441 5.205 5.308.081.205.115.424.115.645v5.318c0 .252-.04.502-.166.72ZM24.325 22.031h-.688a8.52 8.52 0 0 1-.709 1.016c-1.537 1.892-3.833 2.98-7.008 2.98-3.447 0-5.972-.717-7.557-2.514a4.408 4.408 0 0 1-.171-.21l-.195.21v13.155c2.867 1.558 9.02 4.353 15.984 4.353s13.117-2.795 15.984-4.353V23.513l-.195-.21s-.066.091-.171.21c-1.584 1.797-4.11 2.514-7.557 2.514-3.175 0-5.47-1.088-7.008-2.98a8.637 8.637 0 0 1-.709-1.016h-.033.033Zm-1.969-5.864a14.31 14.31 0 0 0 .127-1.785v-.042c-.003-1.537-.339-2.538-.876-3.152-.681-.78-2.09-1.378-5.06-1.057-3.008.326-4.69 1.073-5.643 2.048-.923.944-1.408 2.356-1.408 4.633 0 2.42.348 3.849 1.115 4.719.729.827 2.165 1.499 5.309 1.499 2.417 0 3.799-.786 4.683-1.873.948-1.168 1.482-2.878 1.753-4.99Zm3.25 0c.271 2.112.805 3.822 1.754 4.99.883 1.087 2.265 1.873 4.682 1.873 3.145 0 4.58-.672 5.309-1.499.767-.87 1.116-2.299 1.116-4.719 0-2.277-.485-3.689-1.408-4.633-.954-.975-2.635-1.722-5.644-2.048-2.969-.321-4.378.277-5.06 1.057-.537.614-.873 1.615-.876 3.152v.042c.002.53.042 1.123.127 1.785Z"/><path d="M28.998 28.516c1.104 0 1.999.895 1.999 1.999v3.998a2 2 0 1 1-3.998 0v-3.998c0-1.104.895-1.999 1.999-1.999Zm-9.996 0c1.104 0 1.999.895 1.999 1.999v3.998a2 2 0 1 1-3.998 0v-3.998c0-1.104.895-1.999 1.999-1.999Z"/></svg></span>
             <span data-ty="label" class="platform-name">GitHub Copilot</span></li></ul><div class="btn-row">
           <a class="btn btn--primary" href="#home/install">Install <span aria-hidden="true">&rarr;</span></a>
-          <a class="btn" href="#training" data-go="training">Get trained</a>
+          <a class="btn" href="training.html" data-training-link>Get trained</a>
           <a class="btn" href="#cheatsheets" data-go="cheatsheets">Open Cheatsheets</a></div></div><section class="section reveal" id="nhg-why">
 <span data-ty="eyebrow" class="eyebrow">Why it matters</span><h2 data-ty="h2" class="section-title">Limits of raw prompting</h2><div class="grid grid-4"><div class="card"><h3 data-ty="h3">Consistency</h3><p data-ty="body">One governed workflow for everyone, whoever wrote the prompt.</p></div><div class="card"><h3 data-ty="h3">Depth</h3><p data-ty="body"><span data-count="skills">340</span> skills encode expert procedures, loaded only when needed.</p></div><div class="card"><h3 data-ty="h3">Safety</h3><p data-ty="body">Hooks block secrets and destructive git before they run.</p></div><div class="card"><h3 data-ty="h3">Governance</h3><p data-ty="body">A definition of done and GO / NO-GO gates make output reviewable.</p></div></div></section><section class="section reveal" id="nhg-install">
         <span data-ty="eyebrow" class="eyebrow">Installation</span><h2 data-ty="h2" class="section-title">One-command install</h2><p data-ty="body">Paste the line for the target system. The installer copies the catalog into <code data-ty="code">~/.nexus-hub/</code>, wires every assistant it detects, and preserves customized files. There is no download to unzip first.</p><div class="nhg-install-wrap" data-tabs data-nhg-keys="self"><div class="tab-btns" role="tablist" aria-label="Install command by operating system">
@@ -1624,10 +1518,19 @@ html:not(.js) #page-foundations{display:block;}html:not(.js) .ml-panel[hidden]{d
        PAGE: FOUNDATIONS
        ===================================================================== --><section class="page" id="page-foundations" data-page="foundations">
     <div class="container">
-      <div class="hero">
-        <h1 data-ty="h1" class="hero-subtitle page-title">The concepts behind every <span class="gtext">AI-assisted project</span></h1>
-        <p data-ty="lead" class="page-lead">This page explains the terms and the mechanics at a high level: what a model reads, how a prompt and its context shape one request, what an agentic platform adds, and where a harness fits. Read it once and the rest of the guide makes sense.</p>
+      <div class="hero pg-open">
+        <h1 data-ty="h1" class="hero-subtitle page-title pg-open-title">The concepts behind every <span class="gtext">AI-assisted project</span></h1>
+        <p data-ty="lead" class="page-lead pg-open-lead">This page explains the terms and the mechanics at a high level: what a model reads, how a prompt and its context shape one request, what an agentic platform adds, and where a harness fits. Read it once and the rest of the guide makes sense.</p>
+        <ol class="pg-map" aria-label="What this page covers">
+          <li><span class="pg-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="6" height="5" rx="1.5"/><rect x="11" y="6" width="10" height="5" rx="1.5"/><rect x="3" y="13" width="9" height="5" rx="1.5"/><rect x="14" y="13" width="7" height="5" rx="1.5"/></svg></span><div><b>Tokens</b><span>The units a model actually reads</span></div><a href="#foundations/fx-tokens" aria-label="Tokens: The units a model actually reads"></a></li>
+          <li><span class="pg-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 3 8l9 5 9-5-9-5Z"/><path d="m3 13 9 5 9-5"/></svg></span><div><b>Models</b><span>How a model learns, then answers</span></div><a href="#foundations/fx-model-lifecycle" aria-label="Models: How a model learns, then answers"></a></li>
+          <li><span class="pg-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 11h10M4 16h7"/><path d="m15 19 5-5-2-2-5 5v2h2Z"/></svg></span><div><b>Prompt Engineering</b><span>Stating the job so the result is checkable</span></div><a href="#foundations/fx-prompts" aria-label="Prompt Engineering: Stating the job so the result is checkable"></a></li>
+          <li><span class="pg-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="11" height="14" rx="2"/><path d="M9 21h8a2 2 0 0 0 2-2V8"/><path d="M8 8h5M8 12h5"/></svg></span><div><b>Context Engineering</b><span>Choosing the material the job needs</span></div><a href="#foundations/fx-context" aria-label="Context Engineering: Choosing the material the job needs"></a></li>
+          <li><span class="pg-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/><circle cx="12" cy="12" r="2"/></svg></span><div><b>Agentic Platforms</b><span>Same model, very different capabilities</span></div><a href="#foundations/fx-agent-platform" aria-label="Agentic Platforms: Same model, very different capabilities"></a></li>
+          <li><span class="pg-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4 6v6c0 4.5 3.4 8 8 9 4.6-1 8-4.5 8-9V6l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg></span><div><b>Harnesses</b><span>Turning knowledge into safer, reusable work</span></div><a href="#foundations/fx-harness" aria-label="Harnesses: Turning knowledge into safer, reusable work"></a></li>
+        </ol>
       </div>
+      <div data-outline-page="foundations"></div>
 
       <section class="fx-scene fx-stack reveal" id="fx-tokens" aria-labelledby="fx-tokens-title">
         <div class="fx-copy">
@@ -1796,190 +1699,24 @@ html:not(.js) #page-foundations{display:block;}html:not(.js) .ml-panel[hidden]{d
 <template id="cx-preview-pdf"><p class="cx-preview-note">Illustrative PDF preview · cover and required-screen checklist</p><article class="cx-cover"><div class="cx-cover-brand">NORTHSTAR / PRODUCT DESIGN</div><p>DESIGN STANDARD 012</p><h4>Checkout interface<br>guidelines</h4><p>Actions, delivery controls<br>and approved icon assets</p><div class="cx-cover-meta">Version 1.2 · June 2026<br>Frontend team · 01 / 02</div></article><article class="cx-guidelines"><h4>Required on the checkout screen</h4><ol><li>Align Back and Place order on one baseline with equal button heights.</li><li>Use teal for Place order and an outline for Back. Both controls must work.</li><li>Add Change delivery next to the delivery address.</li><li>Use cart.svg, delivery.svg, and payment.svg from assets/checkout/icons/. Use wordmark.svg for the brand.</li><li>Keep controls at least 44 pixels high and usable on narrow screens.</li></ol><p>Check the result against the screenshot. Preserve prices, order details, and unrelated pages.</p></article></template>
 <template id="cx-preview-folder"><p class="cx-preview-note">Selected context: assets/checkout/ · only this folder, not the whole project</p><div class="cx-explorer"><div class="cx-explorer-bar">EXPLORER</div><details open><summary>assets/checkout/</summary><details open><summary>brand/</summary><ul><li>wordmark.svg <span>Northstar brand</span></li><li>colors.css <span>Approved teal and ink</span></li></ul></details><details open><summary>icons/</summary><ul><li>cart.svg <span>Order summary</span></li><li>delivery.svg <span>Delivery address</span></li><li>payment.svg <span>Payment method</span></li><li>chevron-left.svg <span>Back action</span></li></ul></details><details><summary>illustrations/</summary><ul><li>order-confirmed.svg</li><li>empty-cart.svg</li></ul></details></details></div><p class="cx-preview-note">Use these supplied files so the repaired screen matches the product's visual style.</p></template>
   <!-- =====================================================================
-       PAGE: TRAINING
-       ===================================================================== -->
-  <section class="page" id="page-training" data-page="training">
-    <div class="container">
-      <div class="hero">
-        <span data-ty="eyebrow" class="eyebrow">Training</span>
-        <h1 data-ty="h1">The command loop on a real bug</h1>
-        <p data-ty="lead" class="lead">Play a shooter with one deliberate damage bug, then follow seven sections from finding to fix. Run each command in place, compare the broken and repaired games, and finish with a short evidence briefing.</p>
-      </div>
-
-      <div class="nht-sections" id="nhTraining" data-training-root>
-        <nav class="nht-jumps" aria-label="Training sections">
-          <a href="#training/game" data-go="training/game">Game</a>
-          <a href="#training/describe-review" data-go="training/describe-review">Describe and review</a>
-          <a href="#training/plan" data-go="training/plan">Plan</a>
-          <a href="#training/implement" data-go="training/implement">Implement</a>
-          <a href="#training/fixed-game" data-go="training/fixed-game">Fixed game</a>
-          <a href="#training/compare" data-go="training/compare">Compare</a>
-          <a href="#training/presentify" data-go="training/presentify">Present</a>
-        </nav>
-        <section class="nht-section" data-nht-section="game" id="training-game">
-          <h2 data-ty="h2">Play Sky Sentinel</h2>
-          <p data-ty="body" data-nht="intent"></p>
-          <div class="nht-section-body">
-              <div class="nht-game" data-arcade-game data-arcade-id="buggy" data-seeded-bug="first-hit-destroys" data-added-feature="vertical-movement" data-nhg-keys="self" tabindex="0" aria-label="Playable arcade shooter bug demonstration" aria-describedby="nagInstructions">
-                <div class="nag-bar">
-                  <span class="nag-title">SKY//SENTINEL</span>
-                  <span class="nag-tag" data-arcade="mode">seeded bug</span>
-                </div>
-                <div class="nag-stage" data-arcade="stage">
-                  <canvas class="nag-canvas" data-arcade-canvas width="640" height="400" aria-label="Playable arcade shooter. Use Left and Right arrows or A and D to move, and Space or a click to fire. Up and Down work after the vertical-movement feature is added.">This browser cannot display the game canvas.</canvas>
-                  <div class="nag-fallback" id="nagFallback" data-arcade-fallback hidden role="status"></div>
-                  <div class="nag-start" data-arcade="start-overlay">
-                    <button type="button" class="nag-start-btn" data-arcade-start>Click to start</button>
-                    <span class="nag-start-hint">Left / Right or A / D move &middot; Space or click fires &middot; leaving the arena pauses</span>
-                  </div>
-                </div>
-                <div class="visually-hidden" data-arcade-live-status aria-live="polite" aria-atomic="true"></div>
-                <div class="nag-hud" aria-label="Game status">
-                  <div data-ty="eyebrow" class="nag-stat">Score<b data-arcade-score>0</b></div>
-                  <div data-ty="eyebrow" class="nag-stat">Lives<b data-arcade-lives>3</b></div>
-                  <div data-ty="eyebrow" class="nag-stat">State<b data-arcade="state">idle</b></div>
-                </div>
-                <div class="nag-actions">
-                  <button type="button" class="nag-action nag-action--primary" data-arcade-action="toggle">Pause game</button>
-                  <button type="button" class="nag-action" data-arcade-action="reset">Reset demo</button>
-                  <button type="button" class="nag-action nag-step" data-arcade-action="step" data-arcade-step>Advance one step</button>
-                </div>
-                <ul class="nag-guide" role="list" aria-label="Keyboard and mouse controls">
-                  <li data-ty="body-sm"><kbd data-ty="code">Left</kbd> / <kbd data-ty="code">Right</kbd> or <kbd data-ty="code">A</kbd> / <kbd data-ty="code">D</kbd> move</li>
-                  <li data-ty="body-sm"><kbd data-ty="code">Space</kbd> or <kbd data-ty="code">click</kbd> fire</li>
-                  <li data-ty="body-sm"><kbd data-ty="code">Up</kbd> / <kbd data-ty="code">Down</kbd> or <kbd data-ty="code">W</kbd> / <kbd data-ty="code">S</kbd> move vertically after the feature</li>
-                  <li data-ty="body-sm"><kbd data-ty="code">Esc</kbd> or leave the arena pauses</li>
-                </ul>
-                <div class="nag-controls" role="group" aria-label="Touch game controls">
-                  <button type="button" class="nag-control" data-arcade-control="left" aria-label="Move left">&#9664; Left</button>
-                  <button type="button" class="nag-control" data-arcade-control="right" aria-label="Move right">Right &#9654;</button>
-                  <button type="button" class="nag-control" data-arcade-control="up" aria-label="Move up, once the vertical-movement feature is enabled">&#9650; Up</button>
-                  <button type="button" class="nag-control" data-arcade-control="down" aria-label="Move down, once the vertical-movement feature is enabled">&#9660; Down</button>
-                  <button type="button" class="nag-control" data-arcade-control="fire" aria-label="Fire">&#9679; Fire</button>
-                </div>
-                <p data-ty="caption" class="nag-note" id="nagInstructions"><strong>Objective:</strong> survive incoming enemies and asteroids while shooting enemies for score. <strong>Controls:</strong> click the start button or press Enter on it, then use Left and Right arrows or A and D to move and Space or a click inside the arena to fire; Up and Down (or W and S) work after the vertical-movement feature is added, and Escape or moving the pointer out of the arena pauses and releases the keys. On touch devices, labelled buttons mirror every key. <strong>Seeded defect:</strong> the very first enemy shot destroys the ship outright instead of costing one of three lives. Fixed damage counts lives 3, 2, 1, 0; touching an asteroid is always fatal.</p>
-              </div>
-          </div>
-          <div data-nht-widgets></div>
-        </section>
-
-        <section class="nht-section" data-nht-section="describe-review" id="training-describe-review">
-          <h2 data-ty="h2">Map the bug, then review it</h2>
-          <p data-ty="body" data-nht="intent"></p>
-          <div class="nht-action-list" data-nht-action-list></div>
-          <div data-nht-widgets></div>
-        </section>
-
-        <section class="nht-section" data-nht-section="plan" id="training-plan">
-          <h2 data-ty="h2">Plan the repair</h2>
-          <p data-ty="body" data-nht="intent"></p>
-          <div data-nht-widgets></div>
-          <ol class="nht-phase-list" data-nht-phases></ol>
-        </section>
-
-        <section class="nht-section" data-nht-section="implement" id="training-implement">
-          <h2 data-ty="h2">Implement the whole plan</h2>
-          <p data-ty="body" data-nht="intent"></p>
-          <div data-nht-widgets></div>
-          <ol class="nht-phase-list" data-nht-final-phase></ol>
-        </section>
-
-        <section class="nht-section" data-nht-section="fixed-game" id="training-fixed-game">
-          <h2 data-ty="h2">Play the fixed game</h2>
-          <p data-ty="body" data-nht="intent"></p>
-          <div class="nht-game" data-arcade-game data-arcade-id="fixed" data-nhg-keys="self" tabindex="0" aria-label="Playable fixed arcade shooter" aria-describedby="nagInstructionsFixed">
-            <div class="nag-bar"><span class="nag-title">SKY//SENTINEL</span><span class="nag-tag is-fixed" data-arcade="mode">fixed</span></div>
-            <div class="nag-stage" data-arcade="stage">
-              <canvas class="nag-canvas" data-arcade-canvas width="640" height="400" aria-label="Fixed arcade shooter: enemy hits cost one life, asteroid hits remain fatal.">This browser cannot display the game canvas.</canvas>
-              <div class="nag-fallback" data-arcade-fallback hidden role="status"></div>
-              <div class="nag-start" data-arcade="start-overlay"><button type="button" class="nag-start-btn" data-arcade-start>Click to start</button><span class="nag-start-hint">Move with arrows or A / D; Space fires</span></div>
-            </div>
-            <div class="visually-hidden" data-arcade-live-status aria-live="polite" aria-atomic="true"></div>
-            <div class="nag-hud" aria-label="Game status"><div class="nag-stat">Score<b data-arcade-score>0</b></div><div class="nag-stat">Lives<b data-arcade-lives>3</b></div><div class="nag-stat">State<b data-arcade="state">idle</b></div></div>
-            <div class="nag-actions"><button type="button" class="nag-action nag-action--primary" data-arcade-action="toggle">Pause game</button><button type="button" class="nag-action" data-arcade-action="reset">Reset demo</button><button type="button" class="nag-action nag-step" data-arcade-action="step" data-arcade-step>Advance one step</button></div>
-            <div class="nag-controls" role="group" aria-label="Fixed game touch controls"><button type="button" class="nag-control" data-arcade-control="left" aria-label="Move left">Left</button><button type="button" class="nag-control" data-arcade-control="right" aria-label="Move right">Right</button><button type="button" class="nag-control" data-arcade-control="up" aria-label="Move up when enabled">Up</button><button type="button" class="nag-control" data-arcade-control="down" aria-label="Move down when enabled">Down</button><button type="button" class="nag-control" data-arcade-control="fire" aria-label="Fire">Fire</button></div>
-            <p data-ty="caption" class="nag-note" id="nagInstructionsFixed">Move with Left and Right or A and D; Space or click fires. The first enemy hit now costs one life and grants a brief invulnerability window. Asteroid contact is still fatal.</p>
-          </div>
-          <div data-nht-widgets></div>
-        </section>
-
-        <section class="nht-section" data-nht-section="compare" id="training-compare">
-          <h2 data-ty="h2">Add a feature through comparison</h2>
-          <p data-ty="body" data-nht="intent"></p>
-          <div data-nht-widgets></div>
-          <div class="nht-game" data-arcade-game data-arcade-id="featured" data-nhg-keys="self" tabindex="0" aria-label="Playable featured arcade shooter with vertical movement" aria-describedby="nagInstructionsFeatured">
-            <div class="nag-bar"><span class="nag-title">SKY//SENTINEL</span><span class="nag-tag is-fixed" data-arcade="mode">featured</span></div>
-            <div class="nag-stage" data-arcade="stage">
-              <canvas class="nag-canvas" data-arcade-canvas width="640" height="400" aria-label="Featured arcade shooter: arrow keys or W and S add vertical movement.">This browser cannot display the game canvas.</canvas>
-              <div class="nag-fallback" data-arcade-fallback hidden role="status"></div>
-              <div class="nag-start" data-arcade="start-overlay"><button type="button" class="nag-start-btn" data-arcade-start>Click to start</button><span class="nag-start-hint">Move horizontally and vertically; Space fires</span></div>
-            </div>
-            <div class="visually-hidden" data-arcade-live-status aria-live="polite" aria-atomic="true"></div>
-            <div class="nag-hud" aria-label="Game status"><div class="nag-stat">Score<b data-arcade-score>0</b></div><div class="nag-stat">Lives<b data-arcade-lives>3</b></div><div class="nag-stat">State<b data-arcade="state">idle</b></div></div>
-            <div class="nag-actions"><button type="button" class="nag-action nag-action--primary" data-arcade-action="toggle">Pause game</button><button type="button" class="nag-action" data-arcade-action="reset">Reset demo</button><button type="button" class="nag-action nag-step" data-arcade-action="step" data-arcade-step>Advance one step</button></div>
-            <div class="nag-controls" role="group" aria-label="Featured game touch controls"><button type="button" class="nag-control" data-arcade-control="left" aria-label="Move left">Left</button><button type="button" class="nag-control" data-arcade-control="right" aria-label="Move right">Right</button><button type="button" class="nag-control" data-arcade-control="up" aria-label="Move up">Up</button><button type="button" class="nag-control" data-arcade-control="down" aria-label="Move down">Down</button><button type="button" class="nag-control" data-arcade-control="fire" aria-label="Fire">Fire</button></div>
-            <p data-ty="caption" class="nag-note" id="nagInstructionsFeatured">Move with Left and Right or A and D, then climb or dive with Up and Down or W and S. Space or click fires; enemy hits cost one life, while asteroid contact remains fatal.</p>
-          </div>
-        </section>
-
-        <section class="nht-section" data-nht-section="presentify" id="training-presentify">
-          <h2 data-ty="h2">Present the evidence</h2>
-          <p data-ty="body" data-nht="intent"></p>
-          <div data-nht-widgets></div>
-        </section>
-
-      </div>
-
-      <template id="nhtSectionWidgets">
-        <div class="nht-section-widgets">
-          <div data-nht-action-panel>
-            <div class="term term--nht" data-nht="terminal">
-              <div class="term-bar"><div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div><span data-ty="code" class="label">assistant &middot; simulated</span></div>
-              <div class="term-body">
-                <div class="cmd-line nht-cmd"><span data-ty="code" class="t-teal" aria-hidden="true">&gt;</span><code data-ty="code" data-nht="command" data-copy=""></code><button type="button" class="nht-run" data-nht="run">Run</button></div>
-                <div class="nht-out" data-nht="output" aria-live="polite"></div>
-                <p data-ty="caption" class="nht-hint" data-nht="hint">Press Run to send this command.</p>
-                <p data-ty="caption" class="nht-idle" data-nht="idle">The assistant's reply will appear here.</p>
-              </div>
-            </div>
-            <div class="nht-tools" data-nht="tools"></div>
-            <div class="nht-after">
-              <div class="nht-artifact" data-nht="artifact"><span class="na-k">Left on disk</span><code data-ty="code" data-nht="artifact-path"></code><p data-ty="body" data-nht="artifact-summary"></p></div>
-              <div class="nht-gate" data-nht="gate"><span class="ng-k" data-nht="gate-status"></span><p data-ty="body"><b data-nht="gate-name"></b><span class="ng-prompt" data-nht="gate-prompt"></span></p></div>
-            </div>
-          </div>
-          <div class="nht-explorer" data-nht="explorer" data-nhg-keys="self" aria-label="Files produced by the training loop">
-            <div class="nht-tree"><div class="nht-treebar"><span>Project files</span><span data-nht="file-count"></span></div><div class="nht-filetree" data-nht="file-tree" role="tree" aria-label="Cumulative project files"></div></div>
-            <div class="nht-file"><div class="nht-filebar"><code data-ty="code" data-nht="file-path"></code><span data-nht="file-state"></span></div><pre data-ty="code" class="nht-filebody" data-nht="file-body" tabindex="0" aria-label="Selected file content"></pre></div>
-          </div>
-          <p data-ty="caption" class="nht-takeaway" data-nht="takeaway"></p>
-        </div>
-      </template>
-
-      <div class="pagenav" data-pagenav></div>
-      <div class="progress-dots" data-progress></div>
-    </div>
-  </section>
-
-  <!-- =====================================================================
        PAGE: CHEATSHEETS
        ===================================================================== -->
   <section class="page" id="page-cheatsheets" data-page="cheatsheets">
     <div class="container">
-      <div class="hero">
-        <span data-ty="eyebrow" class="eyebrow">Cheatsheets</span>
-        <h1 data-ty="h1">Command reference</h1>
-        <p data-ty="lead" class="lead">Each command takes a <em>scope</em> (the first word after it) that picks which job it does. Every scope is listed below with what it actually does. Invoking a command bare usually offers the same list as a menu, so nothing here needs memorizing.</p>
-        <nav class="cs-jump" aria-label="Jump to a section">
-          <a href="#cheatsheets/explore" data-go="cheatsheets/explore">Understand and evaluate</a>
-          <a href="#cheatsheets/plan" data-go="cheatsheets/plan">Plan the work</a>
-          <a href="#cheatsheets/build" data-go="cheatsheets/build">Build it</a>
-          <a href="#cheatsheets/harden" data-go="cheatsheets/harden">Prove it</a>
-          <a href="#cheatsheets/ship" data-go="cheatsheets/ship">Ship and govern</a>
-          <a href="#cheatsheets/communicate" data-go="cheatsheets/communicate">Communicate</a>
-          <a href="#cheatsheets/catalog" data-go="cheatsheets/catalog">Catalog and session</a>
-        </nav>
+      <div class="hero pg-open">
+        <h1 data-ty="h1" class="pg-open-title">Every command, <span class="gtext">every scope</span></h1>
+        <p data-ty="lead" class="pg-open-lead">Each command takes a <em>scope</em> (the first word after it) that picks which job it does. Every scope is listed below with what it actually does. Invoking a command bare usually offers the same list as a menu, so nothing here needs memorizing.</p>
+        <ol class="pg-map" aria-label="Command groups" data-count="7">
+          <li><span class="pg-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.5-4.5"/></svg></span><div><b>Understand and evaluate</b><span>Read-only reports on a codebase</span><span class="pg-count" data-cs-count="cs-explore">3 commands</span></div><a href="#cheatsheets/explore" aria-label="Understand and evaluate: Read-only reports on a codebase"></a></li>
+          <li><span class="pg-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 6h10M10 12h10M10 18h10"/><path d="m3.5 6 1.5 1.5L7.5 5M3.5 12l1.5 1.5L7.5 11"/><circle cx="5" cy="18" r="1"/></svg></span><div><b>Plan the work</b><span>Specs, plans, and their review</span><span class="pg-count" data-cs-count="cs-plan">3 commands</span></div><a href="#cheatsheets/plan" aria-label="Plan the work: Specs, plans, and their review"></a></li>
+          <li><span class="pg-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 8-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14"/></svg></span><div><b>Build it</b><span>Implement a phase, then the whole plan</span><span class="pg-count" data-cs-count="cs-build">2 commands</span></div><a href="#cheatsheets/build" aria-label="Build it: Implement a phase, then the whole plan"></a></li>
+          <li><span class="pg-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4 6v6c0 4.5 3.4 8 8 9 4.6-1 8-4.5 8-9V6l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg></span><div><b>Prove it</b><span>Tests and multi-angle review</span><span class="pg-count" data-cs-count="cs-harden">1 command</span></div><a href="#cheatsheets/harden" aria-label="Prove it: Tests and multi-angle review"></a></li>
+          <li><span class="pg-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19 19 5M19 5h-7M19 5v7"/></svg></span><div><b>Ship and govern</b><span>Releases, docs, and repository hygiene</span><span class="pg-count" data-cs-count="cs-ship">4 commands</span></div><a href="#cheatsheets/ship" aria-label="Ship and govern: Releases, docs, and repository hygiene"></a></li>
+          <li><span class="pg-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4V5Z"/><path d="M8 9h8M8 12h5"/></svg></span><div><b>Communicate</b><span>Reports, decks, and visuals</span><span class="pg-count" data-cs-count="cs-communicate">3 commands</span></div><a href="#cheatsheets/communicate" aria-label="Communicate: Reports, decks, and visuals"></a></li>
+          <li><span class="pg-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg></span><div><b>Catalog and session</b><span>Skills, models, and session tools</span><span class="pg-count" data-cs-count="cs-catalog">8 commands</span></div><a href="#cheatsheets/catalog" aria-label="Catalog and session: Skills, models, and session tools"></a></li>
+        </ol>
       </div>
+      <div data-outline-page="cheatsheets"></div>
 
       <section class="cs-group" id="cs-explore">
         <span data-ty="eyebrow" class="eyebrow">Understand and evaluate</span>
@@ -2003,7 +1740,7 @@ html:not(.js) #page-foundations{display:block;}html:not(.js) .ml-panel[hidden]{d
                 <div class="cmd-line"><span data-ty="code" class="t-teal" aria-hidden="true">&gt;</span> <code data-ty="code" class="inv" data-copy="/describe full"><span data-ty="code" class="inv-cmd">/describe</span><span data-ty="code" class="inv-arg"> full</span></code></div>
               </div>
             </div>
-            <p data-ty="caption" class="cs-teach">A directory path may follow the scope. <a href="#training/describe" data-go="training">See it in Training</a></p>
+            <p data-ty="caption" class="cs-teach">A directory path may follow the scope. <a href="training.html#loop1/describe" data-training-link>See it in Training</a></p>
           </div>
           </div>
         </article>
@@ -2031,7 +1768,7 @@ html:not(.js) #page-foundations{display:block;}html:not(.js) .ml-panel[hidden]{d
                 <div class="cmd-line"><span data-ty="code" class="t-teal" aria-hidden="true">&gt;</span> <code data-ty="code" class="inv" data-copy="/review changes"><span data-ty="code" class="inv-cmd">/review</span><span data-ty="code" class="inv-arg"> changes</span></code></div>
               </div>
             </div>
-            <p data-ty="caption" class="cs-teach"><a href="#training/review" data-go="training">See it in Training</a></p>
+            <p data-ty="caption" class="cs-teach"><a href="training.html#loop1/review" data-training-link>See it in Training</a></p>
           </div>
           </div>
         </article>
@@ -2051,7 +1788,7 @@ html:not(.js) #page-foundations{display:block;}html:not(.js) .ml-panel[hidden]{d
                 <div class="cmd-line"><span data-ty="code" class="t-teal" aria-hidden="true">&gt;</span> <code data-ty="code" class="inv" data-copy="/compare ../some-reference-repo"><span data-ty="code" class="inv-cmd">/compare</span><span data-ty="code" class="inv-arg"> ../some-reference-repo</span></code></div>
               </div>
             </div>
-            <p data-ty="caption" class="cs-teach">Scope is inferred from the source, never prompted. Chains into <code data-ty="code">/plan from-comparison</code>. <a href="#training/compare" data-go="training">See it in Training</a></p>
+            <p data-ty="caption" class="cs-teach">Scope is inferred from the source, never prompted. Chains into <code data-ty="code">/plan from-comparison</code>.</p>
           </div>
           </div>
         </article>
@@ -2082,7 +1819,7 @@ html:not(.js) #page-foundations{display:block;}html:not(.js) .ml-panel[hidden]{d
                 <div class="cmd-line"><span data-ty="code" class="t-teal" aria-hidden="true">&gt;</span> <code data-ty="code" class="inv" data-copy="/plan feature"><span data-ty="code" class="inv-cmd">/plan</span><span data-ty="code" class="inv-arg"> feature</span></code></div>
               </div>
             </div>
-            <p data-ty="caption" class="cs-teach"><code data-ty="code">/plan goals &lt;one-liner&gt;</code> takes an inline goal. <a href="#training/plan" data-go="training">See it in Training</a></p>
+            <p data-ty="caption" class="cs-teach"><code data-ty="code">/plan goals &lt;one-liner&gt;</code> takes an inline goal. <a href="training.html#loop1/plan" data-training-link>See it in Training</a></p>
           </div>
           </div>
         </article>
@@ -2153,7 +1890,7 @@ html:not(.js) #page-foundations{display:block;}html:not(.js) .ml-panel[hidden]{d
                 <div class="cmd-line"><span data-ty="code" class="t-teal" aria-hidden="true">&gt;</span> <code data-ty="code" class="inv" data-copy="/implement my-plan"><span data-ty="code" class="inv-cmd">/implement</span><span data-ty="code" class="inv-arg"> my-plan</span></code></div>
               </div>
             </div>
-            <p data-ty="caption" class="cs-teach"><a href="#training/implement" data-go="training">See it in Training</a></p>
+            <p data-ty="caption" class="cs-teach"><a href="training.html#loop1/implement" data-training-link>See it in Training</a></p>
           </div>
           </div>
         </article>
@@ -2201,7 +1938,7 @@ html:not(.js) #page-foundations{display:block;}html:not(.js) .ml-panel[hidden]{d
                 <div class="cmd-line"><span data-ty="code" class="t-teal" aria-hidden="true">&gt;</span> <code data-ty="code" class="inv" data-copy="/test unit"><span data-ty="code" class="inv-cmd">/test</span><span data-ty="code" class="inv-arg"> unit</span></code></div>
               </div>
             </div>
-            <p data-ty="caption" class="cs-teach"><a href="#training/test" data-go="training">See it in Training</a></p>
+            <p data-ty="caption" class="cs-teach"><a href="training.html#loop1/test" data-training-link>See it in Training</a></p>
           </div>
           </div>
         </article>
@@ -2232,7 +1969,7 @@ html:not(.js) #page-foundations{display:block;}html:not(.js) .ml-panel[hidden]{d
                 <div class="cmd-line"><span data-ty="code" class="t-teal" aria-hidden="true">&gt;</span> <code data-ty="code" class="inv" data-copy="/update changelog"><span data-ty="code" class="inv-cmd">/update</span><span data-ty="code" class="inv-arg"> changelog</span></code></div>
               </div>
             </div>
-            <p data-ty="caption" class="cs-teach"><a href="#training/update" data-go="training">See it in Training</a></p>
+            <p data-ty="caption" class="cs-teach"><a href="training.html#loop1/update" data-training-link>See it in Training</a></p>
           </div>
           </div>
         </article>
@@ -2308,7 +2045,6 @@ html:not(.js) #page-foundations{display:block;}html:not(.js) .ml-panel[hidden]{d
                 <div class="cmd-line"><span data-ty="code" class="t-teal" aria-hidden="true">&gt;</span> <code data-ty="code" class="inv" data-copy="/presentify ./docs --nav slides"><span data-ty="code" class="inv-cmd">/presentify</span><span data-ty="code" class="inv-arg"> ./docs --nav slides</span></code></div>
               </div>
             </div>
-            <p data-ty="caption" class="cs-teach"><a href="#training/presentify" data-go="training">See it in Training</a></p>
           </div>
           </div>
         </article>
@@ -2530,7 +2266,6 @@ host.appendChild(svg);
   var PAGES = [
     { id: "home",        title: "Home" },
     { id: "foundations", title: "Foundations" },
-    { id: "training",    title: "Training" },
     { id: "cheatsheets", title: "Cheatsheets" }
   ];
   var HASH_REWRITES = {
@@ -2627,7 +2362,6 @@ host.appendChild(svg);
     if (nl) nl.classList.remove("open");
     if (navToggle) navToggle.setAttribute("aria-expanded", "false");
     document.body.setAttribute("data-page", id);
-    window.dispatchEvent(new Event("nht-page-change"));
     syncConstellation();
     observeReveals();
   }
@@ -2640,10 +2374,55 @@ host.appendChild(svg);
       location.hash = next.replace(/^#/, "");
     }
   }
+  /* -------------------------------------------------- Training lives in training.html (v4.13.10)
+     Old in-guide Training hashes open the matching stage there. A probe checks once
+     that the file sits next to the guide; when it does not, Training links show a
+     notice instead of a browser error page. */
+  var EXTERNAL_ROUTES = {
+    "": "intro", game: "play-buggy", "describe-review": "loop1/describe", describe: "loop1/describe",
+    review: "loop1/review", plan: "loop1/plan", implement: "loop1/implement", test: "loop1/test",
+    update: "loop1/update", "fixed-game": "play-fixed", compare: "intro", presentify: "intro"
+  };
+  var trainingAvailable = null, pendingStage = null;
+  function trainingMissing() {
+    var note = document.getElementById("trainingMissing");
+    if (note) { note.hidden = false; note.scrollIntoView({ block: "nearest" }); }
+  }
+  function openTraining(stage) {
+    if (trainingAvailable === false) { trainingMissing(); rewriteHash("home"); show("home"); return; }
+    if (trainingAvailable === null) { pendingStage = stage; return; }
+    location.replace("training.html#" + stage);
+  }
+  (function () {
+    var probe = document.createElement("link");
+    probe.rel = "stylesheet";
+    probe.media = "not all";
+    probe.href = "training.html";
+    function settle(ok) {
+      trainingAvailable = ok;
+      if (probe.parentNode) probe.parentNode.removeChild(probe);
+      if (!ok) document.documentElement.setAttribute("data-training-missing", "");
+      if (pendingStage !== null) { var st = pendingStage; pendingStage = null; openTraining(st); }
+    }
+    probe.onload = function () { settle(true); };
+    probe.onerror = function () { settle(false); };
+    document.head.appendChild(probe);
+  })();
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest ? e.target.closest("a[data-training-link]") : null;
+    if (t && trainingAvailable === false) { e.preventDefault(); trainingMissing(); }
+  });
+
   function go() {
     var raw = (location.hash || "#home").replace(/^#/, "");
     var parts = raw.split("?")[0].split("/").filter(function (p) { return p.length > 0; });
     var id = parts[0] || "home";
+    if (id === "training") {
+      openTraining(Object.prototype.hasOwnProperty.call(EXTERNAL_ROUTES, parts[1] || "") ? EXTERNAL_ROUTES[parts[1] || ""] : "intro");
+      if (trainingAvailable !== false) return;
+      parts = ["home"];
+      id = "home";
+    }
     if (HASH_REWRITES[id] && parts.length === 1) {
       rewriteHash(HASH_REWRITES[id]);
       raw = HASH_REWRITES[id];
@@ -2670,14 +2449,11 @@ host.appendChild(svg);
         if (el && el.scrollIntoView) el.scrollIntoView({ block: "start", behavior: "auto" });
       });
     }
-    if (id === "training" && window.NHTraining) {
-      var q = "";
-      var qAt = raw.indexOf("?");
-      if (qAt >= 0) q = raw.slice(qAt + 1);
-      var beat = 0;
-      var bm = /(?:^|&)beat=(\d+)/.exec(q);
-      if (bm) beat = parseInt(bm[1], 10);
-      window.NHTraining.syncFromHash(parts[1], beat);
+    if (id === "foundations" && parts[1]) {
+      window.requestAnimationFrame(function () {
+        var el = document.getElementById(parts[1]);
+        if (el && el.scrollIntoView) el.scrollIntoView({ block: "start", behavior: "auto" });
+      });
     }
   }
 
@@ -2970,6 +2746,126 @@ host.appendChild(svg);
   })();
   window.NexusSeq.init();
 /* /shared:nexusseq-js */
+/* shared:outline-js */
+  /* -------------------------------------------------- NexusOutline (v4.13.10, shared)
+     NexusOutline.mount(host, items, opts) renders an "On this page" bar into host.
+     items: [{ id, label, href, target }]. In "scroll" mode, target is the element id
+     to bring into view, the current entry follows scrolling, and a click scrolls
+     without changing the page (the hash is updated with replaceState). In "route"
+     mode, a click follows href and opts.current() names the current entry.
+     Phones collapse the list to one line naming the current entry. */
+  window.NexusOutline = (function () {
+    var instances = [];
+    var wide = window.matchMedia ? window.matchMedia("(min-width: 721px)") : null;
+    function el(tag, cls, text) {
+      var node = document.createElement(tag);
+      if (cls) node.className = cls;
+      if (text != null) node.textContent = text;
+      return node;
+    }
+    function setCurrent(inst, id) {
+      if (inst.currentId === id) return;
+      inst.currentId = id;
+      for (var i = 0; i < inst.links.length; i++) {
+        var on = inst.links[i].getAttribute("data-outline-id") === id;
+        if (on) inst.links[i].setAttribute("aria-current", "true"); else inst.links[i].removeAttribute("aria-current");
+        if (on) inst.now.textContent = inst.links[i].textContent;
+      }
+    }
+    function fromScroll(inst) {
+      if (!inst.host.offsetParent) return;
+      var line = 150, best = inst.items.length ? inst.items[0].id : null;
+      for (var i = 0; i < inst.items.length; i++) {
+        var t = document.getElementById(inst.items[i].target);
+        if (t && t.getBoundingClientRect().top <= line) best = inst.items[i].id;
+      }
+      setCurrent(inst, best);
+    }
+    function syncOpen(inst) {
+      if (wide && wide.matches) inst.details.setAttribute("open", "");
+      else if (!inst.userOpened) inst.details.removeAttribute("open");
+    }
+    function mount(host, items, opts) {
+      opts = opts || {};
+      var inst = { host: host, items: items, mode: opts.mode || "scroll", current: opts.current, links: [], currentId: null, userOpened: false };
+      host.textContent = "";
+      var nav = el("nav", "pg-outline");
+      nav.setAttribute("aria-label", opts.label || "On this page");
+      var details = el("details");
+      var summary = el("summary");
+      summary.appendChild(document.createTextNode((opts.label || "On this page") + ": "));
+      inst.now = el("small");
+      summary.appendChild(inst.now);
+      var list = el("ol");
+      var lab = el("li", "pg-outline-label", opts.label || "On this page");
+      lab.setAttribute("aria-hidden", "true");
+      list.appendChild(lab);
+      items.forEach(function (item) {
+        var li = el("li");
+        var a = el("a", null, item.label);
+        a.href = item.href;
+        a.setAttribute("data-outline-id", item.id);
+        if (inst.mode === "scroll") {
+          var target = document.getElementById(item.target);
+          if (target) target.setAttribute("data-outline-target", "");
+          a.addEventListener("click", function (ev) {
+            var t = document.getElementById(item.target);
+            if (!t) return;
+            ev.preventDefault();
+            t.scrollIntoView({ block: "start", behavior: REDUCE ? "auto" : "smooth" });
+            var heading = t.querySelector("h1, h2, h3") || t;
+            if (!heading.hasAttribute("tabindex")) heading.setAttribute("tabindex", "-1");
+            heading.focus({ preventScroll: true });
+            try { window.history.replaceState(null, "", item.href); } catch (err) {}
+            setCurrent(inst, item.id);
+            if (!(wide && wide.matches)) details.removeAttribute("open");
+          });
+        } else {
+          a.addEventListener("click", function () { if (!(wide && wide.matches)) details.removeAttribute("open"); });
+        }
+        li.appendChild(a);
+        list.appendChild(li);
+        inst.links.push(a);
+      });
+      details.appendChild(summary);
+      details.appendChild(list);
+      details.addEventListener("toggle", function () { if (!(wide && wide.matches)) inst.userOpened = details.open; });
+      nav.appendChild(details);
+      host.appendChild(nav);
+      inst.details = details;
+      syncOpen(inst);
+      if (inst.mode === "scroll") fromScroll(inst);
+      else if (inst.current) setCurrent(inst, inst.current());
+      instances.push(inst);
+      return {
+        refresh: function () { if (inst.mode === "scroll") fromScroll(inst); else if (inst.current) setCurrent(inst, inst.current()); },
+        current: function () { return inst.currentId; }
+      };
+    }
+    var ticking = false;
+    window.addEventListener("scroll", function () {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(function () {
+        ticking = false;
+        for (var i = 0; i < instances.length; i++) if (instances[i].mode === "scroll") fromScroll(instances[i]);
+      });
+    }, { passive: true });
+    window.addEventListener("hashchange", function () {
+      window.requestAnimationFrame(function () {
+        for (var i = 0; i < instances.length; i++) {
+          if (instances[i].mode === "scroll") fromScroll(instances[i]);
+          else if (instances[i].current) setCurrent(instances[i], instances[i].current());
+        }
+      });
+    });
+    if (wide) {
+      var onWide = function () { for (var i = 0; i < instances.length; i++) syncOpen(instances[i]); };
+      if (wide.addEventListener) wide.addEventListener("change", onWide); else if (wide.addListener) wide.addListener(onWide);
+    }
+    return { mount: mount };
+  })();
+/* /shared:outline-js */
 
   /* -------------------------------------------------- tabs */
   var tabGroups = document.querySelectorAll("[data-tabs]");
@@ -3173,1533 +3069,33 @@ host.appendChild(svg);
     }
   }
 
+  /* -------------------------------------------------- page outlines (v4.13.10) */
+  (function () {
+    var hosts = document.querySelectorAll("[data-outline-page]");
+    for (var h = 0; h < hosts.length; h++) {
+      var pageId = hosts[h].getAttribute("data-outline-page");
+      var cs = pageId === "cheatsheets";
+      var secs = document.querySelectorAll(cs ? "#page-cheatsheets section.cs-group[id]" : "#page-foundations section.fx-scene[id]");
+      var items = [];
+      for (var k = 0; k < secs.length; k++) {
+        var label = (cs ? (secs[k].querySelector(".eyebrow") || secs[k].querySelector("h2")) : secs[k].querySelector("h2")).textContent;
+        var sub = cs ? secs[k].id.replace(/^cs-/, "") : secs[k].id;
+        items.push({ id: secs[k].id, label: label.replace(/\s+/g, " ").trim(), href: "#" + pageId + "/" + sub, target: secs[k].id });
+      }
+      window.NexusOutline.mount(hosts[h], items, { mode: "scroll" });
+    }
+    var counts = document.querySelectorAll("[data-cs-count]");
+    for (var c = 0; c < counts.length; c++) {
+      var group = document.getElementById(counts[c].getAttribute("data-cs-count"));
+      var n = group ? group.querySelectorAll(".cs-cmd").length : 0;
+      counts[c].textContent = n + (n === 1 ? " command" : " commands");
+    }
+  })();
+
   /* -------------------------------------------------- boot */
   go();
   initCopyButtons();
   observeReveals();
-})();
-</script>
-
-<script type="application/json" id="nh-training-scenes">
-{"initial":{"game":{"damageMode":"buggy","verticalMovementEnabled":false,"fixture":"enemy-hit"},"files":[{"path":"src/damage.js","language":"javascript","content":"export function applyEnemyHit(ship) {\n  // TODO: lives were added to the design, but this handler predates them.\n  return { ...ship, destroyed: true };\n}\n"},{"path":"src/game.js","language":"javascript","content":"import { applyEnemyHit } from \u0027./damage.js\u0027;\n\nexport function resolveEnemyShot(ship, shot) {\n  if (!overlaps(ship, shot)) return ship;\n  return applyEnemyHit(ship);\n}\n\nfunction overlaps(a, b) {\n  const dx = a.x - b.x;\n  const dy = a.y - b.y;\n  return Math.hypot(dx, dy) \u003c= a.radius + b.radius;\n}\n"}]},"scenes":[{"id":"game","heading":"Play Sky Sentinel","intent":"Learn the controls and reproduce the first-hit damage bug.","actions":[],"takeaway":"The first enemy hit ends a three-life run.","game":{"damageMode":"buggy","verticalMovementEnabled":false,"fixture":"enemy-hit"}},{"id":"describe-review","heading":"Map the bug, then review it","intent":"Trace the damage path before turning its symptom into a finding.","actions":[{"command":"/describe full","output":["Read src/damage.js and src/game.js.","resolveEnemyShot hands every overlap to applyEnemyHit.","applyEnemyHit sets destroyed: true unconditionally; the lives counter is never consulted.","The HUD reads 3 lives while the very first hit ends the run.","Wrote docs/analysis.md."],"tools":[{"name":"Search","purpose":"find where enemy hits are resolved"},{"name":"Read","purpose":"inspect the two source files"}],"artifact":{"path":"docs/analysis.md","summary":"A code map anchored to the real hit-resolution path."},"gate":{"name":"Understanding","status":"pass","prompt":"The defect is localized before any edit."},"files":[{"path":"docs/analysis.md","action":"create","language":"markdown","content":"# Sky Sentinel code map\n\n`src/game.js` detects the overlap between an enemy shot and the ship, then delegates to `applyEnemyHit` in `src/damage.js`. That handler predates the lives system: it returns `destroyed: true` on every call and never reads `ship.lives`.\n\nObserved in play: the HUD shows 3 lives, yet the first enemy shot ends the run instantly.\n\nRisk: any future damage source that reuses this handler inherits the same instant death.\n"}],"focus_file":"docs/analysis.md"},{"command":"/review","output":["Reproduced it: in the enemy-hit fixture the first shot destroys the ship at three lives.","P1 correctness: applyEnemyHit ignores ship.lives entirely.","Root cause is an unconditional destroyed: true kept from before lives existed.","Wrote docs/review.md."],"tools":[{"name":"Read","purpose":"verify the damage contract against the HUD"},{"name":"Test","purpose":"exercise the seeded first-hit fixture"}],"artifact":{"path":"docs/review.md","summary":"One prioritized finding with reproduction and root cause."},"gate":{"name":"Review","status":"pass","prompt":"The finding is reproducible and actionable."},"files":[{"path":"docs/review.md","action":"create","language":"markdown","content":"# Damage review\n\n## P1 - The first enemy hit is always fatal\n\n`applyEnemyHit` returns `destroyed: true` unconditionally. The HUD promises three lives; the handler delivers none. The seeded enemy-hit fixture reproduces it deterministically: one falling shot, one dead ship, lives still reading 3.\n\nFix: consume one life per hit, grant a brief invulnerability window, and destroy only when lives reach zero.\n"}],"focus_file":"docs/review.md"}],"takeaway":"You can tell a real damage defect from hard difficulty, and you can prove the difference."},{"id":"plan","heading":"Plan the repair","intent":"Turn the finding into an ordered repair with a playable exit gate.","actions":[{"command":"/plan feature","output":["Planned one phase: prove the instant death, implement per-hit lives, replay the fixture.","Exit gate: the seeded first hit leaves the ship alive at two lives.","Vertical movement stays out of scope until comparison evidence exists.","Wrote docs/releases/v0.1/plans/fix-damage-handling.md."],"tools":[{"name":"Read","purpose":"ground the plan in analysis and review"},{"name":"Write","purpose":"record ordered work and exit gates"}],"artifact":{"path":"docs/releases/v0.1/plans/fix-damage-handling.md","summary":"A one-phase repair plan with a playable exit gate."},"gate":{"name":"Plan","status":"pass","prompt":"Scope is bounded to damage correctness."},"files":[{"path":"docs/releases/v0.1/plans/fix-damage-handling.md","action":"create","language":"markdown","content":"# Fix damage handling\n\n## Phase 1\n\n1. Add a failing test: one hit on a 3-life ship must leave 2 lives, not a destroyed ship.\n2. Rewrite applyEnemyHit to consume one life, grant a 90-tick invulnerability window, and destroy only at zero.\n3. Keep asteroid contact fatal; it never routes through this handler.\n4. Replay the enemy-hit fixture: the run must survive the first shot.\n\nExit: focused tests pass and the in-browser first hit leaves the HUD at 2. Vertical movement is excluded.\n"}],"focus_file":"docs/releases/v0.1/plans/fix-damage-handling.md"}],"takeaway":"You know exactly what will change, what will not, and how the game will prove it.","phases":[{"name":"Reproduce the defect in a test","tier":"standard","effort":"medium","summary":"Pin the wrong first-hit behavior with a failing test."},{"name":"Repair the damage seam","tier":"strong","effort":"high","summary":"One enemy hit costs one life; zero lives ends the run."},{"name":"Final phase","tier":"frontier","effort":"max","summary":"Review, reconcile known gaps, test to green, then update the release."}]},{"id":"implement","heading":"Implement the whole plan","intent":"Run the approved repair and its final verification from one command.","actions":[{"command":"/implement fix-damage-handling full","output":["RED: the one-hit-one-life test failed against the unconditional destroy.","GREEN: applyEnemyHit now consumes a life and grants the 90-tick window.","Focused tests: 3 passed.","Playable check: the seeded first hit leaves the HUD at 2 lives.","Wrote the source change, regression tests, diff, and phase history."],"tools":[{"name":"Edit","purpose":"rewrite the damage handler around lives"},{"name":"Test","purpose":"run first-hit, third-hit, and invulnerability cases"}],"artifact":{"path":"docs/releases/v0.1/history/phase-1.md","summary":"Code, tests, diff, and evidence for the completed repair."},"gate":{"name":"Implementation","status":"pass","prompt":"Take a hit now: the HUD must read 2."},"files":[{"path":"src/damage.js","action":"modify","language":"javascript","content":"const INVULN_TICKS = 90;\n\nexport function applyEnemyHit(ship) {\n  if (ship.invulnerableTicks \u003e 0) return ship;\n  const lives = ship.lives - 1;\n  return {\n    ...ship,\n    lives,\n    destroyed: lives \u003c= 0,\n    invulnerableTicks: lives \u003e 0 ? INVULN_TICKS : 0,\n  };\n}\n","diff":"-export function applyEnemyHit(ship) {\n-  // TODO: lives were added to the design, but this handler predates them.\n-  return { ...ship, destroyed: true };\n-}\n+export function applyEnemyHit(ship) {\n+  if (ship.invulnerableTicks \u003e 0) return ship;\n+  const lives = ship.lives - 1;\n+  return { ...ship, lives, destroyed: lives \u003c= 0,\n+           invulnerableTicks: lives \u003e 0 ? INVULN_TICKS : 0 };\n+}\n"},{"path":"tests/damage.test.js","action":"create","language":"javascript","content":"import test from \u0027node:test\u0027;\nimport assert from \u0027node:assert/strict\u0027;\nimport { applyEnemyHit } from \u0027../src/damage.js\u0027;\n\ntest(\u0027one hit costs exactly one life\u0027, () =\u003e {\n  const ship = applyEnemyHit({ lives: 3, invulnerableTicks: 0 });\n  assert.equal(ship.lives, 2);\n  assert.equal(ship.destroyed, false);\n  assert.equal(ship.invulnerableTicks, 90);\n});\n\ntest(\u0027the third hit destroys the ship\u0027, () =\u003e {\n  const ship = applyEnemyHit({ lives: 1, invulnerableTicks: 0 });\n  assert.equal(ship.lives, 0);\n  assert.equal(ship.destroyed, true);\n});\n\ntest(\u0027an invulnerable ship shrugs the hit off\u0027, () =\u003e {\n  const ship = applyEnemyHit({ lives: 2, invulnerableTicks: 45 });\n  assert.equal(ship.lives, 2);\n});\n"},{"path":"docs/releases/v0.1/evidence/damage.diff","action":"create","language":"diff","content":"-export function applyEnemyHit(ship) {\n-  // TODO: lives were added to the design, but this handler predates them.\n-  return { ...ship, destroyed: true };\n-}\n+export function applyEnemyHit(ship) {\n+  if (ship.invulnerableTicks \u003e 0) return ship;\n+  const lives = ship.lives - 1;\n+  return { ...ship, lives, destroyed: lives \u003c= 0,\n+           invulnerableTicks: lives \u003e 0 ? INVULN_TICKS : 0 };\n+}\n"},{"path":"docs/releases/v0.1/history/phase-1.md","action":"create","language":"markdown","content":"# Phase 1 history\n\nCompleted: per-hit lives with a 90-tick invulnerability window.\n\nVerified: 3 focused tests passed; the seeded browser hit left 2 lives on the HUD.\n\nOpen: vertical movement is not implemented. No push or remote CI was run.\n"}],"focus_file":"docs/releases/v0.1/evidence/damage.diff"}],"takeaway":"You can play the same seeded situation before and after the change and watch the fix land.","finalPhase":{"beats":[{"name":"Automatic review","summary":"Review the completed diff against the damage finding and planned exit gate."},{"name":"Known-gaps reconciliation","summary":"Record any unfinished behavior without calling the repair complete early."},{"name":"Tests to green","summary":"Build and rerun the three damage tests until they pass."},{"name":"Update release","summary":"After the integration PR is green and merged, /update release refreshes the version, changelog and documentation, verifies the manifest, then tags and publishes the release."}],"output":["Ran damage unit tests.","3 passed: one-hit, third-hit, invulnerability.","The damage seam and every branch executed.","Wrote reports/unit-summary.txt.","Derived notes from the damage and test diffs.","Recorded the per-hit lives fix.","Included the 3-test verification result.","Updated CHANGELOG.md."],"files":[{"path":"reports/unit-summary.txt","action":"create","language":"text","content":"damage.test.js    3 passed\nTOTAL             3 passed\nBranches: hit, fatal hit, invulnerable\n"},{"path":"CHANGELOG.md","action":"create","language":"markdown","content":"# Changelog\n\n## 0.1.0\n\n### Fixed\n\n- An enemy hit now costs one life instead of destroying the ship outright; destruction happens only at zero lives, after a brief invulnerability window per hit.\n\n### Verified\n\n- Three focused damage tests pass.\n"}]}},{"id":"fixed-game","heading":"Play the fixed game","intent":"The same enemy hit now costs one life and grants a brief invulnerability window.","actions":[],"takeaway":"A surviving first hit is the playable proof.","game":{"damageMode":"fixed","verticalMovementEnabled":false,"fixture":"enemy-hit"}},{"id":"compare","heading":"Add a feature through comparison","intent":"Borrow a vertical-movement behavior without importing the reference project.","actions":[{"command":"/compare vertical-movement-reference","output":["Adopt: Up and Down move the ship inside a bounded lower play band.","Reject: the reference renderer, input library, and dependency layout.","Follow-on /plan and /implement completed inside this comparison step.","Movement tests: 3 passed.","The playable game now climbs and dives between y 300 and y 380."],"tools":[{"name":"Compare","purpose":"isolate the reference movement behavior"},{"name":"Edit","purpose":"implement the adopted pattern locally"},{"name":"Test","purpose":"prove gating and band clamping"}],"artifact":{"path":"docs/comparison.md","summary":"An adoption decision plus its completed follow-on change."},"gate":{"name":"Comparison","status":"pass","prompt":"Only the behavior pattern was adopted."},"files":[{"path":"docs/comparison.md","action":"create","language":"markdown","content":"# Vertical movement comparison\n\nAdopt the behavior contract: while the feature flag is on, Up and Down move the ship at its vertical speed, clamped to the lower play band between y 300 and y 380. While the flag is off, vertical input is read and ignored.\n\nReject the reference renderer, input library, and package structure. Implement through a small pure `applyVerticalInput` seam beside the existing damage seam.\n"},{"path":"docs/releases/v0.1/plans/add-vertical-movement.md","action":"create","language":"markdown","content":"# Add vertical movement\n\nOne follow-on phase: implement `applyVerticalInput` behind the feature flag, clamp to the band, and cover off, top-clamp, and bottom-clamp cases. Exit when the playable ship climbs and dives inside the band and never leaves it.\n"},{"path":"src/movement.js","action":"create","language":"javascript","content":"const BAND = { top: 300, bottom: 380 };\n\nexport function applyVerticalInput(ship, input, enabled) {\n  if (!enabled) return ship;\n  let y = ship.y;\n  if (input.up) y -= ship.speedY;\n  if (input.down) y += ship.speedY;\n  return { ...ship, y: Math.min(BAND.bottom, Math.max(BAND.top, y)) };\n}\n"},{"path":"tests/movement.test.js","action":"create","language":"javascript","content":"import test from \u0027node:test\u0027;\nimport assert from \u0027node:assert/strict\u0027;\nimport { applyVerticalInput } from \u0027../src/movement.js\u0027;\n\nconst ship = { y: 340, speedY: 2 };\n\ntest(\u0027vertical input is ignored while the feature is off\u0027, () =\u003e {\n  assert.equal(applyVerticalInput(ship, { up: true }, false).y, 340);\n});\n\ntest(\u0027upward travel clamps at the top of the play band\u0027, () =\u003e {\n  const high = { ...ship, y: 301 };\n  assert.equal(applyVerticalInput(high, { up: true }, true).y, 300);\n});\n\ntest(\u0027downward travel clamps at the bottom of the play band\u0027, () =\u003e {\n  const low = { ...ship, y: 379 };\n  assert.equal(applyVerticalInput(low, { down: true }, true).y, 380);\n});\n"}],"focus_file":"docs/comparison.md"}],"takeaway":"You can borrow a useful idea without importing another project\u0027s architecture.","game":{"damageMode":"fixed","verticalMovementEnabled":true,"fixture":"play"}},{"id":"presentify","heading":"Present the evidence","intent":"Turn the analysis, finding, implementation and proof into an offline briefing.","actions":[{"command":"/presentify docs/analysis.md docs/review.md CHANGELOG.md","output":["Built a four-part briefing: symptom, cause, repair, proof.","Included the surviving-first-hit result and the band-clamped climb.","Wrote shooter-briefing.html; offline: yes."],"tools":[{"name":"Read","purpose":"collect the completed evidence trail"},{"name":"Render","purpose":"build one self-contained briefing"}],"artifact":{"path":"shooter-briefing.html","summary":"A self-contained briefing built from the accumulated evidence."},"gate":{"name":"Communication","status":"pass","prompt":"The result is understandable without the implementation session."},"files":[{"path":"shooter-briefing.html","action":"create","language":"html","content":"\u003c!doctype html\u003e\n\u003chtml lang=\"en\"\u003e\n\u003cmeta charset=\"utf-8\"\u003e\n\u003ctitle\u003eSky Sentinel repair briefing\u003c/title\u003e\n\u003cbody\u003e\n  \u003cmain\u003e\n    \u003ch1\u003eOne damage bug, one playable proof\u003c/h1\u003e\n    \u003cp\u003eBefore: the first enemy shot destroyed the ship at three lives. After: hits cost one life each, and the ship climbs and dives inside its play band.\u003c/p\u003e\n    \u003cp\u003eEvidence: six focused tests pass.\u003c/p\u003e\n  \u003c/main\u003e\n\u003c/body\u003e\n\u003c/html\u003e\n"}],"focus_file":"shooter-briefing.html"}],"takeaway":"You finish the loop with a concise story backed by the files and behavior you produced."}]}
-</script>
-
-<script>
-(function () {
-  "use strict";
-
-  var registry = [];
-  var byId = Object.create(null);
-
-  /* The v4.4 arcade scenario is the historical rule baseline; the v4.13.4 plan owns this wide arena. */
-  var WIDTH = 640;
-  var HEIGHT = 400;
-  var TICK = 1 / 60;
-  var DEFAULT_SEED = 20260901;
-  var START_LIVES = 3;
-  var INVULN_TICKS = 90;
-  var PLAYER_SPEED_X = 260;
-  var PLAYER_SPEED_Y = 120;
-  var BAND_TOP = 300;
-  var BAND_BOTTOM = 380;
-  var PLAYER_SHOT_VY = -240;
-  var PLAYER_SHOT_LIFE = 2.5;
-  var ENEMY_SHOT_VY = 150;
-  /* v4.4.2: three size tiers and three speed tiers, chosen independently on the SPAWN stream. */
-  var ASTEROID_SPEEDS = [45, 75, 110];
-  var ASTEROID_SIZES = [[8, 11], [12, 17], [18, 26]];
-  var ENEMY_BANDS = [[40, 55], [60, 80], [90, 115]];
-  var ENEMY_ARCHETYPES = [
-    { id: "interceptor", r: 9, vy: [96, 128], pattern: "dart", fire: { style: "bolt", every: [34, 52], speed: 210 } },
-    { id: "gunship", r: 13, vy: [62, 84], pattern: "strafe", fire: { style: "spread", every: [78, 104], speed: 165 } },
-    { id: "lancer", r: 18, vy: [38, 52], pattern: "hold", fire: { style: "beam", every: [120, 150], tell: 36 } },
-    { id: "drone", r: 6, vy: [130, 168], pattern: "weave", fire: null }
-  ];
-  var SPAWN_ENEMY_TICKS = [90, 150];
-  var SPAWN_ASTEROID_TICKS = [70, 120];
-  var TEACHING_SPAWN_FROM_TICK = 120;
-  var CENTRE_BAND = [260, 380];
-  var SPAWN_STREAM_SALT = 0x9E3779B9;
-  var FIRE_COOLDOWN_TICKS = 14;
-  var MAX_FRAME_SECONDS = 0.25;
-  var PAUSE_REASONS = ["manual", "blur", "hidden", "offscreen", "page-hidden", "reduced-motion", "pointer"];
-  var FIXTURES = ["enemy-hit", "asteroid-hit", "play"];
-
-  function mulberry32(seed) {
-    var a = seed >>> 0;
-    return function () {
-      a |= 0;
-      a = (a + 0x6d2b79f5) | 0;
-      var t = Math.imul(a ^ (a >>> 15), 1 | a);
-      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-    };
-  }
-
-  function collides(a, b) {
-    var dx = Number(a.x) - Number(b.x);
-    var dy = Number(a.y) - Number(b.y);
-    var r = (Number(a.r) || 0) + (Number(b.r) || 0);
-    return dx * dx + dy * dy <= r * r;
-  }
-
-  /* Pure damage seam: what one enemy-projectile hit does to the player. */
-  function damageOutcome(mode, lives) {
-    if (mode === "buggy") {
-      return { lives: lives, destroyed: true, reason: "buggy-first-hit" };
-    }
-    var next = Math.max(0, lives - 1);
-    return { lives: next, destroyed: next === 0, reason: next === 0 ? "no-lives" : "hit" };
-  }
-
-  function fixtureState(name, seed) {
-    /* Two streams from one seed. rng (the BEAT stream) is consumed exactly as v4.4.1 did:
-       stars, the pre-placed enemy cadence, the play fixture timers. rngSpawn drives every
-       v4.4.2 spawn decision, so adding spawns cannot shift a draw the teaching beats use. */
-    var rng = mulberry32(seed);
-    var rngSpawn = mulberry32((seed ^ SPAWN_STREAM_SALT) >>> 0);
-    var base = {
-      seed: seed,
-      fixture: name,
-      tick: 0,
-      lifecycle: "idle",
-      lives: START_LIVES,
-      score: 0,
-      damageMode: "buggy",
-      verticalMovementEnabled: false,
-      player: { x: 320, y: 340, r: 10, invulnerableTicks: 0, fireCooldown: 0 },
-      enemies: [],
-      enemyShots: [],
-      asteroids: [],
-      playerShots: [],
-      explosions: [],
-      stars: [],
-      nextId: 1,
-      spawn: { enemyIn: 0, asteroidIn: 0, fromTick: 0, teaching: false },
-      rng: rng,
-      rngSpawn: rngSpawn
-    };
-    var i;
-    for (i = 0; i < 26; i++) {
-      base.stars.push({ x: rng() * WIDTH, y: rng() * HEIGHT, speed: 14 + rng() * 30, size: rng() < 0.25 ? 1.6 : 1 });
-    }
-    if (name === "enemy-hit") {
-      /* Fires on a deterministic cadence so FIXED mode can demonstrate 3 -> 2 -> 1 -> 0:
-         the pre-placed shot lands first (~tick 75), then each re-fire lands after the
-         90-tick invulnerability window has expired. */
-      base.enemies.push({ id: "seed-enemy", x: 320, y: 50, r: 12, vx: 0, vy: 8, band: 0, fireIn: 130, resolved: false });
-      base.enemyShots.push({ id: "seed-shot", x: 320, y: 170, r: 3.5, vy: ENEMY_SHOT_VY, resolved: false });
-      base.spawn.teaching = true;
-      base.spawn.fromTick = TEACHING_SPAWN_FROM_TICK;
-      base.spawn.enemyIn = SPAWN_ENEMY_TICKS[0];
-      base.spawn.asteroidIn = SPAWN_ASTEROID_TICKS[0];
-    } else if (name === "asteroid-hit") {
-      var seedRockLook = Math.floor(rngSpawn() * 0xffffffff) >>> 0;
-      base.asteroids.push({ id: "seed-rock", x: 320, y: 120, r: 16, vx: 0, vy: 105, tier: 1,
-        spin: 0.8, face: rng() * 6.28, look: seedRockLook,
-        shape: asteroidSilhouette(seedRockLook, 11), resolved: false });
-      base.spawn.teaching = true;
-      base.spawn.fromTick = TEACHING_SPAWN_FROM_TICK;
-      base.spawn.enemyIn = SPAWN_ENEMY_TICKS[0];
-      base.spawn.asteroidIn = SPAWN_ASTEROID_TICKS[0];
-    } else {
-      base.spawn.enemyIn = 70 + Math.floor(rng() * 40);
-      base.spawn.asteroidIn = 40 + Math.floor(rng() * 30);
-    }
-    return base;
-  }
-
-  function pick(rng, range) { return range[0] + rng() * (range[1] - range[0]); }
-  function pickTicks(rng, range) { return range[0] + Math.floor(rng() * (range[1] - range[0] + 1)); }
-  function pickArchetype(rng, tick) {
-    var weights = tick >= 900 ? [28, 30, 30, 12] : [58, 27, 7, 8];
-    var roll = rng() * 100, total = 0;
-    for (var i = 0; i < weights.length; i++) {
-      total += weights[i];
-      if (roll < total) return ENEMY_ARCHETYPES[i];
-    }
-    return ENEMY_ARCHETYPES[0];
-  }
-  function asteroidSilhouette(look, points) {
-    var rng = mulberry32(look), shape = [];
-    for (var i = 0; i < points; i++) shape.push(0.74 + rng() * 0.34);
-    return shape;
-  }
-  /* Teaching fixtures keep a stationary player untouched: x lands outside the centre band. */
-  function spawnX(s, margin) {
-    var r = s.rngSpawn;
-    if (!s.spawn.teaching) return margin + r() * (WIDTH - 2 * margin);
-    var left = CENTRE_BAND[0] - margin, right = CENTRE_BAND[1] + margin;
-    return r() < 0.5 ? margin + r() * (left - margin) : right + r() * (WIDTH - margin - right);
-  }
-  function spawnStep(s) {
-    if (s.tick < s.spawn.fromTick) return;
-    var r = s.rngSpawn;
-    if (s.spawn.enemyIn <= 0) {
-      var arch = pickArchetype(r, s.tick);
-      s.enemies.push({
-        id: "enemy-" + s.nextId++,
-        archetype: arch.id,
-        x: spawnX(s, 30),
-        y: -14,
-        r: arch.r,
-        vx: s.spawn.teaching ? 0 : (r() - 0.5) * 40,
-        vy: pick(r, arch.vy),
-        band: Math.min(2, Math.floor((arch.vy[0] - 38) / 46)),
-        pattern: arch.pattern,
-        fire: arch.fire,
-        phase: r() * 6.28,
-        look: Math.floor(r() * 0xffffffff) >>> 0,
-        fireIn: arch.fire ? pickTicks(r, arch.fire.every) : 0,
-        resolved: false
-      });
-      s.spawn.enemyIn = pickTicks(r, SPAWN_ENEMY_TICKS);
-    } else {
-      s.spawn.enemyIn -= 1;
-    }
-    if (s.spawn.asteroidIn <= 0) {
-      var size = Math.floor(r() * ASTEROID_SIZES.length);
-      var speed = Math.floor(r() * ASTEROID_SPEEDS.length);
-      var radius = pick(r, ASTEROID_SIZES[size]);
-      var look = Math.floor(r() * 0xffffffff) >>> 0;
-      s.asteroids.push({
-        id: "rock-" + s.nextId++,
-        x: spawnX(s, Math.ceil(radius) + 6),
-        y: -20,
-        r: radius,
-        vx: s.spawn.teaching ? 0 : (r() - 0.5) * 26,
-        vy: ASTEROID_SPEEDS[speed],
-        tier: size,
-        spin: (r() - 0.5) * 2,
-        face: r() * 6.28,
-        look: look,
-        shape: asteroidSilhouette(look, 9 + size * 2),
-        resolved: false
-      });
-      s.spawn.asteroidIn = pickTicks(r, SPAWN_ASTEROID_TICKS);
-    } else {
-      s.spawn.asteroidIn -= 1;
-    }
-  }
-
-  /* Pure seam for tests: the spawn sequence a fixture and seed would produce over N ticks,
-     computed on a scratch state with spawnStep alone, so variety can be asserted without the
-     player having to survive it. */
-  function spawnSample(fixtureName, seed, ticks) {
-    var name = FIXTURES.indexOf(fixtureName) !== -1 ? fixtureName : "play";
-    var scratch = fixtureState(name, typeof seed === "number" && isFinite(seed) ? Math.floor(seed) : DEFAULT_SEED);
-    var n = Math.max(0, Math.min(20000, Math.floor(ticks) || 0));
-    var enemies = [], asteroids = [], tracks = [], shots = [], tracksById = Object.create(null);
-    for (var i = 0; i < n; i++) {
-      scratch.tick = i;
-      var oldEnemies = scratch.enemies.length, oldRocks = scratch.asteroids.length, oldShots = scratch.enemyShots.length;
-      spawnStep(scratch);
-      for (var ei = oldEnemies; ei < scratch.enemies.length; ei++) {
-        var e = scratch.enemies[ei];
-        enemies.push({ vy: round3(e.vy), band: e.band, x: round3(e.x), archetype: e.archetype, r: e.r });
-        var track = { archetype: e.archetype, xDrift: 0 };
-        tracksById[e.id] = track;
-        tracks.push(track);
-      }
-      for (var ai = oldRocks; ai < scratch.asteroids.length; ai++) {
-        var a = scratch.asteroids[ai];
-        asteroids.push({ r: round3(a.r), vy: a.vy, tier: a.tier, x: round3(a.x), vx: round3(a.vx), shape: a.shape });
-      }
-      var lastX = Object.create(null);
-      for (ei = 0; ei < scratch.enemies.length; ei++) lastX[scratch.enemies[ei].id] = scratch.enemies[ei].x;
-      movementStep(scratch);
-      for (ei = 0; ei < scratch.enemies.length; ei++) {
-        e = scratch.enemies[ei];
-        if (tracksById[e.id]) tracksById[e.id].xDrift += Math.abs(e.x - lastX[e.id]);
-      }
-      for (var si = oldShots; si < scratch.enemyShots.length; si++) shots.push({ style: scratch.enemyShots[si].style || "bolt" });
-      cleanupStep(scratch);
-    }
-    for (i = 0; i < tracks.length; i++) tracks[i].xDrift = round3(tracks[i].xDrift);
-    return deepFreeze({
-      enemies: enemies, asteroids: asteroids, tracks: tracks, shots: shots
-    });
-  }
-
-  function movementStep(s) {
-    var i, e;
-    for (i = 0; i < s.enemies.length; i++) {
-      e = s.enemies[i];
-      e.x += e.vx * TICK;
-      e.y += e.vy * TICK;
-      if (!s.spawn.teaching) {
-        if (e.pattern === "dart") e.x += Math.sin((s.tick + e.phase * 60) * 0.11) * 2.4;
-        else if (e.pattern === "strafe") e.x += Math.sin((s.tick + e.phase * 60) * 0.045) * 1.5;
-        else if (e.pattern === "weave") e.x += Math.sin((s.tick + e.phase * 60) * 0.19) * 3.1;
-      }
-      e.x = Math.max(e.r, Math.min(WIDTH - e.r, e.x));
-      if (e.x === e.r || e.x === WIDTH - e.r) e.vx = -e.vx;
-      if (isFinite(e.fireIn)) {
-        e.fireIn -= 1;
-        if (e.fireIn <= 0) {
-          if (e.fire && e.fire.style === "spread") {
-            var lanes = [-60, 0, 60];
-            for (var li = 0; li < lanes.length; li++) {
-              s.enemyShots.push({ id: "eshot-" + s.nextId++, style: "spread", x: e.x, y: e.y + e.r, r: 3.5, vx: lanes[li], vy: e.fire.speed, tell: 0, resolved: false });
-            }
-          } else if (e.fire && e.fire.style === "beam") {
-            s.enemyShots.push({ id: "eshot-" + s.nextId++, style: "beam", sourceId: e.id, x: e.x, y: e.y + e.r, r: 0, width: 10, length: HEIGHT - e.y - e.r, vy: 1, tell: e.fire.tell, active: 18, resolved: false });
-          } else if (e.fire) {
-            s.enemyShots.push({ id: "eshot-" + s.nextId++, style: "bolt", x: e.x, y: e.y + e.r, r: 3.5, vx: 0, vy: e.fire.speed, tell: 0, resolved: false });
-          } else if (e.fire === undefined) {
-            s.enemyShots.push({ id: "eshot-" + s.nextId++, style: "bolt", x: e.x, y: e.y + 12, r: 3.5, vx: 0, vy: ENEMY_SHOT_VY, tell: 0, resolved: false });
-          }
-          e.fireIn = e.fire ? pickTicks(s.rngSpawn, e.fire.every) : e.fire === undefined ? 90 + Math.floor(s.rng() * 60) : Infinity;
-        }
-      }
-    }
-    for (i = 0; i < s.enemyShots.length; i++) {
-      var shot = s.enemyShots[i];
-      if (shot.style === "beam") {
-        if (shot.tell > 0) {
-          shot.tell -= 1;
-          var source = s.enemies.filter(function (enemy) { return enemy.id === shot.sourceId; })[0];
-          if (source) { shot.x = source.x; shot.y = source.y + source.r; shot.length = HEIGHT - shot.y; }
-        } else if (--shot.active <= 0) shot.resolved = true;
-      } else {
-        shot.x += (shot.vx || 0) * TICK;
-        shot.y += shot.vy * TICK;
-      }
-    }
-    for (i = 0; i < s.asteroids.length; i++) {
-      var rock = s.asteroids[i];
-      rock.x += (rock.vx || 0) * TICK;
-      rock.y += rock.vy * TICK;
-      rock.face += rock.spin * TICK;
-      if (rock.x < rock.r || rock.x > WIDTH - rock.r) rock.vx = -(rock.vx || 0);
-    }
-    for (i = 0; i < s.playerShots.length; i++) {
-      s.playerShots[i].y += s.playerShots[i].vy * TICK;
-      s.playerShots[i].life -= TICK;
-    }
-    for (i = 0; i < s.stars.length; i++) {
-      s.stars[i].y += s.stars[i].speed * TICK;
-      if (s.stars[i].y > HEIGHT) s.stars[i].y -= HEIGHT;
-    }
-    for (i = 0; i < s.explosions.length; i++) { s.explosions[i].age += 1; }
-  }
-
-  function explodeAt(s, x, y, big) {
-    s.explosions.push({ id: "boom-" + s.nextId++, x: x, y: y, r: big ? 26 : 14, age: 0, big: !!big });
-  }
-
-  function destroyPlayer(s) {
-    s.lifecycle = "destroyed";
-    explodeAt(s, s.player.x, s.player.y, true);
-  }
-
-  function collisionStep(s) {
-    var i, j, hit;
-    /* Precedence 1: asteroid contact is fatal regardless of lives or invulnerability. */
-    for (i = 0; i < s.asteroids.length; i++) {
-      var rock = s.asteroids[i];
-      if (!rock.resolved && collides(rock, s.player)) {
-        rock.resolved = true;
-        destroyPlayer(s);
-        return;
-      }
-    }
-    /* Precedence 2: enemy projectile vs player, one resolution per projectile. */
-    for (i = 0; i < s.enemyShots.length; i++) {
-      var shot = s.enemyShots[i];
-      if (shot.resolved || shot.tell > 0) continue;
-      var strikes = shot.style === "beam"
-        ? shot.active > 0 && s.player.y + s.player.r >= shot.y && s.player.y - s.player.r <= shot.y + shot.length && Math.abs(s.player.x - shot.x) <= shot.width / 2 + s.player.r
-        : collides(shot, s.player);
-      if (!strikes) continue;
-      shot.resolved = true;
-      if (s.damageMode === "fixed" && s.player.invulnerableTicks > 0) continue;
-      var outcome = damageOutcome(s.damageMode, s.lives);
-      if (s.damageMode === "fixed") {
-        s.lives = outcome.lives;
-        explodeAt(s, s.player.x, s.player.y, outcome.destroyed);
-        if (outcome.destroyed) { s.lifecycle = "destroyed"; return; }
-        s.player.invulnerableTicks = INVULN_TICKS;
-      } else {
-        destroyPlayer(s);
-        return;
-      }
-    }
-    /* Precedence 3: player projectiles, each consuming at most one target. */
-    for (i = 0; i < s.playerShots.length; i++) {
-      var ps = s.playerShots[i];
-      if (ps.resolved) continue;
-      hit = null;
-      for (j = 0; j < s.enemies.length && !hit; j++) {
-        if (!s.enemies[j].resolved && collides(ps, s.enemies[j])) hit = s.enemies[j];
-      }
-      for (j = 0; j < s.asteroids.length && !hit; j++) {
-        if (!s.asteroids[j].resolved && collides(ps, s.asteroids[j])) hit = s.asteroids[j];
-      }
-      if (hit) {
-        ps.resolved = true;
-        hit.resolved = true;
-        s.score += 100;
-        explodeAt(s, hit.x, hit.y, false);
-        if (hit.tier >= 1) {
-          for (var child = 0; child < 2; child++) {
-            var tier = hit.tier - 1, look = Math.floor(s.rngSpawn() * 0xffffffff) >>> 0;
-            s.asteroids.push({ id: "rock-" + s.nextId++, x: hit.x + (child ? 8 : -8), y: hit.y,
-              r: pick(s.rngSpawn, ASTEROID_SIZES[tier]), vx: (hit.vx || 0) + (child ? 24 : -24),
-              vy: hit.vy + 15, tier: tier, spin: (s.rngSpawn() - 0.5) * 2,
-              face: s.rngSpawn() * 6.28, look: look,
-              shape: asteroidSilhouette(look, 9 + tier * 2), resolved: false });
-          }
-        }
-      }
-    }
-  }
-
-  function cleanupStep(s) {
-    s.enemies = s.enemies.filter(function (e) { return !e.resolved && e.y < HEIGHT + 30; });
-    s.enemyShots = s.enemyShots.filter(function (p) { return !p.resolved && (p.style === "beam" || p.y < HEIGHT + 20); });
-    s.asteroids = s.asteroids.filter(function (a) { return !a.resolved && a.y < HEIGHT + 40; });
-    s.playerShots = s.playerShots.filter(function (p) { return !p.resolved && p.life > 0 && p.y > -20; });
-    s.explosions = s.explosions.filter(function (b) { return b.age < 36; });
-  }
-
-  function round3(n) { return Math.round(n * 1000) / 1000; }
-
-  function project(list, extra) {
-    return list.map(function (e) {
-      var out = { id: e.id, x: round3(e.x), y: round3(e.y), r: round3(e.r), vy: round3(e.vy || 0) };
-      if (extra) extra(e, out);
-      return out;
-    });
-  }
-
-  function deepFreeze(obj) {
-    Object.getOwnPropertyNames(obj).forEach(function (key) {
-      var value = obj[key];
-      if (value && typeof value === "object") deepFreeze(value);
-    });
-    return Object.freeze(obj);
-  }
-
-  /* ------------------------------------------------ painting (never world state) */
-
-  function paintShip(ctx, p, s) {
-    var flicker = s.damageMode === "fixed" && p.invulnerableTicks > 0 && (s.tick % 10 < 5);
-    ctx.save();
-    ctx.translate(p.x, p.y);
-    ctx.rotate(p.bank || 0);
-    if (flicker) ctx.globalAlpha = 0.35;
-    if (s.lifecycle === "running") {
-      var length = p.thrust ? 19 : 10;
-      var flame = ctx.createLinearGradient(0, 8, 0, 12 + length);
-      flame.addColorStop(0, p.thrust ? "#f7c975" : "#5eead4");
-      flame.addColorStop(1, "rgba(94, 234, 212, 0)");
-      ctx.fillStyle = flame;
-      ctx.beginPath();
-      ctx.moveTo(-5, 9);
-      ctx.quadraticCurveTo(0, 12 + length + (s.tick % 3), 5, 9);
-      ctx.closePath();
-      ctx.fill();
-    }
-    var hull = ctx.createLinearGradient(0, -14, 0, 13);
-    hull.addColorStop(0, "#e5fbff");
-    hull.addColorStop(0.45, "#54baca");
-    hull.addColorStop(1, "#16475e");
-    ctx.fillStyle = hull;
-    ctx.beginPath();
-    ctx.moveTo(0, -14); ctx.lineTo(5, -5); ctx.lineTo(7, 1);
-    ctx.lineTo(14, 10); ctx.lineTo(6, 8); ctx.lineTo(0, 12);
-    ctx.lineTo(-6, 8); ctx.lineTo(-14, 10); ctx.lineTo(-7, 1);
-    ctx.lineTo(-5, -5); ctx.closePath();
-    ctx.fill();
-    ctx.strokeStyle = "#d7fbff";
-    ctx.lineWidth = 0.8;
-    ctx.beginPath(); ctx.moveTo(0, -11); ctx.lineTo(0, 8);
-    ctx.moveTo(-5, 0); ctx.lineTo(-11, 8); ctx.moveTo(5, 0); ctx.lineTo(11, 8); ctx.stroke();
-    ctx.fillStyle = "#0a3047";
-    ctx.beginPath(); ctx.ellipse(0, -3, 3, 5, 0, 0, 6.29); ctx.fill();
-    ctx.fillStyle = "#88f4ed";
-    ctx.beginPath(); ctx.ellipse(0, -4, 1.5, 3, 0, 0, 6.29); ctx.fill();
-    ctx.fillStyle = "#a6fff4";
-    ctx.beginPath(); ctx.ellipse(0, 9, 3, 1.4, 0, 0, 6.29); ctx.fill();
-    ctx.restore();
-  }
-
-  function paintEnemy(ctx, e) {
-    ctx.save();
-    ctx.translate(e.x, e.y);
-    ctx.scale(e.r / 10, e.r / 10);
-    if (e.archetype === "gunship") paintGunship(ctx, e);
-    else if (e.archetype === "lancer") paintLancer(ctx, e);
-    else if (e.archetype === "drone") paintDrone(ctx, e);
-    else paintInterceptor(ctx, e);
-    ctx.restore();
-  }
-
-  function paintInterceptor(ctx, e) {
-    ctx.fillStyle = "#527baf";
-    ctx.beginPath(); ctx.moveTo(0, 11); ctx.lineTo(10, -7); ctx.lineTo(3, -4);
-    ctx.lineTo(0, -11); ctx.lineTo(-3, -4); ctx.lineTo(-10, -7); ctx.closePath(); ctx.fill();
-    ctx.strokeStyle = "#b9ebf7"; ctx.lineWidth = 0.7;
-    ctx.beginPath(); ctx.moveTo(0, -9); ctx.lineTo(0, 6 + ((e.look || 0) % 3)); ctx.stroke();
-    ctx.fillStyle = "#f4ffff";
-    ctx.beginPath(); ctx.arc(0, -9, 1.2, 0, 6.29); ctx.fill();
-  }
-
-  function paintGunship(ctx, e) {
-    ctx.fillStyle = "#80516a";
-    ctx.beginPath(); ctx.moveTo(-10, -4); ctx.lineTo(-5, -9); ctx.lineTo(5, -9);
-    ctx.lineTo(10, -4); ctx.lineTo(10, 5); ctx.lineTo(5, 9);
-    ctx.lineTo(-5, 9); ctx.lineTo(-10, 5); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = "#3c2b43";
-    ctx.fillRect(-12, 0, 3, 11); ctx.fillRect(9, 0, 3, 11);
-    ctx.strokeStyle = "#e8c1d0"; ctx.lineWidth = 0.6;
-    ctx.beginPath(); ctx.moveTo(-5, -6); ctx.lineTo(-2, 3 + ((e.look || 0) % 2));
-    ctx.moveTo(5, -6); ctx.lineTo(2, 3); ctx.stroke();
-    ctx.fillStyle = "#ffd17b";
-    ctx.beginPath(); ctx.arc(0, 0, 2.7, 0, 6.29); ctx.fill();
-  }
-
-  function paintLancer(ctx, e) {
-    ctx.fillStyle = "#574e70";
-    ctx.beginPath(); ctx.moveTo(0, -12); ctx.lineTo(4, -6); ctx.lineTo(5, 6);
-    ctx.lineTo(8, 11); ctx.lineTo(3, 9); ctx.lineTo(0, 11);
-    ctx.lineTo(-3, 9); ctx.lineTo(-8, 11); ctx.lineTo(-5, 6);
-    ctx.lineTo(-4, -6); ctx.closePath(); ctx.fill();
-    ctx.strokeStyle = "#aea8cf"; ctx.lineWidth = 0.7;
-    ctx.beginPath(); ctx.moveTo(-3, -5); ctx.lineTo(-3, 6);
-    ctx.moveTo(3, -5); ctx.lineTo(3, 6 + ((e.look || 0) % 2)); ctx.stroke();
-    var charge = e.fireIn != null && e.fireIn < 36 ? 1 - e.fireIn / 36 : 0;
-    ctx.fillStyle = charge > 0 ? "#fff5bf" : "#a8b4d8";
-    ctx.beginPath(); ctx.arc(0, 10, 1.4 + charge * 2, 0, 6.29); ctx.fill();
-  }
-
-  function paintDrone(ctx, e) {
-    ctx.fillStyle = "#8c9db1";
-    ctx.beginPath(); ctx.ellipse(0, 0, 8, 6, 0, 0, 6.29); ctx.fill();
-    ctx.fillStyle = "#445466";
-    ctx.beginPath(); ctx.ellipse(-7, 2, 3, 2, 0, 0, 6.29); ctx.fill();
-    ctx.beginPath(); ctx.ellipse(7, 2, 3, 2, 0, 0, 6.29); ctx.fill();
-    ctx.fillStyle = ((e.look || 0) + Math.floor(e.y)) % 4 < 2 ? "#f8f8d4" : "#536377";
-    ctx.beginPath(); ctx.arc(0, 0, 2, 0, 6.29); ctx.fill();
-  }
-
-  function paintAsteroid(ctx, a) {
-    ctx.save();
-    ctx.translate(a.x, a.y);
-    ctx.rotate(a.face);
-    var rock = ctx.createRadialGradient(-a.r * 0.3, -a.r * 0.3, a.r * 0.2, 0, 0, a.r);
-    rock.addColorStop(0, "#b9a58c");
-    rock.addColorStop(0.7, "#7d6a52");
-    rock.addColorStop(1, "#4a3d2e");
-    ctx.fillStyle = rock;
-    ctx.beginPath();
-    var k;
-    var shape = a.shape || asteroidSilhouette(a.look || 1, 9);
-    for (k = 0; k < shape.length; k++) {
-      var ang = (k / shape.length) * Math.PI * 2;
-      ctx.lineTo(Math.cos(ang) * a.r * shape[k], Math.sin(ang) * a.r * shape[k]);
-    }
-    ctx.closePath();
-    ctx.fill();
-    var craterSeed = a.look || 1;
-    ctx.fillStyle = "rgba(30, 24, 16, .45)";
-    for (k = 0; k < (a.r >= 18 ? 3 : 2); k++) {
-      var cx = (((craterSeed >>> (k * 7)) & 31) / 31 - 0.5) * a.r;
-      var cy = (((craterSeed >>> (k * 5 + 3)) & 31) / 31 - 0.5) * a.r;
-      ctx.beginPath(); ctx.ellipse(cx, cy, a.r * (0.1 + k * 0.03), a.r * 0.08, k * 0.4, 0, 6.29); ctx.fill();
-    }
-    ctx.restore();
-  }
-
-  function paintEnemyShot(ctx, shot) {
-    if (shot.style === "beam") {
-      ctx.save();
-      ctx.strokeStyle = shot.tell > 0 ? "rgba(255, 216, 130, .45)" : "#fff0b0";
-      ctx.lineWidth = shot.tell > 0 ? 2 : shot.width;
-      if (shot.tell > 0) ctx.setLineDash([5, 5]);
-      ctx.beginPath(); ctx.moveTo(shot.x, shot.y); ctx.lineTo(shot.x, shot.y + shot.length); ctx.stroke();
-      ctx.restore();
-      return;
-    }
-    ctx.fillStyle = shot.style === "spread" ? "#ffc58f" : "#fff1b8";
-    ctx.beginPath();
-    if (shot.style === "spread") {
-      ctx.moveTo(shot.x, shot.y + 6); ctx.lineTo(shot.x - 3, shot.y - 3);
-      ctx.lineTo(shot.x + 3, shot.y - 3); ctx.closePath();
-    } else ctx.arc(shot.x, shot.y, shot.r, 0, 6.29);
-    ctx.fill();
-  }
-
-  function paintExplosion(ctx, b) {
-    var t = b.age / 36;
-    var radius = b.r * (0.4 + t * 1.6);
-    ctx.save();
-    ctx.globalAlpha = 1 - t;
-    var burst = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, radius);
-    burst.addColorStop(0, "#fff6d8");
-    burst.addColorStop(0.4, "#ffb066");
-    burst.addColorStop(1, "rgba(232, 96, 60, 0)");
-    ctx.fillStyle = burst;
-    ctx.beginPath(); ctx.arc(b.x, b.y, radius, 0, 6.29); ctx.fill();
-    var p;
-    ctx.fillStyle = "rgba(255, 214, 120, " + (1 - t) + ")";
-    for (p = 0; p < 8; p++) {
-      var ang2 = (p / 8) * Math.PI * 2 + b.r;
-      var dist = radius * (0.7 + (p % 3) * 0.18);
-      ctx.fillRect(b.x + Math.cos(ang2) * dist - 1.4, b.y + Math.sin(ang2) * dist - 1.4, 2.8, 2.8);
-    }
-    ctx.restore();
-  }
-
-  function createArcade(game) {
-    var id = game.getAttribute("data-arcade-id") || ("arcade-" + (registry.length + 1));
-    var cleanups = [];
-    var disposed = false;
-    var viewportObserver = null;
-
-    function listen(target, name, handler, options) {
-      target.addEventListener(name, handler, options);
-      cleanups.push(function () { target.removeEventListener(name, handler, options); });
-    }
-
-    var canvas = game.querySelector("[data-arcade-canvas]");
-    var fallback = game.querySelector("[data-arcade-fallback]");
-    var liveStatus = game.querySelector("[data-arcade-live-status]");
-    var startOverlay = game.querySelector('[data-arcade="start-overlay"]');
-    var startButton = game.querySelector("[data-arcade-start]");
-    var scoreEl = game.querySelector("[data-arcade-score]");
-    var livesEl = game.querySelector("[data-arcade-lives]");
-    var stateEl = game.querySelector('[data-arcade="state"]');
-    var modeEl = game.querySelector('[data-arcade="mode"]');
-    var toggleEl = game.querySelector('[data-arcade-action="toggle"]');
-
-    var reduceQuery = window.matchMedia
-      ? window.matchMedia("(prefers-reduced-motion: reduce)")
-      : null;
-    var context = null;
-    try {
-      context = canvas && canvas.getContext ? canvas.getContext("2d") : null;
-    } catch (error) {
-      context = null;
-    }
-
-    function sizeCanvas() {
-      if (!context) return;
-      var dpr = window.devicePixelRatio || 1;
-      var width = Math.round(WIDTH * dpr), height = Math.round(HEIGHT * dpr);
-      if (canvas.width !== width) canvas.width = width;
-      if (canvas.height !== height) canvas.height = height;
-      context.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-    sizeCanvas();
-
-    var state = null;
-    var held = { left: false, right: false, up: false, down: false, fire: false };
-    var pauseSet = Object.create(null);
-    var generation = 0;
-    var accumulator = 0;
-    var lastFrameTime = 0;
-    var frameRequest = 0;
-    /* Boot-silent: the region announces CHANGES, and page load is not a change. An empty
-       region also keeps the clipped 1px live element out of the overflow detector's view. */
-    var announcedLives = 3;
-    var announcedLifecycle = "idle";
-
-    function activeReasons() {
-      return Object.keys(pauseSet).sort();
-    }
-
-    function inputStep(s) {
-      var p = s.player;
-      p.bank = (p.bank || 0) + (((held.right ? 0.18 : 0) - (held.left ? 0.18 : 0)) - (p.bank || 0)) * 0.25;
-      p.thrust = held.left || held.right || (s.verticalMovementEnabled && (held.up || held.down));
-      if (held.left) p.x -= PLAYER_SPEED_X * TICK;
-      if (held.right) p.x += PLAYER_SPEED_X * TICK;
-      p.x = Math.min(WIDTH - 14, Math.max(14, p.x));
-      /* Vertical input is READ but ignored until the feature lands, then clamped to the band. */
-      if (s.verticalMovementEnabled) {
-        if (held.up) p.y -= PLAYER_SPEED_Y * TICK;
-        if (held.down) p.y += PLAYER_SPEED_Y * TICK;
-        p.y = Math.min(BAND_BOTTOM, Math.max(BAND_TOP, p.y));
-      }
-      if (p.fireCooldown > 0) p.fireCooldown -= 1;
-      if (held.fire && p.fireCooldown <= 0) {
-        s.playerShots.push({ id: "shot-" + s.nextId++, x: p.x, y: p.y - 12, r: 3, vy: PLAYER_SHOT_VY, life: PLAYER_SHOT_LIFE, resolved: false });
-        p.fireCooldown = FIRE_COOLDOWN_TICKS;
-      }
-      if (p.invulnerableTicks > 0) p.invulnerableTicks -= 1;
-    }
-
-    function runTick() {
-      var s = state;
-      if (!s || s.lifecycle !== "running") return;
-      inputStep(s);
-      spawnStep(s);
-      movementStep(s);
-      if (s.lifecycle !== "destroyed") collisionStep(s);
-      cleanupStep(s);
-      s.tick += 1;
-    }
-
-    function snapshot() {
-      var s = state;
-      return deepFreeze({
-        seed: s.seed,
-        fixture: s.fixture,
-        tick: s.tick,
-        generation: generation,
-        lifecycle: s.lifecycle,
-        lives: s.lives,
-        score: s.score,
-        damageMode: s.damageMode,
-        verticalMovementEnabled: s.verticalMovementEnabled,
-        pauseReasons: activeReasons(),
-        player: {
-          x: round3(s.player.x),
-          y: round3(s.player.y),
-          invulnerableTicks: s.player.invulnerableTicks
-        },
-        enemies: project(s.enemies),
-        enemyShots: project(s.enemyShots),
-        asteroids: project(s.asteroids),
-        playerShots: project(s.playerShots),
-        explosions: project(s.explosions)
-      });
-    }
-
-    function reset(fixtureName) {
-      var name = typeof fixtureName === "string" && FIXTURES.indexOf(fixtureName) !== -1
-        ? fixtureName
-        : (state ? state.fixture : "enemy-hit");
-      var carriedMode = state ? state.damageMode : "buggy";
-      var carriedFeature = state ? state.verticalMovementEnabled : false;
-      generation += 1;
-      accumulator = 0;
-      state = fixtureState(name, DEFAULT_SEED);
-      state.damageMode = carriedMode;
-      state.verticalMovementEnabled = carriedFeature;
-      held.left = held.right = held.up = held.down = held.fire = false;
-      /* Idle without a visible start control is a dead end: every reset re-arms the overlay,
-         and restart() hides it again on its immediate start. */
-      if (startOverlay) startOverlay.hidden = false;
-      syncHud();
-      paint();
-      return snapshot();
-    }
-
-    function start() {
-      if (state.lifecycle === "idle") {
-        state.lifecycle = activeReasons().length ? "paused" : "running";
-        if (startOverlay) startOverlay.hidden = true;
-        syncHud();
-        paint();
-      }
-      return snapshot();
-    }
-
-    function restart() {
-      reset();
-      if (startOverlay) startOverlay.hidden = true;
-      state.lifecycle = activeReasons().length ? "paused" : "running";
-      syncHud();
-      paint();
-      return snapshot();
-    }
-
-    function step() {
-      if (!state || state.lifecycle === "idle" || state.lifecycle === "destroyed") return snapshot();
-      state.lifecycle = "running";
-      runTick();
-      if (state.lifecycle !== "destroyed") {
-        state.lifecycle = activeReasons().length ? "paused" : "running";
-      }
-      syncHud();
-      paint();
-      return snapshot();
-    }
-
-    function applyPauseState() {
-      if (!state || state.lifecycle === "idle" || state.lifecycle === "destroyed") return;
-      state.lifecycle = activeReasons().length ? "paused" : "running";
-      syncHud();
-    }
-
-    function pause(reason) {
-      if (PAUSE_REASONS.indexOf(reason) === -1) return snapshot();
-      pauseSet[reason] = true;
-      applyPauseState();
-      return snapshot();
-    }
-
-    function resume(reason) {
-      if (PAUSE_REASONS.indexOf(reason) === -1) return snapshot();
-      delete pauseSet[reason];
-      applyPauseState();
-      paint();
-      return snapshot();
-    }
-
-    function setDamageMode(mode) {
-      if (mode === "buggy" || mode === "fixed") {
-        state.damageMode = mode;
-        syncHud();
-        syncFallback();
-      }
-      return snapshot();
-    }
-
-    function setVerticalMovementEnabled(enabled) {
-      if (enabled === true || enabled === false) {
-        state.verticalMovementEnabled = enabled;
-        syncHud();
-        syncFallback();
-      }
-      return snapshot();
-    }
-
-    function input(name, pressed) {
-      if (Object.prototype.hasOwnProperty.call(held, name)) {
-        held[name] = pressed === true;
-      }
-      return snapshot();
-    }
-
-    function paint() {
-      if (!context || !state) return;
-      var ctx = context;
-      var sky = ctx.createLinearGradient(0, 0, 0, HEIGHT);
-      sky.addColorStop(0, "#04101d");
-      sky.addColorStop(1, "#0a1f2e");
-      ctx.fillStyle = sky;
-      ctx.fillRect(0, 0, WIDTH, HEIGHT);
-      var i;
-      ctx.fillStyle = "rgba(215, 251, 255, .8)";
-      for (i = 0; i < state.stars.length; i++) {
-        var st = state.stars[i];
-        ctx.globalAlpha = 0.25 + (st.size - 1) * 0.6;
-        ctx.fillRect(st.x, st.y, st.size, st.size * 2.4);
-      }
-      ctx.globalAlpha = 1;
-      for (i = 0; i < state.asteroids.length; i++) paintAsteroid(ctx, state.asteroids[i]);
-      for (i = 0; i < state.enemies.length; i++) paintEnemy(ctx, state.enemies[i]);
-      for (i = 0; i < state.enemyShots.length; i++) {
-        paintEnemyShot(ctx, state.enemyShots[i]);
-      }
-      for (i = 0; i < state.playerShots.length; i++) {
-        var psh = state.playerShots[i];
-        var glow = ctx.createRadialGradient(psh.x, psh.y, 0, psh.x, psh.y, 7);
-        glow.addColorStop(0, "#d7fbff");
-        glow.addColorStop(0.5, "#2dd4bf");
-        glow.addColorStop(1, "rgba(45, 212, 191, 0)");
-        ctx.fillStyle = glow;
-        ctx.beginPath(); ctx.arc(psh.x, psh.y, 7, 0, 6.29); ctx.fill();
-      }
-      if (state.lifecycle !== "destroyed") paintShip(ctx, state.player, state);
-      for (i = 0; i < state.explosions.length; i++) paintExplosion(ctx, state.explosions[i]);
-    }
-
-    /* ------------------------------------------------------------- HUD and status */
-
-    function syncHud() {
-      if (scoreEl) scoreEl.textContent = String(state.score);
-      if (livesEl) livesEl.textContent = String(state.lives);
-      if (stateEl) stateEl.textContent = state.lifecycle;
-      if (modeEl) {
-        modeEl.textContent = state.damageMode === "buggy" ? "seeded bug" : "damage fixed";
-        modeEl.classList.toggle("is-fixed", state.damageMode === "fixed");
-      }
-      if (toggleEl) {
-        toggleEl.textContent = (pauseSet.manual || pauseSet.pointer) ? "Resume game" : "Pause game";
-      }
-      game.setAttribute("data-lifecycle", state.lifecycle);
-      syncFrameLoop();
-      /* Announce lives and lifecycle CHANGES only, never per-frame chatter. */
-      if (liveStatus && (state.lives !== announcedLives || state.lifecycle !== announcedLifecycle)) {
-        announcedLives = state.lives;
-        announcedLifecycle = state.lifecycle;
-        liveStatus.textContent = state.lifecycle === "destroyed"
-          ? "Ship destroyed. Press Reset to try again."
-          : "Lives " + state.lives + ". Game " + state.lifecycle + ".";
-      }
-    }
-
-    /* ------------------------------------------------------------------ main loop */
-
-    function syncFrameLoop() {
-      if (!disposed && context && state.lifecycle === "running" && !document.hidden && !activeReasons().length) {
-        if (!frameRequest) frameRequest = window.requestAnimationFrame(frame);
-      } else {
-        if (frameRequest) window.cancelAnimationFrame(frameRequest);
-        frameRequest = 0;
-        lastFrameTime = 0;
-      }
-    }
-
-    function frame(now) {
-      frameRequest = 0;
-      var gen = generation;
-      if (!lastFrameTime) lastFrameTime = now;
-      var elapsed = Math.min(MAX_FRAME_SECONDS, (now - lastFrameTime) / 1000);
-      lastFrameTime = now;
-      if (state.lifecycle === "running") {
-        accumulator += elapsed;
-        while (accumulator >= TICK) {
-          runTick();
-          accumulator -= TICK;
-          if (gen !== generation || state.lifecycle !== "running") break;
-        }
-        syncHud();
-      }
-      paint();
-    }
-
-    /* State exists before ANY wiring below runs: the reduced-motion probe and the
-       intersection observer both pause(), and pause() snapshots. */
-    reset("enemy-hit");
-
-    function syncPageVisibility() {
-      if (document.body.getAttribute("data-page") === "training") resume("page-hidden");
-      else pause("page-hidden");
-    }
-    listen(window, "nht-page-change", syncPageVisibility);
-    syncPageVisibility();
-
-    /* -------------------------------------------------------------- DOM wiring */
-
-    var KEYMAP = {
-      ArrowLeft: "left", a: "left", A: "left",
-      ArrowRight: "right", d: "right", D: "right",
-      ArrowUp: "up", w: "up", W: "up",
-      ArrowDown: "down", s: "down", S: "down",
-      " ": "fire"
-    };
-
-    function ownsKeys() {
-      return document.activeElement === game && state.lifecycle !== "idle";
-    }
-
-    function releaseKeys() {
-      held.left = held.right = held.up = held.down = held.fire = false;
-    }
-
-    listen(game, "keydown", function (event) {
-      if (event.ctrlKey || event.altKey || event.metaKey) return;
-      if (event.key === "Escape") {
-        pause("manual");
-        releaseKeys();
-        if (toggleEl) toggleEl.focus();
-        event.preventDefault();
-        event.stopPropagation();
-        return;
-      }
-      if (!ownsKeys()) return;
-      var name = KEYMAP[event.key];
-      if (!name) return;
-      held[name] = true;
-      event.preventDefault();
-    });
-
-    listen(game, "keyup", function (event) {
-      var name = KEYMAP[event.key];
-      if (name) held[name] = false;
-    });
-
-    listen(game, "blur", function () {
-      releaseKeys();
-      if (state.lifecycle === "running") pause("blur");
-    }, true);
-
-    listen(game, "focus", function () { resume("blur"); }, true);
-
-    /* v4.4.2 pointer contract: a primary click inside the stage FIRES while running (same
-       cooldown as Space); it starts nothing while idle and resumes nothing while paused, so a
-       stray click can never change lifecycle. Leaving the stage pauses; re-entering does not
-       resume, the visible Resume control does. Secondary buttons and the context menu are
-       swallowed inside the stage. */
-    var stageEl = game.querySelector('[data-arcade="stage"]');
-    if (stageEl) {
-      listen(stageEl, "pointerdown", function (event) {
-        if (event.target && event.target.closest && event.target.closest("[data-arcade-start]")) return;
-        if (event.button !== 0) { event.preventDefault(); return; }
-        if (state.lifecycle !== "running") return;
-        var p = state.player;
-        if (p.fireCooldown <= 0) {
-          state.playerShots.push({ id: "shot-" + state.nextId++, x: p.x, y: p.y - 12, r: 3, vy: PLAYER_SHOT_VY, life: PLAYER_SHOT_LIFE, resolved: false });
-          p.fireCooldown = FIRE_COOLDOWN_TICKS;
-        }
-        event.preventDefault();
-      });
-      listen(stageEl, "contextmenu", function (event) { event.preventDefault(); });
-      listen(stageEl, "pointerleave", function () {
-        if (state.lifecycle === "running") { pause("pointer"); releaseKeys(); }
-      });
-    }
-
-    if (startButton) {
-      listen(startButton, "click", function () {
-        start();
-        game.focus();
-      });
-    }
-
-    var controls = game.querySelectorAll("[data-arcade-control]");
-    Array.prototype.forEach.call(controls, function (button) {
-      var name = button.getAttribute("data-arcade-control");
-      function press(event) { event.preventDefault(); if (state.lifecycle === "idle") start(); held[name] = true; }
-      function lift() { held[name] = false; }
-      listen(button, "pointerdown", press);
-      listen(button, "pointerup", lift);
-      listen(button, "pointercancel", lift);
-      listen(button, "pointerleave", lift);
-    });
-
-    var actions = game.querySelectorAll("[data-arcade-action]");
-    Array.prototype.forEach.call(actions, function (button) {
-      var kind = button.getAttribute("data-arcade-action");
-      listen(button, "click", function () {
-        if (kind === "toggle") {
-          if (pauseSet.manual || pauseSet.pointer) { resume("pointer"); resume("manual"); } else { pause("manual"); }
-        } else if (kind === "reset") {
-          restart();
-          game.focus();
-        } else if (kind === "step") {
-          step();
-        }
-      });
-    });
-
-    listen(document, "visibilitychange", function () {
-      if (document.hidden) pause("hidden"); else resume("hidden");
-    });
-
-    if ("IntersectionObserver" in window) {
-      viewportObserver = new IntersectionObserver(function (entries) {
-        var visible = entries[0] && entries[0].isIntersecting;
-        if (visible) resume("offscreen"); else pause("offscreen");
-      }, { threshold: 0.1 });
-      viewportObserver.observe(game);
-    }
-
-    function applyReducedMotion(reduced) {
-      if (reduced) pause("reduced-motion"); else resume("reduced-motion");
-      game.classList.toggle("is-reduced", !!reduced);
-    }
-    if (reduceQuery) {
-      applyReducedMotion(reduceQuery.matches);
-      if (reduceQuery.addEventListener) {
-        listen(reduceQuery, "change", function (event) { applyReducedMotion(event.matches); });
-      }
-    }
-
-    listen(window, "resize", function () { sizeCanvas(); paint(); });
-
-    /* --------------------------------------------------------- canvas fallback */
-
-    function syncFallback() {
-      if (!fallback || context) return;
-      fallback.textContent = "This browser cannot draw the game canvas. Current state: "
-        + START_LIVES + " lives, "
-        + (state.damageMode === "buggy" ? "seeded damage bug active" : "damage repaired") + ", "
-        + (state.verticalMovementEnabled ? "vertical movement enabled" : "vertical movement disabled") + ". "
-        + "The Training walkthrough below still runs its simulated commands.";
-    }
-
-    if (!context) {
-      if (fallback) {
-        fallback.hidden = false;
-        syncFallback();
-      }
-      if (canvas) canvas.hidden = true;
-      Array.prototype.forEach.call(
-        game.querySelectorAll("[data-arcade-control], [data-arcade-start]"),
-        function (button) { button.disabled = true; button.setAttribute("tabindex", "-1"); }
-      );
-    }
-
-    /* ------------------------------------------------------------------- expose */
-
-    syncHud();
-    paint();
-    syncFrameLoop();
-
-    function dispose() {
-      if (disposed) return;
-      disposed = true;
-      if (frameRequest) window.cancelAnimationFrame(frameRequest);
-      frameRequest = 0;
-      if (viewportObserver) viewportObserver.disconnect();
-      while (cleanups.length) cleanups.pop()();
-      delete byId[id];
-      var index = registry.indexOf(instance);
-      if (index !== -1) registry.splice(index, 1);
-    }
-
-    var instance = Object.freeze({
-      id: id,
-      snapshot: snapshot,
-      reset: reset,
-      restart: restart,
-      start: start,
-      step: step,
-      pause: pause,
-      resume: resume,
-      setDamageMode: setDamageMode,
-      setVerticalMovementEnabled: setVerticalMovementEnabled,
-      input: input,
-      dispose: dispose,
-      world: Object.freeze({ width: WIDTH, height: HEIGHT, tick: TICK, seed: DEFAULT_SEED }),
-      logic: Object.freeze({
-        collides: collides,
-        damageOutcome: damageOutcome,
-        spawnSample: spawnSample
-      })
-    });
-    return instance;
-  }
-
-  var nodes = document.querySelectorAll("[data-arcade-game]");
-  var seenIds = Object.create(null);
-  for (var n = 0; n < nodes.length; n++) {
-    var nodeId = nodes[n].getAttribute("data-arcade-id") || ("arcade-" + (n + 1));
-    if (seenIds[nodeId]) throw new Error("Duplicate arcade id: " + nodeId);
-    seenIds[nodeId] = true;
-  }
-  for (var i = 0; i < nodes.length; i++) {
-    var instance = createArcade(nodes[i]);
-    registry.push(instance);
-    byId[instance.id] = instance;
-  }
-  if (!registry.length) return;
-
-  window.NexusShooter = Object.freeze({
-    get: function (id) { return byId[id] || null; },
-    instances: function () { return registry.map(function (instance) { return instance.id; }); },
-    primary: function () { return registry[0] || null; },
-    world: registry[0].world,
-    logic: registry[0].logic,
-    snapshot: function () { return registry[0].snapshot(); },
-    reset: function (fixture) { return registry[0].reset(fixture); },
-    restart: function () { return registry[0].restart(); },
-    start: function () { return registry[0].start(); },
-    step: function () { return registry[0].step(); },
-    pause: function (reason) { return registry[0].pause(reason); },
-    resume: function (reason) { return registry[0].resume(reason); },
-    setDamageMode: function (mode) { return registry[0].setDamageMode(mode); },
-    setVerticalMovementEnabled: function (enabled) { return registry[0].setVerticalMovementEnabled(enabled); },
-    input: function (name, pressed) { return registry[0].input(name, pressed); }
-  });
-})();
-</script>
-
-<script>
-(function () {
-  "use strict";
-
-  var root = document.getElementById("nhTraining");
-  var dataEl = document.getElementById("nh-training-scenes");
-  if (!root || !dataEl) return;
-
-  var SCENES = [];
-  var INITIAL = { game: { damageMode: "buggy", verticalMovementEnabled: false, fixture: "enemy-hit" }, files: [] };
-  try {
-    var parsed = JSON.parse(dataEl.textContent || "{}");
-    SCENES = parsed && parsed.scenes ? parsed.scenes : [];
-    if (parsed && parsed.initial) INITIAL = parsed.initial;
-  } catch (err) {
-    SCENES = [];
-  }
-  if (!SCENES.length) return;
-
-  var REDUCE = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  var mountedSections = new WeakMap();
-  function createTrainingSection(sectionRoot, record, options) {
-    options = options || {};
-    function find(name) { return sectionRoot.querySelector('[data-nht="' + name + '"]'); }
-    var widgets = {
-      terminal: find("terminal"), command: find("command"), run: find("run"),
-      output: find("output"), hint: find("hint"), tools: find("tools"),
-      artifactPath: find("artifact-path"), artifactSummary: find("artifact-summary"),
-      gate: find("gate"), gateStatus: find("gate-status"), gateName: find("gate-name"),
-      gatePrompt: find("gate-prompt"), fileCount: find("file-count"),
-      fileTree: find("file-tree"), filePath: find("file-path"),
-      fileState: find("file-state"), fileBody: find("file-body")
-    };
-    var gameRoot = sectionRoot.querySelector("[data-arcade-game]");
-    var selectedPath = "", runToken = null, disposed = false, completed = false;
-
-    function fileAt(files, path) {
-      for (var i = 0; i < files.length; i++) if (files[i].path === path) return files[i];
-      return null;
-    }
-    function renderFile(files, path) {
-      var file = fileAt(files, path);
-      selectedPath = path || "";
-      if (widgets.filePath) widgets.filePath.textContent = selectedPath || "Select a file";
-      if (widgets.fileState) widgets.fileState.textContent = file ? (file.status || "new") : "not created yet";
-      if (!widgets.fileBody) return;
-      widgets.fileBody.textContent = "";
-      widgets.fileBody.classList.toggle("is-pending", !file);
-      if (!file) {
-        widgets.fileBody.textContent = selectedPath ? "Not created yet. Run this command to add it to the project." : "Select a project file.";
-      } else if (file.language !== "diff") {
-        widgets.fileBody.textContent = file.content || "";
-      } else {
-        (file.content || "").split("\n").forEach(function (line) {
-          var row = document.createElement("span");
-          row.className = line.charAt(0) === "+" ? "diff-add" : (line.charAt(0) === "-" ? "diff-remove" : "diff-line");
-          row.textContent = line || " ";
-          widgets.fileBody.appendChild(row);
-        });
-      }
-    }
-    function renderExplorer(files, preferredPath) {
-      if (!widgets.fileTree) return;
-      var focusPath = preferredPath || selectedPath || (files[0] && files[0].path) || "";
-      var visible = files.slice();
-      if (focusPath && !fileAt(files, focusPath)) visible.push({ path: focusPath, status: "pending" });
-      widgets.fileTree.textContent = "";
-      visible.forEach(function (file) {
-        var status = file.status || "new";
-        var button = document.createElement("button");
-        button.type = "button";
-        button.className = "nht-fileitem";
-        button.setAttribute("role", "treeitem");
-        button.setAttribute("data-nht", "file");
-        button.setAttribute("data-file-path", file.path);
-        button.setAttribute("aria-selected", file.path === focusPath ? "true" : "false");
-        button.setAttribute("aria-label", file.path + (status === "existing" ? "" : ", " + status));
-        var name = document.createElement("span");
-        name.className = "nht-file-name";
-        name.textContent = file.path;
-        button.appendChild(name);
-        if (status !== "existing") {
-          var badge = document.createElement("span");
-          badge.className = "nht-file-badge " + status;
-          badge.textContent = status;
-          button.appendChild(badge);
-        }
-        widgets.fileTree.appendChild(button);
-      });
-      if (widgets.fileCount) widgets.fileCount.textContent = files.length + (files.length === 1 ? " file" : " files");
-      renderFile(files, focusPath);
-    }
-    function focusFileItem(path) {
-      if (!widgets.fileTree) return;
-      var items = widgets.fileTree.querySelectorAll('[role="treeitem"]');
-      for (var i = 0; i < items.length; i++) {
-        if (items[i].getAttribute("data-file-path") === path) { items[i].focus(); return; }
-      }
-    }
-    function prepare() {
-      if (widgets.command) {
-        widgets.command.textContent = "";
-        var full = record.command || "", split = full.indexOf(" ");
-        var name = document.createElement("span");
-        name.className = "inv-cmd";
-        name.textContent = split < 0 ? full : full.slice(0, split);
-        widgets.command.appendChild(name);
-        if (split >= 0) {
-          var argument = document.createElement("span");
-          argument.className = "inv-arg";
-          argument.textContent = full.slice(split);
-          widgets.command.appendChild(argument);
-        }
-        widgets.command.setAttribute("data-copy", full);
-      }
-      if (widgets.tools) {
-        widgets.tools.textContent = "";
-        (record.tools || []).forEach(function (tool) {
-          var chip = document.createElement("span"), label = document.createElement("b");
-          chip.className = "nht-tool";
-          label.textContent = tool.name;
-          chip.appendChild(label);
-          chip.appendChild(document.createTextNode(" " + (tool.purpose || "")));
-          widgets.tools.appendChild(chip);
-        });
-      }
-      var artifact = record.artifact || {}, gate = record.gate || {};
-      if (widgets.artifactPath) widgets.artifactPath.textContent = artifact.path || "";
-      if (widgets.artifactSummary) widgets.artifactSummary.textContent = artifact.summary || "";
-      if (widgets.gate) widgets.gate.className = "nht-gate " + (gate.status === "pass" ? "pass" : "hold");
-      if (widgets.gateStatus) widgets.gateStatus.textContent = gate.status === "pass" ? "Gate: pass" : "Gate: hold";
-      if (widgets.gateName) widgets.gateName.textContent = gate.name || "";
-      if (widgets.gatePrompt) widgets.gatePrompt.textContent = gate.prompt || "";
-      if (widgets.terminal) widgets.terminal.classList.remove("has-run");
-      if (widgets.output) widgets.output.textContent = "";
-      if (widgets.run) { widgets.run.disabled = false; widgets.run.textContent = "Run"; }
-      if (widgets.hint) widgets.hint.textContent = "Press Run to send this command.";
-      if (!options.onComplete) renderExplorer([], record.focus_file);
-    }
-    function finish(preserveOutput) {
-      if (disposed || !widgets.output) return;
-      if (runToken) runToken.cancelled = true;
-      runToken = null;
-      if (!preserveOutput) {
-        widgets.output.textContent = "";
-        (record.output || []).forEach(function (line) {
-          var row = document.createElement("div");
-          row.className = "on";
-          row.textContent = line;
-          widgets.output.appendChild(row);
-        });
-      }
-      completed = true;
-      if (options.onComplete) options.onComplete();
-      else renderExplorer(record.files || [], record.focus_file);
-      if (widgets.hint) widgets.hint.textContent = "This is a simulation of the real assistant's report.";
-      if (widgets.run) { widgets.run.disabled = false; widgets.run.textContent = "Run again"; }
-    }
-    function run() {
-      if (disposed || !widgets.output) return;
-      if (widgets.terminal) widgets.terminal.classList.add("has-run");
-      if (runToken) { finish(false); return; }
-      if (REDUCE) { finish(false); return; }
-      var token = runToken = { cancelled: false };
-      widgets.output.textContent = "";
-      if (widgets.run) widgets.run.textContent = "Show now";
-      if (widgets.hint) widgets.hint.textContent = "Running (click Show now to skip the animation).";
-      var echo = document.createElement("div");
-      echo.className = "echo on";
-      echo.textContent = "working...";
-      widgets.output.appendChild(echo);
-      window.setTimeout(function () {
-        if (token.cancelled) return;
-        if (echo.parentNode) echo.parentNode.removeChild(echo);
-        var lines = record.output || [], at = 0;
-        function reveal() {
-          if (token.cancelled) return;
-          if (at < lines.length) {
-            var row = document.createElement("div");
-            row.textContent = lines[at++];
-            widgets.output.appendChild(row);
-            window.requestAnimationFrame(function () { row.classList.add("on"); });
-            window.setTimeout(reveal, 220);
-          } else finish(true);
-        }
-        reveal();
-      }, 420);
-    }
-    function onClick(event) {
-      var target = event.target.closest && event.target.closest("[data-nht]");
-      if (!target || !sectionRoot.contains(target)) return;
-      if (target.getAttribute("data-nht") === "run") run();
-      else if (target.getAttribute("data-nht") === "file") {
-        var path = target.getAttribute("data-file-path");
-        renderExplorer(options.files ? options.files() : (completed ? (record.files || []) : []), path);
-        focusFileItem(path);
-      }
-    }
-    function onFileKey(event) {
-      var items = Array.prototype.slice.call(widgets.fileTree.querySelectorAll('[role="treeitem"]'));
-      var at = items.indexOf(document.activeElement), next;
-      if (event.key === "ArrowDown") next = Math.min(items.length - 1, at + 1);
-      else if (event.key === "ArrowUp") next = Math.max(0, at - 1);
-      else if (event.key === "Home") next = 0;
-      else if (event.key === "End") next = items.length - 1;
-      else return;
-      if (items[next]) { event.preventDefault(); event.stopPropagation(); items[next].focus(); }
-    }
-    sectionRoot.addEventListener("click", onClick);
-    if (widgets.fileTree) widgets.fileTree.addEventListener("keydown", onFileKey);
-    prepare();
-    return Object.freeze({
-      run: run, finish: finish, renderExplorer: renderExplorer,
-      selectedPath: function () { return selectedPath; },
-      game: function () { return gameRoot && window.NexusShooter ? window.NexusShooter.get(gameRoot.getAttribute("data-arcade-id")) : null; },
-      dispose: function () {
-        if (disposed) return;
-        disposed = true;
-        if (runToken) runToken.cancelled = true;
-        sectionRoot.removeEventListener("click", onClick);
-        if (widgets.fileTree) widgets.fileTree.removeEventListener("keydown", onFileKey);
-        mountedSections.delete(sectionRoot);
-      }
-    });
-  }
-  function mountSection(sectionRoot, record, options) {
-    if (!sectionRoot || sectionRoot.nodeType !== 1) throw new TypeError("Training section root is required");
-    if (mountedSections.has(sectionRoot)) throw new Error("Training section already mounted");
-    var controller = createTrainingSection(sectionRoot, record, options);
-    mountedSections.set(sectionRoot, controller);
-    return controller;
-  }
-
-  var sections = Array.prototype.slice.call(root.querySelectorAll("[data-nht-section]"));
-  var template = document.getElementById("nhtSectionWidgets");
-  var controllers = [], currentActions = [], completed = Object.create(null);
-  var activeSection = 0;
-  if (sections.length !== SCENES.length || !template) return;
-
-  function actionAt(index) {
-    return (SCENES[index].actions || [])[currentActions[index]] || {};
-  }
-  function completedKey(sectionIndex, actionIndex) {
-    return sectionIndex + ":" + actionIndex;
-  }
-  function projectFilesFor(index) {
-    var table = Object.create(null), order = [];
-    function place(file, status) {
-      if (!Object.prototype.hasOwnProperty.call(table, file.path)) order.push(file.path);
-      table[file.path] = { path: file.path, language: file.language || "text", content: file.content || "", status: status };
-    }
-    (INITIAL.files || []).forEach(function (file) { place(file, "existing"); });
-    for (var sectionIndex = 0; sectionIndex <= index; sectionIndex++) {
-      (SCENES[sectionIndex].actions || []).forEach(function (action, actionIndex) {
-        if (!completed[completedKey(sectionIndex, actionIndex)]) return;
-        var status = sectionIndex === index ? null : "existing";
-        (action.files || []).forEach(function (file) {
-          place(file, status || (file.action === "modify" ? "changed" : "new"));
-        });
-      });
-      if (SCENES[sectionIndex].finalPhase && completed[completedKey(sectionIndex, 0)]) {
-        (SCENES[sectionIndex].finalPhase.files || []).forEach(function (file) {
-          place(file, sectionIndex === index ? (file.action === "modify" ? "changed" : "new") : "existing");
-        });
-      }
-    }
-    return order.map(function (path) { return table[path]; });
-  }
-  function refreshExplorers() {
-    controllers.forEach(function (controller, index) {
-      controller.renderExplorer(projectFilesFor(index), actionAt(index).focus_file);
-    });
-  }
-  function configureGame(section, config) {
-    if (!config || !window.NexusShooter) return;
-    var node = section.querySelector("[data-arcade-game]");
-    var game = node && window.NexusShooter.get(node.getAttribute("data-arcade-id"));
-    if (!game) return;
-    game.reset(config.fixture);
-    game.setDamageMode(config.damageMode);
-    game.setVerticalMovementEnabled(config.verticalMovementEnabled);
-  }
-  function renderOrderedList(host, entries, plan) {
-    if (!host) return;
-    host.textContent = "";
-    (entries || []).forEach(function (entry) {
-      var item = document.createElement("li"), title = document.createElement("strong"), detail = document.createElement("p");
-      title.textContent = entry.name || "";
-      detail.textContent = entry.summary || "";
-      item.appendChild(title);
-      if (plan) {
-        var model = document.createElement("span");
-        model.className = "nht-phase-model";
-        model.textContent = "Model tier: " + (entry.tier || "") + " / effort: " + (entry.effort || "");
-        item.appendChild(model);
-      }
-      item.appendChild(detail);
-      host.appendChild(item);
-    });
-  }
-  function mountCurrent(index) {
-    var section = sections[index], record = SCENES[index];
-    if (controllers[index]) controllers[index].dispose();
-    controllers[index] = mountSection(section, actionAt(index), {
-      onComplete: function () {
-        completed[completedKey(index, currentActions[index])] = true;
-        refreshExplorers();
-      },
-      files: function () { return projectFilesFor(index); }
-    });
-    var panel = section.querySelector("[data-nht-action-panel]");
-    if (panel) panel.hidden = !(record.actions || []).length;
-    var buttons = section.querySelectorAll("[data-nht-action-index]");
-    for (var i = 0; i < buttons.length; i++) {
-      buttons[i].setAttribute("aria-current", i === currentActions[index] ? "true" : "false");
-    }
-    controllers[index].renderExplorer(projectFilesFor(index), actionAt(index).focus_file);
-  }
-  sections.forEach(function (section, index) {
-    var record = SCENES[index], slot = section.querySelector("[data-nht-widgets]");
-    if (section.getAttribute("data-nht-section") !== record.id || !slot) throw new Error("Training section data mismatch");
-    slot.appendChild(template.content.cloneNode(true));
-    var intent = section.querySelector("[data-nht=intent]");
-    if (intent) intent.textContent = record.intent || "";
-    var takeaway = section.querySelector("[data-nht=takeaway]");
-    if (takeaway) takeaway.textContent = record.takeaway || "";
-    var actionList = section.querySelector("[data-nht-action-list]");
-    if (actionList) {
-      (record.actions || []).forEach(function (action, actionIndex) {
-        var button = document.createElement("button");
-        button.type = "button";
-        button.className = "nht-action-choice";
-        button.setAttribute("data-nht-action-index", actionIndex);
-        button.textContent = action.command || "";
-        actionList.appendChild(button);
-      });
-      actionList.addEventListener("click", function (event) {
-        var button = event.target.closest && event.target.closest("[data-nht-action-index]");
-        if (!button || !actionList.contains(button)) return;
-        selectAction(record.id, Number(button.getAttribute("data-nht-action-index")));
-      });
-    }
-    renderOrderedList(section.querySelector("[data-nht-phases]"), record.phases, true);
-    renderOrderedList(section.querySelector("[data-nht-final-phase]"), record.finalPhase && record.finalPhase.beats, false);
-    configureGame(section, record.game);
-    currentActions[index] = 0;
-    mountCurrent(index);
-  });
-  refreshExplorers();
-
-  function sectionIndex(id) {
-    var aliases = { describe: "describe-review", review: "describe-review", test: "implement", update: "implement" };
-    var target = aliases[id] || id;
-    for (var i = 0; i < SCENES.length; i++) if (SCENES[i].id === target) return i;
-    return 0;
-  }
-  function selectAction(sectionId, commandOrIndex) {
-    var index = sectionIndex(sectionId), actions = SCENES[index].actions || [];
-    var actionIndex = typeof commandOrIndex === "number" ? commandOrIndex : actions.map(function (action) {
-      return action.command;
-    }).indexOf(commandOrIndex);
-    if (!Number.isInteger(actionIndex) || actionIndex < 0 || actionIndex >= actions.length) {
-      throw new RangeError("Unknown Training action: " + commandOrIndex);
-    }
-    currentActions[index] = actionIndex;
-    activeSection = index;
-    mountCurrent(index);
-    return trainingSnapshot();
-  }
-  function goTo(id) {
-    activeSection = sectionIndex(id);
-    if (document.body.getAttribute("data-page") === "training") sections[activeSection].scrollIntoView({ block: "start" });
-    return trainingSnapshot();
-  }
-  function trainingSnapshot() {
-    return {
-      sectionId: SCENES[activeSection].id,
-      sectionIndex: activeSection,
-      actionIndex: currentActions[activeSection],
-      completed: Object.keys(completed).sort(),
-      selectedPath: controllers[activeSection].selectedPath(),
-      filePaths: projectFilesFor(activeSection).map(function (file) { return file.path; })
-    };
-  }
-  root.addEventListener("focusin", function (event) {
-    var section = event.target.closest && event.target.closest("[data-nht-section]");
-    if (section) activeSection = sections.indexOf(section);
-  });
-  var trainingApi = Object.freeze({
-    go: goTo,
-    selectAction: selectAction,
-    run: function () {
-      if ((SCENES[activeSection].actions || []).length) controllers[activeSection].finish(false);
-      return trainingSnapshot();
-    },
-    selectFile: function (path) {
-      controllers[activeSection].renderExplorer(projectFilesFor(activeSection), path);
-      return trainingSnapshot();
-    },
-    snapshot: trainingSnapshot,
-    mountSection: mountSection,
-    syncFromHash: goTo
-  });
-  window.NexusTraining = trainingApi;
-  window.NHTraining = trainingApi;
-  var initialRoute = location.hash.match(/^#training\/([^?]+)/);
-  if (initialRoute) goTo(initialRoute[1]);
 })();
 </script>
 

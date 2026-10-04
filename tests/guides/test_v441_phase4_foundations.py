@@ -19,7 +19,7 @@ def test_the_agentic_scene_carries_the_comparison_and_the_boundary(guide_text: s
     with the old layout; what has to survive is the comparison itself and the single boundary that
     makes every capability conditional.
     """
-    fx = guide_text[guide_text.index('id="page-foundations"'): guide_text.index('id="page-training"')]
+    fx = guide_text[guide_text.index('id="page-foundations"'): guide_text.index('id="page-cheatsheets"')]
     assert "fx-chatbot-agent" not in fx, "the separate comparison scene must not come back"
     agent = re.search(r'<section class="fx-scene[^"]*" id="fx-agent-platform"[\s\S]*?</section>', fx).group(0)
     # two lanes, chatbot first, and the boundary that makes the capability conditional

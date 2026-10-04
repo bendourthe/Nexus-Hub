@@ -432,7 +432,7 @@ def test_portfolio_theme_allowlisted(guide_text: str) -> None:
 
 
 def test_page_url_hash_uses_first_segment(guide_text: str) -> None:
-    """#training/<scene> must not be treated as a whole-hash page id."""
+    """#foundations/<scene> and #cheatsheets/<stop> must not be treated as whole-hash page ids."""
     assert "pageIdFromHash" in guide_text or re.search(r"""split\(['"]/['"]\)""", guide_text)
 
 
@@ -947,7 +947,7 @@ def test_home_verify_commands_are_copy_cells(parsed: GuideParser) -> None:
 
 
 def _foundations_markup(guide_text: str) -> str:
-    return guide_text.split('id="page-foundations"', 1)[-1].split('id="page-training"', 1)[0]
+    return guide_text.split('id="page-foundations"', 1)[-1].split('id="page-cheatsheets"', 1)[0]
 
 
 def _foundation_scene(guide_text: str, scene_id: str) -> str:
@@ -1119,8 +1119,6 @@ def test_foundations_phase3_diagrams_animate_with_observer_and_static_fallback(
         assert retired not in guide_text, (
             retired + " was retired; a reintroduced consumer must restore its states"
         )
-
-
 
 
 def test_foundations_tokens_use_a_reproducible_nonuniversal_example(
@@ -1312,7 +1310,8 @@ def test_no_unexpected_persistent_overlays(guide_text: str) -> None:
     """
     css = guide_text.split("<style>", 1)[-1].split("</style>", 1)[0]
     allowed_fixed = {"#constellation"}
-    allowed_sticky = {".site-header", ".cx-preview-bar"}
+    # .pg-outline is the v4.13.10 "On this page" bar: it sits under the header and covers no content.
+    allowed_sticky = {".site-header", ".cx-preview-bar", ".pg-outline"}
     for prop, allowed in (("fixed", allowed_fixed), ("sticky", allowed_sticky)):
         for match in re.finditer(r"([^{}]+)\{[^}]*position:\s*" + prop, css):
             selector = match.group(1).strip().splitlines()[-1].strip().rstrip(",")
@@ -1330,243 +1329,18 @@ def test_foundations_animations_have_reduced_motion_fallback(guide_text: str) ->
         assert cls in reduce_block, f"{cls} missing a reduced-motion static state"
 
 
-def test_training_scenes_are_data_driven_json(parsed: GuideParser) -> None:
-    assert parsed.json_script_contents, "expected application/json scene block"
-
-
-def test_training_sections_and_actions_cover_the_command_loop(parsed: GuideParser) -> None:
-    assert parsed.json_script_contents
-    data = json.loads(parsed.json_script_contents[0])
-    sections = data["scenes"]
-    assert [section["id"] for section in sections] == [
-        "game", "describe-review", "plan", "implement", "fixed-game", "compare", "presentify"
-    ]
-    assert [len(section["actions"]) for section in sections] == [0, 2, 1, 1, 0, 1, 1]
-    commands = [action["command"].split()[0] for section in sections for action in section["actions"]]
-    assert commands == ["/describe", "/review", "/plan", "/implement", "/compare", "/presentify"]
-    assert all(action["gate"]["status"] == "pass" for section in sections for action in section["actions"])
-
-
 def test_script_close_in_test_local_fixture_does_not_break_document() -> None:
     payload = {"output": ["Hostile <img onerror> and </script> stay text."]}
     encoded = json.dumps(payload).replace("</script>", r"<\/script>")
     trial = GuideParser()
     trial.feed(
-        '<html><section id="page-training"></section>'
-        f'<script type="application/json" id="nh-training-scenes">{encoded}</script></html>'
+        '<html><section id="page-cheatsheets"></section>'
+        f'<script type="application/json" id="nh-training-story">{encoded}</script></html>'
     )
     assert trial.json_script_contents == [encoded]
     assert json.loads(trial.json_script_contents[0]) == payload
     assert trial.html_count == 1
-    assert "page-training" in trial.page_ids
-
-
-def test_inline_scenes_match_example_json(parsed: GuideParser) -> None:
-    disk_path = _ROOT / "guides" / "website" / "example" / "training-scenes.json"
-    disk = json.loads(disk_path.read_text(encoding="utf-8"))
-    inline = json.loads(parsed.json_script_contents[0])
-    assert inline == disk
-
-
-def test_training_scene_schema_is_strict_and_cumulative(parsed: GuideParser) -> None:
-    data = json.loads(parsed.json_script_contents[0])
-    assert set(data) == {"initial", "scenes"}
-    assert set(data["initial"]) == {"game", "files"}
-    assert data["initial"]["game"] == {
-        "damageMode": "buggy",
-        "verticalMovementEnabled": False,
-        "fixture": "enemy-hit",
-    }
-    initial_files = data["initial"]["files"]
-    assert initial_files, "the explorer needs the files that exist before /describe"
-    assert {item["path"] for item in initial_files} >= {
-        "src/damage.js",
-        "src/game.js",
-    }
-    assert len({item["path"] for item in initial_files}) == len(initial_files)
-    for item in initial_files:
-        assert set(item) >= {"path", "language", "content"}
-        assert item["path"] and item["language"] and item["content"].strip()
-
-    current = {item["path"]: item["content"] for item in initial_files}
-    seen_actions: set[str] = set()
-    for section in data["scenes"]:
-        assert {"id", "heading", "intent", "actions", "takeaway"} <= set(section)
-        assert set(section) <= {"id", "heading", "intent", "actions", "takeaway", "game", "phases", "finalPhase"}
-        assert section["heading"].strip() and section["intent"].strip() and section["takeaway"].strip()
-        assert "stage" not in section
-        if "game" in section:
-            assert set(section["game"]) == {"damageMode", "verticalMovementEnabled", "fixture"}
-            assert section["game"]["damageMode"] in {"buggy", "fixed"}
-            assert isinstance(section["game"]["verticalMovementEnabled"], bool)
-            assert section["game"]["fixture"] in {"enemy-hit", "asteroid-hit", "play"}
-        for action_record in section["actions"]:
-            assert set(action_record) == {"command", "tools", "output", "files", "focus_file", "artifact", "gate"}
-            assert action_record["command"].startswith("/")
-            assert action_record["tools"] and all(set(tool) == {"name", "purpose"} and all(tool.values()) for tool in action_record["tools"])
-            assert action_record["output"] and all(isinstance(line, str) and line.strip() for line in action_record["output"])
-            assert set(action_record["artifact"]) == {"path", "summary"}
-            assert set(action_record["gate"]) == {"name", "status", "prompt"}
-            assert action_record["gate"]["status"] == "pass"
-            for file_change in action_record["files"]:
-                assert set(file_change) >= {"path", "action", "language", "content"}
-                change = file_change["action"]
-                path = file_change["path"]
-                seen_actions.add(change)
-                assert change in {"create", "modify"}
-                assert file_change["content"].strip(), f"{path} needs real file content"
-                if change == "create":
-                    assert path not in current, f"{path} cannot be created twice"
-                else:
-                    assert path in current, f"{path} must exist before it is modified"
-                    assert current[path] != file_change["content"], f"{path} modify action must change its content"
-                current[path] = file_change["content"]
-            assert action_record["focus_file"] in current
-        if "finalPhase" in section:
-            assert section["id"] == "implement"
-            assert [beat["name"] for beat in section["finalPhase"]["beats"]] == [
-                "Automatic review", "Known-gaps reconciliation", "Tests to green", "Update release"
-            ]
-            for file_change in section["finalPhase"]["files"]:
-                assert file_change["path"] not in current or file_change["action"] == "modify"
-                current[file_change["path"]] = file_change["content"]
-        if "phases" in section:
-            assert section["id"] == "plan"
-            assert all(set(phase) == {"name", "tier", "effort", "summary"} for phase in section["phases"])
-    assert seen_actions == {"create", "modify"}
-
-
-def test_training_game_state_changes_at_implement_and_compare(parsed: GuideParser) -> None:
-    scenes = json.loads(parsed.json_script_contents[0])["scenes"]
-    states = {scene["id"]: scene["game"] for scene in scenes if "game" in scene}
-    assert states["game"] == {
-        "damageMode": "buggy",
-        "verticalMovementEnabled": False,
-        "fixture": "enemy-hit",
-    }
-    assert states["fixed-game"] == {
-        "damageMode": "fixed",
-        "verticalMovementEnabled": False,
-        "fixture": "enemy-hit",
-    }
-    assert states["compare"]["damageMode"] == "fixed"
-    assert states["compare"]["verticalMovementEnabled"] is True
-    compare = next(scene for scene in scenes if scene["id"] == "compare")
-    assert any("Follow-on /plan and /implement" in line for line in compare["actions"][0]["output"])
-
-
-def _training_engine(guide_text: str) -> str:
-    """The engine script that renders scene data (last script in the file)."""
-    return guide_text.split('id="nh-training-scenes"', 1)[-1]
-
-
-def test_training_output_is_text_only_and_hostile_fixture_is_test_local(
-    parsed: GuideParser, guide_text: str
-) -> None:
-    data = json.loads(parsed.json_script_contents[0])
-    blob = json.dumps(data)
-    assert "<img onerror>" not in blob
-    assert "</script>" not in blob
-    engine = _training_engine(guide_text)
-    assert re.search(r"\.textContent\s*=", engine), (
-        "scene-driven output must be assigned via textContent"
-    )
-    assert not re.search(r"\.innerHTML\s*=", engine), (
-        "the training engine must never assign innerHTML"
-    )
-    assert "data-training-root" in guide_text
-
-
-def test_training_explorer_is_accessible_and_uses_text_only_rendering(
-    guide_text: str,
-) -> None:
-    training = guide_text.split('id="page-training"', 1)[-1].split(
-        'id="page-cheatsheets"', 1
-    )[0]
-    for marker in (
-        'data-nht="file-tree"',
-        'data-nht="file-path"',
-        'data-nht="file-state"',
-        'data-nht="file-body"',
-    ):
-        assert marker in training
-    assert re.search(r'data-nht="file-tree"[^>]+role="tree"', training)
-    engine = _training_engine(guide_text)
-    assert "Not created yet" in engine
-    assert "diff-add" in engine and "diff-remove" in engine
-    assert 'setAttribute("role", "treeitem")' in engine
-    assert 'setAttribute("aria-selected"' in engine
-    assert re.search(r"fileBody\.textContent\s*=", engine)
-    assert not re.search(r"(?:fileBody|fileTree)\.innerHTML\s*=", engine)
-
-
-def test_training_runtime_exposes_deterministic_state_contract(guide_text: str) -> None:
-    engine = _training_engine(guide_text)
-    assert "window.NexusTraining" in engine
-    for member in ("go:", "run:", "selectFile:", "snapshot:"):
-        assert member in engine
-    assert "Object.freeze" in engine
-    assert "parsed.initial" in engine
-    assert "projectFilesFor" in engine
-    assert "completedKey" in engine
-    assert "scene.booth" not in engine
-    assert "scene.editor" not in engine
-    assert "config.preset" not in engine
-
-
-def test_training_engine_uses_shooter_damage_contract(guide_text: str) -> None:
-    """v4.4.1 Phase 5 replaces the wrap-collision Asteroids with the seeded damage bug."""
-    engine = _training_engine(guide_text)
-    assert "function collides" in engine
-    assert "function damageOutcome" in engine
-    assert "setDamageMode" in engine and "setVerticalMovementEnabled" in engine
-    assert 'mode === "buggy"' in engine, "the seeded bug lives in the pure damage seam"
-    for retired in ("missedWrapHits", "WRAP HIT MISSED", "setSplittingEnabled", "NexusAsteroids"):
-        assert retired not in engine, retired + " belongs to the retired Asteroids engine"
-
-
-def test_training_has_three_games_scoped_widgets_and_jump_links(guide_text: str) -> None:
-    training = guide_text.split('id="page-training"', 1)[-1].split('id="page-cheatsheets"', 1)[0]
-    assert training.count("data-arcade-game") == 3
-    assert 'data-nht="terminal"' in training
-    assert 'data-nht="run"' in training
-    assert 'aria-label="Training sections"' in training
-    assert 'data-nht-section="describe-review"' in training
-    assert 'id="nhtPresent"' not in training
-
-
-def test_training_action_choices_have_current_state(guide_text: str) -> None:
-    engine = _training_engine(guide_text)
-    assert 'setAttribute("data-nht-action-index"' in engine
-    assert 'setAttribute("aria-current"' in engine
-    assert 'button.textContent = action.command' in engine
-
-
-def test_training_position_uses_plain_section_names(guide_text: str) -> None:
-    training = guide_text.split('id="page-training"', 1)[-1].split(
-        'id="page-cheatsheets"', 1
-    )[0]
-    assert 'aria-label="Training sections"' in training
-    assert training.count('data-nht-section=') == 7
-    assert 'data-nht="where"' not in training
-
-
-def test_training_sections_have_local_action_controls(guide_text: str) -> None:
-    training = guide_text.split('id="page-training"', 1)[-1].split(
-        'id="page-cheatsheets"', 1
-    )[0]
-    assert 'data-nht-action-list' in training
-    assert 'data-nht-action-panel' in training
-    assert 'data-nht="run"' in training
-    for retired in ('data-nht="prev"', 'data-nht="next"', 'data-nht="restart"'):
-        assert retired not in training
-
-
-def test_training_sections_keep_fluid_game_stages(guide_text: str) -> None:
-    css = guide_text.split("<style>", 1)[-1].split("</style>", 1)[0]
-    assert ".nht-section" in css
-    assert "aspect-ratio:8 / 5" in css
-    assert ".nht.is-present" not in css
+    assert "page-cheatsheets" in trial.page_ids
 
 
 def test_no_hardcoded_text_width_caps_remain(guide_text: str) -> None:
@@ -1574,20 +1348,11 @@ def test_no_hardcoded_text_width_caps_remain(guide_text: str) -> None:
     css = guide_text.split("<style>", 1)[-1].split("</style>", 1)[0]
     # Only declarations, never `@media (max-width: ...)` breakpoints.
     caps = re.findall(r"(?<!\()max-width:\s*(\d+)(ch|px)", css)
-    allowed_px = {"1600", "700"}  # the Training section's fluid card bound is not a body-copy cap
+    allowed_px = {"1600"}
     offenders = [
         f"{v}{u}" for v, u in caps if u == "ch" or (u == "px" and v not in allowed_px)
     ]
     assert not offenders, f"hardcoded text width caps remain: {offenders}"
-
-
-def test_training_deep_link_clamps_unknown_section_and_maps_legacy_routes(
-    guide_text: str,
-) -> None:
-    engine = _training_engine(guide_text)
-    assert 'var aliases = { describe: "describe-review", review: "describe-review", test: "implement", update: "implement" }' in engine
-    assert 'return 0;' in engine.split("function sectionIndex", 1)[1].split("function goTo", 1)[0]
-    assert "beatIndex" not in engine.split("function sectionIndex", 1)[1]
 
 
 # ---------------------------------------------------------------------------
@@ -1716,6 +1481,8 @@ def test_cheatsheets_commands_are_copyable(parsed: GuideParser, guide_text: str)
 # ---------------------------------------------------------------------------
 
 WEBSITE_README = _ROOT / "guides" / "website" / "README.md"
+TRAINING_PAGE = _ROOT / "guides" / "website" / "training.html"
+TRAINING_STORY = _ROOT / "guides" / "website" / "src" / "training-story.json"
 CONTENT_MAP = (
     _ROOT
     / "docs"
@@ -1740,12 +1507,17 @@ def _strip_allowlisted_favicon(html: str) -> str:
 def test_publication_check_self_contained_and_offline(
     parsed: GuideParser, guide_text: str
 ) -> None:
-    """Canonical guide is checkable without the sibling portfolio or a network fetch."""
-    assert parsed.json_script_contents, "inline Training JSON required"
-    json.loads(parsed.json_script_contents[0])
+    """Both guide pages are checkable without the sibling portfolio or a network fetch."""
     assert INSTALL_SH in guide_text
     assert INSTALL_PS in guide_text
     assert not parsed.script_src
+    assert 'id="nh-training-scenes"' not in guide_text, "Training's data lives in training.html now"
+    training = TRAINING_PAGE.read_text(encoding="utf-8")
+    trial = GuideParser()
+    trial.feed(training)
+    assert not trial.script_src, "training.html loads no external script"
+    story = re.search(r'<script type="application/json" id="nh-training-story">(.*?)</script>', training, re.S)
+    assert story and json.loads(story.group(1))["stages"], "training.html carries its story inline"
 
 
 def test_optional_portfolio_copy_when_env_set() -> None:
@@ -1756,11 +1528,15 @@ def test_optional_portfolio_copy_when_env_set() -> None:
     assert dest.is_file(), f"env set but missing published copy at {dest}"
     src = GUIDE.read_text(encoding="utf-8")
     other = dest.read_text(encoding="utf-8")
-    if src == other:
-        return
-    assert _strip_allowlisted_favicon(src) == _strip_allowlisted_favicon(other), (
-        "portfolio copy drifted beyond an allowlisted favicon head delta"
-    )
+    if src != other:
+        assert _strip_allowlisted_favicon(src) == _strip_allowlisted_favicon(other), (
+            "portfolio copy drifted beyond an allowlisted favicon head delta"
+        )
+    training = dest.parent / "training.html"
+    assert training.is_file(), f"env set but the portfolio copy lacks its second page at {training}"
+    assert _strip_allowlisted_favicon(TRAINING_PAGE.read_text(encoding="utf-8")) == _strip_allowlisted_favicon(
+        training.read_text(encoding="utf-8")
+    ), "portfolio copy of training.html drifted"
 
 
 def test_every_catalog_command_is_training_cheatsheets_or_declined(
@@ -1768,9 +1544,8 @@ def test_every_catalog_command_is_training_cheatsheets_or_declined(
 ) -> None:
     names = sorted(p.stem for p in COMMANDS_DIR.glob("*.md"))
     assert names, "catalog/commands is empty"
-    data = json.loads(parsed.json_script_contents[0])
-    scenes = data["scenes"] if isinstance(data, dict) and "scenes" in data else data
-    scene_ids = {scene["id"] for scene in scenes}
+    story = json.loads(TRAINING_STORY.read_text(encoding="utf-8"))
+    scene_ids = {s["command"].split()[0].lstrip("/") for s in story["stages"] if s.get("kind") == "session"}
     cheatsheets = guide_text.split('id="page-cheatsheets"', 1)[-1]
     readme = WEBSITE_README.read_text(encoding="utf-8")
     content_map = CONTENT_MAP.read_text(encoding="utf-8")
@@ -1791,7 +1566,8 @@ def test_website_readme_matches_redesign() -> None:
     assert "31 slide" not in lower
     assert "20 slide" not in lower
     assert "guided tour" not in lower
-    assert "training-scenes.json" in text
+    assert "training-story.json" in text
+    assert "training.html" in text
     assert "nexus-hub/index.html" in text
     assert "NEXUS_HUB_PORTFOLIO_ROOT" in text
     for scene in (

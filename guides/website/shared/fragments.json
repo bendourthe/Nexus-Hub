@@ -92,7 +92,7 @@
         "brand": "href=\"#home\" data-go=\"home\"",
         "nav.home": "href=\"#home\" data-go=\"home\"",
         "nav.foundations": "href=\"#foundations\" data-go=\"foundations\"",
-        "nav.training": "href=\"#training\" data-go=\"training\"",
+        "nav.training": "href=\"training.html\" data-training-link",
         "nav.cheatsheets": "href=\"#cheatsheets\" data-go=\"cheatsheets\""
       },
       "fragments": [
@@ -108,7 +108,11 @@
         "nav-js",
         "nexusseq-js",
         "constellation-js",
-        "nav-mobile-css"
+        "nav-mobile-css",
+        "opening-css",
+        "outline-css",
+        "outline-js",
+        "motion-css"
       ]
     },
     "training.html": {
