@@ -2,8 +2,8 @@
 
 **Project**: Nexus-Hub
 **Status**: released; PR #230 merged the complete 34-task plan and tag `v4.13.0` was published on 2026-09-21. Two bounded warning-class findings remain owned for future measurement work. GitHub branch protection passed a live pull-request gate test; the second trigger pilot stopped on an unproven spend bound.
-**Last updated**: 2026-10-02
-**Open items**: 130
+**Last updated**: 2026-10-03
+**Open items**: 138
 
 Release-scoped gaps for the evidence-driven agent improvement plan. Planned future-phase work is tracked in the plan rather than reported as completed here.
 
@@ -16,7 +16,7 @@ Release-scoped gaps for the evidence-driven agent improvement plan. Planned futu
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 1 |
 | Bugs / regressions (BG) | 1 | 6 |
-| Warnings (WN) | 2 | 4 |
+| Warnings (WN) | 3 | 4 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 4 |
 
@@ -1195,18 +1195,11 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
 | Bugs / regressions (BG) | 0 | 0 |
-| Warnings (WN) | 1 | 0 |
+| Warnings (WN) | 0 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 1 |
 
 ### Open Items
-
-#### WN-34 (v4.13.8): The governance test group outgrows its 2700 s local cap on Windows
-
-- **Source phase**: Phase 7 (final-phase full suite, re-run over Phase 6)
-- **Plan reference**: [v4.13.8 plan, sub-task 7.9 (T334)](plans/v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md)
-- **Reason**: `repo-tests-governance` in `scripts/ci/profiles.py` has `timeout=2700`. In the full profile on 2026-10-02 it hit that cap; re-run alone on the same Windows 11 machine it passed (2874 passed, 22 skipped) in 3063.9 s, above the cap. The v4.13.4 evidence recorded 1785.1 s for the same group, so the group has grown or the machine has slowed. A local full run therefore reports a timeout that is not a test failure, and a reader cannot tell the two apart from the verdict line.
-- **Suggested next step**: Profile the slowest governance tests (`pytest --durations=25` on that group), then either split the group the way `repo-tests-integrations-*` was split, or raise the cap with a recorded measurement. Keep the hosted job's timing as the reference.
 
 ### Resolved Items
 
@@ -1221,13 +1214,31 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 4 | 0 |
-| Bugs / regressions (BG) | 1 | 0 |
-| Warnings (WN) | 13 | 0 |
+| Deferred (DF) | 4 | 1 |
+| Bugs / regressions (BG) | 3 | 0 |
+| Warnings (WN) | 19 | 1 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 2 | 0 |
 
 ### Open Items
+
+#### WN-1 (v4.13.9): The GPT-6.1 Sol announcement could not be read
+
+- **Source phase**: Phase 1. **Plan reference**: `v4.13.9-adoption-inline-visualize-codex-disk-writes-review-flow-gpt-6-1-sol.md`, T403.
+- **Reason**: `openai.com/index/introducing-gpt-6-1-sol/` returned HTTP 403 on 2026-09-30. The announcement's "a fifth of the price" and "Near-Astra" headline is therefore verified only as far as the wording of OpenAI's model catalog. Nothing in the Sol profile may rest on the announcement.
+- **Suggested next step**: re-fetch the announcement from a session that is not blocked. If it is readable, check the profile claims against it and add any primary-source fact through the writer's `write --input` path.
+
+#### WN-2 (v4.13.9): Cursor's primary documentation for `/visualize` was not read
+
+- **Source phase**: Phase 1. **Plan reference**: `v4.13.9-adoption-inline-visualize-codex-disk-writes-review-flow-gpt-6-1-sol.md`, T402 and T403.
+- **Reason**: the comparison relied on a newsletter summary of Cursor's `/visualize`. On 2026-10-01 a `cursor.com` search and a fetch of `https://cursor.com/docs/agent/chat/commands` stated nothing about a built-in `/visualize`, about how a same-named user command takes precedence, or about where commands are stored. Only the discovery locations (`.cursor/commands/`, `~/.cursor/commands/`) were found.
+- **Suggested next step**: when Cursor documents `/visualize` or command-name precedence, re-run T402's decision against that page. Option (b), mirroring everywhere, stands until then.
+
+#### DF-1 (v4.13.9): The Codex `doctor` advisory was cut from this plan
+
+- **Source phase**: Phase 1. **Plan reference**: `v4.13.9-adoption-inline-visualize-codex-disk-writes-review-flow-gpt-6-1-sol.md`, T403 and the Non-Goals.
+- **Reason**: interview Q2 chose a runbook only. The `doctor` advisory, its `DIAGNOSTIC_ADVISORY` constant, a host-hazard module, and a host-hazard data file are out of scope.
+- **Suggested next step**: reopen only when two primary OpenAI sources confirm the fix version and a second host hazard appears, as the Non-Goals state.
 
 #### DF-9 (v4.13.9): Claude Haiku 5.5 is announced but has no profile or map cell
 
@@ -1236,14 +1247,6 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 - **Suggested next step**: when the models overview lists it, run `/tune-prompting <haiku-5-5-id> --profiles-only` and refresh the `fast` tier cell of the model map.
 
 - **Carried from**: v4.13.8#DF-1 on 2026-10-02
-
-#### DF-10 (v4.13.9): The bundled model-map snapshot lists superseded models
-
-- **Source phase**: Phase 1. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T304.
-- **Reason**: `catalog/skills/ai-development/model-routing/references/last-known-model-map.json` (verified 2026-09-22) still lists `claude-sonnet-5` at standard and `gpt-6-sol` at strong, both superseded. It is the offline fallback that `/plan` renders when web access is unavailable, so a stale cell reaches a user who is offline.
-- **Suggested next step**: refresh the snapshot from a validated map through `model-map.py`. The queued v4.13.9 plan (task T407) does this for the `standard`/Anthropic and `strong`/OpenAI cells; otherwise model-routing's own refresh cycle owns it.
-
-- **Carried from**: v4.13.8#DF-2 on 2026-10-02
 
 #### DF-11 (v4.13.9): Nine newly rostered Claude models have no prompting profile
 
@@ -1391,7 +1394,49 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 
 - **Carried from**: v4.13.8#QG-6 on 2026-10-02
 
+#### WN-35 (v4.13.9): The governance test group outgrows its 2700 s local cap on Windows
+
+- **Source phase**: Phase 7 (final-phase full suite, re-run over Phase 6)
+- **Plan reference**: [v4.13.8 plan, sub-task 7.9 (T334)](plans/v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md)
+- **Reason**: `repo-tests-governance` in `scripts/ci/profiles.py` has `timeout=2700`. In the full profile on 2026-10-02 it hit that cap; re-run alone on the same Windows 11 machine it passed (2874 passed, 22 skipped) in 3063.9 s, above the cap. The v4.13.4 evidence recorded 1785.1 s for the same group, so the group has grown or the machine has slowed. A local full run therefore reports a timeout that is not a test failure, and a reader cannot tell the two apart from the verdict line.
+- **Suggested next step**: Profile the slowest governance tests (`pytest --durations=25` on that group), then either split the group the way `repo-tests-integrations-*` was split, or raise the cap with a recorded measurement. Keep the hosted job's timing as the reference.
+
+- **Carried from**: v4.13.8#WN-34 on 2026-10-03
+- **Re-measured 2026-10-04 (v4.13.9 T434)**: the final full profile hit the cap again at 96 percent; run alone without the cap the group took 3325.7 s (2873 passed, 22 skipped, 1 failed). The one failure was a real stale assertion that no earlier full run reached because the step timed out first, so a timed-out step can also hide a failure.
+
+#### BG-13 (v4.13.9): `auto-devlog.sh` silently drops every entry after a heading reaches line 1
+
+- **Source phase**: Phase 5. **Plan reference**: `v4.13.9-adoption-inline-visualize-codex-disk-writes-review-flow-gpt-6-1-sol.md`, T423.
+- **Reason**: the size-bound test's liveness check found that once a `## [` entry heading reaches line 1 of `DEVLOG.md`, the computed insert line is 0, which `awk`'s `NR == 0` never matches, so every later entry is dropped while the hook still prints that the entry was prepended. The second entry also lands above the `# Dev Log` title. The `.ps1` sibling inserts correctly, so the pair disagrees. This plan changes no hook (T423 failure mode), so the defect is recorded, and the test holds it as a strict expected failure that turns red once it is fixed. Measurement: [`v4.13.9-hook-size-bound.md`](development/v4.13.9-hook-size-bound.md).
+- **Suggested next step**: fix the insert-line computation in `catalog/hooks/auto-devlog.sh` so a line-1 heading inserts before it, add an exit-code and output parity case to the hook's tests, then remove its `KNOWN_BREACHES` entry in `catalog/hooks/tests/test_hook_size_bound.py`.
+
+#### BG-14 (v4.13.9): `learning-capture.sh` silently drops an event over 128 KiB on Linux
+
+- **Source phase**: Phase 6 (integration pull request #424, Linux `tests` job). **Plan reference**: `v4.13.9-adoption-inline-visualize-codex-disk-writes-review-flow-gpt-6-1-sol.md`, T435.
+- **Reason**: the hook passes the whole payload to Python in one environment variable (`NEXUS_LC_PAYLOAD`). Linux caps a single environment string at 128 KiB (`MAX_ARG_STRLEN`), so for a larger payload Python fails to start with "Argument list too long", the error is discarded by `2>/dev/null || true`, and no record is written while the hook exits 0. Reproduced in WSL Ubuntu on 2026-10-04. On Windows and macOS the same payload is written whole instead (the WN-36 breach). The size-bound test holds the `.sh` breach as expected only off Linux (`[not-linux]`).
+- **Suggested next step**: pass the payload to Python on standard input instead of in the environment, truncate `hook_event_name` and `tool_name` with the WN-36 fix, then remove the `[not-linux]` gate and the breach entry.
+
+#### WN-36 (v4.13.9): Five file-writing hooks copy a field without truncation
+
+- **Source phase**: Phase 5. **Plan reference**: `v4.13.9-adoption-inline-visualize-codex-disk-writes-review-flow-gpt-6-1-sol.md`, T423.
+- **Reason**: one oversized event (64 KiB fields) grows a file by 65 to 132 KB, measured 2026-10-03: `learning-capture` copies the event and tool names whole (131549 bytes .sh, 131543 .ps1), `provenance-ledger` copies the file path whole and rotates by lines rather than bytes (65699), `session-summary` copies the session duration whole into its log and digest (.ps1 always; .sh when `jq` is present), `auto-devlog.ps1` lists commit subjects whole, and `skill-tracker.py` stores the skill name whole. Ordinary events stay at 70 to 1100 bytes. The test records each as a known breach, so a fix shows up as a failing expected-failure. Measurement: [`v4.13.9-hook-size-bound.md`](development/v4.13.9-hook-size-bound.md).
+- **Suggested next step**: truncate each copied field the way `learning-capture` already truncates its prompt sample, bound the provenance ledger by bytes as well as lines, and remove the matching `KNOWN_BREACHES` entries.
+
+#### WN-37 (v4.13.9): Multi-byte text grows two to six times in hook output on Windows
+
+- **Source phase**: Phase 5. **Plan reference**: `v4.13.9-adoption-inline-visualize-codex-disk-writes-review-flow-gpt-6-1-sol.md`, T422.
+- **Reason**: the multi-byte payload measured larger on Windows than its UTF-8 length (for example `session-summary.ps1` 3568 bytes and `auto-devlog.ps1` 4574 bytes for one event), consistent with input decoded through a legacy code page: Windows PowerShell 5.1 standard input and git output, and Python standard input read as cp1252. The size test records this and does not assert it. Measurement: [`v4.13.9-hook-size-bound.md`](development/v4.13.9-hook-size-bound.md).
+- **Suggested next step**: read hook standard input as UTF-8 explicitly in the `.ps1` siblings and the Python hooks, then re-measure the multi-byte column.
+
+#### WN-38 (v4.13.9): The hook test step outgrows its 1800 s local cap on Windows
+
+- **Source phase**: Phase 6. **Plan reference**: `v4.13.9-adoption-inline-visualize-codex-disk-writes-review-flow-gpt-6-1-sol.md`, T434.
+- **Reason**: `hook-tests` in `scripts/ci/profiles.py` has `timeout=1800`. In the final full profile on 2026-10-04 it hit that cap at 91 percent with no failure; run alone without the cap on the same Windows 11 machine it passed (2057 passed, 49 skipped, 8 xfailed) in 2096.9 s. Phase 5's `test_hook_size_bound.py` added about 3.5 minutes, and an earlier v4.13 run had already measured 1701.8 s, so the step was near its cap before this plan. As with WN-35, a local full run reports a timeout that is not a test failure.
+- **Suggested next step**: run `pytest --durations=25` on `catalog/hooks/tests`, then split the step (for example, the size-bound test into its own step) or raise the cap with a recorded measurement. Keep the hosted job's timing as the reference.
+
 ### Resolved
 
 | ID | Title | Resolved in | Notes |
 |---|---|---|---|
+| WN-3 | The Codex fix version is not verified against OpenAI's primary sources | v4.13.9, 2026-10-03 | Closed by T424: the `rust-v0.142.0` release notes (2026-06-22) list the persistent-log reduction citing #29432 and #29457, and #29432's merge commit lies between the `rust-v0.141.0` and `rust-v0.142.0` tags. Runbook: [`docs/guides/host-agent-disk-writes.md`](../../../guides/host-agent-disk-writes.md) |
+| DF-10 | The bundled model-map snapshot lists superseded models | v4.13.9, 2026-10-01 | Carried from v4.13.8 DF-2. Fixed by v4.13.9 T407: `last-known-model-map.json` reads `verified_as_of` 2026-10-01, `standard`/Anthropic `claude-sonnet-5-5`, and `strong`/OpenAI `gpt-6.1-sol`; `model-map.py validate` reports valid. |

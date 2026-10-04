@@ -99,6 +99,63 @@ def test_mirror_never_removes_user_files(tmp_path: Path):
     assert user_cmd.exists(), "a user's own command must never be pruned"
 
 
+# --- collision paths (v4.13.9 T402 / T414) --------------------------------
+
+def test_user_file_with_a_catalog_name_is_kept_not_adopted(tmp_path: Path):
+    ctx = _ctx(tmp_path)
+    dst = tmp_path / "commands"
+    dst.mkdir()
+    # The user wrote their own visualize.md before Nexus-Hub shipped one.
+    mine = dst / "visualize.md"
+    mine.write_text("# my own visualize command\n", encoding="utf-8")
+
+    actions = mirror_command_surface(ctx, "testkey", dst, suffix=".md")
+    assert mine.read_text(encoding="utf-8") == "# my own visualize command\n"
+    assert str(mine) not in ctx.manifest.files_for("testkey"), "never adopted"
+    kept = [a for a in actions if a.path == str(mine)]
+    assert kept and kept[0].action == "kept"
+    # A later prune must not remove it either: it was never tracked.
+    mirror_command_surface(ctx, "testkey", dst, suffix=".md")
+    assert mine.exists()
+
+
+def test_user_edited_stale_file_survives_the_prune(tmp_path: Path):
+    from scripts.lib.integrations.result import FileAction
+
+    ctx = _ctx(tmp_path)
+    dst = tmp_path / "commands"
+    dst.mkdir()
+    edited = dst / "retired-command.md"
+    untouched = dst / "another-retired-command.md"
+    for path in (edited, untouched):
+        path.write_text("# as installed\n", encoding="utf-8")
+        ctx.manifest.track("testkey", str(path))
+    # The previous install recorded both files' hashes.
+    ctx.manifest.record_actions(
+        "testkey", [FileAction(path=str(p), action="created") for p in (edited, untouched)]
+    )
+    edited.write_text("# as installed\n\nmy own notes\n", encoding="utf-8")
+
+    actions = mirror_command_surface(ctx, "testkey", dst, suffix=".md")
+    assert edited.exists(), "an edited file must not be pruned"
+    assert str(edited) not in ctx.manifest.files_for("testkey"), "it becomes the user's"
+    assert any(a.path == str(edited) and a.action == "kept" for a in actions)
+    assert not untouched.exists(), "an unedited stale file is still pruned"
+
+
+def test_tracked_path_outside_the_commands_directory_is_ignored(tmp_path: Path):
+    ctx = _ctx(tmp_path)
+    dst = tmp_path / "commands"
+    dst.mkdir()
+    outside = tmp_path / "elsewhere" / "stale.md"
+    outside.parent.mkdir()
+    outside.write_text("# not in the commands dir\n", encoding="utf-8")
+    ctx.manifest.track("testkey", str(outside))
+
+    mirror_command_surface(ctx, "testkey", dst, suffix=".md")
+    assert outside.exists(), "a manifest path that escapes the commands directory is ignored"
+
+
 # --- integration wiring ---------------------------------------------------
 
 def test_cursor_install_global_populates_cursor_commands(tmp_path, monkeypatch):
@@ -110,6 +167,7 @@ def test_cursor_install_global_populates_cursor_commands(tmp_path, monkeypatch):
     commands_dir = fake_home / ".cursor" / "commands"
     assert commands_dir.is_dir(), "cursor global install must create ~/.cursor/commands/"
     assert any(commands_dir.glob("*.md")), "cursor global install must write command .md files"
+    assert (commands_dir / "visualize.md").is_file(), "the v4.13.9 /visualize command reaches Cursor (T402 option b)"
     assert any(fa.action in ("created", "unchanged") for fa in result.files)
 
 
@@ -129,6 +187,7 @@ def test_copilot_install_global_populates_vscode_prompts(tmp_path, monkeypatch):
     prompts_dir = vscode_user / "prompts"
     assert prompts_dir.is_dir(), "copilot global install must create the prompts/ dir"
     assert any(prompts_dir.glob("*.prompt.md")), "copilot must write *.prompt.md files"
+    assert (prompts_dir / "visualize.prompt.md").is_file(), "the v4.13.9 /visualize command reaches Copilot"
     assert any((tmp_path / ".copilot" / "agents").glob("*.agent.md")), (
         "copilot global install must also write custom agents"
     )
@@ -171,3 +230,4 @@ def test_antigravity20_wire_project_surfaces_seeds_workflows(tmp_path):
     workflows = ws / ".agents" / "workflows"
     assert workflows.is_dir(), "nexus-hub init must seed .agents/workflows/ for Antigravity"
     assert any(workflows.glob("*.md")), ".agents/workflows/ must contain command files"
+    assert (workflows / "visualize.md").is_file(), "the v4.13.9 /visualize command reaches Antigravity"

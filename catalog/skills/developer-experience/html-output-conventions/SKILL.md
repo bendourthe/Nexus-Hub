@@ -1,8 +1,8 @@
 ---
 name: html-output-conventions
-description: Decide when a human-facing artifact should be HTML rather than Markdown, and produce it from four self-contained reference templates (grid comparison, annotated diff, interactive tuning, tabbed document)
-summary_l0: "Decide when an artifact should be HTML over Markdown, using four self-contained templates"
-overview_l1: "This skill codifies when the agent should emit an HTML artifact instead of Markdown, and how. HTML wins when an artifact needs tables, SVG, interactive controls, or spatial data, when it runs past roughly 100 lines, when it should be shared as a link, or when it should round-trip state to the agent (copy-as-JSON). Markdown stays right for short notes, README front matter, and commit messages. The skill ships four self-contained reference templates: a grid comparison layout, an annotated diff display with color-coded severity margins for code review, an interactive tuning interface with copy-as-JSON controls, and a tabbed layout for long documents. It composes with hallmark-design, which governs whether the chosen HTML looks designed rather than AI-generated. Use it on Coding-pillar review surfaces, the session replay timeline, and the operator-actions dashboard. Anti-patterns: ASCII diagrams (use SVG) and defaulting to Markdown when an HTML artifact would actually be read."
+description: Decide when a human-facing artifact should be HTML rather than Markdown, and produce it from five self-contained reference templates (grid comparison, annotated diff, interactive tuning, tabbed document, inline-SVG chart)
+summary_l0: "Decide when an artifact should be HTML over Markdown, using five self-contained templates"
+overview_l1: "This skill codifies when the agent should emit an HTML artifact instead of Markdown, and how. HTML wins when an artifact needs tables, SVG, interactive controls, or spatial data, when it runs past roughly 100 lines, when it should be shared as a link, or when it should round-trip state to the agent (copy-as-JSON). Markdown stays right for short notes, README front matter, and commit messages. The skill ships five self-contained reference templates: a grid comparison layout, an annotated diff display with color-coded severity margins for code review, an interactive tuning interface with copy-as-JSON controls, a tabbed layout for long documents, and a chart. It composes with hallmark-design, which governs whether the chosen HTML looks designed rather than AI-generated. Use it on Coding-pillar review surfaces, the session replay timeline, and the operator-actions dashboard. Anti-patterns: ASCII diagrams (use SVG) and defaulting to Markdown when an HTML artifact would actually be read."
 version: 1.0.0
 author: Benjamin Dourthe
 license: MIT
@@ -15,7 +15,7 @@ tools_required: [Read, Write, Edit]
 
 # HTML Output Conventions
 
-Prefer HTML over Markdown for human-facing **artifacts** that will actually be read, compared, or interacted with. Markdown is the right default for short prose; it stops being the right default the moment an artifact needs a table, an SVG, an interactive control, spatial data, or simply runs long enough that a reader cannot scan it. This skill gives the agent a decision rule and four runnable templates so the choice is deliberate, not habitual.
+Prefer HTML over Markdown for human-facing **artifacts** that will actually be read, compared, or interacted with. Markdown is the right default for short prose; it stops being the right default the moment an artifact needs a table, an SVG, an interactive control, spatial data, or simply runs long enough that a reader cannot scan it. This skill gives the agent a decision rule and five runnable templates so the choice is deliberate, not habitual.
 
 That preference governs artifacts. It does not govern **answering a question in the conversation**, where the smallest representation that answers it wins and producing a file can cost the reader more than it gives them. Start from the ladder below, and reach the decision table when the answer is genuinely an artifact.
 
@@ -69,12 +69,13 @@ Rule of thumb: if the artifact will be *read* (scanned, compared, navigated, or 
 
 ## Reference templates
 
-All four templates are self-contained (no external CSS/JS, no CDN) so they are runnable inline and shareable as a single file. Adapt the content; keep the structure and accessibility affordances.
+All five templates are self-contained (no external CSS/JS, no CDN) so they are runnable inline and shareable as a single file. Adapt the content; keep the structure and accessibility affordances.
 
 1. **Grid comparison layout** -- `references/grid-comparison.html`. Responsive grid for comparing several options/designs/approaches with a shared attribute set. Use for "here are N candidates".
 2. **Annotated diff display** -- `references/annotated-diff.html`. Code diff with color-coded severity margins (high/medium/low) and inline review notes. Severity is conveyed by both color and a text label, never color alone.
 3. **Interactive tuning interface** -- `references/interactive-tuning.html`. Sliders and checkboxes inside a `<form data-nexus-artifact="true">` with a "Copy as JSON" button that serializes form state to the clipboard, so the reader can round-trip state back to the agent. The Nexus desktop shell's interactive-artifact wrapper consumes the same `data-nexus-artifact` marker.
 4. **Tabbed document** -- `references/tabbed-document.html`. Accessible tabbed layout (ARIA roles, roving tabindex, arrow-key navigation) for long documents such as incident reports and multi-section specs.
+5. **Inline-SVG chart** -- `references/chart-template.html`. Script-free bar and line chart with a `default-src 'none'` Content-Security-Policy, light and dark tokens, text-labelled series, and a data table carrying the same values. Every data-derived slot is a labelled `{{ESCAPED:...}}` placeholder that must be escaped before insertion. `[[inline-visualization]]` owns when a chart is the answer and how its data is taken in; this template is only the rendering.
 
 ## Anti-patterns
 

@@ -1,6 +1,6 @@
 """v4.7.0 amendment Phase 1 (T040): the Astra routing decision is recorded where the plan said it would be.
 
-- The snapshot's newest note names GPT-6 Astra and its OpenAI sources cite both pages.
+- A snapshot note names GPT-6 Astra and its OpenAI sources cite both pages.
 - The main plan's sub-task 2.2 and 5.3 prompts cite the GPT-6 Astra guide as a second vendor source.
 - The decision note exists and carries both quoted pages.
 """
@@ -48,9 +48,10 @@ def _snapshot() -> dict:
     return json.loads(SNAPSHOT.read_text(encoding="utf-8"))
 
 
-def test_newest_note_and_sources_record_the_astra_decision():
+def test_notes_and_sources_record_the_astra_decision():
+    # Later refreshes append newer notes, so the decision need not be the newest one.
     snapshot = _snapshot()
-    assert "GPT-6 Astra" in snapshot["notes"][-1]
+    assert any("GPT-6 Astra" in note for note in snapshot["notes"])
     assert CATALOG_URL in snapshot["sources"]["OpenAI"]
     assert GUIDE_URL in snapshot["sources"]["OpenAI"]
 

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "verified_as_of": "2026-09-22",
+  "verified_as_of": "2026-10-01",
   "tiers": {
     "frontier": {
       "Anthropic": "claude-fable-5-1",
@@ -10,12 +10,12 @@
     },
     "strong": {
       "Anthropic": "claude-opus-5-5",
-      "OpenAI": "gpt-6-sol",
+      "OpenAI": "gpt-6.1-sol",
       "Google": "gemini-3.7-flash",
       "Cursor": "grok-4.6"
     },
     "standard": {
-      "Anthropic": "claude-sonnet-5",
+      "Anthropic": "claude-sonnet-5-5",
       "OpenAI": "gpt-5.6-sol",
       "Google": "gemini-3.6-flash",
       "Cursor": "composer-2.5"
@@ -32,7 +32,9 @@
     "2026-09-22: Anthropic shipped Claude Opus 5.5 and OpenAI shipped GPT-6 Sol and Luna on the same day; every column was re-read from vendor documentation. Anthropic: claude-opus-5 is now LEGACY and claude-opus-5-5 takes strong; claude-fable-5-1 stays frontier because the models overview directs you to it 'when your evals on Claude Opus 5.5 at higher effort still fall short'. OpenAI: gpt-5.6-sol/terra/luna have left the current model list (only the gpt-5.6-cyber specialist remains), so the column moves to the GPT-6 family.",
     "2026-09-22 CORRECTION: the previous snapshot carried cursor-grok-4.6 at frontier and cursor-grok-4.5 at strong. Cursor's models documentation lists Grok 4.7 as its newest first-party model, so those entries were stale and the column now reads grok-4.7 / grok-4.6 / composer-2.5 / composer-2.5-fast, using the vendor's own naming.",
     "2026-09-22 JUDGMENT, standard = gpt-5.6-sol: OpenAI's GPT-6 line ships three classes where this map has four. Rather than list gpt-6-sol at two tiers or invent an id, standard keeps gpt-5.6-sol, which is still selectable on the hosts this catalog targets (it appears, and is the active selection, in the Cursor model picker) even though it has left OpenAI's current API model list alongside gpt-5.6-terra and gpt-5.6-luna. This is the cell to re-check FIRST on the next refresh: a model a picker still offers but the vendor's current list omits is the one most likely to retire next. If it retires, collapse the tier onto gpt-6-sol at medium effort.",
-    "2026-09-22 JUDGMENT, OpenAI tier order: the API docs call GPT-6 Astra (gpt-6-astra) 'our most capable model' ($10/$50), gpt-6-sol a performance/cost balance ($2/$10), and gpt-6-luna 'our most efficient model' ($0.1/$0.5). Astra shipped three weeks before the other two as the flagship and sits one class ABOVE Sol; it does NOT replace gpt-5.6-terra. The model picker lists Sol before Astra, so picker order is not capability order. The 'Astra-level reliability at much lower cost' claim concerns reliability measured against GPT-5.6 Sol, not capability parity with Astra."
+    "2026-09-22 JUDGMENT, OpenAI tier order: the API docs call GPT-6 Astra (gpt-6-astra) 'our most capable model' ($10/$50), gpt-6-sol a performance/cost balance ($2/$10), and gpt-6-luna 'our most efficient model' ($0.1/$0.5). Astra shipped three weeks before the other two as the flagship and sits one class ABOVE Sol; it does NOT replace gpt-5.6-terra. The model picker lists Sol before Astra, so picker order is not capability order. The 'Astra-level reliability at much lower cost' claim concerns reliability measured against GPT-5.6 Sol, not capability parity with Astra.",
+    "2026-10-01 (v4.13.9): every column was re-read from the four mapped sources. Anthropic: the models overview lists claude-fable-5-1, claude-opus-5-5, claude-sonnet-5-5, and claude-haiku-4-5-20251001 as current, so standard moves from claude-sonnet-5 (now legacy) to claude-sonnet-5-5; fast keeps the claude-haiku-4-5 alias of the listed dated id. OpenAI: the models catalog's flagship list is GPT-6 Astra, GPT-6.1 Sol, and GPT-6 Luna, and describes GPT-6.1 Sol as 'Near-Astra performance for complex work at a lower cost' at $2/$10, so strong moves from gpt-6-sol, which the catalog no longer lists, to gpt-6.1-sol. Google (3.8 Flash, 3.7 Flash, 3.6 Flash, 3.5 Flash-Lite) and Cursor (Grok 4.7, Grok 4.6, Composer 2.5, Composer 2.5 Fast) are unchanged.",
+    "2026-10-01 JUDGMENT, standard = gpt-5.6-sol, re-checked first as the 2026-09-22 note required: OpenAI's models catalog still omits it (only GPT-5.6 Cyber remains of that family), but Cursor's models and pricing page still offers GPT-5.6 Sol, Terra, and Luna, and the Models API listing still returns gpt-5.6-sol. A host picker still offers it, so the cell is kept. When it leaves every host picker, collapse the tier onto gpt-6.1-sol at medium effort."
   ],
   "sources": {
     "Anthropic": [

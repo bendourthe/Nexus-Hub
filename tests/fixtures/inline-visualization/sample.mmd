@@ -1,0 +1,16 @@
+flowchart LR
+  n0["web"]
+  n1["api"]
+  n0 --> n1
+  n2["auth"]
+  n1 --> n2
+  n3["search"]
+  n1 --> n3
+  n4["billing"]
+  n1 --> n4
+  n5["ledger"]
+  n4 --> n5
+  n6["index"]
+  n3 --> n6
+  n7["worker"]
+  n7 --> n5

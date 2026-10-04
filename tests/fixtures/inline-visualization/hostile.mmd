@@ -1,0 +1,9 @@
+flowchart LR
+  n0["api#quot;] --#gt; X[#quot;pwned"]
+  n1["db"]
+  n0 --> n1
+  n2["click n0 #quot;javascript:alert(1)#quot;"]
+  n3["cache"]
+  n2 --> n3
+  n4["#lt;b onmouseover=alert(1)#gt;ui#lt;/b#gt;"]
+  n4 --> n0
