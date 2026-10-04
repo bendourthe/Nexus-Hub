@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.13.9] - 2026-10-04
+
 ### Added
 
 - **`/visualize` command and the `inline-visualization` skill (v4.13.9).** Turns data (CSV, JSON, a log excerpt, a pasted table) or a described structure into the smallest visual that answers the question: a sentence, a small table, a Mermaid diagram, or a script-free inline-SVG chart page. Every answer ends with a tier line naming the rung it used and why. Scopes are `chart`, `diagram`, `diff`, and `auto`. It never fabricates data, installs a dependency, or calls a network service. `html-output-conventions` gains a fifth self-contained template, an inline-SVG bar and line chart. Catalog: 340 skills, 21 commands. See Capability usage.

@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.13.8 -->
+<!-- nexus-hub-version: 4.13.9 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 340 skills, 21 commands, 36 registered hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -36,6 +36,16 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v4.13.9
+
+**`/visualize` turns data into the smallest useful chart or diagram.** Give it a CSV, JSON, a log excerpt, or a described structure, and it answers with a sentence, a table, a Mermaid diagram, or an offline inline-SVG page, ending with a line that names which of those it chose and why.
+
+**Review one commit, and draft comments without posting them.** `/review changes <sha>` reviews a single commit, and a review can draft comments for its confirmed findings to the chat or to a file you name. Nothing is ever posted.
+
+**GPT-6.1 Sol and a refreshed model map.** A sourced prompting profile for GPT-6.1 Sol, and the offline model map now reads `claude-sonnet-5-5` and `gpt-6.1-sol` where the newer models replaced older ones.
+
+**Your own command files are safe.** Installing commands no longer overwrites a same-named command file you wrote. There is also a runbook for the reported Codex CLI disk-write problem, which is fixed in Codex CLI 0.142.0, and the guide's Cheatsheets page now covers every command.
 
 ## What's New in v4.13.8
 
