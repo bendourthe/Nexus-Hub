@@ -69,7 +69,7 @@ def test_drafts_carry_confirmed_only_and_list_plausible_separately():
 def test_commit_mode_names_the_pattern_and_all_three_cases():
     skill = _text(_SKILL)
     assert "**commit**" in skill
-    assert "^[0-9a-fA-F]{7,40}$" in skill
+    assert "^[0-9a-fA-F]{7,64}$" in skill
     assert "git rev-parse --verify --end-of-options" in skill
     for case in ("Normal commit", "Root commit", "Merge commit"):
         assert case in skill, case

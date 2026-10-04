@@ -52,7 +52,7 @@ Resolve exactly what diff is under review. Detect the sub-mode from the request:
 - **branch**: the current feature branch vs its merge base - `git merge-base HEAD <default-branch>` then `git diff <base>...HEAD`.
 - **PR**: a specified PR - resolve its base and head (via `gh pr diff` when the `gh` CLI is available, else the branch form).
 - **base**: an explicit range the user gave (`git diff <ref-a>...<ref-b>`).
-- **commit**: exactly one commit the user names. Validate the argument against `^[0-9a-fA-F]{7,40}$` before any `git` call, then resolve it with `git rev-parse --verify --end-of-options "<arg>^{commit}"` and use only the resolved full SHA afterwards. Invoke `git` as an argument array, never a shell string, and pass the SHA after `--end-of-options` or `--`.
+- **commit**: exactly one commit the user names. Validate the argument against `^[0-9a-fA-F]{7,64}$` (64 covers SHA-256 repositories) before any `git` call, then resolve it with `git rev-parse --verify --end-of-options "<arg>^{commit}"` and use only the resolved full SHA afterwards. Invoke `git` as an argument array, never a shell string, and pass the SHA after `--end-of-options` or `--`.
     - Normal commit (one parent): `git diff <sha>^ <sha>`.
     - Root commit (no parent, found with `git rev-list --parents -n 1 <sha>`): `git show <sha>`.
     - Merge commit (two or more parents): ask whether to review against the first parent, then `git diff <sha>^1 <sha>`.

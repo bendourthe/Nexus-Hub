@@ -2002,7 +2002,7 @@ html:not(.js) #page-foundations{display:block;}html:not(.js) .ml-panel[hidden]{d
               <div class="cs-scope"><code data-ty="code">coverage</code><span>Test-coverage analysis and gap identification.</span></div>
               <div class="cs-scope"><code data-ty="code">security</code><span>Secrets, auth, input validation, dangerous patterns.</span></div>
               <div class="cs-scope"><code data-ty="code">pentest</code><span>Deep penetration test with proof-of-concept findings.</span></div>
-              <div class="cs-scope"><code data-ty="code">changes</code><span>Multi-persona review of the pending diff only.</span></div>
+              <div class="cs-scope"><code data-ty="code">changes</code><span>Multi-persona review of the pending diff, or one commit with <code data-ty="code">changes &lt;sha&gt;</code>. Can draft review comments to the chat or to a named file; it never posts them.</span></div>
               <div class="cs-scope"><code data-ty="code">skill-scan</code><span>Security-scan a skill, or the catalog, before install.</span></div>
               <div class="cs-scope"><code data-ty="code">sbom</code><span>Generate a Software Bill of Materials.</span></div>
               <div class="cs-scope"><code data-ty="code">deps</code><span>Dependency CVE, license, and supply-chain scan.</span></div>
@@ -2055,6 +2055,7 @@ html:not(.js) #page-foundations{display:block;}html:not(.js) .ml-panel[hidden]{d
               <div class="cs-scope"><code data-ty="code">new</code><span>Greenfield v0.1.0 build, with the full discovery interview.</span></div>
               <div class="cs-scope"><code data-ty="code">refactor</code><span>Plan a refactor or cleanup campaign.</span></div>
               <div class="cs-scope"><code data-ty="code">from-comparison</code><span>Seed a plan from a /compare adoption report.</span></div>
+              <div class="cs-scope"><code data-ty="code">grill</code><span>Re-run the critique-and-grill gate on an existing plan.</span></div>
               <div class="cs-scope"><code data-ty="code">todos</code><span>Bootstrap docs/todos.md as a living progress tracker.</span></div>
               <div class="cs-scope"><code data-ty="code">issues</code><span>Fan a plan's task lines out to GitHub issues.</span></div>
             </div>
@@ -2309,6 +2310,27 @@ html:not(.js) #page-foundations{display:block;}html:not(.js) .ml-panel[hidden]{d
               <div class="term-bar"><span data-ty="code" class="label">type it like this</span></div>
               <div class="term-body">
                 <div class="cmd-line"><span data-ty="code" class="t-teal" aria-hidden="true">&gt;</span> <code data-ty="code" class="inv" data-copy="/research deep"><span data-ty="code" class="inv-cmd">/research</span><span data-ty="code" class="inv-arg"> deep</span></code></div>
+              </div>
+            </div>
+          </div>
+          </div>
+        </article>
+
+        <article class="cs-cmd">
+          <div class="cs-head"><span data-ty="code" class="cs-name">/visualize</span><span data-ty="body-sm" class="cs-desc">Turn data or a described structure into the smallest chart or diagram that answers the question.</span></div>
+          <div class="cs-body">
+            <div class="cs-scopes">
+              <div class="cs-scope"><code data-ty="code">auto</code><span>Infer chart or diagram from the input.</span></div>
+              <div class="cs-scope"><code data-ty="code">chart</code><span>Data to a chart: bar, line, scatter, distribution.</span></div>
+              <div class="cs-scope"><code data-ty="code">diagram</code><span>A flow, a dependency graph, or an architecture diagram.</span></div>
+              <div class="cs-scope"><code data-ty="code">diff</code><span>Explain a change set as a changed-modules diagram.</span></div>
+            </div>
+            <p data-ty="caption" class="cs-flags">Ends with a tier line naming the rung used: table, Mermaid, or an offline inline-SVG page. Never fabricates data or calls the network.</p>
+            <div class="cs-usage">
+            <div class="term term--mini">
+              <div class="term-bar"><span data-ty="code" class="label">type it like this</span></div>
+              <div class="term-body">
+                <div class="cmd-line"><span data-ty="code" class="t-teal" aria-hidden="true">&gt;</span> <code data-ty="code" class="inv" data-copy="/visualize data.csv"><span data-ty="code" class="inv-cmd">/visualize</span><span data-ty="code" class="inv-arg"> data.csv</span></code></div>
               </div>
             </div>
           </div>

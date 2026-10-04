@@ -3,7 +3,7 @@
 **Project**: Nexus-Hub
 **Status**: released; PR #230 merged the complete 34-task plan and tag `v4.13.0` was published on 2026-09-21. Two bounded warning-class findings remain owned for future measurement work. GitHub branch protection passed a live pull-request gate test; the second trigger pilot stopped on an unproven spend bound.
 **Last updated**: 2026-10-03
-**Open items**: 136
+**Open items**: 137
 
 Release-scoped gaps for the evidence-driven agent improvement plan. Planned future-phase work is tracked in the plan rather than reported as completed here.
 
@@ -16,7 +16,7 @@ Release-scoped gaps for the evidence-driven agent improvement plan. Planned futu
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 1 |
 | Bugs / regressions (BG) | 1 | 6 |
-| Warnings (WN) | 2 | 4 |
+| Warnings (WN) | 3 | 4 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 4 |
 
@@ -1216,7 +1216,7 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 4 | 1 |
 | Bugs / regressions (BG) | 2 | 0 |
-| Warnings (WN) | 18 | 1 |
+| Warnings (WN) | 19 | 1 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 2 | 0 |
 
@@ -1402,6 +1402,7 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 - **Suggested next step**: Profile the slowest governance tests (`pytest --durations=25` on that group), then either split the group the way `repo-tests-integrations-*` was split, or raise the cap with a recorded measurement. Keep the hosted job's timing as the reference.
 
 - **Carried from**: v4.13.8#WN-34 on 2026-10-03
+- **Re-measured 2026-10-04 (v4.13.9 T434)**: the final full profile hit the cap again at 96 percent; run alone without the cap the group took 3325.7 s (2873 passed, 22 skipped, 1 failed). The one failure was a real stale assertion that no earlier full run reached because the step timed out first, so a timed-out step can also hide a failure.
 
 #### BG-13 (v4.13.9): `auto-devlog.sh` silently drops every entry after a heading reaches line 1
 
@@ -1420,6 +1421,12 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 - **Source phase**: Phase 5. **Plan reference**: `v4.13.9-adoption-inline-visualize-codex-disk-writes-review-flow-gpt-6-1-sol.md`, T422.
 - **Reason**: the multi-byte payload measured larger on Windows than its UTF-8 length (for example `session-summary.ps1` 3568 bytes and `auto-devlog.ps1` 4574 bytes for one event), consistent with input decoded through a legacy code page: Windows PowerShell 5.1 standard input and git output, and Python standard input read as cp1252. The size test records this and does not assert it. Measurement: [`v4.13.9-hook-size-bound.md`](development/v4.13.9-hook-size-bound.md).
 - **Suggested next step**: read hook standard input as UTF-8 explicitly in the `.ps1` siblings and the Python hooks, then re-measure the multi-byte column.
+
+#### WN-38 (v4.13.9): The hook test step outgrows its 1800 s local cap on Windows
+
+- **Source phase**: Phase 6. **Plan reference**: `v4.13.9-adoption-inline-visualize-codex-disk-writes-review-flow-gpt-6-1-sol.md`, T434.
+- **Reason**: `hook-tests` in `scripts/ci/profiles.py` has `timeout=1800`. In the final full profile on 2026-10-04 it hit that cap at 91 percent with no failure; run alone without the cap on the same Windows 11 machine it passed (2057 passed, 49 skipped, 8 xfailed) in 2096.9 s. Phase 5's `test_hook_size_bound.py` added about 3.5 minutes, and an earlier v4.13 run had already measured 1701.8 s, so the step was near its cap before this plan. As with WN-35, a local full run reports a timeout that is not a test failure.
+- **Suggested next step**: run `pytest --durations=25` on `catalog/hooks/tests`, then split the step (for example, the size-bound test into its own step) or raise the cap with a recorded measurement. Keep the hosted job's timing as the reference.
 
 ### Resolved
 

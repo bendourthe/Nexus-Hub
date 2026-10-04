@@ -25,7 +25,7 @@ Reading those counters is still useful: it tells you whether your drive has actu
 The logging change shipped in **Codex CLI 0.142.0**. This is verified against two OpenAI primary sources that agree, checked on 2026-10-03:
 
 - the [0.142.0 release notes](https://github.com/openai/codex/releases/tag/rust-v0.142.0), published 2026-06-22, which list a reduction in persistent-log churn from removing per-event WebSocket payload logging, citing pull requests #29432 and #29457;
-- [pull request #29432](https://github.com/openai/codex/pull/29432), which stopped logging every Responses WebSocket event, merged on 2026-06-22, and whose merge commit falls between the `rust-v0.141.0` and `rust-v0.142.0` tags.
+- the repository's own tag history: the merge commit of [pull request #29432](https://github.com/openai/codex/pull/29432), which stopped logging every Responses WebSocket event (merged 2026-06-22), falls between the `rust-v0.141.0` and `rust-v0.142.0` tags, so the change is in the 0.142.0 build itself, not only in its notes.
 
 What is verified is that this change is in 0.142.0. How much it reduces writes on a given machine is not stated by OpenAI; the outlets' figures remain theirs.
 
