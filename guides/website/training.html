@@ -1,0 +1,590 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light dark" />
+<meta name="theme-color" content="#04141a" id="themeColorMeta" />
+<title>Nexus Hub - Training</title>
+<!-- shared:theme-init -->
+<script>
+(function () {
+  var KEY = "portfolio-theme";
+  var theme = null;
+  try { theme = window.localStorage.getItem(KEY); } catch (e) { theme = null; }
+  if (theme !== "light" && theme !== "dark") {
+    theme = "dark";
+  }
+  document.documentElement.setAttribute("data-theme", theme);
+  document.documentElement.style.colorScheme = theme;
+})();
+</script>
+<!-- /shared:theme-init -->
+<!-- shared:favicon -->
+<link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,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" />
+<link rel="icon" type="image/png" sizes="16x16" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAADJklEQVR4AURTaUhUURT+zn05M06NM5U2RUmWaZYtSGW0Q9G+QBEEEVS0aIT/2iCCgsKCKKgICuxHVARBy48MK1psAwvCskxNHUcNl3HmOS4z8+bNu533Ruvw7nfPOfd85373vvcEhox4Ngcs4OC/w0EySVYuiZy0HmHl2J0Wldtma7IAEkMpdiyPMGySFwulkZsTkbuSOYKAJJyW0tPcl3jQpuNGSVhmmFRYZNPjQTysGGiOoLRBjd9eK418guQGDKeJ1EwHHRIO2D87sTTf33+1oLYnK9kE4BIL5hlyDjmQO2mkOLIIVAtuKoYFpvl7Pk8NRYobFJxxelPf+UOhp95HH0sgpQDbAinzWwl3cmL6wZHtgU+8qWEeSZjieB2+hqbsmorqssmh6GGfTZzKnjvp3IAj9UR6+dcXq6Sc2Qbcy47Gi789r7no/+krMDn4p4BlJIJBDLb48+oq629mqdGSVmfK8SUr5x7NWzzzcaPE3SxdP1TzoflCn69tEQW6iY35fAfDChDRADWMgc6u6b986o3loKKTNpy/5LGfWEjYV9/Yf6HvT+cS9PRA7x/kk5lMMi8RLIRAiTigRYF4HKOiscoGI5H3C+iqhWxtk3KpXddeU4JJMQ1S05gAvlxWwNNQN/aUFIz1ji5zFWa+bxfK/svV7U/O1wUf/gZtcuVlBDK8Y86S3QYig7gaYBQgRhBEWhpc0yeXjd264F0viaIZ3eE9LV9+bKt/WVXqrKx7oSrYPHrNjIA7J/OMfdx43h3MIgiSLItf9OJ1C79m7l39MaSI4nnh3o1vxrl/Ryp657tGjdjd0dx60PaqtiKoKJu9O1eEV25fUUFMN6nWazzW3e1663BV+Q1Rmg9sKPd4QgTe5MGOhLpn7Z2oN2vW4MCANqGp81ZHQjnwLKZUrzaMKVzCChiz09Ojzphe5R7Uy96QULk5a+IFC/lz2ZAbC24pvPJ9ive+O2Jcc2r6lxSCyltAgK2IKB4Yb1/f7rGd5NDMw7oaK2Dgf8E8KPjAfrdyPTQxdVk5UYhXYDUAsWtVwHKToYkc80RDazDN6mz+RuBawl8AAAD//09DhdIAAAAGSURBVAMA2Q9KP1qSUPIAAAAASUVORK5CYII=" />
+<!-- /shared:favicon -->
+<style>
+/* ============================================================ NEXUS HUB - TRAINING (v4.13.10) Second offline page of the guide. The shared head of this stylesheet comes from guides/website/shared/ through scripts/stamp_guide_shared.py; edit it there, not here. ============================================================ */
+/* shared:base-css */
+/* ---------- Design tokens ---------- */:root{--sans:"Segoe UI",-apple-system,BlinkMacSystemFont,system-ui,Roboto,Helvetica,Arial,sans-serif;--mono:"Cascadia Code","JetBrains Mono","SF Mono","Consolas","Liberation Mono",Menlo,monospace;--maxw:1120px;--radius:12px;--radius-sm:8px;--sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:24px;--sp-6:32px;--sp-7:40px;--sp-8:48px;--sec-pad:32px;--ease:cubic-bezier(.22,.9,.3,1);--cyan:#22d3ee;--cyan-soft:#67e8f9;--teal:#2dd4bf;--teal-soft:#5eead4;--blue:#38bdf8;--attachment:#c4a2ff;--glow:#d7fbff;--grad-soft:color-mix(in srgb,var(--accent) 16%,transparent);--page-bg:#07141a;--bg-deep:#041014;--bg-0:#07141a;--bg-1:#0c1f26;--bg-2:#123038;--surface:#0c1f26;--surface-2:#123038;--surface-3:#173a44;--nav-bg:#07141a;--border:#1e4550;--border-bright:#2a6570;--ink:#dce8eb;--ink-dim:#9bb0b6;--ink-faint:#7e9aa1;--accent:#2dd4bf;--focus:#5eead4;--green:#4ade80;--amber:#e2b336;--red:#e88585;--term-bg:#07171d;--term-ink:#cfe9ee;--term-dim:#6d8d94;--term-prompt:#5eead4;--term-bar-bg:#0a1c23;--term-border:rgba(120,224,238,.18);--copy-bg:rgba(120,224,238,.06);--copy-ink:#9bb0b6;--copy-border:rgba(120,224,238,.22);--shadow:0 18px 40px -24px rgba(0,0,0,.7);--shadow-glow:0 0 0 1px var(--border);}
+html[data-theme="dark"]{--page-bg:#07141a;--bg-deep:#041014;--bg-0:#07141a;--bg-1:#0c1f26;--bg-2:#123038;--surface:#0c1f26;--surface-2:#123038;--surface-3:#173a44;--nav-bg:#07141a;--border:#1e4550;--border-bright:#2a6570;--ink:#dce8eb;--ink-dim:#9bb0b6;--ink-faint:#7e9aa1;--accent:#2dd4bf;--focus:#5eead4;--green:#4ade80;--amber:#e2b336;--red:#e88585;--term-bg:#07171d;--term-ink:#cfe9ee;--term-dim:#6d8d94;--term-prompt:#5eead4;--term-bar-bg:#0a1c23;--term-border:rgba(120,224,238,.18);--copy-bg:rgba(120,224,238,.06);--copy-ink:#9bb0b6;--copy-border:rgba(120,224,238,.22);--shadow:0 18px 40px -24px rgba(0,0,0,.7);--shadow-glow:0 0 0 1px var(--border);}
+html[data-theme="light"]{--page-bg:#f3f1ea;--bg-deep:#ebe7dc;--bg-0:#f3f1ea;--bg-1:#fffdf8;--bg-2:#e7efe8;--surface:#fffdf8;--surface-2:#f7f4ec;--surface-3:#ebe7dc;--nav-bg:#f3f1ea;--border:#c9c3b2;--border-bright:#9aa89a;--ink:#1c2a2e;--ink-dim:#4a5c61;--ink-faint:#586769;--accent:#0f6f66;--focus:#0f6f66;--green:#1f7a4c;--amber:#8a5f0f;--red:#b42318;--blue:#155e8a;--attachment:#7341a6;--term-bg:#fffdf8;--term-ink:#1c2a2e;--term-dim:#4a5c61;--term-prompt:#0f6f66;--term-bar-bg:#ebe7dc;--term-border:#c9c3b2;--copy-bg:#ebe7dc;--copy-ink:#1c2a2e;--copy-border:#c9c3b2;--shadow:0 12px 28px -20px rgba(28,42,46,.35);--shadow-glow:0 0 0 1px var(--border);--teal-soft:#0f6f66;--cyan-soft:#0b6e7a;}
+/* ---------- Reset ---------- */
+*,*::before,*::after{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;}
+html[data-theme="light"] #constellation{display:none;}
+body{font-family:var(--sans);color:var(--ink);background:var(--page-bg);min-height:100vh;line-height:1.6;font-size:16px;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden;}
+img{max-width:100%;display:block;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{color:var(--ink);}
+code{background:var(--copy-bg);border:1px solid var(--copy-border);border-radius:5px;padding:1px 5px;}
+::selection{background:color-mix(in srgb,var(--accent) 30%,transparent);color:var(--ink);}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px;}
+.visually-hidden{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;}
+/* ---------- Background constellation ---------- */
+#constellation{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.55;transition:opacity .6s var(--ease);}
+/* ---------- Scaffold ---------- */
+.shell{position:relative;z-index:1;}
+.container{width:100%;max-width:var(--maxw);margin:0 auto;padding:0 24px;}
+/* ---------- Header / nav ---------- */
+.site-header{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--nav-bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);}
+.nav{display:flex;align-items:center;gap:var(--sp-4);min-height:58px;}
+.brand{display:inline-flex;align-items:center;gap:10px;color:var(--ink);}
+.brand .mark{width:30px;height:30px;flex:none;border-radius:8px;}
+html[data-theme="light"] .brand .mark,html[data-theme="light"] .mark-chip{background:#07141a;border-radius:10px;padding:3px;box-shadow:0 0 0 1px #c9c3b2;}
+.brand .wordmark{letter-spacing:.01em;white-space:nowrap;}
+.brand .wordmark b{color:var(--ink);font-weight:700;}
+.brand .wordmark span{color:var(--teal-soft);font-weight:600;}
+.nav-links{display:flex;align-items:center;gap:var(--sp-3);margin-left:auto;}
+.nav-links a{color:var(--ink-dim);font-size:15px;font-weight:500;padding:7px 12px;border-radius:8px;border:1px solid transparent;}
+.nav-links a:hover{color:var(--ink);background:var(--grad-soft);}
+.nav-links a.active{color:var(--bg-deep);background:var(--accent);font-weight:600;}
+html[data-theme="light"] .nav-links a.active{color:#fffdf8;}
+a.nav-gh,.nhg-theme { display: inline-flex;align-items: center;justify-content: center;width: 36px;height: 36px;padding: 0;flex: none;border: 1px solid var(--border);border-radius: 9px;background: transparent;color: var(--ink-dim);cursor: pointer; }
+a.nav-gh:hover,.nhg-theme:hover{color:var(--ink);border-color:var(--border-bright);background:transparent;}
+.nav-gh svg{width:17px;height:17px;display:block;}
+.nhg-theme svg{width:17px;height:17px;display:block;}
+html[data-theme="dark"] .nhg-theme .icon-moon{display:none;}
+html[data-theme="light"] .nhg-theme .icon-sun{display:none;}
+.nav-toggle{display:none;margin-left:auto;background:transparent;color:var(--ink);border:1px solid var(--border);border-radius:8px;font-size:18px;width:38px;height:36px;cursor:pointer;}
+/* ---------- Pages ---------- */
+.page{display:none;padding-bottom:var(--sp-8);}
+.page.active{display:block;}
+@keyframes pageIn{from{opacity:0;transform:translateY(8px);}
+to{opacity:1;transform:none;}
+}
+.js .page.active{animation:pageIn .32s var(--ease);}
+/* ---------- Reveal motion ---------- */
+.js .reveal{opacity:0;transform:translateY(14px);transition:opacity .5s var(--ease),transform .5s var(--ease);transition-delay:var(--reveal-delay,0ms);}
+.js .reveal.in{opacity:1;transform:none;}
+/* ---------- Type ---------- */
+h1{margin:0 0 var(--sp-4);text-wrap:balance;}
+h2{margin:0 0 var(--sp-3);}
+/* Shared section heading scale. */
+/* Shared heading tokens; NexusFit shrinks wrapping labels and titles to a 15px floor. */:root{--title-scale:1.2;--eyebrow-scale:3;--fx-tag:23px;}
+.section-title,.fx-copy .fx-subtitle,.fx-spend-head{text-wrap:balance;overflow-wrap:break-word;min-width:0;margin:0 0 var(--sp-4);}
+h3{margin:0 0 var(--sp-2);}
+p{margin:0 0 var(--sp-3);}
+.lead{color:var(--ink-dim);}
+.eyebrow,.fx-title h2{display:block;max-width:100%;min-width:0;color:var(--teal-soft);margin-bottom:var(--sp-2);}
+.eyebrow::before,.fx-title h2::before{content:"";display:inline-block;width:calc(9px * var(--eyebrow-scale));height:3px;background:var(--accent);vertical-align:middle;margin-right:10px;border-radius:2px;}
+/* ---------- NexusSeq step primitives ---------- A [data-seq-root] container reveals its [data-seq=N] children in order. Scoped to .js so a no-script reader sees every step at once; the reduced-motion block zeroes durations. */
+/* seq-fade is for shapes and connectors only. Dimming TEXT carriers fails WCAG AA mid-sequence (BG-13: the loop pills measured 1.9:1 at opacity .45), so text steps use seq-glow, which never changes foreground contrast and marks the active step with an accent ring instead. */
+.js .seq-fade{opacity:.7;transition:opacity .45s var(--ease);}
+.js .seq-fade.is-on{opacity:1;}
+.js .seq-glow{transition:box-shadow .35s var(--ease),border-color .35s var(--ease);}
+.js .seq-glow.is-on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent),0 0 18px 0 var(--accent-glow,rgba(45,212,191,.35));}
+.js .seq-rise{opacity:0;transform:translateY(10px);transition:opacity .45s var(--ease),transform .45s var(--ease);}
+.js .seq-rise.is-on{opacity:1;transform:none;}
+.js .seq-draw{stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset .6s var(--ease);}
+.js .seq-draw.is-on{stroke-dashoffset:0;}
+/* ---------- Sections ---------- */
+.section{padding:var(--sec-pad) 0 0;}
+.hero{padding:var(--sp-7) 0 var(--sp-4);}
+.hero-lockup { display: flex;justify-content: center; }
+.hero-lockup-float { display: flex;flex-wrap: nowrap;align-items: center;justify-content: center;gap: clamp(10px,2.6vw,20px); }
+/* One transform on the inner wrapper so the float never competes with the .reveal entry transform. */
+@keyframes nhg-lockup-float{from{transform:translateY(0);}
+to{transform:translateY(-9px);}
+}
+.js .hero-lockup.live .hero-lockup-float{animation:nhg-lockup-float 7s ease-in-out infinite alternate;}
+.hero-mark{flex:none;width:clamp(44px,9vw,72px);height:clamp(44px,9vw,72px);border-radius:clamp(10px,2vw,16px);}
+/* line-height 1 made the line box shorter than the inline content box of the wordmark spans, so they escaped the h1. 1.34 contains the font ascent+descent at every clamp size. */
+.hero-wordmark { margin: 0;white-space: nowrap;}
+/* Hero wordmark mirrors the nav wordmark exactly: same roles, same weights, same theme tokens. */
+.hero-wordmark b{color:var(--ink);font-weight:700;}
+.hero-wordmark span{color:var(--teal-soft);font-weight:600;}
+.hero .btn-row{justify-content:center;}
+html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 0 0 1px #c9c3b2;}
+.js .hero-lockup.reveal .hero-mark{opacity:0;transform:translateY(8px) scale(.88);transition:opacity .45s var(--ease),transform .55s var(--ease);}
+.js .hero-lockup.in .hero-mark{opacity:1;transform:none;}
+/* /shared:base-css */
+/* shared:footer-css */
+/* ---------- Site footer (attribution lives here; decision 2026-09-02) ---------- */
+.site-footer{border-top:1px solid var(--border);margin-top:var(--sp-8);padding:var(--sp-5) 0 var(--sp-6);color:var(--ink-faint);font-size:15px;line-height:1.6;text-align:center;}
+.site-footer p{margin:0 auto;}
+.site-footer a{color:var(--ink-dim);text-decoration:underline;}
+/* /shared:footer-css */
+/* ---------- Training stages ---------- */
+.tr-stage{padding-top:var(--sp-6);}
+.tr-notice{margin:var(--sp-4) 0 0;padding:var(--sp-3) var(--sp-4);border:1px solid var(--border);border-radius:12px;background:var(--surface);color:var(--ink-dim);}
+.tr-notice[hidden]{display:none;}
+/* shared:type-css */
+:root{
+  /* Legibility floor. No text role on this page resolves below it, and the
+     hardcoded component sizes below were raised to match. Change it here. */
+  --ty-floor:.9375rem;
+  --ty-display:clamp(1.85rem,7.2vw,4.25rem);
+  --ty-h1:clamp(1.6rem,3.1vw,2.3rem);
+  --ty-h2:clamp(1.3rem,2.1vw,1.7rem);
+  --ty-h3:1.25rem;
+  --ty-h4:1.0625rem;
+  --ty-subtitle:clamp(1rem,1.35vw,1.1875rem);
+  --ty-lead:1.0625rem;
+  --ty-body:1rem;
+  --ty-body-sm:var(--ty-floor);
+  --ty-quote:1.125rem;
+  --ty-label:var(--ty-floor);
+  --ty-eyebrow:var(--ty-floor);
+  --ty-caption:var(--ty-floor);
+  --ty-micro:var(--ty-floor);
+  --ty-code:var(--ty-floor);
+}
+[data-ty]{font-family:var(--sans);}
+[data-ty="display"]{font-size:var(--ty-display);font-weight:750;line-height:1.04;letter-spacing:-.02em;color:var(--ink);text-transform:none;}
+[data-ty="h1"]{font-size:var(--ty-h1);font-weight:700;line-height:1.15;letter-spacing:-.015em;color:var(--ink);text-transform:none;}
+[data-ty="h2"]{font-size:var(--ty-h2);font-weight:700;line-height:1.2;letter-spacing:-.01em;color:var(--ink);text-transform:none;}
+[data-ty="h3"]{font-size:var(--ty-h3);font-weight:700;line-height:1.3;letter-spacing:-.005em;color:var(--ink);text-transform:none;}
+[data-ty="h4"]{font-size:var(--ty-h4);font-weight:600;line-height:1.35;letter-spacing:0;color:var(--teal-soft);text-transform:none;}
+[data-ty="subtitle"]{font-size:var(--ty-subtitle);font-weight:400;line-height:1.5;letter-spacing:0;color:var(--ink-dim);text-transform:none;}
+[data-ty="lead"]{font-size:var(--ty-lead);font-weight:400;line-height:1.6;letter-spacing:0;color:var(--ink-dim);text-transform:none;}
+[data-ty="body"]{font-size:var(--ty-body);font-weight:400;line-height:1.6;letter-spacing:0;color:var(--ink-dim);text-transform:none;}
+[data-ty="body-sm"]{font-size:var(--ty-body-sm);font-weight:400;line-height:1.55;letter-spacing:0;color:var(--ink-dim);text-transform:none;}
+[data-ty="quote"]{font-size:var(--ty-quote);font-weight:400;line-height:1.45;letter-spacing:0;color:var(--ink);text-transform:none;}
+[data-ty="eyebrow"]{font-size:var(--ty-eyebrow);font-weight:700;line-height:1.3;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-dim);}
+[data-ty="label"]{font-size:var(--ty-label);font-weight:600;line-height:1.4;letter-spacing:0;text-transform:none;}
+[data-ty="caption"]{font-size:var(--ty-caption);font-weight:400;line-height:1.5;letter-spacing:0;color:var(--ink-dim);text-transform:none;}
+[data-ty="micro"]{font-size:var(--ty-micro);font-weight:400;line-height:1.45;letter-spacing:0;color:var(--ink-dim);text-transform:none;}
+[data-ty="code"]{font-family:var(--mono);font-size:var(--ty-code);font-weight:500;line-height:1.5;letter-spacing:0;text-transform:none;}
+[data-ty="th"]{font-size:var(--ty-body);font-weight:700;line-height:1.3;letter-spacing:0;color:var(--ink);text-transform:none;}
+[data-ty="td"]{font-size:var(--ty-body-sm);font-weight:400;line-height:1.5;letter-spacing:0;color:var(--ink-dim);text-transform:none;}
+[data-ty="title"]{font-size:var(--ty-h4);font-weight:700;line-height:1.3;letter-spacing:0;text-transform:none;}
+[data-ty="stat"]{font-size:var(--ty-h3);font-weight:700;line-height:1.2;letter-spacing:0;color:var(--ink);text-transform:none;}
+/* /shared:type-css */
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+<!-- shared:nexus-mark -->
+<symbol id="nexus-mark" viewBox="0 0 512 512" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <linearGradient id="nx-gl" gradientUnits="userSpaceOnUse" x1="89" y1="0" x2="196" y2="0">
+          <stop offset="0" stop-color="#00647f"/><stop offset="1" stop-color="#00cbe8"/>
+        </linearGradient>
+        <linearGradient id="nx-gr" gradientUnits="userSpaceOnUse" x1="425" y1="0" x2="320" y2="0">
+          <stop offset="0" stop-color="#00647f"/><stop offset="1" stop-color="#00cbe8"/>
+        </linearGradient>
+        <linearGradient id="nx-gw" gradientUnits="userSpaceOnUse" x1="164" y1="102" x2="285" y2="196">
+          <stop offset="0" stop-color="#8ff8fb"/><stop offset="1" stop-color="#0d8fa6"/>
+        </linearGradient>
+        <linearGradient id="nx-gwb" gradientUnits="userSpaceOnUse" x1="352" y1="398" x2="231" y2="304">
+          <stop offset="0" stop-color="#8ff8fb"/><stop offset="1" stop-color="#0d8fa6"/>
+        </linearGradient>
+        <filter id="nx-glow" x="-12%" y="-12%" width="124%" height="124%">
+          <feGaussianBlur stdDeviation="9"/>
+        </filter>
+      </defs>
+      <path d="M89 144 196 250 89 356Z" fill="url(#nx-gl)"/>
+      <path d="M425 144 320 250 425 355Z" fill="url(#nx-gr)"/>
+      <path d="M164 102 285 179 270 196Z" fill="url(#nx-gw)"/>
+      <path d="M352 398 231 321 246 304Z" fill="url(#nx-gwb)"/>
+      <g filter="url(#nx-glow)" opacity=".85">
+        <path d="M106 97 410 395M410 97 106 395" fill="none" stroke="#b9fbff" stroke-width="30" stroke-linecap="round"/>
+        <g fill="#b9fbff">
+          <circle cx="106" cy="97" r="37"/><circle cx="410" cy="97" r="37"/>
+          <circle cx="106" cy="395" r="37"/><circle cx="410" cy="395" r="37"/>
+        </g>
+      </g>
+      <path d="M106 97 410 395M410 97 106 395" fill="none" stroke="#25f4ff" stroke-width="26" stroke-linecap="round"/>
+      <g fill="#3ff7ff">
+        <circle cx="106" cy="97" r="34"/><circle cx="410" cy="97" r="34"/>
+        <circle cx="106" cy="395" r="34"/><circle cx="410" cy="395" r="34"/>
+      </g>
+      <circle cx="258" cy="246" r="30" fill="#f2feff"/>
+    </symbol>
+<!-- /shared:nexus-mark -->
+  </defs>
+</svg>
+
+<canvas id="constellation" aria-hidden="true"></canvas>
+
+<div class="shell">
+
+<!-- shared:header -->
+  <header class="site-header">
+    <nav class="nav container" aria-label="Primary">
+      <a class="brand" href="nexus-hub-guide.html#home" aria-label="Nexus Hub home">
+        <svg class="mark" viewBox="0 0 100 100"><use href="#nexus-mark"/></svg>
+        <span class="wordmark"><b>Nexus</b> <span>Hub</span></span>
+      </a>
+      <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false" id="navToggle">&#9776;</button>
+      <div class="nav-links" id="navLinks">
+        <a href="nexus-hub-guide.html#home">Home</a>
+        <a href="nexus-hub-guide.html#foundations">Foundations</a>
+        <a href="training.html#intro" class="active" aria-current="page">Training</a>
+        <a href="nexus-hub-guide.html#cheatsheets">Cheatsheets</a>
+        <a class="nav-gh" href="https://github.com/bendourthe/Nexus-Hub" target="_blank" rel="noopener" aria-label="Nexus Hub on GitHub"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.53-.49-.36-.92-.88-1.16-.88-1.16-.72-.49.05-.48.05-.48.8.06 1.22.82 1.22.82.71 1.21 1.87.86 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.65 7.65 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
+        <button type="button" class="nhg-theme" id="themeToggle" aria-pressed="true" aria-label="Switch to light theme"><svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 14.5A8.5 8.5 0 1 1 9.5 3 7 7 0 0 0 21 14.5z"/></svg></button>
+      </div>
+    </nav>
+  </header>
+<!-- /shared:header -->
+
+  <main id="app">
+    <div class="container">
+      <p class="tr-notice" id="trNotice" role="status" hidden></p>
+    </div>
+
+    <section class="page tr-stage" data-stage="intro" aria-labelledby="st-intro"><div class="container"><h1 data-ty="h1" id="st-intro">Training</h1><p data-ty="lead">Walk the whole Nexus loop on one small game.</p></div></section>
+    <section class="page tr-stage" data-stage="play-buggy" aria-labelledby="st-play-buggy"><div class="container"><h1 data-ty="h1" id="st-play-buggy">Play the buggy game</h1></div></section>
+    <section class="page tr-stage" data-stage="loop1/describe" aria-labelledby="st-l1-describe"><div class="container"><h1 data-ty="h1" id="st-l1-describe">Loop 1: describe</h1></div></section>
+    <section class="page tr-stage" data-stage="loop1/review" aria-labelledby="st-l1-review"><div class="container"><h1 data-ty="h1" id="st-l1-review">Loop 1: review</h1></div></section>
+    <section class="page tr-stage" data-stage="loop1/plan" aria-labelledby="st-l1-plan"><div class="container"><h1 data-ty="h1" id="st-l1-plan">Loop 1: plan</h1></div></section>
+    <section class="page tr-stage" data-stage="loop1/implement" aria-labelledby="st-l1-implement"><div class="container"><h1 data-ty="h1" id="st-l1-implement">Loop 1: implement</h1></div></section>
+    <section class="page tr-stage" data-stage="loop1/test" aria-labelledby="st-l1-test"><div class="container"><h1 data-ty="h1" id="st-l1-test">Loop 1: test</h1></div></section>
+    <section class="page tr-stage" data-stage="loop1/update" aria-labelledby="st-l1-update"><div class="container"><h1 data-ty="h1" id="st-l1-update">Loop 1: update</h1></div></section>
+    <section class="page tr-stage" data-stage="play-partial" aria-labelledby="st-play-partial"><div class="container"><h1 data-ty="h1" id="st-play-partial">Play the partly fixed game</h1></div></section>
+    <section class="page tr-stage" data-stage="loop2/review" aria-labelledby="st-l2-review"><div class="container"><h1 data-ty="h1" id="st-l2-review">Loop 2: review</h1></div></section>
+    <section class="page tr-stage" data-stage="loop2/plan" aria-labelledby="st-l2-plan"><div class="container"><h1 data-ty="h1" id="st-l2-plan">Loop 2: plan</h1></div></section>
+    <section class="page tr-stage" data-stage="loop2/implement" aria-labelledby="st-l2-implement"><div class="container"><h1 data-ty="h1" id="st-l2-implement">Loop 2: implement</h1></div></section>
+    <section class="page tr-stage" data-stage="loop2/test" aria-labelledby="st-l2-test"><div class="container"><h1 data-ty="h1" id="st-l2-test">Loop 2: test</h1></div></section>
+    <section class="page tr-stage" data-stage="loop2/update" aria-labelledby="st-l2-update"><div class="container"><h1 data-ty="h1" id="st-l2-update">Loop 2: update</h1></div></section>
+    <section class="page tr-stage" data-stage="play-fixed" aria-labelledby="st-play-fixed"><div class="container"><h1 data-ty="h1" id="st-play-fixed">Play the fixed game</h1></div></section>
+  </main>
+
+<!-- shared:footer -->
+  <footer class="site-footer" id="site-footer">
+    <div class="container">
+      <p data-ty="caption" class="footer-attrib">Claude, ChatGPT, Gemini, Cursor, and GitHub Copilot are trademarks of their respective owners, shown only to identify the assistants Nexus Hub installs into; no affiliation or endorsement is implied. The GitHub Copilot mark is from the Codicons icon set by Microsoft Corporation, used under <a href="https://creativecommons.org/licenses/by/4.0/" rel="noreferrer noopener" target="_blank">CC BY 4.0</a>.</p>
+    </div>
+  </footer>
+<!-- /shared:footer -->
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var root = document.documentElement;
+  root.classList.remove("no-js");
+  root.classList.add("js");
+
+  /* Names the shared fragments below expect from the page that holds them. */
+  var THEME_KEY = "portfolio-theme";
+  var REDUCE = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var current = "training";
+
+/* shared:theme-js */
+  /* -------------------------------------------------- theme */
+  function currentTheme() {
+    var t = document.documentElement.getAttribute("data-theme");
+    return t === "light" ? "light" : "dark";
+  }
+  function applyTheme(theme) {
+    if (theme !== "light" && theme !== "dark") return;
+    document.documentElement.setAttribute("data-theme", theme);
+    document.documentElement.style.colorScheme = theme;
+    try { window.localStorage.setItem(THEME_KEY, theme); } catch (err) {}
+    var meta = document.getElementById("themeColorMeta");
+    if (meta) meta.setAttribute("content", theme === "light" ? "#f3f1ea" : "#07141a");
+    var btn = document.getElementById("themeToggle");
+    if (btn) {
+      btn.setAttribute("aria-pressed", theme === "dark" ? "true" : "false");
+      btn.setAttribute("aria-label", theme === "dark" ? "Switch to light theme" : "Switch to dark theme");
+    }
+    syncConstellation();
+  }
+  applyTheme(currentTheme());
+  var themeBtn = document.getElementById("themeToggle");
+  if (themeBtn) {
+    themeBtn.addEventListener("click", function () {
+      applyTheme(currentTheme() === "dark" ? "light" : "dark");
+    });
+  }
+/* /shared:theme-js */
+
+/* shared:nav-js */
+  /* mobile nav */
+  var navToggle = document.getElementById("navToggle");
+  if (navToggle) {
+    navToggle.addEventListener("click", function () {
+      var links = document.getElementById("navLinks");
+      var open = links.classList.toggle("open");
+      navToggle.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+  }
+/* /shared:nav-js */
+
+/* shared:nexusseq-js */
+  /* -------------------------------------------------- NexusSeq: declarative step timelines
+     One shared engine for every choreographed scene, so motion is consistent, testable, and
+     cheap. Contract: a [data-seq-root] holds [data-seq=N] steps (optional data-seq-dur ms);
+     steps gain .is-on in order; data-seq-loop repeats after data-seq-hold ms. Starts at 40%
+     visibility, pauses offscreen and on a hidden tab, and under reduced motion play() applies
+     the terminal state synchronously and schedules nothing. */
+  window.NexusSeq = (function () {
+    var roots = [];
+    function warn(msg) { if (window.console && console.warn) { console.warn("NexusSeq: " + msg); } }
+    function parseSteps(root) {
+      var nodes = root.querySelectorAll("[data-seq]"), byStep = {}, order = [], steps = [];
+      for (var i = 0; i < nodes.length; i++) {
+        var n = parseInt(nodes[i].getAttribute("data-seq"), 10);
+        var raw = nodes[i].getAttribute("data-seq-dur");
+        var dur = raw === null ? 700 : parseInt(raw, 10);
+        if (isNaN(n) || n < 0 || isNaN(dur) || dur < 0) {
+          warn("skipping malformed step on #" + (nodes[i].id || "(no id)") + " in #" + (root.id || "(no id)"));
+          continue;
+        }
+        if (!byStep[n]) { byStep[n] = { n: n, els: [], dur: dur }; order.push(n); }
+        byStep[n].els.push(nodes[i]);
+        if (dur > byStep[n].dur) { byStep[n].dur = dur; }
+      }
+      order.sort(function (a, b) { return a - b; });
+      for (var k = 0; k < order.length; k++) { steps.push(byStep[order[k]]); }
+      return steps;
+    }
+    function entry(root) {
+      for (var i = 0; i < roots.length; i++) { if (roots[i].root === root) { return roots[i]; } }
+      return null;
+    }
+    function setAll(e, on) {
+      for (var i = 0; i < e.steps.length; i++) {
+        for (var j = 0; j < e.steps[i].els.length; j++) { e.steps[i].els[j].classList.toggle("is-on", on); }
+      }
+    }
+    function finish(e) { setAll(e, true); e.idx = e.steps.length; e.running = false; e.root.classList.add("seq-done"); }
+    function schedule(e) {
+      if (!e.running) { return; }
+      var gen = e.gen;
+      if (e.idx >= e.steps.length) {
+        e.root.classList.add("seq-done");
+        if (!e.loop) { e.running = false; return; }
+        e.timer = setTimeout(function () {
+          if (e.gen !== gen || !e.running) { return; }
+          setAll(e, false); e.idx = 0; e.root.classList.remove("seq-done"); schedule(e);
+        }, e.hold);
+        return;
+      }
+      var step = e.steps[e.idx];
+      for (var j = 0; j < step.els.length; j++) { step.els[j].classList.add("is-on"); }
+      e.idx += 1;
+      e.timer = setTimeout(function () { if (e.gen === gen) { schedule(e); } }, step.dur);
+    }
+    function play(root) {
+      var e = entry(root);
+      if (!e) { return; }
+      if (REDUCE) { finish(e); return; }
+      if (e.running) { return; }           /* a second start while running is ignored */
+      e.running = true; e.gen += 1; schedule(e);
+    }
+    function pause(root) {
+      var e = entry(root);
+      if (!e) { return; }
+      e.running = false; e.gen += 1; clearTimeout(e.timer);   /* resumes from the same step */
+    }
+    function reset(root) {
+      var e = entry(root);
+      if (!e) { return; }
+      pause(root); setAll(e, false); e.idx = 0; e.root.classList.remove("seq-done");
+    }
+    function state(root) {
+      var e = entry(root);
+      return e ? { step: e.idx, total: e.steps.length, running: e.running, reduced: !!REDUCE, loop: e.loop } : null;
+    }
+    function register(root) {
+      if (!root || entry(root)) { return; }
+      roots.push({
+        root: root, steps: parseSteps(root), idx: 0, timer: null, running: false, visible: false, gen: 0,
+        loop: root.hasAttribute("data-seq-loop"),
+        hold: parseInt(root.getAttribute("data-seq-hold") || "1500", 10) || 1500
+      });
+    }
+    function init() {
+      var all = document.querySelectorAll("[data-seq-root]");
+      for (var i = 0; i < all.length; i++) { register(all[i]); }
+      if (!("IntersectionObserver" in window)) {
+        for (var k = 0; k < roots.length; k++) { play(roots[k].root); }   /* never "never": start now */
+        return;
+      }
+      var io = new IntersectionObserver(function (entries) {
+        for (var i = 0; i < entries.length; i++) {
+          var e = entry(entries[i].target);
+          if (!e) { continue; }
+          e.visible = entries[i].isIntersecting;
+          if (e.visible && !document.hidden) { play(e.root); } else { pause(e.root); }
+        }
+      }, { threshold: 0.4 });
+      for (var r = 0; r < roots.length; r++) { io.observe(roots[r].root); }
+      document.addEventListener("visibilitychange", function () {
+        for (var r = 0; r < roots.length; r++) {
+          if (document.hidden) { pause(roots[r].root); } else if (roots[r].visible) { play(roots[r].root); }
+        }
+      });
+    }
+    return { init: init, register: register, play: play, pause: pause, reset: reset, state: state };
+  })();
+  window.NexusSeq.init();
+/* /shared:nexusseq-js */
+
+/* shared:constellation-js */
+  /* -------------------------------------------------- constellation */
+  var canvas = document.getElementById("constellation");
+  var constel = null;
+  function syncConstellation() {
+    if (!constel || !canvas) return;
+    var dark = currentTheme() === "dark";
+    var hidden = document.hidden;
+    if (!dark || hidden) {
+      canvas.style.opacity = "0";
+      constel.stop();
+      return;
+    }
+    canvas.style.opacity = current === "home" ? "0.55" : "0.16";
+    constel.start();
+  }
+  if (canvas && canvas.getContext) {
+    constel = (function () {
+      var ctx = canvas.getContext("2d");
+      var w, h, dpr, nodes, raf = null, running = false;
+      function resize() {
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        w = canvas.width = Math.floor(window.innerWidth * dpr);
+        h = canvas.height = Math.floor(window.innerHeight * dpr);
+        canvas.style.width = window.innerWidth + "px";
+        canvas.style.height = window.innerHeight + "px";
+      }
+      function build() {
+        var count = Math.max(18, Math.min(46, Math.floor(window.innerWidth / 34)));
+        nodes = [];
+        for (var i = 0; i < count; i++) {
+          nodes.push({
+            x: Math.random() * w, y: Math.random() * h,
+            vx: (Math.random() - 0.5) * 0.16 * dpr,
+            vy: (Math.random() - 0.5) * 0.16 * dpr
+          });
+        }
+      }
+      function frame(advance) {
+        ctx.clearRect(0, 0, w, h);
+        var maxd = 150 * dpr;
+        for (var i = 0; i < nodes.length; i++) {
+          var n = nodes[i];
+          if (advance) {
+            n.x += n.vx; n.y += n.vy;
+            if (n.x < 0 || n.x > w) n.vx *= -1;
+            if (n.y < 0 || n.y > h) n.vy *= -1;
+          }
+          for (var j = i + 1; j < nodes.length; j++) {
+            var m = nodes[j], dx = n.x - m.x, dy = n.y - m.y, d = Math.sqrt(dx * dx + dy * dy);
+            if (d < maxd) {
+              ctx.globalAlpha = (1 - d / maxd) * 0.45;
+              ctx.strokeStyle = "#2dd4bf";
+              ctx.lineWidth = 0.6 * dpr;
+              ctx.beginPath(); ctx.moveTo(n.x, n.y); ctx.lineTo(m.x, m.y); ctx.stroke();
+            }
+          }
+        }
+        ctx.globalAlpha = 0.85;
+        for (var k = 0; k < nodes.length; k++) {
+          ctx.fillStyle = "#5eead4";
+          ctx.beginPath(); ctx.arc(nodes[k].x, nodes[k].y, 1.5 * dpr, 0, 6.2832); ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+      }
+      function loop() {
+        if (!running) return;
+        frame(true);
+        raf = window.requestAnimationFrame(loop);
+      }
+      resize(); build();
+      window.addEventListener("resize", function () {
+        resize();
+        build();
+        if (running && REDUCE) frame(false);
+      });
+      document.addEventListener("visibilitychange", function () { syncConstellation(); });
+      return {
+        start: function () {
+          if (currentTheme() !== "dark" || document.hidden) return;
+          if (REDUCE) {
+            running = false;
+            if (raf) { window.cancelAnimationFrame(raf); raf = null; }
+            frame(false);
+            return;
+          }
+          if (running) return;
+          running = true;
+          loop();
+        },
+        stop: function () {
+          running = false;
+          if (raf) { window.cancelAnimationFrame(raf); raf = null; }
+        }
+      };
+    })();
+  }
+/* /shared:constellation-js */
+
+  /* -------------------------------------------------- stage router
+     Stage hashes: #intro, #play-buggy, #play-partial, #play-fixed, #loop1/<step>, #loop2/<step>.
+     In-stage anchors use the #s- prefix and never change the stage. */
+  var STAGES = [];
+  var sections = document.querySelectorAll("[data-stage]");
+  for (var i = 0; i < sections.length; i++) { STAGES.push(sections[i].getAttribute("data-stage")); }
+  var ALIASES = { "": "intro", "loop2/describe": "loop2/review" };
+  var notice = document.getElementById("trNotice");
+  var stage = null;
+
+  function show(id) {
+    stage = id;
+    for (var j = 0; j < sections.length; j++) {
+      var on = sections[j].getAttribute("data-stage") === id;
+      sections[j].classList.toggle("active", on);
+      if (on) { sections[j].removeAttribute("hidden"); } else { sections[j].setAttribute("hidden", ""); }
+    }
+    root.setAttribute("data-tr-stage", id);
+  }
+
+  function route() {
+    var raw = (window.location.hash || "").replace(/^#/, "");
+    try { raw = decodeURIComponent(raw); } catch (err) { raw = ""; }
+    if (raw.indexOf("s-") === 0 && stage) { return; }
+    var id = Object.prototype.hasOwnProperty.call(ALIASES, raw) ? ALIASES[raw] : raw;
+    if (STAGES.indexOf(id) === -1) {
+      notice.textContent = "That link points to a Training stage that does not exist, so the introduction is shown instead.";
+      notice.hidden = false;
+      id = "intro";
+      try { window.history.replaceState(null, "", "#intro"); } catch (err) {}
+    } else {
+      notice.hidden = true;
+    }
+    show(id);
+    window.scrollTo(0, 0);
+  }
+
+  window.addEventListener("hashchange", route);
+  route();
+
+  window.NexusTrainingPage = {
+    stages: function () { return STAGES.slice(); },
+    stage: function () { return stage; },
+    go: function (id) { window.location.hash = "#" + id; }
+  };
+})();
+</script>
+</body>
+</html>

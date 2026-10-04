@@ -1,0 +1,73 @@
+{
+  "_comment": "Pieces both guide pages carry. Edit the source here, then run python scripts/stamp_guide_shared.py; --check fails on drift. Decision: docs/decisions/implemented/architecture/2026-10-04-guide-training-as-a-second-offline-page.md. The JS fragments expect REDUCE, THEME_KEY, and current to be declared by the page script that holds them.",
+  "fragments": {
+    "favicon": {
+      "syntax": "html",
+      "file": "favicon.html"
+    },
+    "theme-init": {
+      "syntax": "html",
+      "file": "theme-init.html"
+    },
+    "base-css": {
+      "syntax": "css",
+      "file": "base.css"
+    },
+    "footer-css": {
+      "syntax": "css",
+      "file": "footer.css"
+    },
+    "type-css": {
+      "syntax": "css",
+      "file": "type.css"
+    },
+    "nexus-mark": {
+      "syntax": "html",
+      "file": "nexus-mark.svg.html"
+    },
+    "header": {
+      "syntax": "html",
+      "file": "header.html"
+    },
+    "footer": {
+      "syntax": "html",
+      "file": "footer.html"
+    },
+    "theme-js": {
+      "syntax": "js",
+      "file": "theme.js"
+    },
+    "nav-js": {
+      "syntax": "js",
+      "file": "nav.js"
+    },
+    "nexusseq-js": {
+      "syntax": "js",
+      "file": "nexusseq.js"
+    },
+    "constellation-js": {
+      "syntax": "js",
+      "file": "constellation.js"
+    }
+  },
+  "pages": {
+    "nexus-hub-guide.html": {
+      "vars": {
+        "brand": "href=\"#home\" data-go=\"home\"",
+        "nav.home": "href=\"#home\" data-go=\"home\"",
+        "nav.foundations": "href=\"#foundations\" data-go=\"foundations\"",
+        "nav.training": "href=\"#training\" data-go=\"training\"",
+        "nav.cheatsheets": "href=\"#cheatsheets\" data-go=\"cheatsheets\""
+      }
+    },
+    "training.html": {
+      "vars": {
+        "brand": "href=\"nexus-hub-guide.html#home\"",
+        "nav.home": "href=\"nexus-hub-guide.html#home\"",
+        "nav.foundations": "href=\"nexus-hub-guide.html#foundations\"",
+        "nav.training": "href=\"training.html#intro\" class=\"active\" aria-current=\"page\"",
+        "nav.cheatsheets": "href=\"nexus-hub-guide.html#cheatsheets\""
+      }
+    }
+  }
+}

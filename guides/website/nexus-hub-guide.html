@@ -6,6 +6,7 @@
 <meta name="color-scheme" content="light dark" />
 <meta name="theme-color" content="#04141a" id="themeColorMeta" />
 <title>Nexus Hub - Interactive Team Guide</title>
+<!-- shared:theme-init -->
 <script>
 (function () {
   var KEY = "portfolio-theme";
@@ -18,11 +19,15 @@
   document.documentElement.style.colorScheme = theme;
 })();
 </script>
+<!-- /shared:theme-init -->
+<!-- shared:favicon -->
 <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,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" />
 <link rel="icon" type="image/png" sizes="16x16" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAADJklEQVR4AURTaUhUURT+zn05M06NM5U2RUmWaZYtSGW0Q9G+QBEEEVS0aIT/2iCCgsKCKKgICuxHVARBy48MK1psAwvCskxNHUcNl3HmOS4z8+bNu533Ruvw7nfPOfd85373vvcEhox4Ngcs4OC/w0EySVYuiZy0HmHl2J0Wldtma7IAEkMpdiyPMGySFwulkZsTkbuSOYKAJJyW0tPcl3jQpuNGSVhmmFRYZNPjQTysGGiOoLRBjd9eK418guQGDKeJ1EwHHRIO2D87sTTf33+1oLYnK9kE4BIL5hlyDjmQO2mkOLIIVAtuKoYFpvl7Pk8NRYobFJxxelPf+UOhp95HH0sgpQDbAinzWwl3cmL6wZHtgU+8qWEeSZjieB2+hqbsmorqssmh6GGfTZzKnjvp3IAj9UR6+dcXq6Sc2Qbcy47Gi789r7no/+krMDn4p4BlJIJBDLb48+oq629mqdGSVmfK8SUr5x7NWzzzcaPE3SxdP1TzoflCn69tEQW6iY35fAfDChDRADWMgc6u6b986o3loKKTNpy/5LGfWEjYV9/Yf6HvT+cS9PRA7x/kk5lMMi8RLIRAiTigRYF4HKOiscoGI5H3C+iqhWxtk3KpXddeU4JJMQ1S05gAvlxWwNNQN/aUFIz1ji5zFWa+bxfK/svV7U/O1wUf/gZtcuVlBDK8Y86S3QYig7gaYBQgRhBEWhpc0yeXjd264F0viaIZ3eE9LV9+bKt/WVXqrKx7oSrYPHrNjIA7J/OMfdx43h3MIgiSLItf9OJ1C79m7l39MaSI4nnh3o1vxrl/Ryp657tGjdjd0dx60PaqtiKoKJu9O1eEV25fUUFMN6nWazzW3e1663BV+Q1Rmg9sKPd4QgTe5MGOhLpn7Z2oN2vW4MCANqGp81ZHQjnwLKZUrzaMKVzCChiz09Ojzphe5R7Uy96QULk5a+IFC/lz2ZAbC24pvPJ9ive+O2Jcc2r6lxSCyltAgK2IKB4Yb1/f7rGd5NDMw7oaK2Dgf8E8KPjAfrdyPTQxdVk5UYhXYDUAsWtVwHKToYkc80RDazDN6mz+RuBawl8AAAD//09DhdIAAAAGSURBVAMA2Q9KP1qSUPIAAAAASUVORK5CYII=" />
+<!-- /shared:favicon -->
 <style>
 /* ============================================================ NEXUS HUB - INTERACTIVE GUIDE (v4.2.2 rebuild) Single self-contained file. No external assets, no network. Design language: docs/releases/v4/v4.2/development/ guide-rebuild/design-brief.md ============================================================ */
 
+/* shared:base-css */
 /* ---------- Design tokens ---------- */:root{--sans:"Segoe UI",-apple-system,BlinkMacSystemFont,system-ui,Roboto,Helvetica,Arial,sans-serif;--mono:"Cascadia Code","JetBrains Mono","SF Mono","Consolas","Liberation Mono",Menlo,monospace;--maxw:1120px;--radius:12px;--radius-sm:8px;--sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:24px;--sp-6:32px;--sp-7:40px;--sp-8:48px;--sec-pad:32px;--ease:cubic-bezier(.22,.9,.3,1);--cyan:#22d3ee;--cyan-soft:#67e8f9;--teal:#2dd4bf;--teal-soft:#5eead4;--blue:#38bdf8;--attachment:#c4a2ff;--glow:#d7fbff;--grad-soft:color-mix(in srgb,var(--accent) 16%,transparent);--page-bg:#07141a;--bg-deep:#041014;--bg-0:#07141a;--bg-1:#0c1f26;--bg-2:#123038;--surface:#0c1f26;--surface-2:#123038;--surface-3:#173a44;--nav-bg:#07141a;--border:#1e4550;--border-bright:#2a6570;--ink:#dce8eb;--ink-dim:#9bb0b6;--ink-faint:#7e9aa1;--accent:#2dd4bf;--focus:#5eead4;--green:#4ade80;--amber:#e2b336;--red:#e88585;--term-bg:#07171d;--term-ink:#cfe9ee;--term-dim:#6d8d94;--term-prompt:#5eead4;--term-bar-bg:#0a1c23;--term-border:rgba(120,224,238,.18);--copy-bg:rgba(120,224,238,.06);--copy-ink:#9bb0b6;--copy-border:rgba(120,224,238,.22);--shadow:0 18px 40px -24px rgba(0,0,0,.7);--shadow-glow:0 0 0 1px var(--border);}
 html[data-theme="dark"]{--page-bg:#07141a;--bg-deep:#041014;--bg-0:#07141a;--bg-1:#0c1f26;--bg-2:#123038;--surface:#0c1f26;--surface-2:#123038;--surface-3:#173a44;--nav-bg:#07141a;--border:#1e4550;--border-bright:#2a6570;--ink:#dce8eb;--ink-dim:#9bb0b6;--ink-faint:#7e9aa1;--accent:#2dd4bf;--focus:#5eead4;--green:#4ade80;--amber:#e2b336;--red:#e88585;--term-bg:#07171d;--term-ink:#cfe9ee;--term-dim:#6d8d94;--term-prompt:#5eead4;--term-bar-bg:#0a1c23;--term-border:rgba(120,224,238,.18);--copy-bg:rgba(120,224,238,.06);--copy-ink:#9bb0b6;--copy-border:rgba(120,224,238,.22);--shadow:0 18px 40px -24px rgba(0,0,0,.7);--shadow-glow:0 0 0 1px var(--border);}
 html[data-theme="light"]{--page-bg:#f3f1ea;--bg-deep:#ebe7dc;--bg-0:#f3f1ea;--bg-1:#fffdf8;--bg-2:#e7efe8;--surface:#fffdf8;--surface-2:#f7f4ec;--surface-3:#ebe7dc;--nav-bg:#f3f1ea;--border:#c9c3b2;--border-bright:#9aa89a;--ink:#1c2a2e;--ink-dim:#4a5c61;--ink-faint:#586769;--accent:#0f6f66;--focus:#0f6f66;--green:#1f7a4c;--amber:#8a5f0f;--red:#b42318;--blue:#155e8a;--attachment:#7341a6;--term-bg:#fffdf8;--term-ink:#1c2a2e;--term-dim:#4a5c61;--term-prompt:#0f6f66;--term-bar-bg:#ebe7dc;--term-border:#c9c3b2;--copy-bg:#ebe7dc;--copy-ink:#1c2a2e;--copy-border:#c9c3b2;--shadow:0 12px 28px -20px rgba(28,42,46,.35);--shadow-glow:0 0 0 1px var(--border);--teal-soft:#0f6f66;--cyan-soft:#0b6e7a;}
@@ -116,6 +121,7 @@ to{transform:translateY(-9px);}
 html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 0 0 1px #c9c3b2;}
 .js .hero-lockup.reveal .hero-mark{opacity:0;transform:translateY(8px) scale(.88);transition:opacity .45s var(--ease),transform .55s var(--ease);}
 .js .hero-lockup.in .hero-mark{opacity:1;transform:none;}
+/* /shared:base-css */
 /* ---------- Platform compatibility rail ---------- */
 .platform-rail{list-style:none;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:var(--sp-3);margin:var(--sp-5) 0 var(--sp-2);padding:var(--sp-4) 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
 .platform-item{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;}
@@ -280,10 +286,12 @@ to{transform:scaleX(1);}
 .tbl-migrate .muted{display:block;color:var(--ink-faint);margin-top:3px;}
 .tbl-migrate td:nth-child(3){color:var(--ink);}
 .tbl-migrate .muted-cell{color:var(--ink-faint);}
+/* shared:footer-css */
 /* ---------- Site footer (attribution lives here; decision 2026-09-02) ---------- */
 .site-footer{border-top:1px solid var(--border);margin-top:var(--sp-8);padding:var(--sp-5) 0 var(--sp-6);color:var(--ink-faint);font-size:15px;line-height:1.6;text-align:center;}
 .site-footer p{margin:0 auto;}
 .site-footer a{color:var(--ink-dim);text-decoration:underline;}
+/* /shared:footer-css */
 @media (max-width:900px){.grid-4,.grid-3{grid-template-columns:repeat(2,minmax(0,1fr));}
 .guard-grid{grid-template-columns:1fr;}
 }
@@ -1416,6 +1424,7 @@ html:not(.js) #page-foundations{display:block;}html:not(.js) .ml-panel[hidden]{d
    .section-title, so six scene subtitles were indistinguishable from the
    headings they sat under.
    ========================================================================== */
+/* shared:type-css */
 :root{
   /* Legibility floor. No text role on this page resolves below it, and the
      hardcoded component sizes below were raised to match. Change it here. */
@@ -1456,6 +1465,7 @@ html:not(.js) #page-foundations{display:block;}html:not(.js) .ml-panel[hidden]{d
 [data-ty="td"]{font-size:var(--ty-body-sm);font-weight:400;line-height:1.5;letter-spacing:0;color:var(--ink-dim);text-transform:none;}
 [data-ty="title"]{font-size:var(--ty-h4);font-weight:700;line-height:1.3;letter-spacing:0;text-transform:none;}
 [data-ty="stat"]{font-size:var(--ty-h3);font-weight:700;line-height:1.2;letter-spacing:0;color:var(--ink);text-transform:none;}
+/* /shared:type-css */
 </style>
 </head>
 <body>
@@ -1463,6 +1473,7 @@ html:not(.js) #page-foundations{display:block;}html:not(.js) .ml-panel[hidden]{d
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
     <symbol id="cx-checkout" viewBox="0 0 720 400"><rect width="720" height="400" rx="10" fill="#f4f6fa"/><path d="M0 56h720" stroke="#d7dce4"/><text x="28" y="35" font-family="sans-serif" font-size="20" font-weight="700" fill="#19383c">NORTHSTAR</text><text x="566" y="35" font-family="sans-serif" font-size="14" fill="#52616c">Shop / Checkout</text><g font-family="sans-serif" fill="#24333d"><text x="28" y="102" font-size="28" font-weight="700">Checkout</text><rect x="28" y="125" width="392" height="168" rx="8" fill="white" stroke="#d7dce4"/><text x="48" y="158" font-size="19" font-weight="700">Delivery address</text><text x="48" y="191" font-size="17">Alex Morgan</text><text x="48" y="219" font-size="16">42 Willow Lane</text><text x="48" y="247" font-size="16">Portland, OR 97205</text><rect x="440" y="125" width="252" height="168" rx="8" fill="white" stroke="#d7dce4"/><text x="460" y="158" font-size="19" font-weight="700">Order summary</text><text x="460" y="197" font-size="16">Desk lamp</text><text x="621" y="197" font-size="16">$48</text><text x="460" y="235" font-size="16">Delivery</text><text x="634" y="235" font-size="16">$6</text><text x="460" y="273" font-size="18" font-weight="700">Total</text><text x="619" y="273" font-size="18" font-weight="700">$54</text><rect x="440" y="345" width="90" height="32" rx="3" fill="#e5e9ef"/><text x="466" y="367" font-size="16">Back</text><rect x="548" y="315" width="144" height="48" rx="22" fill="#7547ce"/><text x="574" y="345" font-size="17" fill="white">Place order</text></g></symbol>
+<!-- shared:nexus-mark -->
 <symbol id="nexus-mark" viewBox="0 0 512 512" preserveAspectRatio="xMidYMid meet">
       <defs>
         <linearGradient id="nx-gl" gradientUnits="userSpaceOnUse" x1="89" y1="0" x2="196" y2="0">
@@ -1499,6 +1510,7 @@ html:not(.js) #page-foundations{display:block;}html:not(.js) .ml-panel[hidden]{d
       </g>
       <circle cx="258" cy="246" r="30" fill="#f2feff"/>
     </symbol>
+<!-- /shared:nexus-mark -->
     <symbol id="nh-guide-claude" viewBox="0 0 100 100" fill="hsl(14.8, 63.1%, 59.6%)"><path d="m19.6 66.5 19.7-11 .3-1-.3-.5h-1l-3.3-.2-11.2-.3L14 53l-9.5-.5-2.4-.5L0 49l.2-1.5 2-1.3 2.9.2 6.3.5 9.5.6 6.9.4L38 49.1h1.6l.2-.7-.5-.4-.4-.4L29 41l-10.6-7-5.6-4.1-3-2-1.5-2-.6-4.2 2.7-3 3.7.3.9.2 3.7 2.9 8 6.1L37 36l1.5 1.2.6-.4.1-.3-.7-1.1L33 25l-6-10.4-2.7-4.3-.7-2.6c-.3-1-.4-2-.4-3l3-4.2L28 0l4.2.6L33.8 2l2.6 6 4.1 9.3L47 29.9l2 3.8 1 3.4.3 1h.7v-.5l.5-7.2 1-8.7 1-11.2.3-3.2 1.6-3.8 3-2L61 2.6l2 2.9-.3 1.8-1.1 7.7L59 27.1l-1.5 8.2h.9l1-1.1 4.1-5.4 6.9-8.6 3-3.5L77 13l2.3-1.8h4.3l3.1 4.7-1.4 4.9-4.4 5.6-3.7 4.7-5.3 7.1-3.2 5.7.3.4h.7l12-2.6 6.4-1.1 7.6-1.3 3.5 1.6.4 1.6-1.4 3.4-8.2 2-9.6 2-14.3 3.3-.2.1.2.3 6.4.6 2.8.2h6.8l12.6 1 3.3 2 1.9 2.7-.3 2-5.1 2.6-6.8-1.6-16-3.8-5.4-1.3h-.8v.4l4.6 4.5 8.3 7.5L89 80.1l.5 2.4-1.3 2-1.4-.2-9.2-7-3.6-3-8-6.8h-.5v.7l1.8 2.7 9.8 14.7.5 4.5-.7 1.4-2.6 1-2.7-.6-5.8-8-6-9-4.7-8.2-.5.4-2.9 30.2-1.3 1.5-3 1.2-2.5-2-1.4-3 1.4-6.2 1.6-8 1.3-6.4 1.2-7.9.7-2.6v-.2H49L43 72l-9 12.3-7.2 7.6-1.7.7-3-1.5.3-2.8L24 86l10-12.8 6-7.9 4-4.6-.1-.5h-.3L17.2 77.4l-4.7.6-2-2 .2-3 1-1 8-5.5Z"></path></symbol>
     <symbol id="nh-guide-chatgpt" viewBox="0 0 320 320" fill="currentColor"><path d="m297.06 130.97c7.26-21.79 4.76-45.66-6.85-65.48-17.46-30.4-52.56-46.04-86.84-38.68-15.25-17.18-37.16-26.95-60.13-26.81-35.04-.08-66.13 22.48-76.91 55.82-22.51 4.61-41.94 18.7-53.31 38.67-17.59 30.32-13.58 68.54 9.92 94.54-7.26 21.79-4.76 45.66 6.85 65.48 17.46 30.4 52.56 46.04 86.84 38.68 15.24 17.18 37.16 26.95 60.13 26.8 35.06.09 66.16-22.49 76.94-55.86 22.51-4.61 41.94-18.7 53.31-38.67 17.57-30.32 13.55-68.51-9.94-94.51zm-120.28 168.11c-14.03.02-27.62-4.89-38.39-13.88.49-.26 1.34-.73 1.89-1.07l63.72-36.8c3.26-1.85 5.26-5.32 5.24-9.07v-89.83l26.93 15.55c.29.14.48.42.52.74v74.39c-.04 33.08-26.83 59.9-59.91 59.97zm-128.84-55.03c-7.03-12.14-9.56-26.37-7.15-40.18.47.28 1.3.79 1.89 1.13l63.72 36.8c3.23 1.89 7.23 1.89 10.47 0l77.79-44.92v31.1c.02.32-.13.63-.38.83l-64.41 37.19c-28.69 16.52-65.33 6.7-81.92-21.95zm-16.77-139.09c7-12.16 18.05-21.46 31.21-26.29 0 .55-.03 1.52-.03 2.2v73.61c-.02 3.74 1.98 7.21 5.23 9.06l77.79 44.91-26.93 15.55c-.27.18-.61.21-.91.08l-64.42-37.22c-28.63-16.58-38.45-53.21-21.95-81.89zm221.26 51.49-77.79-44.92 26.93-15.54c.27-.18.61-.21.91-.08l64.42 37.19c28.68 16.57 38.51 53.26 21.94 81.94-7.01 12.14-18.05 21.44-31.2 26.28v-75.81c.03-3.74-1.96-7.2-5.2-9.06zm26.8-40.34c-.47-.29-1.3-.79-1.89-1.13l-63.72-36.8c-3.23-1.89-7.23-1.89-10.47 0l-77.79 44.92v-31.1c-.02-.32.13-.63.38-.83l64.41-37.16c28.69-16.55 65.37-6.7 81.91 22 6.99 12.12 9.52 26.31 7.15 40.1zm-168.51 55.43-26.94-15.55c-.29-.14-.48-.42-.52-.74v-74.39c.02-33.12 26.89-59.96 60.01-59.94 14.01 0 27.57 4.92 38.34 13.88-.49.26-1.33.73-1.89 1.07l-63.72 36.8c-3.26 1.85-5.26 5.31-5.24 9.06l-.04 89.79zm14.63-31.54 34.65-20.01 34.65 20v40.01l-34.65 20-34.65-20z"/></symbol>
   </defs>
@@ -1509,6 +1521,7 @@ html:not(.js) #page-foundations{display:block;}html:not(.js) .ml-panel[hidden]{d
 <div class="shell">
 
   <!-- ===== Header ===== -->
+<!-- shared:header -->
   <header class="site-header">
     <nav class="nav container" aria-label="Primary">
       <a class="brand" href="#home" data-go="home" aria-label="Nexus Hub home">
@@ -1526,6 +1539,7 @@ html:not(.js) #page-foundations{display:block;}html:not(.js) .ml-panel[hidden]{d
       </div>
     </nav>
   </header>
+<!-- /shared:header -->
 
   <main id="app">
 
@@ -2485,11 +2499,13 @@ html:not(.js) #page-foundations{display:block;}html:not(.js) .ml-panel[hidden]{d
   </section>
 
   </main>
+<!-- shared:footer -->
   <footer class="site-footer" id="site-footer">
     <div class="container">
       <p data-ty="caption" class="footer-attrib">Claude, ChatGPT, Gemini, Cursor, and GitHub Copilot are trademarks of their respective owners, shown only to identify the assistants Nexus Hub installs into; no affiliation or endorsement is implied. The GitHub Copilot mark is from the Codicons icon set by Microsoft Corporation, used under <a href="https://creativecommons.org/licenses/by/4.0/" rel="noreferrer noopener" target="_blank">CC BY 4.0</a>.</p>
     </div>
   </footer>
+<!-- /shared:footer -->
 </div>
 
 <script>
@@ -2530,6 +2546,7 @@ host.appendChild(svg);
   var REDUCE = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var current = "home";
 
+/* shared:theme-js */
   /* -------------------------------------------------- theme */
   function currentTheme() {
     var t = document.documentElement.getAttribute("data-theme");
@@ -2556,6 +2573,7 @@ host.appendChild(svg);
       applyTheme(currentTheme() === "dark" ? "light" : "dark");
     });
   }
+/* /shared:theme-js */
 
   /* -------------------------------------------------- routing */
   function pageIndex(id) {
@@ -2679,6 +2697,7 @@ host.appendChild(svg);
   });
   window.addEventListener("hashchange", go);
 
+/* shared:nav-js */
   /* mobile nav */
   var navToggle = document.getElementById("navToggle");
   if (navToggle) {
@@ -2688,6 +2707,7 @@ host.appendChild(svg);
       navToggle.setAttribute("aria-expanded", open ? "true" : "false");
     });
   }
+/* /shared:nav-js */
 
   function keysOwnedByTarget(el) {
     if (!el || el === document.body || el === document.documentElement) return false;
@@ -2838,6 +2858,7 @@ host.appendChild(svg);
     window.NexusFit = { refit: refit, floor: FLOOR };
   })();
 
+/* shared:nexusseq-js */
   /* -------------------------------------------------- NexusSeq: declarative step timelines
      One shared engine for every choreographed scene, so motion is consistent, testable, and
      cheap. Contract: a [data-seq-root] holds [data-seq=N] steps (optional data-seq-dur ms);
@@ -2946,6 +2967,7 @@ host.appendChild(svg);
     return { init: init, register: register, play: play, pause: pause, reset: reset, state: state };
   })();
   window.NexusSeq.init();
+/* /shared:nexusseq-js */
 
   /* -------------------------------------------------- tabs */
   var tabGroups = document.querySelectorAll("[data-tabs]");
@@ -2996,6 +3018,7 @@ host.appendChild(svg);
     })(tabGroups[g]);
   }
 
+/* shared:constellation-js */
   /* -------------------------------------------------- constellation */
   var canvas = document.getElementById("constellation");
   var constel = null;
@@ -3092,6 +3115,7 @@ host.appendChild(svg);
       };
     })();
   }
+/* /shared:constellation-js */
 
   /* -------------------------------------------------- copy buttons */
   var COPY_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>';

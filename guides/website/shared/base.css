@@ -1,0 +1,93 @@
+/* ---------- Design tokens ---------- */:root{--sans:"Segoe UI",-apple-system,BlinkMacSystemFont,system-ui,Roboto,Helvetica,Arial,sans-serif;--mono:"Cascadia Code","JetBrains Mono","SF Mono","Consolas","Liberation Mono",Menlo,monospace;--maxw:1120px;--radius:12px;--radius-sm:8px;--sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:24px;--sp-6:32px;--sp-7:40px;--sp-8:48px;--sec-pad:32px;--ease:cubic-bezier(.22,.9,.3,1);--cyan:#22d3ee;--cyan-soft:#67e8f9;--teal:#2dd4bf;--teal-soft:#5eead4;--blue:#38bdf8;--attachment:#c4a2ff;--glow:#d7fbff;--grad-soft:color-mix(in srgb,var(--accent) 16%,transparent);--page-bg:#07141a;--bg-deep:#041014;--bg-0:#07141a;--bg-1:#0c1f26;--bg-2:#123038;--surface:#0c1f26;--surface-2:#123038;--surface-3:#173a44;--nav-bg:#07141a;--border:#1e4550;--border-bright:#2a6570;--ink:#dce8eb;--ink-dim:#9bb0b6;--ink-faint:#7e9aa1;--accent:#2dd4bf;--focus:#5eead4;--green:#4ade80;--amber:#e2b336;--red:#e88585;--term-bg:#07171d;--term-ink:#cfe9ee;--term-dim:#6d8d94;--term-prompt:#5eead4;--term-bar-bg:#0a1c23;--term-border:rgba(120,224,238,.18);--copy-bg:rgba(120,224,238,.06);--copy-ink:#9bb0b6;--copy-border:rgba(120,224,238,.22);--shadow:0 18px 40px -24px rgba(0,0,0,.7);--shadow-glow:0 0 0 1px var(--border);}
+html[data-theme="dark"]{--page-bg:#07141a;--bg-deep:#041014;--bg-0:#07141a;--bg-1:#0c1f26;--bg-2:#123038;--surface:#0c1f26;--surface-2:#123038;--surface-3:#173a44;--nav-bg:#07141a;--border:#1e4550;--border-bright:#2a6570;--ink:#dce8eb;--ink-dim:#9bb0b6;--ink-faint:#7e9aa1;--accent:#2dd4bf;--focus:#5eead4;--green:#4ade80;--amber:#e2b336;--red:#e88585;--term-bg:#07171d;--term-ink:#cfe9ee;--term-dim:#6d8d94;--term-prompt:#5eead4;--term-bar-bg:#0a1c23;--term-border:rgba(120,224,238,.18);--copy-bg:rgba(120,224,238,.06);--copy-ink:#9bb0b6;--copy-border:rgba(120,224,238,.22);--shadow:0 18px 40px -24px rgba(0,0,0,.7);--shadow-glow:0 0 0 1px var(--border);}
+html[data-theme="light"]{--page-bg:#f3f1ea;--bg-deep:#ebe7dc;--bg-0:#f3f1ea;--bg-1:#fffdf8;--bg-2:#e7efe8;--surface:#fffdf8;--surface-2:#f7f4ec;--surface-3:#ebe7dc;--nav-bg:#f3f1ea;--border:#c9c3b2;--border-bright:#9aa89a;--ink:#1c2a2e;--ink-dim:#4a5c61;--ink-faint:#586769;--accent:#0f6f66;--focus:#0f6f66;--green:#1f7a4c;--amber:#8a5f0f;--red:#b42318;--blue:#155e8a;--attachment:#7341a6;--term-bg:#fffdf8;--term-ink:#1c2a2e;--term-dim:#4a5c61;--term-prompt:#0f6f66;--term-bar-bg:#ebe7dc;--term-border:#c9c3b2;--copy-bg:#ebe7dc;--copy-ink:#1c2a2e;--copy-border:#c9c3b2;--shadow:0 12px 28px -20px rgba(28,42,46,.35);--shadow-glow:0 0 0 1px var(--border);--teal-soft:#0f6f66;--cyan-soft:#0b6e7a;}
+/* ---------- Reset ---------- */
+*,*::before,*::after{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;}
+html[data-theme="light"] #constellation{display:none;}
+body{font-family:var(--sans);color:var(--ink);background:var(--page-bg);min-height:100vh;line-height:1.6;font-size:16px;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden;}
+img{max-width:100%;display:block;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{color:var(--ink);}
+code{background:var(--copy-bg);border:1px solid var(--copy-border);border-radius:5px;padding:1px 5px;}
+::selection{background:color-mix(in srgb,var(--accent) 30%,transparent);color:var(--ink);}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px;}
+.visually-hidden{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;}
+/* ---------- Background constellation ---------- */
+#constellation{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.55;transition:opacity .6s var(--ease);}
+/* ---------- Scaffold ---------- */
+.shell{position:relative;z-index:1;}
+.container{width:100%;max-width:var(--maxw);margin:0 auto;padding:0 24px;}
+/* ---------- Header / nav ---------- */
+.site-header{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--nav-bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);}
+.nav{display:flex;align-items:center;gap:var(--sp-4);min-height:58px;}
+.brand{display:inline-flex;align-items:center;gap:10px;color:var(--ink);}
+.brand .mark{width:30px;height:30px;flex:none;border-radius:8px;}
+html[data-theme="light"] .brand .mark,html[data-theme="light"] .mark-chip{background:#07141a;border-radius:10px;padding:3px;box-shadow:0 0 0 1px #c9c3b2;}
+.brand .wordmark{letter-spacing:.01em;white-space:nowrap;}
+.brand .wordmark b{color:var(--ink);font-weight:700;}
+.brand .wordmark span{color:var(--teal-soft);font-weight:600;}
+.nav-links{display:flex;align-items:center;gap:var(--sp-3);margin-left:auto;}
+.nav-links a{color:var(--ink-dim);font-size:15px;font-weight:500;padding:7px 12px;border-radius:8px;border:1px solid transparent;}
+.nav-links a:hover{color:var(--ink);background:var(--grad-soft);}
+.nav-links a.active{color:var(--bg-deep);background:var(--accent);font-weight:600;}
+html[data-theme="light"] .nav-links a.active{color:#fffdf8;}
+a.nav-gh,.nhg-theme { display: inline-flex;align-items: center;justify-content: center;width: 36px;height: 36px;padding: 0;flex: none;border: 1px solid var(--border);border-radius: 9px;background: transparent;color: var(--ink-dim);cursor: pointer; }
+a.nav-gh:hover,.nhg-theme:hover{color:var(--ink);border-color:var(--border-bright);background:transparent;}
+.nav-gh svg{width:17px;height:17px;display:block;}
+.nhg-theme svg{width:17px;height:17px;display:block;}
+html[data-theme="dark"] .nhg-theme .icon-moon{display:none;}
+html[data-theme="light"] .nhg-theme .icon-sun{display:none;}
+.nav-toggle{display:none;margin-left:auto;background:transparent;color:var(--ink);border:1px solid var(--border);border-radius:8px;font-size:18px;width:38px;height:36px;cursor:pointer;}
+/* ---------- Pages ---------- */
+.page{display:none;padding-bottom:var(--sp-8);}
+.page.active{display:block;}
+@keyframes pageIn{from{opacity:0;transform:translateY(8px);}
+to{opacity:1;transform:none;}
+}
+.js .page.active{animation:pageIn .32s var(--ease);}
+/* ---------- Reveal motion ---------- */
+.js .reveal{opacity:0;transform:translateY(14px);transition:opacity .5s var(--ease),transform .5s var(--ease);transition-delay:var(--reveal-delay,0ms);}
+.js .reveal.in{opacity:1;transform:none;}
+/* ---------- Type ---------- */
+h1{margin:0 0 var(--sp-4);text-wrap:balance;}
+h2{margin:0 0 var(--sp-3);}
+/* Shared section heading scale. */
+/* Shared heading tokens; NexusFit shrinks wrapping labels and titles to a 15px floor. */:root{--title-scale:1.2;--eyebrow-scale:3;--fx-tag:23px;}
+.section-title,.fx-copy .fx-subtitle,.fx-spend-head{text-wrap:balance;overflow-wrap:break-word;min-width:0;margin:0 0 var(--sp-4);}
+h3{margin:0 0 var(--sp-2);}
+p{margin:0 0 var(--sp-3);}
+.lead{color:var(--ink-dim);}
+.eyebrow,.fx-title h2{display:block;max-width:100%;min-width:0;color:var(--teal-soft);margin-bottom:var(--sp-2);}
+.eyebrow::before,.fx-title h2::before{content:"";display:inline-block;width:calc(9px * var(--eyebrow-scale));height:3px;background:var(--accent);vertical-align:middle;margin-right:10px;border-radius:2px;}
+/* ---------- NexusSeq step primitives ---------- A [data-seq-root] container reveals its [data-seq=N] children in order. Scoped to .js so a no-script reader sees every step at once; the reduced-motion block zeroes durations. */
+/* seq-fade is for shapes and connectors only. Dimming TEXT carriers fails WCAG AA mid-sequence (BG-13: the loop pills measured 1.9:1 at opacity .45), so text steps use seq-glow, which never changes foreground contrast and marks the active step with an accent ring instead. */
+.js .seq-fade{opacity:.7;transition:opacity .45s var(--ease);}
+.js .seq-fade.is-on{opacity:1;}
+.js .seq-glow{transition:box-shadow .35s var(--ease),border-color .35s var(--ease);}
+.js .seq-glow.is-on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent),0 0 18px 0 var(--accent-glow,rgba(45,212,191,.35));}
+.js .seq-rise{opacity:0;transform:translateY(10px);transition:opacity .45s var(--ease),transform .45s var(--ease);}
+.js .seq-rise.is-on{opacity:1;transform:none;}
+.js .seq-draw{stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset .6s var(--ease);}
+.js .seq-draw.is-on{stroke-dashoffset:0;}
+/* ---------- Sections ---------- */
+.section{padding:var(--sec-pad) 0 0;}
+.hero{padding:var(--sp-7) 0 var(--sp-4);}
+.hero-lockup { display: flex;justify-content: center; }
+.hero-lockup-float { display: flex;flex-wrap: nowrap;align-items: center;justify-content: center;gap: clamp(10px,2.6vw,20px); }
+/* One transform on the inner wrapper so the float never competes with the .reveal entry transform. */
+@keyframes nhg-lockup-float{from{transform:translateY(0);}
+to{transform:translateY(-9px);}
+}
+.js .hero-lockup.live .hero-lockup-float{animation:nhg-lockup-float 7s ease-in-out infinite alternate;}
+.hero-mark{flex:none;width:clamp(44px,9vw,72px);height:clamp(44px,9vw,72px);border-radius:clamp(10px,2vw,16px);}
+/* line-height 1 made the line box shorter than the inline content box of the wordmark spans, so they escaped the h1. 1.34 contains the font ascent+descent at every clamp size. */
+.hero-wordmark { margin: 0;white-space: nowrap;}
+/* Hero wordmark mirrors the nav wordmark exactly: same roles, same weights, same theme tokens. */
+.hero-wordmark b{color:var(--ink);font-weight:700;}
+.hero-wordmark span{color:var(--teal-soft);font-weight:600;}
+.hero .btn-row{justify-content:center;}
+html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 0 0 1px #c9c3b2;}
+.js .hero-lockup.reveal .hero-mark{opacity:0;transform:translateY(8px) scale(.88);transition:opacity .45s var(--ease),transform .55s var(--ease);}
+.js .hero-lockup.in .hero-mark{opacity:1;transform:none;}

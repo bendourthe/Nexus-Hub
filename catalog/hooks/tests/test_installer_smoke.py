@@ -632,6 +632,9 @@ DEV_ONLY_SCRIPTS = {
     # guides/website/nexus-hub-guide.html from data/ and catalog/ so page counts cannot
     # drift; --check runs in make validate. An end-user install has neither source tree.
     "stamp_guide_counts.py",
+    # Repo-internal shared-fragment stamper (v4.13.10): inlines guides/website/shared/
+    # into both guide pages; --check fails on drift. Edits this repository only.
+    "stamp_guide_shared.py",
     # One-shot cross-catalog maintenance utility that injects iterative-refinement
     # text into SKILL.md / command .md files. Maintainer tool only.
     "apply_iterative_workflow.py",
