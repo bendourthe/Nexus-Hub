@@ -1,0 +1,23 @@
+/* ---------- Page outline (v4.13.10, shared) ---------- A sticky "On this page" bar under the site header. Wide screens show every entry as a chip; phones collapse it to one line naming the current section. It sits above the content rather than beside it so no scene loses width. */
+.pg-outline{position:sticky;top:59px;z-index:30;margin:var(--sp-2) 0 var(--sp-4);background:color-mix(in srgb,var(--page-bg) 90%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);}
+.pg-outline details{padding:8px 0;}
+.pg-outline summary{display:none;cursor:pointer;list-style:none;align-items:center;gap:8px;min-height:44px;color:var(--ink);font-weight:600;}
+.pg-outline summary::-webkit-details-marker{display:none;}
+.pg-outline summary small{color:var(--ink-dim);font-weight:400;}
+.pg-outline summary::after{content:"";margin-left:auto;width:8px;height:8px;border-right:2px solid var(--ink-dim);border-bottom:2px solid var(--ink-dim);transform:rotate(45deg);transition:transform .2s var(--ease);}
+.pg-outline details[open] summary::after{transform:rotate(-135deg);}
+.pg-outline ol{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+.pg-outline .pg-outline-label{color:var(--ink-dim);font-size:var(--ty-body-sm);margin-right:4px;}
+.pg-outline a{display:inline-flex;align-items:center;min-height:36px;padding:5px 13px;border:1px solid var(--border);border-radius:999px;color:var(--ink-dim);font-size:var(--ty-body-sm);font-weight:600;text-decoration:none;}
+.pg-outline a:hover{color:var(--ink);border-color:var(--accent);}
+.pg-outline a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+.pg-outline a[aria-current]{color:var(--bg-0);background:var(--accent);border-color:var(--accent);}
+[data-outline-target]{scroll-margin-top:132px;}
+@media (max-width:720px){
+  .pg-outline summary{display:flex;}
+  .pg-outline .pg-outline-label{display:none;}
+  .pg-outline ol{flex-direction:column;align-items:stretch;gap:4px;padding-top:6px;}
+  .pg-outline a{min-height:44px;border-radius:12px;}
+  [data-outline-target]{scroll-margin-top:118px;}
+}
+@media (prefers-reduced-motion:reduce){.pg-outline summary::after{transition:none;}}

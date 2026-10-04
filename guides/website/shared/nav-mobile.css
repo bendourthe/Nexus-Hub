@@ -1,0 +1,6 @@
+@media (max-width:860px){.nav-toggle{display:block;}
+.nav-links{display:none;position:absolute;top:58px;left:0;right:0;flex-direction:column;align-items:stretch;padding:var(--sp-3) 24px var(--sp-4);background:var(--nav-bg);border-bottom:1px solid var(--border);}
+.nav-links.open{display:flex;}
+.nav-links a{padding:11px 12px;}
+.nav-gh,.nhg-theme{align-self:flex-start;}
+}

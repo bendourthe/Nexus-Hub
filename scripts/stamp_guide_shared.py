@@ -19,7 +19,8 @@ a pair of markers whose comment syntax matches where it sits::
     ...fragment...
     /* /shared:theme-js */
 
-A fragment may hold ``{{name}}`` placeholders, filled from the page's ``vars`` in
+A page carries every fragment unless its manifest entry lists the ones it holds in
+``fragments``. A fragment may hold ``{{name}}`` placeholders, filled from the page's ``vars`` in
 the manifest, so one header source can link in-page in one file and across pages
 in the other. Markers sit at the start of their line; the fragment text sits
 between them unchanged.
@@ -42,6 +43,7 @@ import json
 import re
 import sys
 from dataclasses import dataclass
+from itertools import pairwise
 from pathlib import Path
 
 WEB = Path("guides") / "website"
@@ -70,7 +72,7 @@ def _read_lf(path: Path) -> tuple[str, bool]:
     return raw.replace("\r\n", "\n"), "\r\n" in raw
 
 
-def load(root: Path) -> tuple[list[Fragment], dict[str, dict[str, str]]]:
+def load(root: Path) -> tuple[list[Fragment], dict[str, tuple[dict[str, str], list[Fragment]]]]:
     path = root / MANIFEST
     try:
         manifest = json.loads(path.read_text(encoding="utf-8"))
@@ -88,7 +90,14 @@ def load(root: Path) -> tuple[list[Fragment], dict[str, dict[str, str]]]:
         if not text.endswith("\n"):
             text += "\n"
         fragments.append(Fragment(name, syntax, text))
-    pages = {page: dict(spec.get("vars", {})) for page, spec in manifest.get("pages", {}).items()}
+    by_name = {fragment.name: fragment for fragment in fragments}
+    pages: dict[str, tuple[dict[str, str], list[Fragment]]] = {}
+    for page, spec in manifest.get("pages", {}).items():
+        names = spec.get("fragments", list(by_name))
+        unknown = [name for name in names if name not in by_name]
+        if unknown:
+            raise StampError(f"page {page}: unknown fragment(s) {', '.join(unknown)}")
+        pages[page] = (dict(spec.get("vars", {})), [by_name[name] for name in names])
     if not fragments or not pages:
         raise StampError(f"{MANIFEST.as_posix()}: needs at least one fragment and one page")
     return fragments, pages
@@ -123,14 +132,14 @@ def stamp(root: Path, check: bool) -> int:
     fragments, pages = load(root)
     outputs: dict[Path, tuple[str, bool]] = {}
     drift: list[str] = []
-    for page, values in pages.items():
+    for page, (values, page_fragments) in pages.items():
         path = root / WEB / page
         if not path.is_file():
             raise StampError(f"page {page} is missing from {WEB.as_posix()}")
         text, crlf = _read_lf(path)
         # Validate every marker before changing anything, so a bad page writes nothing.
-        spans = sorted(((_region(text, page, f), f) for f in fragments), key=lambda item: item[0][0])
-        for (prev, _), (nxt, _) in zip(spans, spans[1:]):
+        spans = sorted(((_region(text, page, f), f) for f in page_fragments), key=lambda item: item[0][0])
+        for (prev, _), (nxt, _) in pairwise(spans):
             if nxt[0] < prev[1]:
                 raise StampError(f"{page}: two shared regions overlap")
         out, cursor = [], 0

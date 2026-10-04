@@ -1,0 +1,9 @@
+/* ---------- Reduced motion, shared base (v4.13.10) ---------- The page-independent half of the guide's reduced-motion block: no smooth scrolling, no page or reveal animation, and sequence steps shown at once rather than waiting for an observer. Page-specific motion rules stay with their page. */
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}
+#constellation{transition:none;}
+.js .page.active{animation:none;}
+.js .reveal{opacity:1;transform:none;transition:none;}
+.js .seq-fade,.js .seq-rise,.js .seq-draw,.js .seq-glow,.js .ann,.js .ann-legend-row{transition-duration:0s;}
+.js .seq-rise{opacity:1;transform:none;}
+.js .seq-fade{opacity:1;}
+}

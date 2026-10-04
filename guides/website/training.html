@@ -127,10 +127,91 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .site-footer p{margin:0 auto;}
 .site-footer a{color:var(--ink-dim);text-decoration:underline;}
 /* /shared:footer-css */
+/* shared:opening-css */
+/* ---------- Page opening (v4.13.10, shared) ---------- Foundations, Cheatsheets, and Training open the same way: a centred title in the Home hero-subtitle style with one gradient phrase, a one-paragraph description, then a full-width visual summary of what the page holds. */
+.pg-open{text-align:center;padding:var(--sp-5) 0 var(--sp-4);}
+.pg-open-title{margin:var(--sp-5) auto 0;text-align:center;text-wrap:balance;color:var(--ink);}
+.pg-open .gtext{color:var(--ink);background:linear-gradient(90deg,var(--cyan),var(--teal));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+.pg-open-lead{margin:var(--sp-3) auto 0;text-align:center;color:var(--ink-dim);text-wrap:pretty;}
+.pg-map{list-style:none;margin:var(--sp-5) 0 0;padding:0;display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr));text-align:left;}
+.pg-map li{position:relative;display:flex;gap:12px;align-items:flex-start;min-width:0;padding:12px 14px;border:1px solid var(--border);border-radius:14px;background:var(--surface);}
+.pg-map a{position:absolute;inset:0;border-radius:inherit;}
+.pg-map a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+.pg-map li:hover{border-color:color-mix(in srgb,var(--accent) 55%,var(--border));}
+.pg-glyph{flex:none;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--teal-soft);}
+.pg-glyph svg{width:20px;height:20px;}
+.pg-map b{display:block;color:var(--ink);font-size:var(--ty-body);line-height:1.3;}
+.pg-map span{display:block;color:var(--ink-dim);font-size:var(--ty-body-sm);line-height:1.4;overflow-wrap:anywhere;}
+.pg-map .pg-count{display:inline-block;margin-top:4px;font-family:var(--mono);font-size:var(--ty-micro);color:var(--teal-soft);}
+@media (max-width:720px){.pg-map{grid-template-columns:repeat(2,minmax(0,1fr));}.pg-map li{padding:10px;gap:8px;}.pg-glyph{width:28px;height:28px;}.pg-glyph svg{width:16px;height:16px;}}
+/* /shared:opening-css */
+/* shared:outline-css */
+/* ---------- Page outline (v4.13.10, shared) ---------- A sticky "On this page" bar under the site header. Wide screens show every entry as a chip; phones collapse it to one line naming the current section. It sits above the content rather than beside it so no scene loses width. */
+.pg-outline{position:sticky;top:59px;z-index:30;margin:var(--sp-2) 0 var(--sp-4);background:color-mix(in srgb,var(--page-bg) 90%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);}
+.pg-outline details{padding:8px 0;}
+.pg-outline summary{display:none;cursor:pointer;list-style:none;align-items:center;gap:8px;min-height:44px;color:var(--ink);font-weight:600;}
+.pg-outline summary::-webkit-details-marker{display:none;}
+.pg-outline summary small{color:var(--ink-dim);font-weight:400;}
+.pg-outline summary::after{content:"";margin-left:auto;width:8px;height:8px;border-right:2px solid var(--ink-dim);border-bottom:2px solid var(--ink-dim);transform:rotate(45deg);transition:transform .2s var(--ease);}
+.pg-outline details[open] summary::after{transform:rotate(-135deg);}
+.pg-outline ol{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+.pg-outline .pg-outline-label{color:var(--ink-dim);font-size:var(--ty-body-sm);margin-right:4px;}
+.pg-outline a{display:inline-flex;align-items:center;min-height:36px;padding:5px 13px;border:1px solid var(--border);border-radius:999px;color:var(--ink-dim);font-size:var(--ty-body-sm);font-weight:600;text-decoration:none;}
+.pg-outline a:hover{color:var(--ink);border-color:var(--accent);}
+.pg-outline a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+.pg-outline a[aria-current]{color:var(--bg-0);background:var(--accent);border-color:var(--accent);}
+[data-outline-target]{scroll-margin-top:132px;}
+@media (max-width:720px){
+  .pg-outline summary{display:flex;}
+  .pg-outline .pg-outline-label{display:none;}
+  .pg-outline ol{flex-direction:column;align-items:stretch;gap:4px;padding-top:6px;}
+  .pg-outline a{min-height:44px;border-radius:12px;}
+  [data-outline-target]{scroll-margin-top:118px;}
+}
+@media (prefers-reduced-motion:reduce){.pg-outline summary::after{transition:none;}}
+/* /shared:outline-css */
+/* shared:nav-mobile-css */
+@media (max-width:860px){.nav-toggle{display:block;}
+.nav-links{display:none;position:absolute;top:58px;left:0;right:0;flex-direction:column;align-items:stretch;padding:var(--sp-3) 24px var(--sp-4);background:var(--nav-bg);border-bottom:1px solid var(--border);}
+.nav-links.open{display:flex;}
+.nav-links a{padding:11px 12px;}
+.nav-gh,.nhg-theme{align-self:flex-start;}
+}
+/* /shared:nav-mobile-css */
+/* shared:motion-css */
+/* ---------- Reduced motion, shared base (v4.13.10) ---------- The page-independent half of the guide's reduced-motion block: no smooth scrolling, no page or reveal animation, and sequence steps shown at once rather than waiting for an observer. Page-specific motion rules stay with their page. */
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}
+#constellation{transition:none;}
+.js .page.active{animation:none;}
+.js .reveal{opacity:1;transform:none;transition:none;}
+.js .seq-fade,.js .seq-rise,.js .seq-draw,.js .seq-glow,.js .ann,.js .ann-legend-row{transition-duration:0s;}
+.js .seq-rise{opacity:1;transform:none;}
+.js .seq-fade{opacity:1;}
+}
+/* /shared:motion-css */
 /* ---------- Training stages ---------- */
-.tr-stage{padding-top:var(--sp-6);}
+.tr-stage{padding-top:var(--sp-2);}
+.tr-stage .pg-open{padding-top:0;}
+.tr-stage .pg-open-title{margin-top:var(--sp-3);}
 .tr-notice{margin:var(--sp-4) 0 0;padding:var(--sp-3) var(--sp-4);border:1px solid var(--border);border-radius:12px;background:var(--surface);color:var(--ink-dim);}
 .tr-notice[hidden]{display:none;}
+/* ---------- Loop tracker ---------- The Home page's six-step loop, compact, showing which loop is running and which step the reader is on. */
+.tr-track{margin:0 0 var(--sp-4);}
+[data-tr-stage="intro"] .tr-track{display:none;}
+.tr-track-head{display:flex;align-items:baseline;gap:10px;margin:0 0 8px;}
+.tr-track-head b{color:var(--ink);font-size:var(--ty-body);white-space:nowrap;}
+.tr-track-head span{color:var(--ink-dim);font-size:var(--ty-body-sm);}
+.tr-steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;}
+.tr-steps a{display:flex;flex-direction:column;gap:2px;min-height:58px;padding:9px 11px;border:1px solid var(--border);border-radius:12px;background:var(--surface);color:var(--ink);text-decoration:none;}
+.tr-steps a:hover{border-color:var(--accent);}
+.tr-steps a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+.tr-steps code{background:transparent;border:0;padding:0;color:var(--teal-soft);font-weight:700;font-size:var(--ty-body);}
+.tr-steps small{color:var(--ink-dim);font-size:var(--ty-micro);line-height:1.3;}
+.tr-steps [data-state="done"] a{border-color:color-mix(in srgb,var(--accent) 45%,var(--border));}
+.tr-steps [data-state="done"] small::before{content:"\2713\00a0";color:var(--teal-soft);font-weight:700;}
+.tr-steps [data-state="mapped"] a{opacity:.62;border-style:dashed;}
+.tr-steps [data-state="current"] a{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent),0 0 18px 0 var(--accent-glow,rgba(45,212,191,.35));}
+@media (max-width:720px){.tr-steps{grid-template-columns:repeat(3,minmax(0,1fr));}.tr-steps a{min-height:52px;padding:8px;}}
 /* shared:type-css */
 :root{
   /* Legibility floor. No text role on this page resolves below it, and the
@@ -246,10 +327,35 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 
   <main id="app">
     <div class="container">
+      <div class="pg-outline-host" id="trOutline"></div>
       <p class="tr-notice" id="trNotice" role="status" hidden></p>
+      <div class="tr-track" id="trTrack" aria-label="Where you are in the Nexus loop">
+        <p class="tr-track-head"><b id="trTrackLoop">Loop 1</b><span id="trTrackNote">The six steps from the Home page, run on one game.</span></p>
+        <ol class="tr-steps">
+          <li data-step="describe"><a href="#loop1/describe"><code data-ty="code">/describe</code><small>map it</small></a></li>
+          <li data-step="review"><a href="#loop1/review"><code data-ty="code">/review</code><small>judge it</small></a></li>
+          <li data-step="plan"><a href="#loop1/plan"><code data-ty="code">/plan</code><small>decompose it</small></a></li>
+          <li data-step="implement"><a href="#loop1/implement"><code data-ty="code">/implement</code><small>build it</small></a></li>
+          <li data-step="test"><a href="#loop1/test"><code data-ty="code">/test</code><small>harden it</small></a></li>
+          <li data-step="update"><a href="#loop1/update"><code data-ty="code">/update</code><small>ship it</small></a></li>
+        </ol>
+      </div>
     </div>
 
-    <section class="page tr-stage" data-stage="intro" aria-labelledby="st-intro"><div class="container"><h1 data-ty="h1" id="st-intro">Training</h1><p data-ty="lead">Walk the whole Nexus loop on one small game.</p></div></section>
+    <section class="page tr-stage" data-stage="intro" aria-labelledby="st-intro"><div class="container">
+      <div class="pg-open">
+        <h1 data-ty="h1" class="pg-open-title" id="st-intro">Learn the Nexus loop by <span class="gtext">fixing a game</span></h1>
+        <p data-ty="lead" class="pg-open-lead">Training walks the whole loop from the Home page on one small arcade game that ships with two bugs. You play it, watch an agent describe, review, plan, implement, test, and update the code, then play again. A second, shorter loop catches the bug the first one could not see.</p>
+        <ol class="pg-map" aria-label="The Training journey">
+          <li><span class="pg-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg></span><div><b>Introduction</b><span>How Training works and what each stage does</span></div><a href="#intro" aria-label="Introduction: How Training works and what each stage does"></a></li>
+          <li><span class="pg-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 9h6v8a3 3 0 0 1-6 0V9Z"/><path d="M9 9a3 3 0 0 1 6 0M4 12h5M15 12h5M5 18l4-2M19 18l-4-2M5 6l4 3M19 6l-4 3"/></svg></span><div><b>Play the buggy game</b><span>Meet the bug the loop will fix</span></div><a href="#play-buggy" aria-label="Play the buggy game: Meet the bug the loop will fix"></a></li>
+          <li><span class="pg-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg></span><div><b>Loop 1</b><span>Describe, review, plan, implement, test, update</span></div><a href="#loop1/describe" aria-label="Loop 1: Describe, review, plan, implement, test, update"></a></li>
+          <li><span class="pg-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 5v14l11-7L7 5Z"/></svg></span><div><b>Play again</b><span>One bug fixed, one still hiding</span></div><a href="#play-partial" aria-label="Play again: One bug fixed, one still hiding"></a></li>
+          <li><span class="pg-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.5-4.5"/></svg></span><div><b>Loop 2</b><span>Review finds the hidden bug; a shorter loop fixes it</span></div><a href="#loop2/review" aria-label="Loop 2: Review finds the hidden bug; a shorter loop fixes it"></a></li>
+          <li><span class="pg-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0V4ZM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 20h8"/></svg></span><div><b>Play the fixed game</b><span>Three levels and a final boss</span></div><a href="#play-fixed" aria-label="Play the fixed game: Three levels and a final boss"></a></li>
+        </ol>
+      </div>
+    </div></section>
     <section class="page tr-stage" data-stage="play-buggy" aria-labelledby="st-play-buggy"><div class="container"><h1 data-ty="h1" id="st-play-buggy">Play the buggy game</h1></div></section>
     <section class="page tr-stage" data-stage="loop1/describe" aria-labelledby="st-l1-describe"><div class="container"><h1 data-ty="h1" id="st-l1-describe">Loop 1: describe</h1></div></section>
     <section class="page tr-stage" data-stage="loop1/review" aria-labelledby="st-l1-review"><div class="container"><h1 data-ty="h1" id="st-l1-review">Loop 1: review</h1></div></section>
@@ -440,6 +546,127 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
   window.NexusSeq.init();
 /* /shared:nexusseq-js */
 
+/* shared:outline-js */
+  /* -------------------------------------------------- NexusOutline (v4.13.10, shared)
+     NexusOutline.mount(host, items, opts) renders an "On this page" bar into host.
+     items: [{ id, label, href, target }]. In "scroll" mode, target is the element id
+     to bring into view, the current entry follows scrolling, and a click scrolls
+     without changing the page (the hash is updated with replaceState). In "route"
+     mode, a click follows href and opts.current() names the current entry.
+     Phones collapse the list to one line naming the current entry. */
+  window.NexusOutline = (function () {
+    var instances = [];
+    var wide = window.matchMedia ? window.matchMedia("(min-width: 721px)") : null;
+    function el(tag, cls, text) {
+      var node = document.createElement(tag);
+      if (cls) node.className = cls;
+      if (text != null) node.textContent = text;
+      return node;
+    }
+    function setCurrent(inst, id) {
+      if (inst.currentId === id) return;
+      inst.currentId = id;
+      for (var i = 0; i < inst.links.length; i++) {
+        var on = inst.links[i].getAttribute("data-outline-id") === id;
+        if (on) inst.links[i].setAttribute("aria-current", "true"); else inst.links[i].removeAttribute("aria-current");
+        if (on) inst.now.textContent = inst.links[i].textContent;
+      }
+    }
+    function fromScroll(inst) {
+      if (!inst.host.offsetParent) return;
+      var line = 150, best = inst.items.length ? inst.items[0].id : null;
+      for (var i = 0; i < inst.items.length; i++) {
+        var t = document.getElementById(inst.items[i].target);
+        if (t && t.getBoundingClientRect().top <= line) best = inst.items[i].id;
+      }
+      setCurrent(inst, best);
+    }
+    function syncOpen(inst) {
+      if (wide && wide.matches) inst.details.setAttribute("open", "");
+      else if (!inst.userOpened) inst.details.removeAttribute("open");
+    }
+    function mount(host, items, opts) {
+      opts = opts || {};
+      var inst = { host: host, items: items, mode: opts.mode || "scroll", current: opts.current, links: [], currentId: null, userOpened: false };
+      host.textContent = "";
+      var nav = el("nav", "pg-outline");
+      nav.setAttribute("aria-label", opts.label || "On this page");
+      var details = el("details");
+      var summary = el("summary");
+      summary.appendChild(document.createTextNode((opts.label || "On this page") + ": "));
+      inst.now = el("small");
+      summary.appendChild(inst.now);
+      var list = el("ol");
+      var lab = el("li", "pg-outline-label", opts.label || "On this page");
+      lab.setAttribute("aria-hidden", "true");
+      list.appendChild(lab);
+      items.forEach(function (item) {
+        var li = el("li");
+        var a = el("a", null, item.label);
+        a.href = item.href;
+        a.setAttribute("data-outline-id", item.id);
+        if (inst.mode === "scroll") {
+          var target = document.getElementById(item.target);
+          if (target) target.setAttribute("data-outline-target", "");
+          a.addEventListener("click", function (ev) {
+            var t = document.getElementById(item.target);
+            if (!t) return;
+            ev.preventDefault();
+            t.scrollIntoView({ block: "start", behavior: REDUCE ? "auto" : "smooth" });
+            var heading = t.querySelector("h1, h2, h3") || t;
+            if (!heading.hasAttribute("tabindex")) heading.setAttribute("tabindex", "-1");
+            heading.focus({ preventScroll: true });
+            try { window.history.replaceState(null, "", item.href); } catch (err) {}
+            setCurrent(inst, item.id);
+            if (!(wide && wide.matches)) details.removeAttribute("open");
+          });
+        } else {
+          a.addEventListener("click", function () { if (!(wide && wide.matches)) details.removeAttribute("open"); });
+        }
+        li.appendChild(a);
+        list.appendChild(li);
+        inst.links.push(a);
+      });
+      details.appendChild(summary);
+      details.appendChild(list);
+      details.addEventListener("toggle", function () { if (!(wide && wide.matches)) inst.userOpened = details.open; });
+      nav.appendChild(details);
+      host.appendChild(nav);
+      inst.details = details;
+      syncOpen(inst);
+      if (inst.mode === "scroll") fromScroll(inst);
+      else if (inst.current) setCurrent(inst, inst.current());
+      instances.push(inst);
+      return {
+        refresh: function () { if (inst.mode === "scroll") fromScroll(inst); else if (inst.current) setCurrent(inst, inst.current()); },
+        current: function () { return inst.currentId; }
+      };
+    }
+    var ticking = false;
+    window.addEventListener("scroll", function () {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(function () {
+        ticking = false;
+        for (var i = 0; i < instances.length; i++) if (instances[i].mode === "scroll") fromScroll(instances[i]);
+      });
+    }, { passive: true });
+    window.addEventListener("hashchange", function () {
+      window.requestAnimationFrame(function () {
+        for (var i = 0; i < instances.length; i++) {
+          if (instances[i].mode === "scroll") fromScroll(instances[i]);
+          else if (instances[i].current) setCurrent(instances[i], instances[i].current());
+        }
+      });
+    });
+    if (wide) {
+      var onWide = function () { for (var i = 0; i < instances.length; i++) syncOpen(instances[i]); };
+      if (wide.addEventListener) wide.addEventListener("change", onWide); else if (wide.addListener) wide.addListener(onWide);
+    }
+    return { mount: mount };
+  })();
+/* /shared:outline-js */
+
 /* shared:constellation-js */
   /* -------------------------------------------------- constellation */
   var canvas = document.getElementById("constellation");
@@ -548,6 +775,62 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
   var ALIASES = { "": "intro", "loop2/describe": "loop2/review" };
   var notice = document.getElementById("trNotice");
   var stage = null;
+  var outline = null;
+
+  /* -------------------------------------------------- loop tracker */
+  var STEPS = ["describe", "review", "plan", "implement", "test", "update"];
+  var trackItems = document.querySelectorAll("#trTrack [data-step]");
+  var trackLoop = document.getElementById("trTrackLoop");
+  var trackNote = document.getElementById("trTrackNote");
+  var tracker = {
+    loop: 1,
+    setStage: function (loop, step) {
+      this.loop = loop;
+      var at = STEPS.indexOf(step);
+      trackLoop.textContent = "Loop " + loop;
+      for (var t = 0; t < trackItems.length; t++) {
+        var name = trackItems[t].getAttribute("data-step");
+        var link = trackItems[t].querySelector("a");
+        var idx = STEPS.indexOf(name);
+        var state = at === -1 ? (step === "all-done" ? "done" : "todo") : idx < at ? "done" : idx === at ? "current" : "todo";
+        if (loop === 2 && name === "describe") state = "mapped";
+        trackItems[t].setAttribute("data-state", state);
+        link.setAttribute("href", "#loop" + loop + "/" + (state === "mapped" ? "review" : name));
+        if (state === "current") link.setAttribute("aria-current", "step"); else link.removeAttribute("aria-current");
+        if (state === "mapped") link.setAttribute("title", "Already mapped in loop 1"); else link.removeAttribute("title");
+        var small = link.querySelector("small");
+        if (state === "mapped") small.textContent = "already mapped";
+        else small.textContent = ["map it", "judge it", "decompose it", "build it", "harden it", "ship it"][idx];
+      }
+      trackNote.textContent = loop === 2
+        ? "The second loop starts at review: the code was already described in loop 1."
+        : "The six steps from the Home page, run on one game.";
+    },
+    markDone: function (loop, step) {
+      if (loop !== this.loop) return;
+      for (var t = 0; t < trackItems.length; t++) {
+        if (trackItems[t].getAttribute("data-step") === step) trackItems[t].setAttribute("data-state", "done");
+      }
+    }
+  };
+  function syncTracker(id) {
+    var m = /^loop([12])\/(\w+)$/.exec(id);
+    if (m) { tracker.setStage(parseInt(m[1], 10), m[2]); return; }
+    if (id === "intro" || id === "play-buggy") tracker.setStage(1, "none");
+    else if (id === "play-partial") tracker.setStage(1, "all-done");
+    else if (id === "play-fixed") tracker.setStage(2, "all-done");
+  }
+
+  /* -------------------------------------------------- outline (journey parts) */
+  var PARTS = [
+    { id: "intro", label: "Introduction", href: "#intro" },
+    { id: "play-buggy", label: "Buggy game", href: "#play-buggy" },
+    { id: "loop1", label: "Loop 1", href: "#loop1/describe" },
+    { id: "play-partial", label: "Play again", href: "#play-partial" },
+    { id: "loop2", label: "Loop 2", href: "#loop2/review" },
+    { id: "play-fixed", label: "Fixed game", href: "#play-fixed" }
+  ];
+  function partOf(id) { var m = /^(loop[12])\//.exec(id || ""); return m ? m[1] : id; }
 
   function show(id) {
     stage = id;
@@ -557,6 +840,8 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       if (on) { sections[j].removeAttribute("hidden"); } else { sections[j].setAttribute("hidden", ""); }
     }
     root.setAttribute("data-tr-stage", id);
+    syncTracker(id);
+    if (outline) outline.refresh();
   }
 
   function route() {
@@ -576,13 +861,17 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
     window.scrollTo(0, 0);
   }
 
+  outline = window.NexusOutline.mount(document.getElementById("trOutline"), PARTS, {
+    mode: "route", label: "Training", current: function () { return partOf(stage); }
+  });
   window.addEventListener("hashchange", route);
   route();
 
   window.NexusTrainingPage = {
     stages: function () { return STAGES.slice(); },
     stage: function () { return stage; },
-    go: function (id) { window.location.hash = "#" + id; }
+    go: function (id) { window.location.hash = "#" + id; },
+    tracker: tracker
   };
 })();
 </script>

@@ -44,11 +44,11 @@ def test_training_page_stays_under_its_byte_ceiling() -> None:
 
 
 def test_training_page_loads_no_external_resource(html: str) -> None:
-    assert not re.search(r"<script\b[^>]*\bsrc=", html, re.I), "no <script src>: the page must work offline"
-    assert not re.search(r"<link\b[^>]*rel=\"stylesheet\"", html, re.I)
+    assert not re.search(r"<script\b[^>]*\bsrc=", html, re.IGNORECASE), "no <script src>: the page must work offline"
+    assert not re.search(r"<link\b[^>]*rel=\"stylesheet\"", html, re.IGNORECASE)
     loads = re.findall(r'\bsrc="([^"]+)"', html) + re.findall(r'<link\b[^>]*\bhref="([^"]+)"', html)
     for url in loads:
-        assert not re.match(r"(?:[a-z]+:)?//", url, re.I), f"the page loads an external resource: {url}"
+        assert not re.match(r"(?:[a-z]+:)?//", url, re.IGNORECASE), f"the page loads an external resource: {url}"
     allowed = {"https://github.com/bendourthe/Nexus-Hub", "https://creativecommons.org/licenses/by/4.0/"}
     for url in re.findall(r'<a\b[^>]*\bhref="(https?:[^"]+)"', html):
         assert url in allowed, f"unexpected outbound link: {url}"
@@ -57,7 +57,7 @@ def test_training_page_loads_no_external_resource(html: str) -> None:
 def test_shared_fragments_are_current() -> None:
     result = subprocess.run(
         [sys.executable, str(ROOT / "scripts" / "stamp_guide_shared.py"), "--check"],
-        capture_output=True, text=True,
+        capture_output=True, text=True, check=False,
     )
     assert result.returncode == 0, result.stderr
 
@@ -72,7 +72,7 @@ def test_every_stage_has_one_section_with_a_heading(html: str) -> None:
     found = re.findall(r'data-stage="([^"]+)"', html)
     assert found == STAGES
     for stage in STAGES:
-        block = re.search(r'data-stage="' + re.escape(stage) + r'"[^>]*>(.*?)</section>', html, re.S)
+        block = re.search(r'data-stage="' + re.escape(stage) + r'"[^>]*>(.*?)</section>', html, re.DOTALL)
         assert block and "<h1" in block.group(1), stage
 
 
