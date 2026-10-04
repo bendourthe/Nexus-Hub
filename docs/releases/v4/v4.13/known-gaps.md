@@ -3,7 +3,7 @@
 **Project**: Nexus-Hub
 **Status**: released; PR #230 merged the complete 34-task plan and tag `v4.13.0` was published on 2026-09-21. Two bounded warning-class findings remain owned for future measurement work. GitHub branch protection passed a live pull-request gate test; the second trigger pilot stopped on an unproven spend bound.
 **Last updated**: 2026-10-03
-**Open items**: 137
+**Open items**: 138
 
 Release-scoped gaps for the evidence-driven agent improvement plan. Planned future-phase work is tracked in the plan rather than reported as completed here.
 
@@ -1215,7 +1215,7 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 4 | 1 |
-| Bugs / regressions (BG) | 2 | 0 |
+| Bugs / regressions (BG) | 3 | 0 |
 | Warnings (WN) | 19 | 1 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 2 | 0 |
@@ -1409,6 +1409,12 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 - **Source phase**: Phase 5. **Plan reference**: `v4.13.9-adoption-inline-visualize-codex-disk-writes-review-flow-gpt-6-1-sol.md`, T423.
 - **Reason**: the size-bound test's liveness check found that once a `## [` entry heading reaches line 1 of `DEVLOG.md`, the computed insert line is 0, which `awk`'s `NR == 0` never matches, so every later entry is dropped while the hook still prints that the entry was prepended. The second entry also lands above the `# Dev Log` title. The `.ps1` sibling inserts correctly, so the pair disagrees. This plan changes no hook (T423 failure mode), so the defect is recorded, and the test holds it as a strict expected failure that turns red once it is fixed. Measurement: [`v4.13.9-hook-size-bound.md`](development/v4.13.9-hook-size-bound.md).
 - **Suggested next step**: fix the insert-line computation in `catalog/hooks/auto-devlog.sh` so a line-1 heading inserts before it, add an exit-code and output parity case to the hook's tests, then remove its `KNOWN_BREACHES` entry in `catalog/hooks/tests/test_hook_size_bound.py`.
+
+#### BG-14 (v4.13.9): `learning-capture.sh` silently drops an event over 128 KiB on Linux
+
+- **Source phase**: Phase 6 (integration pull request #424, Linux `tests` job). **Plan reference**: `v4.13.9-adoption-inline-visualize-codex-disk-writes-review-flow-gpt-6-1-sol.md`, T435.
+- **Reason**: the hook passes the whole payload to Python in one environment variable (`NEXUS_LC_PAYLOAD`). Linux caps a single environment string at 128 KiB (`MAX_ARG_STRLEN`), so for a larger payload Python fails to start with "Argument list too long", the error is discarded by `2>/dev/null || true`, and no record is written while the hook exits 0. Reproduced in WSL Ubuntu on 2026-10-04. On Windows and macOS the same payload is written whole instead (the WN-36 breach). The size-bound test holds the `.sh` breach as expected only off Linux (`[not-linux]`).
+- **Suggested next step**: pass the payload to Python on standard input instead of in the environment, truncate `hook_event_name` and `tool_name` with the WN-36 fix, then remove the `[not-linux]` gate and the breach entry.
 
 #### WN-36 (v4.13.9): Five file-writing hooks copy a field without truncation
 

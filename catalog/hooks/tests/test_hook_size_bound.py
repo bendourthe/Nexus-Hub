@@ -698,7 +698,10 @@ _ST = "~/.nexus-hub/state/skill-usage-<session>.json"
 KNOWN_BREACHES: dict[tuple[str, str, str, str], str] = {
     # prompt_sample is cut to 400 chars, but hook_event_name and tool_name are
     # copied whole: 2 x 64 KiB fields -> ~131.5 KB line (sh 131549, ps1 131543).
-    ("learning-capture", "sh", _LC, "oversized"): "event/tool fields untruncated",
+    # On Linux the .sh never writes it: the payload travels in one environment
+    # string, which MAX_ARG_STRLEN caps at 128 KiB, so python fails to start
+    # (E2BIG) and the event is silently dropped (BG-14).
+    ("learning-capture", "sh", _LC, "oversized"): "[not-linux] event/tool fields untruncated",
     ("learning-capture", "ps1", _LC, "oversized"): "event/tool fields untruncated",
     # The path is recorded whole (65699 B line); rotation bounds LINES, not bytes,
     # so the ledger's byte size is NEXUS_PROVENANCE_MAX x the longest path.
@@ -872,6 +875,7 @@ def _settle(
         if key[0] == scenario.name and key[1] == impl
         and not (reason.startswith("[bash+jq]") and not _bash_has_jq(
             request.getfixturevalue("bash_bin")))
+        and not (reason.startswith("[not-linux]") and sys.platform.startswith("linux"))
     }
     unknown = {k: v for k, v in violations.items() if k not in expected}
     assert not unknown, f"size bound breached: {unknown}"
