@@ -1,5 +1,5 @@
 {
-  "_comment": "Pieces both guide pages carry. Edit the source here, then run python scripts/stamp_guide_shared.py; --check fails on drift. Decision: docs/decisions/implemented/architecture/2026-10-04-guide-training-as-a-second-offline-page.md. The JS fragments expect REDUCE, THEME_KEY, and current to be declared by the page script that holds them. The guide adopts opening-css, outline-css, outline-js, and motion-css (removing its own copy of the generic reduced-motion lines) at the v4.13.10 Phase 7 cutover, once the old in-guide Training is removed and the byte ceiling has room.",
+  "_comment": "Pieces both guide pages carry. Edit the source here, then run python scripts/stamp_guide_shared.py; --check fails on drift. Decision: docs/decisions/implemented/architecture/2026-10-04-guide-training-as-a-second-offline-page.md. The JS fragments expect REDUCE, THEME_KEY, and current to be declared by the page script that holds them. The guide adopts opening-css, outline-css, outline-js, and motion-css (removing its own copy of the generic reduced-motion lines) at the v4.13.10 Phase 7 cutover, once the old in-guide Training is removed and the byte ceiling has room. Training-only sources (the game engine) live in guides/website/src/ and are listed here so the same stamp keeps them inlined.",
   "fragments": {
     "favicon": {
       "syntax": "html",
@@ -68,6 +68,10 @@
     "motion-css": {
       "syntax": "css",
       "file": "motion.css"
+    },
+    "sky-sentinel-js": {
+      "syntax": "js",
+      "file": "../src/sky-sentinel.js"
     }
   },
   "pages": {
