@@ -1,0 +1,66 @@
+{
+  "seed": 42,
+  "recorded_at": "2026-10-01T05:48:10.730276Z",
+  "order": [
+    [
+      "p3-tags-leak",
+      "control"
+    ],
+    [
+      "p5-cache-collision",
+      "first-principles"
+    ],
+    [
+      "p3-tags-leak",
+      "first-principles"
+    ],
+    [
+      "p3-tags-leak",
+      "baseline"
+    ],
+    [
+      "p5-cache-collision",
+      "control"
+    ],
+    [
+      "p5-cache-collision",
+      "baseline"
+    ],
+    [
+      "p2-discount-hundredfold",
+      "control"
+    ],
+    [
+      "p1-invoice-keyerror",
+      "control"
+    ],
+    [
+      "p4-missing-last-page",
+      "baseline"
+    ],
+    [
+      "p2-discount-hundredfold",
+      "baseline"
+    ],
+    [
+      "p2-discount-hundredfold",
+      "first-principles"
+    ],
+    [
+      "p4-missing-last-page",
+      "control"
+    ],
+    [
+      "p1-invoice-keyerror",
+      "baseline"
+    ],
+    [
+      "p1-invoice-keyerror",
+      "first-principles"
+    ],
+    [
+      "p4-missing-last-page",
+      "first-principles"
+    ]
+  ]
+}

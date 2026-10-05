@@ -5,8 +5,8 @@
       "docs/handbooks/_sources/distribution/model.json": "3f3b9e1222a51583962e4de248d9ac74804b03a2b3102605e8e1911c8ea3496d",
       "docs/handbooks/_sources/distribution/source.md": "495f2edd8b5046d38801c6e675385cc500b552da8231a381ff5e811db62721fa",
       "docs/handbooks/_sources/distribution/design.css": "4d2975128abe327205e8b3c4fd62d351644221e9e03bfbaa539986f3cc1b9a70",
-      "scripts/installer.ps1": "493b9153da44b66ed8dc59c7e32cb9adff4ce58c8f9ba08e360a7e508b330970",
-      "scripts/installer.sh": "f39f4133b8e9575e8e7db60601d4fd08b33fd755b01bcb0a6a19712bee6f3614",
+      "scripts/installer.ps1": "8c01885dbe6fb93411f49129849a849a1659eff143d463c9a1da3d81f1940edc",
+      "scripts/installer.sh": "b40fdcedbf353dc5707e761b0eff10f9ba26de648c434e181bb516120fcdd77d",
       "scripts/lib/integrations/runner.py": "8a2ee00491a75bc6ce66aedef8f824a092bb2369cb321cb76ddc338e2fec03ed",
       "scripts/lib/integrations/_catalog_adapters.py": "36f4fa103e7126692a32a5c93b56c77f2919cd2d2dad7ee6e318d259f49fa041",
       "scripts/lib/integrations/_owned.py": "1587357664626dc18f299f0abd85d2d31a8fe94a705611a7d52fe734f1465e90",
@@ -24,7 +24,7 @@
       "catalog/style-guides/git-attribution.md": "f4abb51bdbd97f19a115024c51ba0e9a414f4e377590c05efcbdc8693ede7b29",
       "scripts/lib/integrations/cursor.py": "efbeeeb7150fc72e6d3e48b0f9d368f5fec3bc2cf65b7fe2a663ffb50c03cca8",
       "scripts/lib/integrations/aider.py": "7737442015938681795878452050de557a09324651e29247de3ee231513e9798",
-      "configs/platform-defaults.json": "e8ca8c8f49bd70448e5b7896a20308407dbcac0e442de5c3964e955e9c7ebc23"
+      "configs/platform-defaults.json": "46f0baf40df55710365d962830c90b0fa742933fb6f9a12201f1ba581381bff0"
     },
     "output_sha256": "1e2a099241b81cf7c0bd84480f759956d374e9768b8231aced654c2f2c32262b"
   },

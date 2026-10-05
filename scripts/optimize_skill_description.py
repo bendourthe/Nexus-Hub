@@ -1,11 +1,20 @@
 #!/usr/bin/env python3
 """Iteratively optimize a Nexus-Hub skill's `description` frontmatter field.
 
-The optimizer evaluates the current description on a 60/40 train-test split
-of an eval set, asks the chosen CLI to PROPOSE 3 candidate rewrites based on
-which train queries failed, evaluates each candidate on train AND held-out
-test, and selects the winner by held-out test score (NOT train) - the rule
-that prevents overfitting to the candidate-generation prompt.
+The optimizer asks the chosen CLI to PROPOSE 3 candidate rewrites based on
+which train queries failed, and selects the winner on a split it did not
+train on (NOT train) - the rule that prevents overfitting to the
+candidate-generation prompt. How it splits depends on the eval set:
+
+- Three-way (`--split auto`, 24+ entries with at least 2 of each
+  `should_trigger` class in every split): train / validation / test, grouped
+  so equivalent queries never span two splits. Candidates are selected by
+  `validation_trigger_rate`; the untouched test split is scored once, for the
+  final description and for the original, so `test_trigger_rate` is a real
+  held-out score and `reported_optimistic` is false.
+- Two-way (smaller sets, or `--split two-way`): the original 60/40 split, with
+  every old key unchanged. The same test split both selects and reports, so
+  the output carries `reported_optimistic: true`.
 
 Schema and rationale: catalog/skills/workflow/skill-eval-loop/references/
 description-optimizer.md
@@ -71,6 +80,12 @@ _ISOLATION_LIMITATIONS = {
 }
 _DEFAULT_SEED = 42
 _DEFAULT_TRAIN_FRACTION = 0.6
+# Below this size a test split is too small for its score to mean much (a
+# 3-entry split can only score 0, 1/3, 2/3, or 1), so the two-way split is kept
+# and labelled optimistic instead.
+_THREE_WAY_MIN_ENTRIES = 24
+_THREE_WAY_MIN_PER_CLASS = 2
+_SPLIT_MODES = ("auto", "two-way")
 
 
 # ── Skill / eval loading ──────────────────────────────────────────────────────
@@ -118,6 +133,140 @@ def split_train_test(
     train = pool[:n_train]
     test = pool[n_train:]
     return train, test
+
+
+def _normalize_text(text: str) -> str:
+    """Lowercase, replace punctuation with spaces, and collapse whitespace."""
+    return " ".join(re.sub(r"[^\w\s]", " ", text.lower()).split())
+
+
+def is_positive(entry: dict[str, Any]) -> bool:
+    """An entry's class. A missing `should_trigger` means positive, the same
+    default `estimate_trigger_rate` scores with, so the splitter's class
+    balance is the balance that actually gets scored."""
+    return bool(entry.get("should_trigger", True))
+
+
+def group_key(entry: dict[str, Any]) -> str:
+    """The key that keeps equivalent entries in one split.
+
+    An explicit `group` field wins (any non-empty value, compared as text), so
+    every variant of one prompt must carry the same `group` once any does.
+    Otherwise entries group by their normalized text: the query, or a
+    multi-turn entry's joined turns. A one-turn entry and a query with the same
+    text share a key, and case, spacing, and punctuation variants cannot
+    straddle splits.
+    """
+    group = entry.get("group")
+    if group is not None and not isinstance(group, bool) and str(group).strip():
+        return "group:" + str(group).strip()
+    turns = entry.get("turns")
+    if isinstance(turns, list) and turns:
+        return "text:" + _normalize_text(" ".join(str(t) for t in turns))
+    return "text:" + _normalize_text(str(entry.get("query", "")))
+
+
+def split_three_way(
+    evals: list[dict[str, Any]],
+    train_fraction: float = _DEFAULT_TRAIN_FRACTION,
+    seed: int = _DEFAULT_SEED,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]] | None:
+    """Grouped, class-stratified train / validation / test split.
+
+    Returns None when the set is ineligible: fewer than 24 entries, a group
+    that mixes `should_trigger` classes, or any split left with fewer than 2
+    entries of either class. Groups always move together, so no group appears
+    in two splits. Deterministic for a given input and seed.
+    """
+    if len(evals) < _THREE_WAY_MIN_ENTRIES:
+        return None
+    groups: dict[str, list[dict[str, Any]]] = {}
+    for entry in evals:
+        groups.setdefault(group_key(entry), []).append(entry)
+    by_class: dict[bool, list[list[dict[str, Any]]]] = {True: [], False: []}
+    for members in groups.values():
+        cls = is_positive(members[0])
+        if any(is_positive(m) != cls for m in members):
+            return None
+        by_class[cls].append(members)
+
+    rng = random.Random(seed)
+    train: list[dict[str, Any]] = []
+    validation: list[dict[str, Any]] = []
+    test: list[dict[str, Any]] = []
+    for cls in (True, False):
+        class_groups = sorted(by_class[cls], key=lambda g: group_key(g[0]))
+        rng.shuffle(class_groups)
+        n = sum(len(g) for g in class_groups)
+        remainder = n - round(n * train_fraction)
+        n_val = max(_THREE_WAY_MIN_PER_CLASS, remainder // 2)
+        n_test = max(_THREE_WAY_MIN_PER_CLASS, remainder - remainder // 2)
+        placed_test = placed_val = 0
+        for members in class_groups:
+            if placed_test < n_test:
+                test.extend(members)
+                placed_test += len(members)
+            elif placed_val < n_val:
+                validation.extend(members)
+                placed_val += len(members)
+            else:
+                train.extend(members)
+
+    for part in (train, validation, test):
+        for cls in (True, False):
+            if sum(1 for e in part if is_positive(e) == cls) < _THREE_WAY_MIN_PER_CLASS:
+                return None
+    return train, validation, test
+
+
+def resolve_split(
+    evals: list[dict[str, Any]],
+    train_fraction: float = _DEFAULT_TRAIN_FRACTION,
+    seed: int = _DEFAULT_SEED,
+    mode: str = "auto",
+) -> dict[str, Any]:
+    """Choose the split. `auto` uses three-way when eligible, else two-way."""
+    if mode == "auto":
+        three = split_three_way(evals, train_fraction, seed)
+        if three is not None:
+            train, validation, test = three
+            return {"mode": "three-way", "train": train, "validation": validation,
+                    "test": test, "reported_optimistic": False}
+        if len(evals) >= _THREE_WAY_MIN_ENTRIES:
+            # Large enough to qualify by size, so say why it fell back rather
+            # than leaving the user to wonder why the score is labelled optimistic.
+            print(
+                "Note: three-way split not used: a group mixes should_trigger classes, "
+                f"or a split would hold fewer than {_THREE_WAY_MIN_PER_CLASS} entries of a "
+                "class. Using the two-way split (ungrouped; reported_optimistic: true).",
+                file=sys.stderr,
+            )
+    train, test = split_train_test(evals, train_fraction, seed)
+    return {"mode": "two-way", "train": train, "validation": None, "test": test,
+            "reported_optimistic": True}
+
+
+def _ids(entries: list[dict[str, Any]]) -> list[Any]:
+    return [q["id"] for q in entries]
+
+
+def split_ids(split: dict[str, Any]) -> dict[str, list[Any]]:
+    """The `split` block: old keys always, `validation_ids` only in three-way mode."""
+    out = {"train_ids": _ids(split["train"]), "test_ids": _ids(split["test"])}
+    if split["validation"] is not None:
+        out["validation_ids"] = _ids(split["validation"])
+    return out
+
+
+def split_labels(split: dict[str, Any]) -> dict[str, Any]:
+    """Which entries selected the winner and which produced the reported score."""
+    selection = split["validation"] if split["validation"] is not None else split["test"]
+    return {
+        "split_mode": split["mode"],
+        "selection_split": _ids(selection),
+        "reported_split": _ids(split["test"]),
+        "reported_optimistic": split["reported_optimistic"],
+    }
 
 
 # ── CLI dispatch (parity-tested) ──────────────────────────────────────────────
@@ -332,7 +481,7 @@ def estimate_trigger_rate(
         successes = 0
         total = 0
         for q in queries:
-            should_trigger = bool(q.get("should_trigger", True))
+            should_trigger = is_positive(q)
             q_model = resolve_pinned_model(
                 model, q.get("model"), eval_id=str(q.get("id", "<unknown>"))
             )
@@ -574,14 +723,19 @@ def generate_candidates(
 # ── Selection rule ────────────────────────────────────────────────────────────
 
 
-def select_best(baseline: dict[str, Any], candidates: list[dict[str, Any]]) -> dict[str, Any]:
-    """Pick the entry with the highest test_trigger_rate; tie-break on
+def select_best(
+    baseline: dict[str, Any],
+    candidates: list[dict[str, Any]],
+    metric: str = "test_trigger_rate",
+) -> dict[str, Any]:
+    """Pick the entry with the highest `metric` (test_trigger_rate in two-way
+    mode, validation_trigger_rate in three-way mode); tie-break on
     train_trigger_rate then on description length (shorter wins)."""
     pool = [baseline, *candidates]
 
     def key(c: dict[str, Any]) -> tuple[float, float, int]:
         return (
-            c.get("test_trigger_rate", 0.0),
+            c.get(metric, 0.0),
             c.get("train_trigger_rate", 0.0),
             -len(c.get("description", "")),
         )
@@ -600,10 +754,28 @@ def run_iteration(
     description: str,
     repeats: int,
     model: str | None = None,
+    validation: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
-    """Run one optimizer iteration. Returns the iteration record."""
+    """Run one optimizer iteration. Returns the iteration record.
+
+    Two-way (`validation` is None): train and test are scored and test selects
+    the winner, exactly as before. Three-way: train and validation are scored,
+    validation selects, and the test split is not touched here at all.
+    """
+    split = {
+        "mode": "two-way" if validation is None else "three-way",
+        "train": train,
+        "validation": validation,
+        "test": test,
+        "reported_optimistic": validation is None,
+    }
+    selection_set = test if validation is None else validation
+    metric = "test_trigger_rate" if validation is None else "validation_trigger_rate"
+
     baseline_train = estimate_trigger_rate(cli, skill_path, description, train, repeats, model)
-    baseline_test = estimate_trigger_rate(cli, skill_path, description, test, repeats, model)
+    baseline_selection = estimate_trigger_rate(
+        cli, skill_path, description, selection_set, repeats, model
+    )
 
     train_passes = [
         q["query"] for q in train if _passes(cli, skill_path, description, q, repeats, model)
@@ -621,8 +793,8 @@ def run_iteration(
                 "train_trigger_rate": estimate_trigger_rate(
                     cli, skill_path, cand, train, repeats, model
                 ),
-                "test_trigger_rate": estimate_trigger_rate(
-                    cli, skill_path, cand, test, repeats, model
+                metric: estimate_trigger_rate(
+                    cli, skill_path, cand, selection_set, repeats, model
                 ),
             }
         )
@@ -630,21 +802,19 @@ def run_iteration(
     baseline_record = {
         "description": description,
         "train_trigger_rate": baseline_train,
-        "test_trigger_rate": baseline_test,
+        metric: baseline_selection,
     }
-    best = select_best(baseline_record, candidates)
+    best = select_best(baseline_record, candidates, metric)
 
     return {
         "skill_path": str(skill_path),
         "model": model,
-        "split": {
-            "train_ids": [q["id"] for q in train],
-            "test_ids": [q["id"] for q in test],
-        },
+        "split": split_ids(split),
         "baseline": baseline_record,
         "candidates": candidates,
         "best_description": best["description"],
-        "selection_metric": "test_trigger_rate",
+        "selection_metric": metric,
+        **split_labels(split),
         "generated_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
     }
 
@@ -674,9 +844,19 @@ def render_dry_run(
     max_iterations: int,
     seed: int,
     model: str | None = None,
+    split: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Build the dry-run report without invoking any CLI."""
-    return {
+    """Build the dry-run report without invoking any CLI.
+
+    `split` defaults to the two-way split of `train` and `test`, which keeps
+    every legacy key at its old value.
+    """
+    if split is None:
+        split = {"mode": "two-way", "train": train, "validation": None,
+                 "test": test, "reported_optimistic": True}
+    three_way = split["validation"] is not None
+    n_validation = len(split["validation"]) if three_way else 0
+    report = {
         "mode": "dry-run",
         "cli": cli,
         "model": model,
@@ -685,20 +865,94 @@ def render_dry_run(
         "skill_path": str(skill_path),
         "evals_path": str(evals_path),
         "baseline_description": description,
-        "split": {
-            "train_ids": [q["id"] for q in train],
-            "test_ids": [q["id"] for q in test],
-        },
+        "split": split_ids(split),
         "n_train": len(train),
         "n_test": len(test),
-        "low_confidence": len(train) + len(test) < 8,
+        "low_confidence": len(train) + len(test) + n_validation < 8,
         "candidate_generation_prompt_template_preview": _CANDIDATE_PROMPT_TEMPLATE.format(
             description=description,
             train_passes="<train passes inserted at runtime>",
             train_failures="<train failures inserted at runtime>",
         ),
-        "selection_metric": "test_trigger_rate",
+        "selection_metric": "validation_trigger_rate" if three_way else "test_trigger_rate",
+        **split_labels(split),
     }
+    if three_way:
+        report["n_validation"] = n_validation
+    return report
+
+
+def optimize(
+    cli: str,
+    skill_path: Path,
+    split: dict[str, Any],
+    description: str,
+    repeats: int,
+    model: str | None,
+    max_iterations: int,
+    optimizer_dir: Path,
+) -> dict[str, Any] | None:
+    """Run the iteration loop and write iteration-N.json and final.json.
+
+    Early stop, the plateau rule, and the perfect-score stop read the
+    selection score only. In three-way mode the test split is scored once at
+    the end, for the final description and for the original, and recorded in
+    final.json as `test_trigger_rate` and `original_test_trigger_rate`.
+    """
+    three_way = split["validation"] is not None
+    metric = "validation_trigger_rate" if three_way else "test_trigger_rate"
+    current_description = description
+    last_score = -1.0
+    flat_count = 0
+    final_record: dict[str, Any] | None = None
+
+    for n in range(1, max_iterations + 1):
+        record = run_iteration(
+            cli=cli,
+            skill_path=skill_path,
+            train=split["train"],
+            test=split["test"],
+            description=current_description,
+            repeats=repeats,
+            model=model,
+            validation=split["validation"],
+        )
+        record["iteration"] = n
+        out_path = optimizer_dir / f"iteration-{n}.json"
+        out_path.write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
+        best = select_best(record["baseline"], record["candidates"], metric)
+        print(f"Iteration {n}: best {metric} = {best[metric]:.3f}")
+
+        current_description = best["description"]
+        final_record = record
+
+        if best[metric] <= last_score:
+            flat_count += 1
+            if flat_count >= 2:
+                print(f"Stopping: {flat_count} consecutive iterations without improvement.")
+                break
+        else:
+            flat_count = 0
+        last_score = best[metric]
+        if last_score >= 1.0:
+            if three_way:
+                print("Stopping: validation score reached 1.0.")
+            else:
+                print("Stopping: held-out test score reached 1.0.")
+            break
+
+    if final_record is not None:
+        if three_way:
+            final_record["test_trigger_rate"] = estimate_trigger_rate(
+                cli, skill_path, final_record["best_description"], split["test"], repeats, model
+            )
+            final_record["original_test_trigger_rate"] = estimate_trigger_rate(
+                cli, skill_path, description, split["test"], repeats, model
+            )
+        final_path = optimizer_dir / "final.json"
+        final_path.write_text(json.dumps(final_record, indent=2) + "\n", encoding="utf-8")
+        print(f"Final: {final_path}")
+    return final_record
 
 
 # ── Entry point ───────────────────────────────────────────────────────────────
@@ -719,6 +973,13 @@ def main() -> int:
     parser.add_argument("--repeats", type=int, default=3, help="Trigger-rate samples per query (default 3)")
     parser.add_argument("--seed", type=int, default=_DEFAULT_SEED)
     parser.add_argument("--train-fraction", type=float, default=_DEFAULT_TRAIN_FRACTION)
+    parser.add_argument(
+        "--split",
+        choices=_SPLIT_MODES,
+        default="auto",
+        help="auto: train/validation/test when the set is large enough, else the "
+        "two-way split labelled reported_optimistic; two-way: always the legacy split",
+    )
     parser.add_argument(
         "--model",
         default=None,
@@ -774,68 +1035,36 @@ def main() -> int:
         return 1
 
     description = parse_skill_description(args.skill)
-    train, test = split_train_test(evals, args.train_fraction, args.seed)
+    split = resolve_split(evals, args.train_fraction, args.seed, args.split)
 
     if args.dry_run:
         report = render_dry_run(
             skill_path=args.skill,
             evals_path=args.evals,
-            train=train,
-            test=test,
+            train=split["train"],
+            test=split["test"],
             description=description,
             cli=args.cli,
             max_iterations=args.max_iterations,
             seed=args.seed,
             model=args.model,
+            split=split,
         )
         print(json.dumps(report, indent=2))
         return 0
 
     optimizer_dir = args.workspace / "optimizer"
     optimizer_dir.mkdir(parents=True, exist_ok=True)
-
-    current_description = description
-    last_test_score = -1.0
-    flat_count = 0
-    final_record: dict[str, Any] | None = None
-
-    for n in range(1, args.max_iterations + 1):
-        record = run_iteration(
-            cli=args.cli,
-            skill_path=args.skill,
-            train=train,
-            test=test,
-            description=current_description,
-            repeats=args.repeats,
-            model=args.model,
-        )
-        record["iteration"] = n
-        out_path = optimizer_dir / f"iteration-{n}.json"
-        out_path.write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
-        print(f"Iteration {n}: best test_trigger_rate = "
-              f"{select_best(record['baseline'], record['candidates'])['test_trigger_rate']:.3f}")
-
-        best = select_best(record["baseline"], record["candidates"])
-        current_description = best["description"]
-        final_record = record
-
-        if best["test_trigger_rate"] <= last_test_score:
-            flat_count += 1
-            if flat_count >= 2:
-                print(f"Stopping: {flat_count} consecutive iterations without improvement.")
-                break
-        else:
-            flat_count = 0
-        last_test_score = best["test_trigger_rate"]
-        if last_test_score >= 1.0:
-            print("Stopping: held-out test score reached 1.0.")
-            break
-
-    if final_record is not None:
-        final_path = optimizer_dir / "final.json"
-        final_path.write_text(json.dumps(final_record, indent=2) + "\n", encoding="utf-8")
-        print(f"Final: {final_path}")
-
+    optimize(
+        cli=args.cli,
+        skill_path=args.skill,
+        split=split,
+        description=description,
+        repeats=args.repeats,
+        model=args.model,
+        max_iterations=args.max_iterations,
+        optimizer_dir=optimizer_dir,
+    )
     return 0
 
 

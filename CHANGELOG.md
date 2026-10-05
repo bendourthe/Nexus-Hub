@@ -9,6 +9,73 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.13.9] - 2026-10-04
+
+### Added
+
+- **`/visualize` command and the `inline-visualization` skill (v4.13.9).** Turns data (CSV, JSON, a log excerpt, a pasted table) or a described structure into the smallest visual that answers the question: a sentence, a small table, a Mermaid diagram, or a script-free inline-SVG chart page. Every answer ends with a tier line naming the rung it used and why. Scopes are `chart`, `diagram`, `diff`, and `auto`. It never fabricates data, installs a dependency, or calls a network service. `html-output-conventions` gains a fifth self-contained template, an inline-SVG bar and line chart. Catalog: 340 skills, 21 commands. See Capability usage.
+- **A GPT-6.1 Sol prompting profile (v4.13.9).** `model-prompting-research` now carries a `gpt-6.1-sol` profile of 12 sourced claims, written through the governed writer from OpenAI's own pages.
+- **Draft review comments (v4.13.9).** `multi-agent-code-review` can draft review comments (path, line, severity, body, evidence) for `CONFIRMED` findings only, listing `PLAUSIBLE` ones separately, to the chat or to a file the user names. It never posts them. `/review changes <sha>` reviews one commit through a validated `commit` sub-mode, and `/visualize diff` draws a changed-modules diagram of a change set. See Capability usage.
+- **A Codex disk-write runbook and a hook size bound (v4.13.9).** [`docs/guides/host-agent-disk-writes.md`](docs/guides/host-agent-disk-writes.md) explains the reported Codex CLI disk-write problem, how to check and update Codex, and how to read SSD wear yourself with read-only tools. The fix version, Codex CLI 0.142.0, is verified against OpenAI's release notes and pull request. A new test, `catalog/hooks/tests/test_hook_size_bound.py`, measures and caps the files Nexus-Hub's own hooks write, per class; the hooks it found copying a field without truncation are recorded as known gaps (BG-13, WN-36, WN-37).
+
+### Changed
+
+- **Model map refreshed (v4.13.9).** The bundled offline model map now reads `claude-sonnet-5-5` at the `standard` tier for Anthropic and `gpt-6.1-sol` at the `strong` tier for OpenAI, verified 2026-10-01.
+- **The guide's Cheatsheets page is current (v4.13.9).** It adds a `/visualize` card, teaches `/review changes <sha>` and that a review can draft comments it never posts, and lists the `/plan grill` scope its card was missing. A new test fails when any command lacks a card or a declared scope is missing from its card.
+- **Codex defaults re-verified (v4.13.9).** The recorded Codex documentation statements in `configs/platform-defaults.json` now match the vendor's current config reference: the reasoning effort is a model-advertised string, `untrusted` is no longer an approval policy, and a trusted project may override approval and sandbox settings. The seeded values are unchanged.
+
+### Fixed
+
+- **Command mirroring keeps your own files (v4.13.9).** Installing commands into a platform's command folder no longer overwrites a file of the same name that you wrote, adopts a byte-identical one, and prunes a stale file only when it still matches what Nexus-Hub installed.
+
+### Capability usage
+
+- **`/visualize` (v4.13.9), a new command surface.** It is a slash command on platforms that have one (Claude Code, Gemini, Codex, Cursor, Copilot, Antigravity 2.0, and Qwen Code) and a skill everywhere skills are read.
+
+    - Activation: type `/visualize` with a file path or pasted data, optionally after a scope (`chart`, `diagram`, `diff`, `auto`); with no data, it asks for some.
+    - Validation: `/visualize chart` on a small CSV ends with a line of the form `Tier: <rung used> | Why: <reason> | ...`, and an inline-SVG page it writes opens offline and contains no script.
+    - Rollback: do not invoke it; it runs only when called. To remove it, uninstall Nexus-Hub, or delete `visualize.md` from your platform's command folder. Cursor's Agents Window has a built-in feature of the same name; which one a `/visualize` reaches there is decided by Cursor, not by Nexus-Hub, and Cursor's primary documentation for it has not been read (WN-2).
+    - Authority: it reads only the data you give it, writes an output file only where you ask, installs nothing, and makes no network call.
+    - Docs: [`catalog/commands/visualize.md`](catalog/commands/visualize.md) and `catalog/skills/developer-experience/inline-visualization/SKILL.md`.
+
+- **Draft review comments (v4.13.9), opt-in per review.** Off unless you ask for drafts.
+
+    - Activation: ask a review for draft comments, for example "draft review comments for this PR", optionally naming a file for them.
+    - Validation: the output lists drafted entries for `CONFIRMED` findings and a separate "Not drafted (PLAUSIBLE)" table, and nothing appears on the pull request.
+    - Rollback: do not ask for drafts; delete the file if you named one.
+    - Authority: drafting never posts anything, through a command-line client, an HTTP call, or an MCP or connector tool, and it never overwrites an existing file or follows a symbolic link.
+    - Docs: `catalog/skills/code-review/multi-agent-code-review/references/draft-review-comments.md`.
+
+## [4.13.8] - 2026-10-03
+
+### Added
+
+- **A Claude Sonnet 5.5 prompting profile (v4.13.8).** `model-prompting-research` now carries a `claude-sonnet-5-5` profile of 36 sourced claims (32 high and 4 medium confidence after three adversarial verification rounds), written through the governed writer. The `claude-code` roster was refreshed from the live Models API and grew from 16 to 26 ids; the nine newly rostered Claude models remain unprofiled (v4.13.8 DF-3).
+- **A cost-claim reporting rule (v4.13.8).** `eval-pipeline-audit` owns one rule for any reported cost or token saving: count every helper model, tool call, and failed or retried attempt, and restate the headline whenever the accounting changes. `skill-eval-loop`'s reproducible receipts point to it instead of restating it.
+- **A grouped train/validation/test split for the description optimizer (v4.13.8).** `scripts/optimize_skill_description.py --split auto` (the default) uses a three-way, class-stratified split, with equivalent queries kept in one split, when the eval set has 24 or more entries and at least 2 of each `should_trigger` class per split. Validation selects the winner, and the untouched test split is scored once, for the final and the original description, in `final.json`. Every catalog eval set is smaller than 24 today, so every current run stays two-way. `--split two-way` always keeps the legacy split.
+- **Two guidance additions (v4.13.8).** `context-degradation` gains a five-step check to run before blaming a model change for a quality dip, and `direct-corpus-interaction` gains an excerpt-first output contract for evidence handed to another agent.
+
+### Changed
+
+- **Copilot Usage Monitor: guided Connect and a percentage display (v4.13.8).** Connect Organization now finds the organization from your Copilot seat (one is confirmed, several are offered in a list, none falls back to typing). It first tries without a token, using the read-only `read:org` permission on VS Code's own GitHub sign-in. Only if GitHub refuses that does it guide you through a read-only token: a box lists four steps to read before clicking **Open GitHub**, which opens GitHub's token page with the name, organization, both read-only permissions, and no expiration already filled in; you check the expiration, generate the token, copy it at once (GitHub shows it only once), and paste it back, with a **Paste token** button if the paste box has closed. A refused token gets a plain-words fix. The status bar now reads `Copilot: <pct>% (month)` as a whole number, or `Copilot: --% (month)` before an owner connects the organization, and the hover and dashboard explain the one-time Connect step. The hover and dashboard show the shared pool as "Shared organization pool usage: X / 13,300 credits" in whole credits; a member seat that is not connected shows no credit count. Decision: the v4.13.8 amendment in `docs/decisions/proposed/architecture/2026-09-28-copilot-usage-monitor.md`. The maintainer's owner-account run on 2026-10-03 connected through the guided token, not the token-free route; it is recorded in `docs/releases/v4/v4.13/development/v4.13.8-copilot-connect-verification.md`.
+
+- **Optimizer results say when their score is optimistic (v4.13.8).** In two-way mode the split that picks `best_description` also produces the reported `test_trigger_rate`, so every result now carries `split_mode`, `selection_split`, `reported_split`, and `reported_optimistic: true`. Every old key keeps its value. The `skill-eval-loop` docs stop calling that split "held-out", replace the claim that 8 to 12 evals give reasonable statistical power, and add an eval-saturation check and a starter-set rule. Decision: `docs/decisions/proposed/tooling/2026-09-30-optimizer-selection-reporting-split.md`.
+- **The first-principles pilot was run and stopped by its own rule (v4.13.8).** One approved smoke run (USD 0.04) passed, but Claude Code 2.1.283 reports `claude-sonnet-5-5` as an unrecognized model and exposes no effort setting, so the pre-registered rule stopped the pilot after one of 15 runs. The question was not tested, and no shared instruction surface changed. The re-run is v4.13.8 DF-4, and the adapter's stale `--skill` command is v4.13.8 WN-4.
+
+### Fixed
+
+- **Carrying a gap works on ledgers whose ids repeat across versions.** This repository's known-gaps ledgers number gaps per version section, so `WN-3` can appear under v4.13.7 and v4.13.8 at once. The v4.13.7 carry and archive checks identified a gap by its id alone, so they could pick the wrong version's gap, and carrying into a section that already used the id made a duplicate. A gap is now identified by its section's version and its id. A carried gap takes the next free id in the file, its title's version tag follows it, and its `**Carried from**` line names the old version and id. A last plan's migration names the full source version too. The shared entry writer also no longer leaves two blank lines after a moved gap's heading.
+
+### Capability usage
+
+- **Copilot organization connect (amended in v4.13.8), opt-in.** Off until an organization owner connects it.
+
+    - Activation: run **Copilot Usage: Connect Organization** (or select **Connect Organization** in the dashboard), confirm or pick the organization, then accept VS Code's consent prompt for `read:org`. If GitHub refuses that route, read the four guided steps, then **Open GitHub**, set no expiration, **Generate token**, copy it at once, and paste it (or click **Paste token**).
+    - Validation: the status bar reads `Copilot: <pct>% (month)`, and the dashboard's Organization Pool percentage matches the organization's AI usage page (`github.com/organizations/<org>/settings/billing/ai_usage`) to the rounding the dashboard notes. The **Copilot Usage Monitor** channel in VS Code's Output panel lists which route connected and each endpoint's status code.
+    - Rollback: run **Copilot Usage: Disconnect Organization**, which deletes any stored token and clears the organization setting; the status bar returns to `Copilot: --% (month)`. To also remove the `read:org` grant, sign out of GitHub in VS Code's Accounts menu or revoke **Visual Studio Code** under GitHub **Settings** > **Applications** > **Authorized OAuth Apps**, because VS Code gives an extension no way to return a granted scope. Or uninstall with `code --uninstall-extension nexus-hub.copilot-usage-monitor`.
+    - Authority: `read:org` on VS Code's GitHub session is read-only, and the token's two permissions are read-only; no write scope (`manage_billing:copilot`, `admin:org`) is ever requested. Either credential goes only to `api.github.com`, a token stays in VS Code secret storage, the seat's organization list is read to offer a choice and never stored, and the usage-guard state file stays percentages-only.
+    - Docs: [`extensions/copilot-usage-monitor/README.md`](extensions/copilot-usage-monitor/README.md).
+
 ## [4.13.7] - 2026-10-02
 
 ### Added

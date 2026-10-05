@@ -1,0 +1,14 @@
+{
+  "skill": "inline-visualization",
+  "purpose": "Route chart and diagram requests over data here, while keeping the near-neighbours named in the v4.13.9 overlap check routing to themselves: generative-art (creative-coding visuals), analyze-codebase (a full codebase architecture overview), pptx-generation (slides), xlsx-generation (workbook charts), and document-to-interactive-html (a document turned into a reading site).",
+  "cases": [
+    {"id": "pos-chart-csv", "prompt": "chart this data from the CSV export", "should_trigger": true, "assert": "routes to inline-visualization first", "lexical": true},
+    {"id": "pos-visualize-this", "prompt": "visualize this table of error counts", "should_trigger": true, "assert": "routes to inline-visualization first", "lexical": true},
+    {"id": "pos-plot-latency", "prompt": "plot latency by hour from this log data", "should_trigger": true, "assert": "routes to inline-visualization first", "lexical": true},
+    {"id": "pos-dependency-diagram", "prompt": "draw a dependency diagram of these services", "should_trigger": true, "assert": "routes to inline-visualization first", "lexical": true},
+    {"id": "neg-generative", "prompt": "make a generative art sketch with a procedural pattern", "should_trigger": false, "assert": "routes to generative-art, not here", "lexical": true},
+    {"id": "neg-codebase-overview", "prompt": "describe this codebase and write an onboarding report", "should_trigger": false, "assert": "routes to analyze-codebase, not here", "lexical": true},
+    {"id": "neg-slides", "prompt": "build a powerpoint deck with speaker notes", "should_trigger": false, "assert": "routes to pptx-generation, not here", "lexical": true},
+    {"id": "neg-reading-site", "prompt": "convert this long guide into an offline website with presentations and retained sources", "should_trigger": false, "assert": "routes to document-to-interactive-html, not here", "lexical": true}
+  ]
+}

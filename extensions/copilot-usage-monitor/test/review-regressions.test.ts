@@ -247,7 +247,7 @@ describe("F3: a transient organization failure keeps the last good pool figure",
     const data = h.store.get()!;
     expect(data.organization).toMatchObject({ stale: true, fetchedAt: OCT_5, used: 13_200 });
     expect(headlineOf(data)).toMatchObject({ kind: "percent", source: "organization", stale: true });
-    expect(h.item().text).toContain("99.25% (pool) $(warning)");
+    expect(h.item().text).toContain("99% (month) $(warning)");
     expect((h.item().tooltip as { value: string }).value).toContain("The last refresh failed");
     expect(h.state()).toMatchObject({ stale: true, fetched_at: "2026-10-05T00:00:00Z" });
     expect(h.state().windows[0].percent).toBe(99.25);
@@ -276,7 +276,7 @@ describe("F3: a transient organization failure keeps the last good pool figure",
     h.setMode(failing);
     await h.controller.refresh(OCT_5 + 60_000);
     expect(h.store.get()!.organization).toBeUndefined();
-    expect(h.item().text).toContain("credits used");
+    expect(h.item().text).toContain("--% (month)");
     expect(h.state()).toBeNull();
   });
 

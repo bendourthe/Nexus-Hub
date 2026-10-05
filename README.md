@@ -4,9 +4,9 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.13.7 -->
+<!-- nexus-hub-version: 4.13.9 -->
 
-Nexus-Hub is the upstream skill catalog for AI coding assistants: 339 skills, 20 commands, 36 registered hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
+Nexus-Hub is the upstream skill catalog for AI coding assistants: 340 skills, 21 commands, 36 registered hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
 ## Interactive Guide -- start here
 
@@ -30,12 +30,32 @@ Nexus-Hub is the upstream skill catalog for AI coding assistants: 339 skills, 20
 
 Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of the same idea, split along a deliberate seam.
 
-- **Nexus-Hub (this repo)** is the catalog: 339 curated skills, 20 commands, 36 registered hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`) and the local `nexus-memory` CLI store. It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
+- **Nexus-Hub (this repo)** is the catalog: 340 curated skills, 21 commands, 36 registered hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`) and the local `nexus-memory` CLI store. It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v4.13.9
+
+**`/visualize` turns data into the smallest useful chart or diagram.** Give it a CSV, JSON, a log excerpt, or a described structure, and it answers with a sentence, a table, a Mermaid diagram, or an offline inline-SVG page, ending with a line that names which of those it chose and why.
+
+**Review one commit, and draft comments without posting them.** `/review changes <sha>` reviews a single commit, and a review can draft comments for its confirmed findings to the chat or to a file you name. Nothing is ever posted.
+
+**GPT-6.1 Sol and a refreshed model map.** A sourced prompting profile for GPT-6.1 Sol, and the offline model map now reads `claude-sonnet-5-5` and `gpt-6.1-sol` where the newer models replaced older ones.
+
+**Your own command files are safe.** Installing commands no longer overwrites a same-named command file you wrote. There is also a runbook for the reported Codex CLI disk-write problem, which is fixed in Codex CLI 0.142.0, and the guide's Cheatsheets page now covers every command.
+
+## What's New in v4.13.8
+
+**A prompting profile for Claude Sonnet 5.5.** `model-prompting-research` now carries a sourced profile for the newest Sonnet, so prompts written for it follow how it reads instructions.
+
+**Honest cost claims and a fairer optimizer score.** One rule now governs any reported cost or token saving, and the description optimizer can hold out a test split it never trained on, saying plainly when its score is optimistic.
+
+**Gap carry-over that copes with repeated ids.** Carrying a known gap into the next version now works on ledgers that reuse the same id across versions, which this repository's own ledgers do.
+
+**Copilot usage as a percentage, with a guided Connect.** The Copilot Usage Monitor now shows a whole-number `Copilot: <pct>% (month)`, or `--% (month)` until an organization owner connects the shared pool, and its hover and dashboard show "Shared organization pool usage: X / Y credits". Connect finds your organization from your Copilot seat, tries without a token first, and otherwise walks the owner through four short steps on GitHub's pre-filled token page: open it, keep No expiration, generate and copy the token, and paste it back.
 
 ## What's New in v4.13.7
 
@@ -462,7 +482,7 @@ That is the whole setup -- no prompts. The installer prechecks its dependencies 
 
 After the installer completes:
 
-- **Globally**: your user profile has all 339 skills, 20 commands, 36 registered hooks, 23 agents, plus Gemini and Codex instructions.
+- **Globally**: your user profile has all 340 skills, 21 commands, 36 registered hooks, 23 agents, plus Gemini and Codex instructions.
 - **Locally**: your project has `copilot-instructions.md` and `AGENTS.md` tailored to your language.
 
 **Power-user flags**: `--workspace <path>` installs into a single repo instead of globally; `--platforms <comma-list>` limits the install to a subset of assistants; `--yes` runs fully unattended (refreshes managed files with no prompt -- ideal for CI). Prefer to clone first? `git clone` the repo and run `./install.sh` (macOS / Linux) or `install.bat` (Windows) -- the in-repo path still works exactly as before.

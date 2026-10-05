@@ -2,23 +2,14 @@ import type * as vscode from "vscode";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   CopilotOrganizationProvider,
+  ORG_ROUTE_SECRET_KEY,
   ORG_TOKEN_SECRET_KEY,
-  TOKEN_PROMPT,
-  connectOrganization,
   configuredOrganization,
   disconnectOrganization,
   isValidOrganizationLogin,
 } from "../src/providers/copilotOrganization";
-import { ORG_ACCESS_MESSAGE } from "../src/providers/errors";
 import { FakeSecretStorage, ORG_TOKEN, fixtureFetch, jsonResponse, routedFetch } from "./helpers";
-import {
-  __resetStubState,
-  __setStubConfig,
-  configurationUpdates,
-  inputBoxAnswers,
-  inputBoxCalls,
-  shownMessages,
-} from "./vscode-stub";
+import { __resetStubState, __setStubConfig, configurationUpdates } from "./vscode-stub";
 
 const OCT_2 = Date.UTC(2026, 9, 2, 0, 5);
 const ORG = "acme-co";
@@ -85,7 +76,8 @@ describe("CopilotOrganizationProvider", () => {
     const fake = routedFetch(() => jsonResponse({ message: "Bad credentials" }, 401));
     const result = await new CopilotOrganizationProvider(secrets.asSecretStorage(), fake.fetch).fetchUsage(OCT_2);
     expect(!result.success && result.error.code).toBe("org-token-rejected");
-    expect(secrets.deleted).toEqual([ORG_TOKEN_SECRET_KEY]);
+    // The token and any token-free marker are both forgotten.
+    expect(secrets.deleted).toEqual([ORG_TOKEN_SECRET_KEY, ORG_ROUTE_SECRET_KEY]);
     expect(secrets.values.has(ORG_TOKEN_SECRET_KEY)).toBe(false);
   });
 
@@ -146,88 +138,13 @@ describe("CopilotOrganizationProvider", () => {
   });
 });
 
-describe("connectOrganization", () => {
-  afterEach(() => __resetStubState());
-
-  it("validates the login, asks for the token in a password box, verifies it, then stores it", async () => {
-    const secrets = new FakeSecretStorage();
-    inputBoxAnswers.push(` ${ORG} `, ` ${ORG_TOKEN} `);
-    const fake = fixtureFetch({ billing: "copilot-billing.json" });
-    expect(await connectOrganization(secrets.asSecretStorage(), fake.fetch)).toBe("connected");
-
-    const [loginBox, tokenBox] = inputBoxCalls;
-    const validateLogin = loginBox.validateInput as (v: string) => string | undefined;
-    expect(validateLogin("acme-co")).toBeUndefined();
-    expect(validateLogin("bad org")).toContain("organization login");
-    expect(validateLogin("-leading")).toBeDefined();
-    expect(tokenBox.password).toBe(true);
-    expect(tokenBox.prompt).toBe(TOKEN_PROMPT);
-    expect((tokenBox.validateInput as (v: string) => string | undefined)("  ")).toBeDefined();
-    expect((tokenBox.validateInput as (v: string) => string | undefined)("x")).toBeUndefined();
-
-    expect(fake.calls).toHaveLength(1);
-    expect(fake.calls[0].url).toBe("https://api.github.com/orgs/acme-co/copilot/billing");
-    expect(fake.calls[0].authorization).toBe(`Bearer ${ORG_TOKEN}`);
-    expect(secrets.stored).toEqual([{ key: ORG_TOKEN_SECRET_KEY, value: ORG_TOKEN }]);
-    expect(configurationUpdates).toEqual([
-      { section: "copilotUsage", key: "organization", value: ORG, target: 1 },
-    ]);
-    expect(shownMessages.at(-1)?.message).toContain("organization connected");
-  });
-
-  it("explains exactly which token to create", () => {
-    for (const fragment of [
-      "fine-grained",
-      "Resource owner: the organization",
-      "Administration (read-only)",
-      "GitHub Copilot Business (read-only)",
-      "public repositories (read-only)",
-      "short expiry",
-      "secret storage",
-      "api.github.com",
-    ]) {
-      expect(TOKEN_PROMPT).toContain(fragment);
-    }
-  });
-
-  it.each([
-    [[undefined]],
-    [[ORG, undefined]],
-    [[ORG, "   "]],
-  ])("stores nothing when the user cancels %#", async (answers) => {
-    const secrets = new FakeSecretStorage();
-    inputBoxAnswers.push(...answers);
-    const fake = routedFetch(() => jsonResponse({}));
-    expect(await connectOrganization(secrets.asSecretStorage(), fake.fetch)).toBe("cancelled");
-    expect(fake.calls).toHaveLength(0);
-    expect(secrets.stored).toEqual([]);
-    expect(configurationUpdates).toEqual([]);
-  });
-
-  it.each([
-    [401, "rejected", "GitHub rejected the token"],
-    [403, "access-denied", ORG_ACCESS_MESSAGE],
-    [404, "access-denied", ORG_ACCESS_MESSAGE],
-    [500, "unreachable", "Could not verify the token"],
-  ])("stores nothing when the check returns %i", async (status, outcome, message) => {
-    const secrets = new FakeSecretStorage();
-    inputBoxAnswers.push(ORG, ORG_TOKEN);
-    const fake = routedFetch(() => jsonResponse({}, status));
-    expect(await connectOrganization(secrets.asSecretStorage(), fake.fetch)).toBe(outcome);
-    expect(secrets.stored).toEqual([]);
-    expect(configurationUpdates).toEqual([]);
-    expect(shownMessages.at(-1)?.level).toBe("warning");
-    expect(shownMessages.at(-1)?.message).toContain(message);
-  });
-});
-
 describe("disconnectOrganization", () => {
   afterEach(() => __resetStubState());
 
   it("deletes the secret and clears the setting", async () => {
     const secrets = connected();
-    await disconnectOrganization(secrets.asSecretStorage());
-    expect(secrets.deleted).toEqual([ORG_TOKEN_SECRET_KEY]);
+    expect(await disconnectOrganization(secrets.asSecretStorage())).toBe("token");
+    expect(secrets.deleted).toEqual([ORG_TOKEN_SECRET_KEY, ORG_ROUTE_SECRET_KEY]);
     // Global, Workspace, and WorkspaceFolder: every scope an extension can write.
     expect(configurationUpdates).toEqual([1, 2, 3].map((target) => ({ section: "copilotUsage", key: "organization", value: undefined, target })));
     expect(configuredOrganization()).toBe("");

@@ -1,7 +1,7 @@
 {
   "name": "copilot-usage-monitor",
   "displayName": "Copilot Usage Monitor",
-  "description": "Monitor your GitHub Copilot usage in the status bar: your plan's own quota, or your organization's shared AI-credit pool once an owner connects a read-only token",
+  "description": "Monitor your GitHub Copilot usage in the status bar as a percentage: your plan's own quota, or your organization's shared AI-credit pool once an owner connects it",
   "version": "0.1.0",
   "publisher": "nexus-hub",
   "icon": "icon.png",
@@ -109,7 +109,7 @@
           "type": "string",
           "scope": "application",
           "default": "",
-          "description": "The login of a GitHub organization whose shared Copilot AI-credit pool to show. Set it with 'Copilot Usage: Connect Organization', which also stores the read-only token in VS Code secret storage. Leave empty to show your own plan only. Application-scoped: a workspace cannot set it."
+          "description": "The login of a GitHub organization whose shared Copilot AI-credit pool to show. Set it with 'Copilot Usage: Connect Organization', which connects token-free when GitHub allows it, and otherwise stores a read-only token in VS Code secret storage. Leave empty to show your own plan only. Application-scoped: a workspace cannot set it."
         },
         "copilotUsage.writeUsageState": {
           "type": "boolean",

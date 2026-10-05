@@ -202,6 +202,8 @@ def test_diff_detects_a_swapped_tier_column(tmp_path: Path) -> None:
     """
     data = _snapshot_dict()
     tiers = data["tiers"]
+    frontier_id = tiers["frontier"]["Anthropic"]
+    standard_id = tiers["standard"]["Anthropic"]
     tiers["frontier"]["Anthropic"], tiers["standard"]["Anthropic"] = (
         tiers["standard"]["Anthropic"],
         tiers["frontier"]["Anthropic"],
@@ -216,8 +218,8 @@ def test_diff_detects_a_swapped_tier_column(tmp_path: Path) -> None:
         MODEL_MAP.load_map(candidate), MODEL_MAP.validate_map(_snapshot_dict())
     )
     assert {(m["model"], m["from_tier"], m["to_tier"]) for m in moves} == {
-        ("claude-fable-5-1", "frontier", "standard"),
-        ("claude-sonnet-5", "standard", "frontier"),
+        (frontier_id, "frontier", "standard"),
+        (standard_id, "standard", "frontier"),
     }
 
     result = subprocess.run(

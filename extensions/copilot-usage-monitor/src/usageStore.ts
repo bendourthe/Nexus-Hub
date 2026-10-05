@@ -67,13 +67,27 @@ export function formatElapsed(elapsedMs: number): string {
 }
 
 /**
- * A percentage for display: at most two decimals, trailing zeros dropped.
- * 0.0068 -> "0.01", 99.25 -> "99.25", 100 -> "100". The value itself stays
- * unrounded everywhere it is compared against a threshold.
+ * A percentage for display: a whole number, as the Claude and Codex monitors
+ * show it (v4.13.8). 1.3 -> "1", 99.25 -> "99", 100 -> "100". The value itself
+ * stays unrounded everywhere it is compared against a threshold.
  */
 export function formatPercent(percent: number): string {
   const clamped = Math.min(100, Math.max(0, percent));
-  return String(Math.round(clamped * 100) / 100);
+  return String(Math.round(clamped));
+}
+
+/**
+ * A share for a breakdown row: whole numbers like {@link formatPercent}, but a
+ * non-zero share that rounds to 0 reads "<1" so small rows stay distinguishable.
+ */
+export function formatShare(percent: number): string {
+  const whole = formatPercent(percent);
+  return whole === "0" && percent > 0 ? "<1" : whole;
+}
+
+/** "Shared organization pool usage: 172 / 13,300 credits": used and total, both whole. */
+export function poolUsageLine(used: number, total: number): string {
+  return `Shared organization pool usage: ${formatCreditCount(Math.round(used))} / ${formatCreditCount(total)} credits`;
 }
 
 /** Used credits with two decimals, as the organization AI usage page's breakdown shows them. */

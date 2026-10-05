@@ -1,0 +1,321 @@
+Skip to main content
+Docs
+APILearnHelp
+Search docs...⌘K
+Sign in
+Download
+Command Palette
+Search for a command to run...
+Get Started
+Welcome
+Quickstart
+Models & Pricing
+Overview
+Cursor Router
+Claude Sonnet 5.5
+Claude Opus 5.5
+Claude Fable 5.1
+Gemini 3.1 Pro
+Gemini 3.8 Flash
+Muse Spark 1.3
+GPT-5.6 Sol
+GPT-5.6 Terra
+GPT-5.6 Luna
+Grok 4.7
+Grok 4.6
+Grok 4.5
+Composer 2.5
+Changelog
+Agent
+Overview
+Agents Window
+Projects
+Agent Review
+Planning
+Prompting
+Debugging
+Design Mode
+Tools
+Security
+Grok Bot
+Overview
+Get Started
+Use Cases
+Work with Grok Bot
+Settings
+Teams and Enterprise
+Customize
+Overview
+Plugins
+Rules
+Skills
+Subagents
+Hooks
+MCP
+Cloud Agents
+Overview
+Setup
+Builds
+Capabilities
+Best Practices
+Choose Where Cloud Agents Run
+Automations
+Bugbot
+Security Agents
+PR Routing & Approval
+Rollouts
+Mobile
+Security
+Self-Hosted Machines
+Settings
+API
+Origin
+Overview
+CLI
+Create a repository
+Clone, Push & Pull
+CloneKit in CI
+Mirror GitHub
+Pull requests
+Browse & Search
+Settings
+Codebase settings
+Integrations
+Integrations
+Slack
+Microsoft Teams
+Jira
+Linear
+Notion
+GitHub
+GitLab
+Azure DevOps
+Bitbucket
+JetBrains
+Xcode
+Deeplinks
+SDK
+TypeScript
+Python
+Bridge
+Changelog
+BDK
+Getting started
+Integrations
+Extensions
+Guides
+Templates
+Reference
+CLI
+Overview
+Installation
+Capabilities
+Changelog
+Shell Mode
+ACP
+Headless / CI
+Reference
+Teams & Enterprise
+Teams
+Enterprise
+Get Started
+Models & Pricing
+Cursor supports frontier models from OpenAI, Anthropic, Google, SpaceXAI, and more. Pro, Pro Plus, and Ultra include two usage pools so you can pick the right balance of intelligence, speed, and cost. Start, our plan for developers in India, covers the Cursor Models pool.
+Usage pools
+There are two separate usage pools, each resetting with your monthly billing cycle:
+Cursor Models: Significantly more included usage for Grok 4.7, Grok 4.6, Grok 4.5, and Composer 2.5.
+Other Models: The pool for third-party models, charged at the model's API price. Pro, Pro Plus, and Ultra include this pool, with the option to pay for additional usage as needed. The Start plan does not include this pool.
+Both pools are visible in your editor settings and on your usage dashboard.
+Cursor Models
+The Cursor Models pool includes Grok 4.7, Grok 4.6, Grok 4.5, and Composer 2.5.
+On Teams and Enterprise plans, Cursor Router picks the model for each Auto request based on your optimization mode.
+Name
+Input
+Cache Write
+Cache Read
+Output
+Grok 4.7
+$2
+-
+$0.5
+$6
+Grok 4.7 (Fast)
+$4
+-
+$1
+$12
+Grok 4.7 500k
+$4
+-
+$1
+$12
+Grok 4.7 500k (Fast)
+$6
+-
+$1.5
+$18
+Grok 4.6
+$2
+-
+$0.5
+$6
+Grok 4.6 (Fast)
+$4
+-
+$1
+$12
+Grok 4.5
+$2
+-
+$0.5
+$6
+Grok 4.5 (Fast)
+$4
+-
+$1
+$18
+Composer 2.5
+$0.5
+-
+$0.2
+$2.5
+Composer 2.5 (Fast)
+$3
+-
+$0.5
+$15
+Other Models
+When you select a specific third-party model, usage is drawn from the Other Models pool at that model's API rate.
+Model pricing
+All prices are per million tokens:
+Name
+Input
+Cache Write
+Cache Read
+Output
+Claude Fable 5.1
+$10
+$12.5
+$0.25
+$50
+Claude Opus 5.5
+$4
+$5
+$0.2
+$20
+Claude Sonnet 5.5
+$2
+$2.5
+$0.2
+$10
+Gemini 3.1 Pro
+$2
+-
+$0.2
+$12
+Gemini 3.8 Flash
+$0.75
+-
+$0.075
+$3.5
+GPT-5.6 Luna
+$0.2
+$0.25
+$0.02
+$1.2
+GPT-5.6 Sol
+$4
+$5
+$0.4
+$20
+GPT-5.6 Terra
+$2
+$2.5
+$0.2
+$12
+Muse Spark 1.3
+$1.25
+-
+$0.15
+$4.25
+Show more models
+Opting in to regional data residency incurs a 10% uplift on Model pricing for eligible Models. See Privacy and Data Governance for details on supported regions, Models, functions and data residency policies.
+Plans
+Pro, Pro Plus, and Ultra include unlimited tab completions, extended agent usage limits on all models, access to Bugbot, and access to Cloud Agents. Start is a lower-priced plan for developers in India that covers the Cursor Models pool and Cloud Agents.
+Plan
+Price
+Cursor Models
+Other Models
+Start (India only)
+₹649/mo, tax inclusive
+Included
+Not included
+Pro
+$20/mo
+Included
+Included
+Pro Plus
+$60/mo
+Included
+Included
+Ultra
+$200/mo
+Included
+Included
+Since different models have different API costs, your model selection affects how quickly your included usage is consumed.
+Start (India only)
+Start is available to developers in India. It costs ₹649 per month, tax inclusive, billed monthly in INR with UPI, credit card, or debit card. Every other individual plan displays its price before tax.
+Start includes generous usage of the Cursor Models pool, so you can run Grok 4.7, Grok 4.6, Grok 4.5, and Composer 2.5 for daily building. On Start, these models run in non-fast mode, and Grok 4.7, Grok 4.6, and Grok 4.5 use a fixed medium effort level. You cannot change effort levels or enable Fast mode on Start. Upgrade to Pro or higher to choose effort levels and Fast mode.
+Start also includes Cloud Agents, Cursor for iOS, and plugins, MCP servers, hooks, and skills.
+Start does not include the Other Models pool, on-demand usage, Bugbot, Auto, Automations, or the Cursor SDK. Upgrade to Pro for those. Read the Cursor Start announcement for more detail.
+How much usage do I need?
+Daily Tab users: Typically stay within included usage
+Limited Agent users: Often stay within included usage
+Daily Agent users: Typically $60–$100/mo total usage
+Power users (multiple agents/automation): Often $200+/mo total usage
+What happens when I reach my limit?
+When you exceed your included monthly usage, you can either:
+Add on-demand usage: Continue at the same API rates with pay-as-you-go billing
+Upgrade your plan: Move to a higher tier for more included usage
+On-demand usage is billed monthly at the same rates. Requests are never downgraded in quality or speed.
+Teams
+There are two business plans: Teams and Enterprise (Custom). Teams offers two seat types: Standard ($40/user/mo) and Premium ($120/user/mo), where Premium adds 5x the Standard limits on Agent.
+Team plans provide additional features like centralized team billing and administration, a team marketplace for internal rules, skills, and plugins, agentic code reviews with Bugbot, cloud agents and automations with shared team context, usage analytics, team-wide privacy mode enforcement, and SAML/OIDC SSO.
+We recommend Teams for any customer that is happy self-serving. We recommend Enterprise for customers that need priority support, pooled usage, invoicing, SCIM, or advanced security controls.
+Learn more about Teams pricing.
+Cursor Token Rate
+On Teams and Enterprise plans, third-party model requests include a Cursor Token Rate of $0.25 per million tokens. This rate applies on top of model API pricing for included usage, on-demand usage, and BYOK usage.
+The Cursor Token Rate applies when you select a third-party model directly, and when Auto routes to a third-party model. First-party Cursor models, including Grok and Composer, are exempt from the Cursor Token Rate.
+Auto modes
+Auto has three modes: Cost, Balance, and Intelligence. See Cursor Router for how these modes work.
+All Auto modes bill at the list price of the model each request is routed to. See Model pricing for per-model rates. Third-party models also incur the Cursor Token Rate.
+Legacy request-based pricing
+Max Mode
+Max Mode is available only on legacy request-based plans. It extends a model's context window beyond the default limit and is billed at the model's API rate plus 20%. See Max Mode on legacy plans for details.
+FAQ
+Where are models hosted?
+Models are hosted by the model provider, a trusted partner, or Cursor. See our list of sub-processors for details.
+Where can I find pricing terms?
+For enterprise pricing details, billing terms, and fee calculations, see the Pricing Policy.
+English
+English
+简体中文
+Русский
+日本語
+Português
+Español
+Usage pools
+Cursor Models
+Other Models
+Model pricing
+Plans
+Start (India only)
+How much usage do I need?
+What happens when I reach my limit?
+Teams
+Cursor Token Rate
+Auto modes
+Legacy request-based pricing
+Max Mode
+FAQ
+Copy page
