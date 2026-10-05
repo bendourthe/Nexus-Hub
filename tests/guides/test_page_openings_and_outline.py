@@ -70,6 +70,8 @@ def _assert_opening_figure(block: str, name: str) -> None:
         assert 'class="trf-ide"' in body and 'class="trf-code"' in body and "trf-del" in body and "trf-add" in body
         assert 'trf-pop--bug' in body and ">-6<" in body and 'trf-hp-fill--bug' in body
         assert "6 damage emptied a 100-point bar" in body
+        # The maintainer's verdicts: a red mark once the bug destroys the ship, a green one once the fix holds.
+        assert "trf-verdict--bug" in body and "trf-verdict--ok" in body
         assert "nexus-mark" not in body and "boss" not in body.lower()
     else:
         assert len(re.findall(r"<li><b>\d</b>", body)) == 4, "the cheatsheet demo has four steps"
