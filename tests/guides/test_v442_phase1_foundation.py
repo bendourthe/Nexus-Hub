@@ -201,8 +201,8 @@ def test_section_titles_share_one_scale_and_never_overflow(playwright_mod) -> No
             # v4.13.10: Training is training.html; its section headings must stay within the shared title scale.
             tctx = browser.new_context(viewport={"width": 1440, "height": 900})
             tpg = tctx.new_page()
-            tpg.goto(TRAINING.as_uri() + "#loop1/review")
-            tpg.wait_for_function("window.NexusTrainingPage && NexusTrainingPage.stage() === 'loop1/review'")
+            tpg.goto(TRAINING.as_uri() + "#review")
+            tpg.wait_for_function("window.NexusTrainingPage && NexusTrainingPage.stage() === 'review'")
             training_title = tpg.evaluate(
                 "() => Math.max(...[...document.querySelectorAll('.tr-section-title')].map(e => parseFloat(getComputedStyle(e).fontSize)))"
             )

@@ -36,8 +36,8 @@ def test_game_sleeps_and_resumes_without_duplicate_frame_loops(browser):
         cb(t);
       });""")
     game = "SkySentinel.get('buggy')"
-    page.goto(TRAINING.as_uri() + "#loop1/review")
-    page.wait_for_function("window.NexusTrainingPage && NexusTrainingPage.stage() === 'loop1/review' && window.SkySentinel")
+    page.goto(TRAINING.as_uri() + "#review")
+    page.wait_for_function("window.NexusTrainingPage && NexusTrainingPage.stage() === 'review' && window.SkySentinel")
     page.wait_for_timeout(300)
     before = page.evaluate("gameFrames")
     page.wait_for_timeout(200)
@@ -63,7 +63,7 @@ def test_game_sleeps_and_resumes_without_duplicate_frame_loops(browser):
     rate = (end[0] - start[0]) / ((end[1] - start[1]) / 1000)
     assert rate < 75, f"resuming twice started a second loop: {rate:.0f} frames per second"
 
-    page.evaluate("NexusTrainingPage.go('loop1/review')")
+    page.evaluate("NexusTrainingPage.go('review')")
     # v4.13.10 R3: on one scrolling page, scrolling a game out of view pauses it.
     page.wait_for_function(f"{game}.state().pausedBy === 'offscreen'")
     page.wait_for_timeout(50)

@@ -24,7 +24,8 @@ MAP = {
         "fast": {"Anthropic": "model-a4", "OpenAI": "model-o4"},
     },
 }
-STORY = {"providers": ["Anthropic", "OpenAI"], "stages": [{"id": "loop1/review", "badge": {"tier": "frontier"}}]}
+STORY = {"providers": ["Anthropic", "OpenAI"], "stages": [{"id": "implement", "script": [
+    {"do": "pick", "provider": "Anthropic", "tier": "frontier"}, {"do": "pick", "provider": "OpenAI", "tier": "frontier"}]}]}
 
 
 def _root(tmp_path: Path, model_map: dict | None = MAP, story: dict = STORY, page: str = PAGE) -> Path:
@@ -63,9 +64,9 @@ def test_check_reports_a_changed_map_cell(tmp_path: Path) -> None:
     other.write_text(json.dumps(changed), encoding="utf-8")
     result = _run(root, "--check", "--map", str(other))
     assert result.returncode == 1 and "drift" in result.stderr
-    # The message names the cell and the stages whose badge shows it.
+    # The message names the cell and the stages whose model pick shows it.
     assert "frontier/OpenAI" in result.stderr and "'model-o1-new'" in result.stderr
-    assert "loop1/review" in result.stderr
+    assert "implement" in result.stderr
 
 
 def test_a_map_carrying_a_comment_opener_is_refused(tmp_path: Path) -> None:
@@ -84,10 +85,10 @@ def test_a_missing_map_is_an_error_and_writes_nothing(tmp_path: Path) -> None:
     assert _page(root) == PAGE
 
 
-def test_a_badge_tier_missing_from_the_map_is_an_error(tmp_path: Path) -> None:
-    story = {"providers": ["Anthropic"], "stages": [{"id": "loop1/plan", "badge": {"tier": "strong"}}]}
+def test_a_pick_tier_missing_from_the_map_is_an_error(tmp_path: Path) -> None:
+    story = {"providers": ["Anthropic"], "stages": [{"id": "plan", "script": [{"do": "pick", "provider": "Anthropic", "tier": "strong"}]}]}
     result = _run(_root(tmp_path, story=story))
-    assert result.returncode == 2 and "loop1/plan" in result.stderr and "'strong'" in result.stderr
+    assert result.returncode == 2 and "plan" in result.stderr and "'strong'" in result.stderr
 
 
 @pytest.mark.parametrize("provider", ["openai", "Mistral"])

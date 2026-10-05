@@ -40,8 +40,8 @@ DEFAULT_OUT = _ROOT / "docs" / "releases" / "v4" / "v4.13" / "development" / PLA
 
 PAGES = ("home", "foundations", "cheatsheets")
 THEMES = ("dark", "light")
-# One stage of each kind and both loops: the intro, the three games, and representative sessions.
-ROUTES = ("intro", "play-buggy", "loop1/review", "loop1/implement", "play-partial", "loop2/review", "play-fixed")
+# One stage of each kind: the intro, both games, and representative workflow steps.
+ROUTES = ("intro", "play-buggy", "review", "implement", "play-fixed")
 DESKTOP = ((1280, 720), (1366, 768), (1440, 900), (1920, 1080))
 
 PAIRS = [
@@ -53,11 +53,11 @@ PAIRS = [
 def geometry_regions(stage: str) -> dict[str, str]:
     """Select only the regions that the named Training stage actually owns."""
     root = f'section[data-stage="{stage}"]'
-    regions = {"banner": f"{root} .tr-banner"}
+    regions = {"banner": f"{root} .tr-head"}
     if stage.startswith("play-"):
         regions["game"] = f"{root} [data-ss-id] .ss-canvas"
     elif stage != "intro":
-        regions.update(session=f"{root} .tr-main", files=f"{root} .tr-files", activity=f"{root} .tr-activity")
+        regions.update(session=f"{root} .ide-chat", files=f"{root} .ide-editor", activity=f"{root} .ide-explorer")
     return regions
 
 GEOMETRY_JS = """([regions, pairs]) => {
@@ -123,20 +123,20 @@ def declare_groups() -> dict[str, list[dict]]:
                    for r in ROUTES for th in THEMES]
     # Keep the historical group key for CLI callers; it now photographs a game and a session at desktop sizes.
     g["fullscreen"] = [dict(label=f"stage-{slug(r)}-{th}-{w}x{h}", url=f"{trn}#{r}", width=w, height=h, theme=th,
-                            retain=(r == "loop1/review"), stage=r, geometry=True)
-                       for r in ("play-buggy", "loop1/review") for th in THEMES for (w, h) in DESKTOP]
+                            retain=(r == "review"), stage=r, geometry=True)
+                       for r in ("play-buggy", "review") for th in THEMES for (w, h) in DESKTOP]
     g["narrow"] = [dict(label=f"narrow-{slug(r)}-{th}-{w}", url=f"{trn}#{r}", width=w, height=900, theme=th,
-                        retain=(r == "loop1/review"), stage=r, geometry=True)
-                   for r in ("loop1/review", "play-fixed") for th in THEMES for w in (320, 420, 900)]
-    g["short"] = [dict(label=f"short-loop1-review-{th}-1280x600", url=f"{trn}#loop1/review", width=1280, height=600, theme=th,
-                       retain=True, stage="loop1/review", geometry=True) for th in THEMES]
+                        retain=(r == "review"), stage=r, geometry=True)
+                   for r in ("review", "play-fixed") for th in THEMES for w in (320, 420, 900)]
+    g["short"] = [dict(label=f"short-review-{th}-1280x600", url=f"{trn}#review", width=1280, height=600, theme=th,
+                       retain=True, stage="review", geometry=True) for th in THEMES]
     g["reduced"] = [dict(label=f"rm-{name}-{th}-1440", url=url, width=1440, height=900, theme=th, retain=True, reduced=True, **extra)
                     for (name, url, extra) in (("home", f"{base}#home", {}), ("foundations", f"{base}#foundations", {}),
-                                               ("training-loop1-review", f"{trn}#loop1/review", {"stage": "loop1/review"}))
+                                               ("training-review", f"{trn}#review", {"stage": "review"}))
                     for th in THEMES]
     g["zoom"] = [dict(label=f"zoom200-{slug(r)}-{th}-{w}x{h}", url=f"{trn}#{r}", width=w, height=h, theme=th,
-                      retain=(r == "loop1/review"), zoom=2, stage=r, geometry=True)
-                 for r in ("loop1/review", "play-buggy") for th in THEMES for (w, h) in ((1280, 720), (1366, 768))]
+                      retain=(r == "review"), zoom=2, stage=r, geometry=True)
+                 for r in ("review", "play-buggy") for th in THEMES for (w, h) in ((1280, 720), (1366, 768))]
     # v4.4.2 additions
     g["home-sections"] = [dict(label=f"home-{sec}-{th}-{w}", url=f"{base}#home", width=w, height=900, theme=th, retain=True, scroll=f"#{sec}")
                           for sec in ("nhg-why", "nhg-how", "nhg-guardrails", "nhg-commands") for th in THEMES for w in (420, 1440)]

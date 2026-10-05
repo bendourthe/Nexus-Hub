@@ -2,11 +2,12 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "nexus-hub/training-story.schema.json",
   "title": "Training story",
-  "description": "The single source for the Training page's stages, sessions, files, and model badges (v4.13.10). Rendering, the tracker, the outline, and the tests all read this data.",
+  "description": "The single source for the Training page (v4.13.10 revision 2): one pass of the six-command Development Workflow. Each agent step is a script the IDE player animates: pick a model and effort, type a prompt, work through steps that read, write, and edit files, reply, and, in /implement, hit the usage limit and hand off to another provider.",
   "type": "object",
   "required": [
     "version",
     "project",
+    "workflow",
     "defaultProvider",
     "providers",
     "stages"
@@ -14,7 +15,7 @@
   "additionalProperties": false,
   "properties": {
     "version": {
-      "const": 2
+      "const": 3
     },
     "project": {
       "type": "object",
@@ -51,6 +52,34 @@
         }
       }
     },
+    "workflow": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "required": [
+          "step",
+          "command",
+          "label"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "step": {
+            "type": "string",
+            "minLength": 1
+          },
+          "command": {
+            "type": "string",
+            "minLength": 1
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
     "defaultProvider": {
       "enum": [
         "Anthropic",
@@ -74,67 +103,13 @@
     },
     "stages": {
       "type": "array",
-      "minItems": 1,
+      "minItems": 3,
       "items": {
         "$ref": "#/$defs/stage"
       }
     }
   },
   "$defs": {
-    "text": {
-      "type": "string",
-      "minLength": 1
-    },
-    "banner": {
-      "type": "object",
-      "required": [
-        "step",
-        "title",
-        "now"
-      ],
-      "additionalProperties": false,
-      "properties": {
-        "step": {
-          "$ref": "#/$defs/text"
-        },
-        "title": {
-          "$ref": "#/$defs/text"
-        },
-        "now": {
-          "$ref": "#/$defs/text"
-        }
-      }
-    },
-    "badge": {
-      "type": "object",
-      "required": [
-        "tier",
-        "effort",
-        "reason"
-      ],
-      "additionalProperties": false,
-      "properties": {
-        "tier": {
-          "enum": [
-            "frontier",
-            "strong",
-            "standard",
-            "fast"
-          ]
-        },
-        "effort": {
-          "enum": [
-            "low",
-            "medium",
-            "high",
-            "max"
-          ]
-        },
-        "reason": {
-          "$ref": "#/$defs/text"
-        }
-      }
-    },
     "stage": {
       "type": "object",
       "required": [
@@ -143,7 +118,8 @@
       ],
       "properties": {
         "id": {
-          "$ref": "#/$defs/text"
+          "type": "string",
+          "minLength": 1
         },
         "kind": {
           "enum": [
@@ -165,25 +141,21 @@
           "then": {
             "required": [
               "game",
-              "banner",
-              "callout",
+              "head",
+              "notes",
               "after"
             ],
             "properties": {
-              "id": {
-                "pattern": "^play-"
-              },
               "game": {
                 "enum": [
                   "buggy",
-                  "partial",
                   "fixed"
                 ]
               },
-              "banner": {
-                "$ref": "#/$defs/banner"
+              "head": {
+                "$ref": "#/$defs/head"
               },
-              "callout": {
+              "notes": {
                 "type": "object",
                 "required": [
                   "title",
@@ -192,28 +164,26 @@
                 "additionalProperties": false,
                 "properties": {
                   "title": {
-                    "$ref": "#/$defs/text"
+                    "type": "string",
+                    "minLength": 1
                   },
                   "items": {
                     "type": "array",
                     "minItems": 1,
                     "items": {
-                      "$ref": "#/$defs/text"
+                      "type": "string",
+                      "minLength": 1
                     }
                   },
                   "hidden": {
-                    "$ref": "#/$defs/text"
-                  },
-                  "tone": {
-                    "enum": [
-                      "warn",
-                      "ok"
-                    ]
+                    "type": "string",
+                    "minLength": 1
                   }
                 }
               },
               "after": {
-                "$ref": "#/$defs/text"
+                "type": "string",
+                "minLength": 1
               }
             }
           }
@@ -228,24 +198,12 @@
           },
           "then": {
             "required": [
-              "loop",
               "step",
-              "banner",
-              "badge",
-              "prompt",
-              "steps",
-              "reply"
+              "head",
+              "why",
+              "script"
             ],
             "properties": {
-              "id": {
-                "pattern": "^loop[12]/(describe|review|plan|implement|test|update)$"
-              },
-              "loop": {
-                "enum": [
-                  1,
-                  2
-                ]
-              },
               "step": {
                 "enum": [
                   "describe",
@@ -256,14 +214,159 @@
                   "update"
                 ]
               },
-              "banner": {
-                "$ref": "#/$defs/banner"
+              "head": {
+                "$ref": "#/$defs/head"
               },
-              "badge": {
-                "$ref": "#/$defs/badge"
+              "why": {
+                "type": "string",
+                "minLength": 1
               },
-              "prompt": {
-                "$ref": "#/$defs/prompt"
+              "script": {
+                "type": "array",
+                "minItems": 4,
+                "items": {
+                  "$ref": "#/$defs/action"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "head": {
+      "type": "object",
+      "required": [
+        "title",
+        "now"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kicker": {
+          "type": "string",
+          "minLength": 1
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "now": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "action": {
+      "type": "object",
+      "required": [
+        "do"
+      ],
+      "properties": {
+        "do": {
+          "enum": [
+            "pick",
+            "prompt",
+            "work",
+            "reply",
+            "limit",
+            "copy",
+            "paste"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "do": {
+                "const": "pick"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "provider",
+              "tier",
+              "effort",
+              "usage"
+            ],
+            "properties": {
+              "provider": {
+                "enum": [
+                  "Anthropic",
+                  "OpenAI",
+                  "Google",
+                  "Cursor"
+                ]
+              },
+              "tier": {
+                "enum": [
+                  "frontier",
+                  "strong",
+                  "standard",
+                  "fast"
+                ]
+              },
+              "effort": {
+                "enum": [
+                  "low",
+                  "medium",
+                  "high",
+                  "max"
+                ]
+              },
+              "usage": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "newchat": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "do": {
+                "const": "prompt"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "command",
+              "argument"
+            ],
+            "properties": {
+              "command": {
+                "type": "string",
+                "pattern": "^/[a-z-]+$"
+              },
+              "argument": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "do": {
+                "const": "work"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "usage",
+              "steps"
+            ],
+            "properties": {
+              "usage": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
               },
               "steps": {
                 "type": "array",
@@ -271,8 +374,28 @@
                 "items": {
                   "$ref": "#/$defs/step"
                 }
-              },
-              "reply": {
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "do": {
+                "enum": [
+                  "reply",
+                  "limit",
+                  "paste"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "text"
+            ],
+            "properties": {
+              "text": {
                 "type": "string",
                 "minLength": 1
               }
@@ -280,23 +403,6 @@
           }
         }
       ]
-    },
-    "prompt": {
-      "type": "object",
-      "required": [
-        "command",
-        "argument"
-      ],
-      "additionalProperties": false,
-      "properties": {
-        "command": {
-          "type": "string",
-          "pattern": "^/[a-z-]+$"
-        },
-        "argument": {
-          "type": "string"
-        }
-      }
     },
     "step": {
       "type": "object",
@@ -317,7 +423,8 @@
           ]
         },
         "label": {
-          "$ref": "#/$defs/text"
+          "type": "string",
+          "minLength": 1
         },
         "file": {
           "type": "string",
@@ -336,6 +443,7 @@
             "properties": {
               "kind": {
                 "enum": [
+                  "read",
                   "write",
                   "edit"
                 ]
@@ -344,7 +452,23 @@
           },
           "then": {
             "required": [
-              "file",
+              "file"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "write",
+                  "edit"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
               "content"
             ]
           }
@@ -353,13 +477,16 @@
           "if": {
             "properties": {
               "kind": {
-                "const": "read"
+                "enum": [
+                  "search",
+                  "run"
+                ]
               }
             }
           },
           "then": {
             "required": [
-              "file"
+              "output"
             ]
           }
         }

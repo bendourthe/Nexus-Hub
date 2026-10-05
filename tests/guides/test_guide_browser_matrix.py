@@ -31,7 +31,7 @@ def test_matrix_geometry_uses_stage_owned_regions():
         assert groups[name] and all(case["geometry"] for case in groups[name])
     assert "game" in matrix.geometry_regions("play-buggy")
     assert "session" not in matrix.geometry_regions("play-buggy")
-    assert {"session", "files", "activity"} <= set(matrix.geometry_regions("loop1/review"))
+    assert {"session", "files", "activity"} <= set(matrix.geometry_regions("review"))
     assert set(matrix.geometry_regions("intro")) == {"banner"}
 
 

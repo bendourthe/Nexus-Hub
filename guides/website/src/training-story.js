@@ -1,20 +1,24 @@
-/* ===================================================================== Training story renderer (v4.13.10 R4)
+/* ===================================================================== Training story renderer (v4.13.10 R8)
    Reads the story (#nh-training-story) and the stamped model map (#nh-training-models) and
-   builds each stage: the step banner with its model badge, the play callouts, and, for every
-   agent step, an emulated IDE: a project explorer, an editor, and a chat whose prompt, model
-   tier, and effort are preset for the step. Send runs the step: the agent's reasoning steps
-   appear one by one (reads open files, writes type new ones, edits change lines live, runs show
-   their output), then a structured Markdown reply. Text is only ever set with textContent; the
-   small Markdown renderer builds elements, never HTML strings. A story that is missing a
-   required field renders nothing and names the field in the page notice instead. Inlined into
-   training.html by scripts/stamp_guide_shared.py: edit this file, not the page.
+   builds the page's parts: a plain head for each part with the Development Workflow strip, and,
+   for every workflow step, an IDE that plays the step as an animation. A cursor picks the model
+   and effort in the chat, the command types in, Send is pressed, the agent works (reads open
+   files, writes type them in, edits change lines in place, runs show output), then a Markdown
+   reply. In /implement the usage bar reaches the provider's limit and the agent hands off to a
+   second provider. Each player has play, replay, a seek bar, and speed; every frame is rebuilt
+   from the script for its time, so seeking always lands on the same frame. Text is only ever
+   set with textContent; the Markdown renderer builds elements, never HTML strings. A story
+   missing a required field renders nothing and names the field in the page notice. Inlined
+   into training.html by scripts/stamp_guide_shared.py: edit this file, not the page.
    ===================================================================== */
 window.NexusTrainingStory = (function () {
   "use strict";
 
-  var PROVIDER_KEY = "nh-training-provider";
   var REDUCED = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   var STEP_KINDS = { read: "Read", search: "Search", think: "Think", write: "Write", edit: "Edit", run: "Run" };
+  var TIERS = ["frontier", "strong", "standard", "fast"];
+  var EFFORTS = ["low", "medium", "high", "max"];
+  var SPEEDS = [0.5, 1, 2];
 
   function el(tag, cls, text) {
     var node = document.createElement(tag);
@@ -22,11 +26,33 @@ window.NexusTrainingStory = (function () {
     if (text != null) node.textContent = text;
     return node;
   }
+  function svg(paths, cls) {
+    var NS = "http://www.w3.org/2000/svg", s = document.createElementNS(NS, "svg");
+    s.setAttribute("viewBox", "0 0 24 24");
+    s.setAttribute("aria-hidden", "true");
+    if (cls) s.setAttribute("class", cls);
+    paths.forEach(function (d) { var p = document.createElementNS(NS, "path"); p.setAttribute("d", d); s.appendChild(p); });
+    return s;
+  }
   function readJson(id) {
     var node = document.getElementById(id);
     if (!node) throw new Error("the page has no #" + id + " block");
     return JSON.parse(node.textContent);
   }
+  function cap(w) { return /^\d/.test(w) ? w : w.charAt(0).toUpperCase() + w.slice(1); }
+  /* Model ids read as product names: claude-sonnet-5-5 -> Claude Sonnet 5.5, gpt-6.1-sol -> GPT-6.1 Sol. */
+  function modelName(id) {
+    if (!id) return "Unknown model";
+    var p = String(id).split("-");
+    if (p[0] === "claude") {
+      var nums = p.slice(2).filter(function (x) { return /^\d+$/.test(x); });
+      return "Claude " + cap(p[1]) + (nums.length ? " " + nums.join(".") : "");
+    }
+    if (p[0] === "gpt") return "GPT-" + p[1] + (p.length > 2 ? " " + p.slice(2).map(cap).join(" ") : "");
+    return p.map(cap).join(" ");
+  }
+  function clock(ms) { var s = Math.max(0, Math.round(ms / 1000)); return Math.floor(s / 60) + ":" + (s % 60 < 10 ? "0" : "") + (s % 60); }
+  function ease(p) { return p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2; }
 
   /* -------------------------------------------------- validation (the fields rendering relies on) */
   function need(obj, path, key, kind) {
@@ -37,119 +63,37 @@ window.NexusTrainingStory = (function () {
   }
   function validate(story) {
     need(story, "story", "stages", "array");
-    need(story, "story", "providers", "array");
+    need(story, "story", "workflow", "array");
     need(need(story, "story", "project", "object"), "story.project", "files", "array");
     story.stages.forEach(function (st, i) {
       var p = "stages[" + i + "]";
       need(st, p, "id", "string");
       need(st, p, "kind", "string");
       if (st.kind === "intro") return;
-      var banner = need(st, p, "banner", "object");
-      ["step", "title", "now"].forEach(function (k) { need(banner, p + ".banner", k, "string"); });
+      var head = need(st, p, "head", "object");
+      ["title", "now"].forEach(function (k) { need(head, p + ".head", k, "string"); });
       if (st.kind === "play") {
         need(st, p, "game", "string");
-        need(need(st, p, "callout", "object"), p + ".callout", "items", "array");
+        need(need(st, p, "notes", "object"), p + ".notes", "items", "array");
       } else if (st.kind === "session") {
-        need(need(st, p, "prompt", "object"), p + ".prompt", "command", "string");
-        var badge = need(st, p, "badge", "object");
-        ["tier", "effort", "reason"].forEach(function (k) { need(badge, p + ".badge", k, "string"); });
-        need(st, p, "steps", "array").forEach(function (s, j) {
-          need(s, p + ".steps[" + j + "]", "kind", "string");
-          need(s, p + ".steps[" + j + "]", "label", "string");
-          if (!STEP_KINDS[s.kind]) throw new Error("field " + p + ".steps[" + j + "].kind has an unknown value " + JSON.stringify(s.kind));
+        need(st, p, "step", "string");
+        need(st, p, "why", "string");
+        need(st, p, "script", "array").forEach(function (a, j) {
+          var q = p + ".script[" + j + "]";
+          need(a, q, "do", "string");
+          if (a.do === "pick") { if (TIERS.indexOf(a.tier) === -1) throw new Error("field " + q + ".tier has an unknown value " + JSON.stringify(a.tier)); }
+          else if (a.do === "prompt") need(a, q, "command", "string");
+          else if (a.do === "work") need(a, q, "steps", "array").forEach(function (s, k) {
+            need(s, q + ".steps[" + k + "]", "label", "string");
+            if (!STEP_KINDS[s.kind]) throw new Error("field " + q + ".steps[" + k + "].kind has an unknown value " + JSON.stringify(s.kind));
+          });
+          else if (a.do === "reply" || a.do === "limit" || a.do === "paste") need(a, q, "text", "string");
+          else if (a.do !== "copy") throw new Error("field " + q + ".do has an unknown value " + JSON.stringify(a.do));
         });
-        need(st, p, "reply", "string");
       } else {
         throw new Error("field " + p + ".kind has an unknown value " + JSON.stringify(st.kind));
       }
     });
-  }
-
-  /* -------------------------------------------------- provider choice */
-  var models = null, provider = null, badges = [];
-  function storedProvider() {
-    try { return window.localStorage.getItem(PROVIDER_KEY); } catch (err) { return null; }
-  }
-  function setProvider(name) {
-    if (!models || models.providers.indexOf(name) === -1) return;
-    provider = name;
-    try { window.localStorage.setItem(PROVIDER_KEY, name); } catch (err) { /* storage blocked: the choice lasts this visit */ }
-    badges.forEach(paintBadge);
-  }
-  function paintBadge(b) {
-    var row = models.tiers[b.tier] || {};
-    b.model.textContent = row[provider] || "not in the bundled map";
-    b.model.setAttribute("data-provider", provider);
-    for (var i = 0; i < b.buttons.length; i++) {
-      b.buttons[i].setAttribute("aria-pressed", b.buttons[i].getAttribute("data-provider") === provider ? "true" : "false");
-    }
-  }
-
-  /* -------------------------------------------------- banner, badge, callout */
-  function badgeFor(st) {
-    var box = el("div", "tr-badge");
-    box.setAttribute("data-tier", st.badge.tier);
-    box.setAttribute("aria-label", "What the agent uses for this step");
-    var grid = el("dl", "tr-badge-grid");
-    function pair(k, v, cls) {
-      var wrap = el("div", "tr-badge-pair");
-      wrap.appendChild(el("dt", null, k));
-      var dd = el("dd", cls || null, v);
-      wrap.appendChild(dd);
-      grid.appendChild(wrap);
-      return dd;
-    }
-    pair("Tier", st.badge.tier);
-    pair("Effort", st.badge.effort);
-    var model = pair("Model", "", "tr-badge-model");
-    model.setAttribute("data-tier-model", st.badge.tier);
-    box.appendChild(grid);
-    box.appendChild(el("p", "tr-badge-why", st.badge.reason));
-    var group = el("div", "tr-provider");
-    group.setAttribute("role", "group");
-    group.setAttribute("aria-label", "Show the model for");
-    var buttons = [];
-    models.providers.forEach(function (name) {
-      var btn = el("button", null, name);
-      btn.type = "button";
-      btn.setAttribute("data-provider", name);
-      btn.addEventListener("click", function () { setProvider(name); });
-      group.appendChild(btn);
-      buttons.push(btn);
-    });
-    box.appendChild(group);
-    var b = { tier: st.badge.tier, model: model, buttons: buttons };
-    badges.push(b);
-    paintBadge(b);
-    return box;
-  }
-
-  function bannerFor(st, heading) {
-    var header = el("header", "tr-banner");
-    var lead = el("div", "tr-banner-copy");
-    lead.appendChild(el("p", "tr-step", st.banner.step));
-    heading.textContent = st.banner.title;
-    heading.classList.add("tr-title");
-    lead.appendChild(heading);
-    var now = el("p", "tr-now");
-    now.appendChild(el("b", null, "Now: "));
-    now.appendChild(document.createTextNode(st.banner.now));
-    lead.appendChild(now);
-    header.appendChild(lead);
-    if (st.badge) header.appendChild(badgeFor(st));
-    return header;
-  }
-
-  function calloutFor(st) {
-    var box = el("aside", "tr-callout");
-    box.setAttribute("role", "note");
-    box.setAttribute("data-tone", st.callout.tone === "ok" ? "ok" : "warn");
-    box.appendChild(el("p", "tr-callout-title", st.callout.title));
-    var ul = el("ul");
-    st.callout.items.forEach(function (t) { ul.appendChild(el("li", null, t)); });
-    box.appendChild(ul);
-    if (st.callout.hidden) box.appendChild(el("p", "tr-callout-hidden", st.callout.hidden));
-    return box;
   }
 
   /* -------------------------------------------------- Markdown, as elements (never HTML strings) */
@@ -206,12 +150,15 @@ window.NexusTrainingStory = (function () {
         var ordered = /\d/.test(m[2]);
         var list = el(ordered ? "ol" : "ul", "md-list"), last = null;
         while (i < lines.length && (m = /^(\s*)([-*]|\d+\.)\s+(.*)$/.exec(lines[i]))) {
+          var text2 = m[3], box = /^\[( |x)\]\s+(.*)$/.exec(text2), item;
+          if (box) { item = el("li", "md-check"); item.setAttribute("data-done", box[1] === "x" ? "true" : "false"); inline(item, box[2]); }
+          else item = inline(el("li"), text2);
           if (m[1].length >= 2 && last) {
             var sub = last.querySelector("ul, ol") || last.appendChild(el(/\d/.test(m[2]) ? "ol" : "ul", "md-list"));
-            sub.appendChild(inline(el("li"), m[3]));
+            sub.appendChild(item);
           } else {
-            last = inline(el("li"), m[3]);
-            list.appendChild(last);
+            last = item;
+            list.appendChild(item);
           }
           i += 1;
         }
@@ -226,7 +173,7 @@ window.NexusTrainingStory = (function () {
     return out;
   }
 
-  /* -------------------------------------------------- code view: lines, light colouring, diffs */
+  /* -------------------------------------------------- code view: light colouring and line diffs */
   var KEYWORDS = /\b(import|export|from|function|return|const|let|var|if|else|for|of|test|expect|true|false|new)\b/;
   function colour(row, text, path) {
     if (/\.md$/.test(path)) {
@@ -264,9 +211,63 @@ window.NexusTrainingStory = (function () {
     while (j < m) { ops.push(["+", b[j]]); j += 1; }
     return ops;
   }
+  function langOf(path) { return /\.md$/.test(path) ? "Markdown" : /\.json$/.test(path) ? "JSON" : /\.js$/.test(path) ? "JavaScript" : "Plain Text"; }
 
-  /* -------------------------------------------------- one IDE per agent step */
-  var sessions = [];
+  /* -------------------------------------------------- the Development Workflow strip */
+  function flowFor(workflow, current, mode) {
+    var ol = el("ol", "tr-flow");
+    ol.setAttribute("aria-label", "Development Workflow");
+    var at = -1;
+    workflow.forEach(function (w, k) { if (w.step === current) at = k; });
+    workflow.forEach(function (w, k) {
+      var li = el("li");
+      var state = mode === "done" ? "done" : mode === "before" ? "next" : k < at ? "done" : k === at ? "now" : "next";
+      li.setAttribute("data-state", state);
+      li.setAttribute("data-step", w.step);
+      if (state === "now") li.setAttribute("aria-current", "step");
+      var a = el("a");
+      a.href = "#" + w.step;
+      a.appendChild(el("span", "tr-flow-n", String(k + 1)));
+      a.appendChild(el("code", null, w.command));
+      a.appendChild(el("small", null, w.label));
+      li.appendChild(a);
+      ol.appendChild(li);
+    });
+    return ol;
+  }
+  function headFor(st, heading, workflow) {
+    var header = el("header", "tr-head");
+    if (st.kind === "session") header.appendChild(flowFor(workflow, st.step));
+    else header.appendChild(flowFor(workflow, null, st.game === "fixed" ? "done" : "before"));
+    if (st.head.kicker) header.appendChild(el("p", "tr-kicker", st.head.kicker));
+    heading.textContent = st.head.title;
+    heading.classList.add("tr-title");
+    header.appendChild(heading);
+    header.appendChild(el("p", "tr-now", st.head.now));
+    return header;
+  }
+  function notesFor(st) {
+    var box = el("div", "tr-notes");
+    box.setAttribute("data-tone", st.game === "fixed" ? "ok" : "bug");
+    box.appendChild(el("h3", "tr-notes-title", st.notes.title));
+    var ul = el("ul", "tr-notes-list");
+    st.notes.items.forEach(function (t) { ul.appendChild(el("li", null, t)); });
+    box.appendChild(ul);
+    if (st.notes.hidden) box.appendChild(el("p", "tr-notes-hidden", st.notes.hidden));
+    return box;
+  }
+
+  /* -------------------------------------------------- IDE shell */
+  var ICONS = {
+    files: ["M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z", "M14 3v5h5"],
+    search: ["M10.5 17a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13z", "M20 20l-4.8-4.8"],
+    branch: ["M6 3v12", "M18 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6z", "M6 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6z", "M18 9a9 9 0 0 1-9 9"],
+    run: ["M7 4v16l13-8z"],
+    blocks: ["M4 4h7v7H4z", "M13 13h7v7h-7z", "M4 13h7v7H4z", "M15 3l6 6-6 6-6-6z"],
+    send: ["M4 12l16-8-6 16-2-7z"],
+    chev: ["M7 10l5 5 5-5"],
+    lock: ["M7 11V8a5 5 0 0 1 10 0v3", "M5 11h14v10H5z"]
+  };
   function treeOf(files) {
     var root = { dirs: {}, files: [] };
     Object.keys(files).sort().forEach(function (path) {
@@ -276,315 +277,585 @@ window.NexusTrainingStory = (function () {
     });
     return root;
   }
-
-  function ideFor(st, before) {
-    var s = { st: st, before: before, files: {}, state: "ready", timers: [], open: [], status: {} };
-    Object.keys(before).forEach(function (p) { s.files[p] = before[p]; });
+  function picker(cls, label) {
+    var b = el("span", "ide-pick " + cls);
+    b.setAttribute("aria-label", label);
+    var name = el("span", "ide-pick-name");
+    b.appendChild(name);
+    b.appendChild(svg(ICONS.chev, "ide-chev"));
+    return { box: b, name: name };
+  }
+  function ideShell(st, project) {
+    var s = { id: st.id, st: st };
+    var wrap = el("div", "ide-wrap");
     var ide = el("div", "ide");
-    ide.setAttribute("data-state", "ready");
-    ide.setAttribute("role", "group");
-    ide.setAttribute("aria-label", "Emulated IDE for " + st.prompt.command);
-    var bar = el("div", "ide-bar");
-    var dots = el("span", "ide-dots");
-    dots.setAttribute("aria-hidden", "true");
-    dots.appendChild(el("i")); dots.appendChild(el("i")); dots.appendChild(el("i"));
-    bar.appendChild(dots);
-    bar.appendChild(el("span", "ide-title", "sky-sentinel"));
-    s.statusEl = el("span", "ide-status", "Ready");
-    bar.appendChild(s.statusEl);
-    ide.appendChild(bar);
-    var body = el("div", "ide-body");
+    ide.setAttribute("role", "region");
+    ide.setAttribute("aria-label", "Agent session for " + st.step + ", played as an animation");
+    var title = el("div", "ide-titlebar");
+    title.setAttribute("aria-hidden", "true");
+    title.appendChild(el("span", "ide-menus", "File  Edit  Selection  View  Go  Run  Terminal  Help"));
+    title.appendChild(el("span", "ide-search", project));
+    title.appendChild(el("span", "ide-win"));
+    ide.appendChild(title);
 
-    /* explorer */
-    var explorer = el("nav", "ide-explorer");
+    var main = el("div", "ide-main");
+    var act = el("nav", "ide-activity");
+    act.setAttribute("aria-hidden", "true");
+    ["files", "search", "branch", "run", "blocks"].forEach(function (k, i) { var b = el("span", "ide-act" + (i === 0 ? " is-on" : "")); b.appendChild(svg(ICONS[k])); act.appendChild(b); });
+    main.appendChild(act);
+
+    var explorer = el("aside", "ide-explorer");
     explorer.setAttribute("aria-label", "Project files");
-    explorer.appendChild(el("p", "ide-head", "Explorer"));
+    explorer.appendChild(el("p", "ide-pane-h", "Explorer"));
+    explorer.appendChild(el("p", "ide-proj", project.toUpperCase()));
     s.tree = el("ul", "ide-tree");
     explorer.appendChild(s.tree);
-    body.appendChild(explorer);
+    main.appendChild(explorer);
 
-    /* editor */
-    var editor = el("div", "ide-editor");
+    var editor = el("section", "ide-editor");
+    editor.setAttribute("aria-label", "Editor");
     s.tabs = el("div", "ide-tabs");
-    s.tabs.setAttribute("role", "tablist");
-    s.tabs.setAttribute("aria-label", "Open files");
-    editor.appendChild(s.tabs);
-    s.code = el("div", "ide-code");
-    s.code.setAttribute("role", "tabpanel");
+    s.crumbs = el("div", "ide-crumbs");
+    var code = el("div", "ide-code");
     s.lines = el("ol", "ide-lines");
-    s.code.appendChild(s.lines);
-    editor.appendChild(s.code);
-    body.appendChild(editor);
+    code.appendChild(s.lines);
+    s.code = code;
+    editor.appendChild(s.tabs);
+    editor.appendChild(s.crumbs);
+    editor.appendChild(code);
+    main.appendChild(editor);
 
-    /* chat */
-    var chat = el("div", "ide-chat");
-    var head = el("div", "ide-chat-head");
-    var picker = el("div", "ide-model");
-    picker.setAttribute("aria-label", "Model for this step, preset");
-    var name = el("span", "ide-model-name");
-    picker.appendChild(name);
-    picker.appendChild(el("span", "ide-chip", st.badge.tier));
-    picker.appendChild(el("span", "ide-chip", st.badge.effort + " effort"));
-    var lock = el("span", "ide-lock", "Preset");
-    lock.setAttribute("title", "The model and effort are preset for this step of the workflow");
-    picker.appendChild(lock);
-    head.appendChild(picker);
-    chat.appendChild(head);
-    badges.push({ tier: st.badge.tier, model: name, buttons: [] });
+    var chat = el("section", "ide-chat");
+    chat.setAttribute("aria-label", "Agent chat");
+    var ch = el("div", "ide-chat-h");
+    ch.appendChild(el("span", "ide-chat-t", "Chat"));
+    var usage = el("div", "ide-usage");
+    usage.setAttribute("role", "meter");
+    usage.setAttribute("aria-valuemin", "0");
+    usage.setAttribute("aria-valuemax", "100");
+    s.usageName = el("span", "ide-usage-name");
+    var bar = el("span", "ide-usage-bar");
+    s.usageFill = el("i");
+    bar.appendChild(s.usageFill);
+    s.usagePct = el("span", "ide-usage-pct");
+    usage.appendChild(s.usageName);
+    usage.appendChild(bar);
+    usage.appendChild(s.usagePct);
+    s.usage = usage;
+    ch.appendChild(usage);
+    chat.appendChild(ch);
     s.log = el("div", "ide-log");
-    s.log.setAttribute("aria-live", "polite");
-    s.log.appendChild(el("p", "ide-note", "New agent session in sky-sentinel. The prompt below is preset for this step: press Send to run it."));
     chat.appendChild(s.log);
     var composer = el("div", "ide-composer");
-    var input = el("div", "ide-input");
-    input.setAttribute("role", "textbox");
-    input.setAttribute("aria-readonly", "true");
-    input.setAttribute("aria-label", "Prompt for this step, preset");
-    input.appendChild(el("span", "ide-cmd", st.prompt.command));
-    if (st.prompt.argument) { input.appendChild(document.createTextNode(" ")); input.appendChild(el("span", "ide-arg", st.prompt.argument)); }
-    composer.appendChild(input);
-    s.send = el("button", "ide-send", "Send");
-    s.send.type = "button";
-    s.send.addEventListener("click", function () {
-      if (s.state === "running") finish(s);
-      else if (s.state === "done") { reset(s); run(s, false); }
-      else run(s, false);
-    });
-    composer.appendChild(s.send);
+    s.input = el("div", "ide-input");
+    s.input.setAttribute("role", "textbox");
+    s.input.setAttribute("aria-readonly", "true");
+    s.input.setAttribute("aria-label", "Prompt, preset for this step");
+    composer.appendChild(s.input);
+    var row = el("div", "ide-bar");
+    var mode = picker("ide-pick--mode", "Chat mode");
+    mode.name.textContent = "Agent";
+    row.appendChild(mode.box);
+    s.model = picker("ide-pick--model", "Model");
+    s.effort = picker("ide-pick--effort", "Effort");
+    row.appendChild(s.model.box);
+    row.appendChild(s.effort.box);
+    var lock = el("span", "ide-lock");
+    lock.appendChild(svg(ICONS.lock));
+    lock.appendChild(document.createTextNode("Preset"));
+    row.appendChild(lock);
+    s.send = el("span", "ide-send");
+    s.send.setAttribute("aria-label", "Send");
+    s.send.appendChild(svg(ICONS.send));
+    row.appendChild(s.send);
+    composer.appendChild(row);
     chat.appendChild(composer);
-    body.appendChild(chat);
-    ide.appendChild(body);
+    main.appendChild(chat);
+    ide.appendChild(main);
+
+    var status = el("div", "ide-status");
+    status.setAttribute("aria-hidden", "true");
+    status.appendChild(el("span", null, "main"));
+    status.appendChild(el("span", null, "0 problems"));
+    s.statusPos = el("span", "ide-status-r");
+    s.statusLang = el("span");
+    s.statusModel = el("span");
+    status.appendChild(s.statusPos);
+    status.appendChild(s.statusLang);
+    status.appendChild(s.statusModel);
+    ide.appendChild(status);
+
+    s.menu = el("div", "ide-menu");
+    s.menu.setAttribute("aria-hidden", "true");
+    s.menu.hidden = true;
+    ide.appendChild(s.menu);
+    s.toast = el("div", "ide-toast", "Copied to clipboard");
+    s.toast.hidden = true;
+    ide.appendChild(s.toast);
+    s.cursor = el("div", "ide-cursor");
+    s.cursor.setAttribute("aria-hidden", "true");
+    s.cursor.appendChild(svg(["M5 3l14 9-6.5 1.6L9 20z"]));
+    ide.appendChild(s.cursor);
+
     s.ide = ide;
-    paintTree(s);
-    var first = null;
-    st.steps.some(function (x) { if (x.file && before[x.file] != null) { first = x.file; return true; } return false; });
-    openFile(s, first || Object.keys(before).sort()[0], false);
+    wrap.appendChild(ide);
+    wrap.appendChild(controlsFor(s));
+    s.wrap = wrap;
     return s;
   }
 
+  /* -------------------------------------------------- the player's controls */
+  function controlsFor(s) {
+    var bar = el("div", "ide-player");
+    bar.setAttribute("role", "group");
+    bar.setAttribute("aria-label", "Animation controls");
+    s.playBtn = el("button", "ide-ctl ide-ctl--play");
+    s.playBtn.type = "button";
+    s.playIcon = el("span", "ide-ctl-ic");
+    s.playBtn.appendChild(s.playIcon);
+    s.playBtn.addEventListener("click", function () { if (s.playing) pause(s); else { if (s.t >= s.duration) seek(s, 0); play(s); } });
+    var again = el("button", "ide-ctl ide-ctl--replay");
+    again.type = "button";
+    again.setAttribute("aria-label", "Replay from the start");
+    again.appendChild(svg(["M4 4v6h6", "M5.5 15a7.5 7.5 0 1 0 1.8-7.8L4 10"]));
+    again.addEventListener("click", function () { seek(s, 0); play(s); });
+    s.seekBar = el("input", "ide-seek");
+    s.seekBar.type = "range";
+    s.seekBar.min = "0";
+    s.seekBar.step = "10";
+    s.seekBar.setAttribute("aria-label", "Position in the animation");
+    s.seekBar.addEventListener("input", function () { s.started = true; s.autoPaused = false; seek(s, parseFloat(s.seekBar.value) || 0); });
+    s.time = el("span", "ide-time");
+    var speeds = el("div", "ide-speed");
+    speeds.setAttribute("role", "group");
+    speeds.setAttribute("aria-label", "Playback speed");
+    s.speedBtns = SPEEDS.map(function (x) {
+      var b = el("button", null, x + "x");
+      b.type = "button";
+      b.setAttribute("data-speed", String(x));
+      b.addEventListener("click", function () { setSpeed(s, x); });
+      speeds.appendChild(b);
+      return b;
+    });
+    bar.appendChild(s.playBtn);
+    bar.appendChild(again);
+    bar.appendChild(s.seekBar);
+    bar.appendChild(s.time);
+    bar.appendChild(speeds);
+    return bar;
+  }
+  function paintControls(s) {
+    s.playBtn.setAttribute("aria-label", s.playing ? "Pause" : s.t >= s.duration ? "Play again" : "Play");
+    s.playBtn.setAttribute("data-state", s.playing ? "playing" : "paused");
+    s.seekBar.value = String(Math.round(s.t));
+    s.seekBar.setAttribute("aria-valuetext", clock(s.t) + " of " + clock(s.duration));
+    s.time.textContent = clock(s.t) + " / " + clock(s.duration);
+    s.speedBtns.forEach(function (b) { b.setAttribute("aria-pressed", parseFloat(b.getAttribute("data-speed")) === s.speed ? "true" : "false"); });
+    s.wrap.setAttribute("data-state", s.t >= s.duration ? "done" : s.t > 0 ? "running" : "ready");
+  }
+
+  /* -------------------------------------------------- the frame state */
+  function setPicker(s, provider, tier, effort) {
+    var id = tier && models.tiers[tier] ? models.tiers[tier][provider] : null;
+    s.cur = { provider: provider, tier: tier, effort: effort, model: id };
+    s.model.name.textContent = id ? modelName(id) : "Auto";
+    s.effort.name.textContent = effort ? cap(effort) : "Medium";
+    s.statusModel.textContent = id ? modelName(id) : "";
+  }
+  function setUsage(s, provider, pct) {
+    pct = Math.max(0, Math.min(100, Math.round(pct)));
+    s.usageName.textContent = provider + " usage";
+    s.usageFill.style.width = pct + "%";
+    s.usagePct.textContent = pct + "%";
+    s.usage.setAttribute("aria-valuenow", String(pct));
+    s.usage.setAttribute("aria-label", provider + " usage, " + pct + " percent of the limit");
+    s.usage.setAttribute("data-level", pct >= 100 ? "full" : pct >= 80 ? "high" : "ok");
+    s.usageNow = { provider: provider, pct: pct };
+  }
   function paintTree(s) {
     s.tree.textContent = "";
-    var root = treeOf(s.files);
-    (function walk(node, parent, depth) {
-      Object.keys(node.dirs).forEach(function (d) {
+    function walk(node, ul, depth) {
+      Object.keys(node.dirs).sort().forEach(function (name) {
         var li = el("li", "ide-dir");
-        var label = el("span", "ide-dir-name", d);
-        label.style.setProperty("--d", depth);
-        li.appendChild(label);
-        var ul = el("ul");
-        li.appendChild(ul);
-        parent.appendChild(li);
-        walk(node.dirs[d], ul, depth + 1);
+        var row = el("span", "ide-row", name);
+        row.style.paddingLeft = (10 + depth * 12) + "px";
+        li.appendChild(row);
+        var sub = el("ul");
+        walk(node.dirs[name], sub, depth + 1);
+        li.appendChild(sub);
+        ul.appendChild(li);
       });
       node.files.forEach(function (f) {
         var li = el("li");
         var b = el("button", "ide-file", f.name);
         b.type = "button";
-        b.style.setProperty("--d", depth);
+        b.style.paddingLeft = (10 + depth * 12) + "px";
         b.setAttribute("data-path", f.path);
-        if (s.status[f.path]) { b.setAttribute("data-status", s.status[f.path]); b.appendChild(el("span", "ide-mark", s.status[f.path] === "created" ? "A" : "M")); }
-        if (s.current === f.path) b.setAttribute("aria-current", "true");
-        b.addEventListener("click", function () { if (s.state !== "running") openFile(s, f.path, false); });
+        if (s.status[f.path]) { b.setAttribute("data-status", s.status[f.path] === "A" ? "created" : "modified"); b.appendChild(el("span", "ide-mark", s.status[f.path])); }
+        if (f.path === s.view.path) b.setAttribute("aria-current", "true");
+        b.addEventListener("click", function () { openFile(s, f.path); });
         li.appendChild(b);
-        parent.appendChild(li);
+        ul.appendChild(li);
       });
-    })(root, s.tree, 0);
-  }
-
-  function tabFor(s, path) {
-    var tab = null;
-    s.open.forEach(function (t) { if (t.path === path) tab = t; });
-    if (!tab) {
-      var b = el("button", "ide-tab", path.split("/").pop());
-      b.type = "button";
-      b.setAttribute("role", "tab");
-      b.setAttribute("title", path);
-      b.addEventListener("click", function () { if (s.state !== "running") openFile(s, path, false); });
-      s.tabs.appendChild(b);
-      tab = { path: path, button: b };
-      s.open.push(tab);
-      if (s.open.length > 4) { s.tabs.removeChild(s.open[0].button); s.open.shift(); }
     }
-    s.open.forEach(function (t) { t.button.setAttribute("aria-selected", t.path === path ? "true" : "false"); });
-    return tab;
+    walk(treeOf(s.files), s.tree, 0);
   }
-
-  function showLines(s, path, text, marks) {
-    s.lines.textContent = "";
-    (text || "").split("\n").forEach(function (line, k) {
-      var li = el("li");
-      if (marks && marks[k]) li.setAttribute("data-op", marks[k]);
-      colour(li, line, path);
-      s.lines.appendChild(li);
+  function ensureTab(s, path) {
+    if (s.tabList.indexOf(path) === -1) s.tabList.push(path);
+    s.tabs.textContent = "";
+    s.tabList.forEach(function (p) {
+      var t = el("span", "ide-tab", p.split("/").pop());
+      t.setAttribute("data-path", p);
+      if (p === s.view.path) t.setAttribute("aria-selected", "true");
+      if (s.status[p]) t.appendChild(el("span", "ide-mark", s.status[p]));
+      s.tabs.appendChild(t);
     });
   }
-
-  function openFile(s, path, highlight) {
-    if (!path) return;
-    s.current = path;
-    tabFor(s, path);
-    s.code.setAttribute("aria-label", path);
-    showLines(s, path, s.files[path], s.marks && s.marks[path]);
-    var btns = s.tree.querySelectorAll(".ide-file");
-    for (var k = 0; k < btns.length; k++) {
-      var on = btns[k].getAttribute("data-path") === path;
-      if (on) btns[k].setAttribute("aria-current", "true"); else btns[k].removeAttribute("aria-current");
-      if (on && highlight) { btns[k].classList.remove("ide-flash"); void btns[k].offsetWidth; btns[k].classList.add("ide-flash"); }
+  function showLines(s, path, rows) {
+    s.lines.textContent = "";
+    rows.forEach(function (r) {
+      var li = el("li");
+      if (r.op) li.setAttribute("data-op", r.op);
+      if (r.cls) li.className = r.cls;
+      colour(li, r.text, path);
+      if (!r.text) li.appendChild(document.createTextNode("​"));
+      s.lines.appendChild(li);
+    });
+    s.statusPos.textContent = "Ln " + Math.max(1, rows.length) + ", Col 1";
+  }
+  function viewFile(s, path) {
+    if (s.view.path !== path) { s.view.path = path; s.view.key = null; }
+    ensureTab(s, path);
+    s.crumbs.textContent = path.split("/").join("  >  ");
+    s.statusLang.textContent = langOf(path);
+  }
+  function openFile(s, path) {
+    viewFile(s, path);
+    var key = path + "#" + (s.files[path] || "").length;
+    if (s.view.key !== key) {
+      s.view.key = key;
+      showLines(s, path, (s.files[path] || "").split("\n").map(function (t) { return { text: t }; }));
+      s.code.scrollTop = 0;
+      paintTree(s);
     }
   }
-
-  /* -------------------------------------------------- running a step */
-  function at(s, ms, fn) { s.timers.push(window.setTimeout(fn, ms)); }
-  function setState(s, state) {
-    s.state = state;
-    s.ide.setAttribute("data-state", state);
-    s.statusEl.textContent = state === "running" ? "Agent working" : state === "done" ? "Done" : "Ready";
-    s.send.textContent = state === "running" ? "Skip" : state === "done" ? "Run again" : "Send";
-  }
   function reset(s) {
-    s.timers.forEach(window.clearTimeout);
-    s.timers = [];
     s.files = {};
     Object.keys(s.before).forEach(function (p) { s.files[p] = s.before[p]; });
     s.status = {};
-    s.marks = {};
+    s.nodes = {};
+    s.tabList = [];
+    s.view = { path: null, key: null };
     s.log.textContent = "";
-    s.log.appendChild(el("p", "ide-note", "New agent session in sky-sentinel. The prompt below is preset for this step: press Send to run it."));
-    s.tabs.textContent = "";
-    s.open = [];
-    paintTree(s);
-    setState(s, "ready");
+    s.log.appendChild(el("p", "ide-hint", "New agent session in " + s.project + ". The prompt and model are preset for this step."));
+    s.input.textContent = "";
+    s.input.appendChild(el("span", "ide-ph", "Ask the agent, or type / for a command"));
+    s.menu.hidden = true;
+    s.toast.hidden = true;
+    s.cursor.style.opacity = "0";
+    s.cursor.classList.remove("is-down");
+    s.cursorKey = "start";
+    setPicker(s, s.init.provider, s.init.tier, s.init.effort);
+    setUsage(s, s.init.provider, s.init.usage);
+    s.ide.setAttribute("data-provider", s.init.provider);
+    openFile(s, s.firstFile);
+    s.t = 0;
+    s.idx = 0;
   }
-  function userMessage(s) {
-    var msg = el("div", "ide-msg ide-msg--user");
-    msg.appendChild(el("span", "ide-who", "You"));
-    var p = el("p");
-    p.appendChild(el("span", "ide-cmd", s.st.prompt.command));
-    if (s.st.prompt.argument) { p.appendChild(document.createTextNode(" ")); p.appendChild(el("span", "ide-arg", s.st.prompt.argument)); }
-    msg.appendChild(p);
-    s.log.appendChild(msg);
+  function ensure(s, key, make) { if (!s.nodes[key]) s.nodes[key] = make(); return s.nodes[key]; }
+  function scrollLog(s) { s.log.scrollTop = s.log.scrollHeight; }
+
+  /* -------------------------------------------------- cursor */
+  function point(s, key) {
+    var root = s.ide.getBoundingClientRect(), target = null;
+    if (key === "start") return { x: root.width - 40, y: root.height - 30 };
+    if (key === "model") target = s.model.box;
+    else if (key === "effort") target = s.effort.box;
+    else if (key === "input") target = s.input;
+    else if (key === "send") target = s.send;
+    else if (key === "copy") { var cs = s.log.querySelectorAll(".ide-copy"); target = cs.length ? cs[cs.length - 1] : s.send; }
+    else if (key.indexOf("opt:") === 0) target = s.menu.querySelector('[data-value="' + key.slice(4) + '"]') || s.menu;
+    if (!target || !target.getClientRects().length) return { x: root.width / 2, y: root.height / 2 };
+    var r = target.getBoundingClientRect();
+    var x = key === "input" ? r.left + Math.min(60, r.width / 3) : r.left + r.width / 2;
+    return { x: x - root.left, y: r.top + r.height / 2 - root.top };
   }
-  function stepRow(s, step) {
-    var li = el("li", "ide-step");
-    li.setAttribute("data-kind", step.kind);
-    li.appendChild(el("span", "ide-step-kind", STEP_KINDS[step.kind]));
-    li.appendChild(el("span", "ide-step-label", step.label));
-    if (step.output) {
-      var out = el("pre", "ide-step-out");
-      out.appendChild(el("code", null, step.output));
-      li.appendChild(out);
-    }
-    return li;
-  }
-  function applyFile(s, path, after) {
-    var existed = Object.prototype.hasOwnProperty.call(s.before, path);
-    s.status[path] = existed ? "modified" : "created";
-    var a = existed ? s.before[path].split("\n") : [], b = after.split("\n");
-    var ops = diff(a, b), marks = [];
-    ops.forEach(function (o) { if (o[0] !== "-") marks.push(o[0] === "+" ? "add" : null); });
-    /* A new file is all new: change markers only make sense on an edited one. */
-    s.marks[path] = existed ? marks : null;
-    s.files[path] = after;
-    return ops;
-  }
-  /* Writes type in line by line; edits strike removed lines, then type the new ones in place. */
-  function animateFile(s, path, ops, start) {
-    var t = start, shown = [];
-    openFile(s, path, true);
-    s.lines.textContent = "";
-    var rows = ops.map(function (o) {
-      var li = el("li");
-      li.setAttribute("data-op", o[0] === "+" ? "add" : o[0] === "-" ? "del" : "ctx");
-      colour(li, o[1], path);
-      if (o[0] === "+") li.classList.add("ide-wait");
-      s.lines.appendChild(li);
-      return li;
-    });
-    var dels = rows.filter(function (r, k) { return ops[k][0] === "-"; });
-    if (dels.length) { t += 450; at(s, t, function () { dels.forEach(function (r) { r.classList.add("ide-strike"); }); }); t += 650; }
-    rows.forEach(function (r, k) {
-      if (ops[k][0] !== "+") return;
-      var dur = Math.max(70, Math.min(420, ops[k][1].length * 9));
-      at(s, t, function () { r.classList.remove("ide-wait"); r.style.setProperty("--tr-d", dur + "ms"); r.classList.add("ide-type"); r.scrollIntoView && s.code.scrollTo({ top: Math.max(0, r.offsetTop - s.code.clientHeight / 2) }); });
-      t += dur + 30;
-    });
-    at(s, t + 200, function () { openFile(s, path, false); });
-    return t + 300;
+  function placeCursor(s, a, b, p) {
+    var A = point(s, a), B = point(s, b), q = ease(p);
+    s.cursor.style.opacity = "1";
+    s.cursor.style.transform = "translate(" + Math.round(A.x + (B.x - A.x) * q) + "px," + Math.round(A.y + (B.y - A.y) * q) + "px)";
   }
 
-  function run(s, instant) {
-    reset(s);
-    setState(s, "running");
-    s.log.textContent = "";
-    userMessage(s);
-    var work = el("div", "ide-msg ide-msg--agent");
-    work.appendChild(el("span", "ide-who", "Agent"));
-    var steps = el("ol", "ide-steps");
-    steps.setAttribute("aria-label", "What the agent did, in order");
-    work.appendChild(steps);
-    s.log.appendChild(work);
-    var quick = instant || REDUCED;
-    var t = quick ? 0 : 500;
-    s.st.steps.forEach(function (step) {
-      var row = stepRow(s, step);
-      var ops = null;
-      if ((step.kind === "write" || step.kind === "edit") && step.file) ops = applyFileLater(s, step);
-      if (quick) {
-        steps.appendChild(row);
-        if (ops) { applyFile(s, step.file, step.content); }
-        return;
-      }
-      at(s, t, function () {
-        row.classList.add("is-running");
-        steps.appendChild(row);
-        scrollLog(s);
-        if (step.kind === "read" && step.file) openFile(s, step.file, true);
+  /* -------------------------------------------------- the model and effort menu */
+  function openMenu(s, kind, at, provider) {
+    s.menu.textContent = "";
+    s.menu.setAttribute("data-kind", kind);
+    if (kind === "effort") {
+      s.menu.appendChild(el("p", "ide-menu-h", "Effort"));
+      EFFORTS.forEach(function (e) { var o = el("div", "ide-opt", cap(e)); o.setAttribute("data-value", e); if (s.cur.effort === e) o.setAttribute("aria-selected", "true"); s.menu.appendChild(o); });
+    } else {
+      var groups = provider === s.cur.provider ? [provider] : [s.cur.provider, provider];
+      groups.forEach(function (prov) {
+        var full = s.usageNow && s.usageNow.provider === prov && s.usageNow.pct >= 100;
+        s.menu.appendChild(el("p", "ide-menu-h", prov + (full ? ": usage limit reached" : "")));
+        TIERS.forEach(function (tier) {
+          var id = models.tiers[tier] && models.tiers[tier][prov];
+          if (!id) return;
+          var o = el("div", "ide-opt");
+          o.appendChild(el("span", null, modelName(id)));
+          o.appendChild(el("small", null, tier));
+          o.setAttribute("data-value", prov + "|" + tier);
+          if (full) o.setAttribute("data-off", "true");
+          if (s.cur.model === id) o.setAttribute("aria-selected", "true");
+          s.menu.appendChild(o);
+        });
       });
-      var dur = { read: 750, search: 700, think: 1000, run: 1100, write: 400, edit: 400 }[step.kind];
-      if (ops) {
-        var o = null;
-        at(s, t + 300, function () { o = applyFile(s, step.file, step.content); paintTree(s); });
-        var startAt = t + 320;
-        at(s, startAt, function () { animateFile(s, step.file, o, 0); });
-        var lines = step.content.split("\n").length;
-        dur = 700 + Math.min(4200, lines * 120);
-      }
-      t += dur;
-      at(s, t, function () { row.classList.remove("is-running"); row.classList.add("is-done"); });
-      t += 140;
-    });
-    function replyNow() {
-      var reply = el("div", "ide-msg ide-msg--reply");
-      var blocks = markdown(s.st.reply);
-      s.log.appendChild(reply);
-      if (quick) { blocks.forEach(function (b) { reply.appendChild(b); }); done(); return; }
-      blocks.forEach(function (b, k) {
-        at(s, k * 160, function () { b.classList.add("ide-type"); b.style.setProperty("--tr-d", "260ms"); reply.appendChild(b); scrollLog(s); });
-      });
-      at(s, blocks.length * 160 + 200, done);
     }
-    function done() {
-      paintTree(s);
-      var last = null;
-      s.st.steps.forEach(function (x) { if ((x.kind === "write" || x.kind === "edit") && x.file) last = x.file; });
-      if (last) openFile(s, last, false);
-      var foot = el("p", "ide-foot", s.st.steps.length + " steps, " + Object.keys(s.status).length + " file" + (Object.keys(s.status).length === 1 ? "" : "s") + " changed");
-      s.log.appendChild(foot);
-      setState(s, "done");
-      if (!quick) scrollLog(s);
-    }
-    if (quick) { paintTree(s); replyNow(); return; }
-    at(s, t + 200, replyNow);
+    s.menu.hidden = false;
+    var root = s.ide.getBoundingClientRect(), r = at.getBoundingClientRect();
+    var w = s.menu.offsetWidth, h = s.menu.offsetHeight;
+    var left = Math.max(8, Math.min(root.width - w - 8, r.left - root.left));
+    var top = r.top - root.top - h - 6;
+    if (top < 8) top = r.bottom - root.top + 6;
+    s.menu.style.left = Math.round(left) + "px";
+    s.menu.style.top = Math.round(top) + "px";
   }
-  function applyFileLater(s, step) { return step; }
-  function scrollLog(s) { s.log.scrollTop = s.log.scrollHeight; }
-  function finish(s) {
-    s.timers.forEach(window.clearTimeout);
-    s.timers = [];
-    run(s, true);
+
+  /* -------------------------------------------------- chat messages */
+  function userMessage(s, key, command, argument, plain) {
+    return ensure(s, key, function () {
+      var m = el("div", "ide-msg ide-msg--user");
+      m.appendChild(el("p", "ide-who", "You"));
+      var p = el("p", "ide-said");
+      if (plain) p.appendChild(document.createTextNode(plain));
+      else { p.appendChild(el("span", "ide-cmd", command)); if (argument) p.appendChild(el("span", "ide-arg", " " + argument)); }
+      m.appendChild(p);
+      var hint = s.log.querySelector(".ide-hint");
+      if (hint) hint.remove();
+      s.log.appendChild(m);
+      return m;
+    });
+  }
+  function agentBlock(s, key) {
+    return ensure(s, key, function () {
+      var m = el("div", "ide-msg ide-msg--agent");
+      m.appendChild(el("p", "ide-who", modelName(s.cur.model)));
+      var ol = el("ol", "ide-steps");
+      m.appendChild(ol);
+      m.steps = ol;
+      s.log.appendChild(m);
+      return m;
+    });
+  }
+  function typeInput(s, command, argument, plain, p) {
+    s.input.textContent = "";
+    if (plain) { s.input.appendChild(document.createTextNode(p > 0 ? plain : "")); return; }
+    var total = command.length + (argument ? argument.length + 1 : 0);
+    var n = Math.round(total * p);
+    s.input.appendChild(el("span", "ide-cmd", command.slice(0, n)));
+    if (argument && n > command.length) s.input.appendChild(el("span", "ide-arg", " " + argument.slice(0, n - command.length - 1)));
+    if (p < 1) s.input.appendChild(el("span", "ide-caret"));
+  }
+  function clearInput(s) {
+    s.input.textContent = "";
+    s.input.appendChild(el("span", "ide-ph", "Ask the agent, or type / for a command"));
+  }
+
+  /* -------------------------------------------------- compile a session script into timed actions */
+  function compile(s) {
+    var T = [], t = 0, files = {}, cursor = "start", pick = null, usage = 0, n = 0;
+    Object.keys(s.before).forEach(function (p) { files[p] = s.before[p]; });
+    function add(dur, fn) { T.push({ t0: t, t1: t + dur, fn: fn }); t += dur; }
+    function move(key) { var from = cursor; cursor = key; add(620, function (x, p) { placeCursor(x, from, key, p); }); }
+    function click(key) { add(240, function (x, p) { placeCursor(x, key, key, 1); x.cursor.classList.toggle("is-down", p < 0.6); }); }
+    function wait(ms) { add(ms, null); }
+    s.script.forEach(function (a, ai) {
+      if (a.do === "pick") {
+        var prov = a.provider, tier = a.tier, effort = a.effort, u = a.usage, nc = !!a.newchat;
+        if (nc) add(0, function (x) {
+          x.log.textContent = "";
+          x.nodes = {};
+          x.log.appendChild(el("p", "ide-hint ide-hint--new", "New chat. Paste the handoff to continue where the last session stopped."));
+          x.ide.setAttribute("data-provider", prov);
+        });
+        move("model"); click("model");
+        add(0, function (x) { openMenu(x, "model", x.model.box, prov); });
+        wait(380);
+        move("opt:" + prov + "|" + tier); click("opt:" + prov + "|" + tier);
+        add(0, function (x) { x.menu.hidden = true; setPicker(x, prov, tier, x.cur.effort); setUsage(x, prov, u); });
+        wait(260);
+        move("effort"); click("effort");
+        add(0, function (x) { openMenu(x, "effort", x.effort.box); });
+        wait(320);
+        move("opt:" + effort); click("opt:" + effort);
+        add(0, function (x) { x.menu.hidden = true; setPicker(x, prov, tier, effort); });
+        wait(240);
+        pick = a;
+        usage = u;
+      } else if (a.do === "prompt" || a.do === "paste") {
+        var cmd = a.command || "", arg = a.argument || "", plain = a.do === "paste" ? a.text : null, key = "u" + ai;
+        move("input"); click("input");
+        if (plain) add(420, function (x, p) { typeInput(x, "", "", plain, p > 0.3 ? 1 : 0); });
+        else add(Math.min(3200, 520 + cmd.length * 70 + arg.length * 16), function (x, p) { typeInput(x, cmd, arg, null, p); });
+        wait(320);
+        move("send"); click("send");
+        add(0, function (x) { clearInput(x); userMessage(x, key, cmd, arg, plain); scrollLog(x); });
+        wait(380);
+      } else if (a.do === "work") {
+        var block = "w" + ai, u0 = usage, u1 = a.usage, steps = a.steps, durs = [];
+        steps.forEach(function (st) {
+          var lines = (st.content || "").split("\n").length;
+          durs.push(st.kind === "write" ? Math.min(3400, 500 + lines * 70) : st.kind === "edit" ? Math.min(3600, 900 + lines * 50) : st.kind === "think" ? 1100 : st.kind === "read" ? 800 : 1000);
+        });
+        var total = durs.reduce(function (x, y) { return x + y; }, 0), done = 0;
+        steps.forEach(function (st, k) {
+          var from = files[st.file], to = st.content, ops = st.kind === "edit" ? diff((from || "").split("\n"), to.split("\n")) : null;
+          var ua = u0 + (u1 - u0) * (done / total), ub = u0 + (u1 - u0) * ((done + durs[k]) / total);
+          done += durs[k];
+          add(durs[k], function (x, p) {
+            var blockEl = agentBlock(x, block);
+            var row = ensure(x, block + "s" + k, function () {
+              var li = el("li", "ide-step");
+              li.setAttribute("data-kind", st.kind);
+              li.appendChild(el("span", "ide-step-k", STEP_KINDS[st.kind]));
+              li.appendChild(el("span", "ide-step-l", st.label));
+              if (st.output) { var out = el("pre", "ide-step-out", st.output); li.appendChild(out); li.out = out; }
+              blockEl.steps.appendChild(li);
+              return li;
+            });
+            row.setAttribute("data-live", p < 1 ? "true" : "false");
+            if (row.out) row.out.hidden = p < 0.35;
+            setUsage(x, x.cur.provider, ua + (ub - ua) * p);
+            if (st.kind === "read") openFile(x, st.file);
+            else if (st.kind === "write") writeLive(x, st.file, to, p);
+            else if (st.kind === "edit") editLive(x, st.file, from || "", to, ops, p);
+            scrollLog(x);
+          });
+          if (st.file && (st.kind === "write" || st.kind === "edit")) files[st.file] = to;
+        });
+        usage = u1;
+      } else if (a.do === "reply") {
+        var rkey = "r" + ai, text = a.text, count = markdown(text).length;
+        add(380 + count * 260, function (x, p) {
+          var blockEl = x.nodes["w" + (ai - 1)] || agentBlock(x, "rb" + ai);
+          var box = ensure(x, rkey, function () {
+            var r = el("div", "ide-reply");
+            markdown(text).forEach(function (node) {
+              if (node.tagName === "PRE") { var c = el("span", "ide-copy", "Copy"); c.setAttribute("aria-hidden", "true"); node.appendChild(c); }
+              r.appendChild(node);
+            });
+            blockEl.appendChild(r);
+            return r;
+          });
+          var k = Math.ceil(box.children.length * Math.max(0, (p - 0.1) / 0.9));
+          for (var i = 0; i < box.children.length; i++) box.children[i].hidden = i >= k;
+          scrollLog(x);
+        });
+        wait(700);
+      } else if (a.do === "limit") {
+        var ltext = a.text;
+        add(0, function (x) {
+          setUsage(x, x.cur.provider, 100);
+          ensure(x, "l" + ai, function () {
+            var m = el("div", "ide-limit");
+            m.setAttribute("role", "status");
+            m.appendChild(el("span", "ide-limit-ic", "!"));
+            m.appendChild(el("span", null, ltext));
+            x.log.appendChild(m);
+            return m;
+          });
+          scrollLog(x);
+        });
+        wait(1600);
+      } else if (a.do === "copy") {
+        move("copy"); click("copy");
+        add(1100, function (x, p) { x.toast.hidden = p >= 1; var cs = x.log.querySelectorAll(".ide-copy"); if (cs.length) cs[cs.length - 1].textContent = "Copied"; });
+      }
+      n += 1;
+    });
+    wait(500);
+    s.T = T;
+    s.duration = t;
+    s.after = files;
+  }
+
+  function writeLive(s, path, content, p) {
+    if (!(path in s.files)) { s.files[path] = ""; s.status[path] = "A"; s.view.key = null; }
+    viewFile(s, path);
+    var rows = content.split("\n"), k = p >= 1 ? rows.length : Math.floor(rows.length * p);
+    var key = path + "@w" + k;
+    if (s.view.key !== key) {
+      s.view.key = key;
+      showLines(s, path, rows.slice(0, k).map(function (t, i) { return { text: t, cls: i === k - 1 && p < 1 ? "ide-type" : null }; }));
+      s.code.scrollTop = s.code.scrollHeight;
+      paintTree(s);
+    }
+    if (p >= 1) { s.files[path] = content; s.view.key = path + "#" + content.length; s.code.scrollTop = 0; }
+  }
+  function editLive(s, path, from, to, ops, p) {
+    if (!s.status[path]) { s.status[path] = "M"; s.view.key = null; }
+    viewFile(s, path);
+    var removed = ops.filter(function (o) { return o[0] === "-"; }).length, added = ops.filter(function (o) { return o[0] === "+"; }).length;
+    var strike = p < 0.3 ? Math.ceil(removed * p / 0.3) : removed, grow = p < 0.3 ? 0 : p >= 1 ? added : Math.floor(added * (p - 0.3) / 0.7);
+    var key = path + "@e" + strike + "/" + grow + (p >= 1 ? "!" : "");
+    if (s.view.key === key) return;
+    s.view.key = key;
+    var rows = [], ks = 0, kg = 0, first = -1;
+    ops.forEach(function (o) {
+      if (o[0] === "=") rows.push({ text: o[1] });
+      else if (o[0] === "-") { if (p < 1) { ks += 1; rows.push({ text: o[1], op: "del", cls: ks <= strike ? "ide-strike" : null }); if (first < 0) first = rows.length - 1; } }
+      else { kg += 1; if (kg <= grow) { rows.push({ text: o[1], op: "add", cls: kg === grow && p < 1 ? "ide-type" : "ide-added" }); if (first < 0) first = rows.length - 1; } }
+    });
+    showLines(s, path, rows);
+    var li = s.lines.children[Math.max(0, first)];
+    if (li) s.code.scrollTop = Math.max(0, li.offsetTop - 60);
+    paintTree(s);
+    if (p >= 1) s.files[path] = to;
+  }
+
+  /* -------------------------------------------------- playback */
+  var players = [], raf = 0, last = 0;
+  function seek(s, t) {
+    t = Math.max(0, Math.min(s.duration, t));
+    if (t < s.t || s.idx == null) reset(s);
+    while (s.idx < s.T.length && s.T[s.idx].t1 <= t) { var a = s.T[s.idx]; if (a.fn) a.fn(s, 1); s.idx += 1; }
+    if (s.idx < s.T.length && s.T[s.idx].t0 <= t && s.T[s.idx].fn) { var c = s.T[s.idx]; c.fn(s, (t - c.t0) / Math.max(1, c.t1 - c.t0)); }
+    s.t = t;
+    paintControls(s);
+  }
+  function frame(now) {
+    var dt = last ? Math.min(100, now - last) : 16, any = false;
+    last = now;
+    players.forEach(function (s) {
+      if (!s.playing) return;
+      var next = s.t + dt * s.speed;
+      if (next >= s.duration) { s.playing = false; seek(s, s.duration); }
+      else { any = true; seek(s, next); }
+    });
+    if (any) raf = window.requestAnimationFrame(frame);
+    else { raf = 0; last = 0; }
+  }
+  function play(s) {
+    s.started = true;
+    s.autoPaused = false;
+    s.playing = true;
+    paintControls(s);
+    if (!raf) { last = 0; raf = window.requestAnimationFrame(frame); }
+  }
+  function pause(s) { s.playing = false; paintControls(s); }
+  function setSpeed(s, x) { if (SPEEDS.indexOf(x) !== -1) { s.speed = x; paintControls(s); } }
+  function watch(s) {
+    if (!("IntersectionObserver" in window)) return;
+    new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.intersectionRatio >= 0.5) { if (!REDUCED && (!s.started || s.autoPaused) && s.t < s.duration) play(s); }
+        else if (e.intersectionRatio < 0.15 && s.playing) { pause(s); s.autoPaused = true; }
+      });
+    }, { threshold: [0, 0.15, 0.5] }).observe(s.ide);
   }
 
   /* -------------------------------------------------- build */
+  var models = null;
   function render(sectionFor, notice) {
     var story, problem = null;
     try {
@@ -600,48 +871,79 @@ window.NexusTrainingStory = (function () {
       notice.setAttribute("data-story-error", "");
       return null;
     }
-    var stored = storedProvider();
-    provider = models.providers.indexOf(stored) !== -1 ? stored : story.defaultProvider;
     /* The project evolves through the story: each step starts from what earlier steps wrote. */
-    var tree = {};
+    var tree = {}, carry = { provider: story.defaultProvider, tier: null, effort: "medium", usage: 0 };
     story.project.files.forEach(function (f) { tree[f.path] = f.code; });
     story.stages.forEach(function (st) {
       var section = sectionFor(st.id);
       var box = section && section.querySelector(".container");
-      if (!box) return;
-      if (st.kind === "intro") return;
+      if (!box || st.kind === "intro") return;
       var heading = box.querySelector("h1, h2");
       var host = box.querySelector("[data-ss-id]");
-      var banner = bannerFor(st, heading);
-      box.insertBefore(banner, box.firstChild);
+      box.insertBefore(headFor(st, heading, story.workflow), box.firstChild);
       if (st.kind === "play") {
-        banner.appendChild(calloutFor(st));
+        var notes = notesFor(st);
+        if (host) box.insertBefore(notes, host); else box.appendChild(notes);
         var after = el("p", "tr-after", st.after);
         if (host && host.nextSibling) box.insertBefore(after, host.nextSibling); else box.appendChild(after);
         return;
       }
-      var before = {};
-      Object.keys(tree).forEach(function (p) { before[p] = tree[p]; });
-      var s = ideFor(st, before);
-      s.id = st.id;
-      box.appendChild(s.ide);
-      sessions.push(s);
-      st.steps.forEach(function (x) { if ((x.kind === "write" || x.kind === "edit") && x.file) tree[x.file] = x.content; });
+      var s = ideShell(st, story.project.name);
+      s.project = story.project.name;
+      s.script = st.script;
+      s.before = {};
+      Object.keys(tree).forEach(function (p) { s.before[p] = tree[p]; });
+      s.firstFile = tree["README.md"] != null ? "README.md" : Object.keys(tree)[0];
+      s.init = { provider: carry.provider, tier: carry.tier, effort: carry.effort, usage: carry.usage };
+      s.speed = 1;
+      s.playing = false;
+      compile(s);
+      box.appendChild(s.wrap);
+      box.appendChild(whyFor(st));
+      s.seekBar.max = String(Math.round(s.duration));
+      reset(s);
+      seek(s, REDUCED ? s.duration : 0);
+      if (REDUCED) s.started = true;
+      watch(s);
+      players.push(s);
+      tree = s.after;
+      st.script.forEach(function (a) { if (a.do === "pick") carry = { provider: a.provider, tier: a.tier, effort: a.effort, usage: a.usage }; else if (a.do === "work") carry.usage = a.usage; else if (a.do === "limit") carry.usage = 100; });
     });
-    badges.forEach(paintBadge);
-    function find(id) { var f = null; sessions.forEach(function (x) { if (x.id === id) f = x; }); return f; }
+    function find(id) { var f = null; players.forEach(function (x) { if (x.st.id === id) f = x; }); return f; }
     return {
       story: story,
-      provider: function () { return provider; },
-      setProvider: setProvider,
+      modelName: modelName,
+      players: function () { return players.map(function (x) { return x.st.id; }); },
       rebalance: function () {},
-      play: function () {},
-      /* For scripts and tests: run a step (instantly with { instant: true }), read its state, or reset it. */
-      send: function (id, opts) { var x = find(id); if (x) run(x, !!(opts && opts.instant)); return !!x; },
-      state: function (id) { var x = find(id); return x ? x.state : null; },
-      reset: function (id) { var x = find(id); if (x) reset(x); }
+      /* For scripts and tests: drive a step's player and read its state. */
+      play: function (id) { var x = find(id); if (x) play(x); return !!x; },
+      pause: function (id) { var x = find(id); if (x) pause(x); return !!x; },
+      /* A seek counts as a start: a player someone has scrubbed never autoplays over it. */
+      seek: function (id, ms) { var x = find(id); if (x) { x.started = true; pause(x); seek(x, ms); } return !!x; },
+      finish: function (id) { var x = find(id); if (x) { x.started = true; pause(x); seek(x, x.duration); } return !!x; },
+      speed: function (id, v) { var x = find(id); if (x) setSpeed(x, v); return x ? x.speed : null; },
+      state: function (id) {
+        var x = find(id);
+        if (!x) return null;
+        return { t: x.t, duration: x.duration, playing: !!x.playing, speed: x.speed, done: x.t >= x.duration,
+          provider: x.cur.provider, tier: x.cur.tier, effort: x.cur.effort, model: x.cur.model, modelName: x.cur.model ? modelName(x.cur.model) : null,
+          usage: x.usageNow ? x.usageNow.pct : null, usageProvider: x.usageNow ? x.usageNow.provider : null };
+      }
     };
   }
+  function whyFor(st) {
+    var names = [], tier = null, effort = null;
+    st.script.forEach(function (a) {
+      if (a.do !== "pick") return;
+      var n = modelName(models.tiers[a.tier][a.provider]);
+      if (names.indexOf(n) === -1) names.push(n);
+      tier = a.tier; effort = a.effort;
+    });
+    var p = el("p", "tr-why");
+    p.appendChild(el("b", null, names.join(", then ")));
+    p.appendChild(document.createTextNode(", " + tier + " tier, " + effort + " effort. " + st.why));
+    return p;
+  }
 
-  return { render: render };
+  return { render: render, modelName: modelName };
 })();

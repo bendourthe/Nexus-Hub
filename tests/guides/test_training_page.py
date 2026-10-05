@@ -25,13 +25,7 @@ REQUIRE_RENDER = os.environ.get("NEXUS_REQUIRE_RENDER") == "1"
 # Raised from 400,000 by the maintainer on 2026-10-04 (R5) for the shaded game art and IDE sessions.
 TRAINING_CEILING_BYTES = 900_000
 
-STAGES = [
-    "intro", "play-buggy",
-    "loop1/describe", "loop1/review", "loop1/plan", "loop1/implement", "loop1/test", "loop1/update",
-    "play-partial",
-    "loop2/review", "loop2/plan", "loop2/implement", "loop2/test", "loop2/update",
-    "play-fixed",
-]
+STAGES = ["intro", "play-buggy", "describe", "review", "plan", "implement", "test", "update", "play-fixed"]
 
 
 @pytest.fixture(scope="module")
@@ -154,12 +148,12 @@ def test_every_stage_hash_resolves_offline(playwright_mod) -> None:
 
 
 def test_training_is_one_scrolling_page_in_workflow_order(playwright_mod) -> None:
-    """Maintainer review (R3): no stage switching and no Continue buttons; each loop opens with its steps."""
+    """Maintainer review (R3, revision 2): no stage switching, no Continue buttons, one pass of six steps."""
     with playwright_mod() as pw:
         browser, page, errors, _external = _open(pw)
         try:
             order = page.evaluate("[...document.querySelectorAll('main > section')].map(s => s.id)")
-            assert order == STAGES[:2] + ["loop1"] + STAGES[2:9] + ["loop2"] + STAGES[9:]
+            assert order == STAGES
             assert page.locator(".tr-next").count() == 0
             tops = page.evaluate("[...document.querySelectorAll('section[data-stage]')].map(s => s.getBoundingClientRect().top)")
             assert tops == sorted(tops), "the stages follow one another down the page"
@@ -173,17 +167,19 @@ def test_aliases_and_unknown_hashes(playwright_mod) -> None:
         try:
             assert page.evaluate("NexusTrainingPage.stage()") == "intro"
             assert page.locator("#trNotice").is_hidden()
-            page.evaluate("location.hash = '#loop2/describe'")
-            page.wait_for_function("NexusTrainingPage.stage() === 'loop2/review'")
+            # Links from the two-loop page land on the matching part of the one pass.
+            for old, new in (("loop2/describe", "describe"), ("loop1/implement", "implement"), ("play-partial", "review")):
+                page.evaluate(f"location.hash = '#{old}'")
+                page.wait_for_function(f"NexusTrainingPage.stage() === '{new}'")
             page.evaluate("location.hash = '#no-such-stage'")
             page.wait_for_function("NexusTrainingPage.stage() === 'intro'")
             assert page.locator("#trNotice").is_visible()
             assert page.evaluate("location.hash") == "#intro"
-            page.evaluate("location.hash = '#loop1/plan'")
-            page.wait_for_function("NexusTrainingPage.stage() === 'loop1/plan'")
+            page.evaluate("location.hash = '#plan'")
+            page.wait_for_function("NexusTrainingPage.stage() === 'plan'")
             page.evaluate("location.hash = '#s-anything'")
             page.wait_for_timeout(100)
-            assert page.evaluate("NexusTrainingPage.stage()") == "loop1/plan", "an in-stage anchor never changes the stage"
+            assert page.evaluate("NexusTrainingPage.stage()") == "plan", "an in-stage anchor never changes the stage"
         finally:
             browser.close()
 
@@ -237,24 +233,23 @@ def test_starting_a_game_brings_it_into_view(playwright_mod) -> None:
             browser.close()
 
 
-SESSION = 'section[data-stage="loop1/review"]'
+SESSION = 'section[data-stage="review"]'
 DEFEAT_BOSS = """() => { const g = SkySentinel.get('fixed'); SkySentinel.manual(true);
   g.configure({ level: 3, bossNow: true }); g.start(); g.step(600);
   for (let i = 0; i < 4; i++) g.hitBoss('node' + i, 8); g.hitBoss('core', 24); SkySentinel.manual(false); }"""
 
 
 def test_reduced_motion_never_hides_a_report(playwright_mod) -> None:
-    """R4: under reduced motion Send completes the step at once; nothing waits to type in."""
+    """Revision 2: under reduced motion every step shows its finished frame, with its controls."""
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
         try:
             page = browser.new_page(viewport={"width": 1280, "height": 800}, reduced_motion="reduce")
-            page.goto(TRAINING.as_uri() + "#loop1/review")
-            page.wait_for_function("window.NexusTrainingPage && NexusTrainingPage.stage() === 'loop1/review'")
-            page.locator(f"{SESSION} .ide-send").click()
-            assert page.evaluate("NexusTrainingPage.story().state('loop1/review')") == "done"
-            assert page.locator(f"{SESSION} .ide-wait").count() == 0
-            assert page.locator(f"{SESSION} .ide-msg--reply h3").count() >= 1
+            page.goto(TRAINING.as_uri() + "#review")
+            page.wait_for_function("window.NexusTrainingPage && NexusTrainingPage.stage() === 'review'")
+            assert page.evaluate("NexusTrainingPage.story().state('review').done")
+            assert page.locator(f"{SESSION} .ide-reply h3").count() >= 1
+            assert page.locator(f"{SESSION} .ide-player").is_visible()
         finally:
             browser.close()
 
@@ -263,8 +258,8 @@ def test_the_fixed_game_is_presented_as_a_reward_with_a_hint(playwright_mod) -> 
     with playwright_mod() as pw:
         browser, page, _errors, _external = _open(pw, "#play-fixed")
         try:
-            banner = page.locator('section[data-stage="play-fixed"] .tr-banner')
-            text = banner.inner_text().lower()
+            banner = page.locator('section[data-stage="play-fixed"] .tr-head, section[data-stage="play-fixed"] .tr-notes')
+            text = " ".join(banner.all_inner_texts()).lower()
             assert "the reward" in text
             assert "something is waiting at the end" in text
             assert page.locator(".tr-jump-boss").count() == 0, "the boss is a surprise, not a shortcut"

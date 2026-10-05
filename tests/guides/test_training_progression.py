@@ -3,8 +3,9 @@
 Like the Phase 3 engine tests, every test drives the simulation through ``step(n)`` with a
 fixed seed and ``SkySentinel.manual(true)``; nothing waits on real time. Progression and
 the boss are switched on per game: the buggy game has neither, the partly fixed game has
-progression, and the fixed game has both. Skipped without Playwright or Chromium;
-fail-closed under NEXUS_REQUIRE_RENDER=1.
+progression, and the fixed game has both. Phase R10 gave each level a named difficulty
+(Easy, Medium, Hard) that is measurably harder than the last. Skipped without Playwright or
+Chromium; fail-closed under NEXUS_REQUIRE_RENDER=1.
 """
 
 from __future__ import annotations
@@ -19,6 +20,7 @@ TRAINING = ROOT / "guides" / "website" / "training.html"
 REQUIRE_RENDER = os.environ.get("NEXUS_REQUIRE_RENDER") == "1"
 
 LEVEL2, LEVEL3, BOSS_AT = 5400, 12000, 15600
+HEALTH, SHIELD = 100, 50
 
 
 @pytest.fixture(scope="module")
@@ -63,8 +65,11 @@ def _js(page, body: str, game: str = "fixed"):
 
 
 def test_games_carry_the_right_features(page) -> None:
-    flags = page.evaluate("['buggy', 'partial', 'fixed'].map(id => { const s = SkySentinel.get(id).state(); return [s.progression, s.bossEnabled]; })")
-    assert flags == [[False, False], [True, False], [True, True]]
+    flags = page.evaluate("['buggy', 'fixed'].map(id => { const s = SkySentinel.get(id).state(); return [s.progression, s.bossEnabled, s.defects]; })")
+    assert flags == [
+        [False, False, {"firstHitFatal": True, "randomExplosion": True}],
+        [True, True, {"firstHitFatal": False, "randomExplosion": False}],
+    ]
 
 
 def test_levels_and_ship_forms_follow_survival_time(page) -> None:
@@ -86,9 +91,9 @@ def test_the_boss_arrives_four_to_five_minutes_in(page) -> None:
     assert 240 <= BOSS_AT / 60 <= 300, "a typical reader meets the boss after 4 to 5 minutes of play"
 
 
-def test_the_partly_fixed_game_levels_up_but_never_shows_the_boss(page) -> None:
-    _fresh(page, game="partial")
-    s = _js(page, "return g.step(20000);", game="partial")
+def test_progression_without_the_boss_levels_up_but_never_shows_it(page) -> None:
+    _fresh(page, boss=False)
+    s = _js(page, "const s = g.step(20000); g.configure({ boss: true }); return s;")
     assert s["level"] == 3 and s["boss"] is None and s["bossDue"] is None
 
 
@@ -97,24 +102,64 @@ def test_the_buggy_game_has_no_progression_or_power_ups(page) -> None:
     s = _js(page, "g.input({ fire: true }); const s = g.step(6000); g.input({ fire: false }); return s;", game="buggy")
     assert s["level"] == 1 and s["form"] == "Scout" and s["levelUps"] == []
     assert s["powerUps"] == 0 and s["collected"] == [], "power-ups never appear in the buggy game"
-    assert set(s["enemyTypes"]) <= {"drone", "weaver"}
+    assert set(s["enemyTypes"]) <= {"gunship", "interceptor"}
+    assert s["difficulty"]["name"] == "Easy"
+
+
+def _classes_seen(page, level: int) -> set[str]:
+    _fresh(page, threats=True, level=level, seed=11)
+    return set(_js(page, """const t = new Set(); g.input({ fire: true });
+        for (let i = 0; i < 40 && g.state().state !== 'over'; i++) g.step(60).enemyTypes.forEach(x => t.add(x));
+        g.input({ fire: false }); return [...t];"""))
 
 
 def test_enemy_variety_grows_with_the_level(page) -> None:
-    _fresh(page, threats=True, level=3)
-    s = _js(page, "g.input({ fire: false }); return g.step(900);")
-    assert "lancer" in s["enemyTypes"] or s["enemies"] == 0
-    seen = _js(page, "const t = new Set(); for (let i = 0; i < 40; i++) g.step(60).enemyTypes.forEach(x => t.add(x)); return [...t].sort();")
-    assert {"drone", "weaver", "lancer"} <= set(seen)
+    assert _classes_seen(page, 1) <= {"gunship", "interceptor"}
+    assert _classes_seen(page, 3) == {"gunship", "interceptor", "lancer", "bomber"}
 
 
-def test_shield_absorbs_one_hit(page) -> None:
+@pytest.mark.parametrize("level, name", [(1, "Easy"), (2, "Medium"), (3, "Hard")])
+def test_each_level_names_its_difficulty(page, level: int, name: str) -> None:
+    _fresh(page, level=level)
+    d = _js(page, "return g.state().difficulty;")
+    assert d["level"] == level and d["name"] == name
+
+
+def test_difficulty_rises_with_every_level(page) -> None:
+    ds = []
+    for level in (1, 2, 3):
+        _fresh(page, level=level)
+        ds.append(_js(page, "return g.state().difficulty;"))
+    assert ds[0]["pace"] > ds[1]["pace"] > ds[2]["pace"], "enemies arrive more often"
+    assert ds[0]["fire"] > ds[1]["fire"] > ds[2]["fire"], "they fire sooner"
+    assert ds[0]["damage"] < ds[1]["damage"] < ds[2]["damage"], "they hit harder"
+    assert ds[0]["cap"] < ds[1]["cap"] < ds[2]["cap"] and len(ds[0]["classes"]) < len(ds[1]["classes"]) <= len(ds[2]["classes"])
+
+
+def test_harder_levels_send_more_enemies(page) -> None:
+    rates = []
+    for level in (1, 2, 3):
+        _fresh(page, threats=True, level=level, seed=19)
+        s = _js(page, "g.input({ fire: true }); const s = g.step(1500); g.input({ fire: false }); return s;")
+        rates.append(s["spawned"] / s["tick"])
+    assert rates[0] < rates[1] < rates[2], rates
+
+
+def test_a_level_up_announces_its_difficulty(page) -> None:
     _fresh(page)
-    out = _js(page, """g.step(5); g.dropPowerUp('shield'); const a = g.step(2);
-        const hit = g.forceHit('shot'); const b = g.state(); g.step(61); g.forceHit('shot'); return { a, hit, b, c: g.state() };""")
-    assert out["a"]["player"]["shield"] == 1 and out["a"]["collected"][0]["kind"] == "shield"
-    assert out["hit"] is True and out["b"]["lives"] == 3 and out["b"]["player"]["shield"] == 0, "the shield takes the hit, not a life"
-    assert out["c"]["lives"] == 2, "the next hit costs a life"
+    out = _js(page, f"""const seen = []; g.on('levelUp', e => seen.push([e.level, e.difficulty]));
+        g.step({LEVEL3}); return {{ seen, s: g.state() }};""")
+    assert out["seen"][-2:] == [[2, "Medium"], [3, "Hard"]]
+    assert out["s"]["difficulty"]["name"] == "Hard"
+
+
+def test_the_shield_bar_takes_hits_until_it_is_spent(page) -> None:
+    _fresh(page)
+    out = _js(page, """g.step(5); g.dropPowerUp('shield'); const a = g.step(2); const seen = [];
+        for (let i = 0; i < 6; i++) { g.forceHit('shot'); const s = g.state(); seen.push([s.health, s.shieldHp]); g.step(61); }
+        return { a, seen };""")
+    assert out["a"]["shieldHp"] == SHIELD and out["a"]["collected"][0]["kind"] == "shield"
+    assert out["seen"] == [[HEALTH, 40], [HEALTH, 30], [HEALTH, 20], [HEALTH, 10], [HEALTH, 0], [HEALTH - 10, 0]], out["seen"]
 
 
 def test_weapon_gives_twin_shots_then_expires(page) -> None:
@@ -127,10 +172,10 @@ def test_weapon_gives_twin_shots_then_expires(page) -> None:
     assert out["weapon"] == 0 and out["single"] == 1, "twin shot ends after 10 seconds"
 
 
-def test_extra_ships_are_capped(page) -> None:
+def test_repairs_are_capped_at_a_full_hull(page) -> None:
     _fresh(page)
-    lives = _js(page, "g.step(5); for (let i = 0; i < 4; i++) { g.dropPowerUp('ship'); g.step(2); } return g.state().lives;")
-    assert lives == 5
+    health = _js(page, "g.step(5); g.forceHit('beam'); for (let i = 0; i < 4; i++) { g.dropPowerUp('repair'); g.step(2); } return g.state().health;")
+    assert health == HEALTH
 
 
 def test_two_power_ups_in_one_tick_both_apply(page) -> None:
@@ -138,7 +183,7 @@ def test_two_power_ups_in_one_tick_both_apply(page) -> None:
     s = _js(page, "g.step(5); g.dropPowerUp('shield'); g.dropPowerUp('weapon'); return g.step(2);")
     assert sorted(c["kind"] for c in s["collected"]) == ["shield", "weapon"]
     assert len({c["tick"] for c in s["collected"]}) == 1
-    assert s["player"]["shield"] == 1 and s["player"]["weapon"] > 0
+    assert s["player"]["shield"] == SHIELD and s["player"]["weapon"] > 0
 
 
 def test_a_power_up_expiring_across_a_level_change_leaves_nothing_stale(page) -> None:
@@ -200,40 +245,43 @@ DODGING_BOT = r"""
   const g = SkySentinel.get('fixed');
   g.configure({ defects: {}, seed, threats: true, level: 1 });
   g.start(); g.pause('bot');
-  const danger = (v, x) => {
+  // R10: bombs threaten an area, so the bot may also climb or drop out of a blast zone.
+  const danger = (v, x, y) => {
     let d = 0;
     for (const t of v.threats) {
-      const dy = v.player.y - t.y;
+      if (t.r > 60) { const gap = Math.hypot(t.x - x, t.y - y) - t.r - v.player.r; if (gap < 30) d += (30 - gap) * 400; continue; }
+      const dy = y - t.y;
       if (dy < -30 || dy > 260 || t.vy <= 0) continue;
       const at = t.x + t.vx * (dy / t.vy);
       const gap = Math.abs(at - x) - t.r - v.player.r;
       if (gap < 30) d += (30 - gap) * (300 - dy);
     }
-    if (x < 30 || x > v.world.w - 30) d += 1e6;
+    if (x < 30 || x > v.world.w - 30 || y < v.world.h * 0.55 || y > v.world.h - 24) d += 1e6;
     return d;
   };
   let s = g.state();
   while (s.state !== 'over' && !s.boss && s.tick < 17000) {
     const v = g.view();
-    const here = danger(v, v.player.x), left = danger(v, v.player.x - 42), right = danger(v, v.player.x + 42);
-    let move = here > 0 ? (left < right ? -1 : 1) : 0;
-    if (here > 0 && Math.min(left, right) >= here) move = 0;
-    g.input({ fire: true, left: move < 0, right: move > 0 });
+    const x = v.player.x, y = v.player.y;
+    const opts = [[0, 0, danger(v, x, y)], [-1, 0, danger(v, x - 42, y)], [1, 0, danger(v, x + 42, y)], [0, -1, danger(v, x, y - 36)], [0, 1, danger(v, x, y + 36)]];
+    let best = opts[0];
+    if (best[2] > 0) for (const o of opts) if (o[2] < best[2]) best = o;
+    g.input({ fire: true, left: best[0] < 0, right: best[0] > 0, up: best[1] < 0, down: best[1] > 0 });
     s = g.step(3);
   }
-  g.input({ fire: false, left: false, right: false });
-  return { tick: s.tick, boss: !!s.boss, lives: s.lives };
+  g.input({ fire: false, left: false, right: false, up: false, down: false });
+  return { tick: s.tick, boss: !!s.boss, health: s.health, taken: s.damageTaken, sources: [...new Set(s.damageLog.map(d => d.source))] };
 }
 """
 
 
 @pytest.mark.parametrize("seed", [1, 7])
 def test_a_dodging_player_reaches_the_boss_in_four_to_five_minutes(page, seed: int) -> None:
-    """A simple bot that dodges and keeps firing reaches the boss; the run still costs lives on the way."""
+    """A simple bot that dodges and keeps firing reaches the boss; the run still costs hull on the way."""
     run = page.evaluate(DODGING_BOT, seed)
-    assert run["boss"], f"seed {seed}: the bot died at tick {run['tick']}"
+    assert run["boss"], f"seed {seed}: the bot died at tick {run['tick']} ({run['sources']})"
     assert 240 <= run["tick"] / 60 <= 300
-    assert run["lives"] < 5, "the run costs something on the way"
+    assert run["taken"] > 0, "the run costs something on the way"
 
 
 def test_progression_keeps_the_defect_schedule_untouched(page) -> None:

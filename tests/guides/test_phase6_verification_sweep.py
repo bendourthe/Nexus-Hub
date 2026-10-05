@@ -16,23 +16,7 @@ THEMES = ("dark", "light")
 WIDTHS = (320, 420, 720, 721, 900, 1440)
 TRAINING = GUIDE.with_name("training.html")
 # v4.13.10: the "training" route is the separate training.html, audited stage by stage.
-TRAINING_SCENES = (
-    "intro",
-    "play-buggy",
-    "loop1/describe",
-    "loop1/review",
-    "loop1/plan",
-    "loop1/implement",
-    "loop1/test",
-    "loop1/update",
-    "play-partial",
-    "loop2/review",
-    "loop2/plan",
-    "loop2/implement",
-    "loop2/test",
-    "loop2/update",
-    "play-fixed",
-)
+TRAINING_SCENES = ("intro", "play-buggy", "describe", "review", "plan", "implement", "test", "update", "play-fixed")
 
 
 def test_browser_verification_docs_match_required_ci_contract() -> None:
@@ -926,19 +910,21 @@ def test_keyboard_and_reduced_motion_are_complete(render_gate: object) -> None:
                 page.keyboard.press("Escape")
                 page.wait_for_function(f"{game}.pausedBy === 'escape'")
 
-                # R4: every agent step runs from the keyboard: Tab reaches Send, Enter runs it.
-                page.evaluate("NexusTrainingPage.go('loop1/describe')")
-                page.wait_for_function("NexusTrainingPage.stage() === 'loop1/describe'")
-                send = 'section[data-stage="loop1/describe"] .ide-send'
-                _focus_by_tab_from_previous(page, send)
-                assert page.evaluate("document.activeElement.classList.contains('ide-send')")
+                # Revision 2: every step's player runs from the keyboard: Tab reaches Play, Enter plays.
+                page.evaluate("NexusTrainingPage.go('describe')")
+                page.wait_for_function("NexusTrainingPage.stage() === 'describe'")
+                page.evaluate("NexusTrainingPage.story().seek('describe', 0)")
+                play = 'section[data-stage="describe"] .ide-ctl--play'
+                _focus_by_tab_from_previous(page, play)
+                assert page.evaluate("document.activeElement.classList.contains('ide-ctl--play')")
                 page.keyboard.press("Enter")
-                page.wait_for_function("NexusTrainingPage.story().state('loop1/describe') === 'done'", timeout=15000)
-                files = 'section[data-stage="loop1/describe"] .ide-file'
+                page.wait_for_function("NexusTrainingPage.story().state('describe').playing")
+                page.evaluate("NexusTrainingPage.story().finish('describe')")
+                files = 'section[data-stage="describe"] .ide-file'
                 assert page.locator(files).count() >= 7, "the explorer lists the project"
                 _focus_by_tab_from_previous(page, files + '[data-path="src/damage.js"]')
                 page.keyboard.press("Enter")
-                assert page.locator('section[data-stage="loop1/describe"] .ide-tab[aria-selected="true"]').inner_text() == "damage.js"
+                assert page.locator('section[data-stage="describe"] .ide-tab[aria-selected="true"]').inner_text() == "damage.js"
 
                 # With no margin the navigation is a bar: its menu opens from the keyboard first.
                 toggle = page.locator(".pg-outline-toggle")

@@ -1,8 +1,8 @@
-"""v4.13.10 Phase 2: the shared page opening, the interactive outline, and the loop tracker.
+"""v4.13.10: the shared page opening, the interactive outline, and the workflow order.
 
 Training carries all three now; Foundations and Cheatsheets adopt the opening and the
 outline at the Phase 7 cutover, when removing the old in-guide Training gives the guide's
-byte ceiling room. The tracker's steps must stay the Home page's loop, in the same order.
+byte ceiling room. Training's parts must follow the Home page's Development Workflow, in order.
 
 Browser tests skip when Playwright or Chromium is missing and fail closed under
 NEXUS_REQUIRE_RENDER=1.
@@ -21,25 +21,23 @@ WEB = ROOT / "guides" / "website"
 TRAINING = WEB / "training.html"
 GUIDE = WEB / "nexus-hub-guide.html"
 REQUIRE_RENDER = os.environ.get("NEXUS_REQUIRE_RENDER") == "1"
-PARTS = ["Introduction", "Buggy game", "Loop 1", "Play again", "Loop 2", "The reward"]
+PARTS = ["Introduction", "Buggy game", "Describe", "Review", "Plan", "Implement", "Test", "Update", "The reward"]
 
 
 def _text(path: Path) -> str:
     return path.read_bytes().replace(b"\r\n", b"\n").decode("utf-8")
 
 
-def test_each_loop_opens_with_the_home_loop_steps() -> None:
-    """v4.13.10 R3: the single tracker became a header at the start of each loop, in the Home loop's order."""
+def test_training_follows_the_home_development_workflow() -> None:
+    """Revision 2: one pass; the workflow is the Home page's six commands, in the same order."""
     guide = _text(GUIDE)
-    loop = guide[guide.index('id="nhg-loop"'):]
-    loop = loop[: loop.index("</div>")]
-    home = [cmd for cmd, _ in re.findall(r'<code data-ty="code">/([a-z]+)</code><span>([^<]+)</span>', loop)]
+    strip = guide[guide.index('id="nhg-loop"'):]
+    strip = strip[: strip.index("</div>")]
+    home = [cmd for cmd, _ in re.findall(r'<code data-ty="code">/([a-z]+)</code><span>([^<]+)</span>', strip)]
     training = _text(TRAINING)
-    for k in (1, 2):
-        head = re.search(r'<section class="tr-loophead" id="loop%d".*?</section>' % k, training, re.S).group(0)
-        assert re.findall(r'<li data-step="([a-z]+)"', head) == home, f"loop {k} lists the Home loop's steps"
-        assert all(link.startswith(f"loop{k}/") for link in re.findall(r'<a href="#([^"]+)">', head))
-    assert 'data-step="describe" data-state="mapped"' in re.search(r'id="loop2".*?</section>', training, re.S).group(0)
+    sections = re.findall(r'<section class="tr-stage" id="([a-z-]+)" data-stage=', training)
+    assert sections == ["intro", "play-buggy", *home, "play-fixed"]
+    assert "tr-loophead" not in training
 
 
 def test_training_intro_opens_with_the_shared_component() -> None:
@@ -65,7 +63,10 @@ def _assert_opening_figure(block: str, name: str) -> None:
         links = re.findall(r'href="#foundations/([a-z-]+)"', body)
         assert sorted(links) == sorted(["fx-tokens", "fx-model-lifecycle", "fx-prompts", "fx-context", "fx-agent-platform", "fx-harness"])
     elif name == "training":
-        assert re.findall(r'<a href="#([a-z0-9/-]+)">', body) == ["play-buggy", "loop1/describe", "play-partial", "loop2/review", "play-fixed"]
+        # A cursor demo: the buggy game, the six commands, the fixed game; never the boss or its logo.
+        assert body.count('class="trf-card') == 3 and "trf-cursor" in body
+        assert re.findall(r'<li class="trf-st" data-k="\d">(/[a-z]+)</li>', body) == ["/describe", "/review", "/plan", "/implement", "/test", "/update"]
+        assert "nexus-mark" not in body and "boss" not in body.lower()
     else:
         assert len(re.findall(r"<li><b>\d</b>", body)) == 4, "the cheatsheet demo has four steps"
         assert "csf-cursor" in body and "csf-copied" in body
@@ -121,11 +122,11 @@ def test_outline_lists_the_journey_and_follows_the_stage(playwright_mod) -> None
             links = page.locator(".pg-outline a")
             assert links.all_inner_texts() == PARTS
             assert page.locator(".pg-outline a[aria-current]").inner_text() == "Introduction"
-            page.evaluate("NexusTrainingPage.go('loop1/test')")
-            page.wait_for_function("document.querySelector('.pg-outline a[aria-current]').textContent === 'Loop 1'")
-            links.nth(4).click()
-            page.wait_for_function("NexusTrainingPage.stage() === 'loop2/review'")
-            assert page.locator(".pg-outline a[aria-current]").inner_text() == "Loop 2"
+            page.evaluate("NexusTrainingPage.go('test')")
+            page.wait_for_function("document.querySelector('.pg-outline a[aria-current]').textContent === 'Test'")
+            links.nth(5).click()
+            page.wait_for_function("NexusTrainingPage.stage() === 'implement'")
+            assert page.locator(".pg-outline a[aria-current]").inner_text() == "Implement"
         finally:
             browser.close()
 
@@ -145,18 +146,18 @@ def test_outline_is_keyboard_operable(playwright_mod) -> None:
 
 def test_outline_collapses_on_phones(playwright_mod) -> None:
     with playwright_mod() as pw:
-        browser, page = _page(pw, width=390, route="#loop1/plan")
+        browser, page = _page(pw, width=390, route="#plan")
         try:
             # v4.13.10 R1: with no margin, the navigation is a compact bar with a section menu.
             assert "pg-outline--bar" in page.locator(".pg-outline").get_attribute("class")
             toggle = page.locator(".pg-outline-toggle")
             assert toggle.is_visible() and toggle.get_attribute("aria-expanded") == "false"
-            assert "Loop 1" in toggle.inner_text()
+            assert "Plan" in toggle.inner_text()
             assert page.locator(".pg-outline a").first.is_hidden()
             toggle.click()
             assert toggle.get_attribute("aria-expanded") == "true"
-            page.locator(".pg-outline a", has_text="Play again").click()
-            page.wait_for_function("NexusTrainingPage.stage() === 'play-partial'")
+            page.locator(".pg-outline a", has_text="Review").click()
+            page.wait_for_function("NexusTrainingPage.stage() === 'review'")
             assert page.locator(".pg-outline a").first.is_hidden(), "choosing an entry closes the phone menu"
         finally:
             browser.close()
@@ -165,12 +166,12 @@ def test_outline_collapses_on_phones(playwright_mod) -> None:
 def test_scroll_mode_jumps_without_changing_the_stage(playwright_mod) -> None:
     """The mode Foundations and Cheatsheets use: a jump scrolls in place and never routes."""
     with playwright_mod() as pw:
-        browser, page = _page(pw, route="#loop1/plan", reduced="reduce")
+        browser, page = _page(pw, route="#plan", reduced="reduce")
         try:
             page.evaluate(
                 """() => {
                     const host = document.createElement('div');
-                    const box = document.querySelector('[data-stage="loop1/plan"] .container');
+                    const box = document.querySelector('[data-stage="plan"] .container');
                     box.appendChild(host);
                     ['one', 'two', 'three'].forEach(n => {
                         const s = document.createElement('section');
@@ -184,7 +185,7 @@ def test_scroll_mode_jumps_without_changing_the_stage(playwright_mod) -> None:
             )
             page.locator('.pg-outline a[href="#s-three"]').click()
             page.wait_for_function("window.__probe.current() === 'three'")
-            assert page.evaluate("NexusTrainingPage.stage()") == "loop1/plan"
+            assert page.evaluate("NexusTrainingPage.stage()") == "plan"
             assert page.evaluate("location.hash") == "#s-three"
             assert page.evaluate("document.activeElement.textContent") == "three", "focus moves to the section heading"
             page.wait_for_function(

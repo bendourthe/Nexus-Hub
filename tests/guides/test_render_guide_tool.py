@@ -555,13 +555,14 @@ def test_legacy_training_deep_link_redirects_to_the_training_page(
                     f"{guide_url}#training/review?beat=1",
                     wait_until="load",
                 )
-                page.wait_for_url(re.compile(r"training\.html#loop1/review$"), timeout=3000)
+                page.wait_for_url(re.compile(r"training\.html#review$"), timeout=3000)
                 page.wait_for_function(
-                    "() => window.NexusTrainingPage && NexusTrainingPage.stage() === 'loop1/review'",
+                    "() => window.NexusTrainingPage && NexusTrainingPage.stage() === 'review'",
                     timeout=3000,
                 )
-                stage = page.locator('section[data-stage="loop1/review"]')
-                assert stage.locator(".ide-cmd").first.inner_text() == "/review"
+                page.evaluate("NexusTrainingPage.story().finish('review')")
+                stage = page.locator('section[data-stage="review"]')
+                assert stage.locator(".ide-msg--user .ide-cmd").first.inner_text() == "/review"
             finally:
                 context.close()
         finally:

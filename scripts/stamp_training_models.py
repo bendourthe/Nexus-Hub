@@ -5,8 +5,8 @@ Repo-internal maintainer tool (v4.13.10). It is listed in ``DEV_ONLY_SCRIPTS`` i
 ``catalog/hooks/tests/test_installer_smoke.py`` and is deliberately NOT copied by
 either installer: it edits ``guides/website/training.html`` in this repository.
 
-The Training page shows, for every agent step, the model tier, the effort, and the
-model that tier maps to today for the reader's chosen provider. The ids come only
+The Training page shows, for every agent step, the model its IDE animation picks: the
+model a tier maps to today for that step's provider. The ids come only
 from ``catalog/skills/ai-development/model-routing/references/last-known-model-map.json``,
 copied into the page between two markers::
 
@@ -14,9 +14,9 @@ copied into the page between two markers::
     <script type="application/json" id="nh-training-models">{...}</script>
     <!-- /models:nh-training-models -->
 
-The check also reads ``guides/website/src/training-story.json`` and fails when a badge
-names a tier the map lacks, or the story lists a provider that is not one of the
-map's exact, case-sensitive provider columns.
+The check also reads ``guides/website/src/training-story.json`` and fails when a step's
+model pick names a tier or provider cell the map lacks, or the story lists a provider
+that is not one of the map's exact, case-sensitive provider columns.
 
 Usage::
 
@@ -90,13 +90,20 @@ def check_story(story: dict, model_map: dict) -> None:
         if provider not in columns:
             raise StampError(f"story provider {provider!r} is not a model map column (exact, case-sensitive): {sorted(columns)}")
     for stage in story.get("stages", []):
-        badge = stage.get("badge")
-        if badge and badge.get("tier") not in tiers:
-            raise StampError(f"stage {stage.get('id')}: badge tier {badge.get('tier')!r} is not in the model map")
+        for provider, tier in _picks(stage):
+            if tier not in tiers:
+                raise StampError(f"stage {stage.get('id')}: model pick tier {tier!r} is not in the model map")
+            if not tiers[tier].get(provider):
+                raise StampError(f"stage {stage.get('id')}: the model map has no {tier}/{provider} cell for its model pick")
+
+
+def _picks(stage: dict) -> list[tuple[str, str]]:
+    """The (provider, tier) cells a step's IDE animation shows, in script order."""
+    return [(a.get("provider"), a.get("tier")) for a in stage.get("script", []) if a.get("do") == "pick"]
 
 
 def _drift_lines(current: str, block: str, story: dict) -> list[str]:
-    """Name each map cell that differs and the stages whose badge shows it."""
+    """Name each map cell that differs and the stages whose model pick shows it."""
     def tiers_of(text: str) -> dict:
         try:
             return json.loads(text.split("\n", 1)[1].rsplit("</script>", 1)[0])["tiers"]
@@ -109,7 +116,7 @@ def _drift_lines(current: str, block: str, story: dict) -> list[str]:
         for provider in sorted(set(old.get(tier, {})) | set(new.get(tier, {}))):
             was, now = old.get(tier, {}).get(provider), new.get(tier, {}).get(provider)
             if was != now:
-                stages = [s.get("id") for s in story.get("stages", []) if (s.get("badge") or {}).get("tier") == tier]
+                stages = [s.get("id") for s in story.get("stages", []) if (provider, tier) in _picks(s)]
                 lines.append(f"{tier}/{provider}: page has {was!r}, map has {now!r} (stages: {', '.join(stages) or 'none'})")
     return lines or ["the page's model block differs from the model map (source or verification date)"]
 
