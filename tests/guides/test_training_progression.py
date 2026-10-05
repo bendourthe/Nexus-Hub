@@ -4,8 +4,10 @@ Like the Phase 3 engine tests, every test drives the simulation through ``step(n
 fixed seed and ``SkySentinel.manual(true)``; nothing waits on real time. Progression and
 the boss are switched on per game: the buggy game has neither, the partly fixed game has
 progression, and the fixed game has both. Phase R10 gave each level a named difficulty
-(Easy, Medium, Hard) that is measurably harder than the last. Skipped without Playwright or
-Chromium; fail-closed under NEXUS_REQUIRE_RENDER=1.
+(Easy, Medium, Hard) that is measurably harder than the last. Phase R14 put a wormhole between
+levels (no input, no damage) and gave each level, and the boss, its own map; the level number
+and the timings are unchanged, so the transition plays during the first moments of each level.
+Skipped without Playwright or Chromium; fail-closed under NEXUS_REQUIRE_RENDER=1.
 """
 
 from __future__ import annotations
@@ -289,3 +291,48 @@ def test_progression_keeps_the_defect_schedule_untouched(page) -> None:
     busy = _js(page, "g.configure({ defects: { randomExplosion: true }, seed: 777, threats: true, progression: true }); g.start(); g.pause('t'); g.input({ fire: true }); const n = g.step(1100).nextExplosion; g.input({ fire: false }); return n;")
     assert quiet == busy == page.evaluate("SkySentinel.defectSchedule(777, 5000)[0]")
     _js(page, "g.configure({ progression: true, boss: true });")
+
+
+# ---------------------------------------------------------------- R14: the wormhole and the maps
+
+MAP_NAMES = {1: "Cyan Reach", 2: "Violet Halo", 3: "Ember Belt", 4: "Nexus Station"}
+TRANS, FLASH = 210, 120
+
+
+def test_a_wormhole_carries_the_ship_between_levels_and_changes_the_map(page) -> None:
+    _fresh(page)
+    out = _js(page, f"""const ev = []; g.on('transition', e => ev.push([e.kind, e.to]));
+        const before = g.step({LEVEL2 - 1}); const p0 = before.player;
+        g.spawnAsteroid('large', 300, 200, 0, 0, 'shield'); g.spawn('gunship', 600, 150);
+        const start = g.step(1);
+        g.input({{ left: true, fire: true }}); const mid = g.step({FLASH - 2}); const hit = g.forceHit('beam');
+        const flash = g.step(2); g.input({{ left: false, fire: false }});
+        const after = g.step({TRANS - FLASH});
+        return {{ before, start, mid, hit, flash, after, ev }};""")
+    b, s, m, f, a = out["before"], out["start"], out["mid"], out["flash"], out["after"]
+    assert (b["map"], b["transition"], b["level"]) == (MAP_NAMES[1], False, 1)
+    assert s["transition"] is True and s["level"] == 2 and s["levelUps"] == [LEVEL2], "the level number still changes on time"
+    assert out["ev"] == [["level", 2]]
+    assert m["transition"] and m["map"] == MAP_NAMES[1] and m["shots"] == 0, "no firing inside the wormhole"
+    assert m["enemies"] + m["asteroids"] <= 2, "the wormhole swallows what is left of the level"
+    assert out["hit"] is False and m["health"] == HEALTH, "nothing can hurt the ship in transit"
+    assert f["map"] == MAP_NAMES[2] and f["enemies"] == f["asteroids"] == 0, "the map changes at the flash"
+    assert a["transition"] is False and a["map"] == MAP_NAMES[2] and a["player"]["x"] == a["world"]["w"] / 2
+    assert a["state"] == "paused", "the run continues after the wormhole"
+
+
+def test_each_level_and_the_boss_has_its_own_map(page) -> None:
+    seen = []
+    for level in (1, 2, 3):
+        _fresh(page, level=level)
+        seen.append(_js(page, "return g.state().map;"))
+    _fresh(page, level=3, bossNow=True)
+    boss = _js(page, "const a = g.step(20); const b = g.step(400); return [a.transition, a.transitionInfo && a.transitionInfo.kind, b.map, !!b.boss];")
+    assert seen == [MAP_NAMES[1], MAP_NAMES[2], MAP_NAMES[3]]
+    assert boss == [True, "boss", MAP_NAMES[4], True], "a short wormhole jumps into the boss arena"
+
+
+def test_the_full_run_visits_every_map_in_order(page) -> None:
+    _fresh(page)
+    maps = _js(page, f"""const out = []; for (let t = 0; t < {BOSS_AT + 30}; t += 30) {{ const m = g.step(30).map; if (out[out.length - 1] !== m) out.push(m); }} return out;""")
+    assert maps == [MAP_NAMES[1], MAP_NAMES[2], MAP_NAMES[3], MAP_NAMES[4]]

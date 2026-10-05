@@ -5,6 +5,9 @@ Every test drives the simulation only through ``step(n)`` with a fixed seed and
 rules: docs/releases/v4/v4.13/development/v4.13.10-game-design.md. Phase R10 replaced lives
 with a health bar: each source deals its own damage, a shield adds a second bar that absorbs
 damage first, and the ``firstHitFatal`` defect turns any hit into instant destruction.
+Phase R14 (the game is now shown to players as "Nexus Defenders") added a start screen with
+four ships and an upgrade key, ten upgrades carried by glowing enemies and asteroids, density
+that grows through each level, and a fatal hit that shows its real damage while the hull drains.
 
 Skipped when Playwright or Chromium is missing; fail-closed under NEXUS_REQUIRE_RENDER=1.
 """
@@ -227,11 +230,14 @@ def test_first_hit_fatal_destroys_the_ship_on_any_hit_from_any_source(page, sour
     _quiet(page, defects={"firstHitFatal": True})
     s = page.evaluate(
         """([source, detail]) => { const g = SkySentinel.get('fixed'); g.dropPowerUp('shield'); g.step(2);
-            g.forceHit(source, detail); return g.state(); }""",
+            const expected = g.damageFor(source, detail); g.forceHit(source, detail); return Object.assign(g.state(), { expected }); }""",
         [source, detail],
     )
     assert s["state"] == "over" and s["overReason"] == "first-hit"
-    assert s["health"] == s["healthMax"] and s["shieldHp"] == s["shieldMax"], "destroyed with the hull and shield still full: that is the bug"
+    # R14 supersedes R10's full bars: the hit shows its real damage while hull and shield empty.
+    assert s["health"] == 0 and s["shieldHp"] == 0, "a small hit emptied a full hull and shield: that is the bug"
+    assert s["lastDamage"]["amount"] == s["expected"] < s["healthMax"]
+    assert {"text": f"-{s['expected']}", "color": "#fca5a5", "big": True} in s["popups"], "the real damage floats over the ship"
     assert s["overText"] == f"Destroyed by a single hit: {text}"
     assert s["lastDamage"]["source"] == source
 
@@ -243,7 +249,7 @@ def test_first_hit_fatal_kills_on_every_run_not_only_the_first(page) -> None:
             g.forceHit(run === 2 ? 'asteroid' : 'shot', run === 2 ? 'small' : undefined); const s = g.state(); out.push([s.state, s.overReason, s.health]);
         }
         return out;""")
-    assert reasons == [["over", "first-hit", 100]] * 3
+    assert reasons == [["over", "first-hit", 0]] * 3
 
 
 def test_first_hit_fatal_kills_on_a_real_chunk_collision(page) -> None:
@@ -683,3 +689,181 @@ def test_the_explosion_plays_out_after_a_buggy_death(page) -> None:
     _quiet(page, defects={"firstHitFatal": True})
     s = _js(page, "g.forceHit('shot'); return { over: g.state().state, animating: g.animating() };")
     assert s == {"over": "over", "animating": True}
+
+
+# ---------------------------------------------------------------- R14: ships, upgrades, carriers, density
+
+SHIP_IDS = ["vanguard", "raptor", "talon", "specter"]
+UPGRADES = ["shield", "repair", "weapon", "spread", "rapid", "pierce", "missiles", "wingman", "slow", "magnet"]
+
+
+def test_the_start_screen_offers_four_ships_and_the_full_upgrade_key(page) -> None:
+    _quiet(page)
+    page.evaluate("(() => { const g = SkySentinel.get('fixed'); g.configure({ defects: {}, seed: 7 }); })()")
+    host = ".ss-host[data-ss-id=fixed]"
+    assert page.locator(f"{host} .ss-brand").text_content() == "Nexus Defenders"
+    cards = page.locator(f"{host} .ss-hangar [role=radio]")
+    assert cards.count() == 4
+    assert page.get_attribute(f"{host} .ss-hangar", "role") == "radiogroup"
+    labels = cards.evaluate_all("els => els.map(e => [e.dataset.ship, e.getAttribute('aria-checked'), e.getAttribute('aria-label')])")
+    assert [x[0] for x in labels] == SHIP_IDS
+    assert [x[1] for x in labels] == ["true", "false", "false", "false"], "the default ship is preselected"
+    assert all("Hull" in x[2] and "speed" in x[2] for x in labels), "each card names its stats"
+    items = page.locator(f"{host} .ss-key-item").evaluate_all(
+        "els => els.map(e => [e.dataset.upgrade, getComputedStyle(e).getPropertyValue('--ss-up').trim(), e.innerText])")
+    api = page.evaluate("SkySentinel.get('fixed').upgrades()")
+    assert sorted(x[0] for x in items) == sorted(UPGRADES) == sorted(u["kind"] for u in api)
+    colours = {u["kind"]: u["color"] for u in api}
+    assert all(x[1] == colours[x[0]] for x in items), "the key shows each upgrade in its own colour"
+    assert len(set(colours.values())) == len(colours), "no two upgrades share a colour"
+    assert all(len(x[2].split("\n")) >= 2 for x in items), "each entry has a name and a one-line effect"
+    assert page.locator(f"{host} .ss-start").inner_text() == "Start game"
+
+
+def test_the_buggy_game_offers_ships_but_no_upgrade_key(page) -> None:
+    assert page.locator(".ss-host[data-ss-id=buggy] .ss-hangar [role=radio]").count() == 4
+    assert page.evaluate("document.querySelector('.ss-host[data-ss-id=buggy] .ss-key').hidden") is True
+
+
+@pytest.mark.parametrize("ship", SHIP_IDS)
+def test_choosing_a_ship_changes_the_state_and_the_rendered_form(page, ship: str) -> None:
+    out = _js(page, f"""g.configure({{ defects: {{}}, seed: 7, threats: false, level: 1 }});
+        const ok = g.chooseShip('{ship}'); const s = g.state(); const spec = g.ships().find(x => x.id === '{ship}');
+        g.start(); g.pause('t'); g.step(2); const lit = g.render();
+        const card = document.querySelector('.ss-host[data-ss-id=fixed] [data-ship={ship}]').getAttribute('aria-checked');
+        g.chooseShip('vanguard');
+        return {{ ok, s, spec, lit, card }};""")
+    s, spec = out["s"], out["spec"]
+    assert out["ok"] is True and s["ship"] == ship and s["shipMesh"] == f"{ship}1" and out["card"] == "true"
+    assert s["healthMax"] == spec["hull"] == s["health"], "the ship's hull sets the bar"
+    assert out["lit"] == "webgl"
+
+
+def test_ships_differ_in_shape_colour_and_stats(page) -> None:
+    ships = page.evaluate("SkySentinel.get('fixed').ships()")
+    assert [s["id"] for s in ships] == SHIP_IDS and ships[0]["hull"] == 100 and ships[0]["speed"] == 1 and ships[0]["fire"] == 1
+    assert len({(s["hull"], s["speed"], s["fire"]) for s in ships}) == 4, "every ship trades something"
+    assert len({s["accent"] for s in ships}) == 4, "every ship has its own colour scheme"
+    forms = _js(page, """const out = {};
+        for (const id of ['vanguard', 'raptor', 'talon', 'specter']) for (const lv of [1, 2, 3]) {
+            g.configure({ defects: {}, seed: 7, threats: false, level: lv }); g.chooseShip(id); out[id + lv] = g.state().shipMesh; }
+        g.chooseShip('vanguard'); return out;""")
+    assert sorted(forms.values()) == sorted(f"{i}{n}" for i in SHIP_IDS for n in (1, 2, 3)), "three forms per ship"
+
+
+def test_a_faster_ship_moves_further_and_unknown_ships_are_refused(page) -> None:
+    def moved(ship: str) -> float:
+        return _js(page, f"""g.configure({{ defects: {{}}, seed: 7, threats: false }}); g.chooseShip('{ship}'); g.start(); g.pause('t');
+            const x0 = g.state().player.x; g.input({{ left: true }}); const x1 = g.step(10).player.x; g.input({{ left: false }});
+            g.chooseShip('vanguard'); return x0 - x1;""")
+    assert moved("talon") > moved("vanguard") > moved("specter")
+    assert page.evaluate("SkySentinel.get('fixed').chooseShip('zeppelin')") is False
+
+
+def test_cards_select_by_click_and_arrow_keys(page) -> None:
+    page.evaluate("(() => { const g = SkySentinel.get('fixed'); g.configure({ defects: {}, seed: 7 }); g.chooseShip('vanguard'); })()")
+    host = ".ss-host[data-ss-id=fixed]"
+    page.locator(f"{host} [data-ship=talon]").click()
+    assert page.evaluate("SkySentinel.get('fixed').state().ship") == "talon"
+    page.locator(f"{host} [data-ship=talon]").focus()
+    page.keyboard.press("ArrowRight")
+    assert page.evaluate("SkySentinel.get('fixed').state().ship") == "specter"
+    assert page.evaluate("document.activeElement.dataset.ship") == "specter", "focus follows the choice"
+    page.evaluate("SkySentinel.get('fixed').chooseShip('vanguard')")
+
+
+@pytest.mark.parametrize("kind", UPGRADES)
+def test_every_upgrade_kind_is_collected_and_takes_effect(page, kind: str) -> None:
+    _quiet(page, pad=GRACE + 10)
+    s = _js(page, f"""g.forceHit('beam'); g.step({INVULN}); const before = g.state();
+        g.dropPowerUp('{kind}'); return Object.assign(g.step(2), {{ before }});""")
+    assert s["collected"][-1]["kind"] == kind
+    if kind == "shield":
+        assert s["shieldHp"] == SHIELD
+    elif kind == "repair":
+        assert s["health"] == min(s["healthMax"], s["before"]["health"] + 35) > s["before"]["health"]
+    else:
+        assert s["player"][kind] > 0 and kind in [u["kind"] for u in s["upgrades"]], "a timed upgrade shows in the HUD list"
+
+
+def test_a_piercing_shot_passes_through_every_target(page) -> None:
+    def kills(pierce: bool) -> int:
+        _quiet(page, pad=10)
+        return _js(page, f"""{"g.dropPowerUp('pierce'); g.step(2);" if pierce else ""}
+            const p = g.state().player; g.spawn('interceptor', p.x, p.y - 160); g.spawn('interceptor', p.x, p.y - 260); g.spawn('interceptor', p.x, p.y - 360);
+            g.input({{ fire: true }}); g.step(1); g.input({{ fire: false }}); return 3 - g.step(50).enemies;""")
+    assert kills(False) == 1 and kills(True) == 3
+
+
+def test_time_slow_halves_the_enemy_side(page) -> None:
+    def fall(slow: bool) -> float:
+        _quiet(page, pad=10)
+        return _js(page, f"""{"g.dropPowerUp('slow'); g.step(2);" if slow else ""}
+            g.spawnAsteroid('large', 100, 100, 0, 2, 'repair'); const y0 = g.state().carriers[0].y; return g.step(40).carriers[0].y - y0;""")
+    normal, slowed = fall(False), fall(True)
+    assert normal == 80 and slowed == 40
+
+
+def test_the_magnet_reels_in_a_far_upgrade(page) -> None:
+    def got(magnet: bool) -> list:
+        _quiet(page, pad=10)
+        return _js(page, f"""{"g.dropPowerUp('magnet'); g.step(2);" if magnet else ""}
+            const p = g.state().player; g.spawnAsteroid('small', p.x, p.y - 300, 0, 0, 'shield');
+            g.input({{ fire: true }}); g.step(20); g.input({{ fire: false }});
+            return g.step(70).collected.map(c => c.kind);""")
+    assert "shield" not in got(False)
+    assert "shield" in got(True)
+
+
+@pytest.mark.parametrize("what", ["enemy", "asteroid"])
+def test_a_carrier_drops_exactly_the_upgrade_it_glows_with(page, what: str) -> None:
+    _quiet(page, pad=10)
+    spawn = "g.spawn('gunship', p.x, p.y - 220, 'magnet')" if what == "enemy" else "g.spawnAsteroid('medium', p.x, p.y - 220, 0, 0, 'magnet')"
+    s = _js(page, f"""const p = g.state().player; {spawn}; const c = g.state().carriers;
+        g.input({{ fire: true }}); const s = g.step(60); g.input({{ fire: false }}); return Object.assign(s, {{ c }});""")
+    assert s["c"] == [{**s["c"][0], "what": what, "upgrade": "magnet"}]
+    assert s["drops"] and s["drops"][0]["upgrade"] == "magnet"
+    assert s["drops"][0]["from"] == ("gunship" if what == "enemy" else "medium asteroid")
+    assert "magnet" in s["powerUpKinds"] or s["collected"][-1]["kind"] == "magnet"
+
+
+def test_carriers_appear_in_play_with_valid_upgrades_and_drop_often(page) -> None:
+    out = _js(page, """g.configure({ defects: {}, seed: 8, threats: true, level: 1 }); g.start(); g.pause('t');
+        const seen = new Map(); g.input({ fire: true });
+        for (let i = 0; i < 80; i++) { const s = g.step(30); s.carriers.forEach(c => seen.set(c.what + c.type + Math.round(c.x), c.upgrade)); if (s.state === 'over') break; }
+        g.input({ fire: false }); const s = g.state();
+        return { kinds: [...seen.values()], drops: s.drops, spawned: s.spawned, state: s.state };""")
+    assert len(out["kinds"]) >= 5, out
+    assert set(out["kinds"]) <= set(UPGRADES) and len(set(out["kinds"])) >= 3, "carriers hold a variety of upgrades"
+    assert len(out["drops"]) >= 3, "destroyed carriers release their upgrades"
+
+
+def test_the_buggy_game_has_no_carriers(page) -> None:
+    counts = page.evaluate("""(() => { const g = SkySentinel.get('buggy'); g.configure({ defects: {}, seed: 8, threats: true }); g.start(); g.pause('t');
+        const n = []; for (let i = 0; i < 20; i++) n.push(g.step(60).carriers.length);
+        g.configure({ defects: { firstHitFatal: true, randomExplosion: true }, seed: 4242 }); return n; })()""")
+    assert counts == [0] * 20
+
+
+def test_density_grows_through_a_level(page) -> None:
+    early = _js(page, "g.configure({ defects: {}, seed: 7, threats: false, level: 1 }); g.start(); g.pause('t'); return g.step(300);")
+    late = _js(page, "return g.step(4800);")
+    assert 0 < early["levelProgress"] < 0.1 < 0.9 < late["levelProgress"] < 1
+    assert early["spawnInterval"] > late["spawnInterval"] * 1.6, "enemies arrive far more often late in a level"
+    assert early["enemyCap"] < late["enemyCap"] and early["rockInterval"] > late["rockInterval"] * 2
+    counts = _js(page, """g.configure({ defects: {}, seed: 8, threats: true, level: 1 }); g.start(); g.pause('t'); g.input({ fire: true });
+        const a = g.step(1500); const b = g.step(2400); const c = g.step(1300); g.input({ fire: false });
+        return { first: a.spawned, last: c.spawned - b.spawned, rocksFirst: a.breaks.length, state: c.state };""")
+    assert counts["state"] != "over", counts
+    assert counts["last"] > counts["first"] * 1.4, f"the last 1,300 ticks send more enemies than the first 1,500: {counts}"
+
+
+def test_the_buggy_fatal_hit_shows_its_damage_and_drains_the_bar(page) -> None:
+    out = page.evaluate("""(() => { const g = SkySentinel.get('buggy'); g.configure({ defects: { firstHitFatal: true, randomExplosion: true }, seed: 4242, threats: false });
+        g.start(); g.pause('t'); g.step(30); g.forceHit('needle'); const s = g.state();
+        const said = document.querySelector('.ss-host[data-ss-id=buggy] .ss-live').textContent;
+        g.configure({ threats: true }); return { s, said }; })()""")
+    s = out["s"]
+    assert s["health"] == 0 and s["lastDamage"]["amount"] == 6 and s["overText"] == "Destroyed by a single hit: an interceptor dart"
+    assert s["popups"] == [{"text": "-6", "color": "#fca5a5", "big": True}]
+    assert "6-point hit emptied a hull of 100" in out["said"]

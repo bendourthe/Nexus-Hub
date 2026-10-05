@@ -739,6 +739,36 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .ss-live{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;}
 .ss-fallback{margin:0;padding:var(--sp-4);border:1px dashed var(--border);border-radius:12px;color:var(--ink-dim);}
 @media (max-width:720px){.ss-hud{grid-template-columns:repeat(2,minmax(0,1fr));}}
+.ss-overlay{display:flex;overflow:auto;overscroll-behavior:contain;}
+.ss-overlay[data-mode=idle]{background:radial-gradient(120% 90% at 50% 0%,rgba(8,47,73,.55),rgba(3,9,14,.86) 70%);}
+.ss-overlay[data-mode=over]{background:linear-gradient(180deg,rgba(4,12,17,.25) 10%,rgba(4,12,17,.68) 30%,rgba(4,12,17,0) 62%);}
+.ss-overlay[data-mode=over] .ss-panel{margin:clamp(64px,15%,110px) auto auto;}
+.ss-panel{margin:auto;display:grid;gap:12px;justify-items:center;width:100%;}
+.ss-panel [hidden]{display:none !important;}
+.ss-brand{margin:0;font-weight:900;letter-spacing:.16em;text-transform:uppercase;font-size:clamp(1.15rem,2.6vw,1.75rem);color:#ecfeff;text-shadow:0 0 22px rgba(34,211,238,.6);}
+.ss-hangar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;width:100%;}
+.ss-ship{--ss-ship:#22d3ee;display:grid;justify-items:center;align-content:start;gap:2px;padding:6px 8px 10px;border-radius:14px;border:1px solid rgba(148,163,184,.26);background:linear-gradient(180deg,rgba(15,23,42,.78),rgba(2,8,12,.92));color:#e2e8f0;font:inherit;cursor:pointer;text-align:center;transition:border-color .15s,box-shadow .15s,transform .15s;}
+.ss-ship:hover{border-color:color-mix(in srgb,var(--ss-ship) 70%,transparent);transform:translateY(-1px);}
+.ss-ship[aria-checked=true]{border-color:var(--ss-ship);background:linear-gradient(180deg,color-mix(in srgb,var(--ss-ship) 16%,#0f172a),rgba(2,8,12,.94));box-shadow:0 0 0 1px var(--ss-ship),0 0 26px -6px var(--ss-ship);}
+.ss-ship:focus-visible{outline:2px solid #e6fffb;outline-offset:2px;}
+.ss-ship-pic{display:block;width:88%;height:auto;aspect-ratio:240/150;}
+.ss-ship-name{font-weight:800;font-size:var(--ty-body-sm);letter-spacing:.06em;text-transform:uppercase;color:#f8fafc;}
+.ss-ship-role{font-size:12px;color:#94a3b8;}
+.ss-ship-stats{display:grid;gap:3px;width:100%;margin-top:6px;}
+.ss-meter{display:grid;grid-template-columns:3.4em 1fr;align-items:center;gap:6px;font-size:11px;color:#94a3b8;text-align:left;}
+.ss-meter-track{display:block;height:4px;border-radius:2px;background:rgba(148,163,184,.22);overflow:hidden;}
+.ss-meter-fill{display:block;height:100%;border-radius:2px;background:var(--ss-ship);}
+.ss-ship-note{margin:0;color:#cbd5e1;font-size:var(--ty-body-sm);}
+.ss-overlay[data-mode=idle] .ss-start{position:sticky;bottom:4px;z-index:1;box-shadow:0 6px 22px rgba(2,8,12,.85);}
+.ss-change{min-height:40px;padding:8px 18px;border-radius:999px;border:1px solid rgba(148,163,184,.45);background:rgba(2,8,12,.7);color:#e2e8f0;font:inherit;font-weight:600;cursor:pointer;}
+.ss-change:focus-visible{outline:2px solid #e6fffb;outline-offset:3px;}
+.ss-key{display:grid;gap:8px;width:100%;padding:10px 12px;border:1px solid rgba(148,163,184,.22);border-radius:14px;background:rgba(2,8,12,.72);}
+.ss-key-title{margin:0;font-size:12.5px;font-weight:700;color:#cbd5e1;}
+.ss-key-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:6px 12px;text-align:left;}
+.ss-key-item{display:flex;align-items:center;gap:8px;font-size:12px;line-height:1.25;color:#94a3b8;}
+.ss-key-icon{flex:none;width:24px;height:24px;filter:drop-shadow(0 0 6px var(--ss-up));}
+.ss-key-text b{display:block;font-size:12.5px;color:var(--ss-up);}
+@media (max-width:720px){.ss-hangar{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}.ss-ship-pic{width:82%;}.ss-key-list{grid-template-columns:1fr;}.ss-overlay{padding:10px;}}
 /* shared:type-css */
 :root{
   /* Legibility floor. No text role on this page resolves below it, and the
@@ -1594,7 +1624,8 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 <script>
 /* shared:sky-sentinel-js */
 /* ===================================================================== Sky Sentinel (v4.13.10)
-   The Training page's game engine. Design and test rules:
+   The Training page's game engine. Players see it as "Nexus Defenders" (R14); the code keeps the
+   SkySentinel name, the file name, and the ss- prefixes so the page and its tests stay stable. Design and test rules:
    docs/releases/v4/v4.13/development/v4.13.10-game-design.md
    Fixed 60 Hz simulation separated from rendering; seeded random streams (spawn, drops,
    defects, rocks, and a render-only fx stream); every timing rule counted in ticks; the two
@@ -1629,8 +1660,13 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
   var BOSS_AFTER = 3600;                    /* the boss arrives 60 s into level 3: 260 s from the start */
   var BOSS_AFTER_JUMP = 150;
   var WEAPON_TICKS = 600;
-  var POWER_TICKS = { spread: 600, rapid: 600, missiles: 540, wingman: 900 };
-  var DROP_CHANCE = 0.18;
+  var POWER_TICKS = { spread: 600, rapid: 600, missiles: 540, wingman: 900, pierce: 600, slow: 480, magnet: 900 };
+  var TIMED = ["weapon", "spread", "rapid", "missiles", "wingman", "pierce", "slow", "magnet"];
+  /* R14: upgrades ride on carriers. A carrier is chosen when it spawns, from the drops stream,
+     glows in its upgrade's colour, and always drops that upgrade when destroyed. */
+  var CARRY_ENEMY = 0.26, CARRY_ROCK = 0.3;
+  var TRANS_TICKS = 210;            /* the wormhole between levels: 3.5 s, no input, no damage */
+  var TRANS_FLASH = 120;            /* the tick inside it where the map changes */
 
   /* Damage at Easy; each level multiplies it (DIFFICULTY.damage). A bomb's blast falls off
      with distance from DAMAGE.blast at the centre to a fifth of it at the rim. */
@@ -1661,13 +1697,45 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
     medium: { r: [19, 23], hp: 2, score: 50, into: "small" },
     small: { r: [10, 13], hp: 1, score: 25, into: null }
   };
-  /* Eight upgrades; a kill's drop is picked from the drops stream with these weights. */
-  var DROPS = [["shield", 0.18], ["weapon", 0.15], ["spread", 0.12], ["rapid", 0.12], ["missiles", 0.11], ["wingman", 0.1], ["repair", 0.22]];
+  /* Ten upgrades; a carrier's upgrade is picked from the drops stream with these weights. */
+  var DROPS = [["shield", 0.13], ["weapon", 0.11], ["spread", 0.1], ["rapid", 0.1], ["missiles", 0.09], ["wingman", 0.08],
+    ["pierce", 0.09], ["slow", 0.08], ["magnet", 0.07], ["repair", 0.15]];
+  /* colour, short name, and the one-line effect shown in the start screen's key */
   var POWER_LOOK = {
-    shield: ["#60a5fa", "Shield"], weapon: ["#f472b6", "Twin"], spread: ["#fbbf24", "Spread"], rapid: ["#a3e635", "Rapid"],
-    missiles: ["#fb923c", "Missiles"], wingman: ["#c084fc", "Wingman"], repair: ["#34d399", "Repair"]
+    shield: ["#60a5fa", "Shield", "A second bar of 50 that takes damage first"],
+    weapon: ["#f472b6", "Twin", "Two guns for 10 s"],
+    spread: ["#fbbf24", "Spread", "A three-way fan of shots for 10 s"],
+    rapid: ["#a3e635", "Rapid", "Twice the rate of fire for 10 s"],
+    missiles: ["#fb923c", "Missiles", "Homing missiles for 9 s"],
+    wingman: ["#c084fc", "Wingman", "Two escort drones that fire for 15 s"],
+    pierce: ["#22d3ee", "Pierce", "Shots pass through every target for 10 s"],
+    slow: ["#e2e8f0", "Time slow", "Enemies, rocks, and fire at half speed for 8 s"],
+    magnet: ["#f87171", "Magnet", "Pulls upgrades to the ship for 15 s"],
+    repair: ["#34d399", "Repair", "Restores 35 hull"]
   };
+  var POWER_ORDER = ["shield", "repair", "weapon", "spread", "rapid", "pierce", "missiles", "wingman", "slow", "magnet"];
   var FORMS = { 1: "Scout", 2: "Fighter", 3: "Sentinel" };
+  /* R14: four ships to choose from, each with three forms. The first is the default and keeps
+     the reference stats every engine test assumes (100 hull, base speed and fire rate). */
+  var SHIPS = [
+    { id: "vanguard", name: "Vanguard", role: "Armoured gunship", note: "Balanced: steady hull, speed, and guns",
+      hull: 100, speed: 1, fire: 1, flame: "#38bdf8", accent: "#22d3ee", scheme: "Dark steel, cyan edges" },
+    { id: "raptor", name: "Raptor", role: "Strike fighter", note: "Faster guns, lighter hull",
+      hull: 90, speed: 1.05, fire: 0.8, flame: "#fb923c", accent: "#f43f5e", scheme: "Gunmetal, red panels" },
+    { id: "talon", name: "Talon", role: "Needle dagger", note: "The fastest ship, the lightest hull",
+      hull: 80, speed: 1.3, fire: 1, flame: "#a5f3fc", accent: "#e2e8f0", scheme: "Silver, fine dark lines" },
+    { id: "specter", name: "Specter", role: "Stealth interceptor", note: "Heavy armour, slower to turn",
+      hull: 125, speed: 0.85, fire: 1.05, flame: "#f43f5e", accent: "#ef4444", scheme: "Charcoal, red crystal" }
+  ];
+  function shipById(id) { for (var k = 0; k < SHIPS.length; k++) if (SHIPS[k].id === id) return SHIPS[k]; return null; }
+  /* R14: each level, and the boss, has its own map: nebula colours, a set piece, and a star
+     palette. set: 0 gas giant, 1 ringed planet, 2 red sun and asteroid belt, 3 orbital station. */
+  var MAPS = {
+    1: { name: "Cyan Reach", set: 0, a: [0.03, 0.2, 0.26], b: [0.08, 0.06, 0.2], planet: [0.13, 1.06, 0.46], pa: [0.03, 0.12, 0.22], pb: [0.25, 0.65, 0.9], env: [0.32, 0.5, 0.62], stars: [0.8, 0.92, 1], bg: ["#030a10", "#071a22"], neb: ["rgba(34,211,238,0.07)", "rgba(99,102,241,0.06)"] },
+    2: { name: "Violet Halo", set: 1, a: [0.16, 0.05, 0.26], b: [0.03, 0.15, 0.2], planet: [0.84, 0.5, 0.3], pa: [0.3, 0.16, 0.36], pb: [0.95, 0.72, 0.55], env: [0.46, 0.4, 0.62], stars: [1, 0.9, 0.82], bg: ["#0b0614", "#140a22"], neb: ["rgba(168,85,247,0.1)", "rgba(45,212,191,0.06)"] },
+    3: { name: "Ember Belt", set: 2, a: [0.28, 0.08, 0.04], b: [0.16, 0.03, 0.1], planet: [0.82, 0.12, 0.2], pa: [1, 0.55, 0.2], pb: [1, 0.3, 0.08], env: [0.62, 0.42, 0.36], stars: [1, 0.85, 0.7], bg: ["#120604", "#1d0a06"], neb: ["rgba(249,115,22,0.09)", "rgba(190,24,93,0.07)"] },
+    4: { name: "Nexus Station", set: 3, a: [0.02, 0.16, 0.16], b: [0.04, 0.05, 0.14], planet: [0.5, 0.2, 0.62], pa: [0.2, 0.3, 0.34], pb: [0.2, 0.95, 1], env: [0.3, 0.55, 0.6], stars: [0.7, 1, 0.98], bg: ["#020b0d", "#04161a"], neb: ["rgba(34,211,238,0.08)", "rgba(20,184,166,0.06)"] }
+  };
   var DEFECT_NAMES = ["firstHitFatal", "randomExplosion"];
   var REDUCED = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var SOURCE_TEXT = {
@@ -1979,74 +2047,132 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
     white: [0.82, 0.85, 0.88], steel: [0.56, 0.6, 0.65], gun: [0.3, 0.32, 0.36], dark: [0.12, 0.13, 0.15],
     cyan: [0.12, 0.78, 0.95], cyanHot: [0.55, 0.95, 1.0], glass: [0.05, 0.22, 0.32]
   };
-  /* The player's fighter, parameterised so its three forms share one design language. */
+  /* The player's ships (R14): one parameterised builder, four designs, three forms each. A
+     spec names a lofted body (or a faceted kite), stacked armour plates, a canopy, a core
+     light, swept wings with emissive edge strips in the ship's accent, fins, pods, and engines.
+     Every design is modelled at form-1 size; later forms add parts and scale up. */
+  function strip(m, a, b, y, w, colr) {
+    /* offset perpendicular to the edge, toward the back of the craft (inside a leading edge) */
+    var dx = b[0] - a[0], dz = b[1] - a[1], l = Math.sqrt(dx * dx + dz * dz) || 1, nx = -dz / l * w, nz = dx / l * w;
+    if (nz < 0 || (nz === 0 && nx > 0)) { nx = -nx; nz = -nz; }
+    slab(m, [[a[0], a[1]], [b[0], b[1]], [b[0] + nx, b[1] + nz], [a[0] + nx, a[1] + nz]], y, 0.32, 0.04, colr, M_EMIT);
+  }
   function fighter(s) {
-    var m = new Mesh();
-    body(m, s.body, 2.7, s.hull, M_PANEL, C.dark);
-    /* a dark dorsal spine and intake cheeks break up the hull */
-    if (s.spine) body(m, s.spine, 3, C.gun, M_METAL);
-    ellipsoid(m, 0, s.canopy[1], s.canopy[0], s.canopy[2], s.canopy[3], s.canopy[4], C.glass, M_GLASS);
-    var side = new Mesh();
-    slab(side, s.wing, s.wingY, s.wingTh, 0.9, s.wingCol || s.hull, M_PANEL);
-    if (s.stripe) slab(side, s.stripe, s.wingY + s.wingTh / 2 + 0.05, 0.25, 0.05, s.accent, M_PAINT);
-    if (s.canard) slab(side, s.canard, s.wingY + 0.6, s.wingTh * 0.8, 0.5, s.hull, M_PANEL);
-    if (s.intake) box(side, s.intake[0], s.intake[1], s.intake[2], s.intake[3], s.intake[4], s.intake[5], C.dark, M_DARK);
-    (s.fins || []).forEach(function (f) { fin(side, f[0], f[1], f[2], 0.9, f[3], s.hull); });
-    (s.pods || []).forEach(function (p) {
-      nacelle(side, p[0], p[1], p[2], p[3], p[4], p[4] * 0.7, C.gun, s.accent);
-      box(side, p[0] - 0.35, p[1] - 0.35, p[2] - 4, p[0] + 0.35, p[1] + 0.35, p[2], C.dark, M_METAL);
+    var m = new Mesh(), side = new Mesh(), hull = s.hull, accent = s.accent;
+    if (s.body) body(m, s.body, s.bodyE || 2.7, hull, M_PANEL, C.dark);
+    if (s.kite) slab(m, s.kite, s.kiteY || 1, s.kiteTh || 5, s.kiteBevel || 2.2, hull, M_PANEL, s.kiteTop);
+    if (s.spine) body(m, s.spine, 3, s.spineCol || C.gun, M_METAL);
+    (s.plates || []).forEach(function (p) { box(m, -p[0], p[1], p[2], p[0], p[1] + p[3], p[2] + p[4], s.plateCol || hull, M_PANEL); });
+    (s.ribs || []).forEach(function (r) { box(m, -r[0], r[1], r[2], r[0], r[1] + 0.45, r[2] + 0.7, C.dark, M_DARK); });
+    ellipsoid(m, 0, s.canopy[1], s.canopy[0], s.canopy[2], s.canopy[3], s.canopy[4], s.glass || C.glass, s.glassMat || M_GLASS);
+    if (s.core) ellipsoid(m, 0, s.core[0], s.core[1], s.core[2], s.core[2] * 0.75, s.core[2], s.coreCol || accent, M_EMIT, 8);
+    (s.wings || []).forEach(function (w) {
+      var part = new Mesh();
+      slab(part, w.poly, 0, w.th || 1.5, w.bevel || 0.8, w.col || hull, M_PANEL);
+      if (w.paint) slab(part, w.paint, (w.th || 1.5) / 2 + 0.06, 0.25, 0.05, w.paintCol || accent, M_PAINT);
+      (w.edges || []).forEach(function (e) { strip(part, e[0], e[1], (w.th || 1.5) / 2 + 0.1, e[2] || 0.8, w.edgeCol || accent); });
+      side.add(part, w.roll ? rotZ(w.roll) : IDENT, [0, w.y || 0, 0]);
     });
-    ellipsoid(side, s.tip[0], s.tip[1], s.tip[2], 0.7, 0.5, 1.2, [1, 0.25, 0.2], M_EMIT, 6);
-    both(m, side);
+    (s.edges || []).forEach(function (e) { strip(side, e[0], e[1], e[3], e[2] || 0.7, accent); });
+    if (s.canard) slab(side, s.canard, s.canardY || 0.9, 1.1, 0.5, hull, M_PANEL);
+    (s.fins || []).forEach(function (f) { fin(side, f[0], f[1], f[2], 0.9, f[3], f[4] || hull); });
     var engines = [];
-    s.engines.forEach(function (e) {
-      nacelle(m, e[0], e[1], e[2], e[3], e[4], e[4] * 0.86, C.steel, C.cyanHot);
+    (s.pods || []).forEach(function (p) {
+      nacelle(side, p[0], p[1], p[2], p[3], p[4], p[4] * 0.8, p[6] || C.gun, s.glow);
+      if (p[5]) { engines.push([p[0], p[1], p[3] + 1.2, p[4] * 0.8]); engines.push([-p[0], p[1], p[3] + 1.2, p[4] * 0.8]); }
+    });
+    (s.vents || []).forEach(function (v) { box(side, v[0], v[1], v[2], v[0] + v[3], v[1] + 0.5, v[2] + v[4], s.ventCol || accent, M_EMIT); });
+    if (s.tip) ellipsoid(side, s.tip[0], s.tip[1], s.tip[2], 0.7, 0.5, 1.2, s.tipCol || [1, 0.25, 0.2], M_EMIT, 6);
+    both(m, side);
+    (s.engines || []).forEach(function (e) {
+      nacelle(m, e[0], e[1], e[2], e[3], e[4], e[4] * 0.86, C.steel, s.glow);
       engines.push([e[0], e[1], e[3] + 1.4, e[4]]);
     });
     return { mesh: m, engines: engines };
   }
-  function playerForm(form) {
-    if (form === 1) return fighter({
-      hull: C.white, accent: C.cyan,
-      body: [[-27, 0.25, 0.2, 0.5], [-23, 1.7, 1.2, 0.7], [-17, 3.1, 2.2, 0.9], [-10, 4.3, 2.9, 1.1], [-3, 5.1, 3.3, 1.2], [5, 5.5, 3.2, 1.1], [13, 5.3, 2.9, 0.9], [19, 4.5, 2.5, 0.7], [23, 3.8, 2.1, 0.6]],
-      spine: [[-6, 0.3, 0.3, 3.4], [0, 1.4, 1.2, 3.4], [10, 1.7, 1.2, 3.1], [18, 1.2, 0.8, 2.6], [21, 0.3, 0.3, 2.3]],
-      canopy: [-11, 3.4, 2.2, 1.9, 6.5],
-      wing: [[4.5, -6], [23, 9.5], [24, 13.5], [21, 15], [5, 16]], wingY: 0.3, wingTh: 1.5,
-      stripe: [[9, 1.5], [21.5, 11], [22, 12.6], [9, 4]],
-      canard: [[3.8, -17], [8.5, -11], [8.5, -9.5], [3.8, -10]],
-      fins: [[3.6, 2.4, [[0, 13], [6.5, 18], [6.5, 21], [0, 22]], 0.38]],
-      tip: [23.6, 0.6, 12.8],
-      engines: [[0, 0.7, 14, 24.5, 3.1]]
-    });
-    if (form === 2) return fighter({
-      hull: C.white, accent: C.cyan,
-      body: [[-33, 0.25, 0.2, 0.5], [-28, 1.9, 1.3, 0.7], [-21, 3.5, 2.4, 1.0], [-12, 4.9, 3.2, 1.3], [-3, 6.3, 3.6, 1.3], [6, 7.5, 3.6, 1.1], [15, 8.1, 3.4, 0.9], [23, 7.5, 3.0, 0.7], [28, 6.7, 2.6, 0.6]],
-      spine: [[-8, 0.3, 0.3, 3.8], [0, 1.6, 1.3, 3.9], [14, 2.1, 1.3, 3.6], [24, 1.4, 0.9, 3.0], [27, 0.3, 0.3, 2.7]],
-      canopy: [-14, 3.8, 2.5, 2.1, 8],
-      wing: [[6.5, -5], [30, 12], [32, 16], [27.5, 18], [7.5, 19]], wingY: 0.2, wingTh: 1.7,
-      stripe: [[12, 2.5], [29.5, 13], [30, 14.8], [12, 5.2]],
-      canard: [[4.5, -21], [11.5, -14.5], [11.5, -12.8], [4.5, -13]],
-      intake: [4.6, -1.2, -10, 6.8, 2.2, -2],
-      fins: [[5.6, 2.6, [[0, 16], [8.5, 22], [8.5, 26], [0, 27.5]], 0.4]],
-      pods: [[17, -0.4, -4, 13, 1.5]],
-      tip: [31.5, 0.6, 15.2],
-      engines: [[-3.7, 0.5, 18, 30.5, 3.0], [3.7, 0.5, 18, 30.5, 3.0]]
-    });
-    return fighter({
-      hull: C.white, accent: C.cyan, wingCol: [0.74, 0.78, 0.82],
-      body: [[-41, 0.25, 0.2, 0.6], [-35, 2.1, 1.4, 0.8], [-27, 4.0, 2.6, 1.1], [-17, 5.6, 3.4, 1.4], [-6, 7.2, 3.9, 1.5], [6, 8.8, 4.0, 1.3], [17, 9.6, 3.8, 1.1], [27, 9.0, 3.3, 0.9], [34, 8.0, 2.8, 0.7]],
-      spine: [[-12, 0.3, 0.3, 4.4], [-2, 2.0, 1.6, 4.6], [16, 2.6, 1.6, 4.4], [29, 1.8, 1.1, 3.7], [33, 0.3, 0.3, 3.3]],
-      canopy: [-19, 4.4, 2.8, 2.3, 9.5],
-      wing: [[7.5, -12], [22, 2], [40, 11], [42, 16], [36.5, 19.5], [8.5, 23]], wingY: 0.2, wingTh: 1.9,
-      stripe: [[14, -2], [39.5, 12.5], [40, 14.5], [14, 1.4]],
-      canard: [[5, -27], [13.5, -19], [13.5, -17], [5, -17.5]],
-      intake: [5.4, -1.3, -14, 8, 2.4, -4],
-      fins: [[6.8, 2.8, [[0, 19], [10, 26], [10, 31], [0, 33]], 0.42]],
-      pods: [[40.5, -0.2, -8, 14, 1.4], [20, -0.6, -6, 12, 1.6]],
-      tip: [41.6, 0.6, 15.5],
-      engines: [[0, 2.2, 22, 37, 2.8], [-7.2, 0.3, 21, 36, 3.1], [7.2, 0.3, 21, 36, 3.1]]
-    });
+  /* Scale a built ship uniformly: later forms grow while keeping their proportions. */
+  function scaled(def, k) {
+    return { mesh: new Mesh().add(def.mesh, [k, 0, 0, 0, k, 0, 0, 0, k], [0, 0, 0]),
+             engines: def.engines.map(function (e) { return [e[0] * k, e[1] * k, e[2] * k, e[3] * k]; }) };
   }
+  var FORM_SCALE = { 1: 1, 2: 1.24, 3: 1.52 };
+  var SHIP_SPEC = {
+    /* Armoured central hull with stacked plating and a round core light; wide V wings with cyan
+       edge strips; engine pods under the wings. Dark steel with cyan accents. */
+    vanguard: function (f) {
+      var steel = [0.36, 0.39, 0.44], plate = [0.5, 0.53, 0.58], cyan = [0.2, 0.9, 1];
+      return {
+        hull: steel, accent: cyan, glow: [0.55, 0.85, 1], plateCol: plate,
+        body: [[-24, 0.3, 0.25, 0.6], [-19, 2.4, 1.6, 0.9], [-11, 4.6, 2.8, 1.2], [-2, 6.2, 3.4, 1.3], [8, 6.6, 3.3, 1.2], [16, 6, 2.9, 1], [22, 5, 2.4, 0.8]],
+        plates: [[3.6, 3.7, -9, 0.8, 5.5], [3.1, 4.3, -3, 0.8, 5.5], [2.6, 4.9, 3, 0.7, 5]],
+        core: [5.7, 11, 1.7], canopy: [-13.5, 3.2, 2, 1.6, 5],
+        wings: [{ poly: [[5, -4], [26, 13], [26, 16.5], [22, 17], [6, 12]], col: [0.42, 0.45, 0.5], th: 1.6, y: 0.3,
+                  paint: [[9, 3], [22, 13], [22, 14.6], [9, 6]], paintCol: [0.16, 0.18, 0.21], edges: [[[5, -4], [26, 13], 0.9]] }].concat(f === 3 ?
+                [{ poly: [[4, 6], [17, 17], [16.5, 20], [5, 18]], col: plate, th: 1.2, y: 1.6, edges: [[[4, 6], [17, 17], 0.6]] }] : []),
+        pods: [[12, -1.5, -3, 14, 2.1, true]].concat(f >= 2 ? [[21, -1.1, 4, 15, 1.4, true]] : []),
+        fins: f >= 2 ? [[3.2, 2.6, [[0, 12], [6, 17], [6, 20], [0, 21]], 0.35]] : [],
+        tip: [26, 0.6, 15], tipCol: cyan,
+        engines: f === 3 ? [[-3.2, 0.6, 15, 23.5, 2.4], [3.2, 0.6, 15, 23.5, 2.4]] : [[0, 0.6, 14, 23.5, 2.6]]
+      };
+    },
+    /* Dark gunmetal; a long pointed nose with forward canards; twin side nacelles with red
+       vents; swept wings with red accent panels. */
+    raptor: function (f) {
+      var gm = [0.2, 0.21, 0.24], red = [0.86, 0.12, 0.14];
+      return {
+        hull: gm, accent: red, glow: [1, 0.55, 0.3], ventCol: [1, 0.2, 0.15],
+        body: [[-34, 0.2, 0.2, 0.4], [-28, 1.4, 1.0, 0.6], [-18, 3.0, 2.0, 0.9], [-6, 4.2, 2.8, 1.1], [6, 4.6, 2.8, 1], [16, 4.2, 2.4, 0.8], [21, 3.4, 2, 0.6]],
+        spine: [[-10, 0.3, 0.3, 2.6], [-4, 1.2, 1, 2.8], [10, 1.4, 1, 2.6], [17, 0.3, 0.3, 2.2]],
+        canopy: [-15, 2.6, 1.8, 1.6, 5.5],
+        canard: [[3.5, -24], [9.5, -18.5], [9.5, -16.8], [3.5, -17.5]],
+        wings: [{ poly: [[6, -1], [23, 11], [24, 14.5], [21, 15.5], [8, 15]], col: [0.24, 0.25, 0.29], th: 1.5,
+                  paint: [[10, 4], [21.5, 12], [22, 13.6], [10, 6.8]], paintCol: red, edges: [[[6, -1], [23, 11], 0.5]], edgeCol: [0.9, 0.2, 0.2] }].concat(f === 3 ?
+                [{ poly: [[5, 9], [14, 17], [13.5, 19.5], [5, 18]], col: gm, th: 1.1, y: 1.4, paint: [[7, 13], [13, 17.5], [13, 18.6], [7, 15]], paintCol: red }] : []),
+        pods: [[6.4, 0.3, -8, 20, 2.5, true, [0.28, 0.29, 0.33]]].concat(f >= 2 ? [[16, -0.8, -2, 12, 1.4, false]] : []),
+        vents: [[8.6, 0.2, 2, 0.5, 6], [8.6, 0.2, 10, 0.5, 5]],
+        fins: [[3.4, 2.2, [[0, 11], [6, 16.5], [6, 19.5], [0, 20.5]], 0.45]].concat(f === 3 ? [[7, 2.4, [[0, 13], [4.5, 17], [4.5, 19], [0, 20]], 0.6]] : []),
+        tip: [23.6, 0.6, 13.2], engines: []
+      };
+    },
+    /* A very long, narrow needle with a ribbed spine; crescent wings that sweep forward and
+       curve down like talons. Silver with fine dark lines. */
+    talon: function (f) {
+      var silver = [0.8, 0.82, 0.86], dark = [0.08, 0.09, 0.11], ribs = [];
+      for (var z = -14; z <= 14; z += 3.5) ribs.push([1.2, 2.3, z]);
+      var crescent = [[2.5, 6], [9, 2.5], [15, -3], [19, -11], [20.5, -18], [18.4, -15], [15.6, -7.5], [11, -0.5], [3, 11]];
+      return {
+        hull: silver, accent: [0.75, 0.95, 1], glow: [0.75, 0.95, 1],
+        body: [[-38, 0.15, 0.15, 0.5], [-30, 1.1, 0.8, 0.6], [-18, 2.2, 1.5, 0.8], [-2, 2.9, 1.9, 0.9], [12, 2.8, 1.8, 0.8], [21, 2.2, 1.4, 0.6]],
+        ribs: ribs, canopy: [-20, 1.8, 1.25, 1.1, 4.4], glass: [0.04, 0.12, 0.2],
+        wings: [{ poly: crescent, col: [0.72, 0.74, 0.79], th: 1.2, bevel: 0.5, roll: -0.2,
+                  paint: [[6, 4.5], [13.5, -1.5], [17.5, -9], [17.9, -8.6], [14, -0.6], [6.4, 5.5]], paintCol: dark,
+                  edges: [[[19, -11], [20.5, -18], 0.5]], edgeCol: [0.75, 0.95, 1] }].concat(f >= 2 ?
+                [{ poly: [[2, 12], [9, 14], [12, 20], [8.5, 18], [2, 17]], col: silver, th: 0.9, bevel: 0.4, roll: -0.12, y: 0.5 }] : []),
+        fins: f === 3 ? [[1.6, 2, [[0, 12], [5, 17], [5, 19], [0, 20]], 0.3]] : [],
+        pods: f === 3 ? [[7, -0.4, -2, 10, 1.1, true, silver]] : [],
+        tip: [20.4, -1.4, -17.4], tipCol: [0.7, 0.95, 1],
+        engines: [[0, 0.5, 17, 24, 2.1]]
+      };
+    },
+    /* A faceted charcoal kite with a glowing red crystal canopy, two tall swept fins, twin red
+       engines, and red edge highlights. */
+    specter: function (f) {
+      var coal = [0.13, 0.13, 0.15], red = [1, 0.12, 0.12];
+      return {
+        hull: coal, accent: red, glow: [1, 0.3, 0.3], kiteTop: [0.18, 0.18, 0.21],
+        kite: [[0, -26], [7.5, -6], [9.5, 8], [4.5, 18], [0, 15.5], [-4.5, 18], [-9.5, 8], [-7.5, -6]], kiteTh: 5.4, kiteBevel: 2.6, kiteY: 1,
+        canopy: [-3, 3.9, 2.1, 1.7, 4.6], glass: [1, 0.12, 0.1], glassMat: M_HALF,
+        wings: [{ poly: [[6, -3], [23, 10], [22, 14], [9, 13]], col: [0.15, 0.15, 0.18], th: 1.3,
+                  edges: [[[6, -3], [23, 10], 0.55]] }].concat(f >= 2 ? [{ poly: [[8, 7], [27, 17], [26, 19.5], [9, 16]], col: coal, th: 1, y: -0.4, edges: [[[8, 7], [27, 17], 0.45]] }] : []),
+        edges: [[[0.5, -26.3], [7.6, -6.4], 0.45, 3.3]],
+        fins: [[5.2, 2.8, [[0, 4], [11.5, 13], [11.5, 16], [0, 14.5]], 0.14, [0.16, 0.16, 0.19]]],
+        pods: f === 3 ? [[14, -0.6, 0, 14, 1.5, true]] : [],
+        tip: [23, 0.4, 11.5], tipCol: red,
+        engines: [[-3.4, 0.8, 13, 19.5, 2.1], [3.4, 0.8, 13, 19.5, 2.1]]
+      };
+    }
+  };
+  function shipForm(id, form) { return scaled(fighter(SHIP_SPEC[id](form)), FORM_SCALE[form]); }
   function wingmanMesh() {
     var m = new Mesh(), side = new Mesh();
     body(m, [[-12, 0.2, 0.2, 0.4], [-8, 1.4, 1.0, 0.5], [-1, 2.2, 1.5, 0.6], [6, 2.2, 1.3, 0.5], [10, 1.6, 1.0, 0.4]], 2.6, [0.78, 0.74, 0.86], M_PANEL, C.dark);
@@ -2064,6 +2190,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
     ellipsoid(m, 0, 3.1, -13, 2.8, 1.1, 3.8, [0.45, 0.05, 0.04], M_GLASS);
     slab(side, [[6.5, 2], [21, -6.5], [24, -4], [23, 0], [7, 14]], 0.4, 1.8, 1, [0.36, 0.37, 0.41], M_PANEL);
     slab(side, [[12, -1], [21.5, -5.5], [22.4, -4.4], [12.4, 1.6]], 1.36, 0.25, 0.05, red, M_PAINT);
+    strip(side, [6.6, 1.6], [21, -6.6], 1.4, 0.6, [1, 0.3, 0.25]);   /* R14: emissive edge lights, as on the player ships */
     nacelle(side, 3.6, -2.1, -27, -9, 1.1, 1.1, C.dark, [1, 0.35, 0.15]);
     nacelle(side, 4.6, 0.5, 13, 23, 2.7, 2.3, C.steel, [1, 0.42, 0.18]);
     fin(side, 3.2, 3, [[0, 10], [5, 15], [5, 18], [0, 19]], 0.8, 0.5, C.gun);
@@ -2077,6 +2204,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
     ellipsoid(m, 0, 1.9, -5, 1.2, 1.0, 3.2, [0.35, 0.05, 0.3], M_GLASS);
     slab(side, [[2, 4], [14, -4], [15.2, -2.2], [13.5, 1], [3, 10]], 0.2, 1.1, 0.5, [0.3, 0.27, 0.37], M_PANEL);
     slab(side, [[8, 1], [14.2, -3.2], [14.8, -2.4], [8.4, 2.6]], 0.8, 0.2, 0.05, mag, M_PAINT);
+    strip(side, [2.2, 3.6], [14, -4.2], 0.85, 0.45, [1, 0.35, 0.95]);
     fin(side, 2.1, 1.8, [[0, 4], [4, 8.5], [4, 10.5], [0, 11]], 0.6, 0.55, [0.3, 0.27, 0.37]);
     both(m, side);
     nacelle(m, 0, 0.4, 9, 14, 1.8, 1.5, C.gun, [1, 0.4, 0.95]);
@@ -2108,6 +2236,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
     slab(side, [[20, 0.5], [30.5, 5], [30.8, 6.6], [20, 2.4]], 1.85, 0.2, 0.05, yellow, M_PAINT);
     box(side, 5, 1.2, 3, 9, 2.6, 9, C.dark, M_DARK);
     box(side, 5.3, 1.2, 9, 8.7, 2.3, 9.6, [1, 0.85, 0.3], M_EMIT);
+    [12, 17, 22].forEach(function (x) { box(side, x, 1.85, 2 + (x - 12) * 0.35, x + 2.4, 2.1, 3.2 + (x - 12) * 0.35, [1, 0.6, 0.15], M_EMIT); });   /* amber vents */
     ellipsoid(side, 31, 0.4, 7, 0.8, 0.6, 1.0, [1, 0.85, 0.3], M_EMIT, 6);
     both(m, side);
     return { mesh: m, engines: [[-7, 1.8, 10, 1.9], [7, 1.8, 10, 1.9]] };
@@ -2164,13 +2293,82 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
     if (MESHES) return MESHES;
     var b = bossMeshes();
     MESHES = {
-      form1: playerForm(1), form2: playerForm(2), form3: playerForm(3), wingman: wingmanMesh(),
+      wingman: wingmanMesh(),
       gunship: gunshipMesh(), interceptor: interceptorMesh(), lancer: lancerMesh(), bomber: bomberMesh(),
       bomb: bombMesh(), missile: missileMesh(), gem: gemMesh(), shard: shardMesh(),
       bossHull: b.hull, bossNode: b.node, bossCore: b.core, rocks: []
     };
     for (var k = 0; k < 6; k++) MESHES.rocks.push({ mesh: rockMesh(1013 + k * 7919) });
+    SHIPS.forEach(function (s) { for (var f = 1; f <= 3; f++) MESHES[s.id + f] = shipForm(s.id, f); });
     return MESHES;
+  }
+  /* A ship's half wingspan in model units, measured from its mesh, so the clamp to the frame,
+     the shield bubble, and the bomb aim fit every design. */
+  var SPANS = {};
+  function shipSpan(id, form) {
+    var key = id + form;
+    if (SPANS[key] == null) {
+      var v = meshes()[key].mesh.v, w = 0;
+      for (var i = 0; i < v.length; i += 12) w = Math.max(w, Math.abs(v[i]));
+      SPANS[key] = Math.round(w * 10) / 10;
+    }
+    return SPANS[key];
+  }
+  /* A lit picture of a mesh on a 2D canvas: each triangle is turned by yaw and pitch, lit by the
+     game's key and fill lights, and painted back to front under the game camera's oblique tilt.
+     The start screen's ship cards use it, and so does the 2D renderer (cached per mesh and view). */
+  var SPRITES = {};
+  function meshPicture(key, yaw, pitch, tilt, w, h, pad) {
+    var src = meshes()[key].mesh.v, cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch), tt = Math.tan(tilt);
+    var L = v3norm([-0.55, 0.8, -0.3]), F = v3norm([0.7, 0.25, 0.6]), V = [0, Math.cos(tilt), Math.sin(tilt)], H = v3norm([L[0] + V[0], L[1] + V[1], L[2] + V[2]]);
+    var tris = [], minX = 1e9, maxX = -1e9, minY = 1e9, maxY = -1e9;
+    function turn(x, y, z) { var x1 = cy * x + sy * z, z1 = -sy * x + cy * z; return [x1, cp * y - sp * z1, sp * y + cp * z1]; }
+    for (var i = 0; i < src.length; i += 36) {
+      var pts = [], n = [0, 0, 0], depth = 0;
+      for (var k = 0; k < 3; k++) {
+        var o = i + k * 12, p = turn(src[o], src[o + 1], src[o + 2]), nn = turn(src[o + 3], src[o + 4], src[o + 5]);
+        n[0] += nn[0]; n[1] += nn[1]; n[2] += nn[2];
+        var sx = p[0], syy = p[2] - p[1] * tt;
+        pts.push([sx, syy]); depth += p[1] * Math.cos(tilt) + p[2] * Math.sin(tilt);
+        minX = Math.min(minX, sx); maxX = Math.max(maxX, sx); minY = Math.min(minY, syy); maxY = Math.max(maxY, syy);
+      }
+      n = v3norm(n);
+      var c = [src[i + 6], src[i + 7], src[i + 8]], metal = src[i + 9], emis = src[i + 10], kind = src[i + 11], lit;
+      var ndl = Math.max(0, v3dot(n, L)), fill = Math.max(0, v3dot(n, F)), spec = Math.pow(Math.max(0, v3dot(n, H)), 24) * (0.15 + metal * 1.1);
+      if (emis > 0.5) lit = [c[0] * 1.5 + 0.2, c[1] * 1.5 + 0.2, c[2] * 1.5 + 0.2];
+      else if (kind > 2.5) lit = [c[0] * 0.8 + 0.08 + spec, c[1] * 0.8 + 0.12 + spec, c[2] * 0.8 + 0.18 + spec];
+      else {
+        var a = 0.1 + ndl * 1.15 + fill * 0.3;
+        lit = [c[0] * a + spec + emis * c[0], c[1] * a + spec + emis * c[1], c[2] * a + spec + emis * c[2]];
+      }
+      if (v3dot(n, V) < -0.05 && emis < 0.5) continue;   /* faces turned away never show */
+      tris.push({ p: pts, d: depth, c: "rgb(" + lit.map(function (v) { return Math.round(255 * (1 - Math.exp(-v * 1.4))); }).join(",") + ")" });
+    }
+    tris.sort(function (a, b) { return a.d - b.d; });   /* far first: a larger depth is nearer the camera */
+    var cv = document.createElement("canvas");
+    cv.width = w; cv.height = h;
+    var g = cv.getContext("2d");
+    if (!g) return cv;
+    var s = Math.min((w - 2 * pad) / (maxX - minX), (h - 2 * pad) / (maxY - minY));
+    g.translate(w / 2 - (minX + maxX) / 2 * s, h / 2 - (minY + maxY) / 2 * s);
+    g.scale(s, s);
+    g.lineJoin = "round"; g.lineWidth = 0.6 / s;
+    tris.forEach(function (t) {
+      g.fillStyle = t.c; g.strokeStyle = t.c;
+      g.beginPath(); g.moveTo(t.p[0][0], t.p[0][1]); g.lineTo(t.p[1][0], t.p[1][1]); g.lineTo(t.p[2][0], t.p[2][1]); g.closePath(); g.fill(); g.stroke();
+    });
+    cv.unitScale = s;
+    cv.centre = [(minX + maxX) / 2, (minY + maxY) / 2];
+    return cv;
+  }
+  /* The game-view sprite of a ship for the 2D renderer: top down under the camera tilt. */
+  function shipSprite(key) {
+    if (!SPRITES[key]) {
+      var span = shipSpan(key.slice(0, -1), +key.slice(-1));
+      var px = Math.round(span * 2 * 3 + 12);
+      SPRITES[key] = meshPicture(key, 0, 0, 0.5, px, Math.round(px * 1.6), 6);
+    }
+    return SPRITES[key];
   }
 
   /* ==================================================================== WebGL
@@ -2206,7 +2404,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
     "  vec3 diff = base * (vec3(0.045, 0.055, 0.075) + vec3(1.0, 0.95, 0.88) * ndl * 1.2 + vec3(0.25, 0.42, 0.65) * fill * 0.5);\n" +
     "  vec3 col = mix(diff, diff * 0.35 + base * env * 1.7, metal * 0.7) + sp * vec3(1.0, 0.97, 0.9) + fres * (vec3(0.25, 0.5, 0.75) * 0.4 + env * metal * 0.6) * (kind > 1.5 && kind < 2.5 ? 0.3 : 1.0);\n" +
     "  if (kind > 2.5) col = base * (0.25 + ndl * 0.6) + env * (0.35 + fres * 1.2) + sp * 1.6 + base * 0.5;\n" +
-    "  col *= seam; col = mix(col, base * 1.6 + vec3(0.18), emis); col += uGlowCol * uGlow * (emis * 1.4 + 0.12);\n" +
+    "  col *= seam; col = mix(col, base * 1.6 + vec3(0.18), emis); col += uGlowCol * uGlow * (emis * 1.4 + 0.12 + fres * 2.6);\n" +
     "  col = mix(col, vec3(1.0, 0.55, 0.45), uFlash * 0.65);\n" +
     "  gl_FragColor = vec4(vec3(1.0) - exp(-col * 1.35), 1.0); }\n";
   var FX_VS = "attribute vec3 aPos; attribute vec2 aUV; attribute vec4 aCol; attribute float aMode;\n" + PROJECT +
@@ -2219,39 +2417,65 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
     "  else if (vMode < 2.5) { float u = vUV.x; a = (exp(-u * u * 5.0) * 0.6 + exp(-u * u * 70.0)) * (0.8 + 0.2 * sin(vUV.y * 60.0)); hot = exp(-u * u * 90.0); }\n" +
     "  else if (vMode < 3.5) { a = exp(-(vUV.x * vUV.x * 5.0 + vUV.y * vUV.y * 1.3)) * 0.7 + exp(-(vUV.x * vUV.x * 40.0 + vUV.y * vUV.y * 3.0)); hot = exp(-(vUV.x * vUV.x * 60.0 + vUV.y * vUV.y * 6.0)); }\n" +
     "  else if (vMode < 4.5) { a = step(r, 1.0) * (0.1 + 0.9 * pow(r, 8.0)) + exp(-pow((r - 1.0) * 30.0, 2.0)) * 0.5; }\n" +
-    "  else { a = step(r, 1.0) * (pow(r, 6.0) * 0.85 + 0.05) + exp(-pow((r - 1.0) * 25.0, 2.0)) * 0.4; }\n" +
+    "  else if (vMode < 5.5) { a = step(r, 1.0) * (pow(r, 6.0) * 0.85 + 0.05) + exp(-pow((r - 1.0) * 25.0, 2.0)) * 0.4; }\n" +
+    "  else { float ph = fract(vMode) * 6.2831; float ang = atan(vUV.y, vUV.x); float arm = 0.5 + 0.5 * sin(ang * 3.0 + log(max(r, 0.03)) * 7.0 - ph * 3.0);\n" +
+    "    a = step(r, 1.0) * (pow(arm, 3.0) * smoothstep(1.0, 0.2, r) * 0.9 + exp(-pow((r - 0.9) * 12.0, 2.0)) * 0.7 + exp(-r2 * 28.0) * 1.3); hot = exp(-r2 * 60.0); }\n" +
     "  gl_FragColor = vec4(vCol.rgb * a * vCol.a + vec3(hot) * vCol.a * 0.55, 0.0); }\n";
   var BG_VS = "attribute vec2 aPos; uniform vec3 uWorld; varying vec2 vW;\n" +
     "void main() { vW = vec2((aPos.x + 1.0) * 0.5 * uWorld.x, (1.0 - aPos.y) * 0.5 * uWorld.y); gl_Position = vec4(aPos, 0.999, 1.0); }\n";
+  /* R14: each map's set piece is drawn here (uSet: 0 gas giant, 1 ringed planet, 2 red sun with
+     an asteroid belt, 3 orbital station ring); uStar tints the stars and uWarp stretches them
+     into streaks inside a wormhole. */
   var BG_FS = GLSL_HEAD +
     "uniform vec3 uWorld; uniform vec3 uScroll; uniform vec3 uNebA; uniform vec3 uNebB; uniform vec4 uPlanet; uniform vec3 uPlanetA; uniform vec3 uPlanetB; uniform float uT;\n" +
+    "uniform float uSet; uniform vec3 uStar; uniform float uWarp;\n" +
     "varying vec2 vW;\n" +
     "float h2(vec2 p) { p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }\n" +
     "float n2(vec2 x) { vec2 i = floor(x); vec2 f = fract(x); f = f * f * (3.0 - 2.0 * f); return mix(mix(h2(i), h2(i + vec2(1.0, 0.0)), f.x), mix(h2(i + vec2(0.0, 1.0)), h2(i + vec2(1.0, 1.0)), f.x), f.y); }\n" +
     "float fbm(vec2 p) { float s = 0.0; float a = 0.5; for (int i = 0; i < 4; i++) { s += a * n2(p); p = p * 2.03 + vec2(1.7, 9.2); a *= 0.5; } return s; }\n" +
     "float stars(vec2 p, float cell, float off, float dens) { vec2 g = vec2(p.x, p.y - off) / cell; vec2 id = floor(g); vec2 f = fract(g); float h = h2(id);\n" +
-    "  if (h < 1.0 - dens) return 0.0; vec2 o = vec2(h2(id + 3.7), h2(id + 9.1)) * 0.8 + 0.1; float d = length((f - o) * cell);\n" +
-    "  return (0.4 + 0.6 * h2(id + 1.3)) * (exp(-d * d * 0.9) + exp(-d * 0.9) * 0.08); }\n" +
+    "  if (h < 1.0 - dens) return 0.0; vec2 o = vec2(h2(id + 3.7), h2(id + 9.1)) * 0.8 + 0.1; vec2 dv = (f - o) * cell; dv.y /= 1.0 + uWarp * 9.0; float d = length(dv);\n" +
+    "  return (0.4 + 0.6 * h2(id + 1.3)) * (exp(-d * d * 0.9) + exp(-d * 0.9) * 0.08) * (1.0 + uWarp * 1.5); }\n" +
     "void main() {\n" +
     "  vec2 p = vW; vec2 q = vec2(p.x, p.y - uScroll.x * 0.35) / 520.0;\n" +
     "  float w = fbm(q * 1.4 + 3.0); float n = fbm(q + w * 0.9); float m = fbm(q * 2.6 + 7.0 + w);\n" +
     "  vec3 col = mix(vec3(0.006, 0.012, 0.024), vec3(0.012, 0.03, 0.05), p.y / uWorld.y);\n" +
     "  col += uNebA * pow(n, 2.6) * 0.75 + uNebB * pow(m, 3.2) * 0.6;\n" +
-    "  col += vec3(0.9, 0.95, 1.0) * (stars(p, 26.0, uScroll.x, 0.12) * 0.5 + stars(p, 44.0, uScroll.y, 0.16) * 0.75 + stars(p, 82.0, uScroll.z, 0.22));\n" +
-    "  vec2 d = (p - uPlanet.xy) / uPlanet.z; float r2 = dot(d, d);\n" +
+    "  col += uStar * (stars(p, 26.0, uScroll.x, 0.12) * 0.5 + stars(p, 44.0, uScroll.y, 0.16) * 0.75 + stars(p, 82.0, uScroll.z, 0.22));\n" +
+    "  vec2 d = (p - uPlanet.xy) / uPlanet.z; float r2 = dot(d, d); float rr = sqrt(r2);\n" +
     "  vec3 L = normalize(vec3(-0.65, 0.55, -0.55));\n" +
-    "  if (r2 < 1.0) { vec3 nn = vec3(d.x, sqrt(1.0 - r2), d.y); float lit = max(dot(nn, L), 0.0);\n" +
-    "    float band = fbm(vec2(d.x * 2.2 + uT * 0.0002, d.y * 7.0) + fbm(d * 4.0) * 1.4);\n" +
-    "    vec3 surf = mix(uPlanetA, uPlanetB, band); float rim = pow(1.0 - nn.y, 2.5);\n" +
-    "    col = mix(col, surf * (0.04 + lit * 0.9) + uPlanetB * rim * (0.2 + lit) * 0.6, uPlanet.w); }\n" +
-    "  else { float e = sqrt(r2) - 1.0; col += uPlanetB * exp(-e * 22.0) * 0.45 * uPlanet.w * max(dot(normalize(vec3(d.x, 0.2, d.y)), L) + 0.3, 0.0); }\n" +
+    "  if (uSet < 1.5) {\n" +
+    "    vec2 rq = vec2(d.x * 0.94 + d.y * 0.34, -d.x * 0.34 + d.y * 0.94); float e = length(vec2(rq.x, rq.y / 0.27));\n" +
+    "    float ringA = 0.0; if (uSet > 0.5) ringA = smoothstep(1.3, 1.36, e) * (1.0 - smoothstep(2.1, 2.2, e)) * (0.5 + 0.5 * sin(e * 41.0) * sin(e * 13.0 + 1.3)) * 0.8 * uPlanet.w;\n" +
+    "    vec3 ringC = mix(uPlanetA, uPlanetB, 0.7) * (0.45 + 0.75 * smoothstep(-2.0, 1.5, -rq.x));\n" +
+    "    if (r2 < 1.0) { vec3 nn = vec3(d.x, sqrt(1.0 - r2), d.y); float lit = max(dot(nn, L), 0.0);\n" +
+    "      float band = fbm(vec2(d.x * 2.2 + uT * 0.0002, d.y * 7.0) + fbm(d * 4.0) * 1.4);\n" +
+    "      vec3 surf = mix(uPlanetA, uPlanetB, band); float rim = pow(1.0 - nn.y, 2.5);\n" +
+    "      col = mix(col, surf * (0.04 + lit * 0.9) + uPlanetB * rim * (0.2 + lit) * 0.6, uPlanet.w);\n" +
+    "      if (rq.y > 0.0) col = mix(col, ringC, ringA); }\n" +
+    "    else { float ea = rr - 1.0; col += uPlanetB * exp(-ea * 22.0) * 0.45 * uPlanet.w * max(dot(normalize(vec3(d.x, 0.2, d.y)), L) + 0.3, 0.0); col = mix(col, ringC, ringA); }\n" +
+    "  } else if (uSet < 2.5) {\n" +
+    "    float a = atan(d.y, d.x);\n" +
+    "    if (r2 < 1.0) col = mix(uPlanetA, vec3(1.0, 0.93, 0.78), pow(1.0 - r2, 1.5)) * (0.85 + 0.3 * fbm(d * 6.0 + uT * 0.002));\n" +
+    "    else col += uPlanetB * (exp(-(rr - 1.0) * 2.4) * 0.5 + exp(-(rr - 1.0) * 10.0) * 0.6) * (0.7 + 0.6 * fbm(vec2(a * 3.0, rr * 2.0 - uT * 0.003))) * uPlanet.w;\n" +
+    "    float bd = (p.x * 0.38 + p.y - uWorld.y * 0.62) / 70.0; float belt = exp(-bd * bd * 1.6);\n" +
+    "    vec2 bp = vec2(p.x, p.y - uScroll.y * 0.6); vec2 g = bp / 11.0; vec2 id = floor(g); vec2 f = fract(g) - 0.5; float hh = h2(id);\n" +
+    "    float rock = step(0.8, hh) * smoothstep(0.26 + 0.14 * h2(id + 5.0), 0.05, length(f)) * belt;\n" +
+    "    float dust = fbm(bp / 70.0) * belt;\n" +
+    "    col += vec3(0.24, 0.13, 0.08) * dust * 0.7 + vec3(0.62, 0.47, 0.36) * rock * (0.35 + 0.65 * h2(id + 2.0)) * (0.6 + 0.6 * smoothstep(-0.5, 0.5, f.x - f.y));\n" +
+    "  } else {\n" +
+    "    vec2 sq = vec2(d.x, d.y / 0.42); float e = length(sq); float a = atan(sq.y, sq.x);\n" +
+    "    float lit = 0.3 + 0.7 * smoothstep(-1.0, 1.0, -sq.x * 0.5 - sq.y * 0.85);\n" +
+    "    float tube = smoothstep(0.8, 0.84, e) * (1.0 - smoothstep(1.0, 1.04, e));\n" +
+    "    float panel = 0.72 + 0.28 * step(0.5, fract(a * 36.0 / 6.2831)) + 0.25 * smoothstep(0.9, 0.97, e) * (1.0 - smoothstep(0.97, 1.0, e));\n" +
+    "    float win = step(0.72, h2(vec2(floor(a * 90.0 / 6.2831), 3.0))) * smoothstep(0.885, 0.9, e) * (1.0 - smoothstep(0.93, 0.945, e));\n" +
+    "    float spoke = (1.0 - smoothstep(0.012, 0.03, abs(sin(a * 2.0)) * e)) * step(e, 0.82) * step(0.13, e);\n" +
+    "    float hub = 1.0 - smoothstep(0.12, 0.14, e);\n" +
+    "    vec3 metal = uPlanetA * lit;\n" +
+    "    col = mix(col, metal * panel * 1.5, max(tube, max(spoke * 0.85, hub)) * uPlanet.w);\n" +
+    "    col += uPlanetB * (win * 0.9 + hub * 0.25 + exp(-e * e * 90.0) * 0.8 + exp(-pow((e - 0.92) * 30.0, 2.0)) * 0.12) * uPlanet.w;\n" +
+    "  }\n" +
     "  gl_FragColor = vec4(col, 1.0); }\n";
-  var LEVEL_SKY = {
-    1: { a: [0.03, 0.2, 0.26], b: [0.08, 0.06, 0.2], planet: [0.13, 1.06, 0.46], pa: [0.03, 0.12, 0.22], pb: [0.25, 0.65, 0.9], env: [0.32, 0.5, 0.62] },
-    2: { a: [0.14, 0.06, 0.24], b: [0.02, 0.14, 0.2], planet: [0.9, 1.0, 0.52], pa: [0.24, 0.12, 0.3], pb: [0.75, 0.5, 0.95], env: [0.42, 0.4, 0.62] },
-    3: { a: [0.26, 0.07, 0.05], b: [0.16, 0.03, 0.12], planet: [0.15, 1.04, 0.48], pa: [0.25, 0.06, 0.03], pb: [1.0, 0.45, 0.2], env: [0.6, 0.42, 0.38] }
-  };
-
   function glCompile(gl, type, src) {
     var s = gl.createShader(type);
     gl.shaderSource(s, src);
@@ -2316,7 +2540,8 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 
     var cfg = {
       defects: normDefects(opts.defects) || normDefects(null), level: opts.level || 1, seed: opts.seed >>> 0 || 1,
-      threats: true, progression: !!opts.progression, boss: !!opts.boss, bossNow: false
+      threats: true, progression: !!opts.progression, boss: !!opts.boss, bossNow: false,
+      ship: shipById(opts.ship) ? opts.ship : SHIPS[0].id
     };
     var listeners = {};
     var held = { left: false, right: false, up: false, down: false, fire: false };
@@ -2332,7 +2557,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       var c = el("canvas", "ss-canvas");
       c.setAttribute("role", "application");
       c.setAttribute("aria-roledescription", "game");
-      c.setAttribute("aria-label", "Sky Sentinel arena");
+      c.setAttribute("aria-label", "Nexus Defenders arena");
       c.tabIndex = 0;
       return c;
     }
@@ -2362,15 +2587,103 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       if (ctx) renderer = "2d";
     }
     var overlay = el("div", "ss-overlay");
+    var panel = el("div", "ss-panel");
+    var brand = el("p", "ss-brand", "Nexus Defenders");
     var overTitle = el("p", "ss-over-title");
+    /* R14: the start screen. Pick one of four ships (a radio group: click, tap, or arrow keys),
+       read the upgrade colour key, then launch with the Start button. */
+    var hangar = el("div", "ss-hangar");
+    hangar.setAttribute("role", "radiogroup");
+    hangar.setAttribute("aria-label", "Choose your ship");
+    var shipCards = {};
+    function pct(v) { return Math.round(v * 100) + "%"; }
+    SHIPS.forEach(function (sh) {
+      var card = el("button", "ss-ship");
+      card.type = "button";
+      card.setAttribute("role", "radio");
+      card.setAttribute("data-ship", sh.id);
+      card.style.setProperty("--ss-ship", sh.accent);
+      var stats = "Hull " + sh.hull + ", speed " + pct(sh.speed) + ", fire rate " + pct(1 / sh.fire);
+      card.setAttribute("aria-label", sh.name + ", " + sh.role + ". " + sh.note + ". " + stats + ".");
+      var pic = el("canvas", "ss-ship-pic");
+      pic.width = 240; pic.height = 150;
+      pic.setAttribute("aria-hidden", "true");
+      card.appendChild(pic);
+      card.appendChild(el("span", "ss-ship-name", sh.name));
+      card.appendChild(el("span", "ss-ship-role", sh.role));
+      var meters = el("span", "ss-ship-stats");
+      meters.setAttribute("aria-hidden", "true");
+      [["Hull", sh.hull / 125], ["Speed", sh.speed / 1.3], ["Guns", 0.8 / sh.fire]].forEach(function (m) {
+        var row = el("span", "ss-meter");
+        row.appendChild(el("span", "ss-meter-label", m[0]));
+        var track = el("span", "ss-meter-track"), fillEl = el("span", "ss-meter-fill");
+        fillEl.style.width = Math.round(clamp(m[1], 0.1, 1) * 100) + "%";
+        track.appendChild(fillEl);
+        row.appendChild(track);
+        meters.appendChild(row);
+      });
+      card.appendChild(meters);
+      card.addEventListener("click", function () { api.chooseShip(sh.id); });
+      shipCards[sh.id] = { card: card, pic: pic, drawn: false };
+      hangar.appendChild(card);
+    });
+    hangar.addEventListener("keydown", function (ev) {
+      var dir = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[ev.key];
+      if (!dir) return;
+      ev.preventDefault();
+      var at = 0;
+      SHIPS.forEach(function (sh, i) { if (sh.id === cfg.ship) at = i; });
+      var next = SHIPS[(at + dir + SHIPS.length) % SHIPS.length].id;
+      api.chooseShip(next);
+      shipCards[next].card.focus();
+    });
+    var shipNote = el("p", "ss-ship-note");
+    shipNote.setAttribute("aria-live", "polite");
     var startBtn = el("button", "ss-start", "Start game");
     startBtn.type = "button";
+    var changeBtn = el("button", "ss-change", "Change ship");
+    changeBtn.type = "button";
+    var key = el("div", "ss-key");
+    key.appendChild(el("p", "ss-key-title", "Upgrades: glowing enemies and asteroids carry one in its colour. Destroy them to drop it."));
+    var keyList = el("ul", "ss-key-list");
+    keyList.setAttribute("aria-label", "Upgrade colour key");
+    POWER_ORDER.forEach(function (kind) {
+      var look = POWER_LOOK[kind], li = el("li", "ss-key-item");
+      li.setAttribute("data-upgrade", kind);
+      li.style.setProperty("--ss-up", look[0]);
+      var ic = el("canvas", "ss-key-icon");
+      ic.width = 48; ic.height = 48;
+      ic.setAttribute("aria-hidden", "true");
+      var g2 = null;
+      try { g2 = ic.getContext("2d"); } catch (err) { g2 = null; }
+      if (g2) { g2.scale(2, 2); g2.translate(12, 12); powerIcon(kind, look[0], true, 10.5, g2); }
+      li.appendChild(ic);
+      var txt = el("span", "ss-key-text");
+      txt.appendChild(el("b", null, look[1]));
+      txt.appendChild(el("span", null, look[2]));
+      li.appendChild(txt);
+      keyList.appendChild(li);
+    });
+    key.appendChild(keyList);
     var hint = el("p", "ss-hint", "Arrows or WASD move, Space or click fires, Escape pauses.");
     hint.id = "ss-hint-" + id;
     canvas.setAttribute("aria-describedby", hint.id);
-    overlay.appendChild(overTitle);
-    overlay.appendChild(startBtn);
-    overlay.appendChild(hint);
+    [brand, overTitle, hangar, shipNote, startBtn, changeBtn, key, hint].forEach(function (n) { panel.appendChild(n); });
+    overlay.appendChild(panel);
+    changeBtn.addEventListener("click", function () { reset(); hangar.querySelector("[aria-checked=true]").focus(); });
+    /* Paint each card's lit preview once, the first time the start screen shows. */
+    function paintCards() {
+      SHIPS.forEach(function (sh) {
+        var c = shipCards[sh.id];
+        if (c.drawn) return;
+        c.drawn = true;
+        var g3 = null;
+        try { g3 = c.pic.getContext("2d"); } catch (err) { g3 = null; }
+        if (!g3) return;
+        var img = meshPicture(sh.id + "2", 0.5, -0.12, 0.62, 240, 150, 8);
+        g3.drawImage(img, 0, 0);
+      });
+    }
     stage.appendChild(canvas);
     if (hudCanvas) stage.appendChild(hudCanvas);
     stage.appendChild(overlay);
@@ -2433,6 +2746,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       canvas.width = Math.round(cssW * dpr);
       canvas.height = Math.round(cssH * dpr);
       if (hudCanvas) { hudCanvas.width = canvas.width; hudCanvas.height = canvas.height; }
+      if (S && S.state === "idle" && host.offsetParent !== null) paintCards();
       draw();
     }
 
@@ -2444,10 +2758,12 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       var reshaped = world.w !== before || world.h !== beforeH;
       var r = streams(cfg.seed);
       var level = cfg.progression ? Math.max(1, Math.min(3, cfg.level)) : 1;
+      var ship = shipById(cfg.ship) || SHIPS[0];
       S = {
         rng: r, tick: 0, state: "idle", pausedBy: null, score: 0, level: level, levelTicks: 0,
-        player: { x: world.w / 2, y: world.h - 70, r: 18, health: HEALTH_MAX, shieldHp: 0, invuln: 0, cooldown: 0, weapon: 0,
-                  spread: 0, rapid: 0, missiles: 0, wingman: 0, missileIn: 0, wingIn: 0, bank: 0, hurt: 0 },
+        ship: ship, healthMax: ship.hull, mapId: level, trans: null, drops: [], hpFrom: null, scroll: 0,
+        player: { x: world.w / 2, y: world.h - 70, r: 18, health: ship.hull, shieldHp: 0, invuln: 0, cooldown: 0, weapon: 0,
+                  spread: 0, rapid: 0, missiles: 0, wingman: 0, pierce: 0, slow: 0, magnet: 0, missileIn: 0, wingIn: 0, bank: 0, hurt: 0 },
         enemies: [], enemyShots: [], shots: [], asteroids: [], powerUps: [], effects: [], popups: [],
         spawnIn: 50, rockIn: 240, firstShotTick: null, firstShotGap: null, spawned: 0,
         nextExplosion: firstExplosion(r.defects), explodeTicks: [], hitTicks: [], damageLog: [], lastDamage: null, damageTaken: 0,
@@ -2455,10 +2771,37 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
         overReason: null, overText: null, victory: false, banner: null, shake: 0
       };
       acc = 0;
+      hpShown = S.healthMax; shShown = 0;
       sync();
       if (reshaped) fit(); else draw();
     }
 
+    function curForm() { return cfg.progression ? S.level : 1; }
+    /* The form drawn now: inside the wormhole the ship keeps its old form until the flash. */
+    function shownForm() { var f = curForm(); return S.trans && S.trans.kind === "level" && S.trans.t < S.trans.flash ? Math.max(1, f - 1) : f; }
+    function pspan() { return shipSpan(S.ship.id, shownForm()); }
+    /* R14: density grows through each level. levelProgress runs from 0 at the level's start to 1
+       at its end (the boss's arrival on level 3); the spawn interval shrinks, the enemy cap and
+       the asteroid rate rise, and late in a level rocks start to come in pairs. */
+    function levelLen() { return !cfg.progression ? LEVEL_TICKS[1] : S.level < 3 ? LEVEL_TICKS[S.level] : (cfg.boss ? BOSS_AFTER : LEVEL_TICKS[2]); }
+    function levelProgress() { return clamp((cfg.progression ? S.levelTicks : S.tick) / levelLen(), 0, 1); }
+    function density() {
+      var k = levelProgress(), d = diff();
+      return { k: k, spawn: Math.round(d.pace * (1.3 - 0.72 * k)), cap: d.cap - 2 + Math.round(5 * k), rocks: Math.round(d.rocks * (1.5 - 1.05 * k)), pair: k > 0.4 ? (k - 0.4) * 1.2 : 0 };
+    }
+    function pickDrop() {
+      var k = S.rng.drops(), a = 0;
+      for (var d = 0; d < DROPS.length; d++) { a += DROPS[d][1]; if (k < a) return DROPS[d][0]; }
+      return "repair";
+    }
+    /* Carriers are chosen at spawn from the drops stream (progression games only). */
+    function maybeCarry(o, chance) { if (cfg.progression && S.rng.drops() < chance) o.carry = pickDrop(); return o; }
+    function release(o, from) {
+      if (!o.carry) return;
+      spawnPowerUp(o.carry, o.x, o.y);
+      S.drops.push({ from: from, upgrade: o.carry, tick: S.tick });
+      ring(o.x, o.y, POWER_LOOK[o.carry][0]);
+    }
     function pickType(rng) {
       var x = rng(), mix = diff().mix, a = 0;
       for (var k = 0; k < mix.length; k++) { a += mix[k][1]; if (x < a) return mix[k][0]; }
@@ -2484,7 +2827,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
         e.phase = rng() * Math.PI * 2;
         e.fireIn = 50 + Math.floor(rng() * 110);
         e.holdY = world.h * (type === "lancer" ? 0.12 + rng() * 0.16 : 0.18 + rng() * 0.12);
-        S.enemies.push(e);
+        S.enemies.push(maybeCarry(e, CARRY_ENEMY));
         S.spawned += 1;
       }
     }
@@ -2496,7 +2839,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
     function spawnRock() {
       var rng = S.rng.spawn, size = rng() < 0.5 ? "large" : "medium";
       var r = ROCK[size].r[1];
-      S.asteroids.push(makeRock(size, r + rng() * (world.w - 2 * r), -r, (rng() - 0.5) * 1.2, 1.0 + rng() * 1.1, rng));
+      S.asteroids.push(maybeCarry(makeRock(size, r + rng() * (world.w - 2 * r), -r, (rng() - 0.5) * 1.2, 1.0 + rng() * 1.1, rng), CARRY_ROCK));
     }
     /* A destroyed rock splits into two or three of the next size, flung outward; a small one
        turns to dust. The rocks stream drives it, so shooting never shifts the spawns. */
@@ -2506,6 +2849,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       S.score += spec.score;
       var into = spec.into, n = into ? 2 + (rng() < 0.5 ? 1 : 0) : 0;
       dust(a.x, a.y, a.r);
+      release(a, a.size + " asteroid");
       for (var k = 0; k < n; k++) {
         var ang = rng() * 6.283 / n + k * 6.283 / n, sp = 1.1 + rng() * 1.1;
         var c = makeRock(into, a.x + Math.cos(ang) * a.r * 0.4, a.y + Math.sin(ang) * a.r * 0.4, a.vx * 0.6 + Math.cos(ang) * sp, Math.max(0.4, a.vy * 0.7 + Math.sin(ang) * sp), rng);
@@ -2545,7 +2889,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       }
       if (e.type === "lancer") { e.charge = 50; return Math.round((220 + Math.floor(rng() * 90)) * d.fire); }
       /* a bomb never aims closer to a wall than its blast reaches, so it cannot pin a ship there */
-      var wall = PLAYER[cfg.progression ? S.level : 1].w * VIS + BLAST_RADIUS + 28;
+      var wall = pspan() * VIS + BLAST_RADIUS + 28;
       var tx = clamp(p.x, wall, world.w - wall), ty = p.y, bl = Math.sqrt((tx - e.x) * (tx - e.x) + (ty - e.y) * (ty - e.y)) || 1;
       enemyShot(e.x, e.y + e.r * 0.4, (tx - e.x) / bl * 2.8, (ty - e.y) / bl * 2.8, "bomb", { tx: tx, ty: ty, fuse: 260, arm: 0, src: "blast" });
       return Math.round((250 + Math.floor(rng() * 90)) * d.fire);
@@ -2632,21 +2976,30 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       if (source === "collision") return detail === "boss" ? SOURCE_TEXT.boss : "a collision with " + (detail === "interceptor" ? "an " : "a ") + (detail || "gunship");
       return SOURCE_TEXT[source] || "a hit";
     }
-    function popup(x, y, text, color) { S.popups.push({ x: x, y: y, text: text, color: color, t: 0, life: 60 }); }
+    function popup(x, y, text, color, life, big) { S.popups.push({ x: x, y: y, text: text, color: color, t: 0, life: life || 60, big: !!big }); }
     function hitPlayer(source, detail, dist) {
       var p = S.player;
       if (S.state !== "running" || p.health <= 0) return false;
-      if (p.invuln > 0) return false;
+      if (p.invuln > 0 || S.trans) return false;
       var amount = damageFor(source, detail, dist);
       if (amount <= 0) return false;
       S.hitTicks.push(S.tick);
       emit("hit", { source: source, detail: detail, tick: S.tick });
       if (cfg.defects.firstHitFatal) {
-        /* the defect: any hit, from any source, destroys the ship outright. The bars keep what
-           the hit should have left, so the end screen shows a ship destroyed with health to spare. */
-        S.lastDamage = { source: source, detail: detail == null ? null : detail, amount: amount, absorbed: 0, tick: S.tick, fatal: true };
+        /* the defect: any hit, from any source, empties the hull and the shield at once. R14: the
+           hit shows its real damage ("-6") while the bar drains from full to zero, so the gap
+           between the number and the empty bar is the bug. */
+        S.hpFrom = { health: p.health, shield: p.shieldHp };
+        var absorbed = Math.min(p.shieldHp, amount);
+        p.shieldHp = 0;
+        p.health = 0;
+        p.hurt = 14;
+        S.shake = 10;
+        S.lastDamage = { source: source, detail: detail == null ? null : detail, amount: amount, absorbed: absorbed, tick: S.tick, fatal: true };
         S.damageLog.push(S.lastDamage);
         S.damageTaken += amount;
+        popup(p.x, p.y - 62, "-" + amount, "#fca5a5", 150, true);
+        emit("damage", { source: source, detail: detail, amount: amount, absorbed: absorbed, health: 0, shield: 0, tick: S.tick, fatal: true });
         boom(p.x, p.y, 2.4, "#fbbf24");
         shards(p.x, p.y, 10);
         S.overText = "Destroyed by a single hit: " + sourceText(source, detail);
@@ -2691,7 +3044,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
         say("The Nexus megaship is down. Score " + S.score + ".");
       } else {
         emit("destroyed", { reason: reason, tick: S.tick, score: S.score, text: S.overText });
-        say(reason === "first-hit" ? S.overText + ", with the hull still full. That is the bug." : (S.overText || "Game over") + ". Score " + S.score + ".");
+        say(reason === "first-hit" ? S.overText + ". A " + S.lastDamage.amount + "-point hit emptied a hull of " + S.hpFrom.health + ". That is the bug." : (S.overText || "Game over") + ". Score " + S.score + ".");
       }
       sync();
     }
@@ -2738,41 +3091,99 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       S.level += 1;
       S.levelTicks = 0;
       S.levelUps.push(S.tick);
-      var p = S.player;
-      ring(p.x, p.y, "#5eead4");
-      ring(p.x, p.y - 10, "#22d3ee");
       var d = DIFFICULTY[S.level];
-      S.banner = { text: "Level " + S.level + ": " + d.name, sub: "The " + FORMS[S.level] + ". " + d.note, t: 170 };
+      startTrans("level", S.level, TRANS_TICKS);
       emit("levelUp", { level: S.level, form: FORMS[S.level], difficulty: d.name, tick: S.tick });
-      say("Level " + S.level + ", " + d.name + ". The ship becomes the " + FORMS[S.level] + ". " + d.note + ".");
+      say("Level cleared. Into the wormhole to level " + S.level + ", " + d.name + ": " + MAPS[S.level].name + ". The ship becomes the " + FORMS[S.level] + ".");
       if (S.level === 3 && cfg.boss) S.bossDue = BOSS_AFTER;
     }
-    function collect(pu) {
+    /* R14: the wormhole. It opens ahead of the ship, swallows what is left of the level, pulls
+       the ship in (no input, no damage), flashes, and the ship emerges into the next map. A
+       short one also carries the ship into the boss arena. */
+    function startTrans(kind, to, len) {
       var p = S.player;
+      S.trans = { kind: kind, to: to, t: 0, len: len, flash: Math.round(len * 0.57), from: S.mapId,
+                  hole: { x: world.w / 2, y: world.h * 0.3 }, exit: { x: world.w / 2, y: world.h * 0.62 }, start: { x: p.x, y: p.y } };
+      for (var i = 0; i < S.enemyShots.length; i++) S.effects.push({ kind: "flash", x: S.enemyShots[i].x, y: S.enemyShots[i].y, t: 0, life: 10, size: 0.3, color: "#e0f2fe" });
+      S.enemyShots = [];
+      emit("transition", { kind: kind, to: to, tick: S.tick });
+    }
+    /* 0 to 1 to 0 across a wormhole: how hard the stars streak */
+    function warp() { if (!S.trans) return 0; var s = Math.sin(Math.PI * S.trans.t / S.trans.len); return s * s; }
+    function ease(x) { x = clamp(x, 0, 1); return x * x * (3 - 2 * x); }
+    function transTick() {
+      var tr = S.trans, p = S.player, h = tr.hole;
+      tr.t += 1;
+      if (tr.t < tr.flash) {
+        var k = tr.t / tr.flash, e = ease((k - 0.3) / 0.7);
+        p.x = tr.start.x + (h.x - tr.start.x) * e;
+        p.y = tr.start.y + (h.y - tr.start.y) * e;
+        /* what is left of the level spirals into the hole and is gone, worth nothing */
+        [S.enemies, S.asteroids, S.powerUps].forEach(function (list) {
+          for (var i = list.length - 1; i >= 0; i--) {
+            var o = list[i], dx = h.x - o.x, dy = h.y - o.y, dd = Math.sqrt(dx * dx + dy * dy) || 1, pull = 0.012 + 0.07 * k;
+            o.x += dx * pull - dy / dd * 3 * k; o.y += dy * pull + dx / dd * 3 * k;
+            if (dd < 26) list.splice(i, 1);
+          }
+        });
+      } else if (tr.t === tr.flash) {
+        S.mapId = tr.kind === "boss" ? 4 : tr.to;
+        S.enemies = []; S.asteroids = []; S.enemyShots = []; S.shots = []; S.powerUps = [];
+        p.x = tr.exit.x; p.y = tr.exit.y;
+        S.effects.push({ kind: "flash", x: tr.exit.x, y: tr.exit.y, t: 0, life: 24, size: 3, color: "#f0fdff" });
+      } else {
+        var k2 = (tr.t - tr.flash) / (tr.len - tr.flash);
+        p.x = tr.exit.x;
+        p.y = tr.exit.y + (world.h - 70 - tr.exit.y) * ease(k2);
+      }
+      if (tr.t >= tr.len) {
+        S.trans = null;
+        if (tr.kind === "level") {
+          var d = DIFFICULTY[S.level];
+          S.banner = { text: "Level " + S.level + ": " + d.name, sub: MAPS[S.level].name + ". The " + FORMS[S.level] + ". " + d.note, t: 170 };
+          ring(p.x, p.y, "#5eead4");
+          ring(p.x, p.y - 10, "#22d3ee");
+        } else S.banner = { text: MAPS[4].name, sub: "The Nexus megaship is here", t: 150 };
+      }
+    }
+    /* How big the ship is drawn (0 to 1) and how far it has spun, during a transition. */
+    function transLook() {
+      var tr = S.trans;
+      if (!tr) return { s: 1, spin: 0 };
+      if (tr.t < tr.flash) { var e = ease((tr.t / tr.flash - 0.3) / 0.7); return { s: 1 - 0.96 * e * e, spin: e * e * 7 }; }
+      var k = ease((tr.t - tr.flash) / (tr.len - tr.flash));
+      return { s: 0.08 + 0.92 * k, spin: (1 - k) * 4 };
+    }
+    function collect(pu) {
+      var p = S.player, look = POWER_LOOK[pu.kind] || POWER_LOOK.repair;
       S.collected.push({ kind: pu.kind, tick: S.tick });
-      ring(pu.x, pu.y, (POWER_LOOK[pu.kind] || POWER_LOOK.repair)[0]);
+      ring(pu.x, pu.y, look[0]);
+      var fresh = S.popups.filter(function (u) { return u.t < 30 && !u.big; }).length;
+      popup(p.x, p.y - 44 - fresh * 22, look[1], look[0], 70);
       if (pu.kind === "shield") { p.shieldHp = SHIELD_MAX; say("Shield up: a second bar of " + SHIELD_MAX + " that takes damage first."); }
       else if (pu.kind === "weapon") { p.weapon = WEAPON_TICKS; say("Twin shot for 10 seconds."); }
-      else if (pu.kind === "repair") { var before = p.health; p.health = Math.min(HEALTH_MAX, p.health + REPAIR); popup(p.x, p.y - 30, "+" + (p.health - before), "#6ee7b7"); say("Repaired. Hull " + p.health + "."); }
-      else if (POWER_TICKS[pu.kind]) { p[pu.kind] = POWER_TICKS[pu.kind]; say(POWER_LOOK[pu.kind][1] + " for " + Math.round(POWER_TICKS[pu.kind] / HZ) + " seconds."); }
+      else if (pu.kind === "repair") { var before = p.health; p.health = Math.min(S.healthMax, p.health + REPAIR); popup(p.x, p.y - 30, "+" + (p.health - before), "#6ee7b7"); say("Repaired. Hull " + p.health + "."); }
+      else if (POWER_TICKS[pu.kind]) { p[pu.kind] = POWER_TICKS[pu.kind]; say(look[1] + " for " + Math.round(POWER_TICKS[pu.kind] / HZ) + " seconds."); }
       emit("powerUp", { kind: pu.kind, tick: S.tick });
     }
     function fire() {
-      var p = S.player, form = cfg.progression ? S.level : 1;
+      var p = S.player, form = curForm();
       var twin = p.weapon > 0 || form === 3;
       var spread = p.spread > 0 || (form === 3 && p.weapon > 0);
+      var pierce = p.pierce > 0, out = [];
       if (spread) {
-        S.shots.push({ x: p.x, y: p.y - p.r, r: 4, vx: 0 });
-        S.shots.push({ x: p.x - 10, y: p.y - p.r + 4, r: 4, vx: -2.2 });
-        S.shots.push({ x: p.x + 10, y: p.y - p.r + 4, r: 4, vx: 2.2 });
-        if (twin && p.spread > 0) { S.shots.push({ x: p.x - 16, y: p.y - p.r + 8, r: 4, vx: -4 }); S.shots.push({ x: p.x + 16, y: p.y - p.r + 8, r: 4, vx: 4 }); }
+        out.push({ x: p.x, y: p.y - p.r, r: 4, vx: 0 });
+        out.push({ x: p.x - 10, y: p.y - p.r + 4, r: 4, vx: -2.2 });
+        out.push({ x: p.x + 10, y: p.y - p.r + 4, r: 4, vx: 2.2 });
+        if (twin && p.spread > 0) { out.push({ x: p.x - 16, y: p.y - p.r + 8, r: 4, vx: -4 }); out.push({ x: p.x + 16, y: p.y - p.r + 8, r: 4, vx: 4 }); }
       } else if (twin) {
-        S.shots.push({ x: p.x - 9, y: p.y - p.r + 4, r: 4, vx: 0 });
-        S.shots.push({ x: p.x + 9, y: p.y - p.r + 4, r: 4, vx: 0 });
+        out.push({ x: p.x - 9, y: p.y - p.r + 4, r: 4, vx: 0 });
+        out.push({ x: p.x + 9, y: p.y - p.r + 4, r: 4, vx: 0 });
       } else {
-        S.shots.push({ x: p.x, y: p.y - p.r, r: 4, vx: 0 });
+        out.push({ x: p.x, y: p.y - p.r, r: 4, vx: 0 });
       }
-      p.cooldown = Math.max(4, Math.round((form >= 2 ? 8 : 10) * (p.rapid > 0 ? 0.5 : 1)));
+      out.forEach(function (sh) { if (pierce) { sh.pierce = true; sh.hits = []; } S.shots.push(sh); });
+      p.cooldown = Math.max(4, Math.round((form >= 2 ? 8 : 10) * (p.rapid > 0 ? 0.5 : 1) * S.ship.fire));
     }
     /* Homing missiles and the wingman fire on their own while they last. */
     function autoWeapons() {
@@ -2895,72 +3306,87 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       }
     }
 
-    function dropFrom(en) {
-      if (!cfg.progression || S.rng.drops() >= DROP_CHANCE) return;
-      var k = S.rng.drops(), acc2 = 0, kind = "repair";
-      for (var d = 0; d < DROPS.length; d++) { acc2 += DROPS[d][1]; if (k < acc2) { kind = DROPS[d][0]; break; } }
-      spawnPowerUp(kind, en.x, en.y);
-    }
-
     function tick() {
       var p = S.player, i, j;
       S.tick += 1;
+      /* Time slow: the enemy side (ships, their fire, rocks, and the spawn clocks) moves on
+         every other tick, so it runs at half speed while the ship keeps its own pace. */
+      var frozen = !!S.trans, halfStep = p.slow > 0 && S.tick % 2 === 1;
 
-      /* player */
-      var dx = (held.right ? 1 : 0) - (held.left ? 1 : 0);
-      var dy = (held.down ? 1 : 0) - (held.up ? 1 : 0);
-      /* Clamp by the drawn wingspan, not the hit radius, so the ship never leaves the frame. */
-      var span = PLAYER[cfg.progression ? S.level : 1].w * VIS + 2;
-      p.x = Math.max(span, Math.min(world.w - span, p.x + dx * 7));
-      p.y = Math.max(world.h * 0.55, Math.min(world.h - p.r - 6, p.y + dy * 6));
-      p.bank = p.bank * 0.82 + dx * 0.55 * 0.18;
+      /* player: inside a wormhole the transition flies the ship and input waits */
+      if (S.trans) transTick();
+      else {
+        var dx = (held.right ? 1 : 0) - (held.left ? 1 : 0);
+        var dy = (held.down ? 1 : 0) - (held.up ? 1 : 0);
+        /* Clamp by the drawn wingspan, not the hit radius, so the ship never leaves the frame. */
+        var span = pspan() * VIS + 2, sp = S.ship.speed;
+        p.x = Math.max(span, Math.min(world.w - span, p.x + dx * 7 * sp));
+        p.y = Math.max(world.h * 0.55, Math.min(world.h - p.r - 6, p.y + dy * 6 * sp));
+        p.bank = p.bank * 0.82 + dx * 0.55 * 0.18;
+      }
       if (p.invuln > 0) p.invuln -= 1;
       if (p.hurt > 0) p.hurt -= 1;
       if (S.shake > 0) S.shake = Math.max(0, S.shake - 0.8);
       if (p.cooldown > 0) p.cooldown -= 1;
-      if (held.fire && p.cooldown === 0) fire();
-      if (p.weapon > 0) p.weapon -= 1;
-      ['spread', 'rapid', 'missiles', 'wingman'].forEach(function (k) { if (p[k] > 0) p[k] -= 1; });
-      if (S.state === "running") autoWeapons();
+      if (held.fire && p.cooldown === 0 && !S.trans) fire();
+      TIMED.forEach(function (k) { if (p[k] > 0) p[k] -= 1; });
+      if (S.state === "running" && !S.trans) autoWeapons();
       if (S.banner && --S.banner.t <= 0) S.banner = null;
+      S.scroll += S.trans ? 1 + 18 * warp() : p.slow > 0 ? 0.5 : 1;
 
       /* progression */
       if (cfg.progression) {
         /* The countdown runs before the level check, so a boss due 3,600 ticks after
-           level 3 begins arrives on exactly that tick, not one tick early. */
+           level 3 begins arrives on exactly that tick, not one tick early. A short wormhole
+           into the boss arena runs during the last moments of the countdown. */
         if (S.bossDue !== null && !S.boss) {
           S.bossDue -= 1;
-          if (S.bossDue <= 0) { S.bossDue = null; spawnBoss(); }
+          if (S.bossDue > 0 && S.bossDue <= TRANS_TICKS && !S.trans && S.mapId !== 4) startTrans("boss", 4, S.bossDue);
+          if (S.bossDue <= 0) { S.bossDue = null; if (S.mapId !== 4) S.mapId = 4; spawnBoss(); }
         }
         S.levelTicks += 1;
         if (S.level < 3 && S.levelTicks >= LEVEL_TICKS[S.level]) levelUp();
       }
 
       /* spawning (the test layer can switch threats off to watch the defect schedule alone) */
-      if (cfg.threats && !S.boss) {
-        var d = diff(), t = cfg.progression ? S.levelTicks : S.tick;
+      if (cfg.threats && !S.boss && !S.trans && !halfStep) {
+        var dn = density();
         S.spawnIn -= 1;
         if (S.spawnIn <= 0) {
-          if (S.enemies.length < d.cap) spawnEnemy();
-          var pace = d.pace - Math.floor(t / 900) * 3;
-          S.spawnIn = Math.max(Math.round(d.pace * 0.6), pace) + Math.floor(S.rng.spawn() * 30);
+          if (S.enemies.length < dn.cap) spawnEnemy();
+          S.spawnIn = dn.spawn + Math.floor(S.rng.spawn() * 30);
         }
         S.rockIn -= 1;
-        if (S.rockIn <= 0) { spawnRock(); S.rockIn = d.rocks + Math.floor(S.rng.spawn() * 160); }
+        if (S.rockIn <= 0) {
+          spawnRock();
+          if (S.rng.spawn() < dn.pair) spawnRock();
+          S.rockIn = dn.rocks + Math.floor(S.rng.spawn() * 160);
+        }
       }
-      if (S.boss) bossTick();
+      if (S.boss && !S.trans && !halfStep) bossTick();
 
       /* movement */
       moveShots();
-      for (i = 0; i < S.enemies.length; i++) moveEnemy(S.enemies[i]);
-      moveEnemyShots();
+      if (!frozen && !halfStep) {
+        for (i = 0; i < S.enemies.length; i++) moveEnemy(S.enemies[i]);
+        moveEnemyShots();
+      }
       if (S.state !== "running") return;
       for (i = 0; i < S.asteroids.length; i++) {
         var a = S.asteroids[i];
-        a.x += a.vx; a.y += a.vy; a.spin += a.spinV; a.rx += a.rxV;
+        if (!frozen && !halfStep) { a.x += a.vx; a.y += a.vy; }
+        a.spin += a.spinV; a.rx += a.rxV;
         if (a.flash > 0) a.flash -= 1;
       }
-      for (i = 0; i < S.powerUps.length; i++) { S.powerUps[i].y += 1.8; S.powerUps[i].t += 1; }
+      for (i = 0; i < S.powerUps.length; i++) {
+        var pu = S.powerUps[i];
+        pu.t += 1;
+        if (frozen) continue;
+        /* the magnet reels upgrades in from across the arena */
+        var mdx = p.x - pu.x, mdy = p.y - pu.y, md = Math.sqrt(mdx * mdx + mdy * mdy) || 1;
+        if (p.magnet > 0 && md < 420) { pu.x += mdx / md * 6; pu.y += mdy / md * 6; pu.pulled = true; }
+        else pu.y += 1.8;
+      }
       for (i = 0; i < S.effects.length; i++) {
         var f = S.effects[i];
         f.t += 1;
@@ -2968,14 +3394,14 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       }
       for (i = 0; i < S.popups.length; i++) { S.popups[i].t += 1; S.popups[i].y -= 0.6; }
 
-      /* collisions: player shots */
+      /* collisions: player shots. A piercing shot passes through and hits each target once. */
       for (i = S.shots.length - 1; i >= 0; i--) {
         var s = S.shots[i], used = shotHitsBoss(s);
         if (!S.boss && S.state === "over") return;
         for (j = S.enemies.length - 1; j >= 0 && !used; j--) {
           var en = S.enemies[j];
-          if (overlaps(s, en)) {
-            used = true;
+          if (overlaps(s, en) && !(s.pierce && s.hits.indexOf(en) !== -1)) {
+            if (s.pierce) s.hits.push(en); else used = true;
             en.hp -= 1;
             en.flash = 5;
             if (en.hp <= 0) {
@@ -2983,48 +3409,49 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
               shards(en.x, en.y, 6);
               S.enemies.splice(j, 1);
               S.score += ENEMY[en.type].score;
-              dropFrom(en);
+              release(en, en.type);
             }
           }
         }
         for (j = S.enemyShots.length - 1; j >= 0 && !used; j--) {
           var bomb = S.enemyShots[j];
-          if (bomb.kind === "bomb" && bomb.arm === 0 && overlaps(s, bomb, 4)) { used = true; S.enemyShots.splice(j, 1); detonate(bomb); S.score += 20; }
+          if (bomb.kind === "bomb" && bomb.arm === 0 && overlaps(s, bomb, 4)) { used = !s.pierce; S.enemyShots.splice(j, 1); detonate(bomb); S.score += 20; }
         }
         for (j = S.asteroids.length - 1; j >= 0 && !used; j--) {
-          if (overlaps(s, S.asteroids[j])) {
-            used = true;
-            S.asteroids[j].hp -= 1;
-            S.asteroids[j].flash = 4;
-            if (S.asteroids[j].hp <= 0) breakRock(j);
+          var rock = S.asteroids[j];
+          if (overlaps(s, rock) && !(s.pierce && s.hits.indexOf(rock) !== -1)) {
+            if (s.pierce) s.hits.push(rock); else used = true;
+            rock.hp -= 1;
+            rock.flash = 4;
+            if (rock.hp <= 0) breakRock(j);
           }
         }
         if (used || s.y < -10 || s.y > world.h + 10 || s.x < -10 || s.x > world.w + 10) S.shots.splice(i, 1);
       }
 
-      /* collisions: the player */
-      if (S.state === "running") {
+      /* collisions: the player (never inside a wormhole) */
+      if (S.state === "running" && !frozen) {
         for (i = S.enemyShots.length - 1; i >= 0; i--) {
           var o = S.enemyShots[i];
           if (shotHitsPlayer(o, p)) { if (o.kind !== "beam") S.enemyShots.splice(i, 1); if (hitPlayer(o.src === "shot" ? "shot" : o.src, o.kind === "beam" ? "lancer" : null)) break; }
         }
       }
-      if (S.state === "running") {
+      if (S.state === "running" && !frozen) {
         for (i = S.enemies.length - 1; i >= 0; i--) {
           var e = S.enemies[i];
-          if (overlaps(e, p, -4)) { boom(e.x, e.y, 1, "#fb923c"); shards(e.x, e.y, 5); S.enemies.splice(i, 1); if (hitPlayer("collision", e.type)) break; }
+          if (overlaps(e, p, -4)) { boom(e.x, e.y, 1, "#fb923c"); shards(e.x, e.y, 5); S.enemies.splice(i, 1); release(e, e.type); if (hitPlayer("collision", e.type)) break; }
         }
       }
-      if (S.state === "running") {
+      if (S.state === "running" && !frozen) {
         for (i = S.asteroids.length - 1; i >= 0; i--) {
           var rk = S.asteroids[i];
           if (overlaps(rk, p, -6) && p.invuln === 0) { var size = rk.size; breakRock(i); if (hitPlayer("asteroid", size)) break; }
         }
       }
-      if (S.state === "running" && S.boss && S.boss.entered) {
+      if (S.state === "running" && S.boss && S.boss.entered && !frozen) {
         if (Math.hypot(p.x - S.boss.x, p.y - S.boss.y) < (LOGO.coreR + 120) * S.boss.s) hitPlayer("collision", "boss");
       }
-      if (S.state === "running") {
+      if (S.state === "running" && !frozen) {
         for (i = S.powerUps.length - 1; i >= 0; i--) {
           if (overlaps(S.powerUps[i], p, 6)) { collect(S.powerUps[i]); S.powerUps.splice(i, 1); }
         }
@@ -3032,7 +3459,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 
       /* the seeded random explosion */
       if (S.state === "running" && cfg.defects.randomExplosion && S.tick >= S.nextExplosion) {
-        if (p.invuln === 0) {
+        if (p.invuln === 0 && !frozen) {
           S.explodeTicks.push(S.tick);
           emit("explode", { tick: S.tick });
           boom(p.x, p.y, 1.8, "#fbbf24");
@@ -3061,7 +3488,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
     }
     /* A sprite quad in the play plane at height y: (ax, az) is its half-width axis, (bx, bz)
        its half-length axis; the shader's mode shapes it (0 glow, 1 ring, 2 beam, 3 streak,
-       4 blast zone, 5 shield bubble). */
+       4 blast zone, 5 shield bubble, 6.x wormhole swirl at phase 0.x). */
     function quad(x, y, z, ax, az, bx, bz, col, a, mode) {
       if (fxN + 6 > MAX_QUADS * 6) return;
       var r = col[0], g = col[1], b = col[2];
@@ -3128,7 +3555,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
       gl.viewport(ox, ch - oy - vh, vw, vh);
       var shk = REDUCED ? 0 : S.shake, shx = shk ? Math.sin(S.tick * 2.1) * shk * 2 / world.w : 0, shy = shk ? Math.cos(S.tick * 2.7) * shk * 2 / world.h : 0;
-      var sky = LEVEL_SKY[cfg.progression ? S.level : 1];
+      var sky = MAPS[S.mapId];
 
       /* background: nebula, three star layers drifting at their own speeds, and a planet */
       gl.disable(gl.DEPTH_TEST); gl.disable(gl.BLEND); gl.disable(gl.CULL_FACE);
@@ -3137,13 +3564,16 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       gl.enableVertexAttribArray(0);
       gl.bindBuffer(gl.ARRAY_BUFFER, R.bgBuf);
       gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
-      var u = R.bg.u, t = S.tick * (REDUCED ? 0.2 : 1);
+      var u = R.bg.u, t = S.scroll * (REDUCED ? 0.2 : 1);
       gl.uniform3f(u.uWorld, world.w, world.h, 0);
+      gl.uniform1f(u.uSet, sky.set);
+      gl.uniform3f(u.uStar, sky.stars[0], sky.stars[1], sky.stars[2]);
+      gl.uniform1f(u.uWarp, REDUCED ? 0 : warp());
       gl.uniform3f(u.uScroll, (t * 0.12) % 26000, (t * 0.32) % 44000, (t * 0.75) % 82000);
       gl.uniform3f(u.uNebA, sky.a[0], sky.a[1], sky.a[2]);
       gl.uniform3f(u.uNebB, sky.b[0], sky.b[1], sky.b[2]);
       var pr = Math.min(world.w, world.h) * sky.planet[2] * 1.35;
-      gl.uniform4f(u.uPlanet, world.w * sky.planet[0], world.h * sky.planet[1] + pr * 0.15 + (cfg.progression ? S.levelTicks * 0.004 : S.tick * 0.002), pr, 0.62);
+      gl.uniform4f(u.uPlanet, world.w * sky.planet[0], world.h * sky.planet[1] + pr * 0.15 + (cfg.progression ? S.levelTicks * 0.004 : S.tick * 0.002), pr, sky.op || 0.62);
       gl.uniform3f(u.uPlanetA, sky.pa[0], sky.pa[1], sky.pa[2]);
       gl.uniform3f(u.uPlanetB, sky.pb[0], sky.pb[1], sky.pb[2]);
       gl.uniform1f(u.uT, t);
@@ -3167,8 +3597,9 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 
       for (i = 0; i < S.asteroids.length; i++) {
         var a = S.asteroids[i];
-        modelMat(MAT, a.x, 0, a.y, a.spin, a.rx, a.spin * 0.6, a.r);
-        drawMesh("rock" + (a.look % 6), a.flash > 0 ? 0.5 : 0);
+        modelMat(MAT, a.x, 0, a.y, a.spin, a.rx, a.spin * 0.6, a.r * shrink(a));
+        if (a.carry) { var rc = col(POWER_LOOK[a.carry][0]); drawMesh("rock" + (a.look % 6), a.flash > 0 ? 0.5 : 0, carryPulse(), rc, [0.75 + rc[0] * 0.4, 0.75 + rc[1] * 0.4, 0.75 + rc[2] * 0.4]); }
+        else drawMesh("rock" + (a.look % 6), a.flash > 0 ? 0.5 : 0);
       }
       if (S.boss) drawBossGL(S.boss);
       for (i = 0; i < S.enemies.length; i++) drawEnemyGL(S.enemies[i]);
@@ -3201,15 +3632,15 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       var visible = !(S.state === "over" && S.overReason !== "victory");
       var pulse = p.invuln > 0 && !REDUCED ? (Math.floor(p.invuln / 5) % 2 === 0 ? 0.35 : 0) : 0;
       if (visible) {
-        var form = cfg.progression ? S.level : 1;
-        if (p.wingman > 0) [-42, 42].forEach(function (dx) {
+        var key = S.ship.id + shownForm(), tl = transLook();
+        if (p.wingman > 0 && !S.trans) [-42, 42].forEach(function (dx) {
           modelMat(MAT, p.x + dx, 2, p.y + 4, 0, 0, -p.bank * 0.8, 1.15 * VIS);
           drawMesh("wingman");
           flames("wingman", "#c084fc", 0.8);
         });
-        modelMat(MAT, p.x, 4, p.y, 0, 0.06, -p.bank * 0.7, VIS);
-        drawMesh("form" + form, Math.max(pulse, p.hurt > 0 ? p.hurt / 14 : 0));
-        flames("form" + form, "#38bdf8", 1);
+        modelMat(MAT, p.x, 4, p.y, 0, 0.06, -p.bank * 0.7 + tl.spin, VIS * tl.s);
+        drawMesh(key, Math.max(pulse, p.hurt > 0 ? p.hurt / 14 : 0), p.pierce > 0 ? 0.35 : 0, col(POWER_LOOK.pierce[0]));
+        flames(key, S.ship.flame, S.trans ? 1.6 : 1);
       }
 
       /* additive sprites */
@@ -3230,13 +3661,18 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       gl.disable(gl.BLEND);
       gl.depthMask(true);
     }
+    /* A carrier's glow breathes so it reads as special without flickering. */
+    function carryPulse() { return REDUCED ? 0.75 : 0.6 + 0.3 * Math.sin(S.scroll * 0.12); }
+    /* Inside a wormhole whatever is swallowed shrinks as it nears the hole. */
+    function shrink(o) { var tr = S.trans; if (!tr || tr.t >= tr.flash) return 1; return clamp(Math.hypot(o.x - tr.hole.x, o.y - tr.hole.y) / 140, 0.12, 1); }
     function drawEnemyGL(e) {
       var yaw = Math.PI, pitch = 0;
       if (e.type === "interceptor" && e.mode === "dive") yaw = Math.atan2(-e.vx, -e.vy);
-      modelMat(MAT, e.x, 3, e.y, yaw, pitch, e.bank, VIS * 1.12);
-      var glowAmt = 0, gc = null;
+      modelMat(MAT, e.x, 3, e.y, yaw, pitch, e.bank, VIS * 1.12 * shrink(e));
+      var glowAmt = 0, gc = null, tint = null;
+      if (e.carry) { gc = col(POWER_LOOK[e.carry][0]); glowAmt = carryPulse(); tint = [0.7 + gc[0] * 0.45, 0.7 + gc[1] * 0.45, 0.7 + gc[2] * 0.45]; }
       if (e.type === "lancer" && e.charge > 0) { glowAmt = 1 - e.charge / 50; gc = [1, 0.55, 0.15]; }
-      drawMesh(e.type, e.flash > 0 ? 0.7 : 0, glowAmt, gc);
+      drawMesh(e.type, e.flash > 0 ? 0.7 : 0, glowAmt, gc, tint);
       flames(e.type, { gunship: "#fb7185", interceptor: "#f0abfc", lancer: "#fdba74", bomber: "#fde047" }[e.type], 0.85);
     }
     function drawBossGL(b) {
@@ -3254,14 +3690,57 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
     }
     /* Build the sprite list: glows for every lit thing, shots and beams, blast zones, the
        shield, and the explosion particles. */
+    /* The wormhole: an entry swirl ahead of the ship, star streaks pouring into it, and after
+       the flash an exit swirl that closes behind the emerging ship. */
+    function wormholeSprites(tr) {
+      var R = Math.min(world.w, world.h) * 0.3, phase = (S.scroll * 0.004) % 1, k;
+      if (tr.t < tr.flash) {
+        var open = ease(tr.t / 45), h = tr.hole, rr = R * open * (1 + 0.15 * ease((tr.t - tr.flash + 30) / 30));
+        quad(h.x, 2, h.y, rr * 1.25, 0, 0, rr * 1.25, col("#7c3aed"), 0.55 * open, 6 + phase);
+        quad(h.x, 3, h.y, rr, 0, 0, rr, col("#22d3ee"), 0.8 * open, 6 + (phase + 0.5) % 1);
+        glow(h.x, h.y, rr * 0.5, [1, 1, 1], 0.6 * open, 4);
+        for (k = 0; k < 46; k++) {
+          var ang = k * 2.39996, d0 = (k * 97 + tr.t * 9) % 700, d = 700 - d0, sx = h.x + Math.cos(ang) * d, sy = h.y + Math.sin(ang) * d * 0.8;
+          streak(sx, sy, -Math.cos(ang), -Math.sin(ang) * 0.8, 10 + open * 26, 1.3, k % 3 ? col("#a5f3fc") : col("#c4b5fd"), 0.7 * open * Math.min(1, d / 120), 6);
+        }
+      } else {
+        var k2 = (tr.t - tr.flash) / (tr.len - tr.flash), close = 1 - ease((k2 - 0.3) / 0.7), x = tr.exit;
+        quad(x.x, 2, x.y, R * 0.9 * close, 0, 0, R * 0.9 * close, col("#22d3ee"), 0.7 * close, 6 + phase);
+        quad(x.x, 3, x.y, R * 1.1 * close, 0, 0, R * 1.1 * close, col("#a855f7"), 0.45 * close, 6 + (phase + 0.3) % 1);
+      }
+    }
     function sprites() {
       var p = S.player, i;
       for (i = 0; i < S.shots.length; i++) {
         var sh = S.shots[i];
         if (sh.kind === "missile") continue;
+        if (sh.pierce) {
+          /* a piercing shot is a long, hot lance */
+          streak(sh.x, sh.y + 6, sh.vx || 0, -13, 24, 4.2, col("#67e8f9"), 1, 8);
+          streak(sh.x, sh.y + 6, sh.vx || 0, -13, 20, 1.6, [1, 1, 1], 0.8, 8);
+          glow(sh.x, sh.y - 10, 14, col("#22d3ee"), 0.5, 8);
+          continue;
+        }
         streak(sh.x, sh.y, sh.vx || 0, -13, 13, 3.2, col("#5eead4"), 1, 8);
         glow(sh.x, sh.y - 6, 9, col("#22d3ee"), 0.35, 8);
       }
+      /* carriers: a halo and a ring in the colour of the upgrade they hold */
+      var cp = carryPulse();
+      S.enemies.concat(S.asteroids).forEach(function (o) {
+        if (!o.carry) return;
+        var cc = col(POWER_LOOK[o.carry][0]), rr = o.r * shrink(o);
+        glow(o.x, o.y, rr * 2.3, cc, 0.32 + cp * 0.25, 10);
+        quad(o.x, 12, o.y, rr * 1.55, 0, 0, rr * 1.55, cc, 0.35 + cp * 0.4, 1);
+      });
+      for (i = 0; i < S.powerUps.length; i++) {
+        var pq = S.powerUps[i], pcc = col(POWER_LOOK[pq.kind][0]), ph = (pq.t % 50) / 50;
+        quad(pq.x, 12, pq.y, 16 + ph * 16, 0, 0, 16 + ph * 16, pcc, (1 - ph) * 0.6, 1);
+      }
+      if (p.magnet > 0 && !S.trans) {
+        var mr = 40 + (REDUCED ? 0 : (S.scroll % 40));
+        quad(p.x, 10, p.y, mr, 0, 0, mr, col(POWER_LOOK.magnet[0]), 0.25 * (1 - (mr - 40) / 40) + 0.1, 1);
+      }
+      if (S.trans) wormholeSprites(S.trans);
       for (i = 0; i < S.enemies.length; i++) {
         var e = S.enemies[i];
         if (e.type === "lancer" && e.charge > 0) {
@@ -3297,8 +3776,8 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
         b.nodes.forEach(function (n, i2) { if (!n.alive) return; var at = bossPoint(b, LOGO.nodes[i2][0], LOGO.nodes[i2][1]); glow(at[0], at[1], LOGO.nodeR * b.s * 2.2, col("#22d3ee"), 0.45, 20); });
         glow(b.x, b.y, LOGO.coreR * b.s * (nodesAlive(b) ? 2 : 3.4), col("#f2feff"), nodesAlive(b) ? 0.35 : 0.8, 20);
       }
-      if (p.shieldHp > 0 && !(S.state === "over" && S.overReason !== "victory")) {
-        var sr = PLAYER[cfg.progression ? S.level : 1].w * VIS + 14 + (REDUCED ? 0 : Math.sin(S.tick * 0.15) * 2);
+      if (p.shieldHp > 0 && !(S.state === "over" && S.overReason !== "victory") && !S.trans) {
+        var sr = pspan() * VIS + 14 + (REDUCED ? 0 : Math.sin(S.tick * 0.15) * 2);
         quad(p.x, 10, p.y, sr, 0, 0, sr, col("#60a5fa"), 0.35 + 0.4 * p.shieldHp / SHIELD_MAX, 5);
       }
       for (i = 0; i < S.effects.length; i++) {
@@ -3329,12 +3808,12 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
     })();
 
     function drawBackground() {
-      var g = ctx.createLinearGradient(0, 0, 0, world.h);
-      g.addColorStop(0, "#030a10");
-      g.addColorStop(1, "#071a22");
+      var map = MAPS[S.mapId], g = ctx.createLinearGradient(0, 0, 0, world.h);
+      g.addColorStop(0, map.bg[0]);
+      g.addColorStop(1, map.bg[1]);
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, world.w, world.h);
-      var neb = [[0.18, 0.28, 0.32, "rgba(34,211,238,0.06)"], [0.82, 0.62, 0.4, "rgba(168,85,247,0.05)"]];
+      var neb = [[0.18, 0.28, 0.32, map.neb[0]], [0.82, 0.62, 0.4, map.neb[1]]];
       neb.forEach(function (n) {
         var rg = ctx.createRadialGradient(n[0] * world.w, n[1] * world.h, 0, n[0] * world.w, n[1] * world.h, n[2] * world.w);
         rg.addColorStop(0, n[3]);
@@ -3346,7 +3825,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
         var drift = REDUCED ? layer.speed * 0.2 : layer.speed;
         for (var k = 0; k < layer.stars.length; k++) {
           var st = layer.stars[k];
-          var y = (st.y * world.h + S.tick * drift) % world.h;
+          var y = (st.y * world.h + S.scroll * drift) % world.h;
           var a = layer.alpha * (REDUCED ? 1 : 0.75 + 0.25 * Math.sin(st.tw + S.tick * 0.05));
           ctx.fillStyle = "rgba(205,240,255," + a.toFixed(2) + ")";
           ctx.fillRect(st.x * world.w, y, layer.size, layer.size);
@@ -3388,26 +3867,27 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       ctx.fillStyle = g;
       ctx.beginPath(); ctx.moveTo(x - w / 2, y + 2); ctx.quadraticCurveTo(x, y + len * 1.25 * flick, x + w / 2, y + 2); ctx.closePath(); ctx.fill();
     }
-    var PLAYER = {
-      1: { half: [[0, -26], [6, -12], [8, 0], [24, 10], [24, 15], [9, 13], [6, 19], [0, 16]], w: 24, engines: [[0, 16, 8]], glass: [0, -8, 4, 8] },
-      2: { half: [[0, -32], [5, -22], [9, -8], [14, -2], [30, 8], [32, 16], [16, 15], [12, 22], [5, 20], [0, 22]], w: 32, engines: [[-7, 21, 7], [7, 21, 7]], glass: [0, -12, 4.5, 10] },
-      3: { half: [[0, -40], [6, -30], [10, -14], [18, -6], [38, 2], [42, 12], [40, 18], [22, 16], [20, 24], [12, 26], [6, 22], [0, 26]], w: 42, engines: [[-15, 25, 8], [0, 26, 8], [15, 25, 8]], glass: [0, -18, 5.5, 12] }
-    };
     var ENEMY_2D = {
       gunship: { half: [[0, -22], [8, -14], [22, -6], [23, 2], [8, 12], [5, 20], [0, 18]], w: 23, c: ["#fecdd3", "#9f1239", "#3f0a17", "#ffe4e6"], hot: "#fb7185" },
       interceptor: { half: [[0, -15], [3, -6], [14, -4], [14, 0], [4, 8], [0, 10]], w: 14, c: ["#f5d0fe", "#86198f", "#2e0636", "#fae8ff"], hot: "#f0abfc" },
       lancer: { half: [[0, -28], [3, -12], [6, 0], [17, 14], [17, 18], [6, 18], [3, 26], [0, 24]], w: 17, c: ["#ffedd5", "#c2410c", "#431407", "#fff7ed"], hot: "#fb923c" },
       bomber: { half: [[0, -17], [30, 4], [32, 8], [22, 6], [15, 11], [8, 8], [0, 12]], w: 32, c: ["#ecfccb", "#4d7c0f", "#1a2e05", "#f7fee7"], hot: "#facc15" }
     };
+    /* The ship in the 2D view: its lit sprite (painted once from the 3D mesh), engine glow,
+       and the shield ring. */
     function drawShip(p) {
-      var form = cfg.progression ? S.level : 1, spec = PLAYER[form];
+      var key = S.ship.id + shownForm(), spr = shipSprite(key), tl = transLook(), sc = VIS * tl.s / spr.unitScale;
       ctx.save();
       ctx.translate(p.x, p.y);
-      spec.engines.forEach(function (e) { engine(e[0], e[1], e[2], 26 + form * 4, "#22d3ee"); });
-      hull(mirror(spec.half), spec.w, "#e8fbff", "#67c9db", "#0c4655", "#bff4fb");
-      glass(spec.glass[0], spec.glass[1], spec.glass[2], spec.glass[3], "#38bdf8");
-      if (p.shieldHp > 0) {
-        var r = spec.w + 10;
+      ctx.rotate(tl.spin * 0.3);
+      meshes()[key].engines.forEach(function (e) { engine(e[0] * VIS * tl.s, (e[2] - e[1] * 0.55) * VIS * tl.s, Math.max(2, e[3] * 1.6 * tl.s), 22 * tl.s, S.ship.flame); });
+      ctx.scale(sc, sc);
+      ctx.drawImage(spr, -spr.width / 2 + spr.centre[0] * spr.unitScale, -spr.height / 2 + spr.centre[1] * spr.unitScale);
+      ctx.restore();
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      if (p.shieldHp > 0 && !S.trans) {
+        var r = pspan() * VIS + 10;
         ctx.strokeStyle = "rgba(147,197,253,0.9)"; ctx.lineWidth = 2;
         ctx.beginPath(); ctx.arc(0, 0, r, 0, 6.283); ctx.stroke();
       }
@@ -3451,7 +3931,12 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       ctx.restore();
     }
     /* The power-up's glass capsule and icon; the WebGL HUD reuses the icon over its gem. */
-    function powerIcon(kind, color, capsule, r) {
+    function powerIcon(kind, color, capsule, r, c2) {
+      var ctx0 = ctx;
+      if (c2) ctx = c2;
+      try { iconPaint(kind, color, capsule, r); } finally { ctx = ctx0; }
+    }
+    function iconPaint(kind, color, capsule, r) {
       if (capsule) {
         var g = ctx.createRadialGradient(-4, -5, 1, 0, 0, r + 2);
         g.addColorStop(0, "rgba(255,255,255,0.55)"); g.addColorStop(0.4, "rgba(2,6,23,0.75)"); g.addColorStop(1, "rgba(2,6,23,0.9)");
@@ -3466,6 +3951,9 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       else if (kind === "rapid") { ctx.beginPath(); ctx.moveTo(2, -8); ctx.lineTo(-4, 1); ctx.lineTo(0, 1); ctx.lineTo(-2, 8); ctx.lineTo(4, -1); ctx.lineTo(0, -1); ctx.closePath(); ctx.fill(); }
       else if (kind === "missiles") { ctx.beginPath(); ctx.moveTo(0, -8); ctx.lineTo(3, -3); ctx.lineTo(3, 5); ctx.lineTo(5, 8); ctx.lineTo(-5, 8); ctx.lineTo(-3, 5); ctx.lineTo(-3, -3); ctx.closePath(); ctx.fill(); }
       else if (kind === "wingman") { ctx.beginPath(); ctx.moveTo(0, -6); ctx.lineTo(4, 4); ctx.lineTo(0, 2); ctx.lineTo(-4, 4); ctx.closePath(); ctx.fill(); ctx.fillRect(-9, 0, 3, 5); ctx.fillRect(6, 0, 3, 5); }
+      else if (kind === "pierce") { ctx.fillRect(-1.3, -8, 2.6, 16); ctx.beginPath(); ctx.moveTo(-5, -3); ctx.lineTo(0, -9); ctx.lineTo(5, -3); ctx.stroke(); ctx.beginPath(); ctx.moveTo(-6, 4); ctx.lineTo(6, 4); ctx.stroke(); }
+      else if (kind === "slow") { ctx.beginPath(); ctx.arc(0, 0, 7, 0, 6.283); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, -4.5); ctx.lineTo(0, 0); ctx.lineTo(3.5, 2); ctx.stroke(); }
+      else if (kind === "magnet") { ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(0, -1, 5, Math.PI, 0); ctx.lineTo(5, 6); ctx.moveTo(-5, -1); ctx.lineTo(-5, 6); ctx.stroke(); ctx.lineWidth = 2; }
       else { ctx.fillRect(-2, -7, 4, 14); ctx.fillRect(-7, -2, 14, 4); }
     }
     function drawBoss2D(b) {
@@ -3509,6 +3997,58 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       ctx.fillStyle = o.kind === "needle" ? "#f0abfc" : o.src === "bossShot" ? "#67e8f9" : "#fecaca";
       ctx.beginPath(); ctx.ellipse(o.x, o.y, o.kind === "needle" ? 2 : 3, 8, Math.atan2(o.vx, o.vy) * -1, 0, 6.283); ctx.fill();
     }
+    function rgbCss(c, a) { return "rgba(" + Math.round(c[0] * 255) + "," + Math.round(c[1] * 255) + "," + Math.round(c[2] * 255) + "," + a + ")"; }
+    /* Each map's set piece in the 2D view: a planet, a ringed planet, a sun over an asteroid belt,
+       or the station ring. */
+    function setPiece2D() {
+      var m = MAPS[S.mapId], pr = Math.min(world.w, world.h) * m.planet[2] * 1.35;
+      var x = world.w * m.planet[0], y = world.h * m.planet[1] + pr * 0.15 + (cfg.progression ? S.levelTicks * 0.004 : S.tick * 0.002);
+      ctx.save();
+      if (m.set <= 1) {
+        var g = ctx.createRadialGradient(x - pr * 0.4, y - pr * 0.4, pr * 0.1, x, y, pr);
+        g.addColorStop(0, rgbCss(m.pb, 0.55)); g.addColorStop(0.7, rgbCss(m.pa, 0.5)); g.addColorStop(1, rgbCss(m.pa, 0.2));
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, pr, 0, 6.283); ctx.fill();
+        if (m.set === 1) { ctx.strokeStyle = rgbCss(m.pb, 0.35); ctx.lineWidth = pr * 0.35; ctx.beginPath(); ctx.ellipse(x, y, pr * 1.75, pr * 0.47, -0.35, 0, 6.283); ctx.stroke(); }
+      } else if (m.set === 2) {
+        var s = ctx.createRadialGradient(x, y, 0, x, y, pr * 2.6);
+        s.addColorStop(0, "rgba(255,240,200,0.95)"); s.addColorStop(0.35, rgbCss(m.pa, 0.7)); s.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = s; ctx.fillRect(x - pr * 2.6, y - pr * 2.6, pr * 5.2, pr * 5.2);
+        var r = mulberry32(5);
+        ctx.fillStyle = "rgba(158,120,92,0.55)";
+        for (var k = 0; k < 140; k++) { var bx = r() * world.w, off = (r() - 0.5) * 120, by = (world.h * 0.62 - bx * 0.38 + off + S.scroll * 0.6) % (world.h + 200) - 100; ctx.fillRect(bx, by, 1 + r() * 3, 1 + r() * 3); }
+      } else {
+        ctx.strokeStyle = rgbCss(m.pa, 0.75); ctx.lineWidth = pr * 0.16;
+        ctx.beginPath(); ctx.ellipse(x, y, pr * 0.92, pr * 0.92 * 0.42, 0, 0, 6.283); ctx.stroke();
+        ctx.lineWidth = pr * 0.03; ctx.beginPath(); ctx.moveTo(x - pr * 0.84, y); ctx.lineTo(x + pr * 0.84, y); ctx.moveTo(x, y - pr * 0.35); ctx.lineTo(x, y + pr * 0.35); ctx.stroke();
+        ctx.fillStyle = rgbCss(m.pb, 0.8); ctx.beginPath(); ctx.arc(x, y, pr * 0.1, 0, 6.283); ctx.fill();
+      }
+      ctx.restore();
+    }
+    function wormhole2D(tr) {
+      var R = Math.min(world.w, world.h) * 0.3, before = tr.t < tr.flash, h = before ? tr.hole : tr.exit;
+      var k = before ? ease(tr.t / 45) : 1 - ease(((tr.t - tr.flash) / (tr.len - tr.flash) - 0.3) / 0.7), rr = R * k;
+      if (rr < 1) return;
+      ctx.save();
+      var g = ctx.createRadialGradient(h.x, h.y, 0, h.x, h.y, rr);
+      g.addColorStop(0, "rgba(255,255,255,0.95)"); g.addColorStop(0.25, "rgba(34,211,238,0.7)"); g.addColorStop(0.75, "rgba(124,58,237,0.45)"); g.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(h.x, h.y, rr, 0, 6.283); ctx.fill();
+      ctx.strokeStyle = "rgba(165,243,252,0.6)"; ctx.lineWidth = 3;
+      for (var a = 0; a < 3; a++) {
+        ctx.beginPath();
+        for (var s = 0; s <= 30; s++) { var u = s / 30, ang = a * 2.094 + u * 4 - S.scroll * 0.05, rad = rr * (1 - u); var px = h.x + Math.cos(ang) * rad, py = h.y + Math.sin(ang) * rad; if (s) ctx.lineTo(px, py); else ctx.moveTo(px, py); }
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+    function carriers2D() {
+      S.enemies.concat(S.asteroids).forEach(function (o) {
+        if (!o.carry) return;
+        var c = POWER_LOOK[o.carry][0], g = ctx.createRadialGradient(o.x, o.y, o.r * 0.5, o.x, o.y, o.r * 2.1);
+        g.addColorStop(0, c + "88"); g.addColorStop(1, c + "00");
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(o.x, o.y, o.r * 2.1, 0, 6.283); ctx.fill();
+        ctx.strokeStyle = c; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(o.x, o.y, o.r * 1.45, 0, 6.283); ctx.stroke();
+      });
+    }
     function draw2D() {
       var cw = canvas.width, ch = canvas.height;
       var scale = Math.min(cw / world.w, ch / world.h);
@@ -3518,7 +4058,10 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       ctx.fillRect(0, 0, cw, ch);
       ctx.setTransform(scale, 0, 0, scale, ox, oy);
       drawBackground();
+      setPiece2D();
+      if (S.trans) wormhole2D(S.trans);
       var i;
+      carriers2D();
       for (i = 0; i < S.asteroids.length; i++) drawRock(S.asteroids[i]);
       if (S.boss) drawBoss2D(S.boss);
       for (i = 0; i < S.enemies.length; i++) drawEnemy2D(S.enemies[i]);
@@ -3590,19 +4133,29 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
         powerIcon(pu.kind, "#ffffff", false, pu.r);
         ctx.restore();
       });
+      /* a carrier wears a small badge with its upgrade's icon */
+      S.enemies.concat(S.asteroids).forEach(function (o) {
+        if (!o.carry) return;
+        var c = POWER_LOOK[o.carry][0], y = o.y - o.r * 1.3 - 12 - 8 * lift;
+        ctx.save(); ctx.translate(o.x, y); ctx.scale(0.62, 0.62);
+        ctx.fillStyle = "rgba(2,8,12,0.78)"; ctx.strokeStyle = c; ctx.lineWidth = 2.5;
+        ctx.beginPath(); ctx.arc(0, 0, 13, 0, 6.283); ctx.fill(); ctx.stroke();
+        powerIcon(o.carry, c, false, 12);
+        ctx.restore();
+      });
     }
     function roundRect(x, y, w, h, r) {
       ctx.beginPath(); ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r); ctx.lineTo(x + w, y + h - r);
       ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h); ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r); ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath();
     }
     /* One labelled bar: a dark track, a lagging ghost of recent damage, the live fill, and ticks. */
-    function hudBar(x, y, w, h, frac, ghost, c0, c1, label, value) {
+    function hudBar(x, y, w, h, frac, ghost, c0, c1, label, value, ghostCol) {
       ctx.fillStyle = "rgba(2,8,12,0.72)"; roundRect(x - 4, y - 15, w + 8, h + 19, 6); ctx.fill();
       ctx.font = "800 10.5px " + hudFont; ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
       ctx.fillStyle = "#cfe6ea"; ctx.fillText(label, x, y - 4);
       ctx.textAlign = "right"; ctx.fillStyle = "#e6f6f8"; ctx.fillText(value, x + w, y - 4);
       ctx.fillStyle = "rgba(148,163,184,0.22)"; ctx.fillRect(x, y, w, h);
-      if (ghost > frac) { ctx.fillStyle = "rgba(255,240,230,0.7)"; ctx.fillRect(x + w * frac, y, w * (ghost - frac), h); }
+      if (ghost > frac) { ctx.fillStyle = ghostCol || "rgba(255,240,230,0.7)"; ctx.fillRect(x + w * frac, y, w * (ghost - frac), h); }
       var g = ctx.createLinearGradient(x, 0, x + w, 0);
       g.addColorStop(0, c0); g.addColorStop(1, c1);
       ctx.fillStyle = g; ctx.fillRect(x, y, w * Math.max(0, frac), h);
@@ -3611,7 +4164,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       for (var k = 1; k < 10; k++) ctx.fillRect(x + w * k / 10, y, 1, h);
     }
     function drawHud() {
-      if (!S || !ctx) return;
+      if (!S || !ctx || S.state === "idle") return;
       var dpr = canvas.width / Math.max(1, canvas.clientWidth || canvas.width);
       var W = canvas.width / dpr, H = canvas.height / dpr, small = W < 520;
       if (!hudFont) hudFont = (window.getComputedStyle && getComputedStyle(host).fontFamily) || "system-ui, sans-serif";
@@ -3620,19 +4173,29 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       ctx.setTransform(m.s, 0, 0, m.s, m.ox, m.oy);
       ctx.textAlign = "center"; ctx.textBaseline = "middle";
       ctx.font = "900 " + (small ? 22 : 17) + "px " + hudFont;
-      S.popups.forEach(function (u) { ctx.globalAlpha = Math.max(0, 1 - u.t / u.life); ctx.fillStyle = u.color; ctx.fillText(u.text, u.x, u.y); });
+      S.popups.forEach(function (u) {
+        ctx.globalAlpha = Math.max(0, Math.min(1, (u.life - u.t) / 25));
+        if (u.big) {
+          /* the fatal hit's number: large, outlined, and held while the bar drains */
+          ctx.font = "900 " + (small ? 44 : 34) + "px " + hudFont;
+          ctx.lineWidth = 6; ctx.strokeStyle = "rgba(40,4,4,0.85)"; ctx.strokeText(u.text, u.x, u.y);
+          ctx.fillStyle = u.color; ctx.fillText(u.text, u.x, u.y);
+          ctx.font = "900 " + (small ? 22 : 17) + "px " + hudFont;
+        } else { ctx.fillStyle = u.color; ctx.fillText(u.text, u.x, u.y); }
+      });
       ctx.globalAlpha = 1;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       var bar = ctx.createLinearGradient(0, 0, 0, small ? 70 : 56);
       bar.addColorStop(0, "rgba(2,8,12,0.75)"); bar.addColorStop(1, "rgba(2,8,12,0)");
       ctx.fillStyle = bar; ctx.fillRect(0, 0, W, small ? 76 : 62);
       /* hull and, while it lasts, the shield: two bars, top left */
-      var hf = p.health / HEALTH_MAX;
-      hpShown = Math.max(p.health, Math.min(hpShown, HEALTH_MAX) - 0.6);
+      var HM = S.healthMax, hf = p.health / HM;
+      /* the ghost of recent damage drains toward the live value; after a fatal hit it drains the whole bar */
+      hpShown = Math.max(p.health, Math.min(hpShown, HM) - Math.max(0.6, (hpShown - p.health) * (S.hpFrom ? 0.045 : 0)));
       if (hpShown < p.health) hpShown = p.health;
       var bw = small ? Math.min(150, W * 0.36) : 190, bx = 14, by = 24;
       var hc = hf > 0.6 ? ["#10b981", "#5eead4"] : hf > 0.3 ? ["#f59e0b", "#fde047"] : ["#dc2626", "#fb7185"];
-      hudBar(bx, by, bw, small ? 8 : 9, hf, hpShown / HEALTH_MAX, hc[0], hc[1], "HULL", Math.ceil(p.health) + " / " + HEALTH_MAX);
+      hudBar(bx, by, bw, small ? 8 : 9, hf, hpShown / HM, hc[0], hc[1], "HULL", Math.ceil(p.health) + " / " + HM, S.hpFrom ? "rgba(248,113,113,0.9)" : null);
       if (p.shieldHp > 0) {
         shShown = Math.max(p.shieldHp, shShown - 0.5);
         hudBar(bx, by + 30, bw, small ? 6 : 7, p.shieldHp / SHIELD_MAX, shShown / SHIELD_MAX, "#2563eb", "#93c5fd", "SHIELD", p.shieldHp + " / " + SHIELD_MAX);
@@ -3641,6 +4204,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       ctx.font = "800 " + (small ? 13 : 15) + "px " + hudFont;
       ctx.fillStyle = "#e6f6f8"; ctx.textAlign = "right";
       ctx.fillText("Score " + S.score.toLocaleString("en-US"), W - 14, 18);
+      if (cfg.progression && !small) { ctx.font = "600 11.5px " + hudFont; ctx.fillStyle = "#94a3b8"; ctx.fillText(MAPS[S.mapId].name, W - 14, 36); }
       /* level, its difficulty, its goal, and progress toward it */
       var d = diff(), g = goal();
       var dc = { Easy: "#4ade80", Medium: "#fbbf24", Hard: "#f87171" }[d.name];
@@ -3669,16 +4233,31 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       }
       /* active upgrades with what is left of each */
       var chips = [];
-      if (p.weapon > 0) chips.push(["weapon", p.weapon / WEAPON_TICKS]);
-      ["spread", "rapid", "missiles", "wingman"].forEach(function (kk) { if (p[kk] > 0) chips.push([kk, p[kk] / POWER_TICKS[kk]]); });
-      ctx.textAlign = "left";
-      ctx.font = "700 11.5px " + hudFont;
+      TIMED.forEach(function (kk) { if (p[kk] > 0) chips.push([kk, p[kk] / (kk === "weapon" ? WEAPON_TICKS : POWER_TICKS[kk]), Math.ceil(p[kk] / HZ)]); });
+      ctx.textBaseline = "middle";
+      var cwid = small ? 104 : 116, per = Math.max(1, Math.floor((W - 16) / (cwid + 6)));
       chips.forEach(function (c, i) {
-        var look = POWER_LOOK[c[0]], x = 12 + i * 92, y = H - 26;
-        ctx.fillStyle = "rgba(2,8,12,0.72)"; ctx.fillRect(x, y, 84, 18);
-        ctx.fillStyle = look[0]; ctx.fillRect(x, y + 15, 84 * c[1], 3);
-        ctx.fillText(look[1], x + 6, y + 8);
+        var look = POWER_LOOK[c[0]], x = 10 + (i % per) * (cwid + 6), y = H - 30 - Math.floor(i / per) * 28;
+        ctx.fillStyle = "rgba(2,8,12,0.78)"; roundRect(x, y, cwid, 22, 6); ctx.fill();
+        ctx.strokeStyle = look[0]; ctx.lineWidth = 1; roundRect(x + 0.5, y + 0.5, cwid - 1, 21, 6); ctx.stroke();
+        ctx.fillStyle = look[0]; ctx.fillRect(x + 4, y + 18, (cwid - 8) * c[1], 2);
+        ctx.save(); ctx.translate(x + 13, y + 10); ctx.scale(0.7, 0.7); powerIcon(c[0], look[0], false, 10); ctx.restore();
+        ctx.font = "700 11.5px " + hudFont; ctx.textAlign = "left"; ctx.fillStyle = "#e6f6f8"; ctx.fillText(look[1], x + 24, y + 10);
+        ctx.textAlign = "right"; ctx.fillStyle = look[0]; ctx.fillText(c[2] + "s", x + cwid - 6, y + 10);
       });
+      /* time slow frosts the edges of the arena */
+      if (p.slow > 0) {
+        var fr = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.3, W / 2, H / 2, Math.max(W, H) * 0.72);
+        fr.addColorStop(0, "rgba(186,230,253,0)"); fr.addColorStop(1, "rgba(186,230,253," + (0.2 * Math.min(1, p.slow / 60)).toFixed(2) + ")");
+        ctx.fillStyle = fr; ctx.fillRect(0, 0, W, H);
+      }
+      /* inside a wormhole: its name, and a white flash as the map changes */
+      if (S.trans) {
+        var tr = S.trans, fl = Math.exp(-Math.abs(tr.t - tr.flash) / 7);
+        ctx.textAlign = "center"; ctx.font = "800 " + (small ? 12 : 13) + "px " + hudFont; ctx.fillStyle = "#a5f3fc";
+        ctx.fillText(tr.kind === "boss" ? "JUMPING TO " + MAPS[4].name.toUpperCase() : "WORMHOLE TO LEVEL " + tr.to + ": " + MAPS[tr.to].name.toUpperCase(), W / 2, H - 18);
+        if (!REDUCED || fl > 0.5) { ctx.fillStyle = "rgba(240,253,255," + (REDUCED ? 0.6 : fl).toFixed(2) + ")"; ctx.fillRect(0, 0, W, H); }
+      }
       /* a level-up or event banner */
       if (S.banner) {
         var a = Math.min(1, S.banner.t / 30);
@@ -3702,11 +4281,12 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       if (!S) return;
       var p = S.player;
       hudScore.textContent = "Score " + S.score;
-      hudLives.textContent = "Hull " + Math.max(0, p.health) + " of " + HEALTH_MAX + (p.shieldHp > 0 ? ", shield " + p.shieldHp : "");
+      hudLives.textContent = "Hull " + Math.max(0, p.health) + " of " + S.healthMax + (p.shieldHp > 0 ? ", shield " + p.shieldHp : "");
       hudLevel.textContent = "Level " + S.level + " (" + diff().name + ")" + (cfg.progression ? ": " + FORMS[S.level] : "");
       var extras = [];
       if (p.shieldHp > 0) extras.push("shield");
-      if (p.weapon > 0) extras.push("twin shot " + Math.ceil(p.weapon / HZ) + "s");
+      TIMED.forEach(function (k) { if (p[k] > 0) extras.push(POWER_LOOK[k][1].toLowerCase() + " " + Math.ceil(p[k] / HZ) + "s"); });
+      if (S.trans) extras.push("in the wormhole");
       if (S.boss) extras.push("boss");
       var base = S.state === "idle" ? "Ready" : S.state === "running" ? "Playing" : S.state === "paused" ? "Paused" : S.victory ? "Victory" : "Game over";
       hudState.textContent = extras.length && S.state === "running" ? base + ": " + extras.join(", ") : base;
@@ -3714,7 +4294,21 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       overTitle.textContent = S.victory ? "The Nexus megaship is down" : S.state === "over" ? (S.overText || "Game over") : "";
       overTitle.hidden = !overTitle.textContent;
       startBtn.textContent = S.state === "paused" ? "Resume" : S.state === "over" ? "Play again" : "Start game";
+      /* the start screen shows on a fresh game; after a run, a button brings it back */
+      overlay.setAttribute("data-mode", S.state);
+      brand.hidden = S.state !== "idle";
+      hangar.hidden = shipNote.hidden = S.state !== "idle";
+      key.hidden = S.state !== "idle" || !cfg.progression;
+      changeBtn.hidden = S.state !== "over";
+      SHIPS.forEach(function (sh) {
+        var on = sh.id === S.ship.id, c = shipCards[sh.id].card;
+        c.setAttribute("aria-checked", on ? "true" : "false");
+        c.tabIndex = on ? 0 : -1;
+      });
+      shipNote.textContent = S.ship.name + ": " + S.ship.note + ". " + S.ship.scheme + ".";
+      if (S.state === "idle" && host.offsetParent !== null) paintCards();
       host.setAttribute("data-ss-state", S.state);
+      host.setAttribute("data-ss-ship", S.ship.id);
     }
 
     /* ---------- control */
@@ -3819,17 +4413,34 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
         spawnPowerUp(kind, S.player.x, S.player.y);
         return true;
       },
-      spawn: function (type, x, y) {
-        if (!S || !ENEMY[type]) return false;
+      spawn: function (type, x, y, carry) {
+        if (!S || !ENEMY[type] || (carry && !POWER_LOOK[carry])) return false;
         var e = makeEnemy(type, x, y);
         e.pinned = true;
+        if (carry) e.carry = carry;
         S.enemies.push(e);
         return true;
       },
-      spawnAsteroid: function (size, x, y, vx, vy) {
-        if (!S || !ROCK[size]) return false;
-        S.asteroids.push(makeRock(size, x, y, vx || 0, vy || 0, S.rng.rocks));
+      spawnAsteroid: function (size, x, y, vx, vy, carry) {
+        if (!S || !ROCK[size] || (carry && !POWER_LOOK[carry])) return false;
+        var a = makeRock(size, x, y, vx || 0, vy || 0, S.rng.rocks);
+        if (carry) a.carry = carry;
+        S.asteroids.push(a);
         return true;
+      },
+      /* R14: the ships on the start screen, and choosing one. A choice made before a run (or
+         after one ends) resets the game with that ship; during a run it waits for the next. */
+      ships: function () {
+        return SHIPS.map(function (s) { return { id: s.id, name: s.name, role: s.role, note: s.note, hull: s.hull, speed: s.speed, fire: s.fire, accent: s.accent, scheme: s.scheme }; });
+      },
+      chooseShip: function (shipId) {
+        if (!shipById(shipId)) return false;
+        cfg.ship = shipId;
+        if (S && (S.state === "idle" || S.state === "over")) reset(); else sync();
+        return true;
+      },
+      upgrades: function () {
+        return POWER_ORDER.map(function (k) { return { kind: k, color: POWER_LOOK[k][0], name: POWER_LOOK[k][1], effect: POWER_LOOK[k][2], seconds: k === "weapon" ? WEAPON_TICKS / HZ : POWER_TICKS[k] ? POWER_TICKS[k] / HZ : null }; });
       },
       hitBoss: function (part, n) {
         if (!S || !S.boss) return false;
@@ -3879,7 +4490,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
         return {
           id: id, tick: S.tick, state: S.state, pausedBy: S.pausedBy, score: S.score, level: S.level,
           form: cfg.progression ? FORMS[S.level] : FORMS[1], levelUps: S.levelUps.slice(),
-          health: p.health, healthMax: HEALTH_MAX, shieldHp: p.shieldHp, shieldMax: SHIELD_MAX,
+          health: p.health, healthMax: S.healthMax, shieldHp: p.shieldHp, shieldMax: SHIELD_MAX,
           difficulty: { level: cfg.progression ? S.level : 1, name: d.name, pace: d.pace, rocks: d.rocks, fire: d.fire, damage: d.damage, cap: d.cap, classes: d.mix.map(function (x) { return x[0]; }) },
           lastDamage: S.lastDamage ? { source: S.lastDamage.source, detail: S.lastDamage.detail, amount: S.lastDamage.amount, absorbed: S.lastDamage.absorbed, tick: S.lastDamage.tick } : null,
           damageLog: S.damageLog.map(function (x) { return { source: x.source, detail: x.detail, amount: x.amount, absorbed: x.absorbed, tick: x.tick }; }),
@@ -3888,7 +4499,19 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
           progression: cfg.progression, bossEnabled: cfg.boss,
           seed: cfg.seed, world: { w: world.w, h: world.h },
           player: { x: p.x, y: p.y, invuln: p.invuln, exploding: 0, shield: p.shieldHp, weapon: p.weapon,
-            spread: p.spread || 0, rapid: p.rapid || 0, missiles: p.missiles || 0, wingman: p.wingman || 0 },
+            spread: p.spread || 0, rapid: p.rapid || 0, missiles: p.missiles || 0, wingman: p.wingman || 0,
+            pierce: p.pierce || 0, slow: p.slow || 0, magnet: p.magnet || 0 },
+          ship: S.ship.id, shipName: S.ship.name, shipMesh: S.ship.id + shownForm(), shipSpeed: S.ship.speed, shipFire: S.ship.fire,
+          map: MAPS[S.mapId].name, mapId: S.mapId, transition: !!S.trans,
+          transitionInfo: S.trans ? { kind: S.trans.kind, to: S.trans.to, t: S.trans.t, len: S.trans.len, flash: S.trans.flash } : null,
+          levelProgress: Math.round(levelProgress() * 1000) / 1000,
+          spawnInterval: density().spawn, enemyCap: density().cap, rockInterval: density().rocks,
+          carriers: S.enemies.map(function (e) { return e.carry ? { what: "enemy", type: e.type, upgrade: e.carry, x: e.x, y: e.y } : null; })
+            .concat(S.asteroids.map(function (a) { return a.carry ? { what: "asteroid", type: a.size, upgrade: a.carry, x: a.x, y: a.y } : null; }))
+            .filter(Boolean),
+          drops: S.drops.slice(), powerUpKinds: S.powerUps.map(function (u) { return u.kind; }),
+          upgrades: TIMED.filter(function (k) { return p[k] > 0; }).map(function (k) { return { kind: k, ticks: p[k] }; }),
+          popups: S.popups.map(function (u) { return { text: u.text, color: u.color, big: u.big }; }),
           shotKinds: S.enemyShots.map(function (o) { return o.kind; }), goal: goal(),
           enemies: S.enemies.length, enemyShots: S.enemyShots.length, asteroids: S.asteroids.length, shots: S.shots.length,
           enemyTypes: S.enemies.map(function (e) { return e.type; }), spawned: S.spawned,
@@ -3905,6 +4528,8 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       frame: function (now) {
         if (S && S.state === "over" && S.afterglow > 0) {
           S.afterglow -= 1;
+          if (S.player.hurt > 0) S.player.hurt -= 0.5;
+          if (S.shake > 0) S.shake = Math.max(0, S.shake - 0.5);
           for (var k = 0; k < S.effects.length; k++) {
             var f = S.effects[k];
             f.t += 1;
