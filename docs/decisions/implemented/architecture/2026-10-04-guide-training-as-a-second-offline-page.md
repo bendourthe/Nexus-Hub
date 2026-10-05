@@ -34,3 +34,10 @@ Sharing the guide now means sending both files together with `assets/`; the webs
 - The footer-attribution decision (`docs/decisions/implemented/policy/2026-09-02-platform-mark-attribution-in-footer.md`) is amended: attribution travels inside each of the two files, through the shared footer fragment.
 - The tests that assume one document either retarget to both files or retire with the old Training (inventory: `docs/releases/v4/v4.13/development/v4.13.10-inventory.md`).
 - The guide's size falls by roughly 104 KB when the old Training is removed.
+
+## Amendment (2026-10-04, maintainer review)
+
+The maintainer asked for the finished game to be presented as the reward for completing Training, with a hint that clearing every level holds a surprise, and for defeating the Nexus boss to offer Nexus AI Studio. Training therefore gains two outbound links, both inside the reward panel shown only after the boss falls: the Windows installer at `https://github.com/bendourthe/Nexus-AI/releases/latest/download/NexusSetup.exe` and the release page. The offline rule is unchanged: the page still loads nothing over the network; a link is followed only when the reader clicks it. The trailer is drawn in the page (no video file), so it adds no download and works offline. The visible "Jump to the boss" button (decision 10) was removed, because a shortcut would give the surprise away; the engine keeps `jumpToBoss()` for tests.
+
+**Alternatives considered**: embedding a video trailer (rejected: a remote video breaks the offline rule, and a bundled one would exceed the page's byte ceiling); linking only the repository (rejected: the maintainer asked for a direct download); keeping the jump button (rejected: it contradicts the hinted surprise).
+

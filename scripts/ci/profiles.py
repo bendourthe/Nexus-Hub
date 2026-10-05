@@ -242,6 +242,11 @@ DOCS = Group(
         # v4.4.2: the guide may not carry a hand-typed catalog count; every count is a
         # data-count marker stamped from data/ and catalog/, and this is the drift gate.
         _py("stamp_guide_counts", "--check", timeout=120),
+        # v4.13.10: both guide pages inline the sources in guides/website/shared/ and src/,
+        # and training.html inlines the bundled model map. A hand edit inside a stamped
+        # region, or a source edited without restamping, drifts silently; these are the gates.
+        _py("stamp_guide_shared", "--check", timeout=120),
+        _py("stamp_training_models", "--check", timeout=120),
         _py("check_memory_provenance", timeout=120),
         # v4.11.0: the living handbooks are generated, so an edit to the builder
         # silently invalidates them - the same sources stop producing the same

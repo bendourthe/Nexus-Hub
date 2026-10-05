@@ -183,9 +183,10 @@ def test_jump_to_boss_starts_level_three_with_the_boss_moments_later(browser) ->
         pg.goto(TRAINING.as_uri() + "#play-fixed")
         pg.wait_for_function("window.SkySentinel && SkySentinel.get('fixed')")
         pg.evaluate("SkySentinel.manual(true)")
-        button = pg.locator('[data-stage="play-fixed"] .tr-jump-boss')
-        assert button.is_visible()
-        button.click()
+        # Maintainer review: the boss is a surprise for players who clear every level, so the page
+        # offers no visible shortcut; jumpToBoss() stays for tests.
+        assert pg.locator('[data-stage="play-fixed"] .tr-jump-boss').count() == 0
+        assert pg.evaluate("SkySentinel.get('fixed').jumpToBoss()") is True
         s = pg.evaluate("SkySentinel.get('fixed').state()")
         assert s["state"] == "running" and s["level"] == 3 and s["form"] == "Sentinel"
         s = pg.evaluate("SkySentinel.get('fixed').step(200)")

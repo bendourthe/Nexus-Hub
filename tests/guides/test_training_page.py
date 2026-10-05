@@ -49,7 +49,13 @@ def test_training_page_loads_no_external_resource(html: str) -> None:
     loads = re.findall(r'\bsrc="([^"]+)"', html) + re.findall(r'<link\b[^>]*\bhref="([^"]+)"', html)
     for url in loads:
         assert not re.match(r"(?:[a-z]+:)?//", url, re.IGNORECASE), f"the page loads an external resource: {url}"
-    allowed = {"https://github.com/bendourthe/Nexus-Hub", "https://creativecommons.org/licenses/by/4.0/"}
+    allowed = {
+        "https://github.com/bendourthe/Nexus-Hub",
+        "https://creativecommons.org/licenses/by/4.0/",
+        # Maintainer review (2026-10-04): the reward for defeating the Nexus boss links to Nexus AI Studio.
+        "https://github.com/bendourthe/Nexus-AI/releases/latest/download/NexusSetup.exe",
+        "https://github.com/bendourthe/Nexus-AI/releases/latest",
+    }
     for url in re.findall(r'<a\b[^>]*\bhref="(https?:[^"]+)"', html):
         assert url in allowed, f"unexpected outbound link: {url}"
 
@@ -189,5 +195,125 @@ def test_menu_links_point_back_to_the_guide(playwright_mod) -> None:
             ]
             assert page.locator('#navLinks a[aria-current="page"]').inner_text() == "Training"
             assert page.locator("#site-footer").is_visible()
+        finally:
+            browser.close()
+
+
+def test_continue_links_walk_every_stage_in_order(playwright_mod) -> None:
+    """Maintainer review (WN-2): every stage but the last ends with a Continue link to the next."""
+    with playwright_mod() as pw:
+        browser, page, errors, _external = _open(pw)
+        try:
+            walked = [page.evaluate("NexusTrainingPage.stage()")]
+            while True:
+                link = page.locator(f'section[data-stage="{walked[-1]}"] .tr-next-link')
+                if link.count() == 0:
+                    break
+                link.click()
+                page.wait_for_function(f"NexusTrainingPage.stage() !== '{walked[-1]}'")
+                walked.append(page.evaluate("NexusTrainingPage.stage()"))
+            assert walked == STAGES
+            assert page.locator(".tr-next").count() == len(STAGES) - 1
+            assert not errors, errors
+        finally:
+            browser.close()
+
+
+def test_starting_a_game_brings_it_into_view(playwright_mod) -> None:
+    """Maintainer review (WN-3): at 1440 x 900 the arena starts below the fold; Start scrolls it in."""
+    with playwright_mod() as pw:
+        browser, page, _errors, _external = _open(pw, "#play-buggy")
+        try:
+            page.set_viewport_size({"width": 1440, "height": 900})
+            page.evaluate("window.scrollTo(0, 0)")
+            host = '[data-ss-id="buggy"]'
+            assert page.evaluate(f"document.querySelector('{host}').getBoundingClientRect().bottom") > 900
+            # A DOM click, not page.click(): Playwright's click scrolls its target into view itself.
+            page.evaluate("h => document.querySelector(h + ' .ss-start').click()", host)
+            page.wait_for_function(
+                "h => { const r = document.querySelector(h).getBoundingClientRect();"
+                " return r.top >= 0 && r.bottom <= innerHeight + 1; }",
+                arg=host,
+            )
+        finally:
+            browser.close()
+
+
+SESSION = 'section[data-stage="loop1/review"]'
+DEFEAT_BOSS = """() => { const g = SkySentinel.get('fixed'); SkySentinel.manual(true);
+  g.configure({ level: 3, bossNow: true }); g.start(); g.step(600);
+  for (let i = 0; i < 4; i++) g.hitBoss('node' + i, 8); g.hitBoss('core', 24); SkySentinel.manual(false); }"""
+
+
+def test_sessions_type_out_and_skip_and_run_again(playwright_mod) -> None:
+    """Maintainer review (DF-1, DF-2): a session types itself out; Skip finishes, Run again replays."""
+    with playwright_mod() as pw:
+        browser, page, errors, _external = _open(pw)
+        try:
+            assert page.evaluate("NexusTrainingPage.story().typing()") is False, "automation sees finished reports"
+            page.evaluate("NexusTrainingPage.story().typing(true)")
+            page.evaluate("NexusTrainingPage.go('loop1/review')")
+            page.wait_for_function(f"document.querySelector('{SESSION} .tr-session').hasAttribute('data-typing')")
+            assert page.locator(f"{SESSION} .tr-wait").count() > 0
+            run = page.locator(f"{SESSION} .tr-run")
+            assert run.inner_text() == "Skip"
+            run.click()
+            assert page.locator(f"{SESSION} .tr-wait").count() == 0
+            assert page.locator(f"{SESSION} .tr-cmd code").inner_text() == "/review quality"
+            assert run.inner_text() == "Run again"
+            run.click()
+            assert page.evaluate(f"document.querySelector('{SESSION} .tr-session').hasAttribute('data-typing')")
+            assert not errors, errors
+        finally:
+            browser.close()
+
+
+def test_reduced_motion_never_hides_a_report(playwright_mod) -> None:
+    with playwright_mod() as pw:
+        browser = pw.chromium.launch()
+        try:
+            page = browser.new_page(viewport={"width": 1280, "height": 800}, reduced_motion="reduce")
+            page.goto(TRAINING.as_uri() + "#loop1/review")
+            page.wait_for_function("window.NexusTrainingPage && NexusTrainingPage.stage() === 'loop1/review'")
+            assert page.evaluate("NexusTrainingPage.story().typing(true)") is False
+            page.evaluate("NexusTrainingPage.story().replay('loop1/review')")
+            assert page.locator(f"{SESSION} .tr-wait").count() == 0
+            assert not page.locator(f"{SESSION} .tr-run").is_visible()
+        finally:
+            browser.close()
+
+
+def test_the_fixed_game_is_presented_as_a_reward_with_a_hint(playwright_mod) -> None:
+    with playwright_mod() as pw:
+        browser, page, _errors, _external = _open(pw, "#play-fixed")
+        try:
+            banner = page.locator('section[data-stage="play-fixed"] .tr-banner')
+            text = banner.inner_text().lower()
+            assert "the reward" in text
+            assert "something is waiting at the end" in text
+            assert page.locator(".tr-jump-boss").count() == 0, "the boss is a surprise, not a shortcut"
+            assert page.evaluate("NexusTrainingPage.reward()") is False
+            assert not page.locator("#trReward").is_visible()
+        finally:
+            browser.close()
+
+
+def test_defeating_the_nexus_boss_opens_the_reward_and_download(playwright_mod) -> None:
+    with playwright_mod() as pw:
+        browser, page, errors, external = _open(pw, "#play-fixed")
+        try:
+            page.evaluate(DEFEAT_BOSS)
+            page.wait_for_function("NexusTrainingPage.reward()")
+            reward = page.locator("#trReward")
+            assert reward.is_visible()
+            assert page.locator("#trRewardTitle").inner_text() == "You defeated the Nexus boss"
+            assert page.evaluate("document.activeElement.id") == "trReward"
+            assert page.locator(".tr-download").get_attribute("href") == (
+                "https://github.com/bendourthe/Nexus-AI/releases/latest/download/NexusSetup.exe"
+            )
+            assert page.locator(".tr-trailer .tr-scene").count() == 6
+            assert len(page.locator(".tr-trailer").get_attribute("aria-label")) > 80
+            assert not errors, errors
+            assert not external, "the reward links out but loads nothing"
         finally:
             browser.close()

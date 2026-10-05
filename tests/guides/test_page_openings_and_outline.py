@@ -47,8 +47,32 @@ def test_training_intro_opens_with_the_shared_component() -> None:
     assert 'class="pg-open"' in intro
     assert re.search(r'<h1 data-ty="h1" class="pg-open-title"[^>]*>.*<span class="gtext">', intro)
     assert 'class="pg-open-lead"' in intro
-    tiles = re.findall(r'<li><span class="pg-glyph">.*?<a href="(#[^"]+)"', intro)
-    assert tiles == ["#intro", "#play-buggy", "#loop1/describe", "#play-partial", "#loop2/review", "#play-fixed"]
+    _assert_opening_figure(intro, "training")
+
+
+def _assert_opening_figure(block: str, name: str) -> None:
+    """Maintainer review (WN-7): an opening ends with one animated figure, not a card row.
+
+    The figure is a NexusSeq root holding a wide and a narrow drawing, labelled as one image,
+    and the subtitle above it is a single sentence.
+    """
+    fig = re.search(r'<figure class="pg-fig" role="img" aria-label="([^"]+)" data-seq-root data-seq-loop[^>]*>(.*?)</figure>', block, re.S)
+    assert fig, f"{name}: the opening has no animated figure"
+    assert len(fig.group(1)) > 40, f"{name}: the figure needs a real text alternative"
+    body = fig.group(2)
+    assert 'class="pgf-svg pgf-svg--wide"' in body and 'class="pgf-svg pgf-svg--narrow"' in body
+    assert len(set(re.findall(r'data-seq="(\d+)"', body))) >= 5, f"{name}: the figure should build in steps"
+    assert "pg-map" not in block and "pg-glyph" not in block
+    lead = re.search(r'class="[^"]*pg-open-lead[^"]*">(.*?)</p>', block, re.S).group(1)
+    assert lead.count(". ") == 0 and len(lead) <= 100, f"{name}: the subtitle is one short sentence"
+
+
+def test_guide_openings_carry_their_own_figures() -> None:
+    guide = _text(GUIDE)
+    for page, nxt in (("foundations", "fx-tokens"), ("cheatsheets", "data-outline-page")):
+        start = guide.index(f'id="page-{page}"')
+        block = guide[start: guide.index("</figure>", start) + len("</figure>")]
+        _assert_opening_figure(block, page)
 
 
 # --- Browser -----------------------------------------------------------------------

@@ -132,6 +132,12 @@ def test_wrapped_data_is_placed_verbatim_and_guarded(tmp_path: Path) -> None:
     (web / "shared" / "data.json").write_text('{"x": "</script><script>alert(1)</script>"}\n', encoding="utf-8")
     result = _run(tmp_path)
     assert result.returncode == 2 and "may not contain" in result.stderr
+    # '<!--<script>' makes the parser skip the block's own closing tag (found by the v4.13.10 deep pass).
+    (web / "shared" / "data.json").write_text('{"x": "harmless <!--<script> text"}\n', encoding="utf-8")
+    before = (web / "b.html").read_text(encoding="utf-8")
+    result = _run(tmp_path)
+    assert result.returncode == 2 and "'<!--'" in result.stderr
+    assert (web / "b.html").read_text(encoding="utf-8") == before
 
 
 def test_the_real_guide_pages_are_current() -> None:

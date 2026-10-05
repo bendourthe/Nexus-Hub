@@ -850,16 +850,18 @@
       "kind": "play",
       "game": "fixed",
       "banner": {
-        "step": "After both loops",
-        "title": "Play the fixed game",
-        "now": "Play as long as the ship lasts."
+        "step": "The reward",
+        "title": "The finished game, fully working",
+        "now": "Play it for real: three levels, a stronger ship at each, and power-ups to collect."
       },
       "callout": {
+        "tone": "ok",
         "title": "Both bugs are fixed",
         "items": [
           "A hit costs one life, with a short invulnerability window.",
           "No life is ever lost without a hit."
-        ]
+        ],
+        "hidden": "Clear all three levels. Something is waiting at the end."
       },
       "after": "Two loops, two releases, and every claim backed by a test that would fail if the bug came back."
     }

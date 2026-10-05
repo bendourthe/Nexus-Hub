@@ -166,6 +166,9 @@ window.NexusTrainingStory = (function () {
     var cmd = el("p", "tr-cmd");
     cmd.appendChild(el("span", "tr-prompt", ">"));
     cmd.appendChild(el("code", null, st.command));
+    var run = el("button", "tr-run", "Run again");
+    run.type = "button";
+    cmd.appendChild(run);
     art.appendChild(cmd);
     art.appendChild(el("p", "tr-summary", st.session.summary));
     var parts = [];
@@ -199,7 +202,7 @@ window.NexusTrainingStory = (function () {
     row("Model map", "verified " + models.verified_as_of + ", from " + models.source);
     details.appendChild(dl);
     art.appendChild(details);
-    return { article: art, parts: parts };
+    return { article: art, parts: parts, cmd: cmd, run: run };
   }
 
   function activityFor(st) {
@@ -217,6 +220,68 @@ window.NexusTrainingStory = (function () {
     });
     box.appendChild(ol);
     return box;
+  }
+
+  /* Sessions type themselves out the first time a stage is shown, so a step reads like a live
+     agent run: the command is typed, then each part of the report and each activity line appears in
+     reading order. "Skip" finishes at once and "Run again" replays. Layout never moves: waiting
+     lines keep their space (visibility, not display). Reduced motion shows the finished report.
+     Automated browsers (navigator.webdriver) also see it finished unless they turn typing on, so
+     measurements read the whole report. */
+  var REDUCED_MOTION = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  var autoType = !REDUCED_MOTION && !navigator.webdriver;
+  function lines(w) {
+    var out = [w.article.querySelector(".tr-summary")];
+    w.parts.forEach(function (part) {
+      var nodes = part.querySelectorAll(".tr-section-title, .tr-items > li, .tr-snippet, .tr-diff, .tr-checks > li");
+      for (var i = 0; i < nodes.length; i++) out.push(nodes[i]);
+    });
+    return out;
+  }
+  function finish(w) {
+    w.timers.forEach(window.clearTimeout);
+    w.timers = [];
+    var code = w.cmd.querySelector("code");
+    if (code.hasAttribute("data-full")) { code.textContent = code.getAttribute("data-full"); code.removeAttribute("data-full"); }
+    var waiting = w.grid.querySelectorAll(".tr-wait, .tr-in");
+    for (var i = 0; i < waiting.length; i++) waiting[i].classList.remove("tr-wait", "tr-in");
+    w.article.removeAttribute("data-typing");
+    w.run.textContent = "Run again";
+  }
+  function type(w) {
+    finish(w);
+    if (REDUCED_MOTION) return;
+    w.played = true;
+    var report = lines(w), acts = w.activity.querySelectorAll("li"), code = w.cmd.querySelector("code");
+    var full = code.textContent;
+    report.forEach(function (n) { n.classList.add("tr-wait"); });
+    for (var a = 0; a < acts.length; a++) acts[a].classList.add("tr-wait");
+    w.article.setAttribute("data-typing", "");
+    w.run.textContent = "Skip";
+    code.setAttribute("data-full", full);
+    code.textContent = "";
+    var t = 0;
+    function at(ms, fn) { w.timers.push(window.setTimeout(fn, ms)); }
+    for (var c = 1; c <= full.length; c++) at(t += 38, (function (n) { return function () { code.textContent = full.slice(0, n); }; })(c));
+    t += 220;
+    var shownActs = 0;
+    report.forEach(function (n, i) {
+      var len = (n.textContent || "").length, dur = Math.max(160, Math.min(1100, len * 9));
+      at(t, function () { n.style.setProperty("--tr-d", dur + "ms"); n.classList.remove("tr-wait"); n.classList.add("tr-in"); });
+      var due = Math.round((i + 1) / report.length * acts.length);
+      while (shownActs < due) {
+        at(t + 80, (function (li) { return function () { li.classList.remove("tr-wait"); li.classList.add("tr-in"); }; })(acts[shownActs]));
+        shownActs += 1;
+      }
+      t += dur + 90;
+    });
+    at(t, function () { finish(w); });
+  }
+  function play(id) {
+    works.forEach(function (w) {
+      if (w.id !== id) { if (w.article.hasAttribute("data-typing")) finish(w); return; }
+      if (autoType && !w.played) type(w);
+    });
   }
 
   /* Keep the two columns close in height. With the columns side by side, two moves are
@@ -313,6 +378,7 @@ window.NexusTrainingStory = (function () {
   function calloutFor(st) {
     var box = el("aside", "tr-callout");
     box.setAttribute("role", "note");
+    box.setAttribute("data-tone", st.callout.tone === "ok" ? "ok" : "warn");
     box.appendChild(el("p", "tr-callout-title", st.callout.title));
     var ul = el("ul");
     st.callout.items.forEach(function (t) { ul.appendChild(el("li", null, t)); });
@@ -322,6 +388,25 @@ window.NexusTrainingStory = (function () {
   }
 
   /* -------------------------------------------------- build */
+  /* Every stage but the last ends with a link to the next one, so the journey never depends on
+     finding the outline. It names the next stage the way its banner will. */
+  function continueFor(next) {
+    var nav = el("nav", "tr-next");
+    nav.setAttribute("aria-label", "Next stage");
+    var a = el("a", "tr-next-link");
+    a.href = "#" + next.id;
+    a.appendChild(el("span", "tr-next-label", "Continue"));
+    var where = el("span", "tr-next-where");
+    where.appendChild(el("small", null, next.banner.step));
+    where.appendChild(el("b", null, next.banner.title));
+    if (next.command) where.appendChild(el("code", null, next.command.split(" ")[0]));
+    a.appendChild(where);
+    a.appendChild(el("span", "tr-next-arrow", "\u2192"));
+    a.lastChild.setAttribute("aria-hidden", "true");
+    nav.appendChild(a);
+    return nav;
+  }
+
   function render(sectionFor, notice) {
     var story, problem = null;
     try {
@@ -339,11 +424,14 @@ window.NexusTrainingStory = (function () {
     }
     var stored = storedProvider();
     provider = models.providers.indexOf(stored) !== -1 ? stored : story.defaultProvider;
-    story.stages.forEach(function (st) {
-      if (st.kind === "intro") return;
+    story.stages.forEach(function (st, i) {
       var section = sectionFor(st.id);
       var box = section && section.querySelector(".container");
       if (!box) return;
+      var next = story.stages[i + 1];
+      if (next) box.appendChild(continueFor(next));
+      if (st.kind === "intro") return;
+      var nextNav = box.lastChild.classList && box.lastChild.classList.contains("tr-next") ? box.lastChild : null;
       var heading = box.querySelector("h1");
       var host = box.querySelector("[data-ss-id]");
       var banner = bannerFor(st, heading);
@@ -351,7 +439,7 @@ window.NexusTrainingStory = (function () {
       if (st.kind === "play") {
         banner.appendChild(calloutFor(st));
         var after = el("p", "tr-after", st.after);
-        if (host && host.nextSibling) box.insertBefore(after, host.nextSibling); else box.appendChild(after);
+        if (host && host.nextSibling) box.insertBefore(after, host.nextSibling); else box.insertBefore(after, nextNav);
       } else {
         var grid = el("div", "tr-work");
         var report = sessionFor(st);
@@ -367,11 +455,16 @@ window.NexusTrainingStory = (function () {
         side.appendChild(more);
         grid.appendChild(main);
         grid.appendChild(side);
-        box.appendChild(grid);
-        works.push({
+        box.insertBefore(grid, nextNav);
+        var w = {
           id: st.id, grid: grid, main: main, article: report.article, side: side, activity: activity,
-          more: more, parts: report.parts, details: report.article.querySelector(".tr-details")
-        });
+          more: more, parts: report.parts, details: report.article.querySelector(".tr-details"),
+          cmd: report.cmd, run: report.run, timers: [], played: false
+        };
+        report.run.addEventListener("click", (function (work) {
+          return function () { if (work.article.hasAttribute("data-typing")) finish(work); else type(work); };
+        })(w));
+        works.push(w);
       }
     });
     var timer = null;
@@ -383,7 +476,11 @@ window.NexusTrainingStory = (function () {
       story: story,
       provider: function () { return provider; },
       setProvider: setProvider,
-      rebalance: function (id) { works.forEach(function (w) { if (!id || w.id === id) rebalance(w); }); }
+      rebalance: function (id) { works.forEach(function (w) { if (!id || w.id === id) rebalance(w); }); },
+      play: play,
+      typing: function (on) { if (on != null) autoType = !!on && !REDUCED_MOTION; return autoType; },
+      replay: function (id) { works.forEach(function (w) { if (w.id === id) type(w); }); },
+      skip: function (id) { works.forEach(function (w) { if (!id || w.id === id) finish(w); }); }
     };
   }
 

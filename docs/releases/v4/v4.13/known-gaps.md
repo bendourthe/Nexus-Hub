@@ -2,8 +2,8 @@
 
 **Project**: Nexus-Hub
 **Status**: released; PR #230 merged the complete 34-task plan and tag `v4.13.0` was published on 2026-09-21. Two bounded warning-class findings remain owned for future measurement work. GitHub branch protection passed a live pull-request gate test; the second trigger pilot stopped on an unproven spend bound.
-**Last updated**: 2026-10-03
-**Open items**: 138
+**Last updated**: 2026-10-04
+**Open items**: 142
 
 Release-scoped gaps for the evidence-driven agent improvement plan. Planned future-phase work is tracked in the plan rather than reported as completed here.
 
@@ -1440,3 +1440,56 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 |---|---|---|---|
 | WN-3 | The Codex fix version is not verified against OpenAI's primary sources | v4.13.9, 2026-10-03 | Closed by T424: the `rust-v0.142.0` release notes (2026-06-22) list the persistent-log reduction citing #29432 and #29457, and #29432's merge commit lies between the `rust-v0.141.0` and `rust-v0.142.0` tags. Runbook: [`docs/guides/host-agent-disk-writes.md`](../../../guides/host-agent-disk-writes.md) |
 | DF-10 | The bundled model-map snapshot lists superseded models | v4.13.9, 2026-10-01 | Carried from v4.13.8 DF-2. Fixed by v4.13.9 T407: `last-known-model-map.json` reads `verified_as_of` 2026-10-01, `standard`/Anthropic `claude-sonnet-5-5`, and `strong`/OpenAI `gpt-6.1-sol`; `model-map.py validate` reports valid. |
+
+## v4.13.10
+
+Gaps from the Training page rebuild ([`v4.13.10-training-page-rebuild`](plans/v4.13.10-training-page-rebuild.md)). This is the last plan of v4.13: the v4.13 minor close (moving every open v4.13 item to `docs/releases/v4/v4.14/known-gaps.md`, then archiving this tree after the release) waits on the maintainer's review of the finished page (plan decision 17).
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 2 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 3 | 4 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 1 | 1 |
+
+### Open Items
+
+#### WN-1 (v4.13.10): The missing-file notice is verified in Chromium only
+
+- **Source phase**: Phase 7. **Plan reference**: [`v4.13.10-training-page-rebuild`](plans/v4.13.10-training-page-rebuild.md), T027.
+- **Reason**: the guide detects a missing `training.html` under `file://` with a stylesheet probe (`media="not all"`, its `onload` and `onerror`). Tests run headless Chromium; Firefox and Safari treat `file://` loads differently and were not exercised.
+- **Owner**: guide owner. **Suggested next step**: open the guide from a folder without `training.html` in Firefox and Safari and click the Training tab; if no notice appears, fall back to showing the notice on any `file://` load that does not navigate within a second.
+
+#### WN-5 (v4.13.10): A game started through the API on a hidden stage runs unseen
+
+- **Source phase**: Phase 8 deep pass (adversarial pass). **Plan reference**: [`v4.13.10-training-page-rebuild`](plans/v4.13.10-training-page-rebuild.md), Phase 3 engine.
+- **Reason**: `SkySentinel.get('fixed').start()` called while `#intro` is showing starts a game on a hidden stage. Its IntersectionObserver never fires for a host that was never visible, and Escape is ignored because the game does not own the keyboard, so it runs until the reader opens its stage. No button or key reaches this path: start controls are hidden on other stages and navigation pauses games.
+- **Owner**: guide owner. **Suggested next step**: in `start()` and `resume()`, pause with reason `stage` when the host is not rendered (`host.offsetParent === null`), and add an engine test that starts a game on a hidden stage.
+
+#### WN-6 (v4.13.10): Three minor accessibility findings in shared markup
+
+- **Source phase**: Phase 8 deep pass (accessibility audit). **Plan reference**: [`v4.13.10-training-page-rebuild`](plans/v4.13.10-training-page-rebuild.md), Phase 8.6.
+- **Reason**: the audit passed both pages with minor findings. Three sit in markup both pages share or the guide already had before this plan, so they are recorded rather than changed here: the theme toggle carries `aria-pressed` with an action label ("Switch to light theme, pressed"); the guide's active nav link has no `aria-current="page"` (Training's does); there is no skip link, so reaching the provider switch on a session stage takes 19 Tab presses (landmarks are present).
+- **Owner**: guide owner. **Suggested next step**: drop `aria-pressed` from `#themeToggle` in `shared/header.html`, add `aria-current="page"` in the guide router, and add a "Skip to content" link to the shared header.
+
+#### QG-2 (v4.13.10): The learner check has not been run
+
+- **Source phase**: Phase 8 (8.8). **Plan reference**: [`v4.13.10-training-page-rebuild`](plans/v4.13.10-training-page-rebuild.md), decision 16.
+- **Reason**: two or three non-technical readers must go through the page on a desktop and a phone; an agent cannot stand in for them. Per decision 16 this does not block the release.
+- **Owner**: maintainer. **Suggested next step**: run it with the script in the evidence file under `## Human testing suggestions` and record the results there.
+
+### Resolved Items
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+| QG-1 | The two stamp guards were not in CI | v4.13.10, 2026-10-04 | T036 wired `stamp_guide_shared.py --check` and `stamp_training_models.py --check` into `scripts/ci/profiles.py` (docs group) and the `Makefile` beside `stamp_guide_counts.py --check`; a deliberate drift made the shared guard exit 1 for both pages. Path scoping needed no change: the `changes` job marks any non-docs path relevant. No workflow file changed. Pre-commit was not wired: it carries no stamp guard today (not even `stamp_guide_counts`), and both guards run in under a second in the docs group of every CI run and every `make validate`. |
+| WN-2 | Training had no next-stage control | v4.13.10, 2026-10-04 | Maintainer review: add one. Every stage but the last now ends with a Continue link naming the next stage, its step, and its command (`continueFor` in `src/training-story.js`); `test_continue_links_walk_every_stage_in_order` walks all 15 stages by Continue alone. |
+| WN-3 | The game arena started below the fold at 1440 x 900 | v4.13.10, 2026-10-04 | Maintainer review: yes. `start()` brings the whole game (arena, HUD, touch controls) into view with the minimal scroll, instant under reduced motion; `test_starting_a_game_brings_it_into_view` fails on the previous page and passes now. |
+| WN-4 | Cheatsheets no longer links `/compare` and `/presentify` into Training | v4.13.10, 2026-10-04 | Maintainer review: removal confirmed. Both old hashes still redirect to the intro. |
+| DF-1 | Session output appeared at once rather than typing in | v4.13.10, 2026-10-04 | Maintainer review: build it. Sessions type out on first view: the command is typed, then each report line and activity line wipes in, in reading order; layout never moves. Reduced motion shows the finished report. `test_sessions_type_out_and_skip_and_run_again`, `test_reduced_motion_never_hides_a_report`. |
+| DF-2 | No "Run again" control on session stages | v4.13.10, 2026-10-04 | Built with DF-1: the control reads Skip while typing and Run again after. |
+| WN-7 | The shared opening read as a generic template | v4.13.10, 2026-10-04 | Maintainer review: keep the opening consistent but distinct per page. Each opening is now a title, a one-sentence subtitle, and one animated figure of the page's content (the Training journey, the Foundations layers, a Cheatsheets entry), drawn in a wide and a narrow form and animated with NexusSeq; the identical card rows are gone. `test_guide_openings_carry_their_own_figures`. |

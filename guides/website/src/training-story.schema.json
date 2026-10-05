@@ -276,6 +276,12 @@
                   },
                   "hidden": {
                     "$ref": "#/$defs/text"
+                  },
+                  "tone": {
+                    "enum": [
+                      "warn",
+                      "ok"
+                    ]
                   }
                 }
               },

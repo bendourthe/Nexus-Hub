@@ -125,14 +125,17 @@
     host.classList.add("ss");
     var stage = el("div", "ss-stage");
     var canvas = el("canvas", "ss-canvas");
-    canvas.setAttribute("role", "img");
+    canvas.setAttribute("role", "application");
+    canvas.setAttribute("aria-roledescription", "game");
     canvas.setAttribute("aria-label", "Sky Sentinel arena");
     canvas.tabIndex = 0;
     var overlay = el("div", "ss-overlay");
     var overTitle = el("p", "ss-over-title");
-    var startBtn = el("button", "ss-start", "Click to start");
+    var startBtn = el("button", "ss-start", "Start game");
     startBtn.type = "button";
     var hint = el("p", "ss-hint", "Arrows or WASD move, Space or click fires, Escape pauses.");
+    hint.id = "ss-hint-" + id;
+    canvas.setAttribute("aria-describedby", hint.id);
     overlay.appendChild(overTitle);
     overlay.appendChild(startBtn);
     overlay.appendChild(hint);
@@ -836,7 +839,7 @@
       overlay.hidden = S.state === "running";
       overTitle.textContent = S.victory ? "The Nexus megaship is down" : S.state === "over" ? (S.overReason === "first-hit" ? "Destroyed by the first hit" : "Game over") : "";
       overTitle.hidden = !overTitle.textContent;
-      startBtn.textContent = S.state === "paused" ? "Resume" : S.state === "over" ? "Play again" : "Click to start";
+      startBtn.textContent = S.state === "paused" ? "Resume" : S.state === "over" ? "Play again" : "Start game";
       host.setAttribute("data-ss-state", S.state);
     }
 
@@ -853,6 +856,8 @@
       sync();
       wake();
       canvas.focus({ preventScroll: true });
+      /* The banner and callout can push the arena below the fold; bring the whole game into view. */
+      if (host.offsetParent !== null && host.scrollIntoView) host.scrollIntoView({ block: "nearest", behavior: REDUCED ? "auto" : "smooth" });
     }
     function pause(reason) {
       if (!S || S.state !== "running") return;

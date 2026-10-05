@@ -96,8 +96,11 @@ def load(root: Path) -> tuple[list[Fragment], dict[str, tuple[dict[str, str], li
         if wrap is not None:
             if not (isinstance(wrap, list) and len(wrap) == 2 and all(isinstance(w, str) for w in wrap)):
                 raise StampError(f"fragment {name}: wrap must be a list of two strings")
-            if "</script" in text.lower():
-                raise StampError(f"fragment {name}: wrapped data may not contain '</script'")
+            # Either sequence ends a script block early: '</script' directly, and '<!--' by
+            # putting the parser in a state where the block's own closing tag is skipped.
+            for marker in ("</script", "<!--"):
+                if marker in text.lower():
+                    raise StampError(f"fragment {name}: wrapped data may not contain '{marker}'")
             wrap = (wrap[0], wrap[1])
         fragments.append(Fragment(name, syntax, text, wrap))
     by_name = {fragment.name: fragment for fragment in fragments}

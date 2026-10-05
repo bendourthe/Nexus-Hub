@@ -133,19 +133,44 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .pg-open-title{margin:var(--sp-5) auto 0;text-align:center;text-wrap:balance;color:var(--ink);}
 .pg-open .gtext{color:var(--ink);background:linear-gradient(90deg,var(--cyan),var(--teal));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
 .pg-open-lead{margin:var(--sp-3) auto 0;text-align:center;color:var(--ink-dim);text-wrap:pretty;}
-/* Tiles wrap and grow, so every row ends flush whatever the count: six tiles fill one row, seven wrap as four and three. */
-.pg-map{list-style:none;margin:var(--sp-5) 0 0;padding:0;display:flex;flex-wrap:wrap;gap:10px;text-align:left;}
-.pg-map li{flex:1 1 160px;position:relative;display:flex;gap:12px;align-items:flex-start;min-width:0;padding:12px 14px;border:1px solid var(--border);border-radius:14px;background:var(--surface);}
-.pg-map a{position:absolute;inset:0;border-radius:inherit;}
-.pg-map a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
-.pg-map li:hover{border-color:color-mix(in srgb,var(--accent) 55%,var(--border));}
-.pg-glyph{flex:none;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--teal-soft);}
-.pg-glyph svg{width:20px;height:20px;}
-.pg-map b{display:block;color:var(--ink);font-size:var(--ty-body);line-height:1.3;}
-.pg-map span{display:block;color:var(--ink-dim);font-size:var(--ty-body-sm);line-height:1.4;overflow-wrap:anywhere;}
-.pg-map .pg-count{display:inline-block;margin-top:4px;font-family:var(--mono);font-size:var(--ty-micro);color:var(--teal-soft);}
-.pg-map[data-count="7"] li{flex-basis:230px;}
-@media (max-width:720px){.pg-map li,.pg-map[data-count="7"] li{flex-basis:140px;padding:10px;gap:8px;}.pg-glyph{width:28px;height:28px;}.pg-glyph svg{width:16px;height:16px;}}
+/* Each opening ends with one animated figure of what the page holds: a NexusSeq root with a wide drawing and a narrow one, so a single sequence animates whichever the width shows and phone text never shrinks. Colours come from the theme tokens. */
+.pg-fig{margin:var(--sp-5) auto 0;padding:var(--sp-4) var(--sp-4) var(--sp-3);border:1px solid var(--border);border-radius:18px;background:radial-gradient(120% 140% at 50% 0%,color-mix(in srgb,var(--accent) 7%,var(--surface)),var(--surface));}
+.pgf-svg{display:block;width:100%;height:auto;margin-inline:auto;overflow:visible;}
+.pgf-svg--wide{max-width:60rem;}
+.pgf-svg--narrow{display:none;max-width:26.25rem;}
+@media (max-width:639px){.pgf-svg--wide{display:none;}.pgf-svg--narrow{display:block;}.pg-fig{padding:var(--sp-3) var(--sp-2) var(--sp-2);}}
+.pgf-svg text{font-family:var(--sans);}
+.pgf-t{fill:var(--ink);font-size:15px;font-weight:600;}
+.pgf-t--dim{fill:var(--ink-dim);font-size:13px;font-weight:400;}
+.pgf-t--label{fill:var(--teal-soft);font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;}
+.pgf-t--cap{fill:var(--ink-dim);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
+.pgf-t--code,.pgf-t--cmd{font-family:var(--mono);fill:var(--teal-soft);font-size:14px;}
+.pgf-t--cmd{font-size:17px;font-weight:800;}
+.pgf-t--num{fill:var(--teal-soft);font-family:var(--mono);font-size:18px;font-weight:800;}
+.pgf-box{fill:var(--bg-0,var(--surface));stroke:var(--border);stroke-width:1.5;}
+.pgf-box--accent{stroke:var(--accent);fill:color-mix(in srgb,var(--accent) 12%,var(--surface));}
+.pgf-chip{fill:var(--bg-0,var(--surface));stroke:color-mix(in srgb,var(--accent) 45%,var(--border));stroke-width:1.2;}
+.pgf-line{fill:none;stroke:var(--teal-soft);stroke-width:2;stroke-linecap:round;}
+.pgf-line--thin{stroke-width:1.2;stroke-dasharray:3 4;opacity:.7;}
+.pgf-head{fill:var(--teal-soft);}
+.pgf-bars{fill:none;stroke:var(--ink-dim);stroke-width:5;stroke-linecap:round;opacity:.35;}
+.pgf-layer{fill:none;stroke:color-mix(in srgb,var(--accent) 60%,var(--border));stroke-width:1.6;}
+.pgf-layer--outer{stroke:var(--accent);stroke-width:2;}
+.pgf-ship{fill:var(--teal-soft);}
+.pgf-bad{fill:none;stroke:#f87171;stroke-width:2;stroke-linecap:round;}
+.pgf-bad circle{fill:color-mix(in srgb,#f87171 30%,transparent);}
+.pgf-warn{fill:#f59e0b;}
+.pgf-ok{fill:none;stroke:var(--teal-soft);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.pgf-ok circle{fill:color-mix(in srgb,var(--accent) 22%,transparent);}
+.pgf-ring{fill:none;stroke:color-mix(in srgb,var(--accent) 55%,var(--border));stroke-width:2;}
+.pgf-ring-head{fill:none;stroke:var(--teal-soft);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;}
+.pgf-dot{fill:var(--teal-soft);}
+.pg-fig .seq-rise{transform-box:fill-box;}
+/* A loop turns once it has appeared, the way the Home loop keeps moving. */
+.pgf-spin{transform-box:fill-box;transform-origin:center;}
+.pg-fig .seq-rise.is-on .pgf-spin{animation:pgf-spin 9s linear infinite;}
+@keyframes pgf-spin{to{transform:rotate(360deg);}}
+@media (prefers-reduced-motion:reduce){.pg-fig .seq-rise.is-on .pgf-spin{animation:none;}}
 /* /shared:opening-css */
 /* shared:outline-css */
 /* ---------- Page outline (v4.13.10, shared) ---------- A sticky "On this page" bar under the site header. Wide screens show every entry as a chip; phones collapse it to one line naming the current section. It sits above the content rather than beside it so no scene loses width. */
@@ -202,6 +227,66 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 /* ---------- Loop tracker ---------- The Home page's six-step loop, compact, showing which loop is running and which step the reader is on. */
 .tr-track{margin:0 0 var(--sp-4);}
 [data-tr-stage="intro"] .tr-track{display:none;}
+/* The intro shows the same six steps as a static map; the live tracker appears from the first stage on. */
+.tr-intro-loop{margin:var(--sp-5) 0 0;}
+.tr-intro-loop .tr-track-head{flex-wrap:wrap;row-gap:2px;}
+.tr-intro-loop .tr-track-head b{white-space:normal;}
+.tr-intro-loop .tr-steps a{height:100%;}
+/* ---------- Session typing (DF-1, DF-2) ---------- Waiting lines keep their space; each line wipes in with a typewriter step. */
+.tr-wait{visibility:hidden;}
+.tr-in{animation:tr-type var(--tr-d,400ms) steps(18,end) both;}
+@keyframes tr-type{from{clip-path:inset(0 100% 0 0);}to{clip-path:inset(0 0 0 0);}}
+.tr-session[data-typing] .tr-cmd code::after{content:"";display:inline-block;width:.55em;height:1.05em;margin-left:2px;vertical-align:-2px;background:var(--teal-soft);animation:tr-caret 1s steps(2,start) infinite;}
+@keyframes tr-caret{to{visibility:hidden;}}
+.tr-cmd{display:flex;align-items:center;gap:8px;}
+.tr-run{margin-left:auto;min-height:32px;padding:4px 12px;border:1px solid var(--border);border-radius:999px;background:transparent;color:var(--ink-dim);font:inherit;font-size:var(--ty-body-sm);cursor:pointer;}
+.tr-run:hover{color:var(--ink);border-color:var(--accent);}
+.tr-run:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+@media (prefers-reduced-motion:reduce){.tr-run{display:none;}.tr-in{animation:none;}}
+/* ---------- The reward ---------- Shown after the Nexus boss falls: a short trailer of Nexus AI Studio and its download. */
+.tr-reward{margin:var(--sp-5) 0 0;padding:var(--sp-5);border:1px solid var(--accent);border-radius:20px;background:radial-gradient(120% 120% at 50% 0%,color-mix(in srgb,var(--accent) 16%,var(--surface)),var(--surface));text-align:center;scroll-margin-top:96px;}
+.tr-reward:focus{outline:none;}
+.tr-reward-kicker{margin:0;font-family:var(--mono);font-size:var(--ty-body-sm);font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--teal-soft);}
+.tr-reward-title{margin:6px 0 8px;font-size:var(--ty-h2,1.7rem);color:var(--ink);}
+.tr-reward-lead{margin:0 auto;color:var(--ink-dim);text-wrap:pretty;}
+.tr-reward-lead b{color:var(--ink);}
+.tr-trailer{position:relative;margin:var(--sp-4) auto 0;padding:var(--sp-4);border:1px solid var(--border);border-radius:16px;background:var(--bg-0,var(--surface));overflow:hidden;}
+.tr-scenes{position:relative;min-height:132px;}
+.tr-scene{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:var(--sp-4);text-align:left;opacity:0;transform:translateY(8px);transition:opacity .5s var(--ease),transform .5s var(--ease);background:var(--bg-0,var(--surface));}
+.tr-scene.is-on{opacity:1;transform:none;}
+.tr-scene-icon{flex:none;width:92px;height:92px;display:grid;place-items:center;border-radius:22px;background:color-mix(in srgb,var(--accent) 12%,transparent);}
+.tr-scene-icon svg{width:64px;height:64px;}
+.tr-scene.is-on .tr-scene-icon{animation:tr-pop .6s var(--ease) both;}
+@keyframes tr-pop{from{transform:scale(.8);}to{transform:none;}}
+.tr-tl-line{fill:none;stroke:var(--teal-soft);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;}
+.tr-tl-fill{fill:var(--teal-soft);}
+.tr-scene-title{margin:0;font-size:var(--ty-lead);font-weight:800;color:var(--ink);}
+.tr-scene-line{margin:4px 0 0;color:var(--ink-dim);}
+.tr-trailer-dots{display:flex;justify-content:center;gap:6px;margin-top:var(--sp-3);}
+.tr-trailer-dot{width:22px;height:4px;border-radius:2px;background:var(--border);transition:background .3s var(--ease);}
+.tr-trailer-dot.is-on{background:var(--accent);}
+.tr-reward-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:var(--sp-3);margin-top:var(--sp-4);}
+.tr-download{display:inline-flex;align-items:center;min-height:52px;padding:12px 22px;border-radius:14px;background:var(--accent);color:var(--bg-0,#061316);font-weight:800;text-decoration:none;}
+.tr-download:hover{filter:brightness(1.08);}
+.tr-download:focus-visible,.tr-reward-more:focus-visible{outline:2px solid var(--ink);outline-offset:3px;}
+.tr-reward-more{display:inline-flex;align-items:center;min-height:52px;padding:12px 18px;border:1px solid var(--border);border-radius:14px;color:var(--ink);text-decoration:none;}
+.tr-reward-note{margin:var(--sp-3) 0 0;color:var(--ink-dim);font-size:var(--ty-body-sm);}
+@media (max-width:640px){.tr-scenes{min-height:220px;}.tr-scene{flex-direction:column;text-align:center;gap:var(--sp-2);}.tr-scene-icon{width:72px;height:72px;}.tr-scene-icon svg{width:50px;height:50px;}.tr-reward{padding:var(--sp-4) var(--sp-3);}}
+/* Reduced motion: no slideshow; every scene is shown as a list. */
+@media (prefers-reduced-motion:reduce){.tr-scenes{min-height:0;display:grid;gap:var(--sp-3);}.tr-scene{position:static;opacity:1;transform:none;transition:none;justify-content:flex-start;}.tr-scene.is-on .tr-scene-icon{animation:none;}.tr-trailer-dots{display:none;}}
+/* ---------- Continue link ---------- Ends every stage but the last and names where it goes. */
+.tr-next{margin:var(--sp-5) 0 0;display:flex;justify-content:flex-end;}
+.tr-next-link{display:inline-flex;align-items:center;gap:14px;min-height:56px;padding:10px 18px;border:1px solid var(--accent);border-radius:14px;background:color-mix(in srgb,var(--accent) 10%,var(--surface));color:var(--ink);text-decoration:none;max-width:100%;}
+.tr-next-link:hover{background:color-mix(in srgb,var(--accent) 18%,var(--surface));}
+.tr-next-link:focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
+.tr-next-label{font-weight:800;color:var(--teal-soft);text-transform:uppercase;letter-spacing:.06em;font-size:var(--ty-body-sm);}
+.tr-next-where{display:flex;flex-direction:column;min-width:0;}
+.tr-next-where small{color:var(--ink-dim);font-size:var(--ty-micro);}
+.tr-next-where b{font-size:var(--ty-body);}
+.tr-next-where code{align-self:flex-start;margin-top:2px;background:transparent;border:0;padding:0;color:var(--teal-soft);font-size:var(--ty-body-sm);}
+.tr-next-arrow{font-size:1.4em;color:var(--teal-soft);}
+@media (max-width:720px){.tr-next{justify-content:stretch;}.tr-next-link{width:100%;}}
+.tr-intro-loop .tr-track-head code{font-size:inherit;}
 .tr-track-head{display:flex;align-items:baseline;gap:10px;margin:0 0 8px;}
 .tr-track-head b{color:var(--ink);font-size:var(--ty-body);white-space:nowrap;}
 .tr-track-head span{color:var(--ink-dim);font-size:var(--ty-body-sm);}
@@ -216,6 +301,8 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .tr-steps [data-state="mapped"] a{opacity:.62;border-style:dashed;}
 .tr-steps [data-state="current"] a{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent),0 0 18px 0 var(--accent-glow,rgba(45,212,191,.35));}
 @media (max-width:720px){.tr-steps{grid-template-columns:repeat(3,minmax(0,1fr));}.tr-steps a{min-height:52px;padding:8px;}}
+/* Below 420 px three columns clip the longer commands, so the six steps sit in two. */
+@media (max-width:420px){.tr-steps{grid-template-columns:repeat(2,minmax(0,1fr));}}
 /* ---------- Stage banner and model badge ---------- Every stage opens with where the reader is, what to do now, and (for agent steps) what the agent uses: tier, effort, and the model that tier maps to today. */
 .tr-banner{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,380px);gap:var(--sp-4);align-items:start;margin:0 0 var(--sp-4);padding:var(--sp-4) var(--sp-5);border:1px solid color-mix(in srgb,var(--accent) 45%,var(--border));border-radius:16px;background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 12%,var(--surface)),var(--surface) 70%);}
 .tr-banner:not(:has(.tr-badge,.tr-callout)){grid-template-columns:minmax(0,1fr);}
@@ -263,7 +350,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .tr-diff[data-long] pre{max-height:640px;overflow-y:auto;}
 .tr-checks{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:6px;}
 .tr-checks li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:baseline;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg-0);}
-.tr-check-mark{font-weight:800;}
+.tr-check-mark{display:inline-block;min-width:1.25em;text-align:center;font-weight:800;}
 .tr-checks [data-result="pass"] .tr-check-mark{color:#4ade80;}
 .tr-checks [data-result="fail"] .tr-check-mark{color:#f87171;}
 /* v4.13.10: deeper shades on the light theme keep the marks and status labels at WCAG AA (>= 5.4:1 on every light background). */
@@ -304,8 +391,10 @@ html[data-theme="light"] .tr-tab-status[data-status="modified"]{color:#92400e;bo
 .tr-callout-title{margin:0 0 4px;font-weight:800;color:var(--ink);font-size:var(--ty-lead);}
 .tr-callout ul{margin:0;padding-left:1.15em;color:var(--ink);}
 .tr-callout-hidden{margin:8px 0 0;color:var(--ink-dim);}
+/* The fixed game's callout reports a fix, not a bug, so it takes the accent rather than the warning amber. */
+.tr-callout[data-tone="ok"]{border-color:color-mix(in srgb,var(--accent) 55%,transparent);border-left-color:var(--accent);background:color-mix(in srgb,var(--accent) 9%,var(--surface));}
 .tr-after{margin:var(--sp-3) 0 0;color:var(--ink-dim);}
-@media (max-width:980px){.tr-banner{grid-template-columns:minmax(0,1fr);}.tr-work{grid-template-columns:minmax(0,1fr);}}
+@media (max-width:980px){.tr-banner,.tr-banner:has(.tr-callout){grid-template-columns:minmax(0,1fr);}.tr-work{grid-template-columns:minmax(0,1fr);}}
 @media (max-width:720px){.tr-banner{padding:var(--sp-3) var(--sp-4);}.tr-badge-grid{grid-template-columns:auto minmax(0,1fr);}.tr-badge-pair:last-child{grid-column:1 / -1;}}
 /* ---------- Sky Sentinel (the game) ---------- The arena spans the full content width; the HUD and touch controls are HTML so screen readers and tests read text, not pixels. */
 .ss{display:grid;gap:10px;margin:var(--sp-4) 0;}
@@ -464,14 +553,18 @@ html[data-theme="light"] .tr-tab-status[data-status="modified"]{color:#92400e;bo
     <section class="page tr-stage" data-stage="intro" aria-labelledby="st-intro"><div class="container">
       <div class="pg-open">
         <h1 data-ty="h1" class="pg-open-title" id="st-intro">Learn the Nexus loop by <span class="gtext">fixing a game</span></h1>
-        <p data-ty="lead" class="pg-open-lead">Training walks the whole loop from the Home page on one small arcade game that ships with two bugs. Play it, watch an agent describe, review, plan, implement, test, and update the code, then play again. A second, shorter loop catches the bug the first one could not see.</p>
-        <ol class="pg-map" aria-label="The Training journey">
-          <li><span class="pg-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg></span><div><b>Introduction</b><span>How Training works and what each stage does</span></div><a href="#intro" aria-label="Introduction: How Training works and what each stage does"></a></li>
-          <li><span class="pg-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 9h6v8a3 3 0 0 1-6 0V9Z"/><path d="M9 9a3 3 0 0 1 6 0M4 12h5M15 12h5M5 18l4-2M19 18l-4-2M5 6l4 3M19 6l-4 3"/></svg></span><div><b>Play the buggy game</b><span>Meet the bug the loop will fix</span></div><a href="#play-buggy" aria-label="Play the buggy game: Meet the bug the loop will fix"></a></li>
-          <li><span class="pg-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg></span><div><b>Loop 1</b><span>Describe, review, plan, implement, test, update</span></div><a href="#loop1/describe" aria-label="Loop 1: Describe, review, plan, implement, test, update"></a></li>
-          <li><span class="pg-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 5v14l11-7L7 5Z"/></svg></span><div><b>Play again</b><span>One bug fixed, one still hiding</span></div><a href="#play-partial" aria-label="Play again: One bug fixed, one still hiding"></a></li>
-          <li><span class="pg-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.5-4.5"/></svg></span><div><b>Loop 2</b><span>Review finds the hidden bug; a shorter loop fixes it</span></div><a href="#loop2/review" aria-label="Loop 2: Review finds the hidden bug; a shorter loop fixes it"></a></li>
-          <li><span class="pg-glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0V4ZM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 20h8"/></svg></span><div><b>Play the fixed game</b><span>Three levels and a final boss</span></div><a href="#play-fixed" aria-label="Play the fixed game: Three levels and a final boss"></a></li>
+        <p data-ty="lead" class="pg-open-lead">Watch an agent fix a buggy game through the whole Nexus loop, twice.</p>
+        <figure class="pg-fig" role="img" aria-label="The Training journey: a buggy game, loop 1 fixes the first bug, play again and the second bug shows, loop 2 fixes it, then the fixed game with levels and a boss." data-seq-root data-seq-loop data-seq-hold="2600"><svg class="pgf-svg pgf-svg--wide" viewBox="0 0 720 176" aria-hidden="true" focusable="false"><g class="seq-rise" data-seq="1" data-seq-dur="420"><g transform="translate(70 74)"><rect class="pgf-box" x="-34" y="-28" width="68" height="56" rx="10"/><path class="pgf-ship" d="M0 2 L9 19 L0 15 L-9 19 Z"/><g class="pgf-bad"><circle cx="17" cy="-13" r="6"/><path d="M11 -18 L8 -21 M23 -18 L26 -21 M10 -13 H6 M24 -13 H28 M11 -8 L8 -5 M23 -8 L26 -5"/></g></g><text class="pgf-t" x="70" y="136" text-anchor="middle">Buggy game</text><text class="pgf-t pgf-t--dim" x="70" y="158" text-anchor="middle">two hidden bugs</text></g><path class="pgf-line seq-draw" data-seq="2" data-seq-dur="380" pathLength="1" d="M114 74 H171"/><g class="seq-rise" data-seq="3" data-seq-dur="420"><g transform="translate(215 74)"><g class="pgf-spin"><circle class="pgf-ring" r="30"/><circle class="pgf-dot" cx="0.0" cy="-30.0" r="4"/><circle class="pgf-dot" cx="26.0" cy="-15.0" r="4"/><circle class="pgf-dot" cx="26.0" cy="15.0" r="4"/><circle class="pgf-dot" cx="0.0" cy="30.0" r="4"/><circle class="pgf-dot" cx="-26.0" cy="15.0" r="4"/><circle class="pgf-dot" cx="-26.0" cy="-15.0" r="4"/><path class="pgf-ring-head" d="M26 -9 L30 -1 L36 -8"/></g><text class="pgf-t pgf-t--num" x="0" y="6" text-anchor="middle">1</text></g><text class="pgf-t" x="215" y="136" text-anchor="middle">Loop 1</text><text class="pgf-t pgf-t--dim" x="215" y="158" text-anchor="middle">fixes the first</text></g><path class="pgf-line seq-draw" data-seq="4" data-seq-dur="380" pathLength="1" d="M259 74 H316"/><g class="seq-rise" data-seq="5" data-seq-dur="420"><g transform="translate(360 74)"><rect class="pgf-box" x="-34" y="-28" width="68" height="56" rx="10"/><path class="pgf-ship" d="M0 2 L9 19 L0 15 L-9 19 Z"/><path class="pgf-warn" d="M17 -22 L19.5 -15.5 L26 -16 L21 -11.5 L24 -5 L17 -8.5 L10 -5 L13 -11.5 L8 -16 L14.5 -15.5 Z"/></g><text class="pgf-t" x="360" y="136" text-anchor="middle">Play again</text><text class="pgf-t pgf-t--dim" x="360" y="158" text-anchor="middle">the second shows</text></g><path class="pgf-line seq-draw" data-seq="6" data-seq-dur="380" pathLength="1" d="M404 74 H461"/><g class="seq-rise" data-seq="7" data-seq-dur="420"><g transform="translate(505 74)"><g class="pgf-spin"><circle class="pgf-ring" r="30"/><circle class="pgf-dot" cx="0.0" cy="-30.0" r="4"/><circle class="pgf-dot" cx="28.5" cy="-9.3" r="4"/><circle class="pgf-dot" cx="17.6" cy="24.3" r="4"/><circle class="pgf-dot" cx="-17.6" cy="24.3" r="4"/><circle class="pgf-dot" cx="-28.5" cy="-9.3" r="4"/><path class="pgf-ring-head" d="M26 -9 L30 -1 L36 -8"/></g><text class="pgf-t pgf-t--num" x="0" y="6" text-anchor="middle">2</text></g><text class="pgf-t" x="505" y="136" text-anchor="middle">Loop 2</text><text class="pgf-t pgf-t--dim" x="505" y="158" text-anchor="middle">fixes the second</text></g><path class="pgf-line seq-draw" data-seq="8" data-seq-dur="380" pathLength="1" d="M549 74 H606"/><g class="seq-rise" data-seq="9" data-seq-dur="420"><g transform="translate(650 74)"><rect class="pgf-box" x="-34" y="-28" width="68" height="56" rx="10"/><path class="pgf-ship" d="M0 2 L9 19 L0 15 L-9 19 Z"/><g class="pgf-ok"><circle cx="17" cy="-13" r="7"/><path d="M13.5 -13 L16 -10.5 L20.5 -15.5"/></g></g><text class="pgf-t" x="650" y="136" text-anchor="middle">Fixed game</text><text class="pgf-t pgf-t--dim" x="650" y="158" text-anchor="middle">levels and a boss</text></g></svg><svg class="pgf-svg pgf-svg--narrow" viewBox="0 0 320 456" aria-hidden="true" focusable="false"><g class="seq-rise" data-seq="1" data-seq-dur="420"><g transform="translate(58 50) scale(.82)"><rect class="pgf-box" x="-34" y="-28" width="68" height="56" rx="10"/><path class="pgf-ship" d="M0 2 L9 19 L0 15 L-9 19 Z"/><g class="pgf-bad"><circle cx="17" cy="-13" r="6"/><path d="M11 -18 L8 -21 M23 -18 L26 -21 M10 -13 H6 M24 -13 H28 M11 -8 L8 -5 M23 -8 L26 -5"/></g></g><text class="pgf-t" x="112" y="47" text-anchor="start">Buggy game</text><text class="pgf-t pgf-t--dim" x="112" y="69" text-anchor="start">two hidden bugs</text></g><path class="pgf-line seq-draw" data-seq="2" data-seq-dur="380" pathLength="1" d="M58 86 V104"/><g class="seq-rise" data-seq="3" data-seq-dur="420"><g transform="translate(58 140) scale(.82)"><g class="pgf-spin"><circle class="pgf-ring" r="30"/><circle class="pgf-dot" cx="0.0" cy="-30.0" r="4"/><circle class="pgf-dot" cx="26.0" cy="-15.0" r="4"/><circle class="pgf-dot" cx="26.0" cy="15.0" r="4"/><circle class="pgf-dot" cx="0.0" cy="30.0" r="4"/><circle class="pgf-dot" cx="-26.0" cy="15.0" r="4"/><circle class="pgf-dot" cx="-26.0" cy="-15.0" r="4"/><path class="pgf-ring-head" d="M26 -9 L30 -1 L36 -8"/></g><text class="pgf-t pgf-t--num" x="0" y="6" text-anchor="middle">1</text></g><text class="pgf-t" x="112" y="137" text-anchor="start">Loop 1</text><text class="pgf-t pgf-t--dim" x="112" y="159" text-anchor="start">fixes the first</text></g><path class="pgf-line seq-draw" data-seq="4" data-seq-dur="380" pathLength="1" d="M58 176 V194"/><g class="seq-rise" data-seq="5" data-seq-dur="420"><g transform="translate(58 230) scale(.82)"><rect class="pgf-box" x="-34" y="-28" width="68" height="56" rx="10"/><path class="pgf-ship" d="M0 2 L9 19 L0 15 L-9 19 Z"/><path class="pgf-warn" d="M17 -22 L19.5 -15.5 L26 -16 L21 -11.5 L24 -5 L17 -8.5 L10 -5 L13 -11.5 L8 -16 L14.5 -15.5 Z"/></g><text class="pgf-t" x="112" y="227" text-anchor="start">Play again</text><text class="pgf-t pgf-t--dim" x="112" y="249" text-anchor="start">the second shows</text></g><path class="pgf-line seq-draw" data-seq="6" data-seq-dur="380" pathLength="1" d="M58 266 V284"/><g class="seq-rise" data-seq="7" data-seq-dur="420"><g transform="translate(58 320) scale(.82)"><g class="pgf-spin"><circle class="pgf-ring" r="30"/><circle class="pgf-dot" cx="0.0" cy="-30.0" r="4"/><circle class="pgf-dot" cx="28.5" cy="-9.3" r="4"/><circle class="pgf-dot" cx="17.6" cy="24.3" r="4"/><circle class="pgf-dot" cx="-17.6" cy="24.3" r="4"/><circle class="pgf-dot" cx="-28.5" cy="-9.3" r="4"/><path class="pgf-ring-head" d="M26 -9 L30 -1 L36 -8"/></g><text class="pgf-t pgf-t--num" x="0" y="6" text-anchor="middle">2</text></g><text class="pgf-t" x="112" y="317" text-anchor="start">Loop 2</text><text class="pgf-t pgf-t--dim" x="112" y="339" text-anchor="start">fixes the second</text></g><path class="pgf-line seq-draw" data-seq="8" data-seq-dur="380" pathLength="1" d="M58 356 V374"/><g class="seq-rise" data-seq="9" data-seq-dur="420"><g transform="translate(58 410) scale(.82)"><rect class="pgf-box" x="-34" y="-28" width="68" height="56" rx="10"/><path class="pgf-ship" d="M0 2 L9 19 L0 15 L-9 19 Z"/><g class="pgf-ok"><circle cx="17" cy="-13" r="7"/><path d="M13.5 -13 L16 -10.5 L20.5 -15.5"/></g></g><text class="pgf-t" x="112" y="407" text-anchor="start">Fixed game</text><text class="pgf-t pgf-t--dim" x="112" y="429" text-anchor="start">levels and a boss</text></g></svg></figure>
+      </div>
+      <div class="tr-intro-loop">
+        <p class="tr-track-head"><b>Each loop runs the six steps from Home</b><span>Loop 2 starts at <code>/review</code>: the game is already described.</span></p>
+        <ol class="tr-steps" aria-label="The six steps each loop runs">
+          <li><a href="#loop1/describe"><code data-ty="code">/describe</code><small>map the game and the reported bug</small></a></li>
+          <li><a href="#loop1/review"><code data-ty="code">/review</code><small>judge the code and find what is wrong</small></a></li>
+          <li><a href="#loop1/plan"><code data-ty="code">/plan</code><small>break the fix into small steps</small></a></li>
+          <li><a href="#loop1/implement"><code data-ty="code">/implement</code><small>make the change</small></a></li>
+          <li><a href="#loop1/test"><code data-ty="code">/test</code><small>prove the fix and guard it</small></a></li>
+          <li><a href="#loop1/update"><code data-ty="code">/update</code><small>record it and ship it</small></a></li>
         </ol>
       </div>
     </div></section>
@@ -488,7 +581,18 @@ html[data-theme="light"] .tr-tab-status[data-status="modified"]{color:#92400e;bo
     <section class="page tr-stage" data-stage="loop2/implement" aria-labelledby="st-l2-implement"><div class="container"><h1 data-ty="h1" id="st-l2-implement">Loop 2: implement</h1></div></section>
     <section class="page tr-stage" data-stage="loop2/test" aria-labelledby="st-l2-test"><div class="container"><h1 data-ty="h1" id="st-l2-test">Loop 2: test</h1></div></section>
     <section class="page tr-stage" data-stage="loop2/update" aria-labelledby="st-l2-update"><div class="container"><h1 data-ty="h1" id="st-l2-update">Loop 2: update</h1></div></section>
-    <section class="page tr-stage" data-stage="play-fixed" aria-labelledby="st-play-fixed"><div class="container"><h1 data-ty="h1" id="st-play-fixed">Play the fixed game</h1><div class="ss-host" data-ss-id="fixed" data-ss-defects="" data-ss-seed="4242" data-ss-progression data-ss-boss></div></div></section>
+    <section class="page tr-stage" data-stage="play-fixed" aria-labelledby="st-play-fixed"><div class="container"><h1 data-ty="h1" id="st-play-fixed">Play the fixed game</h1><div class="ss-host" data-ss-id="fixed" data-ss-defects="" data-ss-seed="4242" data-ss-progression data-ss-boss></div>
+      <section class="tr-reward" id="trReward" hidden tabindex="-1" aria-labelledby="trRewardTitle">
+        <p class="tr-reward-kicker">Final boss defeated</p>
+        <h2 class="tr-reward-title" id="trRewardTitle">You defeated the Nexus boss</h2>
+        <p class="tr-reward-lead">Your prize: <b>Nexus AI Studio</b>, the local-first desktop app built alongside Nexus Hub. The same agentic loop, plus chat, images, and video, all running on your own machine.</p>
+        <div class="tr-trailer" role="img" aria-label="Nexus AI Studio trailer: a local AI studio with four pillars on one desktop: agentic coding, local chat, an image studio, and a video lab, all running on your machine against open-source models with no tokens billed." data-seq-root data-seq-loop data-seq-hold="900"><div class="tr-scenes"><div class="tr-scene" data-seq="1" data-seq-dur="2300"><span class="tr-scene-icon tr-scene-icon--mark"><svg viewBox="0 0 512 512" aria-hidden="true"><use href="#nexus-mark"/></svg></span><div><p class="tr-scene-title">Nexus AI Studio</p><p class="tr-scene-line">Your local AI studio. Four pillars, one desktop, zero tokens billed.</p></div></div><div class="tr-scene" data-seq="2" data-seq-dur="2300"><span class="tr-scene-icon tr-scene-icon--code"><svg viewBox="0 0 64 64" aria-hidden="true"><path class="tr-tl-line" d="M24 18 10 32l14 14M40 18l14 14-14 14M35 12 29 52"/></svg></span><div><p class="tr-scene-title">Agentic coding</p><p class="tr-scene-line">Reads your repository, runs code in isolation, and builds features across files.</p></div></div><div class="tr-scene" data-seq="3" data-seq-dur="2300"><span class="tr-scene-icon tr-scene-icon--chat"><svg viewBox="0 0 64 64" aria-hidden="true"><path class="tr-tl-line" d="M10 14h32a6 6 0 0 1 6 6v14a6 6 0 0 1-6 6H26l-10 8v-8h-6a6 6 0 0 1-6-6V20a6 6 0 0 1 6-6Z"/><path class="tr-tl-line" d="M44 24h6a6 6 0 0 1 6 6v12a6 6 0 0 1-6 6h-2v6l-8-6H32"/></svg></span><div><p class="tr-scene-title">Local chat</p><p class="tr-scene-line">Chats organized in folders, with memory that keeps long threads coherent.</p></div></div><div class="tr-scene" data-seq="4" data-seq-dur="2300"><span class="tr-scene-icon tr-scene-icon--image"><svg viewBox="0 0 64 64" aria-hidden="true"><rect class="tr-tl-line" x="8" y="12" width="48" height="40" rx="6"/><circle class="tr-tl-fill" cx="42" cy="24" r="5"/><path class="tr-tl-line" d="m12 46 14-14 10 10 6-6 10 10"/></svg></span><div><p class="tr-scene-title">Image studio</p><p class="tr-scene-line">Text to image, inpainting, and outpainting on your own GPU.</p></div></div><div class="tr-scene" data-seq="5" data-seq-dur="2300"><span class="tr-scene-icon tr-scene-icon--video"><svg viewBox="0 0 64 64" aria-hidden="true"><rect class="tr-tl-line" x="8" y="14" width="48" height="36" rx="6"/><path class="tr-tl-fill" d="M28 24v16l13-8Z"/><path class="tr-tl-line" d="M8 22h48M8 42h48"/></svg></span><div><p class="tr-scene-title">Video lab</p><p class="tr-scene-line">Short clips from a prompt or a still image, with a timeline preview.</p></div></div><div class="tr-scene" data-seq="6" data-seq-dur="2300"><span class="tr-scene-icon tr-scene-icon--local"><svg viewBox="0 0 64 64" aria-hidden="true"><rect class="tr-tl-line" x="10" y="12" width="44" height="30" rx="4"/><path class="tr-tl-line" d="M22 52h20M32 42v10"/><path class="tr-tl-line" d="m24 27 6 6 11-12"/></svg></span><div><p class="tr-scene-title">Runs on your machine</p><p class="tr-scene-line">Open-source models, no cloud account, no tokens billed.</p></div></div></div><div class="tr-trailer-dots" aria-hidden="true"><span class="tr-trailer-dot" data-seq="1"></span><span class="tr-trailer-dot" data-seq="2"></span><span class="tr-trailer-dot" data-seq="3"></span><span class="tr-trailer-dot" data-seq="4"></span><span class="tr-trailer-dot" data-seq="5"></span><span class="tr-trailer-dot" data-seq="6"></span></div></div>
+        <div class="tr-reward-actions">
+          <a class="tr-download" href="https://github.com/bendourthe/Nexus-AI/releases/latest/download/NexusSetup.exe">Download Nexus AI Studio for Windows (.exe)</a>
+          <a class="tr-reward-more" href="https://github.com/bendourthe/Nexus-AI/releases/latest" target="_blank" rel="noopener">See the release and other platforms</a>
+        </div>
+        <p class="tr-reward-note">The installer is about 270 MB and comes from the project&#39;s latest GitHub release. The project page explains what it installs.</p>
+      </section></div></section>
   </main>
 
 <!-- shared:footer -->
@@ -1354,16 +1458,18 @@ html[data-theme="light"] .tr-tab-status[data-status="modified"]{color:#92400e;bo
       "kind": "play",
       "game": "fixed",
       "banner": {
-        "step": "After both loops",
-        "title": "Play the fixed game",
-        "now": "Play as long as the ship lasts."
+        "step": "The reward",
+        "title": "The finished game, fully working",
+        "now": "Play it for real: three levels, a stronger ship at each, and power-ups to collect."
       },
       "callout": {
+        "tone": "ok",
         "title": "Both bugs are fixed",
         "items": [
           "A hit costs one life, with a short invulnerability window.",
           "No life is ever lost without a hit."
-        ]
+        ],
+        "hidden": "Clear all three levels. Something is waiting at the end."
       },
       "after": "Two loops, two releases, and every claim backed by a test that would fail if the bug came back."
     }
@@ -1540,14 +1646,17 @@ html[data-theme="light"] .tr-tab-status[data-status="modified"]{color:#92400e;bo
     host.classList.add("ss");
     var stage = el("div", "ss-stage");
     var canvas = el("canvas", "ss-canvas");
-    canvas.setAttribute("role", "img");
+    canvas.setAttribute("role", "application");
+    canvas.setAttribute("aria-roledescription", "game");
     canvas.setAttribute("aria-label", "Sky Sentinel arena");
     canvas.tabIndex = 0;
     var overlay = el("div", "ss-overlay");
     var overTitle = el("p", "ss-over-title");
-    var startBtn = el("button", "ss-start", "Click to start");
+    var startBtn = el("button", "ss-start", "Start game");
     startBtn.type = "button";
     var hint = el("p", "ss-hint", "Arrows or WASD move, Space or click fires, Escape pauses.");
+    hint.id = "ss-hint-" + id;
+    canvas.setAttribute("aria-describedby", hint.id);
     overlay.appendChild(overTitle);
     overlay.appendChild(startBtn);
     overlay.appendChild(hint);
@@ -2251,7 +2360,7 @@ html[data-theme="light"] .tr-tab-status[data-status="modified"]{color:#92400e;bo
       overlay.hidden = S.state === "running";
       overTitle.textContent = S.victory ? "The Nexus megaship is down" : S.state === "over" ? (S.overReason === "first-hit" ? "Destroyed by the first hit" : "Game over") : "";
       overTitle.hidden = !overTitle.textContent;
-      startBtn.textContent = S.state === "paused" ? "Resume" : S.state === "over" ? "Play again" : "Click to start";
+      startBtn.textContent = S.state === "paused" ? "Resume" : S.state === "over" ? "Play again" : "Start game";
       host.setAttribute("data-ss-state", S.state);
     }
 
@@ -2268,6 +2377,8 @@ html[data-theme="light"] .tr-tab-status[data-status="modified"]{color:#92400e;bo
       sync();
       wake();
       canvas.focus({ preventScroll: true });
+      /* The banner and callout can push the arena below the fold; bring the whole game into view. */
+      if (host.offsetParent !== null && host.scrollIntoView) host.scrollIntoView({ block: "nearest", behavior: REDUCED ? "auto" : "smooth" });
     }
     function pause(reason) {
       if (!S || S.state !== "running") return;
@@ -2663,6 +2774,9 @@ window.NexusTrainingStory = (function () {
     var cmd = el("p", "tr-cmd");
     cmd.appendChild(el("span", "tr-prompt", ">"));
     cmd.appendChild(el("code", null, st.command));
+    var run = el("button", "tr-run", "Run again");
+    run.type = "button";
+    cmd.appendChild(run);
     art.appendChild(cmd);
     art.appendChild(el("p", "tr-summary", st.session.summary));
     var parts = [];
@@ -2696,7 +2810,7 @@ window.NexusTrainingStory = (function () {
     row("Model map", "verified " + models.verified_as_of + ", from " + models.source);
     details.appendChild(dl);
     art.appendChild(details);
-    return { article: art, parts: parts };
+    return { article: art, parts: parts, cmd: cmd, run: run };
   }
 
   function activityFor(st) {
@@ -2714,6 +2828,68 @@ window.NexusTrainingStory = (function () {
     });
     box.appendChild(ol);
     return box;
+  }
+
+  /* Sessions type themselves out the first time a stage is shown, so a step reads like a live
+     agent run: the command is typed, then each part of the report and each activity line appears in
+     reading order. "Skip" finishes at once and "Run again" replays. Layout never moves: waiting
+     lines keep their space (visibility, not display). Reduced motion shows the finished report.
+     Automated browsers (navigator.webdriver) also see it finished unless they turn typing on, so
+     measurements read the whole report. */
+  var REDUCED_MOTION = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  var autoType = !REDUCED_MOTION && !navigator.webdriver;
+  function lines(w) {
+    var out = [w.article.querySelector(".tr-summary")];
+    w.parts.forEach(function (part) {
+      var nodes = part.querySelectorAll(".tr-section-title, .tr-items > li, .tr-snippet, .tr-diff, .tr-checks > li");
+      for (var i = 0; i < nodes.length; i++) out.push(nodes[i]);
+    });
+    return out;
+  }
+  function finish(w) {
+    w.timers.forEach(window.clearTimeout);
+    w.timers = [];
+    var code = w.cmd.querySelector("code");
+    if (code.hasAttribute("data-full")) { code.textContent = code.getAttribute("data-full"); code.removeAttribute("data-full"); }
+    var waiting = w.grid.querySelectorAll(".tr-wait, .tr-in");
+    for (var i = 0; i < waiting.length; i++) waiting[i].classList.remove("tr-wait", "tr-in");
+    w.article.removeAttribute("data-typing");
+    w.run.textContent = "Run again";
+  }
+  function type(w) {
+    finish(w);
+    if (REDUCED_MOTION) return;
+    w.played = true;
+    var report = lines(w), acts = w.activity.querySelectorAll("li"), code = w.cmd.querySelector("code");
+    var full = code.textContent;
+    report.forEach(function (n) { n.classList.add("tr-wait"); });
+    for (var a = 0; a < acts.length; a++) acts[a].classList.add("tr-wait");
+    w.article.setAttribute("data-typing", "");
+    w.run.textContent = "Skip";
+    code.setAttribute("data-full", full);
+    code.textContent = "";
+    var t = 0;
+    function at(ms, fn) { w.timers.push(window.setTimeout(fn, ms)); }
+    for (var c = 1; c <= full.length; c++) at(t += 38, (function (n) { return function () { code.textContent = full.slice(0, n); }; })(c));
+    t += 220;
+    var shownActs = 0;
+    report.forEach(function (n, i) {
+      var len = (n.textContent || "").length, dur = Math.max(160, Math.min(1100, len * 9));
+      at(t, function () { n.style.setProperty("--tr-d", dur + "ms"); n.classList.remove("tr-wait"); n.classList.add("tr-in"); });
+      var due = Math.round((i + 1) / report.length * acts.length);
+      while (shownActs < due) {
+        at(t + 80, (function (li) { return function () { li.classList.remove("tr-wait"); li.classList.add("tr-in"); }; })(acts[shownActs]));
+        shownActs += 1;
+      }
+      t += dur + 90;
+    });
+    at(t, function () { finish(w); });
+  }
+  function play(id) {
+    works.forEach(function (w) {
+      if (w.id !== id) { if (w.article.hasAttribute("data-typing")) finish(w); return; }
+      if (autoType && !w.played) type(w);
+    });
   }
 
   /* Keep the two columns close in height. With the columns side by side, two moves are
@@ -2810,6 +2986,7 @@ window.NexusTrainingStory = (function () {
   function calloutFor(st) {
     var box = el("aside", "tr-callout");
     box.setAttribute("role", "note");
+    box.setAttribute("data-tone", st.callout.tone === "ok" ? "ok" : "warn");
     box.appendChild(el("p", "tr-callout-title", st.callout.title));
     var ul = el("ul");
     st.callout.items.forEach(function (t) { ul.appendChild(el("li", null, t)); });
@@ -2819,6 +2996,25 @@ window.NexusTrainingStory = (function () {
   }
 
   /* -------------------------------------------------- build */
+  /* Every stage but the last ends with a link to the next one, so the journey never depends on
+     finding the outline. It names the next stage the way its banner will. */
+  function continueFor(next) {
+    var nav = el("nav", "tr-next");
+    nav.setAttribute("aria-label", "Next stage");
+    var a = el("a", "tr-next-link");
+    a.href = "#" + next.id;
+    a.appendChild(el("span", "tr-next-label", "Continue"));
+    var where = el("span", "tr-next-where");
+    where.appendChild(el("small", null, next.banner.step));
+    where.appendChild(el("b", null, next.banner.title));
+    if (next.command) where.appendChild(el("code", null, next.command.split(" ")[0]));
+    a.appendChild(where);
+    a.appendChild(el("span", "tr-next-arrow", "\u2192"));
+    a.lastChild.setAttribute("aria-hidden", "true");
+    nav.appendChild(a);
+    return nav;
+  }
+
   function render(sectionFor, notice) {
     var story, problem = null;
     try {
@@ -2836,11 +3032,14 @@ window.NexusTrainingStory = (function () {
     }
     var stored = storedProvider();
     provider = models.providers.indexOf(stored) !== -1 ? stored : story.defaultProvider;
-    story.stages.forEach(function (st) {
-      if (st.kind === "intro") return;
+    story.stages.forEach(function (st, i) {
       var section = sectionFor(st.id);
       var box = section && section.querySelector(".container");
       if (!box) return;
+      var next = story.stages[i + 1];
+      if (next) box.appendChild(continueFor(next));
+      if (st.kind === "intro") return;
+      var nextNav = box.lastChild.classList && box.lastChild.classList.contains("tr-next") ? box.lastChild : null;
       var heading = box.querySelector("h1");
       var host = box.querySelector("[data-ss-id]");
       var banner = bannerFor(st, heading);
@@ -2848,7 +3047,7 @@ window.NexusTrainingStory = (function () {
       if (st.kind === "play") {
         banner.appendChild(calloutFor(st));
         var after = el("p", "tr-after", st.after);
-        if (host && host.nextSibling) box.insertBefore(after, host.nextSibling); else box.appendChild(after);
+        if (host && host.nextSibling) box.insertBefore(after, host.nextSibling); else box.insertBefore(after, nextNav);
       } else {
         var grid = el("div", "tr-work");
         var report = sessionFor(st);
@@ -2864,11 +3063,16 @@ window.NexusTrainingStory = (function () {
         side.appendChild(more);
         grid.appendChild(main);
         grid.appendChild(side);
-        box.appendChild(grid);
-        works.push({
+        box.insertBefore(grid, nextNav);
+        var w = {
           id: st.id, grid: grid, main: main, article: report.article, side: side, activity: activity,
-          more: more, parts: report.parts, details: report.article.querySelector(".tr-details")
-        });
+          more: more, parts: report.parts, details: report.article.querySelector(".tr-details"),
+          cmd: report.cmd, run: report.run, timers: [], played: false
+        };
+        report.run.addEventListener("click", (function (work) {
+          return function () { if (work.article.hasAttribute("data-typing")) finish(work); else type(work); };
+        })(w));
+        works.push(w);
       }
     });
     var timer = null;
@@ -2880,7 +3084,11 @@ window.NexusTrainingStory = (function () {
       story: story,
       provider: function () { return provider; },
       setProvider: setProvider,
-      rebalance: function (id) { works.forEach(function (w) { if (!id || w.id === id) rebalance(w); }); }
+      rebalance: function (id) { works.forEach(function (w) { if (!id || w.id === id) rebalance(w); }); },
+      play: play,
+      typing: function (on) { if (on != null) autoType = !!on && !REDUCED_MOTION; return autoType; },
+      replay: function (id) { works.forEach(function (w) { if (w.id === id) type(w); }); },
+      skip: function (id) { works.forEach(function (w) { if (!id || w.id === id) finish(w); }); }
     };
   }
 
@@ -3355,7 +3563,7 @@ window.NexusTrainingStory = (function () {
     root.setAttribute("data-tr-stage", id);
     syncTracker(id);
     if (outline) outline.refresh();
-    if (story) story.rebalance(id);
+    if (story) { story.rebalance(id); story.play(id); }
     for (var gid in games) if (games[gid] && !sectionFor(id).contains(document.querySelector('[data-ss-id="' + gid + '"]'))) games[gid].pause("stage");
   }
 
@@ -3388,17 +3596,20 @@ window.NexusTrainingStory = (function () {
       id: gameId, defects: defects, seed: parseInt(hosts[g].getAttribute("data-ss-seed"), 10) || 1,
       progression: hosts[g].hasAttribute("data-ss-progression"), boss: hosts[g].hasAttribute("data-ss-boss")
     });
-    if (hosts[g].hasAttribute("data-ss-boss")) {
-      var jump = document.createElement("button");
-      jump.type = "button";
-      jump.className = "tr-jump-boss";
-      jump.textContent = "Jump to the boss";
-      jump.addEventListener("click", (function (game) { return function () { game.jumpToBoss(); }; })(games[gameId]));
-      hosts[g].parentNode.insertBefore(jump, hosts[g].nextSibling);
-    }
   }
 
   var story = window.NexusTrainingStory.render(sectionFor, notice);
+
+  /* Defeating the Nexus boss in the finished game opens the reward. */
+  var reward = document.getElementById("trReward");
+  function showReward() {
+    if (!reward || !reward.hidden) return;
+    reward.hidden = false;
+    var still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    reward.scrollIntoView({ block: "start", behavior: still ? "auto" : "smooth" });
+    reward.focus({ preventScroll: true });
+  }
+  if (games.fixed) games.fixed.on("bossDefeated", showReward);
 
   outline = window.NexusOutline.mount(document.getElementById("trOutline"), PARTS, {
     mode: "route", label: "Training", current: function () { return partOf(stage); }
@@ -3412,7 +3623,8 @@ window.NexusTrainingStory = (function () {
     go: function (id) { window.location.hash = "#" + id; },
     tracker: tracker,
     games: function () { return Object.keys(games); },
-    story: function () { return story; }
+    story: function () { return story; },
+    reward: function () { return reward && !reward.hidden; }
   };
 })();
 </script>

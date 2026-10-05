@@ -63,6 +63,18 @@ def test_check_reports_a_changed_map_cell(tmp_path: Path) -> None:
     other.write_text(json.dumps(changed), encoding="utf-8")
     result = _run(root, "--check", "--map", str(other))
     assert result.returncode == 1 and "drift" in result.stderr
+    # The message names the cell and the stages whose badge shows it.
+    assert "frontier/OpenAI" in result.stderr and "'model-o1-new'" in result.stderr
+    assert "loop1/review" in result.stderr
+
+
+def test_a_map_carrying_a_comment_opener_is_refused(tmp_path: Path) -> None:
+    hostile = json.loads(json.dumps(MAP))
+    hostile["tiers"]["fast"]["OpenAI"] = "model <!--<script>"
+    root = _root(tmp_path, model_map=hostile)
+    result = _run(root)
+    assert result.returncode == 2 and "<!--" in result.stderr
+    assert _page(root) == PAGE
 
 
 def test_a_missing_map_is_an_error_and_writes_nothing(tmp_path: Path) -> None:

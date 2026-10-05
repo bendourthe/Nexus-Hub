@@ -78,8 +78,8 @@ def build_block(model_map: dict) -> str:
         "tiers": tiers,
     }
     text = json.dumps(payload, indent=1, ensure_ascii=True)
-    if "</" in text:
-        raise StampError("the model map contains '</', which cannot sit inside a script block")
+    if "</" in text or "<!--" in text:
+        raise StampError("the model map contains '</' or '<!--', which cannot sit inside a script block")
     return f'<script type="application/json" id="nh-training-models">\n{text}\n</script>\n'
 
 
@@ -93,6 +93,25 @@ def check_story(story: dict, model_map: dict) -> None:
         badge = stage.get("badge")
         if badge and badge.get("tier") not in tiers:
             raise StampError(f"stage {stage.get('id')}: badge tier {badge.get('tier')!r} is not in the model map")
+
+
+def _drift_lines(current: str, block: str, story: dict) -> list[str]:
+    """Name each map cell that differs and the stages whose badge shows it."""
+    def tiers_of(text: str) -> dict:
+        try:
+            return json.loads(text.split("\n", 1)[1].rsplit("</script>", 1)[0])["tiers"]
+        except (IndexError, KeyError, ValueError):
+            return {}
+
+    old, new = tiers_of(current), tiers_of(block)
+    lines = []
+    for tier in sorted(set(old) | set(new)):
+        for provider in sorted(set(old.get(tier, {})) | set(new.get(tier, {}))):
+            was, now = old.get(tier, {}).get(provider), new.get(tier, {}).get(provider)
+            if was != now:
+                stages = [s.get("id") for s in story.get("stages", []) if (s.get("badge") or {}).get("tier") == tier]
+                lines.append(f"{tier}/{provider}: page has {was!r}, map has {now!r} (stages: {', '.join(stages) or 'none'})")
+    return lines or ["the page's model block differs from the model map (source or verification date)"]
 
 
 def stamp(root: Path, map_path: Path, check: bool) -> int:
@@ -112,7 +131,8 @@ def stamp(root: Path, map_path: Path, check: bool) -> int:
     current = found[0].group(1)
     if check:
         if current != block:
-            print("stamp_training_models: drift -- the page's model block differs from the model map", file=sys.stderr)
+            for line in _drift_lines(current, block, _json(root / STORY, "story")):
+                print(f"stamp_training_models: drift -- {line}", file=sys.stderr)
             return 1
         print(f"stamp_training_models: OK -- the page matches the model map (verified {model_map.get('verified_as_of', 'unknown')})")
         return 0
