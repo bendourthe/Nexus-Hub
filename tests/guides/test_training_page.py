@@ -79,7 +79,8 @@ def test_every_stage_has_one_section_with_a_heading(html: str) -> None:
     assert found == STAGES
     for stage in STAGES:
         block = re.search(r'data-stage="' + re.escape(stage) + r'"[^>]*>(.*?)</section>', html, re.DOTALL)
-        assert block and "<h1" in block.group(1), stage
+        assert block and re.search(r"<h[12]\b", block.group(1)), stage
+    assert len(re.findall(r"<h1\b", html)) == 1, "one scrolling page carries one h1"
 
 
 # --- Browser -----------------------------------------------------------------------
@@ -133,21 +134,37 @@ def _open(pw, route: str = "#intro", block_storage: bool = False):
 
 
 def test_every_stage_hash_resolves_offline(playwright_mod) -> None:
+    """v4.13.10 R3: one scrolling page; every hash lands its section just under the header."""
     with playwright_mod() as pw:
         browser, page, errors, external = _open(pw)
         try:
             assert page.evaluate("NexusTrainingPage.stages()") == STAGES
+            assert page.locator("section[data-stage]:visible").count() == len(STAGES), "every stage is on the page"
             for stage in STAGES:
-                page.evaluate(f"location.hash = '#{stage}'")
+                page.evaluate(f"NexusTrainingPage.go('{stage}')")
                 page.wait_for_function(f"NexusTrainingPage.stage() === '{stage}'")
-                visible = page.locator(f'section[data-stage="{stage}"]')
-                assert visible.is_visible()
-                assert page.locator("section[data-stage]:visible").count() == 1
+                top = page.evaluate(f"document.querySelector('section[data-stage=\"{stage}\"]').getBoundingClientRect().top")
+                if stage != "play-fixed":
+                    assert 40 <= top <= 140, (stage, top)
             assert not errors, errors
             assert not external, external
         finally:
             browser.close()
 
+
+def test_training_is_one_scrolling_page_in_workflow_order(playwright_mod) -> None:
+    """Maintainer review (R3): no stage switching and no Continue buttons; each loop opens with its steps."""
+    with playwright_mod() as pw:
+        browser, page, errors, _external = _open(pw)
+        try:
+            order = page.evaluate("[...document.querySelectorAll('main > section')].map(s => s.id)")
+            assert order == STAGES[:2] + ["loop1"] + STAGES[2:9] + ["loop2"] + STAGES[9:]
+            assert page.locator(".tr-next").count() == 0
+            tops = page.evaluate("[...document.querySelectorAll('section[data-stage]')].map(s => s.getBoundingClientRect().top)")
+            assert tops == sorted(tops), "the stages follow one another down the page"
+            assert not errors, errors
+        finally:
+            browser.close()
 
 def test_aliases_and_unknown_hashes(playwright_mod) -> None:
     with playwright_mod() as pw:
@@ -195,26 +212,6 @@ def test_menu_links_point_back_to_the_guide(playwright_mod) -> None:
             ]
             assert page.locator('#navLinks a[aria-current="page"]').inner_text() == "Training"
             assert page.locator("#site-footer").is_visible()
-        finally:
-            browser.close()
-
-
-def test_continue_links_walk_every_stage_in_order(playwright_mod) -> None:
-    """Maintainer review (WN-2): every stage but the last ends with a Continue link to the next."""
-    with playwright_mod() as pw:
-        browser, page, errors, _external = _open(pw)
-        try:
-            walked = [page.evaluate("NexusTrainingPage.stage()")]
-            while True:
-                link = page.locator(f'section[data-stage="{walked[-1]}"] .tr-next-link')
-                if link.count() == 0:
-                    break
-                link.click()
-                page.wait_for_function(f"NexusTrainingPage.stage() !== '{walked[-1]}'")
-                walked.append(page.evaluate("NexusTrainingPage.stage()"))
-            assert walked == STAGES
-            assert page.locator(".tr-next").count() == len(STAGES) - 1
-            assert not errors, errors
         finally:
             browser.close()
 

@@ -56,7 +56,7 @@ def test_story_matches_its_schema() -> None:
 
 def test_story_stages_are_the_page_stages_in_order() -> None:
     page = TRAINING.read_bytes().decode("utf-8")
-    assert [s["id"] for s in _story()["stages"]] == re.findall(r'<section class="page tr-stage" data-stage="([^"]+)"', page)
+    assert [s["id"] for s in _story()["stages"]] == re.findall(r'<section class="tr-stage" id="[^"]+" data-stage="([^"]+)"', page)
 
 
 def test_both_loops_run_the_home_steps_and_loop_two_starts_at_review() -> None:
@@ -170,7 +170,7 @@ def test_every_session_shows_its_banner_badge_and_report(browser) -> None:
             _go(page, s["id"])
             sec = page.locator(f'section[data-stage="{s["id"]}"]')
             assert sec.locator(".tr-step").inner_text().lower() == s["banner"]["step"].lower()
-            assert sec.locator("h1").inner_text() == s["banner"]["title"]
+            assert sec.locator(".tr-title").inner_text() == s["banner"]["title"]
             assert s["banner"]["now"] in sec.locator(".tr-now").inner_text()
             badge = sec.locator(".tr-badge")
             assert badge.is_visible(), "the badge is always visible"

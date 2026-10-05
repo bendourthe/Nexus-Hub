@@ -451,6 +451,8 @@ to{transform:scaleX(1);}
   .tjf-track small{align-self:start;}
 }
 @media (prefers-reduced-motion:reduce){
+  /* Nothing in a figure moves under reduced motion, whatever selector started it. */
+  .pg-fig *,.pg-fig *::before,.pg-fig *::after{animation:none !important;}
   .fxo-pipe i,.fxo-tok i,.fxo-lines i,.fxo-gauge i,.fxo-core i,.fxo-core em,.fxo-loop path,.csf-steps li,.csf-pick,.csf-card,.csf-s2,.csf-line,.csf-copied,.csf-cursor,.csf-cursor svg,.tjf-track li::after,.tjf-art,.tjf-star,.tjf-flame,.tjf-enemy,.tjf-bug,.tjf-burst,.tjf-orbit,.tjf-boss{animation:none;}
   .fxo-gauge i{width:var(--w);}
   .fxo-tok i{border-color:color-mix(in srgb,var(--k) 70%,transparent);background:color-mix(in srgb,var(--k) 16%,transparent);}

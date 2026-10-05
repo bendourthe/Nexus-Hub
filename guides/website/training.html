@@ -285,6 +285,8 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
   .tjf-track small{align-self:start;}
 }
 @media (prefers-reduced-motion:reduce){
+  /* Nothing in a figure moves under reduced motion, whatever selector started it. */
+  .pg-fig *,.pg-fig *::before,.pg-fig *::after{animation:none !important;}
   .fxo-pipe i,.fxo-tok i,.fxo-lines i,.fxo-gauge i,.fxo-core i,.fxo-core em,.fxo-loop path,.csf-steps li,.csf-pick,.csf-card,.csf-s2,.csf-line,.csf-copied,.csf-cursor,.csf-cursor svg,.tjf-track li::after,.tjf-art,.tjf-star,.tjf-flame,.tjf-enemy,.tjf-bug,.tjf-burst,.tjf-orbit,.tjf-boss{animation:none;}
   .fxo-gauge i{width:var(--w);}
   .fxo-tok i{border-color:color-mix(in srgb,var(--k) 70%,transparent);background:color-mix(in srgb,var(--k) 16%,transparent);}
@@ -366,14 +368,20 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .tr-stage .pg-open-title{margin-top:var(--sp-3);}
 .tr-notice{margin:var(--sp-4) 0 0;padding:var(--sp-3) var(--sp-4);border:1px solid var(--border);border-radius:12px;background:var(--surface);color:var(--ink-dim);}
 .tr-notice[hidden]{display:none;}
-/* ---------- Loop tracker ---------- The Home page's six-step loop, compact, showing which loop is running and which step the reader is on. */
+/* ---------- Loop steps ---------- The Home page's six-step loop, shown at the head of each loop. */
 .tr-track{margin:0 0 var(--sp-4);}
-[data-tr-stage="intro"] .tr-track{display:none;}
-/* The intro shows the same six steps as a static map; the live tracker appears from the first stage on. */
-.tr-intro-loop{margin:var(--sp-5) 0 0;}
-.tr-intro-loop .tr-track-head{flex-wrap:wrap;row-gap:2px;}
-.tr-intro-loop .tr-track-head b{white-space:normal;}
-.tr-intro-loop .tr-steps a{height:100%;}
+
+/* ---------- One scrolling page (R3) ---------- Stages follow one another in workflow order; each loop opens with its steps. */
+.tr-stage{padding:var(--sp-6) 0 var(--sp-5);}
+.tr-stage,.tr-loophead{scroll-margin-top:84px;}
+@media (max-width:720px){.tr-stage,.tr-loophead{scroll-margin-top:110px;}}
+.tr-stage + .tr-stage,.tr-loophead + .tr-stage{border-top:1px solid color-mix(in srgb,var(--border) 70%,transparent);}
+.tr-loophead{padding:var(--sp-7) 0 var(--sp-3);border-top:1px solid var(--border);background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 7%,transparent),transparent 70%);}
+.tr-loophead-title{margin:4px 0 6px;color:var(--ink);}
+.tr-loophead-note{margin:0 0 var(--sp-4);color:var(--ink-dim);}
+/* Mapped in loop 1: dashed, with the command dimmed rather than the whole card faded, so the text keeps its contrast. */
+.tr-steps [data-state="mapped"] a{border-style:dashed;}
+.tr-steps [data-state="mapped"] code{color:var(--ink-dim);}
 /* ---------- Session typing (DF-1, DF-2) ---------- Waiting lines keep their space; each line wipes in with a typewriter step. */
 .tr-wait{visibility:hidden;}
 .tr-in{animation:tr-type var(--tr-d,400ms) steps(18,end) both;}
@@ -416,19 +424,6 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 @media (max-width:640px){.tr-scenes{min-height:220px;}.tr-scene{flex-direction:column;text-align:center;gap:var(--sp-2);}.tr-scene-icon{width:72px;height:72px;}.tr-scene-icon svg{width:50px;height:50px;}.tr-reward{padding:var(--sp-4) var(--sp-3);}}
 /* Reduced motion: no slideshow; every scene is shown as a list. */
 @media (prefers-reduced-motion:reduce){.tr-scenes{min-height:0;display:grid;gap:var(--sp-3);}.tr-scene{position:static;opacity:1;transform:none;transition:none;justify-content:flex-start;}.tr-scene.is-on .tr-scene-icon{animation:none;}.tr-trailer-dots{display:none;}}
-/* ---------- Continue link ---------- Ends every stage but the last and names where it goes. */
-.tr-next{margin:var(--sp-5) 0 0;display:flex;justify-content:flex-end;}
-.tr-next-link{display:inline-flex;align-items:center;gap:14px;min-height:56px;padding:10px 18px;border:1px solid var(--accent);border-radius:14px;background:color-mix(in srgb,var(--accent) 10%,var(--surface));color:var(--ink);text-decoration:none;max-width:100%;}
-.tr-next-link:hover{background:color-mix(in srgb,var(--accent) 18%,var(--surface));}
-.tr-next-link:focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
-.tr-next-label{font-weight:800;color:var(--teal-soft);text-transform:uppercase;letter-spacing:.06em;font-size:var(--ty-body-sm);}
-.tr-next-where{display:flex;flex-direction:column;min-width:0;}
-.tr-next-where small{color:var(--ink-dim);font-size:var(--ty-micro);}
-.tr-next-where b{font-size:var(--ty-body);}
-.tr-next-where code{align-self:flex-start;margin-top:2px;background:transparent;border:0;padding:0;color:var(--teal-soft);font-size:var(--ty-body-sm);}
-.tr-next-arrow{font-size:1.4em;color:var(--teal-soft);}
-@media (max-width:720px){.tr-next{justify-content:stretch;}.tr-next-link{width:100%;}}
-.tr-intro-loop .tr-track-head code{font-size:inherit;}
 .tr-track-head{display:flex;align-items:baseline;gap:10px;margin:0 0 8px;}
 .tr-track-head b{color:var(--ink);font-size:var(--ty-body);white-space:nowrap;}
 .tr-track-head span{color:var(--ink-dim);font-size:var(--ty-body-sm);}
@@ -440,7 +435,9 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .tr-steps small{color:var(--ink-dim);font-size:var(--ty-micro);line-height:1.3;}
 .tr-steps [data-state="done"] a{border-color:color-mix(in srgb,var(--accent) 45%,var(--border));}
 .tr-steps [data-state="done"] small::before{content:"\2713\00a0";color:var(--teal-soft);font-weight:700;}
-.tr-steps [data-state="mapped"] a{opacity:.62;border-style:dashed;}
+/* Mapped in loop 1: dashed, with the command dimmed rather than the whole card faded, so the text keeps its contrast. */
+.tr-steps [data-state="mapped"] a{border-style:dashed;}
+.tr-steps [data-state="mapped"] code{color:var(--ink-dim);}
 .tr-steps [data-state="current"] a{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent),0 0 18px 0 var(--accent-glow,rgba(45,212,191,.35));}
 @media (max-width:720px){.tr-steps{grid-template-columns:repeat(3,minmax(0,1fr));}.tr-steps a{min-height:52px;padding:8px;}}
 /* Below 420 px three columns clip the longer commands, so the six steps sit in two. */
@@ -679,20 +676,9 @@ html[data-theme="light"] .tr-tab-status[data-status="modified"]{color:#92400e;bo
     <div class="container">
       <div id="trOutline"></div>
       <p class="tr-notice" id="trNotice" role="status" hidden></p>
-      <div class="tr-track" id="trTrack" aria-label="Where you are in the Nexus loop">
-        <p class="tr-track-head"><b id="trTrackLoop">Loop 1</b><span id="trTrackNote">The six steps from the Home page, run on one game.</span></p>
-        <ol class="tr-steps">
-          <li data-step="describe"><a href="#loop1/describe"><code data-ty="code">/describe</code><small>map it</small></a></li>
-          <li data-step="review"><a href="#loop1/review"><code data-ty="code">/review</code><small>judge it</small></a></li>
-          <li data-step="plan"><a href="#loop1/plan"><code data-ty="code">/plan</code><small>decompose it</small></a></li>
-          <li data-step="implement"><a href="#loop1/implement"><code data-ty="code">/implement</code><small>build it</small></a></li>
-          <li data-step="test"><a href="#loop1/test"><code data-ty="code">/test</code><small>harden it</small></a></li>
-          <li data-step="update"><a href="#loop1/update"><code data-ty="code">/update</code><small>ship it</small></a></li>
-        </ol>
-      </div>
     </div>
 
-    <section class="page tr-stage" data-stage="intro" aria-labelledby="st-intro"><div class="container">
+    <section class="tr-stage" id="intro" data-stage="intro" aria-labelledby="st-intro"><div class="container">
       <div class="pg-open">
         <h1 data-ty="h1" class="pg-open-title" id="st-intro">Learn the Nexus loop by <span class="gtext">fixing a game</span></h1>
         <p data-ty="lead" class="pg-open-lead">Watch an agent fix a buggy game through the whole Nexus loop, twice.</p>
@@ -701,32 +687,23 @@ html[data-theme="light"] .tr-tab-status[data-status="modified"]{color:#92400e;bo
           <span class="tjf-rail" aria-hidden="true"><i></i></span>
         </figure>
       </div>
-      <div class="tr-intro-loop">
-        <p class="tr-track-head"><b>Each loop runs the six steps from Home</b><span>Loop 2 starts at <code>/review</code>: the game is already described.</span></p>
-        <ol class="tr-steps" aria-label="The six steps each loop runs">
-          <li><a href="#loop1/describe"><code data-ty="code">/describe</code><small>map the game and the reported bug</small></a></li>
-          <li><a href="#loop1/review"><code data-ty="code">/review</code><small>judge the code and find what is wrong</small></a></li>
-          <li><a href="#loop1/plan"><code data-ty="code">/plan</code><small>break the fix into small steps</small></a></li>
-          <li><a href="#loop1/implement"><code data-ty="code">/implement</code><small>make the change</small></a></li>
-          <li><a href="#loop1/test"><code data-ty="code">/test</code><small>prove the fix and guard it</small></a></li>
-          <li><a href="#loop1/update"><code data-ty="code">/update</code><small>record it and ship it</small></a></li>
-        </ol>
-      </div>
     </div></section>
-    <section class="page tr-stage" data-stage="play-buggy" aria-labelledby="st-play-buggy"><div class="container"><h1 data-ty="h1" id="st-play-buggy">Play the buggy game</h1><div class="ss-host" data-ss-id="buggy" data-ss-defects="firstHitFatal randomExplosion" data-ss-seed="4242"></div></div></section>
-    <section class="page tr-stage" data-stage="loop1/describe" aria-labelledby="st-l1-describe"><div class="container"><h1 data-ty="h1" id="st-l1-describe">Loop 1: describe</h1></div></section>
-    <section class="page tr-stage" data-stage="loop1/review" aria-labelledby="st-l1-review"><div class="container"><h1 data-ty="h1" id="st-l1-review">Loop 1: review</h1></div></section>
-    <section class="page tr-stage" data-stage="loop1/plan" aria-labelledby="st-l1-plan"><div class="container"><h1 data-ty="h1" id="st-l1-plan">Loop 1: plan</h1></div></section>
-    <section class="page tr-stage" data-stage="loop1/implement" aria-labelledby="st-l1-implement"><div class="container"><h1 data-ty="h1" id="st-l1-implement">Loop 1: implement</h1></div></section>
-    <section class="page tr-stage" data-stage="loop1/test" aria-labelledby="st-l1-test"><div class="container"><h1 data-ty="h1" id="st-l1-test">Loop 1: test</h1></div></section>
-    <section class="page tr-stage" data-stage="loop1/update" aria-labelledby="st-l1-update"><div class="container"><h1 data-ty="h1" id="st-l1-update">Loop 1: update</h1></div></section>
-    <section class="page tr-stage" data-stage="play-partial" aria-labelledby="st-play-partial"><div class="container"><h1 data-ty="h1" id="st-play-partial">Play the partly fixed game</h1><div class="ss-host" data-ss-id="partial" data-ss-defects="randomExplosion" data-ss-seed="4242" data-ss-progression></div></div></section>
-    <section class="page tr-stage" data-stage="loop2/review" aria-labelledby="st-l2-review"><div class="container"><h1 data-ty="h1" id="st-l2-review">Loop 2: review</h1></div></section>
-    <section class="page tr-stage" data-stage="loop2/plan" aria-labelledby="st-l2-plan"><div class="container"><h1 data-ty="h1" id="st-l2-plan">Loop 2: plan</h1></div></section>
-    <section class="page tr-stage" data-stage="loop2/implement" aria-labelledby="st-l2-implement"><div class="container"><h1 data-ty="h1" id="st-l2-implement">Loop 2: implement</h1></div></section>
-    <section class="page tr-stage" data-stage="loop2/test" aria-labelledby="st-l2-test"><div class="container"><h1 data-ty="h1" id="st-l2-test">Loop 2: test</h1></div></section>
-    <section class="page tr-stage" data-stage="loop2/update" aria-labelledby="st-l2-update"><div class="container"><h1 data-ty="h1" id="st-l2-update">Loop 2: update</h1></div></section>
-    <section class="page tr-stage" data-stage="play-fixed" aria-labelledby="st-play-fixed"><div class="container"><h1 data-ty="h1" id="st-play-fixed">Play the fixed game</h1><div class="ss-host" data-ss-id="fixed" data-ss-defects="" data-ss-seed="4242" data-ss-progression data-ss-boss></div>
+    <section class="tr-stage" id="play-buggy" data-stage="play-buggy" aria-labelledby="st-play-buggy"><div class="container"><h2 data-ty="h1" id="st-play-buggy">Play the buggy game</h2><div class="ss-host" data-ss-id="buggy" data-ss-defects="firstHitFatal randomExplosion" data-ss-seed="4242"></div></div></section>
+    <section class="tr-loophead" id="loop1" aria-labelledby="lh1"><div class="container"><p class="tr-step">Loop 1</p><h2 class="tr-loophead-title" id="lh1">Fix the first bug with the six steps from Home</h2><p class="tr-loophead-note">Each step is a real agent session: the prompt is ready, press Send to run it.</p><ol class="tr-steps" aria-label="The steps of loop 1"><li data-step="describe"><a href="#loop1/describe"><code data-ty="code">/describe</code><small>map it</small></a></li><li data-step="review"><a href="#loop1/review"><code data-ty="code">/review</code><small>judge it</small></a></li><li data-step="plan"><a href="#loop1/plan"><code data-ty="code">/plan</code><small>decompose it</small></a></li><li data-step="implement"><a href="#loop1/implement"><code data-ty="code">/implement</code><small>build it</small></a></li><li data-step="test"><a href="#loop1/test"><code data-ty="code">/test</code><small>harden it</small></a></li><li data-step="update"><a href="#loop1/update"><code data-ty="code">/update</code><small>ship it</small></a></li></ol></div></section>
+    <section class="tr-stage" id="loop1/describe" data-stage="loop1/describe" aria-labelledby="st-l1-describe"><div class="container"><h2 data-ty="h1" id="st-l1-describe">Loop 1: describe</h2></div></section>
+    <section class="tr-stage" id="loop1/review" data-stage="loop1/review" aria-labelledby="st-l1-review"><div class="container"><h2 data-ty="h1" id="st-l1-review">Loop 1: review</h2></div></section>
+    <section class="tr-stage" id="loop1/plan" data-stage="loop1/plan" aria-labelledby="st-l1-plan"><div class="container"><h2 data-ty="h1" id="st-l1-plan">Loop 1: plan</h2></div></section>
+    <section class="tr-stage" id="loop1/implement" data-stage="loop1/implement" aria-labelledby="st-l1-implement"><div class="container"><h2 data-ty="h1" id="st-l1-implement">Loop 1: implement</h2></div></section>
+    <section class="tr-stage" id="loop1/test" data-stage="loop1/test" aria-labelledby="st-l1-test"><div class="container"><h2 data-ty="h1" id="st-l1-test">Loop 1: test</h2></div></section>
+    <section class="tr-stage" id="loop1/update" data-stage="loop1/update" aria-labelledby="st-l1-update"><div class="container"><h2 data-ty="h1" id="st-l1-update">Loop 1: update</h2></div></section>
+    <section class="tr-stage" id="play-partial" data-stage="play-partial" aria-labelledby="st-play-partial"><div class="container"><h2 data-ty="h1" id="st-play-partial">Play the partly fixed game</h2><div class="ss-host" data-ss-id="partial" data-ss-defects="randomExplosion" data-ss-seed="4242" data-ss-progression></div></div></section>
+    <section class="tr-loophead" id="loop2" aria-labelledby="lh2"><div class="container"><p class="tr-step">Loop 2</p><h2 class="tr-loophead-title" id="lh2">Find and fix the hidden bug</h2><p class="tr-loophead-note">The second loop starts at review: the game was already described in loop 1.</p><ol class="tr-steps" aria-label="The steps of loop 2"><li data-step="describe" data-state="mapped"><a href="#loop2/review"><code data-ty="code">/describe</code><small>already mapped</small></a></li><li data-step="review"><a href="#loop2/review"><code data-ty="code">/review</code><small>judge it</small></a></li><li data-step="plan"><a href="#loop2/plan"><code data-ty="code">/plan</code><small>decompose it</small></a></li><li data-step="implement"><a href="#loop2/implement"><code data-ty="code">/implement</code><small>build it</small></a></li><li data-step="test"><a href="#loop2/test"><code data-ty="code">/test</code><small>harden it</small></a></li><li data-step="update"><a href="#loop2/update"><code data-ty="code">/update</code><small>ship it</small></a></li></ol></div></section>
+    <section class="tr-stage" id="loop2/review" data-stage="loop2/review" aria-labelledby="st-l2-review"><div class="container"><h2 data-ty="h1" id="st-l2-review">Loop 2: review</h2></div></section>
+    <section class="tr-stage" id="loop2/plan" data-stage="loop2/plan" aria-labelledby="st-l2-plan"><div class="container"><h2 data-ty="h1" id="st-l2-plan">Loop 2: plan</h2></div></section>
+    <section class="tr-stage" id="loop2/implement" data-stage="loop2/implement" aria-labelledby="st-l2-implement"><div class="container"><h2 data-ty="h1" id="st-l2-implement">Loop 2: implement</h2></div></section>
+    <section class="tr-stage" id="loop2/test" data-stage="loop2/test" aria-labelledby="st-l2-test"><div class="container"><h2 data-ty="h1" id="st-l2-test">Loop 2: test</h2></div></section>
+    <section class="tr-stage" id="loop2/update" data-stage="loop2/update" aria-labelledby="st-l2-update"><div class="container"><h2 data-ty="h1" id="st-l2-update">Loop 2: update</h2></div></section>
+    <section class="tr-stage" id="play-fixed" data-stage="play-fixed" aria-labelledby="st-play-fixed"><div class="container"><h2 data-ty="h1" id="st-play-fixed">Play the fixed game</h2><div class="ss-host" data-ss-id="fixed" data-ss-defects="" data-ss-seed="4242" data-ss-progression data-ss-boss></div>
       <section class="tr-reward" id="trReward" hidden tabindex="-1" aria-labelledby="trRewardTitle">
         <p class="tr-reward-kicker">Final boss defeated</p>
         <h2 class="tr-reward-title" id="trRewardTitle">You defeated the Nexus boss</h2>
@@ -3141,25 +3118,6 @@ window.NexusTrainingStory = (function () {
   }
 
   /* -------------------------------------------------- build */
-  /* Every stage but the last ends with a link to the next one, so the journey never depends on
-     finding the outline. It names the next stage the way its banner will. */
-  function continueFor(next) {
-    var nav = el("nav", "tr-next");
-    nav.setAttribute("aria-label", "Next stage");
-    var a = el("a", "tr-next-link");
-    a.href = "#" + next.id;
-    a.appendChild(el("span", "tr-next-label", "Continue"));
-    var where = el("span", "tr-next-where");
-    where.appendChild(el("small", null, next.banner.step));
-    where.appendChild(el("b", null, next.banner.title));
-    if (next.command) where.appendChild(el("code", null, next.command.split(" ")[0]));
-    a.appendChild(where);
-    a.appendChild(el("span", "tr-next-arrow", "\u2192"));
-    a.lastChild.setAttribute("aria-hidden", "true");
-    nav.appendChild(a);
-    return nav;
-  }
-
   function render(sectionFor, notice) {
     var story, problem = null;
     try {
@@ -3181,11 +3139,9 @@ window.NexusTrainingStory = (function () {
       var section = sectionFor(st.id);
       var box = section && section.querySelector(".container");
       if (!box) return;
-      var next = story.stages[i + 1];
-      if (next) box.appendChild(continueFor(next));
       if (st.kind === "intro") return;
-      var nextNav = box.lastChild.classList && box.lastChild.classList.contains("tr-next") ? box.lastChild : null;
-      var heading = box.querySelector("h1");
+      var nextNav = null;
+      var heading = box.querySelector("h1, h2");
       var host = box.querySelector("[data-ss-id]");
       var banner = bannerFor(st, heading);
       box.insertBefore(banner, box.firstChild);
@@ -3714,86 +3670,52 @@ window.NexusTrainingStory = (function () {
   var stage = null;
   var outline = null;
 
-  /* -------------------------------------------------- loop tracker */
-  var STEPS = ["describe", "review", "plan", "implement", "test", "update"];
-  var trackItems = document.querySelectorAll("#trTrack [data-step]");
-  var trackLoop = document.getElementById("trTrackLoop");
-  var trackNote = document.getElementById("trTrackNote");
-  var tracker = {
-    loop: 1,
-    setStage: function (loop, step) {
-      this.loop = loop;
-      var at = STEPS.indexOf(step);
-      trackLoop.textContent = "Loop " + loop;
-      for (var t = 0; t < trackItems.length; t++) {
-        var name = trackItems[t].getAttribute("data-step");
-        var link = trackItems[t].querySelector("a");
-        var idx = STEPS.indexOf(name);
-        var state = at === -1 ? (step === "all-done" ? "done" : "todo") : idx < at ? "done" : idx === at ? "current" : "todo";
-        if (loop === 2 && name === "describe") state = "mapped";
-        trackItems[t].setAttribute("data-state", state);
-        link.setAttribute("href", "#loop" + loop + "/" + (state === "mapped" ? "review" : name));
-        if (state === "current") link.setAttribute("aria-current", "step"); else link.removeAttribute("aria-current");
-        if (state === "mapped") link.setAttribute("title", "Already mapped in loop 1"); else link.removeAttribute("title");
-        var small = link.querySelector("small");
-        if (state === "mapped") small.textContent = "already mapped";
-        else small.textContent = ["map it", "judge it", "decompose it", "build it", "harden it", "ship it"][idx];
-      }
-      trackNote.textContent = loop === 2
-        ? "The second loop starts at review: the code was already described in loop 1."
-        : "The six steps from the Home page, run on one game.";
-    },
-    markDone: function (loop, step) {
-      if (loop !== this.loop) return;
-      for (var t = 0; t < trackItems.length; t++) {
-        if (trackItems[t].getAttribute("data-step") === step) trackItems[t].setAttribute("data-state", "done");
-      }
-    }
-  };
-  function syncTracker(id) {
-    var m = /^loop([12])\/(\w+)$/.exec(id);
-    if (m) { tracker.setStage(parseInt(m[1], 10), m[2]); return; }
-    if (id === "intro" || id === "play-buggy") tracker.setStage(1, "none");
-    else if (id === "play-partial") tracker.setStage(1, "all-done");
-    else if (id === "play-fixed") tracker.setStage(2, "all-done");
-  }
-
-  /* -------------------------------------------------- outline (journey parts) */
+  /* -------------------------------------------------- one scrolling page (R3)
+     Every stage is a section of one page, in workflow order. The current stage is the one being
+     read; a hash scrolls to its section, and an unknown one shows the notice and the start. */
+  var LOOPS = ["loop1", "loop2"];
   var PARTS = [
-    { id: "intro", label: "Introduction", href: "#intro" },
-    { id: "play-buggy", label: "Buggy game", href: "#play-buggy" },
-    { id: "loop1", label: "Loop 1", href: "#loop1/describe" },
-    { id: "play-partial", label: "Play again", href: "#play-partial" },
-    { id: "loop2", label: "Loop 2", href: "#loop2/review" },
-    { id: "play-fixed", label: "Fixed game", href: "#play-fixed" }
+    { id: "intro", label: "Introduction", href: "#intro", target: "intro" },
+    { id: "play-buggy", label: "Buggy game", href: "#play-buggy", target: "play-buggy" },
+    { id: "loop1", label: "Loop 1", href: "#loop1", target: "loop1" },
+    { id: "play-partial", label: "Play again", href: "#play-partial", target: "play-partial" },
+    { id: "loop2", label: "Loop 2", href: "#loop2", target: "loop2" },
+    { id: "play-fixed", label: "The reward", href: "#play-fixed", target: "play-fixed" }
   ];
-  function partOf(id) { var m = /^(loop[12])\//.exec(id || ""); return m ? m[1] : id; }
-
   function sectionFor(id) {
     for (var k = 0; k < sections.length; k++) if (sections[k].getAttribute("data-stage") === id) return sections[k];
     return document.body;
   }
-
-  function show(id) {
+  function still() { return !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches); }
+  var pinnedUntil = 0;
+  function setStage(id) {
+    if (id === stage) return;
     stage = id;
-    for (var j = 0; j < sections.length; j++) {
-      var on = sections[j].getAttribute("data-stage") === id;
-      sections[j].classList.toggle("active", on);
-      if (on) { sections[j].removeAttribute("hidden"); } else { sections[j].setAttribute("hidden", ""); }
-    }
-    root.setAttribute("data-tr-stage", id);
-    syncTracker(id);
-    if (outline) outline.refresh();
     if (story) { story.rebalance(id); story.play(id); }
-    for (var gid in games) if (games[gid] && !sectionFor(id).contains(document.querySelector('[data-ss-id="' + gid + '"]'))) games[gid].pause("stage");
   }
-
-  function route() {
+  function spy() {
+    /* A scroll during a jump's pin is checked again once the pin ends, so no move is lost. */
+    if (Date.now() < pinnedUntil) { window.clearTimeout(spy.later); spy.later = window.setTimeout(spy, pinnedUntil - Date.now() + 20); return; }
+    var header = document.querySelector(".site-header");
+    var y = (header ? header.getBoundingClientRect().bottom : 0) + window.innerHeight * 0.3, best = STAGES[0];
+    for (var k = 0; k < sections.length; k++) if (sections[k].getBoundingClientRect().top <= y) best = sections[k].getAttribute("data-stage");
+    setStage(best);
+  }
+  function jump(id, smooth) {
+    var target = LOOPS.indexOf(id) !== -1 ? document.getElementById(id) : sectionFor(id);
+    if (!target || target === document.body) return false;
+    /* "instant", not "auto": the page sets scroll-behavior: smooth, which "auto" would follow. */
+    target.scrollIntoView({ block: "start", behavior: smooth && !still() ? "smooth" : "instant" });
+    pinnedUntil = Date.now() + (smooth ? 900 : 250);
+    setStage(LOOPS.indexOf(id) !== -1 ? id + "/" + (id === "loop2" ? "review" : "describe") : id);
+    return true;
+  }
+  function route(ev) {
     var raw = (window.location.hash || "").replace(/^#/, "");
     try { raw = decodeURIComponent(raw); } catch (err) { raw = ""; }
     if (raw.indexOf("s-") === 0 && stage) { return; }
     var id = Object.prototype.hasOwnProperty.call(ALIASES, raw) ? ALIASES[raw] : raw;
-    if (STAGES.indexOf(id) === -1) {
+    if (STAGES.indexOf(id) === -1 && LOOPS.indexOf(id) === -1) {
       notice.textContent = "That link points to a Training stage that does not exist, so the introduction is shown instead.";
       notice.hidden = false;
       id = "intro";
@@ -3801,10 +3723,9 @@ window.NexusTrainingStory = (function () {
     } else if (!notice.hasAttribute("data-story-error")) {
       notice.hidden = true;
     }
-    show(id);
-    window.scrollTo(0, 0);
+    if (id === "intro" && !ev) { window.scrollTo(0, 0); setStage("intro"); return; }
+    jump(id, !!ev);
   }
-
   /* -------------------------------------------------- games: one per play stage */
   var games = {};
   var hosts = document.querySelectorAll("[data-ss-id]");
@@ -3832,17 +3753,22 @@ window.NexusTrainingStory = (function () {
   }
   if (games.fixed) games.fixed.on("bossDefeated", showReward);
 
-  outline = window.NexusOutline.mount(document.getElementById("trOutline"), PARTS, {
-    mode: "route", label: "Training", current: function () { return partOf(stage); }
-  });
+  outline = window.NexusOutline.mount(document.getElementById("trOutline"), PARTS, { mode: "scroll", label: "Training" });
+  story && story.rebalance();
   window.addEventListener("hashchange", route);
+  var spying = false;
+  window.addEventListener("scroll", function () {
+    if (spying) return;
+    spying = true;
+    window.requestAnimationFrame(function () { spying = false; spy(); });
+  }, { passive: true });
   route();
 
   window.NexusTrainingPage = {
     stages: function () { return STAGES.slice(); },
     stage: function () { return stage; },
-    go: function (id) { window.location.hash = "#" + id; },
-    tracker: tracker,
+    /* For scripts and tests: land on a stage at once; a reader's links scroll smoothly instead. */
+    go: function (id) { try { window.history.replaceState(null, "", "#" + id); } catch (err) {} return jump(id, false); },
     games: function () { return Object.keys(games); },
     story: function () { return story; },
     reward: function () { return reward && !reward.hidden; }

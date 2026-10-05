@@ -64,8 +64,8 @@ def test_game_sleeps_and_resumes_without_duplicate_frame_loops(browser):
     assert rate < 75, f"resuming twice started a second loop: {rate:.0f} frames per second"
 
     page.evaluate("NexusTrainingPage.go('loop1/review')")
-    # Leaving a stage pauses its game with the reason "stage" (the page does this before the scroll observer would).
-    page.wait_for_function(f"{game}.state().pausedBy === 'stage'")
+    # v4.13.10 R3: on one scrolling page, scrolling a game out of view pauses it.
+    page.wait_for_function(f"{game}.state().pausedBy === 'offscreen'")
     page.wait_for_timeout(50)
     before = page.evaluate("gameFrames")
     page.wait_for_timeout(200)

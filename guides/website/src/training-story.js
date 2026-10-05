@@ -388,25 +388,6 @@ window.NexusTrainingStory = (function () {
   }
 
   /* -------------------------------------------------- build */
-  /* Every stage but the last ends with a link to the next one, so the journey never depends on
-     finding the outline. It names the next stage the way its banner will. */
-  function continueFor(next) {
-    var nav = el("nav", "tr-next");
-    nav.setAttribute("aria-label", "Next stage");
-    var a = el("a", "tr-next-link");
-    a.href = "#" + next.id;
-    a.appendChild(el("span", "tr-next-label", "Continue"));
-    var where = el("span", "tr-next-where");
-    where.appendChild(el("small", null, next.banner.step));
-    where.appendChild(el("b", null, next.banner.title));
-    if (next.command) where.appendChild(el("code", null, next.command.split(" ")[0]));
-    a.appendChild(where);
-    a.appendChild(el("span", "tr-next-arrow", "\u2192"));
-    a.lastChild.setAttribute("aria-hidden", "true");
-    nav.appendChild(a);
-    return nav;
-  }
-
   function render(sectionFor, notice) {
     var story, problem = null;
     try {
@@ -428,11 +409,9 @@ window.NexusTrainingStory = (function () {
       var section = sectionFor(st.id);
       var box = section && section.querySelector(".container");
       if (!box) return;
-      var next = story.stages[i + 1];
-      if (next) box.appendChild(continueFor(next));
       if (st.kind === "intro") return;
-      var nextNav = box.lastChild.classList && box.lastChild.classList.contains("tr-next") ? box.lastChild : null;
-      var heading = box.querySelector("h1");
+      var nextNav = null;
+      var heading = box.querySelector("h1, h2");
       var host = box.querySelector("[data-ss-id]");
       var banner = bannerFor(st, heading);
       box.insertBefore(banner, box.firstChild);

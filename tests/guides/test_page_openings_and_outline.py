@@ -21,24 +21,25 @@ WEB = ROOT / "guides" / "website"
 TRAINING = WEB / "training.html"
 GUIDE = WEB / "nexus-hub-guide.html"
 REQUIRE_RENDER = os.environ.get("NEXUS_REQUIRE_RENDER") == "1"
-PARTS = ["Introduction", "Buggy game", "Loop 1", "Play again", "Loop 2", "Fixed game"]
+PARTS = ["Introduction", "Buggy game", "Loop 1", "Play again", "Loop 2", "The reward"]
 
 
 def _text(path: Path) -> str:
     return path.read_bytes().replace(b"\r\n", b"\n").decode("utf-8")
 
 
-def test_tracker_steps_are_the_home_loop_in_order() -> None:
+def test_each_loop_opens_with_the_home_loop_steps() -> None:
+    """v4.13.10 R3: the single tracker became a header at the start of each loop, in the Home loop's order."""
     guide = _text(GUIDE)
     loop = guide[guide.index('id="nhg-loop"'):]
     loop = loop[: loop.index("</div>")]
-    home = re.findall(r'<code data-ty="code">/([a-z]+)</code><span>([^<]+)</span>', loop)
+    home = [cmd for cmd, _ in re.findall(r'<code data-ty="code">/([a-z]+)</code><span>([^<]+)</span>', loop)]
     training = _text(TRAINING)
-    track = training[training.index('id="trTrack"'):]
-    track = track[: track.index("</ol>")]
-    steps = re.findall(r'<li data-step="([a-z]+)"><a [^>]*><code data-ty="code">/([a-z]+)</code><small>([^<]+)</small>', track)
-    assert [(cmd, label) for _, cmd, label in steps] == home, "the tracker shows the Home loop's six steps, in order"
-    assert all(step == cmd for step, cmd, _ in steps)
+    for k in (1, 2):
+        head = re.search(r'<section class="tr-loophead" id="loop%d".*?</section>' % k, training, re.S).group(0)
+        assert re.findall(r'<li data-step="([a-z]+)"', head) == home, f"loop {k} lists the Home loop's steps"
+        assert all(link.startswith(f"loop{k}/") for link in re.findall(r'<a href="#([^"]+)">', head))
+    assert 'data-step="describe" data-state="mapped"' in re.search(r'id="loop2".*?</section>', training, re.S).group(0)
 
 
 def test_training_intro_opens_with_the_shared_component() -> None:
@@ -120,7 +121,7 @@ def test_outline_lists_the_journey_and_follows_the_stage(playwright_mod) -> None
             links = page.locator(".pg-outline a")
             assert links.all_inner_texts() == PARTS
             assert page.locator(".pg-outline a[aria-current]").inner_text() == "Introduction"
-            page.evaluate("location.hash = '#loop1/test'")
+            page.evaluate("NexusTrainingPage.go('loop1/test')")
             page.wait_for_function("document.querySelector('.pg-outline a[aria-current]').textContent === 'Loop 1'")
             links.nth(4).click()
             page.wait_for_function("NexusTrainingPage.stage() === 'loop2/review'")
@@ -193,45 +194,6 @@ def test_scroll_mode_jumps_without_changing_the_stage(playwright_mod) -> None:
             assert page.evaluate("getComputedStyle(document.documentElement).scrollBehavior") == "auto", (
                 "reduced motion turns smooth scrolling off"
             )
-        finally:
-            browser.close()
-
-
-@pytest.mark.parametrize(
-    ("route", "states"),
-    [
-        ("#play-buggy", ["todo"] * 6),
-        ("#loop1/implement", ["done", "done", "done", "current", "todo", "todo"]),
-        ("#play-partial", ["done"] * 6),
-        ("#loop2/plan", ["mapped", "done", "current", "todo", "todo", "todo"]),
-        ("#play-fixed", ["mapped", "done", "done", "done", "done", "done"]),
-    ],
-)
-def test_tracker_lights_the_current_step(playwright_mod, route: str, states: list[str]) -> None:
-    with playwright_mod() as pw:
-        browser, page = _page(pw, route=route)
-        try:
-            got = page.locator("#trTrack [data-step]").evaluate_all("els => els.map(e => e.dataset.state)")
-            assert got == states
-            loop = "Loop 2" if route in ("#loop2/plan", "#play-fixed") else "Loop 1"
-            assert page.locator("#trTrackLoop").inner_text() == loop
-            if "mapped" in states:
-                describe = page.locator('#trTrack [data-step="describe"]')
-                assert "already mapped" in describe.inner_text()
-                assert describe.locator("a").get_attribute("href") == "#loop2/review"
-        finally:
-            browser.close()
-
-
-def test_tracker_is_hidden_on_the_intro_and_links_to_its_stages(playwright_mod) -> None:
-    with playwright_mod() as pw:
-        browser, page = _page(pw)
-        try:
-            assert page.locator("#trTrack").is_hidden(), "the intro's journey map replaces the tracker"
-            page.evaluate("location.hash = '#loop1/describe'")
-            page.wait_for_function("NexusTrainingPage.stage() === 'loop1/describe'")
-            page.locator('#trTrack [data-step="test"] a').click()
-            page.wait_for_function("NexusTrainingPage.stage() === 'loop1/test'")
         finally:
             browser.close()
 

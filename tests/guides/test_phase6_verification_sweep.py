@@ -142,7 +142,8 @@ PAGE_AUDIT = r"""
     return `${element.tagName.toLowerCase()}${id}${className}${dataName ? `[data-nht=${dataName}]` : ""}`;
   }
 
-  const activePage = document.querySelector(".page.active");
+  // v4.13.10 R3: training.html is one scrolling page with no .page.active; its main is the page.
+  const activePage = document.querySelector(".page.active") || document.querySelector("main");
   const header = document.querySelector(".site-header");
   if (!activePage || !header) throw new Error("Guide route did not expose the active page and header");
   const elements = [];
@@ -153,7 +154,7 @@ PAGE_AUDIT = r"""
     if (!node.textContent || !node.textContent.trim()) continue;
     const element = node.parentElement;
     if (!element || seen.has(element)) continue;
-    if (!element.closest(".site-header, .page.active")) continue;
+    if (!element.closest(".site-header, .page.active, main")) continue;
     if (element.closest("script, style, template, noscript, [hidden], [aria-hidden=true]")) continue;
     const style = getComputedStyle(element);
     if (style.display === "none" || style.visibility !== "visible") continue;
@@ -943,6 +944,12 @@ def test_keyboard_and_reduced_motion_are_complete(render_gate: object) -> None:
                     assert page.evaluate(focused) == expected, f"{key}: focus"
                     assert page.evaluate(selected) == expected, f"{key}: selection"
 
+                # With no margin the navigation is a bar: its menu opens from the keyboard first.
+                toggle = page.locator(".pg-outline-toggle")
+                if page.evaluate("document.querySelector('.pg-outline').className.indexOf('--bar') !== -1"):
+                    toggle.focus()
+                    page.keyboard.press("Enter")
+                    assert toggle.get_attribute("aria-expanded") == "true"
                 _focus_by_tab_from_previous(page, '.pg-outline a[href="#play-fixed"]')
                 page.keyboard.press("Enter")
                 page.wait_for_function("NexusTrainingPage.stage() === 'play-fixed'")
