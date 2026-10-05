@@ -27,6 +27,8 @@
 .pg-outline--rail .pg-outline-list a{min-height:28px;line-height:1.3;}
 .pg-outline--rail .pg-outline-list li{min-width:0;}
 .pg-outline--rail .pg-outline-list a{min-width:0;padding-right:4px;}
+/* A full rail wraps a long label onto a second line instead of cutting it. */
+.pg-outline--rail:not(.pg-outline--slim) .pg-outline-text{white-space:normal;overflow:visible;text-overflow:clip;}
 /* Slim margin: nodes only, so nothing ever reaches the content; the current node is filled, and a label appears on hover or focus. */
 .pg-outline--slim{overflow:visible;}
 .pg-outline--slim .pg-outline-toggle{display:none;}

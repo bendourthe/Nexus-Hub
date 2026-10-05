@@ -3,7 +3,7 @@
 **Project**: Nexus-Hub
 **Status**: released; PR #230 merged the complete 34-task plan and tag `v4.13.0` was published on 2026-09-21. Two bounded warning-class findings remain owned for future measurement work. GitHub branch protection passed a live pull-request gate test; the second trigger pilot stopped on an unproven spend bound.
 **Last updated**: 2026-10-04
-**Open items**: 142
+**Open items**: 145
 
 Release-scoped gaps for the evidence-driven agent improvement plan. Planned future-phase work is tracked in the plan rather than reported as completed here.
 
@@ -1452,7 +1452,7 @@ Gaps from the Training page rebuild ([`v4.13.10-training-page-rebuild`](plans/v4
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 2 |
 | Bugs / regressions (BG) | 0 | 0 |
-| Warnings (WN) | 3 | 4 |
+| Warnings (WN) | 6 | 4 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 1 | 1 |
 
@@ -1476,6 +1476,24 @@ Gaps from the Training page rebuild ([`v4.13.10-training-page-rebuild`](plans/v4
 - **Reason**: the audit passed both pages with minor findings. Three sit in markup both pages share or the guide already had before this plan, so they are recorded rather than changed here: the theme toggle carries `aria-pressed` with an action label ("Switch to light theme, pressed"); the guide's active nav link has no `aria-current="page"` (Training's does); there is no skip link, so reaching the provider switch on a session stage takes 19 Tab presses (landmarks are present).
 - **Owner**: guide owner. **Suggested next step**: drop `aria-pressed` from `#themeToggle` in `shared/header.html`, add `aria-current="page"` in the guide router, and add a "Skip to content" link to the shared header.
 
+#### WN-8 (v4.13.10): The Foundations opening figure is taller than a phone screen
+
+- **Source phase**: rework goal review (after R5). **Plan reference**: [`v4.13.10-training-page-rebuild`](plans/v4.13.10-training-page-rebuild.md), T046.
+- **Reason**: at 390 px the narrow drawing of the layer stack is 898 px tall, so the reader scrolls through the figure before the page content starts. It is legible and does not overflow.
+- **Owner**: guide owner. **Suggested next step**: in the narrow drawing, show the four inner parts as a two-by-two grid and shorten the loop caption, aiming at no more than 600 px.
+
+#### WN-9 (v4.13.10): The Nexus AI Studio trailer shows no screens of the app
+
+- **Source phase**: rework goal review (after R5). **Plan reference**: [`v4.13.10-training-page-rebuild`](plans/v4.13.10-training-page-rebuild.md), round 2 of the maintainer review.
+- **Reason**: the trailer is six drawn scenes (icon, title, line) taken from the Nexus-AI README. The page is offline and self-contained, and no screenshots of the app are bundled, so it shows what the app does but not what it looks like.
+- **Owner**: maintainer. **Suggested next step**: decide whether to embed a few compressed screenshots of the app (the byte ceiling now allows it) in place of the drawn icons.
+
+#### WN-10 (v4.13.10): The provider switch changes the model shown in the locked chat
+
+- **Source phase**: rework goal review (after R5). **Plan reference**: [`v4.13.10-training-page-rebuild`](plans/v4.13.10-training-page-rebuild.md), brief item 9.
+- **Reason**: the Anthropic, OpenAI, Google, and Cursor buttons switch which provider's model each tier maps to, and the choice carries across every step. The tier, effort, and prompt stay preset, but the reviewer read the model name changing as an unlocked control, against the rework rule that the chat cannot be changed.
+- **Owner**: maintainer. **Suggested next step**: keep the switch (it shows the bundled model map per provider, item 9 of the brief), or remove it and always show the Anthropic mapping.
+
 #### QG-2 (v4.13.10): The learner check has not been run
 
 - **Source phase**: Phase 8 (8.8). **Plan reference**: [`v4.13.10-training-page-rebuild`](plans/v4.13.10-training-page-rebuild.md), decision 16.
@@ -1487,9 +1505,9 @@ Gaps from the Training page rebuild ([`v4.13.10-training-page-rebuild`](plans/v4
 | ID | Title | Resolved in | Notes |
 |---|---|---|---|
 | QG-1 | The two stamp guards were not in CI | v4.13.10, 2026-10-04 | T036 wired `stamp_guide_shared.py --check` and `stamp_training_models.py --check` into `scripts/ci/profiles.py` (docs group) and the `Makefile` beside `stamp_guide_counts.py --check`; a deliberate drift made the shared guard exit 1 for both pages. Path scoping needed no change: the `changes` job marks any non-docs path relevant. No workflow file changed. Pre-commit was not wired: it carries no stamp guard today (not even `stamp_guide_counts`), and both guards run in under a second in the docs group of every CI run and every `make validate`. |
-| WN-2 | Training had no next-stage control | v4.13.10, 2026-10-04 | Maintainer review: add one. Every stage but the last now ends with a Continue link naming the next stage, its step, and its command (`continueFor` in `src/training-story.js`); `test_continue_links_walk_every_stage_in_order` walks all 15 stages by Continue alone. |
+| WN-2 | Training had no next-stage control | v4.13.10, 2026-10-04 | Maintainer review: add one. Every stage but the last now ends with a Continue link naming the next stage, its step, and its command (`continueFor` in `src/training-story.js`); `test_continue_links_walk_every_stage_in_order` walks all 15 stages by Continue alone. Superseded in R3: Training became one scrolling page, so the Continue links were removed at the maintainer's request. |
 | WN-3 | The game arena started below the fold at 1440 x 900 | v4.13.10, 2026-10-04 | Maintainer review: yes. `start()` brings the whole game (arena, HUD, touch controls) into view with the minimal scroll, instant under reduced motion; `test_starting_a_game_brings_it_into_view` fails on the previous page and passes now. |
 | WN-4 | Cheatsheets no longer links `/compare` and `/presentify` into Training | v4.13.10, 2026-10-04 | Maintainer review: removal confirmed. Both old hashes still redirect to the intro. |
-| DF-1 | Session output appeared at once rather than typing in | v4.13.10, 2026-10-04 | Maintainer review: build it. Sessions type out on first view: the command is typed, then each report line and activity line wipes in, in reading order; layout never moves. Reduced motion shows the finished report. `test_sessions_type_out_and_skip_and_run_again`, `test_reduced_motion_never_hides_a_report`. |
-| DF-2 | No "Run again" control on session stages | v4.13.10, 2026-10-04 | Built with DF-1: the control reads Skip while typing and Run again after. |
+| DF-1 | Session output appeared at once rather than typing in | v4.13.10, 2026-10-04 | Maintainer review: build it. Sessions type out on first view: the command is typed, then each report line and activity line wipes in, in reading order; layout never moves. Reduced motion shows the finished report. `test_sessions_type_out_and_skip_and_run_again`, `test_reduced_motion_never_hides_a_report`. Superseded in R4: each step is an emulated IDE whose Send runs the agent's steps; reduced motion completes a run at once. |
+| DF-2 | No "Run again" control on session stages | v4.13.10, 2026-10-04 | Built with DF-1: the control reads Skip while typing and Run again after. Kept in R4 on the IDE's Send button. |
 | WN-7 | The shared opening read as a generic template | v4.13.10, 2026-10-04 | Maintainer review: keep the opening consistent but distinct per page. Each opening is now a title, a one-sentence subtitle, and one animated figure of the page's content (the Training journey, the Foundations layers, a Cheatsheets entry), drawn in a wide and a narrow form and animated with NexusSeq; the identical card rows are gone. `test_guide_openings_carry_their_own_figures`. |

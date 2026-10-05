@@ -2,7 +2,8 @@
      NexusOutline.mount(host, items, opts) renders page navigation that follows the reader.
      items: [{ id, label, href, target }]. In "scroll" mode, target is the element id to bring
      into view and the current entry follows scrolling; in "route" mode a click follows href and
-     opts.current() names the current entry.
+     opts.current() names the current entry. opts.column names the content column to measure
+     (default: the host's closest .container).
      Placement never takes width from the content: when the left margin beside the centred
      content column has room, the navigation is a fixed rail inside that margin (labels when the
      margin is wide, the current label only when it is slim); otherwise it is a compact sticky bar
@@ -43,7 +44,7 @@
       return Math.max(0, Math.min(1, (window.scrollY - top) / (end - top)));
     }
     function shown(inst) {
-      var column = inst.host.closest(".container") || inst.host.parentNode;
+      var column = inst.column;
       return !!column && column.getClientRects().length > 0;
     }
     function fromScroll(inst) {
@@ -64,7 +65,7 @@
     }
     /* Measure the free margin left of the content column and choose the form that fits. */
     function place(inst) {
-      var column = inst.host.closest(".container") || inst.host.parentNode;
+      var column = inst.column;
       var visible = !!column && column.getClientRects().length > 0;
       var free = 0;
       if (visible) {
@@ -76,8 +77,8 @@
       inst.layout = layout.split(" ")[0];
       inst.nav.className = "pg-outline pg-outline--" + layout.replace(" ", " pg-outline--");
       if (inst.layout === "rail") {
-        var width = Math.min(232, free - 24);
-        inst.nav.style.left = Math.max(8, free - width - 16) + "px";
+        var width = Math.min(232, free - 40);
+        inst.nav.style.left = Math.max(16, free - width - 24) + "px";
         inst.nav.style.width = width + "px";
         inst.nav.style.top = headerBottom() + 28 + "px";
         inst.menu.hidden = false;
@@ -98,7 +99,7 @@
     function mount(host, items, opts) {
       opts = opts || {};
       var label = opts.label || "On this page";
-      var inst = { host: host, items: items, mode: opts.mode || "scroll", current: opts.current, links: [], currentId: null, index: 0, open: false, layout: null };
+      var inst = { host: host, column: opts.column || host.closest(".container") || host.parentNode, items: items, mode: opts.mode || "scroll", current: opts.current, links: [], currentId: null, index: 0, open: false, layout: null };
       host.textContent = "";
       /* The mount point steps out of layout so the compact bar can stick for the whole column. */
       host.style.display = "contents";
@@ -168,7 +169,7 @@
       instances.push(inst);
       place(inst);
       /* A hidden page's column goes from no size to its real size when it shows; measure then. */
-      var column = host.closest(".container") || host.parentNode;
+      var column = inst.column;
       if (column && window.ResizeObserver) new ResizeObserver(function () { place(inst); }).observe(column);
       if (inst.mode !== "scroll" && inst.current) setCurrent(inst, inst.current());
       return {

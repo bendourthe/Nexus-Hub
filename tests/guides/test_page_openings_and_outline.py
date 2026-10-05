@@ -237,3 +237,25 @@ def test_navigation_never_takes_width_from_the_content(playwright_mod, width: in
             assert m["current"] and 0.2 < m["fill"] < 0.8, "the navigation follows the reading position"
         finally:
             browser.close()
+
+
+@pytest.mark.parametrize("width", [390, 768, 1024])
+def test_the_training_bar_stays_under_the_header_while_scrolling(playwright_mod, width: int) -> None:
+    """Rework review P1: the bar once sat in a 48 px container and scrolled off with it."""
+    with playwright_mod() as pw:
+        browser = pw.chromium.launch()
+        try:
+            page = browser.new_page(viewport={"width": width, "height": 900})
+            page.goto(TRAINING.as_uri())
+            page.wait_for_function("window.NexusTrainingPage")
+            for y in (3000, 9000):
+                page.evaluate(f"window.scrollTo({{ top: {y}, behavior: 'instant' }})")
+                page.wait_for_timeout(120)
+                nav = page.evaluate("""(() => { const n = document.querySelector('.pg-outline'), r = n.getBoundingClientRect(),
+                    h = document.querySelector('header').getBoundingClientRect(), c = document.querySelector('#app > .container').getBoundingClientRect();
+                    return { bar: n.classList.contains('pg-outline--bar'), top: r.top, header: h.bottom, left: r.left, right: r.right, cl: c.left, cr: c.right }; })()""")
+                assert nav["bar"], nav
+                assert abs(nav["top"] - nav["header"]) <= 2, f"the bar left the screen at scroll {y}: {nav}"
+                assert nav["left"] >= nav["cl"] and nav["right"] <= nav["cr"], f"the bar keeps the column's width: {nav}"
+        finally:
+            browser.close()

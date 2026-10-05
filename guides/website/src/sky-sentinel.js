@@ -541,7 +541,9 @@
       } else {
         var dx = (held.right ? 1 : 0) - (held.left ? 1 : 0);
         var dy = (held.down ? 1 : 0) - (held.up ? 1 : 0);
-        p.x = Math.max(p.r, Math.min(world.w - p.r, p.x + dx * 7));
+        /* Clamp by the drawn wingspan, not the hit radius, so the ship never leaves the frame. */
+        var span = PLAYER[cfg.progression ? S.level : 1].w + 2;
+        p.x = Math.max(span, Math.min(world.w - span, p.x + dx * 7));
         p.y = Math.max(world.h * 0.55, Math.min(world.h - p.r - 6, p.y + dy * 6));
         if (p.invuln > 0) p.invuln -= 1;
         if (p.cooldown > 0) p.cooldown -= 1;
