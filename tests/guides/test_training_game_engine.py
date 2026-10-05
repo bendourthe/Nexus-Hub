@@ -231,7 +231,7 @@ def test_first_hit_fatal_destroys_the_ship_on_any_hit_from_any_source(page, sour
         [source, detail],
     )
     assert s["state"] == "over" and s["overReason"] == "first-hit"
-    assert s["health"] == 0 and s["shieldHp"] == 0, "neither the full hull nor the shield helps"
+    assert s["health"] == s["healthMax"] and s["shieldHp"] == s["shieldMax"], "destroyed with the hull and shield still full: that is the bug"
     assert s["overText"] == f"Destroyed by a single hit: {text}"
     assert s["lastDamage"]["source"] == source
 
@@ -243,7 +243,7 @@ def test_first_hit_fatal_kills_on_every_run_not_only_the_first(page) -> None:
             g.forceHit(run === 2 ? 'asteroid' : 'shot', run === 2 ? 'small' : undefined); const s = g.state(); out.push([s.state, s.overReason, s.health]);
         }
         return out;""")
-    assert reasons == [["over", "first-hit", 0]] * 3
+    assert reasons == [["over", "first-hit", 100]] * 3
 
 
 def test_first_hit_fatal_kills_on_a_real_chunk_collision(page) -> None:
@@ -676,3 +676,10 @@ def test_the_world_fills_the_frame_with_no_side_bands(browser, viewport: tuple[i
         assert abs(world["w"] / world["h"] - canvas["cssWidth"] / canvas["cssHeight"]) < 0.03, (world, canvas)
     finally:
         pg.close()
+
+
+def test_the_explosion_plays_out_after_a_buggy_death(page) -> None:
+    """Goal review (revision 2): the death explosion kept animating instead of freezing on its first frame."""
+    _quiet(page, defects={"firstHitFatal": True})
+    s = _js(page, "g.forceHit('shot'); return { over: g.state().state, animating: g.animating() };")
+    assert s == {"over": "over", "animating": True}

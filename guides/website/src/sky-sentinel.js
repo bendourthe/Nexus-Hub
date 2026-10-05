@@ -1047,12 +1047,11 @@
       S.hitTicks.push(S.tick);
       emit("hit", { source: source, detail: detail, tick: S.tick });
       if (cfg.defects.firstHitFatal) {
-        /* the defect: any hit, from any source, destroys the ship outright */
-        var all = p.health + p.shieldHp;
-        S.lastDamage = { source: source, detail: detail == null ? null : detail, amount: all, absorbed: 0, tick: S.tick, fatal: true };
+        /* the defect: any hit, from any source, destroys the ship outright. The bars keep what
+           the hit should have left, so the end screen shows a ship destroyed with health to spare. */
+        S.lastDamage = { source: source, detail: detail == null ? null : detail, amount: amount, absorbed: 0, tick: S.tick, fatal: true };
         S.damageLog.push(S.lastDamage);
-        S.damageTaken += all;
-        p.health = 0; p.shieldHp = 0;
+        S.damageTaken += amount;
         boom(p.x, p.y, 2.4, "#fbbf24");
         shards(p.x, p.y, 10);
         S.overText = "Destroyed by a single hit: " + sourceText(source, detail);
@@ -1089,6 +1088,8 @@
 
     function gameOver(reason) {
       S.state = "over";
+      /* The explosion plays out for a moment after the run ends instead of freezing on its first frame. */
+      S.afterglow = REDUCED ? 0 : 90;
       S.overReason = reason;
       held.left = held.right = held.up = held.down = held.fire = false;
       if (reason === "victory") {
@@ -2305,7 +2306,20 @@
           canvas: { cssWidth: canvas.clientWidth, cssHeight: canvas.clientHeight, width: canvas.width, height: canvas.height }
         };
       },
+      animating: function () { return !!S && S.state === "over" && S.afterglow > 0; },
       frame: function (now) {
+        if (S && S.state === "over" && S.afterglow > 0) {
+          S.afterglow -= 1;
+          for (var k = 0; k < S.effects.length; k++) {
+            var f = S.effects[k];
+            f.t += 1;
+            if (f.vx != null) { f.x += f.vx; f.y += f.vy; f.vx *= 0.94; f.vy *= 0.94; }
+          }
+          S.effects = S.effects.filter(function (o) { return o.t < o.life; });
+          draw();
+          last = 0;
+          return;
+        }
         if (!S || S.state !== "running") { last = 0; return; }
         if (!last) last = now;
         acc += Math.min(250, now - last) / 1000;
@@ -2365,7 +2379,7 @@
      twice can never start a second loop. */
   var scheduled = false;
   function anyRunning() {
-    for (var k in instances) if (instances[k].running()) return true;
+    for (var k in instances) if (instances[k].running() || instances[k].animating()) return true;
     return false;
   }
   function wake() {

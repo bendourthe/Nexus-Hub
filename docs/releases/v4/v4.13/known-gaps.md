@@ -3,7 +3,7 @@
 **Project**: Nexus-Hub
 **Status**: released; PR #230 merged the complete 34-task plan and tag `v4.13.0` was published on 2026-09-21. Two bounded warning-class findings remain owned for future measurement work. GitHub branch protection passed a live pull-request gate test; the second trigger pilot stopped on an unproven spend bound.
 **Last updated**: 2026-10-04
-**Open items**: 145
+**Open items**: 146
 
 Release-scoped gaps for the evidence-driven agent improvement plan. Planned future-phase work is tracked in the plan rather than reported as completed here.
 
@@ -1452,7 +1452,7 @@ Gaps from the Training page rebuild ([`v4.13.10-training-page-rebuild`](plans/v4
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 2 |
 | Bugs / regressions (BG) | 0 | 0 |
-| Warnings (WN) | 6 | 4 |
+| Warnings (WN) | 7 | 5 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 1 | 1 |
 
@@ -1479,7 +1479,7 @@ Gaps from the Training page rebuild ([`v4.13.10-training-page-rebuild`](plans/v4
 #### WN-8 (v4.13.10): The Foundations opening figure is taller than a phone screen
 
 - **Source phase**: rework goal review (after R5). **Plan reference**: [`v4.13.10-training-page-rebuild`](plans/v4.13.10-training-page-rebuild.md), T046.
-- **Reason**: at 390 px the narrow drawing of the layer stack is 898 px tall, so the reader scrolls through the figure before the page content starts. It is legible and does not overflow.
+- **Reason**: at 390 px the narrow drawing of the layer stack is 898 px tall (923 px after revision 2 added captions to the Tokens and Context window cards), so the reader scrolls through the figure before the page content starts. It is legible and does not overflow.
 - **Owner**: guide owner. **Suggested next step**: in the narrow drawing, show the four inner parts as a two-by-two grid and shorten the loop caption, aiming at no more than 600 px.
 
 #### WN-9 (v4.13.10): The Nexus AI Studio trailer shows no screens of the app
@@ -1488,11 +1488,17 @@ Gaps from the Training page rebuild ([`v4.13.10-training-page-rebuild`](plans/v4
 - **Reason**: the trailer is six drawn scenes (icon, title, line) taken from the Nexus-AI README. The page is offline and self-contained, and no screenshots of the app are bundled, so it shows what the app does but not what it looks like.
 - **Owner**: maintainer. **Suggested next step**: decide whether to embed a few compressed screenshots of the app (the byte ceiling now allows it) in place of the drawn icons.
 
-#### WN-10 (v4.13.10): The provider switch changes the model shown in the locked chat
+#### WN-11 (v4.13.10): The WebGL game's frame rate is unverified on a real GPU
 
-- **Source phase**: rework goal review (after R5). **Plan reference**: [`v4.13.10-training-page-rebuild`](plans/v4.13.10-training-page-rebuild.md), brief item 9.
-- **Reason**: the Anthropic, OpenAI, Google, and Cursor buttons switch which provider's model each tier maps to, and the choice carries across every step. The tier, effort, and prompt stay preset, but the reviewer read the model name changing as an unlocked control, against the rework rule that the chat cannot be changed.
-- **Owner**: maintainer. **Suggested next step**: keep the switch (it shows the bundled model map per provider, item 9 of the brief), or remove it and always show the Anthropic mapping.
+- **Source phase**: revision 2 goal review. **Plan reference**: [`v4.13.10-training-page-rebuild`](plans/v4.13.10-training-page-rebuild.md), T067.
+- **Reason**: the running game measured 19 frames per second in headless Chromium, which renders WebGL in software (SwiftShader). The figure says nothing about a reader's machine, and no real GPU was available to measure it. The IDE players measured 55 frames per second and the page 59 in the same session.
+- **Owner**: maintainer. **Suggested next step**: play the reward game on a laptop with integrated graphics and on a phone; if it stutters, lower the particle count and the mesh detail on small canvases.
+
+#### WN-12 (v4.13.10): Minor visual nits left from the revision 2 review
+
+- **Source phase**: revision 2 goal review (P3 findings). **Plan reference**: [`v4.13.10-training-page-rebuild`](plans/v4.13.10-training-page-rebuild.md), R8 and R10.
+- **Reason**: three small findings were not fixed in this pass. Enemies spawn under the in-game level header for a moment. At 1280 px the rail shows dots only, with the current label on hover and low-contrast empty circles. The IDE editor soft-wraps long lines, which can leave a single word on a line.
+- **Owner**: guide owner. **Suggested next step**: start enemy spawns below the header band; raise the slim rail's empty-dot contrast; turn off soft wrap in the editor and let it scroll sideways like VS Code.
 
 #### QG-2 (v4.13.10): The learner check has not been run
 
@@ -1510,4 +1516,5 @@ Gaps from the Training page rebuild ([`v4.13.10-training-page-rebuild`](plans/v4
 | WN-4 | Cheatsheets no longer links `/compare` and `/presentify` into Training | v4.13.10, 2026-10-04 | Maintainer review: removal confirmed. Both old hashes still redirect to the intro. |
 | DF-1 | Session output appeared at once rather than typing in | v4.13.10, 2026-10-04 | Maintainer review: build it. Sessions type out on first view: the command is typed, then each report line and activity line wipes in, in reading order; layout never moves. Reduced motion shows the finished report. `test_sessions_type_out_and_skip_and_run_again`, `test_reduced_motion_never_hides_a_report`. Superseded in R4: each step is an emulated IDE whose Send runs the agent's steps; reduced motion completes a run at once. |
 | DF-2 | No "Run again" control on session stages | v4.13.10, 2026-10-04 | Built with DF-1: the control reads Skip while typing and Run again after. Kept in R4 on the IDE's Send button. |
+| WN-10 | The provider switch changed the model shown in the locked chat | v4.13.10, 2026-10-05 | Plan revision 2: the provider buttons are gone. Each step's IDE animation picks its own model, and `/implement` shows the harness's portability directly: Anthropic reaches its usage limit, `/handoff` runs, and the work finishes on OpenAI. `test_the_handoff_plays_from_the_usage_limit_to_the_second_provider`. |
 | WN-7 | The shared opening read as a generic template | v4.13.10, 2026-10-04 | Maintainer review: keep the opening consistent but distinct per page. Each opening is now a title, a one-sentence subtitle, and one animated figure of the page's content (the Training journey, the Foundations layers, a Cheatsheets entry), drawn in a wide and a narrow form and animated with NexusSeq; the identical card rows are gone. `test_guide_openings_carry_their_own_figures`. |

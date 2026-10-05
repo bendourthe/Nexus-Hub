@@ -253,10 +253,10 @@ def test_the_training_bar_stays_under_the_header_while_scrolling(playwright_mod,
                 page.evaluate(f"window.scrollTo({{ top: {y}, behavior: 'instant' }})")
                 page.wait_for_timeout(120)
                 nav = page.evaluate("""(() => { const n = document.querySelector('.pg-outline'), r = n.getBoundingClientRect(),
-                    h = document.querySelector('header').getBoundingClientRect(), c = document.querySelector('#app > .container').getBoundingClientRect();
-                    return { bar: n.classList.contains('pg-outline--bar'), top: r.top, header: h.bottom, left: r.left, right: r.right, cl: c.left, cr: c.right }; })()""")
+                    h = document.querySelector('header').getBoundingClientRect(), box = document.querySelector('#app > .container'), c = box.getBoundingClientRect(), pad = parseFloat(getComputedStyle(box).paddingLeft);
+                    return { bar: n.classList.contains('pg-outline--bar'), top: r.top, header: h.bottom, left: r.left, right: r.right, cl: c.left + pad, cr: c.right - pad }; })()""")
                 assert nav["bar"], nav
                 assert abs(nav["top"] - nav["header"]) <= 2, f"the bar left the screen at scroll {y}: {nav}"
-                assert nav["left"] >= nav["cl"] and nav["right"] <= nav["cr"], f"the bar keeps the column's width: {nav}"
+                assert nav["left"] >= nav["cl"] - 1 and nav["right"] <= nav["cr"] + 1, f"the bar sits in the content column, never flush to the window: {nav}"
         finally:
             browser.close()

@@ -175,6 +175,9 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .fxo-gauge i:nth-child(1){--w:14%;background:#2dd4bf;}.fxo-gauge i:nth-child(2){--w:10%;background:#60a5fa;animation-delay:.2s;}.fxo-gauge i:nth-child(3){--w:32%;background:#f59e0b;animation-delay:.4s;}.fxo-gauge i:nth-child(4){--w:20%;background:#a78bfa;animation-delay:.6s;}
 @keyframes fxo-fill{0%{width:0;}22%,82%{width:var(--w);}100%{width:0;}}
 .fxo-cap{font-size:11.5px;color:var(--ink-dim);line-height:1.35;}
+.fxo-keys{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 10px;margin:0;padding:0;list-style:none;font-size:11.5px;color:var(--ink-dim);}
+.fxo-keys li::before{content:"";display:inline-block;width:8px;height:8px;margin-right:6px;border-radius:2px;background:var(--k);vertical-align:0;}
+.fxo-keys li:nth-child(1){--k:#2dd4bf;}.fxo-keys li:nth-child(2){--k:#60a5fa;}.fxo-keys li:nth-child(3){--k:#f59e0b;}.fxo-keys li:nth-child(4){--k:#a78bfa;}
 .fxo-node--model{align-items:center;}
 .fxo-core{position:relative;width:66px;height:66px;margin:auto 0;}
 .fxo-core i{position:absolute;border-radius:50%;border:2px solid color-mix(in srgb,var(--accent) 70%,transparent);border-left-color:transparent;}
@@ -246,7 +249,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .trf-cap{margin:0;font-size:var(--ty-body-sm);font-weight:700;color:var(--ink);}
 .trf-led{display:inline-block;width:8px;height:8px;margin-right:8px;border-radius:50%;vertical-align:1px;}
 .trf-led--bug{background:#f87171;}.trf-led--ok{background:#4ade80;}
-.trf-arena{position:relative;}
+.trf-arena{position:relative;display:grid;}
 .trf-scene{display:block;width:100%;height:auto;}
 .trf-sky{fill:#05121a;stroke:color-mix(in srgb,var(--accent) 25%,#0c2a33);stroke-width:1;}
 .trf-star{fill:#cfeff6;opacity:.8;}
@@ -265,7 +268,8 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 @keyframes trf-boom-c{0%,77%{opacity:0;transform:scale(.1);}78%{opacity:.9;transform:scale(.25);}83%,100%{opacity:0;transform:scale(.45);}}
 .trf-ship--bug{animation:trf-ship-a 14s linear infinite;}
 @keyframes trf-ship-a{0%,20%{opacity:1;}20.5%,96%{opacity:0;}100%{opacity:1;}}
-.trf-tag{position:absolute;left:8px;top:8px;margin:0;padding:3px 9px;border-radius:7px;font-size:11.5px;font-weight:700;white-space:nowrap;opacity:0;}
+/* The tag sits under the arena, never over a ship. */
+.trf-tag{justify-self:start;margin:6px 0 0;padding:3px 9px;border-radius:7px;font-size:11.5px;font-weight:700;white-space:nowrap;opacity:0;}
 .trf-tag--bug{background:rgba(127,29,29,.85);color:#fee2e2;animation:trf-tag-a 14s linear infinite;}
 .trf-tag--ok{background:rgba(20,83,45,.85);color:#dcfce7;animation:trf-tag-c 14s linear infinite;}
 @keyframes trf-tag-a{0%,22%{opacity:0;}24%,95%{opacity:1;}100%{opacity:0;}}
@@ -285,7 +289,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 @keyframes trf-press-a{0%,10.5%,13%,100%{background:transparent;}11%,12.5%{background:color-mix(in srgb,var(--accent) 35%,transparent);}}
 @keyframes trf-press-b{0%,27.5%,30%,100%{background:transparent;}28%,29.5%{background:color-mix(in srgb,var(--accent) 35%,transparent);}}
 @keyframes trf-press-c{0%,67.5%,70%,100%{background:transparent;}68%,69.5%{background:color-mix(in srgb,var(--accent) 35%,transparent);}}
-.trf-steps{list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:0;padding:0;}
+.trf-steps{list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(6.4rem,1fr));gap:6px;margin:0;padding:0;}
 .trf-st{padding:4px 6px;border:1px solid var(--border);border-radius:7px;font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--ink-dim);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 @keyframes trf-st0{0%,29.9%{color:var(--ink-dim);border-color:var(--border);background:transparent;}30%{color:#06201c;border-color:var(--accent);background:var(--accent);}34%,95%{color:var(--ink);border-color:color-mix(in srgb,var(--accent) 55%,var(--border));background:color-mix(in srgb,var(--accent) 14%,transparent);}100%{color:var(--ink-dim);border-color:var(--border);background:transparent;}}
 .trf-st[data-k="0"]{animation:trf-st0 14s linear infinite;}
@@ -300,7 +304,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 @keyframes trf-st5{0%,60.9%{color:var(--ink-dim);border-color:var(--border);background:transparent;}61%{color:#06201c;border-color:var(--accent);background:var(--accent);}65%,95%{color:var(--ink);border-color:color-mix(in srgb,var(--accent) 55%,var(--border));background:color-mix(in srgb,var(--accent) 14%,transparent);}100%{color:var(--ink-dim);border-color:var(--border);background:transparent;}}
 .trf-st[data-k="5"]{animation:trf-st5 14s linear infinite;}
 .trf-diff{display:grid;gap:3px;padding:8px;border-radius:8px;background:#0b141a;font-size:11px;}
-.trf-diff code{padding:0;border:0;background:none;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.trf-diff code{padding:0;border:0;background:none;font-size:11px;white-space:normal;overflow-wrap:anywhere;}
 .trf-del{color:#f48771;animation:trf-del 14s linear infinite;}
 .trf-add{color:#73c991;opacity:0;animation:trf-add 14s linear infinite;}
 @keyframes trf-del{0%,47%{text-decoration:none;opacity:1;}47.5%,95%{text-decoration:line-through;opacity:.55;}100%{text-decoration:none;opacity:1;}}
@@ -420,6 +424,8 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .tr-stage .pg-open{padding-top:0;}
 .tr-stage .pg-open-title{margin-top:var(--sp-3);}
 .tr-head{margin:0 0 var(--sp-4);}
+/* The navigation host is a child of main, so the sticky bar spans the whole page; it keeps the container's width. */
+#trOutline > .pg-outline--bar{width:min(calc(100% - 48px),calc(var(--maxw) - 48px));margin:var(--sp-2) auto var(--sp-4);}
 .tr-flow{list-style:none;margin:0 0 var(--sp-4);padding:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));border-top:1px solid var(--border);}
 .tr-flow li{position:relative;min-width:0;}
 .tr-flow li::before{content:"";position:absolute;left:0;right:6px;top:-1px;height:2px;}
@@ -435,6 +441,8 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .tr-flow [data-state="now"] code{color:var(--teal-soft);}
 .tr-flow a:hover code{color:var(--ink);}
 @media (max-width:720px){.tr-flow{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:4px;}}
+/* Below 440 px three columns clip /implement, so the six steps sit in two. */
+@media (max-width:440px){.tr-flow{grid-template-columns:repeat(2,minmax(0,1fr));}}
 .tr-kicker{margin:0;font-family:var(--mono);font-size:var(--ty-body-sm);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--teal-soft);}
 .tr-title{margin:6px 0 8px;text-wrap:balance;}
 .tr-now{margin:0;color:var(--ink-dim);font-size:var(--ty-lead);line-height:1.5;}
@@ -478,7 +486,8 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .ide-file[data-status="modified"]{color:#e2c08d;}
 .ide-editor{display:flex;flex-direction:column;min-width:0;min-height:0;border-right:1px solid var(--i-line);}
 .ide-tabs{display:flex;min-height:35px;overflow:hidden;background:var(--i-side);border-bottom:1px solid var(--i-line);}
-.ide-tab{display:inline-flex;align-items:center;gap:8px;padding:0 14px;border-right:1px solid var(--i-line);font-size:13px;color:var(--i-dim);white-space:nowrap;}
+.ide-tab{display:inline-flex;align-items:center;gap:8px;min-width:0;padding:0 14px;border-right:1px solid var(--i-line);font-size:13px;color:var(--i-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ide-tab .ide-mark{flex:none;}
 .ide-tab[aria-selected="true"]{background:var(--i-bg);color:var(--i-hi);box-shadow:inset 0 1px 0 var(--i-acc);}
 .ide-crumbs{padding:3px 16px;font-size:12px;color:var(--i-dim);white-space:pre;overflow:hidden;text-overflow:ellipsis;}
 .ide-code{flex:1;min-height:0;overflow:auto;padding:4px 0 12px;font:13px/1.6 Consolas,"Cascadia Code",var(--mono),monospace;font-variant-ligatures:none;}
@@ -583,7 +592,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .ide-speed{display:flex;gap:3px;}
 .ide-speed button{min-width:40px;min-height:32px;padding:0 6px;border:1px solid var(--border);border-radius:7px;background:none;color:var(--ink-dim);font:inherit;font-size:var(--ty-micro);cursor:pointer;}
 .ide-speed button[aria-pressed="true"]{border-color:var(--accent);color:var(--ink);background:color-mix(in srgb,var(--accent) 14%,transparent);}
-@media (max-width:1100px){.ide-main{grid-template-columns:44px 160px minmax(0,1fr) minmax(290px,340px);}}
+@media (max-width:1100px){.ide-main{grid-template-columns:44px 160px minmax(0,1fr) minmax(290px,340px);}.ide-pick--mode{display:none;}.ide-lock{font-size:0;gap:0;}.ide-usage-bar{width:56px;}.ide-chat-t{display:none;}}
 @media (max-width:900px){
   .ide-titlebar{grid-template-columns:minmax(0,1fr);}
   .ide-menus,.ide-win{display:none;}
@@ -595,6 +604,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
   .ide-explorer{order:3;max-height:170px;border-right:0;border-top:1px solid var(--i-line);}
 }
 @media (max-width:520px){.ide-player{flex-wrap:wrap;}.ide-seek{order:5;flex-basis:100%;}.ide-status span:nth-child(2){display:none;}.ide-pick--mode{display:none;}.ide-lock{font-size:0;gap:0;}}
+@media (max-width:360px){.ide-pick{padding:2px 3px;font-size:11px;}.ide-bar{gap:2px;}}
 @media (prefers-reduced-motion:reduce){.ide *,.ide *::before,.ide *::after{animation:none !important;}}
 .tr-notice{margin:var(--sp-4) 0 0;padding:var(--sp-3) var(--sp-4);border:1px solid var(--border);border-radius:12px;background:var(--surface);color:var(--ink-dim);}
 .tr-notice[hidden]{display:none;}
@@ -775,9 +785,9 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
         <p data-ty="lead" class="pg-open-lead">Watch an agent fix a buggy game, one command at a time, then play the result.</p>
         <figure class="pg-fig trf" aria-label="What this page shows: a buggy game where one small hit destroys the ship, an agent running the six commands of the Development Workflow to fix it while handing off from Claude to OpenAI, and the fixed game, where the same hit costs only a little health.">
           <div class="trf-ui" aria-hidden="true">
-            <div class="trf-card"><p class="trf-cap"><i class="trf-led trf-led--bug"></i>Buggy game</p><div class="trf-arena"><svg viewBox="0 0 200 130" class="trf-scene" aria-hidden="true"><defs><linearGradient id="trfHull" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5aa9ba"/><stop offset=".45" stop-color="#eafcff"/><stop offset="1" stop-color="#3f8797"/></linearGradient><linearGradient id="trfWing" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f6f7d"/><stop offset="1" stop-color="#16424c"/></linearGradient><linearGradient id="trfGlass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9ff3ff"/><stop offset="1" stop-color="#0b4b58"/></linearGradient><linearGradient id="trfFoe" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fca5a5"/><stop offset=".5" stop-color="#b91c1c"/><stop offset="1" stop-color="#450a0a"/></linearGradient><radialGradient id="trfBoom"><stop offset="0" stop-color="#fff7d6"/><stop offset=".4" stop-color="#fbbf24"/><stop offset="1" stop-color="#ef4444" stop-opacity="0"/></radialGradient></defs><rect class="trf-sky" x="0" y="0" width="200" height="130" rx="10"/><circle class="trf-star" cx="18" cy="14" r="0.9"/><circle class="trf-star" cx="46" cy="52" r="0.6"/><circle class="trf-star" cx="160" cy="18" r="0.8"/><circle class="trf-star" cx="184" cy="70" r="0.6"/><circle class="trf-star" cx="30" cy="96" r="0.7"/><circle class="trf-star" cx="150" cy="112" r="0.6"/><circle class="trf-star" cx="82" cy="8" r="0.5"/><circle class="trf-star" cx="126" cy="44" r="0.5"/><circle class="trf-star" cx="8" cy="64" r="0.5"/><circle class="trf-star" cx="192" cy="118" r="0.7"/><g transform="translate(100 26)"><path fill="url(#trfFoe)" d="M0 12 L-9 -2 L-22 -6 L-16 -10 L-6 -8 L0 -14 L6 -8 L16 -10 L22 -6 L9 -2 Z"/><circle cx="0" cy="-3" r="2.6" fill="#fde68a"/></g><rect class="trf-shot trf-shot--bug" x="98.5" y="38" width="3" height="10" rx="1.5"/><g class="trf-ship trf-ship--bug" transform="translate(100 104)"><path class="trf-flame" d="M-4 14 L0 27 L4 14 Z"/><path fill="url(#trfWing)" d="M-5 -2 L-27 12 L-27 17 L-8 13 L-6 9 Z M5 -2 L27 12 L27 17 L8 13 L6 9 Z"/><path fill="url(#trfHull)" d="M0 -24 C5 -16 7 -6 7 4 L6 14 L-6 14 L-7 4 C-7 -6 -5 -16 0 -24 Z"/><path fill="url(#trfGlass)" d="M0 -15 C3 -10 3.4 -5 3 -1 L-3 -1 C-3.4 -5 -3 -10 0 -15 Z"/><path class="trf-line" d="M0 2 V12 M-17 12 L-6 8 M17 12 L6 8"/></g><circle class="trf-boom trf-boom--bug" cx="100" cy="100" r="22" fill="url(#trfBoom)"/></svg><p class="trf-tag trf-tag--bug">Destroyed by one 6-damage hit</p></div><div class="trf-hp"><span>Health</span><b><i class="trf-hp-fill trf-hp-fill--bug"></i></b><em><span class="trf-n1">100</span></em></div><span class="trf-btn trf-btn--a">Play</span></div>
+            <div class="trf-card"><p class="trf-cap"><i class="trf-led trf-led--bug"></i>Buggy game</p><div class="trf-arena"><svg viewBox="0 0 200 130" class="trf-scene" aria-hidden="true"><defs><linearGradient id="trfHull" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5aa9ba"/><stop offset=".45" stop-color="#eafcff"/><stop offset="1" stop-color="#3f8797"/></linearGradient><linearGradient id="trfWing" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f6f7d"/><stop offset="1" stop-color="#16424c"/></linearGradient><linearGradient id="trfGlass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9ff3ff"/><stop offset="1" stop-color="#0b4b58"/></linearGradient><linearGradient id="trfFoe" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fca5a5"/><stop offset=".5" stop-color="#b91c1c"/><stop offset="1" stop-color="#450a0a"/></linearGradient><radialGradient id="trfBoom"><stop offset="0" stop-color="#fff7d6"/><stop offset=".4" stop-color="#fbbf24"/><stop offset="1" stop-color="#ef4444" stop-opacity="0"/></radialGradient></defs><rect class="trf-sky" x="0" y="0" width="200" height="130" rx="10"/><circle class="trf-star" cx="18" cy="14" r="0.9"/><circle class="trf-star" cx="46" cy="52" r="0.6"/><circle class="trf-star" cx="160" cy="18" r="0.8"/><circle class="trf-star" cx="184" cy="70" r="0.6"/><circle class="trf-star" cx="30" cy="96" r="0.7"/><circle class="trf-star" cx="150" cy="112" r="0.6"/><circle class="trf-star" cx="82" cy="8" r="0.5"/><circle class="trf-star" cx="126" cy="44" r="0.5"/><circle class="trf-star" cx="8" cy="64" r="0.5"/><circle class="trf-star" cx="192" cy="118" r="0.7"/><g transform="translate(100 26)"><path fill="url(#trfFoe)" d="M0 12 L-9 -2 L-22 -6 L-16 -10 L-6 -8 L0 -14 L6 -8 L16 -10 L22 -6 L9 -2 Z"/><circle cx="0" cy="-3" r="2.6" fill="#fde68a"/></g><rect class="trf-shot trf-shot--bug" x="98.5" y="38" width="3" height="10" rx="1.5"/><g class="trf-ship trf-ship--bug" transform="translate(100 100)"><path class="trf-flame" d="M-4 14 L0 27 L4 14 Z"/><path fill="url(#trfWing)" d="M-5 -2 L-27 12 L-27 17 L-8 13 L-6 9 Z M5 -2 L27 12 L27 17 L8 13 L6 9 Z"/><path fill="url(#trfHull)" d="M0 -24 C5 -16 7 -6 7 4 L6 14 L-6 14 L-7 4 C-7 -6 -5 -16 0 -24 Z"/><path fill="url(#trfGlass)" d="M0 -15 C3 -10 3.4 -5 3 -1 L-3 -1 C-3.4 -5 -3 -10 0 -15 Z"/><path class="trf-line" d="M0 2 V12 M-17 12 L-6 8 M17 12 L6 8"/></g><circle class="trf-boom trf-boom--bug" cx="100" cy="100" r="22" fill="url(#trfBoom)"/></svg><p class="trf-tag trf-tag--bug">Destroyed by one 6-damage hit</p></div><div class="trf-hp"><span>Health</span><b><i class="trf-hp-fill trf-hp-fill--bug"></i></b><em><span class="trf-n1">100</span></em></div><span class="trf-btn trf-btn--a">Play</span></div>
             <div class="trf-card trf-card--agent"><p class="trf-cap">Agent</p><ol class="trf-steps"><li class="trf-st" data-k="0">/describe</li><li class="trf-st" data-k="1">/review</li><li class="trf-st" data-k="2">/plan</li><li class="trf-st" data-k="3">/implement</li><li class="trf-st" data-k="4">/test</li><li class="trf-st" data-k="5">/update</li></ol><div class="trf-diff"><code class="trf-del">return { ...ship, destroyed: true };</code><code class="trf-add">health: ship.health - DAMAGE[source],</code></div><div class="trf-model"><span class="trf-names"><span class="trf-m1">Claude Opus 5.5</span><span class="trf-m2">GPT-6.1 Sol</span></span><b class="trf-use"><i></i></b></div><span class="trf-btn trf-btn--b">Send</span></div>
-            <div class="trf-card"><p class="trf-cap"><i class="trf-led trf-led--ok"></i>Fixed game</p><div class="trf-arena"><svg viewBox="0 0 200 130" class="trf-scene" aria-hidden="true"><rect class="trf-sky" x="0" y="0" width="200" height="130" rx="10"/><circle class="trf-star" cx="18" cy="14" r="0.9"/><circle class="trf-star" cx="46" cy="52" r="0.6"/><circle class="trf-star" cx="160" cy="18" r="0.8"/><circle class="trf-star" cx="184" cy="70" r="0.6"/><circle class="trf-star" cx="30" cy="96" r="0.7"/><circle class="trf-star" cx="150" cy="112" r="0.6"/><circle class="trf-star" cx="82" cy="8" r="0.5"/><circle class="trf-star" cx="126" cy="44" r="0.5"/><circle class="trf-star" cx="8" cy="64" r="0.5"/><circle class="trf-star" cx="192" cy="118" r="0.7"/><g transform="translate(100 26)"><path fill="url(#trfFoe)" d="M0 12 L-9 -2 L-22 -6 L-16 -10 L-6 -8 L0 -14 L6 -8 L16 -10 L22 -6 L9 -2 Z"/><circle cx="0" cy="-3" r="2.6" fill="#fde68a"/></g><rect class="trf-shot trf-shot--ok" x="98.5" y="38" width="3" height="10" rx="1.5"/><g class="trf-ship trf-ship--ok" transform="translate(100 104)"><path class="trf-flame" d="M-4 14 L0 27 L4 14 Z"/><path fill="url(#trfWing)" d="M-5 -2 L-27 12 L-27 17 L-8 13 L-6 9 Z M5 -2 L27 12 L27 17 L8 13 L6 9 Z"/><path fill="url(#trfHull)" d="M0 -24 C5 -16 7 -6 7 4 L6 14 L-6 14 L-7 4 C-7 -6 -5 -16 0 -24 Z"/><path fill="url(#trfGlass)" d="M0 -15 C3 -10 3.4 -5 3 -1 L-3 -1 C-3.4 -5 -3 -10 0 -15 Z"/><path class="trf-line" d="M0 2 V12 M-17 12 L-6 8 M17 12 L6 8"/></g><circle class="trf-boom trf-boom--ok" cx="100" cy="100" r="22" fill="url(#trfBoom)"/></svg><p class="trf-tag trf-tag--ok">6 damage, still flying</p></div><div class="trf-hp"><span>Health</span><b><i class="trf-hp-fill trf-hp-fill--ok"></i></b><em><span class="trf-n1">100</span><span class="trf-n2">94</span></em></div><span class="trf-btn trf-btn--c">Play</span></div>
+            <div class="trf-card"><p class="trf-cap"><i class="trf-led trf-led--ok"></i>Fixed game</p><div class="trf-arena"><svg viewBox="0 0 200 130" class="trf-scene" aria-hidden="true"><rect class="trf-sky" x="0" y="0" width="200" height="130" rx="10"/><circle class="trf-star" cx="18" cy="14" r="0.9"/><circle class="trf-star" cx="46" cy="52" r="0.6"/><circle class="trf-star" cx="160" cy="18" r="0.8"/><circle class="trf-star" cx="184" cy="70" r="0.6"/><circle class="trf-star" cx="30" cy="96" r="0.7"/><circle class="trf-star" cx="150" cy="112" r="0.6"/><circle class="trf-star" cx="82" cy="8" r="0.5"/><circle class="trf-star" cx="126" cy="44" r="0.5"/><circle class="trf-star" cx="8" cy="64" r="0.5"/><circle class="trf-star" cx="192" cy="118" r="0.7"/><g transform="translate(100 26)"><path fill="url(#trfFoe)" d="M0 12 L-9 -2 L-22 -6 L-16 -10 L-6 -8 L0 -14 L6 -8 L16 -10 L22 -6 L9 -2 Z"/><circle cx="0" cy="-3" r="2.6" fill="#fde68a"/></g><rect class="trf-shot trf-shot--ok" x="98.5" y="38" width="3" height="10" rx="1.5"/><g class="trf-ship trf-ship--ok" transform="translate(100 100)"><path class="trf-flame" d="M-4 14 L0 27 L4 14 Z"/><path fill="url(#trfWing)" d="M-5 -2 L-27 12 L-27 17 L-8 13 L-6 9 Z M5 -2 L27 12 L27 17 L8 13 L6 9 Z"/><path fill="url(#trfHull)" d="M0 -24 C5 -16 7 -6 7 4 L6 14 L-6 14 L-7 4 C-7 -6 -5 -16 0 -24 Z"/><path fill="url(#trfGlass)" d="M0 -15 C3 -10 3.4 -5 3 -1 L-3 -1 C-3.4 -5 -3 -10 0 -15 Z"/><path class="trf-line" d="M0 2 V12 M-17 12 L-6 8 M17 12 L6 8"/></g><circle class="trf-boom trf-boom--ok" cx="100" cy="100" r="22" fill="url(#trfBoom)"/></svg><p class="trf-tag trf-tag--ok">6 damage, still flying</p></div><div class="trf-hp"><span>Health</span><b><i class="trf-hp-fill trf-hp-fill--ok"></i></b><em><span class="trf-n1">100</span><span class="trf-n2">94</span></em></div><span class="trf-btn trf-btn--c">Play</span></div>
             <span class="trf-cursor"><svg viewBox="0 0 24 24"><path d="M5 3l14 9-6.5 1.6L9 20z"/></svg></span>
           </div>
           <script>
@@ -860,6 +870,10 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
    {
     "path": "src/hazards.js",
     "code": "import { explodeShip } from './damage.js';\nimport { moveAsteroids } from './physics.js';\n\nconst SELF_TEST_AFTER = 1200;   // ticks\nconst SELF_TEST_CHANCE = 0.004; // per tick\n\nexport function tickHazards(state, rng) {\n  // Self-test from the debris prototype: blows the ship up to check the\n  // respawn path. It was meant to be removed before release.\n  if (state.tick > SELF_TEST_AFTER && rng() < SELF_TEST_CHANCE) {\n    return explodeShip(state, 'self-test');\n  }\n  return moveAsteroids(state);\n}"
+   },
+   {
+    "path": "src/physics.js",
+    "code": "// Movement and collision; the only module that reads positions.\nexport function moveShip(state, input) { /* ... */ }\nexport function moveAsteroids(state) { /* ... */ }\nexport function hitsOnShip(state) { /* returns [{ source }] */ }"
    },
    {
     "path": "src/render.js",
@@ -2531,12 +2545,11 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       S.hitTicks.push(S.tick);
       emit("hit", { source: source, detail: detail, tick: S.tick });
       if (cfg.defects.firstHitFatal) {
-        /* the defect: any hit, from any source, destroys the ship outright */
-        var all = p.health + p.shieldHp;
-        S.lastDamage = { source: source, detail: detail == null ? null : detail, amount: all, absorbed: 0, tick: S.tick, fatal: true };
+        /* the defect: any hit, from any source, destroys the ship outright. The bars keep what
+           the hit should have left, so the end screen shows a ship destroyed with health to spare. */
+        S.lastDamage = { source: source, detail: detail == null ? null : detail, amount: amount, absorbed: 0, tick: S.tick, fatal: true };
         S.damageLog.push(S.lastDamage);
-        S.damageTaken += all;
-        p.health = 0; p.shieldHp = 0;
+        S.damageTaken += amount;
         boom(p.x, p.y, 2.4, "#fbbf24");
         shards(p.x, p.y, 10);
         S.overText = "Destroyed by a single hit: " + sourceText(source, detail);
@@ -2573,6 +2586,8 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 
     function gameOver(reason) {
       S.state = "over";
+      /* The explosion plays out for a moment after the run ends instead of freezing on its first frame. */
+      S.afterglow = REDUCED ? 0 : 90;
       S.overReason = reason;
       held.left = held.right = held.up = held.down = held.fire = false;
       if (reason === "victory") {
@@ -3789,7 +3804,20 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
           canvas: { cssWidth: canvas.clientWidth, cssHeight: canvas.clientHeight, width: canvas.width, height: canvas.height }
         };
       },
+      animating: function () { return !!S && S.state === "over" && S.afterglow > 0; },
       frame: function (now) {
+        if (S && S.state === "over" && S.afterglow > 0) {
+          S.afterglow -= 1;
+          for (var k = 0; k < S.effects.length; k++) {
+            var f = S.effects[k];
+            f.t += 1;
+            if (f.vx != null) { f.x += f.vx; f.y += f.vy; f.vx *= 0.94; f.vy *= 0.94; }
+          }
+          S.effects = S.effects.filter(function (o) { return o.t < o.life; });
+          draw();
+          last = 0;
+          return;
+        }
         if (!S || S.state !== "running") { last = 0; return; }
         if (!last) last = now;
         acc += Math.min(250, now - last) / 1000;
@@ -3849,7 +3877,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
      twice can never start a second loop. */
   var scheduled = false;
   function anyRunning() {
-    for (var k in instances) if (instances[k].running()) return true;
+    for (var k in instances) if (instances[k].running() || instances[k].animating()) return true;
     return false;
   }
   function wake() {
@@ -4760,7 +4788,9 @@ window.NexusTrainingStory = (function () {
       return null;
     }
     /* The project evolves through the story: each step starts from what earlier steps wrote. */
-    var tree = {}, carry = { provider: story.defaultProvider, tier: null, effort: "medium", usage: 0 };
+    var first = null;
+    story.stages.forEach(function (st) { if (!first && st.script) st.script.forEach(function (a) { if (!first && a.do === "pick") first = a; }); });
+    var tree = {}, carry = { provider: story.defaultProvider, tier: null, effort: "medium", usage: first ? first.usage : 0 };
     story.project.files.forEach(function (f) { tree[f.path] = f.code; });
     story.stages.forEach(function (st) {
       var section = sectionFor(st.id);

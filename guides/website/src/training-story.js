@@ -872,7 +872,9 @@ window.NexusTrainingStory = (function () {
       return null;
     }
     /* The project evolves through the story: each step starts from what earlier steps wrote. */
-    var tree = {}, carry = { provider: story.defaultProvider, tier: null, effort: "medium", usage: 0 };
+    var first = null;
+    story.stages.forEach(function (st) { if (!first && st.script) st.script.forEach(function (a) { if (!first && a.do === "pick") first = a; }); });
+    var tree = {}, carry = { provider: story.defaultProvider, tier: null, effort: "medium", usage: first ? first.usage : 0 };
     story.project.files.forEach(function (f) { tree[f.path] = f.code; });
     story.stages.forEach(function (st) {
       var section = sectionFor(st.id);

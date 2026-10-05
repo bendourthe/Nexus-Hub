@@ -28,6 +28,10 @@
     "code": "import { explodeShip } from './damage.js';\nimport { moveAsteroids } from './physics.js';\n\nconst SELF_TEST_AFTER = 1200;   // ticks\nconst SELF_TEST_CHANCE = 0.004; // per tick\n\nexport function tickHazards(state, rng) {\n  // Self-test from the debris prototype: blows the ship up to check the\n  // respawn path. It was meant to be removed before release.\n  if (state.tick > SELF_TEST_AFTER && rng() < SELF_TEST_CHANCE) {\n    return explodeShip(state, 'self-test');\n  }\n  return moveAsteroids(state);\n}"
    },
    {
+    "path": "src/physics.js",
+    "code": "// Movement and collision; the only module that reads positions.\nexport function moveShip(state, input) { /* ... */ }\nexport function moveAsteroids(state) { /* ... */ }\nexport function hitsOnShip(state) { /* returns [{ source }] */ }"
+   },
+   {
     "path": "src/render.js",
     "code": "// Draws one frame. Reads the state, never changes it.\nexport function render(ctx, state) {\n  drawStars(ctx, state.tick);\n  drawShip(ctx, state.ship);\n  state.enemies.forEach((e) => drawEnemy(ctx, e));\n  drawHud(ctx, state.ship.health, state.ship.shield, state.score);\n}"
    }
