@@ -77,8 +77,9 @@
       inst.layout = layout.split(" ")[0];
       inst.nav.className = "pg-outline pg-outline--" + layout.replace(" ", " pg-outline--");
       if (inst.layout === "rail") {
-        var width = Math.min(232, free - 40);
-        inst.nav.style.left = Math.max(16, free - width - 24) + "px";
+        /* Centered in the free margin, so it is never flush with the window edge. */
+        var width = Math.min(232, free - 48);
+        inst.nav.style.left = Math.round((free - width) / 2) + "px";
         inst.nav.style.width = width + "px";
         inst.nav.style.top = headerBottom() + 28 + "px";
         inst.menu.hidden = false;

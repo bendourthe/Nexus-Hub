@@ -259,7 +259,7 @@ EXPECTED_HOME_ORDER = [
     "Security guardrails",
     "Raw prompting vs Nexus Hub",
     "Platform coverage",
-    "The development loop",
+    "The Development Workflow",
 ]
 
 
