@@ -1497,7 +1497,7 @@ Gaps from the Training page rebuild ([`v4.13.10-training-page-rebuild`](plans/v4
 #### WN-12 (v4.13.10): Minor visual nits left from the revision 2 review
 
 - **Source phase**: revision 2 goal review (P3 findings). **Plan reference**: [`v4.13.10-training-page-rebuild`](plans/v4.13.10-training-page-rebuild.md), R8 and R10.
-- **Reason**: three small findings were not fixed in this pass. Enemies spawn under the in-game level header for a moment. At 1280 px the rail shows dots only, with the current label on hover and low-contrast empty circles. The IDE editor soft-wraps long lines, which can leave a single word on a line.
+- **Reason**: small findings were not fixed in this pass. Enemies spawn under the in-game level header for a moment. At 1280 px the rail shows dots only, with the current label on hover and low-contrast empty circles. The IDE editor soft-wraps long lines, which can leave a single word on a line. From the revision 3 review: an IDE highlight's label can cover a line of code above its box; on a phone's first view of the start screen the sticky Start button covers two ships' stat meters; mid-wormhole the HUD names the next level before the map label changes.
 - **Owner**: guide owner. **Suggested next step**: start enemy spawns below the header band; raise the slim rail's empty-dot contrast; turn off soft wrap in the editor and let it scroll sideways like VS Code.
 
 #### QG-2 (v4.13.10): The learner check has not been run

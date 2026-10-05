@@ -702,13 +702,13 @@ window.NexusTrainingStory = (function () {
       targets = Array.prototype.slice.call(x.lines.querySelectorAll("li.ide-added"));
       if (!targets.length) targets = [x.lines];
       box = x.code;
-      if (targets[0] !== x.lines) x.code.scrollTop = Math.max(0, targets[0].offsetTop - 40);
+      if (targets[0] !== x.lines) x.code.scrollTop = Math.max(0, x.code.scrollTop + targets[0].getBoundingClientRect().top - x.code.getBoundingClientRect().top - 40);
       else x.code.scrollTop = 0;
     }
     var r = unionRect(targets), b = box.getBoundingClientRect(), root = x.ide.getBoundingClientRect();
     if (!r || p >= 1 && !keep) { x.focus.hidden = true; return; }
-    var pad = 4, left = Math.max(r.left, b.left + 2) - pad, top = Math.max(r.top, b.top + 2) - pad;
-    var right = Math.min(r.right, b.right - 2) + pad, bottom = Math.min(r.bottom, b.bottom - 2) + pad;
+    var pad = 4, left = Math.max(r.left - pad, b.left + 3), top = Math.max(r.top - pad, b.top + 3);
+    var right = Math.min(r.right + pad, b.right - 3), bottom = Math.min(r.bottom + pad, b.bottom - 3);
     x.focus.hidden = false;
     x.focus.style.left = Math.round(left - root.left) + "px";
     x.focus.style.top = Math.round(top - root.top) + "px";
