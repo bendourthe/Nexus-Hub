@@ -299,44 +299,165 @@ to{transform:scaleX(1);}
 .pg-open-title{margin:var(--sp-5) auto 0;text-align:center;text-wrap:balance;color:var(--ink);}
 .pg-open .gtext{color:var(--ink);background:linear-gradient(90deg,var(--cyan),var(--teal));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
 .pg-open-lead{margin:var(--sp-3) auto 0;text-align:center;color:var(--ink-dim);text-wrap:pretty;}
-/* Each opening ends with one animated figure of what the page holds: a NexusSeq root with a wide drawing and a narrow one, so a single sequence animates whichever the width shows and phone text never shrinks. Colours come from the theme tokens. */
-.pg-fig{margin:var(--sp-5) auto 0;padding:var(--sp-4) var(--sp-4) var(--sp-3);border:1px solid var(--border);border-radius:18px;background:radial-gradient(120% 140% at 50% 0%,color-mix(in srgb,var(--accent) 7%,var(--surface)),var(--surface));}
-.pgf-svg{display:block;width:100%;height:auto;margin-inline:auto;overflow:visible;}
-.pgf-svg--wide{max-width:60rem;}
-.pgf-svg--narrow{display:none;max-width:26.25rem;}
-@media (max-width:639px){.pgf-svg--wide{display:none;}.pgf-svg--narrow{display:block;}.pg-fig{padding:var(--sp-3) var(--sp-2) var(--sp-2);}}
-.pgf-svg text{font-family:var(--sans);}
-.pgf-t{fill:var(--ink);font-size:15px;font-weight:600;}
-.pgf-t--dim{fill:var(--ink-dim);font-size:13px;font-weight:400;}
-.pgf-t--label{fill:var(--teal-soft);font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;}
-.pgf-t--cap{fill:var(--ink-dim);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
-.pgf-t--code,.pgf-t--cmd{font-family:var(--mono);fill:var(--teal-soft);font-size:14px;}
-.pgf-t--cmd{font-size:17px;font-weight:800;}
-.pgf-t--num{fill:var(--teal-soft);font-family:var(--mono);font-size:18px;font-weight:800;}
-.pgf-box{fill:var(--bg-0,var(--surface));stroke:var(--border);stroke-width:1.5;}
-.pgf-box--accent{stroke:var(--accent);fill:color-mix(in srgb,var(--accent) 12%,var(--surface));}
-.pgf-chip{fill:var(--bg-0,var(--surface));stroke:color-mix(in srgb,var(--accent) 45%,var(--border));stroke-width:1.2;}
-.pgf-line{fill:none;stroke:var(--teal-soft);stroke-width:2;stroke-linecap:round;}
-.pgf-line--thin{stroke-width:1.2;stroke-dasharray:3 4;opacity:.7;}
-.pgf-head{fill:var(--teal-soft);}
-.pgf-bars{fill:none;stroke:var(--ink-dim);stroke-width:5;stroke-linecap:round;opacity:.35;}
-.pgf-layer{fill:none;stroke:color-mix(in srgb,var(--accent) 60%,var(--border));stroke-width:1.6;}
-.pgf-layer--outer{stroke:var(--accent);stroke-width:2;}
-.pgf-ship{fill:var(--teal-soft);}
-.pgf-bad{fill:none;stroke:#f87171;stroke-width:2;stroke-linecap:round;}
-.pgf-bad circle{fill:color-mix(in srgb,#f87171 30%,transparent);}
-.pgf-warn{fill:#f59e0b;}
-.pgf-ok{fill:none;stroke:var(--teal-soft);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
-.pgf-ok circle{fill:color-mix(in srgb,var(--accent) 22%,transparent);}
-.pgf-ring{fill:none;stroke:color-mix(in srgb,var(--accent) 55%,var(--border));stroke-width:2;}
-.pgf-ring-head{fill:none;stroke:var(--teal-soft);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;}
-.pgf-dot{fill:var(--teal-soft);}
-.pg-fig .seq-rise{transform-box:fill-box;}
-/* A loop turns once it has appeared, the way the Home loop keeps moving. */
-.pgf-spin{transform-box:fill-box;transform-origin:center;}
-.pg-fig .seq-rise.is-on .pgf-spin{animation:pgf-spin 9s linear infinite;}
-@keyframes pgf-spin{to{transform:rotate(360deg);}}
-@media (prefers-reduced-motion:reduce){.pg-fig .seq-rise.is-on .pgf-spin{animation:none;}}
+/* Each opening ends with one figure of what the page holds, built in HTML so text stays crisp and the layout reflows on a phone. Motion is continuous and quick (no slide-by-slide reveals); every figure has a reduced-motion still. */
+.pg-fig{margin:var(--sp-5) auto 0;padding:var(--sp-4);border:1px solid var(--border);border-radius:18px;background:radial-gradient(120% 140% at 50% 0%,color-mix(in srgb,var(--accent) 7%,var(--surface)),var(--surface));text-align:left;}
+/* Code inside a figure is part of the drawing, not an inline code chip. */
+.pg-fig code{padding:0;border:0;border-radius:0;background:none;font-size:inherit;}
+.pg-fig a:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:10px;}
+
+/* ---- Foundations: one request through every idea on the page. */
+.fxo{padding:var(--sp-3);}
+.fxo-layer{position:relative;border-radius:16px;padding:12px 14px 14px;}
+.fxo-layer--harness{border:1.5px solid var(--accent);background:color-mix(in srgb,var(--accent) 4%,transparent);}
+.fxo-layer--platform{margin-top:12px;border:1.5px dashed color-mix(in srgb,var(--accent) 55%,var(--border));background:color-mix(in srgb,var(--bg-0,var(--surface)) 55%,transparent);}
+.fxo-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 16px;}
+.fxo-tag{font-size:var(--ty-micro);font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--teal-soft);text-decoration:none;}
+.fxo-tag:hover{text-decoration:underline;}
+.fxo-chips{display:flex;flex-wrap:wrap;gap:6px;list-style:none;margin:0;padding:0;}
+.fxo-chips li{padding:2px 9px;border:1px solid var(--border);border-radius:999px;font-family:var(--mono);font-size:var(--ty-micro);color:var(--ink-dim);}
+.fxo-flow{display:flex;align-items:stretch;margin-top:12px;}
+.fxo-node{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:10px;padding:12px;border:1px solid var(--border);border-radius:12px;background:var(--bg-0,var(--surface));color:var(--ink);text-decoration:none;transition:border-color .2s var(--ease),transform .2s var(--ease);}
+.fxo-node:hover{border-color:var(--accent);transform:translateY(-2px);}
+.fxo-name{font-size:var(--ty-body-sm);font-weight:700;}
+.fxo-pipe{flex:0 0 30px;align-self:center;position:relative;height:2px;background:color-mix(in srgb,var(--accent) 35%,transparent);}
+.fxo-pipe i{position:absolute;top:-3px;left:0;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent);animation:fxo-travel 1.4s linear infinite;}
+@keyframes fxo-travel{from{transform:translateX(-4px);opacity:0;}20%{opacity:1;}80%{opacity:1;}to{transform:translateX(26px);opacity:0;}}
+.fxo-tok{display:flex;flex-wrap:wrap;gap:3px;font-family:var(--mono);font-size:12.5px;color:var(--ink);}
+.fxo-tok i{font-style:normal;padding:2px 4px;border:1px solid transparent;border-radius:5px;animation:fxo-tok 3.2s var(--ease) infinite;}
+.fxo-tok i:nth-child(1){--k:#2dd4bf;}.fxo-tok i:nth-child(2){--k:#60a5fa;animation-delay:.18s;}.fxo-tok i:nth-child(3){--k:#f59e0b;animation-delay:.36s;}.fxo-tok i:nth-child(4){--k:#a78bfa;animation-delay:.54s;}
+@keyframes fxo-tok{0%{border-color:transparent;background:transparent;}14%,72%{border-color:color-mix(in srgb,var(--k) 70%,transparent);background:color-mix(in srgb,var(--k) 16%,transparent);}100%{border-color:transparent;background:transparent;}}
+.fxo-lines{display:grid;gap:5px;}
+.fxo-lines i{display:block;padding:2px 7px;border-left:3px solid var(--k);border-radius:3px;background:color-mix(in srgb,var(--k) 12%,transparent);font-family:var(--mono);font-size:11.5px;font-style:normal;color:var(--ink);animation:fxo-line 3.2s var(--ease) infinite;}
+.fxo-lines [data-k="request"]{--k:#2dd4bf;}.fxo-lines [data-k="context"]{--k:#60a5fa;animation-delay:.15s;}.fxo-lines [data-k="goal"]{--k:#f59e0b;animation-delay:.3s;}.fxo-lines [data-k="format"]{--k:#a78bfa;animation-delay:.45s;}
+@keyframes fxo-line{0%{clip-path:inset(0 100% 0 0);opacity:1;}18%,86%{clip-path:inset(0 0 0 0);opacity:1;}100%{clip-path:inset(0 0 0 0);opacity:0;}}
+.fxo-gauge{display:flex;height:14px;overflow:hidden;border-radius:7px;background:color-mix(in srgb,var(--ink-dim) 18%,transparent);}
+.fxo-gauge i{height:100%;width:0;animation:fxo-fill 4s var(--ease) infinite;}
+.fxo-gauge i:nth-child(1){--w:14%;background:#2dd4bf;}.fxo-gauge i:nth-child(2){--w:10%;background:#60a5fa;animation-delay:.2s;}.fxo-gauge i:nth-child(3){--w:32%;background:#f59e0b;animation-delay:.4s;}.fxo-gauge i:nth-child(4){--w:20%;background:#a78bfa;animation-delay:.6s;}
+@keyframes fxo-fill{0%{width:0;}22%,82%{width:var(--w);}100%{width:0;}}
+.fxo-cap{font-size:11.5px;color:var(--ink-dim);line-height:1.35;}
+.fxo-node--model{align-items:center;}
+.fxo-core{position:relative;width:66px;height:66px;margin:auto 0;}
+.fxo-core i{position:absolute;border-radius:50%;border:2px solid color-mix(in srgb,var(--accent) 70%,transparent);border-left-color:transparent;}
+.fxo-core i:nth-child(1){inset:0;animation:fxo-spin 3.4s linear infinite;}
+.fxo-core i:nth-child(2){inset:9px;border-color:color-mix(in srgb,var(--cyan,#22d3ee) 70%,transparent);border-right-color:transparent;animation:fxo-spin 2.2s linear infinite reverse;}
+.fxo-core i:nth-child(3){inset:18px;border-style:dotted;animation:fxo-spin 5s linear infinite;}
+.fxo-core em{position:absolute;inset:25px;border-radius:50%;background:radial-gradient(circle,#f2feff,var(--accent) 60%,transparent 70%);animation:fxo-pulse 1.6s ease-in-out infinite;}
+@keyframes fxo-spin{to{transform:rotate(360deg);}}
+@keyframes fxo-pulse{50%{transform:scale(1.3);opacity:.75;}}
+.fxo-loop{position:relative;height:40px;}
+.fxo-loop svg{position:absolute;left:0;top:0;width:100%;height:22px;overflow:visible;}
+.fxo-loop path{fill:none;stroke:color-mix(in srgb,var(--accent) 65%,transparent);stroke-width:1.6;stroke-dasharray:6 6;vector-effect:non-scaling-stroke;animation:fxo-dash 1s linear infinite;}
+@keyframes fxo-dash{to{stroke-dashoffset:-12;}}
+.fxo-loop span{position:absolute;left:50%;top:12px;transform:translateX(-50%);padding:0 10px;background:var(--surface);color:var(--ink-dim);font-size:var(--ty-micro);white-space:nowrap;}
+@media (max-width:719px){
+  .fxo-flow{flex-direction:column;}
+  .fxo-pipe{flex:0 0 22px;width:2px;height:22px;}
+  .fxo-pipe i{left:-3px;top:0;animation-name:fxo-travel-v;}
+  .fxo-loop svg{display:none;}
+  .fxo-loop{height:auto;margin-top:10px;}
+  .fxo-loop span{position:static;transform:none;display:block;text-align:center;white-space:normal;background:none;}
+  .fxo-node--model{align-items:flex-start;}
+}
+@keyframes fxo-travel-v{from{transform:translateY(-4px);opacity:0;}20%{opacity:1;}80%{opacity:1;}to{transform:translateY(18px);opacity:0;}}
+
+/* ---- Cheatsheets: a guided demo of reading the page. One 8 s cycle: pick a group, find the card, choose a scope, copy the line. */
+.csf{display:grid;grid-template-columns:minmax(210px,1fr) minmax(0,2.2fr);gap:var(--sp-4);align-items:center;}
+.csf-steps{list-style:none;margin:0;padding:0;display:grid;gap:8px;}
+.csf-steps li{display:flex;align-items:center;gap:12px;padding:9px 12px;border:1px solid transparent;border-radius:12px;color:var(--ink-dim);font-size:var(--ty-body-sm);animation:csf-step 8s var(--ease) infinite;}
+.csf-steps li:nth-child(2){animation-delay:-6s;}.csf-steps li:nth-child(3){animation-delay:-4s;}.csf-steps li:nth-child(4){animation-delay:-2s;}
+.csf-steps b{flex:none;width:26px;height:26px;display:grid;place-items:center;border:1.5px solid var(--border);border-radius:50%;color:var(--ink);font-size:12px;}
+@keyframes csf-step{0%,23%{color:var(--ink);border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent);}26%,100%{color:var(--ink-dim);border-color:transparent;background:transparent;}}
+.csf-ui{--gx:145px;--gy:30px;--cx:51px;--cy:82px;--sx:75px;--sy:156px;--lx:95px;--ly:235px;position:relative;padding:14px;border:1px solid var(--border);border-radius:14px;background:var(--bg-0,var(--surface));overflow:hidden;}
+.csf-groups{display:flex;flex-wrap:wrap;gap:6px;}
+.csf-groups span{padding:4px 10px;border:1px solid var(--border);border-radius:999px;color:var(--ink-dim);font-size:12px;white-space:nowrap;}
+.csf-pick{animation:csf-pick 8s var(--ease) infinite;}
+@keyframes csf-pick{0%,11%{color:var(--ink-dim);border-color:var(--border);background:transparent;}13%,96%{color:var(--bg-0,#061316);border-color:var(--accent);background:var(--accent);}100%{background:transparent;}}
+.csf-card{margin-top:12px;padding:12px;border:1px solid var(--border);border-radius:12px;animation:csf-card 8s var(--ease) infinite;}
+@keyframes csf-card{0%,26%{border-color:var(--border);box-shadow:none;}30%,96%{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 0 22px -6px var(--accent);}100%{border-color:var(--border);box-shadow:none;}}
+.csf-cmd{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;}
+.csf-cmd code{font-family:var(--mono);font-size:16px;font-weight:800;color:var(--teal-soft);}
+.csf-cmd span{color:var(--ink-dim);font-size:12.5px;}
+.csf-scopes{display:grid;gap:4px;margin:10px 0;}
+.csf-scope{display:flex;gap:12px;align-items:baseline;padding:5px 8px;border-left:3px solid transparent;border-radius:6px;font-size:12.5px;color:var(--ink-dim);}
+.csf-scope code{flex:none;min-width:72px;font-family:var(--mono);color:var(--ink);}
+.csf-s2{animation:csf-scope 8s var(--ease) infinite;}
+@keyframes csf-scope{0%,51%{background:transparent;border-left-color:transparent;}54%,96%{background:color-mix(in srgb,var(--accent) 14%,transparent);border-left-color:var(--accent);}100%{background:transparent;}}
+.csf-line{position:relative;display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px dashed var(--border);border-radius:8px;font-family:var(--mono);font-size:13px;color:var(--ink);animation:csf-line 8s var(--ease) infinite;}
+.csf-line b{color:var(--teal-soft);}
+.csf-prompt{color:var(--ink-dim);}
+@keyframes csf-line{0%,73%{border-color:var(--border);}76%,96%{border-color:var(--accent);border-style:solid;}100%{border-color:var(--border);}}
+.csf-copied{position:absolute;right:10px;padding:2px 9px;border-radius:999px;background:var(--accent);color:var(--bg-0,#061316);font-family:var(--sans);font-size:11px;font-weight:800;opacity:0;animation:csf-copied 8s var(--ease) infinite;}
+@keyframes csf-copied{0%,76%{opacity:0;transform:translateY(4px);}79%,93%{opacity:1;transform:none;}97%,100%{opacity:0;}}
+.csf-cursor{position:absolute;left:88%;top:96%;width:18px;height:22px;pointer-events:none;animation:csf-move 8s var(--ease) infinite;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5));}
+.csf-cursor svg{display:block;width:100%;height:100%;animation:csf-click 8s var(--ease) infinite;}
+.csf-cursor path{fill:#f2feff;stroke:#061316;stroke-width:1.4;stroke-linejoin:round;}
+@keyframes csf-move{0%{left:88%;top:96%;opacity:0;}4%{opacity:1;}10%,14%{left:var(--gx);top:var(--gy);}26%,32%{left:var(--cx);top:var(--cy);}48%,56%{left:var(--sx);top:var(--sy);}70%,92%{left:var(--lx);top:var(--ly);opacity:1;}100%{left:var(--lx);top:var(--ly);opacity:0;}}
+@keyframes csf-click{0%,11%,15%,51%,55%,74%,78%,100%{transform:scale(1);}12.5%,53%,76%{transform:scale(.78);}}
+@media (max-width:719px){
+  .csf{grid-template-columns:1fr;}
+  .csf-steps{grid-template-columns:1fr 1fr;}
+  .csf-steps li{padding:7px 9px;font-size:12.5px;}
+}
+
+/* ---- Training: the journey as illustrated stops on a track. A highlight travels the stops; each scene moves a little. */
+.tjf{padding:var(--sp-4) var(--sp-4) var(--sp-3);}
+.tjf-track{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:18px;}
+.tjf-track li{position:relative;container-type:inline-size;}
+.tjf-track li:not(:last-child)::after{content:"";position:absolute;left:100%;top:31.6cqw;width:18px;height:2px;background:linear-gradient(90deg,var(--accent) 50%,transparent 50%) 0 0/8px 2px;opacity:.7;animation:tjf-flow .8s linear infinite;}
+@keyframes tjf-flow{to{background-position:8px 0;}}
+.tjf-track a{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--ink);text-align:center;text-decoration:none;}
+.tjf-art{display:block;width:100%;border-radius:12px;animation:tjf-turn 10s var(--ease) infinite;}
+.tjf-track li:nth-child(2) .tjf-art{animation-delay:-8s;}.tjf-track li:nth-child(3) .tjf-art{animation-delay:-6s;}.tjf-track li:nth-child(4) .tjf-art{animation-delay:-4s;}.tjf-track li:nth-child(5) .tjf-art{animation-delay:-2s;}
+@keyframes tjf-turn{0%,18%{box-shadow:0 0 0 2px var(--accent),0 0 26px -4px var(--accent);transform:translateY(-3px);}22%,100%{box-shadow:0 0 0 1px var(--border);transform:none;}}
+.tjf-track a:hover .tjf-art{box-shadow:0 0 0 2px var(--accent);}
+.tjf-track b{margin-top:6px;font-size:var(--ty-body-sm);}
+.tjf-track small{color:var(--ink-dim);font-size:var(--ty-micro);line-height:1.35;}
+.tjf-scene{display:block;width:100%;height:auto;}
+.tjf-sky{fill:#06141b;stroke:color-mix(in srgb,var(--accent) 30%,#0c2a33);stroke-width:1;}
+.tjf-sky--ring{fill:#071a20;}
+.tjf-star{fill:#cfeff6;animation:tjf-twinkle 2.4s ease-in-out infinite;}
+.tjf-star:nth-of-type(3n){animation-delay:-.8s;}.tjf-star:nth-of-type(3n+1){animation-delay:-1.6s;}
+@keyframes tjf-twinkle{50%{opacity:.3;}}
+.tjf-hull{fill:#bdeef3;stroke:#2dd4bf;stroke-width:1.2;stroke-linejoin:round;}
+.tjf-glass{fill:#0a5d6b;}
+.tjf-flame{fill:#f59e0b;transform-box:fill-box;transform-origin:50% 0;animation:tjf-flame .18s steps(2) infinite;}
+@keyframes tjf-flame{50%{transform:scaleY(.6);}}
+.tjf-enemy{fill:#f87171;stroke:#7f1d1d;stroke-width:.8;animation:tjf-drift 3s ease-in-out infinite alternate;}
+@keyframes tjf-drift{to{transform:translate(4px,3px);}}
+.tjf-bug circle{fill:color-mix(in srgb,#f87171 40%,transparent);stroke:#f87171;stroke-width:1.4;}
+.tjf-bug path{stroke:#f87171;stroke-width:1.4;stroke-linecap:round;}
+.tjf-bug{animation:tjf-pulse 1.2s ease-in-out infinite;transform-box:fill-box;transform-origin:center;}
+@keyframes tjf-pulse{50%{transform:scale(1.15);}}
+.tjf-burst{fill:#f59e0b;transform-box:fill-box;transform-origin:center;animation:tjf-burst 1.4s ease-out infinite;}
+@keyframes tjf-burst{0%{transform:scale(.3);opacity:0;}20%{opacity:1;}100%{transform:scale(1.25);opacity:0;}}
+.tjf-ring{fill:none;stroke:color-mix(in srgb,var(--accent) 45%,transparent);stroke-width:1.5;}
+.tjf-orbit{transform-box:view-box;transform-origin:60px 38px;animation:fxo-spin 12s linear infinite;}
+.tjf-dot{fill:#0c2a33;stroke:var(--accent);stroke-width:1.4;}
+.tjf-dot--on{fill:var(--accent);}
+.tjf-num{fill:var(--teal-soft);font-family:var(--mono);font-size:20px;font-weight:800;}
+.tjf-boss{animation:tjf-pulse 2.4s ease-in-out infinite;transform-box:fill-box;transform-origin:center;}
+.tjf-win circle{fill:color-mix(in srgb,var(--accent) 30%,transparent);stroke:var(--accent);stroke-width:1.4;}
+.tjf-win path{fill:none;stroke:#f2feff;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+@media (max-width:719px){
+  .tjf-track{grid-template-columns:1fr;gap:10px;}
+  .tjf-track li{container-type:normal;}
+  .tjf-track li::after{display:none;}
+  .tjf-track a{flex-direction:row;align-items:center;gap:14px;text-align:left;}
+  .tjf-art{flex:none;width:124px;}
+  .tjf-track a > b{margin:0;}
+  .tjf-track a{display:grid;grid-template-columns:124px 1fr;grid-template-rows:auto auto;column-gap:14px;}
+  .tjf-art{grid-row:span 2;}
+  .tjf-track b{align-self:end;}
+  .tjf-track small{align-self:start;}
+}
+@media (prefers-reduced-motion:reduce){
+  .fxo-pipe i,.fxo-tok i,.fxo-lines i,.fxo-gauge i,.fxo-core i,.fxo-core em,.fxo-loop path,.csf-steps li,.csf-pick,.csf-card,.csf-s2,.csf-line,.csf-copied,.csf-cursor,.csf-cursor svg,.tjf-track li::after,.tjf-art,.tjf-star,.tjf-flame,.tjf-enemy,.tjf-bug,.tjf-burst,.tjf-orbit,.tjf-boss{animation:none;}
+  .fxo-gauge i{width:var(--w);}
+  .fxo-tok i{border-color:color-mix(in srgb,var(--k) 70%,transparent);background:color-mix(in srgb,var(--k) 16%,transparent);}
+  .fxo-pipe i{opacity:0;}
+  .csf-cursor,.csf-copied{display:none;}
+  .csf-s2{background:color-mix(in srgb,var(--accent) 14%,transparent);border-left-color:var(--accent);}
+}
 /* /shared:opening-css */
 /* shared:outline-css */
 /* ---------- Page navigation (v4.13.10 R1, shared) ---------- Follows the reader without ever taking width from the content. A rail sits in the left margin beside the centred column (labels when the margin is wide, the current label only when it is slim); with no margin it becomes a compact sticky bar with a progress line and a section menu. outline.js measures and picks the form. */
@@ -1567,7 +1688,24 @@ html:not(.js) #page-foundations{display:block;}html:not(.js) .ml-panel[hidden]{d
       <div class="hero pg-open">
         <h1 data-ty="h1" class="hero-subtitle page-title pg-open-title">The concepts behind every <span class="gtext">AI-assisted project</span></h1>
         <p data-ty="lead" class="page-lead pg-open-lead">What a model reads, what an agentic platform adds, and where a harness fits.</p>
-        <figure class="pg-fig" role="img" aria-label="Tokens feed a prompt and its context, which a model reads; an agentic platform runs the model with tools, and a harness wraps the platform with skills, commands, hooks, and rules." data-seq-root data-seq-loop data-seq-hold="3000"><svg class="pgf-svg pgf-svg--wide" viewBox="0 0 720 244" aria-hidden="true" focusable="false"><g class="seq-rise" data-seq="1" data-seq-dur="520"><text class="pgf-t pgf-t--dim" x="76" y="120" text-anchor="start">Tokens</text><rect class="pgf-chip" x="76" y="130" width="40" height="26" rx="6"/><text class="pgf-t pgf-t--code" x="96.0" y="148" text-anchor="middle">Fix</text><rect class="pgf-chip" x="122" y="130" width="44" height="26" rx="6"/><text class="pgf-t pgf-t--code" x="144.0" y="148" text-anchor="middle">the</text><rect class="pgf-chip" x="172" y="130" width="44" height="26" rx="6"/><text class="pgf-t pgf-t--code" x="194.0" y="148" text-anchor="middle">bug</text></g><path class="pgf-line seq-draw" data-seq="2" data-seq-dur="400" pathLength="1" d="M224 143 H262"/><g class="seq-rise" data-seq="2" data-seq-dur="520"><path class="pgf-head" d="M258 137 L268 143 L258 149 Z"/></g><g class="seq-rise" data-seq="3" data-seq-dur="520"><rect class="pgf-box" x="272" y="110" width="170" height="68" rx="10"/><text class="pgf-t" x="357" y="134" text-anchor="middle">Prompt + context</text><path class="pgf-bars" d="M290 150 H424 M290 164 H392"/></g><path class="pgf-line seq-draw" data-seq="4" data-seq-dur="400" pathLength="1" d="M442 143 H480"/><g class="seq-rise" data-seq="4" data-seq-dur="520"><path class="pgf-head" d="M476 137 L486 143 L476 149 Z"/></g><g class="seq-rise" data-seq="5" data-seq-dur="520"><rect class="pgf-box pgf-box--accent" x="490" y="116" width="150" height="54" rx="27"/><text class="pgf-t" x="565" y="149" text-anchor="middle">Model</text></g><path class="pgf-layer seq-draw" data-seq="6" data-seq-dur="800" pathLength="1" d="M54 58 H666 Q680 58 680 72 V190 Q680 204 666 204 H54 Q40 204 40 190 V72 Q40 58 54 58 Z"/><g class="seq-rise" data-seq="6" data-seq-dur="520"><text class="pgf-t pgf-t--label" x="56" y="80" text-anchor="start">Agentic platform</text><text class="pgf-t pgf-t--dim" x="680" y="80" text-anchor="end">tools, memory, permissions</text></g><path class="pgf-layer pgf-layer--outer seq-draw" data-seq="7" data-seq-dur="900" pathLength="1" d="M28 14 H692 Q710 14 710 32 V212 Q710 230 692 230 H28 Q10 230 10 212 V32 Q10 14 28 14 Z"/><g class="seq-rise" data-seq="7" data-seq-dur="520"><text class="pgf-t pgf-t--label" x="26" y="38" text-anchor="start">Harness</text><text class="pgf-t pgf-t--dim" x="694" y="38" text-anchor="end">skills, commands, hooks, rules</text></g></svg><svg class="pgf-svg pgf-svg--narrow" viewBox="0 0 320 392" aria-hidden="true" focusable="false"><g class="seq-rise" data-seq="1" data-seq-dur="520"><text class="pgf-t pgf-t--dim" x="160" y="112" text-anchor="middle">Tokens</text><rect class="pgf-chip" x="87" y="122" width="40" height="26" rx="6"/><text class="pgf-t pgf-t--code" x="107.0" y="140" text-anchor="middle">Fix</text><rect class="pgf-chip" x="133" y="122" width="44" height="26" rx="6"/><text class="pgf-t pgf-t--code" x="155.0" y="140" text-anchor="middle">the</text><rect class="pgf-chip" x="183" y="122" width="44" height="26" rx="6"/><text class="pgf-t pgf-t--code" x="205.0" y="140" text-anchor="middle">bug</text></g><path class="pgf-line seq-draw" data-seq="2" data-seq-dur="400" pathLength="1" d="M160 152 V176"/><g class="seq-rise" data-seq="2" data-seq-dur="520"><path class="pgf-head" d="M154 172 L160 182 L166 172 Z"/></g><g class="seq-rise" data-seq="3" data-seq-dur="520"><rect class="pgf-box" x="70" y="186" width="180" height="64" rx="10"/><text class="pgf-t" x="160" y="210" text-anchor="middle">Prompt + context</text><path class="pgf-bars" d="M88 226 H232 M88 238 H200"/></g><path class="pgf-line seq-draw" data-seq="4" data-seq-dur="400" pathLength="1" d="M160 250 V274"/><g class="seq-rise" data-seq="4" data-seq-dur="520"><path class="pgf-head" d="M154 270 L160 280 L166 270 Z"/></g><g class="seq-rise" data-seq="5" data-seq-dur="520"><rect class="pgf-box pgf-box--accent" x="90" y="284" width="140" height="50" rx="25"/><text class="pgf-t" x="160" y="315" text-anchor="middle">Model</text></g><path class="pgf-layer seq-draw" data-seq="6" data-seq-dur="800" pathLength="1" d="M46 66 H274 Q288 66 288 80 V340 Q288 354 274 354 H46 Q32 354 32 340 V80 Q32 66 46 66 Z"/><g class="seq-rise" data-seq="6" data-seq-dur="520"><text class="pgf-t pgf-t--label" x="48" y="90" text-anchor="start">Agentic platform</text></g><path class="pgf-layer pgf-layer--outer seq-draw" data-seq="7" data-seq-dur="900" pathLength="1" d="M28 14 H292 Q310 14 310 32 V362 Q310 380 292 380 H28 Q10 380 10 362 V32 Q10 14 28 14 Z"/><g class="seq-rise" data-seq="7" data-seq-dur="520"><text class="pgf-t pgf-t--label" x="26" y="42" text-anchor="start">Harness</text></g></svg></figure>
+        <figure class="pg-fig fxo" aria-label="One request, through every idea on this page: text is cut into tokens, framed as a prompt, packed into the context window with files and history, and read by a model; an agentic platform runs that model with tools in a loop, and a harness wraps the platform with skills, commands, hooks, and rules. Each part links to its scene.">
+          <div class="fxo-layer fxo-layer--harness">
+            <div class="fxo-head"><a class="fxo-tag" href="#foundations/fx-harness">Harness</a><ul class="fxo-chips" aria-label="What a harness adds"><li>skills</li><li>commands</li><li>hooks</li><li>rules</li></ul></div>
+            <div class="fxo-layer fxo-layer--platform">
+              <div class="fxo-head"><a class="fxo-tag" href="#foundations/fx-agent-platform">Agentic platform</a><ul class="fxo-chips" aria-label="What a platform adds"><li>tools</li><li>memory</li><li>permissions</li></ul></div>
+              <div class="fxo-flow">
+                <a class="fxo-node" href="#foundations/fx-tokens"><span class="fxo-name">Tokens</span><span class="fxo-tok" aria-hidden="true"><i>Summar</i><i>ise</i><i>&nbsp;the</i><i>&nbsp;contract</i></span></a>
+                <span class="fxo-pipe" aria-hidden="true"><i></i></span>
+                <a class="fxo-node" href="#foundations/fx-prompts"><span class="fxo-name">Prompt</span><span class="fxo-lines" aria-hidden="true"><i data-k="request">request</i><i data-k="context">context</i><i data-k="goal">goal</i><i data-k="format">format</i></span></a>
+                <span class="fxo-pipe" aria-hidden="true"><i></i></span>
+                <a class="fxo-node" href="#foundations/fx-context"><span class="fxo-name">Context window</span><span class="fxo-gauge" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="fxo-cap" aria-hidden="true">instructions, prompt, files, history</span></a>
+                <span class="fxo-pipe" aria-hidden="true"><i></i></span>
+                <a class="fxo-node fxo-node--model" href="#foundations/fx-model-lifecycle"><span class="fxo-name">Model</span><span class="fxo-core" aria-hidden="true"><i></i><i></i><i></i><em></em></span></a>
+              </div>
+              <div class="fxo-loop" aria-hidden="true"><svg viewBox="0 0 100 16" preserveAspectRatio="none"><path d="M93 0 V8 Q93 14 87 14 H13 Q7 14 7 8 V2"/></svg><span>calls a tool, reads the result, goes round again</span></div>
+            </div>
+          </div>
+        </figure>
       </div>
       <div data-outline-page="foundations"></div>
 
@@ -1745,7 +1883,44 @@ html:not(.js) #page-foundations{display:block;}html:not(.js) .ml-panel[hidden]{d
       <div class="hero pg-open">
         <h1 data-ty="h1" class="pg-open-title">Every command, <span class="gtext">every scope</span></h1>
         <p data-ty="lead" class="pg-open-lead">Every command, every scope, and what each one does, in one place.</p>
-        <figure class="pg-fig" role="img" aria-label="One command, /review, opens into scopes such as quality, security, and changes, each with the job it does." data-seq-root data-seq-loop data-seq-hold="2600"><svg class="pgf-svg pgf-svg--wide" viewBox="0 0 720 250" aria-hidden="true" focusable="false"><g class="seq-rise" data-seq="1" data-seq-dur="520"><rect class="pgf-box pgf-box--accent" x="30" y="78" width="132" height="46" rx="23"/><text class="pgf-t pgf-t--cmd" x="96" y="107" text-anchor="middle">/review</text></g><path class="pgf-line seq-draw" data-seq="2" data-seq-dur="450" pathLength="1" d="M162 101 C 214 101, 214 61, 262 61"/><g class="seq-rise" data-seq="2" data-seq-dur="520"><rect class="pgf-chip" x="262" y="40" width="132" height="42" rx="8"/><text class="pgf-t pgf-t--code" x="328" y="67" text-anchor="middle">quality</text><path class="pgf-line pgf-line--thin" d="M394 61 H430"/><text class="pgf-t pgf-t--dim" x="442" y="67" text-anchor="start">code smells, complexity</text></g><path class="pgf-line seq-draw" data-seq="3" data-seq-dur="450" pathLength="1" d="M162 101 C 214 101, 214 123, 262 123"/><g class="seq-rise" data-seq="3" data-seq-dur="520"><rect class="pgf-chip" x="262" y="102" width="132" height="42" rx="8"/><text class="pgf-t pgf-t--code" x="328" y="129" text-anchor="middle">security</text><path class="pgf-line pgf-line--thin" d="M394 123 H430"/><text class="pgf-t pgf-t--dim" x="442" y="129" text-anchor="start">secrets, auth, inputs</text></g><path class="pgf-line seq-draw" data-seq="4" data-seq-dur="450" pathLength="1" d="M162 101 C 214 101, 214 185, 262 185"/><g class="seq-rise" data-seq="4" data-seq-dur="520"><rect class="pgf-chip" x="262" y="164" width="132" height="42" rx="8"/><text class="pgf-t pgf-t--code" x="328" y="191" text-anchor="middle">changes</text><path class="pgf-line pgf-line--thin" d="M394 185 H430"/><text class="pgf-t pgf-t--dim" x="442" y="191" text-anchor="start">the pending diff</text></g><g class="seq-rise" data-seq="5" data-seq-dur="520"><text class="pgf-t pgf-t--cap" x="96" y="238" text-anchor="middle">command</text><text class="pgf-t pgf-t--cap" x="328" y="238" text-anchor="middle">scope</text><text class="pgf-t pgf-t--cap" x="442" y="238" text-anchor="start">what it does</text></g></svg><svg class="pgf-svg pgf-svg--narrow" viewBox="0 0 320 344" aria-hidden="true" focusable="false"><g class="seq-rise" data-seq="1" data-seq-dur="520"><rect class="pgf-box pgf-box--accent" x="16" y="12" width="132" height="44" rx="22"/><text class="pgf-t pgf-t--cmd" x="82" y="40" text-anchor="middle">/review</text></g><path class="pgf-line seq-draw" data-seq="2" data-seq-dur="500" pathLength="1" d="M40 56 V279"/><path class="pgf-line seq-draw" data-seq="3" data-seq-dur="250" pathLength="1" d="M40 111 H58"/><g class="seq-rise" data-seq="3" data-seq-dur="520"><rect class="pgf-chip" x="58" y="92" width="100" height="38" rx="8"/><text class="pgf-t pgf-t--code" x="108" y="116" text-anchor="middle">quality</text><text class="pgf-t pgf-t--dim" x="168" y="116" text-anchor="start">code smells, complexity</text></g><path class="pgf-line seq-draw" data-seq="4" data-seq-dur="250" pathLength="1" d="M40 195 H58"/><g class="seq-rise" data-seq="4" data-seq-dur="520"><rect class="pgf-chip" x="58" y="176" width="100" height="38" rx="8"/><text class="pgf-t pgf-t--code" x="108" y="200" text-anchor="middle">security</text><text class="pgf-t pgf-t--dim" x="168" y="200" text-anchor="start">secrets, auth, inputs</text></g><path class="pgf-line seq-draw" data-seq="5" data-seq-dur="250" pathLength="1" d="M40 279 H58"/><g class="seq-rise" data-seq="5" data-seq-dur="520"><rect class="pgf-chip" x="58" y="260" width="100" height="38" rx="8"/><text class="pgf-t pgf-t--code" x="108" y="284" text-anchor="middle">changes</text><text class="pgf-t pgf-t--dim" x="168" y="284" text-anchor="start">the pending diff</text></g></svg></figure>
+        <figure class="pg-fig csf" aria-label="How to use this page: pick the group that matches the job, find the command card, choose the scope that does what you need, then copy the line under the card and paste it to your assistant.">
+          <ol class="csf-steps">
+            <li><b>1</b><span>Pick the group for the job</span></li>
+            <li><b>2</b><span>Find the command card</span></li>
+            <li><b>3</b><span>Choose a scope</span></li>
+            <li><b>4</b><span>Copy the line, paste it to your assistant</span></li>
+          </ol>
+          <div class="csf-ui" aria-hidden="true">
+            <div class="csf-groups"><span>Understand</span><span class="csf-pick">Plan the work</span><span>Build it</span><span>Prove it</span><span>Ship</span></div>
+            <div class="csf-card">
+              <div class="csf-cmd"><code>/plan</code><span>Define goals and produce a phased plan.</span></div>
+              <div class="csf-scopes">
+                <div class="csf-scope csf-s1"><code>goals</code><span>problem, persona, definition of done</span></div>
+                <div class="csf-scope csf-s2"><code>feature</code><span>plan a feature or a fix</span></div>
+                <div class="csf-scope csf-s3"><code>refactor</code><span>plan a cleanup campaign</span></div>
+              </div>
+              <div class="csf-line"><span class="csf-prompt">&gt;</span><code><b>/plan</b> feature</code><span class="csf-copied">Copied</span></div>
+            </div>
+            <span class="csf-cursor"><svg viewBox="0 0 20 24"><path d="M2 2 L2 19 L6.5 14.8 L9.6 21.6 L12.6 20.3 L9.6 13.6 L15.8 13.6 Z"/></svg></span>
+          </div>
+          <script>
+          /* The demo cursor stops on the real elements: measure them, so the stops hold at any width. */
+          (function () {
+            var ui = document.currentScript.parentNode.querySelector(".csf-ui");
+            function set() {
+              var r = ui.getBoundingClientRect();
+              if (!r.width) return;
+              [["g", ".csf-pick"], ["c", ".csf-cmd code"], ["s", ".csf-s2 code"], ["l", ".csf-line code"]].forEach(function (t) {
+                var e = ui.querySelector(t[1]).getBoundingClientRect();
+                ui.style.setProperty("--" + t[0] + "x", Math.round(e.left + Math.min(40, e.width / 2) - r.left) + "px");
+                ui.style.setProperty("--" + t[0] + "y", Math.round(e.top + e.height / 2 - r.top) + "px");
+              });
+            }
+            set();
+            if (window.ResizeObserver) new ResizeObserver(set).observe(ui); else window.addEventListener("resize", set);
+          })();
+          </script>
+        </figure>
       </div>
       <div data-outline-page="cheatsheets"></div>
 

@@ -51,17 +51,23 @@ def test_training_intro_opens_with_the_shared_component() -> None:
 
 
 def _assert_opening_figure(block: str, name: str) -> None:
-    """Maintainer review (WN-7): an opening ends with one animated figure, not a card row.
+    """Maintainer review (WN-7, R2): an opening ends with one figure of the page's content, not a card row.
 
-    The figure is a NexusSeq root holding a wide and a narrow drawing, labelled as one image,
-    and the subtitle above it is a single sentence.
+    Foundations links every scene, Training links every stop of the journey, and Cheatsheets
+    walks through using the page; the subtitle above is one short sentence.
     """
-    fig = re.search(r'<figure class="pg-fig" role="img" aria-label="([^"]+)" data-seq-root data-seq-loop[^>]*>(.*?)</figure>', block, re.S)
-    assert fig, f"{name}: the opening has no animated figure"
-    assert len(fig.group(1)) > 40, f"{name}: the figure needs a real text alternative"
-    body = fig.group(2)
-    assert 'class="pgf-svg pgf-svg--wide"' in body and 'class="pgf-svg pgf-svg--narrow"' in body
-    assert len(set(re.findall(r'data-seq="(\d+)"', body))) >= 5, f"{name}: the figure should build in steps"
+    fig = re.search(r'<figure class="pg-fig ([a-z]+)" aria-label="([^"]+)">(.*?)</figure>', block, re.S)
+    assert fig, f"{name}: the opening has no figure"
+    kind, label, body = fig.groups()
+    assert len(label) > 80, f"{name}: the figure needs a real text alternative"
+    if name == "foundations":
+        links = re.findall(r'href="#foundations/([a-z-]+)"', body)
+        assert sorted(links) == sorted(["fx-tokens", "fx-model-lifecycle", "fx-prompts", "fx-context", "fx-agent-platform", "fx-harness"])
+    elif name == "training":
+        assert re.findall(r'<a href="#([a-z0-9/-]+)">', body) == ["play-buggy", "loop1/describe", "play-partial", "loop2/review", "play-fixed"]
+    else:
+        assert len(re.findall(r"<li><b>\d</b>", body)) == 4, "the cheatsheet demo has four steps"
+        assert "csf-cursor" in body and "csf-copied" in body
     assert "pg-map" not in block and "pg-glyph" not in block
     lead = re.search(r'class="[^"]*pg-open-lead[^"]*">(.*?)</p>', block, re.S).group(1)
     assert lead.count(". ") == 0 and len(lead) <= 100, f"{name}: the subtitle is one short sentence"
