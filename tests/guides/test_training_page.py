@@ -242,40 +242,18 @@ DEFEAT_BOSS = """() => { const g = SkySentinel.get('fixed'); SkySentinel.manual(
   for (let i = 0; i < 4; i++) g.hitBoss('node' + i, 8); g.hitBoss('core', 24); SkySentinel.manual(false); }"""
 
 
-def test_sessions_type_out_and_skip_and_run_again(playwright_mod) -> None:
-    """Maintainer review (DF-1, DF-2): a session types itself out; Skip finishes, Run again replays."""
-    with playwright_mod() as pw:
-        browser, page, errors, _external = _open(pw)
-        try:
-            assert page.evaluate("NexusTrainingPage.story().typing()") is False, "automation sees finished reports"
-            page.evaluate("NexusTrainingPage.story().typing(true)")
-            page.evaluate("NexusTrainingPage.go('loop1/review')")
-            page.wait_for_function(f"document.querySelector('{SESSION} .tr-session').hasAttribute('data-typing')")
-            assert page.locator(f"{SESSION} .tr-wait").count() > 0
-            run = page.locator(f"{SESSION} .tr-run")
-            assert run.inner_text() == "Skip"
-            run.click()
-            assert page.locator(f"{SESSION} .tr-wait").count() == 0
-            assert page.locator(f"{SESSION} .tr-cmd code").inner_text() == "/review quality"
-            assert run.inner_text() == "Run again"
-            run.click()
-            assert page.evaluate(f"document.querySelector('{SESSION} .tr-session').hasAttribute('data-typing')")
-            assert not errors, errors
-        finally:
-            browser.close()
-
-
 def test_reduced_motion_never_hides_a_report(playwright_mod) -> None:
+    """R4: under reduced motion Send completes the step at once; nothing waits to type in."""
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
         try:
             page = browser.new_page(viewport={"width": 1280, "height": 800}, reduced_motion="reduce")
             page.goto(TRAINING.as_uri() + "#loop1/review")
             page.wait_for_function("window.NexusTrainingPage && NexusTrainingPage.stage() === 'loop1/review'")
-            assert page.evaluate("NexusTrainingPage.story().typing(true)") is False
-            page.evaluate("NexusTrainingPage.story().replay('loop1/review')")
-            assert page.locator(f"{SESSION} .tr-wait").count() == 0
-            assert not page.locator(f"{SESSION} .tr-run").is_visible()
+            page.locator(f"{SESSION} .ide-send").click()
+            assert page.evaluate("NexusTrainingPage.story().state('loop1/review')") == "done"
+            assert page.locator(f"{SESSION} .ide-wait").count() == 0
+            assert page.locator(f"{SESSION} .ide-msg--reply h3").count() >= 1
         finally:
             browser.close()
 

@@ -926,23 +926,19 @@ def test_keyboard_and_reduced_motion_are_complete(render_gate: object) -> None:
                 page.keyboard.press("Escape")
                 page.wait_for_function(f"{game}.pausedBy === 'escape'")
 
-                # loop1/describe is the stage that reads two files, so it carries a real tab list.
+                # R4: every agent step runs from the keyboard: Tab reaches Send, Enter runs it.
                 page.evaluate("NexusTrainingPage.go('loop1/describe')")
                 page.wait_for_function("NexusTrainingPage.stage() === 'loop1/describe'")
-                tabs = 'section[data-stage="loop1/describe"] .tr-files [role="tab"]'
-                _focus_by_tab_from_previous(page, tabs + '[aria-selected="true"]')
-                count = page.locator(tabs).count()
-                assert count >= 2, "the describe step must show at least two files"
-                focused = "[...document.querySelectorAll('" + tabs + "')].indexOf(document.activeElement)"
-                selected = "[...document.querySelectorAll('" + tabs + "')].findIndex(t => t.getAttribute('aria-selected') === 'true')"
-                start = page.evaluate(selected)
-                assert page.evaluate(focused) == start, "Tab must land on the selected file"
-                steps = (("ArrowDown", (start + 1) % count), ("ArrowUp", start), ("End", count - 1),
-                         ("Home", 0), ("ArrowLeft", count - 1))
-                for key, expected in steps:
-                    page.keyboard.press(key)
-                    assert page.evaluate(focused) == expected, f"{key}: focus"
-                    assert page.evaluate(selected) == expected, f"{key}: selection"
+                send = 'section[data-stage="loop1/describe"] .ide-send'
+                _focus_by_tab_from_previous(page, send)
+                assert page.evaluate("document.activeElement.classList.contains('ide-send')")
+                page.keyboard.press("Enter")
+                page.wait_for_function("NexusTrainingPage.story().state('loop1/describe') === 'done'", timeout=15000)
+                files = 'section[data-stage="loop1/describe"] .ide-file'
+                assert page.locator(files).count() >= 7, "the explorer lists the project"
+                _focus_by_tab_from_previous(page, files + '[data-path="src/damage.js"]')
+                page.keyboard.press("Enter")
+                assert page.locator('section[data-stage="loop1/describe"] .ide-tab[aria-selected="true"]').inner_text() == "damage.js"
 
                 # With no margin the navigation is a bar: its menu opens from the keyboard first.
                 toggle = page.locator(".pg-outline-toggle")

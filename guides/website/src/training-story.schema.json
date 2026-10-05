@@ -14,11 +14,42 @@
   "additionalProperties": false,
   "properties": {
     "version": {
-      "const": 1
+      "const": 2
     },
     "project": {
-      "type": "string",
-      "minLength": 1
+      "type": "object",
+      "required": [
+        "name",
+        "files"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "files": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "path",
+              "code"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "path": {
+                "type": "string",
+                "minLength": 1
+              },
+              "code": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
     },
     "defaultProvider": {
       "enum": [
@@ -100,110 +131,6 @@
           ]
         },
         "reason": {
-          "$ref": "#/$defs/text"
-        }
-      }
-    },
-    "check": {
-      "type": "object",
-      "required": [
-        "name",
-        "result"
-      ],
-      "additionalProperties": false,
-      "properties": {
-        "name": {
-          "$ref": "#/$defs/text"
-        },
-        "result": {
-          "enum": [
-            "pass",
-            "fail"
-          ]
-        }
-      }
-    },
-    "section": {
-      "type": "object",
-      "required": [
-        "heading"
-      ],
-      "additionalProperties": false,
-      "properties": {
-        "heading": {
-          "$ref": "#/$defs/text"
-        },
-        "items": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/text"
-          }
-        },
-        "code": {
-          "type": "object",
-          "required": [
-            "label",
-            "text"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "label": {
-              "$ref": "#/$defs/text"
-            },
-            "text": {
-              "$ref": "#/$defs/text"
-            }
-          }
-        },
-        "diff": {
-          "type": "object",
-          "required": [
-            "path",
-            "lines"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "path": {
-              "$ref": "#/$defs/text"
-            },
-            "lines": {
-              "type": "array",
-              "items": {
-                "type": "string",
-                "pattern": "^[-+ ]"
-              },
-              "minItems": 1
-            }
-          }
-        },
-        "checks": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/check"
-          }
-        }
-      }
-    },
-    "file": {
-      "type": "object",
-      "required": [
-        "path",
-        "status",
-        "code"
-      ],
-      "additionalProperties": false,
-      "properties": {
-        "path": {
-          "$ref": "#/$defs/text"
-        },
-        "status": {
-          "enum": [
-            "existing",
-            "modified",
-            "created"
-          ]
-        },
-        "code": {
           "$ref": "#/$defs/text"
         }
       }
@@ -303,12 +230,11 @@
             "required": [
               "loop",
               "step",
-              "command",
               "banner",
               "badge",
-              "session",
-              "files",
-              "activity"
+              "prompt",
+              "steps",
+              "reply"
             ],
             "properties": {
               "id": {
@@ -330,75 +256,114 @@
                   "update"
                 ]
               },
-              "command": {
-                "pattern": "^/[a-z]+( [a-z0-9.]+)?$"
-              },
               "banner": {
                 "$ref": "#/$defs/banner"
               },
               "badge": {
                 "$ref": "#/$defs/badge"
               },
-              "session": {
-                "type": "object",
-                "required": [
-                  "summary",
-                  "sections"
-                ],
-                "additionalProperties": false,
-                "properties": {
-                  "summary": {
-                    "$ref": "#/$defs/text"
-                  },
-                  "sections": {
-                    "type": "array",
-                    "minItems": 1,
-                    "items": {
-                      "$ref": "#/$defs/section"
-                    }
-                  }
-                }
+              "prompt": {
+                "$ref": "#/$defs/prompt"
               },
-              "files": {
+              "steps": {
                 "type": "array",
                 "minItems": 1,
                 "items": {
-                  "$ref": "#/$defs/file"
+                  "$ref": "#/$defs/step"
                 }
               },
-              "activity": {
-                "type": "array",
-                "minItems": 1,
-                "items": {
-                  "$ref": "#/$defs/activity"
-                }
+              "reply": {
+                "type": "string",
+                "minLength": 1
               }
             }
           }
         }
       ]
     },
-    "activity": {
+    "prompt": {
       "type": "object",
       "required": [
-        "tool",
-        "target"
+        "command",
+        "argument"
       ],
       "additionalProperties": false,
       "properties": {
-        "tool": {
-          "enum": [
-            "Read",
-            "Search",
-            "Run",
-            "Edit",
-            "Write"
-          ]
+        "command": {
+          "type": "string",
+          "pattern": "^/[a-z-]+$"
         },
-        "target": {
-          "$ref": "#/$defs/text"
+        "argument": {
+          "type": "string"
         }
       }
+    },
+    "step": {
+      "type": "object",
+      "required": [
+        "kind",
+        "label"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "read",
+            "search",
+            "think",
+            "write",
+            "edit",
+            "run"
+          ]
+        },
+        "label": {
+          "$ref": "#/$defs/text"
+        },
+        "file": {
+          "type": "string",
+          "minLength": 1
+        },
+        "output": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "write",
+                  "edit"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "file",
+              "content"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "read"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "file"
+            ]
+          }
+        }
+      ]
     }
   }
 }

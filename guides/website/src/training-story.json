@@ -1,869 +1,640 @@
 {
-  "version": 1,
-  "project": "sky-sentinel",
-  "defaultProvider": "Anthropic",
-  "providers": [
-    "Anthropic",
-    "OpenAI",
-    "Google",
-    "Cursor"
-  ],
-  "stages": [
-    {
-      "id": "intro",
-      "kind": "intro"
-    },
-    {
-      "id": "play-buggy",
-      "kind": "play",
-      "game": "buggy",
-      "banner": {
-        "step": "Before the loop",
-        "title": "Play the buggy game",
-        "now": "Start the game and let one enemy shot reach the ship."
-      },
-      "callout": {
-        "title": "This build has a bug",
-        "items": [
-          "The first enemy hit destroys the ship, even with three lives left."
-        ],
-        "hidden": "One more defect hides in this build. The first loop cannot see it yet; the second loop finds it."
-      },
-      "after": "When the run ends, the HUD still shows lives left. That gap between the rules and the game is what the loop starts from."
-    },
-    {
-      "id": "loop1/describe",
-      "kind": "session",
-      "loop": 1,
-      "step": "describe",
-      "command": "/describe structure",
-      "banner": {
-        "step": "Loop 1, step 1 of 6",
-        "title": "Map the code before touching it",
-        "now": "Read the map: four source files and no tests."
-      },
-      "badge": {
-        "tier": "standard",
-        "effort": "medium",
-        "reason": "Reading and summarising a small codebase needs breadth, not deep reasoning."
-      },
-      "session": {
-        "summary": "Sky Sentinel is a small canvas shooter: a game loop, a damage handler, a hazards module, and a renderer. Nothing is tested automatically; behaviour is checked by playing.",
-        "sections": [
-          {
-            "heading": "Map",
-            "items": [
-              "src/game.js runs the loop: input, movement, collisions, then rendering, 60 times a second.",
-              "src/damage.js decides what a hit does to the ship.",
-              "src/hazards.js moves asteroids and runs timed hazards.",
-              "src/render.js draws the frame; it reads state and never changes it."
-            ]
-          },
-          {
-            "heading": "What the reader should know first",
-            "items": [
-              "Every rule about lives lives in src/damage.js, so a damage bug starts there.",
-              "There is no tests/ folder yet."
-            ]
-          }
-        ]
-      },
-      "files": [
-        {
-          "path": "src/game.js",
-          "status": "existing",
-          "code": "import { applyEnemyHit } from './damage.js';\nimport { tickHazards } from './hazards.js';\n\nexport function step(state, input, rng) {\n  state = moveShip(state, input);\n  state = tickHazards(state, rng);\n  for (const shot of hitsOnShip(state)) {\n    state = { ...state, ship: applyEnemyHit(state.ship) };\n  }\n  return state;\n}"
-        },
-        {
-          "path": "src/damage.js",
-          "status": "existing",
-          "code": "// Applies one enemy hit to the ship.\nexport function applyEnemyHit(ship) {\n  // TODO: lives were added to the design, but this handler predates them.\n  return { ...ship, destroyed: true };\n}"
-        }
-      ],
-      "activity": [
-        {
-          "tool": "Search",
-          "target": "files under src/"
-        },
-        {
-          "tool": "Read",
-          "target": "src/game.js"
-        },
-        {
-          "tool": "Read",
-          "target": "src/damage.js"
-        },
-        {
-          "tool": "Read",
-          "target": "src/hazards.js"
-        },
-        {
-          "tool": "Read",
-          "target": "src/render.js"
-        },
-        {
-          "tool": "Search",
-          "target": "test files: none found"
-        }
-      ]
-    },
-    {
-      "id": "loop1/review",
-      "kind": "session",
-      "loop": 1,
-      "step": "review",
-      "command": "/review quality",
-      "banner": {
-        "step": "Loop 1, step 2 of 6",
-        "title": "Find the first bug, with evidence",
-        "now": "Read the finding and the reproduction, then the note on what the review could not check."
-      },
-      "badge": {
-        "tier": "frontier",
-        "effort": "high",
-        "reason": "Judging behaviour against the rules and proving it with a reproduction is the step where a weaker model misses things."
-      },
-      "session": {
-        "summary": "One confirmed defect: a hit ignores lives. Seeded runs end at the first hit, with all three lives still showing.",
-        "sections": [
-          {
-            "heading": "Finding P1: the first hit destroys the ship",
-            "items": [
-              "applyEnemyHit returns destroyed: true for every hit and never reads ship.lives.",
-              "The design says a hit costs one life, with a short invulnerability window after it."
-            ],
-            "code": {
-              "label": "src/damage.js, lines 2-5",
-              "text": "export function applyEnemyHit(ship) {\n  // TODO: lives were added to the design, but this handler predates them.\n  return { ...ship, destroyed: true };\n}"
-            }
-          },
-          {
-            "heading": "Reproduction",
-            "checks": [
-              {
-                "name": "seed 4242: first hit at 8.5 s, ship destroyed, lives shown 3",
-                "result": "fail"
-              },
-              {
-                "name": "seed 7: first hit at 11.2 s, ship destroyed, lives shown 3",
-                "result": "fail"
-              },
-              {
-                "name": "seed 90210: first hit at 9.8 s, ship destroyed, lives shown 3",
-                "result": "fail"
-              }
-            ]
-          },
-          {
-            "heading": "Not checked",
-            "items": [
-              "Every run ended at the first hit, before 13 seconds. Nothing that happens later in a run was observed."
-            ]
-          }
-        ]
-      },
-      "files": [
-        {
-          "path": "src/damage.js",
-          "status": "existing",
-          "code": "// Applies one enemy hit to the ship.\nexport function applyEnemyHit(ship) {\n  // TODO: lives were added to the design, but this handler predates them.\n  return { ...ship, destroyed: true };\n}"
-        }
-      ],
-      "activity": [
-        {
-          "tool": "Read",
-          "target": "src/damage.js"
-        },
-        {
-          "tool": "Read",
-          "target": "src/game.js"
-        },
-        {
-          "tool": "Search",
-          "target": "'lives' across src/"
-        },
-        {
-          "tool": "Run",
-          "target": "game --seed 4242 --until first-hit"
-        },
-        {
-          "tool": "Run",
-          "target": "game --seed 7 --until first-hit"
-        },
-        {
-          "tool": "Run",
-          "target": "game --seed 90210 --until first-hit"
-        }
-      ]
-    },
-    {
-      "id": "loop1/plan",
-      "kind": "session",
-      "loop": 1,
-      "step": "plan",
-      "command": "/plan feature",
-      "banner": {
-        "step": "Loop 1, step 3 of 6",
-        "title": "Turn the finding into a plan",
-        "now": "Check the three phases and the definition of done."
-      },
-      "badge": {
-        "tier": "strong",
-        "effort": "high",
-        "reason": "Sequencing a fix with its tests and release needs care, but the problem is already understood."
-      },
-      "session": {
-        "summary": "Plan v1.0.1 has three phases, each ending in one local commit; only the last one publishes.",
-        "sections": [
-          {
-            "heading": "Goal",
-            "items": [
-              "A hit costs one life and gives 120 ticks of invulnerability; the last life ends the run."
-            ]
-          },
-          {
-            "heading": "Phases",
-            "items": [
-              "1. Fix applyEnemyHit to count lives and add the invulnerability window.",
-              "2. Add unit tests for one hit, a hit during invulnerability, and the last life.",
-              "3. Update the changelog and release v1.0.1."
-            ]
-          },
-          {
-            "heading": "Definition of done",
-            "items": [
-              "The three seeded reproductions from the review survive their first hit.",
-              "The new tests pass, and the full suite stays green."
-            ]
-          }
-        ]
-      },
-      "files": [
-        {
-          "path": "docs/plans/v1.0.1-damage-fix.md",
-          "status": "created",
-          "code": "# Plan - Damage fix\n\n**Version**: v1.0.1\n**Goal**: A hit costs one life, not the ship.\n\n## Phase 1: Count lives in applyEnemyHit\n## Phase 2: Unit tests for damage\n## Phase 3: Changelog and release"
-        }
-      ],
-      "activity": [
-        {
-          "tool": "Read",
-          "target": "the review's finding P1"
-        },
-        {
-          "tool": "Read",
-          "target": "src/damage.js"
-        },
-        {
-          "tool": "Write",
-          "target": "docs/plans/v1.0.1-damage-fix.md"
-        }
-      ]
-    },
-    {
-      "id": "loop1/implement",
-      "kind": "session",
-      "loop": 1,
-      "step": "implement",
-      "command": "/implement v1.0.1",
-      "banner": {
-        "step": "Loop 1, step 4 of 6",
-        "title": "Change the code, phase by phase",
-        "now": "Read the diff: the handler now counts lives."
-      },
-      "badge": {
-        "tier": "strong",
-        "effort": "medium",
-        "reason": "A small, well-specified change in one file; the plan already settled the hard questions."
-      },
-      "session": {
-        "summary": "Phase 1 is done: applyEnemyHit counts lives and starts the invulnerability window. Lint and build pass.",
-        "sections": [
-          {
-            "heading": "What changed",
-            "diff": {
-              "path": "src/damage.js",
-              "lines": [
-                "+export const INVULNERABLE_TICKS = 120;",
-                " ",
-                "-// Applies one enemy hit to the ship.",
-                "+// Applies one enemy hit: one life lost, then a short invulnerability window.",
-                " export function applyEnemyHit(ship) {",
-                "-  // TODO: lives were added to the design, but this handler predates them.",
-                "-  return { ...ship, destroyed: true };",
-                "+  if (ship.invulnerableTicks > 0) return ship;",
-                "+  const lives = ship.lives - 1;",
-                "+  return {",
-                "+    ...ship,",
-                "+    lives,",
-                "+    destroyed: lives <= 0,",
-                "+    invulnerableTicks: lives > 0 ? INVULNERABLE_TICKS : 0,",
-                "+  };",
-                " }"
-              ]
-            }
-          },
-          {
-            "heading": "Checks",
-            "checks": [
-              {
-                "name": "lint",
-                "result": "pass"
-              },
-              {
-                "name": "build",
-                "result": "pass"
-              },
-              {
-                "name": "seed 4242 survives its first hit (lives 3 to 2)",
-                "result": "pass"
-              }
-            ]
-          }
-        ]
-      },
-      "files": [
-        {
-          "path": "src/damage.js",
-          "status": "modified",
-          "code": "export const INVULNERABLE_TICKS = 120;\n\n// Applies one enemy hit: one life lost, then a short invulnerability window.\nexport function applyEnemyHit(ship) {\n  if (ship.invulnerableTicks > 0) return ship;\n  const lives = ship.lives - 1;\n  return {\n    ...ship,\n    lives,\n    destroyed: lives <= 0,\n    invulnerableTicks: lives > 0 ? INVULNERABLE_TICKS : 0,\n  };\n}"
-        }
-      ],
-      "activity": [
-        {
-          "tool": "Read",
-          "target": "docs/plans/v1.0.1-damage-fix.md"
-        },
-        {
-          "tool": "Edit",
-          "target": "src/damage.js"
-        },
-        {
-          "tool": "Run",
-          "target": "npm run lint"
-        },
-        {
-          "tool": "Run",
-          "target": "npm run build"
-        },
-        {
-          "tool": "Run",
-          "target": "game --seed 4242 --until first-hit"
-        }
-      ]
-    },
-    {
-      "id": "loop1/test",
-      "kind": "session",
-      "loop": 1,
-      "step": "test",
-      "command": "/test unit",
-      "banner": {
-        "step": "Loop 1, step 5 of 6",
-        "title": "Prove the fix with tests",
-        "now": "Read the three tests and their results."
-      },
-      "badge": {
-        "tier": "standard",
-        "effort": "medium",
-        "reason": "Writing unit tests for a small pure function is routine once the rules are written down."
-      },
-      "session": {
-        "summary": "Three unit tests now pin the damage rules. All pass, and the suite runs in under a second.",
-        "sections": [
-          {
-            "heading": "Tests added",
-            "items": [
-              "A hit costs one life, not the ship.",
-              "A hit during invulnerability costs nothing.",
-              "The last life ends the run."
-            ]
-          },
-          {
-            "heading": "Results",
-            "checks": [
-              {
-                "name": "a hit costs one life, not the ship",
-                "result": "pass"
-              },
-              {
-                "name": "a hit during invulnerability costs nothing",
-                "result": "pass"
-              },
-              {
-                "name": "the last life ends the run",
-                "result": "pass"
-              }
-            ]
-          }
-        ]
-      },
-      "files": [
-        {
-          "path": "tests/damage.test.js",
-          "status": "created",
-          "code": "import { applyEnemyHit } from '../src/damage.js';\n\ntest('a hit costs one life, not the ship', () => {\n  const ship = applyEnemyHit({ lives: 3, invulnerableTicks: 0 });\n  expect(ship.lives).toBe(2);\n  expect(ship.destroyed).toBe(false);\n});\n\ntest('a hit during invulnerability costs nothing', () => {\n  const ship = { lives: 2, invulnerableTicks: 30 };\n  expect(applyEnemyHit(ship)).toBe(ship);\n});\n\ntest('the last life ends the run', () => {\n  expect(applyEnemyHit({ lives: 1, invulnerableTicks: 0 }).destroyed).toBe(true);\n});"
-        }
-      ],
-      "activity": [
-        {
-          "tool": "Read",
-          "target": "src/damage.js"
-        },
-        {
-          "tool": "Write",
-          "target": "tests/damage.test.js"
-        },
-        {
-          "tool": "Run",
-          "target": "npm test"
-        }
-      ]
-    },
-    {
-      "id": "loop1/update",
-      "kind": "session",
-      "loop": 1,
-      "step": "update",
-      "command": "/update release",
-      "banner": {
-        "step": "Loop 1, step 6 of 6",
-        "title": "Ship it and record what changed",
-        "now": "Read the changelog entry, then play the new build."
-      },
-      "badge": {
-        "tier": "fast",
-        "effort": "low",
-        "reason": "Bumping a version and writing a changelog entry from a finished plan is mechanical."
-      },
-      "session": {
-        "summary": "v1.0.1 is released: version bumped, changelog written, tag created after the checks went green.",
-        "sections": [
-          {
-            "heading": "Release",
-            "checks": [
-              {
-                "name": "full test suite",
-                "result": "pass"
-              },
-              {
-                "name": "version 1.0.0 to 1.0.1",
-                "result": "pass"
-              },
-              {
-                "name": "tag v1.0.1",
-                "result": "pass"
-              }
-            ]
-          }
-        ]
-      },
-      "files": [
-        {
-          "path": "CHANGELOG.md",
-          "status": "modified",
-          "code": "## [1.0.1]\n\n### Fixed\n\n- A hit now costs one life, with a short invulnerability window,\n  instead of destroying the ship outright."
-        }
-      ],
-      "activity": [
-        {
-          "tool": "Run",
-          "target": "npm test"
-        },
-        {
-          "tool": "Edit",
-          "target": "package.json: 1.0.0 to 1.0.1"
-        },
-        {
-          "tool": "Edit",
-          "target": "CHANGELOG.md"
-        },
-        {
-          "tool": "Run",
-          "target": "git tag v1.0.1"
-        }
-      ]
-    },
-    {
-      "id": "play-partial",
-      "kind": "play",
-      "game": "partial",
-      "banner": {
-        "step": "Between the loops",
-        "title": "Play the fixed build, for longer",
-        "now": "Survive past 20 seconds and watch the ship."
-      },
-      "callout": {
-        "title": "One bug fixed, one still hiding",
-        "items": [
-          "A hit now costs one life, as it should.",
-          "Play long enough: the ship sometimes explodes with nothing touching it."
-        ]
-      },
-      "after": "The first review could not see this: every run it watched ended at the first hit, before the hidden bug had time to fire."
-    },
-    {
-      "id": "loop2/review",
-      "kind": "session",
-      "loop": 2,
-      "step": "review",
-      "command": "/review quality",
-      "banner": {
-        "step": "Loop 2, step 2 of 6",
-        "title": "Review again, with longer runs",
-        "now": "Read the new finding and why the first review missed it."
-      },
-      "badge": {
-        "tier": "frontier",
-        "effort": "max",
-        "reason": "An intermittent defect that appears only after 20 seconds needs the most careful reasoning and the most evidence."
-      },
-      "session": {
-        "summary": "One new confirmed defect: a leftover self-test in src/hazards.js destroys the ship at random after 20 seconds of play.",
-        "sections": [
-          {
-            "heading": "Finding P1: random explosions with no hit",
-            "items": [
-              "tickHazards still runs a self-test from the debris prototype: after tick 1,200 it blows the ship up with a small chance every tick.",
-              "The comment says it was meant to be removed before release."
-            ],
-            "code": {
-              "label": "src/hazards.js, lines 7-12",
-              "text": "  // Self-test from the debris prototype: blows the ship up to check the\n  // respawn path. It was meant to be removed before release.\n  if (state.tick > SELF_TEST_AFTER && rng() < SELF_TEST_CHANCE) {\n    return explodeShip(state, 'self-test');\n  }"
-            }
-          },
-          {
-            "heading": "Evidence",
-            "checks": [
-              {
-                "name": "seed 4242: life lost at 24.1 s with no collision event",
-                "result": "fail"
-              },
-              {
-                "name": "seed 7: life lost at 31.8 s with no collision event",
-                "result": "fail"
-              },
-              {
-                "name": "500 seeds, threats off: every life lost had no hit",
-                "result": "fail"
-              }
-            ]
-          },
-          {
-            "heading": "Why loop 1 missed it",
-            "items": [
-              "The first-hit bug ended every observed run before 13 seconds, so the self-test never had time to fire."
-            ]
-          }
-        ]
-      },
-      "files": [
-        {
-          "path": "src/hazards.js",
-          "status": "existing",
-          "code": "import { explodeShip } from './damage.js';\n\nconst SELF_TEST_AFTER = 1200;   // ticks\nconst SELF_TEST_CHANCE = 0.004; // per tick\n\nexport function tickHazards(state, rng) {\n  // Self-test from the debris prototype: blows the ship up to check the\n  // respawn path. It was meant to be removed before release.\n  if (state.tick > SELF_TEST_AFTER && rng() < SELF_TEST_CHANCE) {\n    return explodeShip(state, 'self-test');\n  }\n  return moveAsteroids(state);\n}"
-        }
-      ],
-      "activity": [
-        {
-          "tool": "Run",
-          "target": "500 seeded runs, 20,000 ticks, threats off"
-        },
-        {
-          "tool": "Search",
-          "target": "life-loss events with no matching hit"
-        },
-        {
-          "tool": "Read",
-          "target": "src/hazards.js"
-        },
-        {
-          "tool": "Search",
-          "target": "'explodeShip' across src/"
-        },
-        {
-          "tool": "Read",
-          "target": "git log -- src/hazards.js"
-        }
-      ]
-    },
-    {
-      "id": "loop2/plan",
-      "kind": "session",
-      "loop": 2,
-      "step": "plan",
-      "command": "/plan feature",
-      "banner": {
-        "step": "Loop 2, step 3 of 6",
-        "title": "A smaller plan for a smaller fix",
-        "now": "Check the two phases and the test that must stay green."
-      },
-      "badge": {
-        "tier": "strong",
-        "effort": "medium",
-        "reason": "The cause is known and the fix is a deletion; the plan mostly decides how to prove it."
-      },
-      "session": {
-        "summary": "Plan v1.0.2 has two phases: remove the self-test, then add a test that fails if a life is ever lost without a hit.",
-        "sections": [
-          {
-            "heading": "Phases",
-            "items": [
-              "1. Remove the self-test and its constants from src/hazards.js, and add the no-loss-without-hit test.",
-              "2. Update the changelog and release v1.0.2."
-            ]
-          },
-          {
-            "heading": "Definition of done",
-            "items": [
-              "Across 500 seeded runs of 20,000 ticks, every life lost has a matching hit."
-            ]
-          }
-        ]
-      },
-      "files": [
-        {
-          "path": "docs/plans/v1.0.2-remove-self-test.md",
-          "status": "created",
-          "code": "# Plan - Remove the leftover self-test\n\n**Version**: v1.0.2\n**Goal**: No life is ever lost without a hit.\n\n## Phase 1: Remove the self-test, add the property test\n## Phase 2: Changelog and release"
-        }
-      ],
-      "activity": [
-        {
-          "tool": "Read",
-          "target": "the review's new finding"
-        },
-        {
-          "tool": "Write",
-          "target": "docs/plans/v1.0.2-remove-self-test.md"
-        }
-      ]
-    },
-    {
-      "id": "loop2/implement",
-      "kind": "session",
-      "loop": 2,
-      "step": "implement",
-      "command": "/implement v1.0.2",
-      "banner": {
-        "step": "Loop 2, step 4 of 6",
-        "title": "Delete the leftover code",
-        "now": "Read the diff: the self-test is gone."
-      },
-      "badge": {
-        "tier": "strong",
-        "effort": "medium",
-        "reason": "Removing a known block of code is small, but it must not disturb asteroid movement."
-      },
-      "session": {
-        "summary": "The self-test, its two constants, and the unused import are removed. Asteroid movement is unchanged.",
-        "sections": [
-          {
-            "heading": "What changed",
-            "diff": {
-              "path": "src/hazards.js",
-              "lines": [
-                "-import { explodeShip } from './damage.js';",
-                "-",
-                "-const SELF_TEST_AFTER = 1200;   // ticks",
-                "-const SELF_TEST_CHANCE = 0.004; // per tick",
-                "-",
-                "-export function tickHazards(state, rng) {",
-                "-  // Self-test from the debris prototype: blows the ship up to check the",
-                "-  // respawn path. It was meant to be removed before release.",
-                "-  if (state.tick > SELF_TEST_AFTER && rng() < SELF_TEST_CHANCE) {",
-                "-    return explodeShip(state, 'self-test');",
-                "-  }",
-                "+export function tickHazards(state) {",
-                "   return moveAsteroids(state);",
-                " }"
-              ]
-            }
-          },
-          {
-            "heading": "Checks",
-            "checks": [
-              {
-                "name": "lint",
-                "result": "pass"
-              },
-              {
-                "name": "build",
-                "result": "pass"
-              }
-            ]
-          }
-        ]
-      },
-      "files": [
-        {
-          "path": "src/hazards.js",
-          "status": "modified",
-          "code": "export function tickHazards(state) {\n  return moveAsteroids(state);\n}"
-        }
-      ],
-      "activity": [
-        {
-          "tool": "Read",
-          "target": "docs/plans/v1.0.2-remove-self-test.md"
-        },
-        {
-          "tool": "Edit",
-          "target": "src/hazards.js"
-        },
-        {
-          "tool": "Run",
-          "target": "npm run lint"
-        },
-        {
-          "tool": "Run",
-          "target": "npm run build"
-        }
-      ]
-    },
-    {
-      "id": "loop2/test",
-      "kind": "session",
-      "loop": 2,
-      "step": "test",
-      "command": "/test unit",
-      "banner": {
-        "step": "Loop 2, step 5 of 6",
-        "title": "Prove it across many runs",
-        "now": "Read the property test: one rule checked over 500 seeds."
-      },
-      "badge": {
-        "tier": "strong",
-        "effort": "high",
-        "reason": "A rare, random defect needs a test over many seeded runs, not a single example."
-      },
-      "session": {
-        "summary": "A property test checks 500 seeded runs of 20,000 ticks: every life lost has a matching hit. It passes, and it would have failed before the fix.",
-        "sections": [
-          {
-            "heading": "Results",
-            "checks": [
-              {
-                "name": "no life is lost without a hit, across 500 seeds",
-                "result": "pass"
-              },
-              {
-                "name": "the same test on v1.0.1 (control)",
-                "result": "fail"
-              },
-              {
-                "name": "damage unit tests from loop 1",
-                "result": "pass"
-              }
-            ]
-          }
-        ]
-      },
-      "files": [
-        {
-          "path": "tests/hazards.test.js",
-          "status": "created",
-          "code": "import { runSeeded } from './helpers/run.js';\n\ntest('no life is lost without a hit, across 500 seeds', () => {\n  for (let seed = 1; seed <= 500; seed++) {\n    const run = runSeeded({ seed, ticks: 20000, threats: false });\n    expect(run.lifeLosses).toEqual(run.hits);\n  }\n});"
-        }
-      ],
-      "activity": [
-        {
-          "tool": "Write",
-          "target": "tests/hazards.test.js"
-        },
-        {
-          "tool": "Run",
-          "target": "npm test"
-        },
-        {
-          "tool": "Run",
-          "target": "the same test against v1.0.1 (control)"
-        }
-      ]
-    },
-    {
-      "id": "loop2/update",
-      "kind": "session",
-      "loop": 2,
-      "step": "update",
-      "command": "/update release",
-      "banner": {
-        "step": "Loop 2, step 6 of 6",
-        "title": "Ship the second fix",
-        "now": "Read the changelog, then play the fixed game."
-      },
-      "badge": {
-        "tier": "fast",
-        "effort": "low",
-        "reason": "The same mechanical release steps as before."
-      },
-      "session": {
-        "summary": "v1.0.2 is released with both fixes. The game now has nothing left in its known-bugs list.",
-        "sections": [
-          {
-            "heading": "Release",
-            "checks": [
-              {
-                "name": "full test suite, including the 500-seed property test",
-                "result": "pass"
-              },
-              {
-                "name": "version 1.0.1 to 1.0.2",
-                "result": "pass"
-              },
-              {
-                "name": "tag v1.0.2",
-                "result": "pass"
-              }
-            ]
-          }
-        ]
-      },
-      "files": [
-        {
-          "path": "CHANGELOG.md",
-          "status": "modified",
-          "code": "## [1.0.2]\n\n### Fixed\n\n- Removed a leftover self-test that destroyed the ship at random\n  after 20 seconds of play.\n\n## [1.0.1]\n\n### Fixed\n\n- A hit now costs one life, with a short invulnerability window,\n  instead of destroying the ship outright."
-        }
-      ],
-      "activity": [
-        {
-          "tool": "Run",
-          "target": "npm test"
-        },
-        {
-          "tool": "Edit",
-          "target": "package.json: 1.0.1 to 1.0.2"
-        },
-        {
-          "tool": "Edit",
-          "target": "CHANGELOG.md"
-        },
-        {
-          "tool": "Run",
-          "target": "git tag v1.0.2"
-        }
-      ]
-    },
-    {
-      "id": "play-fixed",
-      "kind": "play",
-      "game": "fixed",
-      "banner": {
-        "step": "The reward",
-        "title": "The finished game, fully working",
-        "now": "Play it for real: three levels, a stronger ship at each, and power-ups to collect."
-      },
-      "callout": {
-        "tone": "ok",
-        "title": "Both bugs are fixed",
-        "items": [
-          "A hit costs one life, with a short invulnerability window.",
-          "No life is ever lost without a hit."
-        ],
-        "hidden": "Clear all three levels. Something is waiting at the end."
-      },
-      "after": "Two loops, two releases, and every claim backed by a test that would fail if the bug came back."
-    }
+ "version": 2,
+ "project": {
+  "name": "sky-sentinel",
+  "files": [
+   {
+    "path": "README.md",
+    "code": "# Sky Sentinel\n\nA small canvas shooter: the ship has three lives,\nenemies fire, and asteroids drift past.\n\nRun it with `npm start`. Play a seeded run with\n`node scripts/play.js --seed 4242`."
+   },
+   {
+    "path": "package.json",
+    "code": "{\n  \"name\": \"sky-sentinel\",\n  \"version\": \"1.0.0\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"start\": \"node scripts/play.js\",\n    \"lint\": \"eslint src\",\n    \"test\": \"vitest run\"\n  }\n}"
+   },
+   {
+    "path": "scripts/play.js",
+    "code": "// Plays the game headless and prints what happens.\n// Usage: node scripts/play.js --seed 4242 [--ticks 20000] [--seeds 1-50]\nimport { runSeeded } from '../src/run.js';\n\nconst run = runSeeded(parseArgs(process.argv));\nconsole.log(run.summary);"
+   },
+   {
+    "path": "src/damage.js",
+    "code": "// Applies one enemy hit to the ship.\nexport function applyEnemyHit(ship) {\n  // TODO: lives were added to the design, but this handler predates them.\n  return { ...ship, destroyed: true };\n}\n\n// Ends the run at once, with a reason for the game-over screen.\nexport function explodeShip(state, reason) {\n  return { ...state, ship: { ...state.ship, destroyed: true, reason } };\n}"
+   },
+   {
+    "path": "src/game.js",
+    "code": "import { applyEnemyHit } from './damage.js';\nimport { tickHazards } from './hazards.js';\nimport { moveShip, hitsOnShip } from './physics.js';\n\n// One frame of play: move, run the hazards, then apply every hit.\nexport function step(state, input, rng) {\n  state = moveShip(state, input);\n  state = tickHazards(state, rng);\n  for (const shot of hitsOnShip(state)) {\n    state = { ...state, ship: applyEnemyHit(state.ship) };\n  }\n  return { ...state, tick: state.tick + 1 };\n}"
+   },
+   {
+    "path": "src/hazards.js",
+    "code": "import { explodeShip } from './damage.js';\nimport { moveAsteroids } from './physics.js';\n\nconst SELF_TEST_AFTER = 1200;   // ticks\nconst SELF_TEST_CHANCE = 0.004; // per tick\n\nexport function tickHazards(state, rng) {\n  // Self-test from the debris prototype: blows the ship up to check the\n  // respawn path. It was meant to be removed before release.\n  if (state.tick > SELF_TEST_AFTER && rng() < SELF_TEST_CHANCE) {\n    return explodeShip(state, 'self-test');\n  }\n  return moveAsteroids(state);\n}"
+   },
+   {
+    "path": "src/render.js",
+    "code": "// Draws one frame. Reads the state, never changes it.\nexport function render(ctx, state) {\n  drawStars(ctx, state.tick);\n  drawShip(ctx, state.ship);\n  state.enemies.forEach((e) => drawEnemy(ctx, e));\n  drawHud(ctx, state.ship.lives, state.score);\n}"
+   }
   ]
+ },
+ "defaultProvider": "Anthropic",
+ "providers": [
+  "Anthropic",
+  "OpenAI",
+  "Google",
+  "Cursor"
+ ],
+ "stages": [
+  {
+   "id": "intro",
+   "kind": "intro"
+  },
+  {
+   "id": "play-buggy",
+   "kind": "play",
+   "game": "buggy",
+   "banner": {
+    "step": "Before the loop",
+    "title": "Play the buggy game",
+    "now": "Start the game and let one enemy shot reach the ship."
+   },
+   "callout": {
+    "title": "This build has a bug",
+    "items": [
+     "The first enemy hit destroys the ship, even with three lives left."
+    ],
+    "hidden": "One more defect hides in this build. The first loop cannot see it yet; the second loop finds it."
+   },
+   "after": "When the run ends, the HUD still shows lives left. That gap between the rules and the game is what the loop starts from."
+  },
+  {
+   "id": "loop1/describe",
+   "kind": "session",
+   "loop": 1,
+   "step": "describe",
+   "banner": {
+    "step": "Loop 1, step 1 of 6",
+    "title": "Map the code before touching it",
+    "now": "Press Send and watch the agent read the project and write docs/describe.md."
+   },
+   "badge": {
+    "tier": "standard",
+    "effort": "medium",
+    "reason": "Reading and summarising a small codebase needs breadth, not deep reasoning."
+   },
+   "prompt": {
+    "command": "/describe",
+    "argument": ""
+   },
+   "steps": [
+    {
+     "kind": "search",
+     "label": "List the project",
+     "output": "README.md  package.json  scripts/play.js\nsrc/: damage.js  game.js  hazards.js  render.js"
+    },
+    {
+     "kind": "read",
+     "label": "Read package.json",
+     "file": "package.json"
+    },
+    {
+     "kind": "read",
+     "label": "Read src/game.js",
+     "file": "src/game.js"
+    },
+    {
+     "kind": "read",
+     "label": "Read src/damage.js",
+     "file": "src/damage.js"
+    },
+    {
+     "kind": "read",
+     "label": "Read src/hazards.js",
+     "file": "src/hazards.js"
+    },
+    {
+     "kind": "think",
+     "label": "Trace how a hit travels from game.js to damage.js"
+    },
+    {
+     "kind": "write",
+     "label": "Write docs/describe.md",
+     "file": "docs/describe.md",
+     "content": "# Sky Sentinel: description\n\n## What it is\nA small canvas shooter. One ship with three lives,\nenemies that fire, asteroids, and a score.\n\n## Map\n| File | Role |\n|---|---|\n| `src/game.js` | One frame: move, hazards, hits |\n| `src/damage.js` | What a hit does to the ship |\n| `src/hazards.js` | Asteroids and timed hazards |\n| `src/render.js` | Draws a frame, never changes state |\n| `scripts/play.js` | Plays a seeded run headless |\n\n## How a hit travels\n1. `game.js` finds each shot that touches the ship.\n2. It calls `applyEnemyHit(ship)` in `damage.js`.\n3. The returned ship replaces the old one.\n\n## Worth knowing first\n- No automated tests: `npm test` finds nothing to run.\n- `applyEnemyHit` has a TODO: it predates lives.\n- `hazards.js` can end a run on its own (`explodeShip`)."
+    }
+   ],
+   "reply": "## Sky Sentinel, mapped\n\nA small canvas shooter: one ship with **three lives**, enemies that fire, asteroids, and a score.\n\n### Map\n| File | Role |\n|---|---|\n| `src/game.js` | One frame: move, hazards, hits |\n| `src/damage.js` | What a hit does to the ship |\n| `src/hazards.js` | Asteroids and timed hazards |\n| `src/render.js` | Draws a frame |\n\n### Worth knowing first\n- **No automated tests.** `npm test` has nothing to run.\n- `applyEnemyHit` carries a TODO: it was written before lives existed.\n- `hazards.js` can end a run on its own through `explodeShip`.\n\nSaved to `docs/describe.md`."
+  },
+  {
+   "id": "loop1/review",
+   "kind": "session",
+   "loop": 1,
+   "step": "review",
+   "banner": {
+    "step": "Loop 1, step 2 of 6",
+    "title": "Find the first bug, with evidence",
+    "now": "Press Send: the agent checks the code against its rules and proves what it finds."
+   },
+   "badge": {
+    "tier": "frontier",
+    "effort": "high",
+    "reason": "Judging behaviour against the rules and proving it with a reproduction is the step where a weaker model misses things."
+   },
+   "prompt": {
+    "command": "/review",
+    "argument": ""
+   },
+   "steps": [
+    {
+     "kind": "read",
+     "label": "Read docs/describe.md",
+     "file": "docs/describe.md"
+    },
+    {
+     "kind": "read",
+     "label": "Read src/damage.js",
+     "file": "src/damage.js"
+    },
+    {
+     "kind": "read",
+     "label": "Read src/game.js",
+     "file": "src/game.js"
+    },
+    {
+     "kind": "think",
+     "label": "Compare applyEnemyHit with the rule in README.md: a hit costs one life"
+    },
+    {
+     "kind": "run",
+     "label": "Reproduce with a seeded run",
+     "output": "$ node scripts/play.js --seed 4242 --until first-hit\ntick 512  hit  lives 3  ->  ship destroyed"
+    },
+    {
+     "kind": "write",
+     "label": "Write docs/review.md",
+     "file": "docs/review.md",
+     "content": "# Review: quality\n\n## P1: the first hit destroys the ship\n**Where**: `src/damage.js`, `applyEnemyHit`\n**Rule broken**: a hit costs one life (README).\n\n- Every hit returns `destroyed: true`.\n- `ship.lives` is never read.\n\n### Reproduction\n`node scripts/play.js --seed 4242 --until first-hit`\nends at tick 512 with 3 lives showing.\n\n## Not checked\n- Runs longer than 20 seconds: every seeded run ended\n  at its first hit, so later play was never observed."
+    }
+   ],
+   "reply": "## Review: 1 finding\n\n### P1: the first hit destroys the ship\n**Where:** `src/damage.js`, `applyEnemyHit`\n\n- Every hit returns `destroyed: true`; `ship.lives` is never read.\n- Seed 4242 ends at tick 512 with **3 lives showing**.\n\n### Not checked\n- Runs longer than 20 seconds. Every seeded run ended at its first hit, so later play was never observed.\n\nFull report: `docs/review.md`."
+  },
+  {
+   "id": "loop1/plan",
+   "kind": "session",
+   "loop": 1,
+   "step": "plan",
+   "banner": {
+    "step": "Loop 1, step 3 of 6",
+    "title": "Turn the finding into a plan",
+    "now": "Press Send: the agent turns the finding into a plan with phases and a definition of done."
+   },
+   "badge": {
+    "tier": "strong",
+    "effort": "high",
+    "reason": "Sequencing a fix with its tests and release needs care, but the problem is already understood."
+   },
+   "prompt": {
+    "command": "/plan",
+    "argument": "Fix the bug where the first enemy hit destroys the ship even with lives left. The map is in docs/describe.md and the finding is P1 in docs/review.md."
+   },
+   "steps": [
+    {
+     "kind": "read",
+     "label": "Read docs/review.md",
+     "file": "docs/review.md"
+    },
+    {
+     "kind": "read",
+     "label": "Read docs/describe.md",
+     "file": "docs/describe.md"
+    },
+    {
+     "kind": "read",
+     "label": "Read src/damage.js",
+     "file": "src/damage.js"
+    },
+    {
+     "kind": "think",
+     "label": "Choose the smallest fix: count lives, plus the invulnerability window the design describes"
+    },
+    {
+     "kind": "write",
+     "label": "Write docs/plans/v1.0.1-damage-fix.md",
+     "file": "docs/plans/v1.0.1-damage-fix.md",
+     "content": "# Plan: damage fix\n\n**Version**: v1.0.1\n**Goal**: a hit costs one life, not the ship.\n**Sources**: docs/describe.md, docs/review.md (P1)\n\n## Phase 1: count lives\n- `applyEnemyHit` takes one life per hit.\n- A short invulnerability window follows a hit\n  (120 ticks), so one shot cannot take two lives.\n- Check: seed 4242 survives its first hit.\n\n## Phase 2: unit tests\n- One life per hit; no loss while invulnerable;\n  the last life ends the run.\n\n## Phase 3: release\n- Changelog entry, version 1.0.1, tag.\n\n## Definition of done\n- [ ] Seed 4242 survives its first hit (3 to 2 lives)\n- [ ] The damage tests pass\n- [ ] v1.0.1 is tagged"
+    }
+   ],
+   "reply": "## Plan v1.0.1: the damage fix\n\n**Goal:** a hit costs one life, not the ship.\n\n### Phases\n1. **Count lives** in `applyEnemyHit`, with a 120-tick invulnerability window after a hit.\n2. **Unit tests** that pin the damage rules.\n3. **Release:** changelog, version 1.0.1, tag.\n\n### Definition of done\n- Seed 4242 survives its first hit (3 to 2 lives).\n- The damage tests pass.\n\nSaved to `docs/plans/v1.0.1-damage-fix.md`. Next: `/implement docs/plans/v1.0.1-damage-fix.md`."
+  },
+  {
+   "id": "loop1/implement",
+   "kind": "session",
+   "loop": 1,
+   "step": "implement",
+   "banner": {
+    "step": "Loop 1, step 4 of 6",
+    "title": "Change the code, phase by phase",
+    "now": "Press Send and watch src/damage.js change line by line."
+   },
+   "badge": {
+    "tier": "strong",
+    "effort": "medium",
+    "reason": "A small, well-specified change in one file; the plan already settled the hard questions."
+   },
+   "prompt": {
+    "command": "/implement",
+    "argument": "docs/plans/v1.0.1-damage-fix.md"
+   },
+   "steps": [
+    {
+     "kind": "read",
+     "label": "Read docs/plans/v1.0.1-damage-fix.md",
+     "file": "docs/plans/v1.0.1-damage-fix.md"
+    },
+    {
+     "kind": "read",
+     "label": "Read src/damage.js",
+     "file": "src/damage.js"
+    },
+    {
+     "kind": "edit",
+     "label": "Edit src/damage.js: count lives, add the invulnerability window",
+     "file": "src/damage.js",
+     "content": "export const INVULNERABLE_TICKS = 120;\n\n// Applies one enemy hit: one life lost, then a short invulnerability window.\nexport function applyEnemyHit(ship) {\n  if (ship.invulnerableTicks > 0) return ship;\n  const lives = ship.lives - 1;\n  return {\n    ...ship,\n    lives,\n    destroyed: lives <= 0,\n    invulnerableTicks: lives > 0 ? INVULNERABLE_TICKS : 0,\n  };\n}\n\n// Ends the run at once, with a reason for the game-over screen.\nexport function explodeShip(state, reason) {\n  return { ...state, ship: { ...state.ship, destroyed: true, reason } };\n}"
+    },
+    {
+     "kind": "run",
+     "label": "Lint",
+     "output": "$ npm run lint\n0 problems"
+    },
+    {
+     "kind": "run",
+     "label": "Check the plan's first box",
+     "output": "$ node scripts/play.js --seed 4242 --until first-hit\ntick 512  hit  lives 3 -> 2  invulnerable 120 ticks"
+    }
+   ],
+   "reply": "## Phase 1 done\n\n`applyEnemyHit` now counts lives.\n\n### What changed in `src/damage.js`\n- A hit takes **one life**; the run ends only at zero.\n- A hit starts a **120-tick invulnerability** window, so one shot cannot take two lives.\n- The old `TODO` is gone.\n\n### Checks\n| Check | Result |\n|---|---|\n| Lint | pass |\n| Seed 4242 survives its first hit | pass (3 to 2 lives) |"
+  },
+  {
+   "id": "loop1/test",
+   "kind": "session",
+   "loop": 1,
+   "step": "test",
+   "banner": {
+    "step": "Loop 1, step 5 of 6",
+    "title": "Prove the fix with tests",
+    "now": "Press Send: the agent writes tests that pin the new rules, then runs them."
+   },
+   "badge": {
+    "tier": "standard",
+    "effort": "medium",
+    "reason": "Writing unit tests for a small pure function is routine once the rules are written down."
+   },
+   "prompt": {
+    "command": "/test",
+    "argument": "Cover the damage fix in src/damage.js: a hit costs one life, a hit while invulnerable costs nothing, and the last life ends the run."
+   },
+   "steps": [
+    {
+     "kind": "read",
+     "label": "Read src/damage.js",
+     "file": "src/damage.js"
+    },
+    {
+     "kind": "think",
+     "label": "One test per rule, each failing on the old code"
+    },
+    {
+     "kind": "write",
+     "label": "Write tests/damage.test.js",
+     "file": "tests/damage.test.js",
+     "content": "import { test, expect } from 'vitest';\nimport { applyEnemyHit, INVULNERABLE_TICKS } from '../src/damage.js';\n\ntest('a hit costs one life, not the ship', () => {\n  const ship = applyEnemyHit({ lives: 3, invulnerableTicks: 0 });\n  expect(ship.lives).toBe(2);\n  expect(ship.destroyed).toBe(false);\n  expect(ship.invulnerableTicks).toBe(INVULNERABLE_TICKS);\n});\n\ntest('a hit during invulnerability costs nothing', () => {\n  const ship = { lives: 2, invulnerableTicks: 30 };\n  expect(applyEnemyHit(ship)).toBe(ship);\n});\n\ntest('the last life ends the run', () => {\n  expect(applyEnemyHit({ lives: 1, invulnerableTicks: 0 }).destroyed).toBe(true);\n});"
+    },
+    {
+     "kind": "run",
+     "label": "Run the tests",
+     "output": "$ npm test\n tests/damage.test.js (3)\n Tests  3 passed (3)\n Duration  0.41s"
+    }
+   ],
+   "reply": "## 3 tests, all passing\n\n| Test | Pins |\n|---|---|\n| a hit costs one life | lives 3 to 2, not destroyed |\n| a hit while invulnerable costs nothing | the window holds |\n| the last life ends the run | game over at zero |\n\nEach test fails on the old `applyEnemyHit`, so the bug cannot come back unnoticed."
+  },
+  {
+   "id": "loop1/update",
+   "kind": "session",
+   "loop": 1,
+   "step": "update",
+   "banner": {
+    "step": "Loop 1, step 6 of 6",
+    "title": "Ship it and record what changed",
+    "now": "Press Send: the agent bumps the version, writes the changelog, and tags the release."
+   },
+   "badge": {
+    "tier": "fast",
+    "effort": "low",
+    "reason": "Bumping a version and writing a changelog entry from a finished plan is mechanical."
+   },
+   "prompt": {
+    "command": "/update",
+    "argument": "release"
+   },
+   "steps": [
+    {
+     "kind": "read",
+     "label": "Read docs/plans/v1.0.1-damage-fix.md",
+     "file": "docs/plans/v1.0.1-damage-fix.md"
+    },
+    {
+     "kind": "run",
+     "label": "Confirm the checks are green",
+     "output": "$ npm run lint && npm test\n0 problems\nTests  3 passed (3)"
+    },
+    {
+     "kind": "edit",
+     "label": "Edit package.json: version 1.0.1",
+     "file": "package.json",
+     "content": "{\n  \"name\": \"sky-sentinel\",\n  \"version\": \"1.0.1\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"start\": \"node scripts/play.js\",\n    \"lint\": \"eslint src\",\n    \"test\": \"vitest run\"\n  }\n}"
+    },
+    {
+     "kind": "write",
+     "label": "Write CHANGELOG.md",
+     "file": "CHANGELOG.md",
+     "content": "# Changelog\n\n## [1.0.1] - 2026-10-04\n\n### Fixed\n- A hit now costs one life, with a short\n  invulnerability window, instead of destroying\n  the ship outright."
+    },
+    {
+     "kind": "run",
+     "label": "Tag the release",
+     "output": "$ git tag v1.0.1\ntagged v1.0.1"
+    }
+   ],
+   "reply": "## Released v1.0.1\n\n- **Version:** 1.0.0 to 1.0.1 in `package.json`\n- **Changelog:** a hit now costs one life\n- **Tag:** `v1.0.1`\n\n### Plan status\n- [x] Seed 4242 survives its first hit\n- [x] The damage tests pass\n- [x] v1.0.1 is tagged\n\nNext: play the new build for longer."
+  },
+  {
+   "id": "play-partial",
+   "kind": "play",
+   "game": "partial",
+   "banner": {
+    "step": "Between the loops",
+    "title": "Play the fixed build, for longer",
+    "now": "Survive past 20 seconds and watch the ship."
+   },
+   "callout": {
+    "title": "One bug fixed, one still hiding",
+    "items": [
+     "A hit now costs one life, as it should.",
+     "Play long enough: the ship sometimes explodes with nothing touching it."
+    ]
+   },
+   "after": "The first review could not see this: every run it watched ended at the first hit, before the hidden bug had time to fire."
+  },
+  {
+   "id": "loop2/review",
+   "kind": "session",
+   "loop": 2,
+   "step": "review",
+   "banner": {
+    "step": "Loop 2, step 2 of 6",
+    "title": "Review again, with longer runs",
+    "now": "Press Send: with runs no longer ending at the first hit, the review can watch longer play."
+   },
+   "badge": {
+    "tier": "frontier",
+    "effort": "max",
+    "reason": "An intermittent defect that appears only after 20 seconds needs the most careful reasoning and the most evidence."
+   },
+   "prompt": {
+    "command": "/review",
+    "argument": ""
+   },
+   "steps": [
+    {
+     "kind": "read",
+     "label": "Read docs/review.md",
+     "file": "docs/review.md"
+    },
+    {
+     "kind": "run",
+     "label": "Play 50 seeded runs of 20,000 ticks",
+     "output": "$ node scripts/play.js --seeds 1-50 --ticks 20000\n50 runs: 37 lost a life with no hit recorded\nfirst at tick 1386"
+    },
+    {
+     "kind": "search",
+     "label": "Search for code that destroys the ship",
+     "output": "$ grep -n \"destroyed\\|explodeShip\" src\nsrc/damage.js:11  explodeShip(state, reason)\nsrc/hazards.js:10  return explodeShip(state, 'self-test');"
+    },
+    {
+     "kind": "read",
+     "label": "Read src/hazards.js",
+     "file": "src/hazards.js"
+    },
+    {
+     "kind": "think",
+     "label": "Why was this missed? Every run in loop 1 ended before tick 1200"
+    },
+    {
+     "kind": "edit",
+     "label": "Edit docs/review.md: add finding P2",
+     "file": "docs/review.md",
+     "content": "# Review: quality\n\n## P1: the first hit destroys the ship\n**Where**: `src/damage.js`, `applyEnemyHit`\n**Rule broken**: a hit costs one life (README).\n\n- Every hit returns `destroyed: true`.\n- `ship.lives` is never read.\n\n### Reproduction\n`node scripts/play.js --seed 4242 --until first-hit`\nends at tick 512 with 3 lives showing.\n\n## Not checked\n- Runs longer than 20 seconds: every seeded run ended\n  at its first hit, so later play was never observed.\n\n---\n\n# Review: quality (second pass)\n\n## P1 (fixed in v1.0.1)\nA hit now costs one life.\n\n## P2: the ship explodes with no hit\n**Where**: `src/hazards.js`, `tickHazards`\n\n- A self-test from the debris prototype calls\n  `explodeShip(state, 'self-test')` at random\n  after tick 1200 (20 seconds).\n- 37 of 50 seeded runs of 20,000 ticks lost a life\n  with no hit recorded.\n\n## Why loop 1 missed it\nBefore v1.0.1 every run ended at its first hit,\nwell before tick 1200, so the self-test never fired."
+    }
+   ],
+   "reply": "## Review: 1 new finding\n\n### P2: the ship explodes with no hit\n**Where:** `src/hazards.js`, `tickHazards`\n\n- A leftover **self-test** from the debris prototype calls `explodeShip(state, 'self-test')` at random after tick 1200.\n- **37 of 50** seeded runs lost a life with no hit recorded.\n\n### Why loop 1 missed it\nBefore v1.0.1 every run ended at its first hit, well before tick 1200, so the self-test never fired.\n\nAdded to `docs/review.md`."
+  },
+  {
+   "id": "loop2/plan",
+   "kind": "session",
+   "loop": 2,
+   "step": "plan",
+   "banner": {
+    "step": "Loop 2, step 3 of 6",
+    "title": "A smaller plan for a smaller fix",
+    "now": "Press Send: a smaller plan for a smaller fix, with a test that must stay green."
+   },
+   "badge": {
+    "tier": "strong",
+    "effort": "medium",
+    "reason": "The cause is known and the fix is a deletion; the plan mostly decides how to prove it."
+   },
+   "prompt": {
+    "command": "/plan",
+    "argument": "Remove the random explosion that docs/review.md reports as P2. The ship must never lose a life without being hit. Use docs/describe.md for the map."
+   },
+   "steps": [
+    {
+     "kind": "read",
+     "label": "Read docs/review.md",
+     "file": "docs/review.md"
+    },
+    {
+     "kind": "read",
+     "label": "Read src/hazards.js",
+     "file": "src/hazards.js"
+    },
+    {
+     "kind": "think",
+     "label": "The fix is a deletion; the plan is mostly about proving it"
+    },
+    {
+     "kind": "write",
+     "label": "Write docs/plans/v1.0.2-remove-self-test.md",
+     "file": "docs/plans/v1.0.2-remove-self-test.md",
+     "content": "# Plan: remove the leftover self-test\n\n**Version**: v1.0.2\n**Goal**: no life is ever lost without a hit.\n**Sources**: docs/review.md (P2), docs/describe.md\n\n## Phase 1: remove the self-test\n- Delete the self-test block, its two constants,\n  and the `explodeShip` import from `hazards.js`.\n- Asteroid movement must not change.\n\n## Phase 2: prove it\n- A property test over 500 seeded runs of 20,000\n  ticks: every life lost has a matching hit.\n\n## Phase 3: release\n- Changelog entry, version 1.0.2, tag.\n\n## Definition of done\n- [ ] The property test passes, and fails on v1.0.1\n- [ ] v1.0.2 is tagged"
+    }
+   ],
+   "reply": "## Plan v1.0.2: remove the self-test\n\n**Goal:** no life is ever lost without a hit.\n\n### Phases\n1. **Remove** the self-test block, its two constants, and the unused import.\n2. **Prove it** with a property test over 500 seeded runs.\n3. **Release:** changelog, version 1.0.2, tag.\n\nSaved to `docs/plans/v1.0.2-remove-self-test.md`."
+  },
+  {
+   "id": "loop2/implement",
+   "kind": "session",
+   "loop": 2,
+   "step": "implement",
+   "banner": {
+    "step": "Loop 2, step 4 of 6",
+    "title": "Delete the leftover code",
+    "now": "Press Send and watch the self-test disappear from src/hazards.js."
+   },
+   "badge": {
+    "tier": "strong",
+    "effort": "medium",
+    "reason": "Removing a known block of code is small, but it must not disturb asteroid movement."
+   },
+   "prompt": {
+    "command": "/implement",
+    "argument": "docs/plans/v1.0.2-remove-self-test.md"
+   },
+   "steps": [
+    {
+     "kind": "read",
+     "label": "Read docs/plans/v1.0.2-remove-self-test.md",
+     "file": "docs/plans/v1.0.2-remove-self-test.md"
+    },
+    {
+     "kind": "read",
+     "label": "Read src/hazards.js",
+     "file": "src/hazards.js"
+    },
+    {
+     "kind": "edit",
+     "label": "Edit src/hazards.js: remove the self-test",
+     "file": "src/hazards.js",
+     "content": "import { moveAsteroids } from './physics.js';\n\nexport function tickHazards(state) {\n  return moveAsteroids(state);\n}"
+    },
+    {
+     "kind": "run",
+     "label": "Lint",
+     "output": "$ npm run lint\n0 problems"
+    },
+    {
+     "kind": "run",
+     "label": "Check asteroid movement is unchanged",
+     "output": "$ node scripts/play.js --seed 7 --ticks 5000 --compare v1.0.1\nasteroid paths: identical"
+    }
+   ],
+   "reply": "## Phase 1 done\n\nThe self-test is gone from `src/hazards.js`.\n\n- Removed the self-test block and `SELF_TEST_AFTER`, `SELF_TEST_CHANCE`.\n- Removed the now unused `explodeShip` import.\n- **Asteroid movement is unchanged**: seed 7 draws the same paths as v1.0.1."
+  },
+  {
+   "id": "loop2/test",
+   "kind": "session",
+   "loop": 2,
+   "step": "test",
+   "banner": {
+    "step": "Loop 2, step 5 of 6",
+    "title": "Prove it across many runs",
+    "now": "Press Send: one rule, checked over 500 seeded runs."
+   },
+   "badge": {
+    "tier": "strong",
+    "effort": "high",
+    "reason": "A rare, random defect needs a test over many seeded runs, not a single example."
+   },
+   "prompt": {
+    "command": "/test",
+    "argument": "Prove the ship never loses a life without a hit, across long seeded runs."
+   },
+   "steps": [
+    {
+     "kind": "read",
+     "label": "Read src/hazards.js",
+     "file": "src/hazards.js"
+    },
+    {
+     "kind": "write",
+     "label": "Write tests/hazards.test.js",
+     "file": "tests/hazards.test.js",
+     "content": "import { test, expect } from 'vitest';\nimport { runSeeded } from '../src/run.js';\n\n// Every life lost must match a recorded hit, however long the run.\ntest('no life is lost without a hit, across 500 seeds', () => {\n  for (let seed = 1; seed <= 500; seed++) {\n    const run = runSeeded({ seed, ticks: 20000 });\n    expect(run.lifeLosses).toEqual(run.hits);\n  }\n});"
+    },
+    {
+     "kind": "run",
+     "label": "Run the tests",
+     "output": "$ npm test\n tests/damage.test.js (3)\n tests/hazards.test.js (1)\n Tests  4 passed (4)\n Duration  6.2s"
+    },
+    {
+     "kind": "run",
+     "label": "Confirm the test fails on v1.0.1",
+     "output": "$ git stash && npm test -- hazards\n FAIL  no life is lost without a hit\n seed 3: 1 life lost, 0 hits\n$ git stash pop"
+    }
+   ],
+   "reply": "## The rule holds over 500 runs\n\n| Run | Result |\n|---|---|\n| v1.0.2, 500 seeds x 20,000 ticks | pass |\n| v1.0.1, same test | **fails** at seed 3 |\n\nThe test would have caught the self-test, so it guards against the bug coming back."
+  },
+  {
+   "id": "loop2/update",
+   "kind": "session",
+   "loop": 2,
+   "step": "update",
+   "banner": {
+    "step": "Loop 2, step 6 of 6",
+    "title": "Ship the second fix",
+    "now": "Press Send: the second release, then the finished game."
+   },
+   "badge": {
+    "tier": "fast",
+    "effort": "low",
+    "reason": "The same mechanical release steps as before."
+   },
+   "prompt": {
+    "command": "/update",
+    "argument": "release"
+   },
+   "steps": [
+    {
+     "kind": "run",
+     "label": "Confirm the checks are green",
+     "output": "$ npm run lint && npm test\n0 problems\nTests  4 passed (4)"
+    },
+    {
+     "kind": "edit",
+     "label": "Edit package.json: version 1.0.2",
+     "file": "package.json",
+     "content": "{\n  \"name\": \"sky-sentinel\",\n  \"version\": \"1.0.2\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"start\": \"node scripts/play.js\",\n    \"lint\": \"eslint src\",\n    \"test\": \"vitest run\"\n  }\n}"
+    },
+    {
+     "kind": "edit",
+     "label": "Edit CHANGELOG.md: add 1.0.2",
+     "file": "CHANGELOG.md",
+     "content": "# Changelog\n\n## [1.0.2] - 2026-10-04\n\n### Fixed\n- The ship no longer explodes at random after\n  20 seconds: a leftover self-test is removed.\n\n## [1.0.1] - 2026-10-04\n\n### Fixed\n- A hit now costs one life, with a short\n  invulnerability window, instead of destroying\n  the ship outright."
+    },
+    {
+     "kind": "run",
+     "label": "Tag the release",
+     "output": "$ git tag v1.0.2\ntagged v1.0.2"
+    }
+   ],
+   "reply": "## Released v1.0.2\n\n- **Fixed:** the ship no longer explodes at random after 20 seconds.\n- **Tag:** `v1.0.2`\n\n### Both findings closed\n| Finding | Fixed in |\n|---|---|\n| P1: the first hit destroys the ship | v1.0.1 |\n| P2: the ship explodes with no hit | v1.0.2 |\n\nThe finished game is next."
+  },
+  {
+   "id": "play-fixed",
+   "kind": "play",
+   "game": "fixed",
+   "banner": {
+    "step": "The reward",
+    "title": "The finished game, fully working",
+    "now": "Play it for real: three levels, a stronger ship at each, and power-ups to collect."
+   },
+   "callout": {
+    "tone": "ok",
+    "title": "Both bugs are fixed",
+    "items": [
+     "A hit costs one life, with a short invulnerability window.",
+     "No life is ever lost without a hit."
+    ],
+    "hidden": "Clear all three levels. Something is waiting at the end."
+   },
+   "after": "Two loops, two releases, and every claim backed by a test that would fail if the bug came back."
+  }
+ ]
 }

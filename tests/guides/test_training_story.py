@@ -69,13 +69,19 @@ def test_both_loops_run_the_home_steps_and_loop_two_starts_at_review() -> None:
 
 
 def test_every_session_command_is_a_real_command_and_scope() -> None:
+    """R4: prompts read like a real user's: /describe and /review bare, /plan a sentence citing their files."""
     for s in _sessions():
-        name, _, scope = s["command"].partition(" ")
-        path = ROOT / "catalog" / "commands" / f"{name.lstrip('/')}.md"
-        assert path.is_file(), f"{s['id']}: {name} is not a catalog command"
-        if scope and not re.match(r"v\d", scope):
+        cmd, arg = s["prompt"]["command"], s["prompt"]["argument"]
+        path = ROOT / "catalog" / "commands" / f"{cmd.lstrip('/')}.md"
+        assert path.is_file(), f"{s['id']}: {cmd} is not a catalog command"
+        if arg and " " not in arg and "/" not in arg:
             scopes = re.search(r"Recognized scopes: ([^.\n]*)", path.read_text(encoding="utf-8"))
-            assert scopes and f"`{scope}`" in scopes.group(1), f"{s['id']}: {scope} is not a scope of {name}"
+            assert scopes and f"`{arg}`" in scopes.group(1), f"{s['id']}: {arg} is not a scope of {cmd}"
+    by_id = {s["id"]: s for s in _sessions()}
+    for sid in ("loop1/describe", "loop1/review", "loop2/review"):
+        assert by_id[sid]["prompt"]["argument"] == "", f"{sid} runs with no argument"
+    plan = by_id["loop1/plan"]["prompt"]["argument"]
+    assert len(plan.split()) > 12 and "docs/describe.md" in plan and "docs/review.md" in plan
 
 
 def test_badges_use_map_tiers_and_providers_are_map_columns() -> None:
@@ -95,12 +101,9 @@ def test_the_two_bugs_are_told_the_way_the_game_plays_them() -> None:
     buggy = by_id["play-buggy"]["callout"]
     assert "first enemy hit destroys the ship" in buggy["items"][0]
     assert "One more defect hides" in buggy["hidden"]
-    assert any("Not checked" == sec["heading"] for sec in by_id["loop1/review"]["session"]["sections"]), (
-        "the first review states what it could not observe"
-    )
-    loop2 = by_id["loop2/review"]["session"]
-    assert "self-test" in loop2["summary"]
-    assert any(sec["heading"] == "Why loop 1 missed it" for sec in loop2["sections"])
+    assert "### Not checked" in by_id["loop1/review"]["reply"], "the first review states what it could not observe"
+    loop2 = by_id["loop2/review"]["reply"]
+    assert "self-test" in loop2 and "### Why loop 1 missed it" in loop2
     assert {by_id[i]["game"] for i in ("play-buggy", "play-partial", "play-fixed")} == {"buggy", "partial", "fixed"}
 
 
@@ -148,7 +151,7 @@ def browser(playwright_mod):
 
 
 def _go(page, stage: str) -> None:
-    page.evaluate(f"location.hash = '#{stage}'")
+    page.evaluate(f"NexusTrainingPage.go('{stage}')")
     page.wait_for_function(f"NexusTrainingPage.stage() === '{stage}'")
 
 
@@ -162,26 +165,83 @@ def _open(browser, width: int = 1280, url: str | None = None, **ctx):
     return context, page, errors
 
 
-def test_every_session_shows_its_banner_badge_and_report(browser) -> None:
+def test_every_session_is_an_ide_with_a_locked_prompt_and_runs_on_send(browser) -> None:
+    """R4: explorer, editor, and chat; prompt, tier, and effort preset; Send gives steps, files, and a reply."""
     model_map = json.loads(MODEL_MAP.read_text(encoding="utf-8"))
     context, page, errors = _open(browser)
     try:
         for s in _sessions():
             _go(page, s["id"])
             sec = page.locator(f'section[data-stage="{s["id"]}"]')
-            assert sec.locator(".tr-step").inner_text().lower() == s["banner"]["step"].lower()
             assert sec.locator(".tr-title").inner_text() == s["banner"]["title"]
-            assert s["banner"]["now"] in sec.locator(".tr-now").inner_text()
-            badge = sec.locator(".tr-badge")
-            assert badge.is_visible(), "the badge is always visible"
-            values = badge.locator("dd").all_inner_texts()
-            assert values == [s["badge"]["tier"], s["badge"]["effort"], model_map["tiers"][s["badge"]["tier"]]["Anthropic"]]
-            assert sec.locator(".tr-cmd code").inner_text() == s["command"]
-            assert sec.locator("h2.tr-section-title").count() == len(s["session"]["sections"])
-            details = sec.locator("details.tr-details")
-            assert details.get_attribute("open") is None, "technical details start closed"
-            assert sec.locator(".tr-activity li").count() == len(s["activity"])
+            assert sec.locator(".tr-badge").is_visible(), "the badge is always visible"
+            ide = sec.locator(".ide")
+            for pane in (".ide-explorer", ".ide-editor", ".ide-chat"):
+                assert ide.locator(pane).is_visible(), (s["id"], pane)
+            box = ide.locator(".ide-input")
+            assert box.get_attribute("aria-readonly") == "true" and box.get_attribute("contenteditable") is None
+            assert box.locator(".ide-cmd").inner_text() == s["prompt"]["command"]
+            assert box.locator(".ide-arg").count() == (1 if s["prompt"]["argument"] else 0)
+            assert ide.locator(".ide-model-name").inner_text() == model_map["tiers"][s["badge"]["tier"]]["Anthropic"]
+            assert ide.locator(".ide-chip").all_inner_texts() == [s["badge"]["tier"], s["badge"]["effort"] + " effort"]
+            assert ide.locator(".ide-send").inner_text() == "Send" and ide.get_attribute("data-state") == "ready"
+            page.evaluate(f"NexusTrainingPage.story().send('{s['id']}', {{ instant: true }})")
+            assert ide.get_attribute("data-state") == "done"
+            assert ide.locator(".ide-step").count() == len(s["steps"])
+            assert ide.locator(".ide-msg--reply h3").count() >= 1, "the reply is structured"
+            assert ide.locator(".ide-msg--reply li, .ide-msg--reply td").count() >= 2
+            for step in s["steps"]:
+                if step["kind"] in ("write", "edit"):
+                    mark = ide.locator(f'.ide-file[data-path="{step["file"]}"]').get_attribute("data-status")
+                    assert mark in ("created", "modified"), (s["id"], step["file"], mark)
+            assert ide.locator(".ide-send").inner_text() == "Run again"
         assert not errors, errors
+    finally:
+        context.close()
+
+
+def test_the_project_carries_forward_from_step_to_step(browser) -> None:
+    context, page, _errors = _open(browser)
+    try:
+        files = lambda sid: page.evaluate(f"[...document.querySelectorAll('section[data-stage=\"{sid}\"] .ide-file')].map(b => b.dataset.path)")
+        assert "docs/describe.md" not in files("loop1/describe")
+        assert "docs/describe.md" in files("loop1/review"), "describe's file is there for review"
+        assert "docs/plans/v1.0.1-damage-fix.md" in files("loop1/implement")
+        assert {"CHANGELOG.md", "tests/damage.test.js"} <= set(files("loop2/review"))
+    finally:
+        context.close()
+
+
+def test_send_runs_step_by_step_and_skip_finishes(browser) -> None:
+    context, page, errors = _open(browser)
+    try:
+        _go(page, "loop1/describe")
+        ide = page.locator('section[data-stage="loop1/describe"] .ide')
+        ide.locator(".ide-send").click()
+        page.wait_for_function("NexusTrainingPage.story().state('loop1/describe') === 'running'")
+        page.wait_for_function("document.querySelectorAll('section[data-stage=\"loop1/describe\"] .ide-step').length >= 2")
+        assert ide.locator(".ide-send").inner_text() == "Skip"
+        assert ide.locator(".ide-msg--user .ide-cmd").inner_text() == "/describe"
+        ide.locator(".ide-send").click()
+        assert page.evaluate("NexusTrainingPage.story().state('loop1/describe')") == "done"
+        assert ide.locator(".ide-msg--reply h3").count() >= 1
+        assert not errors, errors
+    finally:
+        context.close()
+
+
+def test_implement_edits_the_file_live(browser) -> None:
+    context, page, _errors = _open(browser)
+    try:
+        _go(page, "loop1/implement")
+        ide = page.locator('section[data-stage="loop1/implement"] .ide')
+        ide.locator(".ide-send").click()
+        page.wait_for_function("document.querySelector('section[data-stage=\"loop1/implement\"] .ide-lines li.ide-strike')", timeout=15000)
+        assert ide.locator(".ide-tab[aria-selected=true]").inner_text() == "damage.js"
+        page.wait_for_function("document.querySelectorAll('section[data-stage=\"loop1/implement\"] .ide-lines li.ide-type[data-op=add]').length >= 3", timeout=15000)
+        page.wait_for_function("NexusTrainingPage.story().state('loop1/implement') === 'done'", timeout=30000)
+        code = ide.locator(".ide-lines").inner_text()
+        assert "INVULNERABLE_TICKS" in code and "TODO" not in code
     finally:
         context.close()
 
@@ -232,48 +292,6 @@ def test_provider_switch_works_with_storage_blocked(browser) -> None:
         context.close()
 
 
-def test_no_panel_scrolls_and_the_file_panel_is_at_least_half_the_width(browser) -> None:
-    context, page, _errors = _open(browser)
-    try:
-        for s in _sessions():
-            _go(page, s["id"])
-            m = page.evaluate(
-                """(id) => { const sec = document.querySelector('section[data-stage="' + id + '"]');
-                    const box = sec.querySelector('.container'), cs = getComputedStyle(box);
-                    const content = box.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
-                    const scrolls = [...sec.querySelectorAll('.tr-code, .tr-snippet pre, .tr-diff:not([data-long]) pre, .tr-session, .tr-files')]
-                        .filter(e => e.scrollWidth > e.clientWidth + 1 || e.scrollHeight > e.clientHeight + 1).map(e => e.className);
-                    const main = sec.querySelector('.tr-main').getBoundingClientRect(), side = sec.querySelector('.tr-side').getBoundingClientRect();
-                    return { content, files: sec.querySelector('.tr-files').getBoundingClientRect().width, scrolls,
-                             flush: Math.abs(main.bottom - side.bottom) }; }""",
-                s["id"],
-            )
-            assert not m["scrolls"], f"{s['id']}: {m['scrolls']}"
-            assert m["files"] >= m["content"] / 2 - 1, f"{s['id']}: file panel {m['files']} of {m['content']}"
-            assert m["flush"] <= 2, f"{s['id']}: the two columns end {m['flush']} px apart"
-    finally:
-        context.close()
-
-
-def test_file_tabs_switch_by_click_and_arrow_keys(browser) -> None:
-    context, page, _errors = _open(browser)
-    try:
-        _go(page, "loop1/describe")
-        sec = page.locator('section[data-stage="loop1/describe"]')
-        tabs = sec.locator('.tr-tab')
-        assert tabs.count() == 2
-        assert tabs.nth(1).get_attribute("aria-selected") == "true"
-        assert "applyEnemyHit" in sec.locator(".tr-code").inner_text()
-        tabs.nth(1).focus()
-        page.keyboard.press("ArrowLeft")
-        assert tabs.nth(0).get_attribute("aria-selected") == "true"
-        assert "export function step" in sec.locator(".tr-code").inner_text()
-        tabs.nth(1).click()
-        assert tabs.nth(1).get_attribute("aria-selected") == "true"
-    finally:
-        context.close()
-
-
 def _variant(tmp_path: Path, mutate) -> str:
     """A throwaway copy of training.html with a modified story block."""
     html = TRAINING.read_bytes().decode("utf-8")
@@ -283,20 +301,6 @@ def _variant(tmp_path: Path, mutate) -> str:
     out = tmp_path / "training.html"
     out.write_text(html[: m.start(2)] + json.dumps(story) + "\n" + html[m.end(2):], encoding="utf-8")
     return out.as_uri()
-
-
-def test_a_long_diff_scrolls_inside_its_own_block(browser, tmp_path: Path) -> None:
-    def long_diff(story):
-        stage = next(s for s in story["stages"] if s["id"] == "loop1/implement")
-        stage["session"]["sections"][0]["diff"]["lines"] = [f"+line {i}" for i in range(60)]
-    context, page, _errors = _open(browser, url=_variant(tmp_path, long_diff))
-    try:
-        _go(page, "loop1/implement")
-        diff = page.locator('section[data-stage="loop1/implement"] .tr-diff')
-        assert diff.get_attribute("data-long") == ""
-        assert page.evaluate("(() => { const p = document.querySelector('section[data-stage=\"loop1/implement\"] .tr-diff pre'); return p.scrollHeight > p.clientHeight; })()")
-    finally:
-        context.close()
 
 
 def test_a_broken_story_names_the_field_and_renders_nothing(browser, tmp_path: Path) -> None:
