@@ -561,7 +561,7 @@ def test_legacy_training_deep_link_redirects_to_the_training_page(
                     timeout=3000,
                 )
                 stage = page.locator('section[data-stage="loop1/review"]')
-                assert "/review" in stage.locator(".tr-cmd").first.inner_text()
+                assert stage.locator(".ide-cmd").first.inner_text() == "/review"
             finally:
                 context.close()
         finally:

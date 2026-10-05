@@ -22,7 +22,8 @@ import pytest
 ROOT = Path(__file__).resolve().parents[2]
 TRAINING = ROOT / "guides" / "website" / "training.html"
 REQUIRE_RENDER = os.environ.get("NEXUS_REQUIRE_RENDER") == "1"
-TRAINING_CEILING_BYTES = 400_000
+# Raised from 400,000 by the maintainer on 2026-10-04 (R5) for the shaded game art and IDE sessions.
+TRAINING_CEILING_BYTES = 900_000
 
 STAGES = [
     "intro", "play-buggy",

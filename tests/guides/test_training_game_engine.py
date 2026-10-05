@@ -310,3 +310,98 @@ def test_a_missing_canvas_context_shows_the_text_fallback(browser) -> None:
         assert pg.evaluate("NexusTrainingPage.stage()") == "play-buggy", "the story still works"
     finally:
         pg.close()
+
+
+# ---------------------------------------------------------------- R5: weapons, upgrades, HUD, and bounds
+
+
+def _armed(page, level: int = 3) -> None:
+    """A quiet level past the start grace: nothing spawns, so each test places what it needs."""
+    page.evaluate(
+        """(level) => { const g = SkySentinel.get('fixed');
+            g.configure({ defects: {}, seed: 7, threats: false, level }); g.start(); g.pause('test'); g.step(GRACE_PAD); }""".replace("GRACE_PAD", str(GRACE + 10)),
+        level,
+    )
+
+
+@pytest.mark.parametrize("enemy, kind", [("drone", "bolt"), ("weaver", "orb"), ("bomber", "mine")])
+def test_each_enemy_type_fires_its_own_weapon(page, enemy: str, kind: str) -> None:
+    _armed(page)
+    page.evaluate(f"SkySentinel.get('fixed').spawn('{enemy}', 120, 80)")
+    kinds = page.evaluate("SkySentinel.get('fixed').step(2).shotKinds")
+    assert kinds == [kind], f"{enemy} fired {kinds}"
+
+
+def test_a_lancer_charges_then_fires_a_beam_column(page) -> None:
+    _armed(page)
+    page.evaluate("SkySentinel.get('fixed').spawn('lancer', 120, 80)")
+    charging = page.evaluate("SkySentinel.get('fixed').step(2)")
+    assert charging["shotKinds"] == [], "the charge is a tell: no shot yet"
+    view = page.evaluate("SkySentinel.get('fixed').view()")
+    assert sum(1 for t in view["threats"] if abs(t["x"] - 120) < 8 and t["vx"] == 0 and t["vy"] == 8) >= 10, "the charging column is a threat"
+    fired = page.evaluate("SkySentinel.get('fixed').step(55)")
+    assert "beam" in fired["shotKinds"]
+
+
+def test_a_mine_bursts_into_six_bolts_when_its_fuse_runs_out(page) -> None:
+    _armed(page)
+    page.evaluate("SkySentinel.get('fixed').spawn('bomber', 120, 60)")
+    assert page.evaluate("SkySentinel.get('fixed').step(2).shotKinds") == ["mine"]
+    page.evaluate("(() => { const g = SkySentinel.get('fixed'); g.step(1); })()")
+    after = page.evaluate("SkySentinel.get('fixed').step(80).shotKinds")
+    assert "mine" not in after[:1] and after.count("bolt") >= 6
+
+
+@pytest.mark.parametrize("kind, seconds", [("spread", 10), ("rapid", 10), ("missiles", 9), ("wingman", 15)])
+def test_timed_upgrades_are_collected_and_expire(page, kind: str, seconds: int) -> None:
+    _armed(page, level=1)
+    page.evaluate(f"SkySentinel.get('fixed').dropPowerUp('{kind}')")
+    got = page.evaluate("SkySentinel.get('fixed').step(2)")
+    assert got["collected"][-1]["kind"] == kind
+    assert seconds * 60 - 5 <= got["player"][kind] <= seconds * 60
+    gone = page.evaluate(f"SkySentinel.get('fixed').step({seconds * 60})")
+    assert gone["player"][kind] == 0, f"{kind} expires"
+
+
+def test_spread_and_rapid_change_the_guns(page) -> None:
+    def volley(kind: str | None) -> tuple[int, int]:
+        _armed(page, level=1)
+        if kind:
+            page.evaluate(f"SkySentinel.get('fixed').dropPowerUp('{kind}')")
+            page.evaluate("SkySentinel.get('fixed').step(2)")
+        return page.evaluate("""(() => { const g = SkySentinel.get('fixed'); const s0 = g.state().shots;
+            g.input({ fire: true }); const one = g.step(1).shots - s0; const sixty = g.step(59).shots;
+            g.input({ fire: false }); return [one, sixty]; })()""")
+    base, spread, rapid = volley(None), volley("spread"), volley("rapid")
+    assert base[0] == 1 and spread[0] == 3, (base, spread)
+    assert rapid[1] > base[1], f"rapid fire puts more shots in the air: {rapid} vs {base}"
+
+
+def test_every_power_up_kind_is_droppable_and_unknown_is_refused(page) -> None:
+    _armed(page, level=1)
+    ok = page.evaluate("['shield','weapon','ship','spread','rapid','missiles','wingman'].map(k => SkySentinel.get('fixed').dropPowerUp(k))")
+    assert ok == [True] * 7
+    assert page.evaluate("SkySentinel.get('fixed').dropPowerUp('laser')") is False
+
+
+def test_the_hud_goal_names_the_next_level_and_tracks_progress(page) -> None:
+    _armed(page, level=1)
+    first = page.evaluate("SkySentinel.get('fixed').state().goal")
+    assert first["text"].startswith("Survive ") and first["text"].endswith("to reach level 2")
+    later = page.evaluate("SkySentinel.get('fixed').step(600).goal")
+    assert 0 < first["k"] < later["k"] < 1
+    _armed(page, level=3)
+    assert page.evaluate("SkySentinel.get('fixed').state().goal.text").startswith("Something big arrives in")
+
+
+@pytest.mark.parametrize("viewport", [(1440, 900), (1280, 720), (1920, 1080), (1024, 1366)])
+def test_the_world_fills_the_frame_with_no_side_bands(browser, viewport: tuple[int, int]) -> None:
+    pg = browser.new_page(viewport={"width": viewport[0], "height": viewport[1]})
+    try:
+        pg.goto(TRAINING.as_uri() + "#play-fixed")
+        pg.wait_for_function("window.SkySentinel && SkySentinel.get('fixed')")
+        st = pg.evaluate("SkySentinel.get('fixed').state()")
+        world, canvas = st["world"], st["canvas"]
+        assert abs(world["w"] / world["h"] - canvas["cssWidth"] / canvas["cssHeight"]) < 0.03, (world, canvas)
+    finally:
+        pg.close()

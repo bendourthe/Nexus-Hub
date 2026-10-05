@@ -1547,7 +1547,7 @@ def test_every_catalog_command_is_training_cheatsheets_or_declined(
     names = sorted(p.stem for p in COMMANDS_DIR.glob("*.md"))
     assert names, "catalog/commands is empty"
     story = json.loads(TRAINING_STORY.read_text(encoding="utf-8"))
-    scene_ids = {s["command"].split()[0].lstrip("/") for s in story["stages"] if s.get("kind") == "session"}
+    scene_ids = {s["prompt"]["command"].lstrip("/") for s in story["stages"] if s.get("kind") == "session"}
     cheatsheets = guide_text.split('id="page-cheatsheets"', 1)[-1]
     readme = WEBSITE_README.read_text(encoding="utf-8")
     content_map = CONTENT_MAP.read_text(encoding="utf-8")
