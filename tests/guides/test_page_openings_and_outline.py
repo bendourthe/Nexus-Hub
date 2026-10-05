@@ -140,14 +140,17 @@ def test_outline_collapses_on_phones(playwright_mod) -> None:
     with playwright_mod() as pw:
         browser, page = _page(pw, width=390, route="#loop1/plan")
         try:
-            summary = page.locator(".pg-outline summary")
-            assert summary.is_visible()
-            assert "Loop 1" in summary.inner_text()
+            # v4.13.10 R1: with no margin, the navigation is a compact bar with a section menu.
+            assert "pg-outline--bar" in page.locator(".pg-outline").get_attribute("class")
+            toggle = page.locator(".pg-outline-toggle")
+            assert toggle.is_visible() and toggle.get_attribute("aria-expanded") == "false"
+            assert "Loop 1" in toggle.inner_text()
             assert page.locator(".pg-outline a").first.is_hidden()
-            summary.click()
+            toggle.click()
+            assert toggle.get_attribute("aria-expanded") == "true"
             page.locator(".pg-outline a", has_text="Play again").click()
             page.wait_for_function("NexusTrainingPage.stage() === 'play-partial'")
-            assert page.locator(".pg-outline a").first.is_hidden(), "choosing an entry closes the phone outline"
+            assert page.locator(".pg-outline a").first.is_hidden(), "choosing an entry closes the phone menu"
         finally:
             browser.close()
 
@@ -237,5 +240,32 @@ def test_no_stage_overflows_horizontally(playwright_mod, width: int, theme: str)
                 page.evaluate(f"location.hash = '#{stage}'")
                 page.wait_for_function(f"NexusTrainingPage.stage() === '{stage}'")
                 assert page.evaluate("document.documentElement.scrollWidth") <= width, stage
+        finally:
+            browser.close()
+
+
+@pytest.mark.parametrize("width,form", [(1920, "rail"), (1440, "rail"), (1366, "slim"), (1280, "slim"), (1024, "bar"), (390, "bar")])
+def test_navigation_never_takes_width_from_the_content(playwright_mod, width: int, form: str) -> None:
+    """Maintainer review (R1): the rail lives in the left margin; with no margin it is a bar."""
+    with playwright_mod() as pw:
+        browser = pw.chromium.launch()
+        try:
+            page = browser.new_page(viewport={"width": width, "height": 900})
+            page.goto(GUIDE.as_uri() + "#foundations")
+            page.wait_for_function("document.body.dataset.page === 'foundations'")
+            page.evaluate("window.scrollTo(0, document.documentElement.scrollHeight * 0.45)")
+            page.wait_for_timeout(400)
+            m = page.evaluate("""() => {
+                const n = document.querySelector('.page.active .pg-outline'), c = document.querySelector('.page.active .container');
+                const nr = n.getBoundingClientRect(), cr = c.getBoundingClientRect();
+                return { cls: n.className, right: nr.right, contentLeft: cr.left + parseFloat(getComputedStyle(c).paddingLeft),
+                         colWidth: cr.width, current: !!n.querySelector('.is-current'),
+                         fill: parseFloat(getComputedStyle(n).getPropertyValue('--pg-progress')) };
+            }""")
+            assert f"pg-outline--{form}" in m["cls"]
+            assert m["colWidth"] == min(1120, width), "the content column keeps its width"
+            if form != "bar":
+                assert m["right"] <= m["contentLeft"], "the rail stays in the margin"
+            assert m["current"] and 0.2 < m["fill"] < 0.8, "the navigation follows the reading position"
         finally:
             browser.close()

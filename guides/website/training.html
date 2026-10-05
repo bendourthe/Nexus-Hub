@@ -173,30 +173,51 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 @media (prefers-reduced-motion:reduce){.pg-fig .seq-rise.is-on .pgf-spin{animation:none;}}
 /* /shared:opening-css */
 /* shared:outline-css */
-/* ---------- Page outline (v4.13.10, shared) ---------- A sticky "On this page" bar under the site header. Wide screens show every entry as a chip; phones collapse it to one line naming the current section. It sits above the content rather than beside it so no scene loses width. */
-.pg-outline{position:sticky;top:59px;z-index:30;margin:var(--sp-2) 0 var(--sp-4);background:color-mix(in srgb,var(--page-bg) 90%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);}
-.pg-outline details{padding:8px 0;margin:0;border:0;border-radius:0;background:transparent;box-shadow:none;}
-.pg-outline summary{padding:0;margin:0;border:0;background:transparent;}
-.pg-outline summary{display:none;cursor:pointer;list-style:none;align-items:center;gap:8px;min-height:44px;color:var(--ink);font-weight:600;}
-.pg-outline summary::-webkit-details-marker{display:none;}
-.pg-outline summary small{color:var(--ink-dim);font-weight:400;}
-.pg-outline summary::after{content:"";margin-left:auto;margin-right:3px;flex-shrink:0;width:8px;height:8px;border-right:2px solid var(--ink-dim);border-bottom:2px solid var(--ink-dim);transform:rotate(45deg);transition:transform .2s var(--ease);}
-.pg-outline details[open] summary::after{transform:rotate(-135deg);}
-.pg-outline ol{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
-.pg-outline .pg-outline-label{color:var(--ink-dim);font-size:var(--ty-body-sm);margin-right:4px;}
-.pg-outline a{display:inline-flex;align-items:center;min-height:36px;padding:5px 13px;border:1px solid var(--border);border-radius:999px;color:var(--ink-dim);font-size:var(--ty-body-sm);font-weight:600;text-decoration:none;}
-.pg-outline a:hover{color:var(--ink);border-color:var(--accent);}
-.pg-outline a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
-.pg-outline a[aria-current]{color:var(--bg-0);background:var(--accent);border-color:var(--accent);}
-[data-outline-target]{scroll-margin-top:132px;}
-@media (max-width:720px){
-  .pg-outline summary{display:flex;}
-  .pg-outline .pg-outline-label{display:none;}
-  .pg-outline ol{flex-direction:column;align-items:stretch;gap:4px;padding-top:6px;}
-  .pg-outline a{min-height:44px;border-radius:12px;}
-  [data-outline-target]{scroll-margin-top:118px;}
-}
-@media (prefers-reduced-motion:reduce){.pg-outline summary::after{transition:none;}}
+/* ---------- Page navigation (v4.13.10 R1, shared) ---------- Follows the reader without ever taking width from the content. A rail sits in the left margin beside the centred column (labels when the margin is wide, the current label only when it is slim); with no margin it becomes a compact sticky bar with a progress line and a section menu. outline.js measures and picks the form. */
+.pg-outline{--pg-progress:0;font-size:var(--ty-body-sm);z-index:30;}
+.pg-outline-toggle{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;padding:0;border:0;background:none;color:var(--ink);font:inherit;text-align:left;cursor:pointer;}
+.pg-outline-label{color:var(--ink-dim);font-size:var(--ty-micro);font-weight:700;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;}
+.pg-outline-now{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700;}
+.pg-outline-chev{flex:none;width:8px;height:8px;margin-right:4px;border-right:2px solid var(--ink-dim);border-bottom:2px solid var(--ink-dim);transform:rotate(45deg) translateY(-2px);transition:transform .2s var(--ease);}
+.pg-outline-toggle[aria-expanded="true"] .pg-outline-chev{transform:rotate(-135deg) translateY(-2px);}
+.pg-outline-list{list-style:none;margin:0;padding:0;}
+.pg-outline .pg-outline-list[hidden]{display:none;}
+.pg-outline-list a{position:relative;display:flex;align-items:center;gap:12px;color:var(--ink-dim);text-decoration:none;}
+.pg-outline-list a:hover{color:var(--ink);}
+.pg-outline-list a:focus-visible,.pg-outline-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px;}
+.pg-outline-node{position:relative;z-index:1;flex:none;width:10px;height:10px;border-radius:50%;border:2px solid color-mix(in srgb,var(--ink-dim) 70%,transparent);background:var(--page-bg,var(--bg-0));transition:background .25s var(--ease),border-color .25s var(--ease),transform .25s var(--ease);}
+.pg-outline-text{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pg-outline-list .is-current a{color:var(--ink);font-weight:700;}
+.pg-outline-list .is-current .pg-outline-node{border-color:var(--accent);background:var(--accent);transform:scale(1.25);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 22%,transparent);}
+.pg-outline-track{display:block;position:absolute;background:color-mix(in srgb,var(--ink-dim) 22%,transparent);border-radius:2px;}
+.pg-outline-fill{display:block;width:100%;height:100%;background:var(--accent);border-radius:inherit;transform-origin:left top;}
+
+/* Rail: fixed in the left margin; the track runs through the nodes and fills with reading progress. */
+.pg-outline--rail{position:fixed;max-height:calc(100vh - 140px);overflow-y:auto;overflow-x:hidden;scrollbar-width:none;}
+.pg-outline--rail .pg-outline-toggle{pointer-events:none;min-height:0;margin:0 0 12px;}
+.pg-outline--rail .pg-outline-now,.pg-outline--rail .pg-outline-chev{display:none;}
+.pg-outline--rail .pg-outline-list{position:relative;display:grid;gap:14px;}
+.pg-outline--rail .pg-outline-track{left:4px;top:34px;bottom:8px;width:2px;}
+.pg-outline--rail .pg-outline-fill{transform:scaleY(var(--pg-progress));}
+.pg-outline--rail .pg-outline-list a{min-height:28px;line-height:1.3;}
+.pg-outline--rail .pg-outline-list li{min-width:0;}
+.pg-outline--rail .pg-outline-list a{min-width:0;padding-right:4px;}
+/* Slim margin: nodes only, so nothing ever reaches the content; the current node is filled, and a label appears on hover or focus. */
+.pg-outline--slim{overflow:visible;}
+.pg-outline--slim .pg-outline-toggle{display:none;}
+.pg-outline--slim .pg-outline-track{top:8px;}
+.pg-outline--slim .pg-outline-text{position:absolute;left:24px;opacity:0;pointer-events:none;padding:3px 8px;border-radius:6px;background:var(--surface);border:1px solid var(--border);color:var(--ink);transition:opacity .15s var(--ease);}
+.pg-outline--slim .pg-outline-list a:hover .pg-outline-text,.pg-outline--slim .pg-outline-list a:focus-visible .pg-outline-text{opacity:1;}
+
+/* Bar: sticky under the header, the width of the content, with the progress line along its foot. */
+.pg-outline--bar{position:sticky;top:59px;margin:var(--sp-2) 0 var(--sp-4);padding:2px 0;background:color-mix(in srgb,var(--page-bg,var(--bg-0)) 92%,transparent);backdrop-filter:blur(8px);}
+.pg-outline--bar .pg-outline-track{left:0;right:0;bottom:0;height:2px;}
+.pg-outline--bar .pg-outline-fill{transform:scaleX(var(--pg-progress));}
+.pg-outline--bar .pg-outline-list{position:absolute;left:0;right:0;top:calc(100% + 6px);max-height:min(60vh,26rem);overflow-y:auto;display:grid;gap:2px;padding:8px;border:1px solid var(--border);border-radius:14px;background:var(--surface);box-shadow:0 18px 40px rgba(0,0,0,.35);}
+.pg-outline--bar .pg-outline-list a{min-height:44px;padding:0 10px;border-radius:10px;}
+.pg-outline--bar .pg-outline-list .is-current a{background:color-mix(in srgb,var(--accent) 12%,transparent);}
+[data-outline-target]{scroll-margin-top:96px;}
+@media (prefers-reduced-motion:reduce){.pg-outline-chev,.pg-outline-node,.pg-outline--slim .pg-outline-text{transition:none;}}
 /* /shared:outline-css */
 /* shared:nav-mobile-css */
 @media (max-width:860px){.nav-toggle{display:block;}
@@ -3263,21 +3284,29 @@ window.NexusTrainingStory = (function () {
 /* /shared:nexusseq-js */
 
 /* shared:outline-js */
-  /* -------------------------------------------------- NexusOutline (v4.13.10, shared)
-     NexusOutline.mount(host, items, opts) renders an "On this page" bar into host.
-     items: [{ id, label, href, target }]. In "scroll" mode, target is the element id
-     to bring into view, the current entry follows scrolling, and a click scrolls
-     without changing the page (the hash is updated with replaceState). In "route"
-     mode, a click follows href and opts.current() names the current entry.
-     Phones collapse the list to one line naming the current entry. */
+  /* -------------------------------------------------- NexusOutline (v4.13.10 R1, shared)
+     NexusOutline.mount(host, items, opts) renders page navigation that follows the reader.
+     items: [{ id, label, href, target }]. In "scroll" mode, target is the element id to bring
+     into view and the current entry follows scrolling; in "route" mode a click follows href and
+     opts.current() names the current entry.
+     Placement never takes width from the content: when the left margin beside the centred
+     content column has room, the navigation is a fixed rail inside that margin (labels when the
+     margin is wide, the current label only when it is slim); otherwise it is a compact sticky bar
+     under the header with a progress line and a section menu. The layout is re-measured on
+     resize, so any screen size or aspect ratio picks the form that fits. */
   window.NexusOutline = (function () {
     var instances = [];
-    var wide = window.matchMedia ? window.matchMedia("(min-width: 721px)") : null;
+    var FULL = 184, SLIM = 56;
     function el(tag, cls, text) {
       var node = document.createElement(tag);
       if (cls) node.className = cls;
       if (text != null) node.textContent = text;
       return node;
+    }
+    function reduced() { return !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches); }
+    function headerBottom() {
+      var h = document.querySelector(".site-header");
+      return h ? Math.max(0, h.getBoundingClientRect().bottom) : 0;
     }
     function setCurrent(inst, id) {
       if (inst.currentId === id) return;
@@ -3285,42 +3314,104 @@ window.NexusTrainingStory = (function () {
       for (var i = 0; i < inst.links.length; i++) {
         var on = inst.links[i].getAttribute("data-outline-id") === id;
         if (on) inst.links[i].setAttribute("aria-current", "true"); else inst.links[i].removeAttribute("aria-current");
-        if (on) inst.now.textContent = inst.links[i].textContent;
+        inst.links[i].parentNode.classList.toggle("is-current", on);
+        if (on) { inst.now.textContent = inst.items[i].label; inst.index = i; }
       }
+      inst.nav.style.setProperty("--pg-step", inst.items.length > 1 ? String(inst.index / (inst.items.length - 1)) : "0");
+    }
+    function progress(inst) {
+      var first = document.getElementById(inst.items[0] && inst.items[0].target);
+      var last = document.getElementById(inst.items.length ? inst.items[inst.items.length - 1].target : "");
+      if (!first || !last) return 0;
+      var top = first.getBoundingClientRect().top + window.scrollY - headerBottom();
+      var end = last.getBoundingClientRect().bottom + window.scrollY - window.innerHeight;
+      if (end <= top) return 1;
+      return Math.max(0, Math.min(1, (window.scrollY - top) / (end - top)));
+    }
+    function shown(inst) {
+      var column = inst.host.closest(".container") || inst.host.parentNode;
+      return !!column && column.getClientRects().length > 0;
     }
     function fromScroll(inst) {
-      if (!inst.host.offsetParent) return;
-      var line = 150, best = inst.items.length ? inst.items[0].id : null;
-      for (var i = 0; i < inst.items.length; i++) {
-        var t = document.getElementById(inst.items[i].target);
-        if (t && t.getBoundingClientRect().top <= line) best = inst.items[i].id;
+      if (!shown(inst)) return;
+      /* A page that was hidden when the navigation mounted is measured the first time it shows. */
+      if (!inst.measured) { place(inst); return; }
+      if (inst.mode === "scroll") {
+        var line = headerBottom() + Math.min(160, window.innerHeight * 0.3), best = inst.items.length ? inst.items[0].id : null;
+        for (var i = 0; i < inst.items.length; i++) {
+          var t = document.getElementById(inst.items[i].target);
+          if (t && t.offsetParent && t.getBoundingClientRect().top <= line) best = inst.items[i].id;
+        }
+        setCurrent(inst, best);
+      } else if (inst.current) {
+        setCurrent(inst, inst.current());
       }
-      setCurrent(inst, best);
+      inst.nav.style.setProperty("--pg-progress", String(progress(inst)));
     }
-    function syncOpen(inst) {
-      if (wide && wide.matches) inst.details.setAttribute("open", "");
-      else if (!inst.userOpened) inst.details.removeAttribute("open");
+    /* Measure the free margin left of the content column and choose the form that fits. */
+    function place(inst) {
+      var column = inst.host.closest(".container") || inst.host.parentNode;
+      var visible = !!column && column.getClientRects().length > 0;
+      var free = 0;
+      if (visible) {
+        var r = column.getBoundingClientRect();
+        free = r.left + parseFloat(getComputedStyle(column).paddingLeft || "0");
+      }
+      inst.measured = visible;
+      var layout = !visible ? inst.layout || "bar" : free >= FULL ? "rail" : free >= SLIM ? "rail slim" : "bar";
+      inst.layout = layout.split(" ")[0];
+      inst.nav.className = "pg-outline pg-outline--" + layout.replace(" ", " pg-outline--");
+      if (inst.layout === "rail") {
+        var width = Math.min(232, free - 24);
+        inst.nav.style.left = Math.max(8, free - width - 16) + "px";
+        inst.nav.style.width = width + "px";
+        inst.nav.style.top = headerBottom() + 28 + "px";
+        inst.menu.hidden = false;
+        inst.toggle.setAttribute("aria-expanded", "true");
+      } else {
+        inst.nav.style.left = inst.nav.style.width = inst.nav.style.top = "";
+        inst.menu.hidden = !inst.open;
+        inst.toggle.setAttribute("aria-expanded", inst.open ? "true" : "false");
+      }
+      fromScroll(inst);
+    }
+    function close(inst) {
+      if (inst.layout === "rail") return;
+      inst.open = false;
+      inst.menu.hidden = true;
+      inst.toggle.setAttribute("aria-expanded", "false");
     }
     function mount(host, items, opts) {
       opts = opts || {};
-      var inst = { host: host, items: items, mode: opts.mode || "scroll", current: opts.current, links: [], currentId: null, userOpened: false };
+      var label = opts.label || "On this page";
+      var inst = { host: host, items: items, mode: opts.mode || "scroll", current: opts.current, links: [], currentId: null, index: 0, open: false, layout: null };
       host.textContent = "";
+      /* The mount point steps out of layout so the compact bar can stick for the whole column. */
+      host.style.display = "contents";
       var nav = el("nav", "pg-outline");
-      nav.setAttribute("aria-label", opts.label || "On this page");
-      var details = el("details");
-      var summary = el("summary");
-      summary.appendChild(document.createTextNode((opts.label || "On this page") + ": "));
-      inst.now = el("small");
-      summary.appendChild(inst.now);
-      var list = el("ol");
-      var lab = el("li", "pg-outline-label", opts.label || "On this page");
-      lab.setAttribute("aria-hidden", "true");
-      list.appendChild(lab);
+      nav.setAttribute("aria-label", label);
+      inst.nav = nav;
+      var toggle = el("button", "pg-outline-toggle");
+      toggle.type = "button";
+      toggle.appendChild(el("span", "pg-outline-label", label));
+      inst.now = el("span", "pg-outline-now");
+      toggle.appendChild(inst.now);
+      toggle.appendChild(el("span", "pg-outline-chev"));
+      toggle.lastChild.setAttribute("aria-hidden", "true");
+      inst.toggle = toggle;
+      var menu = el("ol", "pg-outline-list");
+      menu.id = "pg-outline-" + (instances.length + 1);
+      toggle.setAttribute("aria-controls", menu.id);
+      inst.menu = menu;
       items.forEach(function (item) {
         var li = el("li");
-        var a = el("a", null, item.label);
+        var a = el("a");
         a.href = item.href;
         a.setAttribute("data-outline-id", item.id);
+        a.setAttribute("title", item.label);
+        a.appendChild(el("span", "pg-outline-node"));
+        a.lastChild.setAttribute("aria-hidden", "true");
+        a.appendChild(el("span", "pg-outline-text", item.label));
         if (inst.mode === "scroll") {
           var target = document.getElementById(item.target);
           if (target) target.setAttribute("data-outline-target", "");
@@ -3328,57 +3419,63 @@ window.NexusTrainingStory = (function () {
             var t = document.getElementById(item.target);
             if (!t) return;
             ev.preventDefault();
-            t.scrollIntoView({ block: "start", behavior: REDUCE ? "auto" : "smooth" });
+            t.scrollIntoView({ block: "start", behavior: reduced() ? "auto" : "smooth" });
             var heading = t.querySelector("h1, h2, h3") || t;
             if (!heading.hasAttribute("tabindex")) heading.setAttribute("tabindex", "-1");
             heading.focus({ preventScroll: true });
             try { window.history.replaceState(null, "", item.href); } catch (err) {}
             setCurrent(inst, item.id);
-            if (!(wide && wide.matches)) details.removeAttribute("open");
+            close(inst);
           });
         } else {
-          a.addEventListener("click", function () { if (!(wide && wide.matches)) details.removeAttribute("open"); });
+          a.addEventListener("click", function () { close(inst); });
         }
         li.appendChild(a);
-        list.appendChild(li);
+        menu.appendChild(li);
         inst.links.push(a);
       });
-      details.appendChild(summary);
-      details.appendChild(list);
-      details.addEventListener("toggle", function () { if (!(wide && wide.matches)) inst.userOpened = details.open; });
-      nav.appendChild(details);
+      toggle.addEventListener("click", function () {
+        if (inst.layout === "rail") return;
+        inst.open = !inst.open;
+        menu.hidden = !inst.open;
+        toggle.setAttribute("aria-expanded", inst.open ? "true" : "false");
+      });
+      nav.addEventListener("keydown", function (ev) {
+        if (ev.key === "Escape" && inst.open) { close(inst); toggle.focus(); }
+      });
+      document.addEventListener("click", function (ev) { if (inst.open && !nav.contains(ev.target)) close(inst); });
+      var track = el("span", "pg-outline-track");
+      track.setAttribute("aria-hidden", "true");
+      track.appendChild(el("span", "pg-outline-fill"));
+      nav.appendChild(toggle);
+      nav.appendChild(track);
+      nav.appendChild(menu);
       host.appendChild(nav);
-      inst.details = details;
-      syncOpen(inst);
-      if (inst.mode === "scroll") fromScroll(inst);
-      else if (inst.current) setCurrent(inst, inst.current());
       instances.push(inst);
+      place(inst);
+      /* A hidden page's column goes from no size to its real size when it shows; measure then. */
+      var column = host.closest(".container") || host.parentNode;
+      if (column && window.ResizeObserver) new ResizeObserver(function () { place(inst); }).observe(column);
+      if (inst.mode !== "scroll" && inst.current) setCurrent(inst, inst.current());
       return {
-        refresh: function () { if (inst.mode === "scroll") fromScroll(inst); else if (inst.current) setCurrent(inst, inst.current()); },
-        current: function () { return inst.currentId; }
+        refresh: function () { place(inst); },
+        current: function () { return inst.currentId; },
+        layout: function () { return inst.layout; }
       };
     }
     var ticking = false;
+    function all(fn) { for (var i = 0; i < instances.length; i++) fn(instances[i]); }
     window.addEventListener("scroll", function () {
       if (ticking) return;
       ticking = true;
-      window.requestAnimationFrame(function () {
-        ticking = false;
-        for (var i = 0; i < instances.length; i++) if (instances[i].mode === "scroll") fromScroll(instances[i]);
-      });
+      window.requestAnimationFrame(function () { ticking = false; all(fromScroll); });
     }, { passive: true });
-    window.addEventListener("hashchange", function () {
-      window.requestAnimationFrame(function () {
-        for (var i = 0; i < instances.length; i++) {
-          if (instances[i].mode === "scroll") fromScroll(instances[i]);
-          else if (instances[i].current) setCurrent(instances[i], instances[i].current());
-        }
-      });
+    var resizing = null;
+    window.addEventListener("resize", function () {
+      window.clearTimeout(resizing);
+      resizing = window.setTimeout(function () { all(place); }, 80);
     });
-    if (wide) {
-      var onWide = function () { for (var i = 0; i < instances.length; i++) syncOpen(instances[i]); };
-      if (wide.addEventListener) wide.addEventListener("change", onWide); else if (wide.addListener) wide.addListener(onWide);
-    }
+    window.addEventListener("hashchange", function () { window.requestAnimationFrame(function () { all(place); }); });
     return { mount: mount };
   })();
 /* /shared:outline-js */

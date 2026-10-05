@@ -1,18 +1,26 @@
-  /* -------------------------------------------------- NexusOutline (v4.13.10, shared)
-     NexusOutline.mount(host, items, opts) renders an "On this page" bar into host.
-     items: [{ id, label, href, target }]. In "scroll" mode, target is the element id
-     to bring into view, the current entry follows scrolling, and a click scrolls
-     without changing the page (the hash is updated with replaceState). In "route"
-     mode, a click follows href and opts.current() names the current entry.
-     Phones collapse the list to one line naming the current entry. */
+  /* -------------------------------------------------- NexusOutline (v4.13.10 R1, shared)
+     NexusOutline.mount(host, items, opts) renders page navigation that follows the reader.
+     items: [{ id, label, href, target }]. In "scroll" mode, target is the element id to bring
+     into view and the current entry follows scrolling; in "route" mode a click follows href and
+     opts.current() names the current entry.
+     Placement never takes width from the content: when the left margin beside the centred
+     content column has room, the navigation is a fixed rail inside that margin (labels when the
+     margin is wide, the current label only when it is slim); otherwise it is a compact sticky bar
+     under the header with a progress line and a section menu. The layout is re-measured on
+     resize, so any screen size or aspect ratio picks the form that fits. */
   window.NexusOutline = (function () {
     var instances = [];
-    var wide = window.matchMedia ? window.matchMedia("(min-width: 721px)") : null;
+    var FULL = 184, SLIM = 56;
     function el(tag, cls, text) {
       var node = document.createElement(tag);
       if (cls) node.className = cls;
       if (text != null) node.textContent = text;
       return node;
+    }
+    function reduced() { return !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches); }
+    function headerBottom() {
+      var h = document.querySelector(".site-header");
+      return h ? Math.max(0, h.getBoundingClientRect().bottom) : 0;
     }
     function setCurrent(inst, id) {
       if (inst.currentId === id) return;
@@ -20,42 +28,104 @@
       for (var i = 0; i < inst.links.length; i++) {
         var on = inst.links[i].getAttribute("data-outline-id") === id;
         if (on) inst.links[i].setAttribute("aria-current", "true"); else inst.links[i].removeAttribute("aria-current");
-        if (on) inst.now.textContent = inst.links[i].textContent;
+        inst.links[i].parentNode.classList.toggle("is-current", on);
+        if (on) { inst.now.textContent = inst.items[i].label; inst.index = i; }
       }
+      inst.nav.style.setProperty("--pg-step", inst.items.length > 1 ? String(inst.index / (inst.items.length - 1)) : "0");
+    }
+    function progress(inst) {
+      var first = document.getElementById(inst.items[0] && inst.items[0].target);
+      var last = document.getElementById(inst.items.length ? inst.items[inst.items.length - 1].target : "");
+      if (!first || !last) return 0;
+      var top = first.getBoundingClientRect().top + window.scrollY - headerBottom();
+      var end = last.getBoundingClientRect().bottom + window.scrollY - window.innerHeight;
+      if (end <= top) return 1;
+      return Math.max(0, Math.min(1, (window.scrollY - top) / (end - top)));
+    }
+    function shown(inst) {
+      var column = inst.host.closest(".container") || inst.host.parentNode;
+      return !!column && column.getClientRects().length > 0;
     }
     function fromScroll(inst) {
-      if (!inst.host.offsetParent) return;
-      var line = 150, best = inst.items.length ? inst.items[0].id : null;
-      for (var i = 0; i < inst.items.length; i++) {
-        var t = document.getElementById(inst.items[i].target);
-        if (t && t.getBoundingClientRect().top <= line) best = inst.items[i].id;
+      if (!shown(inst)) return;
+      /* A page that was hidden when the navigation mounted is measured the first time it shows. */
+      if (!inst.measured) { place(inst); return; }
+      if (inst.mode === "scroll") {
+        var line = headerBottom() + Math.min(160, window.innerHeight * 0.3), best = inst.items.length ? inst.items[0].id : null;
+        for (var i = 0; i < inst.items.length; i++) {
+          var t = document.getElementById(inst.items[i].target);
+          if (t && t.offsetParent && t.getBoundingClientRect().top <= line) best = inst.items[i].id;
+        }
+        setCurrent(inst, best);
+      } else if (inst.current) {
+        setCurrent(inst, inst.current());
       }
-      setCurrent(inst, best);
+      inst.nav.style.setProperty("--pg-progress", String(progress(inst)));
     }
-    function syncOpen(inst) {
-      if (wide && wide.matches) inst.details.setAttribute("open", "");
-      else if (!inst.userOpened) inst.details.removeAttribute("open");
+    /* Measure the free margin left of the content column and choose the form that fits. */
+    function place(inst) {
+      var column = inst.host.closest(".container") || inst.host.parentNode;
+      var visible = !!column && column.getClientRects().length > 0;
+      var free = 0;
+      if (visible) {
+        var r = column.getBoundingClientRect();
+        free = r.left + parseFloat(getComputedStyle(column).paddingLeft || "0");
+      }
+      inst.measured = visible;
+      var layout = !visible ? inst.layout || "bar" : free >= FULL ? "rail" : free >= SLIM ? "rail slim" : "bar";
+      inst.layout = layout.split(" ")[0];
+      inst.nav.className = "pg-outline pg-outline--" + layout.replace(" ", " pg-outline--");
+      if (inst.layout === "rail") {
+        var width = Math.min(232, free - 24);
+        inst.nav.style.left = Math.max(8, free - width - 16) + "px";
+        inst.nav.style.width = width + "px";
+        inst.nav.style.top = headerBottom() + 28 + "px";
+        inst.menu.hidden = false;
+        inst.toggle.setAttribute("aria-expanded", "true");
+      } else {
+        inst.nav.style.left = inst.nav.style.width = inst.nav.style.top = "";
+        inst.menu.hidden = !inst.open;
+        inst.toggle.setAttribute("aria-expanded", inst.open ? "true" : "false");
+      }
+      fromScroll(inst);
+    }
+    function close(inst) {
+      if (inst.layout === "rail") return;
+      inst.open = false;
+      inst.menu.hidden = true;
+      inst.toggle.setAttribute("aria-expanded", "false");
     }
     function mount(host, items, opts) {
       opts = opts || {};
-      var inst = { host: host, items: items, mode: opts.mode || "scroll", current: opts.current, links: [], currentId: null, userOpened: false };
+      var label = opts.label || "On this page";
+      var inst = { host: host, items: items, mode: opts.mode || "scroll", current: opts.current, links: [], currentId: null, index: 0, open: false, layout: null };
       host.textContent = "";
+      /* The mount point steps out of layout so the compact bar can stick for the whole column. */
+      host.style.display = "contents";
       var nav = el("nav", "pg-outline");
-      nav.setAttribute("aria-label", opts.label || "On this page");
-      var details = el("details");
-      var summary = el("summary");
-      summary.appendChild(document.createTextNode((opts.label || "On this page") + ": "));
-      inst.now = el("small");
-      summary.appendChild(inst.now);
-      var list = el("ol");
-      var lab = el("li", "pg-outline-label", opts.label || "On this page");
-      lab.setAttribute("aria-hidden", "true");
-      list.appendChild(lab);
+      nav.setAttribute("aria-label", label);
+      inst.nav = nav;
+      var toggle = el("button", "pg-outline-toggle");
+      toggle.type = "button";
+      toggle.appendChild(el("span", "pg-outline-label", label));
+      inst.now = el("span", "pg-outline-now");
+      toggle.appendChild(inst.now);
+      toggle.appendChild(el("span", "pg-outline-chev"));
+      toggle.lastChild.setAttribute("aria-hidden", "true");
+      inst.toggle = toggle;
+      var menu = el("ol", "pg-outline-list");
+      menu.id = "pg-outline-" + (instances.length + 1);
+      toggle.setAttribute("aria-controls", menu.id);
+      inst.menu = menu;
       items.forEach(function (item) {
         var li = el("li");
-        var a = el("a", null, item.label);
+        var a = el("a");
         a.href = item.href;
         a.setAttribute("data-outline-id", item.id);
+        a.setAttribute("title", item.label);
+        a.appendChild(el("span", "pg-outline-node"));
+        a.lastChild.setAttribute("aria-hidden", "true");
+        a.appendChild(el("span", "pg-outline-text", item.label));
         if (inst.mode === "scroll") {
           var target = document.getElementById(item.target);
           if (target) target.setAttribute("data-outline-target", "");
@@ -63,56 +133,62 @@
             var t = document.getElementById(item.target);
             if (!t) return;
             ev.preventDefault();
-            t.scrollIntoView({ block: "start", behavior: REDUCE ? "auto" : "smooth" });
+            t.scrollIntoView({ block: "start", behavior: reduced() ? "auto" : "smooth" });
             var heading = t.querySelector("h1, h2, h3") || t;
             if (!heading.hasAttribute("tabindex")) heading.setAttribute("tabindex", "-1");
             heading.focus({ preventScroll: true });
             try { window.history.replaceState(null, "", item.href); } catch (err) {}
             setCurrent(inst, item.id);
-            if (!(wide && wide.matches)) details.removeAttribute("open");
+            close(inst);
           });
         } else {
-          a.addEventListener("click", function () { if (!(wide && wide.matches)) details.removeAttribute("open"); });
+          a.addEventListener("click", function () { close(inst); });
         }
         li.appendChild(a);
-        list.appendChild(li);
+        menu.appendChild(li);
         inst.links.push(a);
       });
-      details.appendChild(summary);
-      details.appendChild(list);
-      details.addEventListener("toggle", function () { if (!(wide && wide.matches)) inst.userOpened = details.open; });
-      nav.appendChild(details);
+      toggle.addEventListener("click", function () {
+        if (inst.layout === "rail") return;
+        inst.open = !inst.open;
+        menu.hidden = !inst.open;
+        toggle.setAttribute("aria-expanded", inst.open ? "true" : "false");
+      });
+      nav.addEventListener("keydown", function (ev) {
+        if (ev.key === "Escape" && inst.open) { close(inst); toggle.focus(); }
+      });
+      document.addEventListener("click", function (ev) { if (inst.open && !nav.contains(ev.target)) close(inst); });
+      var track = el("span", "pg-outline-track");
+      track.setAttribute("aria-hidden", "true");
+      track.appendChild(el("span", "pg-outline-fill"));
+      nav.appendChild(toggle);
+      nav.appendChild(track);
+      nav.appendChild(menu);
       host.appendChild(nav);
-      inst.details = details;
-      syncOpen(inst);
-      if (inst.mode === "scroll") fromScroll(inst);
-      else if (inst.current) setCurrent(inst, inst.current());
       instances.push(inst);
+      place(inst);
+      /* A hidden page's column goes from no size to its real size when it shows; measure then. */
+      var column = host.closest(".container") || host.parentNode;
+      if (column && window.ResizeObserver) new ResizeObserver(function () { place(inst); }).observe(column);
+      if (inst.mode !== "scroll" && inst.current) setCurrent(inst, inst.current());
       return {
-        refresh: function () { if (inst.mode === "scroll") fromScroll(inst); else if (inst.current) setCurrent(inst, inst.current()); },
-        current: function () { return inst.currentId; }
+        refresh: function () { place(inst); },
+        current: function () { return inst.currentId; },
+        layout: function () { return inst.layout; }
       };
     }
     var ticking = false;
+    function all(fn) { for (var i = 0; i < instances.length; i++) fn(instances[i]); }
     window.addEventListener("scroll", function () {
       if (ticking) return;
       ticking = true;
-      window.requestAnimationFrame(function () {
-        ticking = false;
-        for (var i = 0; i < instances.length; i++) if (instances[i].mode === "scroll") fromScroll(instances[i]);
-      });
+      window.requestAnimationFrame(function () { ticking = false; all(fromScroll); });
     }, { passive: true });
-    window.addEventListener("hashchange", function () {
-      window.requestAnimationFrame(function () {
-        for (var i = 0; i < instances.length; i++) {
-          if (instances[i].mode === "scroll") fromScroll(instances[i]);
-          else if (instances[i].current) setCurrent(instances[i], instances[i].current());
-        }
-      });
+    var resizing = null;
+    window.addEventListener("resize", function () {
+      window.clearTimeout(resizing);
+      resizing = window.setTimeout(function () { all(place); }, 80);
     });
-    if (wide) {
-      var onWide = function () { for (var i = 0; i < instances.length; i++) syncOpen(instances[i]); };
-      if (wide.addEventListener) wide.addEventListener("change", onWide); else if (wide.addListener) wide.addListener(onWide);
-    }
+    window.addEventListener("hashchange", function () { window.requestAnimationFrame(function () { all(place); }); });
     return { mount: mount };
   })();

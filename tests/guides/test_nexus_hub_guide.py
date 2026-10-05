@@ -1309,9 +1309,11 @@ def test_no_unexpected_persistent_overlays(guide_text: str) -> None:
     made the page unreadable.
     """
     css = guide_text.split("<style>", 1)[-1].split("</style>", 1)[0]
-    allowed_fixed = {"#constellation"}
-    # .pg-outline is the v4.13.10 "On this page" bar: it sits under the header and covers no content.
-    allowed_sticky = {".site-header", ".cx-preview-bar", ".pg-outline"}
+    # .pg-outline--rail is the v4.13.10 page navigation in the left margin; it is placed beside the
+    # content column, never over it (test_navigation_never_takes_width_from_the_content measures that).
+    allowed_fixed = {"#constellation", ".pg-outline--rail"}
+    # .pg-outline--bar is the same navigation with no margin: it sits under the header and covers no content.
+    allowed_sticky = {".site-header", ".cx-preview-bar", ".pg-outline--bar"}
     for prop, allowed in (("fixed", allowed_fixed), ("sticky", allowed_sticky)):
         for match in re.finditer(r"([^{}]+)\{[^}]*position:\s*" + prop, css):
             selector = match.group(1).strip().splitlines()[-1].strip().rstrip(",")
