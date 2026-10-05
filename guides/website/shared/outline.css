@@ -18,11 +18,13 @@
 .pg-outline-fill{display:block;width:100%;height:100%;background:var(--accent);border-radius:inherit;transform-origin:left top;}
 
 /* Rail: fixed in the left margin; the track runs through the nodes and fills with reading progress. */
-.pg-outline--rail{position:fixed;max-height:calc(100vh - 140px);overflow-y:auto;overflow-x:hidden;scrollbar-width:none;}
+.pg-outline--rail{position:fixed;max-height:calc(100vh - 140px);overflow-y:auto;overflow-x:hidden;scrollbar-width:none;
+  /* Room for the current entry's ring (scaled node plus a 4 px halo), which overflow would otherwise clip. */
+  padding:8px 4px 8px 10px;box-sizing:border-box;}
 .pg-outline--rail .pg-outline-toggle{pointer-events:none;min-height:0;margin:0 0 12px;}
 .pg-outline--rail .pg-outline-now,.pg-outline--rail .pg-outline-chev{display:none;}
 .pg-outline--rail .pg-outline-list{position:relative;display:grid;gap:14px;}
-.pg-outline--rail .pg-outline-track{left:4px;top:34px;bottom:8px;width:2px;}
+.pg-outline--rail .pg-outline-track{left:14px;top:42px;bottom:16px;width:2px;}
 .pg-outline--rail .pg-outline-fill{transform:scaleY(var(--pg-progress));}
 .pg-outline--rail .pg-outline-list a{min-height:28px;line-height:1.3;}
 .pg-outline--rail .pg-outline-list li{min-width:0;}

@@ -415,3 +415,46 @@ def test_a_broken_story_names_the_field_and_renders_nothing(browser, tmp_path: P
         assert notice.is_visible(), "the error stays visible on every part"
     finally:
         context.close()
+
+
+def _marks(page, sid: str) -> list:
+    return page.evaluate(
+        """(sid) => { const s = NexusTrainingPage.story(), d = s.state(sid).duration, root = document.querySelector('section[data-stage="' + sid + '"]');
+            const out = []; let prev = false;
+            for (let t = 0; t <= d; t += 100) { s.seek(sid, t); const f = root.querySelector('.ide-focus'); const on = !f.hidden;
+                if (on && !prev) out.push([t, f.textContent]); prev = on; }
+            return out; }""",
+        sid,
+    )
+
+
+def test_every_step_marks_what_it_produced(browser) -> None:
+    """Revision 3 (R15): each written or edited file and each reply's key content is outlined as it appears."""
+    context, page, errors = _open(browser)
+    try:
+        for s in _sessions():
+            labels = [label for _t, label in _marks(page, s["id"])]
+            expected = [st["mark"] for a in s["script"] if a["do"] == "work" for st in a["steps"] if st.get("mark")]
+            replies = [a["mark"] for a in s["script"] if a["do"] == "reply"]
+            for label in expected + replies:
+                assert label in labels, (s["id"], label, labels)
+            page.evaluate(f"NexusTrainingPage.story().finish('{s['id']}')")
+            focus = page.locator(f'section[data-stage="{s["id"]}"] .ide-focus')
+            assert focus.is_visible() and focus.inner_text() == replies[-1], "the last reply stays marked"
+        assert not errors, errors
+    finally:
+        context.close()
+
+
+def test_a_mark_lands_on_the_same_box_from_either_direction(browser) -> None:
+    context, page, _ = _open(browser)
+    try:
+        _go(page, "describe")
+        t = _marks(page, "describe")[0][0] + 900
+        box = "(() => { const f = document.querySelector('section[data-stage=\"describe\"] .ide-focus'); return [f.hidden, f.style.left, f.style.top, f.style.width, f.style.height, f.textContent]; })()"
+        page.evaluate(f"NexusTrainingPage.story().seek('describe', 0); NexusTrainingPage.story().seek('describe', {t})")
+        forward = page.evaluate(box)
+        page.evaluate(f"NexusTrainingPage.story().finish('describe'); NexusTrainingPage.story().seek('describe', {t})")
+        assert page.evaluate(box) == forward and forward[0] is False
+    finally:
+        context.close()

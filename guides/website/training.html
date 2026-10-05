@@ -242,90 +242,163 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
   .csf-steps li{padding:7px 9px;font-size:12.5px;}
 }
 
-/* ---- Training: a cursor plays the buggy game, runs the workflow, then plays the fixed game. One 14s loop. */
+/* ---- Training: a cursor plays the buggy game (the figure holds on the bug), runs the workflow in a
+   mini IDE, then plays the fixed game. One 16s loop; R13 of plan revision 3. */
 .trf{padding:var(--sp-4);}
-.trf-ui{--ax:20%;--ay:80%;--bx:50%;--by:80%;--cx:80%;--cy:80%;position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr) minmax(0,1fr);gap:14px;}
+.trf-ui{--ax:20%;--ay:80%;--bx:50%;--by:80%;--cx:80%;--cy:80%;position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.45fr) minmax(0,1fr);gap:14px;}
 .trf-card{position:relative;display:flex;flex-direction:column;gap:8px;min-width:0;padding:12px;border:1px solid var(--border);border-radius:14px;background:var(--bg-0,var(--surface));}
 .trf-cap{margin:0;font-size:var(--ty-body-sm);font-weight:700;color:var(--ink);}
 .trf-led{display:inline-block;width:8px;height:8px;margin-right:8px;border-radius:50%;vertical-align:1px;}
 .trf-led--bug{background:#f87171;}.trf-led--ok{background:#4ade80;}
-.trf-arena{position:relative;display:grid;}
+.trf-arena{position:relative;}
 .trf-scene{display:block;width:100%;height:auto;}
 .trf-sky{fill:#05121a;stroke:color-mix(in srgb,var(--accent) 25%,#0c2a33);stroke-width:1;}
 .trf-star{fill:#cfeff6;opacity:.8;}
-.trf-line{fill:none;stroke:#0b3a44;stroke-width:.8;}
-.trf-flame{fill:#67e8f9;transform-box:fill-box;transform-origin:50% 0;animation:trf-flame .35s ease-in-out infinite alternate;}
-@keyframes trf-flame{to{transform:scaleY(.65);opacity:.75;}}
+.trf-edge{fill:none;stroke:#22d3ee;stroke-width:1.3;stroke-linecap:round;filter:drop-shadow(0 0 2px #22d3ee);}
+.trf-panel{fill:none;stroke:#2a3946;stroke-width:.7;}
+.trf-foe-edge{fill:none;stroke:#f87171;stroke-width:1;filter:drop-shadow(0 0 2px #ef4444);}
+.trf-thrust{fill:#67e8f9;opacity:.85;transform-box:fill-box;transform-origin:50% 0;animation:trf-flame .3s ease-in-out infinite alternate;filter:blur(.6px);}
+@keyframes trf-flame{to{transform:scaleY(.6);opacity:.6;}}
 .trf-shot{fill:#fca5a5;opacity:0;}
-.trf-shot--bug{animation:trf-shot-a 14s linear infinite;}
-.trf-shot--ok{animation:trf-shot-c 14s linear infinite;}
-@keyframes trf-shot-a{0%,12%{opacity:0;transform:translateY(0);}12.1%{opacity:1;}20%{opacity:1;transform:translateY(52px);}20.1%,100%{opacity:0;transform:translateY(52px);}}
-@keyframes trf-shot-c{0%,69%{opacity:0;transform:translateY(0);}69.1%{opacity:1;}77%{opacity:1;transform:translateY(52px);}77.1%,100%{opacity:0;transform:translateY(52px);}}
+.trf-shot--bug{animation:trf-shot-a 16s linear infinite;}
+.trf-shot--ok{animation:trf-shot-c 16s linear infinite;}
+@keyframes trf-shot-a{0%,7%{opacity:0;transform:translateY(0);}7.1%{opacity:1;}13%{opacity:1;transform:translateY(46px);}13.1%,100%{opacity:0;transform:translateY(46px);}}
+@keyframes trf-shot-c{0%,77%{opacity:0;transform:translateY(0);}77.1%{opacity:1;}83%{opacity:1;transform:translateY(46px);}83.1%,100%{opacity:0;transform:translateY(46px);}}
+.trf-pop{font:800 15px var(--mono,monospace);fill:#fecaca;opacity:0;}
+.trf-pop--bug{animation:trf-pop-a 16s ease-out infinite;}
+.trf-pop--ok{fill:#fde68a;animation:trf-pop-c 16s ease-out infinite;}
+@keyframes trf-pop-a{0%,13%{opacity:0;transform:translateY(0);}14%{opacity:1;}27%{opacity:1;transform:translateY(-14px);}29%,100%{opacity:0;transform:translateY(-14px);}}
+@keyframes trf-pop-c{0%,83%{opacity:0;transform:translateY(0);}84%{opacity:1;}93%{opacity:1;transform:translateY(-14px);}95%,100%{opacity:0;transform:translateY(-14px);}}
 .trf-boom{opacity:0;transform-box:fill-box;transform-origin:center;}
-.trf-boom--bug{animation:trf-boom-a 14s ease-out infinite;}
-.trf-boom--ok{animation:trf-boom-c 14s ease-out infinite;}
-@keyframes trf-boom-a{0%,20%{opacity:0;transform:scale(.2);}21%{opacity:1;transform:scale(.6);}30%{opacity:0;transform:scale(1.5);}100%{opacity:0;}}
-@keyframes trf-boom-c{0%,77%{opacity:0;transform:scale(.1);}78%{opacity:.9;transform:scale(.25);}83%,100%{opacity:0;transform:scale(.45);}}
-.trf-ship--bug{animation:trf-ship-a 14s linear infinite;}
-@keyframes trf-ship-a{0%,20%{opacity:1;}20.5%,96%{opacity:0;}100%{opacity:1;}}
-/* The tag sits under the arena, never over a ship. */
-.trf-tag{justify-self:start;margin:6px 0 0;padding:3px 9px;border-radius:7px;font-size:11.5px;font-weight:700;white-space:nowrap;opacity:0;}
-.trf-tag--bug{background:rgba(127,29,29,.85);color:#fee2e2;animation:trf-tag-a 14s linear infinite;}
-.trf-tag--ok{background:rgba(20,83,45,.85);color:#dcfce7;animation:trf-tag-c 14s linear infinite;}
-@keyframes trf-tag-a{0%,22%{opacity:0;}24%,95%{opacity:1;}100%{opacity:0;}}
-@keyframes trf-tag-c{0%,78%{opacity:0;}80%,95%{opacity:1;}100%{opacity:0;}}
-.trf-hp{display:grid;grid-template-columns:auto minmax(0,1fr) 2.2em;align-items:center;gap:8px;font-size:11.5px;color:var(--ink-dim);}
+.trf-boom--bug{animation:trf-boom-a 16s ease-out infinite;}
+.trf-boom--ok{animation:trf-boom-c 16s ease-out infinite;}
+@keyframes trf-boom-a{0%,15.5%{opacity:0;transform:scale(.2);}16.5%{opacity:1;transform:scale(.7);}24%{opacity:0;transform:scale(1.5);}100%{opacity:0;}}
+@keyframes trf-boom-c{0%,83%{opacity:0;transform:scale(.1);}84%{opacity:.9;transform:scale(.25);}88%,100%{opacity:0;transform:scale(.4);}}
+.trf-ship--bug{animation:trf-ship-a 16s linear infinite;}
+@keyframes trf-ship-a{0%,16%{opacity:1;}16.5%,96%{opacity:0;}100%{opacity:1;}}
+.trf-hp{display:grid;grid-template-columns:auto minmax(0,1fr) 2.2em;align-items:center;gap:8px;font-size:11.5px;color:var(--ink-dim);border-radius:8px;}
+.trf-hp--bug{animation:trf-hold 16s linear infinite;}
+/* The hold: for two seconds after the hit, the drained bar is ringed so the eye goes to the bug. */
+@keyframes trf-hold{0%,16%{box-shadow:0 0 0 0 transparent;}17%,27%{box-shadow:0 0 0 3px rgba(248,113,113,.55);}28%,100%{box-shadow:0 0 0 0 transparent;}}
 .trf-hp b{position:relative;height:7px;overflow:hidden;border-radius:4px;background:color-mix(in srgb,var(--ink-dim) 22%,transparent);}
 .trf-hp-fill{position:absolute;inset:0;border-radius:4px;background:linear-gradient(90deg,#22c55e,#4ade80);transform-origin:left;}
-.trf-hp-fill--ok{animation:trf-hp 14s ease-out infinite;}
-@keyframes trf-hp{0%,77%{transform:scaleX(1);}79%,95%{transform:scaleX(.94);}100%{transform:scaleX(1);}}
+.trf-hp-fill--bug{animation:trf-hp-a 16s ease-in infinite;}
+.trf-hp-fill--ok{animation:trf-hp-c 16s ease-out infinite;}
+@keyframes trf-hp-a{0%,13%{transform:scaleX(1);}16%,95%{transform:scaleX(0);}100%{transform:scaleX(1);}}
+@keyframes trf-hp-c{0%,83%{transform:scaleX(1);}85%,95%{transform:scaleX(.94);}100%{transform:scaleX(1);}}
 .trf-hp em{position:relative;font-style:normal;font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--ink);}
-.trf-n2{position:absolute;left:0;opacity:0;animation:trf-n2 14s linear infinite;}
-.trf-hp:has(.trf-n2) .trf-n1{animation:trf-n1 14s linear infinite;}
-@keyframes trf-n1{0%,77%{opacity:1;}77.5%,96%{opacity:0;}100%{opacity:1;}}
-@keyframes trf-n2{0%,77%{opacity:0;}77.5%,96%{opacity:1;}100%{opacity:0;}}
+.trf-n2{position:absolute;left:0;opacity:0;}
+.trf-hp--bug .trf-n1{animation:trf-n1a 16s linear infinite;}.trf-hp--bug .trf-n2{color:#fca5a5;animation:trf-n2a 16s linear infinite;}
+.trf-hp--ok .trf-n1{animation:trf-n1c 16s linear infinite;}.trf-hp--ok .trf-n2{animation:trf-n2c 16s linear infinite;}
+@keyframes trf-n1a{0%,15%{opacity:1;}15.5%,96%{opacity:0;}100%{opacity:1;}}
+@keyframes trf-n2a{0%,15%{opacity:0;}15.5%,96%{opacity:1;}100%{opacity:0;}}
+@keyframes trf-n1c{0%,83%{opacity:1;}83.5%,96%{opacity:0;}100%{opacity:1;}}
+@keyframes trf-n2c{0%,83%{opacity:0;}83.5%,96%{opacity:1;}100%{opacity:0;}}
+.trf-tag{align-self:flex-start;margin:0;padding:3px 9px;border-radius:7px;font-size:11.5px;font-weight:700;opacity:0;}
+.trf-tag--bug{background:rgba(127,29,29,.9);color:#fee2e2;animation:trf-tag-a 16s linear infinite;}
+.trf-tag--ok{background:rgba(20,83,45,.9);color:#dcfce7;animation:trf-tag-c 16s linear infinite;}
+@keyframes trf-tag-a{0%,16.5%{opacity:0;}18%,95%{opacity:1;}100%{opacity:0;}}
+@keyframes trf-tag-c{0%,84%{opacity:0;}86%,95%{opacity:1;}100%{opacity:0;}}
 .trf-btn{align-self:flex-start;padding:5px 14px;border:1px solid var(--accent);border-radius:8px;font-size:12px;font-weight:700;color:var(--ink);}
-.trf-btn--a{animation:trf-press-a 14s linear infinite;}.trf-btn--b{animation:trf-press-b 14s linear infinite;}.trf-btn--c{animation:trf-press-c 14s linear infinite;}
-@keyframes trf-press-a{0%,10.5%,13%,100%{background:transparent;}11%,12.5%{background:color-mix(in srgb,var(--accent) 35%,transparent);}}
-@keyframes trf-press-b{0%,27.5%,30%,100%{background:transparent;}28%,29.5%{background:color-mix(in srgb,var(--accent) 35%,transparent);}}
-@keyframes trf-press-c{0%,67.5%,70%,100%{background:transparent;}68%,69.5%{background:color-mix(in srgb,var(--accent) 35%,transparent);}}
-.trf-steps{list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(6.4rem,1fr));gap:6px;margin:0;padding:0;}
-.trf-st{padding:4px 6px;border:1px solid var(--border);border-radius:7px;font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--ink-dim);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-@keyframes trf-st0{0%,29.9%{color:var(--ink-dim);border-color:var(--border);background:transparent;}30%{color:#06201c;border-color:var(--accent);background:var(--accent);}34%,95%{color:var(--ink);border-color:color-mix(in srgb,var(--accent) 55%,var(--border));background:color-mix(in srgb,var(--accent) 14%,transparent);}100%{color:var(--ink-dim);border-color:var(--border);background:transparent;}}
-.trf-st[data-k="0"]{animation:trf-st0 14s linear infinite;}
-@keyframes trf-st1{0%,34.9%{color:var(--ink-dim);border-color:var(--border);background:transparent;}35%{color:#06201c;border-color:var(--accent);background:var(--accent);}39%,95%{color:var(--ink);border-color:color-mix(in srgb,var(--accent) 55%,var(--border));background:color-mix(in srgb,var(--accent) 14%,transparent);}100%{color:var(--ink-dim);border-color:var(--border);background:transparent;}}
-.trf-st[data-k="1"]{animation:trf-st1 14s linear infinite;}
-@keyframes trf-st2{0%,39.9%{color:var(--ink-dim);border-color:var(--border);background:transparent;}40%{color:#06201c;border-color:var(--accent);background:var(--accent);}44%,95%{color:var(--ink);border-color:color-mix(in srgb,var(--accent) 55%,var(--border));background:color-mix(in srgb,var(--accent) 14%,transparent);}100%{color:var(--ink-dim);border-color:var(--border);background:transparent;}}
-.trf-st[data-k="2"]{animation:trf-st2 14s linear infinite;}
-@keyframes trf-st3{0%,44.9%{color:var(--ink-dim);border-color:var(--border);background:transparent;}45%{color:#06201c;border-color:var(--accent);background:var(--accent);}49%,95%{color:var(--ink);border-color:color-mix(in srgb,var(--accent) 55%,var(--border));background:color-mix(in srgb,var(--accent) 14%,transparent);}100%{color:var(--ink-dim);border-color:var(--border);background:transparent;}}
-.trf-st[data-k="3"]{animation:trf-st3 14s linear infinite;}
-@keyframes trf-st4{0%,55.9%{color:var(--ink-dim);border-color:var(--border);background:transparent;}56%{color:#06201c;border-color:var(--accent);background:var(--accent);}60%,95%{color:var(--ink);border-color:color-mix(in srgb,var(--accent) 55%,var(--border));background:color-mix(in srgb,var(--accent) 14%,transparent);}100%{color:var(--ink-dim);border-color:var(--border);background:transparent;}}
-.trf-st[data-k="4"]{animation:trf-st4 14s linear infinite;}
-@keyframes trf-st5{0%,60.9%{color:var(--ink-dim);border-color:var(--border);background:transparent;}61%{color:#06201c;border-color:var(--accent);background:var(--accent);}65%,95%{color:var(--ink);border-color:color-mix(in srgb,var(--accent) 55%,var(--border));background:color-mix(in srgb,var(--accent) 14%,transparent);}100%{color:var(--ink-dim);border-color:var(--border);background:transparent;}}
-.trf-st[data-k="5"]{animation:trf-st5 14s linear infinite;}
-.trf-diff{display:grid;gap:3px;padding:8px;border-radius:8px;background:#0b141a;font-size:11px;}
-.trf-diff code{padding:0;border:0;background:none;font-size:11px;white-space:normal;overflow-wrap:anywhere;}
-.trf-del{color:#f48771;animation:trf-del 14s linear infinite;}
-.trf-add{color:#73c991;opacity:0;animation:trf-add 14s linear infinite;}
-@keyframes trf-del{0%,47%{text-decoration:none;opacity:1;}47.5%,95%{text-decoration:line-through;opacity:.55;}100%{text-decoration:none;opacity:1;}}
-@keyframes trf-add{0%,50%{opacity:0;}51%,95%{opacity:1;}100%{opacity:0;}}
-.trf-model{display:grid;grid-template-columns:minmax(0,1fr) 64px;align-items:center;gap:8px;font-size:11.5px;color:var(--ink);}
+.trf-btn--a{animation:trf-press-a 16s linear infinite;}.trf-btn--b{animation:trf-press-b 16s linear infinite;}.trf-btn--c{animation:trf-press-c 16s linear infinite;}
+@keyframes trf-press-a{0%,5.5%,7.5%,100%{background:transparent;}6%,7%{background:color-mix(in srgb,var(--accent) 35%,transparent);}}
+@keyframes trf-press-b{0%,32.5%,34.5%,100%{background:transparent;}33%,34%{background:color-mix(in srgb,var(--accent) 35%,transparent);}}
+@keyframes trf-press-c{0%,75.5%,77.5%,100%{background:transparent;}76%,77%{background:color-mix(in srgb,var(--accent) 35%,transparent);}}
+/* The mini IDE: dark like the full one further down the page. */
+.trf-ide{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden;border:1px solid #333;border-radius:9px;background:#1f1f1f;color:#cccccc;}
+.trf-ide-bar{display:flex;align-items:center;gap:5px;padding:5px 8px;background:#181818;border-bottom:1px solid #2b2b2b;font-size:10.5px;color:#9d9d9d;}
+.trf-ide-bar i{width:7px;height:7px;border-radius:50%;background:#f87171;}.trf-ide-bar i:nth-child(2){background:#fbbf24;}.trf-ide-bar i:nth-child(3){background:#4ade80;}
+.trf-ide-bar span{margin-left:auto;margin-right:auto;font-family:var(--mono);}
+.trf-ide-body{display:grid;grid-template-columns:4.6rem minmax(0,1.4fr) minmax(0,1fr);flex:1;min-height:0;}
+.trf-files{margin:0;padding:6px 0;list-style:none;background:#181818;border-right:1px solid #2b2b2b;font-size:10.5px;}
+.trf-files li{padding:1px 8px;color:#9d9d9d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.trf-files .trf-f-on{background:#37373d;color:#e2c08d;}
+.trf-editor{min-width:0;border-right:1px solid #2b2b2b;}
+.trf-tab{margin:0;padding:3px 8px;border-bottom:1px solid #2b2b2b;font-size:10.5px;color:#fff;box-shadow:inset 0 1px 0 var(--accent);}
+.trf-code{margin:0;padding:6px 0;list-style:none;counter-reset:ln;font:10.5px/1.6 Consolas,var(--mono),monospace;}
+.trf-code li{counter-increment:ln;padding:0 6px 0 22px;position:relative;white-space:pre-wrap;overflow-wrap:anywhere;color:#d4d4d4;}
+.trf-code li::before{content:counter(ln);position:absolute;left:0;width:16px;text-align:right;color:#a3abb4;}
+.trf-code .k{color:#c586c0;}
+.trf-del{animation:trf-del 16s linear infinite;}
+.trf-add{opacity:0;background:rgba(115,201,145,.12);color:#b5e8c4;animation:trf-add 16s linear infinite;}
+.trf-add2{animation-name:trf-add2;}
+@keyframes trf-del{0%,52%{text-decoration:none;color:#d4d4d4;background:transparent;}53%,95%{text-decoration:line-through;color:#f48771;background:rgba(244,135,113,.1);}100%{text-decoration:none;}}
+@keyframes trf-add{0%,54%{opacity:0;}55%,95%{opacity:1;}100%{opacity:0;}}
+@keyframes trf-add2{0%,56%{opacity:0;}57%,95%{opacity:1;}100%{opacity:0;}}
+.trf-chat{display:flex;flex-direction:column;gap:6px;min-width:0;padding:6px;background:#181818;}
+.trf-steps{list-style:none;display:grid;gap:3px;margin:0;padding:0;}
+.trf-st{padding:2px 6px;border-radius:5px;opacity:.62;}
+.trf-st code{padding:0;border:0;background:none;font-size:10.5px;font-weight:700;color:inherit;}
+@keyframes trf-st0{0%,33.9%{opacity:.62;color:var(--ink-dim);background:transparent;}34%{opacity:1;color:#06201c;background:var(--accent);}38%,95%{opacity:1;color:var(--ink);background:color-mix(in srgb,var(--accent) 16%,transparent);}100%{opacity:.62;color:var(--ink-dim);background:transparent;}}
+.trf-st[data-k="0"]{animation:trf-st0 16s linear infinite;}
+@keyframes trf-st1{0%,39.9%{opacity:.62;color:var(--ink-dim);background:transparent;}40%{opacity:1;color:#06201c;background:var(--accent);}44%,95%{opacity:1;color:var(--ink);background:color-mix(in srgb,var(--accent) 16%,transparent);}100%{opacity:.62;color:var(--ink-dim);background:transparent;}}
+.trf-st[data-k="1"]{animation:trf-st1 16s linear infinite;}
+@keyframes trf-st2{0%,45.9%{opacity:.62;color:var(--ink-dim);background:transparent;}46%{opacity:1;color:#06201c;background:var(--accent);}50%,95%{opacity:1;color:var(--ink);background:color-mix(in srgb,var(--accent) 16%,transparent);}100%{opacity:.62;color:var(--ink-dim);background:transparent;}}
+.trf-st[data-k="2"]{animation:trf-st2 16s linear infinite;}
+@keyframes trf-st3{0%,51.9%{opacity:.62;color:var(--ink-dim);background:transparent;}52%{opacity:1;color:#06201c;background:var(--accent);}56%,95%{opacity:1;color:var(--ink);background:color-mix(in srgb,var(--accent) 16%,transparent);}100%{opacity:.62;color:var(--ink-dim);background:transparent;}}
+.trf-st[data-k="3"]{animation:trf-st3 16s linear infinite;}
+@keyframes trf-st4{0%,58.9%{opacity:.62;color:var(--ink-dim);background:transparent;}59%{opacity:1;color:#06201c;background:var(--accent);}63%,95%{opacity:1;color:var(--ink);background:color-mix(in srgb,var(--accent) 16%,transparent);}100%{opacity:.62;color:var(--ink-dim);background:transparent;}}
+.trf-st[data-k="4"]{animation:trf-st4 16s linear infinite;}
+@keyframes trf-st5{0%,64.9%{opacity:.62;color:var(--ink-dim);background:transparent;}65%{opacity:1;color:#06201c;background:var(--accent);}69%,95%{opacity:1;color:var(--ink);background:color-mix(in srgb,var(--accent) 16%,transparent);}100%{opacity:.62;color:var(--ink-dim);background:transparent;}}
+.trf-st[data-k="5"]{animation:trf-st5 16s linear infinite;}
+.trf-model{display:grid;grid-template-columns:minmax(0,1fr) 34px;align-items:center;gap:6px;margin-top:auto;font-size:10.5px;color:#e5e7eb;}
 .trf-names{position:relative;display:block;height:1.4em;overflow:hidden;}
 .trf-m1,.trf-m2{position:absolute;left:0;top:0;white-space:nowrap;}
-.trf-m1{animation:trf-m1 14s linear infinite;}
-.trf-m2{opacity:0;animation:trf-m2 14s linear infinite;}
-@keyframes trf-m1{0%,52%{opacity:1;}52.5%,96%{opacity:0;}100%{opacity:1;}}
-@keyframes trf-m2{0%,52%{opacity:0;}52.5%,96%{opacity:1;}100%{opacity:0;}}
-.trf-use{position:relative;height:6px;overflow:hidden;border-radius:3px;background:color-mix(in srgb,var(--ink-dim) 22%,transparent);}
-.trf-use i{position:absolute;inset:0;border-radius:3px;background:var(--accent);transform-origin:left;animation:trf-use 14s linear infinite;}
-@keyframes trf-use{0%,29%{transform:scaleX(.55);background:var(--accent);}50%{transform:scaleX(1);background:#f48771;}52.4%{transform:scaleX(1);background:#f48771;}52.5%{transform:scaleX(.05);background:var(--accent);}66%,96%{transform:scaleX(.2);background:var(--accent);}100%{transform:scaleX(.55);}}
-.trf-cursor{position:absolute;left:0;top:0;z-index:2;width:20px;height:20px;pointer-events:none;animation:trf-move 14s var(--ease) infinite;}
-.trf-cursor svg{width:20px;height:20px;fill:#f2feff;stroke:#061316;stroke-width:1.4;stroke-linejoin:round;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5));animation:trf-click 14s linear infinite;}
-@keyframes trf-move{0%{transform:translate(calc(var(--cx) + 30px),calc(var(--cy) + 40px));opacity:0;}3%{opacity:1;}9%,13%{transform:translate(var(--ax),var(--ay));}26%,30%{transform:translate(var(--bx),var(--by));}66%,70%{transform:translate(var(--cx),var(--cy));opacity:1;}93%{transform:translate(var(--cx),var(--cy));opacity:1;}100%{transform:translate(calc(var(--cx) + 30px),calc(var(--cy) + 40px));opacity:0;}}
-@keyframes trf-click{0%,10.8%,12.6%,27.8%,29.6%,67.8%,69.6%,100%{transform:scale(1);}11.2%,28.2%,68.2%{transform:scale(.82);}}
+.trf-m1{animation:trf-m1 16s linear infinite;}
+.trf-m2{opacity:0;animation:trf-m2 16s linear infinite;}
+@keyframes trf-m1{0%,57%{opacity:1;}57.5%,96%{opacity:0;}100%{opacity:1;}}
+@keyframes trf-m2{0%,57%{opacity:0;}57.5%,96%{opacity:1;}100%{opacity:0;}}
+.trf-use{position:relative;height:5px;overflow:hidden;border-radius:3px;background:#333;}
+.trf-use i{position:absolute;inset:0;border-radius:3px;background:var(--accent);transform-origin:left;animation:trf-use 16s linear infinite;}
+@keyframes trf-use{0%,33%{transform:scaleX(.1);background:var(--accent);}56%{transform:scaleX(1);background:#f48771;}57.4%{transform:scaleX(1);background:#f48771;}57.5%{transform:scaleX(.05);background:var(--accent);}70%,96%{transform:scaleX(.2);background:var(--accent);}100%{transform:scaleX(.1);}}
+.trf-chat .trf-btn{align-self:flex-end;padding:3px 10px;font-size:11px;}
+.trf-cursor{position:absolute;left:0;top:0;z-index:2;width:20px;height:20px;pointer-events:none;animation:trf-move 16s var(--ease) infinite;}
+.trf-cursor svg{width:20px;height:20px;fill:#f2feff;stroke:#061316;stroke-width:1.4;stroke-linejoin:round;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5));animation:trf-click 16s linear infinite;}
+@keyframes trf-move{0%{transform:translate(calc(var(--cx) + 30px),calc(var(--cy) + 40px));opacity:0;}2%{opacity:1;}5%,28%{transform:translate(var(--ax),var(--ay));}32%,36%{transform:translate(var(--bx),var(--by));}74%,94%{transform:translate(var(--cx),var(--cy));opacity:1;}100%{transform:translate(calc(var(--cx) + 30px),calc(var(--cy) + 40px));opacity:0;}}
+@keyframes trf-click{0%,5.8%,7.2%,32.8%,34.2%,75.8%,77.2%,100%{transform:scale(1);}6.2%,33.2%,76.2%{transform:scale(.82);}}
+@media (max-width:1100px){.trf-ui{grid-template-columns:minmax(0,1fr) minmax(0,1fr);}.trf-card--agent{grid-column:1 / -1;order:3;}}
 @media (max-width:719px){
   .trf-ui{grid-template-columns:minmax(0,1fr);}
+  .trf-card--agent{order:0;}
   .trf-scene{max-height:9rem;}
+  .trf-ide-body{grid-template-columns:minmax(0,1fr) minmax(0,1fr);}
+  .trf-files{display:none;}
+}
+@media (prefers-reduced-motion:reduce){
+  .trf-cursor{display:none;}
+  .trf-ship--bug,.trf-boom,.trf-shot,.trf-pop,.trf-m1,.trf-n1{opacity:0 !important;}
+  .trf-ship--ok,.trf-tag,.trf-add,.trf-m2,.trf-n2{opacity:1 !important;}
+  .trf-del{text-decoration:line-through;color:#f48771;}
+  .trf-hp-fill--bug{transform:scaleX(0);}
+  .trf-hp-fill--ok{transform:scaleX(.94);}
+  .trf-st{opacity:1;background:color-mix(in srgb,var(--accent) 16%,transparent);}
+}
+@media (prefers-reduced-motion:reduce){
+  .trf-cursor{display:none;}
+  .trf-ship--bug,.trf-boom,.trf-shot,.trf-pop,.trf-m1,.trf-n1{opacity:0 !important;}
+  .trf-ship--ok,.trf-tag,.trf-add,.trf-m2,.trf-n2{opacity:1 !important;}
+  .trf-del{text-decoration:line-through;color:#f48771;}
+  .trf-hp-fill--bug{transform:scaleX(0);}
+  .trf-hp-fill--ok{transform:scaleX(.94);}
+  .trf-st{opacity:1;background:color-mix(in srgb,var(--accent) 16%,transparent);}
+}
+@media (prefers-reduced-motion:reduce){
+  .trf-cursor{display:none;}
+  .trf-ship--bug,.trf-boom,.trf-shot,.trf-pop,.trf-m1,.trf-n1{opacity:0 !important;}
+  .trf-ship--ok,.trf-tag,.trf-add,.trf-m2,.trf-n2{opacity:1 !important;}
+  .trf-del{text-decoration:line-through;color:#f48771;}
+  .trf-hp-fill--bug{transform:scaleX(0);}
+  .trf-hp-fill--ok{transform:scaleX(.94);}
+  .trf-st{opacity:1;background:color-mix(in srgb,var(--accent) 16%,transparent);}
+}
+@media (prefers-reduced-motion:reduce){
+  .trf-cursor{display:none;}
+  .trf-ship--bug,.trf-boom,.trf-shot,.trf-pop,.trf-m1,.trf-n1{opacity:0 !important;}
+  .trf-ship--ok,.trf-tag,.trf-add,.trf-m2,.trf-n2{opacity:1 !important;}
+  .trf-del{text-decoration:line-through;color:#f48771;}
+  .trf-hp-fill--bug{transform:scaleX(0);}
+  .trf-hp-fill--ok{transform:scaleX(.94);}
+  .trf-st{opacity:1;background:color-mix(in srgb,var(--accent) 16%,transparent);}
 }
 @media (prefers-reduced-motion:reduce){
   .trf-cursor{display:none;}
@@ -367,11 +440,13 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .pg-outline-fill{display:block;width:100%;height:100%;background:var(--accent);border-radius:inherit;transform-origin:left top;}
 
 /* Rail: fixed in the left margin; the track runs through the nodes and fills with reading progress. */
-.pg-outline--rail{position:fixed;max-height:calc(100vh - 140px);overflow-y:auto;overflow-x:hidden;scrollbar-width:none;}
+.pg-outline--rail{position:fixed;max-height:calc(100vh - 140px);overflow-y:auto;overflow-x:hidden;scrollbar-width:none;
+  /* Room for the current entry's ring (scaled node plus a 4 px halo), which overflow would otherwise clip. */
+  padding:8px 4px 8px 10px;box-sizing:border-box;}
 .pg-outline--rail .pg-outline-toggle{pointer-events:none;min-height:0;margin:0 0 12px;}
 .pg-outline--rail .pg-outline-now,.pg-outline--rail .pg-outline-chev{display:none;}
 .pg-outline--rail .pg-outline-list{position:relative;display:grid;gap:14px;}
-.pg-outline--rail .pg-outline-track{left:4px;top:34px;bottom:8px;width:2px;}
+.pg-outline--rail .pg-outline-track{left:14px;top:42px;bottom:16px;width:2px;}
 .pg-outline--rail .pg-outline-fill{transform:scaleY(var(--pg-progress));}
 .pg-outline--rail .pg-outline-list a{min-height:28px;line-height:1.3;}
 .pg-outline--rail .pg-outline-list li{min-width:0;}
@@ -574,6 +649,10 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .ide-opt[data-off="true"]{opacity:.45;}
 .ide-toast{position:absolute;right:16px;bottom:34px;z-index:6;padding:8px 12px;border:1px solid #454545;border-radius:6px;background:#252526;box-shadow:0 8px 24px rgba(0,0,0,.4);font-size:12.5px;color:var(--i-hi);}
 .ide-toast[hidden]{display:none;}
+.ide-focus{position:absolute;z-index:4;border-radius:8px;pointer-events:none;outline:2px solid color-mix(in srgb,var(--i-acc) calc(var(--draw,1) * 100%),transparent);outline-offset:0;box-shadow:0 0 0 calc(var(--draw,1) * 4px) color-mix(in srgb,var(--i-acc) 22%,transparent),0 0 24px -4px var(--i-acc);animation:ide-glow 1.6s ease-in-out infinite;}
+.ide-focus[hidden]{display:none;}
+.ide-focus-l{position:absolute;right:8px;top:-11px;padding:1px 8px;border-radius:5px;background:var(--i-acc);color:#06201c;font-size:11px;font-weight:700;white-space:nowrap;max-width:calc(100% - 16px);overflow:hidden;text-overflow:ellipsis;}
+@keyframes ide-glow{50%{box-shadow:0 0 0 6px color-mix(in srgb,var(--i-acc) 14%,transparent),0 0 30px -2px var(--i-acc);}}
 .ide-cursor{position:absolute;left:0;top:0;z-index:7;width:20px;height:20px;pointer-events:none;opacity:0;}
 .ide-cursor svg{width:20px;height:20px;fill:#fff;stroke:#111;stroke-width:1.3;filter:drop-shadow(0 2px 3px rgba(0,0,0,.6));transform:translate(-3px,-2px);}
 .ide-cursor.is-down svg{transform:translate(-3px,-2px) scale(.86);}
@@ -783,11 +862,11 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       <div class="pg-open">
         <h1 data-ty="h1" class="pg-open-title" id="st-intro">Learn the Development Workflow by <span class="gtext">fixing a game</span></h1>
         <p data-ty="lead" class="pg-open-lead">Watch an agent fix a buggy game, one command at a time, then play the result.</p>
-        <figure class="pg-fig trf" aria-label="What this page shows: a buggy game where one small hit destroys the ship, an agent running the six commands of the Development Workflow to fix it while handing off from Claude to OpenAI, and the fixed game, where the same hit costs only a little health.">
+        <figure class="pg-fig trf" aria-label="What this page shows: in the buggy game one 6-damage hit empties the ship's 100-point health bar, which is the bug; an agent then runs the six commands of the Development Workflow in an IDE, fixing the damage code and handing off from Claude to OpenAI along the way; in the fixed game the same hit costs 6 health and the ship flies on.">
           <div class="trf-ui" aria-hidden="true">
-            <div class="trf-card"><p class="trf-cap"><i class="trf-led trf-led--bug"></i>Buggy game</p><div class="trf-arena"><svg viewBox="0 0 200 130" class="trf-scene" aria-hidden="true"><defs><linearGradient id="trfHull" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5aa9ba"/><stop offset=".45" stop-color="#eafcff"/><stop offset="1" stop-color="#3f8797"/></linearGradient><linearGradient id="trfWing" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f6f7d"/><stop offset="1" stop-color="#16424c"/></linearGradient><linearGradient id="trfGlass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9ff3ff"/><stop offset="1" stop-color="#0b4b58"/></linearGradient><linearGradient id="trfFoe" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fca5a5"/><stop offset=".5" stop-color="#b91c1c"/><stop offset="1" stop-color="#450a0a"/></linearGradient><radialGradient id="trfBoom"><stop offset="0" stop-color="#fff7d6"/><stop offset=".4" stop-color="#fbbf24"/><stop offset="1" stop-color="#ef4444" stop-opacity="0"/></radialGradient></defs><rect class="trf-sky" x="0" y="0" width="200" height="130" rx="10"/><circle class="trf-star" cx="18" cy="14" r="0.9"/><circle class="trf-star" cx="46" cy="52" r="0.6"/><circle class="trf-star" cx="160" cy="18" r="0.8"/><circle class="trf-star" cx="184" cy="70" r="0.6"/><circle class="trf-star" cx="30" cy="96" r="0.7"/><circle class="trf-star" cx="150" cy="112" r="0.6"/><circle class="trf-star" cx="82" cy="8" r="0.5"/><circle class="trf-star" cx="126" cy="44" r="0.5"/><circle class="trf-star" cx="8" cy="64" r="0.5"/><circle class="trf-star" cx="192" cy="118" r="0.7"/><g transform="translate(100 26)"><path fill="url(#trfFoe)" d="M0 12 L-9 -2 L-22 -6 L-16 -10 L-6 -8 L0 -14 L6 -8 L16 -10 L22 -6 L9 -2 Z"/><circle cx="0" cy="-3" r="2.6" fill="#fde68a"/></g><rect class="trf-shot trf-shot--bug" x="98.5" y="38" width="3" height="10" rx="1.5"/><g class="trf-ship trf-ship--bug" transform="translate(100 100)"><path class="trf-flame" d="M-4 14 L0 27 L4 14 Z"/><path fill="url(#trfWing)" d="M-5 -2 L-27 12 L-27 17 L-8 13 L-6 9 Z M5 -2 L27 12 L27 17 L8 13 L6 9 Z"/><path fill="url(#trfHull)" d="M0 -24 C5 -16 7 -6 7 4 L6 14 L-6 14 L-7 4 C-7 -6 -5 -16 0 -24 Z"/><path fill="url(#trfGlass)" d="M0 -15 C3 -10 3.4 -5 3 -1 L-3 -1 C-3.4 -5 -3 -10 0 -15 Z"/><path class="trf-line" d="M0 2 V12 M-17 12 L-6 8 M17 12 L6 8"/></g><circle class="trf-boom trf-boom--bug" cx="100" cy="100" r="22" fill="url(#trfBoom)"/></svg><p class="trf-tag trf-tag--bug">Destroyed by one 6-damage hit</p></div><div class="trf-hp"><span>Health</span><b><i class="trf-hp-fill trf-hp-fill--bug"></i></b><em><span class="trf-n1">100</span></em></div><span class="trf-btn trf-btn--a">Play</span></div>
-            <div class="trf-card trf-card--agent"><p class="trf-cap">Agent</p><ol class="trf-steps"><li class="trf-st" data-k="0">/describe</li><li class="trf-st" data-k="1">/review</li><li class="trf-st" data-k="2">/plan</li><li class="trf-st" data-k="3">/implement</li><li class="trf-st" data-k="4">/test</li><li class="trf-st" data-k="5">/update</li></ol><div class="trf-diff"><code class="trf-del">return { ...ship, destroyed: true };</code><code class="trf-add">health: ship.health - DAMAGE[source],</code></div><div class="trf-model"><span class="trf-names"><span class="trf-m1">Claude Opus 5.5</span><span class="trf-m2">GPT-6.1 Sol</span></span><b class="trf-use"><i></i></b></div><span class="trf-btn trf-btn--b">Send</span></div>
-            <div class="trf-card"><p class="trf-cap"><i class="trf-led trf-led--ok"></i>Fixed game</p><div class="trf-arena"><svg viewBox="0 0 200 130" class="trf-scene" aria-hidden="true"><rect class="trf-sky" x="0" y="0" width="200" height="130" rx="10"/><circle class="trf-star" cx="18" cy="14" r="0.9"/><circle class="trf-star" cx="46" cy="52" r="0.6"/><circle class="trf-star" cx="160" cy="18" r="0.8"/><circle class="trf-star" cx="184" cy="70" r="0.6"/><circle class="trf-star" cx="30" cy="96" r="0.7"/><circle class="trf-star" cx="150" cy="112" r="0.6"/><circle class="trf-star" cx="82" cy="8" r="0.5"/><circle class="trf-star" cx="126" cy="44" r="0.5"/><circle class="trf-star" cx="8" cy="64" r="0.5"/><circle class="trf-star" cx="192" cy="118" r="0.7"/><g transform="translate(100 26)"><path fill="url(#trfFoe)" d="M0 12 L-9 -2 L-22 -6 L-16 -10 L-6 -8 L0 -14 L6 -8 L16 -10 L22 -6 L9 -2 Z"/><circle cx="0" cy="-3" r="2.6" fill="#fde68a"/></g><rect class="trf-shot trf-shot--ok" x="98.5" y="38" width="3" height="10" rx="1.5"/><g class="trf-ship trf-ship--ok" transform="translate(100 100)"><path class="trf-flame" d="M-4 14 L0 27 L4 14 Z"/><path fill="url(#trfWing)" d="M-5 -2 L-27 12 L-27 17 L-8 13 L-6 9 Z M5 -2 L27 12 L27 17 L8 13 L6 9 Z"/><path fill="url(#trfHull)" d="M0 -24 C5 -16 7 -6 7 4 L6 14 L-6 14 L-7 4 C-7 -6 -5 -16 0 -24 Z"/><path fill="url(#trfGlass)" d="M0 -15 C3 -10 3.4 -5 3 -1 L-3 -1 C-3.4 -5 -3 -10 0 -15 Z"/><path class="trf-line" d="M0 2 V12 M-17 12 L-6 8 M17 12 L6 8"/></g><circle class="trf-boom trf-boom--ok" cx="100" cy="100" r="22" fill="url(#trfBoom)"/></svg><p class="trf-tag trf-tag--ok">6 damage, still flying</p></div><div class="trf-hp"><span>Health</span><b><i class="trf-hp-fill trf-hp-fill--ok"></i></b><em><span class="trf-n1">100</span><span class="trf-n2">94</span></em></div><span class="trf-btn trf-btn--c">Play</span></div>
+            <div class="trf-card trf-card--bug"><p class="trf-cap"><i class="trf-led trf-led--bug"></i>Buggy game</p><div class="trf-arena"><svg viewBox="0 0 200 130" class="trf-scene" aria-hidden="true"><defs><linearGradient id="trfSteel" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5d7180"/><stop offset=".5" stop-color="#e8f1f6"/><stop offset="1" stop-color="#4c5f6d"/></linearGradient><linearGradient id="trfWing" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3b4956"/><stop offset="1" stop-color="#161e26"/></linearGradient><radialGradient id="trfCore"><stop offset="0" stop-color="#e0fbff"/><stop offset=".5" stop-color="#22d3ee"/><stop offset="1" stop-color="#22d3ee" stop-opacity="0"/></radialGradient><linearGradient id="trfFoe" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a3f47"/><stop offset="1" stop-color="#121418"/></linearGradient><radialGradient id="trfFoeCore"><stop offset="0" stop-color="#ffe4e6"/><stop offset=".45" stop-color="#ef4444"/><stop offset="1" stop-color="#ef4444" stop-opacity="0"/></radialGradient><radialGradient id="trfBoom"><stop offset="0" stop-color="#fff7d6"/><stop offset=".4" stop-color="#fbbf24"/><stop offset="1" stop-color="#ef4444" stop-opacity="0"/></radialGradient></defs><rect class="trf-sky" x="0" y="0" width="200" height="130" rx="10"/><circle class="trf-star" cx="18" cy="14" r="0.9"/><circle class="trf-star" cx="46" cy="52" r="0.6"/><circle class="trf-star" cx="160" cy="18" r="0.8"/><circle class="trf-star" cx="184" cy="70" r="0.6"/><circle class="trf-star" cx="30" cy="96" r="0.7"/><circle class="trf-star" cx="150" cy="112" r="0.6"/><circle class="trf-star" cx="82" cy="8" r="0.5"/><circle class="trf-star" cx="126" cy="44" r="0.5"/><circle class="trf-star" cx="8" cy="64" r="0.5"/><circle class="trf-star" cx="192" cy="118" r="0.7"/><g transform="translate(100 26)"><path fill="url(#trfFoe)" d="M0 14 L-8 0 L-24 -4 L-18 -10 L-6 -8 L0 -16 L6 -8 L18 -10 L24 -4 L8 0 Z"/><path class="trf-foe-edge" d="M-24 -4 L-8 0 L0 14 L8 0 L24 -4"/><circle cx="0" cy="-3" r="5" fill="url(#trfFoeCore)"/></g><rect class="trf-shot trf-shot--bug" x="98.5" y="40" width="3" height="11" rx="1.5"/><g class="trf-ship trf-ship--bug" transform="translate(100 98)"><ellipse class="trf-thrust" cx="-9" cy="20" rx="3" ry="7"/><ellipse class="trf-thrust" cx="9" cy="20" rx="3" ry="7"/><path fill="url(#trfWing)" d="M-6 -6 L-30 8 L-32 16 L-12 12 L-8 16 Z M6 -6 L30 8 L32 16 L12 12 L8 16 Z"/><path class="trf-edge" d="M-6 -6 L-30 8 L-32 16 M6 -6 L30 8 L32 16"/><rect fill="url(#trfWing)" x="-13" y="2" width="7" height="17" rx="3"/><rect fill="url(#trfWing)" x="6" y="2" width="7" height="17" rx="3"/><path fill="url(#trfSteel)" d="M0 -26 L6 -16 L7 2 L5 16 L-5 16 L-7 2 L-6 -16 Z"/><path class="trf-panel" d="M-4 -12 H4 M-5 -4 H5 M-5 4 H5"/><circle cx="0" cy="-1" r="5" fill="url(#trfCore)"/></g><circle class="trf-boom trf-boom--bug" cx="100" cy="94" r="26" fill="url(#trfBoom)"/><text class="trf-pop trf-pop--bug" x="122" y="78">-6</text></svg></div><div class="trf-hp trf-hp--bug"><span>Health</span><b><i class="trf-hp-fill trf-hp-fill--bug"></i></b><em><span class="trf-n1">100</span><span class="trf-n2">0</span></em></div><p class="trf-tag trf-tag--bug">The bug: 6 damage emptied a 100-point bar</p><span class="trf-btn trf-btn--a">Play</span></div>
+            <div class="trf-card trf-card--agent"><p class="trf-cap">The agent runs the workflow</p><div class="trf-ide"><div class="trf-ide-bar"><i></i><i></i><i></i><span>nexus-defenders</span></div><div class="trf-ide-body"><ul class="trf-files"><li>docs</li><li class="trf-f-on">damage.js</li><li>hazards.js</li><li>game.js</li></ul><div class="trf-editor"><p class="trf-tab">damage.js</p><ol class="trf-code"><li><span class="k">export function</span> applyHit(ship, source) {</li><li class="trf-del">  return { ...ship, destroyed: true };</li><li class="trf-add">  const health = ship.health - DAMAGE[source];</li><li class="trf-add trf-add2">  return { ...ship, health, destroyed: health &lt;= 0 };</li><li>}</li></ol></div><div class="trf-chat"><ol class="trf-steps"><li class="trf-st" data-k="0"><code>/describe</code></li><li class="trf-st" data-k="1"><code>/review</code></li><li class="trf-st" data-k="2"><code>/plan</code></li><li class="trf-st" data-k="3"><code>/implement</code></li><li class="trf-st" data-k="4"><code>/test</code></li><li class="trf-st" data-k="5"><code>/update</code></li></ol><div class="trf-model"><span class="trf-names"><span class="trf-m1">Claude Opus 5.5</span><span class="trf-m2">GPT-6.1 Sol</span></span><b class="trf-use"><i></i></b></div><span class="trf-btn trf-btn--b">Send</span></div></div></div></div>
+            <div class="trf-card trf-card--ok"><p class="trf-cap"><i class="trf-led trf-led--ok"></i>Fixed game</p><div class="trf-arena"><svg viewBox="0 0 200 130" class="trf-scene" aria-hidden="true"><rect class="trf-sky" x="0" y="0" width="200" height="130" rx="10"/><circle class="trf-star" cx="18" cy="14" r="0.9"/><circle class="trf-star" cx="46" cy="52" r="0.6"/><circle class="trf-star" cx="160" cy="18" r="0.8"/><circle class="trf-star" cx="184" cy="70" r="0.6"/><circle class="trf-star" cx="30" cy="96" r="0.7"/><circle class="trf-star" cx="150" cy="112" r="0.6"/><circle class="trf-star" cx="82" cy="8" r="0.5"/><circle class="trf-star" cx="126" cy="44" r="0.5"/><circle class="trf-star" cx="8" cy="64" r="0.5"/><circle class="trf-star" cx="192" cy="118" r="0.7"/><g transform="translate(100 26)"><path fill="url(#trfFoe)" d="M0 14 L-8 0 L-24 -4 L-18 -10 L-6 -8 L0 -16 L6 -8 L18 -10 L24 -4 L8 0 Z"/><path class="trf-foe-edge" d="M-24 -4 L-8 0 L0 14 L8 0 L24 -4"/><circle cx="0" cy="-3" r="5" fill="url(#trfFoeCore)"/></g><rect class="trf-shot trf-shot--ok" x="98.5" y="40" width="3" height="11" rx="1.5"/><g class="trf-ship trf-ship--ok" transform="translate(100 98)"><ellipse class="trf-thrust" cx="-9" cy="20" rx="3" ry="7"/><ellipse class="trf-thrust" cx="9" cy="20" rx="3" ry="7"/><path fill="url(#trfWing)" d="M-6 -6 L-30 8 L-32 16 L-12 12 L-8 16 Z M6 -6 L30 8 L32 16 L12 12 L8 16 Z"/><path class="trf-edge" d="M-6 -6 L-30 8 L-32 16 M6 -6 L30 8 L32 16"/><rect fill="url(#trfWing)" x="-13" y="2" width="7" height="17" rx="3"/><rect fill="url(#trfWing)" x="6" y="2" width="7" height="17" rx="3"/><path fill="url(#trfSteel)" d="M0 -26 L6 -16 L7 2 L5 16 L-5 16 L-7 2 L-6 -16 Z"/><path class="trf-panel" d="M-4 -12 H4 M-5 -4 H5 M-5 4 H5"/><circle cx="0" cy="-1" r="5" fill="url(#trfCore)"/></g><circle class="trf-boom trf-boom--ok" cx="100" cy="94" r="26" fill="url(#trfBoom)"/><text class="trf-pop trf-pop--ok" x="122" y="78">-6</text></svg></div><div class="trf-hp trf-hp--ok"><span>Health</span><b><i class="trf-hp-fill trf-hp-fill--ok"></i></b><em><span class="trf-n1">100</span><span class="trf-n2">94</span></em></div><p class="trf-tag trf-tag--ok">6 damage, still flying</p><span class="trf-btn trf-btn--c">Play</span></div>
             <span class="trf-cursor"><svg viewBox="0 0 24 24"><path d="M5 3l14 9-6.5 1.6L9 20z"/></svg></span>
           </div>
           <script>
@@ -845,15 +924,15 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 {
  "version": 3,
  "project": {
-  "name": "sky-sentinel",
+  "name": "nexus-defenders",
   "files": [
    {
     "path": "README.md",
-    "code": "# Sky Sentinel\n\nA small canvas shooter. The ship has a health bar and an\noptional shield; each hit costs the damage its source deals.\n\nRun it with `npm start`. Play a seeded run with\n`node scripts/play.js --seed 4242`."
+    "code": "# Nexus Defenders\n\nA small canvas shooter. The ship has a health bar and an\noptional shield; each hit costs the damage its source deals.\n\nRun it with `npm start`. Play a seeded run with\n`node scripts/play.js --seed 4242`."
    },
    {
     "path": "package.json",
-    "code": "{\n  \"name\": \"sky-sentinel\",\n  \"version\": \"1.0.0\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"start\": \"node scripts/play.js\",\n    \"lint\": \"eslint src\",\n    \"test\": \"vitest run\"\n  }\n}"
+    "code": "{\n  \"name\": \"nexus-defenders\",\n  \"version\": \"1.0.0\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"start\": \"node scripts/play.js\",\n    \"lint\": \"eslint src\",\n    \"test\": \"vitest run\"\n  }\n}"
    },
    {
     "path": "scripts/play.js",
@@ -1002,13 +1081,15 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
        "kind": "write",
        "label": "Write docs/describe.md",
        "file": "docs/describe.md",
-       "content": "# Sky Sentinel: description\n\n## What it is\nA small canvas shooter. One ship with a health bar and\nan optional shield, enemies that fire, asteroids, a score.\n\n## Map\n| File | Role |\n|---|---|\n| `src/game.js` | One frame: move, hazards, hits |\n| `src/damage.js` | The damage table and what a hit does |\n| `src/hazards.js` | Asteroids and timed hazards |\n| `src/render.js` | Draws a frame, never changes state |\n| `scripts/play.js` | Plays a seeded run headless |\n\n## How a hit travels\n1. `game.js` finds each hit on the ship and its source.\n2. It calls `applyHit(ship, source)` in `damage.js`.\n3. The returned ship replaces the old one.\n\n## Worth knowing first\n- No automated tests: `npm test` finds nothing to run.\n- `applyHit` has a TODO: it predates health.\n- `hazards.js` can end a run on its own (`explodeShip`)."
+       "content": "# Nexus Defenders: description\n\n## What it is\nA small canvas shooter. One ship with a health bar and\nan optional shield, enemies that fire, asteroids, a score.\n\n## Map\n| File | Role |\n|---|---|\n| `src/game.js` | One frame: move, hazards, hits |\n| `src/damage.js` | The damage table and what a hit does |\n| `src/hazards.js` | Asteroids and timed hazards |\n| `src/render.js` | Draws a frame, never changes state |\n| `scripts/play.js` | Plays a seeded run headless |\n\n## How a hit travels\n1. `game.js` finds each hit on the ship and its source.\n2. It calls `applyHit(ship, source)` in `damage.js`.\n3. The returned ship replaces the old one.\n\n## Worth knowing first\n- No automated tests: `npm test` finds nothing to run.\n- `applyHit` has a TODO: it predates health.\n- `hazards.js` can end a run on its own (`explodeShip`).",
+       "mark": "Generated: the codebase description"
       }
      ]
     },
     {
      "do": "reply",
-     "text": "## Sky Sentinel, mapped\n\nA small canvas shooter: one ship with a **health bar** and an optional shield, enemies that fire, and asteroids.\n\n### Map\n| File | Role |\n|---|---|\n| `src/game.js` | One frame: move, hazards, hits |\n| `src/damage.js` | The damage table and what a hit does |\n| `src/hazards.js` | Asteroids and timed hazards |\n| `src/render.js` | Draws a frame |\n\n### Worth knowing first\n- **No automated tests.** `npm test` has nothing to run.\n- `applyHit` carries a TODO: it was written before health existed.\n- `hazards.js` can end a run on its own through `explodeShip`.\n\nSaved to `docs/describe.md`."
+     "text": "## Nexus Defenders, mapped\n\nA small canvas shooter: one ship with a **health bar** and an optional shield, enemies that fire, and asteroids.\n\n### Map\n| File | Role |\n|---|---|\n| `src/game.js` | One frame: move, hazards, hits |\n| `src/damage.js` | The damage table and what a hit does |\n| `src/hazards.js` | Asteroids and timed hazards |\n| `src/render.js` | Draws a frame |\n\n### Worth knowing first\n- **No automated tests.** `npm test` has nothing to run.\n- `applyHit` carries a TODO: it was written before health existed.\n- `hazards.js` can end a run on its own through `explodeShip`.\n\nSaved to `docs/describe.md`.",
+     "mark": "The project map"
     }
    ]
   },
@@ -1081,13 +1162,15 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
        "kind": "write",
        "label": "Write docs/review.md",
        "file": "docs/review.md",
-       "content": "# Review\n\n## P1: any hit destroys the ship\n**Where**: `src/damage.js`, `applyHit`\n**Rule broken**: a hit costs the damage its source deals (README).\n\n- `applyHit` returns `destroyed: true` for every hit.\n- `DAMAGE`, `ship.health`, and `ship.shield` are never read.\n\n### Reproduction\n`node scripts/play.js --seed 4242 --until first-hit`\nends at tick 512: a 6-damage chunk, with 100 health left.\n\n## P2: the ship explodes with no hit\n**Where**: `src/hazards.js`, `tickHazards`\n\n- A self-test from the debris prototype calls\n  `explodeShip(state, 'self-test')` at random after tick 1200.\n- With hits ignored, 37 of 50 seeded runs of 20,000 ticks\n  were destroyed with no hit, the first at tick 1386.\n\n## Not checked\n- Rendering and input: outside what a seeded run can see."
+       "content": "# Review\n\n## P1: any hit destroys the ship\n**Where**: `src/damage.js`, `applyHit`\n**Rule broken**: a hit costs the damage its source deals (README).\n\n- `applyHit` returns `destroyed: true` for every hit.\n- `DAMAGE`, `ship.health`, and `ship.shield` are never read.\n\n### Reproduction\n`node scripts/play.js --seed 4242 --until first-hit`\nends at tick 512: a 6-damage chunk, with 100 health left.\n\n## P2: the ship explodes with no hit\n**Where**: `src/hazards.js`, `tickHazards`\n\n- A self-test from the debris prototype calls\n  `explodeShip(state, 'self-test')` at random after tick 1200.\n- With hits ignored, 37 of 50 seeded runs of 20,000 ticks\n  were destroyed with no hit, the first at tick 1386.\n\n## Not checked\n- Rendering and input: outside what a seeded run can see.",
+       "mark": "Generated: the review report"
       }
      ]
     },
     {
      "do": "reply",
-     "text": "## Review: 2 findings\n\n### P1: any hit destroys the ship\n**Where:** `src/damage.js`, `applyHit`\n\n- Every hit returns `destroyed: true`; the damage table, health, and shield are never read.\n- Seed 4242 ends at tick 512 on a **6-damage chunk with 100 health left**.\n\n### P2: the ship explodes with no hit\n**Where:** `src/hazards.js`, `tickHazards`\n\n- A leftover **self-test** calls `explodeShip(state, 'self-test')` at random after tick 1200.\n- With hits ignored, **37 of 50** long runs were destroyed with no hit.\n\nFull report: `docs/review.md`."
+     "text": "## Review: 2 findings\n\n### P1: any hit destroys the ship\n**Where:** `src/damage.js`, `applyHit`\n\n- Every hit returns `destroyed: true`; the damage table, health, and shield are never read.\n- Seed 4242 ends at tick 512 on a **6-damage chunk with 100 health left**.\n\n### P2: the ship explodes with no hit\n**Where:** `src/hazards.js`, `tickHazards`\n\n- A leftover **self-test** calls `explodeShip(state, 'self-test')` at random after tick 1200.\n- With hits ignored, **37 of 50** long runs were destroyed with no hit.\n\nFull report: `docs/review.md`.",
+     "mark": "Two findings, with evidence"
     }
    ]
   },
@@ -1145,13 +1228,15 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
        "kind": "write",
        "label": "Write docs/plans/v1.1.0-damage-fix.md",
        "file": "docs/plans/v1.1.0-damage-fix.md",
-       "content": "# Plan: damage fix\n\n**Version**: v1.1.0\n**Goal**: a hit costs health; nothing else ends the run.\n**Sources**: docs/describe.md, docs/review.md (P1, P2)\n\n## Phase 1: health and shield (P1)\n- `applyHit` takes the damage from `DAMAGE`: the shield\n  absorbs first, then health; the run ends at zero.\n- A short invulnerability window follows a hit (60 ticks).\n- Check: seed 4242 survives its first hit.\n\n## Phase 2: remove the self-test (P2)\n- Delete the self-test block, its two constants, and the\n  `explodeShip` import from `hazards.js`.\n- Asteroid movement must not change.\n\n## Definition of done\n- [ ] Seed 4242 survives its first hit (100 to 94 health)\n- [ ] No run is destroyed without a hit (50 seeds x 20,000 ticks)\n- [ ] Tests pin both rules and fail on v1.0.0\n- [ ] v1.1.0 is tagged"
+       "content": "# Plan: damage fix\n\n**Version**: v1.1.0\n**Goal**: a hit costs health; nothing else ends the run.\n**Sources**: docs/describe.md, docs/review.md (P1, P2)\n\n## Phase 1: health and shield (P1)\n- `applyHit` takes the damage from `DAMAGE`: the shield\n  absorbs first, then health; the run ends at zero.\n- A short invulnerability window follows a hit (60 ticks).\n- Check: seed 4242 survives its first hit.\n\n## Phase 2: remove the self-test (P2)\n- Delete the self-test block, its two constants, and the\n  `explodeShip` import from `hazards.js`.\n- Asteroid movement must not change.\n\n## Definition of done\n- [ ] Seed 4242 survives its first hit (100 to 94 health)\n- [ ] No run is destroyed without a hit (50 seeds x 20,000 ticks)\n- [ ] Tests pin both rules and fail on v1.0.0\n- [ ] v1.1.0 is tagged",
+       "mark": "Generated: the plan"
       }
      ]
     },
     {
      "do": "reply",
-     "text": "## Plan v1.1.0: the damage fix\n\n**Goal:** a hit costs health; nothing else ends the run.\n\n### Phases\n1. **Health and shield** (P1): `applyHit` takes its damage from `DAMAGE`, the shield first, with a 60-tick invulnerability window.\n2. **Remove the self-test** (P2): delete it from `hazards.js` without changing asteroid movement.\n\n### Definition of done\n- Seed 4242 survives its first hit.\n- No run is destroyed without a hit.\n- Tests pin both rules; v1.1.0 is tagged.\n\nSaved to `docs/plans/v1.1.0-damage-fix.md`."
+     "text": "## Plan v1.1.0: the damage fix\n\n**Goal:** a hit costs health; nothing else ends the run.\n\n### Phases\n1. **Health and shield** (P1): `applyHit` takes its damage from `DAMAGE`, the shield first, with a 60-tick invulnerability window.\n2. **Remove the self-test** (P2): delete it from `hazards.js` without changing asteroid movement.\n\n### Definition of done\n- Seed 4242 survives its first hit.\n- No run is destroyed without a hit.\n- Tests pin both rules; v1.1.0 is tagged.\n\nSaved to `docs/plans/v1.1.0-damage-fix.md`.",
+     "mark": "The phases and the definition of done"
     }
    ]
   },
@@ -1195,7 +1280,8 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
        "kind": "edit",
        "label": "Edit src/damage.js: health, shield, invulnerability",
        "file": "src/damage.js",
-       "content": "// Damage per source, from the design doc. Smaller rocks hurt less.\nexport const DAMAGE = { shot: 12, beam: 30, blast: 25, rock: 18, chunk: 6 };\nexport const INVULNERABLE_TICKS = 60;\n\n// Applies one hit: the shield absorbs first, then health.\n// The run ends only when health reaches zero.\nexport function applyHit(ship, source) {\n  if (ship.invulnerableTicks > 0) return ship;\n  const amount = DAMAGE[source];\n  const shield = Math.max(0, ship.shield - amount);\n  const rest = amount - (ship.shield - shield);\n  const health = Math.max(0, ship.health - rest);\n  return {\n    ...ship,\n    shield,\n    health,\n    destroyed: health === 0,\n    invulnerableTicks: health > 0 ? INVULNERABLE_TICKS : 0,\n  };\n}\n\n// Ends the run at once, with a reason for the game-over screen.\nexport function explodeShip(state, reason) {\n  return { ...state, ship: { ...state.ship, destroyed: true, reason } };\n}"
+       "content": "// Damage per source, from the design doc. Smaller rocks hurt less.\nexport const DAMAGE = { shot: 12, beam: 30, blast: 25, rock: 18, chunk: 6 };\nexport const INVULNERABLE_TICKS = 60;\n\n// Applies one hit: the shield absorbs first, then health.\n// The run ends only when health reaches zero.\nexport function applyHit(ship, source) {\n  if (ship.invulnerableTicks > 0) return ship;\n  const amount = DAMAGE[source];\n  const shield = Math.max(0, ship.shield - amount);\n  const rest = amount - (ship.shield - shield);\n  const health = Math.max(0, ship.health - rest);\n  return {\n    ...ship,\n    shield,\n    health,\n    destroyed: health === 0,\n    invulnerableTicks: health > 0 ? INVULNERABLE_TICKS : 0,\n  };\n}\n\n// Ends the run at once, with a reason for the game-over screen.\nexport function explodeShip(state, reason) {\n  return { ...state, ship: { ...state.ship, destroyed: true, reason } };\n}",
+       "mark": "Changed: a hit now costs health"
       },
       {
        "kind": "run",
@@ -1211,7 +1297,8 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
     },
     {
      "do": "reply",
-     "text": "## Phase 1 of 2 done\n\n`applyHit` now uses the damage table.\n\n- The **shield absorbs first**, then health; the run ends at zero.\n- A **60-tick invulnerability** window follows each hit.\n\n| Check | Result |\n|---|---|\n| Lint | pass |\n| Seed 4242 survives its first hit | pass (100 to 94) |"
+     "text": "## Phase 1 of 2 done\n\n`applyHit` now uses the damage table.\n\n- The **shield absorbs first**, then health; the run ends at zero.\n- A **60-tick invulnerability** window follows each hit.\n\n| Check | Result |\n|---|---|\n| Lint | pass |\n| Seed 4242 survives its first hit | pass (100 to 94) |",
+     "mark": "Phase 1 checks"
     },
     {
      "do": "limit",
@@ -1234,13 +1321,15 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
        "kind": "write",
        "label": "Write .nexus-hub/handoff.md",
        "file": ".nexus-hub/handoff.md",
-       "content": "# Handoff\n\n**Task**: implement docs/plans/v1.1.0-damage-fix.md\n**Why**: Anthropic usage limit reached mid-plan.\n\n## Done\n- Phase 1 (P1): `applyHit` uses `DAMAGE`; shield first,\n  then health; 60-tick invulnerability. Lint clean.\n  Seed 4242 survives its first hit (100 to 94).\n\n## Next\n- Phase 2 (P2): remove the self-test from\n  `src/hazards.js` (block, two constants, unused import).\n- Then check: 50 seeds x 20,000 ticks, none destroyed\n  without a hit.\n\n## State\n- Branch `fix/damage`, working tree clean, nothing pushed."
+       "content": "# Handoff\n\n**Task**: implement docs/plans/v1.1.0-damage-fix.md\n**Why**: Anthropic usage limit reached mid-plan.\n\n## Done\n- Phase 1 (P1): `applyHit` uses `DAMAGE`; shield first,\n  then health; 60-tick invulnerability. Lint clean.\n  Seed 4242 survives its first hit (100 to 94).\n\n## Next\n- Phase 2 (P2): remove the self-test from\n  `src/hazards.js` (block, two constants, unused import).\n- Then check: 50 seeds x 20,000 ticks, none destroyed\n  without a hit.\n\n## State\n- Branch `fix/damage`, working tree clean, nothing pushed.",
+       "mark": "Generated: the handoff"
       }
      ]
     },
     {
      "do": "reply",
-     "text": "## Handoff ready\n\nSaved to `.nexus-hub/handoff.md`. Paste this into any agent to continue:\n\n```text\nResume the task in .nexus-hub/handoff.md: implement docs/plans/v1.1.0-damage-fix.md. Phase 1 is done; continue with Phase 2 and its check.\n```"
+     "text": "## Handoff ready\n\nSaved to `.nexus-hub/handoff.md`. Paste this into any agent to continue:\n\n```text\nResume the task in .nexus-hub/handoff.md: implement docs/plans/v1.1.0-damage-fix.md. Phase 1 is done; continue with Phase 2 and its check.\n```",
+     "mark": "The resume prompt to copy"
     },
     {
      "do": "copy"
@@ -1280,7 +1369,8 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
        "kind": "edit",
        "label": "Edit src/hazards.js: remove the self-test",
        "file": "src/hazards.js",
-       "content": "import { moveAsteroids } from './physics.js';\n\nexport function tickHazards(state) {\n  return moveAsteroids(state);\n}"
+       "content": "import { moveAsteroids } from './physics.js';\n\nexport function tickHazards(state) {\n  return moveAsteroids(state);\n}",
+       "mark": "Removed: the self-test"
       },
       {
        "kind": "run",
@@ -1296,7 +1386,8 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
     },
     {
      "do": "reply",
-     "text": "## Phase 2 of 2 done, from the handoff\n\nPicked up from `.nexus-hub/handoff.md` with no context lost.\n\n- Removed the self-test block, both constants, and the unused import.\n- **Asteroid movement is unchanged.**\n\n| Check | Result |\n|---|---|\n| Lint | pass |\n| 50 long runs, none destroyed without a hit | pass |\n\nThe plan's code changes are complete."
+     "text": "## Phase 2 of 2 done, from the handoff\n\nPicked up from `.nexus-hub/handoff.md` with no context lost.\n\n- Removed the self-test block, both constants, and the unused import.\n- **Asteroid movement is unchanged.**\n\n| Check | Result |\n|---|---|\n| Lint | pass |\n| 50 long runs, none destroyed without a hit | pass |\n\nThe plan's code changes are complete.",
+     "mark": "Phase 2, finished on OpenAI"
     }
    ]
   },
@@ -1344,13 +1435,15 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
        "kind": "write",
        "label": "Write tests/damage.test.js",
        "file": "tests/damage.test.js",
-       "content": "import { test, expect } from 'vitest';\nimport { applyHit, DAMAGE, INVULNERABLE_TICKS } from '../src/damage.js';\n\nconst ship = (o) => ({ health: 100, shield: 0, invulnerableTicks: 0, ...o });\n\ntest('a hit costs the damage its source deals', () => {\n  const hit = applyHit(ship(), 'chunk');\n  expect(hit.health).toBe(100 - DAMAGE.chunk);\n  expect(hit.destroyed).toBe(false);\n  expect(hit.invulnerableTicks).toBe(INVULNERABLE_TICKS);\n});\n\ntest('the shield absorbs damage first', () => {\n  const hit = applyHit(ship({ shield: 20 }), 'beam');\n  expect(hit.shield).toBe(0);\n  expect(hit.health).toBe(90);\n});\n\ntest('a hit while invulnerable costs nothing', () => {\n  const s = ship({ invulnerableTicks: 30 });\n  expect(applyHit(s, 'shot')).toBe(s);\n});\n\ntest('zero health ends the run', () => {\n  expect(applyHit(ship({ health: 5 }), 'rock').destroyed).toBe(true);\n});"
+       "content": "import { test, expect } from 'vitest';\nimport { applyHit, DAMAGE, INVULNERABLE_TICKS } from '../src/damage.js';\n\nconst ship = (o) => ({ health: 100, shield: 0, invulnerableTicks: 0, ...o });\n\ntest('a hit costs the damage its source deals', () => {\n  const hit = applyHit(ship(), 'chunk');\n  expect(hit.health).toBe(100 - DAMAGE.chunk);\n  expect(hit.destroyed).toBe(false);\n  expect(hit.invulnerableTicks).toBe(INVULNERABLE_TICKS);\n});\n\ntest('the shield absorbs damage first', () => {\n  const hit = applyHit(ship({ shield: 20 }), 'beam');\n  expect(hit.shield).toBe(0);\n  expect(hit.health).toBe(90);\n});\n\ntest('a hit while invulnerable costs nothing', () => {\n  const s = ship({ invulnerableTicks: 30 });\n  expect(applyHit(s, 'shot')).toBe(s);\n});\n\ntest('zero health ends the run', () => {\n  expect(applyHit(ship({ health: 5 }), 'rock').destroyed).toBe(true);\n});",
+       "mark": "Generated: the damage tests"
       },
       {
        "kind": "write",
        "label": "Write tests/hazards.test.js",
        "file": "tests/hazards.test.js",
-       "content": "import { test, expect } from 'vitest';\nimport { runSeeded } from '../src/run.js';\n\n// Every destroyed run must end on a recorded hit, however long it lasts.\ntest('nothing destroys the ship without a hit, across 500 seeds', () => {\n  for (let seed = 1; seed <= 500; seed++) {\n    const run = runSeeded({ seed, ticks: 20000 });\n    if (run.destroyed) expect(run.lastHit).not.toBeNull();\n  }\n});"
+       "content": "import { test, expect } from 'vitest';\nimport { runSeeded } from '../src/run.js';\n\n// Every destroyed run must end on a recorded hit, however long it lasts.\ntest('nothing destroys the ship without a hit, across 500 seeds', () => {\n  for (let seed = 1; seed <= 500; seed++) {\n    const run = runSeeded({ seed, ticks: 20000 });\n    if (run.destroyed) expect(run.lastHit).not.toBeNull();\n  }\n});",
+       "mark": "Generated: the long-run test"
       },
       {
        "kind": "run",
@@ -1366,7 +1459,8 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
     },
     {
      "do": "reply",
-     "text": "## 5 tests, all passing\n\n| Test | Pins |\n|---|---|\n| a hit costs its damage | 100 to 94 on a chunk |\n| the shield absorbs first | beam: shield 20 to 0, health 90 |\n| nothing while invulnerable | the window holds |\n| zero health ends the run | game over at zero |\n| no explosion without a hit | 500 seeds x 20,000 ticks |\n\nEach test **fails on v1.0.0**, so neither bug can come back unnoticed."
+     "text": "## 5 tests, all passing\n\n| Test | Pins |\n|---|---|\n| a hit costs its damage | 100 to 94 on a chunk |\n| the shield absorbs first | beam: shield 20 to 0, health 90 |\n| nothing while invulnerable | the window holds |\n| zero health ends the run | game over at zero |\n| no explosion without a hit | 500 seeds x 20,000 ticks |\n\nEach test **fails on v1.0.0**, so neither bug can come back unnoticed.",
+     "mark": "What each test pins"
     }
    ]
   },
@@ -1410,13 +1504,15 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
        "kind": "edit",
        "label": "Edit package.json: version 1.1.0",
        "file": "package.json",
-       "content": "{\n  \"name\": \"sky-sentinel\",\n  \"version\": \"1.1.0\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"start\": \"node scripts/play.js\",\n    \"lint\": \"eslint src\",\n    \"test\": \"vitest run\"\n  }\n}"
+       "content": "{\n  \"name\": \"nexus-defenders\",\n  \"version\": \"1.1.0\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"start\": \"node scripts/play.js\",\n    \"lint\": \"eslint src\",\n    \"test\": \"vitest run\"\n  }\n}",
+       "mark": "Changed: version 1.1.0"
       },
       {
        "kind": "write",
        "label": "Write CHANGELOG.md",
        "file": "CHANGELOG.md",
-       "content": "# Changelog\n\n## [1.1.0] - 2026-10-05\n\n### Fixed\n- A hit now costs the damage its source deals, with the\n  shield absorbing first, instead of destroying the ship.\n- The ship no longer explodes at random after 20 seconds:\n  a leftover self-test is removed."
+       "content": "# Changelog\n\n## [1.1.0] - 2026-10-05\n\n### Fixed\n- A hit now costs the damage its source deals, with the\n  shield absorbing first, instead of destroying the ship.\n- The ship no longer explodes at random after 20 seconds:\n  a leftover self-test is removed.",
+       "mark": "Generated: the changelog entry"
       },
       {
        "kind": "run",
@@ -1427,7 +1523,8 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
     },
     {
      "do": "reply",
-     "text": "## Released v1.1.0\n\n- **Version:** 1.0.0 to 1.1.0 in `package.json`\n- **Changelog:** both fixes recorded\n- **Tag:** `v1.1.0`\n\n### Plan status\n- [x] Seed 4242 survives its first hit\n- [x] No run is destroyed without a hit\n- [x] Tests pin both rules\n- [x] v1.1.0 is tagged\n\nThe finished game is next."
+     "text": "## Released v1.1.0\n\n- **Version:** 1.0.0 to 1.1.0 in `package.json`\n- **Changelog:** both fixes recorded\n- **Tag:** `v1.1.0`\n\n### Plan status\n- [x] Seed 4242 survives its first hit\n- [x] No run is destroyed without a hit\n- [x] Tests pin both rules\n- [x] v1.1.0 is tagged\n\nThe finished game is next.",
+     "mark": "Release and plan status"
     }
    ]
   },
@@ -4308,6 +4405,13 @@ window.NexusTrainingStory = (function () {
     s.toast = el("div", "ide-toast", "Copied to clipboard");
     s.toast.hidden = true;
     ide.appendChild(s.toast);
+    /* The highlight: an outline with a label that marks what the agent just produced. */
+    s.focus = el("div", "ide-focus");
+    s.focus.setAttribute("aria-hidden", "true");
+    s.focusLabel = el("span", "ide-focus-l");
+    s.focus.appendChild(s.focusLabel);
+    s.focus.hidden = true;
+    ide.appendChild(s.focus);
     s.cursor = el("div", "ide-cursor");
     s.cursor.setAttribute("aria-hidden", "true");
     s.cursor.appendChild(svg(["M5 3l14 9-6.5 1.6L9 20z"]));
@@ -4468,6 +4572,7 @@ window.NexusTrainingStory = (function () {
     s.input.appendChild(el("span", "ide-ph", "Ask the agent, or type / for a command"));
     s.menu.hidden = true;
     s.toast.hidden = true;
+    s.focus.hidden = true;
     s.cursor.style.opacity = "0";
     s.cursor.classList.remove("is-down");
     s.cursorKey = "start";
@@ -4577,6 +4682,59 @@ window.NexusTrainingStory = (function () {
     s.input.appendChild(el("span", "ide-ph", "Ask the agent, or type / for a command"));
   }
 
+  /* -------------------------------------------------- the highlight */
+  function unionRect(els) {
+    var r = null;
+    els.forEach(function (e) {
+      if (!e || !e.getClientRects().length) return;
+      var b = e.getBoundingClientRect();
+      r = r ? { left: Math.min(r.left, b.left), top: Math.min(r.top, b.top), right: Math.max(r.right, b.right), bottom: Math.max(r.bottom, b.bottom) } : { left: b.left, top: b.top, right: b.right, bottom: b.bottom };
+    });
+    return r;
+  }
+  /* The key content of the latest reply: its first table, code block, or list, with the heading
+     just above it; a reply with none of these is marked whole. */
+  function replyFocus(x) {
+    var replies = x.log.querySelectorAll(".ide-reply");
+    if (!replies.length) return [];
+    var kids = Array.prototype.slice.call(replies[replies.length - 1].children).filter(function (k) { return !k.hidden; });
+    for (var i = 0; i < kids.length; i++) {
+      if (/^(TABLE|PRE|UL|OL)$/.test(kids[i].tagName)) {
+        return i > 0 && /^H[34]$/.test(kids[i - 1].tagName) ? [kids[i - 1], kids[i]] : [kids[i]];
+      }
+    }
+    return kids;
+  }
+  function showFocus(x, where, label, p, keep) {
+    var targets, box;
+    if (where === "reply") {
+      targets = replyFocus(x);
+      box = x.log;
+      if (targets.length) x.log.scrollTop = Math.max(0, targets[0].offsetTop - x.log.offsetTop - 8);
+    } else {
+      targets = Array.prototype.slice.call(x.lines.querySelectorAll("li.ide-added"));
+      if (!targets.length) targets = [x.lines];
+      box = x.code;
+      if (targets[0] !== x.lines) x.code.scrollTop = Math.max(0, targets[0].offsetTop - 40);
+      else x.code.scrollTop = 0;
+    }
+    var r = unionRect(targets), b = box.getBoundingClientRect(), root = x.ide.getBoundingClientRect();
+    if (!r || p >= 1 && !keep) { x.focus.hidden = true; return; }
+    var pad = 4, left = Math.max(r.left, b.left + 2) - pad, top = Math.max(r.top, b.top + 2) - pad;
+    var right = Math.min(r.right, b.right - 2) + pad, bottom = Math.min(r.bottom, b.bottom - 2) + pad;
+    x.focus.hidden = false;
+    x.focus.style.left = Math.round(left - root.left) + "px";
+    x.focus.style.top = Math.round(top - root.top) + "px";
+    x.focus.style.width = Math.max(20, Math.round(right - left)) + "px";
+    x.focus.style.height = Math.max(20, Math.round(bottom - top)) + "px";
+    /* The outline draws in over the first fifth of the mark; the label follows. */
+    var grow = Math.min(1, p / 0.2);
+    x.focus.style.opacity = String(keep ? 1 : grow);
+    x.focus.style.setProperty("--draw", String(grow));
+    x.focusLabel.textContent = label;
+  }
+  function hideFocus(x) { x.focus.hidden = true; }
+
   /* -------------------------------------------------- compile a session script into timed actions */
   function compile(s) {
     var T = [], t = 0, files = {}, cursor = "start", pick = null, usage = 0, n = 0;
@@ -4586,6 +4744,7 @@ window.NexusTrainingStory = (function () {
     function click(key) { add(240, function (x, p) { placeCursor(x, key, key, 1); x.cursor.classList.toggle("is-down", p < 0.6); }); }
     function wait(ms) { add(ms, null); }
     s.script.forEach(function (a, ai) {
+      if (a.do !== "reply") add(0, hideFocus);
       if (a.do === "pick") {
         var prov = a.provider, tier = a.tier, effort = a.effort, u = a.usage, nc = !!a.newchat;
         if (nc) add(0, function (x) {
@@ -4647,7 +4806,10 @@ window.NexusTrainingStory = (function () {
             else if (st.kind === "edit") editLive(x, st.file, from || "", to, ops, p);
             scrollLog(x);
           });
-          if (st.file && (st.kind === "write" || st.kind === "edit")) files[st.file] = to;
+          if (st.file && (st.kind === "write" || st.kind === "edit")) {
+            files[st.file] = to;
+            if (st.mark) { var lbl = st.mark; add(1500, function (x, p) { showFocus(x, "code", lbl, p, false); }); }
+          }
         });
         usage = u1;
       } else if (a.do === "reply") {
@@ -4667,7 +4829,8 @@ window.NexusTrainingStory = (function () {
           for (var i = 0; i < box.children.length; i++) box.children[i].hidden = i >= k;
           scrollLog(x);
         });
-        wait(700);
+        var mlabel = a.mark;
+        add(1800, function (x, p) { showFocus(x, "reply", mlabel, p, true); });
       } else if (a.do === "limit") {
         var ltext = a.text;
         add(0, function (x) {

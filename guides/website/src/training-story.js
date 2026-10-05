@@ -392,6 +392,13 @@ window.NexusTrainingStory = (function () {
     s.toast = el("div", "ide-toast", "Copied to clipboard");
     s.toast.hidden = true;
     ide.appendChild(s.toast);
+    /* The highlight: an outline with a label that marks what the agent just produced. */
+    s.focus = el("div", "ide-focus");
+    s.focus.setAttribute("aria-hidden", "true");
+    s.focusLabel = el("span", "ide-focus-l");
+    s.focus.appendChild(s.focusLabel);
+    s.focus.hidden = true;
+    ide.appendChild(s.focus);
     s.cursor = el("div", "ide-cursor");
     s.cursor.setAttribute("aria-hidden", "true");
     s.cursor.appendChild(svg(["M5 3l14 9-6.5 1.6L9 20z"]));
@@ -552,6 +559,7 @@ window.NexusTrainingStory = (function () {
     s.input.appendChild(el("span", "ide-ph", "Ask the agent, or type / for a command"));
     s.menu.hidden = true;
     s.toast.hidden = true;
+    s.focus.hidden = true;
     s.cursor.style.opacity = "0";
     s.cursor.classList.remove("is-down");
     s.cursorKey = "start";
@@ -661,6 +669,59 @@ window.NexusTrainingStory = (function () {
     s.input.appendChild(el("span", "ide-ph", "Ask the agent, or type / for a command"));
   }
 
+  /* -------------------------------------------------- the highlight */
+  function unionRect(els) {
+    var r = null;
+    els.forEach(function (e) {
+      if (!e || !e.getClientRects().length) return;
+      var b = e.getBoundingClientRect();
+      r = r ? { left: Math.min(r.left, b.left), top: Math.min(r.top, b.top), right: Math.max(r.right, b.right), bottom: Math.max(r.bottom, b.bottom) } : { left: b.left, top: b.top, right: b.right, bottom: b.bottom };
+    });
+    return r;
+  }
+  /* The key content of the latest reply: its first table, code block, or list, with the heading
+     just above it; a reply with none of these is marked whole. */
+  function replyFocus(x) {
+    var replies = x.log.querySelectorAll(".ide-reply");
+    if (!replies.length) return [];
+    var kids = Array.prototype.slice.call(replies[replies.length - 1].children).filter(function (k) { return !k.hidden; });
+    for (var i = 0; i < kids.length; i++) {
+      if (/^(TABLE|PRE|UL|OL)$/.test(kids[i].tagName)) {
+        return i > 0 && /^H[34]$/.test(kids[i - 1].tagName) ? [kids[i - 1], kids[i]] : [kids[i]];
+      }
+    }
+    return kids;
+  }
+  function showFocus(x, where, label, p, keep) {
+    var targets, box;
+    if (where === "reply") {
+      targets = replyFocus(x);
+      box = x.log;
+      if (targets.length) x.log.scrollTop = Math.max(0, targets[0].offsetTop - x.log.offsetTop - 8);
+    } else {
+      targets = Array.prototype.slice.call(x.lines.querySelectorAll("li.ide-added"));
+      if (!targets.length) targets = [x.lines];
+      box = x.code;
+      if (targets[0] !== x.lines) x.code.scrollTop = Math.max(0, targets[0].offsetTop - 40);
+      else x.code.scrollTop = 0;
+    }
+    var r = unionRect(targets), b = box.getBoundingClientRect(), root = x.ide.getBoundingClientRect();
+    if (!r || p >= 1 && !keep) { x.focus.hidden = true; return; }
+    var pad = 4, left = Math.max(r.left, b.left + 2) - pad, top = Math.max(r.top, b.top + 2) - pad;
+    var right = Math.min(r.right, b.right - 2) + pad, bottom = Math.min(r.bottom, b.bottom - 2) + pad;
+    x.focus.hidden = false;
+    x.focus.style.left = Math.round(left - root.left) + "px";
+    x.focus.style.top = Math.round(top - root.top) + "px";
+    x.focus.style.width = Math.max(20, Math.round(right - left)) + "px";
+    x.focus.style.height = Math.max(20, Math.round(bottom - top)) + "px";
+    /* The outline draws in over the first fifth of the mark; the label follows. */
+    var grow = Math.min(1, p / 0.2);
+    x.focus.style.opacity = String(keep ? 1 : grow);
+    x.focus.style.setProperty("--draw", String(grow));
+    x.focusLabel.textContent = label;
+  }
+  function hideFocus(x) { x.focus.hidden = true; }
+
   /* -------------------------------------------------- compile a session script into timed actions */
   function compile(s) {
     var T = [], t = 0, files = {}, cursor = "start", pick = null, usage = 0, n = 0;
@@ -670,6 +731,7 @@ window.NexusTrainingStory = (function () {
     function click(key) { add(240, function (x, p) { placeCursor(x, key, key, 1); x.cursor.classList.toggle("is-down", p < 0.6); }); }
     function wait(ms) { add(ms, null); }
     s.script.forEach(function (a, ai) {
+      if (a.do !== "reply") add(0, hideFocus);
       if (a.do === "pick") {
         var prov = a.provider, tier = a.tier, effort = a.effort, u = a.usage, nc = !!a.newchat;
         if (nc) add(0, function (x) {
@@ -731,7 +793,10 @@ window.NexusTrainingStory = (function () {
             else if (st.kind === "edit") editLive(x, st.file, from || "", to, ops, p);
             scrollLog(x);
           });
-          if (st.file && (st.kind === "write" || st.kind === "edit")) files[st.file] = to;
+          if (st.file && (st.kind === "write" || st.kind === "edit")) {
+            files[st.file] = to;
+            if (st.mark) { var lbl = st.mark; add(1500, function (x, p) { showFocus(x, "code", lbl, p, false); }); }
+          }
         });
         usage = u1;
       } else if (a.do === "reply") {
@@ -751,7 +816,8 @@ window.NexusTrainingStory = (function () {
           for (var i = 0; i < box.children.length; i++) box.children[i].hidden = i >= k;
           scrollLog(x);
         });
-        wait(700);
+        var mlabel = a.mark;
+        add(1800, function (x, p) { showFocus(x, "reply", mlabel, p, true); });
       } else if (a.do === "limit") {
         var ltext = a.text;
         add(0, function (x) {

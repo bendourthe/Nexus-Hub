@@ -401,6 +401,26 @@
               }
             }
           }
+        },
+        {
+          "if": {
+            "properties": {
+              "do": {
+                "const": "reply"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "mark"
+            ],
+            "properties": {
+              "mark": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
         }
       ]
     },
@@ -435,6 +455,10 @@
         },
         "content": {
           "type": "string"
+        },
+        "mark": {
+          "type": "string",
+          "minLength": 1
         }
       },
       "allOf": [

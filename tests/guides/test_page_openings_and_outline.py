@@ -65,7 +65,11 @@ def _assert_opening_figure(block: str, name: str) -> None:
     elif name == "training":
         # A cursor demo: the buggy game, the six commands, the fixed game; never the boss or its logo.
         assert body.count('class="trf-card') == 3 and "trf-cursor" in body
-        assert re.findall(r'<li class="trf-st" data-k="\d">(/[a-z]+)</li>', body) == ["/describe", "/review", "/plan", "/implement", "/test", "/update"]
+        assert re.findall(r'<li class="trf-st" data-k="\d"><code>(/[a-z]+)</code></li>', body) == ["/describe", "/review", "/plan", "/implement", "/test", "/update"]
+        # Revision 3: the agent works in a mini IDE, and the buggy hit shows -6 and an emptied bar.
+        assert 'class="trf-ide"' in body and 'class="trf-code"' in body and "trf-del" in body and "trf-add" in body
+        assert 'trf-pop--bug' in body and ">-6<" in body and 'trf-hp-fill--bug' in body
+        assert "6 damage emptied a 100-point bar" in body
         assert "nexus-mark" not in body and "boss" not in body.lower()
     else:
         assert len(re.findall(r"<li><b>\d</b>", body)) == 4, "the cheatsheet demo has four steps"
@@ -258,5 +262,25 @@ def test_the_training_bar_stays_under_the_header_while_scrolling(playwright_mod,
                 assert nav["bar"], nav
                 assert abs(nav["top"] - nav["header"]) <= 2, f"the bar left the screen at scroll {y}: {nav}"
                 assert nav["left"] >= nav["cl"] - 1 and nav["right"] <= nav["cr"] + 1, f"the bar sits in the content column, never flush to the window: {nav}"
+        finally:
+            browser.close()
+
+
+@pytest.mark.parametrize("width", [1280, 1440, 1920])
+def test_the_current_ring_is_never_clipped_by_the_rail(playwright_mod, width: int) -> None:
+    """Revision 3 (R12): the current entry's ring showed only in part at the rail's left edge."""
+    with playwright_mod() as pw:
+        browser = pw.chromium.launch()
+        try:
+            for url in (TRAINING.as_uri(), GUIDE.as_uri() + "#foundations", GUIDE.as_uri() + "#cheatsheets"):
+                page = browser.new_page(viewport={"width": width, "height": 900})
+                page.goto(url)
+                page.wait_for_timeout(500)
+                box = page.evaluate("""(() => { const nav = [...document.querySelectorAll('.pg-outline--rail')].find(n => n.getClientRects().length);
+                    const node = nav.querySelector('a[aria-current] .pg-outline-node'), r = node.getBoundingClientRect(), n = nav.getBoundingClientRect();
+                    const halo = parseFloat(getComputedStyle(node).boxShadow.split(' ').slice(-1)[0]) || 4;
+                    return { ringLeft: r.left - halo, ringTop: r.top - halo, navLeft: n.left, navTop: n.top }; })()""")
+                assert box["ringLeft"] >= box["navLeft"] - 0.5 and box["ringTop"] >= box["navTop"] - 0.5, (url, box)
+                page.close()
         finally:
             browser.close()
