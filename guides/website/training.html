@@ -6942,14 +6942,14 @@ window.NexusTrainingStory = (function () {
      read; a hash scrolls to its section, and an unknown one shows the notice and the start. */
   var PARTS = [
     { id: "intro", label: "Introduction", href: "#intro", target: "intro" },
-    { id: "play-buggy", label: "Buggy game", href: "#play-buggy", target: "play-buggy" },
+    { id: "play-buggy", label: "Buggy Game", href: "#play-buggy", target: "play-buggy" },
     { id: "describe", label: "Describe", href: "#describe", target: "describe" },
     { id: "review", label: "Review", href: "#review", target: "review" },
     { id: "plan", label: "Plan", href: "#plan", target: "plan" },
     { id: "implement", label: "Implement", href: "#implement", target: "implement" },
     { id: "test", label: "Test", href: "#test", target: "test" },
     { id: "update", label: "Update", href: "#update", target: "update" },
-    { id: "play-fixed", label: "The reward", href: "#play-fixed", target: "play-fixed" }
+    { id: "play-fixed", label: "Fixed Game", href: "#play-fixed", target: "play-fixed" }
   ];
   function sectionFor(id) {
     for (var k = 0; k < sections.length; k++) if (sections[k].getAttribute("data-stage") === id) return sections[k];

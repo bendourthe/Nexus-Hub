@@ -21,7 +21,7 @@ WEB = ROOT / "guides" / "website"
 TRAINING = WEB / "training.html"
 GUIDE = WEB / "nexus-hub-guide.html"
 REQUIRE_RENDER = os.environ.get("NEXUS_REQUIRE_RENDER") == "1"
-PARTS = ["Introduction", "Buggy game", "Describe", "Review", "Plan", "Implement", "Test", "Update", "The reward"]
+PARTS = ["Introduction", "Buggy Game", "Describe", "Review", "Plan", "Implement", "Test", "Update", "Fixed Game"]
 WORKFLOW = ["/describe", "/review", "/plan", "/implement", "/test", "/update"]
 # R19: the file each command writes or edits in the opening's IDE, following the Training story.
 FILES = ["docs/describe.md", "docs/review.md", "docs/plans/v1.1.0-damage-fix.md", "src/damage.js", "tests/damage.test.js", "CHANGELOG.md"]
