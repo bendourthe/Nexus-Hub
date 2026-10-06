@@ -458,3 +458,76 @@ def test_a_mark_lands_on_the_same_box_from_either_direction(browser) -> None:
         assert page.evaluate(box) == forward and forward[0] is False
     finally:
         context.close()
+
+
+# --- Review 7 follow-up: keyword labels, matching static titles, and cursor continuity -------
+
+WORKFLOW_LABELS = ["Mapping", "Review", "Planning", "Build", "Testing", "Release"]
+
+
+def test_workflow_labels_are_keywords_and_match_the_home_strip() -> None:
+    """Strip labels are keyword nouns, not imperative phrases, and match Home's Development Workflow."""
+    assert [w["label"] for w in _story()["workflow"]] == WORKFLOW_LABELS
+    guide = (WEB / "nexus-hub-guide.html").read_text(encoding="utf-8")
+    strip = guide[guide.index('id="nhg-loop"'):]
+    strip = strip[: strip.index("</div>")]
+    assert re.findall(r"</code><span>([^<]+)</span>", strip) == WORKFLOW_LABELS
+
+
+def test_static_stage_titles_match_the_rendered_titles() -> None:
+    """Without the script, each stage heading already reads what the story renders."""
+    html = TRAINING.read_text(encoding="utf-8")
+    for st in _story()["stages"]:
+        if st["kind"] == "intro":
+            continue
+        found = re.search(r'<h2 data-ty="h2" id="st-' + re.escape(st["id"]) + r'">([^<]*)</h2>', html)
+        assert found and found.group(1) == st["head"]["title"], (st["id"], found and found.group(1))
+
+
+CURSOR_WALK = r"""([sid, step]) => {
+    const s = NexusTrainingPage.story(), d = s.state(sid).duration;
+    const root = document.querySelector('section[data-stage="' + sid + '"]');
+    const ide = root.querySelector('.ide'), cur = root.querySelector('.ide-cursor');
+    const at = () => {
+        if (getComputedStyle(cur).opacity !== '1') return null;
+        const m = /translate\((-?[\d.]+)px,\s*(-?[\d.]+)px\)/.exec(cur.style.transform);
+        return m ? [+m[1], +m[2]] : null;
+    };
+    const box = ide.getBoundingClientRect(), centre = [box.width / 2, box.height / 2];
+    const out = { samples: 0, maxJump: 0, jumpAt: null, atCentre: [], first: null, firstT: null };
+    let prev = null;
+    s.seek(sid, 0);
+    for (let t = 0; t <= d; t += step) {
+        s.seek(sid, t);
+        const p = at();
+        if (p) {
+            out.samples += 1;
+            if (out.first === null) { out.first = p; out.firstT = t; }
+            if (Math.hypot(p[0] - centre[0], p[1] - centre[1]) < 3) out.atCentre.push(t);
+            if (prev) { const j = Math.hypot(p[0] - prev[0], p[1] - prev[1]); if (j > out.maxJump) { out.maxJump = j; out.jumpAt = t; } }
+        }
+        prev = p;
+    }
+    s.finish(sid);
+    s.seek(sid, out.firstT);
+    out.afterReset = at();
+    return out;
+}"""
+
+
+def test_the_ide_cursor_moves_continuously_and_restarts_after_a_reset(browser) -> None:
+    """The cursor remembers where it last was across action boundaries (s.seen), so it glides from
+    target to target and never snaps to the IDE's centre; seeking back resets it to a fresh start."""
+    context, page, errors = _open(browser)
+    try:
+        for s in _sessions():
+            _go(page, s["id"])
+            w = page.evaluate(CURSOR_WALK, [s["id"], 40])
+            assert w["samples"] > 20, (s["id"], w)
+            # A 620 ms eased move covers at most about 150 px in 40 ms on this IDE; a snap is far larger.
+            assert w["maxJump"] <= 160, (s["id"], w["maxJump"], w["jumpAt"])
+            assert w["atCentre"] == [], (s["id"], "the cursor landed on the IDE centre", w["atCentre"])
+            assert w["afterReset"] == w["first"], (s["id"], "after a reset the cursor starts fresh", w)
+        assert not errors, errors
+    finally:
+        context.close()

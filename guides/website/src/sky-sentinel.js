@@ -114,7 +114,7 @@
       hull: 100, speed: 1, fire: 1, flame: "#60a5fa", accent: "#3b82f6", scheme: "Dark steel, blue panels" },
     { id: "warden", name: "Warden", role: "Escort carrier", note: "Sturdy, wide, and close-range", weapon: "flak", colour: "green",
       hull: 110, speed: 0.95, fire: 0.9, flame: "#86efac", accent: "#22c55e", scheme: "Olive armour, green wings" },
-    { id: "specter", name: "Specter", role: "Stealth interceptor", note: "Heavy armour, slower to turn", weapon: "orb", colour: "orange",
+    { id: "specter", name: "Specter", role: "Heavy cruiser", note: "Heaviest hull, slowest to turn", weapon: "orb", colour: "orange",
       hull: 125, speed: 0.85, fire: 1.05, flame: "#fdba74", accent: "#f97316", scheme: "Charcoal, orange crystal" },
     { id: "talon", name: "Talon", role: "Needle dagger", note: "The fastest ship, the lightest hull", weapon: "lance", colour: "yellow",
       hull: 80, speed: 1.3, fire: 1, flame: "#fde68a", accent: "#facc15", scheme: "Silver, yellow wings" },

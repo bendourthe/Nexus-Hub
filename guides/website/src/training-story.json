@@ -41,32 +41,32 @@
   {
    "step": "describe",
    "command": "/describe",
-   "label": "map it"
+   "label": "Mapping"
   },
   {
    "step": "review",
    "command": "/review",
-   "label": "judge it"
+   "label": "Review"
   },
   {
    "step": "plan",
    "command": "/plan",
-   "label": "decompose it"
+   "label": "Planning"
   },
   {
    "step": "implement",
    "command": "/implement",
-   "label": "build it"
+   "label": "Build"
   },
   {
    "step": "test",
    "command": "/test",
-   "label": "harden it"
+   "label": "Testing"
   },
   {
    "step": "update",
    "command": "/update",
-   "label": "ship it"
+   "label": "Release"
   }
  ],
  "defaultProvider": "Anthropic",

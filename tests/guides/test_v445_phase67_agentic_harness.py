@@ -84,9 +84,9 @@ def test_the_scene_names_what_agentic_means(guide_text: str) -> None:
     carried by the subtitle and the lead, so that is what this asserts.
     """
     scene = _scene_text(guide_text, "fx-agent-platform")
-    assert "Same model. Very different capabilities." in scene, "the subtitle must state the claim"
+    assert "Same Model, Different Capabilities" in scene, "the keyword subtitle must state the claim"
     assert "wraps the same model" in scene, "the lead must say the model is the same in both lanes"
-    assert scene.index("Same model.") < scene.index('class="ap2-card"'), (
+    assert scene.index("Same Model, Different Capabilities") < scene.index('class="ap2-card"'), (
         "the claim must arrive before the comparison that demonstrates it"
     )
 

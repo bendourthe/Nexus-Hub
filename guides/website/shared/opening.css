@@ -46,11 +46,15 @@
 .fxo-pick{margin-right:auto;}
 .fxo-send{padding:3px 12px;border-radius:7px;background:var(--accent);color:#06201c;font-weight:800;animation:fxo-sendk 24s linear infinite;}
 @keyframes fxo-sendk{0%,61.9%,64%,100%{filter:none;transform:none;}62%,63.5%{filter:brightness(1.35);transform:scale(.94);}}
-.fxo-tokrow,.fxo-ctx{display:grid;grid-template-columns:7.5rem minmax(0,1fr);align-items:start;gap:4px 12px;color:var(--ink);text-decoration:none;}
+.fxo-tokrow,.fxo-ctx{display:grid;grid-template-columns:4.75rem minmax(0,1fr);align-items:start;gap:4px 12px;color:var(--ink);text-decoration:none;}
 .fxo-lab{padding-top:3px;font-size:var(--ty-micro);font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--teal-soft);}
-.fxo-toks{display:grid;gap:4px;min-height:5.6em;}
-.fxo-tline{display:flex;flex-wrap:wrap;gap:3px;font-family:var(--mono);font-size:12px;}
-.fxo-t{font-style:normal;padding:1px 4px;border:1px solid color-mix(in srgb,var(--k) 70%,transparent);border-radius:5px;background:color-mix(in srgb,var(--k) 15%,transparent);opacity:0;}
+/* Each sentence's tokens stay on one row at desktop widths: chip size scales with the row (the longest
+   sentence needs about 42em), and trailing punctuation is glued to its word so a narrow-screen wrap never
+   starts a row with a lone mark. */
+.fxo-toks{display:grid;gap:4px;min-height:5.6em;container-type:inline-size;}
+.fxo-tline{display:flex;flex-wrap:wrap;gap:.2em;font-family:var(--mono);font-size:clamp(9px,2.25cqi,12px);}
+.fxo-tg{display:inline-flex;gap:inherit;}
+.fxo-t{font-style:normal;padding:1px .25em;border:1px solid color-mix(in srgb,var(--k) 70%,transparent);border-radius:5px;background:color-mix(in srgb,var(--k) 15%,transparent);opacity:0;}
 .fxo-count{grid-column:2;font-family:var(--mono);font-size:12px;color:var(--ink-dim);opacity:0;animation:fxo-cnt 24s linear infinite;}
 @keyframes fxo-cnt{0%,59.49%{opacity:0;}59.5%,97%{opacity:1;}98.2%,100%{opacity:0;}}
 .fxo-gauge{display:flex;height:12px;margin-top:3px;overflow:hidden;border-radius:6px;background:color-mix(in srgb,var(--ink-dim) 18%,transparent);}

@@ -413,7 +413,7 @@ def test_the_training_opening_fits_a_phone(playwright_mod) -> None:
                 assert page.evaluate(SCROLLBARS) == [], ms
             assert len(heights) == 1, f"no layout jump while the loop plays: {heights}"
             order = page.evaluate("[...document.querySelectorAll('.tro-card')].sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top).map(c => c.querySelector('.tro-cap').textContent)")
-            assert order == ["1Buggy Game", "2Agent Workflow", "3Fixed Game"], order
+            assert order == ["Buggy Game", "Agent Workflow", "Fixed Game"], order
         finally:
             browser.close()
 
@@ -434,3 +434,56 @@ def test_the_training_opening_under_reduced_motion_shows_the_end_state(playwrigh
             assert anims == 0
         finally:
             browser.close()
+
+
+
+# --- Review 7 follow-up: readable agent pace and one-row tokens in the Foundations opening ----
+
+
+def test_the_training_opening_gives_each_command_time_to_read(playwright_mod) -> None:
+    """Each command is typed, sent, and its file written in about 2.5 to 3 s; cards carry no step numbers."""
+    assert "tro-num" not in _training_figure(_text(TRAINING))
+    with playwright_mod() as pw:
+        browser, page = _opening(pw, 1440, 900)
+        try:
+            m = page.evaluate("NexusTrainingOpening.marks")
+            first_key = m["flow"] + 50
+            for k in range(6):
+                base = m["flow"] + k * m["slot"]
+                typing = next(ms for ms in range(base, base + m["slot"], 25)
+                              if page.evaluate(f"NexusTrainingOpening.seek({ms}).typed") != "")
+                saved = next(ms for ms in range(base, base + m["slot"], 25)
+                             if page.evaluate(f"NexusTrainingOpening.seek({ms}); document.querySelector('.tro-status').textContent").startswith("Saved"))
+                assert 2500 <= saved - typing <= 3000, (WORKFLOW[k], typing - base, saved - base)
+                assert m["slot"] - (saved - base) >= 300, "the saved file holds before the next command"
+            assert first_key > m["bug"], "the buggy scene still plays first"
+            assert m["ok"] >= m["flow"] + 6 * m["slot"], "the fixed scene still plays after the workflow"
+        finally:
+            browser.close()
+
+
+TOKEN_ROWS = """() => [...document.querySelectorAll('#page-foundations .fxo-tline')].map(line => {
+    const chips = [...line.querySelectorAll('.fxo-t')];
+    const tops = [...new Set(chips.map(c => Math.round(c.getBoundingClientRect().top)))].sort((a, b) => a - b);
+    const leads = tops.map(top => chips.find(c => Math.round(c.getBoundingClientRect().top) === top).textContent.trim());
+    return { k: line.dataset.k, rows: tops.length, leads };
+})"""
+
+
+@pytest.mark.parametrize("width", (1280, 1440, 1920, 390))
+def test_each_prompt_sentence_tokens_fill_one_row_at_desktop(playwright_mod, width: int) -> None:
+    """At desktop widths each sentence's tokens sit on one line; a narrow wrap never starts with punctuation."""
+    with playwright_mod() as pw:
+        browser = pw.chromium.launch()
+        try:
+            page = browser.new_page(viewport={"width": width, "height": 900})
+            page.goto(GUIDE.as_uri() + "#foundations")
+            page.wait_for_selector("#page-foundations .fxo-tline")
+            lines = page.evaluate(TOKEN_ROWS)
+        finally:
+            browser.close()
+    assert [line["k"] for line in lines] == ["request", "goal", "format"], lines
+    for line in lines:
+        if width >= 1280:
+            assert line["rows"] == 1, (width, line)
+        assert all(re.match(r"\w", lead) for lead in line["leads"]), (width, line)

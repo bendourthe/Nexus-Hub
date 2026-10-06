@@ -1147,7 +1147,7 @@ def test_foundations_tokens_use_a_reproducible_nonuniversal_example(
         "a second chip style implies a category the tokenizer does not have"
     )
     lowered = scene.lower()
-    assert "becomes 10 tokens" in lowered
+    assert ">10 tokens</p>" in lowered, "the caption between prompt and chips is a keyword label"
     assert "a token is not a word" in lowered
     assert "other models cut the same sentence differently" in lowered
     assert scene.count('clip-path="url(#nxp-tokcell-') == 9, "expected nine cropped image cells"

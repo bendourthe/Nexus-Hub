@@ -176,11 +176,15 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .fxo-pick{margin-right:auto;}
 .fxo-send{padding:3px 12px;border-radius:7px;background:var(--accent);color:#06201c;font-weight:800;animation:fxo-sendk 24s linear infinite;}
 @keyframes fxo-sendk{0%,61.9%,64%,100%{filter:none;transform:none;}62%,63.5%{filter:brightness(1.35);transform:scale(.94);}}
-.fxo-tokrow,.fxo-ctx{display:grid;grid-template-columns:7.5rem minmax(0,1fr);align-items:start;gap:4px 12px;color:var(--ink);text-decoration:none;}
+.fxo-tokrow,.fxo-ctx{display:grid;grid-template-columns:4.75rem minmax(0,1fr);align-items:start;gap:4px 12px;color:var(--ink);text-decoration:none;}
 .fxo-lab{padding-top:3px;font-size:var(--ty-micro);font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--teal-soft);}
-.fxo-toks{display:grid;gap:4px;min-height:5.6em;}
-.fxo-tline{display:flex;flex-wrap:wrap;gap:3px;font-family:var(--mono);font-size:12px;}
-.fxo-t{font-style:normal;padding:1px 4px;border:1px solid color-mix(in srgb,var(--k) 70%,transparent);border-radius:5px;background:color-mix(in srgb,var(--k) 15%,transparent);opacity:0;}
+/* Each sentence's tokens stay on one row at desktop widths: chip size scales with the row (the longest
+   sentence needs about 42em), and trailing punctuation is glued to its word so a narrow-screen wrap never
+   starts a row with a lone mark. */
+.fxo-toks{display:grid;gap:4px;min-height:5.6em;container-type:inline-size;}
+.fxo-tline{display:flex;flex-wrap:wrap;gap:.2em;font-family:var(--mono);font-size:clamp(9px,2.25cqi,12px);}
+.fxo-tg{display:inline-flex;gap:inherit;}
+.fxo-t{font-style:normal;padding:1px .25em;border:1px solid color-mix(in srgb,var(--k) 70%,transparent);border-radius:5px;background:color-mix(in srgb,var(--k) 15%,transparent);opacity:0;}
 .fxo-count{grid-column:2;font-family:var(--mono);font-size:12px;color:var(--ink-dim);opacity:0;animation:fxo-cnt 24s linear infinite;}
 @keyframes fxo-cnt{0%,59.49%{opacity:0;}59.5%,97%{opacity:1;}98.2%,100%{opacity:0;}}
 .fxo-gauge{display:flex;height:12px;margin-top:3px;overflow:hidden;border-radius:6px;background:color-mix(in srgb,var(--ink-dim) 18%,transparent);}
@@ -712,7 +716,6 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .tro-card{display:flex;flex-direction:column;gap:10px;min-width:0;padding:12px;border:1px solid var(--border);border-radius:14px;background:var(--bg-0,var(--surface));}
 .tro-card--bug{grid-area:bug;}.tro-card--ok{grid-area:ok;}.tro-card--agent{grid-area:agent;}
 .tro-cap{display:flex;align-items:center;gap:8px;margin:0;font-size:var(--ty-body-sm);font-weight:700;color:var(--ink);}
-.tro-num{display:inline-grid;place-items:center;flex:none;width:22px;height:22px;border-radius:50%;font-size:12px;color:var(--accent);background:color-mix(in srgb,var(--accent) 16%,transparent);}
 .tro-arena{position:relative;aspect-ratio:16 / 10;overflow:hidden;border-radius:10px;background:#040c11;}
 .tro-arena .tro-demo{position:absolute;inset:0;}
 .tro-verdict{position:absolute;left:50%;top:50%;width:min(28%,7.5rem);aspect-ratio:1;opacity:0;pointer-events:none;transform:translate(-50%,-50%) scale(.6);transition:opacity .25s,transform .45s cubic-bezier(.2,1.4,.4,1);}
@@ -962,9 +965,9 @@ main .eyebrow,main .tr-kicker{display:none;}
         <p data-ty="lead" class="pg-open-lead">Watch an agent fix a buggy game, one command at a time, then play the result.</p>
         <figure class="pg-fig tro" aria-label="What this page shows: in the buggy game a gunship bolt deals 6 damage and destroys the ship outright, emptying its 100-point hull, which is the bug, and a red cross marks it; an agent then types the six commands of the Development Workflow into a chat, one at a time, and an IDE answers each one by writing or editing a file: the project map, the review, the plan, the damage fix in src/damage.js, its test, and the changelog, handing off from Claude to OpenAI during the implementation; in the fixed game the same 6-damage bolt takes the hull from 100 to 94 and the ship flies on, and a green check confirms the fix.">
           <div class="tro-ui" aria-hidden="true">
-            <div class="tro-card tro-card--bug"><p class="tro-cap"><b class="tro-num">1</b>Buggy Game</p><div class="tro-arena"><div class="tro-demo"></div><span class="tro-verdict tro-verdict--bug"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="21"/><path d="M15 15 L33 33 M33 15 L15 33"/></svg></span></div><p class="tro-stat"><span class="tro-hull">Hull <b>100</b> / 100</span><span class="tro-tag tro-tag--bug"><b>-6</b> hit, ship destroyed</span></p></div>
-            <div class="tro-card tro-card--ok"><p class="tro-cap"><b class="tro-num">3</b>Fixed Game</p><div class="tro-arena"><div class="tro-demo"></div><span class="tro-verdict tro-verdict--ok"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="21"/><path d="M13 25 L21 33 L35 16"/></svg></span></div><p class="tro-stat"><span class="tro-hull">Hull <b>100</b> / 100</span><span class="tro-tag tro-tag--ok"><b>-6</b> hit, hull 94</span></p></div>
-            <div class="tro-card tro-card--agent"><p class="tro-cap"><b class="tro-num">2</b>Agent Workflow</p><div class="tro-agent">
+            <div class="tro-card tro-card--bug"><p class="tro-cap">Buggy Game</p><div class="tro-arena"><div class="tro-demo"></div><span class="tro-verdict tro-verdict--bug"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="21"/><path d="M15 15 L33 33 M33 15 L15 33"/></svg></span></div><p class="tro-stat"><span class="tro-hull">Hull <b>100</b> / 100</span><span class="tro-tag tro-tag--bug"><b>-6</b> hit, ship destroyed</span></p></div>
+            <div class="tro-card tro-card--ok"><p class="tro-cap">Fixed Game</p><div class="tro-arena"><div class="tro-demo"></div><span class="tro-verdict tro-verdict--ok"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="21"/><path d="M13 25 L21 33 L35 16"/></svg></span></div><p class="tro-stat"><span class="tro-hull">Hull <b>100</b> / 100</span><span class="tro-tag tro-tag--ok"><b>-6</b> hit, hull 94</span></p></div>
+            <div class="tro-card tro-card--agent"><p class="tro-cap">Agent Workflow</p><div class="tro-agent">
               <div class="tro-chat"><p class="tro-chat-head"><span>Agent Chat</span><span class="tro-model"><span class="tro-m1">Claude Opus 5.5</span><span class="tro-m2">GPT-6.1 Sol</span></span></p><ol class="tro-msgs"><li class="tro-msg" data-k="0"><code>/describe</code></li><li class="tro-msg" data-k="1"><code>/review</code></li><li class="tro-msg" data-k="2"><code>/plan</code></li><li class="tro-msg" data-k="3"><code>/implement</code></li><li class="tro-msg" data-k="4"><code>/test</code></li><li class="tro-msg" data-k="5"><code>/update</code></li></ol><div class="tro-composer"><span class="tro-input"><span class="tro-typed"></span><i class="tro-caret"></i></span><span class="tro-send"><svg viewBox="0 0 16 16"><path d="M2 8.6 14 2.5 10.6 14 8 9.4z"/></svg></span></div></div>
               <div class="tro-ide"><div class="tro-ide-bar"><i></i><i></i><i></i><span>nexus-defenders</span></div><div class="tro-ide-body"><ul class="tro-files"><li data-f="0">docs/describe.md</li><li data-f="1">docs/review.md</li><li data-f="2">docs/plans/v1.1.0-damage-fix.md</li><li data-old data-f="3">src/damage.js</li><li data-old>src/game.js</li><li data-old>src/hazards.js</li><li data-f="4">tests/damage.test.js</li><li data-old data-f="5">CHANGELOG.md</li></ul><div class="tro-editor"><p class="tro-tab"><span class="tro-tab-name">src/damage.js</span><span class="tro-tab-state"></span></p>
                 <ol class="tro-code" data-f="0" data-path="docs/describe.md"><li><span class="h">## Project Map</span></li><li>| File | Role |</li><li>| `src/game.js` | One frame |</li><li>| `src/damage.js` | Hits and health |</li><li>| `src/hazards.js` | Enemies, asteroids |</li></ol>
@@ -972,7 +975,7 @@ main .eyebrow,main .tr-kicker{display:none;}
                 <ol class="tro-code" data-f="2" data-path="docs/plans/v1.1.0-damage-fix.md"><li><span class="h"># Plan: damage fix</span></li><li>**Version**: v1.1.0</li><li><span class="h">## Phase 1: Health and Shield (P1)</span></li><li><span class="h">## Phase 2: No Random Explosion (P2)</span></li><li><span class="h">## Phase 3: Tests and Changelog</span></li></ol>
                 <ol class="tro-code" data-f="3" data-path="src/damage.js" data-edit><li class="tro-old"><span class="k">export function</span> applyHit(ship, source) {</li><li class="tro-old tro-del">  return { ...ship, destroyed: true };</li><li class="tro-add">  const health = ship.health - DAMAGE[source];</li><li class="tro-add">  return { ...ship, health, destroyed: health &lt;= 0 };</li><li class="tro-old">}</li></ol>
                 <ol class="tro-code" data-f="4" data-path="tests/damage.test.js"><li><span class="k">import</span> { applyHit } <span class="k">from</span> "../src/damage.js";</li><li>test("a 6-damage hit costs 6 health", () =&gt; {</li><li>  const ship = applyHit({ health: 100 }, "chunk");</li><li>  expect(ship.health).toBe(94);</li><li>});</li></ol>
-                <ol class="tro-code" data-f="5" data-path="CHANGELOG.md" data-edit><li class="tro-old"><span class="h"># Changelog</span></li><li class="tro-add"><span class="h">## [1.1.0] Fixed</span></li><li class="tro-add">- A hit costs its damage; the ship flies on</li><li class="tro-add">- No explosion without a hit</li><li class="tro-old"><span class="h">## [1.0.0]</span></li></ol>
+                <ol class="tro-code" data-f="5" data-path="CHANGELOG.md" data-edit><li class="tro-old"><span class="h"># Changelog</span></li><li class="tro-add"><span class="h">## [1.1.0] Fixed</span></li><li class="tro-add">- A hit costs only its damage</li><li class="tro-add">- No explosion without a hit</li><li class="tro-old"><span class="h">## [1.0.0]</span></li></ol>
                 <p class="tro-status">Ready</p></div></div></div>
             </div></div>
           </div>
@@ -983,8 +986,8 @@ main .eyebrow,main .tr-kicker{display:none;}
                  typed commands, and the fixed game share one clock and loop together. */
               var fig = document.currentScript.parentNode;
               var CMDS = ["/describe", "/review", "/plan", "/implement", "/test", "/update"];
-              var GAME = 4000, BUG = 300, FLOW = 4900, SLOT = 2500, OK = FLOW + 6 * SLOT + 300, END = OK + GAME + 400, LOOP = END + 3200;
-              var TYPE0 = 150, CH = 55, SEND = 850, ANSWER = 1050, LINE = 200, DONE = 2300;
+              var GAME = 4000, BUG = 300, FLOW = 4900, SLOT = 3500, OK = FLOW + 6 * SLOT + 300, END = OK + GAME + 400, LOOP = END + 3200;
+              var TYPE0 = 250, CH = 85, SEND = 1350, ANSWER = 1650, LINE = 280, DONE = 3000;
               function init() {
                 var SS = window.SkySentinel;
                 if (!SS || !SS.demo || window.NexusTrainingOpening) return;
@@ -1089,14 +1092,14 @@ main .eyebrow,main .tr-kicker{display:none;}
         </figure>
       </div>
     </div></section>
-    <section class="tr-stage" id="play-buggy" data-stage="play-buggy" aria-labelledby="st-play-buggy"><div class="container"><h2 data-ty="h2" id="st-play-buggy">Play the buggy game</h2><div class="ss-host" data-ss-id="buggy" data-ss-defects="firstHitFatal randomExplosion" data-ss-seed="4242"></div></div></section>
-    <section class="tr-stage" id="describe" data-stage="describe" aria-labelledby="st-describe"><div class="container"><h2 data-ty="h2" id="st-describe">Describe</h2></div></section>
-    <section class="tr-stage" id="review" data-stage="review" aria-labelledby="st-review"><div class="container"><h2 data-ty="h2" id="st-review">Review</h2></div></section>
-    <section class="tr-stage" id="plan" data-stage="plan" aria-labelledby="st-plan"><div class="container"><h2 data-ty="h2" id="st-plan">Plan</h2></div></section>
-    <section class="tr-stage" id="implement" data-stage="implement" aria-labelledby="st-implement"><div class="container"><h2 data-ty="h2" id="st-implement">Implement</h2></div></section>
-    <section class="tr-stage" id="test" data-stage="test" aria-labelledby="st-test"><div class="container"><h2 data-ty="h2" id="st-test">Test</h2></div></section>
-    <section class="tr-stage" id="update" data-stage="update" aria-labelledby="st-update"><div class="container"><h2 data-ty="h2" id="st-update">Update</h2></div></section>
-    <section class="tr-stage" id="play-fixed" data-stage="play-fixed" aria-labelledby="st-play-fixed"><div class="container"><h2 data-ty="h2" id="st-play-fixed">Play the fixed game</h2><div class="ss-host" data-ss-id="fixed" data-ss-defects="" data-ss-seed="4242" data-ss-progression data-ss-boss></div>
+    <section class="tr-stage" id="play-buggy" data-stage="play-buggy" aria-labelledby="st-play-buggy"><div class="container"><h2 data-ty="h2" id="st-play-buggy">Buggy Game</h2><div class="ss-host" data-ss-id="buggy" data-ss-defects="firstHitFatal randomExplosion" data-ss-seed="4242"></div></div></section>
+    <section class="tr-stage" id="describe" data-stage="describe" aria-labelledby="st-describe"><div class="container"><h2 data-ty="h2" id="st-describe">Project Mapping</h2></div></section>
+    <section class="tr-stage" id="review" data-stage="review" aria-labelledby="st-review"><div class="container"><h2 data-ty="h2" id="st-review">Code Review</h2></div></section>
+    <section class="tr-stage" id="plan" data-stage="plan" aria-labelledby="st-plan"><div class="container"><h2 data-ty="h2" id="st-plan">Fix Plan</h2></div></section>
+    <section class="tr-stage" id="implement" data-stage="implement" aria-labelledby="st-implement"><div class="container"><h2 data-ty="h2" id="st-implement">Implementation and Handoff</h2></div></section>
+    <section class="tr-stage" id="test" data-stage="test" aria-labelledby="st-test"><div class="container"><h2 data-ty="h2" id="st-test">Test Coverage</h2></div></section>
+    <section class="tr-stage" id="update" data-stage="update" aria-labelledby="st-update"><div class="container"><h2 data-ty="h2" id="st-update">Release</h2></div></section>
+    <section class="tr-stage" id="play-fixed" data-stage="play-fixed" aria-labelledby="st-play-fixed"><div class="container"><h2 data-ty="h2" id="st-play-fixed">Fixed Game</h2><div class="ss-host" data-ss-id="fixed" data-ss-defects="" data-ss-seed="4242" data-ss-progression data-ss-boss></div>
       <section class="tr-reward" id="trReward" hidden tabindex="-1" aria-labelledby="trRewardTitle">
         <p class="tr-reward-kicker">Final boss defeated</p>
         <h2 class="tr-reward-title" id="trRewardTitle">Nexus Boss Defeated</h2>
@@ -1164,32 +1167,32 @@ main .eyebrow,main .tr-kicker{display:none;}
   {
    "step": "describe",
    "command": "/describe",
-   "label": "map it"
+   "label": "Mapping"
   },
   {
    "step": "review",
    "command": "/review",
-   "label": "judge it"
+   "label": "Review"
   },
   {
    "step": "plan",
    "command": "/plan",
-   "label": "decompose it"
+   "label": "Planning"
   },
   {
    "step": "implement",
    "command": "/implement",
-   "label": "build it"
+   "label": "Build"
   },
   {
    "step": "test",
    "command": "/test",
-   "label": "harden it"
+   "label": "Testing"
   },
   {
    "step": "update",
    "command": "/update",
-   "label": "ship it"
+   "label": "Release"
   }
  ],
  "defaultProvider": "Anthropic",
@@ -1907,7 +1910,7 @@ main .eyebrow,main .tr-kicker{display:none;}
       hull: 100, speed: 1, fire: 1, flame: "#60a5fa", accent: "#3b82f6", scheme: "Dark steel, blue panels" },
     { id: "warden", name: "Warden", role: "Escort carrier", note: "Sturdy, wide, and close-range", weapon: "flak", colour: "green",
       hull: 110, speed: 0.95, fire: 0.9, flame: "#86efac", accent: "#22c55e", scheme: "Olive armour, green wings" },
-    { id: "specter", name: "Specter", role: "Stealth interceptor", note: "Heavy armour, slower to turn", weapon: "orb", colour: "orange",
+    { id: "specter", name: "Specter", role: "Heavy cruiser", note: "Heaviest hull, slowest to turn", weapon: "orb", colour: "orange",
       hull: 125, speed: 0.85, fire: 1.05, flame: "#fdba74", accent: "#f97316", scheme: "Charcoal, orange crystal" },
     { id: "talon", name: "Talon", role: "Needle dagger", note: "The fastest ship, the lightest hull", weapon: "lance", colour: "yellow",
       hull: 80, speed: 1.3, fire: 1, flame: "#fde68a", accent: "#facc15", scheme: "Silver, yellow wings" },
