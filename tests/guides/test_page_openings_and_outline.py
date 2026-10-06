@@ -591,7 +591,7 @@ new MutationObserver(function (records) {
 """
 
 
-@pytest.mark.parametrize("route", ["foundations", "cheatsheets", "foundations/fx-tokens", "cheatsheets/plan"])
+@pytest.mark.parametrize("route", ["home", "foundations", "cheatsheets", "foundations/fx-tokens", "cheatsheets/plan"])
 def test_the_guide_paints_the_hash_page_first(playwright_mod, route: str) -> None:
     target = "page-" + route.split("/")[0]
     with playwright_mod() as pw:
@@ -606,7 +606,9 @@ def test_the_guide_paints_the_hash_page_first(playwright_mod, route: str) -> Non
             active = page.evaluate("document.querySelector('.page.active').id")
         finally:
             browser.close()
-    assert seen.get("page-home") == "none", f"Home painted before {route}: {seen}"
+    # Maintainer review 9: after the Home fix, a no-script fallback still painted Foundations first.
+    others = {k: v for k, v in seen.items() if k != target}
+    assert set(others.values()) == {"none"}, f"another page painted before {route}: {seen}"
     assert seen.get(target) == "block", f"{target} was not shown on first paint: {seen}"
     assert boot is None, "the router clears the first-paint mark"
     assert active == target
