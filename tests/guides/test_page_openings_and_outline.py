@@ -89,7 +89,20 @@ def _assert_opening_figure(block: str, name: str) -> None:
         assert "csf-cursor" in body and "csf-copied" in body
     assert "pg-map" not in block and "pg-glyph" not in block
     lead = re.search(r'class="[^"]*pg-open-lead[^"]*">(.*?)</p>', block, re.S).group(1)
-    assert lead.count(". ") == 0 and len(lead) <= 100, f"{name}: the subtitle is one short sentence"
+    # R24: Training's statement names the workflow and the example, so the cap allows one longer sentence.
+    assert lead.count(". ") == 0 and len(lead) <= 130, f"{name}: the subtitle is one sentence"
+
+
+TRAINING_LEAD = ("A hands-on walkthrough of the Nexus Hub recommended development workflow, "
+                 "using the practical example of fixing a buggy game.")
+
+
+def test_the_training_subtitle_names_the_workflow_and_the_example() -> None:
+    """Maintainer review 8 (R24): the subtitle says what the page trains and through which example."""
+    intro = re.search(r'data-stage="intro".*?</section>', _text(TRAINING), re.DOTALL).group(0)
+    lead = re.search(r'<p data-ty="lead" class="pg-open-lead">([^<]+)</p>', intro).group(1)
+    assert lead == TRAINING_LEAD
+    assert lead.isascii() and not re.search(r"\byou\b", lead, re.I)
 
 
 def test_guide_openings_carry_their_own_figures() -> None:
@@ -432,6 +445,77 @@ def test_the_training_opening_under_reduced_motion_shows_the_end_state(playwrigh
             assert page.evaluate("NexusTrainingOpening.state().t") == t0, "nothing plays"
             anims = page.evaluate("document.querySelector('figure.tro').getAnimations({ subtree: true }).filter(a => a.playState === 'running').length")
             assert anims == 0
+            # R23: the static end state rests the highlight on Fixed Game, with no transition to animate it.
+            assert page.evaluate(ACTIVE) == ["Fixed Game"]
+            assert page.evaluate("getComputedStyle(document.querySelector('.tro-card--ok')).transitionDuration") in ("0s", "0s, 0s")
+        finally:
+            browser.close()
+
+
+# --- R23 (maintainer review 8): the active-panel highlight and the chat inside the IDE ------------
+
+ACTIVE = "[...document.querySelectorAll('figure.tro .tro-card.is-active')].map(c => c.querySelector('.tro-cap').textContent)"
+
+
+def test_the_training_opening_highlights_one_panel_at_a_time_in_story_order(playwright_mod) -> None:
+    """Buggy Game while its scene plays, Agent Workflow while the six commands run, then Fixed Game,
+    which keeps the highlight through the end hold until the loop resets."""
+    with playwright_mod() as pw:
+        browser, page = _opening(pw, 1440, 900)
+        try:
+            m = page.evaluate("NexusTrainingOpening.marks")
+            order = []
+            for ms in range(0, page.evaluate("NexusTrainingOpening.duration"), 100):
+                page.evaluate(f"NexusTrainingOpening.seek({ms})")
+                active = page.evaluate(ACTIVE)
+                assert len(active) == 1, f"exactly one panel is active at {ms} ms: {active}"
+                assert page.evaluate("NexusTrainingOpening.state().active") == {"Buggy Game": "bug", "Agent Workflow": "agent", "Fixed Game": "ok"}[active[0]]
+                if not order or order[-1] != active[0]:
+                    order.append(active[0])
+                if m["flow"] <= ms < m["ok"]:
+                    assert active == ["Agent Workflow"], (ms, active)
+            assert order == ["Buggy Game", "Agent Workflow", "Fixed Game"], order
+            page.evaluate(f"NexusTrainingOpening.seek({m['end'] + 1500})")
+            assert page.evaluate(ACTIVE) == ["Fixed Game"], "the end hold rests on Fixed Game"
+            page.evaluate("NexusTrainingOpening.seek(0)")
+            assert page.evaluate(ACTIVE) == ["Buggy Game"], "the loop resets to Buggy Game"
+            ring = page.evaluate("""(() => { const a = getComputedStyle(document.querySelector('.tro-card--bug')),
+                b = getComputedStyle(document.querySelector('.tro-card--ok'));
+                return { on: a.borderTopColor, off: b.borderTopColor, shadow: a.boxShadow, dur: a.transitionDuration }; })()""")
+            assert ring["on"] != ring["off"] and ring["shadow"] != "none", ring
+            assert ring["dur"] != "0s", "the highlight moves with a transition"
+        finally:
+            browser.close()
+
+
+CHAT = """() => { const f = document.querySelector('figure.tro'), r = s => f.querySelector(s).getBoundingClientRect();
+    const ide = r('.tro-ide'), body = r('.tro-ide-body'), ed = r('.tro-editor'), ch = r('.tro-chat');
+    const bubbles = [...f.querySelectorAll('.tro-msg')].map(b => b.scrollWidth <= b.clientWidth + 1 && b.getBoundingClientRect().right <= ch.right + 1);
+    return { inside: !!f.querySelector('.tro-ide > .tro-ide-body > .tro-chat'), chrome: f.querySelectorAll('.tro-ide > .tro-ide-bar i').length,
+             ide: [ide.left, ide.right, ide.bottom], body: [body.top, body.bottom], ed: [ed.left, ed.right, ed.top, ed.bottom],
+             ch: [ch.left, ch.right, ch.top, ch.bottom], bubbles,
+             parts: !!f.querySelector('.tro-chat .tro-model') && !!f.querySelector('.tro-chat .tro-composer') && f.querySelectorAll('.tro-chat .tro-msg').length }; }"""
+
+
+@pytest.mark.parametrize("width,height", [(1440, 900), (390, 844)])
+def test_the_training_chat_is_the_ides_right_hand_pane(playwright_mod, width: int, height: int) -> None:
+    """One window chrome holds explorer | editor | chat at desktop; on a phone the chat stacks under the editor."""
+    with playwright_mod() as pw:
+        browser, page = _opening(pw, width, height)
+        try:
+            page.evaluate("NexusTrainingOpening.seek(NexusTrainingOpening.marks.end + 100)")
+            g = page.evaluate(CHAT)
+            assert g["inside"] and g["chrome"] == 3 and g["parts"] == 6, g
+            assert all(g["bubbles"]), f"no command bubble is truncated: {g}"
+            ide, ed, ch = g["ide"], g["ed"], g["ch"]
+            assert ide[0] - 1 <= ed[0] and ch[1] <= ide[1] + 1 and ch[3] <= ide[2] + 1, g
+            if width >= 960:
+                assert ch[0] >= ed[1] - 1 and abs(ch[2] - ed[2]) <= 1, f"the chat sits right of the editor: {g}"
+                assert page.evaluate("document.querySelector('.tro-files').getClientRects().length") > 0, "the explorer shows"
+            else:
+                assert ch[2] >= ed[3] - 1, f"the chat stacks under the editor: {g}"
+            assert page.evaluate("document.documentElement.scrollWidth") <= width
+            assert page.evaluate(SCROLLBARS) == []
         finally:
             browser.close()
 
@@ -575,3 +659,59 @@ def test_previous_and_next_follow_the_site_order(playwright_mod, route: str, pre
     assert data["next"] == (list(nxt) if nxt else None), data
     assert data["dots"] == ["Go to Home", "Go to Foundations", "Go to Training", "Go to Cheatsheets"], data
     assert data["on"] == ["home", "foundations", "training", "cheatsheets"].index(route), data
+
+
+def test_training_ends_with_the_same_previous_next_and_dots(playwright_mod) -> None:
+    """R25 (T097): Training's footer names Foundations and Cheatsheets and matches the guide's look."""
+    read = """(sel) => { const nav = document.querySelector(sel + ' [data-pagenav]'), dots = [...document.querySelectorAll(sel + ' [data-progress] a')];
+        const pick = (cls) => { const a = nav.querySelector('a.' + cls + ':not(.disabled)');
+            return a ? [a.querySelector('.pn-t').textContent.replace(/[^A-Za-z ]/g, '').trim(), a.getAttribute('href')] : null; };
+        const look = (el) => { const s = getComputedStyle(el); return [s.borderTopColor, s.borderRadius, s.paddingTop, s.fontSize, s.backgroundColor]; };
+        return { prev: pick('prev'), next: pick('next'), dots: dots.map(a => [a.getAttribute('aria-label'), a.getAttribute('title'), a.getAttribute('aria-current')]),
+                 on: dots.findIndex(a => a.classList.contains('on')), last: !nav.parentElement.nextElementSibling,
+                 look: [look(nav.querySelector('a.prev')), look(nav.querySelector('.pn-k')), look(dots[0]), getComputedStyle(nav).marginTop] }; }"""
+    with playwright_mod() as pw:
+        browser = pw.chromium.launch()
+        try:
+            page = browser.new_page(viewport={"width": 1440, "height": 900})
+            page.goto(TRAINING.as_uri())
+            page.wait_for_function("window.NexusTrainingPage")
+            training = page.evaluate(read, "main")
+            page.goto(GUIDE.as_uri() + "#foundations")
+            page.wait_for_timeout(300)
+            guide = page.evaluate(read, "#page-foundations")
+        finally:
+            browser.close()
+    assert training["prev"] == ["Foundations", "nexus-hub-guide.html#foundations"], training
+    assert training["next"] == ["Cheatsheets", "nexus-hub-guide.html#cheatsheets"], training
+    assert training["dots"] == [["Go to Home", "Home", None], ["Go to Foundations", "Foundations", None],
+                                ["Go to Training", "Training", "page"], ["Go to Cheatsheets", "Cheatsheets", None]], training
+    assert training["on"] == 2 and training["last"], training
+    assert training["look"] == guide["look"], "the Training footer is styled exactly like the guide's"
+
+
+@pytest.mark.parametrize("width", [1440, 390])
+def test_the_opening_subtitle_shares_one_larger_size(playwright_mod, width: int) -> None:
+    """R24 (T094): one size on Foundations, Training, and Cheatsheets, between body text and H2."""
+    probe = """() => { const vis = s => [...document.querySelectorAll(s)].find(e => e.getClientRects().length);
+        const px = e => parseFloat(getComputedStyle(e).fontSize);
+        return { lead: px(vis('.pg-open-lead')), h2: px(vis('main h2:not(.tr-reward-title)')), body: px(vis('main [data-ty="body"]') || document.body) }; }"""
+    sizes = {}
+    with playwright_mod() as pw:
+        browser = pw.chromium.launch()
+        try:
+            page = browser.new_page(viewport={"width": width, "height": 900})
+            for name, url in (("foundations", GUIDE.as_uri() + "#foundations"), ("training", TRAINING.as_uri()),
+                              ("cheatsheets", GUIDE.as_uri() + "#cheatsheets")):
+                page.goto(url)
+                page.wait_for_timeout(300)
+                sizes[name] = page.evaluate(probe)
+        finally:
+            browser.close()
+    leads = {s["lead"] for s in sizes.values()}
+    assert len(leads) == 1, sizes
+    lead = leads.pop()
+    for s in sizes.values():
+        assert s["body"] + 1.5 <= lead <= s["h2"] - 2, sizes
+    if width == 1440:
+        assert 21 <= lead <= 24, sizes

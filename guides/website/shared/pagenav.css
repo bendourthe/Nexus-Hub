@@ -1,0 +1,12 @@
+/* ---------- Page prev/next (shared, v4.13.10 R25) ---------- The Previous and Next links and the progress dots at the end of Foundations, Training, and Cheatsheets. */
+.pagenav{display:flex;justify-content:space-between;gap:var(--sp-3);margin-top:var(--sp-7);}
+.pagenav a { flex: 0 1 auto;width: auto;padding: 8px 16px;border: 1px solid var(--border);border-radius: var(--radius-sm);background: var(--surface);color: var(--ink-dim); }
+.pagenav a:hover:not(.disabled){border-color:var(--border-bright);color:var(--ink);}
+.pagenav a.next{text-align:right;}
+.pagenav a.disabled{color:var(--ink-faint);background:transparent;pointer-events:none;}
+.pagenav .pn-k{display:block;font-size:15px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-faint);}
+.pagenav .pn-t{font-weight:600;font-size:15px;}
+.progress-dots{display:flex;gap:2px;justify-content:center;margin-top:var(--sp-4);}
+.progress-dots a{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;}
+.progress-dots a::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--ink-faint);}
+.progress-dots a.on::before{background:var(--accent);}

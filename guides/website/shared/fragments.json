@@ -17,6 +17,10 @@
       "syntax": "css",
       "file": "footer.css"
     },
+    "pagenav-css": {
+      "syntax": "css",
+      "file": "pagenav.css"
+    },
     "type-css": {
       "syntax": "css",
       "file": "type.css"
@@ -112,7 +116,8 @@
         "opening-css",
         "outline-css",
         "outline-js",
-        "motion-css"
+        "motion-css",
+        "pagenav-css"
       ]
     },
     "training.html": {

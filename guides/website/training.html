@@ -129,12 +129,28 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .site-footer p{margin:0 auto;}
 .site-footer a{color:var(--ink-dim);text-decoration:underline;}
 /* /shared:footer-css */
+/* shared:pagenav-css */
+/* ---------- Page prev/next (shared, v4.13.10 R25) ---------- The Previous and Next links and the progress dots at the end of Foundations, Training, and Cheatsheets. */
+.pagenav{display:flex;justify-content:space-between;gap:var(--sp-3);margin-top:var(--sp-7);}
+.pagenav a { flex: 0 1 auto;width: auto;padding: 8px 16px;border: 1px solid var(--border);border-radius: var(--radius-sm);background: var(--surface);color: var(--ink-dim); }
+.pagenav a:hover:not(.disabled){border-color:var(--border-bright);color:var(--ink);}
+.pagenav a.next{text-align:right;}
+.pagenav a.disabled{color:var(--ink-faint);background:transparent;pointer-events:none;}
+.pagenav .pn-k{display:block;font-size:15px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-faint);}
+.pagenav .pn-t{font-weight:600;font-size:15px;}
+.progress-dots{display:flex;gap:2px;justify-content:center;margin-top:var(--sp-4);}
+.progress-dots a{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;}
+.progress-dots a::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--ink-faint);}
+.progress-dots a.on::before{background:var(--accent);}
+/* /shared:pagenav-css */
 /* shared:opening-css */
 /* ---------- Page opening (v4.13.10, shared) ---------- Foundations, Cheatsheets, and Training open the same way: a centred title in the Home hero-subtitle style with one gradient phrase, a one-paragraph description, then a full-width visual summary of what the page holds. */
 .pg-open{text-align:center;padding:var(--sp-5) 0 var(--sp-4);}
 .pg-open-title{margin:var(--sp-5) auto 0;text-align:center;text-wrap:balance;color:var(--ink);}
 .pg-open .gtext{color:var(--ink);background:linear-gradient(90deg,var(--cyan),var(--teal));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
 .pg-open-lead{margin:var(--sp-3) auto 0;text-align:center;color:var(--ink-dim);text-wrap:pretty;}
+/* R24: the opening subtitle reads as the page's statement, a clear step above body text and below H2 (22 px at 1440). */
+.pg-open .pg-open-lead[data-ty="lead"]{font-size:clamp(1.125rem,.8rem + .8vw,1.375rem);line-height:1.45;}
 /* Each opening ends with one figure of what the page holds, built in HTML so text stays crisp and the layout reflows on a phone. Motion is continuous and quick (no slide-by-slide reveals); every figure has a reduced-motion still. */
 .pg-fig{margin:var(--sp-5) auto 0;padding:var(--sp-4);border:1px solid var(--border);border-radius:18px;background:radial-gradient(120% 140% at 50% 0%,color-mix(in srgb,var(--accent) 7%,var(--surface)),var(--surface));text-align:left;}
 /* Code inside a figure is part of the drawing, not an inline code chip. */
@@ -715,7 +731,9 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
    by writing or editing a file. The figure's own script drives all three from one timeline. */
 .tro{padding:var(--sp-4);}
 .tro-ui{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"bug ok" "agent agent";gap:14px;}
-.tro-card{display:flex;flex-direction:column;gap:10px;min-width:0;padding:12px;border:1px solid var(--border);border-radius:14px;background:var(--bg-0,var(--surface));}
+.tro-card{display:flex;flex-direction:column;gap:10px;min-width:0;padding:12px;border:1px solid var(--border);border-radius:14px;background:var(--bg-0,var(--surface));transition:border-color .4s ease,box-shadow .4s ease;}
+/* R23: the panel the story is on carries the accent ring: Buggy Game, then Agent Workflow, then Fixed Game. */
+.tro-card.is-active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 0 22px -6px var(--accent);}
 .tro-card--bug{grid-area:bug;}.tro-card--ok{grid-area:ok;}.tro-card--agent{grid-area:agent;}
 .tro-cap{display:flex;align-items:center;gap:8px;margin:0;font-size:var(--ty-body-sm);font-weight:700;color:var(--ink);}
 .tro-arena{position:relative;aspect-ratio:16 / 10;overflow:hidden;border-radius:10px;background:#040c11;}
@@ -733,9 +751,8 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .tro-tag.is-on{opacity:1;}
 .tro-tag--bug{background:rgba(127,29,29,.9);color:#fee2e2;}
 .tro-tag--ok{background:rgba(20,83,45,.9);color:#dcfce7;}
-.tro-agent{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.8fr);gap:12px;}
-.tro-chat{display:flex;flex-direction:column;gap:10px;min-width:0;padding:10px;border:1px solid #333;border-radius:9px;background:#181818;color:#e5e7eb;}
-.tro-chat-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0;font-size:11.5px;color:#9d9d9d;}
+.tro-chat{display:flex;flex-direction:column;gap:10px;min-width:0;padding:8px 10px 10px;border-left:1px solid #2b2b2b;background:#181818;color:#e5e7eb;}
+.tro-chat-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 -10px;padding:0 10px 7px;border-bottom:1px solid #2b2b2b;font-size:11.5px;color:#9d9d9d;}
 .tro-model{display:inline-grid;padding:2px 8px;border-radius:6px;background:#2b2b2b;font-weight:700;color:#e5e7eb;}
 .tro-m1,.tro-m2{grid-area:1 / 1;white-space:nowrap;transition:opacity .3s;}
 .tro-m2,.tro-agent.is-handoff .tro-m1{opacity:0;}
@@ -757,7 +774,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .tro-ide-bar{display:flex;align-items:center;gap:5px;padding:5px 8px;border-bottom:1px solid #2b2b2b;background:#181818;font-size:10.5px;color:#9d9d9d;}
 .tro-ide-bar i{width:7px;height:7px;border-radius:50%;background:#f87171;}.tro-ide-bar i:nth-child(2){background:#fbbf24;}.tro-ide-bar i:nth-child(3){background:#4ade80;}
 .tro-ide-bar span{margin:0 auto;font-family:var(--mono);}
-.tro-ide-body{display:grid;grid-template-columns:minmax(0,14.5rem) minmax(0,1fr);flex:1;}
+.tro-ide-body{display:grid;grid-template-columns:minmax(0,14.5rem) minmax(0,1fr) minmax(0,16rem);flex:1;}
 .tro-files{margin:0;padding:6px 0;list-style:none;border-right:1px solid #2b2b2b;background:#181818;font:11px/1.9 var(--mono);}
 .tro-files li{padding:0 10px;overflow:hidden;color:#9d9d9d;white-space:nowrap;text-overflow:ellipsis;}
 .tro-files li:not(.is-on){display:none;}
@@ -780,10 +797,14 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .tro-add{background:rgba(115,201,145,.12);color:#b5e8c4;}
 .tro-code .tro-del.is-on{color:#f48771;text-decoration:line-through;background:rgba(244,135,113,.1);}
 .tro-status{margin:0;padding:3px 10px;overflow:hidden;background:color-mix(in srgb,var(--accent) 28%,#181818);font:10.5px/1.6 var(--mono);color:#e5e7eb;white-space:nowrap;text-overflow:ellipsis;}
+@media (max-width:959px){
+  .tro-ide-body{grid-template-columns:minmax(0,1fr) minmax(0,15rem);}
+  .tro-files{display:none;}
+}
 @media (max-width:719px){
   .tro-ui{grid-template-columns:minmax(0,1fr);grid-template-areas:"bug" "agent" "ok";}
-  .tro-agent{grid-template-columns:minmax(0,1fr);}
   .tro-ide-body{grid-template-columns:minmax(0,1fr);}
+  .tro-chat{border-left:0;border-top:1px solid #2b2b2b;}
   .tro-files{display:none;}
   .tro-code{min-height:calc(9 * 1.75em + 16px);font-size:12px;line-height:1.75;}
   .tro-msgs{flex-direction:row;flex-wrap:wrap;align-content:flex-start;justify-content:flex-start;}
@@ -964,22 +985,22 @@ main .eyebrow,main .tr-kicker{display:none;}
     <section class="tr-stage" id="intro" data-stage="intro" aria-labelledby="st-intro"><div class="container">
       <div class="pg-open">
         <h1 data-ty="h1" class="pg-open-title" id="st-intro">Development Workflow Training</h1>
-        <p data-ty="lead" class="pg-open-lead">Watch an agent fix a buggy game, one command at a time, then play the result.</p>
+        <p data-ty="lead" class="pg-open-lead">A hands-on walkthrough of the Nexus Hub recommended development workflow, using the practical example of fixing a buggy game.</p>
         <figure class="pg-fig tro" aria-label="What this page shows: in the buggy game a gunship bolt deals 6 damage and destroys the ship outright, emptying its 100-point hull, which is the bug, and a red cross marks it; an agent then types the six commands of the Development Workflow into a chat, one at a time, and an IDE answers each one by writing or editing a file: the project map, the review, the plan, the damage fix in src/damage.js, its test, and the changelog, handing off from Claude to OpenAI during the implementation; in the fixed game the same 6-damage bolt takes the hull from 100 to 94 and the ship flies on, and a green check confirms the fix.">
           <div class="tro-ui" aria-hidden="true">
             <div class="tro-card tro-card--bug"><p class="tro-cap">Buggy Game</p><div class="tro-arena"><div class="tro-demo"></div><span class="tro-verdict tro-verdict--bug"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="21"/><path d="M15 15 L33 33 M33 15 L15 33"/></svg></span></div><p class="tro-stat"><span class="tro-hull">Hull <b>100</b> / 100</span><span class="tro-tag tro-tag--bug"><b>-6</b> hit, ship destroyed</span></p></div>
             <div class="tro-card tro-card--ok"><p class="tro-cap">Fixed Game</p><div class="tro-arena"><div class="tro-demo"></div><span class="tro-verdict tro-verdict--ok"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="21"/><path d="M13 25 L21 33 L35 16"/></svg></span></div><p class="tro-stat"><span class="tro-hull">Hull <b>100</b> / 100</span><span class="tro-tag tro-tag--ok"><b>-6</b> hit, hull 94</span></p></div>
-            <div class="tro-card tro-card--agent"><p class="tro-cap">Agent Workflow</p><div class="tro-agent">
-              <div class="tro-chat"><p class="tro-chat-head"><span>Agent Chat</span><span class="tro-model"><span class="tro-m1">Claude Opus 5.5</span><span class="tro-m2">GPT-6.1 Sol</span></span></p><ol class="tro-msgs"><li class="tro-msg" data-k="0"><code>/describe</code></li><li class="tro-msg" data-k="1"><code>/review</code></li><li class="tro-msg" data-k="2"><code>/plan</code></li><li class="tro-msg" data-k="3"><code>/implement</code></li><li class="tro-msg" data-k="4"><code>/test</code></li><li class="tro-msg" data-k="5"><code>/update</code></li></ol><div class="tro-composer"><span class="tro-input"><span class="tro-typed"></span><i class="tro-caret"></i></span><span class="tro-send"><svg viewBox="0 0 16 16"><path d="M2 8.6 14 2.5 10.6 14 8 9.4z"/></svg></span></div></div>
-              <div class="tro-ide"><div class="tro-ide-bar"><i></i><i></i><i></i><span>nexus-defenders</span></div><div class="tro-ide-body"><ul class="tro-files"><li data-f="0">docs/describe.md</li><li data-f="1">docs/review.md</li><li data-f="2">docs/plans/v1.1.0-damage-fix.md</li><li data-old data-f="3">src/damage.js</li><li data-old>src/game.js</li><li data-old>src/hazards.js</li><li data-f="4">tests/damage.test.js</li><li data-old data-f="5">CHANGELOG.md</li></ul><div class="tro-editor"><p class="tro-tab"><span class="tro-tab-name">src/damage.js</span><span class="tro-tab-state"></span></p>
+            <div class="tro-card tro-card--agent"><p class="tro-cap">Agent Workflow</p>
+              <div class="tro-ide tro-agent"><div class="tro-ide-bar"><i></i><i></i><i></i><span>nexus-defenders</span></div><div class="tro-ide-body"><ul class="tro-files"><li data-f="0">docs/describe.md</li><li data-f="1">docs/review.md</li><li data-f="2">docs/plans/v1.1.0-damage-fix.md</li><li data-old data-f="3">src/damage.js</li><li data-old>src/game.js</li><li data-old>src/hazards.js</li><li data-f="4">tests/damage.test.js</li><li data-old data-f="5">CHANGELOG.md</li></ul><div class="tro-editor"><p class="tro-tab"><span class="tro-tab-name">src/damage.js</span><span class="tro-tab-state"></span></p>
                 <ol class="tro-code" data-f="0" data-path="docs/describe.md"><li><span class="h">## Project Map</span></li><li>| File | Role |</li><li>| `src/game.js` | One frame |</li><li>| `src/damage.js` | Hits and health |</li><li>| `src/hazards.js` | Enemies, asteroids |</li></ol>
                 <ol class="tro-code" data-f="1" data-path="docs/review.md"><li><span class="h">## Review Findings</span></li><li><span class="h">### P1: Fatal First Hit</span></li><li>- `applyHit` returns `destroyed: true` on every hit</li><li><span class="h">### P2: Random Explosion</span></li><li>- `hazards.js` ends a run with no hit</li></ol>
                 <ol class="tro-code" data-f="2" data-path="docs/plans/v1.1.0-damage-fix.md"><li><span class="h"># Plan: damage fix</span></li><li>**Version**: v1.1.0</li><li><span class="h">## Phase 1: Health and Shield (P1)</span></li><li><span class="h">## Phase 2: No Random Explosion (P2)</span></li><li><span class="h">## Phase 3: Tests and Changelog</span></li></ol>
                 <ol class="tro-code" data-f="3" data-path="src/damage.js" data-edit><li class="tro-old"><span class="k">export function</span> applyHit(ship, source) {</li><li class="tro-old tro-del">  return { ...ship, destroyed: true };</li><li class="tro-add">  const health = ship.health - DAMAGE[source];</li><li class="tro-add">  return { ...ship, health, destroyed: health &lt;= 0 };</li><li class="tro-old">}</li></ol>
                 <ol class="tro-code" data-f="4" data-path="tests/damage.test.js"><li><span class="k">import</span> { applyHit } <span class="k">from</span> "../src/damage.js";</li><li>test("a 6-damage hit costs 6 health", () =&gt; {</li><li>  const ship = applyHit({ health: 100 }, "chunk");</li><li>  expect(ship.health).toBe(94);</li><li>});</li></ol>
                 <ol class="tro-code" data-f="5" data-path="CHANGELOG.md" data-edit><li class="tro-old"><span class="h"># Changelog</span></li><li class="tro-add"><span class="h">## [1.1.0] Fixed</span></li><li class="tro-add">- A hit costs only its damage</li><li class="tro-add">- No explosion without a hit</li><li class="tro-old"><span class="h">## [1.0.0]</span></li></ol>
-                <p class="tro-status">Ready</p></div></div></div>
-            </div></div>
+                <p class="tro-status">Ready</p></div>
+                <div class="tro-chat"><p class="tro-chat-head"><span>Agent Chat</span><span class="tro-model"><span class="tro-m1">Claude Opus 5.5</span><span class="tro-m2">GPT-6.1 Sol</span></span></p><ol class="tro-msgs"><li class="tro-msg" data-k="0"><code>/describe</code></li><li class="tro-msg" data-k="1"><code>/review</code></li><li class="tro-msg" data-k="2"><code>/plan</code></li><li class="tro-msg" data-k="3"><code>/implement</code></li><li class="tro-msg" data-k="4"><code>/test</code></li><li class="tro-msg" data-k="5"><code>/update</code></li></ol><div class="tro-composer"><span class="tro-input"><span class="tro-typed"></span><i class="tro-caret"></i></span><span class="tro-send"><svg viewBox="0 0 16 16"><path d="M2 8.6 14 2.5 10.6 14 8 9.4z"/></svg></span></div></div></div></div>
+            </div>
           </div>
           <script>
             (function () {
@@ -1023,6 +1044,7 @@ main .eyebrow,main .tr-kicker{display:none;}
                 var msgs = qa(".tro-msg"), files = qa(".tro-files li"), codes = qa(".tro-code");
                 var steps = codes.map(function (ol) { return qa(".tro-del, li:not(.tro-old)", ol); });
                 var typed = q(".tro-typed"), send = q(".tro-send"), agent = q(".tro-agent");
+                var cards = { bug: bug.card, agent: q(".tro-card--agent"), ok: ok.card };
                 var tabName = q(".tro-tab-name"), tabState = q(".tro-tab-state"), status = q(".tro-status");
                 var t = 0, last = 0, raf = 0, seen = true, paused = false, out = {};
                 function render(now) {
@@ -1059,10 +1081,13 @@ main .eyebrow,main .tr-kicker{display:none;}
                   send.classList.toggle("is-on", k >= 0 && k < 6 && s >= SEND - 180 && s < SEND + 120);
                   agent.classList.toggle("is-handoff", k > 3 || (k === 3 && s >= SEND));
                   setText(status, phase);
+                  /* R23: one panel is active at a time; the end hold rests on Fixed Game. */
+                  var active = t < FLOW ? "bug" : t < OK ? "agent" : "ok";
+                  for (var key in cards) cards[key].classList.toggle("is-active", key === active);
                   out = { t: t, command: k >= 0 && k < 6 ? CMDS[k] : null, typed: text, file: path, lines: shown,
                           sent: msgs.filter(function (m) { return m.classList.contains("is-sent"); }).map(function (m) { return m.textContent; }),
                           model: agent.classList.contains("is-handoff") ? "GPT-6.1 Sol" : "Claude Opus 5.5",
-                          buggy: bug.st, fixed: ok.st, bugVerdict: bugX, okVerdict: okV };
+                          buggy: bug.st, fixed: ok.st, bugVerdict: bugX, okVerdict: okV, active: active };
                 }
                 function running() { return !paused && !reduce && seen && document.visibilityState !== "hidden"; }
                 function frame(now) {
@@ -1113,6 +1138,11 @@ main .eyebrow,main .tr-kicker{display:none;}
         </div>
         <p class="tr-reward-note">The installer is about 270 MB and comes from the project&#39;s latest GitHub release. The project page explains what it installs.</p>
       </section></div></section>
+    <!-- R25: the site order Home, Foundations, Training, Cheatsheets; the guide's router writes the same markup on its pages. -->
+    <div class="container">
+      <div class="pagenav" data-pagenav><a class="prev" href="nexus-hub-guide.html#foundations"><span class="pn-k">Previous</span><span class="pn-t">&larr; Foundations</span></a><a class="next" href="nexus-hub-guide.html#cheatsheets"><span class="pn-k">Next</span><span class="pn-t">Cheatsheets &rarr;</span></a></div>
+      <div class="progress-dots" data-progress><a class="" href="nexus-hub-guide.html#home" aria-label="Go to Home" title="Home"></a><a class="" href="nexus-hub-guide.html#foundations" aria-label="Go to Foundations" title="Foundations"></a><a class="on" href="#intro" aria-label="Go to Training" aria-current="page" title="Training"></a><a class="" href="nexus-hub-guide.html#cheatsheets" aria-label="Go to Cheatsheets" title="Cheatsheets"></a></div>
+    </div>
   </main>
 
 <!-- shared:footer -->

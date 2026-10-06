@@ -365,10 +365,10 @@ def _collect_audit_failures(
     if is_training:
         return
     progress_dots = audit["progressDots"]
-    guide_pages = [page for page in PAGES if page != "training"]
-    if len(progress_dots) != len(guide_pages):
+    # v4.13.10 R25: the dots follow the site order, Training included, on every page.
+    if len(progress_dots) != len(PAGES):
         failures.append(
-            f"{case}: expected {len(guide_pages)} progress-dot anchors, "
+            f"{case}: expected {len(PAGES)} progress-dot anchors, "
             f"found {len(progress_dots)}"
         )
         return

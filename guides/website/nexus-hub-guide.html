@@ -301,6 +301,8 @@ to{transform:scaleX(1);}
 .pg-open-title{margin:var(--sp-5) auto 0;text-align:center;text-wrap:balance;color:var(--ink);}
 .pg-open .gtext{color:var(--ink);background:linear-gradient(90deg,var(--cyan),var(--teal));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
 .pg-open-lead{margin:var(--sp-3) auto 0;text-align:center;color:var(--ink-dim);text-wrap:pretty;}
+/* R24: the opening subtitle reads as the page's statement, a clear step above body text and below H2 (22 px at 1440). */
+.pg-open .pg-open-lead[data-ty="lead"]{font-size:clamp(1.125rem,.8rem + .8vw,1.375rem);line-height:1.45;}
 /* Each opening ends with one figure of what the page holds, built in HTML so text stays crisp and the layout reflows on a phone. Motion is continuous and quick (no slide-by-slide reveals); every figure has a reduced-motion still. */
 .pg-fig{margin:var(--sp-5) auto 0;padding:var(--sp-4);border:1px solid var(--border);border-radius:18px;background:radial-gradient(120% 140% at 50% 0%,color-mix(in srgb,var(--accent) 7%,var(--surface)),var(--surface));text-align:left;}
 /* Code inside a figure is part of the drawing, not an inline code chip. */
@@ -924,7 +926,8 @@ html[data-theme="light"] .tab-btn.active{color:#fffdf8;}
 details{border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;margin:var(--sp-3) 0;background:var(--surface);font-size:15px;}
 details summary{cursor:pointer;font-weight:600;color:var(--ink-dim);}
 details[open] summary{margin-bottom:var(--sp-2);color:var(--ink);}
-/* ---------- Page prev/next ---------- */
+/* shared:pagenav-css */
+/* ---------- Page prev/next (shared, v4.13.10 R25) ---------- The Previous and Next links and the progress dots at the end of Foundations, Training, and Cheatsheets. */
 .pagenav{display:flex;justify-content:space-between;gap:var(--sp-3);margin-top:var(--sp-7);}
 .pagenav a { flex: 0 1 auto;width: auto;padding: 8px 16px;border: 1px solid var(--border);border-radius: var(--radius-sm);background: var(--surface);color: var(--ink-dim); }
 .pagenav a:hover:not(.disabled){border-color:var(--border-bright);color:var(--ink);}
@@ -936,6 +939,7 @@ details[open] summary{margin-bottom:var(--sp-2);color:var(--ink);}
 .progress-dots a{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;}
 .progress-dots a::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--ink-faint);}
 .progress-dots a.on::before{background:var(--accent);}
+/* /shared:pagenav-css */
 /* ---------- Foundations scenes ---------- */
 .fx-scene{display:grid;grid-template-columns:minmax(280px,5fr) minmax(320px,7fr);gap:30px;align-items:center;padding:26px 0;border-top:1px solid var(--border);}
 .fx-scene:first-of-type{border-top:0;}
