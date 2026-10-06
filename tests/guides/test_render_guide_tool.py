@@ -82,9 +82,9 @@ HOME_RUNTIME_METRICS = r"""
     };
   }
 
-  const lockup = document.querySelector(".hero-lockup.in");
+  const lockup = document.querySelector(".hero-lockup");
   const wordmark = document.querySelector(".hero-wordmark");
-  if (!lockup || !wordmark) throw new Error("Home hero lockup did not enter its revealed state");
+  if (!lockup || !wordmark) throw new Error("Home hero lockup did not render");
   const wordmarkRange = document.createRange();
   wordmarkRange.selectNodeContents(wordmark);
 
@@ -260,7 +260,7 @@ def test_home_runtime_contract_across_themes_and_widths(
                     try:
                         page.goto(f"{guide_url}#home", wait_until="load")
                         page.wait_for_selector(
-                            ".hero-lockup.in",
+                            ".hero-lockup",
                             state="attached",
                             timeout=3000,
                         )

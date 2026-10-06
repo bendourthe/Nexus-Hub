@@ -147,12 +147,8 @@ def main(argv: list[str] | None = None) -> int:
                             page.goto(f"{TRAINING.resolve().as_uri()}#intro{args.extra_hash}")
                         else:
                             page.goto(f"{url}#{page_id}{args.extra_hash}")
-                        page.wait_for_timeout(900)  # settle reveals/typewriters
-                        # Full-page shots never scroll, so scroll-gated reveals
-                        # would render transparent; force their end state.
+                        page.wait_for_timeout(900)  # settle typewriters
                         page.evaluate(
-                            "document.querySelectorAll('.reveal:not(.in)')"
-                            ".forEach(function (el) { el.classList.add('in'); });"
                             # Sticky + backdrop-filter headers stitch as a dark
                             # band in full-page shots; pin the header in flow.
                             "var h = document.querySelector('.site-header');"

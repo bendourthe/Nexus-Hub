@@ -508,8 +508,10 @@ def test_pagenav_controls_hug_their_label(guide_text: str) -> None:
 def test_invocation_convention_exists_and_is_used(
     parsed: GuideParser, guide_text: str
 ) -> None:
-    for cls in (".inv-cmd", ".inv-arg", ".inv-ph"):
+    for cls in (".inv-arg", ".inv-ph"):
         assert re.search(re.escape(cls) + r"\s*\{", guide_text), f"missing {cls} rule"
+    # v4.13.10 R27: the command name's colour is the accent tone of the code role, defined in type.css.
+    assert '<span data-ty="code" data-tone="accent" class="inv-cmd">' in guide_text
     assert 'class="inv-cmd"' in guide_text, "the convention must be used, not just defined"
     # A split invocation must still copy as its plain text.
     for payload, visible in parsed.all_data_copy:
@@ -519,17 +521,11 @@ def test_invocation_convention_exists_and_is_used(
             )
 
 
-def test_reveal_motion_has_static_reduced_fallback(guide_text: str) -> None:
-    assert ".reveal" in guide_text
-    reduce_blocks = re.findall(
-        r"@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{((?:[^{}]|\{[^{}]*\})*)\}",
-        guide_text,
-    )
-    assert reduce_blocks, "expected a reduced-motion block"
-    assert any(
-        re.search(r"\.js \.reveal\s*\{[^}]*opacity:\s*1", block)
-        for block in reduce_blocks
-    ), "reduced motion must expose reveal content regardless of stylesheet ordering"
+def test_no_section_waits_on_a_scroll_reveal(guide_text: str) -> None:
+    """v4.13.10 R30: sections are visible the moment they scroll in; the reveal and its observer are gone."""
+    assert not re.search(r'class="[^"]*\breveal\b', guide_text), "no element carries the reveal class"
+    assert ".js .reveal" not in guide_text and "observeReveals" not in guide_text
+    assert "reveal-delay" not in guide_text
 
 
 def test_copy_button_is_slim(guide_text: str) -> None:
@@ -574,11 +570,11 @@ def _home_markup(guide_text: str) -> str:
 
 def test_home_identity_is_centered_nonwrapping_and_observer_gated(guide_text: str) -> None:
     home = _home_markup(guide_text)
-    assert 'class="hero-lockup reveal"' in home
+    assert 'class="hero-lockup"' in home
     # v4.4.1 Phase 2: the mark and wordmark share an inner float wrapper, and the title is
     # two nav-matched spans rather than the hyphenated single string.
     assert re.search(
-        r'<div class="hero-lockup reveal">\s*<div class="hero-lockup-float">\s*'
+        r'<div class="hero-lockup">\s*<div class="hero-lockup-float">\s*'
         r'<svg class="hero-mark"[\s\S]*?</svg>\s*'
         r'<h1[^>]*class="hero-wordmark"><b>Nexus</b> <span>Hub</span></h1>',
         home,
@@ -600,10 +596,11 @@ def test_home_identity_is_centered_nonwrapping_and_observer_gated(guide_text: st
     assert display_token and "clamp(" in display_token.group(1), (
         "the 320 px lockup needs fluid type"
     )
-    assert ".js .hero-lockup.reveal .hero-mark" in guide_text
-    assert ".js .hero-lockup.in .hero-mark" in guide_text
+    # v4.13.10 R30: the mark no longer fades in on a scroll trigger; only the float moves, and it stops
+    # under reduced motion.
+    assert ".hero-lockup.reveal" not in guide_text and ".hero-lockup.in" not in guide_text
     reduced_motion = guide_text.split("@media (prefers-reduced-motion: reduce)", 1)[-1]
-    assert ".js .hero-lockup.reveal .hero-mark" in reduced_motion
+    assert ".js .hero-lockup.live .hero-lockup-float{animation:none;}" in reduced_motion
 
 
 def test_home_hero_restores_the_v412_subtitle_and_lead(guide_text: str) -> None:
@@ -758,7 +755,7 @@ def test_home_hero_is_the_unhyphenated_nexus_hub_lockup(guide_text: str) -> None
     text = re.sub(r"<[^>]+>", "", inner).strip()
     assert text == "Nexus Hub", f"hero title must read 'Nexus Hub'; got {text!r}"
     assert "Nexus-Hub" not in heading.group(0)
-    # The float lives on an inner wrapper so it never competes with the .reveal entry transform.
+    # The float lives on an inner wrapper so the outer lockup stays free for layout.
     assert '<div class="hero-lockup-float">' in home
 
 
@@ -793,7 +790,7 @@ def test_installation_terminal_precedes_subordinate_verification(guide_text: str
 def test_home_troubleshooting_is_structured_and_copyable(guide_text: str) -> None:
     home = _home_markup(guide_text)
     block = re.search(r'<details class="support-details">([\s\S]*?)</details>', home)
-    assert block and "<summary>Troubleshooting</summary>" in block.group(1)
+    assert block and '<summary data-ty="label">Troubleshooting</summary>' in block.group(1)
     assert 'class="support-list"' in block.group(1)
     for label in ("No curl", "One project", "Selected assistants", "No prompts", "Upgrade"):
         assert re.search(rf"<dt[^>]*>{re.escape(label)}</dt>", block.group(1)), (
@@ -814,9 +811,13 @@ def test_home_comparison_has_centered_explicit_sides(guide_text: str) -> None:
     side_rule = re.search(r"\.cmp-side\s*\{([^}]+)\}", guide_text)
     assert head_rule and "grid-template-columns: 1fr auto 1fr" in head_rule.group(1)
     assert side_rule and "text-align: center" in side_rule.group(1)
-    size = re.search(r"font-size:\s*([\d.]+)px", side_rule.group(1))
+    # v4.13.10 R27: the sides take their type from the shared grade role, not a one-off rule.
+    assert home.count('data-ty="grade"') >= 2
+    size = re.search(r"--ty-grade:\s*([\d.]+)px", guide_text)
     assert size and float(size.group(1)) >= 12
-    assert ".cmp-side--without" in guide_text and ".cmp-side--with" in guide_text
+    # v4.13.10 R27: the side colours are the warn and go tones of the grade role.
+    assert 'data-tone="warn" class="cmp-side cmp-side--without"' in guide_text
+    assert 'data-tone="go" class="cmp-side cmp-side--with"' in guide_text
 
 
 def test_home_definitions_are_structured_and_link_to_foundations(guide_text: str) -> None:
@@ -903,18 +904,17 @@ def test_install_verify_is_a_two_step_sequence(guide_text: str, parsed: GuidePar
 def test_home_comparison_is_animated_not_a_table(guide_text: str) -> None:
     home = guide_text.split('id="page-home"', 1)[-1].split('id="page-foundations"', 1)[0]
     assert "nhg-compare" not in guide_text, "the plain table was replaced"
-    assert 'class="cmp reveal"' in home
+    assert 'class="cmp"' in home
     assert home.count('class="cmp-row"') == 5, "all five concerns survive the rewrite"
     # without-then-with ordering: the muted side precedes the accent side
     row = re.search(r'<div class="cmp-pair">([\s\S]*?)</div>', home)
     assert row and row.group(1).index("cmp-a") < row.group(1).index("cmp-b")
-    assert ".cmp-side--without" in guide_text and ".cmp-side--with" in guide_text
-    # animated, and not a card grid or pill row
-    assert ".js .cmp.in .cmp-row" in guide_text, "staggered entry animation"
-    assert ".js .cmp.in .cmp-line" in guide_text, "the connector draws"
-    reduce_block = guide_text.split("@media (prefers-reduced-motion: reduce)", 1)[-1]
-    for cls in (".cmp-row", ".cmp-line", ".cmp-tip", ".cmp-b"):
-        assert cls in reduce_block, f"{cls} needs a reduced-motion static state"
+    # v4.13.10 R27: the side colours are the warn and go tones of the grade role.
+    assert 'data-tone="warn" class="cmp-side cmp-side--without"' in guide_text
+    assert 'data-tone="go" class="cmp-side cmp-side--with"' in guide_text
+    # v4.13.10 R30: the rows no longer wait for a scroll trigger; every row, connector, and tip is drawn
+    # from the start, so nothing needs a reduced-motion override.
+    assert ".cmp.in" not in guide_text and ".js .cmp .cmp-row" not in guide_text
 
 
 def test_onboarding_has_no_hardcoded_catalog_counts(parsed: GuideParser) -> None:
@@ -988,10 +988,10 @@ def test_foundations_phase3_has_six_title_lead_scenes(guide_text: str) -> None:
         "the old 'What Is / What Are' heading construction must not survive"
     )
     assert fx.count("<svg") >= 7, "each scene carries inline visual teaching"
-    # v4.4.1 Phase 4 retired fx-pulse with the last SVG story diagram; pop and draw remain
-    # live on the tokens connector, and the chip/cycle primitives carry the rest.
+    # v4.13.10 R30 retired the scroll-gated pop and draw entries with the reveal: the tokens
+    # connector is drawn from the start.
     for svg_class in ("fx-pop", "fx-draw"):
-        assert svg_class in fx
+        assert svg_class not in fx
     assert 'class="fx-num"' not in fx, "the scene number line was removed in v4.2.3"
 
 
@@ -1328,10 +1328,11 @@ def test_no_unexpected_persistent_overlays(guide_text: str) -> None:
 def test_foundations_animations_have_reduced_motion_fallback(guide_text: str) -> None:
     reduce_block = guide_text.split("@media (prefers-reduced-motion: reduce)", 1)[-1]
     reduce_block = reduce_block.split("}\n</style>", 1)[0] if "}\n</style>" in reduce_block else reduce_block
-    # The live motion primitives after the Phase 4 rebuild: reveal pops, drawn connectors,
-    # token-chip reveals, and the shared work-cycle spin.
-    for cls in (".fx-pop", ".fx-draw", ".fx-tokchip", ".hero-lockup-float"):
+    # v4.13.10 R30 removed the scroll-gated entry pops, draws, and token-chip fades; what still moves
+    # (the hero float and the Prompt Engineering tip) keeps a reduced-motion still.
+    for cls in (".hero-lockup-float", ".pe-tip"):
         assert cls in reduce_block, f"{cls} missing a reduced-motion static state"
+    assert ".fx-scene.in" not in guide_text, "no scene entry waits on a scroll trigger"
 
 
 def test_script_close_in_test_local_fixture_does_not_break_document() -> None:

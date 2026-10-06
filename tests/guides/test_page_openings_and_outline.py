@@ -100,7 +100,7 @@ TRAINING_LEAD = ("A hands-on walkthrough of the Nexus Hub recommended developmen
 def test_the_training_subtitle_names_the_workflow_and_the_example() -> None:
     """Maintainer review 8 (R24): the subtitle says what the page trains and through which example."""
     intro = re.search(r'data-stage="intro".*?</section>', _text(TRAINING), re.DOTALL).group(0)
-    lead = re.search(r'<p data-ty="lead" class="pg-open-lead">([^<]+)</p>', intro).group(1)
+    lead = re.search(r'<p data-ty="callout" class="pg-open-lead">([^<]+)</p>', intro).group(1)
     assert lead == TRAINING_LEAD
     assert lead.isascii() and not re.search(r"\byou\b", lead, re.I)
 
@@ -717,3 +717,165 @@ def test_the_opening_subtitle_shares_one_larger_size(playwright_mod, width: int)
         assert s["body"] + 1.5 <= lead <= s["h2"] - 2, sizes
     if width == 1440:
         assert 21 <= lead <= 24, sizes
+
+
+# --- Page titles and the framed subtitle (v4.13.10 R29, T102) -----------------------------
+FOUNDATIONS_LEAD = ("A general reference on how generative AI works: the terminology, the models, "
+                    "and the ideas behind every AI-assisted project.")
+
+
+def test_foundations_is_titled_as_a_general_reference() -> None:
+    """Maintainer review (revision 7): the title names Foundations; the subtitle says what the page is."""
+    guide = _text(GUIDE)
+    block = guide[guide.index('id="page-foundations"'):guide.index("<figure", guide.index('id="page-foundations"'))]
+    assert re.search(r'<h1 data-ty="h1" class="[^"]*pg-open-title[^"]*">Generative AI Foundations</h1>', block)
+    lead = re.search(r'<p data-ty="callout" class="[^"]*pg-open-lead[^"]*">([^<]+)</p>', block).group(1)
+    assert lead == FOUNDATIONS_LEAD
+    assert lead.isascii() and not re.search(r"\byou\b", lead, re.I)
+
+
+CALLOUT = """() => { const e = [...document.querySelectorAll('.pg-open-lead')].find(n => n.getClientRects().length);
+    const t = [...document.querySelectorAll('.pg-open-title')].find(n => n.getClientRects().length);
+    const c = getComputedStyle(e), r = e.getBoundingClientRect(), tr = t.getBoundingClientRect();
+    const box = e.closest('.container').getBoundingClientRect();
+    return { role: e.dataset.ty, look: [c.fontSize, c.fontWeight, c.lineHeight, c.color, c.backgroundColor, c.borderTopColor,
+                                        c.borderTopWidth, c.borderTopLeftRadius, c.paddingTop, c.paddingLeft, c.textAlign].join('|'),
+             bg: c.backgroundColor, border: parseFloat(c.borderTopWidth), radius: parseFloat(c.borderTopLeftRadius),
+             centre: Math.abs((r.left + r.width / 2) - (tr.left + tr.width / 2)), inside: r.left >= box.left - .5 && r.right <= box.right + .5,
+             below: r.top >= tr.bottom }; }"""
+
+
+@pytest.mark.parametrize("theme", ["dark", "light"])
+@pytest.mark.parametrize("width", [1440, 390])
+def test_the_opening_subtitle_is_one_framed_callout(playwright_mod, width: int, theme: str) -> None:
+    """R29 (T102): a softly tinted, rounded panel with a thin border, centred under the title, the same on all three pages."""
+    looks = {}
+    with playwright_mod() as pw:
+        browser = pw.chromium.launch()
+        try:
+            page = browser.new_page(viewport={"width": width, "height": 900}, color_scheme=theme)
+            page.add_init_script(f"try {{ localStorage.setItem('portfolio-theme', '{theme}'); }} catch (e) {{}}")
+            for name, url in (("foundations", GUIDE.as_uri() + "#foundations"), ("training", TRAINING.as_uri()),
+                              ("cheatsheets", GUIDE.as_uri() + "#cheatsheets")):
+                page.goto(url)
+                page.wait_for_timeout(300)
+                looks[name] = page.evaluate(CALLOUT)
+        finally:
+            browser.close()
+    assert {v["look"] for v in looks.values()} == {looks["foundations"]["look"]}, looks
+    for name, v in looks.items():
+        assert v["role"] == "callout", (name, v)
+        assert v["bg"] not in ("rgba(0, 0, 0, 0)", "transparent") and v["border"] >= 1 and v["radius"] >= 8, (name, v)
+        assert v["centre"] < 2 and v["inside"] and v["below"], (name, v)
+
+
+# --- No scroll fade (v4.13.10 R30, T104) ---------------------------------------------------
+FIGURES = ('figure, .pg-fig, .ide, .ss-host, .tro, .fxo, .cx-preview, svg, .fx-diagram, .ml-flow, .ml-tier-list, '
+           '.ml-scale, .ph, .term, .loop-strip, .tr-flow, .ide-wrap, .tr-reward, [data-seq-root]')
+SCROLL_VISIBLE = """async (figures) => {
+  const frame = () => new Promise(r => requestAnimationFrame(() => r()));
+  const flat = t => t === 'none' || t === 'matrix(1, 0, 0, 1, 0, 0)';
+  const tops = [...document.querySelectorAll('main section')].filter(s => s.getClientRects().length && !s.closest(figures)
+    && !s.parentElement.closest('section:not(.page)'));
+  const bad = [];
+  for (const s of tops) {
+    window.scrollTo({ top: s.getBoundingClientRect().top + scrollY - 40, behavior: 'instant' });
+    await frame();
+    const c = getComputedStyle(s);
+    if (+c.opacity < 1 || !flat(c.transform)) bad.push([s.id || s.className, c.opacity, c.transform]);
+    for (const e of s.querySelectorAll('*')) {
+      if (e.closest(figures) || !e.getClientRects().length) continue;
+      const ec = getComputedStyle(e);
+      if (+ec.opacity < 1) bad.push([(s.id || s.className) + ' > ' + e.tagName + '.' + [...e.classList].join('.'), ec.opacity]);
+    }
+  }
+  return { sections: tops.length, bad, reveal: document.querySelectorAll('.reveal, .seq-rise:not([data-seq-root] .seq-rise)').length };
+}"""
+
+
+@pytest.mark.parametrize("route", ["home", "foundations", "cheatsheets", "training"])
+def test_every_section_is_fully_visible_the_frame_it_scrolls_in(playwright_mod, route: str) -> None:
+    """Maintainer review (revision 7): no fade, offset, or delay before a segment appears, on any page."""
+    with playwright_mod() as pw:
+        browser = pw.chromium.launch()
+        try:
+            page = browser.new_page(viewport={"width": 1440, "height": 900})
+            page.goto(TRAINING.as_uri() if route == "training" else GUIDE.as_uri() + "#" + route)
+            page.wait_for_timeout(500)
+            out = page.evaluate(SCROLL_VISIBLE, FIGURES)
+        finally:
+            browser.close()
+    assert out["sections"] >= 3, out
+    assert out["reveal"] == 0, out
+    assert not out["bad"], out["bad"][:12]
+
+
+# --- Foundations opening, third pass (v4.13.10 R26, T098) ---------------------------------
+FXO_LAYOUT = """() => { const f = document.querySelector('#page-foundations figure.fxo');
+  const rows = [...f.querySelectorAll('.fxo-chat > *')];
+  const labs = rows.map(r => r.querySelector(':scope > .fxo-lab'));
+  const look = e => { const c = getComputedStyle(e); return [c.fontSize, c.fontWeight, c.letterSpacing, c.textTransform, c.color].join('|'); };
+  const mid = e => { const r = e.getBoundingClientRect(); return r.top + r.height / 2; };
+  const reply = f.querySelector('.fxo-reply'), node = f.querySelector('.fxo-node'), outs = [...reply.querySelectorAll('.fxo-out')];
+  return { labels: labs.map(l => l && l.textContent.trim()), looks: labs.map(l => l && look(l)),
+           composeInPrompt: !!rows[0].querySelector('.fxo-compose'),
+           barMid: mid(f.querySelector('.fxo-gauge')), labMid: mid(labs[1]),
+           replyGap: reply.getBoundingClientRect().bottom - outs[outs.length - 1].getBoundingClientRect().bottom,
+           nodeGap: node.getBoundingClientRect().bottom - reply.getBoundingClientRect().bottom,
+           replyH: reply.getBoundingClientRect().height }; }"""
+FXO_AT = """(ms) => { document.getAnimations().forEach(a => { a.pause(); a.currentTime = ms; });
+  const f = document.querySelector('#page-foundations figure.fxo');
+  return Object.fromEntries([...f.querySelectorAll('.fxo-keys [data-k]')].map(k => [k.dataset.k,
+    { shown: +getComputedStyle(k).opacity, seg: f.querySelector('.fxo-g[data-k="' + k.dataset.k + '"]').getBoundingClientRect().width }])); }"""
+SEGMENT_START = {"system": .5, "files": 2, "request": 9, "goal": 28, "format": 45, "reply": 74}   # percent of the 24 s loop
+
+
+def _foundations(pw, width: int = 1440, reduced: str = "no-preference"):
+    browser = pw.chromium.launch()
+    page = browser.new_page(viewport={"width": width, "height": 900}, reduced_motion=reduced)
+    page.goto(GUIDE.as_uri() + "#foundations")
+    page.wait_for_timeout(400)
+    return browser, page
+
+
+def test_the_composer_column_reads_prompt_context_window_tokens(playwright_mod) -> None:
+    with playwright_mod() as pw:
+        browser, page = _foundations(pw)
+        try:
+            page.evaluate(FXO_AT, 22000)
+            data = page.evaluate(FXO_LAYOUT)
+        finally:
+            browser.close()
+    assert data["labels"] == ["Prompt", "Context Window", "Tokens"], data
+    assert data["composeInPrompt"], "the chat box sits beside the Prompt label"
+    assert len(set(data["looks"])) == 1, data["looks"]
+    assert abs(data["barMid"] - data["labMid"]) <= 1, data
+    # The answer fills the model box: no large empty band under the last line, and no gap under the reply.
+    assert data["replyGap"] <= 40 and data["nodeGap"] <= 16, data
+
+
+def test_each_legend_item_appears_with_its_segment(playwright_mod) -> None:
+    with playwright_mod() as pw:
+        browser, page = _foundations(pw)
+        try:
+            for key, start in SEGMENT_START.items():
+                before = page.evaluate(FXO_AT, start * 240 - 60)[key]
+                after = page.evaluate(FXO_AT, start * 240 + 200)[key]
+                assert before["shown"] == 0 and before["seg"] < 1, (key, before)
+                assert after["shown"] == 1 and after["seg"] > 0, (key, after)
+            reset = page.evaluate(FXO_AT, 23700)
+            assert all(v["shown"] == 0 for v in reset.values()), reset
+        finally:
+            browser.close()
+
+
+def test_the_composer_legend_shows_its_end_state_under_reduced_motion(playwright_mod) -> None:
+    with playwright_mod() as pw:
+        browser, page = _foundations(pw, reduced="reduce")
+        try:
+            data = page.evaluate("""() => { const f = document.querySelector('#page-foundations figure.fxo');
+              return [...f.querySelectorAll('.fxo-keys [data-k]')].map(k => [k.dataset.k, +getComputedStyle(k).opacity,
+                f.querySelector('.fxo-g[data-k="' + k.dataset.k + '"]').getBoundingClientRect().width]); }""")
+        finally:
+            browser.close()
+    assert len(data) == 6 and all(shown == 1 and seg > 0 for _k, shown, seg in data), data
