@@ -110,7 +110,9 @@
       var toggle = el("button", "pg-outline-toggle");
       toggle.type = "button";
       toggle.appendChild(el("span", "pg-outline-label", label));
+      toggle.lastChild.setAttribute("data-ty", "eyebrow");
       inst.now = el("span", "pg-outline-now");
+      inst.now.setAttribute("data-ty", "body-sm");
       toggle.appendChild(inst.now);
       toggle.appendChild(el("span", "pg-outline-chev"));
       toggle.lastChild.setAttribute("aria-hidden", "true");
@@ -128,6 +130,7 @@
         a.appendChild(el("span", "pg-outline-node"));
         a.lastChild.setAttribute("aria-hidden", "true");
         a.appendChild(el("span", "pg-outline-text", item.label));
+        a.lastChild.setAttribute("data-ty", "body-sm");
         if (inst.mode === "scroll") {
           var target = document.getElementById(item.target);
           if (target) target.setAttribute("data-outline-target", "");

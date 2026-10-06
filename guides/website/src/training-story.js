@@ -20,6 +20,8 @@ window.NexusTrainingStory = (function () {
   var EFFORTS = ["low", "medium", "high", "max"];
   var SPEEDS = [0.5, 1, 2];
 
+  /* Every text block carries its role from shared/type.css. */
+  function ty(node, role) { node.setAttribute("data-ty", role); return node; }
   function el(tag, cls, text) {
     var node = document.createElement(tag);
     if (cls) node.className = cls;
@@ -243,17 +245,17 @@ window.NexusTrainingStory = (function () {
     heading.textContent = st.head.title;
     heading.classList.add("tr-title");
     header.appendChild(heading);
-    header.appendChild(el("p", "tr-now", st.head.now));
+    header.appendChild(ty(el("p", "tr-now", st.head.now), "lead"));
     return header;
   }
   function notesFor(st) {
     var box = el("div", "tr-notes");
     box.setAttribute("data-tone", st.game === "fixed" ? "ok" : "bug");
-    box.appendChild(el("h3", "tr-notes-title", st.notes.title));
+    box.appendChild(ty(el("h3", "tr-notes-title", st.notes.title), "h3"));
     var ul = el("ul", "tr-notes-list");
-    st.notes.items.forEach(function (t) { ul.appendChild(el("li", null, t)); });
+    st.notes.items.forEach(function (t) { ul.appendChild(ty(el("li", null, t), "body")); });
     box.appendChild(ul);
-    if (st.notes.hidden) box.appendChild(el("p", "tr-notes-hidden", st.notes.hidden));
+    if (st.notes.hidden) box.appendChild(ty(el("p", "tr-notes-hidden", st.notes.hidden), "body"));
     return box;
   }
 
@@ -957,7 +959,7 @@ window.NexusTrainingStory = (function () {
       if (st.kind === "play") {
         var notes = notesFor(st);
         if (host) box.insertBefore(notes, host); else box.appendChild(notes);
-        var after = el("p", "tr-after", st.after);
+        var after = ty(el("p", "tr-after", st.after), "body");
         if (host && host.nextSibling) box.insertBefore(after, host.nextSibling); else box.appendChild(after);
         return;
       }
@@ -1012,7 +1014,7 @@ window.NexusTrainingStory = (function () {
       if (names.indexOf(n) === -1) names.push(n);
       tier = a.tier; effort = a.effort;
     });
-    var p = el("p", "tr-why");
+    var p = ty(el("p", "tr-why"), "body-sm");
     p.appendChild(el("b", null, names.join(", then ")));
     p.appendChild(document.createTextNode(", " + tier + " tier, " + effort + " effort. " + st.why));
     return p;

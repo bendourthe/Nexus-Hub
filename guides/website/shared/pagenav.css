@@ -4,8 +4,7 @@
 .pagenav a:hover:not(.disabled){border-color:var(--border-bright);color:var(--ink);}
 .pagenav a.next{text-align:right;}
 .pagenav a.disabled{color:var(--ink-faint);background:transparent;pointer-events:none;}
-.pagenav .pn-k{display:block;font-size:15px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-faint);}
-.pagenav .pn-t{font-weight:600;font-size:15px;}
+.pagenav .pn-k{display:block;}
 .progress-dots{display:flex;gap:2px;justify-content:center;margin-top:var(--sp-4);}
 .progress-dots a{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;}
 .progress-dots a::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--ink-faint);}

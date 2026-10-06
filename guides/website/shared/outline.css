@@ -1,7 +1,7 @@
 /* ---------- Page navigation (v4.13.10 R1, shared) ---------- Follows the reader without ever taking width from the content. A rail sits in the left margin beside the centred column (labels when the margin is wide, the current label only when it is slim); with no margin it becomes a compact sticky bar with a progress line and a section menu. outline.js measures and picks the form. */
 .pg-outline{--pg-progress:0;font-size:var(--ty-body-sm);z-index:30;}
 .pg-outline-toggle{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;padding:0;border:0;background:none;color:var(--ink);font:inherit;text-align:left;cursor:pointer;}
-.pg-outline-label{color:var(--ink-dim);font-size:var(--ty-micro);font-weight:700;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;}
+.pg-outline-label{white-space:nowrap;}
 .pg-outline-now{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700;}
 .pg-outline-chev{flex:none;width:8px;height:8px;margin-right:4px;border-right:2px solid var(--ink-dim);border-bottom:2px solid var(--ink-dim);transform:rotate(45deg) translateY(-2px);transition:transform .2s var(--ease);}
 .pg-outline-toggle[aria-expanded="true"] .pg-outline-chev{transform:rotate(-135deg) translateY(-2px);}

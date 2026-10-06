@@ -49,9 +49,6 @@ html[data-boot="foundations"] #page-foundations,html[data-boot="cheatsheets"] #p
 to{opacity:1;transform:none;}
 }
 .js .page.active{animation:pageIn .32s var(--ease);}
-/* ---------- Reveal motion ---------- */
-.js .reveal{opacity:0;transform:translateY(14px);transition:opacity .5s var(--ease),transform .5s var(--ease);transition-delay:var(--reveal-delay,0ms);}
-.js .reveal.in{opacity:1;transform:none;}
 /* ---------- Type ---------- */
 h1{margin:0 0 var(--sp-4);text-wrap:balance;}
 h2{margin:0 0 var(--sp-3);}
@@ -61,8 +58,9 @@ h2{margin:0 0 var(--sp-3);}
 h3{margin:0 0 var(--sp-2);}
 p{margin:0 0 var(--sp-3);}
 .lead{color:var(--ink-dim);}
-.eyebrow,.fx-title h2{display:block;max-width:100%;min-width:0;color:var(--teal-soft);margin-bottom:var(--sp-2);}
-.eyebrow::before,.fx-title h2::before{content:"";display:inline-block;width:calc(9px * var(--eyebrow-scale));height:3px;background:var(--accent);vertical-align:middle;margin-right:10px;border-radius:2px;}
+.eyebrow{display:block;max-width:100%;min-width:0;color:var(--teal-soft);margin-bottom:var(--sp-2);}
+.fx-title h2{display:block;max-width:100%;min-width:0;margin-bottom:var(--sp-2);}
+.eyebrow::before{content:"";display:inline-block;width:calc(9px * var(--eyebrow-scale));height:3px;background:var(--accent);vertical-align:middle;margin-right:10px;border-radius:2px;}
 /* ---------- NexusSeq step primitives ---------- A [data-seq-root] container reveals its [data-seq=N] children in order. Scoped to .js so a no-script reader sees every step at once; the reduced-motion block zeroes durations. */
 /* seq-fade is for shapes and connectors only. Dimming TEXT carriers fails WCAG AA mid-sequence (BG-13: the loop pills measured 1.9:1 at opacity .45), so text steps use seq-glow, which never changes foreground contrast and marks the active step with an accent ring instead. */
 .js .seq-fade{opacity:.7;transition:opacity .45s var(--ease);}
@@ -78,7 +76,7 @@ p{margin:0 0 var(--sp-3);}
 .hero{padding:var(--sp-7) 0 var(--sp-4);}
 .hero-lockup { display: flex;justify-content: center; }
 .hero-lockup-float { display: flex;flex-wrap: nowrap;align-items: center;justify-content: center;gap: clamp(10px,2.6vw,20px); }
-/* One transform on the inner wrapper so the float never competes with the .reveal entry transform. */
+/* The float lives on the inner wrapper so the outer lockup stays free for layout. */
 @keyframes nhg-lockup-float{from{transform:translateY(0);}
 to{transform:translateY(-9px);}
 }
@@ -91,5 +89,3 @@ to{transform:translateY(-9px);}
 .hero-wordmark span{color:var(--teal-soft);font-weight:600;}
 .hero .btn-row{justify-content:center;}
 html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 0 0 1px #c9c3b2;}
-.js .hero-lockup.reveal .hero-mark{opacity:0;transform:translateY(8px) scale(.88);transition:opacity .45s var(--ease),transform .55s var(--ease);}
-.js .hero-lockup.in .hero-mark{opacity:1;transform:none;}

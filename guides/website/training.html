@@ -78,9 +78,6 @@ html[data-boot="foundations"] #page-foundations,html[data-boot="cheatsheets"] #p
 to{opacity:1;transform:none;}
 }
 .js .page.active{animation:pageIn .32s var(--ease);}
-/* ---------- Reveal motion ---------- */
-.js .reveal{opacity:0;transform:translateY(14px);transition:opacity .5s var(--ease),transform .5s var(--ease);transition-delay:var(--reveal-delay,0ms);}
-.js .reveal.in{opacity:1;transform:none;}
 /* ---------- Type ---------- */
 h1{margin:0 0 var(--sp-4);text-wrap:balance;}
 h2{margin:0 0 var(--sp-3);}
@@ -90,8 +87,9 @@ h2{margin:0 0 var(--sp-3);}
 h3{margin:0 0 var(--sp-2);}
 p{margin:0 0 var(--sp-3);}
 .lead{color:var(--ink-dim);}
-.eyebrow,.fx-title h2{display:block;max-width:100%;min-width:0;color:var(--teal-soft);margin-bottom:var(--sp-2);}
-.eyebrow::before,.fx-title h2::before{content:"";display:inline-block;width:calc(9px * var(--eyebrow-scale));height:3px;background:var(--accent);vertical-align:middle;margin-right:10px;border-radius:2px;}
+.eyebrow{display:block;max-width:100%;min-width:0;color:var(--teal-soft);margin-bottom:var(--sp-2);}
+.fx-title h2{display:block;max-width:100%;min-width:0;margin-bottom:var(--sp-2);}
+.eyebrow::before{content:"";display:inline-block;width:calc(9px * var(--eyebrow-scale));height:3px;background:var(--accent);vertical-align:middle;margin-right:10px;border-radius:2px;}
 /* ---------- NexusSeq step primitives ---------- A [data-seq-root] container reveals its [data-seq=N] children in order. Scoped to .js so a no-script reader sees every step at once; the reduced-motion block zeroes durations. */
 /* seq-fade is for shapes and connectors only. Dimming TEXT carriers fails WCAG AA mid-sequence (BG-13: the loop pills measured 1.9:1 at opacity .45), so text steps use seq-glow, which never changes foreground contrast and marks the active step with an accent ring instead. */
 .js .seq-fade{opacity:.7;transition:opacity .45s var(--ease);}
@@ -107,7 +105,7 @@ p{margin:0 0 var(--sp-3);}
 .hero{padding:var(--sp-7) 0 var(--sp-4);}
 .hero-lockup { display: flex;justify-content: center; }
 .hero-lockup-float { display: flex;flex-wrap: nowrap;align-items: center;justify-content: center;gap: clamp(10px,2.6vw,20px); }
-/* One transform on the inner wrapper so the float never competes with the .reveal entry transform. */
+/* The float lives on the inner wrapper so the outer lockup stays free for layout. */
 @keyframes nhg-lockup-float{from{transform:translateY(0);}
 to{transform:translateY(-9px);}
 }
@@ -120,8 +118,6 @@ to{transform:translateY(-9px);}
 .hero-wordmark span{color:var(--teal-soft);font-weight:600;}
 .hero .btn-row{justify-content:center;}
 html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 0 0 1px #c9c3b2;}
-.js .hero-lockup.reveal .hero-mark{opacity:0;transform:translateY(8px) scale(.88);transition:opacity .45s var(--ease),transform .55s var(--ease);}
-.js .hero-lockup.in .hero-mark{opacity:1;transform:none;}
 /* /shared:base-css */
 /* shared:footer-css */
 /* ---------- Site footer (attribution lives here; decision 2026-09-02) ---------- */
@@ -136,21 +132,24 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .pagenav a:hover:not(.disabled){border-color:var(--border-bright);color:var(--ink);}
 .pagenav a.next{text-align:right;}
 .pagenav a.disabled{color:var(--ink-faint);background:transparent;pointer-events:none;}
-.pagenav .pn-k{display:block;font-size:15px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-faint);}
-.pagenav .pn-t{font-weight:600;font-size:15px;}
+.pagenav .pn-k{display:block;}
 .progress-dots{display:flex;gap:2px;justify-content:center;margin-top:var(--sp-4);}
 .progress-dots a{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;}
 .progress-dots a::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--ink-faint);}
 .progress-dots a.on::before{background:var(--accent);}
 /* /shared:pagenav-css */
 /* shared:opening-css */
-/* ---------- Page opening (v4.13.10, shared) ---------- Foundations, Cheatsheets, and Training open the same way: a centred title in the Home hero-subtitle style with one gradient phrase, a one-paragraph description, then a full-width visual summary of what the page holds. */
+/* ---------- Page opening (v4.13.10, shared) ---------- Foundations, Cheatsheets, and Training open the same way: a centred keyword title, a one-sentence statement in a framed callout, then a full-width visual summary of what the page holds. */
 .pg-open{text-align:center;padding:var(--sp-5) 0 var(--sp-4);}
 .pg-open-title{margin:var(--sp-5) auto 0;text-align:center;text-wrap:balance;color:var(--ink);}
 .pg-open .gtext{color:var(--ink);background:linear-gradient(90deg,var(--cyan),var(--teal));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
-.pg-open-lead{margin:var(--sp-3) auto 0;text-align:center;color:var(--ink-dim);text-wrap:pretty;}
-/* R24: the opening subtitle reads as the page's statement, a clear step above body text and below H2 (22 px at 1440). */
-.pg-open .pg-open-lead[data-ty="lead"]{font-size:clamp(1.125rem,.8rem + .8vw,1.375rem);line-height:1.45;}
+/* The opening statement is a framed callout: a softly tinted, rounded panel with a thin accent border,
+   centred under the title. Its type is the callout role in type.css; the panel takes the width of its
+   text and never more than the container, and on wide screens a share of the container so the sentence
+   balances over two lines. */
+.pg-open-lead{box-sizing:border-box;width:fit-content;max-width:100%;margin:var(--sp-4) auto 0;padding:var(--sp-3) var(--sp-5);text-align:center;text-wrap:balance;border:1px solid color-mix(in srgb,var(--accent) 45%,transparent);border-radius:14px;background:color-mix(in srgb,var(--accent) 8%,transparent);box-shadow:0 10px 28px -22px color-mix(in srgb,var(--accent) 70%,transparent);}
+@media (min-width:900px){.pg-open-lead{max-width:72%;}}
+@media (max-width:719px){.pg-open-lead{padding:var(--sp-3) var(--sp-4);text-wrap:pretty;}}
 /* Each opening ends with one figure of what the page holds, built in HTML so text stays crisp and the layout reflows on a phone. Motion is continuous and quick (no slide-by-slide reveals); every figure has a reduced-motion still. */
 .pg-fig{margin:var(--sp-5) auto 0;padding:var(--sp-4);border:1px solid var(--border);border-radius:18px;background:radial-gradient(120% 140% at 50% 0%,color-mix(in srgb,var(--accent) 7%,var(--surface)),var(--surface));text-align:left;}
 /* Code inside a figure is part of the drawing, not an inline code chip. */
@@ -194,7 +193,14 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .fxo-pick{margin-right:auto;}
 .fxo-send{padding:3px 12px;border-radius:7px;background:var(--accent);color:#06201c;font-weight:800;animation:fxo-sendk 24s linear infinite;}
 @keyframes fxo-sendk{0%,61.9%,64%,100%{filter:none;transform:none;}62%,63.5%{filter:brightness(1.35);transform:scale(.94);}}
-.fxo-tokrow,.fxo-ctx{display:grid;grid-template-columns:4.75rem minmax(0,1fr);align-items:start;gap:4px 12px;color:var(--ink);text-decoration:none;}
+/* The left column reads in story order, Prompt, Context Window, Tokens, each row labelled in the same style. */
+.fxo-prow,.fxo-tokrow,.fxo-ctx{display:grid;grid-template-columns:4.75rem minmax(0,1fr);align-items:start;gap:4px 12px;color:var(--ink);text-decoration:none;}
+.fxo-prow .fxo-lab{padding-top:14px;}
+/* The bar's centre line is its label's: both sit centred in the first row; the legend runs under the bar. */
+.fxo-ctx{align-items:center;}
+.fxo-ctx .fxo-lab{padding-top:0;}
+.fxo-ctx .fxo-gauge{margin-top:0;}
+.fxo-ctx .fxo-keys{align-self:start;}
 .fxo-lab{padding-top:3px;font-size:var(--ty-micro);font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--teal-soft);}
 /* Each sentence's tokens stay on one row at desktop widths: chip size scales with the row (the longest
    sentence needs about 42em), and trailing punctuation is glued to its word so a narrow-screen wrap never
@@ -207,8 +213,22 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 @keyframes fxo-cnt{0%,59.49%{opacity:0;}59.5%,97%{opacity:1;}98.2%,100%{opacity:0;}}
 .fxo-gauge{display:flex;height:12px;margin-top:3px;overflow:hidden;border-radius:6px;background:color-mix(in srgb,var(--ink-dim) 18%,transparent);}
 .fxo-g{height:100%;width:0;background:var(--k);}
-.fxo-g[data-k="system"]{width:6%;}
+.fxo-g[data-k="system"]{width:6%;animation:fxo-g-system 24s linear infinite;}
+@keyframes fxo-g-system{0%,.5%{width:0;}2%,97%{width:6%;}99.5%,100%{width:0;}}
 .fxo-keys{grid-column:2;display:flex;flex-wrap:wrap;gap:4px 12px;font-size:11.5px;color:var(--ink-dim);}
+.fxo-keys span{opacity:0;}
+.fxo-keys [data-k="system"]{animation:fxo-key-system 24s linear infinite;}
+@keyframes fxo-key-system{0%,0.49%{opacity:0;}0.5%,97%{opacity:1;}98.2%,100%{opacity:0;}}
+.fxo-keys [data-k="files"]{animation:fxo-key-files 24s linear infinite;}
+@keyframes fxo-key-files{0%,1.99%{opacity:0;}2%,97%{opacity:1;}98.2%,100%{opacity:0;}}
+.fxo-keys [data-k="request"]{animation:fxo-key-request 24s linear infinite;}
+@keyframes fxo-key-request{0%,8.99%{opacity:0;}9%,97%{opacity:1;}98.2%,100%{opacity:0;}}
+.fxo-keys [data-k="goal"]{animation:fxo-key-goal 24s linear infinite;}
+@keyframes fxo-key-goal{0%,27.99%{opacity:0;}28%,97%{opacity:1;}98.2%,100%{opacity:0;}}
+.fxo-keys [data-k="format"]{animation:fxo-key-format 24s linear infinite;}
+@keyframes fxo-key-format{0%,44.99%{opacity:0;}45%,97%{opacity:1;}98.2%,100%{opacity:0;}}
+.fxo-keys [data-k="reply"]{animation:fxo-key-reply 24s linear infinite;}
+@keyframes fxo-key-reply{0%,73.99%{opacity:0;}74%,97%{opacity:1;}98.2%,100%{opacity:0;}}
 .fxo-keys span::before{content:"";display:inline-block;width:8px;height:8px;margin-right:5px;border-radius:2px;background:var(--k);vertical-align:0;}
 .fxo-pipe{flex:0 0 34px;align-self:center;position:relative;height:2px;background:color-mix(in srgb,var(--accent) 35%,transparent);}
 .fxo-pipe i{position:absolute;top:-3px;left:0;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent);opacity:0;animation:fxo-travel 24s linear infinite;}
@@ -233,7 +253,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 @keyframes fxo-s2{0%,73%{opacity:0;}73.1%,84.5%{opacity:1;}84.6%,100%{opacity:0;}}
 @keyframes fxo-s3{0%,84.58999999999999%{opacity:0;}84.6%,97%{opacity:1;}98.2%,100%{opacity:0;}}
 .fxo-status [data-s="0"]{animation:fxo-s0 24s linear infinite;}.fxo-status [data-s="1"]{animation:fxo-s1 24s linear infinite;}.fxo-status [data-s="2"]{animation:fxo-s2 24s linear infinite;}.fxo-status [data-s="3"]{animation:fxo-s3 24s linear infinite;}
-.fxo-reply{display:grid;gap:4px;padding:10px 12px;min-height:13em;border:1px solid color-mix(in srgb,#f472b6 30%,var(--border));border-radius:10px;background:color-mix(in srgb,#f472b6 5%,transparent);text-align:left;font-size:12.5px;line-height:1.4;color:var(--ink);}
+.fxo-reply{flex:1 1 auto;display:grid;align-content:start;gap:5px;padding:10px 12px;min-height:13em;border:1px solid color-mix(in srgb,#f472b6 30%,var(--border));border-radius:10px;background:color-mix(in srgb,#f472b6 5%,transparent);text-align:left;font-size:12.5px;line-height:1.4;color:var(--ink);}
 .fxo-out{display:block;clip-path:inset(0 100% 0 0);}
 .fxo-out--h{font-weight:800;color:var(--ink);}
 .fxo-out--src{margin-top:2px;font-size:11.5px;color:var(--ink-dim);}
@@ -341,7 +361,8 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
   .fxo-flow{flex-direction:column;}
   .fxo-pipe{flex:0 0 22px;width:2px;height:22px;}
   .fxo-pipe i{left:-3px;top:0;animation-name:fxo-travel-v;}
-  .fxo-tokrow,.fxo-ctx{grid-template-columns:minmax(0,1fr);gap:4px;}
+  .fxo-prow,.fxo-tokrow,.fxo-ctx{grid-template-columns:minmax(0,1fr);gap:4px;}
+  .fxo-prow .fxo-lab{padding-top:3px;}
   .fxo-count,.fxo-keys{grid-column:1;}
   .fxo-node--model{align-items:flex-start;}
 }
@@ -389,7 +410,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
   /* Nothing in a figure moves under reduced motion, whatever selector started it. */
   .pg-fig *,.pg-fig *::before,.pg-fig *::after{animation:none !important;}
   .fxo-pipe i,.fxo-core i,.fxo-core em,.csf-steps li,.csf-pick,.csf-card,.csf-s2,.csf-line,.csf-copied,.csf-cursor,.csf-cursor svg{animation:none;}
-  .fxo-file,.fxo-k,.fxo-t,.fxo-count,.fxo-status [data-s="3"]{opacity:1;}
+  .fxo-file,.fxo-k,.fxo-t,.fxo-count,.fxo-keys span,.fxo-status [data-s="3"]{opacity:1;}
   .fxo-typed{clip-path:none;background-size:100% 2px;}
   .fxo-out{clip-path:none;}
   .fxo-g[data-k="files"]{width:24%;}
@@ -406,7 +427,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 /* ---------- Page navigation (v4.13.10 R1, shared) ---------- Follows the reader without ever taking width from the content. A rail sits in the left margin beside the centred column (labels when the margin is wide, the current label only when it is slim); with no margin it becomes a compact sticky bar with a progress line and a section menu. outline.js measures and picks the form. */
 .pg-outline{--pg-progress:0;font-size:var(--ty-body-sm);z-index:30;}
 .pg-outline-toggle{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;padding:0;border:0;background:none;color:var(--ink);font:inherit;text-align:left;cursor:pointer;}
-.pg-outline-label{color:var(--ink-dim);font-size:var(--ty-micro);font-weight:700;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;}
+.pg-outline-label{white-space:nowrap;}
 .pg-outline-now{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700;}
 .pg-outline-chev{flex:none;width:8px;height:8px;margin-right:4px;border-right:2px solid var(--ink-dim);border-bottom:2px solid var(--ink-dim);transform:rotate(45deg) translateY(-2px);transition:transform .2s var(--ease);}
 .pg-outline-toggle[aria-expanded="true"] .pg-outline-chev{transform:rotate(-135deg) translateY(-2px);}
@@ -462,11 +483,10 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 }
 /* /shared:nav-mobile-css */
 /* shared:motion-css */
-/* ---------- Reduced motion, shared base (v4.13.10) ---------- The page-independent half of the guide's reduced-motion block: no smooth scrolling, no page or reveal animation, and sequence steps shown at once rather than waiting for an observer. Page-specific motion rules stay with their page. */
+/* ---------- Reduced motion, shared base (v4.13.10) ---------- The page-independent half of the guide's reduced-motion block: no smooth scrolling, no page animation, and sequence steps shown at once rather than waiting for an observer. Page-specific motion rules stay with their page. */
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}
 #constellation{transition:none;}
 .js .page.active{animation:none;}
-.js .reveal{opacity:1;transform:none;transition:none;}
 .js .seq-fade,.js .seq-rise,.js .seq-draw,.js .seq-glow,.js .ann,.js .ann-legend-row{transition-duration:0s;}
 /* v4.4.4: a step must never be HIDDEN under reduced motion. Zeroing the transition made the reveal instant but still waited for the observer to play the sequence, so a reader who had asked for less motion saw an empty strip until they scrolled it into view. */
 .js .seq-rise{opacity:1;transform:none;}
@@ -503,16 +523,14 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 @media (max-width:440px){.tr-flow{grid-template-columns:repeat(2,minmax(0,1fr));}}
 .tr-kicker{margin:0;font-family:var(--mono);font-size:var(--ty-body-sm);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--teal-soft);}
 .tr-title{margin:6px 0 8px;text-wrap:balance;}
-.tr-now{margin:0;color:var(--ink-dim);font-size:var(--ty-lead);line-height:1.5;}
+.tr-now{margin:0;}
 .tr-notes{display:grid;grid-template-columns:minmax(0,13rem) minmax(0,1fr);gap:4px var(--sp-4);margin:0 0 var(--sp-4);padding:var(--sp-3) 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
 .tr-notes-title{margin:0;}
-.tr-notes-title::before{content:"";display:inline-block;width:8px;height:8px;margin-right:9px;border-radius:50%;vertical-align:2px;background:#f87171;}
-.tr-notes[data-tone="ok"] .tr-notes-title::before{background:#4ade80;}
-.tr-notes-list{grid-column:2;display:grid;gap:4px;margin:0;padding:0;list-style:none;color:var(--ink);}
-.tr-notes-hidden{grid-column:2;margin:4px 0 0;color:var(--ink-dim);}
+.tr-notes-list{grid-column:2;display:grid;gap:4px;margin:0;padding:0;list-style:none;}
+.tr-notes-hidden{grid-column:2;margin:4px 0 0;}
 @media (max-width:720px){.tr-notes{grid-template-columns:minmax(0,1fr);}.tr-notes-list,.tr-notes-hidden{grid-column:1;}}
-.tr-after{margin:var(--sp-3) 0 0;color:var(--ink-dim);}
-.tr-why{margin:var(--sp-3) 0 0;color:var(--ink-dim);font-size:var(--ty-body-sm);line-height:1.5;}
+.tr-after{margin:var(--sp-3) 0 0;}
+.tr-why{margin:var(--sp-3) 0 0;}
 .tr-why b{color:var(--ink);}
 /* ---------- The IDE player (R8) ---------- Each workflow step plays in a VS Code-like IDE, dark in
    both themes: activity bar, explorer, editor, a chat with the model and effort in its input,
@@ -849,16 +867,34 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 @container ss-arena (max-width:820px){.ss-key-list{grid-template-columns:repeat(4,minmax(0,1fr));}}
 @container ss-arena (max-width:600px){.ss-hangar{grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;}.ss-ship{grid-column:span 2;}.ss-ship:nth-child(4){grid-column:2/span 2;}.ss-ship{border-radius:10px;}.ss-ship-name{letter-spacing:.02em;}.ss-ship-pic{height:clamp(30px,8.5cqh,52px);}.ss-ship-stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;}.ss-meter{grid-template-columns:1fr;gap:1px;text-align:center;}.ss-key-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(4px,1.2cqh,8px) 10px;}.ss-key-icon{width:clamp(18px,4.6cqh,24px);}.ss-keybtn{display:inline-block;}.ss-overlay[data-panel=ships] .ss-key{display:none;}.ss-overlay[data-panel=key] .ss-hangar,.ss-overlay[data-panel=key] .ss-ship-note{display:none;}}
 /* shared:type-css */
+/* ---------- Text roles (v4.13.10 R27) ---------- The one configuration for every piece of text on the
+   guide and Training pages. Each text element carries a role (data-ty="..."), on itself or on the nearest
+   element that defines its text block, and its typography (font family, size, weight, line height,
+   letter spacing, colour) comes only from that role's rule below. A role may take a tone (data-tone),
+   which changes its colour and nothing else; the tones are defined here too. Component CSS keeps layout
+   (margin, padding, display, alignment) and never restates typography.
+
+   Exempt: illustration internals, whose text is part of a picture rather than the page's prose. These are
+   figure, .pg-fig, .ide, .ss-host, .tro, .fxo, .cx-preview, svg, and the drawings and mockups that play the
+   same part outside a figure element: .fx-diagram (Foundations scene diagrams), .ml-flow, .ml-tier-list and
+   .ml-scale (the model lab's network, class cards, and their axis), .ph (the platform chat mockups), .term
+   (terminal and code samples), .loop-strip (the workflow loop), .tr-flow (the Training workflow strip),
+   .ide-wrap (the IDE player and its controls), .hero-lockup (the logo lockup), and the game overlays.
+   Navigation and controls (nav, button, summary, .pagenav) take a role for size, family, and spacing;
+   their colour and weight follow their state (current, hover, open). The rendered audit in
+   tests/guides/test_v443_phase1_headings.py reads this same list. */
 :root{
-  /* Legibility floor. No text role on this page resolves below it, and the
-     hardcoded component sizes below were raised to match. Change it here. */
+  /* Legibility floor. No text role on this page resolves below it. Change it here. */
   --ty-floor:.9375rem;
   --ty-display:clamp(1.85rem,7.2vw,4.25rem);
-  --ty-h1:clamp(1.6rem,3.1vw,2.3rem);
-  --ty-h2:clamp(1.3rem,2.1vw,1.7rem);
+  --ty-h1:clamp(2rem,4.2vw,3rem);
+  --ty-statement:clamp(1.6rem,3.1vw,2.3rem);
+  --ty-h2:clamp(1.4rem,2.3vw,1.85rem);
   --ty-h3:1.25rem;
   --ty-h4:1.0625rem;
   --ty-subtitle:clamp(1rem,1.35vw,1.1875rem);
+  --ty-callout:clamp(1.125rem,.8rem + .8vw,1.375rem);
+  --ty-grade:26px;
   --ty-lead:1.0625rem;
   --ty-body:1rem;
   --ty-body-sm:var(--ty-floor);
@@ -869,41 +905,55 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
   --ty-micro:var(--ty-floor);
   --ty-code:var(--ty-floor);
 }
+@media (max-width:560px){:root{--ty-grade:18px;}}
 [data-ty]{font-family:var(--sans);}
 [data-ty="display"]{font-size:var(--ty-display);font-weight:750;line-height:1.04;letter-spacing:-.02em;color:var(--ink);text-transform:none;}
-[data-ty="h1"]{font-size:var(--ty-h1);font-weight:700;line-height:1.15;letter-spacing:-.015em;color:var(--ink);text-transform:none;}
-[data-ty="h2"]{font-size:var(--ty-h2);font-weight:700;line-height:1.2;letter-spacing:-.01em;color:var(--ink);text-transform:none;}
+[data-ty="h1"]{font-size:var(--ty-h1);font-weight:800;line-height:1.08;letter-spacing:-.025em;color:var(--ink);text-transform:none;}
+/* The Home hero statement: a large tagline under the wordmark, a step below a page title. */
+[data-ty="statement"]{font-size:var(--ty-statement);font-weight:700;line-height:1.15;letter-spacing:-.015em;color:var(--ink);text-transform:none;}
+[data-ty="h2"]{font-size:var(--ty-h2);font-weight:700;line-height:1.2;letter-spacing:-.012em;color:var(--ink);text-transform:none;}
 [data-ty="h3"]{font-size:var(--ty-h3);font-weight:700;line-height:1.3;letter-spacing:-.005em;color:var(--teal-soft);text-transform:none;}
 [data-ty="h4"]{font-size:var(--ty-h4);font-weight:600;line-height:1.35;letter-spacing:0;color:var(--teal-soft);text-transform:none;}
 [data-ty="subtitle"]{font-size:var(--ty-subtitle);font-weight:400;line-height:1.5;letter-spacing:0;color:var(--ink-dim);text-transform:none;}
+/* The page-opening statement under each page title; its framed panel lives in opening.css. */
+[data-ty="callout"]{font-size:var(--ty-callout);font-weight:400;line-height:1.5;letter-spacing:0;color:var(--ink);text-transform:none;}
 [data-ty="lead"]{font-size:var(--ty-lead);font-weight:400;line-height:1.6;letter-spacing:0;color:var(--ink-dim);text-transform:none;}
 [data-ty="body"]{font-size:var(--ty-body);font-weight:400;line-height:1.6;letter-spacing:0;color:var(--ink-dim);text-transform:none;}
 [data-ty="body-sm"]{font-size:var(--ty-body-sm);font-weight:400;line-height:1.55;letter-spacing:0;color:var(--ink-dim);text-transform:none;}
 [data-ty="quote"]{font-size:var(--ty-quote);font-weight:400;line-height:1.45;letter-spacing:0;color:var(--ink);text-transform:none;}
 [data-ty="eyebrow"]{font-size:var(--ty-eyebrow);font-weight:700;line-height:1.3;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-dim);}
-[data-ty="label"]{font-size:var(--ty-label);font-weight:600;line-height:1.4;letter-spacing:0;text-transform:none;}
+[data-ty="label"]{font-size:var(--ty-label);font-weight:600;line-height:1.4;letter-spacing:0;color:var(--ink);text-transform:none;}
 [data-ty="caption"]{font-size:var(--ty-caption);font-weight:400;line-height:1.5;letter-spacing:0;color:var(--ink-dim);text-transform:none;}
 [data-ty="micro"]{font-size:var(--ty-micro);font-weight:400;line-height:1.45;letter-spacing:0;color:var(--ink-dim);text-transform:none;}
-[data-ty="code"]{font-family:var(--mono);font-size:var(--ty-code);font-weight:500;line-height:1.5;letter-spacing:0;text-transform:none;}
+[data-ty="code"]{font-family:var(--mono);font-size:var(--ty-code);font-weight:500;line-height:1.5;letter-spacing:0;color:var(--ink);text-transform:none;}
 [data-ty="th"]{font-size:var(--ty-body);font-weight:700;line-height:1.3;letter-spacing:0;color:var(--ink);text-transform:none;}
 [data-ty="td"]{font-size:var(--ty-body-sm);font-weight:400;line-height:1.5;letter-spacing:0;color:var(--ink-dim);text-transform:none;}
-[data-ty="title"]{font-size:var(--ty-h4);font-weight:700;line-height:1.3;letter-spacing:0;text-transform:none;}
+[data-ty="title"]{font-size:var(--ty-h4);font-weight:700;line-height:1.3;letter-spacing:0;color:var(--ink);text-transform:none;}
 [data-ty="stat"]{font-size:var(--ty-h3);font-weight:700;line-height:1.2;letter-spacing:0;color:var(--ink);text-transform:none;}
+/* A comparison column header: the "without" and "with" sides on Home and the migration table. */
+[data-ty="grade"]{font-size:var(--ty-grade);font-weight:750;line-height:1.2;letter-spacing:.05em;text-transform:uppercase;color:var(--ink);}
+/* Tones: colour only. */
+[data-ty][data-tone="ink"]{color:var(--ink);}
+[data-ty][data-tone="dim"]{color:var(--ink-dim);}
+[data-ty][data-tone="faint"]{color:var(--ink-faint);}
+[data-ty][data-tone="accent"]{color:var(--teal-soft);}
+[data-ty][data-tone="warn"]{color:var(--amber);}
+[data-ty][data-tone="go"]{color:var(--accent);}
 
-/* ---------- Heading system (v4.13.10 R21) ---------- One style on every page, the "editorial rule":
-   solid ink, no gradient words, no eyebrow line, no dash prefix. H1 is large and heavy; H2 is a clear
-   step smaller and sits under a thin full-width rule that separates sections; H3 is smaller again, in
-   the accent colour. Headings are keyword labels, never sentences. */
-main h1,main [data-ty="h1"].pg-open-title{font-size:clamp(2rem,4.2vw,3rem);font-weight:800;line-height:1.08;letter-spacing:-.025em;color:var(--ink);}
-main h2:not(.tr-reward-title){font-size:clamp(1.4rem,2.3vw,1.85rem);font-weight:700;line-height:1.2;letter-spacing:-.012em;color:var(--ink);padding-top:var(--sp-4);border-top:1px solid var(--border);}
-main h3{font-size:var(--ty-h3);font-weight:700;line-height:1.3;color:var(--teal-soft);}
+/* ---------- Heading system (v4.13.10 R21, R27) ---------- One style on every page, from the roles above:
+   solid ink, no gradient words, no eyebrow line, no dash prefix. H1 is large and heavy; H2 is a clear step
+   smaller, sits under a thin full-width rule that separates sections, and carries one accent dot on its
+   left, centred on its first line; H3 is smaller again, in the accent colour, with no marker. Headings are
+   keyword labels, never sentences. */
+main h2:not(.tr-reward-title){--h2-pt:var(--sp-4);position:relative;padding-top:var(--h2-pt);padding-left:.75em;border-top:1px solid var(--border);}
+main h2:not(.tr-reward-title)::before{content:"";position:absolute;left:0;top:calc(var(--h2-pt) + .6em - .2em);width:.4em;height:.4em;border-radius:50%;background:var(--accent);}
+main h3::before{content:none;}
 main h1 .gtext,main h2 .gtext,.gtext{background:none;-webkit-background-clip:border-box;background-clip:border-box;-webkit-text-fill-color:currentColor;color:inherit;}
 main .eyebrow,main .tr-kicker{display:none;}
-.fx-title h2::before,.eyebrow::before{content:none;display:none;}
-.fx-title h2{color:var(--ink);}
+.eyebrow::before{content:none;display:none;}
 /* Where the container already draws the full-width rule (a Foundations scene's top border, the Training
    workflow strip), the H2 does not draw a second one. */
-.fx-scene .fx-title h2,.tr-head h2{border-top:0;padding-top:0;}
+.fx-scene .fx-title h2,.tr-head h2{--h2-pt:0px;border-top:0;}
 /* /shared:type-css */
 </style>
 </head>
@@ -985,7 +1035,7 @@ main .eyebrow,main .tr-kicker{display:none;}
     <section class="tr-stage" id="intro" data-stage="intro" aria-labelledby="st-intro"><div class="container">
       <div class="pg-open">
         <h1 data-ty="h1" class="pg-open-title" id="st-intro">Development Workflow Training</h1>
-        <p data-ty="lead" class="pg-open-lead">A hands-on walkthrough of the Nexus Hub recommended development workflow, using the practical example of fixing a buggy game.</p>
+        <p data-ty="callout" class="pg-open-lead">A hands-on walkthrough of the Nexus Hub recommended development workflow, using the practical example of fixing a buggy game.</p>
         <figure class="pg-fig tro" aria-label="What this page shows: in the buggy game a gunship bolt deals 6 damage and destroys the ship outright, emptying its 100-point hull, which is the bug, and a red cross marks it; an agent then types the six commands of the Development Workflow into a chat, one at a time, and an IDE answers each one by writing or editing a file: the project map, the review, the plan, the damage fix in src/damage.js, its test, and the changelog, handing off from Claude to OpenAI during the implementation; in the fixed game the same 6-damage bolt takes the hull from 100 to 94 and the ship flies on, and a green check confirms the fix.">
           <div class="tro-ui" aria-hidden="true">
             <div class="tro-card tro-card--bug"><p class="tro-cap">Buggy Game</p><div class="tro-arena"><div class="tro-demo"></div><span class="tro-verdict tro-verdict--bug"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="21"/><path d="M15 15 L33 33 M33 15 L15 33"/></svg></span></div><p class="tro-stat"><span class="tro-hull">Hull <b>100</b> / 100</span><span class="tro-tag tro-tag--bug"><b>-6</b> hit, ship destroyed</span></p></div>
@@ -1140,7 +1190,7 @@ main .eyebrow,main .tr-kicker{display:none;}
       </section></div></section>
     <!-- R25: the site order Home, Foundations, Training, Cheatsheets; the guide's router writes the same markup on its pages. -->
     <div class="container">
-      <div class="pagenav" data-pagenav><a class="prev" href="nexus-hub-guide.html#foundations"><span class="pn-k">Previous</span><span class="pn-t">&larr; Foundations</span></a><a class="next" href="nexus-hub-guide.html#cheatsheets"><span class="pn-k">Next</span><span class="pn-t">Cheatsheets &rarr;</span></a></div>
+      <div class="pagenav" data-pagenav><a class="prev" href="nexus-hub-guide.html#foundations"><span data-ty="eyebrow" class="pn-k">Previous</span><span data-ty="label" class="pn-t">&larr; Foundations</span></a><a class="next" href="nexus-hub-guide.html#cheatsheets"><span data-ty="eyebrow" class="pn-k">Next</span><span data-ty="label" class="pn-t">Cheatsheets &rarr;</span></a></div>
       <div class="progress-dots" data-progress><a class="" href="nexus-hub-guide.html#home" aria-label="Go to Home" title="Home"></a><a class="" href="nexus-hub-guide.html#foundations" aria-label="Go to Foundations" title="Foundations"></a><a class="on" href="#intro" aria-label="Go to Training" aria-current="page" title="Training"></a><a class="" href="nexus-hub-guide.html#cheatsheets" aria-label="Go to Cheatsheets" title="Cheatsheets"></a></div>
     </div>
   </main>
@@ -5458,6 +5508,8 @@ window.NexusTrainingStory = (function () {
   var EFFORTS = ["low", "medium", "high", "max"];
   var SPEEDS = [0.5, 1, 2];
 
+  /* Every text block carries its role from shared/type.css. */
+  function ty(node, role) { node.setAttribute("data-ty", role); return node; }
   function el(tag, cls, text) {
     var node = document.createElement(tag);
     if (cls) node.className = cls;
@@ -5681,17 +5733,17 @@ window.NexusTrainingStory = (function () {
     heading.textContent = st.head.title;
     heading.classList.add("tr-title");
     header.appendChild(heading);
-    header.appendChild(el("p", "tr-now", st.head.now));
+    header.appendChild(ty(el("p", "tr-now", st.head.now), "lead"));
     return header;
   }
   function notesFor(st) {
     var box = el("div", "tr-notes");
     box.setAttribute("data-tone", st.game === "fixed" ? "ok" : "bug");
-    box.appendChild(el("h3", "tr-notes-title", st.notes.title));
+    box.appendChild(ty(el("h3", "tr-notes-title", st.notes.title), "h3"));
     var ul = el("ul", "tr-notes-list");
-    st.notes.items.forEach(function (t) { ul.appendChild(el("li", null, t)); });
+    st.notes.items.forEach(function (t) { ul.appendChild(ty(el("li", null, t), "body")); });
     box.appendChild(ul);
-    if (st.notes.hidden) box.appendChild(el("p", "tr-notes-hidden", st.notes.hidden));
+    if (st.notes.hidden) box.appendChild(ty(el("p", "tr-notes-hidden", st.notes.hidden), "body"));
     return box;
   }
 
@@ -6395,7 +6447,7 @@ window.NexusTrainingStory = (function () {
       if (st.kind === "play") {
         var notes = notesFor(st);
         if (host) box.insertBefore(notes, host); else box.appendChild(notes);
-        var after = el("p", "tr-after", st.after);
+        var after = ty(el("p", "tr-after", st.after), "body");
         if (host && host.nextSibling) box.insertBefore(after, host.nextSibling); else box.appendChild(after);
         return;
       }
@@ -6450,7 +6502,7 @@ window.NexusTrainingStory = (function () {
       if (names.indexOf(n) === -1) names.push(n);
       tier = a.tier; effort = a.effort;
     });
-    var p = el("p", "tr-why");
+    var p = ty(el("p", "tr-why"), "body-sm");
     p.appendChild(el("b", null, names.join(", then ")));
     p.appendChild(document.createTextNode(", " + tier + " tier, " + effort + " effort. " + st.why));
     return p;
@@ -6739,7 +6791,9 @@ window.NexusTrainingStory = (function () {
       var toggle = el("button", "pg-outline-toggle");
       toggle.type = "button";
       toggle.appendChild(el("span", "pg-outline-label", label));
+      toggle.lastChild.setAttribute("data-ty", "eyebrow");
       inst.now = el("span", "pg-outline-now");
+      inst.now.setAttribute("data-ty", "body-sm");
       toggle.appendChild(inst.now);
       toggle.appendChild(el("span", "pg-outline-chev"));
       toggle.lastChild.setAttribute("aria-hidden", "true");
@@ -6757,6 +6811,7 @@ window.NexusTrainingStory = (function () {
         a.appendChild(el("span", "pg-outline-node"));
         a.lastChild.setAttribute("aria-hidden", "true");
         a.appendChild(el("span", "pg-outline-text", item.label));
+        a.lastChild.setAttribute("data-ty", "body-sm");
         if (inst.mode === "scroll") {
           var target = document.getElementById(item.target);
           if (target) target.setAttribute("data-outline-target", "");

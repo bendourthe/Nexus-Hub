@@ -1,10 +1,14 @@
-/* ---------- Page opening (v4.13.10, shared) ---------- Foundations, Cheatsheets, and Training open the same way: a centred title in the Home hero-subtitle style with one gradient phrase, a one-paragraph description, then a full-width visual summary of what the page holds. */
+/* ---------- Page opening (v4.13.10, shared) ---------- Foundations, Cheatsheets, and Training open the same way: a centred keyword title, a one-sentence statement in a framed callout, then a full-width visual summary of what the page holds. */
 .pg-open{text-align:center;padding:var(--sp-5) 0 var(--sp-4);}
 .pg-open-title{margin:var(--sp-5) auto 0;text-align:center;text-wrap:balance;color:var(--ink);}
 .pg-open .gtext{color:var(--ink);background:linear-gradient(90deg,var(--cyan),var(--teal));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
-.pg-open-lead{margin:var(--sp-3) auto 0;text-align:center;color:var(--ink-dim);text-wrap:pretty;}
-/* R24: the opening subtitle reads as the page's statement, a clear step above body text and below H2 (22 px at 1440). */
-.pg-open .pg-open-lead[data-ty="lead"]{font-size:clamp(1.125rem,.8rem + .8vw,1.375rem);line-height:1.45;}
+/* The opening statement is a framed callout: a softly tinted, rounded panel with a thin accent border,
+   centred under the title. Its type is the callout role in type.css; the panel takes the width of its
+   text and never more than the container, and on wide screens a share of the container so the sentence
+   balances over two lines. */
+.pg-open-lead{box-sizing:border-box;width:fit-content;max-width:100%;margin:var(--sp-4) auto 0;padding:var(--sp-3) var(--sp-5);text-align:center;text-wrap:balance;border:1px solid color-mix(in srgb,var(--accent) 45%,transparent);border-radius:14px;background:color-mix(in srgb,var(--accent) 8%,transparent);box-shadow:0 10px 28px -22px color-mix(in srgb,var(--accent) 70%,transparent);}
+@media (min-width:900px){.pg-open-lead{max-width:72%;}}
+@media (max-width:719px){.pg-open-lead{padding:var(--sp-3) var(--sp-4);text-wrap:pretty;}}
 /* Each opening ends with one figure of what the page holds, built in HTML so text stays crisp and the layout reflows on a phone. Motion is continuous and quick (no slide-by-slide reveals); every figure has a reduced-motion still. */
 .pg-fig{margin:var(--sp-5) auto 0;padding:var(--sp-4);border:1px solid var(--border);border-radius:18px;background:radial-gradient(120% 140% at 50% 0%,color-mix(in srgb,var(--accent) 7%,var(--surface)),var(--surface));text-align:left;}
 /* Code inside a figure is part of the drawing, not an inline code chip. */
@@ -48,7 +52,14 @@
 .fxo-pick{margin-right:auto;}
 .fxo-send{padding:3px 12px;border-radius:7px;background:var(--accent);color:#06201c;font-weight:800;animation:fxo-sendk 24s linear infinite;}
 @keyframes fxo-sendk{0%,61.9%,64%,100%{filter:none;transform:none;}62%,63.5%{filter:brightness(1.35);transform:scale(.94);}}
-.fxo-tokrow,.fxo-ctx{display:grid;grid-template-columns:4.75rem minmax(0,1fr);align-items:start;gap:4px 12px;color:var(--ink);text-decoration:none;}
+/* The left column reads in story order, Prompt, Context Window, Tokens, each row labelled in the same style. */
+.fxo-prow,.fxo-tokrow,.fxo-ctx{display:grid;grid-template-columns:4.75rem minmax(0,1fr);align-items:start;gap:4px 12px;color:var(--ink);text-decoration:none;}
+.fxo-prow .fxo-lab{padding-top:14px;}
+/* The bar's centre line is its label's: both sit centred in the first row; the legend runs under the bar. */
+.fxo-ctx{align-items:center;}
+.fxo-ctx .fxo-lab{padding-top:0;}
+.fxo-ctx .fxo-gauge{margin-top:0;}
+.fxo-ctx .fxo-keys{align-self:start;}
 .fxo-lab{padding-top:3px;font-size:var(--ty-micro);font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--teal-soft);}
 /* Each sentence's tokens stay on one row at desktop widths: chip size scales with the row (the longest
    sentence needs about 42em), and trailing punctuation is glued to its word so a narrow-screen wrap never
@@ -61,8 +72,22 @@
 @keyframes fxo-cnt{0%,59.49%{opacity:0;}59.5%,97%{opacity:1;}98.2%,100%{opacity:0;}}
 .fxo-gauge{display:flex;height:12px;margin-top:3px;overflow:hidden;border-radius:6px;background:color-mix(in srgb,var(--ink-dim) 18%,transparent);}
 .fxo-g{height:100%;width:0;background:var(--k);}
-.fxo-g[data-k="system"]{width:6%;}
+.fxo-g[data-k="system"]{width:6%;animation:fxo-g-system 24s linear infinite;}
+@keyframes fxo-g-system{0%,.5%{width:0;}2%,97%{width:6%;}99.5%,100%{width:0;}}
 .fxo-keys{grid-column:2;display:flex;flex-wrap:wrap;gap:4px 12px;font-size:11.5px;color:var(--ink-dim);}
+.fxo-keys span{opacity:0;}
+.fxo-keys [data-k="system"]{animation:fxo-key-system 24s linear infinite;}
+@keyframes fxo-key-system{0%,0.49%{opacity:0;}0.5%,97%{opacity:1;}98.2%,100%{opacity:0;}}
+.fxo-keys [data-k="files"]{animation:fxo-key-files 24s linear infinite;}
+@keyframes fxo-key-files{0%,1.99%{opacity:0;}2%,97%{opacity:1;}98.2%,100%{opacity:0;}}
+.fxo-keys [data-k="request"]{animation:fxo-key-request 24s linear infinite;}
+@keyframes fxo-key-request{0%,8.99%{opacity:0;}9%,97%{opacity:1;}98.2%,100%{opacity:0;}}
+.fxo-keys [data-k="goal"]{animation:fxo-key-goal 24s linear infinite;}
+@keyframes fxo-key-goal{0%,27.99%{opacity:0;}28%,97%{opacity:1;}98.2%,100%{opacity:0;}}
+.fxo-keys [data-k="format"]{animation:fxo-key-format 24s linear infinite;}
+@keyframes fxo-key-format{0%,44.99%{opacity:0;}45%,97%{opacity:1;}98.2%,100%{opacity:0;}}
+.fxo-keys [data-k="reply"]{animation:fxo-key-reply 24s linear infinite;}
+@keyframes fxo-key-reply{0%,73.99%{opacity:0;}74%,97%{opacity:1;}98.2%,100%{opacity:0;}}
 .fxo-keys span::before{content:"";display:inline-block;width:8px;height:8px;margin-right:5px;border-radius:2px;background:var(--k);vertical-align:0;}
 .fxo-pipe{flex:0 0 34px;align-self:center;position:relative;height:2px;background:color-mix(in srgb,var(--accent) 35%,transparent);}
 .fxo-pipe i{position:absolute;top:-3px;left:0;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent);opacity:0;animation:fxo-travel 24s linear infinite;}
@@ -87,7 +112,7 @@
 @keyframes fxo-s2{0%,73%{opacity:0;}73.1%,84.5%{opacity:1;}84.6%,100%{opacity:0;}}
 @keyframes fxo-s3{0%,84.58999999999999%{opacity:0;}84.6%,97%{opacity:1;}98.2%,100%{opacity:0;}}
 .fxo-status [data-s="0"]{animation:fxo-s0 24s linear infinite;}.fxo-status [data-s="1"]{animation:fxo-s1 24s linear infinite;}.fxo-status [data-s="2"]{animation:fxo-s2 24s linear infinite;}.fxo-status [data-s="3"]{animation:fxo-s3 24s linear infinite;}
-.fxo-reply{display:grid;gap:4px;padding:10px 12px;min-height:13em;border:1px solid color-mix(in srgb,#f472b6 30%,var(--border));border-radius:10px;background:color-mix(in srgb,#f472b6 5%,transparent);text-align:left;font-size:12.5px;line-height:1.4;color:var(--ink);}
+.fxo-reply{flex:1 1 auto;display:grid;align-content:start;gap:5px;padding:10px 12px;min-height:13em;border:1px solid color-mix(in srgb,#f472b6 30%,var(--border));border-radius:10px;background:color-mix(in srgb,#f472b6 5%,transparent);text-align:left;font-size:12.5px;line-height:1.4;color:var(--ink);}
 .fxo-out{display:block;clip-path:inset(0 100% 0 0);}
 .fxo-out--h{font-weight:800;color:var(--ink);}
 .fxo-out--src{margin-top:2px;font-size:11.5px;color:var(--ink-dim);}
@@ -195,7 +220,8 @@
   .fxo-flow{flex-direction:column;}
   .fxo-pipe{flex:0 0 22px;width:2px;height:22px;}
   .fxo-pipe i{left:-3px;top:0;animation-name:fxo-travel-v;}
-  .fxo-tokrow,.fxo-ctx{grid-template-columns:minmax(0,1fr);gap:4px;}
+  .fxo-prow,.fxo-tokrow,.fxo-ctx{grid-template-columns:minmax(0,1fr);gap:4px;}
+  .fxo-prow .fxo-lab{padding-top:3px;}
   .fxo-count,.fxo-keys{grid-column:1;}
   .fxo-node--model{align-items:flex-start;}
 }
@@ -243,7 +269,7 @@
   /* Nothing in a figure moves under reduced motion, whatever selector started it. */
   .pg-fig *,.pg-fig *::before,.pg-fig *::after{animation:none !important;}
   .fxo-pipe i,.fxo-core i,.fxo-core em,.csf-steps li,.csf-pick,.csf-card,.csf-s2,.csf-line,.csf-copied,.csf-cursor,.csf-cursor svg{animation:none;}
-  .fxo-file,.fxo-k,.fxo-t,.fxo-count,.fxo-status [data-s="3"]{opacity:1;}
+  .fxo-file,.fxo-k,.fxo-t,.fxo-count,.fxo-keys span,.fxo-status [data-s="3"]{opacity:1;}
   .fxo-typed{clip-path:none;background-size:100% 2px;}
   .fxo-out{clip-path:none;}
   .fxo-g[data-k="files"]{width:24%;}
