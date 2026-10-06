@@ -11,12 +11,18 @@ that grows through each level, and a fatal hit that shows its real damage while 
 Phase R16 gave both games one start screen that fits the arena with no scroll bar, made every
 damage path (and the self-test blast) fatal in the buggy build, and gave each ship its own
 weapon: twin cannons, a burst rifle, a lance beam, and splitting plasma orbs.
+Phase R18 aimed every enemy weapon at the ship (``aimLog()`` records each shot's origin, heading,
+and the ship's position when it fired), centred the end card in the arena, added a fifth ship
+(the green Warden and its flak cone) with one main colour per ship and an animated weapon preview
+on each card, and added ``SkySentinel.demo()``, a scripted scene drawn by the real renderer.
 
 Skipped when Playwright or Chromium is missing; fail-closed under NEXUS_REQUIRE_RENDER=1.
 """
 
 from __future__ import annotations
 
+import colorsys
+import math
 import os
 from pathlib import Path
 
@@ -554,14 +560,17 @@ def test_each_enemy_class_fires_its_own_weapon(page, enemy: str, kind: str) -> N
     assert kinds and set(kinds) == {kind}, f"{enemy} fired {kinds}"
 
 
-def test_a_lancer_charges_then_fires_a_beam_column(page) -> None:
+def test_a_lancer_lines_up_on_the_ship_then_charges_and_fires_a_beam_column(page) -> None:
+    """R18: a lancer due to fire first slides onto the ship's column; only then does it charge."""
     _quiet(page, level=3, pad=GRACE + 10)
-    page.evaluate("SkySentinel.get('fixed').spawn('lancer', 120, 80)")
-    charging = page.evaluate("SkySentinel.get('fixed').step(2)")
-    assert charging["shotKinds"] == [], "the charge is a tell: no shot yet"
-    view = page.evaluate("SkySentinel.get('fixed').view()")
-    assert sum(1 for t in view["threats"] if abs(t["x"] - 120) < 8 and t["vx"] == 0 and t["vy"] == 8) >= 10, "the charging column is a threat"
-    assert view["beams"] and view["beams"][0]["charging"] > 0
+    out = _js(page, """const p = g.state().player; g.spawn('lancer', p.x - 150, 80);
+        let n = 0; while (!g.view().beams.length && n < 200) { g.step(1); n++; }
+        return { n, view: g.view(), s: g.state(), px: p.x };""")
+    view, px = out["view"], out["px"]
+    assert out["n"] > 20, "it had to travel to line up first"
+    assert out["s"]["shotKinds"] == [], "the charge is a tell: no shot yet"
+    assert view["beams"] and view["beams"][0]["charging"] > 0 and abs(view["beams"][0]["x"] - px) < 0.5, "it charges on the ship's column"
+    assert sum(1 for t in view["threats"] if abs(t["x"] - px) < 8 and t["vx"] == 0 and t["vy"] == 8) >= 10, "the charging column is a threat"
     fired = page.evaluate("SkySentinel.get('fixed').step(55)")
     assert "beam" in fired["shotKinds"]
 
@@ -696,21 +705,22 @@ def test_the_explosion_plays_out_after_a_buggy_death(page) -> None:
 
 # ---------------------------------------------------------------- R14: ships, upgrades, carriers, density
 
-SHIP_IDS = ["vanguard", "raptor", "talon", "specter"]
+SHIP_IDS = ["vanguard", "warden", "specter", "talon", "raptor"]
+SHIP_COLOURS = {"vanguard": "blue", "warden": "green", "specter": "orange", "talon": "yellow", "raptor": "red"}
 UPGRADES = ["shield", "repair", "weapon", "spread", "rapid", "pierce", "missiles", "wingman", "slow", "magnet"]
 
 
-def test_the_start_screen_offers_four_ships_and_the_full_upgrade_key(page) -> None:
+def test_the_start_screen_offers_five_ships_and_the_full_upgrade_key(page) -> None:
     _quiet(page)
     page.evaluate("(() => { const g = SkySentinel.get('fixed'); g.configure({ defects: {}, seed: 7 }); })()")
     host = ".ss-host[data-ss-id=fixed]"
     assert page.locator(f"{host} .ss-brand").text_content() == "Nexus Defenders"
     cards = page.locator(f"{host} .ss-hangar [role=radio]")
-    assert cards.count() == 4
+    assert cards.count() == 5
     assert page.get_attribute(f"{host} .ss-hangar", "role") == "radiogroup"
     labels = cards.evaluate_all("els => els.map(e => [e.dataset.ship, e.getAttribute('aria-checked'), e.getAttribute('aria-label')])")
     assert [x[0] for x in labels] == SHIP_IDS
-    assert [x[1] for x in labels] == ["true", "false", "false", "false"], "the default ship is preselected"
+    assert [x[1] for x in labels] == ["true", "false", "false", "false", "false"], "the default ship is preselected"
     assert all("Hull" in x[2] and "speed" in x[2] for x in labels), "each card names its stats"
     items = page.locator(f"{host} .ss-key-item").evaluate_all(
         "els => els.map(e => [e.dataset.upgrade, getComputedStyle(e).getPropertyValue('--ss-up').trim(), e.innerText])")
@@ -749,10 +759,10 @@ def test_choosing_a_ship_changes_the_state_and_the_rendered_form(page, ship: str
 def test_ships_differ_in_shape_colour_and_stats(page) -> None:
     ships = page.evaluate("SkySentinel.get('fixed').ships()")
     assert [s["id"] for s in ships] == SHIP_IDS and ships[0]["hull"] == 100 and ships[0]["speed"] == 1 and ships[0]["fire"] == 1
-    assert len({(s["hull"], s["speed"], s["fire"]) for s in ships}) == 4, "every ship trades something"
-    assert len({s["accent"] for s in ships}) == 4, "every ship has its own colour scheme"
+    assert len({(s["hull"], s["speed"], s["fire"]) for s in ships}) == 5, "every ship trades something"
+    assert len({s["accent"] for s in ships}) == 5, "every ship has its own colour scheme"
     forms = _js(page, """const out = {};
-        for (const id of ['vanguard', 'raptor', 'talon', 'specter']) for (const lv of [1, 2, 3]) {
+        for (const id of ['vanguard', 'warden', 'specter', 'talon', 'raptor']) for (const lv of [1, 2, 3]) {
             g.configure({ defects: {}, seed: 7, threats: false, level: lv }); g.chooseShip(id); out[id + lv] = g.state().shipMesh; }
         g.chooseShip('vanguard'); return out;""")
     assert sorted(forms.values()) == sorted(f"{i}{n}" for i in SHIP_IDS for n in (1, 2, 3)), "three forms per ship"
@@ -774,8 +784,10 @@ def test_cards_select_by_click_and_arrow_keys(page) -> None:
     assert page.evaluate("SkySentinel.get('fixed').state().ship") == "talon"
     page.locator(f"{host} [data-ship=talon]").focus()
     page.keyboard.press("ArrowRight")
-    assert page.evaluate("SkySentinel.get('fixed').state().ship") == "specter"
-    assert page.evaluate("document.activeElement.dataset.ship") == "specter", "focus follows the choice"
+    assert page.evaluate("SkySentinel.get('fixed').state().ship") == "raptor"
+    assert page.evaluate("document.activeElement.dataset.ship") == "raptor", "focus follows the choice"
+    page.keyboard.press("ArrowRight")
+    assert page.evaluate("SkySentinel.get('fixed').state().ship") == "vanguard", "the choice wraps around"
     page.evaluate("SkySentinel.get('fixed').chooseShip('vanguard')")
 
 
@@ -858,8 +870,10 @@ def test_density_grows_through_a_level(page) -> None:
     assert 0 < early["levelProgress"] < 0.1 < 0.9 < late["levelProgress"] < 1
     assert early["spawnInterval"] > late["spawnInterval"] * 1.6, "enemies arrive far more often late in a level"
     assert early["enemyCap"] < late["enemyCap"] and early["rockInterval"] > late["rockInterval"] * 2
+    # R18: aimed fire finds a ship that never dodges, so repair drops (outside the spawn stream) keep it alive
     counts = _js(page, """g.configure({ defects: {}, seed: 8, threats: true, level: 1 }); g.start(); g.pause('t'); g.input({ fire: true });
-        const a = g.step(1500); const b = g.step(2400); const c = g.step(1300); g.input({ fire: false });
+        const run = (n) => { let s; for (let k = 0; k < n; k += 100) { g.dropPowerUp('repair'); s = g.step(Math.min(100, n - k)); } return s; };
+        const a = run(1500); const b = run(2400); const c = run(1300); g.input({ fire: false });
         return { first: a.spawned, last: c.spawned - b.spawned, rocksFirst: a.breaks.length, state: c.state };""")
     assert counts["state"] != "over", counts
     assert counts["last"] > counts["first"] * 1.4, f"the last 1,300 ticks send more enemies than the first 1,500: {counts}"
@@ -915,7 +929,7 @@ def test_the_start_screen_fits_the_arena_with_no_scroll_bar(browser, viewport: t
                 assert m["sh"] <= m["ch"] and m["sw"] <= m["cw"], f"{gid} {viewport}: content overflows the arena: {m}"
                 assert m["outside"] == [] and m["clipped"] == [], f"{gid} {viewport}: {m}"
                 assert m["start"], "the Start button always shows"
-            assert max(m["ships"] for m in panels) == 4 and max(m["keys"] for m in panels) == 10, panels
+            assert max(m["ships"] for m in panels) == 5 and max(m["keys"] for m in panels) == 10, panels
     finally:
         pg.close()
 
@@ -1033,21 +1047,26 @@ def test_the_buggy_game_dies_on_its_first_hit_through_the_real_ui(browser, ship:
 
 def test_each_ship_fires_its_own_weapon(page) -> None:
     out = _js(page, """const out = {};
-        for (const id of ['vanguard', 'raptor', 'talon', 'specter']) {
+        for (const id of ['vanguard', 'warden', 'specter', 'talon', 'raptor']) {
             g.configure({ defects: {}, seed: 7, threats: false, level: 1 }); g.chooseShip(id); g.start(); g.pause('t'); g.step(5);
-            g.input({ fire: true }); const a = g.step(1); const b = g.step(6); g.input({ fire: false });
-            out[id] = { weapon: a.weapon, first: a.playerShots, later: b.playerShots };
+            const y0 = g.state().player.y;
+            g.input({ fire: true }); const a = g.step(1); const b = g.step(6); g.input({ fire: false }); const c = g.step(40);
+            out[id] = { weapon: a.weapon, first: a.playerShots, later: b.playerShots, y0, gone: c.playerShots };
         }
         g.chooseShip('vanguard'); return out;""")
     kinds = {k: v["weapon"]["kind"] for k, v in out.items()}
-    assert kinds == {"vanguard": "cannon", "raptor": "burst", "talon": "lance", "specter": "orb"}
-    assert len({v["weapon"]["name"] for v in out.values()}) == 4
+    assert kinds == {"vanguard": "cannon", "warden": "flak", "specter": "orb", "talon": "lance", "raptor": "burst"}
+    assert len({v["weapon"]["name"] for v in out.values()}) == 5
     for ship, v in out.items():
         assert {s["kind"] for s in v["first"]} == {kinds[ship]}, f"{ship} fires its own rounds"
     assert len(out["vanguard"]["first"]) == 2 and out["vanguard"]["first"][0]["dmg"] == 2, "two heavy rounds side by side"
     assert len(out["raptor"]["first"]) == 1 and len(out["raptor"]["later"]) == 3, "a three-round burst from one pull"
     assert out["talon"]["first"][0]["len"] > 150 and out["talon"]["first"][0]["pierce"], "a ray that cuts through"
     assert len(out["specter"]["first"]) == 1 and out["specter"]["first"][0]["dmg"] == 2
+    flak = out["warden"]
+    xs = sorted(p["x"] for p in flak["first"])
+    assert len(flak["first"]) == 5 and xs[-1] - xs[0] > 4, "a cone of five pellets that spread"
+    assert not any(p["kind"] == "flak" for p in flak["gone"]), "flak is short-range: every pellet fades out"
     cards = page.locator(".ss-host[data-ss-id=fixed] .ss-ship").evaluate_all(
         "els => els.map(e => [e.querySelector('.ss-ship-weapon').textContent, e.querySelector('.ss-ship-desc').textContent])")
     api = page.evaluate("SkySentinel.get('fixed').ships()")
@@ -1075,3 +1094,264 @@ def test_upgrades_stack_on_every_weapon(page, ship: str) -> None:
         const out = {{ base: v(null), twin: v('weapon'), spread: v('spread') }}; g.chooseShip('vanguard'); return out;""")
     assert out["twin"][0] == out["base"][0] * 2, f"{ship}: Twin doubles the barrels {out}"
     assert out["spread"][0] == out["base"][0] + 2, f"{ship}: Spread adds two side shots {out}"
+
+
+# ---------------------------------------------------------------- R18: aimed enemy fire
+
+AIM_CLASSES = ["gunship", "interceptor", "lancer", "bomber"]
+
+
+def _miss(a: dict) -> float:
+    """How far a logged shot's line passes from where the ship was when it fired (px)."""
+    if a["kind"] == "beam":
+        return abs(a["x"] - a["px"])
+    if a["kind"] == "bomb":
+        return math.hypot(a["tx"] - a["px"], a["ty"] - a["py"])
+    dx, dy, vx, vy = a["px"] - a["x"], a["py"] - a["y"], a["vx"], a["vy"]
+    assert dx * vx + dy * vy > 0, f"the shot flies toward the ship: {a}"
+    return abs(dx * vy - dy * vx) / math.hypot(vx, vy)
+
+
+@pytest.mark.parametrize("cls", AIM_CLASSES)
+def test_every_enemy_weapon_aims_at_the_ship_where_it_is_when_it_fires(page, cls: str) -> None:
+    """R18 maintainer review: enemy fire was not aimed at the ship, which made the game too easy."""
+    _quiet(page, level=3, pad=GRACE + 10)
+    seen = _js(page, f"""g.dropPowerUp('shield'); g.step(2);
+        const cls = '{cls}', p0 = g.state().player, mine = () => g.aimLog().filter(a => a.cls === cls);
+        g.spawn(cls, cls === 'lancer' ? p0.x - 200 : p0.x + 260, 90);
+        const seen = [];
+        for (const move of ['left', 'right', 'left']) {{
+            g.input({{ [move]: true }}); g.step(12); g.input({{ left: false, right: false }});
+            const before = mine().length;
+            for (let n = 0; n < 700 && mine().length === before && g.state().state !== 'over'; n++) g.step(1);
+            if (mine().length > before) seen.push(mine()[before]);
+        }}
+        return seen;""")
+    assert len(seen) == 3, f"{cls} fired three times: {seen}"
+    assert len({round(a["px"]) for a in seen}) >= 2, "the ship moved between shots"
+    errors = [_miss(a) for a in seen]
+    assert max(errors) < 0.5, f"{cls} aim errors {errors}"
+
+
+@pytest.mark.parametrize("enemy, source", [("gunship", "shot"), ("interceptor", "needle")])
+def test_a_shot_from_far_to_the_side_still_hits_a_parked_ship(page, enemy: str, source: str) -> None:
+    _quiet(page, level=1, pad=GRACE + 10)
+    s = _js(page, f"""const p = g.state().player; g.spawn('{enemy}', p.x + 300, p.y - 330);
+        let s = g.state(); for (let i = 0; i < 400 && !s.lastDamage; i++) s = g.step(1); return s;""")
+    assert s["lastDamage"] and s["lastDamage"]["source"] == source, "an aimed shot finds a ship that does not move"
+
+
+def test_the_boss_aims_its_bolts_at_the_ship(page) -> None:
+    page.evaluate("""(() => { const g = SkySentinel.get('fixed');
+        g.configure({ defects: {}, seed: 7, threats: false, level: 3, progression: true, boss: true, bossNow: true }); g.start(); g.pause('t'); })()""")
+    log = _js(page, "g.dropPowerUp('shield'); g.step(700); return g.aimLog().filter(a => a.cls === 'boss');")
+    _js(page, "g.configure({ progression: true, boss: true, level: 1 });")
+    assert len(log) >= 4 and max(_miss(a) for a in log) < 0.5
+
+
+# ---------------------------------------------------------------- R18: the end card is centred
+
+CARD_PROBE = """(id) => {
+  const h = document.querySelector('.ss-host[data-ss-id=' + id + ']'), g = SkySentinel.get(id);
+  g.render();
+  const ov = h.querySelector('.ss-overlay').getBoundingClientRect(), pn = h.querySelector('.ss-panel').getBoundingClientRect();
+  const cv = h.querySelector('.ss-canvas').getBoundingClientRect();
+  const parts = [...h.querySelectorAll('.ss-over-title, .ss-start, .ss-change, .ss-hint')].filter(e => e.getClientRects().length)
+    .map(e => { const r = e.getBoundingClientRect(); return r.left >= pn.left - 0.5 && r.right <= pn.right + 0.5 && r.top >= pn.top - 0.5 && r.bottom <= pn.bottom + 0.5; });
+  const pops = g.state().popupBoxes.map(b => ({ x: b.x + cv.left, y: b.y + cv.top }));
+  return { dx: (pn.left + pn.right) / 2 - (ov.left + ov.right) / 2, dy: (pn.top + pn.bottom) / 2 - (ov.top + ov.bottom) / 2,
+           inside: pn.top >= ov.top - 0.5 && pn.bottom <= ov.bottom + 0.5 && pn.left >= ov.left - 0.5 && pn.right <= ov.right + 0.5,
+           parts, pops, covered: pops.filter(p => p.x > pn.left && p.x < pn.right && p.y > pn.top && p.y < pn.bottom).length,
+           shown: pops.filter(p => p.x > cv.left && p.x < cv.right && p.y > cv.top && p.y < cv.bottom).length,
+           title: h.querySelector('.ss-over-title').textContent };
+}"""
+
+
+@pytest.mark.parametrize("viewport", [(1440, 900), (1280, 720), (390, 844)], ids=lambda v: f"{v[0]}x{v[1]}")
+def test_the_end_card_sits_in_the_centre_of_the_arena(browser, viewport: tuple[int, int]) -> None:
+    """R18 maintainer review: the game-over message sat near the top of the arena."""
+    pg = browser.new_page(viewport={"width": viewport[0], "height": viewport[1]})
+    try:
+        pg.goto(TRAINING.as_uri() + "#play-buggy")
+        pg.wait_for_function("window.SkySentinel && SkySentinel.get('fixed')")
+        pg.evaluate("SkySentinel.manual(true)")
+        cards = {}
+        for gid in ("buggy", "fixed"):
+            pg.locator(f".ss-host[data-ss-id={gid}] .ss-stage").scroll_into_view_if_needed()
+            # a death with the ship parked high in its band, right where a centred card could hide the number
+            pg.evaluate("""(id) => { const g = SkySentinel.get(id);
+                g.configure({ defects: { firstHitFatal: true }, seed: 7, threats: false, level: 1 }); g.start(); g.pause('t');
+                g.input({ up: true }); g.step(40); g.input({ up: false }); g.forceHit('shot'); }""", gid)
+            cards[gid + " death"] = pg.evaluate(CARD_PROBE, gid)
+        pg.evaluate("""() => { const g = SkySentinel.get('fixed');
+            g.configure({ defects: {}, seed: 7, threats: false, level: 3, progression: true, boss: true, bossNow: true }); g.start(); g.pause('t'); g.step(600);
+            for (let i = 0; i < 4; i++) g.hitBoss('node' + i, 8); g.hitBoss('core', 24); }""")
+        cards["fixed victory"] = pg.evaluate(CARD_PROBE, "fixed")
+        assert cards["fixed victory"]["title"] == "The Nexus megaship is down"
+        for name, m in cards.items():
+            assert abs(m["dx"]) < 2 and abs(m["dy"]) < 2, f"{name} {viewport}: the card is centred {m}"
+            assert m["inside"] and all(m["parts"]), f"{name} {viewport}: title, buttons, and hint sit in the card {m}"
+            if "death" in name:
+                assert m["shown"] >= 1 and m["covered"] == 0, f"{name} {viewport}: the damage number stays visible {m}"
+    finally:
+        pg.close()
+
+
+# ---------------------------------------------------------------- R18: five colours, animated previews
+
+def _hue(hex_colour: str) -> float:
+    r, g, b = (int(hex_colour[i:i + 2], 16) / 255 for i in (1, 3, 5))
+    return colorsys.rgb_to_hsv(r, g, b)[0] * 360
+
+
+HUES = {"red": (-15, 15), "orange": (15, 38), "yellow": (38, 65), "green": (90, 160), "blue": (200, 240)}
+
+
+def test_each_ship_owns_one_main_colour(page) -> None:
+    ships = page.evaluate("SkySentinel.get('fixed').ships()")
+    assert {s["id"]: s["colour"] for s in ships} == SHIP_COLOURS
+    for s in ships:
+        lo, hi = HUES[s["colour"]]
+        for c in (s["accent"], s["weaponColor"]):
+            h = _hue(c)
+            h = h - 360 if h > 180 + hi else h
+            assert lo <= h <= hi, f"{s['id']} {c} reads as {s['colour']}"
+
+
+PREVIEW_GRAB = "id => [...document.querySelectorAll('.ss-host[data-ss-id=' + id + '] .ss-ship-pic')].map(c => c.toDataURL())"
+
+
+def test_each_card_animates_its_weapon_and_stops_when_hidden(browser) -> None:
+    pg = browser.new_page(viewport={"width": 1280, "height": 900})
+    try:
+        pg.goto(TRAINING.as_uri() + "#play-fixed")
+        pg.wait_for_function("window.SkySentinel && SkySentinel.get('fixed')")
+        pg.locator(".ss-host[data-ss-id=fixed] .ss-stage").scroll_into_view_if_needed()
+        pg.wait_for_function("SkySentinel.get('fixed').previewing()")
+        a = pg.evaluate(PREVIEW_GRAB, "fixed")
+        pg.wait_for_timeout(250)
+        b = pg.evaluate(PREVIEW_GRAB, "fixed")
+        assert len(a) == 5 and len(set(a)) == 5, "five different scenes"
+        assert all(x != y for x, y in zip(a, b, strict=True)), "every card is moving"
+        pg.evaluate("SkySentinel.get('fixed').start()")
+        pg.wait_for_timeout(120)
+        assert pg.evaluate("SkySentinel.get('fixed').previewing()") is False, "the previews stop while the game runs"
+        pg.evaluate("SkySentinel.get('fixed').pause('t'); SkySentinel.get('fixed').reset()")
+        pg.wait_for_function("SkySentinel.get('fixed').previewing()")
+        pg.evaluate("window.scrollTo(0, 0)")
+        pg.wait_for_timeout(200)
+        assert pg.evaluate("SkySentinel.get('fixed').previewing()") is False, "the previews stop off screen"
+    finally:
+        pg.close()
+
+
+def test_reduced_motion_shows_still_previews(browser) -> None:
+    ctx = browser.new_context(viewport={"width": 1280, "height": 900}, reduced_motion="reduce")
+    try:
+        pg = ctx.new_page()
+        pg.goto(TRAINING.as_uri() + "#play-fixed")
+        pg.wait_for_function("window.SkySentinel && SkySentinel.get('fixed')")
+        pg.locator(".ss-host[data-ss-id=fixed] .ss-stage").scroll_into_view_if_needed()
+        pg.wait_for_timeout(200)
+        a = pg.evaluate(PREVIEW_GRAB, "fixed")
+        pg.wait_for_timeout(250)
+        assert pg.evaluate("SkySentinel.get('fixed').previewing()") is False
+        assert pg.evaluate(PREVIEW_GRAB, "fixed") == a and len(set(a)) == 5, "five still frames, each its own weapon"
+    finally:
+        ctx.close()
+
+
+# ---------------------------------------------------------------- R18 (T086): demo mode
+
+MK_DEMO = """window.mkDemo = (variant, opts) => {
+  const d = document.createElement('div'); d.className = 'demo-host'; d.style.cssText = 'width:560px;height:350px';
+  document.body.prepend(d);
+  const c = SkySentinel.demo(d, Object.assign({ variant }, opts || {}));
+  c.ev = []; c.on('hit', e => c.ev.push(['hit', e])); c.on('end', e => c.ev.push(['end', e]));
+  return c;
+};"""
+
+
+@pytest.fixture(scope="module")
+def demo_page(browser):
+    pg = browser.new_page(viewport={"width": 1280, "height": 900})
+    pg.goto(TRAINING.as_uri())
+    pg.wait_for_function("window.SkySentinel && SkySentinel.get('fixed')")
+    pg.evaluate(MK_DEMO)
+    yield pg
+    pg.close()
+
+
+def _demo(pg, variant: str, opts: dict | None = None, ms: int = 4000) -> dict:
+    return pg.evaluate("""([v, opts, ms]) => { const c = mkDemo(v, opts); c.seek(ms);
+        const out = { info: c.info, ev: c.ev, st: c.state(),
+                      buttons: document.querySelector('.demo-host').querySelectorAll('button, .ss-overlay').length,
+                      role: document.querySelector('.demo-host canvas').getAttribute('role'), ids: SkySentinel.ids() };
+        c.destroy(); document.querySelector('.demo-host').remove(); return out; }""", [variant, opts or {}, ms])
+
+
+def test_the_buggy_demo_is_destroyed_by_its_one_hit(demo_page) -> None:
+    out = _demo(demo_page, "buggy")
+    info, ev, st = out["info"], out["ev"], out["st"]
+    assert [e[0] for e in ev] == ["hit", "end"]
+    hit, end = ev[0][1], ev[1][1]
+    assert (hit["source"], hit["amount"], hit["fatal"], hit["health"]) == ("shot", 10, True, 0), "a 10-point gunship bolt empties the hull"
+    assert end["destroyed"] is True and end["health"] == 0
+    assert info == {"source": "shot", "sourceText": "a gunship bolt", "amount": 10, "hitMs": hit["ms"], "hullBefore": 100, "hullAfter": 0, "destroyed": True}
+    assert st["destroyed"] and st["ended"] and st["renderer"] == "webgl" and st["popups"] == ["-10"]
+    assert out["ids"] == ["buggy", "fixed"], "a demo is not a game"
+    assert out["buttons"] == 0 and out["role"] == "img", "no start screen, no buttons, not interactive"
+
+
+def test_the_fixed_demo_takes_the_damage_and_flies_on(demo_page) -> None:
+    out = _demo(demo_page, "fixed")
+    info, ev, st = out["info"], out["ev"], out["st"]
+    assert [e[0] for e in ev] == ["hit", "end"]
+    hit, end = ev[0][1], ev[1][1]
+    assert (hit["source"], hit["amount"], hit["fatal"], hit["health"]) == ("shot", 10, False, 90)
+    assert end["destroyed"] is False and end["health"] == 90 == info["hullAfter"] == info["hullBefore"] - info["amount"]
+    assert st["renderer"] == "webgl" and not st["destroyed"] and st["enemies"] == 0, "it flies on and shoots the gunship down"
+    assert len(st["aimLog"]) == 1 and _miss(st["aimLog"][0]) < 0.5, "one aimed bolt"
+
+
+def test_a_demo_is_deterministic_and_seekable(demo_page) -> None:
+    a = _demo(demo_page, "fixed", ms=2500)["st"]
+    b = _demo(demo_page, "fixed", ms=2500)["st"]
+    assert a == b
+    hit_ms = a["hit"]["ms"]
+    assert 1000 < hit_ms < 3000
+    assert _demo(demo_page, "fixed", ms=hit_ms - 50)["st"]["hit"] is None
+    assert _demo(demo_page, "fixed", ms=hit_ms + 20)["st"]["hit"]["amount"] == 10
+
+
+@pytest.mark.parametrize("opts, health, renderer", [({"ship": "raptor"}, 80, "webgl"), ({"renderer": "2d"}, 90, "2d")])
+def test_demo_options_pick_the_ship_and_the_renderer(demo_page, opts: dict, health: int, renderer: str) -> None:
+    st = _demo(demo_page, "fixed", opts)["st"]
+    assert st["health"] == health and st["renderer"] == renderer and st["ship"] == opts.get("ship", "vanguard")
+
+
+def test_a_demo_plays_in_real_time_pauses_off_screen_and_ends(demo_page) -> None:
+    demo_page.evaluate("window.live = mkDemo('buggy'); live.play();")
+    demo_page.wait_for_function("live.state().ms > 300", timeout=5000)
+    demo_page.evaluate("window.scrollTo(0, 5000)")
+    demo_page.wait_for_timeout(200)
+    t0 = demo_page.evaluate("live.state().ms")
+    demo_page.wait_for_timeout(400)
+    assert demo_page.evaluate("live.state().ms") == t0, "an off-screen demo waits"
+    demo_page.evaluate("window.scrollTo(0, 0)")
+    demo_page.wait_for_function("live.state().ended", timeout=8000)
+    out = demo_page.evaluate("(() => { const r = { ev: live.ev.map(e => e[0]), st: live.state() }; live.destroy(); const h = document.querySelector('.demo-host'); const empty = h.innerHTML === ''; h.remove(); r.empty = empty; return r; })()")
+    assert out["ev"] == ["hit", "end"] and out["st"]["destroyed"] and out["empty"]
+
+
+def test_a_demo_under_reduced_motion_shows_its_final_frame(browser) -> None:
+    ctx = browser.new_context(viewport={"width": 1280, "height": 900}, reduced_motion="reduce")
+    try:
+        pg = ctx.new_page()
+        pg.goto(TRAINING.as_uri())
+        pg.wait_for_function("window.SkySentinel")
+        pg.evaluate(MK_DEMO)
+        st = pg.evaluate("(() => { const c = mkDemo('buggy'); c.play(); return c.state(); })()")
+        assert st["ended"] and st["ms"] == 4000 and st["destroyed"] and not st["playing"]
+    finally:
+        ctx.close()
