@@ -7,6 +7,9 @@ progression, and the fixed game has both. Phase R10 gave each level a named diff
 (Easy, Medium, Hard) that is measurably harder than the last. Phase R14 put a wormhole between
 levels (no input, no damage) and gave each level, and the boss, its own map; the level number
 and the timings are unchanged, so the transition plays during the first moments of each level.
+Phase R16 gave each ship its own weapon; the default Vanguard fires twin cannons (two rounds per
+pull), so the gun counts below are twice the old single gun's, and the dodging bot now reads
+the ship's real hit width (``view().player.hw``), which follows the drawn wingspan.
 Skipped without Playwright or Chromium; fail-closed under NEXUS_REQUIRE_RENDER=1.
 """
 
@@ -170,8 +173,8 @@ def test_weapon_gives_twin_shots_then_expires(page) -> None:
         g.input({ fire: true }); const twin = g.step(1).shots; g.input({ fire: false });
         g.step(620); g.input({ fire: true }); const single = g.step(10).shots; g.input({ fire: false });
         return { twin, single, weapon: g.state().player.weapon };""")
-    assert out["twin"] == 2
-    assert out["weapon"] == 0 and out["single"] == 1, "twin shot ends after 10 seconds"
+    assert out["twin"] == 4, "Twin doubles the Vanguard's two cannons"
+    assert out["weapon"] == 0 and out["single"] == 2, "twin shot ends after 10 seconds"
 
 
 def test_repairs_are_capped_at_a_full_hull(page) -> None:
@@ -193,15 +196,15 @@ def test_a_power_up_expiring_across_a_level_change_leaves_nothing_stale(page) ->
     s = _js(page, f"g.step({LEVEL2 - 300}); g.dropPowerUp('weapon'); g.step(2); return g.step(700);")
     assert s["level"] == 2 and s["player"]["weapon"] == 0
     shots = _js(page, "g.input({ fire: true }); const n = g.step(1).shots; g.input({ fire: false }); return n;")
-    assert shots == 1, "the Fighter fires a single shot once twin shot has expired"
+    assert shots == 2, "the Fighter fires its own two cannons once twin shot has expired"
 
 
 def test_the_sentinel_fires_twin_by_default_and_spread_with_the_weapon(page) -> None:
     _fresh(page, level=3)
     base = _js(page, "g.input({ fire: true }); const n = g.step(1).shots; g.input({ fire: false }); return n;")
-    assert base == 2
+    assert base == 4, "the Sentinel doubles the Vanguard's cannons by default"
     spread = _js(page, "g.step(20); g.dropPowerUp('weapon'); g.step(2); g.input({ fire: true }); const n = g.step(1).shots; g.input({ fire: false }); return n;")
-    assert spread >= 3
+    assert spread >= 6
 
 
 def test_boss_nodes_fall_before_the_core_and_its_plates_block_shots(page) -> None:
@@ -251,11 +254,11 @@ DODGING_BOT = r"""
   const danger = (v, x, y) => {
     let d = 0;
     for (const t of v.threats) {
-      if (t.r > 60) { const gap = Math.hypot(t.x - x, t.y - y) - t.r - v.player.r; if (gap < 30) d += (30 - gap) * 400; continue; }
+      if (t.r > 60) { const gap = Math.hypot(t.x - x, t.y - y) - t.r - v.player.hw; if (gap < 30) d += (30 - gap) * 400; continue; }
       const dy = y - t.y;
       if (dy < -30 || dy > 260 || t.vy <= 0) continue;
       const at = t.x + t.vx * (dy / t.vy);
-      const gap = Math.abs(at - x) - t.r - v.player.r;
+      const gap = Math.abs(at - x) - t.r - v.player.hw;
       if (gap < 30) d += (30 - gap) * (300 - dy);
     }
     if (x < 30 || x > v.world.w - 30 || y < v.world.h * 0.55 || y > v.world.h - 24) d += 1e6;

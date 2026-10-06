@@ -8,6 +8,9 @@ damage first, and the ``firstHitFatal`` defect turns any hit into instant destru
 Phase R14 (the game is now shown to players as "Nexus Defenders") added a start screen with
 four ships and an upgrade key, ten upgrades carried by glowing enemies and asteroids, density
 that grows through each level, and a fatal hit that shows its real damage while the hull drains.
+Phase R16 gave both games one start screen that fits the arena with no scroll bar, made every
+damage path (and the self-test blast) fatal in the buggy build, and gave each ship its own
+weapon: twin cannons, a burst rifle, a lance beam, and splitting plasma orbs.
 
 Skipped when Playwright or Chromium is missing; fail-closed under NEXUS_REQUIRE_RENDER=1.
 """
@@ -642,7 +645,7 @@ def test_spread_and_rapid_change_the_guns(page) -> None:
             g.input({ fire: true }); const one = g.step(1).shots - s0; const sixty = g.step(59).shots;
             g.input({ fire: false }); return [one, sixty]; })()""")
     base, spread, rapid = volley(None), volley("spread"), volley("rapid")
-    assert base[0] == 1 and spread[0] == 3, (base, spread)
+    assert base[0] == 2 and spread[0] == 4, f"the Vanguard's twin cannons gain two side shots: {base} {spread}"
     assert rapid[1] > base[1], f"rapid fire puts more shots in the air: {rapid} vs {base}"
 
 
@@ -720,9 +723,13 @@ def test_the_start_screen_offers_four_ships_and_the_full_upgrade_key(page) -> No
     assert page.locator(f"{host} .ss-start").inner_text() == "Start game"
 
 
-def test_the_buggy_game_offers_ships_but_no_upgrade_key(page) -> None:
-    assert page.locator(".ss-host[data-ss-id=buggy] .ss-hangar [role=radio]").count() == 4
-    assert page.evaluate("document.querySelector('.ss-host[data-ss-id=buggy] .ss-key').hidden") is True
+def test_both_games_share_one_start_screen(page) -> None:
+    """R16 maintainer review: the buggy game's start screen differed from the fixed one (no key)."""
+    shot = page.evaluate("""['buggy', 'fixed'].map(id => { const h = document.querySelector('.ss-host[data-ss-id=' + id + ']');
+        SkySentinel.get(id).reset();
+        return { key: h.querySelector('.ss-key').hidden, text: [...h.querySelectorAll('.ss-ship, .ss-key-item, .ss-key-title, .ss-start')].map(e => e.innerText) }; })""")
+    assert shot[0]["key"] is False and shot[1]["key"] is False, "both games show the upgrade key"
+    assert shot[0]["text"] == shot[1]["text"], "the same ships, key, and Start button in both games"
 
 
 @pytest.mark.parametrize("ship", SHIP_IDS)
@@ -792,7 +799,7 @@ def test_a_piercing_shot_passes_through_every_target(page) -> None:
         return _js(page, f"""{"g.dropPowerUp('pierce'); g.step(2);" if pierce else ""}
             const p = g.state().player; g.spawn('interceptor', p.x, p.y - 160); g.spawn('interceptor', p.x, p.y - 260); g.spawn('interceptor', p.x, p.y - 360);
             g.input({{ fire: true }}); g.step(1); g.input({{ fire: false }}); return 3 - g.step(50).enemies;""")
-    assert kills(False) == 1 and kills(True) == 3
+    assert kills(False) < 3 and kills(True) == 3
 
 
 def test_time_slow_halves_the_enemy_side(page) -> None:
@@ -867,3 +874,204 @@ def test_the_buggy_fatal_hit_shows_its_damage_and_drains_the_bar(page) -> None:
     assert s["health"] == 0 and s["lastDamage"]["amount"] == 6 and s["overText"] == "Destroyed by a single hit: an interceptor dart"
     assert s["popups"] == [{"text": "-6", "color": "#fca5a5", "big": True}]
     assert "6-point hit emptied a hull of 100" in out["said"]
+
+
+# ---------------------------------------------------------------- R16: the start screen fits the arena
+
+FIT_VIEWPORTS = [(1280, 900), (1440, 900), (1920, 1080), (1366, 768), (1280, 720), (390, 844)]
+
+FIT_PROBE = """(id) => {
+  const host = document.querySelector('.ss-host[data-ss-id=' + id + ']');
+  const ov = host.querySelector('.ss-overlay'), box = ov.getBoundingClientRect();
+  const shown = (e) => e.getClientRects().length > 0;
+  const inside = (e) => { const r = e.getBoundingClientRect(); return r.left >= box.left - 0.5 && r.right <= box.right + 0.5 && r.top >= box.top - 0.5 && r.bottom <= box.bottom + 0.5; };
+  const items = [...host.querySelectorAll('.ss-ship, .ss-start, .ss-key-item, .ss-brand, .ss-keybtn, .ss-ship-note, .ss-hint')].filter(shown);
+  const clipped = [...host.querySelectorAll('.ss-ship-name, .ss-ship-weapon, .ss-key-text b, .ss-key-text span')].filter(shown).filter(e => e.scrollWidth > e.clientWidth + 1 || !inside(e));
+  return { overflow: getComputedStyle(ov).overflowY, sh: ov.scrollHeight, ch: ov.clientHeight, sw: ov.scrollWidth, cw: ov.clientWidth,
+           outside: items.filter(e => !inside(e)).map(e => e.className), clipped: clipped.map(e => e.textContent),
+           ships: [...host.querySelectorAll('.ss-ship')].filter(shown).length, keys: [...host.querySelectorAll('.ss-key-item')].filter(shown).length,
+           start: shown(host.querySelector('.ss-start')), toggle: shown(host.querySelector('.ss-keybtn')) };
+}"""
+
+
+@pytest.mark.parametrize("viewport", FIT_VIEWPORTS, ids=lambda v: f"{v[0]}x{v[1]}")
+def test_the_start_screen_fits_the_arena_with_no_scroll_bar(browser, viewport: tuple[int, int]) -> None:
+    """R16 maintainer review: the start screen overflowed the arena behind a scroll bar."""
+    pg = browser.new_page(viewport={"width": viewport[0], "height": viewport[1]})
+    try:
+        pg.goto(TRAINING.as_uri() + "#play-buggy")
+        pg.wait_for_function("window.SkySentinel && SkySentinel.get('fixed')")
+        for gid in ("buggy", "fixed"):
+            pg.locator(f".ss-host[data-ss-id={gid}] .ss-stage").scroll_into_view_if_needed()
+            pg.wait_for_timeout(150)
+            panels = [pg.evaluate(FIT_PROBE, gid)]
+            if panels[0]["toggle"]:
+                # a narrow arena shows ships and the key one at a time; both panels must fit
+                pg.locator(f".ss-host[data-ss-id={gid}] .ss-keybtn").click()
+                panels.append(pg.evaluate(FIT_PROBE, gid))
+                pg.locator(f".ss-host[data-ss-id={gid}] .ss-keybtn").click()
+            for m in panels:
+                assert m["overflow"] == "hidden", "the overlay never scrolls"
+                assert m["sh"] <= m["ch"] and m["sw"] <= m["cw"], f"{gid} {viewport}: content overflows the arena: {m}"
+                assert m["outside"] == [] and m["clipped"] == [], f"{gid} {viewport}: {m}"
+                assert m["start"], "the Start button always shows"
+            assert max(m["ships"] for m in panels) == 4 and max(m["keys"] for m in panels) == 10, panels
+    finally:
+        pg.close()
+
+
+# ---------------------------------------------------------------- R16: every damage path is fatal in the buggy build
+
+BUGGY = "{ firstHitFatal: true, randomExplosion: true }"
+
+# Each source is the real hazard placed against a parked ship in the buggy game; the run then
+# steps through the real loop (no forceHit) until the hit lands.
+REAL_HAZARDS = [
+    ("shot", None, "g.spawn('gunship', p.x, p.y - 330);", {}),
+    ("needle", None, "g.spawn('interceptor', p.x, p.y - 330);", {}),
+    ("beam", None, "g.spawn('lancer', p.x, p.y - 330);", {"progression": True, "level": 2}),
+    ("blast", "bomber", "g.spawn('bomber', p.x, p.y - 330);", {"progression": True, "level": 2}),
+    ("collision", "gunship", "g.spawn('gunship', p.x, p.y);", {}),
+    ("collision", "interceptor", "g.spawn('interceptor', p.x, p.y);", {}),
+    ("collision", "lancer", "g.spawn('lancer', p.x, p.y);", {}),
+    ("collision", "bomber", "g.spawn('bomber', p.x, p.y);", {}),
+    ("asteroid", "large", "g.spawnAsteroid('large', p.x, p.y - 120, 0, 3);", {}),
+    ("asteroid", "medium", "g.spawnAsteroid('medium', p.x, p.y - 120, 0, 3);", {}),
+    ("asteroid", "small", "g.spawnAsteroid('small', p.x, p.y - 120, 0, 3);", {}),
+    ("asteroid", "small", "g.spawnAsteroid('small', p.x + 22, p.y - 120, 0, 3);", {}),
+    ("bossShot", None, "", {"progression": True, "boss": True, "level": 3, "bossNow": True}),
+]
+
+
+@pytest.mark.parametrize("source, detail, place, extra", REAL_HAZARDS, ids=lambda v: str(v)[:24] if isinstance(v, str) else None)
+def test_the_buggy_build_dies_on_the_first_real_hit_from_every_source(page, source: str, detail, place: str, extra: dict) -> None:
+    out = page.evaluate(
+        """([place, extra]) => { const g = SkySentinel.get('buggy');
+            g.configure(Object.assign({ defects: """ + BUGGY + """, seed: 4242, threats: false }, extra)); g.start(); g.pause('t');
+            g.step(""" + str(GRACE) + """); g.dropPowerUp('shield'); g.step(2);
+            const p = g.state().player; const shield = g.state().shieldHp; if (place) new Function('g', 'p', place)(g, p);
+            let s = g.state(); for (let i = 0; i < 1200 && s.state !== 'over' && !s.hitTicks.length; i++) s = g.step(1);
+            g.configure({ defects: """ + BUGGY + """, seed: 4242, threats: true, progression: false, boss: false, level: 1 });
+            return Object.assign(s, { shieldBefore: shield }); }""",
+        [place, extra],
+    )
+    assert out["hitTicks"], f"{source}: the hazard never reached the ship"
+    assert out["state"] == "over" and out["overReason"] == "first-hit", f"{source} {detail}: {out['state']} {out['overReason']}"
+    assert out["health"] == 0 and out["shieldHp"] == 0, "the first hit empties hull and shield"
+    assert out["lastDamage"]["source"] == source and len(out["hitTicks"]) == 1
+    assert any(u["big"] and u["text"] == f"-{out['lastDamage']['amount']}" for u in out["popups"]), "the real damage shows"
+
+
+def test_a_wing_graze_is_a_hit_because_the_hit_shape_follows_the_drawn_ship(page) -> None:
+    """R16 root cause: a bolt could visibly strike a wing and pass through an 18 px hit circle."""
+    out = page.evaluate("""(() => { const g = SkySentinel.get('buggy');
+        const fresh = () => { g.configure({ defects: """ + BUGGY + """, seed: 4242, threats: false }); g.start(); g.pause('t'); g.step(10); };
+        fresh(); const p = g.view().player; g.spawnAsteroid('small', 40, 40, 0, 0); const rr = g.view().threats.slice(-1)[0].r;
+        // the same seed draws the same rock again: place it past the old circle's reach, inside the wing
+        const off = p.hw + rr - 8; fresh(); g.spawnAsteroid('small', p.x + off, p.y - 100, 0, 3);
+        const s = g.step(60); g.configure({ threats: true }); return { s, hw: p.hw, r: p.r, off, oldReach: p.r + rr - 6 }; })()""")
+    assert out["hw"] > out["r"] and out["off"] > out["oldReach"], f"the rock passes outside the old 18 px circle: {out['off']} > {out['oldReach']}"
+    assert out["s"]["overReason"] == "first-hit", "it strikes the drawn wing, so it is a hit"
+
+
+def test_the_buggy_build_ignores_the_invulnerability_window(page) -> None:
+    out = page.evaluate("""(() => { const g = SkySentinel.get('buggy');
+        g.configure({ defects: { firstHitFatal: true }, seed: 4242, threats: false }); g.start(); g.pause('t'); g.step(5);
+        const before = g.state().player.invuln; g.forceHit('needle'); const s = g.state();
+        g.configure({ defects: """ + BUGGY + """, threats: true }); return { before, s }; })()""")
+    assert out["s"]["overReason"] == "first-hit"
+
+
+def test_the_self_test_blast_is_fatal_too_in_the_buggy_build(page) -> None:
+    """R16 root cause: a dodging player lived past 20 s and the 40-point self-test blast left the
+    ship alive with a damage number over it, which read as a hit the bug failed to punish."""
+    s = page.evaluate("""(() => { const g = SkySentinel.get('buggy');
+        g.configure({ defects: """ + BUGGY + """, seed: 4242, threats: false }); g.start(); g.pause('t');
+        const s = g.step(""" + str(EARLIEST + 700) + """); g.configure({ threats: true }); return s; })()""")
+    assert s["explodeTicks"] and s["state"] == "over" and s["overReason"] == "explode"
+    assert s["health"] == 0 and s["lastDamage"]["amount"] == 40 and s["hitTicks"] == []
+    assert s["overText"] == "The ship blew itself up, with no hit"
+
+
+@pytest.mark.parametrize("ship", SHIP_IDS)
+def test_the_buggy_build_stays_fatal_after_play_again_and_a_ship_change(page, ship: str) -> None:
+    out = page.evaluate("""(ship) => { const g = SkySentinel.get('buggy');
+        g.configure({ defects: """ + BUGGY + """, seed: 4242, threats: false }); g.start(); g.pause('t'); g.step(20); g.forceHit('needle');
+        const first = g.state().overReason;
+        document.querySelector('.ss-host[data-ss-id=buggy] .ss-change').click(); g.chooseShip(ship);
+        g.start(); g.pause('t'); g.step(20); const p = g.state().player; g.spawnAsteroid('small', p.x, p.y - 80, 0, 3);
+        const second = g.step(60);
+        g.start(); g.pause('t'); g.step(20); const q = g.state().player; g.spawn('interceptor', q.x, q.y);
+        const third = g.step(2);
+        g.chooseShip('vanguard'); g.configure({ threats: true }); return { first, second, third }; }""", ship)
+    assert out["first"] == "first-hit"
+    assert out["second"]["ship"] == ship and out["second"]["overReason"] == "first-hit", "after a ship change"
+    assert out["third"]["overReason"] == "first-hit" and out["third"]["tick"] < 30, "after Play again"
+
+
+@pytest.mark.parametrize("ship", SHIP_IDS)
+def test_the_buggy_game_dies_on_its_first_hit_through_the_real_ui(browser, ship: str) -> None:
+    pg = browser.new_page(viewport={"width": 1280, "height": 900})
+    try:
+        pg.goto(TRAINING.as_uri() + "#play-buggy")
+        pg.wait_for_function("window.SkySentinel && SkySentinel.get('buggy')")
+        host = ".ss-host[data-ss-id=buggy]"
+        pg.locator(f"{host} .ss-stage").scroll_into_view_if_needed()
+        pg.locator(f"{host} [data-ship={ship}]").click()
+        pg.locator(f"{host} .ss-start").click()
+        assert pg.evaluate("SkySentinel.get('buggy').state().state") == "running"
+        pg.evaluate("(() => { const g = SkySentinel.get('buggy'); const p = g.state().player; g.spawnAsteroid('medium', p.x, p.y - 140, 0, 4); })()")
+        pg.wait_for_function("SkySentinel.get('buggy').state().state === 'over'", timeout=15000)
+        s = pg.evaluate("SkySentinel.get('buggy').state()")
+        assert s["ship"] == ship and s["overReason"] == "first-hit" and len(s["hitTicks"]) == 1
+        assert pg.locator(f"{host} .ss-over-title").inner_text().startswith("Destroyed by a single hit")
+    finally:
+        pg.close()
+
+
+# ---------------------------------------------------------------- R16: each ship has its own weapon
+
+def test_each_ship_fires_its_own_weapon(page) -> None:
+    out = _js(page, """const out = {};
+        for (const id of ['vanguard', 'raptor', 'talon', 'specter']) {
+            g.configure({ defects: {}, seed: 7, threats: false, level: 1 }); g.chooseShip(id); g.start(); g.pause('t'); g.step(5);
+            g.input({ fire: true }); const a = g.step(1); const b = g.step(6); g.input({ fire: false });
+            out[id] = { weapon: a.weapon, first: a.playerShots, later: b.playerShots };
+        }
+        g.chooseShip('vanguard'); return out;""")
+    kinds = {k: v["weapon"]["kind"] for k, v in out.items()}
+    assert kinds == {"vanguard": "cannon", "raptor": "burst", "talon": "lance", "specter": "orb"}
+    assert len({v["weapon"]["name"] for v in out.values()}) == 4
+    for ship, v in out.items():
+        assert {s["kind"] for s in v["first"]} == {kinds[ship]}, f"{ship} fires its own rounds"
+    assert len(out["vanguard"]["first"]) == 2 and out["vanguard"]["first"][0]["dmg"] == 2, "two heavy rounds side by side"
+    assert len(out["raptor"]["first"]) == 1 and len(out["raptor"]["later"]) == 3, "a three-round burst from one pull"
+    assert out["talon"]["first"][0]["len"] > 150 and out["talon"]["first"][0]["pierce"], "a ray that cuts through"
+    assert len(out["specter"]["first"]) == 1 and out["specter"]["first"][0]["dmg"] == 2
+    cards = page.locator(".ss-host[data-ss-id=fixed] .ss-ship").evaluate_all(
+        "els => els.map(e => [e.querySelector('.ss-ship-weapon').textContent, e.querySelector('.ss-ship-desc').textContent])")
+    api = page.evaluate("SkySentinel.get('fixed').ships()")
+    assert cards == [[s["weaponName"], s["weaponNote"]] for s in api], "each card names its weapon and what it does"
+
+
+def test_the_lance_cuts_every_target_in_its_reach_and_orbs_split(page) -> None:
+    lance = _js(page, """g.configure({ defects: {}, seed: 7, threats: false }); g.chooseShip('talon'); g.start(); g.pause('t'); g.step(5);
+        const p = g.state().player; g.spawn('interceptor', p.x, p.y - 80); g.spawn('interceptor', p.x, p.y - 150);
+        g.input({ fire: true }); const s = g.step(3); g.input({ fire: false }); g.chooseShip('vanguard'); return s.enemies;""")
+    assert lance == 0, "one lance pull cuts both interceptors in its column"
+    orbs = _js(page, """g.configure({ defects: {}, seed: 7, threats: false }); g.chooseShip('specter'); g.start(); g.pause('t'); g.step(5);
+        const p = g.state().player; g.spawnAsteroid('large', p.x, p.y - 200, 0, 0);
+        g.input({ fire: true }); let s = g.state(), most = 0; for (let i = 0; i < 40; i++) { s = g.step(1); most = Math.max(most, s.playerShots.filter(x => x.kind === 'orb' && x.dmg === 1).length); }
+        g.input({ fire: false }); g.chooseShip('vanguard'); return most;""")
+    assert orbs >= 2, "an orb that hits splits into two smaller orbs"
+
+
+@pytest.mark.parametrize("ship", SHIP_IDS)
+def test_upgrades_stack_on_every_weapon(page, ship: str) -> None:
+    out = _js(page, f"""const v = (kind) => {{ g.configure({{ defects: {{}}, seed: 7, threats: false }}); g.chooseShip('{ship}'); g.start(); g.pause('t'); g.step(5);
+            if (kind) {{ g.dropPowerUp(kind); g.step(2); }}
+            g.input({{ fire: true }}); const n = g.step(1).playerShots.length; const many = g.step(59); g.input({{ fire: false }});
+            return [n, many.playerShots.length, many.weapon.cooldown]; }};
+        const out = {{ base: v(null), twin: v('weapon'), spread: v('spread') }}; g.chooseShip('vanguard'); return out;""")
+    assert out["twin"][0] == out["base"][0] * 2, f"{ship}: Twin doubles the barrels {out}"
+    assert out["spread"][0] == out["base"][0] + 2, f"{ship}: Spread adds two side shots {out}"

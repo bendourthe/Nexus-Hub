@@ -27,6 +27,15 @@
 /* ---- Foundations flow (R18): one chat composer and the model it sends to. The user attaches files,
    types a prompt in three highlighted parts, the prompt is tokenized, the context bar fills, Send goes
    to the model, which reads, thinks, and writes. One 18s loop. */
+/* ---- Foundations flow (R18): one chat composer and the model it sends to. The user attaches files,
+   types a prompt in three highlighted parts, the prompt is tokenized, the context bar fills, Send goes
+   to the model, which reads, thinks, and writes. One 18s loop. */
+/* ---- Foundations flow (R18): one chat composer and the model it sends to. The user attaches files,
+   types a prompt in three highlighted parts, the prompt is tokenized, the context bar fills, Send goes
+   to the model, which reads, thinks, and writes. One 18s loop. */
+/* ---- Foundations flow (R18): one chat composer and the model it sends to. The user attaches files,
+   types a prompt in three highlighted parts, the prompt is tokenized, the context bar fills, Send goes
+   to the model, which reads, thinks, and writes. One 18s loop. */
 .fxo-flow{display:flex;align-items:stretch;margin-top:12px;}
 .fxo-chat{flex:3 1 0;min-width:0;display:flex;flex-direction:column;gap:10px;}
 .fxo-compose{display:flex;flex-direction:column;gap:10px;padding:12px 14px 10px;border:1px solid color-mix(in srgb,var(--accent) 45%,var(--border));border-radius:14px;background:var(--bg-0,var(--surface));color:var(--ink);text-decoration:none;box-shadow:0 8px 30px -18px var(--accent);}

@@ -75,32 +75,44 @@
   /* Ten upgrades; a carrier's upgrade is picked from the drops stream with these weights. */
   var DROPS = [["shield", 0.13], ["weapon", 0.11], ["spread", 0.1], ["rapid", 0.1], ["missiles", 0.09], ["wingman", 0.08],
     ["pierce", 0.09], ["slow", 0.08], ["magnet", 0.07], ["repair", 0.15]];
-  /* colour, short name, and the one-line effect shown in the start screen's key */
+  /* colour, short name, the full effect (the API and screen readers), and the short effect
+     the start screen's key shows on one line (R16: short enough to fit at phone width) */
   var POWER_LOOK = {
-    shield: ["#60a5fa", "Shield", "A second bar of 50 that takes damage first"],
-    weapon: ["#f472b6", "Twin", "Two guns for 10 s"],
-    spread: ["#fbbf24", "Spread", "A three-way fan of shots for 10 s"],
-    rapid: ["#a3e635", "Rapid", "Twice the rate of fire for 10 s"],
-    missiles: ["#fb923c", "Missiles", "Homing missiles for 9 s"],
-    wingman: ["#c084fc", "Wingman", "Two escort drones that fire for 15 s"],
-    pierce: ["#22d3ee", "Pierce", "Shots pass through every target for 10 s"],
-    slow: ["#e2e8f0", "Time slow", "Enemies, rocks, and fire at half speed for 8 s"],
-    magnet: ["#f87171", "Magnet", "Pulls upgrades to the ship for 15 s"],
-    repair: ["#34d399", "Repair", "Restores 35 hull"]
+    shield: ["#60a5fa", "Shield", "A second bar of 50 that takes damage first", "+50 barrier"],
+    weapon: ["#f472b6", "Twin", "Doubles the ship's guns for 10 s", "Double guns, 10 s"],
+    spread: ["#fbbf24", "Spread", "Adds angled side shots for 10 s", "Side shots, 10 s"],
+    rapid: ["#a3e635", "Rapid", "Twice the rate of fire for 10 s", "2x fire, 10 s"],
+    missiles: ["#fb923c", "Missiles", "Homing missiles for 9 s", "Homing, 9 s"],
+    wingman: ["#c084fc", "Wingman", "Two escort drones that fire for 15 s", "2 drones, 15 s"],
+    pierce: ["#22d3ee", "Pierce", "Shots pass through every target for 10 s", "Pass through, 10 s"],
+    slow: ["#e2e8f0", "Time slow", "Enemies, rocks, and fire at half speed for 8 s", "Half speed, 8 s"],
+    magnet: ["#f87171", "Magnet", "Pulls upgrades to the ship for 15 s", "Pulls drops, 15 s"],
+    repair: ["#34d399", "Repair", "Restores 35 hull", "+35 hull"]
   };
   var POWER_ORDER = ["shield", "repair", "weapon", "spread", "rapid", "pierce", "missiles", "wingman", "slow", "magnet"];
   var FORMS = { 1: "Scout", 2: "Fighter", 3: "Sentinel" };
   /* R14: four ships to choose from, each with three forms. The first is the default and keeps
      the reference stats every engine test assumes (100 hull, base speed and fire rate). */
+  /* R16: every ship has its own primary weapon. cool is the base ticks between trigger pulls
+     (the ship's fire factor and the form scale it); barrels are the x offsets of the guns. The
+     upgrades stack on any weapon: Twin doubles the barrels, Spread adds angled side shots,
+     Rapid halves the cooldown, and Pierce lets every round pass through its targets. */
+  var WEAPONS = {
+    cannon: { name: "Twin cannons", desc: "Two heavy rounds side by side", cool: 16, barrels: [-9, 9], color: "#22d3ee" },
+    burst: { name: "Burst rifle", desc: "Rapid three-round bursts", cool: 16, barrels: [0], color: "#f87171" },
+    lance: { name: "Lance beam", desc: "A short ray that cuts through", cool: 8, barrels: [0], color: "#c084fc" },
+    orb: { name: "Plasma orbs", desc: "Homing orbs that split on impact", cool: 22, barrels: [0], color: "#fb7185" }
+  };
+  var LANCE_LEN = 230;             /* the Talon's ray reaches this far ahead of the ship */
   var SHIPS = [
-    { id: "vanguard", name: "Vanguard", role: "Armoured gunship", note: "Balanced: steady hull, speed, and guns",
+    { id: "vanguard", name: "Vanguard", role: "Armoured gunship", note: "Balanced hull, speed, and guns", weapon: "cannon",
       hull: 100, speed: 1, fire: 1, flame: "#38bdf8", accent: "#22d3ee", scheme: "Dark steel, cyan edges" },
-    { id: "raptor", name: "Raptor", role: "Strike fighter", note: "Faster guns, lighter hull",
-      hull: 90, speed: 1.05, fire: 0.8, flame: "#fb923c", accent: "#f43f5e", scheme: "Gunmetal, red panels" },
-    { id: "talon", name: "Talon", role: "Needle dagger", note: "The fastest ship, the lightest hull",
-      hull: 80, speed: 1.3, fire: 1, flame: "#a5f3fc", accent: "#e2e8f0", scheme: "Silver, fine dark lines" },
-    { id: "specter", name: "Specter", role: "Stealth interceptor", note: "Heavy armour, slower to turn",
-      hull: 125, speed: 0.85, fire: 1.05, flame: "#f43f5e", accent: "#ef4444", scheme: "Charcoal, red crystal" }
+    { id: "raptor", name: "Raptor", role: "Strike fighter", note: "Fast bursts, lighter hull", weapon: "burst",
+      hull: 90, speed: 1.05, fire: 0.8, flame: "#fb923c", accent: "#f87171", scheme: "Gunmetal, red panels" },
+    { id: "talon", name: "Talon", role: "Needle dagger", note: "The fastest ship, the lightest hull", weapon: "lance",
+      hull: 80, speed: 1.3, fire: 1, flame: "#d8b4fe", accent: "#a855f7", scheme: "Silver and white, violet edges" },
+    { id: "specter", name: "Specter", role: "Stealth interceptor", note: "Heavy armour, slower to turn", weapon: "orb",
+      hull: 125, speed: 0.85, fire: 1.05, flame: "#fb7185", accent: "#e11d48", scheme: "Charcoal, crimson crystal" }
   ];
   function shipById(id) { for (var k = 0; k < SHIPS.length; k++) if (SHIPS[k].id === id) return SHIPS[k]; return null; }
   /* R14: each level, and the boss, has its own map: nebula colours, a set piece, and a star
@@ -490,8 +502,8 @@
         engines: f === 3 ? [[-3.2, 0.6, 15, 23.5, 2.4], [3.2, 0.6, 15, 23.5, 2.4]] : [[0, 0.6, 14, 23.5, 2.6]]
       };
     },
-    /* Dark gunmetal; a long pointed nose with forward canards; twin side nacelles with red
-       vents; swept wings with red accent panels. */
+    /* Dark gunmetal; a long pointed nose with big forward canards; twin side nacelles with red
+       vents; R16: forward-swept wings with red panels, so its outline reads unlike the Vanguard's. */
     raptor: function (f) {
       var gm = [0.2, 0.21, 0.24], red = [0.86, 0.12, 0.14];
       return {
@@ -499,44 +511,44 @@
         body: [[-34, 0.2, 0.2, 0.4], [-28, 1.4, 1.0, 0.6], [-18, 3.0, 2.0, 0.9], [-6, 4.2, 2.8, 1.1], [6, 4.6, 2.8, 1], [16, 4.2, 2.4, 0.8], [21, 3.4, 2, 0.6]],
         spine: [[-10, 0.3, 0.3, 2.6], [-4, 1.2, 1, 2.8], [10, 1.4, 1, 2.6], [17, 0.3, 0.3, 2.2]],
         canopy: [-15, 2.6, 1.8, 1.6, 5.5],
-        canard: [[3.5, -24], [9.5, -18.5], [9.5, -16.8], [3.5, -17.5]],
-        wings: [{ poly: [[6, -1], [23, 11], [24, 14.5], [21, 15.5], [8, 15]], col: [0.24, 0.25, 0.29], th: 1.5,
-                  paint: [[10, 4], [21.5, 12], [22, 13.6], [10, 6.8]], paintCol: red, edges: [[[6, -1], [23, 11], 0.5]], edgeCol: [0.9, 0.2, 0.2] }].concat(f === 3 ?
+        canard: [[3.5, -25], [11.5, -19], [11.5, -16.8], [3.5, -17]],
+        wings: [{ poly: [[6, 4], [21.5, -7], [24, -5.5], [23, -1.5], [8, 16]], col: [0.24, 0.25, 0.29], th: 1.5,
+                  paint: [[10, 4.5], [20.5, -3.5], [21.5, -2], [10.5, 8]], paintCol: red, edges: [[[6, 4], [21.5, -7], 0.6]], edgeCol: [0.95, 0.2, 0.2] }].concat(f === 3 ?
                 [{ poly: [[5, 9], [14, 17], [13.5, 19.5], [5, 18]], col: gm, th: 1.1, y: 1.4, paint: [[7, 13], [13, 17.5], [13, 18.6], [7, 15]], paintCol: red }] : []),
         pods: [[6.4, 0.3, -8, 20, 2.5, true, [0.28, 0.29, 0.33]]].concat(f >= 2 ? [[16, -0.8, -2, 12, 1.4, false]] : []),
         vents: [[8.6, 0.2, 2, 0.5, 6], [8.6, 0.2, 10, 0.5, 5]],
         fins: [[3.4, 2.2, [[0, 11], [6, 16.5], [6, 19.5], [0, 20.5]], 0.45]].concat(f === 3 ? [[7, 2.4, [[0, 13], [4.5, 17], [4.5, 19], [0, 20]], 0.6]] : []),
-        tip: [23.6, 0.6, 13.2], engines: []
+        tip: [23.4, 0.6, -5.4], tipCol: red, engines: []
       };
     },
     /* A very long, narrow needle with a ribbed spine; crescent wings that sweep forward and
-       curve down like talons. Silver with fine dark lines. */
+       curve down like talons. R16: silver and white with violet edges and a violet drive. */
     talon: function (f) {
-      var silver = [0.8, 0.82, 0.86], dark = [0.08, 0.09, 0.11], ribs = [];
+      var silver = [0.86, 0.88, 0.92], dark = [0.08, 0.09, 0.11], violet = [0.66, 0.33, 0.97], ribs = [];
       for (var z = -14; z <= 14; z += 3.5) ribs.push([1.2, 2.3, z]);
       var crescent = [[2.5, 6], [9, 2.5], [15, -3], [19, -11], [20.5, -18], [18.4, -15], [15.6, -7.5], [11, -0.5], [3, 11]];
       return {
-        hull: silver, accent: [0.75, 0.95, 1], glow: [0.75, 0.95, 1],
+        hull: silver, accent: violet, glow: [0.78, 0.55, 1],
         body: [[-38, 0.15, 0.15, 0.5], [-30, 1.1, 0.8, 0.6], [-18, 2.2, 1.5, 0.8], [-2, 2.9, 1.9, 0.9], [12, 2.8, 1.8, 0.8], [21, 2.2, 1.4, 0.6]],
         ribs: ribs, canopy: [-20, 1.8, 1.25, 1.1, 4.4], glass: [0.04, 0.12, 0.2],
         wings: [{ poly: crescent, col: [0.72, 0.74, 0.79], th: 1.2, bevel: 0.5, roll: -0.2,
                   paint: [[6, 4.5], [13.5, -1.5], [17.5, -9], [17.9, -8.6], [14, -0.6], [6.4, 5.5]], paintCol: dark,
-                  edges: [[[19, -11], [20.5, -18], 0.5]], edgeCol: [0.75, 0.95, 1] }].concat(f >= 2 ?
+                  edges: [[[2.5, 6], [15, -3], 0.45], [[19, -11], [20.5, -18], 0.5]], edgeCol: violet }].concat(f >= 2 ?
                 [{ poly: [[2, 12], [9, 14], [12, 20], [8.5, 18], [2, 17]], col: silver, th: 0.9, bevel: 0.4, roll: -0.12, y: 0.5 }] : []),
         fins: f === 3 ? [[1.6, 2, [[0, 12], [5, 17], [5, 19], [0, 20]], 0.3]] : [],
         pods: f === 3 ? [[7, -0.4, -2, 10, 1.1, true, silver]] : [],
-        tip: [20.4, -1.4, -17.4], tipCol: [0.7, 0.95, 1],
+        tip: [20.4, -1.4, -17.4], tipCol: violet,
         engines: [[0, 0.5, 17, 24, 2.1]]
       };
     },
     /* A faceted charcoal kite with a glowing red crystal canopy, two tall swept fins, twin red
        engines, and red edge highlights. */
     specter: function (f) {
-      var coal = [0.13, 0.13, 0.15], red = [1, 0.12, 0.12];
+      var coal = [0.13, 0.13, 0.15], red = [0.9, 0.06, 0.26];
       return {
-        hull: coal, accent: red, glow: [1, 0.3, 0.3], kiteTop: [0.18, 0.18, 0.21],
+        hull: coal, accent: red, glow: [1, 0.25, 0.4], kiteTop: [0.18, 0.18, 0.21],
         kite: [[0, -26], [7.5, -6], [9.5, 8], [4.5, 18], [0, 15.5], [-4.5, 18], [-9.5, 8], [-7.5, -6]], kiteTh: 5.4, kiteBevel: 2.6, kiteY: 1,
-        canopy: [-3, 3.9, 2.1, 1.7, 4.6], glass: [1, 0.12, 0.1], glassMat: M_HALF,
+        canopy: [-3, 3.9, 2.1, 1.7, 4.6], glass: [0.95, 0.08, 0.28], glassMat: M_HALF,
         wings: [{ poly: [[6, -3], [23, 10], [22, 14], [9, 13]], col: [0.15, 0.15, 0.18], th: 1.3,
                   edges: [[[6, -3], [23, 10], 0.55]] }].concat(f >= 2 ? [{ poly: [[8, 7], [27, 17], [26, 19.5], [9, 16]], col: coal, th: 1, y: -0.4, edges: [[[8, 7], [27, 17], 0.45]] }] : []),
         edges: [[[0.5, -26.3], [7.6, -6.4], 0.45, 3.3]],
@@ -979,13 +991,16 @@
       card.setAttribute("data-ship", sh.id);
       card.style.setProperty("--ss-ship", sh.accent);
       var stats = "Hull " + sh.hull + ", speed " + pct(sh.speed) + ", fire rate " + pct(1 / sh.fire);
-      card.setAttribute("aria-label", sh.name + ", " + sh.role + ". " + sh.note + ". " + stats + ".");
+      var wpn = WEAPONS[sh.weapon];
+      card.setAttribute("aria-label", sh.name + ", " + sh.role + ". Weapon: " + wpn.name + ", " + wpn.desc.toLowerCase() + ". " + sh.note + ". " + stats + ".");
       var pic = el("canvas", "ss-ship-pic");
       pic.width = 240; pic.height = 150;
       pic.setAttribute("aria-hidden", "true");
       card.appendChild(pic);
       card.appendChild(el("span", "ss-ship-name", sh.name));
-      card.appendChild(el("span", "ss-ship-role", sh.role));
+      /* R16: the card names the ship's own weapon and what it does, in one short line */
+      card.appendChild(el("span", "ss-ship-weapon", wpn.name));
+      card.appendChild(el("span", "ss-ship-desc", wpn.desc));
       var meters = el("span", "ss-ship-stats");
       meters.setAttribute("aria-hidden", "true");
       [["Hull", sh.hull / 125], ["Speed", sh.speed / 1.3], ["Guns", 0.8 / sh.fire]].forEach(function (m) {
@@ -1018,8 +1033,14 @@
     startBtn.type = "button";
     var changeBtn = el("button", "ss-change", "Change ship");
     changeBtn.type = "button";
+    /* R16: on a narrow arena the start screen has two panels, ships and the upgrade key; this
+       button switches between them so nothing ever needs a scroll bar. Wide arenas show both
+       panels and hide the button. */
+    var keyBtn = el("button", "ss-keybtn", "Upgrade key");
+    keyBtn.type = "button";
+    keyBtn.setAttribute("aria-expanded", "false");
     var key = el("div", "ss-key");
-    key.appendChild(el("p", "ss-key-title", "Upgrades: glowing enemies and asteroids carry one in its colour. Destroy them to drop it."));
+    key.appendChild(el("p", "ss-key-title", "Upgrades: shoot glowing enemies and rocks to drop one"));
     var keyList = el("ul", "ss-key-list");
     keyList.setAttribute("aria-label", "Upgrade colour key");
     POWER_ORDER.forEach(function (kind) {
@@ -1035,7 +1056,8 @@
       li.appendChild(ic);
       var txt = el("span", "ss-key-text");
       txt.appendChild(el("b", null, look[1]));
-      txt.appendChild(el("span", null, look[2]));
+      txt.appendChild(el("span", null, look[3]));
+      li.setAttribute("title", look[1] + ": " + look[2]);
       li.appendChild(txt);
       keyList.appendChild(li);
     });
@@ -1043,9 +1065,32 @@
     var hint = el("p", "ss-hint", "Arrows or WASD move, Space or click fires, Escape pauses.");
     hint.id = "ss-hint-" + id;
     canvas.setAttribute("aria-describedby", hint.id);
-    [brand, overTitle, hangar, shipNote, startBtn, changeBtn, key, hint].forEach(function (n) { panel.appendChild(n); });
+    var actions = el("div", "ss-actions");
+    [startBtn, changeBtn, keyBtn].forEach(function (n) { actions.appendChild(n); });
+    [brand, overTitle, hangar, shipNote, key, actions, hint].forEach(function (n) { panel.appendChild(n); });
     overlay.appendChild(panel);
+    overlay.setAttribute("data-panel", "ships");
     changeBtn.addEventListener("click", function () { reset(); hangar.querySelector("[aria-checked=true]").focus(); });
+    keyBtn.addEventListener("click", function () {
+      var showKey = overlay.getAttribute("data-panel") !== "key";
+      overlay.setAttribute("data-panel", showKey ? "key" : "ships");
+      keyBtn.textContent = showKey ? "Ships" : "Upgrade key";
+      keyBtn.setAttribute("aria-expanded", showKey ? "true" : "false");
+      fitPanel();
+    });
+    /* R16: the overlay never scrolls. The CSS sizes the start screen from the arena (container
+       query units), and this is the safety net: if the panel is still taller or wider than the
+       arena, it is scaled down to fit, centred, so nothing is ever clipped. */
+    function fitPanel() {
+      panel.style.transform = ""; panel.style.marginTop = "";
+      if (overlay.hidden || !overlay.clientHeight) return;
+      var ch = overlay.clientHeight, cw = overlay.clientWidth, ph = panel.offsetHeight, pw = panel.offsetWidth;
+      var k = Math.min(1, ch / Math.max(1, ph), cw / Math.max(1, pw));
+      if (k < 1) {
+        panel.style.transform = "scale(" + k.toFixed(4) + ")";
+        panel.style.marginTop = Math.max(0, (ch - ph * k) / 2).toFixed(1) + "px";
+      }
+    }
     /* Paint each card's lit preview once, the first time the start screen shows. */
     function paintCards() {
       SHIPS.forEach(function (sh) {
@@ -1122,6 +1167,7 @@
       canvas.height = Math.round(cssH * dpr);
       if (hudCanvas) { hudCanvas.width = canvas.width; hudCanvas.height = canvas.height; }
       if (S && S.state === "idle" && host.offsetParent !== null) paintCards();
+      fitPanel();
       draw();
     }
 
@@ -1138,7 +1184,7 @@
         rng: r, tick: 0, state: "idle", pausedBy: null, score: 0, level: level, levelTicks: 0,
         ship: ship, healthMax: ship.hull, mapId: level, trans: null, drops: [], hpFrom: null, scroll: 0,
         player: { x: world.w / 2, y: world.h - 70, r: 18, health: ship.hull, shieldHp: 0, invuln: 0, cooldown: 0, weapon: 0,
-                  spread: 0, rapid: 0, missiles: 0, wingman: 0, pierce: 0, slow: 0, magnet: 0, missileIn: 0, wingIn: 0, bank: 0, hurt: 0 },
+                  spread: 0, rapid: 0, missiles: 0, wingman: 0, pierce: 0, slow: 0, magnet: 0, missileIn: 0, wingIn: 0, bank: 0, hurt: 0, burstLeft: 0, burstIn: 0 },
         enemies: [], enemyShots: [], shots: [], asteroids: [], powerUps: [], effects: [], popups: [],
         spawnIn: 50, rockIn: 240, firstShotTick: null, firstShotGap: null, spawned: 0,
         nextExplosion: firstExplosion(r.defects), explodeTicks: [], hitTicks: [], damageLog: [], lastDamage: null, damageTaken: 0,
@@ -1330,8 +1376,8 @@
     }
     function shotHitsPlayer(o, p) {
       if (o.kind === "bomb") return false;
-      if (o.kind === "beam") return o.life <= o.span - 6 && Math.abs(p.x - o.x) < 10 + p.r * 0.5 && p.y > o.y;
-      return overlaps(o, p, -4);
+      if (o.kind === "beam") return o.life <= o.span - 6 && Math.abs(p.x - o.x) < 10 + hitHalfWidth() * 0.5 && p.y > o.y;
+      return hitsShip(o, -4);
     }
 
     /* ---------- health and damage */
@@ -1355,35 +1401,53 @@
     function hitPlayer(source, detail, dist) {
       var p = S.player;
       if (S.state !== "running" || p.health <= 0) return false;
-      if (p.invuln > 0 || S.trans) return false;
+      /* R16: the buggy build has no grace window between hits. Its invulnerability window (left by
+         the self-test explosion in R14) let a real hit pass without killing; the defect now owns
+         every hit. The wormhole stays damage-free in every build. */
+      if (S.trans || (p.invuln > 0 && !cfg.defects.firstHitFatal)) return false;
       var amount = damageFor(source, detail, dist);
       if (amount <= 0) return false;
       S.hitTicks.push(S.tick);
       emit("hit", { source: source, detail: detail, tick: S.tick });
       if (cfg.defects.firstHitFatal) {
-        /* the defect: any hit, from any source, empties the hull and the shield at once. R14: the
-           hit shows its real damage ("-6") while the bar drains from full to zero, so the gap
-           between the number and the empty bar is the bug. */
-        S.hpFrom = { health: p.health, shield: p.shieldHp };
-        var absorbed = Math.min(p.shieldHp, amount);
-        p.shieldHp = 0;
-        p.health = 0;
-        p.hurt = 14;
-        S.shake = 10;
-        S.lastDamage = { source: source, detail: detail == null ? null : detail, amount: amount, absorbed: absorbed, tick: S.tick, fatal: true };
-        S.damageLog.push(S.lastDamage);
-        S.damageTaken += amount;
-        popup(p.x, p.y - 62, "-" + amount, "#fca5a5", 150, true);
-        emit("damage", { source: source, detail: detail, amount: amount, absorbed: absorbed, health: 0, shield: 0, tick: S.tick, fatal: true });
-        boom(p.x, p.y, 2.4, "#fbbf24");
-        shards(p.x, p.y, 10);
-        S.overText = "Destroyed by a single hit: " + sourceText(source, detail);
-        gameOver("first-hit");
+        destroyNow(source, detail, amount, "first-hit", "Destroyed by a single hit: " + sourceText(source, detail));
         return true;
       }
       applyDamage(amount, source, detail);
       if (S.state === "running") p.invuln = HIT_INVULN;
       return true;
+    }
+    /* The defect: any damage empties the hull and the shield at once. R14: the hit shows its real
+       damage ("-6") while the bar drains from full to zero, so the gap between the number and the
+       empty bar is the bug. */
+    function destroyNow(source, detail, amount, reason, text) {
+      var p = S.player;
+      S.hpFrom = { health: p.health, shield: p.shieldHp };
+      var absorbed = source === "explode" ? 0 : Math.min(p.shieldHp, amount);
+      p.shieldHp = 0;
+      p.health = 0;
+      p.hurt = 14;
+      S.shake = 10;
+      S.lastDamage = { source: source, detail: detail == null ? null : detail, amount: amount, absorbed: absorbed, tick: S.tick, fatal: true };
+      S.damageLog.push(S.lastDamage);
+      S.damageTaken += amount;
+      popup(p.x, p.y - 62, "-" + amount, "#fca5a5", 150, true);
+      emit("damage", { source: source, detail: detail, amount: amount, absorbed: absorbed, health: 0, shield: 0, tick: S.tick, fatal: true });
+      boom(p.x, p.y, 2.4, "#fbbf24");
+      shards(p.x, p.y, 10);
+      S.overText = text;
+      gameOver(reason);
+    }
+    /* R16: the ship's hit shape follows what is drawn: an ellipse as wide as most of the drawn
+       wingspan (thin wing tips excluded) and as tall as the hit radius. Before R16 the hit
+       circle was 18 px while the drawn wings reached 30 px or more, so a bolt could visibly
+       strike a wing and pass through. */
+    function hitHalfWidth() { var p = S.player; return Math.max(p.r, pspan() * VIS * 0.72); }
+    function hitsShip(o, margin) {
+      var p = S.player, m = o.r + (margin || 0), ax = hitHalfWidth() + m, ay = p.r + m;
+      if (ax <= 0 || ay <= 0) return false;
+      var dx = (o.x - p.x) / ax, dy = (o.y - p.y) / ay;
+      return dx * dx + dy * dy < 1;
     }
     function applyDamage(amount, source, detail) {
       var p = S.player, absorbed = source === "explode" ? 0 : Math.min(p.shieldHp, amount);
@@ -1541,24 +1605,45 @@
       else if (POWER_TICKS[pu.kind]) { p[pu.kind] = POWER_TICKS[pu.kind]; say(look[1] + " for " + Math.round(POWER_TICKS[pu.kind] / HZ) + " seconds."); }
       emit("powerUp", { kind: pu.kind, tick: S.tick });
     }
-    function fire() {
-      var p = S.player, form = curForm();
-      var twin = p.weapon > 0 || form === 3;
-      var spread = p.spread > 0 || (form === 3 && p.weapon > 0);
-      var pierce = p.pierce > 0, out = [];
+    /* R16: the gun positions for this trigger pull. Twin (or the Sentinel form) doubles every
+       barrel; Spread adds angled side shots outside the outermost barrels, two more when Twin
+       is also active. Each entry is [x offset, sideways speed]. */
+    function barrels() {
+      var p = S.player, form = curForm(), w = WEAPONS[S.ship.weapon];
+      var twin = p.weapon > 0 || form === 3, spread = p.spread > 0 || (form === 3 && p.weapon > 0);
+      var xs = [];
+      w.barrels.forEach(function (b) { if (twin) { xs.push(b - 6 - (b === 0 ? 2 : 0)); xs.push(b + 6 + (b === 0 ? 2 : 0)); } else xs.push(b); });
+      var out = xs.map(function (x) { return [x, 0]; }), edge = Math.max.apply(null, xs.map(Math.abs));
       if (spread) {
-        out.push({ x: p.x, y: p.y - p.r, r: 4, vx: 0 });
-        out.push({ x: p.x - 10, y: p.y - p.r + 4, r: 4, vx: -2.2 });
-        out.push({ x: p.x + 10, y: p.y - p.r + 4, r: 4, vx: 2.2 });
-        if (twin && p.spread > 0) { out.push({ x: p.x - 16, y: p.y - p.r + 8, r: 4, vx: -4 }); out.push({ x: p.x + 16, y: p.y - p.r + 8, r: 4, vx: 4 }); }
-      } else if (twin) {
-        out.push({ x: p.x - 9, y: p.y - p.r + 4, r: 4, vx: 0 });
-        out.push({ x: p.x + 9, y: p.y - p.r + 4, r: 4, vx: 0 });
-      } else {
-        out.push({ x: p.x, y: p.y - p.r, r: 4, vx: 0 });
+        out.push([-edge - 8, -2.2], [edge + 8, 2.2]);
+        if (twin && p.spread > 0) out.push([-edge - 14, -4], [edge + 14, 4]);
       }
-      out.forEach(function (sh) { if (pierce) { sh.pierce = true; sh.hits = []; } S.shots.push(sh); });
-      p.cooldown = Math.max(4, Math.round((form >= 2 ? 8 : 10) * (p.rapid > 0 ? 0.5 : 1) * S.ship.fire));
+      return out;
+    }
+    function makeRound(kind, x, vx) {
+      var p = S.player, y = p.y - p.r + (vx ? 6 : 0);
+      if (kind === "cannon") return { kind: "cannon", x: x, y: y, r: 5.5, vx: vx, vy: -13, dmg: 2 };
+      if (kind === "burst") return { kind: "burst", x: x, y: y, r: 3, vx: vx * 1.2, vy: -16, dmg: 1 };
+      if (kind === "orb") return { kind: "orb", x: x, y: y, r: 7, vx: vx, vy: -6.5, dmg: 2, gen: 0 };
+      /* the lance: a ray from the nose, held while the trigger is held, re-cut every pull */
+      return { kind: "lance", x: x, y: y, off: x - p.x, r: 5, vx: vx, vy: -13, len: LANCE_LEN, life: 0, dmg: 1, hits: [] };
+    }
+    function volley(kind) {
+      var p = S.player, pierce = p.pierce > 0;
+      barrels().forEach(function (b) {
+        var sh = makeRound(kind, p.x + b[0], b[1]);
+        if (pierce || kind === "lance") { sh.pierce = true; sh.hits = sh.hits || []; }
+        if (kind === "lance") { sh.life = Math.max(2, p.cooldown) + 1; if (pierce) sh.len = world.h; }
+        S.shots.push(sh);
+      });
+    }
+    function fire() {
+      var p = S.player, form = curForm(), w = WEAPONS[S.ship.weapon];
+      p.cooldown = Math.max(3, Math.round(w.cool * (form >= 2 ? 0.8 : 1) * (p.rapid > 0 ? 0.5 : 1) * S.ship.fire));
+      if (S.ship.weapon === "lance") S.shots = S.shots.filter(function (s) { return s.kind !== "lance"; });
+      volley(S.ship.weapon);
+      /* the Raptor's rifle fires two more rounds of the burst, three ticks apart */
+      if (S.ship.weapon === "burst") { p.burstLeft = 2; p.burstIn = 3; }
     }
     /* Homing missiles and the wingman fire on their own while they last. */
     function autoWeapons() {
@@ -1574,10 +1659,29 @@
         p.wingIn = 16;
       }
     }
+    /* the nearest enemy (or live boss node) ahead of a point, within reach */
+    function aheadTarget(x, y, reach) {
+      var best = null, bd = reach;
+      S.enemies.forEach(function (e) { var d = Math.hypot(e.x - x, e.y - y); if (e.y < y && d < bd) { bd = d; best = e; } });
+      if (S.boss) S.boss.nodes.forEach(function (n, i) { if (!n.alive) return; var at = bossPoint(S.boss, LOGO.nodes[i][0], LOGO.nodes[i][1]); var d = Math.hypot(at[0] - x, at[1] - y); if (at[1] < y && d < bd) { bd = d; best = { x: at[0], y: at[1] }; } });
+      return best;
+    }
     function moveShots() {
+      var p = S.player;
+      if (p.burstLeft > 0 && --p.burstIn <= 0 && !S.trans) { volley("burst"); p.burstLeft -= 1; p.burstIn = 3; }
       for (var i = 0; i < S.shots.length; i++) {
         var sh = S.shots[i];
-        if (sh.kind !== "missile") { sh.y -= 13; sh.x += sh.vx || 0; continue; }
+        if (sh.kind === "lance") { sh.x = p.x + sh.off; sh.y = p.y - p.r; sh.life -= 1; if (!held.fire && sh.life > 1) sh.life = 1; continue; }
+        if (sh.kind === "orb") {
+          /* plasma orbs drift toward the nearest target ahead, then keep a steady speed */
+          var tg = aheadTarget(sh.x, sh.y, 300), sp = sh.gen ? 7 : 6.5;
+          if (tg) { var td = Math.hypot(tg.x - sh.x, tg.y - sh.y) || 1; sh.vx += ((tg.x - sh.x) / td * sp - sh.vx) * 0.1; sh.vy += ((tg.y - sh.y) / td * sp - sh.vy) * 0.1; }
+          if (sh.vy > -1.5) sh.vy = -1.5;
+          var k = sp / (Math.hypot(sh.vx, sh.vy) || 1);
+          sh.vx *= k; sh.vy *= k; sh.x += sh.vx; sh.y += sh.vy; sh.spin = (sh.spin || 0) + 0.2;
+          continue;
+        }
+        if (sh.kind !== "missile") { sh.y += sh.vy || -13; sh.x += sh.vx || 0; continue; }
         var target = null, best = 1e9;
         for (var j = 0; j < S.enemies.length; j++) { var d = Math.hypot(S.enemies[j].x - sh.x, S.enemies[j].y - sh.y); if (d < best && S.enemies[j].y < sh.y) { best = d; target = S.enemies[j]; } }
         if (target) { sh.vx += Math.max(-0.6, Math.min(0.6, (target.x - sh.x) * 0.02)); sh.vy += Math.max(-0.6, Math.min(0.6, (target.y - sh.y) * 0.02)); }
@@ -1631,6 +1735,29 @@
         }
       }
     }
+    /* The lance's ray, from its origin along its heading, as a segment. */
+    function lanceEnd(s) { var l = Math.hypot(s.vx, s.vy) || 1; return [s.x + s.vx / l * s.len, s.y + s.vy / l * s.len]; }
+    /* Does a player round touch a target? A lance tests its whole ray; other rounds a circle. */
+    function touches(s, o, extra) {
+      if (s.kind !== "lance") return overlaps(s, o, extra);
+      var e = lanceEnd(s);
+      return segDist(o.x, o.y, s.x, s.y, e[0], e[1]) < s.r + o.r + (extra || 0);
+    }
+    /* The lance cuts every node it crosses once per pull; the core only when the nodes are down.
+       It is never used up. */
+    function lanceHitsBoss(s) {
+      var b = S.boss;
+      if (!b) return false;
+      var e = lanceEnd(s);
+      for (var i = 0; i < b.nodes.length; i++) {
+        var n = b.nodes[i], tag = "node" + i;
+        if (!n.alive || s.hits.indexOf(tag) !== -1) continue;
+        var at = bossPoint(b, LOGO.nodes[i][0], LOGO.nodes[i][1]);
+        if (segDist(at[0], at[1], s.x, s.y, e[0], e[1]) < LOGO.nodeR * b.s + s.r) { s.hits.push(tag); damageNode(i, s.dmg); }
+      }
+      if (S.boss && nodesAlive(b) === 0 && s.hits.indexOf("core") === -1 && segDist(b.x, b.y, s.x, s.y, e[0], e[1]) < LOGO.coreR * b.s + s.r) { s.hits.push("core"); damageCore(s.dmg); }
+      return false;
+    }
     /* Returns true when the shot is used up by the boss. */
     function shotHitsBoss(s) {
       var b = S.boss;
@@ -1639,10 +1766,10 @@
         var n = b.nodes[i];
         if (!n.alive) continue;
         var at = bossPoint(b, LOGO.nodes[i][0], LOGO.nodes[i][1]);
-        if (Math.hypot(s.x - at[0], s.y - at[1]) < LOGO.nodeR * b.s + s.r) { damageNode(i, 1); return true; }
+        if (Math.hypot(s.x - at[0], s.y - at[1]) < LOGO.nodeR * b.s + s.r) { damageNode(i, s.dmg || 1); return true; }
       }
       if (Math.hypot(s.x - b.x, s.y - b.y) < LOGO.coreR * b.s + s.r) {
-        if (nodesAlive(b) === 0) damageCore(1); else ring(s.x, s.y, "#93c5fd");
+        if (nodesAlive(b) === 0) damageCore(s.dmg || 1); else ring(s.x, s.y, "#93c5fd");
         return true;
       }
       var lx = (s.x - b.x) / b.s + LOGO.centre[0], ly = (s.y - b.y) / b.s + LOGO.centre[1];
@@ -1771,13 +1898,13 @@
 
       /* collisions: player shots. A piercing shot passes through and hits each target once. */
       for (i = S.shots.length - 1; i >= 0; i--) {
-        var s = S.shots[i], used = shotHitsBoss(s);
+        var s = S.shots[i], used = s.kind === "lance" ? lanceHitsBoss(s) : shotHitsBoss(s), dmg = s.dmg || 1, hitAt = null;
         if (!S.boss && S.state === "over") return;
         for (j = S.enemies.length - 1; j >= 0 && !used; j--) {
           var en = S.enemies[j];
-          if (overlaps(s, en) && !(s.pierce && s.hits.indexOf(en) !== -1)) {
-            if (s.pierce) s.hits.push(en); else used = true;
-            en.hp -= 1;
+          if (touches(s, en, 0) && !(s.hits && s.hits.indexOf(en) !== -1)) {
+            if (s.pierce) s.hits.push(en); else { used = true; hitAt = en; }
+            en.hp -= dmg;
             en.flash = 5;
             if (en.hp <= 0) {
               boom(en.x, en.y, en.type === "bomber" ? 1.6 : en.type === "interceptor" ? 0.8 : 1.15, { gunship: "#fb7185", interceptor: "#e879f9", lancer: "#fb923c", bomber: "#facc15" }[en.type]);
@@ -1790,18 +1917,23 @@
         }
         for (j = S.enemyShots.length - 1; j >= 0 && !used; j--) {
           var bomb = S.enemyShots[j];
-          if (bomb.kind === "bomb" && bomb.arm === 0 && overlaps(s, bomb, 4)) { used = !s.pierce; S.enemyShots.splice(j, 1); detonate(bomb); S.score += 20; }
+          if (bomb.kind === "bomb" && bomb.arm === 0 && touches(s, bomb, 4)) { used = !s.pierce; S.enemyShots.splice(j, 1); detonate(bomb); S.score += 20; }
         }
         for (j = S.asteroids.length - 1; j >= 0 && !used; j--) {
           var rock = S.asteroids[j];
-          if (overlaps(s, rock) && !(s.pierce && s.hits.indexOf(rock) !== -1)) {
-            if (s.pierce) s.hits.push(rock); else used = true;
-            rock.hp -= 1;
+          if (touches(s, rock, 0) && !(s.hits && s.hits.indexOf(rock) !== -1)) {
+            if (s.pierce) s.hits.push(rock); else { used = true; hitAt = rock; }
+            rock.hp -= dmg;
             rock.flash = 4;
             if (rock.hp <= 0) breakRock(j);
           }
         }
-        if (used || s.y < -10 || s.y > world.h + 10 || s.x < -10 || s.x > world.w + 10) S.shots.splice(i, 1);
+        /* a full plasma orb splits into two smaller ones that fly on past what it hit */
+        if (used && s.kind === "orb" && !s.gen) [-1, 1].forEach(function (side) {
+          S.shots.push({ kind: "orb", gen: 1, x: s.x + side * 6, y: s.y - 4, r: 4, vx: side * 3.2, vy: -5.6, dmg: 1, hits: hitAt ? [hitAt] : [] });
+        });
+        var gone = s.kind === "lance" ? s.life <= 0 : (s.y < -10 || s.y > world.h + 10 || s.x < -10 || s.x > world.w + 10);
+        if (used || gone) S.shots.splice(i, 1);
       }
 
       /* collisions: the player (never inside a wormhole) */
@@ -1814,13 +1946,13 @@
       if (S.state === "running" && !frozen) {
         for (i = S.enemies.length - 1; i >= 0; i--) {
           var e = S.enemies[i];
-          if (overlaps(e, p, -4)) { boom(e.x, e.y, 1, "#fb923c"); shards(e.x, e.y, 5); S.enemies.splice(i, 1); release(e, e.type); if (hitPlayer("collision", e.type)) break; }
+          if (hitsShip(e, -4)) { boom(e.x, e.y, 1, "#fb923c"); shards(e.x, e.y, 5); S.enemies.splice(i, 1); release(e, e.type); if (hitPlayer("collision", e.type)) break; }
         }
       }
       if (S.state === "running" && !frozen) {
         for (i = S.asteroids.length - 1; i >= 0; i--) {
           var rk = S.asteroids[i];
-          if (overlaps(rk, p, -6) && p.invuln === 0) { var size = rk.size; breakRock(i); if (hitPlayer("asteroid", size)) break; }
+          if (hitsShip(rk, -6) && (p.invuln === 0 || cfg.defects.firstHitFatal)) { var size = rk.size; breakRock(i); if (hitPlayer("asteroid", size)) break; }
         }
       }
       if (S.state === "running" && S.boss && S.boss.entered && !frozen) {
@@ -1828,7 +1960,7 @@
       }
       if (S.state === "running" && !frozen) {
         for (i = S.powerUps.length - 1; i >= 0; i--) {
-          if (overlaps(S.powerUps[i], p, 6)) { collect(S.powerUps[i]); S.powerUps.splice(i, 1); }
+          if (hitsShip(S.powerUps[i], 6)) { collect(S.powerUps[i]); S.powerUps.splice(i, 1); }
         }
       }
 
@@ -1838,7 +1970,10 @@
           S.explodeTicks.push(S.tick);
           emit("explode", { tick: S.tick });
           boom(p.x, p.y, 1.8, "#fbbf24");
-          applyDamage(EXPLOSION_DAMAGE, "explode", null);
+          /* R16: in the buggy build the self-test blast obeys the same defect as every hit, so the
+             ship never survives visible damage there; alone it still costs 40 through the shield */
+          if (cfg.defects.firstHitFatal) destroyNow("explode", null, EXPLOSION_DAMAGE, "explode", "The ship blew itself up, with no hit");
+          else applyDamage(EXPLOSION_DAMAGE, "explode", null);
           if (S.state === "running") p.invuln = HIT_INVULN;
           S.nextExplosion = nextExplosion(S.rng.defects, S.tick);
         }
@@ -2089,6 +2224,33 @@
       for (i = 0; i < S.shots.length; i++) {
         var sh = S.shots[i];
         if (sh.kind === "missile") continue;
+        /* R16: each ship's weapon has its own look */
+        if (sh.kind === "lance") {
+          var le = lanceEnd(sh), lx = (sh.x + le[0]) / 2, lz = (sh.y + le[1]) / 2, flick = REDUCED ? 1 : 0.85 + 0.15 * Math.sin(S.tick * 1.7);
+          streak(lx, lz, le[0] - sh.x, le[1] - sh.y, sh.len / 2, 11 * flick, col("#a855f7"), 1, 8, 2);
+          streak(lx, lz, le[0] - sh.x, le[1] - sh.y, sh.len / 2, 3.6, [1, 0.92, 1], 1, 8, 2);
+          glow(sh.x, sh.y - 4, 16, col("#c084fc"), 0.8, 8);
+          glow(le[0], le[1], 12, col("#e9d5ff"), 0.6, 8);
+          continue;
+        }
+        if (sh.kind === "orb") {
+          var orr = sh.gen ? 7 : 12;
+          glow(sh.x, sh.y, orr * 2.2, col("#e11d48"), 0.8, 8);
+          glow(sh.x, sh.y, orr * 0.9, col("#fecdd3"), 1, 8);
+          quad(sh.x, 9, sh.y, orr * 1.3, 0, 0, orr * 1.3, col("#fb7185"), 0.6, 1);
+          continue;
+        }
+        if (sh.kind === "burst") {
+          streak(sh.x, sh.y, sh.vx || 0, -16, 13, 2.8, col("#fca5a5"), 1, 8);
+          glow(sh.x, sh.y - 4, 9, col("#ef4444"), 0.7, 8);
+          continue;
+        }
+        if (sh.kind === "cannon" && !sh.pierce) {
+          streak(sh.x, sh.y, sh.vx || 0, -13, 15, 5.2, col("#22d3ee"), 1, 8);
+          streak(sh.x, sh.y, sh.vx || 0, -13, 10, 2, [0.9, 1, 1], 0.9, 8);
+          glow(sh.x, sh.y - 6, 13, col("#22d3ee"), 0.5, 8);
+          continue;
+        }
         if (sh.pierce) {
           /* a piercing shot is a long, hot lance */
           streak(sh.x, sh.y + 6, sh.vx || 0, -13, 24, 4.2, col("#67e8f9"), 1, 8);
@@ -2372,6 +2534,25 @@
       ctx.fillStyle = o.kind === "needle" ? "#f0abfc" : o.src === "bossShot" ? "#67e8f9" : "#fecaca";
       ctx.beginPath(); ctx.ellipse(o.x, o.y, o.kind === "needle" ? 2 : 3, 8, Math.atan2(o.vx, o.vy) * -1, 0, 6.283); ctx.fill();
     }
+    /* R16: the player's rounds in the 2D view, one look per weapon */
+    function drawShot2D(sh) {
+      if (sh.kind === "lance") {
+        var e = lanceEnd(sh);
+        ctx.save(); ctx.lineCap = "round";
+        ctx.strokeStyle = "rgba(168,85,247,0.75)"; ctx.lineWidth = 9; ctx.beginPath(); ctx.moveTo(sh.x, sh.y); ctx.lineTo(e[0], e[1]); ctx.stroke();
+        ctx.strokeStyle = "#f5e8ff"; ctx.lineWidth = 3; ctx.stroke();
+        ctx.restore();
+        return;
+      }
+      if (sh.kind === "orb") {
+        var r = sh.gen ? 4 : 7, g = ctx.createRadialGradient(sh.x, sh.y, 0, sh.x, sh.y, r * 2);
+        g.addColorStop(0, "#fff1f2"); g.addColorStop(0.4, "#fb7185"); g.addColorStop(1, "rgba(225,29,72,0)");
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(sh.x, sh.y, r * 2, 0, 6.283); ctx.fill();
+        return;
+      }
+      var look = { missile: ["#fb923c", 3, 14], cannon: ["#67e8f9", 5, 16], burst: ["#fca5a5", 2, 12] }[sh.kind] || ["#a5f3fc", 3, 14];
+      ctx.fillStyle = look[0]; ctx.fillRect(sh.x - look[1] / 2, sh.y - 8, look[1], look[2]);
+    }
     function rgbCss(c, a) { return "rgba(" + Math.round(c[0] * 255) + "," + Math.round(c[1] * 255) + "," + Math.round(c[2] * 255) + "," + a + ")"; }
     /* Each map's set piece in the 2D view: a planet, a ringed planet, a sun over an asteroid belt,
        or the station ring. */
@@ -2442,7 +2623,7 @@
       for (i = 0; i < S.enemies.length; i++) drawEnemy2D(S.enemies[i]);
       for (i = 0; i < S.powerUps.length; i++) { var pu = S.powerUps[i]; ctx.save(); ctx.translate(pu.x, pu.y); powerIcon(pu.kind, (POWER_LOOK[pu.kind] || POWER_LOOK.repair)[0], true, pu.r); ctx.restore(); }
       for (i = 0; i < S.enemyShots.length; i++) drawEnemyShot2D(S.enemyShots[i]);
-      for (i = 0; i < S.shots.length; i++) { var sh = S.shots[i]; ctx.fillStyle = sh.kind === "missile" ? "#fb923c" : "#a5f3fc"; ctx.fillRect(sh.x - 1.5, sh.y - 8, 3, 14); }
+      for (i = 0; i < S.shots.length; i++) drawShot2D(S.shots[i]);
       var p = S.player;
       if (!(S.state === "over" && S.overReason !== "victory")) {
         if (p.invuln > 0 && !REDUCED && Math.floor(p.invuln / 5) % 2 === 0) ctx.globalAlpha = 0.55;
@@ -2672,16 +2853,17 @@
       /* the start screen shows on a fresh game; after a run, a button brings it back */
       overlay.setAttribute("data-mode", S.state);
       brand.hidden = S.state !== "idle";
-      hangar.hidden = shipNote.hidden = S.state !== "idle";
-      key.hidden = S.state !== "idle" || !cfg.progression;
+      /* R16: one start screen for every game: the same ships and the same upgrade key */
+      hangar.hidden = shipNote.hidden = key.hidden = keyBtn.hidden = S.state !== "idle";
       changeBtn.hidden = S.state !== "over";
       SHIPS.forEach(function (sh) {
         var on = sh.id === S.ship.id, c = shipCards[sh.id].card;
         c.setAttribute("aria-checked", on ? "true" : "false");
         c.tabIndex = on ? 0 : -1;
       });
-      shipNote.textContent = S.ship.name + ": " + S.ship.note + ". " + S.ship.scheme + ".";
+      shipNote.textContent = S.ship.name + ", " + S.ship.role.toLowerCase() + ": " + S.ship.note.charAt(0).toLowerCase() + S.ship.note.slice(1) + ". " + S.ship.scheme + ".";
       if (S.state === "idle" && host.offsetParent !== null) paintCards();
+      if (!overlay.hidden) fitPanel();
       host.setAttribute("data-ss-state", S.state);
       host.setAttribute("data-ss-ship", S.ship.id);
     }
@@ -2806,7 +2988,7 @@
       /* R14: the ships on the start screen, and choosing one. A choice made before a run (or
          after one ends) resets the game with that ship; during a run it waits for the next. */
       ships: function () {
-        return SHIPS.map(function (s) { return { id: s.id, name: s.name, role: s.role, note: s.note, hull: s.hull, speed: s.speed, fire: s.fire, accent: s.accent, scheme: s.scheme }; });
+        return SHIPS.map(function (s) { var w = WEAPONS[s.weapon]; return { id: s.id, name: s.name, role: s.role, note: s.note, hull: s.hull, speed: s.speed, fire: s.fire, accent: s.accent, scheme: s.scheme, weapon: s.weapon, weaponName: w.name, weaponNote: w.desc }; });
       },
       chooseShip: function (shipId) {
         if (!shipById(shipId)) return false;
@@ -2845,7 +3027,7 @@
         });
         S.enemies.forEach(function (e) { if (e.charge > 0) { column(e.x, e.y + e.r); beams.push({ x: e.x, y: e.y + e.r, charging: e.charge }); } });
         return {
-          player: { x: S.player.x, y: S.player.y, r: S.player.r },
+          player: { x: S.player.x, y: S.player.y, r: S.player.r, hw: hitHalfWidth() },
           threats: S.enemyShots.filter(function (o) { return o.kind !== "beam" && !(o.kind === "bomb" && o.arm > 0); }).map(pick).concat(columns, blasts, S.enemies.map(pick), S.asteroids.map(pick)),
           beams: beams, blasts: blasts,
           powerUps: S.powerUps.map(pick), world: { w: world.w, h: world.h }
@@ -2877,6 +3059,9 @@
             spread: p.spread || 0, rapid: p.rapid || 0, missiles: p.missiles || 0, wingman: p.wingman || 0,
             pierce: p.pierce || 0, slow: p.slow || 0, magnet: p.magnet || 0 },
           ship: S.ship.id, shipName: S.ship.name, shipMesh: S.ship.id + shownForm(), shipSpeed: S.ship.speed, shipFire: S.ship.fire,
+          weapon: { kind: S.ship.weapon, name: WEAPONS[S.ship.weapon].name, note: WEAPONS[S.ship.weapon].desc, cooldown: p.cooldown },
+          playerShots: S.shots.map(function (s) { return { kind: s.kind || "round", x: Math.round(s.x * 10) / 10, y: Math.round(s.y * 10) / 10, dmg: s.dmg || 1, len: s.len || 0, pierce: !!s.pierce }; }),
+          hitHalfWidth: Math.round(hitHalfWidth() * 10) / 10,
           map: MAPS[S.mapId].name, mapId: S.mapId, transition: !!S.trans,
           transitionInfo: S.trans ? { kind: S.trans.kind, to: S.trans.to, t: S.trans.t, len: S.trans.len, flash: S.trans.flash } : null,
           levelProgress: Math.round(levelProgress() * 1000) / 1000,
