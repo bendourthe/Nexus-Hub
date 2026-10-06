@@ -22,6 +22,9 @@ TRAINING = WEB / "training.html"
 GUIDE = WEB / "nexus-hub-guide.html"
 REQUIRE_RENDER = os.environ.get("NEXUS_REQUIRE_RENDER") == "1"
 PARTS = ["Introduction", "Buggy game", "Describe", "Review", "Plan", "Implement", "Test", "Update", "The reward"]
+WORKFLOW = ["/describe", "/review", "/plan", "/implement", "/test", "/update"]
+# R19: the file each command writes or edits in the opening's IDE, following the Training story.
+FILES = ["docs/describe.md", "docs/review.md", "docs/plans/v1.1.0-damage-fix.md", "src/damage.js", "tests/damage.test.js", "CHANGELOG.md"]
 
 
 def _text(path: Path) -> str:
@@ -65,15 +68,21 @@ def _assert_opening_figure(block: str, name: str) -> None:
         links = re.findall(r'href="#foundations/([a-z-]+)"', body)
         assert sorted(links) == sorted(["fx-tokens", "fx-model-lifecycle", "fx-prompts", "fx-context", "fx-agent-platform", "fx-harness"])
     elif name == "training":
-        # A cursor demo: the buggy game, the six commands, the fixed game; never the boss or its logo.
-        assert body.count('class="trf-card') == 3 and "trf-cursor" in body
-        assert re.findall(r'<li class="trf-st" data-k="\d"><code>(/[a-z]+)</code></li>', body) == ["/describe", "/review", "/plan", "/implement", "/test", "/update"]
-        # Revision 3: the agent works in a mini IDE, and the buggy hit shows -6 and an emptied bar.
-        assert 'class="trf-ide"' in body and 'class="trf-code"' in body and "trf-del" in body and "trf-add" in body
-        assert 'trf-pop--bug' in body and ">-6<" in body and 'trf-hp-fill--bug' in body
-        assert "6 damage emptied a 100-point bar" in body
-        # The maintainer's verdicts: a red mark once the bug destroys the ship, a green one once the fix holds.
-        assert "trf-verdict--bug" in body and "trf-verdict--ok" in body
+        # R19: two real game scenes (SkySentinel.demo hosts) and an agent panel; no Play button, no cursor.
+        assert body.count('class="tro-card') == 3 and body.count('<div class="tro-demo"></div>') == 2
+        assert "window.SkySentinel" in body and "SS.demo(" in body and "amount: 6" in body
+        assert not re.search(r">\s*Play\s*<", body) and "cursor" not in body and "trf" not in body
+        # The six commands are typed into a chat and sent, in the Home page's order.
+        assert re.findall(r'<li class="tro-msg" data-k="\d"><code>(/[a-z]+)</code></li>', body) == WORKFLOW
+        assert 'class="tro-composer"' in body and 'class="tro-typed"' in body
+        # The IDE answers each command with a file it writes or edits; /implement edits the damage code.
+        assert re.findall(r'<ol class="tro-code" data-f="\d" data-path="([^"]+)"', body) == FILES
+        assert "tro-del\">  return { ...ship, destroyed: true };" in body and "ship.health - DAMAGE[source]" in body
+        assert "Claude Opus 5.5" in body and "GPT-6.1 Sol" in body
+        # The 6-damage meaning: the bug destroys the ship, the fix leaves 94, and the verdict marks.
+        assert "<b>-6</b> hit, ship destroyed" in body and "<b>-6</b> hit, hull 94" in body
+        assert "tro-verdict--bug" in body and "tro-verdict--ok" in body
+        assert "6 damage" in label and "100 to 94" in label and "red cross" in label and "green check" in label
         assert "nexus-mark" not in body and "boss" not in body.lower()
     else:
         assert len(re.findall(r"<li><b>\d</b>", body)) == 4, "the cheatsheet demo has four steps"
@@ -286,5 +295,142 @@ def test_the_current_ring_is_never_clipped_by_the_rail(playwright_mod, width: in
                     return { ringLeft: r.left - halo, ringTop: r.top - halo, navLeft: n.left, navTop: n.top }; })()""")
                 assert box["ringLeft"] >= box["navLeft"] - 0.5 and box["ringTop"] >= box["navTop"] - 0.5, (url, box)
                 page.close()
+        finally:
+            browser.close()
+
+
+# --- R19: the Training opening on real demo scenes and a typed chat -------------------------
+
+
+def _training_figure(html: str) -> str:
+    start = html.index('<figure class="pg-fig tro"')
+    return html[start: html.index("</figure>", start)]
+
+
+def test_every_class_in_the_training_opening_has_a_style_rule() -> None:
+    """The Foundations discipline (test_v443_phase8_harness) applied to the Training opening."""
+    html = _text(TRAINING)
+    css = "".join(block.split("</style>", 1)[0] for block in html.split("<style>")[1:])
+    declared = set(re.findall(r"\.([A-Za-z][\w-]*)", css))
+    used: set[str] = set()
+    for match in re.finditer(r'class="([^"]+)"', _training_figure(html)):
+        used.update(match.group(1).split())
+    undeclared = sorted(name for name in used if name not in declared)
+    assert not undeclared, f"the Training opening uses classes with no style rule: {undeclared}"
+    assert "trf-" not in css and "trf-" not in html, "the R13 cursor figure's rules and markup are gone"
+
+
+def _opening(pw, width: int, height: int, reduced: str = "no-preference"):
+    browser = pw.chromium.launch()
+    page = browser.new_page(viewport={"width": width, "height": height}, reduced_motion=reduced)
+    page.goto(TRAINING.as_uri())
+    page.wait_for_function("window.NexusTrainingOpening && window.NexusTrainingPage")
+    return browser, page
+
+
+SCROLLBARS = """() => [...document.querySelectorAll('figure.tro, figure.tro *')].filter(e => {
+    const cs = getComputedStyle(e), auto = v => v === 'auto' || v === 'scroll';
+    return (auto(cs.overflowX) && e.scrollWidth > e.clientWidth) || (auto(cs.overflowY) && e.scrollHeight > e.clientHeight);
+}).map(e => e.className)"""
+
+VIEW = """() => { const f = document.querySelector('figure.tro'), s = NexusTrainingOpening.state();
+    const canv = [...f.querySelectorAll('.tro-demo .ss-canvas')].map(c => c.getBoundingClientRect());
+    return { s, canvases: canv.map(r => [Math.round(r.width), Math.round(r.height)]),
+             tab: f.querySelector('.tro-tab-name').textContent, typed: f.querySelector('.tro-typed').textContent,
+             sent: [...f.querySelectorAll('.tro-msg.is-sent')].map(m => m.textContent),
+             bugX: f.querySelector('.tro-verdict--bug').classList.contains('is-on'),
+             okV: f.querySelector('.tro-verdict--ok').classList.contains('is-on'),
+             hulls: [...f.querySelectorAll('.tro-hull b')].map(b => b.textContent),
+             del: f.querySelector('.tro-del').classList.contains('is-on'),
+             height: Math.round(f.getBoundingClientRect().height) }; }"""
+
+
+def test_the_training_opening_plays_one_loop_on_real_demo_scenes(playwright_mod) -> None:
+    """R19 (T087): the buggy scene ends destroyed (red cross), the six commands are typed, sent, and
+    answered with a file each, and the fixed scene ends at hull 94 (green check), on one timeline."""
+    with playwright_mod() as pw:
+        browser, page = _opening(pw, 1440, 900)
+        try:
+            m = page.evaluate("NexusTrainingOpening.marks")
+            assert page.evaluate("NexusTrainingOpening.commands") == WORKFLOW
+            seen_files, sent_order, typing_seen, heights = [], [], False, set()
+            start = page.evaluate(f"NexusTrainingOpening.seek(0); ({VIEW})()")
+            assert start["sent"] == [] and start["hulls"] == ["100", "100"] and not start["bugX"]
+            assert len(start["canvases"]) == 2 and all(w >= 360 and h >= 220 for w, h in start["canvases"]), start["canvases"]
+            for ms in range(0, page.evaluate("NexusTrainingOpening.duration"), 125):
+                page.evaluate(f"NexusTrainingOpening.seek({ms})")
+                v = page.evaluate(f"({VIEW})()")
+                heights.add(v["height"])
+                if v["tab"] not in seen_files:
+                    seen_files.append(v["tab"])
+                for cmd in v["sent"]:
+                    if cmd not in sent_order:
+                        sent_order.append(cmd)
+                if v["typed"] and v["typed"] not in WORKFLOW:
+                    typing_seen = True
+                if ms == m["bug"] + 3000:
+                    assert v["s"]["buggy"]["destroyed"] and v["s"]["buggy"]["health"] == 0 and v["bugX"], v
+                    assert v["sent"] == [] and not v["okV"], "the workflow starts after the bug"
+                if m["flow"] + 3 * m["slot"] + m["done"] <= ms < m["flow"] + 4 * m["slot"]:
+                    assert v["tab"] == "src/damage.js" and v["del"] and v["s"]["model"] == "GPT-6.1 Sol", v
+                assert page.evaluate(SCROLLBARS) == [], f"a scroll bar inside the figure at {ms} ms"
+            end = page.evaluate(f"NexusTrainingOpening.seek({m['end'] + 100}); ({VIEW})()")
+            assert end["s"]["fixed"]["health"] == 94 and not end["s"]["fixed"]["destroyed"] and end["okV"] and end["bugX"]
+            assert end["hulls"] == ["0", "94"] and end["sent"] == WORKFLOW
+            assert sent_order == WORKFLOW, "the commands are sent one at a time, in order"
+            assert typing_seen, "each command is typed before it is sent"
+            assert set(FILES) <= set(seen_files), seen_files
+            assert len(heights) == 1, f"the figure keeps one height through the loop: {heights}"
+            # The loop wraps back to the start: both scenes reset and the chat empties.
+            again = page.evaluate(f"NexusTrainingOpening.seek(0); ({VIEW})()")
+            assert again["sent"] == [] and again["hulls"] == ["100", "100"] and not again["bugX"] and not again["okV"]
+        finally:
+            browser.close()
+
+
+def test_the_training_opening_runs_on_its_own_clock(playwright_mod) -> None:
+    """Live playback, not only seeks: the timeline advances and drives the buggy scene to its hit."""
+    with playwright_mod() as pw:
+        browser, page = _opening(pw, 1440, 900)
+        try:
+            page.wait_for_function("NexusTrainingOpening.state().t > 2600", timeout=8000)
+            s = page.evaluate("NexusTrainingOpening.state()")
+            assert s["buggy"]["hit"] and s["buggy"]["destroyed"] and not s["buggy"]["playing"], "the page seeks the demo; its own clock stays off"
+        finally:
+            browser.close()
+
+
+def test_the_training_opening_fits_a_phone(playwright_mod) -> None:
+    with playwright_mod() as pw:
+        browser, page = _opening(pw, 390, 844)
+        try:
+            heights = set()
+            for ms in range(0, page.evaluate("NexusTrainingOpening.duration"), 500):
+                page.evaluate(f"NexusTrainingOpening.seek({ms})")
+                v = page.evaluate(f"({VIEW})()")
+                heights.add(v["height"])
+                assert page.evaluate("document.documentElement.scrollWidth") <= 390, ms
+                assert page.evaluate(SCROLLBARS) == [], ms
+            assert len(heights) == 1, f"no layout jump while the loop plays: {heights}"
+            order = page.evaluate("[...document.querySelectorAll('.tro-card')].sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top).map(c => c.querySelector('.tro-cap').textContent)")
+            assert order == ["1Buggy Game", "2Agent Workflow", "3Fixed Game"], order
+        finally:
+            browser.close()
+
+
+def test_the_training_opening_under_reduced_motion_shows_the_end_state(playwright_mod) -> None:
+    with playwright_mod() as pw:
+        browser, page = _opening(pw, 1440, 900, reduced="reduce")
+        try:
+            page.wait_for_timeout(400)
+            v = page.evaluate(f"({VIEW})()")
+            assert v["sent"] == WORKFLOW and v["bugX"] and v["okV"] and v["hulls"] == ["0", "94"], v
+            assert v["tab"] == "CHANGELOG.md" and v["typed"] == ""
+            assert v["s"]["buggy"]["destroyed"] and v["s"]["fixed"]["health"] == 94
+            t0 = page.evaluate("NexusTrainingOpening.state().t")
+            page.wait_for_timeout(500)
+            assert page.evaluate("NexusTrainingOpening.state().t") == t0, "nothing plays"
+            anims = page.evaluate("document.querySelector('figure.tro').getAnimations({ subtree: true }).filter(a => a.playState === 'running').length")
+            assert anims == 0
         finally:
             browser.close()

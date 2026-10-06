@@ -1295,10 +1295,10 @@ def test_the_buggy_demo_is_destroyed_by_its_one_hit(demo_page) -> None:
     info, ev, st = out["info"], out["ev"], out["st"]
     assert [e[0] for e in ev] == ["hit", "end"]
     hit, end = ev[0][1], ev[1][1]
-    assert (hit["source"], hit["amount"], hit["fatal"], hit["health"]) == ("shot", 10, True, 0), "a 10-point gunship bolt empties the hull"
+    assert (hit["source"], hit["amount"], hit["fatal"], hit["health"]) == ("shot", 6, True, 0), "a 6-point gunship bolt empties the hull"
     assert end["destroyed"] is True and end["health"] == 0
-    assert info == {"source": "shot", "sourceText": "a gunship bolt", "amount": 10, "hitMs": hit["ms"], "hullBefore": 100, "hullAfter": 0, "destroyed": True}
-    assert st["destroyed"] and st["ended"] and st["renderer"] == "webgl" and st["popups"] == ["-10"]
+    assert info == {"source": "shot", "sourceText": "a gunship bolt", "amount": 6, "hitMs": hit["ms"], "hullBefore": 100, "hullAfter": 0, "destroyed": True}
+    assert st["destroyed"] and st["ended"] and st["renderer"] == "webgl" and st["popups"] == ["-6"]
     assert out["ids"] == ["buggy", "fixed"], "a demo is not a game"
     assert out["buttons"] == 0 and out["role"] == "img", "no start screen, no buttons, not interactive"
 
@@ -1308,8 +1308,8 @@ def test_the_fixed_demo_takes_the_damage_and_flies_on(demo_page) -> None:
     info, ev, st = out["info"], out["ev"], out["st"]
     assert [e[0] for e in ev] == ["hit", "end"]
     hit, end = ev[0][1], ev[1][1]
-    assert (hit["source"], hit["amount"], hit["fatal"], hit["health"]) == ("shot", 10, False, 90)
-    assert end["destroyed"] is False and end["health"] == 90 == info["hullAfter"] == info["hullBefore"] - info["amount"]
+    assert (hit["source"], hit["amount"], hit["fatal"], hit["health"]) == ("shot", 6, False, 94)
+    assert end["destroyed"] is False and end["health"] == 94 == info["hullAfter"] == info["hullBefore"] - info["amount"]
     assert st["renderer"] == "webgl" and not st["destroyed"] and st["enemies"] == 0, "it flies on and shoots the gunship down"
     assert len(st["aimLog"]) == 1 and _miss(st["aimLog"][0]) < 0.5, "one aimed bolt"
 
@@ -1321,10 +1321,27 @@ def test_a_demo_is_deterministic_and_seekable(demo_page) -> None:
     hit_ms = a["hit"]["ms"]
     assert 1000 < hit_ms < 3000
     assert _demo(demo_page, "fixed", ms=hit_ms - 50)["st"]["hit"] is None
-    assert _demo(demo_page, "fixed", ms=hit_ms + 20)["st"]["hit"]["amount"] == 10
+    assert _demo(demo_page, "fixed", ms=hit_ms + 20)["st"]["hit"]["amount"] == 6
 
 
-@pytest.mark.parametrize("opts, health, renderer", [({"ship": "raptor"}, 80, "webgl"), ({"renderer": "2d"}, 90, "2d")])
+def test_a_demo_driven_by_forward_seeks_matches_one_seek_and_emits_once(demo_page) -> None:
+    """R19: the Training opening seeks each demo every frame; a forward seek steps on from the
+    current tick, so the scene equals one direct seek and each event fires once."""
+    out = demo_page.evaluate("""() => { const c = mkDemo('buggy');
+        for (let ms = 0; ms <= 4000; ms += 16) c.seek(ms);
+        c.seek(4000); const stepped = c.state(), ev = c.ev.map(e => e[0]);
+        c.seek(0); const back = c.state(); c.seek(4000); const again = c.ev.map(e => e[0]);
+        c.destroy(); document.querySelector('.demo-host').remove();
+        const d = mkDemo('buggy'); d.seek(4000); const direct = d.state();
+        d.destroy(); document.querySelector('.demo-host').remove();
+        return { stepped, direct, ev, back, again }; }""")
+    assert out["ev"] == ["hit", "end"], "each event fires once while stepping forward"
+    assert out["stepped"] == out["direct"], "stepping forward lands on the same scene as one seek"
+    assert out["back"]["hit"] is None and out["back"]["health"] == 100, "a backward seek replays from the start"
+    assert out["again"] == ["hit", "end", "hit", "end"]
+
+
+@pytest.mark.parametrize("opts, health, renderer", [({"ship": "raptor"}, 84, "webgl"), ({"renderer": "2d"}, 94, "2d"), ({"amount": 10}, 90, "webgl")])
 def test_demo_options_pick_the_ship_and_the_renderer(demo_page, opts: dict, health: int, renderer: str) -> None:
     st = _demo(demo_page, "fixed", opts)["st"]
     assert st["health"] == health and st["renderer"] == renderer and st["ship"] == opts.get("ship", "vanguard")

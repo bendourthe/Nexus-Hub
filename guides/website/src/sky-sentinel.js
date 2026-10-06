@@ -1116,8 +1116,8 @@
       canvas.setAttribute("role", "img");
       canvas.removeAttribute("aria-roledescription");
       canvas.setAttribute("aria-label", demo.variant === "buggy" ?
-        "Scripted scene: a gunship fires one aimed bolt; the 10-point hit destroys the ship outright" :
-        "Scripted scene: a gunship fires one aimed bolt; the ship loses 10 hull and keeps flying");
+        "Scripted scene: a gunship fires one aimed bolt; the " + demo.amount + "-point hit destroys the ship outright" :
+        "Scripted scene: a gunship fires one aimed bolt; the ship loses " + demo.amount + " hull and keeps flying");
       canvas.tabIndex = -1;
     }
     var overlay = el("div", "ss-overlay");
@@ -1574,6 +1574,8 @@
 
     /* ---------- health and damage */
     function damageFor(source, detail, dist) {
+      /* R19: a demo's one scripted hit costs the demo's own amount (6 by default, the story's hit) */
+      if (demo) return demo.amount;
       var k = diff().damage, base;
       if (source === "asteroid") base = DAMAGE.asteroid[detail] || DAMAGE.asteroid.large;
       else if (source === "collision") base = DAMAGE.collision[detail] || DAMAGE.collision.gunship;
@@ -3366,7 +3368,7 @@
 
     /* ---------- R18 (T086): demo mode. A scripted, non-interactive scene drawn by the real
        renderer: a gunship glides in above the ship and fires one aimed bolt at it. In the
-       'buggy' variant the first-hit defect turns that 10-point hit into instant destruction (the
+       'buggy' variant the first-hit defect turns that hit (6 damage by default, R19) into instant destruction (the
        big explosion, the hull bar draining to 0); in the 'fixed' variant the hull drops by the
        hit's real damage and the ship keeps flying, lines up, and shoots the gunship down. The
        scene is a pure function of its tick (DEMO_TICKS long), so seek() is exact. */
@@ -3420,10 +3422,13 @@
         }
       }
       function settleBars() { hpShown = S.player.health; shShown = 0; }
-      function seek(ms) {
-        sceneReset();
+      /* R19: a forward seek steps on from the current tick (the scene is a pure function of its
+         tick, so this equals a fresh run) and emits each event once as it is crossed; a backward
+         seek, or a fresh one after a resize, replays the scene from tick 0. */
+      function seek(ms, fresh) {
         var n = clamp(Math.round((ms || 0) * HZ / 1000), 0, DEMO_TICKS);
-        for (var k = 0; k < n; k++) stepOnce();
+        if (fresh || !D.enemy || n < D.t) sceneReset();
+        for (var k = D.t; k < n; k++) stepOnce();
         if (D.hit && D.t - D.hit.ms * HZ / 1000 > 100) settleBars();
         draw();
       }
@@ -3441,9 +3446,9 @@
       }
       function kick() { if (!D.raf && wanted()) D.raf = window.requestAnimationFrame(frameDemo); }
       /* the hit's real numbers, from a silent dry run of the scene */
-      mute = true; seek(DEMO_TICKS * 1000 / HZ);
+      mute = true; seek(DEMO_TICKS * 1000 / HZ, true);
       var dry = D.hit ? { amount: D.hit.amount, ms: D.hit.ms, after: S.player.health } : { amount: damageFor("shot"), ms: null, after: S.healthMax };
-      mute = false; seek(0);
+      mute = false; seek(0, true);
       var dio = null, dro = null;
       function onVisible() { kick(); }
       document.addEventListener("visibilitychange", onVisible);
@@ -3457,7 +3462,7 @@
           if (host.clientWidth === lastW && host.clientHeight === lastH) return;
           lastW = host.clientWidth; lastH = host.clientHeight;
           var t = D.t, was = D.playing, quiet = mute;
-          mute = true; chooseWorld(); fit(); seek(t * 1000 / HZ); mute = quiet;
+          mute = true; chooseWorld(); fit(); seek(t * 1000 / HZ, true); mute = quiet;
           D.playing = was && !D.ended; kick();
         });
         dro.observe(host);
@@ -3468,13 +3473,13 @@
         info: { source: "shot", sourceText: sourceText("shot"), amount: dry.amount, hitMs: dry.ms, hullBefore: S.healthMax,
                 hullAfter: demo.variant === "buggy" ? 0 : dry.after, destroyed: demo.variant === "buggy" },
         play: function () {
-          if (D.ended) seek(0);
+          if (D.ended) seek(0, true);
           if (REDUCED) { seek(DEMO_TICKS * 1000 / HZ); return ctl; }
           D.playing = true; D.last = 0; kick();
           return ctl;
         },
         pause: function () { D.playing = false; return ctl; },
-        reset: function () { D.playing = false; seek(0); return ctl; },
+        reset: function () { D.playing = false; seek(0, true); return ctl; },
         seek: function (ms) { var was = D.playing; seek(ms); D.playing = was && !D.ended; kick(); return ctl; },
         on: function (name, fn) { (dl[name] = dl[name] || []).push(fn); return ctl; },
         state: function () {
@@ -3577,11 +3582,15 @@
     create: create,
     /* R18 (T086): SkySentinel.demo(host, { variant: 'buggy' | 'fixed', ship, seed, renderer })
        renders one short scripted scene into host with the real renderer and returns a controller:
-       { play(), pause(), reset(), seek(ms), on('hit' | 'end', fn), state(), destroy(), info, duration }. */
+       { play(), pause(), reset(), seek(ms), on('hit' | 'end', fn), state(), destroy(), info, duration }.
+       R19: opts.amount (a whole number, default 6) is the scripted hit's damage, so the scene
+       matches the story's 6-damage hit (fixed hull 100 to 94) instead of the level-1 gunship bolt. */
     demo: function (host, opts) {
       opts = opts || {};
+      var amount = Math.round(Number(opts.amount));
       return create(host, { renderer: opts.renderer,
-        demo: { variant: opts.variant === "buggy" ? "buggy" : "fixed", ship: shipById(opts.ship) ? opts.ship : SHIPS[0].id, seed: (opts.seed >>> 0) || 1 } });
+        demo: { variant: opts.variant === "buggy" ? "buggy" : "fixed", ship: shipById(opts.ship) ? opts.ship : SHIPS[0].id, seed: (opts.seed >>> 0) || 1,
+                amount: amount >= 1 ? amount : 6 } });
     },
     get: function (id) { return instances[id] || null; },
     ids: function () { return Object.keys(instances); },
