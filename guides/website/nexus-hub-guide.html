@@ -20,6 +20,7 @@
 })();
 </script>
 <!-- /shared:theme-init -->
+<script>/* First paint (v4.13.10 R25): mark the page the hash asks for, so Home never flashes first. */(function(){var h=(location.hash||"").replace(/^#/,"").split("/")[0];if(h&&h!=="home")document.documentElement.setAttribute("data-boot",h);})();</script>
 <!-- shared:favicon -->
 <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAHXklEQVR42qVXa3CU1Rl+zvl2N7vZbG4kJBaDCSVcpFyTJpEEiYWqOCAoUKgO2FHHcYplLBV6taQ3a6vjeK0ynUA7OBRDB4UQgUIBW4FCBYEYspaCoVmSkAtJNpvd/b79vvP0RxLdzRXw/Nn9znkvz3ne9z3nPRDoHaL33+cTfZ8DJgZ+9BMZWn6wpeGU+zuI+hX9pcTwfkU/YTG4qBh+pzewu0G4uz69YsN6aky3ujgpwl0/VhwVE54R9EWvaPR6BanlmdYfsoKs+7rBV35ByiGd/5q8zdWhTDREFDqVmmWpl294d/3G/eQK2U2FhogSVyPqPstcGr0eg4aATSkIgIAmYEq4AWCdyaUgRYzkdXJqWnCpXhEqImjCGUtZP4W8YOSFjAB1u0mVS3WirL09eUGAq2c1hY880KpPHj6ksdYqSMdUql3SosropjkxYFaVkc7hOSOFx8dRsyPWRjupcsnjzysm3dVurB3tvRac6m35WR5pH2nnm0j7VHKnVFTFFrd4fByFHRUaxAjJKQA82R7KBikKLeuXNlKNJz8sIxOLW0LPOo5dVhn7z50pvtiQPxQVZaRtBlkhSVVi8c+lpO2JUGjscEUXM3JP12/L97Y8ClLkW+p3NlJNIP+xgfTMaQz83n7Aq5xbDhrjD55+voh0Resup9IKyLclqYota2veR7TfWdc6e9yZhqMxWMWQIARSqk5tj3vnhDmtuukxkLLA4ksaqSZRHd5Aekqu+F/XqqoVXqtUads/8ObX1pf27lwW09oiSTXbsrblkfbCz9qKPHtrOtyVH38ymDcbY/ggAEIFAkJv6JSfCrFphgZxcnLGM4UK8pQUayuBdxc59AfkzHHOo07Ho62t7RM8nZHy75LTDwMv/QvykSKFig6v/E58on/m+U+b9nY1NCfGx9v6VU+PP9vnfqMWGdaBQBf0Frus/Y/jrXxNkydy09YVKohTEt/bl5a2Yw6wjHE5tjp/5l0TR8XddwHqxWOQjxcotaNDytUpKcFp57zN+7qa2pLQ2QnAGVssJCAA24CSBqAMAyIcBoPd0FuvyeqL9jfz7Zr9RE7K9+9QimelXJsFbJ+Xav9WMNWefBX4yR7giUKldlyTctXoluC003Vt+7ua25LR5QcCASCOIobovoNn0GowLVDXgVAYwhmE3ukX1U2eV+cmOOUH6a51iwDpAp56kvjEDYTXCUyaD1XxXylX5XRGph9tNvb72zpT0NUFdIeAUBjKcPQ6jUYgIAdLDKoIYEQA3QB1HSKsQw+ExMkuvrzGwr2VwNMbgd2jBbLdApOeAY4lUa4q6UbquQj2d/gDKQiFAd2AMHQgYoCWJQaeooTsmYgFQdMCLBOwTAhTgRYhTIVcpb9/utF3eC0wtxKcb/aa2wsUJgh8+xU3m0fDeiOOACwFoRRoWhCmBZhWbAL2urT1IYkhRilAESBAISAcduSmx+9prb20cvyivKJ3gd1fpYjkCDw4CghUgZtrIcqXWQp/fcNZNmWF3X6h1flDQ9oAKXoSjhQCAuyttD5nMuZ6iSGJgKZBuFzIzknbE2hsWVmwKK/gELA7DFhfEVi4tSOS+KbfyEyHmKeIxn2aVr5kIx6ueSfjp+PGpvzWkZwIaDaQBKgE+2W8QA++LyLQi0JoNsBmh3C7kTXp1j16R2Dl7AXTC44AlRqp5ppYdNnbNP7Qvy+W76u5uuWqz19QLPDNeKDpALB5yUY87N2V9WxWTvpz9pREwOHosRnFfd9JKAfJgB4FjwcZX7utytT/t7JkYV7+3zWtUpK807Lub2255j5z6kJ58Nx5rftsrXb840t/unypdVaxbtztBq72gbh0YNvPM28f+ytbeiqFyymiuSd7Aq/1xT4ahPuRNcsTxmZ81qzZV96zsDTvIFEFQJRYYskuu+1I3Zi8K2ljU31SN6YYLddSIv6AbPMbi91xruNT0hJeaASXeoV46J45c+o+2rrptVtmlyjYHNNCFZtfH7mJFcBMX9syHKt3PUgWJ5OdyaT/3lBk3gDhDeWezF3//EHCH99vxIs7lfPtD41ZtVdWLNZ5ezrpc5GRhaa5GmWUM3wdywe7egdgKSNlF5DXCtyym9xKQN5hicV77eLQUKATXq1I92SPedrfFlpj2RzxE2dkr8qekFF9zOE4EAAyFgBrsoDqW4Gz64XoHrKfKSPldEP9TQappEmVQvrvjkS+MWj7JAb29qnvncxK3XPirZT3TnZNrfEtX0FOzqRq0Cwq2U01Jqguryczh2yqfmQYM2WbpeAzFNqVmmiq3TfWivcEMfNkzZTs0xf/UtQVKp1LrodfKdSHFXy6Kgpba6NN2aIrP0nXfUnC1d2uLDciEokU59HvBvniMImej7lh2FQwpUaQD9UdgbakFA6HRRimBZsE0uHwDt7a9hbm/PZQ6bhWfccMf+Q3y+vrXbipEU0TRbHfeCy7LbKzuMN4HCP1ZcO918R1O72+VTHYOy+2PRUjP0YEvjxJQ86Jm7V0o2DEzfgQXxJ4z/g/9TGlFHop5LAAAAAASUVORK5CYII=" />
 <link rel="icon" type="image/png" sizes="16x16" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAADJklEQVR4AURTaUhUURT+zn05M06NM5U2RUmWaZYtSGW0Q9G+QBEEEVS0aIT/2iCCgsKCKKgICuxHVARBy48MK1psAwvCskxNHUcNl3HmOS4z8+bNu533Ruvw7nfPOfd85373vvcEhox4Ngcs4OC/w0EySVYuiZy0HmHl2J0Wldtma7IAEkMpdiyPMGySFwulkZsTkbuSOYKAJJyW0tPcl3jQpuNGSVhmmFRYZNPjQTysGGiOoLRBjd9eK418guQGDKeJ1EwHHRIO2D87sTTf33+1oLYnK9kE4BIL5hlyDjmQO2mkOLIIVAtuKoYFpvl7Pk8NRYobFJxxelPf+UOhp95HH0sgpQDbAinzWwl3cmL6wZHtgU+8qWEeSZjieB2+hqbsmorqssmh6GGfTZzKnjvp3IAj9UR6+dcXq6Sc2Qbcy47Gi789r7no/+krMDn4p4BlJIJBDLb48+oq629mqdGSVmfK8SUr5x7NWzzzcaPE3SxdP1TzoflCn69tEQW6iY35fAfDChDRADWMgc6u6b986o3loKKTNpy/5LGfWEjYV9/Yf6HvT+cS9PRA7x/kk5lMMi8RLIRAiTigRYF4HKOiscoGI5H3C+iqhWxtk3KpXddeU4JJMQ1S05gAvlxWwNNQN/aUFIz1ji5zFWa+bxfK/svV7U/O1wUf/gZtcuVlBDK8Y86S3QYig7gaYBQgRhBEWhpc0yeXjd264F0viaIZ3eE9LV9+bKt/WVXqrKx7oSrYPHrNjIA7J/OMfdx43h3MIgiSLItf9OJ1C79m7l39MaSI4nnh3o1vxrl/Ryp657tGjdjd0dx60PaqtiKoKJu9O1eEV25fUUFMN6nWazzW3e1663BV+Q1Rmg9sKPd4QgTe5MGOhLpn7Z2oN2vW4MCANqGp81ZHQjnwLKZUrzaMKVzCChiz09Ojzphe5R7Uy96QULk5a+IFC/lz2ZAbC24pvPJ9ive+O2Jcc2r6lxSCyltAgK2IKB4Yb1/f7rGd5NDMw7oaK2Dgf8E8KPjAfrdyPTQxdVk5UYhXYDUAsWtVwHKToYkc80RDazDN6mz+RuBawl8AAAD//09DhdIAAAAGSURBVAMA2Q9KP1qSUPIAAAAASUVORK5CYII=" />
@@ -73,6 +74,8 @@ html[data-theme="light"] .nhg-theme .icon-sun{display:none;}
 /* ---------- Pages ---------- */
 .page{display:none;padding-bottom:var(--sp-8);}
 .page.active{display:block;}
+html[data-boot] #page-home.active{display:none;}
+html[data-boot="foundations"] #page-foundations,html[data-boot="cheatsheets"] #page-cheatsheets{display:block;}
 @keyframes pageIn{from{opacity:0;transform:translateY(8px);}
 to{opacity:1;transform:none;}
 }
@@ -2586,6 +2589,21 @@ host.appendChild(svg);
     { id: "foundations", title: "Foundations" },
     { id: "cheatsheets", title: "Cheatsheets" }
   ];
+  /* Site order for Previous, Next, and the progress dots (v4.13.10 R25): Training lives in
+     training.html, so it is a plain link rather than an in-guide route. */
+  var SEQUENCE = [
+    { id: "home",        title: "Home" },
+    { id: "foundations", title: "Foundations" },
+    { id: "training",    title: "Training", href: "training.html" },
+    { id: "cheatsheets", title: "Cheatsheets" }
+  ];
+  function seqIndex(id) {
+    for (var i = 0; i < SEQUENCE.length; i++) { if (SEQUENCE[i].id === id) return i; }
+    return 0;
+  }
+  function seqLink(p) {
+    return p.href ? 'href="' + p.href + '"' : 'href="#' + p.id + '" data-go="' + p.id + '"';
+  }
   var HASH_REWRITES = {
     reference: "cheatsheets",
     workflows: "cheatsheets",
@@ -2637,23 +2655,25 @@ host.appendChild(svg);
   }
 
   function renderPageNav(idx) {
-    var prev = idx > 0 ? PAGES[idx - 1] : null;
-    var next = idx < PAGES.length - 1 ? PAGES[idx + 1] : null;
+    var at = seqIndex(PAGES[idx].id);
+    var prev = at > 0 ? SEQUENCE[at - 1] : null;
+    var next = at < SEQUENCE.length - 1 ? SEQUENCE[at + 1] : null;
     var html = "";
     html += prev
-      ? '<a class="prev" href="#' + prev.id + '" data-go="' + prev.id + '"><span class="pn-k">Previous</span><span class="pn-t">&larr; ' + prev.title + "</span></a>"
+      ? '<a class="prev" ' + seqLink(prev) + '><span class="pn-k">Previous</span><span class="pn-t">&larr; ' + prev.title + "</span></a>"
       : '<a class="prev disabled" aria-disabled="true"><span class="pn-k">Previous</span><span class="pn-t">&larr; Start</span></a>';
     html += next
-      ? '<a class="next" href="#' + next.id + '" data-go="' + next.id + '"><span class="pn-k">Next</span><span class="pn-t">' + next.title + " &rarr;</span></a>"
+      ? '<a class="next" ' + seqLink(next) + '><span class="pn-k">Next</span><span class="pn-t">' + next.title + " &rarr;</span></a>"
       : '<a class="next disabled" aria-disabled="true"><span class="pn-k">Next</span><span class="pn-t">Done &#10003;</span></a>';
     var holders = document.querySelectorAll("#page-" + PAGES[idx].id + " [data-pagenav]");
     for (var i = 0; i < holders.length; i++) { holders[i].innerHTML = html; }
   }
 
   function renderProgress(idx) {
-    var dots = "";
-    for (var i = 0; i < PAGES.length; i++) {
-      dots += '<a class="' + (i === idx ? "on" : "") + '" href="#' + PAGES[i].id + '" data-go="' + PAGES[i].id + '" aria-label="Go to ' + PAGES[i].title + '"' + (i === idx ? ' aria-current="page"' : "") + ' title="' + PAGES[i].title + '"></a>';
+    var dots = "", at = seqIndex(PAGES[idx].id);
+    for (var i = 0; i < SEQUENCE.length; i++) {
+      var p = SEQUENCE[i], on = i === at;
+      dots += '<a class="' + (on ? "on" : "") + '" ' + seqLink(p) + ' aria-label="Go to ' + p.title + '"' + (on ? ' aria-current="page"' : "") + ' title="' + p.title + '"></a>';
     }
     var holder = document.querySelector("#page-" + PAGES[idx].id + " [data-progress]");
     if (holder) holder.innerHTML = dots;
@@ -2663,6 +2683,7 @@ host.appendChild(svg);
     var idx = pageIndex(id);
     id = PAGES[idx].id;
     current = id;
+    document.documentElement.removeAttribute("data-boot");
     var pages = document.querySelectorAll(".page");
     for (var i = 0; i < pages.length; i++) {
       pages[i].classList.toggle("active", pages[i].id === "page-" + id);

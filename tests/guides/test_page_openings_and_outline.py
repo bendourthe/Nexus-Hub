@@ -487,3 +487,91 @@ def test_each_prompt_sentence_tokens_fill_one_row_at_desktop(playwright_mod, wid
         if width >= 1280:
             assert line["rows"] == 1, (width, line)
         assert all(re.match(r"\w", lead) for lead in line["leads"]), (width, line)
+
+
+# --- Navigation (v4.13.10 R25, maintainer review 8) ---------------------------------------
+# Leaving Training for Foundations or Cheatsheets flashed Home first, because the router runs at
+# the end of a large file. The observer below records what CSS would show at the moment each
+# page section is parsed, before any later script can correct it.
+FIRST_PAINT_JS = """
+window.__firstPaint = {};
+new MutationObserver(function (records) {
+  records.forEach(function (r) {
+    r.addedNodes.forEach(function (n) {
+      if (n.nodeType === 1 && n.classList && n.classList.contains('page') && !(n.id in window.__firstPaint)) {
+        window.__firstPaint[n.id] = getComputedStyle(n).display;
+      }
+    });
+  });
+}).observe(document, { childList: true, subtree: true });
+"""
+
+
+@pytest.mark.parametrize("route", ["foundations", "cheatsheets", "foundations/fx-tokens", "cheatsheets/plan"])
+def test_the_guide_paints_the_hash_page_first(playwright_mod, route: str) -> None:
+    target = "page-" + route.split("/")[0]
+    with playwright_mod() as pw:
+        browser = pw.chromium.launch()
+        try:
+            page = browser.new_page(viewport={"width": 1440, "height": 900})
+            page.add_init_script(FIRST_PAINT_JS)
+            page.goto(GUIDE.as_uri() + "#" + route)
+            page.wait_for_timeout(300)
+            seen = page.evaluate("window.__firstPaint")
+            boot = page.evaluate("document.documentElement.getAttribute('data-boot')")
+            active = page.evaluate("document.querySelector('.page.active').id")
+        finally:
+            browser.close()
+    assert seen.get("page-home") == "none", f"Home painted before {route}: {seen}"
+    assert seen.get(target) == "block", f"{target} was not shown on first paint: {seen}"
+    assert boot is None, "the router clears the first-paint mark"
+    assert active == target
+
+
+def test_the_guide_still_opens_on_home_without_a_hash(playwright_mod) -> None:
+    with playwright_mod() as pw:
+        browser = pw.chromium.launch()
+        try:
+            page = browser.new_page(viewport={"width": 1440, "height": 900})
+            page.add_init_script(FIRST_PAINT_JS)
+            page.goto(GUIDE.as_uri())
+            page.wait_for_timeout(300)
+            seen = page.evaluate("window.__firstPaint")
+        finally:
+            browser.close()
+    assert seen.get("page-home") == "block", seen
+
+
+@pytest.mark.parametrize(
+    "route, prev, nxt",
+    [
+        ("foundations", ("Home", "#home"), ("Training", "training.html")),
+        ("cheatsheets", ("Training", "training.html"), None),
+    ],
+)
+def test_previous_and_next_follow_the_site_order(playwright_mod, route: str, prev, nxt) -> None:
+    """Maintainer review 8: the end of Foundations named Cheatsheets as the next page."""
+    with playwright_mod() as pw:
+        browser = pw.chromium.launch()
+        try:
+            page = browser.new_page(viewport={"width": 1440, "height": 900})
+            page.goto(GUIDE.as_uri() + "#" + route)
+            page.wait_for_timeout(300)
+            data = page.evaluate(
+                """(id) => {
+                    const nav = document.querySelector('#page-' + id + ' [data-pagenav]');
+                    const pick = (cls) => { const a = nav.querySelector('a.' + cls + ':not(.disabled)');
+                        return a ? [a.querySelector('.pn-t').textContent.replace(/[^A-Za-z ]/g, '').trim(), a.getAttribute('href')] : null; };
+                    const dots = [...document.querySelectorAll('#page-' + id + ' [data-progress] a')];
+                    return { prev: pick('prev'), next: pick('next'),
+                             dots: dots.map(a => a.getAttribute('aria-label')),
+                             on: dots.findIndex(a => a.classList.contains('on')) };
+                }""",
+                route,
+            )
+        finally:
+            browser.close()
+    assert data["prev"] == (list(prev) if prev else None), data
+    assert data["next"] == (list(nxt) if nxt else None), data
+    assert data["dots"] == ["Go to Home", "Go to Foundations", "Go to Training", "Go to Cheatsheets"], data
+    assert data["on"] == ["home", "foundations", "training", "cheatsheets"].index(route), data

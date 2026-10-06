@@ -72,6 +72,8 @@ html[data-theme="light"] .nhg-theme .icon-sun{display:none;}
 /* ---------- Pages ---------- */
 .page{display:none;padding-bottom:var(--sp-8);}
 .page.active{display:block;}
+html[data-boot] #page-home.active{display:none;}
+html[data-boot="foundations"] #page-foundations,html[data-boot="cheatsheets"] #page-cheatsheets{display:block;}
 @keyframes pageIn{from{opacity:0;transform:translateY(8px);}
 to{opacity:1;transform:none;}
 }
