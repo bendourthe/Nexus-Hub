@@ -30,3 +30,7 @@ The rule lives in three places, each with its own job:
 - Existing repository documents keep their headings; the rule applies to what agents write from now on. The guide's own pages adopt keyword headings in the same release.
 - The anti-slop skill's Detect mode can now flag sentence headings in any draft, and its Edit mode rewrites them as keyword labels.
 - The template parity validators keep the block identical across all 13 templates, so a later edit to one template fails until the others match.
+
+## Instruction budget
+
+The rule ships in the always-loaded Writing Discipline block, so it is paid for in every session. It was condensed from 45 to 24 words, keeping the keyword form, an example, the three banned forms, and the full scope. The five lockstep template ceilings in `docs/policy/doc-budgets.json` rise by those 24 words only. Trimming other sections to make room was rejected because it would change rules outside this decision's scope.
