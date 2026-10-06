@@ -74,10 +74,6 @@ html[data-theme="light"] .nhg-theme .icon-sun{display:none;}
 .page.active{display:block;}
 html[data-boot] #page-home.active{display:none;}
 html[data-boot="foundations"] #page-foundations,html[data-boot="cheatsheets"] #page-cheatsheets{display:block;}
-@keyframes pageIn{from{opacity:0;transform:translateY(8px);}
-to{opacity:1;transform:none;}
-}
-.js .page.active{animation:pageIn .32s var(--ease);}
 /* ---------- Type ---------- */
 h1{margin:0 0 var(--sp-4);text-wrap:balance;}
 h2{margin:0 0 var(--sp-3);}
@@ -386,10 +382,10 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .csf-cmd code{font-family:var(--mono);font-size:16px;font-weight:800;color:var(--teal-soft);}
 .csf-cmd span{color:var(--ink-dim);font-size:12.5px;}
 .csf-scopes{display:grid;gap:4px;margin:10px 0;}
-.csf-scope{display:flex;gap:12px;align-items:baseline;padding:5px 8px;border-left:3px solid transparent;border-radius:6px;font-size:12.5px;color:var(--ink-dim);}
+.csf-scope{display:flex;gap:12px;align-items:baseline;padding:5px 8px;border:1px solid transparent;border-radius:6px;font-size:12.5px;color:var(--ink-dim);}
 .csf-scope code{flex:none;min-width:72px;font-family:var(--mono);color:var(--ink);}
 .csf-s2{animation:csf-scope 8s var(--ease) infinite;}
-@keyframes csf-scope{0%,51%{background:transparent;border-left-color:transparent;}54%,96%{background:color-mix(in srgb,var(--accent) 14%,transparent);border-left-color:var(--accent);}100%{background:transparent;}}
+@keyframes csf-scope{0%,51%{background:transparent;border-color:transparent;}54%,96%{background:color-mix(in srgb,var(--accent) 14%,transparent);border-color:color-mix(in srgb,var(--accent) 45%,var(--border));}100%{background:transparent;}}
 .csf-line{position:relative;display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px dashed var(--border);border-radius:8px;font-family:var(--mono);font-size:13px;color:var(--ink);animation:csf-line 8s var(--ease) infinite;}
 .csf-line b{color:var(--teal-soft);}
 .csf-prompt{color:var(--ink-dim);}
@@ -420,7 +416,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
   .fxo-g[data-k="reply"]{width:12%;}
   .fxo-pipe i{opacity:0;}
   .csf-cursor,.csf-copied{display:none;}
-  .csf-s2{background:color-mix(in srgb,var(--accent) 14%,transparent);border-left-color:var(--accent);}
+  .csf-s2{background:color-mix(in srgb,var(--accent) 14%,transparent);border-color:color-mix(in srgb,var(--accent) 45%,var(--border));}
 }
 /* /shared:opening-css */
 /* shared:outline-css */
@@ -486,7 +482,6 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 /* ---------- Reduced motion, shared base (v4.13.10) ---------- The page-independent half of the guide's reduced-motion block: no smooth scrolling, no page animation, and sequence steps shown at once rather than waiting for an observer. Page-specific motion rules stay with their page. */
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}
 #constellation{transition:none;}
-.js .page.active{animation:none;}
 .js .seq-fade,.js .seq-rise,.js .seq-draw,.js .seq-glow,.js .ann,.js .ann-legend-row{transition-duration:0s;}
 /* v4.4.4: a step must never be HIDDEN under reduced motion. Zeroing the transition made the reveal instant but still waited for the observer to play the sequence, so a reader who had asked for less motion saw an empty strip until they scrolled it into view. */
 .js .seq-rise{opacity:1;transform:none;}
@@ -499,8 +494,8 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .tr-stage{padding:var(--sp-6) 0 var(--sp-5);scroll-margin-top:84px;}
 @media (max-width:720px){.tr-stage{scroll-margin-top:110px;}}
 .tr-stage + .tr-stage{border-top:1px solid color-mix(in srgb,var(--border) 70%,transparent);}
-.tr-stage .pg-open{padding-top:0;}
-.tr-stage .pg-open-title{margin-top:var(--sp-3);}
+#intro.tr-stage{padding-top:0;}
+
 .tr-head{margin:0 0 var(--sp-4);}
 /* The navigation host is a child of main, so the sticky bar spans the whole page; it keeps the container's width. */
 #trOutline > .pg-outline--bar{width:min(calc(100% - 48px),calc(var(--maxw) - 48px));margin:var(--sp-2) auto var(--sp-4);}

@@ -76,10 +76,6 @@ html[data-theme="light"] .nhg-theme .icon-sun{display:none;}
 .page.active{display:block;}
 html[data-boot] #page-home.active{display:none;}
 html[data-boot="foundations"] #page-foundations,html[data-boot="cheatsheets"] #page-cheatsheets{display:block;}
-@keyframes pageIn{from{opacity:0;transform:translateY(8px);}
-to{opacity:1;transform:none;}
-}
-.js .page.active{animation:pageIn .32s var(--ease);}
 /* ---------- Type ---------- */
 h1{margin:0 0 var(--sp-4);text-wrap:balance;}
 h2{margin:0 0 var(--sp-3);}
@@ -151,9 +147,9 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .card p{margin:0;color:var(--ink-dim);}
 .ico{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;margin-bottom:12px;color:var(--teal);background:color-mix(in srgb,var(--teal) 12%,transparent);border:1px solid color-mix(in srgb,var(--teal) 35%,transparent);}
 .ico svg{width:20px;height:20px;}
-.card--rail{border-left:3px solid var(--teal);}
-.card--rail-cyan{border-left-color:var(--cyan);}
-.card--rail-blue{border-left-color:var(--blue);}
+.card--rail{border-color:color-mix(in srgb,var(--teal) 45%,var(--border));}
+.card--rail-cyan{border-color:color-mix(in srgb,var(--cyan) 45%,var(--border));}
+.card--rail-blue{border-color:color-mix(in srgb,var(--blue) 45%,var(--border));}
 .callout--star .ci{color:var(--amber);font-size:18px;line-height:1.2;}
 /* ---------- Guardrails and safety ---------- */
 #nhg-guardrails > .eyebrow::before,#nhg-commands > .eyebrow::before{width:.82em;margin-inline-end:.3em;}
@@ -242,7 +238,7 @@ to{transform:scaleX(1);}
 .ph-chat{display:flex;flex-direction:column;gap:var(--sp-3);padding:var(--sp-3);flex:1;font-size:16px;line-height:1.6;}
 .ph-msg p{margin:0;color:var(--ink);}
 .ph-msg p+p{margin-top:var(--sp-2);}
-.ph-msg--user{padding:var(--sp-2) var(--sp-3);background:var(--surface);border-left:2px solid var(--border-bright);}
+.ph-msg--user{padding:var(--sp-2) var(--sp-3);background:var(--surface);border:1px solid var(--border-bright);}
 .ph-voice{display:block;margin-bottom:4px;}
 .ph-chat code{display:inline-block;max-width:100%;overflow-wrap:anywhere;}
 .ph-plan{width:100%;border-collapse:collapse;font-size:15px;line-height:1.4;margin-top:12px;}.ph-plan caption{text-align:left;margin-bottom:8px;color:var(--ink);}.ph-plan th,.ph-plan td{padding:8px 6px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top;}.ph-plan th{color:var(--ink-dim);}.ph-tasks{display:grid;gap:8px;margin-top:12px;}.ph-tasks label{display:flex;align-items:baseline;gap:8px;}.ph-tasks input{appearance:none;flex-shrink:0;width:15px;height:15px;margin:0;border:1px solid var(--ink-dim);border-radius:2px;background:var(--bg-0);}.ph-tasks input:checked{background:var(--accent);border-color:var(--accent);}.ph-tasks input:checked::after{content:"✓";display:block;text-align:center;color:var(--bg-0);font:700 15px/13px var(--sans);}.ph-tasks+p{margin-top:12px;}.ph-plan th[scope=row]{white-space:nowrap;}
@@ -278,7 +274,7 @@ to{transform:scaleX(1);}
 .tbl-migrate td{padding:20px 14px;border-bottom:1px solid var(--border);vertical-align:top;}
 .tbl-migrate td:first-child code,.tbl-migrate td:nth-child(2) code{white-space:nowrap;}
 .tbl-migrate .muted{display:block;margin-top:3px;}
-.trn-missing{margin:var(--sp-4) 0 0;padding:var(--sp-3) var(--sp-4);border:1px solid rgba(245,158,11,.55);border-left:5px solid #f59e0b;border-radius:12px;background:color-mix(in srgb,#f59e0b 10%,var(--surface));color:var(--ink);}
+.trn-missing{margin:var(--sp-4) 0 0;padding:var(--sp-3) var(--sp-4);border:1px solid rgba(245,158,11,.55);border-radius:12px;background:color-mix(in srgb,#f59e0b 10%,var(--surface));color:var(--ink);}
 .trn-missing[hidden]{display:none;}
 /* shared:footer-css */
 /* ---------- Site footer (attribution lives here; decision 2026-09-02) ---------- */
@@ -534,10 +530,10 @@ to{transform:scaleX(1);}
 .csf-cmd code{font-family:var(--mono);font-size:16px;font-weight:800;color:var(--teal-soft);}
 .csf-cmd span{color:var(--ink-dim);font-size:12.5px;}
 .csf-scopes{display:grid;gap:4px;margin:10px 0;}
-.csf-scope{display:flex;gap:12px;align-items:baseline;padding:5px 8px;border-left:3px solid transparent;border-radius:6px;font-size:12.5px;color:var(--ink-dim);}
+.csf-scope{display:flex;gap:12px;align-items:baseline;padding:5px 8px;border:1px solid transparent;border-radius:6px;font-size:12.5px;color:var(--ink-dim);}
 .csf-scope code{flex:none;min-width:72px;font-family:var(--mono);color:var(--ink);}
 .csf-s2{animation:csf-scope 8s var(--ease) infinite;}
-@keyframes csf-scope{0%,51%{background:transparent;border-left-color:transparent;}54%,96%{background:color-mix(in srgb,var(--accent) 14%,transparent);border-left-color:var(--accent);}100%{background:transparent;}}
+@keyframes csf-scope{0%,51%{background:transparent;border-color:transparent;}54%,96%{background:color-mix(in srgb,var(--accent) 14%,transparent);border-color:color-mix(in srgb,var(--accent) 45%,var(--border));}100%{background:transparent;}}
 .csf-line{position:relative;display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px dashed var(--border);border-radius:8px;font-family:var(--mono);font-size:13px;color:var(--ink);animation:csf-line 8s var(--ease) infinite;}
 .csf-line b{color:var(--teal-soft);}
 .csf-prompt{color:var(--ink-dim);}
@@ -568,7 +564,7 @@ to{transform:scaleX(1);}
   .fxo-g[data-k="reply"]{width:12%;}
   .fxo-pipe i{opacity:0;}
   .csf-cursor,.csf-copied{display:none;}
-  .csf-s2{background:color-mix(in srgb,var(--accent) 14%,transparent);border-left-color:var(--accent);}
+  .csf-s2{background:color-mix(in srgb,var(--accent) 14%,transparent);border-color:color-mix(in srgb,var(--accent) 45%,var(--border));}
 }
 /* /shared:opening-css */
 /* shared:outline-css */
@@ -634,7 +630,7 @@ to{transform:scaleX(1);}
 .tbl-migrate td::before{content:attr(data-th);display:block;font:700 15px var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:4px;}
 }
 /* ---------- Foundations page head and scene balance (v4.4.2 Phase 3) ---------- The page title reuses the hero-subtitle style so Home and Foundations share one heading system; the scene subtitle becomes the shared eyebrow and moves ABOVE its h2. */
-.page-title{margin:0 auto;}
+
 /* A scene whose diagram and copy cannot balance stacks: copy above, diagram full width. */
 /* Compound selectors on purpose: .fx-scene (defined later, same specificity) would otherwise win on source order, and .fx-copy p (two components) beats a lone .fx-subtitle. */
 .fx-scene.fx-stack{grid-template-columns:minmax(0,1fr);align-items:start;}
@@ -815,7 +811,7 @@ html[data-theme="light"] .btn--primary{color:#fffdf8;}
 html[data-theme="light"] .btn--primary:hover{color:#fffdf8;}
 /* ---------- Cards / panels ---------- */
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;}
-.callout{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius-sm);padding:10px 14px;margin:var(--sp-3) 0;}
+.callout{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid color-mix(in srgb,var(--accent) 45%,var(--border));border-radius:var(--radius-sm);padding:10px 14px;margin:var(--sp-3) 0;}
 .callout p{margin:0;}
 /* ---------- Home loop strip ---------- */
 /* v4.4.3: the loop used to wrap as inline chips that occupied about two thirds of the column and left the rest empty. Each step now takes an equal share of the full width (flex-basis 0, so the share is the same whatever the label length) and the type grows with the box rather than the box growing around unchanged type. The heads are real triangles, not a font's arrow glyph, so they read at a glance and rotate for the stacked layout. */
@@ -836,7 +832,7 @@ html[data-theme="light"] .btn--primary:hover{color:#fffdf8;}
 }
 .btn--gh svg{width:16px;height:16px;flex:none;}
 /* ---------- Install verify steps ---------- One body type size throughout; spacing, not size, makes the hierarchy. Two clearly separated actions instead of one dense wrapped sentence. */
-.verify-steps{list-style:none;margin:var(--sp-4) 0 0;padding:var(--sp-4) var(--sp-5);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:var(--radius-sm);background:var(--surface);}
+.verify-steps{list-style:none;margin:var(--sp-4) 0 0;padding:var(--sp-4) var(--sp-5);border:1px solid color-mix(in srgb,var(--green) 45%,var(--border));border-radius:var(--radius-sm);background:var(--surface);}
 .verify-steps--secondary{border:0;border-top:1px solid var(--border);border-radius:0;background:transparent;padding:var(--sp-4) 0 0;}
 .verify-steps--secondary .vs-n{background:var(--surface-2);color:var(--ink-dim);border:1px solid var(--border-bright);}
 .term--install{margin:var(--sp-4) 0 var(--sp-5);border:2px solid var(--accent);box-shadow:0 18px 48px rgba(0,0,0,.28),0 0 0 1px color-mix(in srgb,var(--accent) 22%,transparent);}
@@ -1181,7 +1177,6 @@ body{font-size:15.5px;}
 /* ---------- Reduced motion, shared base (v4.13.10) ---------- The page-independent half of the guide's reduced-motion block: no smooth scrolling, no page animation, and sequence steps shown at once rather than waiting for an observer. Page-specific motion rules stay with their page. */
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}
 #constellation{transition:none;}
-.js .page.active{animation:none;}
 .js .seq-fade,.js .seq-rise,.js .seq-draw,.js .seq-glow,.js .ann,.js .ann-legend-row{transition-duration:0s;}
 /* v4.4.4: a step must never be HIDDEN under reduced motion. Zeroing the transition made the reveal instant but still waited for the observer to play the sequence, so a reader who had asked for less motion saw an empty strip until they scrolled it into view. */
 .js .seq-rise{opacity:1;transform:none;}
@@ -1205,7 +1200,7 @@ body{font-size:15.5px;}
 .ml-sample{display:flex;gap:8px;align-items:center;margin-block:8px;color:var(--ink-dim);}.ml-sample svg{width:26px;height:32px;flex-shrink:0;color:var(--accent);}.ml-sample b{display:block;color:var(--teal-soft);}
 .ml-brain{text-align:center;}.ml-brain svg{display:block;width:100%;height:120px;}.ml-brain b{color:var(--ink);}
 .ml-arrow{display:block;width:12px;height:14px;background:var(--accent);clip-path:polygon(0 0,100% 50%,0 100%);justify-self:center;}
-.ml-rl{padding:8px;border-left:2px solid var(--accent);}.ml-reward{position:relative;padding-right:20px;display:grid;gap:7px;margin-block:10px;font-size:15px;color:var(--ink);}.ml-reward>span{padding:5px 7px;border:1px solid var(--border);border-radius:4px;}.ml-reward>svg{position:absolute;right:0;top:0;width:18px;height:100%;color:var(--accent);}.ml-reward b{float:right;color:var(--teal-soft);}
+.ml-rl{padding:8px;border:1px solid color-mix(in srgb,var(--accent) 45%,var(--border));border-radius:8px;}.ml-reward{position:relative;padding-right:20px;display:grid;gap:7px;margin-block:10px;font-size:15px;color:var(--ink);}.ml-reward>span{padding:5px 7px;border:1px solid var(--border);border-radius:4px;}.ml-reward>svg{position:absolute;right:0;top:0;width:18px;height:100%;color:var(--accent);}.ml-reward b{float:right;color:var(--teal-soft);}
 .ml-lab{border:1px solid var(--border-bright);border-radius:8px;padding:16px;background:var(--surface);}
 .ml-heading{display:flex;gap:16px;align-items:baseline;margin-bottom:10px;flex-wrap:wrap;}
 .ml-mode{flex:1 1 auto;margin:0;padding-left:16px;border-left:1px solid var(--border);}
@@ -1806,7 +1801,7 @@ main .eyebrow,main .tr-kicker{display:none;}
        ===================================================================== --><section class="page" id="page-foundations" data-page="foundations">
     <div class="container">
       <div class="hero pg-open">
-        <h1 data-ty="h1" class="hero-subtitle page-title pg-open-title">Generative AI Foundations</h1>
+        <h1 data-ty="h1" class="pg-open-title">Generative AI Foundations</h1>
         <p data-ty="callout" class="pg-open-lead">A general reference on how generative AI works: the terminology, the models, and the ideas behind every AI-assisted project.</p>
         <figure class="pg-fig fxo" aria-label="One request, through every idea on this page: text is cut into tokens, framed as a prompt, packed into the context window with files and history, and read by a model; an agentic platform runs that model with tools in a loop, and a harness wraps the platform with skills, commands, hooks, and rules. Each part links to its scene.">
           <div class="fxo-layer fxo-layer--harness">

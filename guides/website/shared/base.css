@@ -45,10 +45,6 @@ html[data-theme="light"] .nhg-theme .icon-sun{display:none;}
 .page.active{display:block;}
 html[data-boot] #page-home.active{display:none;}
 html[data-boot="foundations"] #page-foundations,html[data-boot="cheatsheets"] #page-cheatsheets{display:block;}
-@keyframes pageIn{from{opacity:0;transform:translateY(8px);}
-to{opacity:1;transform:none;}
-}
-.js .page.active{animation:pageIn .32s var(--ease);}
 /* ---------- Type ---------- */
 h1{margin:0 0 var(--sp-4);text-wrap:balance;}
 h2{margin:0 0 var(--sp-3);}

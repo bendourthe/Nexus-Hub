@@ -879,3 +879,71 @@ def test_the_composer_legend_shows_its_end_state_under_reduced_motion(playwright
         finally:
             browser.close()
     assert len(data) == 6 and all(shown == 1 and seg > 0 for _k, shown, seg in data), data
+
+
+# --- Review 10 (v4.13.10) ---------------------------------------------------------------------
+# A thick coloured left edge on a box is a template marker the maintainer rejected. A box may have
+# an even border; its left edge is never heavier than its other edges. The IDE mockups copy the
+# real editor's activity bar, and zero-size CSS triangles use borders as shapes, so both are exempt.
+STRIPE_JS = """() => [...document.querySelectorAll('body *')].filter(e => {
+    if (!e.getClientRects().length || e.closest('.ide, .ide-wrap, .tro-ide')) return false;
+    const c = getComputedStyle(e), r = e.getBoundingClientRect();
+    /* A zero-size box drawn with borders is a CSS triangle (an arrow), not a stripe. */
+    if (r.width < 4 || r.height < 4 || e.clientWidth === 0 || e.clientHeight === 0) return false;
+    const left = parseFloat(c.borderLeftWidth), top = parseFloat(c.borderTopWidth);
+    return c.borderLeftStyle !== 'none' && left >= 2 && left > top && c.borderLeftColor !== 'rgba(0, 0, 0, 0)';
+  }).map(e => e.tagName + '.' + e.className)"""
+
+
+@pytest.mark.parametrize("url", ["#home", "#foundations", "#cheatsheets", "training"])
+def test_no_box_carries_a_left_edge_stripe(playwright_mod, url: str) -> None:
+    target = TRAINING.as_uri() if url == "training" else GUIDE.as_uri() + url
+    with playwright_mod() as pw:
+        browser = pw.chromium.launch()
+        try:
+            page = browser.new_page(viewport={"width": 1440, "height": 900}, reduced_motion="reduce")
+            page.goto(target)
+            page.wait_for_timeout(400)
+            found = page.evaluate(STRIPE_JS)
+        finally:
+            browser.close()
+    assert not found, found
+
+
+@pytest.mark.parametrize("url", ["#foundations", "#cheatsheets", "training"])
+def test_page_titles_share_one_top_offset(playwright_mod, url: str) -> None:
+    """Review 10: the Foundations title sat higher than the other pages' titles."""
+    target = TRAINING.as_uri() if url == "training" else GUIDE.as_uri() + url
+    with playwright_mod() as pw:
+        browser = pw.chromium.launch()
+        try:
+            page = browser.new_page(viewport={"width": 1440, "height": 900})
+            page.goto(GUIDE.as_uri() + "#cheatsheets")
+            page.wait_for_timeout(300)
+            ref = page.evaluate("Math.round(document.querySelector('#page-cheatsheets h1').getBoundingClientRect().top)")
+            page.goto(target)
+            page.wait_for_timeout(300)
+            top = page.evaluate("Math.round([...document.querySelectorAll('h1.pg-open-title')].find(e => e.getClientRects().length).getBoundingClientRect().top)")
+        finally:
+            browser.close()
+    assert top == ref, (url, top, ref)
+
+
+@pytest.mark.parametrize("target", ["foundations", "cheatsheets"])
+def test_the_outline_holds_still_after_a_page_switch(playwright_mod, target: str) -> None:
+    """Review 10: the outline first appeared lower, then shifted up, because the page slid in."""
+    with playwright_mod() as pw:
+        browser = pw.chromium.launch()
+        try:
+            page = browser.new_page(viewport={"width": 1600, "height": 900})
+            page.goto(GUIDE.as_uri() + "#home")
+            page.wait_for_timeout(400)
+            page.click(f'.nav-links a[data-go="{target}"]')
+            tops = []
+            for _ in range(15):
+                tops.append(page.evaluate(f"Math.round(document.querySelector('#page-{target} .pg-outline').getBoundingClientRect().top)"))
+                page.wait_for_timeout(30)
+        finally:
+            browser.close()
+    shown = [t for t in tops if t]  # 0 is the instant before the new page becomes visible
+    assert shown and len(set(shown)) == 1, tops

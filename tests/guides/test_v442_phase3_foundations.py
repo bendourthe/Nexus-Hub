@@ -66,7 +66,7 @@ def test_page_opens_with_a_centred_title_in_the_hero_subtitle_style(playwright_m
             data = page.evaluate(
                 """() => {
                     const hero = document.querySelector('#page-foundations .hero');
-                    const title = hero.querySelector('h1.page-title');
+                    const title = hero.querySelector('h1.pg-open-title');
                     const lead = hero.querySelector('.pg-open-lead');
                     const home = document.querySelector('#page-home .hero-subtitle');
                     const c = el => { const r = el.getBoundingClientRect(); return r.left + r.width / 2; };
