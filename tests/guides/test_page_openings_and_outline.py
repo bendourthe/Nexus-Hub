@@ -947,3 +947,24 @@ def test_the_outline_holds_still_after_a_page_switch(playwright_mod, target: str
             browser.close()
     shown = [t for t in tops if t]  # 0 is the instant before the new page becomes visible
     assert shown and len(set(shown)) == 1, tops
+
+
+@pytest.mark.parametrize("url", ["#foundations", "#cheatsheets", "training"])
+def test_the_outline_label_is_level_with_the_page_title(playwright_mod, url: str) -> None:
+    """Review 11: the outline sat higher than the page title."""
+    target = TRAINING.as_uri() if url == "training" else GUIDE.as_uri() + url
+    with playwright_mod() as pw:
+        browser = pw.chromium.launch()
+        try:
+            page = browser.new_page(viewport={"width": 1690, "height": 900})
+            page.goto(target)
+            page.wait_for_timeout(400)
+            data = page.evaluate(
+                """() => { const h = [...document.querySelectorAll('h1.pg-open-title')].find(e => e.getClientRects().length);
+                    const nav = [...document.querySelectorAll('.pg-outline--rail')].find(e => e.getClientRects().length);
+                    return { title: Math.round(h.getBoundingClientRect().top),
+                             label: Math.round(nav.querySelector('.pg-outline-label').getBoundingClientRect().top) }; }"""
+            )
+        finally:
+            browser.close()
+    assert abs(data["label"] - data["title"]) <= 1, data

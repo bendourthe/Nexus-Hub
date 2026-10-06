@@ -81,7 +81,14 @@
         var width = Math.min(232, free - 48);
         inst.nav.style.left = Math.round((free - width) / 2) + "px";
         inst.nav.style.width = width + "px";
-        inst.nav.style.top = headerBottom() + 28 + "px";
+        /* Level with the page title at rest (v4.13.10 review 11), never above the header gap. */
+        var scope = inst.column.closest(".page") || document;
+        var title = scope.querySelector("h1.pg-open-title") || inst.column.querySelector("h1");
+        var label = inst.nav.querySelector(".pg-outline-label");
+        /* The label's offset inside the rail; the slim rail hides it, so a hidden label counts as 0. */
+        var inset = label && label.offsetParent === inst.nav ? label.offsetTop : 0;
+        var at = title ? Math.round(title.getBoundingClientRect().top + window.scrollY - inset) : 0;
+        inst.nav.style.top = Math.max(headerBottom() + 28, at) + "px";
         inst.menu.hidden = false;
         inst.toggle.setAttribute("aria-expanded", "true");
       } else {
