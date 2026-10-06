@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Commands handed to the user now work as pasted, in the user's own terminal.** Three failures from one Windows session drove three new rules in the communication contract (`catalog/style-guides/agent-communication.md` sections 3.2 to 3.4, the `agent-communication` skill, and the Communication Contract in all 13 instruction templates). 3.2: every action the user must take is written out in full where it is asked for, and again in each later message that still asks; never "from my earlier message". 3.3: a command for the user's machine parses in their shell, which on Windows is PowerShell 5.1 unless they named another, so never `&&` or `||` and no Bash-only syntax; remote Linux commands stay POSIX and name the host. 3.4: each step opens with its machine and terminal, a command that prompts for a password or y/n ends its paste, file contents are inlined rather than fetched by the user, and a method the project's notes record as failing is never re-proposed. To stay within the word ceilings, the contract bullets were condensed, and three duplicated rules in the five budgeted templates (commit-message ASCII, the ambiguity bullet's restatement, the `description` rationale) were shortened; no ceiling was raised.
+
 ## [4.13.9] - 2026-10-04
 
 ### Added

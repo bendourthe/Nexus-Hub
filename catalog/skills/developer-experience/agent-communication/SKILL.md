@@ -74,6 +74,18 @@ A command block answers one of the three questions a reader has. They also need 
 
 The expected-output block is the most-skipped and most useful part. Where a command legitimately prints nothing, say so with a marker rather than omitting the block: "nothing happened" and "it did not run" look identical to someone who was not told which to expect. Annotate a value the reader must compare (`1712   <- was 3386`). State what is lost on the line immediately before a destructive block, never in a paragraph after it.
 
+### 3.2 Write the action out where you ask for it
+
+Every action the user must take (a command, a file to send, a value to find, a choice) is written out in full in the message that asks for it, and again in every later message that still asks for it. Never refer back: no "run the command from my earlier message", no "as above". On a long turn the earlier text is buried under tool calls, and a reference the reader cannot resolve is an instruction they cannot follow.
+
+### 3.3 Match the user's shell
+
+A command for the user's own machine parses in the shell they will paste it into, never in your tool's dialect. On Windows that is Windows PowerShell 5.1 unless the user named another shell. Never chain with `&&` or `||` (PowerShell 7+ only; 5.1 rejects the whole line before running any of it). Use one command per line, separate numbered steps, or `A; if ($?) { B }`. No heredocs, `VAR=x cmd`, `export`, Bash `$(...)`, backslash continuation, or `/tmp` paths; use `$env:NAME`. A command for a remote Linux host stays POSIX and names that host. When the shell is uncertain, one command per line with no chaining runs everywhere. Before sending, scan each user-facing block for `&&`, `||`, `<<`, a leading `VAR=`, and `export`. The full rule and example are in the style guide's section 3.3.
+
+### 3.4 Commands that cross machines or ask for input
+
+Before proposing how to run or move something on another machine, read the project's environment notes (memory, lessons, runbooks) and use the method recorded as working; never re-propose one recorded as failing. A command that prompts for input (password, passphrase, y/n, `sudo`) is its own numbered step with nothing after it in the paste, and the step says what the prompt looks like, because the terminal feeds the next pasted line in as the answer. Open each step with its machine and terminal ("In your SSH session on <host>:"), and never mix two machines in one block. Never ask the user to find a file and paste its contents into a placeholder: inline the content, on a remote shell as a quoted heredoc (`<<'EOF'`) followed by the command that runs it. Prefer the path with the fewest user actions that is known to work; offer a one-time setup (such as an SSH key) once, with its security trade-off, and never set it up unasked. Full rule and example: style guide section 3.4.
+
 ### 4. Issue guided steps correctly
 
 1. State prerequisites before step 1.
@@ -157,6 +169,10 @@ This applies wherever open items appear, not only in the closing report. A turn 
 | "Listing what I did not do tells them what is open." | It tells them a decision exists and nothing else. The reader still has to work out what each item means, what the choices are, and which one you would pick - using less context than you have. A decision block answers all three in four lines. |
 | "They have been following along, so they know the background." | They have been reading conclusions while you read the evidence. Any Open item must read cold, because the person deciding may be doing it hours later, or may be someone else entirely. |
 | "Recommending a choice is overstepping; I should stay neutral." | Neutrality here is abdication. You hold the evidence, so withholding a recommendation pushes judgment onto the person with less of it. Recommend, give the reason, and make the alternative genuinely available. |
+| "I already gave that command earlier in the turn." | The reader sees your closing message, not the middle of the turn, and between the two sit dozens of tool calls and status lines. "Run the command from my earlier message" sends them hunting through scrollback for text they may never find; paste the command again, complete, where you ask for it. |
+| "I labelled it Git Bash, so `&&` is fine." | Users paste into whatever terminal is open, and on Windows that is usually PowerShell 5.1, which rejects `&&` and runs none of the line. The label does not change the shell; write the command for the shell they will actually use. |
+| "`scp` is the standard way to copy a file." | Standard is not the same as working here. If the project's notes record that password `scp` to this host fails, proposing it again costs the user a failed attempt you could have predicted. Read the notes, then use the method they record as working. |
+| "Both commands fit in one block." | They fit on the screen, not in the terminal. When the first line prompts for a password, the terminal feeds the second pasted line in as the answer, so the login fails whatever the user types. A prompting command ends its paste. |
 | "The style guide covers this, so I do not need to." | The guide is a file on disk. It changes nothing unless the response you are composing right now follows it. Run the Verification checklist against the actual text before sending. |
 
 ## Verification
@@ -168,6 +184,10 @@ This applies wherever open items appear, not only in the closing report. A turn 
 - [ ] A destructive command states what is lost immediately before the block.
 - [ ] No unflagged angle brackets, square brackets, or ALL-CAPS template tokens sit inside a command block.
 - [ ] A response answering a reported error re-issues every remaining step, renumbered, with no back-reference.
+- [ ] Every action the user must take is written out in full where it is asked for (and again in each later message that still asks for it); nothing says "from my earlier message" or "as above".
+- [ ] Every command for the user's own machine parses in their shell (Windows: PowerShell 5.1 unless they named another); no user-facing block contains `&&`, `||`, `<<`, a leading `VAR=`, or `export`.
+- [ ] Every step opens with its machine and terminal, no block mixes two machines, and no prompting command has anything after it in the same paste.
+- [ ] No step asks the user to find a file and paste its contents, and any method for another machine is the one the project's notes record as working.
 - [ ] A task-ending response carries all four labeled parts: Completed, Verified, Open, Next.
 - [ ] The Open part is present even when its content is "nothing outstanding".
 - [ ] Every Open item states what it is in plain language, why it is open, options with consequences, and a recommendation with its reason.

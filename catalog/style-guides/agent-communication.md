@@ -100,6 +100,85 @@ Annotate a value the reader must compare against something, as the arrow does ab
 
 When a command is destructive or irreversible, state what is lost in one line immediately before the block, not in a paragraph after it.
 
+### 3.2 Write the action out where you ask for it
+
+Every action the user must take (a command to run, a file to send back, a value to look up, a choice to make) is written out in full in the message that asks for it: the command block with its where and expected output (3.1), or the exact file, value or decision. When a later message still needs the same action, it carries the action again in full.
+
+Never point back to earlier text for something the user must act on: not "run the command from my earlier message", not "as above", not "see the steps I sent before". On a long turn the earlier text sits behind dozens of tool calls and status lines, and the reader cannot find it; a reference they cannot resolve is an instruction they cannot follow. Section 4's re-issue rule after an error is one case of this rule.
+
+**Do not write this:**
+
+> Next: run the timing script from my earlier message and paste the output.
+
+**Write this:**
+
+> Next: run this on the staging host (SSH session), then paste the JSON line it prints.
+>
+> ```bash
+> docker exec api sh -c 'python3 /tmp/timing.py'
+> ```
+>
+> You should see: `{"query_s": 4.812, "rows": 312}`
+
+### 3.3 Match the user's shell
+
+A command the user runs on their own machine must parse in the shell they will paste it into, not in the shell your own tool uses. On Windows, assume Windows PowerShell 5.1 unless the user has named another shell: it is the default `powershell.exe` on Windows 10 and 11, and users paste into whatever terminal is open, so a shell label does not protect a command. PowerShell 5.1 parses the whole line before running any of it, so one invalid token means no step runs.
+
+- Never chain with `&&` or `||`; they exist only in PowerShell 7 and later. Put one command per line, number dependent steps separately, or chain with `A; if ($?) { B }`.
+- No Bash-only syntax in a command for a Windows machine: no heredocs, no `VAR=x cmd` prefix, no `export`, no Bash `$(...)` substitution, no backslash line continuation, no `/tmp` paths. Use `$env:NAME` for environment variables.
+- A command for a remote Linux host (for example over SSH) stays POSIX and says plainly that it runs on that host.
+- When the user's shell is uncertain, write one command per line with no chaining operator: that runs in Bash, PowerShell 5.1, PowerShell 7 and cmd alike.
+
+Before sending, scan every command block meant for the user for `&&`, `||`, `<<`, a leading `VAR=`, and `export`.
+
+**Do not write this** (labelled "Git Bash", pasted into PowerShell 5.1, and rejected before either step ran):
+
+> ```bash
+> git -C "<repo>" worktree remove --force "<worktree>" && git -C "<repo>" branch -D <branch>
+> ```
+
+**Write this:**
+
+> **Where:** PowerShell, any directory.
+>
+> ```powershell
+> git -C "<repo>" worktree remove --force "<worktree>"; if ($?) { git -C "<repo>" branch -D <branch> }
+> ```
+
+### 3.4 Commands that cross machines or ask for input
+
+A pasted block runs line by line into whatever terminal has focus. It breaks when it reaches the wrong machine, when a prompt swallows the next line, or when it depends on the user finding a file.
+
+- **Check what already works there.** Before proposing how to run or move something on another machine, read the project's recorded environment notes (memory, lessons, runbooks) for that machine. Use the method recorded as working; never re-propose one recorded as failing.
+- **Stop the paste at every prompt.** A command that asks for input (password, passphrase, y/n, `sudo`) is its own numbered step, with nothing after it in the same paste, and the step says what the prompt will look like. Otherwise the terminal feeds the next pasted line in as the answer.
+- **Name the machine and terminal first.** Each step opens with where it runs: "In your Windows PowerShell terminal:" or "In your SSH session on <host>:". Never mix commands for two machines in one block.
+- **Inline file contents.** Never ask the user to locate a file and paste its contents into a placeholder; a placeholder gets pasted literally. Put the full content in the command. On a remote shell, use a quoted heredoc (`<<'EOF'`) that writes the file, then the command that runs it, as one paste with no prompt inside.
+- **Fewest user actions that are known to work.** If a one-time setup would remove repeated manual steps (for example an SSH key so the agent can run read-only commands itself), mention it once as an option with its security trade-off. Do not set it up unasked.
+
+**Do not write this** (the notes say password `scp` to this host fails, the second line becomes the password, and nothing says which terminal):
+
+> Copy the script over and run it:
+>
+> ```
+> scp C:\work\timing.py dev@devbox:/tmp/
+> ssh dev@devbox "python3 /tmp/timing.py"
+> ```
+
+**Write this:**
+
+> 1. In your SSH session on devbox, paste this whole block. It writes the script and runs it, and asks for nothing:
+>
+>     ```bash
+>     cat > /tmp/timing.py <<'EOF'
+>     import time
+>     start = time.time()
+>     print({"elapsed_s": round(time.time() - start, 3)})
+>     EOF
+>     python3 /tmp/timing.py
+>     ```
+>
+>     You should see: `{'elapsed_s': 0.0}`
+
 ## 4. Guided steps protocol
 
 - State prerequisites before step 1: what must already be installed, running, or open. A reader who discovers a prerequisite at step 6 has to start over.
@@ -277,6 +356,10 @@ Check a response against this list before sending it.
 - [ ] A long tool-calling turn opened with one line saying what was about to happen and carried brief progress notes at its boundaries.
 - [ ] Formatting matched the reader: lists where the content is multifaceted or where asked, plain prose where minimal formatting was requested or the exchange is conversational.
 - [ ] Punctuation is ASCII: no em-dashes, en-dashes, curly quotes, or ellipsis characters.
+- [ ] Every action the user must take is written out in full where it is asked for, and again in each later message that still asks for it; nothing says "from my earlier message" or "as above".
+- [ ] Every command for the user's own machine parses in their shell (Windows: PowerShell 5.1 unless they named another); no block meant for them contains `&&`, `||`, `<<`, a leading `VAR=`, or `export`.
+- [ ] Every step opens with its machine and terminal, no block mixes two machines, and no command that prompts for input has anything after it in the same paste.
+- [ ] No step asks the user to find a file and paste its contents; the content is inline, and the method for another machine is the one the project's notes record as working.
 
 ## Related guidance
 
