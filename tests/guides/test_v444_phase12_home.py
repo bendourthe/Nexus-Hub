@@ -69,7 +69,7 @@ def test_the_guardrails_segment_is_renamed_and_centred(playwright_mod) -> None:
                     const notes = [...sec.querySelectorAll('.gf-ring-note')];
                     const hooks = sec.querySelector('.gf-hooks');
                     return {
-                      label: sec.querySelector('.eyebrow').textContent.trim(),
+                      label: sec.querySelectorAll('.eyebrow').length,
                       title: sec.querySelector('.section-title').textContent.trim(),
                       tags: tags.map(t => t.textContent.trim()),
                       notes: notes.map(n => n.textContent.trim()),
@@ -82,8 +82,9 @@ def test_the_guardrails_segment_is_renamed_and_centred(playwright_mod) -> None:
             ctx.close()
         finally:
             browser.close()
-    assert data["label"] == "Guardrails & Safety", data["label"]
-    assert data["title"] == "Security guardrails", data["title"]
+    # v4.13.10 R21: no eyebrow label; the keyword heading names the segment.
+    assert data["label"] == 0, data["label"]
+    assert data["title"] == "Security Guardrails", data["title"]
     assert data["platforms"] == ["Claude", "ChatGPT", "Cursor", "Gemini"]
     assert data["allCentred"], "both ring headers and their subtexts must be centred"
     assert data["hooksAlignment"] == "center", "the guardrail descriptions must be centred"
@@ -104,7 +105,7 @@ def test_the_command_segment_is_renamed(playwright_mod) -> None:
                 """() => {
                     const sec = document.querySelector('#nhg-commands');
                     return {
-                      label: sec.querySelector('.eyebrow').textContent.trim(),
+                      label: sec.querySelectorAll('.eyebrow').length,
                       title: sec.querySelector('.section-title').textContent.trim(),
                       headers: [...sec.querySelectorAll('.tbl-migrate th')].map(t => t.textContent.trim()),
                       stacked: [...new Set([...sec.querySelectorAll('.tbl-migrate td[data-th]')]
@@ -115,8 +116,8 @@ def test_the_command_segment_is_renamed(playwright_mod) -> None:
             ctx.close()
         finally:
             browser.close()
-    assert data["label"] == "One Harness, Multiple Platforms", data["label"]
-    assert data["title"] == "Platform coverage", data["title"]
+    assert data["label"] == 0, data["label"]
+    assert data["title"] == "Platform Coverage", data["title"]
     assert data["headers"] == ["Generic Platforms", "Nexus Hub", "What it adds"], data["headers"]
     # the stacked-layout labels must follow the header rename, or a phone reads the old names
     assert data["stacked"] == ["Generic Platforms", "Nexus Hub", "What it adds"], data["stacked"]

@@ -85,10 +85,11 @@ def test_page_opens_with_a_centred_title_in_the_hero_subtitle_style(playwright_m
         finally:
             browser.close()
     assert data["kicker"] is False, "the page-level Foundations kicker is gone"
-    assert data["text"] == "The concepts behind every AI-assisted project"
+    assert data["text"] == "AI-Assisted Development Concepts"
     assert data["align"] == "center" and data["leadAlign"] == "center" and data["centred"]
-    assert data["sameSize"] and data["sameWeight"], "the page title shares the Home hero-subtitle style"
-    assert data["grad"]
+    # v4.13.10 R21: page titles share the heading system's H1 (checked across pages in
+    # test_v443_phase1_headings); the Home statement is a tagline, not a title, so it no longer matches.
+    assert not data["grad"], "no gradient words in titles"
 
 
 def test_scene_titles_come_before_their_leads(playwright_mod) -> None:
@@ -108,8 +109,6 @@ def test_scene_titles_come_before_their_leads(playwright_mod) -> None:
                       leadKind: lead.classList.contains('ml-definition') ? 'definition' : 'subtitle',
                       titleFirstOnScreen: h2.getBoundingClientRect().bottom <= lead.getBoundingClientRect().top + 1,
                       titleFirstInDom: (h2.compareDocumentPosition(lead) & Node.DOCUMENT_POSITION_FOLLOWING) ? true : false,
-                      labelStyle: ['color','fontWeight','letterSpacing','textTransform','lineHeight'].every(k => hs[k] === getComputedStyle(document.querySelector('#page-home .eyebrow'))[k]),
-                      subtitleStyle: ['color','fontWeight','letterSpacing','textTransform'].every(k => cs[k] === getComputedStyle(document.querySelector('#page-home .section-title'))[k]),
                       titleStyle: Object.fromEntries(['color','fontWeight','letterSpacing','textTransform','fontSize'].map(k => [k, hs[k]])),
                       subtitleStyleProps: Object.fromEntries(['color','fontWeight','letterSpacing','textTransform','fontSize'].map(k => [k, cs[k]])),
                       marker: getComputedStyle(h2,'::before').content !== 'none',
@@ -124,7 +123,7 @@ def test_scene_titles_come_before_their_leads(playwright_mod) -> None:
     for row in rows:
         assert row["title"] and row["lead"], row
         assert row["titleFirstOnScreen"] and row["titleFirstInDom"], row
-        assert row["marker"], row
+        assert not row["marker"], f"no dash prefix before scene titles: {row}"
         assert row["notALabel"], f"the lead must not render as an uppercase label: {row}"
         assert row["sameLeft"], row
 

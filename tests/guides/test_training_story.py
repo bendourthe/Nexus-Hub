@@ -318,7 +318,7 @@ def test_the_handoff_plays_from_the_usage_limit_to_the_second_provider(browser) 
         end = _state(page, "implement")
         assert end["provider"] == "OpenAI" and end["usageProvider"] == "OpenAI" and end["usage"] < 50
         log = page.locator('section[data-stage="implement"] .ide-log').inner_text()
-        assert "Resume the task in .nexus-hub/handoff.md" in log and "Phase 2 of 2 done" in log
+        assert "Resume the task in .nexus-hub/handoff.md" in log and "Phase 2 Results" in log
         assert page.locator('section[data-stage="implement"] .ide-file[data-path=".nexus-hub/handoff.md"]').count() == 1
         assert not errors, errors
     finally:

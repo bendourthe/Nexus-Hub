@@ -86,12 +86,11 @@
    "kind": "play",
    "game": "buggy",
    "head": {
-    "kicker": "Before the workflow",
-    "title": "Play the buggy game",
+    "title": "Buggy Game",
     "now": "Start the game and take a hit."
    },
    "notes": {
-    "title": "Known bug",
+    "title": "Known Bug",
     "items": [
      "Any hit destroys the ship at once, from a small asteroid chunk to an enemy shot. It should only cost health."
     ],
@@ -104,7 +103,7 @@
    "kind": "session",
    "step": "describe",
    "head": {
-    "title": "Map the code before touching it",
+    "title": "Project Mapping",
     "now": "The agent reads the project and writes docs/describe.md."
    },
    "why": "Reading and summarising a small codebase needs breadth, not deep reasoning.",
@@ -158,14 +157,14 @@
        "kind": "write",
        "label": "Write docs/describe.md",
        "file": "docs/describe.md",
-       "content": "# Nexus Defenders: description\n\n## What it is\nA small canvas shooter. One ship with a health bar and\nan optional shield, enemies that fire, asteroids, a score.\n\n## Map\n| File | Role |\n|---|---|\n| `src/game.js` | One frame: move, hazards, hits |\n| `src/damage.js` | The damage table and what a hit does |\n| `src/hazards.js` | Asteroids and timed hazards |\n| `src/render.js` | Draws a frame, never changes state |\n| `scripts/play.js` | Plays a seeded run headless |\n\n## How a hit travels\n1. `game.js` finds each hit on the ship and its source.\n2. It calls `applyHit(ship, source)` in `damage.js`.\n3. The returned ship replaces the old one.\n\n## Worth knowing first\n- No automated tests: `npm test` finds nothing to run.\n- `applyHit` has a TODO: it predates health.\n- `hazards.js` can end a run on its own (`explodeShip`).",
+       "content": "# Nexus Defenders: description\n\n## Overview\nA small canvas shooter. One ship with a health bar and\nan optional shield, enemies that fire, asteroids, a score.\n\n## Map\n| File | Role |\n|---|---|\n| `src/game.js` | One frame: move, hazards, hits |\n| `src/damage.js` | The damage table and what a hit does |\n| `src/hazards.js` | Asteroids and timed hazards |\n| `src/render.js` | Draws a frame, never changes state |\n| `scripts/play.js` | Plays a seeded run headless |\n\n## Hit Flow\n1. `game.js` finds each hit on the ship and its source.\n2. It calls `applyHit(ship, source)` in `damage.js`.\n3. The returned ship replaces the old one.\n\n## Notes\n- No automated tests: `npm test` finds nothing to run.\n- `applyHit` has a TODO: it predates health.\n- `hazards.js` can end a run on its own (`explodeShip`).",
        "mark": "Generated: the codebase description"
       }
      ]
     },
     {
      "do": "reply",
-     "text": "## Nexus Defenders, mapped\n\nA small canvas shooter: one ship with a **health bar** and an optional shield, enemies that fire, and asteroids.\n\n### Map\n| File | Role |\n|---|---|\n| `src/game.js` | One frame: move, hazards, hits |\n| `src/damage.js` | The damage table and what a hit does |\n| `src/hazards.js` | Asteroids and timed hazards |\n| `src/render.js` | Draws a frame |\n\n### Worth knowing first\n- **No automated tests.** `npm test` has nothing to run.\n- `applyHit` carries a TODO: it was written before health existed.\n- `hazards.js` can end a run on its own through `explodeShip`.\n\nSaved to `docs/describe.md`.",
+     "text": "## Project Map\n\nA small canvas shooter: one ship with a **health bar** and an optional shield, enemies that fire, and asteroids.\n\n### Map\n| File | Role |\n|---|---|\n| `src/game.js` | One frame: move, hazards, hits |\n| `src/damage.js` | The damage table and what a hit does |\n| `src/hazards.js` | Asteroids and timed hazards |\n| `src/render.js` | Draws a frame |\n\n### Notes\n- **No automated tests.** `npm test` has nothing to run.\n- `applyHit` carries a TODO: it was written before health existed.\n- `hazards.js` can end a run on its own through `explodeShip`.\n\nSaved to `docs/describe.md`.",
      "mark": "The project map"
     }
    ]
@@ -175,7 +174,7 @@
    "kind": "session",
    "step": "review",
    "head": {
-    "title": "Find what is wrong, with evidence",
+    "title": "Code Review",
     "now": "The agent checks the code against its rules and proves each finding."
    },
    "why": "Judging behaviour against the rules and proving it is the step where a weaker model misses things.",
@@ -239,14 +238,14 @@
        "kind": "write",
        "label": "Write docs/review.md",
        "file": "docs/review.md",
-       "content": "# Review\n\n## P1: any hit destroys the ship\n**Where**: `src/damage.js`, `applyHit`\n**Rule broken**: a hit costs the damage its source deals (README).\n\n- `applyHit` returns `destroyed: true` for every hit.\n- `DAMAGE`, `ship.health`, and `ship.shield` are never read.\n\n### Reproduction\n`node scripts/play.js --seed 4242 --until first-hit`\nends at tick 512: a 6-damage chunk, with 100 health left.\n\n## P2: the ship explodes with no hit\n**Where**: `src/hazards.js`, `tickHazards`\n\n- A self-test from the debris prototype calls\n  `explodeShip(state, 'self-test')` at random after tick 1200.\n- With hits ignored, 37 of 50 seeded runs of 20,000 ticks\n  were destroyed with no hit, the first at tick 1386.\n\n## Not checked\n- Rendering and input: outside what a seeded run can see.",
+       "content": "# Review\n\n## P1: Fatal First Hit\n**Where**: `src/damage.js`, `applyHit`\n**Rule broken**: a hit costs the damage its source deals (README).\n\n- `applyHit` returns `destroyed: true` for every hit.\n- `DAMAGE`, `ship.health`, and `ship.shield` are never read.\n\n### Reproduction\n`node scripts/play.js --seed 4242 --until first-hit`\nends at tick 512: a 6-damage chunk, with 100 health left.\n\n## P2: Unprovoked Explosion\n**Where**: `src/hazards.js`, `tickHazards`\n\n- A self-test from the debris prototype calls\n  `explodeShip(state, 'self-test')` at random after tick 1200.\n- With hits ignored, 37 of 50 seeded runs of 20,000 ticks\n  were destroyed with no hit, the first at tick 1386.\n\n## Not checked\n- Rendering and input: outside what a seeded run can see.",
        "mark": "Generated: the review report"
       }
      ]
     },
     {
      "do": "reply",
-     "text": "## Review: 2 findings\n\n### P1: any hit destroys the ship\n**Where:** `src/damage.js`, `applyHit`\n\n- Every hit returns `destroyed: true`; the damage table, health, and shield are never read.\n- Seed 4242 ends at tick 512 on a **6-damage chunk with 100 health left**.\n\n### P2: the ship explodes with no hit\n**Where:** `src/hazards.js`, `tickHazards`\n\n- A leftover **self-test** calls `explodeShip(state, 'self-test')` at random after tick 1200.\n- With hits ignored, **37 of 50** long runs were destroyed with no hit.\n\nFull report: `docs/review.md`.",
+     "text": "## Review Findings\n\n### P1: Fatal First Hit\n**Where:** `src/damage.js`, `applyHit`\n\n- Every hit returns `destroyed: true`; the damage table, health, and shield are never read.\n- Seed 4242 ends at tick 512 on a **6-damage chunk with 100 health left**.\n\n### P2: Unprovoked Explosion\n**Where:** `src/hazards.js`, `tickHazards`\n\n- A leftover **self-test** calls `explodeShip(state, 'self-test')` at random after tick 1200.\n- With hits ignored, **37 of 50** long runs were destroyed with no hit.\n\nFull report: `docs/review.md`.",
      "mark": "Two findings, with evidence"
     }
    ]
@@ -256,7 +255,7 @@
    "kind": "session",
    "step": "plan",
    "head": {
-    "title": "Turn the findings into a plan",
+    "title": "Fix Plan",
     "now": "The agent writes a phased plan with a definition of done."
    },
    "why": "Sequencing two fixes with their checks needs care, but both problems are already understood.",
@@ -305,14 +304,14 @@
        "kind": "write",
        "label": "Write docs/plans/v1.1.0-damage-fix.md",
        "file": "docs/plans/v1.1.0-damage-fix.md",
-       "content": "# Plan: damage fix\n\n**Version**: v1.1.0\n**Goal**: a hit costs health; nothing else ends the run.\n**Sources**: docs/describe.md, docs/review.md (P1, P2)\n\n## Phase 1: health and shield (P1)\n- `applyHit` takes the damage from `DAMAGE`: the shield\n  absorbs first, then health; the run ends at zero.\n- A short invulnerability window follows a hit (60 ticks).\n- Check: seed 4242 survives its first hit.\n\n## Phase 2: remove the self-test (P2)\n- Delete the self-test block, its two constants, and the\n  `explodeShip` import from `hazards.js`.\n- Asteroid movement must not change.\n\n## Definition of done\n- [ ] Seed 4242 survives its first hit (100 to 94 health)\n- [ ] No run is destroyed without a hit (50 seeds x 20,000 ticks)\n- [ ] Tests pin both rules and fail on v1.0.0\n- [ ] v1.1.0 is tagged",
+       "content": "# Plan: damage fix\n\n**Version**: v1.1.0\n**Goal**: a hit costs health; nothing else ends the run.\n**Sources**: docs/describe.md, docs/review.md (P1, P2)\n\n## Phase 1: Health and Shield (P1)\n- `applyHit` takes the damage from `DAMAGE`: the shield\n  absorbs first, then health; the run ends at zero.\n- A short invulnerability window follows a hit (60 ticks).\n- Check: seed 4242 survives its first hit.\n\n## Phase 2: Self-Test Removal (P2)\n- Delete the self-test block, its two constants, and the\n  `explodeShip` import from `hazards.js`.\n- Asteroid movement must not change.\n\n## Definition of Done\n- [ ] Seed 4242 survives its first hit (100 to 94 health)\n- [ ] No run is destroyed without a hit (50 seeds x 20,000 ticks)\n- [ ] Tests pin both rules and fail on v1.0.0\n- [ ] v1.1.0 is tagged",
        "mark": "Generated: the plan"
       }
      ]
     },
     {
      "do": "reply",
-     "text": "## Plan v1.1.0: the damage fix\n\n**Goal:** a hit costs health; nothing else ends the run.\n\n### Phases\n1. **Health and shield** (P1): `applyHit` takes its damage from `DAMAGE`, the shield first, with a 60-tick invulnerability window.\n2. **Remove the self-test** (P2): delete it from `hazards.js` without changing asteroid movement.\n\n### Definition of done\n- Seed 4242 survives its first hit.\n- No run is destroyed without a hit.\n- Tests pin both rules; v1.1.0 is tagged.\n\nSaved to `docs/plans/v1.1.0-damage-fix.md`.",
+     "text": "## Plan v1.1.0: Damage Fix\n\n**Goal:** a hit costs health; nothing else ends the run.\n\n### Phases\n1. **Health and shield** (P1): `applyHit` takes its damage from `DAMAGE`, the shield first, with a 60-tick invulnerability window.\n2. **Remove the self-test** (P2): delete it from `hazards.js` without changing asteroid movement.\n\n### Definition of Done\n- Seed 4242 survives its first hit.\n- No run is destroyed without a hit.\n- Tests pin both rules; v1.1.0 is tagged.\n\nSaved to `docs/plans/v1.1.0-damage-fix.md`.",
      "mark": "The phases and the definition of done"
     }
    ]
@@ -322,7 +321,7 @@
    "kind": "session",
    "step": "implement",
    "head": {
-    "title": "Build it, phase by phase, across providers",
+    "title": "Implementation and Handoff",
     "now": "Phase 1 runs on Claude until the usage limit; the agent hands off and Phase 2 finishes on OpenAI."
    },
    "why": "Two small, well-specified changes; the plan already settled the hard questions. The same tier on another provider carries on where the first stopped.",
@@ -374,7 +373,7 @@
     },
     {
      "do": "reply",
-     "text": "## Phase 1 of 2 done\n\n`applyHit` now uses the damage table.\n\n- The **shield absorbs first**, then health; the run ends at zero.\n- A **60-tick invulnerability** window follows each hit.\n\n| Check | Result |\n|---|---|\n| Lint | pass |\n| Seed 4242 survives its first hit | pass (100 to 94) |",
+     "text": "## Phase 1 Results\n\n`applyHit` now uses the damage table.\n\n- The **shield absorbs first**, then health; the run ends at zero.\n- A **60-tick invulnerability** window follows each hit.\n\n| Check | Result |\n|---|---|\n| Lint | pass |\n| Seed 4242 survives its first hit | pass (100 to 94) |",
      "mark": "Phase 1 checks"
     },
     {
@@ -405,7 +404,7 @@
     },
     {
      "do": "reply",
-     "text": "## Handoff ready\n\nSaved to `.nexus-hub/handoff.md`. Paste this into any agent to continue:\n\n```text\nResume the task in .nexus-hub/handoff.md: implement docs/plans/v1.1.0-damage-fix.md. Phase 1 is done; continue with Phase 2 and its check.\n```",
+     "text": "## Handoff\n\nSaved to `.nexus-hub/handoff.md`. Paste this into any agent to continue:\n\n```text\nResume the task in .nexus-hub/handoff.md: implement docs/plans/v1.1.0-damage-fix.md. Phase 1 is done; continue with Phase 2 and its check.\n```",
      "mark": "The resume prompt to copy"
     },
     {
@@ -463,7 +462,7 @@
     },
     {
      "do": "reply",
-     "text": "## Phase 2 of 2 done, from the handoff\n\nPicked up from `.nexus-hub/handoff.md` with no context lost.\n\n- Removed the self-test block, both constants, and the unused import.\n- **Asteroid movement is unchanged.**\n\n| Check | Result |\n|---|---|\n| Lint | pass |\n| 50 long runs, none destroyed without a hit | pass |\n\nThe plan's code changes are complete.",
+     "text": "## Phase 2 Results\n\nPicked up from `.nexus-hub/handoff.md` with no context lost.\n\n- Removed the self-test block, both constants, and the unused import.\n- **Asteroid movement is unchanged.**\n\n| Check | Result |\n|---|---|\n| Lint | pass |\n| 50 long runs, none destroyed without a hit | pass |\n\nThe plan's code changes are complete.",
      "mark": "Phase 2, finished on OpenAI"
     }
    ]
@@ -473,7 +472,7 @@
    "kind": "session",
    "step": "test",
    "head": {
-    "title": "Prove both fixes with tests",
+    "title": "Test Coverage",
     "now": "The agent writes tests that pin the new rules, then runs them."
    },
    "why": "Unit tests for a small pure function plus one long seeded property are routine once the rules are written down.",
@@ -536,7 +535,7 @@
     },
     {
      "do": "reply",
-     "text": "## 5 tests, all passing\n\n| Test | Pins |\n|---|---|\n| a hit costs its damage | 100 to 94 on a chunk |\n| the shield absorbs first | beam: shield 20 to 0, health 90 |\n| nothing while invulnerable | the window holds |\n| zero health ends the run | game over at zero |\n| no explosion without a hit | 500 seeds x 20,000 ticks |\n\nEach test **fails on v1.0.0**, so neither bug can come back unnoticed.",
+     "text": "## Test Results\n\n| Test | Pins |\n|---|---|\n| a hit costs its damage | 100 to 94 on a chunk |\n| the shield absorbs first | beam: shield 20 to 0, health 90 |\n| nothing while invulnerable | the window holds |\n| zero health ends the run | game over at zero |\n| no explosion without a hit | 500 seeds x 20,000 ticks |\n\nEach test **fails on v1.0.0**, so neither bug can come back unnoticed.",
      "mark": "What each test pins"
     }
    ]
@@ -546,7 +545,7 @@
    "kind": "session",
    "step": "update",
    "head": {
-    "title": "Ship it and record what changed",
+    "title": "Release",
     "now": "The agent bumps the version, writes the changelog, and tags the release."
    },
    "why": "Bumping a version and writing a changelog entry from a finished plan is mechanical.",
@@ -600,7 +599,7 @@
     },
     {
      "do": "reply",
-     "text": "## Released v1.1.0\n\n- **Version:** 1.0.0 to 1.1.0 in `package.json`\n- **Changelog:** both fixes recorded\n- **Tag:** `v1.1.0`\n\n### Plan status\n- [x] Seed 4242 survives its first hit\n- [x] No run is destroyed without a hit\n- [x] Tests pin both rules\n- [x] v1.1.0 is tagged\n\nThe finished game is next.",
+     "text": "## Release v1.1.0\n\n- **Version:** 1.0.0 to 1.1.0 in `package.json`\n- **Changelog:** both fixes recorded\n- **Tag:** `v1.1.0`\n\n### Plan Status\n- [x] Seed 4242 survives its first hit\n- [x] No run is destroyed without a hit\n- [x] Tests pin both rules\n- [x] v1.1.0 is tagged\n\nThe finished game is next.",
      "mark": "Release and plan status"
     }
    ]
@@ -610,12 +609,11 @@
    "kind": "play",
    "game": "fixed",
    "head": {
-    "kicker": "The reward",
-    "title": "The finished game, fully working",
+    "title": "Fixed Game",
     "now": "Play it for real: three levels, each harder, and upgrades to collect."
    },
    "notes": {
-    "title": "Both bugs are fixed",
+    "title": "Bugs Fixed",
     "items": [
      "A hit costs health, by its source; the shield takes damage first.",
      "Nothing destroys the ship without a hit."

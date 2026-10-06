@@ -260,7 +260,7 @@ def test_the_fixed_game_is_presented_as_a_reward_with_a_hint(playwright_mod) -> 
         try:
             banner = page.locator('section[data-stage="play-fixed"] .tr-head, section[data-stage="play-fixed"] .tr-notes')
             text = " ".join(banner.all_inner_texts()).lower()
-            assert "the reward" in text
+            assert "fixed game" in text and "bugs fixed" in text
             assert "something is waiting at the end" in text
             assert page.locator(".tr-jump-boss").count() == 0, "the boss is a surprise, not a shortcut"
             assert page.evaluate("NexusTrainingPage.reward()") is False
@@ -277,7 +277,7 @@ def test_defeating_the_nexus_boss_opens_the_reward_and_download(playwright_mod) 
             page.wait_for_function("NexusTrainingPage.reward()")
             reward = page.locator("#trReward")
             assert reward.is_visible()
-            assert page.locator("#trRewardTitle").inner_text() == "You defeated the Nexus boss"
+            assert page.locator("#trRewardTitle").inner_text() == "Nexus Boss Defeated"
             assert page.evaluate("document.activeElement.id") == "trReward"
             assert page.locator(".tr-download").get_attribute("href") == (
                 "https://github.com/bendourthe/Nexus-AI/releases/latest/download/NexusSetup.exe"

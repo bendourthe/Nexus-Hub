@@ -44,7 +44,9 @@ def test_training_intro_opens_with_the_shared_component() -> None:
     html = _text(TRAINING)
     intro = re.search(r'data-stage="intro".*?</section>', html, re.DOTALL).group(0)
     assert 'class="pg-open"' in intro
-    assert re.search(r'<h1 data-ty="h1" class="pg-open-title"[^>]*>.*<span class="gtext">', intro)
+    # v4.13.10 R21: a keyword title in solid ink, with no gradient phrase.
+    assert re.search(r'<h1 data-ty="h1" class="pg-open-title"[^>]*>Development Workflow Training</h1>', intro)
+    assert "gtext" not in intro.split("<figure", 1)[0]
     assert 'class="pg-open-lead"' in intro
     _assert_opening_figure(intro, "training")
 

@@ -609,11 +609,13 @@ def test_home_identity_is_centered_nonwrapping_and_observer_gated(guide_text: st
 def test_home_hero_restores_the_v412_subtitle_and_lead(guide_text: str) -> None:
     home = _home_markup(guide_text)
     assert "hero-tagline" not in home, "the v4.4.1 tagline is replaced by the v4.1.2 statement"
-    sub = re.search(r'<h2[^>]*class="hero-subtitle">([\s\S]*?)</h2>', home)
+    # v4.13.10 R21: the statement is a tagline, not a heading, so it is a paragraph in the H1 type role.
+    sub = re.search(r'<p[^>]*class="hero-subtitle">([\s\S]*?)</p>', home)
     assert sub and re.sub(r"<[^>]+>", "", sub.group(1)) == (
         "A skill harness for agentic AI platforms"
     )
-    assert '<span class="gtext">agentic AI platforms</span>' in sub.group(1)
+    # v4.13.10 R21: no gradient words; the tagline is plain solid-ink text.
+    assert sub.group(1).strip() == "A skill harness for agentic AI platforms"
     lead = re.search(r'<p[^>]*class="hero-lead">([^<]+)</p>', home)
     assert lead and lead.group(1).startswith("Nexus Hub is an advanced harness for agentic AI platforms.")
 
@@ -777,7 +779,8 @@ def test_home_platform_labels_use_legible_theme_token(guide_text: str) -> None:
 
 def test_installation_terminal_precedes_subordinate_verification(guide_text: str) -> None:
     home = _home_markup(guide_text)
-    assert re.search(r'<span[^>]*class="eyebrow">Installation</span>', home)
+    # v4.13.10 R21: eyebrow lines are gone; the section heading itself is the keyword label.
+    assert re.search(r'<h2[^>]*class="section-title"[^>]*>Installation</h2>', home)
     assert 'class="term term--standalone term--install"' in home
     assert 'class="verify-steps verify-steps--secondary"' in home
     assert home.index("term--install") < home.index("verify-steps--secondary")
@@ -805,7 +808,7 @@ def test_home_troubleshooting_is_structured_and_copyable(guide_text: str) -> Non
 
 def test_home_comparison_has_centered_explicit_sides(guide_text: str) -> None:
     home = _home_markup(guide_text)
-    assert "Raw prompting vs Nexus Hub" in home, "v4.4.2 merges the two comparisons under one title"
+    assert "Raw Prompting vs Nexus Hub" in home, "v4.4.2 merges the two comparisons under one title"
     assert '<div class="cmp-head">' in home
     head_rule = re.search(r"\.cmp-head\s*\{([^}]+)\}", guide_text)
     side_rule = re.search(r"\.cmp-side\s*\{([^}]+)\}", guide_text)
@@ -1370,14 +1373,15 @@ def test_cheatsheets_sections_are_intent_named(guide_text: str) -> None:
     """"Band 1 / Band 2" said nothing; sections now name the job they do."""
     cs = _cheatsheets_markup(guide_text)
     assert "Band 1" not in cs and "Band 2" not in cs
+    # v4.13.10 R21: the job names were eyebrow lines; the keyword section headings now carry them.
     for heading in (
-        "Understand and evaluate",
-        "Plan the work",
-        "Build it",
-        "Prove it",
-        "Ship and govern",
-        "Communicate",
-        "Catalog and session",
+        "Codebase Understanding",
+        "Planning and Specification",
+        "Implementation",
+        "Testing and Review",
+        "Release and Governance",
+        "Communication and Reporting",
+        "Harness and Session Management",
     ):
         assert heading in cs, f"missing section: {heading}"
 

@@ -563,6 +563,7 @@ window.NexusTrainingStory = (function () {
     s.cursor.style.opacity = "0";
     s.cursor.classList.remove("is-down");
     s.cursorKey = "start";
+    s.seen = {};
     setPicker(s, s.init.provider, s.init.tier, s.init.effort);
     setUsage(s, s.init.provider, s.init.usage);
     s.ide.setAttribute("data-provider", s.init.provider);
@@ -583,10 +584,14 @@ window.NexusTrainingStory = (function () {
     else if (key === "send") target = s.send;
     else if (key === "copy") { var cs = s.log.querySelectorAll(".ide-copy"); target = cs.length ? cs[cs.length - 1] : s.send; }
     else if (key.indexOf("opt:") === 0) target = s.menu.querySelector('[data-value="' + key.slice(4) + '"]') || s.menu;
-    if (!target || !target.getClientRects().length) return { x: root.width / 2, y: root.height / 2 };
+    /* A target that has gone (a closed menu's option) keeps the place the cursor last saw it, so
+       the next move starts where the cursor stopped, never from the middle of the IDE. */
+    s.seen = s.seen || {};
+    if (!target || !target.getClientRects().length) return s.seen[key] || s.seen.last || { x: root.width - 40, y: root.height - 30 };
     var r = target.getBoundingClientRect();
     var x = key === "input" ? r.left + Math.min(60, r.width / 3) : r.left + r.width / 2;
-    return { x: x - root.left, y: r.top + r.height / 2 - root.top };
+    s.seen[key] = s.seen.last = { x: x - root.left, y: r.top + r.height / 2 - root.top };
+    return s.seen[key];
   }
   function placeCursor(s, a, b, p) {
     var A = point(s, a), B = point(s, b), q = ease(p);

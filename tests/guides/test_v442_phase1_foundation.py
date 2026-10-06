@@ -232,7 +232,8 @@ def test_section_titles_share_one_scale_and_never_overflow(playwright_mod) -> No
     # v4.19 moved the shared title base again, 32.64px -> 27.2px, on the new
     # --ty-h2 scale. One SHARED size across all four pages is the contract;
     # the value is the design's to choose and is pinned so a drift still fails.
-    assert 26 <= sizes[0] <= 28, sizes[0]
+    # v4.13.10 R21 set one heading system on every page: H2 at clamp(1.4rem, 2.3vw, 1.85rem), 29.6px at 1440.
+    assert 28 <= sizes[0] <= 31, sizes[0]
     assert fitted, "no active-page titles measured"
     for row in fitted:
         assert row["now"] <= row["base"] + 0.5, row

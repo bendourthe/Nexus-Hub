@@ -253,12 +253,12 @@ _HOOKS_DIR = _ROOT / "catalog" / "hooks"
 # drift still fails.
 EXPECTED_HOME_ORDER = [
     "A skill harness for agentic AI platforms",
-    "Limits of raw prompting",
-    "One-command install",
-    "Skills, hooks, and governance",
-    "Security guardrails",
-    "Raw prompting vs Nexus Hub",
-    "Platform coverage",
+    "Raw Prompting Limits",
+    "Installation",
+    "Skills, Hooks, and Governance",
+    "Security Guardrails",
+    "Raw Prompting vs Nexus Hub",
+    "Platform Coverage",
     "The Development Workflow",
 ]
 
@@ -305,8 +305,9 @@ def test_home_hero_statement_is_centred_and_exact(playwright_mod) -> None:
                         leadStart: lead.textContent.trim().slice(0, 58),
                         subCentre: c(sub), leadCentre: c(lead), railCentre: c(rail),
                         subAlign: getComputedStyle(sub).textAlign,
-                        gradFill: getComputedStyle(document.querySelector('.gtext')).webkitTextFillColor,
-                        gradColor: getComputedStyle(document.querySelector('.gtext')).color,
+                        gradFill: getComputedStyle(sub).webkitTextFillColor,
+                        gradColor: getComputedStyle(sub).color,
+                        gradSpans: sub.querySelectorAll('.gtext').length,
                         subSize: parseFloat(getComputedStyle(sub).fontSize),
                         tagline: !!document.querySelector('.hero-tagline'),
                         credits: !!document.querySelector('#page-home .platform-credits'),
@@ -319,8 +320,9 @@ def test_home_hero_statement_is_centred_and_exact(playwright_mod) -> None:
     assert data["leadStart"] == "Nexus Hub is an advanced harness for agentic AI platforms."
     assert data["subAlign"] == "center"
     assert abs(data["subCentre"] - data["railCentre"]) < 2 and abs(data["leadCentre"] - data["railCentre"]) < 2
-    # The gradient paints through text-fill-color while `color` stays a real, measurable colour.
-    assert data["gradFill"] in ("rgba(0, 0, 0, 0)", "transparent")
+    # v4.13.10 R21: no gradient words; the statement paints in solid ink.
+    assert data["gradSpans"] == 0
+    assert data["gradFill"] not in ("rgba(0, 0, 0, 0)", "transparent")
     assert data["gradColor"] not in ("rgba(0, 0, 0, 0)", "transparent")
     # The hero statement is now sized by the --ty-h1 token, whose ceiling is
     # 2.3rem (36.8px). The floor is set below the observed value rather than at
@@ -352,7 +354,7 @@ def test_restored_sections_are_at_most_two_thirds_of_their_v412_word_count(playw
             portability = _new_block_words(page, "#nhg-commands [data-v444-new]")
             merged = page.evaluate(
                 "() => { const h = [...document.querySelectorAll('#page-home .section-title')]"
-                ".find(e => e.textContent.trim() === 'Raw prompting vs Nexus Hub');"
+                ".find(e => e.textContent.trim() === 'Raw Prompting vs Nexus Hub');"
                 " return h.closest('section').innerText.replace(/\\s+/g, ' ').trim().split(' ').length; }"
             )
         finally:
