@@ -860,18 +860,21 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .ss-fallback{margin:0;padding:var(--sp-4);border:1px dashed var(--border);border-radius:12px;color:var(--ink-dim);}
 @media (max-width:720px){.ss-hud{grid-template-columns:repeat(2,minmax(0,1fr));}}
 .ss-overlay{display:flex;padding:0;overflow:hidden;container:ss-arena/size;}
+.ss-demo{position:relative;display:block;}
+.ss-demo .ss-stage{border:0;border-radius:inherit;}
+.ss-demo .ss-canvas{cursor:default;}
 .ss-overlay[data-mode=idle]{background:radial-gradient(120% 90% at 50% 0%,rgba(8,47,73,.55),rgba(3,9,14,.86) 70%);}
-.ss-overlay[data-mode=over]{background:linear-gradient(180deg,rgba(4,12,17,.25) 10%,rgba(4,12,17,.68) 30%,rgba(4,12,17,0) 62%);}
-.ss-overlay[data-mode=over] .ss-panel{margin:clamp(56px,15%,110px) auto auto;}
+.ss-overlay[data-mode=over]{background:radial-gradient(ellipse 62% 40% at 50% 50%,rgba(4,12,17,.78),rgba(4,12,17,.42) 62%,rgba(4,12,17,0));}
+.ss-overlay[data-mode=over] .ss-panel{margin:auto;width:auto;max-width:100%;}
 .ss-panel{box-sizing:border-box;margin:auto;display:grid;gap:clamp(4px,1.5cqh,12px);justify-items:center;width:100%;padding:clamp(6px,2cqh,16px) clamp(8px,2.2cqw,20px);transform-origin:50% 0;}
 .ss-panel [hidden]{display:none !important;}
 .ss-brand{margin:0;font-weight:900;letter-spacing:.16em;text-transform:uppercase;font-size:clamp(15px,min(4.8cqh,3.4cqw),28px);line-height:1.1;color:#ecfeff;text-shadow:0 0 22px rgba(34,211,238,.6);}
-.ss-hangar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(5px,1.2cqw,12px);width:100%;}
+.ss-hangar{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:clamp(5px,1.1cqw,12px);width:100%;}
 .ss-ship{--ss-ship:#22d3ee;min-width:0;display:grid;justify-items:center;align-content:start;gap:1px;padding:clamp(3px,1cqh,8px) clamp(4px,1cqw,10px) clamp(5px,1.4cqh,10px);border-radius:14px;border:1px solid rgba(148,163,184,.26);background:linear-gradient(180deg,rgba(15,23,42,.78),rgba(2,8,12,.92));color:#e2e8f0;font:inherit;cursor:pointer;text-align:center;transition:border-color .15s,box-shadow .15s,transform .15s;}
 .ss-ship:hover{border-color:color-mix(in srgb,var(--ss-ship) 70%,transparent);transform:translateY(-1px);}
 .ss-ship[aria-checked=true]{border-color:var(--ss-ship);background:linear-gradient(180deg,color-mix(in srgb,var(--ss-ship) 16%,#0f172a),rgba(2,8,12,.94));box-shadow:0 0 0 1px var(--ss-ship),0 0 26px -6px var(--ss-ship);}
 .ss-ship:focus-visible{outline:2px solid #e6fffb;outline-offset:2px;}
-.ss-ship-pic{display:block;height:clamp(30px,15cqh,104px);width:auto;max-width:100%;aspect-ratio:240/150;object-fit:contain;}
+.ss-ship-pic{display:block;height:clamp(30px,15cqh,104px);width:auto;max-width:100%;aspect-ratio:240/150;object-fit:contain;border-radius:8px;background:#02070b;}
 .ss-ship-name{font-weight:800;font-size:clamp(10.5px,2.6cqh,14px);line-height:1.2;letter-spacing:.06em;text-transform:uppercase;color:#f8fafc;}
 .ss-ship-weapon{font-weight:700;font-size:clamp(10px,2.4cqh,13px);line-height:1.2;color:color-mix(in srgb,var(--ss-ship) 70%,#ffffff);}
 .ss-ship-desc{font-size:clamp(9.5px,2.1cqh,12px);line-height:1.2;color:#94a3b8;}
@@ -895,7 +898,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .ss-key-text span{display:block;white-space:nowrap;}
 .ss-panel .ss-hint{font-size:clamp(10px,2.2cqh,13px);line-height:1.3;}
 @container ss-arena (max-width:820px){.ss-key-list{grid-template-columns:repeat(4,minmax(0,1fr));}}
-@container ss-arena (max-width:600px){.ss-hangar{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;}.ss-ship{border-radius:10px;}.ss-ship-name{letter-spacing:.02em;}.ss-ship-pic{height:clamp(30px,8.5cqh,52px);}.ss-ship-stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;}.ss-meter{grid-template-columns:1fr;gap:1px;text-align:center;}.ss-key-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(4px,1.2cqh,8px) 10px;}.ss-key-icon{width:clamp(18px,4.6cqh,24px);}.ss-keybtn{display:inline-block;}.ss-overlay[data-panel=ships] .ss-key{display:none;}.ss-overlay[data-panel=key] .ss-hangar,.ss-overlay[data-panel=key] .ss-ship-note{display:none;}}
+@container ss-arena (max-width:600px){.ss-hangar{grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;}.ss-ship{grid-column:span 2;}.ss-ship:nth-child(4){grid-column:2/span 2;}.ss-ship{border-radius:10px;}.ss-ship-name{letter-spacing:.02em;}.ss-ship-pic{height:clamp(30px,8.5cqh,52px);}.ss-ship-stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;}.ss-meter{grid-template-columns:1fr;gap:1px;text-align:center;}.ss-key-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(4px,1.2cqh,8px) 10px;}.ss-key-icon{width:clamp(18px,4.6cqh,24px);}.ss-keybtn{display:inline-block;}.ss-overlay[data-panel=ships] .ss-key{display:none;}.ss-overlay[data-panel=key] .ss-hangar,.ss-overlay[data-panel=key] .ss-ship-note{display:none;}}
 /* shared:type-css */
 :root{
   /* Legibility floor. No text role on this page resolves below it, and the
@@ -1849,22 +1852,29 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
      (the ship's fire factor and the form scale it); barrels are the x offsets of the guns. The
      upgrades stack on any weapon: Twin doubles the barrels, Spread adds angled side shots,
      Rapid halves the cooldown, and Pierce lets every round pass through its targets. */
+  /* R18: five ships, each owning one main colour (blue, green, orange, yellow, red); its rounds,
+     its edges, its card, and its preview all wear that colour. The Warden's flak is new: a
+     short-range cone of five pellets that fade out after about 200 px. */
   var WEAPONS = {
-    cannon: { name: "Twin cannons", desc: "Two heavy rounds side by side", cool: 16, barrels: [-9, 9], color: "#22d3ee" },
-    burst: { name: "Burst rifle", desc: "Rapid three-round bursts", cool: 16, barrels: [0], color: "#f87171" },
-    lance: { name: "Lance beam", desc: "A short ray that cuts through", cool: 8, barrels: [0], color: "#c084fc" },
-    orb: { name: "Plasma orbs", desc: "Homing orbs that split on impact", cool: 22, barrels: [0], color: "#fb7185" }
+    cannon: { name: "Twin cannons", desc: "Two heavy rounds side by side", cool: 16, barrels: [-9, 9], color: "#3b82f6" },
+    flak: { name: "Flak scatter", desc: "A short cone of five pellets", cool: 20, barrels: [0], color: "#22c55e" },
+    orb: { name: "Plasma orbs", desc: "Homing orbs that split", cool: 22, barrels: [0], color: "#f97316" },
+    lance: { name: "Lance beam", desc: "A short ray that cuts through", cool: 8, barrels: [0], color: "#facc15" },
+    burst: { name: "Burst rifle", desc: "Rapid three-round bursts", cool: 16, barrels: [0], color: "#ef4444" }
   };
   var LANCE_LEN = 230;             /* the Talon's ray reaches this far ahead of the ship */
+  var FLAK = { pellets: 5, cone: 0.42, speed: 9, life: 24 };
   var SHIPS = [
-    { id: "vanguard", name: "Vanguard", role: "Armoured gunship", note: "Balanced hull, speed, and guns", weapon: "cannon",
-      hull: 100, speed: 1, fire: 1, flame: "#38bdf8", accent: "#22d3ee", scheme: "Dark steel, cyan edges" },
-    { id: "raptor", name: "Raptor", role: "Strike fighter", note: "Fast bursts, lighter hull", weapon: "burst",
-      hull: 90, speed: 1.05, fire: 0.8, flame: "#fb923c", accent: "#f87171", scheme: "Gunmetal, red panels" },
-    { id: "talon", name: "Talon", role: "Needle dagger", note: "The fastest ship, the lightest hull", weapon: "lance",
-      hull: 80, speed: 1.3, fire: 1, flame: "#d8b4fe", accent: "#a855f7", scheme: "Silver and white, violet edges" },
-    { id: "specter", name: "Specter", role: "Stealth interceptor", note: "Heavy armour, slower to turn", weapon: "orb",
-      hull: 125, speed: 0.85, fire: 1.05, flame: "#fb7185", accent: "#e11d48", scheme: "Charcoal, crimson crystal" }
+    { id: "vanguard", name: "Vanguard", role: "Armoured gunship", note: "Balanced hull, speed, and guns", weapon: "cannon", colour: "blue",
+      hull: 100, speed: 1, fire: 1, flame: "#60a5fa", accent: "#3b82f6", scheme: "Dark steel, blue panels" },
+    { id: "warden", name: "Warden", role: "Escort carrier", note: "Sturdy, wide, and close-range", weapon: "flak", colour: "green",
+      hull: 110, speed: 0.95, fire: 0.9, flame: "#86efac", accent: "#22c55e", scheme: "Olive armour, green wings" },
+    { id: "specter", name: "Specter", role: "Stealth interceptor", note: "Heavy armour, slower to turn", weapon: "orb", colour: "orange",
+      hull: 125, speed: 0.85, fire: 1.05, flame: "#fdba74", accent: "#f97316", scheme: "Charcoal, orange crystal" },
+    { id: "talon", name: "Talon", role: "Needle dagger", note: "The fastest ship, the lightest hull", weapon: "lance", colour: "yellow",
+      hull: 80, speed: 1.3, fire: 1, flame: "#fde68a", accent: "#facc15", scheme: "Silver, yellow wings" },
+    { id: "raptor", name: "Raptor", role: "Strike fighter", note: "Fast bursts, lighter hull", weapon: "burst", colour: "red",
+      hull: 90, speed: 1.05, fire: 0.8, flame: "#fca5a5", accent: "#ef4444", scheme: "Gunmetal, red panels" }
   ];
   function shipById(id) { for (var k = 0; k < SHIPS.length; k++) if (SHIPS[k].id === id) return SHIPS[k]; return null; }
   /* R14: each level, and the boss, has its own map: nebula colours, a set piece, and a star
@@ -1893,6 +1903,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
   };
 
   var instances = {};
+  var demoCount = 0;
   var manual = false;
 
   /* -------------------------------------------------- seeded randomness */
@@ -2236,17 +2247,17 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
   }
   var FORM_SCALE = { 1: 1, 2: 1.24, 3: 1.52 };
   var SHIP_SPEC = {
-    /* Armoured central hull with stacked plating and a round core light; wide V wings with cyan
-       edge strips; engine pods under the wings. Dark steel with cyan accents. */
+    /* Armoured central hull with stacked plating and a round core light; wide V wings with blue
+       edge strips; engine pods under the wings. R18: dark steel with blue wings and blue edges. */
     vanguard: function (f) {
-      var steel = [0.36, 0.39, 0.44], plate = [0.5, 0.53, 0.58], cyan = [0.2, 0.9, 1];
+      var steel = [0.26, 0.34, 0.52], plate = [0.38, 0.47, 0.66], cyan = [0.25, 0.55, 1];
       return {
-        hull: steel, accent: cyan, glow: [0.55, 0.85, 1], plateCol: plate,
+        hull: steel, accent: cyan, glow: [0.5, 0.7, 1], plateCol: plate,
         body: [[-24, 0.3, 0.25, 0.6], [-19, 2.4, 1.6, 0.9], [-11, 4.6, 2.8, 1.2], [-2, 6.2, 3.4, 1.3], [8, 6.6, 3.3, 1.2], [16, 6, 2.9, 1], [22, 5, 2.4, 0.8]],
         plates: [[3.6, 3.7, -9, 0.8, 5.5], [3.1, 4.3, -3, 0.8, 5.5], [2.6, 4.9, 3, 0.7, 5]],
         core: [5.7, 11, 1.7], canopy: [-13.5, 3.2, 2, 1.6, 5],
-        wings: [{ poly: [[5, -4], [26, 13], [26, 16.5], [22, 17], [6, 12]], col: [0.42, 0.45, 0.5], th: 1.6, y: 0.3,
-                  paint: [[9, 3], [22, 13], [22, 14.6], [9, 6]], paintCol: [0.16, 0.18, 0.21], edges: [[[5, -4], [26, 13], 0.9]] }].concat(f === 3 ?
+        wings: [{ poly: [[5, -4], [26, 13], [26, 16.5], [22, 17], [6, 12]], col: [0.17, 0.36, 0.8], th: 1.6, y: 0.3,
+                  paint: [[9, 3], [22, 13], [22, 14.6], [9, 6]], paintCol: [0.12, 0.3, 0.75], edges: [[[5, -4], [26, 13], 0.9]] }].concat(f === 3 ?
                 [{ poly: [[4, 6], [17, 17], [16.5, 20], [5, 18]], col: plate, th: 1.2, y: 1.6, edges: [[[4, 6], [17, 17], 0.6]] }] : []),
         pods: [[12, -1.5, -3, 14, 2.1, true]].concat(f >= 2 ? [[21, -1.1, 4, 15, 1.4, true]] : []),
         fins: f >= 2 ? [[3.2, 2.6, [[0, 12], [6, 17], [6, 20], [0, 21]], 0.35]] : [],
@@ -2264,7 +2275,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
         spine: [[-10, 0.3, 0.3, 2.6], [-4, 1.2, 1, 2.8], [10, 1.4, 1, 2.6], [17, 0.3, 0.3, 2.2]],
         canopy: [-15, 2.6, 1.8, 1.6, 5.5],
         canard: [[3.5, -25], [11.5, -19], [11.5, -16.8], [3.5, -17]],
-        wings: [{ poly: [[6, 4], [21.5, -7], [24, -5.5], [23, -1.5], [8, 16]], col: [0.24, 0.25, 0.29], th: 1.5,
+        wings: [{ poly: [[6, 4], [21.5, -7], [24, -5.5], [23, -1.5], [8, 16]], col: [0.6, 0.1, 0.12], th: 1.5,
                   paint: [[10, 4.5], [20.5, -3.5], [21.5, -2], [10.5, 8]], paintCol: red, edges: [[[6, 4], [21.5, -7], 0.6]], edgeCol: [0.95, 0.2, 0.2] }].concat(f === 3 ?
                 [{ poly: [[5, 9], [14, 17], [13.5, 19.5], [5, 18]], col: gm, th: 1.1, y: 1.4, paint: [[7, 13], [13, 17.5], [13, 18.6], [7, 15]], paintCol: red }] : []),
         pods: [[6.4, 0.3, -8, 20, 2.5, true, [0.28, 0.29, 0.33]]].concat(f >= 2 ? [[16, -0.8, -2, 12, 1.4, false]] : []),
@@ -2274,16 +2285,16 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       };
     },
     /* A very long, narrow needle with a ribbed spine; crescent wings that sweep forward and
-       curve down like talons. R16: silver and white with violet edges and a violet drive. */
+       curve down like talons. R18: silver with yellow wings, yellow edges, and a yellow drive. */
     talon: function (f) {
-      var silver = [0.86, 0.88, 0.92], dark = [0.08, 0.09, 0.11], violet = [0.66, 0.33, 0.97], ribs = [];
+      var silver = [0.86, 0.88, 0.92], dark = [0.08, 0.09, 0.11], violet = [1, 0.84, 0.12], ribs = [];
       for (var z = -14; z <= 14; z += 3.5) ribs.push([1.2, 2.3, z]);
       var crescent = [[2.5, 6], [9, 2.5], [15, -3], [19, -11], [20.5, -18], [18.4, -15], [15.6, -7.5], [11, -0.5], [3, 11]];
       return {
-        hull: silver, accent: violet, glow: [0.78, 0.55, 1],
+        hull: silver, accent: violet, glow: [1, 0.9, 0.45],
         body: [[-38, 0.15, 0.15, 0.5], [-30, 1.1, 0.8, 0.6], [-18, 2.2, 1.5, 0.8], [-2, 2.9, 1.9, 0.9], [12, 2.8, 1.8, 0.8], [21, 2.2, 1.4, 0.6]],
         ribs: ribs, canopy: [-20, 1.8, 1.25, 1.1, 4.4], glass: [0.04, 0.12, 0.2],
-        wings: [{ poly: crescent, col: [0.72, 0.74, 0.79], th: 1.2, bevel: 0.5, roll: -0.2,
+        wings: [{ poly: crescent, col: [0.95, 0.76, 0.16], th: 1.2, bevel: 0.5, roll: -0.2,
                   paint: [[6, 4.5], [13.5, -1.5], [17.5, -9], [17.9, -8.6], [14, -0.6], [6.4, 5.5]], paintCol: dark,
                   edges: [[[2.5, 6], [15, -3], 0.45], [[19, -11], [20.5, -18], 0.5]], edgeCol: violet }].concat(f >= 2 ?
                 [{ poly: [[2, 12], [9, 14], [12, 20], [8.5, 18], [2, 17]], col: silver, th: 0.9, bevel: 0.4, roll: -0.12, y: 0.5 }] : []),
@@ -2293,21 +2304,42 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
         engines: [[0, 0.5, 17, 24, 2.1]]
       };
     },
-    /* A faceted charcoal kite with a glowing red crystal canopy, two tall swept fins, twin red
-       engines, and red edge highlights. */
+    /* A faceted charcoal kite with a glowing crystal canopy, two tall swept fins, twin engines,
+       and edge highlights. R18: the crystal, the wing panels, and the edges are orange. */
     specter: function (f) {
-      var coal = [0.13, 0.13, 0.15], red = [0.9, 0.06, 0.26];
+      var coal = [0.13, 0.13, 0.15], red = [1, 0.45, 0.04];
       return {
-        hull: coal, accent: red, glow: [1, 0.25, 0.4], kiteTop: [0.18, 0.18, 0.21],
+        hull: coal, accent: red, glow: [1, 0.6, 0.2], kiteTop: [0.18, 0.18, 0.21],
         kite: [[0, -26], [7.5, -6], [9.5, 8], [4.5, 18], [0, 15.5], [-4.5, 18], [-9.5, 8], [-7.5, -6]], kiteTh: 5.4, kiteBevel: 2.6, kiteY: 1,
-        canopy: [-3, 3.9, 2.1, 1.7, 4.6], glass: [0.95, 0.08, 0.28], glassMat: M_HALF,
+        canopy: [-3, 3.9, 2.1, 1.7, 4.6], glass: [1, 0.42, 0.05], glassMat: M_HALF,
         wings: [{ poly: [[6, -3], [23, 10], [22, 14], [9, 13]], col: [0.15, 0.15, 0.18], th: 1.3,
+                  paint: [[9, 1], [21, 10.5], [20.6, 12.4], [10, 9]], paintCol: [0.95, 0.4, 0.04],
                   edges: [[[6, -3], [23, 10], 0.55]] }].concat(f >= 2 ? [{ poly: [[8, 7], [27, 17], [26, 19.5], [9, 16]], col: coal, th: 1, y: -0.4, edges: [[[8, 7], [27, 17], 0.45]] }] : []),
         edges: [[[0.5, -26.3], [7.6, -6.4], 0.45, 3.3]],
         fins: [[5.2, 2.8, [[0, 4], [11.5, 13], [11.5, 16], [0, 14.5]], 0.14, [0.16, 0.16, 0.19]]],
         pods: f === 3 ? [[14, -0.6, 0, 14, 1.5, true]] : [],
         tip: [23, 0.4, 11.5], tipCol: red,
         engines: [[-3.4, 0.8, 13, 19.5, 2.1], [3.4, 0.8, 13, 19.5, 2.1]]
+      };
+    },
+    /* R18: a broad flying wing on two tail booms, blunt-nosed and heavy, with a green core and
+       green wing panels on olive armour. Its outline (a wide flat delta between two booms with
+       twin tails) reads unlike every other ship's. Later forms add canards and outer booms. */
+    warden: function (f) {
+      var olive = [0.27, 0.33, 0.22], dark = [0.14, 0.17, 0.12], green = [0.2, 0.9, 0.35];
+      return {
+        hull: olive, accent: green, glow: [0.55, 1, 0.6], plateCol: [0.33, 0.4, 0.27],
+        body: [[-19, 0.4, 0.4, 0.6], [-15, 3.2, 2.2, 0.9], [-7, 5.8, 3.2, 1.2], [3, 6.6, 3.4, 1.2], [12, 6, 3, 1], [18, 4.6, 2.4, 0.8]],
+        plates: [[3.4, 3.8, -6, 0.8, 5], [3, 4.4, 0, 0.8, 5]],
+        core: [5.4, 9, 1.9], coreCol: green, canopy: [-10, 3.4, 2.3, 1.8, 5],
+        wings: [{ poly: [[4, -7], [27, 8], [27, 13], [5, 13]], col: [0.25, 0.31, 0.2], th: 1.8, y: 0.2,
+                  paint: [[8, -1.5], [24, 8.6], [24, 11], [8, 9]], paintCol: [0.12, 0.62, 0.24], edges: [[[4, -7], [27, 8], 0.9]] }].concat(f >= 2 ?
+                [{ poly: [[3, -15], [9, -12], [9, -10], [3, -10.5]], col: olive, th: 1, y: 1.2 }] : []),
+        pods: [[22, 0.2, -14, 17, 2.3, true, dark]].concat(f === 3 ? [[30, -0.6, 2, 15, 1.4, true, dark]] : []),
+        fins: [[22, 2.2, [[0, 8], [6, 14], [6, 17.5], [0, 17]], 0.08, olive]],
+        vents: [[21.2, 1.8, -15, 1.6, 2]], ventCol: green,
+        tip: [27, 0.8, 10.5], tipCol: green,
+        engines: [[0, 0.6, 14, 20.5, 2.4]]
       };
     }
   };
@@ -2510,6 +2542,113 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
     return SPRITES[key];
   }
 
+  /* ==================================================================== ship card previews
+     R18: each start-screen card plays a tiny looping scene of its ship firing its own weapon at a
+     drone, so the attack styles read at a glance: blue twin cannons, a green flak cone that fades
+     short of the drone, orange orbs that curve in and split, a yellow lance held on the drone, and
+     red three-round bursts. Each scene is a pure function of time on a small 2D canvas (a cached
+     lit sprite plus a few shapes), cheap enough for five cards at 60 fps. */
+  var PREVIEW_W = 240, PREVIEW_H = 150, PREVIEW_STILL = 0.26;
+  var PV_STARS = (function () { var r = mulberry32(11), out = []; for (var k = 0; k < 18; k++) out.push([r() * PREVIEW_W, r() * PREVIEW_H, 0.4 + r() * 0.9, 18 + r() * 40]); return out; })();
+  function previewSprite(id) {
+    var key = "pv-" + id;
+    if (!SPRITES[key]) SPRITES[key] = meshPicture(id + "2", 0, 0, 0.5, 132, 120, 4);
+    return SPRITES[key];
+  }
+  function pvGlow(g, x, y, r, color, a) {
+    if (a <= 0) return;
+    var gr = g.createRadialGradient(x, y, 0, x, y, r);
+    gr.addColorStop(0, color); gr.addColorStop(1, "rgba(0,0,0,0)");
+    g.globalAlpha = Math.min(1, a); g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2); g.globalAlpha = 1;
+  }
+  function pvRound(g, x, y, w, h, color) {
+    pvGlow(g, x, y, h * 0.9, color, 0.55);
+    g.fillStyle = color; g.fillRect(x - w / 2, y - h / 2, w, h);
+    g.fillStyle = "rgba(255,255,255,0.85)"; g.fillRect(x - w / 4, y - h / 2, w / 2, h * 0.6);
+  }
+  /* One frame of a card's scene at time t (seconds), drawn into g at 240 x 150. */
+  function drawPreview(g, sh, t) {
+    var W = PREVIEW_W, H = PREVIEW_H, wc = WEAPONS[sh.weapon].color, sx = W / 2, sy = 108, nose = 74, ty = 24, hit = 0, k, ph;
+    var bg = g.createLinearGradient(0, 0, 0, H);
+    bg.addColorStop(0, "#020910"); bg.addColorStop(1, "#071823");
+    g.globalAlpha = 1; g.fillStyle = bg; g.fillRect(0, 0, W, H);
+    g.fillStyle = "#cbd5e1";
+    PV_STARS.forEach(function (st) {
+      g.globalAlpha = st[2] * 0.6;
+      g.fillRect(st[0], (st[1] + t * st[3]) % H, st[2] * 1.4, st[2] * 1.4);
+    });
+    g.globalAlpha = 1;
+    if (sh.weapon === "cannon") {
+      /* two heavy rounds side by side, a volley every 0.42 s */
+      for (k = 0; k < 3; k++) {
+        ph = (t / 0.42 - k) % 1;
+        if (ph < 0) ph += 1;
+        var cy = nose - (ph + k) * 150;
+        if (cy > ty + 6 && cy < nose + 1) { pvRound(g, sx - 9, cy, 4.5, 13, wc); pvRound(g, sx + 9, cy, 4.5, 13, wc); }
+        else if (cy <= ty + 6 && cy > ty - 16) hit = 1;
+      }
+    } else if (sh.weapon === "flak") {
+      /* a cone of five pellets that spreads and fades well short of the drone */
+      ph = (t / 0.55) % 1;
+      for (k = 0; k < FLAK.pellets; k++) {
+        var fa = (k / (FLAK.pellets - 1) - 0.5) * 2 * FLAK.cone, fd = 64 * ph * (1.6 - 0.6 * ph);
+        var fx = sx + Math.sin(fa) * fd, fy = nose - Math.cos(fa) * fd;
+        g.globalAlpha = Math.max(0, 1 - ph * 1.05);
+        g.fillStyle = wc; g.beginPath(); g.arc(fx, fy, 3.6, 0, 6.283); g.fill();
+        g.fillStyle = "#dcfce7"; g.beginPath(); g.arc(fx, fy, 1.5, 0, 6.283); g.fill();
+      }
+      g.globalAlpha = 1;
+      if (ph < 0.2) pvGlow(g, sx, nose, 16, wc, 0.9 - ph * 4);
+    } else if (sh.weapon === "orb") {
+      /* an orb curves out and in to the drone, then splits into two smaller orbs */
+      ph = (t / 0.95) % 1;
+      if (ph < 0.62) {
+        var q = ph / 0.62, ox = (1 - q) * (1 - q) * sx + 2 * (1 - q) * q * (sx + 50) + q * q * sx;
+        var oy = (1 - q) * (1 - q) * nose + 2 * (1 - q) * q * 62 + q * q * (ty + 4);
+        pvGlow(g, ox, oy, 15, wc, 0.95);
+        g.fillStyle = "#ffedd5"; g.beginPath(); g.arc(ox, oy, 4.2, 0, 6.283); g.fill();
+      } else {
+        var sp = (ph - 0.62) / 0.38;
+        if (sp < 0.3) hit = 1;
+        [-1, 1].forEach(function (side) {
+          var bx = sx + side * sp * 54, by2 = ty + 2 - sp * 20;
+          pvGlow(g, bx, by2, 9, wc, 1 - sp);
+          g.globalAlpha = 1 - sp; g.fillStyle = "#ffedd5"; g.beginPath(); g.arc(bx, by2, 2.4, 0, 6.283); g.fill(); g.globalAlpha = 1;
+        });
+      }
+    } else if (sh.weapon === "lance") {
+      /* a ray held from the nose through the drone, re-cut every pull */
+      ph = (t / 0.75) % 1;
+      if (ph < 0.6) {
+        var fl = 0.8 + 0.2 * Math.sin(t * 60);
+        g.fillStyle = wc; g.globalAlpha = 0.6; g.fillRect(sx - 5 * fl, 4, 10 * fl, nose - 4);
+        g.globalAlpha = 1; g.fillStyle = "#fefce8"; g.fillRect(sx - 1.5, 4, 3, nose - 4);
+        pvGlow(g, sx, nose, 14, wc, 0.9);
+        hit = 1;
+      }
+    } else {
+      /* three quick rounds from one pull, a burst every 0.62 s */
+      var c0 = Math.floor(t / 0.62);
+      for (var c = c0 - 1; c <= c0; c++) for (k = 0; k < 3; k++) {
+        var age = t - (c * 0.62 + k * 0.06), ry = nose - age * 420;
+        if (age < 0) continue;
+        if (ry > ty + 4) pvRound(g, sx, ry, 2.8, 10, wc);
+        else if (ry > ty - 30) hit = 1;
+      }
+    }
+    /* the drone: a small dark hexagon with a red eye; it flashes in the weapon's colour when hit */
+    g.save(); g.translate(sx, ty);
+    g.fillStyle = hit ? "#f8fafc" : "#1e293b"; g.strokeStyle = hit ? "#ffffff" : "#64748b"; g.lineWidth = 1.5;
+    g.beginPath(); for (k = 0; k < 6; k++) g.lineTo(Math.cos(k * 1.047) * 13, Math.sin(k * 1.047) * 9); g.closePath(); g.fill(); g.stroke();
+    g.fillStyle = hit ? wc : "#f43f5e"; g.beginPath(); g.arc(0, 0, 3, 0, 6.283); g.fill();
+    g.restore();
+    if (hit) pvGlow(g, sx, ty, 24, wc, 0.6);
+    /* the ship, nose up, with a flickering drive */
+    var spr = previewSprite(sh.id), bob = Math.sin(t * 2.2) * 1.5, shh = 76, sw = spr.width * shh / spr.height;
+    pvGlow(g, sx, sy + shh * 0.42 + bob, 15 + Math.sin(t * 31) * 2, sh.flame, 0.85);
+    g.drawImage(spr, sx - sw / 2, sy - shh / 2 + bob, sw, shh);
+  }
+
   /* ==================================================================== WebGL
      The camera is orthographic and tilted toward the viewer by TILT, so the tops and backs of
      the craft show; the play plane still maps exactly onto the frame, so the game keeps its 2D
@@ -2674,8 +2813,11 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
   /* -------------------------------------------------- one game */
   function create(host, opts) {
     opts = opts || {};
-    var id = opts.id || host.getAttribute("data-ss-id") || ("game" + Object.keys(instances).length);
-    if (instances[id]) throw new Error("SkySentinel: duplicate game id " + id);
+    /* R18: a demo is a scripted scene (makeDemo below), never a playable game: no start screen,
+       no input, not listed by ids() or get(), and not paused by the page's blur handler. */
+    var demo = opts.demo || null;
+    var id = demo ? "demo-" + (++demoCount) : opts.id || host.getAttribute("data-ss-id") || ("game" + Object.keys(instances).length);
+    if (!demo && instances[id]) throw new Error("SkySentinel: duplicate game id " + id);
 
     var cfg = {
       defects: normDefects(opts.defects) || normDefects(null), level: opts.level || 1, seed: opts.seed >>> 0 || 1,
@@ -2690,7 +2832,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 
     /* ---------- DOM */
     host.textContent = "";
-    host.classList.add("ss");
+    host.classList.add(demo ? "ss-demo" : "ss");
     var stage = el("div", "ss-stage");
     function newCanvas() {
       var c = el("canvas", "ss-canvas");
@@ -2725,6 +2867,14 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       try { ctx = canvas.getContext("2d"); } catch (err) { ctx = null; }
       if (ctx) renderer = "2d";
     }
+    if (demo) {
+      canvas.setAttribute("role", "img");
+      canvas.removeAttribute("aria-roledescription");
+      canvas.setAttribute("aria-label", demo.variant === "buggy" ?
+        "Scripted scene: a gunship fires one aimed bolt; the 10-point hit destroys the ship outright" :
+        "Scripted scene: a gunship fires one aimed bolt; the ship loses 10 hull and keeps flying");
+      canvas.tabIndex = -1;
+    }
     var overlay = el("div", "ss-overlay");
     var panel = el("div", "ss-panel");
     var brand = el("p", "ss-brand", "Nexus Defenders");
@@ -2732,6 +2882,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
     /* R14: the start screen. Pick one of four ships (a radio group: click, tap, or arrow keys),
        read the upgrade colour key, then launch with the Start button. */
     var hangar = el("div", "ss-hangar");
+    var PV_DPR = Math.min(2, Math.max(1, Math.round(window.devicePixelRatio || 1)));
     hangar.setAttribute("role", "radiogroup");
     hangar.setAttribute("aria-label", "Choose your ship");
     var shipCards = {};
@@ -2746,7 +2897,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       var wpn = WEAPONS[sh.weapon];
       card.setAttribute("aria-label", sh.name + ", " + sh.role + ". Weapon: " + wpn.name + ", " + wpn.desc.toLowerCase() + ". " + sh.note + ". " + stats + ".");
       var pic = el("canvas", "ss-ship-pic");
-      pic.width = 240; pic.height = 150;
+      pic.width = PREVIEW_W * PV_DPR; pic.height = PREVIEW_H * PV_DPR;
       pic.setAttribute("aria-hidden", "true");
       card.appendChild(pic);
       card.appendChild(el("span", "ss-ship-name", sh.name));
@@ -2766,7 +2917,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       });
       card.appendChild(meters);
       card.addEventListener("click", function () { api.chooseShip(sh.id); });
-      shipCards[sh.id] = { card: card, pic: pic, drawn: false };
+      shipCards[sh.id] = { card: card, pic: pic, g: null };
       hangar.appendChild(card);
     });
     hangar.addEventListener("keydown", function (ev) {
@@ -2829,6 +2980,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       keyBtn.textContent = showKey ? "Ships" : "Upgrade key";
       keyBtn.setAttribute("aria-expanded", showKey ? "true" : "false");
       fitPanel();
+      paintCards();
     });
     /* R16: the overlay never scrolls. The CSS sizes the start screen from the arena (container
        query units), and this is the safety net: if the panel is still taller or wider than the
@@ -2843,22 +2995,38 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
         panel.style.marginTop = Math.max(0, (ch - ph * k) / 2).toFixed(1) + "px";
       }
     }
-    /* Paint each card's lit preview once, the first time the start screen shows. */
-    function paintCards() {
+    /* R18: the cards' live previews. One loop per game draws every card while the start screen
+       shows, the arena is on screen, and the tab is visible; it stops otherwise. With reduced
+       motion each card shows one still frame of its weapon firing. */
+    var pvRaf = 0, pvSeen = true, pvStill = false;
+    function drawCards(t) {
       SHIPS.forEach(function (sh) {
         var c = shipCards[sh.id];
-        if (c.drawn) return;
-        c.drawn = true;
-        var g3 = null;
-        try { g3 = c.pic.getContext("2d"); } catch (err) { g3 = null; }
-        if (!g3) return;
-        var img = meshPicture(sh.id + "2", 0.5, -0.12, 0.62, 240, 150, 8);
-        g3.drawImage(img, 0, 0);
+        if (!c.g) { try { c.g = c.pic.getContext("2d"); } catch (err) { c.g = null; } }
+        if (!c.g) return;
+        c.g.setTransform(PV_DPR, 0, 0, PV_DPR, 0, 0);
+        drawPreview(c.g, sh, t);
       });
+    }
+    function previewWanted() {
+      return !REDUCED && !!S && S.state === "idle" && !overlay.hidden && pvSeen && host.offsetParent !== null &&
+        document.visibilityState !== "hidden" && overlay.getAttribute("data-panel") !== "key";
+    }
+    function previewFrame(now) {
+      pvRaf = 0;
+      if (!previewWanted()) return;
+      drawCards(now / 1000);
+      pvRaf = window.requestAnimationFrame(previewFrame);
+    }
+    function paintCards() {
+      if (demo) return;
+      if (!previewWanted()) { if (!pvStill && S && S.state === "idle") { pvStill = true; drawCards(PREVIEW_STILL); } return; }
+      pvStill = false;
+      if (!pvRaf) pvRaf = window.requestAnimationFrame(previewFrame);
     }
     stage.appendChild(canvas);
     if (hudCanvas) stage.appendChild(hudCanvas);
-    stage.appendChild(overlay);
+    if (!demo) stage.appendChild(overlay);
     var hud = el("div", "ss-hud");
     var hudScore = el("span", "ss-hud-item"), hudLives = el("span", "ss-hud-item"), hudLevel = el("span", "ss-hud-item"), hudState = el("span", "ss-hud-item");
     hud.appendChild(hudScore); hud.appendChild(hudLives); hud.appendChild(hudLevel); hud.appendChild(hudState);
@@ -2877,9 +3045,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
     var fallback = el("p", "ss-fallback", "This browser cannot draw the game. The story still works: each stage describes what the game would show.");
     fallback.hidden = true;
     host.appendChild(stage);
-    host.appendChild(hud);
-    host.appendChild(touch);
-    host.appendChild(live);
+    if (!demo) { host.appendChild(hud); host.appendChild(touch); host.appendChild(live); }
     host.appendChild(fallback);
     host.setAttribute("data-ss-renderer-active", renderer);
     if (renderer === "none") { fallback.hidden = false; stage.hidden = true; }
@@ -2896,7 +3062,13 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 
     /* ---------- sizing */
     function arenaCap() { return Math.max(260, (window.innerHeight || 800) - 250); }
+    function demoSize() {
+      var cw = host.clientWidth || 480, ch = host.clientHeight || Math.round(cw * 0.62);
+      return { w: Math.max(200, cw), h: Math.max(140, ch) };
+    }
     function chooseWorld() {
+      /* R18: a demo's world is 600 units tall and as wide as its host's shape */
+      if (demo) { var ds = demoSize(); world = { w: clamp(Math.round(600 * ds.w / ds.h), 360, 1500), h: 600 }; return; }
       /* A hidden stage measures 0 px, so fall back to the viewport before guessing landscape. */
       var w = host.clientWidth || window.innerWidth || 960;
       if (w < 600) { world = { w: 720, h: 960 }; return; }
@@ -2913,6 +3085,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       var cssW = Math.max(240, stage.clientWidth || host.clientWidth || 960);
       var cssH = cssW * world.h / world.w;
       if (cssH > arenaCap()) cssH = arenaCap();
+      if (demo) { var dsz = demoSize(); cssW = dsz.w; cssH = Math.round(dsz.w * world.h / world.w); }
       var dpr = Math.min(window.devicePixelRatio || 1, 3);
       canvas.style.height = Math.round(cssH) + "px";
       canvas.width = Math.round(cssW * dpr);
@@ -2940,7 +3113,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
         enemies: [], enemyShots: [], shots: [], asteroids: [], powerUps: [], effects: [], popups: [],
         spawnIn: 50, rockIn: 240, firstShotTick: null, firstShotGap: null, spawned: 0,
         nextExplosion: firstExplosion(r.defects), explodeTicks: [], hitTicks: [], damageLog: [], lastDamage: null, damageTaken: 0,
-        breaks: [], collected: [], levelUps: [], boss: null, bossDue: cfg.boss && level === 3 ? (cfg.bossNow ? BOSS_AFTER_JUMP : BOSS_AFTER) : null,
+        breaks: [], collected: [], levelUps: [], aimLog: [], boss: null, bossDue: cfg.boss && level === 3 ? (cfg.bossNow ? BOSS_AFTER_JUMP : BOSS_AFTER) : null,
         overReason: null, overText: null, victory: false, banner: null, shake: 0
       };
       acc = 0;
@@ -3045,26 +3218,39 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       if (S.firstShotTick === null) { S.firstShotTick = S.tick; S.firstShotGap = S.player.y - y; }
       return o;
     }
+    /* R18: every enemy weapon aims at the ship's position at the moment it fires. Difficulty comes
+       from fire rate, shot speed, and the start grace, never from deliberate misses. aimLog keeps
+       each shot's origin, heading, and the ship's position then, so a test can measure the aim. */
+    function logAim(cls, kind, x, y, vx, vy, tx, ty) {
+      var p = S.player;
+      S.aimLog.push({ cls: cls, kind: kind, tick: S.tick, x: x, y: y, vx: vx, vy: vy, tx: tx == null ? null : tx, ty: ty == null ? null : ty, px: p.x, py: p.y });
+      if (S.aimLog.length > 200) S.aimLog.shift();
+    }
+    /* One round from (x, y) straight at the ship at speed sp. */
+    function aimedShot(cls, x, y, sp, kind, extra) {
+      var p = S.player, dx = p.x - x, dy = p.y - y, l = Math.sqrt(dx * dx + dy * dy) || 1;
+      logAim(cls, kind, x, y, dx / l * sp, dy / l * sp);
+      return enemyShot(x, y, dx / l * sp, dy / l * sp, kind, extra);
+    }
     /* Fire an enemy's weapon; returns the ticks until it may fire again, scaled by difficulty. */
     function enemyFire(e) {
       var p = S.player, d = diff(), rng = S.rng.spawn;
-      var dx = p.x - e.x, dy = Math.max(60, p.y - e.y), len = Math.sqrt(dx * dx + dy * dy);
       if (e.type === "gunship") {
-        /* aimed loosely, as a pilot leads a target, so a moving ship can slip out of the line */
-        var aim = clamp(dx / 110, -2.4, 2.4) * 0.75;
-        for (var b = 0; b < d.burst; b++) enemyShot(e.x + (b ? 7 : -7) * (d.burst - 1), e.y + e.r, aim + (b ? 0.5 : -0.5) * (d.burst - 1), 5.8, "bolt");
+        /* bolts from each gun, every one aimed at the ship; at Hard a gunship fires two guns */
+        for (var b = 0; b < d.burst; b++) aimedShot("gunship", e.x + (b ? 7 : -7) * (d.burst - 1), e.y + e.r, 6, "bolt");
         return Math.round((100 + Math.floor(rng() * 70)) * d.fire);
       }
       if (e.type === "interceptor") {
-        enemyShot(e.x - 4, e.y + e.r, dx / len * 1.6, 7.4, "needle", { src: "needle" });
-        enemyShot(e.x + 4, e.y + e.r, dx / len * 1.6, 7.4, "needle", { src: "needle" });
+        aimedShot("interceptor", e.x - 4, e.y + e.r, 7.6, "needle", { src: "needle" });
+        aimedShot("interceptor", e.x + 4, e.y + e.r, 7.6, "needle", { src: "needle" });
         return Math.round((130 + Math.floor(rng() * 60)) * d.fire);
       }
-      if (e.type === "lancer") { e.charge = 50; return Math.round((220 + Math.floor(rng() * 90)) * d.fire); }
-      /* a bomb never aims closer to a wall than its blast reaches, so it cannot pin a ship there */
-      var wall = pspan() * VIS + BLAST_RADIUS + 28;
-      var tx = clamp(p.x, wall, world.w - wall), ty = p.y, bl = Math.sqrt((tx - e.x) * (tx - e.x) + (ty - e.y) * (ty - e.y)) || 1;
-      enemyShot(e.x, e.y + e.r * 0.4, (tx - e.x) / bl * 2.8, (ty - e.y) / bl * 2.8, "bomb", { tx: tx, ty: ty, fuse: 260, arm: 0, src: "blast" });
+      /* a lancer first lines up on the ship's column (moveEnemy), then charges: the charge is the tell */
+      if (e.type === "lancer") { if (e.mode !== "leave") e.align = true; return Math.round((220 + Math.floor(rng() * 90)) * d.fire); }
+      /* a bomb flies to where the ship is when it is dropped and arms there (or near the ship) */
+      var tx = p.x, ty = p.y, bl = Math.sqrt((tx - e.x) * (tx - e.x) + (ty - e.y) * (ty - e.y)) || 1, by = e.y + e.r * 0.4;
+      logAim("bomber", "bomb", e.x, by, (tx - e.x) / bl * 2.8, (ty - by) / bl * 2.8, tx, ty);
+      enemyShot(e.x, by, (tx - e.x) / bl * 2.8, (ty - by) / bl * 2.8, "bomb", { tx: tx, ty: ty, fuse: 260, arm: 0, src: "blast" });
       return Math.round((250 + Math.floor(rng() * 90)) * d.fire);
     }
     function moveEnemy(e) {
@@ -3083,13 +3269,22 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
         if (e.mode === "leave") e.y += 1.3;
         else if (e.y < e.holdY) e.y += e.vy;
         /* while it is not charging or firing, a lancer slides toward the ship's column */
-        if (e.charge === 0 && e.beamT === 0 && e.mode !== "leave") e.x += clamp(p.x - e.x, -0.8, 0.8);
+        if (e.charge === 0 && e.beamT === 0 && e.mode !== "leave" && !e.align) e.x += clamp(p.x - e.x, -0.8, 0.8);
       } else {
         e.phase += 0.04;
         var sway = Math.sin(e.phase) * (e.type === "bomber" ? 0.5 : 0.9);
         if (e.x + e.vx + sway < e.r || e.x + e.vx + sway > world.w - e.r) e.vx = -e.vx;
         e.x = clamp(e.x + e.vx + sway, e.r, world.w - e.r);
         e.y += e.vy;
+      }
+      /* R18: a lancer due to fire lines up on the ship's column first (even one a test placed),
+         then holds still and charges, so the beam lands where the ship was when it lined up */
+      if (e.align && e.charge === 0 && e.beamT === 0) {
+        var gap = p.x - e.x;
+        if (Math.abs(gap) <= 3.2) {
+          e.x = clamp(p.x, e.r, world.w - e.r); e.align = false; e.charge = 50;
+          logAim("lancer", "beam", e.x, e.y + e.r, 0, 1);
+        } else e.x = clamp(e.x + clamp(gap, -3.2, 3.2), e.r, world.w - e.r);
       }
       e.bank = e.bank * 0.85 + clamp((e.x - before) * 0.25, -0.6, 0.6) * 0.15;
       /* A lancer's charge is its tell: the beam fires when the charge runs out. */
@@ -3101,7 +3296,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       }
       if (e.beamT > 0) e.beamT -= 1;
       e.fireIn -= 1;
-      if (e.fireIn <= 0 && e.charge === 0 && e.beamT === 0) e.fireIn = enemyMayFire(e) ? enemyFire(e) : 12;
+      if (e.fireIn <= 0 && e.charge === 0 && e.beamT === 0 && !e.align) e.fireIn = enemyMayFire(e) ? enemyFire(e) : 12;
     }
     function detonate(o) {
       var p = S.player, d = Math.hypot(p.x - o.x, p.y - o.y);
@@ -3377,12 +3572,23 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       if (kind === "cannon") return { kind: "cannon", x: x, y: y, r: 5.5, vx: vx, vy: -13, dmg: 2 };
       if (kind === "burst") return { kind: "burst", x: x, y: y, r: 3, vx: vx * 1.2, vy: -16, dmg: 1 };
       if (kind === "orb") return { kind: "orb", x: x, y: y, r: 7, vx: vx, vy: -6.5, dmg: 2, gen: 0 };
+      if (kind === "flak") { var fa = Math.atan2(vx || 0, 6.5); return { kind: "flak", x: x, y: y, r: 3.5, vx: Math.sin(fa) * FLAK.speed, vy: -Math.cos(fa) * FLAK.speed, dmg: 1, life: FLAK.life }; }
       /* the lance: a ray from the nose, held while the trigger is held, re-cut every pull */
       return { kind: "lance", x: x, y: y, off: x - p.x, r: 5, vx: vx, vy: -13, len: LANCE_LEN, life: 0, dmg: 1, hits: [] };
     }
     function volley(kind) {
       var p = S.player, pierce = p.pierce > 0;
       barrels().forEach(function (b) {
+        /* R18: a flak barrel fires a cone of pellets; a Spread side barrel adds one pellet */
+        if (kind === "flak" && b[1] === 0) {
+          for (var k = 0; k < FLAK.pellets; k++) {
+            var ang = (k / (FLAK.pellets - 1) - 0.5) * 2 * FLAK.cone, pel = makeRound("flak", p.x + b[0], 0);
+            pel.vx = Math.sin(ang) * FLAK.speed; pel.vy = -Math.cos(ang) * FLAK.speed;
+            if (pierce) { pel.pierce = true; pel.hits = []; }
+            S.shots.push(pel);
+          }
+          return;
+        }
         var sh = makeRound(kind, p.x + b[0], b[1]);
         if (pierce || kind === "lance") { sh.pierce = true; sh.hits = sh.hits || []; }
         if (kind === "lance") { sh.life = Math.max(2, p.cooldown) + 1; if (pierce) sh.len = world.h; }
@@ -3433,6 +3639,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
           sh.vx *= k; sh.vy *= k; sh.x += sh.vx; sh.y += sh.vy; sh.spin = (sh.spin || 0) + 0.2;
           continue;
         }
+        if (sh.kind === "flak") { sh.x += sh.vx; sh.y += sh.vy; sh.vx *= 0.97; sh.vy *= 0.97; sh.life -= 1; continue; }
         if (sh.kind !== "missile") { sh.y += sh.vy || -13; sh.x += sh.vx || 0; continue; }
         var target = null, best = 1e9;
         for (var j = 0; j < S.enemies.length; j++) { var d = Math.hypot(S.enemies[j].x - sh.x, S.enemies[j].y - sh.y); if (d < best && S.enemies[j].y < sh.y) { best = d; target = S.enemies[j]; } }
@@ -3474,15 +3681,17 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
         n.fireIn -= 1;
         if (n.fireIn <= 0) {
           var at = bossPoint(b, LOGO.nodes[n.i][0], LOGO.nodes[n.i][1]);
-          var dx = p.x - at[0], dy = p.y - at[1], d = Math.sqrt(dx * dx + dy * dy) || 1;
-          enemyShot(at[0], at[1], dx / d * 4.2, dy / d * 4.2, "bolt", { src: "bossShot" });
+          aimedShot("boss", at[0], at[1], 4.2, "bolt", { src: "bossShot" });
           n.fireIn = 84;
         }
       });
       if (b.entered && nodesAlive(b) === 0) {
         b.fireIn -= 1;
         if (b.fireIn <= 0) {
-          for (var k = -2; k <= 2; k++) enemyShot(b.x, b.y + LOGO.coreR * b.s, k * 1.3, 4.4, "bolt", { src: "bossShot" });
+          /* the exposed core fires a fan of five centred on the ship */
+          var cy0 = b.y + LOGO.coreR * b.s, ca = Math.atan2(p.x - b.x, p.y - cy0);
+          logAim("boss", "bolt", b.x, cy0, Math.sin(ca) * 4.4, Math.cos(ca) * 4.4);
+          for (var k = -2; k <= 2; k++) enemyShot(b.x, cy0, Math.sin(ca + k * 0.28) * 4.4, Math.cos(ca + k * 0.28) * 4.4, "bolt", { src: "bossShot" });
           b.fireIn = 80;
         }
       }
@@ -3684,7 +3893,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
         if (used && s.kind === "orb" && !s.gen) [-1, 1].forEach(function (side) {
           S.shots.push({ kind: "orb", gen: 1, x: s.x + side * 6, y: s.y - 4, r: 4, vx: side * 3.2, vy: -5.6, dmg: 1, hits: hitAt ? [hitAt] : [] });
         });
-        var gone = s.kind === "lance" ? s.life <= 0 : (s.y < -10 || s.y > world.h + 10 || s.x < -10 || s.x > world.w + 10);
+        var gone = s.kind === "lance" || s.kind === "flak" ? s.life <= 0 : (s.y < -10 || s.y > world.h + 10 || s.x < -10 || s.x > world.w + 10);
         if (used || gone) S.shots.splice(i, 1);
       }
 
@@ -3979,17 +4188,23 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
         /* R16: each ship's weapon has its own look */
         if (sh.kind === "lance") {
           var le = lanceEnd(sh), lx = (sh.x + le[0]) / 2, lz = (sh.y + le[1]) / 2, flick = REDUCED ? 1 : 0.85 + 0.15 * Math.sin(S.tick * 1.7);
-          streak(lx, lz, le[0] - sh.x, le[1] - sh.y, sh.len / 2, 11 * flick, col("#a855f7"), 1, 8, 2);
-          streak(lx, lz, le[0] - sh.x, le[1] - sh.y, sh.len / 2, 3.6, [1, 0.92, 1], 1, 8, 2);
-          glow(sh.x, sh.y - 4, 16, col("#c084fc"), 0.8, 8);
-          glow(le[0], le[1], 12, col("#e9d5ff"), 0.6, 8);
+          streak(lx, lz, le[0] - sh.x, le[1] - sh.y, sh.len / 2, 11 * flick, col("#eab308"), 1, 8, 2);
+          streak(lx, lz, le[0] - sh.x, le[1] - sh.y, sh.len / 2, 3.6, [1, 1, 0.85], 1, 8, 2);
+          glow(sh.x, sh.y - 4, 16, col("#facc15"), 0.8, 8);
+          glow(le[0], le[1], 12, col("#fef08a"), 0.6, 8);
           continue;
         }
         if (sh.kind === "orb") {
           var orr = sh.gen ? 7 : 12;
-          glow(sh.x, sh.y, orr * 2.2, col("#e11d48"), 0.8, 8);
-          glow(sh.x, sh.y, orr * 0.9, col("#fecdd3"), 1, 8);
-          quad(sh.x, 9, sh.y, orr * 1.3, 0, 0, orr * 1.3, col("#fb7185"), 0.6, 1);
+          glow(sh.x, sh.y, orr * 2.2, col("#ea580c"), 0.8, 8);
+          glow(sh.x, sh.y, orr * 0.9, col("#ffedd5"), 1, 8);
+          quad(sh.x, 9, sh.y, orr * 1.3, 0, 0, orr * 1.3, col("#fb923c"), 0.6, 1);
+          continue;
+        }
+        if (sh.kind === "flak") {
+          var fk = sh.life / FLAK.life;
+          streak(sh.x, sh.y, sh.vx, sh.vy, 7, 3.4, col("#4ade80"), 0.5 + fk * 0.5, 8);
+          glow(sh.x, sh.y, 9, col("#22c55e"), 0.3 + fk * 0.5, 8);
           continue;
         }
         if (sh.kind === "burst") {
@@ -3998,9 +4213,9 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
           continue;
         }
         if (sh.kind === "cannon" && !sh.pierce) {
-          streak(sh.x, sh.y, sh.vx || 0, -13, 15, 5.2, col("#22d3ee"), 1, 8);
-          streak(sh.x, sh.y, sh.vx || 0, -13, 10, 2, [0.9, 1, 1], 0.9, 8);
-          glow(sh.x, sh.y - 6, 13, col("#22d3ee"), 0.5, 8);
+          streak(sh.x, sh.y, sh.vx || 0, -13, 15, 5.2, col("#3b82f6"), 1, 8);
+          streak(sh.x, sh.y, sh.vx || 0, -13, 10, 2, [0.85, 0.92, 1], 0.9, 8);
+          glow(sh.x, sh.y - 6, 13, col("#60a5fa"), 0.5, 8);
           continue;
         }
         if (sh.pierce) {
@@ -4291,18 +4506,19 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       if (sh.kind === "lance") {
         var e = lanceEnd(sh);
         ctx.save(); ctx.lineCap = "round";
-        ctx.strokeStyle = "rgba(168,85,247,0.75)"; ctx.lineWidth = 9; ctx.beginPath(); ctx.moveTo(sh.x, sh.y); ctx.lineTo(e[0], e[1]); ctx.stroke();
-        ctx.strokeStyle = "#f5e8ff"; ctx.lineWidth = 3; ctx.stroke();
+        ctx.strokeStyle = "rgba(234,179,8,0.75)"; ctx.lineWidth = 9; ctx.beginPath(); ctx.moveTo(sh.x, sh.y); ctx.lineTo(e[0], e[1]); ctx.stroke();
+        ctx.strokeStyle = "#fefce8"; ctx.lineWidth = 3; ctx.stroke();
         ctx.restore();
         return;
       }
       if (sh.kind === "orb") {
         var r = sh.gen ? 4 : 7, g = ctx.createRadialGradient(sh.x, sh.y, 0, sh.x, sh.y, r * 2);
-        g.addColorStop(0, "#fff1f2"); g.addColorStop(0.4, "#fb7185"); g.addColorStop(1, "rgba(225,29,72,0)");
+        g.addColorStop(0, "#fff7ed"); g.addColorStop(0.4, "#fb923c"); g.addColorStop(1, "rgba(234,88,12,0)");
         ctx.fillStyle = g; ctx.beginPath(); ctx.arc(sh.x, sh.y, r * 2, 0, 6.283); ctx.fill();
         return;
       }
-      var look = { missile: ["#fb923c", 3, 14], cannon: ["#67e8f9", 5, 16], burst: ["#fca5a5", 2, 12] }[sh.kind] || ["#a5f3fc", 3, 14];
+      if (sh.kind === "flak") { ctx.globalAlpha = 0.4 + 0.6 * sh.life / FLAK.life; ctx.fillStyle = "#4ade80"; ctx.beginPath(); ctx.arc(sh.x, sh.y, 3.5, 0, 6.283); ctx.fill(); ctx.globalAlpha = 1; return; }
+      var look = { missile: ["#fb923c", 3, 14], cannon: ["#60a5fa", 5, 16], burst: ["#fca5a5", 2, 12] }[sh.kind] || ["#a5f3fc", 3, 14];
       ctx.fillStyle = look[0]; ctx.fillRect(sh.x - look[1] / 2, sh.y - 8, look[1], look[2]);
     }
     function rgbCss(c, a) { return "rgba(" + Math.round(c[0] * 255) + "," + Math.round(c[1] * 255) + "," + Math.round(c[2] * 255) + "," + a + ")"; }
@@ -4418,7 +4634,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 
     /* ---------- the HUD, drawn in the arena at screen size: hull and shield bars, score, level,
        difficulty and goal, upgrades, damage numbers */
-    var hudFont = null, hpShown = HEALTH_MAX, shShown = 0;
+    var hudFont = null, hpShown = HEALTH_MAX, shShown = 0, popupBoxes = [];
     function goal() {
       if (!S) return null;
       if (S.boss) return { text: S.boss.entered ? (nodesAlive(S.boss) ? "Break the " + nodesAlive(S.boss) + " glowing nodes, then the core" : "The core is open: destroy it") : "The Nexus megaship is arriving", k: S.boss.entered ? 1 - nodesAlive(S.boss) / 4 : 0 };
@@ -4481,18 +4697,45 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       ctx.setTransform(m.s, 0, 0, m.s, m.ox, m.oy);
       ctx.textAlign = "center"; ctx.textBaseline = "middle";
       ctx.font = "900 " + (small ? 22 : 17) + "px " + hudFont;
+      /* R18: the end card sits in the centre of the arena; a damage number under it moves just
+         below it (or above it when there is no room), so the hit always stays readable */
+      var avoid = null;
+      popupBoxes = [];
+      if (S.state === "over" && !demo && !overlay.hidden && panel.offsetHeight) {
+        var cr = canvas.getBoundingClientRect(), pr = panel.getBoundingClientRect();
+        var toY = function (v) { return ((v - cr.top) * dpr - m.oy) / m.s; }, toX = function (v) { return ((v - cr.left) * dpr - m.ox) / m.s; };
+        avoid = { top: toY(pr.top), bottom: toY(pr.bottom), left: toX(pr.left), right: toX(pr.right) };
+      }
       S.popups.forEach(function (u) {
+        var uy = u.y, half = u.big ? 30 : 16;
+        if (avoid && u.x > avoid.left - 60 && u.x < avoid.right + 60 && uy + half > avoid.top && uy - half < avoid.bottom)
+          uy = avoid.bottom + half + 10 < world.h - half ? avoid.bottom + half + 10 : avoid.top - half - 10;
+        popupBoxes.push({ text: u.text, x: (u.x * m.s + m.ox) / dpr, y: (uy * m.s + m.oy) / dpr });
         ctx.globalAlpha = Math.max(0, Math.min(1, (u.life - u.t) / 25));
         if (u.big) {
           /* the fatal hit's number: large, outlined, and held while the bar drains */
           ctx.font = "900 " + (small ? 44 : 34) + "px " + hudFont;
-          ctx.lineWidth = 6; ctx.strokeStyle = "rgba(40,4,4,0.85)"; ctx.strokeText(u.text, u.x, u.y);
-          ctx.fillStyle = u.color; ctx.fillText(u.text, u.x, u.y);
+          ctx.lineWidth = 6; ctx.strokeStyle = "rgba(40,4,4,0.85)"; ctx.strokeText(u.text, u.x, uy);
+          ctx.fillStyle = u.color; ctx.fillText(u.text, u.x, uy);
           ctx.font = "900 " + (small ? 22 : 17) + "px " + hudFont;
-        } else { ctx.fillStyle = u.color; ctx.fillText(u.text, u.x, u.y); }
+        } else { ctx.fillStyle = u.color; ctx.fillText(u.text, u.x, uy); }
       });
       ctx.globalAlpha = 1;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      if (demo) {
+        /* a demo shows only a small hull bar (and the red edge on a hit) */
+        var dHM = S.healthMax, dhf = p.health / dHM;
+        hpShown = Math.max(p.health, Math.min(hpShown, dHM) - Math.max(0.6, (hpShown - p.health) * (S.hpFrom ? 0.045 : 0)));
+        if (hpShown < p.health) hpShown = p.health;
+        var dhc = dhf > 0.6 ? ["#10b981", "#5eead4"] : dhf > 0.3 ? ["#f59e0b", "#fde047"] : ["#dc2626", "#fb7185"];
+        hudBar(14, 24, Math.min(150, W * 0.34), 8, dhf, hpShown / dHM, dhc[0], dhc[1], "HULL", Math.ceil(p.health) + " / " + dHM, S.hpFrom ? "rgba(248,113,113,0.9)" : null);
+        if (p.hurt > 0 && !REDUCED) {
+          var dv = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.35, W / 2, H / 2, Math.max(W, H) * 0.7);
+          dv.addColorStop(0, "rgba(220,38,38,0)"); dv.addColorStop(1, "rgba(220,38,38," + (0.35 * p.hurt / 14).toFixed(2) + ")");
+          ctx.fillStyle = dv; ctx.fillRect(0, 0, W, H);
+        }
+        return;
+      }
       var bar = ctx.createLinearGradient(0, 0, 0, small ? 70 : 56);
       bar.addColorStop(0, "rgba(2,8,12,0.75)"); bar.addColorStop(1, "rgba(2,8,12,0)");
       ctx.fillStyle = bar; ctx.fillRect(0, 0, W, small ? 76 : 62);
@@ -4620,6 +4863,20 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       host.setAttribute("data-ss-ship", S.ship.id);
     }
 
+    /* The explosion plays out for a moment after a run ends (one step per frame). */
+    function afterglowStep() {
+      if (!S || S.state !== "over" || !(S.afterglow > 0)) return;
+      S.afterglow -= 1;
+      if (S.player.hurt > 0) S.player.hurt -= 0.5;
+      if (S.shake > 0) S.shake = Math.max(0, S.shake - 0.5);
+      for (var k = 0; k < S.effects.length; k++) {
+        var f = S.effects[k];
+        f.t += 1;
+        if (f.vx != null) { f.x += f.vx; f.y += f.vy; f.vx *= 0.94; f.vy *= 0.94; }
+      }
+      S.effects = S.effects.filter(function (o) { return o.t < o.life; });
+    }
+
     /* ---------- control */
     function releaseKeys() { held.left = held.right = held.up = held.down = held.fire = false; }
     function start() {
@@ -4715,6 +4972,9 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
         if (!S || S.state === "idle") return false;
         return withRunning(function () { return hitPlayer(source || "test", detail, source === "blast" ? detail : undefined); });
       },
+      /* R18: every aimed shot since the run began (last 200): origin, heading, and the ship's
+         position when it fired; a bomb also carries its aim point, a lancer its beam column */
+      aimLog: function () { return S ? S.aimLog.map(function (a) { var o = {}; for (var k in a) o[k] = a[k]; return o; }) : []; },
       damageFor: function (source, detail) { return S ? damageFor(source, detail, source === "blast" ? detail : undefined) : 0; },
       dropPowerUp: function (kind) {
         if (kind === "ship") kind = "repair";   /* the old extra-ship name still works */
@@ -4740,8 +5000,10 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       /* R14: the ships on the start screen, and choosing one. A choice made before a run (or
          after one ends) resets the game with that ship; during a run it waits for the next. */
       ships: function () {
-        return SHIPS.map(function (s) { var w = WEAPONS[s.weapon]; return { id: s.id, name: s.name, role: s.role, note: s.note, hull: s.hull, speed: s.speed, fire: s.fire, accent: s.accent, scheme: s.scheme, weapon: s.weapon, weaponName: w.name, weaponNote: w.desc }; });
+        return SHIPS.map(function (s) { var w = WEAPONS[s.weapon]; return { id: s.id, name: s.name, role: s.role, note: s.note, hull: s.hull, speed: s.speed, fire: s.fire, accent: s.accent, colour: s.colour, scheme: s.scheme, weapon: s.weapon, weaponName: w.name, weaponNote: w.desc, weaponColor: w.color }; });
       },
+      /* R18: true while the start screen's card previews are animating */
+      previewing: function () { return !!pvRaf; },
       chooseShip: function (shipId) {
         if (!shipById(shipId)) return false;
         cfg.ship = shipId;
@@ -4824,6 +5086,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
           drops: S.drops.slice(), powerUpKinds: S.powerUps.map(function (u) { return u.kind; }),
           upgrades: TIMED.filter(function (k) { return p[k] > 0; }).map(function (k) { return { kind: k, ticks: p[k] }; }),
           popups: S.popups.map(function (u) { return { text: u.text, color: u.color, big: u.big }; }),
+          popupBoxes: popupBoxes.slice(),
           shotKinds: S.enemyShots.map(function (o) { return o.kind; }), goal: goal(),
           enemies: S.enemies.length, enemyShots: S.enemyShots.length, asteroids: S.asteroids.length, shots: S.shots.length,
           enemyTypes: S.enemies.map(function (e) { return e.type; }), spawned: S.spawned,
@@ -4839,15 +5102,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       animating: function () { return !!S && S.state === "over" && S.afterglow > 0; },
       frame: function (now) {
         if (S && S.state === "over" && S.afterglow > 0) {
-          S.afterglow -= 1;
-          if (S.player.hurt > 0) S.player.hurt -= 0.5;
-          if (S.shake > 0) S.shake = Math.max(0, S.shake - 0.5);
-          for (var k = 0; k < S.effects.length; k++) {
-            var f = S.effects[k];
-            f.t += 1;
-            if (f.vx != null) { f.x += f.vx; f.y += f.vy; f.vx *= 0.94; f.vy *= 0.94; }
-          }
-          S.effects = S.effects.filter(function (o) { return o.t < o.life; });
+          afterglowStep();
           draw();
           last = 0;
           return;
@@ -4863,6 +5118,144 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
       },
       destroy: function () { delete instances[id]; if (io) io.disconnect(); if (ro) ro.disconnect(); }
     };
+
+    /* ---------- R18 (T086): demo mode. A scripted, non-interactive scene drawn by the real
+       renderer: a gunship glides in above the ship and fires one aimed bolt at it. In the
+       'buggy' variant the first-hit defect turns that 10-point hit into instant destruction (the
+       big explosion, the hull bar draining to 0); in the 'fixed' variant the hull drops by the
+       hit's real damage and the ship keeps flying, lines up, and shoots the gunship down. The
+       scene is a pure function of its tick (DEMO_TICKS long), so seek() is exact. */
+    function makeDemo() {
+      var DEMO_TICKS = 240, FIRE_AT = 50;
+      var dl = {}, mute = false;
+      var D = { t: 0, playing: false, ended: false, hit: null, raf: 0, last: 0, acc: 0, seen: true, enemy: null };
+      function demoEmit(name, detail) {
+        if (mute) return;
+        var fns = dl[name] || [];
+        for (var i = 0; i < fns.length; i++) { try { fns[i](detail); } catch (err) { if (window.console) console.error(err); } }
+      }
+      function sceneReset() {
+        cfg.defects = { firstHitFatal: demo.variant === "buggy", randomExplosion: false };
+        cfg.threats = false; cfg.progression = false; cfg.boss = false; cfg.bossNow = false; cfg.level = 1;
+        cfg.seed = demo.seed; cfg.ship = demo.ship;
+        reset();
+        S.state = "running";
+        S.player.x = Math.round(world.w * 0.46);
+        var e = makeEnemy("gunship", Math.round(world.w * 0.6), -40);
+        e.pinned = true; e.fireIn = 1e9;
+        S.enemies.push(e);
+        D.enemy = e; D.t = 0; D.ended = false; D.hit = null; D.acc = 0; D.last = 0;
+        releaseKeys();
+      }
+      function script() {
+        var e = D.enemy, p = S.player;
+        if (D.t <= 45) e.y = -40 + 160 * ease(D.t / 45);
+        if (D.t === FIRE_AT && S.enemies.indexOf(e) !== -1) enemyFire(e);
+        /* after the hit the fixed ship flies on: it slides under the gunship and fires */
+        if (D.hit && S.state === "running") {
+          var alive = S.enemies.indexOf(e) !== -1, gap = e.x - p.x;
+          held.right = alive && gap > 6; held.left = alive && gap < -6;
+          held.fire = alive && Math.abs(gap) < 30;
+          if (!alive) { held.left = held.right = held.fire = false; }
+        }
+      }
+      function stepOnce() {
+        if (D.ended) return;
+        if (S.state === "running") { script(); tick(); }
+        else afterglowStep();
+        D.t += 1;
+        if (!D.hit && S.damageLog.length) {
+          var h = S.damageLog[0];
+          D.hit = { source: h.source, amount: h.amount, health: S.player.health, healthMax: S.healthMax, fatal: !!h.fatal, ms: Math.round(D.t * 1000 / HZ) };
+          demoEmit("hit", { variant: demo.variant, source: h.source, sourceText: sourceText(h.source, h.detail), amount: h.amount, health: S.player.health, healthMax: S.healthMax, fatal: !!h.fatal, ms: D.hit.ms });
+        }
+        if (D.t >= DEMO_TICKS) {
+          D.ended = true; D.playing = false; releaseKeys();
+          demoEmit("end", { variant: demo.variant, destroyed: S.state === "over", health: S.player.health, healthMax: S.healthMax, ms: Math.round(D.t * 1000 / HZ) });
+        }
+      }
+      function settleBars() { hpShown = S.player.health; shShown = 0; }
+      function seek(ms) {
+        sceneReset();
+        var n = clamp(Math.round((ms || 0) * HZ / 1000), 0, DEMO_TICKS);
+        for (var k = 0; k < n; k++) stepOnce();
+        if (D.hit && D.t - D.hit.ms * HZ / 1000 > 100) settleBars();
+        draw();
+      }
+      function wanted() { return D.playing && D.seen && document.visibilityState !== "hidden"; }
+      function frameDemo(now) {
+        D.raf = 0;
+        if (!wanted()) { D.last = 0; return; }
+        if (!D.last) D.last = now;
+        D.acc += Math.min(250, now - D.last) / 1000;
+        D.last = now;
+        var steps = 0;
+        while (D.acc >= 1 / HZ && steps < MAX_STEPS_PER_FRAME && !D.ended) { stepOnce(); D.acc -= 1 / HZ; steps += 1; }
+        if (steps) draw();
+        if (!D.ended) D.raf = window.requestAnimationFrame(frameDemo);
+      }
+      function kick() { if (!D.raf && wanted()) D.raf = window.requestAnimationFrame(frameDemo); }
+      /* the hit's real numbers, from a silent dry run of the scene */
+      mute = true; seek(DEMO_TICKS * 1000 / HZ);
+      var dry = D.hit ? { amount: D.hit.amount, ms: D.hit.ms, after: S.player.health } : { amount: damageFor("shot"), ms: null, after: S.healthMax };
+      mute = false; seek(0);
+      var dio = null, dro = null;
+      function onVisible() { kick(); }
+      document.addEventListener("visibilitychange", onVisible);
+      if ("IntersectionObserver" in window) {
+        dio = new IntersectionObserver(function (entries) { for (var k = 0; k < entries.length; k++) D.seen = entries[k].isIntersecting; kick(); });
+        dio.observe(host);
+      }
+      if ("ResizeObserver" in window) {
+        var lastW = host.clientWidth, lastH = host.clientHeight;
+        dro = new ResizeObserver(function () {
+          if (host.clientWidth === lastW && host.clientHeight === lastH) return;
+          lastW = host.clientWidth; lastH = host.clientHeight;
+          var t = D.t, was = D.playing, quiet = mute;
+          mute = true; chooseWorld(); fit(); seek(t * 1000 / HZ); mute = quiet;
+          D.playing = was && !D.ended; kick();
+        });
+        dro.observe(host);
+      }
+      var ctl = {
+        variant: demo.variant, ship: demo.ship, duration: Math.round(DEMO_TICKS * 1000 / HZ),
+        /* the scripted hit: a gunship bolt, its damage at level 1, and the hull the scene ends on */
+        info: { source: "shot", sourceText: sourceText("shot"), amount: dry.amount, hitMs: dry.ms, hullBefore: S.healthMax,
+                hullAfter: demo.variant === "buggy" ? 0 : dry.after, destroyed: demo.variant === "buggy" },
+        play: function () {
+          if (D.ended) seek(0);
+          if (REDUCED) { seek(DEMO_TICKS * 1000 / HZ); return ctl; }
+          D.playing = true; D.last = 0; kick();
+          return ctl;
+        },
+        pause: function () { D.playing = false; return ctl; },
+        reset: function () { D.playing = false; seek(0); return ctl; },
+        seek: function (ms) { var was = D.playing; seek(ms); D.playing = was && !D.ended; kick(); return ctl; },
+        on: function (name, fn) { (dl[name] = dl[name] || []).push(fn); return ctl; },
+        state: function () {
+          return { ms: Math.round(D.t * 1000 / HZ), tick: D.t, playing: D.playing, ended: D.ended, hit: D.hit ? { source: D.hit.source, amount: D.hit.amount, health: D.hit.health, fatal: D.hit.fatal, ms: D.hit.ms } : null,
+                   health: S.player.health, healthMax: S.healthMax, destroyed: S.state === "over", renderer: renderer, variant: demo.variant, ship: S.ship.id,
+                   enemies: S.enemies.length, shots: S.enemyShots.length, popups: S.popups.map(function (u) { return u.text; }), aimLog: S.aimLog.slice(),
+                   world: { w: world.w, h: world.h }, player: { x: S.player.x, y: S.player.y } };
+        },
+        destroy: function () {
+          D.playing = false;
+          if (D.raf) window.cancelAnimationFrame(D.raf);
+          D.raf = 0;
+          document.removeEventListener("visibilitychange", onVisible);
+          if (dio) dio.disconnect();
+          if (dro) dro.disconnect();
+          if (glr && glr.gl && glr.gl.getExtension) { var lose = glr.gl.getExtension("WEBGL_lose_context"); if (lose) lose.loseContext(); }
+          host.textContent = "";
+          host.classList.remove("ss-demo");
+          host.removeAttribute("data-ss-renderer-active");
+        }
+      };
+      if (REDUCED) seek(DEMO_TICKS * 1000 / HZ);
+      return ctl;
+    }
+
+    if (demo) { canvas.removeAttribute("aria-describedby"); chooseWorld(); fit(); return makeDemo(); }
 
     /* ---------- input wiring */
     var KEYS = { ArrowLeft: "left", a: "left", A: "left", ArrowRight: "right", d: "right", D: "right", ArrowUp: "up", w: "up", W: "up", ArrowDown: "down", s: "down", S: "down", " ": "fire" };
@@ -4891,10 +5284,15 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
     var io = null, ro = null;
     if ("IntersectionObserver" in window) {
       io = new IntersectionObserver(function (entries) {
-        for (var k = 0; k < entries.length; k++) if (entries[k].intersectionRatio < 0.3) pause("offscreen");
+        for (var k = 0; k < entries.length; k++) {
+          if (entries[k].intersectionRatio < 0.3) pause("offscreen");
+          pvSeen = entries[k].isIntersecting;
+        }
+        paintCards();
       }, { threshold: [0, 0.3, 0.6, 1] });
       io.observe(stage);
     }
+    document.addEventListener("visibilitychange", function () { paintCards(); });
     if ("ResizeObserver" in window) { ro = new ResizeObserver(function () { fit(); }); ro.observe(host); }
     else window.addEventListener("resize", fit);
 
@@ -4932,6 +5330,14 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 
   window.SkySentinel = {
     create: create,
+    /* R18 (T086): SkySentinel.demo(host, { variant: 'buggy' | 'fixed', ship, seed, renderer })
+       renders one short scripted scene into host with the real renderer and returns a controller:
+       { play(), pause(), reset(), seek(ms), on('hit' | 'end', fn), state(), destroy(), info, duration }. */
+    demo: function (host, opts) {
+      opts = opts || {};
+      return create(host, { renderer: opts.renderer,
+        demo: { variant: opts.variant === "buggy" ? "buggy" : "fixed", ship: shipById(opts.ship) ? opts.ship : SHIPS[0].id, seed: (opts.seed >>> 0) || 1 } });
+    },
     get: function (id) { return instances[id] || null; },
     ids: function () { return Object.keys(instances); },
     manual: function (on) { manual = !!on; if (!manual && anyRunning()) wake(); },

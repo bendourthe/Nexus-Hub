@@ -10,6 +10,10 @@ and the timings are unchanged, so the transition plays during the first moments 
 Phase R16 gave each ship its own weapon; the default Vanguard fires twin cannons (two rounds per
 pull), so the gun counts below are twice the old single gun's, and the dodging bot now reads
 the ship's real hit width (``view().player.hw``), which follows the drawn wingspan.
+Phase R18 aimed every enemy weapon at the ship, so shots converge on wherever it is; the bot now
+sweeps each threat forward in time against its own path for nine candidate moves, and the
+measurement tests that only hold fire keep the ship alive with repair drops (which never touch
+the spawn stream).
 Skipped without Playwright or Chromium; fail-closed under NEXUS_REQUIRE_RENDER=1.
 """
 
@@ -114,7 +118,7 @@ def test_the_buggy_game_has_no_progression_or_power_ups(page) -> None:
 def _classes_seen(page, level: int) -> set[str]:
     _fresh(page, threats=True, level=level, seed=11)
     return set(_js(page, """const t = new Set(); g.input({ fire: true });
-        for (let i = 0; i < 40 && g.state().state !== 'over'; i++) g.step(60).enemyTypes.forEach(x => t.add(x));
+        for (let i = 0; i < 40 && g.state().state !== 'over'; i++) { g.dropPowerUp('repair'); g.step(60).enemyTypes.forEach(x => t.add(x)); }
         g.input({ fire: false }); return [...t];"""))
 
 
@@ -250,27 +254,38 @@ DODGING_BOT = r"""
   const g = SkySentinel.get('fixed');
   g.configure({ defects: {}, seed, threats: true, level: 1 });
   g.start(); g.pause('bot');
-  // R10: bombs threaten an area, so the bot may also climb or drop out of a blast zone.
-  const danger = (v, x, y) => {
+  // R18: enemy fire is aimed, so shots converge on wherever the ship is. The bot scores each of
+  // nine moves by sweeping every threat forward in time against the ship's own path (it holds the
+  // move for 12 ticks, then stops) and keeps the move with the least overlap.
+  const sp = 7 * g.state().shipSpeed;
+  const danger = (v, mx, my) => {
+    const x0 = v.player.x, y0 = v.player.y, hw = v.player.hw, pr = v.player.r;
     let d = 0;
+    const bx = x0 + mx * sp * 6, by = y0 + my * sp * 0.86 * 6;
+    if (bx < 30 || bx > v.world.w - 30 || by < v.world.h * 0.55 || by > v.world.h - 24) return 1e9;
     for (const t of v.threats) {
-      if (t.r > 60) { const gap = Math.hypot(t.x - x, t.y - y) - t.r - v.player.hw; if (gap < 30) d += (30 - gap) * 400; continue; }
-      const dy = y - t.y;
-      if (dy < -30 || dy > 260 || t.vy <= 0) continue;
-      const at = t.x + t.vx * (dy / t.vy);
-      const gap = Math.abs(at - x) - t.r - v.player.hw;
-      if (gap < 30) d += (30 - gap) * (300 - dy);
+      if (t.r > 60) {
+        const x = x0 + mx * sp * 6, y = y0 + my * sp * 6;
+        const gap = Math.hypot(t.x - x, t.y - y) - t.r - hw; if (gap < 30) d += (30 - gap) * 400; continue;
+      }
+      for (let tau = 0; tau <= 42; tau += 3) {
+        const k = Math.min(tau, 12), x = x0 + mx * sp * k, y = y0 + my * sp * 0.86 * k;
+        const tx = t.x + t.vx * tau, ty = t.y + t.vy * tau;
+        const gx = Math.abs(tx - x) - t.r - hw, gy = Math.abs(ty - y) - t.r - pr;
+        const gap = Math.max(gx, gy);
+        if (gap < 24) d += (24 - gap) * (48 - tau);
+      }
     }
-    if (x < 30 || x > v.world.w - 30 || y < v.world.h * 0.55 || y > v.world.h - 24) d += 1e6;
     return d;
   };
   let s = g.state();
   while (s.state !== 'over' && !s.boss && s.tick < 17000) {
     const v = g.view();
-    const x = v.player.x, y = v.player.y;
-    const opts = [[0, 0, danger(v, x, y)], [-1, 0, danger(v, x - 42, y)], [1, 0, danger(v, x + 42, y)], [0, -1, danger(v, x, y - 36)], [0, 1, danger(v, x, y + 36)]];
-    let best = opts[0];
-    if (best[2] > 0) for (const o of opts) if (o[2] < best[2]) best = o;
+    let best = [0, 0, danger(v, 0, 0)];
+    if (best[2] > 0) for (const mx of [-1, 0, 1]) for (const my of [-1, 0, 1]) {
+      const dd = danger(v, mx, my) + (mx || my ? 1 : 0);
+      if (dd < best[2]) best = [mx, my, dd];
+    }
     g.input({ fire: true, left: best[0] < 0, right: best[0] > 0, up: best[1] < 0, down: best[1] > 0 });
     s = g.step(3);
   }
