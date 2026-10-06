@@ -66,7 +66,7 @@ Use the `docs-layout-refactor` skill for classification, migration, and link-int
 - Verify work before marking complete
 - Find root causes; no temporary fixes
 - Destructive git commands require user confirmation (enforced by git-guardrails hook)
-- Commit messages are ASCII-only (hyphens, straight quotes, `...`) to avoid encoding corruption on Windows.
+- Commit messages must be ASCII-only (hyphens, straight quotes, `...`) to avoid encoding corruption on Windows.
 - Use `docs/todos.md` as the project progress tracker: read it at session start if it exists, check off completed tasks, add newly identified work, and update dashboard metrics after relevant milestones. Use the dev-progress-tracker skill to create or maintain it.
 - **MANDATORY**: When invoking a shell-style tool (Bash, PowerShell, `run_shell_command`, `shell`, etc.), provide the `description` parameter as a single plain-text sentence (<=120 chars, no newlines, no formatting, no `#` characters or borders). Prefer single-line commands; use multi-line bodies only when a here-string or heredoc is genuinely required (e.g. commit messages, file content). Every approval dialog shows the `description`, so keep it precise and scannable. (Claude-specific footnote: the `format-bash-description.py` and `format-powershell-description.py` PreToolUse hooks prepend a single-line `# desc:` comment to the command; the `require-description.sh` and `require-powershell-description.sh` hooks block calls that omit a description.)
 - **MANDATORY: Every Read, Glob, and Grep tool call MUST be preceded by a one-sentence plain-language explanation** of what file or path is being accessed and why. No exceptions.
