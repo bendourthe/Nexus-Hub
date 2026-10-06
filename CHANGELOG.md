@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Keyword headings, never sentences (v4.13.10).** Every substantive instruction template's Writing Discipline block, the Markdown style guide, and the anti-slop editing skill now state that headings are keyword labels (a noun or short noun phrase such as "Project Mapping"), with no verb clause, trailing period, or question. The rule binds every heading an agent writes, from documents and plans to web pages and interface labels. The anti-slop skill names the pattern "Sentence headings" and no longer treats Title Case headings as slop. Decision: `docs/decisions/implemented/policy/2026-10-05-keyword-headings-never-sentences.md`.
+
 ## [4.13.9] - 2026-10-04
 
 ### Added
