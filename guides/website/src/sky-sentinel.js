@@ -125,6 +125,19 @@
      (the hole draws the ship in and stretches it), universe (a flash, then a new universe), prize. */
   var FINALE = { chain: 150, blast: 160, tear: 200, collapse: 290, swallow: 380, flash: 560, card: 640, len: 760 };
   var FINALE_STILL = { chain: 0, blast: 0, tear: 75, collapse: 75, swallow: 75, flash: 150, card: 210, len: 300 };
+  /* R42 (T124): the passage from level 3 into the Nexus dimension. swell (the Ember Belt's star
+     swells and flickers), collapse (it falls in on itself and turns white-blue), burst (a white flash,
+     an expanding shock ring, and ejecta), tear (the shock tears open a wormhole), travel (the ship
+     flies through its tunnel), emerge (the tunnel opens onto the Nexus Storm). It ends on the tick the
+     boss arrives, so the boss still spawns 3,600 ticks into level 3. Reduced motion shows one still
+     frame per stage (the collapse is folded into the swell). */
+  var NOVA = { swell: 0, collapse: 150, burst: 210, tear: 300, travel: 360, emerge: 520, len: 600 };
+  var NOVA_STILL = { swell: 0, collapse: 60, burst: 60, tear: 120, travel: 180, emerge: 240, len: 300 };
+  var NOVA_STAGES = ["swell", "collapse", "burst", "tear", "travel", "emerge"];
+  /* Its own palette: white-blue light for the star and the shock, ice-blue ejecta, and a deep violet
+     and teal tunnel. None of these appear in the wormhole between levels or in the finale. */
+  var NOVA_LOOK = { core: "#eef6ff", star: "#b9d4ff", shock: "#8fb8ff", ejecta: "#d6e4ff", ejectaHot: "#7aa2ff",
+                    tunnelA: "#5b2bd6", tunnelB: "#12a594", exit: "#c9fff4", rim: "#9d7bff" };
   var ROCK = {
     large: { r: [34, 40], hp: 4, score: 80, into: "medium" },
     medium: { r: [19, 23], hp: 2, score: 50, into: "small" },
@@ -1050,6 +1063,7 @@
     "uniform vec3 uWorld; uniform vec3 uScroll; uniform vec3 uNebA; uniform vec3 uNebB; uniform vec4 uPlanet; uniform vec3 uPlanetA; uniform vec3 uPlanetB; uniform float uT;\n" +
     "uniform float uSet; uniform vec3 uStar; uniform float uWarp; uniform vec2 uNeb; uniform float uSpin;\n" +
     "uniform vec4 uRift; uniform float uRiftA; uniform vec4 uHole;\n" +
+    "uniform vec4 uNova; uniform vec4 uNovaB; uniform vec4 uTun; uniform vec2 uTunB;\n" +
     "varying vec2 vW;\n" +
     "float h2(vec2 p) { p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }\n" +
     "float n2(vec2 x) { vec2 i = floor(x); vec2 f = fract(x); f = f * f * (3.0 - 2.0 * f); return mix(mix(h2(i), h2(i + vec2(1.0, 0.0)), f.x), mix(h2(i + vec2(0.0, 1.0)), h2(i + vec2(1.0, 1.0)), f.x), f.y); }\n" +
@@ -1136,6 +1150,38 @@
     "    if (fh > 0.9) { float fa = fh * 30.0; vec2 fr = vec2(cos(fa) * ff.x - sin(fa) * ff.y, sin(fa) * ff.x + cos(fa) * ff.y); col += mix(uPlanetA, uPlanetB, h2(fid)) * exp(-(fr.x * fr.x / 0.02 + fr.y * fr.y / 0.003)) * 0.5; }\n" +
     "    col = orb(col, p, vec2(uWorld.x * 0.16, uWorld.y * 0.8), min(uWorld.x, uWorld.y) * 0.17, vec3(0.5, 0.12, 0.22), vec3(1.0, 0.62, 0.5), 0.0);\n" +
     "    col = orb(col, p, vec2(uWorld.x * 0.88, uWorld.y * 0.16), min(uWorld.x, uWorld.y) * 0.06, vec3(0.08, 0.3, 0.42), vec3(0.62, 0.98, 1.0), 4.0);\n" +
+    "  }\n" +
+    /* R42 (T124): the supernova: the star swelling from ember to white-blue, then its shock ring with
+       filaments and the faint remnant glowing inside it */
+    "  if (uNova.w > 0.001) {\n" +
+    "    vec2 nd = (vW - uNova.xy) / max(uNova.z, 1.0); float nr = length(nd);\n" +
+    "    vec3 hot = mix(vec3(1.0, 0.6, 0.28), vec3(0.73, 0.83, 1.0), uNovaB.x); float gran = 0.78 + 0.44 * fbm(nd * 5.0 + vec2(uT * 0.012, 0.0));\n" +
+    "    if (nr < 1.0) { float limb = sqrt(1.0 - nr * nr); col = mix(col, hot * (0.5 + 0.65 * limb) * gran * min(uNova.w, 1.7) + vec3(0.93, 0.96, 1.0) * pow(limb, 5.0) * uNovaB.x * uNova.w, min(1.0, uNova.w)); }\n" +
+    "    else col += hot * (exp(-(nr - 1.0) * 3.0) * 0.6 + exp(-(nr - 1.0) * 0.7) * 0.12) * uNova.w;\n" +
+    "  }\n" +
+    "  if (uNovaB.z > 0.001 || uNovaB.w > 0.001) {\n" +
+    "    vec2 sd = vW - uNova.xy; float sr = length(sd); float sa = atan(sd.y, sd.x);\n" +
+    "    float wob = (fbm(vec2(sa * 5.0, 3.0)) - 0.5) * (10.0 + uNovaB.y * 0.06); float th = 9.0 + uNovaB.y * 0.035;\n" +
+    "    float ring = exp(-pow((sr - uNovaB.y - wob) / th, 2.0)); float fil = 0.55 + 0.9 * fbm(vec2(sa * 16.0, sr * 0.025));\n" +
+    "    col += vec3(0.56, 0.72, 1.0) * ring * fil * uNovaB.z * 1.35 + vec3(0.93, 0.96, 1.0) * pow(ring, 5.0) * uNovaB.z;\n" +
+    "    float inner = (1.0 - smoothstep(uNovaB.y + wob - th, uNovaB.y + wob, sr)) * uNovaB.w;\n" +
+    "    col += vec3(0.42, 0.55, 0.95) * inner * (0.18 + 0.5 * fbm(sd / 80.0 + 2.0)) * (0.4 + 0.6 * sr / max(uNovaB.y, 1.0));\n" +
+    "  }\n" +
+    /* R42 (T124): the wormhole's tunnel: each pixel looks down a tube whose violet and teal walls
+       stream past as the ship flies on (uTun.w), with pale light at its far end; while it opens
+       (uTun.z small) its mouth has a bright rim, and on arrival its exit (uTunB.x) widens onto the
+       Nexus Storm behind it */
+    "  if (uTun.z > 0.5) {\n" +
+    "    vec2 td = vW - uTun.xy; float tr = length(td) / uTun.z; float tan2 = atan(td.y, td.x) + uTunB.y;\n" +
+    "    float z = 0.32 / max(tr, 0.012); float v = z + uTun.w; float u = tan2 / 6.2831 * 9.0 + z * 0.55;\n" +
+    "    float tw = tan2 + z * 0.384; vec2 dir = vec2(cos(tw), sin(tw));\n" +
+    "    float band = pow(0.5 + 0.5 * sin(v * 5.65), 1.6); float fil = fbm(dir * 1.9 + vec2(v * 1.7, v * 0.6)); float ribs = pow(0.5 + 0.5 * sin(u * 6.2831), 6.0);\n" +
+    "    vec3 wall = mix(vec3(0.36, 0.17, 0.84), vec3(0.07, 0.65, 0.58), 0.5 + 0.5 * sin(v * 2.3 + tan2 * 2.0));\n" +
+    "    float depthF = smoothstep(0.015, 0.3, tr);\n" +
+    "    vec3 tc = vec3(0.02, 0.008, 0.05) + wall * (0.18 + 0.85 * fil * (0.45 + 0.55 * band) + 0.8 * ribs * band) * depthF * 1.2 + vec3(0.79, 1.0, 0.96) * exp(-tr * 20.0) * 0.85;\n" +
+    "    float inside = 1.0 - smoothstep(0.985, 1.0, tr); float open = smoothstep(uTunB.x - 0.04, uTunB.x, tr);\n" +
+    "    float rim = exp(-pow((tr - 1.0) * 24.0, 2.0)) * (1.0 - smoothstep(600.0, 1400.0, uTun.z));\n" +
+    "    col = mix(col, tc, inside * open) + vec3(0.62, 0.48, 1.0) * rim * 0.9 + vec3(0.79, 1.0, 0.96) * exp(-pow((tr - uTunB.x) * 28.0, 2.0)) * step(0.001, uTunB.x) * 0.75;\n" +
     "  }\n" +
     /* R40: the rift: a jagged tear across space, lit from within, its light bleeding into the dark */
     "  if (uRift.w > 0.001) {\n" +
@@ -1348,6 +1394,13 @@
     startBtn.type = "button";
     var changeBtn = el("button", "ss-change", "Change ship");
     changeBtn.type = "button";
+    /* R41 (T123): the retry card: "Ship Lost", a Retry level button styled like the end card's, and
+       the retries left on this level once it is used */
+    var retryBtn = el("button", "ss-retry", "Retry level");
+    retryBtn.type = "button";
+    retryBtn.hidden = true;
+    var retryNote = el("p", "ss-retry-note", "Retries left: 0");
+    retryNote.hidden = true;
     /* R16: the start screen has two panels, ships and the pickup key, so nothing ever needs a scroll
        bar. R39 (T118): at every size the ships panel shows only a compact strip of pickup icons (each
        names itself on hover and to a screen reader); the Pickups button swaps the hangar for the full
@@ -1426,8 +1479,8 @@
     hint.id = "ss-hint-" + id;
     canvas.setAttribute("aria-describedby", hint.id);
     var actions = el("div", "ss-actions");
-    [startBtn, changeBtn].forEach(function (n) { actions.appendChild(n); });
-    [brand, overTitle, overPrize, hangar, shipNote, strip, key, actions, hint].forEach(function (n) { panel.appendChild(n); });
+    [retryBtn, startBtn, changeBtn].forEach(function (n) { actions.appendChild(n); });
+    [brand, overTitle, overPrize, retryNote, hangar, shipNote, strip, key, actions, hint].forEach(function (n) { panel.appendChild(n); });
     overlay.appendChild(panel);
     overlay.setAttribute("data-panel", "ships");
     changeBtn.addEventListener("click", function () { reset(); hangar.querySelector("[aria-checked=true]").focus(); });
@@ -1558,6 +1611,17 @@
 
     /* ---------- simulation */
     function diff() { return DIFFICULTY[cfg.progression ? S.level : 1]; }
+    function freshPlayer(ship) {
+      return { x: world.w / 2, y: world.h - 70, r: 18, health: ship.hull, shieldHp: 0, invuln: 0, cooldown: 0, weapon: 0,
+               spread: 0, rapid: 0, missiles: 0, wingman: 0, pierce: 0, slow: 0, magnet: 0, missileIn: 0, wingIn: 0, bank: 0, hurt: 0, burstLeft: 0, burstIn: 0,
+               freeze: 0, slowfire: 0, scramble: 0 };
+    }
+    /* R41 (T123): retries belong to the fixed game only. The buggy build keeps ending on its first
+       hit, because it exists to show that bug, so a game with a defect switched on never offers one. */
+    function retriesOn() { return cfg.progression && !cfg.defects.firstHitFatal && !cfg.defects.randomExplosion; }
+    function retryKey() { return S.bossLevel ? 4 : S.level; }
+    /* once the card offers the retry it counts as spent, so the HUD and the card both read 0 */
+    function retriesLeft() { return retriesOn() && !S.retryOffer ? S.retries[retryKey()] : 0; }
     function reset() {
       var before = world.w, beforeH = world.h;
       chooseWorld();
@@ -1568,9 +1632,10 @@
       S = {
         rng: r, tick: 0, state: "idle", pausedBy: null, score: 0, level: level, levelTicks: 0,
         ship: ship, healthMax: ship.hull, mapId: level, trans: null, drops: [], hpFrom: null, scroll: 0,
-        player: { x: world.w / 2, y: world.h - 70, r: 18, health: ship.hull, shieldHp: 0, invuln: 0, cooldown: 0, weapon: 0,
-                  spread: 0, rapid: 0, missiles: 0, wingman: 0, pierce: 0, slow: 0, magnet: 0, missileIn: 0, wingIn: 0, bank: 0, hurt: 0, burstLeft: 0, burstIn: 0,
-                  freeze: 0, slowfire: 0, scramble: 0 },
+        player: freshPlayer(ship),
+        /* R41 (T123): one retry per level in the fixed game (the boss fight counts as level 4); a retry
+           restores the score the level began with */
+        retries: { 1: 1, 2: 1, 3: 1, 4: 1 }, retryOffer: false, novaLog: [], retryLog: [], levelScore: 0, bossLevel: false, jump: !!cfg.bossNow,
         finale: null, downs: [], agentsLaunched: 0, shieldedSpawned: 0, largeSpawned: 0, capSkips: 0,
         enemies: [], enemyShots: [], shots: [], asteroids: [], powerUps: [], effects: [], popups: [],
         spawnIn: 50, rockIn: 240, firstShotTick: null, firstShotGap: null, spawned: 0,
@@ -1976,10 +2041,51 @@
       if (reason === "victory") {
         say("The Nexus megaship is down. Score " + S.score + ".");
       } else {
-        emit("destroyed", { reason: reason, tick: S.tick, score: S.score, text: S.overText });
-        say(reason === "first-hit" ? S.overText + ". A " + S.lastDamage.amount + "-point hit emptied a hull of " + S.hpFrom.health + ". That is the bug." : (S.overText || "Game over") + ". Score " + S.score + ".");
+        /* R41 (T123): the first loss on a level offers its one retry instead of ending the run */
+        S.retryOffer = retriesLeft() > 0;
+        emit("destroyed", { reason: reason, tick: S.tick, score: S.score, text: S.overText, retry: S.retryOffer, level: retryKey() });
+        if (S.retryOffer) say("Ship lost: " + (S.overText || "hull destroyed") + ". Retry level restarts " + levelWord() + " with a full hull. It is the only retry for this level.");
+        else say(reason === "first-hit" ? S.overText + ". A " + S.lastDamage.amount + "-point hit emptied a hull of " + S.hpFrom.health + ". That is the bug." : (S.overText || "Game over") + ". " + (retriesOn() ? "No retries left on " + levelWord() + ". " : "") + "Score " + S.score + ".");
       }
       sync();
+      if (S.retryOffer && !demo && host.offsetParent !== null && (document.activeElement === canvas || document.activeElement === document.body)) retryBtn.focus({ preventScroll: true });
+    }
+    function levelWord() { return S.bossLevel ? "the boss fight" : "level " + S.level; }
+    /* R41 (T123): restart the current level from its start: a full hull, the chosen ship, the level's
+       starting difficulty, no upgrades or downgrades, and the score the level began with. On the boss
+       level the fight restarts with the megaship's entrance. */
+    function retryLevel() {
+      if (!S || S.state !== "over" || !S.retryOffer) return false;
+      var key = retryKey();
+      S.retries[key] = 0;
+      S.retryOffer = false;
+      S.retryLog.push({ level: key, tick: S.tick, scoreLost: S.score - S.levelScore });
+      S.score = S.levelScore;
+      S.player = freshPlayer(S.ship);
+      S.healthMax = S.ship.hull;
+      S.enemies = []; S.enemyShots = []; S.shots = []; S.asteroids = []; S.powerUps = []; S.effects = []; S.popups = [];
+      S.trans = null; S.banner = null; S.shake = 0; S.afterglow = 0;
+      S.overReason = null; S.overText = null; S.hpFrom = null; S.lastDamage = null;
+      S.levelTicks = 0; S.spawnIn = 50; S.rockIn = 240; S.firstShotTick = null; S.firstShotGap = null;
+      hpShown = S.healthMax; shShown = 0;
+      if (S.bossLevel) {
+        S.boss = null; S.mapId = 4; S.bossDue = null;
+        spawnBoss();
+      } else {
+        S.boss = null; S.mapId = S.level;
+        S.bossDue = cfg.boss && S.level === 3 ? BOSS_AFTER : null;
+        var d = DIFFICULTY[S.level];
+        S.banner = { text: "Retry: level " + S.level, sub: MAPS[S.level].name + ". " + d.name + ". Full hull.", t: 150 };
+      }
+      emit("retry", { level: key, tick: S.tick, score: S.score });
+      say("Retrying " + levelWord() + " with a full hull. No retries left on this level.");
+      S.state = "running";
+      S.pausedBy = null;
+      last = 0; acc = 0;
+      sync();
+      wake();
+      canvas.focus({ preventScroll: true });
+      return true;
     }
 
     /* Explosions: a white flash, a shock ring, fireballs, sparks, and tumbling shards. */
@@ -2024,6 +2130,7 @@
     function levelUp() {
       S.level += 1;
       S.levelTicks = 0;
+      S.levelScore = S.score;
       S.levelUps.push(S.tick);
       var d = DIFFICULTY[S.level];
       startTrans("level", S.level, TRANS_TICKS);
@@ -2043,9 +2150,10 @@
       emit("transition", { kind: kind, to: to, tick: S.tick });
     }
     /* 0 to 1 to 0 across a wormhole: how hard the stars streak */
-    function warp() { if (!S.trans) return 0; var s = Math.sin(Math.PI * S.trans.t / S.trans.len); return s * s; }
+    function warp() { if (!S.trans || S.trans.kind === "nova") return 0; var s = Math.sin(Math.PI * S.trans.t / S.trans.len); return s * s; }
     function ease(x) { x = clamp(x, 0, 1); return x * x * (3 - 2 * x); }
     function transTick() {
+      if (S.trans.kind === "nova") { novaTick(S.trans); return; }
       var tr = S.trans, p = S.player, h = tr.hole;
       tr.t += 1;
       if (tr.t < tr.flash) {
@@ -2080,13 +2188,153 @@
         } else S.banner = { text: MAPS[4].name, sub: "The Nexus megaship is here", t: 150 };
       }
     }
+
+    /* ---------- R42 (T124): the supernova and the wormhole into the Nexus dimension. The Ember
+       Belt's star swells and flickers, collapses to a white-blue point, and bursts: a white flash, a
+       shock ring, and ejecta that sweep the arena clear. The shock tears open a wormhole whose violet
+       and teal tunnel fills the view; the ship flies through it, centred and steady, while its walls
+       stream past, and the tunnel's far end opens onto the Nexus Storm just as the megaship arrives.
+       It runs inside the level (no input, no fire, no damage) and ends on the boss's arrival tick. */
+    function novaPlan() { return REDUCED ? NOVA_STILL : NOVA; }
+    function novaStage(tr) {
+      var P = tr.ph, t = tr.t;
+      return t < P.collapse ? "swell" : t < P.burst ? "collapse" : t < P.tear ? "burst" : t < P.travel ? "tear" : t < P.emerge ? "travel" : "emerge";
+    }
+    function sunNow() {
+      var m = MAPS[S.mapId], pr = Math.min(world.w, world.h) * m.planet[2] * 1.35, bm = bgMotion();
+      return { x: world.w * m.planet[0] + bm.planet[0], y: world.h * m.planet[1] + pr * 0.15 + bm.planet[1], R: pr };
+    }
+    var NOVA_SAY = {
+      swell: "Level 3 cleared. The Ember Belt's star is swelling.",
+      collapse: "The star is collapsing.",
+      burst: "Supernova. The shock wave sweeps the arena.",
+      tear: "The shock wave tears open a wormhole.",
+      travel: "The ship flies through the wormhole into the Nexus dimension.",
+      emerge: "Arriving in the Nexus Storm."
+    };
+    function startNova(due) {
+      var P = novaPlan(), p = S.player, sun = sunNow();
+      S.trans = { kind: "nova", to: 4, t: Math.max(0, P.len - due), len: P.len, flash: P.burst, from: S.mapId, ph: P, still: REDUCED,
+                  star: { x: sun.x, y: sun.y, R: sun.R }, start: { x: p.x, y: p.y }, stage: null, skipped: 0, age: 0 };
+      for (var i = 0; i < S.enemyShots.length; i++) S.effects.push({ kind: "flash", x: S.enemyShots[i].x, y: S.enemyShots[i].y, t: 0, life: 10, size: 0.3, color: NOVA_LOOK.ejecta });
+      S.enemyShots = [];
+      /* nothing fires during the passage, so no lancer keeps its aiming tell */
+      S.enemies.forEach(function (e) { if (e.charge > 0) e.charge = 0; });
+      novaEnter(S.trans);
+      emit("transition", { kind: "nova", to: 4, tick: S.tick });
+    }
+    function novaEnter(tr) {
+      var st = novaStage(tr);
+      if (st === tr.stage) return;
+      tr.stage = st;
+      S.novaLog.push({ stage: st, t: tr.t, tick: S.tick });
+      emit("novaStage", { stage: st, tick: S.tick });
+      say(NOVA_SAY[st]);
+    }
+    /* the representative moment of each stage that a reduced-motion still frame shows */
+    var NOVA_REP = { swell: 120, collapse: 120, burst: 252, tear: 336, travel: 440, emerge: 566 };
+    function novaTime(tr) { return tr.still ? NOVA_REP[novaStage(tr)] : tr.t; }
+    /* What the passage shows at its current moment, in world units, for both renderers: the star
+       (where, how large, how bright, and how hot: 0 ember to 1 white-blue), the shock ring and the
+       glowing remnant inside it, the white flash, the ejecta, and the tunnel (its mouth's centre and
+       radius, how far the ship has flown, how far its exit has opened, and its spin). */
+    function novaAt(tr) {
+      var A = NOVA, ta = novaTime(tr), st = tr.star, diag = Math.hypot(world.w, world.h), u, c;
+      var out = { t: ta, star: { x: st.x, y: st.y, R: 0, k: 0, heat: 0 }, shock: { R: 0, a: 0 }, haze: 0, flash: 0, ejecta: 0,
+                  tunnel: { x: world.w / 2, y: world.h * 0.4, R: 0, travel: 0, exit: 0, spin: 0 } };
+      if (ta < A.collapse) {
+        u = ta / A.collapse;
+        out.star.R = st.R * (1 + 0.45 * ease(u));
+        out.star.heat = 0.08 * u;
+        out.star.k = (1 + 0.25 * u) * (tr.still ? 1 : 1 + u * u * 0.32 * Math.sin(ta * (0.18 + 0.55 * u)));
+      } else if (ta < A.burst) {
+        c = (ta - A.collapse) / (A.burst - A.collapse);
+        out.star.R = st.R * (1.45 - 1.33 * c * c);
+        out.star.heat = 0.1 + 0.9 * c;
+        out.star.k = 1.3 + 1.4 * c;
+      } else {
+        var since = ta - A.burst;
+        out.star.R = st.R * 0.12; out.star.heat = 1; out.star.k = Math.max(0, 2.7 * (1 - since / 26));
+        var sk = clamp(since / (A.travel - A.burst), 0, 1);
+        out.shock.R = diag * 1.1 * (1 - Math.pow(1 - sk, 1.3));
+        out.shock.a = ta < A.travel ? Math.pow(1 - sk, 0.6) * (ta < A.tear ? 1 : 1 - (ta - A.tear) / (A.travel - A.tear)) : 0;
+        out.haze = ta < A.travel ? Math.exp(-since / 90) * (ta < A.tear ? 1 : 1 - (ta - A.tear) / (A.travel - A.tear)) : 0;
+        out.flash = tr.still ? (ta < A.tear ? 0.35 : 0) : Math.exp(-since / 20);
+        out.ejecta = ta < A.travel ? clamp(since / 120, 0, 1) : 0;
+      }
+      if (ta >= A.tear) {
+        var o = ease((ta - A.tear) / (A.travel - A.tear)), tv = ta - A.tear, T = out.tunnel;
+        T.x = st.x + (world.w / 2 - st.x) * o; T.y = st.y + (world.h * 0.4 - st.y) * o;
+        T.R = 6 + diag * 1.3 * o * o;
+        T.travel = tv * 0.018 + tv * tv * 0.00009;
+        T.spin = ta * 0.006;
+        T.exit = ta >= A.emerge ? 0.6 * Math.pow((ta - A.emerge) / (A.len - A.emerge), 1.5) : 0;
+      }
+      return out;
+    }
+    function novaTick(tr) {
+      var P = tr.ph, p = S.player;
+      tr.t += 1; tr.age += 1;
+      novaEnter(tr);
+      var t = tr.t, cx = world.w / 2, cy = world.h * 0.64;
+      if (t < P.emerge) {
+        var e = tr.still ? 1 : ease(t / 90);
+        p.x = tr.start.x + (cx - tr.start.x) * e; p.y = tr.start.y + (cy - tr.start.y) * e;
+      } else {
+        var k = tr.still ? 0.6 : ease((t - P.emerge) / (P.len - P.emerge));
+        p.x = cx; p.y = cy + (world.h - 70 - cy) * k;
+      }
+      p.bank *= 0.8;
+      var v = novaAt(tr), sx = tr.star.x, sy = tr.star.y;
+      /* what is left of the level flees the swelling star, and the shock ring vaporises it */
+      [S.enemies, S.asteroids, S.powerUps].forEach(function (list, li) {
+        for (var i = list.length - 1; i >= 0; i--) {
+          var o = list[i], dx = o.x - sx, dy = o.y - sy, d = Math.sqrt(dx * dx + dy * dy) || 1;
+          if (t < P.burst) { var push = 0.3 + 1.6 * t / P.burst; o.x += dx / d * push; o.y += dy / d * push; }
+          else if (d < v.shock.R || tr.still) { if (li < 2 && !tr.still) boom(o.x, o.y, 0.8, NOVA_LOOK.shock); list.splice(i, 1); }
+        }
+      });
+      if (!tr.still && t >= P.collapse && t < P.burst) S.shake = Math.max(S.shake, 2 + 4 * (t - P.collapse) / (P.burst - P.collapse));
+      if (!tr.still && t === P.burst) S.shake = 14;
+      if (t === P.emerge) novaArrive();
+      if (t >= tr.len) {
+        S.trans = null;
+        S.banner = { text: MAPS[4].name, sub: "The Nexus dimension. The megaship is here", t: 150 };
+      }
+    }
+    /* the map becomes the Nexus Storm as the tunnel's far end opens */
+    function novaArrive() {
+      S.mapId = 4;
+      S.enemies = []; S.asteroids = []; S.powerUps = []; S.shots = [];
+    }
+    /* R42: Space, Enter, Escape, a click, or a tap skips, as in the finale: the first skip lands on the
+       arrival in the Nexus Storm, a second starts the boss's entrance at once */
+    function skipNova() {
+      var tr = S && S.trans;
+      if (!tr || tr.kind !== "nova") return false;
+      tr.skipped += 1;
+      var P = tr.ph, p = S.player;
+      if (tr.t < P.emerge) {
+        tr.t = P.emerge; S.bossDue = P.len - P.emerge;
+        S.effects = []; S.shake = 0; p.x = world.w / 2; p.y = world.h * 0.64;
+        novaArrive(); novaEnter(tr);
+      } else {
+        tr.t = tr.len; S.trans = null; S.bossDue = null;
+        novaArrive(); p.x = world.w / 2; p.y = world.h - 70;
+        spawnBoss();
+      }
+      draw();
+      return true;
+    }
+    function novaOn() { return !!(S && S.trans && S.trans.kind === "nova"); }
     /* How big the ship is drawn (0 to 1) and how far it has spun, during a transition. */
     function transLook() {
       var tr = S.trans, f = S.finale;
       /* R40: the finale never spins or shrinks the ship the way the wormhole does; the black hole
          stretches it instead (finaleShip) */
       if (f) return { s: 1, spin: 0 };
-      if (!tr) return { s: 1, spin: 0 };
+      /* R42: the ship stays whole and steady through the supernova and its tunnel */
+      if (!tr || tr.kind === "nova") return { s: 1, spin: 0 };
       if (tr.t < tr.flash) { var e = ease((tr.t / tr.flash - 0.3) / 0.7); return { s: 1 - 0.96 * e * e, spin: e * e * 7 }; }
       var k = ease((tr.t - tr.flash) / (tr.len - tr.flash));
       return { s: 0.08 + 0.92 * k, spin: (1 - k) * 4 };
@@ -2281,6 +2529,8 @@
       };
       S.enemies = []; S.enemyShots = [];
       S.banner = null;
+      /* R41 (T123): the boss fight is a level of its own for retries, starting from the score it met */
+      if (!S.bossLevel) { S.bossLevel = true; S.levelScore = S.score; }
       emit("bossArrive", { tick: S.tick });
       say("The Nexus megaship is coming. Break its three shield layers, then its four nodes, then its core.");
     }
@@ -2651,7 +2901,11 @@
            into the boss arena runs during the last moments of the countdown. */
         if (S.bossDue !== null && !S.boss) {
           S.bossDue -= 1;
-          if (S.bossDue > 0 && S.bossDue <= TRANS_TICKS && !S.trans && S.mapId !== 4) startTrans("boss", 4, S.bossDue);
+          /* R42 (T124): clearing level 3 plays the supernova passage instead; the test-only jump keeps its short wormhole */
+          if (S.bossDue > 0 && !S.trans && S.mapId !== 4) {
+            if (!S.jump && S.bossDue <= novaPlan().len) startNova(S.bossDue);
+            else if (S.bossDue <= TRANS_TICKS) startTrans("boss", 4, S.bossDue);
+          }
           if (S.bossDue <= 0) { S.bossDue = null; if (S.mapId !== 4) S.mapId = 4; spawnBoss(); }
         }
         S.levelTicks += 1;
@@ -2904,13 +3158,21 @@
       gl.uniform4f(u.uRift, fv.rift.x, fv.rift.y, fv.rift.len, fv.rift.open);
       gl.uniform1f(u.uRiftA, fv.rift.ang);
       gl.uniform4f(u.uHole, fv.hole.x, fv.hole.y, fv.hole.R, fv.hole.k);
+      /* R42 (T124): the supernova and the tunnel are drawn into the background too */
+      var nv = novaOn() ? novaAt(S.trans) : null;
+      if (nv) novaTags(nv);
+      gl.uniform4f(u.uNova, nv ? nv.star.x : 0, nv ? nv.star.y : 0, nv ? nv.star.R : 0, nv ? nv.star.k : 0);
+      gl.uniform4f(u.uNovaB, nv ? nv.star.heat : 0, nv ? nv.shock.R : 0, nv ? nv.shock.a : 0, nv ? nv.haze : 0);
+      gl.uniform4f(u.uTun, nv ? nv.tunnel.x : 0, nv ? nv.tunnel.y : 0, nv ? nv.tunnel.R : 0, nv ? nv.tunnel.travel : 0);
+      gl.uniform2f(u.uTunB, nv ? nv.tunnel.exit : 0, nv ? nv.tunnel.spin : 0);
       gl.uniform3f(u.uScroll, bm.stars[0], bm.stars[1], bm.stars[2]);
       gl.uniform2f(u.uNeb, bm.nebula[0], bm.nebula[1]);
       gl.uniform1f(u.uSpin, bm.spin);
       gl.uniform3f(u.uNebA, sky.a[0], sky.a[1], sky.a[2]);
       gl.uniform3f(u.uNebB, sky.b[0], sky.b[1], sky.b[2]);
       var pr = Math.min(world.w, world.h) * sky.planet[2] * 1.35;
-      gl.uniform4f(u.uPlanet, world.w * sky.planet[0] + bm.planet[0], world.h * sky.planet[1] + pr * 0.15 + bm.planet[1], pr, sky.op || 0.62);
+      var sunGone = nv && S.mapId === 3;
+      gl.uniform4f(u.uPlanet, sunGone ? -1e5 : world.w * sky.planet[0] + bm.planet[0], sunGone ? -1e5 : world.h * sky.planet[1] + pr * 0.15 + bm.planet[1], pr, sky.op || 0.62);
       gl.uniform3f(u.uPlanetA, sky.pa[0], sky.pa[1], sky.pa[2]);
       gl.uniform3f(u.uPlanetB, sky.pb[0], sky.pb[1], sky.pb[2]);
       gl.uniform1f(u.uT, t);
@@ -3023,7 +3285,7 @@
       gl.depthMask(true);
     }
     /* Inside a wormhole whatever is swallowed shrinks as it nears the hole. */
-    function shrink(o) { var tr = S.trans; if (!tr || tr.t >= tr.flash) return 1; return clamp(Math.hypot(o.x - tr.hole.x, o.y - tr.hole.y) / 140, 0.12, 1); }
+    function shrink(o) { var tr = S.trans; if (!tr || tr.kind === "nova" || tr.t >= tr.flash) return 1; return clamp(Math.hypot(o.x - tr.hole.x, o.y - tr.hole.y) / 140, 0.12, 1); }
     function drawEnemyGL(e) {
       var yaw = Math.PI, pitch = 0;
       if (e.type === "interceptor" && e.mode === "dive") yaw = Math.atan2(-e.vx, -e.vy);
@@ -3150,6 +3412,36 @@
         quad(x.x, 3, x.y, R * 1.1 * close, 0, 0, R * 1.1 * close, col("#a855f7"), 0.45 * close, 6 + (phase + 0.3) % 1);
       }
     }
+    /* R42 (T124): the frame tags the passage draws (none shared with the wormhole or the finale) */
+    function novaTags(v) {
+      if (v.star.k > 0.01) tagFrame("nova-star");
+      if (v.flash > 0.02) tagFrame("supernova-flash");
+      if (v.shock.a > 0.01) tagFrame("shock-ring");
+      if (v.ejecta > 0) tagFrame("ejecta");
+      if (v.tunnel.R > 0.5) { tagFrame("nova-tunnel"); if (v.tunnel.travel > 0) tagFrame("tunnel-walls"); }
+      if (v.tunnel.exit > 0) tagFrame("nexus-arrival");
+    }
+    /* the ejecta: 48 knots of gas riding just inside the shock, each with a short tail */
+    function ejectaAt(v, i) {
+      var ang = i * 2.39996 + 0.3, sp = 0.55 + 0.45 * ((i * 0.618) % 1), r = v.shock.R * sp;
+      return { x: v.star.x + Math.cos(ang) * r, y: v.star.y + Math.sin(ang) * r * 0.92, dx: Math.cos(ang), dy: Math.sin(ang) * 0.92, size: 2 + (i * 7 % 5), a: Math.pow(1 - v.ejecta, 1.1) };
+    }
+    function novaSprites(v) {
+      var k;
+      if (v.star.k > 0.01) glow(v.star.x, v.star.y, v.star.R * (1.4 + 0.6 * v.star.heat), col(NOVA_LOOK.star), Math.min(0.9, 0.22 * v.star.k + 0.3 * v.star.heat), 4);
+      if (v.flash > 0.02) { glow(v.star.x, v.star.y, 140 + 320 * (1 - v.flash), col(NOVA_LOOK.core), v.flash, 5); glow(v.star.x, v.star.y, 60, [1, 1, 1], v.flash, 5); }
+      if (v.ejecta > 0) for (k = 0; k < 48; k++) {
+        var e = ejectaAt(v, k);
+        if (e.a < 0.02) break;
+        glow(e.x, e.y, 5 + e.size * 2.2, col(k % 3 ? NOVA_LOOK.ejecta : NOVA_LOOK.ejectaHot), 0.75 * e.a, 7);
+        streak(e.x - e.dx * 14, e.y - e.dy * 14, e.dx, e.dy, 14 + e.size * 3, 1.6 + e.size * 0.3, col(NOVA_LOOK.shock), 0.45 * e.a, 7, 2);
+      }
+      var T = v.tunnel, diag = Math.hypot(world.w, world.h);
+      if (T.R > 0.5 && T.R < diag * 0.7) for (k = 0; k < 14; k++) {
+        var a = k * 0.4488 + T.spin * 3;
+        glow(T.x + Math.cos(a) * T.R, T.y + Math.sin(a) * T.R, 10 + 8 * Math.sin(k * 1.7 + T.spin * 20), col(NOVA_LOOK.rim), 0.5 * (1 - T.R / (diag * 0.7)), 6);
+      }
+    }
     /* R39 (T122): a missile's smoke trail (grey puffs that widen and fade behind it), its hot exhaust,
        and its bright head */
     var missileMarks = [];
@@ -3224,7 +3516,8 @@
         var mr = 40 + (REDUCED ? 0 : (S.scroll % 40));
         quad(p.x, 10, p.y, mr, 0, 0, mr, col(POWER_LOOK.magnet[0]), 0.25 * (1 - (mr - 40) / 40) + 0.1, 1);
       }
-      if (S.trans) wormholeSprites(S.trans);
+      if (novaOn()) novaSprites(novaAt(S.trans));
+      else if (S.trans) wormholeSprites(S.trans);
       for (i = 0; i < S.enemies.length; i++) {
         var e = S.enemies[i];
         if (e.type === "lancer" && e.charge > 0) {
@@ -3781,9 +4074,12 @@
         ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, pr, 0, 6.283); ctx.fill();
         if (m.set === 1) { ctx.strokeStyle = rgbCss(m.pb, 0.35); ctx.lineWidth = pr * 0.35; ctx.beginPath(); ctx.ellipse(x, y, pr * 1.75, pr * 0.47, -0.35, 0, 6.283); ctx.stroke(); }
       } else if (m.set === 2) {
-        var s = ctx.createRadialGradient(x, y, 0, x, y, pr * 2.6);
-        s.addColorStop(0, "rgba(255,240,200,0.95)"); s.addColorStop(0.35, rgbCss(m.pa, 0.7)); s.addColorStop(1, "rgba(0,0,0,0)");
-        ctx.fillStyle = s; ctx.fillRect(x - pr * 2.6, y - pr * 2.6, pr * 5.2, pr * 5.2);
+        /* R42: during the supernova the passage draws the star itself */
+        if (!novaOn()) {
+          var s = ctx.createRadialGradient(x, y, 0, x, y, pr * 2.6);
+          s.addColorStop(0, "rgba(255,240,200,0.95)"); s.addColorStop(0.35, rgbCss(m.pa, 0.7)); s.addColorStop(1, "rgba(0,0,0,0)");
+          ctx.fillStyle = s; ctx.fillRect(x - pr * 2.6, y - pr * 2.6, pr * 5.2, pr * 5.2);
+        }
         var r = mulberry32(5);
         ctx.fillStyle = "rgba(158,120,92,0.55)";
         for (var k = 0; k < 140; k++) { var bx = r() * world.w, off = (r() - 0.5) * 120, by = (world.h * 0.62 - bx * 0.38 + off + S.scroll * 0.6) % (world.h + 200) - 100; ctx.fillRect(bx, by, 1 + r() * 3, 1 + r() * 3); }
@@ -3850,6 +4146,79 @@
         ctx.fillStyle = wg; ctx.beginPath(); ctx.arc(wx, wy, wr, 0, 6.283); ctx.fill();
       });
     }
+    /* R42 (T124): the passage in 2D: the star, the remnant and the shock ring, the ejecta, and the
+       tunnel as rings rushing outward between turning ribs */
+    function nova2D(v) {
+      var k, st = v.star;
+      novaTags(v);
+      ctx.save();
+      if (st.k > 0.01) {
+        var hot = [1 + (0.73 - 1) * st.heat, 0.6 + (0.83 - 0.6) * st.heat, 0.28 + (1 - 0.28) * st.heat];
+        var g = ctx.createRadialGradient(st.x, st.y, 0, st.x, st.y, st.R * 2.4);
+        g.addColorStop(0, "rgba(238,246,255," + clamp(0.7 * st.k, 0, 1).toFixed(2) + ")");
+        g.addColorStop(0.3, rgbCss(hot, clamp(0.9 * st.k, 0, 1).toFixed(2)));
+        g.addColorStop(0.42, rgbCss(hot, clamp(0.3 * st.k, 0, 1).toFixed(2)));
+        g.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = g; ctx.fillRect(st.x - st.R * 2.4, st.y - st.R * 2.4, st.R * 4.8, st.R * 4.8);
+      }
+      if (v.haze > 0.01 && v.shock.R > 2) {
+        var hz = ctx.createRadialGradient(st.x, st.y, 0, st.x, st.y, v.shock.R);
+        hz.addColorStop(0, "rgba(107,140,242,0)"); hz.addColorStop(0.8, "rgba(107,140,242," + (0.22 * v.haze).toFixed(2) + ")"); hz.addColorStop(1, "rgba(107,140,242,0)");
+        ctx.fillStyle = hz; ctx.beginPath(); ctx.arc(st.x, st.y, v.shock.R, 0, 6.283); ctx.fill();
+      }
+      if (v.shock.a > 0.01) {
+        var th = 9 + v.shock.R * 0.035;
+        ctx.strokeStyle = "rgba(143,184,255," + (0.8 * v.shock.a).toFixed(2) + ")"; ctx.lineWidth = th * 1.6;
+        ctx.beginPath(); ctx.arc(st.x, st.y, v.shock.R, 0, 6.283); ctx.stroke();
+        ctx.strokeStyle = "rgba(238,246,255," + v.shock.a.toFixed(2) + ")"; ctx.lineWidth = Math.max(1.5, th * 0.35);
+        ctx.beginPath(); ctx.arc(st.x, st.y, v.shock.R, 0, 6.283); ctx.stroke();
+      }
+      if (v.ejecta > 0) for (k = 0; k < 48; k++) {
+        var e = ejectaAt(v, k);
+        if (e.a < 0.02) break;
+        ctx.strokeStyle = "rgba(143,184,255," + (0.5 * e.a).toFixed(2) + ")"; ctx.lineWidth = 1.5 + e.size * 0.3;
+        ctx.beginPath(); ctx.moveTo(e.x - e.dx * (24 + e.size * 5), e.y - e.dy * (24 + e.size * 5)); ctx.lineTo(e.x, e.y); ctx.stroke();
+        ctx.fillStyle = k % 3 ? "rgba(214,228,255," + e.a.toFixed(2) + ")" : "rgba(122,162,255," + e.a.toFixed(2) + ")";
+        ctx.beginPath(); ctx.arc(e.x, e.y, 1.5 + e.size * 0.8, 0, 6.283); ctx.fill();
+      }
+      if (v.tunnel.R > 0.5) tunnel2D(v.tunnel);
+      ctx.restore();
+    }
+    function tunnel2D(T) {
+      var k, diag = Math.hypot(world.w, world.h);
+      ctx.save();
+      ctx.beginPath(); ctx.arc(T.x, T.y, T.R, 0, 6.283);
+      if (T.exit > 0) ctx.arc(T.x, T.y, T.R * T.exit, 6.283, 0, true);
+      ctx.clip();
+      ctx.fillStyle = "#08041a"; ctx.fillRect(T.x - T.R, T.y - T.R, T.R * 2, T.R * 2);
+      /* rings at fixed points along the tube, rushing outward as the ship flies on */
+      var f = 0.9, n0 = Math.ceil((0.32 + T.travel) * f);
+      for (var n = n0; n < n0 + 40; n++) {
+        var z = n / f - T.travel, rr = T.R * 0.32 / z;
+        if (rr < 2) break;
+        var al = clamp(rr / (T.R * 0.2), 0, 1) * 0.85;
+        ctx.strokeStyle = n % 2 ? "rgba(91,43,214," + al.toFixed(2) + ")" : "rgba(18,165,148," + al.toFixed(2) + ")";
+        ctx.lineWidth = Math.max(1, rr * 0.07);
+        ctx.beginPath(); ctx.arc(T.x, T.y, rr, 0, 6.283); ctx.stroke();
+      }
+      /* nine ribs twisting down the tube */
+      ctx.strokeStyle = "rgba(157,123,255,0.4)"; ctx.lineWidth = 2;
+      for (k = 0; k < 9; k++) {
+        ctx.beginPath();
+        for (var q = 0; q <= 24; q++) {
+          var zz = 0.34 + q * 0.4, r2 = T.R * 0.32 / zz, a = (k - zz * 0.55) * 6.2831 / 9 - T.spin;
+          var px = T.x + Math.cos(a) * r2, py = T.y + Math.sin(a) * r2;
+          if (q) ctx.lineTo(px, py); else ctx.moveTo(px, py);
+        }
+        ctx.stroke();
+      }
+      var eg = ctx.createRadialGradient(T.x, T.y, 0, T.x, T.y, T.R * 0.12);
+      eg.addColorStop(0, "rgba(201,255,244,0.9)"); eg.addColorStop(1, "rgba(201,255,244,0)");
+      ctx.fillStyle = eg; ctx.beginPath(); ctx.arc(T.x, T.y, T.R * 0.12, 0, 6.283); ctx.fill();
+      ctx.restore();
+      if (T.exit > 0) { ctx.strokeStyle = "rgba(201,255,244,0.75)"; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(T.x, T.y, T.R * T.exit, 0, 6.283); ctx.stroke(); }
+      if (T.R < diag * 0.7) { ctx.strokeStyle = "rgba(157,123,255," + (0.85 * (1 - T.R / (diag * 0.7))).toFixed(2) + ")"; ctx.lineWidth = 6; ctx.beginPath(); ctx.arc(T.x, T.y, T.R, 0, 6.283); ctx.stroke(); }
+    }
     function wormhole2D(tr) {
       var R = Math.min(world.w, world.h) * 0.3, before = tr.t < tr.flash, h = before ? tr.hole : tr.exit;
       tagFrame("wormhole-disc"); tagFrame("wormhole-arms"); if (before) tagFrame("star-streaks");
@@ -3877,7 +4246,8 @@
       ctx.setTransform(scale, 0, 0, scale, ox, oy);
       drawBackground();
       setPiece2D();
-      if (S.trans) wormhole2D(S.trans);
+      if (novaOn()) nova2D(novaAt(S.trans));
+      else if (S.trans) wormhole2D(S.trans);
       var i;
       for (i = 0; i < S.asteroids.length; i++) drawRock(S.asteroids[i]);
       if (S.boss) drawBoss2D(S.boss);
@@ -3993,6 +4363,31 @@
     }
     /* R40: the finale's flashes (the final detonation and the light at the end of the fall), the
        new universe's soft glow, the prize card, and the skip hint */
+    /* R42 (T124): the supernova's flash spreads from the star (not a flat white screen), and a caption
+       names each stage with the skip keys */
+    var NOVA_CAPTION = { swell: "The Ember Belt's star is swelling", collapse: "The star is collapsing", burst: "Supernova",
+                         tear: "The shock wave tears space open", travel: "Through the wormhole to the Nexus dimension", emerge: "Arriving in the Nexus Storm" };
+    function novaHud(W, H, small, m, dpr) {
+      var tr = S.trans, v = novaAt(tr), st = novaStage(tr);
+      if (v.flash > 0.02) {
+        var fx = (v.star.x * m.s + m.ox) / dpr, fy = (v.star.y * m.s + m.oy) / dpr, fr = Math.max(W, H) * (0.7 + 1.2 * (1 - v.flash));
+        var fg = ctx.createRadialGradient(fx, fy, 0, fx, fy, fr);
+        fg.addColorStop(0, "rgba(246,250,255," + Math.min(1, v.flash * 1.1).toFixed(2) + ")");
+        fg.addColorStop(0.5, "rgba(214,228,255," + (0.85 * v.flash).toFixed(2) + ")");
+        fg.addColorStop(1, "rgba(143,184,255,0)");
+        ctx.fillStyle = fg; ctx.fillRect(0, 0, W, H);
+      }
+      /* a dark band keeps the caption readable over the flash and the tunnel's bright exit */
+      var cb = ctx.createLinearGradient(0, H - (small ? 58 : 60), 0, H);
+      cb.addColorStop(0, "rgba(3,6,16,0)"); cb.addColorStop(0.45, "rgba(3,6,16,0.62)"); cb.addColorStop(1, "rgba(3,6,16,0.72)");
+      ctx.fillStyle = cb; ctx.fillRect(0, H - (small ? 58 : 60), W, small ? 58 : 60);
+      ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.font = "800 " + (small ? 12 : 13) + "px " + hudFont; ctx.fillStyle = NOVA_LOOK.star;
+      ctx.fillText(NOVA_CAPTION[st].toUpperCase(), W / 2, H - (small ? 34 : 36));
+      ctx.font = "700 " + (small ? 11 : 12) + "px " + hudFont; ctx.fillStyle = "rgba(226,232,240,0.8)";
+      ctx.fillText(tr.t < tr.ph.emerge ? "Space, Enter, or a click skips to the arrival" : "Space, Enter, or a click starts the fight", W / 2, H - 16);
+      hudMarks.nova = { stage: st, caption: NOVA_CAPTION[st], flash: Math.round(v.flash * 100) / 100 };
+    }
     function finaleHud(W, H, small) {
       var f = S.finale, F = f.ph, t = f.t;
       hudMarks.prize = null;
@@ -4045,6 +4440,7 @@
         var ph = finalePhase();
         return { text: { explode: "The Nexus megaship is breaking apart", tear: "Space is tearing open", collapse: "The rift collapses into a black hole", swallow: "The black hole is pulling the ship in", universe: "A new universe" }[ph] || "Reward unlocked", k: null };
       }
+      if (novaOn()) return { text: NOVA_CAPTION[novaStage(S.trans)], k: S.trans.t / S.trans.len };
       if (S.boss) {
         var bs = bossStage(S.boss), bl = shieldLayer(S.boss);
         return { text: !S.boss.entered ? "The Nexus megaship is arriving" : bs === "shields" ? (S.boss.shields.length - bl > 1 ? "Break the " + (S.boss.shields.length - bl) + " shield layers, then the nodes" : "Break the last shield layer, then the nodes") : bs === "nodes" ? "Break the " + nodesAlive(S.boss) + " glowing nodes, then the core" : "The core glows: destroy it",
@@ -4142,6 +4538,7 @@
       if (!hudFont) hudFont = (window.getComputedStyle && getComputedStyle(host).fontFamily) || "system-ui, sans-serif";
       var p = S.player, m = screenMap();
       hudMarks = {};
+      var dprH = canvas.width / Math.max(1, canvas.clientWidth || canvas.width);
       /* damage numbers float over the ship */
       ctx.setTransform(m.s, 0, 0, m.s, m.ox, m.oy);
       ctx.textAlign = "center"; ctx.textBaseline = "middle";
@@ -4205,6 +4602,14 @@
       ctx.fillStyle = "#e6f6f8"; ctx.textAlign = "right";
       ctx.fillText("Score " + S.score.toLocaleString("en-US"), W - 14, 18);
       if (cfg.progression && !small) { ctx.font = "600 11.5px " + hudFont; ctx.fillStyle = "#94a3b8"; ctx.fillText(MAPS[S.mapId].name, W - 14, 36); }
+      /* R41 (T123): the retries left on this level, small, under the score and the map */
+      hudMarks.retry = null;
+      if (retriesOn() && !S.finale) {
+        var rl = retriesLeft(), rtx = "Retries left: " + rl, ry = small ? 52 : 52;
+        ctx.font = "600 " + (small ? 10.5 : 11) + "px " + hudFont; ctx.fillStyle = rl ? "#7dd3c0" : "#94a3b8"; ctx.textAlign = "right";
+        ctx.fillText(rtx, W - 14, ry);
+        hudMarks.retry = { text: rtx, left: rl, x: W - 14, y: ry };
+      }
       /* level, its difficulty, its goal, and progress toward it */
       var d = diff(), g = goal();
       var dc = { Easy: "#4ade80", Medium: "#fbbf24", Hard: "#f87171" }[d.name];
@@ -4263,7 +4668,8 @@
         ctx.fillStyle = fr; ctx.fillRect(0, 0, W, H);
       }
       /* inside a wormhole: its name, and a white flash as the map changes */
-      if (S.trans) {
+      if (novaOn()) novaHud(W, H, small, screenMap(), dprH);
+      else if (S.trans) {
         var tr = S.trans, fl = Math.exp(-Math.abs(tr.t - tr.flash) / 7);
         ctx.textAlign = "center"; ctx.font = "800 " + (small ? 12 : 13) + "px " + hudFont; ctx.fillStyle = "#a5f3fc";
         ctx.fillText(tr.kind === "boss" ? "JUMPING TO " + MAPS[4].name.toUpperCase() : "WORMHOLE TO LEVEL " + tr.to + ": " + MAPS[tr.to].name.toUpperCase(), W / 2, H - 18);
@@ -4296,27 +4702,34 @@
       var p = S.player;
       hudScore.textContent = "Score " + S.score;
       hudLives.textContent = "Hull " + Math.max(0, p.health) + " of " + S.healthMax + (p.shieldHp > 0 ? ", shield " + p.shieldHp : "");
-      hudLevel.textContent = "Level " + S.level + " (" + diff().name + ")" + (cfg.progression ? ": " + FORMS[S.level] : "");
+      hudLevel.textContent = "Level " + S.level + " (" + diff().name + ")" + (cfg.progression ? ": " + FORMS[S.level] : "") + (retriesOn() ? ". Retries left: " + retriesLeft() : "");
       var extras = [];
       if (p.shieldHp > 0) extras.push("shield");
       TIMED.forEach(function (k) { if (p[k] > 0) extras.push(POWER_LOOK[k][1].toLowerCase() + " " + Math.ceil(p[k] / HZ) + "s"); });
       DOWN_TIMED.forEach(function (k) { if (p[k] > 0) extras.push("downgrade " + DOWN_LOOK[k][1].toLowerCase() + " " + Math.ceil(p[k] / HZ) + "s"); });
-      if (S.trans) extras.push("in the wormhole");
+      if (S.trans) extras.push(S.trans.kind === "nova" ? "crossing into the Nexus dimension" : "in the wormhole");
       if (S.boss) extras.push("boss");
       var base = S.state === "idle" ? "Ready" : S.state === "running" ? "Playing" : S.state === "paused" ? "Paused" : S.victory ? "Victory" : "Game over";
       hudState.textContent = extras.length && S.state === "running" ? base + ": " + extras.join(", ") : base;
       /* R37: the end card waits for the finale to play out */
       overlay.hidden = S.state === "running" || !!(S.finale && !S.finale.done);
-      overTitle.textContent = S.victory ? "The Nexus megaship is down" : S.state === "over" ? (S.overText || "Game over") : "";
+      var offer = S.state === "over" && S.retryOffer;
+      overTitle.textContent = S.victory ? "The Nexus megaship is down" : offer ? "Ship Lost" : S.state === "over" ? (S.overText || "Game over") : "";
       overTitle.hidden = !overTitle.textContent;
+      /* R41 (T123): the retry card offers the level's one retry; after it is used the end card says none are left */
+      retryBtn.hidden = !offer;
+      retryNote.hidden = !(S.state === "over" && !S.victory && retriesOn());
+      retryNote.textContent = "Retries left: 0";
+      overlay.toggleAttribute("data-retry", offer);
       overPrize.hidden = !(S.victory && S.finale && S.finale.done);
       startBtn.textContent = S.state === "paused" ? "Resume" : S.state === "over" ? "Play again" : "Start game";
+      startBtn.hidden = offer;
       /* the start screen shows on a fresh game; after a run, a button brings it back */
       overlay.setAttribute("data-mode", S.state);
       brand.hidden = S.state !== "idle";
       /* R16: one start screen for every game: the same ships and the same upgrade key */
       hangar.hidden = shipNote.hidden = key.hidden = strip.hidden = S.state !== "idle";
-      changeBtn.hidden = S.state !== "over";
+      changeBtn.hidden = S.state !== "over" || offer;
       SHIPS.forEach(function (sh) {
         var on = sh.id === S.ship.id, c = shipCards[sh.id].card;
         c.setAttribute("aria-checked", on ? "true" : "false");
@@ -4346,6 +4759,7 @@
     /* ---------- control */
     function releaseKeys() { held.left = held.right = held.up = held.down = held.fire = false; }
     function start() {
+      if (S && S.state === "over" && S.retryOffer) { retryLevel(); return; }
       if (!S || S.state === "over") reset();
       if (S.state === "paused") { resume(); return; }
       if (S.state === "running") return;
@@ -4477,6 +4891,11 @@
       spawnMine: function (x, y) { if (!S) return false; spawnMine(x, y); return true; },
       /* R37: skip the finale: the first call jumps to the prize card, a second ends it */
       skipFinale: function () { var out = skipFinale(); sync(); return out; },
+      /* R41: take the retry the card offers (false when none is offered) */
+      retry: function () { return retryLevel(); },
+      /* R42: skip the supernova passage (the first call lands on the arrival, a second starts the fight) */
+      skipNova: function () { var out = skipNova(); sync(); return out; },
+      novaPlan: function () { var P = novaPlan(), o = {}; for (var k in P) o[k] = P[k]; o.stages = NOVA_STAGES.slice(); o.look = {}; for (var c in NOVA_LOOK) o.look[c] = NOVA_LOOK[c]; return o; },
       /* R35 and R36: the enemy classes and the hazards, for the start screen, the HUD, and the tests */
       enemyClasses: function () {
         return Object.keys(ENEMY).map(function (k) { var e = ENEMY[k]; return { type: k, r: e.r, cruise: e.cruise, bulk: Math.round(e.r / e.cruise * 10) / 10,
@@ -4623,7 +5042,13 @@
           playerShots: S.shots.map(function (s) { return { kind: s.kind || "round", x: Math.round(s.x * 10) / 10, y: Math.round(s.y * 10) / 10, dmg: s.dmg || 1, lit: s.kind === "lance" ? !!s.lit : undefined, len: s.len || 0, pierce: !!s.pierce }; }),
           hitHalfWidth: Math.round(hitHalfWidth() * 10) / 10,
           map: MAPS[S.mapId].name, mapId: S.mapId, transition: !!S.trans,
-          transitionInfo: S.trans ? { kind: S.trans.kind, to: S.trans.to, t: S.trans.t, len: S.trans.len, flash: S.trans.flash } : null,
+          transitionInfo: S.trans ? { kind: S.trans.kind, to: S.trans.to, t: S.trans.t, len: S.trans.len, flash: S.trans.flash, stage: S.trans.kind === "nova" ? novaStage(S.trans) : null } : null,
+          /* R42: the supernova passage now, and every stage it has entered */
+          nova: novaOn() ? (function (tr, v) { return { t: tr.t, len: tr.len, stage: novaStage(tr), still: tr.still, skipped: tr.skipped, star: v.star, shock: v.shock, flash: v.flash, ejecta: v.ejecta, tunnel: v.tunnel }; })(S.trans, novaAt(S.trans)) : null,
+          novaLog: S.novaLog.slice(),
+          /* R41: the retries left per level (4 is the boss fight), whether the card offers one now, and the retries used */
+          retries: { 1: S.retries[1], 2: S.retries[2], 3: S.retries[3], 4: S.retries[4] }, retriesOn: retriesOn(), retriesLeft: retriesLeft(),
+          retryOffer: S.retryOffer, retryLog: S.retryLog.slice(), levelScore: S.levelScore, bossLevel: S.bossLevel,
           levelProgress: Math.round(levelProgress() * 1000) / 1000,
           spawnInterval: density().spawn, enemyCap: density().cap, rockInterval: density().rocks,
           /* R39: the curves' values now: spawn waves and rocks per second, and the speed a new enemy gets */
@@ -4646,7 +5071,7 @@
           drops: S.drops.slice(), powerUpKinds: S.powerUps.map(function (u) { return u.kind; }),
           upgrades: TIMED.filter(function (k) { return p[k] > 0; }).map(function (k) { return { kind: k, ticks: p[k] }; }),
           popups: S.popups.map(function (u) { return { text: u.text, color: u.color, big: u.big }; }),
-          popupBoxes: popupBoxes.slice(), chips: chipBoxes.slice(), hud: { bossBar: hudMarks.bossBar || null, title: hudMarks.title || null, prize: hudMarks.prize || null },
+          popupBoxes: popupBoxes.slice(), chips: chipBoxes.slice(), hud: { bossBar: hudMarks.bossBar || null, title: hudMarks.title || null, prize: hudMarks.prize || null, retry: hudMarks.retry || null, nova: hudMarks.nova || null },
           shotKinds: S.enemyShots.map(function (o) { return o.kind; }), goal: goal(),
           enemies: S.enemies.length, enemyShots: S.enemyShots.length, asteroids: S.asteroids.length, shots: S.shots.length,
           enemyTypes: S.enemies.map(function (e) { return e.type; }), spawned: S.spawned,
@@ -4840,9 +5265,13 @@
     function owns() { return S && S.state === "running" && host.offsetParent !== null; }
     /* R37: the finale belongs to this game while it plays and the arena is shown */
     function finaleOwns() { return !!(S && S.finale && !S.finale.done && host.offsetParent !== null); }
+    /* R42: the passage belongs to this game while it plays; a skip waits 45 ticks, so a player still
+       tapping fire as level 3 ends does not skip it by accident */
+    function novaOwns() { return novaOn() && S.state === "running" && S.trans.age >= 45 && host.offsetParent !== null; }
     window.addEventListener("keydown", function (ev) {
       if (ev.ctrlKey || ev.metaKey || ev.altKey) return;
       if (finaleOwns() && (ev.key === " " || ev.key === "Enter" || ev.key === "Escape") && (document.activeElement === canvas || document.activeElement === document.body)) { skipFinale(); sync(); ev.preventDefault(); return; }
+      if (novaOwns() && !ev.repeat && (ev.key === " " || ev.key === "Enter" || ev.key === "Escape") && (document.activeElement === canvas || document.activeElement === document.body)) { skipNova(); sync(); ev.preventDefault(); return; }
       if (ev.key === "Escape" && owns()) { pause("escape"); ev.preventDefault(); return; }
       if (ev.key === "Enter" && document.activeElement === canvas && S && S.state !== "running") { start(); ev.preventDefault(); return; }
       var k = KEYS[ev.key];
@@ -4850,9 +5279,11 @@
     });
     window.addEventListener("keyup", function (ev) { var k = KEYS[ev.key]; if (k) held[k] = false; });
     startBtn.addEventListener("click", function () { start(); });
+    retryBtn.addEventListener("click", function () { retryLevel(); });
     canvas.addEventListener("mousedown", function (ev) {
       if (ev.button !== 0) return;
       if (finaleOwns()) { skipFinale(); sync(); return; }
+      if (novaOwns()) { skipNova(); sync(); return; }
       if (!S || S.state !== "running") { start(); return; }
       held.fire = true;
     });
@@ -4860,7 +5291,7 @@
     canvas.addEventListener("contextmenu", function (ev) { ev.preventDefault(); });
     Object.keys(touchButtons).forEach(function (k) {
       var btn = touchButtons[k];
-      btn.addEventListener("pointerdown", function (ev) { ev.preventDefault(); if (finaleOwns()) { skipFinale(); sync(); return; } if (!S || S.state !== "running") start(); held[k] = true; });
+      btn.addEventListener("pointerdown", function (ev) { ev.preventDefault(); if (finaleOwns()) { skipFinale(); sync(); return; } if (novaOwns()) { skipNova(); sync(); return; } if (!S || S.state !== "running") start(); held[k] = true; });
       ["pointerup", "pointercancel", "pointerleave"].forEach(function (t) { btn.addEventListener(t, function () { held[k] = false; }); });
     });
     var io = null, ro = null;
