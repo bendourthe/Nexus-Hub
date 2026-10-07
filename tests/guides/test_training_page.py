@@ -277,13 +277,17 @@ def test_defeating_the_nexus_boss_opens_the_reward_and_download(playwright_mod) 
             page.wait_for_function("NexusTrainingPage.reward()")
             reward = page.locator("#trReward")
             assert reward.is_visible()
-            assert page.locator("#trRewardTitle").inner_text() == "Nexus Boss Defeated"
+            # Revision 9: the two strings are the maintainer's own wording.
+            assert page.locator(".tr-reward-kicker").text_content() == "NEXUS BOSS DEFEATED"
+            assert page.locator("#trRewardTitle").inner_text() == "Your Reward: Download the Nexus AI Studio"
             assert page.evaluate("document.activeElement.id") == "trReward"
             assert page.locator(".tr-download").get_attribute("href") == (
                 "https://github.com/bendourthe/Nexus-AI/releases/latest/download/NexusSetup.exe"
             )
-            assert page.locator(".tr-trailer .tr-scene").count() == 6
-            assert len(page.locator(".tr-trailer").get_attribute("aria-label")) > 80
+            assert page.locator(".tr-reward-more").get_attribute("href") == "https://github.com/bendourthe/Nexus-AI/releases/latest"
+            assert "270 MB" in page.locator(".tr-reward-note").inner_text()
+            assert page.locator(".tr-reward .nxs").get_attribute("aria-hidden") == "true"
+            assert "local models" in page.locator(".tr-reward .nxs-alt").inner_text()
             assert not errors, errors
             assert not external, "the reward links out but loads nothing"
         finally:

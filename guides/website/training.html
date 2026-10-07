@@ -683,38 +683,153 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 @media (prefers-reduced-motion:reduce){.ide *,.ide *::before,.ide *::after{animation:none !important;}}
 .tr-notice{margin:var(--sp-4) 0 0;padding:var(--sp-3) var(--sp-4);border:1px solid var(--border);border-radius:12px;background:var(--surface);color:var(--ink-dim);}
 .tr-notice[hidden]{display:none;}
-/* ---------- The reward ---------- Shown after the Nexus boss falls: a short trailer of Nexus AI Studio and its download. */
+/* ---------- The reward ---------- Shown after the Nexus boss falls: Nexus AI Studio as a live app, and its download. */
 .tr-reward{margin:var(--sp-5) 0 0;padding:var(--sp-5);border:1px solid var(--accent);border-radius:20px;background:radial-gradient(120% 120% at 50% 0%,color-mix(in srgb,var(--accent) 16%,var(--surface)),var(--surface));text-align:center;scroll-margin-top:96px;}
 .tr-reward:focus{outline:none;}
 .tr-reward-kicker{margin:0;font-family:var(--mono);font-size:var(--ty-body-sm);font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--teal-soft);}
 .tr-reward-title{margin:6px 0 8px;font-size:var(--ty-h2,1.7rem);color:var(--ink);}
 .tr-reward-lead{margin:0 auto;color:var(--ink-dim);text-wrap:pretty;}
 .tr-reward-lead b{color:var(--ink);}
-.tr-trailer{position:relative;margin:var(--sp-4) auto 0;padding:var(--sp-4);border:1px solid var(--border);border-radius:16px;background:var(--bg-0,var(--surface));overflow:hidden;}
-.tr-scenes{position:relative;min-height:132px;}
-.tr-scene{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:var(--sp-4);text-align:left;opacity:0;transform:translateY(8px);transition:opacity .25s var(--ease),transform .25s var(--ease);background:var(--bg-0,var(--surface));}
-/* Sequential, not a crossfade: the outgoing scene is gone before the next one appears. */
-.tr-scene.is-on{opacity:1;transform:none;transition:opacity .45s var(--ease) .3s,transform .45s var(--ease) .3s;}
-.tr-scene-icon{flex:none;width:92px;height:92px;display:grid;place-items:center;border-radius:22px;background:color-mix(in srgb,var(--accent) 12%,transparent);}
-.tr-scene-icon svg{width:64px;height:64px;}
-.tr-scene.is-on .tr-scene-icon{animation:tr-pop .6s var(--ease) both;}
-@keyframes tr-pop{from{transform:scale(.8);}to{transform:none;}}
-.tr-tl-line{fill:none;stroke:var(--teal-soft);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;}
-.tr-tl-fill{fill:var(--teal-soft);}
-.tr-scene-title{margin:0;font-size:var(--ty-lead);font-weight:800;color:var(--ink);}
-.tr-scene-line{margin:4px 0 0;color:var(--ink-dim);}
-.tr-trailer-dots{display:flex;justify-content:center;gap:6px;margin-top:var(--sp-3);}
-.tr-trailer-dot{width:22px;height:4px;border-radius:2px;background:var(--border);transition:background .3s var(--ease);}
-.tr-trailer-dot.is-on{background:var(--accent);}
 .tr-reward-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:var(--sp-3);margin-top:var(--sp-4);}
 .tr-download{display:inline-flex;align-items:center;min-height:52px;padding:12px 22px;border-radius:14px;background:var(--accent);color:var(--bg-0,#061316);font-weight:800;text-decoration:none;}
 .tr-download:hover{filter:brightness(1.08);}
 .tr-download:focus-visible,.tr-reward-more:focus-visible{outline:2px solid var(--ink);outline-offset:3px;}
 .tr-reward-more{display:inline-flex;align-items:center;min-height:52px;padding:12px 18px;border:1px solid var(--border);border-radius:14px;color:var(--ink);text-decoration:none;}
 .tr-reward-note{margin:var(--sp-3) 0 0;color:var(--ink-dim);font-size:var(--ty-body-sm);}
-@media (max-width:640px){.tr-scenes{min-height:220px;}.tr-scene{flex-direction:column;text-align:center;gap:var(--sp-2);}.tr-scene-icon{width:72px;height:72px;}.tr-scene-icon svg{width:50px;height:50px;}.tr-reward{padding:var(--sp-4) var(--sp-3);}}
-/* Reduced motion: no slideshow; every scene is shown as a list. */
-@media (prefers-reduced-motion:reduce){.tr-scenes{min-height:0;display:grid;gap:var(--sp-3);}.tr-scene{position:static;opacity:1;transform:none;transition:none;justify-content:flex-start;}.tr-scene.is-on .tr-scene-icon{animation:none;}.tr-trailer-dots{display:none;}}
+@media (max-width:640px){.tr-reward{padding:var(--sp-4) var(--sp-3);}}
+/* R34: Nexus AI Studio as a live app. Chrome, sidebar, labels, and colours follow the app's own title bar, sidebar, and design tokens. */
+.nxs-fig{margin:var(--sp-4) 0 0;}
+.nxs{--n-bg0:#0a0d14;--n-bg1:#11151f;--n-bg2:#181d2a;--n-el:#20263a;--n-fg0:#f5f7fb;--n-fg1:#d6dbe7;--n-mut:#8a92a6;--n-line:rgba(255,255,255,.06);--n-line2:rgba(255,255,255,.12);--n-bub:rgba(255,255,255,.09);--n-acc:#22d3ee;--n-ok:#22c55e;--n-mono:"JetBrains Mono","SF Mono",Consolas,var(--mono),monospace;position:relative;overflow:hidden;border:1px solid var(--n-line2);border-radius:12px;background:radial-gradient(80% 60% at 70% 0%,rgba(56,189,248,.12),transparent 65%),var(--n-bg0);box-shadow:0 12px 32px rgba(0,0,0,.55);color:var(--n-fg1);font:13px/1.45 "Inter","Segoe UI",system-ui,-apple-system,sans-serif;text-align:left;user-select:none;}
+.nxs[data-scene="agents"]{--n-acc:#ec4899;}
+.nxs[data-scene="images"]{--n-acc:#f97316;}
+.nxs[data-scene="videos"]{--n-acc:#22c55e;}
+.nxs p{margin:0;}
+.nxs svg{display:block;}
+.nxs-title{display:flex;align-items:center;justify-content:space-between;height:32px;padding:0 0 0 12px;border-bottom:1px solid var(--n-line);background:rgba(10,13,20,.9);}
+.nxs-brand{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:var(--n-fg1);}
+.nxs-brand svg{width:18px;height:18px;filter:drop-shadow(0 0 6px rgba(56,189,248,.45));}
+.nxs-ctl{display:flex;}
+.nxs-ctl>span{display:grid;place-items:center;width:42px;height:32px;color:var(--n-mut);}
+.nxs-ctl svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:1.4;}
+.nxs-body{display:grid;grid-template-columns:212px minmax(0,1fr);height:590px;}
+.nxs-side{display:flex;flex-direction:column;gap:8px;min-height:0;padding:8px 12px 12px;border-right:1px solid var(--n-line);background:linear-gradient(180deg,rgba(24,29,42,.75),rgba(17,21,31,.75));}
+.nxs-nav{display:flex;flex-direction:column;gap:4px;}
+.nxs-nav span,.nxs-set{display:flex;align-items:center;gap:10px;height:34px;padding:0 10px;border:1px solid transparent;border-radius:8px;color:var(--n-mut);font-size:13.5px;transition:background .2s,color .2s,border-color .2s;}
+.nxs-nav b,.nxs-set b{font-weight:500;}
+.nxs-nav svg,.nxs-set svg{flex:none;width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.nxs-nav .is-on{background:rgba(255,255,255,.07);border-color:var(--n-line2);box-shadow:inset 0 1px 0 rgba(255,255,255,.08);color:var(--n-fg0);}
+.nxs-hist{flex:1;min-height:0;overflow:hidden;padding-top:8px;border-top:1px solid var(--n-line);}
+.nxs-hist ul{display:none;margin:0;padding:0;list-style:none;}
+.nxs-hist ul.is-on{display:block;}
+.nxs-hist li{padding:5px 10px;border-radius:6px;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--n-fg1);}
+.nxs-hist .nxs-hist-h{padding-bottom:6px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--n-mut);}
+.nxs-hist .nxs-new{display:none;background:rgba(255,255,255,.06);color:var(--n-fg0);box-shadow:inset 2px 0 0 var(--n-acc);}
+.nxs-hist .nxs-new.is-on{display:block;}
+.nxs-foot{display:flex;flex-direction:column;gap:8px;}
+.nxs-gpu{padding:8px;border:1px solid var(--n-line);border-radius:8px;background:var(--n-el);font-size:12px;}
+.nxs-gpu-top{display:flex;justify-content:space-between;gap:8px;color:var(--n-fg0);}
+.nxs-gpu-model{min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+.nxs-gpu-tag{flex:none;color:#86efac;font-weight:600;}
+.nxs-bar{height:4px;margin:6px 0;border-radius:2px;background:var(--n-bg2);overflow:hidden;}
+.nxs-bar i{display:block;width:0;height:100%;background:var(--n-ok);transition:width .3s;}
+.nxs-gpu-row{display:flex;justify-content:space-between;color:var(--n-mut);font-variant-numeric:tabular-nums;}
+.nxs-main{display:flex;flex-direction:column;min-width:0;min-height:0;}
+.nxs-head{display:flex;flex:none;align-items:center;justify-content:space-between;gap:10px;height:46px;padding:0 16px;border-bottom:1px solid var(--n-line);}
+.nxs-page{display:flex;align-items:center;gap:8px;font-size:14.5px;color:var(--n-fg0);}
+.nxs-page b{font-weight:600;}
+.nxs-page i{width:8px;height:8px;border-radius:50%;background:var(--n-acc);box-shadow:0 0 10px var(--n-acc);transition:background .3s,box-shadow .3s;}
+.nxs-local{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border:1px solid rgba(34,197,94,.35);border-radius:999px;background:rgba(34,197,94,.12);color:#bbf7d0;font-size:12px;font-weight:600;white-space:nowrap;}
+.nxs-local i{width:6px;height:6px;border-radius:50%;background:var(--n-ok);box-shadow:0 0 6px var(--n-ok);}
+.nxs-log{flex:1;min-height:0;overflow:hidden;padding:14px 18px;}
+.nxs-scene{display:none;flex-direction:column;gap:10px;}
+.nxs-scene.is-on{display:flex;}
+.nxs-u{align-self:flex-end;max-width:80%;padding:7px 12px;border:1px solid var(--n-bub);border-radius:12px 12px 4px 12px;background:#1a2030;color:var(--n-fg0);opacity:0;transform:translateY(6px);transition:opacity .25s,transform .25s;}
+.nxs-u.is-on{opacity:1;transform:none;}
+.nxs-a{align-self:flex-start;max-width:94%;padding:10px 13px;border:1px solid var(--n-bub);border-radius:12px 12px 12px 4px;background:#141925;color:var(--n-fg1);}
+.nxs-scene[data-s="chat"] .nxs-a,.nxs-card,.nxs-done,.nxs-plan{display:none;}
+.nxs-scene[data-s="chat"] .nxs-a.is-on,.nxs-card.is-on,.nxs-done.is-on,.nxs-plan.is-on{display:block;}
+.nxs-stream{min-height:1.45em;white-space:pre-line;}
+.nxs-stream:not(:empty)::after{content:"";display:inline-block;width:7px;height:1em;margin-left:2px;vertical-align:-2px;background:var(--n-acc);}
+.nxs-a .nxs-meta{margin-top:8px;visibility:hidden;}
+.nxs-a .nxs-meta.is-on,.nxs-done .nxs-meta{visibility:visible;}
+.nxs-meta{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;font-size:11.5px;color:var(--n-mut);}
+.nxs-meta span+span::before{content:"";display:inline-block;width:3px;height:3px;margin:0 8px 2px -6px;border-radius:50%;background:currentColor;}
+.nxs-meta span:last-child{color:#86efac;}
+.nxs-hub{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:6px 8px;border:1px solid rgba(236,72,153,.28);border-radius:10px;background:rgba(236,72,153,.08);}
+.nxs-hub-badge{display:inline-flex;align-items:center;gap:6px;margin-right:4px;font-size:12.5px;font-weight:700;color:var(--n-fg0);}
+.nxs-hub-badge svg{width:16px;height:16px;}
+.nxs-chip{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border:1px solid var(--n-line2);border-radius:999px;font-size:11.5px;color:var(--n-mut);transition:color .25s,border-color .25s;}
+.nxs-chip::before{content:"";width:9px;height:9px;border:1.5px solid currentColor;border-right-color:transparent;border-radius:50%;animation:nxs-spin .8s linear infinite;}
+.nxs-chip.is-on{border-color:rgba(34,197,94,.4);color:#bbf7d0;}
+.nxs-chip.is-on::before{width:4px;height:8px;margin:0 2px 2px;border:solid #22c55e;border-width:0 1.6px 1.6px 0;border-radius:0;transform:rotate(45deg);animation:none;}
+.nxs-plan{padding:8px 12px;border:1px solid var(--n-bub);border-radius:10px;background:#141925;}
+.nxs-plan-h{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--n-mut);}
+.nxs-plan ol{display:grid;gap:2px;margin:4px 0 0;padding-left:20px;font-size:12.5px;}
+.nxs-plan li{transition:color .25s;}
+.nxs-plan li.is-done{color:var(--n-mut);text-decoration:line-through;text-decoration-color:rgba(138,146,166,.6);}
+.nxs-tools{display:grid;gap:5px;margin:0;padding:0;list-style:none;}
+.nxs-tools li{display:none;grid-template-columns:14px auto minmax(0,1fr) auto;align-items:center;gap:8px;padding:5px 10px;border:1px solid var(--n-bub);border-radius:8px;background:var(--n-bg1);font-size:12px;}
+.nxs-tools li.is-on{display:grid;}
+.nxs-tools i{width:11px;height:11px;border:1.6px solid var(--n-acc);border-right-color:transparent;border-radius:50%;animation:nxs-spin .8s linear infinite;}
+.nxs-tools li.is-done i{width:5px;height:9px;margin:0 0 3px 3px;border:solid #22c55e;border-width:0 1.8px 1.8px 0;border-radius:0;transform:rotate(45deg);animation:none;}
+.nxs-tools code{padding:0;border:0;background:none;color:#f9a8d4;font:600 12px var(--n-mono);}
+.nxs-tools span{min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-family:var(--n-mono);color:var(--n-fg1);}
+.nxs-tools em{font-style:normal;color:var(--n-mut);visibility:hidden;}
+.nxs-tools li.is-done em{visibility:visible;}
+.nxs-tools em.nxs-diff{color:#86efac;}
+.nxs-card{width:min(100%,300px);}
+.nxs-pic{position:relative;aspect-ratio:1;overflow:hidden;border-radius:8px;background:#0b1020;}
+.nxs-art{width:100%;height:100%;}
+.nxs-noise{position:absolute;inset:0;width:100%;height:100%;mix-blend-mode:screen;}
+.nxs-prog{margin-top:8px;}
+.nxs-prog-row{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--n-fg1);font-variant-numeric:tabular-nums;}
+.nxs-prog-step{color:var(--n-mut);}
+.nxs-prog .nxs-bar i{background:var(--n-acc);}
+.nxs-card .nxs-meta{margin-top:6px;}
+.nxs-scene[data-s="images"] .nxs-card{width:min(100%,262px);}
+.nxs-file{display:none;align-self:flex-end;align-items:center;gap:8px;padding:6px 10px;border:1px solid var(--n-bub);border-radius:10px;background:var(--n-bg1);font-size:12px;color:var(--n-fg0);}
+.nxs-file.is-on{display:flex;}
+.nxs-file svg{width:15px;height:15px;fill:none;stroke:var(--n-acc);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.nxs-file span{color:#86efac;}
+.nxs-scene[data-s="videos"] .nxs-card{width:min(100%,360px);}
+.nxs-player{position:relative;aspect-ratio:16 / 9;overflow:hidden;border-radius:8px;background:#05070c;}
+.nxs-clip{width:100%;height:100%;transition:opacity .3s;}
+.nxs-play{position:absolute;left:10px;bottom:10px;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:rgba(10,13,20,.75);color:var(--n-fg0);}
+.nxs-play svg{width:14px;height:14px;fill:currentColor;}
+.nxs.is-playing .nxs-play svg path{d:path("M7 5h3.5v14H7zM13.5 5H17v14h-3.5z");}
+.nxs-timeline{display:flex;align-items:center;gap:10px;margin-top:8px;font-size:11.5px;color:var(--n-mut);font-variant-numeric:tabular-nums;}
+.nxs-track{position:relative;flex:1;height:4px;border-radius:2px;background:var(--n-bg2);}
+.nxs-track i{position:absolute;left:0;top:0;height:100%;border-radius:2px;background:var(--n-acc);}
+.nxs-track b{position:absolute;top:50%;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;background:var(--n-fg0);}
+.nxs-frames{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin-top:8px;}
+.nxs-frames i{height:16px;border-radius:3px;background:var(--n-bg2);transition:background .2s;}
+.nxs-frames i.is-on{background:linear-gradient(90deg,#1e1b4b,#9a3412 30%,#fb923c 50%,#1e3a5f 70%,#0b1730) 0 0 / 800% 100%;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);}
+.nxs-frames i:nth-child(2){background-position:14%;}.nxs-frames i:nth-child(3){background-position:28%;}.nxs-frames i:nth-child(4){background-position:42%;}.nxs-frames i:nth-child(5){background-position:57%;}.nxs-frames i:nth-child(6){background-position:71%;}.nxs-frames i:nth-child(7){background-position:85%;}.nxs-frames i:nth-child(8){background-position:100%;}
+.nxs-comp{flex:none;margin:0 18px 14px;padding:10px 12px 8px;border:1px solid var(--n-line2);border-radius:12px;background:var(--n-bg1);transition:border-color .2s,box-shadow .2s;}
+.nxs-comp.is-focus{border-color:var(--n-acc);box-shadow:0 0 0 3px color-mix(in srgb,var(--n-acc) 18%,transparent);}
+.nxs-in{display:flex;align-items:center;height:22px;overflow:hidden;white-space:nowrap;color:var(--n-fg0);}
+.nxs-typed{flex:none;}
+.nxs-ph{min-width:0;overflow:hidden;text-overflow:ellipsis;color:#6b7387;}
+.nxs-caret{flex:none;width:2px;height:1.15em;margin:0 1px;background:var(--n-acc);opacity:0;}
+.nxs-comp.is-focus .nxs-caret{opacity:1;animation:nxs-blink 1s steps(2) infinite;}
+.nxs-row{display:flex;align-items:center;gap:8px;margin-top:8px;}
+.nxs-model{display:inline-flex;align-items:center;gap:7px;min-width:0;padding:3px 10px;border:1px solid var(--n-line2);border-radius:8px;background:var(--n-bg2);font-size:12px;white-space:nowrap;}
+.nxs-model-k{color:var(--n-mut);}
+.nxs-model-name{min-width:0;overflow:hidden;text-overflow:ellipsis;font-weight:600;color:var(--n-fg0);}
+.nxs-model-tag{flex:none;padding:0 6px;border-radius:5px;background:rgba(34,197,94,.16);color:#86efac;font-size:11px;font-weight:700;}
+.nxs-ctx{padding:3px 10px;border:1px solid var(--n-line2);border-radius:8px;font-size:12px;color:var(--n-mut);}
+.nxs-send{display:grid;place-items:center;flex:none;width:30px;height:30px;margin-left:auto;border-radius:50%;background:var(--n-el);color:var(--n-mut);transition:background .15s,color .15s;}
+.nxs-send.is-on{background:var(--n-acc);color:#06121a;}
+.nxs-send svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
+.nxs-cur{position:absolute;left:0;top:0;z-index:4;width:20px;height:20px;margin:-2px 0 0 -4px;pointer-events:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.6));}
+.nxs-cur path{fill:#fff;stroke:#0a0d14;stroke-width:1.2;stroke-linejoin:round;transform-origin:4px 2px;transition:transform .1s;}
+.nxs-cur.is-click path{transform:scale(.82);}
+.nxs-alt{margin:var(--sp-2) 0 0;color:var(--ink-dim);font-size:var(--ty-body-sm);}
+.nxs.is-idle *,.nxs.is-idle *::before{animation-play-state:paused !important;}
+@keyframes nxs-spin{to{transform:rotate(360deg);}}
+@keyframes nxs-blink{50%{opacity:0;}}
+@media (max-width:640px){.nxs-body{grid-template-columns:52px minmax(0,1fr);height:560px;}.nxs-model-k,.nxs-model-tag,.nxs-meta span:nth-child(2):not(:last-child),.nxs-plan.is-on{display:none;}.nxs-meta{flex-direction:column;align-items:flex-start;gap:1px;}.nxs-meta span+span::before{display:none;}.nxs-model{padding:3px 9px;}.nxs-hub{padding:5px 6px;}.nxs-chip{padding:1px 7px;}.nxs-file{font-size:11.5px;}.nxs-side{padding:8px 6px;}.nxs-nav span,.nxs-set{justify-content:center;padding:0;}.nxs-nav b,.nxs-set b,.nxs-hist,.nxs-gpu,.nxs-wide,.nxs-ctx{display:none;}.nxs-foot{margin-top:auto;}.nxs-head{height:42px;padding:0 10px;}.nxs-log{padding:10px;}.nxs-comp{margin:0 10px 10px;padding:8px 10px 7px;}.nxs-u{max-width:92%;}.nxs-a{max-width:100%;padding:8px 10px;font-size:12.5px;}.nxs-tools li{grid-template-columns:14px auto minmax(0,1fr);}.nxs-tools em{display:none;}.nxs-hub-badge{width:100%;}.nxs-brand{font-size:12px;}.nxs-ctl>span{width:34px;}.nxs-scene[data-s="images"] .nxs-card{width:min(100%,200px);}}
+@media (prefers-reduced-motion:reduce){.nxs *,.nxs *::before{animation:none !important;transition:none !important;}.nxs .nxs-cur{display:none;}}
 .ss{display:grid;gap:10px;margin:var(--sp-4) 0;}
 .ss-stage{position:relative;border:1px solid var(--border);border-radius:16px;overflow:hidden;background:#040c11;}
 .ss-stage[hidden]{display:none;}
@@ -1173,10 +1288,234 @@ main .eyebrow,main .tr-kicker{display:none;}
     <section class="tr-stage" id="update" data-stage="update" aria-labelledby="st-update"><div class="container"><h2 data-ty="h2" id="st-update">Release</h2></div></section>
     <section class="tr-stage" id="play-fixed" data-stage="play-fixed" aria-labelledby="st-play-fixed"><div class="container"><h2 data-ty="h2" id="st-play-fixed">Fixed Game</h2><div class="ss-host" data-ss-id="fixed" data-ss-defects="" data-ss-seed="4242" data-ss-progression data-ss-boss></div>
       <section class="tr-reward" id="trReward" hidden tabindex="-1" aria-labelledby="trRewardTitle">
-        <p class="tr-reward-kicker">Final boss defeated</p>
-        <h2 class="tr-reward-title" id="trRewardTitle">Nexus Boss Defeated</h2>
+        <p class="tr-reward-kicker">NEXUS BOSS DEFEATED</p>
+        <h2 class="tr-reward-title" id="trRewardTitle">Your Reward: Download the Nexus AI Studio</h2>
         <p class="tr-reward-lead">Your prize: <b>Nexus AI Studio</b>, the local-first desktop app built alongside Nexus Hub. The same agentic workflow, plus chat, images, and video, all running on your own machine.</p>
-        <div class="tr-trailer" role="img" aria-label="Nexus AI Studio trailer: a local AI studio with four pillars on one desktop: agentic coding, local chat, an image studio, and a video lab, all running on your machine against open-source models with no tokens billed." data-seq-root data-seq-loop data-seq-hold="900"><div class="tr-scenes"><div class="tr-scene" data-seq="1" data-seq-dur="2300"><span class="tr-scene-icon tr-scene-icon--mark"><svg viewBox="0 0 512 512" aria-hidden="true"><use href="#nexus-mark"/></svg></span><div><p class="tr-scene-title">Nexus AI Studio</p><p class="tr-scene-line">Your local AI studio. Four pillars, one desktop, zero tokens billed.</p></div></div><div class="tr-scene" data-seq="2" data-seq-dur="2300"><span class="tr-scene-icon tr-scene-icon--code"><svg viewBox="0 0 64 64" aria-hidden="true"><path class="tr-tl-line" d="M24 18 10 32l14 14M40 18l14 14-14 14M35 12 29 52"/></svg></span><div><p class="tr-scene-title">Agentic coding</p><p class="tr-scene-line">Reads your repository, runs code in isolation, and builds features across files.</p></div></div><div class="tr-scene" data-seq="3" data-seq-dur="2300"><span class="tr-scene-icon tr-scene-icon--chat"><svg viewBox="0 0 64 64" aria-hidden="true"><path class="tr-tl-line" d="M10 14h32a6 6 0 0 1 6 6v14a6 6 0 0 1-6 6H26l-10 8v-8h-6a6 6 0 0 1-6-6V20a6 6 0 0 1 6-6Z"/><path class="tr-tl-line" d="M44 24h6a6 6 0 0 1 6 6v12a6 6 0 0 1-6 6h-2v6l-8-6H32"/></svg></span><div><p class="tr-scene-title">Local chat</p><p class="tr-scene-line">Chats organized in folders, with memory that keeps long threads coherent.</p></div></div><div class="tr-scene" data-seq="4" data-seq-dur="2300"><span class="tr-scene-icon tr-scene-icon--image"><svg viewBox="0 0 64 64" aria-hidden="true"><rect class="tr-tl-line" x="8" y="12" width="48" height="40" rx="6"/><circle class="tr-tl-fill" cx="42" cy="24" r="5"/><path class="tr-tl-line" d="m12 46 14-14 10 10 6-6 10 10"/></svg></span><div><p class="tr-scene-title">Image studio</p><p class="tr-scene-line">Text to image, inpainting, and outpainting on your own GPU.</p></div></div><div class="tr-scene" data-seq="5" data-seq-dur="2300"><span class="tr-scene-icon tr-scene-icon--video"><svg viewBox="0 0 64 64" aria-hidden="true"><rect class="tr-tl-line" x="8" y="14" width="48" height="36" rx="6"/><path class="tr-tl-fill" d="M28 24v16l13-8Z"/><path class="tr-tl-line" d="M8 22h48M8 42h48"/></svg></span><div><p class="tr-scene-title">Video lab</p><p class="tr-scene-line">Short clips from a prompt or a still image, with a timeline preview.</p></div></div><div class="tr-scene" data-seq="6" data-seq-dur="2300"><span class="tr-scene-icon tr-scene-icon--local"><svg viewBox="0 0 64 64" aria-hidden="true"><rect class="tr-tl-line" x="10" y="12" width="44" height="30" rx="4"/><path class="tr-tl-line" d="M22 52h20M32 42v10"/><path class="tr-tl-line" d="m24 27 6 6 11-12"/></svg></span><div><p class="tr-scene-title">Runs on your machine</p><p class="tr-scene-line">Open-source models, no cloud account, no tokens billed.</p></div></div></div><div class="tr-trailer-dots" aria-hidden="true"><span class="tr-trailer-dot" data-seq="1"></span><span class="tr-trailer-dot" data-seq="2"></span><span class="tr-trailer-dot" data-seq="3"></span><span class="tr-trailer-dot" data-seq="4"></span><span class="tr-trailer-dot" data-seq="5"></span><span class="tr-trailer-dot" data-seq="6"></span></div></div>
+                <div class="nxs-fig">
+          <div class="nxs is-idle" data-scene="chat" aria-hidden="true">
+            <svg width="0" height="0" style="position:absolute"><defs><linearGradient id="nxs-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1e1b4b"/><stop offset=".5" stop-color="#9a3412"/><stop offset="1" stop-color="#fb923c"/></linearGradient><linearGradient id="nxs-sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1e3a5f"/><stop offset="1" stop-color="#0b1730"/></linearGradient><radialGradient id="nxs-glow"><stop offset="0" stop-color="#fde68a" stop-opacity=".95"/><stop offset="1" stop-color="#fde68a" stop-opacity="0"/></radialGradient><filter id="nxs-nf"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="1"/><feColorMatrix type="saturate" values="0"/></filter></defs><symbol id="nxs-art" viewBox="0 0 240 240"><rect width="240" height="240" fill="url(#nxs-sky)"/><circle cx="36" cy="30" r="1.2" fill="#fff"/><circle cx="92" cy="18" r="1" fill="#fff"/><circle cx="150" cy="40" r="1.2" fill="#fff"/><circle cx="214" cy="22" r="1" fill="#fff"/><circle cx="70" cy="152" r="26" fill="#fdba74"/><path d="M0 158h240v82H0z" fill="url(#nxs-sea)"/><path d="M48 166h44M56 174h28M62 182h16" stroke="#fdba74" stroke-width="2" opacity=".55"/><path d="M128 240v-66l22-16 20 5 16-17 22 7 32-5v92z" fill="#1c1917"/><path d="M182 152l5-58h14l5 58z" fill="#f5f5f4"/><path d="M185.6 134h18.8l-.8 9h-17.2zm1.6-22h15.6l-.7 9h-14.2z" fill="#dc2626"/><rect x="186" y="84" width="16" height="10" fill="#fde68a"/><path d="M183 84h22l-11-10z" fill="#292524"/><circle cx="194" cy="89" r="28" fill="url(#nxs-glow)"/></symbol></svg>
+            <div class="nxs-title"><span class="nxs-brand"><svg viewBox="0 0 512 512"><use href="#nexus-mark"/></svg>Nexus AI Studio</span><span class="nxs-ctl"><span><svg viewBox="0 0 12 12"><path d="M2 6h8"/></svg></span><span><svg viewBox="0 0 12 12"><rect x="2" y="2" width="8" height="8" rx="1"/></svg></span><span><svg viewBox="0 0 12 12"><path d="m2.5 2.5 7 7m0-7-7 7"/></svg></span></span></div>
+            <div class="nxs-body">
+              <div class="nxs-side">
+                <div class="nxs-nav">
+                  <span data-nav="chat"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><b>Chatbot</b></span>
+                  <span data-nav="agents"><svg viewBox="0 0 24 24"><path d="m18 16 4-4-4-4M6 8l-4 4 4 4m8.5-8-5 16"/></svg><b>Agents</b></span>
+                  <span data-nav="images"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg><b>Images</b></span>
+                  <span data-nav="videos"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="2.2"/><path d="M7 2v20M17 2v20M2 12h20M2 7h5m-5 10h5m10 0h5M17 7h5"/></svg><b>Videos</b></span>
+                </div>
+                <div class="nxs-hist">
+                  <ul data-hist="chat"><li class="nxs-hist-h">Chats</li><li class="nxs-new">Meeting action items</li><li>Trip packing list</li><li>Explain vector search</li><li>Cover letter draft</li></ul>
+                  <ul data-hist="agents"><li class="nxs-hist-h">Agent sessions</li><li class="nxs-new">Dark mode toggle</li><li>Fix login redirect</li><li>Add CSV export</li><li>Refactor date utils</li></ul>
+                  <ul data-hist="images"><li class="nxs-hist-h">Image history</li><li class="nxs-new">Lighthouse at dusk</li><li>Forest cabin, winter</li><li>Logo sketch, fox</li><li>Product shot, mug</li></ul>
+                  <ul data-hist="videos"><li class="nxs-hist-h">Video history</li><li class="nxs-new">Waves under the lighthouse</li><li>City timelapse</li><li>Coffee pour, slow motion</li><li>Paper plane flight</li></ul>
+                </div>
+                <div class="nxs-foot">
+                  <span class="nxs-set"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3M4.9 4.9l2.1 2.1m10 10 2.1 2.1m0-14.2L17 7M7 17l-2.1 2.1"/></svg><b>Settings</b></span>
+                  <div class="nxs-gpu"><div class="nxs-gpu-top"><span class="nxs-gpu-model">Gemma 4 12B</span><span class="nxs-gpu-tag">Local</span></div><div class="nxs-bar"><i></i></div><div class="nxs-gpu-row"><span>GPU usage</span><span class="nxs-gpu-pct">6%</span></div></div>
+                </div>
+              </div>
+              <div class="nxs-main">
+                <div class="nxs-head"><span class="nxs-page"><i></i><b class="nxs-page-name">Chatbot</b></span><span class="nxs-local"><i></i><span>Local</span><span class="nxs-wide">&nbsp;on this device</span></span></div>
+                <div class="nxs-log">
+                  <div class="nxs-scene" data-s="chat">
+                    <p class="nxs-file"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>meeting-notes.pdf<span>Parsed on this device</span></p>
+                    <p class="nxs-u">Turn my meeting notes into three action items</p>
+                    <div class="nxs-a"><p class="nxs-stream"></p><p class="nxs-meta"><span>Gemma 4 12B</span><span>41 tok/s</span><span>On this device</span></p></div>
+                  </div>
+                  <div class="nxs-scene" data-s="agents">
+                    <div class="nxs-hub"><span class="nxs-hub-badge"><svg viewBox="0 0 512 512"><use href="#nexus-mark"/></svg>Nexus Hub harness</span><span class="nxs-chip" data-at="0">Hub skills</span><span class="nxs-chip" data-at="1">Hooks</span><span class="nxs-chip" data-at="2">Plan mode</span></div>
+                    <p class="nxs-u">/implement add a dark mode toggle to settings</p>
+                    <div class="nxs-plan"><p class="nxs-plan-h">Plan</p><ol><li>Find the settings screen</li><li>Add the toggle and theme state</li><li>Cover it with a test</li></ol></div>
+                    <ul class="nxs-tools">
+                      <li><i></i><code>list_directory</code><span>src/</span><em>12 entries</em></li>
+                      <li><i></i><code>read_file</code><span>src/Settings.tsx</span><em>84 lines</em></li>
+                      <li><i></i><code>edit_file</code><span>src/Settings.tsx</span><em class="nxs-diff">+14 -2</em></li>
+                      <li><i></i><code>write_file</code><span>src/Settings.test.tsx</span><em class="nxs-diff">+22</em></li>
+                    </ul>
+                    <div class="nxs-a nxs-done"><p>Done. Dark mode toggle added and tested in 2 files.</p><p class="nxs-meta"><span>Qwen3-Coder 30B-A3B</span><span>On this device</span></p></div>
+                  </div>
+                  <div class="nxs-scene" data-s="images">
+                    <p class="nxs-u">A lighthouse on a sea cliff at dusk, warm light</p>
+                    <div class="nxs-a nxs-card">
+                      <div class="nxs-pic"><svg class="nxs-art" viewBox="0 0 240 240"><use href="#nxs-art"/><path d="M194 89 0 52v62z" fill="#fde68a" opacity=".16"/></svg><svg class="nxs-noise" viewBox="0 0 120 120" preserveAspectRatio="none"><rect width="120" height="120" filter="url(#nxs-nf)"/></svg></div>
+                      <div class="nxs-prog"><p class="nxs-prog-row"><span class="nxs-prog-label">Rendering...</span><span class="nxs-prog-step">step 0 of 20</span></p><div class="nxs-bar"><i></i></div></div>
+                      <p class="nxs-meta"><span>SANA 1.5 1.6B 1024px</span><span>1024 x 1024</span><span>On this device</span></p>
+                    </div>
+                  </div>
+                  <div class="nxs-scene" data-s="videos">
+                    <p class="nxs-u">Slow pan as waves roll under the lighthouse</p>
+                    <div class="nxs-a nxs-card">
+                      <div class="nxs-player"><svg class="nxs-clip" viewBox="0 0 240 135" preserveAspectRatio="xMidYMid slice"><g class="nxs-pan"><use href="#nxs-art" x="-10" y="-70" width="260" height="260"/><path class="nxs-beam" d="M200 23 -40 -20v70z" fill="#fde68a" opacity=".2"/><g class="nxs-waves"><path d="M-40 102q15-6 30 0t30 0 30 0 30 0 30 0 30 0 30 0 30 0 30 0 30 0v40h-300z" fill="#1d4ed8" opacity=".35"/><path d="M-40 112q15-5 30 0t30 0 30 0 30 0 30 0 30 0 30 0 30 0 30 0 30 0v30h-300z" fill="#bfdbfe" opacity=".18"/></g><path d="M128.7 190v-71.5l23.8-17.3 21.7 5.4 17.3-18.4 23.8 7.6 34.7-5.4V190z" fill="#1c1917"/></g></svg><span class="nxs-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></div>
+                      <div class="nxs-timeline"><span class="nxs-time">0:00 / 0:04</span><div class="nxs-track"><i></i><b></b></div></div>
+                      <div class="nxs-frames"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+                      <div class="nxs-prog"><p class="nxs-prog-row"><span class="nxs-prog-label">Crafting...</span><span class="nxs-prog-step">frame 0 of 8</span></p></div>
+                      <p class="nxs-meta"><span>Wan 2.2 TI2V 5B</span><span>720p, 4 s</span><span>On this device</span></p>
+                    </div>
+                  </div>
+                </div>
+                <div class="nxs-comp">
+                  <p class="nxs-in"><span class="nxs-typed"></span><span class="nxs-caret"></span><span class="nxs-ph"></span></p>
+                  <div class="nxs-row"><span class="nxs-model"><span class="nxs-model-k">Model</span><b class="nxs-model-name">Gemma 4 12B</b><span class="nxs-model-tag">Local</span></span><span class="nxs-ctx">Context</span><span class="nxs-send"><svg viewBox="0 0 24 24"><path d="M12 19V5m-7 7 7-7 7 7"/></svg></span></div>
+                </div>
+              </div>
+            </div>
+            <svg class="nxs-cur" viewBox="0 0 20 20"><path d="M4 2v14l3.6-3.4 2.6 5.6 2.4-1.1-2.6-5.5H15z"/></svg>
+          </div>
+          <p class="nxs-alt">Nexus AI Studio on local models: Chatbot, Agents, Images, and Videos, powered by the Nexus Hub harness.</p>
+          <script>
+            (function () {
+              /* R34: one clock plays the four pillars of Nexus AI Studio in its own chrome. */
+              var fig = document.currentScript.parentNode, win = fig.querySelector(".nxs"), panel = fig.closest(".tr-reward");
+              var SCENES = [
+                { id: "chat", page: "Chatbot", model: "Gemma 4 12B", gpu: 58, place: "Type a message, attach a document, or record audio to transcribe locally." },
+                { id: "agents", page: "Agents", model: "Qwen3-Coder 30B-A3B", gpu: 71, place: "Ask anything, or attach a PDF, image, or Office file. Type / for commands." },
+                { id: "images", page: "Images", model: "SANA 1.5 1.6B 1024px", gpu: 88, place: "Describe what you want to generate, or drop an image..." },
+                { id: "videos", page: "Videos", model: "Wan 2.2 TI2V 5B", gpu: 93, place: "Describe what you want to generate, or drop an image..." }
+              ];
+              var S = 7600, LOOP = S * SCENES.length, NAV = 550, FOCUS = 1150, TYPE0 = 1250, CH = 36, SEND = 3150, OUT = 3300;
+              var ANSWER = "Here are your three action items:\n1. Ana sends the revised budget by Friday.\n2. Leo books the venue for the March offsite.\n3. The team reviews the launch checklist on Monday.";
+              var reduce = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+              var STILL = S + S - 200;
+              function q(s, r) { return (r || win).querySelector(s); }
+              function qa(s, r) { return Array.prototype.slice.call((r || win).querySelectorAll(s)); }
+              function setText(el, v) { v = String(v); if (el.textContent !== v) el.textContent = v; }
+              function on(el, v) { el.classList.toggle("is-on", !!v); }
+              function clamp(v) { return Math.max(0, Math.min(1, v)); }
+              function ease(v) { v = clamp(v); return v < .5 ? 2 * v * v : 1 - Math.pow(-2 * v + 2, 2) / 2; }
+              var navs = qa("[data-nav]"), hists = qa("[data-hist]"), scenes = qa(".nxs-scene");
+              var typed = q(".nxs-typed"), ph = q(".nxs-ph"), comp = q(".nxs-comp"), send = q(".nxs-send"), cur = q(".nxs-cur");
+              var stream = q(".nxs-stream"), chips = qa(".nxs-chip"), plan = qa(".nxs-plan li"), tools = qa(".nxs-tools li");
+              var t = 0, last = 0, raf = 0, seen = false, paused = false, out = {};
+              function point(el) {
+                var w = win.getBoundingClientRect(), r = el.getBoundingClientRect();
+                if (!r.width) return { x: w.width / 2, y: w.height / 2 };
+                return { x: r.left - w.left + Math.min(r.width / 2, 34), y: r.top - w.top + r.height / 2 };
+              }
+              function cursor(k, s) {
+                var nav = point(navs[k]), input = point(q(".nxs-in")), btn = point(send);
+                var from = btn, to = nav, p = ease(s / NAV);
+                if (s >= NAV + 250) { from = nav; to = input; p = ease((s - NAV - 250) / (FOCUS - NAV - 250)); }
+                if (s >= TYPE0) { from = input; to = btn; p = ease((s - (SEND - 260)) / 220); }
+                cur.style.transform = "translate(" + (from.x + (to.x - from.x) * p).toFixed(1) + "px," + (from.y + (to.y - from.y) * p).toFixed(1) + "px)";
+                cur.classList.toggle("is-click", (s > NAV - 40 && s < NAV + 110) || (s > FOCUS - 40 && s < FOCUS + 110) || (s > SEND - 40 && s < SEND + 110));
+              }
+              function render(now) {
+                t = Math.max(0, Math.min(LOOP - 1, now));
+                var k = Math.floor(t / S), s = t - k * S, sc = SCENES[k], shown = s < NAV + 50 && k > 0 ? k - 1 : k, view = SCENES[shown];
+                win.setAttribute("data-scene", view.id);
+                navs.forEach(function (el, i) { on(el, i === shown); });
+                hists.forEach(function (el, i) { on(el, i === shown); });
+                scenes.forEach(function (el, i) { on(el, i === shown); });
+                setText(q(".nxs-page-name"), view.page);
+                setText(q(".nxs-model-name"), view.model);
+                setText(q(".nxs-gpu-model"), view.model);
+                var cur0 = shown === k, sent = cur0 && s >= SEND, input = cur0 && s >= TYPE0 && s < SEND ? q(".nxs-u", scenes[k]).textContent : "";
+                if (input) input = input.slice(0, Math.min(input.length, Math.floor((s - TYPE0) / CH) + 1));
+                var past = shown < k;
+                setText(typed, input);
+                setText(ph, input ? "" : view.place);
+                comp.classList.toggle("is-focus", cur0 && s >= FOCUS && s < SEND + 200);
+                send.classList.toggle("is-on", !!input);
+                on(q(".nxs-u", scenes[shown]), sent || past);
+                on(q(".nxs-new", hists[shown]), sent || past);
+                var file = q(".nxs-file", scenes[shown]);
+                if (file) on(file, sent || past);
+                var o = past ? S : s - OUT, done = false, extra = {};
+                if (view.id === "chat") {
+                  var n = o < 0 ? 0 : Math.min(ANSWER.length, Math.floor(o / 3000 * ANSWER.length));
+                  setText(stream, ANSWER.slice(0, n));
+                  on(q(".nxs-a", scenes[0]), n > 0);
+                  done = n >= ANSWER.length;
+                  on(q(".nxs-meta", scenes[0]), done);
+                  extra.answer = n;
+                }
+                if (view.id === "agents") {
+                  var a = cur0 ? s : S;
+                  chips.forEach(function (c, i) { on(c, a >= 700 + i * 200); });
+                  on(q(".nxs-plan", scenes[1]), o >= 150);
+                  var finished = 0;
+                  tools.forEach(function (li, i) {
+                    var st = o - 700 - i * 650;
+                    on(li, st >= 0);
+                    li.classList.toggle("is-done", st >= 420);
+                    if (st >= 420) finished++;
+                  });
+                  plan.forEach(function (li, i) { li.classList.toggle("is-done", finished >= [1, 3, 4][i]); });
+                  done = o >= 3500;
+                  on(q(".nxs-done", scenes[1]), done);
+                  extra.tools = finished;
+                  extra.harness = chips.filter(function (c) { return c.classList.contains("is-on"); }).length;
+                }
+                if (view.id === "images") {
+                  var p = clamp(o / 3000), step = Math.round(p * 20);
+                  on(q(".nxs-card", scenes[2]), o >= 0);
+                  q(".nxs-art", scenes[2]).style.filter = "blur(" + (14 * (1 - p)).toFixed(1) + "px) saturate(" + (0.35 + 0.65 * p).toFixed(2) + ")";
+                  var noise = q(".nxs-noise", scenes[2]);
+                  noise.style.opacity = (0.9 * Math.pow(1 - p, 1.4)).toFixed(2);
+                  q("feTurbulence").setAttribute("seed", String(1 + step % 7));
+                  q(".nxs-prog .nxs-bar i", scenes[2]).style.width = (p * 100).toFixed(1) + "%";
+                  done = step >= 20;
+                  setText(q(".nxs-prog-label", scenes[2]), done ? "Done" : "Rendering...");
+                  setText(q(".nxs-prog-step", scenes[2]), "step " + step + " of 20");
+                  on(q(".nxs-meta", scenes[2]), done);
+                  extra.step = step;
+                }
+                if (view.id === "videos") {
+                  var f = o < 0 ? 0 : Math.min(8, Math.floor(o / 2200 * 8) + 1), play = o - 2400, clip = play < 0 ? 0 : play % 4000;
+                  if (o >= 2200) f = 8;
+                  on(q(".nxs-card", scenes[3]), o >= 0);
+                  qa(".nxs-frames i", scenes[3]).forEach(function (el, i) { on(el, i < f); });
+                  done = f >= 8;
+                  on(q(".nxs-meta", scenes[3]), done);
+                  setText(q(".nxs-prog-label", scenes[3]), done ? "Done" : "Crafting...");
+                  setText(q(".nxs-prog-step", scenes[3]), "frame " + f + " of 8");
+                  var playing = play >= 0, x = playing ? clip / 4000 : (f - 1) / 8;
+                  win.classList.toggle("is-playing", playing);
+                  q(".nxs-pan", scenes[3]).setAttribute("transform", "translate(" + (-14 * Math.max(0, x)).toFixed(1) + " 0)");
+                  q(".nxs-waves", scenes[3]).setAttribute("transform", "translate(" + ((x * 4 * 30) % 30).toFixed(1) + " " + (Math.sin(x * 12) * 1.5).toFixed(1) + ")");
+                  q(".nxs-beam", scenes[3]).setAttribute("transform", "rotate(" + (-12 + 24 * Math.abs(Math.sin(x * 3.1))).toFixed(1) + " 200 23)");
+                  q(".nxs-clip", scenes[3]).style.opacity = f ? (playing ? 1 : 0.55) : 0.15;
+                  q(".nxs-track b", scenes[3]).style.left = (x * 100).toFixed(1) + "%";
+                  q(".nxs-track i", scenes[3]).style.width = (playing ? x * 100 : 0).toFixed(1) + "%";
+                  setText(q(".nxs-time", scenes[3]), "0:0" + (playing ? Math.floor(clip / 1000) : 0) + " / 0:04");
+                  extra.frames = f; extra.playing = playing;
+                } else win.classList.remove("is-playing");
+                var busy = cur0 && s >= SEND && !done, g = busy ? view.gpu : done ? 18 : 6;
+                q(".nxs-gpu .nxs-bar i").style.width = g + "%";
+                setText(q(".nxs-gpu-pct"), g + "%");
+                cursor(k, s);
+                out = { t: t, index: shown, scene: view.id, page: view.page, model: view.model, local: q(".nxs-local").textContent.trim(),
+                        typed: input, sent: sent || past, done: done, gpu: g };
+                for (var key in extra) out[key] = extra[key];
+              }
+              function running() { return !paused && !reduce && seen && !(panel && panel.hidden) && document.visibilityState !== "hidden"; }
+              function frame(now) {
+                raf = 0;
+                if (!running()) { last = 0; win.classList.add("is-idle"); return; }
+                win.classList.remove("is-idle");
+                if (last) t += Math.min(100, now - last);
+                last = now;
+                if (t >= LOOP - 1) t = 0;
+                render(t);
+                raf = window.requestAnimationFrame(frame);
+              }
+              function kick() { if (!running()) win.classList.add("is-idle"); else if (!raf) raf = window.requestAnimationFrame(frame); }
+              document.addEventListener("visibilitychange", kick);
+              if ("IntersectionObserver" in window) new IntersectionObserver(function (es) { seen = es[es.length - 1].isIntersecting; if (reduce && seen) render(STILL); kick(); }).observe(win);
+              window.NexusTrainingReward = {
+                duration: LOOP, scene: S, scenes: SCENES.map(function (x) { return x.id; }),
+                marks: { nav: NAV, focus: FOCUS, type: TYPE0, send: SEND, out: OUT, still: STILL },
+                seek: function (ms) { paused = true; render(ms); return out; },
+                play: function () { paused = false; last = 0; kick(); },
+                pause: function () { paused = true; },
+                running: running,
+                state: function () { return out; }
+              };
+              /* Reduced motion: the Agents pillar, finished, held still. */
+              render(reduce ? STILL : 0);
+            })();
+          </script>
+        </div>
         <div class="tr-reward-actions">
           <a class="tr-download" href="https://github.com/bendourthe/Nexus-AI/releases/latest/download/NexusSetup.exe">Download Nexus AI Studio for Windows (.exe)</a>
           <a class="tr-reward-more" href="https://github.com/bendourthe/Nexus-AI/releases/latest" target="_blank" rel="noopener">See the release and other platforms</a>
