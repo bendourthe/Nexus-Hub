@@ -21,7 +21,7 @@ TRAINING = ROOT / "guides" / "website" / "training.html"
 REQUIRE_RENDER = os.environ.get("NEXUS_REQUIRE_RENDER") == "1"
 
 FIT_VIEWPORTS = [(1280, 900), (1440, 900), (1920, 1080), (1366, 768), (1280, 720), (390, 844)]
-UPGRADES = 10
+UPGRADES = 12   # R43 (T126): the Revive and the Atomic blast joined the key
 HAZARDS = 4
 INTRO = 270
 WORMHOLE_ONLY = {"wormhole-disc", "wormhole-arms", "star-streaks"}

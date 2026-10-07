@@ -22,6 +22,12 @@ It drives the real engine on the Training page deterministically (seed 7, ``SkyS
   upper node, at a standoff of 0, 12, or 24 px, keeping the best of the three, then goes under the
   core), firing all the time. R40: while a shield layer stands, the pilot stays under the boss's centre,
   because the shield bubble is the whole target; the hunt is capped at 200 s. The ship's speed counts here. This is the boss measure the band checks.
+  R43: the megaship turns its X frame a quarter turn at a time and sits lower when the boss bar would
+  cover a node, so the pilot goes under the lowest live node and holds the R40 standoff from the
+  megaship (30 percent of the arena height below its centre) instead of a fixed line.
+- ``node_reach``: (R43) each live node's share of the node stage in which a straight upward round
+  from below meets it first along an open strip at least ``NODE_REACH_WIDE`` wide; every share must
+  reach ``NODE_REACH_MIN``.
 
 Targets are balance dummies (``spawnDummy``): pinned, never firing, never dying. Damage is read
 from ``state().dealt``. The band and the rules it checks are in :data:`BAND`; the table and its
@@ -66,7 +72,10 @@ BALANCE_JS = r"""
   };
   /* R35: the ship may now fly the whole arena; the boss pilots hold the R33 standoff line (55 percent
      of the arena height, where the old zone ended) so the table stays comparable with R33 */
-  const front = () => g.state().world.h * 0.55;
+  /* R43: the megaship now sits lower when the boss bar would cover a node, so in the fight the line
+     keeps the R40 standoff from it instead (30 percent of the arena height below its centre, the
+     distance between the old station at 25 percent and the old line at 55 percent) */
+  const front = () => { const geo = g.bossGeometry(), h = g.state().world.h; return geo ? geo.centre[1] + h * 0.30 : h * 0.55; };
   /* wait out the boss wormhole and the boss's entrance, steering to the standoff line */
   const arrive = () => { let s = g.state(), n = 0; while (!(s.boss && s.boss.entered) && n++ < 20000) { g.input({ up: s.player.y > front() + 3 }); s = g.step(1); } g.input({ up: false }); return s; };
   const run = (ticks) => { g.input({ fire: true }); g.step(WARM); const d0 = g.state().dealt; g.step(ticks); const d = g.state().dealt - d0; g.input({ fire: false }); return d; };
@@ -115,9 +124,16 @@ BALANCE_JS = r"""
       let ax = geo.centre[0];
       /* R40: while a shield layer stands it is the whole target: stay under the centre */
       if (s.boss.shieldsUp > 0) ax = geo.centre[0];
-      else if (al[2] || al[3]) ax = geo.nodes[al[2] ? 2 : 3][0];
-      /* an upper node is open from below only along its outer edge: put the outermost lane there */
-      else if (al[0] || al[1]) ax = al[0] ? geo.nodes[0][0] - R + 3 - standoff - Math.min(...lanes) : geo.nodes[1][0] + R - 3 + standoff - Math.max(...lanes);
+      else if (s.boss.nodesAlive > 0) {
+        /* R43: the X frame turns, so the pilot goes under the lowest live node (the one a round from
+           below meets first); a node still in the upper half is open from below only along its outer
+           edge, so the outermost lane goes there, as before */
+        let low = -1;
+        for (let i = 0; i < 4; i++) if (al[i] && (low < 0 || geo.nodes[i][1] > geo.nodes[low][1])) low = i;
+        const n = geo.nodes[low];
+        if (n[1] >= geo.centre[1]) ax = n[0];
+        else ax = n[0] < geo.centre[0] ? n[0] - R + 3 - standoff - Math.min(...lanes) : n[0] + R - 3 + standoff - Math.max(...lanes);
+      }
       const dx = ax - s.player.x;
       g.input({ fire: true, up: s.player.y > front() + 3, left: dx < -3, right: dx > 3 });
       s = g.step(1); t += 1;
@@ -142,6 +158,41 @@ BALANCE_JS = r"""
   return out;
 }
 """
+
+
+#: R43 (T125): the least share of the node stage in which every live node must be fairly reachable:
+#: a straight upward round (radius 4) from somewhere below the megaship meets that node first, along
+#: an open strip at least NODE_REACH_WIDE world units wide (a third of a node's width at desktop size)
+NODE_REACH_MIN = 0.35
+NODE_REACH_WIDE = 12
+
+NODE_REACH_JS = r"""
+(args) => {
+  const g = SkySentinel.get('fixed');
+  g.configure({ defects: {}, seed: 7, threats: false, level: 3, progression: true, boss: true, bossNow: true, immune: true });
+  g.chooseShip('vanguard'); g.start(); g.pause('reach');
+  let s = g.state(); while (!(s.boss && s.boss.entered)) s = g.step(1);
+  g.breakShields();
+  (args.kill || []).forEach(i => g.hitBoss('node' + i, 1e9));
+  const hits = [0, 0, 0, 0]; let n = 0, clear = 1e9;
+  for (let t = 0; t < args.ticks; t += args.every) {
+    s = g.step(args.every);
+    const geo = g.bossGeometry(), cols = g.nodeReach(4);
+    n += 1;
+    for (let i = 0; i < 4; i++) if (cols[i] && cols[i][1] - cols[i][0] >= args.wide) hits[i] += 1;
+    geo.nodes.forEach((p, i) => { if (s.boss.alive[i]) clear = Math.min(clear, p[1] - geo.nodeR - geo.band); });
+  }
+  g.configure({ immune: false, level: 1 });
+  return { share: hits.map((h, i) => s.boss.alive[i] ? h / n : null), clear, turns: s.boss.turns.length };
+}
+"""
+
+
+def node_reach(page, kill: tuple[int, ...] = (), ticks: int = 3600, every: int = 5) -> dict:
+    """R43: each live node's reachable share of the node stage (seed 7, shields broken, no agents),
+    and the least clearance between a live node's rim and the boss bar's band (world units)."""
+    page.evaluate("SkySentinel.manual(true)")
+    return page.evaluate(NODE_REACH_JS, {"kill": list(kill), "ticks": ticks, "every": every, "wide": NODE_REACH_WIDE})
 
 
 def measure(page, ships: list[str] | None = None, upgrades: list[str] | None = None, boss: bool = True) -> dict:
@@ -201,7 +252,10 @@ def main() -> int:
         page.wait_for_function("window.SkySentinel && SkySentinel.get('fixed')")
         data = measure(page)
         data["_stats"] = {s["id"]: (s["hull"], s["speed"]) for s in page.evaluate("SkySentinel.get('fixed').ships()")}
+        reach = {str(k): node_reach(page, k) for k in [(), (2, 3), (0, 2, 3), (1, 2, 3)]}
         browser.close()
+    for k, r in reach.items():
+        print("node reach, nodes down", k, [None if v is None else round(v, 3) for v in r["share"]], "clearance", round(r["clear"], 1))
     if "--json" in sys.argv:
         print(json.dumps(data, indent=1))
     else:

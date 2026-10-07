@@ -116,9 +116,17 @@
     { name: "Middle shield", hp: 375, r: 278, color: "#f472b6" },
     { name: "Inner shield", hp: 325, r: 256, color: "#facc15" }
   ];
-  var NODE_HP = 75, CORE_HP = 200;
+  /* R43: the core rose from 200 to 440 when the turning frame made the nodes fair to reach, so the
+     fight keeps its revision 12 length (about 63 s for the harness pilot) */
+  var NODE_HP = 75, CORE_HP = 440;
   var BOSS_HP = BOSS_SHIELDS.reduce(function (a, s) { return a + s.hp; }, 0) + 4 * NODE_HP + CORE_HP;
   var INTRO_TICKS = 270, INTRO_STILL = 90;
+  /* R43 (T125): the megaship turns its X frame a quarter turn at a time, so every node swings into
+     the lower half where straight fire from the player's zone reaches it. It rests `dwell` ticks,
+     turns over `turn` ticks with easing, and rests only `hurry` ticks while no live node sits low.
+     Once every node is down it settles on a half turn, so the side plates guard the sides again and
+     the core is open from below. */
+  var BOSS_TURN = { dwell: 330, turn: 90, hurry: 60 };
   var AGENT_EVERY = 300, AGENT_MIN = 100, AGENT_RAMP = 3600, AGENT_CAP = 6, AGENT_CAP_MAX = 10, CARRY_AGENT = 0.45;
   /* R40 (T121): the finale. explode (chain blasts, the final detonation at `blast`), tear (a rift
      opens behind the wreck), collapse (the rift falls in on itself and becomes a black hole), swallow
@@ -145,7 +153,12 @@
   };
   /* Ten upgrades; a carrier's upgrade is picked from the drops stream with these weights. */
   var DROPS = [["shield", 0.13], ["weapon", 0.11], ["spread", 0.1], ["rapid", 0.1], ["missiles", 0.09], ["wingman", 0.08],
-    ["pierce", 0.09], ["slow", 0.08], ["magnet", 0.07], ["repair", 0.15]];
+    ["pierce", 0.09], ["slow", 0.08], ["magnet", 0.07], ["repair", 0.1], ["revive", 0.025], ["atomic", 0.025]];
+  /* R43 (T126): two rare pickups take the last 5 percent of the old Repair share (0.15 to 0.1), so
+     every other upgrade drops exactly as before: the Revive (held until the ship is destroyed, fixed
+     game only; in a game with a defect its share drops a Repair instead) and the Atomic blast. */
+  var REVIVE = { invuln: 120, build: 36, burst: 14 };
+  var ATOMIC = { speed: 16, flash: 16, fade: 26, node: 0.4 };
   /* colour, short name, the full effect (the API and screen readers), and the short effect
      the start screen's key shows on one line (R16: short enough to fit at phone width) */
   var POWER_LOOK = {
@@ -158,9 +171,11 @@
     pierce: ["#22d3ee", "Pierce", "Shots pass through every target for 10 s", "Pass through, 10 s"],
     slow: ["#e2e8f0", "Time slow", "Enemies, rocks, and fire at half speed for 8 s", "Half speed, 8 s"],
     magnet: ["#f87171", "Magnet", "Pulls upgrades to the ship for 15 s", "Pulls drops, 15 s"],
-    repair: ["#34d399", "Repair", "Restores 35 hull", "+35 hull"]
+    repair: ["#34d399", "Repair", "Restores 35 hull", "+35 hull"],
+    revive: ["#fde047", "Revive", "Held until the ship is destroyed, then rebuilds it on the spot with a full hull (one at a time)", "Rebuilt on the spot"],
+    atomic: ["#ffedd5", "Atomic blast", "One shockwave from the ship that destroys every enemy, rock, shot, and mine it touches", "One wave clears all"]
   };
-  var POWER_ORDER = ["shield", "repair", "weapon", "spread", "rapid", "pierce", "missiles", "wingman", "slow", "magnet"];
+  var POWER_ORDER = ["shield", "repair", "weapon", "spread", "rapid", "pierce", "missiles", "wingman", "slow", "magnet", "revive", "atomic"];
   var FORMS = { 1: "Scout", 2: "Fighter", 3: "Sentinel" };
   /* R14: four ships to choose from, each with three forms. The first is the default and keeps
      the reference stats every engine test assumes (100 hull, base speed and fire rate). */
@@ -1410,7 +1425,7 @@
     keyBtn.setAttribute("aria-expanded", "false");
     var strip = el("div", "ss-strip");
     var stripList = el("ul", "ss-strip-list");
-    stripList.setAttribute("aria-label", "Pickups: ten upgrades, then four hazards. Any enemy or rock may hold one; nothing shows which until it drops.");
+    stripList.setAttribute("aria-label", "Pickups: twelve upgrades, then four hazards. Any enemy or rock may hold one; nothing shows which until it drops.");
     POWER_ORDER.concat(["|"], DOWN_ORDER).forEach(function (kind) {
       if (kind === "|") { var sep = el("li", "ss-strip-sep"); sep.setAttribute("aria-hidden", "true"); stripList.appendChild(sep); return; }
       var down = isDown(kind), look = lookOf(kind), li = el("li", "ss-strip-item" + (down ? " ss-strip-down" : ""));
@@ -1614,10 +1629,12 @@
     function freshPlayer(ship) {
       return { x: world.w / 2, y: world.h - 70, r: 18, health: ship.hull, shieldHp: 0, invuln: 0, cooldown: 0, weapon: 0,
                spread: 0, rapid: 0, missiles: 0, wingman: 0, pierce: 0, slow: 0, magnet: 0, missileIn: 0, wingIn: 0, bank: 0, hurt: 0, burstLeft: 0, burstIn: 0,
-               freeze: 0, slowfire: 0, scramble: 0 };
+               freeze: 0, slowfire: 0, scramble: 0, revive: 0, reviveT: -1 };
     }
     /* R41 (T123): retries belong to the fixed game only. The buggy build keeps ending on its first
        hit, because it exists to show that bug, so a game with a defect switched on never offers one. */
+    /* R43 (T126): the revive belongs to the fixed game only, like the retries */
+    function reviveOn() { return !cfg.defects.firstHitFatal && !cfg.defects.randomExplosion; }
     function retriesOn() { return cfg.progression && !cfg.defects.firstHitFatal && !cfg.defects.randomExplosion; }
     function retryKey() { return S.bossLevel ? 4 : S.level; }
     /* once the card offers the retry it counts as spent, so the HUD and the card both read 0 */
@@ -1641,7 +1658,9 @@
         spawnIn: 50, rockIn: 240, firstShotTick: null, firstShotGap: null, spawned: 0,
         nextExplosion: firstExplosion(r.defects), explodeTicks: [], hitTicks: [], damageLog: [], lastDamage: null, damageTaken: 0, dealt: 0,
         breaks: [], collected: [], levelUps: [], aimLog: [], boss: null, bossDue: cfg.boss && level === 3 ? (cfg.bossNow ? BOSS_AFTER_JUMP : BOSS_AFTER) : null,
-        overReason: null, overText: null, victory: false, banner: null, shake: 0
+        overReason: null, overText: null, victory: false, banner: null, shake: 0,
+        /* R43 (T126): the atomic blast now running, every blast so far, and every revive used */
+        blast: null, blastLog: [], revives: []
       };
       acc = 0;
       hpShown = S.healthMax; shShown = 0;
@@ -1670,7 +1689,7 @@
     }
     function pickDrop() {
       var k = S.rng.drops(), a = 0;
-      for (var d = 0; d < DROPS.length; d++) { a += DROPS[d][1]; if (k < a) return DROPS[d][0]; }
+      for (var d = 0; d < DROPS.length; d++) { a += DROPS[d][1]; if (k < a) return DROPS[d][0] === "revive" && !reviveOn() ? "repair" : DROPS[d][0]; }
       return "repair";
     }
     function pickDown() {
@@ -1791,6 +1810,74 @@
       }
       S.breaks.push({ size: a.size, into: n, tick: S.tick });
       emit("asteroidBreak", { size: a.size, into: n, tick: S.tick });
+    }
+    /* R43 (T126): the atomic blast: one shockwave from the ship that grows ATOMIC.speed units a tick
+       until it has crossed the arena, destroying at once every enemy (agents included), rock, enemy
+       shot, and mine its front passes, for their normal score. Against the megaship it breaks the
+       shield layer standing, or, once the shields are down, takes ATOMIC.node of each live node's
+       health; it never touches the core, so it never kills the megaship. Reduced motion: the front
+       jumps in three still steps, so what it clears always matches what is drawn. */
+    function startBlast() {
+      var p = S.player, far = 0;
+      [[0, 0], [world.w, 0], [0, world.h], [world.w, world.h]].forEach(function (c) { far = Math.max(far, Math.hypot(c[0] - p.x, c[1] - p.y)); });
+      S.blast = { x: p.x, y: p.y, t: 0, R: 0, max: far + 40, boss: false, kills: 0, shots: 0, rocks: 0, done: false };
+      S.blastLog.push({ tick: S.tick, x: p.x, y: p.y, max: S.blast.max, kills: 0, shots: 0, rocks: 0, boss: null });
+      S.shake = Math.max(S.shake, 10);
+      emit("atomic", { tick: S.tick });
+      say("Atomic blast: a shockwave from the ship destroys everything it touches.");
+    }
+    function blastFront(bl) {
+      var r = Math.min(bl.max, bl.t * ATOMIC.speed);
+      if (!REDUCED) return r;
+      var step = bl.max / 3;
+      return Math.min(bl.max, Math.ceil(r / step - 1e-9) * step);
+    }
+    function blastTick() {
+      var bl = S.blast, log = S.blastLog[S.blastLog.length - 1], i;
+      bl.t += 1;
+      if (bl.done) { if (bl.t - bl.doneAt > ATOMIC.fade) S.blast = null; return; }
+      bl.R = blastFront(bl);
+      var R = bl.R;
+      function inside(o) { return Math.hypot(o.x - bl.x, o.y - bl.y) <= R + (o.r || 0); }
+      for (i = S.enemies.length - 1; i >= 0; i--) {
+        var e = S.enemies[i];
+        if (!inside(e)) continue;
+        boom(e.x, e.y, e.type === "bomber" ? 1.6 : e.type === "interceptor" ? 0.8 : 1.15, ENEMY_FX[e.type]);
+        shards(e.x, e.y, 4);
+        S.enemies.splice(i, 1);
+        S.score += ENEMY[e.type].score;
+        release(e, e.type);
+        bl.kills += 1;
+      }
+      for (i = S.asteroids.length - 1; i >= 0; i--) {
+        var a = S.asteroids[i];
+        if (!inside(a)) continue;
+        S.asteroids.splice(i, 1);
+        S.score += ROCK[a.size].score;
+        dust(a.x, a.y, a.r);
+        boom(a.x, a.y, 0.9, "#fdba74");
+        release(a, a.size + " asteroid");
+        bl.rocks += 1;
+      }
+      /* enemy shots, beams, armed bombs, and mines simply vanish: nothing bursts */
+      var before = S.enemyShots.length;
+      S.enemyShots = S.enemyShots.filter(function (o) { return !inside(o); });
+      bl.shots += before - S.enemyShots.length;
+      var b = S.boss;
+      if (b && b.entered && !bl.boss) {
+        var reach = shieldLayer(b) >= 0 ? shieldR(b) : bossReachUp(Math.PI / 4) * b.s;
+        if (Math.hypot(b.x - bl.x, b.y - bl.y) - reach <= R) {
+          bl.boss = true; b.blasted += 1;
+          var st = bossStage(b), what = st;
+          if (st === "shields") damageShield(b.shields[shieldLayer(b)].hp, b.x, b.y + shieldR(b));
+          else if (st === "nodes") b.nodes.forEach(function (n, k) { if (n.alive) damageNode(k, NODE_HP * ATOMIC.node); });
+          else ring(b.x, b.y, "#fde68a");
+          log.boss = what;
+          emit("atomicBoss", { tick: S.tick, stage: what });
+        }
+      }
+      log.kills = bl.kills; log.shots = bl.shots; log.rocks = bl.rocks;
+      if (R >= bl.max) { bl.done = true; bl.doneAt = bl.t; }
     }
     function spawnPowerUp(kind, x, y) { S.powerUps.push({ kind: kind, x: x, y: y, r: 14, t: 0 }); }
 
@@ -1973,7 +2060,8 @@
         return true;
       }
       applyDamage(amount, source, detail);
-      if (S.state === "running") p.invuln = HIT_INVULN;
+      /* R43: a revive grants a longer window than a hit, so the hit's own window never shortens it */
+      if (S.state === "running") p.invuln = Math.max(p.invuln, HIT_INVULN);
       return true;
     }
     /* The defect: any damage empties the hull and the shield at once. R14: the hit shows its real
@@ -2021,6 +2109,7 @@
       if (absorbed) ring(p.x, p.y, "#60a5fa");
       popup(p.x, p.y - 30, "-" + amount, absorbed === amount ? "#93c5fd" : "#fca5a5");
       emit("damage", { source: source, detail: detail, amount: amount, absorbed: absorbed, health: p.health, shield: p.shieldHp, tick: S.tick });
+      if (p.health <= 0 && p.revive > 0 && reviveOn() && source !== "explode") { reviveShip(source, detail); return; }
       if (p.health <= 0) {
         boom(p.x, p.y, 2.4, "#fbbf24");
         shards(p.x, p.y, 10);
@@ -2032,6 +2121,21 @@
         "Hit by " + sourceText(source, detail) + ": " + amount + " damage. Hull " + p.health + (p.shieldHp ? ", shield " + p.shieldHp : "") + ".");
     }
 
+    /* R43 (T126): the held revive is used before any retry: the ship bursts, is rebuilt on the spot
+       with a full hull, and is untouchable for REVIVE.invuln ticks (it blinks, with a gold shimmer).
+       Nothing near it is cleared; the invulnerability is the protection. */
+    function reviveShip(source, detail) {
+      var p = S.player;
+      p.revive = 0; p.health = S.healthMax; p.invuln = REVIVE.invuln; p.reviveT = 0; p.hurt = 0;
+      S.revives.push({ tick: S.tick, level: retryKey(), source: source, x: p.x, y: p.y });
+      boom(p.x, p.y, 2.4, "#fbbf24");
+      shards(p.x, p.y, 10);
+      S.effects.push({ kind: "flash", x: p.x, y: p.y, t: 0, life: 18, size: 2.2, color: "#fef9c3" });
+      ring(p.x, p.y, "#fde047");
+      popup(p.x, p.y - 62, "REVIVED", "#fde047", 110, true);
+      emit("revive", { tick: S.tick, source: source, detail: detail == null ? null : detail, health: p.health });
+      say("Destroyed by " + sourceText(source, detail) + ". The revive rebuilt the ship on the spot with a full hull: two seconds of protection.");
+    }
     function gameOver(reason) {
       S.state = "over";
       /* The explosion plays out for a moment after the run ends instead of freezing on its first frame. */
@@ -2064,7 +2168,7 @@
       S.player = freshPlayer(S.ship);
       S.healthMax = S.ship.hull;
       S.enemies = []; S.enemyShots = []; S.shots = []; S.asteroids = []; S.powerUps = []; S.effects = []; S.popups = [];
-      S.trans = null; S.banner = null; S.shake = 0; S.afterglow = 0;
+      S.trans = null; S.banner = null; S.shake = 0; S.afterglow = 0; S.blast = null;
       S.overReason = null; S.overText = null; S.hpFrom = null; S.lastDamage = null;
       S.levelTicks = 0; S.spawnIn = 50; S.rockIn = 240; S.firstShotTick = null; S.firstShotGap = null;
       hpShown = S.healthMax; shShown = 0;
@@ -2152,6 +2256,8 @@
     /* 0 to 1 to 0 across a wormhole: how hard the stars streak */
     function warp() { if (!S.trans || S.trans.kind === "nova") return 0; var s = Math.sin(Math.PI * S.trans.t / S.trans.len); return s * s; }
     function ease(x) { x = clamp(x, 0, 1); return x * x * (3 - 2 * x); }
+    /* R43 (T125): a count with the right noun, so no text ever reads "1 nodes" */
+    function count(n, one, many) { return n + " " + (n === 1 ? one : many); }
     function transTick() {
       if (S.trans.kind === "nova") { novaTick(S.trans); return; }
       var tr = S.trans, p = S.player, h = tr.hole;
@@ -2329,6 +2435,11 @@
     function novaOn() { return !!(S && S.trans && S.trans.kind === "nova"); }
     /* How big the ship is drawn (0 to 1) and how far it has spun, during a transition. */
     function transLook() {
+      var l = transLook0(), p = S.player;
+      if (p.reviveT >= 0 && p.reviveT < REVIVE.build && !REDUCED) l = { s: l.s * (0.15 + 0.85 * ease(p.reviveT / REVIVE.build)), spin: l.spin };
+      return l;
+    }
+    function transLook0() {
       var tr = S.trans, f = S.finale;
       /* R40: the finale never spins or shrinks the ship the way the wormhole does; the black hole
          stretches it instead (finaleShip) */
@@ -2355,8 +2466,12 @@
       }
       ring(pu.x, pu.y, look[0]);
       var fresh = S.popups.filter(function (u) { return u.t < 30 && !u.big; }).length;
+      /* R43 (T126): one revive at a time; a second one while one is held repairs instead */
+      if (pu.kind === "revive" && (p.revive > 0 || !reviveOn())) { pu = { kind: "repair", x: pu.x, y: pu.y }; look = POWER_LOOK.repair; }
       popup(p.x, p.y - 44 - fresh * 22, look[1], look[0], 70);
-      if (pu.kind === "shield") { p.shieldHp = SHIELD_MAX; say("Shield up: a second bar of " + SHIELD_MAX + " that takes damage first."); }
+      if (pu.kind === "revive") { p.revive = 1; say("Revive held: if the ship is destroyed, it is rebuilt on the spot with a full hull."); }
+      else if (pu.kind === "atomic") startBlast();
+      else if (pu.kind === "shield") { p.shieldHp = SHIELD_MAX; say("Shield up: a second bar of " + SHIELD_MAX + " that takes damage first."); }
       else if (pu.kind === "weapon") { p.weapon = WEAPON_TICKS; say("Twin shot for 10 seconds."); }
       else if (pu.kind === "repair") { var before = p.health; p.health = Math.min(S.healthMax, p.health + REPAIR); popup(p.x, p.y - 30, "+" + (p.health - before), "#6ee7b7"); say("Repaired. Hull " + p.health + "."); }
       else if (POWER_TICKS[pu.kind]) { p[pu.kind] = POWER_TICKS[pu.kind]; say(look[1] + " for " + Math.round(POWER_TICKS[pu.kind] / HZ) + " seconds."); }
@@ -2429,7 +2544,7 @@
       sh.stop = null;
       var b = S.boss;
       if (!b || !b.entered) return;
-      var bottom = b.y + Math.max(170 * b.s, shieldR(b));
+      var bottom = b.y + Math.max(bossReachUp(Math.PI / 4) * b.s, shieldR(b));
       for (var t = Math.max(0, (sh.y - bottom) / Math.max(0.2, -dy)); t < sh.len; t += 4) {
         var c = bossContact(sh.x + dx * t, sh.y + dy * t, sh.r);
         if (c) { sh.len = t; sh.stop = c; return; }
@@ -2447,7 +2562,7 @@
         if (Math.hypot(x - at[0], y - at[1]) < LOGO.nodeR * b.s + r) return "node" + i;
       }
       if (Math.hypot(x - b.x, y - b.y) < LOGO.coreR * b.s + r) return "core";
-      var lx = (x - b.x) / b.s + LOGO.centre[0], ly = (y - b.y) / b.s + LOGO.centre[1];
+      var lp = bossLocal(b, x, y), lx = lp[0], ly = lp[1];
       /* R33: the blades guard the core only while a node lives; once every node is down the core is
          exposed from below too (the lower blade used to sit under it and absorb every straight shot) */
       var shapes = nodesAlive(b) > 0 ? LOGO.plates.concat(LOGO.blades) : LOGO.plates;
@@ -2525,8 +2640,11 @@
         x: world.w / 2, y: world.h * 0.25, targetY: world.h * 0.25, s: s, t: 0, entered: false, intro: 0, introLen: len,
         shields: BOSS_SHIELDS.map(function (L) { return { hp: L.hp, max: L.hp, r: L.r, color: L.color, name: L.name, flash: 0 }; }),
         nodes: LOGO.nodes.map(function (n, i) { return { i: i, hp: NODE_HP, alive: true, fireIn: 90 + i * 19, flash: 0 }; }),
-        coreHp: CORE_HP, coreFlash: 0, fireIn: 120, agentIn: 150, fightT: 0, deflects: 0, launches: [], broken: []
+        coreHp: CORE_HP, coreFlash: 0, fireIn: 120, agentIn: 150, fightT: 0, deflects: 0, launches: [], broken: [],
+        /* R43 (T125): the X frame's turn: the angle, the quarter it rests on or turns to, and the clocks */
+        rot: 0, q: 0, qFrom: 0, turnT: -1, dwellT: 0, dir: 1, turns: [], blasted: 0
       };
+      S.boss.y = S.boss.targetY = bossRestY(S.boss);
       S.enemies = []; S.enemyShots = [];
       S.banner = null;
       /* R41 (T123): the boss fight is a level of its own for retries, starting from the score it met */
@@ -2534,7 +2652,69 @@
       emit("bossArrive", { tick: S.tick });
       say("The Nexus megaship is coming. Break its three shield layers, then its four nodes, then its core.");
     }
-    function bossPoint(b, lx, ly) { return [b.x + (lx - LOGO.centre[0]) * b.s, b.y + (ly - LOGO.centre[1]) * b.s]; }
+    /* R43 (T125): a point of the logo, turned with the X frame, in world units */
+    function bossOff(b, lx, ly) {
+      var a = b.rot || 0, c = Math.cos(a), sn = Math.sin(a), dx = lx - LOGO.centre[0], dy = ly - LOGO.centre[1];
+      return [dx * c - dy * sn, dx * sn + dy * c];
+    }
+    function bossPoint(b, lx, ly) { var o = bossOff(b, lx, ly); return [b.x + o[0] * b.s, b.y + o[1] * b.s]; }
+    /* R43: a world point in the logo's own (unturned) units, for the armour tests */
+    function bossLocal(b, x, y) {
+      var a = b.rot || 0, c = Math.cos(a), sn = Math.sin(a), wx = (x - b.x) / b.s, wy = (y - b.y) / b.s;
+      return [wx * c + wy * sn + LOGO.centre[0], -wx * sn + wy * c + LOGO.centre[1]];
+    }
+    /* R43: how far the X frame reaches above its centre at an angle (logo units, node rims included) */
+    function bossReachUp(a) {
+      var c = Math.cos(a), sn = Math.sin(a), up = 0;
+      LOGO.nodes.forEach(function (n) { var dx = n[0] - LOGO.centre[0], dy = n[1] - LOGO.centre[1]; up = Math.max(up, -(dx * sn + dy * c)); });
+      return up + LOGO.nodeR;
+    }
+    /* R43: the megaship's height: a quarter of the arena down, or lower, so no node ever sits under
+       the boss bar and its stage line (the band the ship's own top limit already clears); it dips a
+       little while it turns, since the frame reaches higher halfway through a quarter turn */
+    function bossRestY(b) { return Math.max(world.h * 0.25, hudBandBoss + bossReachUp(b.rot || 0) * b.s + 6); }
+    /* R43: the quarter (0 to 3) a node rests on after q quarter turns: 0 top left, 1 top right,
+       2 bottom right, 3 bottom left; nodes 0 to 3 start top left, top right, bottom left, bottom right */
+    var NODE_SEAT = [0, 1, 3, 2];
+    function nodeSeat(i, q) { return ((NODE_SEAT[i] + q) % 4 + 4) % 4; }
+    function seatLow(seat) { return seat >= 2; }
+    function lowNodeAlive(b, q) { return b.nodes.some(function (n, i) { return n.alive && seatLow(nodeSeat(i, q)); }); }
+    function startTurn(b, d) { b.qFrom = b.q; b.q += d; b.dir = d; b.turnT = 0; b.turns.push({ tick: S.tick, from: b.qFrom, to: b.q }); }
+    function turnTick(b) {
+      if (b.turnT >= 0) {
+        b.turnT += 1;
+        var k = ease(b.turnT / BOSS_TURN.turn);
+        b.rot = (b.qFrom + (b.q - b.qFrom) * k) * Math.PI / 2;
+        if (b.turnT >= BOSS_TURN.turn) { b.turnT = -1; b.dwellT = 0; b.rot = b.q * Math.PI / 2; }
+        return;
+      }
+      b.dwellT += 1;
+      var st = bossStage(b);
+      if (st === "core") { if (((b.q % 2) + 2) % 2 === 1) startTurn(b, b.dir); return; }
+      var wait = st === "nodes" && !lowNodeAlive(b, b.q) ? BOSS_TURN.hurry : BOSS_TURN.dwell;
+      if (b.dwellT < wait) return;
+      /* turn the way that brings more live nodes into the lower half; a tie keeps the last way */
+      var cw = 0, ccw = 0;
+      b.nodes.forEach(function (n, i) { if (!n.alive) return; if (seatLow(nodeSeat(i, b.q + 1))) cw += 1; if (seatLow(nodeSeat(i, b.q - 1))) ccw += 1; });
+      startTurn(b, cw > ccw ? 1 : ccw > cw ? -1 : b.dir);
+    }
+    /* R43: which live nodes a straight upward round of radius r can reach right now from anywhere
+       below the megaship, sampling every 2 world units across the arena: for each node, the x span
+       of the columns whose first contact is that node (null when none) */
+    function nodeColumns(r) {
+      var b = S.boss, out = [null, null, null, null];
+      if (!b || !b.entered) return out;
+      var span = bossReachUp(Math.PI / 4) * b.s + r + 4, bottom = b.y + span, top = b.y - span;
+      for (var x = Math.max(0, Math.floor(b.x - span)); x <= Math.min(world.w, b.x + span); x += 2) {
+        for (var y = bottom; y > top; y -= 2) {
+          var c = bossContact(x, y, r);
+          if (!c) continue;
+          if (c.slice(0, 4) === "node") { var i = +c.slice(4); if (!out[i]) out[i] = [x, x]; else out[i][1] = x; }
+          break;
+        }
+      }
+      return out;
+    }
     function nodesAlive(b) { return b.nodes.filter(function (n) { return n.alive; }).length; }
     /* R40: the outermost shield layer still up (index into b.shields), or -1 once all three are down */
     function shieldLayer(b) { for (var i = 0; i < b.shields.length; i++) if (b.shields[i].hp > 0) return i; return -1; }
@@ -2590,7 +2770,9 @@
            to 200 px sideways on the tick it arrived */
         b.swayT += 1; b.fightT += 1;
         b.x = world.w / 2 + Math.sin(b.swayT * 0.008) * world.w * 0.22;
+        turnTick(b);
       }
+      b.y = b.targetY = bossRestY(b);
       if (b.coreFlash > 0) b.coreFlash -= 1;
       b.shields.forEach(function (L) { if (L.flash > 0) L.flash -= 1; });
       b.nodes.forEach(function (n) {
@@ -2664,7 +2846,7 @@
         if (nodesAlive(b) === 0) damageCore(s.dmg || 1); else deflect(s.x, s.y);
         return true;
       }
-      var lx = (s.x - b.x) / b.s + LOGO.centre[0], ly = (s.y - b.y) / b.s + LOGO.centre[1];
+      var lp = bossLocal(b, s.x, s.y), lx = lp[0], ly = lp[1];
       /* R33: the blades guard the core only while a node lives; once every node is down the core is
          exposed from below too (the lower blade used to sit under it and absorb every straight shot) */
       var shapes = nodesAlive(b) > 0 ? LOGO.plates.concat(LOGO.blades) : LOGO.plates;
@@ -2691,7 +2873,7 @@
         S.score += 500;
         emit("shieldDown", { layer: i, left: b.shields.length - 1 - i, tick: S.tick });
         var left = shieldLayer(b);
-        say(left >= 0 ? L.name + " down. " + (b.shields.length - left) + " shield layers left." : "The last shield is down. Break the four nodes.");
+        say(left >= 0 ? L.name + " down. " + count(b.shields.length - left, "shield layer", "shield layers") + " left." : "The last shield is down. Break the four nodes.");
       }
     }
     function damageNode(i, n) {
@@ -2707,7 +2889,7 @@
         var at = bossPoint(S.boss, LOGO.nodes[i][0], LOGO.nodes[i][1]);
         boom(at[0], at[1], 1.6, "#22d3ee");
         S.score += 750;
-        say(nodesAlive(S.boss) ? nodesAlive(S.boss) + " nodes left." : "Every node is down. The core is exposed and glowing: destroy it.");
+        say(nodesAlive(S.boss) > 1 ? nodesAlive(S.boss) + " nodes left." : nodesAlive(S.boss) === 1 ? "One node left: break the last node." : "Every node is down. The core is exposed and glowing: destroy it.");
         if (!nodesAlive(S.boss)) emit("coreExposed", { tick: S.tick });
       }
     }
@@ -2744,7 +2926,7 @@
     function startFinale(b) {
       var F = REDUCED ? FINALE_STILL : FINALE, u = Math.min(world.w, world.h);
       var hx = clamp(b.x, world.w * 0.32, world.w * 0.68), hy = clamp(b.y, world.h * 0.24, world.h * 0.34);
-      S.finale = { t: 0, ph: F, len: F.len, done: false, skipped: 0, wreck: { x: b.x, y: b.y, s: b.s, t: b.t },
+      S.finale = { t: 0, ph: F, len: F.len, done: false, skipped: 0, wreck: { x: b.x, y: b.y, s: b.s, t: b.t, rot: b.rot || 0 },
                    hole: { x: hx, y: hy, R: u * 0.075, L: u * 0.62, ang: -0.3 },
                    start: { x: S.player.x, y: S.player.y }, still: REDUCED, debris: [], swallowed: false, from: null };
       S.enemyShots = []; S.enemies = []; S.powerUps = [];
@@ -2884,6 +3066,7 @@
       }
       DOWN_TIMED.forEach(function (k) { if (p[k] > 0) p[k] -= 1; });
       if (p.invuln > 0) p.invuln -= 1;
+      if (p.reviveT >= 0 && ++p.reviveT > REVIVE.invuln) p.reviveT = -1;
       if (p.hurt > 0) p.hurt -= 1;
       if (S.shake > 0) S.shake = Math.max(0, S.shake - 0.8);
       if (p.cooldown > 0) p.cooldown -= 1;
@@ -2958,6 +3141,7 @@
         if (f.vx != null) { f.x += f.vx; f.y += f.vy; var drag = f.kind === "spark" ? 0.93 : f.kind === "debris" ? 0.97 : 0.94; f.vx *= drag; f.vy *= drag; }
       }
       for (i = 0; i < S.popups.length; i++) { S.popups[i].t += 1; S.popups[i].y -= 0.6; }
+      if (S.blast) blastTick();
 
       /* collisions: player shots. A piercing shot passes through and hits each target once. */
       for (i = S.shots.length - 1; i >= 0; i--) {
@@ -3300,12 +3484,13 @@
       var cx = LOGO.centre[0], cy = LOGO.centre[1], g = b.wreck ? 1 : bossGrow(b), s = b.s * g;
       /* R37: through the entrance the hull glows hot as it grows out of the rift; a wreck flickers */
       var hot = b.wreck ? (REDUCED ? 0.5 : 0.25 + 0.45 * Math.abs(Math.sin(b.t * 0.37) * Math.sin(b.t * 0.11))) : b.entered ? 0 : (1 - g) * 1.2 + 0.2;
-      modelMat(MAT, b.x, 0, b.y, 0, 0, b.wreck ? b.tilt : 0, s);
+      /* R43: the X frame turns in the play plane (a yaw in the scene, opposite in sign to the 2D turn) */
+      modelMat(MAT, b.x, 0, b.y, -(b.rot || 0), 0, b.wreck ? b.tilt : 0, s);
       if (b.wreck) drawMesh("bossHull", 0, hot, [1, 0.38, 0.08], [0.42, 0.34, 0.32]);
       else drawMesh("bossHull", 0, 0.2 + 0.1 * Math.sin(b.t * 0.08) + hot, [0.1, 0.9, 1]);
       b.nodes.forEach(function (n, i) {
-        var c = LOGO.nodes[i];
-        modelMat(MAT, b.x + (c[0] - cx) * s, 6 * s, b.y + (c[1] - cy) * s, b.t * 0.01, 0, 0, s);
+        var c = bossOff(b, LOGO.nodes[i][0], LOGO.nodes[i][1]);
+        modelMat(MAT, b.x + c[0] * s, 6 * s, b.y + c[1] * s, b.t * 0.01, 0, 0, s);
         drawMesh("bossNode", n.flash > 0 ? 0.8 : 0, n.alive ? 0.4 : 0, [0.2, 1, 1], n.alive ? [1, 1, 1] : [0.25, 0.3, 0.32]);
       });
       var exposed = !b.wreck && coreGlows(b), pulse = corePulse();
@@ -3329,6 +3514,38 @@
         var a = k * 0.628 + t * 0.03, len = R * (0.5 + 0.5 * Math.abs(Math.sin(t * 0.21 + k * 1.7)));
         streak(b.x + Math.cos(a) * len * 0.5, b.y + Math.sin(a) * len * 0.5 * 0.8, Math.cos(a), Math.sin(a) * 0.8, len * 0.5, 1.6, col(k % 2 ? "#a5f3fc" : "#e9d5ff"), 0.7 * open, 4);
       }
+    }
+    /* R43 (T126): the atomic shockwave in the scene: a crisp white-hot front over a light fill, an
+       orange heat band just behind it, and a shimmering edge of flickering glints */
+    function blastSprites(bl) {
+      var R = Math.max(4, bl.R), fade = bl.done ? 1 - (bl.t - bl.doneAt) / ATOMIC.fade : 1, k = bl.R / bl.max;
+      if (fade <= 0) return;
+      var a = fade * (0.95 - 0.35 * k);
+      quad(bl.x, 14, bl.y, R / 0.84, 0, 0, R / 0.84, col("#fb923c"), a * 0.7, 1);
+      quad(bl.x, 15, bl.y, R, 0, 0, R, col("#fff7ed"), a, 4);
+      if (!REDUCED) quad(bl.x, 15, bl.y, R * 0.95 / 0.84, 0, 0, R * 0.95 / 0.84, col("#fde68a"), a * (0.35 + 0.3 * Math.sin(bl.t * 1.7)), 1);
+      var n = REDUCED ? 24 : 48;
+      for (var j = 0; j < n; j++) {
+        var ang = j * 6.2832 / n + (REDUCED ? 0 : bl.t * 0.013), jit = REDUCED ? 0 : Math.sin(j * 12.9898 + bl.t * 0.9) * 10;
+        glow(bl.x + Math.cos(ang) * (R + jit), bl.y + Math.sin(ang) * (R + jit), 16 + (REDUCED ? 0 : 6 * Math.abs(Math.sin(j * 3.1 + bl.t * 0.7))), col(j % 3 ? "#fff7ed" : "#fdba74"), a * 0.6, 16);
+      }
+      if (bl.t < ATOMIC.flash && !bl.done) glow(bl.x, bl.y, 60 + bl.t * 8, [1, 1, 1], (1 - bl.t / ATOMIC.flash) * 1.2, 18);
+      tagFrame("atomic-ring");
+      tagFrame("atomic-shimmer");
+    }
+    /* R43 (T126): the revive in the scene: a white-gold burst, a gold ring closing in on the ship as it
+       rebuilds, then a gold shimmer while it cannot be hurt */
+    function reviveSprites(p) {
+      var t = p.reviveT, sp = pspan() * VIS;
+      if (t < REVIVE.burst || REDUCED && t < REVIVE.build) { glow(p.x, p.y, sp * 4, col("#fef9c3"), REDUCED ? 0.7 : 1.1 * (1 - t / REVIVE.burst), 16); tagFrame("revive-burst"); }
+      if (t < REVIVE.build) {
+        var cr = REDUCED ? sp + 22 : sp + 10 + 90 * (1 - ease(t / REVIVE.build));
+        quad(p.x, 14, p.y, cr / 0.84, 0, 0, cr / 0.84, col("#fde047"), 0.9, 1);
+        tagFrame("revive-rebuild");
+      }
+      var sh = sp + 14 + (REDUCED ? 0 : Math.sin(t * 0.5) * 3);
+      quad(p.x, 12, p.y, sh / 0.84, 0, 0, sh / 0.84, col("#fde047"), REDUCED ? 0.5 : 0.35 + 0.25 * Math.sin(t * 0.35), 1);
+      tagFrame("revive-shimmer");
     }
     /* R40: what the last frame drew that tells the finale and the wormhole apart, for the tests:
        each draw path adds the names of the distinctive elements it drew (tagFrame) */
@@ -3385,7 +3602,7 @@
     function wreckShown() { var f = S.finale; return !!f && f.t < f.ph.blast; }
     function wreckBoss() {
       var f = S.finale, w = f.wreck, k = f.t / Math.max(1, f.ph.blast);
-      return { wreck: true, x: w.x + (f.still ? 0 : Math.sin(f.t * 0.9) * 2), y: w.y + (f.still ? 6 : k * k * 30), s: w.s, t: w.t + f.t, tilt: f.still ? 0.08 : k * 0.18,
+      return { wreck: true, x: w.x + (f.still ? 0 : Math.sin(f.t * 0.9) * 2), y: w.y + (f.still ? 6 : k * k * 30), s: w.s, t: w.t + f.t, tilt: f.still ? 0.08 : k * 0.18, rot: w.rot || 0,
                nodes: LOGO.nodes.map(function (n, i) { return { i: i, alive: false, flash: 0 }; }), coreHp: 0, coreFlash: 0, entered: true };
     }
     function finaleHidesShip() { var f = S.finale; return !!f && (f.swallowed || f.t >= f.ph.flash); }
@@ -3595,6 +3812,8 @@
         glow(p.x, p.y, fz * 1.4, col("#e0f2fe"), 0.35, 10);
       }
       if (S.finale) finaleSprites(S.finale);
+      if (S.blast) blastSprites(S.blast);
+      if (p.reviveT >= 0) reviveSprites(p);
       if (p.shieldHp > 0 && !(S.state === "over" && S.overReason !== "victory") && !S.trans) {
         var sr = pspan() * VIS + 14 + (REDUCED ? 0 : Math.sin(S.tick * 0.15) * 2);
         quad(p.x, 10, p.y, sr, 0, 0, sr, col("#60a5fa"), 0.35 + 0.4 * p.shieldHp / SHIELD_MAX, 5);
@@ -3829,6 +4048,16 @@
       else if (kind === "wingman") { ctx.beginPath(); ctx.moveTo(0, -6); ctx.lineTo(4, 4); ctx.lineTo(0, 2); ctx.lineTo(-4, 4); ctx.closePath(); ctx.fill(); ctx.fillRect(-9, 0, 3, 5); ctx.fillRect(6, 0, 3, 5); }
       else if (kind === "pierce") { ctx.fillRect(-1.3, -8, 2.6, 16); ctx.beginPath(); ctx.moveTo(-5, -3); ctx.lineTo(0, -9); ctx.lineTo(5, -3); ctx.stroke(); ctx.beginPath(); ctx.moveTo(-6, 4); ctx.lineTo(6, 4); ctx.stroke(); }
       else if (kind === "slow") { ctx.beginPath(); ctx.arc(0, 0, 7, 0, 6.283); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, -4.5); ctx.lineTo(0, 0); ctx.lineTo(3.5, 2); ctx.stroke(); }
+      else if (kind === "revive") {
+        /* a small ship rising inside a halo */
+        ctx.beginPath(); ctx.arc(0, 0, 7.5, 0, 6.283); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0, -5); ctx.lineTo(3.6, 3.5); ctx.lineTo(0, 1.8); ctx.lineTo(-3.6, 3.5); ctx.closePath(); ctx.fill();
+      }
+      else if (kind === "atomic") {
+        /* the trefoil of a blast, around a hot centre */
+        for (var tf = 0; tf < 3; tf++) { var ta = -1.571 + tf * 2.094; ctx.beginPath(); ctx.moveTo(Math.cos(ta - 0.5) * 2.6, Math.sin(ta - 0.5) * 2.6); ctx.arc(0, 0, 8, ta - 0.5, ta + 0.5); ctx.lineTo(Math.cos(ta + 0.5) * 2.6, Math.sin(ta + 0.5) * 2.6); ctx.closePath(); ctx.fill(); }
+        ctx.beginPath(); ctx.arc(0, 0, 1.8, 0, 6.283); ctx.fill();
+      }
       else if (kind === "magnet") { ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(0, -1, 5, Math.PI, 0); ctx.lineTo(5, 6); ctx.moveTo(-5, -1); ctx.lineTo(-5, 6); ctx.stroke(); ctx.lineWidth = 2; }
       else if (kind === "mine") {
         ctx.beginPath(); ctx.arc(0, 0, 4.2, 0, 6.283); ctx.fill();
@@ -3845,6 +4074,57 @@
       }
       else { ctx.fillRect(-2, -7, 4, 14); ctx.fillRect(-7, -2, 14, 4); }
     }
+    /* R43 (T126): the atomic shockwave and the revive in the 2D view, with the same parts */
+    function blast2D(bl) {
+      var R = Math.max(4, bl.R), fade = bl.done ? 1 - (bl.t - bl.doneAt) / ATOMIC.fade : 1, k = bl.R / bl.max;
+      if (fade <= 0) return;
+      var a = fade * (0.95 - 0.35 * k);
+      ctx.save();
+      var g = ctx.createRadialGradient(bl.x, bl.y, R * 0.78, bl.x, bl.y, R * 1.04);
+      g.addColorStop(0, "rgba(251,146,60,0)"); g.addColorStop(0.55, "rgba(251,146,60," + (0.35 * a).toFixed(3) + ")");
+      g.addColorStop(0.9, "rgba(255,247,237," + (0.95 * a).toFixed(3) + ")"); g.addColorStop(1, "rgba(255,247,237,0)");
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(bl.x, bl.y, R * 1.04, 0, 6.283); ctx.fill();
+      ctx.fillStyle = "rgba(255,247,237," + (0.08 * a).toFixed(3) + ")"; ctx.beginPath(); ctx.arc(bl.x, bl.y, R * 0.8, 0, 6.283); ctx.fill();
+      /* the heat shimmer: thin wavering rings and glints along the front */
+      ctx.lineWidth = 2;
+      for (var w = 0; w < (REDUCED ? 1 : 3); w++) {
+        ctx.strokeStyle = "rgba(253,230,138," + (a * (REDUCED ? 0.5 : 0.25 + 0.2 * Math.sin(bl.t * 1.3 + w * 2))).toFixed(3) + ")";
+        ctx.beginPath(); ctx.arc(bl.x, bl.y, R * (0.94 - w * 0.03) + (REDUCED ? 0 : Math.sin(bl.t * 0.9 + w) * 4), 0, 6.283); ctx.stroke();
+      }
+      var n = REDUCED ? 24 : 48;
+      for (var j = 0; j < n; j++) {
+        var ang = j * 6.2832 / n + (REDUCED ? 0 : bl.t * 0.013), jit = REDUCED ? 0 : Math.sin(j * 12.9898 + bl.t * 0.9) * 10;
+        ctx.fillStyle = j % 3 ? "rgba(255,247,237," + (0.8 * a).toFixed(3) + ")" : "rgba(253,186,116," + (0.8 * a).toFixed(3) + ")";
+        ctx.beginPath(); ctx.arc(bl.x + Math.cos(ang) * (R + jit), bl.y + Math.sin(ang) * (R + jit), 3, 0, 6.283); ctx.fill();
+      }
+      if (bl.t < ATOMIC.flash && !bl.done) {
+        var fg = ctx.createRadialGradient(bl.x, bl.y, 0, bl.x, bl.y, 60 + bl.t * 8);
+        fg.addColorStop(0, "rgba(255,255,255," + (1 - bl.t / ATOMIC.flash).toFixed(3) + ")"); fg.addColorStop(1, "rgba(255,255,255,0)");
+        ctx.fillStyle = fg; ctx.beginPath(); ctx.arc(bl.x, bl.y, 60 + bl.t * 8, 0, 6.283); ctx.fill();
+      }
+      ctx.restore();
+      tagFrame("atomic-ring");
+      tagFrame("atomic-shimmer");
+    }
+    function revive2D(p) {
+      var t = p.reviveT, sp = pspan() * VIS;
+      ctx.save();
+      if (t < REVIVE.burst || REDUCED && t < REVIVE.build) {
+        var bg = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, sp * 4);
+        bg.addColorStop(0, "rgba(254,249,195," + (REDUCED ? 0.7 : 0.95 * (1 - t / REVIVE.burst)).toFixed(3) + ")"); bg.addColorStop(1, "rgba(254,249,195,0)");
+        ctx.fillStyle = bg; ctx.beginPath(); ctx.arc(p.x, p.y, sp * 4, 0, 6.283); ctx.fill();
+        tagFrame("revive-burst");
+      }
+      if (t < REVIVE.build) {
+        ctx.strokeStyle = "rgba(253,224,71,0.95)"; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.arc(p.x, p.y, REDUCED ? sp + 22 : sp + 10 + 90 * (1 - ease(t / REVIVE.build)), 0, 6.283); ctx.stroke();
+        tagFrame("revive-rebuild");
+      }
+      ctx.strokeStyle = "rgba(253,224,71," + (REDUCED ? 0.55 : 0.4 + 0.3 * Math.sin(t * 0.35)).toFixed(3) + ")"; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(p.x, p.y, sp + 14 + (REDUCED ? 0 : Math.sin(t * 0.5) * 3), 0, 6.283); ctx.stroke();
+      ctx.restore();
+      tagFrame("revive-shimmer");
+    }
     /* R36: the warning badge on every hazard: a small amber triangle with a mark */
     function hazardBadge(r) {
       ctx.fillStyle = "#fbbf24"; ctx.strokeStyle = "#1c0a00"; ctx.lineWidth = Math.max(1, r * 0.25);
@@ -3856,7 +4136,7 @@
       if (!b.wreck && !b.entered) rift2D(b);
       ctx.save();
       ctx.translate(b.x, b.y);
-      if (b.wreck) ctx.rotate(b.tilt);
+      ctx.rotate((b.rot || 0) + (b.wreck ? b.tilt : 0));
       ctx.scale(b.s * g, b.s * g);
       if (b.wreck) { ctx.globalAlpha = REDUCED ? 0.85 : 0.7 + 0.3 * Math.abs(Math.sin(b.t * 0.37)); ctx.filter = "sepia(0.8) saturate(1.6) hue-rotate(-20deg) brightness(0.75)"; }
       ctx.translate(-LOGO.centre[0], -LOGO.centre[1]);
@@ -4267,6 +4547,8 @@
       }
       drawLifeBars(0);
       downBadges(0);
+      if (S.blast) blast2D(S.blast);
+      if (p.reviveT >= 0) revive2D(p);
       for (i = 0; i < S.effects.length; i++) {
         var f = S.effects[i], k = f.t / f.life;
         ctx.globalAlpha = Math.max(0, 1 - k);
@@ -4338,7 +4620,7 @@
       ctx.textAlign = "left"; ctx.fillStyle = "#e6f6f8"; ctx.font = "800 11.5px " + hudFont;
       ctx.fillText(Math.ceil(hp) + " / " + BOSS_HP, bx + bw + 8, by + bh / 2 + 0.5);
       var st = bossStage(b), li = shieldLayer(b);
-      var label = st === "shields" ? b.shields[li].name + ": " + (b.shields.length - li) + " of " + b.shields.length + " layers left" : st === "nodes" ? "Shields down: break the " + nodesAlive(b) + " nodes" : "Only the core is left: destroy it";
+      var label = st === "shields" ? b.shields[li].name + ": " + (b.shields.length - li > 1 ? (b.shields.length - li) + " of " + b.shields.length + " layers left" : "the last of " + b.shields.length + " layers") : st === "nodes" ? (nodesAlive(b) > 1 ? "Shields down: break the " + nodesAlive(b) + " nodes" : "Shields down: break the last node") : "Only the core is left: destroy it";
       ctx.font = "700 11px " + hudFont; ctx.fillStyle = st === "shields" ? b.shields[li].color : st === "nodes" ? "#67e8f9" : "#fde68a";
       ctx.fillText(label, bx, by + bh + 9);
       ctx.globalAlpha = 1;
@@ -4445,7 +4727,7 @@
       if (novaOn()) return { text: NOVA_CAPTION[novaStage(S.trans)], k: S.trans.t / S.trans.len };
       if (S.boss) {
         var bs = bossStage(S.boss), bl = shieldLayer(S.boss);
-        return { text: !S.boss.entered ? "The Nexus megaship is arriving" : bs === "shields" ? (S.boss.shields.length - bl > 1 ? "Break the " + (S.boss.shields.length - bl) + " shield layers, then the nodes" : "Break the last shield layer, then the nodes") : bs === "nodes" ? "Break the " + nodesAlive(S.boss) + " glowing nodes, then the core" : "The core glows: destroy it",
+        return { text: !S.boss.entered ? "The Nexus megaship is arriving" : bs === "shields" ? (S.boss.shields.length - bl > 1 ? "Break the " + (S.boss.shields.length - bl) + " shield layers, then the nodes" : "Break the last shield layer, then the nodes") : bs === "nodes" ? (nodesAlive(S.boss) > 1 ? "Break the " + nodesAlive(S.boss) + " glowing nodes, then the core" : "Break the last glowing node, then the core") : "The core glows: destroy it",
                  k: S.boss.entered ? 1 - bossHp(S.boss) / BOSS_HP : 0 };
       }
       if (!cfg.progression) return { text: "Survive: " + clock(S.tick), k: null };
@@ -4646,7 +4928,9 @@
       var mineLeft = 0;
       S.enemyShots.forEach(function (o) { if (o.kind === "mine") mineLeft = mineLeft ? Math.min(mineLeft, o.life) : o.life; });
       if (mineLeft) chips.push(["mine", mineLeft / MINE_LIFE, Math.ceil(mineLeft / HZ), true]);
-      chipBoxes = chips.map(function (c) { return { kind: c[0], down: !!c[3], seconds: c[2] }; });
+      /* R43 (T126): a held revive shows as a chip that stays until it is used */
+      if (p.revive > 0) chips.unshift(["revive", 1, 0, false, "HELD"]);
+      chipBoxes = chips.map(function (c) { var o = { kind: c[0], down: !!c[3], seconds: c[2] }; if (c[4]) o.label = c[4]; return o; });
       ctx.textBaseline = "middle";
       var cwid = small ? 104 : 116, per = Math.max(1, Math.floor((W - 16) / (cwid + 6)));
       chips.forEach(function (c, i) {
@@ -4661,7 +4945,7 @@
         ctx.fillStyle = look[0]; ctx.fillRect(x + 4, y + 18, (cwid - 8) * c[1], 2);
         ctx.save(); ctx.translate(x + 13, y + 10); ctx.scale(0.7, 0.7); powerIcon(c[0], look[0], false, 10); ctx.restore();
         ctx.font = "700 11.5px " + hudFont; ctx.textAlign = "left"; ctx.fillStyle = "#e6f6f8"; ctx.fillText(look[1], x + 24, y + 10);
-        ctx.textAlign = "right"; ctx.fillStyle = look[0]; ctx.fillText(c[2] + "s", x + cwid - 6, y + 10);
+        ctx.textAlign = "right"; ctx.fillStyle = look[0]; ctx.fillText(c[4] || c[2] + "s", x + cwid - 6, y + 10);
       });
       /* time slow frosts the edges of the arena */
       if (p.slow > 0) {
@@ -4688,6 +4972,11 @@
         if (S.banner.sub) { ctx.font = "700 " + (small ? 12 : 14) + "px " + hudFont; ctx.fillStyle = dc; ctx.fillText(S.banner.sub, W / 2, H * 0.4 + (small ? 22 : 28)); }
         ctx.globalAlpha = 1;
       }
+      /* R43 (T126): the atomic blast opens with a white flash over the whole arena */
+      if (S.blast && S.blast.t < ATOMIC.flash && !S.blast.done) {
+        ctx.fillStyle = "rgba(255,255,255," + (REDUCED ? 0.45 : 0.85 * (1 - S.blast.t / ATOMIC.flash)).toFixed(3) + ")"; ctx.fillRect(0, 0, W, H);
+        tagFrame("atomic-flash");
+      }
       if (S.boss) bossBar(W, H, small, p);
       if (S.boss && !S.boss.entered) titleCard(W, H, small, introTitle(S.boss));
       if (S.finale) finaleHud(W, H, small);
@@ -4707,6 +4996,7 @@
       hudLevel.textContent = "Level " + S.level + " (" + diff().name + ")" + (cfg.progression ? ": " + FORMS[S.level] : "") + (retriesOn() ? ". Retries left: " + retriesLeft() : "");
       var extras = [];
       if (p.shieldHp > 0) extras.push("shield");
+      if (p.revive > 0) extras.push("revive held");
       TIMED.forEach(function (k) { if (p[k] > 0) extras.push(POWER_LOOK[k][1].toLowerCase() + " " + Math.ceil(p[k] / HZ) + "s"); });
       DOWN_TIMED.forEach(function (k) { if (p[k] > 0) extras.push("downgrade " + DOWN_LOOK[k][1].toLowerCase() + " " + Math.ceil(p[k] / HZ) + "s"); });
       if (S.trans) extras.push(S.trans.kind === "nova" ? "crossing into the Nexus dimension" : "in the wormhole");
@@ -4870,6 +5160,8 @@
         if (kind === "ship") kind = "repair";   /* the old extra-ship name still works */
         /* R36: the three pickup downgrades drop the same way; a mine is placed with spawnMine */
         if (!S || !(Object.prototype.hasOwnProperty.call(POWER_LOOK, kind) || (isDown(kind) && kind !== "mine"))) return false;
+        /* R43 (T126): there is no revive in a game with a defect switched on */
+        if (kind === "revive" && !reviveOn()) return false;
         spawnPowerUp(kind, S.player.x, S.player.y);
         return true;
       },
@@ -4926,6 +5218,15 @@
       downgrades: function () {
         return DOWN_ORDER.map(function (k) { return { kind: k, color: DOWN_LOOK[k][0], name: DOWN_LOOK[k][1], effect: DOWN_LOOK[k][2], seconds: DOWN_TICKS[k] ? DOWN_TICKS[k] / HZ : MINE_LIFE / HZ }; });
       },
+      /* R43 (T126) test layer: draw n upgrade picks from this game's drops stream (as carriers do)
+         and count each kind */
+      sampleDrops: function (n) {
+        if (!S) return null;
+        var out = {};
+        for (var k = 0; k < n; k++) { var kind = pickDrop(); out[kind] = (out[kind] || 0) + 1; }
+        return out;
+      },
+      blastPlan: function () { return { speed: ATOMIC.speed, flash: ATOMIC.flash, fade: ATOMIC.fade, node: ATOMIC.node, revive: { invuln: REVIVE.invuln, build: REVIVE.build, burst: REVIVE.burst } }; },
       dropRates: function () { return { carryEnemy: CARRY_ENEMY, carryRock: CARRY_ROCK, carryAgent: CARRY_AGENT, downShare: DOWN_SHARE, downShareAgent: DOWN_SHARE_AGENT, downWeights: DOWN_DROPS.map(function (d) { return d.slice(); }) }; },
       /* R36: the background layers' current offsets, so a test can see every layer move */
       background: function () { return S ? bgMotion() : null; },
@@ -4986,6 +5287,9 @@
           return true;
         });
       },
+      /* R43 (T125): for each node, the x span of the columns from which a straight upward round of
+         radius r (default 4) first meets that node, or null; see nodeColumns */
+      nodeReach: function (r) { if (!S || !S.boss) return null; return nodeColumns(r == null ? 4 : r); },
       shotAt: function (x, y) {
         if (!S) return false;
         return shotHitsBoss({ x: x, y: y, r: 4 });
@@ -5016,7 +5320,7 @@
         if (!S || !S.boss) return null;
         var b = S.boss;
         return {
-          centre: [b.x, b.y], scale: b.s,
+          centre: [b.x, b.y], scale: b.s, rot: b.rot, quarter: b.q, turning: b.turnT >= 0, nodeR: LOGO.nodeR * b.s, band: hudBandBoss,
           nodes: LOGO.nodes.map(function (c) { return bossPoint(b, c[0], c[1]); }),
           plates: LOGO.plates.map(function (t) { return t.map(function (c) { return bossPoint(b, c[0], c[1]); }); })
         };
@@ -5035,7 +5339,9 @@
           defects: { firstHitFatal: cfg.defects.firstHitFatal, randomExplosion: cfg.defects.randomExplosion },
           progression: cfg.progression, bossEnabled: cfg.boss,
           seed: cfg.seed, world: { w: world.w, h: world.h },
-          player: { x: p.x, y: p.y, invuln: p.invuln, exploding: 0, shield: p.shieldHp, weapon: p.weapon,
+          revive: p.revive, reviveT: p.reviveT, revives: S.revives.slice(), blastLog: S.blastLog.map(function (o) { return Object.assign({}, o); }),
+          blast: S.blast ? { x: S.blast.x, y: S.blast.y, t: S.blast.t, R: S.blast.R, max: S.blast.max, done: S.blast.done, boss: S.blast.boss } : null,
+          player: { x: p.x, y: p.y, invuln: p.invuln, exploding: 0, shield: p.shieldHp, weapon: p.weapon, look: transLook().s,
             spread: p.spread || 0, rapid: p.rapid || 0, missiles: p.missiles || 0, wingman: p.wingman || 0,
             pierce: p.pierce || 0, slow: p.slow || 0, magnet: p.magnet || 0, freeze: p.freeze, slowfire: p.slowfire, scramble: p.scramble, top: topLimit() },
           ship: S.ship.id, shipName: S.ship.name, shipMesh: S.ship.id + shownForm(), shipSpeed: S.ship.speed, shipFire: S.ship.fire,
@@ -5085,7 +5391,7 @@
           boss: b ? { entered: b.entered, nodesAlive: nodesAlive(b), alive: b.nodes.map(function (n) { return n.alive; }), coreHp: b.coreHp,
             nodeHp: b.nodes.map(function (n) { return n.hp; }), shields: b.shields.map(function (L) { return { hp: L.hp, max: L.max, r: L.r * b.s, color: L.color }; }),
             shieldsUp: b.shields.filter(function (L) { return L.hp > 0; }).length, layer: shieldLayer(b), stage: bossStage(b), coreGlow: coreGlows(b), deflects: b.deflects,
-            broken: b.broken.slice(), fightTicks: b.fightT, agentEvery: agentEvery(b), agentCap: agentCap(b), launches: b.launches.slice(),
+            broken: b.broken.slice(), fightTicks: b.fightT, rot: b.rot, quarter: b.q, turns: b.turns.slice(), blasted: b.blasted, agentEvery: agentEvery(b), agentCap: agentCap(b), launches: b.launches.slice(),
             hp: bossHp(b), hpMax: BOSS_HP, intro: b.entered ? null : { t: b.intro, len: b.introLen, grow: bossGrow(b), title: introTitle(b) > 0 } } : null, bossDue: S.bossDue,
           canvas: { cssWidth: canvas.clientWidth, cssHeight: canvas.clientHeight, width: canvas.width, height: canvas.height }
         };
