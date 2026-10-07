@@ -23,7 +23,7 @@ REQUIRE_RENDER = os.environ.get("NEXUS_REQUIRE_RENDER") == "1"
 SHIP_IDS = ["vanguard", "warden", "specter", "talon", "raptor"]
 CLASSES = ["gunship", "interceptor", "lancer", "bomber", "agent"]
 DOWNGRADES = ["mine", "freeze", "slowfire", "scramble"]
-INTRO, FINALE_LEN = 270, 480
+INTRO, FINALE_LEN = 270, 760  # R40: the black-hole finale runs 760 ticks
 
 
 @pytest.fixture(scope="module")
@@ -238,7 +238,8 @@ def test_a_mine_burns_out_on_its_timer(page) -> None:
 
 
 @pytest.mark.parametrize("what", ["enemy", "asteroid"])
-def test_a_hazard_carrier_drops_its_downgrade_and_wears_the_hazard_marking(page, what: str) -> None:
+def test_a_hazard_carrier_drops_its_downgrade(page, what: str) -> None:
+    """R39 (renamed): a hazard carrier no longer wears a marking; it still drops its downgrade."""
     _quiet(page, pad=10)
     spawn = "g.spawn('gunship', p.x, p.y - 220, 'freeze')" if what == "enemy" else "g.spawnAsteroid('medium', p.x, p.y - 220, 0, 0, 'freeze')"
     out = _js(page, f"""const p = g.state().player; {spawn}; const before = g.state();
@@ -288,8 +289,11 @@ def test_a_hazard_pickup_is_a_threat_to_a_reader_not_a_prize(page) -> None:
 def test_the_start_screen_key_lists_the_downgrades_as_hazards(page) -> None:
     _js(page, "g.configure({ defects: {}, seed: 7 }); return 0;")
     host = ".ss-host[data-ss-id=fixed]"
+    # R39: the full key, with names and effects, sits behind the Pickups button
+    page.locator(f"{host} .ss-keybtn").click()
     items = page.locator(f"{host} .ss-down-item").evaluate_all(
         "els => els.map(e => [e.dataset.downgrade, getComputedStyle(e).getPropertyValue('--ss-up').trim(), e.innerText])")
+    page.locator(f"{host} .ss-keybtn").click()
     api = _js(page, "return g.downgrades();")
     assert [x[0] for x in items] == DOWNGRADES == [d["kind"] for d in api]
     assert all(len(x[2].split("\n")) >= 2 for x in items), "a name and a one-line effect"
@@ -349,15 +353,18 @@ def test_the_boss_enters_with_a_title_card_and_cannot_hurt_or_be_hurt_meanwhile(
 
 
 def test_the_boss_has_its_own_life_bar_that_drains_node_by_node(page) -> None:
+    """R40 (updated): the bar now totals the three shield layers, the four nodes, and the core."""
     _boss(page)
-    out = _js(page, f"""g.step({INTRO + 5}); g.render(); const a = g.state();
-        g.hitBoss('node0', 8); g.render(); const b = g.state();
-        for (let i = 1; i < 4; i++) g.hitBoss('node' + i, 8); g.hitBoss('core', 12); g.render(); const c = g.state();
-        return {{ a, b, c }};""")
-    a, b, c = out["a"], out["b"], out["c"]
-    assert a["boss"]["hp"] == a["boss"]["hpMax"] == 56 and a["hud"]["bossBar"]["frac"] == 1
-    assert b["boss"]["hp"] == 48 and b["hud"]["bossBar"]["frac"] == pytest.approx(48 / 56, abs=0.002)
-    assert c["boss"]["hp"] == 12 and c["hud"]["bossBar"]["frac"] == pytest.approx(12 / 56, abs=0.002)
+    out = _js(page, f"""g.step({INTRO + 5}); g.render(); const a = g.state(); const plan = g.bossPlan();
+        g.breakShields(); g.hitBoss('node0', plan.nodeHp); g.render(); const b = g.state();
+        for (let i = 1; i < 4; i++) g.hitBoss('node' + i, plan.nodeHp); g.hitBoss('core', plan.coreHp / 2); g.render(); const c = g.state();
+        return {{ a, b, c, plan }};""")
+    a, b, c, plan = out["a"], out["b"], out["c"], out["plan"]
+    total = plan["total"]
+    assert a["boss"]["hp"] == a["boss"]["hpMax"] == total and a["hud"]["bossBar"]["frac"] == 1
+    left = 3 * plan["nodeHp"] + plan["coreHp"]
+    assert b["boss"]["hp"] == left and b["hud"]["bossBar"]["frac"] == pytest.approx(left / total, abs=0.002)
+    assert c["boss"]["hp"] == plan["coreHp"] / 2 and c["hud"]["bossBar"]["frac"] == pytest.approx(plan["coreHp"] / 2 / total, abs=0.002)
     bar = a["hud"]["bossBar"]
     assert bar["w"] > 300 and bar["y"] < 70, "a large bar across the top of the arena"
 
@@ -392,17 +399,18 @@ def _kill_boss(page) -> dict:
     _boss(page)
     return _js(page, f"""g.step({INTRO + 5}); const ev = []; window.__ev = ev;
         g.on('rewardUnlocked', e => ev.push(['reward', e.tick])); g.on('bossDefeated', e => ev.push(['boss', e.tick]));
-        for (let i = 0; i < 4; i++) g.hitBoss('node' + i, 8); g.hitBoss('core', 24); return g.state();""")
+        g.defeatBoss(); return g.state();""")
 
 
-def test_the_finale_plays_its_destruction_portal_and_prize_card_then_unlocks_the_reward(page) -> None:
+def test_the_finale_plays_its_destruction_black_hole_and_prize_card_then_unlocks_the_reward(page) -> None:
+    """R40 (updated): explode, tear, collapse, swallow, universe, prize, over 10 to 14 s."""
     s = _kill_boss(page)
     assert s["state"] == "over" and s["victory"] and s["boss"] is None
     assert s["finale"]["phase"] == "explode" and not s["finale"]["done"]
     assert page.evaluate("window.__ev") == [["boss", s["tick"]]], "the reward waits for the finale"
     assert page.locator(".ss-host[data-ss-id=fixed] .ss-overlay").is_hidden(), "no end card over the finale"
     seen, frames, best = [], {}, None
-    for _ in range(FINALE_LEN // 10):
+    for _ in range(FINALE_LEN // 10 + 2):
         st = _js(page, "const s = g.step(10); g.render(); return g.state();")
         ph = st["finale"]["phase"]
         if not seen or seen[-1] != ph:
@@ -410,12 +418,12 @@ def test_the_finale_plays_its_destruction_portal_and_prize_card_then_unlocks_the
         frames.setdefault(ph, st)
         if st["hud"]["prize"] and (best is None or st["hud"]["prize"]["alpha"] >= best["alpha"]):
             best = st["hud"]["prize"]
-    assert seen == ["explode", "portal", "enter", "dimension", "prize"], seen
-    assert frames["explode"]["map"] == "Nexus Station" and frames["dimension"]["map"] == "The New Dimension", "past the portal, a new map"
+    assert seen == ["explode", "tear", "collapse", "swallow", "universe", "prize"], seen
+    assert frames["explode"]["map"] == "The Nexus Storm" and frames["universe"]["map"] == "A New Universe", "past the black hole, a new universe"
     assert best and best["alpha"] == 1 and best["w"] > 300, f"the prize card fills the middle of the arena: {best}"
-    end = _js(page, "return g.step(40);")
+    end = _js(page, "return g.step(60);")
     assert end["finale"]["done"] and page.evaluate("window.__ev")[-1][0] == "reward"
-    assert 6 <= FINALE_LEN / 60 <= 10, "the sequence lasts 6 to 10 s"
+    assert 10 <= FINALE_LEN / 60 <= 14, "the sequence lasts 10 to 14 s"
     over = page.locator(".ss-host[data-ss-id=fixed] .ss-over-prize")
     assert over.is_visible() and "Nexus AI Studio" in over.inner_text()
 
@@ -436,7 +444,7 @@ def test_a_click_or_a_key_on_the_arena_skips_the_finale(browser) -> None:
         pg.evaluate(f"""() => {{ const g = SkySentinel.get('fixed');
             g.configure({{ defects: {{}}, seed: 7, threats: false, level: 3, bossNow: true }}); g.start(); g.pause('t');
             let s = g.state(); while (!(s.boss && s.boss.entered)) s = g.step(5);
-            for (let i = 0; i < 4; i++) g.hitBoss('node' + i, 8); g.hitBoss('core', 24); }}""")
+            g.defeatBoss(); }}""")
         pg.locator(".ss-host[data-ss-id=fixed] .ss-canvas").click()
         assert pg.evaluate("SkySentinel.get('fixed').state().finale.phase") == "prize"
         pg.locator(".ss-host[data-ss-id=fixed] .ss-canvas").focus()
@@ -454,11 +462,13 @@ def test_the_finale_hands_off_to_the_reward_panel_in_real_time(browser) -> None:
     try:
         pg.evaluate(f"""() => {{ const g = SkySentinel.get('fixed');
             g.configure({{ level: 3, bossNow: true }}); g.start(); g.step(600);
-            for (let i = 0; i < 4; i++) g.hitBoss('node' + i, 8); g.hitBoss('core', 24); SkySentinel.manual(false); }}""")
+            g.defeatBoss(); SkySentinel.manual(false); }}""")
         assert pg.evaluate("NexusTrainingPage.reward()") is False, "the panel waits for the finale"
-        pg.wait_for_function("SkySentinel.get('fixed').state().finale.phase === 'prize'", timeout=15000)
+        # The finale is counted in frames (760 ticks, 12.7 s at 60 fps), so a loaded host stretches it;
+        # the waits allow for that while still requiring the panel to wait for the prize card.
+        pg.wait_for_function("SkySentinel.get('fixed').state().finale.phase === 'prize'", timeout=60000)
         assert pg.evaluate("NexusTrainingPage.reward()") is False
-        pg.wait_for_function("NexusTrainingPage.reward()", timeout=15000)
+        pg.wait_for_function("NexusTrainingPage.reward()", timeout=60000)
         assert pg.locator("#trReward").is_visible() and pg.evaluate("document.activeElement.id") == "trReward"
     finally:
         assert not errors, errors
@@ -473,15 +483,16 @@ def test_reduced_motion_shortens_the_entrance_and_the_finale_to_still_frames(bro
             let s = g.state(); while (!s.boss) s = g.step(1);
             g.render(); const intro = g.state();
             let n = 0; while (!s.boss.entered) { s = g.step(1); n++; }
-            for (let i = 0; i < 4; i++) g.hitBoss('node' + i, 8); g.hitBoss('core', 24);
+            g.defeatBoss();
             const phases = []; let f = g.state();
             while (!f.finale.done) { f = g.step(1); if (phases[phases.length - 1] !== f.finale.phase) phases.push(f.finale.phase); }
             return { intro, entrance: n, phases, finale: f.finale }; }""")
         assert out["intro"]["boss"]["intro"]["len"] == 90 and out["intro"]["boss"]["intro"]["grow"] == 1, "a still megaship with its title"
         assert out["intro"]["boss"]["intro"]["title"] is True
         assert out["entrance"] <= 90
-        assert out["phases"] == ["explode", "enter", "prize"], "three still frames: the wreck, the portal, the prize"
-        assert out["finale"]["still"] and out["finale"]["len"] == 230
+        # R40 (updated): four still frames: the wreck, the black hole, the new universe, the prize
+        assert out["phases"] == ["explode", "swallow", "universe", "prize"], out["phases"]
+        assert out["finale"]["still"] and out["finale"]["len"] == 300
     finally:
         assert not errors, errors
         ctx.close()

@@ -236,7 +236,9 @@ def test_starting_a_game_brings_it_into_view(playwright_mod) -> None:
 SESSION = 'section[data-stage="review"]'
 DEFEAT_BOSS = """() => { const g = SkySentinel.get('fixed'); SkySentinel.manual(true);
   g.configure({ level: 3, bossNow: true }); g.start(); g.step(600);
-  for (let i = 0; i < 4; i++) g.hitBoss('node' + i, 8); g.hitBoss('core', 24); SkySentinel.manual(false); }"""
+  g.defeatBoss(); g.skipFinale(); g.skipFinale(); SkySentinel.manual(false); }"""
+# The finale counts frames, so under load it outlasts real time; tests about the reward panel skip it,
+# as a player can. The finale's own pacing is tested in test_training_game_revision10.py.
 
 
 def test_reduced_motion_never_hides_a_report(playwright_mod) -> None:

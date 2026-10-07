@@ -7,7 +7,8 @@ It drives the real engine on the Training page deterministically (seed 7, ``SkyS
 - ``wave``: damage per second against a spread wave of ten targets (five columns 60 px apart, two
   rows 130 px and 230 px above the ship);
 - ``reach``: the furthest distance above the ship at which the weapon still deals damage;
-- ``bossDps`` and ``boss``: the ship is held still at the front of its R33 zone (55 percent of the
+- ``bossDps`` and ``boss``: (R40: over a 60 s window only, so ``boss`` is None unless the boss falls in 60 s,
+  which the shielded 1,625-point boss never does) the ship is held still at the front of its R33 zone (55 percent of the
   arena height; R35 lets a ship fly the whole arena, and the pilots keep this standoff so the table
   stays comparable), on the centre line the boss sways across, and fires (level 3, the Sentinel form, the ship
   made immune so only the weapon decides; a timed upgrade is renewed every 5 s). ``bossDps`` is the
@@ -19,7 +20,8 @@ It drives the real engine on the Training page deterministically (seed 7, ``SkyS
 - ``hunt``: seconds to destroy the boss with a simple pilot that stays at the front of its zone and
   slides under the lowest live node (then lines its outermost gun up on the open outer edge of an
   upper node, at a standoff of 0, 12, or 24 px, keeping the best of the three, then goes under the
-  core), firing all the time. The ship's speed counts here. This is the boss measure the band checks.
+  core), firing all the time. R40: while a shield layer stands, the pilot stays under the boss's centre,
+  because the shield bubble is the whole target; the hunt is capped at 200 s. The ship's speed counts here. This is the boss measure the band checks.
 
 Targets are balance dummies (``spawnDummy``): pinned, never firing, never dying. Damage is read
 from ``state().dealt``. The band and the rules it checks are in :data:`BAND`; the table and its
@@ -90,20 +92,20 @@ BALANCE_JS = r"""
     let s = arrive();
     let t = 0, d0 = s.dealt, dps = null;
     g.input({ fire: true });
-    while (s.state !== 'over' && t < 9000) {
+    while (s.state !== 'over' && t < 3600) {
       if (up && t % 300 === 0) g.dropPowerUp(up);
       s = g.step(10); t += 10;
       if (t === 3600) dps = (s.dealt - d0) / 60;
     }
     g.input({ fire: false });
-    if (dps === null) dps = 56 / (t / 60);
+    if (dps === null) dps = g.bossPlan().total / (t / 60);
     return { dps, kill: s.victory ? t / 60 : null };
   };
   const hunt1 = (ship, up, standoff) => {
     setup(ship, null, { level: 3, progression: true, boss: true, bossNow: true });
     let s = arrive();
     let t = 0, lanes = [0];
-    while (s.state !== 'over' && t < 9000) {
+    while (s.state !== 'over' && t < 12000) {
       if (up && t % 300 === 0) g.dropPowerUp(up);
       const geo = g.bossGeometry(), al = s.boss.alive, R = 34 * geo.scale;
       /* the gun lanes, read from the rounds just fired, so the pilot favours no gun layout */
@@ -111,7 +113,9 @@ BALANCE_JS = r"""
       const fresh = s.playerShots.filter(x => x.y > s.player.y - 40 && x.kind !== 'missile' && x.kind !== 'round').map(x => x.x - s.player.x).filter(d => Math.abs(d) <= 16);
       if (fresh.length) lanes = fresh;
       let ax = geo.centre[0];
-      if (al[2] || al[3]) ax = geo.nodes[al[2] ? 2 : 3][0];
+      /* R40: while a shield layer stands it is the whole target: stay under the centre */
+      if (s.boss.shieldsUp > 0) ax = geo.centre[0];
+      else if (al[2] || al[3]) ax = geo.nodes[al[2] ? 2 : 3][0];
       /* an upper node is open from below only along its outer edge: put the outermost lane there */
       else if (al[0] || al[1]) ax = al[0] ? geo.nodes[0][0] - R + 3 - standoff - Math.min(...lanes) : geo.nodes[1][0] + R - 3 + standoff - Math.max(...lanes);
       const dx = ax - s.player.x;

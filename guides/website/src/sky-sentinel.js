@@ -52,17 +52,26 @@
     collision: { interceptor: 14, gunship: 22, lancer: 26, bomber: 30, agent: 16, boss: 45 },
     asteroid: { large: 28, medium: 16, small: 7 }
   };
-  /* R35: each level raises the spawn cadence (a shorter pace), the enemy speed (speed multiplies
-     every enemy velocity), and enemy health (hp multiplies every class but the smallest); on the
-     last level `shielded` is the share of the larger classes that arrive behind a shield ring. */
+  /* R39 (T119): difficulty runs on two curves. Within a level, the spawn rate (enemy waves per
+     second), the enemy speed, the enemy cap, and the asteroid rate rise linearly with the level's
+     elapsed time, from the first value of each pair to the second. Between levels every start sits
+     above the last level's start, so the step is felt: speed about 30 percent up, spawn rate about
+     50 percent up, larger life bars (hp multiplies every class but the smallest), a share of
+     shielded ships from level 2 (`shielded`, each ring worth `shieldHp`), and larger, tougher
+     asteroids (`rockScale` multiplies their size, `rockHp` their health). */
   var DIFFICULTY = {
-    1: { name: "Easy", pace: 80, rocks: 260, fire: 1, damage: 1, cap: 6, burst: 1, speed: 1, hp: 1, shielded: 0,
+    1: { name: "Easy", rate: [0.42, 0.72], speed: [1, 1.22], cap: [5, 9], rocks: [0.14, 0.24], fire: 1, damage: 1, burst: 1, hp: 1,
+         shielded: 0, shieldHp: 0, rockScale: 1, rockHp: 1,
          mix: [["gunship", 0.6], ["interceptor", 0.4]], note: "Gunships and interceptors" },
-    2: { name: "Medium", pace: 60, rocks: 220, fire: 0.82, damage: 1.15, cap: 8, burst: 1, speed: 1.15, hp: 1.25, shielded: 0,
-         mix: [["gunship", 0.36], ["interceptor", 0.3], ["lancer", 0.24], ["bomber", 0.1]], note: "Lancers and bombers join, faster" },
-    3: { name: "Hard", pace: 50, rocks: 180, fire: 0.68, damage: 1.3, cap: 10, burst: 2, speed: 1.25, hp: 1.4, shielded: 0.3,
-         mix: [["gunship", 0.28], ["interceptor", 0.27], ["lancer", 0.25], ["bomber", 0.2]], note: "Every class, faster, and some shielded" }
+    2: { name: "Medium", rate: [0.64, 1.02], speed: [1.3, 1.55], cap: [8, 13], rocks: [0.21, 0.36], fire: 0.82, damage: 1.15, burst: 1, hp: 1.5,
+         shielded: 0.22, shieldHp: 6, rockScale: 1.22, rockHp: 1.5,
+         mix: [["gunship", 0.36], ["interceptor", 0.3], ["lancer", 0.24], ["bomber", 0.1]], note: "Faster, tougher, lancers, bombers, and the first shields" },
+    3: { name: "Hard", rate: [0.95, 1.4], speed: [1.7, 2], cap: [11, 16], rocks: [0.32, 0.52], fire: 0.68, damage: 1.3, burst: 2, hp: 2,
+         shielded: 0.42, shieldHp: 8, rockScale: 1.45, rockHp: 2,
+         mix: [["gunship", 0.28], ["interceptor", 0.27], ["lancer", 0.25], ["bomber", 0.2]], note: "Every class, fastest, and many shielded" }
   };
+  /* a value on a level's linear curve: pair[0] at the start, pair[1] at the end */
+  function lerpPair(pair, k) { return pair[0] + (pair[1] - pair[0]) * k; }
   /* Four ship classes, each with its own weapon: gunships fire aimed bolts, interceptors dive
      in swarms firing darts, lancers charge (a visible tell) then fire a laser beam down their
      column, and bombers lob bombs that arm near the ship and burst with a blast radius.
@@ -79,7 +88,7 @@
     agent: { r: 15, hp: 7, score: 200, weapon: "agentShot", cruise: 1.4, fixed: true }
   };
   var STRONGEST_ROUND = 4;          /* a plasma orb: the heaviest single round of any ship */
-  var SHIELD_HP = 5;                /* R35: a shield ring absorbs hits until 5 damage breaks it */
+  var SHIELD_HP = 5;                /* R35: a shield ring spawned by the test layer; R39: in play, DIFFICULTY.shieldHp */
   /* R36: downgrades. Some carriers hold a hazard instead of an upgrade, marked in violet and red
      with a warning badge. A mine drifts as a hazard and bursts on contact; the other three are
      pickups that hurt when collected. Each runs on a timer shown in the HUD. */
@@ -97,12 +106,25 @@
   var MINE_LIFE = 480, MINE_BLAST = 46;
   var HAZARD = "#a855f7";
   /* R37: the boss's entrance (no damage to the ship while it plays), its agent ships, and the
-     finale after it falls; reduced motion shortens both to still frames */
-  var BOSS_HP = 4 * 8 + 24;
+     finale after it falls; reduced motion shortens both to still frames.
+     R40 (T120): three concentric shield layers guard the megaship, outermost first; each must break
+     before the next is exposed, then the four corner nodes, then the core. `r` is a layer's radius in
+     the logo's own units (the nodes reach 247 from the centre). Agent launches speed up and the cap
+     rises over AGENT_RAMP ticks of the fight. */
+  var BOSS_SHIELDS = [
+    { name: "Outer shield", hp: 425, r: 300, color: "#a78bfa" },
+    { name: "Middle shield", hp: 375, r: 278, color: "#f472b6" },
+    { name: "Inner shield", hp: 325, r: 256, color: "#facc15" }
+  ];
+  var NODE_HP = 75, CORE_HP = 200;
+  var BOSS_HP = BOSS_SHIELDS.reduce(function (a, s) { return a + s.hp; }, 0) + 4 * NODE_HP + CORE_HP;
   var INTRO_TICKS = 270, INTRO_STILL = 90;
-  var AGENT_EVERY = 300, AGENT_CAP = 6, CARRY_AGENT = 0.45;
-  var FINALE = { chain: 170, blast: 186, portal: 210, enter: 250, through: 330, dim: 350, card: 380, len: 480 };
-  var FINALE_STILL = { chain: 70, blast: 70, portal: 70, enter: 70, through: 140, dim: 140, card: 140, len: 230 };
+  var AGENT_EVERY = 300, AGENT_MIN = 100, AGENT_RAMP = 3600, AGENT_CAP = 6, AGENT_CAP_MAX = 10, CARRY_AGENT = 0.45;
+  /* R40 (T121): the finale. explode (chain blasts, the final detonation at `blast`), tear (a rift
+     opens behind the wreck), collapse (the rift falls in on itself and becomes a black hole), swallow
+     (the hole draws the ship in and stretches it), universe (a flash, then a new universe), prize. */
+  var FINALE = { chain: 150, blast: 160, tear: 200, collapse: 290, swallow: 380, flash: 560, card: 640, len: 760 };
+  var FINALE_STILL = { chain: 0, blast: 0, tear: 75, collapse: 75, swallow: 75, flash: 150, card: 210, len: 300 };
   var ROCK = {
     large: { r: [34, 40], hp: 4, score: 80, into: "medium" },
     medium: { r: [19, 23], hp: 2, score: 50, into: "small" },
@@ -152,11 +174,14 @@
      more than twice as wide. It still stops at the boss's armour, and the boss's nodes and core take
      0.4 of its damage (`boss`): an instant ray that never misses ended the fight in about half the
      time any other weapon needed. */
-  var LANCE = { on: 24, off: 36, fade: 8, every: 4, dmg: 2, ignite: 3, boss: 0.4 };
+  var LANCE = { on: 24, off: 36, fade: 8, every: 4, dmg: 2, ignite: 3, boss: 0.75, shield: 1 };
   /* R33: the Warden's flak reaches about 270 px (the shortest reach of the five) in a tighter,
      heavier cone, so it can hit mid-range targets and the boss from the front of its zone */
   var FLAK = { pellets: 5, cone: 0.24, speed: 10, drag: 0.98, life: 38, dmg: 2 };
   var MISSILE_DMG = 2;              /* R33: a homing missile hits for 2, and also seeks the boss nodes */
+  /* R39 (T122): how a missile is drawn: a body `len` long and `wid` wide (world units), a bright head,
+     and a smoke trail of the last `trail` positions, so its homing path shows. Drawing only. */
+  var MISSILE_LOOK = { len: 22, wid: 7, head: 13, trail: 18, scale: 2.4 };
   var SHIPS = [
     { id: "vanguard", name: "Vanguard", role: "Armoured gunship", note: "Balanced hull, speed, and guns", weapon: "cannon", colour: "blue",
       hull: 100, speed: 1, fire: 1, flame: "#60a5fa", accent: "#3b82f6", scheme: "Dark steel, blue panels" },
@@ -176,9 +201,11 @@
     1: { name: "Cyan Reach", set: 0, a: [0.03, 0.2, 0.26], b: [0.08, 0.06, 0.2], planet: [0.13, 1.06, 0.46], pa: [0.03, 0.12, 0.22], pb: [0.25, 0.65, 0.9], env: [0.32, 0.5, 0.62], stars: [0.8, 0.92, 1], bg: ["#030a10", "#071a22"], neb: ["rgba(34,211,238,0.07)", "rgba(99,102,241,0.06)"] },
     2: { name: "Violet Halo", set: 1, a: [0.16, 0.05, 0.26], b: [0.03, 0.15, 0.2], planet: [0.84, 0.5, 0.3], pa: [0.3, 0.16, 0.36], pb: [0.95, 0.72, 0.55], env: [0.46, 0.4, 0.62], stars: [1, 0.9, 0.82], bg: ["#0b0614", "#140a22"], neb: ["rgba(168,85,247,0.1)", "rgba(45,212,191,0.06)"] },
     3: { name: "Ember Belt", set: 2, a: [0.28, 0.08, 0.04], b: [0.16, 0.03, 0.1], planet: [0.82, 0.12, 0.2], pa: [1, 0.55, 0.2], pb: [1, 0.3, 0.08], env: [0.62, 0.42, 0.36], stars: [1, 0.85, 0.7], bg: ["#120604", "#1d0a06"], neb: ["rgba(249,115,22,0.09)", "rgba(190,24,93,0.07)"] },
-    4: { name: "Nexus Station", set: 3, a: [0.02, 0.16, 0.16], b: [0.04, 0.05, 0.14], planet: [0.5, 0.2, 0.62], pa: [0.2, 0.3, 0.34], pb: [0.2, 0.95, 1], env: [0.3, 0.55, 0.6], stars: [0.7, 1, 0.98], bg: ["#020b0d", "#04161a"], neb: ["rgba(34,211,238,0.08)", "rgba(20,184,166,0.06)"] },
-    /* R37: past the portal after the boss falls: violet and gold, a golden ringed world */
-    5: { name: "The New Dimension", set: 1, a: [0.34, 0.06, 0.4], b: [0.4, 0.22, 0.04], planet: [0.5, 0.5, 0.2], pa: [0.42, 0.12, 0.5], pb: [1, 0.78, 0.32], env: [0.6, 0.4, 0.66], stars: [1, 0.86, 1], bg: ["#160420", "#2b0b2a"], neb: ["rgba(217,70,239,0.16)", "rgba(250,204,21,0.1)"], op: 0.8 }
+    /* R40: the boss arena: an emerald and gold energy storm over the fractured wreck of a station,
+       lightning in the near clouds and drifting hull shards at two parallax depths */
+    4: { name: "The Nexus Storm", set: 4, a: [0.02, 0.2, 0.09], b: [0.3, 0.22, 0.02], planet: [0.24, 0.3, 0.5], pa: [0.24, 0.27, 0.24], pb: [1, 0.78, 0.3], env: [0.36, 0.5, 0.36], stars: [0.86, 1, 0.88], bg: ["#020a06", "#07160d"], neb: ["rgba(16,185,129,0.13)", "rgba(234,179,8,0.08)"] },
+    /* R40: past the black hole: a new universe in teal, rose, and gold, with a spiral galaxy and two worlds */
+    5: { name: "A New Universe", set: 5, a: [0.34, 0.08, 0.22], b: [0.04, 0.3, 0.32], planet: [0.62, 0.36, 0.5], pa: [0.98, 0.55, 0.62], pb: [0.5, 0.95, 1], env: [0.6, 0.5, 0.6], stars: [1, 0.95, 0.9], bg: ["#051520", "#1c0d26"], neb: ["rgba(244,114,182,0.16)", "rgba(45,212,191,0.12)"], op: 0.9 }
   };
   var DEFECT_NAMES = ["firstHitFatal", "randomExplosion"];
   var REDUCED = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -1016,11 +1043,13 @@
   var BG_VS = "attribute vec2 aPos; uniform vec3 uWorld; varying vec2 vW;\n" +
     "void main() { vW = vec2((aPos.x + 1.0) * 0.5 * uWorld.x, (1.0 - aPos.y) * 0.5 * uWorld.y); gl_Position = vec4(aPos, 0.999, 1.0); }\n";
   /* R14: each map's set piece is drawn here (uSet: 0 gas giant, 1 ringed planet, 2 red sun with
-     an asteroid belt, 3 orbital station ring); uStar tints the stars and uWarp stretches them
+     an asteroid belt, 3 orbital station ring, 4 the storm over the broken station (R40), 5 the new
+     universe (R40)); uStar tints the stars and uWarp stretches them
      into streaks inside a wormhole. */
   var BG_FS = GLSL_HEAD +
     "uniform vec3 uWorld; uniform vec3 uScroll; uniform vec3 uNebA; uniform vec3 uNebB; uniform vec4 uPlanet; uniform vec3 uPlanetA; uniform vec3 uPlanetB; uniform float uT;\n" +
     "uniform float uSet; uniform vec3 uStar; uniform float uWarp; uniform vec2 uNeb; uniform float uSpin;\n" +
+    "uniform vec4 uRift; uniform float uRiftA; uniform vec4 uHole;\n" +
     "varying vec2 vW;\n" +
     "float h2(vec2 p) { p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }\n" +
     "float n2(vec2 x) { vec2 i = floor(x); vec2 f = fract(x); f = f * f * (3.0 - 2.0 * f); return mix(mix(h2(i), h2(i + vec2(1.0, 0.0)), f.x), mix(h2(i + vec2(0.0, 1.0)), h2(i + vec2(1.0, 1.0)), f.x), f.y); }\n" +
@@ -1028,8 +1057,17 @@
     "float stars(vec2 p, float cell, float off, float dens) { vec2 g = vec2(p.x, p.y - off) / cell; vec2 id = floor(g); vec2 f = fract(g); float h = h2(id);\n" +
     "  if (h < 1.0 - dens) return 0.0; vec2 o = vec2(h2(id + 3.7), h2(id + 9.1)) * 0.8 + 0.1; vec2 dv = (f - o) * cell; dv.y /= 1.0 + uWarp * 9.0; float d = length(dv);\n" +
     "  return (0.4 + 0.6 * h2(id + 1.3)) * (exp(-d * d * 0.9) + exp(-d * 0.9) * 0.08) * (1.0 + uWarp * 1.5); }\n" +
+    /* R40: a lit sphere with flowing bands, for the new universe's worlds */
+    "vec3 orb(vec3 col, vec2 p, vec2 c, float r, vec3 ca, vec3 cb, float seed) { vec2 d = (p - c) / r; float r2 = dot(d, d);\n" +
+    "  if (r2 >= 1.0) return col + cb * exp(-(sqrt(r2) - 1.0) * 16.0) * 0.3; vec3 nn = vec3(d.x, sqrt(1.0 - r2), d.y);\n" +
+    "  float lit = max(dot(nn, normalize(vec3(-0.65, 0.55, -0.55))), 0.0); float band = fbm(vec2(d.x * 2.0 + uT * 0.0009 + seed, d.y * 6.5));\n" +
+    "  return mix(ca, cb, band) * (0.05 + lit * 0.95) + cb * pow(1.0 - nn.y, 2.5) * 0.45; }\n" +
     "void main() {\n" +
-    "  vec2 p = vW; vec2 q = vec2(p.x - uNeb.x, p.y - uNeb.y) / 520.0;\n" +
+    /* R40: the black hole bends the light of everything behind it: each pixel shows the sky from
+       nearer the hole, so stars smear into a ring at the Einstein radius */
+    "  vec2 p = vW; vec2 hd = vW - uHole.xy; float hr = max(length(hd), 0.001);\n" +
+    "  if (uHole.w > 0.001) { float bE = uHole.z * 1.8 * min(uHole.w, 1.25); p = uHole.xy + hd / hr * (hr - bE * bE / hr); }\n" +
+    "  vec2 q = vec2(p.x - uNeb.x, p.y - uNeb.y) / 520.0;\n" +
     "  float w = fbm(q * 1.4 + 3.0); float n = fbm(q + w * 0.9); float m = fbm(q * 2.6 + 7.0 + w);\n" +
     "  vec3 col = mix(vec3(0.006, 0.012, 0.024), vec3(0.012, 0.03, 0.05), p.y / uWorld.y);\n" +
     "  col += uNebA * pow(n, 2.6) * 0.75 + uNebB * pow(m, 3.2) * 0.6;\n" +
@@ -1055,7 +1093,7 @@
     "    float rock = step(0.8, hh) * smoothstep(0.26 + 0.14 * h2(id + 5.0), 0.05, length(f)) * belt;\n" +
     "    float dust = fbm(bp / 70.0) * belt;\n" +
     "    col += vec3(0.24, 0.13, 0.08) * dust * 0.7 + vec3(0.62, 0.47, 0.36) * rock * (0.35 + 0.65 * h2(id + 2.0)) * (0.6 + 0.6 * smoothstep(-0.5, 0.5, f.x - f.y));\n" +
-    "  } else {\n" +
+    "  } else if (uSet < 3.5) {\n" +
     "    vec2 sq = vec2(d.x, d.y / 0.42); float e = length(sq); float a = atan(sq.y, sq.x) + uSpin;\n" +
     "    float lit = 0.3 + 0.7 * smoothstep(-1.0, 1.0, -sq.x * 0.5 - sq.y * 0.85);\n" +
     "    float tube = smoothstep(0.8, 0.84, e) * (1.0 - smoothstep(1.0, 1.04, e));\n" +
@@ -1066,6 +1104,64 @@
     "    vec3 metal = uPlanetA * lit;\n" +
     "    col = mix(col, metal * panel * 1.5, max(tube, max(spoke * 0.85, hub)) * uPlanet.w);\n" +
     "    col += uPlanetB * (win * 0.9 + hub * 0.25 + exp(-e * e * 90.0) * 0.8 + exp(-pow((e - 0.92) * 30.0, 2.0)) * 0.12) * uPlanet.w;\n" +
+    /* R40: the boss arena: an emerald and gold energy storm. Far clouds drift slowly and near clouds
+       faster, lightning flickers in the near layer, the station's broken ring hangs behind it, and
+       hull shards drift at two parallax depths. */
+    "  } else if (uSet < 4.5) {\n" +
+    "    vec2 sp = p / 300.0;\n" +
+    "    float c1 = fbm(sp * 1.1 + vec2(uT * 0.0007, uT * 0.0003)); float c2 = fbm(sp * 2.3 + vec2(-uT * 0.0019, uT * 0.0011) + c1 * 1.3);\n" +
+    "    col += uNebA * pow(c1, 1.6) * 1.1 + uNebB * pow(c2, 2.4) * 0.95;\n" +
+    "    float rid = 1.0 - abs(n2(sp * 3.4 + vec2(c2 * 2.2, uT * 0.004)) * 2.0 - 1.0);\n" +
+    "    float zap = 0.1 + 0.55 * step(0.8, h2(vec2(floor(uT * 0.06), 2.3)));\n" +
+    "    col += vec3(0.78, 1.0, 0.82) * pow(rid, 34.0) * zap * smoothstep(0.45, 0.7, c2);\n" +
+    "    vec2 sq = vec2(d.x, d.y / 0.42); float e = length(sq); float a = atan(sq.y, sq.x) + uSpin * 0.4;\n" +
+    "    float tube = smoothstep(0.8, 0.84, e) * (1.0 - smoothstep(1.0, 1.04, e)); float whole = step(0.45, n2(vec2(a * 2.4, 1.0)));\n" +
+    "    float lit = 0.3 + 0.7 * smoothstep(-1.0, 1.0, -sq.x * 0.5 - sq.y * 0.85);\n" +
+    "    col = mix(col, uPlanetA * lit * (0.75 + 0.3 * step(0.5, fract(a * 36.0 / 6.2831))) * 1.3, tube * whole * uPlanet.w);\n" +
+    "    float glint = step(0.9, h2(vec2(floor(a * 40.0), floor(uT * 0.05)))) * tube * whole;\n" +
+    "    col += uPlanetB * glint * 0.9 * uPlanet.w + uPlanetB * tube * (1.0 - whole) * 0.08 * zap;\n" +
+    "    for (int k = 0; k < 2; k++) { float dk = float(k); float cell = 74.0 + 70.0 * dk;\n" +
+    "      vec2 g = vec2(p.x + sin(uT * 0.001 + dk * 2.0) * 40.0, p.y - uScroll.z * (0.16 + 0.42 * dk)) / cell; vec2 id = floor(g); vec2 f = fract(g) - 0.5; float hh = h2(id + dk * 17.0);\n" +
+    "      if (hh > 0.9) { float an = hh * 40.0 + uT * 0.003 * (hh - 0.9) * 20.0; vec2 r = vec2(cos(an) * f.x - sin(an) * f.y, sin(an) * f.x + cos(an) * f.y);\n" +
+    "        float tri = max(abs(r.x) * 1.7 + r.y * 0.9, -r.y * 1.1) - (0.15 + 0.13 * h2(id + 4.0)); float inS = 1.0 - smoothstep(-0.012, 0.012, tri);\n" +
+    "        vec3 metal = mix(vec3(0.04, 0.06, 0.05), vec3(0.2, 0.24, 0.2), 0.35 + 0.65 * dk) * (0.7 + 0.6 * smoothstep(-0.2, 0.2, -r.x - r.y));\n" +
+    "        col = mix(col, metal, inS * (0.55 + 0.35 * dk)) + uPlanetB * (1.0 - smoothstep(0.0, 0.03, abs(tri))) * (0.08 + 0.15 * zap) * (0.4 + 0.6 * dk); } }\n" +
+    /* R40: past the black hole: a spiral galaxy, two worlds, and far galaxies, in teal, rose, and gold */
+    "  } else {\n" +
+    "    vec2 gq = vec2(d.x * 0.92 + d.y * 0.4, (-d.x * 0.4 + d.y * 0.92) / 0.5); float gr = length(gq); float ga = atan(gq.y, gq.x);\n" +
+    "    float arms = pow(0.5 + 0.5 * cos(2.0 * ga - log(gr + 0.03) * 4.2 - uT * 0.0008), 2.5);\n" +
+    "    float body = exp(-gr * 1.6) * (0.3 + 0.7 * arms) * (0.55 + 0.6 * fbm(gq * 3.5 + 2.0));\n" +
+    "    col += mix(uPlanetB, uPlanetA, smoothstep(0.0, 1.4, gr)) * body * 1.25 * uPlanet.w + vec3(1.0, 0.95, 0.85) * exp(-gr * gr * 26.0) * 0.9 * uPlanet.w;\n" +
+    "    vec2 fg = p / 150.0; vec2 fid = floor(fg); vec2 ff = fract(fg) - 0.5; float fh = h2(fid + 31.0);\n" +
+    "    if (fh > 0.9) { float fa = fh * 30.0; vec2 fr = vec2(cos(fa) * ff.x - sin(fa) * ff.y, sin(fa) * ff.x + cos(fa) * ff.y); col += mix(uPlanetA, uPlanetB, h2(fid)) * exp(-(fr.x * fr.x / 0.02 + fr.y * fr.y / 0.003)) * 0.5; }\n" +
+    "    col = orb(col, p, vec2(uWorld.x * 0.16, uWorld.y * 0.8), min(uWorld.x, uWorld.y) * 0.17, vec3(0.5, 0.12, 0.22), vec3(1.0, 0.62, 0.5), 0.0);\n" +
+    "    col = orb(col, p, vec2(uWorld.x * 0.88, uWorld.y * 0.16), min(uWorld.x, uWorld.y) * 0.06, vec3(0.08, 0.3, 0.42), vec3(0.62, 0.98, 1.0), 4.0);\n" +
+    "  }\n" +
+    /* R40: the rift: a jagged tear across space, lit from within, its light bleeding into the dark */
+    "  if (uRift.w > 0.001) {\n" +
+    "    vec2 rd = vW - uRift.xy; vec2 ax = vec2(cos(uRiftA), sin(uRiftA)); float al = dot(rd, ax); float ac = dot(rd, vec2(-ax.y, ax.x));\n" +
+    "    float Lr = max(uRift.z, 1.0); float u = clamp(al / Lr, -1.0, 1.0); float taper = (1.0 - u * u) * step(abs(al), Lr);\n" +
+    "    float jag = ((n2(vec2(al * 0.045, 3.1)) - 0.5) * 38.0 + (n2(vec2(al * 0.17, 8.3)) - 0.5) * 14.0) * taper;\n" +
+    "    float dd = abs(ac - jag) - uRift.w * 30.0 * taper;\n" +
+    "    float inside = (1.0 - smoothstep(-1.5, 1.5, dd)) * step(abs(al), Lr);\n" +
+    "    float bleed = exp(-max(dd, 0.0) / (12.0 + 34.0 * uRift.w)) * step(abs(al), Lr * 1.08) * uRift.w;\n" +
+    "    float rays = pow(max(0.0, sin(al * 0.09 + uT * 0.02) * sin(al * 0.031 - uT * 0.013)), 4.0) * exp(-max(dd, 0.0) / 90.0) * uRift.w;\n" +
+    "    vec3 light = mix(vec3(1.0, 0.97, 0.9), vec3(0.88, 0.78, 1.0), 0.5 + 0.5 * sin(al * 0.05 + uT * 0.05));\n" +
+    "    col = mix(col, light * (1.15 + 0.35 * fbm(vec2(al * 0.03, uT * 0.01))), inside);\n" +
+    "    col += vec3(1.0, 0.8, 0.5) * bleed * 0.85 + vec3(0.78, 0.62, 1.0) * rays * 0.55;\n" +
+    "  }\n" +
+    /* R40: the black hole: a dark horizon, a photon ring, the hot accretion disk (brighter on the
+       side turning toward us), and the disk's far side lensed into an arc over the top */
+    "  if (uHole.w > 0.001) {\n" +
+    "    float Rs = uHole.z * min(uHole.w, 1.25); float e = length(vec2(hd.x, hd.y / 0.3)); float an = atan(hd.y / 0.3, hd.x);\n" +
+    "    float disk = smoothstep(1.55 * Rs, 1.95 * Rs, e) * (1.0 - smoothstep(3.5 * Rs, 4.6 * Rs, e)) * min(1.0, uHole.w * 1.6);\n" +
+    "    float swirl = 0.55 + 0.45 * fbm(vec2(an * 2.5 - uT * 0.05 * (3.0 * Rs / max(e, 1.0)), e / max(Rs, 1.0) * 1.7));\n" +
+    "    float dop = 0.65 + 0.55 * (-hd.x / max(e, 1.0));\n" +
+    "    vec3 dc = mix(vec3(1.0, 0.96, 0.86), vec3(1.0, 0.42, 0.08), smoothstep(1.8 * Rs, 4.2 * Rs, e)) * disk * swirl * dop * 1.35;\n" +
+    "    float hor = smoothstep(Rs * 0.97, Rs * 1.04, hr);\n" +
+    "    float halo = exp(-pow((hr - Rs * 1.95) / (Rs * 0.32), 2.0)) * (1.0 - smoothstep(-Rs * 0.4, Rs * 0.3, hd.y)) * 0.8 * min(1.0, uHole.w * 1.6);\n" +
+    "    float pr = exp(-pow((hr - Rs * 1.5) / (Rs * 0.05), 2.0)) * 0.95;\n" +
+    "    col = col * hor + vec3(1.0, 0.72, 0.38) * halo * (0.7 + 0.3 * swirl) * hor + vec3(1.0, 0.9, 0.75) * pr * hor + dc * mix(hor, 1.0, step(0.0, hd.y));\n" +
     "  }\n" +
     "  gl_FragColor = vec4(col, 1.0); }\n";
   function glCompile(gl, type, src) {
@@ -1252,14 +1348,36 @@
     startBtn.type = "button";
     var changeBtn = el("button", "ss-change", "Change ship");
     changeBtn.type = "button";
-    /* R16: on a narrow arena the start screen has two panels, ships and the upgrade key; this
-       button switches between them so nothing ever needs a scroll bar. Wide arenas show both
-       panels and hide the button. */
-    var keyBtn = el("button", "ss-keybtn", "Upgrade key");
+    /* R16: the start screen has two panels, ships and the pickup key, so nothing ever needs a scroll
+       bar. R39 (T118): at every size the ships panel shows only a compact strip of pickup icons (each
+       names itself on hover and to a screen reader); the Pickups button swaps the hangar for the full
+       key with names and effects, and back. */
+    var keyBtn = el("button", "ss-keybtn", "Pickups");
     keyBtn.type = "button";
     keyBtn.setAttribute("aria-expanded", "false");
+    var strip = el("div", "ss-strip");
+    var stripList = el("ul", "ss-strip-list");
+    stripList.setAttribute("aria-label", "Pickups: ten upgrades, then four hazards. Any enemy or rock may hold one; nothing shows which until it drops.");
+    POWER_ORDER.concat(["|"], DOWN_ORDER).forEach(function (kind) {
+      if (kind === "|") { var sep = el("li", "ss-strip-sep"); sep.setAttribute("aria-hidden", "true"); stripList.appendChild(sep); return; }
+      var down = isDown(kind), look = lookOf(kind), li = el("li", "ss-strip-item" + (down ? " ss-strip-down" : ""));
+      li.setAttribute("data-kind", kind);
+      li.style.setProperty("--ss-up", look[0]);
+      li.setAttribute("title", (down ? "Hazard: " : "") + look[1] + ": " + look[2]);
+      li.setAttribute("aria-label", (down ? "Hazard, " : "") + look[1] + ": " + look[3]);
+      var ic = el("canvas", "ss-key-icon");
+      ic.width = 48; ic.height = 48;
+      ic.setAttribute("aria-hidden", "true");
+      var g4 = null;
+      try { g4 = ic.getContext("2d"); } catch (err) { g4 = null; }
+      if (g4) { g4.scale(2, 2); g4.translate(12, 12); powerIcon(kind, look[0], true, 10.5, g4); }
+      li.appendChild(ic);
+      stripList.appendChild(li);
+    });
+    strip.appendChild(keyBtn);
+    strip.appendChild(stripList);
     var key = el("div", "ss-key");
-    key.appendChild(el("p", "ss-key-title", "Upgrades: shoot glowing enemies and rocks to drop one"));
+    key.appendChild(el("p", "ss-key-title", "Upgrades: some enemies and rocks drop one when destroyed; nothing shows which"));
     var keyList = el("ul", "ss-key-list");
     keyList.setAttribute("aria-label", "Upgrade colour key");
     POWER_ORDER.forEach(function (kind) {
@@ -1282,7 +1400,7 @@
     });
     key.appendChild(keyList);
     /* R36: the hazards, in the same key: violet-marked carriers drop these */
-    key.appendChild(el("p", "ss-key-title ss-down-title", "Hazards: violet-marked enemies and rocks drop these instead"));
+    key.appendChild(el("p", "ss-key-title ss-down-title", "Hazards: some drop one of these instead, so a pickup is a gamble"));
     var downList = el("ul", "ss-key-list ss-down-list");
     downList.setAttribute("aria-label", "Downgrade key");
     DOWN_ORDER.forEach(function (kind) {
@@ -1308,15 +1426,15 @@
     hint.id = "ss-hint-" + id;
     canvas.setAttribute("aria-describedby", hint.id);
     var actions = el("div", "ss-actions");
-    [startBtn, changeBtn, keyBtn].forEach(function (n) { actions.appendChild(n); });
-    [brand, overTitle, overPrize, hangar, shipNote, key, actions, hint].forEach(function (n) { panel.appendChild(n); });
+    [startBtn, changeBtn].forEach(function (n) { actions.appendChild(n); });
+    [brand, overTitle, overPrize, hangar, shipNote, strip, key, actions, hint].forEach(function (n) { panel.appendChild(n); });
     overlay.appendChild(panel);
     overlay.setAttribute("data-panel", "ships");
     changeBtn.addEventListener("click", function () { reset(); hangar.querySelector("[aria-checked=true]").focus(); });
     keyBtn.addEventListener("click", function () {
       var showKey = overlay.getAttribute("data-panel") !== "key";
       overlay.setAttribute("data-panel", showKey ? "key" : "ships");
-      keyBtn.textContent = showKey ? "Ships" : "Upgrade key";
+      keyBtn.textContent = showKey ? "Back to ships" : "Pickups";
       keyBtn.setAttribute("aria-expanded", showKey ? "true" : "false");
       fitPanel();
       paintCards();
@@ -1425,7 +1543,8 @@
       var cssH = cssW * world.h / world.w;
       if (cssH > arenaCap()) cssH = arenaCap();
       hudBand = Math.round((cssW < 520 ? 98 : 66) * world.h / Math.max(1, cssH));
-      hudBandBoss = Math.round((cssW < 520 ? 128 : 66) * world.h / Math.max(1, cssH));
+      /* R40: the boss bar gained a stage line beneath it, so the band below it is deeper */
+      hudBandBoss = Math.round((cssW < 520 ? 142 : 84) * world.h / Math.max(1, cssH));
       if (demo) { var dsz = demoSize(); cssW = dsz.w; cssH = Math.round(dsz.w * world.h / world.w); }
       var dpr = Math.min(window.devicePixelRatio || 1, 3);
       canvas.style.height = Math.round(cssH) + "px";
@@ -1452,7 +1571,7 @@
         player: { x: world.w / 2, y: world.h - 70, r: 18, health: ship.hull, shieldHp: 0, invuln: 0, cooldown: 0, weapon: 0,
                   spread: 0, rapid: 0, missiles: 0, wingman: 0, pierce: 0, slow: 0, magnet: 0, missileIn: 0, wingIn: 0, bank: 0, hurt: 0, burstLeft: 0, burstIn: 0,
                   freeze: 0, slowfire: 0, scramble: 0 },
-        finale: null, downs: [], agentsLaunched: 0, shieldedSpawned: 0, largeSpawned: 0,
+        finale: null, downs: [], agentsLaunched: 0, shieldedSpawned: 0, largeSpawned: 0, capSkips: 0,
         enemies: [], enemyShots: [], shots: [], asteroids: [], powerUps: [], effects: [], popups: [],
         spawnIn: 50, rockIn: 240, firstShotTick: null, firstShotGap: null, spawned: 0,
         nextExplosion: firstExplosion(r.defects), explodeTicks: [], hitTicks: [], damageLog: [], lastDamage: null, damageTaken: 0, dealt: 0,
@@ -1474,13 +1593,15 @@
     var hudBand = 70, hudBandBoss = 70;
     function topLimit() { return (S.boss ? hudBandBoss : hudBand) + S.player.r + 4; }
     /* R14: density grows through each level. levelProgress runs from 0 at the level's start to 1
-       at its end (the boss's arrival on level 3); the spawn interval shrinks, the enemy cap and
-       the asteroid rate rise, and late in a level rocks start to come in pairs. */
+       at its end (the boss's arrival on level 3). R39 (T119): the spawn rate, the asteroid rate, the
+       enemy speed, and the cap rise linearly with it, from each DIFFICULTY pair's start to its end;
+       the intervals are the inverse of the rates. */
     function levelLen() { return !cfg.progression ? LEVEL_TICKS[1] : S.level < 3 ? LEVEL_TICKS[S.level] : (cfg.boss ? BOSS_AFTER : LEVEL_TICKS[2]); }
     function levelProgress() { return clamp((cfg.progression ? S.levelTicks : S.tick) / levelLen(), 0, 1); }
     function density() {
-      var k = levelProgress(), d = diff();
-      return { k: k, spawn: Math.round(d.pace * (1.3 - 0.72 * k)), cap: d.cap - 2 + Math.round(5 * k), rocks: Math.round(d.rocks * (1.5 - 1.05 * k)), pair: k > 0.4 ? (k - 0.4) * 1.2 : 0 };
+      var k = levelProgress(), d = diff(), rate = lerpPair(d.rate, k), rocks = lerpPair(d.rocks, k);
+      return { k: k, rate: rate, rockRate: rocks, speed: cfg.progression ? lerpPair(d.speed, k) : 1,
+               spawn: Math.round(HZ / rate), cap: Math.round(lerpPair(d.cap, k)), rocks: Math.round(HZ / rocks) };
     }
     function pickDrop() {
       var k = S.rng.drops(), a = 0;
@@ -1550,7 +1671,7 @@
       return { type: type, x: x, y: y, r: spec.r, vx: 0, vy: 0, phase: 0, hp: hp, hpMax: hp, shield: 0, shieldMax: 0, shieldFlash: 0,
                spd: 1, charge: 0, beamT: 0, cycles: 0, fireIn: 1, mode: "enter", holdY: 0, flash: 0, bank: 0, pinned: false };
     }
-    function shieldUp(e) { e.shield = e.shieldMax = SHIELD_HP; return e; }
+    function shieldUp(e, hp) { e.shield = e.shieldMax = hp || SHIELD_HP; return e; }
     function spawnEnemy() {
       var rng = S.rng.spawn, d = diff();
       var type = pickType(rng);
@@ -1559,8 +1680,9 @@
       var x = edge + rng() * (world.w - 2 * edge);
       /* interceptors come as a swarm: one at Easy, two at Medium, three at Hard */
       var n = type === "interceptor" ? (cfg.progression ? S.level : 1) : 1;
-      /* R35: speed rises with the level; on the last level a share of the larger classes is shielded */
-      var sp = cfg.progression ? d.speed : 1;
+      /* R39: speed follows the level's linear curve at the moment of the spawn; from level 2 a share
+         of the larger classes is shielded */
+      var sp = density().speed;
       var shielded = type !== "interceptor" && d.shielded > 0 && cfg.progression && rng() < d.shielded;
       for (var k = 0; k < n; k++) {
         var e = makeEnemy(type, clamp(x + (k - (n - 1) / 2) * 38, spec.r, world.w - spec.r), -26 - k * 22);
@@ -1570,20 +1692,22 @@
         e.phase = rng() * Math.PI * 2;
         e.fireIn = 50 + Math.floor(rng() * 110);
         e.holdY = world.h * (type === "lancer" ? 0.12 + rng() * 0.16 : 0.18 + rng() * 0.12);
-        if (shielded) { shieldUp(e); S.shieldedSpawned += 1; }
+        if (shielded) { shieldUp(e, d.shieldHp); S.shieldedSpawned += 1; }
         if (type !== "interceptor") S.largeSpawned += 1;
         S.enemies.push(maybeCarry(e, CARRY_ENEMY));
         S.spawned += 1;
       }
     }
+    /* R39: asteroids grow with the level, in size (rockScale) and in health (rockHp) */
+    function rockLook() { var d = diff(); return cfg.progression ? { s: d.rockScale, hp: d.rockHp } : { s: 1, hp: 1 }; }
     function makeRock(size, x, y, vx, vy, rng) {
-      var spec = ROCK[size];
-      return { size: size, x: x, y: y, r: spec.r[0] + Math.floor(rng() * (spec.r[1] - spec.r[0] + 1)), vx: vx, vy: vy, hp: spec.hp,
+      var spec = ROCK[size], lk = rockLook(), hp = Math.max(1, Math.round(spec.hp * lk.hp));
+      return { size: size, x: x, y: y, r: Math.round((spec.r[0] + Math.floor(rng() * (spec.r[1] - spec.r[0] + 1))) * lk.s), vx: vx, vy: vy, hp: hp, hpMax: hp,
                spin: rng() * 6.28, rx: rng() * 6.28, spinV: (rng() - 0.5) * 0.04, rxV: (rng() - 0.5) * 0.03, look: Math.floor(rng() * 6), flash: 0 };
     }
     function spawnRock() {
       var rng = S.rng.spawn, size = rng() < 0.5 ? "large" : "medium";
-      var r = ROCK[size].r[1];
+      var r = Math.round(ROCK[size].r[1] * rockLook().s);
       S.asteroids.push(maybeCarry(makeRock(size, r + rng() * (world.w - 2 * r), -r, (rng() - 0.5) * 1.2, 1.0 + rng() * 1.1, rng), CARRY_ROCK));
     }
     /* A destroyed rock splits into two or three of the next size, flung outward; a small one
@@ -1959,12 +2083,9 @@
     /* How big the ship is drawn (0 to 1) and how far it has spun, during a transition. */
     function transLook() {
       var tr = S.trans, f = S.finale;
-      if (f) {
-        if (f.still) return { s: f.t >= f.ph.portal ? 0.6 : 1, spin: 0 };
-        if (f.t < f.ph.enter) return { s: 1, spin: 0 };
-        var fe = ease((f.t - f.ph.enter) / (f.ph.through - f.ph.enter));
-        return { s: Math.max(0.04, 1 - 0.96 * fe * fe), spin: fe * fe * 6 };
-      }
+      /* R40: the finale never spins or shrinks the ship the way the wormhole does; the black hole
+         stretches it instead (finaleShip) */
+      if (f) return { s: 1, spin: 0 };
       if (!tr) return { s: 1, spin: 0 };
       if (tr.t < tr.flash) { var e = ease((tr.t / tr.flash - 0.3) / 0.7); return { s: 1 - 0.96 * e * e, spin: e * e * 7 }; }
       var k = ease((tr.t - tr.flash) / (tr.len - tr.flash));
@@ -2060,7 +2181,7 @@
       sh.stop = null;
       var b = S.boss;
       if (!b || !b.entered) return;
-      var bottom = b.y + 170 * b.s;
+      var bottom = b.y + Math.max(170 * b.s, shieldR(b));
       for (var t = Math.max(0, (sh.y - bottom) / Math.max(0.2, -dy)); t < sh.len; t += 4) {
         var c = bossContact(sh.x + dx * t, sh.y + dy * t, sh.r);
         if (c) { sh.len = t; sh.stop = c; return; }
@@ -2070,6 +2191,8 @@
     function bossContact(x, y, r) {
       var b = S.boss;
       if (!b || !b.entered) return null;
+      /* R40: while a shield layer stands, it is the first thing any round meets */
+      if (shieldLayer(b) >= 0) return Math.hypot(x - b.x, y - b.y) < shieldR(b) + r ? "shield" : null;
       for (var i = 0; i < b.nodes.length; i++) {
         if (!b.nodes[i].alive) continue;
         var at = bossPoint(b, LOGO.nodes[i][0], LOGO.nodes[i][1]);
@@ -2135,6 +2258,9 @@
         if (target) { sh.vx += Math.max(-0.6, Math.min(0.6, (target.x - sh.x) * 0.02)); sh.vy += Math.max(-0.6, Math.min(0.6, (target.y - sh.y) * 0.02)); }
         var v = Math.hypot(sh.vx, sh.vy) || 1;
         sh.vx = sh.vx / v * 9; sh.vy = sh.vy / v * 9;
+        /* R39: the trail is drawing data only; it never touches the flight or the hit */
+        (sh.trail = sh.trail || []).push([sh.x, sh.y]);
+        if (sh.trail.length > MISSILE_LOOK.trail) sh.trail.shift();
         sh.x += sh.vx; sh.y += sh.vy;
       }
     }
@@ -2149,17 +2275,29 @@
       var len = REDUCED ? INTRO_STILL : INTRO_TICKS;
       S.boss = {
         x: world.w / 2, y: world.h * 0.25, targetY: world.h * 0.25, s: s, t: 0, entered: false, intro: 0, introLen: len,
-        nodes: LOGO.nodes.map(function (n, i) { return { i: i, hp: 8, alive: true, fireIn: 90 + i * 19, flash: 0 }; }),
-        coreHp: 24, coreFlash: 0, fireIn: 120, agentIn: 150
+        shields: BOSS_SHIELDS.map(function (L) { return { hp: L.hp, max: L.hp, r: L.r, color: L.color, name: L.name, flash: 0 }; }),
+        nodes: LOGO.nodes.map(function (n, i) { return { i: i, hp: NODE_HP, alive: true, fireIn: 90 + i * 19, flash: 0 }; }),
+        coreHp: CORE_HP, coreFlash: 0, fireIn: 120, agentIn: 150, fightT: 0, deflects: 0, launches: [], broken: []
       };
       S.enemies = []; S.enemyShots = [];
       S.banner = null;
       emit("bossArrive", { tick: S.tick });
-      say("The Nexus megaship is coming. Destroy its four nodes, then its core.");
+      say("The Nexus megaship is coming. Break its three shield layers, then its four nodes, then its core.");
     }
     function bossPoint(b, lx, ly) { return [b.x + (lx - LOGO.centre[0]) * b.s, b.y + (ly - LOGO.centre[1]) * b.s]; }
     function nodesAlive(b) { return b.nodes.filter(function (n) { return n.alive; }).length; }
-    function bossHp(b) { var t = b.coreHp; b.nodes.forEach(function (n) { if (n.alive) t += Math.max(0, n.hp); }); return Math.max(0, t); }
+    /* R40: the outermost shield layer still up (index into b.shields), or -1 once all three are down */
+    function shieldLayer(b) { for (var i = 0; i < b.shields.length; i++) if (b.shields[i].hp > 0) return i; return -1; }
+    function shieldHp(b) { var t = 0; b.shields.forEach(function (L) { t += Math.max(0, L.hp); }); return t; }
+    function bossHp(b) { var t = b.coreHp + shieldHp(b); b.nodes.forEach(function (n) { if (n.alive) t += Math.max(0, n.hp); }); return Math.max(0, t); }
+    /* R40: which stage of the fight: shields, then nodes, then the core */
+    function bossStage(b) { return shieldLayer(b) >= 0 ? "shields" : nodesAlive(b) > 0 ? "nodes" : "core"; }
+    function coreGlows(b) { return !!b && b.entered && bossStage(b) === "core"; }
+    /* the active shield's radius in world units */
+    function shieldR(b) { var i = shieldLayer(b); return i < 0 ? 0 : b.shields[i].r * b.s; }
+    /* R40 (T120): agents launch faster and the cap rises as the fight goes on */
+    function agentEvery(b) { return Math.round(AGENT_EVERY - (AGENT_EVERY - AGENT_MIN) * clamp(b.fightT / AGENT_RAMP, 0, 1)); }
+    function agentCap(b) { return Math.round(AGENT_CAP + (AGENT_CAP_MAX - AGENT_CAP) * clamp(b.fightT / AGENT_RAMP, 0, 1)); }
     /* 0 to 1: how far the megaship has grown out of its rift (reduced motion: fully there) */
     /* the title card's opacity during the entrance */
     function introTitle(b) {
@@ -2172,13 +2310,14 @@
     /* R37: two agent ships launch from live nodes (or the core) every AGENT_EVERY ticks while the
        megaship fights, up to AGENT_CAP at once; 45 percent carry a pickup, nearly half of them hazards */
     function launchAgents(b) {
-      var live = S.enemies.filter(function (e) { return e.type === "agent"; }).length, rng = S.rng.spawn;
-      if (live >= AGENT_CAP) return;
+      var live = S.enemies.filter(function (e) { return e.type === "agent"; }).length, rng = S.rng.spawn, cap = agentCap(b);
+      b.launches.push(b.fightT);
+      if (live >= cap) return;
       var from = [];
       b.nodes.forEach(function (n, i) { if (n.alive) from.push(bossPoint(b, LOGO.nodes[i][0], LOGO.nodes[i][1])); });
       if (!from.length) from = [[b.x - 20, b.y], [b.x + 20, b.y]];
       var start = Math.floor(rng() * from.length);
-      for (var k = 0; k < 2 && live + k < AGENT_CAP; k++) {
+      for (var k = 0; k < 2 && live + k < cap; k++) {
         var at = from[(start + k) % from.length], side = at[0] < b.x ? -1 : 1;
         var e = makeEnemy("agent", at[0], at[1] + 10);
         e.mode = "launch"; e.vx = side * (1.6 + rng() * 1.2); e.vy = 1.4 + rng() * 0.8;
@@ -2195,14 +2334,15 @@
       if (!b.entered) {
         b.intro += 1;
         if (b.intro === Math.round(b.introLen * 0.45) && !REDUCED) { S.shake = 12; boom(b.x, b.y, 2.2, "#67e8f9"); }
-        if (b.intro >= b.introLen) { b.entered = true; b.swayT = 0; say("The Nexus megaship is here. Destroy its four nodes, then its core."); }
+        if (b.intro >= b.introLen) { b.entered = true; b.swayT = 0; say("The Nexus megaship is here. Break its three shield layers, then its four nodes, then its core."); }
       } else {
         /* R33: the sway clock starts on arrival; it used to run from the spawn, so the boss snapped up
            to 200 px sideways on the tick it arrived */
-        b.swayT += 1;
+        b.swayT += 1; b.fightT += 1;
         b.x = world.w / 2 + Math.sin(b.swayT * 0.008) * world.w * 0.22;
       }
       if (b.coreFlash > 0) b.coreFlash -= 1;
+      b.shields.forEach(function (L) { if (L.flash > 0) L.flash -= 1; });
       b.nodes.forEach(function (n) {
         if (n.flash > 0) n.flash -= 1;
         if (!n.alive || !b.entered) return;
@@ -2213,7 +2353,7 @@
           n.fireIn = 84;
         }
       });
-      if (b.entered && cfg.threats && --b.agentIn <= 0) { launchAgents(b); b.agentIn = AGENT_EVERY; }
+      if (b.entered && cfg.threats && --b.agentIn <= 0) { launchAgents(b); b.agentIn = agentEvery(b); }
       if (b.entered && nodesAlive(b) === 0) {
         b.fireIn -= 1;
         if (b.fireIn <= 0) {
@@ -2241,14 +2381,29 @@
       var b = S.boss, st = s.stop;
       if (!b || !st || s.hits.indexOf(st) !== -1) return false;
       s.hits.push(st);
-      if (st === "core") { if (nodesAlive(b) === 0) damageCore(s.dmg * LANCE.boss); else ring(s.x, b.y + LOGO.coreR * b.s, "#93c5fd"); }
+      /* R40: a shield is a broad target every weapon hits fully, so the lance's boss factor stays off it */
+      if (st === "shield") damageShield(s.dmg * LANCE.shield, s.x, b.y + shieldR(b));
+      else if (st === "core") { if (nodesAlive(b) === 0) damageCore(s.dmg * LANCE.boss); else deflect(s.x, b.y + LOGO.coreR * b.s); }
       else if (st !== "armour") damageNode(parseInt(st.slice(4), 10), s.dmg * LANCE.boss);
       return false;
+    }
+    /* R40: a round that strikes the core while a node lives glances off it with a visible spark */
+    function deflect(x, y) {
+      var b = S.boss;
+      if (b) b.deflects += 1;
+      ring(x, y, "#93c5fd");
+      for (var k = 0; k < 3; k++) S.effects.push({ kind: "spark", x: x, y: y, t: 0, life: 16, color: "#bfdbfe", vx: (k - 1) * 2.6, vy: 2.2 + k * 0.4 });
     }
     /* Returns true when the shot is used up by the boss. */
     function shotHitsBoss(s) {
       var b = S.boss;
       if (!b || !b.entered) return false;
+      /* R40: the active shield layer takes every round that reaches it */
+      if (shieldLayer(b) >= 0) {
+        var d = Math.hypot(s.x - b.x, s.y - b.y);
+        if (d < shieldR(b) + s.r) { damageShield(s.dmg || 1, s.x, s.y); return true; }
+        return false;
+      }
       for (var i = 0; i < b.nodes.length; i++) {
         var n = b.nodes[i];
         if (!n.alive) continue;
@@ -2256,7 +2411,7 @@
         if (Math.hypot(s.x - at[0], s.y - at[1]) < LOGO.nodeR * b.s + s.r) { damageNode(i, s.dmg || 1); return true; }
       }
       if (Math.hypot(s.x - b.x, s.y - b.y) < LOGO.coreR * b.s + s.r) {
-        if (nodesAlive(b) === 0) damageCore(s.dmg || 1); else ring(s.x, s.y, "#93c5fd");
+        if (nodesAlive(b) === 0) damageCore(s.dmg || 1); else deflect(s.x, s.y);
         return true;
       }
       var lx = (s.x - b.x) / b.s + LOGO.centre[0], ly = (s.y - b.y) / b.s + LOGO.centre[1];
@@ -2267,9 +2422,32 @@
       if (segDist(lx, ly, 106, 97, 410, 395) < LOGO.barW / 2 || segDist(lx, ly, 410, 97, 106, 395) < LOGO.barW / 2) return true;
       return false;
     }
+    /* R40: damage to the active shield layer. Overflow past a breaking layer is lost, as with an
+       enemy's shield ring, so every layer costs its full strength. */
+    function damageShield(n, x, y) {
+      var b = S.boss, i = shieldLayer(b);
+      if (i < 0) return;
+      var L = b.shields[i], took = Math.min(n, L.hp);
+      L.hp -= took; S.dealt += took; L.flash = 5; S.score += 5;
+      if (x != null && !REDUCED && S.tick % 3 === 0) ring(x, y, L.color);
+      if (L.hp <= 0) {
+        L.hp = 0;
+        b.broken.push({ layer: i, tick: S.tick });
+        var R = L.r * b.s;
+        S.effects.push({ kind: "blast", x: b.x, y: b.y, t: 0, life: 34, size: R * 1.2, color: L.color });
+        S.effects.push({ kind: "flash", x: b.x, y: b.y, t: 0, life: 18, size: 2.4, color: L.color });
+        for (var k = 0; k < 18; k++) { var a = k * 0.349; S.effects.push({ kind: "spark", x: b.x + Math.cos(a) * R, y: b.y + Math.sin(a) * R, t: 0, life: 26, color: L.color, vx: Math.cos(a) * 3, vy: Math.sin(a) * 3 }); }
+        S.shake = Math.max(S.shake, 6);
+        S.score += 500;
+        emit("shieldDown", { layer: i, left: b.shields.length - 1 - i, tick: S.tick });
+        var left = shieldLayer(b);
+        say(left >= 0 ? L.name + " down. " + (b.shields.length - left) + " shield layers left." : "The last shield is down. Break the four nodes.");
+      }
+    }
     function damageNode(i, n) {
       var node = S.boss.nodes[i];
-      if (!node.alive) return;
+      if (!node.alive || shieldLayer(S.boss) >= 0) return;
+      n = Math.min(n, node.hp);
       node.hp -= n;
       S.dealt += n;
       node.flash = 6;
@@ -2279,11 +2457,14 @@
         var at = bossPoint(S.boss, LOGO.nodes[i][0], LOGO.nodes[i][1]);
         boom(at[0], at[1], 1.6, "#22d3ee");
         S.score += 750;
-        say(nodesAlive(S.boss) ? nodesAlive(S.boss) + " nodes left." : "Every node is down. The core is exposed.");
+        say(nodesAlive(S.boss) ? nodesAlive(S.boss) + " nodes left." : "Every node is down. The core is exposed and glowing: destroy it.");
+        if (!nodesAlive(S.boss)) emit("coreExposed", { tick: S.tick });
       }
     }
     function damageCore(n) {
       var b = S.boss;
+      if (shieldLayer(b) >= 0 || nodesAlive(b) > 0) return;
+      n = Math.min(n, b.coreHp);
       b.coreHp -= n;
       S.dealt += n;
       b.coreFlash = 6;
@@ -2300,24 +2481,54 @@
       }
     }
 
-    /* ---------- R37: the finale. Chain explosions run across the wreck, a final blast tears it
-       apart, a portal opens and pulls the ship through into a new dimension, and a prize card
-       names the reward. Its last frame emits rewardUnlocked, which the page uses to open the
-       download. A key or a click skips ahead to the prize card; a second skip ends it. Reduced
-       motion shows three still frames instead. The finale runs while the game is over, so it
-       never touches the run's score, damage, or defect schedule. */
+    /* ---------- R40 (T121): the finale. Chain explosions run across the wreck and a final
+       detonation tears it apart; space behind it tears open in a jagged rift that bleeds light; the
+       rift collapses into a black hole (an event horizon, an accretion disk, a photon ring, and
+       lensed stars) that slowly draws the ship in, stretching it, with debris spiralling after it; a
+       flash opens onto a new universe, and the prize card names the reward. Its last frame emits
+       rewardUnlocked, which the page uses to open the download. A key or a click skips ahead to the
+       prize card; a second skip ends it. Reduced motion shows four still frames instead. It shares no
+       element with the wormhole between levels (no bright swirl disc, no cyan and violet arms, no star
+       streaks, no spinning shrink). The finale runs while the game is over, so it never touches the
+       run's score, damage, or defect schedule. */
     function startFinale(b) {
-      var F = REDUCED ? FINALE_STILL : FINALE;
-      S.finale = { t: 0, ph: F, len: F.len, done: false, skipped: 0, wreck: { x: b.x, y: b.y, s: b.s, t: b.t }, hole: { x: world.w / 2, y: world.h * 0.3 },
-                   start: { x: S.player.x, y: S.player.y }, still: REDUCED };
+      var F = REDUCED ? FINALE_STILL : FINALE, u = Math.min(world.w, world.h);
+      var hx = clamp(b.x, world.w * 0.32, world.w * 0.68), hy = clamp(b.y, world.h * 0.24, world.h * 0.34);
+      S.finale = { t: 0, ph: F, len: F.len, done: false, skipped: 0, wreck: { x: b.x, y: b.y, s: b.s, t: b.t },
+                   hole: { x: hx, y: hy, R: u * 0.075, L: u * 0.62, ang: -0.3 },
+                   start: { x: S.player.x, y: S.player.y }, still: REDUCED, debris: [], swallowed: false, from: null };
       S.enemyShots = []; S.enemies = []; S.powerUps = [];
       emit("finale", { tick: S.tick, len: F.len });
     }
     function finalePhase() {
       var f = S.finale;
       if (!f) return null;
-      var F = f.ph;
-      return f.t < F.blast ? "explode" : f.t < F.enter ? "portal" : f.t < F.through ? "enter" : f.t < F.card ? "dimension" : "prize";
+      var F = f.ph, t = f.t;
+      return t < F.tear ? "explode" : t < F.collapse ? "tear" : t < F.swallow ? "collapse" : t < F.flash ? "swallow" : t < F.card ? "universe" : "prize";
+    }
+    /* the rift: how far it has opened (0 to 1) and how long it is (0 to 1 of its full length) */
+    function riftState(f) {
+      var F = f.ph, t = f.t;
+      if (f.still || t < F.tear || t >= F.swallow) return { open: 0, len: 0 };
+      if (t < F.collapse) return { open: ease((t - F.tear) / 55), len: 0.35 + 0.65 * ease((t - F.tear) / 70) };
+      var c = ease((t - F.collapse) / (F.swallow - F.collapse));
+      return { open: (1 - c) * (1 + 0.6 * Math.sin(c * 3.14)), len: 1 - c };
+    }
+    /* the black hole's strength: 0 before the collapse, 1 once formed, gone at the flash */
+    function holeK(f) {
+      var F = f.ph, t = f.t;
+      if (t >= F.flash) return 0;
+      if (f.still) return t >= F.swallow ? 1 : 0;
+      if (t < F.collapse) return 0;
+      if (t < F.swallow) return ease((t - F.collapse) / (F.swallow - F.collapse));
+      return 1 + 0.25 * (t - F.swallow) / (F.flash - F.swallow);
+    }
+    /* the ship as the hole takes it: how much is left (s), how stretched (k), and where it points */
+    function finaleShip() {
+      var f = S.finale, F = f.ph, p = S.player, h = f.hole;
+      var e = f.still ? (f.t >= F.swallow ? 0.45 : 0) : f.t < F.swallow ? 0 : clamp((f.t - F.swallow) / (F.flash - F.swallow - 12), 0, 1);
+      var k = 1 + 2.6 * e * e, dx = h.x - p.x, dy = h.y - p.y;
+      return { e: e, s: Math.max(0.05, 1 - 0.75 * e * e * e), k: k, yaw: e > 0 ? Math.atan2(-dx, -dy) : 0, rot: e > 0 ? Math.atan2(dx, -dy) : 0 };
     }
     function wreckPoint(f, k) {
       /* a point along one of the wreck's two bars or on a node, from the fx stream */
@@ -2326,9 +2537,22 @@
       if (k % 4 === 0) { var n = LOGO.nodes[Math.floor(fx() * 4)]; return [w.x + (n[0] - LOGO.centre[0]) * w.s, w.y + (n[1] - LOGO.centre[1]) * w.s]; }
       return [w.x + (a[0] + (c[0] - a[0]) * u - LOGO.centre[0]) * w.s, w.y + (a[1] + (c[1] - a[1]) * u - LOGO.centre[1]) * w.s];
     }
+    /* debris from the wreck spirals into the hole along the disk's plane, faster as it nears it */
+    function finaleDebris(f) {
+      var h = f.hole, F = f.ph, fx = S.rng.fx, hk = holeK(f);
+      if (f.t >= F.tear && f.t < F.flash - 20 && f.t % 3 === 0 && f.debris.length < 56)
+        f.debris.push({ a: fx() * 6.283, r: h.R * (2.6 + fx() * 3.4), size: 1 + fx() * 2.4, spin: fx() * 6.28, rock: fx() < 0.4, hot: fx() < 0.5 });
+      for (var i = f.debris.length - 1; i >= 0; i--) {
+        var d = f.debris[i], pull = 0.25 + hk * (0.5 + 26 * h.R / Math.max(d.r, 1));
+        d.r -= pull; d.a += (0.012 + hk * 0.6 * Math.pow(h.R / Math.max(d.r, h.R * 0.5), 1.5)) ; d.spin += 0.08;
+        if (d.r < h.R * Math.max(0.6, hk)) f.debris.splice(i, 1);
+      }
+    }
+    function debrisPoint(f, d) { return [f.hole.x + Math.cos(d.a) * d.r, f.hole.y + Math.sin(d.a) * d.r * 0.34]; }
     function finaleTick() {
-      var f = S.finale, F = f.ph, p = S.player;
+      var f = S.finale, p = S.player;
       if (!f || f.done) return;
+      var F = f.ph, h = f.hole;
       f.t += 1;
       if (!f.still) {
         /* the chain: a blast somewhere on the hull every 6 ticks, growing toward the end */
@@ -2345,20 +2569,26 @@
           S.effects.push({ kind: "blast", x: wx, y: wy, t: 0, life: 34, size: 190, color: "#fde68a" });
           ring(wx, wy, "#a5f3fc"); S.shake = 16;
         }
-        if (f.t >= F.enter && f.t < F.through) {
-          var k = ease((f.t - F.enter) / (F.through - F.enter));
-          if (f.t === F.enter) f.start = { x: p.x, y: p.y };
-          p.x = f.start.x + (f.hole.x - f.start.x) * k; p.y = f.start.y + (f.hole.y - f.start.y) * k;
+        if (f.t === F.tear) S.shake = Math.max(S.shake, 8);
+        if (f.t >= F.collapse && f.t < F.swallow) S.shake = Math.max(S.shake, 3 * (1 - (f.t - F.collapse) / (F.swallow - F.collapse)));
+        finaleDebris(f);
+        /* the hole draws the ship in on a slow, tightening spiral; it is gone at the horizon */
+        if (f.t >= F.swallow && f.t < F.flash) {
+          if (!f.from) { var dx0 = p.x - h.x, dy0 = (p.y - h.y) / 0.6; f.from = { r: Math.hypot(dx0, dy0), a: Math.atan2(dy0, dx0) }; }
+          var e = clamp((f.t - F.swallow) / (F.flash - F.swallow - 12), 0, 1), ee = Math.pow(e, 1.7);
+          var rr = f.from.r + (h.R * 0.9 - f.from.r) * ee, aa = f.from.a + 2.4 * Math.pow(e, 1.4);
+          p.x = h.x + Math.cos(aa) * rr; p.y = h.y + Math.sin(aa) * rr * 0.6;
+          if (rr <= h.R * 1.02 && !f.swallowed) { f.swallowed = true; S.effects.push({ kind: "flash", x: h.x, y: h.y, t: 0, life: 14, size: 0.9, color: "#fed7aa" }); }
         }
-      } else if (f.t === F.portal) { p.x = f.hole.x; p.y = f.hole.y + 60; }
-      if (f.t === F.through) { S.mapId = 5; p.x = f.hole.x; p.y = f.hole.y; if (!f.still) S.effects.push({ kind: "flash", x: f.hole.x, y: f.hole.y, t: 0, life: 26, size: 4, color: "#fdf4ff" }); }
+      } else if (f.t === F.swallow) { p.x = h.x + h.R * 3.2; p.y = h.y + h.R * 2; }
+      if (f.t === F.flash) { S.mapId = 5; f.swallowed = true; f.debris = []; p.x = world.w / 2; p.y = world.h * 0.62; if (!f.still) S.effects.push({ kind: "flash", x: world.w / 2, y: world.h / 2, t: 0, life: 30, size: 5, color: "#fff7ed" }); }
       if (S.shake > 0) S.shake = Math.max(0, S.shake - 0.6);
       if (p.hurt > 0) p.hurt -= 0.5;
-      S.scroll += f.t < F.enter ? 1 : f.t < F.through ? 1 + 14 * ease((f.t - F.enter) / (F.through - F.enter)) : 2;
+      S.scroll += f.t < F.flash ? 1 : 0.6;
       for (var i = 0; i < S.effects.length; i++) {
-        var e = S.effects[i];
-        e.t += 1;
-        if (e.vx != null) { e.x += e.vx; e.y += e.vy; e.vx *= 0.94; e.vy *= 0.94; }
+        var fe = S.effects[i];
+        fe.t += 1;
+        if (fe.vx != null) { fe.x += fe.vx; fe.y += fe.vy; fe.vx *= 0.94; fe.vy *= 0.94; }
       }
       S.effects = S.effects.filter(function (o) { return o.t < o.life; });
       if (f.t >= f.len) finishFinale();
@@ -2375,12 +2605,11 @@
       var f = S && S.finale;
       if (!f || f.done) return false;
       f.skipped += 1;
-      if (f.t < f.ph.card) { f.t = f.ph.card + (f.still ? 0 : 30); S.mapId = 5; S.effects = []; S.shake = 0; S.player.x = f.hole.x; S.player.y = f.hole.y; }
+      if (f.t < f.ph.card) { f.t = f.ph.card + (f.still ? 0 : 30); S.mapId = 5; S.effects = []; S.shake = 0; f.debris = []; f.swallowed = true; S.player.x = world.w / 2; S.player.y = world.h * 0.62; }
       else finishFinale();
       draw();
       return true;
     }
-
     function tick() {
       var p = S.player, i, j;
       S.tick += 1;
@@ -2431,17 +2660,18 @@
 
       /* spawning (the test layer can switch threats off to watch the defect schedule alone) */
       if (cfg.threats && !S.boss && !S.trans && !halfStep) {
+        /* R39: each interval is the inverse of the level's current rate, with a symmetric jitter
+           (0.85 to 1.15) so the mean rate is exactly the curve's */
         var dn = density();
         S.spawnIn -= 1;
         if (S.spawnIn <= 0) {
-          if (S.enemies.length < dn.cap) spawnEnemy();
-          S.spawnIn = dn.spawn + Math.floor(S.rng.spawn() * 30);
+          if (S.enemies.length < dn.cap) spawnEnemy(); else S.capSkips += 1;
+          S.spawnIn = Math.max(8, Math.round(dn.spawn * (0.85 + 0.3 * S.rng.spawn())));
         }
         S.rockIn -= 1;
         if (S.rockIn <= 0) {
           spawnRock();
-          if (S.rng.spawn() < dn.pair) spawnRock();
-          S.rockIn = dn.rocks + Math.floor(S.rng.spawn() * 160);
+          S.rockIn = Math.max(20, Math.round(dn.rocks * (0.8 + 0.4 * S.rng.spawn())));
         }
       }
       if (S.boss && !S.trans && !halfStep) bossTick();
@@ -2666,7 +2896,14 @@
       gl.uniform3f(u.uWorld, world.w, world.h, 0);
       gl.uniform1f(u.uSet, sky.set);
       gl.uniform3f(u.uStar, sky.stars[0], sky.stars[1], sky.stars[2]);
-      gl.uniform1f(u.uWarp, REDUCED ? 0 : Math.max(warp(), finaleWarp()));
+      gl.uniform1f(u.uWarp, REDUCED ? 0 : warp());
+      if (warp() > 0.01 && !REDUCED) tagFrame("star-streaks");
+      /* R40: the finale's rift and black hole are drawn into the background, so the hole can bend
+         the stars behind it and its horizon can be truly dark */
+      var fv = finaleView();
+      gl.uniform4f(u.uRift, fv.rift.x, fv.rift.y, fv.rift.len, fv.rift.open);
+      gl.uniform1f(u.uRiftA, fv.rift.ang);
+      gl.uniform4f(u.uHole, fv.hole.x, fv.hole.y, fv.hole.R, fv.hole.k);
       gl.uniform3f(u.uScroll, bm.stars[0], bm.stars[1], bm.stars[2]);
       gl.uniform2f(u.uNeb, bm.nebula[0], bm.nebula[1]);
       gl.uniform1f(u.uSpin, bm.spin);
@@ -2698,8 +2935,8 @@
       for (i = 0; i < S.asteroids.length; i++) {
         var a = S.asteroids[i];
         modelMat(MAT, a.x, 0, a.y, a.spin, a.rx, a.spin * 0.6, a.r * shrink(a));
-        if (a.carry) { var rc = col(a.down ? HAZARD : POWER_LOOK[a.carry][0]); drawMesh("rock" + (a.look % 6), a.flash > 0 ? 0.5 : 0, carryPulse(), rc, [0.75 + rc[0] * 0.4, 0.75 + rc[1] * 0.4, 0.75 + rc[2] * 0.4]); }
-        else drawMesh("rock" + (a.look % 6), a.flash > 0 ? 0.5 : 0);
+        /* R39 (T118): a carrier is drawn exactly like any other rock; its pickup shows only once it drops */
+        drawMesh("rock" + (a.look % 6), a.flash > 0 ? 0.5 : 0);
       }
       if (S.boss) drawBossGL(S.boss);
       else if (wreckShown()) drawBossGL(wreckBoss());
@@ -2720,9 +2957,9 @@
       for (i = 0; i < S.shots.length; i++) {
         var sh = S.shots[i];
         if (sh.kind !== "missile") continue;
-        modelMat(MAT, sh.x, 6, sh.y, Math.atan2(-sh.vx, sh.vy * -1), 0, 0, 1.1);
-        drawMesh("missile");
-        flames("missile", "#fb923c", 0.8);
+        modelMat(MAT, sh.x, 6, sh.y, Math.atan2(-sh.vx, sh.vy * -1), 0, 0, MISSILE_LOOK.scale);
+        drawMesh("missile", 0, 0.35, [1, 0.55, 0.2]);
+        flames("missile", "#fb923c", 1.2);
       }
       for (i = 0; i < S.powerUps.length; i++) {
         var pu = S.powerUps[i], pc = col(isDown(pu.kind) ? HAZARD : lookOf(pu.kind)[0]);
@@ -2736,6 +2973,13 @@
         modelMat(MAT, f.x, 4, f.y, f.spin + f.t * 0.2, f.t * 0.15, f.spin, f.size);
         drawMesh(f.rock ? "rock" + (Math.floor(f.spin) % 6) : "shard", 0, 0, null, f.rock ? [0.75, 0.7, 0.65] : null);
       }
+      /* R40: wreckage spiralling into the black hole */
+      if (S.finale) S.finale.debris.forEach(function (d) {
+        var dp = debrisPoint(S.finale, d);
+        modelMat(MAT, dp[0], 3, dp[1], d.spin, d.spin * 0.7, d.spin * 0.4, d.size * (d.rock ? 3.2 : 2.2));
+        drawMesh(d.rock ? "rock" + (Math.floor(d.size * 10) % 6) : "shard", 0, d.hot ? 0.6 : 0.2, [1, 0.5, 0.15], d.rock ? [0.6, 0.55, 0.5] : [0.8, 0.75, 0.7]);
+        tagFrame("infall-debris");
+      });
       var visible = !(S.state === "over" && S.overReason !== "victory") && !finaleHidesShip();
       var pulse = p.invuln > 0 && !REDUCED ? (Math.floor(p.invuln / 5) % 2 === 0 ? 0.35 : 0) : 0;
       if (visible) {
@@ -2746,6 +2990,14 @@
           flames("wingman", "#c084fc", 0.8);
         });
         modelMat(MAT, p.x, 4, p.y, 0, 0.06, -p.bank * 0.7 + tl.spin, VIS * tl.s);
+        /* R40: inside the black hole's pull the ship turns toward it and stretches along its length */
+        if (S.finale) {
+          var fs = finaleShip();
+          modelMat(MAT, p.x, 4, p.y, fs.yaw, 0.06, 0, VIS * fs.s);
+          var thin = 1 / Math.sqrt(fs.k);
+          for (var mq = 0; mq < 3; mq++) { MAT[mq] *= thin; MAT[4 + mq] *= thin; MAT[8 + mq] *= fs.k; }
+          if (fs.e > 0) tagFrame("stretched-ship");
+        }
         /* R36: a frozen ship turns icy */
         if (p.freeze > 0) drawMesh(key, Math.max(pulse, p.hurt > 0 ? p.hurt / 14 : 0), 0.55, col("#bae6fd"), [0.72, 0.86, 1]);
         else drawMesh(key, Math.max(pulse, p.hurt > 0 ? p.hurt / 14 : 0), p.pierce > 0 ? 0.35 : 0, col(POWER_LOOK.pierce[0]));
@@ -2770,18 +3022,16 @@
       gl.disable(gl.BLEND);
       gl.depthMask(true);
     }
-    /* A carrier's glow breathes so it reads as special without flickering. */
-    function carryPulse() { return REDUCED ? 0.75 : 0.6 + 0.3 * Math.sin(S.scroll * 0.12); }
     /* Inside a wormhole whatever is swallowed shrinks as it nears the hole. */
     function shrink(o) { var tr = S.trans; if (!tr || tr.t >= tr.flash) return 1; return clamp(Math.hypot(o.x - tr.hole.x, o.y - tr.hole.y) / 140, 0.12, 1); }
     function drawEnemyGL(e) {
       var yaw = Math.PI, pitch = 0;
       if (e.type === "interceptor" && e.mode === "dive") yaw = Math.atan2(-e.vx, -e.vy);
       modelMat(MAT, e.x, 3, e.y, yaw, pitch, e.bank, VIS * 1.12 * shrink(e));
-      var glowAmt = 0, gc = null, tint = null;
-      if (e.carry) { gc = col(e.down ? HAZARD : POWER_LOOK[e.carry][0]); glowAmt = carryPulse(); tint = [0.7 + gc[0] * 0.45, 0.7 + gc[1] * 0.45, 0.7 + gc[2] * 0.45]; }
+      /* R39 (T118): no carrier tint or glow: a carrier looks like every other ship of its class */
+      var glowAmt = 0, gc = null;
       if (e.type === "lancer" && e.charge > 0) { glowAmt = 1 - e.charge / 50; gc = [1, 0.55, 0.15]; }
-      drawMesh(e.type, e.flash > 0 ? 0.7 : 0, glowAmt, gc, tint);
+      drawMesh(e.type, e.flash > 0 ? 0.7 : 0, glowAmt, gc, null);
       flames(e.type, { gunship: "#fb7185", interceptor: "#f0abfc", lancer: "#fdba74", bomber: "#fde047", agent: "#67e8f9" }[e.type], 0.85);
     }
     function drawBossGL(b) {
@@ -2796,10 +3046,12 @@
         modelMat(MAT, b.x + (c[0] - cx) * s, 6 * s, b.y + (c[1] - cy) * s, b.t * 0.01, 0, 0, s);
         drawMesh("bossNode", n.flash > 0 ? 0.8 : 0, n.alive ? 0.4 : 0, [0.2, 1, 1], n.alive ? [1, 1, 1] : [0.25, 0.3, 0.32]);
       });
-      var exposed = nodesAlive(b) === 0;
-      modelMat(MAT, b.x, 6 * s, b.y, 0, 0, 0, s * (REDUCED ? 1 : 0.92 + 0.08 * Math.sin(b.t * 0.12)));
+      var exposed = !b.wreck && coreGlows(b), pulse = corePulse();
+      modelMat(MAT, b.x, 6 * s, b.y, 0, 0, 0, s * (REDUCED ? 1 : exposed ? 1.05 + 0.12 * pulse : 0.92 + 0.08 * Math.sin(b.t * 0.12)));
       if (b.wreck) drawMesh("bossCore", 0, 0.5 + 0.5 * hot, [1, 0.3, 0.1], [1, 0.45, 0.3]);
-      else drawMesh("bossCore", b.coreFlash > 0 ? 0.6 : 0, exposed ? 0.6 : 0, [1, 1, 1], exposed ? [1, 1, 1] : [0.55, 0.6, 0.65]);
+      /* R40: once only the core is left it glows gold-white and pulses hard: the last target */
+      else if (exposed) { drawMesh("bossCore", b.coreFlash > 0 ? 0.6 : 0, 0.9 + 0.6 * pulse, [1, 0.86, 0.45], [1, 0.97, 0.85]); tagFrame("core-glow"); }
+      else drawMesh("bossCore", b.coreFlash > 0 ? 0.6 : 0, 0, [1, 1, 1], [0.55, 0.6, 0.65]);
     }
     /* R37: the megaship's rift: a swirl that opens at its station, crackles while the ship grows
        out of it, and closes behind it */
@@ -2816,7 +3068,22 @@
         streak(b.x + Math.cos(a) * len * 0.5, b.y + Math.sin(a) * len * 0.5 * 0.8, Math.cos(a), Math.sin(a) * 0.8, len * 0.5, 1.6, col(k % 2 ? "#a5f3fc" : "#e9d5ff"), 0.7 * open, 4);
       }
     }
-    /* R37: the finale's portal (violet and gold) and, past it, the new dimension's star tunnel */
+    /* R40: what the last frame drew that tells the finale and the wormhole apart, for the tests:
+       each draw path adds the names of the distinctive elements it drew (tagFrame) */
+    var frameTags = {}, lastTags = [];
+    function tagFrame(name) { frameTags[name] = true; }
+    /* R40: the exposed core's pulse, 0 to 1 */
+    function corePulse() { return REDUCED ? 0.6 : 0.5 + 0.5 * Math.sin(S.tick * 0.16); }
+    /* R40: the finale's rift and black hole in world units, for both renderers (zeros when absent) */
+    function finaleView() {
+      var f = S.finale, none = { rift: { x: 0, y: 0, len: 0, open: 0, ang: 0 }, hole: { x: 0, y: 0, R: 0, k: 0 } };
+      if (!f) return none;
+      var h = f.hole, rs = riftState(f), hk = holeK(f);
+      return { rift: { x: h.x, y: h.y, len: h.L * rs.len, open: rs.open, ang: h.ang }, hole: { x: h.x, y: h.y, R: h.R, k: hk } };
+    }
+    /* R40: the finale's sprites: energy cracks across the dying wreck, light thrown off the rift's
+       edges, hot spots orbiting in the accretion disk, and the glow of the infalling debris. The
+       rift, the horizon, the disk, the photon ring, and the lensing are drawn in the background. */
     function finaleSprites(f) {
       var F = f.ph, h = f.hole, t = f.t, k;
       if (wreckShown()) {
@@ -2829,23 +3096,28 @@
         }
         glow(w.x, w.y, R * (0.35 + 0.5 * q), col("#fb923c"), 0.45 + 0.4 * q, 14);
         glow(w.x, w.y, R * 0.25 * (0.5 + q), [1, 0.95, 0.85], 0.4 + 0.6 * q * q, 15);
+        tagFrame("chain-blast");
       }
-      var open = f.still ? (t >= F.portal && t < F.through ? 1 : 0) : t < F.portal ? 0 : t < F.through ? ease((t - F.portal) / 40) : 1 - ease((t - F.through) / 30);
-      if (open > 0.01) {
-        var R = Math.min(world.w, world.h) * 0.26 * open, ph = (t * 0.008) % 1;
-        quad(h.x, 1, h.y, R * 1.3, 0, 0, R * 1.3, col("#a21caf"), 0.6 * open, 6 + ph);
-        quad(h.x, 2, h.y, R, 0, 0, R, col("#facc15"), 0.75 * open, 6 + (ph + 0.5) % 1);
-        glow(h.x, h.y, R * 0.55, [1, 0.95, 0.85], 0.7 * open, 3);
-      }
-      if (t >= F.enter && !f.still) {
-        /* streaks pour into the portal, then the tunnel's streaks fly outward from its centre */
-        var into = t < F.through;
-        for (k = 0; k < 48; k++) {
-          var ang = k * 2.39996, d0 = (k * 97 + t * (into ? 11 : 5)) % 760, d = into ? 760 - d0 : d0;
-          var sx = h.x + Math.cos(ang) * d, sy = h.y + Math.sin(ang) * d * 0.8, lg = 10 + d * 0.06;
-          streak(sx, sy, (into ? -1 : 1) * Math.cos(ang), (into ? -1 : 1) * Math.sin(ang) * 0.8, lg, 1.4, col(k % 3 ? "#f5d0fe" : "#fde68a"), 0.75 * Math.min(1, d / 120), 6);
+      var rs = riftState(f);
+      if (rs.open > 0.01) {
+        tagFrame("rift"); tagFrame("light-bleed");
+        for (k = 0; k < 15; k++) {
+          var u = (k / 14 - 0.5) * 1.8, along = u * h.L * rs.len;
+          glow(h.x + Math.cos(h.ang) * along, h.y + Math.sin(h.ang) * along, 14 + 30 * rs.open * (1 - u * u / 0.81), col(k % 2 ? "#fde68a" : "#e9d5ff"), 0.3 * rs.open, 6);
         }
       }
+      var hk = holeK(f);
+      if (hk > 0.01) {
+        tagFrame("event-horizon"); tagFrame("accretion-disk"); tagFrame("photon-ring"); tagFrame("lensing");
+        var Rs = h.R * Math.min(1.25, hk);
+        for (k = 0; k < 12; k++) {
+          var ha = k * 0.5236 + t * (0.025 + (k % 3) * 0.008), hr = Rs * (2 + (k % 4) * 0.55);
+          if (Math.sin(ha) < -0.15) continue;   /* the far side is hidden behind the horizon */
+          glow(h.x + Math.cos(ha) * hr, h.y + Math.sin(ha) * hr * 0.3, 9 + (k % 3) * 5, col(k % 2 ? "#fed7aa" : "#fb923c"), 0.5, 4);
+        }
+      }
+      f.debris.forEach(function (d) { var dp = debrisPoint(f, d); glow(dp[0], dp[1], 6 + d.size * 3, col("#fb923c"), d.hot ? 0.5 : 0.2, 5); });
+      if (t >= F.flash) tagFrame("new-universe");
     }
     /* R37: the wreck, drawn with the megaship's meshes until the final blast */
     function wreckShown() { var f = S.finale; return !!f && f.t < f.ph.blast; }
@@ -2854,22 +3126,16 @@
       return { wreck: true, x: w.x + (f.still ? 0 : Math.sin(f.t * 0.9) * 2), y: w.y + (f.still ? 6 : k * k * 30), s: w.s, t: w.t + f.t, tilt: f.still ? 0.08 : k * 0.18,
                nodes: LOGO.nodes.map(function (n, i) { return { i: i, alive: false, flash: 0 }; }), coreHp: 0, coreFlash: 0, entered: true };
     }
-    function finaleHidesShip() { var f = S.finale; return !!f && f.t >= f.ph.through; }
-    function finaleWarp() {
-      var f = S.finale;
-      if (!f || f.still) return 0;
-      var F = f.ph;
-      if (f.t < F.enter) return 0;
-      if (f.t < F.through) return ease((f.t - F.enter) / (F.through - F.enter));
-      return Math.max(0.3, 1 - (f.t - F.through) / 40);
-    }
+    function finaleHidesShip() { var f = S.finale; return !!f && (f.swallowed || f.t >= f.ph.flash); }
     /* Build the sprite list: glows for every lit thing, shots and beams, blast zones, the
        shield, and the explosion particles. */
     /* The wormhole: an entry swirl ahead of the ship, star streaks pouring into it, and after
        the flash an exit swirl that closes behind the emerging ship. */
     function wormholeSprites(tr) {
       var R = Math.min(world.w, world.h) * 0.3, phase = (S.scroll * 0.004) % 1, k;
+      tagFrame("wormhole-disc"); tagFrame("wormhole-arms");
       if (tr.t < tr.flash) {
+        tagFrame("star-streaks");
         var open = ease(tr.t / 45), h = tr.hole, rr = R * open * (1 + 0.15 * ease((tr.t - tr.flash + 30) / 30));
         quad(h.x, 2, h.y, rr * 1.25, 0, 0, rr * 1.25, col("#7c3aed"), 0.55 * open, 6 + phase);
         quad(h.x, 3, h.y, rr, 0, 0, rr, col("#22d3ee"), 0.8 * open, 6 + (phase + 0.5) % 1);
@@ -2884,11 +3150,27 @@
         quad(x.x, 3, x.y, R * 1.1 * close, 0, 0, R * 1.1 * close, col("#a855f7"), 0.45 * close, 6 + (phase + 0.3) % 1);
       }
     }
+    /* R39 (T122): a missile's smoke trail (grey puffs that widen and fade behind it), its hot exhaust,
+       and its bright head */
+    var missileMarks = [];
+    function missileGL(sh) {
+      var tr = sh.trail || [], n = tr.length, k;
+      for (k = 0; k < n; k++) {
+        var age = (n - k) / MISSILE_LOOK.trail;
+        glow(tr[k][0], tr[k][1], 5 + age * 9, [0.62, 0.6, 0.58], 0.32 * (1 - age), 5);
+        if (k > n - 5) glow(tr[k][0], tr[k][1], 7, col("#fb923c"), 0.45 * (1 - age), 6);
+      }
+      glow(sh.x, sh.y, MISSILE_LOOK.head, col("#fed7aa"), 0.95, 9);
+      glow(sh.x, sh.y, MISSILE_LOOK.head * 0.45, [1, 1, 1], 0.9, 9);
+      missileMarks.push({ x: sh.x, y: sh.y, len: MISSILE_LOOK.len, wid: MISSILE_LOOK.wid, head: MISSILE_LOOK.head, trail: n });
+      tagFrame("missile");
+    }
     function sprites() {
       var p = S.player, i;
+      missileMarks = [];
       for (i = 0; i < S.shots.length; i++) {
         var sh = S.shots[i];
-        if (sh.kind === "missile") continue;
+        if (sh.kind === "missile") { missileGL(sh); continue; }
         /* R16: each ship's weapon has its own look */
         if (sh.kind === "lance") {
           /* R33: the pulse ignites (thin and bright to full width) and fades (narrowing and dimming) */
@@ -2933,22 +3215,7 @@
         streak(sh.x, sh.y, sh.vx || 0, -13, 13, 3.2, col("#5eead4"), 1, 8);
         glow(sh.x, sh.y - 6, 9, col("#22d3ee"), 0.35, 8);
       }
-      /* carriers: a halo and a ring in the colour of the upgrade they hold */
-      var cp = carryPulse();
-      S.enemies.concat(S.asteroids).forEach(function (o) {
-        if (!o.carry) return;
-        var rr = o.r * shrink(o);
-        if (o.down) {
-          /* R36: a hazard carrier wears a doubled violet and red ring */
-          glow(o.x, o.y, rr * 2.2, col(HAZARD), 0.3 + cp * 0.25, 10);
-          quad(o.x, 12, o.y, rr * 1.5, 0, 0, rr * 1.5, col("#ef4444"), 0.4 + cp * 0.4, 1);
-          quad(o.x, 12, o.y, rr * 1.85, 0, 0, rr * 1.85, col(HAZARD), 0.35 + cp * 0.35, 1);
-          return;
-        }
-        var cc = col(POWER_LOOK[o.carry][0]);
-        glow(o.x, o.y, rr * 2.3, cc, 0.32 + cp * 0.25, 10);
-        quad(o.x, 12, o.y, rr * 1.55, 0, 0, rr * 1.55, cc, 0.35 + cp * 0.4, 1);
-      });
+      /* R39 (T118): carriers wear no halo, ring, or badge; only a dropped pickup shows its kind */
       for (i = 0; i < S.powerUps.length; i++) {
         var pq = S.powerUps[i], pcc = col(isDown(pq.kind) ? "#ef4444" : POWER_LOOK[pq.kind][0]), ph = (pq.t % 50) / 50;
         quad(pq.x, 12, pq.y, 16 + ph * 16, 0, 0, 16 + ph * 16, pcc, (1 - ph) * 0.6, 1);
@@ -2992,7 +3259,25 @@
         var b = S.boss, bg = bossGrow(b);
         if (!b.entered) riftSprites(b);
         b.nodes.forEach(function (n, i2) { if (!n.alive) return; var at = bossPoint(b, LOGO.nodes[i2][0], LOGO.nodes[i2][1]); glow(b.x + (at[0] - b.x) * bg, b.y + (at[1] - b.y) * bg, LOGO.nodeR * b.s * 2.2 * bg, col("#22d3ee"), 0.45, 20); });
-        glow(b.x, b.y, LOGO.coreR * b.s * (nodesAlive(b) ? 2 : 3.4) * bg, col("#f2feff"), nodesAlive(b) ? 0.35 : 0.8, 20);
+        if (coreGlows(b)) {
+          /* R40: the last target: a gold-white halo that pulses, and rings that keep spreading from it */
+          var cpz = corePulse(), cR = LOGO.coreR * b.s;
+          glow(b.x, b.y, cR * (4.2 + 1.6 * cpz), col("#fde68a"), 0.75 + 0.4 * cpz, 20);
+          glow(b.x, b.y, cR * 2.2, [1, 1, 1], 0.9, 21);
+          var rq = REDUCED ? 0.5 : (b.t % 40) / 40;
+          quad(b.x, 22, b.y, cR * (1.6 + 3.4 * rq), 0, 0, cR * (1.6 + 3.4 * rq), col("#fef3c7"), (1 - rq) * 0.9, 1);
+        } else glow(b.x, b.y, LOGO.coreR * b.s * 2 * bg, col("#f2feff"), 0.35, 20);
+        /* R40: the shield layers still standing, outermost last so it draws on top; each one's
+           brightness and rim width show how much strength it has left */
+        if (b.entered || REDUCED) for (var sl = b.shields.length - 1; sl >= 0; sl--) {
+          var L = b.shields[sl];
+          if (L.hp <= 0) continue;
+          var act = sl === shieldLayer(b), frac = L.hp / L.max, R0 = L.r * b.s * (REDUCED ? 1 : 1 + 0.008 * Math.sin(b.t * 0.07 + sl));
+          var lc = col(L.flash > 0 && act ? "#ffffff" : L.color);
+          if (act) quad(b.x, 2 + sl, b.y, R0, 0, 0, R0, lc, 0.1 + 0.16 * frac, 5);
+          quad(b.x, 2.5 + sl, b.y, R0 * 1.01, 0, 0, R0 * 1.01, lc, act ? 0.3 + 0.4 * frac : 0.16, 1);
+          tagFrame("boss-shield");
+        }
       }
       /* R35: shield rings; R36: mines; R37: agent ship glows */
       for (i = 0; i < S.enemies.length; i++) {
@@ -3079,14 +3364,22 @@
         ctx.fillStyle = rg;
         ctx.fillRect(0, 0, world.w, world.h);
       });
+      /* R40: near the black hole a star is seen where its bent light arrives: pushed out toward the
+         Einstein ring, and hidden inside the horizon */
+      var fv = finaleView(), lens = fv.hole.k > 0.01, bE = fv.hole.R * 1.8 * Math.min(1.25, fv.hole.k), Rh = fv.hole.R * Math.min(1.25, fv.hole.k);
       starLayers.forEach(function (layer) {
         var drift = REDUCED ? layer.speed * 0.2 : layer.speed;
         for (var k = 0; k < layer.stars.length; k++) {
           var st = layer.stars[k];
-          var y = (st.y * world.h + S.scroll * drift) % world.h;
+          var x = st.x * world.w, y = (st.y * world.h + S.scroll * drift) % world.h;
+          if (lens) {
+            var ldx = x - fv.hole.x, ldy = y - fv.hole.y, b0 = Math.hypot(ldx, ldy) || 1, th = (b0 + Math.sqrt(b0 * b0 + 4 * bE * bE)) / 2;
+            x = fv.hole.x + ldx / b0 * th; y = fv.hole.y + ldy / b0 * th;
+            if (th < Rh * 1.05) continue;
+          }
           var a = layer.alpha * (REDUCED ? 1 : 0.75 + 0.25 * Math.sin(st.tw + S.tick * 0.05));
           ctx.fillStyle = "rgba(205,240,255," + a.toFixed(2) + ")";
-          ctx.fillRect(st.x * world.w, y, layer.size, layer.size);
+          ctx.fillRect(x, y, layer.size, layer.size);
         }
       });
     }
@@ -3138,6 +3431,8 @@
       ctx.save();
       ctx.translate(p.x, p.y);
       ctx.rotate(tl.spin * 0.3);
+      /* R40: the black hole turns the ship toward it and stretches it along its length */
+      if (S.finale) { var fs = finaleShip(); ctx.rotate(fs.rot); ctx.scale(fs.s / Math.sqrt(fs.k), fs.s * fs.k); if (fs.e > 0) tagFrame("stretched-ship"); }
       meshes()[key].engines.forEach(function (e) { engine(e[0] * VIS * tl.s, (e[2] - e[1] * 0.55) * VIS * tl.s, Math.max(2, e[3] * 1.6 * tl.s), 22 * tl.s, S.ship.flame); });
       ctx.scale(sc, sc);
       ctx.drawImage(spr, -spr.width / 2 + spr.centre[0] * spr.unitScale, -spr.height / 2 + spr.centre[1] * spr.unitScale);
@@ -3284,10 +3579,33 @@
         ctx.fillStyle = !n.alive ? "#164e63" : n.flash > 0 ? "#ffffff" : "#3ff7ff";
         ctx.beginPath(); ctx.arc(c[0], c[1], LOGO.nodeR, 0, 6.283); ctx.fill();
       });
-      var exposed = nodesAlive(b) === 0;
-      ctx.fillStyle = b.wreck ? "#fb923c" : b.coreFlash > 0 ? "#fde68a" : exposed ? "#f2feff" : "rgba(242,254,255,0.55)";
-      ctx.beginPath(); ctx.arc(LOGO.centre[0], LOGO.centre[1], LOGO.coreR, 0, 6.283); ctx.fill();
+      var exposed = !b.wreck && coreGlows(b);
+      if (exposed) {
+        /* R40: the last target glows gold-white and pulses, with a ring spreading from it */
+        var cpz = corePulse(), hg = ctx.createRadialGradient(LOGO.centre[0], LOGO.centre[1], 0, LOGO.centre[0], LOGO.centre[1], LOGO.coreR * (4 + 1.6 * cpz));
+        hg.addColorStop(0, "rgba(255,251,235,0.95)"); hg.addColorStop(0.35, "rgba(253,230,138," + (0.55 + 0.35 * cpz).toFixed(2) + ")"); hg.addColorStop(1, "rgba(250,204,21,0)");
+        ctx.fillStyle = hg; ctx.beginPath(); ctx.arc(LOGO.centre[0], LOGO.centre[1], LOGO.coreR * (4 + 1.6 * cpz), 0, 6.283); ctx.fill();
+        var rq = REDUCED ? 0.5 : (b.t % 40) / 40;
+        ctx.strokeStyle = "rgba(254,243,199," + (0.9 * (1 - rq)).toFixed(2) + ")"; ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.arc(LOGO.centre[0], LOGO.centre[1], LOGO.coreR * (1.6 + 3.4 * rq), 0, 6.283); ctx.stroke();
+        tagFrame("core-glow");
+      }
+      ctx.fillStyle = b.wreck ? "#fb923c" : b.coreFlash > 0 ? "#fde68a" : exposed ? "#fffbeb" : "rgba(242,254,255,0.55)";
+      ctx.beginPath(); ctx.arc(LOGO.centre[0], LOGO.centre[1], LOGO.coreR * (exposed && !REDUCED ? 1.05 + 0.12 * corePulse() : 1), 0, 6.283); ctx.fill();
       ctx.filter = "none";
+      /* R40: the shield layers still standing; the active one is brighter, its rim as thick as its strength */
+      if (!b.wreck && (b.entered || REDUCED)) for (var sl = b.shields.length - 1; sl >= 0; sl--) {
+        var L = b.shields[sl];
+        if (L.hp <= 0) continue;
+        var act = sl === shieldLayer(b), frac = L.hp / L.max;
+        ctx.globalAlpha = act ? 1 : 0.5;
+        ctx.fillStyle = L.color + (act ? "1f" : "0d");
+        ctx.beginPath(); ctx.arc(LOGO.centre[0], LOGO.centre[1], L.r, 0, 6.283); ctx.fill();
+        ctx.strokeStyle = L.flash > 0 && act ? "#ffffff" : L.color; ctx.lineWidth = act ? 3 + 7 * frac : 2;
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+        tagFrame("boss-shield");
+      }
       ctx.restore();
     }
     function rift2D(b) {
@@ -3301,7 +3619,9 @@
       for (var a = 0; a < 3; a++) { ctx.beginPath(); for (var k = 0; k <= 24; k++) { var u = k / 24, ang = a * 2.094 + u * 4 + t * 0.04, rad = R * (1 - u); var px = b.x + Math.cos(ang) * rad, py = b.y + Math.sin(ang) * rad * 0.8; if (k) ctx.lineTo(px, py); else ctx.moveTo(px, py); } ctx.stroke(); }
       ctx.restore();
     }
-    /* R37: the finale in 2D: the portal, and the streaks into it and out of the far side */
+    /* R40: the finale in 2D: the wreck's cracks, the jagged rift, the black hole (its disk's far
+       side, the horizon, the photon ring, then the disk's near side), and the infalling debris.
+       The stars behind the hole are lensed in drawBackground. */
     function finale2D(f) {
       var F = f.ph, h = f.hole, t = f.t, k;
       if (wreckShown()) {
@@ -3316,27 +3636,62 @@
         cg.addColorStop(0, "rgba(255,247,237,0.9)"); cg.addColorStop(0.4, "rgba(251,146,60,0.5)"); cg.addColorStop(1, "rgba(0,0,0,0)");
         ctx.fillStyle = cg; ctx.beginPath(); ctx.arc(w.x, w.y, Rw * (0.3 + 0.5 * q), 0, 6.283); ctx.fill();
         ctx.restore();
+        tagFrame("chain-blast");
       }
-      var open = f.still ? (t >= F.portal && t < F.through ? 1 : 0) : t < F.portal ? 0 : t < F.through ? ease((t - F.portal) / 40) : 1 - ease((t - F.through) / 30);
-      ctx.save();
-      if (open > 0.01) {
-        var R = Math.min(world.w, world.h) * 0.26 * open, g = ctx.createRadialGradient(h.x, h.y, 0, h.x, h.y, R * 1.2);
-        g.addColorStop(0, "rgba(255,250,235,0.95)"); g.addColorStop(0.3, "rgba(250,204,21,0.7)"); g.addColorStop(0.7, "rgba(162,28,175,0.5)"); g.addColorStop(1, "rgba(0,0,0,0)");
-        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(h.x, h.y, R * 1.2, 0, 6.283); ctx.fill();
-        ctx.strokeStyle = "rgba(253,230,138,0.75)"; ctx.lineWidth = 3;
-        for (var a = 0; a < 3; a++) { ctx.beginPath(); for (var q = 0; q <= 28; q++) { var u = q / 28, ang = a * 2.094 + u * 4.5 - t * 0.06, rad = R * (1 - u); var px = h.x + Math.cos(ang) * rad, py = h.y + Math.sin(ang) * rad; if (q) ctx.lineTo(px, py); else ctx.moveTo(px, py); } ctx.stroke(); }
-      }
-      if (t >= F.enter && !f.still) {
-        var into = t < F.through;
-        ctx.lineWidth = 1.6;
-        for (k = 0; k < 48; k++) {
-          var an = k * 2.39996, d0 = (k * 97 + t * (into ? 11 : 5)) % 760, d = into ? 760 - d0 : d0, lg = 10 + d * 0.06;
-          var cx = h.x + Math.cos(an) * d, cy = h.y + Math.sin(an) * d * 0.8;
-          ctx.strokeStyle = k % 3 ? "rgba(245,208,254,0.7)" : "rgba(253,230,138,0.75)";
-          ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx - Math.cos(an) * lg * (into ? -1 : 1), cy - Math.sin(an) * lg * 0.8 * (into ? -1 : 1)); ctx.stroke();
+      var rs = riftState(f), ca = Math.cos(h.ang), sa = Math.sin(h.ang);
+      if (rs.open > 0.01) {
+        tagFrame("rift"); tagFrame("light-bleed");
+        var L = h.L * rs.len, n = 32, top = [], bot = [];
+        for (k = 0; k <= n; k++) {
+          var u = -1 + 2 * k / n, al = u * L, taper = 1 - u * u;
+          var jag = (Math.sin(al * 0.31 + 1.1) * 0.6 + Math.sin(al * 0.083 + 0.4) * 0.8 + Math.sin(al * 0.57) * 0.3) * 13 * taper, wd = 30 * rs.open * taper;
+          top.push([h.x + ca * al - sa * (jag - wd), h.y + sa * al + ca * (jag - wd)]);
+          bot.push([h.x + ca * al - sa * (jag + wd), h.y + sa * al + ca * (jag + wd)]);
         }
+        ctx.save();
+        ctx.shadowColor = "rgba(253,230,138,0.95)"; ctx.shadowBlur = 40 * rs.open;
+        var lg = ctx.createLinearGradient(h.x - ca * L, h.y - sa * L, h.x + ca * L, h.y + sa * L);
+        lg.addColorStop(0, "rgba(233,213,255,0.9)"); lg.addColorStop(0.5, "rgba(255,251,235,1)"); lg.addColorStop(1, "rgba(253,230,138,0.9)");
+        ctx.fillStyle = lg; ctx.beginPath();
+        top.forEach(function (pt, i) { if (i) ctx.lineTo(pt[0], pt[1]); else ctx.moveTo(pt[0], pt[1]); });
+        for (k = bot.length - 1; k >= 0; k--) ctx.lineTo(bot[k][0], bot[k][1]);
+        ctx.closePath(); ctx.fill();
+        ctx.shadowBlur = 0; ctx.strokeStyle = "rgba(196,181,253,0.8)"; ctx.lineWidth = 2; ctx.stroke();
+        ctx.restore();
       }
+      var hk = holeK(f);
+      if (hk > 0.01) {
+        tagFrame("event-horizon"); tagFrame("accretion-disk"); tagFrame("photon-ring"); tagFrame("lensing");
+        var Rs = h.R * Math.min(1.25, hk), da = Math.min(1, hk * 1.6);
+        ctx.save();
+        var disk = function (a0, a1) {
+          for (var ring = 0; ring < 4; ring++) {
+            var rr = Rs * (2 + ring * 0.6);
+            ctx.strokeStyle = ["rgba(255,247,230," + (0.9 * da) + ")", "rgba(254,215,170," + (0.8 * da) + ")", "rgba(251,146,60," + (0.65 * da) + ")", "rgba(234,88,12," + (0.4 * da) + ")"][ring];
+            ctx.lineWidth = Rs * 0.55;
+            ctx.beginPath(); ctx.ellipse(h.x, h.y, rr, rr * 0.3, 0, a0, a1); ctx.stroke();
+          }
+        };
+        ctx.strokeStyle = "rgba(255,184,108," + (0.55 * da) + ")"; ctx.lineWidth = Rs * 0.5;
+        ctx.beginPath(); ctx.arc(h.x, h.y, Rs * 1.95, Math.PI * 1.05, Math.PI * 1.95); ctx.stroke();
+        disk(Math.PI, Math.PI * 2);
+        ctx.fillStyle = "#000000"; ctx.beginPath(); ctx.arc(h.x, h.y, Rs, 0, 6.283); ctx.fill();
+        ctx.strokeStyle = "rgba(255,236,204,0.9)"; ctx.lineWidth = Math.max(1.5, Rs * 0.08);
+        ctx.beginPath(); ctx.arc(h.x, h.y, Rs * 1.5, 0, 6.283); ctx.stroke();
+        disk(0, Math.PI);
+        ctx.restore();
+      }
+      ctx.save();
+      f.debris.forEach(function (d) {
+        var dp = debrisPoint(f, d), s = d.size * (d.rock ? 3.2 : 2.2);
+        ctx.fillStyle = d.hot ? "#fb923c" : "#78716c";
+        ctx.beginPath(); ctx.moveTo(dp[0] + Math.cos(d.spin) * s * 1.6, dp[1] + Math.sin(d.spin) * s * 1.6);
+        ctx.lineTo(dp[0] + Math.cos(d.spin + 2.3) * s, dp[1] + Math.sin(d.spin + 2.3) * s); ctx.lineTo(dp[0] + Math.cos(d.spin + 4.1) * s, dp[1] + Math.sin(d.spin + 4.1) * s);
+        ctx.closePath(); ctx.fill();
+        tagFrame("infall-debris");
+      });
       ctx.restore();
+      if (t >= F.flash) tagFrame("new-universe");
     }
     function drawEnemyShot2D(o) {
       if (o.kind === "mine") {
@@ -3370,6 +3725,29 @@
       ctx.beginPath(); ctx.ellipse(o.x, o.y, o.kind === "needle" ? 2 : 3, 8, Math.atan2(o.vx, o.vy) * -1, 0, 6.283); ctx.fill();
     }
     /* R16: the player's rounds in the 2D view, one look per weapon */
+    /* R39 (T122): a missile in 2D: the smoke trail along its path, an exhaust flame, a pale body with
+       red fins pointed along its heading, and a bright head */
+    function missile2D(sh) {
+      var tr = sh.trail || [], n = tr.length, L = MISSILE_LOOK, k, ang = Math.atan2(sh.vx, -sh.vy);
+      ctx.save();
+      for (k = 0; k < n; k++) {
+        var age = (n - k) / L.trail;
+        ctx.fillStyle = "rgba(168,162,158," + (0.38 * (1 - age)).toFixed(3) + ")";
+        ctx.beginPath(); ctx.arc(tr[k][0], tr[k][1], 2.5 + age * 6, 0, 6.283); ctx.fill();
+      }
+      ctx.translate(sh.x, sh.y); ctx.rotate(ang);
+      var fl = ctx.createLinearGradient(0, L.len * 0.4, 0, L.len * 1.1);
+      fl.addColorStop(0, "rgba(254,215,170,0.95)"); fl.addColorStop(1, "rgba(234,88,12,0)");
+      ctx.fillStyle = fl; ctx.beginPath(); ctx.moveTo(-L.wid * 0.4, L.len * 0.4); ctx.lineTo(L.wid * 0.4, L.len * 0.4); ctx.lineTo(0, L.len * 1.1); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = "#b91c1c"; ctx.beginPath(); ctx.moveTo(-L.wid, L.len * 0.45); ctx.lineTo(L.wid, L.len * 0.45); ctx.lineTo(0, L.len * 0.1); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = "#e2e8f0"; ctx.beginPath(); ctx.moveTo(0, -L.len * 0.5); ctx.lineTo(L.wid / 2, -L.len * 0.25); ctx.lineTo(L.wid / 2, L.len * 0.4); ctx.lineTo(-L.wid / 2, L.len * 0.4); ctx.lineTo(-L.wid / 2, -L.len * 0.25); ctx.closePath(); ctx.fill();
+      ctx.restore();
+      var hg = ctx.createRadialGradient(sh.x, sh.y, 0, sh.x, sh.y, L.head);
+      hg.addColorStop(0, "rgba(255,255,255,0.95)"); hg.addColorStop(0.35, "rgba(254,215,170,0.8)"); hg.addColorStop(1, "rgba(251,146,60,0)");
+      ctx.fillStyle = hg; ctx.beginPath(); ctx.arc(sh.x, sh.y, L.head, 0, 6.283); ctx.fill();
+      missileMarks.push({ x: sh.x, y: sh.y, len: L.len, wid: L.wid, head: L.head, trail: n });
+      tagFrame("missile");
+    }
     function drawShot2D(sh) {
       if (sh.kind === "lance") {
         var e = lanceEnd(sh), lk = lancePulse(sh), lw = sh.hot ? 2 : 1;
@@ -3386,7 +3764,8 @@
         return;
       }
       if (sh.kind === "flak") { ctx.globalAlpha = 0.4 + 0.6 * sh.life / FLAK.life; ctx.fillStyle = "#4ade80"; ctx.beginPath(); ctx.arc(sh.x, sh.y, 3.5, 0, 6.283); ctx.fill(); ctx.globalAlpha = 1; return; }
-      var look = { missile: ["#fb923c", 3, 14], cannon: ["#60a5fa", 5, 16], burst: ["#fca5a5", 2, 12] }[sh.kind] || ["#a5f3fc", 3, 14];
+      if (sh.kind === "missile") { missile2D(sh); return; }
+      var look = { cannon: ["#60a5fa", 5, 16], burst: ["#fca5a5", 2, 12] }[sh.kind] || ["#a5f3fc", 3, 14];
       ctx.fillStyle = look[0]; ctx.fillRect(sh.x - look[1] / 2, sh.y - 8, look[1], look[2]);
     }
     function rgbCss(c, a) { return "rgba(" + Math.round(c[0] * 255) + "," + Math.round(c[1] * 255) + "," + Math.round(c[2] * 255) + "," + a + ")"; }
@@ -3408,6 +3787,10 @@
         var r = mulberry32(5);
         ctx.fillStyle = "rgba(158,120,92,0.55)";
         for (var k = 0; k < 140; k++) { var bx = r() * world.w, off = (r() - 0.5) * 120, by = (world.h * 0.62 - bx * 0.38 + off + S.scroll * 0.6) % (world.h + 200) - 100; ctx.fillRect(bx, by, 1 + r() * 3, 1 + r() * 3); }
+      } else if (m.set === 4) {
+        storm2D(m, x, y, pr, bm);
+      } else if (m.set === 5) {
+        universe2D(m, x, y, pr, bm);
       } else {
         ctx.strokeStyle = rgbCss(m.pa, 0.75); ctx.lineWidth = pr * 0.16;
         ctx.beginPath(); ctx.ellipse(x, y, pr * 0.92, pr * 0.92 * 0.42, 0, 0, 6.283); ctx.stroke();
@@ -3419,8 +3802,57 @@
       }
       ctx.restore();
     }
+    /* R40: the boss arena in 2D: storm clouds at two drift rates, flickering lightning, the station's
+       broken ring, and hull shards drifting at two depths */
+    function storm2D(m, x, y, pr, bm) {
+      var t = bm.t, k;
+      [[0.3, 0.3, 0.55, 0.0007, m.neb[0]], [0.7, 0.6, 0.45, -0.0019, m.neb[1]]].forEach(function (c) {
+        var cx = c[0] * world.w + Math.sin(t * c[3] * 3) * world.w * 0.08, cy = c[1] * world.h + Math.cos(t * c[3] * 2) * world.h * 0.06;
+        var g = ctx.createRadialGradient(cx, cy, 0, cx, cy, c[2] * world.w);
+        g.addColorStop(0, c[4]); g.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = g; ctx.fillRect(0, 0, world.w, world.h);
+      });
+      ctx.strokeStyle = rgbCss(m.pa, 0.45); ctx.lineWidth = pr * 0.05;
+      for (k = 0; k < 6; k++) {
+        if (k % 3 === 1) continue;
+        var a0 = bm.spin * 0.4 + k * 1.047;
+        ctx.beginPath(); ctx.ellipse(x, y, pr * 0.92, pr * 0.92 * 0.42, 0, a0, a0 + 0.8); ctx.stroke();
+      }
+      var r = mulberry32(9);
+      for (k = 0; k < 9; k++) {
+        var depth = k % 2, sx = r() * world.w + Math.sin(t * 0.001 + depth * 2) * 40, sy = (r() * world.h + S.scroll * (0.16 + 0.42 * depth)) % (world.h + 60) - 30, sz = (3 + r() * 4) * (1 + depth * 0.6);
+        ctx.fillStyle = depth ? "rgba(41,51,43,0.8)" : "rgba(21,28,23,0.7)"; ctx.strokeStyle = rgbCss(m.pb, 0.15);
+        ctx.beginPath(); ctx.moveTo(sx, sy - sz); ctx.lineTo(sx + sz * 0.9, sy + sz * 0.6); ctx.lineTo(sx - sz * 0.7, sy + sz * 0.4); ctx.closePath(); ctx.fill(); ctx.stroke();
+      }
+      if (REDUCED || Math.floor(t * 0.06) % 4 === 0) {
+        var b = mulberry32(Math.floor(t * 0.06) + 3), bx = b() * world.w, by = 0;
+        ctx.strokeStyle = "rgba(200,255,210,0.45)"; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(bx, by);
+        for (k = 0; k < 9; k++) { bx += (b() - 0.5) * 60; by += world.h * 0.06; ctx.lineTo(bx, by); }
+        ctx.stroke();
+      }
+    }
+    /* R40: the new universe in 2D: a spiral galaxy and two worlds */
+    function universe2D(m, x, y, pr, bm) {
+      var g = ctx.createRadialGradient(x, y, 0, x, y, pr * 1.5);
+      g.addColorStop(0, "rgba(255,245,225,0.95)"); g.addColorStop(0.25, rgbCss(m.pb, 0.5)); g.addColorStop(0.7, rgbCss(m.pa, 0.25)); g.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(x, y, pr * 1.5, pr * 0.75, -0.42, 0, 6.283); ctx.fill();
+      ctx.save(); ctx.translate(x, y); ctx.rotate(-0.42); ctx.scale(1, 0.5);
+      ctx.strokeStyle = rgbCss(m.pa, 0.45); ctx.lineWidth = pr * 0.08;
+      for (var arm = 0; arm < 2; arm++) {
+        ctx.beginPath();
+        for (var k = 0; k <= 40; k++) { var u = k / 40, a = arm * Math.PI + u * 5 - bm.t * 0.0008, rr = pr * 0.12 * Math.exp(u * 2.4); if (k) ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); else ctx.moveTo(Math.cos(a) * rr, Math.sin(a) * rr); }
+        ctx.stroke();
+      }
+      ctx.restore();
+      [[0.16, 0.8, 0.17, "#ff9e80", "#7f1d3a"], [0.88, 0.16, 0.06, "#a5f3fc", "#155e75"]].forEach(function (w) {
+        var wx = world.w * w[0], wy = world.h * w[1], wr = Math.min(world.w, world.h) * w[2], wg = ctx.createRadialGradient(wx - wr * 0.4, wy - wr * 0.4, wr * 0.1, wx, wy, wr);
+        wg.addColorStop(0, w[3]); wg.addColorStop(1, w[4]);
+        ctx.fillStyle = wg; ctx.beginPath(); ctx.arc(wx, wy, wr, 0, 6.283); ctx.fill();
+      });
+    }
     function wormhole2D(tr) {
       var R = Math.min(world.w, world.h) * 0.3, before = tr.t < tr.flash, h = before ? tr.hole : tr.exit;
+      tagFrame("wormhole-disc"); tagFrame("wormhole-arms"); if (before) tagFrame("star-streaks");
       var k = before ? ease(tr.t / 45) : 1 - ease(((tr.t - tr.flash) / (tr.len - tr.flash) - 0.3) / 0.7), rr = R * k;
       if (rr < 1) return;
       ctx.save();
@@ -3435,21 +3867,6 @@
       }
       ctx.restore();
     }
-    function carriers2D() {
-      S.enemies.concat(S.asteroids).forEach(function (o) {
-        if (!o.carry) return;
-        if (o.down) {
-          ctx.save(); ctx.lineWidth = 3;
-          for (var q = 0; q < 12; q++) { ctx.strokeStyle = q % 2 ? "#ef4444" : HAZARD; ctx.beginPath(); ctx.arc(o.x, o.y, o.r * 1.5, q * 0.5236 + S.scroll * 0.02, (q + 1) * 0.5236 + S.scroll * 0.02); ctx.stroke(); }
-          ctx.restore();
-          return;
-        }
-        var c = POWER_LOOK[o.carry][0], g = ctx.createRadialGradient(o.x, o.y, o.r * 0.5, o.x, o.y, o.r * 2.1);
-        g.addColorStop(0, c + "88"); g.addColorStop(1, c + "00");
-        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(o.x, o.y, o.r * 2.1, 0, 6.283); ctx.fill();
-        ctx.strokeStyle = c; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(o.x, o.y, o.r * 1.45, 0, 6.283); ctx.stroke();
-      });
-    }
     function draw2D() {
       var cw = canvas.width, ch = canvas.height;
       var scale = Math.min(cw / world.w, ch / world.h);
@@ -3462,7 +3879,6 @@
       setPiece2D();
       if (S.trans) wormhole2D(S.trans);
       var i;
-      carriers2D();
       for (i = 0; i < S.asteroids.length; i++) drawRock(S.asteroids[i]);
       if (S.boss) drawBoss2D(S.boss);
       else if (wreckShown()) drawBoss2D(wreckBoss());
@@ -3470,6 +3886,7 @@
       for (i = 0; i < S.enemies.length; i++) drawEnemy2D(S.enemies[i]);
       for (i = 0; i < S.powerUps.length; i++) { var pu = S.powerUps[i]; ctx.save(); ctx.translate(pu.x, pu.y); powerIcon(pu.kind, lookOf(pu.kind)[0], true, pu.r); ctx.restore(); }
       for (i = 0; i < S.enemyShots.length; i++) drawEnemyShot2D(S.enemyShots[i]);
+      missileMarks = [];
       for (i = 0; i < S.shots.length; i++) drawShot2D(S.shots[i]);
       var p = S.player;
       if (!(S.state === "over" && S.overReason !== "victory") && !finaleHidesShip()) {
@@ -3500,10 +3917,12 @@
 
     function draw() {
       if (!S) return;
+      frameTags = {};
       if (glr) {
         drawGL();
         if (ctx) { ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, hudCanvas.width, hudCanvas.height); drawWorldLabels(); drawHud(); }
       } else if (ctx) draw2D();
+      lastTags = Object.keys(frameTags).sort();
     }
     /* step() renders on the next animation frame, at most once, so a test or bot that runs
        thousands of ticks in one call pays for one frame, not thousands. */
@@ -3518,31 +3937,42 @@
        difficulty and goal, upgrades, damage numbers */
     var hudFont = null, hpShown = HEALTH_MAX, shShown = 0, popupBoxes = [], chipBoxes = [], hudMarks = {};
     function spaced(px) { try { ctx.letterSpacing = px + "px"; } catch (err) { /* older canvases ignore it */ } }
-    /* R37: the megaship's life bar across the top of the arena: node armour in cyan, the core in white */
+    /* R37: the megaship's life bar across the top of the arena. R40: it reads, left to right, the
+       core (white), the four nodes (cyan), and the three shield layers (inner gold, middle pink, outer
+       violet), and drains from the right, so the layer being broken is always the bar's right end;
+       a line under it names the stage. */
     function bossBar(W, H, small, p) {
       var b = S.boss, appear = b.entered || REDUCED ? 1 : clamp((b.intro - b.introLen * 0.5) / 40, 0, 1);
       if (appear <= 0) { hudMarks.bossBar = null; return; }
-      var bw = small ? W - 150 : Math.min(480, W * 0.44), bx = small ? 80 : W / 2 - bw / 2, by = small ? (p.shieldHp > 0 ? 104 : 80) : 46, bh = small ? 9 : 10;
+      var bw = small ? W - 150 : Math.min(560, W * 0.5), bx = small ? 80 : W / 2 - bw / 2, by = small ? (p.shieldHp > 0 ? 104 : 80) : 44, bh = small ? 10 : 12;
       var nodeHp = 0; b.nodes.forEach(function (n) { if (n.alive) nodeHp += Math.max(0, n.hp); });
-      var hp = bossHp(b), fn = nodeHp / BOSS_HP, fc = b.coreHp / BOSS_HP;
+      var hp = bossHp(b), vw = small ? 62 : 74;
       ctx.globalAlpha = appear;
-      var vw = small ? 50 : 58;
-      ctx.fillStyle = "rgba(2,8,12,0.8)"; roundRect(bx - 66, by - 5, bw + 72 + vw, bh + 10, 7); ctx.fill();
-      ctx.strokeStyle = "rgba(34,211,238,0.45)"; ctx.lineWidth = 1; roundRect(bx - 65.5, by - 4.5, bw + 71 + vw, bh + 9, 7); ctx.stroke();
+      ctx.fillStyle = "rgba(2,8,12,0.8)"; roundRect(bx - 66, by - 5, bw + 72 + vw, bh + 22, 7); ctx.fill();
+      ctx.strokeStyle = "rgba(34,211,238,0.45)"; ctx.lineWidth = 1; roundRect(bx - 65.5, by - 4.5, bw + 71 + vw, bh + 21, 7); ctx.stroke();
       ctx.font = "900 11.5px " + hudFont; ctx.textBaseline = "middle"; ctx.textAlign = "left"; ctx.fillStyle = "#67e8f9"; spaced(2);
       ctx.fillText("NEXUS", bx - 58, by + bh / 2 + 0.5); spaced(0);
       ctx.fillStyle = "rgba(148,163,184,0.22)"; ctx.fillRect(bx, by, bw, bh);
-      var gc = ctx.createLinearGradient(bx, 0, bx + bw, 0); gc.addColorStop(0, "#f2feff"); gc.addColorStop(1, "#a5f3fc");
-      ctx.fillStyle = gc; ctx.fillRect(bx, by, bw * fc, bh);
-      var gn = ctx.createLinearGradient(bx, 0, bx + bw, 0); gn.addColorStop(0, "#06b6d4"); gn.addColorStop(1, "#22d3ee");
-      ctx.fillStyle = gn; ctx.fillRect(bx + bw * fc, by, bw * fn, bh);
-      ctx.fillStyle = "rgba(255,255,255,0.3)"; ctx.fillRect(bx, by, bw * (fc + fn), Math.max(1, bh * 0.35));
-      ctx.fillStyle = "rgba(2,8,12,0.75)"; ctx.fillRect(bx + bw * 24 / BOSS_HP - 1, by, 2, bh);
-      for (var k = 1; k < 4; k++) ctx.fillRect(bx + bw * (24 + 8 * k) / BOSS_HP - 0.5, by, 1, bh);
+      /* the segments, each as wide as its share of the total */
+      var segs = [[b.coreHp, CORE_HP, "#f2feff", "#a5f3fc"], [nodeHp, 4 * NODE_HP, "#06b6d4", "#22d3ee"]];
+      for (var sl = b.shields.length - 1; sl >= 0; sl--) segs.push([Math.max(0, b.shields[sl].hp), b.shields[sl].max, b.shields[sl].color, b.shields[sl].color]);
+      var at = 0, marks = [];
+      segs.forEach(function (sg) {
+        var w0 = bw * sg[0] / BOSS_HP, x0 = bx + bw * at / BOSS_HP;
+        if (w0 > 0) { var gg = ctx.createLinearGradient(x0, 0, x0 + w0, 0); gg.addColorStop(0, sg[2]); gg.addColorStop(1, sg[3]); ctx.fillStyle = gg; ctx.fillRect(x0, by, w0, bh); }
+        at += sg[1]; marks.push(bx + bw * at / BOSS_HP);
+      });
+      ctx.fillStyle = "rgba(255,255,255,0.3)"; ctx.fillRect(bx, by, bw * hp / BOSS_HP, Math.max(1, bh * 0.35));
+      ctx.fillStyle = "rgba(2,8,12,0.8)"; marks.slice(0, -1).forEach(function (mx) { ctx.fillRect(mx - 1, by, 2, bh); });
+      ctx.fillStyle = "rgba(2,8,12,0.6)"; for (var k = 1; k < 4; k++) ctx.fillRect(bx + bw * (CORE_HP + NODE_HP * k) / BOSS_HP - 0.5, by, 1, bh);
       ctx.textAlign = "left"; ctx.fillStyle = "#e6f6f8"; ctx.font = "800 11.5px " + hudFont;
       ctx.fillText(Math.ceil(hp) + " / " + BOSS_HP, bx + bw + 8, by + bh / 2 + 0.5);
+      var st = bossStage(b), li = shieldLayer(b);
+      var label = st === "shields" ? b.shields[li].name + ": " + (b.shields.length - li) + " of " + b.shields.length + " layers left" : st === "nodes" ? "Shields down: break the " + nodesAlive(b) + " nodes" : "Only the core is left: destroy it";
+      ctx.font = "700 11px " + hudFont; ctx.fillStyle = st === "shields" ? b.shields[li].color : st === "nodes" ? "#67e8f9" : "#fde68a";
+      ctx.fillText(label, bx, by + bh + 9);
       ctx.globalAlpha = 1;
-      hudMarks.bossBar = { x: bx, y: by, w: bw, h: bh, frac: Math.round(hp / BOSS_HP * 1000) / 1000 };
+      hudMarks.bossBar = { x: bx, y: by, w: bw, h: bh, frac: Math.round(hp / BOSS_HP * 1000) / 1000, stage: st, label: label };
     }
     /* R37: the entrance's title card, under the megaship */
     function titleCard(W, H, small, a) {
@@ -3558,24 +3988,25 @@
       ctx.font = "800 " + (small ? 11.5 : 14) + "px " + hudFont; ctx.fillStyle = "#a5f3fc";
       ctx.fillText("THE NEXUS HUB MEGASHIP", W / 2 + (small ? 1 : 2), y + (small ? 38 : 56));
       spaced(0); ctx.font = "600 " + (small ? 11.5 : 13) + "px " + hudFont; ctx.fillStyle = "#cbd5e1";
-      ctx.fillText("Break its four nodes, then its core. It launches agent ships.", W / 2, y + (small ? 60 : 82));
+      ctx.fillText(small ? "Three shields, four nodes, then the core." : "Break three shields, then four nodes, then the core. It launches agent ships.", W / 2, y + (small ? 60 : 82));
       ctx.globalAlpha = 1;
     }
-    /* R37: the finale's flashes, the new dimension's colour shift, the prize card, and the skip hint */
+    /* R40: the finale's flashes (the final detonation and the light at the end of the fall), the
+       new universe's soft glow, the prize card, and the skip hint */
     function finaleHud(W, H, small) {
       var f = S.finale, F = f.ph, t = f.t;
       hudMarks.prize = null;
       if (!f.still) {
-        var fl = Math.exp(-Math.abs(t - F.blast) / 8) + Math.exp(-Math.abs(t - F.through) / 6);
-        if (fl > 0.02) { ctx.fillStyle = "rgba(255,250,240," + Math.min(0.95, fl).toFixed(2) + ")"; ctx.fillRect(0, 0, W, H); }
+        var fl = Math.exp(-Math.abs(t - F.blast) / 8) + (t >= F.flash - 20 ? Math.exp(-Math.abs(t - F.flash) / 9) : 0);
+        if (fl > 0.02) { ctx.fillStyle = "rgba(255,250,240," + Math.min(0.95, fl).toFixed(2) + ")"; ctx.fillRect(0, 0, W, H); tagFrame("flash"); }
       }
-      if (t >= F.through) {
-        var tint = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.2, W / 2, H / 2, Math.max(W, H) * 0.75);
-        tint.addColorStop(0, "rgba(217,70,239,0)"); tint.addColorStop(1, "rgba(134,25,143,0.38)");
+      if (t >= F.flash) {
+        var tint = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.25, W / 2, H / 2, Math.max(W, H) * 0.75);
+        tint.addColorStop(0, "rgba(45,212,191,0)"); tint.addColorStop(1, "rgba(190,24,93,0.22)");
         ctx.fillStyle = tint; ctx.fillRect(0, 0, W, H);
       }
       var ca = f.done ? 0 : f.still ? (t >= F.card ? 1 : 0) : clamp((t - F.card) / 30, 0, 1);
-      if (ca > 0) prizeCard(W, H, small, ca);
+      if (ca > 0) { prizeCard(W, H, small, ca); tagFrame("prize-card"); }
       if (!f.done) {
         ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.font = "700 " + (small ? 11.5 : 12.5) + "px " + hudFont;
         ctx.fillStyle = "rgba(226,232,240,0.85)";
@@ -3610,8 +4041,15 @@
     }
     function goal() {
       if (!S) return null;
-      if (S.finale) { var ph = finalePhase(); return { text: ph === "explode" ? "The Nexus megaship is breaking apart" : ph === "portal" || ph === "enter" ? "A portal opens: through to a new dimension" : "Reward unlocked", k: null }; }
-      if (S.boss) return { text: S.boss.entered ? (nodesAlive(S.boss) ? "Break the " + nodesAlive(S.boss) + " glowing nodes, then the core" : "The core is open: destroy it") : "The Nexus megaship is arriving", k: S.boss.entered ? 1 - nodesAlive(S.boss) / 4 : 0 };
+      if (S.finale) {
+        var ph = finalePhase();
+        return { text: { explode: "The Nexus megaship is breaking apart", tear: "Space is tearing open", collapse: "The rift collapses into a black hole", swallow: "The black hole is pulling the ship in", universe: "A new universe" }[ph] || "Reward unlocked", k: null };
+      }
+      if (S.boss) {
+        var bs = bossStage(S.boss), bl = shieldLayer(S.boss);
+        return { text: !S.boss.entered ? "The Nexus megaship is arriving" : bs === "shields" ? (S.boss.shields.length - bl > 1 ? "Break the " + (S.boss.shields.length - bl) + " shield layers, then the nodes" : "Break the last shield layer, then the nodes") : bs === "nodes" ? "Break the " + nodesAlive(S.boss) + " glowing nodes, then the core" : "The core glows: destroy it",
+                 k: S.boss.entered ? 1 - bossHp(S.boss) / BOSS_HP : 0 };
+      }
       if (!cfg.progression) return { text: "Survive: " + clock(S.tick), k: null };
       if (S.level < 3) { var need = LEVEL_TICKS[S.level]; return { text: "Survive " + clock(need - S.levelTicks) + " to reach level " + (S.level + 1), k: S.levelTicks / need }; }
       if (cfg.boss && S.bossDue !== null) return { text: "Something big arrives in " + clock(S.bossDue), k: 1 - S.bossDue / BOSS_AFTER };
@@ -3638,16 +4076,7 @@
         powerIcon("mine", "#fecdd3", false, 10); ctx.restore();
       });
       downBadges(lift);
-      /* a carrier wears a small badge with its upgrade's icon (R36: a hazard carrier, the warning badge) */
-      S.enemies.concat(S.asteroids).forEach(function (o) {
-        if (!o.carry) return;
-        var c = o.down ? HAZARD : POWER_LOOK[o.carry][0], y = o.y - o.r * 1.3 - 12 - 8 * lift - (o.hpMax > 1 ? 10 : 0);
-        ctx.save(); ctx.translate(o.x, y); ctx.scale(0.62, 0.62);
-        ctx.fillStyle = "rgba(2,8,12,0.78)"; ctx.strokeStyle = c; ctx.lineWidth = 2.5;
-        ctx.beginPath(); ctx.arc(0, 0, 13, 0, 6.283); ctx.fill(); ctx.stroke();
-        if (o.down) { ctx.translate(0, -1); hazardBadge(9); } else powerIcon(o.carry, c, false, 12);
-        ctx.restore();
-      });
+      /* R39 (T118): carriers carry no badge any more, so a downgrade cannot be avoided on sight */
       drawLifeBars(lift);
     }
     /* R36: the downgrades running now, as small hazard badges over the ship */
@@ -3671,14 +4100,20 @@
       var m = screenMap(), dpr = canvas.width / Math.max(1, canvas.clientWidth || canvas.width);
       S.enemies.forEach(function (e) {
         if (e.dummy || !(e.hpMax > 1)) return;
-        var w = Math.max(26, e.r * 1.8), h = 4.5, x = e.x - w / 2, y = e.y - e.r * 1.2 - 12 - 8 * lift;
+        /* R39: the bar grows with the enemy's health, so a tougher level shows longer, thicker bars */
+        var base = ENEMY[e.type] ? ENEMY[e.type].hp : e.hpMax, grow = Math.sqrt(Math.max(1, e.hpMax / Math.max(1, base)));
+        var w = Math.max(26, e.r * 1.8) * grow, h = 4.5 * (0.8 + 0.2 * grow * grow), x = e.x - w / 2, y = e.y - e.r * 1.2 - 12 - 8 * lift;
         var frac = clamp(e.hp / e.hpMax, 0, 1);
         ctx.fillStyle = "rgba(2,8,12,0.82)"; ctx.fillRect(x - 1.5, y - 1.5, w + 3, h + 3);
         ctx.fillStyle = frac > 0.6 ? "#4ade80" : frac > 0.3 ? "#facc15" : "#f87171"; ctx.fillRect(x, y, w * frac, h);
         ctx.fillStyle = "rgba(255,255,255,0.3)"; ctx.fillRect(x, y, w * frac, 1.5);
-        if (e.hpMax <= 12) { ctx.fillStyle = "rgba(2,8,12,0.7)"; for (var k = 1; k < e.hpMax; k++) ctx.fillRect(x + w * k / e.hpMax - 0.5, y, 1, h); }
-        if (e.shield > 0) { ctx.fillStyle = "rgba(2,8,12,0.82)"; ctx.fillRect(x - 1.5, y - 5.5, w + 3, 4); ctx.fillStyle = "#38bdf8"; ctx.fillRect(x, y - 4.5, w * e.shield / e.shieldMax, 2); }
-        barBoxes.push({ type: e.type, frac: Math.round(frac * 1000) / 1000, shield: e.shield, x: (e.x * m.s + m.ox) / dpr, y: (y * m.s + m.oy) / dpr, w: w * m.s / dpr });
+        var step = Math.max(1, Math.ceil(e.hpMax / 12));
+        ctx.fillStyle = "rgba(2,8,12,0.7)"; for (var k = step; k < e.hpMax; k += step) ctx.fillRect(x + w * k / e.hpMax - 0.5, y, 1, h);
+        /* R39: a shield has its own bar above the hull's, in sky blue, as long as the hull bar */
+        var sh = 0;
+        if (e.shield > 0) { sh = 4; ctx.fillStyle = "rgba(2,8,12,0.82)"; ctx.fillRect(x - 1.5, y - 7, w + 3, sh + 2.5); ctx.fillStyle = "#38bdf8"; ctx.fillRect(x, y - 6, w * e.shield / e.shieldMax, sh); ctx.fillStyle = "rgba(224,242,254,0.6)"; ctx.fillRect(x, y - 6, w * e.shield / e.shieldMax, 1.2); }
+        barBoxes.push({ type: e.type, frac: Math.round(frac * 1000) / 1000, shield: e.shield, shieldMax: e.shieldMax, shieldFrac: e.shieldMax ? Math.round(e.shield / e.shieldMax * 1000) / 1000 : 0,
+                        shieldH: sh * m.s / dpr, shieldColor: sh ? "#38bdf8" : null, h: h * m.s / dpr, x: (e.x * m.s + m.ox) / dpr, y: (y * m.s + m.oy) / dpr, w: w * m.s / dpr });
       });
     }
     function roundRect(x, y, w, h, r) {
@@ -3880,7 +4315,7 @@
       overlay.setAttribute("data-mode", S.state);
       brand.hidden = S.state !== "idle";
       /* R16: one start screen for every game: the same ships and the same upgrade key */
-      hangar.hidden = shipNote.hidden = key.hidden = keyBtn.hidden = S.state !== "idle";
+      hangar.hidden = shipNote.hidden = key.hidden = strip.hidden = S.state !== "idle";
       changeBtn.hidden = S.state !== "over";
       SHIPS.forEach(function (sh) {
         var on = sh.id === S.ship.id, c = shipCards[sh.id].card;
@@ -4047,9 +4482,25 @@
         return Object.keys(ENEMY).map(function (k) { var e = ENEMY[k]; return { type: k, r: e.r, cruise: e.cruise, bulk: Math.round(e.r / e.cruise * 10) / 10,
           hp: [1, 2, 3].map(function (lv) { return e.hp <= 1 || e.fixed ? e.hp : Math.round(e.hp * DIFFICULTY[lv].hp); }) }; });
       },
+      /* R39: each level's curves: start and end values of the spawn rate (waves per second), the
+         enemy speed, the cap, and the asteroid rate, with the level's health, shields, and rocks */
       difficulty: function () {
-        return [1, 2, 3].map(function (lv) { var d = DIFFICULTY[lv]; return { level: lv, name: d.name, pace: d.pace, speed: d.speed, hp: d.hp, shielded: d.shielded, cap: d.cap, fire: d.fire, damage: d.damage }; });
+        return [1, 2, 3].map(function (lv) { var d = DIFFICULTY[lv]; return { level: lv, name: d.name, rate: d.rate.slice(), speed: d.speed.slice(), cap: d.cap.slice(), rocks: d.rocks.slice(),
+          pace: Math.round(HZ / d.rate[0]), hp: d.hp, shielded: d.shielded, shieldHp: d.shieldHp, rockScale: d.rockScale, rockHp: d.rockHp, fire: d.fire, damage: d.damage, seconds: lv < 3 ? LEVEL_TICKS[lv] / HZ : BOSS_AFTER / HZ }; });
       },
+      /* R40: the boss's layers, for the HUD, the docs, and the tests */
+      bossPlan: function () {
+        return { shields: BOSS_SHIELDS.map(function (L) { return { name: L.name, hp: L.hp, r: L.r, color: L.color }; }), nodeHp: NODE_HP, coreHp: CORE_HP, total: BOSS_HP,
+                 agentEvery: [AGENT_EVERY, AGENT_MIN], agentCap: [AGENT_CAP, AGENT_CAP_MAX], agentRamp: AGENT_RAMP };
+      },
+      /* R40: the finale's timeline in ticks (the reduced-motion one while reduced motion is on) */
+      finalePlan: function () { var F = REDUCED ? FINALE_STILL : FINALE, o = {}; for (var k in F) o[k] = F[k]; return o; },
+      /* R40: the distinctive elements the last frame drew (the finale's and the wormhole's), sorted */
+      frameTags: function () { return lastTags.slice(); },
+      /* R40: where the finale's black hole is and its horizon radius now (null when there is none) */
+      holeAt: function () { if (!S || !S.finale) return null; var v = finaleView().hole; return v.k > 0 ? { x: v.x, y: v.y, R: v.R * Math.min(1.25, v.k) } : null; },
+      /* R39 (T122): the missiles the last frame drew: body length and width, head radius, trail points */
+      missileMarks: function () { return missileMarks.map(function (m) { return { x: m.x, y: m.y, len: m.len, wid: m.wid, head: m.head, trail: m.trail }; }); },
       strongestRound: STRONGEST_ROUND, shieldHp: SHIELD_HP,
       downgrades: function () {
         return DOWN_ORDER.map(function (k) { return { kind: k, color: DOWN_LOOK[k][0], name: DOWN_LOOK[k][1], effect: DOWN_LOOK[k][2], seconds: DOWN_TICKS[k] ? DOWN_TICKS[k] / HZ : MINE_LIFE / HZ }; });
@@ -4084,13 +4535,33 @@
       upgrades: function () {
         return POWER_ORDER.map(function (k) { return { kind: k, color: POWER_LOOK[k][0], name: POWER_LOOK[k][1], effect: POWER_LOOK[k][2], seconds: k === "weapon" ? WEAPON_TICKS / HZ : POWER_TICKS[k] ? POWER_TICKS[k] / HZ : null }; });
       },
+      /* hitBoss(part, n): part is "shield" (the outermost layer still up), "node0" to "node3", or
+         "core". R40: a node refuses damage while a shield stands, the core while a shield or a node
+         stands; a refused hit returns false. */
       hitBoss: function (part, n) {
         if (!S || !S.boss) return false;
         return withRunning(function () {
-          if (part === "core") { if (nodesAlive(S.boss) > 0) return false; damageCore(n || 1); return true; }
+          var b = S.boss;
+          if (part === "shield") { if (shieldLayer(b) < 0) return false; damageShield(n || 1); return true; }
+          if (part === "core") { if (shieldLayer(b) >= 0 || nodesAlive(b) > 0) return false; damageCore(n || 1); return true; }
           var i = parseInt(String(part).replace("node", ""), 10);
-          if (!(i >= 0 && i < 4) || !S.boss.nodes[i].alive) return false;
+          if (!(i >= 0 && i < 4) || !b.nodes[i].alive || shieldLayer(b) >= 0) return false;
           damageNode(i, n || 1);
+          return true;
+        });
+      },
+      /* R40 test layer: break every shield layer, outermost first */
+      breakShields: function () {
+        if (!S || !S.boss) return false;
+        return withRunning(function () { while (S.boss && shieldLayer(S.boss) >= 0) damageShield(1e9); return true; });
+      },
+      /* R40 test layer: destroy the megaship in order (shields, nodes, core), as a winning run would */
+      defeatBoss: function () {
+        if (!S || !S.boss) return false;
+        return withRunning(function () {
+          while (S.boss && shieldLayer(S.boss) >= 0) damageShield(1e9);
+          for (var i = 0; i < 4 && S.boss; i++) if (S.boss.nodes[i].alive) damageNode(i, 1e9);
+          if (S.boss) damageCore(1e9);
           return true;
         });
       },
@@ -4135,7 +4606,8 @@
           id: id, tick: S.tick, state: S.state, pausedBy: S.pausedBy, score: S.score, level: S.level,
           form: cfg.progression ? FORMS[S.level] : FORMS[1], levelUps: S.levelUps.slice(),
           health: p.health, healthMax: S.healthMax, shieldHp: p.shieldHp, shieldMax: SHIELD_MAX,
-          difficulty: { level: cfg.progression ? S.level : 1, name: d.name, pace: d.pace, rocks: d.rocks, fire: d.fire, damage: d.damage, cap: d.cap, classes: d.mix.map(function (x) { return x[0]; }) },
+          difficulty: { level: cfg.progression ? S.level : 1, name: d.name, pace: Math.round(HZ / d.rate[0]), rocks: Math.round(HZ / d.rocks[0]), fire: d.fire, damage: d.damage, cap: d.cap[0], hp: d.hp, shielded: d.shielded,
+            classes: d.mix.map(function (x) { return x[0]; }) },
           lastDamage: S.lastDamage ? { source: S.lastDamage.source, detail: S.lastDamage.detail, amount: S.lastDamage.amount, absorbed: S.lastDamage.absorbed, tick: S.lastDamage.tick } : null,
           damageLog: S.damageLog.map(function (x) { return { source: x.source, detail: x.detail, amount: x.amount, absorbed: x.absorbed, tick: x.tick }; }),
           damageTaken: S.damageTaken, dealt: S.dealt, renderer: renderer,
@@ -4154,6 +4626,9 @@
           transitionInfo: S.trans ? { kind: S.trans.kind, to: S.trans.to, t: S.trans.t, len: S.trans.len, flash: S.trans.flash } : null,
           levelProgress: Math.round(levelProgress() * 1000) / 1000,
           spawnInterval: density().spawn, enemyCap: density().cap, rockInterval: density().rocks,
+          /* R39: the curves' values now: spawn waves and rocks per second, and the speed a new enemy gets */
+          spawnRate: Math.round(density().rate * 1000) / 1000, rockRate: Math.round(density().rockRate * 1000) / 1000, enemySpeed: Math.round(density().speed * 1000) / 1000,
+          rocks: S.asteroids.map(function (a) { return { size: a.size, r: a.r, hp: a.hp, hpMax: a.hpMax }; }),
           carriers: S.enemies.map(function (e) { return e.carry && !e.down ? { what: "enemy", type: e.type, upgrade: e.carry, x: e.x, y: e.y } : null; })
             .concat(S.asteroids.map(function (a) { return a.carry && !a.down ? { what: "asteroid", type: a.size, upgrade: a.carry, x: a.x, y: a.y } : null; }))
             .filter(Boolean),
@@ -4165,8 +4640,9 @@
           downgrades: DOWN_TIMED.filter(function (k) { return p[k] > 0; }).map(function (k) { return { kind: k, ticks: p[k] }; }),
           /* R35: every enemy's class, health, and shield */
           foes: S.enemies.map(function (e) { return { type: e.type, hp: e.hp, hpMax: e.hpMax, shield: e.shield, shieldMax: e.shieldMax, x: e.x, y: e.y, vy: e.vy, spd: e.spd, mode: e.mode, carry: e.carry || null }; }),
-          agentsLaunched: S.agentsLaunched, shieldedSpawned: S.shieldedSpawned, largeSpawned: S.largeSpawned,
-          finale: S.finale ? { t: S.finale.t, len: S.finale.len, phase: finalePhase(), done: S.finale.done, skipped: S.finale.skipped, still: S.finale.still, prize: finalePhase() === "prize" } : null,
+          agentsLaunched: S.agentsLaunched, shieldedSpawned: S.shieldedSpawned, largeSpawned: S.largeSpawned, capSkips: S.capSkips,
+          finale: S.finale ? { t: S.finale.t, len: S.finale.len, phase: finalePhase(), done: S.finale.done, skipped: S.finale.skipped, still: S.finale.still, prize: finalePhase() === "prize",
+            rift: riftState(S.finale), hole: holeK(S.finale), ship: finaleShip(), swallowed: S.finale.swallowed, debris: S.finale.debris.length } : null,
           drops: S.drops.slice(), powerUpKinds: S.powerUps.map(function (u) { return u.kind; }),
           upgrades: TIMED.filter(function (k) { return p[k] > 0; }).map(function (k) { return { kind: k, ticks: p[k] }; }),
           popups: S.popups.map(function (u) { return { text: u.text, color: u.color, big: u.big }; }),
@@ -4180,6 +4656,9 @@
           explodeTicks: S.explodeTicks.slice(), hitTicks: S.hitTicks.slice(),
           nextExplosion: S.nextExplosion, overReason: S.overReason, overText: S.overText, victory: S.victory,
           boss: b ? { entered: b.entered, nodesAlive: nodesAlive(b), alive: b.nodes.map(function (n) { return n.alive; }), coreHp: b.coreHp,
+            nodeHp: b.nodes.map(function (n) { return n.hp; }), shields: b.shields.map(function (L) { return { hp: L.hp, max: L.max, r: L.r * b.s, color: L.color }; }),
+            shieldsUp: b.shields.filter(function (L) { return L.hp > 0; }).length, layer: shieldLayer(b), stage: bossStage(b), coreGlow: coreGlows(b), deflects: b.deflects,
+            broken: b.broken.slice(), fightTicks: b.fightT, agentEvery: agentEvery(b), agentCap: agentCap(b), launches: b.launches.slice(),
             hp: bossHp(b), hpMax: BOSS_HP, intro: b.entered ? null : { t: b.intro, len: b.introLen, grow: bossGrow(b), title: introTitle(b) > 0 } } : null, bossDue: S.bossDue,
           canvas: { cssWidth: canvas.clientWidth, cssHeight: canvas.clientHeight, width: canvas.width, height: canvas.height }
         };

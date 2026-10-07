@@ -157,12 +157,17 @@ def test_harder_levels_send_more_enemies(page) -> None:
 # ---------------------------------------------------------------- R35 (T112): cadence, speed, health, shields
 
 def test_cadence_speed_and_health_rise_by_a_measurable_step_each_level(page) -> None:
+    """R39 (updated): each level's curve starts clearly above the last level's start (speed about 30
+    percent up, spawn rate about 50 percent up), and every new enemy flies at the curve's speed for
+    the moment it spawned, inside the level's range."""
     table = page.evaluate("SkySentinel.get('fixed').difficulty()")
-    pace, speed, hp, shielded = ([d[k] for d in table] for k in ("pace", "speed", "hp", "shielded"))
-    assert pace[0] - pace[1] >= 10 and pace[1] - pace[2] >= 10, f"the spawn interval shrinks every level: {pace}"
-    assert speed[1] - speed[0] >= 0.1 and speed[2] - speed[1] >= 0.1, f"enemies fly faster every level: {speed}"
+    rate0, speed0, hp, shielded = ([d[k][0] if isinstance(d[k], list) else d[k] for d in table] for k in ("rate", "speed", "hp", "shielded"))
+    for a, b in zip(speed0, speed0[1:]):
+        assert 1.25 <= b / a <= 1.35, f"enemy speed rises 25 to 35 percent per level: {speed0}"
+    for a, b in zip(rate0, rate0[1:]):
+        assert 1.4 <= b / a <= 1.6, f"the spawn rate rises 40 to 60 percent per level: {rate0}"
     assert hp[0] < hp[1] < hp[2], hp
-    assert shielded[0] == shielded[1] == 0 < shielded[2], "only the last level fields shields"
+    assert shielded[0] == 0 < shielded[1] < shielded[2], "shields from level 2, more of them on level 3"
     measured = []
     for level in (1, 2, 3):
         _fresh(page, threats=True, level=level, seed=19)
@@ -171,19 +176,23 @@ def test_cadence_speed_and_health_rise_by_a_measurable_step_each_level(page) -> 
             g.input({ fire: false }); return { first, spd: [...spd] };"""))
     assert measured[0]["first"] > measured[1]["first"] > measured[2]["first"], measured
     for level, m in zip((1, 2, 3), measured):
-        assert m["spd"] == [speed[level - 1]], f"level {level}: every enemy flies at the level's speed {m}"
+        lo, hi = table[level - 1]["speed"]
+        assert m["spd"] and all(lo - 1e-9 <= v <= hi + 1e-9 for v in m["spd"]), f"level {level}: speeds on the level's curve {m}"
 
 
-def test_only_the_last_level_fields_shielded_ships_about_a_third_of_the_larger_classes(page) -> None:
+def test_shielded_ships_join_on_level_two_and_grow_on_level_three(page) -> None:
+    """R39 (updated from the R35 last-level-only rule): none on level 1, about a fifth of the larger
+    classes on level 2, about two fifths on level 3."""
     shares = []
     for level in (1, 2, 3):
         _fresh(page, threats=True, level=level, seed=23)
         shares.append(_js(page, """g.input({ fire: true }); let s;
             for (let i = 0; i < 80; i++) { g.dropPowerUp('repair'); s = g.step(40); }
             g.input({ fire: false }); return [s.shieldedSpawned, s.largeSpawned];"""))
-    assert shares[0][0] == shares[1][0] == 0 and shares[0][1] > 0 and shares[1][1] > 0, shares
-    share = shares[2][0] / shares[2][1]
-    assert shares[2][1] >= 20 and 0.15 <= share <= 0.45, f"about 30 percent shielded on the last level: {shares}"
+    assert shares[0][0] == 0 and shares[0][1] > 0, shares
+    s2, s3 = shares[1][0] / shares[1][1], shares[2][0] / shares[2][1]
+    assert shares[1][1] >= 15 and 0.1 <= s2 <= 0.35, f"about 22 percent shielded on level 2: {shares}"
+    assert shares[2][1] >= 20 and 0.28 <= s3 <= 0.62 and s3 > s2, f"about 42 percent shielded on level 3: {shares}"
 
 
 def test_a_shield_ring_absorbs_hits_until_it_breaks_then_the_hull_takes_them(page) -> None:
@@ -260,6 +269,9 @@ def test_boss_nodes_fall_before_the_core_and_its_plates_block_shots(page) -> Non
     _fresh(page, level=3, bossNow=True)
     s = _js(page, "return g.step(600);")
     assert s["boss"]["entered"] and s["boss"]["nodesAlive"] == 4
+    # R40: the shield layers stand first; a node and the core refuse damage until they fall
+    assert _js(page, "return g.hitBoss('node0', 8);") is False and s["boss"]["stage"] == "shields"
+    assert _js(page, "return g.breakShields();") is True
     geo = _js(page, "return g.bossGeometry();")
     plate = geo["plates"][0]
     cx = sum(p[0] for p in plate) / 3
@@ -267,10 +279,10 @@ def test_boss_nodes_fall_before_the_core_and_its_plates_block_shots(page) -> Non
     assert page.evaluate(f"SkySentinel.get('fixed').shotAt({cx}, {cy})") is True, "a side plate absorbs a shot"
     assert _js(page, "return g.hitBoss('core', 5);") is False, "the core is shielded while any node lives"
     for i in range(4):
-        assert _js(page, f"return g.hitBoss('node{i}', 8);") is True
+        assert _js(page, f"return g.hitBoss('node{i}', 999);") is True
     s = _js(page, "return g.state();")
     assert s["boss"]["nodesAlive"] == 0
-    events = _js(page, "const seen = []; g.on('bossDefeated', e => seen.push(e)); g.hitBoss('core', 24); return seen.length;")
+    events = _js(page, "const seen = []; g.on('bossDefeated', e => seen.push(e)); g.hitBoss('core', 999); return seen.length;")
     assert events == 1
     s = _js(page, "return g.state();")
     assert s["victory"] and s["state"] == "over" and s["overReason"] == "victory" and s["boss"] is None
@@ -358,7 +370,7 @@ def test_progression_keeps_the_defect_schedule_untouched(page) -> None:
 
 # ---------------------------------------------------------------- R14: the wormhole and the maps
 
-MAP_NAMES = {1: "Cyan Reach", 2: "Violet Halo", 3: "Ember Belt", 4: "Nexus Station"}
+MAP_NAMES = {1: "Cyan Reach", 2: "Violet Halo", 3: "Ember Belt", 4: "The Nexus Storm"}  # R40: the boss arena changed
 TRANS, FLASH = 210, 120
 
 

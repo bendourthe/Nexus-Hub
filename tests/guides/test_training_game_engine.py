@@ -723,8 +723,11 @@ def test_the_start_screen_offers_five_ships_and_the_full_upgrade_key(page) -> No
     assert [x[0] for x in labels] == SHIP_IDS
     assert [x[1] for x in labels] == ["true", "false", "false", "false", "false"], "the default ship is preselected"
     assert all("Hull" in x[2] and "speed" in x[2] for x in labels), "each card names its stats"
+    # R39: the full key sits behind the Pickups button; the ships panel shows the compact strip
+    page.locator(f"{host} .ss-keybtn").click()
     items = page.locator(f"{host} .ss-key-item").evaluate_all(
         "els => els.map(e => [e.dataset.upgrade, getComputedStyle(e).getPropertyValue('--ss-up').trim(), e.innerText])")
+    page.locator(f"{host} .ss-keybtn").click()
     api = page.evaluate("SkySentinel.get('fixed').upgrades()")
     assert sorted(x[0] for x in items) == sorted(UPGRADES) == sorted(u["kind"] for u in api)
     colours = {u["kind"]: u["color"] for u in api}
@@ -848,10 +851,12 @@ def test_a_carrier_drops_exactly_the_upgrade_it_glows_with(page, what: str) -> N
 
 
 def test_carriers_appear_in_play_with_valid_upgrades_and_drop_often(page) -> None:
-    out = _js(page, """g.configure({ defects: {}, seed: 8, threats: true, level: 1 }); g.start(); g.pause('t');
+    # R39: level 1 now starts gentler (0.42 waves a second), so the parked ship is kept alive (immune)
+    # long enough to meet as many carriers as before; the drop logic under test is unchanged
+    out = _js(page, """g.configure({ defects: {}, seed: 8, threats: true, level: 1, immune: true }); g.start(); g.pause('t');
         const seen = new Map(); g.input({ fire: true });
         for (let i = 0; i < 80; i++) { const s = g.step(30); s.carriers.forEach(c => seen.set(c.what + c.type + Math.round(c.x), c.upgrade)); if (s.state === 'over') break; }
-        g.input({ fire: false }); const s = g.state();
+        g.input({ fire: false }); const s = g.state(); g.configure({ immune: false });
         return { kinds: [...seen.values()], drops: s.drops, spawned: s.spawned, state: s.state };""")
     assert len(out["kinds"]) >= 5, out
     assert set(out["kinds"]) <= set(UPGRADES) and len(set(out["kinds"])) >= 3, "carriers hold a variety of upgrades"
@@ -870,7 +875,8 @@ def test_density_grows_through_a_level(page) -> None:
     late = _js(page, "return g.step(4800);")
     assert 0 < early["levelProgress"] < 0.1 < 0.9 < late["levelProgress"] < 1
     assert early["spawnInterval"] > late["spawnInterval"] * 1.6, "enemies arrive far more often late in a level"
-    assert early["enemyCap"] < late["enemyCap"] and early["rockInterval"] > late["rockInterval"] * 2
+    # R39: the asteroid rate follows the same linear ramp as the spawn rate (0.14 to 0.24 a second on level 1)
+    assert early["enemyCap"] < late["enemyCap"] and early["rockInterval"] > late["rockInterval"] * 1.5
     # R18: aimed fire finds a ship that never dodges, so repair drops (outside the spawn stream) keep it alive
     # R35: summed over twelve seeds. One seed sat on a noisy edge (1.5 before R35, 1.38 after, because
     # longer-lived enemies fire more and their fire draws on the spawn stream); twelve seeds give about
@@ -1196,7 +1202,7 @@ def test_the_end_card_sits_in_the_centre_of_the_arena(browser, viewport: tuple[i
             cards[gid + " death"] = pg.evaluate(CARD_PROBE, gid)
         pg.evaluate("""() => { const g = SkySentinel.get('fixed');
             g.configure({ defects: {}, seed: 7, threats: false, level: 3, progression: true, boss: true, bossNow: true }); g.start(); g.pause('t'); g.step(600);
-            for (let i = 0; i < 4; i++) g.hitBoss('node' + i, 8); g.hitBoss('core', 24);
+            g.defeatBoss();
             /* R37: the end card waits for the finale, so skip it: once to the prize card, once to the end */
             g.skipFinale(); g.skipFinale(); }""")
         cards["fixed victory"] = pg.evaluate(CARD_PROBE, "fixed")
@@ -1488,7 +1494,7 @@ def test_the_boss_does_not_jump_sideways_when_it_arrives(page) -> None:
 def test_the_core_is_open_from_below_once_every_node_is_down(page, ship: str) -> None:
     """R33: the lower blade sat under the core and absorbed every straight shot from below."""
     _boss_ready(page, ship)
-    out = _js(page, """for (let i = 0; i < 4; i++) g.hitBoss('node' + i, 8);
+    out = _js(page, """g.breakShields(); for (let i = 0; i < 4; i++) g.hitBoss('node' + i, 999);
         let s = g.state(); const hp0 = s.boss.coreHp;
         for (let i = 0; i < 240 && s.boss; i++) { const dx = g.bossGeometry().centre[0] - s.player.x;
             g.input({ fire: true, left: dx < -3, right: dx > 3 }); s = g.step(1); }
