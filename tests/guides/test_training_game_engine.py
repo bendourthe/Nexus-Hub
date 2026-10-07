@@ -872,12 +872,19 @@ def test_density_grows_through_a_level(page) -> None:
     assert early["spawnInterval"] > late["spawnInterval"] * 1.6, "enemies arrive far more often late in a level"
     assert early["enemyCap"] < late["enemyCap"] and early["rockInterval"] > late["rockInterval"] * 2
     # R18: aimed fire finds a ship that never dodges, so repair drops (outside the spawn stream) keep it alive
-    counts = _js(page, """g.configure({ defects: {}, seed: 8, threats: true, level: 1 }); g.start(); g.pause('t'); g.input({ fire: true });
-        const run = (n) => { let s; for (let k = 0; k < n; k += 100) { g.dropPowerUp('repair'); s = g.step(Math.min(100, n - k)); } return s; };
-        const a = run(1500); const b = run(2400); const c = run(1300); g.input({ fire: false });
-        return { first: a.spawned, last: c.spawned - b.spawned, rocksFirst: a.breaks.length, state: c.state };""")
-    assert counts["state"] != "over", counts
-    assert counts["last"] > counts["first"] * 1.4, f"the last 1,300 ticks send more enemies than the first 1,500: {counts}"
+    # R35: summed over twelve seeds. One seed sat on a noisy edge (1.5 before R35, 1.38 after, because
+    # longer-lived enemies fire more and their fire draws on the spawn stream); twelve seeds give about
+    # 1.35 in both the R33 and the R35 builds.
+    counts = _js(page, """const out = { first: 0, last: 0, over: 0 };
+        for (let seed = 1; seed <= 12; seed++) {
+          g.configure({ defects: {}, seed, threats: true, level: 1 }); g.start(); g.pause('t'); g.input({ fire: true });
+          const run = (n) => { let s; for (let k = 0; k < n; k += 100) { g.dropPowerUp('repair'); s = g.step(Math.min(100, n - k)); } return s; };
+          const a = run(1500); const b = run(2400); const c = run(1300); g.input({ fire: false });
+          out.first += a.spawned; out.last += c.spawned - b.spawned; if (c.state === 'over') out.over += 1;
+        }
+        return out;""")
+    assert counts["over"] == 0, counts
+    assert counts["last"] > counts["first"] * 1.25, f"the last 1,300 ticks send more enemies than the first 1,500: {counts}"
 
 
 def test_the_buggy_fatal_hit_shows_its_damage_and_drains_the_bar(page) -> None:
@@ -900,11 +907,12 @@ FIT_PROBE = """(id) => {
   const ov = host.querySelector('.ss-overlay'), box = ov.getBoundingClientRect();
   const shown = (e) => e.getClientRects().length > 0;
   const inside = (e) => { const r = e.getBoundingClientRect(); return r.left >= box.left - 0.5 && r.right <= box.right + 0.5 && r.top >= box.top - 0.5 && r.bottom <= box.bottom + 0.5; };
-  const items = [...host.querySelectorAll('.ss-ship, .ss-start, .ss-key-item, .ss-brand, .ss-keybtn, .ss-ship-note, .ss-hint')].filter(shown);
+  const items = [...host.querySelectorAll('.ss-ship, .ss-start, .ss-key-item, .ss-down-item, .ss-down-title, .ss-brand, .ss-keybtn, .ss-ship-note, .ss-hint')].filter(shown);
   const clipped = [...host.querySelectorAll('.ss-ship-name, .ss-ship-weapon, .ss-key-text b, .ss-key-text span')].filter(shown).filter(e => e.scrollWidth > e.clientWidth + 1 || !inside(e));
   return { overflow: getComputedStyle(ov).overflowY, sh: ov.scrollHeight, ch: ov.clientHeight, sw: ov.scrollWidth, cw: ov.clientWidth,
            outside: items.filter(e => !inside(e)).map(e => e.className), clipped: clipped.map(e => e.textContent),
            ships: [...host.querySelectorAll('.ss-ship')].filter(shown).length, keys: [...host.querySelectorAll('.ss-key-item')].filter(shown).length,
+           downs: [...host.querySelectorAll('.ss-down-item')].filter(shown).length,
            start: shown(host.querySelector('.ss-start')), toggle: shown(host.querySelector('.ss-keybtn')) };
 }"""
 
@@ -931,6 +939,7 @@ def test_the_start_screen_fits_the_arena_with_no_scroll_bar(browser, viewport: t
                 assert m["outside"] == [] and m["clipped"] == [], f"{gid} {viewport}: {m}"
                 assert m["start"], "the Start button always shows"
             assert max(m["ships"] for m in panels) == 5 and max(m["keys"] for m in panels) == 10, panels
+            assert max(m["downs"] for m in panels) == 4, f"R36: the hazard legend shows its four downgrades: {panels}"
     finally:
         pg.close()
 
@@ -1187,7 +1196,9 @@ def test_the_end_card_sits_in_the_centre_of_the_arena(browser, viewport: tuple[i
             cards[gid + " death"] = pg.evaluate(CARD_PROBE, gid)
         pg.evaluate("""() => { const g = SkySentinel.get('fixed');
             g.configure({ defects: {}, seed: 7, threats: false, level: 3, progression: true, boss: true, bossNow: true }); g.start(); g.pause('t'); g.step(600);
-            for (let i = 0; i < 4; i++) g.hitBoss('node' + i, 8); g.hitBoss('core', 24); }""")
+            for (let i = 0; i < 4; i++) g.hitBoss('node' + i, 8); g.hitBoss('core', 24);
+            /* R37: the end card waits for the finale, so skip it: once to the prize card, once to the end */
+            g.skipFinale(); g.skipFinale(); }""")
         cards["fixed victory"] = pg.evaluate(CARD_PROBE, "fixed")
         assert cards["fixed victory"]["title"] == "The Nexus megaship is down"
         for name, m in cards.items():

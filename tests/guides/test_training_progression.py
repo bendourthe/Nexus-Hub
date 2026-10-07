@@ -154,6 +154,51 @@ def test_harder_levels_send_more_enemies(page) -> None:
     assert rates[0] < rates[1] < rates[2], rates
 
 
+# ---------------------------------------------------------------- R35 (T112): cadence, speed, health, shields
+
+def test_cadence_speed_and_health_rise_by_a_measurable_step_each_level(page) -> None:
+    table = page.evaluate("SkySentinel.get('fixed').difficulty()")
+    pace, speed, hp, shielded = ([d[k] for d in table] for k in ("pace", "speed", "hp", "shielded"))
+    assert pace[0] - pace[1] >= 10 and pace[1] - pace[2] >= 10, f"the spawn interval shrinks every level: {pace}"
+    assert speed[1] - speed[0] >= 0.1 and speed[2] - speed[1] >= 0.1, f"enemies fly faster every level: {speed}"
+    assert hp[0] < hp[1] < hp[2], hp
+    assert shielded[0] == shielded[1] == 0 < shielded[2], "only the last level fields shields"
+    measured = []
+    for level in (1, 2, 3):
+        _fresh(page, threats=True, level=level, seed=19)
+        measured.append(_js(page, """const first = g.state().spawnInterval; const spd = new Set(); g.input({ fire: true });
+            for (let i = 0; i < 30; i++) { g.dropPowerUp('repair'); g.step(40).foes.forEach(f => spd.add(f.spd)); }
+            g.input({ fire: false }); return { first, spd: [...spd] };"""))
+    assert measured[0]["first"] > measured[1]["first"] > measured[2]["first"], measured
+    for level, m in zip((1, 2, 3), measured):
+        assert m["spd"] == [speed[level - 1]], f"level {level}: every enemy flies at the level's speed {m}"
+
+
+def test_only_the_last_level_fields_shielded_ships_about_a_third_of_the_larger_classes(page) -> None:
+    shares = []
+    for level in (1, 2, 3):
+        _fresh(page, threats=True, level=level, seed=23)
+        shares.append(_js(page, """g.input({ fire: true }); let s;
+            for (let i = 0; i < 80; i++) { g.dropPowerUp('repair'); s = g.step(40); }
+            g.input({ fire: false }); return [s.shieldedSpawned, s.largeSpawned];"""))
+    assert shares[0][0] == shares[1][0] == 0 and shares[0][1] > 0 and shares[1][1] > 0, shares
+    share = shares[2][0] / shares[2][1]
+    assert shares[2][1] >= 20 and 0.15 <= share <= 0.45, f"about 30 percent shielded on the last level: {shares}"
+
+
+def test_a_shield_ring_absorbs_hits_until_it_breaks_then_the_hull_takes_them(page) -> None:
+    _fresh(page, level=3)
+    out = _js(page, """g.step(5); const p = g.state().player; g.spawn('gunship', p.x, p.y - 200, null, { shield: true }); g.render();
+        const bar = g.lifeBars()[0]; const trace = []; g.input({ fire: true });
+        for (let i = 0; i < 90; i++) { const f = g.step(1).foes[0]; if (!f) break; trace.push([f.shield, f.hp, f.hpMax]); }
+        g.input({ fire: false }); return { bar, trace, max: g.shieldHp };""")
+    trace = out["trace"]
+    assert out["bar"]["shield"] == out["max"] == 5, "the bar shows the shield on top of the hull"
+    assert all(hp == hpm for sh, hp, hpm in trace if sh > 0), "the hull takes nothing while the shield holds"
+    broke = next(i for i, t in enumerate(trace) if t[0] == 0)
+    assert any(t[1] < t[2] for t in trace[broke:]) or len(trace) < 90, "once the shield breaks, hits reach the hull"
+
+
 def test_a_level_up_announces_its_difficulty(page) -> None:
     _fresh(page)
     out = _js(page, f"""const seen = []; g.on('levelUp', e => seen.push([e.level, e.difficulty]));

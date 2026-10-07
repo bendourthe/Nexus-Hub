@@ -7,8 +7,9 @@ It drives the real engine on the Training page deterministically (seed 7, ``SkyS
 - ``wave``: damage per second against a spread wave of ten targets (five columns 60 px apart, two
   rows 130 px and 230 px above the ship);
 - ``reach``: the furthest distance above the ship at which the weapon still deals damage;
-- ``bossDps`` and ``boss``: the ship is held still at the front of its zone (as close as a ship may
-  fly), on the centre line the boss sways across, and fires (level 3, the Sentinel form, the ship
+- ``bossDps`` and ``boss``: the ship is held still at the front of its R33 zone (55 percent of the
+  arena height; R35 lets a ship fly the whole arena, and the pilots keep this standoff so the table
+  stays comparable), on the centre line the boss sways across, and fires (level 3, the Sentinel form, the ship
   made immune so only the weapon decides; a timed upgrade is renewed every 5 s). ``bossDps`` is the
   damage per second it deals to the boss over the first 60 s; ``boss`` is the seconds to destroy the
   boss, or None when a ship held still does not finish it within 150 s. From below, the boss's
@@ -61,6 +62,11 @@ BALANCE_JS = r"""
     if (up) { g.dropPowerUp(up); g.step(2); }
     return g.state();
   };
+  /* R35: the ship may now fly the whole arena; the boss pilots hold the R33 standoff line (55 percent
+     of the arena height, where the old zone ended) so the table stays comparable with R33 */
+  const front = () => g.state().world.h * 0.55;
+  /* wait out the boss wormhole and the boss's entrance, steering to the standoff line */
+  const arrive = () => { let s = g.state(), n = 0; while (!(s.boss && s.boss.entered) && n++ < 20000) { g.input({ up: s.player.y > front() + 3 }); s = g.step(1); } g.input({ up: false }); return s; };
   const run = (ticks) => { g.input({ fire: true }); g.step(WARM); const d0 = g.state().dealt; g.step(ticks); const d = g.state().dealt - d0; g.input({ fire: false }); return d; };
   const single = (ship, up) => { const s = setup(ship, up); g.spawnDummy(s.player.x, s.player.y - SINGLE_AT, 22); return run(WINDOW) / (WINDOW / 60); };
   const wave = (ship, up) => {
@@ -81,10 +87,7 @@ BALANCE_JS = r"""
   };
   const boss = (ship, up) => {
     setup(ship, null, { level: 3, progression: true, boss: true, bossNow: true });
-    g.input({ up: true });
-    let s = g.state(), guard = 0;
-    while (!(s.boss && s.boss.entered) && guard++ < 2000) s = g.step(10);
-    g.input({ up: false });
+    let s = arrive();
     let t = 0, d0 = s.dealt, dps = null;
     g.input({ fire: true });
     while (s.state !== 'over' && t < 9000) {
@@ -98,9 +101,7 @@ BALANCE_JS = r"""
   };
   const hunt1 = (ship, up, standoff) => {
     setup(ship, null, { level: 3, progression: true, boss: true, bossNow: true });
-    g.input({ up: true });
-    let s = g.state(), guard = 0;
-    while (!(s.boss && s.boss.entered) && guard++ < 2000) s = g.step(10);
+    let s = arrive();
     let t = 0, lanes = [0];
     while (s.state !== 'over' && t < 9000) {
       if (up && t % 300 === 0) g.dropPowerUp(up);
@@ -114,7 +115,7 @@ BALANCE_JS = r"""
       /* an upper node is open from below only along its outer edge: put the outermost lane there */
       else if (al[0] || al[1]) ax = al[0] ? geo.nodes[0][0] - R + 3 - standoff - Math.min(...lanes) : geo.nodes[1][0] + R - 3 + standoff - Math.max(...lanes);
       const dx = ax - s.player.x;
-      g.input({ fire: true, up: true, left: dx < -3, right: dx > 3 });
+      g.input({ fire: true, up: s.player.y > front() + 3, left: dx < -3, right: dx > 3 });
       s = g.step(1); t += 1;
     }
     g.input({ fire: false, up: false, left: false, right: false });
