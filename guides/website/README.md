@@ -1,6 +1,6 @@
 # Nexus Hub Interactive Guide
 
-This directory holds the public-facing Nexus Hub guide (two offline pages), the sources both pages share, and retained legacy fixtures. Everything reader-facing runs offline, opens in a browser, and needs no build step. This `README.md` is for maintainers.
+This directory holds the public-facing Nexus Hub guide (two offline pages), and the sources both pages share. Everything reader-facing runs offline, opens in a browser, and needs no build step. This `README.md` is for maintainers.
 
 ## Contents
 
@@ -11,10 +11,6 @@ This directory holds the public-facing Nexus Hub guide (two offline pages), the 
 | `shared/` | Pieces both pages carry (tokens, base styles, menu, footer, theme, `NexusSeq`, the page opening, the outline, motion rules), listed in `shared/fragments.json` and inlined into each page by `scripts/stamp_guide_shared.py`. Edit them here, never in a page. |
 | `src/` | Training-only sources: the Sky Sentinel game engine, the story (`training-story.json` and its schema), and the story renderer. Inlined into `training.html` by the same stamp. |
 | `assets/ml-boat.webp` | The one photo held outside the HTML. Must travel with the guide. |
-| `example/glow-booth/` | Legacy regression fixture retained pending explicit removal approval. Not reader-facing. |
-| `example/glow-booth-shuffle-reference/` | Legacy comparison fixture retained pending explicit removal approval. Not reader-facing. |
-| `glow-booth.zip` | Legacy archive fixture retained pending explicit removal approval. Not a reader download. |
-| `example/trivia-quiz/` | Previous example. Stays on disk. Not taught in the published guide. |
 
 The guide is two offline pages: `nexus-hub-guide.html` (orientation, installation, Foundations, Cheatsheets) and `training.html` (Training), plus the `assets/` folder beside them. Neither has a runtime network dependency. Why two pages: [decision 2026-10-04](../../docs/decisions/implemented/architecture/2026-10-04-guide-training-as-a-second-offline-page.md).
 
@@ -201,10 +197,6 @@ Every file in `catalog/commands/` is either taught in Training, listed in Cheats
 | `/tune-prompting` | Cheatsheets; declined as Training |
 
 The v4.2 version of this table is frozen in `docs/archives/v4/v4.2/development/guide-redesign-content-map.md`; since v4.13.10 `/compare` and `/presentify` are Cheatsheets entries.
-
-## Legacy example fixtures
-
-`example/glow-booth/`, `example/glow-booth-shuffle-reference/`, and `glow-booth.zip` remain in the repository only as legacy regression fixtures while removal awaits explicit approval. They are not linked from the guide, offered as a reader download, or used by the shooter walkthrough. Tests may inspect their frozen historical behavior, but new Training work uses `src/training-story.json` and the Sky Sentinel game.
 
 ## Copy contract (canonical publication)
 

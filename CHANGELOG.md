@@ -11,7 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Claude Haiku 5.5 is the Anthropic fast-tier model (v4.13.10).** The bundled model map (`catalog/skills/ai-development/model-routing/references/last-known-model-map.json`) now names `claude-haiku-5-5` at the fast tier, after Anthropic released it on 2026-10-07 as the fastest model in its lineup. Only the Anthropic column was re-read, so the snapshot's verified date stays 2026-10-01. The Training page and every plan not yet implemented follow the map.
 - **Keyword headings, never sentences (v4.13.10).** Every substantive instruction template's Writing Discipline block, the Markdown style guide, and the anti-slop editing skill now state that headings are keyword labels (a noun or short noun phrase such as "Project Mapping"), with no verb clause, trailing period, or question. The rule binds every heading an agent writes, from documents and plans to web pages and interface labels. The anti-slop skill names the pattern "Sentence headings" and no longer treats Title Case headings as slop. Decision: `docs/decisions/implemented/policy/2026-10-05-keyword-headings-never-sentences.md`.
+
+### Removed
+
+- **Legacy guide fixtures (v4.13.10).** `guides/website/example/` (glow-booth, the two shuffle references, and trivia-quiz), `glow-booth.zip`, and `trivia-quiz.zip` are removed with the maintainer's approval; none was linked from the guide.
 
 ## [4.13.9] - 2026-10-04
 

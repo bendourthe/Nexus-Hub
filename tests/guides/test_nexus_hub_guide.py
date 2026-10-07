@@ -316,9 +316,10 @@ def test_legacy_example_assets_are_not_in_the_reader_path(guide_text: str) -> No
     assert "glow booth" not in lower
     assert "glow-booth" not in lower
     assert not re.search(r'<a[^>]+download(?:\s|=|>)', guide_text, re.IGNORECASE)
-    assert (GUIDE.parent / "glow-booth.zip").is_file(), (
-        "the legacy regression fixture remains until a separately approved deletion"
-    )
+    # v4.13.10: the maintainer approved removing the legacy fixtures (glow-booth, trivia-quiz,
+    # the shuffle references, and both zips), so none may come back beside the guide.
+    for leftover in ("glow-booth.zip", "trivia-quiz.zip", "example"):
+        assert not (GUIDE.parent / leftover).exists(), f"{leftover} was removed and must stay removed"
 
 
 def test_github_is_user_initiated_not_a_script(parsed: GuideParser) -> None:
