@@ -920,13 +920,134 @@ color: var(--ink-faint); }
 html[data-theme="light"] .tab-btn.active{color:#fffdf8;}
 .tab-panel{display:none;}
 .tab-panel.active{display:block;}
-/* ---------- OS-aware install (v4.13.10 R38) ---------- Three tabs open on the detected system; each gives two numbered steps and one large copy button. Type comes from the data-ty roles only. */
+/* ---------- OS-aware install (v4.13.10 R38) ---------- Three tabs open on the detected system; R45 adds the illustrated steps and the terminal mockup below. Type comes from the data-ty roles only. */
 .install-head{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-2) var(--sp-4);margin:var(--sp-4) 0 var(--sp-4);}
 .install-head .tab-btns{margin:0;flex-wrap:wrap;}
 .install-detected{margin:0;}
 .install-how{margin:var(--sp-2) 0 0;}
 .term--install .cmd-line{align-items:flex-start;}
 .term--install .cmd-line code{white-space:normal;overflow-wrap:anywhere;overflow-x:visible;}
+/* ---------- Harness Benefits (v4.13.10 R44) ---------- The hero's five platforms flow into the Nexus Hub mark, which lights four illustrated benefits in turn. The plain style is the final frame (no script, reduced motion); .hb--anim dims what is not lit yet and .live lets it move. */
+.hb{margin:var(--sp-5) 0 0;}
+.hb-plats{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));}
+.hb-plat{display:flex;justify-content:center;}
+.hb-mark{display:flex;width:46px;height:46px;padding:10px;border:1px solid var(--border);border-radius:50%;background:var(--surface);color:var(--ink);transition:border-color .5s,box-shadow .5s;}
+.hb-mark svg{display:block;width:100%;height:100%;}
+.hb-wires{display:block;width:100%;overflow:visible;}
+.hb-wires--in{height:64px;}
+.hb-wires--out{height:44px;}
+.hb-wires path{fill:none;stroke:color-mix(in srgb,var(--accent) 55%,var(--border));stroke-width:1.5;vector-effect:non-scaling-stroke;transition:stroke .5s;}
+.hb-hub{display:flex;justify-content:center;}
+.hb-hub svg{width:64px;height:64px;border-radius:16px;box-shadow:0 0 0 6px color-mix(in srgb,var(--accent) 14%,transparent),0 0 30px color-mix(in srgb,var(--accent) 28%,transparent);transition:box-shadow .6s;}
+html[data-theme="light"] .hb-hub svg{background:#07141a;padding:6px;}
+.hb-panels{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--sp-3);}
+.hb-panel{background:var(--surface);border:1px solid color-mix(in srgb,var(--accent) 35%,var(--border));border-radius:var(--radius);padding:16px 18px 18px;transition:opacity .6s,border-color .6s;}
+.hb-panel h3{margin:0 0 4px;}
+.hb-panel p{margin:0;}
+.hb-ill{display:block;width:100%;height:auto;aspect-ratio:2/1;margin:0 0 12px;overflow:visible;}
+.hb-ill .s{fill:var(--surface-2);stroke:var(--border-bright);stroke-width:1.2;}
+.hb-ill .a{fill:none;stroke:var(--accent);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
+.hb-ill .af{fill:var(--accent);}
+.hb-ill text{font-family:var(--mono);font-size:11px;fill:var(--ink);}
+.hb-merge path{stroke-dasharray:1;}
+.hb-slot{fill:none;stroke:var(--border-bright);stroke-dasharray:3 3;}
+.hb-card{fill:var(--surface-2);stroke:var(--accent);stroke-width:1.6;}
+.hb-shield{fill:color-mix(in srgb,var(--red) 16%,transparent);stroke:var(--red);stroke-width:2;}
+.hb-x{fill:none;stroke:var(--red);stroke-width:2.4;stroke-linecap:round;}
+.hb-ill .hb-tag{fill:var(--red);text-anchor:middle;}
+.hb-box{fill:var(--surface-2);stroke:var(--border-bright);}
+.hb-line{stroke:var(--border-bright);stroke-width:3;stroke-linecap:round;}
+.hb-tick{fill:none;stroke:var(--green);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
+.hb-gate{fill:color-mix(in srgb,var(--green) 14%,transparent);stroke:var(--green);stroke-width:2;}
+.hb-ill .hb-go,.hb-ill .hb-nogo{text-anchor:middle;font-size:13px;font-weight:700;}
+.hb-ill .hb-go{fill:var(--green);}
+.hb-ill .hb-nogo{fill:var(--amber);opacity:0;}
+/* Animated state: unlit parts rest quietly until their turn. */
+.hb--anim .hb-wires path{stroke:var(--border-bright);}
+.hb--anim .hb-wires--in path,.hb--anim .hb-wires--out path.is-on{stroke:color-mix(in srgb,var(--accent) 55%,var(--border));}
+.hb--anim .hb-wires--in path{stroke-dasharray:3 5;}
+.hb--anim.live .hb-wires--in path{animation:hb-flow 1.6s linear infinite;}
+.hb--anim .hb-hub:not(.is-on) svg{box-shadow:0 0 0 1px var(--border);}
+.hb--anim .hb-panel{opacity:.45;border-color:var(--border);}
+.hb--anim .hb-panel.is-on,.hb--anim .hb-panel.is-done{opacity:1;}
+.hb--anim .hb-panel.is-on{border-color:color-mix(in srgb,var(--accent) 60%,var(--border));}
+.hb--anim[data-step="in"] .hb-mark{animation:hb-ping 1.2s var(--ease) both;}
+.hb--anim[data-step="in"] .hb-plat:nth-child(2) .hb-mark{animation-delay:.15s;}
+.hb--anim[data-step="in"] .hb-plat:nth-child(3) .hb-mark{animation-delay:.3s;}
+.hb--anim[data-step="in"] .hb-plat:nth-child(4) .hb-mark{animation-delay:.45s;}
+.hb--anim[data-step="in"] .hb-plat:nth-child(5) .hb-mark{animation-delay:.6s;}
+.hb--anim .is-on .hb-merge path{animation:hb-draw 1s var(--ease) both;}
+.hb--anim .is-on .hb-merge path:nth-child(2){animation-delay:.2s;}
+.hb--anim .is-on .hb-merge path:nth-child(3){animation-delay:.4s;}
+.hb--anim .is-on .hb-steps circle{animation:hb-dim .35s both 1.3s;}
+.hb--anim .is-on .hb-steps circle:nth-child(2){animation-delay:1.65s;}
+.hb--anim .is-on .hb-steps circle:nth-child(3){animation-delay:2s;}
+.hb--anim .is-on .hb-pick{animation:hb-rise 1.1s var(--ease) both .3s;}
+.hb--anim .is-on .hb-cmd{animation:hb-slide 1s var(--ease) both .2s;}
+.hb--anim .is-on .hb-shield{animation:hb-arm .35s both 1.2s;}
+.hb--anim .is-on .hb-x,.hb--anim .is-on .hb-tag{animation:hb-fade .4s both 1.3s;}
+.hb--anim .is-on .hb-tick{animation:hb-fade .35s both .4s;}
+.hb--anim .is-on .hb-tick:nth-of-type(4){animation-delay:.8s;}
+.hb--anim .is-on .hb-tick:nth-of-type(6){animation-delay:1.2s;}
+.hb--anim .is-on .hb-gate{animation:hb-hold-gate 1.8s both;}
+.hb--anim .is-on .hb-nogo{animation:hb-hold 1.8s;}
+.hb--anim .is-on .hb-go{animation:hb-fade .35s both 1.8s;}
+.hb--anim:not(.live) *{animation-play-state:paused!important;}
+@keyframes hb-flow{to{stroke-dashoffset:-16;}}
+@keyframes hb-ping{from{border-color:var(--border);box-shadow:0 0 0 0 transparent;}40%{border-color:var(--accent);box-shadow:0 0 0 5px color-mix(in srgb,var(--accent) 18%,transparent);}}
+@keyframes hb-draw{from{stroke-dashoffset:1;}}
+@keyframes hb-dim{from{fill:var(--surface-3);}}
+@keyframes hb-rise{from{transform:translateY(52px);opacity:.35;}}
+@keyframes hb-slide{from{transform:translateX(-26px);opacity:0;}}
+@keyframes hb-arm{from{fill:transparent;stroke:var(--border-bright);}}
+@keyframes hb-fade{from{opacity:0;}}
+@keyframes hb-hold{from,to{opacity:1;}}
+@keyframes hb-hold-gate{from,99%{fill:transparent;stroke:var(--amber);}}
+@media (max-width:860px){.hb-panels{grid-template-columns:repeat(2,minmax(0,1fr));}.hb-wires--out{display:none;}.hb-hub{margin:0 0 var(--sp-4);}}
+@media (max-width:560px){.hb-wires--in{height:48px;}.hb-mark{width:42px;height:42px;padding:9px;}.hb-panels{grid-template-columns:minmax(0,1fr);}
+  .hb-ill{width:75%;margin:0 0 10px;}}
+/* ---------- Install walkthrough (v4.13.10 R45) ---------- Each tab: the system's icon and how to open its terminal, the unchanged command box, and a mockup of that terminal running the installer. The mockup's plain style is its finished output; .tm--anim plays it while it is on screen. */
+.inst-steps{display:grid;gap:var(--sp-3);margin:var(--sp-1) 0 0;}
+.tm-wrap{margin:0 0 var(--sp-5);}
+/* One logo per system, at the label's text height and in its current colour, wherever the system is named. */
+.os-sprite{position:absolute;width:0;height:0;overflow:hidden;}
+.os-logo{display:inline-block;width:1em;height:1em;margin-right:.45em;vertical-align:-.14em;fill:currentColor;flex:none;}
+.inst-os{margin:0;}
+.inst-list{list-style:none;margin:0;padding:0;display:grid;gap:10px;}
+.inst-list li{display:flex;gap:10px;align-items:flex-start;}
+.inst-n{flex:none;width:24px;height:24px;margin-top:1px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:var(--surface-2);color:var(--ink-dim);border:1px solid var(--border-bright);font-size:15px;font-weight:700;font-family:var(--mono);}
+.tm{border-radius:10px;overflow:hidden;font-family:var(--mono);font-size:13px;line-height:1.55;box-shadow:var(--shadow);border:1px solid rgba(0,0,0,.4);}
+.tm-bar{position:relative;display:flex;align-items:center;justify-content:center;height:32px;padding:0 12px;font-family:var(--sans);font-size:12px;}
+.tm-body{padding:12px 14px 14px;overflow-wrap:anywhere;}
+.tm var{font-style:normal;}
+.tm b{font-weight:700;}
+.tm-i1{padding-left:2ch;}
+.tm-i2{padding-left:4ch;}
+.tm-ctl{position:absolute;right:12px;top:50%;transform:translateY(-50%);fill:none;stroke:currentColor;stroke-width:1.2;}
+.tm--win .tm-bar{justify-content:flex-start;background:#0b1d3d;color:#c9d3e6;}
+.tm--win .tm-ctl{width:66px;height:11px;}
+.tm--win .tm-body{background:#012456;color:#eeedf0;}
+.tm--win .tm-c{color:#61d6d6;}.tm--win .tm-g{color:#16c60c;}
+.tm--mac .tm-bar{background:#2d2d30;color:#a9a9ae;}
+.tm--mac .tm-body{background:#1e1e1e;color:#e6e6e6;}
+.tm-lights{position:absolute;left:12px;top:50%;transform:translateY(-50%);display:flex;gap:8px;}
+.tm-lights i{display:block;width:12px;height:12px;border-radius:50%;background:#ff5f57;}
+.tm-lights i:nth-child(2){background:#febc2e;}.tm-lights i:nth-child(3){background:#28c840;}
+.tm--mac .tm-c{color:#6fc3df;}.tm--mac .tm-g{color:#5fcf6a;}
+.tm--gnome .tm-bar{background:#2c2c2c;color:#eeeeec;font-weight:700;}
+.tm--gnome .tm-ctl{width:58px;height:16px;stroke-width:1.3;}
+.tm--gnome .tm-ctl circle{fill:#3d3d3d;stroke:none;}
+.tm--gnome .tm-body{background:#300a24;color:#ffffff;}
+.tm--gnome .tm-u{color:#8ae234;}.tm--gnome .tm-d{color:#729fcf;}
+.tm--gnome .tm-c{color:#34e2e2;}.tm--gnome .tm-g{color:#8ae234;}
+.tm-cur{display:none;width:.6em;height:1.15em;vertical-align:text-bottom;background:currentColor;}
+.tm-end .tm-cur{display:inline-block;}
+.tm--anim .tm-cmd,.tm--anim .tm-l,.tm--anim .tm-end{visibility:hidden;}
+.tm--anim:not([data-tm-step="prompt"]) .tm-cmd,.tm--anim .tm-l.is-on,.tm--anim[data-tm-step="done"] .tm-end{visibility:visible;}
+.tm--anim .tm-cur{display:none;}
+.tm--anim[data-tm-step="prompt"] .tm-cur--0,.tm--anim[data-tm-step="paste"] .tm-cur--1,.tm--anim[data-tm-step="done"] .tm-end .tm-cur{display:inline-block;animation:tm-blink 1.1s steps(1) infinite;}
+.tm--anim:not(.is-live) .tm-cur{animation:none;}
+@keyframes tm-blink{50%{opacity:0;}}
 /* ---------- Details ---------- */
 details{border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;margin:var(--sp-3) 0;background:var(--surface);font-size:15px;}
 details summary{cursor:pointer;color:var(--ink-dim);}
@@ -1574,7 +1695,8 @@ html:not(.js) #page-foundations{display:block;}html:not(.js) .ml-panel[hidden]{d
    same part outside a figure element: .fx-diagram (Foundations scene diagrams), .ml-flow, .ml-tier-list and
    .ml-scale (the model lab's network, class cards, and their axis), .ph (the platform chat mockups), .term
    (terminal and code samples), .loop-strip (the workflow loop), .tr-flow (the Training workflow strip),
-   .ide-wrap (the IDE player and its controls), .hero-lockup (the logo lockup), and the game overlays.
+   .ide-wrap (the IDE player and its controls), .hero-lockup (the logo lockup), .hb (the Home benefits figure),
+   .tm (the Home install terminal mockups), and the game overlays.
    Navigation and controls (nav, button, summary, .pagenav) take a role for size, family, and spacing;
    their colour and weight follow their state (current, hover, open). The rendered audit in
    tests/guides/test_v443_phase1_headings.py reads this same list. */
@@ -1742,15 +1864,12 @@ main .eyebrow,main .tr-kicker{display:none;}
             <span class="platform-mark" data-mark="cursor" aria-hidden="true"><svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 466.73 532.09"><use href="#hxm2"/></svg></span>
             <span data-ty="label" class="platform-name">Cursor</span></li><li data-ty="body-sm" class="platform-item" data-platform="GitHub Copilot">
             <span class="platform-mark" data-mark="github-copilot" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="currentColor"><path d="M47.801 34.003c-1.72 2.988-11.706 10.037-23.82 10.037S1.881 36.991.161 34.003a1.309 1.309 0 0 1-.161-.57v-5.615c.012-.17.047-.338.11-.498.744-1.867 2.692-4.58 5.206-5.308.333-.855.826-2.106 1.287-3.029a20.112 20.112 0 0 1-.104-2.171c0-2.659.563-4.992 2.262-6.729.793-.811 1.777-1.433 2.945-1.901C14.502 5.911 18.483 4 23.938 4c5.455 0 9.523 1.911 12.319 4.182 1.167.468 2.151 1.09 2.944 1.901 1.699 1.737 2.263 4.07 2.263 6.729 0 .736-.027 1.465-.105 2.171.461.923.954 2.174 1.288 3.029 2.513.728 4.461 3.441 5.205 5.308.081.205.115.424.115.645v5.318c0 .252-.04.502-.166.72ZM24.325 22.031h-.688a8.52 8.52 0 0 1-.709 1.016c-1.537 1.892-3.833 2.98-7.008 2.98-3.447 0-5.972-.717-7.557-2.514a4.408 4.408 0 0 1-.171-.21l-.195.21v13.155c2.867 1.558 9.02 4.353 15.984 4.353s13.117-2.795 15.984-4.353V23.513l-.195-.21s-.066.091-.171.21c-1.584 1.797-4.11 2.514-7.557 2.514-3.175 0-5.47-1.088-7.008-2.98a8.637 8.637 0 0 1-.709-1.016h-.033.033Zm-1.969-5.864a14.31 14.31 0 0 0 .127-1.785v-.042c-.003-1.537-.339-2.538-.876-3.152-.681-.78-2.09-1.378-5.06-1.057-3.008.326-4.69 1.073-5.643 2.048-.923.944-1.408 2.356-1.408 4.633 0 2.42.348 3.849 1.115 4.719.729.827 2.165 1.499 5.309 1.499 2.417 0 3.799-.786 4.683-1.873.948-1.168 1.482-2.878 1.753-4.99Zm3.25 0c.271 2.112.805 3.822 1.754 4.99.883 1.087 2.265 1.873 4.682 1.873 3.145 0 4.58-.672 5.309-1.499.767-.87 1.116-2.299 1.116-4.719 0-2.277-.485-3.689-1.408-4.633-.954-.975-2.635-1.722-5.644-2.048-2.969-.321-4.378.277-5.06 1.057-.537.614-.873 1.615-.876 3.152v.042c.002.53.042 1.123.127 1.785Z"/><path d="M28.998 28.516c1.104 0 1.999.895 1.999 1.999v3.998a2 2 0 1 1-3.998 0v-3.998c0-1.104.895-1.999 1.999-1.999Zm-9.996 0c1.104 0 1.999.895 1.999 1.999v3.998a2 2 0 1 1-3.998 0v-3.998c0-1.104.895-1.999 1.999-1.999Z"/></svg></span>
-            <span data-ty="label" class="platform-name">GitHub Copilot</span></li></ul><div class="btn-row">
-          <a class="btn btn--primary" href="#home/install">Install <span aria-hidden="true">&rarr;</span></a>
-          <a class="btn" href="training.html" data-training-link>Get trained</a>
-          <a class="btn" href="#cheatsheets" data-go="cheatsheets">Open Cheatsheets</a></div></div><section class="section" id="nhg-why">
-<h2 data-ty="h2" class="section-title">Raw Prompting Limits</h2><div class="grid grid-4"><div class="card"><h3 data-ty="h3">Consistency</h3><p data-ty="body">One governed workflow for everyone, whoever wrote the prompt.</p></div><div class="card"><h3 data-ty="h3">Depth</h3><p data-ty="body"><span data-count="skills">340</span> skills encode expert procedures, loaded only when needed.</p></div><div class="card"><h3 data-ty="h3">Safety</h3><p data-ty="body">Hooks block secrets and destructive git before they run.</p></div><div class="card"><h3 data-ty="h3">Governance</h3><p data-ty="body">A definition of done and GO / NO-GO gates make output reviewable.</p></div></div></section><section class="section" id="nhg-install">
-        <h2 data-ty="h2" class="section-title">Installation</h2><p data-ty="body">Copy the command for the detected system and paste it into a terminal. The installer copies the catalog into <code data-ty="code">~/.nexus-hub/</code>, wires every assistant it detects, and preserves customized files. There is no download to unzip first.</p><div class="nhg-install-wrap" data-tabs data-nhg-keys="self"><div class="install-head"><div class="tab-btns" role="tablist" aria-label="Install command by operating system">
-            <button type="button" data-ty="label" class="tab-btn active" id="install-tab-win" data-tab="win" role="tab" aria-selected="true" aria-controls="install-panel-win">Windows</button>
-            <button type="button" data-ty="label" class="tab-btn" id="install-tab-mac" data-tab="mac" role="tab" aria-selected="false" aria-controls="install-panel-mac">macOS</button>
-            <button type="button" data-ty="label" class="tab-btn" id="install-tab-linux" data-tab="linux" role="tab" aria-selected="false" aria-controls="install-panel-linux">Linux</button></div><p data-ty="caption" class="install-detected" id="install-detected" hidden></p></div><div class="tab-panel active" data-panel="win" id="install-panel-win" role="tabpanel" aria-labelledby="install-tab-win"><div class="term term--standalone term--install"><div class="term-bar"><span data-ty="code" class="label">Windows &middot; PowerShell</span></div><div class="term-body"><div class="cmd-line"><span data-ty="code" class="t-teal" aria-hidden="true">&gt;</span> <code data-ty="code" data-copy="irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex">irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex</code></div></div></div><p data-ty="body-sm" data-tone="dim" class="install-how">Open PowerShell: press the Windows key, type PowerShell, and press Enter. Then paste the command and press Enter.</p></div><div class="tab-panel" data-panel="mac" id="install-panel-mac" role="tabpanel" aria-labelledby="install-tab-mac" hidden><div class="term term--standalone term--install"><div class="term-bar"><span data-ty="code" class="label">macOS &middot; Terminal</span></div><div class="term-body"><div class="cmd-line"><span data-ty="code" class="t-teal" aria-hidden="true">$</span> <code data-ty="code" data-copy="curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash">curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash</code></div></div></div><p data-ty="body-sm" data-tone="dim" class="install-how">Open Terminal: press Cmd + Space, type Terminal, and press Enter. Then paste the command and press Enter.</p></div><div class="tab-panel" data-panel="linux" id="install-panel-linux" role="tabpanel" aria-labelledby="install-tab-linux" hidden><div class="term term--standalone term--install"><div class="term-bar"><span data-ty="code" class="label">Linux &middot; Terminal</span></div><div class="term-body"><div class="cmd-line"><span data-ty="code" class="t-teal" aria-hidden="true">$</span> <code data-ty="code" data-copy="curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash">curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash</code></div></div></div><p data-ty="body-sm" data-tone="dim" class="install-how">Open a terminal with Ctrl + Alt + T, or from the applications menu. Then paste the command and press Enter.</p></div></div><div id="nhg-copy-status" class="visually-hidden" aria-live="polite"></div><ol class="verify-steps verify-steps--secondary"><li data-ty="body-sm">
+            <span data-ty="label" class="platform-name">GitHub Copilot</span></li></ul></div><section class="section" id="nhg-benefits">
+<h2 data-ty="h2" class="section-title">Harness Benefits</h2><figure class="hb" data-hb data-step="all" aria-label="Claude, ChatGPT, Gemini, Cursor, and GitHub Copilot connect to Nexus Hub, which adds consistency, depth, safety, and governance."><ul class="hb-plats" aria-hidden="true"><li class="hb-plat" data-platform="Claude"><span class="hb-mark"></span></li><li class="hb-plat" data-platform="ChatGPT"><span class="hb-mark"></span></li><li class="hb-plat" data-platform="Gemini"><span class="hb-mark"></span></li><li class="hb-plat" data-platform="Cursor"><span class="hb-mark"></span></li><li class="hb-plat" data-platform="GitHub Copilot"><span class="hb-mark"></span></li></ul><svg class="hb-wires hb-wires--in" viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true"><path d="M10 0C10 26 50 14 50 40" pathLength="100"/><path d="M30 0C30 26 50 14 50 40" pathLength="100"/><path d="M50 0V40" pathLength="100"/><path d="M70 0C70 26 50 14 50 40" pathLength="100"/><path d="M90 0C90 26 50 14 50 40" pathLength="100"/></svg><div class="hb-hub" aria-hidden="true"><svg viewBox="0 0 100 100"><use href="#nexus-mark"/></svg></div><svg class="hb-wires hb-wires--out" viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true"><path d="M50 0C50 22 12.5 18 12.5 40" pathLength="100"/><path d="M50 0C50 22 37.5 18 37.5 40" pathLength="100"/><path d="M50 0C50 22 62.5 18 62.5 40" pathLength="100"/><path d="M50 0C50 22 87.5 18 87.5 40" pathLength="100"/></svg><ol class="hb-panels"><li class="hb-panel" data-benefit="consistency"><svg class="hb-ill" viewBox="0 0 200 100" aria-hidden="true"><rect class="s" x="6" y="10" width="50" height="16" rx="5"/><rect class="s" x="6" y="42" width="36" height="16" rx="5"/><rect class="s" x="6" y="74" width="58" height="16" rx="5"/><g class="hb-merge"><path class="a" d="M56 18C92 18 90 50 122 50" pathLength="1"/><path class="a" d="M42 50H122" pathLength="1"/><path class="a" d="M64 82C94 82 90 50 122 50" pathLength="1"/></g><rect class="s" x="122" y="37" width="72" height="26" rx="13"/><g class="hb-steps"><circle class="af" cx="139" cy="50" r="5"/><circle class="af" cx="158" cy="50" r="5"/><circle class="af" cx="177" cy="50" r="5"/></g></svg><h3 data-ty="h3">Consistency</h3><p data-ty="body-sm" data-tone="dim">Every prompt runs one governed workflow.</p></li><li class="hb-panel" data-benefit="depth"><svg class="hb-ill" viewBox="0 0 200 100" aria-hidden="true"><rect class="s" x="34" y="60" width="18" height="32" rx="3"/><rect class="s" x="56" y="60" width="18" height="32" rx="3"/><rect class="hb-slot" x="80" y="60" width="40" height="32" rx="3"/><rect class="s" x="126" y="60" width="18" height="32" rx="3"/><rect class="s" x="148" y="60" width="18" height="32" rx="3"/><g class="hb-pick"><rect class="hb-card" x="80" y="8" width="40" height="46" rx="4"/><path class="a" d="M88 22H112M88 31H108M88 40H104"/></g></svg><h3 data-ty="h3">Depth</h3><p data-ty="body-sm" data-tone="dim"><span data-count="skills">340</span> skills, loaded only when needed.</p></li><li class="hb-panel" data-benefit="safety"><svg class="hb-ill" viewBox="0 0 200 100" aria-hidden="true"><g class="hb-cmd"><rect class="s" x="4" y="36" width="112" height="24" rx="6"/><text x="12" y="52">git push --force</text></g><path class="hb-shield" d="M152 18l24 9v19c0 17-11 27-24 31-13-4-24-14-24-31V27z"/><path class="hb-x" d="M145 41l14 14M159 41l-14 14"/><text class="hb-tag" x="152" y="95">blocked</text></svg><h3 data-ty="h3">Safety</h3><p data-ty="body-sm" data-tone="dim">Hooks stop secrets and destructive git.</p></li><li class="hb-panel" data-benefit="governance"><svg class="hb-ill" viewBox="0 0 200 100" aria-hidden="true"><rect class="s" x="6" y="8" width="104" height="84" rx="6"/><rect class="hb-box" x="16" y="19" width="14" height="14" rx="3"/><path class="hb-line" d="M38 26H98"/><path class="hb-tick" d="M19.5 26l3 3 5.5-6.5"/><rect class="hb-box" x="16" y="43" width="14" height="14" rx="3"/><path class="hb-line" d="M38 50H98"/><path class="hb-tick" d="M19.5 50l3 3 5.5-6.5"/><rect class="hb-box" x="16" y="67" width="14" height="14" rx="3"/><path class="hb-line" d="M38 74H98"/><path class="hb-tick" d="M19.5 74l3 3 5.5-6.5"/><rect class="hb-gate" x="124" y="31" width="70" height="38" rx="19"/><text class="hb-nogo" x="159" y="54">NO-GO</text><text class="hb-go" x="159" y="54">GO</text></svg><h3 data-ty="h3">Governance</h3><p data-ty="body-sm" data-tone="dim">Done criteria pass a GO / NO-GO gate.</p></li></ol></figure></section><section class="section" id="nhg-install">
+        <h2 data-ty="h2" class="section-title">Installation</h2><p data-ty="body">Copy the command for the detected system and paste it into a terminal. The installer copies the catalog into <code data-ty="code">~/.nexus-hub/</code>, wires every assistant it detects, and preserves customized files. There is no download to unzip first.</p><svg class="os-sprite" width="0" height="0" aria-hidden="true"><symbol id="os-win" viewBox="0 0 24 24"><path d="M2 2h9.5v9.5H2zm10.5 0H22v9.5h-9.5zM2 12.5h9.5V22H2zm10.5 0H22V22h-9.5z"/></symbol><symbol id="os-mac" viewBox="0 0 24 24"><path d="M16.4 12.7c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.9-.9-3-.8-1.6 0-3 .9-3.8 2.3-1.6 2.8-.4 6.9 1.2 9.1.8 1.1 1.7 2.3 2.8 2.3 1.1 0 1.6-.7 2.9-.7 1.4 0 1.8.7 3 .7 1.2 0 2-1.1 2.7-2.2.9-1.3 1.2-2.5 1.3-2.6-.1 0-2.2-.9-2.2-3.7zM14.2 5.9c.6-.8 1-1.8.9-2.9-.9 0-2 .6-2.7 1.4-.6.7-1.1 1.7-1 2.8 1 .1 2.1-.5 2.8-1.3z"/></symbol><symbol id="os-linux" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 1.6c-2.7 0-4.3 2.2-4.3 5 0 1.5.2 2.5-.9 4.2-1.3 1.9-2.4 4.1-2.3 6.2.1 1.6 1.4 2.7 2.7 3.1h9.6c1.3-.4 2.6-1.5 2.7-3.1.1-2.1-1-4.3-2.3-6.2-1.1-1.7-.9-2.7-.9-4.2 0-2.8-1.6-5-4.3-5zM12 10.9c2 0 3.6 1.9 3.6 4.3s-1.6 4.4-3.6 4.4-3.6-2-3.6-4.4 1.6-4.3 3.6-4.3zM10.5 5.2a1.15 1.15 0 1 1 0 2.3 1.15 1.15 0 0 1 0-2.3zm3 0a1.15 1.15 0 1 1 0 2.3 1.15 1.15 0 0 1 0-2.3zM10.4 8.3h3.2L12 10.1z"/><path d="M5.4 20.6c0-.8 1.2-1.4 2.7-1.4s2.7.6 2.7 1.4-1.2 1.3-2.7 1.3-2.7-.5-2.7-1.3zm7.8 0c0-.8 1.2-1.4 2.7-1.4s2.7.6 2.7 1.4-1.2 1.3-2.7 1.3-2.7-.5-2.7-1.3z"/></symbol></svg><div class="nhg-install-wrap" data-tabs data-nhg-keys="self"><div class="install-head"><div class="tab-btns" role="tablist" aria-label="Install command by operating system">
+            <button type="button" data-ty="label" class="tab-btn active" id="install-tab-win" data-tab="win" role="tab" aria-selected="true" aria-controls="install-panel-win"><svg class="os-logo" aria-hidden="true"><use href="#os-win"/></svg>Windows</button>
+            <button type="button" data-ty="label" class="tab-btn" id="install-tab-mac" data-tab="mac" role="tab" aria-selected="false" aria-controls="install-panel-mac"><svg class="os-logo" aria-hidden="true"><use href="#os-mac"/></svg>macOS</button>
+            <button type="button" data-ty="label" class="tab-btn" id="install-tab-linux" data-tab="linux" role="tab" aria-selected="false" aria-controls="install-panel-linux"><svg class="os-logo" aria-hidden="true"><use href="#os-linux"/></svg>Linux</button></div><p data-ty="caption" class="install-detected" id="install-detected" hidden></p></div><div class="tab-panel active" data-panel="win" id="install-panel-win" role="tabpanel" aria-labelledby="install-tab-win"><div class="inst"><div class="inst-steps"><p data-ty="label" class="inst-os" data-os="win"><svg class="os-logo" aria-hidden="true"><use href="#os-win"/></svg>Windows</p><ol class="inst-list"><li data-ty="body"><span class="inst-n" aria-hidden="true">1</span>Press the Windows key, or click Start.</li><li data-ty="body"><span class="inst-n" aria-hidden="true">2</span>Type PowerShell and press Enter.</li><li data-ty="body"><span class="inst-n" aria-hidden="true">3</span>Paste the command and press Enter.</li></ol></div><div class="term term--standalone term--install"><div class="term-bar"><span data-ty="code" class="label">Windows &middot; PowerShell</span></div><div class="term-body"><div class="cmd-line"><span data-ty="code" class="t-teal" aria-hidden="true">&gt;</span> <code data-ty="code" data-copy="irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex">irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex</code></div></div></div><div class="tm-wrap" role="img" aria-label="PowerShell preview: the pasted command runs and the installer reports its steps, ending with Nexus Hub installed."><div class="tm tm--win" data-tm="win" data-tm-step="done" aria-hidden="true"><div class="tm-bar"><span class="tm-title">Windows PowerShell</span><svg class="tm-ctl" viewBox="0 0 70 12"><path d="M2 6h10M30 1.5h9v9h-9zM58 1.5l9 9m0-9-9 9"/></svg></div><div class="tm-body"><div class="tm-p"><span class="tm-pr">PS C:\Users\dev&gt;</span> <i class="tm-cur tm-cur--0"></i><span class="tm-cmd">irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex</span><i class="tm-cur tm-cur--1"></i></div><div class="tm-l" data-src="install.ps1">[precheck] all required tools present (extractor, python).</div><div class="tm-l" data-src="install.ps1">Downloading Nexus-Hub catalog (<var>bendourthe/Nexus-Hub@main</var>)...</div><div class="tm-l" data-src="install.ps1">Extracting catalog to <var>C:\Users\dev\.nexus-hub\src</var> ...</div><div class="tm-l tm-c" data-src="scripts/installer.ps1">Welcome to the Nexus-Hub Universal Installer (v<var>4.13.10</var>)</div><div class="tm-l tm-c" data-src="scripts/installer.ps1">&#9654; <var>AUTO-APPROVE PERMISSIONS</var></div><div class="tm-l tm-i1 tm-c" data-src="scripts/installer.ps1">&#9656; <var>ANTHROPIC</var></div><div class="tm-l tm-i2 tm-g" data-src="scripts/installer.ps1">[OK] <var>Global</var> auto-approve permissions synced in settings.json</div><div class="tm-l tm-c" data-src="scripts/installer.ps1">&#9654; <var>INSTALL VERIFICATION</var></div><div class="tm-l" data-src="scripts/lib/integrations/runner.py">[verify] PASS <var>Claude</var> -- <var>commands:ok, skills:ok</var></div><div class="tm-l tm-g" data-src="scripts/installer.ps1">&#10003; Nexus-Hub v<var>4.13.10</var> installed (<var>Global</var> scope).</div><div class="tm-p tm-end"><span class="tm-pr">PS C:\Users\dev&gt;</span> <i class="tm-cur"></i></div></div></div></div></div></div><div class="tab-panel" data-panel="mac" id="install-panel-mac" role="tabpanel" aria-labelledby="install-tab-mac" hidden><div class="inst"><div class="inst-steps"><p data-ty="label" class="inst-os" data-os="mac"><svg class="os-logo" aria-hidden="true"><use href="#os-mac"/></svg>macOS</p><ol class="inst-list"><li data-ty="body"><span class="inst-n" aria-hidden="true">1</span>Press Cmd + Space to open Spotlight.</li><li data-ty="body"><span class="inst-n" aria-hidden="true">2</span>Type Terminal and press Enter.</li><li data-ty="body"><span class="inst-n" aria-hidden="true">3</span>Paste the command and press Enter.</li></ol></div><div class="term term--standalone term--install"><div class="term-bar"><span data-ty="code" class="label">macOS &middot; Terminal</span></div><div class="term-body"><div class="cmd-line"><span data-ty="code" class="t-teal" aria-hidden="true">$</span> <code data-ty="code" data-copy="curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash">curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash</code></div></div></div><div class="tm-wrap" role="img" aria-label="Terminal preview: the pasted command runs and the installer reports its steps, ending with Nexus Hub installed."><div class="tm tm--mac" data-tm="mac" data-tm-step="done" aria-hidden="true"><div class="tm-bar"><span class="tm-lights"><i></i><i></i><i></i></span><span class="tm-title">dev - zsh</span></div><div class="tm-body"><div class="tm-p"><span class="tm-pr">dev@MacBook ~ %</span> <i class="tm-cur tm-cur--0"></i><span class="tm-cmd">curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash</span><i class="tm-cur tm-cur--1"></i></div><div class="tm-l" data-src="install.sh">[precheck] all required tools present (downloader, tar, python).</div><div class="tm-l" data-src="install.sh">Downloading Nexus-Hub catalog (<var>bendourthe/Nexus-Hub@main</var>)...</div><div class="tm-l" data-src="install.sh">Extracting catalog to <var>/Users/dev/.nexus-hub/src</var> ...</div><div class="tm-l tm-c" data-src="scripts/installer.sh">Welcome to the Nexus-Hub Universal Installer (v<var>4.13.10</var>)</div><div class="tm-l tm-c" data-src="scripts/installer.sh">&gt; <var>AUTO-APPROVE PERMISSIONS</var></div><div class="tm-l tm-i1 tm-c" data-src="scripts/installer.sh">&gt; <var>ANTHROPIC</var></div><div class="tm-l tm-i1 tm-g" data-src="scripts/installer.sh">[OK] <var>Global</var> auto-approve permissions synced in settings.json</div><div class="tm-l tm-c" data-src="scripts/installer.sh">&gt; <var>INSTALL VERIFICATION</var></div><div class="tm-l" data-src="scripts/lib/integrations/runner.py">[verify] PASS <var>Claude</var> -- <var>commands:ok, skills:ok</var></div><div class="tm-l tm-g" data-src="scripts/installer.sh">&#10003; Nexus-Hub v<var>4.13.10</var> installed (<var>Global</var> scope).</div><div class="tm-p tm-end"><span class="tm-pr">dev@MacBook ~ %</span> <i class="tm-cur"></i></div></div></div></div></div></div><div class="tab-panel" data-panel="linux" id="install-panel-linux" role="tabpanel" aria-labelledby="install-tab-linux" hidden><div class="inst"><div class="inst-steps"><p data-ty="label" class="inst-os" data-os="linux"><svg class="os-logo" aria-hidden="true"><use href="#os-linux"/></svg>Linux</p><ol class="inst-list"><li data-ty="body"><span class="inst-n" aria-hidden="true">1</span>Press Ctrl + Alt + T, or open Terminal from the applications menu.</li><li data-ty="body"><span class="inst-n" aria-hidden="true">2</span>Paste the command and press Enter.</li></ol></div><div class="term term--standalone term--install"><div class="term-bar"><span data-ty="code" class="label">Linux &middot; Terminal</span></div><div class="term-body"><div class="cmd-line"><span data-ty="code" class="t-teal" aria-hidden="true">$</span> <code data-ty="code" data-copy="curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash">curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash</code></div></div></div><div class="tm-wrap" role="img" aria-label="GNOME Terminal preview: the pasted command runs and the installer reports its steps, ending with Nexus Hub installed."><div class="tm tm--gnome" data-tm="linux" data-tm-step="done" aria-hidden="true"><div class="tm-bar"><span class="tm-title">dev@ubuntu: ~</span><svg class="tm-ctl" viewBox="0 0 66 18"><circle cx="9" cy="9" r="8"/><circle cx="33" cy="9" r="8"/><circle class="x" cx="57" cy="9" r="8"/><path d="M5.5 11.5h7M30 6h6v6h-6zM54 6l6 6m0-6-6 6"/></svg></div><div class="tm-body"><div class="tm-p"><span class="tm-pr"><b class="tm-u">dev@ubuntu</b>:<b class="tm-d">~</b>$</span> <i class="tm-cur tm-cur--0"></i><span class="tm-cmd">curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash</span><i class="tm-cur tm-cur--1"></i></div><div class="tm-l" data-src="install.sh">[precheck] all required tools present (downloader, tar, python).</div><div class="tm-l" data-src="install.sh">Downloading Nexus-Hub catalog (<var>bendourthe/Nexus-Hub@main</var>)...</div><div class="tm-l" data-src="install.sh">Extracting catalog to <var>/home/dev/.nexus-hub/src</var> ...</div><div class="tm-l tm-c" data-src="scripts/installer.sh">Welcome to the Nexus-Hub Universal Installer (v<var>4.13.10</var>)</div><div class="tm-l tm-c" data-src="scripts/installer.sh">&gt; <var>AUTO-APPROVE PERMISSIONS</var></div><div class="tm-l tm-i1 tm-c" data-src="scripts/installer.sh">&gt; <var>ANTHROPIC</var></div><div class="tm-l tm-i1 tm-g" data-src="scripts/installer.sh">[OK] <var>Global</var> auto-approve permissions synced in settings.json</div><div class="tm-l tm-c" data-src="scripts/installer.sh">&gt; <var>INSTALL VERIFICATION</var></div><div class="tm-l" data-src="scripts/lib/integrations/runner.py">[verify] PASS <var>Claude</var> -- <var>commands:ok, skills:ok</var></div><div class="tm-l tm-g" data-src="scripts/installer.sh">&#10003; Nexus-Hub v<var>4.13.10</var> installed (<var>Global</var> scope).</div><div class="tm-p tm-end"><span class="tm-pr"><b class="tm-u">dev@ubuntu</b>:<b class="tm-d">~</b>$</span> <i class="tm-cur"></i></div></div></div></div></div></div></div><div id="nhg-copy-status" class="visually-hidden" aria-live="polite"></div><ol class="verify-steps verify-steps--secondary"><li data-ty="body-sm">
             <span class="vs-n" aria-hidden="true">1</span><div class="vs-body"><p data-ty="body-sm" class="vs-do">Check that it installed. Run either command in the assistant:</p><div class="vs-cmds">
                 <span class="cmd-cell"><code data-ty="code" class="inv" data-copy="/skills list"><span data-ty="code" data-tone="accent" class="inv-cmd">/skills</span> <span data-ty="code" class="inv-arg">list</span></code></span>
                 <span class="cmd-cell"><code data-ty="code" class="inv" data-copy="/commands"><span data-ty="code" data-tone="accent" class="inv-cmd">/commands</span></code></span></div><p data-ty="caption" class="vs-note">The command cheatsheet appears.</p></div></li><li data-ty="body-sm">
@@ -3554,7 +3673,10 @@ host.appendChild(svg);
     var detected = detect();
     var note = document.getElementById("install-detected");
     if (detected && note) {
-      note.textContent = "Detected: " + NAMES[detected];
+      note.textContent = "Detected: ";
+      var mark = document.createElementNS("http://www.w3.org/2000/svg", "svg"), use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+      mark.setAttribute("class", "os-logo"); mark.setAttribute("aria-hidden", "true"); use.setAttribute("href", "#os-" + detected);
+      mark.appendChild(use); note.appendChild(mark); note.appendChild(document.createTextNode(NAMES[detected]));
       note.hidden = false;
     }
     var initial = stored() || detected;
@@ -3564,6 +3686,87 @@ host.appendChild(svg);
       if (!known(tab)) return;
       try { window.localStorage.setItem(KEY, tab); } catch (e) {}
     });
+  })();
+
+  /* -------------------------------------------------- Harness Benefits (v4.13.10 R44)
+     The platform icons are copied from the hero row, so each mark exists once in the source.
+     The loop steps in, 1 to 4, all; it runs only while the figure is on screen and the tab is
+     visible. Without motion the figure keeps its plain, final frame. */
+  (function () {
+    var fig = document.querySelector("[data-hb]");
+    if (!fig) return;
+    var plats = fig.querySelectorAll(".hb-plat");
+    for (var i = 0; i < plats.length; i++) {
+      var src = document.querySelector('#page-home .platform-rail [data-platform="' + plats[i].getAttribute("data-platform") + '"] .platform-mark svg');
+      if (!src) continue;
+      var copy = src.cloneNode(true), ids = copy.querySelectorAll("[id]");
+      for (var k = 0; k < ids.length; k++) ids[k].removeAttribute("id");
+      plats[i].querySelector(".hb-mark").appendChild(copy);
+    }
+    if (REDUCE || !("IntersectionObserver" in window)) return;
+    var panels = fig.querySelectorAll(".hb-panel"), outs = fig.querySelectorAll(".hb-wires--out path"), hub = fig.querySelector(".hb-hub");
+    var STEPS = ["in", "1", "2", "3", "4", "all"], HOLD = { "in": 2000, "all": 2600 }, at = -1, timer = 0, seen = false;
+    function paint(step) {
+      var n = step === "all" ? 5 : step === "in" ? 0 : +step;
+      fig.setAttribute("data-step", step);
+      hub.classList.toggle("is-on", n > 0);
+      for (var p = 0; p < panels.length; p++) {
+        panels[p].classList.toggle("is-on", p + 1 === n);
+        panels[p].classList.toggle("is-done", p + 1 < n);
+        if (outs[p]) outs[p].classList.toggle("is-on", p + 1 <= n);
+      }
+    }
+    function tick() {
+      at = (at + 1) % STEPS.length;
+      paint(STEPS[at]);
+      timer = setTimeout(tick, HOLD[STEPS[at]] || 3400);
+    }
+    function sync() {
+      var live = seen && !document.hidden;
+      if (live === fig.classList.contains("live")) return;
+      fig.classList.toggle("live", live);
+      clearTimeout(timer);
+      if (live) timer = setTimeout(tick, at < 0 ? 300 : HOLD[STEPS[at]] || 3400);
+    }
+    fig.classList.add("hb--anim");
+    paint("in");
+    new IntersectionObserver(function (entries) {
+      seen = entries[entries.length - 1].isIntersecting;
+      sync();
+    }, { threshold: 0.25 }).observe(fig);
+    document.addEventListener("visibilitychange", sync);
+  })();
+
+  /* -------------------------------------------------- Install mockups (v4.13.10 R45)
+     Each tab's terminal shows the prompt, the pasted command, Enter, and the installer's
+     output, then holds and loops. A mockup restarts whenever it comes on screen, which is
+     also what a tab switch does. Without motion it shows the finished output. */
+  (function () {
+    var mocks = document.querySelectorAll("[data-tm]");
+    if (!mocks.length || REDUCE || !("IntersectionObserver" in window)) return;
+    function stop(m) { clearTimeout(m.nhgTimer); m.classList.remove("is-live"); }
+    function play(m) {
+      stop(m);
+      var lines = m.querySelectorAll(".tm-l"), i = 0;
+      for (var k = 0; k < lines.length; k++) lines[k].classList.remove("is-on");
+      m.classList.add("tm--anim", "is-live");
+      function at(step, wait, next) { m.setAttribute("data-tm-step", step); m.nhgTimer = setTimeout(next, wait); }
+      at("prompt", 1100, function () {
+        at("paste", 1400, function () {
+          m.setAttribute("data-tm-step", "run");
+          (function out() {
+            if (i < lines.length) { lines[i++].classList.add("is-on"); m.nhgTimer = setTimeout(out, i < 4 ? 520 : 340); }
+            else at("done", 4600, function () { play(m); });
+          })();
+        });
+      });
+    }
+    function sync(m) { if (m.nhgSeen && !document.hidden) play(m); else stop(m); }
+    var io = new IntersectionObserver(function (entries) {
+      for (var e = 0; e < entries.length; e++) { entries[e].target.nhgSeen = entries[e].isIntersecting; sync(entries[e].target); }
+    }, { threshold: 0.25 });
+    for (var m = 0; m < mocks.length; m++) io.observe(mocks[m]);
+    document.addEventListener("visibilitychange", function () { for (var m = 0; m < mocks.length; m++) sync(mocks[m]); });
   })();
 })();
 </script>

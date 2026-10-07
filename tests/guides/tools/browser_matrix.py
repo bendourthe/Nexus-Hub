@@ -139,7 +139,7 @@ def declare_groups() -> dict[str, list[dict]]:
                  for r in ("review", "play-buggy") for th in THEMES for (w, h) in ((1280, 720), (1366, 768))]
     # v4.4.2 additions
     g["home-sections"] = [dict(label=f"home-{sec}-{th}-{w}", url=f"{base}#home", width=w, height=900, theme=th, retain=True, scroll=f"#{sec}")
-                          for sec in ("nhg-why", "nhg-how", "nhg-guardrails", "nhg-commands") for th in THEMES for w in (420, 1440)]
+                          for sec in ("nhg-benefits", "nhg-how", "nhg-guardrails", "nhg-commands") for th in THEMES for w in (420, 1440)]
     g["annotated"] = [dict(label=f"ann-{scene}-{state}-{th}-1440", url=f"{base}#foundations", width=1440, height=900, theme=th, retain=True,
                            scroll=f"#{scene}", seq=(scene, state))
                       for scene in ("fx-ann-prompt", "fx-ann-context") for state in ("mid", "end") for th in THEMES]

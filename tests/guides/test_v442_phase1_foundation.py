@@ -19,8 +19,9 @@ PAGES = ("home", "foundations", "cheatsheets")
 TRAINING = GUIDE.parent / "training.html"
 
 # Visible-text rename allowlist: these carriers hold repository or command identifiers,
-# where the hyphenated form is the correct spelling.
-RENAME_EXEMPT_SELECTOR = "code, pre, kbd, [data-copy], a[href*='github.com/bendourthe/Nexus-Hub']"
+# where the hyphenated form is the correct spelling. The Home terminal mockups (.tm, v4.13.10 R45)
+# quote the installer's real output, which prints the product name hyphenated.
+RENAME_EXEMPT_SELECTOR = "code, pre, kbd, [data-copy], .tm, a[href*='github.com/bendourthe/Nexus-Hub']"
 
 
 def _load_sync_playwright():

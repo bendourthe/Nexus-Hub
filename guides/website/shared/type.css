@@ -10,7 +10,8 @@
    same part outside a figure element: .fx-diagram (Foundations scene diagrams), .ml-flow, .ml-tier-list and
    .ml-scale (the model lab's network, class cards, and their axis), .ph (the platform chat mockups), .term
    (terminal and code samples), .loop-strip (the workflow loop), .tr-flow (the Training workflow strip),
-   .ide-wrap (the IDE player and its controls), .hero-lockup (the logo lockup), and the game overlays.
+   .ide-wrap (the IDE player and its controls), .hero-lockup (the logo lockup), .hb (the Home benefits figure),
+   .tm (the Home install terminal mockups), and the game overlays.
    Navigation and controls (nav, button, summary, .pagenav) take a role for size, family, and spacing;
    their colour and weight follow their state (current, hover, open). The rendered audit in
    tests/guides/test_v443_phase1_headings.py reads this same list. */

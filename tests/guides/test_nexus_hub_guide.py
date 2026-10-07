@@ -844,22 +844,29 @@ def test_windows_install_tab_is_first_and_default(parsed: GuideParser, guide_tex
 
 
 def test_each_install_tab_gives_its_command_and_how_to_open_the_terminal(guide_text: str) -> None:
-    """v4.13.10 R38, review 13: one quiet terminal per tab with the inline copy chip and a how-to line."""
+    """v4.13.10 R38, review 13: one quiet terminal per tab with the inline copy chip and how-to steps.
+
+    R45 replaced the one-line how-to with numbered steps beside the system's icon, and added a
+    terminal mockup. The command box itself stays quiet: no large button, no window dots, no keycaps.
+    """
     home = _home_markup(guide_text)
     assert "Paste the line for the target system" not in home
     expected = {"win": INSTALL_PS, "mac": INSTALL_SH, "linux": INSTALL_SH}
     for tab, command in expected.items():
-        panel = re.search(
+        start = re.search(
             rf'<div class="tab-panel[^"]*" data-panel="{tab}" id="install-panel-{tab}" role="tabpanel"'
-            rf' aria-labelledby="install-tab-{tab}"[^>]*>([\s\S]*?)</p></div>',
+            rf' aria-labelledby="install-tab-{tab}"[^>]*>',
             home,
         )
-        assert panel, f"missing install panel {tab}"
-        body = panel.group(1)
-        # Review 13: the large button and numbered steps read as loud; the window dots are gone.
+        assert start, f"missing install panel {tab}"
+        rest = home[start.end():]
+        stop = re.search(r'<div class="tab-panel|<div id="nhg-copy-status"', rest)
+        body = rest[: stop.start()] if stop else rest
+        # Review 13: the large button and loud steps are gone; the command box has no window dots.
         assert "data-install-copy" not in body and 'class="tdots"' not in body and "<kbd" not in body
         assert re.findall(r'data-copy="([^"]+)"', body) == [command], f"{tab}: exact command"
-        assert 'class="install-how"' in body and "paste the command and press Enter" in body
+        assert '<ol class="inst-list">' in body and "Paste the command and press Enter." in body
+        assert f'class="inst-os" data-os="{tab}"' in body, f"{tab}: the system's icon"
     assert 'id="install-detected"' in home and "hidden></p>" in home, "the Detected note starts hidden"
     assert '<ol class="verify-steps verify-steps--secondary">' in home
 

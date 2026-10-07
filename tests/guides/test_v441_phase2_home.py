@@ -253,7 +253,7 @@ _HOOKS_DIR = _ROOT / "catalog" / "hooks"
 # drift still fails.
 EXPECTED_HOME_ORDER = [
     "A skill harness for agentic AI platforms",
-    "Raw Prompting Limits",
+    "Harness Benefits",
     "Installation",
     "Skills, Hooks, and Governance",
     "Security Guardrails",
@@ -346,7 +346,7 @@ def test_home_sections_render_in_the_agreed_order(playwright_mod) -> None:
 
 def test_restored_sections_are_at_most_two_thirds_of_their_v412_word_count(playwright_mod) -> None:
     fixture = _json.loads(_FIXTURE.read_text(encoding="utf-8"))["sections"]
-    ids = {"why-it-matters": "nhg-why", "how-it-works": "nhg-how", "favorite-commands": "nhg-commands"}
+    ids = {"why-it-matters": "nhg-benefits", "how-it-works": "nhg-how", "favorite-commands": "nhg-commands"}
     with playwright_mod() as pw:
         browser, page = _launch(pw)
         try:
