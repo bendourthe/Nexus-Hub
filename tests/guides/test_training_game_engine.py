@@ -708,7 +708,8 @@ def test_the_explosion_plays_out_after_a_buggy_death(page) -> None:
 
 SHIP_IDS = ["vanguard", "warden", "specter", "talon", "raptor"]
 SHIP_COLOURS = {"vanguard": "blue", "warden": "green", "specter": "orange", "talon": "yellow", "raptor": "red"}
-UPGRADES = ["shield", "repair", "weapon", "spread", "rapid", "pierce", "missiles", "wingman", "slow", "magnet"]
+# R43 (T126): the Revive and the Atomic blast joined the ten upgrades
+UPGRADES = ["shield", "repair", "weapon", "spread", "rapid", "pierce", "missiles", "wingman", "slow", "magnet", "revive", "atomic"]
 
 
 def test_the_start_screen_offers_five_ships_and_the_full_upgrade_key(page) -> None:
@@ -805,6 +806,12 @@ def test_every_upgrade_kind_is_collected_and_takes_effect(page, kind: str) -> No
         assert s["shieldHp"] == SHIELD
     elif kind == "repair":
         assert s["health"] == min(s["healthMax"], s["before"]["health"] + 35) > s["before"]["health"]
+    elif kind == "revive":
+        # R43 (T126): the Revive is held until the ship is destroyed, not timed
+        assert s["revive"] == 1 and s["health"] == s["before"]["health"]
+    elif kind == "atomic":
+        # R43 (T126): the Atomic blast fires once at pickup, not timed
+        assert len(s["blastLog"]) == 1 and s["blast"] is not None
     else:
         assert s["player"][kind] > 0 and kind in [u["kind"] for u in s["upgrades"]], "a timed upgrade shows in the HUD list"
 
@@ -944,7 +951,7 @@ def test_the_start_screen_fits_the_arena_with_no_scroll_bar(browser, viewport: t
                 assert m["sh"] <= m["ch"] and m["sw"] <= m["cw"], f"{gid} {viewport}: content overflows the arena: {m}"
                 assert m["outside"] == [] and m["clipped"] == [], f"{gid} {viewport}: {m}"
                 assert m["start"], "the Start button always shows"
-            assert max(m["ships"] for m in panels) == 5 and max(m["keys"] for m in panels) == 10, panels
+            assert max(m["ships"] for m in panels) == 5 and max(m["keys"] for m in panels) == len(UPGRADES), panels
             assert max(m["downs"] for m in panels) == 4, f"R36: the hazard legend shows its four downgrades: {panels}"
     finally:
         pg.close()
