@@ -81,3 +81,19 @@ Ubiquitous language for Nexus-Hub design discussions, plans, and reviews. Each t
 **Avoid**: optional phase, stretch phase, bonus phase (none of these require the cut to be recorded)
 
 **Relationships**: Distinct from a nice-to-have task, which is a single cuttable task inside a phase. Every cut is recorded by `known-gaps-tracker`. The final phase never depends on a Cut Phase (plan v4.13.9).
+
+## Refactor-First
+
+**Definition**: The rule that a change landing in scattered, duplicated, or tangled code is preceded by a behavior-preserving refactor proven by a green test run, and that the refactor and the change are never verified as one step.
+
+**Avoid**: cleanup-first, prep refactor, refactor-and-change (the last names the violation, not the rule)
+
+**Relationships**: Owned by `refactoring-expert` (plan v4.17.12). Sequencing only; what structure to aim for is owned by `code-simplification`'s design invariants. Composes with one local commit per phase: two verified steps inside one phase commit, not two commits.
+
+## Anchor Clause
+
+**Definition**: A distinctive clause of a rule, recorded in a rule-ownership test, whose presence marks the owner file and whose absence from non-owner files is checked as a copy-paste tripwire.
+
+**Avoid**: anchor phrase, rule title, keyword (a title is what a handoff legitimately repeats)
+
+**Relationships**: Used by `tests/skills/test_rule_ownership.py` (plan v4.17.12). Narrower than rule ownership: absence of the clause does not prove a paraphrased restatement is absent.
