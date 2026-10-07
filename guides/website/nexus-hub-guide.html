@@ -845,7 +845,7 @@ html[data-theme="light"] .btn--primary:hover{color:#fffdf8;}
 .support-list dt:first-of-type,.support-list dd:first-of-type,.definition-list dt:first-of-type,.definition-list dd:first-of-type{border-top:0;}
 .support-list dd p,.definition-list dd p{margin:0;}
 .support-list .cmd-cell{margin-top:var(--sp-2);max-width:100%;}
-.support-list .cmd-cell code{overflow-x:auto;white-space:nowrap;}
+.support-list .cmd-cell code{white-space:normal;overflow-wrap:anywhere;}
 .verify-steps > li{display:flex;gap:var(--sp-4);align-items:flex-start;}
 .verify-steps > li + li{margin-top:var(--sp-4);padding-top:var(--sp-4);border-top:1px solid var(--border);}
 .vs-n{flex:none;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:var(--green);color:var(--bg-deep);font-size:15px;font-weight:700;font-family:var(--mono);}
@@ -920,6 +920,29 @@ color: var(--ink-faint); }
 html[data-theme="light"] .tab-btn.active{color:#fffdf8;}
 .tab-panel{display:none;}
 .tab-panel.active{display:block;}
+/* ---------- OS-aware install (v4.13.10 R38) ---------- Three tabs open on the detected system; each gives two numbered steps and one large copy button. Type comes from the data-ty roles only. */
+.install-head{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-2) var(--sp-4);margin:var(--sp-4) 0 var(--sp-4);}
+.install-head .tab-btns{margin:0;flex-wrap:wrap;}
+.install-detected{margin:0;}
+.install-steps{list-style:none;margin:0;padding:0;}
+.install-steps > li{display:flex;gap:var(--sp-4);align-items:flex-start;}
+.install-steps > li + li{margin-top:var(--sp-5);}
+.is-n{flex:none;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:var(--accent);color:var(--bg-deep);}
+html[data-theme="light"] .is-n{color:#fffdf8;}
+.is-body{flex:1;min-width:0;}
+.is-do{margin:2px 0 var(--sp-2);}
+.is-how{margin:0;}
+.install-steps .term--install{margin:var(--sp-4) 0 var(--sp-3);}
+.install-steps .term--install .cmd-line{align-items:flex-start;}
+.install-steps .term--install .cmd-line code{white-space:normal;overflow-wrap:anywhere;overflow-x:visible;}
+kbd.key{display:inline-block;min-width:1.7em;padding:0 7px;text-align:center;background:var(--surface-2);border:1px solid var(--border-bright);border-bottom-width:2px;border-radius:6px;white-space:nowrap;}
+.nhg-install-wrap .install-copy{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:12px 28px;background:var(--accent);color:var(--bg-deep);border:0;border-radius:10px;cursor:pointer;box-shadow:0 10px 28px color-mix(in srgb,var(--accent) 30%,transparent);}
+.install-copy:hover{filter:brightness(1.07);}
+.install-copy:focus-visible{outline:2px solid var(--focus);outline-offset:3px;}
+.install-copy svg{width:20px;height:20px;flex:none;}
+.install-copy.copied{background:var(--green);box-shadow:0 10px 28px color-mix(in srgb,var(--green) 30%,transparent);}
+html[data-theme="light"] .install-copy{color:#fffdf8;}
+@media (max-width:560px){.install-copy{width:100%;}.install-steps > li{gap:var(--sp-3);}}
 /* ---------- Details ---------- */
 details{border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;margin:var(--sp-3) 0;background:var(--surface);font-size:15px;}
 details summary{cursor:pointer;color:var(--ink-dim);}
@@ -1740,13 +1763,14 @@ main .eyebrow,main .tr-kicker{display:none;}
           <a class="btn" href="training.html" data-training-link>Get trained</a>
           <a class="btn" href="#cheatsheets" data-go="cheatsheets">Open Cheatsheets</a></div></div><section class="section" id="nhg-why">
 <h2 data-ty="h2" class="section-title">Raw Prompting Limits</h2><div class="grid grid-4"><div class="card"><h3 data-ty="h3">Consistency</h3><p data-ty="body">One governed workflow for everyone, whoever wrote the prompt.</p></div><div class="card"><h3 data-ty="h3">Depth</h3><p data-ty="body"><span data-count="skills">340</span> skills encode expert procedures, loaded only when needed.</p></div><div class="card"><h3 data-ty="h3">Safety</h3><p data-ty="body">Hooks block secrets and destructive git before they run.</p></div><div class="card"><h3 data-ty="h3">Governance</h3><p data-ty="body">A definition of done and GO / NO-GO gates make output reviewable.</p></div></div></section><section class="section" id="nhg-install">
-        <h2 data-ty="h2" class="section-title">Installation</h2><p data-ty="body">Paste the line for the target system. The installer copies the catalog into <code data-ty="code">~/.nexus-hub/</code>, wires every assistant it detects, and preserves customized files. There is no download to unzip first.</p><div class="nhg-install-wrap" data-tabs data-nhg-keys="self"><div class="tab-btns" role="tablist" aria-label="Install command by operating system">
+        <h2 data-ty="h2" class="section-title">Installation</h2><p data-ty="body">Installation takes two steps: open a terminal, then paste one command. The tab for the detected system opens first. The installer copies the catalog into <code data-ty="code">~/.nexus-hub/</code>, wires every assistant it detects, and preserves customized files. There is no download to unzip first.</p><div class="nhg-install-wrap" data-tabs data-nhg-keys="self"><div class="install-head"><div class="tab-btns" role="tablist" aria-label="Install steps by operating system">
             <button type="button" data-ty="label" class="tab-btn active" id="install-tab-win" data-tab="win" role="tab" aria-selected="true" aria-controls="install-panel-win">Windows</button>
-            <button type="button" data-ty="label" class="tab-btn" id="install-tab-posix" data-tab="posix" role="tab" aria-selected="false" aria-controls="install-panel-posix">macOS / Linux</button></div><div class="tab-panel active" data-panel="win" id="install-panel-win" role="tabpanel" aria-labelledby="install-tab-win"><div class="term term--standalone term--install"><div class="term-bar"><div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div><span data-ty="code" class="label">Windows &middot; paste into PowerShell</span></div><div class="term-body"><div class="cmd-line"><span data-ty="code" class="t-teal" aria-hidden="true">&gt;</span> <code data-ty="code" data-copy="irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex">irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex</code></div></div></div></div><div class="tab-panel" data-panel="posix" id="install-panel-posix" role="tabpanel" aria-labelledby="install-tab-posix" hidden><div class="term term--standalone term--install"><div class="term-bar"><div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div><span data-ty="code" class="label">macOS / Linux &middot; paste into Terminal</span></div><div class="term-body"><div class="cmd-line"><span data-ty="code" class="t-teal" aria-hidden="true">$</span> <code data-ty="code" data-copy="curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash">curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash</code></div></div></div></div></div><div id="nhg-copy-status" class="visually-hidden" aria-live="polite"></div><ol class="verify-steps verify-steps--secondary"><li data-ty="body-sm">
-            <span class="vs-n" aria-hidden="true">1</span><div class="vs-body"><p data-ty="body-sm" class="vs-do">Check that it installed. Run either command in the assistant:</p><div class="vs-cmds">
+            <button type="button" data-ty="label" class="tab-btn" id="install-tab-mac" data-tab="mac" role="tab" aria-selected="false" aria-controls="install-panel-mac">macOS</button>
+            <button type="button" data-ty="label" class="tab-btn" id="install-tab-linux" data-tab="linux" role="tab" aria-selected="false" aria-controls="install-panel-linux">Linux</button></div><p data-ty="caption" class="install-detected" id="install-detected" hidden></p></div><div class="tab-panel active" data-panel="win" id="install-panel-win" role="tabpanel" aria-labelledby="install-tab-win"><ol class="install-steps"><li><span data-ty="label" class="is-n" aria-hidden="true">1</span><div class="is-body"><p data-ty="h4" class="is-do">Open the terminal.</p><p data-ty="body" class="is-how">Press the <kbd data-ty="code" class="key">Windows</kbd> key, type <strong>PowerShell</strong>, and press <kbd data-ty="code" class="key">Enter</kbd>.</p></div></li><li><span data-ty="label" class="is-n" aria-hidden="true">2</span><div class="is-body"><p data-ty="h4" class="is-do">Copy and run.</p><button type="button" data-ty="h4" class="install-copy" data-install-copy><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="install-copy-label">Copy install command</span></button><div class="term term--standalone term--install"><div class="term-bar"><div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div><span data-ty="code" class="label">Windows &middot; PowerShell</span></div><div class="term-body"><div class="cmd-line"><span data-ty="code" class="t-teal" aria-hidden="true">&gt;</span> <code data-ty="code" data-copy="irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex">irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex</code></div></div></div><p data-ty="body" class="is-how">Paste it into the terminal and press <kbd data-ty="code" class="key">Enter</kbd>.</p></div></li></ol></div><div class="tab-panel" data-panel="mac" id="install-panel-mac" role="tabpanel" aria-labelledby="install-tab-mac" hidden><ol class="install-steps"><li><span data-ty="label" class="is-n" aria-hidden="true">1</span><div class="is-body"><p data-ty="h4" class="is-do">Open the terminal.</p><p data-ty="body" class="is-how">Press <kbd data-ty="code" class="key">Cmd</kbd> + <kbd data-ty="code" class="key">Space</kbd>, type <strong>Terminal</strong>, and press <kbd data-ty="code" class="key">Enter</kbd>.</p></div></li><li><span data-ty="label" class="is-n" aria-hidden="true">2</span><div class="is-body"><p data-ty="h4" class="is-do">Copy and run.</p><button type="button" data-ty="h4" class="install-copy" data-install-copy><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="install-copy-label">Copy install command</span></button><div class="term term--standalone term--install"><div class="term-bar"><div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div><span data-ty="code" class="label">macOS &middot; Terminal</span></div><div class="term-body"><div class="cmd-line"><span data-ty="code" class="t-teal" aria-hidden="true">$</span> <code data-ty="code" data-copy="curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash">curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash</code></div></div></div><p data-ty="body" class="is-how">Paste it into the terminal and press <kbd data-ty="code" class="key">Enter</kbd>.</p></div></li></ol></div><div class="tab-panel" data-panel="linux" id="install-panel-linux" role="tabpanel" aria-labelledby="install-tab-linux" hidden><ol class="install-steps"><li><span data-ty="label" class="is-n" aria-hidden="true">1</span><div class="is-body"><p data-ty="h4" class="is-do">Open the terminal.</p><p data-ty="body" class="is-how">Press <kbd data-ty="code" class="key">Ctrl</kbd> + <kbd data-ty="code" class="key">Alt</kbd> + <kbd data-ty="code" class="key">T</kbd>, or open <strong>Terminal</strong> from the applications menu.</p></div></li><li><span data-ty="label" class="is-n" aria-hidden="true">2</span><div class="is-body"><p data-ty="h4" class="is-do">Copy and run.</p><button type="button" data-ty="h4" class="install-copy" data-install-copy><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span class="install-copy-label">Copy install command</span></button><div class="term term--standalone term--install"><div class="term-bar"><div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div><span data-ty="code" class="label">Linux &middot; Terminal</span></div><div class="term-body"><div class="cmd-line"><span data-ty="code" class="t-teal" aria-hidden="true">$</span> <code data-ty="code" data-copy="curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash">curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash</code></div></div></div><p data-ty="body" class="is-how">Paste it into the terminal and press <kbd data-ty="code" class="key">Enter</kbd>.</p></div></li></ol></div></div><div id="nhg-copy-status" class="visually-hidden" aria-live="polite"></div><ol class="verify-steps verify-steps--secondary" start="3"><li data-ty="body-sm">
+            <span class="vs-n" aria-hidden="true">3</span><div class="vs-body"><p data-ty="body-sm" class="vs-do">Check that it installed. Run either command in the assistant:</p><div class="vs-cmds">
                 <span class="cmd-cell"><code data-ty="code" class="inv" data-copy="/skills list"><span data-ty="code" data-tone="accent" class="inv-cmd">/skills</span> <span data-ty="code" class="inv-arg">list</span></code></span>
                 <span class="cmd-cell"><code data-ty="code" class="inv" data-copy="/commands"><span data-ty="code" data-tone="accent" class="inv-cmd">/commands</span></code></span></div><p data-ty="caption" class="vs-note">The command cheatsheet appears.</p></div></li><li data-ty="body-sm">
-            <span class="vs-n" aria-hidden="true">2</span><div class="vs-body"><p data-ty="body-sm" class="vs-do">Restart the assistant.</p><p data-ty="caption" class="vs-note">Hooks and rules load at startup, so they only take effect after a restart.</p></div></li></ol>
+            <span class="vs-n" aria-hidden="true">4</span><div class="vs-body"><p data-ty="body-sm" class="vs-do">Restart the assistant.</p><p data-ty="caption" class="vs-note">Hooks and rules load at startup, so they only take effect after a restart.</p></div></li></ol>
         <details class="support-details">
           <summary data-ty="label">Troubleshooting</summary>
           <dl class="support-list">
@@ -3307,10 +3331,19 @@ host.appendChild(svg);
         }
         if (moveFocus) button.focus();
       }
+      /* R38: a page module can select a tab by name, and a manual choice is announced on the group. */
+      group.nhgActivate = function (tab) {
+        var target = group.querySelector('.tab-btn[data-tab="' + tab + '"]');
+        if (target) activateTab(target, false);
+      };
+      function chosen(button) {
+        try { group.dispatchEvent(new CustomEvent("nhg-tab-chosen", { detail: { tab: button.getAttribute("data-tab") } })); } catch (e) {}
+      }
       for (var b = 0; b < btns.length; b++) {
         btns[b].setAttribute("tabindex", b === 0 ? "0" : "-1");
         btns[b].addEventListener("click", function () {
           activateTab(this, false);
+          chosen(this);
         });
         btns[b].addEventListener("keydown", function (event) {
           var current = Array.prototype.indexOf.call(btns, this);
@@ -3323,6 +3356,7 @@ host.appendChild(svg);
           event.preventDefault();
           event.stopPropagation();
           activateTab(btns[target], true);
+          chosen(btns[target]);
         });
       }
     })(tabGroups[g]);
@@ -3464,6 +3498,8 @@ host.appendChild(svg);
         var host = el.closest ? el.closest(".cmd-line, .cmd-cell") : null;
         if (!host) host = el.parentNode;
         if (!host || host.querySelector(".copy-btn")) return;
+        /* R38: an install terminal is copied by its step's large button, never a second chip. */
+        if (el.closest && el.closest(".term--install")) return;
         var btn = document.createElement("button");
         btn.type = "button";
         /* An inline host already draws its own chip, so the button
@@ -3507,6 +3543,74 @@ host.appendChild(svg);
   /* -------------------------------------------------- boot */
   go();
   initCopyButtons();
+
+  /* -------------------------------------------------- OS-aware install (v4.13.10 R38) */
+  (function () {
+    var wrap = document.querySelector(".nhg-install-wrap");
+    if (!wrap || !wrap.nhgActivate) return;
+    var KEY = "nexus-hub-guide:install-os";
+    var NAMES = { win: "Windows", mac: "macOS", linux: "Linux" };
+    function known(v) { return typeof v === "string" && Object.prototype.hasOwnProperty.call(NAMES, v); }
+    function classify(text) {
+      if (!text) return null;
+      if (/Windows|Win32|Win64/i.test(text)) return "win";
+      if (/Mac|iPhone|iPad|iPod/.test(text)) return "mac";
+      if (/Linux|X11|CrOS|Chrome ?OS|Android/i.test(text)) return "linux";
+      return null;
+    }
+    /* The client-hints platform is the most direct signal; the user-agent string and
+       navigator.platform are the fallback. No match leaves Windows selected with no note. */
+    function detect() {
+      var nav = window.navigator || {};
+      var hint = "";
+      try { hint = nav.userAgentData && nav.userAgentData.platform ? String(nav.userAgentData.platform) : ""; } catch (e) {}
+      return classify(hint) || classify(String(nav.userAgent || "") + " " + String(nav.platform || ""));
+    }
+    function stored() {
+      try { var v = window.localStorage.getItem(KEY); return known(v) ? v : null; } catch (e) { return null; }
+    }
+    var detected = detect();
+    var note = document.getElementById("install-detected");
+    if (detected && note) {
+      note.textContent = "Detected: " + NAMES[detected];
+      note.hidden = false;
+    }
+    var initial = stored() || detected;
+    if (initial) wrap.nhgActivate(initial);
+    wrap.addEventListener("nhg-tab-chosen", function (ev) {
+      var tab = ev.detail && ev.detail.tab;
+      if (!known(tab)) return;
+      try { window.localStorage.setItem(KEY, tab); } catch (e) {}
+    });
+    var buttons = wrap.querySelectorAll("[data-install-copy]");
+    for (var i = 0; i < buttons.length; i++) {
+      (function (btn) {
+        var label = btn.querySelector(".install-copy-label");
+        var timer = null;
+        btn.addEventListener("click", function () {
+          var panel = btn.closest(".tab-panel");
+          var code = panel ? panel.querySelector("code[data-copy]") : null;
+          var text = code ? code.getAttribute("data-copy") || "" : "";
+          if (!text) return;
+          function done() {
+            btn.classList.add("copied");
+            if (label) label.textContent = "Copied";
+            if (btn.firstElementChild && btn.firstElementChild.tagName.toLowerCase() === "svg") btn.firstElementChild.outerHTML = CHECK_SVG;
+            announceCopied();
+            if (timer) window.clearTimeout(timer);
+            timer = window.setTimeout(function () {
+              btn.classList.remove("copied");
+              if (label) label.textContent = "Copy install command";
+              if (btn.firstElementChild && btn.firstElementChild.tagName.toLowerCase() === "svg") btn.firstElementChild.outerHTML = COPY_SVG;
+            }, 2200);
+          }
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(done, function () { fallbackCopy(text); done(); });
+          } else { fallbackCopy(text); done(); }
+        });
+      })(buttons[i]);
+    }
+  })();
 })();
 </script>
 

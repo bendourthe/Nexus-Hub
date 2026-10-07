@@ -819,12 +819,16 @@ def test_keyboard_and_reduced_motion_are_complete(render_gate: object) -> None:
 
                 active_tab = page.locator('.page.active [role="tab"][aria-selected="true"]')
                 assert active_tab.count() == 1
+                # v4.13.10 R38: the opening tab follows the detected system, so the expected
+                # tab is the one after whichever opened, wrapping at the end.
+                tab_names = page.locator('.page.active [role="tab"]').all_inner_texts()
+                expected_tab = tab_names[(tab_names.index(active_tab.inner_text()) + 1) % len(tab_names)]
                 active_tab.focus()
                 page.keyboard.press("ArrowRight")
                 selected_tab = page.locator(
                     '.page.active [role="tab"][aria-selected="true"]'
                 ).inner_text()
-                if selected_tab != "macOS / Linux":
+                if selected_tab != expected_tab:
                     failures.append(
                         "Home install role=tab buttons do not select the next tab with "
                         f"ArrowRight; selected tab remained {selected_tab!r}"
