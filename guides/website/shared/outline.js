@@ -202,5 +202,7 @@
       resizing = window.setTimeout(function () { all(place); }, 80);
     });
     window.addEventListener("hashchange", function () { window.requestAnimationFrame(function () { all(place); }); });
-    return { mount: mount };
+    /* refresh() places every outline now; a page router calls it right after it shows a page, so the
+       first painted frame already has the rail's final position (v4.13.10 review 11). */
+    return { mount: mount, refresh: function () { all(place); } };
   })();

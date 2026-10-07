@@ -936,8 +936,11 @@ def test_the_outline_holds_still_after_a_page_switch(playwright_mod, target: str
         browser = pw.chromium.launch()
         try:
             page = browser.new_page(viewport={"width": 1600, "height": 900})
+            # A slowed CPU widens the gap between showing a page and placing its outline, which is
+            # where the shift lived; at full speed it lasted a frame or two and passed by luck.
+            page.context.new_cdp_session(page).send("Emulation.setCPUThrottlingRate", {"rate": 6})
             page.goto(GUIDE.as_uri() + "#home")
-            page.wait_for_timeout(400)
+            page.wait_for_timeout(800)
             page.click(f'.nav-links a[data-go="{target}"]')
             tops = []
             for _ in range(15):

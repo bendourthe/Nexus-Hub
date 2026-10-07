@@ -2698,6 +2698,7 @@ host.appendChild(svg);
     }
     renderPageNav(idx);
     renderProgress(idx);
+    if (window.NexusOutline && window.NexusOutline.refresh) window.NexusOutline.refresh();
     /* A hidden page measures zero, so its headings can only be fitted once it is on screen. */
     if (window.NexusFit) window.NexusFit.refit();
     window.scrollTo(0, 0);
@@ -3272,7 +3273,9 @@ host.appendChild(svg);
       resizing = window.setTimeout(function () { all(place); }, 80);
     });
     window.addEventListener("hashchange", function () { window.requestAnimationFrame(function () { all(place); }); });
-    return { mount: mount };
+    /* refresh() places every outline now; a page router calls it right after it shows a page, so the
+       first painted frame already has the rail's final position (v4.13.10 review 11). */
+    return { mount: mount, refresh: function () { all(place); } };
   })();
 /* /shared:outline-js */
 

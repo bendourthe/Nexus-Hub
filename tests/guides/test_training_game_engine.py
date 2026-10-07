@@ -22,6 +22,7 @@ Skipped when Playwright or Chromium is missing; fail-closed under NEXUS_REQUIRE_
 from __future__ import annotations
 
 import colorsys
+import importlib.util
 import math
 import os
 from pathlib import Path
@@ -1062,7 +1063,8 @@ def test_each_ship_fires_its_own_weapon(page) -> None:
     assert len(out["vanguard"]["first"]) == 2 and out["vanguard"]["first"][0]["dmg"] == 2, "two heavy rounds side by side"
     assert len(out["raptor"]["first"]) == 1 and len(out["raptor"]["later"]) == 3, "a three-round burst from one pull"
     assert out["talon"]["first"][0]["len"] > 150 and out["talon"]["first"][0]["pierce"], "a ray that cuts through"
-    assert len(out["specter"]["first"]) == 1 and out["specter"]["first"][0]["dmg"] == 2
+    # R33: orbs hit for 4 (was 2) so the Specter's single-target damage sits in the balance band
+    assert len(out["specter"]["first"]) == 1 and out["specter"]["first"][0]["dmg"] == 4
     flak = out["warden"]
     xs = sorted(p["x"] for p in flak["first"])
     assert len(flak["first"]) == 5 and xs[-1] - xs[0] > 4, "a cone of five pellets that spread"
@@ -1372,3 +1374,154 @@ def test_a_demo_under_reduced_motion_shows_its_final_frame(browser) -> None:
         assert st["ended"] and st["ms"] == 4000 and st["destroyed"] and not st["playing"]
     finally:
         ctx.close()
+
+
+# ---------------------------------------------------------------- R33: the pulsed lance and the balance band
+
+_bal_spec = importlib.util.spec_from_file_location("game_balance", Path(__file__).parent / "tools" / "game_balance.py")
+game_balance = importlib.util.module_from_spec(_bal_spec)
+_bal_spec.loader.exec_module(game_balance)
+
+LANCE_ON, LANCE_OFF = 24, 36
+
+TRACE_JS = """([upgrade, ticks, tap]) => { const g = SkySentinel.get('fixed');
+    g.configure({ defects: {}, seed: 7, threats: false, level: 1 }); g.chooseShip('talon'); g.start(); g.pause('t'); g.step(5);
+    if (upgrade) { g.dropPowerUp(upgrade); g.step(2); }
+    const p = g.state().player; g.spawnDummy(p.x, p.y - 170, 22);
+    const out = []; let dealt = g.state().dealt;
+    for (let i = 0; i < ticks; i++) {
+        g.input({ fire: tap ? (i % 4 < 2) : true });
+        const s = g.step(1), l = s.playerShots.filter(x => x.kind === 'lance');
+        out.push({ lit: l.some(x => x.lit), n: l.length, end: l.length ? Math.min(...l.map(x => x.y - x.len)) : null,
+                   hit: s.dealt - dealt, pulse: s.weapon.pulse, h: s.world.h });
+        dealt = s.dealt;
+    }
+    g.input({ fire: false }); g.chooseShip('vanguard'); return out; }"""
+
+
+def _trace(page, upgrade: str | None = None, ticks: int = 360, tap: bool = False) -> list[dict]:
+    return page.evaluate(TRACE_JS, [upgrade, ticks, tap])
+
+
+def _runs(trace: list[dict], lit: bool) -> list[int]:
+    """Lengths of the unbroken runs of lit (or dark) ticks, without the unfinished last run."""
+    runs, n = [], 0
+    for t in trace:
+        if t["lit"] == lit:
+            n += 1
+        elif n:
+            runs.append(n)
+            n = 0
+    return runs
+
+
+def test_the_lance_reaches_the_top_of_the_arena(page) -> None:
+    trace = _trace(page, ticks=30)
+    lit = [t for t in trace if t["lit"]]
+    assert lit, "the lance lights while fire is held"
+    assert all(t["end"] <= 0 for t in lit), f"the ray ends at the top edge: {[t['end'] for t in lit][:5]}"
+
+
+def test_the_lance_pulses_while_fire_is_held(page) -> None:
+    trace = _trace(page)
+    on, off = _runs(trace, True), _runs(trace, False)
+    assert len(on) >= 5, f"the ray relights again and again: {on}"
+    assert max(on) <= LANCE_ON, f"never lit for longer than one pulse: {on}"
+    assert min(off[1:]) >= LANCE_OFF - 1, f"each pulse is followed by its dark time: {off}"
+    assert 0.3 <= sum(t["lit"] for t in trace) / len(trace) <= 0.45, "lit for about 40 percent of the time"
+    assert all(t["hit"] == 0 for t in trace if not t["lit"]), "no damage while the ray is dark or fading"
+    assert sum(t["hit"] for t in trace) > 0
+
+
+def test_rapid_shortens_the_lances_dark_time(page) -> None:
+    base, rapid = _runs(_trace(page), False)[1:], _runs(_trace(page, "rapid"), False)[1:]
+    assert max(rapid) < min(base) * 0.5, f"Rapid relights the ray sooner: {rapid} vs {base}"
+    assert max(_runs(_trace(page, "rapid"), True)) <= LANCE_ON, "Rapid never makes the ray stay on"
+
+
+def test_tapping_fire_cannot_keep_the_lance_on(page) -> None:
+    trace = _trace(page, tap=True)
+    assert sum(t["lit"] for t in trace) / len(trace) <= 0.42, "tapping gains nothing over holding"
+
+
+def test_the_lance_stops_at_the_bosss_armour(page) -> None:
+    out = _js(page, """g.configure({ defects: {}, seed: 7, threats: false, level: 3, progression: true, boss: true, bossNow: true, immune: true });
+        g.chooseShip('talon'); g.start(); g.pause('t');
+        let s = g.state(); while (!(s.boss && s.boss.entered)) s = g.step(10);
+        for (let i = 0; i < 200; i++) { const dx = g.bossGeometry().centre[0] - s.player.x; if (Math.abs(dx) < 4) break; g.input({ left: dx < 0, right: dx > 0 }); s = g.step(1); }
+        g.input({ left: false, right: false, fire: true }); s = g.step(2); g.input({ fire: false });
+        const l = s.playerShots.filter(x => x.kind === 'lance'), geo = g.bossGeometry();
+        g.configure({ immune: false, progression: false, boss: false, level: 1 }); g.chooseShip('vanguard');
+        return { ends: l.map(x => x.y - x.len), cy: geo.centre[1], hp: s.boss.nodesAlive };""")
+    assert out["ends"] and all(e > out["cy"] for e in out["ends"]), f"the ray stops at the boss, not the arena top: {out}"
+
+
+
+def _boss_ready(page, ship: str) -> None:
+    _js(page, f"""g.configure({{ defects: {{}}, seed: 7, threats: false, level: 3, progression: true, boss: true, bossNow: true, immune: true }});
+        g.chooseShip('{ship}'); g.start(); g.pause('t'); let s = g.state(); while (!(s.boss && s.boss.entered)) s = g.step(1); return 0;""")
+
+
+def _boss_done(page) -> None:
+    _js(page, "g.input({ fire: false, left: false, right: false }); g.configure({ immune: false, progression: false, boss: false, level: 1 }); g.chooseShip('vanguard'); return 0;")
+
+
+def test_the_boss_does_not_jump_sideways_when_it_arrives(page) -> None:
+    _boss_ready(page, "vanguard")
+    xs = _js(page, "const xs = [g.bossGeometry().centre[0]]; for (let i = 0; i < 30; i++) { g.step(1); xs.push(g.bossGeometry().centre[0]); } return xs;")
+    _boss_done(page)
+    assert max(abs(b - a) for a, b in zip(xs, xs[1:])) < 3, f"the sway starts smoothly: {xs[:6]}"
+
+
+@pytest.mark.parametrize("ship", ["vanguard", "talon"])
+def test_the_core_is_open_from_below_once_every_node_is_down(page, ship: str) -> None:
+    """R33: the lower blade sat under the core and absorbed every straight shot from below."""
+    _boss_ready(page, ship)
+    out = _js(page, """for (let i = 0; i < 4; i++) g.hitBoss('node' + i, 8);
+        let s = g.state(); const hp0 = s.boss.coreHp;
+        for (let i = 0; i < 240 && s.boss; i++) { const dx = g.bossGeometry().centre[0] - s.player.x;
+            g.input({ fire: true, left: dx < -3, right: dx > 3 }); s = g.step(1); }
+        return { hp0, hp: s.boss ? s.boss.coreHp : 0 };""")
+    _boss_done(page)
+    assert out["hp"] < out["hp0"], f"{ship}: straight fire from under the core reaches it: {out}"
+
+@pytest.fixture(scope="module")
+def balance(page) -> dict:
+    data = game_balance.measure(page)
+    data["_stats"] = {s["id"]: (s["hull"], s["speed"]) for s in page.evaluate("SkySentinel.get('fixed').ships()")}
+    return data
+
+
+def _band(balance: dict, key: str) -> dict:
+    vals = {s: balance[s]["base"][key] for s in SHIP_IDS}
+    m = game_balance.mean(list(vals.values()))
+    return {s: v / m - 1 for s, v in vals.items()}
+
+
+def test_every_ship_sits_in_the_single_target_band(balance) -> None:
+    off = _band(balance, "single")
+    assert all(abs(v) <= game_balance.BAND["single"] for v in off.values()), f"single-target DPS off the mean: {off}"
+
+
+@pytest.mark.parametrize("key", ["wave", "hunt"])
+def test_wave_damage_and_boss_kill_time_sit_in_their_band(balance, key: str) -> None:
+    off = _band(balance, key)
+    assert all(abs(v) <= game_balance.BAND[key] for v in off.values()), f"{key} off the mean: {off}"
+
+
+def test_a_strength_is_paid_for_by_a_weakness(balance) -> None:
+    idx = game_balance.power(balance, balance["_stats"])
+    assert all(abs(v - 1) <= game_balance.BAND["power"] for v in idx.values()), f"power index per ship: {idx}"
+
+
+def test_every_ship_reaches_and_damages_the_boss(balance) -> None:
+    for ship in SHIP_IDS:
+        base = balance[ship]["base"]
+        assert base["reach"] >= 250 and base["bossDps"] > 0, f"{ship}: {base}"
+
+
+@pytest.mark.parametrize("ship", SHIP_IDS)
+def test_every_weapon_upgrade_changes_a_measured_value_on_every_ship(balance, ship: str) -> None:
+    base = balance[ship]["base"]
+    weak = {u: round(game_balance.changed(base, balance[ship][u]), 3) for u in game_balance.WEAPON_UPGRADES}
+    assert all(v >= game_balance.BAND["upgrade"] for v in weak.values()), f"{ship}: an upgrade with too little effect: {weak}"
