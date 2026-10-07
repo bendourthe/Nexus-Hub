@@ -29,7 +29,7 @@ LOCAL_MODELS = {"Gemma 4 12B", "Qwen3-Coder 30B-A3B", "SANA 1.5 1.6B 1024px", "W
 
 DEFEAT_BOSS = """() => { const g = SkySentinel.get('fixed'); SkySentinel.manual(true);
   g.configure({ level: 3, bossNow: true }); g.start(); g.step(600);
-  for (let i = 0; i < 4; i++) g.hitBoss('node' + i, 8); g.hitBoss('core', 24); SkySentinel.manual(false); }"""
+  g.defeatBoss(); SkySentinel.manual(false); }"""
 
 # What a reader sees at one moment: the active pane, its labels, and any layout fault.
 VIEW = """() => {
