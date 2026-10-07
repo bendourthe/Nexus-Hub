@@ -149,7 +149,8 @@ def test_detection_alone_never_stores_a_choice(playwright_mod) -> None:
             browser.close()
 
 
-def test_the_copy_button_copies_the_exact_command_for_each_tab(playwright_mod) -> None:
+def test_the_copy_chip_copies_the_exact_command_for_each_tab(playwright_mod) -> None:
+    """Review 13: the command box keeps the shared inline copy chip instead of a large button."""
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
         try:
@@ -158,24 +159,18 @@ def test_the_copy_button_copies_the_exact_command_for_each_tab(playwright_mod) -
                 page.click(f"#install-tab-{tab}")
                 page.evaluate("navigator.clipboard.writeText('')")
                 page.evaluate("document.getElementById('nhg-copy-status').textContent = ''")
-                button = page.locator(f"#install-panel-{tab} .install-copy")
-                assert button.is_visible()
-                assert button.inner_text().strip() == "Copy install command"
+                button = page.locator(f"#install-panel-{tab} .term--install .copy-btn")
+                assert button.count() == 1 and button.is_visible()
                 button.click()
                 page.wait_for_function(
                     "(b) => document.querySelector(b).textContent.trim() === 'Copied'",
-                    arg=f"#install-panel-{tab} .install-copy",
+                    arg=f"#install-panel-{tab} .term--install .copy-btn",
                 )
                 assert page.evaluate("navigator.clipboard.readText()") == command, tab
                 assert "Copied" in page.locator("#nhg-copy-status").inner_text()
-                # The terminal under the button shows the same command, with no second chip.
                 shown = page.locator(f"#install-panel-{tab} .term--install code[data-copy]")
                 assert shown.inner_text().strip() == command
-                assert page.locator(f"#install-panel-{tab} .term--install .copy-btn").count() == 0
-            page.wait_for_function(
-                "() => document.querySelector('#install-panel-linux .install-copy').textContent.trim() === 'Copy install command'",
-                timeout=5000,
-            )
+                assert page.locator(f"#install-panel-{tab} .tdots").count() == 0, "no window dots"
         finally:
             browser.close()
 
@@ -220,13 +215,13 @@ def test_the_install_section_has_no_horizontal_overflow_at_390(playwright_mod, a
                     .map(e => e.tagName + '.' + e.className);
                   const outside = [...s.querySelectorAll('*')].filter(e => { const r = e.getBoundingClientRect();
                       return r.width > 0 && (r.left < sr.left - 1 || r.right > sr.right + 1); }).map(e => e.tagName + '.' + e.className);
-                  const btn = document.querySelector('.tab-panel.active .install-copy').getBoundingClientRect();
+                  const chip = document.querySelector('.tab-panel.active .term--install .copy-btn');
                   return { doc: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-                           scrolls, outside, button: [btn.width, btn.height] }; }"""
+                           scrolls, outside, chip: !!chip && chip.getClientRects().length > 0 }; }"""
             )
             assert result["doc"] == 0, result
             assert result["scrolls"] == [], result
             assert result["outside"] == [], result
-            assert result["button"][1] >= 44, "the copy button keeps a large target"
+            assert result["chip"], "the command keeps its copy chip"
         finally:
             browser.close()

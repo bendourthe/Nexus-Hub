@@ -843,27 +843,25 @@ def test_windows_install_tab_is_first_and_default(parsed: GuideParser, guide_tex
     assert parsed.install_tab_selected == ["true", "false", "false"]
 
 
-def test_each_install_tab_gives_two_steps_and_its_exact_command(guide_text: str) -> None:
-    """v4.13.10 R38: open the terminal, then copy and run; one large button per tab."""
+def test_each_install_tab_gives_its_command_and_how_to_open_the_terminal(guide_text: str) -> None:
+    """v4.13.10 R38, review 13: one quiet terminal per tab with the inline copy chip and a how-to line."""
     home = _home_markup(guide_text)
     assert "Paste the line for the target system" not in home
     expected = {"win": INSTALL_PS, "mac": INSTALL_SH, "linux": INSTALL_SH}
     for tab, command in expected.items():
         panel = re.search(
             rf'<div class="tab-panel[^"]*" data-panel="{tab}" id="install-panel-{tab}" role="tabpanel"'
-            rf' aria-labelledby="install-tab-{tab}"[^>]*>([\s\S]*?)</ol></div>',
+            rf' aria-labelledby="install-tab-{tab}"[^>]*>([\s\S]*?)</p></div>',
             home,
         )
         assert panel, f"missing install panel {tab}"
         body = panel.group(1)
-        assert body.count('class="is-n"') == 2, f"{tab}: exactly two numbered steps"
-        assert "Open the terminal." in body and "Copy and run." in body
-        assert body.count("data-install-copy") == 1, f"{tab}: one large copy button"
-        assert "Copy install command" in body
+        # Review 13: the large button and numbered steps read as loud; the window dots are gone.
+        assert "data-install-copy" not in body and 'class="tdots"' not in body and "<kbd" not in body
         assert re.findall(r'data-copy="([^"]+)"', body) == [command], f"{tab}: exact command"
-        assert '<kbd data-ty="code" class="key">Enter</kbd>' in body
+        assert 'class="install-how"' in body and "paste the command and press Enter" in body
     assert 'id="install-detected"' in home and "hidden></p>" in home, "the Detected note starts hidden"
-    assert '<ol class="verify-steps verify-steps--secondary" start="3">' in home
+    assert '<ol class="verify-steps verify-steps--secondary">' in home
 
 
 def test_home_contains_both_canonical_install_commands(parsed: GuideParser) -> None:
