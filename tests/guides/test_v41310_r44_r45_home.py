@@ -1,11 +1,12 @@
-"""v4.13.10 R44 and R45: the Home benefits figure and the illustrated install walkthrough.
+"""v4.13.10 R44, R45, and R47: the Home hero benefits figure and the illustrated install walkthrough.
 
-R44 removes the hero button row and replaces the "Raw Prompting Limits" cards with a figure in
-which the hero's five platforms flow into the Nexus Hub mark, which then lights four illustrated
-benefits in turn. R45 gives each install tab numbered steps beside the system's icon and an
-animated mockup of that system's terminal running the installer, whose output must come from the
-real installer scripts. The copy chip, detection, and stored choice are covered by
-test_v41310_r38_install.py.
+R44 removed the hero button row and the "Raw Prompting Limits" cards. R47 (revision 17) folds the
+benefits figure into the hero: no "Harness Benefits" heading, one platform row whose five circles
+each hold a logo and a name, lines from those circles into the Nexus Hub mark, and four panels
+(Depth, Safety, Cross-Platform, Transparency) whose illustrations show their lines. R45 gives each
+install tab numbered steps beside the system's icon and an animated mockup of that system's
+terminal running the installer, whose output must come from the real installer scripts. The copy
+chip, detection, and stored choice are covered by test_v41310_r38_install.py.
 
 Browser tests skip when Playwright or Chromium is missing and fail closed under
 NEXUS_REQUIRE_RENDER=1.
@@ -25,7 +26,9 @@ REQUIRE_RENDER = os.environ.get("NEXUS_REQUIRE_RENDER") == "1"
 WIN_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
 
 PLATFORMS = ["Claude", "ChatGPT", "Gemini", "Cursor", "GitHub Copilot"]
-BENEFITS = [("consistency", "Consistency"), ("depth", "Depth"), ("safety", "Safety"), ("governance", "Governance")]
+BENEFITS = [("depth", "Depth"), ("safety", "Safety"), ("cross-platform", "Cross-Platform"), ("transparency", "Transparency")]
+DOMAINS = ["Security", "Testing", "Docs", "Architecture", "DevOps"]
+FIG = "#nhg-benefits.hb"
 INSTALL_SH = "curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash"
 INSTALL_PS = "irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex"
 COMMANDS = {"win": INSTALL_PS, "mac": INSTALL_SH, "linux": INSTALL_SH}
@@ -74,7 +77,7 @@ def _open(browser, width: int = 1440, height: int = 900, reduced: bool = False, 
                                   reduced_motion="reduce" if reduced else "no-preference")
     page = context.new_page()
     page.goto(GUIDE.as_uri() + hash_)
-    page.wait_for_selector("#nhg-benefits .hb")
+    page.wait_for_selector(FIG)
     return context, page
 
 
@@ -84,37 +87,57 @@ def _home_source() -> str:
     return text[start: text.index('<section class="page', start + 10)]
 
 
-# --------------------------------------------------------------------------------- R44 source
+def _panel_text(benefit: str) -> str:
+    home = _home_source()
+    start = home.index(f'data-benefit="{benefit}"')
+    return re.sub(r"<[^>]+>", " ", home[start: home.index("</li>", home.index("<h3", start))])
+
+
+# --------------------------------------------------------------------------------- source
 
 
 def test_the_hero_has_no_button_row() -> None:
     home = _home_source()
-    hero = home[: home.index('id="nhg-benefits"')]
+    hero = home[: home.index('id="nhg-install"')]
     assert 'class="btn-row"' not in hero and 'class="btn' not in hero, "the hero keeps no buttons"
     for label in ("Get trained", "Open Cheatsheets", 'href="#home/install"'):
         assert label not in hero, label
     assert "Raw Prompting Limits" not in home and 'id="nhg-why"' not in home
 
 
-# --------------------------------------------------------------------------------- R44 rendered
+def test_no_harness_benefits_heading_and_one_platform_row() -> None:
+    home = _home_source()
+    assert "Harness Benefits" not in home, "R47: the figure is part of the hero, without a heading"
+    assert home.count('class="platform-rail"') == 1 and "hb-plats" not in home and "hb-mark" not in home
 
 
-def test_benefits_sit_between_the_hero_and_installation(playwright_mod) -> None:
+def test_safety_names_no_specific_command() -> None:
+    text = _panel_text("safety")
+    assert "Potentially dangerous request" in text
+    assert not re.search(r"\b(git|rm|sudo|push|chmod|del|drop)\b|--|-rf", text, re.I), text
+
+
+# --------------------------------------------------------------------------------- rendered
+
+
+def test_the_figure_sits_in_the_hero_and_installation_follows(playwright_mod) -> None:
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
         try:
             _context, page = _open(browser)
             data = page.evaluate(
-                """() => { const box = document.querySelector('#page-home > .container');
+                """() => { const box = document.querySelector('#page-home > .container'), hero = box.querySelector('.hero');
                   return { buttons: document.querySelectorAll('#page-home .hero .btn, #page-home .hero .btn-row').length,
-                           order: [...box.children].map(e => e.id || e.className).slice(0, 4),
-                           title: document.querySelector('#nhg-benefits .section-title').textContent.trim() }; }"""
+                           order: [...box.children].map(e => e.id || e.className).slice(0, 2),
+                           hero: [...hero.children].map(e => e.id || e.classList[0]),
+                           headings: [...hero.querySelectorAll('h2')].length }; }"""
             )
         finally:
             browser.close()
     assert data["buttons"] == 0, data
-    assert data["order"][:3] == ["hero", "nhg-benefits", "nhg-install"], data
-    assert data["title"] == "Harness Benefits"
+    assert data["order"] == ["hero", "nhg-install"], data
+    assert data["hero"] == ["hero-lockup", "hero-subtitle", "hero-lead", "nhg-benefits"], "the figure follows the lead"
+    assert data["headings"] == 0, "no section heading inside the hero"
 
 
 def test_four_illustrated_panels_name_the_benefits(playwright_mod) -> None:
@@ -125,49 +148,144 @@ def test_four_illustrated_panels_name_the_benefits(playwright_mod) -> None:
             panels = page.evaluate(
                 """() => [...document.querySelectorAll('#nhg-benefits .hb-panel')].map(p => ({
                     key: p.dataset.benefit, title: p.querySelector('h3').textContent.trim(),
-                    line: p.querySelector('p').textContent.trim(), ill: p.querySelectorAll('svg.hb-ill > *').length,
-                    count: (p.querySelector('[data-count="skills"]') || {}).textContent || null }))"""
+                    line: p.querySelector('p').textContent.trim(), ill: p.querySelectorAll('.hb-ill *').length,
+                    hidden: p.querySelector('.hb-ill').getAttribute('aria-hidden') }))"""
             )
         finally:
             browser.close()
     assert [(p["key"], p["title"]) for p in panels] == BENEFITS
     for panel in panels:
-        assert panel["ill"] >= 4, f"{panel['key']}: the panel carries an illustration"
-        assert 3 <= len(panel["line"].split()) <= 9, panel["line"]
+        assert panel["ill"] >= 6 and panel["hidden"] == "true", f"{panel['key']}: the panel carries an illustration"
+        assert 3 <= len(panel["line"].split()) <= 14, panel["line"]
         assert not re.search(r"\byou\b", panel["line"], re.I)
-    depth = panels[1]
-    assert depth["count"] and depth["count"].isdigit(), "the skill count stays dynamic"
 
 
-def test_each_platform_flows_into_the_hub(playwright_mod) -> None:
+def test_five_circles_each_hold_a_logo_and_a_name(playwright_mod) -> None:
+    with playwright_mod() as pw:
+        browser = pw.chromium.launch()
+        try:
+            for width in (1440, 390):
+                _context, page = _open(browser, width=width, height=900 if width > 600 else 844)
+                data = page.evaluate(
+                    """() => { const rows = document.querySelectorAll('#page-home .platform-rail');
+                      const inside = (r, c) => r.left >= c.left - 1 && r.right <= c.right + 1 && r.top >= c.top - 1 && r.bottom <= c.bottom + 1;
+                      return { rows: rows.length, inFigure: !!rows[0].closest('#nhg-benefits'),
+                        items: [...rows[0].querySelectorAll('.platform-item')].map(li => { const c = li.getBoundingClientRect(), s = getComputedStyle(li);
+                          const logo = li.querySelector('.platform-mark svg').getBoundingClientRect(), name = li.querySelector('.platform-name');
+                          return { name: name.textContent.trim(), w: c.width, h: c.height, round: s.borderTopLeftRadius,
+                                   border: s.borderTopStyle, logo: inside(logo, c) && logo.width >= 24,
+                                   label: inside(name.getBoundingClientRect(), c), size: parseFloat(getComputedStyle(name).fontSize) }; }) }; }"""
+                )
+                assert data["rows"] == 1 and data["inFigure"], data
+                assert [i["name"] for i in data["items"]] == PLATFORMS
+                for item in data["items"]:
+                    assert abs(item["w"] - item["h"]) < 1 and item["w"] >= 80, (width, item)
+                    assert item["round"] == "50%" and item["border"] == "solid", (width, item)
+                    assert item["logo"] and item["label"] and item["size"] >= 15, (width, item)
+        finally:
+            browser.close()
+
+
+def test_each_circle_flows_into_the_hub(playwright_mod) -> None:
+    with playwright_mod() as pw:
+        browser = pw.chromium.launch()
+        try:
+            for width in (1440, 390):
+                _context, page = _open(browser, width=width, height=900 if width > 600 else 844)
+                data = page.evaluate(
+                    """() => { const fig = document.getElementById('nhg-benefits'), f = fig.getBoundingClientRect();
+                      const hub = fig.querySelector('.hb-hub svg').getBoundingClientRect();
+                      const at = (w, l) => { const p = w.getPointAtLength(l); return [f.left + p.x, f.top + p.y]; };
+                      return { circles: [...fig.querySelectorAll('.platform-item')].map(e => { const r = e.getBoundingClientRect(); return [r.left + r.width / 2, r.bottom]; }),
+                               wires: [...fig.querySelectorAll('.hb-wires .hb-in')].map(w => [at(w, 0), at(w, w.getTotalLength())]),
+                               outs: fig.querySelectorAll('.hb-wires .hb-out').length,
+                               hub: [hub.left + hub.width / 2, hub.top], use: fig.querySelector('.hb-hub use').getAttribute('href') }; }"""
+                )
+                assert data["use"] == "#nexus-mark"
+                assert len(data["wires"]) == len(PLATFORMS), data
+                for (cx, bottom), (start, end) in zip(data["circles"], data["wires"]):
+                    assert abs(start[0] - cx) < 2 and abs(start[1] - bottom) < 2, (width, start, cx, bottom)
+                    assert abs(end[0] - data["hub"][0]) < 2 and abs(end[1] - data["hub"][1]) < 2, (width, end, data["hub"])
+                assert data["outs"] == (4 if width > 860 else 0), "the mark feeds the panels while they share a row"
+        finally:
+            browser.close()
+
+
+def test_each_illustration_shows_its_line(playwright_mod) -> None:
+    """The final frame: every label reads at the caption size and matches its panel's line."""
+    with playwright_mod() as pw:
+        browser = pw.chromium.launch()
+        try:
+            for width in (1440, 390):
+                _context, page = _open(browser, width=width, height=900 if width > 600 else 844, reduced=True)
+                data = page.evaluate(
+                    """() => { const P = k => document.querySelector(`.hb-panel[data-benefit="${k}"]`);
+                      const vis = e => !!e && e.getClientRects().length > 0 && getComputedStyle(e).visibility === 'visible' && +getComputedStyle(e).opacity > 0;
+                      const shown = (p, s) => [...p.querySelectorAll(s)].filter(vis).map(e => e.textContent.trim());
+                      const within = (a, b) => { a = a.getBoundingClientRect(); b = b.getBoundingClientRect();
+                        return a.left >= b.left - 1 && a.right <= b.right + 1 && a.top >= b.top - 1 && a.bottom <= b.bottom + 1; };
+                      const caption = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--ty-caption')) * 16;
+                      const labels = [...document.querySelectorAll('#nhg-benefits .hb-ill [data-ty]')].filter(vis);
+                      const d = P('depth'), s = P('safety'), x = P('cross-platform'), t = P('transparency');
+                      return { caption, small: labels.filter(e => parseFloat(getComputedStyle(e).fontSize) < caption).map(e => e.textContent),
+                        depth: { count: d.querySelector('p [data-count="skills"]').textContent, badges: shown(d, '.hb-badges li'),
+                                 model: shown(d, '.hb-node'), state: shown(d, '.hb-state > *') },
+                        safety: { req: shown(s, '.hb-req .hb-k'), state: shown(s, '.hb-state > *'), guard: vis(s.querySelector('.hb-guard')),
+                                  mark: s.querySelector('.hb-guard use').getAttribute('href'), run: getComputedStyle(s.querySelector('.hb-run')).textDecorationLine,
+                                  agent: shown(s, '.hb-track .hb-k') },
+                        xp: { names: shown(x, '.hb-pf > .hb-k'), limit: shown(x, '.hb-lim'), resumed: shown(x, '.hb-res'),
+                              meter: x.querySelector('.hb-meter i').getBoundingClientRect().width / x.querySelector('.hb-meter').getBoundingClientRect().width,
+                              taskInB: within(x.querySelector('.hb-task'), x.querySelector('.hb-pf--b')), dots: x.querySelectorAll('.hb-task .hb-dots i').length },
+                        tr: { report: shown(t, '.hb-report > .hb-k'), lines: t.querySelectorAll('.hb-ln i').length, gauge: vis(t.querySelector('.hb-g1')),
+                              usage: shown(t, '.hb-gauge .hb-k'), note: shown(t, '.hb-note'), noteInRecord: within(t.querySelector('.hb-note'), t.querySelector('.hb-report')) } }; }"""
+                )
+                assert data["caption"] >= 15 and data["small"] == [], (width, data["small"])
+                depth = data["depth"]
+                assert depth["count"].isdigit() and int(depth["count"]) > 100, "the skill count stays dynamic"
+                assert depth["badges"] == DOMAINS and depth["model"] == ["Model"] and depth["state"] == ["Skilled"], depth
+                safety = data["safety"]
+                assert safety["req"] == ["Potentially dangerous request"] and safety["state"] == ["Blocked"], safety
+                assert safety["guard"] and safety["mark"] == "#nexus-mark" and safety["run"] == "line-through", safety
+                assert safety["agent"] == ["Agent"]
+                xp = data["xp"]
+                assert xp["names"] == ["Platform A", "Platform B"] and xp["limit"] == ["Limit"] and xp["resumed"] == ["Resumed"], xp
+                assert xp["meter"] > 0.98 and xp["taskInB"] and xp["dots"] == 3, xp
+                tr = data["tr"]
+                assert tr["report"] == ["Report"] and tr["lines"] == 3 and tr["gauge"] and tr["usage"] == ["Usage"], tr
+                assert tr["note"] == ["Lessons"] and tr["noteInRecord"], tr
+        finally:
+            browser.close()
+
+
+def test_the_moments_play_in_order(playwright_mod) -> None:
+    """Safety: pending, then the shield, then blocked. Cross-Platform: the limit, then the move, then resumed."""
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
         try:
             _context, page = _open(browser)
-            data = page.evaluate(
-                """() => { const fig = document.querySelector('#nhg-benefits .hb');
-                  const rail = [...document.querySelectorAll('#page-home .platform-rail [data-platform]')].map(e => e.dataset.platform);
-                  const plats = [...fig.querySelectorAll('.hb-plat')];
-                  const svg = fig.querySelector('.hb-wires--in'), r = svg.getBoundingClientRect();
-                  const hub = fig.querySelector('.hb-hub svg').getBoundingClientRect();
-                  const px = p => [r.left + p.x / 100 * r.width, r.top + p.y / 40 * r.height];
-                  const wires = [...svg.querySelectorAll('path')].map(w => [px(w.getPointAtLength(0)), px(w.getPointAtLength(w.getTotalLength()))]);
-                  return { rail, plats: plats.map(p => p.dataset.platform),
-                           marks: plats.map(p => { const m = p.querySelector('.hb-mark').getBoundingClientRect();
-                             return { svg: p.querySelectorAll('.hb-mark svg').length, ids: p.querySelectorAll('[id]').length,
-                                      cx: m.left + m.width / 2, bottom: m.bottom }; }),
-                           wires, hub: { cx: hub.left + hub.width / 2, top: hub.top },
-                           use: fig.querySelector('.hb-hub use').getAttribute('href') }; }"""
-            )
+            page.locator("#nhg-benefits .hb-panels").scroll_into_view_if_needed()
+            frames = {}
+            for key, step, times in (("safety", "2", (300, 1560, 2400)), ("cross-platform", "3", (300, 1660, 2100, 3000))):
+                page.wait_for_selector(f'{FIG}.live[data-step="{step}"]', timeout=30000)
+                frames[key] = [page.evaluate(
+                    """([k, t]) => { const p = document.querySelector(`.hb-panel[data-benefit="${k}"]`);
+                      for (const a of p.getAnimations({ subtree: true })) { a.pause(); a.currentTime = t; }
+                      const vis = s => { const e = p.querySelector(s); return getComputedStyle(e).visibility === 'visible' && +getComputedStyle(e).opacity > 0.5; };
+                      const r = s => p.querySelector(s).getBoundingClientRect();
+                      return k === 'safety' ? { pending: vis('.hb-was'), blocked: vis('.hb-now'), guard: vis('.hb-guard') }
+                        : { limit: vis('.hb-lim'), resumed: vis('.hb-res'), x: r('.hb-task').left - r('.hb-pf--a').left }; }""",
+                    [key, t]) for t in times]
+                page.evaluate("k => { for (const a of document.querySelector(`.hb-panel[data-benefit=\"${k}\"]`).getAnimations({ subtree: true })) a.play(); }", key)
         finally:
             browser.close()
-    assert data["rail"] == PLATFORMS and data["plats"] == PLATFORMS, "the same five platforms as the hero row"
-    assert data["use"] == "#nexus-mark"
-    assert len(data["wires"]) == len(PLATFORMS)
-    for mark, (start, end) in zip(data["marks"], data["wires"]):
-        assert mark["svg"] == 1 and mark["ids"] == 0, "the hero icon is reused without duplicate ids"
-        assert abs(start[0] - mark["cx"]) < 14 and abs(start[1] - mark["bottom"]) < 14, (mark, start)
-        assert abs(end[0] - data["hub"]["cx"]) < 4 and abs(end[1] - data["hub"]["top"]) < 6, (data["hub"], end)
+    s = frames["safety"]
+    assert s[0] == {"pending": True, "blocked": False, "guard": False}, s
+    assert s[1]["pending"] and s[1]["guard"] and not s[1]["blocked"], "the shield intercepts before the request is marked"
+    assert s[2] == {"pending": False, "blocked": True, "guard": True}, s
+    x = frames["cross-platform"]
+    assert not x[0]["limit"] and x[1]["limit"] and not x[1]["resumed"], x
+    assert x[0]["x"] <= x[1]["x"] < x[2]["x"] < x[3]["x"], "the task card moves from A toward B"
+    assert x[3]["resumed"], x
 
 
 def test_the_loop_lights_each_panel_in_turn(playwright_mod) -> None:
@@ -175,10 +293,10 @@ def test_the_loop_lights_each_panel_in_turn(playwright_mod) -> None:
         browser = pw.chromium.launch()
         try:
             _context, page = _open(browser)
-            page.locator("#nhg-benefits .hb").scroll_into_view_if_needed()
+            page.locator(FIG).scroll_into_view_if_needed()
             states = []
             for step in ("1", "2", "3", "4"):
-                page.wait_for_selector(f'#nhg-benefits .hb.live[data-step="{step}"]', timeout=25000)
+                page.wait_for_selector(f'{FIG}.live[data-step="{step}"]', timeout=25000)
                 page.wait_for_timeout(700)
                 states.append(page.evaluate(
                     """() => [...document.querySelectorAll('#nhg-benefits .hb-panel')].map(p => [
@@ -201,18 +319,18 @@ def test_the_loop_stops_offscreen_and_in_a_hidden_tab(playwright_mod) -> None:
         browser = pw.chromium.launch()
         try:
             _context, page = _open(browser)
-            page.locator("#nhg-benefits .hb").scroll_into_view_if_needed()
-            page.wait_for_selector('#nhg-benefits .hb.live[data-step="1"]', timeout=10000)
+            page.locator(FIG).scroll_into_view_if_needed()
+            page.wait_for_selector(f'{FIG}.live[data-step="1"]', timeout=10000)
             page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
-            page.wait_for_function("!document.querySelector('#nhg-benefits .hb').classList.contains('live')")
-            step = page.get_attribute("#nhg-benefits .hb", "data-step")
+            page.wait_for_function("!document.getElementById('nhg-benefits').classList.contains('live')")
+            step = page.get_attribute(FIG, "data-step")
             page.wait_for_timeout(4000)
-            assert page.get_attribute("#nhg-benefits .hb", "data-step") == step, "offscreen, the loop holds still"
-            page.locator("#nhg-benefits .hb").scroll_into_view_if_needed()
-            page.wait_for_selector("#nhg-benefits .hb.live")
+            assert page.get_attribute(FIG, "data-step") == step, "offscreen, the loop holds still"
+            page.locator(FIG).scroll_into_view_if_needed()
+            page.wait_for_selector(f"{FIG}.live")
             page.evaluate("""() => { Object.defineProperty(document, 'hidden', { configurable: true, get: () => true });
                                      document.dispatchEvent(new Event('visibilitychange')); }""")
-            assert not page.evaluate("document.querySelector('#nhg-benefits .hb').classList.contains('live')")
+            assert not page.evaluate("document.getElementById('nhg-benefits').classList.contains('live')")
         finally:
             browser.close()
 
@@ -224,19 +342,26 @@ def test_reduced_motion_shows_the_final_frame(playwright_mod) -> None:
             _context, page = _open(browser, reduced=True)
             page.wait_for_timeout(500)
             data = page.evaluate(
-                """() => { const fig = document.querySelector('#nhg-benefits .hb'), op = s => +getComputedStyle(document.querySelector(s)).opacity;
+                """() => { const fig = document.getElementById('nhg-benefits'), op = s => +getComputedStyle(fig.querySelector(s)).opacity;
+                  const vis = s => getComputedStyle(fig.querySelector(s)).visibility;
                   return { anim: fig.classList.contains('hb--anim'), step: fig.dataset.step,
+                           running: fig.getAnimations({ subtree: true }).length,
                            panels: [...fig.querySelectorAll('.hb-panel')].map(p => +getComputedStyle(p).opacity),
-                           go: op('.hb-go'), nogo: op('.hb-nogo'), x: op('.hb-x'),
-                           marks: fig.querySelectorAll('.hb-mark svg').length,
+                           guard: op('.hb-guard'), note: op('.hb-note'), res: op('.hb-res'), lim: op('.hb-lim'),
+                           was: [...fig.querySelectorAll('.hb-was')].map(e => getComputedStyle(e).visibility),
+                           now: [...fig.querySelectorAll('.hb-now')].map(e => getComputedStyle(e).visibility + ':' + getComputedStyle(e).opacity),
+                           wires: fig.querySelectorAll('.hb-wires .hb-in').length,
+                           marks: fig.querySelectorAll('.platform-mark svg').length,
                            mocks: [...document.querySelectorAll('[data-tm]')].map(m => ({ step: m.dataset.tmStep, anim: m.classList.contains('tm--anim'),
                              hidden: [...m.querySelectorAll('.tm-l, .tm-cmd, .tm-end')].filter(e => getComputedStyle(e).visibility !== 'visible').length })) }; }"""
             )
         finally:
             browser.close()
-    assert not data["anim"] and data["step"] == "all", data
+    assert not data["anim"] and data["step"] == "all" and data["running"] == 0, data
     assert data["panels"] == [1, 1, 1, 1], data
-    assert data["go"] == 1 and data["nogo"] == 0 and data["x"] == 1, data
+    assert data["guard"] == 1 and data["note"] == 1 and data["res"] == 1 and data["lim"] == 1, data
+    assert data["was"] == ["hidden", "hidden"] and data["now"] == ["visible:1", "visible:1"], data
+    assert data["wires"] == len(PLATFORMS), "the lines are drawn without motion too"
     assert data["marks"] == len(PLATFORMS), "the icons still appear without motion"
     for mock in data["mocks"]:
         assert mock == {"step": "done", "anim": False, "hidden": 0}, mock

@@ -118,9 +118,10 @@ to{transform:translateY(-9px);}
 html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 0 0 1px #c9c3b2;}
 /* /shared:base-css */
 /* ---------- Platform compatibility rail ---------- */
-.platform-rail{list-style:none;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:var(--sp-3);margin:var(--sp-5) 0 var(--sp-2);padding:var(--sp-4) 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
-.platform-item{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;}
-.platform-mark{display:flex;width:34px;height:34px;align-items:center;justify-content:center;color:var(--ink);}
+.platform-rail{list-style:none;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:var(--sp-3);margin:0;padding:0;}
+/* v4.13.10 R47: each platform sits in one large circle holding its logo and name; the benefit lines start from these circles. */
+.platform-item{justify-self:center;width:min(100%,132px);aspect-ratio:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:0 8px;text-align:center;border:1px solid var(--border-bright);border-radius:50%;background:var(--surface);transition:border-color .5s,box-shadow .5s;}
+.platform-mark{display:flex;width:40px;height:40px;flex:none;align-items:center;justify-content:center;color:var(--ink);}
 .platform-mark svg{display:block;width:100%;height:100%;}
 .platform-mark[data-mark="cursor"] svg{transform:scale(1.06);}
 .platform-mark[data-mark="gemini"] svg{transform:scale(1.04);}
@@ -873,7 +874,8 @@ html[data-theme="light"] .verify-steps--secondary .vs-n{color:var(--ink-dim);}
 .cmp-tip{fill:var(--accent);}
 @media (max-width:720px){/* Five items cannot divide into a 3-column grid without leaving an orphan cell, so the narrow layout becomes a centred wrap: the final short row centres instead of hanging left. */
 .platform-rail{display:flex;flex-wrap:wrap;justify-content:center;column-gap:var(--sp-4);row-gap:var(--sp-3);}
-.platform-rail .platform-item{flex:0 1 auto;min-width:78px;max-width:40%;}
+.platform-rail .platform-item{flex:none;width:clamp(80px,26vw,108px);gap:4px;padding:0 6px;}
+.platform-rail .platform-mark{width:26px;height:26px;}
 .support-list,.definition-list{grid-template-columns:1fr;}
 .support-list dt,.definition-list dt{padding-bottom:0;}
 .support-list dd,.definition-list dd{padding-top:5px;border-top:0;}
@@ -927,85 +929,129 @@ html[data-theme="light"] .tab-btn.active{color:#fffdf8;}
 .install-how{margin:var(--sp-2) 0 0;}
 .term--install .cmd-line{align-items:flex-start;}
 .term--install .cmd-line code{white-space:normal;overflow-wrap:anywhere;overflow-x:visible;}
-/* ---------- Harness Benefits (v4.13.10 R44) ---------- The hero's five platforms flow into the Nexus Hub mark, which lights four illustrated benefits in turn. The plain style is the final frame (no script, reduced motion); .hb--anim dims what is not lit yet and .live lets it move. */
-.hb{margin:var(--sp-5) 0 0;}
-.hb-plats{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));}
-.hb-plat{display:flex;justify-content:center;}
-.hb-mark{display:flex;width:46px;height:46px;padding:10px;border:1px solid var(--border);border-radius:50%;background:var(--surface);color:var(--ink);transition:border-color .5s,box-shadow .5s;}
-.hb-mark svg{display:block;width:100%;height:100%;}
-.hb-wires{display:block;width:100%;overflow:visible;}
-.hb-wires--in{height:64px;}
-.hb-wires--out{height:44px;}
-.hb-wires path{fill:none;stroke:color-mix(in srgb,var(--accent) 55%,var(--border));stroke-width:1.5;vector-effect:non-scaling-stroke;transition:stroke .5s;}
-.hb-hub{display:flex;justify-content:center;}
+/* ---------- Hero benefits (v4.13.10 R47) ---------- Part of the hero: lines run from the platform circles into the Nexus Hub mark, which lights four illustrated benefits in turn. The script draws the lines from the laid-out positions. The plain style is the final frame (no script, reduced motion); .hb--anim dims what is not lit yet and .live lets it move. */
+.hb{position:relative;margin:var(--sp-6) 0 0;}
+.hb>.platform-rail,.hb>.hb-hub,.hb>.hb-panels{position:relative;z-index:1;}
+.hb-wires{position:absolute;left:0;top:0;z-index:0;width:100%;height:100%;overflow:visible;pointer-events:none;}
+.hb-wires path{fill:none;stroke:color-mix(in srgb,var(--accent) 55%,var(--border));stroke-width:1.5;transition:stroke .5s;}
+.hb-hub{display:flex;justify-content:center;margin:56px 0 44px;}
 .hb-hub svg{width:64px;height:64px;border-radius:16px;box-shadow:0 0 0 6px color-mix(in srgb,var(--accent) 14%,transparent),0 0 30px color-mix(in srgb,var(--accent) 28%,transparent);transition:box-shadow .6s;}
 html[data-theme="light"] .hb-hub svg{background:#07141a;padding:6px;}
 .hb-panels{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--sp-3);}
-.hb-panel{background:var(--surface);border:1px solid color-mix(in srgb,var(--accent) 35%,var(--border));border-radius:var(--radius);padding:16px 18px 18px;transition:opacity .6s,border-color .6s;}
+.hb-panel{min-width:0;background:var(--surface);border:1px solid color-mix(in srgb,var(--accent) 35%,var(--border));border-radius:var(--radius);padding:14px 14px 16px;transition:opacity .6s,border-color .6s;}
 .hb-panel h3{margin:0 0 4px;}
 .hb-panel p{margin:0;}
-.hb-ill{display:block;width:100%;height:auto;aspect-ratio:2/1;margin:0 0 12px;overflow:visible;}
-.hb-ill .s{fill:var(--surface-2);stroke:var(--border-bright);stroke-width:1.2;}
-.hb-ill .a{fill:none;stroke:var(--accent);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
-.hb-ill .af{fill:var(--accent);}
-.hb-ill text{font-family:var(--mono);font-size:11px;fill:var(--ink);}
-.hb-merge path{stroke-dasharray:1;}
-.hb-slot{fill:none;stroke:var(--border-bright);stroke-dasharray:3 3;}
-.hb-card{fill:var(--surface-2);stroke:var(--accent);stroke-width:1.6;}
-.hb-shield{fill:color-mix(in srgb,var(--red) 16%,transparent);stroke:var(--red);stroke-width:2;}
-.hb-x{fill:none;stroke:var(--red);stroke-width:2.4;stroke-linecap:round;}
-.hb-ill .hb-tag{fill:var(--red);text-anchor:middle;}
-.hb-box{fill:var(--surface-2);stroke:var(--border-bright);}
-.hb-line{stroke:var(--border-bright);stroke-width:3;stroke-linecap:round;}
-.hb-tick{fill:none;stroke:var(--green);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
-.hb-gate{fill:color-mix(in srgb,var(--green) 14%,transparent);stroke:var(--green);stroke-width:2;}
-.hb-ill .hb-go,.hb-ill .hb-nogo{text-anchor:middle;font-size:13px;font-weight:700;}
-.hb-ill .hb-go{fill:var(--green);}
-.hb-ill .hb-nogo{fill:var(--amber);opacity:0;}
+/* Illustrations: HTML parts so every label renders at the caption role. */
+.hb-ill{position:relative;height:9.25rem;margin:0 0 12px;}
+.hb-ill .hb-k{color:var(--ink);}
+.hb-state{display:inline-grid;}
+.hb-state>*{grid-area:1/1;}
+.hb-was{visibility:hidden;}
+.hb-chip{padding:0 8px;border:1px solid color-mix(in srgb,var(--accent) 55%,var(--border));border-radius:999px;}
+.hb-ill .hb-now{color:var(--accent);}
+.hb-ill .hb-bad{color:var(--red);}
+/* Depth: domain skills snap into the model. */
+.hb-dep{display:flex;align-items:center;}
+.hb-model{width:100%;padding:8px;border:1px solid var(--border-bright);border-radius:var(--radius-sm);background:var(--surface-2);}
+.hb-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 8px;}
+.hb-node{display:inline-flex;align-items:center;gap:7px;}
+.hb-node::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 25%,transparent);}
+.hb-badges{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;justify-content:center;gap:6px;}
+.hb-badges li{padding:0 8px;border:1px solid color-mix(in srgb,var(--accent) 45%,var(--border));border-radius:999px;background:var(--surface);color:var(--ink);}
+/* Safety: the request moves toward Run and the shield stops it. */
+.hb-saf{display:flex;flex-direction:column;justify-content:center;gap:14px;}
+.hb-req{display:grid;justify-items:start;gap:2px;padding:7px 10px;border:1px solid color-mix(in srgb,var(--red) 60%,var(--border));border-radius:var(--radius-sm);background:var(--surface-2);}
+.hb-track{display:flex;align-items:center;gap:8px;}
+.hb-bar{position:relative;flex:1;height:4px;border-radius:2px;background:var(--surface-3);overflow:hidden;}
+.hb-bar i{position:absolute;inset:0;background:var(--accent);transform-origin:left;}
+.hb-guard{flex:none;width:36px;height:41px;}
+.hb-guard svg{display:block;width:100%;height:100%;}
+.hb-shield{fill:#07141a;stroke:var(--red);stroke-width:1.6;}
+.hb-run{color:var(--ink-dim);text-decoration:line-through;}
+/* Cross-Platform: A reaches its limit and the same task resumes on B. */
+.hb-xp{display:grid;grid-template-columns:minmax(0,1fr) 22px minmax(0,1fr);gap:6px;}
+.hb-pf{display:flex;flex-direction:column;justify-content:space-between;min-width:0;padding:6px 8px;border:1px solid var(--border-bright);border-radius:var(--radius-sm);background:var(--surface-2);}
+.hb-pf--b{border-color:color-mix(in srgb,var(--accent) 55%,var(--border));}
+.hb-pf--a{position:relative;}
+.hb-pf--a::after{content:"";position:absolute;left:8px;right:8px;top:50%;height:25px;transform:translateY(-50%);border:1px dashed var(--border-bright);border-radius:6px;}
+.hb-use{display:flex;align-items:center;gap:6px;}
+.hb-meter{flex:1;height:6px;border-radius:3px;background:var(--surface-3);overflow:hidden;}
+.hb-meter i{display:block;height:100%;background:var(--red);transform-origin:left;}
+.hb-ill .hb-lim{color:var(--red);}
+.hb-ill .hb-res{color:var(--green);}
+.hb-hand{align-self:center;width:22px;height:12px;fill:none;stroke:var(--accent);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;}
+.hb-task{position:absolute;top:50%;left:calc(50% + 25px);width:calc(50% - 33px);display:flex;align-items:center;justify-content:space-between;gap:4px;padding:1px 7px;transform:translateY(-50%);border:1px solid var(--accent);border-radius:6px;background:var(--surface);}
+.hb-dots{display:flex;gap:3px;}
+.hb-dots i{width:5px;height:5px;border-radius:50%;background:var(--accent);}
+/* Transparency: a report with a usage gauge, and lessons stacked into the record. */
+.hb-tr{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:12px;}
+.hb-rec{position:relative;padding:0 6px 6px 0;}
+.hb-rec::before,.hb-rec::after{content:"";position:absolute;inset:6px 0 0 6px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface-2);}
+.hb-rec::after{inset:3px 3px 3px 3px;}
+.hb-report{position:relative;z-index:1;height:100%;display:flex;flex-direction:column;align-items:flex-start;gap:7px;padding:6px 9px;border:1px solid var(--border-bright);border-radius:var(--radius-sm);background:var(--surface-2);}
+.hb-ln{display:grid;gap:6px;width:100%;}
+.hb-ln i{display:block;height:4px;border-radius:2px;background:var(--border-bright);transform-origin:left;}
+.hb-ln i:nth-child(1){width:90%;}
+.hb-ln i:nth-child(2){width:70%;}
+.hb-ln i:nth-child(3){width:80%;}
+.hb-note{margin-top:auto;padding:0 8px;border:1px solid color-mix(in srgb,var(--amber) 60%,var(--border));border-radius:5px;background:color-mix(in srgb,var(--amber) 18%,var(--surface));color:var(--ink);}
+.hb-gauge{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;}
+.hb-gauge svg{display:block;width:76px;max-width:100%;height:auto;}
+.hb-g0,.hb-g1{fill:none;stroke-width:6;stroke-linecap:round;}
+.hb-g0{stroke:var(--surface-3);}
+.hb-g1{stroke:var(--accent);stroke-dasharray:62 100;}
 /* Animated state: unlit parts rest quietly until their turn. */
-.hb--anim .hb-wires path{stroke:var(--border-bright);}
-.hb--anim .hb-wires--in path,.hb--anim .hb-wires--out path.is-on{stroke:color-mix(in srgb,var(--accent) 55%,var(--border));}
-.hb--anim .hb-wires--in path{stroke-dasharray:3 5;}
-.hb--anim.live .hb-wires--in path{animation:hb-flow 1.6s linear infinite;}
+.hb--anim .hb-out{stroke:var(--border-bright);}
+.hb--anim .hb-out.is-on{stroke:color-mix(in srgb,var(--accent) 55%,var(--border));}
+.hb--anim .hb-in{stroke-dasharray:3 5;}
+.hb--anim.live .hb-in{animation:hb-flow 1.6s linear infinite;}
 .hb--anim .hb-hub:not(.is-on) svg{box-shadow:0 0 0 1px var(--border);}
 .hb--anim .hb-panel{opacity:.45;border-color:var(--border);}
 .hb--anim .hb-panel.is-on,.hb--anim .hb-panel.is-done{opacity:1;}
 .hb--anim .hb-panel.is-on{border-color:color-mix(in srgb,var(--accent) 60%,var(--border));}
-.hb--anim[data-step="in"] .hb-mark{animation:hb-ping 1.2s var(--ease) both;}
-.hb--anim[data-step="in"] .hb-plat:nth-child(2) .hb-mark{animation-delay:.15s;}
-.hb--anim[data-step="in"] .hb-plat:nth-child(3) .hb-mark{animation-delay:.3s;}
-.hb--anim[data-step="in"] .hb-plat:nth-child(4) .hb-mark{animation-delay:.45s;}
-.hb--anim[data-step="in"] .hb-plat:nth-child(5) .hb-mark{animation-delay:.6s;}
-.hb--anim .is-on .hb-merge path{animation:hb-draw 1s var(--ease) both;}
-.hb--anim .is-on .hb-merge path:nth-child(2){animation-delay:.2s;}
-.hb--anim .is-on .hb-merge path:nth-child(3){animation-delay:.4s;}
-.hb--anim .is-on .hb-steps circle{animation:hb-dim .35s both 1.3s;}
-.hb--anim .is-on .hb-steps circle:nth-child(2){animation-delay:1.65s;}
-.hb--anim .is-on .hb-steps circle:nth-child(3){animation-delay:2s;}
-.hb--anim .is-on .hb-pick{animation:hb-rise 1.1s var(--ease) both .3s;}
-.hb--anim .is-on .hb-cmd{animation:hb-slide 1s var(--ease) both .2s;}
-.hb--anim .is-on .hb-shield{animation:hb-arm .35s both 1.2s;}
-.hb--anim .is-on .hb-x,.hb--anim .is-on .hb-tag{animation:hb-fade .4s both 1.3s;}
-.hb--anim .is-on .hb-tick{animation:hb-fade .35s both .4s;}
-.hb--anim .is-on .hb-tick:nth-of-type(4){animation-delay:.8s;}
-.hb--anim .is-on .hb-tick:nth-of-type(6){animation-delay:1.2s;}
-.hb--anim .is-on .hb-gate{animation:hb-hold-gate 1.8s both;}
-.hb--anim .is-on .hb-nogo{animation:hb-hold 1.8s;}
-.hb--anim .is-on .hb-go{animation:hb-fade .35s both 1.8s;}
+.hb--anim[data-step="in"] .platform-item{animation:hb-ping 1.2s var(--ease) both;}
+.hb--anim[data-step="in"] .platform-item:nth-child(2){animation-delay:.15s;}
+.hb--anim[data-step="in"] .platform-item:nth-child(3){animation-delay:.3s;}
+.hb--anim[data-step="in"] .platform-item:nth-child(4){animation-delay:.45s;}
+.hb--anim[data-step="in"] .platform-item:nth-child(5){animation-delay:.6s;}
+.hb--anim .is-on .hb-was{animation:hb-keep var(--hb-swap);}
+.hb--anim .is-on .hb-now{animation:hb-fade .4s both var(--hb-swap);}
+.hb--anim .is-on.hb-panel[data-benefit="depth"]{--hb-swap:2s;}
+.hb--anim .is-on .hb-badges li{animation:hb-snap .5s var(--ease) both .2s;}
+.hb--anim .is-on .hb-badges li:nth-child(2){animation-delay:.5s;}
+.hb--anim .is-on .hb-badges li:nth-child(3){animation-delay:.8s;}
+.hb--anim .is-on .hb-badges li:nth-child(4){animation-delay:1.1s;}
+.hb--anim .is-on .hb-badges li:nth-child(5){animation-delay:1.4s;}
+.hb--anim .is-on.hb-panel[data-benefit="safety"]{--hb-swap:1.7s;}
+.hb--anim .is-on .hb-req{animation:hb-calm 1.7s both;}
+.hb--anim .is-on .hb-bar i{animation:hb-grow 1.2s var(--ease) both .2s;}
+.hb--anim .is-on .hb-guard{animation:hb-pop .45s var(--ease) both 1.15s;}
+.hb--anim .is-on .hb-run{animation:hb-live 1.7s both;}
+.hb--anim .is-on .hb-meter i{animation:hb-fill 1.2s var(--ease) both .2s;}
+.hb--anim .is-on .hb-lim{animation:hb-fade .35s both 1.35s;}
+.hb--anim .is-on .hb-task{animation:hb-move 1s var(--ease) both 1.6s;}
+.hb--anim .is-on .hb-res{animation:hb-fade .35s both 2.6s;}
+.hb--anim .is-on .hb-ln i{animation:hb-grow .6s var(--ease) both .2s;}
+.hb--anim .is-on .hb-ln i:nth-child(2){animation-delay:.45s;}
+.hb--anim .is-on .hb-ln i:nth-child(3){animation-delay:.7s;}
+.hb--anim .is-on .hb-g1{animation:hb-gauge 1s var(--ease) both .6s;}
+.hb--anim .is-on .hb-note{animation:hb-drop .7s var(--ease) both 1.7s;}
 .hb--anim:not(.live) *{animation-play-state:paused!important;}
 @keyframes hb-flow{to{stroke-dashoffset:-16;}}
-@keyframes hb-ping{from{border-color:var(--border);box-shadow:0 0 0 0 transparent;}40%{border-color:var(--accent);box-shadow:0 0 0 5px color-mix(in srgb,var(--accent) 18%,transparent);}}
-@keyframes hb-draw{from{stroke-dashoffset:1;}}
-@keyframes hb-dim{from{fill:var(--surface-3);}}
-@keyframes hb-rise{from{transform:translateY(52px);opacity:.35;}}
-@keyframes hb-slide{from{transform:translateX(-26px);opacity:0;}}
-@keyframes hb-arm{from{fill:transparent;stroke:var(--border-bright);}}
+@keyframes hb-ping{from{border-color:var(--border-bright);box-shadow:0 0 0 0 transparent;}40%{border-color:var(--accent);box-shadow:0 0 0 6px color-mix(in srgb,var(--accent) 16%,transparent);}}
+@keyframes hb-keep{from,to{visibility:visible;}}
 @keyframes hb-fade{from{opacity:0;}}
-@keyframes hb-hold{from,to{opacity:1;}}
-@keyframes hb-hold-gate{from,99%{fill:transparent;stroke:var(--amber);}}
-@media (max-width:860px){.hb-panels{grid-template-columns:repeat(2,minmax(0,1fr));}.hb-wires--out{display:none;}.hb-hub{margin:0 0 var(--sp-4);}}
-@media (max-width:560px){.hb-wires--in{height:48px;}.hb-mark{width:42px;height:42px;padding:9px;}.hb-panels{grid-template-columns:minmax(0,1fr);}
-  .hb-ill{width:75%;margin:0 0 10px;}}
+@keyframes hb-snap{from{opacity:0;transform:translateY(-20px) scale(.92);}}
+@keyframes hb-grow{from{transform:scaleX(0);}}
+@keyframes hb-pop{from{opacity:0;transform:scale(.6);}}
+@keyframes hb-calm{from,99%{border-color:var(--border-bright);}}
+@keyframes hb-live{from,99%{color:var(--ink);text-decoration-line:none;}}
+@keyframes hb-fill{from{transform:scaleX(0);background:var(--accent);}60%{background:var(--amber);}}
+@keyframes hb-move{from{left:8px;}}
+@keyframes hb-gauge{from{stroke-dasharray:0 100;}}
+@keyframes hb-drop{from{opacity:0;transform:translate(28px,-14px);}}
+@media (max-width:860px){.hb-panels{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media (max-width:560px){.hb-hub{margin:44px 0 var(--sp-5);}.hb-panels{grid-template-columns:minmax(0,1fr);}}
 /* ---------- Install walkthrough (v4.13.10 R45) ---------- Each tab: the system's icon and how to open its terminal, the unchanged command box, and a mockup of that terminal running the installer. The mockup's plain style is its finished output; .tm--anim plays it while it is on screen. */
 .inst-steps{display:grid;gap:var(--sp-3);margin:var(--sp-1) 0 0;}
 .tm-wrap{margin:0 0 var(--sp-5);}
@@ -1854,7 +1900,7 @@ main .eyebrow,main .tr-kicker{display:none;}
        PAGE: HOME
        ===================================================================== -->
   <section class="page active" id="page-home" data-page="home"><div class="container"><div class="hero"><div class="hero-lockup"><div class="hero-lockup-float">
-            <svg class="hero-mark" viewBox="0 0 100 100" aria-hidden="true"><use href="#nexus-mark"/></svg><h1 data-ty="display" class="hero-wordmark"><b>Nexus</b> <span>Hub</span></h1></div></div><p data-ty="statement" class="hero-subtitle">A skill harness for agentic AI platforms</p><p data-ty="lead" class="hero-lead">Nexus Hub is an advanced harness for agentic AI platforms. It gives Claude, ChatGPT, Gemini, Cursor, and most other commonly used systems access to multidisciplinary field experts, robust workflows, and quality gates that cover the full project lifecycle.</p><ul class="platform-rail" aria-label="Compatible AI platforms"><li data-ty="body-sm" class="platform-item" data-platform="Claude">
+            <svg class="hero-mark" viewBox="0 0 100 100" aria-hidden="true"><use href="#nexus-mark"/></svg><h1 data-ty="display" class="hero-wordmark"><b>Nexus</b> <span>Hub</span></h1></div></div><p data-ty="statement" class="hero-subtitle">A skill harness for agentic AI platforms</p><p data-ty="lead" class="hero-lead">Nexus Hub is an advanced harness for agentic AI platforms. It gives Claude, ChatGPT, Gemini, Cursor, and most other commonly used systems access to multidisciplinary field experts, robust workflows, and quality gates that cover the full project lifecycle.</p><figure class="hb" id="nhg-benefits" data-hb data-step="all" aria-label="Claude, ChatGPT, Gemini, Cursor, and GitHub Copilot connect to Nexus Hub, which adds depth, safety, cross-platform continuity, and transparency."><svg class="hb-wires" aria-hidden="true"></svg><ul class="platform-rail" aria-label="Compatible AI platforms"><li data-ty="body-sm" class="platform-item" data-platform="Claude">
             <span class="platform-mark" data-mark="claude" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="hsl(14.8, 63.1%, 59.6%)"><use href="#nh-guide-claude"/></svg></span>
             <span data-ty="label" class="platform-name">Claude</span></li><li data-ty="body-sm" class="platform-item" data-platform="ChatGPT">
             <span class="platform-mark" data-mark="chatgpt" aria-hidden="true"><svg fill="currentColor" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg"><use href="#nh-guide-chatgpt"/></svg></span>
@@ -1864,8 +1910,7 @@ main .eyebrow,main .tr-kicker{display:none;}
             <span class="platform-mark" data-mark="cursor" aria-hidden="true"><svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 466.73 532.09"><use href="#hxm2"/></svg></span>
             <span data-ty="label" class="platform-name">Cursor</span></li><li data-ty="body-sm" class="platform-item" data-platform="GitHub Copilot">
             <span class="platform-mark" data-mark="github-copilot" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="currentColor"><path d="M47.801 34.003c-1.72 2.988-11.706 10.037-23.82 10.037S1.881 36.991.161 34.003a1.309 1.309 0 0 1-.161-.57v-5.615c.012-.17.047-.338.11-.498.744-1.867 2.692-4.58 5.206-5.308.333-.855.826-2.106 1.287-3.029a20.112 20.112 0 0 1-.104-2.171c0-2.659.563-4.992 2.262-6.729.793-.811 1.777-1.433 2.945-1.901C14.502 5.911 18.483 4 23.938 4c5.455 0 9.523 1.911 12.319 4.182 1.167.468 2.151 1.09 2.944 1.901 1.699 1.737 2.263 4.07 2.263 6.729 0 .736-.027 1.465-.105 2.171.461.923.954 2.174 1.288 3.029 2.513.728 4.461 3.441 5.205 5.308.081.205.115.424.115.645v5.318c0 .252-.04.502-.166.72ZM24.325 22.031h-.688a8.52 8.52 0 0 1-.709 1.016c-1.537 1.892-3.833 2.98-7.008 2.98-3.447 0-5.972-.717-7.557-2.514a4.408 4.408 0 0 1-.171-.21l-.195.21v13.155c2.867 1.558 9.02 4.353 15.984 4.353s13.117-2.795 15.984-4.353V23.513l-.195-.21s-.066.091-.171.21c-1.584 1.797-4.11 2.514-7.557 2.514-3.175 0-5.47-1.088-7.008-2.98a8.637 8.637 0 0 1-.709-1.016h-.033.033Zm-1.969-5.864a14.31 14.31 0 0 0 .127-1.785v-.042c-.003-1.537-.339-2.538-.876-3.152-.681-.78-2.09-1.378-5.06-1.057-3.008.326-4.69 1.073-5.643 2.048-.923.944-1.408 2.356-1.408 4.633 0 2.42.348 3.849 1.115 4.719.729.827 2.165 1.499 5.309 1.499 2.417 0 3.799-.786 4.683-1.873.948-1.168 1.482-2.878 1.753-4.99Zm3.25 0c.271 2.112.805 3.822 1.754 4.99.883 1.087 2.265 1.873 4.682 1.873 3.145 0 4.58-.672 5.309-1.499.767-.87 1.116-2.299 1.116-4.719 0-2.277-.485-3.689-1.408-4.633-.954-.975-2.635-1.722-5.644-2.048-2.969-.321-4.378.277-5.06 1.057-.537.614-.873 1.615-.876 3.152v.042c.002.53.042 1.123.127 1.785Z"/><path d="M28.998 28.516c1.104 0 1.999.895 1.999 1.999v3.998a2 2 0 1 1-3.998 0v-3.998c0-1.104.895-1.999 1.999-1.999Zm-9.996 0c1.104 0 1.999.895 1.999 1.999v3.998a2 2 0 1 1-3.998 0v-3.998c0-1.104.895-1.999 1.999-1.999Z"/></svg></span>
-            <span data-ty="label" class="platform-name">GitHub Copilot</span></li></ul></div><section class="section" id="nhg-benefits">
-<h2 data-ty="h2" class="section-title">Harness Benefits</h2><figure class="hb" data-hb data-step="all" aria-label="Claude, ChatGPT, Gemini, Cursor, and GitHub Copilot connect to Nexus Hub, which adds consistency, depth, safety, and governance."><ul class="hb-plats" aria-hidden="true"><li class="hb-plat" data-platform="Claude"><span class="hb-mark"></span></li><li class="hb-plat" data-platform="ChatGPT"><span class="hb-mark"></span></li><li class="hb-plat" data-platform="Gemini"><span class="hb-mark"></span></li><li class="hb-plat" data-platform="Cursor"><span class="hb-mark"></span></li><li class="hb-plat" data-platform="GitHub Copilot"><span class="hb-mark"></span></li></ul><svg class="hb-wires hb-wires--in" viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true"><path d="M10 0C10 26 50 14 50 40" pathLength="100"/><path d="M30 0C30 26 50 14 50 40" pathLength="100"/><path d="M50 0V40" pathLength="100"/><path d="M70 0C70 26 50 14 50 40" pathLength="100"/><path d="M90 0C90 26 50 14 50 40" pathLength="100"/></svg><div class="hb-hub" aria-hidden="true"><svg viewBox="0 0 100 100"><use href="#nexus-mark"/></svg></div><svg class="hb-wires hb-wires--out" viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true"><path d="M50 0C50 22 12.5 18 12.5 40" pathLength="100"/><path d="M50 0C50 22 37.5 18 37.5 40" pathLength="100"/><path d="M50 0C50 22 62.5 18 62.5 40" pathLength="100"/><path d="M50 0C50 22 87.5 18 87.5 40" pathLength="100"/></svg><ol class="hb-panels"><li class="hb-panel" data-benefit="consistency"><svg class="hb-ill" viewBox="0 0 200 100" aria-hidden="true"><rect class="s" x="6" y="10" width="50" height="16" rx="5"/><rect class="s" x="6" y="42" width="36" height="16" rx="5"/><rect class="s" x="6" y="74" width="58" height="16" rx="5"/><g class="hb-merge"><path class="a" d="M56 18C92 18 90 50 122 50" pathLength="1"/><path class="a" d="M42 50H122" pathLength="1"/><path class="a" d="M64 82C94 82 90 50 122 50" pathLength="1"/></g><rect class="s" x="122" y="37" width="72" height="26" rx="13"/><g class="hb-steps"><circle class="af" cx="139" cy="50" r="5"/><circle class="af" cx="158" cy="50" r="5"/><circle class="af" cx="177" cy="50" r="5"/></g></svg><h3 data-ty="h3">Consistency</h3><p data-ty="body-sm" data-tone="dim">Every prompt runs one governed workflow.</p></li><li class="hb-panel" data-benefit="depth"><svg class="hb-ill" viewBox="0 0 200 100" aria-hidden="true"><rect class="s" x="34" y="60" width="18" height="32" rx="3"/><rect class="s" x="56" y="60" width="18" height="32" rx="3"/><rect class="hb-slot" x="80" y="60" width="40" height="32" rx="3"/><rect class="s" x="126" y="60" width="18" height="32" rx="3"/><rect class="s" x="148" y="60" width="18" height="32" rx="3"/><g class="hb-pick"><rect class="hb-card" x="80" y="8" width="40" height="46" rx="4"/><path class="a" d="M88 22H112M88 31H108M88 40H104"/></g></svg><h3 data-ty="h3">Depth</h3><p data-ty="body-sm" data-tone="dim"><span data-count="skills">340</span> skills, loaded only when needed.</p></li><li class="hb-panel" data-benefit="safety"><svg class="hb-ill" viewBox="0 0 200 100" aria-hidden="true"><g class="hb-cmd"><rect class="s" x="4" y="36" width="112" height="24" rx="6"/><text x="12" y="52">git push --force</text></g><path class="hb-shield" d="M152 18l24 9v19c0 17-11 27-24 31-13-4-24-14-24-31V27z"/><path class="hb-x" d="M145 41l14 14M159 41l-14 14"/><text class="hb-tag" x="152" y="95">blocked</text></svg><h3 data-ty="h3">Safety</h3><p data-ty="body-sm" data-tone="dim">Hooks stop secrets and destructive git.</p></li><li class="hb-panel" data-benefit="governance"><svg class="hb-ill" viewBox="0 0 200 100" aria-hidden="true"><rect class="s" x="6" y="8" width="104" height="84" rx="6"/><rect class="hb-box" x="16" y="19" width="14" height="14" rx="3"/><path class="hb-line" d="M38 26H98"/><path class="hb-tick" d="M19.5 26l3 3 5.5-6.5"/><rect class="hb-box" x="16" y="43" width="14" height="14" rx="3"/><path class="hb-line" d="M38 50H98"/><path class="hb-tick" d="M19.5 50l3 3 5.5-6.5"/><rect class="hb-box" x="16" y="67" width="14" height="14" rx="3"/><path class="hb-line" d="M38 74H98"/><path class="hb-tick" d="M19.5 74l3 3 5.5-6.5"/><rect class="hb-gate" x="124" y="31" width="70" height="38" rx="19"/><text class="hb-nogo" x="159" y="54">NO-GO</text><text class="hb-go" x="159" y="54">GO</text></svg><h3 data-ty="h3">Governance</h3><p data-ty="body-sm" data-tone="dim">Done criteria pass a GO / NO-GO gate.</p></li></ol></figure></section><section class="section" id="nhg-install">
+            <span data-ty="label" class="platform-name">GitHub Copilot</span></li></ul><div class="hb-hub" aria-hidden="true"><svg viewBox="0 0 100 100"><use href="#nexus-mark"/></svg></div><ol class="hb-panels"><li class="hb-panel" data-benefit="depth"><div class="hb-ill hb-dep" aria-hidden="true"><div class="hb-model"><div class="hb-row"><span data-ty="caption" class="hb-k hb-node">Model</span><span class="hb-state hb-chip"><span data-ty="caption" class="hb-was">Smart</span><span data-ty="caption" class="hb-now">Skilled</span></span></div><ul class="hb-badges"><li data-ty="caption">Security</li><li data-ty="caption">Testing</li><li data-ty="caption">Docs</li><li data-ty="caption">Architecture</li><li data-ty="caption">DevOps</li></ul></div></div><h3 data-ty="h3">Depth</h3><p data-ty="body-sm" data-tone="dim">A smart model gains the experience of <span data-count="skills">340</span> skills across every domain.</p></li><li class="hb-panel" data-benefit="safety"><div class="hb-ill hb-saf" aria-hidden="true"><div class="hb-req"><span data-ty="caption" class="hb-k">Potentially dangerous request</span><span class="hb-state"><span data-ty="caption" class="hb-was">Pending</span><span data-ty="caption" class="hb-now hb-bad">Blocked</span></span></div><div class="hb-track"><span data-ty="caption" class="hb-k">Agent</span><span class="hb-bar"><i></i></span><span class="hb-guard"><svg viewBox="0 0 30 34"><path class="hb-shield" d="M15 1.5l12.5 4.8v9.4c0 8.6-5.6 14.4-12.5 16.8C8.1 30.1 2.5 24.3 2.5 15.7V6.3z"/><use href="#nexus-mark" x="7.5" y="8" width="15" height="15"/></svg></span><span data-ty="caption" class="hb-run">Run</span></div></div><h3 data-ty="h3">Safety</h3><p data-ty="body-sm" data-tone="dim">Risky actions are stopped before they run.</p></li><li class="hb-panel" data-benefit="cross-platform"><div class="hb-ill hb-xp" aria-hidden="true"><div class="hb-pf hb-pf--a"><span data-ty="caption" class="hb-k">Platform A</span><span class="hb-use"><span class="hb-meter"><i></i></span><span data-ty="caption" class="hb-lim">Limit</span></span></div><svg class="hb-hand" viewBox="0 0 22 12"><path d="M1 6H19M14 1.5L19.5 6 14 10.5"/></svg><div class="hb-pf hb-pf--b"><span data-ty="caption" class="hb-k">Platform B</span><span data-ty="caption" class="hb-res">Resumed</span></div><span class="hb-task"><span data-ty="caption" class="hb-k">Task</span><span class="hb-dots"><i></i><i></i><i></i></span></span></div><h3 data-ty="h3">Cross-Platform</h3><p data-ty="body-sm" data-tone="dim">Work continues on another platform when usage runs out or a model falls short.</p></li><li class="hb-panel" data-benefit="transparency"><div class="hb-ill hb-tr" aria-hidden="true"><div class="hb-rec"><div class="hb-report"><span data-ty="caption" class="hb-k">Report</span><span class="hb-ln"><i></i><i></i><i></i></span><span data-ty="caption" class="hb-note">Lessons</span></div></div><div class="hb-gauge"><svg viewBox="0 0 64 36"><path class="hb-g0" d="M6 32A26 26 0 0 1 58 32" pathLength="100"/><path class="hb-g1" d="M6 32A26 26 0 0 1 58 32" pathLength="100"/></svg><span data-ty="caption" class="hb-k">Usage</span></div></div><h3 data-ty="h3">Transparency</h3><p data-ty="body-sm" data-tone="dim">Clear reports, usage monitoring, and a record of every step and lesson learned.</p></li></ol></figure></div><section class="section" id="nhg-install">
         <h2 data-ty="h2" class="section-title">Installation</h2><p data-ty="body">Copy the command for the detected system and paste it into a terminal. The installer copies the catalog into <code data-ty="code">~/.nexus-hub/</code>, wires every assistant it detects, and preserves customized files. There is no download to unzip first.</p><svg class="os-sprite" width="0" height="0" aria-hidden="true"><symbol id="os-win" viewBox="0 0 24 24"><path d="M2 2h9.5v9.5H2zm10.5 0H22v9.5h-9.5zM2 12.5h9.5V22H2zm10.5 0H22V22h-9.5z"/></symbol><symbol id="os-mac" viewBox="0 0 24 24"><path d="M16.4 12.7c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.9-.9-3-.8-1.6 0-3 .9-3.8 2.3-1.6 2.8-.4 6.9 1.2 9.1.8 1.1 1.7 2.3 2.8 2.3 1.1 0 1.6-.7 2.9-.7 1.4 0 1.8.7 3 .7 1.2 0 2-1.1 2.7-2.2.9-1.3 1.2-2.5 1.3-2.6-.1 0-2.2-.9-2.2-3.7zM14.2 5.9c.6-.8 1-1.8.9-2.9-.9 0-2 .6-2.7 1.4-.6.7-1.1 1.7-1 2.8 1 .1 2.1-.5 2.8-1.3z"/></symbol><symbol id="os-linux" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 1.6c-2.7 0-4.3 2.2-4.3 5 0 1.5.2 2.5-.9 4.2-1.3 1.9-2.4 4.1-2.3 6.2.1 1.6 1.4 2.7 2.7 3.1h9.6c1.3-.4 2.6-1.5 2.7-3.1.1-2.1-1-4.3-2.3-6.2-1.1-1.7-.9-2.7-.9-4.2 0-2.8-1.6-5-4.3-5zM12 10.9c2 0 3.6 1.9 3.6 4.3s-1.6 4.4-3.6 4.4-3.6-2-3.6-4.4 1.6-4.3 3.6-4.3zM10.5 5.2a1.15 1.15 0 1 1 0 2.3 1.15 1.15 0 0 1 0-2.3zm3 0a1.15 1.15 0 1 1 0 2.3 1.15 1.15 0 0 1 0-2.3zM10.4 8.3h3.2L12 10.1z"/><path d="M5.4 20.6c0-.8 1.2-1.4 2.7-1.4s2.7.6 2.7 1.4-1.2 1.3-2.7 1.3-2.7-.5-2.7-1.3zm7.8 0c0-.8 1.2-1.4 2.7-1.4s2.7.6 2.7 1.4-1.2 1.3-2.7 1.3-2.7-.5-2.7-1.3z"/></symbol></svg><div class="nhg-install-wrap" data-tabs data-nhg-keys="self"><div class="install-head"><div class="tab-btns" role="tablist" aria-label="Install command by operating system">
             <button type="button" data-ty="label" class="tab-btn active" id="install-tab-win" data-tab="win" role="tab" aria-selected="true" aria-controls="install-panel-win"><svg class="os-logo" aria-hidden="true"><use href="#os-win"/></svg>Windows</button>
             <button type="button" data-ty="label" class="tab-btn" id="install-tab-mac" data-tab="mac" role="tab" aria-selected="false" aria-controls="install-panel-mac"><svg class="os-logo" aria-hidden="true"><use href="#os-mac"/></svg>macOS</button>
@@ -3688,26 +3733,47 @@ host.appendChild(svg);
     });
   })();
 
-  /* -------------------------------------------------- Harness Benefits (v4.13.10 R44)
-     The platform icons are copied from the hero row, so each mark exists once in the source.
-     The loop steps in, 1 to 4, all; it runs only while the figure is on screen and the tab is
-     visible. Without motion the figure keeps its plain, final frame. */
+  /* -------------------------------------------------- Hero benefits (v4.13.10 R47)
+     The lines are drawn from the laid-out positions: one from each platform circle into the
+     Nexus Hub mark, and one from the mark to each panel while the panels share a row. The loop
+     steps in, 1 to 4, all; it runs only while the figure is on screen and the tab is visible.
+     Without motion the figure keeps its plain, final frame. */
   (function () {
     var fig = document.querySelector("[data-hb]");
     if (!fig) return;
-    var plats = fig.querySelectorAll(".hb-plat");
-    for (var i = 0; i < plats.length; i++) {
-      var src = document.querySelector('#page-home .platform-rail [data-platform="' + plats[i].getAttribute("data-platform") + '"] .platform-mark svg');
-      if (!src) continue;
-      var copy = src.cloneNode(true), ids = copy.querySelectorAll("[id]");
-      for (var k = 0; k < ids.length; k++) ids[k].removeAttribute("id");
-      plats[i].querySelector(".hb-mark").appendChild(copy);
-    }
-    if (REDUCE || !("IntersectionObserver" in window)) return;
-    var panels = fig.querySelectorAll(".hb-panel"), outs = fig.querySelectorAll(".hb-wires--out path"), hub = fig.querySelector(".hb-hub");
+    var wires = fig.querySelector(".hb-wires"), hub = fig.querySelector(".hb-hub"), mark = hub.querySelector("svg");
+    var items = fig.querySelectorAll(".platform-rail .platform-item"), panels = fig.querySelectorAll(".hb-panel");
     var STEPS = ["in", "1", "2", "3", "4", "all"], HOLD = { "in": 2000, "all": 2600 }, at = -1, timer = 0, seen = false;
+    function curve(x1, y1, x2, y2) {
+      var k = (y2 - y1) * 0.55, f = function (n) { return n.toFixed(1); };
+      return "M" + f(x1) + " " + f(y1) + "C" + f(x1) + " " + f(y1 + k) + " " + f(x2) + " " + f(y2 - k) + " " + f(x2) + " " + f(y2);
+    }
+    function line(cls, d) {
+      var el = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      el.setAttribute("class", cls);
+      el.setAttribute("d", d);
+      wires.appendChild(el);
+    }
+    function draw() {
+      var b = fig.getBoundingClientRect(), m = mark.getBoundingClientRect();
+      if (!b.width || !m.width) return;
+      var hx = m.left + m.width / 2 - b.left;
+      while (wires.firstChild) wires.removeChild(wires.firstChild);
+      wires.setAttribute("viewBox", "0 0 " + b.width.toFixed(1) + " " + b.height.toFixed(1));
+      for (var i = 0; i < items.length; i++) {
+        var r = items[i].getBoundingClientRect();
+        line("hb-in", curve(r.left + r.width / 2 - b.left, r.bottom - b.top, hx, m.top - b.top));
+      }
+      var top = panels[0].getBoundingClientRect().top, row = true;
+      for (var p = 1; p < panels.length; p++) if (Math.abs(panels[p].getBoundingClientRect().top - top) > 2) row = false;
+      for (p = 0; row && p < panels.length; p++) {
+        var q = panels[p].getBoundingClientRect();
+        line("hb-out", curve(hx, m.bottom - b.top, q.left + q.width / 2 - b.left, q.top - b.top));
+      }
+      paint(fig.getAttribute("data-step"));
+    }
     function paint(step) {
-      var n = step === "all" ? 5 : step === "in" ? 0 : +step;
+      var n = step === "all" ? 5 : step === "in" ? 0 : +step, outs = wires.querySelectorAll(".hb-out");
       fig.setAttribute("data-step", step);
       hub.classList.toggle("is-on", n > 0);
       for (var p = 0; p < panels.length; p++) {
@@ -3716,6 +3782,11 @@ host.appendChild(svg);
         if (outs[p]) outs[p].classList.toggle("is-on", p + 1 <= n);
       }
     }
+    if ("ResizeObserver" in window) new ResizeObserver(draw).observe(fig);
+    else window.addEventListener("resize", draw);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
+    draw();
+    if (REDUCE || !("IntersectionObserver" in window)) return;
     function tick() {
       at = (at + 1) % STEPS.length;
       paint(STEPS[at]);

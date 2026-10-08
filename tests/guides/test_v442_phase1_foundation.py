@@ -225,7 +225,8 @@ def test_section_titles_share_one_scale_and_never_overflow(playwright_mod) -> No
     # v4.4.3 merged the two harness scenes and v4.4.4 merged the chatbot comparison into Agentic
     # Platforms, so Foundations contributes two titles fewer than it did at v4.4.2.
     # The requested Home and Foundations closing Next sections were removed.
-    assert len(sizes) == 20, f"expected 20 section titles across the guide's three pages, found {len(sizes)}"
+    # v4.13.10 R47 folded the Home benefits figure into the hero, without its own title.
+    assert len(sizes) == 19, f"expected 19 section titles across the guide's three pages, found {len(sizes)}"
     assert len(set(sizes)) == 1, f"one shared stylesheet size expected, got {sorted(set(sizes))}"
     # v4.4.1 rendered h2 at 1.7rem (27.2px); v4.4.2 tuned the token to 2.4 (65.3px); the v4.4.3
     # review halved it to 1.2 (32.6px) and tripled the label instead. The RENDERED size is now

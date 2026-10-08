@@ -253,7 +253,6 @@ _HOOKS_DIR = _ROOT / "catalog" / "hooks"
 # drift still fails.
 EXPECTED_HOME_ORDER = [
     "A skill harness for agentic AI platforms",
-    "Harness Benefits",
     "Installation",
     "Skills, Hooks, and Governance",
     "Security Guardrails",
@@ -263,22 +262,23 @@ EXPECTED_HOME_ORDER = [
 ]
 
 
-def _section_words(page, section_id: str) -> int:
+def _section_words(page, section_id: str, drop: str = "") -> int:
     """Word count of a section's RESTORED prose.
 
     v4.4.4 adds content to a restored section that v4.1.2 never had, the portability figure the
     operator asked for, so measuring it against a v4.1.2 baseline measures the wrong thing. Blocks
     marked `data-v444-new` are excluded here and capped separately in the test below, which keeps
     both halves honest: restored prose still cannot creep back toward its old length, and the new
-    block cannot grow without a number on it.
+    block cannot grow without a number on it. `drop` removes further parts: v4.13.10 R47 counts
+    only the benefit prose of the hero figure, not its illustration labels or the platform names.
     """
     return page.evaluate(
-        """id => { const sec = document.getElementById(id).cloneNode(true);
-             sec.querySelectorAll('[data-v444-new]').forEach(e => e.remove());
+        """([id, drop]) => { const sec = document.getElementById(id).cloneNode(true);
+             sec.querySelectorAll('[data-v444-new]' + drop).forEach(e => e.remove());
              document.body.appendChild(sec);
              const n = sec.innerText.replace(/\s+/g, ' ').trim().split(' ').length;
              sec.remove(); return n; }""",
-        section_id,
+        [section_id, drop],
     )
 
 
@@ -350,7 +350,8 @@ def test_restored_sections_are_at_most_two_thirds_of_their_v412_word_count(playw
     with playwright_mod() as pw:
         browser, page = _launch(pw)
         try:
-            counts = {key: _section_words(page, sid) for key, sid in ids.items()}
+            drop = {"nhg-benefits": ", .hb-ill, .platform-rail"}
+            counts = {key: _section_words(page, sid, drop.get(sid, "")) for key, sid in ids.items()}
             portability = _new_block_words(page, "#nhg-commands [data-v444-new]")
             merged = page.evaluate(
                 "() => { const h = [...document.querySelectorAll('#page-home .section-title')]"

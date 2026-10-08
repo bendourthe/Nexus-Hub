@@ -111,7 +111,7 @@ def test_section_titles_stand_alone_without_eyebrow_labels(playwright_mod) -> No
             ctx, page = _page(browser, 1440, "home")
             data = page.evaluate(
                 """() => {
-                    const ti = document.querySelector('#nhg-benefits .section-title');
+                    const ti = document.querySelector('#nhg-install .section-title');
                     return { eyebrows: document.querySelectorAll('#page-home .eyebrow').length,
                              title: parseFloat(getComputedStyle(ti).fontSize), text: ti.textContent.trim() };
                 }"""
@@ -120,7 +120,7 @@ def test_section_titles_stand_alone_without_eyebrow_labels(playwright_mod) -> No
         finally:
             browser.close()
     assert data["eyebrows"] == 0, data
-    assert data["text"] == "Harness Benefits", data
+    assert data["text"] == "Installation", data
     assert data["title"] >= 26, data
 
 
