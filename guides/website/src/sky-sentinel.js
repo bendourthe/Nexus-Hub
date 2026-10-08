@@ -118,8 +118,8 @@
   ];
   /* R43: the core rose from 200 to 440 when the turning frame made the nodes fair to reach, so the
      fight kept its revision 12 length. Review 19 (2026-10-08): the last core stage was a little too
-     hard, so the core drops to 320; the rest of the fight is unchanged. */
-  var NODE_HP = 75, CORE_HP = 320;
+     hard, so the core dropped to 320, then to 240 at review 20; the rest of the fight is unchanged. */
+  var NODE_HP = 75, CORE_HP = 240;
   var BOSS_HP = BOSS_SHIELDS.reduce(function (a, s) { return a + s.hp; }, 0) + 4 * NODE_HP + CORE_HP;
   var INTRO_TICKS = 270, INTRO_STILL = 90;
   /* R43 (T125): the megaship turns its X frame a quarter turn at a time, so every node swings into

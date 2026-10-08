@@ -246,7 +246,7 @@ def test_the_boss_fight_brings_the_blast_after_the_first_layer_and_the_revive_be
         s = g.step(300); const a = s.rareLog.filter(e => e.level === 4).length;
         g.hitBoss('shield', 1e9); s = g.step(2); const b = s.rareLog.filter(e => e.level === 4);
         g.hitBoss('shield', 1e9); s = g.step(2); const c = s.rareLog.filter(e => e.level === 4).length;
-        g.hitBoss('shield', 1e9); for (let i = 0; i < 4; i++) g.hitBoss('node' + i, 1e9); g.hitBoss('core', 300); s = g.step(2);
+        g.hitBoss('shield', 1e9); for (let i = 0; i < 4; i++) g.hitBoss('node' + i, 1e9); g.hitBoss('core', 100); s = g.step(2);  // below the core's 240 health, so the boss lives
         return { a, b, c, d: s.rareLog.filter(e => e.level === 4), hp: s.boss.hp, max: s.boss.hpMax };""")
     _js(page, DONE)
     assert out["a"] == 0, "nothing before the first layer falls"

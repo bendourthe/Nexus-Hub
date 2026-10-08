@@ -317,18 +317,20 @@ def test_the_loop_lights_each_panel_in_turn(playwright_mod) -> None:
                 page.wait_for_timeout(700)
                 states.append(page.evaluate(
                     """() => [...document.querySelectorAll('#nhg-benefits .hb-panel')].map(p => [
-                        p.classList.contains('is-on'), p.classList.contains('is-done'), +getComputedStyle(p).opacity])"""
+                        p.classList.contains('is-on'), p.classList.contains('is-done'), +getComputedStyle(p).opacity,
+                        getComputedStyle(p).boxShadow !== 'none',
+                        [...p.children].findIndex(e => e.tagName === 'H3') < [...p.children].findIndex(e => e.classList.contains('hb-ill'))])"""
                 ))
         finally:
             browser.close()
     for n, state in enumerate(states, 1):
         assert [s[0] for s in state] == [i == n for i in range(1, 5)], (n, state)
         assert [s[1] for s in state] == [i < n for i in range(1, 5)], (n, state)
-        lit = state[n - 1][2]
-        assert lit == 1, (n, state)
-        for i, (_on, _done, opacity) in enumerate(state, 1):
-            if i > n:
-                assert opacity < lit, "a panel waiting its turn rests dimmer"
+        # Review 20: no panel fades; only the active one carries the accent outline, and every panel
+        # reads title and text before its illustration.
+        assert all(s[2] == 1 for s in state), ("no panel fades", n, state)
+        assert [s[3] for s in state] == [i == n for i in range(1, 5)], ("outline on the active panel only", n, state)
+        assert all(s[4] for s in state), ("title and text sit above the illustration", n, state)
 
 
 def test_the_loop_stops_offscreen_and_in_a_hidden_tab(playwright_mod) -> None:
