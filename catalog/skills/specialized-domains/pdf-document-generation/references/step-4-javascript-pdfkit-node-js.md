@@ -29,7 +29,7 @@ function createInvoice(invoiceData, outputPath) {
     .fillColor("#1a1a2e")
     .text("ACME Corporation", { align: "left" });
   doc
-    .fontSize(9)
+    .fontSize(10)
     .fillColor("#666666")
     .text("123 Business Ave, Suite 100")
     .text("contact@acme.example.com")
@@ -54,7 +54,7 @@ function createInvoice(invoiceData, outputPath) {
     .rect(72, tableTop, 468, 20)
     .fill("#1a1a2e");
   doc
-    .fontSize(9)
+    .fontSize(10)
     .fillColor("#ffffff")
     .text("Description", col.desc + 6, tableTop + 5)
     .text("Qty", col.qty, tableTop + 5, { width: 50, align: "right" })
@@ -63,7 +63,7 @@ function createInvoice(invoiceData, outputPath) {
 
   // Table rows
   let rowY = tableTop + 24;
-  doc.fillColor("#333333").fontSize(9);
+  doc.fillColor("#333333").fontSize(10);
 
   for (const [index, item] of invoiceData.lineItems.entries()) {
     const bgColor = index % 2 === 0 ? "#f8f8f8" : "#ffffff";
@@ -120,7 +120,7 @@ function createDocumentWithCustomFonts(outputPath) {
 
   // Use custom fonts
   doc.font("Inter-Bold").fontSize(18).text("Project Report");
-  doc.font("Inter").fontSize(10).text("This document uses embedded Inter font.");
+  doc.font("Inter").fontSize(11).text("This document uses embedded Inter font.");
 
   // Unicode content (CJK characters require an appropriate font)
   doc.font("NotoSansCJK").fontSize(12).text("Japanese: PDF generation guide");
@@ -150,7 +150,7 @@ function drawChart(doc, x, y, width, height, data) {
 
     // Label below bar
     doc
-      .fontSize(7)
+      .fontSize(10)
       .fillColor("#333")
       .text(item.label, barX, y + height - 15, {
         width: barWidth,

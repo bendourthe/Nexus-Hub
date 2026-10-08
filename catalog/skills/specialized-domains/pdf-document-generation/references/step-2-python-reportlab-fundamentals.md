@@ -62,7 +62,7 @@ def create_invoice(
     body_style = ParagraphStyle(
         "InvoiceBody",
         parent=styles["Normal"],
-        fontSize=10,
+        fontSize=11,
         leading=14,
     )
 
@@ -140,14 +140,14 @@ def header_footer(canvas, doc):
     canvas.saveState()
 
     # Header: company name and horizontal rule
-    canvas.setFont("Helvetica-Bold", 9)
+    canvas.setFont("Helvetica-Bold", 10)
     canvas.drawString(20 * mm, A4[1] - 15 * mm, "ACME Corporation")
     canvas.setStrokeColorRGB(0.1, 0.1, 0.18)
     canvas.setLineWidth(0.5)
     canvas.line(20 * mm, A4[1] - 17 * mm, A4[0] - 20 * mm, A4[1] - 17 * mm)
 
     # Footer: page number and date
-    canvas.setFont("Helvetica", 8)
+    canvas.setFont("Helvetica", 10)
     canvas.setFillColorRGB(0.4, 0.4, 0.4)
     canvas.drawString(20 * mm, 12 * mm, f"Generated {date.today().isoformat()}")
     canvas.drawRightString(A4[0] - 20 * mm, 12 * mm, f"Page {doc.page}")
@@ -209,5 +209,5 @@ from reportlab.pdfbase.pdfmetrics import registerFontFamily
 registerFontFamily("Inter", normal="Inter", bold="Inter-Bold", italic="Inter-Italic")
 
 # Use in ParagraphStyle
-style = ParagraphStyle("CustomBody", fontName="Inter", fontSize=10, leading=14)
+style = ParagraphStyle("CustomBody", fontName="Inter", fontSize=11, leading=14)
 ```

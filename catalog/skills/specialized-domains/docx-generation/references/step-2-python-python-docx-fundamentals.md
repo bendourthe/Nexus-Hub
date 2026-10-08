@@ -218,7 +218,7 @@ def add_data_table(
         para.alignment = WD_ALIGN_PARAGRAPH.CENTER
         run = para.add_run(header_text)
         run.bold = True
-        run.font.size = Pt(10)
+        run.font.size = Pt(11)
         run.font.color.rgb = RGBColor(
             int(header_text_color[0:2], 16),
             int(header_text_color[2:4], 16),
@@ -234,7 +234,7 @@ def add_data_table(
             cell.text = cell_text
             cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.LEFT
             for run in cell.paragraphs[0].runs:
-                run.font.size = Pt(9)
+                run.font.size = Pt(10)
         if row_idx % 2 == 1:
             for cell in row.cells:
                 _set_cell_shading(cell, stripe_color)
@@ -284,7 +284,7 @@ def add_image_with_caption(
     caption_para.alignment = alignment
     caption_run = caption_para.add_run(caption)
     caption_run.italic = True
-    caption_run.font.size = Pt(9)
+    caption_run.font.size = Pt(10)
     caption_run.font.color.rgb = RGBColor(0x66, 0x66, 0x66)
 ```
 
