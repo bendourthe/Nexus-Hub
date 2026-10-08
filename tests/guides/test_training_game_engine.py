@@ -1213,7 +1213,8 @@ def test_the_end_card_sits_in_the_centre_of_the_arena(browser, viewport: tuple[i
             /* R37: the end card waits for the finale, so skip it: once to the prize card, once to the end */
             g.skipFinale(); g.skipFinale(); }""")
         cards["fixed victory"] = pg.evaluate(CARD_PROBE, "fixed")
-        assert cards["fixed victory"]["title"] == "The Nexus megaship is down"
+        # R48 (T132): the victory card leads with a keyword title over the score summary
+        assert cards["fixed victory"]["title"] == "Victory"
         for name, m in cards.items():
             assert abs(m["dx"]) < 2 and abs(m["dy"]) < 2, f"{name} {viewport}: the card is centred {m}"
             assert m["inside"] and all(m["parts"]), f"{name} {viewport}: title, buttons, and hint sit in the card {m}"

@@ -335,18 +335,14 @@ def test_both_pickups_are_in_the_start_screen_key(page) -> None:
     assert api["revive"]["color"] != api["atomic"]["color"] and api["revive"]["seconds"] is None
 
 
-def test_both_pickups_drop_rarely(page) -> None:
+def test_both_pickups_are_never_dropped_by_carriers(page) -> None:
+    """R48 (T133) changed this: both now arrive on a schedule, once per level, so a carrier never
+    holds one and their old 5 percent goes back to the Repair (see test_training_game_revision18.py)."""
     _fresh(page, seed=5)
     counts = _js(page, "return g.sampleDrops(40000);")
     total = sum(counts.values())
-    rates = page.evaluate("SkySentinel.get('fixed').dropRates()")
-    for kind in ("revive", "atomic"):
-        share = counts[kind] / total
-        assert 0.01 <= share <= 0.03, f"{kind}: {share:.4f} of upgrade drops"
-        # of all drops (a quarter of carriers, nearly half of agents, hold a hazard instead)
-        assert 0.01 <= share * (1 - rates["downShare"]) <= 0.03
-        assert 0.01 <= share * (1 - rates["downShareAgent"]) <= 0.03, "the boss fight's agents drop them too"
-    assert {"revive", "atomic"} <= set(counts)
+    assert "revive" not in counts and "atomic" not in counts
+    assert 0.13 <= counts["repair"] / total <= 0.17
 
 
 # ---------------------------------------------------------------- reduced motion: still frames
