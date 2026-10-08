@@ -43,7 +43,7 @@ def define_custom_styles(doc: Document) -> None:
     code_style = styles.add_style("Code Block", WD_STYLE_TYPE.PARAGRAPH)
     code_style.base_style = styles["Normal"]
     code_style.font.name = "Consolas"
-    code_style.font.size = Pt(9)
+    code_style.font.size = Pt(10)
     code_style.font.color.rgb = RGBColor(0x2D, 0x2D, 0x2D)
     code_style.paragraph_format.space_before = Pt(4)
     code_style.paragraph_format.space_after = Pt(4)
@@ -59,7 +59,7 @@ def define_custom_styles(doc: Document) -> None:
     # Caption style
     caption_style = styles.add_style("Figure Caption", WD_STYLE_TYPE.PARAGRAPH)
     caption_style.base_style = styles["Normal"]
-    caption_style.font.size = Pt(9)
+    caption_style.font.size = Pt(10)
     caption_style.font.italic = True
     caption_style.font.color.rgb = RGBColor(0x66, 0x66, 0x66)
     caption_style.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER

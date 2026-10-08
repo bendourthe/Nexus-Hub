@@ -162,7 +162,7 @@ def configure_headers_footers(
         header_para.alignment = WD_ALIGN_PARAGRAPH.RIGHT
         run = header_para.add_run(header_text)
         run.italic = True
-        run.font.size = Pt(9)
+        run.font.size = Pt(10)
         run.font.color.rgb = RGBColor(0x99, 0x99, 0x99)
 
         # Default footer
@@ -173,7 +173,7 @@ def configure_headers_footers(
 
         if footer_text:
             left_run = footer_para.add_run(footer_text)
-            left_run.font.size = Pt(8)
+            left_run.font.size = Pt(10)
             left_run.font.color.rgb = RGBColor(0x99, 0x99, 0x99)
 
         if show_page_numbers:
@@ -184,11 +184,11 @@ def configure_headers_footers(
 def _add_page_number_field(paragraph) -> None:
     """Insert 'Page X of Y' using Word field codes."""
     run = paragraph.add_run()
-    run.font.size = Pt(8)
+    run.font.size = Pt(10)
     run.font.color.rgb = RGBColor(0x99, 0x99, 0x99)
 
     run2 = paragraph.add_run("Page ")
-    run2.font.size = Pt(8)
+    run2.font.size = Pt(10)
 
     # Current page number field
     fld_begin = OxmlElement("w:fldChar")
@@ -212,7 +212,7 @@ def _add_page_number_field(paragraph) -> None:
     run6._r.append(fld_end)
 
     run7 = paragraph.add_run(" of ")
-    run7.font.size = Pt(8)
+    run7.font.size = Pt(10)
 
     # Total pages field
     fld_begin2 = OxmlElement("w:fldChar")

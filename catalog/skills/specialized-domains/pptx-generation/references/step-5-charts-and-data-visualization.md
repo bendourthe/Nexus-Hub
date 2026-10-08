@@ -60,7 +60,7 @@ def add_bar_chart_slide(
     # Style the category axis
     category_axis = chart.category_axis
     category_axis.has_major_gridlines = False
-    category_axis.tick_labels.font.size = Pt(10)
+    category_axis.tick_labels.font.size = Pt(12)
 
     # Apply colors to each series
     colors = ["2E4A7A", "5B8DEF", "E86C00", "2ECC71", "E74C3C"]
@@ -152,7 +152,7 @@ def add_pie_chart_slide(
     data_labels.show_category_name = True
     data_labels.show_percentage = show_percentages
     data_labels.show_value = not show_percentages
-    data_labels.font.size = Pt(10)
+    data_labels.font.size = Pt(12)
     data_labels.number_format = "0.0%" if show_percentages else "0"
 ```
 

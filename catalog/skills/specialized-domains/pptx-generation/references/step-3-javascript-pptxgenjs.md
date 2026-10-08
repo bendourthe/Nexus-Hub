@@ -99,7 +99,7 @@ function createPresentation(theme: SlideTheme = DEFAULT_THEME): PptxGenJS {
             w: 12.0,
             h: 0.55,
             fontFace: theme.fontFamily,
-            fontSize: 22,
+            fontSize: 24,
             color: "FFFFFF",
             bold: true,
           },
@@ -184,7 +184,7 @@ function addTableSlide(
       bold: true,
       color: "FFFFFF",
       fill: { color: theme.primaryColor },
-      fontSize: 11,
+      fontSize: 14,
       align: "center" as const,
     },
   }));
@@ -193,7 +193,7 @@ function addTableSlide(
     row.map((cell) => ({
       text: cell,
       options: {
-        fontSize: 10,
+        fontSize: 12,
         color: "333333",
         border: { type: "solid", pt: 0.5, color: "CCCCCC" },
       },
