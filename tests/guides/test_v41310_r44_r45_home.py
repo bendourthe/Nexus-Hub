@@ -5,7 +5,10 @@ benefits figure into the hero: no "Harness Benefits" heading, one platform row w
 each hold a logo and a name, lines from those circles into the Nexus Hub mark, and four panels
 (Depth, Safety, Cross-Platform, Transparency) whose illustrations show their lines. R45 gives each
 install tab numbered steps beside the system's icon and an animated mockup of that system's
-terminal running the installer, whose output must come from the real installer scripts. The copy
+terminal running the installer, whose output must come from the real installer scripts. R49 makes
+every terminal dark and neutral, adds the mouse that right-clicks to paste (PowerShell pastes on the
+click; macOS and GNOME open a menu), and replays the installer's own output, its wordmark included,
+with every line tracing to the installer line(s) it names in data-src. The copy
 chip, detection, and stored choice are covered by test_v41310_r38_install.py.
 
 Browser tests skip when Playwright or Chromium is missing and fail closed under
@@ -14,6 +17,7 @@ NEXUS_REQUIRE_RENDER=1.
 
 from __future__ import annotations
 
+import html
 import os
 import re
 from pathlib import Path
@@ -37,19 +41,32 @@ STEPS = {
     "mac": ["Press Cmd + Space to open Spotlight.", "Type Terminal and press Enter.", "Paste the command and press Enter."],
     "linux": ["Press Ctrl + Alt + T, or open Terminal from the applications menu.", "Paste the command and press Enter."],
 }
-# Each system's own terminal look: skin class, body background, and where the window controls sit.
+# Each system's own terminal look: skin class, a dark neutral window (R49: no blue PowerShell,
+# no aubergine GNOME), and where the window controls sit.
 CHROME = {
-    "win": ("tm--win", "rgb(1, 36, 86)", "right"),
+    "win": ("tm--win", "rgb(12, 12, 12)", "right"),
     "mac": ("tm--mac", "rgb(30, 30, 30)", "left"),
-    "linux": ("tm--gnome", "rgb(48, 10, 36)", "right"),
+    "linux": ("tm--gnome", "rgb(30, 30, 30)", "right"),
 }
-# Values the real installer computes at run time (repository, paths, version, the verified
-# platform and its surfaces). The mockup marks each one with <var>; everything else must be
-# literal text from the installer source named on the line.
+# Values the real installer computes at run time (repository and branch, home and catalog paths,
+# version, scope, the verified platform and its surfaces, and the PowerShell check mark, which the
+# source writes as [char]0x2713). The mockup marks each one with <var>; everything else must be
+# literal text on an installer line the mocked line cites.
 DYNAMIC = {
-    "bendourthe/Nexus-Hub@main", "C:\\Users\\dev\\.nexus-hub\\src", "/Users/dev/.nexus-hub/src",
-    "/home/dev/.nexus-hub/src", "4.13.10", "Claude", "commands:ok, skills:ok",
+    "bendourthe/Nexus-Hub@main", "main", "C:\\Users\\dev", "/Users/dev", "/home/dev", "4.13.10", "Global",
+    "Claude", "commands:ok, skills:ok, CLAUDE.md SKILL_INDEX:ok", "\u2713",
 }
+DYNAMIC_PATHS = ("C:\\Users\\dev\\", "/Users/dev/", "/home/dev/")
+# R49 playback: PowerShell pastes on right-click; macOS Terminal and GNOME Terminal open a menu.
+SEQUENCE = {
+    "win": ["prompt", "move", "click", "paste", "enter", "run", "done"],
+    "mac": ["prompt", "move", "click", "menu", "pick", "paste", "enter", "run", "done"],
+    "linux": ["prompt", "move", "click", "menu", "pick", "paste", "enter", "run", "done"],
+}
+# The flow every mockup shows, in order: the bootstrap, the wordmark, the welcome, the sections, done.
+MILESTONES = ["Downloading Nexus-Hub catalog", "Extracting catalog to", "Running installer from", "\u2588\u2588\u2588\u2557",
+              "Multi-platform AI skill harness", "Welcome to the Nexus-Hub Universal Installer", "SKILLS & COMMANDS",
+              "AUTO-APPROVE PERMISSIONS", "INSTALL VERIFICATION", "installed (Global scope)."]
 
 
 @pytest.fixture(scope="module")
@@ -353,7 +370,10 @@ def test_reduced_motion_shows_the_final_frame(playwright_mod) -> None:
                            wires: fig.querySelectorAll('.hb-wires .hb-in').length,
                            marks: fig.querySelectorAll('.platform-mark svg').length,
                            mocks: [...document.querySelectorAll('[data-tm]')].map(m => ({ step: m.dataset.tmStep, anim: m.classList.contains('tm--anim'),
-                             hidden: [...m.querySelectorAll('.tm-l, .tm-cmd, .tm-end')].filter(e => getComputedStyle(e).visibility !== 'visible').length })) }; }"""
+                             hidden: [...m.querySelectorAll('.tm-l, .tm-cmd, .tm-end')].filter(e => getComputedStyle(e).visibility !== 'visible').length,
+                             mouse: getComputedStyle(m.querySelector('.tm-ms')).opacity,
+                             extras: [...m.querySelectorAll('.tm-menu, .tm-key')].map(e => getComputedStyle(e).visibility),
+                             wordmark: m.querySelector('.tm-wm').textContent.split('\\n').length })) }; }"""
             )
         finally:
             browser.close()
@@ -364,7 +384,9 @@ def test_reduced_motion_shows_the_final_frame(playwright_mod) -> None:
     assert data["wires"] == len(PLATFORMS), "the lines are drawn without motion too"
     assert data["marks"] == len(PLATFORMS), "the icons still appear without motion"
     for mock in data["mocks"]:
-        assert mock == {"step": "done", "anim": False, "hidden": 0}, mock
+        assert {k: mock[k] for k in ("step", "anim", "hidden")} == {"step": "done", "anim": False, "hidden": 0}, mock
+        assert mock["mouse"] == "0" and set(mock["extras"]) == {"hidden"}, "the finished output shows no mouse, menu, or Enter cue"
+        assert mock["wordmark"] == 6, "the installer's wordmark is part of the finished output"
 
 
 # --------------------------------------------------------------------------------- R45
@@ -372,7 +394,35 @@ def test_reduced_motion_shows_the_final_frame(playwright_mod) -> None:
 
 def _real_sources() -> dict:
     names = ("install.ps1", "install.sh", "scripts/installer.ps1", "scripts/installer.sh", "scripts/lib/integrations/runner.py")
-    return {n: (ROOT / n).read_text(encoding="utf-8") for n in names}
+    return {n: (ROOT / n).read_text(encoding="utf-8").split("\n") for n in names}
+
+
+def _assert_dark_neutral(css: str) -> None:
+    """R49: a regular dark terminal. Near black (low relative luminance) and grey (no hue cast)."""
+    r, g, b = (int(v) for v in re.findall(r"\d+", css)[:3])
+    lin = [((c / 255) / 12.92 if c / 255 <= 0.04045 else (((c / 255) + 0.055) / 1.055) ** 2.4) for c in (r, g, b)]
+    luminance = 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2]
+    assert luminance < 0.03, f"{css} is not dark (luminance {luminance:.3f})"
+    assert max(r, g, b) - min(r, g, b) <= 6, f"{css} has a colour cast (blue PowerShell or aubergine GNOME)"
+
+
+def _banner(lines: list, start: str, close: str) -> str:
+    """The wordmark as the installer prints it: the six lines inside the here-string or heredoc."""
+    fn = next(i for i, t in enumerate(lines) if start in t)
+    a = next(i for i in range(fn, len(lines)) if lines[i].rstrip().endswith(("@'", "<<'NEXUS_BANNER_EOF'"))) + 1
+    b = next(i for i in range(a, len(lines)) if lines[i].startswith(close))
+    return "\n".join(lines[a:b])
+
+
+def _cited(sources: dict, src: str) -> tuple:
+    """'file:12,40' or 'file:3591-3596' -> (file, [line numbers])."""
+    name, refs = src.rsplit(":", 1)
+    nums = []
+    for ref in refs.split(","):
+        lo, _, hi = ref.partition("-")
+        nums.extend(range(int(lo), int(hi or lo) + 1))
+    assert name in sources and all(1 <= n <= len(sources[name]) for n in nums), src
+    return name, nums
 
 
 @pytest.mark.parametrize("os_key", list(COMMANDS))
@@ -390,7 +440,8 @@ def test_each_tab_shows_its_icon_steps_and_terminal(playwright_mod, os_key: str)
                   return { icon: !!panel.querySelector('.inst-os[data-os="' + os + '"] svg'),
                            steps: [...panel.querySelectorAll('.inst-list li')].map(li => li.textContent.replace(/^\\d+/, '').trim()),
                            kbd: panel.querySelectorAll('kbd').length,
-                           cls: [...tm.classList], bg: getComputedStyle(tm.querySelector('.tm-body')).backgroundColor,
+                           cls: [...tm.classList], bg: getComputedStyle(tm).backgroundColor,
+                           bodyBg: getComputedStyle(tm.querySelector('.tm-body')).backgroundColor,
                            ctlSide: ctl.left - bar.left < bar.right - ctl.right ? 'left' : 'right',
                            lights: tm.querySelectorAll('.tm-lights i').length,
                            hidden: tm.getAttribute('aria-hidden'), role: wrap.getAttribute('role'), label: wrap.getAttribute('aria-label'),
@@ -405,6 +456,8 @@ def test_each_tab_shows_its_icon_steps_and_terminal(playwright_mod, os_key: str)
     assert data["steps"] == STEPS[os_key] and data["kbd"] == 0
     assert data["order"] == ["inst-steps", "term", "tm-wrap"], "steps, the command box, then the mockup"
     assert skin in data["cls"] and data["bg"] == bg, data
+    assert data["bodyBg"] == "rgba(0, 0, 0, 0)", "the window colour shows through; no tinted body"
+    _assert_dark_neutral(data["bg"])
     assert data["ctlSide"] == side, data
     assert data["lights"] == (3 if os_key == "mac" else 0)
     assert data["hidden"] == "true" and data["role"] == "img" and data["label"], data
@@ -424,58 +477,158 @@ def test_the_mocked_output_comes_from_the_real_installer(playwright_mod, os_key:
                     const lit = [], vars = [];
                     const walk = n => { for (const c of n.childNodes) {
                       if (c.nodeType === 3) lit.push(c.textContent); else if (c.tagName === 'VAR') vars.push(c.textContent); else walk(c); } };
-                    walk(l); return { src: l.dataset.src, text: l.textContent, lit, vars }; })""",
+                    walk(l); return { src: l.dataset.src || null, cls: l.className, text: l.textContent, lit, vars,
+                                      color: getComputedStyle(l).color }; })""",
                 os_key,
             )
+            end = page.evaluate("os => { const e = document.querySelector('#install-panel-' + os + ' .tm-end'); return { src: e.dataset.src || null, builtin: e.dataset.builtin || null, text: e.textContent.trim() }; }", os_key)
         finally:
             browser.close()
-    assert 8 <= len(lines) <= 12, len(lines)
-    assert lines[-1]["text"].endswith("installed (Global scope)."), "the mockup ends on the done message"
     family = "install.ps1" if os_key == "win" else "install.sh"
     core = "scripts/installer.ps1" if os_key == "win" else "scripts/installer.sh"
-    assert {line["src"] for line in lines} == {family, core, "scripts/lib/integrations/runner.py"}
+    allowed = {family, core, "scripts/lib/integrations/runner.py"}
+    traced = 0
     for line in lines:
-        source = sources[line["src"]]
+        text = line["text"]
+        if not line["src"]:
+            # Untraced lines are only the installer's blank lines and a dimmed elision.
+            assert text.strip() in ("", "..."), f"untraced line {text!r}"
+            assert (text.strip() == "...") == ("tm-skip" in line["cls"]), line
+            continue
+        name, nums = _cited(sources, line["src"])
+        assert name in allowed, line["src"]
+        cited = "\n".join(sources[name][n - 1] for n in nums)
         for chunk in line["lit"]:
-            assert chunk.strip() in source, f"{line['src']} never prints {chunk.strip()!r} ({line['text']!r})"
+            assert chunk.strip() in cited, f"{line['src']} does not print {chunk.strip()!r} ({text!r})"
         for value in line["vars"]:
-            assert value in source or value in DYNAMIC, f"{value!r} is neither in {line['src']} nor a run-time value"
+            assert value in cited or value in DYNAMIC or value.startswith(DYNAMIC_PATHS), f"{value!r} is neither on {line['src']} nor a run-time value"
+        traced += 1
+    assert traced >= 20, f"{traced} traced lines"
     texts = [line["text"] for line in lines]
-    assert any(t.startswith("Welcome to the Nexus-Hub Universal Installer") for t in texts)
-    assert any("installed (Global scope)." in t for t in texts), "the mockup ends on the real done message"
+    at = [next(i for i, t in enumerate(texts) if m in t) for m in MILESTONES]
+    assert at == sorted(at), "the installer's flow, in order: bootstrap, wordmark, welcome, sections, done"
+    shown = [t for t in texts if t.strip() not in ("", "...")]
+    if os_key == "win":
+        # Show-FarewellBanner follows the done line; an interactive console then pauses.
+        assert shown[-2].endswith("installed (Global scope).") and shown[-1].endswith("installed."), shown[-2:]
+        name, nums = _cited(sources, end["src"])
+        assert end["builtin"] == "Pause" and "Pause" in sources[name][nums[0] - 1] and end["text"].startswith("Press Enter to continue")
+    else:
+        assert shown[-1].endswith("installed (Global scope)."), shown[-1]
+        assert end["src"] is None and end["text"].endswith(("~ %", "~$")), "the prompt returns"
+    for line in lines:
+        if "Welcome to the Nexus-Hub" in line["text"] or "tm-wm" in line["cls"]:
+            assert "tm-c" in line["cls"] and line["color"] != "rgb(204, 204, 204)", "the installer prints these in cyan"
 
 
-def test_the_mockup_plays_paste_enter_output_and_restarts_on_a_tab_switch(playwright_mod) -> None:
+def test_the_wordmark_is_the_installers_own(playwright_mod) -> None:
+    """The styled title, character for character, written as numeric references so the page stays ASCII."""
+    sources = _real_sources()
+    ps = _banner(sources["scripts/installer.ps1"], "function Write-NexusBanner", "'@")
+    sh = _banner(sources["scripts/installer.sh"], "print_nexus_banner() {", "NEXUS_BANNER_EOF")
+    assert ps == sh and len(ps.split("\n")) == 6 and "\u2588" in ps
+    raw = GUIDE.read_bytes()
+    install = raw[raw.index(b'id="nhg-install"'): raw.index(b'id="nhg-copy-status"')]
+    assert all(byte < 128 for byte in install), "the install section is ASCII; box characters are character references"
+    pre = re.search(rb'<pre class="tm-l tm-c tm-wm" data-src="([^"]+)">(.*?)</pre>', install, re.S)
+    assert pre and b"&#9608;" in pre.group(2)
+    assert html.unescape(pre.group(2).decode("ascii")) == ps, "the source holds the installer's wordmark exactly"
+    name, nums = _cited(sources, pre.group(1).decode())
+    assert "\n".join(sources[name][n - 1] for n in nums) == ps, "the cited lines are the banner"
+    with playwright_mod() as pw:
+        browser = pw.chromium.launch()
+        try:
+            _context, page = _open(browser, hash_="#home/install")
+            shown = page.evaluate("() => [...document.querySelectorAll('[data-tm] .tm-wm')].map(p => [p.closest('[data-tm]').dataset.tm, p.textContent, p.dataset.src])")
+        finally:
+            browser.close()
+    assert [k for k, _t, _s in shown] == ["win", "mac", "linux"]
+    for key, text, src in shown:
+        assert text == (ps if key == "win" else sh), f"{key}: the wordmark differs from the installer"
+        assert src.startswith("scripts/installer.ps1:" if key == "win" else "scripts/installer.sh:"), src
+
+
+@pytest.mark.parametrize("os_key", list(COMMANDS))
+def test_the_mouse_right_clicks_pastes_and_the_output_streams(playwright_mod, os_key: str) -> None:
+    """R49: the prompt idles, the mouse moves onto the window and right-clicks; PowerShell pastes on the
+    click, macOS and GNOME open a menu and the mouse picks Paste; then Enter, the output, and done."""
+    tm = f"#install-panel-{os_key} [data-tm]"
+    with playwright_mod() as pw:
+        browser = pw.chromium.launch()
+        try:
+            _context, page = _open(browser, hash_="#home/install")
+            page.click(f"#install-tab-{os_key}")
+            # Record every step as it happens; polling can miss a short step on a busy machine.
+            page.evaluate(
+                """sel => { const m = document.querySelector(sel), vis = e => !!e && getComputedStyle(e).visibility === 'visible';
+                  window.tmOrder = [];
+                  new MutationObserver(() => { const step = m.dataset.tmStep, o = window.tmOrder;
+                    if (o.length && o[o.length - 1].step === 'done') return;
+                    o.push({ step, cmd: vis(m.querySelector('.tm-cmd')), menu: vis(m.querySelector('.tm-menu')), key: vis(m.querySelector('.tm-key')),
+                             lines: [...m.querySelectorAll('.tm-l')].filter(vis).length, total: m.querySelectorAll('.tm-l').length,
+                             end: vis(m.querySelector('.tm-end')) }); }).observe(m, { attributes: true, attributeFilter: ['data-tm-step'] }); }""",
+                tm,
+            )
+            # Start from a clean loop: off screen it stops, back on screen it restarts at the prompt.
+            page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+            page.wait_for_function("sel => !document.querySelector(sel).classList.contains('is-live')", arg=tm)
+            page.evaluate("window.tmOrder = []")
+            page.locator(tm).scroll_into_view_if_needed()
+            page.wait_for_selector(f'{tm}[data-tm-step="click"]', timeout=15000)
+            page.wait_for_timeout(250)
+            click = page.evaluate(
+                """sel => { const m = document.querySelector(sel), ms = m.querySelector('.tm-ms').getBoundingClientRect(), b = m.querySelector('.tm-body').getBoundingClientRect();
+                  return { opacity: getComputedStyle(m.querySelector('.tm-ms')).opacity, inBody: ms.left > b.left && ms.left < b.right && ms.top > b.top && ms.top < b.bottom }; }""",
+                tm,
+            )
+            pick = None
+            if os_key != "win":
+                page.wait_for_selector(f'{tm}[data-tm-step="pick"]', timeout=15000)
+                page.wait_for_timeout(500)
+                pick = page.evaluate(
+                    """sel => { const m = document.querySelector(sel), p = m.querySelector('.tm-paste'), r = p.getBoundingClientRect(), ms = m.querySelector('.tm-ms').getBoundingClientRect();
+                      return { items: [...m.querySelectorAll('.tm-menu span')].map(s => s.textContent), lit: getComputedStyle(p).backgroundColor,
+                               onPaste: ms.left >= r.left && ms.left <= r.right && ms.top >= r.top && ms.top <= r.bottom }; }""",
+                    tm,
+                )
+            page.wait_for_function("window.tmOrder.length && window.tmOrder[window.tmOrder.length - 1].step === 'done'", timeout=45000)
+            order = page.evaluate("window.tmOrder")
+            menus = page.evaluate("os => document.querySelectorAll('#install-panel-' + os + ' .tm-menu').length", os_key)
+        finally:
+            browser.close()
+    assert [o["step"] for o in order] == SEQUENCE[os_key], order
+    assert menus == (0 if os_key == "win" else 1), "PowerShell pastes on right-click; the others open a menu"
+    seen = {o["step"]: o for o in order}
+    for step in ("prompt", "move", "click", "menu", "pick"):
+        if step in seen:
+            assert not seen[step]["cmd"] and seen[step]["lines"] == 0, (step, seen[step])
+    assert seen["paste"]["cmd"] and seen["paste"]["lines"] == 0 and not seen["paste"]["menu"], "pasted at once, before Enter"
+    assert seen["enter"]["key"] and seen["enter"]["lines"] == 0, "a brief Enter cue before the output"
+    assert seen["done"]["lines"] == seen["done"]["total"] and seen["done"]["end"] and not seen["done"]["key"], seen["done"]
+    assert click == {"opacity": "1", "inBody": True}, click
+    if pick is not None:
+        assert seen["menu"]["menu"], "the right-click opens the menu"
+        assert pick["items"] == ["Copy", "Paste", "Select All"] and pick["lit"] != "rgba(0, 0, 0, 0)" and pick["onPaste"], pick
+
+
+def test_a_tab_switch_restarts_that_systems_mockup(playwright_mod) -> None:
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
         try:
             _context, page = _open(browser, hash_="#home/install")
             page.click("#install-tab-linux")
-            tm = "#install-panel-linux [data-tm]"
-            # Record every step as it happens; polling can miss a short step on a busy machine.
-            page.evaluate(
-                """sel => { const m = document.querySelector(sel), vis = e => getComputedStyle(e).visibility === 'visible';
-                  window.tmSeen = {};
-                  new MutationObserver(() => { const step = m.dataset.tmStep;
-                    if (!(step in window.tmSeen)) window.tmSeen[step] = { cmd: vis(m.querySelector('.tm-cmd')),
-                      lines: [...m.querySelectorAll('.tm-l')].filter(vis).length, total: m.querySelectorAll('.tm-l').length,
-                      end: vis(m.querySelector('.tm-end')) }; }).observe(m, { attributes: true, attributeFilter: ['data-tm-step'] }); }""",
-                tm,
-            )
-            page.locator(tm).scroll_into_view_if_needed()
-            page.wait_for_function("['prompt', 'paste', 'run', 'done'].every(s => window.tmSeen && s in window.tmSeen)", timeout=25000)
-            seen = page.evaluate("window.tmSeen")
+            page.locator("#install-panel-linux [data-tm]").scroll_into_view_if_needed()
+            page.wait_for_selector('#install-panel-linux [data-tm][data-tm-step="run"]', timeout=20000)
             # The click scrolls the tab row into view; the mockup plays once it is on screen too.
             page.click("#install-tab-mac")
             page.locator("#install-panel-mac [data-tm]").scroll_into_view_if_needed()
             page.wait_for_selector('#install-panel-mac [data-tm][data-tm-step="prompt"]', timeout=5000)
-            mac_lines = page.evaluate("[...document.querySelectorAll('#install-panel-mac .tm-l')].filter(e => getComputedStyle(e).visibility === 'visible').length")
+            mac = page.evaluate("""() => { const m = document.querySelector('#install-panel-mac [data-tm]');
+                return { lines: [...m.querySelectorAll('.tm-l')].filter(e => getComputedStyle(e).visibility === 'visible').length,
+                         cmd: getComputedStyle(m.querySelector('.tm-cmd')).visibility }; }""")
         finally:
             browser.close()
-    assert seen["prompt"]["cmd"] is False and seen["prompt"]["lines"] == 0
-    assert seen["paste"]["cmd"] is True and seen["paste"]["lines"] == 0, "pasted at once, before Enter"
-    assert seen["done"]["lines"] == seen["done"]["total"] and seen["done"]["end"], seen
-    assert mac_lines == 0, "switching tabs starts that system's mockup from the prompt"
+    assert mac == {"lines": 0, "cmd": "hidden"}, "switching tabs starts that system's mockup from the idle prompt"
 
 
 @pytest.mark.parametrize("os_key", list(COMMANDS))

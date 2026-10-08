@@ -771,7 +771,9 @@ def test_the_opening_subtitle_is_one_framed_callout(playwright_mod, width: int, 
 
 # --- No scroll fade (v4.13.10 R30, T104) ---------------------------------------------------
 FIGURES = ('figure, .pg-fig, .ide, .ss-host, .tro, .fxo, .cx-preview, svg, .fx-diagram, .ml-flow, .ml-tier-list, '
-           '.ml-scale, .ph, .term, .loop-strip, .tr-flow, .ide-wrap, .tr-reward, [data-seq-root]')
+           '.ml-scale, .ph, .term, .loop-strip, .tr-flow, .ide-wrap, .tr-reward, [data-seq-root], '
+           # R49: the install mockup's resting cursor and dimmed "..." elisions are its own state.
+           '.tm')
 SCROLL_VISIBLE = """async (figures) => {
   const frame = () => new Promise(r => requestAnimationFrame(() => r()));
   const flat = t => t === 'none' || t === 'matrix(1, 0, 0, 1, 0, 0)';
