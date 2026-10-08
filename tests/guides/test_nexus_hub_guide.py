@@ -897,11 +897,15 @@ def test_home_install_copy_payload_equals_visible_text(parsed: GuideParser) -> N
     assert found_sh and found_ps
 
 
-def test_install_verify_is_a_two_step_sequence(guide_text: str, parsed: GuideParser) -> None:
-    """v4.2.3: the dense wrapped verify sentence became two clear steps."""
+def test_install_verify_is_a_numbered_step_sequence(guide_text: str, parsed: GuideParser) -> None:
+    """v4.2.3: the dense wrapped verify sentence became clear numbered steps.
+
+    v4.13.10 R52 adds a third step, the installed-version check, after the
+    original two (check the install, restart the assistant).
+    """
     home = guide_text.split('id="page-home"', 1)[-1].split('id="page-foundations"', 1)[0]
     assert 'class="verify-steps ' in home
-    assert home.count('class="vs-n"') == 2, "exactly two numbered steps"
+    assert home.count('class="vs-n"') == 3, "exactly three numbered steps"
     assert "verify-callout" not in guide_text, "the old dense callout is gone"
     rule = re.search(r"\.vs-do\s*\{([^}]+)\}", guide_text)
     note = re.search(r"\.vs-note\s*\{([^}]+)\}", guide_text)

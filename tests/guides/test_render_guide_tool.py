@@ -334,8 +334,9 @@ def test_home_runtime_contract_across_themes_and_widths(
                         )
 
                         verify_numerals = metrics["verifyNumerals"]
-                        assert len(verify_numerals) == 2, (
-                            f"{case}: expected two visible verification numerals, "
+                        # v4.13.10 R52 adds the installed-version step as step 3.
+                        assert len(verify_numerals) == 3, (
+                            f"{case}: expected three visible verification numerals, "
                             f"got {len(verify_numerals)}"
                         )
                         low_numeral_contrast = [
