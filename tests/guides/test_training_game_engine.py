@@ -1213,7 +1213,8 @@ def test_the_end_card_sits_in_the_centre_of_the_arena(browser, viewport: tuple[i
             /* R37: the end card waits for the finale, so skip it: once to the prize card, once to the end */
             g.skipFinale(); g.skipFinale(); }""")
         cards["fixed victory"] = pg.evaluate(CARD_PROBE, "fixed")
-        assert cards["fixed victory"]["title"] == "The Nexus megaship is down"
+        # R48 (T132): the victory card leads with a keyword title over the score summary
+        assert cards["fixed victory"]["title"] == "Victory"
         for name, m in cards.items():
             assert abs(m["dx"]) < 2 and abs(m["dy"]) < 2, f"{name} {viewport}: the card is centred {m}"
             assert m["inside"] and all(m["parts"]), f"{name} {viewport}: title, buttons, and hint sit in the card {m}"
@@ -1260,13 +1261,13 @@ def test_each_card_animates_its_weapon_and_stops_when_hidden(browser) -> None:
         assert len(a) == 5 and len(set(a)) == 5, "five different scenes"
         assert all(x != y for x, y in zip(a, b, strict=True)), "every card is moving"
         pg.evaluate("SkySentinel.get('fixed').start()")
-        pg.wait_for_timeout(120)
-        assert pg.evaluate("SkySentinel.get('fixed').previewing()") is False, "the previews stop while the game runs"
+        # Visibility and run state settle asynchronously, so wait for the state (bounded) instead of a fixed pause.
+        pg.wait_for_function("SkySentinel.get('fixed').previewing() === false", timeout=5000)
         pg.evaluate("SkySentinel.get('fixed').pause('t'); SkySentinel.get('fixed').reset()")
         pg.wait_for_function("SkySentinel.get('fixed').previewing()")
         pg.evaluate("window.scrollTo(0, 0)")
-        pg.wait_for_timeout(200)
-        assert pg.evaluate("SkySentinel.get('fixed').previewing()") is False, "the previews stop off screen"
+        # The off-screen signal comes from an IntersectionObserver, which reports asynchronously and lags under load.
+        pg.wait_for_function("SkySentinel.get('fixed').previewing() === false", timeout=5000)
     finally:
         pg.close()
 

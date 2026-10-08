@@ -159,6 +159,15 @@
      game only; in a game with a defect its share drops a Repair instead) and the Atomic blast. */
   var REVIVE = { invuln: 120, build: 36, burst: 14 };
   var ATOMIC = { speed: 16, flash: 16, fade: 26, node: 0.4 };
+  /* R48 (T133): carriers no longer drop either rare pickup (pickDrop turns their share back into a
+     Repair, as before R43, so the drops stream is drawn exactly as often). Instead each level brings
+     exactly one of each as a free-floating pickup, larger and slower than the rest: the Atomic blast
+     at a seeded moment in the level's last third (boss: once the first shield layer falls), the
+     Revive in its second half (boss: once the megaship drops below half its health). A held Revive
+     expires when its level ends. Fixed game with threats only; never in a game with a defect.
+     margin: the latest spawn leaves this many ticks before the level ends, so it can still be caught. */
+  var RARE = { size: 1.4, fall: 0.6, margin: 360, bossRevive: 0.5 };
+  var PICKUP_R = 14, PICKUP_FALL = 1.8, RARE_KINDS = { atomic: true, revive: true };
   /* colour, short name, the full effect (the API and screen readers), and the short effect
      the start screen's key shows on one line (R16: short enough to fit at phone width) */
   var POWER_LOOK = {
@@ -172,8 +181,8 @@
     slow: ["#e2e8f0", "Time slow", "Enemies, rocks, and fire at half speed for 8 s", "Half speed, 8 s"],
     magnet: ["#f87171", "Magnet", "Pulls upgrades to the ship for 15 s", "Pulls drops, 15 s"],
     repair: ["#34d399", "Repair", "Restores 35 hull", "+35 hull"],
-    revive: ["#fde047", "Revive", "Held until the ship is destroyed, then rebuilds it on the spot with a full hull (one at a time)", "Rebuilt on the spot"],
-    atomic: ["#ffedd5", "Atomic blast", "One shockwave from the ship that destroys every enemy, rock, shot, and mine it touches", "One wave clears all"]
+    revive: ["#fde047", "Revive", "Once per level, in its second half: held until the ship is destroyed, then rebuilds it on the spot with a full hull; it lasts only for that level and never stacks", "2nd half; this level only"],
+    atomic: ["#7cfc3a", "Atomic blast", "Once per level, in its last third: one shockwave from the ship that destroys every enemy, rock, shot, and mine it touches", "Last third of each level"]
   };
   var POWER_ORDER = ["shield", "repair", "weapon", "spread", "rapid", "pierce", "missiles", "wingman", "slow", "magnet", "revive", "atomic"];
   var FORMS = { 1: "Scout", 2: "Fighter", 3: "Sentinel" };
@@ -273,7 +282,9 @@
       drops: mulberry32(s ^ 0x2545F491),
       defects: mulberry32(s ^ 0x6A09E667),
       rocks: mulberry32(s ^ 0x3C6EF372),
-      fx: mulberry32(s ^ 0x1F83D9AB)
+      fx: mulberry32(s ^ 0x1F83D9AB),
+      /* R48 (T133): the scheduled rare pickups draw from a stream of their own, so no other stream shifts */
+      sched: mulberry32(s ^ 0x5BE0CD19)
     };
   }
   function firstExplosion(rng) { return EARLIEST_EXPLOSION + Math.floor(rng() * EXPLOSION_JITTER); }
@@ -1350,8 +1361,25 @@
     var panel = el("div", "ss-panel");
     var brand = el("p", "ss-brand", "Nexus Defenders");
     var overTitle = el("p", "ss-over-title");
-    var overPrize = el("p", "ss-over-prize", "Reward unlocked: Nexus AI Studio. The download is below the game.");
+    var overPrize = el("p", "ss-over-prize", "Reward unlocked: Nexus AI Studio");
     overPrize.hidden = true;
+    /* R48 (T132): the end card's score summary: the final score, one row per level played with its
+       points and how close it came to a perfect level (destroyed out of spawned), and the whole game */
+    var summary = el("div", "ss-summary");
+    summary.hidden = true;
+    var sumScore = el("p", "ss-sum-score");
+    sumScore.appendChild(el("span", null, "Final score"));
+    var sumValue = el("b", null, "0");
+    sumScore.appendChild(sumValue);
+    var sumTable = el("table", "ss-sum-table");
+    sumTable.appendChild(el("caption", null, "Score per level, and how close each came to a perfect level: every ship and asteroid destroyed"));
+    var sumHead = el("thead"), sumHeadRow = el("tr");
+    ["Level", "Points", "Perfect"].forEach(function (h) { var th = el("th", null, h); th.setAttribute("scope", "col"); sumHeadRow.appendChild(th); });
+    sumHead.appendChild(sumHeadRow);
+    var sumBody = el("tbody"), sumFoot = el("tfoot");
+    [sumHead, sumBody, sumFoot].forEach(function (n) { sumTable.appendChild(n); });
+    summary.appendChild(sumScore);
+    summary.appendChild(sumTable);
     /* R14: the start screen. Pick one of four ships (a radio group: click, tap, or arrow keys),
        read the upgrade colour key, then launch with the Start button. */
     var hangar = el("div", "ss-hangar");
@@ -1425,7 +1453,7 @@
     keyBtn.setAttribute("aria-expanded", "false");
     var strip = el("div", "ss-strip");
     var stripList = el("ul", "ss-strip-list");
-    stripList.setAttribute("aria-label", "Pickups: twelve upgrades, then four hazards. Any enemy or rock may hold one; nothing shows which until it drops.");
+    stripList.setAttribute("aria-label", "Pickups: twelve upgrades, then four hazards. Any enemy or rock may hold one; nothing shows which until it drops. The Revive and the Atomic blast drift in once per level instead.");
     POWER_ORDER.concat(["|"], DOWN_ORDER).forEach(function (kind) {
       if (kind === "|") { var sep = el("li", "ss-strip-sep"); sep.setAttribute("aria-hidden", "true"); stripList.appendChild(sep); return; }
       var down = isDown(kind), look = lookOf(kind), li = el("li", "ss-strip-item" + (down ? " ss-strip-down" : ""));
@@ -1445,7 +1473,7 @@
     strip.appendChild(keyBtn);
     strip.appendChild(stripList);
     var key = el("div", "ss-key");
-    key.appendChild(el("p", "ss-key-title", "Upgrades: some enemies and rocks drop one when destroyed; nothing shows which"));
+    key.appendChild(el("p", "ss-key-title", "Upgrades: hidden in some enemies and rocks; Atomic blast and Revive come once per level"));
     var keyList = el("ul", "ss-key-list");
     keyList.setAttribute("aria-label", "Upgrade colour key");
     POWER_ORDER.forEach(function (kind) {
@@ -1495,7 +1523,7 @@
     canvas.setAttribute("aria-describedby", hint.id);
     var actions = el("div", "ss-actions");
     [retryBtn, startBtn, changeBtn].forEach(function (n) { actions.appendChild(n); });
-    [brand, overTitle, overPrize, retryNote, hangar, shipNote, strip, key, actions, hint].forEach(function (n) { panel.appendChild(n); });
+    [brand, overTitle, summary, overPrize, retryNote, hangar, shipNote, strip, key, actions, hint].forEach(function (n) { panel.appendChild(n); });
     overlay.appendChild(panel);
     overlay.setAttribute("data-panel", "ships");
     changeBtn.addEventListener("click", function () { reset(); hangar.querySelector("[aria-checked=true]").focus(); });
@@ -1660,8 +1688,14 @@
         breaks: [], collected: [], levelUps: [], aimLog: [], boss: null, bossDue: cfg.boss && level === 3 ? (cfg.bossNow ? BOSS_AFTER_JUMP : BOSS_AFTER) : null,
         overReason: null, overText: null, victory: false, banner: null, shake: 0,
         /* R43 (T126): the atomic blast now running, every blast so far, and every revive used */
-        blast: null, blastLog: [], revives: []
+        blast: null, blastLog: [], revives: [],
+        /* R48 (T132): per level (4 is the boss fight), what spawned and what the player destroyed, and
+           the score the level began and ended with; T133: the rare pickups' schedule and every spawn;
+           calm: the new universe's clock once the finale has ended */
+        tally: {}, rare: null, rareLog: [], expired: [], calm: 0
       };
+      openTally(level);
+      planRare(level);
       acc = 0;
       hpShown = S.healthMax; shShown = 0;
       sync();
@@ -1689,7 +1723,8 @@
     }
     function pickDrop() {
       var k = S.rng.drops(), a = 0;
-      for (var d = 0; d < DROPS.length; d++) { a += DROPS[d][1]; if (k < a) return DROPS[d][0] === "revive" && !reviveOn() ? "repair" : DROPS[d][0]; }
+      /* R48 (T133): the two rare pickups are scheduled, never carried, so their share drops a Repair */
+      for (var d = 0; d < DROPS.length; d++) { a += DROPS[d][1]; if (k < a) return RARE_KINDS[DROPS[d][0]] ? "repair" : DROPS[d][0]; }
       return "repair";
     }
     function pickDown() {
@@ -1778,7 +1813,7 @@
         e.holdY = world.h * (type === "lancer" ? 0.12 + rng() * 0.16 : 0.18 + rng() * 0.12);
         if (shielded) { shieldUp(e, d.shieldHp); S.shieldedSpawned += 1; }
         if (type !== "interceptor") S.largeSpawned += 1;
-        S.enemies.push(maybeCarry(e, CARRY_ENEMY));
+        S.enemies.push(spawnedOne(maybeCarry(e, CARRY_ENEMY)));
         S.spawned += 1;
       }
     }
@@ -1792,7 +1827,7 @@
     function spawnRock() {
       var rng = S.rng.spawn, size = rng() < 0.5 ? "large" : "medium";
       var r = Math.round(ROCK[size].r[1] * rockLook().s);
-      S.asteroids.push(maybeCarry(makeRock(size, r + rng() * (world.w - 2 * r), -r, (rng() - 0.5) * 1.2, 1.0 + rng() * 1.1, rng), CARRY_ROCK));
+      S.asteroids.push(spawnedOne(maybeCarry(makeRock(size, r + rng() * (world.w - 2 * r), -r, (rng() - 0.5) * 1.2, 1.0 + rng() * 1.1, rng), CARRY_ROCK)));
     }
     /* A destroyed rock splits into two or three of the next size, flung outward; a small one
        turns to dust. The rocks stream drives it, so shooting never shifts the spawns. */
@@ -1800,12 +1835,14 @@
       var a = S.asteroids[j], spec = ROCK[a.size], rng = S.rng.rocks;
       S.asteroids.splice(j, 1);
       S.score += spec.score;
+      destroyedOne(a);
       var into = spec.into, n = into ? 2 + (rng() < 0.5 ? 1 : 0) : 0;
       dust(a.x, a.y, a.r);
       release(a, a.size + " asteroid");
       for (var k = 0; k < n; k++) {
         var ang = rng() * 6.283 / n + k * 6.283 / n, sp = 1.1 + rng() * 1.1;
         var c = makeRock(into, a.x + Math.cos(ang) * a.r * 0.4, a.y + Math.sin(ang) * a.r * 0.4, a.vx * 0.6 + Math.cos(ang) * sp, Math.max(0.4, a.vy * 0.7 + Math.sin(ang) * sp), rng);
+        if (a.lv) spawnedOne(c, a.lv);
         S.asteroids.push(c);
       }
       S.breaks.push({ size: a.size, into: n, tick: S.tick });
@@ -1846,6 +1883,7 @@
         shards(e.x, e.y, 4);
         S.enemies.splice(i, 1);
         S.score += ENEMY[e.type].score;
+        destroyedOne(e);
         release(e, e.type);
         bl.kills += 1;
       }
@@ -1854,6 +1892,7 @@
         if (!inside(a)) continue;
         S.asteroids.splice(i, 1);
         S.score += ROCK[a.size].score;
+        destroyedOne(a);
         dust(a.x, a.y, a.r);
         boom(a.x, a.y, 0.9, "#fdba74");
         release(a, a.size + " asteroid");
@@ -1879,7 +1918,91 @@
       log.kills = bl.kills; log.shots = bl.shots; log.rocks = bl.rocks;
       if (R >= bl.max) { bl.done = true; bl.doneAt = bl.t; }
     }
-    function spawnPowerUp(kind, x, y) { S.powerUps.push({ kind: kind, x: x, y: y, r: 14, t: 0 }); }
+    function spawnPowerUp(kind, x, y) { S.powerUps.push({ kind: kind, x: x, y: y, r: PICKUP_R, t: 0 }); }
+
+    /* ---------- R48 (T132): what each level spawned and what the player destroyed. Every ship,
+       agent, asteroid, and asteroid fragment the game spawns is tagged with its level (4 is the boss
+       fight, where the megaship itself counts as one); destroying a tagged object counts for that
+       level, whether by a shot, a collision, or the atomic blast. Objects that leave the arena or fall
+       into a wormhole count as missed. A retry reopens the level's counts from zero. */
+    function openTally(key) { S.tally[key] = { spawned: 0, destroyed: 0, from: S.score, to: null }; }
+    function closeTally(key) { if (S.tally[key]) S.tally[key].to = S.score; }
+    function spawnedOne(o, key) {
+      var k = key || retryKey();
+      if (!S.tally[k]) return o;
+      o.lv = k; S.tally[k].spawned += 1;
+      return o;
+    }
+    function destroyedOne(o) { if (o && o.lv && S.tally[o.lv]) S.tally[o.lv].destroyed += 1; }
+    /* one level's row, and the whole game's: destroyed over spawned, rounded down so that only a
+       perfect level reads 100 percent */
+    function perfect(d, s) { return s > 0 ? Math.floor(100 * d / s) : null; }
+    function scoreSummary() {
+      var rows = [], sp = 0, de = 0, cur = retryKey();
+      [1, 2, 3, 4].forEach(function (k) {
+        var t = S.tally[k];
+        /* a level passed through with nothing spawned and no points (the test layer's jump) has no row */
+        if (!t || (!t.spawned && (t.to != null ? t.to : S.score) === t.from && k !== cur)) return;
+        sp += t.spawned; de += t.destroyed;
+        rows.push({ level: k, label: k === 4 ? "Nexus Boss" : "Level " + k, points: (t.to != null ? t.to : S.score) - t.from, spawned: t.spawned, destroyed: t.destroyed,
+                    percent: perfect(t.destroyed, t.spawned), current: k === cur && !S.victory });
+      });
+      return { score: S.score, victory: S.victory, rows: rows, spawned: sp, destroyed: de, percent: perfect(de, sp) };
+    }
+
+    /* ---------- R48 (T133): the scheduled rare pickups */
+    function rareOn() { return cfg.progression && cfg.threats && reviveOn(); }
+    /* the tick within the level where its play ends: the level's end, or on level 3 the start of the
+       supernova passage into the boss arena */
+    function playEnd() {
+      var L = levelLen();
+      return S.level === 3 && cfg.boss && !S.jump ? L - novaPlan().len : L;
+    }
+    function rareWindow(from) {
+      var L = levelLen(), lo = Math.ceil(L * from), hi = Math.max(lo, playEnd() - RARE.margin);
+      return [lo, hi];
+    }
+    function planRare(key) {
+      S.rare = null;
+      if (!rareOn()) return;
+      if (key === 4) { S.rare = { key: 4, boss: true, blast: false, revive: false }; return; }
+      var rng = S.rng.sched, wb = rareWindow(2 / 3), wr = rareWindow(1 / 2);
+      S.rare = { key: key, boss: false, blast: false, revive: false, blastWin: wb, reviveWin: wr,
+                 blastAt: wb[0] + Math.floor(rng() * (wb[1] - wb[0] + 1)), reviveAt: wr[0] + Math.floor(rng() * (wr[1] - wr[0] + 1)) };
+    }
+    function spawnRare(kind, x, y, test) {
+      var r = Math.round(PICKUP_R * RARE.size), at = x != null ? x : 60 + S.rng.sched() * (world.w - 120);
+      S.powerUps.push({ kind: kind, x: at, y: y != null ? y : -r, r: r, t: 0, rare: true });
+      if (test) return;
+      var R = S.rare;
+      R[kind === "atomic" ? "blast" : "revive"] = true;
+      S.rareLog.push({ kind: kind, level: R.key, tick: S.tick, levelTick: S.levelTicks, x: at,
+                       bossHp: S.boss ? bossHp(S.boss) : null, layer: S.boss ? shieldLayer(S.boss) : null });
+      emit("rarePickup", { kind: kind, level: R.key, tick: S.tick });
+      say(kind === "atomic" ? "An Atomic blast is drifting down. Catch it to send a shockwave across the arena." :
+        "A Revive is drifting down. Catch it to hold one for the rest of this level.");
+    }
+    function rareTick() {
+      var R = S.rare;
+      if (!R || S.trans || S.state !== "running") return;
+      if (R.boss) {
+        var b = S.boss;
+        if (!b || !b.entered) return;
+        if (!R.blast && b.shields[0].hp <= 0) spawnRare("atomic");
+        if (!R.revive && bossHp(b) < BOSS_HP * RARE.bossRevive) spawnRare("revive");
+        return;
+      }
+      if (!R.blast && S.levelTicks >= R.blastAt) spawnRare("atomic");
+      if (!R.revive && S.levelTicks >= R.reviveAt) spawnRare("revive");
+    }
+    /* a held Revive belongs to the level it was caught in: it expires when that level ends */
+    function expireRevive() {
+      var p = S.player;
+      if (!(p.revive > 0)) return;
+      p.revive = 0;
+      S.expired.push({ tick: S.tick, level: retryKey() });
+      emit("reviveExpired", { tick: S.tick, level: retryKey() });
+    }
 
     function enemyMayFire(e) {
       if (S.tick < GRACE_TICKS) return false;
@@ -2165,6 +2288,9 @@
       S.retryOffer = false;
       S.retryLog.push({ level: key, tick: S.tick, scoreLost: S.score - S.levelScore });
       S.score = S.levelScore;
+      /* R48: the retried level counts again from zero, and its rare pickups are scheduled afresh */
+      openTally(key);
+      planRare(key);
       S.player = freshPlayer(S.ship);
       S.healthMax = S.ship.hull;
       S.enemies = []; S.enemyShots = []; S.shots = []; S.asteroids = []; S.powerUps = []; S.effects = []; S.popups = [];
@@ -2232,9 +2358,14 @@
 
     /* ---------- progression */
     function levelUp() {
+      /* R48: the level's counts close and a Revive still held expires with it */
+      expireRevive();
+      closeTally(S.level);
       S.level += 1;
       S.levelTicks = 0;
       S.levelScore = S.score;
+      openTally(S.level);
+      planRare(S.level);
       S.levelUps.push(S.tick);
       var d = DIFFICULTY[S.level];
       startTrans("level", S.level, TRANS_TICKS);
@@ -2320,6 +2451,8 @@
     };
     function startNova(due) {
       var P = novaPlan(), p = S.player, sun = sunNow();
+      /* R48 (T133): level 3 ends where the passage begins, so a held Revive expires here */
+      expireRevive();
       S.trans = { kind: "nova", to: 4, t: Math.max(0, P.len - due), len: P.len, flash: P.burst, from: S.mapId, ph: P, still: REDUCED,
                   star: { x: sun.x, y: sun.y, R: sun.R }, start: { x: p.x, y: p.y }, stage: null, skipped: 0, age: 0 };
       for (var i = 0; i < S.enemyShots.length; i++) S.effects.push({ kind: "flash", x: S.enemyShots[i].x, y: S.enemyShots[i].y, t: 0, life: 10, size: 0.3, color: NOVA_LOOK.ejecta });
@@ -2648,7 +2781,9 @@
       S.enemies = []; S.enemyShots = [];
       S.banner = null;
       /* R41 (T123): the boss fight is a level of its own for retries, starting from the score it met */
-      if (!S.bossLevel) { S.bossLevel = true; S.levelScore = S.score; }
+      if (!S.bossLevel) { expireRevive(); closeTally(S.level); S.bossLevel = true; S.levelScore = S.score; openTally(4); planRare(4); }
+      /* R48 (T132): the megaship itself counts as one spawned enemy of the boss fight */
+      S.boss.lv = 4; S.tally[4].spawned += 1;
       emit("bossArrive", { tick: S.tick });
       say("The Nexus megaship is coming. Break its three shield layers, then its four nodes, then its core.");
     }
@@ -2752,7 +2887,7 @@
         var e = makeEnemy("agent", at[0], at[1] + 10);
         e.mode = "launch"; e.vx = side * (1.6 + rng() * 1.2); e.vy = 1.4 + rng() * 0.8;
         e.holdY = world.h * (0.4 + rng() * 0.14); e.phase = rng() * 6.28; e.fireIn = 70 + Math.floor(rng() * 60);
-        S.enemies.push(maybeCarry(e, CARRY_AGENT, DOWN_SHARE_AGENT));
+        S.enemies.push(spawnedOne(maybeCarry(e, CARRY_AGENT, DOWN_SHARE_AGENT)));
         S.agentsLaunched += 1;
         boom(at[0], at[1], 0.5, "#67e8f9");
       }
@@ -2904,6 +3039,8 @@
       if (b.coreHp <= 0) {
         boom(b.x, b.y, 2.2, "#f2feff");
         S.score += 5000;
+        destroyedOne(b);
+        closeTally(4);
         S.victory = true;
         S.boss = null;
         /* R37: the victory opens the finale; the reward hand-off waits for its last frame */
@@ -3013,7 +3150,8 @@
           if (rr <= h.R * 1.02 && !f.swallowed) { f.swallowed = true; S.effects.push({ kind: "flash", x: h.x, y: h.y, t: 0, life: 14, size: 0.9, color: "#fed7aa" }); }
         }
       } else if (f.t === F.swallow) { p.x = h.x + h.R * 3.2; p.y = h.y + h.R * 2; }
-      if (f.t === F.flash) { S.mapId = 5; f.swallowed = true; f.debris = []; p.x = world.w / 2; p.y = world.h * 0.62; if (!f.still) S.effects.push({ kind: "flash", x: world.w / 2, y: world.h / 2, t: 0, life: 30, size: 5, color: "#fff7ed" }); }
+      if (f.t === F.flash) { S.mapId = 5; f.swallowed = true; f.debris = []; cleanUniverse(); if (!f.still) S.effects.push({ kind: "flash", x: world.w / 2, y: world.h / 2, t: 0, life: 30, size: 5, color: "#fff7ed" }); }
+      if (f.t >= F.flash) S.calm += 1;
       if (S.shake > 0) S.shake = Math.max(0, S.shake - 0.6);
       if (p.hurt > 0) p.hurt -= 0.5;
       S.scroll += f.t < F.flash ? 1 : 0.6;
@@ -3025,11 +3163,38 @@
       S.effects = S.effects.filter(function (o) { return o.t < o.life; });
       if (f.t >= f.len) finishFinale();
     }
+    /* R48 (T132): past the black hole the battle is over, so nothing of it follows the ship into the
+       new universe: every shot of both sides, every enemy, rock, pickup, mine, and bomb, every
+       explosion and shockwave, the shield bubble, the damage numbers, and every timed effect (so no
+       chip is left counting). The ship is gone through the horizon and stays hidden behind the card;
+       the HUD drops the fight's bars and shows only the score and the title. */
+    function cleanUniverse() {
+      var p = S.player;
+      S.shots = []; S.enemyShots = []; S.enemies = []; S.asteroids = []; S.powerUps = []; S.effects = []; S.popups = [];
+      S.blast = null; S.banner = null; S.shake = 0; S.trans = null;
+      TIMED.forEach(function (k) { p[k] = 0; });
+      DOWN_TIMED.forEach(function (k) { p[k] = 0; });
+      p.shieldHp = 0; p.revive = 0; p.reviveT = -1; p.invuln = 0; p.hurt = 0; p.bank = 0; p.burstLeft = 0;
+      p.x = world.w / 2; p.y = world.h * 0.62;
+      S.hpFrom = null;
+    }
+    /* the new universe goes on turning behind the end card: a slow clock for its drift, its turning
+       galaxy and worlds, and its twinkling stars (reduced motion: one still frame) */
+    function calmTick(n) {
+      if (REDUCED) return;
+      S.calm += n; S.scroll += 0.6 * n;
+    }
+    /* the calm loop runs only while the new universe is on screen, in a visible tab, with motion allowed */
+    function calmWanted() {
+      return !REDUCED && !!S && S.state === "over" && !!S.finale && S.finale.done && pvSeen && host.offsetParent !== null && document.visibilityState !== "hidden";
+    }
+    function universeOn() { return !!(S && S.finale && (S.finale.done || S.finale.t >= S.finale.ph.flash)); }
     function finishFinale() {
       var f = S.finale;
       if (!f || f.done) return;
       f.t = f.len; f.done = true; S.mapId = 5;
-      say("Reward unlocked: Nexus AI Studio. The download is below the game.");
+      var sm = scoreSummary();
+      say("Reward unlocked: Nexus AI Studio. The download is below the game. Final score " + sm.score + (sm.percent != null ? ", " + sm.percent + " percent of a perfect game." : "."));
       emit("rewardUnlocked", { tick: S.tick, score: S.score, skipped: f.skipped > 0 });
       sync();
     }
@@ -3037,7 +3202,7 @@
       var f = S && S.finale;
       if (!f || f.done) return false;
       f.skipped += 1;
-      if (f.t < f.ph.card) { f.t = f.ph.card + (f.still ? 0 : 30); S.mapId = 5; S.effects = []; S.shake = 0; f.debris = []; f.swallowed = true; S.player.x = world.w / 2; S.player.y = world.h * 0.62; }
+      if (f.t < f.ph.card) { f.t = f.ph.card + (f.still ? 0 : 30); S.mapId = 5; f.debris = []; f.swallowed = true; cleanUniverse(); }
       else finishFinale();
       draw();
       return true;
@@ -3092,6 +3257,7 @@
           if (S.bossDue <= 0) { S.bossDue = null; if (S.mapId !== 4) S.mapId = 4; spawnBoss(); }
         }
         S.levelTicks += 1;
+        rareTick();
         if (S.level < 3 && S.levelTicks >= LEVEL_TICKS[S.level]) levelUp();
       }
 
@@ -3133,7 +3299,7 @@
         /* the magnet reels upgrades in from across the arena */
         var mdx = p.x - pu.x, mdy = p.y - pu.y, md = Math.sqrt(mdx * mdx + mdy * mdy) || 1;
         if (p.magnet > 0 && md < 420 && !isDown(pu.kind)) { pu.x += mdx / md * 6; pu.y += mdy / md * 6; pu.pulled = true; }
-        else pu.y += 1.8;
+        else pu.y += pu.rare ? PICKUP_FALL * RARE.fall : PICKUP_FALL;
       }
       for (i = 0; i < S.effects.length; i++) {
         var f = S.effects[i];
@@ -3160,6 +3326,7 @@
               shards(en.x, en.y, 6);
               S.enemies.splice(j, 1);
               S.score += ENEMY[en.type].score;
+              destroyedOne(en);
               release(en, en.type);
             }
           }
@@ -3202,7 +3369,7 @@
       if (S.state === "running" && !frozen) {
         for (i = S.enemies.length - 1; i >= 0; i--) {
           var e = S.enemies[i];
-          if (hitsShip(e, -4)) { boom(e.x, e.y, 1, "#fb923c"); shards(e.x, e.y, 5); S.enemies.splice(i, 1); release(e, e.type); if (hitPlayer("collision", e.type)) break; }
+          if (hitsShip(e, -4)) { boom(e.x, e.y, 1, "#fb923c"); shards(e.x, e.y, 5); S.enemies.splice(i, 1); destroyedOne(e); release(e, e.type); if (hitPlayer("collision", e.type)) break; }
         }
       }
       if (S.state === "running" && !frozen) {
@@ -3408,10 +3575,12 @@
         flames("missile", "#fb923c", 1.2);
       }
       for (i = 0; i < S.powerUps.length; i++) {
-        var pu = S.powerUps[i], pc = col(isDown(pu.kind) ? HAZARD : lookOf(pu.kind)[0]);
-        modelMat(MAT, pu.x, 10, pu.y, pu.t * 0.05, 0.35, 0, 1.15);
+        var pu = S.powerUps[i], pc = col(isDown(pu.kind) ? HAZARD : lookOf(pu.kind)[0]), pk = pu.r / PICKUP_R;
+        modelMat(MAT, pu.x, 10, pu.y, pu.t * (pu.rare ? 0.03 : 0.05), 0.35, 0, 1.15 * pk);
         drawMesh("gem", 0, 0.5, pc, [pc[0] * 0.7 + 0.3, pc[1] * 0.7 + 0.3, pc[2] * 0.7 + 0.3]);
-        glow(pu.x, pu.y, 30, pc, 0.55, 10);
+        glow(pu.x, pu.y, 30 * pk, pc, 0.55, 10);
+        /* R48 (T133): a rare pickup glows: a pulsing halo, radioactive green for the blast, gold for the revive */
+        if (pu.rare) glow(pu.x, pu.y, (46 + (REDUCED ? 0 : 10 * Math.sin(pu.t * 0.12))) * pk, pc, 0.42, 11);
       }
       for (i = 0; i < S.effects.length; i++) {
         var f = S.effects[i];
@@ -3726,8 +3895,8 @@
       }
       /* R39 (T118): carriers wear no halo, ring, or badge; only a dropped pickup shows its kind */
       for (i = 0; i < S.powerUps.length; i++) {
-        var pq = S.powerUps[i], pcc = col(isDown(pq.kind) ? "#ef4444" : POWER_LOOK[pq.kind][0]), ph = (pq.t % 50) / 50;
-        quad(pq.x, 12, pq.y, 16 + ph * 16, 0, 0, 16 + ph * 16, pcc, (1 - ph) * 0.6, 1);
+        var pq = S.powerUps[i], pcc = col(isDown(pq.kind) ? "#ef4444" : POWER_LOOK[pq.kind][0]), ph = (pq.t % 50) / 50, qk = pq.r / PICKUP_R;
+        quad(pq.x, 12, pq.y, (16 + ph * 16) * qk, 0, 0, (16 + ph * 16) * qk, pcc, (1 - ph) * 0.6, 1);
       }
       if (p.magnet > 0 && !S.trans) {
         var mr = 40 + (REDUCED ? 0 : (S.scroll % 40));
@@ -3889,7 +4058,7 @@
             x = fv.hole.x + ldx / b0 * th; y = fv.hole.y + ldy / b0 * th;
             if (th < Rh * 1.05) continue;
           }
-          var a = layer.alpha * (REDUCED ? 1 : 0.75 + 0.25 * Math.sin(st.tw + S.tick * 0.05));
+          var a = layer.alpha * (REDUCED ? 1 : 0.75 + 0.25 * Math.sin(st.tw + (S.tick + S.calm) * 0.05));
           ctx.fillStyle = "rgba(205,240,255," + a.toFixed(2) + ")";
           ctx.fillRect(x, y, layer.size, layer.size);
         }
@@ -4019,6 +4188,39 @@
       ctx.restore();
     }
     /* The power-up's glass capsule and icon; the WebGL HUD reuses the icon over its gem. */
+    /* R48 (T133): the two rare pickups, drawn larger than the rest and glowing. The Atomic blast is
+       glowing radioactive material: a green-yellow core hot at its centre, a dark radiation trefoil,
+       and a pulsing halo. The Revive is a gold orb with its rising-ship mark and a ring of sparks. */
+    function rareIcon(pu) {
+      var r = pu.r, t = pu.t, pulse = REDUCED ? 0.5 : 0.5 + 0.5 * Math.sin(t * 0.12), k;
+      var atom = pu.kind === "atomic";
+      var hr = r * (atom ? 1.9 + 0.4 * pulse : 1.75 + 0.25 * pulse), halo = ctx.createRadialGradient(0, 0, r * 0.6, 0, 0, hr);
+      halo.addColorStop(0, atom ? "rgba(214,255,110," + (0.5 + 0.3 * pulse).toFixed(2) + ")" : "rgba(253,224,71," + (0.45 + 0.2 * pulse).toFixed(2) + ")");
+      halo.addColorStop(0.55, atom ? "rgba(124,252,58,0.22)" : "rgba(250,204,21,0.18)");
+      halo.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = halo; ctx.beginPath(); ctx.arc(0, 0, hr, 0, 6.283); ctx.fill();
+      var core = ctx.createRadialGradient(-r * 0.28, -r * 0.3, r * 0.08, 0, 0, r);
+      if (atom) { core.addColorStop(0, "#fbffe0"); core.addColorStop(0.32, "#e2ff73"); core.addColorStop(0.72, "#7cfc3a"); core.addColorStop(1, "#2f7d0e"); }
+      else { core.addColorStop(0, "#fffbeb"); core.addColorStop(0.35, "#fde68a"); core.addColorStop(0.75, "#facc15"); core.addColorStop(1, "#a16207"); }
+      ctx.fillStyle = core; ctx.beginPath(); ctx.arc(0, 0, r, 0, 6.283); ctx.fill();
+      ctx.strokeStyle = atom ? "#efffb8" : "#fff7cc"; ctx.lineWidth = 1.6; ctx.stroke();
+      ctx.save(); ctx.scale(r / 11, r / 11);
+      if (atom) {
+        ctx.fillStyle = "#162a05";
+        for (k = 0; k < 3; k++) { var ta = -1.571 + k * 2.094; ctx.beginPath(); ctx.moveTo(Math.cos(ta - 0.5) * 2.6, Math.sin(ta - 0.5) * 2.6); ctx.arc(0, 0, 8, ta - 0.5, ta + 0.5); ctx.lineTo(Math.cos(ta + 0.5) * 2.6, Math.sin(ta + 0.5) * 2.6); ctx.closePath(); ctx.fill(); }
+        ctx.beginPath(); ctx.arc(0, 0, 1.8, 0, 6.283); ctx.fill();
+      } else {
+        ctx.strokeStyle = ctx.fillStyle = "#422006"; ctx.lineWidth = 1.8;
+        ctx.beginPath(); ctx.arc(0, 0, 7.5, 0, 6.283); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0, -5); ctx.lineTo(3.6, 3.5); ctx.lineTo(0, 1.8); ctx.lineTo(-3.6, 3.5); ctx.closePath(); ctx.fill();
+      }
+      ctx.restore();
+      if (!atom) {
+        ctx.fillStyle = "#fef9c3";
+        for (k = 0; k < 6; k++) { var sa = k * 1.047 + (REDUCED ? 0 : t * 0.035); ctx.beginPath(); ctx.arc(Math.cos(sa) * r * 1.35, Math.sin(sa) * r * 1.35, 1.6, 0, 6.283); ctx.fill(); }
+      }
+      tagFrame(atom ? "rare-atomic" : "rare-revive");
+    }
     function powerIcon(kind, color, capsule, r, c2) {
       var ctx0 = ctx;
       if (c2) ctx = c2;
@@ -4424,6 +4626,15 @@
         var wx = world.w * w[0], wy = world.h * w[1], wr = Math.min(world.w, world.h) * w[2], wg = ctx.createRadialGradient(wx - wr * 0.4, wy - wr * 0.4, wr * 0.1, wx, wy, wr);
         wg.addColorStop(0, w[3]); wg.addColorStop(1, w[4]);
         ctx.fillStyle = wg; ctx.beginPath(); ctx.arc(wx, wy, wr, 0, 6.283); ctx.fill();
+        /* R48 (T132): cloud bands drift across each world, so it turns slowly, as in the WebGL view */
+        ctx.save(); ctx.beginPath(); ctx.arc(wx, wy, wr, 0, 6.283); ctx.clip();
+        ctx.strokeStyle = "rgba(255,240,230,0.16)"; ctx.lineWidth = wr * 0.09;
+        for (var bnd = 0; bnd < 5; bnd++) {
+          var by0 = wy - wr * 0.7 + bnd * wr * 0.34, ph0 = (bm.t * 0.03 * (w[2] > 0.1 ? 1 : 1.8) + bnd * wr * 0.6) % (wr * 2);
+          ctx.beginPath(); ctx.moveTo(wx - wr * 1.2 + ph0, by0); ctx.lineTo(wx - wr * 0.2 + ph0, by0 + wr * 0.05); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(wx - wr * 3.2 + ph0, by0); ctx.lineTo(wx - wr * 2.2 + ph0, by0 + wr * 0.05); ctx.stroke();
+        }
+        ctx.restore();
       });
     }
     /* R42 (T124): the passage in 2D: the star, the remnant and the shock ring, the ejecta, and the
@@ -4534,7 +4745,7 @@
       else if (wreckShown()) drawBoss2D(wreckBoss());
       if (S.finale) finale2D(S.finale);
       for (i = 0; i < S.enemies.length; i++) drawEnemy2D(S.enemies[i]);
-      for (i = 0; i < S.powerUps.length; i++) { var pu = S.powerUps[i]; ctx.save(); ctx.translate(pu.x, pu.y); powerIcon(pu.kind, lookOf(pu.kind)[0], true, pu.r); ctx.restore(); }
+      for (i = 0; i < S.powerUps.length; i++) { var pu = S.powerUps[i]; ctx.save(); ctx.translate(pu.x, pu.y); if (pu.rare) rareIcon(pu); else powerIcon(pu.kind, lookOf(pu.kind)[0], true, pu.r); ctx.restore(); }
       for (i = 0; i < S.enemyShots.length; i++) drawEnemyShot2D(S.enemyShots[i]);
       missileMarks = [];
       for (i = 0; i < S.shots.length; i++) drawShot2D(S.shots[i]);
@@ -4745,7 +4956,9 @@
       var m = screenMap(), lift = Math.tan(TILT);
       ctx.setTransform(m.s, 0, 0, m.s, m.ox, m.oy);
       S.powerUps.forEach(function (pu) {
-        ctx.save(); ctx.translate(pu.x, pu.y - 10 * lift); ctx.scale(0.8, 0.8);
+        ctx.save(); ctx.translate(pu.x, pu.y - 10 * lift);
+        if (pu.rare) { rareIcon(pu); ctx.restore(); return; }
+        ctx.scale(0.8, 0.8);
         if (isDown(pu.kind)) { powerIcon(pu.kind, DOWN_LOOK[pu.kind][0], true, pu.r); }
         else powerIcon(pu.kind, "#ffffff", false, pu.r);
         ctx.restore();
@@ -4866,6 +5079,8 @@
         }
         return;
       }
+      /* R48 (T132): the new universe is calm: no fight bars, no chips, only the title and the score */
+      if (universeOn()) { calmHud(W, H, small); return; }
       var bar = ctx.createLinearGradient(0, 0, 0, small ? 70 : 56);
       bar.addColorStop(0, "rgba(2,8,12,0.75)"); bar.addColorStop(1, "rgba(2,8,12,0)");
       ctx.fillStyle = bar; ctx.fillRect(0, 0, W, small ? 76 : 62);
@@ -4988,6 +5203,47 @@
       }
     }
 
+    function summaryOn() { return cfg.progression && reviveOn(); }
+    function sumRow(cells, head) {
+      var tr = el("tr");
+      cells.forEach(function (c, i) {
+        var td = el(i === 0 ? "th" : "td");
+        if (i === 0) td.setAttribute("scope", "row");
+        if (typeof c === "string") td.textContent = c; else c.forEach(function (part) { td.appendChild(part); });
+        tr.appendChild(td);
+      });
+      return tr;
+    }
+    function pctCell(percent, destroyed, spawned) {
+      if (percent == null) return "-";
+      return [document.createTextNode(percent + "%"), el("span", "ss-sum-count", destroyed + " of " + spawned)];
+    }
+    function renderSummary() {
+      var sm = scoreSummary();
+      sumValue.textContent = sm.score.toLocaleString("en-US");
+      sumBody.textContent = ""; sumFoot.textContent = "";
+      sm.rows.forEach(function (r) {
+        var label = r.current ? [document.createTextNode(r.label), el("span", "ss-sum-part", "so far")] : r.label;
+        var tr = sumRow([label, r.points.toLocaleString("en-US"), pctCell(r.percent, r.destroyed, r.spawned)]);
+        tr.setAttribute("data-level", r.level);
+        sumBody.appendChild(tr);
+      });
+      var tot = sumRow(["Overall", sm.score.toLocaleString("en-US"), pctCell(sm.percent, sm.destroyed, sm.spawned)]);
+      tot.setAttribute("data-level", "all");
+      sumFoot.appendChild(tot);
+    }
+    function calmHud(W, H, small) {
+      chipBoxes = [];
+      ctx.textBaseline = "middle"; ctx.textAlign = "center";
+      ctx.font = "800 " + (small ? 12 : 13) + "px " + hudFont; ctx.fillStyle = "#5eead4"; spaced(3);
+      ctx.fillText("VICTORY", W / 2 + 1.5, 16); spaced(0);
+      ctx.font = "800 " + (small ? 13 : 15) + "px " + hudFont; ctx.fillStyle = "#e6f6f8"; ctx.textAlign = "right";
+      ctx.fillText("Score " + S.score.toLocaleString("en-US"), W - 14, 18);
+      ctx.textAlign = "left"; ctx.font = "600 " + (small ? 11 : 11.5) + "px " + hudFont; ctx.fillStyle = "#94a3b8";
+      ctx.fillText(MAPS[5].name, 14, 18);
+      hudMarks.calm = { title: "VICTORY", map: MAPS[5].name, bars: false, chips: 0 };
+      if (S.finale) finaleHud(W, H, small);
+    }
     function sync() {
       if (!S) return;
       var p = S.player;
@@ -5006,7 +5262,7 @@
       /* R37: the end card waits for the finale to play out */
       overlay.hidden = S.state === "running" || !!(S.finale && !S.finale.done);
       var offer = S.state === "over" && S.retryOffer;
-      overTitle.textContent = S.victory ? "The Nexus megaship is down" : offer ? "Ship Lost" : S.state === "over" ? (S.overText || "Game over") : "";
+      overTitle.textContent = S.victory ? "Victory" : offer ? "Ship Lost" : S.state === "over" ? (S.overText || "Game over") : "";
       overTitle.hidden = !overTitle.textContent;
       /* R41 (T123): the retry card offers the level's one retry; after it is used the end card says none are left */
       retryBtn.hidden = !offer;
@@ -5014,6 +5270,11 @@
       retryNote.textContent = "Retries left: 0";
       overlay.toggleAttribute("data-retry", offer);
       overPrize.hidden = !(S.victory && S.finale && S.finale.done);
+      /* R48 (T132): the summary ends every fixed-game run, won or lost once its retries are used */
+      var sum = S.state === "over" && !offer && summaryOn() && !(S.victory && !(S.finale && S.finale.done));
+      summary.hidden = !sum;
+      overlay.toggleAttribute("data-summary", sum);
+      if (sum) renderSummary();
       startBtn.textContent = S.state === "paused" ? "Resume" : S.state === "over" ? "Play again" : "Start game";
       startBtn.hidden = offer;
       /* the start screen shows on a fresh game; after a run, a button brings it back */
@@ -5135,6 +5396,8 @@
           sync(); queueDraw();
           return api.state();
         }
+        /* R48 (T132): once the finale has ended, step turns the new universe on behind the end card */
+        if (S.finale && S.finale.done) { calmTick(n || 1); queueDraw(); return api.state(); }
         var wasPaused = S.state !== "running";
         var saved = S.state;
         if (wasPaused && S.state !== "over") S.state = "running";
@@ -5162,6 +5425,8 @@
         if (!S || !(Object.prototype.hasOwnProperty.call(POWER_LOOK, kind) || (isDown(kind) && kind !== "mine"))) return false;
         /* R43 (T126): there is no revive in a game with a defect switched on */
         if (kind === "revive" && !reviveOn()) return false;
+        /* R48 (T133): nor an atomic blast */
+        if (kind === "atomic" && !reviveOn()) return false;
         spawnPowerUp(kind, S.player.x, S.player.y);
         return true;
       },
@@ -5225,6 +5490,22 @@
         var out = {};
         for (var k = 0; k < n; k++) { var kind = pickDrop(); out[kind] = (out[kind] || 0) + 1; }
         return out;
+      },
+      /* R48 (T132): the end card's numbers: the final score, each level played (points, spawned,
+         destroyed, and the percentage of a perfect level, rounded down), and the whole game */
+      scoreSummary: function () { return S ? scoreSummary() : null; },
+      /* R48 (T133): the rare pickups' schedule for the level now (the tick within the level for each,
+         and the windows they were drawn from), their size and fall speed against a standard pickup */
+      rarePlan: function () {
+        var R = S && S.rare, o = R ? JSON.parse(JSON.stringify(R)) : null;
+        return { plan: o, size: RARE.size, fall: RARE.fall, margin: RARE.margin, bossRevive: RARE.bossRevive, r: Math.round(PICKUP_R * RARE.size), standardR: PICKUP_R,
+                 speed: PICKUP_FALL * RARE.fall, standardSpeed: PICKUP_FALL, on: !!S && rareOn() };
+      },
+      /* R48 test layer: place a rare pickup (as the schedule would, without spending it) */
+      spawnRare: function (kind, x, y) {
+        if (!S || !RARE_KINDS[kind] || !reviveOn()) return false;
+        spawnRare(kind, x, y, true);
+        return true;
       },
       blastPlan: function () { return { speed: ATOMIC.speed, flash: ATOMIC.flash, fade: ATOMIC.fade, node: ATOMIC.node, revive: { invuln: REVIVE.invuln, build: REVIVE.build, burst: REVIVE.burst } }; },
       dropRates: function () { return { carryEnemy: CARRY_ENEMY, carryRock: CARRY_ROCK, carryAgent: CARRY_AGENT, downShare: DOWN_SHARE, downShareAgent: DOWN_SHARE_AGENT, downWeights: DOWN_DROPS.map(function (d) { return d.slice(); }) }; },
@@ -5339,7 +5620,11 @@
           defects: { firstHitFatal: cfg.defects.firstHitFatal, randomExplosion: cfg.defects.randomExplosion },
           progression: cfg.progression, bossEnabled: cfg.boss,
           seed: cfg.seed, world: { w: world.w, h: world.h },
-          revive: p.revive, reviveT: p.reviveT, revives: S.revives.slice(), blastLog: S.blastLog.map(function (o) { return Object.assign({}, o); }),
+          revive: p.revive, reviveT: p.reviveT, revives: S.revives.slice(),
+          /* R48: the scheduled rare pickups spawned so far, every Revive that expired unused, the pickups now, and the calm clock */
+          rareLog: S.rareLog.map(function (o) { return Object.assign({}, o); }), expired: S.expired.slice(), calm: S.calm,
+          pickups: S.powerUps.map(function (u) { return { kind: u.kind, x: u.x, y: u.y, r: u.r, rare: !!u.rare, t: u.t }; }),
+          effects: S.effects.length, popupCount: S.popups.length, blastLog: S.blastLog.map(function (o) { return Object.assign({}, o); }),
           blast: S.blast ? { x: S.blast.x, y: S.blast.y, t: S.blast.t, R: S.blast.R, max: S.blast.max, done: S.blast.done, boss: S.blast.boss } : null,
           player: { x: p.x, y: p.y, invuln: p.invuln, exploding: 0, shield: p.shieldHp, weapon: p.weapon, look: transLook().s,
             spread: p.spread || 0, rapid: p.rapid || 0, missiles: p.missiles || 0, wingman: p.wingman || 0,
@@ -5379,7 +5664,7 @@
           drops: S.drops.slice(), powerUpKinds: S.powerUps.map(function (u) { return u.kind; }),
           upgrades: TIMED.filter(function (k) { return p[k] > 0; }).map(function (k) { return { kind: k, ticks: p[k] }; }),
           popups: S.popups.map(function (u) { return { text: u.text, color: u.color, big: u.big }; }),
-          popupBoxes: popupBoxes.slice(), chips: chipBoxes.slice(), hud: { bossBar: hudMarks.bossBar || null, title: hudMarks.title || null, prize: hudMarks.prize || null, retry: hudMarks.retry || null, nova: hudMarks.nova || null },
+          popupBoxes: popupBoxes.slice(), chips: chipBoxes.slice(), hud: { bossBar: hudMarks.bossBar || null, title: hudMarks.title || null, prize: hudMarks.prize || null, retry: hudMarks.retry || null, nova: hudMarks.nova || null, calm: hudMarks.calm || null },
           shotKinds: S.enemyShots.map(function (o) { return o.kind; }), goal: goal(),
           enemies: S.enemies.length, enemyShots: S.enemyShots.length, asteroids: S.asteroids.length, shots: S.shots.length,
           enemyTypes: S.enemies.map(function (e) { return e.type; }), spawned: S.spawned,
@@ -5396,7 +5681,7 @@
           canvas: { cssWidth: canvas.clientWidth, cssHeight: canvas.clientHeight, width: canvas.width, height: canvas.height }
         };
       },
-      animating: function () { return !!S && S.state === "over" && (S.afterglow > 0 || !!(S.finale && !S.finale.done)); },
+      animating: function () { return !!S && S.state === "over" && (S.afterglow > 0 || !!(S.finale && !S.finale.done) || calmWanted()); },
       frame: function (now) {
         /* R37: the finale plays in real time at the simulation's rate */
         if (S && S.finale && !S.finale.done) {
@@ -5406,6 +5691,13 @@
           var fs = 0;
           while (acc >= 1 / HZ && fs < MAX_STEPS_PER_FRAME && !S.finale.done) { finaleTick(); acc -= 1 / HZ; fs += 1; }
           if (fs === MAX_STEPS_PER_FRAME) acc = 0;
+          draw();
+          return;
+        }
+        if (calmWanted()) {
+          if (!last) last = now;
+          calmTick(Math.min(250, now - last) * HZ / 1000);
+          last = now;
           draw();
           return;
         }
@@ -5610,10 +5902,12 @@
           pvSeen = entries[k].isIntersecting;
         }
         paintCards();
+        /* R48: back on screen, the new universe behind the end card resumes turning */
+        if (calmWanted()) wake();
       }, { threshold: [0, 0.3, 0.6, 1] });
       io.observe(stage);
     }
-    document.addEventListener("visibilitychange", function () { paintCards(); });
+    document.addEventListener("visibilitychange", function () { paintCards(); if (calmWanted()) wake(); });
     if ("ResizeObserver" in window) { ro = new ResizeObserver(function () { fit(); }); ro.observe(host); }
     else window.addEventListener("resize", fit);
 
