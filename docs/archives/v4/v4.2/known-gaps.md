@@ -116,12 +116,16 @@ v4.2.1's UI was never published. The v4.2.2 plan (`plans/v4.2.2-guide-cinematic-
 
 #### Deferred
 
-##### DF-2 - The five-person workshop validation was not run
+##### DF-2-v422 - The five-person workshop validation was not run - MIGRATED to v4.13.0
 
 - **Source phase**: Phase 7 - Architecture refactor, known-gaps, CI/CD
 - **Plan reference**: `docs/archives/v4/v4.2/plans/v4.2.2-guide-cinematic-rebuild.md` T027
 - **Reason**: Inherited from v4.2.1 DF-1. No cohort of five participants exists to run a workshop against. Rendered QA, WCAG AA contrast, keyboard, and reduced-motion checks were all run and are recorded; the workshop specifically was not, and is not claimed.
 - **Suggested next step**: When a cohort is available, run the eight-step Training walkthrough with five people and record where they stall. Until then this stays open rather than being marked satisfied by proxy evidence.
+
+**Original source identity**: `v4.2.2#DF-2` in `v4.2.2 - guide-cinematic-rebuild`; normalized stable ID `DF-2-v422` distinguishes this obligation from repeated IDs in other patch sections.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-66`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.2.2`, section `v4.2.2 - guide-cinematic-rebuild`, and original ID `DF-2`.
 
 ### Resolved
 
@@ -168,12 +172,16 @@ DF-2 remains open from v4.2.2. DF-1 is resolved below by the post-release valida
 
 #### Deferred
 
-##### DF-2 - The five-person workshop validation was not run
+##### DF-2-v423 - The five-person workshop validation was not run - MIGRATED to v4.13.0
 
 - **Source phase**: carried from v4.2.2 DF-2
 - **Plan reference**: `docs/archives/v4/v4.2/plans/v4.2.3-guide-refinement.md` T031
 - **Reason**: no cohort of five participants exists. Rendered QA, WCAG AA contrast, keyboard, and reduced-motion checks were all run and recorded; the workshop specifically was not, and is not claimed.
 - **Suggested next step**: when a cohort is available, run the eight-step Training walkthrough with five people and record where they stall.
+
+**Original source identity**: `v4.2.3#DF-2` in `v4.2.3 - guide-refinement`; normalized stable ID `DF-2-v423` distinguishes this obligation from repeated IDs in other patch sections.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-66`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.2.3`, section `v4.2.3 - guide-refinement`, and original ID `DF-2`.
 
 ### Resolved
 

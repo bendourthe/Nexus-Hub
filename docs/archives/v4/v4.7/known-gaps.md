@@ -1,5 +1,8 @@
 # Known Gaps - v4.7
 
+**Open items**: 0
+**Ledger normalization**: 2026-10-09, v4.13.11. The canonical open count is derived from supported item headings. Summary and reconciliation count tables below retain historical release snapshots, including partial closures and explicit transfers; they are not new parser totals.
+
 **Project**: Nexus-Hub
 **Status**: released. v4.7.0 was published on 2026-09-06 at tag `v4.7.0` (`667cc465`) after integration in PR #167 (`ca8e663e`). MT-1's hosted observation gate was verified after release; WN-2 records the separate failing default-branch schedule.
 **Last updated**: 2026-09-28
@@ -24,7 +27,7 @@
 
 #### Deferred
 
-##### DF-2 - The Codex CLI does not yet list `gpt-6-astra`, so the codex profile entry reads DRIFTED
+##### DF-2 - The Codex CLI does not yet list `gpt-6-astra`, so the codex profile entry reads DRIFTED - MIGRATED to v4.13.0
 
 - **Source phase**: Amendment Phase 3 - the first OpenAI prompting profile (T049).
 - **Plan reference**: `v4.7.0-adoption-gpt-6-astra-prompting.md` sub-task 3.3.
@@ -33,23 +36,31 @@
 
 **2026-09-24 recheck**: The installed Codex CLI picker still lists six models and omits `gpt-6-astra`; the [archived read-only result](development/model-map-followup/verification.md) keeps API availability separate from CLI availability. DF-2 remains open and no profile was re-stamped.
 
-##### DF-4 - Reusable `workflow_call` CI factoring (report item E5) deliberately excluded
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-64`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.7.0`, section `v4.7.0 - model-behavior-and-distribution-integrity (with the gpt-6-astra-prompting amendments folded in)`, and original ID `DF-2`.
+
+##### DF-4 - Reusable `workflow_call` CI factoring (report item E5) deliberately excluded - MIGRATED to v4.13.0
 
 - **Source phase**: Phase 7 - Known-gaps reconciliation (T028), as the plan directs.
 - **Plan reference**: `comparisons/v4.7.0-comparison-ecc-agent-catalog.md` item E5 (P3); main plan sub-task 7.2.
 - **Reason**: A refactor of working CI whose benefit is maintainer ergonomics, carrying the required-context risk the v3.17.6 policy exists to prevent: a reusable workflow changes which workflow produces a context, and a context produced by a filtered or conditionally called workflow sits Pending forever. Not rejected on principle; not worth a release that also changes twelve templates and the install path.
 - **Suggested next step**: If ever done, its own release, with `check_required_check_coverage.py` and `tests/validators/test_ci_required_gate.py` extended first to resolve contexts through `workflow_call` producers.
 
-##### DF-5 - Per-skill presentation metadata (report item E6) deliberately excluded
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-37`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.7.0`, section `v4.7.0 - model-behavior-and-distribution-integrity (with the gpt-6-astra-prompting amendments folded in)`, and original ID `DF-4`.
+
+##### DF-5 - Per-skill presentation metadata (report item E6) deliberately excluded - MIGRATED to v4.13.0
 
 - **Source phase**: Phase 7 - Known-gaps reconciliation (T028), as the plan directs.
 - **Plan reference**: `comparisons/v4.7.0-comparison-ecc-agent-catalog.md` item E6 (P3); main plan sub-task 7.2.
 - **Reason**: Display name, short description, brand colour, and default prompt per skill have no rendering host in Nexus-Hub today; frontmatter that nothing reads is Tier 1 cost on every session for no consumer.
 - **Suggested next step**: Revisit when a consumer exists (the guide, the MCP skill server, or a downstream app asks for it), and add the fields to `data/skills.json` first rather than to every `SKILL.md`.
 
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-37`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.7.0`, section `v4.7.0 - model-behavior-and-distribution-integrity (with the gpt-6-astra-prompting amendments folded in)`, and original ID `DF-5`.
+
 #### Warnings
 
-##### WN-1 - Phases 2, 6, and 7 ran one effort level below the plan's recommendation
+##### WN-1 - Phases 2, 6, and 7 ran one effort level below the plan's recommendation - CLOSED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.7#WN-1` is recorded as CLOSED for its original scope. Evidence: v4.13 inventory note names v4.7 WN-1 as not a present-tree defect Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Source phase**: Phase 2 - The Autonomous-Operation Block Across All Twelve Templates; also Phase 6 - Distribution Integrity and Phase 7 - the final phase.
 - **Plan reference**: Phases 2, 6, and 7 `**Recommended model tier**: frontier` / `**Recommended effort level**: max`.
@@ -57,7 +68,9 @@
 - **Impact**: None observed. Every Phase 2 gate passed, including the deliberate guard-failure proof; every Phase 6 gate passed, and the one defect the phase introduced (a `set -e` return-code capture in the bash bootstrap) was caught by the manual Git Bash run inside the phase.
 - **Suggested next step**: When the next plan rates a phase `max`, decide at the pre-flight whether to make the keystroke, so the choice is deliberate rather than inherited from the driver's momentum. Phase 7's independent review found ten of ten Goal clauses converged at high.
 
-##### WN-2 - Scheduled `main` supply-chain audit remains red
+##### WN-2 - Scheduled `main` supply-chain audit remains red - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.7#WN-2` is recorded as RESOLVED for its original scope. Evidence: `--skip-editable` landed (supply-chain-watch.yml:77, commit 2b6e72017); scheduled `main` run 36428351051 succeeded 2026-09-28. Caveat: scheduled run 37322151526 on 2026-10-05 failed with "Found 1 known vulnerability in 1 package"; record that as a NEW gap Historical setuptools/PyPI lookup defect closed by --skip-editable and passing September28 main schedule. Oct5 PyJWT advisory is a distinct v4.13.11 obligation; retain old failure receipts. Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Source phase**: Post-release hosted verification on 2026-09-24.
 - **Plan reference**: v4.7.0 Phase 6 Distribution Integrity, T022 and T023.

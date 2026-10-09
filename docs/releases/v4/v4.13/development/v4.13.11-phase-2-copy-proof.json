@@ -1,0 +1,1677 @@
+{
+  "date": "2026-10-09",
+  "qualification": "Read-only actual worktree ledgers, shared writer/verifier predicate, strict .0 placement and valid migration reason required",
+  "command": "python v41311-proof-actual.py",
+  "ledger_count": 41,
+  "unreadable": [],
+  "parser_problems": {},
+  "verified_complete_copies": 158,
+  "errors": [],
+  "proofs": [
+    {
+      "source": "v1.1#DF-006",
+      "source_path": "docs/archives/v1/v1.1/known-gaps.md",
+      "expected_owner": "AR-62",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-62"
+    },
+    {
+      "source": "v1.1#MT-001",
+      "source_path": "docs/archives/v1/v1.1/known-gaps.md",
+      "expected_owner": "AR-08",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-08"
+    },
+    {
+      "source": "v1.1#DF-008",
+      "source_path": "docs/archives/v1/v1.1/known-gaps.md",
+      "expected_owner": "AR-62",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-62"
+    },
+    {
+      "source": "v1.1#DF-007",
+      "source_path": "docs/archives/v1/v1.1/known-gaps.md",
+      "expected_owner": "AR-63",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-63"
+    },
+    {
+      "source": "v3.0#WN-v30-2",
+      "source_path": "docs/archives/v3/v3.0/known-gaps.md",
+      "expected_owner": "AR-22",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-22"
+    },
+    {
+      "source": "v3.0#DF-v30-1",
+      "source_path": "docs/archives/v3/v3.0/known-gaps.md",
+      "expected_owner": "AR-25",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-25"
+    },
+    {
+      "source": "v3.0#DF-v30-2",
+      "source_path": "docs/archives/v3/v3.0/known-gaps.md",
+      "expected_owner": "AR-25",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-25"
+    },
+    {
+      "source": "v3.0#DF-v30-3",
+      "source_path": "docs/archives/v3/v3.0/known-gaps.md",
+      "expected_owner": "AR-25",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-25"
+    },
+    {
+      "source": "v3.0#DF-v30-5",
+      "source_path": "docs/archives/v3/v3.0/known-gaps.md",
+      "expected_owner": "AR-27",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-27"
+    },
+    {
+      "source": "v3.0#DF-v30-6",
+      "source_path": "docs/archives/v3/v3.0/known-gaps.md",
+      "expected_owner": "AR-04",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-04"
+    },
+    {
+      "source": "v3.0#DF-v30-7",
+      "source_path": "docs/archives/v3/v3.0/known-gaps.md",
+      "expected_owner": "AR-04",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-04"
+    },
+    {
+      "source": "v3.0#BG-v30-1",
+      "source_path": "docs/archives/v3/v3.0/known-gaps.md",
+      "expected_owner": "AR-04",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-04"
+    },
+    {
+      "source": "v3.0#DF-v30-8",
+      "source_path": "docs/archives/v3/v3.0/known-gaps.md",
+      "expected_owner": "AR-26",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-26"
+    },
+    {
+      "source": "v3.0#DF-v30-9",
+      "source_path": "docs/archives/v3/v3.0/known-gaps.md",
+      "expected_owner": "AR-37",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-37"
+    },
+    {
+      "source": "v3.1#WN-v31cr-1",
+      "source_path": "docs/archives/v3/v3.1/known-gaps.md",
+      "expected_owner": "AR-06",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-06"
+    },
+    {
+      "source": "v3.2#WN-v32-1",
+      "source_path": "docs/archives/v3/v3.2/known-gaps.md",
+      "expected_owner": "AR-06",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-06"
+    },
+    {
+      "source": "v3.2#DF-v32hr-1",
+      "source_path": "docs/archives/v3/v3.2/known-gaps.md",
+      "expected_owner": "AR-24",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-24"
+    },
+    {
+      "source": "v3.2#DF-v32hr-2",
+      "source_path": "docs/archives/v3/v3.2/known-gaps.md",
+      "expected_owner": "AR-24",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-24"
+    },
+    {
+      "source": "v3.2#DF-v32hr-3",
+      "source_path": "docs/archives/v3/v3.2/known-gaps.md",
+      "expected_owner": "AR-24",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-24"
+    },
+    {
+      "source": "v3.2#DF-v32hr-4",
+      "source_path": "docs/archives/v3/v3.2/known-gaps.md",
+      "expected_owner": "AR-24",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-24"
+    },
+    {
+      "source": "v3.2#DF-v32hr-5",
+      "source_path": "docs/archives/v3/v3.2/known-gaps.md",
+      "expected_owner": "AR-24",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-24"
+    },
+    {
+      "source": "v3.2#DF-v32hr-6",
+      "source_path": "docs/archives/v3/v3.2/known-gaps.md",
+      "expected_owner": "AR-24",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-24"
+    },
+    {
+      "source": "v3.2#DF-v32hr-8",
+      "source_path": "docs/archives/v3/v3.2/known-gaps.md",
+      "expected_owner": "AR-24",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-24"
+    },
+    {
+      "source": "v3.2#DF-v32hr-9",
+      "source_path": "docs/archives/v3/v3.2/known-gaps.md",
+      "expected_owner": "AR-24",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-24"
+    },
+    {
+      "source": "v3.2#WN-v32hr-1",
+      "source_path": "docs/archives/v3/v3.2/known-gaps.md",
+      "expected_owner": "AR-23",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-23"
+    },
+    {
+      "source": "v3.2#DF-v32hr-12",
+      "source_path": "docs/archives/v3/v3.2/known-gaps.md",
+      "expected_owner": "AR-24",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-24"
+    },
+    {
+      "source": "v3.2#DF-v32hr-13",
+      "source_path": "docs/archives/v3/v3.2/known-gaps.md",
+      "expected_owner": "AR-24",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-24"
+    },
+    {
+      "source": "v3.2#DF-v32hr-14",
+      "source_path": "docs/archives/v3/v3.2/known-gaps.md",
+      "expected_owner": "AR-24",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-24"
+    },
+    {
+      "source": "v3.2#DF-v32hr-15",
+      "source_path": "docs/archives/v3/v3.2/known-gaps.md",
+      "expected_owner": "AR-24",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-24"
+    },
+    {
+      "source": "v3.2#MT-v32hr-1",
+      "source_path": "docs/archives/v3/v3.2/known-gaps.md",
+      "expected_owner": "AR-24",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-24"
+    },
+    {
+      "source": "v3.2#DF-v32cmd-1",
+      "source_path": "docs/archives/v3/v3.2/known-gaps.md",
+      "expected_owner": "AR-28",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-28"
+    },
+    {
+      "source": "v3.6#DF-v36-2",
+      "source_path": "docs/archives/v3/v3.6/known-gaps.md",
+      "expected_owner": "AR-37",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-37"
+    },
+    {
+      "source": "v3.7#WN-v37-1",
+      "source_path": "docs/archives/v3/v3.7/known-gaps.md",
+      "expected_owner": "AR-26",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-26"
+    },
+    {
+      "source": "v3.7#DF-v36-2",
+      "source_path": "docs/archives/v3/v3.7/known-gaps.md",
+      "expected_owner": "AR-37",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-37"
+    },
+    {
+      "source": "v3.8#WN-v38-1",
+      "source_path": "docs/archives/v3/v3.8/known-gaps.md",
+      "expected_owner": "AR-29",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-29"
+    },
+    {
+      "source": "v3.8#WN-v37-1",
+      "source_path": "docs/archives/v3/v3.8/known-gaps.md",
+      "expected_owner": "AR-26",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-26"
+    },
+    {
+      "source": "v3.8#DF-v36-2",
+      "source_path": "docs/archives/v3/v3.8/known-gaps.md",
+      "expected_owner": "AR-37",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-37"
+    },
+    {
+      "source": "v3.9#WN-v37-1",
+      "source_path": "docs/archives/v3/v3.9/known-gaps.md",
+      "expected_owner": "AR-26",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-26"
+    },
+    {
+      "source": "v3.9#DF-v36-2",
+      "source_path": "docs/archives/v3/v3.9/known-gaps.md",
+      "expected_owner": "AR-37",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-37"
+    },
+    {
+      "source": "v3.9#DF-v39-presentify-4",
+      "source_path": "docs/archives/v3/v3.9/known-gaps.md",
+      "expected_owner": "AR-18",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-18"
+    },
+    {
+      "source": "v3.9#DF-v39-presentify-5",
+      "source_path": "docs/archives/v3/v3.9/known-gaps.md",
+      "expected_owner": "AR-18",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-18"
+    },
+    {
+      "source": "v3.9#DF-v39-nomistakes-1",
+      "source_path": "docs/archives/v3/v3.9/known-gaps.md",
+      "expected_owner": "AR-37",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-37"
+    },
+    {
+      "source": "v3.10#DF-v310-ruflo-A6",
+      "source_path": "docs/archives/v3/v3.10/known-gaps.md",
+      "expected_owner": "AR-37",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-37"
+    },
+    {
+      "source": "v3.10#DF-v310-ruflo-P4-extensions",
+      "source_path": "docs/archives/v3/v3.10/known-gaps.md",
+      "expected_owner": "AR-21",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-21"
+    },
+    {
+      "source": "v3.10#DF-v310-ruflo-A10-rest",
+      "source_path": "docs/archives/v3/v3.10/known-gaps.md",
+      "expected_owner": "AR-37",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-37"
+    },
+    {
+      "source": "v3.11#DF-1",
+      "source_path": "docs/archives/v3/v3.11/known-gaps.md",
+      "expected_owner": "AR-36",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-36"
+    },
+    {
+      "source": "v3.11#WN-2",
+      "source_path": "docs/archives/v3/v3.11/known-gaps.md",
+      "expected_owner": "AR-11",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-11"
+    },
+    {
+      "source": "v3.11#DF-v310-ruflo-A6",
+      "source_path": "docs/archives/v3/v3.11/known-gaps.md",
+      "expected_owner": "AR-37",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-37"
+    },
+    {
+      "source": "v3.11#DF-v310-ruflo-P4-extensions",
+      "source_path": "docs/archives/v3/v3.11/known-gaps.md",
+      "expected_owner": "AR-21",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-21"
+    },
+    {
+      "source": "v3.11#DF-v310-ruflo-A10-rest",
+      "source_path": "docs/archives/v3/v3.11/known-gaps.md",
+      "expected_owner": "AR-37",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-37"
+    },
+    {
+      "source": "v3.12#DF-1",
+      "source_path": "docs/archives/v3/v3.12/known-gaps.md",
+      "expected_owner": "AR-18",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-18"
+    },
+    {
+      "source": "v3.12#DF-2",
+      "source_path": "docs/archives/v3/v3.12/known-gaps.md",
+      "expected_owner": "AR-18",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-18"
+    },
+    {
+      "source": "v3.12#DF-3",
+      "source_path": "docs/archives/v3/v3.12/known-gaps.md",
+      "expected_owner": "AR-18",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-18"
+    },
+    {
+      "source": "v3.12#DF-4",
+      "source_path": "docs/archives/v3/v3.12/known-gaps.md",
+      "expected_owner": "AR-18",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-18"
+    },
+    {
+      "source": "v3.12#DF-5",
+      "source_path": "docs/archives/v3/v3.12/known-gaps.md",
+      "expected_owner": "AR-18",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-18"
+    },
+    {
+      "source": "v3.12#DF-v3121-agy-cli-workflows",
+      "source_path": "docs/archives/v3/v3.12/known-gaps.md",
+      "expected_owner": "AR-36",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-36"
+    },
+    {
+      "source": "v3.12#DF-v3121-gemini-ide-skill-dir",
+      "source_path": "docs/archives/v3/v3.12/known-gaps.md",
+      "expected_owner": "AR-36",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-36"
+    },
+    {
+      "source": "v3.13#DF-1",
+      "source_path": "docs/archives/v3/v3.13/known-gaps.md",
+      "expected_owner": "AR-18",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-18"
+    },
+    {
+      "source": "v3.13#DF-2",
+      "source_path": "docs/archives/v3/v3.13/known-gaps.md",
+      "expected_owner": "AR-18",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-18"
+    },
+    {
+      "source": "v3.13#DF-3",
+      "source_path": "docs/archives/v3/v3.13/known-gaps.md",
+      "expected_owner": "AR-03",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-03"
+    },
+    {
+      "source": "v3.13#DF-4",
+      "source_path": "docs/archives/v3/v3.13/known-gaps.md",
+      "expected_owner": "AR-18",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-18"
+    },
+    {
+      "source": "v3.13#DF-5",
+      "source_path": "docs/archives/v3/v3.13/known-gaps.md",
+      "expected_owner": "AR-18",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-18"
+    },
+    {
+      "source": "v3.13#DF-6",
+      "source_path": "docs/archives/v3/v3.13/known-gaps.md",
+      "expected_owner": "AR-18",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-18"
+    },
+    {
+      "source": "v3.13#WN-1",
+      "source_path": "docs/archives/v3/v3.13/known-gaps.md",
+      "expected_owner": "AR-19",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-19"
+    },
+    {
+      "source": "v3.13#MT-2",
+      "source_path": "docs/archives/v3/v3.13/known-gaps.md",
+      "expected_owner": "AR-19",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-19"
+    },
+    {
+      "source": "v3.14#DF-1-v3145",
+      "source_path": "docs/archives/v3/v3.14/known-gaps.md",
+      "expected_owner": "AR-20",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-20"
+    },
+    {
+      "source": "v3.14#DF-3-v3145",
+      "source_path": "docs/archives/v3/v3.14/known-gaps.md",
+      "expected_owner": "AR-31",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-31"
+    },
+    {
+      "source": "v3.14#MT-1-v3145",
+      "source_path": "docs/archives/v3/v3.14/known-gaps.md",
+      "expected_owner": "AR-32",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-32"
+    },
+    {
+      "source": "v3.14#DF-1-v3144",
+      "source_path": "docs/archives/v3/v3.14/known-gaps.md",
+      "expected_owner": "AR-32",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-32"
+    },
+    {
+      "source": "v3.14#MT-1-v3144",
+      "source_path": "docs/archives/v3/v3.14/known-gaps.md",
+      "expected_owner": "AR-32",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-32"
+    },
+    {
+      "source": "v3.14#MT-1-v3143",
+      "source_path": "docs/archives/v3/v3.14/known-gaps.md",
+      "expected_owner": "AR-08",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-08"
+    },
+    {
+      "source": "v3.14#WN-1-v3142",
+      "source_path": "docs/archives/v3/v3.14/known-gaps.md",
+      "expected_owner": "AR-06",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-06"
+    },
+    {
+      "source": "v3.14#DF-3-v3140",
+      "source_path": "docs/archives/v3/v3.14/known-gaps.md",
+      "expected_owner": "AR-35",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-35"
+    },
+    {
+      "source": "v3.14#MT-1-v3140",
+      "source_path": "docs/archives/v3/v3.14/known-gaps.md",
+      "expected_owner": "AR-32",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-32"
+    },
+    {
+      "source": "v3.17#MT-2-v3176",
+      "source_path": "docs/archives/v3/v3.17/known-gaps.md",
+      "expected_owner": "AR-33",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-33"
+    },
+    {
+      "source": "v3.17#NI-1-v3170",
+      "source_path": "docs/archives/v3/v3.17/known-gaps.md",
+      "expected_owner": "AR-16",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-16"
+    },
+    {
+      "source": "v3.17#NI-2-v3170",
+      "source_path": "docs/archives/v3/v3.17/known-gaps.md",
+      "expected_owner": "AR-16",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-16"
+    },
+    {
+      "source": "v3.17#DF-1-v3170",
+      "source_path": "docs/archives/v3/v3.17/known-gaps.md",
+      "expected_owner": "AR-16",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-16"
+    },
+    {
+      "source": "v3.17#DF-2-v3170",
+      "source_path": "docs/archives/v3/v3.17/known-gaps.md",
+      "expected_owner": "AR-17",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-17"
+    },
+    {
+      "source": "v3.17#DF-3-v3170",
+      "source_path": "docs/archives/v3/v3.17/known-gaps.md",
+      "expected_owner": "AR-17",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-17"
+    },
+    {
+      "source": "v3.17#DF-4",
+      "source_path": "docs/archives/v3/v3.17/known-gaps.md",
+      "expected_owner": "AR-05",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-05"
+    },
+    {
+      "source": "v3.17#DF-5",
+      "source_path": "docs/archives/v3/v3.17/known-gaps.md",
+      "expected_owner": "AR-17",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-17"
+    },
+    {
+      "source": "v3.17#WN-2",
+      "source_path": "docs/archives/v3/v3.17/known-gaps.md",
+      "expected_owner": "AR-34",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-34"
+    },
+    {
+      "source": "v3.17#MT-1-v3170",
+      "source_path": "docs/archives/v3/v3.17/known-gaps.md",
+      "expected_owner": "AR-32",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-32"
+    },
+    {
+      "source": "v3.18#BG-2-v3182",
+      "source_path": "docs/archives/v3/v3.18/known-gaps.md",
+      "expected_owner": "AR-40",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-40"
+    },
+    {
+      "source": "v3.19#DF-2",
+      "source_path": "docs/archives/v3/v3.19/known-gaps.md",
+      "expected_owner": "AR-42",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-42"
+    },
+    {
+      "source": "v3.19#DF-3",
+      "source_path": "docs/archives/v3/v3.19/known-gaps.md",
+      "expected_owner": "AR-24",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-24"
+    },
+    {
+      "source": "v3.19#DF-4",
+      "source_path": "docs/archives/v3/v3.19/known-gaps.md",
+      "expected_owner": "AR-43",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-43"
+    },
+    {
+      "source": "v3.20#DF-1-v3203",
+      "source_path": "docs/archives/v3/v3.20/known-gaps.md",
+      "expected_owner": "AR-38",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-38"
+    },
+    {
+      "source": "v3.20#DF-2-v3203",
+      "source_path": "docs/archives/v3/v3.20/known-gaps.md",
+      "expected_owner": "AR-39",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-39"
+    },
+    {
+      "source": "v3.20#WN-2",
+      "source_path": "docs/archives/v3/v3.20/known-gaps.md",
+      "expected_owner": "AR-07",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-07"
+    },
+    {
+      "source": "v3.20#MT-1",
+      "source_path": "docs/archives/v3/v3.20/known-gaps.md",
+      "expected_owner": "AR-09",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-09"
+    },
+    {
+      "source": "v3.21#DF-1",
+      "source_path": "docs/archives/v3/v3.21/known-gaps.md",
+      "expected_owner": "AR-41",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-41"
+    },
+    {
+      "source": "v4.0#MT-1-v400",
+      "source_path": "docs/archives/v4/v4.0/known-gaps.md",
+      "expected_owner": "AR-37",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-37"
+    },
+    {
+      "source": "v4.1#DF-1-v410",
+      "source_path": "docs/archives/v4/v4.1/known-gaps.md",
+      "expected_owner": "AR-64",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-64"
+    },
+    {
+      "source": "v4.1#DF-1-v411",
+      "source_path": "docs/archives/v4/v4.1/known-gaps.md",
+      "expected_owner": "AR-65",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-65"
+    },
+    {
+      "source": "v4.2#DF-2-v422",
+      "source_path": "docs/archives/v4/v4.2/known-gaps.md",
+      "expected_owner": "AR-66",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-66"
+    },
+    {
+      "source": "v4.2#DF-2-v423",
+      "source_path": "docs/archives/v4/v4.2/known-gaps.md",
+      "expected_owner": "AR-66",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-66"
+    },
+    {
+      "source": "v4.3#DF-4",
+      "source_path": "docs/archives/v4/v4.3/known-gaps.md",
+      "expected_owner": "AR-68",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-68"
+    },
+    {
+      "source": "v4.3#WN-3",
+      "source_path": "docs/archives/v4/v4.3/known-gaps.md",
+      "expected_owner": "AR-36",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-36"
+    },
+    {
+      "source": "v4.4#MT-446-1",
+      "source_path": "docs/archives/v4/v4.4/known-gaps.md",
+      "expected_owner": "AR-67",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-67"
+    },
+    {
+      "source": "v4.4#MT-446-2",
+      "source_path": "docs/archives/v4/v4.4/known-gaps.md",
+      "expected_owner": "AR-69",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-69"
+    },
+    {
+      "source": "v4.5#DF-1",
+      "source_path": "docs/archives/v4/v4.5/known-gaps.md",
+      "expected_owner": "AR-70",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-70"
+    },
+    {
+      "source": "v4.5#DF-2",
+      "source_path": "docs/archives/v4/v4.5/known-gaps.md",
+      "expected_owner": "AR-71",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-71"
+    },
+    {
+      "source": "v4.5#MT-1",
+      "source_path": "docs/archives/v4/v4.5/known-gaps.md",
+      "expected_owner": "AR-72",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-72"
+    },
+    {
+      "source": "v4.7#DF-2",
+      "source_path": "docs/archives/v4/v4.7/known-gaps.md",
+      "expected_owner": "AR-64",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-64"
+    },
+    {
+      "source": "v4.7#DF-4",
+      "source_path": "docs/archives/v4/v4.7/known-gaps.md",
+      "expected_owner": "AR-37",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-37"
+    },
+    {
+      "source": "v4.7#DF-5",
+      "source_path": "docs/archives/v4/v4.7/known-gaps.md",
+      "expected_owner": "AR-37",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-37"
+    },
+    {
+      "source": "v4.8#WN-K",
+      "source_path": "docs/archives/v4/v4.8/known-gaps.md",
+      "expected_owner": "AR-73",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-73"
+    },
+    {
+      "source": "v4.9#MT-1",
+      "source_path": "docs/archives/v4/v4.9/known-gaps.md",
+      "expected_owner": "AR-64",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-64"
+    },
+    {
+      "source": "v4.9#MT-3",
+      "source_path": "docs/archives/v4/v4.9/known-gaps.md",
+      "expected_owner": "AR-19",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-19"
+    },
+    {
+      "source": "v4.10#EV-1",
+      "source_path": "docs/archives/v4/v4.10/known-gaps.md",
+      "expected_owner": "AR-74",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-74"
+    },
+    {
+      "source": "v4.10#EV-2",
+      "source_path": "docs/archives/v4/v4.10/known-gaps.md",
+      "expected_owner": "AR-74",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-74"
+    },
+    {
+      "source": "v4.12#QG-1",
+      "source_path": "docs/archives/v4/v4.12/known-gaps.md",
+      "expected_owner": "AR-75",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-75"
+    },
+    {
+      "source": "v4.12#QG-2",
+      "source_path": "docs/archives/v4/v4.12/known-gaps.md",
+      "expected_owner": "AR-76",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-76"
+    },
+    {
+      "source": "v4.12#DF-1",
+      "source_path": "docs/archives/v4/v4.12/known-gaps.md",
+      "expected_owner": "AR-77",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-77"
+    },
+    {
+      "source": "v3.15#QG-v31512-5",
+      "source_path": "docs/archives/v3/v3.15/known-gaps.md",
+      "expected_owner": "AR-44",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-44"
+    },
+    {
+      "source": "v3.15#DF-14",
+      "source_path": "docs/archives/v3/v3.15/known-gaps.md",
+      "expected_owner": "AR-45",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-45"
+    },
+    {
+      "source": "v3.15#DF-16",
+      "source_path": "docs/archives/v3/v3.15/known-gaps.md",
+      "expected_owner": "AR-46",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-46"
+    },
+    {
+      "source": "v3.15#DF-17",
+      "source_path": "docs/archives/v3/v3.15/known-gaps.md",
+      "expected_owner": "AR-47",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-47"
+    },
+    {
+      "source": "v3.15#WN-4",
+      "source_path": "docs/archives/v3/v3.15/known-gaps.md",
+      "expected_owner": "AR-49",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-49"
+    },
+    {
+      "source": "v3.15#QG-5",
+      "source_path": "docs/archives/v3/v3.15/known-gaps.md",
+      "expected_owner": "AR-44",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-44"
+    },
+    {
+      "source": "v3.15#DF-1-v3150",
+      "source_path": "docs/archives/v3/v3.15/known-gaps.md",
+      "expected_owner": "AR-47",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-47"
+    },
+    {
+      "source": "v3.15#DF-3-v3151",
+      "source_path": "docs/archives/v3/v3.15/known-gaps.md",
+      "expected_owner": "AR-52",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-52"
+    },
+    {
+      "source": "v3.15#WN-2",
+      "source_path": "docs/archives/v3/v3.15/known-gaps.md",
+      "expected_owner": "AR-34",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-34"
+    },
+    {
+      "source": "v3.15#MT-2-v3151",
+      "source_path": "docs/archives/v3/v3.15/known-gaps.md",
+      "expected_owner": "AR-08",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-08"
+    },
+    {
+      "source": "v3.15#MT-1-v3151",
+      "source_path": "docs/archives/v3/v3.15/known-gaps.md",
+      "expected_owner": "AR-08",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-08"
+    },
+    {
+      "source": "v3.15#DF-2-v3152",
+      "source_path": "docs/archives/v3/v3.15/known-gaps.md",
+      "expected_owner": "AR-05",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-05"
+    },
+    {
+      "source": "v3.15#MT-1-v3152",
+      "source_path": "docs/archives/v3/v3.15/known-gaps.md",
+      "expected_owner": "AR-09",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-09"
+    },
+    {
+      "source": "v3.15#DF-1-v3153",
+      "source_path": "docs/archives/v3/v3.15/known-gaps.md",
+      "expected_owner": "AR-53",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-53"
+    },
+    {
+      "source": "v3.15#DF-3-v3154",
+      "source_path": "docs/archives/v3/v3.15/known-gaps.md",
+      "expected_owner": "AR-18",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-18"
+    },
+    {
+      "source": "v3.15#DF-1-v3154",
+      "source_path": "docs/archives/v3/v3.15/known-gaps.md",
+      "expected_owner": "AR-18",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-18"
+    },
+    {
+      "source": "v3.15#DF-2-v3154",
+      "source_path": "docs/archives/v3/v3.15/known-gaps.md",
+      "expected_owner": "AR-18",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-18"
+    },
+    {
+      "source": "v3.15#MT-3-v3154",
+      "source_path": "docs/archives/v3/v3.15/known-gaps.md",
+      "expected_owner": "AR-19",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-19"
+    },
+    {
+      "source": "v3.15#DF-2-v3155",
+      "source_path": "docs/archives/v3/v3.15/known-gaps.md",
+      "expected_owner": "AR-61",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-61"
+    },
+    {
+      "source": "v3.15#MT-4",
+      "source_path": "docs/archives/v3/v3.15/known-gaps.md",
+      "expected_owner": "AR-08",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-08"
+    },
+    {
+      "source": "v3.15#MT-2-v3155",
+      "source_path": "docs/archives/v3/v3.15/known-gaps.md",
+      "expected_owner": "AR-33",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-33"
+    },
+    {
+      "source": "v3.15#DF-3-v3156",
+      "source_path": "docs/archives/v3/v3.15/known-gaps.md",
+      "expected_owner": "AR-54",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-54"
+    },
+    {
+      "source": "v3.15#DF-1-v3156",
+      "source_path": "docs/archives/v3/v3.15/known-gaps.md",
+      "expected_owner": "AR-55",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-55"
+    },
+    {
+      "source": "v3.15#DF-6",
+      "source_path": "docs/archives/v3/v3.15/known-gaps.md",
+      "expected_owner": "AR-37",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-37"
+    },
+    {
+      "source": "v3.15#MT-6",
+      "source_path": "docs/archives/v3/v3.15/known-gaps.md",
+      "expected_owner": "AR-57",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-57"
+    },
+    {
+      "source": "v3.15#DF-12",
+      "source_path": "docs/archives/v3/v3.15/known-gaps.md",
+      "expected_owner": "AR-56",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-56"
+    },
+    {
+      "source": "v3.15#MT-7",
+      "source_path": "docs/archives/v3/v3.15/known-gaps.md",
+      "expected_owner": "AR-57",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-57"
+    },
+    {
+      "source": "v3.15#DF-13",
+      "source_path": "docs/archives/v3/v3.15/known-gaps.md",
+      "expected_owner": "AR-56",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-56"
+    },
+    {
+      "source": "v3.15#MT-8",
+      "source_path": "docs/archives/v3/v3.15/known-gaps.md",
+      "expected_owner": "AR-57",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-57"
+    },
+    {
+      "source": "v3.16#TR-1",
+      "source_path": "docs/archives/v3/v3.16/known-gaps.md",
+      "expected_owner": "AR-14",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-14"
+    },
+    {
+      "source": "v3.16#TR-2",
+      "source_path": "docs/archives/v3/v3.16/known-gaps.md",
+      "expected_owner": "AR-15",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-15"
+    },
+    {
+      "source": "v3.16#CD-1",
+      "source_path": "docs/archives/v3/v3.16/known-gaps.md",
+      "expected_owner": "AR-12",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-12"
+    },
+    {
+      "source": "v3.16#CD-2",
+      "source_path": "docs/archives/v3/v3.16/known-gaps.md",
+      "expected_owner": "AR-13",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-13"
+    },
+    {
+      "source": "v3.16#CD-3",
+      "source_path": "docs/archives/v3/v3.16/known-gaps.md",
+      "expected_owner": "AR-12",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-12"
+    },
+    {
+      "source": "v3.16#NI-1-v3160",
+      "source_path": "docs/archives/v3/v3.16/known-gaps.md",
+      "expected_owner": "AR-30",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-30"
+    },
+    {
+      "source": "v3.16#NI-6-v3160",
+      "source_path": "docs/archives/v3/v3.16/known-gaps.md",
+      "expected_owner": "AR-05",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-05"
+    },
+    {
+      "source": "v3.16#NI-6-v3161",
+      "source_path": "docs/archives/v3/v3.16/known-gaps.md",
+      "expected_owner": "AR-10",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-10"
+    },
+    {
+      "source": "v3.16#MT-1-v3162",
+      "source_path": "docs/archives/v3/v3.16/known-gaps.md",
+      "expected_owner": "AR-12",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-12"
+    },
+    {
+      "source": "v3.16#NI-2-v3162",
+      "source_path": "docs/archives/v3/v3.16/known-gaps.md",
+      "expected_owner": "AR-07",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-07"
+    },
+    {
+      "source": "v3.16#WN-2-v3165",
+      "source_path": "docs/archives/v3/v3.16/known-gaps.md",
+      "expected_owner": "AR-19",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-19"
+    },
+    {
+      "source": "v3.16#NI-2-v3167",
+      "source_path": "docs/archives/v3/v3.16/known-gaps.md",
+      "expected_owner": "AR-19",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-19"
+    },
+    {
+      "source": "v3.16#NI-3-v3167",
+      "source_path": "docs/archives/v3/v3.16/known-gaps.md",
+      "expected_owner": "AR-19",
+      "status": "migration-copy-complete",
+      "destination_path": "docs/releases/v4/v4.13/known-gaps.md",
+      "owner": "AR-19"
+    }
+  ],
+  "ledger_snapshots": [
+    {
+      "path": "docs/archives/v1/v1.1/known-gaps.md",
+      "items": 11,
+      "counts": {
+        "resolved": 7,
+        "migrated": 4
+      },
+      "problems": [],
+      "sha256_lf": "f804bcfcb2b5954ec00cbf02d7d206da598cb09bf02706b76dbd57c59ff06ad2"
+    },
+    {
+      "path": "docs/archives/v1/v1.3/known-gaps.md",
+      "items": 2,
+      "counts": {
+        "resolved": 2
+      },
+      "problems": [],
+      "sha256_lf": "451b9ca041132880e4b3e0d6dd5fda9366ff4c7b7af221d2786b87bb70b393ab"
+    },
+    {
+      "path": "docs/archives/v2/v2.0/known-gaps.md",
+      "items": 1,
+      "counts": {
+        "resolved": 1
+      },
+      "problems": [],
+      "sha256_lf": "9ad0aae473e737961caf52a038373aab176a378c15e69109d75b68e0a0cbe544"
+    },
+    {
+      "path": "docs/archives/v2/v2.1/known-gaps.md",
+      "items": 1,
+      "counts": {
+        "resolved": 1
+      },
+      "problems": [],
+      "sha256_lf": "594fbee41def2d5db8be3beded51438702aa7882712cb6d338bf7d4f796e87f3"
+    },
+    {
+      "path": "docs/archives/v2/v2.2/known-gaps.md",
+      "items": 0,
+      "counts": {},
+      "problems": [],
+      "sha256_lf": "d219bebbaf6b2b9c4e8dac1020d3d6e14b580c4cd1233119a0a54d7c7ffb0427"
+    },
+    {
+      "path": "docs/archives/v2/v2.3/known-gaps.md",
+      "items": 1,
+      "counts": {
+        "resolved": 1
+      },
+      "problems": [],
+      "sha256_lf": "bcd50ff7041b33d29aaa6cef05114b8d98fce7e4578c65e1291ca84da280ed3a"
+    },
+    {
+      "path": "docs/archives/v2/v2.4/known-gaps.md",
+      "items": 14,
+      "counts": {
+        "resolved": 14
+      },
+      "problems": [],
+      "sha256_lf": "cd4a6aad50fc705d199809eec7b75d92ebaec027975ffc8e12616564c0f9409a"
+    },
+    {
+      "path": "docs/archives/v3/v3.0/known-gaps.md",
+      "items": 12,
+      "counts": {
+        "migrated": 10,
+        "resolved": 2
+      },
+      "problems": [],
+      "sha256_lf": "76139a676f2cae2a43958fab336e884d9b9f28f21616e53c805df02d6cf49cd6"
+    },
+    {
+      "path": "docs/archives/v3/v3.1/known-gaps.md",
+      "items": 6,
+      "counts": {
+        "migrated": 1,
+        "resolved": 5
+      },
+      "problems": [],
+      "sha256_lf": "3c67b90a6ef7eeae54e45d82ebdfdea444353f2c048d55c13f8f9026300e2695"
+    },
+    {
+      "path": "docs/archives/v3/v3.2/known-gaps.md",
+      "items": 24,
+      "counts": {
+        "migrated": 16,
+        "resolved": 8
+      },
+      "problems": [],
+      "sha256_lf": "72ba2b4fa56b36de795fba8765d730d9c62a7b8662ea187865316818e06589ca"
+    },
+    {
+      "path": "docs/archives/v3/v3.3/known-gaps.md",
+      "items": 2,
+      "counts": {
+        "resolved": 2
+      },
+      "problems": [],
+      "sha256_lf": "95139b166256f47125bafdbbedf4323465e8383d06d1e4c499cd88a0b63434b1"
+    },
+    {
+      "path": "docs/archives/v3/v3.4/known-gaps.md",
+      "items": 3,
+      "counts": {
+        "resolved": 3
+      },
+      "problems": [],
+      "sha256_lf": "0b234c8619a5e85d19840da0228e49423733ae0e1cb8154c402f3021e7f2dc87"
+    },
+    {
+      "path": "docs/archives/v3/v3.6/known-gaps.md",
+      "items": 4,
+      "counts": {
+        "resolved": 3,
+        "migrated": 1
+      },
+      "problems": [],
+      "sha256_lf": "25f0cbf77721ec7290abe9b90d03cc93ea022914bd2fa0e7c7fc78b8f8e88e88"
+    },
+    {
+      "path": "docs/archives/v3/v3.7/known-gaps.md",
+      "items": 7,
+      "counts": {
+        "migrated": 2,
+        "resolved": 5
+      },
+      "problems": [],
+      "sha256_lf": "9acd7f68ea9ed792354f727fa902e192a1d6a18e924e44f3d214ff38057b059c"
+    },
+    {
+      "path": "docs/archives/v3/v3.8/known-gaps.md",
+      "items": 6,
+      "counts": {
+        "migrated": 3,
+        "resolved": 3
+      },
+      "problems": [],
+      "sha256_lf": "690d6f36c3a34b239a2e77a640d548f4a493b70a4eb19361efed2cd33263ab4e"
+    },
+    {
+      "path": "docs/archives/v3/v3.9/known-gaps.md",
+      "items": 10,
+      "counts": {
+        "resolved": 5,
+        "migrated": 5
+      },
+      "problems": [],
+      "sha256_lf": "2e4e41839aa5417f86e488354099fef228aa49a107aecf6f54db2b2191a68517"
+    },
+    {
+      "path": "docs/archives/v3/v3.10/known-gaps.md",
+      "items": 3,
+      "counts": {
+        "migrated": 3
+      },
+      "problems": [],
+      "sha256_lf": "765ba51659ac0cb7579d5501b6647f17ea0974eb8db54d7c1153170be9e34e52"
+    },
+    {
+      "path": "docs/archives/v3/v3.11/known-gaps.md",
+      "items": 8,
+      "counts": {
+        "migrated": 5,
+        "resolved": 3
+      },
+      "problems": [],
+      "sha256_lf": "4b7873ad28d198eb56a2d3887ae7352e837594ee55de19971987470cc62dabd0"
+    },
+    {
+      "path": "docs/archives/v3/v3.12/known-gaps.md",
+      "items": 16,
+      "counts": {
+        "migrated": 7,
+        "resolved": 9
+      },
+      "problems": [],
+      "sha256_lf": "3bea5b3eda981417b2968ebeaefb5c52ddf7c371a8a66c2e3faaf3f4e8e8fab9"
+    },
+    {
+      "path": "docs/archives/v3/v3.13/known-gaps.md",
+      "items": 11,
+      "counts": {
+        "migrated": 8,
+        "resolved": 3
+      },
+      "problems": [],
+      "sha256_lf": "41418151f458e9dae60b2613a3119cda823fc2a64d816da13212bf9eddc5eabd"
+    },
+    {
+      "path": "docs/archives/v3/v3.14/known-gaps.md",
+      "items": 28,
+      "counts": {
+        "resolved": 19,
+        "migrated": 9
+      },
+      "problems": [],
+      "sha256_lf": "a738854c2f539ec6bad083c635dd5db0b451c84663d5d476336510fe884e14fd"
+    },
+    {
+      "path": "docs/archives/v3/v3.15/known-gaps.md",
+      "items": 102,
+      "counts": {
+        "resolved": 73,
+        "migrated": 29
+      },
+      "problems": [],
+      "sha256_lf": "1660dc35098be86b645cdb2e55889cf3fa59b20f05d048265c632a5cdc99abe0"
+    },
+    {
+      "path": "docs/archives/v3/v3.16/known-gaps.md",
+      "items": 124,
+      "counts": {
+        "migrated": 13,
+        "resolved": 111
+      },
+      "problems": [],
+      "sha256_lf": "99610c375393521a3464622f7ab364efde3f63b2bf54e1aa26723bfcafd1ad78"
+    },
+    {
+      "path": "docs/archives/v3/v3.17/known-gaps.md",
+      "items": 79,
+      "counts": {
+        "resolved": 69,
+        "migrated": 10
+      },
+      "problems": [],
+      "sha256_lf": "0ee38c1e88cf98b6bfe2a7bed6a557c166890c72609737acc29970c09e713e4e"
+    },
+    {
+      "path": "docs/archives/v3/v3.18/known-gaps.md",
+      "items": 24,
+      "counts": {
+        "resolved": 23,
+        "migrated": 1
+      },
+      "problems": [],
+      "sha256_lf": "43a522112526cf9d7791ebdfb83bd42b12c204cdc1836b8a47a84a8e1b33947e"
+    },
+    {
+      "path": "docs/archives/v3/v3.19/known-gaps.md",
+      "items": 4,
+      "counts": {
+        "migrated": 3,
+        "resolved": 1
+      },
+      "problems": [],
+      "sha256_lf": "08426f1448ab706f066e7563189aa83adafe534c15c347623b015af4a1886951"
+    },
+    {
+      "path": "docs/archives/v3/v3.20/known-gaps.md",
+      "items": 13,
+      "counts": {
+        "migrated": 4,
+        "resolved": 9
+      },
+      "problems": [],
+      "sha256_lf": "c9dc4cd58f8706bb7e7f6121f717d8798fd1c9895d550f70b825323dd6be7276"
+    },
+    {
+      "path": "docs/archives/v3/v3.21/known-gaps.md",
+      "items": 2,
+      "counts": {
+        "migrated": 1,
+        "resolved": 1
+      },
+      "problems": [],
+      "sha256_lf": "238840cb22261fb6baa89df8307156cf9adc02d42fce16a8e01e1de5dacdbdfb"
+    },
+    {
+      "path": "docs/archives/v4/v4.0/known-gaps.md",
+      "items": 23,
+      "counts": {
+        "resolved": 22,
+        "migrated": 1
+      },
+      "problems": [],
+      "sha256_lf": "3074de96b2fbf26e0ecb2a711c9c39b5ac138249a4639114c4099199eab790ad"
+    },
+    {
+      "path": "docs/archives/v4/v4.1/known-gaps.md",
+      "items": 9,
+      "counts": {
+        "migrated": 2,
+        "resolved": 7
+      },
+      "problems": [],
+      "sha256_lf": "ce21dcab5cd5ac09ee7270cc6e61ccb5c78ba48f7e40af0afe4807f28e2c2089"
+    },
+    {
+      "path": "docs/archives/v4/v4.2/known-gaps.md",
+      "items": 10,
+      "counts": {
+        "resolved": 8,
+        "migrated": 2
+      },
+      "problems": [],
+      "sha256_lf": "1e203adeb10e056443731ae2ebc192b4424e1d8c48819afae3740d6c5bbefb81"
+    },
+    {
+      "path": "docs/archives/v4/v4.3/known-gaps.md",
+      "items": 13,
+      "counts": {
+        "resolved": 11,
+        "migrated": 2
+      },
+      "problems": [],
+      "sha256_lf": "8496eeee6f6eb75241eef268fb4164a9773c8c5f3bd83cc2fb0fba08c5ddcb9b"
+    },
+    {
+      "path": "docs/archives/v4/v4.4/known-gaps.md",
+      "items": 12,
+      "counts": {
+        "resolved": 10,
+        "migrated": 2
+      },
+      "problems": [],
+      "sha256_lf": "c4c814de8c499aaa309c6fcbaa83ec85397866447a4074badf344de25953b04e"
+    },
+    {
+      "path": "docs/archives/v4/v4.5/known-gaps.md",
+      "items": 4,
+      "counts": {
+        "migrated": 3,
+        "resolved": 1
+      },
+      "problems": [],
+      "sha256_lf": "8c33648e2da252fee7da7092495b01fdd9f2936962c311691da4bc144466c707"
+    },
+    {
+      "path": "docs/archives/v4/v4.7/known-gaps.md",
+      "items": 5,
+      "counts": {
+        "migrated": 3,
+        "resolved": 2
+      },
+      "problems": [],
+      "sha256_lf": "edac574e067bb4c4ee5f6f4af68642b5037572a4cd07df5b162926f901ba41de"
+    },
+    {
+      "path": "docs/archives/v4/v4.8/known-gaps.md",
+      "items": 15,
+      "counts": {
+        "resolved": 14,
+        "migrated": 1
+      },
+      "problems": [],
+      "sha256_lf": "4863069afaa200d07911965c20e44c54a054c99c784d7f159f8ef7ad379de411"
+    },
+    {
+      "path": "docs/archives/v4/v4.9/known-gaps.md",
+      "items": 7,
+      "counts": {
+        "migrated": 2,
+        "resolved": 5
+      },
+      "problems": [],
+      "sha256_lf": "f9d8e18d9d17fe0e8754eff7e3c47ce4cf1ef5106071797bc75c1afdf8b4d0dd"
+    },
+    {
+      "path": "docs/archives/v4/v4.10/known-gaps.md",
+      "items": 9,
+      "counts": {
+        "migrated": 2,
+        "resolved": 7
+      },
+      "problems": [],
+      "sha256_lf": "0868e77b545ff386a731870b8045921ae9d495aaf056cfa1204443ccf7c40dbb"
+    },
+    {
+      "path": "docs/archives/v4/v4.11/known-gaps.md",
+      "items": 21,
+      "counts": {
+        "resolved": 21
+      },
+      "problems": [],
+      "sha256_lf": "5a0455c17769d9f25e52b9decd7133c74c50fcc9fed9d7bf4f68cfb989d408e6"
+    },
+    {
+      "path": "docs/archives/v4/v4.12/known-gaps.md",
+      "items": 17,
+      "counts": {
+        "resolved": 14,
+        "migrated": 3
+      },
+      "problems": [],
+      "sha256_lf": "a012c6bf7816fb7a29cb10d9ca2b1a14f5b3c1101ee122e397d6df421377d86a"
+    },
+    {
+      "path": "docs/releases/v4/v4.13/known-gaps.md",
+      "items": 198,
+      "counts": {
+        "open": 157,
+        "resolved": 41
+      },
+      "problems": [],
+      "sha256_lf": "64c6624178b8e6cd72f72d218e7fbae3eb950c7286e437f86eb5e44184c69e6a"
+    }
+  ],
+  "elapsed_seconds": 58.66
+}

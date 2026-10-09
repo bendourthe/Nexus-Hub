@@ -1,5 +1,8 @@
 # Known Gaps - v4.8
 
+**Open items**: 0
+**Ledger normalization**: 2026-10-09, v4.13.11. The canonical open count is derived from supported item headings. Summary and reconciliation count tables below retain historical release snapshots, including partial closures and explicit transfers; they are not new parser totals.
+
 **Project**: Nexus-Hub
 **Status**: FINALIZED for the v4.8.0 release. The adoption plan merged as PR #183 (`191e536a`) and the post-merge gap sweep as PR #184 (`49d408e7`), both green on every required check. At that release checkpoint, six of seven new items were resolved and the org-CLI half of `WN-I` remained open; its later resolution is recorded below. Carried forward at that checkpoint: `WN-A` (guide byte headroom), `WN-C` (`make test` install prerequisite), and the eight v4.4 items, each given an explicit touched-or-not verdict in `development/last-phase-evidence.md`. `WN-C` was resolved in the 2026-09-22 follow-up below.
 **Last updated**: 2026-09-24
@@ -8,7 +11,9 @@
 
 ### Warnings (WN)
 
-#### WN-A - The interactive guide has 201 bytes of headroom under its size budget
+#### WN-A - The interactive guide has 201 bytes of headroom under its size budget - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.8#WN-A` is recorded as RESOLVED for its original scope. Evidence: Closed 2026-09-23 after PR #267 (`dc439012`); 4,533 bytes headroom under `SIZE_BUDGET_BYTES = 500_000` (tests/guides/test_nexus_hub_guide.py:23) Current merged guide normalized size495507, still below unchanged500000 ceiling. Historical original headroom receipt remains valid; avoid claiming its exact495467 snapshot is current. Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Source**: found running the full suite to verify the documentation-gate repairs.
 - **What was observed**: `tests/guides/test_nexus_hub_guide.py::test_file_size_budget` asserts the guide is under 500000 bytes. The artifact measures 499799, leaving **201 bytes**, or 0.04 percent. The next content addition of any size breaks the build.
@@ -17,7 +22,9 @@
 - **Qualified locally 2026-09-23**: The user chose to preserve the 500,000-byte ceiling. Reusing the exact reviewed Claude, ChatGPT, and Cursor vector geometry in local SVG symbols reduced the current guide from 498,735 to 495,467 normalized bytes, increasing headroom from 1,265 to 4,533 bytes. Gemini remains inline: a proposed symbol reuse made its masked icon disappear in Chromium and was rejected by visual review. Four reduced-motion Home browser renders (dark/light at 420 and 1440 px) had near-zero mean image difference; native-size review found only slight Cursor edge antialiasing, not a shape change. The approved-asset hash test resolves the three local references before comparison. See [verification](development/guide-byte-headroom/verification.md). Publication and post-merge verification remain open.
 - **Closed after protected integration, 2026-09-23**: PR #267 passed 21 hosted checks, merged as `dc439012`, and post-merge run 35935340043 passed smoke and provenance. The strict ceiling remains 500,000 bytes; the integrated guide measures 495,467 normalized bytes. The [archived verification](development/guide-byte-headroom/verification.md) keeps the browser evidence and the rejected Gemini experiment distinct from hosted CI.
 
-#### WN-C - `make test` has an undocumented prerequisite, so three extension suites fail on a fresh clone
+#### WN-C - `make test` has an undocumented prerequisite, so three extension suites fail on a fresh clone - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.8#WN-C` is recorded as RESOLVED for its original scope. Evidence: RESOLVED 2026-09-22; Makefile:96 `dev:` target Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Source**: found running the six extension suites to verify this session's work.
 - **What was observed**: `make test` runs `cd extensions/<name> && python -m pytest` for six extensions with no install step. On a workstation that has not editable-installed them, three of the six cannot pass: `nexus-code-search` dies at conftest import (`ModuleNotFoundError: No module named 'nexus_code_search.config'`, because the package uses a `src/` layout), `nexus-web-fetch` reports 3 collection errors, and `nexus-context-compressor` reports 3 failures asserting `'regex' == 'ast'`.
@@ -28,7 +35,9 @@
 - **RESOLVED 2026-09-22 (post-release)**: `make dev` now performs the six editable development-extra installs, and `make test` names that prerequisite in its help text. The README gives the same command directly for Windows hosts without `make`. A contract test compares both command surfaces against every extension `pyproject.toml`; pip's six-extra dry run resolved successfully on Windows. `make test` itself remains unchanged and still provides full coverage after setup.
 - **Hosted confirmation**: PR #237 merged at `7aba9cc3` after its required and platform checks passed; post-merge run 35808379460 passed smoke and provenance. The original prerequisite finding above remains as historical evidence.
 
-#### WN-B - `test_file_size_budget` measured the checkout, not the artifact (fixed here)
+#### WN-B - `test_file_size_budget` measured the checkout, not the artifact (fixed here) - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.8#WN-B` is recorded as RESOLVED for its original scope. Evidence: Heading says "(fixed here)"; test normalizes CRLF Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Source**: same run. The test failed on this Windows workstation and passed in CI.
 - **Cause**: it used `Path.stat().st_size`, the size on disk. With `core.autocrlf=true` a Windows checkout holds CRLF while the committed blob and every served copy hold LF, so the working-tree file is one byte per line larger: 504222 on disk against a 499799 blob, a difference of 4423, exactly the file's 4423 line count. `git status` reported the file clean throughout, which is what made the failure read as a real budget breach.
@@ -39,7 +48,9 @@
 
 ### Warnings (WN)
 
-#### WN-D - The `make` binary is absent on the development host, so the documented gate commands cannot be invoked as written
+#### WN-D - The `make` binary is absent on the development host, so the documented gate commands cannot be invoked as written - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.8#WN-D` is recorded as RESOLVED for its original scope. Evidence: RESOLVED 2026-09-07; AGENTS.md:509-517 make-free profiles Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Source phase**: v4.8.0 Phase 1 (loop intake and run contract).
 - **Plan reference**: Phase 1 Stability Gate and sub-task 1.4 both instruct `make validate`; every phase of this plan repeats it.
@@ -49,7 +60,9 @@
 - **Suggested next step**: ship a `scripts/gate.py` (or a `nexus-hub gate` subcommand) that runs the same ordered step list the `Makefile` targets run, and have the `Makefile` delegate to it. That makes one list authoritative for both a Unix host with `make` and a Windows host without it, instead of a contributor transcribing targets by hand. A thinner alternative is to document `winget install GnuWin32.Make` as a prerequisite, which fixes the host but leaves the two lists able to drift.
 - **RESOLVED 2026-09-07 (post-merge), by a third option neither suggestion named.** No shim and no prerequisite: the repository ALREADY has one canonical list, and it is not the `Makefile`. CI calls `scripts/ci/run.py`, whose steps live in `scripts/ci/profiles.py`, and `--profile full` is a superset of the `validate` target's hard gates (only the advisory `check_docs_retention` sits outside it). `AGENTS.md` "Running Validation" now documents `python scripts/ci/run.py --profile fast|full` as the canonical make-free gate, with the v4.8.0 incident as the reason. The `Makefile` targets stay as convenience wrappers and were not restructured, because changing what every contributor runs deserves its own review.
 
-#### WN-E - Phase 4 ran a tier below the plan's recommendation, surfaced rather than absorbed
+#### WN-E - Phase 4 ran a tier below the plan's recommendation, surfaced rather than absorbed - CLOSED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.8#WN-E` is recorded as CLOSED for its original scope. Evidence: Body "CLOSED 2026-09-07 (post-merge) as a record" Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Source phase**: v4.8.0 Phase 4 (OWASP agentic framework mapping).
 - **Plan reference**: Phase 4 `**Recommended model tier**: frontier`, `**Recommended effort level**: high`.
@@ -59,7 +72,9 @@
 - **Suggested next step**: nothing for this release. If a future plan phase's risk genuinely depends on tier rather than on procedure, consider making the `full` driver pause once at that phase boundary instead of surfacing and continuing. That is a change to `implement-phase`, not to this plan.
 - **CLOSED 2026-09-07 (post-merge) as a record, with nothing to repair.** This entry documents what happened during one run; it describes no defect in the tree, so there is no code, doc, or contract change that would close it. It is retained as evidence that the no-degradation rule was honored (surfaced, not absorbed) and as the precedent for the next occurrence. The `full`-driver pause remains an unimplemented idea, deliberately: pausing a driver the user chose specifically to run unattended needs its own decision, not a side effect of a gap sweep.
 
-#### WN-F - Nothing detects a framework tag whose supporting sentence is later deleted
+#### WN-F - Nothing detects a framework tag whose supporting sentence is later deleted - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.8#WN-F` is recorded as RESOLVED for its original scope. Evidence: Process resolution 2026-09-23: `security-framework-mapping/SKILL.md:125` "Re-verify declared mappings" per release, invoked by `version-upgrade` (recurring obligation, not an unbuilt gate) Process obligation is closed for its original scope, but per-release source-to-body mapping review remains a recurring release duty, not machine proof. Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Source phase**: v4.8.0 Phase 4.
 - **Plan reference**: sub-task 4.4 ("tag only IDs whose control the body actually teaches; a tag with no supporting sentence is a mistranscription, not coverage").
@@ -72,7 +87,9 @@
 
 ### Deferred (DF)
 
-#### DF-1 - The Goal's "every review deliverable names its verifier class" reached the evaluation skill but no review skill
+#### DF-1 - The Goal's "every review deliverable names its verifier class" reached the evaluation skill but no review skill - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.8#DF-1` is recorded as RESOLVED for its original scope. Evidence: `multi-agent-code-review/SKILL.md:123` "Name the verifier class per finding" Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Source phase**: v4.8.0 Phase 5 (independent Goal-vs-codebase review).
 - **Plan reference**: plan header Goal, clause 3: "every review and research deliverable names the verifier class that grades it".
@@ -83,7 +100,9 @@
 
 ### Warnings (WN), continued
 
-#### WN-G - The coverage builder's frontmatter parser mis-parses a trailing comment on any framework field
+#### WN-G - The coverage builder's frontmatter parser mis-parses a trailing comment on any framework field - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.8#WN-G` is recorded as RESOLVED for its original scope. Evidence: `scripts/build_framework_coverage.py:103` `strip_comment`; test in tests/validators/test_build_framework_coverage.py Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Source phase**: v4.8.0 Phase 5 (Tier 3 deep pass, adversarial finding AF-6).
 - **What was observed**: `scripts/build_framework_coverage.py::parse_id_list` does not strip a trailing YAML comment. Given `owasp_agentic: [ASI01] # fine`, it yields the single identifier `'[ASI01] # fine'`, which would appear verbatim as a control row in `docs/framework-coverage.md`. `validate_skills.py` parses the same line correctly, so the validator passes and the generated document is wrong.
@@ -91,14 +110,18 @@
 - **Why it was not fixed here**: the fix is one line in a parser shared by all seven fields, and a change to shared parsing behavior should land with a test matrix covering all seven rather than riding along in a mapping phase. The v4.8.0 field's own bypass routes (AF-1, AF-2) WERE fixed, because those defeated the membership guarantee this release introduced.
 - **RESOLVED 2026-09-07 (post-merge).** `build_framework_coverage.py` gained `strip_comment`, which drops a trailing comment but leaves a `#` INSIDE a flow list alone, since splitting there would truncate the list rather than the comment. Covered by `test_trailing_comment_is_not_part_of_the_identifier`, parametrized over all seven fields, plus `test_hash_inside_a_flow_list_is_not_treated_as_a_comment`. Regenerating the matrix afterwards produced no diff, confirming no shipped skill was affected.
 
-#### WN-H - The coverage builder silently ignores a framework field written as a YAML block sequence
+#### WN-H - The coverage builder silently ignores a framework field written as a YAML block sequence - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.8#WN-H` is recorded as RESOLVED for its original scope. Evidence: `build_framework_coverage.py:182` `collect_block_sequence`; same test module Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Source phase**: v4.8.0 Phase 5 (Tier 3 deep pass, adversarial finding AF-7).
 - **What was observed**: `parse_id_list` reads only the text after the colon, so a block-sequence tag (`owasp_agentic:` followed by indented `- ASI02` lines) yields nothing and the skill is absent from the coverage matrix. `validate_skills.py` accepts that shape as valid, and `AGENTS.md` documents block sequences as an accepted shape, so a maintainer can write a tag that validates cleanly and never appears in the matrix. This is silent UNDER-coverage, which is harder to notice than an error.
 - **Scope**: PRE-EXISTING and applies to all seven fields. All 15 skills tagged in v4.8.0 use the flow-list form, so the committed matrix is complete today; verified by the matrix showing all ten identifiers covered.
 - **RESOLVED 2026-09-07 (post-merge).** `parse_framework_tags` now calls a new `collect_block_sequence` when the value after the colon is empty, stopping at the first non-blank line indented no further than the key so a following field's values are never absorbed. Covered across all seven fields by `test_block_sequence_reaches_the_matrix`, `test_block_sequence_stops_at_the_next_key`, and `test_block_sequence_item_comment_is_stripped`. The flow-list preference is no longer needed; both shapes now reach the matrix.
 
-#### WN-I - Two Windows test failures, both resolved in follow-ups
+#### WN-I - Two Windows test failures, both resolved in follow-ups - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.8#WN-I` is recorded as RESOLVED for its original scope. Evidence: PowerShell half fixed (tests/installer/test_core_settings_seeding.py:94 `_DECODE`); org-CLI half resolved 2026-09-23 via v4.9 follow-up Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Source phase**: v4.8.0 Phase 5 (full local gate).
 - **What was observed**: `python -m pytest tests/workflows tests/installer tests/ci -q` reported `1 failed, 670 passed, 60 skipped`, failing at `tests/installer/test_org_cli.py:300`. The identical command on the identical tree then reported `671 passed, 60 skipped`. The test also passes alone and passes with its whole file. Not reproducible; nothing in the v4.8.0 diff touches the org CLI, `nexus-hub org disconnect`, or its state and cache handling.
@@ -140,7 +163,9 @@ Split out from the PowerShell half above, because they turned out to be unrelate
 
 **Resolution, 2026-09-23**: The v4.9 follow-up [recorded the deterministic held-handle reproduction, bounded directory-rename retry, and five regression tests](../v4.9/known-gaps.md#resolved-during-this-follow-up). The original v4.8 failures above did not capture their failing assertion, so they cannot independently prove that exact mechanism; the later reproduction covers the suspected Windows failure path. On the current `develop` tree, all five focused retry tests passed, and 50 consecutive whole-file org-CLI runs reported no failure. This closes the implementation gap while retaining the original failure and non-reproduction evidence.
 
-#### WN-J - The publication pre-flight compared against LOCAL develop, so the pull request silently carried 12 unrelated commits
+#### WN-J - The publication pre-flight compared against LOCAL develop, so the pull request silently carried 12 unrelated commits - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.8#WN-J` is recorded as RESOLVED for its original scope. Evidence: RESOLVED 2026-09-07: runbook step 9F.2 requires `origin/<base>` counts Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Source phase**: v4.8.0 Phase 5 (publication and integration).
 - **What was observed**: the approval gate reported "5 commits ahead of develop, 66 files, +2977/-99", measured with `git diff develop..HEAD` against the LOCAL branch. GitHub reported the opened pull request as **252 files, +4309/-466**. The difference is real: local `develop` was 12 commits ahead of `origin/develop`, so the branch point carried 12 pre-existing, unpublished commits (docs archival, documentation-gate repairs, the v4.10.0 plan) into the pull request's range.
@@ -149,7 +174,7 @@ Split out from the PowerShell half above, because they turned out to be unrelate
 - **What was done**: the pull-request description was amended with a scope disclosure listing all 12 commits, stating that they are not part of this plan, and giving the command that isolates the v4.8.0 work (`git diff a243c178..HEAD`). Disclosed rather than quietly merged.
 - **RESOLVED 2026-09-07 (post-merge), as suggested.** The runbook's step 9F.2 now requires `git fetch` first, then BOTH a commit count and a file count measured against `origin/<base>..HEAD`, and requires disclosing any extra commits BEFORE asking for approval together with the command that isolates the plan's own work. It also states the unbundling check: when the integration branch requires a pull request, the extra commits cannot be separated, and disclosure in the pull-request description is the honest move. The rule is mirrored into `SKILL.md`, because the runbook is Tier 3 and read on demand while the body is Tier 2 and read on trigger. Four regression tests in `tests/skills/test_implement_lifecycle_contract.py`.
 
-#### WN-K - A high-severity CodeQL alert sits in DISTRIBUTED installer code, and the release-time CodeQL check is red against a stale base
+#### WN-K - A high-severity CodeQL alert sits in DISTRIBUTED installer code, and the release-time CodeQL check is red against a stale base - MIGRATED to v4.13.0
 
 - **Source**: found at the v4.8.0 release, on the `develop` to `main` pull request (#186).
 - **What was observed**: `CodeQL` reported fail while both `Analyze` jobs succeeded and all five REQUIRED contexts passed. `CodeQL` is not a required context, so it did not block; the red is an artifact of comparing against a `main` that was 72 commits behind, which surfaces the whole accumulated line's alerts as new relative to that base. Every open high alert predates v4.8.0 and none was introduced by it, verified per-alert with `git blame`.
@@ -157,6 +182,8 @@ Split out from the PowerShell half above, because they turned out to be unrelate
 - **The rest, for completeness**: `py/clear-text-logging-sensitive-data` at `scripts/validate_skills.py:1017` is an argparse help string from v1.2.0 whose wording mentions a secret scan, a false-positive-prone shape for that rule; two `py/bad-tag-filter` and two `js/xss-through-dom` alerts sit in `docs/archives/v3/v3.12/development/` worked examples, which are documentation and are not installed (`docs/` is outside the installer's copy roots).
 - **Suggested next step**: fix the `_owned.py` mode in the next patch and re-run the scan, then triage the remaining four with `[[security-review]]` and either fix or dismiss each with a recorded reason. Separately, decide deliberately whether `CodeQL` should become a required context: today it can be red on a release pull request without blocking, which is either correct (it compares against a stale base and would wedge releases) or a gap (a real new vulnerability would also not block). That is a decision record, not a release-time edit.
 - **Why it did not hold the release**: the required gate was fully green, the finding is pre-existing, and the one alert in distributed code is a file-mode hardening rather than an exploitable path in the install flow. Recorded rather than fixed, per the rule that a release-time finding becomes a known gap plus a follow-up patch.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-73`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.8`, section `Open Items - found 2026-09-07 during the v4.8.0 adoption plan`, and original ID `WN-K`.
 
 ## Ledger condition measured for T023, 2026-09-06
 
@@ -232,14 +259,18 @@ the counts were recomputed from the merged catalog in this landing and now sum t
 
 ### Warnings (WN)
 
-#### WN-1 - New pushy skill descriptions exceed the 250-char full-mode length check
+#### WN-1 - New pushy skill descriptions exceed the 250-char full-mode length check - CLOSED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.8#WN-1` is recorded as CLOSED for its original scope. Evidence: Duplicate of v4.13 AR-06 (description cap vs trigger-rich rule), which owns the decision Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Source phase**: Phase 1 (1.1, 1.2), Phase 2 (2.1)
 - **Plan reference**: `docs/archives/v3/v3.14/plans/v3.14.0-agentic-setup-adoption.md` sub-tasks 1.1-1.2, 2.1
 - **Reason**: `false-confidence-test-audit`, `commit-sweep`, and `lint-repair-loop` carry pushy descriptions (verbatim trigger phrases plus a SKIP clause) well over 250 characters, so `validate_skills.py` FULL mode would flag them. This is the known catalog-wide pushy-description-vs-250-char tension (the WN-v3121 family); `make validate` does not run full mode and is clean. Intentional per the AGENTS.md description-style rule (combat under-triggering).
 - **Suggested next step**: None required. Track with the catalog-wide description-length decision; do not shorten at the cost of trigger coverage.
 
-#### WN-3 - Bash hook tests cannot run on the Windows dev host
+#### WN-3 - Bash hook tests cannot run on the Windows dev host - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.8#WN-3` is recorded as RESOLVED for its original scope. Evidence: Resolution 2026-09-24, 7/7 pass with Git Bash; docs/archives/v4/v4.8/development/windows-lint-autofix-qualification.md Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Source phase**: Phase 2 (2.3)
 - **Plan reference**: sub-task 2.3

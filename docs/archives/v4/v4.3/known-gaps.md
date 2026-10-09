@@ -1,5 +1,8 @@
 # Known Gaps - v4.3
 
+**Open items**: 0
+**Ledger normalization**: 2026-10-09, v4.13.11. The canonical open count is derived from supported item headings. Summary and reconciliation count tables below retain historical release snapshots, including partial closures and explicit transfers; they are not new parser totals.
+
 **Project**: Nexus-Hub
 **Status**: finalized for the v4.3.0 release
 **Finalized**: 2026-08-31, at `/update release`. One deferred item and one warning below remain OPEN and owned by this ledger; they are deferrals recorded with an owner and a next step, not unfinished release work. DF-1, DF-2, DF-3, and DF-5 were resolved post-release. WN-1 and WN-2 were resolved after release; the four resolved bugs and one resolved coverage gap were fixed within this release.
@@ -22,7 +25,9 @@
 
 #### Deferred
 
-##### DF-1 - Inline workflow validators remain outside repository-native profiles
+##### DF-1 - Inline workflow validators remain outside repository-native profiles - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.3#DF-1` is recorded as RESOLVED for its original scope. Evidence: Resolution 2026-09-22: PR #241, run 35820761181 Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Source phase**: Phase 5 CI/CD contract comparison
 - **Plan reference**: `docs/archives/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` T021 / T026
@@ -35,7 +40,9 @@
 
 **Resolution, 2026-09-22**: PR #241 passed its final hosted Linux, Windows, guide-render, bootstrap, smoke, and aggregate jobs with the migrated profile commands. Post-merge run 35820761181 passed smoke and provenance. The remaining inline host exercises are not duplicate validator lists. DF-1 is resolved; the original deferred observation and local candidate statement remain as historical evidence.
 
-##### DF-2 - Pip caches are not keyed by dependency manifests
+##### DF-2 - Pip caches are not keyed by dependency manifests - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.3#DF-2` is recorded as RESOLVED for its original scope. Evidence: Resolution 2026-09-22: PR #241/#242 cache-key hits Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Source phase**: Phase 5 CI/CD contract comparison
 - **Plan reference**: `docs/archives/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` T021 / T026
@@ -48,7 +55,9 @@
 
 **Resolution, 2026-09-22**: PR #241 observed cold setup and then exact guide pip and Chromium cache-key hits on its successful replacement run. PR #242's successful Windows job restored the exact scoped pip key `setup-python-Windows-x64-python-3.11.9-pip-f066af2960521d92592a4da5c4f629db6dfb0baded091afaeab4661581e0ef84`. The hosted results prove manifest-keyed cold and warm behavior for the supported guide and Windows runners. DF-2 is resolved.
 
-##### DF-3 - Report profile does not aggregate or publish structured evidence
+##### DF-3 - Report profile does not aggregate or publish structured evidence - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.3#DF-3` is recorded as RESOLVED for its original scope. Evidence: Resolution 2026-09-22: PR #243 aggregate with coverage XML and SARIF Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Source phase**: Phase 5 CI/CD contract comparison
 - **Plan reference**: `docs/archives/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` T021 / T026
@@ -65,7 +74,7 @@
 
 **Resolution, 2026-09-22**: PR #243's replacement run passed all required jobs and uploaded an aggregate with five source receipts, real CI-engine coverage XML and catalog-scanner SARIF at verified hashes and typed index entries. The seven-day artifact expiry and passing post-merge smoke/provenance are recorded in the [hosted qualification](development/ci-report-producer-hosted-qualification.md). DF-3 is resolved; the earlier pending statements remain historical staging evidence.
 
-##### DF-4 - OpenClaw tool interception requires a typed plugin
+##### DF-4 - OpenClaw tool interception requires a typed plugin - MIGRATED to v4.13.0
 
 - **Source phase**: Phase 5 platform-contract verification
 - **Plan reference**: `docs/archives/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` T021 / T023
@@ -74,7 +83,11 @@
 - **Owner**: Platform integration maintainer.
 - **Next step**: Scope and review a typed OpenClaw tool-interception plugin in a future platform plan; until then, keep the guardrail surface explicitly `NOT COVERED` and do not synthesize a shell-hook port.
 
-##### DF-5 (resolved post-release) - The ownership guard has no per-write managed root and refuses silently
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-68`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.3.0`, section `v4.3.0 - agentic-verification-discipline`, and original ID `DF-4`.
+
+##### DF-5 (resolved post-release) - The ownership guard has no per-write managed root and refuses silently - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.3#DF-5` is recorded as RESOLVED for its original scope. Evidence: Heading "(resolved post-release)"; `scripts/lib/integrations/_owned.py:109` emits a refusal reason Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Source phase**: Phase 5 stabilization (post-full-suite regression triage)
 - **Plan reference**: `docs/archives/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` T025
@@ -87,7 +100,7 @@
 
 #### Warnings
 
-##### WN-3 - Optional platform surfaces remain unverified
+##### WN-3 - Optional platform surfaces remain unverified - MIGRATED to v4.13.0
 
 - **Source phase**: Phase 5 platform-contract verification
 - **Plan reference**: `docs/archives/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` T021 / T023
@@ -101,6 +114,8 @@
 **Targeted source recheck, 2026-09-26**: [Current Google CLI and migration documentation](development/optional-platform-surface-recheck-2026-09-26.md) now source-qualifies the shared Antigravity custom-agent and legacy-workflow destinations already emitted by the adapter, but the latter retires on November 1, 2026. Cursor's global command path has a vendor-reported discovery bug, Gemini Code Assist's IDE custom commands and rules use IDE settings rather than a documented CLI-file mirror, and Nexus-AI's project-local mirror still lacks a read-path proof. WN-3 remains open for those live-host and project-local questions; this addendum does not convert source evidence into a runtime pass.
 
 **Local host read-back attempt, 2026-09-27**: Installed Antigravity CLI 1.2.12 exposes `agy agents`, but it printed no agents from either this checkout or a disposable workspace containing a documented `.agents/agents/nexus-probe/agent.md`; the empty list is inconclusive without an authenticated interactive read-back. The interactive CLI reported that this host was not signed in and rejected the existing `agentMode: "default"` setting before opening an agent session; no settings were changed. Installed Cursor 3.21.18 exposes no agent-discovery list in `cursor --help`, and its UI read-back was not exercised. WN-3 remains open for authenticated Antigravity and Cursor observations, the dated workflow-retirement decision, Gemini Code Assist IDE behavior, and Nexus-AI's project-local mirror. The disposable agent fixture was removed after the test.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-36`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.3.0`, section `v4.3.0 - agentic-verification-discipline`, and original ID `WN-3`.
 
 ### Resolved
 

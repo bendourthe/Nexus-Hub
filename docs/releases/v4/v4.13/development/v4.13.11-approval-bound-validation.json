@@ -1,0 +1,61 @@
+{
+  "gap": "v4.13#BG-16",
+  "classification": "preparation draft error; native validation retained",
+  "state": "resolved",
+  "initial_refusal": {
+    "command": "python scripts/check_plan_completion.py record render --minor v4.13 --session auto --approvals docs/releases/v4/v4.13/development/v4.13.11-approval-draft.json --summary docs/releases/v4/v4.13/development/v4.13.11-approval-summary-draft.json --page --platform codex",
+    "exit_code": 1,
+    "output": "approval page not rendered: the push-merge bound names an unknown field",
+    "valid_page_produced": false,
+    "native_record_created": false,
+    "gap": "v4.13#BG-16"
+  },
+  "corrected_push_merge_bound": {
+    "remote": "origin",
+    "source": "fix/v4.13.11-known-gaps-sweep-and-minor-close",
+    "target": "develop",
+    "repo": "bendourthe/Nexus-Hub"
+  },
+  "boundless_actions": [
+    "cleanup-merged",
+    "archive-minor"
+  ],
+  "retained_retry_limits": {
+    "repush": 3,
+    "minor-close-pr": 1
+  },
+  "focused_tests": {
+    "command": "python -m pytest -q tests/validators/test_approval_page.py -k 'every_approvable_class_gets_a_plain_sentence or a_bound_of_the_wrong_shape_renders_nothing or push_merge_names_the_validated_repo_and_branches or the_minor_close_sentence_says_what_its_bound_counts'",
+    "exit_code": 0,
+    "summary": "27 passed, 105 deselected in 0.76s",
+    "source": "existing focused test run observed by approval_shape reviewer"
+  },
+  "real_render": {
+    "command": [
+      "python",
+      "scripts/check_plan_completion.py",
+      "record",
+      "render",
+      "--minor",
+      "v4.13",
+      "--session",
+      "auto",
+      "--approvals",
+      "docs/releases/v4/v4.13/development/v4.13.11-approval-draft.json",
+      "--summary",
+      "docs/releases/v4/v4.13/development/v4.13.11-approval-summary-draft.json",
+      "--page",
+      "--platform",
+      "codex"
+    ],
+    "exit_code": 0,
+    "errors": "",
+    "draft_sha256": "ebedd3cf2c1d4a17ccb2df1a1184dc0edc8bdf0f4d156ff0b825df3d57d12dab",
+    "native_record_created": false,
+    "proof_page_is_pre_amend_and_not_the_final_approval_request": true
+  },
+  "real_render_page_generated": true,
+  "final_head_render_required": true,
+  "native_record_created": false,
+  "runtime_implementation_changed": false
+}

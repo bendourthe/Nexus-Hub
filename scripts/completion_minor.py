@@ -1339,18 +1339,174 @@ def next_minor(token: str) -> str:
     return f"v{major}.{minor + 1}"
 
 
-def find_migrated_copy(
-    ledgers: list[Ledger], target: str, source: str, gid: str,
-) -> tuple[Ledger, GapItem] | None:
-    """The entry in the target minor's ledger whose provenance names `source#gid`."""
-    tmin = minor_of(target)
-    for ledger in ledgers:
-        if ledger.minor != tmin:
+def migration_copy_status(
+    ledgers: list[Ledger], target: str, source: Ledger, item: GapItem, *,
+    label: str | None = None, allow_carried: bool = False, require_reason: bool = False,
+) -> tuple[str, tuple[Ledger, GapItem] | None]:
+    """Prove one destination retains the source's title and complete reconciled body.
+
+    Write preflight requires the target .0 section. Read-only verification also
+    permits a later patch carrying the explicit .0 origin. Archive comparisons
+    repair only moves proved by a unique archived ledger with no active peer.
+    """
+    # Import lazily: the write helper already imports this read-only module.
+    from minor_close import (
+        _TITLE_VERSION_RE,
+        rewrite_links,
+        rewrite_mentions,
+    )
+
+    def proof_lines(body: str) -> list[str]:
+        lines = body.splitlines(keepends=True)
+        mask, _ = fence_mask(lines)
+        clean_lines = [re.sub(r"\S", " ", line) if mask[index] else line for index, line in enumerate(lines)]
+        code_spans = re.compile(r"(?<!`)(`+)(?!`).*?(?<!`)\1(?!`)", re.DOTALL)
+        start = 0
+        for end in range(len(lines) + 1):
+            if end == len(lines) or mask[end] or not lines[end].strip():
+                paragraph = "".join(lines[start:end])
+                clean_lines[start:end] = code_spans.sub(
+                    lambda match: re.sub(r"\S", " ", match.group(0)), paragraph,
+                ).splitlines(keepends=True)
+                start = end + 1
+        in_comment = False
+        visible = []
+        for index, line in enumerate(lines):
+            was_in_comment = in_comment
+            clean = clean_lines[index]
+            comments = [] if mask[index] else list(re.finditer(r"<!--|-->", clean))
+            for comment in comments:
+                in_comment = comment.group(0) == "<!--"
+            visible.append("" if mask[index] or was_in_comment or in_comment or comments else clean)
+        return visible
+
+    def origin_label(match: re.Match) -> str | None:
+        if label is None:
+            return f"{match.group('minor')}#{match.group('id')}"
+        qualified = PLAN_MIGRATED_FROM_RE.search(match.group(0))
+        return f"{qualified.group('version')}#{qualified.group('id')}" if qualified else None
+
+    targets = [ledger for ledger in ledgers if ledger.minor == minor_of(target)]
+    matches: list[tuple[Ledger, GapItem]] = []
+    reasons: list[str | None] = []
+    hidden_provenance = False
+    hidden_destination = False
+    for ledger in targets:
+        ledger_lines = ledger.text.splitlines(keepends=True)
+        ledger_visible = proof_lines(ledger.text)
+        ledger_fences, _ = fence_mask(ledger_lines)
+        section_visible = True
+        item_visible = []
+        line_indices = {}
+        offset = 0
+        for index, line in enumerate(ledger_lines):
+            line_indices[offset] = index
+            offset += len(line)
+            heading = _HEADING_RE.match(line.rstrip("\r\n")) if not ledger_fences[index] else None
+            if heading and len(heading.group(1)) == 2:
+                section_visible = bool(ledger_visible[index].strip())
+            item_visible.append(section_visible and bool(ledger_visible[index].strip()))
+        for copy in ledger.items:
+            lines = copy.body.splitlines(keepends=True)
+            visible = proof_lines(copy.body)
+            origins = []
+            for index, line in enumerate(lines):
+                for match in MIGRATED_FROM_RE.finditer(line):
+                    origin = origin_label(match)
+                    if origin == (label or f"{source.token()}#{item.gid}"):
+                        proof = next((candidate for candidate in MIGRATED_FROM_RE.finditer(visible[index])
+                                      if origin_label(candidate) == origin), None)
+                        origins.append(proof or match)
+                        hidden_provenance = hidden_provenance or proof is None
+            if origins:
+                matches.append((ledger, copy))
+                hidden_destination = hidden_destination or not item_visible[line_indices[copy.start]]
+                for origin in origins:
+                    reason = MIGRATION_REASON_RE.search(origin.group("rest"))
+                    reasons.append(reason.group("reason") if reason else None)
+    found = matches[0] if matches else None
+    if len(targets) > 1 or len(matches) > 1 or len(reasons) > 1:
+        return "migration-target-ambiguous", found
+    if found is None:
+        return "migration-target-missing", None
+    destination, copy = found
+    if destination.problems:
+        return "migration-target-malformed", found
+    if hidden_destination:
+        return "migration-target-hidden", found
+    if hidden_provenance:
+        return "migration-provenance-hidden", found
+    if require_reason and reasons[0] not in MIGRATION_REASONS:
+        return "migration-reason-invalid", found
+    version = section_version(copy.section)
+    lineage = [match for match in CARRIED_FROM_RE.finditer("".join(proof_lines(copy.body)))
+               if match.group("version") == target]
+    carried_id = LEDGER_ITEM_RE.match(lineage[0].group("id") or "") if len(lineage) == 1 else None
+    carried = (
+        allow_carried and version is not None and minor_of(version) == destination.minor
+        and version_order(version) > version_order(target)
+        and carried_id is not None and carried_id.group("kind") == copy.kind
+    )
+    if version != target and not carried:
+        return "migration-target-wrong-section", found
+
+    moves: list[tuple[str, str]] = []
+    for archived in ledgers:
+        if archived.layout != "archive" or any(
+            other.minor == archived.minor and other is not archived for other in ledgers
+        ):
             continue
-        for item in ledger.items:
-            if any(m == source and i == gid for m, i, _ in item.provenance()):
-                return ledger, item
-    return None
+        directory = archived.rel.rsplit("/", 1)[0]
+        moves.extend((tree.format(M=archived.minor[0], m=archived.minor[1]), directory)
+                     for tree in ACTIVE_TREES)
+
+    def moved(path: str) -> str:
+        for old, new in moves:
+            if path == old or path.startswith(old + "/"):
+                return new + path[len(old):]
+        return path
+
+    def repaired(body: str, old_dir: str) -> str:
+        body, _ = rewrite_links(body, old_dir, destination.rel.rsplit("/", 1)[0], moved)
+        for old, new in moves:
+            body, _ = rewrite_mentions(body, old, new, markdown=True)
+        return body.replace("\r\n", "\n").strip("\n").rstrip()
+
+    required = repaired(item.body, source.rel.rsplit("/", 1)[0])
+    actual = repaired(copy.body, destination.rel.rsplit("/", 1)[0])
+
+    def starts_block(text: str) -> bool:
+        return not required or (
+            text.startswith(required)
+            and (len(text) == len(required) or text[len(required)] == "\n")
+        )
+
+    def title(text: str) -> str:
+        return _RESOLVED_PREFIX_RE.sub(
+            "", _RESOLVED_END_RE.sub("", MIGRATED_RE.sub("", text))
+        ).rstrip()
+
+    source_title = title(item.title)
+    expected_title = _TITLE_VERSION_RE.sub(
+        lambda match: f"{match.group(1)}({version})", source_title, count=1
+    ) if carried else source_title
+    if expected_title.strip() == title(copy.title).strip():
+        return ("migration-copy-complete" if starts_block(actual) else "migration-body-not-preserved"), found
+    original_heading = item.gid + source_title
+    lines = actual.splitlines(keepends=True)
+    visible = proof_lines(actual)
+    saw_title = False
+    for index, line in enumerate(lines):
+        heading = _HEADING_RE.match(line.rstrip("\n"))
+        callout = re.match(r"^\s*(?:-\s+)?\*\*Original source\*\*:\s*(.*?)\s*$", line)
+        text = heading.group(2) if heading else "Original source: " + callout.group(1) if callout else ""
+        if visible[index] and (
+            title(text) == "Original source: " + original_heading
+        ):
+            saw_title = True
+            if starts_block("".join(lines[index + 1:]).lstrip("\n")):
+                return "migration-copy-complete", found
+    return ("migration-body-not-preserved" if saw_title else "migration-title-not-preserved"), found
 
 
 def existed_at(rctx: RepoContext, commit: str, minor: tuple[int, int], gid: str) -> str:
@@ -1449,10 +1605,15 @@ def verify_migration(
         return "unmet", "migration-not-forward"
     if not target.endswith(".0"):
         return "unmet", "migration-target-not-minor-start"
-    found = find_migrated_copy(ledgers, target, source, item.gid)
+    copy_reason, found = migration_copy_status(
+        ledgers, target, ledger, item, allow_carried=True,
+        require_reason=target_minor > minor_of(run_token),
+    )
     if found is None:
-        return "unmet", "migration-target-missing"
+        return "unmet", copy_reason
     if target_minor <= minor_of(run_token):
+        if copy_reason != "migration-copy-complete":
+            return ("cannot-verify" if copy_reason == "migration-target-malformed" else "unmet"), copy_reason
         return "met", "in-scope-copy"
     if "v{}.{}".format(*target_minor) != next_minor(run_token):
         return "unmet", "migration-target-not-next-minor"
@@ -1460,6 +1621,8 @@ def verify_migration(
     gate, reason = migration_gate(rctx, record, ledger.minor, item.gid, item)
     if gate != "met":
         return gate, reason
+    if copy_reason != "migration-copy-complete":
+        return ("cannot-verify" if copy_reason == "migration-target-malformed" else "unmet"), copy_reason
     reasons = [r for m, i, r in copy.provenance() if m == source and i == item.gid]
     if not reasons or reasons[-1] not in MIGRATION_REASONS:
         return "unmet", "migration-reason-invalid"
@@ -2380,13 +2543,11 @@ def plan_migration_met(ledgers: list[Ledger], ledger: Ledger, item: GapItem) -> 
     if item.state != "migrated" or str(item.target) != next_minor(ledger.token()) + ".0":
         return False
     label = f"{section_version(item.section)}#{item.gid}"
-    target = minor_of(str(item.target))
-    return any(
-        f"{m.group('version')}#{m.group('id')}" == label
-        for other in ledgers if other.minor == target
-        for copy in other.items
-        for m in PLAN_MIGRATED_FROM_RE.finditer(copy.body)
+    reason, _copy = migration_copy_status(
+        ledgers, str(item.target), ledger, item, label=label, allow_carried=True,
     )
+    return reason == "migration-copy-complete"
+
 
 
 def carried_copy(ledger: Ledger, version: str, gid: str) -> bool:

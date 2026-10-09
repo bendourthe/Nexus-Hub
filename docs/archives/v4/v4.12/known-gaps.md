@@ -1,5 +1,8 @@
 # Known gaps - v4.12
 
+**Open items**: 0
+**Ledger normalization**: 2026-10-09, v4.13.11. The canonical open count is derived from supported item headings. Summary and reconciliation count tables below retain historical release snapshots, including partial closures and explicit transfers; they are not new parser totals.
+
 **Project**: Nexus-Hub
 **Status**: released
 **Last updated**: 2026-09-25
@@ -21,13 +24,17 @@ Release-scoped gaps for the sole-contributor-attribution plan. Planned future-ph
 
 ### Open Items
 
-#### BG-2: New-branch push could trust another remote's history
+#### BG-2: New-branch push could trust another remote's history - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.12#BG-2` is recorded as RESOLVED for its original scope. Evidence: Resolution 2026-09-22, PR #244 (`07e31f95`); also listed under `### Resolved` Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 **Source**: Independent v4.12 follow-up review. **Introduced later**: `8e9bb9d9`. **Owner**: Attribution guard maintainer. A forbidden pre-guard trailer on one remote was allowed through the installed hook when pushed to a second empty destination because the new-branch scan excluded all local remote-tracking refs. The [repair evidence](development/attribution-remote-boundary-repair.md) records the failing reproduction, the destination-specific candidate, and local tests. **Status**: open until hosted CI, merge, and post-merge verification of the repair.
 
 **Resolution, 2026-09-22**: PR #244 passed all 18 final hosted jobs, merged at `07e31f95`, and post-merge run 35828234631 passed smoke and provenance. The [hosted qualification](development/attribution-remote-boundary-hosted-qualification.md) limits this closure to the Git pre-push destination boundary. BG-2 is resolved; the original open status above records the pre-publication gate.
 
-#### BG-3: Shared attribution hooks depend on the installer worktree
+#### BG-3: Shared attribution hooks depend on the installer worktree - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.12#BG-3` is recorded as RESOLVED for its original scope. Evidence: Resolution 2026-09-23, PR #250 (`4753784d`) Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 **Source**: 2026-09-23 worktree cleanup. **Owner**: Attribution guard maintainer. Workspace installation wrote each shared Git hook wrapper with an absolute path to the Python source in the checkout that ran the installer. Checking the guard from a second worktree failed the wrapper comparison, and removing the installer worktree would leave the shared hooks pointing to a deleted executable. A real linked-worktree regression failed before the repair and passed after the guard was copied into the shared Git hooks directory with a recorded digest. The [repair evidence](development/attribution-hook-lifetime-repair.md) records the boundary and verification. **Status**: local candidate; 45 attribution tests passed with one host skip, plus docs 8/8 and fast 17/17. Open until hosted CI, merge, post-merge verification, and safe removal of the installer worktree pass.
 
@@ -35,7 +42,9 @@ Release-scoped gaps for the sole-contributor-attribution plan. Planned future-ph
 
 **Resolution, 2026-09-23**: PR #250 passed 24 hosted checks with one intentional skip, merged at `4753784d`, and post-merge run 35841622725 passed smoke and provenance. The clean repair worktree was removed. From the surviving Windows worktree, the source guard check returned VERIFIED despite its different checkout line endings, and the installed `commit-msg` entry point rejected a forbidden attribution trailer. The 47-test attribution suite, one host skip, fast 17/17, docs 8/8, and 200-state handbook measure are retained in the [repair evidence](development/attribution-hook-eol-repair.md). BG-3 is resolved for the installed Git-hook boundary; direct hosting API writes remain outside this guard.
 
-#### WN-1: Existing CI-profile lint findings
+#### WN-1: Existing CI-profile lint findings - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.12#WN-1` is recorded as RESOLVED for its original scope. Evidence: scripts/ci/profiles.py:25 `from collections.abc import Mapping, Sequence` Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 **Status**: RESOLVED 2026-09-22. `Mapping` and `Sequence` now come from `collections.abc`, and the PowerShell parser command joins a named parts tuple rather than a literal list. `python -m ruff check scripts/ci/profiles.py --output-format concise` and all 65 CI engine tests pass.
 
@@ -45,7 +54,9 @@ Release-scoped gaps for the sole-contributor-attribution plan. Planned future-ph
 
 Phase 3 confirmed both findings against the parent commit before its one-command change. No new checker or test-module lint finding remains. Evidence: external `phase3-baseline-lint.json`; this does not waive the final functional validation gate.
 
-#### WN-2: Existing CI reporting and tooling-lock differences
+#### WN-2: Existing CI reporting and tooling-lock differences - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.12#WN-2` is recorded as RESOLVED for its original scope. Evidence: RESOLVED 2026-09-22, PR #238 (`3ee00582`) Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 **Follow-up status, 2026-09-22**: PR #235 merged report upload and direct guide/Windows JUnit generation. Hosted run 35799198474 exposed five seven-day report artifacts, and post-merge run 35801251735 passed smoke and provenance. Tool versions are still not locked across the CI workflows and editable extension extras. This combined warning remains open for the locking half.
 
@@ -57,7 +68,9 @@ Phase 3 confirmed both findings against the parent commit before its one-command
 
 **Owner**: CI maintainer. **Suggested next step**: in the queued CI-maintenance scope, lock tooling and generate/upload detailed reports with explicit seven-day retention, preserving required contexts and fail-closed job selection. No unrelated pipeline migration was applied in this release.
 
-#### WN-3: Repository description count drift
+#### WN-3: Repository description count drift - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.12#WN-3` is recorded as RESOLVED for its original scope. Evidence: RESOLVED 2026-09-22 Historical repository setting change is evidenced in source; current description is a separate release drift check, not reopened historical defect. Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 **Status**: RESOLVED 2026-09-22. The live repository description now states 337 skills and matches the current catalog. The original observation below is retained as failure evidence.
 
@@ -75,13 +88,15 @@ Phase 3 confirmed both findings against the parent commit before its one-command
 
 **Resolution, 2026-09-25**: PR #326's corrected head passed 24 hosted checks with one intentional skip and merged to `develop` at `5fd7f985`. [Post-merge run 36217288553](https://github.com/bendourthe/Nexus-Hub/actions/runs/36217288553) passed smoke and provenance on that exact commit. The repair covers the reproduced transient held-handle class, persistent-denial cleanup, and retry-time change detection; it does not identify the process behind the historical failure or guarantee against every concurrent write. The original failed run remains failed evidence. WN-4 is resolved within that bounded contract.
 
-#### QG-1: GitHub retains read-only pull-request refs
+#### QG-1: GitHub retains read-only pull-request refs - MIGRATED to v4.13.0
 
 **Source phase**: Phase 4 independent review. **Plan reference**: Goal, T020 and T023. **Reason**: 212 `refs/pull/*` exist on GitHub outside the 119 writable branches/tags. They cannot be replaced by a normal force-push; the local all-ref proof covers the captured 139 local refs, not every GitHub-retained ref.
 
 **Owner**: Repository owner. **Suggested next step**: approve the explicit writable-ref publication scope only with this limitation understood; observe both default-branch contributor surfaces afterward. If purging every GitHub-held ref is required, obtain GitHub's supported administrative disposition separately. Do not promise old SHA disappearance or a clean GitHub mirror that fetches PR refs.
 
-#### QG-2: GitHub contributor-view confirmation pending
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-75`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.12.0`, section `v4.12.0`, and original ID `QG-1`.
+
+#### QG-2: GitHub contributor-view confirmation pending - MIGRATED to v4.13.0
 
 **Recheck, 2026-09-25**: A fresh unauthenticated Chromium render of the public Code page still shows `Contributors 5` and links to `bendourthe`, `cursoragent`, `benjamin-dourthe`, `claude`, and `dependabot[bot]`. The contributors API returns only `bendourthe` with 1,753 contributions, and current `main` and `develop` shortlogs contain only Ben Dourthe's author identity. A stale GitHub presentation cache is an inference, not a confirmed cause. The [Support handoff draft](development/contributor-sidebar-recheck-2026-09-24.md) remains ready; no ticket was submitted. QG-2 stays open.
 
@@ -93,7 +108,11 @@ Phase 3 confirmed both findings against the parent commit before its one-command
 
 **Owner**: Repository owner and publication operator. **Suggested next step**: contact GitHub Support with the publication receipts, earlier screenshots, and the fresh Code-sidebar result; request a supported contributor-cache correction or explanation. Insights is already confirmed by the user's screenshot. GitHub documents about 24 hours for contributor displays to refresh after history changes and recommends contacting Support if they remain incorrect after that window. See [GitHub's stale-contributor guidance](https://docs.github.com/en/repositories/viewing-activity-and-data-for-your-repository/viewing-a-projects-contributors#contributor-data-is-stale-after-history-changes). No further history rewrite is warranted by the current evidence. Existing releases and assets are already verified unchanged. No public-view success or release completion is claimed.
 
-#### QG-3: Independent adversarial review incomplete
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-76`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.12.0`, section `v4.12.0`, and original ID `QG-2`.
+
+#### QG-3: Independent adversarial review incomplete - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.12#QG-3` is recorded as RESOLVED for its original scope. Evidence: RESOLVED 2026-09-22; also under `### Resolved` Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 **Status**: RESOLVED 2026-09-22 for the review obligation, not a clean-code verdict. An independent follow-up reviewer reproduced the new-branch destination bypass recorded as BG-2 and exercised a clean 821-ref destination control. The [repair evidence](development/attribution-remote-boundary-repair.md) records the finding and local candidate. BG-2 remains open until hosted and post-merge proof.
 
@@ -103,7 +122,9 @@ Phase 3 confirmed both findings against the parent commit before its one-command
 
 **Historical owner and next step**: Repository owner and authorized independent reviewer were to obtain the remaining review before assigning a clean adversarial verdict. Existing ordinary tests and the earlier PR-ref finding remain evidence for their own scopes. See [original review status](development/ADVERSARIAL-REPORT.md).
 
-#### QG-4: Windows whole-repository profile timed out
+#### QG-4: Windows whole-repository profile timed out - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.12#QG-4` is recorded as RESOLVED for its original scope. Evidence: RESOLVED 2026-09-22, partitioned profile 59/59 Historical partitioned Windows profile proof remains closed. Later v4.13.9 timeout findings are separate and already planned. Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 **Status**: RESOLVED 2026-09-22. The original timeout below remains immutable evidence. The current full profile partitions repository tests at stable ownership boundaries without raising a timeout; exact-file guards prove every repository test is covered once. The corrected Windows run passed all 59 commands with zero failures, skips, or advisories in 7,208.2 seconds.
 
@@ -144,7 +165,7 @@ The original 4,500-second monolithic timeout was retained. Repository tests are 
 
 v4.12.0 was published on 2026-09-15 at tag `v4.12.0` (`0dabca77`) and reconciled into `develop` by the back-merge in PR #220. Post-publication verification of the downloaded artifacts passed for both published forms (1,929 manifest entries each, matching asset digest, successful provenance attestation). The published archive was then installed on Windows in two disposable user homes (global and workspace scope); each installed CLI reported 4.12.0, `attribution check` returned VERIFIED for the configured user, and a commit, an annotated tag and a push from each install carried that user identity rather than an agent identity. The guard reports its own limit: direct API writes are outside it. The publication result is historical; post-release findings and resolutions are tracked above. Portable attribution integration passed PR #217 and post-merge run 34925451808. See [release qualification](development/release-qualification.md) for the release evidence and queue impacts.
 
-#### DF-1: Antigravity workflow surface retires on 2026-11-01
+#### DF-1: Antigravity workflow surface retires on 2026-11-01 - MIGRATED to v4.13.0
 
 **Source phase**: v4.12.1 release, platform-contract verification (2026-09-16). **Plan reference**: /update release governance step 4. **Reason**: the vendor documents retirement of the legacy workflow format on 2026-11-01 in favour of the Agent Skills standard. Nexus-Hub already emits every command as BOTH a skill and a workflow (`scripts/lib/integrations/antigravity.py` calls `commands_to_skills` alongside `commands_to_slash`), and the vendor states skills take precedence where both exist, so the skill copy is already what Antigravity executes.
 
@@ -153,3 +174,4 @@ v4.12.0 was published on 2026-09-15 at tag `v4.12.0` (`0dabca77`) and reconciled
 **Why not now**: dropping workflow emission before the date would remove the slash surface for anyone still on a pre-retirement build. Shipping both is the correct posture until the date passes.
 
 **Owner**: Antigravity integration maintainer. **Status**: open, dated. **Suggested next step**: after 2026-11-01, remove the `commands_to_slash` workflow emission from the Antigravity integration, drop `commands_subdir`/`ide_commands_subdir` from its config, update the read-contract row, and re-run the platform-contract verification. Re-check the date against the vendor page before acting, in case retirement slips.
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-77`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.12.0`, section `v4.12.0`, and original ID `DF-1`.

@@ -1,9 +1,10 @@
 # Known Gaps -- v3.9.0
 
+**Ledger normalization**: 2026-10-09, v4.13.11. The canonical open count is derived from supported item headings. Summary and reconciliation count tables below retain historical release snapshots, including partial closures and explicit transfers; they are not new parser totals.
+
 **Status**: finalized; archived 2026-09-29; 0 open items (5 migrated to v4.13 as AR-18, AR-26, AR-37). Per-section status lines below are historical and were written before release.
 
 **Open items**: 0
-
 **Status at last pre-archive update**: v3.9.0 (loop-design + cross-model egress-hygiene enrichment from the design-time loop-coach and cross-model agent-runtime comparisons) is feature-complete on `develop`. The `adoption-looper-and-deer-flow` plan ([docs/archives/v3/v3.9/plans/adoption-looper-and-deer-flow.md](plans/adoption-looper-and-deer-flow.md)) landed all three phases: Phase 1 (handoff egress hygiene + reviewer-vs-judge verdict-honesty rule + argv-array invocation in `cross-model-orchestrator`), Phase 2 (design-first loop section + typed-verification ordering + render-and-confirm note + egress cross-link in `loop-engineering`), Phase 3 (default-deny host-execution posture in `agent-access-policy`, optional typed-fact schema in `context-pack-builder`, three reverse-engineering-matrix declines + the convergent-validation finding). All four edited bodies stayed under the 500-line norm; no frontmatter changed, so no `data/` registry edit was required (decision recorded below).
 
 **Last updated**: 2026-06-25 (v3.9.0 adoption-no-mistakes Phase 3)
@@ -24,18 +25,176 @@ This file tracks per-phase unfinished work, intentional deferrals, bugs, missing
 
 ## Open Items
 
-| ID | Category | Source | Reason | Suggested next step | Severity |
-|---|---|---|---|---|---|
-| WN-v33-1 - RESOLVED 2026-09-29 | WN | carried from v3.3.0 / v3.8.0 | Local Windows verification is partially emulated: `make` is not on PATH, so `make validate` / `make lint` / `make test` are run by invoking the underlying validators and pytest directly. For v3.9.0 the direct validate chain is green (JSON catalogs OK, per-skill orphan-bundle audit PASS, unicode-safety exit 0, the four enriched skills' new wikilinks resolve). | Confirm CI `validate` + `shellcheck` + `tests` are green on the release run. No code change expected. | Low (direct validator equivalents all green; only ShellCheck relies on CI). |
-| WN-v36-1 - RESOLVED 2026-09-29 | WN | carried from v3.7.0 / v3.8.0 | bash cannot be fully run on the Windows dev host: the checkout path contains a space ("OneDrive - Supira") and `bash.EXE` mis-resolves it, so the bash-invoking installer test suites hang or return exit 127 on this checkout. v3.9.0 changed no installer or bash code (skill-doc + docs only), so this does not bite the v3.9.0 diff. | CI (ubuntu / macOS) remains the authoritative bash gate. No production-code change. | Low (environment-only; reproduces only under space-containing paths; green on CI and space-free checkouts). |
-| WN-v37-1 - MIGRATED to v4.13 (AR-26) | WN | carried from v3.7.0 / v3.8.0 | The live `curl \| bash` one-liner against GitHub cannot be exercised in CI or on the Windows dev host. v3.9.0 made no installer change, so the v3.7.0 smoke-test checklist remains the verification path. | Run the recorded macOS smoke-test checklist ([docs/archives/v3/v3.7/development/mac-smoke-test.md](../v3.7/development/mac-smoke-test.md)) on a real Mac if not yet done. | Low (the macOS bash path is auto-verified in CI; only the live-network one-liner is manual; unaffected by v3.9.0). |
-| DF-v36-2 - MIGRATED to v4.13 (AR-37) | DF | carried from v3.6.0 / v3.8.0 | A portable, agent-agnostic declarative orchestration / loop runtime remains deferred and policy-disfavored as a runtime. The v3.9.0 enrichment reinforced this again by declining a portable loop runner script and its spec-compile step (both `drop-outright` in the reverse-engineering matrix, citing the v3.8.0 host-driver precedent). | Revisit only if cross-agent declarative orchestration becomes a stated product goal; until then the declarative loop definition + host `/loop` / `/goal` driver + the harness's Dynamic Workflows are the answer. | Low (deferred + policy-disfavored; reinforced by the v3.9.0 decline). |
-| DF-v39-presentify-1 - RESOLVED 2026-09-29 | DF | presentify-interactive-html Phase 1 | Scanned / image-only PDF OCR is out of scope for v1: `extract_content.py` reads the PDF text layer only, so a scanned PDF yields little or no text. | RESOLVED in v3.12.0: the two-tier scanned-page path (local OCR via optional rapidocr-onnxruntime/pytesseract + an always-on full-page image block for agent-vision reading) ships in `extract_content.py`; see `docs/v3/v3.12/known-gaps.md`. | Low (documented in the extraction runbook; text-bearing PDFs unaffected). |
-| DF-v39-presentify-2 - RESOLVED 2026-09-29 | DF | presentify-interactive-html Phase 1 | PDF raster-image extraction is not implemented in v1; a PDF contributes text and tables only (PPTX/DOCX images are extracted as base64). | RESOLVED in v3.12.0: PDF embedded-raster extraction (pypdf bytes + pdfplumber bboxes, repeated-asset dedup, caption pairing) AND vector-figure region rasterization (optional pypdfium2) ship in `extract_content.py`. | Low (PPTX/DOCX image path is implemented and tested). |
-| DF-v39-presentify-3 - RESOLVED 2026-09-29 | DF | presentify-interactive-html Phase 1 | Native PowerPoint / Word embedded chart objects are not extracted; chartable data is sourced from `.xlsx` numeric ranges, which map cleanly to `chart` blocks. | RESOLVED in v3.12.0: native PPTX charts (python-pptx plots/series) and DOCX chart parts (stdlib OOXML parse) map to `chart` blocks with provenance `native-chart` and the source's real values. | Low (the primary chart path - spreadsheet ranges - is implemented and tested). |
-| DF-v39-presentify-4 - MIGRATED to v4.13 (AR-18) | DF | presentify-interactive-html Phase 1 | Video / audio media embedded in any source format is ignored (the output is a single self-contained offline HTML deck; embedded media would break the offline / size guarantee). | Revisit only if embedded media is a stated requirement; would need a size + offline strategy. | Low (out of scope by design for a self-contained deck). |
-| DF-v39-presentify-5 - MIGRATED to v4.13 (AR-18) | DF | presentify-interactive-html Phase 2 | Custom brand-font embedding is not implemented in the builder: a theme / brand override supplies CSS font stacks, but a non-system custom font would need a base64 `@font-face` to stay self-contained. The builder keeps fonts as system stacks so the output never fetches a font. | Add an opt-in base64 `@font-face` embed path (read the font file from the brand `assets_dir`, inline it) if a brand custom font becomes a requirement. | Low (documented in `references/interactive-features.md`; system-stack themes and brand palettes are fully supported). |
-| DF-v39-nomistakes-1 - MIGRATED to v4.13 (AR-37) | DF | adoption-no-mistakes Phase 3 (N7) | The optional reverse-engineerable enrichment (a diff-to-session matching heuristic for `session-query`: discover candidate local agent sessions in the commit time window, score each by file-overlap against the diff, then summarize the chosen session into intent) was deliberately not built. The source tool itself deprioritizes after-the-fact transcript inference in favor of intent passed verbatim from the live conversation -- which is exactly the intent-as-verbatim-oracle guidance delivered in Phase 1 -- so its value is low when the agent already knows the intent. It is a `re-partial` item (a local, read-only heuristic over session logs already in `session-query`'s scope) that would require a reverse-engineering-matrix row because it reads transcript content. | Build only if a concrete need for after-the-fact intent recovery appears (the agent lacked the live intent and must reconstruct it). If built: add the diff-overlap-plus-time-window matching section to `session-query/SKILL.md`, add the required RE-matrix row classifying it `re-partial`, and confirm the existing redaction discipline covers transcript content. | Low (optional; verbatim live intent is preferred and already delivered in Phase 1). |
+### WN-v33-1 - RESOLVED 2026-09-29
+
+**v4.13.11 structural audit, 2026-10-09**: This heading preserves the historical table obligation and every original field below. Existing historical dispositions remain as written; an unsupported transfer marker is not a verified migration.
+
+**ID**: WN-v33-1 - RESOLVED 2026-09-29
+
+**Category**: WN
+
+**Source**: carried from v3.3.0 / v3.8.0
+
+**Reason**: Local Windows verification is partially emulated: `make` is not on PATH, so `make validate` / `make lint` / `make test` are run by invoking the underlying validators and pytest directly. For v3.9.0 the direct validate chain is green (JSON catalogs OK, per-skill orphan-bundle audit PASS, unicode-safety exit 0, the four enriched skills' new wikilinks resolve).
+
+**Suggested next step**: Confirm CI `validate` + `shellcheck` + `tests` are green on the release run. No code change expected.
+
+**Severity**: Low (direct validator equivalents all green; only ShellCheck relies on CI).
+
+### WN-v36-1 - RESOLVED 2026-09-29
+
+**v4.13.11 structural audit, 2026-10-09**: This heading preserves the historical table obligation and every original field below. Existing historical dispositions remain as written; an unsupported transfer marker is not a verified migration.
+
+**ID**: WN-v36-1 - RESOLVED 2026-09-29
+
+**Category**: WN
+
+**Source**: carried from v3.7.0 / v3.8.0
+
+**Reason**: bash cannot be fully run on the Windows dev host: the checkout path contains a space ("OneDrive - Supira") and `bash.EXE` mis-resolves it, so the bash-invoking installer test suites hang or return exit 127 on this checkout. v3.9.0 changed no installer or bash code (skill-doc + docs only), so this does not bite the v3.9.0 diff.
+
+**Suggested next step**: CI (ubuntu / macOS) remains the authoritative bash gate. No production-code change.
+
+**Severity**: Low (environment-only; reproduces only under space-containing paths; green on CI and space-free checkouts).
+
+### WN-v37-1 - MIGRATED to v4.13 (AR-26) - MIGRATED to v4.13.0
+
+**v4.13.11 structural audit, 2026-10-09**: This heading preserves the historical table obligation and every original field below. Existing historical dispositions remain as written; an unsupported transfer marker is not a verified migration.
+
+**ID**: WN-v37-1 - MIGRATED to v4.13 (AR-26)
+
+**Category**: WN
+
+**Source**: carried from v3.7.0 / v3.8.0
+
+**Reason**: The live `curl \| bash` one-liner against GitHub cannot be exercised in CI or on the Windows dev host. v3.9.0 made no installer change, so the v3.7.0 smoke-test checklist remains the verification path.
+
+**Suggested next step**: Run the recorded macOS smoke-test checklist ([docs/archives/v3/v3.7/development/mac-smoke-test.md](../v3.7/development/mac-smoke-test.md)) on a real Mac if not yet done.
+
+**Severity**: Low (the macOS bash path is auto-verified in CI; only the live-network one-liner is manual; unaffected by v3.9.0).
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-26`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.9`, section `Open Items`, and original ID `WN-v37-1`.
+
+### DF-v36-2 - MIGRATED to v4.13 (AR-37) - MIGRATED to v4.13.0
+
+**v4.13.11 structural audit, 2026-10-09**: This heading preserves the historical table obligation and every original field below. Existing historical dispositions remain as written; an unsupported transfer marker is not a verified migration.
+
+**ID**: DF-v36-2 - MIGRATED to v4.13 (AR-37)
+
+**Category**: DF
+
+**Source**: carried from v3.6.0 / v3.8.0
+
+**Reason**: A portable, agent-agnostic declarative orchestration / loop runtime remains deferred and policy-disfavored as a runtime. The v3.9.0 enrichment reinforced this again by declining a portable loop runner script and its spec-compile step (both `drop-outright` in the reverse-engineering matrix, citing the v3.8.0 host-driver precedent).
+
+**Suggested next step**: Revisit only if cross-agent declarative orchestration becomes a stated product goal; until then the declarative loop definition + host `/loop` / `/goal` driver + the harness's Dynamic Workflows are the answer.
+
+**Severity**: Low (deferred + policy-disfavored; reinforced by the v3.9.0 decline).
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-37`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.9`, section `Open Items`, and original ID `DF-v36-2`.
+
+### DF-v39-presentify-1 - RESOLVED 2026-09-29
+
+**v4.13.11 structural audit, 2026-10-09**: This heading preserves the historical table obligation and every original field below. Existing historical dispositions remain as written; an unsupported transfer marker is not a verified migration.
+
+**ID**: DF-v39-presentify-1 - RESOLVED 2026-09-29
+
+**Category**: DF
+
+**Source**: presentify-interactive-html Phase 1
+
+**Reason**: Scanned / image-only PDF OCR is out of scope for v1: `extract_content.py` reads the PDF text layer only, so a scanned PDF yields little or no text.
+
+**Suggested next step**: RESOLVED in v3.12.0: the two-tier scanned-page path (local OCR via optional rapidocr-onnxruntime/pytesseract + an always-on full-page image block for agent-vision reading) ships in `extract_content.py`; see `docs/v3/v3.12/known-gaps.md`.
+
+**Severity**: Low (documented in the extraction runbook; text-bearing PDFs unaffected).
+
+### DF-v39-presentify-2 - RESOLVED 2026-09-29
+
+**v4.13.11 structural audit, 2026-10-09**: This heading preserves the historical table obligation and every original field below. Existing historical dispositions remain as written; an unsupported transfer marker is not a verified migration.
+
+**ID**: DF-v39-presentify-2 - RESOLVED 2026-09-29
+
+**Category**: DF
+
+**Source**: presentify-interactive-html Phase 1
+
+**Reason**: PDF raster-image extraction is not implemented in v1; a PDF contributes text and tables only (PPTX/DOCX images are extracted as base64).
+
+**Suggested next step**: RESOLVED in v3.12.0: PDF embedded-raster extraction (pypdf bytes + pdfplumber bboxes, repeated-asset dedup, caption pairing) AND vector-figure region rasterization (optional pypdfium2) ship in `extract_content.py`.
+
+**Severity**: Low (PPTX/DOCX image path is implemented and tested).
+
+### DF-v39-presentify-3 - RESOLVED 2026-09-29
+
+**v4.13.11 structural audit, 2026-10-09**: This heading preserves the historical table obligation and every original field below. Existing historical dispositions remain as written; an unsupported transfer marker is not a verified migration.
+
+**ID**: DF-v39-presentify-3 - RESOLVED 2026-09-29
+
+**Category**: DF
+
+**Source**: presentify-interactive-html Phase 1
+
+**Reason**: Native PowerPoint / Word embedded chart objects are not extracted; chartable data is sourced from `.xlsx` numeric ranges, which map cleanly to `chart` blocks.
+
+**Suggested next step**: RESOLVED in v3.12.0: native PPTX charts (python-pptx plots/series) and DOCX chart parts (stdlib OOXML parse) map to `chart` blocks with provenance `native-chart` and the source's real values.
+
+**Severity**: Low (the primary chart path - spreadsheet ranges - is implemented and tested).
+
+### DF-v39-presentify-4 - MIGRATED to v4.13 (AR-18) - MIGRATED to v4.13.0
+
+**v4.13.11 structural audit, 2026-10-09**: This heading preserves the historical table obligation and every original field below. Existing historical dispositions remain as written; an unsupported transfer marker is not a verified migration.
+
+**ID**: DF-v39-presentify-4 - MIGRATED to v4.13 (AR-18)
+
+**Category**: DF
+
+**Source**: presentify-interactive-html Phase 1
+
+**Reason**: Video / audio media embedded in any source format is ignored (the output is a single self-contained offline HTML deck; embedded media would break the offline / size guarantee).
+
+**Suggested next step**: Revisit only if embedded media is a stated requirement; would need a size + offline strategy.
+
+**Severity**: Low (out of scope by design for a self-contained deck).
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-18`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.9`, section `Open Items`, and original ID `DF-v39-presentify-4`.
+
+### DF-v39-presentify-5 - MIGRATED to v4.13 (AR-18) - MIGRATED to v4.13.0
+
+**v4.13.11 structural audit, 2026-10-09**: This heading preserves the historical table obligation and every original field below. Existing historical dispositions remain as written; an unsupported transfer marker is not a verified migration.
+
+**ID**: DF-v39-presentify-5 - MIGRATED to v4.13 (AR-18)
+
+**Category**: DF
+
+**Source**: presentify-interactive-html Phase 2
+
+**Reason**: Custom brand-font embedding is not implemented in the builder: a theme / brand override supplies CSS font stacks, but a non-system custom font would need a base64 `@font-face` to stay self-contained. The builder keeps fonts as system stacks so the output never fetches a font.
+
+**Suggested next step**: Add an opt-in base64 `@font-face` embed path (read the font file from the brand `assets_dir`, inline it) if a brand custom font becomes a requirement.
+
+**Severity**: Low (documented in `references/interactive-features.md`; system-stack themes and brand palettes are fully supported).
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-18`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.9`, section `Open Items`, and original ID `DF-v39-presentify-5`.
+
+### DF-v39-nomistakes-1 - MIGRATED to v4.13 (AR-37) - MIGRATED to v4.13.0
+
+**v4.13.11 structural audit, 2026-10-09**: This heading preserves the historical table obligation and every original field below. Existing historical dispositions remain as written; an unsupported transfer marker is not a verified migration.
+
+**ID**: DF-v39-nomistakes-1 - MIGRATED to v4.13 (AR-37)
+
+**Category**: DF
+
+**Source**: adoption-no-mistakes Phase 3 (N7)
+
+**Reason**: The optional reverse-engineerable enrichment (a diff-to-session matching heuristic for `session-query`: discover candidate local agent sessions in the commit time window, score each by file-overlap against the diff, then summarize the chosen session into intent) was deliberately not built. The source tool itself deprioritizes after-the-fact transcript inference in favor of intent passed verbatim from the live conversation -- which is exactly the intent-as-verbatim-oracle guidance delivered in Phase 1 -- so its value is low when the agent already knows the intent. It is a `re-partial` item (a local, read-only heuristic over session logs already in `session-query`'s scope) that would require a reverse-engineering-matrix row because it reads transcript content.
+
+**Suggested next step**: Build only if a concrete need for after-the-fact intent recovery appears (the agent lacked the live intent and must reconstruct it). If built: add the diff-overlap-plus-time-window matching section to `session-query/SKILL.md`, add the required RE-matrix row classifying it `re-partial`, and confirm the existing redaction discipline covers transcript content.
+
+**Severity**: Low (optional; verbatim live intent is preferred and already delivered in Phase 1).
+
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-37`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.9`, section `Open Items`, and original ID `DF-v39-nomistakes-1`.
 
 ## Notes
 
@@ -57,13 +216,13 @@ Before this minor moved to `docs/archives/`, every item that this file did not a
 
 | Item | Disposition | Evidence, reason, or destination |
 |---|---|---|
-| WN-v33-1 (line 25) | Resolved | The v3.9.0 and v3.9.1 release runs failed in `validate` (logs expired); run 28494941334 on 2026-07-01 passed all six jobs |
-| WN-v36-1 (line 26) | Resolved | `install.ps1` now resolves the Windows `tar.exe` via `Resolve-TarExe` (commit `43bae404`), and the test-PATH repair in `tests/conftest.py` (v3.15.6) fixed the Windows host failures; see v3.6 WN-v36-1 and `docs/archives/v3/v3.18/known-gaps.md` WN-1 after this move |
-| WN-v37-1 (line 27) | Migrated | AR-26: live macOS installer smoke (`curl \| bash` and `--branch`) never recorded; `development/mac-smoke-test.md` steps are still pending; merged with v3.0 DF-v30-8, v3.7-v3.9 WN-v37-1 |
-| DF-v36-2 (line 28) | Migrated | AR-37: conditional adoption candidates awaiting a maintainer build-or-decline decision; merged with v3.0 DF-v30-9, v3.6-v3.9 DF-v36-2, v3.9 DF-v39-nomistakes-1, v3.10 DF-v310-ruflo-A6 and A10-rest |
-| DF-v39-presentify-1 (line 29) | Resolved | The row records the v3.12.0 fix; the v3.12 ledger lists it as resolved |
-| DF-v39-presentify-2 (line 30) | Resolved | The row records the v3.12.0 fix; the v3.12 ledger lists it as resolved |
-| DF-v39-presentify-3 (line 31) | Resolved | The row records the v3.12.0 fix; the v3.12 ledger lists it as resolved |
-| DF-v39-presentify-4 (line 32) | Migrated | AR-18: carried as v3.12 DF-4 and v3.13 DF-4 (video and audio embedding) |
-| DF-v39-presentify-5 (line 33) | Migrated | AR-18: carried as v3.12 DF-5 and v3.13 DF-5 (brand font embedding) |
-| DF-v39-nomistakes-1 (line 34) | Migrated | AR-37: conditional adoption candidates awaiting a maintainer build-or-decline decision; merged with v3.0 DF-v30-9, v3.6-v3.9 DF-v36-2, v3.9 DF-v39-nomistakes-1, v3.10 DF-v310-ruflo-A6 and A10-rest |
+| `WN-v33-1` (line 25) | Resolved | The v3.9.0 and v3.9.1 release runs failed in `validate` (logs expired); run 28494941334 on 2026-07-01 passed all six jobs |
+| `WN-v36-1` (line 26) | Resolved | `install.ps1` now resolves the Windows `tar.exe` via `Resolve-TarExe` (commit `43bae404`), and the test-PATH repair in `tests/conftest.py` (v3.15.6) fixed the Windows host failures; see v3.6 WN-v36-1 and `docs/archives/v3/v3.18/known-gaps.md` WN-1 after this move |
+| `WN-v37-1` (line 27) | Migrated | AR-26: live macOS installer smoke (`curl \| bash` and `--branch`) never recorded; `development/mac-smoke-test.md` steps are still pending; merged with v3.0 DF-v30-8, v3.7-v3.9 WN-v37-1 |
+| `DF-v36-2` (line 28) | Migrated | AR-37: conditional adoption candidates awaiting a maintainer build-or-decline decision; merged with v3.0 DF-v30-9, v3.6-v3.9 DF-v36-2, v3.9 DF-v39-nomistakes-1, v3.10 DF-v310-ruflo-A6 and A10-rest |
+| `DF-v39-presentify-1` (line 29) | Resolved | The row records the v3.12.0 fix; the v3.12 ledger lists it as resolved |
+| `DF-v39-presentify-2` (line 30) | Resolved | The row records the v3.12.0 fix; the v3.12 ledger lists it as resolved |
+| `DF-v39-presentify-3` (line 31) | Resolved | The row records the v3.12.0 fix; the v3.12 ledger lists it as resolved |
+| `DF-v39-presentify-4` (line 32) | Migrated | AR-18: carried as v3.12 DF-4 and v3.13 DF-4 (video and audio embedding) |
+| `DF-v39-presentify-5` (line 33) | Migrated | AR-18: carried as v3.12 DF-5 and v3.13 DF-5 (brand font embedding) |
+| `DF-v39-nomistakes-1` (line 34) | Migrated | AR-37: conditional adoption candidates awaiting a maintainer build-or-decline decision; merged with v3.0 DF-v30-9, v3.6-v3.9 DF-v36-2, v3.9 DF-v39-nomistakes-1, v3.10 DF-v310-ruflo-A6 and A10-rest |

@@ -1,9 +1,10 @@
 # Known Gaps -- v3.1.0
 
+**Ledger normalization**: 2026-10-09, v4.13.11. The canonical open count is derived from supported item headings. Summary and reconciliation count tables below retain historical release snapshots, including partial closures and explicit transfers; they are not new parser totals.
+
 **Status**: finalized; archived 2026-09-29; 0 open items (1 migrated to v4.13 as AR-06). Per-section status lines below are historical and were written before release.
 
 **Open items**: 0
-
 **Status at last pre-archive update**: v3.1.0 integration COMPLETE on `develop` -- both sub-plans merged (`adoption-claude-red`, all 5 phases; `adoption-dynamic-workflows`, all 3 phases). This is the reconciled v3.1.0 gap log: the two branches' separate logs were merged at develop-integration, which resolves WN-v31cr-3. Catalog green at integration: JSON catalogs valid (250 skills), the skill-security scanner gate is clean (0 HIGH/CRITICAL, exit 0), the scanner package + repo validator suites pass, and no-personal-paths / unicode-safety / supply-chain / workflow-security / solution-frontmatter / `check_version_sync.py` all exit 0. The v3.1.0 version bump (3.0.0 -> 3.1.0 across the 7 sync surfaces) + CHANGELOG finalization + the `v3.1.0` tag are applied at the develop->main release (owned by `/update version`).
 **Last updated**: 2026-06-08 (v3.1.0 develop-integration)
 
@@ -25,16 +26,120 @@ Note: v3.1.0 was developed on two parallel feature branches off `develop` -- `fe
 
 ## Open Items
 
-| ID | Category | Source phase | Plan reference | Reason | Suggested next step | Severity |
-|---|---|---|---|---|---|---|
-| WN-v31cr-1 - MIGRATED to v4.13 (AR-06) | WN | claude-red Phase 1 (extended Phase 3, Phase 4) | T004 (validate the new skills); T007/T008/T010 (enriched skills) | `scripts/validate_skills.py` run with no flags (its default mode) reports description-length "errors" (description > 250 characters) across the catalog, including all five security skills the claude-red plan touched: the Phase 1 new skills (`ai-attack-patterns`, `pentest-reporting`), the Phase 3 enriched skills (`advanced-attack-patterns`, `business-logic-abuse`), and the Phase 4 enriched skill (`authentication-patterns`, now 732 chars), whose pushy descriptions gained trigger phrases + a `SKIP` clause. This is NOT a gate: `make validate` and the CI `validate` job run only `validate_skills.py --bundles-only` and `--quality` (both PASS), never the bare default; the strict `--allow-existing` path demotes the violation to a warning for files in `scripts/validate_skills.allowlist.json`, to which `authentication-patterns/SKILL.md` was added (mirroring the Phase 3 skills). The 250-char cap directly conflicts with the AGENTS.md mandatory pushy-description rule (which "trades 6 words for 60" with trigger phrases + a SKIP clause), and every shipped security skill already exceeds it (e.g. `skill-security-scan` at ~600 chars). The long descriptions are intentional and norm-consistent. | Do not shorten the pushy descriptions to chase the default-mode cap. If the divergence is undesirable, reconcile `validate_skills.py` default-mode behavior with the pushy-description rule (raise/remove the 250-char cap or scope it to a non-`description` field) so the script does not contradict the authoring contract. Out of scope for this plan. | Low (not a CI/`make validate` gate; by-design per the authoring contract) |
-| WN-v31cr-2 - RESOLVED 2026-09-29 | WN | claude-red Phase 1 | T004 (stabilization) | Local verification on the Windows dev host was partial: `make` is not on PATH, so `make validate` and `make scan` were emulated by invoking each validator and the scanner directly (all green). `make lint` (ShellCheck) was not run -- the claude-red phases added only Markdown + JSON, so there is no shell surface. (Same root class as WN-v31-1 from the dynamic-workflows branch.) | Confirm the CI `validate` job is green for this commit on the ubuntu runner (it runs the same validators + the scanner gate); no code change expected. | Low (covered by CI; phase added no shell/Python surface) |
-| WN-v31cr-5 - RESOLVED 2026-09-29 | WN | claude-red Phase 4 | T010 (enrich authentication-patterns) | `catalog/skills/security/authentication-patterns/SKILL.md` is now 903 lines (was 852), exceeding the 800-line hard cap of the AGENTS.md SKILL.md size norm. The skill was already over the 500-line soft norm before this plan (grandfathered; the norm is forward-looking and applies to new / substantially-rewritten skills, which this targeted fold-in is not). Per the T010 prompt the deep per-vector payloads were pushed to `references/auth-attack-methodology.md`; the body addition is a ~40-line methodology-summary checklist, the minimum needed for the fold-in to be a usable standalone audit surface. This is a norm warning, not a gate -- `make validate` does not check body length, and the `--quality` pass (which warns on size) reports 0 errors. | When `authentication-patterns` is next substantially revised, split it: move the implementation cookbook (OAuth/JWT/session/MFA/RBAC code recipes) into one or more `references/` files and keep the SKILL.md body to the decision guidance + the attacker-perspective checklist, bringing it under the 500-line norm. Behavior-neutral restructure of a grandfathered skill; deliberately not bundled into the v3.1.0 release commit (risk-isolation). | Low (not a CI/`make validate` gate; grandfathered skill, deep detail already externalized) |
-| WN-v31cr-6 - RESOLVED 2026-09-29 | WN | claude-red Phase 5 | T013 (full validation across the catalog) | The repo-level `tests/` suite has 3 failures on the Windows dev host, all in `tests/installer/test_branch_flag.py` (`test_bash_branch_check_probe_resolves_cache_path`, `test_bash_branch_check_neutralizes_traversal`, `test_bash_branch_requires_value`). Root cause is environmental, not a regression: pytest's `shutil.which("bash")` resolves to `C:\windows\system32\bash.EXE` (the WSL launcher), which cannot execute `scripts/installer.sh` addressed by its Windows absolute path (under `OneDrive - Supira`, with a space), returning exit 127 "No such file or directory". The same probe run under Git Bash returns exit 0 with the asserted output; the PowerShell sibling tests and the static-surface tests all pass. These installer tests date to v2.4.0 and are unrelated to the v3.1.0 content (`scripts/installer.sh` untouched). 400 of 403 repo tests pass locally; the three pass on the CI ubuntu runner (real Linux bash). | Rely on CI (ubuntu) as the authoritative gate for the bash installer tests, exactly as WN-v31cr-2 / WN-v31-1 do for make/shellcheck. If local Windows runs are wanted, ensure Git Bash precedes the WSL `bash.EXE` on PATH, or make the test prefer a non-WSL bash / translate the Windows path to a WSL `/mnt/` path before invoking. Out of scope (a test-harness portability fix to a v2.4.0 test). Related: WN-v31cr-2, WN-v31-1. | Low (not a CI gate failure -- CI is green; pre-existing v2.4.0 tests; unrelated to v3.1.0 surface) |
-| WN-v31-1 - RESOLVED 2026-09-29 | WN | dynamic-workflows Phase 1-3 | T003, T006, T009 (stabilization) | Local verification on the Windows dev host is partial: `make` is not on PATH, so `make validate` is emulated by invoking each validator directly (all green: orphan-bundle audit 0 errors with 1 pre-existing `demo-capture` `.pyc` warning unrelated to these phases, all four JSON catalogs valid, no-personal-paths / unicode-safety / supply-chain / workflow-security / solution-frontmatter / check_version_sync all exit 0). The dynamic-workflows phases made markdown-only + `.js`-template edits, so there is no ShellCheck surface and no new-code pytest surface; the skill-security scanner on the edited orchestration skills is 0 findings, and the `tests/validators` suite passes. (Same root class as WN-v31cr-2 from the claude-red branch.) | Confirm the CI `validate` + scanner jobs are green for this commit on the ubuntu runner; no code change expected. | Low (covered by CI; matches the cross-version local-make pattern) |
-| WN-v31-2 - RESOLVED 2026-09-29 | WN | dynamic-workflows Phase 3 | T008 | The `/loop` and `/goal` cross-reference added to `agent-orchestration-primitives/SKILL.md` was authored per the plan and the source comparison article. `/loop` is a confirmed Claude Code built-in; `/goal` could not be independently confirmed against the available command surface (only `/loop` appeared, here at v3.1.0 release time as well). The reference frames both as platform commands the user invokes, not catalog artifacts Nexus-Hub ships, so an incorrect name would be a documentation-accuracy nit, not a broken artifact. The prose was left as authored rather than removed, because absence from the surfaced command list is not proof a built-in does not exist. | Verify the exact `/goal` command name against the current Claude Code build and correct the prose if the built-in is named differently (or remove the reference if it does not exist). | Low (prose-only; no artifact depends on the command existing) |
+### WN-v31cr-1 - MIGRATED to v4.13 (AR-06) - MIGRATED to v4.13.0
+
+**v4.13.11 structural audit, 2026-10-09**: This heading preserves the historical table obligation and every original field below. Existing historical dispositions remain as written; an unsupported transfer marker is not a verified migration.
+
+**ID**: WN-v31cr-1 - MIGRATED to v4.13 (AR-06)
+
+**Category**: WN
+
+**Source phase**: claude-red Phase 1 (extended Phase 3, Phase 4)
+
+**Plan reference**: T004 (validate the new skills); T007/T008/T010 (enriched skills)
+
+**Reason**: `scripts/validate_skills.py` run with no flags (its default mode) reports description-length "errors" (description > 250 characters) across the catalog, including all five security skills the claude-red plan touched: the Phase 1 new skills (`ai-attack-patterns`, `pentest-reporting`), the Phase 3 enriched skills (`advanced-attack-patterns`, `business-logic-abuse`), and the Phase 4 enriched skill (`authentication-patterns`, now 732 chars), whose pushy descriptions gained trigger phrases + a `SKIP` clause. This is NOT a gate: `make validate` and the CI `validate` job run only `validate_skills.py --bundles-only` and `--quality` (both PASS), never the bare default; the strict `--allow-existing` path demotes the violation to a warning for files in `scripts/validate_skills.allowlist.json`, to which `authentication-patterns/SKILL.md` was added (mirroring the Phase 3 skills). The 250-char cap directly conflicts with the AGENTS.md mandatory pushy-description rule (which "trades 6 words for 60" with trigger phrases + a SKIP clause), and every shipped security skill already exceeds it (e.g. `skill-security-scan` at ~600 chars). The long descriptions are intentional and norm-consistent.
+
+**Suggested next step**: Do not shorten the pushy descriptions to chase the default-mode cap. If the divergence is undesirable, reconcile `validate_skills.py` default-mode behavior with the pushy-description rule (raise/remove the 250-char cap or scope it to a non-`description` field) so the script does not contradict the authoring contract. Out of scope for this plan.
+
+**Severity**: Low (not a CI/`make validate` gate; by-design per the authoring contract)
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-06`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.1`, section `Open Items`, and original ID `WN-v31cr-1`.
+
+### WN-v31cr-2 - RESOLVED 2026-09-29
+
+**v4.13.11 structural audit, 2026-10-09**: This heading preserves the historical table obligation and every original field below. Existing historical dispositions remain as written; an unsupported transfer marker is not a verified migration.
+
+**ID**: WN-v31cr-2 - RESOLVED 2026-09-29
+
+**Category**: WN
+
+**Source phase**: claude-red Phase 1
+
+**Plan reference**: T004 (stabilization)
+
+**Reason**: Local verification on the Windows dev host was partial: `make` is not on PATH, so `make validate` and `make scan` were emulated by invoking each validator and the scanner directly (all green). `make lint` (ShellCheck) was not run -- the claude-red phases added only Markdown + JSON, so there is no shell surface. (Same root class as WN-v31-1 from the dynamic-workflows branch.)
+
+**Suggested next step**: Confirm the CI `validate` job is green for this commit on the ubuntu runner (it runs the same validators + the scanner gate); no code change expected.
+
+**Severity**: Low (covered by CI; phase added no shell/Python surface)
+
+### WN-v31cr-5 - RESOLVED 2026-09-29
+
+**v4.13.11 structural audit, 2026-10-09**: This heading preserves the historical table obligation and every original field below. Existing historical dispositions remain as written; an unsupported transfer marker is not a verified migration.
+
+**ID**: WN-v31cr-5 - RESOLVED 2026-09-29
+
+**Category**: WN
+
+**Source phase**: claude-red Phase 4
+
+**Plan reference**: T010 (enrich authentication-patterns)
+
+**Reason**: `catalog/skills/security/authentication-patterns/SKILL.md` is now 903 lines (was 852), exceeding the 800-line hard cap of the AGENTS.md SKILL.md size norm. The skill was already over the 500-line soft norm before this plan (grandfathered; the norm is forward-looking and applies to new / substantially-rewritten skills, which this targeted fold-in is not). Per the T010 prompt the deep per-vector payloads were pushed to `references/auth-attack-methodology.md`; the body addition is a ~40-line methodology-summary checklist, the minimum needed for the fold-in to be a usable standalone audit surface. This is a norm warning, not a gate -- `make validate` does not check body length, and the `--quality` pass (which warns on size) reports 0 errors.
+
+**Suggested next step**: When `authentication-patterns` is next substantially revised, split it: move the implementation cookbook (OAuth/JWT/session/MFA/RBAC code recipes) into one or more `references/` files and keep the SKILL.md body to the decision guidance + the attacker-perspective checklist, bringing it under the 500-line norm. Behavior-neutral restructure of a grandfathered skill; deliberately not bundled into the v3.1.0 release commit (risk-isolation).
+
+**Severity**: Low (not a CI/`make validate` gate; grandfathered skill, deep detail already externalized)
+
+### WN-v31cr-6 - RESOLVED 2026-09-29
+
+**v4.13.11 structural audit, 2026-10-09**: This heading preserves the historical table obligation and every original field below. Existing historical dispositions remain as written; an unsupported transfer marker is not a verified migration.
+
+**ID**: WN-v31cr-6 - RESOLVED 2026-09-29
+
+**Category**: WN
+
+**Source phase**: claude-red Phase 5
+
+**Plan reference**: T013 (full validation across the catalog)
+
+**Reason**: The repo-level `tests/` suite has 3 failures on the Windows dev host, all in `tests/installer/test_branch_flag.py` (`test_bash_branch_check_probe_resolves_cache_path`, `test_bash_branch_check_neutralizes_traversal`, `test_bash_branch_requires_value`). Root cause is environmental, not a regression: pytest's `shutil.which("bash")` resolves to `C:\windows\system32\bash.EXE` (the WSL launcher), which cannot execute `scripts/installer.sh` addressed by its Windows absolute path (under `OneDrive - Supira`, with a space), returning exit 127 "No such file or directory". The same probe run under Git Bash returns exit 0 with the asserted output; the PowerShell sibling tests and the static-surface tests all pass. These installer tests date to v2.4.0 and are unrelated to the v3.1.0 content (`scripts/installer.sh` untouched). 400 of 403 repo tests pass locally; the three pass on the CI ubuntu runner (real Linux bash).
+
+**Suggested next step**: Rely on CI (ubuntu) as the authoritative gate for the bash installer tests, exactly as WN-v31cr-2 / WN-v31-1 do for make/shellcheck. If local Windows runs are wanted, ensure Git Bash precedes the WSL `bash.EXE` on PATH, or make the test prefer a non-WSL bash / translate the Windows path to a WSL `/mnt/` path before invoking. Out of scope (a test-harness portability fix to a v2.4.0 test). Related: WN-v31cr-2, WN-v31-1.
+
+**Severity**: Low (not a CI gate failure -- CI is green; pre-existing v2.4.0 tests; unrelated to v3.1.0 surface)
+
+### WN-v31-1 - RESOLVED 2026-09-29
+
+**v4.13.11 structural audit, 2026-10-09**: This heading preserves the historical table obligation and every original field below. Existing historical dispositions remain as written; an unsupported transfer marker is not a verified migration.
+
+**ID**: WN-v31-1 - RESOLVED 2026-09-29
+
+**Category**: WN
+
+**Source phase**: dynamic-workflows Phase 1-3
+
+**Plan reference**: T003, T006, T009 (stabilization)
+
+**Reason**: Local verification on the Windows dev host is partial: `make` is not on PATH, so `make validate` is emulated by invoking each validator directly (all green: orphan-bundle audit 0 errors with 1 pre-existing `demo-capture` `.pyc` warning unrelated to these phases, all four JSON catalogs valid, no-personal-paths / unicode-safety / supply-chain / workflow-security / solution-frontmatter / check_version_sync all exit 0). The dynamic-workflows phases made markdown-only + `.js`-template edits, so there is no ShellCheck surface and no new-code pytest surface; the skill-security scanner on the edited orchestration skills is 0 findings, and the `tests/validators` suite passes. (Same root class as WN-v31cr-2 from the claude-red branch.)
+
+**Suggested next step**: Confirm the CI `validate` + scanner jobs are green for this commit on the ubuntu runner; no code change expected.
+
+**Severity**: Low (covered by CI; matches the cross-version local-make pattern)
+
+### WN-v31-2 - RESOLVED 2026-09-29
+
+**v4.13.11 structural audit, 2026-10-09**: This heading preserves the historical table obligation and every original field below. Existing historical dispositions remain as written; an unsupported transfer marker is not a verified migration.
+
+**ID**: WN-v31-2 - RESOLVED 2026-09-29
+
+**Category**: WN
+
+**Source phase**: dynamic-workflows Phase 3
+
+**Plan reference**: T008
+
+**Reason**: The `/loop` and `/goal` cross-reference added to `agent-orchestration-primitives/SKILL.md` was authored per the plan and the source comparison article. `/loop` is a confirmed Claude Code built-in; `/goal` could not be independently confirmed against the available command surface (only `/loop` appeared, here at v3.1.0 release time as well). The reference frames both as platform commands the user invokes, not catalog artifacts Nexus-Hub ships, so an incorrect name would be a documentation-accuracy nit, not a broken artifact. The prose was left as authored rather than removed, because absence from the surfaced command list is not proof a built-in does not exist.
+
+**Suggested next step**: Verify the exact `/goal` command name against the current Claude Code build and correct the prose if the built-in is named differently (or remove the reference if it does not exist).
+
+**Severity**: Low (prose-only; no artifact depends on the command existing)
+
 
 ## Resolved
+
+### Resolved historical records
 
 | ID | Category | Source phase | Resolved in | Note |
 |---|---|---|---|---|
@@ -48,9 +153,9 @@ Before this minor moved to `docs/archives/`, every item that this file did not a
 
 | Item | Disposition | Evidence, reason, or destination |
 |---|---|---|
-| WN-v31cr-1 (line 26) | Migrated | AR-06: description-length cap (250 characters in `scripts/validate_skills.py` `DESCRIPTION_MAX_CHARS`) conflicts with the pushy-description rule; `--allow-existing` still fails; merged with v3.2 WN-v32-1 and v3.14.2 WN-1 |
-| WN-v31cr-2 (line 27) | Resolved | the release CI run on `main` for this version passed (`gh run list --branch main`, matched by run title because tag SHAs were later rewritten) |
-| WN-v31cr-5 (line 28) | Resolved | `catalog/skills/security/authentication-patterns/SKILL.md` is now 160 lines (commit `738d2ce3`; the 800-line body cap is enforced by `validate_skills.py --bundles-only`) |
-| WN-v31cr-6 (line 29) | Resolved | Windows `test_branch_flag` failures fixed by the test-PATH repair in `tests/conftest.py` (v3.15.6) |
-| WN-v31-1 (line 30) | Resolved | the release CI run on `main` for this version passed (`gh run list --branch main`, matched by run title because tag SHAs were later rewritten) |
-| WN-v31-2 (line 31) | Resolved | `/goal` is VERIFIED against code.claude.com in `docs/policy/completion-levers.md` |
+| `WN-v31cr-1` (line 26) | Migrated | AR-06: description-length cap (250 characters in `scripts/validate_skills.py` `DESCRIPTION_MAX_CHARS`) conflicts with the pushy-description rule; `--allow-existing` still fails; merged with v3.2 WN-v32-1 and v3.14.2 WN-1 |
+| `WN-v31cr-2` (line 27) | Resolved | the release CI run on `main` for this version passed (`gh run list --branch main`, matched by run title because tag SHAs were later rewritten) |
+| `WN-v31cr-5` (line 28) | Resolved | `catalog/skills/security/authentication-patterns/SKILL.md` is now 160 lines (commit `738d2ce3`; the 800-line body cap is enforced by `validate_skills.py --bundles-only`) |
+| `WN-v31cr-6` (line 29) | Resolved | Windows `test_branch_flag` failures fixed by the test-PATH repair in `tests/conftest.py` (v3.15.6) |
+| `WN-v31-1` (line 30) | Resolved | the release CI run on `main` for this version passed (`gh run list --branch main`, matched by run title because tag SHAs were later rewritten) |
+| `WN-v31-2` (line 31) | Resolved | `/goal` is VERIFIED against code.claude.com in `docs/policy/completion-levers.md` |

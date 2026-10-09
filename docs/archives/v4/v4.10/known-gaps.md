@@ -1,5 +1,8 @@
 # Known gaps - v4.10
 
+**Open items**: 0
+**Ledger normalization**: 2026-10-09, v4.13.11. The canonical open count is derived from supported item headings. Summary and reconciliation count tables below retain historical release snapshots, including partial closures and explicit transfers; they are not new parser totals.
+
 **Status**: implementation and publication closure complete. v4.10.0 merged into `develop` in PR #198 and shipped inside v4.11.0 without a retroactive v4.10.0 tag. v4.10.1 merged into `develop` through PR #232 at `c54dbeb4`; T034 is complete, and no retroactive v4.10.1 tag is planned. Two bounded items below remain known limitations, not unfinished plan tasks.
 
 Unfinished work, deferrals, and defects found during v4.10.0 that did not reach a clean state. Open items carry forward into the next plan's ingest.
@@ -12,7 +15,7 @@ Unfinished work, deferrals, and defects found during v4.10.0 that did not reach 
 
 ## Open Items - found 2026-09-21 during v4.10.1 implementation
 
-### EV-1 - Gemini CLI has no documented all-configuration isolation flag
+### EV-1 - Gemini CLI has no documented all-configuration isolation flag - MIGRATED to v4.13.0
 
 - **Source phase**: v4.10.1 Phase 2 (T005-T009).
 - **What was observed**: the official CLI documents `-e none` for disabling extensions and `--model` for model selection, but separately documents system, user, project, environment, and command-line configuration layers. No flag in the checked official reference excludes them as a whole.
@@ -20,7 +23,9 @@ Unfinished work, deferrals, and defects found during v4.10.0 that did not reach 
 - **Current behavior**: provider-backed skill evals requested with `--cli gemini` fail closed before spawning the CLI. Their results are not represented as isolated or comparable.
 - **Suggested next step**: establish a documented and tested per-run exclusion of every configuration source before enabling this branch; otherwise keep it fail-closed.
 
-### EV-2 - OpenCode has no documented all-configuration isolation flag
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-74`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.10`, section `Open Items - found 2026-09-21 during v4.10.1 implementation`, and original ID `EV-1`.
+
+### EV-2 - OpenCode has no documented all-configuration isolation flag - MIGRATED to v4.13.0
 
 - **Source phase**: v4.10.1 Phase 2 (T005-T009).
 - **What was observed**: the official CLI documents `--pure` as disabling external plugins and documents config path overrides, but no checked flag excludes all operator configuration, instructions, and saved settings.
@@ -28,7 +33,11 @@ Unfinished work, deferrals, and defects found during v4.10.0 that did not reach 
 - **Current behavior**: provider-backed skill evals requested with `--cli opencode` fail closed before spawning the CLI. Their results are not represented as isolated or comparable.
 - **Suggested next step**: establish a documented and tested per-run exclusion of global, project, remote, and managed settings before enabling this branch; otherwise keep it fail-closed.
 
-### WN-3 - `tests/skills/test_target_manifest.py` is red on `develop`
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-74`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.10`, section `Open Items - found 2026-09-21 during v4.10.1 implementation`, and original ID `EV-2`.
+
+### WN-3 - `tests/skills/test_target_manifest.py` is red on `develop` - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.10#WN-3` is recorded as RESOLVED for its original scope. Evidence: **Status**: RESOLVED 2026-09-12 by PR #199 Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 **Status**: RESOLVED 2026-09-12 by PR #199; see "Resolved during this version" below. Retained here because its diagnosis was wrong in an instructive way: it read an environmental property as a defect on `develop`.
 
@@ -38,7 +47,9 @@ Unfinished work, deferrals, and defects found during v4.10.0 that did not reach 
 - **Reason it is open**: it is not this plan's defect and diagnosing a git-metadata test module is outside its scope. Fixing it here would mix an unrelated repair into a content plan.
 - **Suggested next step**: triage separately. Note that the integration pull request for this plan will run the same suite and is expected to show these 11 failures, so a red `tests` check on that pull request must be read against this baseline rather than attributed to the plan. Confirm the baseline on `develop` before reproducing locally.
 
-### DF-1 - Skill registration is documented as three files, but five carry catalog state
+### DF-1 - Skill registration is documented as three files, but five carry catalog state - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.10#DF-1` is recorded as RESOLVED for its original scope. Evidence: AGENTS.md:229 "update all five catalog-state files" Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 **Status**: RESOLVED 2026-09-22. `AGENTS.md` now names all five catalog-state surfaces, their derived counts, and the existing emit/check commands. `check_registry_entries.py` now validates the `skills.json` aggregate statistics and `SKILL_INDEX.md` total line in addition to its existing membership, shape, reachability, and marketplace census checks.
 
@@ -53,7 +64,9 @@ Unfinished work, deferrals, and defects found during v4.10.0 that did not reach 
 - **Reason it is open**: the fix is to widen the registration instructions in `AGENTS.md`, which is a documentation change outside this plan's stated scope. This plan corrected the data; it did not rewrite the instruction that produced the error.
 - **Suggested next step**: update the "Register the skill" section of `AGENTS.md` to name all five files and both derived-count surfaces, and to point at `python scripts/check_registry_entries.py --emit <skill>`, which prints a paste-ready entry with the correct field shapes and would have prevented three of the four errors above. Prefer deriving counts from the entry list over incrementing by hand.
 
-### WN-1 - The residual-reference check scans Markdown only
+### WN-1 - The residual-reference check scans Markdown only - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.10#WN-1` is recorded as RESOLVED for its original scope. Evidence: RESOLVED 2026-09-23 by PR #262 (`30ecff7b`) Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 **Status**: RESOLVED 2026-09-23 by PR #262, merged at `30ecff7b`; post-merge run 35925138595 passed smoke and provenance. The scanner now checks repository Markdown and JSON under `docs/`, but deliberately excludes generated `data/` inventories and other file types. A sealed JSON record can be exempted only by an explicit, printed `--skip` prefix. Two failing-first tests cover the JSON survivor and the sealed-record exemption; the owning module passed 17 tests. A real-tree scan found 85 historical `v4.10.0` references, including the previously missed `v4.9-layout-public.json` as its sole JSON hit. The [archived qualification](development/residual-reference-json/verification.md) preserves the boundary and evidence; it does not claim a repository-wide scan of every file type.
 
@@ -63,7 +76,9 @@ Unfinished work, deferrals, and defects found during v4.10.0 that did not reach 
 - **Reason it is open**: widening the scan to all file types would sweep in generated inventories, lockfiles, and frozen evidence snapshots whose purpose is to record a past state, producing failures that must all be exempted. Every reference class in the Phase 1 acceptance surface is Markdown, so the current scope is sufficient for the documented procedure and insufficient as a repository-wide guarantee. That distinction is stated in the Phase 5 evidence.
 - **Suggested next step**: if a future renumber touches a non-Markdown reference, extend the scan with an explicit include-list of file types rather than a blanket walk, and keep the frozen-evidence exemption.
 
-### WN-2 - The fast profile does not reach `tests/validators/`
+### WN-2 - The fast profile does not reach `tests/validators/` - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.10#WN-2` is recorded as RESOLVED for its original scope. Evidence: scripts/ci/profiles.py:174 runs `check_registry_entries --check --strict` Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 **Status**: RESOLVED 2026-09-22. The fast profile now runs the standard-library `check_registry_entries.py --check --strict` gate directly. It covers the aggregate registry drift that escaped the earlier phase gates without turning the fast profile into a pytest suite or adding network/install work.
 
@@ -73,7 +88,9 @@ Unfinished work, deferrals, and defects found during v4.10.0 that did not reach 
 - **Reason it is open**: this is a property of the profile design, not a defect introduced here. Moving registry-consistency tests into `fast` would slow the per-phase gate; leaving them out means catalog drift is invisible until the full profile runs.
 - **Suggested next step**: consider a narrow `registry-consistency` step in the `fast` profile that runs only `tests/validators/test_registry_consistency.py` (0.31s), rather than the whole validators tree. Decide it as a CI/CD change with its own approval, not as a side effect of a content plan.
 
-### MT-1 - The repository description still states the old catalog size
+### MT-1 - The repository description still states the old catalog size - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.10#MT-1` is recorded as RESOLVED for its original scope. Evidence: RESOLVED 2026-09-22 via GitHub setting Historical repository setting change is evidenced in source; current description is a separate release drift check, not reopened historical defect. Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 **Status**: RESOLVED 2026-09-22. The live repository description now states 337 skills, matching `README.md`, and `check_release_preconditions.py --repo-settings` remains the drift detector.
 
@@ -83,7 +100,9 @@ Unfinished work, deferrals, and defects found during v4.10.0 that did not reach 
 - **Reason it is open**: it is a GitHub repository setting, changed through the web UI or `gh`, not a file in this branch. Changing it is outside a code branch's authority and should not be done silently on the maintainer's behalf.
 - **Suggested next step**: the maintainer updates the repository description to 337 when this plan merges, or at the next release. The precondition checker already reports it, so it will not be missed.
 
-### WN-4 - The scoped weekly bar is display-only and will not warn the user
+### WN-4 - The scoped weekly bar is display-only and will not warn the user - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.10#WN-4` is recorded as RESOLVED for its original scope. Evidence: RESOLVED 2026-09-24, opt-in `weeklyScoped` with decision record Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 **Status**: RESOLVED 2026-09-24 by an opt-in `weeklyScoped` threshold selection. The default `highest` still ignores the scoped bar, and status-bar text still shows the session and all-models weekly figures. Missing scoped data raises no threshold alert. The [decision record](../../../decisions/implemented/tooling/2026-09-24-opt-in-scoped-weekly-alerts.md) states the compatibility trade-off, and the [archived verification](development/scoped-weekly-alert/verification.md) records the packaged VSIX host run.
 
@@ -92,7 +111,9 @@ Unfinished work, deferrals, and defects found during v4.10.0 that did not reach 
 - **Reason it is open**: this is the deliberate outcome, not an omission. The requirement was explicit that the second bar stay out of the status-bar text, and feeding it into the `highest` threshold metric would have coloured the status bar and raised a toast from a bar the user asked to keep off that surface. The consequence is real and is stated in the changelog: a scoped limit approaching capacity is visible on hover and in the dashboard but will not interrupt the user.
 - **Suggested next step**: if a scoped limit ever becomes the binding constraint in practice, the cheapest change is a fourth `claudeUsage.thresholdMetric` value rather than folding it into `highest`, so an existing user's alerting does not change under them. That is a settings-schema change and needs its own decision record.
 
-### MT-2 - The two weekly bars were not exercised in a running extension host
+### MT-2 - The two weekly bars were not exercised in a running extension host - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.10#MT-2` is recorded as RESOLVED for its original scope. Evidence: RESOLVED 2026-09-24 with packaged VSIX host render Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 **Status**: RESOLVED 2026-09-24 for the host-rendering boundary. The packaged v0.10.0 VSIX painted the all-models and Fable weekly bars in the status-bar hover and dashboard in VS Code 1.139.0. The [archived screenshots and measurements](development/weekly-bars-host-render/verification.md) use synthetic stored metrics with account fetching disabled; they do not assert a live account fetch. The prior account-response mapping evidence remains separate.
 
@@ -104,6 +125,8 @@ Unfinished work, deferrals, and defects found during v4.10.0 that did not reach 
 - **Suggested next step**: install `claude-usage-monitor-0.10.0.vsix`, hover the status-bar item, and open the dashboard, confirming two weekly bars with the second labelled from the account. Still worth doing before publishing the tag, since the changelog asserts the bar appears; the residual risk is now host rendering rather than string construction.
 
 ## Resolved during this version
+
+### Resolved historical records
 
 - **DF-1, incomplete skill-registration instructions** - RESOLVED 2026-09-22 by documenting every catalog-state surface and extending the existing strict registry checker to aggregate counts. Focused proof: 90 registry-checker and CI-engine tests passed.
 - **WN-2, fast-profile registry blind spot** - RESOLVED 2026-09-22 by adding the cheap strict registry checker to the fast profile. The profile still contains no pytest, install, or network step.

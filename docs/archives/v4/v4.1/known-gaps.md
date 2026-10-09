@@ -23,12 +23,16 @@ Only DF-1 remains open for v4.1.0. All other categories have no open items.
 
 #### Deferred
 
-##### DF-1 - Prompting profile layer does not match the live Codex roster
+##### DF-1-v410 - Prompting profile layer does not match the live Codex roster - MIGRATED to v4.13.0
 
 - **Source phase**: v4.1.0 release preparation
 - **Evidence**: On 2026-08-31, `python scripts/check_model_prompting_freshness.py --advisory gpt-5.6-sol gpt-5.6-terra gpt-5.6-luna` reported `DRIFTED`: the three supplied live Codex model IDs are unprofiled and the four recorded Claude entries are absent from that host roster. The current v4.4 model map independently lists those three Codex IDs.
 - **Reason deferred**: The advisory is intentionally not a release or CI gate, and a conformant refresh requires the separate calibrated `/tune-prompting` research and adversarial-verification workflow rather than a release-time hand edit.
 - **Next action**: Run `/tune-prompting` in a separately scoped plan, calibrate on one live model before widening, and retain any unverified models as explicit gaps.
+
+**Original source identity**: `v4.1.0#DF-1` in `v4.1.0`; normalized stable ID `DF-1-v410` distinguishes this obligation from repeated IDs in other patch sections.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-64`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.1.0`, section `v4.1.0`, and original ID `DF-1`.
 
 ### Resolved
 
@@ -82,13 +86,17 @@ Only DF-1 remains open for v4.1.0. All other categories have no open items.
 
 #### Deferred
 
-##### DF-1 - Live optional scanners were not executed on the implementation host
+##### DF-1-v411 - Live optional scanners were not executed on the implementation host - MIGRATED to v4.13.0
 
 - **Source phase**: Phase 5 - Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
 - **Plan reference**: `docs/archives/v4/v4.1/plans/v4.1.1-adoption-openworker-security-refinement.md` T025 / T032
 - **Evidence**: Fixture-driven closure-gate tests pass without invoking Semgrep, gitleaks, OSV-Scanner, npm audit, pip-audit, Trivy, or Checkov. Phase 4 history records that those binaries were not present or not executed.
 - **Reason deferred**: The plan forbids adding real scanner execution to Nexus-Hub CI. Host-local binaries are optional; missing tools must remain visible as `UNAVAILABLE`.
 - **Next action**: On a machine that already has the optional tools, run the `security-audit` preset once with some, none, and all applicable scanners and keep the receipts.
+
+**Original source identity**: `v4.1.1#DF-1` in `v4.1.1`; normalized stable ID `DF-1-v411` distinguishes this obligation from repeated IDs in other patch sections.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-65`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.1.1`, section `v4.1.1`, and original ID `DF-1`.
 
 ### Resolved
 

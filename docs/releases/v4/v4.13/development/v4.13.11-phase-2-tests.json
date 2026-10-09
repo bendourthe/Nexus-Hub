@@ -1,0 +1,32 @@
+{
+  "command": "python -m pytest -q tests/validators/test_gap_migration_and_archive.py tests/validators/test_completion_minor_record.py tests/validators/test_completion_minor_verdict.py tests/validators/test_plan_carry_and_archive.py",
+  "workdir": "C:\\Users\\BEDOURTHE\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan",
+  "session_id": 10508,
+  "started_at_utc": "2026-10-09T21:29:21.924Z",
+  "finished_at_utc": "2026-10-09T21:50:01.718Z",
+  "exit_code": 0,
+  "output": "........................................................................ [ 26%]\r\n........................................................................ [ 53%]\r\n........................................................................ [ 79%]\r\n.......................................................                  [100%]\r\n271 passed in 1229.99s (0:20:29)\r\n",
+  "elapsed_seconds": 1229.99,
+  "elapsed_wall_seconds": 1239.794,
+  "collected": 271,
+  "passed": 271,
+  "failed": 0,
+  "skipped": 0,
+  "source_sha256_before": {
+    "scripts/completion_minor.py": "4b5802f164486dbb36eb2e0b8774194f1422980f81cc4940971f8963a33936fe",
+    "scripts/minor_close.py": "591a2ceac48938b19e9d76ece1b26ffd486750175286be9dfa484c4851014537",
+    "tests/validators/test_gap_migration_and_archive.py": "b77b8238c8121788759e74b6e72291b461f9c688a9c8e07e70a904f497404d10",
+    "tests/validators/test_completion_minor_record.py": "0000cb5fd34063e00aca9b4a7faea345d9bb9ef850148fd6ce3539843cb00f08",
+    "tests/validators/test_completion_minor_verdict.py": "5940dc06e8c171d49fb4f7f6f10b747007c922a0fa5b877bad731f3404f9dc47",
+    "tests/validators/test_plan_carry_and_archive.py": "6b5d351d6042435a86f54b69ad7666c438118432e6758c7c02ffc1e076cde84a"
+  },
+  "source_sha256_after": {
+    "scripts/completion_minor.py": "4b5802f164486dbb36eb2e0b8774194f1422980f81cc4940971f8963a33936fe",
+    "scripts/minor_close.py": "591a2ceac48938b19e9d76ece1b26ffd486750175286be9dfa484c4851014537",
+    "tests/validators/test_gap_migration_and_archive.py": "b77b8238c8121788759e74b6e72291b461f9c688a9c8e07e70a904f497404d10",
+    "tests/validators/test_completion_minor_record.py": "0000cb5fd34063e00aca9b4a7faea345d9bb9ef850148fd6ce3539843cb00f08",
+    "tests/validators/test_completion_minor_verdict.py": "5940dc06e8c171d49fb4f7f6f10b747007c922a0fa5b877bad731f3404f9dc47",
+    "tests/validators/test_plan_carry_and_archive.py": "6b5d351d6042435a86f54b69ad7666c438118432e6758c7c02ffc1e076cde84a"
+  },
+  "source_unchanged": true
+}

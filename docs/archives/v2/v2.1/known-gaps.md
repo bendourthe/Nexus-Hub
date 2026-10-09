@@ -1,5 +1,9 @@
 # Known Gaps -- v2.1.0
 
+**Open items**: 0
+
+**Ledger normalization**: 2026-10-09, v4.13.11. The canonical open count above is derived from supported item headings. Summary and reconciliation count tables below retain historical release snapshots, including partial closures and explicit transfers; they are not new parser totals.
+
 This file tracks per-version unfinished work, deferred items, deviations from plan, and bugs discovered during phase implementation. The next phase plan and the version-bump checklist read this file to decide what carries forward.
 
 **Plan**: [docs/archives/v2/v2.1/plans/adoption-spec-kit.md](plans/adoption-spec-kit.md)
@@ -24,11 +28,28 @@ This file tracks per-version unfinished work, deferred items, deviations from pl
 
 ## Open Items
 
-| ID | Title | Category | Source phase | Plan reference | Reason | Suggested next step |
-|---|---|---|---|---|---|---|
-| DF-001 | Byte-identical parity migration of the original 4 platforms (Claude / Gemini / Codex / Copilot) into the integration registry **(part 1 resolved in v2.2.0 Phase 3; part 2 carried forward)** | DF | Phase 10 | [docs/archives/v2/v2.1/plans/adoption-spec-kit.md](plans/adoption-spec-kit.md) sub-tasks 10.2 and 10.3 | Phase 10 in v2.1.0 ships the integration registry as ADDITIVE -- the four new platforms (Windsurf, Antigravity 2.0, Gemini CLI, Nexus-AI) install through the new Python runner, while the original 4 platforms continue through the legacy `installer.sh` / `installer.ps1` copy blocks. The plan's original Phase 10.2 spec required byte-identical parity tests covering all 5 original platforms before any installer change; this was the heaviest sub-task in scope and was intentionally deferred so that v2.1.0 could ship the cross-platform expansion immediately. ADR-001 documents the additive choice. **Update (v2.2.0 Phase 3, T020):** part 1 -- tree-mirror byte parity (`catalog/skills`, `catalog/commands`, `catalog/agents`, `catalog/rules` across claude / codex / cursor / gemini / opencode) -- is now closed by `tests/integrations/test_parity_with_legacy_installer.py` (SHA-256-identical legacy vs. registry trees). Part 2 -- instruction-file byte parity and legacy-block removal -- remains open. | **Part 1 done.** Part 2 (v2.3.0): bring the registry runner to full instruction-file parity (thread the bash placeholder set `{{PRIMARY_LANGUAGE}}` / `{{BUILD_CMD}}` / `{{SKILL_INDEX}}` / ... and append per-language coding snippets in `MarkdownIntegration._write_instruction`), add the instruction-file byte-parity assertion to `tests/integrations/test_parity_with_legacy_installer.py`, then refactor `installer.{sh,ps1}` to delegate claude / codex / gemini to the runner and remove the duplicated copy blocks. Tracked as `DF-001` in [docs/archives/v2/v2.2/known-gaps.md](../v2.2.0/known-gaps.md). |
+### DF-001 - Byte-identical parity migration of the original 4 platforms (Claude / Gemini / Codex / Copilot) into the integration registry **(part 1 resolved in v2.2.0 Phase 3; part 2 carried forward)** - RESOLVED
+
+**v4.13.11 structural audit, 2026-10-09**: This heading preserves the historical table obligation and every original field below. The v2.3 Resolved DF-001 and MT-2 rows record full placeholder threading, one shared instruction renderer and the independent-reference-render parity assertion. The current tree retains tests/integrations/test_parity_with_legacy_installer.py::test_instruction_body_parity_with_legacy_render, MarkdownIntegration._render/_write_instruction in scripts/lib/integrations/base.py and both installer --instruction-only invocations. This is the historical original-scope parity closure, not a fresh installer run.
+
+**ID**: DF-001
+
+**Title**: Byte-identical parity migration of the original 4 platforms (Claude / Gemini / Codex / Copilot) into the integration registry **(part 1 resolved in v2.2.0 Phase 3; part 2 carried forward)**
+
+**Category**: DF
+
+**Source phase**: Phase 10
+
+**Plan reference**: [docs/archives/v2/v2.1/plans/adoption-spec-kit.md](plans/adoption-spec-kit.md) sub-tasks 10.2 and 10.3
+
+**Reason**: Phase 10 in v2.1.0 ships the integration registry as ADDITIVE -- the four new platforms (Windsurf, Antigravity 2.0, Gemini CLI, Nexus-AI) install through the new Python runner, while the original 4 platforms continue through the legacy `installer.sh` / `installer.ps1` copy blocks. The plan's original Phase 10.2 spec required byte-identical parity tests covering all 5 original platforms before any installer change; this was the heaviest sub-task in scope and was intentionally deferred so that v2.1.0 could ship the cross-platform expansion immediately. ADR-001 documents the additive choice. **Update (v2.2.0 Phase 3, T020):** part 1 -- tree-mirror byte parity (`catalog/skills`, `catalog/commands`, `catalog/agents`, `catalog/rules` across claude / codex / cursor / gemini / opencode) -- is now closed by `tests/integrations/test_parity_with_legacy_installer.py` (SHA-256-identical legacy vs. registry trees). Part 2 -- instruction-file byte parity and legacy-block removal -- remains open.
+
+**Suggested next step**: **Part 1 done.** Part 2 (v2.3.0): bring the registry runner to full instruction-file parity (thread the bash placeholder set `{{PRIMARY_LANGUAGE}}` / `{{BUILD_CMD}}` / `{{SKILL_INDEX}}` / ... and append per-language coding snippets in `MarkdownIntegration._write_instruction`), add the instruction-file byte-parity assertion to `tests/integrations/test_parity_with_legacy_installer.py`, then refactor `installer.{sh,ps1}` to delegate claude / codex / gemini to the runner and remove the duplicated copy blocks. Tracked as `DF-001` in [docs/archives/v2/v2.2/known-gaps.md](../v2.2.0/known-gaps.md).
+
 
 ## Resolved
+
+### Resolved historical records
 
 | ID | Title | Resolved in | Notes |
 |---|---|---|---|

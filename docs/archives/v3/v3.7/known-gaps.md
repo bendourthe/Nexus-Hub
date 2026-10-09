@@ -1,9 +1,10 @@
 # Known Gaps -- v3.7.0
 
+**Ledger normalization**: 2026-10-09, v4.13.11. The canonical open count is derived from supported item headings. Summary and reconciliation count tables below retain historical release snapshots, including partial closures and explicit transfers; they are not new parser totals.
+
 **Status**: finalized; archived 2026-09-29; 0 open items (2 migrated to v4.13 as AR-26, AR-37). Per-section status lines below are historical and were written before release.
 
 **Open items**: 0
-
 **Status at last pre-archive update**: v3.7.0 (install-UX overhaul) is feature-complete on `feat/installer-bootstrap`. The `install-ux-overhaul` plan (`docs/v3/v3.7/plans/install-ux-overhaul.md`) has landed Phase 1 (self-fetching dual-mode bootstrap), Phase 2 (no-prompt all-platform install + conflict-only overwrite), Phase 3 (`nexus-hub upgrade` checker + CLI on PATH, un-defers N4), Phase 4 (interactive guide + install docs redesigned around the one-command flow), and Phase 5 (cross-platform CI verification + release readiness). Only the final `/update release` step (version bump 3.6.0 -> 3.7.0 + changelog + tag + push) remains. Phase 5 widened the CI bootstrap to a cross-platform matrix (`ubuntu-latest` + `macos-latest` for the bash path, plus a new `bootstrap-windows` job that runs the standalone PowerShell flow end-to-end), added a `nexus-hub --version` assertion to every bootstrap job, recorded a manual Mac smoke-test checklist (`docs/v3/v3.7/development/mac-smoke-test.md`), and resolved the personal-path leak that Phase 2 had deferred to the release (BG-v37-1).
 **Last updated**: 2026-06-17 (install-ux-overhaul Phase 5)
 
@@ -23,17 +24,140 @@ This file tracks per-phase unfinished work, intentional deferrals, bugs, missing
 
 ## Open Items
 
-| ID | Category | Source phase | Plan reference | Reason | Suggested next step | Severity |
-|---|---|---|---|---|---|---|
-| WN-v37-1 - MIGRATED to v4.13 (AR-26) | WN | install-ux-overhaul Phase 5 | 5.1 | The real `curl \| bash` one-liner against live GitHub cannot be exercised in CI (CI drives the bootstrap from a local `git archive` tarball with zero network) and cannot be run on the Windows dev host (WN-v36-1). A manual Mac smoke-test checklist is recorded at `docs/v3/v3.7/development/mac-smoke-test.md` with results marked `pending`. Steps 1-3 (install + `nexus-hub --version` + `nexus-hub upgrade` "up to date") also require the v3.7.0 tag to be live on `main` before they exercise the documented one-liner verbatim. | After the v3.7.0 tag is pushed to `main`, run the checklist on a real Mac and record the results table; the new `macos-latest` CI bootstrap job covers the local-tarball path in the meantime. | Low (macOS bash path is auto-verified in CI; only the live-network one-liner is manual, and the bootstrap fetch logic is identical to the tarball path) |
-| WN-v37-2 - RESOLVED 2026-09-29 | WN | install-ux-overhaul Phase 5 | 5.1 | The new `macos-latest` matrix entry and the `bootstrap-windows` job (plus the `nexus-hub --version` assertion added to every bootstrap job) are first exercised only when CI runs, and CI runs on pushes / PRs to `develop` and `main` -- not on the `feat/installer-bootstrap` feature branch. So the cross-platform jobs are unverified until the branch is integrated to `develop`. The bash path is bash-3.2-safe (no associative arrays / `mapfile` / case-mod expansions, confirmed by grep) so `macos-latest` runs the same code as `ubuntu-latest`; the Windows job tolerates the core installer's exit code and falls back to the extracted CLI core for the `--version` check, so the gate hinges on the extraction + version-read path rather than a full headless Windows install. | Confirm the `bootstrap (ubuntu-latest)`, `bootstrap (macos-latest)`, and `bootstrap-windows` jobs are green on the first `develop` CI run; adjust the new jobs there if a runner-specific issue surfaces (develop CI is the authoritative gate under WN-v36-1). | Low (jobs are designed to be robust to headless-install exit codes; develop CI is the safety net before the `main` release tag) |
-| WN-v33-1 - RESOLVED 2026-09-29 | WN | carried forward from v3.3.0; re-confirmed install-ux-overhaul Phases 1-5 | 1.3, 2.3, 3.3, 4.3, 5.3 (Testing and Stabilization) | Local Windows verification is partially emulated: `make` is not on PATH, so `make validate` / `make lint` / `make test` were run by invoking the underlying validators and pytest directly. Re-confirmed for Phase 5: the full direct validate chain is green -- JSON catalogs OK (256 skills / 15 bundles / 17 workflows / templates OK), the per-skill orphan-bundle audit PASSES (1 pre-existing warning, WN-v33-2), `validate_no_personal_paths` exit 0 (after the BG-v37-1 redaction), `validate_unicode_safety` 0 errors, `scan_supply_chain_iocs` exit 0, `validate_workflow_security` exit 0 (covers the edited `ci.yml`), `validate_solution_frontmatter` exit 0, `check_version_sync` surfaces all match 3.6.0 (the bump is the release step), `check_base_template_parity` exit 0, and the context-compressor accuracy gate PASSES (CCR 100% / signatures 100% / reduction 45.8%). `make lint`: ShellCheck is not on PATH; the bootstrap entry points were verified with `bash -n install.sh` / `bash -n scripts/installer.sh` (clean). Phase 5 did not change any shell script (only `.github/workflows/ci.yml` and docs). | Confirm CI `validate` + `shellcheck` + `tests` + the bootstrap matrix jobs are green on the ubuntu / macOS / Windows runners. No code change expected. | Low (direct validator equivalents all green; only the bash bootstrap and ShellCheck rely on CI) |
-| WN-v36-1 - RESOLVED 2026-09-29 | WN | carried forward from install-ux-overhaul Phase 1; re-confirmed Phases 2-5 | 1.3, 2.3, 3.3, 5.1, 5.3 | bash cannot be fully run on the Windows dev host: the dev checkout path contains a space ("OneDrive - Supira") and `bash.EXE` mis-resolves it, so the bash-invoking suites (`tests/installer/*`, `tests/integrations/test_parity_with_legacy_installer.py`) hang or return exit 127 on this checkout, and the Phase 1 `test_bootstrap.py::test_ps_standalone_extracts_and_hands_off` hits a Windows-host `/usr/bin/tar` extraction issue. The non-bash suites pass in isolation. CI (ubuntu) is the authoritative bash gate; Phase 5 adds `macos-latest` (real macOS bash) and `bootstrap-windows` (real Windows PowerShell) jobs so all three OS install paths now have CI coverage. | Optionally make the affected bash-invoking tests skip cleanly when the interpreter cannot resolve a space-containing path on Windows; otherwise no action (green on CI and on space-free checkouts). No production-code change. | Low (environment-only; reproduces only under space-containing paths; green on CI and space-free checkouts) |
-| WN-v37-3 - RESOLVED 2026-09-29 | WN | install-ux-overhaul Phase 4 (surfaced); logged Phase 5 | 4.2, 5.2 | `README_zh.md` (the Chinese README) is broadly stale beyond the install flow: Phase 4 corrected only its install-flow lines (every changed line traced to the Phase 4 gate), but its post-install bullets still cite outdated counts (~187 skills / 34 commands / 13 hooks / 10 agents) from a much older release. The English README is current (256 skills / 15 commands / 23 hooks). | Do a full `README_zh.md` re-translation / count-refresh pass against the current English README in a future docs sweep. | Low (secondary-language doc; the English README and all machine-read registries are correct) |
-| WN-v33-2 - RESOLVED 2026-09-29 | WN | carried forward from v3.3.0; re-confirmed Phase 5 | n/a | Benign, pre-existing non-blocking warnings outside this work, all exit-0: (1) the `demo-capture` orphan `scripts/__pycache__/*.pyc` is a LOCAL-ONLY artifact (gitignored, never committed); (2) `git-branching-workflow` has a 169-word `overview_l1` soft-limit warning (limit 150); (3) `session-query` has a 175-word `overview_l1` soft-limit warning (surfaced as the catalog grew; same class as #2). None fails any gate, and none is touched by Phase 5. | Optionally reword the two over-limit `overview_l1` fields under 150 words in a future content pass; the `.pyc` needs no repo action (a `make clean` removes it locally). | Low (local-only artifact + soft warnings; no gate impact) |
-| DF-v36-2 - MIGRATED to v4.13 (AR-37) | DF | carried forward from v3.6.0 (adoption-spec-kit Phase 5) | comparison-spec-kit.md Bucket C | N2b -- a portable, agent-agnostic declarative YAML orchestration runtime (usable across all ~40 agents) remains deferred and policy-disfavored as a runtime. The MCP Registry Policy prefers LLM-native skills over bespoke runtimes, and the harness's own Dynamic Workflows already cover orchestration on Claude Code. Only N2a's *vocabulary* (gate / persisted-resume / continue-on-error) was adopted (v3.6.0 Phase 1), not the engine. Not in scope for the v3.7.0 install-UX overhaul. Classified `re-full` (deferred), high effort. | Revisit only if cross-agent declarative orchestration (a single workflow definition driving non-Claude-Code agents) becomes a stated product goal; until then the adopted N2a vocabulary + Dynamic Workflows are the answer. | Low (deferred + policy-disfavored; vocabulary already adopted, Dynamic Workflows cover Claude Code) |
+### WN-v37-1 - MIGRATED to v4.13 (AR-26) - MIGRATED to v4.13.0
+
+**v4.13.11 structural audit, 2026-10-09**: This heading preserves the historical table obligation and every original field below. Existing historical dispositions remain as written; an unsupported transfer marker is not a verified migration.
+
+**ID**: WN-v37-1 - MIGRATED to v4.13 (AR-26)
+
+**Category**: WN
+
+**Source phase**: install-ux-overhaul Phase 5
+
+**Plan reference**: 5.1
+
+**Reason**: The real `curl \| bash` one-liner against live GitHub cannot be exercised in CI (CI drives the bootstrap from a local `git archive` tarball with zero network) and cannot be run on the Windows dev host (WN-v36-1). A manual Mac smoke-test checklist is recorded at `docs/v3/v3.7/development/mac-smoke-test.md` with results marked `pending`. Steps 1-3 (install + `nexus-hub --version` + `nexus-hub upgrade` "up to date") also require the v3.7.0 tag to be live on `main` before they exercise the documented one-liner verbatim.
+
+**Suggested next step**: After the v3.7.0 tag is pushed to `main`, run the checklist on a real Mac and record the results table; the new `macos-latest` CI bootstrap job covers the local-tarball path in the meantime.
+
+**Severity**: Low (macOS bash path is auto-verified in CI; only the live-network one-liner is manual, and the bootstrap fetch logic is identical to the tarball path)
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-26`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.7`, section `Open Items`, and original ID `WN-v37-1`.
+
+### WN-v37-2 - RESOLVED 2026-09-29
+
+**v4.13.11 structural audit, 2026-10-09**: This heading preserves the historical table obligation and every original field below. Existing historical dispositions remain as written; an unsupported transfer marker is not a verified migration.
+
+**ID**: WN-v37-2 - RESOLVED 2026-09-29
+
+**Category**: WN
+
+**Source phase**: install-ux-overhaul Phase 5
+
+**Plan reference**: 5.1
+
+**Reason**: The new `macos-latest` matrix entry and the `bootstrap-windows` job (plus the `nexus-hub --version` assertion added to every bootstrap job) are first exercised only when CI runs, and CI runs on pushes / PRs to `develop` and `main` -- not on the `feat/installer-bootstrap` feature branch. So the cross-platform jobs are unverified until the branch is integrated to `develop`. The bash path is bash-3.2-safe (no associative arrays / `mapfile` / case-mod expansions, confirmed by grep) so `macos-latest` runs the same code as `ubuntu-latest`; the Windows job tolerates the core installer's exit code and falls back to the extracted CLI core for the `--version` check, so the gate hinges on the extraction + version-read path rather than a full headless Windows install.
+
+**Suggested next step**: Confirm the `bootstrap (ubuntu-latest)`, `bootstrap (macos-latest)`, and `bootstrap-windows` jobs are green on the first `develop` CI run; adjust the new jobs there if a runner-specific issue surfaces (develop CI is the authoritative gate under WN-v36-1).
+
+**Severity**: Low (jobs are designed to be robust to headless-install exit codes; develop CI is the safety net before the `main` release tag)
+
+### WN-v33-1 - RESOLVED 2026-09-29
+
+**v4.13.11 structural audit, 2026-10-09**: This heading preserves the historical table obligation and every original field below. Existing historical dispositions remain as written; an unsupported transfer marker is not a verified migration.
+
+**ID**: WN-v33-1 - RESOLVED 2026-09-29
+
+**Category**: WN
+
+**Source phase**: carried forward from v3.3.0; re-confirmed install-ux-overhaul Phases 1-5
+
+**Plan reference**: 1.3, 2.3, 3.3, 4.3, 5.3 (Testing and Stabilization)
+
+**Reason**: Local Windows verification is partially emulated: `make` is not on PATH, so `make validate` / `make lint` / `make test` were run by invoking the underlying validators and pytest directly. Re-confirmed for Phase 5: the full direct validate chain is green -- JSON catalogs OK (256 skills / 15 bundles / 17 workflows / templates OK), the per-skill orphan-bundle audit PASSES (1 pre-existing warning, WN-v33-2), `validate_no_personal_paths` exit 0 (after the BG-v37-1 redaction), `validate_unicode_safety` 0 errors, `scan_supply_chain_iocs` exit 0, `validate_workflow_security` exit 0 (covers the edited `ci.yml`), `validate_solution_frontmatter` exit 0, `check_version_sync` surfaces all match 3.6.0 (the bump is the release step), `check_base_template_parity` exit 0, and the context-compressor accuracy gate PASSES (CCR 100% / signatures 100% / reduction 45.8%). `make lint`: ShellCheck is not on PATH; the bootstrap entry points were verified with `bash -n install.sh` / `bash -n scripts/installer.sh` (clean). Phase 5 did not change any shell script (only `.github/workflows/ci.yml` and docs).
+
+**Suggested next step**: Confirm CI `validate` + `shellcheck` + `tests` + the bootstrap matrix jobs are green on the ubuntu / macOS / Windows runners. No code change expected.
+
+**Severity**: Low (direct validator equivalents all green; only the bash bootstrap and ShellCheck rely on CI)
+
+### WN-v36-1 - RESOLVED 2026-09-29
+
+**v4.13.11 structural audit, 2026-10-09**: This heading preserves the historical table obligation and every original field below. Existing historical dispositions remain as written; an unsupported transfer marker is not a verified migration.
+
+**ID**: WN-v36-1 - RESOLVED 2026-09-29
+
+**Category**: WN
+
+**Source phase**: carried forward from install-ux-overhaul Phase 1; re-confirmed Phases 2-5
+
+**Plan reference**: 1.3, 2.3, 3.3, 5.1, 5.3
+
+**Reason**: bash cannot be fully run on the Windows dev host: the dev checkout path contains a space ("OneDrive - Supira") and `bash.EXE` mis-resolves it, so the bash-invoking suites (`tests/installer/*`, `tests/integrations/test_parity_with_legacy_installer.py`) hang or return exit 127 on this checkout, and the Phase 1 `test_bootstrap.py::test_ps_standalone_extracts_and_hands_off` hits a Windows-host `/usr/bin/tar` extraction issue. The non-bash suites pass in isolation. CI (ubuntu) is the authoritative bash gate; Phase 5 adds `macos-latest` (real macOS bash) and `bootstrap-windows` (real Windows PowerShell) jobs so all three OS install paths now have CI coverage.
+
+**Suggested next step**: Optionally make the affected bash-invoking tests skip cleanly when the interpreter cannot resolve a space-containing path on Windows; otherwise no action (green on CI and on space-free checkouts). No production-code change.
+
+**Severity**: Low (environment-only; reproduces only under space-containing paths; green on CI and space-free checkouts)
+
+### WN-v37-3 - RESOLVED 2026-09-29
+
+**v4.13.11 structural audit, 2026-10-09**: This heading preserves the historical table obligation and every original field below. Existing historical dispositions remain as written; an unsupported transfer marker is not a verified migration.
+
+**ID**: WN-v37-3 - RESOLVED 2026-09-29
+
+**Category**: WN
+
+**Source phase**: install-ux-overhaul Phase 4 (surfaced); logged Phase 5
+
+**Plan reference**: 4.2, 5.2
+
+**Reason**: `README_zh.md` (the Chinese README) is broadly stale beyond the install flow: Phase 4 corrected only its install-flow lines (every changed line traced to the Phase 4 gate), but its post-install bullets still cite outdated counts (~187 skills / 34 commands / 13 hooks / 10 agents) from a much older release. The English README is current (256 skills / 15 commands / 23 hooks).
+
+**Suggested next step**: Do a full `README_zh.md` re-translation / count-refresh pass against the current English README in a future docs sweep.
+
+**Severity**: Low (secondary-language doc; the English README and all machine-read registries are correct)
+
+### WN-v33-2 - RESOLVED 2026-09-29
+
+**v4.13.11 structural audit, 2026-10-09**: This heading preserves the historical table obligation and every original field below. Existing historical dispositions remain as written; an unsupported transfer marker is not a verified migration.
+
+**ID**: WN-v33-2 - RESOLVED 2026-09-29
+
+**Category**: WN
+
+**Source phase**: carried forward from v3.3.0; re-confirmed Phase 5
+
+**Plan reference**: n/a
+
+**Reason**: Benign, pre-existing non-blocking warnings outside this work, all exit-0: (1) the `demo-capture` orphan `scripts/__pycache__/*.pyc` is a LOCAL-ONLY artifact (gitignored, never committed); (2) `git-branching-workflow` has a 169-word `overview_l1` soft-limit warning (limit 150); (3) `session-query` has a 175-word `overview_l1` soft-limit warning (surfaced as the catalog grew; same class as #2). None fails any gate, and none is touched by Phase 5.
+
+**Suggested next step**: Optionally reword the two over-limit `overview_l1` fields under 150 words in a future content pass; the `.pyc` needs no repo action (a `make clean` removes it locally).
+
+**Severity**: Low (local-only artifact + soft warnings; no gate impact)
+
+### DF-v36-2 - MIGRATED to v4.13 (AR-37) - MIGRATED to v4.13.0
+
+**v4.13.11 structural audit, 2026-10-09**: This heading preserves the historical table obligation and every original field below. Existing historical dispositions remain as written; an unsupported transfer marker is not a verified migration.
+
+**ID**: DF-v36-2 - MIGRATED to v4.13 (AR-37)
+
+**Category**: DF
+
+**Source phase**: carried forward from v3.6.0 (adoption-spec-kit Phase 5)
+
+**Plan reference**: comparison-spec-kit.md Bucket C
+
+**Reason**: N2b -- a portable, agent-agnostic declarative YAML orchestration runtime (usable across all ~40 agents) remains deferred and policy-disfavored as a runtime. The MCP Registry Policy prefers LLM-native skills over bespoke runtimes, and the harness's own Dynamic Workflows already cover orchestration on Claude Code. Only N2a's *vocabulary* (gate / persisted-resume / continue-on-error) was adopted (v3.6.0 Phase 1), not the engine. Not in scope for the v3.7.0 install-UX overhaul. Classified `re-full` (deferred), high effort.
+
+**Suggested next step**: Revisit only if cross-agent declarative orchestration (a single workflow definition driving non-Claude-Code agents) becomes a stated product goal; until then the adopted N2a vocabulary + Dynamic Workflows are the answer.
+
+**Severity**: Low (deferred + policy-disfavored; vocabulary already adopted, Dynamic Workflows cover Claude Code)
+
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-37`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.7`, section `Open Items`, and original ID `DF-v36-2`.
 
 ## Resolved
+
+### Resolved historical records
 
 | ID | Category | Source phase | Resolved in | Note |
 |---|---|---|---|---|
@@ -46,10 +170,10 @@ Before this minor moved to `docs/archives/`, every item that this file did not a
 
 | Item | Disposition | Evidence, reason, or destination |
 |---|---|---|
-| WN-v37-1 (line 24) | Migrated | AR-26: live macOS installer smoke (`curl \| bash` and `--branch`) never recorded; `development/mac-smoke-test.md` steps are still pending; merged with v3.0 DF-v30-8, v3.7-v3.9 WN-v37-1 |
-| WN-v37-2 (line 25) | Resolved | Run 27737727214 ("v3.7.0 CI fix") passed all three bootstrap jobs on ubuntu, macOS, and Windows |
-| WN-v33-1 (line 26) | Resolved | Run 27737727214 passed |
-| WN-v36-1 (line 27) | Resolved | `install.ps1` now resolves the Windows `tar.exe` via `Resolve-TarExe` (commit `43bae404`), and the test-PATH repair in `tests/conftest.py` (v3.15.6) fixed the Windows host failures; see v3.6 WN-v36-1 and `docs/archives/v3/v3.18/known-gaps.md` WN-1 after this move |
-| WN-v37-3 (line 28) | Resolved | Resolved in the v3.8 ledger Resolved table |
-| WN-v33-2 (line 29) | Resolved | resolved in the v3.8 ledger (`docs/archives/v3/v3.8/known-gaps.md` Resolved table, WN-v33-2) |
-| DF-v36-2 (line 30) | Migrated | AR-37: conditional adoption candidates awaiting a maintainer build-or-decline decision; merged with v3.0 DF-v30-9, v3.6-v3.9 DF-v36-2, v3.9 DF-v39-nomistakes-1, v3.10 DF-v310-ruflo-A6 and A10-rest |
+| `WN-v37-1` (line 24) | Migrated | AR-26: live macOS installer smoke (`curl \| bash` and `--branch`) never recorded; `development/mac-smoke-test.md` steps are still pending; merged with v3.0 DF-v30-8, v3.7-v3.9 WN-v37-1 |
+| `WN-v37-2` (line 25) | Resolved | Run 27737727214 ("v3.7.0 CI fix") passed all three bootstrap jobs on ubuntu, macOS, and Windows |
+| `WN-v33-1` (line 26) | Resolved | Run 27737727214 passed |
+| `WN-v36-1` (line 27) | Resolved | `install.ps1` now resolves the Windows `tar.exe` via `Resolve-TarExe` (commit `43bae404`), and the test-PATH repair in `tests/conftest.py` (v3.15.6) fixed the Windows host failures; see v3.6 WN-v36-1 and `docs/archives/v3/v3.18/known-gaps.md` WN-1 after this move |
+| `WN-v37-3` (line 28) | Resolved | Resolved in the v3.8 ledger Resolved table |
+| `WN-v33-2` (line 29) | Resolved | resolved in the v3.8 ledger (`docs/archives/v3/v3.8/known-gaps.md` Resolved table, WN-v33-2) |
+| `DF-v36-2` (line 30) | Migrated | AR-37: conditional adoption candidates awaiting a maintainer build-or-decline decision; merged with v3.0 DF-v30-9, v3.6-v3.9 DF-v36-2, v3.9 DF-v39-nomistakes-1, v3.10 DF-v310-ruflo-A6 and A10-rest |

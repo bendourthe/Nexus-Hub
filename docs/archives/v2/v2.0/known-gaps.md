@@ -1,5 +1,9 @@
 # Known Gaps -- v2.0.0
 
+**Open items**: 0
+
+**Ledger normalization**: 2026-10-09, v4.13.11. The canonical open count above is derived from supported item headings. Summary and reconciliation count tables below retain historical release snapshots, including partial closures and explicit transfers; they are not new parser totals.
+
 This file tracks per-version unfinished work, deferred items, deviations from plan, and bugs discovered during phase implementation. The next phase plan and the version-bump checklist read this file to decide what carries forward.
 
 **Plan**: [docs/archives/v2/v2.0/plans/nexus-hub-rename.md](plans/nexus-hub-rename.md)
@@ -22,7 +26,9 @@ This file tracks per-version unfinished work, deferred items, deviations from pl
 
 ## Open Items
 
-### DF-005 -- `README_zh.md` v1.0.0 historical block preserves the old "DevAI-Hub" name intentionally
+### DF-005 -- `README_zh.md` v1.0.0 historical block preserves the old "DevAI-Hub" name intentionally - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v2.0#DF-005` is recorded as RESOLVED for its original scope. Evidence: Ledger's own disposition is "no action"; the required rename callout is present at README_zh.md:9 and the historical heading at :13 Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 **Source phase**: Phase 6, sub-task 6.3 (nested-READMEs sync).
 **Plan reference**: [docs/archives/v2/v2.0/plans/nexus-hub-rename.md](plans/nexus-hub-rename.md) sub-task 6.3 and Phase 6.4 stability gate step 1 ("matches are allowed only inside an explicit 'renamed from' / migration callout block"). [docs/archives/v2/v2.0/rename-decisions.md](rename-decisions.md) version-semantics rule -- historical CHANGELOG-style content is preserved as-is to reflect the release as it happened.
@@ -30,6 +36,8 @@ This file tracks per-version unfinished work, deferred items, deviations from pl
 **Suggested next step**: No action for v2.0.0. If a future release retranslates `README_zh.md` from scratch to align with the new English README, the historical block migrates to a separate `docs/archive/v1/v1.0/RELEASE_NOTES_zh.md` (the same shape v0.x history follows). Until then, the explicit rename notice at the top satisfies the Phase 6.4 callout rule.
 
 ## Resolved
+
+### Resolved historical records
 
 | ID | Title | Resolved in | Notes |
 |---|---|---|---|

@@ -1,5 +1,8 @@
 # Known Gaps - v4.5
 
+**Open items**: 0
+**Ledger normalization**: 2026-10-09, v4.13.11. The canonical open count is derived from supported item headings. Summary and reconciliation count tables below retain historical release snapshots, including partial closures and explicit transfers; they are not new parser totals.
+
 **Project**: Nexus-Hub
 **Status**: v4.5.0 finalized 2026-09-04 at `/update release`; integrated via PR #162 (merge `765d9f32`) and PR #163
 **Last updated**: 2026-09-04 (v4.5.0 release)
@@ -24,14 +27,16 @@
 
 #### Deferred
 
-##### DF-1 - Whether the always-on Writing Discipline clause improves replies is unverified by a person
+##### DF-1 - Whether the always-on Writing Discipline clause improves replies is unverified by a person - MIGRATED to v4.13.0
 
 - **Source phase**: Phase 1 - Writing Discipline rule; Phase 7 - final review.
 - **Plan reference**: sub-task 1.5 (measured cost) and Human and Manual Testing Suggestions item 2.
 - **Reason**: The cost is measured and justified on its own terms (163 words, roughly 215 tokens per turn per platform in use; ceilings raised by exactly the delta and recorded in `docs/policy/doc-budgets.md`). The benefit cannot be measured by a test: whether the self-check clause changes a live reply, and whether the change is an improvement or stiffness, is a judgment a person makes by asking a cliche-prone question on two platforms and reading the answers. Nobody has done that yet.
 - **Suggested next step**: Run human test 2 after the release lands on at least two platforms; if the replies read as stiff rather than cleaner, shorten the prohibition list before touching the self-check clause, since the clause is the load-bearing part (see the decision record `docs/decisions/implemented/policy/2026-09-04-writing-discipline-binds-chat-replies.md`).
 
-##### DF-2 - No transitive-reachability or shared-writable-service enumeration has been performed on this repository's own agent surface
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-70`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.5.0`, section `v4.5.0 - anti-cliche-and-agent-security`, and original ID `DF-1`.
+
+##### DF-2 - No transitive-reachability or shared-writable-service enumeration has been performed on this repository's own agent surface - MIGRATED to v4.13.0
 
 - **Source phase**: Phase 5 - Agent isolation; Phase 7 - final review.
 - **Plan reference**: sub-task 7.3 prompt ("any egress reachability or shared-service enumeration this repository has not performed on its own agent surface") and Human and Manual Testing Suggestions item 4.
@@ -40,9 +45,13 @@
 
 **Bounded audit, 2026-09-24**: The [shared-writable-service inventory](development/isolation-audit/shared-writable-services.md) and [transitive-reachability assessment](development/isolation-audit/transitive-reachability.md) now name the observed local checkout, user cache, GitHub cache and artifact surfaces, direct GitHub API access, configured web-fetch egress, and CI runner limits. The local shared checkout fails the per-session isolation minimum, and no out-of-process egress allowlist was evidenced in the inspected configuration from which to prove a transitive union. DF-2 remains open; these records are findings and design inputs, not a security pass or an exhaustive host inventory.
 
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-71`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.5.0`, section `v4.5.0 - anti-cliche-and-agent-security`, and original ID `DF-2`.
+
 #### Warnings
 
-##### WN-2 - Phases 3, 5, and 7 ran one effort level below the plan's recommendation
+##### WN-2 - Phases 3, 5, and 7 ran one effort level below the plan's recommendation - CLOSED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.5#WN-2` is recorded as CLOSED for its original scope. Evidence: v4.13 inventory note: "record surfaced model-effort deviations, not present-tree defects" Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Source phase**: Phase 3 - Catalog Extension, the Uncovered Cliche Patterns; also Phase 5 and Phase 7.
 - **Plan reference**: Phase 3, 5, and 7 `**Recommended model tier**: frontier` / `**Recommended effort level**: max`.
@@ -52,12 +61,14 @@
 
 #### Missing tests / coverage gaps
 
-##### MT-1 - The four human and manual tests have not been run
+##### MT-1 - The four human and manual tests have not been run - MIGRATED to v4.13.0
 
 - **Source phase**: Phase 7 - final phase.
 - **Plan reference**: Human and Manual Testing Suggestions, items 1 to 4.
 - **Reason**: All four require a person: a throwaway install across three non-Claude platforms with a read-path check; a judged comparison of replies on two platforms; a hand-judged false-positive rate on the reader's own writing; an attempt to apply the shared-storage control to this repository's own agent surface. The installer was also not run live on this host by standing instruction, so item 1's distribution check rests on the installer smoke suites until a person runs it.
 - **Suggested next step**: Run items 1 and 3 before `/update release` if time allows (they are quick); items 2 and 4 after the release, since they need the installed block and real infrastructure respectively. Record outcomes here; item 2 resolves `DF-1` and item 4 resolves `DF-2`.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-72`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.5.0`, section `v4.5.0 - anti-cliche-and-agent-security`, and original ID `MT-1`.
 
 ### Carry-forward from v4.4
 
@@ -65,10 +76,10 @@ Reviewed at phase 7 per sub-task 7.3. The v4.4 ledger (`docs/archives/v4/v4.4/kn
 
 | v4.4 item | Disposition | Reason |
 |---|---|---|
-| DF-1 - three platform entries use text treatments pending approved marks | Stays open, owned by v4.4 | Vendor-dependent; nothing in v4.5 touches platform marks. |
-| WN-1 - Phase 1 ran one tier below the recommendation | Closable (superseded) | Its next step (re-surface the tier at every later pre-flight) was executed at every v4.5 phase boundary and is recorded as `WN-2` above. |
-| WN-2 - the superseded-assertion register was incomplete | Closable (scope complete) | Scoped to v4.4 guide phases 3 to 7, all complete and published in the v4.4.5 tag. |
-| MT-1 - browser-backed guide verification in CI | Already resolved in v4.4 | Resolved at v4.4's own Phase 7 (PR #150, `guide-render` job); the plan's 7.3 prompt predates that closure. |
+| `DF-1` - three platform entries use text treatments pending approved marks | Stays open, owned by v4.4 | Vendor-dependent; nothing in v4.5 touches platform marks. |
+| `WN-1` - Phase 1 ran one tier below the recommendation | Closable (superseded) | Its next step (re-surface the tier at every later pre-flight) was executed at every v4.5 phase boundary and is recorded as `WN-2` above. |
+| `WN-2` - the superseded-assertion register was incomplete | Closable (scope complete) | Scoped to v4.4 guide phases 3 to 7, all complete and published in the v4.4.5 tag. |
+| `MT-1` - browser-backed guide verification in CI | Already resolved in v4.4 | Resolved at v4.4's own Phase 7 (PR #150, `guide-render` job); the plan's 7.3 prompt predates that closure. |
 
 Older ledgers: v4.0 `DF-1` (the non-lockstep seven are not byte-locked by the release gate) is narrowed by v4.5 for one block, since the companion validator asserts byte identity of `## Writing Discipline` across all twelve templates; the general item stays open there. v4.1, v4.2, and v4.3 open items are untouched by v4.5 and remain owned by their ledgers.
 

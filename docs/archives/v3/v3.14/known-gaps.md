@@ -1,10 +1,11 @@
 # Known Gaps - v3.14
 
+**Ledger normalization**: 2026-10-09, v4.13.11. The canonical open count is derived from supported item headings. Summary and reconciliation count tables below retain historical release snapshots, including partial closures and explicit transfers; they are not new parser totals.
+
 **Project**: Nexus-Hub
 **Status**: finalized; archived 2026-09-29; 0 open items (9 migrated to v4.13 as AR-06, AR-08, AR-20, AR-31, AR-32, AR-35). Per-section status lines below are historical and were written before release.
 
 **Open items**: 0
-
 **Status at last pre-archive update**: v3.14.0 RELEASED (2026-07-16: `feat/codex-lb-adoption` -> `develop` -> `main`, tag `v3.14.0`, pushed; GitHub Release publish handed to the user due to an invalid local `gh` token). v3.14.1 installer-hotfix on `fix/installer-hotfix` (cut off the released `develop`): all 3 phases complete; RELEASE-READY, pending `/update release` (v3.14.1 bump / `develop` -> `main` merge / tag / push / GitHub Release). v3.14.2 comparison-versioning-fix on `fix/comparison-versioning` (cut off `develop`): Phases 1-3 (Fix A adoption-target placement + Fix B from-comparison co-location + Fix C co-location drift check) complete; Phase 4 (terminal refactor/known-gaps/CI-CD) pending.
 **Last updated**: 2026-07-20 (v3.14.6 release - usage-monitor fixes + installer-log overhaul)
 
@@ -60,12 +61,16 @@ Three pre-existing test failures surfaced on this branch; none was caused by v3.
 
 #### Deferred
 
-##### DF-1 - Workspace-scope Claude checklist + workspace undetected grouping deferred - MIGRATED to v4.13 (AR-20)
+##### DF-1-v3145 - Workspace-scope Claude checklist + workspace undetected grouping deferred - MIGRATED to v4.13 (AR-20) - MIGRATED to v4.13.0
 
 - **Source phase**: v3.14.5 Phase 2
 - **Plan reference**: Phase 2 (2.1/2.3 - the plan's stability gate is a global side-by-side install)
 - **Reason**: Phase 2 scoped the checklist + grouping to the GLOBAL install (`Install-Global` / `install_global`), which is what every screenshot showed. Workspace-scope registry platforms already get the checklist automatically via the shared `Invoke-RegistryPlatform` / `invoke_registry_platform` (the rewrite is scope-agnostic), but the workspace-scope Claude block still prints its bespoke verbose output, and workspace undetected platforms print an inline `(reason)` note rather than being collected into a grouped section (the grouping is gated on the `-Provider` arg, which only the global caller passes).
 - **Suggested next step**: apply the same `6>$null`/`>/dev/null` + checklist treatment to the workspace Claude block and add `reset_undetected_platforms`/`write_undetected_group` (+ pass provider) to `Install-Workspace` / `install_workspace`. Low risk (mirrors the global rewrite); out of scope for the global-focused Phase 2.
+
+**Original source identity**: `v3.14.5#DF-1` in `v3.14.5`; normalized stable ID `DF-1-v3145` distinguishes this obligation from repeated IDs in other patch sections.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-20`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.14.5`, section `v3.14.5`, and original ID `DF-1`.
 
 ##### DF-2 - Codex `wham/usage` response schema unverified (auto-fetch is best-effort; manual entry is the guaranteed path) - RESOLVED 2026-09-29
 
@@ -74,12 +79,16 @@ Three pre-existing test failures surfaced on this branch; none was caused by v3.
 - **Reason**: `https://chatgpt.com/backend-api/wham/usage` is the real endpoint the official Codex CLI polls, but it is undocumented and could not be exercised from this environment (no live ChatGPT auth/network), so the exact response schema is unverified. `locateWindows` now probes a broadened alias set based on public reports (`primary`/`secondary`, `primary_window`/`secondary_window`, `five_hour_limit`/`weekly_limit`, `five_hour`/`weekly`/`5h`/`7d`, plus an array form), and every accessor stays fail-soft. But because the shape is a best-effort guess, auto-fetch may still return `usage-unavailable`; the GUARANTEED path is the new manual-entry fallback (`codex-usage.enterManual` + the dashboard "Enter usage manually" button), and the empty state is honest about which is which.
 - **Suggested next step**: capture a real `wham/usage` response from a live ChatGPT/Codex login and tighten `locateWindows` + `readWindow` to the confirmed field names; add a fixture test from the captured shape. Until then, manual entry covers the user.
 
-##### DF-3 - Pre-existing: AGENTS.md "legacy installer copy blocks" framing predates the registry migration - MIGRATED to v4.13 (AR-31)
+##### DF-3-v3145 - Pre-existing: AGENTS.md "legacy installer copy blocks" framing predates the registry migration - MIGRATED to v4.13 (AR-31) - MIGRATED to v4.13.0
 
 - **Source phase**: v3.14.5 Phase 7 (observed during the terminal refactor audit; pre-existing, NOT caused by this release)
 - **Plan reference**: Phase 7.1 (flagged the "legacy 4 copy blocks" line as stale prose to update)
 - **Reason**: AGENTS.md (lines ~381/389) describes Codex / Gemini / Copilot as installing via "legacy installer copy blocks", but `install_global` in both installers routes every platform except Claude through `invoke_registry_platform` -> `runner.py` (the integration registry). `git show develop:scripts/installer.sh` confirms this was already true on `develop`, so the framing was stale BEFORE v3.14.5 - this release did not change the install mechanism. Per the "every changed line traces to the request; no out-of-scope cleanup" rule, rewriting the canonical historical architecture prose (intertwined with the v2.1.0/v2.2.0 migration notes + DF-001) was judged out of scope for a release that did not touch it, and higher-risk than leaving it. The genuinely-new fact (the contract-freshness gate) WAS documented. The plan's 7.1 premise that "this release changed the fact" was incorrect (recorded as the Phase 7 DEVIATION in the session history).
 - **Suggested next step**: a dedicated AGENTS.md doc-accuracy pass to reframe "Original 4 (legacy copy blocks) / Extended 4" around the current reality (Claude = the one bespoke installer block; every other platform = the integration registry), keeping the separate permissions "legacy 4" grouping intact.
+
+**Original source identity**: `v3.14.5#DF-3` in `v3.14.5`; normalized stable ID `DF-3-v3145` distinguishes this obligation from repeated IDs in other patch sections.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-31`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.14.5`, section `v3.14.5`, and original ID `DF-3`.
 
 ##### DF-4 - Platform additive-surface drift deferred to v3.15.0 (found by the v3.14.5 release re-verification) - CLOSED 2026-09-29
 
@@ -99,12 +108,16 @@ Three pre-existing test failures surfaced on this branch; none was caused by v3.
 
 #### Missing tests / coverage gaps
 
-##### MT-1 - Usage-monitor extensions' UI orchestration remains partially host-only - MIGRATED to v4.13 (AR-32)
+##### MT-1-v3145 - Usage-monitor extensions' UI orchestration remains partially host-only - MIGRATED to v4.13 (AR-32) - MIGRATED to v4.13.0
 
 - **Source phase**: v3.14.5 Phases 4-5 (carries the v3.14.4 MT-1)
 - **Plan reference**: Phase 7.2
 - **Reason**: Phases 4-5 ADDED Vitest coverage to both extensions - Codex 38 tests (the `wham/usage` window-alias mapper, the actionable empty-state banner, the status-bar priority constants + compact label) and Claude 5 (priority constants + compact label) - closing the largest prior gaps. What remains host-only (not unit-testable without a live VS Code extension host): the actual webview rendering (dashboard HTML, the theme-adaptive tab icon), the manual-entry input-box flow end to end, and the live status-bar left-to-right ordering. These are covered by the HO-1 manual smoke checklist below.
 - **Suggested next step**: a `@vscode/test-electron` integration harness if UI-render regressions ever recur; today the unit tests plus the manual smoke checklist are proportionate.
+
+**Original source identity**: `v3.14.5#MT-1` in `v3.14.5`; normalized stable ID `MT-1-v3145` distinguishes this obligation from repeated IDs in other patch sections.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-32`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.14.5`, section `v3.14.5`, and original ID `MT-1`.
 
 #### Hand-offs
 
@@ -145,12 +158,16 @@ Three pre-existing test failures surfaced on this branch; none was caused by v3.
 - **Reason**: The static coexistence guarantees were verified (both extensions build + package to distinct VSIX; a scan confirms zero shared extension-id / command / `globalState`-key / webview-id / view-container / `when`-context; the smoke test asserts both installers wire both ids). The runtime confirmation that BOTH status-bar items render simultaneously in a live VS Code window (`$(claude-icon) Claude Usage: ...` and `$(codex-icon) Codex Usage: ...`) could not be automated here - it needs an interactive VS Code instance.
 - **Suggested next step**: On any machine with VS Code, run the installer (or install both VSIX with `code --install-extension`), reload, and confirm both status-bar items appear and each dashboard/settings/warning surface targets the correct extension. Low risk given the static guarantees; a manual smoke check before release is sufficient.
 
-#### DF-1 - Codex extension `icon.png` reconstructed from `codex-white.png`, not the user's `codex-2048x2048.png` - MIGRATED to v4.13 (AR-32)
+#### DF-1-v3144 - Codex extension `icon.png` reconstructed from `codex-white.png`, not the user's `codex-2048x2048.png` - MIGRATED to v4.13 (AR-32) - MIGRATED to v4.13.0
 
 - **Source phase**: v3.14.4 Phase 2
 - **Plan reference**: Phase 2 sub-task 2.2 ("Save the two provided images")
 - **Reason**: The user referenced two brand assets: `codex-white.png` (found in the user's Downloads, 640x640 white cloud silhouette with the `>_` knocked out) and `codex-2048x2048.png` (the full-color Marketplace icon). Only `codex-white.png` was on disk; `codex-2048x2048.png` could not be located anywhere on the machine, and no SVG rasterizer (ImageMagick / rsvg / cairosvg / inkscape) was available to synthesize one. `icon.png` (512x512) was therefore reconstructed with Pillow from `codex-white.png`'s exact silhouette: the cloud body filled with a periwinkle->`#5244BB` vertical gradient and the `>_` knockout painted black. The result is a faithful match to the described design, but it is a reconstruction rather than the user's original file.
 - **Suggested next step**: If the user has the exact `codex-2048x2048.png`, drop it in as `extensions/codex-usage-monitor/icon.png` (a one-file swap; the manifest already points at `icon.png`, so no code change). By-design acceptable otherwise - the reconstructed icon is on-brand and functional.
+
+**Original source identity**: `v3.14.4#DF-1` in `v3.14.4`; normalized stable ID `DF-1-v3144` distinguishes this obligation from repeated IDs in other patch sections.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-32`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.14.4`, section `v3.14.4`, and original ID `DF-1`.
 
 #### DF-2 - Exact Codex-app credential location and field shape are unverified (carried from v3.14.0) - RESOLVED 2026-09-29
 
@@ -159,12 +176,16 @@ Three pre-existing test failures surfaced on this branch; none was caused by v3.
 - **Reason**: The Codex provider targets the ChatGPT Codex **app** (not the open-source CLI); the app's on-disk credential path and field names could not be verified from this environment. The provider reads a configurable path (`codexUsage.authPath`, then `CODEX_HOME/auth.json`, then `~/.codex/auth.json`) and parses shape-tolerantly (nested `tokens.{access_token,account_id}` or flat, plus camelCase), failing soft when nothing usable is found.
 - **Suggested next step**: Confirm the real path/field shape against a live Codex-app install and tighten the default if warranted. Fail-soft behavior means this is not a blocker.
 
-#### MT-1 - Claude extension UI orchestration remains unit-test-light - MIGRATED to v4.13 (AR-32)
+#### MT-1-v3144 - Claude extension UI orchestration remains unit-test-light - MIGRATED to v4.13 (AR-32) - MIGRATED to v4.13.0
 
 - **Source phase**: v3.14.4 Phase 1
 - **Plan reference**: Phase 1 sub-task 1.4 (Testing and Stabilization)
 - **Reason**: Removing the Codex provider dropped the Vitest suite from 35 tests to 3; the survivors cover `describeProviderError` and provider identity. The UI orchestration files (`statusBarManager`, `dashboardPanel`, `settingsPanel`, `warningView`, `extension`) and the `recommendations` engine have no direct unit tests. This is a pre-existing gap for a VS Code extension whose bulk is webview/status-bar UI (hard to unit-test without a VS Code host), not a regression introduced by the de-Codex work - the removed tests exercised Codex code that moves to the new extension in Phase 2.
 - **Suggested next step**: In Phase 2, port the recommendations/mapping-style tests to the new Codex extension and consider adding pure-function unit tests for the shared `recommendations.ts` Claude branches (they are host-independent). Not a release blocker.
+
+**Original source identity**: `v3.14.4#MT-1` in `v3.14.4`; normalized stable ID `MT-1-v3144` distinguishes this obligation from repeated IDs in other patch sections.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-32`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.14.4`, section `v3.14.4`, and original ID `MT-1`.
 
 ## v3.14.3
 
@@ -249,16 +270,22 @@ Two `tests/installer/` tests fail on this branch, and BOTH were verified to fail
 
 #### Missing tests / coverage gaps
 
-##### MT-1 - No dedicated automated regression test for the new strict-YAML gate - MIGRATED to v4.13 (AR-08)
+##### MT-1-v3143 - No dedicated automated regression test for the new strict-YAML gate - MIGRATED to v4.13 (AR-08) - MIGRATED to v4.13.0
 
 - **Source phase**: Phase 0 (0.3 validator gate)
 - **Plan reference**: sub-task 0.3 ("Confirm the gate fails on a deliberately-broken fixture")
 - **Reason**: The strict-YAML gate was validated by a manual broken-fixture run (fails as expected) and is effectively covered in CI by the existing `validate_skills.py --bundles-only` run against the real catalog (a reintroduced unquoted `description` would fail it). There is no dedicated unit test asserting the gate's behavior in isolation.
 - **Suggested next step**: add a small `tests/validators/` regression test that feeds a broken and a good frontmatter block through `validate_frontmatter_strict_yaml`; low priority given the CI coverage.
 
+**Original source identity**: `v3.14.3#MT-1` in `v3.14.3`; normalized stable ID `MT-1-v3143` distinguishes this obligation from repeated IDs in other patch sections.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-08`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.14.3`, section `v3.14.3`, and original ID `MT-1`.
+
 #### Quality-gate gaps
 
-##### QG-1 - The new tests/skills/ module was not CI-gated (RESOLVED in Phase 4.3)
+##### QG-1 - The new tests/skills/ module was not CI-gated (RESOLVED in Phase 4.3) - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v3.14#QG-1 (v3.14.3)` is recorded as RESOLVED for its original scope. Evidence: The entry body records the fix in Phase 4.3. The current gate is `scripts/ci/profiles.py:290` `_pytest("repo-tests-skills", "tests/skills")`. Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Source phase**: Phase 3 (3.5 test module); resolved Phase 4.3
 - **Plan reference**: sub-task 3.5 + Phase 4.3 ("CI runs the new `tests/skills/test_media_key_setup.py`")
@@ -297,13 +324,17 @@ The comparison-versioning convention flaw (comparisons versioned and placed by t
 
 #### Warnings
 
-##### WN-1 - Pre-existing: 8 recent skills fail the strict `validate_skills.py` description-length check and are not allowlisted - MIGRATED to v4.13 (AR-06)
+##### WN-1-v3142 - Pre-existing: 8 recent skills fail the strict `validate_skills.py` description-length check and are not allowlisted - MIGRATED to v4.13 (AR-06) - MIGRATED to v4.13.0
 
 - **Source phase**: Phase 1 (1.3b, CI wiring); pre-existing on the branch, NOT introduced by this phase
 - **Plan reference**: sub-task 1.3 ("Create or update the CI job so `python scripts/validate_skills.py` runs ... with a path filter")
 - **Reason**: The strict `python scripts/validate_skills.py` enforces a 250-char single-line `description` budget. 165 skills exceed it; 157 are grandfathered via `scripts/validate_skills.allowlist.json` under `--allow-existing`, but 8 recent v3.x skills are neither trimmed nor allowlisted, so even `--allow-existing` fails with 8 errors: `implementation-convergence`, `review-trapdoors`, `analyze-codebase`, `label-gated-agent-pipelines`, `setup-project`, `document-to-interactive-html`, `implement-phase`, `platform-contract-verification`. None is the skill this phase edited (`cross-project-comparison` validates clean in strict mode). To avoid a red-on-arrival CI gate over pre-existing drift outside this phase's scope, the new CI step runs `--bundles-only` (the same mode `make validate` uses), which passes catalog-wide (0 errors). This is a warning, not a blocker: the AGENTS.md "pushy description" guidance and the 250-char cap are in tension, so the cap itself may warrant review.
 - **Suggested next step**: In a dedicated cleanup (a separate patch), either top up `scripts/validate_skills.allowlist.json` with the 8 offenders (or trim them via `scripts/optimize_skill_description.py`), then upgrade the CI step from `--bundles-only` to the stricter `--allow-existing` so genuinely new frontmatter/description/secret violations are caught per-PR. Separately, reconcile the 250-char cap with the AGENTS.md long-description guidance.
 - **Phase 4 disposition**: kept OPEN as a deferred follow-up. It is pre-existing, out of scope for the comparison-versioning fix, and NOT a release-blocker (CI is green on `--bundles-only`). Deliberately not fixed in v3.14.2, to avoid touching 8 unrelated skills or padding the grandfathering allowlist for them inside a focused patch; carried forward for a dedicated skills.json / description-cap cleanup (see also the Advisory above, same root).
+
+**Original source identity**: `v3.14.2#WN-1` in `v3.14.2`; normalized stable ID `WN-1-v3142` distinguishes this obligation from repeated IDs in other patch sections.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-06`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.14.2`, section `v3.14.2`, and original ID `WN-1`.
 
 ## v3.14.1
 
@@ -371,12 +402,16 @@ None open. Phases 1-2 resolved both reported defects (BG resolved 2); Phase 3 (a
 - **Reason**: This build targets the ChatGPT Codex **app** (not the open-source Codex CLI, per the user's clarification), and the app's on-disk credential path and field names could not be verified from this environment. The provider therefore reads a **configurable** path (`usageMonitor.codex.authPath`, then `CODEX_HOME/auth.json`, then `~/.codex/auth.json`) and parses **shape-tolerantly** (nested `tokens.{access_token,account_id}` or flat `{access_token,account_id}`, plus camelCase), failing soft when nothing usable is found.
 - **Suggested next step**: Confirm the real Codex-app credential path and field names against a live install; set the probed default accordingly (or document the setting prominently). The configurable-path + fail-soft design means a wrong default is user-correctable without a code change.
 
-##### DF-3 - P1: provider failover / settlement invariants as multi-provider-ai reference content - MIGRATED to v4.13 (AR-35)
+##### DF-3-v3140 - P1: provider failover / settlement invariants as multi-provider-ai reference content - MIGRATED to v4.13 (AR-35) - MIGRATED to v4.13.0
 
 - **Source phase**: comparison scope (out of the seven selected v3.14 candidates); the Definition of Done defers it here
 - **Plan reference**: plan "Definition of Done" ("P1 (provider-routing reference content) is deferred to `docs/v3/v3.14/known-gaps.md` as an optional follow-up")
 - **Reason**: codex-lb's provider failover / settlement invariants (from its load-balancer product) are a different product category from Nexus-Hub's catalog and were not selected for adoption. They survive only as OPTIONAL reference content for the `multi-provider-ai` skill.
 - **Suggested next step**: If provider-routing reference content is wanted later, distill the failover / settlement invariants into `multi-provider-ai` as a body-only reference (skill-native, no external dependency), in a separate version.
+
+**Original source identity**: `v3.14.0#DF-3` in `v3.14.0`; normalized stable ID `DF-3-v3140` distinguishes this obligation from repeated IDs in other patch sections.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-35`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.14.0`, section `v3.14.0`, and original ID `DF-3`.
 
 ##### DF-2 - wham/usage is an undocumented endpoint (durability risk) - CLOSED 2026-09-29
 
@@ -387,7 +422,9 @@ None open. Phases 1-2 resolved both reported defects (BG resolved 2); Phase 3 (a
 
 #### Bugs / regressions
 
-##### BG-1 - Pre-existing: verify_platform_contracts.py not registered in either installer
+##### BG-1 - Pre-existing: verify_platform_contracts.py not registered in either installer - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v3.14#BG-1 (v3.14.0)` is recorded as RESOLVED for its original scope. Evidence: Added to `DEV_ONLY_SCRIPTS` (`catalog/hooks/tests/test_installer_smoke.py:660`). Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Source phase**: discovered during Phase 4 validation (pre-existing on the branch; NOT introduced by this release)
 - **Plan reference**: none (out of the codex-lb plan's scope; traces to v3.12.1 when the script was added)
@@ -396,16 +433,22 @@ None open. Phases 1-2 resolved both reported defects (BG resolved 2); Phase 3 (a
 
 #### Missing tests / coverage gaps
 
-##### MT-1 - Extension UI modules have no automated tests - MIGRATED to v4.13 (AR-32)
+##### MT-1-v3140 - Extension UI modules have no automated tests - MIGRATED to v4.13 (AR-32) - MIGRATED to v4.13.0
 
 - **Source phase**: Phase 1 (1.4)
 - **Plan reference**: Phase 1 stability gate scoped automated tests to "provider unit tests"
 - **Reason**: `statusBarManager.ts`, `dashboardPanel.ts`, `warningView.ts`, `settingsPanel.ts`, and `extension.ts` render VS Code UI and require the extension host, so they are validated by `tsc` compile and manual run only. The provider data layer, the Codex payload mapper, the error resolver, the provider factory, and the Codex recommendation branches ARE unit-tested (35 Vitest tests). This matches the pre-existing state (the extension had no tests before this phase).
 - **Suggested next step**: Add a VS Code integration test harness (`@vscode/test-electron`) if the UI surface grows, or extract more pure logic behind the vscode boundary; not warranted for the current thin UI branches.
 
+**Original source identity**: `v3.14.0#MT-1` in `v3.14.0`; normalized stable ID `MT-1-v3140` distinguishes this obligation from repeated IDs in other patch sections.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-32`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.14.0`, section `v3.14.0`, and original ID `MT-1`.
+
 #### Quality-gate gaps
 
-##### QG-1 - The claude-usage-monitor extension is not exercised in CI
+##### QG-1 - The claude-usage-monitor extension is not exercised in CI - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v3.14#QG-1 (v3.14.0)` is recorded as RESOLVED for its original scope. Evidence: `.github/workflows/claude-usage-monitor.yml` exists (compile plus Vitest). Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Source phase**: Phase 1 (1.5 / post-phase 8.3)
 - **Plan reference**: Phase 6.3 ("add or extend a path-filtered job that compiles and tests the `claude-usage-monitor` extension only when `extensions/claude-usage-monitor/**` changes")
@@ -414,7 +457,9 @@ None open. Phases 1-2 resolved both reported defects (BG resolved 2); Phase 3 (a
 
 #### Hand-offs
 
-##### HO-1 - Verify no flat/nested skill-name collision for `review-trapdoors` at install
+##### HO-1 - Verify no flat/nested skill-name collision for `review-trapdoors` at install - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v3.14#HO-1 (v3.14.0)` is recorded as RESOLVED for its original scope. Evidence: The Phase 6.4 dry-run install is recorded in the entry. The installers delete legacy nested category dirs (commit `13f333d9f`). Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Source phase**: Phase 2 (2.1)
 - **Plan reference**: Prior-Version Known-Gaps Ingest (v3.13 HO-1); Phase 6.4 dry-run install
@@ -427,27 +472,27 @@ Before this minor moved to `docs/archives/`, every item that this file did not a
 
 | Item | Disposition | Evidence, reason, or destination |
 |---|---|---|
-| HO-1 (line 17) | Closed | Verified by the user at v3.14.6; the remaining standing checklist is release process, not a gap |
-| DF-1 (line 59) | Migrated | AR-20: `install_workspace` / `Install-Workspace` still skip the undetected-platform grouping and print the verbose Claude block |
-| DF-2 (line 66) | Resolved | v3.14.6 verified `wham/usage` returning HTTP 200 and the mapper reads `rate_limit.primary_window` (`extensions/codex-usage-monitor/test/codex-usage-mapping.test.ts`) |
-| DF-3 (line 73) | Migrated | AR-31: the stale "legacy installer copy blocks" framing moved from AGENTS.md to `docs/specs/README.md` |
-| DF-4 (line 80) | Closed | Carried into v3.15.0 and actioned per phase (`docs/archives/v3/v3.15/known-gaps.md` header) |
-| WN-1 (line 89) | Resolved | `scripts/lib/integrations/qwen.py` no longer imports `FileAction` (commit `4526e252`) |
-| MT-1 (line 98) | Migrated | AR-32: usage-monitor extension test coverage (Claude `recommendations.ts`, `warningView`, `extension.ts`; no coverage threshold in `claude-usage-monitor`) and live render check; merged with v3.14.0, v3.14.4, v3.14.5 MT-1 and v3.17.0 MT-1 |
-| HO-1 (line 107) | Closed | Superseded by v3.14.6 HO-1, which verified the side-by-side, ordering, and compact items; the theme-icon residual joins AR-32 |
-| HO-1 (line 137) | Resolved | Both status-bar items verified side by side at v3.14.6 HO-1 |
-| DF-1 (line 144) | Migrated | AR-32: `extensions/codex-usage-monitor/icon.png` is still the 512x512 rebuild; swap in the original asset or accept |
-| DF-2 (line 151) | Resolved | v3.14.6 read the default credential path successfully (HTTP 200); `extensions/codex-usage-monitor/test/codex-credential.test.ts` covers the parser |
-| MT-1 (line 158) | Migrated | AR-32: usage-monitor extension test coverage (Claude `recommendations.ts`, `warningView`, `extension.ts`; no coverage threshold in `claude-usage-monitor`) and live render check; merged with v3.14.0, v3.14.4, v3.14.5 MT-1 and v3.17.0 MT-1 |
-| DF-1 (line 204) | Resolved | `python scripts/check_registry_entries.py --check --strict` passes and compares description, summary_l0, and overview_l1; gated by `make validate` (commits `5f79ab40`, `bd281a91`) |
-| DF-2 (line 211) | Resolved | `.claude-plugin/plugin.json` lists each category path (commit `1d83e81a`), asserted by `tests/validators/test_claude_plugin_manifests.py`; no live plugin-install reproduction was recorded |
-| DF-3 (line 218) | Resolved | Every `catalog/skills/*/*/` directory now has a SKILL.md |
-| DF-4 (line 225) | Closed | Accepted: a user-provided Pexels key is inherent to the service |
-| DF-5 (line 232) | Closed | Accepted limit, unchanged: best-effort `media.env` permissions on Windows |
-| DF-6 (line 239) | Closed | By design, as recorded |
-| MT-1 (line 248) | Migrated | AR-08: `validate_frontmatter_strict_yaml` (`scripts/validate_skills.py`) still has no dedicated test |
-| WN-1 (line 296) | Migrated | AR-06: all 8 descriptions still exceed 250 characters and are not allowlisted |
-| DF-1 (line 363) | Resolved | Same evidence as v3.14.4 DF-2 (live HTTP 200 at v3.14.6) |
-| DF-3 (line 370) | Migrated | AR-35: optional provider failover / settlement reference content for `multi-provider-ai` was never written |
-| DF-2 (line 377) | Closed | Superseded: v3.14.6 retired the undocumented-endpoint caveat (CHANGELOG 3.14.6) |
-| MT-1 (line 395) | Migrated | AR-32: usage-monitor extension test coverage (Claude `recommendations.ts`, `warningView`, `extension.ts`; no coverage threshold in `claude-usage-monitor`) and live render check; merged with v3.14.0, v3.14.4, v3.14.5 MT-1 and v3.17.0 MT-1 |
+| `HO-1` (line 17) | Closed | Verified by the user at v3.14.6; the remaining standing checklist is release process, not a gap |
+| `DF-1` (line 59) | Migrated | AR-20: `install_workspace` / `Install-Workspace` still skip the undetected-platform grouping and print the verbose Claude block |
+| `DF-2` (line 66) | Resolved | v3.14.6 verified `wham/usage` returning HTTP 200 and the mapper reads `rate_limit.primary_window` (`extensions/codex-usage-monitor/test/codex-usage-mapping.test.ts`) |
+| `DF-3` (line 73) | Migrated | AR-31: the stale "legacy installer copy blocks" framing moved from AGENTS.md to `docs/specs/README.md` |
+| `DF-4` (line 80) | Closed | Carried into v3.15.0 and actioned per phase (`docs/archives/v3/v3.15/known-gaps.md` header) |
+| `WN-1` (line 89) | Resolved | `scripts/lib/integrations/qwen.py` no longer imports `FileAction` (commit `4526e252`) |
+| `MT-1` (line 98) | Migrated | AR-32: usage-monitor extension test coverage (Claude `recommendations.ts`, `warningView`, `extension.ts`; no coverage threshold in `claude-usage-monitor`) and live render check; merged with v3.14.0, v3.14.4, v3.14.5 MT-1 and v3.17.0 MT-1 |
+| `HO-1` (line 107) | Closed | Superseded by v3.14.6 HO-1, which verified the side-by-side, ordering, and compact items; the theme-icon residual joins AR-32 |
+| `HO-1` (line 137) | Resolved | Both status-bar items verified side by side at v3.14.6 HO-1 |
+| `DF-1` (line 144) | Migrated | AR-32: `extensions/codex-usage-monitor/icon.png` is still the 512x512 rebuild; swap in the original asset or accept |
+| `DF-2` (line 151) | Resolved | v3.14.6 read the default credential path successfully (HTTP 200); `extensions/codex-usage-monitor/test/codex-credential.test.ts` covers the parser |
+| `MT-1` (line 158) | Migrated | AR-32: usage-monitor extension test coverage (Claude `recommendations.ts`, `warningView`, `extension.ts`; no coverage threshold in `claude-usage-monitor`) and live render check; merged with v3.14.0, v3.14.4, v3.14.5 MT-1 and v3.17.0 MT-1 |
+| `DF-1` (line 204) | Resolved | `python scripts/check_registry_entries.py --check --strict` passes and compares description, summary_l0, and overview_l1; gated by `make validate` (commits `5f79ab40`, `bd281a91`) |
+| `DF-2` (line 211) | Resolved | `.claude-plugin/plugin.json` lists each category path (commit `1d83e81a`), asserted by `tests/validators/test_claude_plugin_manifests.py`; no live plugin-install reproduction was recorded |
+| `DF-3` (line 218) | Resolved | Every `catalog/skills/*/*/` directory now has a SKILL.md |
+| `DF-4` (line 225) | Closed | Accepted: a user-provided Pexels key is inherent to the service |
+| `DF-5` (line 232) | Closed | Accepted limit, unchanged: best-effort `media.env` permissions on Windows |
+| `DF-6` (line 239) | Closed | By design, as recorded |
+| `MT-1` (line 248) | Migrated | AR-08: `validate_frontmatter_strict_yaml` (`scripts/validate_skills.py`) still has no dedicated test |
+| `WN-1` (line 296) | Migrated | AR-06: all 8 descriptions still exceed 250 characters and are not allowlisted |
+| `DF-1` (line 363) | Resolved | Same evidence as v3.14.4 DF-2 (live HTTP 200 at v3.14.6) |
+| `DF-3` (line 370) | Migrated | AR-35: optional provider failover / settlement reference content for `multi-provider-ai` was never written |
+| `DF-2` (line 377) | Closed | Superseded: v3.14.6 retired the undocumented-endpoint caveat (CHANGELOG 3.14.6) |
+| `MT-1` (line 395) | Migrated | AR-32: usage-monitor extension test coverage (Claude `recommendations.ts`, `warningView`, `extension.ts`; no coverage threshold in `claude-usage-monitor`) and live render check; merged with v3.14.0, v3.14.4, v3.14.5 MT-1 and v3.17.0 MT-1 |
