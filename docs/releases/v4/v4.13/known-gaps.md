@@ -2,8 +2,8 @@
 
 **Project**: Nexus-Hub
 **Status**: released; PR #230 merged the complete 34-task plan and tag `v4.13.0` was published on 2026-09-21. Two bounded warning-class findings remain owned for future measurement work. GitHub branch protection passed a live pull-request gate test; the second trigger pilot stopped on an unproven spend bound.
-**Last updated**: 2026-10-04
-**Open items**: 146
+**Last updated**: 2026-10-09
+**Open items**: 149
 
 Release-scoped gaps for the evidence-driven agent improvement plan. Planned future-phase work is tracked in the plan rather than reported as completed here.
 
@@ -1443,7 +1443,7 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 
 ## v4.13.10
 
-Gaps from the Training page rebuild ([`v4.13.10-training-page-rebuild`](plans/v4.13.10-training-page-rebuild.md)). This is the last plan of v4.13: the v4.13 minor close (moving every open v4.13 item to `docs/releases/v4/v4.14/known-gaps.md`, then archiving this tree after the release) waits on the maintainer's review of the finished page (plan decision 17).
+Gaps from the Training page rebuild ([`v4.13.10-training-page-rebuild`](plans/v4.13.10-training-page-rebuild.md)). The maintainer's Training acceptance was recorded on 2026-10-08 and PRs #435/#436 merged green into develop on 2026-10-09. The v4.13.11 sweep owns subsequent gap reconciliation and minor close. The maintainer retains the in-progress develop-to-main PR #438 and v4.13.10 tag.
 
 ### Summary
 
@@ -1518,3 +1518,29 @@ Gaps from the Training page rebuild ([`v4.13.10-training-page-rebuild`](plans/v4
 | DF-2 | No "Run again" control on session stages | v4.13.10, 2026-10-04 | Built with DF-1: the control reads Skip while typing and Run again after. Kept in R4 on the IDE's Send button. |
 | WN-10 | The provider switch changed the model shown in the locked chat | v4.13.10, 2026-10-05 | Plan revision 2: the provider buttons are gone. Each step's IDE animation picks its own model, and `/implement` shows the harness's portability directly: Anthropic reaches its usage limit, `/handoff` runs, and the work finishes on OpenAI. `test_the_handoff_plays_from_the_usage_limit_to_the_second_provider`. |
 | WN-7 | The shared opening read as a generic template | v4.13.10, 2026-10-04 | Maintainer review: keep the opening consistent but distinct per page. Each opening is now a title, a one-sentence subtitle, and one animated figure of the page's content (the Training journey, the Foundations layers, a Cheatsheets entry), drawn in a wide and a narrow form and animated with NexusSeq; the identical card rows are gone. `test_guide_openings_carry_their_own_figures`. |
+
+## v4.13.11
+
+Admission and normalization findings for the [known-gaps sweep plan](plans/v4.13.11-known-gaps-sweep-and-minor-close.md). Admission is based on the maintainer's 2026-10-09 exception and merged develop `ae60a3240`; main, PR #438 and tags remain maintainer-owned.
+
+### Open Items
+
+#### WN-39 (v4.13.11): Scheduled supply-chain audit reports vulnerable PyJWT 2.14.0
+
+**Source phase**: Phase 1, T003. **Plan reference**: Phase 6, T029. **Severity**: medium; security. **Owner**: catalog maintainer.
+
+**Evidence**: Scheduled main run [37322151526](https://github.com/bendourthe/Nexus-Hub/actions/runs/37322151526) failed on 2026-10-05; artifact 11350332112 was downloaded and its audit JSON names `pyjwt==2.14.0`, `PYSEC-2026-4141`, `CVE-2026-101918`, and `GHSA-42vr-xj54-vc7v`, with first fixed version `2.15.0`. The [primary advisory](https://github.com/jpadilla/pyjwt/security/advisories/GHSA-42vr-xj54-vc7v) confirms a raw request-level recursion exception before signature verification. It does not establish a process crash or authentication bypass. Retained identity and hashes: [security receipt](development/v4.13.11-supply-chain-admission.json).
+
+**Reason**: This is a new finding after the successful 2026-09-28 audit that resolved v4.7#WN-2. That historical pass cannot close the October 5 finding. **Suggested next step**: trace the authoritative dependency and lock surfaces, pin the supported fixed version, prove deeply nested unsigned payload rejection and ordinary decoding, then run the actual project audit. **Acceptance**: all affected dependency surfaces use a qualified fixed version and the fresh audit is clean. **Proving command**: the same supply-chain audit command used by the scheduled workflow, plus the retained deterministic payload regression.
+
+#### BG-15 (v4.13.11): Existing migration destination reuse accepts an incomplete residual copy
+
+**Source phase**: Planning adversarial review and Phase 1, T003. **Plan reference**: Phase 2, T005. **Severity**: high; data integrity. **Owner**: completion tooling maintainer.
+
+**Reason**: `minor_close.py` can reuse the first matching Migrated-from destination without proving it contains the source obligation. A provenance-only stub, truncated copy, or duplicate matching provenance can therefore hide residual clauses while the source is marked migrated. **Suggested next step**: strengthen the existing writer and completion verifier with the same unique, complete-copy predicate; keep forward-minor, approved-ID, security and historical hash refusals. **Acceptance**: stubs, truncations and ambiguous matches refuse without writing either ledger; a complete partial-write rerun is idempotent. **Proving command**: `python -m pytest -q tests/validators/test_gap_migration_and_archive.py tests/validators/test_completion_minor_verdict.py`, including direct helper negative cases.
+
+#### WN-40 (v4.13.11): Ship-balance browser fixture takes 18-38 minutes on CI
+
+**Source phase**: Maintainer's v4.13.10 CI profiling report on 2026-10-09. **Plan reference**: Phase 5 guide batch; retain PLAN if not bounded. **Severity**: low; runtime cost. **Owner**: guide test maintainer.
+
+**Reason**: The maintainer reports 18-38 minutes for `tests/guides/tools/game_balance.py`, called by `test_training_game_engine.py`. Profiling is dominated by native `(program)` time. `front()` state reuse and a `fitPanel` signature guard produced identical balance output and no speed-up, and were reverted. This admission records supplied observations, not an independently repeated profiling receipt. **Suggested next step**: isolate software-WebGL rendering cost on one runner, preserve the real balance assertions, and qualify any change by equal balance output and measured runtime improvement. Do not restore pytest-xdist: concurrent software-WebGL workers on one runner starve each other. **Acceptance**: a bounded representative fixture retains its balance guarantees and has measured lower single-runner runtime, or the full fixture remains explicitly deferred with profiling evidence. **Proving command**: the selected ship-balance test with `pytest --durations=1` and retained before/after balance results on the same runner configuration.
