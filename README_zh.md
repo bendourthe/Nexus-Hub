@@ -6,7 +6,7 @@
 
 [English](README.md) | 中文 | [交互式指南](https://www.benjamindourthe.com/nexus-hub/) | [作者：Benjamin Dourthe](https://www.benjamindourthe.com/)
 
-当前目录：340 个技能（23 个类别）、21 个命令（另有 3 个永久别名）、36 个已注册钩子、23 个代理，以及 4 个语言规则族和 HTML 产物规则。
+当前目录：340 个技能（23 个类别）、21 个命令（另有 3 个永久别名）、37 个已注册钩子、23 个代理，以及 4 个语言规则族和 HTML 产物规则。
 
 > **v2.0.0 起原 DevAI-Hub 已重命名为 Nexus-Hub**，与同源项目 [Nexus](https://github.com/bendourthe/Nexus-AI) 对齐。下方 v1.0.0 历史发布说明保留原始名称以反映当时的发布事实。
 
@@ -14,7 +14,7 @@
 
 ## 交互式指南
 
-**初次使用 Nexus-Hub？[在线打开交互式指南](https://www.benjamindourthe.com/nexus-hub/)**，或打开[仓库中的副本](guides/website/nexus-hub-guide.html)。指南包含安装命令、八个基础场景和命令速查表，并附带一个训练页面（[`guides/website/training.html`](guides/website/training.html)），通过两轮完整的 Nexus 循环修复一个有缺陷的街机游戏。页面为英文，可离线使用。
+**初次使用 Nexus-Hub？[在线打开交互式指南](https://www.benjamindourthe.com/nexus-hub/)**，或打开[仓库中的副本](guides/website/nexus-hub-guide.html)。指南包含安装命令、八个基础场景和命令速查表，并附带一个训练页面（[`guides/website/training.html`](guides/website/training.html)），通过一次完整的六命令开发工作流修复一个有缺陷的街机游戏。页面为英文，可离线使用。
 
 ---
 
@@ -87,7 +87,7 @@
 3. **就这样，没有任何提问。** 安装器会下载技能目录、预检依赖，并对检测到的每个受支持助手执行全局安装；你没有的助手会被跳过并附带说明，你的自定义内容会被保留。之后可运行 `nexus-hub upgrade` 就地更新。
 
 **完成。**
-- **全局**：你的用户配置文件现在拥有全部 340 个技能、21 个命令、36 个已注册钩子、23 个代理，以及 Gemini 和 Codex 指令。
+- **全局**：你的用户配置文件现在拥有全部 340 个技能、21 个命令、37 个已注册钩子、23 个代理，以及 Gemini 和 Codex 指令。
 - **本地**：你的项目有针对编程语言定制的 `copilot-instructions.md` 和 `AGENTS.md`。
 
 ### 检查已安装版本

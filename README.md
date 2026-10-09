@@ -8,11 +8,11 @@
 
 <!-- nexus-hub-version: 4.13.9 -->
 
-Nexus-Hub is the upstream skill catalog for AI coding assistants: 340 skills across 23 categories, 21 commands (plus 3 permanent aliases), 36 registered hooks, 23 agents, and 4 language rule families plus the HTML artifact rules. It installs in one step on Windows, macOS, and Linux, through 17 platform integrations: Claude Code, OpenAI Codex, Gemini and Antigravity, GitHub Copilot, Cursor, OpenCode, Qwen Code, Kimi Code CLI, Devin Desktop / Windsurf, Hermes, Pi, OpenClaw, Aider, and the sibling Nexus desktop app. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
+Nexus-Hub is the upstream skill catalog for AI coding assistants: 340 skills across 23 categories, 21 commands (plus 3 permanent aliases), 37 registered hooks, 23 agents, and 4 language rule families plus the HTML artifact rules. It installs in one step on Windows, macOS, and Linux, through 17 platform integrations: Claude Code, OpenAI Codex, Gemini and Antigravity, GitHub Copilot, Cursor, OpenCode, Qwen Code, Kimi Code CLI, Devin Desktop / Windsurf, Hermes, Pi, OpenClaw, Aider, and the sibling Nexus desktop app. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
 ## Interactive Guide -- start here
 
-**New to Nexus-Hub? [Open the interactive guide online](https://www.benjamindourthe.com/nexus-hub/)**, or open [the copy in this repository](guides/website/nexus-hub-guide.html). It is two self-contained, offline HTML pages: the guide (a concise Home with the install commands, eight Foundations scenes that build a practical mental model from tokens through harnesses, and one Cheatsheets tab for the loop plus command arguments) and its Training page, a guided live demo that fixes a buggy arcade game through two full Nexus loops. It is the fastest way to get a teammate productive, and it doubles as a live-demo-quality workshop.
+**New to Nexus-Hub? [Open the interactive guide online](https://www.benjamindourthe.com/nexus-hub/)**, or open [the copy in this repository](guides/website/nexus-hub-guide.html). It is two self-contained, offline HTML pages: the guide (a concise Home with the install commands, eight Foundations scenes that build a practical mental model from tokens through harnesses, and one Cheatsheets tab for the loop plus command arguments) and its Training page, a guided live demo that fixes a buggy arcade game in one pass of the six-command Development Workflow, then hands over the fixed game. It is the fastest way to get a teammate productive, and it doubles as a live-demo-quality workshop.
 
 - **Files:** [`guides/website/nexus-hub-guide.html`](guides/website/nexus-hub-guide.html) and [`guides/website/training.html`](guides/website/training.html) -- fully offline, no server or install required.
 - **Online:** [benjamindourthe.com/nexus-hub](https://www.benjamindourthe.com/nexus-hub/) serves the published guide and its Training page.
@@ -33,7 +33,7 @@ Nexus-Hub is the upstream skill catalog for AI coding assistants: 340 skills acr
 
 Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of the same idea, split along a deliberate seam.
 
-- **Nexus-Hub (this repo)** is the catalog: 340 curated skills, 21 commands, 36 registered hooks, 23 agents, 5 rule families (4 languages plus HTML), plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`) and the local `nexus-memory` CLI store. It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
+- **Nexus-Hub (this repo)** is the catalog: 340 curated skills, 21 commands, 37 registered hooks, 23 agents, 5 rule families (4 languages plus HTML), plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`) and the local `nexus-memory` CLI store. It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
@@ -492,7 +492,7 @@ That is the whole setup -- no prompts. The installer prechecks its dependencies 
 
 After the installer completes:
 
-- **Globally**: your user profile has all 340 skills, 21 commands, 36 registered hooks, 23 agents, plus Gemini and Codex instructions.
+- **Globally**: your user profile has all 340 skills, 21 commands, 37 registered hooks, 23 agents, plus Gemini and Codex instructions.
 - **Locally**: your project has `copilot-instructions.md` and `AGENTS.md` tailored to your language.
 
 **Power-user flags**: `--workspace <path>` installs into a single repo instead of globally; `--platforms <comma-list>` limits the install to a subset of assistants; `--yes` runs fully unattended (refreshes managed files with no prompt -- ideal for CI). Prefer to clone first? `git clone` the repo and run `./install.sh` (macOS / Linux) or `install.bat` (Windows) -- the in-repo path still works exactly as before.

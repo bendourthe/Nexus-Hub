@@ -134,19 +134,16 @@ Hard rules: no element pins itself over the content, and there is **no toggle** 
 
 ## Training
 
-Training lives in `training.html`. It walks the whole Nexus loop from Home on one small arcade game that ships with two bugs:
+Training lives in `training.html`, one scrolling page that walks the Development Workflow on a small arcade game, Nexus Defenders, that ships with two bugs (a first hit that destroys the ship outright, and an explosion with no hit):
 
-1. **Play the buggy game.** A callout names the first bug (the first enemy hit destroys the ship with lives left) and says one more defect hides in the build.
-2. **Loop 1:** `/describe`, `/review`, `/plan`, `/implement`, `/test`, and `/update` fix the first bug. The review records that every run it watched ended before the hidden bug could show.
-3. **Play again, for longer.** The ship sometimes explodes with no hit.
-4. **Loop 2:** `/review` finds a leftover self-test, then `/plan`, `/implement`, `/test`, and `/update` fix it. `/describe` shows as already mapped.
-5. **The reward, the fixed game:** three levels with a transforming ship and power-ups. A hint says something waits at the end: the Nexus megaship boss arrives after about 4 minutes 20 seconds, and defeating it opens a reward panel with a short Nexus AI Studio trailer and a download of its Windows installer (`releases/latest/download/NexusSetup.exe`). There is deliberately no shortcut to the boss on the page; `jumpToBoss()` remains for tests.
-
-Every stage opens with a banner: where the reader is, what to do now, and, for agent steps, a badge showing the model tier, the effort, and the model that tier maps to today for a chosen provider (Anthropic, OpenAI, Google, or Cursor; the choice is remembered). Sessions render as structured reports with a file panel and an agent activity log, and type themselves out the first time a stage is shown (Skip finishes at once, Run again replays; reduced motion shows the finished report). Every stage but the last ends with a Continue link to the next, and starting a game scrolls it into view. A loop tracker built from the Home loop shows the current step, and an outline lists the journey.
+1. **Opening.** Two scenes drawn by the real game engine show the bug and the fix, with an agent workflow panel between them: a chat that types and sends each command, and an IDE that writes or edits one file per command.
+2. **Buggy Game.** The reader plays the buggy build and meets the first-hit bug.
+3. **One pass of the workflow.** `/describe`, `/review`, `/plan`, `/implement`, `/test`, and `/update` each run in an animated IDE player (explorer, editor, chat, a moving cursor, and highlighted results), with the model tier, the effort, and the mapped model shown in the chat; `/implement` hits a usage limit and hands off to a second provider.
+4. **Fixed Game.** The fixed build: five ships, upgrades and rare pickups, rising difficulty over three levels, one retry per level, a supernova passage into the Nexus dimension, and the shielded Nexus boss. Defeating it plays the black-hole finale, shows a score summary, and opens the reward panel (an animated Nexus AI Studio window and its download).
 
 **Sources.** The story is `src/training-story.json`, validated by `src/training-story.schema.json`; `src/training-story.js` renders it with `textContent` only. The game is `src/sky-sentinel.js`, a fixed 60 Hz simulation with seeded random streams; its design and test rules are in `docs/releases/v4/v4.13/development/v4.13.10-game-design.md`. Model ids come only from the bundled model map: `scripts/stamp_training_models.py` copies it into the page.
 
-For browser automation, `window.NexusTrainingPage.go("loop1/review")` opens a stage, `window.NexusTrainingPage.story().setProvider("OpenAI")` switches the badges, `story().typing(true)` turns typing on (automated browsers, which report `navigator.webdriver`, see finished reports by default so measurements read the whole report), `story().replay(id)` and `story().skip(id)` drive it, `window.NexusTrainingPage.reward()` reports whether the boss reward is open, and `window.SkySentinel.get("fixed")` returns a game (with `manual(true)`, `step(n)`, and `state()` for deterministic tests).
+For browser automation, `window.NexusTrainingPage.go("review")` scrolls to a stage (old `loop1/` and `loop2/` hashes still resolve), `story().typing(true)` turns typing on (automated browsers, which report `navigator.webdriver`, see finished reports by default so measurements read the whole report), `story().replay(id)` and `story().skip(id)` drive it, `window.NexusTrainingPage.reward()` reports whether the boss reward is open, and `window.SkySentinel.get("fixed")` returns a game (with `manual(true)`, `step(n)`, and `state()` for deterministic tests).
 
 ## Cheatsheets
 
