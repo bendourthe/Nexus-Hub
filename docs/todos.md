@@ -1,9 +1,9 @@
 # Nexus-Hub Progress Dashboard
 
 **Integration branch:** `develop`
-**Active work:** Historical v4.0-v4.12 plan closure is integrated and v4.13.1 through v4.13.9 are released. v4.13.6 ([minor-scope implement and verified cleanup](releases/v4/v4.13/plans/v4.13.6-minor-scope-implement-and-verified-cleanup.md)) shipped through PR #394; its approval-page read-back by a non-engineer is still pending. v4.13.7 ([Copilot usage monitor and usage-limit handoff](releases/v4/v4.13/plans/v4.13.7-copilot-usage-monitor-and-usage-limit-handoff.md)) shipped through PR #411; its real-editor and live-limit checks (QG-1) are still pending. v4.13.10 ([Training page rebuild](releases/v4/v4.13/plans/v4.13.10-training-page-rebuild.md)) is the last plan of v4.13; the minor closes only after the maintainer reviews the finished Training page. Bounded vendor, manual, and artifact-coverage gaps remain open in their known-gaps ledgers.
+**Active work:** Historical v4.0-v4.12 plan closure is integrated and v4.13.1 through v4.13.9 are released. v4.13.6 ([minor-scope implement and verified cleanup](releases/v4/v4.13/plans/v4.13.6-minor-scope-implement-and-verified-cleanup.md)) shipped through PR #394; its approval-page read-back by a non-engineer is still pending. v4.13.7 ([Copilot usage monitor and usage-limit handoff](releases/v4/v4.13/plans/v4.13.7-copilot-usage-monitor-and-usage-limit-handoff.md)) shipped through PR #411; its real-editor and live-limit checks (QG-1) are still pending. v4.13.10 ([Training page rebuild](releases/v4/v4.13/plans/v4.13.10-training-page-rebuild.md)) runs next and still requires maintainer acceptance. v4.13.11 ([known-gaps sweep and minor close](releases/v4/v4.13/plans/v4.13.11-known-gaps-sweep-and-minor-close.md)) is queued after v4.13.10 is released and back-merged; it reduces genuine residual work before the post-release v4.13 archive. Bounded vendor, manual, and artifact-coverage gaps remain open in their known-gaps ledgers.
 **Closeout boundary:** Recovery backups with unique Git history, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim. The former 47-file recovery branch was removed after its patch was proven identical to the merged PR #259 commit.
-**Last refreshed:** 2026-10-02
+**Last refreshed:** 2026-10-08
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its source `known-gaps.md` under `docs/releases/` or `docs/archives/`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
 
@@ -19,7 +19,8 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Publish v4.13.8, integrate it green, and release it: PR #417 merged into `develop` at `d5fb5c2c9` with every required check green, released as v4.13.8 on 2026-10-02. No run record was captured (v4.13.8 QG-6, carried to v4.13.9 as QG-8).
 - [ ] Re-run the first-principles pilot's identical matrix once Claude Code recognizes `claude-sonnet-5-5` (v4.13.8 DF-4, carried to v4.13.9 as DF-12).
 - [x] Implement, publish, and release v4.13.9 ([inline visualize, Codex disk writes, review drafts, GPT-6.1 Sol](releases/v4/v4.13/plans/v4.13.9-adoption-inline-visualize-codex-disk-writes-review-flow-gpt-6-1-sol.md)): PR #424 merged into `develop` at `e1657dfe` after two stabilization re-pushes (a Linux-only size-bound case, filed as BG-14, and two CodeQL file-handle findings), released as v4.13.9 on 2026-10-04.
-- [ ] Implement v4.13.10 in full ([Training page rebuild](releases/v4/v4.13/plans/v4.13.10-training-page-rebuild.md)), then hold for the maintainer's review before the v4.13 minor close and archive.
+- [ ] Implement and release v4.13.10 ([Training page rebuild](releases/v4/v4.13/plans/v4.13.10-training-page-rebuild.md)), back-merge it to develop, and record the maintainer's Training acceptance before starting v4.13.11.
+- [ ] Implement the queued [v4.13.11 known-gaps sweep and minor close](releases/v4/v4.13/plans/v4.13.11-known-gaps-sweep-and-minor-close.md) only after admission: reverify the retained triage, close bounded fixes and extra local candidates, fix the new dependency advisory, then migrate only genuine residuals and archive through the post-release closing PR. Implementation is 0/8 phases and 0/40 tasks.
 - [x] Finish the [v4.13.4 Training rebuild](releases/v4/v4.13/plans/v4.13.4-guide-training-rebuild.md): all eight phases shipped through [PR #382](https://github.com/bendourthe/Nexus-Hub/pull/382), merged at `13de23c0` after one stabilization re-push; [post-merge run 36526412742](https://github.com/bendourthe/Nexus-Hub/actions/runs/36526412742) passed. The [last-phase evidence](releases/v4/v4.13/development/v4.13.4-last-phase-evidence.md) records the full local gate, review lenses, and visual sweep; WN-1 and WN-2 stay open in the v4.13 ledger.
 
 - [x] Historical v4.0-v4.13 plan closure is integrated. PR #232 passed the required Linux, Windows, guide-render, host-load, CodeQL, and aggregate checks; post-merge run 35789442554 passed smoke and provenance without rerunning the full suite.
@@ -159,6 +160,8 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
+| v4.13.11 known-gaps sweep phases complete (queued) | 0 | 8 | 8 |
+| v4.13.11 known-gaps sweep tasks complete (queued) | 0 | 40 | 40 |
 | v4.13.10 Training page rebuild phases complete | 0 | 8 | 8 |
 | v4.13.9 visualize, review drafts, and Sol phases complete (released) | 6 | 6 | 0 |
 | v4.13.8 Sonnet 5.5 profile and pilot phases complete (released) | 6 | 6 | 0 |
