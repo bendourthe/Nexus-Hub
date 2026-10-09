@@ -54,7 +54,9 @@ def _open(browser, width: int = 1280, height: int = 900, motion: str = "no-prefe
     pg = ctx.new_page()
     errors: list[str] = []
     pg.on("pageerror", lambda exc: errors.append(str(exc)))
-    pg.goto(TRAINING.as_uri() + "#play-fixed", wait_until="domcontentloaded")
+    # A long WebGL test before this one leaves software-rendered GL work draining on a CI runner, and
+    # the next navigation waits behind it (three runs timed out at 30 s), so allow it two minutes.
+    pg.goto(TRAINING.as_uri() + "#play-fixed", wait_until="domcontentloaded", timeout=120000)
     pg.wait_for_function("window.SkySentinel && SkySentinel.get('fixed')", timeout=90000)
     pg.evaluate("SkySentinel.manual(true)")
     pg.locator(".ss-host[data-ss-id=fixed] .ss-stage").scroll_into_view_if_needed()
