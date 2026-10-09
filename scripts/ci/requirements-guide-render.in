@@ -1,3 +1,4 @@
 # Browser-backed guide and visual detector contracts; versions are constrained by requirements-py311.txt.
 pytest
 playwright
+pytest-xdist

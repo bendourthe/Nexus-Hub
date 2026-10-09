@@ -566,6 +566,9 @@ GUIDE_BROWSER = Group(
             "guide and visual detector browser contracts",
             "tests/guides/",
             "tests/verification/test_visual_defect_detector.py",
+            # v4.13.10: four workers, one per runner CPU; the suite grew past an hour run serially.
+            "-n",
+            "4",
             "--junitxml=reports/junit/guide-render.xml",
             env={"NEXUS_REQUIRE_RENDER": "1"},
             timeout=3600,

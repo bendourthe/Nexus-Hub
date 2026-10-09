@@ -54,7 +54,9 @@ def open_scene(browser, width=1440, motion='reduce', theme='dark', **options):
     p = browser.new_page(viewport={'width': width, 'height': 1000}, reduced_motion=motion, **options)
     if motion == 'no-preference':
         p.clock.install(time=1000)
-        p.clock.pause_at(1000)
+        # The installed clock runs until paused; pausing at the install time fails ("Cannot
+        # fast-forward to the past") when a loaded runner lets it pass 1000 first.
+        p.clock.pause_at(11000)
     p.goto(GUIDE.as_uri() + '#foundations')
     p.evaluate('t=>document.documentElement.dataset.theme=t', theme)
     p.locator('.ml-lab').scroll_into_view_if_needed()

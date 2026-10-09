@@ -70,6 +70,8 @@ distlib==0.4.3
     # via virtualenv
 et-xmlfile==2.0.0
     # via openpyxl
+execnet==2.1.2
+    # via pytest-xdist
 filelock==4.0.1
     # via
     #   cachecontrol
@@ -319,12 +321,15 @@ pytest==9.1.1
     #   nexus-web-fetch (extensions/nexus-web-fetch/pyproject.toml)
     #   pytest-asyncio
     #   pytest-cov
+    #   pytest-xdist
 pytest-asyncio==1.4.0
     # via
     #   nexus-code-search (extensions/nexus-code-search/pyproject.toml)
     #   nexus-skill-server (extensions/nexus-skill-server/pyproject.toml)
     #   nexus-web-fetch (extensions/nexus-web-fetch/pyproject.toml)
 pytest-cov==7.1.0
+    # via -r scripts/ci/requirements.in
+pytest-xdist==3.8.0
     # via -r scripts/ci/requirements.in
 python-discovery==1.6.1
     # via virtualenv
