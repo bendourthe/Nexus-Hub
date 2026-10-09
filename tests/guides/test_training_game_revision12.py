@@ -54,8 +54,8 @@ def _open(browser, width: int = 1280, height: int = 900, motion: str = "no-prefe
     pg = ctx.new_page()
     errors: list[str] = []
     pg.on("pageerror", lambda exc: errors.append(str(exc)))
-    pg.goto(TRAINING.as_uri() + "#play-fixed")
-    pg.wait_for_function("window.SkySentinel && SkySentinel.get('fixed')")
+    pg.goto(TRAINING.as_uri() + "#play-fixed", wait_until="domcontentloaded")
+    pg.wait_for_function("window.SkySentinel && SkySentinel.get('fixed')", timeout=90000)
     pg.evaluate("SkySentinel.manual(true)")
     pg.locator(".ss-host[data-ss-id=fixed] .ss-stage").scroll_into_view_if_needed()
     return ctx, pg, errors

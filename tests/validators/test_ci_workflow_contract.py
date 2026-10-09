@@ -335,7 +335,8 @@ def test_guide_render_emits_junit_for_the_uploaded_report():
     assert any("--only ${{ matrix.group }}" in str(step.get("run", "")) for step in job["steps"])
     for leg in job["strategy"]["matrix"]["include"]:
         command = profile_group(leg["group"]).commands[0]
-        assert f"--junitxml=reports/junit/{leg['group']}.xml" in command.argv, leg
+        junit = leg["group"].replace("guide-browser", "guide-render")
+        assert f"--junitxml=reports/junit/{junit}.xml" in command.argv, leg
 
 
 def test_windows_native_tests_emit_junit_for_the_uploaded_report():

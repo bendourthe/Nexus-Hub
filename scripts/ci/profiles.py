@@ -597,7 +597,7 @@ def _guide_shard(name: str, label: str, target: str, *extra: str) -> Group:
                 f"guide browser contracts: {label}",
                 target,
                 *extra,
-                f"--junitxml=reports/junit/{name}.xml",
+                f"--junitxml=reports/junit/{name.replace('guide-browser', 'guide-render')}.xml",
                 env={"NEXUS_REQUIRE_RENDER": "1"},
                 timeout=2700,
             ),

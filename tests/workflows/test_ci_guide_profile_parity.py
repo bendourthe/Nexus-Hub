@@ -69,4 +69,5 @@ def test_the_browser_shards_partition_the_whole_suite() -> None:
     for name in SHARDS:
         command = groups[name].commands[0]
         assert command.env["NEXUS_REQUIRE_RENDER"] == "1", name
-        assert f"--junitxml=reports/junit/{name}.xml" in command.argv, name
+        junit = name.replace("guide-browser", "guide-render")
+        assert f"--junitxml=reports/junit/{junit}.xml" in command.argv, name
