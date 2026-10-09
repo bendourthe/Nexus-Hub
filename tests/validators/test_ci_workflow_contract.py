@@ -207,7 +207,10 @@ def test_ci_enforces_the_guide_browser_contracts():
     assert "scripts/ci/requirements-guide-render.in" in commands
     assert "python -m playwright install --with-deps chromium" in commands
 
-    assert any("--only guide-browser" in str(step.get("run", "")) for step in steps)
+    assert any("--only ${{ matrix.group }}" in str(step.get("run", "")) for step in steps)
+    for leg in job["strategy"]["matrix"]["include"]:
+        shard = profile_group(leg["group"]).commands
+        assert len(shard) == 1 and shard[0].env.get("NEXUS_REQUIRE_RENDER") == "1", leg
     browser_commands = profile_group("guide-browser").commands
     assert len(browser_commands) == 1
     assert browser_commands[0].env.get("NEXUS_REQUIRE_RENDER") == "1"
@@ -328,10 +331,11 @@ def test_profile_and_guide_jobs_retain_reports_on_failure(path: Path, job_names:
 
 
 def test_guide_render_emits_junit_for_the_uploaded_report():
-    steps = load(CI)["jobs"]["guide-render"]["steps"]
-    assert any("--only guide-browser" in str(step.get("run", "")) for step in steps)
-    command = profile_group("guide-browser").commands[0]
-    assert "--junitxml=reports/junit/guide-render.xml" in command.argv
+    job = load(CI)["jobs"]["guide-render"]
+    assert any("--only ${{ matrix.group }}" in str(step.get("run", "")) for step in job["steps"])
+    for leg in job["strategy"]["matrix"]["include"]:
+        command = profile_group(leg["group"]).commands[0]
+        assert f"--junitxml=reports/junit/{leg['group']}.xml" in command.argv, leg
 
 
 def test_windows_native_tests_emit_junit_for_the_uploaded_report():

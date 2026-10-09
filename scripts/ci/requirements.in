@@ -9,7 +9,6 @@ pypdf
 PyYAML
 pytest
 pytest-cov
-pytest-xdist
 python-docx
 python-pptx
 tomlkit

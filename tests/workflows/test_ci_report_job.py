@@ -11,7 +11,7 @@ SOURCES = {
     "validate": "ci-validation-reports",
     "shellcheck": "ci-shell-reports",
     "tests": "ci-test-reports",
-    "guide-render": "ci-guide-render-report",
+    "guide-render": ("ci-guide-render-report-engine", "ci-guide-render-report-game", "ci-guide-render-report-rest"),
     "tests-windows": "ci-windows-reports",
 }
 
@@ -30,11 +30,12 @@ def test_report_job_aggregates_every_profile_receipt_after_failure() -> None:
     aggregate = next(step for step in steps if step.get("name") == "Aggregate profile reports")
     assert "--profile report" in aggregate["run"]
     assert "--reports-dir reports" in aggregate["run"]
-    for job_name, artifact in SOURCES.items():
+    for job_name, artifacts in SOURCES.items():
         variable = "RESULT_" + job_name.upper().replace("-", "_")
         expression = f"needs.{job_name}.result" if "-" not in job_name else f"needs['{job_name}'].result"
         assert aggregate["env"][variable] == "${{ " + expression + " }}"
-        assert f"--expect-artifact {artifact}=${variable}" in aggregate["run"]
+        for artifact in (artifacts,) if isinstance(artifacts, str) else artifacts:
+            assert f"--expect-artifact {artifact}=${variable}" in aggregate["run"]
     upload = next(step for step in steps if step.get("name") == "Retain aggregate reports")
     assert upload["if"] == "always()"
     assert upload["with"]["name"] == "ci-aggregate-reports"

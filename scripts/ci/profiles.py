@@ -24,6 +24,10 @@ import shutil
 import sys
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
+from pathlib import Path
+
+#: The repository root, for shard lists derived from files on disk.
+REPO_ROOT = Path(__file__).resolve().parents[2]
 
 #: Host classes a command can be scoped to. `posix` is the union of linux and
 #: macos, kept because most shell tooling cares about that boundary rather than
@@ -566,14 +570,50 @@ GUIDE_BROWSER = Group(
             "guide and visual detector browser contracts",
             "tests/guides/",
             "tests/verification/test_visual_defect_detector.py",
-            # v4.13.10: four workers, one per runner CPU; the suite grew past an hour run serially.
-            "-n",
-            "4",
             "--junitxml=reports/junit/guide-render.xml",
             env={"NEXUS_REQUIRE_RENDER": "1"},
             timeout=3600,
         ),
     ),
+)
+
+# v4.13.10: the serial suite grew past an hour on a CI runner, and parallel workers on one runner
+# starve each other (Chromium renders WebGL in software there). CI runs these three serial shards
+# on separate runners instead. Every guide test file lands in exactly one shard; the rest shard
+# ignores the game files rather than listing the others, so a new file can never fall through.
+GUIDE_ENGINE_FILE = "tests/guides/test_training_game_engine.py"
+GUIDE_GAME_FILES = tuple(
+    p.relative_to(REPO_ROOT).as_posix()
+    for p in sorted((REPO_ROOT / "tests" / "guides").glob("test_training_game_revision*.py"))
+)
+
+
+def _guide_shard(name: str, label: str, target: str, *extra: str) -> Group:
+    return Group(
+        name=name,
+        explicit_only=True,
+        commands=(
+            _pytest(
+                f"guide browser contracts: {label}",
+                target,
+                *extra,
+                f"--junitxml=reports/junit/{name}.xml",
+                env={"NEXUS_REQUIRE_RENDER": "1"},
+                timeout=2700,
+            ),
+        ),
+    )
+
+
+GUIDE_BROWSER_ENGINE = _guide_shard("guide-browser-engine", "game engine", GUIDE_ENGINE_FILE)
+GUIDE_BROWSER_GAME = _guide_shard("guide-browser-game", "game revisions", *GUIDE_GAME_FILES)
+GUIDE_BROWSER_REST = _guide_shard(
+    "guide-browser-rest",
+    "guide pages and visual detector",
+    "tests/guides/",
+    "tests/verification/test_visual_defect_detector.py",
+    f"--ignore={GUIDE_ENGINE_FILE}",
+    "--ignore-glob=tests/guides/test_training_game_revision*.py",
 )
 
 PRE_COMMIT = Group(
@@ -648,6 +688,9 @@ PROFILES: dict[str, tuple[Group, ...]] = {
         TESTS,
         EXTENSION_TESTS,
         GUIDE_BROWSER,
+        GUIDE_BROWSER_ENGINE,
+        GUIDE_BROWSER_GAME,
+        GUIDE_BROWSER_REST,
     ),
     # Only what differs by host. Deliberately small: a leg that runs everywhere
     # belongs in `full`, where it is paid for once.
