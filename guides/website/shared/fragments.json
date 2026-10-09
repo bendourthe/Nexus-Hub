@@ -1,0 +1,133 @@
+{
+  "_comment": "Pieces both guide pages carry. Edit the source here, then run python scripts/stamp_guide_shared.py; --check fails on drift. Decision: docs/decisions/implemented/architecture/2026-10-04-guide-training-as-a-second-offline-page.md. The JS fragments expect REDUCE, THEME_KEY, and current to be declared by the page script that holds them. The guide adopts opening-css, outline-css, outline-js, and motion-css (removing its own copy of the generic reduced-motion lines) at the v4.13.10 Phase 7 cutover, once the old in-guide Training is removed and the byte ceiling has room. Training-only sources (the game engine) live in guides/website/src/ and are listed here so the same stamp keeps them inlined.",
+  "fragments": {
+    "favicon": {
+      "syntax": "html",
+      "file": "favicon.html"
+    },
+    "theme-init": {
+      "syntax": "html",
+      "file": "theme-init.html"
+    },
+    "base-css": {
+      "syntax": "css",
+      "file": "base.css"
+    },
+    "footer-css": {
+      "syntax": "css",
+      "file": "footer.css"
+    },
+    "pagenav-css": {
+      "syntax": "css",
+      "file": "pagenav.css"
+    },
+    "type-css": {
+      "syntax": "css",
+      "file": "type.css"
+    },
+    "nexus-mark": {
+      "syntax": "html",
+      "file": "nexus-mark.svg.html"
+    },
+    "header": {
+      "syntax": "html",
+      "file": "header.html"
+    },
+    "footer": {
+      "syntax": "html",
+      "file": "footer.html"
+    },
+    "theme-js": {
+      "syntax": "js",
+      "file": "theme.js"
+    },
+    "nav-js": {
+      "syntax": "js",
+      "file": "nav.js"
+    },
+    "nexusseq-js": {
+      "syntax": "js",
+      "file": "nexusseq.js"
+    },
+    "constellation-js": {
+      "syntax": "js",
+      "file": "constellation.js"
+    },
+    "opening-css": {
+      "syntax": "css",
+      "file": "opening.css"
+    },
+    "outline-css": {
+      "syntax": "css",
+      "file": "outline.css"
+    },
+    "outline-js": {
+      "syntax": "js",
+      "file": "outline.js"
+    },
+    "nav-mobile-css": {
+      "syntax": "css",
+      "file": "nav-mobile.css"
+    },
+    "motion-css": {
+      "syntax": "css",
+      "file": "motion.css"
+    },
+    "sky-sentinel-js": {
+      "syntax": "js",
+      "file": "../src/sky-sentinel.js"
+    },
+    "training-story-js": {
+      "syntax": "js",
+      "file": "../src/training-story.js"
+    },
+    "training-story-json": {
+      "syntax": "html",
+      "file": "../src/training-story.json",
+      "wrap": [
+        "<script type=\"application/json\" id=\"nh-training-story\">\n",
+        "</script>\n"
+      ]
+    }
+  },
+  "pages": {
+    "nexus-hub-guide.html": {
+      "vars": {
+        "brand": "href=\"#home\" data-go=\"home\"",
+        "nav.home": "href=\"#home\" data-go=\"home\"",
+        "nav.foundations": "href=\"#foundations\" data-go=\"foundations\"",
+        "nav.training": "href=\"training.html\" data-training-link",
+        "nav.cheatsheets": "href=\"#cheatsheets\" data-go=\"cheatsheets\""
+      },
+      "fragments": [
+        "favicon",
+        "theme-init",
+        "base-css",
+        "footer-css",
+        "type-css",
+        "nexus-mark",
+        "header",
+        "footer",
+        "theme-js",
+        "nav-js",
+        "nexusseq-js",
+        "constellation-js",
+        "nav-mobile-css",
+        "opening-css",
+        "outline-css",
+        "outline-js",
+        "motion-css",
+        "pagenav-css"
+      ]
+    },
+    "training.html": {
+      "vars": {
+        "brand": "href=\"nexus-hub-guide.html#home\"",
+        "nav.home": "href=\"nexus-hub-guide.html#home\"",
+        "nav.foundations": "href=\"nexus-hub-guide.html#foundations\"",
+        "nav.training": "href=\"training.html#intro\" class=\"active\" aria-current=\"page\"",
+        "nav.cheatsheets": "href=\"nexus-hub-guide.html#cheatsheets\""
+      }
+    }
+  }
+}

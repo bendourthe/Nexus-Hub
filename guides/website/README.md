@@ -1,20 +1,18 @@
 # Nexus Hub Interactive Guide
 
-This directory holds the public-facing Nexus Hub guide, its arcade-shooter Training data, and retained legacy fixtures. Everything reader-facing runs offline, opens in a browser, and needs no build step. This `README.md` is for maintainers.
+This directory holds the public-facing Nexus Hub guide (two offline pages), and the sources both pages share. Everything reader-facing runs offline, opens in a browser, and needs no build step. This `README.md` is for maintainers.
 
 ## Contents
 
 | Item | What it is |
 |---|---|
-| `nexus-hub-guide.html` | Canonical interactive guide. The main entry point. |
+| `nexus-hub-guide.html` | Canonical interactive guide: Home, Foundations, and Cheatsheets. The main entry point. |
+| `training.html` | The Training page, opened by the guide's Training tab. A second self-contained offline page that must travel with the guide. |
+| `shared/` | Pieces both pages carry (tokens, base styles, menu, footer, theme, `NexusSeq`, the page opening, the outline, motion rules), listed in `shared/fragments.json` and inlined into each page by `scripts/stamp_guide_shared.py`. Edit them here, never in a page. |
+| `src/` | Training-only sources: the Sky Sentinel game engine, the story (`training-story.json` and its schema), and the story renderer. Inlined into `training.html` by the same stamp. |
 | `assets/ml-boat.webp` | The one photo held outside the HTML. Must travel with the guide. |
-| `example/training-scenes.json` | Maintainer source of truth for Training scenes. The guide inlines a verified copy. |
-| `example/glow-booth/` | Legacy regression fixture retained pending explicit removal approval. Not reader-facing. |
-| `example/glow-booth-shuffle-reference/` | Legacy comparison fixture retained pending explicit removal approval. Not reader-facing. |
-| `glow-booth.zip` | Legacy archive fixture retained pending explicit removal approval. Not a reader download. |
-| `example/trivia-quiz/` | Previous example. Stays on disk. Not taught in the published guide. |
 
-The guide is the single home for orientation, installation, Foundations, Training, and Cheatsheets. It is one HTML file plus the `assets/` folder beside it, and has no runtime network dependency.
+The guide is two offline pages: `nexus-hub-guide.html` (orientation, installation, Foundations, Cheatsheets) and `training.html` (Training), plus the `assets/` folder beside them. Neither has a runtime network dependency. Why two pages: [decision 2026-10-04](../../docs/decisions/implemented/architecture/2026-10-04-guide-training-as-a-second-offline-page.md).
 
 ## The interactive guide
 
@@ -23,10 +21,10 @@ The guide is the single home for orientation, installation, Foundations, Trainin
 The living-room photo stays inline deliberately. The world-model demo uploads it into a WebGL texture, and under `file://` a sibling file counts as cross-origin, so `texImage2D` refuses it and the demo dies silently. The sailboat photo is only ever painted through an SVG `<image>`, never read back, so it can live outside the HTML and keeps the file under its byte budget.
 
 - **To open:** double-click the file. It opens in any modern browser and works fully offline. GitHub does not render HTML inline, so use Download raw file, then open the download.
-- **To share:** send `nexus-hub-guide.html` together with the `assets/` folder beside it.
+- **To share:** send `nexus-hub-guide.html` and `training.html` together with the `assets/` folder beside them. When `training.html` is missing, the guide's Training links show a notice instead of a browser error page.
 - **Primary navigation:** Home, Foundations, Training, Cheatsheets. Installation is not a primary page. GitHub is an icon-only external link. Theme toggles light and dark and persists only those two values under `portfolio-theme`.
 
-URL grammar: `#<page-id>` for pages; `#training/<section-id>` for Training; `#cheatsheets/<stop>` for Cheatsheets sections. Legacy Training routes `describe`, `review`, `test`, and `update` map to their combined sections, and `?beat=n` is ignored. Compatibility: `#reference` and `#workflows` rewrite to `#cheatsheets`; `#explore`, `#plan`, `#build`, `#harden`, `#ship`, `#communicate` rewrite to `#cheatsheets/<id>`. `#home/install` scrolls to the Home install block. Unknown page ids rewrite to Home.
+URL grammar: `#<page-id>` for pages; `#foundations/<scene-id>` and `#cheatsheets/<stop>` for sections. `#training` and every older `#training/<section>` hash open the matching stage of `training.html` (`game` to `play-buggy`; `describe-review`, `describe`, `review`, `plan`, `implement`, `test`, and `update` to their loop-1 stages; `fixed-game` to `play-fixed`; `compare` and `presentify` to `intro`). `training.html` uses `#intro`, `#play-buggy`, `#play-partial`, `#play-fixed`, `#loop1/<step>`, and `#loop2/<step>`; in-stage anchors use the `#s-` prefix. Compatibility: `#reference` and `#workflows` rewrite to `#cheatsheets`; `#explore`, `#plan`, `#build`, `#harden`, `#ship`, `#communicate` rewrite to `#cheatsheets/<id>`. `#home/install` scrolls to the Home install block. Unknown page ids rewrite to Home.
 
 ## Design system (v4.4.5, evolved from v4.2.2, v4.2.3, v4.4.0, v4.4.1, v4.4.2, v4.4.3, and v4.4.4)
 
@@ -50,11 +48,11 @@ The original design language remains recorded in `docs/archives/v4/v4.2/developm
 - **A vendor mark is reused from the ledger, never re-sourced (v4.4.3).** The four platform chips carry marks this guide already approves at pinned hashes. Reusing an asset that carries internal ids requires re-namespacing them, or the second copy resolves its mask and filters against the first; the test derives the expected variant from the approved asset so the id prefix is provably the only difference. The chips label the PRODUCT while the mark is the VENDOR's, which is recorded as a substitution in the provenance ledger.
 - **Motion that plays itself, with the access half kept (v4.4.3).** The video output has no control: the animation is the element's own `src`. Under `prefers-reduced-motion` the still frame is shown. That inverts the v4.4.1 press-to-play rule and keeps the half of it that was about access rather than about asking.
 - **Every class in the markup has a rule (v4.4.3).** `test_v443_phase8_harness.py::test_every_class_used_in_foundations_has_a_style_rule` ties each class in the Foundations markup to a declaration in the stylesheet. It exists because Phase 4 of that plan deleted CSS after counting four usages of a class and reading that as "the two I am replacing"; the other two were in the harness trail, which rendered unstyled for four commits. A usage count cannot tell you where a class is used.
-- **Fluid width (v4.2.3, updated v4.13.4).** Body copy has no character-based width cap. The Training game's 8:5 stage and its reading card have a 700 px maximum so the canvas remains contained in the stacked layout; the site container retains its 1600 px bound. Tests reject other hard text caps. Headings use `text-wrap: balance` to shape wrapping without imposing one.
+- **Fluid width (v4.2.3, updated v4.13.4).** Body copy has no character-based width cap. The Training arena spans the content width and caps its height so the arena and its HUD fit one screen; the site container retains its 1600 px bound. Tests reject other hard text caps. Headings use `text-wrap: balance` to shape wrapping without imposing one.
 - **Copy affordance (v4.2.3).** A labelled button only where the control stands alone in a wide terminal row. Inside an inline `.cmd-cell` the button is bare - no background, no border, no label - because the host chip already draws the container and a chip inside a chip reads as a mistake. The bare variant keeps a 24px hit area, its `aria-label`, the live-region announcement, and an explicit focus ring.
 - **Invocation convention (v4.2.3).** `.inv-cmd` renders a slash command in accent, `.inv-arg` its scope in plain ink, `.inv-ph` a placeholder dim italic. Used on Home, in Training's terminal, and in every Cheatsheets example. The `data-copy` payload is always the plain full string, so copy parity survives the split markup.
 - **Compact rhythm.** A 4px spacing scale (`--sp-1` to `--sp-8`) with `--sec-pad: 32px` (22px under 720px). Sections are separated by an eyebrow and a heading, not by empty space.
-- **Motion vocabulary.** `.reveal` elements fade and rise via one shared IntersectionObserver. Continuous motion (constellation, the Foundations work-cycle glyph, and the shooter loop) runs only while its surface is visible. `prefers-reduced-motion` renders a complete static equivalent, pauses the game, exposes Advance one step, and prints terminal output immediately; it never substitutes a crushed duration.
+- **Motion vocabulary.** `.reveal` elements fade and rise via one shared IntersectionObserver. Continuous motion (constellation, the Foundations work-cycle glyph, and the Training game) runs only while its surface is visible. `prefers-reduced-motion` renders a complete static equivalent and calms the game's effects without changing play; it never substitutes a crushed duration.
 - **Themes.** All colors are tokens defined on `:root`, `html[data-theme="dark"]`, and `html[data-theme="light"]`. Every measured text style in both themes meets WCAG AA contrast. The v4.4.0 Phase 6 browser sweep measured 11,008 visible text samples across all pages and all eight Training states, including 552 generated pseudo-text samples and 265 unique computed styles, and found 0 below AA.
 - **Light-mode brand chip.** In light theme the glow logo mark sits on a rounded dark chip so it reads against the light ground.
 - **The Nexus mark is true vector geometry, and must stay that way (v4.4.1).** `#nexus-mark` was a single 220 KB base64 PNG inside an `<image>` element until v4.4.1 replaced it with about 2.1 KB of reviewed paths, circles, gradients, and one `feGaussianBlur` glow layer, measured from the original raster so the geometry is preserved. That one change bought roughly 218 KB of the 500,000-byte budget, and every later phase's byte allocation is drawn against that headroom. Do NOT re-embed a raster here, and do not reuse `assets/nexus-hub-primary_no-background.svg`: it is a 1 MB SVG-wrapped raster with zero `<path>` elements, not a vector source. `tests/guides/test_v441_phase1_contract.py` asserts the symbol has no base64 payload, carries real geometry rather than an empty shell, and stays compact.
@@ -134,35 +132,24 @@ Hard rules: no element pins itself over the content, and there is **no toggle** 
 - **Pulse paint order.** SVG has no `z-index`; paint order is document order. Phase 3 diagrams declare connectors first, pulses second, and node groups last, so a pulse remains above its path but behind the boxes it crosses. A test enforces the exact layer sequence.
 - **Project-generic teaching language.** Explanatory copy avoids "repo", "repository", "terminal", "git", and "codebase" - a vocabulary test guards the Foundations section. Factual claims stay accurate: the hero still names the AI coding assistants, "paste into Terminal" still says Terminal because you literally do, and Cheatsheets still describes what each command really does.
 
-## Training walkthrough
+## Training
 
-Training is a seven-section interactive arcade-shooter walkthrough (`#nhTraining`, `[data-training-root]`) driven by the section JSON. Sections appear in document order, and each may contain zero or more runnable actions. The walkthrough composes five things:
+Training lives in `training.html`, one scrolling page that walks the Development Workflow on a small arcade game, Nexus Defenders, that ships with two bugs (a first hit that destroys the ship outright, and an explosion with no hit):
 
-1. Each section's heading, intent, and takeaway.
-2. **Three independent playable arcade shooters** - the first demonstrates a seeded damage bug that destroys the ship on its first enemy shot while the HUD still reads three lives; the fixed game spends one life per hit and grants a 90-tick invulnerability window; the featured game also enables band-clamped vertical movement. Asteroid contact remains fatal. The engine contract is `docs/archives/v4/v4.4/development/arcade-shooter-scenario.md`.
-3. **Section-scoped simulated terminals** - each action's command is pre-filled with a Run affordance; running reveals its reply and applies its file changes. `/describe` and `/review` have distinct action choices in one section. Game configuration belongs to the game section, not to navigation progress.
-4. **Cumulative file explorers** - each section shows files from completed earlier actions plus its own completed actions, marks its new and changed files, and paints selected content or diffs with text nodes only. A requested path that does not exist yet says so explicitly.
-5. Action-local artifacts and gate verdicts, plus the section takeaway, explain what each command produced and why it matters.
+1. **Opening.** Two scenes drawn by the real game engine show the bug and the fix, with an agent workflow panel between them: a chat that types and sends each command, and an IDE that writes or edits one file per command.
+2. **Buggy Game.** The reader plays the buggy build and meets the first-hit bug.
+3. **One pass of the workflow.** `/describe`, `/review`, `/plan`, `/implement`, `/test`, and `/update` each run in an animated IDE player (explorer, editor, chat, a moving cursor, and highlighted results), with the model tier, the effort, and the mapped model shown in the chat; `/implement` hits a usage limit and hands off to a second provider.
+4. **Fixed Game.** The fixed build: five ships, upgrades and rare pickups, rising difficulty over three levels, one retry per level, a supernova passage into the Nexus dimension, and the shielded Nexus boss. Defeating it plays the black-hole finale, shows a score summary, and opens the reward panel (an animated Nexus AI Studio window and its download).
 
-Training navigation uses seven ordinary in-page jump links and keyboard-accessible headings. The focused game owns Left / Right or A / D for horizontal movement and Space for fire; Up / Down or W / S move vertically only in the featured game. Each game starts idle behind its own `Click to start` button. **Pointer contract (v4.4.2):** a primary click inside an arena fires with the same cooldown as Space, starts nothing while idle and resumes nothing while paused; leaving that arena pauses its instance with reason `pointer` and releases held keys; re-entering does not resume it. Under `(pointer: fine)` a `kbd` key guide replaces touch buttons; under `(pointer: coarse)` five labelled touch controls remain. Pause / Resume, Reset demo, and the reduced-motion Advance one step sit beside each HUD. **Spawning (v4.4.2):** every fixture spawns continuously from a second seeded stream (`seed ^ 0x9E3779B9`) so the teaching beats never move; three enemy velocity bands and three asteroid size and speed tiers; teaching fixtures spawn from tick 120 and keep the centre band clear so a stationary player receives only the seeded beats. The full contract is `docs/archives/v4/v4.4/development/arcade-shooter-scenario.md`.
+**Sources.** The story is `src/training-story.json`, validated by `src/training-story.schema.json`; `src/training-story.js` renders it with `textContent` only. The game is `src/sky-sentinel.js`, a fixed 60 Hz simulation with seeded random streams; its design and test rules are in `docs/releases/v4/v4.13/development/v4.13.10-game-design.md`. Model ids come only from the bundled model map: `scripts/stamp_training_models.py` copies it into the page.
 
-**Section layout (v4.13.4).** Seven stacked sections replace the fullscreen deck, Outline disclosure, Previous / Next / Restart controls, and step counter. Each section has its own terminal, tools, artifact, gate, and explorer widgets; game sections hide the unused action panel. At desktop widths the action and explorer widgets form two contained columns; at narrow widths they stack. The 8:5 game stage remains contained in its own section, and the 420 px browser check rejects horizontal overflow.
-
-**Plan and implementation summaries.** The Plan section renders each phase with its model tier and effort. The Implement section shows the complete `/implement` run and its final-phase sequence: automatic review, known-gaps reconciliation, tests to green, then `/update release`.
-
-URL: `#training/<section-id>`. Legacy `describe` and `review` links open `describe-review`; `test` and `update` links open `implement`. The legacy `?beat=n` suffix no longer changes state. An unknown section id selects the first game section.
-
-For browser automation or an agent using the page, `window.NexusTraining.go("describe-review")` selects a section, `selectAction("describe-review", "/review")` selects its alternate command, and `run()` completes that simulation. `snapshot()` returns the selected section, action index, completed actions, and cumulative file paths; `window.NexusShooter.get("fixed")` selects one game instance.
-
-Scene strings are painted with `textContent` / `createElement` only. The Training engine assigns `innerHTML` nowhere, and a test-local hostile payload proves that markup and script-close text cannot execute without appearing in the shipped lesson.
-
-Seven sections, in order: `game`, `describe-review`, `plan`, `implement`, `fixed-game`, `compare`, `presentify`. The section actions are `/describe`, `/review`, `/plan`, `/implement`, `/compare`, and `/presentify`; `/test` and `/update release` appear within the implement final-phase explanation rather than as separate sections.
+For browser automation, `window.NexusTrainingPage.go("review")` scrolls to a stage (old `loop1/` and `loop2/` hashes still resolve), `story().typing(true)` turns typing on (automated browsers, which report `navigator.webdriver`, see finished reports by default so measurements read the whole report), `story().replay(id)` and `story().skip(id)` drive it, `window.NexusTrainingPage.reward()` reports whether the boss reward is open, and `window.SkySentinel.get("fixed")` returns a game (with `manual(true)`, `step(n)`, and `state()` for deterministic tests).
 
 ## Cheatsheets
 
 Cheatsheets groups every command under seven **intent-named** sections - Understand and evaluate, Plan the work, Build it, Prove it, Ship and govern, Communicate, Catalog and session. The "Band 1 / Band 2" labels are gone and must not return.
 
-Each command lists **every scope with a one-line description of what that scope does**, plus flags, an alias badge where one applies, and a Training deep link where the command is taught. Commands with no scopes say so explicitly.
+Each command lists **every scope with a one-line description of what that scope does**, plus flags, an alias badge where one applies, and a link to its Training stage for the six loop commands. Commands with no scopes say so explicitly.
 
 Since v4.2.3 the scope list is a **single column** (reading across columns was the readability complaint), and every command carries a small terminal captioned "type it like this" showing a real invocation. That terminal reuses the shared `.term` chrome rather than inventing a third terminal style, and the invocation convention colours the command apart from its argument - which is what makes the ordering legible: the scope visibly follows the command instead of floating as a bare token.
 
@@ -170,17 +157,17 @@ A scope shown on the page must exist in that command's own file in `catalog/comm
 
 ## Keyboard and reduced motion
 
-Page-level ArrowLeft / ArrowRight move between pages when Training is not current and focus is not in a self-keyed pane (`[data-nhg-keys='self']`). The five platform marks (Claude, ChatGPT, Gemini, Cursor, GitHub Copilot) are labelled compatibility information, not interactive controls. Their geometry matches approved assets in the v4.4.1 provenance ledger; Claude, ChatGPT, and Cursor reuse local SVG symbols, while Gemini and GitHub Copilot remain inline. The suite resolves local symbols before hashing against the approved bytes, so a re-fetched or hand-edited mark fails rather than ships. Dark mode may show the constellation; light mode must not. `prefers-reduced-motion` stops decorative transitions, shows every reveal and diagram in its final state, hides the Foundations motion-path pulses, pauses the shooter with Advance one step available, and prints Training terminal output instantly.
+Page-level ArrowLeft / ArrowRight move between the guide's three pages when focus is not in a self-keyed pane (`[data-nhg-keys='self']`). The five platform marks (Claude, ChatGPT, Gemini, Cursor, GitHub Copilot) are labelled compatibility information, not interactive controls. Their geometry matches approved assets in the v4.4.1 provenance ledger; Claude, ChatGPT, and Cursor reuse local SVG symbols, while Gemini and GitHub Copilot remain inline. The suite resolves local symbols before hashing against the approved bytes, so a re-fetched or hand-edited mark fails rather than ships. Dark mode may show the constellation; light mode must not. `prefers-reduced-motion` stops decorative transitions, shows every reveal and diagram in its final state, hides the Foundations motion-path pulses.
 
-## Fixture maintenance
+## Training maintenance
 
-1. Edit `example/training-scenes.json`. Keep the seven ordered sections. The top-level `initial` object defines the starting game and source files. Every section needs `id`, `heading`, `intent`, `actions`, and `takeaway`; game sections additionally declare `game`. Each action needs `command`, `tools`, `output`, `files`, `focus_file`, `artifact`, and `gate`. The Plan section has `phases`; the Implement section has `finalPhase`. File entries carry real display content and declare whether they are created or modified.
-2. Copy the parsed JSON into the `<script type="application/json" id="nh-training-scenes">` block. Encode a literal `</script>` inside a string as `<\/script>` so the HTML parser does not close the block.
-3. Run `python -m pytest -q tests/guides/test_nexus_hub_guide.py tests/guides/test_training_explorer.py tests/guides/test_arcade_shooter_game.py tests/guides/test_v4134_phase6_sections.py`. The suite checks inline JSON parity, inert hostile strings, section-local actions, cumulative files, all three game modes, and keyboard navigation at narrow widths.
+1. Edit the sources, never the pages: `src/training-story.json` for the story, `src/training-story.js` for its rendering, `src/sky-sentinel.js` for the game, and `shared/` for anything both pages carry.
+2. Run `python scripts/stamp_guide_shared.py` to inline them, and `python scripts/stamp_training_models.py` after the bundled model map changes. Both have a `--check` mode that fails on drift.
+3. Run `python -m pytest -q tests/guides/test_training_page.py tests/guides/test_training_story.py tests/guides/test_training_game_engine.py tests/guides/test_training_progression.py tests/guides/test_training_layout.py`.
 
 ## Command inventory
 
-Every file in `catalog/commands/` is either taught in Training, listed in Cheatsheets, or declined as Training with a reason. New catalog commands after this redesign do not require new Training sections.
+Every file in `catalog/commands/` is either taught in Training, listed in Cheatsheets, or declined as Training with a reason. Training teaches the six loop commands; every other command is a Cheatsheets entry.
 
 | Command | Placement |
 |---|---|
@@ -188,10 +175,10 @@ Every file in `catalog/commands/` is either taught in Training, listed in Cheats
 | `/review` | Training |
 | `/plan` | Training |
 | `/implement` | Training |
-| `/compare` | Training |
+| `/compare` | Cheatsheets |
 | `/test` | Training |
 | `/update` | Training |
-| `/presentify` | Training (communicate closer) |
+| `/presentify` | Cheatsheets |
 | `/spec` | Cheatsheets |
 | `/constitution` | Cheatsheets (alias of `/spec constitution`) |
 | `/setup` | Cheatsheets |
@@ -206,11 +193,7 @@ Every file in `catalog/commands/` is either taught in Training, listed in Cheats
 | `/org` | Cheatsheets; declined as Training |
 | `/tune-prompting` | Cheatsheets; declined as Training |
 
-The same table is frozen in `docs/archives/v4/v4.2/development/guide-redesign-content-map.md`.
-
-## Legacy example fixtures
-
-`example/glow-booth/`, `example/glow-booth-shuffle-reference/`, and `glow-booth.zip` remain in the repository only as legacy regression fixtures while removal awaits explicit approval. They are not linked from the guide, offered as a reader download, or used by the shooter walkthrough. Tests may inspect their frozen historical behavior, but new Training work must use `example/training-scenes.json` and the in-browser game.
+The v4.2 version of this table is frozen in `docs/archives/v4/v4.2/development/guide-redesign-content-map.md`; since v4.13.10 `/compare` and `/presentify` are Cheatsheets entries.
 
 ## Copy contract (canonical publication)
 
@@ -257,7 +240,7 @@ Lighthouse Accessibility is a last-phase human bar, not a mid-plan merge gate.
 
 ## Editing
 
-The guide is a single HTML file: CSS in the `<style>` block, content in `<section class="page">` blocks, behavior in the two `<script>` blocks at the bottom (the app shell, then the Training engine after the scene JSON). Class prefixes: `fx-` for Foundations scenes (`fx-hstack` and its `h-` children for the layered harness), `ann-` for the annotated prompt, `seq-` for NexusSeq step primitives, `nht-` for Training, `nag-` for the arcade game, `g-` for the Home guardrails figure, and `cs-` for Cheatsheets. Scene data is `example/training-scenes.json` plus the matching inline JSON block. Do not edit or regenerate the retained Glow Booth fixtures as part of reader-facing Training work.
+The guide is one HTML file: CSS in the `<style>` block, content in `<section class="page">` blocks, behavior in the app-shell `<script>` at the bottom. Class prefixes: `fx-` for Foundations scenes (`fx-hstack` and its `h-` children for the layered harness), `ann-` for the annotated prompt, `seq-` for NexusSeq step primitives, `g-` for the Home guardrails figure, `cs-` for Cheatsheets, and `pg-` for the shared page opening and outline. Training is `training.html` (prefixes `tr-` for the story and `ss-` for the Sky Sentinel game); see Training maintenance below. Regions between `shared:` markers in either page are stamped from `shared/`; edit them there. Do not edit or regenerate the retained Glow Booth fixtures as part of reader-facing Training work.
 
 
 ## Targeted visual refinement after v4.4.5 restoration

@@ -298,7 +298,19 @@ jobs:
     needs: changes
     if: ${{ !cancelled() && needs.changes.outputs.relevant != 'false' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # v4.13.10: the serial suite outgrew one runner (33 to over 60 minutes), and parallel workers
+    # on one runner starve each other, so three serial shards run on separate runners.
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - shard: engine
+            group: guide-browser-engine
+          - shard: game
+            group: guide-browser-game
+          - shard: rest
+            group: guide-browser-rest
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
@@ -331,13 +343,13 @@ jobs:
       - name: Run guide and visual detector browser contracts
         # A missing or unlaunchable browser must fail this job, never degrade to
         # a quiet skip inside an otherwise green test run.
-        run: python scripts/ci/run.py --profile full --only guide-browser --reports-dir reports
+        run: python scripts/ci/run.py --profile full --only ${{ matrix.group }} --reports-dir reports
 
       - name: Retain guide browser report
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: ci-guide-render-report
+          name: ci-guide-render-report-${{ matrix.shard }}
           path: reports/
           if-no-files-found: warn
           retention-days: 7
@@ -778,7 +790,9 @@ jobs:
             --expect-artifact ci-validation-reports=$RESULT_VALIDATE \
             --expect-artifact ci-shell-reports=$RESULT_SHELLCHECK \
             --expect-artifact ci-test-reports=$RESULT_TESTS \
-            --expect-artifact ci-guide-render-report=$RESULT_GUIDE_RENDER \
+            --expect-artifact ci-guide-render-report-engine=$RESULT_GUIDE_RENDER \
+            --expect-artifact ci-guide-render-report-game=$RESULT_GUIDE_RENDER \
+            --expect-artifact ci-guide-render-report-rest=$RESULT_GUIDE_RENDER \
             --expect-artifact ci-windows-reports=$RESULT_TESTS_WINDOWS
 
       - name: Publish aggregate summary

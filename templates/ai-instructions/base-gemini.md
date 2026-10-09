@@ -28,11 +28,11 @@
 ## Working Conventions
 - Verify solutions work before claiming completion
 - Find root causes; no temporary fixes
-- **MANDATORY**: When invoking a shell-style tool (Bash, PowerShell, `run_shell_command`, `shell`, etc.), provide the `description` parameter as a single plain-text sentence (<=120 chars, no newlines, no formatting, no `#` characters or borders). Prefer single-line commands; use multi-line bodies only when a here-string or heredoc is genuinely required (e.g. commit messages, file content). The `description` field is the universally-rendered surface across all approval-dialog implementations - keep it precise and scannable.
+- **MANDATORY**: When invoking a shell-style tool (Bash, PowerShell, `run_shell_command`, `shell`, etc.), provide the `description` parameter as a single plain-text sentence (<=120 chars, no newlines, no formatting, no `#` characters or borders). Prefer single-line commands; use multi-line bodies only when a here-string or heredoc is genuinely required (e.g. commit messages, file content). Every approval dialog shows the `description`, so keep it precise and scannable.
 - **MANDATORY: Every Read, Glob, and Grep tool call MUST be preceded by a one-sentence plain-language explanation** of what file or path is being accessed and why. No exceptions.
-- Commit messages must be ASCII-only: no em-dashes, en-dashes, curly quotes, ellipsis characters, or other Unicode punctuation. Use hyphens, straight quotes, and `...` instead. This prevents encoding corruption on Windows.
+- Commit messages must be ASCII-only (hyphens, straight quotes, `...`) to avoid encoding corruption on Windows.
 - Use `docs/todos.md` as the project progress tracker: read it at session start if it exists, check off completed tasks, add newly identified work, and update dashboard metrics after relevant milestones. Use the dev-progress-tracker skill to create or maintain it.
-- If requirements are ambiguous, batch all clarifying questions into the first turn rather than asking one question per turn. Surface multiple interpretations and acceptance criteria together so the user can answer them in a single round-trip. State any assumptions explicitly before acting. Avoid unbounded per-question ping-pong - it wastes context and Opus 4.7's reasoning budget.
+- If requirements are ambiguous, batch all clarifying questions into the first turn rather than asking one question per turn. Surface multiple interpretations and acceptance criteria together so the user can answer them in a single round-trip. State any assumptions explicitly before acting.
 - Every changed line must trace directly to the user's request; do not clean up adjacent code, pre-existing dead code, or style issues outside the stated scope
 - Place punctuation outside quotation marks; no em-dashes
 - Professional teaching tone
@@ -40,13 +40,14 @@
 
 ## Communication Contract
 
-- Outcome first, in language a non-engineer follows; define jargon in place; put detail beyond ~5 lines in a linked docs/ file.
-- Commands run as pasted: name where to run them, fill derivable values, flag the rest with a REPLACE line, show expected output.
-- Number steps, prerequisites first, expected results. After an error, re-issue ALL remaining steps renumbered.
+- Outcome first, in plain language a non-engineer follows; define jargon in place; link detail beyond ~5 lines in a docs/ file.
+- Commands run as pasted in the user's shell (Windows: PowerShell 5.1, never && or ||): name where to run them, machine and terminal first, fill derivable values, flag the rest with a REPLACE line, show expected output.
+- Write each user action in full every time you ask for it, never "as above"; end a paste at any password or y/n prompt; inline file contents; reuse methods your notes say work.
+- Number steps, prerequisites first, expected results; after an error, re-issue ALL remaining steps renumbered.
 - Close tasks with Completed / Verified / Open / Next; Open items carry options and a recommendation.
-- Work still running at turn end: lead with a one-line status banner, cap the update at ~8 lines.
-- Say in one line what you are about to do; on a long tool-calling turn, add brief progress notes. This narration is not tool output, so Output Minimization still applies.
-- Use lists when asked or when content is multifaceted; drop bullets, headers, and bold when the reader wants minimal formatting; keep conversational or emotional exchanges in plain prose.
+- Work still running at turn end: one-line status banner, update capped at ~8 lines.
+- Say in one line what you are about to do, with brief progress notes on long tool-calling turns; Output Minimization still applies.
+- Use lists for multifaceted content or when asked, minimal formatting when the reader wants it; keep conversational or emotional exchanges in plain prose.
 
 Full contract: `~/.nexus-hub/style-guides/agent-communication.md`.
 
@@ -55,6 +56,8 @@ Full contract: `~/.nexus-hub/style-guides/agent-communication.md`.
 Do not produce the high-frequency AI-cliche moves: throat-clearing openers; "not just X, but Y" and "it is not X, it is Y" contrasts; importance puffery ("crucial", "it is important to note"); weasel attribution ("experts say", "studies show"); faux-insight setups ("here is the thing"); trailing "-ing" clauses that restate a sentence as analysis; fake-profound closing lines; summary-recap endings; and mannered prose, where metaphor or flourish stands in for a direct statement.
 
 Punctuation is ASCII only: no em-dashes, no clause-joining spaced hyphens, punctuation placed outside quotation marks by logic, and no hard-wrapping of paragraph text. Keep a professional teaching tone.
+
+Headings are keyword labels ("Project Mapping", "Release Notes"), never sentences: no verb clause, period, or question, in any document, page, slide, or UI label.
 
 Chatbot leftovers are defects, not style: never emit "as an AI language model", "here is the revised version", or "I hope this helps".
 

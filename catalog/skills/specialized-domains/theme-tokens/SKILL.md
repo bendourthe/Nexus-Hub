@@ -105,6 +105,8 @@ The 10 are deliberate generic precedents. Do not extend the bundled list inside 
     | `web-artifacts-builder` | Emit the theme as CSS custom properties in `:root` (`--color-primary`, `--font-heading`, `--space-1`, etc.). Tailwind v4 users add to `theme` via `@theme { ... }` in `app.css`. |
     | `generative-art` | Pass `palette.primary` and `accent` to the manifesto's Color section as the starting palette; the philosophy step may then narrow or widen it. |
 
+    Themes carry font families, not sizes: take slide font sizes from `pptx-generation` and document and PDF font sizes from `docx-generation`, which own those rules.
+
 4. **Honor the spacing scale**. Compute concrete values as `base * scale[i]`; do not hardcode "8px" or "24px" in generator templates.
 5. **Do not extend palette / font slots**. If a downstream generator needs a fourth color (highlight, danger, success), derive it from the existing six (e.g., `accent` desaturated 30% for hover state) rather than adding a slot. Slot drift breaks every downstream generator simultaneously.
 6. **For user-supplied themes**, validate against the schema before consuming. A missing `palette.muted` should fall back to `foreground` at 60% opacity, not crash the generator.

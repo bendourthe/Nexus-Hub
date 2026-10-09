@@ -6,6 +6,7 @@ import pytest
 
 
 GUIDE = Path(__file__).resolve().parents[2] / "guides/website/nexus-hub-guide.html"
+TRAINING = GUIDE.parent / "training.html"
 
 
 @pytest.fixture
@@ -26,37 +27,51 @@ def browser(render_gate):
 
 
 def test_game_sleeps_and_resumes_without_duplicate_frame_loops(browser):
+    """v4.13.10: the Sky Sentinel loop on training.html asks for frames only while a game runs."""
     page = browser.new_page(viewport={"width": 1440, "height": 900})
     page.add_init_script("""window.gameFrames = 0;
       const raf = window.requestAnimationFrame;
       window.requestAnimationFrame = cb => raf.call(window, t => {
-        if (cb.name === 'frame') window.gameFrames++;
+        if (cb.name === 'loop') window.gameFrames++;
         cb(t);
       });""")
-    page.goto(GUIDE.as_uri() + "#foundations")
+    game = "SkySentinel.get('buggy')"
+    page.goto(TRAINING.as_uri() + "#review")
+    page.wait_for_function("window.NexusTrainingPage && NexusTrainingPage.stage() === 'review' && window.SkySentinel")
     page.wait_for_timeout(300)
     before = page.evaluate("gameFrames")
-    page.wait_for_timeout(150)
-    assert page.evaluate("gameFrames") == before
-    page.evaluate("location.hash = 'training/game'")
-    page.locator('[data-arcade-id="buggy"]').scroll_into_view_if_needed()
-    page.locator('[data-arcade-id="buggy"] [data-arcade-start]').click()
-    page.wait_for_function("NexusShooter.snapshot().tick > 2")
-    page.evaluate("NexusShooter.pause('manual')")
+    page.wait_for_timeout(200)
+    assert page.evaluate("gameFrames") == before, "a session stage with no running game requests frames"
+
+    page.evaluate("NexusTrainingPage.go('play-buggy')")
+    page.wait_for_function("NexusTrainingPage.stage() === 'play-buggy'")
+    page.locator('[data-ss-id="buggy"]').scroll_into_view_if_needed()
+    page.locator('[data-ss-id="buggy"] .ss-start').click()
+    page.wait_for_function(f"{game}.state().tick > 2")
+    page.evaluate(f"{game}.pause('manual')")
     before = page.evaluate("gameFrames")
-    tick = page.evaluate("NexusShooter.snapshot().tick")
-    page.wait_for_timeout(150)
-    assert page.evaluate("gameFrames") == before
-    assert page.evaluate("NexusShooter.snapshot().tick") == tick
-    page.evaluate("NexusShooter.resume('manual'); NexusShooter.resume('manual')")
-    page.wait_for_function("tick => NexusShooter.snapshot().tick > tick", arg=tick)
-    page.evaluate("location.hash = 'foundations'")
-    page.wait_for_function("NexusShooter.snapshot().pauseReasons.includes('offscreen')")
+    tick = page.evaluate(f"{game}.state().tick")
+    page.wait_for_timeout(200)
+    assert page.evaluate("gameFrames") <= before + 1, "a paused game keeps requesting frames"
+    assert page.evaluate(f"{game}.state().tick") == tick
+
+    page.evaluate(f"{game}.resume(); {game}.resume()")
+    page.wait_for_function("tick => SkySentinel.get('buggy').state().tick > tick", arg=tick)
+    start = page.evaluate("[gameFrames, performance.now()]")
+    page.wait_for_timeout(500)
+    end = page.evaluate("[gameFrames, performance.now()]")
+    rate = (end[0] - start[0]) / ((end[1] - start[1]) / 1000)
+    assert rate < 75, f"resuming twice started a second loop: {rate:.0f} frames per second"
+
+    page.evaluate("NexusTrainingPage.go('review')")
+    # v4.13.10 R3: on one scrolling page, scrolling a game out of view pauses it.
+    page.wait_for_function(f"{game}.state().pausedBy === 'offscreen'")
+    page.wait_for_timeout(50)
     before = page.evaluate("gameFrames")
-    page.wait_for_timeout(150)
-    assert page.evaluate("gameFrames") == before
-    page.evaluate("NexusShooter.reset()")
-    assert page.evaluate("NexusShooter.snapshot().lifecycle") == "idle"
+    page.wait_for_timeout(200)
+    assert page.evaluate("gameFrames") == before, "a game on a hidden stage keeps requesting frames"
+    page.evaluate(f"{game}.reset()")
+    assert page.evaluate(f"{game}.state().state") == "idle"
     page.wait_for_timeout(150)
     assert page.evaluate("gameFrames") == before
 

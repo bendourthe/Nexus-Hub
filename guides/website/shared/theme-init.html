@@ -1,0 +1,12 @@
+<script>
+(function () {
+  var KEY = "portfolio-theme";
+  var theme = null;
+  try { theme = window.localStorage.getItem(KEY); } catch (e) { theme = null; }
+  if (theme !== "light" && theme !== "dark") {
+    theme = "dark";
+  }
+  document.documentElement.setAttribute("data-theme", theme);
+  document.documentElement.style.colorScheme = theme;
+})();
+</script>

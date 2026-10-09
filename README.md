@@ -2,19 +2,22 @@
 
 <p align="center"><em>The Skill Harness for Every AI Coding Assistant.</em></p>
 
+<p align="center"><a href="https://www.benjamindourthe.com/nexus-hub/">Interactive guide</a> | <a href="https://www.benjamindourthe.com/">Author: Benjamin Dourthe</a> | <a href="README_zh.md">Chinese README</a></p>
+
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.13.9 -->
+<!-- nexus-hub-version: 4.13.10 -->
 
-Nexus-Hub is the upstream skill catalog for AI coding assistants: 340 skills, 21 commands, 36 registered hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
+Nexus-Hub is the upstream skill catalog for AI coding assistants: 340 skills across 23 categories, 21 commands (plus 3 permanent aliases), 37 registered hooks, 23 agents, and 4 language rule families plus the HTML artifact rules. It installs in one step on Windows, macOS, and Linux, through 17 platform integrations: Claude Code, OpenAI Codex, Gemini and Antigravity, GitHub Copilot, Cursor, OpenCode, Qwen Code, Kimi Code CLI, Devin Desktop / Windsurf, Hermes, Pi, OpenClaw, Aider, and the sibling Nexus desktop app. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
 ## Interactive Guide -- start here
 
-**New to Nexus-Hub? [Open the interactive guide](guides/website/nexus-hub-guide.html).** It is a self-contained, offline HTML file: a concise Home with the install commands, eight Foundations scenes that build a practical mental model from tokens through harnesses, a playable Asteroids Training loop with a cumulative file explorer, and one Cheatsheets tab for the loop plus command arguments. It is the fastest way to get a teammate productive, and it doubles as a live-demo-quality workshop.
+**New to Nexus-Hub? [Open the interactive guide online](https://www.benjamindourthe.com/nexus-hub/)**, or open [the copy in this repository](guides/website/nexus-hub-guide.html). It is two self-contained, offline HTML pages: the guide (a concise Home with the install commands, eight Foundations scenes that build a practical mental model from tokens through harnesses, and one Cheatsheets tab for the loop plus command arguments) and its Training page, a guided live demo that fixes a buggy arcade game in one pass of the six-command Development Workflow, then hands over the fixed game. It is the fastest way to get a teammate productive, and it doubles as a live-demo-quality workshop.
 
-- **File:** [`guides/website/nexus-hub-guide.html`](guides/website/nexus-hub-guide.html) -- one HTML file, fully offline, no server or install required.
-- **To view it:** GitHub does not render HTML inline. Open the file above and click **Download raw file** (top-right of the file view), then open the downloaded `.html` in any browser. Or clone the repo and double-click it.
-- **To share it:** send that single file to anyone on the team. See [guides/website/README.md](guides/website/README.md) for maintainer notes.
+- **Files:** [`guides/website/nexus-hub-guide.html`](guides/website/nexus-hub-guide.html) and [`guides/website/training.html`](guides/website/training.html) -- fully offline, no server or install required.
+- **Online:** [benjamindourthe.com/nexus-hub](https://www.benjamindourthe.com/nexus-hub/) serves the published guide and its Training page.
+- **To view it:** GitHub does not render HTML inline. Clone the repo and double-click `nexus-hub-guide.html`, or download both pages and the `assets/` folder beside them and open the guide in any browser.
+- **To share it:** send both pages together with the `assets/` folder beside them. If `training.html` is missing, the guide's Training links show a notice instead of a browser error. See [guides/website/README.md](guides/website/README.md) for maintainer notes.
 
 > **Renamed from DevAI-Hub at v2.0.0** to align with the sibling project [Nexus](https://github.com/bendourthe/Nexus-AI), a local-first desktop AI Studio that consumes Nexus-Hub as its upstream skill feed. Existing `~/.devai-hub/` installs are migrated in place by the v2.0.0 installer on first run; see [docs/archives/v2/v2.0/RELEASE_NOTES.md](docs/archives/v2/v2.0/RELEASE_NOTES.md) for the full migration story.
 
@@ -30,12 +33,22 @@ Nexus-Hub is the upstream skill catalog for AI coding assistants: 340 skills, 21
 
 Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of the same idea, split along a deliberate seam.
 
-- **Nexus-Hub (this repo)** is the catalog: 340 curated skills, 21 commands, 36 registered hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`) and the local `nexus-memory` CLI store. It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
+- **Nexus-Hub (this repo)** is the catalog: 340 curated skills, 21 commands, 37 registered hooks, 23 agents, 5 rule families (4 languages plus HTML), plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`) and the local `nexus-memory` CLI store. It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v4.13.10
+
+**Training is its own page, with a game to fix.** `guides/website/training.html` walks one pass of the six-command Development Workflow on Nexus Defenders, an arcade game that ships with two bugs. Each command plays in an animated IDE that shows the model tier, the effort, and the mapped model, and the fixed game is the reward: five ships, rising difficulty, a supernova passage, and the shielded Nexus boss.
+
+**A redesigned guide.** Home opens on the supported platforms connected to Nexus Hub and four benefit panels. Installation detects your system and shows an illustrated walkthrough with a terminal that replays the real installer. Every page uses one keyword heading style and paints the selected page first.
+
+**Check your installed version.** `nexus-hub version` prints the installed version and `nexus-hub upgrade` offers the latest release. Both READMEs are refreshed with current counts and links to https://www.benjamindourthe.com/.
+
+**Standard font sizes for slides and reports.** `pptx-generation` and `docx-generation` now allow only the standard PowerPoint and Word sizes, never below 12 pt on slides, with a checker for generated files.
 
 ## What's New in v4.13.9
 
@@ -436,19 +449,26 @@ Catalog counts are unchanged at **273 skills**, **18 commands**, **31 hooks**, a
 | Platform | Install target | Path | Per-platform surface |
 |---|---|---|---|
 | Claude Code (Anthropic) | `~/.claude/` + project `.claude/` | legacy + registry | Full: skills, commands, hooks, agents, rules, MCP configs |
-| OpenAI Codex CLI | `~/.codex/` + project `.codex/` + `AGENTS.md` | legacy + registry | Full: skills (under `skills/`), commands (under `prompts/`), agents, rules |
-| Gemini (IDE / Antigravity 1.0) | `~/.gemini/` + project `.gemini/GEMINI.md` | legacy + registry | Full: skills, commands (under `workflows/`), agents, rules |
+| OpenAI Codex CLI | `~/.codex/` + project `.codex/` + `AGENTS.md` | registry | Full: skills (under `skills/`), commands (under `prompts/`), agents, rules |
+| Gemini (IDE / Antigravity 1.0) | `~/.gemini/` + project `.gemini/GEMINI.md` | registry | Full: skills, commands (under `workflows/`), agents, rules |
 | **Gemini CLI (Google, ENTERPRISE-ONLY post-2026-06-18)** | `~/.gemini/commands/*.toml` + project `.gemini/commands/*.toml` | **registry (new in v2.1.0; gated behind `--enterprise` / `-Enterprise` flag in v2.2.0)** | TOML-format custom commands generated from `catalog/commands/*.md`. Non-enterprise users transition to Antigravity CLI before 2026-06-18 per the 2026-05-21 Google announcement. |
 | **Antigravity 2.0 + CLI (Google)** | `~/.gemini/antigravity-cli/` + project `.agents/` | **registry (new in v2.1.0, CLI coverage added v2.2.0; paths verified v2.3.0)** | Full: skills, commands (under `workflows/`), subagents, rules. Single integration covers both the desktop IDE and the standalone Antigravity CLI (`agy` binary), verified 2026-05-29 against Google's public Antigravity CLI docs. |
-| GitHub Copilot (VS Code) | project `.github/copilot-instructions.md` | legacy + registry | Behavioral guardrails (skill index embedded as text); merge semantics if the file already exists |
-| Cursor | project `.cursor/rules/*.mdc` + `AGENTS.md` | registry | Per-rule `.mdc` files + behavioral guardrails (skill index embedded as text) |
-| OpenCode | project `AGENTS.md` + `.opencode/` | registry | Behavioral guardrails + skills mirror |
+| GitHub Copilot (VS Code) | project `.github/copilot-instructions.md` + VS Code user-profile `prompts/` | registry | Personal and repository instructions (skill index embedded as text), native agents and hooks, user-global `/<name>` prompts; opt-in `.github/skills/` wrappers via `NEXUS_HUB_COPILOT_SKILLS` |
+| Cursor | project `.cursor/` + `AGENTS.md` | registry | Flattened skills (one command-skill per catalog command), `.cursor/rules/nexus-hub.mdc`, and the `AGENTS.md` guardrails |
+| OpenCode | `~/.config/opencode/` + project `.opencode/` + `AGENTS.md` | registry | Skills, commands, rules, and agents |
+| Qwen Code | `~/.qwen/` (detection-gated) + project `.qwen/` | registry | Flattened skills, subagents, Markdown commands, and `QWEN.md` |
+| Kimi Code CLI | `~/.kimi-code/` (detection-gated) + project `.kimi-code/` | registry | Flattened skills (each surfaces as `/skill:<name>`) and `AGENTS.md` |
+| Devin Desktop / Windsurf | `~/.codeium/windsurf/` + project `.devin/` and `.windsurf/` | registry | Native skills, workflows, rules, and hooks; `.windsurfrules` kept for compatibility |
+| Hermes | `~/.hermes/skills/` (detection-gated) + project `.hermes/skills/` | registry | Native folder-per-skill `SKILL.md` discovery; no instruction file needed |
+| Pi | `~/.pi/agent/` (detection-gated) + project `.pi/` | registry | Flattened skills plus one prompt template per command (Pi's `/name` surface) |
+| OpenClaw | the configured OpenClaw workspace | registry | `AGENTS.md`, `SOUL.md`, `IDENTITY.md`, and native skills; no tool-interception hooks |
+| Aider | project `CONVENTIONS.md` | registry | Behavioral guardrails only; a global install is a no-op |
 | **Nexus-AI (Local Studio)** | `~/.nexus-ai/catalog/` + project `.nexus-ai/catalog/` | **registry (new in v2.1.0)** | Full mirror: skills, commands, agents, rules, hooks, MCP configs, templates, plus a `nexus-hub-version.json` manifest. Isolated under `catalog/` so the app's own data at the `~/.nexus-ai/` root stays outside a catalog refresh. |
 | GitHub CLI (`gh`) | via `gh copilot` extension | indirect | Skill / command references via `AGENTS.md` open standard |
 | Nexus desktop app | upstream consumer | indirect | Reads the same catalog as its skill feed |
 | Nexus VS Code extension | upstream consumer | indirect | Reads the same catalog as its skill feed |
 
-**Coverage caveat**: the **registry** path (introduced in v2.1.0 Phase 10) dispatches install / teardown through `scripts/lib/integrations/runner.py` and supports a `--dry-run` mode. The **legacy** path (the long-standing in-installer copy blocks) continues to be the canonical install for Claude / Gemini / Codex / Copilot until v2.2.0 parity migration (tracked as DF-001 in `docs/archive/v2/v2.1/known-gaps.md`). Both paths produce the same end-state on disk for those platforms; the per-platform installer logic lives in [`scripts/installer.sh`](scripts/installer.sh), [`scripts/installer.ps1`](scripts/installer.ps1), and the per-platform subclasses under [`scripts/lib/integrations/`](scripts/lib/integrations/). Per-platform capability specs (install surface, distributed content, instruction file, quirks) are documented under [`docs/specs/`](docs/specs/).
+**Coverage caveat**: every platform now installs through the **registry** path, which dispatches install / teardown through `scripts/lib/integrations/runner.py` and supports a `--dry-run` mode. For Claude Code, the one row marked "legacy + registry", the registry renders only the marker-merged instruction file while the installer's own copy blocks write the catalog tree. Coverage differs surface by surface, and the authoritative per-platform read paths and coverage tiers are in [`docs/policy/platform-read-contracts.md`](docs/policy/platform-read-contracts.md). The per-platform installer logic lives in [`scripts/installer.sh`](scripts/installer.sh), [`scripts/installer.ps1`](scripts/installer.ps1), and the per-platform subclasses under [`scripts/lib/integrations/`](scripts/lib/integrations/). Per-platform capability specs (install surface, distributed content, instruction file, quirks) are documented under [`docs/specs/`](docs/specs/).
 
 **Branch-based install** (v2.4.0): pass `--branch <name>` (Bash) or `-Branch <name>` (PowerShell) to install the catalog from a pushed branch instead of the current checkout. The installer shallow-clones the repo at `<name>` into a deterministic cache directory (`~/.nexus-hub/branches/<sanitized-name>/`) and runs the install from that checkout, so the user's working copy is never touched. The branch name is sanitized for filesystem safety (path-traversal sequences are neutralized). Combine with `--check` / `-Check` for a clone-free probe that prints the resolved cache path and clone source.
 
@@ -482,7 +502,7 @@ That is the whole setup -- no prompts. The installer prechecks its dependencies 
 
 After the installer completes:
 
-- **Globally**: your user profile has all 340 skills, 21 commands, 36 registered hooks, 23 agents, plus Gemini and Codex instructions.
+- **Globally**: your user profile has all 340 skills, 21 commands, 37 registered hooks, 23 agents, plus Gemini and Codex instructions.
 - **Locally**: your project has `copilot-instructions.md` and `AGENTS.md` tailored to your language.
 
 **Power-user flags**: `--workspace <path>` installs into a single repo instead of globally; `--platforms <comma-list>` limits the install to a subset of assistants; `--yes` runs fully unattended (refreshes managed files with no prompt -- ideal for CI). Prefer to clone first? `git clone` the repo and run `./install.sh` (macOS / Linux) or `install.bat` (Windows) -- the in-repo path still works exactly as before.
@@ -531,6 +551,15 @@ Three things worth knowing before you narrow an install:
 
 Selectors need Python to resolve. A full install does not.
 
+### Check the installed version
+
+```bash
+nexus-hub version    # prints the installed version
+nexus-hub upgrade    # checks for the latest release and updates in place
+```
+
+`nexus-hub -v` and `nexus-hub --version` print the same line as `nexus-hub version`.
+
 ### Keeping it current
 
 Run `nexus-hub upgrade` -- it reports your installed version against the latest, shows a short what's-new summary, and updates in place on confirmation. Re-running the install command above works too; the installer is idempotent.
@@ -568,8 +597,8 @@ Most AI assistants are generic by default: they know a lot but specialize in not
 It does three things:
 
 1. **Behavioral rules** -- per-language code-style and security rules that tell the assistant how to write code in your project (not just whether the code compiles).
-2. **Autonomous skills** -- 208 curated capability prompts grouped into 22 categories. Each skill has a 3-tier loading model (always-loaded summary, body on trigger, deeper references on demand) so context cost stays proportional to what the agent actually needs.
-3. **Workflow awareness** -- 36 slash commands that chain skills into multi-step processes (plan generation, phase implementation, deep review, version bump, release notes, session history).
+2. **Autonomous skills** -- 340 curated capability prompts grouped into 23 categories. Each skill has a 3-tier loading model (always-loaded summary, body on trigger, deeper references on demand) so context cost stays proportional to what the agent actually needs.
+3. **Workflow awareness** -- 21 slash commands (plus 3 permanent aliases) that chain skills into multi-step processes (plan generation, phase implementation, deep review, version bump, release notes, session history).
 
 The catalog itself is content; the harness around it is the per-platform installer plus a small set of local MCP servers that surface the catalog to any agent that speaks MCP.
 
@@ -592,7 +621,7 @@ Open an AI chatbot (Claude.ai or ChatGPT) and brainstorm: problem, users, core f
 1. Create the Git repo with a three-tier branching model: `main` / `develop` / `feature/*`.
 2. Install the Nexus-Hub toolkit -- paste the one-line install command for your OS (see [Quick Start](#quick-start-one-command)).
 3. In Claude Code, run `/setup project` -- bootstraps `CLAUDE.md`, the directory structure, `.gitignore`, `README.md`, `DEVLOG.md`, and `CHANGELOG.md` in 8 guided phases.
-4. Save the implementation plan from step 1 to `docs/<version>/plans/<slug>.md`.
+4. Save the implementation plan from step 1 to `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<version>-<slug>.md`.
 5. Commit with `/commit`.
 
 #### 3. Development (core loop)
@@ -637,7 +666,7 @@ For projects you have inherited or need to audit.
 
 For each change:
 
-1. Brainstorm in a chatbot, then run `/plan` to produce a structured implementation plan saved to `docs/<version>/plans/<slug>.md`.
+1. Brainstorm in a chatbot, then run `/plan` to produce a structured implementation plan saved to `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<version>-<slug>.md`.
 2. Run `/implement <slug>` to run the whole plan, or `/implement <slug> phase <N>` per phase -- identical to the New Project Workflow's development loop.
 3. (Optional) Use git worktrees for parallel work:
 
@@ -661,7 +690,7 @@ If you prefer to copy things yourself, here is how the repo is organized.
 
 The most powerful integration -- adds **autonomous agent capabilities**.
 
-- **CLAUDE.md**: the "brain". Copy `catalog/CLAUDE.md` to your project root and customize.
+- **CLAUDE.md**: the "brain". Copy `templates/ai-instructions/base-claude.md` to `CLAUDE.md` at your project root and customize.
 - **Skills**: the "hands". Copy folders from `catalog/skills/` to your project's `.claude/skills/` folder.
 
     *Example*: copy `catalog/skills/research/trend-research` to enable the trend-research skill.
@@ -671,7 +700,7 @@ The most powerful integration -- adds **autonomous agent capabilities**.
 Optimized instructions for Google's Gemini models, including the Antigravity workspace layout.
 
 - **Gemini instructions**: copy `templates/ai-instructions/base-gemini.md` (or `templates/ai-instructions/generic-instructions.md` for the legacy template) to `.gemini/GEMINI.md` in your project or user profile.
-- **Skills and workflows**: the installer mirrors these to `.gemini/skills/` and `.gemini/antigravity/global_workflows/` so they appear globally in Antigravity.
+- **Skills and workflows**: the installer mirrors these to `.gemini/skills/` and `.gemini/workflows/`; Antigravity 2.0 receives its own copies under `~/.gemini/config/skills/` and `~/.gemini/config/workflows/`.
 
 ### GitHub Copilot (Microsoft)
 
@@ -800,16 +829,16 @@ To report a security issue: email [benjamin.dourthe@gmail.com](mailto:benjamin.d
 
 ## Roadmap
 
-Nexus-Hub evolves in versioned slices. Each upcoming line item below traces to a concrete plan file under `docs/<version>/plans/` (the durable source) and resolves once its `[<version>]` block lands in [CHANGELOG.md](CHANGELOG.md). No star gates, no sponsor tiers, no paid features -- the catalog is reverse-engineering-first and stays that way.
+Nexus-Hub evolves in versioned slices. Each upcoming line item below traces to a concrete plan file under `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/plans/` (the durable source) and resolves once its `[<version>]` block lands in [CHANGELOG.md](CHANGELOG.md). No star gates, no sponsor tiers, no paid features -- the catalog is reverse-engineering-first and stays that way.
 
 | Focus | Target | Status | Source |
 |-------|--------|--------|--------|
-| Rename DevAI-Hub to Nexus-Hub, modernize installer with ASCII banner, integrate Nexus brand linkage | v2.0.0 | In progress | [docs/archives/v2/v2.0/plans/nexus-hub-rename.md](docs/archives/v2/v2.0/plans/nexus-hub-rename.md) |
-| Cross-OS CI matrix for installer smoke tests (closes the cumulative DF-003 / DF-005 / DF-006 / DF-007 / DF-008 cluster from v1.1.5 known-gaps) | v2.1.0 | Planned | [docs/archives/v1/v1.1/](docs/archives/v1/v1.1/) known-gaps cluster |
-| Skill-eval-loop integration into pre-commit (assertion-graded regression guard for high-traffic skills before they ship) | v2.1.0 | Planned | [catalog/skills/workflow/skill-eval-loop/SKILL.md](catalog/skills/workflow/skill-eval-loop/SKILL.md) |
+| Rename DevAI-Hub to Nexus-Hub, modernize installer with ASCII banner, integrate Nexus brand linkage | v2.0.0 | Shipped | [docs/archives/v2/v2.0/plans/nexus-hub-rename.md](docs/archives/v2/v2.0/plans/nexus-hub-rename.md) |
+| Cross-OS CI matrix for installer smoke tests (closes the cumulative DF-003 / DF-005 / DF-006 / DF-007 / DF-008 cluster from v1.1.5 known-gaps) | v2.1.0 | Shipped (CI runs Ubuntu, macOS, and Windows legs) | [docs/archives/v1/v1.1/](docs/archives/v1/v1.1/) known-gaps cluster |
+| Skill-eval-loop integration into pre-commit (assertion-graded regression guard for high-traffic skills before they ship) | unscheduled | Not started | [catalog/skills/workflow/skill-eval-loop/SKILL.md](catalog/skills/workflow/skill-eval-loop/SKILL.md) |
 | MCP registry expansion under the existing 5-step policy (reverse-engineer-first; hard-no on search / embeddings / scraping / generation as a service) | continuous | In progress | [docs/policy/mcp-reverse-engineering-matrix.md](docs/policy/mcp-reverse-engineering-matrix.md) |
 
-For a per-release navigation index linking each release to its plan, per-phase history, and known gaps, see [docs/DEVLOG.md](docs/DEVLOG.md); the pre-conversion narrative body is archived at [docs/archives/DEVLOG-v0-v3.17.md](docs/archives/DEVLOG-v0-v3.17.md). For the authoritative Keep-a-Changelog record of what changed in every release, see [CHANGELOG.md](CHANGELOG.md). For the per-version unfinished-work tracker that the next plan reads to decide what carries forward, see `docs/<version>/known-gaps.md`.
+For a per-release navigation index linking each release to its plan, per-phase history, and known gaps, see [docs/DEVLOG.md](docs/DEVLOG.md); the pre-conversion narrative body is archived at [docs/archives/DEVLOG-v0-v3.17.md](docs/archives/DEVLOG-v0-v3.17.md). For the authoritative Keep-a-Changelog record of what changed in every release, see [CHANGELOG.md](CHANGELOG.md). For the per-version unfinished-work tracker that the next plan reads to decide what carries forward, see `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/known-gaps.md`.
 
 ---
 
@@ -819,6 +848,7 @@ Nexus-Hub is a curated open-source project. While pull requests are typically no
 
 - **Email**: [benjamin.dourthe@gmail.com](mailto:benjamin.dourthe@gmail.com)
 - **GitHub**: [@bendourthe](https://github.com/bendourthe)
+- **Website**: [benjamindourthe.com](https://www.benjamindourthe.com/), with the published [Nexus-Hub guide](https://www.benjamindourthe.com/nexus-hub/)
 
 I am happy to discuss skill / command / hook proposals, integration ideas for new platforms, or specific use cases -- especially when the proposal aligns with the policy direction of this project (reverse-engineering-first, no third-party data leaks).
 

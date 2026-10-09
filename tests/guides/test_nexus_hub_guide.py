@@ -316,9 +316,10 @@ def test_legacy_example_assets_are_not_in_the_reader_path(guide_text: str) -> No
     assert "glow booth" not in lower
     assert "glow-booth" not in lower
     assert not re.search(r'<a[^>]+download(?:\s|=|>)', guide_text, re.IGNORECASE)
-    assert (GUIDE.parent / "glow-booth.zip").is_file(), (
-        "the legacy regression fixture remains until a separately approved deletion"
-    )
+    # v4.13.10: the maintainer approved removing the legacy fixtures (glow-booth, trivia-quiz,
+    # the shuffle references, and both zips), so none may come back beside the guide.
+    for leftover in ("glow-booth.zip", "trivia-quiz.zip", "example"):
+        assert not (GUIDE.parent / leftover).exists(), f"{leftover} was removed and must stay removed"
 
 
 def test_github_is_user_initiated_not_a_script(parsed: GuideParser) -> None:
@@ -432,7 +433,7 @@ def test_portfolio_theme_allowlisted(guide_text: str) -> None:
 
 
 def test_page_url_hash_uses_first_segment(guide_text: str) -> None:
-    """#training/<scene> must not be treated as a whole-hash page id."""
+    """#foundations/<scene> and #cheatsheets/<stop> must not be treated as whole-hash page ids."""
     assert "pageIdFromHash" in guide_text or re.search(r"""split\(['"]/['"]\)""", guide_text)
 
 
@@ -508,8 +509,10 @@ def test_pagenav_controls_hug_their_label(guide_text: str) -> None:
 def test_invocation_convention_exists_and_is_used(
     parsed: GuideParser, guide_text: str
 ) -> None:
-    for cls in (".inv-cmd", ".inv-arg", ".inv-ph"):
+    for cls in (".inv-arg", ".inv-ph"):
         assert re.search(re.escape(cls) + r"\s*\{", guide_text), f"missing {cls} rule"
+    # v4.13.10 R27: the command name's colour is the accent tone of the code role, defined in type.css.
+    assert '<span data-ty="code" data-tone="accent" class="inv-cmd">' in guide_text
     assert 'class="inv-cmd"' in guide_text, "the convention must be used, not just defined"
     # A split invocation must still copy as its plain text.
     for payload, visible in parsed.all_data_copy:
@@ -519,17 +522,11 @@ def test_invocation_convention_exists_and_is_used(
             )
 
 
-def test_reveal_motion_has_static_reduced_fallback(guide_text: str) -> None:
-    assert ".reveal" in guide_text
-    reduce_blocks = re.findall(
-        r"@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{((?:[^{}]|\{[^{}]*\})*)\}",
-        guide_text,
-    )
-    assert reduce_blocks, "expected a reduced-motion block"
-    assert any(
-        re.search(r"\.js \.reveal\s*\{[^}]*opacity:\s*1", block)
-        for block in reduce_blocks
-    ), "reduced motion must expose reveal content regardless of stylesheet ordering"
+def test_no_section_waits_on_a_scroll_reveal(guide_text: str) -> None:
+    """v4.13.10 R30: sections are visible the moment they scroll in; the reveal and its observer are gone."""
+    assert not re.search(r'class="[^"]*\breveal\b', guide_text), "no element carries the reveal class"
+    assert ".js .reveal" not in guide_text and "observeReveals" not in guide_text
+    assert "reveal-delay" not in guide_text
 
 
 def test_copy_button_is_slim(guide_text: str) -> None:
@@ -574,11 +571,11 @@ def _home_markup(guide_text: str) -> str:
 
 def test_home_identity_is_centered_nonwrapping_and_observer_gated(guide_text: str) -> None:
     home = _home_markup(guide_text)
-    assert 'class="hero-lockup reveal"' in home
+    assert 'class="hero-lockup"' in home
     # v4.4.1 Phase 2: the mark and wordmark share an inner float wrapper, and the title is
     # two nav-matched spans rather than the hyphenated single string.
     assert re.search(
-        r'<div class="hero-lockup reveal">\s*<div class="hero-lockup-float">\s*'
+        r'<div class="hero-lockup">\s*<div class="hero-lockup-float">\s*'
         r'<svg class="hero-mark"[\s\S]*?</svg>\s*'
         r'<h1[^>]*class="hero-wordmark"><b>Nexus</b> <span>Hub</span></h1>',
         home,
@@ -600,20 +597,23 @@ def test_home_identity_is_centered_nonwrapping_and_observer_gated(guide_text: st
     assert display_token and "clamp(" in display_token.group(1), (
         "the 320 px lockup needs fluid type"
     )
-    assert ".js .hero-lockup.reveal .hero-mark" in guide_text
-    assert ".js .hero-lockup.in .hero-mark" in guide_text
+    # v4.13.10 R30: the mark no longer fades in on a scroll trigger; only the float moves, and it stops
+    # under reduced motion.
+    assert ".hero-lockup.reveal" not in guide_text and ".hero-lockup.in" not in guide_text
     reduced_motion = guide_text.split("@media (prefers-reduced-motion: reduce)", 1)[-1]
-    assert ".js .hero-lockup.reveal .hero-mark" in reduced_motion
+    assert ".js .hero-lockup.live .hero-lockup-float{animation:none;}" in reduced_motion
 
 
 def test_home_hero_restores_the_v412_subtitle_and_lead(guide_text: str) -> None:
     home = _home_markup(guide_text)
     assert "hero-tagline" not in home, "the v4.4.1 tagline is replaced by the v4.1.2 statement"
-    sub = re.search(r'<h2[^>]*class="hero-subtitle">([\s\S]*?)</h2>', home)
+    # v4.13.10 R21: the statement is a tagline, not a heading, so it is a paragraph in the H1 type role.
+    sub = re.search(r'<p[^>]*class="hero-subtitle">([\s\S]*?)</p>', home)
     assert sub and re.sub(r"<[^>]+>", "", sub.group(1)) == (
         "A skill harness for agentic AI platforms"
     )
-    assert '<span class="gtext">agentic AI platforms</span>' in sub.group(1)
+    # v4.13.10 R21: no gradient words; the tagline is plain solid-ink text.
+    assert sub.group(1).strip() == "A skill harness for agentic AI platforms"
     lead = re.search(r'<p[^>]*class="hero-lead">([^<]+)</p>', home)
     assert lead and lead.group(1).startswith("Nexus Hub is an advanced harness for agentic AI platforms.")
 
@@ -756,7 +756,7 @@ def test_home_hero_is_the_unhyphenated_nexus_hub_lockup(guide_text: str) -> None
     text = re.sub(r"<[^>]+>", "", inner).strip()
     assert text == "Nexus Hub", f"hero title must read 'Nexus Hub'; got {text!r}"
     assert "Nexus-Hub" not in heading.group(0)
-    # The float lives on an inner wrapper so it never competes with the .reveal entry transform.
+    # The float lives on an inner wrapper so the outer lockup stays free for layout.
     assert '<div class="hero-lockup-float">' in home
 
 
@@ -777,7 +777,8 @@ def test_home_platform_labels_use_legible_theme_token(guide_text: str) -> None:
 
 def test_installation_terminal_precedes_subordinate_verification(guide_text: str) -> None:
     home = _home_markup(guide_text)
-    assert re.search(r'<span[^>]*class="eyebrow">Installation</span>', home)
+    # v4.13.10 R21: eyebrow lines are gone; the section heading itself is the keyword label.
+    assert re.search(r'<h2[^>]*class="section-title"[^>]*>Installation</h2>', home)
     assert 'class="term term--standalone term--install"' in home
     assert 'class="verify-steps verify-steps--secondary"' in home
     assert home.index("term--install") < home.index("verify-steps--secondary")
@@ -790,7 +791,7 @@ def test_installation_terminal_precedes_subordinate_verification(guide_text: str
 def test_home_troubleshooting_is_structured_and_copyable(guide_text: str) -> None:
     home = _home_markup(guide_text)
     block = re.search(r'<details class="support-details">([\s\S]*?)</details>', home)
-    assert block and "<summary>Troubleshooting</summary>" in block.group(1)
+    assert block and '<summary data-ty="label">Troubleshooting</summary>' in block.group(1)
     assert 'class="support-list"' in block.group(1)
     for label in ("No curl", "One project", "Selected assistants", "No prompts", "Upgrade"):
         assert re.search(rf"<dt[^>]*>{re.escape(label)}</dt>", block.group(1)), (
@@ -805,15 +806,19 @@ def test_home_troubleshooting_is_structured_and_copyable(guide_text: str) -> Non
 
 def test_home_comparison_has_centered_explicit_sides(guide_text: str) -> None:
     home = _home_markup(guide_text)
-    assert "Raw prompting vs Nexus Hub" in home, "v4.4.2 merges the two comparisons under one title"
+    assert "Raw Prompting vs Nexus Hub" in home, "v4.4.2 merges the two comparisons under one title"
     assert '<div class="cmp-head">' in home
     head_rule = re.search(r"\.cmp-head\s*\{([^}]+)\}", guide_text)
     side_rule = re.search(r"\.cmp-side\s*\{([^}]+)\}", guide_text)
     assert head_rule and "grid-template-columns: 1fr auto 1fr" in head_rule.group(1)
     assert side_rule and "text-align: center" in side_rule.group(1)
-    size = re.search(r"font-size:\s*([\d.]+)px", side_rule.group(1))
+    # v4.13.10 R27: the sides take their type from the shared grade role, not a one-off rule.
+    assert home.count('data-ty="grade"') >= 2
+    size = re.search(r"--ty-grade:\s*([\d.]+)px", guide_text)
     assert size and float(size.group(1)) >= 12
-    assert ".cmp-side--without" in guide_text and ".cmp-side--with" in guide_text
+    # v4.13.10 R27: the side colours are the warn and go tones of the grade role.
+    assert 'data-tone="warn" class="cmp-side cmp-side--without"' in guide_text
+    assert 'data-tone="go" class="cmp-side cmp-side--with"' in guide_text
 
 
 def test_home_definitions_are_structured_and_link_to_foundations(guide_text: str) -> None:
@@ -834,6 +839,37 @@ def test_windows_install_tab_is_first_and_default(parsed: GuideParser, guide_tex
     assert parsed.install_tab_selected[0] == "true", "Windows tab must be default-active"
     first_panel = re.search(r'<div class="tab-panel([^"]*)" data-panel="([a-z]+)"', guide_text)
     assert first_panel and first_panel.group(2) == "win" and "active" in first_panel.group(1)
+    # v4.13.10 R38: one tab per system; Windows stays the no-script and no-detection default.
+    assert parsed.install_tab_order == ["win", "mac", "linux"]
+    assert parsed.install_tab_selected == ["true", "false", "false"]
+
+
+def test_each_install_tab_gives_its_command_and_how_to_open_the_terminal(guide_text: str) -> None:
+    """v4.13.10 R38, review 13: one quiet terminal per tab with the inline copy chip and how-to steps.
+
+    R45 replaced the one-line how-to with numbered steps beside the system's icon, and added a
+    terminal mockup. The command box itself stays quiet: no large button, no window dots, no keycaps.
+    """
+    home = _home_markup(guide_text)
+    assert "Paste the line for the target system" not in home
+    expected = {"win": INSTALL_PS, "mac": INSTALL_SH, "linux": INSTALL_SH}
+    for tab, command in expected.items():
+        start = re.search(
+            rf'<div class="tab-panel[^"]*" data-panel="{tab}" id="install-panel-{tab}" role="tabpanel"'
+            rf' aria-labelledby="install-tab-{tab}"[^>]*>',
+            home,
+        )
+        assert start, f"missing install panel {tab}"
+        rest = home[start.end():]
+        stop = re.search(r'<div class="tab-panel|<div id="nhg-copy-status"', rest)
+        body = rest[: stop.start()] if stop else rest
+        # Review 13: the large button and loud steps are gone; the command box has no window dots.
+        assert "data-install-copy" not in body and 'class="tdots"' not in body and "<kbd" not in body
+        assert re.findall(r'data-copy="([^"]+)"', body) == [command], f"{tab}: exact command"
+        assert '<ol class="inst-list">' in body and "Paste the command and press Enter." in body
+        assert f'class="inst-os" data-os="{tab}"' in body, f"{tab}: the system's icon"
+    assert 'id="install-detected"' in home and "hidden></p>" in home, "the Detected note starts hidden"
+    assert '<ol class="verify-steps verify-steps--secondary">' in home
 
 
 def test_home_contains_both_canonical_install_commands(parsed: GuideParser) -> None:
@@ -861,11 +897,15 @@ def test_home_install_copy_payload_equals_visible_text(parsed: GuideParser) -> N
     assert found_sh and found_ps
 
 
-def test_install_verify_is_a_two_step_sequence(guide_text: str, parsed: GuideParser) -> None:
-    """v4.2.3: the dense wrapped verify sentence became two clear steps."""
+def test_install_verify_is_a_numbered_step_sequence(guide_text: str, parsed: GuideParser) -> None:
+    """v4.2.3: the dense wrapped verify sentence became clear numbered steps.
+
+    v4.13.10 R52 adds a third step, the installed-version check, after the
+    original two (check the install, restart the assistant).
+    """
     home = guide_text.split('id="page-home"', 1)[-1].split('id="page-foundations"', 1)[0]
     assert 'class="verify-steps ' in home
-    assert home.count('class="vs-n"') == 2, "exactly two numbered steps"
+    assert home.count('class="vs-n"') == 3, "exactly three numbered steps"
     assert "verify-callout" not in guide_text, "the old dense callout is gone"
     rule = re.search(r"\.vs-do\s*\{([^}]+)\}", guide_text)
     note = re.search(r"\.vs-note\s*\{([^}]+)\}", guide_text)
@@ -900,18 +940,17 @@ def test_install_verify_is_a_two_step_sequence(guide_text: str, parsed: GuidePar
 def test_home_comparison_is_animated_not_a_table(guide_text: str) -> None:
     home = guide_text.split('id="page-home"', 1)[-1].split('id="page-foundations"', 1)[0]
     assert "nhg-compare" not in guide_text, "the plain table was replaced"
-    assert 'class="cmp reveal"' in home
+    assert 'class="cmp"' in home
     assert home.count('class="cmp-row"') == 5, "all five concerns survive the rewrite"
     # without-then-with ordering: the muted side precedes the accent side
     row = re.search(r'<div class="cmp-pair">([\s\S]*?)</div>', home)
     assert row and row.group(1).index("cmp-a") < row.group(1).index("cmp-b")
-    assert ".cmp-side--without" in guide_text and ".cmp-side--with" in guide_text
-    # animated, and not a card grid or pill row
-    assert ".js .cmp.in .cmp-row" in guide_text, "staggered entry animation"
-    assert ".js .cmp.in .cmp-line" in guide_text, "the connector draws"
-    reduce_block = guide_text.split("@media (prefers-reduced-motion: reduce)", 1)[-1]
-    for cls in (".cmp-row", ".cmp-line", ".cmp-tip", ".cmp-b"):
-        assert cls in reduce_block, f"{cls} needs a reduced-motion static state"
+    # v4.13.10 R27: the side colours are the warn and go tones of the grade role.
+    assert 'data-tone="warn" class="cmp-side cmp-side--without"' in guide_text
+    assert 'data-tone="go" class="cmp-side cmp-side--with"' in guide_text
+    # v4.13.10 R30: the rows no longer wait for a scroll trigger; every row, connector, and tip is drawn
+    # from the start, so nothing needs a reduced-motion override.
+    assert ".cmp.in" not in guide_text and ".js .cmp .cmp-row" not in guide_text
 
 
 def test_onboarding_has_no_hardcoded_catalog_counts(parsed: GuideParser) -> None:
@@ -947,7 +986,7 @@ def test_home_verify_commands_are_copy_cells(parsed: GuideParser) -> None:
 
 
 def _foundations_markup(guide_text: str) -> str:
-    return guide_text.split('id="page-foundations"', 1)[-1].split('id="page-training"', 1)[0]
+    return guide_text.split('id="page-foundations"', 1)[-1].split('id="page-cheatsheets"', 1)[0]
 
 
 def _foundation_scene(guide_text: str, scene_id: str) -> str:
@@ -985,10 +1024,10 @@ def test_foundations_phase3_has_six_title_lead_scenes(guide_text: str) -> None:
         "the old 'What Is / What Are' heading construction must not survive"
     )
     assert fx.count("<svg") >= 7, "each scene carries inline visual teaching"
-    # v4.4.1 Phase 4 retired fx-pulse with the last SVG story diagram; pop and draw remain
-    # live on the tokens connector, and the chip/cycle primitives carry the rest.
+    # v4.13.10 R30 retired the scroll-gated pop and draw entries with the reveal: the tokens
+    # connector is drawn from the start.
     for svg_class in ("fx-pop", "fx-draw"):
-        assert svg_class in fx
+        assert svg_class not in fx
     assert 'class="fx-num"' not in fx, "the scene number line was removed in v4.2.3"
 
 
@@ -1121,8 +1160,6 @@ def test_foundations_phase3_diagrams_animate_with_observer_and_static_fallback(
         )
 
 
-
-
 def test_foundations_tokens_use_a_reproducible_nonuniversal_example(
     guide_text: str,
 ) -> None:
@@ -1146,7 +1183,7 @@ def test_foundations_tokens_use_a_reproducible_nonuniversal_example(
         "a second chip style implies a category the tokenizer does not have"
     )
     lowered = scene.lower()
-    assert "becomes 10 tokens" in lowered
+    assert ">10 tokens</p>" in lowered, "the caption between prompt and chips is a keyword label"
     assert "a token is not a word" in lowered
     assert "other models cut the same sentence differently" in lowered
     assert scene.count('clip-path="url(#nxp-tokcell-') == 9, "expected nine cropped image cells"
@@ -1311,8 +1348,11 @@ def test_no_unexpected_persistent_overlays(guide_text: str) -> None:
     made the page unreadable.
     """
     css = guide_text.split("<style>", 1)[-1].split("</style>", 1)[0]
-    allowed_fixed = {"#constellation"}
-    allowed_sticky = {".site-header", ".cx-preview-bar"}
+    # .pg-outline--rail is the v4.13.10 page navigation in the left margin; it is placed beside the
+    # content column, never over it (test_navigation_never_takes_width_from_the_content measures that).
+    allowed_fixed = {"#constellation", ".pg-outline--rail"}
+    # .pg-outline--bar is the same navigation with no margin: it sits under the header and covers no content.
+    allowed_sticky = {".site-header", ".cx-preview-bar", ".pg-outline--bar"}
     for prop, allowed in (("fixed", allowed_fixed), ("sticky", allowed_sticky)):
         for match in re.finditer(r"([^{}]+)\{[^}]*position:\s*" + prop, css):
             selector = match.group(1).strip().splitlines()[-1].strip().rstrip(",")
@@ -1324,27 +1364,11 @@ def test_no_unexpected_persistent_overlays(guide_text: str) -> None:
 def test_foundations_animations_have_reduced_motion_fallback(guide_text: str) -> None:
     reduce_block = guide_text.split("@media (prefers-reduced-motion: reduce)", 1)[-1]
     reduce_block = reduce_block.split("}\n</style>", 1)[0] if "}\n</style>" in reduce_block else reduce_block
-    # The live motion primitives after the Phase 4 rebuild: reveal pops, drawn connectors,
-    # token-chip reveals, and the shared work-cycle spin.
-    for cls in (".fx-pop", ".fx-draw", ".fx-tokchip", ".hero-lockup-float"):
+    # v4.13.10 R30 removed the scroll-gated entry pops, draws, and token-chip fades; what still moves
+    # (the hero float and the Prompt Engineering tip) keeps a reduced-motion still.
+    for cls in (".hero-lockup-float", ".pe-tip"):
         assert cls in reduce_block, f"{cls} missing a reduced-motion static state"
-
-
-def test_training_scenes_are_data_driven_json(parsed: GuideParser) -> None:
-    assert parsed.json_script_contents, "expected application/json scene block"
-
-
-def test_training_sections_and_actions_cover_the_command_loop(parsed: GuideParser) -> None:
-    assert parsed.json_script_contents
-    data = json.loads(parsed.json_script_contents[0])
-    sections = data["scenes"]
-    assert [section["id"] for section in sections] == [
-        "game", "describe-review", "plan", "implement", "fixed-game", "compare", "presentify"
-    ]
-    assert [len(section["actions"]) for section in sections] == [0, 2, 1, 1, 0, 1, 1]
-    commands = [action["command"].split()[0] for section in sections for action in section["actions"]]
-    assert commands == ["/describe", "/review", "/plan", "/implement", "/compare", "/presentify"]
-    assert all(action["gate"]["status"] == "pass" for section in sections for action in section["actions"])
+    assert ".fx-scene.in" not in guide_text, "no scene entry waits on a scroll trigger"
 
 
 def test_script_close_in_test_local_fixture_does_not_break_document() -> None:
@@ -1352,221 +1376,13 @@ def test_script_close_in_test_local_fixture_does_not_break_document() -> None:
     encoded = json.dumps(payload).replace("</script>", r"<\/script>")
     trial = GuideParser()
     trial.feed(
-        '<html><section id="page-training"></section>'
-        f'<script type="application/json" id="nh-training-scenes">{encoded}</script></html>'
+        '<html><section id="page-cheatsheets"></section>'
+        f'<script type="application/json" id="nh-training-story">{encoded}</script></html>'
     )
     assert trial.json_script_contents == [encoded]
     assert json.loads(trial.json_script_contents[0]) == payload
     assert trial.html_count == 1
-    assert "page-training" in trial.page_ids
-
-
-def test_inline_scenes_match_example_json(parsed: GuideParser) -> None:
-    disk_path = _ROOT / "guides" / "website" / "example" / "training-scenes.json"
-    disk = json.loads(disk_path.read_text(encoding="utf-8"))
-    inline = json.loads(parsed.json_script_contents[0])
-    assert inline == disk
-
-
-def test_training_scene_schema_is_strict_and_cumulative(parsed: GuideParser) -> None:
-    data = json.loads(parsed.json_script_contents[0])
-    assert set(data) == {"initial", "scenes"}
-    assert set(data["initial"]) == {"game", "files"}
-    assert data["initial"]["game"] == {
-        "damageMode": "buggy",
-        "verticalMovementEnabled": False,
-        "fixture": "enemy-hit",
-    }
-    initial_files = data["initial"]["files"]
-    assert initial_files, "the explorer needs the files that exist before /describe"
-    assert {item["path"] for item in initial_files} >= {
-        "src/damage.js",
-        "src/game.js",
-    }
-    assert len({item["path"] for item in initial_files}) == len(initial_files)
-    for item in initial_files:
-        assert set(item) >= {"path", "language", "content"}
-        assert item["path"] and item["language"] and item["content"].strip()
-
-    current = {item["path"]: item["content"] for item in initial_files}
-    seen_actions: set[str] = set()
-    for section in data["scenes"]:
-        assert {"id", "heading", "intent", "actions", "takeaway"} <= set(section)
-        assert set(section) <= {"id", "heading", "intent", "actions", "takeaway", "game", "phases", "finalPhase"}
-        assert section["heading"].strip() and section["intent"].strip() and section["takeaway"].strip()
-        assert "stage" not in section
-        if "game" in section:
-            assert set(section["game"]) == {"damageMode", "verticalMovementEnabled", "fixture"}
-            assert section["game"]["damageMode"] in {"buggy", "fixed"}
-            assert isinstance(section["game"]["verticalMovementEnabled"], bool)
-            assert section["game"]["fixture"] in {"enemy-hit", "asteroid-hit", "play"}
-        for action_record in section["actions"]:
-            assert set(action_record) == {"command", "tools", "output", "files", "focus_file", "artifact", "gate"}
-            assert action_record["command"].startswith("/")
-            assert action_record["tools"] and all(set(tool) == {"name", "purpose"} and all(tool.values()) for tool in action_record["tools"])
-            assert action_record["output"] and all(isinstance(line, str) and line.strip() for line in action_record["output"])
-            assert set(action_record["artifact"]) == {"path", "summary"}
-            assert set(action_record["gate"]) == {"name", "status", "prompt"}
-            assert action_record["gate"]["status"] == "pass"
-            for file_change in action_record["files"]:
-                assert set(file_change) >= {"path", "action", "language", "content"}
-                change = file_change["action"]
-                path = file_change["path"]
-                seen_actions.add(change)
-                assert change in {"create", "modify"}
-                assert file_change["content"].strip(), f"{path} needs real file content"
-                if change == "create":
-                    assert path not in current, f"{path} cannot be created twice"
-                else:
-                    assert path in current, f"{path} must exist before it is modified"
-                    assert current[path] != file_change["content"], f"{path} modify action must change its content"
-                current[path] = file_change["content"]
-            assert action_record["focus_file"] in current
-        if "finalPhase" in section:
-            assert section["id"] == "implement"
-            assert [beat["name"] for beat in section["finalPhase"]["beats"]] == [
-                "Automatic review", "Known-gaps reconciliation", "Tests to green", "Update release"
-            ]
-            for file_change in section["finalPhase"]["files"]:
-                assert file_change["path"] not in current or file_change["action"] == "modify"
-                current[file_change["path"]] = file_change["content"]
-        if "phases" in section:
-            assert section["id"] == "plan"
-            assert all(set(phase) == {"name", "tier", "effort", "summary"} for phase in section["phases"])
-    assert seen_actions == {"create", "modify"}
-
-
-def test_training_game_state_changes_at_implement_and_compare(parsed: GuideParser) -> None:
-    scenes = json.loads(parsed.json_script_contents[0])["scenes"]
-    states = {scene["id"]: scene["game"] for scene in scenes if "game" in scene}
-    assert states["game"] == {
-        "damageMode": "buggy",
-        "verticalMovementEnabled": False,
-        "fixture": "enemy-hit",
-    }
-    assert states["fixed-game"] == {
-        "damageMode": "fixed",
-        "verticalMovementEnabled": False,
-        "fixture": "enemy-hit",
-    }
-    assert states["compare"]["damageMode"] == "fixed"
-    assert states["compare"]["verticalMovementEnabled"] is True
-    compare = next(scene for scene in scenes if scene["id"] == "compare")
-    assert any("Follow-on /plan and /implement" in line for line in compare["actions"][0]["output"])
-
-
-def _training_engine(guide_text: str) -> str:
-    """The engine script that renders scene data (last script in the file)."""
-    return guide_text.split('id="nh-training-scenes"', 1)[-1]
-
-
-def test_training_output_is_text_only_and_hostile_fixture_is_test_local(
-    parsed: GuideParser, guide_text: str
-) -> None:
-    data = json.loads(parsed.json_script_contents[0])
-    blob = json.dumps(data)
-    assert "<img onerror>" not in blob
-    assert "</script>" not in blob
-    engine = _training_engine(guide_text)
-    assert re.search(r"\.textContent\s*=", engine), (
-        "scene-driven output must be assigned via textContent"
-    )
-    assert not re.search(r"\.innerHTML\s*=", engine), (
-        "the training engine must never assign innerHTML"
-    )
-    assert "data-training-root" in guide_text
-
-
-def test_training_explorer_is_accessible_and_uses_text_only_rendering(
-    guide_text: str,
-) -> None:
-    training = guide_text.split('id="page-training"', 1)[-1].split(
-        'id="page-cheatsheets"', 1
-    )[0]
-    for marker in (
-        'data-nht="file-tree"',
-        'data-nht="file-path"',
-        'data-nht="file-state"',
-        'data-nht="file-body"',
-    ):
-        assert marker in training
-    assert re.search(r'data-nht="file-tree"[^>]+role="tree"', training)
-    engine = _training_engine(guide_text)
-    assert "Not created yet" in engine
-    assert "diff-add" in engine and "diff-remove" in engine
-    assert 'setAttribute("role", "treeitem")' in engine
-    assert 'setAttribute("aria-selected"' in engine
-    assert re.search(r"fileBody\.textContent\s*=", engine)
-    assert not re.search(r"(?:fileBody|fileTree)\.innerHTML\s*=", engine)
-
-
-def test_training_runtime_exposes_deterministic_state_contract(guide_text: str) -> None:
-    engine = _training_engine(guide_text)
-    assert "window.NexusTraining" in engine
-    for member in ("go:", "run:", "selectFile:", "snapshot:"):
-        assert member in engine
-    assert "Object.freeze" in engine
-    assert "parsed.initial" in engine
-    assert "projectFilesFor" in engine
-    assert "completedKey" in engine
-    assert "scene.booth" not in engine
-    assert "scene.editor" not in engine
-    assert "config.preset" not in engine
-
-
-def test_training_engine_uses_shooter_damage_contract(guide_text: str) -> None:
-    """v4.4.1 Phase 5 replaces the wrap-collision Asteroids with the seeded damage bug."""
-    engine = _training_engine(guide_text)
-    assert "function collides" in engine
-    assert "function damageOutcome" in engine
-    assert "setDamageMode" in engine and "setVerticalMovementEnabled" in engine
-    assert 'mode === "buggy"' in engine, "the seeded bug lives in the pure damage seam"
-    for retired in ("missedWrapHits", "WRAP HIT MISSED", "setSplittingEnabled", "NexusAsteroids"):
-        assert retired not in engine, retired + " belongs to the retired Asteroids engine"
-
-
-def test_training_has_three_games_scoped_widgets_and_jump_links(guide_text: str) -> None:
-    training = guide_text.split('id="page-training"', 1)[-1].split('id="page-cheatsheets"', 1)[0]
-    assert training.count("data-arcade-game") == 3
-    assert 'data-nht="terminal"' in training
-    assert 'data-nht="run"' in training
-    assert 'aria-label="Training sections"' in training
-    assert 'data-nht-section="describe-review"' in training
-    assert 'id="nhtPresent"' not in training
-
-
-def test_training_action_choices_have_current_state(guide_text: str) -> None:
-    engine = _training_engine(guide_text)
-    assert 'setAttribute("data-nht-action-index"' in engine
-    assert 'setAttribute("aria-current"' in engine
-    assert 'button.textContent = action.command' in engine
-
-
-def test_training_position_uses_plain_section_names(guide_text: str) -> None:
-    training = guide_text.split('id="page-training"', 1)[-1].split(
-        'id="page-cheatsheets"', 1
-    )[0]
-    assert 'aria-label="Training sections"' in training
-    assert training.count('data-nht-section=') == 7
-    assert 'data-nht="where"' not in training
-
-
-def test_training_sections_have_local_action_controls(guide_text: str) -> None:
-    training = guide_text.split('id="page-training"', 1)[-1].split(
-        'id="page-cheatsheets"', 1
-    )[0]
-    assert 'data-nht-action-list' in training
-    assert 'data-nht-action-panel' in training
-    assert 'data-nht="run"' in training
-    for retired in ('data-nht="prev"', 'data-nht="next"', 'data-nht="restart"'):
-        assert retired not in training
-
-
-def test_training_sections_keep_fluid_game_stages(guide_text: str) -> None:
-    css = guide_text.split("<style>", 1)[-1].split("</style>", 1)[0]
-    assert ".nht-section" in css
-    assert "aspect-ratio:8 / 5" in css
-    assert ".nht.is-present" not in css
+    assert "page-cheatsheets" in trial.page_ids
 
 
 def test_no_hardcoded_text_width_caps_remain(guide_text: str) -> None:
@@ -1574,20 +1390,11 @@ def test_no_hardcoded_text_width_caps_remain(guide_text: str) -> None:
     css = guide_text.split("<style>", 1)[-1].split("</style>", 1)[0]
     # Only declarations, never `@media (max-width: ...)` breakpoints.
     caps = re.findall(r"(?<!\()max-width:\s*(\d+)(ch|px)", css)
-    allowed_px = {"1600", "700"}  # the Training section's fluid card bound is not a body-copy cap
+    allowed_px = {"1600"}
     offenders = [
         f"{v}{u}" for v, u in caps if u == "ch" or (u == "px" and v not in allowed_px)
     ]
     assert not offenders, f"hardcoded text width caps remain: {offenders}"
-
-
-def test_training_deep_link_clamps_unknown_section_and_maps_legacy_routes(
-    guide_text: str,
-) -> None:
-    engine = _training_engine(guide_text)
-    assert 'var aliases = { describe: "describe-review", review: "describe-review", test: "implement", update: "implement" }' in engine
-    assert 'return 0;' in engine.split("function sectionIndex", 1)[1].split("function goTo", 1)[0]
-    assert "beatIndex" not in engine.split("function sectionIndex", 1)[1]
 
 
 # ---------------------------------------------------------------------------
@@ -1603,14 +1410,15 @@ def test_cheatsheets_sections_are_intent_named(guide_text: str) -> None:
     """"Band 1 / Band 2" said nothing; sections now name the job they do."""
     cs = _cheatsheets_markup(guide_text)
     assert "Band 1" not in cs and "Band 2" not in cs
+    # v4.13.10 R21: the job names were eyebrow lines; the keyword section headings now carry them.
     for heading in (
-        "Understand and evaluate",
-        "Plan the work",
-        "Build it",
-        "Prove it",
-        "Ship and govern",
-        "Communicate",
-        "Catalog and session",
+        "Codebase Understanding",
+        "Planning and Specification",
+        "Implementation",
+        "Testing and Review",
+        "Release and Governance",
+        "Communication and Reporting",
+        "Harness and Session Management",
     ):
         assert heading in cs, f"missing section: {heading}"
 
@@ -1716,6 +1524,8 @@ def test_cheatsheets_commands_are_copyable(parsed: GuideParser, guide_text: str)
 # ---------------------------------------------------------------------------
 
 WEBSITE_README = _ROOT / "guides" / "website" / "README.md"
+TRAINING_PAGE = _ROOT / "guides" / "website" / "training.html"
+TRAINING_STORY = _ROOT / "guides" / "website" / "src" / "training-story.json"
 CONTENT_MAP = (
     _ROOT
     / "docs"
@@ -1740,12 +1550,17 @@ def _strip_allowlisted_favicon(html: str) -> str:
 def test_publication_check_self_contained_and_offline(
     parsed: GuideParser, guide_text: str
 ) -> None:
-    """Canonical guide is checkable without the sibling portfolio or a network fetch."""
-    assert parsed.json_script_contents, "inline Training JSON required"
-    json.loads(parsed.json_script_contents[0])
+    """Both guide pages are checkable without the sibling portfolio or a network fetch."""
     assert INSTALL_SH in guide_text
     assert INSTALL_PS in guide_text
     assert not parsed.script_src
+    assert 'id="nh-training-scenes"' not in guide_text, "Training's data lives in training.html now"
+    training = TRAINING_PAGE.read_text(encoding="utf-8")
+    trial = GuideParser()
+    trial.feed(training)
+    assert not trial.script_src, "training.html loads no external script"
+    story = re.search(r'<script type="application/json" id="nh-training-story">(.*?)</script>', training, re.S)
+    assert story and json.loads(story.group(1))["stages"], "training.html carries its story inline"
 
 
 def test_optional_portfolio_copy_when_env_set() -> None:
@@ -1756,11 +1571,15 @@ def test_optional_portfolio_copy_when_env_set() -> None:
     assert dest.is_file(), f"env set but missing published copy at {dest}"
     src = GUIDE.read_text(encoding="utf-8")
     other = dest.read_text(encoding="utf-8")
-    if src == other:
-        return
-    assert _strip_allowlisted_favicon(src) == _strip_allowlisted_favicon(other), (
-        "portfolio copy drifted beyond an allowlisted favicon head delta"
-    )
+    if src != other:
+        assert _strip_allowlisted_favicon(src) == _strip_allowlisted_favicon(other), (
+            "portfolio copy drifted beyond an allowlisted favicon head delta"
+        )
+    training = dest.parent / "training.html"
+    assert training.is_file(), f"env set but the portfolio copy lacks its second page at {training}"
+    assert _strip_allowlisted_favicon(TRAINING_PAGE.read_text(encoding="utf-8")) == _strip_allowlisted_favicon(
+        training.read_text(encoding="utf-8")
+    ), "portfolio copy of training.html drifted"
 
 
 def test_every_catalog_command_is_training_cheatsheets_or_declined(
@@ -1768,9 +1587,8 @@ def test_every_catalog_command_is_training_cheatsheets_or_declined(
 ) -> None:
     names = sorted(p.stem for p in COMMANDS_DIR.glob("*.md"))
     assert names, "catalog/commands is empty"
-    data = json.loads(parsed.json_script_contents[0])
-    scenes = data["scenes"] if isinstance(data, dict) and "scenes" in data else data
-    scene_ids = {scene["id"] for scene in scenes}
+    story = json.loads(TRAINING_STORY.read_text(encoding="utf-8"))
+    scene_ids = {a["command"].lstrip("/") for s in story["stages"] if s.get("kind") == "session" for a in s["script"] if a["do"] == "prompt"}
     cheatsheets = guide_text.split('id="page-cheatsheets"', 1)[-1]
     readme = WEBSITE_README.read_text(encoding="utf-8")
     content_map = CONTENT_MAP.read_text(encoding="utf-8")
@@ -1791,7 +1609,8 @@ def test_website_readme_matches_redesign() -> None:
     assert "31 slide" not in lower
     assert "20 slide" not in lower
     assert "guided tour" not in lower
-    assert "training-scenes.json" in text
+    assert "training-story.json" in text
+    assert "training.html" in text
     assert "nexus-hub/index.html" in text
     assert "NEXUS_HUB_PORTFOLIO_ROOT" in text
     for scene in (

@@ -15,11 +15,13 @@ import pytest
 _ROOT = Path(__file__).resolve().parents[2]
 GUIDE = _ROOT / "guides" / "website" / "nexus-hub-guide.html"
 REQUIRE_RENDER = os.environ.get("NEXUS_REQUIRE_RENDER") == "1"
-PAGES = ("home", "foundations", "training", "cheatsheets")
+PAGES = ("home", "foundations", "cheatsheets")
+TRAINING = GUIDE.parent / "training.html"
 
 # Visible-text rename allowlist: these carriers hold repository or command identifiers,
-# where the hyphenated form is the correct spelling.
-RENAME_EXEMPT_SELECTOR = "code, pre, kbd, [data-copy], a[href*='github.com/bendourthe/Nexus-Hub']"
+# where the hyphenated form is the correct spelling. The Home terminal mockups (.tm, v4.13.10 R45)
+# quote the installer's real output, which prints the product name hyphenated.
+RENAME_EXEMPT_SELECTOR = "code, pre, kbd, [data-copy], .tm, a[href*='github.com/bendourthe/Nexus-Hub']"
 
 
 def _load_sync_playwright():
@@ -52,7 +54,7 @@ def _open(browser, route: str = "home", **ctx):
     context = browser.new_context(viewport={"width": 1440, "height": 900}, **ctx)
     page = context.new_page()
     page.goto(GUIDE.as_uri() + f"#{route}")
-    page.wait_for_function("window.NexusSeq && window.NexusTraining")
+    page.wait_for_function("window.NexusSeq")
     return context, page
 
 
@@ -196,16 +198,22 @@ def test_section_titles_share_one_scale_and_never_overflow(playwright_mod) -> No
                 "  now: parseFloat(getComputedStyle(e).fontSize),"
                 "  wrap: e.getAttribute('data-fit-wrap') }))"
             )
-            training_title = page.evaluate(
-                "() => Math.round(parseFloat(getComputedStyle(document.querySelector('#training-describe-review h2')).fontSize))"
-            )
             context.close()
+            # v4.13.10: Training is training.html; its section headings must stay within the shared title scale.
+            tctx = browser.new_context(viewport={"width": 1440, "height": 900})
+            tpg = tctx.new_page()
+            tpg.goto(TRAINING.as_uri() + "#review")
+            tpg.wait_for_function("window.NexusTrainingPage && NexusTrainingPage.stage() === 'review'")
+            training_title = tpg.evaluate(
+                "() => Math.max(...[...document.querySelectorAll('.tr-section-title')].map(e => parseFloat(getComputedStyle(e).fontSize)))"
+            )
+            tctx.close()
             overflow = {}
             for width in (320, 420, 900, 1440):
-                for route in PAGES:
+                for route in (*PAGES, "training"):
                     ctx = browser.new_context(viewport={"width": width, "height": 900})
                     pg = ctx.new_page()
-                    pg.goto(GUIDE.as_uri() + f"#{route}")
+                    pg.goto(TRAINING.as_uri() + "#intro" if route == "training" else GUIDE.as_uri() + f"#{route}")
                     pg.wait_for_function("window.NexusSeq")
                     pg.wait_for_timeout(150)
                     overflow[(width, route)] = pg.evaluate(
@@ -217,7 +225,8 @@ def test_section_titles_share_one_scale_and_never_overflow(playwright_mod) -> No
     # v4.4.3 merged the two harness scenes and v4.4.4 merged the chatbot comparison into Agentic
     # Platforms, so Foundations contributes two titles fewer than it did at v4.4.2.
     # The requested Home and Foundations closing Next sections were removed.
-    assert len(sizes) == 20, f"expected 20 section titles across the four pages, found {len(sizes)}"
+    # v4.13.10 R47 folded the Home benefits figure into the hero, without its own title.
+    assert len(sizes) == 19, f"expected 19 section titles across the guide's three pages, found {len(sizes)}"
     assert len(set(sizes)) == 1, f"one shared stylesheet size expected, got {sorted(set(sizes))}"
     # v4.4.1 rendered h2 at 1.7rem (27.2px); v4.4.2 tuned the token to 2.4 (65.3px); the v4.4.3
     # review halved it to 1.2 (32.6px) and tripled the label instead. The RENDERED size is now
@@ -225,13 +234,14 @@ def test_section_titles_share_one_scale_and_never_overflow(playwright_mod) -> No
     # v4.19 moved the shared title base again, 32.64px -> 27.2px, on the new
     # --ty-h2 scale. One SHARED size across all four pages is the contract;
     # the value is the design's to choose and is pinned so a drift still fails.
-    assert 26 <= sizes[0] <= 28, sizes[0]
+    # v4.13.10 R21 set one heading system on every page: H2 at clamp(1.4rem, 2.3vw, 1.85rem), 29.6px at 1440.
+    assert 28 <= sizes[0] <= 31, sizes[0]
     assert fitted, "no active-page titles measured"
     for row in fitted:
         assert row["now"] <= row["base"] + 0.5, row
         assert row["now"] >= 15, row
         assert row["wrap"] in ("nowrap", "normal"), row
-    assert training_title < 40, "the Training section heading must not exceed the shared title scale"
+    assert training_title <= sizes[0] + 0.5, "a Training section heading must not exceed the shared title scale"
     bad = {k: v for k, v in overflow.items() if v > 1}
     assert not bad, f"horizontal overflow at (width, page): {bad}"
 

@@ -308,6 +308,11 @@
           },
           {
             "type": "command",
+            "command": "python3 .claude/hooks/user-command-shell-check.py",
+            "timeout": 10
+          },
+          {
+            "type": "command",
             "command": "bash .claude/hooks/usage-display.sh"
           },
           {

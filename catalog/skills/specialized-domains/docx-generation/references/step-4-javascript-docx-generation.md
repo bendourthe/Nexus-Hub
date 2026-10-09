@@ -119,7 +119,7 @@ function createReport(
                   new TextRun({
                     text: title,
                     italics: true,
-                    size: 18,
+                    size: 20,
                     color: "999999",
                   }),
                 ],
@@ -133,15 +133,15 @@ function createReport(
               new Paragraph({
                 alignment: AlignmentType.CENTER,
                 children: [
-                  new TextRun({ text: "Page ", size: 18 }),
+                  new TextRun({ text: "Page ", size: 20 }),
                   new TextRun({
                     children: [PageNumber.CURRENT],
-                    size: 18,
+                    size: 20,
                   }),
-                  new TextRun({ text: " of ", size: 18 }),
+                  new TextRun({ text: " of ", size: 20 }),
                   new TextRun({
                     children: [PageNumber.TOTAL_PAGES],
-                    size: 18,
+                    size: 20,
                   }),
                 ],
               }),
@@ -194,7 +194,7 @@ function createStyledTable(data: TableData): Table {
                 text,
                 bold: true,
                 color: "FFFFFF",
-                size: 20,
+                size: 22,
                 font: "Calibri",
               }),
             ],
@@ -216,7 +216,7 @@ function createStyledTable(data: TableData): Table {
                   children: [
                     new TextRun({
                       text: cellText,
-                      size: 18,
+                      size: 20,
                       font: "Calibri",
                     }),
                   ],

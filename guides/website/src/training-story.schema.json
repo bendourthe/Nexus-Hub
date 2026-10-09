@@ -1,0 +1,520 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "nexus-hub/training-story.schema.json",
+  "title": "Training story",
+  "description": "The single source for the Training page (v4.13.10 revision 2): one pass of the six-command Development Workflow. Each agent step is a script the IDE player animates: pick a model and effort, type a prompt, work through steps that read, write, and edit files, reply, and, in /implement, hit the usage limit and hand off to another provider.",
+  "type": "object",
+  "required": [
+    "version",
+    "project",
+    "workflow",
+    "defaultProvider",
+    "providers",
+    "stages"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "const": 3
+    },
+    "project": {
+      "type": "object",
+      "required": [
+        "name",
+        "files"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "files": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "path",
+              "code"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "path": {
+                "type": "string",
+                "minLength": 1
+              },
+              "code": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "workflow": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "required": [
+          "step",
+          "command",
+          "label"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "step": {
+            "type": "string",
+            "minLength": 1
+          },
+          "command": {
+            "type": "string",
+            "minLength": 1
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "defaultProvider": {
+      "enum": [
+        "Anthropic",
+        "OpenAI",
+        "Google",
+        "Cursor"
+      ]
+    },
+    "providers": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "Anthropic",
+          "OpenAI",
+          "Google",
+          "Cursor"
+        ]
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "stages": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "$ref": "#/$defs/stage"
+      }
+    }
+  },
+  "$defs": {
+    "stage": {
+      "type": "object",
+      "required": [
+        "id",
+        "kind"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "enum": [
+            "intro",
+            "play",
+            "session"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "play"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "game",
+              "head",
+              "notes",
+              "after"
+            ],
+            "properties": {
+              "game": {
+                "enum": [
+                  "buggy",
+                  "fixed"
+                ]
+              },
+              "head": {
+                "$ref": "#/$defs/head"
+              },
+              "notes": {
+                "type": "object",
+                "required": [
+                  "title",
+                  "items"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "items": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "hidden": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              },
+              "after": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "session"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "step",
+              "head",
+              "why",
+              "script"
+            ],
+            "properties": {
+              "step": {
+                "enum": [
+                  "describe",
+                  "review",
+                  "plan",
+                  "implement",
+                  "test",
+                  "update"
+                ]
+              },
+              "head": {
+                "$ref": "#/$defs/head"
+              },
+              "why": {
+                "type": "string",
+                "minLength": 1
+              },
+              "script": {
+                "type": "array",
+                "minItems": 4,
+                "items": {
+                  "$ref": "#/$defs/action"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "head": {
+      "type": "object",
+      "required": [
+        "title",
+        "now"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kicker": {
+          "type": "string",
+          "minLength": 1
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "now": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "action": {
+      "type": "object",
+      "required": [
+        "do"
+      ],
+      "properties": {
+        "do": {
+          "enum": [
+            "pick",
+            "prompt",
+            "work",
+            "reply",
+            "limit",
+            "copy",
+            "paste"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "do": {
+                "const": "pick"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "provider",
+              "tier",
+              "effort",
+              "usage"
+            ],
+            "properties": {
+              "provider": {
+                "enum": [
+                  "Anthropic",
+                  "OpenAI",
+                  "Google",
+                  "Cursor"
+                ]
+              },
+              "tier": {
+                "enum": [
+                  "frontier",
+                  "strong",
+                  "standard",
+                  "fast"
+                ]
+              },
+              "effort": {
+                "enum": [
+                  "low",
+                  "medium",
+                  "high",
+                  "max"
+                ]
+              },
+              "usage": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "newchat": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "do": {
+                "const": "prompt"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "command",
+              "argument"
+            ],
+            "properties": {
+              "command": {
+                "type": "string",
+                "pattern": "^/[a-z-]+$"
+              },
+              "argument": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "do": {
+                "const": "work"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "usage",
+              "steps"
+            ],
+            "properties": {
+              "usage": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "steps": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "$ref": "#/$defs/step"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "do": {
+                "enum": [
+                  "reply",
+                  "limit",
+                  "paste"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "text"
+            ],
+            "properties": {
+              "text": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "do": {
+                "const": "reply"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "mark"
+            ],
+            "properties": {
+              "mark": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "step": {
+      "type": "object",
+      "required": [
+        "kind",
+        "label"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "read",
+            "search",
+            "think",
+            "write",
+            "edit",
+            "run"
+          ]
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "file": {
+          "type": "string",
+          "minLength": 1
+        },
+        "output": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        },
+        "mark": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "read",
+                  "write",
+                  "edit"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "file"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "write",
+                  "edit"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "content"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "search",
+                  "run"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "output"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

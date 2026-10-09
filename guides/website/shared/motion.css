@@ -1,0 +1,8 @@
+/* ---------- Reduced motion, shared base (v4.13.10) ---------- The page-independent half of the guide's reduced-motion block: no smooth scrolling, no page animation, and sequence steps shown at once rather than waiting for an observer. Page-specific motion rules stay with their page. */
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}
+#constellation{transition:none;}
+.js .seq-fade,.js .seq-rise,.js .seq-draw,.js .seq-glow,.js .ann,.js .ann-legend-row{transition-duration:0s;}
+/* v4.4.4: a step must never be HIDDEN under reduced motion. Zeroing the transition made the reveal instant but still waited for the observer to play the sequence, so a reader who had asked for less motion saw an empty strip until they scrolled it into view. */
+.js .seq-rise{opacity:1;transform:none;}
+.js .seq-fade{opacity:1;}
+}

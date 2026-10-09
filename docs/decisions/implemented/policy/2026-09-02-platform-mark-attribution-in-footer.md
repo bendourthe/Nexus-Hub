@@ -29,3 +29,7 @@ The footer is the correct home for this text because it is the conventional plac
 - Every page gains a short footer; the byte cost is under 1 KB and is charged to Phase 2's ledger allocation.
 - `tests/guides/test_v441_phase2_home.py` gains an assertion that the footer attribution is visible on all four pages and that Home carries no credits disclosure.
 - If a platform mark is ever replaced, `asset-provenance.md` and this footer must change together; the provenance ledger's hash test already forces the ledger edit, and the footer test names the licence text so a mismatch is visible.
+
+## Amendment (2026-10-04, v4.13.10)
+
+The guide no longer travels as one file: Training moved to a second offline page, `guides/website/training.html` ([decision](../architecture/2026-10-04-guide-training-as-a-second-offline-page.md)). The reasoning above is unchanged, and attribution still has to travel inside the page the audience opens. It now travels inside each of the two files, through the shared footer fragment in `guides/website/shared/` that `scripts/stamp_guide_shared.py` inlines into both. The footer test covers every page of both files.

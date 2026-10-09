@@ -77,6 +77,9 @@ validate: ## Validate all JSON catalog files and skill bundles
 	@cd extensions/nexus-context-compressor && python -m evals --check
 	@echo "Checking guide data-count markers against the catalog (v4.4.2 Phase 1)..."
 	@python scripts/stamp_guide_counts.py --check
+	@echo "Checking shared guide fragments and the Training model map (v4.13.10)..."
+	@python scripts/stamp_guide_shared.py --check
+	@python scripts/stamp_training_models.py --check
 	@echo "All catalogs valid."
 
 lint: ## Lint shell scripts with ShellCheck

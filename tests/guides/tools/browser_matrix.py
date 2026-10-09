@@ -7,9 +7,10 @@ playwright install chromium``).
 The case set is DECLARED before anything runs: every group below is Cartesian only across the
 dimensions that own a distinct layout, theme, state, or interaction contract, and the summary
 records the declared count next to the executed count so a silently dropped case is visible.
-Each case captures console errors, external requests (there must be none: the guide is one
-offline file), Training section geometry (pairwise intersection and viewport coverage), and, for
-the retained cases, a screenshot.
+Each case captures console errors, external requests (there must be none: the guide is two
+offline pages), Training stage geometry (pairwise intersection and viewport coverage), and, for
+the retained cases, a screenshot. Since v4.13.10 the guide cases open ``nexus-hub-guide.html``
+and the Training cases open ``training.html``.
 
 Usage::
 
@@ -32,29 +33,31 @@ import time
 
 _ROOT = pathlib.Path(__file__).resolve().parents[3]
 GUIDE = _ROOT / "guides" / "website" / "nexus-hub-guide.html"
-PLAN_SLUG = "training-rebuild"
-PLAN_LABEL = "v4.13.4 training-rebuild"
+TRAINING = _ROOT / "guides" / "website" / "training.html"
+PLAN_SLUG = "training-page-rebuild"
+PLAN_LABEL = "v4.13.10 training-page-rebuild"
 DEFAULT_OUT = _ROOT / "docs" / "releases" / "v4" / "v4.13" / "development" / PLAN_SLUG / "renders"
 
-PAGES = ("home", "foundations", "training", "cheatsheets")
+PAGES = ("home", "foundations", "cheatsheets")
 THEMES = ("dark", "light")
-ROUTES = ("game", "describe-review", "plan", "implement", "fixed-game", "compare", "presentify")
+# One stage of each kind: the intro, both games, and representative workflow steps.
+ROUTES = ("intro", "play-buggy", "review", "implement", "play-fixed")
 DESKTOP = ((1280, 720), (1366, 768), (1440, 900), (1920, 1080))
 
 PAIRS = [
-    ("heading", "game"), ("heading", "terminal"), ("game", "terminal"),
-    ("game", "explorer"), ("terminal", "explorer"), ("explorer", "takeaway"),
+    ("banner", "game"), ("banner", "session"), ("session", "files"),
+    ("session", "activity"), ("files", "activity"),
 ]
 
 
-def geometry_regions(section: str) -> dict[str, str]:
-    """Select only widgets that the named Training section actually owns."""
-    root = f'[data-nht-section="{section}"]'
-    regions = {"heading": f"{root} h2", "explorer": f"{root} .nht-explorer", "takeaway": f"{root} .nht-takeaway"}
-    if section in {"game", "fixed-game", "compare"}:
-        regions["game"] = f"{root} [data-arcade-game]"
-    if section not in {"game", "fixed-game"}:
-        regions["terminal"] = f"{root} .term--nht"
+def geometry_regions(stage: str) -> dict[str, str]:
+    """Select only the regions that the named Training stage actually owns."""
+    root = f'section[data-stage="{stage}"]'
+    regions = {"banner": f"{root} .tr-head"}
+    if stage.startswith("play-"):
+        regions["game"] = f"{root} [data-ss-id] .ss-canvas"
+    elif stage != "intro":
+        regions.update(session=f"{root} .ide-chat", files=f"{root} .ide-editor", activity=f"{root} .ide-explorer")
     return regions
 
 GEOMETRY_JS = """([regions, pairs]) => {
@@ -93,13 +96,12 @@ GEOMETRY_JS = """([regions, pairs]) => {
                 grid[Math.floor(y / cell) * cols + Math.floor(x / cell)] = 1;
     }
     let n = 0; for (const v of grid) n += v;
-    const stage = regions.game ? document.querySelector(regions.game + ' .nag-stage') : null;
+    const stage = regions.game ? document.querySelector(regions.game) : null;
     return {
         missing, overlaps,
         coverage: +(n / grid.length).toFixed(3),
         stageHeightFraction: stage ? +(stage.getBoundingClientRect().height / vh).toFixed(3) : null,
         horizontalOverflow: document.documentElement.scrollWidth > window.innerWidth + 1,
-        portraitGame: stage ? stage.getBoundingClientRect().height >= stage.getBoundingClientRect().width - 1 : null,
     };
 }"""
 
@@ -107,32 +109,37 @@ GEOMETRY_JS = """([regions, pairs]) => {
 def declare_groups() -> dict[str, list[dict]]:
     """Every case, declared up front. Keys are group names usable with --groups."""
     base = GUIDE.as_uri()
+    trn = TRAINING.as_uri()
     g: dict[str, list[dict]] = {}
 
     g["base"] = [dict(label=f"base-{pg}-{th}-{w}", url=f"{base}#{pg}", width=w, height=900, theme=th, retain=True)
                  for pg in PAGES for th in THEMES for w in (320, 420, 900, 1440)]
+    g["base"] += [dict(label=f"base-training-{th}-{w}", url=f"{trn}#intro", width=w, height=900, theme=th, retain=True, stage="intro")
+                  for th in THEMES for w in (320, 420, 900, 1440)]
     g["seam"] = [dict(label=f"seam-foundations-{th}-{w}", url=f"{base}#foundations", width=w, height=900, theme=th, retain=True)
                  for th in THEMES for w in (720, 721)]
-    g["states"] = [dict(label=f"state-{r}-{th}-1440", url=f"{base}#training/{r}", width=1440, height=900, theme=th, retain=True)
+    slug = lambda r: r.replace("/", "-")  # noqa: E731 - a stage id carries a slash, a file label cannot
+    g["states"] = [dict(label=f"state-{slug(r)}-{th}-1440", url=f"{trn}#{r}", width=1440, height=900, theme=th, retain=True, stage=r)
                    for r in ROUTES for th in THEMES]
-    # Keep the historical group key for CLI callers; presentation mode was removed in v4.13.4.
-    g["fullscreen"] = [dict(label=f"section-{r}-{th}-{w}x{h}", url=f"{base}#training/{r}", width=w, height=h, theme=th,
-                            retain=(r == "presentify"), section=r, geometry=True)
-                       for r in ("game", "presentify") for th in THEMES for (w, h) in DESKTOP]
-    g["narrow"] = [dict(label=f"narrow-{r}-{th}-{w}", url=f"{base}#training/{r}", width=w, height=900, theme=th,
-                        retain=(r == "presentify"), section=r, geometry=True)
-                   for r in ("describe-review", "presentify") for th in THEMES for w in (320, 420, 900)]
-    g["short"] = [dict(label=f"short-presentify-{th}-1280x600", url=f"{base}#training/presentify", width=1280, height=600, theme=th,
-                       retain=True, section="presentify", geometry=True) for th in THEMES]
-    g["reduced"] = [dict(label=f"rm-{name}-{th}-1440", url=url, width=1440, height=900, theme=th, retain=True, reduced=True)
-                    for (name, url) in (("home", f"{base}#home"), ("foundations", f"{base}#foundations"), ("training-presentify", f"{base}#training/presentify"))
+    # Keep the historical group key for CLI callers; it now photographs a game and a session at desktop sizes.
+    g["fullscreen"] = [dict(label=f"stage-{slug(r)}-{th}-{w}x{h}", url=f"{trn}#{r}", width=w, height=h, theme=th,
+                            retain=(r == "review"), stage=r, geometry=True)
+                       for r in ("play-buggy", "review") for th in THEMES for (w, h) in DESKTOP]
+    g["narrow"] = [dict(label=f"narrow-{slug(r)}-{th}-{w}", url=f"{trn}#{r}", width=w, height=900, theme=th,
+                        retain=(r == "review"), stage=r, geometry=True)
+                   for r in ("review", "play-fixed") for th in THEMES for w in (320, 420, 900)]
+    g["short"] = [dict(label=f"short-review-{th}-1280x600", url=f"{trn}#review", width=1280, height=600, theme=th,
+                       retain=True, stage="review", geometry=True) for th in THEMES]
+    g["reduced"] = [dict(label=f"rm-{name}-{th}-1440", url=url, width=1440, height=900, theme=th, retain=True, reduced=True, **extra)
+                    for (name, url, extra) in (("home", f"{base}#home", {}), ("foundations", f"{base}#foundations", {}),
+                                               ("training-review", f"{trn}#review", {"stage": "review"}))
                     for th in THEMES]
-    g["zoom"] = [dict(label=f"zoom200-{r}-{th}-{w}x{h}", url=f"{base}#training/{r}", width=w, height=h, theme=th,
-                      retain=(r == "presentify"), zoom=2, section=r, geometry=True)
-                 for r in ("describe-review", "presentify") for th in THEMES for (w, h) in ((1280, 720), (1366, 768))]
+    g["zoom"] = [dict(label=f"zoom200-{slug(r)}-{th}-{w}x{h}", url=f"{trn}#{r}", width=w, height=h, theme=th,
+                      retain=(r == "review"), zoom=2, stage=r, geometry=True)
+                 for r in ("review", "play-buggy") for th in THEMES for (w, h) in ((1280, 720), (1366, 768))]
     # v4.4.2 additions
     g["home-sections"] = [dict(label=f"home-{sec}-{th}-{w}", url=f"{base}#home", width=w, height=900, theme=th, retain=True, scroll=f"#{sec}")
-                          for sec in ("nhg-why", "nhg-how", "nhg-guardrails", "nhg-commands") for th in THEMES for w in (420, 1440)]
+                          for sec in ("nhg-benefits", "nhg-how", "nhg-guardrails", "nhg-commands") for th in THEMES for w in (420, 1440)]
     g["annotated"] = [dict(label=f"ann-{scene}-{state}-{th}-1440", url=f"{base}#foundations", width=1440, height=900, theme=th, retain=True,
                            scroll=f"#{scene}", seq=(scene, state))
                       for scene in ("fx-ann-prompt", "fx-ann-context") for state in ("mid", "end") for th in THEMES]
@@ -152,8 +159,10 @@ def declare_groups() -> dict[str, list[dict]]:
                        for state in ("mid", "end") for th in THEMES for w in (420, 1440)]
     # v4.4.4 merged the comparison into the Agentic Platforms scene and retired its six-stage
     # flow, so the comparison group below photographs that scene and a platforms group is not needed.
-    g["pointer"] = [dict(label=f"arena-pointer-paused-{th}-1440", url=f"{base}#training/game", width=1440, height=900, theme=th, retain=True, pointer=True)
-                    for th in THEMES]
+    # v4.13.10: the Sky Sentinel engine pauses on Escape, scroll-out, tab-hide, and blur, not on
+    # pointer leave, so the old pointer group became a running and an Escape-paused capture.
+    g["running"] = [dict(label=f"arena-{mode}-{th}-1440", url=f"{trn}#play-buggy", width=1440, height=900, theme=th, retain=True,
+                         stage="play-buggy", running=mode) for mode in ("playing", "paused") for th in THEMES]
     return g
 
 
@@ -180,7 +189,11 @@ def run(groups: dict[str, list[dict]], out: pathlib.Path, label: str) -> dict:
                 page.on("console", lambda m: errors.append(m.text) if m.type == "error" else None)
                 page.on("request", lambda r: requests.append(r.url) if r.url.startswith("http") else None)
                 page.goto(c["url"])
-                page.wait_for_function("window.NexusTraining && window.NexusShooter && window.NexusSeq")
+                if c.get("stage"):
+                    page.wait_for_function("window.NexusTrainingPage && NexusTrainingPage.story() && window.SkySentinel")
+                    page.wait_for_function(f"NexusTrainingPage.stage() === '{c['stage']}'")
+                else:
+                    page.wait_for_function("window.NexusSeq")
                 page.wait_for_timeout(300)
                 if c.get("zoom"):
                     page.evaluate("z => { document.documentElement.style.zoom = z; }", c["zoom"])
@@ -206,15 +219,15 @@ def run(groups: dict[str, list[dict]], out: pathlib.Path, label: str) -> dict:
                         page.evaluate("() => document.querySelector('audio.fx-out-audio').pause()")
                         page.wait_for_function("() => document.querySelector('canvas.fx-wave').dataset.waveState === 'static'")
                     page.wait_for_timeout(150)
-                if c.get("pointer"):
-                    page.locator('[data-arcade-id="buggy"] [data-arcade-start]').click()
-                    page.wait_for_function("window.NexusShooter.get('buggy').snapshot().lifecycle === 'running'")
-                    box = page.locator('[data-arcade-id="buggy"] [data-arcade="stage"]').bounding_box()
-                    page.mouse.move(box["x"] + box["width"] / 2, box["y"] + box["height"] / 2)
-                    page.mouse.move(box["x"] + box["width"] + 60, box["y"] + 20)
-                    page.wait_for_function("window.NexusShooter.get('buggy').snapshot().pauseReasons.includes('pointer')")
+                if c.get("running"):
+                    page.locator('[data-ss-id="buggy"] .ss-start').click()
+                    page.wait_for_function("SkySentinel.get('buggy').state().state === 'running'")
+                    page.wait_for_timeout(1200)
+                    if c["running"] == "paused":
+                        page.keyboard.press("Escape")
+                        page.wait_for_function("SkySentinel.get('buggy').state().state === 'paused'")
                     page.wait_for_timeout(150)
-                geo = page.evaluate(GEOMETRY_JS, [geometry_regions(c["section"]), PAIRS]) if c.get("geometry") else {}
+                geo = page.evaluate(GEOMETRY_JS, [geometry_regions(c["stage"]), PAIRS]) if c.get("geometry") else {}
                 record = {"group": group, **{k: v for k, v in c.items() if k != "url"}, "errors": errors,
                           "externalRequests": requests, "geometry": geo}
                 if c.get("retain"):

@@ -39,9 +39,9 @@ class DesignSystem:
     # Typography
     font_family: str = "Segoe UI"
     title_size: Pt = Pt(28)
-    heading_size: Pt = Pt(22)
+    heading_size: Pt = Pt(24)
     body_size: Pt = Pt(14)
-    caption_size: Pt = Pt(10)
+    caption_size: Pt = Pt(12)
 
     # Spacing (16:9 slide = 13.333 x 7.5 inches)
     margin_left: Inches = Inches(0.75)
@@ -100,7 +100,7 @@ def add_two_column_slide(
         for point in points:
             p = tf.add_paragraph()
             p.text = point
-            p.font.size = Pt(13)
+            p.font.size = Pt(14)
             p.font.color.rgb = DESIGN.text_dark
             p.level = 0
             p.space_after = Pt(6)

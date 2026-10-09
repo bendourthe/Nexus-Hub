@@ -1,0 +1,88 @@
+/* ---------- Text roles (v4.13.10 R27) ---------- The one configuration for every piece of text on the
+   guide and Training pages. Each text element carries a role (data-ty="..."), on itself or on the nearest
+   element that defines its text block, and its typography (font family, size, weight, line height,
+   letter spacing, colour) comes only from that role's rule below. A role may take a tone (data-tone),
+   which changes its colour and nothing else; the tones are defined here too. Component CSS keeps layout
+   (margin, padding, display, alignment) and never restates typography.
+
+   Exempt: illustration internals, whose text is part of a picture rather than the page's prose. These are
+   figure, .pg-fig, .ide, .ss-host, .tro, .fxo, .cx-preview, svg, and the drawings and mockups that play the
+   same part outside a figure element: .fx-diagram (Foundations scene diagrams), .ml-flow, .ml-tier-list and
+   .ml-scale (the model lab's network, class cards, and their axis), .ph (the platform chat mockups), .term
+   (terminal and code samples), .loop-strip (the workflow loop), .tr-flow (the Training workflow strip),
+   .ide-wrap (the IDE player and its controls), .hero-lockup (the logo lockup), .hb (the Home benefits figure),
+   .tm (the Home install terminal mockups), and the game overlays.
+   Navigation and controls (nav, button, summary, .pagenav) take a role for size, family, and spacing;
+   their colour and weight follow their state (current, hover, open). The rendered audit in
+   tests/guides/test_v443_phase1_headings.py reads this same list. */
+:root{
+  /* Legibility floor. No text role on this page resolves below it. Change it here. */
+  --ty-floor:.9375rem;
+  --ty-display:clamp(1.85rem,7.2vw,4.25rem);
+  --ty-h1:clamp(2rem,4.2vw,3rem);
+  --ty-statement:clamp(1.6rem,3.1vw,2.3rem);
+  --ty-h2:clamp(1.4rem,2.3vw,1.85rem);
+  --ty-h3:1.25rem;
+  --ty-h4:1.0625rem;
+  --ty-subtitle:clamp(1rem,1.35vw,1.1875rem);
+  --ty-callout:clamp(1.125rem,.8rem + .8vw,1.375rem);
+  --ty-grade:26px;
+  --ty-lead:1.0625rem;
+  --ty-body:1rem;
+  --ty-body-sm:var(--ty-floor);
+  --ty-quote:1.125rem;
+  --ty-label:var(--ty-floor);
+  --ty-eyebrow:var(--ty-floor);
+  --ty-caption:var(--ty-floor);
+  --ty-micro:var(--ty-floor);
+  --ty-code:var(--ty-floor);
+}
+@media (max-width:560px){:root{--ty-grade:18px;}}
+[data-ty]{font-family:var(--sans);}
+[data-ty="display"]{font-size:var(--ty-display);font-weight:750;line-height:1.04;letter-spacing:-.02em;color:var(--ink);text-transform:none;}
+[data-ty="h1"]{font-size:var(--ty-h1);font-weight:800;line-height:1.08;letter-spacing:-.025em;color:var(--ink);text-transform:none;}
+/* The Home hero statement: a large tagline under the wordmark, a step below a page title. */
+[data-ty="statement"]{font-size:var(--ty-statement);font-weight:700;line-height:1.15;letter-spacing:-.015em;color:var(--ink);text-transform:none;}
+[data-ty="h2"]{font-size:var(--ty-h2);font-weight:700;line-height:1.2;letter-spacing:-.012em;color:var(--ink);text-transform:none;}
+[data-ty="h3"]{font-size:var(--ty-h3);font-weight:700;line-height:1.3;letter-spacing:-.005em;color:var(--teal-soft);text-transform:none;}
+[data-ty="h4"]{font-size:var(--ty-h4);font-weight:600;line-height:1.35;letter-spacing:0;color:var(--teal-soft);text-transform:none;}
+[data-ty="subtitle"]{font-size:var(--ty-subtitle);font-weight:400;line-height:1.5;letter-spacing:0;color:var(--ink-dim);text-transform:none;}
+/* The page-opening statement under each page title; its framed panel lives in opening.css. */
+[data-ty="callout"]{font-size:var(--ty-callout);font-weight:400;line-height:1.5;letter-spacing:0;color:var(--ink);text-transform:none;}
+[data-ty="lead"]{font-size:var(--ty-lead);font-weight:400;line-height:1.6;letter-spacing:0;color:var(--ink-dim);text-transform:none;}
+[data-ty="body"]{font-size:var(--ty-body);font-weight:400;line-height:1.6;letter-spacing:0;color:var(--ink-dim);text-transform:none;}
+[data-ty="body-sm"]{font-size:var(--ty-body-sm);font-weight:400;line-height:1.55;letter-spacing:0;color:var(--ink-dim);text-transform:none;}
+[data-ty="quote"]{font-size:var(--ty-quote);font-weight:400;line-height:1.45;letter-spacing:0;color:var(--ink);text-transform:none;}
+[data-ty="eyebrow"]{font-size:var(--ty-eyebrow);font-weight:700;line-height:1.3;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-dim);}
+[data-ty="label"]{font-size:var(--ty-label);font-weight:600;line-height:1.4;letter-spacing:0;color:var(--ink);text-transform:none;}
+[data-ty="caption"]{font-size:var(--ty-caption);font-weight:400;line-height:1.5;letter-spacing:0;color:var(--ink-dim);text-transform:none;}
+[data-ty="micro"]{font-size:var(--ty-micro);font-weight:400;line-height:1.45;letter-spacing:0;color:var(--ink-dim);text-transform:none;}
+[data-ty="code"]{font-family:var(--mono);font-size:var(--ty-code);font-weight:500;line-height:1.5;letter-spacing:0;color:var(--ink);text-transform:none;}
+[data-ty="th"]{font-size:var(--ty-body);font-weight:700;line-height:1.3;letter-spacing:0;color:var(--ink);text-transform:none;}
+[data-ty="td"]{font-size:var(--ty-body-sm);font-weight:400;line-height:1.5;letter-spacing:0;color:var(--ink-dim);text-transform:none;}
+[data-ty="title"]{font-size:var(--ty-h4);font-weight:700;line-height:1.3;letter-spacing:0;color:var(--ink);text-transform:none;}
+[data-ty="stat"]{font-size:var(--ty-h3);font-weight:700;line-height:1.2;letter-spacing:0;color:var(--ink);text-transform:none;}
+/* A comparison column header: the "without" and "with" sides on Home and the migration table. */
+[data-ty="grade"]{font-size:var(--ty-grade);font-weight:750;line-height:1.2;letter-spacing:.05em;text-transform:uppercase;color:var(--ink);}
+/* Tones: colour only. */
+[data-ty][data-tone="ink"]{color:var(--ink);}
+[data-ty][data-tone="dim"]{color:var(--ink-dim);}
+[data-ty][data-tone="faint"]{color:var(--ink-faint);}
+[data-ty][data-tone="accent"]{color:var(--teal-soft);}
+[data-ty][data-tone="warn"]{color:var(--amber);}
+[data-ty][data-tone="go"]{color:var(--accent);}
+
+/* ---------- Heading system (v4.13.10 R21, R27) ---------- One style on every page, from the roles above:
+   solid ink, no gradient words, no eyebrow line, no dash prefix. H1 is large and heavy; H2 is a clear step
+   smaller, sits under a thin full-width rule that separates sections, and carries one accent dot on its
+   left, centred on its first line; H3 is smaller again, in the accent colour, with no marker. Headings are
+   keyword labels, never sentences. */
+main h2:not(.tr-reward-title){--h2-pt:var(--sp-4);position:relative;padding-top:var(--h2-pt);padding-left:.75em;border-top:1px solid var(--border);}
+main h2:not(.tr-reward-title)::before{content:"";position:absolute;left:0;top:calc(var(--h2-pt) + .6em - .2em);width:.4em;height:.4em;border-radius:50%;background:var(--accent);}
+main h3::before{content:none;}
+main h1 .gtext,main h2 .gtext,.gtext{background:none;-webkit-background-clip:border-box;background-clip:border-box;-webkit-text-fill-color:currentColor;color:inherit;}
+main .eyebrow,main .tr-kicker{display:none;}
+.eyebrow::before{content:none;display:none;}
+/* Where the container already draws the full-width rule (a Foundations scene's top border, the Training
+   workflow strip), the H2 does not draw a second one. */
+.fx-scene .fx-title h2,.tr-head h2{--h2-pt:0px;border-top:0;}
