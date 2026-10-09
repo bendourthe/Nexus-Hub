@@ -298,7 +298,8 @@ jobs:
     needs: changes
     if: ${{ !cancelled() && needs.changes.outputs.relevant != 'false' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # v4.13.10: the Training page and game tests took the suite from about 8 to about 40 minutes.
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 

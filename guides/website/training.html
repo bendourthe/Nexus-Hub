@@ -2639,7 +2639,7 @@ main .eyebrow,main .tr-kicker{display:none;}
     return m;
   }
   /* A superellipse ring in the xy plane at depth z; the underside is flattened. */
-  function sring(z, hw, hh, yo, e, n, under) {
+  function shellRing(z, hw, hh, yo, e, n, under) {
     var out = [];
     for (var k = 0; k < n; k++) {
       var a = k / n * Math.PI * 2, c = Math.cos(a), s = Math.sin(a);
@@ -2650,14 +2650,14 @@ main .eyebrow,main .tr-kicker{display:none;}
     return out;
   }
   function body(m, sections, e, col, mat, capCol) {
-    return loft(m, sections.map(function (b) { return sring(b[0], b[1], b[2], b[3], e, 18, 0.62); }), col, mat, capCol, M_DARK);
+    return loft(m, sections.map(function (b) { return shellRing(b[0], b[1], b[2], b[3], e, 18, 0.62); }), col, mat, capCol, M_DARK);
   }
   function ellipsoid(m, cx, cy, cz, rx, ry, rz, col, mat, n) {
     var rings = [];
     n = n || 12;
     for (var i = 0; i <= n; i++) {
       var t = -1 + 2 * i / n, k = Math.sqrt(Math.max(0.0004, 1 - t * t));
-      rings.push(sring(cz + t * rz, rx * k, ry * k, cy, 2, 14, 1).map(function (p) { return [p[0] + cx, p[1], p[2]]; }));
+      rings.push(shellRing(cz + t * rz, rx * k, ry * k, cy, 2, 14, 1).map(function (p) { return [p[0] + cx, p[1], p[2]]; }));
     }
     return loft(m, rings, col, mat);
   }
@@ -2665,10 +2665,10 @@ main .eyebrow,main .tr-kicker{display:none;}
      exhaust disc at the back. */
   function nacelle(m, cx, cy, z0, z1, r0, r1, col, glowCol) {
     var rings = [], steps = [[0, 0.55], [0.12, 1], [0.8, 1], [1, r1 / r0]];
-    steps.forEach(function (s) { rings.push(sring(z0 + (z1 - z0) * s[0], r0 * s[1], r0 * s[1], 0, 2, 14, 1)); });
+    steps.forEach(function (s) { rings.push(shellRing(z0 + (z1 - z0) * s[0], r0 * s[1], r0 * s[1], 0, 2, 14, 1)); });
     rings = rings.map(function (r) { return r.map(function (p) { return [p[0] + cx, p[1] + cy, p[2]]; }); });
     loft(m, rings, col, M_METAL);
-    var lip = [sring(z1, r1, r1, cy, 2, 14, 1), sring(z1 + 1.2, r1 * 1.08, r1 * 1.08, cy, 2, 14, 1)].map(function (r) { return r.map(function (p) { return [p[0] + cx, p[1], p[2]]; }); });
+    var lip = [shellRing(z1, r1, r1, cy, 2, 14, 1), shellRing(z1 + 1.2, r1 * 1.08, r1 * 1.08, cy, 2, 14, 1)].map(function (r) { return r.map(function (p) { return [p[0] + cx, p[1], p[2]]; }); });
     loft(m, lip, [0.16, 0.17, 0.19], M_DARK, glowCol, M_EMIT);
     return m;
   }
@@ -3014,7 +3014,7 @@ main .eyebrow,main .tr-kicker{display:none;}
   function bombMesh() {
     var m = new Mesh();
     ellipsoid(m, 0, 0, 0, 4.2, 4.2, 4.2, [0.2, 0.21, 0.23], M_PANEL, 10);
-    loft(m, [sring(-0.9, 4.5, 4.5, 0, 2, 16, 1), sring(0.9, 4.5, 4.5, 0, 2, 16, 1)], [0.7, 0.16, 0.12], M_PAINT);
+    loft(m, [shellRing(-0.9, 4.5, 4.5, 0, 2, 16, 1), shellRing(0.9, 4.5, 4.5, 0, 2, 16, 1)], [0.7, 0.16, 0.12], M_PAINT);
     [[1, 0, 0], [-1, 0, 0], [0, 0, 1], [0, 0, -1], [0, 1, 0]].forEach(function (d) {
       box(m, d[0] * 4 - 0.6, d[1] * 4 - 0.6, d[2] * 4 - 0.6, d[0] * 6 + 0.6, d[1] * 6 + 0.6, d[2] * 6 + 0.6, C.steel, M_METAL);
     });
@@ -3023,7 +3023,7 @@ main .eyebrow,main .tr-kicker{display:none;}
   }
   function missileMesh() {
     var m = new Mesh();
-    loft(m, [sring(-6, 0.1, 0.1, 0, 2, 10, 1), sring(-4, 0.8, 0.8, 0, 2, 10, 1), sring(4, 0.9, 0.9, 0, 2, 10, 1), sring(5, 0.7, 0.7, 0, 2, 10, 1)], [0.88, 0.88, 0.9], M_PAINT, C.dark);
+    loft(m, [shellRing(-6, 0.1, 0.1, 0, 2, 10, 1), shellRing(-4, 0.8, 0.8, 0, 2, 10, 1), shellRing(4, 0.9, 0.9, 0, 2, 10, 1), shellRing(5, 0.7, 0.7, 0, 2, 10, 1)], [0.88, 0.88, 0.9], M_PAINT, C.dark);
     [0, 1, 2, 3].forEach(function (k) { var f = box(new Mesh(), -0.15, 0, 2, 0.15, 2.1, 5, [0.75, 0.2, 0.18], M_PAINT); m.add(f, rotZ(k * Math.PI / 2 + 0.785), [0, 0, 0]); });
     return { mesh: m, engines: [[0, 0, 5.4, 0.8]] };
   }
@@ -3031,7 +3031,7 @@ main .eyebrow,main .tr-kicker{display:none;}
     var m = new Mesh(), p = [[0, 6.5, 0], [0, -6.5, 0], [5, 0, 0], [-5, 0, 0], [0, 0, 5], [0, 0, -5]];
     var f = [[0, 2, 4], [0, 4, 3], [0, 3, 5], [0, 5, 2], [1, 4, 2], [1, 3, 4], [1, 5, 3], [1, 2, 5]];
     f.forEach(function (t) { var a = p[t[0]], b = p[t[1]], c = p[t[2]]; m.tri(a, b, c, [0.85, 0.9, 0.95], M_GLASS, [(a[0] + b[0] + c[0]) / 3, (a[1] + b[1] + c[1]) / 3, (a[2] + b[2] + c[2]) / 3]); });
-    loft(m, [sring(-0.6, 5.4, 5.4, 0, 2, 16, 1).map(function (q) { return [q[0], q[2], q[1]]; }), sring(0.6, 5.4, 5.4, 0, 2, 16, 1).map(function (q) { return [q[0], q[2], q[1]]; })], [0.9, 0.9, 0.9], M_METAL);
+    loft(m, [shellRing(-0.6, 5.4, 5.4, 0, 2, 16, 1).map(function (q) { return [q[0], q[2], q[1]]; }), shellRing(0.6, 5.4, 5.4, 0, 2, 16, 1).map(function (q) { return [q[0], q[2], q[1]]; })], [0.9, 0.9, 0.9], M_METAL);
     return { mesh: m };
   }
   function shardMesh() {
@@ -3051,7 +3051,7 @@ main .eyebrow,main .tr-kicker{display:none;}
       slab(hullM, loc([[a[0] + nx, a[1] + ny], [c[0] + nx, c[1] + ny], [c[0] - nx, c[1] - ny], [a[0] - nx, a[1] - ny]]), 8, 14, 3, [0.15, 0.95, 1.0], M_HALF);
     });
     var node = new Mesh();
-    loft(node, [sring(0, LOGO.nodeR * 0.9, LOGO.nodeR * 0.9, 0, 2, 24, 1), sring(0, LOGO.nodeR, LOGO.nodeR, 0, 2, 24, 1)].map(function (r, i) { return r.map(function (p) { return [p[0], i * 4 - 8, p[1]]; }); }), [0.1, 0.5, 0.58], M_METAL);
+    loft(node, [shellRing(0, LOGO.nodeR * 0.9, LOGO.nodeR * 0.9, 0, 2, 24, 1), shellRing(0, LOGO.nodeR, LOGO.nodeR, 0, 2, 24, 1)].map(function (r, i) { return r.map(function (p) { return [p[0], i * 4 - 8, p[1]]; }); }), [0.1, 0.5, 0.58], M_METAL);
     ellipsoid(node, 0, 2, 0, LOGO.nodeR * 0.92, 14, LOGO.nodeR * 0.92, [0.25, 0.97, 1.0], M_HALF, 10);
     var core = new Mesh();
     ellipsoid(core, 0, 6, 0, LOGO.coreR, LOGO.coreR * 0.8, LOGO.coreR, [0.95, 1, 1], M_EMIT, 12);
@@ -3064,7 +3064,7 @@ main .eyebrow,main .tr-kicker{display:none;}
   function agentMesh() {
     var m = new Mesh(), cyan = [0.15, 0.95, 1.0];
     ellipsoid(m, 0, 0, 0, 12, 2.6, 11, [0.1, 0.13, 0.17], M_PANEL, 16);
-    loft(m, [sring(-0.8, 12.6, 12.6, 0, 2, 20, 1).map(function (q) { return [q[0], q[2], q[1]]; }), sring(0.8, 12.6, 12.6, 0, 2, 20, 1).map(function (q) { return [q[0], q[2], q[1]]; })], [0.05, 0.42, 0.5], M_METAL);
+    loft(m, [shellRing(-0.8, 12.6, 12.6, 0, 2, 20, 1).map(function (q) { return [q[0], q[2], q[1]]; }), shellRing(0.8, 12.6, 12.6, 0, 2, 20, 1).map(function (q) { return [q[0], q[2], q[1]]; })], [0.05, 0.42, 0.5], M_METAL);
     [0.785, -0.785].forEach(function (a) { m.add(box(new Mesh(), -1.1, 2.0, -10, 1.1, 3.3, 10, cyan, M_HALF), rotY(a), [0, 0, 0]); });
     [[-7, -7], [7, -7], [-7, 7], [7, 7]].forEach(function (c) { ellipsoid(m, c[0], 3.2, c[1], 2.4, 1.4, 2.4, [0.3, 1, 1], M_EMIT, 8); });
     ellipsoid(m, 0, 3.6, 0, 3, 2, 3, [1, 1, 1], M_EMIT, 10);
@@ -8440,7 +8440,7 @@ window.NexusTrainingStory = (function () {
       li.setAttribute("data-step", w.step);
       if (state === "now") li.setAttribute("aria-current", "step");
       var a = el("a");
-      a.href = "#" + w.step;
+      a.href = "#" + encodeURIComponent(w.step);
       a.appendChild(el("span", "tr-flow-n", String(k + 1)));
       a.appendChild(el("code", null, w.command));
       a.appendChild(el("small", null, w.label));
@@ -9723,7 +9723,6 @@ window.NexusTrainingStory = (function () {
   ["describe", "review", "plan", "implement", "test", "update"].forEach(function (k) { ALIASES["loop1/" + k] = k; ALIASES["loop2/" + k] = k; });
   var notice = document.getElementById("trNotice");
   var stage = null;
-  var outline = null;
 
   /* -------------------------------------------------- one scrolling page (R3)
      Every stage is a section of one page, in workflow order. The current stage is the one being
@@ -9812,7 +9811,7 @@ window.NexusTrainingStory = (function () {
   if (games.fixed) games.fixed.on("rewardUnlocked", showReward);
 
   /* The host sits directly in main so the sticky bar spans the page; measure a content column. */
-  outline = window.NexusOutline.mount(document.getElementById("trOutline"), PARTS, { mode: "scroll", label: "Training", column: document.querySelector("#app > .container") });
+  window.NexusOutline.mount(document.getElementById("trOutline"), PARTS, { mode: "scroll", label: "Training", column: document.querySelector("#app > .container") });
   window.addEventListener("hashchange", route);
   var spying = false;
   window.addEventListener("scroll", function () {

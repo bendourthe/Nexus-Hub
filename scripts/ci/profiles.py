@@ -568,7 +568,7 @@ GUIDE_BROWSER = Group(
             "tests/verification/test_visual_defect_detector.py",
             "--junitxml=reports/junit/guide-render.xml",
             env={"NEXUS_REQUIRE_RENDER": "1"},
-            timeout=1800,
+            timeout=3600,
         ),
     ),
 )

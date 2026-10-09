@@ -228,7 +228,7 @@ window.NexusTrainingStory = (function () {
       li.setAttribute("data-step", w.step);
       if (state === "now") li.setAttribute("aria-current", "step");
       var a = el("a");
-      a.href = "#" + w.step;
+      a.href = "#" + encodeURIComponent(w.step);
       a.appendChild(el("span", "tr-flow-n", String(k + 1)));
       a.appendChild(el("code", null, w.command));
       a.appendChild(el("small", null, w.label));
