@@ -73,14 +73,14 @@ def _open(browser, agent: str, width: int = 1440, height: int = 900, stored: str
     context.grant_permissions(["clipboard-read", "clipboard-write"])
     page = context.new_page()
     page.add_init_script(PLATFORM_INIT % (json.dumps(hint), json.dumps(plat)))
-    if stored is not None:
-        # Seed once, so a reload shows what the page itself stored.
-        page.add_init_script(
-            "try { if (!sessionStorage.getItem('r38-seeded')) { "
-            f"localStorage.setItem('{STORE_KEY}', '{stored}'); sessionStorage.setItem('r38-seeded', '1'); }} }} catch (e) {{}}"
-        )
     page.goto(GUIDE.as_uri() + "#home/install")
     page.wait_for_selector("#nhg-install [role=tab][aria-selected=true]")
+    if stored is not None:
+        # Seed once with a direct write and reload, so later reloads show only what the page itself
+        # stored. (A sessionStorage-guarded init script re-seeded after a reload on a CI runner.)
+        page.evaluate("([k, v]) => localStorage.setItem(k, v)", [STORE_KEY, stored])
+        page.reload()
+        page.wait_for_selector("#nhg-install [role=tab][aria-selected=true]")
     return context, page
 
 
