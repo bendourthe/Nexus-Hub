@@ -237,6 +237,11 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 
 - [ ] Implement the [v4.18.3 plan](releases/v4/v4.18/plans/v4.18.3-adoption-html-plans-agent-verification-and-authorization-proofs.md), seeded by the [v4.18.3 comparison](releases/v4/v4.18/comparisons/v4.18.3-comparison-html-plans-agent-verification-and-authorization-proofs.md): a skipped design-interview question is re-asked once or parked, never counted as agreement; plus loop check-command determinism, payload-as-data, and cuttable testing, authorization-proof, and plan-page work. Implementation is 0/8 phases and 0/41 tasks.
 
+## Queued work - v4.18.5 reliable unattended runs, evidence-backed comparisons, and provenance visuals
+
+- [x] Complete the [v4.18.5 three-source comparison](releases/v4/v4.18/comparisons/v4.18.5-comparison-dashboards-motion-evidence-ledger-and-reliable-automations.md) (Claude Dashboards and Motion, REA, reliable agent automations); adoption target v4.18.5 confirmed by the user.
+- [ ] Implement the [v4.18.5 plan](releases/v4/v4.18/plans/v4.18.5-adoption-dashboards-motion-evidence-ledger-and-reliable-automations.md): an unattended-run protocol with a crash-safe run-ledger helper, a checked evidence ledger for `/compare`, verified cross-platform scheduling, `/visualize` query (multi-panel provenance page) and animate modes, plus cuttable built-web-bundle compare sources and MP4 export. Implementation is 0/9 phases and 0/39 tasks.
+
 ## Current work - v4.4.5 visual refinement
 
 - [x] Compact all Models demos, enrich the animated networks, add perspective room navigation and a new game redesign, sweep provider-labeled capability tiers, and compare four reasoning allowances simultaneously; 154 focused guide checks, 24 final Models tests and 40 layout cases pass, with one optional portfolio check skipped. See [verification](archives/v4/v4.4/development/guide-visual-refinement/models-compact-comparisons/verification.md).
