@@ -2332,7 +2332,7 @@ main .eyebrow,main .tr-kicker{display:none;}
     mine: ["#f43f5e", "Mine", "A drifting mine that bursts on contact; shoot it from a distance", "Bursts on contact"],
     freeze: ["#93c5fd", "Freeze", "The ship cannot move for 2.5 s", "No moving, 2.5 s"],
     slowfire: ["#e879f9", "Slow fire", "Half the rate of fire for 5 s", "Half fire, 5 s"],
-    scramble: ["#fb7185", "Scramble", "Left and right swap for 4 s", "Swapped steering, 4 s"]
+    scramble: ["#fb7185", "Scramble", "Left and right swap for 4 s", "Steer swap, 4 s"]
   };
   var DOWN_ORDER = ["mine", "freeze", "slowfire", "scramble"];
   var DOWN_TICKS = { freeze: 150, slowfire: 300, scramble: 240 };
@@ -2418,8 +2418,8 @@ main .eyebrow,main .tr-kicker{display:none;}
     slow: ["#e2e8f0", "Time slow", "Enemies, rocks, and fire at half speed for 8 s", "Half speed, 8 s"],
     magnet: ["#f87171", "Magnet", "Pulls upgrades to the ship for 15 s", "Pulls drops, 15 s"],
     repair: ["#34d399", "Repair", "Restores 35 hull", "+35 hull"],
-    revive: ["#fde047", "Revive", "Once per level, in its second half: held until the ship is destroyed, then rebuilds it on the spot with a full hull; it lasts only for that level and never stacks", "2nd half; this level only"],
-    atomic: ["#7cfc3a", "Atomic blast", "Once per level, in its last third: one shockwave from the ship that destroys every enemy, rock, shot, and mine it touches", "Last third of each level"]
+    revive: ["#fde047", "Revive", "Once per level, in its second half: held until the ship is destroyed, then rebuilds it on the spot with a full hull; it lasts only for that level and never stacks", "2nd half, once"],
+    atomic: ["#7cfc3a", "Atomic blast", "Once per level, in its last third: one shockwave from the ship that destroys every enemy, rock, shot, and mine it touches", "Last third, once"]
   };
   var POWER_ORDER = ["shield", "repair", "weapon", "spread", "rapid", "pierce", "missiles", "wingman", "slow", "magnet", "revive", "atomic"];
   var FORMS = { 1: "Scout", 2: "Fighter", 3: "Sentinel" };

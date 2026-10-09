@@ -312,8 +312,8 @@ def test_the_start_screen_names_the_schedule_and_still_fits(browser, size: tuple
         pg.locator(f"{HOST} .ss-keybtn").click()
         out = pg.evaluate(KEY_PROBE)
         named = {i["kind"]: i for i in out["items"]}
-        assert "Last third of each level" in named["atomic"]["text"]
-        assert "2nd half; this level only" in named["revive"]["text"]
+        assert "Last third, once" in named["atomic"]["text"]
+        assert "2nd half, once" in named["revive"]["text"]
         assert out["scroll"] <= 0, out
         assert all(i["spill"] <= 1 for i in out["items"]), [i for i in out["items"] if i["spill"] > 1]
     finally:

@@ -585,14 +585,17 @@ def test_the_mouse_right_clicks_pastes_and_the_output_streams(playwright_mod, os
             )
             pick = None
             if os_key != "win":
-                page.wait_for_selector(f'{tm}[data-tm-step="pick"]', timeout=15000)
-                page.wait_for_timeout(500)
-                pick = page.evaluate(
-                    """sel => { const m = document.querySelector(sel), p = m.querySelector('.tm-paste'), r = p.getBoundingClientRect(), ms = m.querySelector('.tm-ms').getBoundingClientRect();
-                      return { items: [...m.querySelectorAll('.tm-menu span')].map(s => s.textContent), lit: getComputedStyle(p).backgroundColor,
-                               onPaste: ms.left >= r.left && ms.left <= r.right && ms.top >= r.top && ms.top <= r.bottom }; }""",
-                    tm,
-                )
+                # Sample inside the 750 ms pick step once the mouse has landed; a fixed wait after the
+                # step starts can land in the paste step on a slow runner, where the highlight is gone.
+                pick = page.wait_for_function(
+                    """sel => { const m = document.querySelector(sel);
+                      if (m.dataset.tmStep !== 'pick') return null;
+                      const p = m.querySelector('.tm-paste'), r = p.getBoundingClientRect(), ms = m.querySelector('.tm-ms').getBoundingClientRect();
+                      const onPaste = ms.left >= r.left && ms.left <= r.right && ms.top >= r.top && ms.top <= r.bottom;
+                      if (!onPaste) return null;
+                      return { items: [...m.querySelectorAll('.tm-menu span')].map(s => s.textContent), lit: getComputedStyle(p).backgroundColor, onPaste }; }""",
+                    arg=tm, polling="raf", timeout=30000,
+                ).json_value()
             page.wait_for_function("window.tmOrder.length && window.tmOrder[window.tmOrder.length - 1].step === 'done'", timeout=45000)
             order = page.evaluate("window.tmOrder")
             menus = page.evaluate("os => document.querySelectorAll('#install-panel-' + os + ' .tm-menu').length", os_key)
