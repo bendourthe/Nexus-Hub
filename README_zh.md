@@ -2,11 +2,19 @@
 **为你的 AI 编码助手提供生产级能力升级**
 
 > **将通用 AI 变成高级工程师。**
-> 一键配置 Claude Code (Anthropic)、Gemini (Google)、GitHub Copilot (Microsoft)、Codex (OpenAI)、Cursor 和 OpenCode。
+> 一键配置 Claude Code (Anthropic)、OpenAI Codex、Gemini 与 Antigravity (Google)、GitHub Copilot (Microsoft)、Cursor、OpenCode、Qwen Code、Kimi Code CLI、Devin Desktop / Windsurf、Hermes、Pi、OpenClaw 和 Aider，共 17 个平台集成。
 
-[English](README.md) | 中文
+[English](README.md) | 中文 | [交互式指南](https://www.benjamindourthe.com/nexus-hub/) | [作者：Benjamin Dourthe](https://www.benjamindourthe.com/)
+
+当前目录：340 个技能（23 个类别）、21 个命令（另有 3 个永久别名）、37 个已注册钩子、23 个代理，以及 4 个语言规则族和 HTML 产物规则。
 
 > **v2.0.0 起原 DevAI-Hub 已重命名为 Nexus-Hub**，与同源项目 [Nexus](https://github.com/bendourthe/Nexus-AI) 对齐。下方 v1.0.0 历史发布说明保留原始名称以反映当时的发布事实。
+
+---
+
+## 交互式指南
+
+**初次使用 Nexus-Hub？[在线打开交互式指南](https://www.benjamindourthe.com/nexus-hub/)**，或打开[仓库中的副本](guides/website/nexus-hub-guide.html)。指南包含安装命令、八个基础场景和命令速查表，并附带一个训练页面（[`guides/website/training.html`](guides/website/training.html)），通过一次完整的六命令开发工作流修复一个有缺陷的街机游戏。页面为英文，可离线使用。
 
 ---
 
@@ -79,8 +87,17 @@
 3. **就这样，没有任何提问。** 安装器会下载技能目录、预检依赖，并对检测到的每个受支持助手执行全局安装；你没有的助手会被跳过并附带说明，你的自定义内容会被保留。之后可运行 `nexus-hub upgrade` 就地更新。
 
 **完成。**
-- **全局**：你的用户配置文件现在拥有所有 256 个 Claude 技能、15 个命令、23 个钩子、23 个代理，以及 Gemini 和 Codex 指令。
-- **本地**：你的项目有针对编程语言定制的 `copilot-instructions.md`。
+- **全局**：你的用户配置文件现在拥有全部 340 个技能、21 个命令、37 个已注册钩子、23 个代理，以及 Gemini 和 Codex 指令。
+- **本地**：你的项目有针对编程语言定制的 `copilot-instructions.md` 和 `AGENTS.md`。
+
+### 检查已安装版本
+
+```bash
+nexus-hub version    # 打印已安装版本
+nexus-hub upgrade    # 检查最新发布版本并就地更新
+```
+
+`nexus-hub -v` 与 `nexus-hub --version` 的输出与 `nexus-hub version` 相同。
 
 ---
 
@@ -115,39 +132,33 @@ Nexus-Hub 提供两个有主张的端到端工作流。可作为起点，再根�
 
 2. 安装 Nexus-Hub 工具包 - 粘贴适合你系统的一条安装命令（见上方"快速开始"）。
 
-3. 在 Claude Code 中运行 `/setup-project` - 通过 8 个引导阶段自动生成 `CLAUDE.md`、目录结构、`.gitignore`、`README.md`、`DEVLOG.md` 和 `CHANGELOG.md`。
+3. 在 Claude Code 中运行 `/setup project` - 通过 8 个引导阶段自动生成 `CLAUDE.md`、目录结构、`.gitignore`、`README.md`、`DEVLOG.md` 和 `CHANGELOG.md`。
 
-4. 将第 1 步生成的实施计划保存至 `docs/<version>/plans/<slug>.md`。
+4. 将第 1 步生成的实施计划保存至 `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<version>-<slug>.md`。
 
-5. 运行 `/generate-commit-message` 提交。
+5. 运行 `/commit` 提交。
 
 #### 3. 开发（核心循环）
 
-对计划中的每个阶段：
+运行一次 `/implement <slug>`。它在开始时一次性询问运行所需的全部批准，然后在独立的 worktree 中执行整个计划：每个阶段的每个子任务、测试与修复、`/update gitignore` + `/update docs`、会话历史文件，以及每个阶段一次本地提交，最后完成唯一一次发布推送、版本发布和清理。只有在完成检查器给出最终结论、遇到明确的阻塞项或你运行 `/implement pause` 时才会停止；运行 `/implement <slug>` 即可继续。
 
-1. 创建特性分支：`feature/phase-N-short-description`。
+如需逐个阶段工作，可在每个阶段开启新会话并运行 `/implement <slug> phase <N>`（或 `next`）。
 
-2. 开启全新的 Claude Code 会话。
-
-3. 运行 `/implement-phase <slug> <phase>` - 该命令会逐个执行子任务、生成并运行测试、修复问题、运行 `/update-gitignore` + `/update-documentation`、生成会话历史文件并产出提交消息。
-
-4. 提交并推送特性分支。
-
-5. 合并到 `develop`。然后进入下一个阶段。
+**非最终阶段不推送**（v4.0.0 起）。所有阶段提交都保留在本地，最终阶段对照 CI/CD 契约核对流水线、完成完整的本地检查后，经你明确批准推送一次并创建集成拉取请求。
 
 #### 4. 质量保证（发布前）
 
-1. 运行 `/run-deep-review` - 一个 12 阶段的协调器，串联已知缺陷收集、健康检查、依赖扫描、文档与 git 卫生检查、项目验证器、`/analyze-codebase`、`/run-security-audit`、`/run-penetration-test --depth=deep` 和 `/review-codebase`。
+1. 运行 `/review full` - 一个 12 阶段的协调器，串联已知缺陷收集、健康检查、依赖扫描、文档与 git 卫生检查、项目验证器、代码库描述（`/describe full`），以及 `security`、`pentest` 和完整代码库审查范围。
 
 2. 阅读综合报告 - 它会生成一份按 P0 / P1 / P2 / P3 严重度排序的发现列表，附带 GO / GO-WITH-CONDITIONS / NO-GO 的发布判断。
 
 3. 在发布前修复所有 P0 与 P1 问题。P2 问题可推迟到补丁版本；P3 问题为建议性。
 
-4. 运行 `/generate-sbom` 生成合规文档。
+4. 运行 `/review sbom` 生成合规文档。
 
 #### 5. 发布
 
-1. 运行 `/update-version` - 协调版本检测、目录布局清理、`.gitignore` 审计、所有配置文件中的版本号更新、CHANGELOG 迁移、文档同步以及 DEVLOG 条目。
+1. 运行 `/update release` - 协调版本检测、目录布局清理、`.gitignore` 审计、所有配置文件中的版本号更新、CHANGELOG 迁移、文档同步以及 DEVLOG 条目。
 
 2. 将 `develop` 合并到 `main`，打标签，推送。
 
@@ -159,9 +170,9 @@ Nexus-Hub 提供两个有主张的端到端工作流。可作为起点，再根�
 
 1. 克隆仓库，在 VS Code 中打开，开启 Claude Code 会话。
 
-2. 运行 `/run-deep-review` - 与全新项目工作流第 4 阶段相同的 12 阶段协调器。综合报告中的优先级路线图（P0 / P1 / P2 / P3）即成为你的初始任务积压。
+2. 运行 `/review full` - 与全新项目工作流第 4 阶段相同的 12 阶段协调器。综合报告中的优先级路线图（P0 / P1 / P2 / P3）即成为你的初始任务积压。
 
-3. 如果文档稀缺，可补全：`/generate-readme`（如缺失）、`/generate-changelog`（基于 git 历史）、`/generate-devlog`、`/refactor-project-layout`（仅当存在结构性问题）。
+3. 如果文档稀缺，可补全：`/update docs`（README 如缺失）、`/update changelog`（基于 git 历史）、`/update devlog`、`/update refactor`（仅当存在结构性问题）。
 
 4. 如尚未存在则建立 `develop` 分支。
 
@@ -171,9 +182,9 @@ Nexus-Hub 提供两个有主张的端到端工作流。可作为起点，再根�
 
 对每次变更：
 
-1. 在聊天工具中头脑风暴，然后运行 `/generate-plan` 生成结构化实施计划，保存至 `docs/<version>/plans/<slug>.md`。
+1. 在聊天工具中头脑风暴，然后运行 `/plan` 生成结构化实施计划，保存至 `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<version>-<slug>.md`。
 
-2. 对每个阶段运行 `/implement-phase <slug> <phase>` - 与全新项目工作流的开发循环完全相同。
+2. 运行 `/implement <slug>` 执行整个计划，或按阶段运行 `/implement <slug> phase <N>` - 与全新项目工作流的开发循环完全相同。
 
 3. （可选）使用 git worktree 进行并行工作（例如：在开发新特性的同时修复关键安全 bug）：
 
@@ -183,7 +194,7 @@ Nexus-Hub 提供两个有主张的端到端工作流。可作为起点，再根�
     git worktree remove ../project-fix
     ```
 
-4. 当所有变更合入 `develop` 后，再次运行 `/run-deep-review` 验证未发生回归，然后运行 `/update-version` 并合并到 `main`。
+4. 当所有变更合入 `develop` 后，再次运行 `/review full` 验证未发生回归，然后运行 `/update release` 并合并到 `main`。
 
 QA 与发布步骤与全新项目工作流完全相同。
 
@@ -195,12 +206,12 @@ QA 与发布步骤与全新项目工作流完全相同。
 
 ### 1. Claude Code (Anthropic)
 最强大的集成方式，添加**自主代理能力**。
-- **CLAUDE.md**："大脑"。将 `catalog/CLAUDE.md` 复制到项目根目录并自定义。
+- **CLAUDE.md**："大脑"。将 `templates/ai-instructions/base-claude.md` 复制为项目根目录的 `CLAUDE.md` 并自定义。
 - **技能**："双手"。将 `catalog/skills/` 中的文件夹复制到项目的 `.claude/skills/` 目录。
 
 ### 2. Gemini (Google)
 为 Google Gemini 模型优化的指令。
-- 将 `templates/ai-instructions/generic-instructions.md` 复制到项目或用户配置文件的 `.gemini/GEMINI.md`。
+- 将 `templates/ai-instructions/base-gemini.md`（旧版模板为 `templates/ai-instructions/generic-instructions.md`）复制到项目或用户配置文件的 `.gemini/GEMINI.md`。
 
 ### 3. GitHub Copilot (Microsoft)
 VS Code Copilot Chat 的指令。
@@ -247,22 +258,26 @@ OpenCode IDE 集成。
 
 ## 使用量监控
 
-三种互补方式跟踪你的 Claude Code 使用限制：
+三种互补方式跟踪你的 AI 编码使用限制：
 
 ### CLI 使用量显示（自动）
 Stop 钩子在每次 Claude Code 响应后直接在终端显示使用限制。低于 50% 时静默。
 
-### VS Code 扩展
-从 VS Code 状态栏监控使用量，带完整仪表板。
+### VS Code 与 Cursor 扩展
+从编辑器状态栏监控使用量，带完整仪表板。共有四个可独立安装的扩展：Claude、Codex、Copilot 和 Cursor 使用量监控器，详见 [extensions/](extensions/)。
 
-### `/check-usage` 命令
+### `/usage` 命令
 按需详细使用报告，带模型切换建议。
 
 ---
 
 ## 贡献
 
-发现了更好的提示词？更智能的规则？欢迎提 PR！我们致力于构建 AI 编码的终极知识库。
+发现了更好的提示词或更智能的规则？欢迎提出建议和反馈。本项目通常不接受外部贡献者的拉取请求，请直接联系作者：
+
+- **邮箱**：[benjamin.dourthe@gmail.com](mailto:benjamin.dourthe@gmail.com)
+- **GitHub**：[@bendourthe](https://github.com/bendourthe)
+- **网站**：[benjamindourthe.com](https://www.benjamindourthe.com/)，以及已发布的 [Nexus-Hub 指南](https://www.benjamindourthe.com/nexus-hub/)
 
 ---
 

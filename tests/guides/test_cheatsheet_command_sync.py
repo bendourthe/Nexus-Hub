@@ -95,7 +95,7 @@ def test_the_card_shows_a_minor_and_a_per_plan_example() -> None:
 def test_the_update_card_names_the_closing_pull_request_and_the_checked_cleanup() -> None:
     text = GUIDE.read_text(encoding="utf-8").split('id="page-cheatsheets"', 1)[1]
     body = text.split('class="cs-name">/update</span>', 1)[1].split("</article>", 1)[0]
-    release = re.search(r'<code[^>]*>release</code><span>([^<]+)</span>', body)
+    release = re.search(r'<code[^>]*>release</code><span[^>]*>([^<]+)</span>', body)
     assert release, "the /update card has no release scope"
     assert "closing pull request" in release.group(1)
     assert "checked cleanup" in release.group(1) and "merged, idle" in release.group(1)

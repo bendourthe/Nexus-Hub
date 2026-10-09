@@ -127,6 +127,8 @@ The skill ships ONLY the empty template at `templates/tokens.template.json`. The
     | `business-product/internal-comms` | Apply `voice.do` / `voice.dont` to the chosen template's body before emitting. |
     | `developer-experience/writing-editing` | Apply `voice.tone` and the do/don't lists to the editing pass. |
 
+    Brand tokens set font families, not sizes: take slide font sizes from `pptx-generation` and document and PDF font sizes from `docx-generation`, which own those rules. A size named in the user's brand guidelines counts as an explicit request.
+
 5. **Honor `clear_space_factor`** when placing the logo. A clear-space factor of 1.0 means the empty space around the logo equals the logo's height. Generators that ignore clear-space produce cluttered slides and pages.
 6. **Never invent or substitute brand values**. If the user's brand JSON is missing a key, fail loudly. Do not "tasteful default" your way past missing brand data - silent substitution is the failure mode that ships off-brand artifacts to clients.
 7. **Pair with theme-tokens for fallback aesthetic**. If the user wants "our brand on a brutalist layout", load the user's brand tokens for palette/fonts/logo and the `brutalist-sans` theme tokens for the spacing/radius/shadow character.

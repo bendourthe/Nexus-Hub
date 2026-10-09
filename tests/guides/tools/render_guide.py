@@ -3,6 +3,7 @@
 Dev-only tool for the v4.2.2 guide rebuild (plan sub-task 1.2). Renders
 ``guides/website/nexus-hub-guide.html`` via ``file://`` across every page,
 theme, and width, and writes full-page PNGs under the release evidence tree.
+Since v4.13.10 the ``training`` page is the separate ``training.html``.
 
 Usage:
     python tests/guides/tools/render_guide.py --label phase-1
@@ -27,6 +28,7 @@ from pathlib import Path
 
 _ROOT = Path(__file__).resolve().parents[3]
 GUIDE = _ROOT / "guides" / "website" / "nexus-hub-guide.html"
+TRAINING = _ROOT / "guides" / "website" / "training.html"
 OUT_BASE = (
     _ROOT
     / "docs"
@@ -85,7 +87,7 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
         "--hash",
         dest="extra_hash",
         default="",
-        help="extra hash fragment appended after the page id (e.g. '/describe?beat=1')",
+        help="extra hash fragment appended after the page id (e.g. '/explore')",
     )
     return parser.parse_args(argv)
 
@@ -141,13 +143,12 @@ def main(argv: list[str] | None = None) -> int:
                     )
                     page = context.new_page()
                     for page_id in args.pages:
-                        page.goto(f"{url}#{page_id}{args.extra_hash}")
-                        page.wait_for_timeout(900)  # settle reveals/typewriters
-                        # Full-page shots never scroll, so scroll-gated reveals
-                        # would render transparent; force their end state.
+                        if page_id == "training":
+                            page.goto(f"{TRAINING.resolve().as_uri()}#intro{args.extra_hash}")
+                        else:
+                            page.goto(f"{url}#{page_id}{args.extra_hash}")
+                        page.wait_for_timeout(900)  # settle typewriters
                         page.evaluate(
-                            "document.querySelectorAll('.reveal:not(.in)')"
-                            ".forEach(function (el) { el.classList.add('in'); });"
                             # Sticky + backdrop-filter headers stitch as a dark
                             # band in full-page shots; pin the header in flow.
                             "var h = document.querySelector('.site-header');"

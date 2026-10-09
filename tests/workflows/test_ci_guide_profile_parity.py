@@ -26,11 +26,48 @@ def test_browser_group_is_explicit_only() -> None:
     assert command.env["NEXUS_REQUIRE_RENDER"] == "1"
 
 
-def test_guide_job_invokes_only_the_browser_group() -> None:
+SHARDS = ("guide-browser-engine", "guide-browser-game", "guide-browser-rest")
+
+
+def test_guide_job_runs_one_browser_shard_per_leg() -> None:
     workflow = yaml.safe_load(CI.read_text(encoding="utf-8"))
-    steps = workflow["jobs"]["guide-render"]["steps"]
-    run = next(step for step in steps if step.get("name") == "Run guide and visual detector browser contracts")
+    job = workflow["jobs"]["guide-render"]
+    legs = job["strategy"]["matrix"]["include"]
+    assert [leg["group"] for leg in legs] == list(SHARDS)
+    assert job["strategy"]["fail-fast"] is False, "one slow shard must not cancel the others"
+    run = next(step for step in job["steps"] if step.get("name") == "Run guide and visual detector browser contracts")
     assert run["run"] == (
-        "python scripts/ci/run.py --profile full --only guide-browser --reports-dir reports"
+        "python scripts/ci/run.py --profile full --only ${{ matrix.group }} --reports-dir reports"
     )
     assert "env" not in run
+
+
+def _shard_files(argv: list[str]) -> set[str]:
+    """The test files a shard's pytest arguments select, at file level."""
+    root = CI.parents[2]
+    ignore = {a.split("=", 1)[1] for a in argv if a.startswith("--ignore=")}
+    globs = [a.split("=", 1)[1] for a in argv if a.startswith("--ignore-glob=")]
+    files: set[str] = set()
+    for arg in argv:
+        if arg.startswith("-") or not arg.startswith("tests/"):
+            continue
+        path = root / arg
+        found = sorted(path.glob("**/test_*.py")) if path.is_dir() else [path]
+        files.update(p.relative_to(root).as_posix() for p in found)
+    skipped = {f for f in files if f in ignore or any(Path(f).match(g) for g in globs)}
+    return files - skipped
+
+
+def test_the_browser_shards_partition_the_whole_suite() -> None:
+    """Every guide test file runs in exactly one CI shard, so none is dropped or run twice."""
+    groups = {group.name: group for group in groups_for("full")}
+    whole = _shard_files(groups["guide-browser"].commands[0].argv)
+    parts = [_shard_files(groups[name].commands[0].argv) for name in SHARDS]
+    assert all(parts), "every shard selects at least one file"
+    assert set().union(*parts) == whole, "the shards together cover the whole suite"
+    assert sum(len(p) for p in parts) == len(whole), "no file runs in two shards"
+    for name in SHARDS:
+        command = groups[name].commands[0]
+        assert command.env["NEXUS_REQUIRE_RENDER"] == "1", name
+        junit = name.replace("guide-browser", "guide-render")
+        assert f"--junitxml=reports/junit/{junit}.xml" in command.argv, name

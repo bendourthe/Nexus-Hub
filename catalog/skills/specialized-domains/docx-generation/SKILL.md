@@ -76,6 +76,17 @@ Full walkthrough: [step-7-mail-merge-and-batch-generation.md](references/step-7-
 
 Full walkthrough: [step-8-testing-and-validation.md](references/step-8-testing-and-validation.md) (load this step when you reach it).
 
+## Font Sizes
+
+This skill owns the report and document font-size rule, including PDF reports built through `pdf-document-generation`. Other skills reference it and do not restate it.
+
+1. Pick every font size from Word's standard list, without half sizes: 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72.
+2. Set body text to 11 or 12.
+3. Never go below 10 pt (footers, captions, table cells, footnotes and code included) unless the user explicitly asks for a smaller size.
+4. Never use an odd or fractional value such as 13, 15, 10.5 or 21.5. If text does not fit, adjust the layout (column widths, wrapping, margins) or step to the next standard size.
+5. Convert units before checking. docx-js `size` is in half-points (`size: 22` is 11 pt), and CSS for HTML-to-PDF uses `pt`, never `px`.
+6. After saving a .docx, run `python <pptx-generation skill folder>/scripts/check_font_sizes.py <report.docx>` (exit 0 clean, 1 violation, 2 usage error). It checks run sizes and the styles the document uses. A size the user explicitly asked for is passed with `--allow <pt>`.
+
 ## Best Practices
 
 - **Separate data from presentation**: Keep your document templates as pure layout with template variables. Business logic and data transformation belong in Python/JS code, not in Jinja2 expressions
@@ -128,6 +139,8 @@ def record_saved(path) -> None:
 | "I'll set paragraph.text directly, runs are extra work" | Assigning `.text` collapses the paragraph to one unformatted run and silently drops any bold, color, or size you set. Building explicit runs is the only way formatting survives. |
 | "The template renders for the sample data, ship it" | The empty-list loop, the None value, and the long-string overflow are the cases that break in production, not the happy-path sample. A CI smoke render with edge-case data is what catches them. |
 | "Reusing one DocxTemplate instance across the batch is faster" | A reused template carries state from the previous render, so row 2 inherits row 1's content. Loading a fresh DocxTemplate per record is the documented requirement, not an optimization to skip. |
+| "13 pt or 10.5 pt fits the table better" | Odd and half sizes look unintentional and break the document's type scale. Pick the nearest standard size (12 or 14, 10 or 11) and adjust column widths or wrapping instead. |
+| "8 pt is fine for the footer" | Text below 10 pt is hard to read in print and on screen. Keep footers and captions at 10 or cut the text. |
 | "It opens in my Word, that is enough verification" | A DOCX that renders in desktop Word can still break in LibreOffice or Word Online and may leave unreplaced `{{` tags a quick read misses. Validate the ZIP structure and assert no leftover tags. |
 
 ## Verification
@@ -136,6 +149,7 @@ def record_saved(path) -> None:
 - [ ] No unreplaced template tags (`{{` or `{%`) remain in any generated document
 - [ ] A content-extraction test confirms every expected data field appears in the rendered output
 - [ ] Actual native page renders show every table, image and text run within its intended page or column bounds; unavailable native rendering remains unverified
+- [ ] Every font size in the generated document is in the standard Word list and at least 10 pt (or explicitly requested), with body text at 11 or 12: `check_font_sizes.py <report.docx>` exits 0
 - [ ] The batch generator records per-record failures without aborting the whole run
 - [ ] Document properties (title, author, subject) are set on `core_properties`
 - [ ] A CI smoke test renders the template with sample (including empty-list and None) data and passes

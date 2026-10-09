@@ -1,0 +1,4 @@
+/* ---------- Site footer (attribution lives here; decision 2026-09-02) ---------- */
+.site-footer{border-top:1px solid var(--border);margin-top:var(--sp-8);padding:var(--sp-5) 0 var(--sp-6);color:var(--ink-faint);font-size:15px;line-height:1.6;text-align:center;}
+.site-footer p{margin:0 auto;}
+.site-footer a{color:var(--ink-dim);text-decoration:underline;}

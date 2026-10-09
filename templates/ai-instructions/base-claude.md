@@ -44,6 +44,8 @@ Do not produce the high-frequency AI-cliche moves: throat-clearing openers; "not
 
 Punctuation is ASCII only: no em-dashes, no clause-joining spaced hyphens, punctuation placed outside quotation marks by logic, and no hard-wrapping of paragraph text. Keep a professional teaching tone.
 
+Headings are keyword labels ("Project Mapping", "Release Notes"), never sentences: no verb clause, period, or question, in any document, page, slide, or UI label.
+
 Chatbot leftovers are defects, not style: never emit "as an AI language model", "here is the revised version", or "I hope this helps".
 
 Self-check: before returning any response or writing any file, scan your own output against this list and fix what you find. This binds live chat replies, not only generated documents.

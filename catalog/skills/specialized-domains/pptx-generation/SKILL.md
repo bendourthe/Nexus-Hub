@@ -76,6 +76,16 @@ Full walkthrough: [step-7-template-based-generation.md](references/step-7-templa
 
 Full walkthrough: [step-8-testing-and-quality-assurance.md](references/step-8-testing-and-quality-assurance.md) (load this step when you reach it).
 
+## Font Sizes
+
+This skill owns the slide font-size rule. Other skills reference it and do not restate it.
+
+1. Pick every font size from PowerPoint's standard list: 12, 14, 16, 18, 20, 24, 28, 32, 36, 40, 44, 48, 54, 60, 66, 72, 80, 88, 96.
+2. Never go below 12 pt (captions, footers, table cells, chart labels and source lines included) unless the user explicitly asks for a smaller size.
+3. Never use an odd or fractional value such as 13, 15, 10.5 or 21.5. If text does not fit, change the layout (shorter copy, wider box, split the slide) or step to the next standard size.
+4. Start from these defaults: title 36 to 44, headings 24 to 28, body 18 to 24, captions and footers 12 to 14.
+5. After saving, run `python scripts/check_font_sizes.py <deck.pptx>` (exit 0 clean, 1 violation, 2 usage error). It reads explicit sizes on slides and charts only. A size the user explicitly asked for is passed with `--allow <pt>`.
+
 ## Existing-Deliverable Revision
 
 Once a deliverable exists, the user may have edited it, so revising it follows `user-edit-preservation`, which owns this procedure:
@@ -116,6 +126,8 @@ def record_saved(path) -> None:
 | "The deck looks right when I open it, no need to assert content" | Visual inspection misses the slide whose data field silently rendered empty because the placeholder name changed. Extracting and asserting text content is the only check that scales past a handful of slides. |
 | "Embedding full-resolution images is fine" | Unoptimized images balloon a deck to tens of megabytes that will not email or upload; resizing before embedding keeps the file within budget. |
 | "The chart shows numbers, so the data is correct" | A chart can render with the wrong series mapped to the wrong axis and still look plausible. Re-reading the chart XML and asserting the series values is what catches a swapped column. |
+| "13 pt fits the box better than 12 or 14" | Odd sizes look unintentional, drift slide to slide and break the deck's type scale. Pick 12 or 14 and adjust the layout instead. |
+| "A 10 pt footnote is fine, nobody reads it" | Text below 12 pt is hard to read when projected or shared on a call. Keep it at 12 or cut the text. |
 | "The deck has fade transitions, so the required motion is covered" | A transition can reveal a fully drawn static chart and process. Verify the planned native shape/series effects and automatic triggers, then inspect timed native playback. |
 
 ## Verification
@@ -125,6 +137,7 @@ def record_saved(path) -> None:
 - [ ] A content-extraction test asserts the expected text appears on each slide (not visual inspection)
 - [ ] Table dimensions (rows, columns) match the input data
 - [ ] Speaker notes are populated where expected and hyperlinks resolve to valid URLs
+- [ ] Every font size in the generated deck is in the standard slide list and at least 12 pt (or explicitly requested): `python scripts/check_font_sizes.py <deck.pptx>` exits 0
 - [ ] Output file size stays within budget (images optimized before embedding)
 - [ ] A LibreOffice headless conversion runs in CI for visual regression
 - [ ] When retained motion is required, its process/comparison and chart-series effects exist with automatic triggers, and native timed playback confirms the intended sequence; unavailable playback remains explicitly unverified

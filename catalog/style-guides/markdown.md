@@ -163,6 +163,7 @@ Continuing paragraph.
 - Always a blank line before AND after a heading.
 - Skip exactly one level when descending (do not jump from `##` to `####`).
 - One `#` (H1) per document, used as the title.
+- Headings are keyword labels, never sentences: a noun or short noun phrase (`## Damage Fix`, not `## Fix the damage so hits cost health`), with no verb clause, no trailing period, and no question.
 
 ### 10. Hard-wrap rule
 

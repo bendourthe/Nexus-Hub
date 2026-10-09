@@ -220,10 +220,17 @@ Smell: a closing paragraph that restates what the reader just read. "In conclusi
 
 ### Formatting slop
 
-Smell: emoji bullets, bold on every other phrase, Title Case On Every Heading, and a bulleted list where a sentence would do.
+Smell: emoji bullets, bold on every other phrase, and a bulleted list where a sentence would do.
 
 - Before: a five-item bulleted list, each item two words, each with a leading emoji.
 - After: one sentence, or a list only where the items are genuinely parallel and worth scanning.
+
+### Sentence headings
+
+Smell: a heading written as a sentence or a clause, often an imperative or a promise, where a keyword label would do. Headings are keywords, never sentences: a noun or a short noun phrase, with no verb clause, no trailing period, and no question.
+
+- Before: "Map the code before touching it", "Why this matters", "Turn the finding into a plan".
+- After: "Project Mapping", "Motivation", "Damage Fix Plan".
 
 ### Em-dash discipline
 

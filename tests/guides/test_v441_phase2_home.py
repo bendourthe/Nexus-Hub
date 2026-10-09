@@ -253,32 +253,32 @@ _HOOKS_DIR = _ROOT / "catalog" / "hooks"
 # drift still fails.
 EXPECTED_HOME_ORDER = [
     "A skill harness for agentic AI platforms",
-    "Limits of raw prompting",
-    "One-command install",
-    "Skills, hooks, and governance",
-    "Security guardrails",
-    "Raw prompting vs Nexus Hub",
-    "Platform coverage",
-    "The development loop",
+    "Installation",
+    "Skills, Hooks, and Governance",
+    "Security Guardrails",
+    "Raw Prompting vs Nexus Hub",
+    "Platform Coverage",
+    "The Development Workflow",
 ]
 
 
-def _section_words(page, section_id: str) -> int:
+def _section_words(page, section_id: str, drop: str = "") -> int:
     """Word count of a section's RESTORED prose.
 
     v4.4.4 adds content to a restored section that v4.1.2 never had, the portability figure the
     operator asked for, so measuring it against a v4.1.2 baseline measures the wrong thing. Blocks
     marked `data-v444-new` are excluded here and capped separately in the test below, which keeps
     both halves honest: restored prose still cannot creep back toward its old length, and the new
-    block cannot grow without a number on it.
+    block cannot grow without a number on it. `drop` removes further parts: v4.13.10 R47 counts
+    only the benefit prose of the hero figure, not its illustration labels or the platform names.
     """
     return page.evaluate(
-        """id => { const sec = document.getElementById(id).cloneNode(true);
-             sec.querySelectorAll('[data-v444-new]').forEach(e => e.remove());
+        """([id, drop]) => { const sec = document.getElementById(id).cloneNode(true);
+             sec.querySelectorAll('[data-v444-new]' + drop).forEach(e => e.remove());
              document.body.appendChild(sec);
              const n = sec.innerText.replace(/\s+/g, ' ').trim().split(' ').length;
              sec.remove(); return n; }""",
-        section_id,
+        [section_id, drop],
     )
 
 
@@ -305,8 +305,9 @@ def test_home_hero_statement_is_centred_and_exact(playwright_mod) -> None:
                         leadStart: lead.textContent.trim().slice(0, 58),
                         subCentre: c(sub), leadCentre: c(lead), railCentre: c(rail),
                         subAlign: getComputedStyle(sub).textAlign,
-                        gradFill: getComputedStyle(document.querySelector('.gtext')).webkitTextFillColor,
-                        gradColor: getComputedStyle(document.querySelector('.gtext')).color,
+                        gradFill: getComputedStyle(sub).webkitTextFillColor,
+                        gradColor: getComputedStyle(sub).color,
+                        gradSpans: sub.querySelectorAll('.gtext').length,
                         subSize: parseFloat(getComputedStyle(sub).fontSize),
                         tagline: !!document.querySelector('.hero-tagline'),
                         credits: !!document.querySelector('#page-home .platform-credits'),
@@ -319,8 +320,9 @@ def test_home_hero_statement_is_centred_and_exact(playwright_mod) -> None:
     assert data["leadStart"] == "Nexus Hub is an advanced harness for agentic AI platforms."
     assert data["subAlign"] == "center"
     assert abs(data["subCentre"] - data["railCentre"]) < 2 and abs(data["leadCentre"] - data["railCentre"]) < 2
-    # The gradient paints through text-fill-color while `color` stays a real, measurable colour.
-    assert data["gradFill"] in ("rgba(0, 0, 0, 0)", "transparent")
+    # v4.13.10 R21: no gradient words; the statement paints in solid ink.
+    assert data["gradSpans"] == 0
+    assert data["gradFill"] not in ("rgba(0, 0, 0, 0)", "transparent")
     assert data["gradColor"] not in ("rgba(0, 0, 0, 0)", "transparent")
     # The hero statement is now sized by the --ty-h1 token, whose ceiling is
     # 2.3rem (36.8px). The floor is set below the observed value rather than at
@@ -344,15 +346,16 @@ def test_home_sections_render_in_the_agreed_order(playwright_mod) -> None:
 
 def test_restored_sections_are_at_most_two_thirds_of_their_v412_word_count(playwright_mod) -> None:
     fixture = _json.loads(_FIXTURE.read_text(encoding="utf-8"))["sections"]
-    ids = {"why-it-matters": "nhg-why", "how-it-works": "nhg-how", "favorite-commands": "nhg-commands"}
+    ids = {"why-it-matters": "nhg-benefits", "how-it-works": "nhg-how", "favorite-commands": "nhg-commands"}
     with playwright_mod() as pw:
         browser, page = _launch(pw)
         try:
-            counts = {key: _section_words(page, sid) for key, sid in ids.items()}
+            drop = {"nhg-benefits": ", .hb-ill, .platform-rail"}
+            counts = {key: _section_words(page, sid, drop.get(sid, "")) for key, sid in ids.items()}
             portability = _new_block_words(page, "#nhg-commands [data-v444-new]")
             merged = page.evaluate(
                 "() => { const h = [...document.querySelectorAll('#page-home .section-title')]"
-                ".find(e => e.textContent.trim() === 'Raw prompting vs Nexus Hub');"
+                ".find(e => e.textContent.trim() === 'Raw Prompting vs Nexus Hub');"
                 " return h.closest('section').innerText.replace(/\\s+/g, ' ').trim().split(' ').length; }"
             )
         finally:

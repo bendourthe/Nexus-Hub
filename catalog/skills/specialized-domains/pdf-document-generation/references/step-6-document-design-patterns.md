@@ -74,11 +74,11 @@ def create_report_with_toc(output_path: str, chapters: list[dict]) -> None:
             leftIndent=0, spaceBefore=6,
         ),
         ParagraphStyle(
-            "TOCLevel1", fontName="Helvetica", fontSize=10,
+            "TOCLevel1", fontName="Helvetica", fontSize=11,
             leftIndent=20, spaceBefore=3,
         ),
         ParagraphStyle(
-            "TOCLevel2", fontName="Helvetica", fontSize=9,
+            "TOCLevel2", fontName="Helvetica", fontSize=10,
             leftIndent=40, spaceBefore=2,
         ),
     ]
@@ -140,7 +140,7 @@ def header_footer_with_watermark(canvas, doc):
     add_watermark(canvas, doc, text="CONFIDENTIAL", opacity=0.06)
     # Add regular header/footer
     canvas.saveState()
-    canvas.setFont("Helvetica", 8)
+    canvas.setFont("Helvetica", 10)
     canvas.drawRightString(A4[0] - 20 * mm, 12 * mm, f"Page {doc.page}")
     canvas.restoreState()
 ```
@@ -159,7 +159,7 @@ function addBookmarkedSections(doc, sections) {
       .text(section.title);
 
     doc
-      .fontSize(10)
+      .fontSize(11)
       .font("Helvetica")
       .text(section.body)
       .moveDown(2);
@@ -169,7 +169,7 @@ function addBookmarkedSections(doc, sections) {
       for (const sub of section.subsections) {
         outlineRef.addItem(sub.title);
         doc.fontSize(14).font("Helvetica-Bold").text(sub.title);
-        doc.fontSize(10).font("Helvetica").text(sub.body).moveDown(1);
+        doc.fontSize(11).font("Helvetica").text(sub.body).moveDown(1);
       }
     }
 
@@ -184,7 +184,7 @@ Puppeteer's `footerTemplate` supports built-in CSS classes that are replaced at 
 
 ```javascript
 const footerTemplate = `
-  <div style="font-size:8px; color:#666; width:100%;
+  <div style="font-size:10pt; color:#666; width:100%;
               text-align:center; padding: 5mm 0;">
     Page <span class="pageNumber"></span>
     of <span class="totalPages"></span>

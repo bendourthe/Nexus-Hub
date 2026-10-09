@@ -82,9 +82,9 @@ HOME_RUNTIME_METRICS = r"""
     };
   }
 
-  const lockup = document.querySelector(".hero-lockup.in");
+  const lockup = document.querySelector(".hero-lockup");
   const wordmark = document.querySelector(".hero-wordmark");
-  if (!lockup || !wordmark) throw new Error("Home hero lockup did not enter its revealed state");
+  if (!lockup || !wordmark) throw new Error("Home hero lockup did not render");
   const wordmarkRange = document.createRange();
   wordmarkRange.selectNodeContents(wordmark);
 
@@ -260,7 +260,7 @@ def test_home_runtime_contract_across_themes_and_widths(
                     try:
                         page.goto(f"{guide_url}#home", wait_until="load")
                         page.wait_for_selector(
-                            ".hero-lockup.in",
+                            ".hero-lockup",
                             state="attached",
                             timeout=3000,
                         )
@@ -334,8 +334,9 @@ def test_home_runtime_contract_across_themes_and_widths(
                         )
 
                         verify_numerals = metrics["verifyNumerals"]
-                        assert len(verify_numerals) == 2, (
-                            f"{case}: expected two visible verification numerals, "
+                        # v4.13.10 R52 adds the installed-version step as step 3.
+                        assert len(verify_numerals) == 3, (
+                            f"{case}: expected three visible verification numerals, "
                             f"got {len(verify_numerals)}"
                         )
                         low_numeral_contrast = [
@@ -533,7 +534,7 @@ def test_foundations_phase2_diagrams_are_legible_at_release_and_breakpoint_width
             browser.close()
 
 
-def test_training_cold_deep_link_accepts_and_discards_legacy_beat(
+def test_legacy_training_deep_link_redirects_to_the_training_page(
     render_gate: object,
 ) -> None:
     _require_browser(render_gate)
@@ -549,24 +550,20 @@ def test_training_cold_deep_link_accepts_and_discards_legacy_beat(
             context.route(re.compile(r"^https?://"), lambda route: route.abort())
             page = context.new_page()
             try:
+                # v4.13.10: an old link, even one carrying the retired ?beat= query,
+                # lands on the matching stage of the separate Training page.
                 page.goto(
                     f"{guide_url}#training/review?beat=1",
                     wait_until="load",
                 )
-                page.wait_for_selector(
-                    '.page.active[data-page="training"]',
-                    state="visible",
-                    timeout=3000,
-                )
+                page.wait_for_url(re.compile(r"training\.html#review$"), timeout=3000)
                 page.wait_for_function(
-                    "() => window.NexusTraining && window.NexusTraining.snapshot().sectionId === 'describe-review'",
+                    "() => window.NexusTrainingPage && NexusTrainingPage.stage() === 'review'",
                     timeout=3000,
                 )
-                assert page.evaluate("window.NexusTraining.snapshot().actionIndex") == 0
-                section = page.locator('[data-nht-section="describe-review"]')
-                assert section.locator("h2").inner_text() == "Map the bug, then review it"
-                section.locator('[data-nht-action-index="1"]').click()
-                assert section.locator('[data-nht="command"]').inner_text() == "/review"
+                page.evaluate("NexusTrainingPage.story().finish('review')")
+                stage = page.locator('section[data-stage="review"]')
+                assert stage.locator(".ide-msg--user .ide-cmd").first.inner_text() == "/review"
             finally:
                 context.close()
         finally:
@@ -594,18 +591,16 @@ def test_training_page_navigation_does_not_overflow_at_320px(
             )
             page = context.new_page()
             try:
-                page.goto(f"{guide_url}#training", wait_until="load")
-                page.wait_for_selector(
-                    '.page.active[data-page="training"]',
-                    state="visible",
+                # v4.13.10: Training is training.html, whose stage outline is its page navigation.
+                page.goto(f"{renderer.TRAINING.resolve().as_uri()}#intro", wait_until="load")
+                page.wait_for_function(
+                    "() => window.NexusTrainingPage && NexusTrainingPage.stage() === 'intro'",
                     timeout=3000,
                 )
                 page.add_style_tag(
-                    content=".pagenav, .pagenav * { font-family: Arial, sans-serif !important; }"
+                    content=".pg-outline, .pg-outline * { font-family: Arial, sans-serif !important; }"
                 )
-                metrics = page.locator(
-                    '.page.active[data-page="training"] .pagenav'
-                ).evaluate(
+                metrics = page.locator(".pg-outline").evaluate(
                     """
                     nav => ({
                       documentWidth: document.documentElement.scrollWidth,

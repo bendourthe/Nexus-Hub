@@ -82,6 +82,8 @@ MEASURE = """() => {
       const cs = getComputedStyle(el);
       const lh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.2;
       const r = el.getBoundingClientRect();
+      /* Count lines inside the padding and the rule above an H2, not across them. */
+      const inner = r.height - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - parseFloat(cs.borderTopWidth) - parseFloat(cs.borderBottomWidth);
       const host = el.parentElement, hcs = getComputedStyle(host);
       const avail = host.clientWidth - parseFloat(hcs.paddingLeft) - parseFloat(hcs.paddingRight);
       /* the glyph run, not the box: a capped box hides its own overflow */
@@ -93,7 +95,7 @@ MEASURE = """() => {
         px: +parseFloat(cs.fontSize).toFixed(2),
         base: +parseFloat(el.getAttribute('data-fit-base')).toFixed(2),
         wrap: el.getAttribute('data-fit-wrap'),
-        lines: Math.max(1, Math.round(r.height / lh)),
+        lines: Math.max(1, Math.round(inner / lh)),
         spill: +(ink - avail).toFixed(1),
       });
     });
@@ -101,40 +103,25 @@ MEASURE = """() => {
 }"""
 
 
-def test_label_is_tripled_and_title_is_halved(playwright_mod) -> None:
-    """One token each: the label at three times 11px, the title at half the v4.4.2 65.3px."""
+def test_section_titles_stand_alone_without_eyebrow_labels(playwright_mod) -> None:
+    """v4.13.10 R21: the eyebrow labels above section titles are gone; the title carries the keyword."""
     with playwright_mod() as pw:
         browser = pw.chromium.launch()
         try:
             ctx, page = _page(browser, 1440, "home")
             data = page.evaluate(
                 """() => {
-                    const eb = document.querySelector('#nhg-why .eyebrow');
-                    const ti = document.querySelector('#nhg-why .section-title');
-                    const root = getComputedStyle(document.documentElement);
-                    return {
-                        label: +parseFloat(eb.getAttribute('data-fit-base')).toFixed(2),
-                        title: +parseFloat(ti.getAttribute('data-fit-base')).toFixed(2),
-                        eyebrowToken: root.getPropertyValue('--eyebrow-scale').trim(),
-                        titleToken: root.getPropertyValue('--title-scale').trim(),
-                    };
+                    const ti = document.querySelector('#nhg-install .section-title');
+                    return { eyebrows: document.querySelectorAll('#page-home .eyebrow').length,
+                             title: parseFloat(getComputedStyle(ti).fontSize), text: ti.textContent.trim() };
                 }"""
             )
             ctx.close()
         finally:
             browser.close()
-    assert data["eyebrowToken"] == "3", data
-    assert data["titleToken"] == "1.2", data
-    # The v4.19 migration gave the eyebrow an explicit data-ty="eyebrow" role, so
-    # the token system now sizes it (15px) instead of the hand-set 33px from
-    # v4.4.3, and the title moved 32.64px -> 27.2px on the same scale. The size
-    # is still token-derived rather than hand-written, and the title still
-    # outranks the label, which is what this test exists to protect.
-    assert data["label"] == pytest.approx(15, abs=0.6), data
-    assert data["title"] == pytest.approx(27.2, abs=1.2), data
-    assert data["title"] > data["label"], (
-        f"the section title must outrank its eyebrow; got {data}"
-    )
+    assert data["eyebrows"] == 0, data
+    assert data["text"] == "Installation", data
+    assert data["title"] >= 26, data
 
 
 @pytest.mark.parametrize("width", ONE_LINE_WIDTHS)
@@ -214,3 +201,173 @@ def test_static_document_never_addresses_the_reader(guide_text: str) -> None:
     facing = re.findall(r'(?:aria-label|alt|title|data-th|placeholder)="([^"]*)"', body)
     offenders = [v for v in facing if SECOND_PERSON.search(v)]
     assert not offenders, offenders
+
+
+# --- One heading system (v4.13.10 R21) ----------------------------------------------------
+
+TRAINING = GUIDE.with_name("training.html")
+SMALL_WORDS = {"a", "an", "and", "as", "at", "by", "for", "in", "of", "on", "or", "the", "to", "vs", "with"}
+HEADINGS_JS = """() => [...document.querySelectorAll('main h1, main h2, main h3')]
+  .filter(h => h.getClientRects().length && !h.closest('figure, .pg-fig, .ide, .ss-host, .cx-preview, .tr-reward'))
+  .map(h => { const c = getComputedStyle(h);
+    return { tag: h.tagName, text: h.textContent.trim(), size: c.fontSize, weight: c.fontWeight, color: c.color,
+             gradient: c.webkitTextFillColor === 'rgba(0, 0, 0, 0)' || /gradient/.test(c.backgroundImage) }; })"""
+
+
+def _routes():
+    return [(GUIDE.as_uri() + "#home", "home"), (GUIDE.as_uri() + "#foundations", "foundations"),
+            (GUIDE.as_uri() + "#cheatsheets", "cheatsheets"), (TRAINING.as_uri(), "training")]
+
+
+def _headings(playwright_mod) -> dict:
+    out = {}
+    with playwright_mod() as pw:
+        browser = pw.chromium.launch()
+        try:
+            for url, name in _routes():
+                page = browser.new_page(viewport={"width": 1440, "height": 900})
+                page.goto(url)
+                page.wait_for_timeout(500)
+                out[name] = page.evaluate(HEADINGS_JS)
+                page.close()
+        finally:
+            browser.close()
+    return out
+
+
+def test_every_page_shares_one_heading_style(playwright_mod) -> None:
+    """Maintainer review 7: Home, Foundations, Cheatsheets, and Training styled headings differently."""
+    pages = _headings(playwright_mod)
+    for tag in ("H2", "H3"):
+        styles = {name: {(h["size"], h["weight"], h["color"]) for h in hs if h["tag"] == tag} for name, hs in pages.items()}
+        seen = set().union(*styles.values())
+        assert len(seen) == 1, f"{tag} differs across pages: {styles}"
+    page_h1 = {name: {(h["size"], h["weight"]) for h in hs if h["tag"] == "H1"} for name, hs in pages.items() if name != "home"}
+    assert len(set().union(*page_h1.values())) == 1, f"page titles differ: {page_h1}"
+    h1 = float(next(iter(set().union(*page_h1.values())))[0][:-2])
+    h2 = float(next(h["size"] for h in pages["foundations"] if h["tag"] == "H2")[:-2])
+    assert h1 >= h2 * 1.4, "H1 must be clearly more prominent than H2"
+    assert not [h["text"] for hs in pages.values() for h in hs if h["gradient"]], "no gradient words in headings"
+
+
+def test_headings_are_keyword_labels_never_sentences(playwright_mod) -> None:
+    """Maintainer review 7: headings are keywords in Title Case, never sentences."""
+    bad = []
+    for name, hs in _headings(playwright_mod).items():
+        for h in hs:
+            text = h["text"]
+            if not text:
+                continue
+            words = re.findall(r"[A-Za-z][A-Za-z0-9'-]*", text)
+            lowered = [w for w in words if w[0].islower() and w.lower() not in SMALL_WORDS]
+            if text[-1] in ".?!" or len(words) > 6 or lowered:
+                bad.append((name, h["tag"], text))
+    assert not bad, bad
+
+
+def test_no_eyebrow_lines_or_dash_prefixes_render(playwright_mod) -> None:
+    with playwright_mod() as pw:
+        browser = pw.chromium.launch()
+        try:
+            for url, name in _routes():
+                page = browser.new_page(viewport={"width": 1440, "height": 900})
+                page.goto(url)
+                page.wait_for_timeout(400)
+                shown = page.evaluate("[...document.querySelectorAll('main .eyebrow, main .tr-kicker')].filter(e => e.getClientRects().length).length")
+                # R27: the H2 marker is the round accent dot; a dash (a wide, flat bar) must never return.
+                dash = page.evaluate("[...document.querySelectorAll('main h2')].filter(h => { const b = getComputedStyle(h, '::before');"
+                                     " return b.content !== 'none' && Math.abs(parseFloat(b.width) - parseFloat(b.height)) > .5; }).length")
+                assert shown == 0 and dash == 0, (name, shown, dash)
+                page.close()
+        finally:
+            browser.close()
+
+
+# --- Text roles and the H2 dot (v4.13.10 R27, T100) ---------------------------------------
+TYPE_CSS = GUIDE.parent / "shared" / "type.css"
+# Illustration internals and controls, exactly as type.css documents them.
+ROLE_EXEMPT = ['figure', '.pg-fig', '.ide', '.ss-host', '.tro', '.fxo', '.cx-preview', 'svg', '.fx-diagram', '.ml-flow',
+               '.ml-tier-list', '.ml-scale', '.ph', '.term', '.loop-strip', '.tr-flow', '.ide-wrap', '.hero-lockup', '.hb', '.tm']
+ROLE_AUDIT_JS = """(exempt) => {
+  exempt = exempt + ', .tr-reward, [aria-hidden="true"]';
+  const CONTROL = 'nav, button, summary, .pagenav';
+  const PHRASING = new Set(['STRONG','B','EM','I','A','ABBR','SUP','SUB','MARK','KBD','S','U','Q','CITE','DFN','TIME','BR','WBR','SMALL']);
+  const ALL = ['fontSize','fontWeight','lineHeight','letterSpacing','color','fontFamily'], METRIC = ['fontSize','letterSpacing','fontFamily'];
+  const main = document.querySelector('main'), host = document.querySelector('.page.active .container') || main, refs = {};
+  const ref = (role, tone) => { const k = role + '|' + (tone || '');
+    if (!refs[k]) { const d = document.createElement('div'); d.dataset.ty = role; if (tone) d.dataset.tone = tone; d.textContent = 'x';
+      host.appendChild(d); const c = getComputedStyle(d); refs[k] = Object.fromEntries(ALL.map(p => [p, c[p]])); d.remove(); }
+    return refs[k]; };
+  const out = [];
+  let checked = 0;
+  for (const el of main.querySelectorAll('*')) {
+    if (PHRASING.has(el.tagName) || ['SCRIPT','STYLE','TEMPLATE','NOSCRIPT'].includes(el.tagName)) continue;
+    if (!el.getClientRects().length || el.closest(exempt)) continue;
+    if (![...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())) continue;
+    const cs = getComputedStyle(el), r = el.getBoundingClientRect();
+    if (cs.visibility === 'hidden' || r.width < 1 || r.height < 1) continue;
+    checked++;
+    const text = el.textContent.trim().replace(/\\s+/g, ' ').slice(0, 40), name = el.tagName + '.' + [...el.classList].join('.');
+    const owner = el.closest('[data-ty]');
+    if (!owner) { out.push([name, text, 'no role']); continue; }
+    const want = ref(owner.dataset.ty, owner.dataset.tone);
+    for (const p of (el.closest(CONTROL) ? METRIC : ALL)) if (cs[p] !== want[p]) out.push([name, text, owner.dataset.ty, p, cs[p], want[p]]);
+  }
+  return { checked, out };
+}"""
+DOT_JS = """() => { const probe = document.createElement('i'); probe.style.color = 'var(--accent)'; document.body.appendChild(probe);
+  const accent = getComputedStyle(probe).color; probe.remove();
+  const vis = h => h.getClientRects().length && !h.closest('figure, .pg-fig, .ide, .ss-host, .cx-preview, .tr-reward');
+  const h2 = [...document.querySelectorAll('main h2')].filter(vis).map(h => { const c = getComputedStyle(h), b = getComputedStyle(h, '::before');
+    const w = parseFloat(b.width), top = parseFloat(b.top);
+    return { text: h.textContent.trim(), content: b.content, round: b.borderTopLeftRadius === '50%' || parseFloat(b.borderTopLeftRadius) >= w / 2,
+             square: Math.abs(w - parseFloat(b.height)) < .5 && w > 0, bg: b.backgroundColor, accent,
+             centre: top + parseFloat(b.height) / 2, line: parseFloat(c.paddingTop) + parseFloat(c.lineHeight) / 2,
+             after: getComputedStyle(h, '::after').content }; });
+  const h3 = [...document.querySelectorAll('main h3')].filter(vis).map(h => [h.textContent.trim(), getComputedStyle(h, '::before').content]);
+  return { h2, h3 }; }"""
+
+
+def _each_page(playwright_mod, script: str, arg=None) -> dict:
+    out = {}
+    with playwright_mod() as pw:
+        browser = pw.chromium.launch()
+        try:
+            for url, name in _routes():
+                page = browser.new_page(viewport={"width": 1440, "height": 900})
+                page.goto(url)
+                page.wait_for_timeout(500)
+                out[name] = page.evaluate(script, arg) if arg is not None else page.evaluate(script)
+                page.close()
+        finally:
+            browser.close()
+    return out
+
+
+def test_the_exemptions_are_the_ones_type_css_documents() -> None:
+    comment = TYPE_CSS.read_text(encoding="utf-8").split("*/", 1)[0]
+    missing = [sel for sel in ROLE_EXEMPT if sel not in comment]
+    assert not missing, f"type.css must document every exemption the audit uses: {missing}"
+
+
+def test_every_text_element_renders_with_its_role(playwright_mod) -> None:
+    """Maintainer review (revision 7): every text element has a named role whose style lives in type.css."""
+    pages = _each_page(playwright_mod, ROLE_AUDIT_JS, ", ".join(ROLE_EXEMPT))
+    for name, res in pages.items():
+        assert res["checked"] > 20, (name, res["checked"])
+    bad = {name: res["out"][:10] for name, res in pages.items() if res["out"]}
+    assert not bad, bad
+
+
+def test_every_h2_carries_the_accent_dot_and_no_h3_does(playwright_mod) -> None:
+    """Maintainer review (revision 7): one coloured dot left of every H2, centred on its first line; never on an H3."""
+    pages = _each_page(playwright_mod, DOT_JS)
+    for name, res in pages.items():
+        assert res["h2"], name
+        for h in res["h2"]:
+            assert h["content"] in ('""', "''") and h["round"] and h["square"], (name, h)
+            assert h["bg"] == h["accent"], (name, h)
+            assert abs(h["centre"] - h["line"]) <= 1, (name, h)
+            assert h["after"] in ("none", "normal"), (name, h)
+        dotted = [t for t, content in res["h3"] if content not in ("none", "normal")]
+        assert not dotted, (name, dotted)

@@ -29,12 +29,12 @@ async function htmlToPdf(htmlContent, outputPath, options = {}) {
       },
       displayHeaderFooter: true,
       headerTemplate: `
-        <div style="font-size:8px; color:#888; width:100%; padding:0 20mm;">
+        <div style="font-size:10pt; color:#888; width:100%; padding:0 20mm;">
           <span style="float:left;">ACME Corporation</span>
           <span style="float:right;">Confidential</span>
         </div>`,
       footerTemplate: `
-        <div style="font-size:8px; color:#888; width:100%; text-align:center; padding:0 20mm;">
+        <div style="font-size:10pt; color:#888; width:100%; text-align:center; padding:0 20mm;">
           Page <span class="pageNumber"></span> of <span class="totalPages"></span>
         </div>`,
       ...options,
@@ -84,7 +84,7 @@ async function urlToPdf(url, outputPath, waitOptions = {}) {
       content: `
         @media print {
           nav, .sidebar, .no-print { display: none !important; }
-          body { font-size: 10pt; }
+          body { font-size: 11pt; }
           a { color: inherit; text-decoration: none; }
         }
       `,
@@ -122,7 +122,7 @@ async function playwrightHtmlToPdf(htmlContent, outputPath) {
     displayHeaderFooter: true,
     headerTemplate: "<div></div>",
     footerTemplate: `
-      <div style="font-size:8px; color:#888; width:100%; text-align:center;">
+      <div style="font-size:10pt; color:#888; width:100%; text-align:center;">
         Page <span class="pageNumber"></span> of <span class="totalPages"></span>
       </div>`,
   });

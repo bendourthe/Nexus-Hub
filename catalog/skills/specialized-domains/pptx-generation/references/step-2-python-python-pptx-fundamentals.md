@@ -229,7 +229,7 @@ def add_table_slide(
         cell.text = header
         for paragraph in cell.text_frame.paragraphs:
             paragraph.font.bold = True
-            paragraph.font.size = Pt(12)
+            paragraph.font.size = Pt(14)
             paragraph.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF)
             paragraph.alignment = PP_ALIGN.CENTER
         cell.fill.solid()
@@ -241,7 +241,7 @@ def add_table_slide(
             cell = table.cell(row_idx + 1, col_idx)
             cell.text = str(cell_value)
             for paragraph in cell.text_frame.paragraphs:
-                paragraph.font.size = Pt(11)
+                paragraph.font.size = Pt(12)
                 paragraph.alignment = PP_ALIGN.LEFT
 
     # Set column widths proportionally

@@ -70,26 +70,26 @@ def render_invoice_pdf(
 
       @top-right {
         content: "Invoice #{{ number }}";
-        font-size: 8pt;
+        font-size: 10pt;
         color: #888;
       }
       @bottom-center {
         content: "Page " counter(page) " of " counter(pages);
-        font-size: 8pt;
+        font-size: 10pt;
         color: #888;
       }
     }
 
     body {
       font-family: "Helvetica Neue", Arial, sans-serif;
-      font-size: 10pt;
+      font-size: 11pt;
       line-height: 1.5;
       color: #1a1a2e;
     }
 
     .header { margin-bottom: 20mm; }
     .header h1 { font-size: 22pt; margin: 0; }
-    .header .subtitle { color: #666; font-size: 9pt; }
+    .header .subtitle { color: #666; font-size: 10pt; }
 
     table.line-items {
       width: 100%;
@@ -101,12 +101,12 @@ def render_invoice_pdf(
       color: white;
       padding: 6px 10px;
       text-align: left;
-      font-size: 9pt;
+      font-size: 10pt;
     }
     table.line-items td {
       padding: 6px 10px;
       border-bottom: 0.5px solid #ddd;
-      font-size: 9pt;
+      font-size: 10pt;
     }
     table.line-items tr:nth-child(even) td {
       background: #f8f8f8;
@@ -120,7 +120,7 @@ def render_invoice_pdf(
 
     .terms {
       margin-top: 15mm;
-      font-size: 9pt;
+      font-size: 10pt;
       color: #555;
       page-break-inside: avoid;
     }
@@ -207,7 +207,7 @@ tr, figure {
 /* Print-specific adjustments */
 @media print {
   nav, .no-print { display: none; }
-  a[href]::after { content: " (" attr(href) ")"; font-size: 8pt; color: #666; }
+  a[href]::after { content: " (" attr(href) ")"; font-size: 10pt; color: #666; }
 }
 ```
 
