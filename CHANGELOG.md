@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.13.10] - 2026-10-09
+
 ### Added
 
 - **Training page and the Nexus Defenders game (v4.13.10).** Training moves out of the guide into its own offline page, `guides/website/training.html`: one scrolling pass of the six-command Development Workflow on a buggy arcade game, each command played in an animated IDE (cursor, typed chat, model tier and effort, a provider handoff on a usage limit), between an opening drawn by the real game engine and the fixed game as the reward. The game (`src/sky-sentinel.js`, WebGL with a 2D fallback) has five ships, aimed fire, enemy health and shields, downgrades, rising difficulty, one retry per level, a supernova passage, a shielded Nexus boss, a black-hole finale with a score summary, and a reward panel with an animated Nexus AI Studio window. Old in-guide Training links open the matching stage.

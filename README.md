@@ -6,7 +6,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.13.9 -->
+<!-- nexus-hub-version: 4.13.10 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 340 skills across 23 categories, 21 commands (plus 3 permanent aliases), 37 registered hooks, 23 agents, and 4 language rule families plus the HTML artifact rules. It installs in one step on Windows, macOS, and Linux, through 17 platform integrations: Claude Code, OpenAI Codex, Gemini and Antigravity, GitHub Copilot, Cursor, OpenCode, Qwen Code, Kimi Code CLI, Devin Desktop / Windsurf, Hermes, Pi, OpenClaw, Aider, and the sibling Nexus desktop app. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -39,6 +39,16 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v4.13.10
+
+**Training is its own page, with a game to fix.** `guides/website/training.html` walks one pass of the six-command Development Workflow on Nexus Defenders, an arcade game that ships with two bugs. Each command plays in an animated IDE that shows the model tier, the effort, and the mapped model, and the fixed game is the reward: five ships, rising difficulty, a supernova passage, and the shielded Nexus boss.
+
+**A redesigned guide.** Home opens on the supported platforms connected to Nexus Hub and four benefit panels. Installation detects your system and shows an illustrated walkthrough with a terminal that replays the real installer. Every page uses one keyword heading style and paints the selected page first.
+
+**Check your installed version.** `nexus-hub version` prints the installed version and `nexus-hub upgrade` offers the latest release. Both READMEs are refreshed with current counts and links to https://www.benjamindourthe.com/.
+
+**Standard font sizes for slides and reports.** `pptx-generation` and `docx-generation` now allow only the standard PowerPoint and Word sizes, never below 12 pt on slides, with a checker for generated files.
 
 ## What's New in v4.13.9
 
