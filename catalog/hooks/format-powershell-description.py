@@ -361,6 +361,7 @@ def main() -> None:
                 "permissionDecision": "allow",
                 "permissionDecisionReason": "All pipeline segments match configured allow patterns",
                 "updatedInput": {
+                    **tool_input,
                     "command": cleaned_command,
                     "description": description_text or "(auto-approved)",
                 },
@@ -437,6 +438,7 @@ def main() -> None:
             "permissionDecision": "ask",
             "permissionDecisionReason": description_text,
             "updatedInput": {
+                **tool_input,
                 "command": updated_command,
                 "description": description_text,
             },

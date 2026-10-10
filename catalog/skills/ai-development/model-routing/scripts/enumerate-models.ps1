@@ -35,7 +35,12 @@ function Test-Binary {
 switch ($Platform) {
     'codex' {
         if (Test-Binary 'codex') {
-            try { & codex debug models } catch { Write-Output $pickerSentinel }
+            # try/catch does not see a native command's non-zero exit, so check
+            # $LASTEXITCODE too; this mirrors the .sh sibling's `|| sentinel`.
+            try {
+                & codex debug models
+                if ($LASTEXITCODE -ne 0) { Write-Output $pickerSentinel }
+            } catch { Write-Output $pickerSentinel }
         } else {
             Write-Output $pickerSentinel
         }
@@ -43,7 +48,10 @@ switch ($Platform) {
     }
     'antigravity' {
         if (Test-Binary 'agy') {
-            try { & agy models } catch { Write-Output $pickerSentinel }
+            try {
+                & agy models
+                if ($LASTEXITCODE -ne 0) { Write-Output $pickerSentinel }
+            } catch { Write-Output $pickerSentinel }
         } else {
             Write-Output $pickerSentinel
         }

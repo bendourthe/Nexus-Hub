@@ -2,8 +2,8 @@
 
 **Project**: Nexus-Hub
 **Status**: released; PR #230 merged the complete 34-task plan and tag `v4.13.0` was published on 2026-09-21. Two bounded warning-class findings remain owned for future measurement work. GitHub branch protection passed a live pull-request gate test; the second trigger pilot stopped on an unproven spend bound.
-**Last updated**: 2026-10-09
-**Open items**: 153
+**Last updated**: 2026-10-10
+**Open items**: 136
 **Accounting, 2026-10-09 (v4.13.11 T006-T007)**: The Open items header is derived from current parsed state, including canonical historical owners. Patch Summary tables preserve their release-time snapshots; they do not replace the current header count. Original patch/ID identities remain in the source bodies and the reconciliation manifest.
 
 Release-scoped gaps for the evidence-driven agent improvement plan. Planned future-phase work is tracked in the plan rather than reported as completed here.
@@ -1036,7 +1036,9 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 - **Carried from**: v4.13.8#WN-4 on 2026-10-02
 
-### AR-06: The 250-character description cap conflicts with the trigger-rich description rule
+### AR-06: The 250-character description cap conflicts with the trigger-rich description rule - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 4 T017)**: `scripts/validate_skills.py` now uses `DESCRIPTION_MAX_CHARS = 1024`, the agentskills.io limit that `scripts/check_agentskills_conformance.py` already enforces in `make validate` and CI, and `test_description_budget_matches_the_agentskills_conformance_gate` pins the two together. Boundary tests cover 1024 (pass) and 1025 (fails with `description is 1025 characters (max 1024)`) at function and CLI level; a mutant restoring 250 is caught by seven tests. The full validator's description-length errors fell from 223 to 0. The overview handbook binds this file, so its evidence was re-attested after a claim review ([review](development/v4.13.11-phase-4-handbook-claim-review.md)). Sources v3.1 WN-v31cr-1, v3.2 WN-v32-1 and v3.14.2 WN-1 are closed. See [Phase 4 verification](development/v4.13.11-phase-4-evidence.md).
 
 - **Current state**: `scripts/validate_skills.py` `DESCRIPTION_MAX_CHARS = 250`; many descriptions exceed it by design, and `--allow-existing` fails. Related to v4.8 WN-1.
 - **Owner and next step**: catalog maintainer; decide the cap (for example the 1024 agentskills.io limit) or the allowlist, then gate CI on it.
@@ -1137,9 +1139,11 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 ### AR-08: Missing direct tests
 
+**Local clause qualification, 2026-10-10 (v4.13.11 Phase 4 T017)**: Strict YAML (`v3.14.3#MT-1`) is proved by seven direct and `--bundles-only` CLI tests in `tests/validators/test_validate_skills.py`. The model-routing helpers (`v3.4#DF-v34-1`) are proved by 66 hermetic tests in `catalog/hooks/tests/test_model_routing_helpers.py` across the `.sh` and `.ps1` siblings (missing tools give the documented picker fallback with no invented models; unknown platform exits 2); the exercise found BG-20, fixed. The real default guard suite (`v3.15.5#MT-4`) runs end to end in a disposable clone (slow test, about 42 s), keeping a passing edit and reverting a failing one byte for byte. That exercise found three engine defects, BG-19, all fixed with tests that fail on the previous engine. The optional `make lint` ShellCheck gate for skill scripts named in `v3.4#DF-v34-1` was not adopted. AR-08 now remains open only for terminal CI registration of `tests/integrations/test_map_cli.py`, owned by Phase 8. See [Phase 4 verification](development/v4.13.11-phase-4-evidence.md).
+
 **Local clause qualification, 2026-10-10 (v4.13.11 T012 and MT-001)**: Temporary benchmark-baseline writes and the real map entry-point argv/status boundary are proved by 37 focused passes, nine actual boundary observations and three caught intentional mutants. The real optimizer executable-on-PATH proof also passes, including iteration/final artifacts, test-score selection and original-byte restoration, within the separate 105-test smoke batch. Original `v3.15.1#MT-2` is the benchmark clause and `v3.15.1#MT-1` is the map clause. AR-08 remains open for strict YAML, model-helper and DEFAULT_GUARDS proofs in Phase 4, plus terminal CI registration of the new map test. Evidence: [Phase 3 checkpoint](development/v4.13.11-phase-3-checkpoint.json).
 
-- **Current state**: The strict-YAML, model-helper and real DEFAULT_GUARDS clauses remain unproved; benchmark/map and real optimizer boundaries are now proved. Terminal CI registration of the new map test remains pending.
+- **Current state**: Strict YAML, both model-routing helpers, the real default guard suite, benchmark/map and the optimizer boundary are proved. Only terminal CI registration of the new map test remains pending.
 - **Owner and next step**: owners of each surface; add one focused test per item.
 - **Historical transfer note**: v3.4#DF-v34-1 (residual), v3.14.3#MT-1, v3.15.1#MT-1, v3.15.1#MT-2, and v3.15.5#MT-4 on 2026-09-29 (reason: still open).
 
@@ -1240,7 +1244,9 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-09`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.2`, section `v3.15.2 - adoption-awesome-llm-apps`, and original ID `MT-1`.
 
-### AR-12: loop-engineering lacks a re-entrancy guard and schema assertions
+### AR-12: loop-engineering lacks a re-entrancy guard and schema assertions - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 4 T016)**: CD-1 is closed by the Re-entrancy and Instance Identity section of `catalog/skills/workflow/loop-engineering/SKILL.md` and the identity bullet in `references/loop-schema.md`: host-owned instance and lineage markers, refusal of same-instance re-entry, ambiguous identity (fail closed) and exhausted child budgets, deliberate distinct child loops with carved budgets, named recursive budget multiplication, and no claimed runtime or host enforcement. CD-3 is closed by the prompt-growth paragraph linking `context-compression` and `prompt-token-optimization`. MT-1-v3162 is closed by gate-type parity across the Fields row, gate table, Verification checklist and every schema and library gate, plus byte-identical ship-pr-until-green gate blocks, each with mutation tests. Provenance rows are in `docs/policy/mcp-reverse-engineering-matrix.md`. Evidence: `tests/validators/test_loop_engineering_bundle.py` (72 passed). See [Phase 4 verification](development/v4.13.11-phase-4-evidence.md).
 
 - **Current state**: no nested-invocation guard, no optional context-compression cross-link, and the gate-type table parity and `ship-pr-until-green` duplicate-block check are still unasserted (partial coverage in `tests/validators/test_loop_engineering_bundle.py`).
 - **Owner and next step**: loop-engineering maintainer.
@@ -1283,7 +1289,9 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-12`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.16.2`, section `v3.16.2 - loop-longevity-and-doctor-preflight`, and original ID `MT-1`.
 
-### AR-13: egress-redaction covers only the egress boundary
+### AR-13: egress-redaction covers only the egress boundary - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 4 T016)**: CD-2 is closed by the Local Persistence and Error Surfaces section of `catalog/skills/security/egress-redaction/SKILL.md`: both boundaries use the one existing BLOCK/REDACT/HASH/PASS policy table, the embedded-credential remote URL is the canonical persistence case, unclassified values fail closed to BLOCK, and eight synthetic cases never echo a raw value or a fragment of one. Frontmatter, `data/skills.json`, `data/SKILL_INDEX.md` and the matrix row agree. No host enforcement is claimed. Evidence: `tests/validators/test_egress_redaction_boundaries.py` (28 passed, with mutation cases). See [Phase 4 verification](development/v4.13.11-phase-4-evidence.md).
 
 - **Current state**: local persistence and error surfaces are out of scope in the skill.
 - **Owner and next step**: security skills owner; extend the scope.
@@ -1302,7 +1310,9 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-13`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.16`, section `Comparison-Sourced Deferrals`, and original ID `CD-2`.
 
-### AR-14: The spec template's A1 example phrases a Non-Goal as an Assumption
+### AR-14: The spec template's A1 example phrases a Non-Goal as an Assumption - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 4 T015)**: `catalog/templates/spec-template.md` example A1 is now an overridable HOW default (the existing session-cookie middleware) with no scope clause; the JWT exclusion is the reasoned Non-Goals example; the boundary note no longer criticizes its own example and states that "X is out of scope for this feature" is always a Non-Goal. No implementation error policy was added. Origin TR-1 is closed. Evidence: three new tests in `tests/skills/test_spec_artifact_agreement.py` (24 passed; the three fail against the previous template). See [Phase 4 verification](development/v4.13.11-phase-4-evidence.md).
 
 - **Current state**: `catalog/templates/spec-template.md` A1 is unchanged.
 - **Owner and next step**: next spec-template edit; rewrite A1 and move the scope clause to Non-Goals.
@@ -1339,7 +1349,9 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-15`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.16`, section `Transferred in from v3.15.14 (spec-driven-development cycle)`, and original ID `TR-2`.
 
-### AR-22: `make build-catalog` would overwrite hand-curated registry files
+### AR-22: `make build-catalog` would overwrite hand-curated registry files - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 4 T019)**: `make build-catalog` now refuses unless `FORCE=1` and points to `check_registry_entries.py --check --strict`; AGENTS.md and `guides/reference/CONTRIBUTING.md` no longer tell contributors to run the legacy generator. Proved through the real Makefile (GNU Make 4.2.1, offline container) on a disposable copy: without FORCE the target exits 2 and all seven `data/` files keep identical SHA-256 values; with `FORCE=1` the generator runs and rewrites three of them, which is the hazard the guard blocks. The pre-commit `build-catalogs` hook points at a nonexistent `tools/` path and is skipped in CI, so it fails rather than clobbering. Origin v3.0 WN-v30-2 is closed. See [Phase 4 verification](development/v4.13.11-phase-4-evidence.md).
 
 - **Current state**: `build_skills_catalog.py` is unchanged since v2.0.0 and the target still exists, while hand-editing checked by `check_registry_entries.py --check --strict` is the convention.
 - **Owner and next step**: catalog maintainer; remove or guard the target and its AGENTS.md mention.
@@ -1369,7 +1381,9 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-22`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.0`, section `Open Items`, and original ID `WN-v30-2`.
 
-### AR-23: The hook rewrite field `updatedInput` is undocumented
+### AR-23: The hook rewrite field `updatedInput` is undocumented - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 4 T019)**: `guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md` now documents `updatedInput` from the official Claude Code hooks reference (PreToolUse decision control, https://code.claude.com/docs/en/hooks, checked 2026-10-09): it replaces the entire tool input, permission rules evaluate the returned input, it pairs with allow or ask and is ignored with defer. The support question in origin v3.2 WN-v32hr-1 is answered as supported. Checking the hooks against that contract found BG-18 (v4.13.11), fixed in the same phase. See [Phase 4 verification](development/v4.13.11-phase-4-evidence.md).
 
 - **Current state**: no mention in `guides/`.
 - **Owner and next step**: docs owner; document it in the settings reference.
@@ -1495,13 +1509,17 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-34`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.1`, section `v3.15.1 - adoption-codesight`, and original ID `WN-2`.
 
-### AR-50: The template parity guard covers only the five lockstep templates
+### AR-50: The template parity guard covers only the five lockstep templates - CLOSED
+
+**Closure, 2026-10-10 (v4.13.11 Phase 4 T019, maintainer decision)**: The maintainer approved recording the scope by decision in [the decision record](../../../decisions/implemented/tooling/2026-10-10-template-parity-guard-scope.md): whole-file parity covers the five lockstep templates, and the other eight substantive templates are covered by seven per-block validators that derive their roster from the directory (221 tests passed). Reopening trigger: a cross-platform rule that cannot be expressed as a named block. Origin v3.15.10 parity-guard advisory is closed.
 
 - **Current state**: `scripts/check_base_template_parity.py` guards the lockstep five; companion validators cover only named blocks on the other templates.
 - **Owner and next step**: template maintainer; extend the guard or record the scope by decision.
 - **Historical transfer note**: v3.15.10 (parity-guard advisory) on 2026-09-29 (reason: still open).
 
-### AR-53: No reusable self-check eval-loop authoring convention
+### AR-53: No reusable self-check eval-loop authoring convention - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 4 T018)**: `catalog/skills/workflow/skill-create/SKILL.md` step 4.1 adds an optional self-check rubric with a linked reference, `references/authoring-self-check.md`. The reference links rather than restates the `anti-slop-editing` self-check, bounds evaluate/fix/recheck (default three rounds; an exhausted budget leaves an owned finding, never a pass), reports a missing delegate or inconclusive check as not covered, and keeps independent verification with `verification-before-completion` and `skill-eval-loop`. No rubric engine or runtime was added. Origin v3.15.3 DF-1 is closed. Evidence: `tests/validators/test_skill_create_self_check_bundle.py` (13 passed; removing the link fails the orphan test). See [Phase 4 verification](development/v4.13.11-phase-4-evidence.md).
 
 - **Current state**: only the Markdown style self-check exists.
 - **Owner and next step**: catalog maintainer; write the convention and an optional reference template.
@@ -1522,7 +1540,9 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-53`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.3`, section `v3.15.3 - adoption-no-ai-slop`, and original ID `DF-1`.
 
-### AR-55: `ai-agent-governance` has no reciprocal SKIP clause
+### AR-55: `ai-agent-governance` has no reciprocal SKIP clause - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 4 T015)**: The `ai-agent-governance` description now ends with a SKIP clause that routes local coding-agent endpoint hardening to `agentic-endpoint-hardening`, and the body adds the matching Do-NOT bullet and Related Skills link; the description is quoted so strict YAML still parses. The pair is fenced in both directions and `data/skills.json` is synced. Origin v3.15.6 DF-1 is closed. Evidence: `tests/skills/test_governance_fence_and_reasoning_examples.py`, `check_registry_entries.py --check --strict` and `run_trigger_evals.py` (0 routing failures). See [Phase 4 verification](development/v4.13.11-phase-4-evidence.md).
 
 - **Current state**: its description still lacks one.
 - **Owner and next step**: catalog maintainer; add a SKIP pointing to `agentic-endpoint-hardening` and sync `data/skills.json`.
@@ -1856,6 +1876,8 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 ### Extensions
 
 ### AR-24: nexus-context-compressor deferred refinements
+
+**Clause disposition, 2026-10-10 (v4.13.11 Phase 4 T019, maintainer decision)**: The handler-count clause (origin v3.19.2 DF-3, "a short reformatter handler list") is retired with maintainer approval, as its own source advised: handlers are added only when a real-session fixture misses the 60% token-reduction bar, and parity with roughly 60 command handlers is not a goal. Reopening trigger: such a fixture. AR-24 stays open for its other clauses.
 
 - **Current state**: near-duplicate detection, auto-sized keep budget, explicit error preservation, automatic store cleanup (`prune` has no caller), JSON arrays in prose, fallback parser limits, optional spaCy pass, CacheAligner and the ML token-dropper outside the runtime path, sub-word dropping, no live semantic benchmark, no token-reduction floor, no `[ml]` CI lane, and a short reformatter handler list. The `smart_crusher.py` docstring still marks them deferred.
 - **Owner and next step**: compressor maintainer; take each only when a real fixture or benchmark shows the need.
@@ -2489,7 +2511,9 @@ No new Phase 4 implementation, regression, missing-test, or quality-gate gap rem
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-29`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.8`, section `Open Items`, and original ID `WN-v38-1`.
 
-### AR-31: `docs/specs/README.md` still describes "legacy installer copy blocks"
+### AR-31: `docs/specs/README.md` still describes "legacy installer copy blocks" - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 4 T019)**: `docs/specs/README.md` now states that every platform installs through the integration registry (`invoke_registry_platform`), that Claude Code alone also keeps a custom installer block for its catalog tree, and that "original 4" and "extended" are historical roster labels; coverage tiers are referenced from `docs/policy/platform-read-contracts.md` instead of restated, which also removes the stale Cursor guardrails-only line. Verified against `scripts/installer.sh` `install_global`. Origin v3.14.5 DF-3 is closed. See [Phase 4 verification](development/v4.13.11-phase-4-evidence.md).
 
 - **Current state**: the stale framing moved there from AGENTS.md.
 - **Owner and next step**: docs owner; say that Claude has the one custom installer block and every other platform goes through the integration registry.
@@ -2510,7 +2534,9 @@ No new Phase 4 implementation, regression, missing-test, or quality-gate gap rem
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-31`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.14.5`, section `v3.14.5`, and original ID `DF-3`.
 
-### AR-35: Optional provider failover and settlement reference for `multi-provider-ai`
+### AR-35: Optional provider failover and settlement reference for `multi-provider-ai` - CLOSED
+
+**Closure, 2026-10-10 (v4.13.11 Phase 4 T019, maintainer decision)**: Closed as won't-do with maintainer approval. The failover and settlement invariants come from a load-balancer product category that Nexus-Hub did not adopt, and the item was optional from the start. Reopening trigger: a user or maintainer requests provider-routing reference content for `multi-provider-ai`; it would then be written as a body-only reference with no external dependency. Origin v3.14.0 DF-3 is closed.
 
 - **Current state**: never written.
 - **Owner and next step**: catalog maintainer; write it or close as won't-do.
@@ -2813,7 +2839,9 @@ No new Phase 4 implementation, regression, missing-test, or quality-gate gap rem
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-37`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.7`, section `v3.15.7 - adoption-raptor-loop-hunt`, and original ID `DF-6`.
 
-### AR-41: Product atlas
+### AR-41: Product atlas - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 4 T019)**: The mapped catalog overview handbook satisfies the atlas request: `docs/handbooks/handbooks.json` maps its sources, its builder check verifies the retained output (`d061c7bf...`), and an offline headless render showed the reading view (no horizontal overflow) and Presentation Mode (full viewport, 1 / 5 then 2 / 5, Escape closes) with no page errors and no network requests. `docs/README.md` now names it as the product atlas. Origin v3.21.0 DF-1 is closed. See [Phase 4 verification](development/v4.13.11-phase-4-evidence.md).
 
 - **Current state**: `docs/handbooks/overview.html` (commit `0b164f06`) may satisfy it, but `docs/README.md` still says no atlas exists.
 - **Owner and next step**: maintainer; confirm the overview handbook counts, then close and correct `docs/README.md`.
@@ -2834,7 +2862,9 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-41`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.21.0`, section `v3.21.0`, and original ID `DF-1`.
 
-### AR-42: The docs-convention checker scans only the active minor
+### AR-42: The docs-convention checker scans only the active minor - CLOSED
+
+**Closure, 2026-10-10 (v4.13.11 Phase 4 T019, maintainer decision)**: The maintainer approved keeping the active-minor scope with historical trees grandfathered, recorded in [the decision record](../../../decisions/implemented/tooling/2026-10-10-docs-convention-checker-active-minor-scope.md). The stale `scripts/check_docs_conventions.py` docstrings now name the `docs/releases/` layout and cite the decision; the checker passes on the active v4.13 tree. Reopening trigger: archived documents become a routine input whose broken links cause real failures. Origin v3.19.2 DF-2 is closed.
 
 - **Current state**: `scripts/check_docs_conventions.py` still scans only the active minor, and its docstring is stale.
 - **Owner and next step**: maintainer; record the grandfathering decision, then close and fix the docstring.
@@ -2853,7 +2883,9 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-42`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.19.2`, section `v3.19.2`, and original ID `DF-2`.
 
-### AR-43: Signed execution contracts remain a design study
+### AR-43: Signed execution contracts remain a design study - CLOSED
+
+**Closure, 2026-10-10 (v4.13.11 Phase 4 T019, maintainer decision)**: The maintainer approved promoting the study's deferral to [a decision record](../../../decisions/implemented/policy/2026-10-10-defer-signed-execution-contracts.md): the PreToolUse rewrite decision stays the only authorization object and no cryptographic contract is added. Reopening trigger: a multi-executor or remote-runner surface. Origin v3.19.2 DF-4 is closed.
 
 - **Current state**: no decision record exists.
 - **Owner and next step**: maintainer; promote the study's deferral recommendation to a decision record, then close.
@@ -3628,7 +3660,9 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 **Normalization, 2026-10-09 (v4.13.11 T006)**: Parsed RESOLVED marker records the already evidenced disposition retained above. No new runtime or historical capture is claimed.
 
-#### DF-7-v4132: Recorded design deltas from Phases 2, 4, and 6
+#### DF-7-v4132: Recorded design deltas from Phases 2, 4, and 6 - CLOSED
+
+**Closure, 2026-10-10 (v4.13.11 Phase 4 T019, maintainer decision)**: Closed as accepted with maintainer approval: `--max-cycles` stands in for a per-run spend cap, the gate infers its output format from the payload, it reuses the existing handler ownership check, and the Windows throwaway install check was covered by the seven-platform install. Reopening trigger: a supported platform documents per-run spend reporting, at which point the degraded-enforcement mark and a spend cap are revisited.
 
 **Source phase**: Phase 9 (T024), Tier 3 code-vs-plan convergence. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: accepted deviations recorded only in phase histories until now: the per-run spend cap became `--max-cycles` (Phase 6); the gate infers its output format from the payload instead of `NEXUS_GATE_FORMAT`, reuses the existing handler ownership check instead of exact-identity manifest entries, and never marks degraded enforcement in the record (Phase 4); and the Phase 2 throwaway install check could not finish on Windows and was confirmed by the Phase 3 seven-platform install instead.
 
@@ -4150,7 +4184,9 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 
 - **Carried from**: v4.13.8#DF-3 on 2026-10-02
 
-#### WN-21 (v4.13.9): A reasoning example asks the model to write its analysis into the reply
+#### WN-21 (v4.13.9): A reasoning example asks the model to write its analysis into the reply - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 4 T015)**: The chain-of-thought example in `prompt-engineering/references/step-2-apply-reasoning-techniques.md` is labelled for models without native thinking and bound to a `NO_NATIVE_THINKING_MODEL` placeholder; a native-thinking variant enables adaptive thinking with summarized display, asks only for the answer, and reads reasoning from thinking blocks. The guidance never requests private reasoning from native-thinking models. The edit names no model, so it was made directly rather than through `apply_prompting_edits.py`, which the suggested next step made conditional. Origin v4.13.8 WN-1 (SW-1) is closed. Evidence: `tests/skills/test_governance_fence_and_reasoning_examples.py`. See [Phase 4 verification](development/v4.13.11-phase-4-evidence.md).
 
 - **Source phase**: Phase 2. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T308 (sweep finding SW-1).
 - **Reason**: `catalog/skills/ai-development/prompt-engineering/references/step-2-apply-reasoning-techniques.md` lines 92 to 101 tell the model to "Think through this step-by-step" and to structure its response as `<thinking>[Your step-by-step analysis]</thinking>` followed by an answer. On Claude Sonnet 5.5, instructions that ask for reasoning in the response invite `reasoning_extraction` declines. The classifier routed the finding `profile-only`, so no shared body was edited.
@@ -4158,7 +4194,9 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 
 - **Carried from**: v4.13.8#WN-1 on 2026-10-02
 
-#### WN-22 (v4.13.9): A self-consistency example asks for written-out step-by-step reasoning
+#### WN-22 (v4.13.9): A self-consistency example asks for written-out step-by-step reasoning - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 4 T015)**: Fixed in the same change as WN-21: the self-consistency example is bound to `NO_NATIVE_THINKING_MODEL`, and a preceding note gives the native-thinking adaptation (enable thinking, ask only for the answer line, keep the voting loop). Origin v4.13.8 WN-2 (SW-2) is closed. See [Phase 4 verification](development/v4.13.11-phase-4-evidence.md).
 
 - **Source phase**: Phase 2. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T308 (sweep finding SW-2).
 - **Reason**: the same file, line 127, prompts "Think step-by-step, then provide your final answer on the last line". The traced Sonnet 5.5 item and the classifier route are the same as WN-1.
@@ -4461,7 +4499,7 @@ Admission and normalization findings for the [known-gaps sweep plan](plans/v4.13
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
-| Bugs / regressions (BG) | 0 | 3 |
+| Bugs / regressions (BG) | 0 | 6 |
 | Warnings (WN) | 2 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
@@ -4509,3 +4547,29 @@ Admission and normalization findings for the [known-gaps sweep plan](plans/v4.13
 **Evidence**: The schema-2 record has an open user-edit-guard blocker for member v4.13.11. The three exact guarded versions have now been native-accepted under explicit user agreement. Minor answer rendering instead refuses with "a minor run answers blockers through its member plans"; the advertised member answer reads only schema-1 records and reports no record. Minor resume clears only pause and never closes the blocker.
 
 **Reason**: A resolved underlying guard refusal cannot be cleared through the documented native minor command. **Suggested next step**: add the missing schema-2 answer dispatch with exact member/index and genuine prompt-origin binding; close only the selected blocker and preserve all frozen approval classes. **Acceptance**: real disposable native CLI proof closes only the correctly approved blocker; invalid index/member, foreign session, uncaptured or quoted answers and altered pages refuse without changing the signed record. **Proving command**: focused minor-record and approval-origin regressions plus the native CLI exercise. No live signed record, capture or approval is fabricated.
+
+#### BG-18 (v4.13.11): Description hooks drop tool-input fields when they rewrite a command - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 4 T019)**: Both description hooks now spread the original tool input into `updatedInput` before overriding `command` and `description`, matching `compress-output.{sh,ps1}` and `rewrite-command.{sh,ps1}`. Four new tests run each hook as a subprocess against an isolated home and assert that `timeout`, `run_in_background` and `dangerouslyDisableSandbox` survive on both the allow path and the described path; all four failed with `KeyError: 'timeout'` before the fix, and both full hook test files pass (255 tests). Evidence: [Phase 4 verification](development/v4.13.11-phase-4-evidence.md).
+
+**Source phase**: Phase 4, found while documenting AR-23. **Plan reference**: [v4.13.11](plans/v4.13.11-known-gaps-sweep-and-minor-close.md), T019. **Severity**: medium; silent behavior change on every rewritten Bash and PowerShell call. **Owner**: hook maintainer.
+
+**Evidence**: The official hooks reference states that `updatedInput` replaces the entire input object. `catalog/hooks/format-bash-description.py` and `catalog/hooks/format-powershell-description.py` built `updatedInput` from only `command` and `description` on both their allow and described paths, so a call's `timeout`, `run_in_background` and any other field were dropped whenever the hook rewrote it.
+
+**Reason**: Found after the frozen baseline, so it is fixed in this phase rather than migrated. Installed copies under a user's `~/.claude/hooks/` pick up the fix at their next install or upgrade.
+
+#### BG-19 (v4.13.11): The prompting edit engine loses line endings, overwrites concurrent edits, and has no guard timeout - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 4 T017)**: `apply_prompting_edits.py` now reads and writes target bytes exactly (a CRLF file stays CRLF, with the anchors matched in its own line-ending form), aborts with `ApplyError` instead of reverting when the target changed while the guards ran, and bounds every guard with `GUARD_TIMEOUT_SECONDS` (900 s; a timed-out guard counts as a failure, so the edit is reverted to its exact baseline). A missing `shellcheck` executable is now treated as absent rather than raising. Four tests in `tests/skills/test_model_prompting_edit_routing.py` prove the CRLF revert, CRLF keep, concurrent abort, and timeout restore; all four fail against the previous engine and pass now, and the file passes in full with the slow disposable-clone test (121 passed with the validator tests). Evidence: [Phase 4 verification](development/v4.13.11-phase-4-evidence.md).
+
+**Source phase**: Phase 4, found by the T017 disposable-clone exercise of the real default guard suite. **Plan reference**: [v4.13.11](plans/v4.13.11-known-gaps-sweep-and-minor-close.md), T017 failure modes. **Severity**: medium; data integrity of shared catalog edits. **Owner**: prompting and catalog owner.
+
+**Evidence**: On a CRLF checkout (the default on Windows) both the kept edit and the revert rewrote every line ending to LF, so a revert did not restore the original bytes. A writer that changed the target while the guards ran lost its change, and the run exited 0. `run_guards` passed no timeout, so a hung guard blocked forever and killing the run left the edit applied.
+
+**Deviation**: the T017 draft test for the timeout expected the baseline to survive an external kill of the whole process, which no in-process code can guarantee. The test now proves the plan's stated failure mode instead: a guard that exceeds its bound is killed, the edit is reverted byte for byte, and the run continues.
+
+#### BG-20 (v4.13.11): `enumerate-models.ps1` prints nothing when the platform CLI fails - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 4 T017)**: The PowerShell helper now checks `$LASTEXITCODE` after `codex` and `agy`, matching the Bash sibling's documented fallback that tells the agent to read the model picker. `catalog/hooks/tests/test_model_routing_helpers.py` runs every case against both siblings in an isolated home with a stubbed PATH; the two fallback cases failed before the fix, and 66 helper tests (76 with the routing switch tests) pass now. Evidence: [Phase 4 verification](development/v4.13.11-phase-4-evidence.md).
+
+**Source phase**: Phase 4, found while proving AR-08's helper clause. **Plan reference**: [v4.13.11](plans/v4.13.11-known-gaps-sweep-and-minor-close.md), T017. **Severity**: low; the agent got no model list and no fallback instruction on Windows. **Owner**: model-routing skill owner.

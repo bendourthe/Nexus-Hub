@@ -503,7 +503,7 @@ Per-version docs age out on a stated rule instead of accumulating: a minor two o
 make validate    # JSON catalog integrity
 make lint        # ShellCheck on all hook scripts
 make test        # pytest hook test suite
-make build-catalog  # Rebuild data/ from catalog/
+make build-catalog  # Legacy generator: refuses without FORCE=1, because data/ is hand-maintained
 ```
 
 **The repository-native profiles are the canonical gate, and they need no `make`.** CI does not invoke the `Makefile`: `.github/workflows/ci.yml` calls `scripts/ci/run.py`, whose step list in `scripts/ci/profiles.py` is the definitive one. Run the same thing locally, on any host:

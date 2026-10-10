@@ -1,6 +1,6 @@
 ---
 name: ai-agent-governance
-description: Implement the 4 Pillars Framework for AI agent governance (Lifecycle, Risk, Security, Observability). Use when deploying autonomous AI agents, implementing agent guardrails, establishing agent security controls, or auditing AI agent behavior.
+description: "Implement the 4 Pillars Framework for AI agent governance (Lifecycle, Risk, Security, Observability). Use when deploying autonomous AI agents, implementing agent guardrails, establishing agent security controls, or auditing AI agent behavior. SKIP: hardening a local coding agent's endpoint against config-write-then-executed sandbox escapes (use agentic-endpoint-hardening)."
 summary_l0: "Implement AI agent governance with lifecycle, risk, security, and observability pillars"
 overview_l1: "This skill implements comprehensive governance for autonomous AI agents using the 4 Pillars Framework covering Lifecycle Management, Risk Management, Security, and Observability. Use it when deploying autonomous AI agents to production, implementing agent guardrails and safety controls, establishing security for agentic AI systems, tracking and auditing agent behavior, managing AI agent risks, or complying with AI regulations (NIST AI RMF, ISO 42001). Key capabilities include agent lifecycle management (registration, versioning, decommission), risk assessment and mitigation for autonomous agents, security controls (input validation, output filtering, privilege management), observability instrumentation (structured logging, trace propagation, cost tracking), and regulatory compliance mapping. The expected output is a governance framework with policies, controls, monitoring dashboards, and audit trails for AI agent operations. Trigger phrases: AI agent governance, agent guardrails, agent security, agentic AI, autonomous agent, agent observability, 4 pillars, agent lifecycle."
 owasp_agentic: [ASI10]
@@ -20,6 +20,10 @@ Use this skill when you need to:
 - Track and audit agent behavior
 - Manage AI agent risks
 - Comply with AI regulations (NIST AI RMF, ISO 42001)
+
+Do NOT use this skill for:
+
+- Hardening the endpoint a local coding agent runs on, where a permitted workspace write (hook config, editor task file, `core.hooksPath`, `core.fsmonitor`) is later executed by a trusted component outside the sandbox: use [[agentic-endpoint-hardening]], which addresses that local trust seam rather than a deployed service's lifecycle.
 
 **Trigger phrases**: "AI agent governance", "agent guardrails", "agent security", "agentic AI", "autonomous agent", "agent observability", "4 pillars", "agent lifecycle"
 
@@ -126,6 +130,7 @@ This skill is tagged against the OWASP Top 10 for Agentic Applications (2026) in
 - [[ai-billing-safeguards]] -- enforces the spending caps the cost-tracking observability complements
 - [[loop-engineering]] -- owns loop-gate construction; this skill names the same reward-hacking signature and does not restate idempotent-gate or multi-bound-cap rules
 - [[agent-execution-isolation]] -- OS sandbox, credential brokering, and egress-proxy triage this pillar must ask before treating least-privilege as complete
+- [[agentic-endpoint-hardening]] -- hardens a local coding agent's config-write-then-executed seam; use it instead of this skill when the subject is a developer endpoint rather than a deployed service agent
 
 ---
 

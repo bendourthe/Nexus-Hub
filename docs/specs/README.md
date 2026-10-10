@@ -19,9 +19,9 @@ These specs are descriptive, not executable. The authoritative behavior lives in
 
 ## Distribution tiers
 
-- **Original 4** (legacy installer copy blocks): Claude Code, Gemini / Antigravity 1.0, Codex, GitHub Copilot. These install via the explicit copy blocks in `scripts/installer.sh` / `installer.ps1` and also have a registry subclass standing by for the parity migration tracked in `docs/archives/v2/v2.1/known-gaps.md` (DF-001).
-- **Extended** (v2.2.0+, via the integration registry under `scripts/lib/integrations/`): Antigravity 2.0 + CLI, Gemini CLI (enterprise-only post-2026-06-18), Nexus-AI.
-- **Behavioral guardrails only**: Cursor (`.cursor/rules/*.mdc` + repo-root `AGENTS.md`) and OpenCode (`AGENTS.md`) receive instruction-file guidance rather than a full per-file catalog copy (OpenCode additionally mirrors `skills/`).
+- **Install mechanism**: every platform installs through the integration registry (`invoke_registry_platform` in `scripts/installer.sh` / `installer.ps1`, dispatching to the subclasses under `scripts/lib/integrations/`). Claude Code is the one platform that also keeps a custom installer block: that block copies its catalog tree, while the registry renders its marker-merged `CLAUDE.md`. No other platform uses installer copy blocks.
+- **"Original 4" and "extended" in the table above** are historical labels for when a platform joined the roster (the original Claude, Gemini / Antigravity 1.0, Codex, and Copilot set versus the v2.2.0+ additions). They no longer describe different install mechanisms.
+- **What each platform receives** (full file tree, skills-bearing, slash-command-only, or behavioral guardrails only) is defined in the "Platform coverage tiers" section of [`docs/policy/platform-read-contracts.md`](../policy/platform-read-contracts.md), which is re-verified at each release; each spec below records its own platform's surfaces.
 
 ## How to read a spec
 

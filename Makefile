@@ -87,7 +87,14 @@ lint: ## Lint shell scripts with ShellCheck
 	@command -v shellcheck >/dev/null 2>&1 && shellcheck --severity=warning scripts/installer.sh install.sh || echo "  shellcheck not installed — skipping (install with: apt install shellcheck)"
 	@echo "Lint complete."
 
-build-catalog: ## Rebuild skills.json and templates.json from source
+build-catalog: ## Legacy generator; refuses unless FORCE=1 (data/ is hand-maintained)
+	@# The generator predates the hand-curated registry and rewrites it wholesale (v3.0 WN-v30-2).
+	@if [ "$(FORCE)" != "1" ]; then \
+		echo "build-catalog refused: data/ registry files are hand-maintained and this generator would overwrite them." >&2; \
+		echo "Register skills by hand, then run: python scripts/check_registry_entries.py --check --strict" >&2; \
+		echo "Run 'make build-catalog FORCE=1' only in a disposable copy." >&2; \
+		exit 1; \
+	fi
 	@echo "Building catalogs..."
 	@python infrastructure/tools/build_skills_catalog.py
 	@python infrastructure/tools/build_templates_catalog.py

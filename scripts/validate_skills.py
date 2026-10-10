@@ -54,8 +54,12 @@ BODY_LINE_SOFT_CAP = 500
 # runtime in the consumer). `name` must be single-line kebab-case; `description`
 # must be single-line and stay within DESCRIPTION_MAX_CHARS. When `name` is
 # absent the parent directory name is the default and must itself be kebab-case.
+# The description budget is the agentskills.io 1024-character limit, the same
+# value scripts/check_agentskills_conformance.py gates in `make validate` and CI.
+# The former 250-character cap contradicted the AGENTS.md trigger-rich
+# description rule (v4.13 AR-06); a test pins the two constants together.
 NAME_PATTERN = re.compile(r"^[a-z0-9-]+$")
-DESCRIPTION_MAX_CHARS = 250
+DESCRIPTION_MAX_CHARS = 1024
 
 # Transitional allowlist consulted only under `--allow-existing`: files whose
 # pre-existing single-line violations are grandfathered (demoted to warnings)

@@ -25865,5 +25865,134 @@
         "representation": "Local account path components anonymized; trailing whitespace and extra blank lines at EOF normalized. Raw originals unchanged outside the repository."
       }
     ]
+  },
+  "phase4": {
+    "observed_at_utc": "2026-10-10T07:20:06.988779+00:00",
+    "phase": 4,
+    "gate": "GO",
+    "qualified_tasks": [
+      "T015",
+      "T016",
+      "T017",
+      "T018",
+      "T019",
+      "T020"
+    ],
+    "session": "5017000a-d374-4510-ab1c-3336e755b64f",
+    "source_sha256": {
+      "AGENTS.md": "2b632a6a77819ab99112bbbd33b6bfa9f7b5ecc95da83a656b4feb784a8e8775",
+      "Makefile": "6aa65d7185738fe4e175d37dfdf603255936c900886beb5534f90b6b5e351d24",
+      "catalog/hooks/format-bash-description.py": "8cdd1c779e0185219b8af236e39999aed4235c137d4edbbb3dc6d6b94f3c2d8b",
+      "catalog/hooks/format-powershell-description.py": "0f5faa046a2f6a75344488a1ea18f2c88d7f6adb9f3e76f8227e97556b380c69",
+      "catalog/hooks/tests/test_format_bash_description.py": "4b6c6c988d58ef0383606b884189029ca10172ad5cb83b0c09cfc0eac18387fe",
+      "catalog/hooks/tests/test_format_powershell_description.py": "66a24a3134567455c8c373c060fba7f242e97762058d680d11b9571ad5436c22",
+      "catalog/hooks/tests/test_model_routing_helpers.py": "24fdc9ac67579656aeb568d4f56790bb891736d95d94e92ad8637228e659a9ba",
+      "catalog/skills/ai-development/model-prompting-research/scripts/apply_prompting_edits.py": "e210e1570666556194463d5a53d5cfb7803c7f0b2f201ba019a92e7c825d2a92",
+      "catalog/skills/ai-development/model-routing/scripts/enumerate-models.ps1": "28571216b15d62a1f1b228f8d32ebd9822c45a3f786b4b48520f56116df0030b",
+      "catalog/skills/ai-development/prompt-engineering/references/step-2-apply-reasoning-techniques.md": "5e369d31bbdc19162a75063206c8543b108e07e0d72bd58e2afce07add52527c",
+      "catalog/skills/compliance/ai-agent-governance/SKILL.md": "1fce502e02a2639bed1dc693f175e395f0f9d5faa5b912bb56ddc2a5f7da2433",
+      "catalog/skills/security/egress-redaction/SKILL.md": "7fa6075ac41e6c386e338ff31bb359d8837ef3924597f9e5915e1feda473ec74",
+      "catalog/skills/workflow/loop-engineering/SKILL.md": "227aec0f4cf229e830d6979e8d9597611f35042e9c4d8c7ce4f1d4918355a556",
+      "catalog/skills/workflow/loop-engineering/references/loop-schema.md": "a2d3d3c19941ea48fbfb9c72f8ff1e44b6adc3e54a6697d8a8ad317454fff4e6",
+      "catalog/skills/workflow/skill-create/SKILL.md": "f4894d5d286b7853f529b481aa68a67c1c599f9e0ea438b22b22ac310f5c1816",
+      "catalog/skills/workflow/skill-create/references/authoring-self-check.md": "41382ac32f542ff4f7a0806c1a44f18c628cc8c21092c8905f081b2a9855db42",
+      "catalog/templates/spec-template.md": "1dd4a9e5a882eff48981bd3d0728d195acda3ff75ad0d1cc16a7fd0590f79b18",
+      "data/SKILL_INDEX.md": "4d885c6e4464064b35d19f524aa8c92351b2465a40503f2daa41321c2eedde94",
+      "data/skills.json": "bb68ec073672cd97661505adefeb0249742a6c2ac37cca26458f1db93d63df69",
+      "docs/README.md": "afb2d4c1a7c46e2b5a6d3aaed238958ec32f14216fde13139d791d31a96f1d27",
+      "docs/decisions/implemented/policy/2026-10-10-defer-signed-execution-contracts.md": "1074840333eee4508c6959f91283b0fafa531376975bff4631d8c7a8f52d1bcd",
+      "docs/decisions/implemented/tooling/2026-10-10-docs-convention-checker-active-minor-scope.md": "c5bb5412535a4a97ecb94aaec1c9a8782fc63de8c27f1949c27f85fcf1195dac",
+      "docs/decisions/implemented/tooling/2026-10-10-template-parity-guard-scope.md": "34d48dce9983ef8a045b808162a68c62f2b313eb816ab91b8ff90d8b6e3311e6",
+      "docs/handbooks/_sources/overview/evidence.json": "82416295bba5c942be0067c44abf6cdda2bd9a43b53d5b3c69ef89854979f48c",
+      "docs/policy/mcp-reverse-engineering-matrix.md": "f2652f5d6535459a103f74c189833463dd78a20dc1ec1c34371468ca84da648e",
+      "docs/releases/v4/v4.13/development/history/v4.13.11-phase-4-session.md": "886006a23fb900c65ba5f95d0d7f5737e246021deb4045b10d0350e82449c88d",
+      "docs/releases/v4/v4.13/development/v4.13.11-ledger-decisions.md": "d644eb0a3859be41ed5ddaf4e9700ac0e4b983cd3648c9ecd14676aa3613e651",
+      "docs/releases/v4/v4.13/development/v4.13.11-phase-4-evidence.md": "0014cbb5d160dd810ba5b583de15ba0727f89c221a80bc58087b80cae7cc881e",
+      "docs/releases/v4/v4.13/development/v4.13.11-phase-4-handbook-claim-review.md": "0054968de672219d24d8cc48fd53ee018e18233fb3358c3bc9975a505f848841",
+      "docs/releases/v4/v4.13/development/v4.13.11-phase-4-receipts/ar22-build-catalog-make.txt": "b8d6736b889adf35dd261078acaaf99d9f63f801bd0a13b747ad674b09037a6f",
+      "docs/releases/v4/v4.13/development/v4.13.11-phase-4-receipts/ar22-build-catalog-probe.sh": "fb3f374f638e880fdce948cdd7a9b6ddcd7269b96f5451e582896af4cf20b546",
+      "docs/releases/v4/v4.13/development/v4.13.11-phase-4-receipts/ar41-overview-presentation.png": "9fed088906bbeb28d426c027b1e451d0e25fcc7aac16e25a160c6b273607f5d5",
+      "docs/releases/v4/v4.13/development/v4.13.11-phase-4-receipts/ar41-overview-reading.png": "6bd3f819af83b91b9ddbaeec63c5986a6ce8699b5e39e41cbb32c4e610b666b1",
+      "docs/releases/v4/v4.13/development/v4.13.11-phase-4-receipts/ar41-overview-render-probe.py": "6ad7c49c080f0eaa112bf0be6b56b1677135ffad5c4f61b4bd369657539c50bf",
+      "docs/releases/v4/v4.13/development/v4.13.11-phase-4-receipts/ar41-overview-render.json": "122a6d77068f510f458d989d9bd0144d426e8e126653039c3cd75610e19c06fa",
+      "docs/releases/v4/v4.13/development/v4.13.11-phase-4-receipts/overview-build.json": "18a25747e76a48a7b72f00488ac49d7e92aad297be2edeb8e1b766b2bbcbfb80",
+      "docs/releases/v4/v4.13/known-gaps.md": "f9265a748e26d0fab02d4fa79b41e5408fbc625ce8af55b031a992e8aac4fb94",
+      "docs/releases/v4/v4.13/plans/v4.13.11-known-gaps-sweep-and-minor-close.md": "2da8bd8f5db7c608977dd60731eb6b3106bfeac8895a8093616d7706f142d783",
+      "docs/specs/README.md": "105df9c94ac70f7b942b30363d53820f596008f986cf03c19d7ec15540ca68d6",
+      "guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md": "1f7666dc74554c9c03e604bd4adf1beb627b7c52e0b2bf76c13585a19af97c9b",
+      "guides/reference/CONTRIBUTING.md": "32cf6c2b8b1583410d7a056ff0d2f9d0a78886dfff1be8a268df315c5363594d",
+      "scripts/check_docs_conventions.py": "c834474d537d6f4cb410142cda7165f701da89d64c5d1f8773ce5c4d03c7727a",
+      "scripts/validate_skills.allowlist.json": "a0529113e9f5b18031cc145e48d60b7f493a80e52562feb1806cebed099808bc",
+      "scripts/validate_skills.py": "51b5e1e74623ca51945871d08dcc78dc14f4d51723784b78d3df6523eb3a196a",
+      "tests/skills/test_governance_fence_and_reasoning_examples.py": "2bd96d9b471b571d76d7bcd5afaa0f59df546445e3b1a842d533962bf32968e8",
+      "tests/skills/test_model_prompting_edit_routing.py": "3867e2bad580474143669c91be0f0a033ae0ef6a341157c59d42ef36f82a5892",
+      "tests/skills/test_spec_artifact_agreement.py": "28bf8da301ede9622a10ccf61cc869b27d81bc4fdda76a9e991b2cc0edf03fda",
+      "tests/validators/test_egress_redaction_boundaries.py": "3ab037ff2e480fb6e4711ed1cfa5ed800e52d74d0f6b044ff69d6a3d6c3fc029",
+      "tests/validators/test_loop_engineering_bundle.py": "57e1d533b3ac3209fdd5379ccdede8fc2dd9f91e922d850531655d3e59db544b",
+      "tests/validators/test_skill_create_self_check_bundle.py": "95604ae3d71c05ed6f09057538e625535bfc8f20f9b0f012f794e94eb1297852",
+      "tests/validators/test_validate_skills.py": "6dc3202ec32e86b3a5f327a43ff84f0e81ff8939f1750253f3fcdf82f55a8042"
+    },
+    "frozen_plan_hash": "f810cd9838d5c88927d00903a11f1bdcc9771ca950d2cb113f9a0b04a19311ed",
+    "required_command": {
+      "argv": "python -m pytest -q tests/skills/test_spec_artifact_agreement.py tests/validators/test_loop_engineering_bundle.py tests/skills/test_model_prompting_edit_routing.py -rs",
+      "result": "169 passed in 210.77s",
+      "exit": 0,
+      "skipped": 0
+    },
+    "maintainer_decisions": {
+      "approved": "2026-10-10, one batched question, all six recommendations",
+      "items": [
+        "AR-35 won't-do",
+        "AR-42 grandfather + docstring",
+        "AR-43 decision record",
+        "AR-50 decision record",
+        "DF-7-v4132 accepted",
+        "AR-24 handler-count clause retired"
+      ]
+    },
+    "known_gaps": {
+      "open_before": 153,
+      "open_after": 136,
+      "closed_on_evidence": [
+        "v4.13#AR-06",
+        "v4.13#AR-12",
+        "v4.13#AR-13",
+        "v4.13#AR-14",
+        "v4.13#AR-22",
+        "v4.13#AR-23",
+        "v4.13#AR-31",
+        "v4.13#AR-41",
+        "v4.13#AR-53",
+        "v4.13#AR-55",
+        "v4.13#WN-21",
+        "v4.13#WN-22"
+      ],
+      "closed_on_decision": [
+        "v4.13#AR-35",
+        "v4.13#AR-42",
+        "v4.13#AR-43",
+        "v4.13#AR-50",
+        "v4.13#DF-7-v4132"
+      ],
+      "partial": {
+        "AR-08": "only terminal CI registration of tests/integrations/test_map_cli.py remains (Phase 8)",
+        "AR-24": "handler-count clause retired; other clauses open"
+      },
+      "new_found_and_fixed": [
+        "v4.13.11#BG-18",
+        "v4.13.11#BG-19",
+        "v4.13.11#BG-20"
+      ]
+    },
+    "receipts": "docs/releases/v4/v4.13/development/v4.13.11-phase-4-receipts/",
+    "ci_impact": {
+      "pipeline_edits": [],
+      "note": "New tests sit under existing profile targets; the slow disposable-clone test adds about 42 s to repo-tests-skills. Phase 8 must register tests/integrations/test_map_cli.py."
+    },
+    "deviation": "T017 timeout clause proves a bounded guard that reverts on timeout; restoring after an external kill of the whole process is not claimed.",
+    "limits": [
+      "Phase-only qualification; Phases 5-8 not implemented in this commit.",
+      "No push, PR, remote CI, release, migration, archive or cleanup."
+    ]
   }
 }

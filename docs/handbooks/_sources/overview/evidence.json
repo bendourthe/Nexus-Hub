@@ -5,7 +5,7 @@
       "docs/handbooks/_sources/overview/model.json": "6d7f14e9d6da81913906829e60343d6f92309e917e0c6a3252f2166318340807",
       "docs/handbooks/_sources/overview/source.md": "20f7b918a2614a9ebd7d675f0cd55431635e2f65feedd4c10aef51c602aab40c",
       "docs/handbooks/_sources/overview/design.css": "e3015529f81584ab0578e365c42644854d9566bfeb45035e094044b503e16921",
-      "scripts/validate_skills.py": "afd50ff3d6f4fe25b79d55c4872941823ea53d1e74736a76cff49bd8df344ed0",
+      "scripts/validate_skills.py": "51b5e1e74623ca51945871d08dcc78dc14f4d51723784b78d3df6523eb3a196a",
       "scripts/check_registry_entries.py": "e3860f9b8e3876098cc65debe89bd1a2e236a333530a7c2d55d504628d01ce55",
       "scripts/lib/integrations/_catalog_adapters.py": "36f4fa103e7126692a32a5c93b56c77f2919cd2d2dad7ee6e318d259f49fa041",
       "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py": "6c6fe8535e5be98a5bd92118d6f27847dbe5edb04da52bfea78741eb0e3962d4",
@@ -24,18 +24,18 @@
   "checks": {
     "content": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.13/development/v4.13.2-handbook-claim-review.md",
-      "evidence_sha256": "d6d06610154d68e0b44fe843dccbdb961fd9992601e25775d3049e59fe690a23"
+      "evidence": "docs/releases/v4/v4.13/development/v4.13.11-phase-4-handbook-claim-review.md",
+      "evidence_sha256": "0054968de672219d24d8cc48fd53ee018e18233fb3358c3bc9975a505f848841"
     },
     "build": {
       "status": "pass",
-      "evidence": "docs/archives/v4/v4.10/development/v4.10.1-overview-build-evidence.json",
-      "evidence_sha256": "934500a671d5502019af7fcf9cebfcdeba218a67e43d1df49e1094e0d2f07ad3"
+      "evidence": "docs/releases/v4/v4.13/development/v4.13.11-phase-4-receipts/overview-build.json",
+      "evidence_sha256": "18a25747e76a48a7b72f00488ac49d7e92aad297be2edeb8e1b766b2bbcbfb80"
     },
     "rendered": {
       "status": "pass",
-      "evidence": "docs/archives/v4/v4.10/development/v4.10.1-overview-rendered.json",
-      "evidence_sha256": "8c1ebccc433599b21d76d79f71543df7064256c47777b01e6ae9e064ece4372e",
+      "evidence": "docs/releases/v4/v4.13/development/v4.13.11-phase-4-receipts/ar41-overview-render.json",
+      "evidence_sha256": "122a6d77068f510f458d989d9bd0144d426e8e126653039c3cd75610e19c06fa",
       "browser": "Chromium 151.0.7922.34",
       "output_sha256": "d061c7bf54f5a86aa9fb04ff46bc2aae412321c7bf9a9b06c1c845e6ec8be7ca"
     }

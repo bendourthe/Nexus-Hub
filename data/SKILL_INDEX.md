@@ -283,7 +283,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | direct-corpus-interaction | developer-experience | "Search code with a hypothesis-refine-anchor-verify discipline over hybrid retrieval plus direct corpus tools" | catalog/skills/developer-experience/direct-corpus-interaction/SKILL.md |
 | agent-presets | workflow | "Ready-made agent presets that compose existing skills into one-invocation bundles" | catalog/skills/workflow/agent-presets/SKILL.md |
 | document-to-interactive-html | specialized-domains | "Create unique offline interactive reading websites with included presentations, retained sources and verified visuals" | catalog/skills/specialized-domains/document-to-interactive-html/SKILL.md |
-| egress-redaction | security | "Detect sensitive data and apply a typed block/redact/hash/pass policy before egress" | catalog/skills/security/egress-redaction/SKILL.md |
+| egress-redaction | security | "Detect sensitive data and apply a typed block/redact/hash/pass policy before egress, persistence, or errors" | catalog/skills/security/egress-redaction/SKILL.md |
 | prompt-injection-defense | security | "Recognize and resist prompt injection and poisoned tool output with instruction-origin discipline" | catalog/skills/security/prompt-injection-defense/SKILL.md |
 | false-confidence-test-audit | tests-generation | "Audit existing tests for false confidence: tests that pass regardless of correctness" | catalog/skills/tests-generation/false-confidence-test-audit/SKILL.md |
 | commit-sweep | workflow | "Sweep recent commits for cross-commit problems a per-diff review misses" | catalog/skills/workflow/commit-sweep/SKILL.md |
