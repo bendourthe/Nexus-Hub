@@ -47,13 +47,18 @@ fi
 
 # --- Gather data ---
 TIMESTAMP="${NEXUS_SESSION_DIGEST_NOW:-$(date "+%Y-%m-%d %H:%M" 2>/dev/null || echo "unknown")}"
-PROJECT_NAME=$(basename "$(pwd)" 2>/dev/null || echo "unknown")
+PROJECT_ROOT="$(pwd)"
+if command -v git >/dev/null 2>&1; then
+  GIT_TOPLEVEL=$(git rev-parse --show-toplevel 2>/dev/null || true)
+  if [ -n "$GIT_TOPLEVEL" ]; then PROJECT_ROOT="$GIT_TOPLEVEL"; fi
+fi
+PROJECT_NAME=$(basename "$PROJECT_ROOT" 2>/dev/null || echo "unknown")
 
 # Try to get duration from stdin JSON
 INPUT=$(cat 2>/dev/null || true)
 DURATION="N/A"
 if [ -n "$INPUT" ] && command -v jq >/dev/null 2>&1; then
-  PARSED_DURATION=$(echo "$INPUT" | jq -r '.session_duration // .duration // empty' 2>/dev/null)
+  PARSED_DURATION=$(printf '%s' "$INPUT" | jq -r '(.session_duration // .duration // empty) | tostring | gsub("[\r\n|]"; " ") | .[0:64]' 2>/dev/null)
   if [ -n "${PARSED_DURATION:-}" ]; then
     DURATION="$PARSED_DURATION"
   fi
@@ -81,15 +86,6 @@ echo "| $TIMESTAMP | $PROJECT_NAME | $DURATION | $FILES_CHANGED |" >> "$LOG_FILE
 # --- Write project-scoped context digest ---
 if [[ "${NEXUS_SESSION_DIGEST:-on}" == "off" ]]; then
   exit 0
-fi
-
-# Project root: prefer git toplevel, fall back to cwd.
-PROJECT_ROOT="$(pwd)"
-if command -v git >/dev/null 2>&1; then
-  GIT_TOPLEVEL=$(git rev-parse --show-toplevel 2>/dev/null || true)
-  if [ -n "$GIT_TOPLEVEL" ]; then
-    PROJECT_ROOT="$GIT_TOPLEVEL"
-  fi
 fi
 
 DIGEST_REL="${NEXUS_SESSION_DIGEST_PATH:-.nexus/context/last-session.md}"

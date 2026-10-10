@@ -46,7 +46,12 @@ if (-not (Test-Path $logFile)) {
 # --- Gather data ---
 # NEXUS_SESSION_DIGEST_NOW fixes the Generated: timestamp (tests only).
 $timestamp = if ($env:NEXUS_SESSION_DIGEST_NOW) { $env:NEXUS_SESSION_DIGEST_NOW } else { Get-Date -Format "yyyy-MM-dd HH:mm" }
-$projectName = Split-Path (Get-Location).Path -Leaf
+$projectRoot = (Get-Location).Path
+try {
+    $gitTop = (git rev-parse --show-toplevel 2>$null)
+    if ($LASTEXITCODE -eq 0 -and $gitTop) { $projectRoot = $gitTop }
+} catch {}
+$projectName = Split-Path $projectRoot -Leaf
 
 # Try to read duration from stdin JSON.
 $duration = "N/A"
@@ -57,7 +62,13 @@ try {
         $parsed = $null
         if ($payload.PSObject.Properties.Name -contains 'session_duration') { $parsed = $payload.session_duration }
         elseif ($payload.PSObject.Properties.Name -contains 'duration') { $parsed = $payload.duration }
-        if ($parsed) { $duration = "$parsed" }
+        if ($parsed) {
+            $duration = "$parsed" -replace '[\r\n|]', ' '
+            if ($duration.Length -gt 64) {
+                $end = if ([char]::IsHighSurrogate($duration[63])) { 63 } else { 64 }
+                $duration = $duration.Substring(0, $end)
+            }
+        }
     }
 } catch {}
 
@@ -88,14 +99,6 @@ if ($inRepo) {
 
 # --- Write project-scoped context digest ---
 if ($env:NEXUS_SESSION_DIGEST -eq "off") { exit 0 }
-
-$projectRoot = (Get-Location).Path
-if ($inRepo) {
-    try {
-        $gitTop = (git rev-parse --show-toplevel 2>$null)
-        if ($LASTEXITCODE -eq 0 -and $gitTop) { $projectRoot = $gitTop }
-    } catch {}
-}
 
 $digestRel = if ($env:NEXUS_SESSION_DIGEST_PATH) { $env:NEXUS_SESSION_DIGEST_PATH } else { ".nexus/context/last-session.md" }
 $digestPath = Join-Path $projectRoot $digestRel

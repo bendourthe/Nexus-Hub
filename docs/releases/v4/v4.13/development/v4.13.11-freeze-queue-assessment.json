@@ -4,7 +4,7 @@
   "observed_at_utc": "2026-10-09T22:10:13.283388+00:00",
   "inspection_head": "57ddce2a437217d252060dd8a66839b0bb939d3d",
   "inspection_head_qualification": "Pre-amend observed Phase 2 commit only; not the final frozen HEAD. Native rendering must follow the final amend. No signed record exists yet.",
-  "workspace": "C:\\Users\\BEDOURTHE\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan",
+  "workspace": "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan",
   "skill": "catalog/skills/workflow/plan-queue-assessment/SKILL.md",
   "scope": "Read-only queue assessment. Only the two Temp assessment artifacts are written; no repository edits, global guard changes, staging, commits, publication, tags, main operations, queue moves or reordering.",
   "inventory": {
@@ -54,7 +54,7 @@
         "note": "no Status line; membership is undeclared"
       }
     ],
-    "fresh_input": "C:\\Users\\BEDOURTHE\\AppData\\Local\\Temp\\v41311-freeze-plan-queue.json",
+    "fresh_input": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-freeze-plan-queue.json",
     "fresh_input_sha256": "b43ddbe4d771b4042e68afeeb38d0f556498180c5cd03ddc8d1eab9c4f78d840",
     "admission_path": "docs/releases/v4/v4.13/development/v4.13.11-admission-plan-queue.json",
     "admission_sha256": "bd00cceb32dd8143d63e6cf9e466f68fb5c6bfbd6c5c291103e66efe25063f13",

@@ -8,6 +8,7 @@ check_plan_completion.py, which dispatches here and stays a thin dispatcher:
                                                  version order; excluded plans and
                                                  their reason on stderr
     check_plan_completion.py record render|create --minor vX.Y --session ID --approvals F
+    check_plan_completion.py record answer --minor vX.Y --session ID --blocker N [--member vX.Y.Z]
     check_plan_completion.py record pause|resume --minor vX.Y --session ID
     check_plan_completion.py record path --minor vX.Y
 
@@ -615,6 +616,28 @@ def action_page(token: str, action: str, record_nonce: str) -> dict:
     return {"action": action, "scope": {"kind": "minor", "minor": token}, "record_nonce": record_nonce}
 
 
+def answer_page(ck: ModuleType, token: str, record: dict, index: int | None, member: str | None) -> dict:
+    """Bind one open blocker and its actual member to the existing answer round."""
+    blockers = record.get("blockers") or []
+    if not isinstance(blockers, list) or not isinstance(index, int) or isinstance(index, bool) or not 0 <= index < len(blockers):
+        raise ck.Malformed("no open blocker at that index")
+    entry = blockers[index]
+    if not isinstance(entry, dict) or not entry.get("open"):
+        raise ck.Malformed("no open blocker at that index")
+    versions = {m.get("version") for m in record["members"]}
+    version = entry.get("version")
+    if version is not None and (not isinstance(version, str) or version not in versions):
+        raise ck.Malformed("blocker names a member outside this minor")
+    if member is not None and (member not in versions or member != version):
+        raise ck.Malformed("--member does not match this blocker's member")
+    category = entry.get("category")
+    if category not in ck.BLOCKER_CATEGORIES:
+        raise ck.Malformed("unknown blocker category")
+    page = action_page(token, "answer", str(record.get("nonce", "")))
+    page["blocker"] = {"index": index, "category": category, "version": version}
+    return page
+
+
 # --------------------------------------------------------------------------- record
 
 
@@ -827,6 +850,8 @@ def cmd_record_render(ck: ModuleType, args: argparse.Namespace) -> int:
     rctx = repo_context(ck, args)
     token = args.minor
     parse_minor(ck, token)
+    if getattr(args, "member", None) is not None and args.action != "answer":
+        raise ck.Malformed("--member requires --action answer")
     if args.action == "create":
         if not args.approvals:
             raise ck.Malformed("record render --action create needs --approvals")
@@ -839,15 +864,17 @@ def cmd_record_render(ck: ModuleType, args: argparse.Namespace) -> int:
             rctx.root, token, [(p.version, p.rel, p.text) for p in found[0].members], earlier=True,
             summary=summary_input(ck, rctx.root, getattr(args, "summary", None)),
         )
-    elif args.action in ("pause", "resume"):
+    elif args.action in ("answer", "pause", "resume"):
         record = _record_for_action(ck, rctx, token, args.action, args.session)
         if isinstance(record, int):
             return record
-        page = action_page(token, args.action, str(record.get("nonce", "")))
+        page = (answer_page(ck, token, record, args.blocker, getattr(args, "member", None))
+                if args.action == "answer" else action_page(token, args.action, str(record.get("nonce", ""))))
         display = None
     else:
-        raise ck.Malformed("a minor run answers blockers through its member plans")
+        raise ck.Malformed("a minor record supports create, answer, pause or resume")
     session = None if args.session == "auto" else args.session
+    blocker = args.blocker if args.action == "answer" else None
     try:
         pending = approval_binding.render(
             ck._runs_dir(),
@@ -857,9 +884,10 @@ def cmd_record_render(ck: ModuleType, args: argparse.Namespace) -> int:
             scope=token,
             page=page,
             session=session,
+            blocker=blocker,
             platform=args.platform,
             check=lambda pending: approval_page.render_page(
-                approval_page.render_data(pending, scope=token, blocker=None, display=display)
+                approval_page.render_data(pending, scope=token, blocker=blocker, display=display)
             ),
         )
     except approval_binding.Refusal as refusal:
@@ -867,7 +895,7 @@ def cmd_record_render(ck: ModuleType, args: argparse.Namespace) -> int:
     except approval_page.PageError as exc:
         print(f"approval page not rendered: {exc}", file=sys.stderr)
         return ck.EXIT_MALFORMED
-    data = approval_page.render_data(pending, scope=token, blocker=None, display=display)
+    data = approval_page.render_data(pending, scope=token, blocker=blocker, display=display)
     return approval_page.emit(data, mode)
 
 
@@ -943,12 +971,12 @@ def cmd_record_create(ck: ModuleType, args: argparse.Namespace) -> int:
 
 
 def _record_for_action(ck: ModuleType, rctx: RepoContext, token: str, action: str, session: str) -> dict | int:
-    """The verified record a pause or resume applies to.
+    """The verified record an answer, pause or resume applies to.
 
     A resume may adopt a record bound to another session (the cross-session
     resume); a pause applies only in the record's own session.
     """
-    state = load_minor(ck, rctx, token, None if session == "auto" else session)
+    state = load_minor(ck, rctx, token, None if session == "auto" else session, accept_completed=action == "answer")
     record = state.record or (state.other_session if action == "resume" else None)
     if record is not None:
         return record
@@ -958,6 +986,31 @@ def _record_for_action(ck: ModuleType, rctx: RepoContext, token: str, action: st
         print(f"notice: {notice}", file=sys.stderr)
     print("no minor run record for this scope and session", file=sys.stderr)
     return ck.EXIT_MALFORMED
+
+
+def cmd_record_answer(ck: ModuleType, args: argparse.Namespace) -> int:
+    rctx = repo_context(ck, args)
+    token = args.minor
+    parse_minor(ck, token)
+    record = _record_for_action(ck, rctx, token, "answer", args.session)
+    if isinstance(record, int):
+        return record
+    page = answer_page(ck, token, record, args.blocker, getattr(args, "member", None))
+    consumed = _consume(ck, rctx, token, "answer", page, args.session, str(record.get("session_id") or ""))
+    if isinstance(consumed, int):
+        return consumed
+    pending, _session = consumed
+    if args.text is not None and approval_binding.normalize(args.text) not in {
+        approval_binding.normalize(x) for x in pending["paste_lines"]
+    }:
+        return ck._refused("approval-not-captured")
+    record["blockers"][args.blocker].update(
+        open=False, answered=ck._now(), answer_text=approval_binding.pasted(pending),
+    )
+    # Blockers are unsigned; an answer never changes the frozen approval classes.
+    ck._write_record(record_file(ck, rctx, token), record)
+    print(f"ANSWERED blocker {args.blocker} minor {token}")
+    return 0
 
 
 def cmd_record_action(ck: ModuleType, args: argparse.Namespace, action: str) -> int:

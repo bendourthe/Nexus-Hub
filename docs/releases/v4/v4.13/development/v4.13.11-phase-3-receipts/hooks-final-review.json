@@ -1,0 +1,148 @@
+{
+  "created_utc": "2026-10-10T03:34:50.141151+00:00",
+  "verdict": "APPROVE",
+  "findings": [],
+  "scope": "Final Phase 3 hook review only: nine production files and three affected tests; independent narrow actual probes, no duplicate full suites",
+  "worktree": "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan",
+  "source_sha256": {
+    "catalog/hooks/auto-devlog.sh": "bee7ab831e7f2fe2a3414952811eedff4433617d0503cb6dced012fcda8a2b39",
+    "catalog/hooks/auto-devlog.ps1": "cffe2ff8f93f97679a5cfab3c08d27a9d5396593c902559d36a7e7f1d9e38b7d",
+    "catalog/hooks/learning-capture.sh": "89b2616b15394ab1d28be456704748615916da97e75b4736efba194bbf9e1818",
+    "catalog/hooks/learning-capture.ps1": "7988507f130657cb5641c634bc8a1e3550dbb99425be086ee46305e260452923",
+    "catalog/hooks/provenance-ledger.sh": "665d73312cfe4fc08bda151c1d51a15989f11c0df63f3ae8631911dd81cfd470",
+    "catalog/hooks/provenance-ledger.ps1": "0dcfcdb09c4a3f3eaa10ea256267756910150491d1a226a654d2fa0b6fd47c7e",
+    "catalog/hooks/session-summary.sh": "8d2c84a6a73f6b9c2e7fb080ec1d6c8d168db3b3d29880e65db2f252e4d58e61",
+    "catalog/hooks/session-summary.ps1": "b974be2128e014a5722484908754bdf876adbcdd3cc58aa38e4325770d8c6051",
+    "catalog/hooks/skill-tracker.py": "ace34dc5a02ef08c80e49202f8217404f44a5da379475de2b59226ea5dce962d",
+    "catalog/hooks/tests/test_auto_devlog_index_guard.py": "c3188aca5aacceb97a94056868c3735bada1570804d103a79ebfffd9cc5af6fa",
+    "catalog/hooks/tests/test_hook_size_bound.py": "46a315738dc28f09a8e961838ca62f32adc2a9705f7a0ee8854d2eac23223a75",
+    "catalog/hooks/tests/test_learning_capture.py": "5af3426a6a64c0cd17f305cc158673c25453d7824789c75ea057a36867c87f1e"
+  },
+  "source_set_sha256": "f0316462a749f0fdfd2a70bc5358029d5eb8eca79c4116d7de3974fae31f1767",
+  "source_set_hash_encoding": "SHA256 of ASCII JSON manifest with sort_keys=True and separators=(comma, colon)",
+  "supersedes_prior_source_binding": {
+    "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hook-final-review.json",
+    "sha256": "5216aba4eb85d14f49e8acc1fad139841aef9a7d943d879ecc1de7989af4f5bd",
+    "reason": "The later exact gate exposed devlog liveness and closure review identified mandatory provenance total-byte scope; both are repaired and independently reproved"
+  },
+  "evidence_receipt_sha256": {
+    "v41311-phase3-hook-final-review.json": "5216aba4eb85d14f49e8acc1fad139841aef9a7d943d879ecc1de7989af4f5bd",
+    "v41311-review-devlog-pipe-241m7jrf/receipt.json": "16ebbfbdd0a2964e6c3e28b9f725f091698a3e6867f43e98f53f25bc867286b3",
+    "v41311-review-devlog-selectors-b14dx7ln/receipt.json": "a338bf5201957ac73534fa151776613ec6efd79ab27acc3666be4b55c1c13756",
+    "v41311-review-devlog-selectors-b14dx7ln/heading-old-hook-receipt.json": "07de1d13370c353d112e10a2d582d39ed66e002484215562187f4390dd83c87f",
+    "v41311-review-devlog-green2-tw_02o91/receipt.json": "e9d149b718d3f06c6be87bd0f2ae7c14ed00126e4be20c0419fd287d0b18b92c",
+    "v41311-review-devlog-green-_3kfim89/fixture-eol-diagnostic.json": "b03dff862b6976fa6a5bec3623168fdad1ba9666a61db25b89fd90b9e6baa0d7",
+    "v41311-review-provenance-bytes-red-48h9lqxx/receipt.json": "d9a907a8f3f202914e3df2e4f2be6f21db50dc57af7c05edc3ab30b72087ee52",
+    "v41311-review-provenance-bytes-green2-bk0wz3lx/receipt.json": "27c9a45223f423010dc235cde2d091d29d89466bebd2cb9cdefdd49760ad46e5",
+    "nexus-provenance-config-review-71f718fccaf24c778f2b95aca29de740/probe_config.receipt.json": "08f2c72726aca519726ced059b91803ff61c7801dc28fa43ffb10f91505a44c6",
+    "v41311-phase3-hooks-resume/edits-size-eof-final.json": "2de6610c9785ce37b5725094c0182aca4bbf26e7fced3dcc82b21f19bd7da1fc",
+    "v41311-phase3-hooks-resume/combined-final-frozen.txt": "da36809737f5c77cdde4e67b4719a2c6c6f6b487d0a9c9abf4dd0525a8058d29",
+    "v41311-final-review-nul-green-eosljav_/receipt.json": "9ae2d3b5796d7bb001c12d9b8a00ed134bb645fa8da02acaf3b98c0a40c63c39",
+    "v41311-final-review-learning-green2-5s3r7gux/receipt.json": "6787c3c141871c05988d0f7af34f652cc20d3778971ddc51a8417e785cb310cf"
+  },
+  "fresh_actual_invocations": {
+    "total": 79,
+    "devlog_pressure": 5,
+    "provenance_byte_identity_and_degraded_io": 26,
+    "new_byte_knob_configuration": 48
+  },
+  "fresh_proof_details": [
+    "History pipeline SIGPIPE observed in 4 of 12 old selector runs; old heading pipeline SIGPIPE observed in all six pressure runs; eligible old whole-hook heading write made zero growth",
+    "Three corrected actual history writes retain newest ten complete commit IDs, bounded display subjects, and exact prior body; two corrected 8192-heading writes preserve complete LF body and insert after the first H2 boundary",
+    "Twenty-four actual jq, forced Python, and PowerShell writes cover raw and escaped Unicode, inherited 10000-Han and 400000-Han oversized rows, simultaneous line/byte caps, exact content hashes, and an intact 4096-byte supported path",
+    "Two actual failed rename flows return advisory 0 after one attempt, preserve the appended whole row and original ledger, emit explicit degraded-rotation stderr, and clean temporary files; cap can remain exceeded on declared I/O failure",
+    "Forty-eight independent actual configuration cases agree across Bash and PowerShell 5.1 on absent, empty, malformed, whitespace, nonpositive, tiny-positive, leading-zero, Int64 maximum, and overflow inputs; arithmetic-shaped input remains literal and produces no execution marker",
+    "Independent EOF reconstruction confirms only one trailing LF was removed from the final size test, and its parsed AST including source positions is unchanged"
+  ],
+  "resolved_findings": [
+    {
+      "severity": "P1",
+      "issue": "Raw NUL stripped before provenance JSON decoding, aliasing an existing file identity",
+      "verifier": "deterministic",
+      "resolution": "Byte-preserving read refuses raw NUL before capture; decoder-specific guards refuse escaped path NUL; twelve independent actual invocations passed"
+    },
+    {
+      "severity": "P1",
+      "issue": "Fallback learning rotation retried indefinitely after failed rename",
+      "verifier": "deterministic",
+      "resolution": "Failed rename cleans temporary file, emits degraded-cap diagnostic, then breaks; independent proof exited in 0.516 seconds after one attempt with five complete records retained"
+    },
+    {
+      "severity": "P1",
+      "issue": "Concurrent PowerShell learning append lost a record on native sharing violation",
+      "verifier": "deterministic",
+      "resolution": "Canonical-destination bounded named mutex encloses append and rotation; independent sixteen-writer forced rotation retained all unique inputs in 3835 bytes under 4096 cap"
+    },
+    {
+      "severity": "P1",
+      "issue": "Early-closing history and heading selectors caused pipefail SIGPIPE to terminate an eligible devlog write with advisory exit 0",
+      "resolution": "Native git -10 and grep -m 1 avoid the demonstrated upstream SIGPIPE; five independent actual pressure flows preserve prior body, newest ten commit identities, and bounded subjects"
+    },
+    {
+      "severity": "P1",
+      "issue": "Provenance line-only rotation did not satisfy the existing total UTF-8 byte-bound requirement or evict inherited oversized rows",
+      "resolution": "Both siblings retain the complete newest suffix satisfying byte and line caps, with a 1 MiB default and 8192-byte minimum; actual inherited, near-limit path, and injected rename-failure proofs retained"
+    },
+    {
+      "severity": "P1",
+      "issue": "PowerShell 5.1 OEM stdin decoding corrupted literal UTF-8 path identity before provenance hashing",
+      "resolution": "Process-local Console.InputEncoding UTF8 before ReadToEnd; independent raw and JSON-escaped Han/emoji file paths retain exact path and content hash on both siblings under rotation"
+    }
+  ],
+  "considered_but_rejected": [
+    {
+      "candidate": "Digest markers could trigger command-correlation warnings",
+      "location": "catalog/hooks/provenance-ledger.sh and provenance-ledger.ps1 command branches",
+      "reason": "The owning contract intentionally excludes complete unsupported-path digest markers; both implementations explicitly skip them"
+    },
+    {
+      "candidate": "Replacing strict file shrinkage could weaken rotation testing",
+      "location": "catalog/hooks/tests/test_hook_size_bound.py:test_rotation_holds_lowered_cap",
+      "reason": "Current assertions prove complete newest-record suffix, order, oldest-record eviction, exact retained count, hashes, and byte or line bounds; a plateau is valid"
+    },
+    {
+      "candidate": "Display truncation could alias commit or skill identity",
+      "location": "catalog/hooks/auto-devlog.sh/ps1 and skill-tracker.py",
+      "reason": "Commit identifiers remain separate and unchanged; oversized skill identities are refused rather than truncated"
+    },
+    {
+      "candidate": "Broader PowerShell console encoding could remain imperfect",
+      "location": "catalog/hooks/session-summary.ps1 and auto-devlog.ps1",
+      "reason": "This is the existing WN-37 residual, outside this bounded repair; no general encoding closure is claimed"
+    },
+    {
+      "candidate": "The diff head selector could share the devlog SIGPIPE defect",
+      "reason": "Nine real-Git pressure runs over 1200 committed paths and 96000 output bytes retained the same twenty paths with all-zero native PIPESTATUS; it was not changed"
+    },
+    {
+      "candidate": "Supported path serialization could expand beyond the 8192-byte cap floor",
+      "reason": "Supported paths are stored as intact UTF-8 TSV text without percent expansion; delimiter-containing or greater-than-4096-byte paths become fixed digest markers. An actual 4096-byte Han path remains whole"
+    },
+    {
+      "candidate": "New cap input could execute shell arithmetic, treat leading zeroes as octal, or diverge on terminal LF or overflow",
+      "reason": "Strict digit validation, quoted native integer testing, absolute PowerShell end anchor, and long TryParse agree in 48 actual sibling cases; execution marker is absent"
+    },
+    {
+      "candidate": "A stable size plateau could disguise oldest-row retention or truncate identity",
+      "reason": "Independent proofs compare the exact greedy contiguous newest-record suffix, whole normalized path and content hash, LF termination, valid UTF-8, and absence of BOM/temp files"
+    }
+  ],
+  "excluded_setup_attempts": [
+    "The first independent learning setup lacked Git core utilities on PATH; only its green2 receipt qualifies",
+    "The first independent large-devlog fixture used Windows CRLF; the saved EOL diagnostic explains byte normalization. Only the later LF green2 witness qualifies as raw-body preservation",
+    "The first provenance failed-rename PowerShell wrapper had an argv launcher error before entering the hook; only the later green2 receipt qualifies"
+  ],
+  "limits": [
+    "Parent and owning worker retain responsibility for the renewed exact combined gate on this twelve-file manifest, CI, phase completion, and ledger closure; none is inferred from this review",
+    "The broad WN-37 PowerShell console/git encoding residual remains open; only provenance redirected UTF-8 stdin identity is qualified here",
+    "Mixed Bash/Python and PowerShell concurrent rotation is not qualified",
+    "Provenance is advisory and intentionally exits 0 on declared degraded I/O; this review does not claim a nonzero blocking contract",
+    "Owner-reported focused 90-pass gate predates the executable-equivalent EOF cleanup; the renewed combined gate must bind the final test hash"
+  ],
+  "repository_edits": false,
+  "unpublished_draft_superseded": {
+    "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hook-renewed-review-celtbemx\\review.json",
+    "sha256": "459e25e841d6af7e87e5c32de2049f06ba158b8d40c46ffcfd022fbf702b222e",
+    "reason": "Corrected adjacent diff-selector trial count from twelve to the actual six head plus three draining runs; no finding or source change"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "name": "provenance-boundary-final",
+  "command": [
+    "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "catalog/hooks/tests/test_hook_size_bound.py",
+    "catalog/hooks/tests/test_provenance_ledger.py",
+    "-k",
+    "provenance"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 201.93355229997542,
+  "summary": [
+    "56 passed, 23 deselected in 197.01s (0:03:17)"
+  ],
+  "log": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\provenance-boundary-final.txt",
+  "log_sha256": "c0c287f7abbcd5b706abcc69288933cc8aefb02fa837d98c640b1ccb418fe23c",
+  "source_hashes_before": {
+    "catalog/hooks/provenance-ledger.sh": "db4811c2cf34a7c4f81e34e90313beb677e60b149a35166690b03481d4bbf63a",
+    "catalog/hooks/provenance-ledger.ps1": "389f0ab6cb8dc5ae0cbc2fecf53ed28cfd5aab1e1eaeea181298554d60bf4e3a",
+    "catalog/hooks/tests/test_hook_size_bound.py": "4e892fdb77e7dca1b303fb841478354d77fafb90ba2ea0854aca4587983362d7",
+    "catalog/hooks/tests/test_provenance_ledger.py": "738ca1fe30031ca8a0d8ff0cd528de0cfd576aa434367ebde9860be38135644f",
+    "catalog/hooks/tests/conftest.py": "bc12a2694f0f02a515f40b431667cde0db580401f5a062f32474cabb15345165"
+  },
+  "source_hashes_after": {
+    "catalog/hooks/provenance-ledger.sh": "db4811c2cf34a7c4f81e34e90313beb677e60b149a35166690b03481d4bbf63a",
+    "catalog/hooks/provenance-ledger.ps1": "389f0ab6cb8dc5ae0cbc2fecf53ed28cfd5aab1e1eaeea181298554d60bf4e3a",
+    "catalog/hooks/tests/test_hook_size_bound.py": "4e892fdb77e7dca1b303fb841478354d77fafb90ba2ea0854aca4587983362d7",
+    "catalog/hooks/tests/test_provenance_ledger.py": "738ca1fe30031ca8a0d8ff0cd528de0cfd576aa434367ebde9860be38135644f",
+    "catalog/hooks/tests/conftest.py": "bc12a2694f0f02a515f40b431667cde0db580401f5a062f32474cabb15345165"
+  },
+  "sources_unchanged": true,
+  "jq_path_prefix": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\bin",
+  "pythonpath": "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\extensions\\nexus-code-search\\src;",
+  "qualification": "Actual terminal subprocess result; focused scope only unless the complete requested suite is in command."
+}

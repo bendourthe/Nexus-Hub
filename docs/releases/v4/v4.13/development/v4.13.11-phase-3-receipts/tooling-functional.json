@@ -1,0 +1,184 @@
+{
+  "revision": "ff1aa631538fcf1cbc2380b28e1e001ebd880e8d",
+  "worktree": "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan",
+  "runtime": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+  "comparison": "matches",
+  "boundary": "real Python script CLI entry points and benchmark.main with only the destination overridden",
+  "assertions": [
+    "affected tiny graph returns exactly tests/test_utils.py",
+    "map spaced root produces expected artifact",
+    "no-op and forced regeneration distinguish --force forwarding",
+    "orphan lint exit 1 and named orphan",
+    "malformed argv exit 2 and preserved diagnostic",
+    "missing index exit 2 and diagnostic",
+    "temporary benchmark baseline parse and exact formatted newline",
+    "committed benchmark baseline SHA256 unchanged"
+  ],
+  "baseline_sha256_before": "46492c0e897c6c45abd1e1d6c766f535b2183519c6599fffc5b2cfe1d9457530",
+  "baseline_sha256_after": "46492c0e897c6c45abd1e1d6c766f535b2183519c6599fffc5b2cfe1d9457530",
+  "baseline_value": {
+    "_comment": "Token-savings benchmark baseline (v3.15.0 adoption-codesight Phase 5). Each 'min_reduction_ratio' is a floor a safety margin below the measured map-vs-manual token reduction; the gate fails if the map stops saving that much. The manual-exploration cost model + constants live in benchmark.py. Re-baseline with 'python -m nexus_code_search.contextmap.benchmark --update-baseline' and review the diff.",
+    "repos": {
+      "blog_ts": {
+        "min_reduction_ratio": 0.5
+      },
+      "shop_api": {
+        "min_reduction_ratio": 0.43
+      },
+      "tasks_py": {
+        "min_reduction_ratio": 0.39
+      }
+    },
+    "min_aggregate_reduction": 0.44
+  },
+  "source_hashes": {
+    "extensions/nexus-code-search/src/nexus_code_search/graph/affected.py": "49dc8e0b7bf89de18c872055974f85f5f2bb951ff69b18bfe35d5d078a5d8412",
+    "extensions/nexus-code-search/tests/test_context_map_measurement.py": "f644cfa6dd0af18e7b4029063d62518812a0828690b150a7d728e8f57370901c",
+    "tests/integrations/test_map_cli.py": "2c4d389fa1b99fcf412760aec8334578058bf57fcb777c4324059272bf843439",
+    "scripts/nexus_hub_cli.py": "07c39549763d464cb958bbec4cd9edada7ecd4fadb8c425991231ee175422c4b",
+    "scripts/nexus_hub_affected.py": "292161c1b04181e1a02601226075d772c41da6c5842f2f0f659765cd22269c2d",
+    "extensions/nexus-code-search/src/nexus_code_search/contextmap/benchmark.py": "7446a1b162102f79d522ec36b64e400afad8ba56e139eb132aa94235a300ba9a"
+  },
+  "commands": [
+    {
+      "name": "index-tiny-graph",
+      "command": [
+        "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+        "-c",
+        "import sys; from pathlib import Path; from nexus_code_search.config import CodeSearchConfig,index_dir_for; from nexus_code_search.extraction import ExtractionOrchestrator; root=Path(sys.argv[1]); cfg=CodeSearchConfig(hub_root=None); orch=ExtractionOrchestrator(root,cfg,index_dir_for(root,cfg)); print(orch.run(force=True)); orch.close()",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-tooling\\exercise-kt0zahwo\\tiny repository with spaces"
+      ],
+      "expected_exit_code": 0,
+      "exit_code": 0,
+      "duration_seconds": 0.406,
+      "stdout": "ExtractionStats(files_indexed=2, nodes_inserted=8, edges_inserted=6, files_skipped=0)\n",
+      "stderr": ""
+    },
+    {
+      "name": "affected-tiny-graph",
+      "command": [
+        "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\scripts\\nexus_hub_affected.py",
+        "--root",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-tooling\\exercise-kt0zahwo\\tiny repository with spaces",
+        "--json",
+        "src/utils.py"
+      ],
+      "expected_exit_code": 0,
+      "exit_code": 0,
+      "duration_seconds": 0.187,
+      "stdout": "{\n  \"root\": \"C:\\\\Users\\\\username\\\\AppData\\\\Local\\\\Temp\\\\v41311-phase3-tooling\\\\exercise-kt0zahwo\\\\tiny repository with spaces\",\n  \"changed_files\": [\n    \"src/utils.py\"\n  ],\n  \"depth\": 5,\n  \"test_glob\": null,\n  \"affected_tests\": [\n    \"tests/test_utils.py\"\n  ]\n}\n",
+      "stderr": ""
+    },
+    {
+      "name": "map-generated",
+      "command": [
+        "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\scripts\\nexus_hub_cli.py",
+        "map",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-tooling\\exercise-kt0zahwo\\tiny repository with spaces",
+        "--json"
+      ],
+      "expected_exit_code": 0,
+      "exit_code": 0,
+      "duration_seconds": 0.36,
+      "stdout": "{\n  \"root\": \"C:\\\\Users\\\\username\\\\AppData\\\\Local\\\\Temp\\\\v41311-phase3-tooling\\\\exercise-kt0zahwo\\\\tiny repository with spaces\",\n  \"map_path\": \"C:\\\\Users\\\\username\\\\AppData\\\\Local\\\\Temp\\\\v41311-phase3-tooling\\\\exercise-kt0zahwo\\\\tiny repository with spaces\\\\.nexus\\\\CONTEXT-MAP.md\",\n  \"context_dir\": \"C:\\\\Users\\\\username\\\\AppData\\\\Local\\\\Temp\\\\v41311-phase3-tooling\\\\exercise-kt0zahwo\\\\tiny repository with spaces\\\\.nexus\\\\context\",\n  \"article_paths\": [\n    \"C:\\\\Users\\\\username\\\\AppData\\\\Local\\\\Temp\\\\v41311-phase3-tooling\\\\exercise-kt0zahwo\\\\tiny repository with spaces\\\\.nexus\\\\context\\\\index.md\",\n    \"C:\\\\Users\\\\username\\\\AppData\\\\Local\\\\Temp\\\\v41311-phase3-tooling\\\\exercise-kt0zahwo\\\\tiny repository with spaces\\\\.nexus\\\\context\\\\src.md\",\n    \"C:\\\\Users\\\\username\\\\AppData\\\\Local\\\\Temp\\\\v41311-phase3-tooling\\\\exercise-kt0zahwo\\\\tiny repository with spaces\\\\.nexus\\\\context\\\\tests.md\"\n  ],\n  \"map_tokens\": 319,\n  \"total_tokens\": 573,\n  \"source_hash\": \"89c8d21225a19365\",\n  \"skipped\": false,\n  \"files_indexed\": 2,\n  \"symbols\": 2,\n  \"modules\": 2,\n  \"routes_count\": 0,\n  \"models_count\": 0,\n  \"components_count\": 0,\n  \"env_count\": 0,\n  \"events_count\": 0\n}\n",
+      "stderr": ""
+    },
+    {
+      "name": "map-no-op",
+      "command": [
+        "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\scripts\\nexus_hub_cli.py",
+        "map",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-tooling\\exercise-kt0zahwo\\tiny repository with spaces",
+        "--json"
+      ],
+      "expected_exit_code": 0,
+      "exit_code": 0,
+      "duration_seconds": 0.234,
+      "stdout": "{\n  \"root\": \"C:\\\\Users\\\\username\\\\AppData\\\\Local\\\\Temp\\\\v41311-phase3-tooling\\\\exercise-kt0zahwo\\\\tiny repository with spaces\",\n  \"map_path\": \"C:\\\\Users\\\\username\\\\AppData\\\\Local\\\\Temp\\\\v41311-phase3-tooling\\\\exercise-kt0zahwo\\\\tiny repository with spaces\\\\.nexus\\\\CONTEXT-MAP.md\",\n  \"context_dir\": \"C:\\\\Users\\\\username\\\\AppData\\\\Local\\\\Temp\\\\v41311-phase3-tooling\\\\exercise-kt0zahwo\\\\tiny repository with spaces\\\\.nexus\\\\context\",\n  \"article_paths\": [\n    \"C:\\\\Users\\\\username\\\\AppData\\\\Local\\\\Temp\\\\v41311-phase3-tooling\\\\exercise-kt0zahwo\\\\tiny repository with spaces\\\\.nexus\\\\context\\\\index.md\",\n    \"C:\\\\Users\\\\username\\\\AppData\\\\Local\\\\Temp\\\\v41311-phase3-tooling\\\\exercise-kt0zahwo\\\\tiny repository with spaces\\\\.nexus\\\\context\\\\src.md\",\n    \"C:\\\\Users\\\\username\\\\AppData\\\\Local\\\\Temp\\\\v41311-phase3-tooling\\\\exercise-kt0zahwo\\\\tiny repository with spaces\\\\.nexus\\\\context\\\\tests.md\"\n  ],\n  \"map_tokens\": 319,\n  \"total_tokens\": 573,\n  \"source_hash\": \"89c8d21225a19365\",\n  \"skipped\": true,\n  \"files_indexed\": 2,\n  \"symbols\": 2,\n  \"modules\": 2,\n  \"routes_count\": 0,\n  \"models_count\": 0,\n  \"components_count\": 0,\n  \"env_count\": 0,\n  \"events_count\": 0\n}\n",
+      "stderr": ""
+    },
+    {
+      "name": "map-forced",
+      "command": [
+        "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\scripts\\nexus_hub_cli.py",
+        "map",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-tooling\\exercise-kt0zahwo\\tiny repository with spaces",
+        "--force",
+        "--json"
+      ],
+      "expected_exit_code": 0,
+      "exit_code": 0,
+      "duration_seconds": 0.391,
+      "stdout": "{\n  \"root\": \"C:\\\\Users\\\\username\\\\AppData\\\\Local\\\\Temp\\\\v41311-phase3-tooling\\\\exercise-kt0zahwo\\\\tiny repository with spaces\",\n  \"map_path\": \"C:\\\\Users\\\\username\\\\AppData\\\\Local\\\\Temp\\\\v41311-phase3-tooling\\\\exercise-kt0zahwo\\\\tiny repository with spaces\\\\.nexus\\\\CONTEXT-MAP.md\",\n  \"context_dir\": \"C:\\\\Users\\\\username\\\\AppData\\\\Local\\\\Temp\\\\v41311-phase3-tooling\\\\exercise-kt0zahwo\\\\tiny repository with spaces\\\\.nexus\\\\context\",\n  \"article_paths\": [\n    \"C:\\\\Users\\\\username\\\\AppData\\\\Local\\\\Temp\\\\v41311-phase3-tooling\\\\exercise-kt0zahwo\\\\tiny repository with spaces\\\\.nexus\\\\context\\\\index.md\",\n    \"C:\\\\Users\\\\username\\\\AppData\\\\Local\\\\Temp\\\\v41311-phase3-tooling\\\\exercise-kt0zahwo\\\\tiny repository with spaces\\\\.nexus\\\\context\\\\src.md\",\n    \"C:\\\\Users\\\\username\\\\AppData\\\\Local\\\\Temp\\\\v41311-phase3-tooling\\\\exercise-kt0zahwo\\\\tiny repository with spaces\\\\.nexus\\\\context\\\\tests.md\"\n  ],\n  \"map_tokens\": 319,\n  \"total_tokens\": 573,\n  \"source_hash\": \"89c8d21225a19365\",\n  \"skipped\": false,\n  \"files_indexed\": 2,\n  \"symbols\": 2,\n  \"modules\": 2,\n  \"routes_count\": 0,\n  \"models_count\": 0,\n  \"components_count\": 0,\n  \"env_count\": 0,\n  \"events_count\": 0\n}\n",
+      "stderr": ""
+    },
+    {
+      "name": "map-orphan-lint",
+      "command": [
+        "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\scripts\\nexus_hub_cli.py",
+        "map",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-tooling\\exercise-kt0zahwo\\tiny repository with spaces",
+        "--lint",
+        "--json"
+      ],
+      "expected_exit_code": 1,
+      "exit_code": 1,
+      "duration_seconds": 0.328,
+      "stdout": "{\n  \"map_present\": true,\n  \"healthy\": false,\n  \"orphans\": [\n    \"orphan.md\"\n  ],\n  \"missing_backlinks\": [\n    \"orphan.md\"\n  ],\n  \"stale\": false\n}\n",
+      "stderr": ""
+    },
+    {
+      "name": "map-malformed",
+      "command": [
+        "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\scripts\\nexus_hub_cli.py",
+        "map",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-tooling\\exercise-kt0zahwo\\tiny repository with spaces",
+        "--not-a-map-option"
+      ],
+      "expected_exit_code": 2,
+      "exit_code": 2,
+      "duration_seconds": 0.266,
+      "stdout": "",
+      "stderr": "usage: nexus-hub map [-h] [--force] [--json] [--since GIT_REF] [--lint]\n                     [--knowledge [NOTES_PATH]]\n                     [root]\nnexus-hub map: error: unrecognized arguments: --not-a-map-option\n"
+    },
+    {
+      "name": "map-missing-index",
+      "command": [
+        "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\scripts\\nexus_hub_cli.py",
+        "map",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-tooling\\exercise-kt0zahwo\\unindexed repository with spaces",
+        "--json"
+      ],
+      "expected_exit_code": 2,
+      "exit_code": 2,
+      "duration_seconds": 0.265,
+      "stdout": "",
+      "stderr": "error: no graph index found at C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-tooling\\exercise-kt0zahwo\\unindexed repository with spaces\\.nexus\\code-index\\codegraph.db. Run the `index_graph` tool for this repository first.\n"
+    },
+    {
+      "name": "baseline-update",
+      "command": [
+        "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+        "-c",
+        "import sys; from pathlib import Path; from nexus_code_search.contextmap import benchmark as b; b.BASELINE_PATH=Path(sys.argv[1]); raise SystemExit(b.main(sys.argv[2:]))",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-tooling\\exercise-kt0zahwo\\observed temporary baseline.json",
+        "--update-baseline"
+      ],
+      "expected_exit_code": 0,
+      "exit_code": 0,
+      "duration_seconds": 0.578,
+      "stdout": "",
+      "stderr": "wrote baseline C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-tooling\\exercise-kt0zahwo\\observed temporary baseline.json\n"
+    }
+  ],
+  "not_covered": [
+    "No whole-suite, renderer, release, or remote CI proof is claimed"
+  ]
+}

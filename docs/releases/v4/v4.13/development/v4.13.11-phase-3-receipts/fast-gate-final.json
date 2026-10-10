@@ -1,0 +1,12 @@
+{
+  "command": [
+    "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+    "scripts/ci/run.py",
+    "--profile",
+    "fast",
+    "--quiet"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 14.92,
+  "log": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-root\\fast-gate-final.txt"
+}

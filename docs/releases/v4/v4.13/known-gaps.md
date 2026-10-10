@@ -3,7 +3,7 @@
 **Project**: Nexus-Hub
 **Status**: released; PR #230 merged the complete 34-task plan and tag `v4.13.0` was published on 2026-09-21. Two bounded warning-class findings remain owned for future measurement work. GitHub branch protection passed a live pull-request gate test; the second trigger pilot stopped on an unproven spend bound.
 **Last updated**: 2026-10-09
-**Open items**: 157
+**Open items**: 153
 **Accounting, 2026-10-09 (v4.13.11 T006-T007)**: The Open items header is derived from current parsed state, including canonical historical owners. Patch Summary tables preserve their release-time snapshots; they do not replace the current header count. Original patch/ID identities remain in the source bodies and the reconciliation manifest.
 
 Release-scoped gaps for the evidence-driven agent improvement plan. Planned future-phase work is tracked in the plan rather than reported as completed here.
@@ -1137,15 +1137,17 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 ### AR-08: Missing direct tests
 
-- **Current state**: no test covers `validate_frontmatter_strict_yaml`, `detect-platform.sh` / `enumerate-models.sh`, `benchmark --update-baseline`, the `nexus-hub map` dispatch, or the model-prompting `DEFAULT_GUARDS` suite end to end.
+**Local clause qualification, 2026-10-10 (v4.13.11 T012 and MT-001)**: Temporary benchmark-baseline writes and the real map entry-point argv/status boundary are proved by 37 focused passes, nine actual boundary observations and three caught intentional mutants. The real optimizer executable-on-PATH proof also passes, including iteration/final artifacts, test-score selection and original-byte restoration, within the separate 105-test smoke batch. Original `v3.15.1#MT-2` is the benchmark clause and `v3.15.1#MT-1` is the map clause. AR-08 remains open for strict YAML, model-helper and DEFAULT_GUARDS proofs in Phase 4, plus terminal CI registration of the new map test. Evidence: [Phase 3 checkpoint](development/v4.13.11-phase-3-checkpoint.json).
+
+- **Current state**: The strict-YAML, model-helper and real DEFAULT_GUARDS clauses remain unproved; benchmark/map and real optimizer boundaries are now proved. Terminal CI registration of the new map test remains pending.
 - **Owner and next step**: owners of each surface; add one focused test per item.
 - **Historical transfer note**: v3.4#DF-v34-1 (residual), v3.14.3#MT-1, v3.15.1#MT-1, v3.15.1#MT-2, and v3.15.5#MT-4 on 2026-09-29 (reason: still open).
 
 **Transfer review, 2026-10-09 (v4.13.11 T007)**: The blocks below preserve complete historical obligations and their later partial dispositions. Current remaining clauses are assessed independently; historical fixed clauses do not reopen.
 
-**Current residual from `v1.1#MT-001`**: Add a deterministic fake claude binary on PATH, run the optimizer for one iteration through run_iteration/invoke_cli, and assert iteration-1.json shape plus best_description chosen by test_trigger_rate. Exercise candidate generation and trigger detection at the subprocess boundary; stubbing scorer Python functions is insufficient.
+**Historical residual from `v1.1#MT-001`, now qualified locally**: Add a deterministic fake claude binary on PATH, run the optimizer for one iteration through run_iteration/invoke_cli, and assert iteration-1.json shape plus best_description chosen by test_trigger_rate. Exercise candidate generation and trigger detection at the subprocess boundary; stubbing scorer Python functions is insufficient.
 
-**Partial disposition**: Retain open. Independent of AR04 real-provider eval-harness validity.
+**Partial disposition**: This optimizer subprocess clause is qualified locally by the 105-test smoke/optimizer batch. Terminal CI registration of the new map test and AR-08 strict-YAML/model-helper/DEFAULT_GUARDS clauses remain open; AR-04 real-provider eval-harness validity remains independent.
 
 - **Migrated from**: v1.1#MT-001 (reason: user-deferred); original `v1.1#MT-001`, section `Open Items`.
 
@@ -1464,7 +1466,9 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 ### AR-34: No repository-wide Ruff baseline
 
-- **Current state**: `ruff check` still reports findings (for example F401 and F841 in `graph/affected.py`, and findings in `scripts/lib/integrations/`); Ruff runs only in `presentify-extractor.yml`.
+**Local clause qualification, 2026-10-10 (v4.13.11 T011)**: The inherited `v3.15.1#WN-2` clause is fixed by removing only the unused EdgeKind import and frontier assignment. Ruff F401/F841 passes; affected graph, CLI and server tests pass and a tiny actual CLI graph returns exactly tests/test_utils.py. AR-34 remains open for its broader repository-wide baseline and unrelated findings. Evidence: [Phase 3 checkpoint](development/v4.13.11-phase-3-checkpoint.json).
+
+- **Current state**: The two reported F401/F841 findings in graph/affected.py are fixed. Repository-wide baseline, unrelated findings in scripts/lib/integrations/ and broader Ruff gating remain open.
 - **Owner and next step**: CI owner; set a baseline, fix the small findings, and gate new ones.
 - **Historical transfer note**: v3.15.1#WN-2, v3.15.10 (Ruff advisory), and v3.17.0#WN-2 on 2026-09-29 (reason: still open).
 
@@ -2447,7 +2451,9 @@ No new Phase 4 implementation, regression, missing-test, or quality-gate gap rem
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-46`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.10`, section `v3.15.10 - end-of-task-agent-behavior`, and original ID `DF-16`.
 
-### AR-48: `session-summary.sh` labels projects by the working directory
+### AR-48: `session-summary.sh` labels projects by the working directory - RESOLVED
+
+**Resolution, 2026-10-09 (v4.13.11 Phase 3)**: Both session-summary siblings now derive the project name from the Git root. Disposable subdirectory runs and regression tests prove the root name. Evidence: [Phase 3 verification](development/v4.13.11-phase-3-evidence.md).
 
 - **Current state**: still `basename "$(pwd)"`.
 - **Owner and next step**: hooks maintainer; derive the name from the git top-level, as the notify hooks do, in both siblings.
@@ -2896,15 +2902,17 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 ### AR-62: Exact installed helper delivery remains unproved across supported operating systems
 
+**Partial implementation, 2026-10-10 (v4.13.11 T013)**: EXPECTED_SCRIPTS now names package_skill.py, aggregate_benchmark.py, skill_eval_viewer.py, optimize_skill_description.py and generate_report.py, which both unchanged installers already distribute. Nine actual checker invocations against faithful disposable Windows copies include success and refusal for every missing helper. This closes the exact-expectation clause; actual Linux and macOS workspace-installer receipts for DF-006/DF-008 remain open. Evidence: [Phase 3 checkpoint](development/v4.13.11-phase-3-checkpoint.json).
+
 **Owner**: Installer-smoke test owner. **Status**: open; PLAN except the explicitly admitted installed-helper delivery candidate.
 
 **Future plan ownership**: The named owner must supply or select a v4.14 follow-up plan for clauses remaining after this sweep; the existing push-size-guard plan is not assigned unrelated work.
 
-**Current residual from `v1.1#DF-006`**: Prove aggregate_benchmark.py, skill_eval_viewer.py and optimize_skill_description.py reach installed scripts on Linux and macOS through the real workspace installer smoke. Add those exact paths to EXPECTED_SCRIPTS per Phase3 T013; retain actual per-OS receipts.
+**Current residual from `v1.1#DF-006`**: Capture actual Linux and macOS workspace-installer receipts proving `aggregate_benchmark.py`, `skill_eval_viewer.py` and `optimize_skill_description.py` reach the installed scripts path, together with the retained source cumulative Phase 2, Phase 4 and Phase 5 delivery obligations. The exact `EXPECTED_SCRIPTS` additions are qualified locally by Phase 3 T013; faithful Windows copies do not prove real installer delivery.
 
 **Partial disposition**: Existing generic recursive-copy and syntax tests do not by themselves prove these exact outputs. AR26 covers a different live macOS curl bootstrap boundary.
 
-**Current residual from `v1.1#DF-008`**: Prove package_skill.py reaches the installed scripts path on real Linux/macOS workspace smoke, alongside the historical cumulative bundle delivery obligations.
+**Current residual from `v1.1#DF-008`**: Capture actual Linux and macOS workspace-installer receipts proving `package_skill.py` reaches the installed scripts path and covering the retained source cumulative Phase 2, Phase 4, Phase 5, Phase 6 and Phase 7 bundle/helper delivery obligations. The exact `EXPECTED_SCRIPTS` addition is qualified locally; real installer delivery remains open.
 
 **Partial disposition**: Group with DF-006 without replacing its exact helper list. The package round-trip tests are narrower than installer delivery.
 
@@ -4094,11 +4102,11 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 4 | 1 |
-| Bugs / regressions (BG) | 3 | 0 |
-| Warnings (WN) | 19 | 1 |
+| Deferred (DF) | 4 | 0 |
+| Bugs / regressions (BG) | 1 | 2 |
+| Warnings (WN) | 16 | 3 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
-| Quality-gate gaps (QG) | 2 | 0 |
+| Quality-gate gaps (QG) | 1 | 1 |
 
 ### Open Items
 
@@ -4306,19 +4314,25 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 - **Carried from**: v4.13.8#WN-34 on 2026-10-03
 - **Re-measured 2026-10-04 (v4.13.9 T434)**: the final full profile hit the cap again at 96 percent; run alone without the cap the group took 3325.7 s (2873 passed, 22 skipped, 1 failed). The one failure was a real stale assertion that no earlier full run reached because the step timed out first, so a timed-out step can also hide a failure.
 
-#### BG-13 (v4.13.9): `auto-devlog.sh` silently drops every entry after a heading reaches line 1
+#### BG-13 (v4.13.9): `auto-devlog.sh` silently drops every entry after a heading reaches line 1 - RESOLVED
+
+**Resolution, 2026-10-09 (v4.13.11 Phase 3)**: Bash devlog inserts before a line-1 entry heading and preserves the title. Oversized commit input is carried through a pipeline without the previous here-string stall. Native Git and grep producer limits avoid the demonstrated early-reader SIGPIPE; deterministic history/heading-pressure regressions prove positive output and full commit identities. Evidence: [Phase 3 verification](development/v4.13.11-phase-3-evidence.md).
 
 - **Source phase**: Phase 5. **Plan reference**: `v4.13.9-adoption-inline-visualize-codex-disk-writes-review-flow-gpt-6-1-sol.md`, T423.
 - **Reason**: the size-bound test's liveness check found that once a `## [` entry heading reaches line 1 of `DEVLOG.md`, the computed insert line is 0, which `awk`'s `NR == 0` never matches, so every later entry is dropped while the hook still prints that the entry was prepended. The second entry also lands above the `# Dev Log` title. The `.ps1` sibling inserts correctly, so the pair disagrees. This plan changes no hook (T423 failure mode), so the defect is recorded, and the test holds it as a strict expected failure that turns red once it is fixed. Measurement: [`v4.13.9-hook-size-bound.md`](development/v4.13.9-hook-size-bound.md).
 - **Suggested next step**: fix the insert-line computation in `catalog/hooks/auto-devlog.sh` so a line-1 heading inserts before it, add an exit-code and output parity case to the hook's tests, then remove its `KNOWN_BREACHES` entry in `catalog/hooks/tests/test_hook_size_bound.py`.
 
-#### BG-14 (v4.13.9): `learning-capture.sh` silently drops an event over 128 KiB on Linux
+#### BG-14 (v4.13.9): `learning-capture.sh` silently drops an event over 128 KiB on Linux - RESOLVED
+
+**Resolution, 2026-10-09 (v4.13.11 Phase 3)**: Learning JSON reaches Python through UTF-8 stdin rather than an oversized environment entry. Local Git Bash large-payload proof produces bounded complete records; native Linux qualification belongs to terminal CI; malformed input retains its advisory no-op contract. Evidence: [Phase 3 verification](development/v4.13.11-phase-3-evidence.md).
 
 - **Source phase**: Phase 6 (integration pull request #424, Linux `tests` job). **Plan reference**: `v4.13.9-adoption-inline-visualize-codex-disk-writes-review-flow-gpt-6-1-sol.md`, T435.
 - **Reason**: the hook passes the whole payload to Python in one environment variable (`NEXUS_LC_PAYLOAD`). Linux caps a single environment string at 128 KiB (`MAX_ARG_STRLEN`), so for a larger payload Python fails to start with "Argument list too long", the error is discarded by `2>/dev/null || true`, and no record is written while the hook exits 0. Reproduced in WSL Ubuntu on 2026-10-04. On Windows and macOS the same payload is written whole instead (the WN-36 breach). The size-bound test holds the `.sh` breach as expected only off Linux (`[not-linux]`).
 - **Suggested next step**: pass the payload to Python on standard input instead of in the environment, truncate `hook_event_name` and `tool_name` with the WN-36 fix, then remove the `[not-linux]` gate and the breach entry.
 
-#### WN-36 (v4.13.9): Five file-writing hooks copy a field without truncation
+#### WN-36 (v4.13.9): Five file-writing hooks copy a field without truncation - RESOLVED
+
+**Resolution, 2026-10-09 (v4.13.11 Phase 3)**: Copied learning, duration and subject fields are bounded; oversized skill names are refused to preserve identity. Full provenance paths are recorded or represented by a bounded complete-path digest excluded from correlation. Both provenance siblings enforce total UTF-8 bytes as well as lines, evict inherited oversized records and retain intact newest path/hash records; rotation uses complete records. PowerShell reads raw tool input with process-local UTF-8 decoding so literal Unicode paths retain their identity. Independent identity/NUL, failed-rename and concurrent PowerShell rotation proofs pass. Broader WN-37 and mixed-runtime concurrency remain unqualified. Evidence: [Phase 3 verification](development/v4.13.11-phase-3-evidence.md).
 
 - **Source phase**: Phase 5. **Plan reference**: `v4.13.9-adoption-inline-visualize-codex-disk-writes-review-flow-gpt-6-1-sol.md`, T423.
 - **Reason**: one oversized event (64 KiB fields) grows a file by 65 to 132 KB, measured 2026-10-03: `learning-capture` copies the event and tool names whole (131549 bytes .sh, 131543 .ps1), `provenance-ledger` copies the file path whole and rotates by lines rather than bytes (65699), `session-summary` copies the session duration whole into its log and digest (.ps1 always; .sh when `jq` is present), `auto-devlog.ps1` lists commit subjects whole, and `skill-tracker.py` stores the skill name whole. Ordinary events stay at 70 to 1100 bytes. The test records each as a known breach, so a fix shows up as a failing expected-failure. Measurement: [`v4.13.9-hook-size-bound.md`](development/v4.13.9-hook-size-bound.md).
@@ -4441,6 +4455,17 @@ Gaps from the Training page rebuild ([`v4.13.10-training-page-rebuild`](plans/v4
 
 Admission and normalization findings for the [known-gaps sweep plan](plans/v4.13.11-known-gaps-sweep-and-minor-close.md). Admission is based on the maintainer's 2026-10-09 exception and merged develop `ae60a3240`; main, PR #438 and tags remain maintainer-owned.
 
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 3 |
+| Warnings (WN) | 2 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
 ### Open Items
 
 #### WN-39 (v4.13.11): Scheduled supply-chain audit reports vulnerable PyJWT 2.14.0
@@ -4474,3 +4499,13 @@ Admission and normalization findings for the [known-gaps sweep plan](plans/v4.13
 **Reason**: The supported native freeze cannot proceed when its generated minor approval payload is refused by the page renderer. **Suggested next step**: apply the smallest compatible producer/consumer correction, retaining strict unknown-field and branch/member validation, then exercise both negative fixtures and this exact real command. **Acceptance**: valid single-plan and minor payloads render their exact bounded actions; malformed or unrelated fields refuse; the actual sole-member page renders successfully. **Proving command**: focused approval-page regressions plus the exact native command above. This gap is recorded before the migration-ID freeze and cannot be closed from a mocked result alone.
 
 **Diagnosis and resolution, 2026-10-09**: The preparation draft used numeric bounds for actions that require an explicit branch mapping or no bound. Native page validation correctly refused it before replacing a valid round. The draft now uses exact `remote`, `source`, `target` and `repo` fields for push-merge and omits bounds on cleanup-merged and archive-minor. Repush 3 and minor-close-pr 1 retain their existing retry meanings. No renderer or approval-schema change was needed. Existing focused regressions passed 27 tests (105 deselected) in 0.76 seconds, including wrong bounds, unknown fields, unsafe remotes and contradictory targets. The exact real minor-render command exited 0 and produced a page after this correction. Its pre-amend preview is verification evidence only; the final committed HEAD must be rendered separately before requesting the supported user paste. See [bound validation](development/v4.13.11-approval-bound-validation.json).
+
+#### BG-17 (v4.13.11): Minor run cannot answer a recorded member blocker - RESOLVED
+
+**Resolution, 2026-10-09 (v4.13.11 Phase 3)**: The native schema-2 answer dispatch is implemented and qualified by 30 regressions, 120 compatibility checks and 29 actual disposable CLI invocations in five proof fixtures. Invalid index/member/session, altered pages and non-origin answers refuse without changing the signed record. The live blocker still needs its genuine captured continuation line; no live capture or record was fabricated. Evidence: [Phase 3 verification](development/v4.13.11-phase-3-evidence.md).
+
+**Source phase**: Phase 3 resume after the explicit user approval. **Plan reference**: [v4.13.11](plans/v4.13.11-known-gaps-sweep-and-minor-close.md), T014 and the native completion boundary. **Severity**: medium; workflow blocker. **Owner**: completion tooling maintainer.
+
+**Evidence**: The schema-2 record has an open user-edit-guard blocker for member v4.13.11. The three exact guarded versions have now been native-accepted under explicit user agreement. Minor answer rendering instead refuses with "a minor run answers blockers through its member plans"; the advertised member answer reads only schema-1 records and reports no record. Minor resume clears only pause and never closes the blocker.
+
+**Reason**: A resolved underlying guard refusal cannot be cleared through the documented native minor command. **Suggested next step**: add the missing schema-2 answer dispatch with exact member/index and genuine prompt-origin binding; close only the selected blocker and preserve all frozen approval classes. **Acceptance**: real disposable native CLI proof closes only the correctly approved blocker; invalid index/member, foreign session, uncaptured or quoted answers and altered pages refuse without changing the signed record. **Proving command**: focused minor-record and approval-origin regressions plus the native CLI exercise. No live signed record, capture or approval is fabricated.

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 
@@ -101,6 +102,71 @@ def test_benchmark_cli_repo_mode(capsys: pytest.CaptureFixture) -> None:
 
 def test_benchmark_cli_missing_corpus(tmp_path: Path) -> None:
     assert bench.main(["--corpus", str(tmp_path / "nope")]) == 2
+
+
+def test_benchmark_cli_update_writes_only_temporary_baseline(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture
+) -> None:
+    committed_path = bench.BASELINE_PATH
+    committed_hash = hashlib.sha256(committed_path.read_bytes()).hexdigest()
+    destination = tmp_path / "temporary baseline.json"
+    report = bench.BenchmarkReport(
+        repos=[
+            bench.RepoBenchmark("first", 200, 1000, 0.8, 2, 1, 0, 0, 0),
+            bench.RepoBenchmark("second", 300, 1000, 0.7, 3, 0, 1, 0, 0),
+        ]
+    )
+    expected = {
+        "_comment": bench.load_baseline(committed_path)["_comment"],
+        "repos": {
+            "first": {"min_reduction_ratio": 0.75},
+            "second": {"min_reduction_ratio": 0.65},
+        },
+        "min_aggregate_reduction": 0.7,
+    }
+    monkeypatch.setattr(bench, "BASELINE_PATH", destination)
+    monkeypatch.setattr(bench, "run_benchmark", lambda corpus: report)
+
+    assert bench.main(["--update-baseline"]) == 0
+
+    written = destination.read_text(encoding="utf-8")
+    assert written == json.dumps(expected, indent=2) + "\n"
+    assert json.loads(written) == expected
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert captured.err == f"wrote baseline {destination}\n"
+    assert hashlib.sha256(committed_path.read_bytes()).hexdigest() == committed_hash
+
+
+def test_benchmark_cli_unwritable_destination_preserves_committed_baseline(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    committed_path = bench.BASELINE_PATH
+    committed_bytes = committed_path.read_bytes()
+    destination = tmp_path / "baseline directory"
+    destination.mkdir()
+    monkeypatch.setattr(bench, "BASELINE_PATH", destination)
+    monkeypatch.setattr(bench, "run_benchmark", lambda corpus: bench.BenchmarkReport())
+
+    with pytest.raises(OSError):
+        bench.main(["--update-baseline"])
+
+    assert list(destination.iterdir()) == []
+    assert committed_path.read_bytes() == committed_bytes
+
+
+def test_benchmark_load_rejects_malformed_baseline_without_writing(tmp_path: Path) -> None:
+    committed_path = bench.BASELINE_PATH
+    committed_bytes = committed_path.read_bytes()
+    malformed = tmp_path / "malformed baseline.json"
+    malformed.write_text("{not json}\n", encoding="utf-8")
+    original = malformed.read_bytes()
+
+    with pytest.raises(json.JSONDecodeError):
+        bench.load_baseline(malformed)
+
+    assert malformed.read_bytes() == original
+    assert committed_path.read_bytes() == committed_bytes
 
 
 # --- Map-health lint --------------------------------------------------------

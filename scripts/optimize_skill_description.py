@@ -503,14 +503,14 @@ def _swap_description(skill_path: Path, new_description: str) -> None:
     if end == -1:
         raise ValueError(f"{skill_path}: unterminated frontmatter, refusing to overwrite")
     fm = text[3:end]
-    new_fm = re.sub(
+    new_fm, replacements = re.subn(
         r"^description:\s*.+?(?=\n[a-zA-Z_]+:|$)",
         f"description: {new_description}",
         fm,
         count=1,
         flags=re.DOTALL | re.MULTILINE,
     )
-    if new_fm == fm:
+    if replacements != 1:
         raise ValueError(f"{skill_path}: failed to replace description in frontmatter")
     skill_path.write_text("---" + new_fm + text[end:], encoding="utf-8")
 

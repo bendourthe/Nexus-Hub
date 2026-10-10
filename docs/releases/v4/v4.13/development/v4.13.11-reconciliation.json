@@ -1,7 +1,7 @@
 {
   "baseline": "ae60a3240a538a84bf8cfc2f92b6612594e0d226",
   "date": "2026-10-09",
-  "phase": "Phase 2 local preparation; native freeze/member-start pending",
+  "phase": "Phase 3 gate complete; one local phase commit pending",
   "qualification": "All original triage rows retained unchanged. Historical normalization, canonical source transfers, final hash bindings and current ID mapping are separate receipts. No release, archive, approval record or minor-complete claim.",
   "reported_counts": {
     "PLAN": 213,
@@ -22519,6 +22519,13 @@
       "class": "PLAN",
       "phase": 5,
       "evidence": "Maintainer observation on 2026-10-09: 18-38 minutes on CI, native (program) time dominant, two unchanged-output/no-speed-up changes reverted. Not independently profiled during admission."
+    },
+    {
+      "origin": "v4.13.11#BG-17",
+      "class": "QUICK",
+      "phase": 3,
+      "evidence": "Native schema-2 minor record blocker index 0 cannot be answered: minor rendering refuses answer and the advertised member route loads only schema-1 records. A scoped native CLI/API fix preserves actual prompt-origin validation.",
+      "phase3_disposition": "RESOLVED native API defect; actual captured continuation remains a separate record condition"
     }
   ],
   "additional_candidates": [
@@ -25423,6 +25430,439 @@
         "disposition": "resolved from focused regressions and actual successful render",
         "receipt": "docs/releases/v4/v4.13/development/v4.13.11-approval-bound-validation.json",
         "native_implementation_changed": false
+      }
+    ],
+    "native_run_activation": {
+      "status": "recorded-and-started",
+      "receipt": "docs/releases/v4/v4.13/development/v4.13.11-native-run-activation.json",
+      "frozen_minor_start_head": "30e94ff6418b40b598447103583e3139fe4aa08c",
+      "member_start_head": "002b7283a8b839588c8d0e468cbb502f594cb3e6",
+      "frozen_plan_hash_unchanged": true
+    }
+  },
+  "phase3": {
+    "observed_at_utc": "2026-10-10T03:53:12.692576+00:00",
+    "phase": 3,
+    "gate": "GO",
+    "qualified_tasks": [
+      "T010",
+      "T011",
+      "T012",
+      "T013",
+      "T014"
+    ],
+    "source_sha256": {
+      "catalog/hooks/auto-devlog.sh": "bee7ab831e7f2fe2a3414952811eedff4433617d0503cb6dced012fcda8a2b39",
+      "catalog/hooks/auto-devlog.ps1": "cffe2ff8f93f97679a5cfab3c08d27a9d5396593c902559d36a7e7f1d9e38b7d",
+      "catalog/hooks/learning-capture.sh": "89b2616b15394ab1d28be456704748615916da97e75b4736efba194bbf9e1818",
+      "catalog/hooks/learning-capture.ps1": "7988507f130657cb5641c634bc8a1e3550dbb99425be086ee46305e260452923",
+      "catalog/hooks/provenance-ledger.sh": "665d73312cfe4fc08bda151c1d51a15989f11c0df63f3ae8631911dd81cfd470",
+      "catalog/hooks/provenance-ledger.ps1": "0dcfcdb09c4a3f3eaa10ea256267756910150491d1a226a654d2fa0b6fd47c7e",
+      "catalog/hooks/session-summary.sh": "8d2c84a6a73f6b9c2e7fb080ec1d6c8d168db3b3d29880e65db2f252e4d58e61",
+      "catalog/hooks/session-summary.ps1": "b974be2128e014a5722484908754bdf876adbcdd3cc58aa38e4325770d8c6051",
+      "catalog/hooks/skill-tracker.py": "ace34dc5a02ef08c80e49202f8217404f44a5da379475de2b59226ea5dce962d",
+      "catalog/hooks/tests/test_auto_devlog_index_guard.py": "c3188aca5aacceb97a94056868c3735bada1570804d103a79ebfffd9cc5af6fa",
+      "catalog/hooks/tests/test_hook_size_bound.py": "46a315738dc28f09a8e961838ca62f32adc2a9705f7a0ee8854d2eac23223a75",
+      "catalog/hooks/tests/test_learning_capture.py": "5af3426a6a64c0cd17f305cc158673c25453d7824789c75ea057a36867c87f1e",
+      "extensions/nexus-code-search/src/nexus_code_search/graph/affected.py": "49dc8e0b7bf89de18c872055974f85f5f2bb951ff69b18bfe35d5d078a5d8412",
+      "extensions/nexus-code-search/tests/test_context_map_measurement.py": "f644cfa6dd0af18e7b4029063d62518812a0828690b150a7d728e8f57370901c",
+      "tests/integrations/test_map_cli.py": "2c4d389fa1b99fcf412760aec8334578058bf57fcb777c4324059272bf843439",
+      "scripts/check_installer_smoke.py": "8c79f39f7e8494c2ef9ce521cd0ebf95be1d37245300ea793ef5dfbfc39ced9e",
+      "scripts/optimize_skill_description.py": "c606c94fcaea4aba565d4e7f2ddfed7f5c4a969e3c15481d672852da7932d514",
+      "tests/installer/test_installer_smoke_postconditions.py": "6dec021724ec291d2415c1158f66a0a9f883f1d9208f720572d14d7a014bd38b",
+      "catalog/hooks/tests/test_eval_loop.py": "ee739d15ead56fc689c30010d12b89f1dd35e1be3541c7bc2eb4ddbe90d1c515",
+      "scripts/check_plan_completion.py": "a52f69c654b776bd9f3fff27cef6618669ce0f877ec0a727a5ad7bb8e1ef26f6",
+      "scripts/completion_minor.py": "e76ad2c4715f4d9b37674aa457901f393e497c4d99c2a28715ebbb4282ce5ea8",
+      "tests/validators/test_completion_minor_record.py": "6778078323277494bb40a0e8f7f442c6b04c7edc04d6a43465a42582f15ceade",
+      "catalog/skills/workflow/implement-phase/references/completion-contract.md": "87cd771de40180db6340a8ea32ad84eb84e19734db2d68074946dc52260b0c4b"
+    },
+    "frozen_plan_hash": "f810cd9838d5c88927d00903a11f1bdcc9771ca950d2cb113f9a0b04a19311ed",
+    "receipts": [
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/hooks-final.json",
+        "raw_source_sha256": "bdb41bad64d85ec6d51bd2bd7a6560837a1e04892bdbdc2a77ba3582bae6b4d1",
+        "retained_sha256": "3c1ad172d8481330481f936774cb328e6893a34adf3664c15378f2ce86129427",
+        "representation": "Only local account path components anonymized; raw original retained locally."
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/hooks-combined-final.json",
+        "raw_source_sha256": "76c15ae8bab1ab781fc93764a3cbe846c20acb67a9854cd25ec74f8304de43b3",
+        "retained_sha256": "cebca6effdd3414fd1fb8c37b64199e447f11ffb87d90f8f0cdae7e5579a1a78",
+        "representation": "Only local account path components anonymized; raw original retained locally."
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/hooks-combined-final.txt",
+        "raw_source_sha256": "e0424991145fb8762ec68cd6fa207018d97b64308875f8e16c7856223c6d0f24",
+        "retained_sha256": "1d8213f6789ab0baa6ab0c3059cddadb0a8370c7e665ab791ab8c2e10952c62c",
+        "representation": "Only local account path components anonymized; raw original retained locally."
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/hooks-functional-final.json",
+        "raw_source_sha256": "d47810694c4f090364bf45aaa7b9a12adda01ac27e0ee977e0cf9dc48e621562",
+        "retained_sha256": "09542a5a37aa0a77214c70fb179c760929bf1c12f3e3dcb3d6673a981768acb1",
+        "representation": "Only local account path components anonymized; raw original retained locally."
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/hooks-functional-terminal.json",
+        "raw_source_sha256": "b1ed49518d136e4dfc21f397758f12d18c69184c4293a863f256ec5cb527c999",
+        "retained_sha256": "a1871548bcedf66eef1de574a7fd58e20c9d312eff00344161e97a5f5c795df1",
+        "representation": "Only local account path components anonymized; raw original retained locally."
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/hooks-final-review.json",
+        "raw_source_sha256": "d26b5b032ccb5eebe7c13d5994c94dbe010abf203d4a5feb7e24d4edfc7873d0",
+        "retained_sha256": "17797b041a2783b1c59449a593df57c3ab0a11227aef79c785bc560be3b1a767",
+        "representation": "Only local account path components anonymized; raw original retained locally."
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/learning-final.json",
+        "raw_source_sha256": "57110f50683baf4a7033f8ec97e69a150f1b3e96e5d95783bfc645ca02aa810f",
+        "retained_sha256": "0d9cb1ababd99a843aa61d0e26d37237c5d441b7ae83825f447700f576ac916b",
+        "representation": "Only local account path components anonymized; raw original retained locally."
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/learning-mutex-branches.json",
+        "raw_source_sha256": "763d248127b4f0a57c3a026e1ea942bc4b4297a6f7df0c2820ea7d79c123b2ba",
+        "retained_sha256": "865f1b11dd05d95c23e155903b650d9640438de99fa3a248192528da8e34fc9e",
+        "representation": "Only local account path components anonymized; raw original retained locally."
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/learning-red-stress.json",
+        "raw_source_sha256": "e9a7d03a23fa9ab8d86fd2107bb4e935af6d86a75c82385a909b9713dd1130e0",
+        "retained_sha256": "09a0d99061820955532c3de966ee202730b0cdc5bf6a6158279c3a055f628ece",
+        "representation": "Only local account path components anonymized; raw original retained locally."
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/learning-independent-final.json",
+        "raw_source_sha256": "6787c3c141871c05988d0f7af34f652cc20d3778971ddc51a8417e785cb310cf",
+        "retained_sha256": "0b932cc0a3b9a8da247b23370a232f639be3e9c9f6586748597561b053694e84",
+        "representation": "Only local account path components anonymized; raw original retained locally."
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/provenance-independent-before-byte-cap.json",
+        "raw_source_sha256": "9ae2d3b5796d7bb001c12d9b8a00ed134bb645fa8da02acaf3b98c0a40c63c39",
+        "retained_sha256": "0b87429869c212bebc5cb138fd59c4b302f95883e09979f9fed667bc0a7e28d7",
+        "representation": "Only local account path components anonymized; raw original retained locally."
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/provenance-boundary-before-byte-cap.json",
+        "raw_source_sha256": "fb02b53caa051a90dfa78964dfe79138ffdc05c0038e3be902140ea710e83bdb",
+        "retained_sha256": "a22076049846012f561caff468e3502ac392c2d7c3bfaaa9b86ad7e2f222113b",
+        "representation": "Only local account path components anonymized; raw original retained locally."
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/minor-answer-final.json",
+        "raw_source_sha256": "0ba9f390d44991c70f3976a15bde47dfd4f130a7217296648a4c33d8e3d7e672",
+        "retained_sha256": "ef8b4a655cc59ae3d09129cbf7a66cf7853797f66c378ec31536cf4cc6a9227f",
+        "representation": "Only local account path components anonymized; raw original retained locally."
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/minor-answer-actual-cli.json",
+        "raw_source_sha256": "cce28ac245b0b0c94af5d9d59783ec026421ea8e42e93a151805a98ba03992b1",
+        "retained_sha256": "54491526a82a6fe28e9a02ea658ec0a15753b0616fa72df5bbd570d4108f8c0e",
+        "representation": "Only local account path components anonymized; raw original retained locally."
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/hooks-combined-red.json",
+        "raw_source_sha256": "87311a0332c8113182267ebea90afc1d9d9a7b189ebd5ca36c8d4eefaed8573e",
+        "retained_sha256": "8303b4eba87bdbbd7c0d26acdf81732943811e4f5d4a501f6ac5b9194478bc33",
+        "representation": "Only local account path components anonymized; raw original retained locally."
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/hooks-combined-red.txt",
+        "raw_source_sha256": "da36809737f5c77cdde4e67b4719a2c6c6f6b487d0a9c9abf4dd0525a8058d29",
+        "retained_sha256": "9eb394fe86148c6b5baf24d83f9918e7d8ac0a95d4f55fc871f9cb93cc2196cc",
+        "representation": "Local account path components anonymized; trailing whitespace and extra blank lines at EOF normalized. Raw originals unchanged outside the repository."
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/additional-final-proof-01.json",
+        "raw_source_sha256": "44223b866aa2fe25ea08224a13f547eac791c2651061b2831c863543ba4844a1",
+        "retained_sha256": "16f419ce52f425f36634e81e73cfe6d4f36cea28329917076516a33203206877",
+        "representation": "Only local account path components anonymized; raw original retained locally."
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/additional-final-proof-02.json",
+        "raw_source_sha256": "b5ab6fdf2a3e7c0393b558214edf7af2ba82cf0f10d0586bcc201dca824af3bb",
+        "retained_sha256": "d8e984ef19b785c71e94dd4ba49cb347ad58b4e72eff897418db96d555f8d6c7",
+        "representation": "Only local account path components anonymized; raw original retained locally."
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/additional-final-proof-03.json",
+        "raw_source_sha256": "27c9a45223f423010dc235cde2d091d29d89466bebd2cb9cdefdd49760ad46e5",
+        "retained_sha256": "7d5b17af29d2d52b8e927bc9a71d2f4cc25a4667fb81ea1b284946ddabe7ea89",
+        "representation": "Only local account path components anonymized; raw original retained locally."
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/additional-final-proof-04.json",
+        "raw_source_sha256": "e9d149b718d3f06c6be87bd0f2ae7c14ed00126e4be20c0419fd287d0b18b92c",
+        "retained_sha256": "43fb1d3ef5ff3012bb4f8c41a3dae0a9d7ac4ed74117173bd904d837fb0cba2c",
+        "representation": "Only local account path components anonymized; raw original retained locally."
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/additional-final-proof-05.json",
+        "raw_source_sha256": "08f2c72726aca519726ced059b91803ff61c7801dc28fa43ffb10f91505a44c6",
+        "retained_sha256": "066ba23fb05f62e677c2474e382bcfe96340fc198b7ba7287c0986c58dfe37da",
+        "representation": "Only local account path components anonymized; raw original retained locally."
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/additional-final-proof-06.json",
+        "raw_source_sha256": "d9a907a8f3f202914e3df2e4f2be6f21db50dc57af7c05edc3ab30b72087ee52",
+        "retained_sha256": "8aaaafc4470d397834bcb7d8526fe93de97d39e07a09fe25d2034e73a0ff8f1b",
+        "representation": "Only local account path components anonymized; raw original retained locally."
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/additional-final-proof-07.json",
+        "raw_source_sha256": "02a2025452a9dc1f7c1c95a6a6daf034c970dc2e5f1ca8c4cfd0296df6ec1417",
+        "retained_sha256": "9dc56bafeaed11091acce7b794168e55dd69e365f819737b5e876dee8026173b",
+        "representation": "Only local account path components anonymized; raw original retained locally."
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/additional-final-proof-08.txt",
+        "raw_source_sha256": "7fd87d1dc96d6b56f108b9ffbde827af6ad1e039968515225a18b33dde3b67a8",
+        "retained_sha256": "39093b96a770641ba3ba417413b81dc800a5ece1bd720f65241b85fb6352cf19",
+        "representation": "Only local account path components anonymized; raw original retained locally."
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/additional-final-proof-09.json",
+        "raw_source_sha256": "dc6af98b521187bcc77b62f1fd4859fee255ef9db5b37f7e4f458e61dc87c981",
+        "retained_sha256": "80cf3c7a34a8f9aae408a289c6e0649d401e60b117b164a138a00da9485251ed",
+        "representation": "Only local account path components anonymized; raw original retained locally."
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/additional-final-proof-10.json",
+        "raw_source_sha256": "a4536fe1e9f334f1d6de89999a45eef45f2d1f28c12a48310e83f4d00749a4cd",
+        "retained_sha256": "dcb1adda1eaee8a25c7e3650301d8076115b79225b88a8627ec06f8dd8596294",
+        "representation": "Only local account path components anonymized; raw original retained locally."
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/additional-final-proof-11.json",
+        "raw_source_sha256": "6ca790197cb2ae33714287bdfefd8bda0342c238a5277fc2b28d22c09f3cde0d",
+        "retained_sha256": "09f3578541e335dc7e1d34453ff1c03deb3e46239dbddca70d1eb1020a56144b",
+        "representation": "Only local account path components anonymized; raw original retained locally."
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/hooks-functional-fixture-red-1.json",
+        "raw_source_sha256": "d6bb07833c571e2a7961ddcceca421431ea905ec37a539de319aa212700c8f3f",
+        "retained_sha256": "ed1b2d2fe541f5d3e47a2a845dbe5207fe3d1fc7a41549c33b2bb70c8873a549",
+        "representation": "Only local account path components anonymized; raw original retained locally."
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/hooks-functional-fixture-red-1-terminal.json",
+        "raw_source_sha256": "cab7c5aba0bbd28b936fdb4f9dcac9136b9ffd71b59258b935d8b78d1e2bcbc5",
+        "retained_sha256": "7221b53e795edffd43b7e20e5cc66f79f63f619785761f84e2b57998ae3f31af",
+        "representation": "Only local account path components anonymized; raw original retained locally."
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/hooks-functional-fixture-red-1.txt",
+        "raw_source_sha256": "0f3013d2b7ccc1d8feb6670a630c502d5de860737933d146dd9b16ebf43655a3",
+        "retained_sha256": "9441d0651bb76c056fbafe72790ec87309ead2afd749ff82dc03704a40eba570",
+        "representation": "Local account path components anonymized; trailing whitespace and extra blank lines at EOF normalized. Raw originals unchanged outside the repository."
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/hooks-functional-fixture-red-2.json",
+        "raw_source_sha256": "76c07d5a3483f47d857bc1d754509eed9998dd487aca83084f4b7c5f007fc2b9",
+        "retained_sha256": "d2f5a7ceac599aa6b4d44547ac4cf6114d5eb3812ef7c5df35d06cfdc6a5f370",
+        "representation": "Only local account path components anonymized; raw original retained locally."
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/hooks-functional-fixture-red-2-terminal.json",
+        "raw_source_sha256": "c2356c60e67c02fe2db24d98af6ade6163fd6c2f046a20534f474d5c4395a8a4",
+        "retained_sha256": "a19d3c2da88722e579f90f1a754655515b7fe3d88e826e216c7c917ec7c06390",
+        "representation": "Only local account path components anonymized; raw original retained locally."
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/hooks-functional-fixture-red-2.txt",
+        "raw_source_sha256": "0cb4bc72e49aa1da28f536466010310b30ff1274e563b01d12338819e30f9c24",
+        "retained_sha256": "3204cc1329365eb87c2481730643ad8c5ef2e8bd3a3f02f97247c4984d21816c",
+        "representation": "Local account path components anonymized; trailing whitespace and extra blank lines at EOF normalized. Raw originals unchanged outside the repository."
+      }
+    ],
+    "post_phase": {
+      "8.1_gitignore": {
+        "patterns_added": 0,
+        "exit": 0
+      },
+      "8.2_test_review": {
+        "qualification": "Use the final exact combined run after the last hook changes; no source drift or new concerns justify an additional identical run.",
+        "verified_source_files": 23,
+        "hashes": {
+          "catalog/hooks/auto-devlog.sh": "bee7ab831e7f2fe2a3414952811eedff4433617d0503cb6dced012fcda8a2b39",
+          "catalog/hooks/auto-devlog.ps1": "cffe2ff8f93f97679a5cfab3c08d27a9d5396593c902559d36a7e7f1d9e38b7d",
+          "catalog/hooks/learning-capture.sh": "89b2616b15394ab1d28be456704748615916da97e75b4736efba194bbf9e1818",
+          "catalog/hooks/learning-capture.ps1": "7988507f130657cb5641c634bc8a1e3550dbb99425be086ee46305e260452923",
+          "catalog/hooks/provenance-ledger.sh": "665d73312cfe4fc08bda151c1d51a15989f11c0df63f3ae8631911dd81cfd470",
+          "catalog/hooks/provenance-ledger.ps1": "0dcfcdb09c4a3f3eaa10ea256267756910150491d1a226a654d2fa0b6fd47c7e",
+          "catalog/hooks/session-summary.sh": "8d2c84a6a73f6b9c2e7fb080ec1d6c8d168db3b3d29880e65db2f252e4d58e61",
+          "catalog/hooks/session-summary.ps1": "b974be2128e014a5722484908754bdf876adbcdd3cc58aa38e4325770d8c6051",
+          "catalog/hooks/skill-tracker.py": "ace34dc5a02ef08c80e49202f8217404f44a5da379475de2b59226ea5dce962d",
+          "catalog/hooks/tests/test_auto_devlog_index_guard.py": "c3188aca5aacceb97a94056868c3735bada1570804d103a79ebfffd9cc5af6fa",
+          "catalog/hooks/tests/test_hook_size_bound.py": "46a315738dc28f09a8e961838ca62f32adc2a9705f7a0ee8854d2eac23223a75",
+          "catalog/hooks/tests/test_learning_capture.py": "5af3426a6a64c0cd17f305cc158673c25453d7824789c75ea057a36867c87f1e",
+          "extensions/nexus-code-search/src/nexus_code_search/graph/affected.py": "49dc8e0b7bf89de18c872055974f85f5f2bb951ff69b18bfe35d5d078a5d8412",
+          "extensions/nexus-code-search/tests/test_context_map_measurement.py": "f644cfa6dd0af18e7b4029063d62518812a0828690b150a7d728e8f57370901c",
+          "tests/integrations/test_map_cli.py": "2c4d389fa1b99fcf412760aec8334578058bf57fcb777c4324059272bf843439",
+          "scripts/check_installer_smoke.py": "8c79f39f7e8494c2ef9ce521cd0ebf95be1d37245300ea793ef5dfbfc39ced9e",
+          "scripts/optimize_skill_description.py": "c606c94fcaea4aba565d4e7f2ddfed7f5c4a969e3c15481d672852da7932d514",
+          "tests/installer/test_installer_smoke_postconditions.py": "6dec021724ec291d2415c1158f66a0a9f883f1d9208f720572d14d7a014bd38b",
+          "catalog/hooks/tests/test_eval_loop.py": "ee739d15ead56fc689c30010d12b89f1dd35e1be3541c7bc2eb4ddbe90d1c515",
+          "scripts/check_plan_completion.py": "a52f69c654b776bd9f3fff27cef6618669ce0f877ec0a727a5ad7bb8e1ef26f6",
+          "scripts/completion_minor.py": "e76ad2c4715f4d9b37674aa457901f393e497c4d99c2a28715ebbb4282ce5ea8",
+          "tests/validators/test_completion_minor_record.py": "6778078323277494bb40a0e8f7f442c6b04c7edc04d6a43465a42582f15ceade",
+          "catalog/skills/workflow/implement-phase/references/completion-contract.md": "87cd771de40180db6340a8ea32ad84eb84e19734db2d68074946dc52260b0c4b"
+        },
+        "post_docs_fast": {
+          "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/post-docs-fast.json",
+          "exit_code": 0,
+          "elapsed_seconds": 14.780999999959022,
+          "retained_sha256": "e2b179f419d0ef3d2279e93960a791ef2688d394f4fb574ca17ebae70abbb0fe",
+          "qualification": "Required fast profile after all closing Markdown writes; executable sources unchanged. Receipt-only JSON updates follow."
+        }
+      },
+      "8.3_ci_impact": {
+        "pipeline_edits": [],
+        "existing": "Hook tests, code-search measurement and smoke/optimizer suites are already covered. No dependency or secret added. New optional NEXUS_PROVENANCE_MAX_BYTES defaults to 1 MiB with an 8192-byte minimum; both siblings and existing hook coverage prove byte/line suffix rotation.",
+        "terminal_input": "Register tests/integrations/test_map_cli.py in final canonical reconciliation; preserve three serial guide runners, 45-minute limits and no xdist."
+      },
+      "8.4_plan_delta": "Incomplete; exact smoke clauses complete, actual Linux/macOS installer receipts remain open.",
+      "8.5_known_gaps": {
+        "closed": [
+          "v4.13.0#AR-48",
+          "v4.13.9#BG-13",
+          "v4.13.9#BG-14",
+          "v4.13.9#WN-36",
+          "v4.13.11#BG-17"
+        ],
+        "open_before": 158,
+        "open_after": 153,
+        "partial_owners": [
+          "AR-08",
+          "AR-34",
+          "AR-62"
+        ],
+        "no_historical_hash_bound_ledger_changed": true
+      },
+      "8.6_docs_audit": {
+        "mode": "audit",
+        "receipt": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-docs-audit.json",
+        "newly_broken": 0,
+        "moves": 0,
+        "deletes": 0,
+        "report": "docs/releases/v4/v4.13/docs-cleanup-report.md",
+        "final_scope_newly_broken": 0
+      },
+      "8.7_devlog": "No index row added: v4.13.11 is unreleased. Changes, decisions, CI impact, failed runs and gap dispositions are in the phase history.",
+      "8.8_docs_sync": {
+        "updated": [
+          "catalog/skills/workflow/implement-phase/references/completion-contract.md"
+        ],
+        "no_op": "No README, architecture or guide change follows from these bounded hook/test repairs. Help and minor-answer dispatch are proved by actual disposable CLI calls."
+      },
+      "8.9_session_history": "docs/releases/v4/v4.13/development/history/v4.13.11-phase-3-session.md",
+      "8.10_commit_message": "Prepared ASCII component/Tests/CI-CD/Known gaps message outside the repository.",
+      "8.11_commit_mode": "Full mode auto-selects one local commit; no push, PR or remote CI."
+    },
+    "combined_summary": [
+      "437 passed in 754.04s (0:12:34)"
+    ],
+    "functional_observations": 16,
+    "independent_review": "APPROVE, no open findings",
+    "native_guard_accepts": "Three exact preserved versions accepted; see v4.13.11-phase-3-guard-acceptance.json. All contents carried forward.",
+    "native_pending": "The old minor blocker requires the canonical user-origin answer through the supported native API. No capture or signed record was fabricated; consult the native rendered round for its exact continuation line.",
+    "coverage": "New tests cover the modified executable surfaces and preserve existing regression checks. The >=80% whole-project threshold remains the final-phase obligation; no whole-project coverage claim.",
+    "limits": [
+      "Phase-only qualification; Phases 4-8 not implemented.",
+      "No remote publication, merge, release, archive or cleanup completion claim.",
+      "WN-37, mixed-runtime concurrency and genuine broader residuals stay open."
+    ],
+    "historical_checkpoint": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-checkpoint.json",
+    "gap_clauses": [
+      {
+        "origin": "v3.15.1#WN-2",
+        "owner": "AR-34",
+        "disposition": "local clause qualified",
+        "remaining": "Repository-wide Ruff baseline and unrelated findings remain open."
+      },
+      {
+        "origin": "v3.15.1#MT-2",
+        "stable_id": "MT-2-v3151",
+        "owner": "AR-08",
+        "disposition": "benchmark temporary-baseline write clause qualified"
+      },
+      {
+        "origin": "v3.15.1#MT-1",
+        "stable_id": "MT-1-v3151",
+        "owner": "AR-08",
+        "disposition": "real map CLI forwarding and exits qualified",
+        "remaining": "Register tests/integrations/test_map_cli.py in the terminal canonical CI reconciliation."
+      },
+      {
+        "origin": "v1.1#MT-001",
+        "owner": "AR-08",
+        "disposition": "real executable-on-PATH optimizer clause qualified",
+        "remaining": "AR-08 strict YAML, model-helper and DEFAULT_GUARDS clauses belong to Phase 4."
+      },
+      {
+        "origins": [
+          "v1.1#DF-006",
+          "v1.1#DF-008"
+        ],
+        "owner": "AR-62",
+        "disposition": "five exact smoke expectations and faithful Windows-copy boundary qualified",
+        "remaining": "Actual Linux and macOS workspace-installer receipts remain open."
+      }
+    ],
+    "origin_label_correction": {
+      "v3.15.1#MT-2": "benchmark temporary-baseline writes",
+      "v3.15.1#MT-1": "real map forwarding and exits",
+      "v3.15.1#WN-2": "affected-code lint",
+      "raw_receipt_preserved": true
+    },
+    "historical_functional_fixture_attempts": [
+      {
+        "attempt": 1,
+        "exit_code": 1,
+        "observations": 13,
+        "qualification": "Temporary H2 selector also matched H3. Correct selector recovered all ten expected newest commits from unchanged successful hook output."
+      },
+      {
+        "attempt": 2,
+        "exit_code": 1,
+        "observations": 14,
+        "qualification": "Repeated call had no eligible commits, so no-op was correct. Final green fixture restored the old eligible baseline before each positive call."
+      }
+    ],
+    "root_preservation_warnings": {
+      "root_clean": true,
+      "root_edits_accepts_overwrites": 0,
+      "ledger_native_diff_normalized_sha256": "1bc904710afd3378f20d5495490fc9da65eba0cd2f87c0358a304ca5f75b373f",
+      "ledger_qualification": "Identical to previously reviewed 594-line native diff after newline normalization; historical version differences, no new differences.",
+      "contract_native_diff_sha256": "94e46660ebc8f874ccc76a64a732cf2adb46b74f5a5209dbfe99a2c23336f953",
+      "contract_qualification": "All five hunks reviewed independently; historical contract updates, no identifiable new uncommitted user edit. Separate root remains intact."
+    },
+    "retained_log_formatting": [
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/hooks-combined-red.txt",
+        "before_retained_sha256": "49816dafff485c14203a8088025f7c9393e68233ea5da4b73ab7b2f727588270",
+        "after_retained_sha256": "9eb394fe86148c6b5baf24d83f9918e7d8ac0a95d4f55fc871f9cb93cc2196cc",
+        "representation": "Local account path components anonymized; trailing whitespace and extra blank lines at EOF normalized. Raw originals unchanged outside the repository."
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/hooks-size.txt",
+        "before_retained_sha256": "9d069225bb08fdf1fbf6e5a070521681f272a903821784fb4b9001882bfe4b13",
+        "after_retained_sha256": "781e5f95eb1fdecd8c1b278ef544030a14e38d27c2fd40d98914c25e87869d54",
+        "representation": "Local account path components anonymized; trailing whitespace and extra blank lines at EOF normalized. Raw originals unchanged outside the repository."
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/hooks-functional-fixture-red-1.txt",
+        "before_retained_sha256": "c6fe8aeb951f0d09ccedcc0526752f3692bbb667cb87b899bfe06286dd7e6d20",
+        "after_retained_sha256": "9441d0651bb76c056fbafe72790ec87309ead2afd749ff82dc03704a40eba570",
+        "representation": "Local account path components anonymized; trailing whitespace and extra blank lines at EOF normalized. Raw originals unchanged outside the repository."
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/hooks-functional-fixture-red-2.txt",
+        "before_retained_sha256": "b723e6d977766f13bcd156865e2cd359d390068e414f7f2f6db49e98833de846",
+        "after_retained_sha256": "3204cc1329365eb87c2481730643ad8c5ef2e8bd3a3f02f97247c4984d21816c",
+        "representation": "Local account path components anonymized; trailing whitespace and extra blank lines at EOF normalized. Raw originals unchanged outside the repository."
       }
     ]
   }

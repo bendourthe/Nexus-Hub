@@ -15,7 +15,7 @@ Subcommands:
                                            write the run record (approval-origin enforced)
     record retire <plan>                   move a per-plan record aside (never deletes it)
     members <vX.Y>                         a minor's member plans, in version order
-    record render|create|pause|resume|block|path --minor <vX.Y> ...
+    record render|create|answer|pause|resume|block|path --minor <vX.Y> ...
                                            the schema-2 minor record (completion_minor.py)
     record member-start --minor <vX.Y> --member <vX.Y.Z> --session ID --head SHA
                                            pass the member gate; record the member's start_head
@@ -1362,6 +1362,8 @@ def cmd_record_render(args: argparse.Namespace) -> int:
     mode = render_mode(args)  # a flag conflict is refused before any round opens
     if _scoped(args):
         return _minor_module().cmd_record_render(sys.modules[__name__], args)
+    if getattr(args, "member", None) is not None:
+        raise Malformed("--member requires --minor with --action answer")
     ctx = Context(args.plan, Budget(BUDGET_SECONDS))
     display: dict | None = None
     if args.action == "create":
@@ -1615,6 +1617,10 @@ def _consume_action(
 
 
 def cmd_record_answer(args: argparse.Namespace) -> int:
+    if _scoped(args):
+        return _minor_module().cmd_record_answer(sys.modules[__name__], args)
+    if getattr(args, "member", None) is not None:
+        raise Malformed("--member requires --minor")
     consumed = _consume_action(args, "answer")
     if isinstance(consumed, int):
         return consumed
@@ -1748,6 +1754,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="JSON file of the page's plain outcome bullets and parallel-plan check (create)",
     )
     render.add_argument("--blocker", type=int, help="open blocker index (answer)")
+    render.add_argument("--member", help="with --minor answer: require this blocker's member version")
     render.add_argument("--json", action="store_true", help="print the canonical page data")
     render.add_argument(
         "--page", action="store_true", help="print the plain-language approval page"
@@ -1773,9 +1780,11 @@ def build_parser() -> argparse.ArgumentParser:
     )
     create.set_defaults(func=cmd_record_create)
     answer = record.add_parser("answer")
-    answer.add_argument("plan")
+    answer.add_argument("plan", nargs="?")
+    _add_minor_scope(answer)
     answer.add_argument("--session", required=True)
     answer.add_argument("--blocker", type=int, required=True)
+    answer.add_argument("--member", help="with --minor: require this blocker's member version")
     answer.add_argument("--text", help="when given, must equal the pasted line")
     answer.set_defaults(func=cmd_record_answer)
     for name, func in (("pause", cmd_record_pause), ("resume", cmd_record_resume)):

@@ -1,0 +1,30 @@
+{
+  "status": "PASS",
+  "source_sha256": {
+    "catalog/hooks/learning-capture.sh": "89b2616b15394ab1d28be456704748615916da97e75b4736efba194bbf9e1818",
+    "catalog/hooks/learning-capture.ps1": "7988507f130657cb5641c634bc8a1e3550dbb99425be086ee46305e260452923"
+  },
+  "observations": [
+    {
+      "flow": "failed-rename",
+      "exit": 0,
+      "seconds": 0.516,
+      "rename_attempts": 1,
+      "complete_records": 5,
+      "no_temp_remains": true,
+      "degraded_cap_diagnostic": true
+    },
+    {
+      "flow": "concurrent-powershell-rotation",
+      "exit": 0,
+      "seconds": 2.129,
+      "invocations": 16,
+      "retained_unique_inputs": 16,
+      "bytes": 3835,
+      "cap": 4096,
+      "seed_eviction": true,
+      "no_bom": true,
+      "no_temp_remains": true
+    }
+  ]
+}

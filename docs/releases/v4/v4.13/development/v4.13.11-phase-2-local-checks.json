@@ -16,7 +16,7 @@
     },
     {
       "command": [
-        "C:\\Users\\BEDOURTHE\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+        "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
         "-m",
         "ruff",
         "check",
@@ -30,7 +30,7 @@
     },
     {
       "command": [
-        "C:\\Users\\BEDOURTHE\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+        "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
         "scripts/nexus_hub_cli.py",
         "attribution",
         "check"
@@ -41,8 +41,8 @@
     },
     {
       "command": [
-        "C:\\Users\\BEDOURTHE\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
-        "C:\\Users\\BEDOURTHE\\AppData\\Local\\Temp\\v41311-validate-drafts.py"
+        "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-validate-drafts.py"
       ],
       "exit_code": 0,
       "output": "{\"triage_rows\": 412, \"full_triage_rows_unchanged\": true, \"native_baseline_matches_immutable_admission\": true, \"refused_row_origins\": 663, \"unique_refused_row_origins\": 663, \"json_pointers_resolved\": 3267, \"errors\": []}",
@@ -50,11 +50,11 @@
     },
     {
       "command": [
-        "C:\\Users\\BEDOURTHE\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+        "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
         "scripts/check_docs_conventions.py"
       ],
       "exit_code": 0,
-      "output": "OK: docs conventions hold under C:\\Users\\BEDOURTHE\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\docs\\releases\\v4\\v4.13",
+      "output": "OK: docs conventions hold under C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\docs\\releases\\v4\\v4.13",
       "errors": []
     }
   ],
@@ -77,7 +77,7 @@
   "new_markdown_ascii": true,
   "native_status": {
     "command": [
-      "C:\\Users\\BEDOURTHE\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+      "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
       "scripts/minor_close.py",
       "status",
       "--minor",

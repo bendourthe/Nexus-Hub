@@ -1,0 +1,492 @@
+{
+  "source_hashes": {
+    "provenance-ledger.sh": "665d73312cfe4fc08bda151c1d51a15989f11c0df63f3ae8631911dd81cfd470",
+    "provenance-ledger.ps1": "0dcfcdb09c4a3f3eaa10ea256267756910150491d1a226a654d2fa0b6fd47c7e"
+  },
+  "cases": 48,
+  "passed": 48,
+  "failed": [],
+  "seconds": 81.12,
+  "results": [
+    {
+      "impl": "sh",
+      "case": "absent",
+      "expected_cap": 1048576,
+      "exit": 0,
+      "bytes": 1045216,
+      "rows": 96,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "sh",
+      "case": "empty",
+      "expected_cap": 1048576,
+      "exit": 0,
+      "bytes": 1045215,
+      "rows": 96,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "sh",
+      "case": "word",
+      "expected_cap": 1048576,
+      "exit": 0,
+      "bytes": 1045214,
+      "rows": 96,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "sh",
+      "case": "expression",
+      "expected_cap": 1048576,
+      "exit": 0,
+      "bytes": 1045220,
+      "rows": 96,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "sh",
+      "case": "zero",
+      "expected_cap": 1048576,
+      "exit": 0,
+      "bytes": 1045214,
+      "rows": 96,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "sh",
+      "case": "negative",
+      "expected_cap": 1048576,
+      "exit": 0,
+      "bytes": 1045218,
+      "rows": 96,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "sh",
+      "case": "plus",
+      "expected_cap": 1048576,
+      "exit": 0,
+      "bytes": 1045214,
+      "rows": 96,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "sh",
+      "case": "leading-space",
+      "expected_cap": 1048576,
+      "exit": 0,
+      "bytes": 1045223,
+      "rows": 96,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "sh",
+      "case": "trailing-space",
+      "expected_cap": 1048576,
+      "exit": 0,
+      "bytes": 1045224,
+      "rows": 96,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "sh",
+      "case": "terminal-lf",
+      "expected_cap": 1048576,
+      "exit": 0,
+      "bytes": 1045221,
+      "rows": 96,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "sh",
+      "case": "terminal-crlf",
+      "expected_cap": 1048576,
+      "exit": 0,
+      "bytes": 1045223,
+      "rows": 96,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "sh",
+      "case": "hex",
+      "expected_cap": 1048576,
+      "exit": 0,
+      "bytes": 1045213,
+      "rows": 96,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "sh",
+      "case": "tiny",
+      "expected_cap": 8192,
+      "exit": 0,
+      "bytes": 214,
+      "rows": 1,
+      "stderr": "[provenance-ledger] byte cap raised to minimum 8192 for complete records.",
+      "failures": []
+    },
+    {
+      "impl": "sh",
+      "case": "leading-zero-tiny",
+      "expected_cap": 8192,
+      "exit": 0,
+      "bytes": 227,
+      "rows": 1,
+      "stderr": "[provenance-ledger] byte cap raised to minimum 8192 for complete records.",
+      "failures": []
+    },
+    {
+      "impl": "sh",
+      "case": "leading-zero-min",
+      "expected_cap": 8192,
+      "exit": 0,
+      "bytes": 226,
+      "rows": 1,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "sh",
+      "case": "leading-zero-valid",
+      "expected_cap": 16384,
+      "exit": 0,
+      "bytes": 11228,
+      "rows": 2,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "sh",
+      "case": "min",
+      "expected_cap": 8192,
+      "exit": 0,
+      "bytes": 213,
+      "rows": 1,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "sh",
+      "case": "normal",
+      "expected_cap": 1048576,
+      "exit": 0,
+      "bytes": 1045216,
+      "rows": 96,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "sh",
+      "case": "int64-max",
+      "expected_cap": 9223372036854775807,
+      "exit": 0,
+      "bytes": 1100219,
+      "rows": 101,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "sh",
+      "case": "int64-overflow",
+      "expected_cap": 1048576,
+      "exit": 0,
+      "bytes": 1045224,
+      "rows": 96,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "sh",
+      "case": "uint64-overflow",
+      "expected_cap": 1048576,
+      "exit": 0,
+      "bytes": 1045225,
+      "rows": 96,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "sh",
+      "case": "long-overflow",
+      "expected_cap": 1048576,
+      "exit": 0,
+      "bytes": 1045223,
+      "rows": 96,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "sh",
+      "case": "long-leading-zero-valid",
+      "expected_cap": 16384,
+      "exit": 0,
+      "bytes": 11233,
+      "rows": 2,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "sh",
+      "case": "arithmetic-command",
+      "expected_cap": 1048576,
+      "exit": 0,
+      "bytes": 1045228,
+      "rows": 96,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "ps1",
+      "case": "absent",
+      "expected_cap": 1048576,
+      "exit": 0,
+      "bytes": 1045217,
+      "rows": 96,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "ps1",
+      "case": "empty",
+      "expected_cap": 1048576,
+      "exit": 0,
+      "bytes": 1045216,
+      "rows": 96,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "ps1",
+      "case": "word",
+      "expected_cap": 1048576,
+      "exit": 0,
+      "bytes": 1045215,
+      "rows": 96,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "ps1",
+      "case": "expression",
+      "expected_cap": 1048576,
+      "exit": 0,
+      "bytes": 1045221,
+      "rows": 96,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "ps1",
+      "case": "zero",
+      "expected_cap": 1048576,
+      "exit": 0,
+      "bytes": 1045215,
+      "rows": 96,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "ps1",
+      "case": "negative",
+      "expected_cap": 1048576,
+      "exit": 0,
+      "bytes": 1045219,
+      "rows": 96,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "ps1",
+      "case": "plus",
+      "expected_cap": 1048576,
+      "exit": 0,
+      "bytes": 1045215,
+      "rows": 96,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "ps1",
+      "case": "leading-space",
+      "expected_cap": 1048576,
+      "exit": 0,
+      "bytes": 1045224,
+      "rows": 96,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "ps1",
+      "case": "trailing-space",
+      "expected_cap": 1048576,
+      "exit": 0,
+      "bytes": 1045225,
+      "rows": 96,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "ps1",
+      "case": "terminal-lf",
+      "expected_cap": 1048576,
+      "exit": 0,
+      "bytes": 1045222,
+      "rows": 96,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "ps1",
+      "case": "terminal-crlf",
+      "expected_cap": 1048576,
+      "exit": 0,
+      "bytes": 1045224,
+      "rows": 96,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "ps1",
+      "case": "hex",
+      "expected_cap": 1048576,
+      "exit": 0,
+      "bytes": 1045214,
+      "rows": 96,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "ps1",
+      "case": "tiny",
+      "expected_cap": 8192,
+      "exit": 0,
+      "bytes": 215,
+      "rows": 1,
+      "stderr": "[provenance-ledger] byte cap raised to minimum 8192 for complete records.",
+      "failures": []
+    },
+    {
+      "impl": "ps1",
+      "case": "leading-zero-tiny",
+      "expected_cap": 8192,
+      "exit": 0,
+      "bytes": 228,
+      "rows": 1,
+      "stderr": "[provenance-ledger] byte cap raised to minimum 8192 for complete records.",
+      "failures": []
+    },
+    {
+      "impl": "ps1",
+      "case": "leading-zero-min",
+      "expected_cap": 8192,
+      "exit": 0,
+      "bytes": 227,
+      "rows": 1,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "ps1",
+      "case": "leading-zero-valid",
+      "expected_cap": 16384,
+      "exit": 0,
+      "bytes": 11229,
+      "rows": 2,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "ps1",
+      "case": "min",
+      "expected_cap": 8192,
+      "exit": 0,
+      "bytes": 214,
+      "rows": 1,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "ps1",
+      "case": "normal",
+      "expected_cap": 1048576,
+      "exit": 0,
+      "bytes": 1045217,
+      "rows": 96,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "ps1",
+      "case": "int64-max",
+      "expected_cap": 9223372036854775807,
+      "exit": 0,
+      "bytes": 1100220,
+      "rows": 101,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "ps1",
+      "case": "int64-overflow",
+      "expected_cap": 1048576,
+      "exit": 0,
+      "bytes": 1045225,
+      "rows": 96,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "ps1",
+      "case": "uint64-overflow",
+      "expected_cap": 1048576,
+      "exit": 0,
+      "bytes": 1045226,
+      "rows": 96,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "ps1",
+      "case": "long-overflow",
+      "expected_cap": 1048576,
+      "exit": 0,
+      "bytes": 1045224,
+      "rows": 96,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "ps1",
+      "case": "long-leading-zero-valid",
+      "expected_cap": 16384,
+      "exit": 0,
+      "bytes": 11234,
+      "rows": 2,
+      "stderr": "",
+      "failures": []
+    },
+    {
+      "impl": "ps1",
+      "case": "arithmetic-command",
+      "expected_cap": 1048576,
+      "exit": 0,
+      "bytes": 1045229,
+      "rows": 96,
+      "stderr": "",
+      "failures": []
+    }
+  ]
+}

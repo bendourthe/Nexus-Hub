@@ -1,0 +1,309 @@
+{
+  "status": "scoped implementation and all assigned checks complete",
+  "worktree": "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan",
+  "changed_paths": [
+    "scripts/check_plan_completion.py",
+    "scripts/completion_minor.py",
+    "tests/validators/test_completion_minor_record.py",
+    "catalog/skills/workflow/implement-phase/references/completion-contract.md"
+  ],
+  "hashes": {
+    "scripts/check_plan_completion.py": "a52f69c654b776bd9f3fff27cef6618669ce0f877ec0a727a5ad7bb8e1ef26f6",
+    "scripts/completion_minor.py": "e76ad2c4715f4d9b37674aa457901f393e497c4d99c2a28715ebbb4282ce5ea8",
+    "tests/validators/test_completion_minor_record.py": "6778078323277494bb40a0e8f7f442c6b04c7edc04d6a43465a42582f15ceade",
+    "catalog/skills/workflow/implement-phase/references/completion-contract.md": "87cd771de40180db6340a8ea32ad84eb84e19734db2d68074946dc52260b0c4b"
+  },
+  "suites": {
+    "final-scoped": {
+      "exit": 0,
+      "metrics": [
+        {
+          "tests": "30",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "173.326"
+        }
+      ],
+      "source_stable": true
+    },
+    "compatibility": {
+      "exit": 0,
+      "metrics": [
+        {
+          "tests": "120",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "303.221"
+        }
+      ],
+      "source_stable": true
+    },
+    "actual-cli": {
+      "exit": 0,
+      "metrics": [
+        {
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "40.231"
+        }
+      ],
+      "source_stable": true
+    }
+  },
+  "actual_cli": {
+    "count": 29,
+    "answers": [
+      {
+        "command": [
+          "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+          "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\scripts\\check_plan_completion.py",
+          "record",
+          "render",
+          "--minor",
+          "v0.5",
+          "--session",
+          "minor-session",
+          "--action",
+          "answer",
+          "--blocker",
+          "0"
+        ],
+        "exit": 0,
+        "stdout": "Continue /implement v0.5 past blocker 0 (approval QRFO3UXI)\n"
+      },
+      {
+        "command": [
+          "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+          "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\scripts\\check_plan_completion.py",
+          "record",
+          "answer",
+          "--minor",
+          "v0.5",
+          "--session",
+          "minor-session",
+          "--blocker",
+          "0"
+        ],
+        "exit": 0,
+        "stdout": "ANSWERED blocker 0 minor v0.5\n"
+      },
+      {
+        "command": [
+          "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+          "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\scripts\\check_plan_completion.py",
+          "record",
+          "render",
+          "--minor",
+          "v0.5",
+          "--session",
+          "minor-session",
+          "--action",
+          "answer",
+          "--blocker",
+          "0",
+          "--member",
+          "v0.5.2"
+        ],
+        "exit": 0,
+        "stdout": "Continue /implement v0.5 past blocker 0 (approval 6LIIY5ZM)\n"
+      },
+      {
+        "command": [
+          "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+          "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\scripts\\check_plan_completion.py",
+          "record",
+          "answer",
+          "--minor",
+          "v0.5",
+          "--session",
+          "minor-session",
+          "--blocker",
+          "0",
+          "--member",
+          "v0.5.2"
+        ],
+        "exit": 0,
+        "stdout": "ANSWERED blocker 0 minor v0.5\n"
+      },
+      {
+        "command": [
+          "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+          "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\scripts\\check_plan_completion.py",
+          "record",
+          "render",
+          "--minor",
+          "v0.5",
+          "--session",
+          "minor-session",
+          "--action",
+          "answer",
+          "--blocker",
+          "0",
+          "--member",
+          "v0.5.10"
+        ],
+        "exit": 0,
+        "stdout": "Continue /implement v0.5 past blocker 0 (approval VZ4NOP46)\n"
+      },
+      {
+        "command": [
+          "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+          "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\scripts\\check_plan_completion.py",
+          "record",
+          "answer",
+          "--minor",
+          "v0.5",
+          "--session",
+          "minor-session",
+          "--blocker",
+          "0",
+          "--member",
+          "v0.5.10"
+        ],
+        "exit": 0,
+        "stdout": "ANSWERED blocker 0 minor v0.5\n"
+      },
+      {
+        "command": [
+          "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+          "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\scripts\\check_plan_completion.py",
+          "record",
+          "render",
+          "--minor",
+          "v0.5",
+          "--session",
+          "minor-session",
+          "--action",
+          "answer",
+          "--blocker",
+          "0"
+        ],
+        "exit": 0,
+        "stdout": "Continue /implement v0.5 past blocker 0 (approval X5OBFGYD)\n"
+      },
+      {
+        "command": [
+          "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+          "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\scripts\\check_plan_completion.py",
+          "record",
+          "answer",
+          "--minor",
+          "v0.5",
+          "--session",
+          "minor-session",
+          "--blocker",
+          "0"
+        ],
+        "exit": 0,
+        "stdout": "ANSWERED blocker 0 minor v0.5\n"
+      },
+      {
+        "command": [
+          "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+          "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\scripts\\check_plan_completion.py",
+          "record",
+          "render",
+          "--minor",
+          "v0.5",
+          "--session",
+          "auto",
+          "--action",
+          "answer",
+          "--blocker",
+          "0"
+        ],
+        "exit": 0,
+        "stdout": "Continue /implement v0.5 past blocker 0 (approval QEXTXVWK)\n"
+      },
+      {
+        "command": [
+          "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+          "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\scripts\\check_plan_completion.py",
+          "record",
+          "answer",
+          "--minor",
+          "v0.5",
+          "--session",
+          "auto",
+          "--blocker",
+          "0"
+        ],
+        "exit": 0,
+        "stdout": "ANSWERED blocker 0 minor v0.5\n"
+      }
+    ],
+    "check_first_lines": [
+      "INCOMPLETE: v0.5.2:task.T001 v0.5.2:evidence.file v0.5.2:tests.evidence v0.5.2:integration.merged v0.5.2:integration.checks v0.5.2:release.tag v0.5.2:release.changelog v0.5.2:release.github v0.5.2:release.main v0.5.10:member.gate v0.5.10:task.T001 v0.5.10:evidence.file v0.5.10:tests.evidence v0.5.10:integration.merged v0.5.10:integration.checks v0.5.10:release.tag v0.5.10:release.changelog v0.5.10:release.github v0.5.10:release.main minor.close-pr cleanup.merged archive.minor"
+    ],
+    "scope": "Actual shipped CLI subprocesses in disposable pytest fixtures; synthetic test prompt captures, no live records or real approvals"
+  },
+  "review": {
+    "verdict": "APPROVED; no critical or high findings",
+    "low_resolved": "Malformed unsigned member values now return native Malformed; red-boundary 3 failures before fix and final-scoped 30 green afterward.",
+    "considered_rejected_category": "Tuple membership already refuses list/dict/null/integer/boolean category as Malformed; category-probe.json proves unchanged behavior."
+  },
+  "lint": "Both implementation scripts clean. Six pre-existing test-file diagnostics identical to HEAD; zero introduced. Syntax compile, ASCII contract and git diff --check passed.",
+  "capture_entrypoint": "capture-entrypoint.json",
+  "live_mutations": "None performed by this worker. No render, capture, answer, signed-record edits, fabricated capture, stage or commit.",
+  "guard_session": "v41311-minor-answer",
+  "artifacts": {
+    "actual-cli-observations.json": "cce28ac245b0b0c94af5d9d59783ec026421ea8e42e93a151805a98ba03992b1",
+    "actual-cli.json": "ff873e563e4d440cb630626f0a3127ff60c83746a1726959114399c0f3f60d43",
+    "actual-cli.txt": "16bec86d05a3843e3d61491d49dbf3c0ff8d4e60be9aad8b356d2573897276ce",
+    "actual-cli.xml": "135c629a53e83d13afba03a341c66022748fc607ba4916f3810d1843c99de4ec",
+    "capture-entrypoint.json": "3d842d6180d873427fc0599b1e75d48d4c15d947b5e7b41f83b58c7d2543b6e2",
+    "category-probe.json": "c29476f48cabe1b771cdd703e7849f4bf4c5fd47b4d7a153e0a7305d355f1e9d",
+    "compatibility.json": "1e847a58c63e28910b86193a5278e3c356b9bf7adc0d365870981c852ef7f485",
+    "compatibility.txt": "ce266cf6746ba174a316eb81cc88a7be68a1484bb4a6c467dfee8793c310c89e",
+    "compatibility.xml": "61ee0cd7ffcee6977c8126fa67b4318f044ba00053ec7979309b167a3cf61fc3",
+    "final-lint-and-hygiene.json": "197556f3346c8ee03cfa66067343af4f21988bbd2cd7cd4503cc8cbc813a9943",
+    "final-scoped.json": "ee1ae696afdffc7434bd491361e76bc61b8c7e0ae74a67da5543b13b0623d849",
+    "final-scoped.txt": "c5ab6a91c62873cacbc37e35e6dd0e8e96b097b31ad162bc9babce7960fdfcfb",
+    "final-scoped.xml": "d387567ea0a1cd7ac132ee42f90f0647a00631cf6648f26a926d0ae6063bb61e",
+    "green.json": "b544adcb6327610b131436947edd1a87a9990b58e64185a5a047cccab8f6d62d",
+    "green.txt": "a7b7a9aa86dfe642debd884a867b2c11db920fdfdac5e2e6bbceda146709791c",
+    "green.xml": "af30cb2ca1273be00bdadbee28dd72a849b02dc39bd0a3979ad3313d850f7a0d",
+    "lint-comparison.json": "0cb004e0aff833a554fa856f00fd73f5d963b90ab562a0962f9a9af764955e90",
+    "lint.json": "87d1ef322ed5b7b4590465bb08f403c35cba687988826be760ef03107034ad20",
+    "red-boundary.json": "272601a6658e06d80e195fb2e8bf91323d7ffac4a23124428c508552bbb64142",
+    "red-boundary.txt": "41e6b77907905289ca819e39be8b3332316ce48281f4f275c454ccaaed592dce",
+    "red-tight.json": "d6714ec84aa9cd8425cdc9bbc5a586206e22adf514e31dfc049fcec0c8fd9f5a",
+    "red-tight.txt": "281db163ad137eb0e016b0cb6f78215d9893148ce9c89280ae35476b68b8fe6d",
+    "red-tight.xml": "741c2f7d65beba46a5ce3826367568de34c048d3757f09796a99a2ac1ed07cdc",
+    "red.json": "e5920ca5f21f50a1249a89188fe821c056e04ff38481879447558bef0dbb735b",
+    "red.txt": "225088a83acd34b1ee82b1bd4f876fdea415ca7cb097329b6e6fcbee4fbadda8",
+    "red.xml": "c15e8e4def587fdd5f702302856bd55922e0b410efd7994f6538a132a20a0a28",
+    "guard-audit.txt": "45d4e76757cd55a50b707c9c25c6f8dc6b39f2c9e02c2d1e453f4d1db19a9702"
+  },
+  "guard_audit": {
+    "command": [
+      "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+      "C:/Users/username/AppData/Local/Temp/v41311-worker-guard.py",
+      "--session",
+      "v41311-minor-answer",
+      "log"
+    ],
+    "exit": 0,
+    "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-minor-answer\\guard-audit.txt",
+    "line_count": 297,
+    "scope": "Native log output contains historical accept entries across all sessions, not a session-filtered count.",
+    "worker_accept_operations": 0,
+    "ownership": "This worker only issued read/write record/check and final log commands; all actual accept entries belong to other sessions or earlier work."
+  },
+  "final_diff_check": {
+    "exit": 0,
+    "output": "warning: in the working copy of 'catalog/skills/workflow/implement-phase/references/completion-contract.md', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'scripts/check_plan_completion.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'scripts/completion_minor.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'tests/validators/test_completion_minor_record.py', LF will be replaced by CRLF the next time Git touches it\n"
+  },
+  "final_diff_stat": " .../references/completion-contract.md              |   4 +-\n scripts/check_plan_completion.py                   |  13 +-\n scripts/completion_minor.py                        |  67 +++++-\n tests/validators/test_completion_minor_record.py   | 255 +++++++++++++++++++++\n 4 files changed, 329 insertions(+), 10 deletions(-)\n",
+  "final_hashes": {
+    "scripts/check_plan_completion.py": "a52f69c654b776bd9f3fff27cef6618669ce0f877ec0a727a5ad7bb8e1ef26f6",
+    "scripts/completion_minor.py": "e76ad2c4715f4d9b37674aa457901f393e497c4d99c2a28715ebbb4282ce5ea8",
+    "tests/validators/test_completion_minor_record.py": "6778078323277494bb40a0e8f7f442c6b04c7edc04d6a43465a42582f15ceade",
+    "catalog/skills/workflow/implement-phase/references/completion-contract.md": "87cd771de40180db6340a8ea32ad84eb84e19734db2d68074946dc52260b0c4b"
+  },
+  "final_hashes_match_verified_tree": true
+}

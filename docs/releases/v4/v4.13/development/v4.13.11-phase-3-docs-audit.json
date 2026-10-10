@@ -1,0 +1,1716 @@
+{
+  "observed_at_utc": "2026-10-10T03:56:15.901912+00:00",
+  "mode": "audit",
+  "moves": 0,
+  "deletes": 0,
+  "commands": [
+    {
+      "argv": [
+        "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\catalog\\skills\\code-cleanup\\docs-layout-refactor\\scripts\\audit-docs.py",
+        "inventory",
+        "--root",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\docs",
+        "--repo-root",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan",
+        "--include-archive"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "6b70a565d4907e18ef460c2c53e6c1f9b2a0242d3ba31304f3987decb5e68034"
+    },
+    {
+      "argv": [
+        "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\catalog\\skills\\code-cleanup\\docs-layout-refactor\\scripts\\audit-docs.py",
+        "refgraph",
+        "--root",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\docs",
+        "--repo-root",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan",
+        "--include-archive"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "ca5ed99946c5f587cc2be80dcc7820d05ed5d4abbffef214708fd5137b10874a"
+    },
+    {
+      "argv": [
+        "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\catalog\\skills\\code-cleanup\\docs-layout-refactor\\scripts\\audit-docs.py",
+        "lifespan-contradictions",
+        "--root",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\docs",
+        "--repo-root",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan"
+      ],
+      "exit_code": 1,
+      "stdout_sha256": "602b22cd5a0aafd510d0cb13bafc8508eb5b301547d5818cc06142e60c05173e"
+    }
+  ],
+  "inventory_files": 3231,
+  "known_reference_targets": 305,
+  "reference_limit": "Reference graph enumerates known inventory targets; missing-link proof uses native link-baseline separately.",
+  "lifespan_findings": [
+    {
+      "file": "docs/releases/v4/v4.13/comparisons/v4.13.0-comparison-evidence-driven-agent-improvement.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T18:37:35-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/comparisons/v4.13.3-comparison-agent-practice-and-harness-token-efficiency.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-24T14:55:02-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/comparisons/v4.13.8-comparison-first-principles-sonnet-5-5-and-retrieval-cost.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-29T15:08:05-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/comparisons/v4.13.9-comparison-inline-visualize-codex-disk-writes-review-flow-gpt-6-1-sol.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-30T15:18:55-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/distribution-handbook-attribution-ban-review.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-27T08:50:00-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/distribution-handbook-legacy-consent-review.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-28T02:13:42-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/distribution-handbook-target-isolation-review.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-22T18:00:51-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-25-v4.13.2-phase-1-contract-and-levers.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T14:22:30-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-25-v4.13.2-phase-2-completion-checker.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T14:54:09-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-25-v4.13.2-phase-3-full-by-default-driver.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T15:19:54-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-25-v4.13.2-phase-4-completion-gate-hooks.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T17:43:03-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-25-v4.13.2-phase-5-completion-plugins.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T17:53:23-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-25-v4.13.2-phase-6-run-plan-runner.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T17:57:42-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-25-v4.13.2-phase-7-release-chaining.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T17:59:43-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-25-v4.13.3-phase-1-catalog-hygiene.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T18:13:39-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-25-v4.13.3-phase-2-truthful-session-hooks.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T18:21:05-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-25-v4.13.3-phase-3-legacy-span-detector.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T18:35:11-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-25-v4.13.3-phase-4-consented-legacy-removal.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-28T02:13:42-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-25-v4.13.3-phase-5-skill-index-pointer.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T21:48:25-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-25-v4.13.3-phase-6-final-duties.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-26T01:01:47-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-25_v4.13.4-training-phase-1.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T14:08:41-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-25_v4.13.4-training-phase-2.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T14:08:50-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-25_v4.13.4-training-phase-3.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T14:09:42-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-25_v4.13.4-training-phase-4.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T14:51:55-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-25_v4.13.4-training-phase-5.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T15:22:32-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-26-v4.13.1-phase-1-baseline-and-replay-harness.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-26T09:32:05-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-26-v4.13.1-phase-2-always-loaded-rules.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-26T09:49:58-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-26-v4.13.1-phase-3-edit-guard.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-26T09:57:13-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-26-v4.13.1-phase-4-edit-preservation-skill.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-26T10:04:07-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-26-v4.13.1-phase-5-document-revision.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-26T10:23:52-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-26-v4.13.1-phase-6-guard-hooks.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-26T13:59:42-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-26-v4.13.1-phase-7-priority-placement.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-26T14:08:28-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-26-v4.13.1-phase-8-incident-replay.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-26T16:22:32-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-26-v4.13.1-phase-9-final-phase.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-28T01:58:40-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-27-v4.13.2-phase-8-end-to-end-evaluation.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-27T20:48:42-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-28-v4.13.2-phase-9-final-phase.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-28T00:19:34-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-28-v4.13.5-phase-1-shared-repository-resolution.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-28T21:49:36-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-29-v4.13.5-phase-2-final-duties.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-29T03:26:45-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-29-v4.13.6-phase-1-exact-approval-binding.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-29T10:30:12-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-29-v4.13.6-phase-2-minor-membership-and-record.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-29T12:28:04-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-29-v4.13.6-phase-3-verified-merged-and-idle-cleanup.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-29T14:57:53-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-29-v4.13.6-phase-4-gap-migration-and-archive.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-29T18:39:05-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-29-v4.13.6-phase-5-minor-verdict-and-close.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-29T22:10:19-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-29-v4.13.6-phase-6-approval-page-and-native-goal.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-29T23:36:58-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-30-v4.13.6-phase-7-goal-restatements-and-e2e.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-30T00:28:45-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-30-v4.13.6-phase-8-final-phase.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-30T11:31:30-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-30-v4.13.8-phase-1-admission.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-30T21:45:55-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-30-v4.13.8-phase-2-sonnet-5-5-profile.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-30T22:17:21-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-30-v4.13.8-phase-3-reporting-rule-and-guidance.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-30T22:24:44-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-30-v4.13.8-phase-4-optimizer-label-and-split.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-30T22:41:06-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-09-30-v4.13.8-phase-5-first-principles-pilot.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-30T23:09:43-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-01-v4.13.7-phase-4-handoff-contract.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-01T08:07:20-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-01-v4.13.7-phase-5-checkpoint-rule.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-01T09:51:01-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-01-v4.13.7-phase-6-shared-usage-probe.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-01T19:35:27-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-01-v4.13.7-phase-7-usage-guard.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-01T15:25:49-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-01-v4.13.8-phase-6-final-phase.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-03T01:32:15-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-01-v4.13.9-phase-1-admission.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-01T12:16:38-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-01-v4.13.9-phase-2-sol-profile-and-model-map.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-01T13:48:48-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-01-v4.13.9-phase-3-visualize.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-01T15:22:43-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-01-v4.13.9-phase-4-draft-review-comments.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-01T15:34:44-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-02-v4.13.7-phase-1-copilot-data-contract.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-01T17:50:59-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-02-v4.13.7-phase-2-copilot-usage-monitor.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-01T19:35:27-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-02-v4.13.7-phase-3-distribution-and-resets.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-01T22:22:46-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-02-v4.13.7-phase-8-docs-and-release-notes.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-01T17:03:24-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-02-v4.13.7-phase-9-final-phase.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-02T11:39:59-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-02-v4.13.8-phase-6-copilot-connect.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-02T22:00:39-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-03-v4.13.9-phase-5-hook-size-bound-and-runbook.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-03T11:42:33-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-03-v4.13.9-phase-6-final-phase-and-publication.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-04T01:47:10-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-04-v4.13.10-phase-1-inventory-and-shell.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-04T08:35:24-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-04-v4.13.10-phase-2-openings-outline-tracker.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-04T20:09:36-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-04-v4.13.10-phase-3-game-engine.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-04T09:21:36-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-04-v4.13.10-phase-4-story-and-sessions.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-04T09:51:34-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-04-v4.13.10-phase-5-stamping-and-layout-checks.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-04T10:02:07-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-04-v4.13.10-phase-6-art-progression-boss.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-04T10:28:13-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-04-v4.13.10-phase-7-cutover.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-04T12:26:15-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-04-v4.13.10-phase-8-final-phase.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-04T20:09:36-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-04-v4.13.10-phase-r1-navigation-rail.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-04T21:11:59-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-04-v4.13.10-phase-r2-opening-figures.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-04T21:23:31-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-04-v4.13.10-phase-r3-single-page.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-04T21:47:01-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-04-v4.13.10-phase-r4-ide-sessions.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-04T22:00:59-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-04-v4.13.10-phase-r5-game-overhaul.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-04T22:31:00-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-05-v4.13.10-phase-r16-revision-4.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-05T19:14:59-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-05-v4.13.10-phases-r12-r15-revision-3.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-05T13:56:30-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-05-v4.13.10-phases-r17-r20-r21-revision-5.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-05T21:04:25-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-05-v4.13.10-phases-r18-r19-revision-5.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-05T22:53:41-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-05-v4.13.10-phases-r6-r11-revision-2.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-05T10:31:41-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-06-v4.13.10-phase-r31-revision-8.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-06T15:23:37-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-06-v4.13.10-phase-r33-revision-9.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-06T18:22:11-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-06-v4.13.10-phase-r34-revision-9.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-06T18:07:17-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-06-v4.13.10-phase-r38-revision-11.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-06T22:15:12-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-06-v4.13.10-phases-r23-r25-revision-6.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-06T10:01:41-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-06-v4.13.10-phases-r26-r30-revision-7.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-06T11:50:48-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-06-v4.13.10-phases-r35-r37-revision-10.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-06T21:48:24-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-06-v4.13.10-phases-r39-r40-revision-12.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-07T00:25:29-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-07-v4.13.10-phase-r43-revision-14.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-07T13:07:42-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-07-v4.13.10-phase-r47-revision-17.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-07T17:53:50-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-07-v4.13.10-phase-r48-revision-18.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-07T17:28:03-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-07-v4.13.10-phases-r41-r42-revision-13.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-07T10:58:08-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-07-v4.13.10-phases-r44-r45-revision-15.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-07T15:06:46-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-08-v4.13.10-phase-r49-revision-19.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-08T10:55:36-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/2026-10-08-v4.13.10-phase-r52-revision-20.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-08T13:31:23-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/v4.13.11-phase-1-session.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-09T13:39:34-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/history/v4.13.11-phase-2-session.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-09T15:25:28-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/planning/2026-09-28-queue-assessment.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-29T07:28:04-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/planning/model-map.json",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-21T10:06:11-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/rendered-context-baseline.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T21:48:25-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/training-rebuild/design.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T11:56:29-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/training-rebuild/phase1-baseline-detector.json",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T14:08:41-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/training-rebuild/phase1-favicon-after-1x.png",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T14:08:41-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/training-rebuild/phase1-favicon-after-2x.png",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T14:08:41-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/training-rebuild/phase1-favicon-before.png",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T14:08:41-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/training-rebuild/phase1-training-1440.png",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T14:08:41-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/training-rebuild/phase1-training-420.png",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T14:08:41-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/training-rebuild/phase1-visual-detector.json",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T14:08:41-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/training-rebuild/phase1-webp-after-1x.png",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T14:08:41-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/training-rebuild/phase1-webp-after-2x.png",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T14:08:41-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/training-rebuild/phase1-webp-before.png",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T14:08:41-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/training-rebuild/phase3-arena-1440.png",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T14:09:42-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/training-rebuild/phase3-arena-420.png",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T14:09:42-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/training-rebuild/phase3-damage-flicker.png",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T14:09:42-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/training-rebuild/phase3-live-play.png",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T14:09:42-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/training-rebuild/phase3-room-after-2x.webp",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T14:09:42-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/training-rebuild/phase3-room-before-2x.webp",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T14:09:42-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/training-rebuild/phase3-specimens-1440.png",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T14:09:42-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/training-rebuild/phase3-specimens-420.png",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T14:09:42-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/training-rebuild/phase4-arena-1440-2x.png",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T14:51:55-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/training-rebuild/phase4-arena-420-2x.png",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T14:51:55-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/training-rebuild/phase4-present-arena-1440-2x.png",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T14:51:55-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/training-rebuild/phase4-present-arena-420-2x.png",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T14:51:55-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/training-rebuild/phase4-present-page-1440.png",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-25T14:51:55-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/training-rebuild/scenes-before.json",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-28T14:35:06-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.1-admission.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-26T14:08:28-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.1-capability-usage.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-28T01:58:40-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.1-incident-replay.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-26T16:22:32-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.1-last-phase-evidence.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-28T01:58:40-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.1-queue-assessment.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-23T16:29:28-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.1-replay/harness.py",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-26T20:40:51-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.1-replay/results-round1.jsonl",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-26T16:22:32-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.1-replay/results-round2-trial1.jsonl",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-26T16:22:32-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.1-replay/results-round3.jsonl",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-26T16:22:32-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.10-game-design.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-08T22:56:29-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.10-inventory.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-04T08:35:24-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.10-last-phase-evidence.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-09T11:11:39-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.11-admission-inventory.json",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-09T13:39:34-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.11-admission-plan-queue.json",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-09T13:39:34-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.11-admission-status.txt",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-09T13:39:34-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.11-admission.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-09T13:39:34-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.11-approval-bound-validation.json",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-09T15:25:28-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.11-approval-draft.json",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-09T15:25:28-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.11-approval-summary-draft.json",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-09T15:25:28-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.11-freeze-queue-assessment.json",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-09T15:25:28-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.11-freeze-queue-assessment.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-09T15:25:28-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.11-historical-plan-status.json",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-09T15:25:28-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.11-ledger-decisions.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-09T15:25:28-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.11-phase-1-evidence.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-09T13:39:34-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.11-phase-2-copy-proof.json",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-09T15:25:28-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.11-phase-2-evidence.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-09T15:25:28-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.11-phase-2-local-checks.json",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-09T15:25:28-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.11-phase-2-normalization.json",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-09T15:25:28-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.11-phase-2-tests.json",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-09T15:25:28-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.11-reconciliation.json",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-09T15:25:28-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.11-supply-chain-admission.json",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-09T13:39:34-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.2-capability-usage.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-28T01:59:31-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.2-e2e.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-27T20:48:42-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.2-handbook-claim-review.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-28T00:19:34-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.2-last-phase-evidence.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-28T01:18:02-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.2-queue-assessment.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-24T10:00:43-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.2-wn6-distribution-handbook-attestation.json",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-28T08:20:58-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.2-wn6-distribution-handbook-build.json",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-28T08:20:58-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.2-wn6-distribution-handbook-rendered.json",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-28T08:20:58-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.2-wn6-distribution-handbook-review.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-28T08:20:58-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.3-capability-usage.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-28T02:13:42-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.3-last-phase-evidence.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-28T02:13:42-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.4-last-phase-evidence.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-28T22:52:57-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.5-last-phase-evidence.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-29T04:48:13-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.6-last-phase-evidence.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-30T22:08:49-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.7-decisions.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-01T22:22:46-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.7-last-phase-evidence.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-02T13:45:06-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.8-admission.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-01T11:46:34-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.8-copilot-connect-verification.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-03T08:15:48-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.8-first-principles-pilot.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-01T11:46:34-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.8-first-principles/evals/bug-localization.json",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-30T23:09:43-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.8-first-principles/grade.py",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-02T19:23:49-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.8-first-principles/ledger.json",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-30T23:09:43-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.8-first-principles/order.json",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-30T23:09:43-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.8-first-principles/run-log.jsonl",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-30T23:09:43-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.8-first-principles/runs/p1-invoice-keyerror__baseline.json",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-30T23:09:43-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.8-first-principles/wrapper.py",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-01T11:46:34-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.8-last-phase-evidence.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-03T08:55:17-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.8-stale-example-sweep.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-30T22:17:21-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.9-admission.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-01T12:16:38-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.9-hook-size-bound.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-03T11:42:33-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.9-last-phase-evidence.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-04T04:29:57-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.9-phase2-record.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-01T13:48:48-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.9-plan-review.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-30T15:18:55-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.9-review-drafts-exercise.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-01T15:34:44-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.9-review-drafts-exercise/commit_scope_check.py",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-01T15:34:44-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.9-review-drafts-exercise/draft-review-comments-4f4681e.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-01T15:34:44-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.9-sol-sources/anthropic-models.txt",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-01T13:48:48-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.9-sol-sources/astra-delta.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-01T13:48:48-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.9-sol-sources/build_payload.py",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-01T13:48:48-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.9-sol-sources/codex-config-learn.txt",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-01T13:48:48-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.9-sol-sources/cursor-models.txt",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-01T13:48:48-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.9-sol-sources/extract_text.py",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-04T03:31:14-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.9-sol-sources/google-models.txt",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-01T13:48:48-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.9-sol-sources/latest-model.txt",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-01T13:48:48-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.9-sol-sources/models.txt",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-01T13:48:48-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.9-sol-sources/openai-models-roster.json",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-01T13:48:48-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.9-sol-sources/payload.json",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-01T13:48:48-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.9-visualize-exercise.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-01T15:22:43-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.9-visualize-exercise/hostile-1440-light.png",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-01T15:22:43-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.9-visualize-exercise/hostile-420-dark.png",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-01T15:22:43-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.9-visualize-exercise/render_check.py",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-01T15:22:43-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.9-visualize-exercise/render_visualization.py",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-01T15:22:43-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/development/v4.13.9-visualize-exercise/sample-1440-light.png",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-01T15:22:43-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/docs-cleanup-report-v4.0-post-tag.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-29T10:17:30-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/docs-cleanup-report.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-29T10:17:30-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/plans/v4.13.0-adoption-evidence-driven-agent-improvement.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-28T11:04:32-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/plans/v4.13.1-user-edit-preservation-and-attribution-ban.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-09T15:25:28-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/plans/v4.13.10-training-page-rebuild.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-09T11:11:39-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/plans/v4.13.11-known-gaps-sweep-and-minor-close.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-09T15:25:28-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/plans/v4.13.2-implement-full-by-default-with-completion-goal.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-29T03:26:45-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/plans/v4.13.3-adoption-agent-practice-and-harness-token-efficiency.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-09T15:25:28-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/plans/v4.13.4-guide-training-rebuild.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-09T15:25:28-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/plans/v4.13.5-completion-checker-remote-resolution.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-29T04:48:13-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/plans/v4.13.6-minor-scope-implement-and-verified-cleanup.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-09-30T22:08:49-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/plans/v4.13.7-copilot-usage-monitor-and-usage-limit-handoff.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-02T13:45:06-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/plans/v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-03T08:55:17-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/plans/v4.13.9-adoption-inline-visualize-codex-disk-writes-review-flow-gpt-6-1-sol.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-09T15:25:28-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/research/v4.13.11-gap-triage/A-report.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-08T16:53:38-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/research/v4.13.11-gap-triage/B-report.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-08T16:53:38-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/research/v4.13.11-gap-triage/C-report.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-08T16:53:38-07:00"
+    },
+    {
+      "file": "docs/releases/v4/v4.13/research/v4.13.11-gap-triage/D-report.md",
+      "bucket": "v4.13",
+      "release_tag": "v4.13.0",
+      "release_close_date": "2026-09-21T09:06:32-07:00",
+      "offending_commit_date": "2026-10-08T16:53:38-07:00"
+    }
+  ],
+  "lifespan_findings_count": 233,
+  "lifespan_disposition": "Audit only. Active v4.13 phase records remain Cat 4 until the approved post-release minor close; other findings are reported without out-of-scope moves.",
+  "links": {
+    "scope": [
+      "catalog/skills/workflow/implement-phase/references/completion-contract.md",
+      "docs/releases/v4/v4.13/development/history/v4.13.11-phase-3-session.md",
+      "docs/releases/v4/v4.13/development/v4.13.11-freeze-queue-assessment.md",
+      "docs/releases/v4/v4.13/development/v4.13.11-phase-3-checkpoint.md",
+      "docs/releases/v4/v4.13/development/v4.13.11-phase-3-evidence.md",
+      "docs/releases/v4/v4.13/docs-cleanup-report.md",
+      "docs/releases/v4/v4.13/known-gaps.md",
+      "docs/releases/v4/v4.13/plans/v4.13.11-known-gaps-sweep-and-minor-close.md",
+      "docs/todos.md"
+    ],
+    "totals": {
+      "after": 0,
+      "before": 0,
+      "fixed": 0,
+      "newly_broken": 0,
+      "unchanged": 0
+    },
+    "qualification": "Closing-write comparison; earlier Phase 3 edits predate this baseline. Inline relative targets only; anchors not qualified.",
+    "real_index_unchanged_empty": true,
+    "final_after_all_markdown_writes": {
+      "after": 0,
+      "before": 0,
+      "fixed": 0,
+      "newly_broken": 0,
+      "unchanged": 0
+    }
+  }
+}

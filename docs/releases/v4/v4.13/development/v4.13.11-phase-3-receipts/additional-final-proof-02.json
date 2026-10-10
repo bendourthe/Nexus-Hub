@@ -1,0 +1,77 @@
+{
+  "before_sha256": {
+    "catalog/hooks/provenance-ledger.sh": "665d73312cfe4fc08bda151c1d51a15989f11c0df63f3ae8631911dd81cfd470",
+    "catalog/hooks/provenance-ledger.ps1": "0dcfcdb09c4a3f3eaa10ea256267756910150491d1a226a654d2fa0b6fd47c7e",
+    "catalog/hooks/auto-devlog.sh": "bee7ab831e7f2fe2a3414952811eedff4433617d0503cb6dced012fcda8a2b39",
+    "catalog/hooks/tests/test_hook_size_bound.py": "46a315738dc28f09a8e961838ca62f32adc2a9705f7a0ee8854d2eac23223a75"
+  },
+  "after_sha256": {
+    "catalog/hooks/provenance-ledger.sh": "665d73312cfe4fc08bda151c1d51a15989f11c0df63f3ae8631911dd81cfd470",
+    "catalog/hooks/provenance-ledger.ps1": "0dcfcdb09c4a3f3eaa10ea256267756910150491d1a226a654d2fa0b6fd47c7e",
+    "catalog/hooks/auto-devlog.sh": "bee7ab831e7f2fe2a3414952811eedff4433617d0503cb6dced012fcda8a2b39",
+    "catalog/hooks/tests/test_hook_size_bound.py": "46a315738dc28f09a8e961838ca62f32adc2a9705f7a0ee8854d2eac23223a75"
+  },
+  "source_unchanged": true,
+  "commands": [
+    {
+      "command": [
+        "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+        "-m",
+        "ruff",
+        "check",
+        "catalog/hooks/tests/test_hook_size_bound.py"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.2963194999611005,
+      "stdout": "All checks passed!\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:/Program Files/Git/bin/bash.exe",
+        "-n",
+        "catalog/hooks/provenance-ledger.sh"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.08597259991802275,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:/Program Files/Git/bin/bash.exe",
+        "-n",
+        "catalog/hooks/auto-devlog.sh"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.15340159996412694,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-NonInteractive",
+        "-EncodedCommand",
+        "JABQAHIAbwBnAHIAZQBzAHMAUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwBpAGwAZQBuAHQAbAB5AEMAbwBuAHQAaQBuAHUAZQAnADsAIAAkAHQAbwBrAGUAbgBzAD0AJABuAHUAbABsADsAIAAkAGUAcgByAG8AcgBzAD0AJABuAHUAbABsADsAIABbAHYAbwBpAGQAXQBbAFMAeQBzAHQAZQBtAC4ATQBhAG4AYQBnAGUAbQBlAG4AdAAuAEEAdQB0AG8AbQBhAHQAaQBvAG4ALgBMAGEAbgBnAHUAYQBnAGUALgBQAGEAcgBzAGUAcgBdADoAOgBQAGEAcgBzAGUARgBpAGwAZQAoACgASgBvAGkAbgAtAFAAYQB0AGgAIAAoAEcAZQB0AC0ATABvAGMAYQB0AGkAbwBuACkAIAAnAGMAYQB0AGEAbABvAGcALwBoAG8AbwBrAHMALwBwAHIAbwB2AGUAbgBhAG4AYwBlAC0AbABlAGQAZwBlAHIALgBwAHMAMQAnACkALAAgAFsAcgBlAGYAXQAkAHQAbwBrAGUAbgBzACwAIABbAHIAZQBmAF0AJABlAHIAcgBvAHIAcwApADsAIABpAGYAIAAoACQAZQByAHIAbwByAHMALgBDAG8AdQBuAHQAKQAgAHsAIAAkAGUAcgByAG8AcgBzACAAfAAgAEYAbwByAEUAYQBjAGgALQBPAGIAagBlAGMAdAAgAHsAIABbAEMAbwBuAHMAbwBsAGUAXQA6ADoARQByAHIAbwByAC4AVwByAGkAdABlAEwAaQBuAGUAKAAkAF8ALgBNAGUAcwBzAGEAZwBlACkAIAB9ADsAIABlAHgAaQB0ACAAMQAgAH0AOwAgAGUAeABpAHQAIAAwAA=="
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.280288300011307,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.12501130008604378,
+      "stdout": "",
+      "stderr": "warning: in the working copy of 'catalog/hooks/auto-devlog.ps1', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'catalog/hooks/learning-capture.ps1', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'catalog/hooks/provenance-ledger.ps1', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'catalog/hooks/session-summary.ps1', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'catalog/hooks/skill-tracker.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'catalog/hooks/tests/test_auto_devlog_index_guard.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'catalog/hooks/tests/test_eval_loop.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'catalog/hooks/tests/test_hook_size_bound.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'catalog/hooks/tests/test_learning_capture.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'catalog/skills/workflow/implement-phase/references/completion-contract.md', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/releases/v4/v4.13/development/v4.13.11-freeze-queue-assessment.json', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/releases/v4/v4.13/development/v4.13.11-freeze-queue-assessment.md', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/releases/v4/v4.13/development/v4.13.11-phase-2-local-checks.json', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/releases/v4/v4.13/development/v4.13.11-phase-2-tests.json', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/releases/v4/v4.13/development/v4.13.11-reconciliation.json', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/releases/v4/v4.13/known-gaps.md', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/releases/v4/v4.13/plans/v4.13.11-known-gaps-sweep-and-minor-close.md', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/todos.md', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'extensions/nexus-code-search/tests/test_context_map_measurement.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'scripts/check_installer_smoke.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'scripts/check_plan_completion.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'scripts/completion_minor.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'scripts/optimize_skill_description.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'tests/installer/test_installer_smoke_postconditions.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'tests/validators/test_completion_minor_record.py', LF will be replaced by CRLF the next time Git touches it\n"
+    }
+  ],
+  "pass": true
+}

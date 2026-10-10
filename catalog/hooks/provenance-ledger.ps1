@@ -33,7 +33,8 @@
     with $env:NEXUS_HOOK_PROFILE = 'minimal'.
 
     Configuration mirrors the .sh sibling: NEXUS_PROVENANCE_DIR,
-    NEXUS_PROVENANCE_MAX, NEXUS_PROVENANCE_HASH_MAX_BYTES.
+    NEXUS_PROVENANCE_MAX, NEXUS_PROVENANCE_MAX_BYTES (default 1048576; minimum 8192),
+    NEXUS_PROVENANCE_HASH_MAX_BYTES.
 #>
 
 # Never fail loudly on internal errors - this hook is advisory only.
@@ -47,10 +48,22 @@ if ($env:NEXUS_HOOK_PROFILE -eq "minimal") { exit 0 }
 $ledgerDir = if ($env:NEXUS_PROVENANCE_DIR) { $env:NEXUS_PROVENANCE_DIR }
              else { Join-Path (Join-Path $HOME ".nexus-hub") "cache\provenance" }
 $maxLines = if ($env:NEXUS_PROVENANCE_MAX) { [int]$env:NEXUS_PROVENANCE_MAX } else { 500 }
+$maxBytes = [long]1048576
+$configuredMaxBytes = [long]0
+if ($env:NEXUS_PROVENANCE_MAX_BYTES -match '^[0-9]+\z' -and
+    [long]::TryParse($env:NEXUS_PROVENANCE_MAX_BYTES, [ref]$configuredMaxBytes) -and $configuredMaxBytes -gt 0) {
+    $maxBytes = $configuredMaxBytes
+}
+if ($maxBytes -lt 8192) {
+    $maxBytes = [long]8192
+    [Console]::Error.WriteLine('[provenance-ledger] byte cap raised to minimum 8192 for complete records.')
+}
 $hashMaxBytes = if ($env:NEXUS_PROVENANCE_HASH_MAX_BYTES) { [long]$env:NEXUS_PROVENANCE_HASH_MAX_BYTES } else { 10485760 }
 
 # --- Read the PostToolUse payload ---
 if (-not [Console]::IsInputRedirected) { exit 0 }
+# Hook payloads are UTF-8 even when Windows PowerShell uses an OEM console code page.
+[Console]::InputEncoding = New-Object System.Text.UTF8Encoding($false)
 $raw = [Console]::In.ReadToEnd()
 if (-not $raw) { exit 0 }
 
@@ -66,6 +79,12 @@ if ($payload.tool_input) {
     if ($names -contains 'file_path') { $filePath = $payload.tool_input.file_path }
     elseif ($names -contains 'path')  { $filePath = $payload.tool_input.path }
     if ($names -contains 'command')   { $command = $payload.tool_input.command }
+}
+
+# A NUL cannot identify a filesystem path; refuse it rather than recording an alias.
+if ($filePath -and $filePath.IndexOf([char]0) -ge 0) {
+    [Console]::Error.WriteLine('[provenance-ledger] cannot record path containing NUL; skipping.')
+    exit 0
 }
 
 # Decide which branch to run. Prefer the explicit tool name over guessing from
@@ -121,21 +140,46 @@ if ($isWrite -and $filePath) {
         $normPath = $filePath -replace '\\', '/'
         $hash = Get-LedgerHash -Path $filePath
         $epoch = [int][double]::Parse((Get-Date -UFormat %s))
+        $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+        # Keep supported TSV paths whole. Larger paths and row delimiters retain
+        # the SHA-256 of the entire normalized path, never a truncated identity.
+        if ($utf8NoBom.GetByteCount($normPath) -gt 4096 -or $normPath -match '[\t\r\n]') {
+            $pathSha = [System.Security.Cryptography.SHA256]::Create()
+            try {
+                $pathBytes = $pathSha.ComputeHash($utf8NoBom.GetBytes($normPath))
+                $pathHash = ([System.BitConverter]::ToString($pathBytes) -replace '-', '').ToLowerInvariant()
+                $normPath = "UNSUPPORTED-PATH-SHA256:$pathHash"
+            } finally { $pathSha.Dispose() }
+            [Console]::Error.WriteLine('[provenance-ledger] recorded path digest without path correlation.')
+        }
 
         # BOM-less UTF-8, deliberately. Add-Content -Encoding utf8 emits a BOM on
         # Windows PowerShell 5.1, which would (a) make the first field unparseable
         # as an integer and (b) break format parity with the .sh sibling, which
         # matters because both implementations can append to the SAME ledger file.
-        $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
         [System.IO.File]::AppendAllText(
             $ledger, ("{0}`t{1}`t{2}`n" -f $epoch, $hash, $normPath), $utf8NoBom)
 
-        # Bound growth: keep only the most recent $maxLines entries.
-        $lines = @(Get-Content -LiteralPath $ledger -ErrorAction SilentlyContinue)
-        if ($lines.Count -gt $maxLines) {
-            $kept = $lines[($lines.Count - $maxLines)..($lines.Count - 1)]
-            [System.IO.File]::WriteAllText(
-                $ledger, (($kept -join "`n") + "`n"), $utf8NoBom)
+        # Retain complete newest rows under both line and UTF-8 byte caps.
+        $lines = @([System.IO.File]::ReadAllLines($ledger, $utf8NoBom))
+        if ($lines.Count -gt $maxLines -or (Get-Item -LiteralPath $ledger).Length -gt $maxBytes) {
+            $first = $lines.Count
+            $bytes = [long]0
+            for ($i = $lines.Count - 1; $i -ge 0; $i--) {
+                $rowBytes = $utf8NoBom.GetByteCount($lines[$i] + "`n")
+                if ($lines.Count - $i -gt $maxLines -or $bytes + $rowBytes -gt $maxBytes) { break }
+                $bytes += $rowBytes
+                $first = $i
+            }
+            $kept = if ($first -lt $lines.Count) { ($lines[$first..($lines.Count - 1)] -join "`n") + "`n" } else { "" }
+            $temporary = "$ledger.tmp.$PID"
+            try {
+                [System.IO.File]::WriteAllText($temporary, $kept, $utf8NoBom)
+                Move-Item -LiteralPath $temporary -Destination $ledger -Force -ErrorAction Stop
+            } catch {
+                Remove-Item -LiteralPath $temporary -Force -ErrorAction SilentlyContinue
+                [Console]::Error.WriteLine('[provenance-ledger] degraded rotation; ledger retained above its cap.')
+            }
         }
     } catch { }
     exit 0
@@ -150,13 +194,14 @@ if ($isWrite -and $filePath) {
 if ($isCommand -and $command -and (Test-Path -LiteralPath $ledger -PathType Leaf)) {
     $hits = New-Object System.Collections.Generic.List[string]
     $now = [int][double]::Parse((Get-Date -UFormat %s))
-    foreach ($line in @(Get-Content -LiteralPath $ledger -ErrorAction SilentlyContinue)) {
+    foreach ($line in @([System.IO.File]::ReadAllLines($ledger, (New-Object System.Text.UTF8Encoding($false))))) {
         $parts = $line -split "`t"
         if ($parts.Count -lt 3) { continue }
         $ts = $parts[0]
         $hash = $parts[1]
         $path = $parts[2]
         if (-not $path) { continue }
+        if ($path.StartsWith('UNSUPPORTED-PATH-SHA256:')) { continue }
         $base = Split-Path $path -Leaf
         # Ignore very short basenames: they collide with ordinary words.
         if ($base.Length -lt 4) { continue }

@@ -23,6 +23,7 @@ import json
 import os
 import shutil
 import subprocess
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import pytest
@@ -187,6 +188,68 @@ class TestRuntimeControls:
         new_size = obs.stat().st_size
         # Must have shrunk meaningfully (we keep the last half then appended one).
         assert new_size < original_size
+
+
+@pytest.mark.skipif(not shutil.which("powershell.exe"), reason="Windows PowerShell is unavailable")
+@pytest.mark.parametrize("cap", [1048576, 4096])
+def test_powershell_concurrent_capture_preserves_complete_records(tmp_repo: Path, cap: int) -> None:
+    obs = tmp_repo / ".nexus" / "observations.jsonl"
+    obs.parent.mkdir()
+    seed = json.dumps({"ts": "seed", "event": "seed", "tool": "", "prompt_sample": "x" * 400})
+    obs.write_text((seed + "\n") * 30, encoding="utf-8")
+    env = os.environ.copy()
+    for key in ("NEXUS_DISABLED_HOOKS", "NEXUS_HOOK_PROFILE", "NEXUS_LEARNING_CAPTURE", "NEXUS_LEARNING_PATH"):
+        env.pop(key, None)
+    env["NEXUS_LEARNING_MAX_BYTES"] = str(cap)
+    command = [shutil.which("powershell.exe"), "-NoProfile", "-File", str(_CAPTURE_HOOK.with_suffix(".ps1"))]
+
+    def invoke(index: int) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(command, cwd=tmp_repo, env=env, input=json.dumps({"prompt": f"parallel-{index}"}),
+                              text=True, capture_output=True, timeout=30, check=False)
+
+    with ThreadPoolExecutor(max_workers=16) as pool:
+        results = list(pool.map(invoke, range(32)))
+    assert all(result.returncode == 0 for result in results)
+    raw = obs.read_bytes()
+    assert not raw.startswith(b"\xef\xbb\xbf")
+    records = [json.loads(line) for line in raw.decode("utf-8").splitlines()]
+    samples = [record["prompt_sample"] for record in records if record["event"] != "seed"]
+    assert sorted(samples) == sorted(f"parallel-{index}" for index in range(32))
+    assert len(raw) <= cap
+    assert records[-1]["prompt_sample"].startswith("parallel-")
+    assert not list(obs.parent.glob("*.trim.*"))
+
+
+@pytest.mark.parametrize("missing", [False, True])
+def test_fallback_failed_rotation_preserves_records_and_returns(tmp_repo: Path, missing: bool) -> None:
+    # Target Git's actual Bash process so a timeout cannot leave its launcher children running.
+    direct_bash = Path(r"C:\Program Files\Git\usr\bin\bash.exe")
+    bash = str(direct_bash) if direct_bash.exists() else _BASH
+    obs = tmp_repo / ".nexus" / "observations.jsonl"
+    obs.parent.mkdir()
+    original = (json.dumps({"event": "old", "tool": "", "prompt_sample": "x" * 70}) + "\n") * 4
+    obs.write_text(original, encoding="utf-8")
+    rename_log = tmp_repo / "rename.log"
+    startup = tmp_repo / "startup.sh"
+    rename = '(PATH=; builtin command mv "$@")' if missing else "return 1"
+    startup.write_text(
+        'command() { if [[ "$1" == "-v" && ( "$2" == "python" || "$2" == "python3" || "$2" == "jq" ) ]]; then return 1; fi; builtin command "$@"; }\n'
+        'mv() { printf "attempt\\n" >> "$NEXUS_TEST_RENAME_LOG"; ' + rename + '; }\n',
+        encoding="utf-8",
+    )
+    env = os.environ.copy()
+    for key in ("NEXUS_DISABLED_HOOKS", "NEXUS_HOOK_PROFILE", "NEXUS_LEARNING_CAPTURE", "NEXUS_LEARNING_PATH"):
+        env.pop(key, None)
+    env.update(BASH_ENV=startup.as_posix(), NEXUS_LEARNING_MAX_BYTES="200",
+               NEXUS_TEST_RENAME_LOG=rename_log.as_posix())
+    result = subprocess.run([bash, str(_CAPTURE_HOOK)], cwd=tmp_repo, env=env, input="{}",
+                            text=True, capture_output=True, timeout=5, check=False)
+    assert result.returncode == 0
+    assert "learning-capture: degraded-rotation" in result.stderr
+    assert rename_log.read_text(encoding="utf-8").splitlines() == ["attempt"]
+    assert obs.read_text(encoding="utf-8").startswith(original)
+    assert all(isinstance(json.loads(line), dict) for line in obs.read_text(encoding="utf-8").splitlines())
+    assert not list(obs.parent.glob("*.trim.*"))
 
 
 class TestNoNetworkInvariant:

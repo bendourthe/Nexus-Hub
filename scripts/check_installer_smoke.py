@@ -17,6 +17,11 @@ EXPECTED_SCRIPTS = (
     "nexus_hub_cli.py",
     "run_trigger_evals.py",
     "validate_permission_baseline.py",
+    "package_skill.py",
+    "aggregate_benchmark.py",
+    "skill_eval_viewer.py",
+    "optimize_skill_description.py",
+    "generate_report.py",
 )
 EXPECTED_WORKSPACE_ARTIFACTS = (
     Path(".claude") / "skills" / "functional-verification" / "SKILL.md",

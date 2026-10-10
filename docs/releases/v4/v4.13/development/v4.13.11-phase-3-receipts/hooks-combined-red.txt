@@ -1,0 +1,120 @@
+..........................F............................................. [ 17%]
+........................................................................ [ 34%]
+........................................................................ [ 51%]
+........................................................................ [ 68%]
+........................................................................ [ 85%]
+...........................................................              [100%]
+================================== FAILURES ===================================
+____________________ test_hook_size_bound[auto-devlog-sh] _____________________
+
+request = <FixtureRequest for <Function test_hook_size_bound[auto-devlog-sh]>>
+tmp_path = WindowsPath('C:/Users/username/AppData/Local/Temp/pytest-of-bedourthe/pytest-10733/test_hook_size_bound_auto_devl0')
+scenario = Scenario(name='auto-devlog', impls=('sh', 'ps1'), targets=(Target(label='<repo>/docs/DEVLOG.md', cls='append-only', pa...setup at 0x0000021B4B8C3740>, before_event=<function _ad_before at 0x0000021B4B8C37E0>, extra_env={'AUTO_DEVLOG': '1'})
+impl = 'sh'
+
+    @pytest.mark.parametrize(("scenario", "impl"), _cases())
+    def test_hook_size_bound(
+        request: pytest.FixtureRequest, tmp_path: Path, scenario: Scenario, impl: str
+    ) -> None:
+        prefix = _prefix(request, scenario, impl)
+        ctx = make_ctx(tmp_path)
+        # Multi-byte before oversized, so an overwrite file (or an entry that
+        # re-lists earlier commits) does not carry the 64 KiB field into the
+        # multi-byte reading.
+        kinds = ["normal"] * EVENTS + ["multibyte", "oversized"]
+        measures = {t.label: Measure() for t in scenario.targets}
+        starts = {}
+
+        with real_guard(ctx.token):
+            scenario.setup(ctx)
+            starts = {t.label: max(_size(t.path(ctx)), 0) for t in scenario.targets}
+            for i, kind in enumerate(kinds):
+                _fire(ctx, prefix, scenario, kind, i)
+                for target in scenario.targets:
+                    measures[target.label].sizes.append(_size(target.path(ctx)))
+
+        violations: dict[tuple[str, str, str, str], str] = {}
+        for target in scenario.targets:
+            m = measures[target.label]
+            start = starts[target.label]
+            assert m.sizes[0] >= 0, (
+                f"UNMEASURED: {scenario.name}-{impl} never created {target.label}"
+            )
+            overwrite = target.cls == OVERWRITE
+            per_event = [m.sizes[i] if overwrite else m.delta(i, start) for i in range(len(kinds))]
+            normal = per_event[:EVENTS]
+            multibyte, oversized = per_event[EVENTS], per_event[EVENTS + 1]
+            _TABLE.append(
+                {
+                    "hook": scenario.name,
+                    "impl": impl,
+                    "class": target.cls,
+                    "file": target.label,
+                    "typical": str(int(statistics.median(normal))),
+                    "oversized": str(oversized),
+                    "multibyte": str(multibyte),
+                    "after20": str(m.sizes[EVENTS - 1]),
+                }
+            )
+            print(
+                f"\n[size-bound] {scenario.name}-{impl} {target.cls} {target.label}: "
+                f"typical={int(statistics.median(normal))} oversized={oversized} "
+                f"multibyte={multibyte} after20={m.sizes[EVENTS - 1]} final={m.sizes[-1]}"
+            )
+
+            if target.cls == APPEND:
+                sizes = [start, *m.sizes]
+                assert all(b >= a for a, b in pairwise(sizes)), (
+                    f"append-only {target.label} shrank: {sizes}"
+                )
+            if not overwrite and min(normal) <= 0:
+                # Liveness: under the default caps no rotation is reached within 20
+                # events, so every ordinary event must add bytes. A hook that runs,
+                # exits 0 and writes nothing would otherwise pass every size check.
+                key = (scenario.name, impl, target.label, "liveness")
+                violations[key] = f"ordinary event added no bytes: deltas {normal}"
+            checks = (("normal", max(normal), target.normal_cap),
+                      ("multibyte", multibyte, target.multibyte_cap),
+                      ("oversized", oversized, target.oversized_cap))
+            for kind, value, cap in checks:
+                if value > cap:
+                    key = (scenario.name, impl, target.label, kind)
+                    violations[key] = f"{kind} event: {value} B > cap {cap} B"
+
+>       _settle(request, scenario, impl, violations)
+
+catalog\hooks\tests\test_hook_size_bound.py:824:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+request = <FixtureRequest for <Function test_hook_size_bound[auto-devlog-sh]>>
+scenario = Scenario(name='auto-devlog', impls=('sh', 'ps1'), targets=(Target(label='<repo>/docs/DEVLOG.md', cls='append-only', pa...setup at 0x0000021B4B8C3740>, before_event=<function _ad_before at 0x0000021B4B8C37E0>, extra_env={'AUTO_DEVLOG': '1'})
+impl = 'sh'
+violations = {('auto-devlog', 'sh', '<repo>/docs/DEVLOG.md', 'liveness'): 'ordinary event added no bytes: deltas [269, 476, 605, 734, 863, 911, 959, 0, 1055, 1079, 1079, 1079, 0, 1079, 1079, 0, 0, 1079, 1079, 1079]'}
+
+    def _settle(
+        request: pytest.FixtureRequest,
+        scenario: Scenario,
+        impl: str,
+        violations: dict[tuple[str, str, str, str], str],
+    ) -> None:
+        """Fail on any unknown breach; xfail when only known breaches remain."""
+        expected = {
+            key: reason
+            for key, reason in KNOWN_BREACHES.items()
+            if key[0] == scenario.name and key[1] == impl
+            and not (reason.startswith("[bash+jq]") and not _bash_has_jq(
+                request.getfixturevalue("bash_bin")))
+            and not (reason.startswith("[not-linux]") and sys.platform.startswith("linux"))
+        }
+        unknown = {k: v for k, v in violations.items() if k not in expected}
+>       assert not unknown, f"size bound breached: {unknown}"
+E       AssertionError: size bound breached: {('auto-devlog', 'sh', '<repo>/docs/DEVLOG.md', 'liveness'): 'ordinary event added no bytes: deltas [269, 476, 605, 734, 863, 911, 959, 0, 1055, 1079, 1079, 1079, 0, 1079, 1079, 0, 0, 1079, 1079, 1079]'}
+E       assert not {('auto-devlog', 'sh', '<repo>/docs/DEVLOG.md', 'liveness'): 'ordinary event added no bytes: deltas [269, 476, 605, 734, 863, 911, 959, 0, 1055, 1079, 1079, 1079, 0, 1079, 1079, 0, 0, 1079, 1079, 1079]'}
+
+catalog\hooks\tests\test_hook_size_bound.py:843: AssertionError
+---------------------------- Captured stdout call -----------------------------
+
+[isolation-guard] 3 unattributed concurrent change(s) ignored
+
+[size-bound] auto-devlog-sh append-only <repo>/docs/DEVLOG.md: typical=935 oversized=0 multibyte=1554 after20=14556 final=16110
+1 failed, 418 passed in 658.43s (0:10:58)

@@ -1,0 +1,53 @@
+[
+  {
+    "at": "2026-10-09T22:59:51+00:00",
+    "event": "check",
+    "result": "unchanged",
+    "path": "c:/users/username/documents/benjamin/nexus/nexus-hub-worktrees/v41311-plan/catalog/hooks/provenance-ledger.sh"
+  },
+  {
+    "at": "2026-10-09T22:59:52+00:00",
+    "event": "check",
+    "result": "unchanged",
+    "path": "c:/users/username/documents/benjamin/nexus/nexus-hub-worktrees/v41311-plan/catalog/hooks/learning-capture.sh"
+  },
+  {
+    "at": "2026-10-09T22:59:53+00:00",
+    "event": "check",
+    "result": "unchanged",
+    "path": "c:/users/username/documents/benjamin/nexus/nexus-hub-worktrees/v41311-plan/catalog/hooks/tests/test_hook_size_bound.py"
+  },
+  {
+    "at": "2026-10-09T23:01:58+00:00",
+    "event": "record-refused",
+    "path": "c:/users/username/documents/benjamin/nexus/nexus-hub-worktrees/v41311-plan/catalog/hooks/provenance-ledger.sh"
+  },
+  {
+    "at": "2026-10-09T23:02:00+00:00",
+    "event": "record-refused",
+    "path": "c:/users/username/documents/benjamin/nexus/nexus-hub-worktrees/v41311-plan/catalog/hooks/learning-capture.sh"
+  },
+  {
+    "at": "2026-10-09T23:02:01+00:00",
+    "event": "record-refused",
+    "path": "c:/users/username/documents/benjamin/nexus/nexus-hub-worktrees/v41311-plan/catalog/hooks/tests/test_hook_size_bound.py"
+  },
+  {
+    "at": "2026-10-10T00:53:41+00:00",
+    "event": "diff",
+    "path": "c:/users/username/documents/benjamin/nexus/nexus-hub-worktrees/v41311-plan/catalog/hooks/provenance-ledger.sh",
+    "session": "v41311-phase3-hooks"
+  },
+  {
+    "at": "2026-10-10T00:53:42+00:00",
+    "event": "diff",
+    "path": "c:/users/username/documents/benjamin/nexus/nexus-hub-worktrees/v41311-plan/catalog/hooks/learning-capture.sh",
+    "session": "v41311-phase3-hooks"
+  },
+  {
+    "at": "2026-10-10T00:53:43+00:00",
+    "event": "diff",
+    "path": "c:/users/username/documents/benjamin/nexus/nexus-hub-worktrees/v41311-plan/catalog/hooks/tests/test_hook_size_bound.py",
+    "session": "v41311-phase3-hooks"
+  }
+]

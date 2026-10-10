@@ -33,6 +33,11 @@ def main() -> None:
     skill = ""
     if isinstance(tool_input, dict):
         skill = str(tool_input.get("skill") or tool_input.get("name") or "")
+    # Skill names are identities under the catalog's 64-character contract.
+    # Refuse oversized names; truncation would make distinct skills collide.
+    if len(skill) > 64:
+        print("[skill-tracker] skill identity exceeds 64 characters; skipping.", file=sys.stderr)
+        sys.exit(0)
     if skill:
         record_skill(str(data.get("session_id", "")), skill)
 

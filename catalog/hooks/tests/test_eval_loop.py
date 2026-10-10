@@ -28,7 +28,9 @@ from __future__ import annotations
 import importlib.util
 import hashlib
 import json
+import os
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -212,6 +214,107 @@ def fixture_skill_and_evals(tmp_path: Path) -> tuple[Path, Path]:
         encoding="utf-8",
     )
     return skill_md, evals
+
+
+def test_optimizer_runs_a_real_stub_cli_on_path(tmp_path: Path) -> None:
+    """Exercise dispatch, scoring and candidate selection without a live provider."""
+    skill = tmp_path / "SKILL.md"
+    original = "---\nname: fixture\ndescription: Baseline fixture intent.\n---\n# Fixture\n"
+    skill.write_text(original, encoding="utf-8")
+    original_bytes = skill.read_bytes()
+    evals = tmp_path / "evals.json"
+    evals.write_text(json.dumps([
+        {"id": f"eval-{n}", "query": f"fixture-{'positive' if n < 2 else 'negative'}-{n}", "should_trigger": n < 2}
+        for n in range(4)
+    ]), encoding="utf-8")
+    candidate = "Trigger fixture-positive requests. SKIP: fixture-negative requests."
+    log = tmp_path / "argv.jsonl"
+    stub_script = tmp_path / "stub.py"
+    stub_script.write_text(
+        "import json, pathlib, sys\n"
+        f"log = pathlib.Path({str(log)!r})\n"
+        "args = sys.argv[1:]\n"
+        "prompt = args[args.index('-p') + 1]\n"
+        "description = None\n"
+        "if '--skill' in args:\n"
+        "    text = pathlib.Path(args[args.index('--skill') + 1]).read_text(encoding='utf-8')\n"
+        "    description = text.split('description: ', 1)[1].splitlines()[0]\n"
+        "with log.open('a', encoding='utf-8') as output:\n"
+        "    output.write(json.dumps({'argv': args, 'description': description}) + '\\n')\n"
+        "if description is None:\n"
+        f"    print(json.dumps([{candidate!r}]))\n"
+        "elif description.startswith('Trigger fixture-positive') and prompt.startswith('fixture-positive'):\n"
+        "    print(description)\n"
+        "else:\n"
+        "    print('No loaded skill.')\n",
+        encoding="utf-8",
+    )
+    launcher = _load_module(_REPO_ROOT / "tests" / "fixtures" / "gh_stub" / "launcher.py")
+    bin_dir = tmp_path / "bin"
+    stub = launcher.make_stub(bin_dir, "claude", stub_script)
+    env = os.environ.copy()
+    env["PATH"] = str(bin_dir)
+    for name in ("HOME", "USERPROFILE", "APPDATA", "LOCALAPPDATA"):
+        env[name] = str(tmp_path / "home")
+    assert Path(shutil.which("claude", path=env["PATH"])).resolve() == stub.resolve()
+    result = subprocess.run(
+        [sys.executable, str(_OPTIMIZER), "--skill", str(skill), "--evals", str(evals),
+         "--cli", "claude", "--model", "fixture-model", "--workspace", str(tmp_path),
+         "--max-iterations", "1", "--repeats", "1"],
+        cwd=tmp_path, env=env, capture_output=True, text=True, timeout=120, check=False,
+    )
+    (tmp_path / "optimizer-stdout.txt").write_text(result.stdout, encoding="utf-8")
+    (tmp_path / "optimizer-stderr.txt").write_text(result.stderr, encoding="utf-8")
+    assert result.returncode == 0, result.stderr
+    assert "Iteration 1: best test_trigger_rate = 1.000" in result.stdout
+    final = json.loads((tmp_path / "optimizer" / "final.json").read_text(encoding="utf-8"))
+    iteration = json.loads((tmp_path / "optimizer" / "iteration-1.json").read_text(encoding="utf-8"))
+    assert iteration == final
+    assert sorted(path.name for path in (tmp_path / "optimizer").glob("iteration-*.json")) == ["iteration-1.json"]
+    assert final["iteration"] == 1
+    assert final["best_description"] == candidate
+    assert final["baseline"]["train_trigger_rate"] == 0.5
+    assert final["baseline"]["test_trigger_rate"] == 0.5
+    assert final["candidates"] == [{"description": candidate, "train_trigger_rate": 1.0, "test_trigger_rate": 1.0}]
+    assert final["model"] == "fixture-model"
+    assert skill.read_bytes() == original_bytes
+    calls = [json.loads(line) for line in log.read_text(encoding="utf-8").splitlines()]
+    assert len(calls) == 11
+    generated = [call for call in calls if call["description"] is None]
+    assert len(generated) == 1
+    assert "--skill" not in generated[0]["argv"]
+    scored = [call for call in calls if call["description"] is not None]
+    assert {call["description"] for call in scored} == {"Baseline fixture intent.", candidate}
+    assert {call["argv"][1] for call in scored} == {f"fixture-{'positive' if n < 2 else 'negative'}-{n}" for n in range(4)}
+    for call in calls:
+        args = call["argv"]
+        assert args[args.index("--model") + 1] == "fixture-model"
+        assert args[args.index("--setting-sources") + 1] == ""
+    for call in scored:
+        args = call["argv"]
+        assert args[args.index("--skill") + 1] == str(skill)
+
+
+def test_optimizer_accepts_an_unchanged_description(optimizer_module, tmp_path: Path) -> None:
+    skill = tmp_path / "SKILL.md"
+    source = "---\nname: fixture\ndescription: Current fixture description.\n---\n# Fixture\n"
+    skill.write_text(source, encoding="utf-8")
+    optimizer_module._swap_description(skill, "Current fixture description.")
+    assert skill.read_text(encoding="utf-8") == source
+
+
+@pytest.mark.parametrize(("source", "error"), [
+    ("---\nname: fixture\n---\n# Fixture\n", "failed to replace description"),
+    ("---\nname: fixture\ndescription: Current description.\n", "unterminated frontmatter"),
+])
+def test_optimizer_refuses_unmatched_or_malformed_frontmatter(
+    optimizer_module, tmp_path: Path, source: str, error: str
+) -> None:
+    skill = tmp_path / "SKILL.md"
+    skill.write_text(source, encoding="utf-8")
+    with pytest.raises(ValueError, match=error):
+        optimizer_module._swap_description(skill, "Replacement description.")
+    assert skill.read_text(encoding="utf-8") == source
 
 
 class TestOptimizerDryRun:

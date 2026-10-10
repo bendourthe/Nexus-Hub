@@ -1,6 +1,6 @@
 {
   "command": "python -m pytest -q tests/validators/test_gap_migration_and_archive.py tests/validators/test_completion_minor_record.py tests/validators/test_completion_minor_verdict.py tests/validators/test_plan_carry_and_archive.py",
-  "workdir": "C:\\Users\\BEDOURTHE\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan",
+  "workdir": "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan",
   "session_id": 10508,
   "started_at_utc": "2026-10-09T21:29:21.924Z",
   "finished_at_utc": "2026-10-09T21:50:01.718Z",

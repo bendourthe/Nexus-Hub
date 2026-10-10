@@ -1,0 +1,10 @@
+profile: fast   platform: windows
+scope:   no --base supplied; running every group
+- catalog-parse
+- hygiene
+- interpreters
+- registry-consistency
+- workflows
+- version
+
+PASS: 17 passed, 0 failed, 0 skipped, 0 advisory in 14.7s

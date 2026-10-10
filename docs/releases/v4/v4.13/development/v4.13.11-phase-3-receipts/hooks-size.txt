@@ -1,0 +1,1146 @@
+......
+[size-bound] learning-capture-sh bounded-rotation <repo>/.nexus/observations.jsonl: typical=200 oversized=733 multibyte=1293 after20=4000 final=6026
+F
+[size-bound] learning-capture-ps1 bounded-rotation <repo>/.nexus/observations.jsonl: typical=193 oversized=726 multibyte=1021 after20=3860 final=5607
+F
+[size-bound] provenance-ledger-sh bounded-rotation ~/.nexus-hub/cache/provenance/<session>.tsv: typical=235 oversized=107 multibyte=291 after20=4700 final=5098
+F
+[size-bound] provenance-ledger-ps1 bounded-rotation ~/.nexus-hub/cache/provenance/<session>.tsv: typical=235 oversized=107 multibyte=451 after20=4700 final=5258
+F
+[size-bound] session-summary-sh append-only ~/.claude/session-log.md: typical=70 oversized=131 multibyte=259 after20=1509 final=1899
+
+[size-bound] session-summary-sh intentional-overwrite <repo>/.nexus/context/last-session.md: typical=217 oversized=279 multibyte=407 after20=218 final=279
+F
+[size-bound] session-summary-ps1 append-only ~/.claude/session-log.md: typical=71 oversized=132 multibyte=219 after20=1536 final=1887
+
+[size-bound] session-summary-ps1 intentional-overwrite <repo>/.nexus/context/last-session.md: typical=217 oversized=279 multibyte=366 after20=218 final=279
+F
+[isolation-guard] 2 unattributed concurrent change(s) ignored
+
+[size-bound] auto-devlog-sh append-only <repo>/docs/DEVLOG.md: typical=1079 oversized=0 multibyte=1554 after20=18800 final=20354
+F
+[isolation-guard] 2 unattributed concurrent change(s) ignored
+
+[size-bound] auto-devlog-ps1 append-only <repo>/docs/DEVLOG.md: typical=1079 oversized=1730 multibyte=1541 after20=18800 final=22071
+F
+[size-bound] skill-tracker-py intentional-overwrite ~/.nexus-hub/state/skill-usage-<session>.json: typical=126 oversized=240 multibyte=240 after20=240 final=240
+F
+[isolation-guard] 2 unattributed concurrent change(s) ignored
+
+[size-bound] rotation learning-capture-sh bytes cap=2048: [200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000]
+F
+[isolation-guard] 3 unattributed concurrent change(s) ignored
+
+[size-bound] rotation learning-capture-ps1 bytes cap=2048: [193, 386, 579, 772, 965, 1158, 1351, 1544, 1737, 1930, 1930, 1930, 1930, 1930, 1930, 1930, 1930, 1930, 1930, 1930]
+F
+[size-bound] rotation provenance-ledger-sh lines cap=5: [1, 2, 3, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
+.
+[size-bound] rotation provenance-ledger-ps1 lines cap=5: [1, 2, 3, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
+.
+
+Measured on 2026-10-03 (bytes; overwrite rows show resulting size)
+hook | impl | class | file | typical | oversized | multibyte | after20
+learning-capture | sh | bounded-rotation | <repo>/.nexus/observations.jsonl | 200 | 733 | 1293 | 4000
+learning-capture | ps1 | bounded-rotation | <repo>/.nexus/observations.jsonl | 193 | 726 | 1021 | 3860
+provenance-ledger | sh | bounded-rotation | ~/.nexus-hub/cache/provenance/<session>.tsv | 235 | 107 | 291 | 4700
+provenance-ledger | ps1 | bounded-rotation | ~/.nexus-hub/cache/provenance/<session>.tsv | 235 | 107 | 451 | 4700
+session-summary | sh | append-only | ~/.claude/session-log.md | 70 | 131 | 259 | 1509
+session-summary | sh | intentional-overwrite | <repo>/.nexus/context/last-session.md | 217 | 279 | 407 | 218
+session-summary | ps1 | append-only | ~/.claude/session-log.md | 71 | 132 | 219 | 1536
+session-summary | ps1 | intentional-overwrite | <repo>/.nexus/context/last-session.md | 217 | 279 | 366 | 218
+auto-devlog | sh | append-only | <repo>/docs/DEVLOG.md | 1079 | 0 | 1554 | 18800
+auto-devlog | ps1 | append-only | <repo>/docs/DEVLOG.md | 1079 | 1730 | 1541 | 18800
+skill-tracker | py | intentional-overwrite | ~/.nexus-hub/state/skill-usage-<session>.json | 126 | 240 | 240 | 240
+....
+[isolation-guard] 1 unattributed concurrent change(s) ignored
+.
+[isolation-guard] 2 unattributed concurrent change(s) ignored
+.
+[isolation-guard] 2 unattributed concurrent change(s) ignored
+.
+[isolation-guard] 1 unattributed concurrent change(s) ignored
+.
+[isolation-guard] 2 unattributed concurrent change(s) ignored
+.
+================================== FAILURES ===================================
+__________________ test_hook_size_bound[learning-capture-sh] __________________
+
+request = <FixtureRequest for <Function test_hook_size_bound[learning-capture-sh]>>
+tmp_path = WindowsPath('C:/Users/username/AppData/Local/Temp/pytest-of-bedourthe/pytest-10720/test_hook_size_bound_learning_0')
+scenario = Scenario(name='learning-capture', impls=('sh', 'ps1'), targets=(Target(label='<repo>/.nexus/observations.jsonl', cls='...cenario.<lambda> at 0x000001ED0E68A520>, before_event=<function Scenario.<lambda> at 0x000001ED0E68A5C0>, extra_env={})
+impl = 'sh'
+
+    @pytest.mark.parametrize(("scenario", "impl"), _cases())
+    def test_hook_size_bound(
+        request: pytest.FixtureRequest, tmp_path: Path, scenario: Scenario, impl: str
+    ) -> None:
+        prefix = _prefix(request, scenario, impl)
+        ctx = make_ctx(tmp_path)
+        # Multi-byte before oversized, so an overwrite file (or an entry that
+        # re-lists earlier commits) does not carry the 64 KiB field into the
+        # multi-byte reading.
+        kinds = ["normal"] * EVENTS + ["multibyte", "oversized"]
+        measures = {t.label: Measure() for t in scenario.targets}
+        starts = {}
+
+        with real_guard(ctx.token):
+            scenario.setup(ctx)
+            starts = {t.label: max(_size(t.path(ctx)), 0) for t in scenario.targets}
+            for i, kind in enumerate(kinds):
+                _fire(ctx, prefix, scenario, kind, i)
+                for target in scenario.targets:
+                    measures[target.label].sizes.append(_size(target.path(ctx)))
+
+        violations: dict[tuple[str, str, str, str], str] = {}
+        for target in scenario.targets:
+            m = measures[target.label]
+            start = starts[target.label]
+            assert m.sizes[0] >= 0, (
+                f"UNMEASURED: {scenario.name}-{impl} never created {target.label}"
+            )
+            overwrite = target.cls == OVERWRITE
+            per_event = [m.sizes[i] if overwrite else m.delta(i, start) for i in range(len(kinds))]
+            normal = per_event[:EVENTS]
+            multibyte, oversized = per_event[EVENTS], per_event[EVENTS + 1]
+            _TABLE.append(
+                {
+                    "hook": scenario.name,
+                    "impl": impl,
+                    "class": target.cls,
+                    "file": target.label,
+                    "typical": str(int(statistics.median(normal))),
+                    "oversized": str(oversized),
+                    "multibyte": str(multibyte),
+                    "after20": str(m.sizes[EVENTS - 1]),
+                }
+            )
+            print(
+                f"\n[size-bound] {scenario.name}-{impl} {target.cls} {target.label}: "
+                f"typical={int(statistics.median(normal))} oversized={oversized} "
+                f"multibyte={multibyte} after20={m.sizes[EVENTS - 1]} final={m.sizes[-1]}"
+            )
+
+            if target.cls == APPEND:
+                sizes = [start, *m.sizes]
+                assert all(b >= a for a, b in pairwise(sizes)), (
+                    f"append-only {target.label} shrank: {sizes}"
+                )
+            if not overwrite and min(normal) <= 0:
+                # Liveness: under the default caps no rotation is reached within 20
+                # events, so every ordinary event must add bytes. A hook that runs,
+                # exits 0 and writes nothing would otherwise pass every size check.
+                key = (scenario.name, impl, target.label, "liveness")
+                violations[key] = f"ordinary event added no bytes: deltas {normal}"
+            checks = (("normal", max(normal), target.normal_cap),
+                      ("multibyte", multibyte, target.multibyte_cap),
+                      ("oversized", oversized, target.oversized_cap))
+            for kind, value, cap in checks:
+                if value > cap:
+                    key = (scenario.name, impl, target.label, kind)
+                    violations[key] = f"{kind} event: {value} B > cap {cap} B"
+
+>       _settle(request, scenario, impl, violations)
+
+catalog\hooks\tests\test_hook_size_bound.py:863:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+request = <FixtureRequest for <Function test_hook_size_bound[learning-capture-sh]>>
+scenario = Scenario(name='learning-capture', impls=('sh', 'ps1'), targets=(Target(label='<repo>/.nexus/observations.jsonl', cls='...cenario.<lambda> at 0x000001ED0E68A520>, before_event=<function Scenario.<lambda> at 0x000001ED0E68A5C0>, extra_env={})
+impl = 'sh', violations = {}
+
+    def _settle(
+        request: pytest.FixtureRequest,
+        scenario: Scenario,
+        impl: str,
+        violations: dict[tuple[str, str, str, str], str],
+    ) -> None:
+        """Fail on any unknown breach; xfail when only known breaches remain."""
+        expected = {
+            key: reason
+            for key, reason in KNOWN_BREACHES.items()
+            if key[0] == scenario.name and key[1] == impl
+            and not (reason.startswith("[bash+jq]") and not _bash_has_jq(
+                request.getfixturevalue("bash_bin")))
+            and not (reason.startswith("[not-linux]") and sys.platform.startswith("linux"))
+        }
+        unknown = {k: v for k, v in violations.items() if k not in expected}
+        assert not unknown, f"size bound breached: {unknown}"
+        fixed = [k for k in expected if k not in violations]
+>       assert not fixed, (
+            f"known breach no longer reproduces (remove it from KNOWN_BREACHES): {fixed}"
+        )
+E       AssertionError: known breach no longer reproduces (remove it from KNOWN_BREACHES): [('learning-capture', 'sh', '<repo>/.nexus/observations.jsonl', 'oversized')]
+E       assert not [('learning-capture', 'sh', '<repo>/.nexus/observations.jsonl', 'oversized')]
+
+catalog\hooks\tests\test_hook_size_bound.py:884: AssertionError
+_________________ test_hook_size_bound[learning-capture-ps1] __________________
+
+request = <FixtureRequest for <Function test_hook_size_bound[learning-capture-ps1]>>
+tmp_path = WindowsPath('C:/Users/username/AppData/Local/Temp/pytest-of-bedourthe/pytest-10720/test_hook_size_bound_learning_1')
+scenario = Scenario(name='learning-capture', impls=('sh', 'ps1'), targets=(Target(label='<repo>/.nexus/observations.jsonl', cls='...cenario.<lambda> at 0x000001ED0E68A520>, before_event=<function Scenario.<lambda> at 0x000001ED0E68A5C0>, extra_env={})
+impl = 'ps1'
+
+    @pytest.mark.parametrize(("scenario", "impl"), _cases())
+    def test_hook_size_bound(
+        request: pytest.FixtureRequest, tmp_path: Path, scenario: Scenario, impl: str
+    ) -> None:
+        prefix = _prefix(request, scenario, impl)
+        ctx = make_ctx(tmp_path)
+        # Multi-byte before oversized, so an overwrite file (or an entry that
+        # re-lists earlier commits) does not carry the 64 KiB field into the
+        # multi-byte reading.
+        kinds = ["normal"] * EVENTS + ["multibyte", "oversized"]
+        measures = {t.label: Measure() for t in scenario.targets}
+        starts = {}
+
+        with real_guard(ctx.token):
+            scenario.setup(ctx)
+            starts = {t.label: max(_size(t.path(ctx)), 0) for t in scenario.targets}
+            for i, kind in enumerate(kinds):
+                _fire(ctx, prefix, scenario, kind, i)
+                for target in scenario.targets:
+                    measures[target.label].sizes.append(_size(target.path(ctx)))
+
+        violations: dict[tuple[str, str, str, str], str] = {}
+        for target in scenario.targets:
+            m = measures[target.label]
+            start = starts[target.label]
+            assert m.sizes[0] >= 0, (
+                f"UNMEASURED: {scenario.name}-{impl} never created {target.label}"
+            )
+            overwrite = target.cls == OVERWRITE
+            per_event = [m.sizes[i] if overwrite else m.delta(i, start) for i in range(len(kinds))]
+            normal = per_event[:EVENTS]
+            multibyte, oversized = per_event[EVENTS], per_event[EVENTS + 1]
+            _TABLE.append(
+                {
+                    "hook": scenario.name,
+                    "impl": impl,
+                    "class": target.cls,
+                    "file": target.label,
+                    "typical": str(int(statistics.median(normal))),
+                    "oversized": str(oversized),
+                    "multibyte": str(multibyte),
+                    "after20": str(m.sizes[EVENTS - 1]),
+                }
+            )
+            print(
+                f"\n[size-bound] {scenario.name}-{impl} {target.cls} {target.label}: "
+                f"typical={int(statistics.median(normal))} oversized={oversized} "
+                f"multibyte={multibyte} after20={m.sizes[EVENTS - 1]} final={m.sizes[-1]}"
+            )
+
+            if target.cls == APPEND:
+                sizes = [start, *m.sizes]
+                assert all(b >= a for a, b in pairwise(sizes)), (
+                    f"append-only {target.label} shrank: {sizes}"
+                )
+            if not overwrite and min(normal) <= 0:
+                # Liveness: under the default caps no rotation is reached within 20
+                # events, so every ordinary event must add bytes. A hook that runs,
+                # exits 0 and writes nothing would otherwise pass every size check.
+                key = (scenario.name, impl, target.label, "liveness")
+                violations[key] = f"ordinary event added no bytes: deltas {normal}"
+            checks = (("normal", max(normal), target.normal_cap),
+                      ("multibyte", multibyte, target.multibyte_cap),
+                      ("oversized", oversized, target.oversized_cap))
+            for kind, value, cap in checks:
+                if value > cap:
+                    key = (scenario.name, impl, target.label, kind)
+                    violations[key] = f"{kind} event: {value} B > cap {cap} B"
+
+>       _settle(request, scenario, impl, violations)
+
+catalog\hooks\tests\test_hook_size_bound.py:863:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+request = <FixtureRequest for <Function test_hook_size_bound[learning-capture-ps1]>>
+scenario = Scenario(name='learning-capture', impls=('sh', 'ps1'), targets=(Target(label='<repo>/.nexus/observations.jsonl', cls='...cenario.<lambda> at 0x000001ED0E68A520>, before_event=<function Scenario.<lambda> at 0x000001ED0E68A5C0>, extra_env={})
+impl = 'ps1', violations = {}
+
+    def _settle(
+        request: pytest.FixtureRequest,
+        scenario: Scenario,
+        impl: str,
+        violations: dict[tuple[str, str, str, str], str],
+    ) -> None:
+        """Fail on any unknown breach; xfail when only known breaches remain."""
+        expected = {
+            key: reason
+            for key, reason in KNOWN_BREACHES.items()
+            if key[0] == scenario.name and key[1] == impl
+            and not (reason.startswith("[bash+jq]") and not _bash_has_jq(
+                request.getfixturevalue("bash_bin")))
+            and not (reason.startswith("[not-linux]") and sys.platform.startswith("linux"))
+        }
+        unknown = {k: v for k, v in violations.items() if k not in expected}
+        assert not unknown, f"size bound breached: {unknown}"
+        fixed = [k for k in expected if k not in violations]
+>       assert not fixed, (
+            f"known breach no longer reproduces (remove it from KNOWN_BREACHES): {fixed}"
+        )
+E       AssertionError: known breach no longer reproduces (remove it from KNOWN_BREACHES): [('learning-capture', 'ps1', '<repo>/.nexus/observations.jsonl', 'oversized')]
+E       assert not [('learning-capture', 'ps1', '<repo>/.nexus/observations.jsonl', 'oversized')]
+
+catalog\hooks\tests\test_hook_size_bound.py:884: AssertionError
+_________________ test_hook_size_bound[provenance-ledger-sh] __________________
+
+request = <FixtureRequest for <Function test_hook_size_bound[provenance-ledger-sh]>>
+tmp_path = WindowsPath('C:/Users/username/AppData/Local/Temp/pytest-of-bedourthe/pytest-10720/test_hook_size_bound_provenanc0')
+scenario = Scenario(name='provenance-ledger', impls=('sh', 'ps1'), targets=(Target(label='~/.nexus-hub/cache/provenance/<session>...ction Scenario.<lambda> at 0x000001ED0E68A520>, before_event=<function _pl_before at 0x000001ED0E68AA20>, extra_env={})
+impl = 'sh'
+
+    @pytest.mark.parametrize(("scenario", "impl"), _cases())
+    def test_hook_size_bound(
+        request: pytest.FixtureRequest, tmp_path: Path, scenario: Scenario, impl: str
+    ) -> None:
+        prefix = _prefix(request, scenario, impl)
+        ctx = make_ctx(tmp_path)
+        # Multi-byte before oversized, so an overwrite file (or an entry that
+        # re-lists earlier commits) does not carry the 64 KiB field into the
+        # multi-byte reading.
+        kinds = ["normal"] * EVENTS + ["multibyte", "oversized"]
+        measures = {t.label: Measure() for t in scenario.targets}
+        starts = {}
+
+        with real_guard(ctx.token):
+            scenario.setup(ctx)
+            starts = {t.label: max(_size(t.path(ctx)), 0) for t in scenario.targets}
+            for i, kind in enumerate(kinds):
+                _fire(ctx, prefix, scenario, kind, i)
+                for target in scenario.targets:
+                    measures[target.label].sizes.append(_size(target.path(ctx)))
+
+        violations: dict[tuple[str, str, str, str], str] = {}
+        for target in scenario.targets:
+            m = measures[target.label]
+            start = starts[target.label]
+            assert m.sizes[0] >= 0, (
+                f"UNMEASURED: {scenario.name}-{impl} never created {target.label}"
+            )
+            overwrite = target.cls == OVERWRITE
+            per_event = [m.sizes[i] if overwrite else m.delta(i, start) for i in range(len(kinds))]
+            normal = per_event[:EVENTS]
+            multibyte, oversized = per_event[EVENTS], per_event[EVENTS + 1]
+            _TABLE.append(
+                {
+                    "hook": scenario.name,
+                    "impl": impl,
+                    "class": target.cls,
+                    "file": target.label,
+                    "typical": str(int(statistics.median(normal))),
+                    "oversized": str(oversized),
+                    "multibyte": str(multibyte),
+                    "after20": str(m.sizes[EVENTS - 1]),
+                }
+            )
+            print(
+                f"\n[size-bound] {scenario.name}-{impl} {target.cls} {target.label}: "
+                f"typical={int(statistics.median(normal))} oversized={oversized} "
+                f"multibyte={multibyte} after20={m.sizes[EVENTS - 1]} final={m.sizes[-1]}"
+            )
+
+            if target.cls == APPEND:
+                sizes = [start, *m.sizes]
+                assert all(b >= a for a, b in pairwise(sizes)), (
+                    f"append-only {target.label} shrank: {sizes}"
+                )
+            if not overwrite and min(normal) <= 0:
+                # Liveness: under the default caps no rotation is reached within 20
+                # events, so every ordinary event must add bytes. A hook that runs,
+                # exits 0 and writes nothing would otherwise pass every size check.
+                key = (scenario.name, impl, target.label, "liveness")
+                violations[key] = f"ordinary event added no bytes: deltas {normal}"
+            checks = (("normal", max(normal), target.normal_cap),
+                      ("multibyte", multibyte, target.multibyte_cap),
+                      ("oversized", oversized, target.oversized_cap))
+            for kind, value, cap in checks:
+                if value > cap:
+                    key = (scenario.name, impl, target.label, kind)
+                    violations[key] = f"{kind} event: {value} B > cap {cap} B"
+
+>       _settle(request, scenario, impl, violations)
+
+catalog\hooks\tests\test_hook_size_bound.py:863:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+request = <FixtureRequest for <Function test_hook_size_bound[provenance-ledger-sh]>>
+scenario = Scenario(name='provenance-ledger', impls=('sh', 'ps1'), targets=(Target(label='~/.nexus-hub/cache/provenance/<session>...ction Scenario.<lambda> at 0x000001ED0E68A520>, before_event=<function _pl_before at 0x000001ED0E68AA20>, extra_env={})
+impl = 'sh', violations = {}
+
+    def _settle(
+        request: pytest.FixtureRequest,
+        scenario: Scenario,
+        impl: str,
+        violations: dict[tuple[str, str, str, str], str],
+    ) -> None:
+        """Fail on any unknown breach; xfail when only known breaches remain."""
+        expected = {
+            key: reason
+            for key, reason in KNOWN_BREACHES.items()
+            if key[0] == scenario.name and key[1] == impl
+            and not (reason.startswith("[bash+jq]") and not _bash_has_jq(
+                request.getfixturevalue("bash_bin")))
+            and not (reason.startswith("[not-linux]") and sys.platform.startswith("linux"))
+        }
+        unknown = {k: v for k, v in violations.items() if k not in expected}
+        assert not unknown, f"size bound breached: {unknown}"
+        fixed = [k for k in expected if k not in violations]
+>       assert not fixed, (
+            f"known breach no longer reproduces (remove it from KNOWN_BREACHES): {fixed}"
+        )
+E       AssertionError: known breach no longer reproduces (remove it from KNOWN_BREACHES): [('provenance-ledger', 'sh', '~/.nexus-hub/cache/provenance/<session>.tsv', 'oversized')]
+E       assert not [('provenance-ledger', 'sh', '~/.nexus-hub/cache/provenance/<session>.tsv', 'oversized')]
+
+catalog\hooks\tests\test_hook_size_bound.py:884: AssertionError
+_________________ test_hook_size_bound[provenance-ledger-ps1] _________________
+
+request = <FixtureRequest for <Function test_hook_size_bound[provenance-ledger-ps1]>>
+tmp_path = WindowsPath('C:/Users/username/AppData/Local/Temp/pytest-of-bedourthe/pytest-10720/test_hook_size_bound_provenanc1')
+scenario = Scenario(name='provenance-ledger', impls=('sh', 'ps1'), targets=(Target(label='~/.nexus-hub/cache/provenance/<session>...ction Scenario.<lambda> at 0x000001ED0E68A520>, before_event=<function _pl_before at 0x000001ED0E68AA20>, extra_env={})
+impl = 'ps1'
+
+    @pytest.mark.parametrize(("scenario", "impl"), _cases())
+    def test_hook_size_bound(
+        request: pytest.FixtureRequest, tmp_path: Path, scenario: Scenario, impl: str
+    ) -> None:
+        prefix = _prefix(request, scenario, impl)
+        ctx = make_ctx(tmp_path)
+        # Multi-byte before oversized, so an overwrite file (or an entry that
+        # re-lists earlier commits) does not carry the 64 KiB field into the
+        # multi-byte reading.
+        kinds = ["normal"] * EVENTS + ["multibyte", "oversized"]
+        measures = {t.label: Measure() for t in scenario.targets}
+        starts = {}
+
+        with real_guard(ctx.token):
+            scenario.setup(ctx)
+            starts = {t.label: max(_size(t.path(ctx)), 0) for t in scenario.targets}
+            for i, kind in enumerate(kinds):
+                _fire(ctx, prefix, scenario, kind, i)
+                for target in scenario.targets:
+                    measures[target.label].sizes.append(_size(target.path(ctx)))
+
+        violations: dict[tuple[str, str, str, str], str] = {}
+        for target in scenario.targets:
+            m = measures[target.label]
+            start = starts[target.label]
+            assert m.sizes[0] >= 0, (
+                f"UNMEASURED: {scenario.name}-{impl} never created {target.label}"
+            )
+            overwrite = target.cls == OVERWRITE
+            per_event = [m.sizes[i] if overwrite else m.delta(i, start) for i in range(len(kinds))]
+            normal = per_event[:EVENTS]
+            multibyte, oversized = per_event[EVENTS], per_event[EVENTS + 1]
+            _TABLE.append(
+                {
+                    "hook": scenario.name,
+                    "impl": impl,
+                    "class": target.cls,
+                    "file": target.label,
+                    "typical": str(int(statistics.median(normal))),
+                    "oversized": str(oversized),
+                    "multibyte": str(multibyte),
+                    "after20": str(m.sizes[EVENTS - 1]),
+                }
+            )
+            print(
+                f"\n[size-bound] {scenario.name}-{impl} {target.cls} {target.label}: "
+                f"typical={int(statistics.median(normal))} oversized={oversized} "
+                f"multibyte={multibyte} after20={m.sizes[EVENTS - 1]} final={m.sizes[-1]}"
+            )
+
+            if target.cls == APPEND:
+                sizes = [start, *m.sizes]
+                assert all(b >= a for a, b in pairwise(sizes)), (
+                    f"append-only {target.label} shrank: {sizes}"
+                )
+            if not overwrite and min(normal) <= 0:
+                # Liveness: under the default caps no rotation is reached within 20
+                # events, so every ordinary event must add bytes. A hook that runs,
+                # exits 0 and writes nothing would otherwise pass every size check.
+                key = (scenario.name, impl, target.label, "liveness")
+                violations[key] = f"ordinary event added no bytes: deltas {normal}"
+            checks = (("normal", max(normal), target.normal_cap),
+                      ("multibyte", multibyte, target.multibyte_cap),
+                      ("oversized", oversized, target.oversized_cap))
+            for kind, value, cap in checks:
+                if value > cap:
+                    key = (scenario.name, impl, target.label, kind)
+                    violations[key] = f"{kind} event: {value} B > cap {cap} B"
+
+>       _settle(request, scenario, impl, violations)
+
+catalog\hooks\tests\test_hook_size_bound.py:863:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+request = <FixtureRequest for <Function test_hook_size_bound[provenance-ledger-ps1]>>
+scenario = Scenario(name='provenance-ledger', impls=('sh', 'ps1'), targets=(Target(label='~/.nexus-hub/cache/provenance/<session>...ction Scenario.<lambda> at 0x000001ED0E68A520>, before_event=<function _pl_before at 0x000001ED0E68AA20>, extra_env={})
+impl = 'ps1', violations = {}
+
+    def _settle(
+        request: pytest.FixtureRequest,
+        scenario: Scenario,
+        impl: str,
+        violations: dict[tuple[str, str, str, str], str],
+    ) -> None:
+        """Fail on any unknown breach; xfail when only known breaches remain."""
+        expected = {
+            key: reason
+            for key, reason in KNOWN_BREACHES.items()
+            if key[0] == scenario.name and key[1] == impl
+            and not (reason.startswith("[bash+jq]") and not _bash_has_jq(
+                request.getfixturevalue("bash_bin")))
+            and not (reason.startswith("[not-linux]") and sys.platform.startswith("linux"))
+        }
+        unknown = {k: v for k, v in violations.items() if k not in expected}
+        assert not unknown, f"size bound breached: {unknown}"
+        fixed = [k for k in expected if k not in violations]
+>       assert not fixed, (
+            f"known breach no longer reproduces (remove it from KNOWN_BREACHES): {fixed}"
+        )
+E       AssertionError: known breach no longer reproduces (remove it from KNOWN_BREACHES): [('provenance-ledger', 'ps1', '~/.nexus-hub/cache/provenance/<session>.tsv', 'oversized')]
+E       assert not [('provenance-ledger', 'ps1', '~/.nexus-hub/cache/provenance/<session>.tsv', 'oversized')]
+
+catalog\hooks\tests\test_hook_size_bound.py:884: AssertionError
+__________________ test_hook_size_bound[session-summary-sh] ___________________
+
+request = <FixtureRequest for <Function test_hook_size_bound[session-summary-sh]>>
+tmp_path = WindowsPath('C:/Users/username/AppData/Local/Temp/pytest-of-bedourthe/pytest-10720/test_hook_size_bound_session_s0')
+scenario = Scenario(name='session-summary', impls=('sh', 'ps1'), targets=(Target(label='~/.claude/session-log.md', cls='append-on...nction _ss_setup at 0x000001ED0E68AD40>, before_event=<function Scenario.<lambda> at 0x000001ED0E68A5C0>, extra_env={})
+impl = 'sh'
+
+    @pytest.mark.parametrize(("scenario", "impl"), _cases())
+    def test_hook_size_bound(
+        request: pytest.FixtureRequest, tmp_path: Path, scenario: Scenario, impl: str
+    ) -> None:
+        prefix = _prefix(request, scenario, impl)
+        ctx = make_ctx(tmp_path)
+        # Multi-byte before oversized, so an overwrite file (or an entry that
+        # re-lists earlier commits) does not carry the 64 KiB field into the
+        # multi-byte reading.
+        kinds = ["normal"] * EVENTS + ["multibyte", "oversized"]
+        measures = {t.label: Measure() for t in scenario.targets}
+        starts = {}
+
+        with real_guard(ctx.token):
+            scenario.setup(ctx)
+            starts = {t.label: max(_size(t.path(ctx)), 0) for t in scenario.targets}
+            for i, kind in enumerate(kinds):
+                _fire(ctx, prefix, scenario, kind, i)
+                for target in scenario.targets:
+                    measures[target.label].sizes.append(_size(target.path(ctx)))
+
+        violations: dict[tuple[str, str, str, str], str] = {}
+        for target in scenario.targets:
+            m = measures[target.label]
+            start = starts[target.label]
+            assert m.sizes[0] >= 0, (
+                f"UNMEASURED: {scenario.name}-{impl} never created {target.label}"
+            )
+            overwrite = target.cls == OVERWRITE
+            per_event = [m.sizes[i] if overwrite else m.delta(i, start) for i in range(len(kinds))]
+            normal = per_event[:EVENTS]
+            multibyte, oversized = per_event[EVENTS], per_event[EVENTS + 1]
+            _TABLE.append(
+                {
+                    "hook": scenario.name,
+                    "impl": impl,
+                    "class": target.cls,
+                    "file": target.label,
+                    "typical": str(int(statistics.median(normal))),
+                    "oversized": str(oversized),
+                    "multibyte": str(multibyte),
+                    "after20": str(m.sizes[EVENTS - 1]),
+                }
+            )
+            print(
+                f"\n[size-bound] {scenario.name}-{impl} {target.cls} {target.label}: "
+                f"typical={int(statistics.median(normal))} oversized={oversized} "
+                f"multibyte={multibyte} after20={m.sizes[EVENTS - 1]} final={m.sizes[-1]}"
+            )
+
+            if target.cls == APPEND:
+                sizes = [start, *m.sizes]
+                assert all(b >= a for a, b in pairwise(sizes)), (
+                    f"append-only {target.label} shrank: {sizes}"
+                )
+            if not overwrite and min(normal) <= 0:
+                # Liveness: under the default caps no rotation is reached within 20
+                # events, so every ordinary event must add bytes. A hook that runs,
+                # exits 0 and writes nothing would otherwise pass every size check.
+                key = (scenario.name, impl, target.label, "liveness")
+                violations[key] = f"ordinary event added no bytes: deltas {normal}"
+            checks = (("normal", max(normal), target.normal_cap),
+                      ("multibyte", multibyte, target.multibyte_cap),
+                      ("oversized", oversized, target.oversized_cap))
+            for kind, value, cap in checks:
+                if value > cap:
+                    key = (scenario.name, impl, target.label, kind)
+                    violations[key] = f"{kind} event: {value} B > cap {cap} B"
+
+>       _settle(request, scenario, impl, violations)
+
+catalog\hooks\tests\test_hook_size_bound.py:863:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+request = <FixtureRequest for <Function test_hook_size_bound[session-summary-sh]>>
+scenario = Scenario(name='session-summary', impls=('sh', 'ps1'), targets=(Target(label='~/.claude/session-log.md', cls='append-on...nction _ss_setup at 0x000001ED0E68AD40>, before_event=<function Scenario.<lambda> at 0x000001ED0E68A5C0>, extra_env={})
+impl = 'sh', violations = {}
+
+    def _settle(
+        request: pytest.FixtureRequest,
+        scenario: Scenario,
+        impl: str,
+        violations: dict[tuple[str, str, str, str], str],
+    ) -> None:
+        """Fail on any unknown breach; xfail when only known breaches remain."""
+        expected = {
+            key: reason
+            for key, reason in KNOWN_BREACHES.items()
+            if key[0] == scenario.name and key[1] == impl
+            and not (reason.startswith("[bash+jq]") and not _bash_has_jq(
+                request.getfixturevalue("bash_bin")))
+            and not (reason.startswith("[not-linux]") and sys.platform.startswith("linux"))
+        }
+        unknown = {k: v for k, v in violations.items() if k not in expected}
+        assert not unknown, f"size bound breached: {unknown}"
+        fixed = [k for k in expected if k not in violations]
+>       assert not fixed, (
+            f"known breach no longer reproduces (remove it from KNOWN_BREACHES): {fixed}"
+        )
+E       AssertionError: known breach no longer reproduces (remove it from KNOWN_BREACHES): [('session-summary', 'sh', '~/.claude/session-log.md', 'oversized'), ('session-summary', 'sh', '~/.claude/session-log.md', 'multibyte'), ('session-summary', 'sh', '<repo>/.nexus/context/last-session.md', 'oversized')]
+E       assert not [('session-summary', 'sh', '~/.claude/session-log.md', 'oversized'), ('session-summary', 'sh', '~/.claude/session-log.md', 'multibyte'), ('session-summary', 'sh', '<repo>/.nexus/context/last-session.md', 'oversized')]
+
+catalog\hooks\tests\test_hook_size_bound.py:884: AssertionError
+__________________ test_hook_size_bound[session-summary-ps1] __________________
+
+request = <FixtureRequest for <Function test_hook_size_bound[session-summary-ps1]>>
+tmp_path = WindowsPath('C:/Users/username/AppData/Local/Temp/pytest-of-bedourthe/pytest-10720/test_hook_size_bound_session_s1')
+scenario = Scenario(name='session-summary', impls=('sh', 'ps1'), targets=(Target(label='~/.claude/session-log.md', cls='append-on...nction _ss_setup at 0x000001ED0E68AD40>, before_event=<function Scenario.<lambda> at 0x000001ED0E68A5C0>, extra_env={})
+impl = 'ps1'
+
+    @pytest.mark.parametrize(("scenario", "impl"), _cases())
+    def test_hook_size_bound(
+        request: pytest.FixtureRequest, tmp_path: Path, scenario: Scenario, impl: str
+    ) -> None:
+        prefix = _prefix(request, scenario, impl)
+        ctx = make_ctx(tmp_path)
+        # Multi-byte before oversized, so an overwrite file (or an entry that
+        # re-lists earlier commits) does not carry the 64 KiB field into the
+        # multi-byte reading.
+        kinds = ["normal"] * EVENTS + ["multibyte", "oversized"]
+        measures = {t.label: Measure() for t in scenario.targets}
+        starts = {}
+
+        with real_guard(ctx.token):
+            scenario.setup(ctx)
+            starts = {t.label: max(_size(t.path(ctx)), 0) for t in scenario.targets}
+            for i, kind in enumerate(kinds):
+                _fire(ctx, prefix, scenario, kind, i)
+                for target in scenario.targets:
+                    measures[target.label].sizes.append(_size(target.path(ctx)))
+
+        violations: dict[tuple[str, str, str, str], str] = {}
+        for target in scenario.targets:
+            m = measures[target.label]
+            start = starts[target.label]
+            assert m.sizes[0] >= 0, (
+                f"UNMEASURED: {scenario.name}-{impl} never created {target.label}"
+            )
+            overwrite = target.cls == OVERWRITE
+            per_event = [m.sizes[i] if overwrite else m.delta(i, start) for i in range(len(kinds))]
+            normal = per_event[:EVENTS]
+            multibyte, oversized = per_event[EVENTS], per_event[EVENTS + 1]
+            _TABLE.append(
+                {
+                    "hook": scenario.name,
+                    "impl": impl,
+                    "class": target.cls,
+                    "file": target.label,
+                    "typical": str(int(statistics.median(normal))),
+                    "oversized": str(oversized),
+                    "multibyte": str(multibyte),
+                    "after20": str(m.sizes[EVENTS - 1]),
+                }
+            )
+            print(
+                f"\n[size-bound] {scenario.name}-{impl} {target.cls} {target.label}: "
+                f"typical={int(statistics.median(normal))} oversized={oversized} "
+                f"multibyte={multibyte} after20={m.sizes[EVENTS - 1]} final={m.sizes[-1]}"
+            )
+
+            if target.cls == APPEND:
+                sizes = [start, *m.sizes]
+                assert all(b >= a for a, b in pairwise(sizes)), (
+                    f"append-only {target.label} shrank: {sizes}"
+                )
+            if not overwrite and min(normal) <= 0:
+                # Liveness: under the default caps no rotation is reached within 20
+                # events, so every ordinary event must add bytes. A hook that runs,
+                # exits 0 and writes nothing would otherwise pass every size check.
+                key = (scenario.name, impl, target.label, "liveness")
+                violations[key] = f"ordinary event added no bytes: deltas {normal}"
+            checks = (("normal", max(normal), target.normal_cap),
+                      ("multibyte", multibyte, target.multibyte_cap),
+                      ("oversized", oversized, target.oversized_cap))
+            for kind, value, cap in checks:
+                if value > cap:
+                    key = (scenario.name, impl, target.label, kind)
+                    violations[key] = f"{kind} event: {value} B > cap {cap} B"
+
+>       _settle(request, scenario, impl, violations)
+
+catalog\hooks\tests\test_hook_size_bound.py:863:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+request = <FixtureRequest for <Function test_hook_size_bound[session-summary-ps1]>>
+scenario = Scenario(name='session-summary', impls=('sh', 'ps1'), targets=(Target(label='~/.claude/session-log.md', cls='append-on...nction _ss_setup at 0x000001ED0E68AD40>, before_event=<function Scenario.<lambda> at 0x000001ED0E68A5C0>, extra_env={})
+impl = 'ps1', violations = {}
+
+    def _settle(
+        request: pytest.FixtureRequest,
+        scenario: Scenario,
+        impl: str,
+        violations: dict[tuple[str, str, str, str], str],
+    ) -> None:
+        """Fail on any unknown breach; xfail when only known breaches remain."""
+        expected = {
+            key: reason
+            for key, reason in KNOWN_BREACHES.items()
+            if key[0] == scenario.name and key[1] == impl
+            and not (reason.startswith("[bash+jq]") and not _bash_has_jq(
+                request.getfixturevalue("bash_bin")))
+            and not (reason.startswith("[not-linux]") and sys.platform.startswith("linux"))
+        }
+        unknown = {k: v for k, v in violations.items() if k not in expected}
+        assert not unknown, f"size bound breached: {unknown}"
+        fixed = [k for k in expected if k not in violations]
+>       assert not fixed, (
+            f"known breach no longer reproduces (remove it from KNOWN_BREACHES): {fixed}"
+        )
+E       AssertionError: known breach no longer reproduces (remove it from KNOWN_BREACHES): [('session-summary', 'ps1', '~/.claude/session-log.md', 'oversized'), ('session-summary', 'ps1', '~/.claude/session-log.md', 'multibyte'), ('session-summary', 'ps1', '<repo>/.nexus/context/last-session.md', 'oversized')]
+E       assert not [('session-summary', 'ps1', '~/.claude/session-log.md', 'oversized'), ('session-summary', 'ps1', '~/.claude/session-log.md', 'multibyte'), ('session-summary', 'ps1', '<repo>/.nexus/context/last-session.md', 'oversized')]
+
+catalog\hooks\tests\test_hook_size_bound.py:884: AssertionError
+____________________ test_hook_size_bound[auto-devlog-sh] _____________________
+
+request = <FixtureRequest for <Function test_hook_size_bound[auto-devlog-sh]>>
+tmp_path = WindowsPath('C:/Users/username/AppData/Local/Temp/pytest-of-bedourthe/pytest-10720/test_hook_size_bound_auto_devl0')
+scenario = Scenario(name='auto-devlog', impls=('sh', 'ps1'), targets=(Target(label='<repo>/docs/DEVLOG.md', cls='append-only', pa...setup at 0x000001ED0E68AFC0>, before_event=<function _ad_before at 0x000001ED0E68B060>, extra_env={'AUTO_DEVLOG': '1'})
+impl = 'sh'
+
+    @pytest.mark.parametrize(("scenario", "impl"), _cases())
+    def test_hook_size_bound(
+        request: pytest.FixtureRequest, tmp_path: Path, scenario: Scenario, impl: str
+    ) -> None:
+        prefix = _prefix(request, scenario, impl)
+        ctx = make_ctx(tmp_path)
+        # Multi-byte before oversized, so an overwrite file (or an entry that
+        # re-lists earlier commits) does not carry the 64 KiB field into the
+        # multi-byte reading.
+        kinds = ["normal"] * EVENTS + ["multibyte", "oversized"]
+        measures = {t.label: Measure() for t in scenario.targets}
+        starts = {}
+
+        with real_guard(ctx.token):
+            scenario.setup(ctx)
+            starts = {t.label: max(_size(t.path(ctx)), 0) for t in scenario.targets}
+            for i, kind in enumerate(kinds):
+                _fire(ctx, prefix, scenario, kind, i)
+                for target in scenario.targets:
+                    measures[target.label].sizes.append(_size(target.path(ctx)))
+
+        violations: dict[tuple[str, str, str, str], str] = {}
+        for target in scenario.targets:
+            m = measures[target.label]
+            start = starts[target.label]
+            assert m.sizes[0] >= 0, (
+                f"UNMEASURED: {scenario.name}-{impl} never created {target.label}"
+            )
+            overwrite = target.cls == OVERWRITE
+            per_event = [m.sizes[i] if overwrite else m.delta(i, start) for i in range(len(kinds))]
+            normal = per_event[:EVENTS]
+            multibyte, oversized = per_event[EVENTS], per_event[EVENTS + 1]
+            _TABLE.append(
+                {
+                    "hook": scenario.name,
+                    "impl": impl,
+                    "class": target.cls,
+                    "file": target.label,
+                    "typical": str(int(statistics.median(normal))),
+                    "oversized": str(oversized),
+                    "multibyte": str(multibyte),
+                    "after20": str(m.sizes[EVENTS - 1]),
+                }
+            )
+            print(
+                f"\n[size-bound] {scenario.name}-{impl} {target.cls} {target.label}: "
+                f"typical={int(statistics.median(normal))} oversized={oversized} "
+                f"multibyte={multibyte} after20={m.sizes[EVENTS - 1]} final={m.sizes[-1]}"
+            )
+
+            if target.cls == APPEND:
+                sizes = [start, *m.sizes]
+                assert all(b >= a for a, b in pairwise(sizes)), (
+                    f"append-only {target.label} shrank: {sizes}"
+                )
+            if not overwrite and min(normal) <= 0:
+                # Liveness: under the default caps no rotation is reached within 20
+                # events, so every ordinary event must add bytes. A hook that runs,
+                # exits 0 and writes nothing would otherwise pass every size check.
+                key = (scenario.name, impl, target.label, "liveness")
+                violations[key] = f"ordinary event added no bytes: deltas {normal}"
+            checks = (("normal", max(normal), target.normal_cap),
+                      ("multibyte", multibyte, target.multibyte_cap),
+                      ("oversized", oversized, target.oversized_cap))
+            for kind, value, cap in checks:
+                if value > cap:
+                    key = (scenario.name, impl, target.label, kind)
+                    violations[key] = f"{kind} event: {value} B > cap {cap} B"
+
+>       _settle(request, scenario, impl, violations)
+
+catalog\hooks\tests\test_hook_size_bound.py:863:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+request = <FixtureRequest for <Function test_hook_size_bound[auto-devlog-sh]>>
+scenario = Scenario(name='auto-devlog', impls=('sh', 'ps1'), targets=(Target(label='<repo>/docs/DEVLOG.md', cls='append-only', pa...setup at 0x000001ED0E68AFC0>, before_event=<function _ad_before at 0x000001ED0E68B060>, extra_env={'AUTO_DEVLOG': '1'})
+impl = 'sh', violations = {}
+
+    def _settle(
+        request: pytest.FixtureRequest,
+        scenario: Scenario,
+        impl: str,
+        violations: dict[tuple[str, str, str, str], str],
+    ) -> None:
+        """Fail on any unknown breach; xfail when only known breaches remain."""
+        expected = {
+            key: reason
+            for key, reason in KNOWN_BREACHES.items()
+            if key[0] == scenario.name and key[1] == impl
+            and not (reason.startswith("[bash+jq]") and not _bash_has_jq(
+                request.getfixturevalue("bash_bin")))
+            and not (reason.startswith("[not-linux]") and sys.platform.startswith("linux"))
+        }
+        unknown = {k: v for k, v in violations.items() if k not in expected}
+        assert not unknown, f"size bound breached: {unknown}"
+        fixed = [k for k in expected if k not in violations]
+>       assert not fixed, (
+            f"known breach no longer reproduces (remove it from KNOWN_BREACHES): {fixed}"
+        )
+E       AssertionError: known breach no longer reproduces (remove it from KNOWN_BREACHES): [('auto-devlog', 'sh', '<repo>/docs/DEVLOG.md', 'liveness')]
+E       assert not [('auto-devlog', 'sh', '<repo>/docs/DEVLOG.md', 'liveness')]
+
+catalog\hooks\tests\test_hook_size_bound.py:884: AssertionError
+____________________ test_hook_size_bound[auto-devlog-ps1] ____________________
+
+request = <FixtureRequest for <Function test_hook_size_bound[auto-devlog-ps1]>>
+tmp_path = WindowsPath('C:/Users/username/AppData/Local/Temp/pytest-of-bedourthe/pytest-10720/test_hook_size_bound_auto_devl1')
+scenario = Scenario(name='auto-devlog', impls=('sh', 'ps1'), targets=(Target(label='<repo>/docs/DEVLOG.md', cls='append-only', pa...setup at 0x000001ED0E68AFC0>, before_event=<function _ad_before at 0x000001ED0E68B060>, extra_env={'AUTO_DEVLOG': '1'})
+impl = 'ps1'
+
+    @pytest.mark.parametrize(("scenario", "impl"), _cases())
+    def test_hook_size_bound(
+        request: pytest.FixtureRequest, tmp_path: Path, scenario: Scenario, impl: str
+    ) -> None:
+        prefix = _prefix(request, scenario, impl)
+        ctx = make_ctx(tmp_path)
+        # Multi-byte before oversized, so an overwrite file (or an entry that
+        # re-lists earlier commits) does not carry the 64 KiB field into the
+        # multi-byte reading.
+        kinds = ["normal"] * EVENTS + ["multibyte", "oversized"]
+        measures = {t.label: Measure() for t in scenario.targets}
+        starts = {}
+
+        with real_guard(ctx.token):
+            scenario.setup(ctx)
+            starts = {t.label: max(_size(t.path(ctx)), 0) for t in scenario.targets}
+            for i, kind in enumerate(kinds):
+                _fire(ctx, prefix, scenario, kind, i)
+                for target in scenario.targets:
+                    measures[target.label].sizes.append(_size(target.path(ctx)))
+
+        violations: dict[tuple[str, str, str, str], str] = {}
+        for target in scenario.targets:
+            m = measures[target.label]
+            start = starts[target.label]
+            assert m.sizes[0] >= 0, (
+                f"UNMEASURED: {scenario.name}-{impl} never created {target.label}"
+            )
+            overwrite = target.cls == OVERWRITE
+            per_event = [m.sizes[i] if overwrite else m.delta(i, start) for i in range(len(kinds))]
+            normal = per_event[:EVENTS]
+            multibyte, oversized = per_event[EVENTS], per_event[EVENTS + 1]
+            _TABLE.append(
+                {
+                    "hook": scenario.name,
+                    "impl": impl,
+                    "class": target.cls,
+                    "file": target.label,
+                    "typical": str(int(statistics.median(normal))),
+                    "oversized": str(oversized),
+                    "multibyte": str(multibyte),
+                    "after20": str(m.sizes[EVENTS - 1]),
+                }
+            )
+            print(
+                f"\n[size-bound] {scenario.name}-{impl} {target.cls} {target.label}: "
+                f"typical={int(statistics.median(normal))} oversized={oversized} "
+                f"multibyte={multibyte} after20={m.sizes[EVENTS - 1]} final={m.sizes[-1]}"
+            )
+
+            if target.cls == APPEND:
+                sizes = [start, *m.sizes]
+                assert all(b >= a for a, b in pairwise(sizes)), (
+                    f"append-only {target.label} shrank: {sizes}"
+                )
+            if not overwrite and min(normal) <= 0:
+                # Liveness: under the default caps no rotation is reached within 20
+                # events, so every ordinary event must add bytes. A hook that runs,
+                # exits 0 and writes nothing would otherwise pass every size check.
+                key = (scenario.name, impl, target.label, "liveness")
+                violations[key] = f"ordinary event added no bytes: deltas {normal}"
+            checks = (("normal", max(normal), target.normal_cap),
+                      ("multibyte", multibyte, target.multibyte_cap),
+                      ("oversized", oversized, target.oversized_cap))
+            for kind, value, cap in checks:
+                if value > cap:
+                    key = (scenario.name, impl, target.label, kind)
+                    violations[key] = f"{kind} event: {value} B > cap {cap} B"
+
+>       _settle(request, scenario, impl, violations)
+
+catalog\hooks\tests\test_hook_size_bound.py:863:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+request = <FixtureRequest for <Function test_hook_size_bound[auto-devlog-ps1]>>
+scenario = Scenario(name='auto-devlog', impls=('sh', 'ps1'), targets=(Target(label='<repo>/docs/DEVLOG.md', cls='append-only', pa...setup at 0x000001ED0E68AFC0>, before_event=<function _ad_before at 0x000001ED0E68B060>, extra_env={'AUTO_DEVLOG': '1'})
+impl = 'ps1', violations = {}
+
+    def _settle(
+        request: pytest.FixtureRequest,
+        scenario: Scenario,
+        impl: str,
+        violations: dict[tuple[str, str, str, str], str],
+    ) -> None:
+        """Fail on any unknown breach; xfail when only known breaches remain."""
+        expected = {
+            key: reason
+            for key, reason in KNOWN_BREACHES.items()
+            if key[0] == scenario.name and key[1] == impl
+            and not (reason.startswith("[bash+jq]") and not _bash_has_jq(
+                request.getfixturevalue("bash_bin")))
+            and not (reason.startswith("[not-linux]") and sys.platform.startswith("linux"))
+        }
+        unknown = {k: v for k, v in violations.items() if k not in expected}
+        assert not unknown, f"size bound breached: {unknown}"
+        fixed = [k for k in expected if k not in violations]
+>       assert not fixed, (
+            f"known breach no longer reproduces (remove it from KNOWN_BREACHES): {fixed}"
+        )
+E       AssertionError: known breach no longer reproduces (remove it from KNOWN_BREACHES): [('auto-devlog', 'ps1', '<repo>/docs/DEVLOG.md', 'oversized')]
+E       assert not [('auto-devlog', 'ps1', '<repo>/docs/DEVLOG.md', 'oversized')]
+
+catalog\hooks\tests\test_hook_size_bound.py:884: AssertionError
+___________________ test_hook_size_bound[skill-tracker-py] ____________________
+
+request = <FixtureRequest for <Function test_hook_size_bound[skill-tracker-py]>>
+tmp_path = WindowsPath('C:/Users/username/AppData/Local/Temp/pytest-of-bedourthe/pytest-10720/test_hook_size_bound_skill_tra0')
+scenario = Scenario(name='skill-tracker', impls=('py',), targets=(Target(label='~/.nexus-hub/state/skill-usage-<session>.json', c...cenario.<lambda> at 0x000001ED0E68A520>, before_event=<function Scenario.<lambda> at 0x000001ED0E68A5C0>, extra_env={})
+impl = 'py'
+
+    @pytest.mark.parametrize(("scenario", "impl"), _cases())
+    def test_hook_size_bound(
+        request: pytest.FixtureRequest, tmp_path: Path, scenario: Scenario, impl: str
+    ) -> None:
+        prefix = _prefix(request, scenario, impl)
+        ctx = make_ctx(tmp_path)
+        # Multi-byte before oversized, so an overwrite file (or an entry that
+        # re-lists earlier commits) does not carry the 64 KiB field into the
+        # multi-byte reading.
+        kinds = ["normal"] * EVENTS + ["multibyte", "oversized"]
+        measures = {t.label: Measure() for t in scenario.targets}
+        starts = {}
+
+        with real_guard(ctx.token):
+            scenario.setup(ctx)
+            starts = {t.label: max(_size(t.path(ctx)), 0) for t in scenario.targets}
+            for i, kind in enumerate(kinds):
+                _fire(ctx, prefix, scenario, kind, i)
+                for target in scenario.targets:
+                    measures[target.label].sizes.append(_size(target.path(ctx)))
+
+        violations: dict[tuple[str, str, str, str], str] = {}
+        for target in scenario.targets:
+            m = measures[target.label]
+            start = starts[target.label]
+            assert m.sizes[0] >= 0, (
+                f"UNMEASURED: {scenario.name}-{impl} never created {target.label}"
+            )
+            overwrite = target.cls == OVERWRITE
+            per_event = [m.sizes[i] if overwrite else m.delta(i, start) for i in range(len(kinds))]
+            normal = per_event[:EVENTS]
+            multibyte, oversized = per_event[EVENTS], per_event[EVENTS + 1]
+            _TABLE.append(
+                {
+                    "hook": scenario.name,
+                    "impl": impl,
+                    "class": target.cls,
+                    "file": target.label,
+                    "typical": str(int(statistics.median(normal))),
+                    "oversized": str(oversized),
+                    "multibyte": str(multibyte),
+                    "after20": str(m.sizes[EVENTS - 1]),
+                }
+            )
+            print(
+                f"\n[size-bound] {scenario.name}-{impl} {target.cls} {target.label}: "
+                f"typical={int(statistics.median(normal))} oversized={oversized} "
+                f"multibyte={multibyte} after20={m.sizes[EVENTS - 1]} final={m.sizes[-1]}"
+            )
+
+            if target.cls == APPEND:
+                sizes = [start, *m.sizes]
+                assert all(b >= a for a, b in pairwise(sizes)), (
+                    f"append-only {target.label} shrank: {sizes}"
+                )
+            if not overwrite and min(normal) <= 0:
+                # Liveness: under the default caps no rotation is reached within 20
+                # events, so every ordinary event must add bytes. A hook that runs,
+                # exits 0 and writes nothing would otherwise pass every size check.
+                key = (scenario.name, impl, target.label, "liveness")
+                violations[key] = f"ordinary event added no bytes: deltas {normal}"
+            checks = (("normal", max(normal), target.normal_cap),
+                      ("multibyte", multibyte, target.multibyte_cap),
+                      ("oversized", oversized, target.oversized_cap))
+            for kind, value, cap in checks:
+                if value > cap:
+                    key = (scenario.name, impl, target.label, kind)
+                    violations[key] = f"{kind} event: {value} B > cap {cap} B"
+
+>       _settle(request, scenario, impl, violations)
+
+catalog\hooks\tests\test_hook_size_bound.py:863:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+request = <FixtureRequest for <Function test_hook_size_bound[skill-tracker-py]>>
+scenario = Scenario(name='skill-tracker', impls=('py',), targets=(Target(label='~/.nexus-hub/state/skill-usage-<session>.json', c...cenario.<lambda> at 0x000001ED0E68A520>, before_event=<function Scenario.<lambda> at 0x000001ED0E68A5C0>, extra_env={})
+impl = 'py', violations = {}
+
+    def _settle(
+        request: pytest.FixtureRequest,
+        scenario: Scenario,
+        impl: str,
+        violations: dict[tuple[str, str, str, str], str],
+    ) -> None:
+        """Fail on any unknown breach; xfail when only known breaches remain."""
+        expected = {
+            key: reason
+            for key, reason in KNOWN_BREACHES.items()
+            if key[0] == scenario.name and key[1] == impl
+            and not (reason.startswith("[bash+jq]") and not _bash_has_jq(
+                request.getfixturevalue("bash_bin")))
+            and not (reason.startswith("[not-linux]") and sys.platform.startswith("linux"))
+        }
+        unknown = {k: v for k, v in violations.items() if k not in expected}
+        assert not unknown, f"size bound breached: {unknown}"
+        fixed = [k for k in expected if k not in violations]
+>       assert not fixed, (
+            f"known breach no longer reproduces (remove it from KNOWN_BREACHES): {fixed}"
+        )
+E       AssertionError: known breach no longer reproduces (remove it from KNOWN_BREACHES): [('skill-tracker', 'py', '~/.nexus-hub/state/skill-usage-<session>.json', 'oversized')]
+E       assert not [('skill-tracker', 'py', '~/.nexus-hub/state/skill-usage-<session>.json', 'oversized')]
+
+catalog\hooks\tests\test_hook_size_bound.py:884: AssertionError
+____________ test_rotation_holds_lowered_cap[learning-capture-sh] _____________
+
+request = <FixtureRequest for <Function test_rotation_holds_lowered_cap[learning-capture-sh]>>
+tmp_path = WindowsPath('C:/Users/username/AppData/Local/Temp/pytest-of-bedourthe/pytest-10720/test_rotation_holds_lowered_ca0')
+scenario = Scenario(name='learning-capture', impls=('sh', 'ps1'), targets=(Target(label='<repo>/.nexus/observations.jsonl', cls='...cenario.<lambda> at 0x000001ED0E68A520>, before_event=<function Scenario.<lambda> at 0x000001ED0E68A5C0>, extra_env={})
+impl = 'sh', env_var = 'NEXUS_LEARNING_MAX_BYTES', cap = 2048, unit = 'bytes'
+
+    @pytest.mark.parametrize(("scenario", "impl", "env_var", "cap", "unit"), ROTATION_CASES)
+    def test_rotation_holds_lowered_cap(
+        request: pytest.FixtureRequest,
+        tmp_path: Path,
+        scenario: Scenario,
+        impl: str,
+        env_var: str,
+        cap: int,
+        unit: str,
+    ) -> None:
+        prefix = _prefix(request, scenario, impl)
+        ctx = make_ctx(tmp_path)
+        ctx.env[env_var] = str(cap)
+        target = scenario.targets[0]
+        observed: list[int] = []
+        with real_guard(ctx.token):
+            for i in range(EVENTS):
+                _fire(ctx, prefix, scenario, "normal", i)
+                data = target.path(ctx).read_bytes()
+                observed.append(len(data) if unit == "bytes" else data.count(b"\n"))
+        print(f"\n[size-bound] rotation {scenario.name}-{impl} {unit} cap={cap}: {observed}")
+        assert all(v <= cap for v in observed), f"{target.label} exceeded {cap} {unit}: {observed}"
+        if unit == "bytes":
+            # The rotation path was actually reached: the file shrank at least once.
+>           assert any(b < a for a, b in pairwise(observed)), (
+                f"rotation path not reached within {EVENTS} events: {observed}"
+            )
+E           AssertionError: rotation path not reached within 20 events: [200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000]
+E           assert False
+E            +  where False = any(<generator object test_rotation_holds_lowered_cap.<locals>.<genexpr> at 0x000001ED0E9EDA40>)
+
+catalog\hooks\tests\test_hook_size_bound.py:930: AssertionError
+____________ test_rotation_holds_lowered_cap[learning-capture-ps1] ____________
+
+request = <FixtureRequest for <Function test_rotation_holds_lowered_cap[learning-capture-ps1]>>
+tmp_path = WindowsPath('C:/Users/username/AppData/Local/Temp/pytest-of-bedourthe/pytest-10720/test_rotation_holds_lowered_ca1')
+scenario = Scenario(name='learning-capture', impls=('sh', 'ps1'), targets=(Target(label='<repo>/.nexus/observations.jsonl', cls='...cenario.<lambda> at 0x000001ED0E68A520>, before_event=<function Scenario.<lambda> at 0x000001ED0E68A5C0>, extra_env={})
+impl = 'ps1', env_var = 'NEXUS_LEARNING_MAX_BYTES', cap = 2048, unit = 'bytes'
+
+    @pytest.mark.parametrize(("scenario", "impl", "env_var", "cap", "unit"), ROTATION_CASES)
+    def test_rotation_holds_lowered_cap(
+        request: pytest.FixtureRequest,
+        tmp_path: Path,
+        scenario: Scenario,
+        impl: str,
+        env_var: str,
+        cap: int,
+        unit: str,
+    ) -> None:
+        prefix = _prefix(request, scenario, impl)
+        ctx = make_ctx(tmp_path)
+        ctx.env[env_var] = str(cap)
+        target = scenario.targets[0]
+        observed: list[int] = []
+        with real_guard(ctx.token):
+            for i in range(EVENTS):
+                _fire(ctx, prefix, scenario, "normal", i)
+                data = target.path(ctx).read_bytes()
+                observed.append(len(data) if unit == "bytes" else data.count(b"\n"))
+        print(f"\n[size-bound] rotation {scenario.name}-{impl} {unit} cap={cap}: {observed}")
+        assert all(v <= cap for v in observed), f"{target.label} exceeded {cap} {unit}: {observed}"
+        if unit == "bytes":
+            # The rotation path was actually reached: the file shrank at least once.
+>           assert any(b < a for a, b in pairwise(observed)), (
+                f"rotation path not reached within {EVENTS} events: {observed}"
+            )
+E           AssertionError: rotation path not reached within 20 events: [193, 386, 579, 772, 965, 1158, 1351, 1544, 1737, 1930, 1930, 1930, 1930, 1930, 1930, 1930, 1930, 1930, 1930, 1930]
+E           assert False
+E            +  where False = any(<generator object test_rotation_holds_lowered_cap.<locals>.<genexpr> at 0x000001ED0E9ECBA0>)
+
+catalog\hooks\tests\test_hook_size_bound.py:930: AssertionError
+=========================== short test summary info ===========================
+FAILED catalog/hooks/tests/test_hook_size_bound.py::test_hook_size_bound[learning-capture-sh]
+FAILED catalog/hooks/tests/test_hook_size_bound.py::test_hook_size_bound[learning-capture-ps1]
+FAILED catalog/hooks/tests/test_hook_size_bound.py::test_hook_size_bound[provenance-ledger-sh]
+FAILED catalog/hooks/tests/test_hook_size_bound.py::test_hook_size_bound[provenance-ledger-ps1]
+FAILED catalog/hooks/tests/test_hook_size_bound.py::test_hook_size_bound[session-summary-sh]
+FAILED catalog/hooks/tests/test_hook_size_bound.py::test_hook_size_bound[session-summary-ps1]
+FAILED catalog/hooks/tests/test_hook_size_bound.py::test_hook_size_bound[auto-devlog-sh]
+FAILED catalog/hooks/tests/test_hook_size_bound.py::test_hook_size_bound[auto-devlog-ps1]
+FAILED catalog/hooks/tests/test_hook_size_bound.py::test_hook_size_bound[skill-tracker-py]
+FAILED catalog/hooks/tests/test_hook_size_bound.py::test_rotation_holds_lowered_cap[learning-capture-sh]
+FAILED catalog/hooks/tests/test_hook_size_bound.py::test_rotation_holds_lowered_cap[learning-capture-ps1]
+11 failed, 17 passed in 331.94s (0:05:31)

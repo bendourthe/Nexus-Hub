@@ -110,6 +110,19 @@ if ($lastEntryDate) {
     $recentCommits = @(& git -C $gitRoot log --oneline -10 2>$null)
 }
 
+# Bound display subjects without truncating the commit identifier.
+$recentCommits = @($recentCommits | ForEach-Object {
+    if ($_ -match '^(\S+) (.*)$') {
+        $commit = $Matches[1]
+        $subject = $Matches[2]
+        if ($subject.Length -gt 200) {
+            $end = if ([char]::IsHighSurrogate($subject[199])) { 199 } else { 200 }
+            $subject = $subject.Substring(0, $end)
+        }
+        "$commit $subject"
+    }
+})
+
 $filesChanged = @()
 try {
     if ($baseHash) {

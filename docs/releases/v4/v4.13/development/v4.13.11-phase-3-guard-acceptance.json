@@ -1,0 +1,21 @@
+{
+  "observed_at_utc": "2026-10-10T02:05:24.119015+00:00",
+  "approval": {
+    "source": "actual user reply after the three exact diffs and proposal",
+    "text": "All approved. Nothing blocking until goal is reached"
+  },
+  "guard_session": "v41311-phase3-hooks",
+  "accepted_paths": [
+    "catalog/hooks/provenance-ledger.sh",
+    "catalog/hooks/learning-capture.sh",
+    "catalog/hooks/tests/test_hook_size_bound.py"
+  ],
+  "native_log_exit": 0,
+  "native_accept_log": [
+    "2026-10-10T01:58:21+00:00 accepted C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\catalog\\hooks\\provenance-ledger.sh",
+    "2026-10-10T01:59:06+00:00 accepted C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\catalog\\hooks\\learning-capture.sh",
+    "2026-10-10T01:59:12+00:00 accepted C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\catalog\\hooks\\tests\\test_hook_size_bound.py"
+  ],
+  "preservation": "All current changes retained; no earlier version restored.",
+  "minor_record_status": "Its old blocker remains open because the native schema-2 answer route is missing. A scoped native handler repair and origin-validation regressions are in progress; no signed record edited."
+}

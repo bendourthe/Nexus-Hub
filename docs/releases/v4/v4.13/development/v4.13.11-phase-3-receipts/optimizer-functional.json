@@ -1,0 +1,285 @@
+{
+  "recorded_at": "2026-10-10T00:58:51.298143+00:00",
+  "head": "ff1aa631538fcf1cbc2380b28e1e001ebd880e8d",
+  "command": [
+    "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+    "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\scripts\\optimize_skill_description.py",
+    "--skill",
+    "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-optimizer\\optimizer-artifact\\SKILL.md",
+    "--evals",
+    "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-optimizer\\optimizer-artifact\\evals.json",
+    "--cli",
+    "claude",
+    "--model",
+    "fixture-model",
+    "--workspace",
+    "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-optimizer\\optimizer-artifact",
+    "--max-iterations",
+    "1",
+    "--repeats",
+    "1"
+  ],
+  "cwd": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-optimizer\\optimizer-artifact",
+  "exit_code": 0,
+  "exit_code_evidence": "The retained real-boundary regression asserted subprocess returncode == 0 before returning.",
+  "stdout": "Iteration 1: best test_trigger_rate = 1.000\nStopping: held-out test score reached 1.0.\nFinal: C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-optimizer\\optimizer-artifact\\optimizer\\final.json\n",
+  "stderr": "",
+  "observed_cli_calls": 11,
+  "calls": [
+    {
+      "argv": [
+        "-p",
+        "fixture-negative-2",
+        "--setting-sources",
+        "",
+        "--model",
+        "fixture-model",
+        "--skill",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-optimizer\\optimizer-artifact\\SKILL.md"
+      ],
+      "description": "Baseline fixture intent."
+    },
+    {
+      "argv": [
+        "-p",
+        "fixture-positive-1",
+        "--setting-sources",
+        "",
+        "--model",
+        "fixture-model",
+        "--skill",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-optimizer\\optimizer-artifact\\SKILL.md"
+      ],
+      "description": "Baseline fixture intent."
+    },
+    {
+      "argv": [
+        "-p",
+        "fixture-negative-3",
+        "--setting-sources",
+        "",
+        "--model",
+        "fixture-model",
+        "--skill",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-optimizer\\optimizer-artifact\\SKILL.md"
+      ],
+      "description": "Baseline fixture intent."
+    },
+    {
+      "argv": [
+        "-p",
+        "fixture-positive-0",
+        "--setting-sources",
+        "",
+        "--model",
+        "fixture-model",
+        "--skill",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-optimizer\\optimizer-artifact\\SKILL.md"
+      ],
+      "description": "Baseline fixture intent."
+    },
+    {
+      "argv": [
+        "-p",
+        "fixture-negative-2",
+        "--setting-sources",
+        "",
+        "--model",
+        "fixture-model",
+        "--skill",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-optimizer\\optimizer-artifact\\SKILL.md"
+      ],
+      "description": "Baseline fixture intent."
+    },
+    {
+      "argv": [
+        "-p",
+        "fixture-positive-1",
+        "--setting-sources",
+        "",
+        "--model",
+        "fixture-model",
+        "--skill",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-optimizer\\optimizer-artifact\\SKILL.md"
+      ],
+      "description": "Baseline fixture intent."
+    },
+    {
+      "argv": [
+        "-p",
+        "You are rewriting the `description` field of a Nexus-Hub skill so it triggers\nmore reliably on the skill's intended use cases without over-triggering on\nlook-alike intents.\n\nCurrent description:\n<<<\nBaseline fixture intent.\n>>>\n\nTrain queries that the description CURRENTLY HANDLES CORRECTLY:\n- fixture-negative-2\n\nTrain queries that the description CURRENTLY MISHANDLES:\n- fixture-positive-1\n\nRules:\n- The rewrite MUST follow the AGENTS.md \"pushy description\" rule: lead with\n  the action, list trigger phrases verbatim, cover synonyms, end with a\n  `SKIP:` clause for look-alike intents.\n- Do NOT lengthen the description past 350 words.\n- Do NOT introduce vendor-specific names, brands, or platform identifiers.\n- Output exactly 3 candidate rewrites as a JSON array of strings, no prose.\n",
+        "--setting-sources",
+        "",
+        "--model",
+        "fixture-model"
+      ],
+      "description": null
+    },
+    {
+      "argv": [
+        "-p",
+        "fixture-negative-2",
+        "--setting-sources",
+        "",
+        "--model",
+        "fixture-model",
+        "--skill",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-optimizer\\optimizer-artifact\\SKILL.md"
+      ],
+      "description": "Trigger fixture-positive requests. SKIP: fixture-negative requests."
+    },
+    {
+      "argv": [
+        "-p",
+        "fixture-positive-1",
+        "--setting-sources",
+        "",
+        "--model",
+        "fixture-model",
+        "--skill",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-optimizer\\optimizer-artifact\\SKILL.md"
+      ],
+      "description": "Trigger fixture-positive requests. SKIP: fixture-negative requests."
+    },
+    {
+      "argv": [
+        "-p",
+        "fixture-negative-3",
+        "--setting-sources",
+        "",
+        "--model",
+        "fixture-model",
+        "--skill",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-optimizer\\optimizer-artifact\\SKILL.md"
+      ],
+      "description": "Trigger fixture-positive requests. SKIP: fixture-negative requests."
+    },
+    {
+      "argv": [
+        "-p",
+        "fixture-positive-0",
+        "--setting-sources",
+        "",
+        "--model",
+        "fixture-model",
+        "--skill",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-optimizer\\optimizer-artifact\\SKILL.md"
+      ],
+      "description": "Trigger fixture-positive requests. SKIP: fixture-negative requests."
+    }
+  ],
+  "final": {
+    "skill_path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-optimizer\\optimizer-artifact\\SKILL.md",
+    "model": "fixture-model",
+    "split": {
+      "train_ids": [
+        "eval-2",
+        "eval-1"
+      ],
+      "test_ids": [
+        "eval-3",
+        "eval-0"
+      ]
+    },
+    "baseline": {
+      "description": "Baseline fixture intent.",
+      "train_trigger_rate": 0.5,
+      "test_trigger_rate": 0.5
+    },
+    "candidates": [
+      {
+        "description": "Trigger fixture-positive requests. SKIP: fixture-negative requests.",
+        "train_trigger_rate": 1.0,
+        "test_trigger_rate": 1.0
+      }
+    ],
+    "best_description": "Trigger fixture-positive requests. SKIP: fixture-negative requests.",
+    "selection_metric": "test_trigger_rate",
+    "split_mode": "two-way",
+    "selection_split": [
+      "eval-3",
+      "eval-0"
+    ],
+    "reported_split": [
+      "eval-3",
+      "eval-0"
+    ],
+    "reported_optimistic": true,
+    "generated_at": "2026-10-10T00:58:50.915036Z",
+    "iteration": 1
+  },
+  "resolved_stub_binary": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-optimizer\\optimizer-artifact\\bin\\claude.exe",
+  "stub_binary_sha256": "f1509afd5f1fa6c27bd19b5b4e6050620cb749481a9b60031610bff074f53120",
+  "stub_source_sha256": "4f165cd36212b9d5691d906730999557a4875a819904c4815bbde8e28f2a5f9a",
+  "skill_after": "---\nname: fixture\ndescription: Baseline fixture intent.\n---\n# Fixture\n",
+  "skill_restoration_assertion": "matches original byte content",
+  "source_sha256": {
+    "scripts/check_installer_smoke.py": "8c79f39f7e8494c2ef9ce521cd0ebf95be1d37245300ea793ef5dfbfc39ced9e",
+    "scripts/optimize_skill_description.py": "c606c94fcaea4aba565d4e7f2ddfed7f5c4a969e3c15481d672852da7932d514",
+    "tests/installer/test_installer_smoke_postconditions.py": "6dec021724ec291d2415c1158f66a0a9f883f1d9208f720572d14d7a014bd38b",
+    "catalog/hooks/tests/test_eval_loop.py": "ee739d15ead56fc689c30010d12b89f1dd35e1be3541c7bc2eb4ddbe90d1c515"
+  },
+  "counterexamples": [
+    {
+      "case": "missing-description",
+      "command": [
+        "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\scripts\\optimize_skill_description.py",
+        "--skill",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-optimizer\\optimizer-artifact\\missing-description.md",
+        "--evals",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-optimizer\\optimizer-artifact\\evals.json",
+        "--cli",
+        "claude",
+        "--model",
+        "fixture-model",
+        "--workspace",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-optimizer\\optimizer-artifact",
+        "--max-iterations",
+        "1",
+        "--repeats",
+        "1"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Traceback (most recent call last):\n  File \"C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\scripts\\optimize_skill_description.py\", line 1072, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File \"C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\scripts\\optimize_skill_description.py\", line 1037, in main\n    description = parse_skill_description(args.skill)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\scripts\\optimize_skill_description.py\", line 114, in parse_skill_description\n    raise ValueError(f\"{skill_md_path}: no `description:` field in frontmatter\")\nValueError: C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-optimizer\\optimizer-artifact\\missing-description.md: no `description:` field in frontmatter\n",
+      "artifact_preserved": true,
+      "additional_stub_calls": 0
+    },
+    {
+      "case": "unterminated-frontmatter",
+      "command": [
+        "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\scripts\\optimize_skill_description.py",
+        "--skill",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-optimizer\\optimizer-artifact\\unterminated-frontmatter.md",
+        "--evals",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-optimizer\\optimizer-artifact\\evals.json",
+        "--cli",
+        "claude",
+        "--model",
+        "fixture-model",
+        "--workspace",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-optimizer\\optimizer-artifact",
+        "--max-iterations",
+        "1",
+        "--repeats",
+        "1"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Traceback (most recent call last):\n  File \"C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\scripts\\optimize_skill_description.py\", line 1072, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File \"C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\scripts\\optimize_skill_description.py\", line 1037, in main\n    description = parse_skill_description(args.skill)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\scripts\\optimize_skill_description.py\", line 110, in parse_skill_description\n    raise ValueError(f\"{skill_md_path}: unterminated YAML frontmatter\")\nValueError: C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-optimizer\\optimizer-artifact\\unterminated-frontmatter.md: unterminated YAML frontmatter\n",
+      "artifact_preserved": true,
+      "additional_stub_calls": 0
+    }
+  ],
+  "max_iterations": 1,
+  "repeats": 1,
+  "eval_entries": 4,
+  "comparison": "matches",
+  "not_covered": [
+    "live provider/model quality",
+    "gemini/opencode adapters refuse undocumented configuration isolation and were not changed"
+  ],
+  "isolation": "Only the disposable stub bin directory is on child PATH. No production invoke_cli monkeypatch, live provider, real home/profile mutation, or new adapter."
+}

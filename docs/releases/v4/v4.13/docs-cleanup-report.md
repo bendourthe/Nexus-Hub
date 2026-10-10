@@ -56,3 +56,12 @@ The post-move transfer predicate passed for all twelve existing source ledgers. 
 A fresh `audit-docs.py lifespan-contradictions` scan after the 29-file pass found one more active v4.0 file, `development/last-phase-evidence.md`. It is a dated v4.0.0 final-phase record, not a living document or CI input, so this pass archived it at `docs/archives/v4/v4.0/development/last-phase-evidence.md`. The 15,534-byte source and copied destination had matching SHA-256 `895f20f701031893790d65da2807edbee7c7500bbc0f713728368ba0e9e9ca1b` before the destination's relative plan link was repaired. The inbound session-history link and archive index were updated; no active-version document was moved.
 
 The rename-aware link baseline reported 465 unresolved targets before and after, with zero newly broken. The candidate-tree lifespan scan reported zero files under `docs/archives/v4/v4.0/`; findings in other release buckets remain outside this v4.0 disposition. The CI plan's 62 retained strict boxes are bound to its [task reconciliation](../../../archives/v4/v4.0/development/ci-cd-task-reconciliation.md), and the [v4.0 ledger](../../../archives/v4/v4.0/known-gaps.md) records WN-2's source-level resolution without editing the historical plan.
+
+
+## v4.13.11 Phase 3 audit, 2026-10-09
+
+**Mode**: audit; no files moved or deleted. Phase 3 evidence and history remain active Cat 4 records under v4.13. Temporary helpers and raw receipts remain outside the repository. The existing historical report body is preserved.
+
+Native inventory and reference-graph scans finished with exit 0. Lifespan findings are retained in the audit receipt and reported without moving files. The reference graph covers known targets only. The native broken-link comparison includes the new Phase 3 Markdown through a temporary Git index; it reports zero newly broken scoped targets. This proves the closing-write delta, not every earlier edit or the whole documentation tree. The real staging area remained empty. [Audit receipt](development/v4.13.11-phase-3-docs-audit.json) retains commands, counts, limits and output hashes.
+
+No lifespan finding was moved. Older records and living documentation remain where they are; the approved post-release minor archive is a later phase. This report remains Cat 4 until that close.
