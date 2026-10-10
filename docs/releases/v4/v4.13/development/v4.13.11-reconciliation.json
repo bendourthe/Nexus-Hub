@@ -26078,5 +26078,85 @@
       "Phase-only qualification; no push, PR, remote CI, release, migration, archive or cleanup.",
       "No real-editor validation of the monitors."
     ]
+  },
+  "phase6": {
+    "observed_at_utc": "2026-10-10T08:06:03.232941+00:00",
+    "phase": 6,
+    "gate": "GO",
+    "qualified_tasks": [
+      "T026",
+      "T027"
+    ],
+    "session": "5017000a-d374-4510-ab1c-3336e755b64f",
+    "source_sha256": {
+      "docs/releases/v4/v4.13/development/history/v4.13.11-phase-6-session.md": "c2110ebbd46fa1a7e3edcf4b6c96cc89dc1daed629322cf947043e742f61df19",
+      "docs/releases/v4/v4.13/development/v4.13.11-phase-6-evidence.md": "6dcbde0d122d28b44341e30467c9b2c36ac8e42e4b0d70785b79edead68027a1",
+      "docs/releases/v4/v4.13/development/v4.13.11-phase-6-receipts/audit-isolated-pyjwt-2.14.0.json": "c64f0bea07877f2ceb9577270e1d3c597d3fa30d5379d7494174b046fe0cb506",
+      "docs/releases/v4/v4.13/development/v4.13.11-phase-6-receipts/audit-isolated-pyjwt-2.15.1.json": "096ab5861fcd147e6769b49be0c4fcf9be6d32efaf7fa89f0081290bc30d08d3",
+      "docs/releases/v4/v4.13/development/v4.13.11-phase-6-receipts/constraints-solver-delta.diff": "c21b3896ae9c65667e67566cb097b16083145153017f6ce129502bd8edfad29e",
+      "docs/releases/v4/v4.13/development/v4.13.11-phase-6-receipts/container-audit-log.txt": "0173d6546267bcbce7bba14dcce5932e3d047fa9147d6a45ec880d33a6a2750d",
+      "docs/releases/v4/v4.13/development/v4.13.11-phase-6-receipts/installed-tree-candidate.txt": "e72856c3a6bdee9ca286077d4c69e45310bb72f724768e5f070be9370fcafaa4",
+      "docs/releases/v4/v4.13/development/v4.13.11-phase-6-receipts/payload-pyjwt-2.14.0.json": "0c38993e4769559ee2987270471fa7a6e37506a89ca8d6864fc85944167c31cf",
+      "docs/releases/v4/v4.13/development/v4.13.11-phase-6-receipts/payload-pyjwt-2.15.1.json": "32450120012f539db4c5bc2ea8459f31edabf4611a39c2d8ca5813bab7cca8fb",
+      "docs/releases/v4/v4.13/development/v4.13.11-phase-6-receipts/pip-audit-candidate.json": "98477033b1cef5a3edb87c210b7b6649da7e75a0f3e7ac2a8abbc43aea0f26f5",
+      "docs/releases/v4/v4.13/development/v4.13.11-phase-6-receipts/pyjwt-payload-probe.py": "9e29c18de7e69b3bc7933992c2d501f1cde7a88ae23b8e740f0ad555597e39ad",
+      "docs/releases/v4/v4.13/development/v4.13.11-phase-6-receipts/required-command.txt": "1dddc00f831b26a8bd39dac4be4c8496aebbd08b389a57863fd82e554ddef8bd",
+      "docs/releases/v4/v4.13/known-gaps.md": "e344a7fe74b54612dd75fb7bde37ffe7fcd6faab3c92bc4f845deeceb48d7c48",
+      "docs/releases/v4/v4.13/plans/v4.13.11-known-gaps-sweep-and-minor-close.md": "3d8852a18c2760b41cc5b40caa26a6a8a2401edd025b5c64443e7f6e374ff3e1",
+      "extensions/nexus-code-search/pyproject.toml": "849602d2b751ac519c6ef5b66472f0afe7e0e78dc7f6d392c3fc3acc2ef8e446",
+      "extensions/nexus-context-compressor/pyproject.toml": "a0b7b5542bb3f77f527f1d1123281dd61903581e5cf791d7a275db1a66203686",
+      "extensions/nexus-skill-server/pyproject.toml": "20883fbfb8df797799f4975ce958fc7f908dc4b38bcf2e43e3910b61b3e879c2",
+      "extensions/nexus-web-fetch/pyproject.toml": "33530be2377bd71a19f8afc28b1894d3af2929eea1b3791bc9a78a234d75fb94",
+      "scripts/ci/requirements-py311.txt": "e514341ad531730efc14a9c0600314745d584399cdbffb9e7f6a33e51ef5c38d",
+      "tests/workflows/test_supply_chain_watch.py": "e9b797a86ccacb9742f72237a41084de4e4c42c6a99024985806b9df3b4cae9a"
+    },
+    "frozen_plan_hash": "f810cd9838d5c88927d00903a11f1bdcc9771ca950d2cb113f9a0b04a19311ed",
+    "required_command": {
+      "argv": "python -m pytest -q -rs tests/workflows/test_supply_chain_watch.py",
+      "result": "8 passed",
+      "exit": 0,
+      "skipped": 0
+    },
+    "advisory": {
+      "ids": [
+        "GHSA-42vr-xj54-vc7v",
+        "CVE-2026-101918",
+        "PYSEC-2026-4141"
+      ],
+      "rechecked": "2026-10-10",
+      "fixed": "2.15.0",
+      "also_cleared": [
+        "GHSA-x33g-cr3x-6449",
+        "CVE-2026-102275",
+        "PYSEC-2026-4183"
+      ]
+    },
+    "resolution": {
+      "constraints": "pyjwt 2.14.0 -> 2.15.1 (single solver delta)",
+      "owning_source_floors": [
+        "nexus-code-search",
+        "nexus-web-fetch",
+        "nexus-skill-server",
+        "nexus-context-compressor[mcp]"
+      ]
+    },
+    "workflow_equivalent_audit": {
+      "image": "python:3.11-slim",
+      "python": "3.11.16",
+      "pyjwt": "2.15.1",
+      "audited_packages": 144,
+      "vulnerable": 0,
+      "pip_audit_exit": 0
+    },
+    "known_gaps": {
+      "open_before": 126,
+      "open_after": 125,
+      "closed_on_evidence": [
+        "v4.13#WN-39"
+      ]
+    },
+    "limits": [
+      "Phase-only qualification; no push, PR, remote CI, release, migration, archive or cleanup."
+    ]
   }
 }

@@ -3,7 +3,7 @@
 **Project**: Nexus-Hub
 **Status**: released; PR #230 merged the complete 34-task plan and tag `v4.13.0` was published on 2026-09-21. Two bounded warning-class findings remain owned for future measurement work. GitHub branch protection passed a live pull-request gate test; the second trigger pilot stopped on an unproven spend bound.
 **Last updated**: 2026-10-10
-**Open items**: 126
+**Open items**: 125
 **Accounting, 2026-10-09 (v4.13.11 T006-T007)**: The Open items header is derived from current parsed state, including canonical historical owners. Patch Summary tables preserve their release-time snapshots; they do not replace the current header count. Original patch/ID identities remain in the source bodies and the reconciliation manifest.
 
 Release-scoped gaps for the evidence-driven agent improvement plan. Planned future-phase work is tracked in the plan rather than reported as completed here.
@@ -4520,13 +4520,15 @@ Admission and normalization findings for the [known-gaps sweep plan](plans/v4.13
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
 | Bugs / regressions (BG) | 0 | 6 |
-| Warnings (WN) | 2 | 0 |
+| Warnings (WN) | 1 | 1 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
 ### Open Items
 
-#### WN-39 (v4.13.11): Scheduled supply-chain audit reports vulnerable PyJWT 2.14.0
+#### WN-39 (v4.13.11): Scheduled supply-chain audit reports vulnerable PyJWT 2.14.0 - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 6 T026)**: The primary advisory was rechecked on 2026-10-10 (GHSA-42vr-xj54-vc7v, CVE-2026-101918, affected `>= 2.0.0a1, <= 2.14.0`, patched 2.15.0, moderate). PyJWT reaches Nexus-Hub only through `mcp`, which requires `pyjwt[crypto]>=2.10.1`, so an environment already holding 2.14.0 would not upgrade on its own. The four extensions that depend on `mcp` (`nexus-code-search`, `nexus-web-fetch`, `nexus-skill-server`, and the `mcp` extra of `nexus-context-compressor`) now declare a `pyjwt>=2.15.0` security floor; `nexus-memory` and `nexus-skill-scanner` do not pull `mcp`. The documented `uv pip compile` command with `--upgrade-package pyjwt` changes exactly one pin in `scripts/ci/requirements-py311.txt` (2.14.0 to 2.15.1, now attributed to the four floors and `mcp`); no other package moved. Proof: in isolated environments a 20,000-level nested unsigned payload leaks `RecursionError` on 2.14.0 and raises a handled `DecodeError` on 2.15.1, with ordinary HS256 decoding intact on both; pip-audit exits 1 on 2.14.0 and 0 on 2.15.1. The supply-chain workflow's own install loop and audit, run in a Python 3.11 container with every extension and every extra under the candidate constraints, resolved PyJWT 2.15.1 and pip-audit exited 0 with no known vulnerabilities across 144 audited packages. Two new tests in `tests/workflows/test_supply_chain_watch.py` fail if the pin returns to an affected version or an `mcp` dependency group loses its floor. The same pin also clears a second advisory found during this check, GHSA-x33g-cr3x-6449 (CVE-2026-102275, fixed in 2.15.0). The advisory was not suppressed and audit failure behavior is unchanged. See [Phase 6 verification](development/v4.13.11-phase-6-evidence.md).
 
 **Source phase**: Phase 1, T003. **Plan reference**: Phase 6, T029. **Severity**: medium; security. **Owner**: catalog maintainer.
 
