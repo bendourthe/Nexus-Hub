@@ -45,6 +45,7 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
+import html as html_module
 import json
 import math
 import re
@@ -756,6 +757,176 @@ def _css_marker_attachments(
             if match:
                 ids.add(match.group(1))
     return classes, ids
+
+
+# --- runtime accent guard (v4.13 AR-19, WN-2-v3165) ---------------------------
+# A page that assigns `--accent` from a `data-accent` attribute in script passes
+# check_contrast on the declared token and can still paint sub-AA text. Script
+# is never interpreted; the literal hex values those attributes carry are graded
+# against the same declared backgrounds, which is the cheap partial guard the
+# ledger allows. A rendered screenshot remains the full answer.
+_DATA_ACCENT_RE = re.compile(
+    r"""\bdata-[\w-]*accent[\w-]*\s*=\s*["']\s*(#[0-9a-f]{3}(?:[0-9a-f]{3})?)\s*["']""",
+    re.IGNORECASE,
+)
+
+
+def check_runtime_accent(
+    html: str, rules: list[tuple[str, dict[str, str]]]
+) -> dict[str, Any]:
+    accents = sorted({value.lower() for value in _DATA_ACCENT_RE.findall(html)})
+    if not accents:
+        return _finding(
+            "contrast-runtime-accent", "n/a", "structural",
+            "no data-*accent* hex attribute to grade",
+        )
+    declared = custom_properties(rules)
+    props = {
+        name[2:]: resolved
+        for name, value in declared.items()
+        if (resolved := resolve_var(value, declared)).startswith("#")
+    }
+    backgrounds = [name for name in props if _BG_NAME_RE.search(name)]
+    if not backgrounds:
+        return _finding(
+            "contrast-runtime-accent", "n/a", "structural",
+            f"{len(accents)} runtime accent(s) but no declared background to grade",
+        )
+    failures: list[str] = []
+    severity = None
+    for accent in accents:
+        ratios = {bg: contrast_ratio(accent, props[bg]) for bg in backgrounds}
+        below = [bg for bg, ratio in ratios.items() if ratio is not None and ratio < AA_RATIO]
+        failures.extend(f"{accent} on --{bg} = {ratios[bg]:.2f}:1" for bg in below)
+        if below and len(below) == len(ratios):
+            severity = "high"
+        elif below and severity is None:
+            severity = "medium"
+    if not failures:
+        return _finding(
+            "contrast-runtime-accent", "pass", "structural",
+            f"{len(accents)} runtime accent(s) clear AA {AA_RATIO}:1 on "
+            f"{len(backgrounds)} background(s)",
+        )
+    return _finding(
+        "contrast-runtime-accent", "fail", "structural",
+        f"{len(failures)} runtime accent pair(s) below AA {AA_RATIO}:1: "
+        + "; ".join(failures[:6]),
+        severity or "medium",
+    )
+
+
+# --- content_intent record (v4.13 AR-19, NI-2-v3167) -------------------------
+# Only the mechanically decidable half of Gate A: the record exists and names
+# every field, and a `standalone` page's visible text carries none of the
+# draft-reference phrases (references/content-intent.md 1.1 and 1.5). Whether a
+# value is the RIGHT one stays with the rubric. Both findings are MEDIUM because
+# the content-intent reference permits the phrases when the subject matter
+# independently needs them.
+CONTENT_INTENT_FIELDS = (
+    "source_relationship",
+    "decision_to_enable",
+    "assumptions",
+    "scope_class",
+    "exclusions",
+)
+SOURCE_RELATIONSHIPS = frozenset(
+    {"standalone", "revision-aware", "comparative", "faithful-adaptation"}
+)
+STANDALONE_BANNED_PHRASES = (
+    "the original",
+    "the prior draft",
+    "what was right",
+    "what was wrong",
+    "original preserved",
+)
+_DESIGN_RECORD_RE = re.compile(r"design\s+record", re.IGNORECASE)
+_INTENT_HEAD_RE = re.compile(r"^([ \t]*)content_intent:[ \t]*$", re.MULTILINE)
+_HIDDEN_TEXT_RE = re.compile(
+    r"<(script|style|template)\b.*?</\1\s*>", re.DOTALL | re.IGNORECASE
+)
+_TAG_RE = re.compile(r"<[^>]+>")
+
+
+def content_intent_fields(html: str) -> dict[str, str] | None:
+    """Parse the design record's `content_intent` block; None when absent.
+
+    Each child key maps to its inline value, or to "list" when the value is the
+    indented list that follows it. An empty key maps to "".
+    """
+    for comment in _COMMENT_RE.findall(html):
+        head = _INTENT_HEAD_RE.search(comment)
+        if not head:
+            continue
+        base = len(head.group(1).expandtabs())
+        fields: dict[str, str] = {}
+        child_indent: int | None = None
+        last: str | None = None
+        for line in comment[head.end():].splitlines():
+            if not line.strip():
+                continue
+            indent = len(line) - len(line.lstrip())
+            if indent <= base:
+                break
+            if child_indent is None:
+                child_indent = indent
+            key_match = re.match(r"([a-z_]+):(.*)$", line.strip())
+            if indent == child_indent and key_match:
+                last = key_match.group(1)
+                fields[last] = key_match.group(2).strip()
+            elif indent > child_indent and last and not fields[last]:
+                fields[last] = "list"
+        return fields
+    return None
+
+
+def visible_text(stripped: str) -> str:
+    text = _TAG_RE.sub(" ", _HIDDEN_TEXT_RE.sub(" ", stripped))
+    return re.sub(r"\s+", " ", html_module.unescape(text)).lower()
+
+
+def check_content_intent(html: str, stripped: str) -> list[dict[str, Any]]:
+    fields = content_intent_fields(html)
+    has_record = any(_DESIGN_RECORD_RE.search(c) for c in _COMMENT_RE.findall(html))
+    if fields is None:
+        if not has_record:
+            return [_finding("content-intent", "n/a", "structural",
+                             "no design record (a baseline or retained build)")]
+        return [_finding("content-intent", "fail", "structural",
+                         "the design record carries no content_intent block "
+                         "(references/content-intent.md 1.5)", "medium")]
+    missing = [name for name in CONTENT_INTENT_FIELDS if not fields.get(name)]
+    relationship = fields.get("source_relationship", "").strip("\"'").lower()
+    findings = []
+    if missing:
+        findings.append(_finding("content-intent", "fail", "structural",
+                                 "content_intent is missing or leaves empty: "
+                                 + ", ".join(missing), "medium"))
+    elif relationship not in SOURCE_RELATIONSHIPS:
+        findings.append(_finding("content-intent", "fail", "structural",
+                                 f"source_relationship {relationship!r} is not one of "
+                                 + ", ".join(sorted(SOURCE_RELATIONSHIPS)), "medium"))
+    else:
+        findings.append(_finding("content-intent", "pass", "structural",
+                                 f"content_intent names all {len(CONTENT_INTENT_FIELDS)} "
+                                 f"fields (source_relationship: {relationship})"))
+    if relationship != "standalone":
+        findings.append(_finding("standalone-phrasing", "n/a", "structural",
+                                 "source_relationship is not standalone"))
+        return findings
+    text = visible_text(stripped)
+    hits = [
+        phrase for phrase in STANDALONE_BANNED_PHRASES
+        if re.search(r"\b" + re.escape(phrase) + r"\b", text)
+    ]
+    if hits:
+        findings.append(_finding("standalone-phrasing", "fail", "structural",
+                                 "standalone page names its source draft: "
+                                 + ", ".join(repr(h) for h in hits), "medium"))
+    else:
+        findings.append(_finding("standalone-phrasing", "pass", "structural",
+                                 "no draft-reference phrase in the visible text"))
+    return findings
 
 
 def placement_decisions(html: str) -> list[dict[str, str]]:
@@ -2503,6 +2674,8 @@ def score_html(
     findings.append(check_font_floor(rules, viewport, inline_style_rules(stripped)))
     findings.append(check_emphasis_token(stripped, rules))
     findings.append(check_contrast(rules))
+    findings.append(check_runtime_accent(html, rules))
+    findings.extend(check_content_intent(html, stripped))
 
     # 10-12. Authored-SVG integrity (references/svg-diagram-quality.md).
     findings.append(check_svg_arrowheads(stripped, rules))

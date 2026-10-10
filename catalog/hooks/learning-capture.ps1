@@ -29,7 +29,14 @@ if ($env:NEXUS_HOOK_PROFILE -eq "minimal") { exit 0 }
 if ($env:NEXUS_LEARNING_CAPTURE -eq "off") { exit 0 }
 
 # --- Read payload ---
-$stdin = [Console]::In.ReadToEnd()
+# Hook payloads are UTF-8 whatever the console code page is (WN-37): decode the raw
+# handle and reply through UTF-8 writers rather than calling SetConsoleCP.
+$hookUtf8 = New-Object System.Text.UTF8Encoding($false)
+$stdin = (New-Object System.IO.StreamReader([Console]::OpenStandardInput(), $hookUtf8, $true)).ReadToEnd()
+# Windows PowerShell 5.1 without a console drains the raw handle into [Console]::In.
+if (-not $stdin) { $stdin = [Console]::In.ReadToEnd() }
+$utf8Writer = New-Object System.IO.StreamWriter([Console]::OpenStandardOutput(), $hookUtf8); $utf8Writer.AutoFlush = $true; [Console]::SetOut($utf8Writer)
+$utf8Writer = New-Object System.IO.StreamWriter([Console]::OpenStandardError(), $hookUtf8); $utf8Writer.AutoFlush = $true; [Console]::SetError($utf8Writer)
 if (-not $stdin) { exit 0 }
 
 # --- Locate project root ---

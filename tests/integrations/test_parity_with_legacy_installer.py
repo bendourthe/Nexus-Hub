@@ -105,7 +105,6 @@ def _install_workspace(key: str, target: Path) -> None:
         ("claude", "catalog/rules", ".claude/rules"),
         ("codex", "catalog/commands", ".codex/prompts"),
         ("opencode", "catalog/commands", ".opencode/commands"),
-        ("opencode", "catalog/rules", ".opencode/rules"),
     ],
 )
 def test_catalog_tree_mirror_is_byte_identical(

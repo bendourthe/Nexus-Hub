@@ -39,7 +39,7 @@ To check your current model and switch from within a session:
 
 ```bash
 # Check usage and model recommendation
-/check-usage
+/usage
 ```
 
 ---
@@ -143,7 +143,7 @@ Available profiles:
 2. **Use `/continue-session` between sessions.** Reconstructing context from scratch is expensive. The command restores the prior session state from the version's `development/history/` files and recent git history.
 3. **Scope file reads tightly.** Ask for "lines 42-80 of auth.py" rather than the whole file when you already know where to look.
 4. **Prefer targeted skills over open-ended prompts.** Skills in `.claude/skills/` include pre-scoped instructions that reduce back-and-forth clarification rounds.
-5. **Check usage before long tasks.** Run `/check-usage` before starting a large refactor to confirm you have sufficient weekly budget.
+5. **Check usage before long tasks.** Run `/usage` before starting a large refactor to confirm you have sufficient weekly budget.
 
 ---
 
@@ -159,7 +159,7 @@ Approximate token costs (input + output) for common Nexus-Hub tasks on Sonnet 4.
 | `/compare-project` (full repo comparison) | 80,000-150,000 | High |
 | `/generate-commit-message` | 2,000-5,000 | Very Low |
 
-Use `/check-usage` to monitor your 5-hour session and 7-day rolling limits in real time.
+Use `/usage` to monitor your 5-hour session and 7-day rolling limits in real time.
 
 ---
 

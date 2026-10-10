@@ -529,7 +529,8 @@ def test_the_wordmark_is_the_installers_own(playwright_mod) -> None:
     ps = _banner(sources["scripts/installer.ps1"], "function Write-NexusBanner", "'@")
     sh = _banner(sources["scripts/installer.sh"], "print_nexus_banner() {", "NEXUS_BANNER_EOF")
     assert ps == sh and len(ps.split("\n")) == 6 and "\u2588" in ps
-    raw = GUIDE.read_bytes()
+    # Compare content, not the checkout's line endings: a Windows working tree is CRLF.
+    raw = GUIDE.read_bytes().replace(b"\r\n", b"\n")
     install = raw[raw.index(b'id="nhg-install"'): raw.index(b'id="nhg-copy-status"')]
     assert all(byte < 128 for byte in install), "the install section is ASCII; box characters are character references"
     pre = re.search(rb'<pre class="tm-l tm-c tm-wm" data-src="([^"]+)">(.*?)</pre>', install, re.S)

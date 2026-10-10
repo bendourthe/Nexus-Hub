@@ -68,6 +68,7 @@ import random
 import re
 import subprocess
 import sys
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -272,8 +273,41 @@ def split_labels(split: dict[str, Any]) -> dict[str, Any]:
 # ── CLI dispatch (parity-tested) ──────────────────────────────────────────────
 
 
+# Neither shipped CLI has a flag that loads one skill file. A skill reaches the
+# model the way it does for a user: from the project's native skills root, which
+# `invoke_cli` stages in a throwaway directory and runs the CLI from. Codex
+# reads `.agents/skills` (docs/policy/platform-read-contracts.json).
+_PROJECT_SKILL_ROOTS = {
+    "claude": (".claude", "skills"),
+    "codex": (".agents", "skills"),
+}
+
+
+def skill_name_for(skill_path: Path) -> str:
+    """Return the skill's frontmatter `name`, falling back to its directory name."""
+    try:
+        text = skill_path.read_text(encoding="utf-8")
+    except OSError:
+        text = ""
+    match = re.search(r"^name:\s*[\"']?([a-z0-9]+(?:-[a-z0-9]+)*)[\"']?\s*$", text, flags=re.MULTILINE)
+    return match.group(1) if match else skill_path.parent.name
+
+
+def stage_skill_project(cli: str, skill_path: Path, project_dir: Path) -> Path:
+    """Copy the SKILL.md under test into `project_dir`'s native skills root."""
+    root = project_dir.joinpath(*_PROJECT_SKILL_ROOTS[cli])
+    staged = root / skill_name_for(skill_path) / "SKILL.md"
+    staged.parent.mkdir(parents=True, exist_ok=True)
+    staged.write_text(skill_path.read_text(encoding="utf-8"), encoding="utf-8")
+    return staged
+
+
 def build_cli_command(
-    cli: str, prompt: str, skill_path: Path | None, model: str | None = None
+    cli: str,
+    prompt: str,
+    skill_path: Path | None,
+    model: str | None = None,
+    project_dir: Path | None = None,
 ) -> list[str]:
     """Construct an isolated argv for `cli` with a required model pin.
 
@@ -284,6 +318,12 @@ def build_cli_command(
     catalog/hooks/tests/test_eval_loop.py::TestEvalLoopCLIAdapter inspects this
     function's `if cli == "X":` branches and asserts no other CLI binary appears
     in any of them.
+
+    Every emitted flag must exist in the installed CLI's `--help`;
+    tests/validators/test_eval_harness_cli_flags.py checks that against captured
+    help text. A skill arm never forces the skill in: it loads only the staged
+    project corpus (`project_dir`, also the subprocess cwd) and leaves selection
+    to the model, as scripts/run_trigger_pilot.py does.
     """
     assert cli in _SUPPORTED_CLIS, f"unsupported cli: {cli}"
     if not model:
@@ -292,17 +332,26 @@ def build_cli_command(
         raise RuntimeError(f"{cli} {_ISOLATION_LIMITATIONS[cli]}; eval run refused")
 
     if cli == "claude":
+        if skill_path is None:
+            return ["claude", "-p", prompt, "--setting-sources", "", "--model", model]
+        # Port of run_trigger_pilot.build_command: `project` is the only setting
+        # source, so the staged skill is the corpus and the user's catalog is
+        # not; stream-json makes a `Skill` tool call observable.
         cmd = [
             "claude",
             "-p",
             prompt,
-            "--setting-sources",
-            "",
             "--model",
             model,
+            "--output-format",
+            "stream-json",
+            "--verbose",
+            "--setting-sources",
+            "project",
+            "--strict-mcp-config",
         ]
-        if skill_path is not None:
-            cmd.extend(["--skill", str(skill_path)])
+        if project_dir is not None:
+            cmd.extend(["--add-dir", str(project_dir)])
         return cmd
     if cli == "gemini":
         raise AssertionError("unreachable: gemini isolation preflight")
@@ -315,10 +364,10 @@ def build_cli_command(
             "--ephemeral",
             "--model",
             model,
-            prompt,
         ]
-        if skill_path is not None:
-            cmd.extend(["--prompt", str(skill_path)])
+        if skill_path is not None and project_dir is not None:
+            cmd.extend(["--cd", str(project_dir), "--skip-git-repo-check"])
+        cmd.append(prompt)
         return cmd
     if cli == "opencode":
         raise AssertionError("unreachable: opencode isolation preflight")
@@ -343,12 +392,27 @@ def invoke_cli(
     cli: str, prompt: str, skill_path: Path | None, model: str | None = None
 ) -> dict[str, Any]:
     """Run `cli` with the given prompt and (optionally) skill + model loaded."""
-    return _run_subprocess(build_cli_command(cli, prompt, skill_path, model))
+    if skill_path is None:
+        return _run_subprocess(build_cli_command(cli, prompt, None, model))
+    with tempfile.TemporaryDirectory(prefix="nexus-skill-eval-") as tmp:
+        project_dir = Path(tmp)
+        # Build first so an unsupported or unisolated CLI fails before staging.
+        cmd = build_cli_command(cli, prompt, skill_path, model, project_dir)
+        stage_skill_project(cli, skill_path, project_dir)
+        return _run_subprocess(cmd, cwd=project_dir)
 
 
-def _run_subprocess(cmd: list[str]) -> dict[str, Any]:
+def _run_subprocess(cmd: list[str], cwd: Path | None = None) -> dict[str, Any]:
     started = datetime.now(timezone.utc)
-    proc = subprocess.run(cmd, capture_output=True, text=True, check=False)
+    proc = subprocess.run(
+        cmd,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        check=False,
+        cwd=str(cwd) if cwd is not None else None,
+    )
     finished = datetime.now(timezone.utc)
     return {
         "stdout": proc.stdout,
@@ -487,7 +551,9 @@ def estimate_trigger_rate(
             )
             for _ in range(repeats):
                 result = invoke_cli(cli, q["query"], skill_path, q_model)
-                triggered = _detect_trigger(result["stdout"], description_under_test)
+                triggered = _detect_trigger(
+                    result["stdout"], description_under_test, skill_name_for(skill_path)
+                )
                 # An eval is a "success" when triggered matches should_trigger.
                 if triggered == should_trigger:
                     successes += 1
@@ -515,13 +581,50 @@ def _swap_description(skill_path: Path, new_description: str) -> None:
     skill_path.write_text("---" + new_fm + text[end:], encoding="utf-8")
 
 
-def _detect_trigger(stdout: str, description: str) -> bool:
-    """Heuristic: triggered if the response mentions any verbatim trigger phrase.
+def skill_selected_in_stream(stream_text: str, skill_name: str) -> bool | None:
+    """Read a stream-json transcript for a `Skill` tool call naming `skill_name`.
 
-    Real CLIs will eventually surface a structured `skill_loaded` flag; until
-    then this heuristic is the best portable signal. Tests should override
-    this function via monkeypatch when invoking the optimizer in dry-run.
+    Returns None when the text holds no stream events (plain-text output), so
+    the caller can fall back. Selector keys mirror run_trigger_pilot: `command`,
+    `skill` and `name`, with a leading slash ignored.
     """
+    saw_event = False
+    for line in stream_text.splitlines():
+        line = line.strip()
+        if not line.startswith("{"):
+            continue
+        try:
+            event = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if not isinstance(event, dict) or "type" not in event:
+            continue
+        saw_event = True
+        if event.get("type") != "assistant":
+            continue
+        for block in (event.get("message") or {}).get("content") or []:
+            if not (isinstance(block, dict) and block.get("type") == "tool_use"):
+                continue
+            if block.get("name") != "Skill" or not isinstance(block.get("input"), dict):
+                continue
+            for key in ("command", "skill", "name"):
+                value = block["input"].get(key)
+                if isinstance(value, str) and value.strip().lstrip("/") == skill_name:
+                    return True
+    return False if saw_event else None
+
+
+def _detect_trigger(stdout: str, description: str, skill_name: str | None = None) -> bool:
+    """Decide whether a run loaded the skill.
+
+    A stream-json run (the Claude skill arm) is judged by its structured `Skill`
+    tool call. Plain-text output has no such signal, so it falls back to the
+    heuristic: triggered if the response mentions a verbatim trigger phrase.
+    """
+    if skill_name is not None:
+        selected = skill_selected_in_stream(stdout, skill_name)
+        if selected is not None:
+            return selected
     lowered = stdout.lower()
     # Pull short phrases (<= 6 words) out of the description as proxies.
     candidates = re.findall(r"[a-z][a-z\- ]{4,40}", description.lower())
@@ -655,7 +758,11 @@ def evaluate_multi_turn(
         hits = 0
         for _ in range(repeats):
             result = invoke_cli(cli, turn_prompt, skill_path, q_model)
-            if _detect_trigger(result["stdout"], eval_entry.get("query", turn_prompt)):
+            if _detect_trigger(
+                result["stdout"],
+                eval_entry.get("query", turn_prompt),
+                skill_name_for(skill_path),
+            ):
                 hits += 1
         per_turn_triggers.append(repeats > 0 and hits / repeats >= 0.5)
 

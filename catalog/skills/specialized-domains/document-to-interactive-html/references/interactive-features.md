@@ -544,7 +544,9 @@ Tokens the builder consumes and maps to CSS custom properties:
 
 `chart_palette` is an optional extension used to color multi-series charts. When an override omits it, the builder derives chart colors from `accent`, `primary`, `secondary`, and `muted`, so a plain `[[theme-tokens]]` file still charts correctly.
 
-Font stacks must stay self-contained: use system font stacks (no web-font `@import`, no font CDN). A brand that ships a custom font would need it embedded as a base64 `@font-face` in a later iteration; that is out of scope for the baseline and must not become an external fetch.
+Font stacks must stay self-contained: use system font stacks (no web-font `@import`, no font CDN). A brand that ships a custom font opts in with a `fonts.embed` list in its brand JSON, for example `"embed": [{"family": "Brand Sans", "file": "BrandSans.woff2", "weight": 700, "style": "normal"}]`, and names the family in its `heading` or `body` stack. The baseline builder reads each file from the brand's `assets_dir` (relative to the brand JSON), accepts `.woff2`, `.woff`, `.ttf`, or `.otf` up to 2 MB, and inlines it as a base64 `@font-face`; a file outside `assets_dir` or missing fails the build. A theme without `fonts.embed` produces the same bytes as before.
+
+The baseline builder also groups a run of two or more consecutive plain images whose `page_fraction` is below 0.5 and within a 2x band of each other into one `.gallery`. A hero, an annotated figure, or an image with no `page_fraction` keeps its own figure.
 
 ## The Enrichment Pass
 

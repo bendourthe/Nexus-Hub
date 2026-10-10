@@ -84,6 +84,8 @@ Checks, against the `content_intent` block in the design record (see `references
 
 **Failure behavior: revise the OUTLINE, before any HTML is written.** That placement is the whole value of the gate; the same finding after authoring costs a rebuild.
 
+`scripts/visual_qa_score.py` checks only the mechanically decidable half on the generated file, as MEDIUM findings: `content-intent` (a page with a design record carries a `content_intent` block naming all five fields, with a valid `source_relationship`) and `standalone-phrasing` (under `standalone`, the visible text has none of the draft-reference phrases). A page with no design record is n/a. The judgments above stay with this gate. The same scorer's `contrast-runtime-accent` finding grades hex values in `data-*accent*` attributes, which a script may assign to `--accent` at runtime, against the declared backgrounds.
+
 ### Gate B - semantic visual (after the visual plan, before detailed styling)
 
 Checks, against the `visual_contracts` block (see `references/content-intent.md` part 3):

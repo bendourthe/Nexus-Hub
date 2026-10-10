@@ -56,7 +56,14 @@ $projectName = Split-Path $projectRoot -Leaf
 # Try to read duration from stdin JSON.
 $duration = "N/A"
 try {
-    $stdin = [Console]::In.ReadToEnd()
+    # Hook payloads are UTF-8 whatever the console code page is (WN-37): decode the raw
+    # handle and reply through UTF-8 writers rather than calling SetConsoleCP.
+    $hookUtf8 = New-Object System.Text.UTF8Encoding($false)
+    $stdin = (New-Object System.IO.StreamReader([Console]::OpenStandardInput(), $hookUtf8, $true)).ReadToEnd()
+    # Windows PowerShell 5.1 without a console drains the raw handle into [Console]::In.
+    if (-not $stdin) { $stdin = [Console]::In.ReadToEnd() }
+    $utf8Writer = New-Object System.IO.StreamWriter([Console]::OpenStandardOutput(), $hookUtf8); $utf8Writer.AutoFlush = $true; [Console]::SetOut($utf8Writer)
+    $utf8Writer = New-Object System.IO.StreamWriter([Console]::OpenStandardError(), $hookUtf8); $utf8Writer.AutoFlush = $true; [Console]::SetError($utf8Writer)
     if ($stdin) {
         $payload = $stdin | ConvertFrom-Json -ErrorAction Stop
         $parsed = $null
@@ -120,6 +127,26 @@ if ($inRepo) {
     $gitLine = "Git: $branch, $changedCount changed file(s)"
 }
 
+# One plan-state line (v4.13.3 DF-3) from the installed plan_status.py, matching the
+# .sh sibling: the first interpreter that can import sys wins, so the WindowsApps
+# alias that only opens the Store is skipped.
+$planLine = "Plan: unavailable"
+$homeDir = if ($env:USERPROFILE) { $env:USERPROFILE } else { $HOME }
+$planStatus = Join-Path $homeDir ".nexus-hub\scripts\plan_status.py"
+if (Test-Path -LiteralPath $planStatus) {
+    foreach ($candidate in @("python3", "python")) {
+        $command = Get-Command $candidate -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+        if (-not $command) { continue }
+        & $command.Source -c "import sys" *> $null
+        if ($LASTEXITCODE -ne 0) { continue }
+        try {
+            $planOut = & $command.Source $planStatus --digest --root $projectRoot 2>$null | Select-Object -First 1
+            if ($planOut -and "$planOut".StartsWith("Plan:")) { $planLine = "$planOut".TrimEnd("`r") }
+        } catch {}
+        break
+    }
+}
+
 $lines = New-Object System.Collections.Generic.List[string]
 $lines.Add("# Last session digest")
 $lines.Add("")
@@ -130,6 +157,10 @@ $lines.Add("")
 $lines.Add("## Git context")
 $lines.Add("")
 $lines.Add($gitLine)
+$lines.Add("")
+$lines.Add("## Plan state")
+$lines.Add("")
+$lines.Add($planLine)
 # NOTE (v3.15.6): this line previously read "- Branch: `$branch`" in a
 # double-quoted string, which is broken twice over, because the backtick is
 # PowerShell's escape character: `$branch emitted the LITERAL text "$branch"

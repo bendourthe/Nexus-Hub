@@ -23,6 +23,7 @@ out to shell tools; all file operations use pathlib and shutil.
 
 from __future__ import annotations
 
+import os
 import re
 import shutil
 from dataclasses import dataclass, field
@@ -381,7 +382,7 @@ class IntegrationBase:
     @staticmethod
     def _ensure_dir(path: Path, ctx: InstallContext) -> Path:
         if not ctx.dry_run:
-            path.mkdir(parents=True, exist_ok=True)
+            long_path(path).mkdir(parents=True, exist_ok=True)
         return path
 
     @staticmethod
@@ -400,22 +401,25 @@ class IntegrationBase:
         if not src.exists():
             ctx.manifest.log(integration_key, f"skip-missing: {src}")
             return FileAction(path=str(src), action="not-found")
-        if dst.exists() and not ctx.overwrite:
+        # File operations use the extended-length form (AR-11); the manifest and
+        # the returned action keep the plain path.
+        src_io, dst_io = long_path(src), long_path(dst)
+        if dst_io.exists() and not ctx.overwrite:
             ctx.manifest.log(integration_key, f"skip-existing: {dst}")
             return FileAction(path=str(dst), action="kept")
-        src_bytes = src.read_bytes()
-        if dst.exists():
-            if dst.read_bytes() == src_bytes:
+        src_bytes = src_io.read_bytes()
+        if dst_io.exists():
+            if dst_io.read_bytes() == src_bytes:
                 ctx.manifest.track(integration_key, str(dst))
                 return FileAction(path=str(dst), action="unchanged")
             if not ctx.dry_run:
-                dst.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(src, dst)
+                dst_io.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(src_io, dst_io)
             ctx.manifest.track(integration_key, str(dst))
             return FileAction(path=str(dst), action="updated")
         if not ctx.dry_run:
-            dst.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(src, dst)
+            dst_io.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(src_io, dst_io)
         ctx.manifest.track(integration_key, str(dst))
         return FileAction(path=str(dst), action="created")
 
@@ -433,14 +437,17 @@ class IntegrationBase:
         if not src.exists():
             ctx.manifest.log(integration_key, f"skip-missing-tree: {src}")
             return FileAction(path=str(src), action="not-found")
-        existed_before = dst.exists()
-        all_unchanged = existed_before and _tree_matches(src, dst)
+        # Extended-length form for the file operations only (AR-11): a nested
+        # bundled file in a deep repository otherwise passes Windows MAX_PATH.
+        src_io, dst_io = long_path(src), long_path(dst)
+        existed_before = dst_io.exists()
+        all_unchanged = existed_before and _tree_matches(src_io, dst_io)
         if not ctx.dry_run:
             if existed_before and ctx.overwrite:
-                shutil.rmtree(dst, ignore_errors=True)
+                shutil.rmtree(dst_io, ignore_errors=True)
                 existed_before = False
                 all_unchanged = False
-            shutil.copytree(src, dst, dirs_exist_ok=True)
+            shutil.copytree(src_io, dst_io, dirs_exist_ok=True)
         ctx.manifest.track(integration_key, str(dst))
         if all_unchanged:
             return FileAction(path=str(dst), action="unchanged")
@@ -486,6 +493,30 @@ class IntegrationBase:
             dst.write_bytes(content_bytes)
         ctx.manifest.track(integration_key, str(dst))
         return FileAction(path=str(dst), action="created")
+
+
+_EXTENDED_PREFIX = "\\\\?\\"
+
+
+def long_path(path: Path) -> Path:
+    """Return ``path`` in Windows extended-length form; unchanged elsewhere.
+
+    Windows rejects a path over 260 characters (MAX_PATH) unless the host enabled
+    the LongPathsEnabled policy, so a flattened skill's nested bundled files can
+    fail to copy into a deep repository with WinError 3 (AR-11). The ``\\\\?\\``
+    prefix lifts the limit per call. It also disables Win32 normalization, which
+    is why the path is made absolute and backslash-separated first. Only the file
+    operations use this form; manifests and reports keep the plain path.
+    """
+    if os.name != "nt":
+        return path
+    text = str(path)
+    if text.startswith(_EXTENDED_PREFIX):
+        return path
+    absolute = os.path.abspath(text)
+    if absolute.startswith("\\\\"):
+        return Path(_EXTENDED_PREFIX + "UNC\\" + absolute[2:])
+    return Path(_EXTENDED_PREFIX + absolute)
 
 
 def _tree_matches(src: Path, dst: Path) -> bool:

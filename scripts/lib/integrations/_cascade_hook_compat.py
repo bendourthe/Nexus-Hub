@@ -23,6 +23,7 @@ _EVENT_NAMES = {
     "post_run_command": "PostToolUse",
     "pre_write_code": "PreToolUse",
     "post_write_code": "PostToolUse",
+    "post_read_code": "PostToolUse",
     "pre_user_prompt": "UserPromptSubmit",
     "post_cascade_response": "Stop",
 }
@@ -182,6 +183,13 @@ def translate_payload(payload: dict[str, Any], event: str, tool_name: str) -> di
             "old_string": old_text,
             "new_string": new_text,
             "content": new_text,
+        }
+    elif event == "post_read_code":
+        # Documented tool_info.file_path; may name a directory on a recursive read,
+        # which the user-edit guard skips because it records files only.
+        translated["tool_input"] = {
+            "file_path": tool_info.get("file_path", ""),
+            "path": tool_info.get("file_path", ""),
         }
     elif event == "pre_user_prompt":
         translated["prompt"] = tool_info.get("user_prompt", "")

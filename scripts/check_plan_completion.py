@@ -42,6 +42,7 @@ import re
 import secrets
 import subprocess
 import sys
+import tempfile
 import time
 from collections.abc import Callable
 from pathlib import Path
@@ -659,11 +660,11 @@ def evaluate(ctx: Context, record: dict | None) -> tuple[list[tuple[str, str]], 
     branch = approvals.get("source_branch") or f"feat/{ctx.version}-{ctx.slug}"
     target = approvals.get("target_branch") or "develop"
     results.append(("integration.merged", _pr_merged(ctx, repo, branch)))
-    results.append(("integration.checks", _pr_checks(ctx, repo, branch, target)))
+    results.append(("integration.checks", _pr_checks(ctx, repo, branch, target, start)))
     tag = approvals.get("tag") or ctx.version
     results.append(("release.tag", _tag_status(ctx, tag)))
     results.append(("release.changelog", _changelog_status(ctx)))
-    results.append(("release.version-sync", _version_sync(ctx)))
+    results.append(("release.version-sync", _version_sync(ctx, start)))
     results.append(("release.github", _release_status(ctx, repo, tag)))
     results.append(("release.main", _main_contains(ctx, tag)))
     cleanup = approvals.get("cleanup") or {}
@@ -969,20 +970,40 @@ def _pr_merged(ctx: Context, repo: str, branch: str) -> str:
     return "met" if data.get("state") == "MERGED" else "unmet"
 
 
-def _required_contexts(ctx: Context, target: str) -> list[str] | None:
-    manifest = ctx.root / "docs" / "policy" / "required-checks.json"
-    if not manifest.is_file():
+REQUIRED_CHECKS_PATH = "docs/policy/required-checks.json"
+
+
+def _committed_blob(ctx: Context, *revs: str | None, path: str) -> tuple[str, str] | None:
+    """(rev, text) of `path` at the first rev that has it, or None.
+
+    Gates read committed content only (v4.13.2 WN-12): an edit to the working tree
+    must not change what "required" means or what runs at a turn end.
+    """
+    for rev in revs:
+        if not rev:
+            continue
+        rc, out = _run([ctx.git, "-C", str(ctx.root), "show", f"{rev}:{path}"], ctx.budget)
+        if rc == 0:
+            return rev, out
+    return None
+
+
+def _required_contexts(ctx: Context, target: str, start: str | None = None) -> list[str] | None:
+    """The target branch's required contexts from the manifest on `origin/<target>`,
+    falling back to the run's `start_head`; None defers to `gh pr checks --required`."""
+    found = _committed_blob(ctx, f"origin/{target}", start, path=REQUIRED_CHECKS_PATH)
+    if found is None:
         return None
     try:
-        branches = json.loads(manifest.read_text(encoding="utf-8")).get("branches", {})
-    except ValueError:
+        branches = json.loads(found[1]).get("branches", {})
+    except (ValueError, AttributeError):
         return None
-    contexts = branches.get(target, {}).get("contexts")
+    contexts = branches.get(target, {}).get("contexts") if isinstance(branches, dict) else None
     return list(contexts) if isinstance(contexts, list) else None
 
 
-def _pr_checks(ctx: Context, repo: str, branch: str, target: str) -> str:
-    required = _required_contexts(ctx, target)
+def _pr_checks(ctx: Context, repo: str, branch: str, target: str, start: str | None = None) -> str:
+    required = _required_contexts(ctx, target, start)
     args = ["pr", "checks", branch, "--json", "name,bucket"]
     if required is None:
         args.append("--required")
@@ -1034,11 +1055,36 @@ def _changelog_status(ctx: Context) -> str:
     )
 
 
-def _version_sync(ctx: Context) -> str:
-    script = ctx.root / "scripts" / "check_version_sync.py"
-    if not script.is_file():
+VERSION_SYNC_PATH = "scripts/check_version_sync.py"
+# Runs a script's committed source as if it were the working-tree file: `__file__`
+# and sys.path[0] name the real location, so the script's own root discovery and
+# sibling imports behave as before, but its code is the committed blob.
+_RUN_BLOB = (
+    "import sys\n"
+    "source, real = sys.argv[1], sys.argv[2]\n"
+    "sys.argv = [real]\n"
+    "sys.path.insert(0, real.rsplit('/', 1)[0])\n"
+    "code = compile(open(source, encoding='utf-8').read(), real, 'exec')\n"
+    "exec(code, {'__name__': '__main__', '__file__': real})\n"
+)
+
+
+def _version_sync(ctx: Context, start: str | None = None) -> str:
+    """Run the project's version-sync script from the run's `start_head` tree (or
+    HEAD without a record), so a working-tree edit to the script cannot change the gate."""
+    found = _committed_blob(ctx, start or "HEAD", path=VERSION_SYNC_PATH)
+    if found is None:
         return "n/a"
-    rc, _ = _run([sys.executable, str(script)], ctx.budget, cwd=ctx.root)
+    # Outside the runs directory and the repository: neither may gain a stray file.
+    blob = Path(tempfile.gettempdir()) / f"nexus-version-sync-{os.getpid()}-{secrets.token_hex(4)}.py"
+    try:
+        blob.write_text(found[1], encoding="utf-8")
+        real = (ctx.root / VERSION_SYNC_PATH).as_posix()
+        rc, _ = _run([sys.executable, "-c", _RUN_BLOB, str(blob), real], ctx.budget, cwd=ctx.root)
+    except OSError:
+        return "cannot-verify"
+    finally:
+        blob.unlink(missing_ok=True)
     if rc == -1:
         return "cannot-verify"
     return "met" if rc == 0 else "unmet"

@@ -224,6 +224,58 @@ def test_configured_bypass_is_refused_unless_approved(env: Env) -> None:
     assert env.run(PLAN_REL, "--platform", "claude").returncode == 0
 
 
+def test_project_scoped_bypass_in_the_launch_directory_is_refused(env: Env) -> None:
+    # WN-11-v4132: a committed project settings file is read, not only the global one.
+    settings = env.repo / ".claude" / "settings.local.json"
+    settings.parent.mkdir()
+    settings.write_text(json.dumps({"permissions": {"defaultMode": "bypassPermissions"}}), encoding="utf-8")
+    refused = env.run(PLAN_REL, "--platform", "claude")
+    assert refused.returncode == 2
+    assert "settings.local.json bypasses approvals" in refused.stderr
+
+
+# (row, scope, relative file, content, bypasses). One case per documented row and scope.
+BYPASS_CASES = [
+    ("claude", "home", ".claude/settings.json", '{"permissions": {"defaultMode": "bypassPermissions"}}', True),
+    ("claude", "project", ".claude/settings.json", '{"permissions": {"defaultMode": "bypassPermissions"}}', True),
+    ("claude", "project", ".claude/settings.local.json", '{"permissions":{"defaultMode":"bypassPermissions"}}', True),
+    ("claude", "project", ".claude/settings.json", '{"permissions": {"defaultMode": "acceptEdits"}}', False),
+    ("codex", "home", ".codex/config.toml", "approval_policy = 'never'\n", True),
+    ("codex", "home", ".codex/config.toml", 'approval_policy="never"\n', True),
+    ("codex", "project", ".codex/config.toml", "sandbox_mode = 'danger-full-access'\n", True),
+    ("codex", "project", ".codex/config.toml", "approval_policy = 'on-request'\n# approval_policy = never\n", False),
+    ("gemini-cli", "home", ".gemini/settings.json", '{"general": {"defaultApprovalMode": "yolo"}}', True),
+    ("gemini-cli", "project", ".gemini/settings.json", '{"approvalMode": "yolo"}', True),
+    ("gemini-cli", "project", ".gemini/settings.json", '{"general": {"defaultApprovalMode": "plan"}}', False),
+    ("qwen", "home", ".qwen/settings.json", '{"tools": {"approvalMode": "yolo"}}', True),
+    ("qwen", "project", ".qwen/settings.json", '{"tools": {"approvalMode": "yolo"}}', True),
+    ("qwen", "project", ".qwen/settings.json", '{"tools": {"approvalMode": "auto"}}', False),
+    ("cursor", "home", ".cursor/cli-config.json", '{"approvalMode": "unrestricted"}', True),
+    ("cursor", "home", ".cursor/cli-config.json", '{"approvalMode": "allowlist"}', False),
+    # Cursor's project file documents permissions only, so it is not a bypass surface.
+    ("cursor", "project", ".cursor/cli-config.json", '{"approvalMode": "unrestricted"}', False),
+    # An unparseable file falls back to a quote-tolerant text scan, never to "no bypass".
+    ("claude", "project", ".claude/settings.json", "{'defaultMode': 'bypassPermissions',}", True),
+]
+
+
+@pytest.mark.parametrize(("row", "scope", "rel", "content", "bypasses"), BYPASS_CASES)
+def test_bypass_settings_are_parsed_per_row_and_scope(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, row: str, scope: str, rel: str, content: str, bypasses: bool
+) -> None:
+    home, project = tmp_path / "home", tmp_path / "project"
+    target = (home if scope == "home" else project) / rel
+    target.parent.mkdir(parents=True)
+    target.write_text(content, encoding="utf-8")
+    project.mkdir(exist_ok=True)
+    monkeypatch.setenv("HOME", str(home))
+    monkeypatch.setenv("USERPROFILE", str(home))
+    reason = run_plan.bypass_configured(row, launch_dir=project)
+    assert (reason is not None) is bypasses, reason
+    if bypasses:
+        assert reason == f"{target} bypasses approvals"
+
+
 def test_a_second_runner_on_the_same_record_is_refused(env: Env) -> None:
     lock = env.record.with_name("abc.runner.lock")
     lock.write_text("123", encoding="utf-8")

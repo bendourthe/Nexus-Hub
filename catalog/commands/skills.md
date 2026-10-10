@@ -30,13 +30,21 @@ Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scop
 
 Dispatch the resolved scope to the retained skill:
 
-      search  -> search-skills (keyword / category / role search over the catalog)
+      search  -> the search steps below (keyword / category / role search over the catalog)
       list    -> read and follow style-guides/commands-cheatsheet.md (render the command cheatsheet live from the command files)
-      create  -> create-skill-or-command (interactive scaffolding wizard)
-      import  -> import-skills (copy catalog skills into the active project)
+      create  -> create-custom-command (command) / skill-create (skill drafted from recurring git patterns; a from-scratch skill follows the create steps below)
+      import  -> the import steps below (copy catalog skills into the active project)
       scan    -> skill-security-scan (semantic adjudication; backed by nexus-skill-scanner once Phase 6 lands)
 
 Pass any remaining arguments (search term, skill name, target path) through unchanged. Heavy logic stays in the retained skills; this file only resolves scope and delegates.
+
+## search scope
+
+Use the `search_skills` MCP tool when it is available. Otherwise match the term against the skill index the installer embedded in the active instruction file (`data/SKILL_INDEX.md` in the Nexus-Hub repository) and against the `description` frontmatter of the installed skills. Return the top matches with name, category, and one-line summary, best match first.
+
+## create scope
+
+Ask whether the user wants a skill (a capability the agent loads when relevant) or a command (a `/slash` entry point). For a command, apply `create-custom-command`. For a skill with a recurring pattern in git history, apply `skill-create`. For a skill from scratch, interview for its purpose, trigger phrases, and skip cases, then scaffold `<name>/SKILL.md` with `name`, `description`, `summary_l0`, and `overview_l1` frontmatter and the When to Use, Instructions, Common Rationalizations, Verification, and Related Skills sections; write the description with `skill-description-authoring`.
 
 ## list scope (command cheatsheet)
 
@@ -49,6 +57,8 @@ Pass any remaining arguments (search term, skill name, target path) through unch
 - **HTTPS-only source validation** -- a remote source URL must be `https://` (the only carve-out is `http://localhost` for a local catalog mirror); a plain local filesystem path is always allowed. Any other URL scheme (non-loopback `http://`, `file://`, `ftp://`, ...) is refused. Run `python ~/.nexus-hub/scripts/import_skills.py validate-source <source>`.
 - **Discovery-only `install_allowed` flag** -- a skill or source entry whose metadata sets `install_allowed: false` can be listed but not installed. Run `python ~/.nexus-hub/scripts/import_skills.py check-allowed <skill-dir>`.
 - **Hash-on-import** -- every imported artifact gets a recorded SHA-256 (the hashing reuses the existing install-manifest hasher). The full gate (`vet`) runs all three and records the hashes: `python ~/.nexus-hub/scripts/import_skills.py vet <skill-dir> [--source <source>] --json`.
+
+After the gate passes, copy each chosen `catalog/skills/<category>/<name>/` folder, whole, to the active platform's project skills directory (for example `.claude/skills/<name>/`), and report the recorded hashes.
 
 This gate introduces NO outbound call or credential (remote credentialed catalog fetch is deliberately out of scope). It is ADDITIVE to, never a replacement for, the `scan` step below: always `scan` a skill sourced from outside the trusted catalog before you `import` it.
 

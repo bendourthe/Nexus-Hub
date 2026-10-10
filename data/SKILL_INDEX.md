@@ -294,7 +294,6 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | end-of-shift-validation | workflow | "Compose tests, perf, visual, sweep, audit, review, and repair into one end-of-shift pass" | catalog/skills/workflow/end-of-shift-validation/SKILL.md |
 | agent-execution-isolation | security-operations | "Run agents in OS-level isolation with ephemeral containers and an egress boundary" | catalog/skills/security-operations/agent-execution-isolation/SKILL.md |
 | agentic-endpoint-hardening | security-operations | "Harden the coding-agent endpoint against config-write-then-executed sandbox escapes at the trust seam" | catalog/skills/security-operations/agentic-endpoint-hardening/SKILL.md |
-
 | ioc-enrichment-and-reputation-triage | security-operations | "Enrich IOCs and assign a documented reputation verdict with sources" | catalog/skills/security-operations/ioc-enrichment-and-reputation-triage/SKILL.md |
 | threat-actor-ttp-profiling | security-operations | "Profile intrusion-set behaviors and map them to ATT&CK for defense" | catalog/skills/security-operations/threat-actor-ttp-profiling/SKILL.md |
 | threat-intel-feed-operations | security-operations | "Run intel-feed ingest, scoring, expiry, and detection-value measurement" | catalog/skills/security-operations/threat-intel-feed-operations/SKILL.md |

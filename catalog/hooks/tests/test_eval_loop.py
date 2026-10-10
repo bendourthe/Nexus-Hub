@@ -153,9 +153,13 @@ class TestEvalLoopCLIAdapter:
         assert cmd.count("--model") == 1
         assert cmd[cmd.index("--model") + 1] == "pinned-model"
         if cli == "claude":
+            # A skill arm loads only the staged project corpus (v4.13 AR-04).
             assert "--setting-sources" in cmd
-            assert cmd[cmd.index("--setting-sources") + 1] == ""
+            assert cmd[cmd.index("--setting-sources") + 1] == "project"
+            assert "--strict-mcp-config" in cmd
+            assert "--skill" not in cmd
         else:
+            assert "--prompt" not in cmd
             assert "--ignore-user-config" in cmd
             assert "--ignore-rules" in cmd
             assert "--ephemeral" in cmd
@@ -236,17 +240,19 @@ def test_optimizer_runs_a_real_stub_cli_on_path(tmp_path: Path) -> None:
         "args = sys.argv[1:]\n"
         "prompt = args[args.index('-p') + 1]\n"
         "description = None\n"
-        "if '--skill' in args:\n"
-        "    text = pathlib.Path(args[args.index('--skill') + 1]).read_text(encoding='utf-8')\n"
+        "staged = sorted(pathlib.Path.cwd().glob('.claude/skills/*/SKILL.md'))\n"
+        "if staged:\n"
+        "    text = staged[0].read_text(encoding='utf-8')\n"
         "    description = text.split('description: ', 1)[1].splitlines()[0]\n"
         "with log.open('a', encoding='utf-8') as output:\n"
-        "    output.write(json.dumps({'argv': args, 'description': description}) + '\\n')\n"
+        "    output.write(json.dumps({'argv': args, 'description': description, 'staged': [str(p.relative_to(pathlib.Path.cwd())) for p in staged]}) + '\\n')\n"
         "if description is None:\n"
         f"    print(json.dumps([{candidate!r}]))\n"
-        "elif description.startswith('Trigger fixture-positive') and prompt.startswith('fixture-positive'):\n"
-        "    print(description)\n"
-        "else:\n"
-        "    print('No loaded skill.')\n",
+        "    raise SystemExit(0)\n"
+        "print(json.dumps({'type': 'system', 'subtype': 'init'}))\n"
+        "if description.startswith('Trigger fixture-positive') and prompt.startswith('fixture-positive'):\n"
+        "    print(json.dumps({'type': 'assistant', 'message': {'content': [{'type': 'tool_use', 'name': 'Skill', 'input': {'skill': 'fixture'}}]}}))\n"
+        "print(json.dumps({'type': 'result', 'subtype': 'success'}))\n",
         encoding="utf-8",
     )
     launcher = _load_module(_REPO_ROOT / "tests" / "fixtures" / "gh_stub" / "launcher.py")
@@ -289,10 +295,14 @@ def test_optimizer_runs_a_real_stub_cli_on_path(tmp_path: Path) -> None:
     for call in calls:
         args = call["argv"]
         assert args[args.index("--model") + 1] == "fixture-model"
-        assert args[args.index("--setting-sources") + 1] == ""
+    assert generated[0]["argv"][generated[0]["argv"].index("--setting-sources") + 1] == ""
     for call in scored:
         args = call["argv"]
-        assert args[args.index("--skill") + 1] == str(skill)
+        # The skill reaches the CLI from the staged project, never a flag.
+        assert "--skill" not in args
+        assert args[args.index("--setting-sources") + 1] == "project"
+        assert args[args.index("--output-format") + 1] == "stream-json"
+        assert call["staged"] == [str(Path(".claude") / "skills" / "fixture" / "SKILL.md")]
 
 
 def test_optimizer_accepts_an_unchanged_description(optimizer_module, tmp_path: Path) -> None:

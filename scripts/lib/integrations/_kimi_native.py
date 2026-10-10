@@ -69,6 +69,7 @@ from ._hooks_common import (
     script_basename,
     script_for_host,
     sibling_scripts,
+    sourced_modules,
 )
 from ._owned import write_owned_file
 from .result import FileAction
@@ -80,16 +81,20 @@ from .result import FileAction
 KIMI_HOOK_EVENTS = frozenset(
     {
         "UserPromptSubmit",
+        "UserPromptQueued",
         "PreToolUse",
         "Stop",
+        "TurnStarted",
         "PostToolUse",
         "PostToolUseFailure",
         "PermissionRequest",
         "PermissionResult",
         "SessionStart",
         "SessionEnd",
+        "SessionHeartbeat",
         "SubagentStart",
         "SubagentStop",
+        "TaskStarted",
         "StopFailure",
         "Interrupt",
         "PreCompact",
@@ -97,6 +102,14 @@ KIMI_HOOK_EVENTS = frozenset(
         "Notification",
     }
 )
+
+# Catalog event -> Kimi event, where Kimi's same-named event means something else.
+# Re-fetched 2026-10-10 from the hooks page: Kimi `Notification` is "Triggered when
+# a background task status changes", while `PermissionRequest` is "Triggered just
+# before waiting for user approval". The catalog's Notification chain is the
+# "blocked on the human" attention notifier, so it rides PermissionRequest, the
+# same alias Codex uses (AR-45, v4.13.11).
+KIMI_EVENT_ALIASES = {"Notification": "PermissionRequest"}
 
 # Events whose matcher targets a tool name. Everything else matches on a session
 # source, a compact trigger, or nothing at all, so a tool matcher there would
@@ -242,7 +255,8 @@ def build_kimi_hooks(
     skipped: list[str] = []
     seen: set[tuple[str, str, str]] = set()
 
-    for event, groups in settings.get("hooks", {}).items():
+    for source_event, groups in settings.get("hooks", {}).items():
+        event = KIMI_EVENT_ALIASES.get(source_event, source_event)
         if event not in KIMI_HOOK_EVENTS:
             skipped.append(f"{event}: no Kimi event of that name")
             continue
@@ -283,6 +297,10 @@ def build_kimi_hooks(
                 if matcher:
                     entry["matcher"] = matcher
                 entries.append(entry)
+
+    # A hook that sources a shared module is inert without it (AR-45), and no
+    # catalog entry registers the module, so resolve it from the script bodies.
+    scripts |= sourced_modules(scripts, src_hooks_dir)
 
     return entries, scripts, skipped
 
@@ -424,6 +442,7 @@ def hooks_block_entries(config_path: Path) -> list[dict]:
 __all__ = [
     "BLOCK_END",
     "BLOCK_START",
+    "KIMI_EVENT_ALIASES",
     "KIMI_HOOK_EVENTS",
     "KIMI_HOOK_FIELDS",
     "KIMI_HOOK_TIMEOUT_S",

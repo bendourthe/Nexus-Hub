@@ -46,7 +46,14 @@ $escalationMode = if ($env:ESCALATION_MODE) { $env:ESCALATION_MODE } else { "war
 # Primary: the PreToolUse JSON payload on stdin. Fallback: $env:CLAUDE_FILE_PATH.
 $filePath = $null
 if ([Console]::IsInputRedirected) {
-    $raw = [Console]::In.ReadToEnd()
+    # Hook payloads are UTF-8 whatever the console code page is (WN-37): decode the raw
+    # handle and reply through UTF-8 writers rather than calling SetConsoleCP.
+    $hookUtf8 = New-Object System.Text.UTF8Encoding($false)
+    $raw = (New-Object System.IO.StreamReader([Console]::OpenStandardInput(), $hookUtf8, $true)).ReadToEnd()
+    # Windows PowerShell 5.1 without a console drains the raw handle into [Console]::In.
+    if (-not $raw) { $raw = [Console]::In.ReadToEnd() }
+    $utf8Writer = New-Object System.IO.StreamWriter([Console]::OpenStandardOutput(), $hookUtf8); $utf8Writer.AutoFlush = $true; [Console]::SetOut($utf8Writer)
+    $utf8Writer = New-Object System.IO.StreamWriter([Console]::OpenStandardError(), $hookUtf8); $utf8Writer.AutoFlush = $true; [Console]::SetError($utf8Writer)
     if ($raw) {
         try {
             $payload = $raw | ConvertFrom-Json

@@ -24,7 +24,7 @@ Use this skill for:
 
 **Trigger phrases**: "agent spending cap", "LLM budget limit", "AI cost guardrail", "billing safeguard", "prevent runaway agents", "autonomous agent cost control", "per-session budget"
 
-**Distinguish from usage monitoring**: The `check-usage` skill and VS Code Claude Usage Monitor display current usage. This skill implements enforcement -- blocking execution when limits are reached.
+**Distinguish from usage monitoring**: The `/usage` command (backed by the shared usage probe, `_usage_probe.py`) and the VS Code Claude Usage Monitor display current usage. This skill implements enforcement -- blocking execution when limits are reached.
 
 ## What This Skill Does
 

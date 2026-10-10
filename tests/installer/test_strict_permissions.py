@@ -92,11 +92,11 @@ def test_overlay_is_valid_json_with_deny_and_ask(overlay: dict) -> None:
 
 
 def test_overlay_omits_defaultmode(overlay: dict) -> None:
-    """defaultMode's value set is unverified in this repo, so it is deliberately
-    NOT written into a user's settings.json. See the overlay's own comment and the
-    v3.15.6 known-gaps note."""
+    """The overlay never writes defaultMode, so the user's permission mode (or
+    Claude Code's own default) stands. Decision:
+    docs/decisions/implemented/policy/2026-10-10-strict-overlay-omits-defaultmode.md."""
     assert "defaultMode" not in overlay["permissions"], (
-        "defaultMode must stay out of the overlay until its enum is verified"
+        "defaultMode stays out of the strict overlay by decision (2026-10-10)"
     )
 
 

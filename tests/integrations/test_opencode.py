@@ -71,8 +71,8 @@ def test_drop_frontmatter_keys_touches_only_the_frontmatter_block(raw: bytes, ex
     assert _drop_frontmatter_keys(raw, ("tools",)) == expected
 
 
-def test_opencode_preserves_skills_commands_rules(install_ctx: InstallContext):
-    """Adding agents did not displace the pre-existing skills/commands/rules surfaces."""
+def test_opencode_preserves_skills_commands(install_ctx: InstallContext):
+    """Adding agents did not displace the pre-existing skills/commands surfaces."""
     get("opencode").install(install_ctx)
     root = install_ctx.target_root / ".opencode"
 
@@ -83,7 +83,26 @@ def test_opencode_preserves_skills_commands_rules(install_ctx: InstallContext):
             f"category folder {category!r} leaked into skills -- not flattened"
         )
     assert (root / "commands").is_dir() and list((root / "commands").glob("*.md")), "commands missing"
-    assert (root / "rules").is_dir() and list((root / "rules").rglob("*.md")), "rules missing"
+
+
+@pytest.mark.parametrize("scope", ["workspace", "global"])
+def test_opencode_writes_no_unread_rules_dir(install_ctx: InstallContext, scope: str):
+    """AR-51: OpenCode reads AGENTS.md plus the `instructions` array, never rules/.
+
+    https://opencode.ai/docs/rules/ (fetched 2026-10-10) lists project AGENTS.md,
+    upward AGENTS.md/CLAUDE.md, ~/.config/opencode/AGENTS.md, and
+    ~/.claude/CLAUDE.md, with no rules/ directory. A mirror there is dead weight.
+    """
+    if scope == "global":
+        (install_ctx.target_root / ".config" / "opencode").mkdir(parents=True)
+        ctx = replace(install_ctx, scope="global", explicit_target=True)
+        get("opencode").install(ctx)
+        root = install_ctx.target_root / ".config" / "opencode"
+    else:
+        get("opencode").install(install_ctx)
+        root = install_ctx.target_root / ".opencode"
+    assert (root / "skills").is_dir(), f"{scope}: install did not run"
+    assert not (root / "rules").exists(), f"{scope}: unread rules/ mirror written"
 
 
 def test_opencode_no_hooks_surface(install_ctx: InstallContext):

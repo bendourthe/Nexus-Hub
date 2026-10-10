@@ -1,6 +1,6 @@
 # Prompting Profile: composer-2.5
 
-**Platform**: claude-code
+**Platform**: cursor
 **Last verified**: 2026-09-08
 **Roster provenance**: `config`
 

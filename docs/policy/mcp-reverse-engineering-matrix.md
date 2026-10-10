@@ -334,3 +334,19 @@ No new MCP, runtime, credential, or outbound surface was added in the v3.11.0 sp
 3. For `re-full` / `re-partial` classifications, name the internal deliverable (package name, skill name) and the target release.
 4. For `vendor-intrinsic` classifications, write the 5-question audit paragraph that Phase 3 copies into the entry's `_comment`.
 5. Record the row before opening a PR that touches `catalog/mcp-configs/mcp-servers.json`. No MCP is added without a matrix row.
+
+---
+
+### Declined in v4.13.11 (conditional adoption candidates, v4.13 AR-37)
+
+These candidates waited several minors for a build-or-decline disposition. The maintainer declined them on 2026-10-10; each row keeps the trigger that would justify a plan.
+
+| MCP key | Current source | What it does | Outbound-call surface | Classification | Effort if RE'd | Action | Later action | Rationale / citation |
+|---|---|---|---|---|---|---|---|---|
+| n/a (local visual server, not MCP) | A local browser server that renders brainstorming sketches while the agent talks | Serves live visual mock-ups during ideation | None inherent; a long-running local server | declined | n/a | **Decline** | Plan only if users ask for live visual ideation | Text and the existing offline HTML outputs cover ideation; a resident server adds an always-on process. v4.13 AR-37 (v3.0 DF-v30-9). |
+| n/a (orchestration runtime, not MCP) | A portable YAML engine that runs multi-step agent workflows | Executes declared workflow graphs | None inherent; presupposes a shipped runtime | declined | n/a | **Decline** | Revisit only if host-native orchestration disappears | Hosts now ship native subagents and workflows, and `agent-orchestration-primitives` routes to them. v4.13 AR-37 (v3.6-v3.9 DF-v36-2). |
+| n/a (skill feature, not MCP) | After-the-fact intent recovery in `session-query` | Reconstructs why a past change was made from session logs | None; local logs | declined | n/a | **Decline** | Plan if a recurring audit need appears | Decision records and phase histories already capture intent at the time it is known. v4.13 AR-37 (v3.10 DF-v310-ruflo-A6). |
+| n/a (documentation note, not MCP) | A naming note for quality gates | Standardizes gate names across skills | None | declined | n/a | **Decline** | Revisit if gate names collide | `quality-gate-definitions` already owns gate vocabulary. v4.13 AR-37 (v3.9 DF-v39-nomistakes-1). |
+| n/a (hooks, not MCP) | Remaining worker-check hooks from the multi-agent comparison | Checks a worker's output at each step | None inherent | declined | n/a | **Decline** | Plan per hook when a concrete failure is observed | The shipped hooks cover the observed failures; the rest had no recorded incident. v4.13 AR-37 (v3.10 DF-v310-ruflo-A10-rest). |
+| n/a (persistent store, not MCP) | A durable store of review signals from earlier cycles | Carries reviewer findings across plan cycles | None; local storage | declined | n/a | **Decline** | Revisit if repeated review findings recur across minors | Known-gaps ledgers and `review-trapdoors` already carry recurring findings forward. v4.13 AR-37 (v3.15.7 DF-6). |
+| n/a (validator subset, not MCP) | A mechanically checkable subset of command-template tokens | Lints command templates for known tokens | None | declined | n/a | **Decline** | Plan if a token mistake ships in a command | Command files are validated by existing structure checks; no token defect has been recorded. v4.13 AR-37 (v4.0.0 MT-1). |

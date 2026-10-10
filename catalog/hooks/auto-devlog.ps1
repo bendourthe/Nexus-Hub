@@ -50,8 +50,27 @@ $skipIfModifiedWithin = 300   # seconds; prevents a double run within 5 minutes
 # --- Dependencies ---
 if (-not (Get-Command git -ErrorAction SilentlyContinue)) { exit 0 }
 
+# git writes UTF-8; `& git` would decode it through the console code page on Windows
+# PowerShell 5.1 and mangle non-ASCII subjects and paths (WN-37). Decode explicitly.
+$gitExe = (Get-Command git -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1).Source
+if (-not $gitExe) { exit 0 }
+function Invoke-GitUtf8 {
+    $psi = New-Object System.Diagnostics.ProcessStartInfo
+    $psi.FileName = $gitExe
+    $psi.Arguments = (@($args) | ForEach-Object { '"' + ([string]$_ -replace '"', '\"') + '"' }) -join ' '
+    $psi.UseShellExecute = $false
+    $psi.RedirectStandardOutput = $true
+    $psi.RedirectStandardError = $true
+    $psi.StandardOutputEncoding = New-Object System.Text.UTF8Encoding($false)
+    try { $proc = [System.Diagnostics.Process]::Start($psi) } catch { return }
+    $null = $proc.StandardError.ReadToEndAsync()
+    $text = $proc.StandardOutput.ReadToEnd()
+    $proc.WaitForExit()
+    if ($text) { $text.TrimEnd("`r", "`n") -split "`r?`n" }
+}
+
 # --- Must be inside a git repo with a DEVLOG.md ---
-$gitRoot = (& git rev-parse --show-toplevel 2>$null | Out-String).Trim()
+$gitRoot = (Invoke-GitUtf8 rev-parse --show-toplevel | Out-String).Trim()
 if (-not $gitRoot) { exit 0 }
 $devlog = Join-Path $gitRoot "docs/DEVLOG.md"
 if (-not (Test-Path -LiteralPath $devlog -PathType Leaf)) { exit 0 }
@@ -92,22 +111,22 @@ try {
 $afterArg = if ($lastEntryDate) { $lastEntryDate } else { "7 days ago" }
 $commitCount = 0
 try {
-    $lines = @(& git -C $gitRoot log --oneline --after=$afterArg 2>$null)
+    $lines = @(Invoke-GitUtf8 -C $gitRoot log --oneline "--after=$afterArg")
     $commitCount = @($lines | Where-Object { $_ -ne '' }).Count
 } catch { $commitCount = 0 }
 if ($commitCount -lt $minCommits) { exit 0 }
 
 # --- Gather session data ---
 $timestamp = (Get-Date -Format "yyyy-MM-dd HH:mm")
-$branch = (& git -C $gitRoot rev-parse --abbrev-ref HEAD 2>$null | Out-String).Trim()
+$branch = (Invoke-GitUtf8 -C $gitRoot rev-parse --abbrev-ref HEAD | Out-String).Trim()
 if (-not $branch) { $branch = "unknown" }
 
-$recentCommits = @(& git -C $gitRoot log --oneline --after=$afterArg 2>$null | Select-Object -First 10)
+$recentCommits = @(Invoke-GitUtf8 -C $gitRoot log --oneline "--after=$afterArg" | Select-Object -First 10)
 $baseHash = ""
 if ($lastEntryDate) {
-    $baseHash = (& git -C $gitRoot log --format=%H --before=$lastEntryDate -1 2>$null | Out-String).Trim()
+    $baseHash = (Invoke-GitUtf8 -C $gitRoot log --format=%H "--before=$lastEntryDate" -1 | Out-String).Trim()
 } else {
-    $recentCommits = @(& git -C $gitRoot log --oneline -10 2>$null)
+    $recentCommits = @(Invoke-GitUtf8 -C $gitRoot log --oneline -10)
 }
 
 # Bound display subjects without truncating the commit identifier.
@@ -126,9 +145,9 @@ $recentCommits = @($recentCommits | ForEach-Object {
 $filesChanged = @()
 try {
     if ($baseHash) {
-        $filesChanged = @(& git -C $gitRoot diff --name-only $baseHash HEAD 2>$null | Select-Object -First 20)
+        $filesChanged = @(Invoke-GitUtf8 -C $gitRoot diff --name-only $baseHash HEAD | Select-Object -First 20)
     } else {
-        $filesChanged = @(& git -C $gitRoot diff --name-only "HEAD~$commitCount" HEAD 2>$null | Select-Object -First 20)
+        $filesChanged = @(Invoke-GitUtf8 -C $gitRoot diff --name-only "HEAD~$commitCount" HEAD | Select-Object -First 20)
     }
 } catch { $filesChanged = @() }
 

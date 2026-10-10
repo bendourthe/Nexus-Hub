@@ -2237,7 +2237,8 @@ def close_pr_status(
         if carried == "unmet":
             notices.append(f"minor.close-pr merge does not carry {missing}")
         checks.append(carried)
-    checks += [ck._pr_checks(rctx, repo, branch, target), back_merged(rctx, target)]
+    start = str(record.get("start_head") or "") or None
+    checks += [ck._pr_checks(rctx, repo, branch, target, start), back_merged(rctx, target)]
     return _combine(*checks)
 
 

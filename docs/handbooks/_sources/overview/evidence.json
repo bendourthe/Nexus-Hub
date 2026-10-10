@@ -8,7 +8,7 @@
       "scripts/validate_skills.py": "51b5e1e74623ca51945871d08dcc78dc14f4d51723784b78d3df6523eb3a196a",
       "scripts/check_registry_entries.py": "e3860f9b8e3876098cc65debe89bd1a2e236a333530a7c2d55d504628d01ce55",
       "scripts/lib/integrations/_catalog_adapters.py": "36f4fa103e7126692a32a5c93b56c77f2919cd2d2dad7ee6e318d259f49fa041",
-      "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py": "6c6fe8535e5be98a5bd92118d6f27847dbe5edb04da52bfea78741eb0e3962d4",
+      "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py": "55a10ebfa2412b48243ae72ca70180f12aa80cc7f89d66cad0911d275bb9ce50",
       "catalog/skills/specialized-domains/document-to-interactive-html/scripts/dual_view.py": "cb97c1c53dd4560f3a59b9cc08d54223c4e0d49c2373bed3c20b5430607053a2",
       "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-runtime.js": "336a276024b786f95287178e1ce455328aee1c253ed3dc05709e49c58cde1ce6",
       "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-figures.js": "1891f3f4eaabc43c743d5360a6615338d65cf50ed8cc02a771d32a07c194e17d",
@@ -19,25 +19,25 @@
       "docs/handbooks/_sources/overview/delivery-composition.html": "c7ab0ca77c7f6468d1914f17338d72a33ffe560888fb4573bafe6fe6ce5c9259",
       "docs/handbooks/_sources/overview/proof-composition.html": "5450a7264da18cccd1423951768e9a271cb42211545464ef035dde2a2d75958f"
     },
-    "output_sha256": "d061c7bf54f5a86aa9fb04ff46bc2aae412321c7bf9a9b06c1c845e6ec8be7ca"
+    "output_sha256": "ac060fa24a632be7c0082cb73e3067abd8dec61bf13c739a8db62d001867479b"
   },
   "checks": {
     "content": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.13/development/v4.13.11-phase-4-handbook-claim-review.md",
-      "evidence_sha256": "0054968de672219d24d8cc48fd53ee018e18233fb3358c3bc9975a505f848841"
+      "evidence": "docs/releases/v4/v4.13/development/v4.13.11-phase-7-handbook-claim-review.md",
+      "evidence_sha256": "031b83b1a2f85b3e3fc3dc00927199659694b6edd3764bc5a1fb9838068044a1"
     },
     "build": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.13/development/v4.13.11-phase-4-receipts/overview-build.json",
-      "evidence_sha256": "18a25747e76a48a7b72f00488ac49d7e92aad297be2edeb8e1b766b2bbcbfb80"
+      "evidence": "docs/releases/v4/v4.13/development/v4.13.11-phase-7-receipts/overview-build.json",
+      "evidence_sha256": "126957ccd638ee58dc8cf60770bc5ebb1f8076235c2121687ea465f38f39127a"
     },
     "rendered": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.13/development/v4.13.11-phase-4-receipts/ar41-overview-render.json",
-      "evidence_sha256": "122a6d77068f510f458d989d9bd0144d426e8e126653039c3cd75610e19c06fa",
+      "evidence": "docs/releases/v4/v4.13/development/v4.13.11-phase-7-receipts/overview-render.json",
+      "evidence_sha256": "7ff821017b47e821be528662924badc3b2749e5aaefdd5ca67e3b376846a4c76",
       "browser": "Chromium 151.0.7922.34",
-      "output_sha256": "d061c7bf54f5a86aa9fb04ff46bc2aae412321c7bf9a9b06c1c845e6ec8be7ca"
+      "output_sha256": "ac060fa24a632be7c0082cb73e3067abd8dec61bf13c739a8db62d001867479b"
     }
   }
 }

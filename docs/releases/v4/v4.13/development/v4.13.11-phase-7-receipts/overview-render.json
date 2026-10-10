@@ -1,0 +1,53 @@
+{
+  "file": "docs/handbooks/overview.html",
+  "sha256": "ac060fa24a632be7c0082cb73e3067abd8dec61bf13c739a8db62d001867479b",
+  "reading": {
+    "title": "Nexus-Hub: from catalog to assistant",
+    "pages": 1,
+    "visible_pages": 1,
+    "headings": [
+      "Nexus-Hub: from catalog to assistant",
+      "One catalog, several hosts",
+      "Start with the skill source",
+      "Check before distribution",
+      "Adapt the shape at the boundary",
+      "Test the delivered capability"
+    ],
+    "scroll_width": 1280,
+    "viewport": 1280
+  },
+  "open_label": "Presentation Mode",
+  "presentation_open": {
+    "decks": 1,
+    "shown": 1,
+    "count": [
+      "1 / 5"
+    ],
+    "rect": {
+      "w": 1280,
+      "h": 860
+    }
+  },
+  "presentation_next": {
+    "decks": 1,
+    "shown": 1,
+    "count": [
+      "2 / 5"
+    ],
+    "rect": {
+      "w": 1280,
+      "h": 860
+    }
+  },
+  "after_escape": {
+    "decks": 1,
+    "shown": 0,
+    "count": [
+      "2 / 5"
+    ],
+    "rect": null
+  },
+  "page_errors": [],
+  "network_requests": [],
+  "browser": "Chromium 151.0.7922.34"
+}

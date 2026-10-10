@@ -95,6 +95,13 @@ OUTCOME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9 ,.;:'()/+%-]{0,199}\Z", re.ASCI
 # An outcome is plain prose: it may never look like a paste line or a command.
 OUTCOME_BANNED_RE = re.compile(r"(?i)approv|/implement|/goal|/update|\bpause\b")
 SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,99}\Z", re.ASCII)
+# Words, paths, and script names that may never sit above Details (v4.13.6 WN-6).
+# Allowed character sets stop sentence injection, not a mechanism term: a branch,
+# surface, or vendor name such as `predicate` passes its own pattern, so render_page
+# checks the rendered Summary and paste section and raises instead of printing it.
+PLAIN_BANNED = ("HMAC", "nonce", "predicate", "schema", "worktree prune", "headRefOid", "refs/heads")
+PLAIN_PATH_RE = re.compile(r"(?:~/|[A-Za-z]:\\|(?<![\w/])(?:[\w.-]+/)+[\w.-]+\.[A-Za-z]{1,5}\b)")
+PLAIN_SCRIPT_RE = re.compile(r"\b[\w-]+\.(?:py|sh|ps1)\b")
 
 
 class PageError(ValueError):
@@ -653,9 +660,23 @@ def _summary(page: dict, display: dict, releases: list[str], minor: bool, target
         never = f"**Never without asking you: changes to CI, permissions, or secrets, or paid API use beyond {_joined(caps)}.**"
     else:
         never = "**Never without asking you: changes to CI, permissions, or secrets, and any paid API use.**"
-    return ["**What this run will do:**", "", *(f"- {o}" for o in outcomes), "",
-            "| | Result |", "|---|---|", *(f"| {k} | {v} |" for k, v in rows), "", never, "",
+    tail = ["| | Result |", "|---|---|", *(f"| {k} | {v} |" for k, v in rows), "", never, "",
             "**Stop any time: type /implement pause**"]
+    # The plan's own outcomes are prose already held to OUTCOME_RE and OUTCOME_BANNED_RE;
+    # the rows carry the validated identifiers (branches, releases, vendors) WN-6 names.
+    _assert_plain(tail, "summary")
+    return ["**What this run will do:**", "", *(f"- {o}" for o in outcomes), "", *tail]
+
+
+def _assert_plain(lines: list[str], section: str) -> None:
+    """PageError when a section above Details names a mechanism term, a path, or a script."""
+    text = "\n".join(lines)
+    lowered = text.lower()
+    for term in PLAIN_BANNED:
+        if term.lower() in lowered:
+            raise PageError(f"the {section} would show the internal term {term!r}; move the value under Details")
+    if PLAIN_PATH_RE.search(text) or PLAIN_SCRIPT_RE.search(text):
+        raise PageError(f"the {section} would show a file path or script name")
 
 
 def _paste_section(paste: PasteSet) -> list[str]:
@@ -787,7 +808,9 @@ def render_page(data: dict) -> str:
         _details(page, display),
     ]
     out = _section(SECTIONS[0], _summary(page, display, releases, minor, target))
-    out += _section(SECTIONS[1], _paste_section(paste))
+    pasted = _paste_section(paste)
+    _assert_plain(pasted, "paste section")
+    out += _section(SECTIONS[1], pasted)
     out += [f"## {SECTIONS[2]}", ""]
     for title, body in zip(DETAIL_SECTIONS, details):
         out += _section(title, body, level=3)

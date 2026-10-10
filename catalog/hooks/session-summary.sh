@@ -14,6 +14,8 @@
 #   - Timestamp + project name + duration
 #   - One git line: `Git: <branch>, <n> changed file(s)` (v4.13.3; the
 #     harness already supplies recent commits, so the digest no longer repeats them)
+#   - One plan line from ~/.nexus-hub/scripts/plan_status.py --digest
+#     (`Plan: unavailable` when the script or Python is missing)
 #   - Files touched during the session (git diff HEAD)
 #
 # Runtime controls:
@@ -101,6 +103,21 @@ if command -v git >/dev/null 2>&1 && git rev-parse --is-inside-work-tree >/dev/n
   GIT_LINE="Git: $BRANCH, $CHANGED_COUNT changed file(s)"
 fi
 
+# One plan-state line (v4.13.3 DF-3) from the installed plan_status.py, which reads
+# the plan files /implement ticks. The first interpreter that can import sys wins,
+# so a Store alias that only opens the Store is skipped, as the .ps1 sibling does.
+PLAN_LINE="Plan: unavailable"
+PLAN_STATUS="$HOME/.nexus-hub/scripts/plan_status.py"
+if [ -f "$PLAN_STATUS" ]; then
+  for _py in python3 python; do
+    if command -v "$_py" >/dev/null 2>&1 && "$_py" -c "import sys" >/dev/null 2>&1; then
+      _plan_out=$("$_py" "$PLAN_STATUS" --digest --root "$PROJECT_ROOT" 2>/dev/null | head -1 | tr -d '\r')
+      case "$_plan_out" in Plan:*) PLAN_LINE="$_plan_out" ;; esac
+      break
+    fi
+  done
+fi
+
 # Use a temp file + atomic rename so a partial write never leaves a corrupt digest.
 TMP_DIGEST="$(mktemp "${DIGEST_DIR}/.last-session.XXXXXX" 2>/dev/null || echo "${DIGEST_PATH}.tmp.$$")"
 {
@@ -113,6 +130,10 @@ TMP_DIGEST="$(mktemp "${DIGEST_DIR}/.last-session.XXXXXX" 2>/dev/null || echo "$
   echo "## Git context"
   echo ""
   echo "$GIT_LINE"
+  echo ""
+  echo "## Plan state"
+  echo ""
+  echo "$PLAN_LINE"
   if [ -n "$CHANGED_FILES" ]; then
     echo ""
     echo "## Files touched this session"

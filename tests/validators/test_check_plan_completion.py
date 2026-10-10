@@ -98,6 +98,15 @@ def _digest(text: str) -> str:
     return hashlib.sha256(" ".join(text.split()).encode("utf-8")).hexdigest()
 
 
+# Finds its root from __file__, as the real script does, and fails on a marker file.
+VERSION_SYNC_STUB = (
+    "import sys\n"
+    "from pathlib import Path\n"
+    "root = Path(__file__).resolve().parent.parent\n"
+    "sys.exit(1 if (root / 'VERSION_DRIFT').exists() else 0)\n"
+)
+
+
 class Fixture:
     def __init__(self, tmp: Path) -> None:
         self.tmp = tmp
@@ -248,6 +257,8 @@ def _build(
     # are not also an archive run (tests/validators/test_plan_carry_and_archive.py).
     fx.write(SIBLING_REL, SIBLING_PLAN)
     fx.write("CHANGELOG.md", "# Changelog\n")
+    # Committed before start_head, so `release.version-sync` runs this blob (WN-12).
+    fx.write("scripts/check_version_sync.py", VERSION_SYNC_STUB)
     _git(fx.work, "add", "-A")
     _git(fx.work, "commit", "-q", "-m", "start")
     approvals = fx.approvals(*extra_classes)
@@ -375,7 +386,8 @@ def _no_changelog_heading(fx: Fixture) -> None:
 
 
 def _version_sync_fails(fx: Fixture) -> None:
-    fx.write("scripts/check_version_sync.py", "raise SystemExit(1)\n")
+    # The committed start_head script still checks the current tree.
+    fx.write("VERSION_DRIFT", "x\n")
 
 
 def _release_draft(fx: Fixture) -> None:
@@ -428,6 +440,49 @@ def test_each_predicate_blocks_completion(
     assert result.returncode == 1, result.stdout + result.stderr
     assert first.startswith("INCOMPLETE: ")
     assert predicate in first.split()
+
+
+def _manifest(*contexts: str) -> str:
+    return json.dumps({"branches": {"develop": {"contexts": list(contexts)}}})
+
+
+def test_working_tree_version_sync_edit_cannot_change_the_verdict(complete: Fixture) -> None:
+    # WN-12-v4132: the gate runs the start_head blob, so neither an uncommitted nor a
+    # later-committed edit to the script changes what runs at a turn end.
+    complete.write("scripts/check_version_sync.py", "raise SystemExit(1)\n")
+    assert complete.check().returncode == 0, complete.check().stdout
+    _git(complete.work, "add", "-A")
+    _git(complete.work, "commit", "-q", "-m", "edit the gate")
+    result = complete.check()
+    assert "release.version-sync met" in result.stdout, result.stdout
+
+
+def test_working_tree_manifest_edit_cannot_change_required_checks(complete: Fixture) -> None:
+    # WN-12-v4132: a working-tree manifest naming an unreported check is ignored.
+    complete.write("docs/policy/required-checks.json", _manifest("never-reported"))
+    result = complete.check()
+    assert result.returncode == 0, result.stdout
+    assert "integration.checks met" in result.stdout
+
+
+def test_required_checks_manifest_is_read_from_the_target_ref(complete: Fixture) -> None:
+    fx = complete
+    _git(fx.work, "checkout", "-q", "-b", "develop")
+    fx.write("docs/policy/required-checks.json", _manifest("never-reported"))
+    _git(fx.work, "add", "-A")
+    _git(fx.work, "commit", "-q", "-m", "manifest")
+    _git(fx.work, "push", "-q", str(fx.remote), "develop")
+    _git(fx.work, "checkout", "-q", "main")
+    _git(fx.work, "branch", "-D", "develop")
+    _git(fx.work, "fetch", "-q", "origin")
+    # The working tree (main) has no manifest; origin/develop does, and it decides.
+    assert not (fx.work / "docs" / "policy" / "required-checks.json").exists()
+    result = fx.check()
+    assert result.returncode == 1, result.stdout
+    assert "integration.checks unmet" in result.stdout
+    # A working-tree manifest that would pass cannot override the target ref.
+    fx.write("docs/policy/required-checks.json", _manifest("ci"))
+    assert "integration.checks unmet" in fx.check().stdout
 
 
 def test_task_needs_a_commit_touching_its_path(tmp_path: Path) -> None:

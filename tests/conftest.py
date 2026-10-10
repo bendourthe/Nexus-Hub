@@ -153,3 +153,88 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers", "slow: end-to-end test that runs a real installer (minutes, not seconds)"
     )
+
+
+# --------------------------------------------------------------------------- #
+# Real-home write guard (v4.13.11, BG-2-v4131). Keep in step with the copy in
+# catalog/hooks/tests/conftest.py.
+#
+# Twice a full-profile run rewrote files in the real user's ~/.nexus-hub because
+# a test ran an installer with the inherited home. This guard snapshots the
+# install targets a test must never touch, at session start and finish, and
+# fails the session when any changed. It records (size, mtime) rather than a
+# content hash on purpose: the observed leaks rewrote files with IDENTICAL bytes,
+# which a hash comparison cannot see. Scope is limited to installer-owned paths,
+# because live agent hooks legitimately write other parts of ~/.nexus-hub (for
+# example state/usage-guard and cache/) while the suite runs. The home is read
+# from the environment at import time, before any test redirects it.
+# NEXUS_REAL_HOME_GUARD=0 disables it (for a run alongside a deliberate real
+# install in another terminal).
+# --------------------------------------------------------------------------- #
+
+_GUARDED_NEXUS_PATHS = (
+    "VERSION", "MANIFEST.sha256", "install-manifest.json", "permissions-manifest.json",
+    "bin", "scripts", "hooks", "git-hooks", "style-guides", "templates",
+    "state/backups", "state/locks", "state/legacy-candidates",
+)
+_GUARDED_HOME_FILES = (
+    ".claude/CLAUDE.md", ".codex/AGENTS.md", ".gemini/GEMINI.md",
+    ".config/opencode/AGENTS.md", ".qwen/QWEN.md", ".kimi-code/AGENTS.md",
+)
+
+
+def _real_home_targets() -> list[Path]:
+    homes = {Path(v) for v in (os.environ.get("USERPROFILE"), os.environ.get("HOME")) if v}
+    nexus_homes = {h / ".nexus-hub" for h in homes}
+    if os.environ.get("NEXUS_HUB_HOME"):
+        nexus_homes.add(Path(os.environ["NEXUS_HUB_HOME"]).expanduser())
+    targets = [n / p for n in nexus_homes for p in _GUARDED_NEXUS_PATHS]
+    targets += [h / f for h in homes for f in _GUARDED_HOME_FILES]
+    return targets
+
+
+_REAL_HOME_TARGETS = _real_home_targets()
+
+
+def _snapshot_real_home() -> dict[str, tuple[int, int]]:
+    snap: dict[str, tuple[int, int]] = {}
+    for target in _REAL_HOME_TARGETS:
+        paths = [target] if target.is_file() else (p for p in target.rglob("*") if p.is_file())
+        for path in paths:
+            try:
+                st = path.stat()
+            except OSError:
+                continue
+            snap[str(path)] = (st.st_size, st.st_mtime_ns)
+    return snap
+
+
+def _real_home_guard_enabled() -> bool:
+    return os.environ.get("NEXUS_REAL_HOME_GUARD", "1") != "0"
+
+
+def pytest_sessionstart(session):
+    if _real_home_guard_enabled():
+        session.config._nexus_real_home = _snapshot_real_home()
+
+
+@pytest.hookimpl(tryfirst=True)
+def pytest_sessionfinish(session, exitstatus):
+    before = getattr(session.config, "_nexus_real_home", None)
+    if before is None:
+        return
+    after = _snapshot_real_home()
+    changed = sorted(k for k in before.keys() | after.keys() if before.get(k) != after.get(k))
+    if not changed:
+        return
+    lines = [f"REAL HOME MODIFIED: {len(changed)} install-target file(s) changed during this run "
+             "(a test wrote outside its temporary home; isolate HOME, USERPROFILE, APPDATA, "
+             "LOCALAPPDATA and NEXUS_HUB_HOME):"]
+    lines += [f"  {path}" for path in changed[:20]]
+    reporter = session.config.pluginmanager.get_plugin("terminalreporter")
+    for line in lines:
+        if reporter is not None:
+            reporter.write_line(line, red=True)
+        else:
+            print(line)
+    session.exitstatus = pytest.ExitCode.TESTS_FAILED

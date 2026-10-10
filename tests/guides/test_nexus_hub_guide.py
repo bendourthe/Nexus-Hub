@@ -495,7 +495,9 @@ def test_copy_button_has_a_bare_icon_variant(guide_text: str) -> None:
     assert ".copy-btn--bare:focus-visible" in guide_text, "focus must stay visible"
     injector = guide_text.split("function initCopyButtons()", 1)[-1]
     assert 'contains("cmd-cell")' in injector, "inline hosts get the bare variant"
-    assert 'setAttribute("aria-label", "Copy to clipboard")' in injector
+    # v4.13.11 Phase 7: each button names what it copies, so two lines on one card never share a name.
+    assert 'setAttribute("aria-label", "Copy " + (el.getAttribute("data-copy")' in injector
+    assert '"Copy to clipboard")' not in injector
 
 
 def test_pagenav_controls_hug_their_label(guide_text: str) -> None:
@@ -1437,7 +1439,7 @@ def test_every_command_documents_its_scopes(guide_text: str) -> None:
     names = sorted(p.stem for p in COMMANDS_DIR.glob("*.md"))
     for name in names:
         block = re.search(
-            r'<span[^>]*class="cs-name">/' + re.escape(name) + r"</span>[\s\S]*?</article>", cs
+            r'<h3[^>]*class="cs-name">/' + re.escape(name) + r"</h3>[\s\S]*?</article>", cs
         )
         assert block, f"/{name} has no cheatsheet entry"
         body = block.group(0)
@@ -1446,7 +1448,7 @@ def test_every_command_documents_its_scopes(guide_text: str) -> None:
         )
 
 
-_CS_CARD = re.compile(r'<span[^>]*class="cs-name">/([a-z-]+)</span>([\s\S]*?)</article>')
+_CS_CARD = re.compile(r'<h3[^>]*class="cs-name">/([a-z-]+)</h3>([\s\S]*?)</article>')
 # v4.13.11 T024 (closes v4.13.6 MT-1): every rendered scope is `<code data-ty="code">`, so the
 # old bare-`<code>` pattern matched nothing and the test compared no scope at all.
 _CS_SCOPE = re.compile(r'<div class="cs-scope"><code\b[^>]*>([^<]+)</code>')
@@ -1524,12 +1526,19 @@ def test_a_stale_rendered_scope_fails_the_comparison(
 
 
 def test_cheatsheets_scopes_are_single_column(guide_text: str) -> None:
-    """v4.2.3: reading across columns was the readability complaint."""
+    """v4.2.3: reading across columns was the readability complaint.
+
+    v4.13.11 Phase 7 keeps one scope per row but aligns the rows: the list is a two-track grid
+    (key, description) and every row spans both tracks through subgrid. Scopes never sit side
+    by side; a third track or a row that does not span the full width would bring that back.
+    """
     rule = re.search(r"\.cs-scopes \{([^}]+)\}", guide_text)
     assert rule, "expected .cs-scopes rule"
     body = rule.group(1)
-    assert "grid-template-columns" not in body, "the multi-column grid was removed"
-    assert "display: block" in body
+    tracks = re.search(r"grid-template-columns:\s*([^;]+);", body)
+    assert tracks and tracks.group(1).strip() == "fit-content(45%) minmax(0, 1fr)", body
+    row = re.search(r"\.cs-scope\{([^}]+)\}", guide_text)
+    assert row and "grid-column:1/-1" in row.group(1) and "grid-template-columns:subgrid" in row.group(1)
 
 
 def test_every_command_shows_terminal_usage(guide_text: str) -> None:

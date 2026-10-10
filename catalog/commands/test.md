@@ -4,7 +4,7 @@ description: Drive test coverage to a standardized threshold across test tiers -
 
 # /test Command
 
-Drive test coverage to a standardized threshold across test tiers. `/test` analyzes current coverage, then generates and runs tests iteratively until each tier reaches the threshold with a fully green pass-rate, then advances to the next tier. It merges three retained skills - `generate-unit-tests`, `generate-tests`, and `tdd` - behind one iterative coverage loop.
+Drive test coverage to a standardized threshold across test tiers. `/test` analyzes current coverage, then generates and runs tests iteratively until each tier reaches the threshold with a fully green pass-rate, then advances to the next tier. It drives the catalog's test skills - `unit-tests`, `integration-test-generator`, `e2e-testing-automation`, `cicd-integration`, and `test-driven-development` - behind one iterative coverage loop.
 
 This is a thin dispatcher following the contract in [`command-scope-mechanism.md`](../style-guides/command-scope-mechanism.md). The command owns the per-tier loop and the gate; the test-generation logic lives in the retained skills.
 
@@ -50,11 +50,11 @@ Report a per-tier summary (coverage before / after, tests added, pass / fail) as
 
 Dispatch the resolved scope to the retained skill(s):
 
-      unit         -> generate-unit-tests (then the per-tier loop above)
-      integration  -> generate-tests (integration-level scenarios)
-      e2e          -> generate-tests (end-to-end scenarios)
-      ci           -> generate-tests (verify CI wiring) + the project's CI config
-      tdd          -> tdd (red-green-refactor, 80% coverage gate)
+      unit         -> unit-tests (then the per-tier loop above)
+      integration  -> integration-test-generator (integration-level scenarios)
+      e2e          -> e2e-testing-automation (end-to-end scenarios)
+      ci           -> cicd-integration (verify CI wiring) + the project's CI config
+      tdd          -> test-driven-development (red-green-refactor, 80% coverage gate)
       all          -> unit -> integration -> e2e -> ci, each via the loop
 
 Generated tests must follow the repo's testing standards (AAA pattern, parametrized data-driven cases, fixtures in `conftest.py` / setup files rather than inline, no `sleep` or fixed delays). Pass any remaining arguments through unchanged.

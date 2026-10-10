@@ -6,7 +6,8 @@ Gemini CLI consumes:
   - ~/.gemini/extensions/ for extensions
   - ~/.gemini/settings.json (and project .gemini/settings.json) for native hooks
     under a `hooks` key (v3.15.8)
-  - Project .gemini/ for project-scoped overrides
+  - Project .gemini/ for project-scoped overrides, with the workspace GEMINI.md
+    at the project root
 
 This subclass mirrors catalog/commands/*.md to ~/.gemini/commands/*.toml via the
 TomlIntegration helper, while still rendering GEMINI.md from the base template.
@@ -44,6 +45,11 @@ class GeminiCliIntegration(
     config = {
         "global_dir": "~/.gemini",
         "workspace_dir": ".gemini",
+        # Workspace GEMINI.md at the project root, and no rules/ mirror (WN-5-v4133):
+        # https://geminicli.com/docs/cli/gemini-md/ (fetched 2026-09-28, re-fetched
+        # 2026-10-10) loads GEMINI.md from the workspace directories and their
+        # parents, never <project>/.gemini/GEMINI.md, and documents no rules/ dir.
+        "instruction_workspace_dir": "",
         "instruction_file": "GEMINI.md",
         "instruction_template": "templates/ai-instructions/base-gemini-cli.md",
         # Gemini CLI discovers skills one level deep at ~/.gemini/skills/<name>/
@@ -51,7 +57,6 @@ class GeminiCliIntegration(
         "skills_subdir": "skills",
         "flatten_skills_layout": True,
         "agents_subdir": "agents",
-        "rules_subdir": "rules",
         # Hooks land in settings.json via the mixin rather than as a tree copy,
         # so hooks_subdir is not set on the base class.
         "hooks_supported": True,

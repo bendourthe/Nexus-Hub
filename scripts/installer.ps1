@@ -7,9 +7,9 @@
 #                 announcement), Gemini CLI stops serving free / Google AI Pro
 #                 / Ultra / GitHub-installed users; this switch is the only way
 #                 to keep the integration after that date (requires a paid
-#                 Gemini API key). Default: the installer prints a sunset
-#                 warning and skips Gemini CLI, but still installs Antigravity
-#                 CLI (which covers the same functionality via the
+#                 Gemini API key). Default: Gemini CLI is skipped and listed
+#                 once in the grouped NOT DETECTED section; Antigravity CLI
+#                 still installs (it covers the same functionality via the
 #                 antigravity2 integration).
 #   -Help         Show usage and exit.
 [CmdletBinding()]
@@ -30,7 +30,7 @@ param(
     # configs/permissions/claude-permissions-strict.json.
     [switch]$StrictPermissions,
     # v3.16.1 -- install-selection selectors. Contract:
-    # docs/releases/v3/v3.16/development/install-selection-contract.md
+    # docs/archives/v3/v3.16/development/install-selection-contract.md
     # Absent (the default) installs the full catalog, exactly as before.
     # Bound as -Profile for lockstep with the Bash --profile flag, but stored in
     # $InstallProfile: $Profile is a PowerShell AUTOMATIC variable (the path to
@@ -121,8 +121,8 @@ Options:
                 Developers Blog announcement), Gemini CLI stops serving free /
                 Google AI Pro / Ultra / GitHub-installed users; this switch is
                 the only way to keep the integration after that date.
-                Default (without -Enterprise): the installer prints a sunset
-                warning and skips Gemini CLI but still installs Antigravity CLI.
+                Default (without -Enterprise): Gemini CLI is skipped and listed
+                under NOT DETECTED; Antigravity CLI still installs.
   -Branch <name>  Install the catalog from a pushed branch instead of the
                 current checkout. Shallow-clones the repo at <name> into a
                 deterministic cache directory (~/.nexus-hub/branches/<name>/),
@@ -2065,36 +2065,54 @@ function Install-Workspace {
         Detect-ProjectMetadata -TargetPath $targetPath -Languages $languages
 
         # --- Install Logic (provider-grouped) ---
+        # Output mirrors Install-Global (v4.13.11, AR-20): a -Provider passed to
+        # Invoke-RegistryPlatform prints its header lazily, and a platform that
+        # delivered no surface is collected into the grouped NOT DETECTED section
+        # printed once by Write-UndetectedGroup below.
+        Reset-UndetectedPlatforms
 
         # --- Anthropic -- Claude Code ------------------------------------
         if ($workspacePlatforms -contains "CLAUDE") {
             Write-Header -Provider "ANTHROPIC"
-            Write-Item -Message "Claude Code" -Color "Gray"
             $claudeDir = Join-Path $targetPath ".claude"
 
-            Flatten-SkillsInto -Source (Get-CatalogSource -RepoRoot $RepoRoot -Surface "skills")   -Destination (Join-Path $claudeDir "skills")   -CustomMessage "✓ Skills catalog installed (flattened) at: $(Join-Path $claudeDir "skills")"
-            Safe-Folder-Copy -Source (Get-CatalogSource -RepoRoot $RepoRoot -Surface "commands") -Destination (Join-Path $claudeDir "commands") -CustomMessage "✓ Commands installed at: $(Join-Path $claudeDir "commands")"
-            Safe-Folder-Copy -Source (Get-CatalogSource -RepoRoot $RepoRoot -Surface "agents")   -Destination (Join-Path $claudeDir "agents")   -CustomMessage "✓ Agents installed at: $(Join-Path $claudeDir "agents")"
-            Safe-Folder-Copy -Source "$RepoRoot\catalog\rules"    -Destination (Join-Path $claudeDir "rules")    -CustomMessage "✓ Rules installed at: $(Join-Path $claudeDir "rules")"
+            # Same treatment as the global Claude block: run every step quietly
+            # (`6>$null` silences Write-Host's information stream) and render ONE
+            # checklist from the resulting on-disk state.
+            Flatten-SkillsInto -Source (Get-CatalogSource -RepoRoot $RepoRoot -Surface "skills")   -Destination (Join-Path $claudeDir "skills")   6>$null
+            Safe-Folder-Copy -Source (Get-CatalogSource -RepoRoot $RepoRoot -Surface "commands") -Destination (Join-Path $claudeDir "commands") 6>$null
+            Safe-Folder-Copy -Source (Get-CatalogSource -RepoRoot $RepoRoot -Surface "agents")   -Destination (Join-Path $claudeDir "agents")   6>$null
+            Safe-Folder-Copy -Source "$RepoRoot\catalog\rules"    -Destination (Join-Path $claudeDir "rules")    6>$null
             # Org rules are seeded by the registry after refresh-mode catalog pruning.
-            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "claude" -DisplayName "CLAUDE.md (instruction file)" -Languages ($languages -join ',') -InstructionOnly
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "claude" -DisplayName "CLAUDE.md (instruction file)" -Languages ($languages -join ',') -InstructionOnly 6>$null
 
             $mcpConfigDestWs = Join-Path $claudeDir "mcp-configs"
             if (-not (Test-Path $mcpConfigDestWs)) { New-Item -ItemType Directory -Force -Path $mcpConfigDestWs | Out-Null }
-            Safe-Copy -Source "$RepoRoot\catalog\mcp-configs\mcp-servers.json" -Destination (Join-Path $mcpConfigDestWs "mcp-servers.json") -Confirm:$false -CustomMessage "✓ MCP server config installed at: $mcpConfigDestWs"
+            Safe-Copy -Source "$RepoRoot\catalog\mcp-configs\mcp-servers.json" -Destination (Join-Path $mcpConfigDestWs "mcp-servers.json") -Confirm:$false 6>$null
 
-            Safe-Folder-Copy -Source "$RepoRoot\catalog\context" -Destination (Join-Path $claudeDir "context") -CustomMessage "✓ Context installed at: $(Join-Path $claudeDir "context")"
-            Safe-Folder-Copy -Source "$RepoRoot\catalog\memory"  -Destination (Join-Path $claudeDir "memory")  -CustomMessage "✓ Memory installed at: $(Join-Path $claudeDir "memory")"
+            Safe-Folder-Copy -Source "$RepoRoot\catalog\context" -Destination (Join-Path $claudeDir "context") 6>$null
+            Safe-Folder-Copy -Source "$RepoRoot\catalog\memory"  -Destination (Join-Path $claudeDir "memory")  6>$null
 
-            Install-GitGuardrails    -RepoRoot $RepoRoot -TargetClaudeDir $claudeDir -Scope "Workspace"
-            Install-UsageDisplay     -RepoRoot $RepoRoot -TargetClaudeDir $claudeDir -Scope "Workspace"
-            Install-RequireDescription -RepoRoot $RepoRoot -TargetClaudeDir $claudeDir -Scope "Workspace"
+            Install-GitGuardrails    -RepoRoot $RepoRoot -TargetClaudeDir $claudeDir -Scope "Workspace" 6>$null
+            Install-UsageDisplay     -RepoRoot $RepoRoot -TargetClaudeDir $claudeDir -Scope "Workspace" 6>$null
+            Install-RequireDescription -RepoRoot $RepoRoot -TargetClaudeDir $claudeDir -Scope "Workspace" 6>$null
+
+            # Unified checklist. The workspace CLAUDE.md lands at the project
+            # root, where Claude Code reads it; there is no Core Settings row
+            # because a workspace install does not seed core settings.
+            Write-Item -Message "Claude Code" -Color "Gray"
+            if (Test-Path (Join-Path $targetPath "CLAUDE.md")) { Write-ChecklistRow -Label "Core Files" -State "ok" -Detail (Join-Path $targetPath "CLAUDE.md") }
+            if (Test-Path (Join-Path $claudeDir "skills"))    { Write-ChecklistRow -Label "Skills" -State "ok" -Detail (Join-Path $claudeDir "skills") }
+            if (Test-Path (Join-Path $claudeDir "commands"))  { Write-ChecklistRow -Label "Commands" -State "ok" -Detail (Join-Path $claudeDir "commands") }
+            if (Test-Path (Join-Path $claudeDir "agents"))    { Write-ChecklistRow -Label "Agents" -State "ok" -Detail (Join-Path $claudeDir "agents") }
+            if (Test-Path (Join-Path $claudeDir "rules"))     { Write-ChecklistRow -Label "Rules" -State "ok" -Detail (Join-Path $claudeDir "rules") }
+            if (Test-Path (Join-Path $claudeDir "settings.json")) {
+                Write-ChecklistRow -Label "Hooks" -State "ok" -Detail "git-guardrails, usage, require-description"
+            }
         }
 
         # --- OpenAI -- Codex ---------------------------------------------
         if ($workspacePlatforms -contains "CODEX") {
-            Write-Header -Provider "OPENAI"
-            Write-Item -Message "Codex" -Color "Gray"
             $codexDir = Join-Path $targetPath ".codex"
             if (-not (Test-Path $codexDir)) { New-Item -ItemType Directory -Force -Path $codexDir | Out-Null }
 
@@ -2103,16 +2121,20 @@ function Install-Workspace {
             # .agents/skills (flattened + command skills), and a repo-root AGENTS.md.
             # The [features] hooks switch is user-global, so a workspace install
             # advises rather than editing ~/.codex/config.toml.
-            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "codex" -DisplayName "Codex (AGENTS.md + skills + commands + agents + hooks)" -Languages ($languages -join ',')
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "codex" -DisplayName "Codex (AGENTS.md + skills + commands + agents + hooks)" -Languages ($languages -join ',') -Provider "OPENAI"
         }
 
         # --- Google -- Gemini / Antigravity 1.0 + 2.0 / Gemini CLI ------
+        # As in Install-Global, the shared GOOGLE header prints eagerly only for a
+        # platform that always renders; Gemini CLI passes -Provider, so it prints
+        # the header lazily or joins the NOT DETECTED group.
         $googleWsHas = ($workspacePlatforms -contains "GEMINI") -or ($workspacePlatforms -contains "ANTIGRAVITY2") -or ($workspacePlatforms -contains "GEMINI_CLI")
         if ($googleWsHas) {
-            Write-Header -Provider "GOOGLE"
+            if (($workspacePlatforms -contains "GEMINI") -or ($workspacePlatforms -contains "ANTIGRAVITY2")) {
+                Write-Header -Provider "GOOGLE"
+            }
 
             if ($workspacePlatforms -contains "GEMINI") {
-                Write-Item -Message "Gemini IDE" -Color "Gray"
                 $geminiDir = Join-Path $targetPath ".gemini"
                 if (-not (Test-Path $geminiDir)) { New-Item -ItemType Directory -Force -Path $geminiDir | Out-Null }
 
@@ -2133,47 +2155,42 @@ function Install-Workspace {
                 if ($Enterprise) {
                     # Project .gemini/ surfaces plus hooks in .gemini/settings.json;
                     # commands resolve via $env:GEMINI_PROJECT_DIR on Windows.
-                    Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "gemini-cli" -DisplayName "Gemini CLI (enterprise)"
+                    Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "gemini-cli" -DisplayName "Gemini CLI (enterprise)" -Provider "GOOGLE"
                 }
                 else {
-                    Write-Item -Message "Gemini CLI: skipped (sunset on 2026-06-18 for free / Google AI Pro / Ultra / GitHub-installed users). Re-run with -Enterprise to install (requires paid Gemini API key); Antigravity CLI above covers the same functionality." -Color "Yellow"
+                    Add-UndetectedPlatform -Name "Gemini CLI" -Reason "enterprise-only; re-run with -Enterprise"
                 }
             }
         }
 
         # --- Microsoft -- GitHub Copilot --------------------------------
         if ($workspacePlatforms -contains "COPILOT") {
-            Write-Header -Provider "MICROSOFT"
             # Render .github/copilot-instructions.md via the registry so it carries the
             # {{SKILL_INDEX}} block (from base-codex.md) and is marker-merged, preserving
             # user content above and below the managed block. Fixes C6: the prior
             # hand-built body dropped the skill index and full-overwrote the file
             # (v3.11.0 Phase 7 read-contract audit).
-            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "copilot" -DisplayName "GitHub Copilot (.github/copilot-instructions.md)" -Languages ($languages -join ',')
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "copilot" -DisplayName "GitHub Copilot (.github/copilot-instructions.md)" -Languages ($languages -join ',') -Provider "MICROSOFT"
         }
 
         # --- Anysphere -- Cursor ----------------------------------------
         if ($workspacePlatforms -contains "CURSOR") {
-            Write-Header -Provider "ANYSPHERE"
-            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "cursor" -DisplayName "Cursor"
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "cursor" -DisplayName "Cursor" -Provider "ANYSPHERE"
         }
 
         # --- OpenCode ---------------------------------------------------
         if ($workspacePlatforms -contains "OPENCODE") {
-            Write-Header -Provider "OPENCODE"
-            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "opencode" -DisplayName "OpenCode"
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "opencode" -DisplayName "OpenCode" -Provider "OPENCODE"
         }
 
         # --- Aider ------------------------------------------------------
         if ($workspacePlatforms -contains "AIDER") {
-            Write-Header -Provider "AIDER"
-            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "aider" -DisplayName "Aider (CONVENTIONS.md)" -Languages ($languages -join ',')
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "aider" -DisplayName "Aider (CONVENTIONS.md)" -Languages ($languages -join ',') -Provider "AIDER"
         }
 
         # --- Windsurf ---------------------------------------------------
         if ($workspacePlatforms -contains "WINDSURF") {
-            Write-Header -Provider "WINDSURF"
-            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "windsurf" -DisplayName "Windsurf (.windsurfrules)" -Languages ($languages -join ',')
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "windsurf" -DisplayName "Windsurf (.windsurfrules)" -Languages ($languages -join ',') -Provider "WINDSURF"
         }
 
         # --- Kimi -------------------------------------------------------
@@ -2181,29 +2198,29 @@ function Install-Workspace {
         # workspace scope: Kimi's project config is local.toml and documents only
         # a [workspace] table, so there is no project hook path to write.
         if ($workspacePlatforms -contains "KIMI") {
-            Write-Header -Provider "KIMI"
-            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "kimi" -DisplayName "Kimi Code CLI (.kimi-code/)" -Languages ($languages -join ',')
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "kimi" -DisplayName "Kimi Code CLI (.kimi-code/)" -Languages ($languages -join ',') -Provider "KIMI"
         }
 
         # --- Qwen -------------------------------------------------------
         # Project QWEN.md + .qwen/ surfaces plus hooks in .qwen/settings.json,
         # resolved via $env:QWEN_PROJECT_DIR on Windows (v3.15.8 Phase 6).
         if ($workspacePlatforms -contains "QWEN") {
-            Write-Header -Provider "QWEN"
-            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "qwen" -DisplayName "Qwen Code (QWEN.md)" -Languages ($languages -join ',')
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "qwen" -DisplayName "Qwen Code (QWEN.md)" -Languages ($languages -join ',') -Provider "QWEN"
         }
 
         # --- OpenClaw ---------------------------------------------------
         if ($workspacePlatforms -contains "OPENCLAW") {
-            Write-Header -Provider "OPENCLAW"
-            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "openclaw" -DisplayName "OpenClaw (.openclaw/ SOUL+AGENTS+IDENTITY)" -Languages ($languages -join ',')
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "openclaw" -DisplayName "OpenClaw (.openclaw/ SOUL+AGENTS+IDENTITY)" -Languages ($languages -join ',') -Provider "OPENCLAW"
         }
 
         # --- Nexus -- Nexus-AI ------------------------------------------
         if ($workspacePlatforms -contains "NEXUS_AI") {
-            Write-Header -Provider "NEXUS"
-            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "nexus-ai" -DisplayName "Nexus-AI (Local Desktop Studio)"
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "nexus-ai" -DisplayName "Nexus-AI (Local Desktop Studio)" -Provider "NEXUS"
         }
+
+        # Platforms that delivered no surface at this scope (or Gemini CLI without
+        # -Enterprise) were collected above; print them once, as Install-Global does.
+        Write-UndetectedGroup
 
         # --- Auto-Approve Permissions sub-section ---
         # v3.17.0 Phase 1.2: previously absent entirely, so a -Workspace install
@@ -2245,7 +2262,7 @@ function Resolve-PythonExecutable {
 # Install selection (v3.16.1 Phase 6.2) -- lockstep with the Bash implementation
 # in scripts/installer.sh.
 #
-# Contract: docs/releases/v3/v3.16/development/install-selection-contract.md
+# Contract: docs/archives/v3/v3.16/development/install-selection-contract.md
 #
 # Resolution delegates to scripts/lib/installer/selection.py rather than being
 # reimplemented in PowerShell, matching the Bash decision and for the same
@@ -4015,6 +4032,14 @@ $script:SelectedPlatforms = Resolve-Platforms -PlatformsArg $Platforms
 # Deliberately beside the -Platforms validation above and BEFORE any write: an
 # invalid selector must never leave a half-installed tree. A run with no
 # selector returns immediately and takes the identical path it always did.
+#
+# Everything from here to Remove-SelectionStage runs inside one try/finally
+# (the body is deliberately left at script indentation). The finally block is
+# the PowerShell equivalent of Bash's `trap cleanup_selection_stage EXIT`: an
+# `exit` anywhere after the stage exists (the "Workspace path not found" check,
+# the attribution-setup failures, or an exit inside a called function) still
+# runs it, so an aborted focused install no longer leaks its stage into %TEMP%.
+try {
 Resolve-Selection -RepoRoot $repoRoot
 if ($script:SelectionActive) {
     Write-Host ""
@@ -4158,23 +4183,18 @@ Write-Host "✓ Nexus-Hub v$script:NexusHubVersion installed ($scopeLabel scope)
 Write-Host ""
 Write-Host "Restart any running AI assistant sessions (Claude Code, Cursor, Gemini CLI, Codex, Copilot, OpenCode) so they pick up the new settings, hooks, skills, and rules." -ForegroundColor Yellow
 
-# v3.16.1: remove the filtered-selection staging tree. Bash does this with
-# `trap cleanup_selection_stage EXIT`; PowerShell has no script-scope equivalent,
-# so it is called on the normal completion path. Without it the stage leaked a
-# full copy of the selected skills into %TEMP% on every focused install.
-#
-# A `Register-EngineEvent PowerShell.Exiting` handler was considered to cover the
-# early-`exit` paths and deliberately NOT shipped: engine-event actions run in a
-# separate scope where the `$script:`-scoped stage path is not reliably visible,
-# and an unverifiable cleanup is worse than a documented gap.
-#
-# The residual is real but bounded, and measured rather than assumed: an `exit`
-# that happens AFTER Resolve-Selection leaves one stage behind. The workspace
-# validation ("Workspace path not found") is one such path, observed leaking a
-# stage during v3.16.1 testing. The stage lives under %TEMP%, which the OS
-# reclaims, and the normal completion path below cleans up (verified: stage
-# count unchanged across a successful focused install).
-Remove-SelectionStage
+}
+finally {
+    # v3.16.1: remove the filtered-selection staging tree; v4.13.11 (AR-10) moved
+    # it into this finally block so every exit path runs it, not only normal
+    # completion. Without it the stage leaked a full copy of the selected skills
+    # into %TEMP%. A `Register-EngineEvent PowerShell.Exiting` handler was
+    # rejected earlier because engine-event actions run in a separate scope where
+    # the `$script:` stage path is not reliably visible; a finally block runs in
+    # this scope, and Windows PowerShell 5.1 runs it on `exit` (proven by
+    # tests/installer/test_installer_stage_cleanup.py).
+    Remove-SelectionStage
+}
 
 Show-FarewellBanner
 # Pause is itself a prompt -- skip it on the non-interactive / -Yes / -Force /

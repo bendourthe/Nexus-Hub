@@ -3,7 +3,7 @@
 **Project**: Nexus-Hub
 **Status**: released; PR #230 merged the complete 34-task plan and tag `v4.13.0` was published on 2026-09-21. Two bounded warning-class findings remain owned for future measurement work. GitHub branch protection passed a live pull-request gate test; the second trigger pilot stopped on an unproven spend bound.
 **Last updated**: 2026-10-10
-**Open items**: 125
+**Open items**: 96
 **Accounting, 2026-10-09 (v4.13.11 T006-T007)**: The Open items header is derived from current parsed state, including canonical historical owners. Patch Summary tables preserve their release-time snapshots; they do not replace the current header count. Original patch/ID identities remain in the source bodies and the reconciliation manifest.
 
 Release-scoped gaps for the evidence-driven agent improvement plan. Planned future-phase work is tracked in the plan rather than reported as completed here.
@@ -17,7 +17,7 @@ Release-scoped gaps for the evidence-driven agent improvement plan. Planned futu
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 1 |
 | Bugs / regressions (BG) | 1 | 6 |
-| Warnings (WN) | 3 | 4 |
+| Warnings (WN) | 2 | 4 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 4 |
 
@@ -288,7 +288,9 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 - **Historical transfer note**: v3.16.2#BG-2 on 2026-09-29 (reason: still open; verified by reading the hook on 2026-09-29).
 - **Resolution** (v4.13.6 Phase 8): root cause was the `else exit 0` branch taken whenever `jq` was missing. The hook now reads the payload with jq, falls back to Python 3 (the same fallback `old-version-docs-guard.sh` uses), and fails closed (exit 2, "cannot be scanned") with neither; a malformed payload is still allowed on every path, as in the `.ps1`. The new parity suite also exposed an older defect on every host: the four private-key patterns start with `-----`, so `grep -qE "$PATTERN"` read them as options and never matched; the hook now passes `-e`. Tests: `catalog/hooks/tests/test_secret_scan.py` (each case parametrized over `sh-jq`, `sh-python` with a PATH that holds no jq, and `ps1`: `test_a_secret_is_blocked`, `test_a_secret_in_an_edit_new_string_is_blocked`, `test_clean_content_is_allowed`, `test_a_payload_without_content_is_allowed`, `test_the_report_names_the_category_not_the_secret`, plus `test_the_sh_fails_closed_with_neither_jq_nor_python`) and `test_hook_sibling_parity.py::test_secret_scan_blocks_a_real_secret`, which previously asserted the fail-open exit 0.
 
-### AR-03: The presentify repository walk has no secret redaction
+### AR-03: The presentify repository walk has no secret redaction - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 7 T028)**: Presentify directory walks now redact secret-shaped values before they reach the generated site (PEM private-key blocks, AWS, GitHub, Slack, `sk-`, Google, Stripe, JWT and credential assignments), each replaced by `[REDACTED:<category>]` from a fixed list; only per-category counts are reported, never values, and the runbook documents the detectors and limits. `tests/skills/test_presentify_secret_redaction.py` passes 13 and fails 11 against the previous extractor. See [Phase 7 verification](development/v4.13.11-phase-7-evidence.md).
 
 - **Current state**: the extractor copies repository text into the generated site; the extraction runbook only warns about secrets.
 - **Owner and next step**: presentify owner; route repository-walk text through `egress-redaction` rules before it reaches the output.
@@ -327,7 +329,9 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 **Resolution, 2026-10-09 (v4.13.11 T006)**: AR-01 already records the repaired init forwarding and optional monorepo target. Fresh `python -m pytest -q tests/installer/test_init_cli.py::test_the_real_runner_seeds_a_monorepo_subdirectory_through_the_cli` passed 1 test in 5.42 seconds, exit 0. That real installed-home CLI subprocess invokes the actual runner with `--target <temporary>/monorepo/packages/app` and verifies the target Cursor rule exists; the optional path obligation is satisfied. The full source remains below its heading and in AR-01 historical evidence.
 
-### AR-05: Hermes is registered but not wired into either installer
+### AR-05: Hermes is registered but not wired into either installer - CLOSED
+
+**Closure, 2026-10-10 (v4.13.11 Phase 7 T028, maintainer decision)**: The maintainer approved keeping Hermes registry-only, recorded in [the decision record](../../../decisions/implemented/policy/2026-10-10-hermes-stays-registry-only.md): it installs on explicit request through `python scripts/lib/integrations/runner.py install --integrations hermes` (confirmed listed by `runner.py list`), and neither installer installs it by default. Reopening trigger: demand for a default install, which must add detection, contract checks and smoke tests together. Origins v3.15.2 DF-2, v3.16.0 NI-6 and v3.17.0 DF-4 are closed.
 
 - **Current state**: registered in `scripts/lib/integrations/__init__.py`; zero references in `scripts/installer.sh` and `scripts/installer.ps1`.
 - **Owner and next step**: installer maintainer; wire both installer arms and their smoke tests in one change, or record Hermes as registry-only by decision.
@@ -372,7 +376,9 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-05`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.16.0`, section `v3.16.0 - platform-defaults-config`, and original ID `NI-6`.
 
-### AR-10: A PowerShell early-exit path leaks the selection staging directory
+### AR-10: A PowerShell early-exit path leaks the selection staging directory - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 7 T028, approved installer edit)**: `installer.ps1` wraps everything from `Resolve-Selection` to `Remove-SelectionStage` in one try/finally, which Windows PowerShell 5.1 runs on `exit` (unlike the rejected engine-event handler); `installer.sh` registers its EXIT trap before staging. `tests/installer/test_installer_stage_cleanup.py` runs both real installers with a selection and a missing workspace under an isolated home and TEMP: the previous PowerShell installer leaked a `nexus-selection-*` stage, the fix leaks none. See [Phase 7 verification](development/v4.13.11-phase-7-evidence.md).
 
 - **Current state**: documented as a residual in `scripts/installer.ps1`.
 - **Owner and next step**: installer maintainer; wrap the post-`Resolve-Selection` flow in try/finally.
@@ -392,7 +398,9 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-10`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.16.1`, section `v3.16.1 - evals-and-selective-installation`, and original ID `NI-6`.
 
-### AR-11: Antigravity skill seeding can exceed the Windows path limit in a deep repository
+### AR-11: Antigravity skill seeding can exceed the Windows path limit in a deep repository - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 7 T028)**: `base.long_path()` applies the Windows extended-length prefix in the integration copy helpers; manifests keep plain paths. Evidence: `tests/integrations/test_windows_long_paths.py`, 4 passed on Windows 11 with LongPathsEnabled=0, red with WinError 3/206 before the fix. See [Phase 7 verification](development/v4.13.11-phase-7-evidence.md).
 
 - **Current state**: `scripts/lib/integrations/base.py` copies skill trees with plain `shutil.copytree`. The same limit broke a plain Python move of the v4.9 benchmark evidence during this archive pass.
 - **Owner and next step**: installer maintainer; use extended-length paths on Windows or shorten the deepest bundled paths.
@@ -411,7 +419,9 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-11`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.11.0`, section `v3.11.0`, and original ID `WN-2`.
 
-### AR-20: Workspace-scope install output is not grouped like the global install
+### AR-20: Workspace-scope install output is not grouped like the global install - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 7 T028, approved installer edit)**: Both workspace installers now group undetected platforms like the global install, pass a provider to each registry call, and render the Claude block as the global checklist. `tests/installer/test_workspace_install_output.py` runs a real isolated workspace install in both shells: red on the previous installers, green now. See [Phase 7 verification](development/v4.13.11-phase-7-evidence.md).
 
 - **Current state**: `install_workspace` and `Install-Workspace` never call the undetected-platform grouping and still print the verbose Claude block.
 - **Owner and next step**: installer maintainer; apply the global checklist and grouping to the workspace path in both installers.
@@ -432,7 +442,9 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-20`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.14.5`, section `v3.14.5`, and original ID `DF-1`.
 
-### AR-21: `nexus-hub verify` does not cover `extensions/`
+### AR-21: `nexus-hub verify` does not cover `extensions/` - CLOSED
+
+**Closure, 2026-10-10 (v4.13.11 Phase 7 T028, maintainer decision)**: The maintainer approved keeping `extensions/` out of the install-verify manifest, recorded in [the decision record](../../../decisions/implemented/tooling/2026-10-10-verify-manifest-excludes-extensions.md): the MCP servers are pip-installed, so repository source hashes cannot describe the installed packages, and pip verifies their integrity. Reopening trigger: any `extensions/` file copied verbatim into an installed tree. Origin v3.10 DF-v310-ruflo-P4-extensions is closed.
 
 - **Current state**: `scripts/generate_manifest.py` `COVERED_ROOTS` is still `catalog`, `templates`, `scripts`, `data`.
 - **Owner and next step**: installer maintainer; extend the manifest to the distributed MCP-server sources or record the exclusion by decision.
@@ -562,7 +574,9 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-26`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.9`, section `Open Items`, and original ID `WN-v37-1`.
 
-### AR-30: `configs/` is not distributed to installed trees
+### AR-30: `configs/` is not distributed to installed trees - CLOSED
+
+**Closure, 2026-10-10 (v4.13.11 Phase 7 T028, maintainer decision)**: The maintainer approved keeping `configs/` maintainer-only, recorded in [the decision record](../../../decisions/implemented/tooling/2026-10-10-configs-stay-maintainer-only.md): installs receive its effect through derived artifacts and seeding, and `sync_platform_defaults.py --check` keeps the offline fallback equal to the source. Reopening trigger: an installed component needs a value that is neither derived nor covered by the checked fallback. Origin v3.16.0 NI-1 is closed.
 
 - **Current state**: `scripts/lib/integrations/platform_defaults.py` falls back when the source file is absent; AGENTS.md calls the file repo-internal but no decision closes this item.
 - **Owner and next step**: maintainer; record "maintainer surface only" by decision, or add a copy step to both installers.
@@ -708,6 +722,8 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 ### AR-36: Unverified platform read-path residuals
 
+**Local clause qualification, 2026-10-10 (v4.13.11 T028)**: `platform-read-contracts.md` carries a dated Antigravity legacy-workflow retirement clause; a re-fetch of the vendor migration guide on 2026-10-10 gives October 19, 2026, earlier than the November 1 date in the archived recheck, and `check_platform_contract_freshness.py` passes. Residuals: authenticated Antigravity CLI, Cursor UI, Gemini Code Assist and Nexus-AI read-backs (user-credential), and whether the `antigravity2` adapter stops writing the retired workflow paths after October 19 (user-deferred maintainer decision).
+
 - **Current state**: Antigravity CLI agent/workflow directories, Cursor global commands, and the Gemini Code Assist skill directory are still residuals in `docs/policy/platform-read-contracts.md`. The Antigravity part is also tracked as v4.3 WN-3 and v4.12 DF-1 above.
 - **Owner and next step**: platform-contract owner; resolve at the next authenticated read-back.
 - **Historical transfer note**: v3.11#DF-1 (D5, D7), v3.12.1#DF-v3121-agy-cli-workflows, and v3.12.1#DF-v3121-gemini-ide-skill-dir on 2026-09-29 (reason: still open).
@@ -801,7 +817,9 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-38`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.20.3`, section `v3.20.3`, and original ID `DF-1`.
 
-### AR-45: Completion notification is undelivered or unverified on Qwen, Gemini CLI, and Kimi
+### AR-45: Completion notification is undelivered or unverified on Qwen, Gemini CLI, and Kimi - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 7 T028)**: `build_settings_hooks` and `build_kimi_hooks` now ship the sourced `_notify_common` helper beside `notify-on-complete` on Qwen, Gemini CLI and Kimi (a live defect: the hook installed but could not run). A first-party fetch of the Kimi hooks page on 2026-10-10 listed 20 events; Kimi `Notification` means a background-task change, so the attention chain is aliased to `PermissionRequest`. The contract now marks trigger B delivered on Qwen `Stop`, Gemini CLI `AfterAgent`, and both triggers on Kimi. Evidence: `tests/integrations/test_notify_helper_delivery.py` (10 tests, all red on the previous code, running the installed hook) and `test_notify_contract_guard.py` (3, red against the previous contract). See [Phase 7 verification](development/v4.13.11-phase-7-evidence.md).
 
 - **Current state**: `docs/policy/platform-read-contracts.json` records Qwen and Gemini as expressible but undelivered and does not list Kimi's events. The shared Stop-hook registration may reach those platforms without `_notify_common` shipping there.
 - **Owner and next step**: installer/platform maintainer; deliver or explicitly exclude trigger B, confirm the shared module ships, and enumerate Kimi's events.
@@ -852,13 +870,17 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-47`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.0`, section `v3.15.0 - platform-parity-all-gaps`, and original ID `DF-1`.
 
-### AR-51: OpenCode writes a `rules` folder the read contract does not record
+### AR-51: OpenCode writes a `rules` folder the read contract does not record - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 7 T028)**: The OpenCode `rules_subdir` write is removed: the official rules page (fetched 2026-10-10) reads only AGENTS.md/CLAUDE.md and the `instructions` array. Organization rules are therefore no longer projected under OpenCode, which reads them through the instruction block. Evidence: `test_opencode_writes_no_unread_rules_dir[workspace|global]` (red before) and `test_opencode_gets_no_org_rules_tree`; the contract verifier passes. See [Phase 7 verification](development/v4.13.11-phase-7-evidence.md).
 
 - **Current state**: `scripts/lib/integrations/opencode.py` sets `rules_subdir`.
 - **Owner and next step**: platform-contract owner; review against the OpenCode rules documentation and keep or drop.
 - **Historical transfer note**: v3.15.0 (OpenCode `rules_subdir` residual) on 2026-09-29 (reason: still open).
 
-### AR-54: The strict Claude permissions overlay has no `defaultMode` decision
+### AR-54: The strict Claude permissions overlay has no `defaultMode` decision - CLOSED
+
+**Closure, 2026-10-10 (v4.13.11 Phase 7 T028, maintainer decision)**: The maintainer approved permanently omitting `defaultMode` from the strict overlay, recorded in [the decision record](../../../decisions/implemented/policy/2026-10-10-strict-overlay-omits-defaultmode.md); `test_overlay_omits_defaultmode` keeps enforcing it and its docstring now cites the decision. Reopening trigger: an overlay purpose that requires a specific permission mode. Origin v3.15.6 DF-3 is closed.
 
 - **Current state**: `configs/permissions/claude-permissions-strict.json` omits `defaultMode`, pending enum verification that was never closed.
 - **Owner and next step**: permissions owner; decide, then add or document the omission with a test.
@@ -953,6 +975,8 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 ### Catalog, validators, and tests
 
 ### AR-04: The skill-description eval harness builds CLI flags that do not exist
+
+**Local clause qualification, 2026-10-10 (v4.13.11 T028)**: The description optimizer now builds only flags the installed CLIs accept (Claude Code 2.1.283, codex-cli 0.136.0), staging the skill in a throwaway project and reusing the trigger pilot's invocation; `tests/validators/test_eval_harness_cli_flags.py` checks every emitted flag against captured help fixtures offline and fails on the previous builder, which emitted `--skill` and `--prompt`. Residual (user-credential): the live trigger and technique checks need paid model calls under a bounded spend cap, blocked with BG-7.
 
 - **Current state**: `scripts/optimize_skill_description.py` still adds `--skill` and `--prompt` (verified 2026-09-29), so live trigger runs and technique checks cannot run through it. `scripts/run_trigger_pilot.py` has a working `stream-json` path.
 - **Owner and next step**: eval-pipeline owner; port the pilot's invocation, then run the recorded live checks.
@@ -1333,6 +1357,8 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 ### AR-15: v3.11 spec-kit items S5, S6, and S8 carry no status claim
 
+**Local clause qualification, 2026-10-10 (v4.13.11 T028)**: Per-item verdicts are recorded in the archived v3.11.0 spec-kit comparison: S5 delivered (`label-gated-agent-pipelines`), S6 delivered (`agent-presets`, `loop-engineering`, `agent-orchestration-primitives`), S8 delivered for `nexus-hub init --target` via AR-01 (the suggested install-docs monorepo note was not shipped). Residual (user-deferred): the upstream repository-delta re-check needs a fresh comparison against the upstream project.
+
 - **Current state**: no later record states their status; S8's functional half is AR-01.
 - **Owner and next step**: next spec-kit delta pass; re-verify and record.
 - **Historical transfer note**: v3.16#TR-2 on 2026-09-29 (reason: still open).
@@ -1568,6 +1594,8 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 ### AR-18: Presentify builder and extractor limits
 
+**Local clause qualification, 2026-10-10 (v4.13.11 T028)**: The baseline builder gained opt-in base64 brand-font embedding (from the brand `assets_dir`, no network font reference, paths outside it refused) and gallery grouping for runs of comparable sub-hero images, with fixture tests in `tests/skills/test_presentify_brand_fonts_and_gallery.py`; the retained handbooks' rendered content is unchanged and both were re-attested. Residual (user-deferred): the remaining extractor limits.
+
 - **Current state**: approximate PDF text/figure interleaving, duplicated caption text, geometry-only OCR tables, best-effort `.gitignore` matching, a minimal Markdown parser, no video/audio embedding, no brand web-font embedding, no Coverr/Mixkit fetch, no image gallery grouping, null PDF raster `page_fraction` on bbox mismatch, and overlay-annotation over-capture. Most are recorded as limits in `extraction-runbook.md`.
 - **Owner and next step**: presentify owner; accept each explicitly by decision or schedule the ones with user value (font embedding, gallery grouping).
 - **Historical transfer note**: v3.9#DF-v39-presentify-4, v3.9#DF-v39-presentify-5, v3.12#DF-1 to DF-5, v3.13#DF-1, DF-2, DF-4, DF-5, DF-6, and v3.15.4#DF-1, DF-2, DF-3 on 2026-09-29 (reason: still open; duplicates merged).
@@ -1758,6 +1786,8 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 ### AR-19: Presentify verification residuals
 
+**Local clause qualification, 2026-10-10 (v4.13.11 T028)**: `visual_qa_score.py` adds `content-intent` and `standalone-phrasing` findings and a `contrast-runtime-accent` check for `data-*accent*` values, with fixture tests in `tests/skills/test_presentify_content_intent_and_accent.py` (red before); the render job's sample smoke still exits 0. Residual (user-deferred): WN-1, MT-2, v4.9 MT-3, agent-vision grading and NI-3.
+
 - **Current state**: no rendered QA of the v3.13 samples is recorded; no live or scheduled media-fetch smoke; a sample-deck scorer smoke in the render job is unconfirmed; the scorer cannot see runtime-injected palettes; Gates A, B, and E and the composition probes have no checker or helper.
 - **Owner and next step**: presentify owner; add the smoke to the render job and accept or build each checker.
 - **Historical transfer note**: v3.13#WN-1, v3.13#MT-2, v3.15.4#MT-3, v3.16.5#WN-2, v3.16.7#NI-2, and v3.16.7#NI-3 on 2026-09-29 (reason: still open).
@@ -1875,7 +1905,9 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 ### Extensions
 
-### AR-24: nexus-context-compressor deferred refinements
+### AR-24: nexus-context-compressor deferred refinements - CLOSED
+
+**Closure, 2026-10-10 (v4.13.11 Phase 7 T028, maintainer decision)**: The maintainer approved closing the remaining compressor refinements as demand-driven: near-duplicate detection, the auto-sized budget, error preservation, automatic store cleanup (`prune` has no runtime caller), the optional passes and the `[ml]` CI lane are each added only when a real fixture or benchmark shows the need; the handler-count clause was already retired in Phase 4. Reopening trigger: a real-session fixture or benchmark where one of these would change the measured ratio or accuracy, or a store that grows without bound in practice. The `smart_crusher.py` and `ccr/store.py` docstrings remain accurate descriptions of the deferred items. All listed origins are closed.
 
 **Clause disposition, 2026-10-10 (v4.13.11 Phase 4 T019, maintainer decision)**: The handler-count clause (origin v3.19.2 DF-3, "a short reformatter handler list") is retired with maintainer approval, as its own source advised: handlers are added only when a real-session fixture misses the 60% token-reduction bar, and parity with roughly 60 command handlers is not a goal. Reopening trigger: such a fixture. AR-24 stays open for its other clauses.
 
@@ -2182,7 +2214,9 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-24`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.19.2`, section `v3.19.2`, and original ID `DF-3`.
 
-### AR-25: Skill-scanner coverage limits
+### AR-25: Skill-scanner coverage limits - CLOSED
+
+**Closure, 2026-10-10 (v4.13.11 Phase 7 T028, maintainer decision)**: Accepted as a documented limit with maintainer approval: the scanner keeps its current pattern classes, module-level taint tracking, 12 starter rules and 5 offline advisories, and the sets grow per release when a missed finding is recorded. Reopening trigger: a malicious or vulnerable skill pattern that the scanner misses in practice.
 
 - **Current state**: a thin pattern set per class, module-level taint tracking, and 12 starter `.yar` rules with 5 offline OSV advisories.
 - **Owner and next step**: scanner owner; expand or accept as a documented limit.
@@ -2256,7 +2290,9 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-25`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.0`, section `Open Items`, and original ID `DF-v30-3`.
 
-### AR-27: Code-search covers 12 languages
+### AR-27: Code-search covers 12 languages - CLOSED
+
+**Closure, 2026-10-10 (v4.13.11 Phase 7 T028, maintainer decision)**: Closed as demand-driven with maintainer approval: the 12 extractors (C, C++, C#, Go, Java, Kotlin, PHP, Python, Ruby, Rust, Swift, TypeScript) stay, and a language is added when a user requests it. Reopening trigger: a request for a specific language.
 
 - **Current state**: `extensions/nexus-code-search` still has 12 extractors.
 - **Owner and next step**: code-search owner; add languages on demand.
@@ -2287,6 +2323,8 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-27`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.0`, section `Open Items`, and original ID `DF-v30-5`.
 
 ### AR-32: Usage-monitor extension test coverage
+
+**Local clause qualification, 2026-10-10 (v4.13.11 T028)**: `extensions/claude-usage-monitor/test/recommendations.test.ts` adds 28 pure Vitest cases for the urgency and recommendation helpers (86 of 86 extension tests pass; four source mutants each fail the file). Residuals (user-deferred): the coverage threshold for the legacy modules, the modules that need a live VS Code extension host, and the original Codex icon artwork.
 
 - **Current state**: Claude `recommendations.ts`, `warningView`, and `extension.ts` lack tests; `claude-usage-monitor` has no coverage threshold while the Codex and Cursor monitors do; no live render check of the theme icon; the Codex `icon.png` is still the reconstructed 512x512 asset.
 - **Owner and next step**: extensions owner; add the tests and threshold, reuse the installed-VSIX method that closed v4.10 MT-2, and swap or accept the icon.
@@ -2389,7 +2427,9 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-44`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.9`, section `v3.15.9 - cross-provider-routing-and-cursor-usage-monitor`, and original ID `QG-5`.
 
-### AR-49: `@vscode/vsce` transitive deprecation warnings
+### AR-49: `@vscode/vsce` transitive deprecation warnings - CLOSED
+
+**Closure, 2026-10-10 (v4.13.11 Phase 7 T028, maintainer decision)**: Accepted as upstream-bounded with maintainer approval: the deprecation warnings come from transitive dependencies of `@vscode/vsce` (`whatwg-encoding`, `prebuild-install`), `npm audit` is clean, and only an upstream vsce release can remove them; Dependabot already tracks all four monitors. Reopening trigger: a vsce release that drops them, or an audit finding in those packages.
 
 - **Current state**: still present in all three extension lockfiles; `npm audit` is clean.
 - **Owner and next step**: extensions owner; re-check at the next toolchain bump or accept as upstream-bounded.
@@ -2410,7 +2450,9 @@ No new Phase 4 implementation, regression, missing-test, or quality-gate gap rem
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-49`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.9`, section `v3.15.9 - cross-provider-routing-and-cursor-usage-monitor`, and original ID `WN-4`.
 
-### AR-52: contextmap detectors deferred
+### AR-52: contextmap detectors deferred - CLOSED
+
+**Closure, 2026-10-10 (v4.13.11 Phase 7 T028, maintainer decision)**: Closed as demand-driven with maintainer approval: TypeORM, Drizzle, ActiveRecord, GORM, Vue and Svelte detectors remain listed as deferred in `contextmap/schema.py` and are each added with a fixture when requested. Reopening trigger: a request for one of these frameworks.
 
 - **Current state**: TypeORM, Drizzle, ActiveRecord, GORM, Vue, and Svelte are still listed as deferred.
 - **Owner and next step**: code-search owner; one detector plus fixture per target, on demand.
@@ -2435,7 +2477,9 @@ No new Phase 4 implementation, regression, missing-test, or quality-gate gap rem
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-52`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.1`, section `v3.15.1 - adoption-codesight`, and original ID `DF-3`.
 
-### AR-58: The installers still cite the pre-archive path of the install-selection contract
+### AR-58: The installers still cite the pre-archive path of the install-selection contract - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 7 T028)**: The three installer comments now cite `docs/archives/v3/v3.16/development/install-selection-contract.md`, which exists; the distribution handbook was rebuilt and re-attested after the installer edits ([claim review](development/v4.13.11-phase-7-handbook-claim-review.md)). See [Phase 7 verification](development/v4.13.11-phase-7-evidence.md).
 
 - **Current state**: comments in `scripts/installer.sh` and `scripts/installer.ps1` (three lines) still name `docs/releases/v3/v3.16/development/install-selection-contract.md`, which now lives at `docs/archives/v3/v3.16/development/install-selection-contract.md`. They were deliberately not repointed: the `distribution` handbook binds the installers' bytes in `docs/handbooks/_sources/distribution/evidence.json`, so any edit makes `check_handbooks.py` report stale evidence until a content, build, and rendered review is re-run.
 - **Owner and next step**: handbook owner; repoint the three comments at the next distribution-handbook refresh and record new evidence.
@@ -2485,7 +2529,9 @@ No new Phase 4 implementation, regression, missing-test, or quality-gate gap rem
 
 ### Documentation
 
-### AR-29: `README_zh.md` needs a full re-translation
+### AR-29: `README_zh.md` needs a full re-translation - CLOSED
+
+**Closure, 2026-10-10 (v4.13.11 Phase 7 T028, maintainer decision)**: Closed as translate-on-request with maintainer approval: a full re-translation needs a native-speaker review that is not available, and the shorter `README_zh.md` stays as published. Reopening trigger: a request from a Chinese-reading user or contributor, or an available native-speaker reviewer.
 
 - **Current state**: 271 lines against the English README's 792.
 - **Owner and next step**: docs owner.
@@ -2582,7 +2628,9 @@ No new Phase 4 implementation, regression, missing-test, or quality-gate gap rem
 
 ### Maintainer decisions pending
 
-### AR-37: Conditional adoption candidates awaiting build-or-decline
+### AR-37: Conditional adoption candidates awaiting build-or-decline - CLOSED
+
+**Closure, 2026-10-10 (v4.13.11 Phase 7 T028, maintainer decision)**: The maintainer declined all remaining candidates, including the command-template token subset from v4.0.0 MT-1. Each has a decline row with its revisit trigger in `docs/policy/mcp-reverse-engineering-matrix.md`, section 'Declined in v4.13.11'. All listed origins are closed.
 
 - **Current state**: visual-brainstorming server, portable YAML orchestration engine, after-the-fact intent recovery in `session-query`, the quality-gate naming note, remaining worker-check hooks, and a durable prior-cycle review-signal store. None was built; none has a decline record.
 - **Owner and next step**: maintainer; record a decline (for example a reverse-engineering-matrix row) or scope a plan.
@@ -2908,7 +2956,9 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 ### Newly represented historical residuals - 2026-10-09
 
-### AR-61: Hand-edited model references bypass the deterministic guard
+### AR-61: Hand-edited model references bypass the deterministic guard - CLOSED
+
+**Closure, 2026-10-10 (v4.13.11 Phase 7 T028, maintainer decision)**: The maintainer explicitly accepted the residual on 2026-10-10: no repository-wide model-name leakage guard is built. The apply engine already refuses its own model-specific writes, and hand edits remain a reviewed human responsibility. Reopening trigger: a model-specific instruction that reaches a shared body through a hand edit and causes a defect.
 
 **Owner**: Prompting and catalog owner. **Status**: open; PLAN except the explicitly admitted installed-helper delivery candidate.
 
@@ -3483,13 +3533,15 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
 | Bugs / regressions (BG) | 1 | 1 |
-| Warnings (WN) | 7 | 1 |
+| Warnings (WN) | 6 | 1 |
 | Missing tests / coverage gaps (MT) | 1 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
 ### Open Items
 
 #### BG-2-v4131: A test in the full profile writes into the real user's `~/.nexus-hub`
+
+**Local clause qualification, 2026-10-10 (v4.13.11 T028)**: Both pytest roots now carry a session guard that records size and modification time of installer-owned `~/.nexus-hub` paths and six global instruction files and fails the session on any change (`NEXUS_REAL_HOME_GUARD=0` opts out for deliberate parallel runs); a deliberate offending test made a passing session exit 1. Residuals (user-deferred): the guard flagged lock files in `state/locks` written by a concurrent local process that no single test file reproduces, which needs a quiet machine running the full-profile groups one by one; and the hosted protected integration run that verifies the repair.
 
 **Source phase**: Phase 9 (full local profile, 2026-09-26). **Plan reference**: T028. **Reason**: during `python scripts/ci/run.py --profile full` (17:46 to 19:53 local time), the real `~/.nexus-hub/scripts/nexus_git_attribution.py` was overwritten at 18:22 with this branch's version, and `~/.nexus-hub/VERSION` and `~/.nexus-hub/permissions-manifest.json` were rewritten at 18:36. Some test ran the real installer against the machine's own home folder instead of a throwaway one (a PowerShell run resolves the home from `USERPROFILE`, so redirecting `HOME` alone does not isolate it). The overwrite made `nexus-hub attribution check` fail with "Attribution guard version differs"; the file was restored from the durable guard (`~/.nexus-hub/git-hooks/guard.py`, which matches `develop`), a backup of the overwritten copy was kept outside the repository, and the check passes again. `VERSION` kept its value (4.13.0). This is most likely pre-existing: earlier runs from `develop` would have copied an identical file and gone unnoticed; it surfaced because this branch changed the script. **Owner**: catalog maintainer. **Status**: open. **Suggested next step**: in a disposable Windows account or container, snapshot the home folder, run the full profile group by group, and diff after each to find the test; then isolate it with both `HOME` and `USERPROFILE` (and `APPDATA`, `LOCALAPPDATA`), and add a guard that fails the profile when the real home changes. **Full inventory (2026-09-26)**: a scan of `~/.nexus-hub`, `~/.claude`, `~/.codex`, `~/.gemini`, `~/.cursor`, and the VS Code user settings for files modified during the run found only the three files above plus, in `~/.nexus-hub/state/`, lock files and backups of test fixtures (instruction files headed `# org-test` and `# org-lifecycle`), written by the organization-layer tests. The user's real instruction files (`~/.claude/CLAUDE.md` last changed 2026-09-23, the Codex, Gemini, OpenCode, and Qwen files 2026-09-15) and platform settings were not touched. The leftover fixture backups and locks contain no user data and are safe to delete. So at least two tests leak into the real home: one runs the real installer (the attribution script, `VERSION`, and the permissions manifest), and the organization tests write their backups and locks to the real state folder.
 
@@ -3499,7 +3551,9 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 **Original source identity**: `v4.13.1#BG-2`; stable ID `BG-2-v4131` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### WN-7-v4131: A generated-with footer followed by a long clause passes the attribution hook
+#### WN-7-v4131: A generated-with footer followed by a long clause passes the attribution hook - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 7 T028, maintainer approved)**: The accepted trade-off is reversed: once a vendor name matches, a footer's trailing clause of any length after `-`, `:`, `,` or `|` is blocked on the gh route, matching the commit-msg route; tool subjects such as pandoc still pass. Tests cover both reported footers on both hook siblings (red on the previous regex) and non-vendor negatives; `check_commit_attribution.py --all-refs` still reports 0 findings across 2482 commits. See [Phase 7 verification](development/v4.13.11-phase-7-evidence.md).
 
 **Source phase**: Phase 9 (adversarial pass). **Plan reference**: T014. **Reason**: to let descriptive sentences pass, a footer counts only when it ends at the agent's name, a link, or a clause of at most four words after `-`, `:`, `,`, or `|`. "Generated with Claude Code, then reviewed and edited by hand before merge" therefore passes on `gh` routes; the Git commit-msg hook still blocks it on commits. **Owner**: catalog maintainer. **Status**: open, accepted trade-off. **Suggested next step**: collect real footers from harness defaults and tune the clause limit against them.
 
@@ -3524,6 +3578,8 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 **Original source identity**: `v4.13.1#WN-3`; stable ID `WN-3-v4131` distinguishes this obligation from repeated IDs in other patch sections.
 
 #### WN-4-v4131: Antigravity 2.0 and Windsurf do not receive the guard hooks
+
+**Local clause qualification, 2026-10-10 (v4.13.11 T028)**: Windsurf now registers `user-edit-guard` (pre and post write and run, plus `post_read_code` for read recording) and `attribution-guard` (pre run and write), with payload fields verified against the Cascade hooks page on 2026-10-10; `catalog/hooks/tests/test_cascade_guard_delivery.py` passes 13 with .sh/.ps1 parity. Residual (vendor-feature): Antigravity 2.0 documents only a PreToolUse bridge, so user-edit-guard has no verified post-write event there.
 
 **Source phase**: Phase 9 (implementation convergence). **Plan reference**: Definition of Done 3 ("on hook-capable platforms"). **Reason**: both adapters register a curated hook list with their own tool names and event names (`scripts/lib/integrations/antigravity.py` `_hook_registration`, `scripts/lib/integrations/windsurf.py` `_CASCADE_HOOKS`), so neither installs `user-edit-guard` or `attribution-guard`. The new hooks read Claude-style `tool_input.file_path` and `tool_input.command`; registering them where the payload fields are unverified would install hooks that silently pass everything. The always-loaded rule and the skill still reach both platforms. **Owner**: catalog maintainer, with [[platform-contract-verification]]. **Status**: open. **Suggested next step**: verify each platform's hook payload from a fetched vendor document, map its field names in `edit_guard.py hook` and the attribution scan, then add both hooks to the curated lists with a test per platform.
 
@@ -3564,9 +3620,9 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 7 | 0 |
+| Deferred (DF) | 5 | 0 |
 | Bugs / regressions (BG) | 0 | 10 |
-| Warnings (WN) | 7 | 6 |
+| Warnings (WN) | 6 | 6 |
 | Missing tests / coverage gaps (MT) | 2 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
@@ -3626,13 +3682,17 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 #### WN-11-v4132: `run-plan` checks only global settings for an approval bypass
 
+**Local clause qualification, 2026-10-10 (v4.13.11 T028)**: `run_plan.py` now parses JSON and TOML (including single-quoted TOML) instead of regex, reads the documented project scopes (Claude settings and local settings, Codex `.codex/config.toml`, Gemini CLI and Qwen settings) and adds a Cursor `approvalMode: unrestricted` check; `tests/validators/test_run_plan.py` covers each row and scope (19 red before). Residual (user-deferred): refusing platforms with no documented bypass check (Copilot, OpenCode, Kimi) changes run-plan behavior and needs a maintainer decision.
+
 **Source phase**: Phase 9 (T024), Tier 3 adversarial pass. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: `bypass_configured` reads the platform's global config with regular expressions. A committed project `.claude/settings.json` with `defaultMode: bypassPermissions`, a single-quoted `approval_policy = 'never'`, or the Cursor, Copilot, OpenCode, and Kimi rows (no check at all) pass unnoticed.
 
 **Owner**: catalog maintainer. **Status**: open. **Suggested next step**: parse JSON and TOML instead of matching text, include the project-scoped settings under the launch directory, and refuse a row with no check unless `unattended-with-bypass` is approved; confirm first which platforms honor project-level bypass settings.
 
 **Original source identity**: `v4.13.2#WN-11`; stable ID `WN-11-v4132` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### WN-12-v4132: `integration.checks` and `release.version-sync` read the working tree
+#### WN-12-v4132: `integration.checks` and `release.version-sync` read the working tree - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 7 T028)**: The completion checker reads `required-checks.json` from `origin/<target>` with a `start_head` fallback, never the working tree, and runs the `start_head` blob of the version-sync script. Three tests in `tests/validators/test_check_plan_completion.py` prove a working-tree edit cannot change the verdict (red on the previous checker). See [Phase 7 verification](development/v4.13.11-phase-7-evidence.md).
 
 **Source phase**: Phase 9 (T024), Tier 3 adversarial pass. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: the checker reads `docs/policy/required-checks.json` and runs the project's version-sync script from the working tree, so an edit to either changes what "required" means or what runs at every turn end.
 
@@ -3642,11 +3702,15 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 #### WN-13: Record lifetime and environment edge cases
 
+**Local clause qualification, 2026-10-10 (v4.13.11 T028)**: The 72-hour record expiry described above was removed in v4.13.7 (`e46a1dd48`): records never expire and stop counting as live at the signed `completed` stamp or on `record retire`; the run-record decision record carries a dated amendment. Residual (user-credential): capturing the exact `gh pr checks` no-checks stderr needs a freshly opened pull request on the maintainer's account.
+
 **Source phase**: Phase 9 (T024), Tier 3 adversarial pass. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: three low-severity cases. A pull request opened moments ago may answer `no checks reported on the '<branch>' branch`, which is not in the not-found list and reads as `cannot-verify` (text reasoned from `gh`'s source, not reproduced). A record bound to the same session never expires, so a session resumed weeks later still carries its approvals. A home directory that is itself a git working tree, or a `GIT_DIR` in the environment, makes every record read as tampered.
 
 **Owner**: catalog maintainer. **Status**: open, partially repaired and integrated through [PR #374](https://github.com/bendourthe/Nexus-Hub/pull/374) at `510fd987`; its required checks passed with one expected skip, and [post-merge run 36455108200](https://github.com/bendourthe/Nexus-Hub/actions/runs/36455108200) passed smoke and provenance. Same-session and unspecified-session records older than 72 hours are now ignored, and inherited Git repository selectors no longer misclassify an untracked private record inside a home Git tree; a tracked record still blocks as tampered. The 104 focused checker and runner tests passed, including negative controls for an extra `gh` error and a tracked record. The fresh-PR `no checks reported` text is handled in the checker and stub tests, but the exact stderr remains unverified: `gh pr checks 374` already showed pending jobs immediately after PR creation. **Suggested next step**: capture the live no-checks response on a future newly opened PR and compare it to the guarded pattern before closing this item; keep malformed or additional errors as `cannot-verify`.
 
 #### DF-5-v4132: Approval capture is missing on Pi, OpenClaw, Hermes, and Windsurf
+
+**Local clause qualification, 2026-10-10 (v4.13.11 T028)**: Windsurf `pre_user_prompt` now runs `approval-capture.sh`; `test_pre_user_prompt_capture_stores_the_digest[sh|ps1]` feeds a documented Cascade payload through the compat wrapper and checks the stored digest. Residual (vendor-feature): the prompt-text field of the Pi, OpenClaw and Hermes plugin events is unverified.
 
 **Source phase**: Phase 9 (T024), Tier 3 code-vs-plan convergence. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: `docs/policy/completion-levers.json` records a VERIFIED prompt-submit lever for these four platforms, but only Claude-format registrations and Cursor carry `approval-capture`, so on them `record create` cannot record an approval (the same effect as WN-4 on OpenCode). **Update (v4.13.6 Phase 1)**: the terminal fallback was removed, so on these platforms `record create` now refuses with `approval-not-captured` even in an interactive session until capture is added.
 
@@ -3695,6 +3759,8 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 **Original source identity**: `v4.13.2#DF-2`; stable ID `DF-2-v4132` distinguishes this obligation from repeated IDs in other patch sections.
 
 #### DF-3-v4132: Devin CLI reads Claude Code's hook files, so Claude registrations also reach it
+
+**Local clause qualification, 2026-10-10 (v4.13.11 T028)**: `platform-read-contracts.md` records that Devin CLI reads Claude Code's hook files while `read_config_from.claude` is on (its default), from the hooks overview re-fetched 2026-10-10. Residual (vendor-feature): Devin CLI hook payload fields are not documented, so a parity case would be invented.
 
 **Source phase**: Phase 1 (T002). **Plan reference**: [v4.13.2 plan, sub-task 1.2](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: the Devin CLI hooks overview ([docs.devin.ai/cli/extensibility/hooks/overview](https://docs.devin.ai/cli/extensibility/hooks/overview), fetched 2026-09-25) lists `.claude/settings(.local).json`, `~/.claude.json`, and `~/.claude/settings(.local).json` among its configuration sources. Every Claude hook Nexus-Hub registers therefore also runs under Devin CLI, which the read contract does not state. The completion gate relies on this deliberately (the `top-level-block` shape matches); other hooks may meet payload shapes they were not tested against.
 
@@ -3810,9 +3876,9 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 7 | 1 |
+| Deferred (DF) | 4 | 1 |
 | Bugs / regressions (BG) | 0 | 2 |
-| Warnings (WN) | 4 | 2 |
+| Warnings (WN) | 3 | 2 |
 | Missing tests / coverage gaps (MT) | 1 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
@@ -3826,11 +3892,15 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 
 #### DF-2-v4133 (v4.13.3): Pilot variant mode for instruction-file comparisons
 
+**Local clause qualification, 2026-10-10 (v4.13.11 T028)**: The handoff is recorded in the v4.16.0 plan's `## Inherited known gaps` section; implementation stays with that plan (user-deferred).
+
 **Plan reference**: Resolved decision 6. **Reason**: `scripts/run_trigger_pilot.py` varies only SKILL.md description lines and runs with `--setting-sources project`, so it cannot compare an instruction file with the full index against one with the pointer. Spend cap for this plan: 0. **Owner**: v4.16.0. **Suggested next step**: add a variant mode that stages instruction files per arm.
 
 **Original source identity**: `v4.13.3#DF-2`; stable ID `DF-2-v4133` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### DF-3-v4133 (v4.13.3): Plan state in the session digest
+#### DF-3-v4133 (v4.13.3): Plan state in the session digest - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 7 T028)**: `plan_status.py --digest` prints one plan-state line that both session-summary hook siblings write under `## Plan state` (or `Plan: unavailable`); the digests stay byte-identical across the siblings and the new tests fail on the previous hooks. See [Phase 7 verification](development/v4.13.11-phase-7-evidence.md).
 
 **Plan reference**: Resolved decision 3. **Reason**: no plan-status contract exists that `/implement` writes, so a digest detector would report "none detected" almost always. **Owner**: the first plan that defines a plan-status contract. **Suggested next step**: once that contract exists, add one digest line read from it.
 
@@ -3842,13 +3912,17 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 
 **Original source identity**: `v4.13.3#DF-4`; stable ID `DF-4-v4133` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### DF-5-v4133 (v4.13.3): Shared cleanup-aware merge requirement for v4.17.3
+#### DF-5-v4133 (v4.13.3): Shared cleanup-aware merge requirement for v4.17.3 - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 7 T028)**: The suggested step is done: the v4.17.3 plan cites the requirement in its reuse map (line 139, `instruction_merge.merge_instruction` owns shared instruction writes) and in its writer task prompt (line 537, which also requires `test_no_integration_calls_the_primitive_directly` to stay green). The guard test passes (1 passed in `tests/integrations/test_legacy_instruction_block_cleanup.py`). See [Phase 7 verification](development/v4.13.11-phase-7-evidence.md).
 
 **Plan reference**: Phase 6.2 handoff. **Reason**: every marker-merged instruction write now goes through `instruction_merge.merge_instruction`, guarded by `test_no_integration_calls_the_primitive_directly`. Any v4.17.3 writer of a shared instruction file must route through the same owner so consent, backups, and byte preservation hold. **Owner**: v4.17.3. **Suggested next step**: cite this requirement in the v4.17.3 plan's writer tasks.
 
 **Original source identity**: `v4.13.3#DF-5`; stable ID `DF-5-v4133` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### DF-6-v4133 (v4.13.3): Pointer consumer installed before its shared-path provider across installer runner calls
+#### DF-6-v4133 (v4.13.3): Pointer consumer installed before its shared-path provider across installer runner calls - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 7 T028)**: `tests/integrations/test_skill_path_provider_order.py` derives provider and consumer pairs from the verified skill read paths by dry-running every integration at both scopes and checks both installers' run order, replacing the hand-written Codex-before-Copilot pin; moving a provider after its consumer fails it. The handoff is also recorded in the v4.16.0 plan. See [Phase 7 verification](development/v4.13.11-phase-7-evidence.md).
 
 **Source phase**: Phase 5. **Reason**: the installers run the Python runner once per platform, and the runner's pointer-mode second pass only sees integrations in the same call. A consumer installed before the platform that writes its path would get the full index until the next install (fail closed, never open). **Current state (2026-09-25)**: the only such dependency among VERIFIED paths is Copilot reading Codex's `~/.agents/skills`. Both installers run Codex before Copilot at both scopes, pinned by `test_installers_run_the_shared_path_provider_before_copilot`. A simulation of the installers' exact per-platform global order on a fresh home gave the same eligible set as a single combined run (Claude, Codex, OpenCode, Copilot, Qwen). The second pass now also runs for a single integration, so an integration that renders before copying its own skills is covered. **Residual**: a future VERIFIED shared path whose provider runs later would need a new order pin. **Owner**: v4.16.0 (with DF-1). **Suggested next step**: derive the order check from the facts when a second shared-path dependency appears.
 
@@ -3859,6 +3933,8 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 **Source phase**: Phase 4. **Reason**: `docs/decisions/implemented/tooling/2026-09-24-legacy-instruction-block-removal.md` describes shipped behavior once v4.13.3 is released. The record format requires a rewrite (Decision in present tense, Consequences) and a move, not a Status edit. **Owner**: `/update release` for v4.13.3. **Status**: resolved at the v4.13.3 release: the record moved to `docs/decisions/implemented/tooling/` with a Decision section and a Consequences section, and the capability-usage entry ships in the release notes.
 
 #### DF-8 (v4.13.3): Per-agent `omitClaudeMd` for catalog agents
+
+**Local clause qualification, 2026-10-10 (v4.13.11 T028)**: The handoff is recorded in the v4.16.2 plan's `## Inherited known gaps` section; implementation stays with that plan (user-deferred).
 
 **Source**: [`v4.17.3-comparison-harness-economics-delta.md`](../v4.17/comparisons/v4.17.3-comparison-harness-economics-delta.md) D5, recorded 2026-09-28. **Reason**: Claude Code 2.1.271 added agent frontmatter `omitClaudeMd`, which lets a subagent run without user, project and local `CLAUDE.md` files (managed policy still loads). Each catalog agent now inherits the full rendered instruction files, measured at about 29k estimated tokens on the maintainer machine. **Owner**: `v4.16.2-adoption-agent-tooling-and-subagent-cost`. **Constraints**: decide agent by agent; exclude `project-standards-reviewer` and any agent that enforces repository conventions; confirm the Gemini and Codex agent loaders ignore an unknown frontmatter key, or emit the key only in the Claude copy. **Suggested next step**: accept a change only with a v4.17.3 pairing receipt showing lower cost at an unchanged pass rate.
 
@@ -3886,6 +3962,8 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 
 #### WN-5-v4133 (v4.13.3): Read-path drift found by the release contract pass
 
+**Local clause qualification, 2026-10-10 (v4.13.11 T028)**: The Gemini CLI workspace `GEMINI.md` now lands at the project root and no unread rules mirror is written, with the contract rows updated (gemini-md re-fetched 2026-10-10); `test_gemini_cli_workspace.py` passes 2, red before. Residual (vendor-feature): the OpenClaw per-agent workspace precedence and the Copilot prompt-file migration wait on vendor documentation.
+
 **Source phase**: `/update release` platform-contract verification, 2026-09-28. **Reason**: the pass found no broken install path, but four documented changes the adapters do not yet model: Gemini CLI documents a root `GEMINI.md` for the workspace and no rules directory (the contract lists `<project>/.gemini/GEMINI.md` and `.gemini/rules/`); OpenClaw adds a named-profile workspace (`~/.openclaw-<profile>/workspace` under `OPENCLAW_PROFILE`) and a per-agent `agents.entries.*.workspace`, whose precedence against `agents.defaults.workspace` the docs do not fully state; and VS Code prompt files, Copilot's global slash surface, are deprecated for Agent Host sessions while the Local agent still loads them. Windsurf's preferred workspace hooks file is v4.13.2 DF-1. Sources are in `docs/policy/platform-read-contracts.json` `meta.verified_for_version_note`.
 
 **Owner**: catalog maintainer, via `[[platform-contract-verification]]`. **Status**: open. **Suggested next step**: change each adapter and its contract row in lockstep (Gemini CLI workspace file and rules; OpenClaw profile workspace once the precedence is confirmed), and migrate Copilot's global slash surface to skills before the Local agent is removed.
@@ -3893,6 +3971,8 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 **Original source identity**: `v4.13.3#WN-5`; stable ID `WN-5-v4133` distinguishes this obligation from repeated IDs in other patch sections.
 
 #### WN-6-v4133 (v4.13.3): Behavioral-lever drift found by the release contract pass
+
+**Local clause qualification, 2026-10-10 (v4.13.11 T028)**: The Antigravity `agentMode` statement, rationale and verified date are refreshed from a 2026-10-10 re-fetch (default pauses for diff review; plan prepends `/plan`), with the levers row; `sync_platform_defaults.py --check` passes. Residual (user-deferred): seeding Claude per-model `modelSettings` pins a model id and needs a maintainer decision.
 
 **Source phase**: `/update release` platform-contract verification, 2026-09-28. **Reason**: advisory lever changes (logged in `docs/policy/platform-defaults-levers.md`): Claude Code ignores a user-scope `effortLevel` on Opus 5.5 and later, so that seed no longer reaches the default model (the seeded `env.CLAUDE_CODE_EFFORT_LEVEL` still does); Codex's documented `model_reasoning_effort` and `approval_policy` value lists changed, and the page no longer names those keys as user-only; and Antigravity's `agentMode` values now describe different behavior. Every seeded value remains valid.
 
@@ -3924,13 +4004,15 @@ Gaps from the Training rebuild ([`v4.13.4-guide-training-rebuild`](plans/v4.13.4
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
 | Bugs / regressions (BG) | 0 | 6 |
-| Warnings (WN) | 2 | 1 |
+| Warnings (WN) | 0 | 1 |
 | Missing tests / coverage gaps (MT) | 0 | 1 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
 ### Open Items
 
-#### WN-1-v4134 (v4.13.4): The header navigation overflows under the matrix's 200% CSS zoom at 1280x720
+#### WN-1-v4134 (v4.13.4): The header navigation overflows under the matrix's 200% CSS zoom at 1280x720 - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 7 T028)**: The browser-matrix zoom group now emulates native zoom (reduced viewport at device scale factor) instead of `documentElement.style.zoom`, which media queries ignore. `browser_matrix.py --groups zoom` passes 8 of 8 where the previous matrix failed 4, and new tests prove a collapsing header passes while a rigid overflow is still caught. See [Phase 7 verification](development/v4.13.11-phase-7-evidence.md).
 
 **Evidence**: `tests/guides/tools/browser_matrix.py --groups zoom` fails four cases (`zoom200-describe-review-*` and `zoom200-presentify-*` at 1280x720) on `horizontalOverflow` alone, with no page error, missing region, or overlap. The overflowing elements are `#navLinks` and `#themeToggle` (document `scrollWidth` 1324 against a 1280 viewport). The pre-rebuild guide on `develop` measures the same 1324 with 28 overflowing elements instead of 6, and a real 640x720 viewport, which is what 200% of 1280 represents, has no overflow on either revision. **Reason**: `document.documentElement.style.zoom` does not change the width that CSS media queries see, so the header never switches to its narrow layout under this emulation; native browser zoom does change that width but is not measured here. **Owner**: guide owner, together with the open [v4.4 MT-446-2](../../../archives/v4/v4.4/known-gaps.md) native-zoom item. **Suggested next step**: measure native 200% zoom on a real browser; if the header overflows there, collapse it by container width rather than viewport width, otherwise change the matrix's zoom cases to emulate native zoom.
 
@@ -3998,9 +4080,9 @@ Gaps from the minor-scope implement plan ([`v4.13.6-minor-scope-implement-and-ve
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 1 | 0 |
 | Bugs / regressions (BG) | 0 | 10 |
-| Warnings (WN) | 5 | 1 |
-| Missing tests / coverage gaps (MT) | 1 | 0 |
-| Quality-gate gaps (QG) | 2 | 0 |
+| Warnings (WN) | 2 | 1 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 1 | 0 |
 
 ### Open Items
 
@@ -4010,7 +4092,9 @@ Gaps from the minor-scope implement plan ([`v4.13.6-minor-scope-implement-and-ve
 
 **Original source identity**: `v4.13.6#WN-1`; stable ID `WN-1-v4136` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### WN-2-v4136 (v4.13.6): Most older known-gaps ledgers read cannot-verify for a minor-scope run
+#### WN-2-v4136 (v4.13.6): Most older known-gaps ledgers read cannot-verify for a minor-scope run - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 7 T028)**: The v4.13.11 Phase 2 normalization made every in-scope ledger parse: `python scripts/minor_close.py status --minor v4.13` now reports no `unparsed`, `unreadable` or `cannot-verify` ledger, and dry-run migrations resolve each stable ID without `gap-ambiguous`. A minor-scope run can therefore read the older ledgers. See [Phase 7 verification](development/v4.13.11-phase-7-evidence.md).
 
 **Evidence**: a read-only `python scripts/minor_close.py status --minor v4.13` on 2026-09-29 reads `gaps.minor unmet`, with 369 open item headings; 30 of the 41 ledgers in scope read `cannot-verify` (663 rows that look like item ids but are not items, and 11 header `**Open items**` counts that disagree with the parsed count). The stricter Phase 4 parser is correct to refuse them: a looser reader would let open work pass as closed. **Owner**: catalog maintainer, before the first real minor-scope run (v4.17). **Suggested next step**: normalize those ledgers to the known-gaps-tracker format (one heading per item, a terminal RESOLVED, CLOSED, or MIGRATED marker, and a matching header count) in a docs-only change, then re-run the status command until every ledger parses. The 2026-09-30 re-run (Phase 8, after AR-01, AR-02, and v4.13.5 WN-1 were resolved) reads 368 open headings and 674 unparsed rows; it also shows that this file restarts ids in each patch section, so `v4.13#WN-1` names four items. `minor_close.py migrate` refuses such an id with `gap-ambiguous`, which is safe, but the normalization must also make ids unique per minor file.
 
@@ -4048,13 +4132,17 @@ Gaps from the minor-scope implement plan ([`v4.13.6-minor-scope-implement-and-ve
 
 **Original source identity**: `v4.13.6#QG-1`; stable ID `QG-1-v4136` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### QG-2-v4136 (v4.13.6): The edited guide card had no full accessibility or design audit
+#### QG-2-v4136 (v4.13.6): The edited guide card had no full accessibility or design audit - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 7 T028)**: Headless accessibility-engineering and hallmark-design audits of the Cheatsheets `/implement` card ran in both themes at 320, 420 and 1440 px and native 200% zoom. Contrast, focus, keyboard copy with live announcement, target spacing and reflow pass. The page-wide findings it surfaced are recorded as v4.13.11 WN-43. See [Phase 7 verification](development/v4.13.11-phase-7-evidence.md).
 
 **Evidence**: the Tier 3 pass covered the edited Cheatsheets `/implement` card with the visual-defect detector (0 findings), clipped captures at 1440 and 420 px (no horizontal overflow, inspected), and a control probe (both copy buttons named "Copy to clipboard" and focusable; scope text 16 px). The full `[[accessibility-engineering]]` and `[[hallmark-design]]` audits were not run in this phase. **Owner**: guide maintainer. **Suggested next step**: run both audits on the Cheatsheets view before the next guide release and record the result here.
 
 **Original source identity**: `v4.13.6#QG-2`; stable ID `QG-2-v4136` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### WN-6-v4136 (v4.13.6): Unusual branch, surface, and vendor names reach the approval page as written
+#### WN-6-v4136 (v4.13.6): Unusual branch, surface, and vendor names reach the approval page as written - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 7 T028)**: The banned-term, path and script lists moved into `scripts/approval_page.py` and are enforced inside page rendering for the Summary rows and the paste section (`PageError`); the plan's own outcome bullets stay under their existing rules. Tests refuse the reported vendor terms (red before). See [Phase 7 verification](development/v4.13.11-phase-7-evidence.md).
 
 **Evidence**: Tier 3 adversarial finding ADV-5 (P3). `render_page` with source branch `feat/refs/heads/check_plan_completion.py`, class `ask-first:hmac-nonce-schema`, and spend vendor `predicate` put every banned-list term and a script name above the paste line; the paste line itself stayed clean, and the allowed character sets rule out spaces, so no sentence can be injected. The plain-language guarantee is enforced by tests on fixture inputs, not at render time. **Owner**: catalog maintainer. **Suggested next step**: run the banned-term and path or script checks inside `render_page` (raising `PageError`), or move these values into the quoted details block.
 
@@ -4141,8 +4229,8 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 4 | 0 |
-| Bugs / regressions (BG) | 1 | 2 |
-| Warnings (WN) | 16 | 3 |
+| Bugs / regressions (BG) | 0 | 2 |
+| Warnings (WN) | 7 | 3 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 1 | 1 |
 
@@ -4210,6 +4298,8 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 
 #### WN-23 (v4.13.9): The primary roster mixes vendors, so its freshness check always reads DRIFTED
 
+**Local clause qualification, 2026-10-10 (v4.13.11 T028)**: The profile writer no longer unions every profiled model into the primary roster, and the 11 Cursor, Gemini and GPT-5.6 ids moved into `cursor`, `gemini` and `openai` platform entries (`gpt-6-astra` stays under `codex`); the freshness check reads IN SYNC for the recorded Claude ids and for each platform, and `verify_model_prompting_profiles.py` reports OK. The `gemini` and `openai` keys are vendor labels because no record names the host those ids were listed from. Residual (user-deferred): whether the dated Haiku 4.5 id and its alias share one profile, tied to DF-11.
+
 - **Source phase**: Phase 2. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T306 and T309.
 - **Reason**: the `claude-code` roster in `profiles-index.json` was recorded on 2026-09-08 from `config` as a multi-vendor union (Claude, Cursor, Gemini, and GPT-5.6 ids). The 2026-09-30 write refreshed it from the live Models API, and by design the writer unions the live ids with every already-profiled model, so no profile was orphaned. The result is 26 ids labelled `roster_source: api`, of which 16 did not come from the API. `check_model_prompting_freshness.py --advisory` against the 13 live Claude ids therefore reports DRIFTED, listing the non-Claude ids and the `claude-haiku-4-5` alias as "no longer live". The check is advisory and blocks nothing.
 - **Suggested next step**: move the Cursor, Gemini, and GPT-5.6 profiles onto their own `meta.platforms` entries (schema 1.1.0), as was done for `codex`, so the `claude-code` roster holds only Claude ids and its freshness check can read IN SYNC. Decide the `claude-haiku-4-5` alias at the same time (see DF-3).
@@ -4263,7 +4353,9 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 
 - **Carried from**: v4.13.8#WN-14 on 2026-10-02
 
-#### BG-12 (v4.13.9): `/usage` dispatches to a `check-usage` skill that does not exist
+#### BG-12 (v4.13.9): `/usage` dispatches to a `check-usage` skill that does not exist - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 7 T028)**: `/usage` now dispatches to the shipped `_usage_probe.py --platform <key> --json`, and the stale `check-usage` mentions in the model-routing and billing skills and in `guides/reference/TOKEN_OPTIMIZATION.md` point at `/usage`. `tests/validators/test_command_dispatch_targets.py` guards every command dispatch target. See [Phase 7 verification](development/v4.13.11-phase-7-evidence.md).
 
 **Evidence**: `catalog/commands/usage.md` delegates every invocation to `check-usage` ("(any invocation) -> check-usage"), and no `catalog/skills/*/check-usage/` directory exists on `feat/v4.13.7-copilot-usage-monitor-and-usage-limit-handoff` after the 2026-10-01 merge of `develop` at `81d7e544`. The command therefore has no procedure behind it on any platform. Pre-existing; out of scope for this plan (plan Overview, "Out of scope"). **Owner**: catalog maintainer. **Suggested next step**: back `/usage` with `catalog/hooks/_usage_probe.py` (built in Phase 6) in a later release, either as a restored `check-usage` skill or by pointing the dispatcher at a skill that calls the probe.
 
@@ -4390,7 +4482,9 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 - **Reason**: one oversized event (64 KiB fields) grows a file by 65 to 132 KB, measured 2026-10-03: `learning-capture` copies the event and tool names whole (131549 bytes .sh, 131543 .ps1), `provenance-ledger` copies the file path whole and rotates by lines rather than bytes (65699), `session-summary` copies the session duration whole into its log and digest (.ps1 always; .sh when `jq` is present), `auto-devlog.ps1` lists commit subjects whole, and `skill-tracker.py` stores the skill name whole. Ordinary events stay at 70 to 1100 bytes. The test records each as a known breach, so a fix shows up as a failing expected-failure. Measurement: [`v4.13.9-hook-size-bound.md`](development/v4.13.9-hook-size-bound.md).
 - **Suggested next step**: truncate each copied field the way `learning-capture` already truncates its prompt sample, bound the provenance ledger by bytes as well as lines, and remove the matching `KNOWN_BREACHES` entries.
 
-#### WN-37 (v4.13.9): Multi-byte text grows two to six times in hook output on Windows
+#### WN-37 (v4.13.9): Multi-byte text grows two to six times in hook output on Windows - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 7 T028)**: The 20 content-reading `.ps1` hooks now read standard input as UTF-8 bytes (a StreamReader over `[Console]::OpenStandardInput()` with `UTF8Encoding($false)`, keeping the Windows PowerShell 5.1 no-console fallback) and write stdout and stderr through UTF-8 writers, without changing the shared console code page; `auto-devlog.ps1` reads git output through a UTF-8 process helper. Re-measured under Windows PowerShell 5.1: a 3128-byte multi-byte payload decoded to 7128 bytes in every hook before and to exactly 3128 bytes after, with no BOM; the auto-devlog commit-subject line went from 293 garbled bytes to 133 exact. `catalog/hooks/tests/test_hook_stdin_utf8.py` drives 15 hooks and their `.sh` siblings with a multi-byte payload and statically requires the UTF-8 read in every content-reading `.ps1` hook; it failed before (five behavioral cases plus the static check naming all 20 hooks) and passes now (25 passed, 6 skipped for jq-only `.sh` siblings on this host). The hook suites covering the changed hooks pass (1327 passed, 59 skipped). Decoding of other programs' output inside three hooks is a separate defect recorded as WN-45. See [Phase 7 verification](development/v4.13.11-phase-7-evidence.md).
 
 - **Source phase**: Phase 5. **Plan reference**: `v4.13.9-adoption-inline-visualize-codex-disk-writes-review-flow-gpt-6-1-sol.md`, T422.
 - **Reason**: the multi-byte payload measured larger on Windows than its UTF-8 length (for example `session-summary.ps1` 3568 bytes and `auto-devlog.ps1` 4574 bytes for one event), consistent with input decoded through a legacy code page: Windows PowerShell 5.1 standard input and git output, and Python standard input read as cp1252. The size test records this and does not assert it. Measurement: [`v4.13.9-hook-size-bound.md`](development/v4.13.9-hook-size-bound.md).
@@ -4422,7 +4516,7 @@ Gaps from the Training page rebuild ([`v4.13.10-training-page-rebuild`](plans/v4
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 2 |
 | Bugs / regressions (BG) | 0 | 0 |
-| Warnings (WN) | 7 | 5 |
+| Warnings (WN) | 5 | 5 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 1 | 1 |
 
@@ -4458,6 +4552,8 @@ Gaps from the Training page rebuild ([`v4.13.10-training-page-rebuild`](plans/v4
 
 #### WN-8-v41310 (v4.13.10): The Foundations opening figure is taller than a phone screen
 
+**Local clause qualification, 2026-10-10 (v4.13.11 T028)**: Remeasured: since the R17/R26 redesign the Foundations figure is a composer feeding the Model and is 1421 px tall at its end state on a 390 px screen (532 px at 1440 px), so the logged 2x2 fix no longer applies. Residual (user-deferred): reaching 600 px needs a maintainer decision on which content phones drop. The Model status overlap found during measurement is recorded as v4.13.11 WN-42.
+
 - **Source phase**: rework goal review (after R5). **Plan reference**: [`v4.13.10-training-page-rebuild`](plans/v4.13.10-training-page-rebuild.md), T046.
 - **Reason**: at 390 px the narrow drawing of the layer stack is 898 px tall (923 px after revision 2 added captions to the Tokens and Context window cards), so the reader scrolls through the figure before the page content starts. It is legible and does not overflow.
 - **Owner**: guide owner. **Suggested next step**: in the narrow drawing, show the four inner parts as a two-by-two grid and shorten the loop caption, aiming at no more than 600 px.
@@ -4481,6 +4577,8 @@ Gaps from the Training page rebuild ([`v4.13.10-training-page-rebuild`](plans/v4
 **Original source identity**: `v4.13.10#WN-11`; stable ID `WN-11-v41310` distinguishes this obligation from repeated IDs in other patch sections.
 
 #### WN-12-v41310 (v4.13.10): Minor visual nits left from the revision 2 review
+
+**Local clause qualification, 2026-10-10 (v4.13.11 T028)**: The outline rail empty-dot ring now uses `var(--ink-dim)`, measuring 6.20:1 light and 8.26:1 dark (was 3.20 and 4.65); `tests/guides/test_outline_rail_contrast.py` passes 4, red 2 before. Residual (user-deferred): the spawn band, editor soft-wrap, highlight label, sticky Start button and HUD label timing need game-engine or IDE-player changes verified by the slow WebGL tests (WN-40).
 
 - **Source phase**: revision 2 goal review (P3 findings). **Plan reference**: [`v4.13.10-training-page-rebuild`](plans/v4.13.10-training-page-rebuild.md), R8 and R10.
 - **Reason**: small findings were not fixed in this pass. Enemies spawn under the in-game level header for a moment. At 1280 px the rail shows dots only, with the current label on hover and low-contrast empty circles. The IDE editor soft-wraps long lines, which can leave a single word on a line. From the revision 3 review: an IDE highlight's label can cover a line of code above its box; on a phone's first view of the start screen the sticky Start button covers two ships' stat meters; mid-wormhole the HUD names the next level before the map label changes.
@@ -4519,8 +4617,8 @@ Admission and normalization findings for the [known-gaps sweep plan](plans/v4.13
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
-| Bugs / regressions (BG) | 0 | 6 |
-| Warnings (WN) | 1 | 1 |
+| Bugs / regressions (BG) | 0 | 7 |
+| Warnings (WN) | 2 | 5 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
@@ -4595,3 +4693,41 @@ Admission and normalization findings for the [known-gaps sweep plan](plans/v4.13
 **Resolution, 2026-10-10 (v4.13.11 Phase 4 T017)**: The PowerShell helper now checks `$LASTEXITCODE` after `codex` and `agy`, matching the Bash sibling's documented fallback that tells the agent to read the model picker. `catalog/hooks/tests/test_model_routing_helpers.py` runs every case against both siblings in an isolated home with a stubbed PATH; the two fallback cases failed before the fix, and 66 helper tests (76 with the routing switch tests) pass now. Evidence: [Phase 4 verification](development/v4.13.11-phase-4-evidence.md).
 
 **Source phase**: Phase 4, found while proving AR-08's helper clause. **Plan reference**: [v4.13.11](plans/v4.13.11-known-gaps-sweep-and-minor-close.md), T017. **Severity**: low; the agent got no model list and no fallback instruction on Windows. **Owner**: model-routing skill owner.
+
+#### BG-21 (v4.13.11): Committed skill-index rows left the legacy fingerprint set stale - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 7 T028)**: `python scripts/build_legacy_fingerprints.py` regenerated `scripts/lib/installer/legacy_fingerprints.json` and `--check` now reports it current; `tests/integrations/test_legacy_instruction_block_cleanup.py` passes 45 again. A stray blank line inside the `data/SKILL_INDEX.md` table was removed in the same change. Evidence: [Phase 7 verification](development/v4.13.11-phase-7-evidence.md).
+
+**Source phase**: Phase 7, found while verifying worker results. **Plan reference**: [v4.13.11](plans/v4.13.11-known-gaps-sweep-and-minor-close.md), T028. **Severity**: medium; the legacy instruction cleanup reported two candidates where one belongs, failing 24 tests. **Owner**: catalog maintainer.
+
+**Evidence**: The fingerprint builder walks committed revisions of `data/SKILL_INDEX.md`. The Phase 4 commit `4091ca45` changed the `egress-redaction` index row, so the stored set no longer knew that line; the cleanup tests passed at `495bd1ff` and failed from `4091ca45` on. The fast profile had passed before the commit because the row was not yet committed. **Reason**: any commit that changes a skill-index row or an instruction template must regenerate the fingerprints in the same change; Phase 8's full gate includes `build_legacy_fingerprints.py --check`.
+
+#### WN-41 (v4.13.11): Command files dispatch to skills removed in v3.2.0 - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 7 T028)**: All 19 dangling dispatch targets in the `compare`, `memory`, `plan`, `research`, `session`, `setup`, `skills`, `spec` and `test` commands (and one prose mention in `constitution`) now name the current skill or shipped script that implements the behavior, chosen by matching the removed v3.x command bodies against current skill descriptions; where no implementation exists, the working procedure is written into the command. No command was renamed. `tests/validators/test_command_dispatch_targets.py` now asserts zero dangling targets and fails when one is reintroduced. Evidence: [Phase 7 verification](development/v4.13.11-phase-7-evidence.md).
+
+**Source phase**: Phase 7, found while fixing BG-12. **Severity**: medium; the affected slash commands sent agents to skills that do not exist. **Owner**: catalog maintainer.
+
+#### WN-42 (v4.13.11): Foundations Model status overlaps its name - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 7 T028)**: A leftover narrow-width `align-items:flex-start` rule and absolutely positioned status lines let the Model status overlap its name (up to 133 px at 320 px wide, and at desktop widths). The status lines now share one in-flow grid cell and the name wraps; at 320, 390, 719, 720, 900 and 1280 px the status box has positive width and overlaps neither the name nor the core. Render tests in `tests/guides/test_v41311_phase7_guide_defects.py` fail on the previous pages. Evidence: [Phase 7 verification](development/v4.13.11-phase-7-evidence.md).
+
+**Source phase**: Phase 7, found while measuring WN-8-v41310. **Severity**: low; visual. **Owner**: guide maintainer.
+
+#### WN-43 (v4.13.11): Cheatsheets cards lack headings, share copy-button names, and misalign scopes - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 7 T028)**: All 24 command names are now level-3 headings with an unchanged computed style; each copy button's accessible name says what it copies; and each card's scope list is a two-track grid, so descriptions start at the same x within every card (column widths stay card-local, since page-wide alignment would need a fixed text width). Render tests fail on the previous page. The heading-style guard now exempts these code-identifier headings and a new test pins them to the 24 command names. Evidence: [Phase 7 verification](development/v4.13.11-phase-7-evidence.md).
+
+**Source phase**: Phase 7, from the QG-2-v4136 audit. **Severity**: medium; accessibility (WCAG 1.3.1). **Owner**: guide maintainer.
+
+#### WN-44 (v4.13.11): Installer help claims a sunset warning that is no longer printed - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 7 T028)**: The `--enterprise` / `-Enterprise` help text in both installers now describes the actual behavior: without the flag, Gemini CLI is listed in the grouped not-detected section as enterprise-only, and Antigravity CLI still installs. Help strings only; line counts and the cited banner line numbers are unchanged, and `test_enterprise_flag.py` passes 7. Evidence: [Phase 7 verification](development/v4.13.11-phase-7-evidence.md).
+
+**Source phase**: Phase 7, found during AR-20. **Severity**: low; documentation. **Owner**: installer maintainer.
+
+#### WN-45 (v4.13.11): Three PowerShell hooks decode child-process output through the console code page
+
+**Source phase**: Phase 7, found while closing WN-37. **Plan reference**: [v4.13.11](plans/v4.13.11-known-gaps-sweep-and-minor-close.md), T028; fix owned by Phase 8 (T032). **Severity**: low; non-ASCII text from a called program can be garbled. **Owner**: hook maintainer.
+
+**Evidence**: `rewrite-command.ps1` reads the compressor's rewrite text, `lint-on-write.ps1` reads linter output, and `session-summary.ps1` reads the `plan_status.py --digest` line, each through the console code page rather than UTF-8. Hook stdin is fixed (WN-37); this is output from programs the hooks launch. It is not reachable through payload text today, because the compressor never proposes a rewrite for such input. **Suggested next step**: read those child outputs through a UTF-8 process helper like `auto-devlog.ps1`'s, with a multi-byte test per hook. **Acceptance**: a multi-byte child output round-trips exactly under Windows PowerShell 5.1.

@@ -108,6 +108,34 @@ def test_deep_pass_attribution_routes_are_blocked(run, command):
     assert result.returncode == 2, _err(result)
 
 
+# Assembled from fragments so this file's own text never forms a footer line that the
+# repository's commit and publishing hooks would flag.
+_GEN = "Generated" + " with"
+
+
+@pytest.mark.parametrize("footer", [
+    f"{_GEN} Claude Code, then reviewed and edited by hand before merge",
+    f"{_GEN} Codex - see the session log for details",
+    f"{_GEN} Claude Code: see the docs for how the hook rejects this footer.",
+])
+def test_vendor_footer_with_a_long_trailing_clause_is_blocked(run, footer):
+    """v4.13.1 WN-7: once a vendor matched, a clause of any length after `-`, `:`, `,` or `|`
+    no longer lets the footer pass the gh route (the commit-msg route already blocked it)."""
+    result = run(_bash(f'gh pr create --title t --body "Summary\n\n{footer}"'))
+    assert result.returncode == 2, _err(result)
+    assert "footer:generated-with-agent" in _err(result)
+
+
+@pytest.mark.parametrize("footer", [
+    f"{_GEN} pandoc, then reviewed and edited by hand before merge",
+    f"{_GEN} mkdocs - see the build log for the full list of pages",
+    f"{_GEN} a template: see the docs for how the sections are ordered.",
+])
+def test_non_vendor_footer_with_a_long_trailing_clause_passes(run, footer):
+    result = run(_bash(f'gh pr create --title t --body "Summary\n\n{footer}"'))
+    assert result.returncode == 0, _err(result)
+
+
 def test_backslash_body_file_and_gh_api_input_are_read(run):
     body = run.work / "body.md"
     body.write_text(f"Summary\n\n{_AGENT_TRAILER}\n", encoding="utf-8")
@@ -155,7 +183,6 @@ def test_github_mcp_tools_are_blocked(run, tool):
     'git commit -m "Pair work" -m "Co-authored-by: Jane Roe <jane@bot.io>"',
     'git commit -m "Tooling" -m "Made-with: VS Code"',
     'gh pr create --title t --body "Notes\n\nGenerated with Claude Code footers are now rejected by the hook."',
-    'gh pr create --title t --body "Notes\n\nGenerated with Claude Code: see the docs for how the hook rejects this footer."',
     "git status",
     "gh pr list",
 ])

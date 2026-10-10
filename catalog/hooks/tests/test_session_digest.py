@@ -277,3 +277,63 @@ def test_sh_and_ps1_digests_are_byte_identical_and_bom_free(
         digest.unlink()
     assert outputs[0] == outputs[1]
     assert not outputs[1].startswith(b"\xef\xbb\xbf")
+
+
+# -- DF-3-v4133: one plan-state line from the installed plan_status.py ---------
+
+_PLAN_STATUS = _HOOKS_DIR.parent.parent / "scripts" / "plan_status.py"
+_DEMO_PLAN = (
+    "# Demo plan\n\n**Version**: v0.1.0\n**Slug**: demo\n\n"
+    "## Phase 1: First\n\n- [x] T001 a\n\n"
+    "## Phase 2: Second\n\n- [x] T002 b\n- [ ] T003 c\n- [ ] T004 d\n"
+)
+
+
+def _install_plan_status(home: Path) -> None:
+    scripts = home / ".nexus-hub" / "scripts"
+    scripts.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(_PLAN_STATUS, scripts / "plan_status.py")
+
+
+def test_digest_reports_unavailable_without_the_installed_script(
+    tmp_git_repo: Path, tmp_path: Path, summary_impl
+) -> None:
+    home = tmp_path / "home"
+    home.mkdir()
+    body = summary_impl(tmp_git_repo, home).decode("utf-8")
+    assert "Plan: unavailable" in body.splitlines(), body
+
+
+def test_digest_carries_the_plan_state_line(tmp_git_repo: Path, tmp_path: Path, summary_impl) -> None:
+    home = tmp_path / "home"
+    _install_plan_status(home)
+    body = summary_impl(tmp_git_repo, home).decode("utf-8")
+    assert "## Plan state" in body.splitlines()
+    assert "Plan: none with open tasks" in body.splitlines(), body
+    plan = tmp_git_repo / "docs" / "releases" / "v0" / "v0.1" / "plans" / "v0.1.0-demo.md"
+    plan.parent.mkdir(parents=True)
+    plan.write_text(_DEMO_PLAN, encoding="utf-8")
+    body = summary_impl(tmp_git_repo, home).decode("utf-8")
+    assert "Plan: v0.1.0 demo, phase 2 of 2, 2 of 4 tasks open" in body.splitlines(), body
+
+
+def test_sh_and_ps1_plan_lines_are_byte_identical(
+    tmp_git_repo: Path, tmp_path: Path, bash_bin: str, powershell_bin: str
+) -> None:
+    home = tmp_path / "home"
+    _install_plan_status(home)
+    plan = tmp_git_repo / "docs" / "releases" / "v0" / "v0.1" / "plans" / "v0.1.0-demo.md"
+    plan.parent.mkdir(parents=True)
+    plan.write_text(_DEMO_PLAN, encoding="utf-8")
+    env = {**os.environ, "HOME": str(home), "USERPROFILE": str(home), "NEXUS_SESSION_DIGEST_NOW": "T"}
+    env.pop("NEXUS_DISABLED_HOOKS", None)
+    env.pop("NEXUS_HOOK_PROFILE", None)
+    digest = tmp_git_repo / ".nexus" / "context" / "last-session.md"
+    outputs = []
+    for argv in ([bash_bin, str(_HOOKS_DIR / "session-summary.sh")],
+                 [powershell_bin, "-NoProfile", "-File", str(_HOOKS_DIR / "session-summary.ps1")]):
+        subprocess.run(argv, cwd=tmp_git_repo, env=env, input="", capture_output=True, timeout=120, check=True)
+        outputs.append(digest.read_bytes())
+        digest.unlink()
+    assert b"Plan: v0.1.0 demo" in outputs[0]
+    assert outputs[0] == outputs[1]

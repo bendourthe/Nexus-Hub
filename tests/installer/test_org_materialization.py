@@ -116,7 +116,7 @@ def test_workspace_install_materializes_org_block_after_nexus_and_is_idempotent(
     assert instruction.read_text(encoding="utf-8").count(org.ORG_START_MARKER) == 1
 
 
-@pytest.mark.parametrize("key", ("claude", "cursor", "gemini", "opencode"))
+@pytest.mark.parametrize("key", ("claude", "cursor", "gemini"))
 def test_rules_are_projected_under_native_org_subtree_and_tracked(
     key: str,
     connected_bundle: tuple[Path, Path],
@@ -134,6 +134,25 @@ def test_rules_are_projected_under_native_org_subtree_and_tracked(
     assert rule.is_file()
     assert str(rule) in manifest.files_for(key)
 
+
+
+def test_opencode_gets_no_org_rules_tree(
+    connected_bundle: tuple[Path, Path],
+    tmp_path: Path,
+) -> None:
+    """OpenCode reads AGENTS.md and its instructions array, not a rules folder
+    (v4.13 AR-51), so org rules are not projected there; the instruction block
+    still carries the org guidance."""
+    target = tmp_path / "opencode"
+    target.mkdir()
+    manifest = InstallManifest()
+    integration = INTEGRATION_REGISTRY["opencode"]
+    assert "rules_subdir" not in integration.config
+
+    integration.install(_ctx(target, manifest, instruction_only=True))
+
+    assert not (target / integration.config["workspace_dir"] / "rules" / "org").exists()
+    assert not any("org" in Path(path).parts and "rules" in Path(path).parts for path in manifest.files_for("opencode"))
 
 def test_default_precedence_and_rendered_budget_warning_are_not_truncated(
     connected_bundle: tuple[Path, Path],

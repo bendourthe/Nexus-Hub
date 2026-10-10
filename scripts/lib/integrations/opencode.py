@@ -70,7 +70,9 @@ class OpenCodeIntegration(MarkdownIntegration, SkillsIntegration):
         # the v4.13.2 end-to-end run; https://opencode.ai/docs/agents/ fetched 2026-09-27
         # lists `tools` as deprecated in favor of `permission`, and the filename as the id).
         "agents_drop_frontmatter": ("tools",),
-        "rules_subdir": "rules",
+        # No rules_subdir (AR-51, v4.13.11): https://opencode.ai/docs/rules/ (fetched
+        # 2026-10-10) reads AGENTS.md / CLAUDE.md files and the opencode.json
+        # `instructions` array, never a rules/ directory, so a mirror there is unread.
         # Hooks NOT supported: OpenCode's plugins/ mechanism is a JS/TS Bun runtime,
         # not a shell/py hook model, so catalog/hooks/*.{sh,py} cannot run there
         # (known-gap DF-4; the base _mirror_catalog gates the hook copy on this flag).
