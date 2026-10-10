@@ -5322,6 +5322,7 @@
       last = 0; acc = 0;
       emit("start", { tick: S.tick });
       sync();
+      if (unseen()) return;
       wake();
       canvas.focus({ preventScroll: true });
       /* The banner and callout can push the arena below the fold; bring the whole game into view. */
@@ -5343,7 +5344,16 @@
       last = 0; acc = 0;
       emit("resume", {});
       sync();
+      if (unseen()) return;
       wake();
+    }
+    /* v4.13.11 (WN-5): a host that is not rendered (its stage hidden) never fires the
+       IntersectionObserver and cannot take Escape, so start and resume pause it at once with
+       reason "stage" before asking for a frame; the reader's Start or Resume runs it later. */
+    function unseen() {
+      if (host.offsetParent !== null) return false;
+      pause("stage");
+      return true;
     }
     function withRunning(fn) {
       if (!S || S.state === "over") return false;

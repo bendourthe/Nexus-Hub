@@ -72,9 +72,15 @@ class Command:
     skip_if_missing: bool = False
     #: Extra environment for this command only.
     env: Mapping[str, str] = field(default_factory=dict)
+    #: Per-host-class timeout overrides in seconds; `timeout` applies elsewhere.
+    #: Use only with a recorded measurement on that host class.
+    platform_timeouts: Mapping[str, int] = field(default_factory=dict)
 
     def runs_on(self, platform: str) -> bool:
         return not self.platforms or platform in self.platforms
+
+    def timeout_on(self, platform: str) -> int:
+        return self.platform_timeouts.get(platform, self.timeout)
 
 
 @dataclass(frozen=True)
@@ -286,7 +292,15 @@ TESTS = Group(
         # These are enforceable CI safety bounds, not local performance SLOs.
         # A contended workstation may exceed them; do not tune shared limits
         # from that observation. Recalibrate only from quiet CI measurements.
-        _pytest("hook-tests", "catalog/hooks/tests", timeout=1800),
+        # Exception, approved in v4.13.11: two Windows-only overrides (hook-tests
+        # 2400 s from a 2096.9 s run, v4.13.9 WN-38; governance 3600 s from a
+        # 3325.7 s run, v4.13.9 WN-35). Linux and macOS keep the shared caps.
+        _pytest(
+            "hook-tests",
+            "catalog/hooks/tests",
+            timeout=1800,
+            platform_timeouts={"windows": 2400},
+        ),
         # Keep the repository corpus complete but split it at stable ownership
         # boundaries. The former monolith could time out after an hour while
         # naming only a percentage; these partitions retain every collected
@@ -378,6 +392,7 @@ TESTS = Group(
             "tests/test_git_attribution.py",
             "tests/test_removed_autonomy_surface.py",
             timeout=2700,
+            platform_timeouts={"windows": 3600},
         ),
     ),
 )

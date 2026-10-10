@@ -20,6 +20,7 @@ declares an unavailable optional vendor CLI as a visible skip.
 from __future__ import annotations
 
 import argparse
+import dataclasses
 import os
 import shutil
 import signal
@@ -230,6 +231,7 @@ def run_group(
         )
 
     for cmd in applicable:
+        cmd = dataclasses.replace(cmd, timeout=cmd.timeout_on(platform))
         outcome = run_command(cmd, repo_root, secrets, quiet)
         outcome.group = group.name
         _render_command_result(outcome, quiet)

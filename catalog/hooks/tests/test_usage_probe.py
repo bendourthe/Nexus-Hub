@@ -1523,3 +1523,83 @@ def test_process_local_backoff_holds_when_the_cache_is_unwritable(env, monkeypat
     env.http.queue(CLAUDE_PAYLOAD)
     assert env.probe.probe("claude").status == "ok"
     assert len(env.http.calls) == 2
+
+
+# ----- isolation recipes documented in docs/guides/usage-limit-handoff.md (v4.13.11 T024, WN-33) -----
+
+GUIDE_PATH = HOOKS_DIR.parent.parent / "docs" / "guides" / "usage-limit-handoff.md"
+_ISOLATION_VARS = ("HOME", "USERPROFILE", "APPDATA", "XDG_CONFIG_HOME", "CODEX_HOME", "NEXUS_HOME")
+# Resolves every path the probe reads, in a child process, without opening any of them.
+_RESOLVE_PATHS = """
+import importlib.util, json, sys
+spec = importlib.util.spec_from_file_location("probe", sys.argv[1])
+probe = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(probe)
+paths = {
+    "claude": probe._claude_credentials_path(),
+    "codex": probe._codex_auth_path(),
+    "cursor-win32": probe.cursor_state_path("win32"),
+    "cursor-darwin": probe.cursor_state_path("darwin"),
+    "cursor-linux": probe.cursor_state_path("linux"),
+    "copilot": probe.copilot_state_path(),
+    "state": probe.state_dir(),
+}
+print(json.dumps({k: str(v) for k, v in paths.items()}))
+"""
+
+
+def _isolated_env(sandbox: Path, **overrides: str) -> dict[str, str]:
+    """The guide's redirection recipe: every isolation variable under one temporary directory."""
+    env = {k: v for k, v in os.environ.items() if not k.startswith("NEXUS_USAGE_PROBE")}
+    env.update({name: str(sandbox / name.lower()) for name in _ISOLATION_VARS})
+    env.update(overrides)
+    return env
+
+
+def _resolved_paths(env: dict[str, str]) -> dict[str, Path]:
+    done = subprocess.run(
+        [sys.executable, "-c", _RESOLVE_PATHS, str(PROBE_PATH)],
+        env=env, capture_output=True, text=True, timeout=60, check=False,
+    )
+    assert done.returncode == 0, done.stderr
+    return {k: Path(v) for k, v in json.loads(done.stdout).items()}
+
+
+def test_the_documented_redirection_recipe_isolates_every_credential_path(tmp_path):
+    sandbox = tmp_path / "sandbox"
+    paths = _resolved_paths(_isolated_env(sandbox))
+    assert len(paths) == 7
+    escaped = {k: str(p) for k, p in paths.items() if not p.is_relative_to(sandbox)}
+    assert not escaped, f"paths outside the isolated sandbox: {escaped}"
+
+
+def test_redirecting_home_without_appdata_still_reaches_the_outside_cursor_store(tmp_path):
+    """Negative control (the WN-33 incident): APPDATA left pointing outside is read as is."""
+    sandbox, outside = tmp_path / "sandbox", tmp_path / "outside-profile"
+    paths = _resolved_paths(_isolated_env(sandbox, APPDATA=str(outside)))
+    assert paths["cursor-win32"].is_relative_to(outside)
+    assert not paths["cursor-win32"].is_relative_to(sandbox)
+
+
+def test_the_documented_exclusion_recipe_reads_no_provider(tmp_path):
+    env = _isolated_env(tmp_path / "sandbox", NEXUS_USAGE_PROBE_PROVIDERS="copilot")
+    for platform in ("claude", "codex", "cursor"):
+        done = subprocess.run(
+            [sys.executable, str(PROBE_PATH), "--platform", platform, "--json"],
+            env=env, capture_output=True, text=True, timeout=60, check=False,
+        )
+        result = json.loads(done.stdout)
+        assert (result["status"], result["reason"]) == (
+            "unavailable",
+            "provider disabled by NEXUS_USAGE_PROBE_PROVIDERS",
+        ), platform
+    assert not (tmp_path / "sandbox" / "nexus_home" / "state").exists(), "an excluded probe wrote state"
+
+
+def test_the_guide_states_both_isolation_recipes():
+    text = GUIDE_PATH.read_text(encoding="utf-8")
+    section = text.split("## Testing the probe in isolation", 1)[1].split("\n## ", 1)[0]
+    for name in _ISOLATION_VARS:
+        assert f"`{name}`" in section, f"the redirection recipe does not name {name}"
+    assert "`NEXUS_USAGE_PROBE_PROVIDERS=copilot`" in section
+    assert "`NEXUS_USAGE_PROBE_DISABLED=1`" in section

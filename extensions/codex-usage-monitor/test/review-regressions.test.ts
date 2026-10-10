@@ -151,6 +151,15 @@ describe("F6: settings scopes and the refresh interval", () => {
     }
   });
 
+  // WN-29 (v4.13.9): the credential path decides which local token is read and
+  // sent to the usage endpoint, so a workspace .vscode/settings.json must not be
+  // able to set it. Machine scope (user or remote settings only) is required.
+  it("scopes authPath to the machine, so a workspace cannot choose the credential file", () => {
+    const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "package.json"), "utf-8"));
+    const props = pkg.contributes.configuration.properties as Record<string, { scope?: string }>;
+    expect(props["codexUsage.authPath"].scope).toBe("machine");
+  });
+
   it.each([
     [0, 1],
     [-5, 1],

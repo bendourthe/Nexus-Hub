@@ -25994,5 +25994,89 @@
       "Phase-only qualification; Phases 5-8 not implemented in this commit.",
       "No push, PR, remote CI, release, migration, archive or cleanup."
     ]
+  },
+  "phase5": {
+    "observed_at_utc": "2026-10-10T08:00:47.732892+00:00",
+    "phase": 5,
+    "gate": "GO",
+    "qualified_tasks": [
+      "T021",
+      "T022",
+      "T023",
+      "T024",
+      "T025"
+    ],
+    "session": "5017000a-d374-4510-ab1c-3336e755b64f",
+    "source_sha256": {
+      ".github/dependabot.yml": "3076a8092f2a9f06a3ee11bc45fda3739dbe112dfa8bb5e7c6229b9eaef174e9",
+      "catalog/hooks/tests/test_usage_probe.py": "cf9d8ba9dd8630a56a4f60be466f8faeda84bacfa5171de38409236eceee09d3",
+      "docs/guides/usage-limit-handoff.md": "a62b872c0f13407f06cce23596ebce683088a49d70c7a411030a58778b2fe203",
+      "docs/releases/v4/v4.13/development/history/v4.13.11-phase-5-session.md": "2f24a9652a76fb3577e555e558601ff6f43fe4ce4c11571ece1580e8783fe5cd",
+      "docs/releases/v4/v4.13/development/v4.13.11-phase-5-evidence.md": "87ae0ba8ab2d1f0b4c367330f874692b2bdc2efda3167768702b8ff32de57de7",
+      "docs/releases/v4/v4.13/development/v4.13.11-phase-5-receipts/verification-run.txt": "23955e6bbeacdc54ae47418a8c78f6021445742a06c0c12c0446abe99d3c6333",
+      "docs/releases/v4/v4.13/known-gaps.md": "05dbaaa3c50ca600615c3fb4487690896ea1a5aa4f85c4522d3e7794c04ee922",
+      "docs/releases/v4/v4.13/plans/v4.13.11-known-gaps-sweep-and-minor-close.md": "a913023578a1e96b7617e3413ff1fc3cc21191bf87908afd510b51bcf62fb95a",
+      "extensions/claude-usage-monitor/package-lock.json": "c2323ac2fa778cffa4eff744069bad0d14c7f2cacb69b2b9ec8aeb484fd1dbd1",
+      "extensions/claude-usage-monitor/package.json": "27db30d82282a75a7e87c42a747edcbfa5a858d61f983343d84059e26d03595b",
+      "extensions/codex-usage-monitor/README.md": "9c653e4b01966757584b82941a491d81f998c8a9a7d1c13e941c8327b43978f3",
+      "extensions/codex-usage-monitor/package-lock.json": "d9c289fff56bef56e004e629fee45b981acd27d3b5409dbb23802f107279fe2f",
+      "extensions/codex-usage-monitor/package.json": "e236a8fb64961f981bcca23cff0c1ad2887daf0573400b6571a3961376f217d9",
+      "extensions/codex-usage-monitor/test/review-regressions.test.ts": "ac811a16c1d8a449fa83d8416f33a8bae58ede192513015355e8046a18b48e1f",
+      "extensions/copilot-usage-monitor/package-lock.json": "41f87e231675c98de8dda9d8ab149dc809d35c2babf851c7ef57ef46c09acef2",
+      "extensions/copilot-usage-monitor/package.json": "8ed8cb78f7ead67d192b0cfad9784d80f08a4721e9de8b9bd7b278baf76bc152",
+      "extensions/cursor-usage-monitor/package-lock.json": "5efc9ae2ca02382cf3b92b2ed0fbfb0a96efa5f4196a2ec574077d3e36aeb783",
+      "extensions/cursor-usage-monitor/package.json": "f3f879674ae222a6df8c59ac040ea1086ccd1dd5a5dbcb7fc9fc1173c73f52c8",
+      "guides/website/nexus-hub-guide.html": "30d0fa3a561dfe96f86ea0897b6af9c0009798ccb33f82b26c836c629351ae5e",
+      "guides/website/shared/base.css": "cbd95e031a6604e7c9110c09d9d2fa8d168954fe2b9afaa80ee3632fd0a27a87",
+      "guides/website/shared/header.html": "ce9d32a7da797f9b2fcdf5373d2568f2d82ee5e111f0c50e57cc2de609856fd9",
+      "guides/website/shared/nav.js": "5d088aeb3d75080fa3e6c972ff75ae655029c84220f6efadab9c15528e5c9897",
+      "guides/website/shared/theme.js": "2142be05e4328e349384dfe18bc4b35cb343565cfed30cbaaf332b6461d66dff",
+      "guides/website/src/sky-sentinel.js": "3ca701eb31a94b5dd757360cf425a5611e39dd8df2f2d624dcc29d66db5029db",
+      "guides/website/training.html": "489a7fa9789fb1c956137f35287fce2eb758e0d2b4e71751c811c7797dbc1801",
+      "scripts/ci/profiles.py": "9896ab07824fe636b20415d51266548a0167c8e365580f5809663e6f9db78549",
+      "scripts/ci/run.py": "235e501a29e09b84f35650ea6270de49b6f790829dfdc481f3a81ce319f72f3b",
+      "scripts/stamp_guide_shared.py": "e95687a0afd4121a7f634286d15d18dcbe35ea71a19c0c3ace40eea90276674b",
+      "tests/ci/test_ci_engine.py": "c535e701a8312308dc31139e04f2eceb06fd5f9737a6eed77b0940df8a8728e1",
+      "tests/guides/test_nexus_hub_guide.py": "06a4ca5f9d44c185a9049ea405e840fb8a9f9d02e42d50f986b981e3b275e1c3",
+      "tests/guides/test_v41311_lifecycle_and_header.py": "98f2603699c85ffbbe2ecae0e5a6f850c0cad6a237984b6ef3a728b6ef39c405",
+      "tests/skills/test_profiling_harness.py": "810f64a55426013cf737bc2c29f73bf0657d4ad4b17bd93386d2424ca4ba79e5",
+      "tests/workflows/test_cursor_usage_monitor_workflow.py": "73b2096e30dbd8b9b8efa9cd6e1983c631599a4eda5eb483e122f528bf9852a9"
+    },
+    "frozen_plan_hash": "f810cd9838d5c88927d00903a11f1bdcc9771ca950d2cb113f9a0b04a19311ed",
+    "required_command": {
+      "argv": "NEXUS_REQUIRE_RENDER=1 python -m pytest -q -rs tests/workflows/test_cursor_usage_monitor_workflow.py tests/validators/test_ci_workflow_contract.py tests/guides/test_training_game_engine.py tests/guides/test_stamp_guide_shared.py",
+      "result": "293 passed in 463.53s",
+      "exit": 0,
+      "skipped": 0
+    },
+    "approved_ci_edits": [
+      "dependabot npm entry for extensions/copilot-usage-monitor",
+      "hook-tests windows timeout 2400 s (shared 1800 s)",
+      "repo-tests-governance windows timeout 3600 s (shared 2700 s)"
+    ],
+    "known_gaps": {
+      "open_before": 136,
+      "open_after": 126,
+      "closed_on_evidence": [
+        "v4.13#WN-25",
+        "v4.13#WN-28",
+        "v4.13#WN-29",
+        "v4.13#WN-33",
+        "v4.13#WN-35",
+        "v4.13#WN-38",
+        "v4.13#AR-59",
+        "v4.13#MT-1-v4136",
+        "v4.13#WN-5-v41310",
+        "v4.13#WN-6-v41310"
+      ]
+    },
+    "observations": [
+      "catalog/hooks/tests and tests/ collected in one pytest process make tests.validators unimportable (shared package name); CI runs them separately; recorded, not changed.",
+      "tests/integrations/test_map_cli.py remains unregistered (Phase 8)."
+    ],
+    "limits": [
+      "Phase-only qualification; no push, PR, remote CI, release, migration, archive or cleanup.",
+      "No real-editor validation of the monitors."
+    ]
   }
 }

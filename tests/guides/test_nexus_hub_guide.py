@@ -8,6 +8,7 @@ v4.2.2-guide-cinematic-rebuild.md).
 
 from __future__ import annotations
 
+import html
 import importlib.util
 import json
 import os
@@ -1445,26 +1446,81 @@ def test_every_command_documents_its_scopes(guide_text: str) -> None:
         )
 
 
-def test_rendered_scopes_match_their_command_files(guide_text: str) -> None:
-    """Anti-drift: a scope shown here must exist in that command's own file."""
-    cs = _cheatsheets_markup(guide_text)
-    pseudo = {"(bare)"}
+_CS_CARD = re.compile(r'<span[^>]*class="cs-name">/([a-z-]+)</span>([\s\S]*?)</article>')
+# v4.13.11 T024 (closes v4.13.6 MT-1): every rendered scope is `<code data-ty="code">`, so the
+# old bare-`<code>` pattern matched nothing and the test compared no scope at all.
+_CS_SCOPE = re.compile(r'<div class="cs-scope"><code\b[^>]*>([^<]+)</code>')
+_PLACEHOLDER = re.compile(r"(<[^>]+>)")
+
+
+def _scope_pattern(name: str, scope: str) -> re.Pattern[str]:
+    """Where a rendered scope must appear in its command file to count as documented there.
+
+    `(bare)` needs a bare invocation (`` `/name` `` or `/name` ending a usage line). Any other
+    scope must be an invocation argument (`/name <scope>`), a code span, or one alternative of
+    an enumeration such as `<auto|deck|report|compile>`; a word that merely occurs in prose does
+    not count. A `<placeholder>` matches any placeholder, since cards abbreviate their names.
+    """
+    command = re.escape("/" + name)
+    if scope == "(bare)":
+        return re.compile(rf"`{command}`|{command}(?=[ \t]*(?:->|\)|$))", re.MULTILINE)
+    body = "".join(
+        r"<[^>\n]+>" if part.startswith("<") else re.escape(part)
+        for part in _PLACEHOLDER.split(scope)
+        if part
+    )
+    return re.compile(rf"{command}[ \t]+{body}(?![\w-])|`{body}`|(?<=[`<|]){body}(?=[`>|])")
+
+
+def _compare_rendered_scopes(guide_text: str) -> tuple[int, list[str]]:
+    """Return (scopes compared, scopes not documented in their command file)."""
+    compared = 0
     unmatched: list[str] = []
-    for block in re.finditer(
-        r'<span[^>]*class="cs-name">/([a-z-]+)</span>([\s\S]*?)</article>', cs
-    ):
-        name, body = block.group(1), block.group(2)
+    for card in _CS_CARD.finditer(_cheatsheets_markup(guide_text)):
+        name, body = card.group(1), card.group(2)
         source = COMMANDS_DIR / f"{name}.md"
-        if not source.is_file():
-            continue
-        text = source.read_text(encoding="utf-8")
-        for scope in re.findall(r'<div class="cs-scope"><code>([^<]+)</code>', body):
-            scope = scope.strip()
-            if scope in pseudo or scope.startswith("&lt;") or " " in scope:
-                continue
-            if scope not in text:
+        text = source.read_text(encoding="utf-8") if source.is_file() else ""
+        for raw in _CS_SCOPE.findall(body):
+            scope = html.unescape(raw).strip()
+            compared += 1
+            if not _scope_pattern(name, scope).search(text):
                 unmatched.append(f"/{name} {scope}")
+    return compared, unmatched
+
+
+def test_rendered_scopes_match_their_command_files(guide_text: str) -> None:
+    """Anti-drift: every scope shown on a card must be documented in that command's own file."""
+    compared, unmatched = _compare_rendered_scopes(guide_text)
+    rows = _cheatsheets_markup(guide_text).count('<div class="cs-scope">')
+    # Non-vacuous: every rendered scope row is compared, and there are rows to compare.
+    assert rows >= 50, f"only {rows} scope rows rendered; the Cheatsheets markup changed shape"
+    assert compared == rows, f"compared {compared} of {rows} scope rows; the scope matcher missed some"
     assert not unmatched, f"scopes not found in their command files: {unmatched}"
+
+
+@pytest.mark.parametrize(
+    ("real", "stale", "expected"),
+    [
+        # The /presentify card listed a `project` mode that `--mode` never accepted (v4.13.11 T024).
+        (
+            '<code data-ty="code">compile</code><span data-ty="body-sm">Two or more files, or a folder',
+            '<code data-ty="code">project</code><span data-ty="body-sm">Two or more files, or a folder',
+            "/presentify project",
+        ),
+        (
+            '<code data-ty="code">phase N of &lt;plan&gt;</code>',
+            '<code data-ty="code">stage N of &lt;plan&gt;</code>',
+            "/route stage N of <plan>",
+        ),
+    ],
+)
+def test_a_stale_rendered_scope_fails_the_comparison(
+    guide_text: str, real: str, stale: str, expected: str
+) -> None:
+    """Negative control: the comparison must catch a card scope its command file does not declare."""
+    assert guide_text.count(real) == 1, f"control anchor {real!r} is not unique in the guide"
+    _, unmatched = _compare_rendered_scopes(guide_text.replace(real, stale))
+    assert unmatched == [expected]
 
 
 def test_cheatsheets_scopes_are_single_column(guide_text: str) -> None:

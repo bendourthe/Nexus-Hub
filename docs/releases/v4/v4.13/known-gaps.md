@@ -3,7 +3,7 @@
 **Project**: Nexus-Hub
 **Status**: released; PR #230 merged the complete 34-task plan and tag `v4.13.0` was published on 2026-09-21. Two bounded warning-class findings remain owned for future measurement work. GitHub branch protection passed a live pull-request gate test; the second trigger pilot stopped on an unproven spend bound.
 **Last updated**: 2026-10-10
-**Open items**: 136
+**Open items**: 126
 **Accounting, 2026-10-09 (v4.13.11 T006-T007)**: The Open items header is derived from current parsed state, including canonical historical owners. Patch Summary tables preserve their release-time snapshots; they do not replace the current header count. Original patch/ID identities remain in the source bodies and the reconciliation manifest.
 
 Release-scoped gaps for the evidence-driven agent improvement plan. Planned future-phase work is tracked in the plan rather than reported as completed here.
@@ -2441,7 +2441,9 @@ No new Phase 4 implementation, regression, missing-test, or quality-gate gap rem
 - **Owner and next step**: handbook owner; repoint the three comments at the next distribution-handbook refresh and record new evidence.
 - **Historical transfer note**: raised by the 2026-09-29 archive pass (reason: repointing requires a handbook evidence refresh outside this change).
 
-### AR-59: Extension devDependencies are declared as caret ranges
+### AR-59: Extension devDependencies are declared as caret ranges - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 5 T022)**: All four usage monitors declare exact devDependency versions (actual ranged counts 10, 10, 6 and 10, all now 0), each pinned to its lock-resolved version except `@types/vscode`, which is pinned to the `engines.vscode` floor 1.85.0; the claude, codex and copilot locks were corrected from 1.125.0, because a negative control showed an exact 1.125.0 pin makes `vsce package` fail. Lock diffs touch only the root specs and that one entry. One monitor at a time, a disposable copy with isolated home and npm cache passed clean `npm ci`, compile, tests (58, 128, 313, 292) and `vsce package` (plus cursor's `verify:package`); each VSIX has its baseline file list with identical compiled output and no node_modules, sources, tests, maps or secrets. No real-editor validation is claimed. Origin comparison item A3 is closed. See [Phase 5 verification](development/v4.13.11-phase-5-evidence.md).
 
 - **Current state**: the three usage-monitor extensions (`claude-usage-monitor`, `codex-usage-monitor`, `cursor-usage-monitor`) declare 11, 11, and 7 devDependencies as caret ranges (re-counted on `develop` on 2026-09-30). The immediate risk is bounded: all three have a `package-lock.json`, CI installs with `npm ci`, which resolves from the lock and not from the ranges, and each `.npmrc` sets `save-exact=true` and `min-release-age=2`, so new dependencies are recorded exactly and the range surface does not grow. Pinning the existing ranges was deliberately not done when the supply-chain hardening landed, because it changes what a fresh resolve installs, and an unverified pin breaks builds for reasons unrelated to the change that caused it.
 - **Owner and next step**: extensions owner; pin each manifest to the version its lockfile already resolves, one extension at a time, running that extension's build and Vitest suite before moving to the next.
@@ -4014,7 +4016,9 @@ Gaps from the minor-scope implement plan ([`v4.13.6-minor-scope-implement-and-ve
 
 **Original source identity**: `v4.13.6#WN-2`; stable ID `WN-2-v4136` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### MT-1-v4136 (v4.13.6): The guide's scope-matching test checks no scope
+#### MT-1-v4136 (v4.13.6): The guide's scope-matching test checks no scope - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 5 T024)**: `test_rendered_scopes_match_their_command_files` now matches `code` tags with attributes, compares all 85 rendered scope rows on 24 cards, and fails if fewer than 50 render or any row goes uncompared; a scope counts only as an invocation argument, a code span or an enumeration value in its command file, not as prose. `test_a_stale_rendered_scope_fails_the_comparison` injects stale rows into the real guide and requires each to be reported, and the old bare-tag matcher fails with 'compared 0 of 85'. The stricter check found a wrong card: `/presentify` listed a `project` mode that `--mode` never accepted; the row was removed, `compile` now says 'Two or more files, or a folder', and the card was rendered headless in both themes. See [Phase 5 verification](development/v4.13.11-phase-5-evidence.md).
 
 **Evidence**: `test_rendered_scopes_match_their_command_files` in `tests/guides/test_nexus_hub_guide.py` searches for a bare `<code>` tag, but every Cheatsheets scope is rendered as `<code data-ty="code">`, so the test passes without comparing any scope with its command file. Found while adding `tests/guides/test_cheatsheet_command_sync.py`, which covers the `/implement` card only. **Owner**: catalog maintainer. **Suggested next step**: match the attribute form and extend the comparison to every command card, then confirm it fails on a deliberately stale card.
 
@@ -4230,7 +4234,9 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 
 **Tracking alias closure, 2026-10-09 (v4.13.11 T007)**: This source repeats the obligation tracked by `v4.13.0#AR-04`. Its stable normalized owner is `v4.13.0#AR-04`. The original body is retained; the canonical owner remains open, and this marker does not claim implementation.
 
-#### WN-25 (v4.13.9): The profiling-harness test fails intermittently under host load
+#### WN-25 (v4.13.9): The profiling-harness test fails intermittently under host load - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 5 T024)**: `test_profile_run_emits_profile` now requests the complete profile (`--top 100000`), asserts it was not truncated, and checks the exact fixture entries for `work` (called once) and `step` (called 500 times) with `work`'s cumulative time at least `step`'s, so timing rank no longer decides whether they appear. A negative-control test rejects a profile missing `work` and one cut short, and a harness mutant that drops `work()` fails. The test passed 10 of 10 runs under six CPU-burner processes. See [Phase 5 verification](development/v4.13.11-phase-5-evidence.md).
 
 - **Source phase**: Phase 6. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T334.
 - **Reason**: during the v4.13.8 full local gate on 2026-10-01, `tests/skills/test_profiling_harness.py::test_profile_run_emits_profile` failed once (`assert any("work" in fn["name"] ...)` was False: the profiled `work()` function was missing from the top 10 entries) while several suites shared the host. It passed 3 of 3 runs alone on the branch and 2 of 2 on `develop`. The test was last changed in v3.14.0, and this plan touches neither it nor the harness.
@@ -4275,7 +4281,9 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 
 **Tracking alias closure, 2026-10-09 (v4.13.11 T007)**: This source repeats the obligation tracked by `v4.13.9#WN-26`. Its stable normalized owner is `v4.13.9#WN-26`. The original body is retained; the canonical owner remains open, and this marker does not claim implementation.
 
-#### WN-28 (v4.13.9): Dependabot does not track the Copilot Usage Monitor's npm dependencies
+#### WN-28 (v4.13.9): Dependabot does not track the Copilot Usage Monitor's npm dependencies - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 5 T021)**: `.github/dependabot.yml` now has an npm entry for `/extensions/copilot-usage-monitor` with the same monthly cadence, PR limit, major-version ignore and `@types/vscode` ignore as its three siblings (approved CI edit). `test_dependabot_tracks_the_new_extension` no longer hard-codes three entries: it derives the expected set from the `extensions/*-usage-monitor/package.json` folders on disk, so a future monitor fails until it is tracked. Carried origins v4.13.7 WN-4 and v4.13.8 WN-15 are closed. See [Phase 5 verification](development/v4.13.11-phase-5-evidence.md).
 
 **Evidence**: `.github/dependabot.yml` has npm entries for the Claude, Codex, and Cursor monitors only, so `extensions/copilot-usage-monitor/` (added in Phase 2, installed from Phase 3) receives no dependency or security update pull requests. Adding the entry is a CI-configuration change that was not in the Phase 3 approval, and `tests/workflows/test_cursor_usage_monitor_workflow.py::test_dependabot_tracks_the_new_extension` asserts exactly three npm monitor entries, so the test has to change with it. **Owner**: catalog maintainer (CI configuration). **Suggested next step**: with approval, add an npm entry for `/extensions/copilot-usage-monitor` that ignores `@types/vscode` like its siblings, and change that assertion to four.
 
@@ -4283,7 +4291,9 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 
 - **Carried from**: v4.13.8#WN-15 on 2026-10-02
 
-#### WN-29 (v4.13.9): `codexUsage.authPath` can still be set by a workspace
+#### WN-29 (v4.13.9): `codexUsage.authPath` can still be set by a workspace - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 5 T022)**: `codexUsage.authPath` now declares `"scope": "machine"`, so only user or remote settings can set it and a workspace `.vscode/settings.json` value is ignored; the setting description and README explain why. A new test in `extensions/codex-usage-monitor/test/review-regressions.test.ts` fails with the scope removed and passes with it; a clean disposable `npm ci` and test run passed 128 of 128. Malformed-credential handling is unchanged. That workspace values are ignored relies on VS Code's documented machine scope and was not observed in a real editor. Carried origins v4.13.7 WN-5 and v4.13.8 WN-16 are closed. See [Phase 5 verification](development/v4.13.11-phase-5-evidence.md).
 
 **Evidence**: Phase 3 made the Codex monitor's thresholds and colors `"scope": "application"` (WN-2), but `codexUsage.authPath` in `extensions/codex-usage-monitor/package.json` declares no scope. A trusted workspace's `.vscode/settings.json` can therefore point the monitor at another file, whose token the monitor reads and sends to `chatgpt.com/backend-api/wham/usage`. The destination stays fixed, so the exposure is limited to that one vendor endpoint, but which local credential is read is still decided by the workspace. **Owner**: catalog maintainer. **Suggested next step**: set `"scope": "machine"` or `"application"` on `codexUsage.authPath`, add it to the scope assertion in `extensions/codex-usage-monitor/test/review-regressions.test.ts`, and note in the README that a workspace value is ignored.
 
@@ -4315,7 +4325,9 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 
 - **Carried from**: v4.13.8#WN-19 on 2026-10-02
 
-#### WN-33 (v4.13.9): Redirecting HOME does not isolate the usage probe's Cursor reader on Windows
+#### WN-33 (v4.13.9): Redirecting HOME does not isolate the usage probe's Cursor reader on Windows - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 5 T024)**: `docs/guides/usage-limit-handoff.md` gains 'Testing the probe in isolation', which states why `HOME` alone does not isolate the probe (`USERPROFILE` on Windows, `APPDATA` and `XDG_CONFIG_HOME` for Cursor, `CODEX_HOME`, the macOS Keychain) and gives an exclusion recipe (`NEXUS_USAGE_PROBE_PROVIDERS`, `NEXUS_USAGE_PROBE_DISABLED=1`) and a six-variable redirection recipe. Four child-process tests in `catalog/hooks/tests/test_usage_probe.py` prove both recipes without opening a credential, including a negative control where an `APPDATA` left outside is followed, and a guide-sync check. No offline probe switch was added; offline fetch tests stay in the unit tests that stub the network call. See [Phase 5 verification](development/v4.13.11-phase-5-evidence.md).
 
 **Evidence**: `cursor_state_path()` in `catalog/hooks/_usage_probe.py` finds Cursor's `state.vscdb` through `%APPDATA%`, which is correct for Cursor but means a probe run with only `HOME` and `USERPROFILE` redirected still reads the real Cursor token. During the Phase 9 adversarial review one such run read the maintainer's real token and made one POST to `api2.cursor.sh` (Cursor's own host; the allowlist held, the token was not printed, and the cache file the run wrote held no token and was deleted). The shipped hook behaves as designed; the gap is that nothing tells a tester how to isolate the probe. **Owner**: catalog maintainer. **Suggested next step**: state in `docs/guides/usage-limit-handoff.md` that an isolated probe run must also redirect `APPDATA` (or exclude Cursor through `NEXUS_USAGE_PROBE_PROVIDERS`), and consider an explicit offline switch for testing.
 
@@ -4342,7 +4354,9 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 
 **Normalization, 2026-10-09 (v4.13.11 T006)**: Parsed CLOSED marker records the already evidenced disposition retained above. No new runtime or historical capture is claimed.
 
-#### WN-35 (v4.13.9): The governance test group outgrows its 2700 s local cap on Windows
+#### WN-35 (v4.13.9): The governance test group outgrows its 2700 s local cap on Windows - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 5 T021)**: `repo-tests-governance` keeps its shared 2700 s cap and gains a Windows-only 3600 s override from the recorded 3325.7 s run (approved CI edit). The override is a new optional `Command.platform_timeouts` field resolved by `timeout_on()` and applied per host in `run_group`; Linux and macOS are unchanged. Tests in `tests/ci/test_ci_engine.py` pin both values per platform and prove `run_group` passes the host's timeout to the runner. Carried origin v4.13.8 WN-34 is closed. See [Phase 5 verification](development/v4.13.11-phase-5-evidence.md).
 
 - **Source phase**: Phase 7 (final-phase full suite, re-run over Phase 6)
 - **Plan reference**: [v4.13.8 plan, sub-task 7.9 (T334)](plans/v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md)
@@ -4382,7 +4396,9 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 - **Reason**: the multi-byte payload measured larger on Windows than its UTF-8 length (for example `session-summary.ps1` 3568 bytes and `auto-devlog.ps1` 4574 bytes for one event), consistent with input decoded through a legacy code page: Windows PowerShell 5.1 standard input and git output, and Python standard input read as cp1252. The size test records this and does not assert it. Measurement: [`v4.13.9-hook-size-bound.md`](development/v4.13.9-hook-size-bound.md).
 - **Suggested next step**: read hook standard input as UTF-8 explicitly in the `.ps1` siblings and the Python hooks, then re-measure the multi-byte column.
 
-#### WN-38 (v4.13.9): The hook test step outgrows its 1800 s local cap on Windows
+#### WN-38 (v4.13.9): The hook test step outgrows its 1800 s local cap on Windows - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 5 T021)**: `hook-tests` keeps its shared 1800 s cap and gains a Windows-only 2400 s override from the recorded 2096.9 s run (approved CI edit), through the same `platform_timeouts` mechanism as WN-35. The separate `windows-hooks` group in the platform profile was inspected and left unchanged: it is the hosted Windows PowerShell 5.1 leg, not the measured local full-profile step, so the same correction was not demonstrated for it. See [Phase 5 verification](development/v4.13.11-phase-5-evidence.md).
 
 - **Source phase**: Phase 6. **Plan reference**: `v4.13.9-adoption-inline-visualize-codex-disk-writes-review-flow-gpt-6-1-sol.md`, T434.
 - **Reason**: `hook-tests` in `scripts/ci/profiles.py` has `timeout=1800`. In the final full profile on 2026-10-04 it hit that cap at 91 percent with no failure; run alone without the cap on the same Windows 11 machine it passed (2057 passed, 49 skipped, 8 xfailed) in 2096.9 s. Phase 5's `test_hook_size_bound.py` added about 3.5 minutes, and an earlier v4.13 run had already measured 1701.8 s, so the step was near its cap before this plan. As with WN-35, a local full run reports a timeout that is not a test failure.
@@ -4420,7 +4436,9 @@ Gaps from the Training page rebuild ([`v4.13.10-training-page-rebuild`](plans/v4
 
 **Original source identity**: `v4.13.10#WN-1`; stable ID `WN-1-v41310` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### WN-5-v41310 (v4.13.10): A game started through the API on a hidden stage runs unseen
+#### WN-5-v41310 (v4.13.10): A game started through the API on a hidden stage runs unseen - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 5 T023)**: Revalidation showed an off-screen but rendered host was already paused by the IntersectionObserver, while a host that is not rendered still ran when started through the API (ticks advanced and Escape was ignored). `start()` and `resume()` in `guides/website/src/sky-sentinel.js` now pause with reason `stage` before requesting a frame when the host is not rendered, and `training.html` was regenerated with `scripts/stamp_guide_shared.py`. `test_hidden_host_start_and_resume_stay_paused_without_a_second_loop` drives the generated page headless: the game stays paused with reason `stage` and an unchanged tick across five visibility cycles and repeated start and resume calls, the game loop is never requested while hidden, and once shown it runs on exactly one loop. The test fails on the previous engine. See [Phase 5 verification](development/v4.13.11-phase-5-evidence.md).
 
 - **Source phase**: Phase 8 deep pass (adversarial pass). **Plan reference**: [`v4.13.10-training-page-rebuild`](plans/v4.13.10-training-page-rebuild.md), Phase 3 engine.
 - **Reason**: `SkySentinel.get('fixed').start()` called while `#intro` is showing starts a game on a hidden stage. Its IntersectionObserver never fires for a host that was never visible, and Escape is ignored because the game does not own the keyboard, so it runs until the reader opens its stage. No button or key reaches this path: start controls are hidden on other stages and navigation pauses games.
@@ -4428,7 +4446,9 @@ Gaps from the Training page rebuild ([`v4.13.10-training-page-rebuild`](plans/v4
 
 **Original source identity**: `v4.13.10#WN-5`; stable ID `WN-5-v41310` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### WN-6-v41310 (v4.13.10): Three minor accessibility findings in shared markup
+#### WN-6-v41310 (v4.13.10): Three minor accessibility findings in shared markup - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 5 T023)**: All three clauses are closed in the shared sources and regenerated through `scripts/stamp_guide_shared.py`. The theme toggle no longer carries `aria-pressed` (its action label still switches); a Skip to content link is the first header element and moves focus to `main#app` without changing the hash, so neither page re-routes; the guide router marks exactly the active link `aria-current="page"`. The stamp script now refuses (exit 2, nothing written) a stamped skip link whose target is missing or duplicated. Headless proof on both pages, both themes and two widths: Tab from the top focuses the visible, topmost skip link with readable contrast, Enter focuses main with the hash and stage unchanged, and navigation and theme switching work. Evidence: `tests/guides/test_v41311_lifecycle_and_header.py` (14 tests; 12 fail on the previous sources). See [Phase 5 verification](development/v4.13.11-phase-5-evidence.md).
 
 - **Source phase**: Phase 8 deep pass (accessibility audit). **Plan reference**: [`v4.13.10-training-page-rebuild`](plans/v4.13.10-training-page-rebuild.md), Phase 8.6.
 - **Reason**: the audit passed both pages with minor findings. Three sit in markup both pages share or the guide already had before this plan, so they are recorded rather than changed here: the theme toggle carries `aria-pressed` with an action label ("Switch to light theme, pressed"); the guide's active nav link has no `aria-current="page"` (Training's does); there is no skip link, so reaching the provider switch on a session stage takes 19 Tab presses (landmarks are present).

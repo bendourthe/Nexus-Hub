@@ -2,7 +2,7 @@
 
 Summary: how Nexus-Hub keeps your work resumable when an AI platform's usage limit runs out, through `/handoff`, the rolling `.nexus-hub/handoff.md` checkpoint, and the automatic `usage-guard` hook.
 Read this when: you want to know what happens near a usage limit on your platform, how to turn the automatic guard on or off, how to check it, or what it reads and sends.
-Covers: per-platform coverage, the 99% threshold and its known limitation, `/handoff` and the checkpoint format, activation, validation, configuration, the macOS Keychain prompt, disabling, the completion-gate interaction, and the data boundary.
+Covers: per-platform coverage, the 99% threshold and its known limitation, `/handoff` and the checkpoint format, activation, validation, configuration, isolating a test run of the probe, the macOS Keychain prompt, disabling, the completion-gate interaction, and the data boundary.
 
 ## What it does
 
@@ -117,6 +117,22 @@ Set these in the environment the agent host starts hooks from:
 | `NEXUS_HOME` | Relocates `~/.nexus-hub`, where the cache and guard state live. | `~/.nexus-hub` |
 
 The guard warns once per window per session. It warns again only after the window drops below the threshold minus up to 5 points or its reset time moves to a new period.
+
+## Testing the probe in isolation
+
+A probe run reads the real sign-in of every provider it is allowed to read and, on a cache miss, sends that token to the vendor's host. Redirecting `HOME` alone does not isolate it:
+
+- On Windows, Python takes the home folder from `USERPROFILE` and ignores `HOME`, so `~/.claude/.credentials.json` and `~/.codex/auth.json` still resolve inside the real profile.
+- Cursor's `state.vscdb` is found through `APPDATA` on Windows and through `XDG_CONFIG_HOME` (else `~/.config`) on Linux, so a run with only `HOME` and `USERPROFILE` redirected still reads the real Cursor token on Windows.
+- Codex reads `CODEX_HOME` before the home folder.
+- On macOS, Claude Code falls back to the login Keychain, which no environment variable redirects.
+
+Use one of these two recipes. Never use the live account state on the machine in place of a fixture.
+
+1. **Exclusion (no credential read, no network call).** Set `NEXUS_USAGE_PROBE_PROVIDERS=copilot` and point `NEXUS_HOME` at a temporary folder. Claude Code, Codex, and Cursor then report `unavailable` with the reason `provider disabled by NEXUS_USAGE_PROBE_PROVIDERS` before any file is opened, and Copilot reads only `copilot.json` under `NEXUS_HOME` with no network call. An empty `NEXUS_USAGE_PROBE_PROVIDERS` means all four providers, not none; to read nothing at all, set `NEXUS_USAGE_PROBE_DISABLED=1`.
+2. **Redirection (exercise a provider against fixture files).** Point all six of `HOME`, `USERPROFILE`, `APPDATA`, `XDG_CONFIG_HOME`, `CODEX_HOME`, and `NEXUS_HOME` at folders under one temporary directory, then place the fixture credentials there. On macOS also leave `claude` out of `NEXUS_USAGE_PROBE_PROVIDERS`, because the Keychain fallback is not redirected. A fixture token is still sent to the vendor's host on a fetch.
+
+The probe has no offline switch. A test that must exercise a fetch without any network call uses the unit tests in `catalog/hooks/tests/test_usage_probe.py`, which replace the probe's single network seam (`_open`). `test_the_documented_redirection_recipe_isolates_every_credential_path` in that file checks recipe 2 in a child process, and `test_the_documented_exclusion_recipe_reads_no_provider` checks recipe 1.
 
 ## macOS: the one-time Keychain prompt (Claude Code)
 
