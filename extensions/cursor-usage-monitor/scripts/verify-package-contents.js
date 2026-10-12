@@ -3,7 +3,11 @@
  */
 const { execFileSync } = require("node:child_process");
 const {
+  closeSync,
+  constants,
   existsSync,
+  fstatSync,
+  openSync,
   readFileSync,
   statSync
 } = require("node:fs");
@@ -93,12 +97,26 @@ function discoverRuntimeFiles(entryPath, runtimeRoot) {
     if (visited.has(resolved)) {
       return;
     }
-    if (!existsSync(resolved) || !statSync(resolved).isFile()) {
-      throw new Error(`runtime module is missing: ${resolved}`);
+    let descriptor;
+    try {
+      descriptor = openSync(resolved, constants.O_RDONLY | constants.O_NONBLOCK);
+    } catch (error) {
+      if (["ENOENT", "ENOTDIR", "EISDIR"].includes(error.code)) {
+        throw new Error(`runtime module is missing: ${resolved}`);
+      }
+      throw error;
+    }
+    let source;
+    try {
+      if (!fstatSync(descriptor).isFile()) {
+        throw new Error(`runtime module is missing: ${resolved}`);
+      }
+      source = readFileSync(descriptor, "utf8");
+    } finally {
+      closeSync(descriptor);
     }
     visited.add(resolved);
 
-    const source = readFileSync(resolved, "utf8");
     const imports = source.matchAll(
       /\brequire\(\s*["'](\.[^"']+)["']\s*\)/gu
     );
