@@ -90,7 +90,9 @@ switch ($Platform) {
         break
     }
     default {
-        Write-Error "unknown platform `"$Platform`""
+        # Not Write-Error: a caller running with $ErrorActionPreference = 'Stop'
+        # turns it terminating and `exit 2` is never reached (AF-6).
+        [Console]::Error.WriteLine("error: unknown platform `"$Platform`"")
         exit 2
     }
 }

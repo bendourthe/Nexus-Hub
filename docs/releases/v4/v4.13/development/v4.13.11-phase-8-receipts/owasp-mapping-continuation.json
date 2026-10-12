@@ -1,0 +1,225 @@
+{
+  "reviewed_at_utc": "2026-10-12T06:44:53.011204+00:00",
+  "source_version": "OWASP Top 10 for Agentic Applications 2026",
+  "primary_definitions": "https://genai.owasp.org/2025/12/09/owasp-top-10-for-agentic-applications-the-benchmark-for-agentic-security-in-the-age-of-autonomous-ai/",
+  "current_resource": "https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/",
+  "source_limitation": "PDF endpoint timed out; actual official edition page and publisher announcement were fetched. Risk definitions were reviewed; unread PDF mitigation text was not.",
+  "skill_count": 15,
+  "binding_count": 24,
+  "read_only": true,
+  "rows": [
+    {
+      "skill": "ai-billing-safeguards",
+      "path": "catalog/skills/ai-development/ai-billing-safeguards/SKILL.md",
+      "identifiers": [
+        "ASI10"
+      ],
+      "body_sha256": "70c542ce4059d64b2ff446bfa4e6882cf6be573f6ef517060dda7bba995bbab8",
+      "rationale_path": "catalog/skills/ai-development/ai-billing-safeguards/references/standards.md",
+      "rationale_sha256": "a4aa9f87e753d6f561f9bcec81b34d7e55a3bb0d3563157365a35e1886be61f4",
+      "body_evidence": "SKILL.md:194-229",
+      "action": "Wrap every model call with the budget guard and propagate budget exhaustion into clean shutdown and a partial report.",
+      "verdict": "supported"
+    },
+    {
+      "skill": "agent-memory",
+      "path": "catalog/skills/workflow/agent-memory/SKILL.md",
+      "identifiers": [
+        "ASI06"
+      ],
+      "body_sha256": "cf812ed79d4330feca1b984b897d2cebf2c01a3368140d2b15050dcf9ef7930c",
+      "rationale_path": "catalog/skills/workflow/agent-memory/references/standards.md",
+      "rationale_sha256": "a2c3dafff577481e5f9fc102a36565ea3a6bc9535fc718b1329dbf45bb0d904d",
+      "body_evidence": "SKILL.md:54-64",
+      "action": "Require a source for each stored fact, append mutations to the changelog, and supersede poisoned facts through a recoverable provenance chain.",
+      "verdict": "supported"
+    },
+    {
+      "skill": "ai-agent-governance",
+      "path": "catalog/skills/compliance/ai-agent-governance/SKILL.md",
+      "identifiers": [
+        "ASI10"
+      ],
+      "body_sha256": "dadf671a7e123c27705e577d3fb17a2395f7dd90eb1efedbfa81761c415d0ca7",
+      "rationale_path": "catalog/skills/compliance/ai-agent-governance/references/standards.md",
+      "rationale_sha256": "942215800c01aab33aac044b20badb91a09e6a87ccf4bdf4805e452f780294c8",
+      "body_evidence": "SKILL.md:81-93",
+      "action": "Check process evidence alongside outcomes, review changes to goal measurement, and retain rollback by the identifier of a bad learning.",
+      "verdict": "supported"
+    },
+    {
+      "skill": "agent-orchestration-primitives",
+      "path": "catalog/skills/orchestration/agent-orchestration-primitives/SKILL.md",
+      "identifiers": [
+        "ASI07",
+        "ASI08"
+      ],
+      "body_sha256": "6f99dcafd856f8ccd2d579abea3ae9ea2221997d166177270c228e7f69786d8c",
+      "rationale_path": "catalog/skills/orchestration/agent-orchestration-primitives/references/standards.md",
+      "rationale_sha256": "fac989b1d01a030fa0b7341faa99c56788b95c0f68abe2587852da6e21407f9d",
+      "body_evidence": "SKILL.md:112-121; references/graph-readiness-checklist.md, eight-item checklist",
+      "action": "Require explicit handoff contracts or schemas, verify upstream results before fan-out, and version shared state for identification and rollback of corrupted premises.",
+      "verdict": "supported"
+    },
+    {
+      "skill": "agent-access-policy",
+      "path": "catalog/skills/orchestration/agent-access-policy/SKILL.md",
+      "identifiers": [
+        "ASI02",
+        "ASI03"
+      ],
+      "body_sha256": "cfc05d2227e7da0c8818676896cd027fc5c03faaad6fcc9938c3543f31bd4977",
+      "rationale_path": "catalog/skills/orchestration/agent-access-policy/references/standards.md",
+      "rationale_sha256": "15eee18837148b6194c303dd500918a0327819f69c91366a74fcd9dc4a7cc493",
+      "body_evidence": "SKILL.md:230-271",
+      "action": "Deny host execution and tools by default, constrain file and network reach, and use typed capability/resource grants for machine-enforced authorization.",
+      "verdict": "supported"
+    },
+    {
+      "skill": "label-gated-agent-pipelines",
+      "path": "catalog/skills/orchestration/label-gated-agent-pipelines/SKILL.md",
+      "identifiers": [
+        "ASI07",
+        "ASI09"
+      ],
+      "body_sha256": "44aa9426ac19a076e4e83d9f9ea5bed575ae458c495885592b922366dadd6cf5",
+      "rationale_path": "catalog/skills/orchestration/label-gated-agent-pipelines/references/standards.md",
+      "rationale_sha256": "5e59a97ef78db0ef46eab5edf5982336a3388492e4514aa79a26bd01bf6f5d08",
+      "body_evidence": "SKILL.md:44-65",
+      "action": "Permit only maintainer-driven stage advancement, declare bounded outputs, and accept only pipeline-authored handoff artifacts as stage contracts.",
+      "verdict": "supported"
+    },
+    {
+      "skill": "loop-engineering",
+      "path": "catalog/skills/workflow/loop-engineering/SKILL.md",
+      "identifiers": [
+        "ASI10"
+      ],
+      "body_sha256": "9162cb5a20d82745a4a47084ff1c236f5709bf6e22fca34fe26f4a992f63b1d0",
+      "rationale_path": "catalog/skills/workflow/loop-engineering/references/standards.md",
+      "rationale_sha256": "a85af7efbaab540bd273e3f52e38a9dddd69561a1dba9580adb195d5b560123d",
+      "body_evidence": "SKILL.md:81-88,129-157",
+      "action": "Bound iterations, cost and wall time; require command-derived independent exit evidence; reject bypassed checks and maker-authored scoring metrics.",
+      "verdict": "supported"
+    },
+    {
+      "skill": "prompt-injection-defense",
+      "path": "catalog/skills/security/prompt-injection-defense/SKILL.md",
+      "identifiers": [
+        "ASI01"
+      ],
+      "body_sha256": "9ad092f616155230f867428bdcc26f17f73e1fdfe2daf4bd56bf3cc3defcb59f",
+      "rationale_path": "catalog/skills/security/prompt-injection-defense/references/standards.md",
+      "rationale_sha256": "fd1d3816f00fa83f1951c90e1f79420859601fce4f13c8cfc31d4a1b5a1b6644",
+      "body_evidence": "SKILL.md:37-78",
+      "action": "Keep instruction provenance distinct from read content, refuse tool-output side-effect directives, and prevent suspect content from changing the task or privileges.",
+      "verdict": "supported"
+    },
+    {
+      "skill": "ai-attack-patterns",
+      "path": "catalog/skills/security/ai-attack-patterns/SKILL.md",
+      "identifiers": [
+        "ASI01",
+        "ASI02",
+        "ASI06"
+      ],
+      "body_sha256": "65370c80b6775b0f39e9e03d134556edd6296a8cee7fb4473ea5feb3ab58830d",
+      "rationale_path": "catalog/skills/security/ai-attack-patterns/references/standards.md",
+      "rationale_sha256": "e7baeb5e5a30c52bfbaead98f8b750a500378f441ef0b912cd20f585927a5ff2",
+      "body_evidence": "SKILL.md:53-59,75-95,107-129",
+      "action": "Under written authorization, test instruction override, poisoned retrieval and unintended tool calls using synthetic boundaries, then translate confirmed findings into defenses.",
+      "verdict": "supported"
+    },
+    {
+      "skill": "egress-redaction",
+      "path": "catalog/skills/security/egress-redaction/SKILL.md",
+      "identifiers": [
+        "ASI03"
+      ],
+      "body_sha256": "7fa6075ac41e6c386e338ff31bb359d8837ef3924597f9e5915e1feda473ec74",
+      "rationale_path": "catalog/skills/security/egress-redaction/references/standards.md",
+      "rationale_sha256": "8711aff5fbdc79987e3f195e4b36bfde1374a8d3c578275d32a4e4e0a7c73937",
+      "body_evidence": "SKILL.md:35-47,63-68,72-104",
+      "action": "Classify credentials and authentication material at send, persistence and error boundaries; default to blocking secrets and credentials rather than exposing authority.",
+      "verdict": "supported"
+    },
+    {
+      "skill": "skill-security-scan",
+      "path": "catalog/skills/security/skill-security-scan/SKILL.md",
+      "identifiers": [
+        "ASI04"
+      ],
+      "body_sha256": "4b780ee0367454a0ba680c7637dbe4312ee5e7bc0143b2a91acb1594d175de2d",
+      "rationale_path": "catalog/skills/security/skill-security-scan/references/standards.md",
+      "rationale_sha256": "cd844ab1f1b1f178bb033b2076aa1e05f80d45f8b3491c0f6a3d5c7d621c70e2",
+      "body_evidence": "SKILL.md:46-86",
+      "action": "Review imported executable capabilities in context, adjudicate genuine findings, and refuse installation or fail the catalog gate on unmitigated HIGH or CRITICAL findings.",
+      "verdict": "supported"
+    },
+    {
+      "skill": "slsa-provenance-and-sigstore-verification",
+      "path": "catalog/skills/security/slsa-provenance-and-sigstore-verification/SKILL.md",
+      "identifiers": [
+        "ASI04"
+      ],
+      "body_sha256": "a79904a6222bc5250c8a4decdf4d068a640828e0814b5130fd8f3e4a3d312d0e",
+      "rationale_path": "catalog/skills/security/slsa-provenance-and-sigstore-verification/references/standards.md",
+      "rationale_sha256": "4cd271b89161aead89792ff8120af28e2349eeb1d7a320609a14d8fc1b5734ad",
+      "body_evidence": "SKILL.md:32-50",
+      "action": "Require signatures and provenance at artifact admission, pin builder identity, and retain the admitted digest and signer.",
+      "verdict": "supported"
+    },
+    {
+      "skill": "agent-execution-isolation",
+      "path": "catalog/skills/security-operations/agent-execution-isolation/SKILL.md",
+      "identifiers": [
+        "ASI02",
+        "ASI03",
+        "ASI05",
+        "ASI07"
+      ],
+      "body_sha256": "8039c3a8fb9780aa76b1996729afda8519d150325233a621f7c9989198eee6bf",
+      "rationale_path": "catalog/skills/security-operations/agent-execution-isolation/references/standards.md",
+      "rationale_sha256": "688445f8f45aa6fa5b6757ffde44b1598d3224454f0b0b7a4fb561d2742902f0",
+      "body_evidence": "SKILL.md:62-77,79-102",
+      "action": "Use minimal confined execution, keep production credentials outside the agent, scope shared writable services with read-back denial, and enforce network policy outside the model.",
+      "verdict": "supported"
+    },
+    {
+      "skill": "agentic-endpoint-hardening",
+      "path": "catalog/skills/security-operations/agentic-endpoint-hardening/SKILL.md",
+      "identifiers": [
+        "ASI02",
+        "ASI05"
+      ],
+      "body_sha256": "a873b950ef018e7e9164a70e0fab6910e7b3a39231f0ee514c5e1d0b33045457",
+      "rationale_path": "catalog/skills/security-operations/agentic-endpoint-hardening/references/standards.md",
+      "rationale_sha256": "369da0c3146bb1f5fcb68357b490b11ab791afee40a9f996696fc6336c061770",
+      "body_evidence": "SKILL.md:115-174",
+      "action": "Map writable execution-trigger surfaces and their privileged executors, test effect-based command approval, constrain daemon reach, and observe write-to-execution instrumentation.",
+      "verdict": "supported"
+    },
+    {
+      "skill": "honeytoken-placement",
+      "path": "catalog/skills/security-operations/honeytoken-placement/SKILL.md",
+      "identifiers": [
+        "ASI10"
+      ],
+      "body_sha256": "3b9b7176fbcb1b1afc96535f608badfcc06f45c4375c965b25b9e0cea60896c2",
+      "rationale_path": "catalog/skills/security-operations/honeytoken-placement/references/standards.md",
+      "rationale_sha256": "af7e45dc2a82d1b3af1814c91f3ff8ec573b3fc88fe4903aeeb6520d98849e6c",
+      "body_evidence": "SKILL.md:33-51",
+      "action": "Place never-used canaries, page a human on first access, treat any trip as an incident, and replace a fired token.",
+      "verdict": "supported"
+    }
+  ],
+  "source_publication_date": "2025-12-09",
+  "hash_form": "SHA256 of actual raw checked-out file bytes",
+  "verdict_scope": "Semantic mapping rationale only; no runtime enforcement or system security certification",
+  "promotion": {
+    "retained_review_sha256": "df007d2fc84ee099fb6eabf5fe17539549da0cab3fe07d1de6e33c353d9c8869",
+    "source_verified_at_utc": "2026-10-12T09:13:15.514487+00:00",
+    "matched_raw_sources": 30,
+    "retained_review_fields_unchanged": true
+  }
+}

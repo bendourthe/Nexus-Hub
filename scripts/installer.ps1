@@ -2503,8 +2503,8 @@ function Invoke-RegistryPlatform {
 function Install-VSCodeExtensions {
     param ($RepoRoot)
     Write-Item -Message "Usage Monitor extensions show Claude Code, Codex (ChatGPT), GitHub Copilot, and" -Color "White"
-    Write-Item -Message "Cursor usage in the status bar. Claude/Codex/Copilot install into VS Code only;" -Color "White"
-    Write-Item -Message "Cursor Usage Monitor installs into Cursor only. Never cross-installed." -Color "White"
+    Write-Item -Message "Cursor usage in the status bar. Claude/Codex install into VS Code only; Copilot" -Color "White"
+    Write-Item -Message "into VS Code and Cursor; Cursor Usage Monitor into Cursor only." -Color "White"
     Write-Host ""
 
     # Check for Node.js (shared by every extension)
@@ -2608,8 +2608,10 @@ function Install-VSCodeExtensions {
         }
     }
 
-    # Build each extension under its own vendor header. VS Code monitors install
-    # only via $vscodeCli; the Cursor monitor installs only via $cursorCli. The
+    # Build each extension under its own vendor header. The Claude and Codex
+    # monitors install only via $vscodeCli; the Copilot monitor installs via
+    # $vscodeCli and, as its second host, $cursorCli (Copilot runs in Cursor too);
+    # the Cursor monitor installs only via $cursorCli. The
     # vendor order (Anthropic, OpenAI, Microsoft, Anysphere) is asserted by the
     # installer smoke test and must match scripts/installer.sh.
     Write-Header -Provider "ANTHROPIC"
@@ -2619,7 +2621,7 @@ function Install-VSCodeExtensions {
     Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\codex-usage-monitor") -ExtensionId "nexus-hub.codex-usage-monitor" -DisplayName "Codex Usage Monitor" -StatusHint "Codex: --%" -CodeCli $vscodeCli -CodeLabel $vscodeLabel
 
     Write-Header -Provider "MICROSOFT"
-    Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\copilot-usage-monitor") -ExtensionId "nexus-hub.copilot-usage-monitor" -DisplayName "Copilot Usage Monitor" -StatusHint "Copilot: --%" -CodeCli $vscodeCli -CodeLabel $vscodeLabel
+    Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\copilot-usage-monitor") -ExtensionId "nexus-hub.copilot-usage-monitor" -DisplayName "Copilot Usage Monitor" -StatusHint "Copilot: --%" -CodeCli $vscodeCli -CodeLabel $vscodeLabel -AlsoCodeCli $cursorCli -AlsoCodeLabel $cursorLabel
 
     Write-Header -Provider "ANYSPHERE"
     Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\cursor-usage-monitor") -ExtensionId "nexus-hub.cursor-usage-monitor" -DisplayName "Cursor Usage Monitor" -StatusHint "Cursor: --%" -CodeCli $cursorCli -CodeLabel $cursorLabel

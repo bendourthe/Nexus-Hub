@@ -1086,6 +1086,16 @@ LEDGER_ITEM_RE = re.compile(r"^(?P<id>(?P<kind>[A-Z]{2,4})-(?P<num>[A-Za-z0-9]+(
 # item makes the ledger unreadable for the verdict rather than silently skipped.
 _ITEM_LIKE_RE = re.compile(r"^\*{0,2}\[?[A-Z]{2,4}-[A-Za-z0-9]")
 _ROW_RE = re.compile(r"^\s{0,3}(?:[-*+]\s+|\d+[.)]\s+|\|\s*)(?P<rest>.*)$")
+# Fields a gap entry carries: the tracker's entry template and the carry-forward contract.
+# A heading outside every item whose own text holds two of them is a gap that lost its id;
+# grouping and checkpoint headings in real ledgers carry at most one.
+_GAP_FIELD_RE = re.compile(
+    r"^\s{0,3}(?:[-*+]\s+)?\*\*(?P<field>Source phase|Plan reference|Reason|Suggested next step|Owner"
+    r"|Owner and next step|Severity|Blocker|Acceptance|Proving command|Current state|Reason it is open"
+    r"|Migrated from|Carried from)\*\*\s*:",
+    re.IGNORECASE,
+)
+_CLOSURE_WORD_RE = re.compile(r"\b(?:RESOLVED|CLOSED)\b")
 MIGRATED_RE = re.compile(r"\s-{1,2}\s*MIGRATED to (?P<target>v\d+\.\d+\.\d+)\s*$")
 # The tracker's RESOLVED marker and the CLOSED marker archive reconciliation writes,
 # either as the heading's status prefix (`NI-1 - CLOSED: ...`) or at its end, optionally
@@ -1213,8 +1223,11 @@ def parse_ledger_full(text: str) -> tuple[list[GapItem], list[str]]:
 
     A problem makes the whole ledger `cannot-verify` for the minor verdict: a fence
     left open at the end, a heading or a list or table row outside any item that
-    starts like an item id but is not an item, or a header `**Open items**: N` that
-    disagrees with the number of open items parsed.
+    starts like an item id but is not an item, a heading outside any item that reads
+    as a gap entry without an id (two entry fields in its own text, or a MIGRATED
+    marker), an id shared by an unresolved item and any other item in the same patch
+    section, or a header
+    `**Open items**: N` that disagrees with the number of open items parsed.
     """
     lines = text.splitlines(keepends=True)
     offsets: list[int] = []
@@ -1268,14 +1281,30 @@ def parse_ledger_full(text: str) -> tuple[list[GapItem], list[str]]:
             subsection=subsection, level=level, start=start, heading_end=start + text_end,
             end=end, body=text[body_start:end],
         ))
+    # A short id may recur across patch sections (`v0.2.0#WN-3` and `v0.2.1#WN-3` are
+    # distinct items the carry tooling addresses by section); only a repeat inside one
+    # section is ambiguous.
+    seen: dict[tuple[str, str], int] = {}
+    for item in items:
+        seen[(item.section, item.gid)] = seen.get((item.section, item.gid), 0) + 1
+    for gid in dict.fromkeys(
+        i.gid for i in items if i.state != "resolved" and seen[(i.section, i.gid)] > 1
+    ):
+        problems.append(f"duplicate-id {gid}")
+    next_heading = {line: (headings[h + 1][0] if h + 1 < len(headings) else len(lines))
+                    for h, (line, *_rest) in enumerate(headings)}
     subsection = ""
     for index, raw in enumerate(lines):
         if mask[index] or index in item_lines:
             continue
         heading = _HEADING_RE.match(raw.rstrip("\r\n"))
         if heading:
-            if len(heading.group(1)) <= 3:
-                subsection = (heading.group(2) or "") if len(heading.group(1)) == 3 else ""
+            level, title = len(heading.group(1)), heading.group(2) or ""
+            if level <= 3:
+                subsection = title if level == 3 else ""
+            own = range(index + 1, next_heading.get(index, index + 1))
+            if level >= 3 and _lost_id(title, subsection, [lines[k] for k in own if not mask[k]]):
+                problems.append(f"line {index + 1} heading-without-id")
             continue
         row = _ROW_RE.match(raw.rstrip("\r\n"))
         if row and _ITEM_LIKE_RE.match(row.group("rest")) and not subsection.lower().startswith("resolved"):
@@ -1285,6 +1314,20 @@ def parse_ledger_full(text: str) -> tuple[list[GapItem], list[str]]:
     if stated and int(stated.group(1)) != sum(1 for i in items if i.state == "open"):
         problems.append("open-items-count")
     return items, problems
+
+
+def _lost_id(title: str, subsection: str, body: list[str]) -> bool:
+    """A non-item heading that reads as a gap entry whose id was removed.
+
+    Closed and Resolved-section headings never count: losing the id of resolved work
+    hides nothing that is still owed.
+    """
+    if subsection.lower().startswith("resolved") or _CLOSURE_WORD_RE.search(title):
+        return False
+    if MIGRATED_RE.search(title):
+        return True
+    fields = {m.group("field").lower() for m in map(_GAP_FIELD_RE.match, body) if m}
+    return len(fields) >= 2
 
 
 def parse_ledger(text: str) -> list[GapItem]:

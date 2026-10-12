@@ -1,0 +1,138 @@
+{
+  "kind": "historical failed canonical Linux full gate",
+  "terminal": {
+    "exit_code": 1,
+    "started_utc": "2026-10-12T02:29:00.961336+00:00",
+    "ended_utc": "2026-10-12T03:25:20.260950+00:00",
+    "elapsed_seconds": 3379.299614,
+    "candidate_tree_before": "2758c8a93cd9450a60d300acbe03e67fbcc96bda",
+    "candidate_tree_after": "2758c8a93cd9450a60d300acbe03e67fbcc96bda",
+    "raw_tracked_paths_changed": [
+      "extensions/claude-usage-monitor/package-lock.json",
+      "extensions/codex-usage-monitor/package-lock.json",
+      "extensions/copilot-usage-monitor/package-lock.json",
+      "extensions/cursor-usage-monitor/package-lock.json"
+    ],
+    "fullgate_log_sha256": "5a845567d4a3d792a78daeb981452b0920626d48b23852b9e872cfdc0b68a7f9"
+  },
+  "command": [
+    "python",
+    "scripts/ci/run.py",
+    "--profile",
+    "full",
+    "--base",
+    "origin/develop",
+    "--quiet"
+  ],
+  "aggregate_verdict": {
+    "passed": 60,
+    "failed": 4,
+    "skipped": 1,
+    "advisory": 0,
+    "native_duration_s": 3423.7
+  },
+  "directly_emitted_command_results": [
+    {
+      "command": "claude plugin validate",
+      "status": "skip",
+      "emitted_details": "0.0s; executable not found on PATH: claude"
+    },
+    {
+      "command": "hook-tests",
+      "status": "fail",
+      "emitted_details": "624.8s; exit 1"
+    },
+    {
+      "command": "repo-tests-skills",
+      "status": "fail",
+      "emitted_details": "312.3s; exit 1"
+    },
+    {
+      "command": "repo-tests-guides",
+      "status": "timeout",
+      "emitted_details": "1800.0s; exceeded 1800s"
+    },
+    {
+      "command": "repo-tests-governance",
+      "status": "fail",
+      "emitted_details": "401.1s; exit 1"
+    }
+  ],
+  "per_command_retention_limit": "The quiet run had no --reports-dir. Success details were not emitted. The 60 passed count is aggregate evidence; the native declaration list is not a manufactured success report.",
+  "native_linux_declaration_count": 65,
+  "native_declarations_artifact": "diagnosis-20261012T035400/native-full-declarations.json",
+  "runtime": {
+    "python": "3.11.13 (main, Jul  1 2025, 05:28:08) [GCC 12.2.0]",
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.36",
+    "git": "git version 2.50.1",
+    "node": "v24.16.0",
+    "shellcheck": "version: 0.9.0",
+    "powershell": "PowerShell 7.6.6",
+    "packages": {
+      "pytest": "9.1.1",
+      "pre-commit": "4.6.2",
+      "playwright": "1.63.0",
+      "pyjwt": "2.15.1",
+      "tomlkit": "0.15.1",
+      "pyyaml": "6.0.3",
+      "nexus-skill-server": "2.0.0",
+      "nexus-code-search": "2.1.0",
+      "nexus-web-fetch": "2.0.0",
+      "nexus-skill-scanner": "3.0.0",
+      "nexus-context-compressor": "3.2.0",
+      "nexus-memory": "3.19.1"
+    },
+    "uid": 1000,
+    "candidate_tree": "2758c8a93cd9450a60d300acbe03e67fbcc96bda",
+    "head": "066235c90b1eb3de346658c8a3ef3fd6b19bced1",
+    "origin_develop": "002b7283a8b839588c8d0e468cbb502f594cb3e6",
+    "started_utc": "2026-10-12T02:29:00.961336+00:00",
+    "command": [
+      "python",
+      "scripts/ci/run.py",
+      "--profile",
+      "full",
+      "--base",
+      "origin/develop",
+      "--quiet"
+    ]
+  },
+  "image": "sha256:cada5e7c79514d66d8479181a8c8b52b918ad0c17aa5b6b9b6a9cc071d2c5943",
+  "resources": {
+    "initial_cpus": 4,
+    "later_cpus": 12,
+    "changed_utc": "2026-10-12T03:18:19.547994Z",
+    "memory_bytes": 8589934592,
+    "unchanged_profile_sha256": "5d26d00431a61b232ca4089c3667834e9e1af6d061f09eaaf95d107067714ba8"
+  },
+  "source_snapshot": {
+    "created_utc": "20261012T022605816115Z",
+    "source_head": "066235c90b1eb3de346658c8a3ef3fd6b19bced1",
+    "source_branch": "fix/v4.13.11-known-gaps-sweep-and-minor-close",
+    "integration_base": "002b7283a8b839588c8d0e468cbb502f594cb3e6",
+    "candidate_tree": "2758c8a93cd9450a60d300acbe03e67fbcc96bda",
+    "source_index_sha256_before": "1a739c3a3bf07734571ab756a9fcbd1f9e3a480f0eb52824e117a89ede8f1fc9",
+    "source_index_sha256_after": "1a739c3a3bf07734571ab756a9fcbd1f9e3a480f0eb52824e117a89ede8f1fc9",
+    "archive_sha256": "5ed765b650e516fa0185479967870b79c14edafda3cc84f48963624e7fc32e19",
+    "bundle_sha256": "ac3ed7d6025a70a6951f4209bd89d42c53bf7987ef608b5de9abb68c296bc172"
+  },
+  "source_allowlist_artifact": "snapshot-20261012T022605816115Z/allowlist.nul",
+  "source_provenance_artifact": "snapshot-20261012T022605816115Z/provenance.json",
+  "original_worktree_verification": "The snapshot helper measured identical original HEAD and index hashes before/after snapshot and stable raw allowlist hashes. The tracked candidate was held frozen through this run. Subsequent original edits were authorized repairs after the terminal result; no post-repair equality is claimed.",
+  "clone_mutations": {
+    "paths": [
+      "extensions/claude-usage-monitor/package-lock.json",
+      "extensions/codex-usage-monitor/package-lock.json",
+      "extensions/copilot-usage-monitor/package-lock.json",
+      "extensions/cursor-usage-monitor/package-lock.json"
+    ],
+    "preserved_diffs": "terminal-first-20261012T032520/lock-diffs/",
+    "observed_delta": "17 peer:true metadata removals only; locked versions and integrity values unchanged",
+    "cause": "Installer source calls npm install --silent. An isolated npm 11.13.0 reproduction removed the same peer metadata and matched the retained Claude-monitor lock at JSON and LF-normalized byte level; first-run npm command logs were not retained.",
+    "causal_reproduction_artifact": "npm-reproduction-20261012T035809/"
+  },
+  "log_sha256_verified": true,
+  "receipt_source_sha256": "4d0856a4e5b81f047384d8ed2a4b73e194911361afd4dac8796a38125e6c4532",
+  "local_artifact_root": ".nexus-hub/linux-validation-01a12d34",
+  "retention_note": "This receipt promotes verified metadata. The original logs, snapshots and binary diffs are retained as local ignored evidence."
+}

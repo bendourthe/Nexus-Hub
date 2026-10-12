@@ -1,0 +1,760 @@
+{
+  "schema_version": 1,
+  "reviewed_at_utc": "2026-10-12T07:21:23Z",
+  "retrieval_date_utc": "2026-10-12",
+  "secondary_retrieval_window_utc": [
+    "2026-10-12T07:00:32Z",
+    "2026-10-12T07:08:35Z"
+  ],
+  "scope": "Read-only comparison of existing platform-read contract and advisory behavioral-default claims with current primary sources. Vendor pages and examples were treated as untrusted data; no example commands were executed.",
+  "qualification_limits": [
+    "No tracked edits, freshness or version stamps, tests, installation, credentials, run records, release calls or publication were performed.",
+    "MATCH means documentation supports the specified path or format, not that a running host consumed the installed artifact.",
+    "Native vendor capabilities are distinguished from Nexus-Hub emission. Additive capabilities do not automatically require new adapter functionality.",
+    "Unknown depth, parser coercion, host behavior and unreachable references remain UNVERIFIED. No future publication hashes are claimed."
+  ],
+  "source_binding": {
+    "worktree": "$WORKTREE",
+    "source_head": "066235c90b1eb3de346658c8a3ef3fd6b19bced1",
+    "source_branch": "fix/v4.13.11-known-gaps-sweep-and-minor-close",
+    "integration_base": "002b7283a8b839588c8d0e468cbb502f594cb3e6",
+    "candidate_tree": "95bee0ce647f4458836695da91e5027d47db605b",
+    "source_index_sha256": "1a739c3a3bf07734571ab756a9fcbd1f9e3a480f0eb52824e117a89ede8f1fc9",
+    "snapshot": ".nexus-hub/linux-validation-01a12d34/snapshot-20261012T063052387119Z",
+    "provenance_sha256": "acda6d1d4103f04e91840decf10788d3835aceedacbb6ddf5dd0022a047b4d2d",
+    "allowlist_sha256": "a3ea38da8508c01908b06d654543bcc09965cf2deadfec5ba5c409de107c4b92",
+    "raw_source_sha256": {
+      "docs/policy/platform-read-contracts.json": "3c1335d29496e22bd9d7fdab06c6a668788eb06329db0354593d952244be1860",
+      "docs/policy/platform-read-contracts.md": "8b25849847caec9074a60f37728eeeacca70d95ea35a54166d5cd0c6a8e73e2d",
+      "docs/policy/platform-defaults-levers.md": "0c774ffd273118cc0375424c8f99ac11944b3ce991bc41fd0e2a58b815b6efd6",
+      "docs/policy/skill-invocation-policy-levers.md": "df0f2fcfa14e33116639fcaf03a0db17e327312dd558dee90b270c8d660d44f5",
+      "catalog/skills/workflow/platform-contract-verification/SKILL.md": "d7c51fc611c2355e406de80fb5d92f82fe641da1c5ee6e6b2251ed173badbfb1",
+      "scripts/lib/integrations/antigravity.py": "b30081dd666dd21051d02a8471282133d2c71ff01bf4096805901c53681e2f97",
+      "scripts/lib/integrations/openclaw.py": "49c88134c2e3ca112e90bc6cc109803e0a117426c3532e6f36cbcb551a750ecf",
+      "scripts/lib/integrations/_catalog_adapters.py": "51190acc5b7628595880483e1a759a0e41b9a86a27adb7027edf46d12940e828",
+      "docs/releases/v4/v4.13/development/v4.13.11-carry-forward.json": "9d2e9ef88799274f84012dc43b67a7d64201c3d3c60f6078f38480acfa8c9e97",
+      "docs/releases/v4/v4.13/known-gaps.md": "112a4a7fbcbec8ea81ba078bbb0b701f86f7c955ba12b9b52f31587343919816",
+      "configs/platform-defaults.json": "46e78c0334f9783f0f51bd480066e8072116acd0ce281af04cd51fb328e4c2ca"
+    },
+    "current_contract_stamp": {
+      "last_verified": "2026-10-09",
+      "verified_for_version": "4.13.10"
+    },
+    "hash_form": "SHA256 of actual raw file bytes, without EOL normalization."
+  },
+  "platforms": [
+    {
+      "id": "claude",
+      "verdicts": {
+        "instructions": "MATCH",
+        "skills": "MATCH",
+        "commands": "MATCH",
+        "agents": "MATCH-PATH",
+        "rules": "MATCH",
+        "hooks": "MATCH-PATH",
+        "defaults": "PARTIAL"
+      },
+      "observed": "Personal ~/.claude and project .claude directories remain supported. Skills use folder/SKILL.md and /name; legacy command Markdown remains supported. Agents use Markdown YAML frontmatter; rule Markdown is recursively discovered. Hooks remain settings.json registrations at user/project/local scopes.",
+      "defaults": "effortLevel, model, modelSettings and CLAUDE_CODE_EFFORT_LEVEL remain documented. Seeded high is valid. Persistent effort keys accept low/medium/high/xhigh; max is session-only except the environment override. User/project settings.json paths match. The current All settings link failed; attribution.commit/pr were not freshly requalified in this review.",
+      "additive": "Current memory documentation also accepts project AGENTS.md when no CLAUDE.md applies; this does not change Nexus-Hub's existing CLAUDE.md delivery.",
+      "sources": [
+        [
+          "https://code.claude.com/docs/en/skills",
+          "Skill locations / Skill invocation / Legacy commands"
+        ],
+        [
+          "https://code.claude.com/docs/en/memory",
+          "CLAUDE.md locations / Rule locations / AGENTS.md fallback"
+        ],
+        [
+          "https://code.claude.com/docs/en/sub-agents",
+          "User and project locations / Frontmatter"
+        ],
+        [
+          "https://code.claude.com/docs/en/hooks",
+          "Settings registrations and scopes"
+        ],
+        [
+          "https://code.claude.com/docs/en/configuration",
+          "Settings scope table; currently renders Settings files and precedence"
+        ],
+        [
+          "https://code.claude.com/docs/en/settings",
+          "Settings files and precedence"
+        ],
+        [
+          "https://code.claude.com/docs/en/model-config",
+          "Effort persistence / Environment precedence"
+        ]
+      ],
+      "limits": "All settings link returned browser Internal Error; a read-only urllib fetch of configuration returned HTTP 403. Existing attribution values were preserved, not declared removed."
+    },
+    {
+      "id": "codex",
+      "verdicts": {
+        "instructions": "MATCH",
+        "skills": "MATCH",
+        "commands": "PARTIAL",
+        "agents": "MATCH-PATH",
+        "rules": "MATCH-BOUNDARY",
+        "hooks": "MATCH-PATH",
+        "defaults": "MATCH"
+      },
+      "observed": "User ~/.codex/AGENTS.md and repository root-to-working-directory AGENTS.md remain supported. Skills use ~/.agents/skills and repository .agents/skills; explicit invocation is /skills or $name. Personal prompts are flat ~/.codex/prompts/*.md and /prompts:name. Agent TOML paths and global/project hooks.json remain documented, subject to project trust. Catalog Markdown rules are not claimed as native execution-policy files.",
+      "drift": "The workspace .codex/prompts cell has no UNVERIFIED qualifier, but current prompt documentation describes Codex-home-only discovery and explicitly distinguishes it from shared repository delivery. This is unsupported workspace discovery, not proof that a previously supported path was removed.",
+      "defaults": "model_reasoning_effort, approval_policy and sandbox_mode remain documented; seeded medium/on-request/workspace-write are compatible. Hooks are enabled by default; hooks=false disables them. Config paths remain ~/.codex/config.toml and trusted-project .codex/config.toml.",
+      "sources": [
+        [
+          "https://learn.chatgpt.com/docs/build-skills",
+          "Explicit invocation / Where Codex loads local skills"
+        ],
+        [
+          "https://learn.chatgpt.com/docs/custom-prompts",
+          "Deprecated custom prompts / Local Codex home / Top-level Markdown"
+        ],
+        [
+          "https://learn.chatgpt.com/docs/agent-configuration/agents-md",
+          "Global discovery / Repository instruction ladder"
+        ],
+        [
+          "https://learn.chatgpt.com/docs/agent-configuration/subagents",
+          "User and project agent TOML"
+        ],
+        [
+          "https://learn.chatgpt.com/docs/hooks",
+          "Hook locations / Trust / Turn hooks off"
+        ],
+        [
+          "https://learn.chatgpt.com/docs/config-file/config-reference",
+          "Model effort / Approval policy / Sandbox mode"
+        ]
+      ],
+      "redirects": "Declared developers.openai.com Codex AGENTS and subagent URLs resolved to official learn.chatgpt.com pages."
+    },
+    {
+      "id": "cursor",
+      "verdicts": {
+        "instructions": "MATCH-PATH",
+        "skills": "MATCH",
+        "commands": "UNVERIFIED-LEGACY",
+        "agents": "MATCH-PATH",
+        "rules": "MATCH",
+        "hooks": "MATCH-PATH",
+        "defaults": "MATCH"
+      },
+      "observed": "Project .cursor/skills and .agents/skills, personal ~/.cursor/skills and ~/.agents/skills, recursive SKILL.md discovery, Markdown frontmatter agents, project .mdc rules and hooks.json remain documented. Project hooks require trust. Legacy .cursor/commands discovery remains unverified; existing command skills provide the verified delivery path.",
+      "defaults": "approvalMode, sandbox.mode and sandbox.networkAccess remain documented at ~/.cursor/cli-config.json (Windows USERPROFILE equivalent). Project .cursor/cli.json permits only permissions.",
+      "sources": [
+        [
+          "https://cursor.com/docs/skills",
+          "Locations / Recursive discovery / Invocation metadata"
+        ],
+        [
+          "https://cursor.com/docs/subagents",
+          "Personal and project locations / Markdown format"
+        ],
+        [
+          "https://cursor.com/docs/rules",
+          "Project .mdc format / AGENTS.md"
+        ],
+        [
+          "https://cursor.com/docs/hooks",
+          "User and project hooks.json / Working directories / Trust"
+        ],
+        [
+          "https://cursor.com/docs/cli/reference/configuration",
+          "File location / Optional fields"
+        ]
+      ],
+      "limits": "Local documentation does not prove an authenticated UI read-back or global-resource delivery to cloud/SSH workers."
+    },
+    {
+      "id": "copilot",
+      "verdicts": {
+        "instructions": "MATCH",
+        "skills": "MATCH-HOST-SCOPED",
+        "commands": "CONDITIONAL-DRIFT",
+        "agents": "MATCH-PATH-FORMAT",
+        "rules": "MATCH-BOUNDARY",
+        "hooks": "MATCH-PATH",
+        "defaults": "MATCH"
+      },
+      "observed": "Personal ~/.copilot/copilot-instructions.md and project .github/copilot-instructions.md remain supported. Common personal skills are ~/.copilot/skills or ~/.agents/skills; project roots are .github/skills, .claude/skills or .agents/skills. VS Code additionally documents ~/.claude/skills; this does not establish CLI discovery of that personal root. Native agents accept .md/.agent.md and YAML comma-string or array tools with documented aliases. Hooks remain user ~/.copilot/hooks/*.json and project .github/hooks/*.json.",
+      "drift": "VS Code prompt files are not loaded by Agent Host. Local still loads profile prompt files and .github/prompts, but Local retirement is planned without a documented date. Existing prompt delivery therefore remains conditional; the accepted command-to-skill migration has current primary authority.",
+      "defaults": "~/.copilot/settings.json is user JSONC; old config.json user settings are ignored. model, permissions.disableBypassPermissionsMode and sandbox.enabled/allowBypass remain documented.",
+      "sources": [
+        [
+          "https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-custom-instructions",
+          "Personal / Repository instructions"
+        ],
+        [
+          "https://docs.github.com/en/copilot/concepts/agents/about-agent-skills",
+          "Project and personal skill roots"
+        ],
+        [
+          "https://code.visualstudio.com/docs/agent-customization/agent-skills",
+          "Skill roots / Frontmatter / Slash commands"
+        ],
+        [
+          "https://code.visualstudio.com/docs/agent-customization/prompt-files",
+          "Agent Host deprecation / Local-agent locations"
+        ],
+        [
+          "https://docs.github.com/en/copilot/how-tos/copilot-cli/use-copilot-cli/invoke-custom-agents",
+          "Personal and repository agent roots"
+        ],
+        [
+          "https://docs.github.com/en/copilot/reference/custom-agents-configuration",
+          "File extensions / Frontmatter / Tool aliases"
+        ],
+        [
+          "https://docs.github.com/en/copilot/reference/hooks-reference",
+          "User and repository JSON registrations"
+        ],
+        [
+          "https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-config-dir-reference",
+          "Settings file / Schema / Scope"
+        ]
+      ],
+      "redirects": "The old VS Code /docs/copilot/customization/{prompt-files,agent-skills} URLs redirected to /docs/agent-customization/. An initial direct skills fetch failed; the redirected fetch succeeded.",
+      "limits": "No VS Code or CLI discovery/run test was executed. Optional skill installation stays optional unless separately changed."
+    },
+    {
+      "id": "antigravity2",
+      "verdicts": {
+        "instructions": "MATCH",
+        "skills": "MATCH",
+        "commands": "MATCH-DATED",
+        "agents": "MATCH-PATH",
+        "rules": "DRIFT-FORMAT",
+        "hooks": "MATCH-PATH-NEW-AUTHORITY",
+        "defaults": "MATCH"
+      },
+      "observed": "IDE/2.0 global skills remain ~/.gemini/config/skills; CLI global skills remain ~/.gemini/antigravity-cli/skills; workspace skills remain .agents/skills, with SKILL.md and /name. Global shared ~/.gemini/GEMINI.md and root AGENTS.md are documented. Unified subagent docs accept both <name>.md and <name>/agent.md in .agents/agents and ~/.gemini/config/agents, so flat-file layout is compatible.",
+      "rules": "Current modular rules require immediate .md children and valid trigger frontmatter; nested rules require explicit rules.json registration. model_decision requires description; glob requires globs. The adapter recursively copies title/category/priority catalog headers without trigger. Shared root instruction delivery still matches. Agent body/tool-field coercion was not qualified.",
+      "hooks": "Current docs now explicitly define PostToolUse on 2.0/CLI/IDE with toolCall{name,args}, conversationId, workspacePaths and optional error. File tools use TargetFile; reads use AbsolutePath; commands use CommandLine/Cwd. Pre output uses decision/reason; post output is {}. Existing emission lacks user-edit-guard/attribution-guard; this source establishes authority for the existing WN-4-v4131 mapping and delivery work.",
+      "defaults": "CLI agentMode at ~/.gemini/antigravity-cli/settings.json remains documented by the modes page. Unified settings additionally documents toolPermission, but no change to emitted defaults is proposed.",
+      "sources": [
+        [
+          "https://antigravity.google/docs/skills",
+          "SKILL.md / Surface locations / Slash conversion"
+        ],
+        [
+          "https://codelabs.developers.google.com/getting-started-with-antigravity-skills",
+          "Global and workspace skill roots"
+        ],
+        [
+          "https://antigravity.google/docs/subagents?tab=cli",
+          "Agent location and discovery / Frontmatter"
+        ],
+        [
+          "https://www.antigravity.google/docs/cli/commands/agents",
+          "CLI agents panel; narrower folder-only wording"
+        ],
+        [
+          "https://antigravity.google/docs/rules",
+          "Flat scanning / YAML activation / Sharing rules / Scope paths"
+        ],
+        [
+          "https://www.antigravity.google/docs/hooks/",
+          "Schema / Events / Tools / Input-output contract"
+        ],
+        [
+          "https://antigravity.google/docs/migration/workflows-to-skills/",
+          "Legacy workflows retire 2026-10-19; skills take precedence"
+        ],
+        [
+          "https://antigravity.google/docs/cli/modes/",
+          "agentMode persistence"
+        ],
+        [
+          "https://antigravity.google/docs/settings?tab=cli",
+          "CLI JSON settings path"
+        ]
+      ],
+      "redirects": "The old CLI settings/subagents URLs returned client redirect stubs to unified /docs/settings?tab=cli and /docs/subagents?tab=cli, which were fetched.",
+      "limits": "Workflow retirement is future as of this review; no early emission removal is authorized by this date alone. No authenticated Antigravity host or hook execution was observed."
+    },
+    {
+      "id": "antigravity",
+      "verdicts": {
+        "instructions": "UNVERIFIED-LEGACY",
+        "skills": "UNVERIFIED-LEGACY",
+        "commands": "UNVERIFIED-LEGACY",
+        "agents": "UNVERIFIED-LEGACY",
+        "rules": "UNVERIFIED-LEGACY",
+        "hooks": "UNVERIFIED-LEGACY",
+        "defaults": "UNVERIFIED"
+      },
+      "observed": "The declared IDE settings source now points to unified settings. It documents UI execution/file-access policies, but does not establish a seedable settings file for the separate legacy registry id. No legacy adapter guarantee is promoted from newer product documentation.",
+      "sources": [
+        [
+          "https://antigravity.google/docs/ide/settings",
+          "Client redirect stub"
+        ],
+        [
+          "https://antigravity.google/docs/settings?tab=ide",
+          "Standalone IDE policy UI"
+        ]
+      ],
+      "redirects": "Same-host client redirect stub, not a verified HTTP 301/307.",
+      "limits": "No separate legacy-host behavior was requalified."
+    },
+    {
+      "id": "gemini",
+      "verdicts": {
+        "instructions": "MATCH",
+        "skills": "UNVERIFIED",
+        "commands": "UNVERIFIED",
+        "agents": "UNVERIFIED",
+        "rules": "UNVERIFIED-DIRECTORY",
+        "hooks": "UNVERIFIED",
+        "defaults": "MATCH-HOST-SCOPED"
+      },
+      "observed": "Gemini Code Assist documents ~/.gemini/GEMINI.md and workspace/parent/subdirectory instructions. Compatibility mirrors for other surfaces remain unverified; Gemini CLI documentation does not establish IDE consumption.",
+      "defaults": "geminicodeassist.agentYoloMode remains a documented VS Code user-setting key. This IDE lever does not qualify sibling CLI discovery or settings.",
+      "sources": [
+        [
+          "https://docs.cloud.google.com/gemini/docs/codeassist/use-agentic-chat-pair-programmer",
+          "Instruction hierarchy / YOLO setting"
+        ]
+      ]
+    },
+    {
+      "id": "gemini-cli",
+      "verdicts": {
+        "instructions": "MATCH",
+        "skills": "MATCH",
+        "commands": "MATCH",
+        "agents": "MATCH-PATH",
+        "rules": "MATCH-BOUNDARY",
+        "hooks": "MATCH-PATH",
+        "defaults": "MATCH"
+      },
+      "observed": "Personal ~/.gemini/GEMINI.md and workspace root GEMINI.md remain documented. Personal/project .gemini/skills plus .agents/skills aliases use SKILL.md. Commands remain personal/project .gemini/commands/*.toml with /name and colon namespaces for subdirectories. Agents remain ~/.gemini/agents/*.md and project .gemini/agents/*.md with YAML. Hook registration remains user/project settings.json. No native catalog Markdown rules directory is qualified.",
+      "defaults": "model.name and general.defaultApprovalMode remain documented. The default approval setting accepts default/auto_edit/plan; YOLO is a CLI flag rather than a persistent setting value.",
+      "sources": [
+        [
+          "https://geminicli.com/docs/cli/using-agent-skills/",
+          "Personal and workspace skill roots"
+        ],
+        [
+          "https://geminicli.com/docs/cli/gemini-md/",
+          "Global and hierarchical instruction discovery"
+        ],
+        [
+          "https://geminicli.com/docs/cli/custom-commands/",
+          "TOML paths / Namespaces / Invocation"
+        ],
+        [
+          "https://geminicli.com/docs/core/subagents/",
+          "Agent definition files / YAML schema"
+        ],
+        [
+          "https://geminicli.com/docs/hooks/",
+          "Registration locations"
+        ],
+        [
+          "https://geminicli.com/docs/cli/settings/",
+          "general.defaultApprovalMode / model.name"
+        ]
+      ],
+      "limits": "Maximum skill depth and copied agent tool-name/body compatibility were not established by this path review."
+    },
+    {
+      "id": "windsurf",
+      "verdicts": {
+        "instructions": "MATCH",
+        "skills": "MATCH-COMPATIBILITY",
+        "commands": "MATCH-COMPATIBILITY",
+        "agents": "UNVERIFIED",
+        "rules": "MATCH",
+        "hooks": "CONDITIONAL-MATCH",
+        "defaults": "UNVERIFIED"
+      },
+      "observed": "Devin Desktop retains ~/.codeium/windsurf/memories/global_rules.md, skills, global_workflows and hooks.json. Workspace AGENTS.md and .devin/rules are native; .windsurf rules/skills/workflows remain compatibility paths. Skills use SKILL.md and @name; workflows use Markdown and /name.",
+      "drift": "Preferred workspace skills/workflows/hooks are .devin paths. Legacy .windsurf/hooks.json is read only when preferred .devin/hooks.json is absent or defines no hooks. This is the existing DF-1-v4132 conditional compatibility issue, not removal of legacy support.",
+      "defaults": "The current modes page documents UI modes but supplies no qualifying seedable file/key for this registry id. Keep UNVERIFIED.",
+      "sources": [
+        [
+          "https://docs.devin.ai/desktop/cascade/memories",
+          "Rules roots / AGENTS.md / Activation"
+        ],
+        [
+          "https://docs.devin.ai/desktop/cascade/skills",
+          "Preferred and compatibility roots / Manual invocation"
+        ],
+        [
+          "https://docs.devin.ai/desktop/cascade/workflows",
+          "Global and workspace Markdown workflows"
+        ],
+        [
+          "https://docs.devin.ai/desktop/cascade/hooks",
+          "Preferred workspace hook file / Fallback condition"
+        ],
+        [
+          "https://docs.devin.ai/desktop/cascade/modes",
+          "UI modes"
+        ],
+        [
+          "https://docs.devin.ai/cli/extensibility/hooks/overview",
+          "Claude-format hook sources / read_config_from.claude default"
+        ]
+      ],
+      "limits": "Devin CLI sharing of Claude hook files remains documented; its actual payload/guard behavior was not exercised. Legacy docs.windsurf.com redirect status was not newly measured."
+    },
+    {
+      "id": "opencode",
+      "verdicts": {
+        "instructions": "MATCH",
+        "skills": "MATCH",
+        "commands": "MATCH",
+        "agents": "MATCH-PATH",
+        "rules": "MATCH-INSTRUCTIONS",
+        "hooks": "MATCH-NON-COVERAGE",
+        "defaults": "MATCH"
+      },
+      "observed": "Global ~/.config/opencode and project .opencode skill/command/agent paths remain documented. Skills are folder/SKILL.md with YAML; commands are Markdown and /name; agents are Markdown YAML. Global/project-root AGENTS.md and instructions[] remain supported. Native plugins use JS/TS rather than copied shell hooks.",
+      "invocation_drift": "Current metadata keys opencode/slash and opencode/autoinvoke contradict the old none-documented claim. Generic disable-model-invocation is not itself the native key; actual mapping is required for generated command skills before claiming enforcement.",
+      "defaults": "model, small_model, permission and default_agent and their JSON config paths remain documented.",
+      "sources": [
+        [
+          "https://opencode.ai/docs/skills/",
+          "Place files / Discovery / Frontmatter / Invocation metadata"
+        ],
+        [
+          "https://opencode.ai/docs/commands/",
+          "Markdown commands"
+        ],
+        [
+          "https://opencode.ai/docs/agents/",
+          "Markdown agents"
+        ],
+        [
+          "https://opencode.ai/docs/rules/",
+          "Global and project instructions"
+        ],
+        [
+          "https://opencode.ai/docs/plugins/",
+          "Load order / Native plugin format"
+        ],
+        [
+          "https://opencode.ai/docs/config/",
+          "Config paths / Models / Permissions / Default agent"
+        ]
+      ],
+      "limits": "No whole-configuration isolation or prompt-submit event is inferred; existing completion/evaluation gaps stay separate."
+    },
+    {
+      "id": "openclaw",
+      "verdicts": {
+        "instructions": "CONDITIONAL-DRIFT",
+        "skills": "MATCH-ACTUAL-WORKSPACE",
+        "commands": "MATCH-SKILLS",
+        "agents": "UNVERIFIED",
+        "rules": "MATCH-IDENTITY",
+        "hooks": "MATCH-NON-COVERAGE",
+        "defaults": "MATCH"
+      },
+      "observed": "AGENTS.md, SOUL.md, IDENTITY.md and skills remain read from the actual selected workspace. SKILL.md supports grouped depth up to six. Native invocation-policy fields are documented. Shell-hook guard parity remains explicitly not covered; tool gating requires typed plugins.",
+      "workspace_drift": "OPENCLAW_PROFILE changes the default state/workspace path; explicit STATE_DIR and WORKSPACE_DIR override defaults as documented. A sole agent inherits defaults unless its entry has workspace. Explicit multi-agent unpinned entries use defaults.workspace/agentId, or stateDir/workspace-agentId; agents.entries.*.workspace overrides. The current resolver models the shared default only and does not establish coverage of every agent.",
+      "defaults": "JSON5 ~/.openclaw/openclaw.json and documented path overrides remain supported. agents.defaults.model.primary/fallbacks remain documented; no safe model value was invented.",
+      "sources": [
+        [
+          "https://docs.openclaw.ai/concepts/agent-workspace",
+          "Default location / Per-agent override / Workspace file map"
+        ],
+        [
+          "https://docs.openclaw.ai/tools/skills",
+          "Loading order / Frontmatter / Depth"
+        ],
+        [
+          "https://docs.openclaw.ai/help/environment",
+          "Path variables"
+        ],
+        [
+          "https://docs.openclaw.ai/gateway/configuration",
+          "Config file"
+        ],
+        [
+          "https://docs.openclaw.ai/gateway/config-agents/models",
+          "Model defaults"
+        ],
+        [
+          "https://docs.openclaw.ai/plugins/hooks",
+          "Typed plugin boundary"
+        ],
+        [
+          "https://docs.openclaw.ai/automation/hooks",
+          "Lifecycle hooks"
+        ]
+      ],
+      "redirects": "Old configuration/workspace/skills URLs returned HTTP 200 client redirect stubs to current same-host paths.",
+      "limits": "No arbitrary all-agent selection or workspace mutation policy was inferred. The repair must define intended ownership/selection and fail closed for ambiguous or invalid configuration."
+    },
+    {
+      "id": "qwen",
+      "verdicts": {
+        "instructions": "MATCH",
+        "skills": "MATCH",
+        "commands": "MATCH",
+        "agents": "MATCH-PATH",
+        "rules": "DRIFT-ADDITIVE",
+        "hooks": "MATCH-UNIT-NARRATIVE-DRIFT",
+        "defaults": "MATCH"
+      },
+      "observed": "Personal ~/.qwen/QWEN.md and hierarchical project QWEN.md, native skills/commands/agents, slash skills, colon-namespaced Markdown commands and generic invocation fields remain supported.",
+      "drift": "Native ~/.qwen/rules and trusted-project .qwen/rules now have recursive Markdown discovery. Existing QWEN.md instruction delivery still works. Command hook timeouts now use seconds with default 60; values >=1000 retain legacy millisecond interpretation, so current large millisecond registrations remain compatible. SDK function timeout units remain distinct.",
+      "defaults": "Settings paths, model.reasoningEffort and tools.approvalMode remain documented.",
+      "sources": [
+        [
+          "https://qwenlm.github.io/qwen-code-docs/en/users/features/skills/",
+          "Personal / Project / Invocation"
+        ],
+        [
+          "https://qwenlm.github.io/qwen-code-docs/en/users/features/commands/",
+          "Custom commands"
+        ],
+        [
+          "https://qwenlm.github.io/qwen-code-docs/en/users/features/sub-agents/",
+          "Storage locations"
+        ],
+        [
+          "https://qwenlm.github.io/qwen-code-docs/en/users/features/rules/",
+          "Where rules live"
+        ],
+        [
+          "https://qwenlm.github.io/qwen-code-docs/en/users/features/hooks/",
+          "Hook configuration / Timeout units"
+        ],
+        [
+          "https://qwenlm.github.io/qwen-code-docs/en/users/configuration/settings/",
+          "Configuration files / Context / Models / Tools"
+        ]
+      ],
+      "limits": "Maximum skill-scanner depth was not established. New rule capability does not require automatic rule emission."
+    },
+    {
+      "id": "kimi",
+      "verdicts": {
+        "instructions": "MATCH",
+        "skills": "MATCH",
+        "commands": "MATCH-SKILLS",
+        "agents": "MATCH-PATH",
+        "rules": "MATCH-INSTRUCTIONS",
+        "hooks": "MATCH-GLOBAL-ONLY",
+        "defaults": "MATCH"
+      },
+      "observed": "Native/shared personal and project skill roots remain documented, with SKILL.md directory form or direct flat Markdown and /skill:name. Native agent directories use recursive Markdown. Global/project instruction paths remain supported. Hooks remain global [[hooks]] TOML with the four declared fields and seconds timeouts; project local.toml is workspace configuration.",
+      "invocation_drift": "disableModelInvocation now accepts disable-model-invocation and disable_model_invocation aliases. Nexus-Hub's existing generated flag therefore needs no mapper; the old ignored/none-documented statement is stale.",
+      "defaults": "Existing thinking.effort, default_permission_mode and config paths remain documented.",
+      "sources": [
+        [
+          "https://www.kimi.com/code/docs/en/kimi-code-cli/customization/skills.html",
+          "Skill locations / Frontmatter / Invoking"
+        ],
+        [
+          "https://www.kimi.com/code/docs/en/kimi-code-cli/customization/agents.html",
+          "Agent locations / Instruction files"
+        ],
+        [
+          "https://www.kimi.com/code/docs/en/kimi-code-cli/customization/hooks.html",
+          "Global TOML configuration"
+        ],
+        [
+          "https://www.kimi.com/code/docs/en/kimi-code-cli/configuration/data-locations.html",
+          "Data paths"
+        ],
+        [
+          "https://www.kimi.com/code/docs/en/kimi-code-cli/configuration/config-files.html",
+          "Thinking / Permission mode / Workspace config"
+        ],
+        [
+          "https://www.kimi.com/code/docs/en/kimi-code-cli/reference/slash-commands.html",
+          "Slash invocation"
+        ]
+      ],
+      "limits": "Maximum directory-form skill depth and native host read-back were not established. No project-scoped hook path was newly inferred."
+    },
+    {
+      "id": "hermes",
+      "verdicts": {
+        "instructions": "DRIFT-CLAIM",
+        "skills": "MATCH-NATIVE-SHARED-PROJECT-DRIFT",
+        "commands": "MATCH-SKILLS",
+        "agents": "UNVERIFIED",
+        "rules": "UNVERIFIED-BEYOND-CONTEXT",
+        "hooks": "UNVERIFIED",
+        "defaults": "MATCH"
+      },
+      "observed": "Native ~/.hermes/skills and project .hermes/skills still match. Project .agents/skills is automatically discovered; only personal ~/.agents/skills requires skills.external_dirs. Native instructions now include global SOUL.md and project .hermes.md/HERMES.md, hierarchical AGENTS.md and cwd CLAUDE.md priority.",
+      "drift": "Table statements none/no instruction file and explicit-only shared project discovery are stale if read as native capability claims. If none means Nexus-Hub emits none, clarify that boundary without automatically adding instruction emission.",
+      "defaults": "~/.hermes/config.yaml, reasoning and write-approval keys remain documented.",
+      "sources": [
+        [
+          "https://hermes-agent.nousresearch.com/docs/user-guide/features/skills",
+          "External skill directories / Project-local skills"
+        ],
+        [
+          "https://hermes-agent.nousresearch.com/docs/user-guide/configuration",
+          "Context files / Reasoning / Write approvals"
+        ]
+      ],
+      "redirects": "Declared trailing-slash URLs redirected on the same host to paths without a slash.",
+      "limits": "One-level tap installation does not establish maximum runtime discovery depth. No native agent/rule/hook delivery or invocation-policy lever was newly qualified."
+    },
+    {
+      "id": "pi",
+      "verdicts": {
+        "instructions": "MATCH",
+        "skills": "MATCH",
+        "commands": "MATCH",
+        "agents": "UNVERIFIED",
+        "rules": "UNVERIFIED-BEYOND-CONTEXT",
+        "hooks": "MATCH-EXTENSIONS-BOUNDARY",
+        "defaults": "MATCH"
+      },
+      "observed": "Personal ~/.pi/agent and project .pi roots remain supported. Skills are recursive SKILL.md; flattened delivery is compatible. Prompts are direct Markdown children and /name; skills use /skill:name. Global/hierarchical AGENTS.md remain supported. Project resources require trust; context instructions do not. Native extensions are JS/TS.",
+      "defaults": "Existing settings keys/values and personal/project settings.json paths remain documented.",
+      "sources": [
+        [
+          "https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/configuration.md",
+          "Paths / Context files / Trust"
+        ],
+        [
+          "https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/skills.md",
+          "Recursive discovery / Invocation / Generic metadata"
+        ],
+        [
+          "https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/prompt-templates.md",
+          "Direct-child prompts / Invocation"
+        ],
+        [
+          "https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/settings.md",
+          "Settings paths / Thinking defaults"
+        ],
+        [
+          "https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/extensions.md",
+          "Native extension format"
+        ]
+      ],
+      "limits": "Sources are mutable main references. No native agent directory or separate rule directory is qualified."
+    },
+    {
+      "id": "nexus-ai",
+      "verdicts": {
+        "instructions": "UNVERIFIED",
+        "skills": "MATCH-GLOBAL-READER-ONLY",
+        "commands": "UNVERIFIED",
+        "agents": "UNVERIFIED",
+        "rules": "UNVERIFIED",
+        "hooks": "UNVERIFIED",
+        "defaults": "UNVERIFIED"
+      },
+      "observed": "Declared pinned and current main skill reader/storage sources were publicly fetched without credentials. They support global ~/.nexus-ai/catalog/skills and nested SKILL.md collection. Storage path constants alone do not prove consumption of the other mirrors.",
+      "sources": [
+        [
+          "https://github.com/bendourthe/Nexus-AI/blob/198ff9c877f258c775092761e3c67a6bed56b1d2/desktop/sidecar/src/skills/hubSkillReader.ts",
+          "Pinned reader"
+        ],
+        [
+          "https://github.com/bendourthe/Nexus-AI/blob/198ff9c877f258c775092761e3c67a6bed56b1d2/core/storage/paths.ts",
+          "Pinned storage paths"
+        ],
+        [
+          "https://github.com/bendourthe/Nexus-AI/blob/main/desktop/sidecar/src/skills/hubSkillReader.ts",
+          "Current global reader"
+        ],
+        [
+          "https://github.com/bendourthe/Nexus-AI/blob/main/core/storage/paths.ts",
+          "Current storage paths"
+        ]
+      ],
+      "limits": "The old private/unavailable-source rationale is stale for these files. Project-local discovery, all other mirror consumption, default levers and whole-code invocation-policy absence were not qualified."
+    },
+    {
+      "id": "aider",
+      "verdicts": {
+        "instructions": "NOT-RECHECKED",
+        "skills": "NOT-RECHECKED",
+        "commands": "NOT-RECHECKED",
+        "agents": "NOT-RECHECKED",
+        "rules": "NOT-RECHECKED",
+        "hooks": "NOT-RECHECKED",
+        "defaults": "MATCH"
+      },
+      "observed": "Advisory default review only: .aider.conf.yml retains home, repository-root, then current-directory precedence. model, reasoning-effort, thinking-tokens, yes-always, auto-commits, attribution-disable keys, git-commit-verify and read remain documented.",
+      "sources": [
+        [
+          "https://aider.chat/docs/config/aider_conf.html",
+          "Config file locations / Sample configuration"
+        ]
+      ],
+      "limits": "The existing Aider CONVENTIONS.md consumption claim was outside this bounded default audit and is not represented as newly verified."
+    }
+  ],
+  "gap_authority": [
+    {
+      "id": "v4.13#WN-4-v4131",
+      "ledger_anchor": "docs/releases/v4/v4.13/known-gaps.md:3928",
+      "manifest_disposition": "migrate",
+      "recorded_blocker": "Antigravity documents only a PreToolUse bridge; user-edit-guard needs a verified post-write event.",
+      "current_authority": "Current official hooks page documents the post event and native payload fields.",
+      "minimum_boundary": "Reuse the existing antigravity-hook-compat.py bridge and curated registration. Map native pre/read/write/run and successful post payloads into existing guard contracts, add both .sh/.ps1 hook delivery, and verify behavioral regressions. Source authority alone is not implementation or closure.",
+      "proving_command": "python -m pytest catalog/hooks/tests/test_cascade_guard_delivery.py -q",
+      "residual": "No authenticated host behavior was exercised in this audit."
+    },
+    {
+      "id": "v4.13#WN-5-v4133",
+      "ledger_anchor": "docs/releases/v4/v4.13/known-gaps.md:4483",
+      "manifest_disposition": "migrate",
+      "recorded_blocker": "OpenClaw per-agent/default precedence and Copilot global prompt migration await vendor documentation.",
+      "current_authority": "Workspace documentation now explicitly states profile and per-agent precedence; current VS Code prompt/skill pages define the accepted migration.",
+      "minimum_boundary": "Extend the existing preservation-aware OpenClaw resolver to documented profile/agent selection, reject invalid or ambiguous choices, and keep JSON/table/install verification in lockstep. Reuse command-to-skill emission for the existing Copilot migration while preserving its optional skill policy; do not silently activate a new default install surface.",
+      "proving_command": "python scripts/check_platform_contract_freshness.py",
+      "residual": "Actual resolver/emission changes and focused behavior proof remain necessary before closure."
+    },
+    {
+      "id": "v4.13#AR-36",
+      "ledger_anchor": "docs/releases/v4/v4.13/known-gaps.md:846",
+      "manifest_disposition": "migrate",
+      "recorded_blocker": "Authenticated Antigravity and Cursor read-backs, Gemini IDE observation, Nexus-AI source access.",
+      "current_authority": "Flat Antigravity agents and shared CLI hook paths are currently documented; public pinned/current Nexus-AI global reader sources were fetched. This narrows the inaccessible-source clause only.",
+      "minimum_boundary": "Record current source-qualified paths and remove stale private-source rationale for the fetched files. Keep authenticated runtime and project-local/other-mirror clauses open. Future workflow retirement remains 2026-10-19.",
+      "residual": "No authenticated native host or Nexus-AI project-local runtime observation; no false full closure."
+    },
+    {
+      "id": "v4.13#AR-38",
+      "ledger_anchor": "docs/releases/v4/v4.13/known-gaps.md:863",
+      "manifest_disposition": "migrate",
+      "recorded_acceptance": "First-party per-skill invocation field for each of Antigravity, OpenCode, Kimi, Hermes and Nexus-AI, recorded in skill-invocation-policy-levers.md.",
+      "current_authority": "Kimi accepts the already emitted generic flag. OpenCode documents string-valued metadata flags. Antigravity and Hermes still supply no qualified per-skill lever; Nexus-AI absence was not established across its full codebase.",
+      "minimum_boundary": "Correct dated Kimi documentation without a mapper. For OpenCode, map generic manual-only intent through documented native metadata while preserving authored metadata and model/user invocation independence. Reuse existing command synthesis/copy paths rather than inventing sidecars. Preserve the remaining platform clauses.",
+      "residual": "Five-platform acceptance is not fully met by the two new documented fields."
+    },
+    {
+      "id": "antigravity-modular-rules",
+      "related_id": "v4.13#AR-36",
+      "source_anchor": "https://antigravity.google/docs/rules",
+      "current_emission_anchor": "scripts/lib/integrations/antigravity.py:317",
+      "minimum_boundary": "Correct the contract's current consumption claim immediately. Actual activation needs deterministic native trigger/description transformation plus either flat naming or rules.json registration, preserving source bodies and user ownership. Shared AGENTS.md/GEMINI.md is already the verified instruction path; do not invent rule activation metadata or overwrite unowned files.",
+      "residual": "No implementation or host proof; this format finding does not reopen the unrelated already-resolved init obligation.",
+      "source_section": "YAML frontmatter and activation modes / Sharing rules across projects"
+    }
+  ],
+  "sufficient_rung": "Reuse native documentation, current contract records, existing adapters/bridge and command synthesis. No new framework, installer arm, plugin, credential flow or approval mechanism is proposed by this audit.",
+  "open_source_limits": [
+    "Claude All settings reference could not be freshly fetched; effort/model/path evidence is current, attribution-specific qualification remains limited.",
+    "Legacy Cursor command discovery, Gemini IDE optional mirrors, legacy Antigravity surfaces and Windsurf seedable mode defaults remain UNVERIFIED.",
+    "No unsupported documentation statement is classified as proven vendor removal.",
+    "Maximum skill depth remains unknown where the fetched vendor page does not state it; compatible flattened paths are not evidence of all deeper layouts."
+  ],
+  "publication_redaction": {
+    "fields": [
+      "source_binding.worktree"
+    ],
+    "replacement": "$WORKTREE",
+    "private_original_sha256": "fdb11f48db1009779e31fc4e56c823c161da3309ec13e9efcac03dbc0685b949",
+    "note": "Only the personal absolute worktree path is redacted. All original review dates, observations, qualification limits and raw-source hashes retain their pre-repair meaning; they do not attest the subsequent repaired source tree."
+  }
+}

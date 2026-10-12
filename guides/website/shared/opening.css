@@ -51,6 +51,7 @@
 .fxo-clip{display:grid;place-items:center;width:22px;height:22px;border:1px solid var(--border);border-radius:6px;font-weight:700;}
 .fxo-pick{margin-right:auto;}
 .fxo-send{padding:3px 12px;border-radius:7px;background:var(--accent);color:#06201c;font-weight:800;animation:fxo-sendk 24s linear infinite;}
+html[data-theme="light"] .fxo-send{color:#fffdf8;}
 @keyframes fxo-sendk{0%,61.9%,64%,100%{filter:none;transform:none;}62%,63.5%{filter:brightness(1.35);transform:scale(.94);}}
 /* The left column reads in story order, Prompt, Context Window, Tokens, each row labelled in the same style. */
 .fxo-prow,.fxo-tokrow,.fxo-ctx{display:grid;grid-template-columns:4.75rem minmax(0,1fr);align-items:start;gap:4px 12px;color:var(--ink);text-decoration:none;}
@@ -94,6 +95,7 @@
 @keyframes fxo-travel{0%,62.9%{transform:translateX(-4px);opacity:0;}63%{opacity:1;}65.5%{transform:translateX(30px);opacity:1;}66%,100%{transform:translateX(30px);opacity:0;}}
 .fxo-node{flex:2 1 0;min-width:0;display:flex;flex-direction:column;gap:10px;padding:12px 14px;border:1px solid var(--border);border-radius:14px;background:var(--bg-0,var(--surface));color:var(--ink);text-decoration:none;transition:border-color .2s var(--ease);}
 .fxo-node:hover,.fxo-compose:hover{border-color:var(--accent);}
+.fxo-node--model{align-items:stretch;}
 .fxo-mhead{display:flex;align-items:center;gap:12px;}
 /* The status states share one in-flow grid cell, so the row reserves the widest state and wraps it under the name rather than painting over it. */
 .fxo-mname{display:flex;flex:1;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:2px 12px;min-width:0;}
@@ -217,15 +219,47 @@
 @keyframes fxo-o5{0%,81.5%{clip-path:inset(0 100% 0 0);}82.9%,97%{clip-path:inset(0 0 0 0);}99%,100%{clip-path:inset(0 100% 0 0);}}
 .fxo-out[data-i="6"]{animation:fxo-o6 24s linear infinite;}
 @keyframes fxo-o6{0%,83.0%{clip-path:inset(0 100% 0 0);}84.4%,97%{clip-path:inset(0 0 0 0);}99%,100%{clip-path:inset(0 100% 0 0);}}
+/* Phones (WN-8-v41310): the four parts sit in a two-by-two grid in reading order (Prompt, Context Window,
+   then Tokens, Model), so the figure fits one screen (under 600px tall at 390px). The drawing drops what a
+   phone cannot show at this size: the attachment chips, the model picker, the part badges, and the
+   connector; prompt lines clamp to two lines and reply lines to one. Everything hidden is aria-hidden,
+   so the links and the figure's label are unchanged. */
 @media (max-width:719px){
-  .fxo-flow{flex-direction:column;}
-  .fxo-pipe{flex:0 0 22px;width:2px;height:22px;}
-  .fxo-pipe i{left:-3px;top:0;animation-name:fxo-travel-v;}
+  .fxo{padding:10px;}
+  .fxo-layer{padding:6px;}
+  .fxo-layer--platform{margin-top:8px;}
+  .fxo-head{gap:2px 10px;}
+  .fxo-chips li+li::before{margin:0 .35em;}
+  .fxo-flow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"p c" "t m";gap:8px;margin-top:8px;}
+  .fxo-chat{display:contents;}
+  .fxo-prow{grid-area:p;}
+  .fxo-ctx{grid-area:c;align-self:start;}
+  .fxo-tokrow{grid-area:t;align-self:start;}
+  .fxo-node{grid-area:m;}
+  .fxo-pipe,.fxo-files,.fxo-pick,.fxo-clip,.fxo-line .fxo-k{display:none;}
   .fxo-prow,.fxo-tokrow,.fxo-ctx{grid-template-columns:minmax(0,1fr);gap:4px;}
   .fxo-prow .fxo-lab{padding-top:3px;}
   .fxo-count,.fxo-keys{grid-column:1;}
+  .fxo-compose,.fxo-node{padding:8px 9px;gap:6px;}
+  .fxo-prompt{min-height:0;font-size:11.5px;line-height:1.35;}
+  .fxo-typed{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;}
+  .fxo-bar{justify-content:flex-end;}
+  .fxo-toks{display:flex;flex-wrap:wrap;gap:3px 2px;min-height:0;}
+  .fxo-tline{display:contents;}
+  .fxo-t{padding:0 .15em;line-height:1.3;}
+  .fxo-count{font-size:11px;}
+  .fxo-mhead{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 8px;}
+  .fxo-mname{display:contents;}
+  .fxo-core{width:36px;height:36px;}
+  .fxo-core i:nth-child(2){inset:5px;}
+  .fxo-core i:nth-child(3){inset:10px;}
+  .fxo-core em{inset:13px;}
+  .fxo-name{font-size:var(--ty-body);}
+  .fxo-status{grid-column:1/-1;justify-items:start;text-align:left;font-size:11px;line-height:1.25;}
+  .fxo-reply{min-height:0;padding:7px 8px;gap:2px;font-size:11px;line-height:1.3;}
+  .fxo-out{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+  .fxo-out--src{font-size:10.5px;}
 }
-@keyframes fxo-travel-v{0%,62.9%{transform:translateY(-4px);opacity:0;}63%{opacity:1;}65.5%{transform:translateY(18px);opacity:1;}66%,100%{transform:translateY(18px);opacity:0;}}
 
 /* ---- Cheatsheets: a guided demo of reading the page. One 8 s cycle: pick a group, find the card, choose a scope, copy the line. */
 .csf{display:grid;grid-template-columns:minmax(210px,1fr) minmax(0,2.2fr);gap:var(--sp-4);align-items:center;}

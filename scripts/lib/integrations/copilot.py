@@ -6,14 +6,13 @@ custom agents live under ``.github/agents`` and ``~/.copilot/agents``; native
 version-1 hook files live under ``.github/hooks/*.json`` and
 ``~/.copilot/hooks/*.json``.
 
-Copilot DOES expose a user-global slash-command surface via VS Code *prompt
-files*: ``<vscode-user>/prompts/<name>.prompt.md`` is offered as ``/<name>`` in
-Copilot Chat from any repo (requires the ``chat.promptFiles`` setting, on by
-default in current VS Code). A global install therefore mirrors the catalog's
-commands into the user-profile prompts dir so they are available everywhere with
-no per-project install (confirmed empirically against a repo with no local
-install). The per-repo ``.github/copilot-instructions.md`` behavioral layer
-still installs per-workspace.
+Copilot Agent Host reads personal command skills under
+``~/.copilot/skills/<name>/SKILL.md``. Global installation synthesizes selected
+commands there with manual-only invocation metadata and preserves unowned
+personal skills. VS Code Local still reads the compatibility prompt files at
+``<vscode-user>/prompts/<name>.prompt.md``; Agent Host does not load those files.
+The per-repo ``.github/copilot-instructions.md`` behavioral layer still installs
+per-workspace, and project skill seeding keeps its existing opt-in policy.
 
 GitHub CLI's `gh copilot` extension is also implicitly supported because it
 reads the same .github/copilot-instructions.md and the user's gh-installed
@@ -36,7 +35,7 @@ from typing import Optional
 
 from scripts.lib.installer.instruction_merge import merge_instruction
 
-from ._catalog_adapters import _split_frontmatter
+from ._catalog_adapters import _split_frontmatter, catalog_skill_names, commands_to_skills
 from ._command_surface import mirror_command_surface
 from ._copilot_native import build_copilot_hooks
 from ._owned import refuse_managed_redirect, remove_dir_if_empty, write_owned_file
@@ -146,10 +145,10 @@ class CopilotIntegration(MarkdownIntegration):
     }
 
     def install_global(self, ctx: InstallContext) -> WriteResult:
-        """Write personal instructions, prompts, agents, and native hooks.
+        """Write personal instructions, command skills, prompts, agents, and hooks.
 
-        Commands become ``<name>.prompt.md`` under VS Code's user-profile
-        ``prompts/`` dir, offered as ``/<name>`` in Copilot Chat from any repo.
+        Commands become manual-only personal skills under ``~/.copilot/skills``
+        and compatibility prompt files in VS Code's user-profile ``prompts/``.
         Catalog agents become ``<name>.agent.md`` under ``~/.copilot/agents``,
         Copilot's documented user-profile agent location (v3.15.8 Phase 8).
 
@@ -198,6 +197,20 @@ class CopilotIntegration(MarkdownIntegration):
                 result.files.append(refusal)
             else:
                 self._ensure_dir(copilot_home, ctx)
+                skills_dir = copilot_home / "skills"
+                skill_refusal = refuse_managed_redirect(
+                    ctx, self.key, skills_dir / "nexus-hub-probe", copilot_home
+                )
+                if skill_refusal is not None:
+                    result.files.append(skill_refusal)
+                else:
+                    result.files.extend(
+                        commands_to_skills(
+                            ctx, self.key, ctx.repo_root / "catalog" / "commands",
+                            skills_dir, catalog_skill_names(ctx.repo_root / "catalog" / "skills"),
+                            preserve_unowned=True,
+                        )
+                    )
                 result.files.append(self._write_personal_instruction(copilot_home, ctx))
                 result.files.extend(
                     self._install_global_agents(

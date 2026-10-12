@@ -1,0 +1,25 @@
+Branch hygiene (merged and idle, integration branch develop)
+  KEEP worktree:~/Documents/Benjamin/nexus/Nexus-Hub/.claude/worktrees/agent-af3b4b49bd7cc55ca no-merged-pr
+  KEEP worktree:~/Documents/Benjamin/nexus/Nexus-Hub-worktrees/v41311-fullgate detached
+  KEEP worktree:~/Documents/Benjamin/nexus/Nexus-Hub-worktrees/v41311-plan no-merged-pr
+  KEEP worktree:~/Documents/Benjamin/nexus/Nexus-Hub-worktrees/v4184-docs-publication status-unreadable
+  KEEP branch:develop protected
+  REMOVE branch:docs/todos-v4.18.3
+  KEEP branch:docs/v4.13.11-plan local-ahead
+  REMOVE branch:docs/v4.18.1-plan
+  KEEP branch:docs/v4.18.2-plan head-mismatch
+  KEEP branch:docs/v4.18.4-plan checked-out
+  KEEP branch:docs/v4.18.5-comparison checked-out
+  KEEP branch:fix/v4.13.11-known-gaps-sweep-and-minor-close no-merged-pr
+  KEEP branch:main protected
+  KEEP branch:wip/v41310-game no-merged-pr
+  KEEP branch:wip/v41310-game2 no-merged-pr
+  KEEP branch:wip/v41310-game3 no-merged-pr
+  KEEP branch:worktree-agent-af3b4b49bd7cc55ca no-merged-pr
+  KEEP remote:origin/develop protected
+  KEEP remote:origin/main protected
+  2 item(s) would be removed by cleanup_merged.py --apply; the rest are kept
+  Reporting only -- nothing was deleted.
+Repository settings
+  OK: delete_branch_on_merge is enabled
+  OK: repository description agrees with README.md

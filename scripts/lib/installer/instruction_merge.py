@@ -207,7 +207,7 @@ def remove_marker_section(
     """
     if not file_path.exists():
         return _file_action(file_path, "not-found")
-    existing = file_path.read_text(encoding="utf-8")
+    existing = file_path.read_bytes().decode("utf-8")
     if start_marker not in existing or end_marker not in existing:
         return _file_action(file_path, "kept")
     new_text = _strip_between_markers(existing, start_marker, end_marker)
@@ -296,15 +296,20 @@ def _strip_between_markers(text: str, start_marker: str, end_marker: str) -> str
     # uninstall path agrees with the install path on where the block ends.
     start = text.index(start_marker)
     end = text.rindex(end_marker, start) + len(end_marker)
-    # Eat one trailing newline that bracketed the block.
-    if end < len(text) and text[end] == "\n":
+    # Consume the owned marker's line ending without normalizing user text.
+    if text[end:].startswith("\r\n"):
+        end += 2
+    elif text[end:].startswith("\n"):
         end += 1
-    head = text[:start].rstrip("\n")
-    tail = text[end:].lstrip("\n")
+    prefix = text[:start]
+    head = prefix.rstrip("\r\n")
+    separator = prefix[len(head):]
+    newline = "\r\n" if separator.startswith("\r\n") else "\n"
+    tail = text[end:].lstrip("\r\n")
     if head and tail:
-        return f"{head}\n\n{tail}"
+        return f"{head}{newline}{newline}{tail}"
     if head:
-        return f"{head}\n"
+        return f"{head}{newline}"
     if tail:
         return tail
     return ""

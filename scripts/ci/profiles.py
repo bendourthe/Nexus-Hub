@@ -316,6 +316,7 @@ TESTS = Group(
             "tests/integrations/test_codex_invocation_policy.py",
             "tests/integrations/test_codex_native.py",
             "tests/integrations/test_consult.py",
+            "tests/integrations/test_gemini_cli_workspace.py",
             timeout=1800,
         ),
         _pytest(
@@ -337,6 +338,8 @@ TESTS = Group(
             "tests/integrations/test_cross_platform_flatten.py",
             "tests/integrations/test_global_command_surface.py",
             "tests/integrations/test_owned_root_preflight.py",
+            "tests/integrations/test_skill_path_provider_order.py",
+            "tests/integrations/test_windows_long_paths.py",
             timeout=1800,
         ),
         _pytest(
@@ -363,6 +366,8 @@ TESTS = Group(
             "tests/integrations/test_template_includes.py",
             "tests/integrations/test_skill_index_pointer.py",
             "tests/integrations/test_usage_guard_delivery.py",
+            "tests/integrations/test_notify_contract_guard.py",
+            "tests/integrations/test_notify_helper_delivery.py",
             timeout=1800,
         ),
         _pytest(
@@ -373,6 +378,14 @@ TESTS = Group(
             "tests/integrations/test_settings_hooks.py",
             "tests/integrations/test_teardown.py",
             timeout=1800,
+        ),
+        # The map CLI test imports nexus_code_search, which resolves only with the
+        # extension's src on the path (registered in v4.13.11, AR-08).
+        _pytest(
+            "repo-tests-integrations-map",
+            "tests/integrations/test_map_cli.py",
+            timeout=900,
+            env=_local_src_env("extensions/nexus-code-search/src"),
         ),
         _pytest("repo-tests-plans", "tests/plans", timeout=900),
         _pytest(

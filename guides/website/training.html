@@ -192,6 +192,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .fxo-clip{display:grid;place-items:center;width:22px;height:22px;border:1px solid var(--border);border-radius:6px;font-weight:700;}
 .fxo-pick{margin-right:auto;}
 .fxo-send{padding:3px 12px;border-radius:7px;background:var(--accent);color:#06201c;font-weight:800;animation:fxo-sendk 24s linear infinite;}
+html[data-theme="light"] .fxo-send{color:#fffdf8;}
 @keyframes fxo-sendk{0%,61.9%,64%,100%{filter:none;transform:none;}62%,63.5%{filter:brightness(1.35);transform:scale(.94);}}
 /* The left column reads in story order, Prompt, Context Window, Tokens, each row labelled in the same style. */
 .fxo-prow,.fxo-tokrow,.fxo-ctx{display:grid;grid-template-columns:4.75rem minmax(0,1fr);align-items:start;gap:4px 12px;color:var(--ink);text-decoration:none;}
@@ -235,6 +236,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 @keyframes fxo-travel{0%,62.9%{transform:translateX(-4px);opacity:0;}63%{opacity:1;}65.5%{transform:translateX(30px);opacity:1;}66%,100%{transform:translateX(30px);opacity:0;}}
 .fxo-node{flex:2 1 0;min-width:0;display:flex;flex-direction:column;gap:10px;padding:12px 14px;border:1px solid var(--border);border-radius:14px;background:var(--bg-0,var(--surface));color:var(--ink);text-decoration:none;transition:border-color .2s var(--ease);}
 .fxo-node:hover,.fxo-compose:hover{border-color:var(--accent);}
+.fxo-node--model{align-items:stretch;}
 .fxo-mhead{display:flex;align-items:center;gap:12px;}
 /* The status states share one in-flow grid cell, so the row reserves the widest state and wraps it under the name rather than painting over it. */
 .fxo-mname{display:flex;flex:1;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:2px 12px;min-width:0;}
@@ -358,15 +360,47 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 @keyframes fxo-o5{0%,81.5%{clip-path:inset(0 100% 0 0);}82.9%,97%{clip-path:inset(0 0 0 0);}99%,100%{clip-path:inset(0 100% 0 0);}}
 .fxo-out[data-i="6"]{animation:fxo-o6 24s linear infinite;}
 @keyframes fxo-o6{0%,83.0%{clip-path:inset(0 100% 0 0);}84.4%,97%{clip-path:inset(0 0 0 0);}99%,100%{clip-path:inset(0 100% 0 0);}}
+/* Phones (WN-8-v41310): the four parts sit in a two-by-two grid in reading order (Prompt, Context Window,
+   then Tokens, Model), so the figure fits one screen (under 600px tall at 390px). The drawing drops what a
+   phone cannot show at this size: the attachment chips, the model picker, the part badges, and the
+   connector; prompt lines clamp to two lines and reply lines to one. Everything hidden is aria-hidden,
+   so the links and the figure's label are unchanged. */
 @media (max-width:719px){
-  .fxo-flow{flex-direction:column;}
-  .fxo-pipe{flex:0 0 22px;width:2px;height:22px;}
-  .fxo-pipe i{left:-3px;top:0;animation-name:fxo-travel-v;}
+  .fxo{padding:10px;}
+  .fxo-layer{padding:6px;}
+  .fxo-layer--platform{margin-top:8px;}
+  .fxo-head{gap:2px 10px;}
+  .fxo-chips li+li::before{margin:0 .35em;}
+  .fxo-flow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"p c" "t m";gap:8px;margin-top:8px;}
+  .fxo-chat{display:contents;}
+  .fxo-prow{grid-area:p;}
+  .fxo-ctx{grid-area:c;align-self:start;}
+  .fxo-tokrow{grid-area:t;align-self:start;}
+  .fxo-node{grid-area:m;}
+  .fxo-pipe,.fxo-files,.fxo-pick,.fxo-clip,.fxo-line .fxo-k{display:none;}
   .fxo-prow,.fxo-tokrow,.fxo-ctx{grid-template-columns:minmax(0,1fr);gap:4px;}
   .fxo-prow .fxo-lab{padding-top:3px;}
   .fxo-count,.fxo-keys{grid-column:1;}
+  .fxo-compose,.fxo-node{padding:8px 9px;gap:6px;}
+  .fxo-prompt{min-height:0;font-size:11.5px;line-height:1.35;}
+  .fxo-typed{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;}
+  .fxo-bar{justify-content:flex-end;}
+  .fxo-toks{display:flex;flex-wrap:wrap;gap:3px 2px;min-height:0;}
+  .fxo-tline{display:contents;}
+  .fxo-t{padding:0 .15em;line-height:1.3;}
+  .fxo-count{font-size:11px;}
+  .fxo-mhead{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 8px;}
+  .fxo-mname{display:contents;}
+  .fxo-core{width:36px;height:36px;}
+  .fxo-core i:nth-child(2){inset:5px;}
+  .fxo-core i:nth-child(3){inset:10px;}
+  .fxo-core em{inset:13px;}
+  .fxo-name{font-size:var(--ty-body);}
+  .fxo-status{grid-column:1/-1;justify-items:start;text-align:left;font-size:11px;line-height:1.25;}
+  .fxo-reply{min-height:0;padding:7px 8px;gap:2px;font-size:11px;line-height:1.3;}
+  .fxo-out{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+  .fxo-out--src{font-size:10.5px;}
 }
-@keyframes fxo-travel-v{0%,62.9%{transform:translateY(-4px);opacity:0;}63%{opacity:1;}65.5%{transform:translateY(18px);opacity:1;}66%,100%{transform:translateY(18px);opacity:0;}}
 
 /* ---- Cheatsheets: a guided demo of reading the page. One 8 s cycle: pick a group, find the card, choose a scope, copy the line. */
 .csf{display:grid;grid-template-columns:minmax(210px,1fr) minmax(0,2.2fr);gap:var(--sp-4);align-items:center;}
@@ -3781,14 +3815,18 @@ main .eyebrow,main .tr-kicker{display:none;}
        query units), and this is the safety net: if the panel is still taller or wider than the
        arena, it is scaled down to fit, centred, so nothing is ever clipped. */
     function fitPanel() {
-      panel.style.transform = ""; panel.style.marginTop = "";
-      if (overlay.hidden || !overlay.clientHeight) return;
-      var ch = overlay.clientHeight, cw = overlay.clientWidth, ph = panel.offsetHeight, pw = panel.offsetWidth;
-      var k = Math.min(1, ch / Math.max(1, ph), cw / Math.max(1, pw));
-      if (k < 1) {
-        panel.style.transform = "scale(" + k.toFixed(4) + ")";
-        panel.style.marginTop = Math.max(0, (ch - ph * k) / 2).toFixed(1) + "px";
+      var transform = "", margin = "";
+      if (!overlay.hidden && overlay.clientHeight) {
+        /* Offset dimensions ignore transforms; retain the current fit while measuring. */
+        var ch = overlay.clientHeight, cw = overlay.clientWidth, ph = panel.offsetHeight, pw = panel.offsetWidth;
+        var k = Math.min(1, ch / Math.max(1, ph), cw / Math.max(1, pw));
+        if (k < 1) {
+          transform = "scale(" + k.toFixed(4) + ")";
+          margin = Math.max(0, (ch - ph * k) / 2).toFixed(1) + "px";
+        }
       }
+      if (panel.style.transform !== transform) panel.style.transform = transform;
+      if (panel.style.marginTop !== margin) panel.style.marginTop = margin;
     }
     /* R18: the cards' live previews. One loop per game draws every card while the start screen
        shows, the arena is on screen, and the tab is visible; it stops otherwise. With reduced
@@ -7486,12 +7524,17 @@ main .eyebrow,main .tr-kicker{display:none;}
       hudMarks.calm = { title: "VICTORY", map: MAPS[5].name, bars: false, chips: 0 };
       if (S.finale) finaleHud(W, H, small);
     }
+    /* A manual one-tick pilot calls sync repeatedly; unchanged DOM writes force layout. */
+    function syncText(node, text) { if (node.textContent !== text) node.textContent = text; }
+    function syncHidden(node, hidden) { hidden = !!hidden; if (node.hidden !== hidden) node.hidden = hidden; }
+    function syncAttribute(node, name, value) { if (node.getAttribute(name) !== value) node.setAttribute(name, value); }
+    function syncPresence(node, name, present) { present = !!present; if (node.hasAttribute(name) !== present) node.toggleAttribute(name, present); }
     function sync() {
       if (!S) return;
       var p = S.player;
-      hudScore.textContent = "Score " + S.score;
-      hudLives.textContent = "Hull " + Math.max(0, p.health) + " of " + S.healthMax + (p.shieldHp > 0 ? ", shield " + p.shieldHp : "");
-      hudLevel.textContent = "Level " + S.level + " (" + diff().name + ")" + (cfg.progression ? ": " + FORMS[S.level] : "") + (retriesOn() ? ". Retries left: " + retriesLeft() : "");
+      syncText(hudScore, "Score " + S.score);
+      syncText(hudLives, "Hull " + Math.max(0, p.health) + " of " + S.healthMax + (p.shieldHp > 0 ? ", shield " + p.shieldHp : ""));
+      syncText(hudLevel, "Level " + S.level + " (" + diff().name + ")" + (cfg.progression ? ": " + FORMS[S.level] : "") + (retriesOn() ? ". Retries left: " + retriesLeft() : ""));
       var extras = [];
       if (p.shieldHp > 0) extras.push("shield");
       if (p.revive > 0) extras.push("revive held");
@@ -7500,41 +7543,41 @@ main .eyebrow,main .tr-kicker{display:none;}
       if (S.trans) extras.push(S.trans.kind === "nova" ? "crossing into the Nexus dimension" : "in the wormhole");
       if (S.boss) extras.push("boss");
       var base = S.state === "idle" ? "Ready" : S.state === "running" ? "Playing" : S.state === "paused" ? "Paused" : S.victory ? "Victory" : "Game over";
-      hudState.textContent = extras.length && S.state === "running" ? base + ": " + extras.join(", ") : base;
+      syncText(hudState, extras.length && S.state === "running" ? base + ": " + extras.join(", ") : base);
       /* R37: the end card waits for the finale to play out */
-      overlay.hidden = S.state === "running" || !!(S.finale && !S.finale.done);
+      syncHidden(overlay, S.state === "running" || !!(S.finale && !S.finale.done));
       var offer = S.state === "over" && S.retryOffer;
-      overTitle.textContent = S.victory ? "Victory" : offer ? "Ship Lost" : S.state === "over" ? (S.overText || "Game over") : "";
-      overTitle.hidden = !overTitle.textContent;
+      syncText(overTitle, S.victory ? "Victory" : offer ? "Ship Lost" : S.state === "over" ? (S.overText || "Game over") : "");
+      syncHidden(overTitle, !overTitle.textContent);
       /* R41 (T123): the retry card offers the level's one retry; after it is used the end card says none are left */
-      retryBtn.hidden = !offer;
-      retryNote.hidden = !(S.state === "over" && !S.victory && retriesOn());
-      retryNote.textContent = "Retries left: 0";
-      overlay.toggleAttribute("data-retry", offer);
-      overPrize.hidden = !(S.victory && S.finale && S.finale.done);
+      syncHidden(retryBtn, !offer);
+      syncHidden(retryNote, !(S.state === "over" && !S.victory && retriesOn()));
+      syncText(retryNote, "Retries left: 0");
+      syncPresence(overlay, "data-retry", offer);
+      syncHidden(overPrize, !(S.victory && S.finale && S.finale.done));
       /* R48 (T132): the summary ends every fixed-game run, won or lost once its retries are used */
       var sum = S.state === "over" && !offer && summaryOn() && !(S.victory && !(S.finale && S.finale.done));
-      summary.hidden = !sum;
-      overlay.toggleAttribute("data-summary", sum);
+      syncHidden(summary, !sum);
+      syncPresence(overlay, "data-summary", sum);
       if (sum) renderSummary();
-      startBtn.textContent = S.state === "paused" ? "Resume" : S.state === "over" ? "Play again" : "Start game";
-      startBtn.hidden = offer;
+      syncText(startBtn, S.state === "paused" ? "Resume" : S.state === "over" ? "Play again" : "Start game");
+      syncHidden(startBtn, offer);
       /* the start screen shows on a fresh game; after a run, a button brings it back */
-      overlay.setAttribute("data-mode", S.state);
-      brand.hidden = S.state !== "idle";
+      syncAttribute(overlay, "data-mode", S.state);
+      syncHidden(brand, S.state !== "idle");
       /* R16: one start screen for every game: the same ships and the same upgrade key */
-      hangar.hidden = shipNote.hidden = key.hidden = strip.hidden = S.state !== "idle";
-      changeBtn.hidden = S.state !== "over" || offer;
+      [hangar, shipNote, key, strip].forEach(function (node) { syncHidden(node, S.state !== "idle"); });
+      syncHidden(changeBtn, S.state !== "over" || offer);
       SHIPS.forEach(function (sh) {
         var on = sh.id === S.ship.id, c = shipCards[sh.id].card;
-        c.setAttribute("aria-checked", on ? "true" : "false");
-        c.tabIndex = on ? 0 : -1;
+        syncAttribute(c, "aria-checked", on ? "true" : "false");
+        syncAttribute(c, "tabindex", on ? "0" : "-1");
       });
-      shipNote.textContent = S.ship.name + ", " + S.ship.role.toLowerCase() + ": " + S.ship.note.charAt(0).toLowerCase() + S.ship.note.slice(1) + ". " + S.ship.scheme + ".";
+      syncText(shipNote, S.ship.name + ", " + S.ship.role.toLowerCase() + ": " + S.ship.note.charAt(0).toLowerCase() + S.ship.note.slice(1) + ". " + S.ship.scheme + ".");
       if (S.state === "idle" && host.offsetParent !== null) paintCards();
       if (!overlay.hidden) fitPanel();
-      host.setAttribute("data-ss-state", S.state);
-      host.setAttribute("data-ss-ship", S.ship.id);
+      syncAttribute(host, "data-ss-state", S.state);
+      syncAttribute(host, "data-ss-ship", S.ship.id);
     }
 
     /* The explosion plays out for a moment after a run ends (one step per frame). */
@@ -9303,13 +9346,27 @@ window.NexusTrainingStory = (function () {
       mainEl.focus();
     });
   }
-  /* mobile nav */
+  /* mobile nav: the open menu covers the top of the page, so Escape closes it and returns focus to
+     the toggle, and focus leaving the menu closes it rather than reaching the content underneath */
   var navToggle = document.getElementById("navToggle");
   if (navToggle) {
+    var navMenu = document.getElementById("navLinks");
+    var closeNav = function () {
+      navMenu.classList.remove("open");
+      navToggle.setAttribute("aria-expanded", "false");
+    };
     navToggle.addEventListener("click", function () {
-      var links = document.getElementById("navLinks");
-      var open = links.classList.toggle("open");
+      var open = navMenu.classList.toggle("open");
       navToggle.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key !== "Escape" || !navMenu.classList.contains("open")) return;
+      e.preventDefault();
+      closeNav();
+      navToggle.focus();
+    });
+    document.addEventListener("focusin", function (e) {
+      if (navMenu.classList.contains("open") && e.target !== navToggle && !navMenu.contains(e.target)) closeNav();
     });
   }
 /* /shared:nav-js */

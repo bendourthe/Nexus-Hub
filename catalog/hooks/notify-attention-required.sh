@@ -49,6 +49,6 @@ if [ ! -t 0 ]; then
   cat >/dev/null 2>&1 || true
 fi
 
-nexus_notify_send "Claude Code" "Needs your input - $(nexus_notify_label)"
+nexus_notify_send "$(nexus_notify_host)" "Needs your input - $(nexus_notify_label)"
 
 exit 0

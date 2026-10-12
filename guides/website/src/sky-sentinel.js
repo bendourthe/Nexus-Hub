@@ -1540,14 +1540,18 @@
        query units), and this is the safety net: if the panel is still taller or wider than the
        arena, it is scaled down to fit, centred, so nothing is ever clipped. */
     function fitPanel() {
-      panel.style.transform = ""; panel.style.marginTop = "";
-      if (overlay.hidden || !overlay.clientHeight) return;
-      var ch = overlay.clientHeight, cw = overlay.clientWidth, ph = panel.offsetHeight, pw = panel.offsetWidth;
-      var k = Math.min(1, ch / Math.max(1, ph), cw / Math.max(1, pw));
-      if (k < 1) {
-        panel.style.transform = "scale(" + k.toFixed(4) + ")";
-        panel.style.marginTop = Math.max(0, (ch - ph * k) / 2).toFixed(1) + "px";
+      var transform = "", margin = "";
+      if (!overlay.hidden && overlay.clientHeight) {
+        /* Offset dimensions ignore transforms; retain the current fit while measuring. */
+        var ch = overlay.clientHeight, cw = overlay.clientWidth, ph = panel.offsetHeight, pw = panel.offsetWidth;
+        var k = Math.min(1, ch / Math.max(1, ph), cw / Math.max(1, pw));
+        if (k < 1) {
+          transform = "scale(" + k.toFixed(4) + ")";
+          margin = Math.max(0, (ch - ph * k) / 2).toFixed(1) + "px";
+        }
       }
+      if (panel.style.transform !== transform) panel.style.transform = transform;
+      if (panel.style.marginTop !== margin) panel.style.marginTop = margin;
     }
     /* R18: the cards' live previews. One loop per game draws every card while the start screen
        shows, the arena is on screen, and the tab is visible; it stops otherwise. With reduced
@@ -5245,12 +5249,17 @@
       hudMarks.calm = { title: "VICTORY", map: MAPS[5].name, bars: false, chips: 0 };
       if (S.finale) finaleHud(W, H, small);
     }
+    /* A manual one-tick pilot calls sync repeatedly; unchanged DOM writes force layout. */
+    function syncText(node, text) { if (node.textContent !== text) node.textContent = text; }
+    function syncHidden(node, hidden) { hidden = !!hidden; if (node.hidden !== hidden) node.hidden = hidden; }
+    function syncAttribute(node, name, value) { if (node.getAttribute(name) !== value) node.setAttribute(name, value); }
+    function syncPresence(node, name, present) { present = !!present; if (node.hasAttribute(name) !== present) node.toggleAttribute(name, present); }
     function sync() {
       if (!S) return;
       var p = S.player;
-      hudScore.textContent = "Score " + S.score;
-      hudLives.textContent = "Hull " + Math.max(0, p.health) + " of " + S.healthMax + (p.shieldHp > 0 ? ", shield " + p.shieldHp : "");
-      hudLevel.textContent = "Level " + S.level + " (" + diff().name + ")" + (cfg.progression ? ": " + FORMS[S.level] : "") + (retriesOn() ? ". Retries left: " + retriesLeft() : "");
+      syncText(hudScore, "Score " + S.score);
+      syncText(hudLives, "Hull " + Math.max(0, p.health) + " of " + S.healthMax + (p.shieldHp > 0 ? ", shield " + p.shieldHp : ""));
+      syncText(hudLevel, "Level " + S.level + " (" + diff().name + ")" + (cfg.progression ? ": " + FORMS[S.level] : "") + (retriesOn() ? ". Retries left: " + retriesLeft() : ""));
       var extras = [];
       if (p.shieldHp > 0) extras.push("shield");
       if (p.revive > 0) extras.push("revive held");
@@ -5259,41 +5268,41 @@
       if (S.trans) extras.push(S.trans.kind === "nova" ? "crossing into the Nexus dimension" : "in the wormhole");
       if (S.boss) extras.push("boss");
       var base = S.state === "idle" ? "Ready" : S.state === "running" ? "Playing" : S.state === "paused" ? "Paused" : S.victory ? "Victory" : "Game over";
-      hudState.textContent = extras.length && S.state === "running" ? base + ": " + extras.join(", ") : base;
+      syncText(hudState, extras.length && S.state === "running" ? base + ": " + extras.join(", ") : base);
       /* R37: the end card waits for the finale to play out */
-      overlay.hidden = S.state === "running" || !!(S.finale && !S.finale.done);
+      syncHidden(overlay, S.state === "running" || !!(S.finale && !S.finale.done));
       var offer = S.state === "over" && S.retryOffer;
-      overTitle.textContent = S.victory ? "Victory" : offer ? "Ship Lost" : S.state === "over" ? (S.overText || "Game over") : "";
-      overTitle.hidden = !overTitle.textContent;
+      syncText(overTitle, S.victory ? "Victory" : offer ? "Ship Lost" : S.state === "over" ? (S.overText || "Game over") : "");
+      syncHidden(overTitle, !overTitle.textContent);
       /* R41 (T123): the retry card offers the level's one retry; after it is used the end card says none are left */
-      retryBtn.hidden = !offer;
-      retryNote.hidden = !(S.state === "over" && !S.victory && retriesOn());
-      retryNote.textContent = "Retries left: 0";
-      overlay.toggleAttribute("data-retry", offer);
-      overPrize.hidden = !(S.victory && S.finale && S.finale.done);
+      syncHidden(retryBtn, !offer);
+      syncHidden(retryNote, !(S.state === "over" && !S.victory && retriesOn()));
+      syncText(retryNote, "Retries left: 0");
+      syncPresence(overlay, "data-retry", offer);
+      syncHidden(overPrize, !(S.victory && S.finale && S.finale.done));
       /* R48 (T132): the summary ends every fixed-game run, won or lost once its retries are used */
       var sum = S.state === "over" && !offer && summaryOn() && !(S.victory && !(S.finale && S.finale.done));
-      summary.hidden = !sum;
-      overlay.toggleAttribute("data-summary", sum);
+      syncHidden(summary, !sum);
+      syncPresence(overlay, "data-summary", sum);
       if (sum) renderSummary();
-      startBtn.textContent = S.state === "paused" ? "Resume" : S.state === "over" ? "Play again" : "Start game";
-      startBtn.hidden = offer;
+      syncText(startBtn, S.state === "paused" ? "Resume" : S.state === "over" ? "Play again" : "Start game");
+      syncHidden(startBtn, offer);
       /* the start screen shows on a fresh game; after a run, a button brings it back */
-      overlay.setAttribute("data-mode", S.state);
-      brand.hidden = S.state !== "idle";
+      syncAttribute(overlay, "data-mode", S.state);
+      syncHidden(brand, S.state !== "idle");
       /* R16: one start screen for every game: the same ships and the same upgrade key */
-      hangar.hidden = shipNote.hidden = key.hidden = strip.hidden = S.state !== "idle";
-      changeBtn.hidden = S.state !== "over" || offer;
+      [hangar, shipNote, key, strip].forEach(function (node) { syncHidden(node, S.state !== "idle"); });
+      syncHidden(changeBtn, S.state !== "over" || offer);
       SHIPS.forEach(function (sh) {
         var on = sh.id === S.ship.id, c = shipCards[sh.id].card;
-        c.setAttribute("aria-checked", on ? "true" : "false");
-        c.tabIndex = on ? 0 : -1;
+        syncAttribute(c, "aria-checked", on ? "true" : "false");
+        syncAttribute(c, "tabindex", on ? "0" : "-1");
       });
-      shipNote.textContent = S.ship.name + ", " + S.ship.role.toLowerCase() + ": " + S.ship.note.charAt(0).toLowerCase() + S.ship.note.slice(1) + ". " + S.ship.scheme + ".";
+      syncText(shipNote, S.ship.name + ", " + S.ship.role.toLowerCase() + ": " + S.ship.note.charAt(0).toLowerCase() + S.ship.note.slice(1) + ". " + S.ship.scheme + ".");
       if (S.state === "idle" && host.offsetParent !== null) paintCards();
       if (!overlay.hidden) fitPanel();
-      host.setAttribute("data-ss-state", S.state);
-      host.setAttribute("data-ss-ship", S.ship.id);
+      syncAttribute(host, "data-ss-state", S.state);
+      syncAttribute(host, "data-ss-ship", S.ship.id);
     }
 
     /* The explosion plays out for a moment after a run ends (one step per frame). */

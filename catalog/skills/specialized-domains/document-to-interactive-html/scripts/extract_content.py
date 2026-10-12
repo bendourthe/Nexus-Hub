@@ -1878,8 +1878,14 @@ _PEM_BLOCK_RE = re.compile(
 _SECRET_RES: list = [
     ("aws-access-key", re.compile(r"\b(?:AKIA|ASIA)[0-9A-Z]{16}\b")),
     (
+        # Every case and separator spelling of the key name, with or without the
+        # aws prefix: aws_secret_access_key, secretAccessKey, SecretAccessKey
+        # (STS JSON), secret-access-key. A quote may close a JSON or YAML key.
         "aws-secret-key",
-        re.compile(r"(?i)(aws_secret_access_key\s*[:=]\s*[\"']?)([A-Za-z0-9/+=]{40})"),
+        re.compile(
+            r"(?i)((?:aws[_-]?)?secret[_-]?access[_-]?key[\"']?\s*[:=]\s*[\"']?)"
+            r"([A-Za-z0-9/+=]{40})"
+        ),
     ),
     ("github-token", re.compile(r"\bgh[pousr]_[A-Za-z0-9]{36,}\b")),
     ("github-token", re.compile(r"\bgithub_pat_[A-Za-z0-9_]{50,}\b")),

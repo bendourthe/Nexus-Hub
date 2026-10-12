@@ -149,6 +149,56 @@ def test_coverage_reports_counts_not_values(walked):
     assert "[REDACTED:<category>]" in stderr
 
 
+_AWS_KEY_NAMES = [
+    "aws_secret_access_key",
+    "AWS_SECRET_ACCESS_KEY",
+    "secret_access_key",
+    "secretAccessKey",
+    "SecretAccessKey",
+    "awsSecretAccessKey",
+    "secret-access-key",
+    "aws-secret-access-key",
+]
+
+
+def _variant_secret(index: int) -> str:
+    """A distinct 40-character AWS-secret-shaped value per key-name variant."""
+    value = "wJalr" + "XUtnFEMI/K7MDENG/bPx" + "R" + "fiCYzz9q8v3a" + f"{index:02d}"
+    assert len(value) == 40
+    return value
+
+
+def test_case_and_separator_variants_of_the_aws_secret_key_name(tmp_path):
+    # Cycle 2 B1: STS JSON and camelCase YAML leaked the 40-character value.
+    repo = tmp_path / "aws-variants"
+    repo.mkdir()
+    sts = {"AccessKeyId": _AWS_ID, "SecretAccessKey": _variant_secret(90)}
+    (repo / "sts.json").write_text(json.dumps(sts, indent=2), encoding="utf-8")
+    (repo / "serverless.yml").write_text(
+        "provider:\n  secretAccessKey: " + _variant_secret(91) + "\n", encoding="utf-8"
+    )
+    lines = [
+        name + " = " + _variant_secret(index) for index, name in enumerate(_AWS_KEY_NAMES)
+    ]
+    (repo / "credentials.ini").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+    raw, model, stderr = _run(tmp_path, repo)
+
+    secrets = [_variant_secret(i) for i in range(len(_AWS_KEY_NAMES))]
+    for secret in [*secrets, _variant_secret(90), _variant_secret(91)]:
+        assert secret not in raw
+        assert secret not in stderr
+    per = {
+        c["path"]: c.get("secrets_redacted", {})
+        for c in model["coverage"]["per_source"]
+    }
+    assert per["sts.json"].get("aws-secret-key") == 1
+    assert per["serverless.yml"].get("aws-secret-key") == 1
+    assert per["credentials.ini"].get("aws-secret-key") == len(_AWS_KEY_NAMES)
+    # The key names themselves survive, so the model still reads as config.
+    assert "SecretAccessKey" in raw and "secretAccessKey" in raw
+
+
 def test_a_single_file_input_is_not_redacted(tmp_path):
     note = tmp_path / "aws-example.md"
     note.write_text(

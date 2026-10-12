@@ -786,6 +786,60 @@ def test_unparsed_ledger_cannot_be_verified(repo: Close) -> None:
     assert notices == [f"gaps.minor unparsed {GAPS05} (line 18 row)"]
 
 
+def test_a_repeated_id_on_unresolved_work_is_ambiguous() -> None:
+    assert cm.parse_ledger_full("### Open Items\n\n#### WN-3: first\n\n#### WN-3: second\n")[1] == [
+        "duplicate-id WN-3"]
+    same_section = "## v0.5.0\n\n#### WN-3: open\n\n#### WN-3: done - RESOLVED\n"
+    assert cm.parse_ledger_full(same_section)[1] == ["duplicate-id WN-3"]
+    # Patch sections reuse short ids: `v0.5.0#WN-3` and `v0.5.1#WN-3` are distinct items the
+    # carry tooling addresses by section, so a repeat across sections is never ambiguous.
+    across_sections = "## v0.5.0\n\n#### WN-3: open\n\n## v0.5.1\n\n#### WN-3: also open\n"
+    assert cm.parse_ledger_full(across_sections)[1] == []
+    resolved_twice = "## v0.5.0\n\n#### WN-3: a - RESOLVED\n\n## v0.5.1\n\n#### WN-3: b - RESOLVED\n"
+    assert cm.parse_ledger_full(resolved_twice)[1] == []
+
+
+def test_a_gap_heading_that_lost_its_id_is_unparsed() -> None:
+    template = "### Open Items\n\n" + WN3.replace("WN-3: ", "", 1)
+    assert cm.parse_ledger_full(template)[1] == ["line 3 heading-without-id"]
+    contract = "### Installer and CLI\n\n### No live smoke\n\n- **Owner**: installer owner\n- **Severity**: low\n"
+    assert cm.parse_ledger_full(contract)[1] == ["line 3 heading-without-id"]
+    migrated = "### Open Items\n\n#### Moved on - MIGRATED to v0.6.0\n"
+    assert cm.parse_ledger_full(migrated)[1] == ["line 3 heading-without-id"]
+
+
+def test_grouping_and_closed_headings_without_an_id_are_not_problems() -> None:
+    text = (
+        "## v0.5.0\n\n### Summary\n\n**Status**: shipped\n\n### Installer and CLI\n\n" + WN3
+        + "### Notes\n\n- **Reason**: one field alone is prose\n\n```\n- **Owner**: x\n- **Severity**: low\n```\n\n"
+        "#### Old finding - RESOLVED 2026-09-01\n\n- **Source phase**: 1\n- **Reason**: fixed\n\n"
+        "#### ~~NI-4~~ (RESOLVED in Phase 6.1) - closed\n\n- **Source phase**: 1\n- **Reason**: x\n\n"
+        "### Resolved\n\n#### Fixed without an id\n\n- **Source phase**: 1\n- **Reason**: x\n"
+    )
+    assert cm.parse_ledger_full(text)[1] == []
+
+
+def test_duplicate_id_is_reported_and_refuses_migration(repo: Close) -> None:
+    repo.standard(WN3 + "#### WN-3: An older copy - RESOLVED 2026-09-01\n\n")
+    repo.forge()
+    status, notices = repo.gaps_minor()
+    assert status == "unmet"
+    assert notices == [f"gaps.minor unparsed {GAPS05} (duplicate-id WN-3)", "gaps.minor open v0.5#WN-3"]
+    before = repo.read(GAPS05)
+    result = repo.migrate()
+    assert result.returncode == 3, result.stdout + result.stderr
+    assert result.stdout.startswith(f"REFUSED: ledger-unparsed ({GAPS05} duplicate-id WN-3)"), result.stdout
+    assert repo.read(GAPS05) == before and not (repo.work / GAPS06).exists()
+
+
+def test_a_gap_that_lost_its_id_keeps_the_minor_from_closing(repo: Close) -> None:
+    repo.standard(WN3.replace("WN-3: ", "", 1), wn_open=0)
+    repo.forge(bound=())
+    status, notices = repo.gaps_minor()
+    assert status == "cannot-verify"
+    assert notices == [f"gaps.minor unparsed {GAPS05} (line 18 heading-without-id)"]
+
+
 def test_self_migration_marker_is_not_accepted(repo: Close) -> None:
     prov = "- **Migrated from**: v0.5#WN-3 on 2026-09-29 (reason: user-deferred)\n\n"
     repo.standard("#### WN-3: The probe flakes - MIGRATED to v0.5.0\n\n" + prov, wn_open=0)

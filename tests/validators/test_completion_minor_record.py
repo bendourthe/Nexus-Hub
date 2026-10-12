@@ -165,14 +165,14 @@ class Minor:
             cwd=self.work, env=self.env, capture_output=True, text=True, check=False,
         )
 
-    def capture(self, session: str, *texts: str) -> None:
+    def capture(self, session: str, *texts: str, at: float | None = None) -> None:
         prompts = self.runs / "prompts"
         prompts.mkdir(parents=True, exist_ok=True)
         path = prompts / f"{hashlib.sha256(session.encode()).hexdigest()}.jsonl"
         with path.open("a", encoding="utf-8") as handle:
             for text in texts:
                 d = _digest(text)
-                handle.write(json.dumps({"session": session, "prompt": d, "digests": [d], "at": time.time()}) + "\n")
+                handle.write(json.dumps({"session": session, "prompt": d, "digests": [d], "at": time.time() if at is None else at}) + "\n")
 
     def approvals(self, *extra: dict) -> Path:
         spec = {
@@ -197,7 +197,8 @@ class Minor:
 
     def paste(self, session: str, *args: str) -> str:
         """The user's session holds the /implement request, then the exact rendered line."""
-        self.capture(session, "/implement v0.5")
+        # Synthetic prior history must precede rendering despite host clock changes.
+        self.capture(session, "/implement v0.5", at=0.0)
         rendered = self.render(session, *args)
         assert rendered.returncode == 0, rendered.stdout + rendered.stderr
         line = rendered.stdout.splitlines()[0]
@@ -869,7 +870,7 @@ def _schema1_record(minor: Minor, rel: str) -> dict:
         ),
         encoding="utf-8",
     )
-    minor.capture(SESSION, f"/implement {rel}")
+    minor.capture(SESSION, f"/implement {rel}", at=0.0)
     rendered = minor.run("record", "render", rel, "--session", SESSION, "--approvals", str(spec))
     assert rendered.returncode == 0, rendered.stderr
     minor.capture(SESSION, rendered.stdout.splitlines()[0])
@@ -1068,7 +1069,7 @@ def test_retiring_another_sessions_live_record_needs_the_users_paste(minor: Mino
     assert refused.returncode == ck.EXIT_BLOCKED and "reason: not-rendered" in refused.stdout
     bare = minor.run("record", "retire", rel)
     assert bare.returncode == ck.EXIT_BLOCKED
-    minor.capture("session-two", f"/implement {rel}")
+    minor.capture("session-two", f"/implement {rel}", at=0.0)
     rendered = minor.run("record", "render", rel, "--session", "session-two", "--action", "retire")
     assert rendered.returncode == 0, rendered.stderr
     line = rendered.stdout.splitlines()[0]

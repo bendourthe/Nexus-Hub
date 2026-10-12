@@ -90,7 +90,16 @@ describe("VSIX content verification", () => {
     "deploy.pem",
     "signing.key",
     "secret",
-    "secrets.json"
+    "secrets.json",
+    "out/credentials.json",
+    "credential.txt",
+    "out/session.token",
+    "token.json",
+    "id_rsa",
+    "keys/id_ed25519.pub",
+    "signing.p12",
+    "signing.pfx",
+    ".npmrc"
   ])("rejects the credential-shaped file %s", (credential) => {
     expect(collectErrors([...CLEAN, credential])).toHaveLength(1);
   });

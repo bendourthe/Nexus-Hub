@@ -156,7 +156,7 @@ class Fixture:
         extra = ["--session", session] if session else []
         return self.run("check", PLAN_REL, *extra)
 
-    def capture(self, session: str, *texts: str) -> None:
+    def capture(self, session: str, *texts: str, at: float | None = None) -> None:
         """Store each text as one whole submitted prompt, as approval-capture does."""
         prompts = self.runs / "prompts"
         prompts.mkdir(parents=True, exist_ok=True)
@@ -164,7 +164,7 @@ class Fixture:
         with path.open("a", encoding="utf-8") as handle:
             for text in texts:
                 d = _digest(text)
-                entry = {"session": session, "prompt": d, "digests": [d], "at": time.time()}
+                entry = {"session": session, "prompt": d, "digests": [d], "at": time.time() if at is None else at}
                 handle.write(json.dumps(entry) + "\n")
 
     def render(self, session: str, *args: str) -> str:
@@ -179,7 +179,7 @@ class Fixture:
         The user's own session already holds an earlier prompt (the /implement
         request), which record create requires from before the round was rendered.
         """
-        self.capture(session, f"/implement {PLAN_REL}")
+        self.capture(session, f"/implement {PLAN_REL}", at=0.0)
         line = self.render(session, *args)
         self.capture(session, line)
         return line
@@ -1010,7 +1010,7 @@ def test_record_create_auto_binds_the_session_that_captured_the_approvals(
     _git(fx.work, "remote", "add", "origin", "https://github.com/acme/demo.git")
     fx.write(PLAN_REL, PLAN.format(a=" ", b=" "))
     fx.capture("other-session", "unrelated prompt")
-    fx.capture("the-real-session", f"/implement {PLAN_REL}")
+    fx.capture("the-real-session", f"/implement {PLAN_REL}", at=0.0)
     line = fx.render("auto", "--approvals", str(fx.approvals()))
     fx.capture("the-real-session", line)
     result = fx.run(

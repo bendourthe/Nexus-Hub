@@ -26,6 +26,19 @@ from scripts.lib.integrations._hooks_common import is_windows_host
 from scripts.lib.integrations.base import InstallContext
 
 
+@pytest.fixture(autouse=True)
+def _isolated_nexus_state(tmp_path_factory: pytest.TempPathFactory, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Keep the instruction-merge lock and backup state out of the real profile.
+
+    A reinstall finds an existing instruction file and takes a per-target lock under
+    the Nexus state root, which falls back to the real home unless NEXUS_HUB_HOME is
+    set. The directory sits outside tmp_path so tests that snapshot tmp_path see no
+    extra entries.
+    """
+    monkeypatch.setenv("NEXUS_HUB_HOME", str(tmp_path_factory.mktemp("nexus-home")))
+
+
+
 def test_antigravity_20_global_workflows_preserve_users_and_refresh_owned(
     install_ctx: InstallContext, monkeypatch
 ):
@@ -152,8 +165,12 @@ def test_antigravity_20_installs_hooks_and_registration(install_ctx: InstallCont
     integ.install(install_ctx)
     agents = install_ctx.target_root / ".agents"
 
-    for script in ("secret-scan.sh", "large-file-guard.sh", "git-guardrails.sh"):
+    for script in (
+        "secret-scan.sh", "large-file-guard.sh", "git-guardrails.sh",
+        "user-edit-guard.sh", "attribution-guard.sh",
+    ):
         assert (agents / "hooks" / script).exists(), f"hook script {script} not installed"
+        assert (agents / "hooks" / f"{Path(script).stem}.ps1").is_file()
     assert (agents / "hooks" / "antigravity-hook-compat.py").is_file()
     assert not (agents / "hooks" / "compress-output.sh").exists()
 
@@ -176,6 +193,18 @@ def test_antigravity_20_installs_hooks_and_registration(install_ctx: InstallCont
         "run_command",
     }
     assert "" not in matchers, "unrelated tools must not invoke file-content guards"
+    post_matchers = {entry["matcher"] for entry in guardrails["PostToolUse"]}
+    assert post_matchers == {
+        "write_to_file|replace_file_content|multi_replace_file_content",
+        "run_command", "view_file",
+    }
+    for event in ("PreToolUse", "PostToolUse"):
+        for entry in guardrails[event]:
+            entry_commands = [hook["command"] for hook in entry["hooks"]]
+            assert any(f"user-edit-guard{hook_suffix}" in command for command in entry_commands)
+            assert all(f"antigravity {event} --" in command for command in entry_commands)
+            if event == "PreToolUse":
+                assert any(f"attribution-guard{hook_suffix}" in command for command in entry_commands)
 
 
 def test_antigravity_hook_bridge_translates_host_payload_to_guard_contract():
@@ -197,9 +226,87 @@ def test_antigravity_hook_bridge_translates_host_payload_to_guard_contract():
     assert translated["hook_event_name"] == "PreToolUse"
     assert translated["session_id"] == "conversation-123"
     assert translated["transcript_path"] == "/tmp/transcript.jsonl"
-    assert translated["tool_name"] == "run_command"
+    assert translated["tool_name"] == "Bash"
     assert translated["tool_input"]["command"] == "git reset --hard"
     assert translated["tool_input"]["cwd"] == "/repo"
+    assert translated["cwd"] == "/repo"
+
+
+@pytest.mark.parametrize(
+    ("native", "canonical"),
+    [
+        ("write_to_file", "Write"), ("replace_file_content", "Edit"),
+        ("multi_replace_file_content", "MultiEdit"), ("run_command", "Bash"),
+        ("view_file", "Read"),
+    ],
+)
+def test_antigravity_hook_bridge_maps_guard_tool_names(native, canonical):
+    translated = hook_compat.translate_antigravity_payload(
+        {"toolCall": {"name": native, "args": {"AbsolutePath": "/repo/file.txt"}},
+         "conversationId": "actual-conversation", "workspacePaths": ["/repo"]},
+        "PostToolUse",
+    )
+    assert translated["tool_name"] == canonical
+    assert translated["tool_input"]["file_path"] == "/repo/file.txt"
+    assert "cwd" not in translated
+    assert translated["session_id"] == "actual-conversation"
+    assert "tool_use_id" not in translated
+
+
+def test_antigravity_hook_bridge_keeps_command_cwd_over_workspace():
+    translated = hook_compat.translate_antigravity_payload(
+        {"toolCall": {"name": "run_command", "args": {"Cwd": "/repo/subdir"}},
+         "workspacePaths": ["/repo", "/other"]},
+        "PreToolUse",
+    )
+    assert translated["cwd"] == "/repo/subdir"
+    assert "session_id" not in translated
+
+
+@pytest.mark.parametrize("workspaces", [["/mounted"], ["/mounted", "/second"]])
+@pytest.mark.parametrize("tool", ["run_command", "write_to_file", "view_file"])
+def test_antigravity_mounted_workspaces_do_not_define_execution_cwd(workspaces, tool):
+    translated = hook_compat.translate_antigravity_payload(
+        {"toolCall": {"name": tool, "args": {}}, "workspacePaths": workspaces},
+        "PreToolUse",
+    )
+    assert "cwd" not in translated
+
+
+def test_antigravity_file_tool_does_not_promote_an_unsupported_cwd_argument():
+    translated = hook_compat.translate_antigravity_payload(
+        {"toolCall": {"name": "view_file", "args": {
+            "AbsolutePath": "/repo/file.txt", "Cwd": "/unsupported",
+        }}, "workspacePaths": ["/mounted", "/second"]},
+        "PostToolUse",
+    )
+    assert translated["tool_input"]["file_path"] == "/repo/file.txt"
+    assert "cwd" not in translated
+
+
+@pytest.mark.parametrize("returncode", [0, 1, 2])
+def test_antigravity_post_hook_returns_documented_empty_object(returncode):
+    output, wrapper_exit = hook_compat.translate_child_result(
+        "antigravity", "PostToolUse", stdout='{"decision":"deny"}',
+        stderr="post diagnostic", returncode=returncode,
+    )
+    assert output == {}
+    assert wrapper_exit == 0
+
+
+def test_antigravity_failed_post_does_not_invoke_child(monkeypatch, capsys, tmp_path):
+    marker = tmp_path / "child-ran"
+    child = "from pathlib import Path; import sys; Path(sys.argv[1]).write_text('ran')"
+    monkeypatch.setattr(sys, "stdin", io.StringIO(json.dumps({
+        "toolCall": {"name": "write_to_file", "args": {"TargetFile": "/repo/file"}},
+        "conversationId": "actual-conversation", "error": "write failed",
+    })))
+    result = hook_compat.main(
+        ["antigravity", "PostToolUse", "--", sys.executable, "-c", child, str(marker)]
+    )
+    assert result == 0
+    assert json.loads(capsys.readouterr().out) == {}
+    assert not marker.exists()
 
 
 @pytest.mark.parametrize(

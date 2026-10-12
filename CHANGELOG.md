@@ -9,6 +9,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Known-gaps sweep and minor close (v4.13.11).** The v4.13 ledger's open items fell from 158 at admission to 83. Every remaining item carries a carry-forward contract (owner, severity, blocker, acceptance, proving command, future plan) for migration to v4.14. Closures came from fixes across hooks, repository tools, skills, templates, CI, the usage monitors, the guides and the installers, plus maintainer decisions recorded in `docs/releases/v4/v4.13/development/v4.13.11-ledger-decisions.md` and new decision records under `docs/decisions/implemented/`.
+- **The Copilot usage monitor also installs into Cursor (v4.13.11, WN-30).** Both installers pass the Cursor CLI as the Copilot monitor's second host when Cursor is detected, as the other monitors already did; banners and the README say so.
+- **Usage-monitor CI installs without lifecycle scripts (v4.13.11, AR-60, WN-32).** All four monitor workflows run `npm ci --ignore-scripts`, with byte-identical packages proven for each. The Copilot monitor gains a `verify:package` step, and both verifiers now reject credential-like files such as `credentials.json`, `*.token` and SSH keys.
+- **Stricter ledger parsing (v4.13.11).** `minor_close.py status` and `migrate` now refuse a ledger with duplicate unresolved gap IDs or a gap heading without an ID, instead of miscounting it.
+
+### Fixed
+
+- **Antigravity edit and attribution guards (v4.13.11, WN-4-v4131).** The native bridge maps tool, session and working-directory fields into the curated guards, records successful post-tool file state, and leaves failed post events unrecorded.
+- **Selected OpenClaw workspaces (v4.13.11, WN-5-v4133).** Global delivery honors named profiles, explicit selected-agent workspaces and documented fleet defaults; ambiguous or invalid selection is visibly refused. The workspace environment override retains native literal-path semantics.
+- **Copilot personal command-skills and instruction preservation (v4.13.11, WN-5-v4133).** Eligible selected global commands also install as ownership-aware manual-only personal skills. Local prompt compatibility and project skill opt-in remain available; teardown preserves personal instruction CRLF bytes.
+- **Training HUD and responsive fitting (v4.13.11).** Only changed HUD text, transforms and margins are written, retaining the existing responsive measurements and game balance.
+- **Command injection through `.cmd`/`.bat` shims in three PowerShell hooks (v4.13.11).** `lint-on-write.ps1`, `rewrite-command.ps1` and `session-summary.ps1` no longer hand an argument containing a cmd metacharacter, quote or line break to a `.cmd`/`.bat` target. They use a same-named `.exe` when one exists, and otherwise skip the call; `rewrite-command` then returns no permission decision. The same hooks decode child output as UTF-8 (WN-45).
+- **Deep Windows paths (v4.13.11).** `nexus-hub init` and global installs complete on project roots past the 260-character limit; `init` now names a failing platform and continues instead of raising. Teardown and hook pruning also handle deep roots, restore user hook bytes, and remove owned directory junctions without touching their targets (WN-46).
+- **PyJWT advisory GHSA-42vr-xj54-vc7v (v4.13.11).** The four `mcp`-dependent extensions require `pyjwt>=2.15.0`, and CI pins 2.15.1.
+- **Guide and Training accessibility (v4.13.11).** The phone menu closes on Escape and when focus leaves it. The Foundations figure fits below 600 px at phone widths even with Linux fallback fonts (579.20 px at 390 px and 430 px, WN-8-v41310) and names its links. Light-theme figure text reaches 4.5:1 contrast, and home headings no longer skip a level.
+- **Smaller fixes (v4.13.11).** Presentify redacts camelCase AWS secret key names. `provenance-ledger.ps1` writes UTC timestamps like its bash sibling. `enumerate-models.ps1` exits 2 for an unknown platform under a Stop error preference. Completion notices name the host they were installed for.
+
+### Capability usage
+
+- **Copilot Usage Monitor in Cursor (v4.13.11, WN-30), default-on.** Global extension installation now delivers the existing monitor to detected Cursor as well as VS Code.
+
+    - **Activation**: automatic during a global install when the Cursor CLI is detected and the monitor build/install succeeds; no additional opt-in.
+    - **Validation**: `python scripts/check_installer_parity.py` and `python -m pytest -q catalog/hooks/tests/test_installer_smoke.py -k "isolate_vscode_and_cursor_hosts or banners_state_the_copilot_monitor_hosts"`.
+    - **Rollback**: `cursor --uninstall-extension nexus-hub.copilot-usage-monitor`.
+    - **Boundary**: editor-host delivery changes; monitor authentication and GitHub permissions are unchanged.
+    - **Documentation**: [README](README.md), [PowerShell installer](scripts/installer.ps1), and [Bash installer](scripts/installer.sh).
+
 ## [4.13.10] - 2026-10-09
 
 ### Added

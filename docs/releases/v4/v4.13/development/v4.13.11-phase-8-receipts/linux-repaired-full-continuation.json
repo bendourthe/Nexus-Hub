@@ -1,0 +1,1088 @@
+{
+  "kind": "actual native full-profile terminal receipt with genuine RunResult reports",
+  "command": [
+    "python",
+    "scripts/ci/run.py",
+    "--profile",
+    "full",
+    "--base",
+    "origin/develop",
+    "--quiet",
+    "--reports-dir",
+    "/artifacts/full-final-repaired-20261012-01/native-reports"
+  ],
+  "terminal": {
+    "exit_code": 1,
+    "started_utc": "2026-10-12T14:13:11.421384+00:00",
+    "ended_utc": "2026-10-12T15:07:45.289083+00:00",
+    "elapsed_monotonic_seconds": 3520.1027157439385,
+    "command": [
+      "python",
+      "scripts/ci/run.py",
+      "--profile",
+      "full",
+      "--base",
+      "origin/develop",
+      "--quiet",
+      "--reports-dir",
+      "/artifacts/full-final-repaired-20261012-01/native-reports"
+    ],
+    "candidate_index_tree_before": "9aaee2b440fe262247fb774c49bc489943c2a899",
+    "candidate_index_tree_after": "9aaee2b440fe262247fb774c49bc489943c2a899",
+    "normalized_working_tree_before": "9aaee2b440fe262247fb774c49bc489943c2a899",
+    "normalized_working_tree_after": "927d6fc52fa769351a0759636d6efec0d0d1e3fb",
+    "head_before": "066235c90b1eb3de346658c8a3ef3fd6b19bced1",
+    "head_after": "066235c90b1eb3de346658c8a3ef3fd6b19bced1",
+    "real_clone_index_sha256_before": "cc5ad2b2699678f23c3e9a522753e01ed5a3b5f334fa3cd433fc0b7e11b75595",
+    "real_clone_index_sha256_after": "cc5ad2b2699678f23c3e9a522753e01ed5a3b5f334fa3cd433fc0b7e11b75595",
+    "raw_tracked_paths_changed": [
+      "extensions/claude-usage-monitor/package-lock.json",
+      "extensions/codex-usage-monitor/package-lock.json",
+      "extensions/copilot-usage-monitor/package-lock.json",
+      "extensions/cursor-usage-monitor/package-lock.json"
+    ],
+    "clone_local_diffs": {
+      "extensions/claude-usage-monitor/package-lock.json": {
+        "file": "clone-local-diffs/extensions__claude-usage-monitor__package-lock.json.diff",
+        "sha256": "fb251f9b417b1af47e9f7447a9c8c39ff064e5695106a77e0e91daa8739abcb7"
+      },
+      "extensions/codex-usage-monitor/package-lock.json": {
+        "file": "clone-local-diffs/extensions__codex-usage-monitor__package-lock.json.diff",
+        "sha256": "0b89add312396d88ee78ea575249b35815cb6afbdba8f66a783eb3f38c032298"
+      },
+      "extensions/copilot-usage-monitor/package-lock.json": {
+        "file": "clone-local-diffs/extensions__copilot-usage-monitor__package-lock.json.diff",
+        "sha256": "4ad8574e944d42eb464cb2e5b72608369cc15e5850aff51edb8971e0beffd52c"
+      },
+      "extensions/cursor-usage-monitor/package-lock.json": {
+        "file": "clone-local-diffs/extensions__cursor-usage-monitor__package-lock.json.diff",
+        "sha256": "78801fd6b048ad00cf3643394aa4443014f45fe0228d686e90f497ed023f1cc9"
+      }
+    },
+    "cpu_stat_delta": {
+      "usage_usec": 11361977867,
+      "user_usec": 10232869919,
+      "system_usec": 1129107949,
+      "nr_periods": 34721,
+      "nr_throttled": 2,
+      "throttled_usec": 13779,
+      "nr_bursts": 0,
+      "burst_usec": 0
+    },
+    "memory_event_delta": {
+      "low": 0,
+      "high": 0,
+      "max": 0,
+      "oom": 0,
+      "oom_kill": 0,
+      "oom_group_kill": 0
+    },
+    "limits_changed": false,
+    "fullgate_log_sha256": "de9620de2e702ef695dfe91e2aa975a2a91cb67fdbf4a5019f50e9968b7968a5",
+    "native_summary_retained": true,
+    "native_summary_sha256": "2656186b105a23d6e19399f5c574862a064a5d15aaf93cb6ed0af182455a0ea1"
+  },
+  "original_worktree_verification": {
+    "captured_utc": "2026-10-12T15:08:42.906934+00:00",
+    "source_head_now": "066235c90b1eb3de346658c8a3ef3fd6b19bced1",
+    "source_head_matches_snapshot": true,
+    "source_index_sha256_now": "1a739c3a3bf07734571ab756a9fcbd1f9e3a480f0eb52824e117a89ede8f1fc9",
+    "source_index_matches_snapshot": true,
+    "candidate_allowlist_still_matches": true,
+    "source_raw_hashes_still_match": true,
+    "source_raw_hash_mismatch_paths": [],
+    "allowlist_path_count": 115
+  },
+  "candidate_snapshot_tree": "9aaee2b440fe262247fb774c49bc489943c2a899",
+  "allowlist": "$WORKTREE\\.nexus-hub\\linux-validation-01a12d34\\snapshot-20261012T104343967024Z\\allowlist.nul",
+  "snapshot_provenance": "$WORKTREE\\.nexus-hub\\linux-validation-01a12d34\\snapshot-20261012T104343967024Z\\provenance.json",
+  "runtime": {
+    "python": "3.11.13 (main, Jul  1 2025, 05:28:08) [GCC 12.2.0]",
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.36",
+    "git": "git version 2.50.1",
+    "node": "v24.16.0",
+    "npm": "11.13.0",
+    "shellcheck": "version: 0.9.0",
+    "powershell": "PowerShell 7.6.6",
+    "claude": "2.1.280 (Claude Code)",
+    "packages": {
+      "pytest": "9.1.1",
+      "pre-commit": "4.6.2",
+      "playwright": "1.63.0",
+      "pyjwt": "2.15.1",
+      "tomlkit": "0.15.1",
+      "pyyaml": "6.0.3",
+      "nexus-skill-server": "2.0.0",
+      "nexus-code-search": "2.1.0",
+      "nexus-web-fetch": "2.0.0",
+      "nexus-skill-scanner": "3.0.0",
+      "nexus-context-compressor": "3.2.0",
+      "nexus-memory": "3.19.1"
+    },
+    "uid": 1000,
+    "source_index_tree": "9aaee2b440fe262247fb774c49bc489943c2a899",
+    "normalized_working_tree_before": "9aaee2b440fe262247fb774c49bc489943c2a899",
+    "head": "066235c90b1eb3de346658c8a3ef3fd6b19bced1",
+    "origin_develop": "002b7283a8b839588c8d0e468cbb502f594cb3e6",
+    "profile_sha256": "5d26d00431a61b232ca4089c3667834e9e1af6d061f09eaaf95d107067714ba8",
+    "command": [
+      "python",
+      "scripts/ci/run.py",
+      "--profile",
+      "full",
+      "--base",
+      "origin/develop",
+      "--quiet",
+      "--reports-dir",
+      "/artifacts/full-final-repaired-20261012-01/native-reports"
+    ],
+    "selected_environment": {
+      "HOME": "$CONTAINER_HOME",
+      "USER": "vscode",
+      "LOGNAME": "vscode",
+      "PLAYWRIGHT_BROWSERS_PATH": "/opt/ms-playwright",
+      "PIP_CONSTRAINT": "/work/Nexus-Hub-final/scripts/ci/requirements-py311.txt",
+      "CLAUDE_CONFIG_DIR": "/artifacts/full-final-repaired-20261012-01/claude-config"
+    }
+  },
+  "direct_native_command_count": 65,
+  "direct_native_status_counts": {
+    "pass": 64,
+    "timeout": 1
+  },
+  "direct_native_step_results": [
+    {
+      "name": "skills.json parses",
+      "group": "catalog-parse",
+      "status": "pass",
+      "duration_s": 0.03444939199835062,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "bundles.json parses",
+      "group": "catalog-parse",
+      "status": "pass",
+      "duration_s": 0.03287803300190717,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "workflows.json parses",
+      "group": "catalog-parse",
+      "status": "pass",
+      "duration_s": 0.033191963913850486,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "templates.json parses",
+      "group": "catalog-parse",
+      "status": "pass",
+      "duration_s": 0.033490865025669336,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "check_commit_attribution",
+      "group": "hygiene",
+      "status": "pass",
+      "duration_s": 0.27235945395659655,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "validate_unicode_safety",
+      "group": "hygiene",
+      "status": "pass",
+      "duration_s": 3.381759171024896,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "validate_no_personal_paths",
+      "group": "hygiene",
+      "status": "pass",
+      "duration_s": 1.3244126359932125,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "check_merge_conflict_markers",
+      "group": "hygiene",
+      "status": "pass",
+      "duration_s": 0.6583312300499529,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "check_docs_conventions",
+      "group": "hygiene",
+      "status": "pass",
+      "duration_s": 0.1757145740557462,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "validate_doc_budgets",
+      "group": "hygiene",
+      "status": "pass",
+      "duration_s": 0.06831965607125312,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "check_memory_integration_budget",
+      "group": "hygiene",
+      "status": "pass",
+      "duration_s": 0.3729052710114047,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "build_legacy_fingerprints",
+      "group": "legacy-fingerprints",
+      "status": "pass",
+      "duration_s": 1.0830546729266644,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "check_python_floor",
+      "group": "interpreters",
+      "status": "pass",
+      "duration_s": 1.330294455983676,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "check_interpreter_resolution",
+      "group": "interpreters",
+      "status": "pass",
+      "duration_s": 0.16802156309131533,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "validate_skills",
+      "group": "catalog",
+      "status": "pass",
+      "duration_s": 0.49467560509219766,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "check_agentskills_conformance",
+      "group": "catalog",
+      "status": "pass",
+      "duration_s": 0.06597914500162005,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "build_framework_coverage",
+      "group": "catalog",
+      "status": "pass",
+      "duration_s": 0.11615850101225078,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "run_trigger_evals",
+      "group": "catalog",
+      "status": "pass",
+      "duration_s": 0.21695421205367893,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "check_registry_entries",
+      "group": "catalog",
+      "status": "pass",
+      "duration_s": 0.11641205591149628,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "scan_skill_security",
+      "group": "catalog",
+      "status": "pass",
+      "duration_s": 4.306723764049821,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "scan_supply_chain_iocs",
+      "group": "security",
+      "status": "pass",
+      "duration_s": 0.3289061150280759,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "validate_permission_baseline",
+      "group": "security",
+      "status": "pass",
+      "duration_s": 0.06719705101568252,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "check_no_outbound",
+      "group": "security",
+      "status": "pass",
+      "duration_s": 0.11836648802272975,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "validate_workflow_security",
+      "group": "workflows",
+      "status": "pass",
+      "duration_s": 0.21919064002577215,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "check_required_check_coverage",
+      "group": "workflows",
+      "status": "pass",
+      "duration_s": 0.1763548399321735,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "claude plugin validate",
+      "group": "claude-plugin",
+      "status": "pass",
+      "duration_s": 1.2465142880100757,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "check_installer_parity",
+      "group": "platform-contracts",
+      "status": "pass",
+      "duration_s": 0.22371259797364473,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "check_base_template_parity",
+      "group": "platform-contracts",
+      "status": "pass",
+      "duration_s": 0.06752813793718815,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "instruction-contracts",
+      "group": "platform-contracts",
+      "status": "pass",
+      "duration_s": 0.539847839041613,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "verify_platform_contracts",
+      "group": "platform-contracts",
+      "status": "pass",
+      "duration_s": 0.12011133600026369,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "check_platform_contract_freshness",
+      "group": "platform-contracts",
+      "status": "pass",
+      "duration_s": 0.06777700094971806,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "sync_platform_defaults",
+      "group": "platform-contracts",
+      "status": "pass",
+      "duration_s": 0.06606514693703502,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "verify_model_prompting_profiles",
+      "group": "platform-contracts",
+      "status": "pass",
+      "duration_s": 0.06572688207961619,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "check_doc_colocation",
+      "group": "docs",
+      "status": "pass",
+      "duration_s": 0.06645749206654727,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "validate_solution_frontmatter",
+      "group": "docs",
+      "status": "pass",
+      "duration_s": 0.06633846508339047,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "check_incident_notes",
+      "group": "docs",
+      "status": "pass",
+      "duration_s": 0.033299399889074266,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "validate_decision_records",
+      "group": "docs",
+      "status": "pass",
+      "duration_s": 0.06662971095647663,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "stamp_guide_counts",
+      "group": "docs",
+      "status": "pass",
+      "duration_s": 0.06754554598592222,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "stamp_guide_shared",
+      "group": "docs",
+      "status": "pass",
+      "duration_s": 0.335644029895775,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "stamp_training_models",
+      "group": "docs",
+      "status": "pass",
+      "duration_s": 0.06692837597802281,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "check_memory_provenance",
+      "group": "docs",
+      "status": "pass",
+      "duration_s": 0.12278610793873668,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "check_handbooks",
+      "group": "docs",
+      "status": "pass",
+      "duration_s": 0.17084422404877841,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "check_docs_retention",
+      "group": "docs",
+      "status": "pass",
+      "duration_s": 0.1196159579558298,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "check_version_sync",
+      "group": "version",
+      "status": "pass",
+      "duration_s": 0.1210762009723112,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "hook-tests",
+      "group": "tests",
+      "status": "pass",
+      "duration_s": 669.622834976064,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "repo-tests-skills",
+      "group": "tests",
+      "status": "pass",
+      "duration_s": 331.3926982439589,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "repo-tests-installer",
+      "group": "tests",
+      "status": "pass",
+      "duration_s": 88.23319480195642,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "repo-tests-integrations-platform-a",
+      "group": "tests",
+      "status": "pass",
+      "duration_s": 15.81211430602707,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "repo-tests-integrations-platform-b",
+      "group": "tests",
+      "status": "pass",
+      "duration_s": 29.768141168984585,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "repo-tests-integrations-adapter-contracts",
+      "group": "tests",
+      "status": "pass",
+      "duration_s": 68.05458642402664,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "repo-tests-integrations-repository-contracts",
+      "group": "tests",
+      "status": "pass",
+      "duration_s": 5.873620860045776,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "repo-tests-integrations-install",
+      "group": "tests",
+      "status": "pass",
+      "duration_s": 31.30640498001594,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "repo-tests-integrations-lifecycle",
+      "group": "tests",
+      "status": "pass",
+      "duration_s": 26.099982677027583,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "repo-tests-integrations-map",
+      "group": "tests",
+      "status": "pass",
+      "duration_s": 3.1144416560418904,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "repo-tests-plans",
+      "group": "tests",
+      "status": "pass",
+      "duration_s": 4.098715008003637,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "repo-tests-ci",
+      "group": "tests",
+      "status": "pass",
+      "duration_s": 7.123890082002617,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "repo-tests-guides",
+      "group": "tests",
+      "status": "timeout",
+      "duration_s": 1800.0084814650472,
+      "exit_code": null,
+      "reason": "exceeded 1800s"
+    },
+    {
+      "name": "repo-tests-governance",
+      "group": "tests",
+      "status": "pass",
+      "duration_s": 393.99724539602175,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "skill-server",
+      "group": "extension-tests",
+      "status": "pass",
+      "duration_s": 1.7145018570590764,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "code-search",
+      "group": "extension-tests",
+      "status": "pass",
+      "duration_s": 14.550462319981307,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "web-fetch",
+      "group": "extension-tests",
+      "status": "pass",
+      "duration_s": 2.428877633996308,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "skill-scanner",
+      "group": "extension-tests",
+      "status": "pass",
+      "duration_s": 3.677017220063135,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "context-compressor",
+      "group": "extension-tests",
+      "status": "pass",
+      "duration_s": 2.192377624101937,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "memory",
+      "group": "extension-tests",
+      "status": "pass",
+      "duration_s": 1.8063537769485265,
+      "exit_code": 0,
+      "reason": ""
+    },
+    {
+      "name": "compression-accuracy-gate",
+      "group": "extension-tests",
+      "status": "pass",
+      "duration_s": 0.27561923605389893,
+      "exit_code": 0,
+      "reason": ""
+    }
+  ],
+  "native_full_status": null,
+  "native_started_at": "2026-10-12T14:13:11Z",
+  "native_finished_at": "2026-10-12T15:07:45Z",
+  "native_duration_s": 3519.993512633024,
+  "report_retention": "Native reports are copied directly from the actual CLI. No per-step result is reconstructed from declarations. Isolated credentialless CLI configuration remains private in the owned container.",
+  "actual_cli_summary_line": "FAIL: 64 passed, 1 failed, 0 skipped, 0 advisory in 3520.0s",
+  "original_post_exit_index_copy_same_read": {
+    "file": "real-original-index-after-full.bin",
+    "sha256": "1a739c3a3bf07734571ab756a9fcbd1f9e3a480f0eb52824e117a89ede8f1fc9"
+  },
+  "boundary_real_index_artifacts": {
+    "before": {
+      "file": "real-clone-index-before.bin",
+      "sha256": "cc5ad2b2699678f23c3e9a522753e01ed5a3b5f334fa3cd433fc0b7e11b75595",
+      "matches_same_read_wrapper_hash": true
+    },
+    "after": {
+      "file": "real-clone-index-after.bin",
+      "sha256": "cc5ad2b2699678f23c3e9a522753e01ed5a3b5f334fa3cd433fc0b7e11b75595",
+      "matches_same_read_wrapper_hash": true
+    }
+  },
+  "private_normalization_index_purpose": "before.index and after.index are private GIT_INDEX_FILE normalization artifacts, not copies of the real clone index.",
+  "owned_resource_preparation": "This final run uses a constant 16-CPU owned container and 8 GiB memory. Profile caps, step argv and coverage are unchanged; it is not a timeout calibration.",
+  "intended_public_filename": "linux-repaired-full-continuation.json",
+  "required_gate_verdict": "FAIL",
+  "pytest_output_receipts": [
+    {
+      "name": "hook-tests",
+      "native_status": "pass",
+      "emitted_terminal_summary": "2373 passed, 34 skipped in 669.10s (0:11:09)",
+      "counts_from_emitted_terminal_summary": {
+        "passed": 2373,
+        "skipped": 34
+      },
+      "emitted_skip_reason_lines": [],
+      "skip_reason_retention": "Direct native output lines only; absent reasons are unavailable. Partial progress markers do not establish terminal counts."
+    },
+    {
+      "name": "repo-tests-skills",
+      "native_status": "pass",
+      "emitted_terminal_summary": "2388 passed, 28 skipped in 330.59s (0:05:30)",
+      "counts_from_emitted_terminal_summary": {
+        "passed": 2388,
+        "skipped": 28
+      },
+      "emitted_skip_reason_lines": [],
+      "skip_reason_retention": "Direct native output lines only; absent reasons are unavailable. Partial progress markers do not establish terminal counts."
+    },
+    {
+      "name": "repo-tests-installer",
+      "native_status": "pass",
+      "emitted_terminal_summary": "550 passed, 7 skipped in 87.76s (0:01:27)",
+      "counts_from_emitted_terminal_summary": {
+        "passed": 550,
+        "skipped": 7
+      },
+      "emitted_skip_reason_lines": [],
+      "skip_reason_retention": "Direct native output lines only; absent reasons are unavailable. Partial progress markers do not establish terminal counts."
+    },
+    {
+      "name": "repo-tests-integrations-platform-a",
+      "native_status": "pass",
+      "emitted_terminal_summary": "128 passed in 15.00s",
+      "counts_from_emitted_terminal_summary": {
+        "passed": 128
+      },
+      "emitted_skip_reason_lines": [],
+      "skip_reason_retention": "Direct native output lines only; absent reasons are unavailable. Partial progress markers do not establish terminal counts."
+    },
+    {
+      "name": "repo-tests-integrations-platform-b",
+      "native_status": "pass",
+      "emitted_terminal_summary": "246 passed, 3 skipped in 29.26s",
+      "counts_from_emitted_terminal_summary": {
+        "passed": 246,
+        "skipped": 3
+      },
+      "emitted_skip_reason_lines": [],
+      "skip_reason_retention": "Direct native output lines only; absent reasons are unavailable. Partial progress markers do not establish terminal counts."
+    },
+    {
+      "name": "repo-tests-integrations-adapter-contracts",
+      "native_status": "pass",
+      "emitted_terminal_summary": "174 passed, 20 skipped in 67.57s (0:01:07)",
+      "counts_from_emitted_terminal_summary": {
+        "passed": 174,
+        "skipped": 20
+      },
+      "emitted_skip_reason_lines": [],
+      "skip_reason_retention": "Direct native output lines only; absent reasons are unavailable. Partial progress markers do not establish terminal counts."
+    },
+    {
+      "name": "repo-tests-integrations-repository-contracts",
+      "native_status": "pass",
+      "emitted_terminal_summary": "55 passed in 5.41s",
+      "counts_from_emitted_terminal_summary": {
+        "passed": 55
+      },
+      "emitted_skip_reason_lines": [],
+      "skip_reason_retention": "Direct native output lines only; absent reasons are unavailable. Partial progress markers do not establish terminal counts."
+    },
+    {
+      "name": "repo-tests-integrations-install",
+      "native_status": "pass",
+      "emitted_terminal_summary": "253 passed, 13 skipped in 30.87s",
+      "counts_from_emitted_terminal_summary": {
+        "passed": 253,
+        "skipped": 13
+      },
+      "emitted_skip_reason_lines": [],
+      "skip_reason_retention": "Direct native output lines only; absent reasons are unavailable. Partial progress markers do not establish terminal counts."
+    },
+    {
+      "name": "repo-tests-integrations-lifecycle",
+      "native_status": "pass",
+      "emitted_terminal_summary": "145 passed, 2 skipped in 25.64s",
+      "counts_from_emitted_terminal_summary": {
+        "passed": 145,
+        "skipped": 2
+      },
+      "emitted_skip_reason_lines": [],
+      "skip_reason_retention": "Direct native output lines only; absent reasons are unavailable. Partial progress markers do not establish terminal counts."
+    },
+    {
+      "name": "repo-tests-integrations-map",
+      "native_status": "pass",
+      "emitted_terminal_summary": "4 passed in 2.63s",
+      "counts_from_emitted_terminal_summary": {
+        "passed": 4
+      },
+      "emitted_skip_reason_lines": [],
+      "skip_reason_retention": "Direct native output lines only; absent reasons are unavailable. Partial progress markers do not establish terminal counts."
+    },
+    {
+      "name": "repo-tests-plans",
+      "native_status": "pass",
+      "emitted_terminal_summary": "94 passed in 3.67s",
+      "counts_from_emitted_terminal_summary": {
+        "passed": 94
+      },
+      "emitted_skip_reason_lines": [],
+      "skip_reason_retention": "Direct native output lines only; absent reasons are unavailable. Partial progress markers do not establish terminal counts."
+    },
+    {
+      "name": "repo-tests-ci",
+      "native_status": "pass",
+      "emitted_terminal_summary": "111 passed in 6.50s",
+      "counts_from_emitted_terminal_summary": {
+        "passed": 111
+      },
+      "emitted_skip_reason_lines": [],
+      "skip_reason_retention": "Direct native output lines only; absent reasons are unavailable. Partial progress markers do not establish terminal counts."
+    },
+    {
+      "name": "repo-tests-guides",
+      "native_status": "timeout",
+      "emitted_terminal_summary": null,
+      "counts_from_emitted_terminal_summary": null,
+      "emitted_skip_reason_lines": [],
+      "skip_reason_retention": "Direct native output lines only; absent reasons are unavailable. Partial progress markers do not establish terminal counts."
+    },
+    {
+      "name": "repo-tests-governance",
+      "native_status": "pass",
+      "emitted_terminal_summary": "3063 passed, 31 skipped in 393.18s (0:06:33)",
+      "counts_from_emitted_terminal_summary": {
+        "passed": 3063,
+        "skipped": 31
+      },
+      "emitted_skip_reason_lines": [],
+      "skip_reason_retention": "Direct native output lines only; absent reasons are unavailable. Partial progress markers do not establish terminal counts."
+    }
+  ],
+  "native_output_schema_limit": "CommandResult.output is the native combined retained output. Separate per-step stdout/stderr and actual step argv fields are absent from this native schema; none are reconstructed.",
+  "guide_failure_interpretation": "The required guide command timed out at its unchanged 1800-second ceiling. Its 100% progress line is not terminal completion or a passing result.",
+  "clock_intervals": {
+    "wrapper_started_utc": "2026-10-12T14:13:11.421384+00:00",
+    "wrapper_ended_utc": "2026-10-12T15:07:45.289083+00:00",
+    "wrapper_utc_interval_seconds": 3273.867699,
+    "wrapper_monotonic_seconds": 3520.1027157439385,
+    "native_started_at": "2026-10-12T14:13:11Z",
+    "native_finished_at": "2026-10-12T15:07:45Z",
+    "native_duration_seconds": 3519.993512633024,
+    "causal_clock_explanation": "Not established; UTC intervals and measured monotonic durations are retained separately."
+  },
+  "raw_private_provenance": {
+    "scoped_receipt": "$WORKTREE\\.nexus-hub\\linux-validation-01a12d34\\terminal-final-20261012T150825267321Z\\scoped-receipt.json",
+    "scoped_receipt_sha256": "dffd900a988f9c12ded045ed5effe5a3f21d322ca27568ecb45d2d235cfbd20e",
+    "native_summary_sha256": "2656186b105a23d6e19399f5c574862a064a5d15aaf93cb6ed0af182455a0ea1",
+    "retained_artifact_manifest": "$WORKTREE\\.nexus-hub\\linux-validation-01a12d34\\terminal-final-20261012T150825267321Z\\artifact-manifest.json",
+    "retained_artifact_manifest_sha256": "bdc4507e446042cfc77893ec1b045bd6905a41e0fa812a463b61a8468dea6edc",
+    "native_recursive_artifact_sha256": {
+      "progress-20261012T145321411495Z.json": "9d659b5e8894abfe977b6195bef44aedad8bf10dae842fe5b2157f2d9deb43cd",
+      "terminal.json": "57b15986ce707db5f56add8ee22c3afded6427c6e31cacb54be193a89034f18e",
+      "progress-20261012T142942626417Z.json": "9d33d69ccf119042a6ecbd025de1de96c7f13794bd3d9dc5ac123a60e606c756",
+      "progress-20261012T142747717609Z.json": "a8180bbccb62a3caffb2d650c082fe65d29b10bcf972ce7e9303792b0b1408e5",
+      "progress-20261012T142230798929Z.json": "e687a80af8730a684cf63e6e0876f76a7c87fbafcaa5e2c5b7f6a2688e0548a6",
+      "progress-20261012T144758000902Z.json": "eef6586e37780e69ab0ec37989c621ff7130dc3fdfec4ac4b6e90351a5c22f9e",
+      "progress-20261012T145938492447Z.json": "d2c2722c86b562afa1ca8b74a673f2e86508b52a2ee42c32607bbc1cb8adf0dc",
+      "native-capture-probe-20261012T143515425352Z.json": "45088d31a1fa90115adaed45052f548fc1524b6a299799182c3e2988d7fbf954",
+      "progress-20261012T144705480647Z.json": "51809272dd47c7031bb1f4eccbc4274aee6c52a6e5cd043ab10e327d08780a99",
+      "runtime-provenance.json": "9d279628f00f467469a24b74d87e5ab2c60981fb07a7977758128fb6aa14a888",
+      "progress-20261012T143950084608Z.json": "b94c3995c647900b5beccdfde242f94c459dca96cd3ddbf4008a0f8e898d664b",
+      "fullgate.log": "de9620de2e702ef695dfe91e2aa975a2a91cb67fdbf4a5019f50e9968b7968a5",
+      "progress-20261012T144210374422Z.json": "9e0aef2224206c88e558bfd7f91e0daaa6565361160a77d7a938e07692abdacb",
+      "resume-normalization.index": "cc5ad2b2699678f23c3e9a522753e01ed5a3b5f334fa3cd433fc0b7e11b75595",
+      "resume-preflight-20261012T140957808330Z.json": "55776ee7202f9cdf63dcdafdfc214f0ccbcc722e321b00fbb5091a5d916f0fd1",
+      "after.index": "10ed527a36560aab35e9c77c9ac1a7a358c4732ef0877cf7d90852958da74583",
+      "progress-20261012T150021475947Z.json": "5faa9f2575f9d9867b1fdf0b35acf262e61fb22afc7e88f18cfa83878d1cab9a",
+      "progress-20261012T144559307694Z.json": "7471a20d8fdb3f6db2753b34e653a8ecbb4c9cfe1d4d0bbcdcfcf3219b210397",
+      "progress-20261012T143233977909Z.json": "2552c4c22f3784214d688c742a77eaaffa905a70ba95f334e3570121a3d31d5c",
+      "progress-20261012T150423922438Z.json": "06ca78a051fff3df5a2e0e3b52d172fe775cbcaf77e6a99d06bcd500a0d98884",
+      "startup-observation-20261012T141349172325Z.json": "dee01b6dbe5dd985a8da53a6e91c14b267d15b6809310e762c242509457a860e",
+      "progress-20261012T143128530721Z.json": "476b71d3dd715b4f142fe814e517f742dcc17ffdf1096ad0a1de87998e749f9d",
+      "progress-20261012T145848798838Z.json": "478648f9a70af7bd2e52c138f0353f20ecc25fc9d4f608426db92da3f5aeab76",
+      "progress-20261012T145246376396Z.json": "86e64021ff3cbab8afbd807590e3dc1ea485cf7c099834569e24843b2483d90c",
+      "progress-20261012T141818398120Z.json": "602bebc964c1f155f5686841b174a6a2a5978cb4d0344c616c5b84dbf7c11e81",
+      "progress-20261012T143821054842Z.json": "91bc59fa8a25735616280462186ee8ab79551d539380a12258d70e06c5347658",
+      "dependencies-terminal.json": "794ead7a3467f8f27a9522a006fb42f6aa9c90cbfe0e33f1c8f0f20164857cd2",
+      "progress-20261012T143331230145Z.json": "d1da290297494dadbcdbd04e0d35df2432d4ac5bb5aadbc4c4f109213163e48e",
+      "inherited-test-context-20261012T144909081934Z.json": "0f603dff234f2365a76c4889925400bd6bed5126073ebe02928a38c43697378b",
+      "progress-20261012T142325729396Z.json": "49ca363faae585320b67d393e67d859472c2f6bfc71c9b3122515ea5934ae7e4",
+      "progress-20261012T150754615498Z.json": "e48cd68866f78d39ec2b90a0e3d53e84ee46ad495fa27eb221582af2e5ca7ab6",
+      "progress-20261012T145627414556Z.json": "9157fd2c26ae5783a9b2a75baaf351b86ccc057a13e5ad7e2bb442a5e51005a7",
+      "git-reconstruction.stderr.log": "f4e4c2b542d636bbae966d03d84d20cfc36e968afc159b2f45b6d2f896702bef",
+      "progress-20261012T145012887643Z.json": "d381e7f81e5baa7b34896a7741d30e0edd592d5a98a72ac09ee8634d45ba7930",
+      "progress-20261012T142846112775Z.json": "baec3adbd6182c4f54be83994223252b41639ec31b000ae0e75eb66873367c66",
+      "progress-20261012T145529659272Z.json": "9a6b2cb81dee334d93a99cacb4ce36a173d6560438fcb89ebd2c246fe2935d2b",
+      "wrapper-guard-check.json": "9cdee7aff7baa1d67f23439822b68d491464f283d27836516476de517bf091a5",
+      "wrapper-record-terminal.json": "a89573c8f4756e1e07d3f57ae5df4d90baa5e7c308b45b4f73f1d169d1e4af4f",
+      "progress-20261012T150343701019Z.json": "5d2da0c59dbd4db45caa512a57d0103f8a4dc280012122d29670593a0fd17323",
+      "progress-20261012T142419839413Z.json": "684b74b1a704952d94b417623f1b45ff722a844e4a098a73a742a36e334ace72",
+      "real-clone-index-after.bin": "cc5ad2b2699678f23c3e9a522753e01ed5a3b5f334fa3cd433fc0b7e11b75595",
+      "progress-20261012T144125637719Z.json": "f7cc96cef2017f8ef252304f0c8a058ea5daa0b5132cb0c2d828a5c644d06677",
+      "cgroup-before.json": "eef0b5c0d2bf1b2ee815eae8c16571b74bbd3a44177192a20a6052c45895c2c3",
+      "progress-20261012T141732003610Z.json": "0fcf22aa2791cbc406c2a798724c2dfd47b3476ddec5ef621e995ee39fe8e601",
+      "progress-20261012T145441848449Z.json": "68b360c672df79eb4024d7e316d94f86dfa776e7b6526da3368824a73c31589a",
+      "progress-20261012T143901273212Z.json": "5bc6cb16e64603e2faf3039ee93333dfb9754903fbe392c25b9ce1e767ea7d76",
+      "progress-20261012T142507508559Z.json": "ed5782d4437a360134a46986d6e95d31cec4354637872eb935eb00b8404428f1",
+      "progress-20261012T150707344298Z.json": "0de465293e39222e7b949ed8bfd0b73608ba2ba0c4185ec869bbfb049e551a43",
+      "progress-20261012T141526214307Z.json": "f86aa83b7397240c1debbf05b67ab7bc3f7ef0fa9d6a71546618775e8320ea08",
+      "progress-20261012T145803647122Z.json": "dc83227c940ff8c6573ae56399a84f868f97f08e2189c4a77ae443ffb5b88fa6",
+      "dependencies-0.stderr": "ae015376099f256bb06a10b62dc73d662c86f839bdc1e2ef879a42748bf9c9b9",
+      "candidate-provenance.json": "b4823441edea612534ee88c6993127d486d863dfe390f7f5da19c1fe6e7456e6",
+      "progress-20261012T141632699085Z.json": "288ff46501f28b6b7d54b3f5b612bfc2df9829a2011dda5afb46a77a9121e858",
+      "progress-20261012T143427020248Z.json": "547acb1d4bff636964bd1f948e93ce385c690b17952115f05bc8d17a049f280b",
+      "progress-20261012T144503275844Z.json": "45e1d1f115f938060a63cf5a7b799ed8ff429be39ccff5f8e1df6801edeaf47a",
+      "dependencies-1.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "pip-freeze.json": "05abf91b4abf57d552140835bedd6de61c70af23f0aad0a1e67d0acfb3c74e0c",
+      "before.index": "cc5ad2b2699678f23c3e9a522753e01ed5a3b5f334fa3cd433fc0b7e11b75595",
+      "real-clone-index-before.bin": "cc5ad2b2699678f23c3e9a522753e01ed5a3b5f334fa3cd433fc0b7e11b75595",
+      "progress-20261012T145142384477Z.json": "7113e9be5726745003f9c7968eb4fe75e00b4c5b6734ea0ec6ca297022061a64",
+      "progress-20261012T143734342843Z.json": "02458e4b689aa5ec35fd13713338f0e48e7f3e6d0ef61ae06ecc37fd2c4758db",
+      "raw-candidate-sha256-before.json": "44cd806b1319d7329d3ca1b9e0c23d288ad35476a5207252356cb482c364fbee",
+      "progress-20261012T142050493791Z.json": "b7722a713d0159cd1e5b24e4e7dea6078c41557d8120c2d6b6d8e72b32ef612e",
+      "progress-20261012T145357611518Z.json": "409b7e16e80519b3dbd99b579cf982c5f5ca64802762fb5643a57784f5681d80",
+      "progress-20261012T141909007593Z.json": "e148536c687ba702064f7a5cf035672f69b342960edd86f5813d5855939084e6",
+      "progress-20261012T144306468792Z.json": "a31938d8b4cf5fe466dca161a426d9fefe51d73f47aa64b586fc63971e02665d",
+      "progress-20261012T142606849482Z.json": "f216f28b9ec1faa5d0d39f2831e9a8a7dc0c2ff704696c84dd4ce41be9b0ec95",
+      "dependencies-1.stdout": "9261363b733079a641c2e4cc9bc46ffa1d8336945a87f807b6cf68847dbc9b09",
+      "cgroup-after.json": "16e3ef17a193df4ee77c5fabab841ee5c72648abc2a866d017f7240c36b3b474",
+      "progress-20261012T150201930118Z.json": "2daa481f4bbc110b6905617238a16a3f24607d94464d69c1836683934d61f06f",
+      "progress-20261012T144403808491Z.json": "778a0a37f46d55164688c4f978498f91a4483e324545a5de1b56c3736a2c7c2b",
+      "progress-20261012T143036466476Z.json": "30478a7f7676f7396fadabda8a4ef1e0550ac23da839910d1dbcf916cca06487",
+      "git-boundaries.stderr.log": "e66a30a9108fd0f220212be2e762666bde5e1f93e46d3551c622d2dbbb208d76",
+      "progress-20261012T142648625689Z.json": "456409d7e9da5ffa307d24eda6afa4e5c97f4e500cdaffd280338e1f5ca4375d",
+      "progress-20261012T145059925317Z.json": "831f70d41835aef7273ced4110c11939dfaffebb4803d86a210c8fd5f289d516",
+      "progress-20261012T150510257782Z.json": "ea3a7455b5befd535686ec50e1d177cb1078ba921a98337bde9495ed52a7c4b5",
+      "progress-20261012T142141609852Z.json": "d069a4f6b1bccf840eafa80b885f27c8cd007441d0b5f4dd2d4029672b28c9a1",
+      "progress-20261012T150111790186Z.json": "dc485d1c808f56e518222f3771d395131e6abdbe35ea4b80b775daacc8781097",
+      "wrapper-created.diff": "f0a16c862cf780de5da8edb495c81cfbdcd6a9527d6d87e1f45e764d1bbd3406",
+      "resume-normalized-preflight.json": "8057253dd8d605de0a6e45ce2437c4f369106781e65870ca69c52066e8e0a482",
+      "progress-20261012T144036517761Z.json": "70bd5e6aea22f14f90ec4de5fb9de798cb8ce76ab23f52decc5cebbb804a1299",
+      "gate-process.json": "cdb6689147a5ac9e3c24fd26f4bb54c8faccc0501fc6744f8ac5efb4ec7e4095",
+      "progress-20261012T145720822026Z.json": "3718cb6411961d420ce09039e2b6a570d637740630f411e0a91cbc733b047cab",
+      "raw-candidate-sha256-after.json": "eb2a223d9a11c94654826e2a39620ffd43b3c712e9f73207bc61a2c086d7b7aa",
+      "progress-20261012T143629199034Z.json": "843eaf8268f998f5eb5835e95f5ac7759b8ba3600eb813913a22ea7db4415d5b",
+      "progress-20261012T141959582004Z.json": "bdcf0be18b5dfb521e695fc46991cd0b74cbf0f250265cfbc0f59ea739738e14",
+      "dependencies-0.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "progress-20261012T150602069089Z.json": "2042c946db72962f5983a2380eb56c91d0d3d05513f9fe75a28758d64a2700c0",
+      "clone-local-diffs/extensions__cursor-usage-monitor__package-lock.json.diff": "78801fd6b048ad00cf3643394aa4443014f45fe0228d686e90f497ed023f1cc9",
+      "clone-local-diffs/extensions__codex-usage-monitor__package-lock.json.diff": "0b89add312396d88ee78ea575249b35815cb6afbdba8f66a783eb3f38c032298",
+      "clone-local-diffs/extensions__claude-usage-monitor__package-lock.json.diff": "fb251f9b417b1af47e9f7447a9c8c39ff064e5695106a77e0e91daa8739abcb7",
+      "clone-local-diffs/extensions__copilot-usage-monitor__package-lock.json.diff": "4ad8574e944d42eb464cb2e5b72608369cc15e5850aff51edb8971e0beffd52c",
+      "native-reports/summary.json": "2656186b105a23d6e19399f5c574862a064a5d15aaf93cb6ed0af182455a0ea1",
+      "native-reports/summary.md": "4f5aa0d099d280a6e611a545589f5f047f7db49ed6b8414af8c35cb54730084f",
+      "native-reports/junit/claude-plugin.xml": "40badad368a2486e5ccbd47cf7f8e59d7f1f5b9d08584b5c2117a5ece9d37190",
+      "native-reports/junit/version.xml": "12c6934ba40e25748ae40c0f862ee11e977d23fa176601440fe0f46a2644f7b4",
+      "native-reports/junit/catalog-parse.xml": "8c835a9a2bb5d38c89693010f497be3b3dda03321a1e7d639f80f46a3e955c43",
+      "native-reports/junit/workflows.xml": "ff74be5bc46a0a86eb65a2ef2ade93b419763d5945bf285b265158aeb19b2d2b",
+      "native-reports/junit/hygiene.xml": "1e1178ead8ca8463aeebb16b7b39cf6142370c2e1b439906e2b95827cb71ee77",
+      "native-reports/junit/catalog.xml": "1f72ed6cdedb2f623bf0316a8a343ea977b56fcb408bb667139984319baacfbf",
+      "native-reports/junit/legacy-fingerprints.xml": "fbb37ae8f0bc8b10813852fccfece3e026c642b8d04117df5376a4ac467f1e32",
+      "native-reports/junit/platform-contracts.xml": "fdbfbce82001acfa3fb6dec67bbc9b3c9363bd9949103e1199af746b72281e92",
+      "native-reports/junit/tests.xml": "72b383e2fe6ada4f39099431df7d477199e96db7ef8a95214b1f871322d27df5",
+      "native-reports/junit/interpreters.xml": "24dce514adbf3fffa6cb1133d1d2f1b6a9ff92db4db3be346e608764ec0e6f5f",
+      "native-reports/junit/security.xml": "d31c144e9ff034451d2a825468c749664cdbc562fe4660b5d9c704c94b00865b",
+      "native-reports/junit/extension-tests.xml": "bca2788c2123300eced21b8f1713f341c3eae753bc17a7d2584be9b818d7c7b2",
+      "native-reports/junit/docs.xml": "fa7eb64d72ce91c4daa24bb5addbf376f0d61452938493ba301f9f83a6411693",
+      "native-reports/metadata/environment.json": "840d96313b6aaf01f9f080ed44d99d8a8222762b1c68917eb32973a8b4d77ed1",
+      "wrapper-guard-state/records/605eb6e374ab1afb3cc6a8486b49beebfa959c78c0a06a5452566e1a852db836.json": "0dc8de25cabea813e68e99aeb4cb0d3e3ecd22ec041a5955b37909e794c5cc23",
+      "wrapper-guard-state/copies/605eb6e374ab1afb3cc6a8486b49beebfa959c78c0a06a5452566e1a852db836.bin": "accd08d41bbe56dba7d6f476d909ffee06dfb982baa52f51de5f5a2d05ca69d4"
+    },
+    "native_to_windows_artifact_hash_matches": true,
+    "verified_native_file_count": 110
+  },
+  "container_inspection_after_run": {
+    "captured_utc": "2026-10-12T15:24:08.003755+00:00",
+    "container_id": "81e57691e8e9baf088404ffcb8695b2031a9461ad2b61040dca7cfc1c9829794",
+    "image_id": "sha256:cada5e7c79514d66d8479181a8c8b52b918ad0c17aa5b6b9b6a9cc071d2c5943",
+    "mounts": [],
+    "nano_cpus": 16000000000,
+    "memory_bytes": 8589934592,
+    "memory_swap_bytes": 17179869184,
+    "quiet_performance_calibration": false
+  },
+  "display_redaction_provenance": {
+    "raw_private_scoped_receipt_sha256": "dffd900a988f9c12ded045ed5effe5a3f21d322ca27568ecb45d2d235cfbd20e",
+    "method": "Only declared display prefixes are replaced. Exact JSON locations and unredacted string digests are retained; artifact hashes, native measurements and verdicts are unchanged.",
+    "locations": [
+      {
+        "json_pointer": "/allowlist",
+        "raw_string_sha256": "2c00c7e8ee722b9aac458c0323c476d9fcd99214b2c4d100518836433e9d2274",
+        "replacements": [
+          {
+            "prefix_alias": "windows_worktree",
+            "original_prefix_sha256": "1f6a82dd613cd96ae80db062eb9e04ba6e62d702a20a0e5cb90f89e644330d25",
+            "display_placeholder": "$WORKTREE",
+            "occurrences": 1
+          }
+        ]
+      },
+      {
+        "json_pointer": "/snapshot_provenance",
+        "raw_string_sha256": "7bf4055b00093469a2e79e12e64411faa4c284a422137e791552db502cff0d86",
+        "replacements": [
+          {
+            "prefix_alias": "windows_worktree",
+            "original_prefix_sha256": "1f6a82dd613cd96ae80db062eb9e04ba6e62d702a20a0e5cb90f89e644330d25",
+            "display_placeholder": "$WORKTREE",
+            "occurrences": 1
+          }
+        ]
+      },
+      {
+        "json_pointer": "/runtime/selected_environment/HOME",
+        "raw_string_sha256": "e51b21d11db51d25f4d9da5cf834b4dd206aa4c8126a991c23d41d831f7f2d28",
+        "replacements": [
+          {
+            "prefix_alias": "container_home",
+            "original_prefix_sha256": "e51b21d11db51d25f4d9da5cf834b4dd206aa4c8126a991c23d41d831f7f2d28",
+            "display_placeholder": "$CONTAINER_HOME",
+            "occurrences": 1
+          }
+        ]
+      },
+      {
+        "json_pointer": "/raw_private_provenance/scoped_receipt",
+        "raw_string_sha256": "091c5c392d26124f5286ea9a094f69cf9b8e6ebadd44fed8b3b7c6cb89b90e2c",
+        "replacements": [
+          {
+            "prefix_alias": "windows_worktree",
+            "original_prefix_sha256": "1f6a82dd613cd96ae80db062eb9e04ba6e62d702a20a0e5cb90f89e644330d25",
+            "display_placeholder": "$WORKTREE",
+            "occurrences": 1
+          }
+        ]
+      },
+      {
+        "json_pointer": "/raw_private_provenance/retained_artifact_manifest",
+        "raw_string_sha256": "26e0a7817f60a3b056579e7e97dcd0a6f468e9fb7b227b11413476bfab656e1f",
+        "replacements": [
+          {
+            "prefix_alias": "windows_worktree",
+            "original_prefix_sha256": "1f6a82dd613cd96ae80db062eb9e04ba6e62d702a20a0e5cb90f89e644330d25",
+            "display_placeholder": "$WORKTREE",
+            "occurrences": 1
+          }
+        ]
+      }
+    ]
+  },
+  "native_run_result_header": {
+    "duration_s": 3519.993512633024,
+    "finished_at": "2026-10-12T15:07:45Z",
+    "platform": "linux",
+    "profile": "full",
+    "scope_conservative": true,
+    "scope_reason": "root-wide file changed: AGENTS.md",
+    "started_at": "2026-10-12T14:13:11Z"
+  },
+  "complete_native_run_result_reference": {
+    "file": "native-reports/summary.json",
+    "sha256": "2656186b105a23d6e19399f5c574862a064a5d15aaf93cb6ed0af182455a0ea1",
+    "retained_by": "raw_private_provenance",
+    "presentation": "Complete grouped commands and combined outputs remain in the immutable native JSON; all 65 step results are presented above."
+  },
+  "public_presentation_reduction": {
+    "input_private_proposal_sha256": "6e295dfcb20e45cb7b2645587132dfb70f82b4bd4b39f771b12d4fe5d069c319",
+    "omitted_duplicate_field": "native_run_result.groups",
+    "native_metrics_and_artifact_hashes_unchanged": true,
+    "preserved_native_guide_output": true
+  },
+  "guide_native_combined_output": {
+    "duration_s": 1800.0084814650472,
+    "exit_code": null,
+    "group": "tests",
+    "name": "repo-tests-guides",
+    "output": "........................................................................ [  7%]\n........................................................................ [ 14%]\n........................................................................ [ 21%]\n.........s.............................................................. [ 29%]\n........................................................................ [ 36%]\n........................................................................ [ 43%]\n........................................................................ [ 51%]\n........................................................................ [ 58%]\n........................................................................ [ 65%]\n........................................................................ [ 73%]\n........................................................................ [ 80%]\n........................................................................ [ 87%]\n........................................................................ [ 95%]\n.................................................                        [100%]",
+    "reason": "exceeded 1800s",
+    "status": "timeout"
+  }
+}

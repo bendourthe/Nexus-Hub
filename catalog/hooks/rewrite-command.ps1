@@ -65,12 +65,57 @@ foreach ($candidate in $candidates) {
     }
 }
 
-if ($hostSettings) {
-    $rewrite = & $pyBin -m nexus_context_compressor rewrite --cmd $command --host-settings $hostSettings 2>$null
-} else {
-    $rewrite = & $pyBin -m nexus_context_compressor rewrite --cmd $command 2>$null
+function Invoke-Utf8Child {
+    # Run a program and decode its output as UTF-8, not the console code page (WN-45),
+    # without SetConsoleCP. A .cmd/.bat shim runs through cmd.exe; PYTHONUTF8 and
+    # PYTHONIOENCODING reach the child only. ExitCode is -1 when it cannot start.
+    # cmd.exe re-parses its whole command line and no quoting carries arbitrary text
+    # through it (AF-1, AF-2): when an argument or the shim path holds a cmd
+    # metacharacter, a double quote or a line break, a same-named .exe/.com later on
+    # PATH runs instead, and with none the child is not started (ExitCode -1).
+    param([string]$Exe, [string[]]$Arguments, [switch]$MergeStderr)
+    $result = [pscustomobject]@{ Lines = @(); ExitCode = -1 }
+    $onWindows = [System.Environment]::OSVersion.Platform -eq [System.PlatformID]::Win32NT
+    $found = @(Get-Command $Exe -CommandType Application -ErrorAction SilentlyContinue |
+        Where-Object { -not $onWindows -or $_.Extension -match '^\.(exe|com|cmd|bat)$' })
+    if ($found.Count -eq 0) { return $result }
+    $cmd = $found[0]
+    if ($onWindows -and $cmd.Extension -match '^\.(cmd|bat)$') {
+        $unsafe = @(@($Arguments) + @($cmd.Source) | Where-Object { [string]$_ -match '[&|<>^%!"\r\n]' })
+        if ($unsafe.Count -gt 0) {
+            $cmd = $found | Where-Object { $_.Extension -match '^\.(exe|com)$' } | Select-Object -First 1
+            if (-not $cmd) { return $result }
+        }
+    }
+    $argLine = (@($Arguments) | ForEach-Object {
+        if ($_ -and $_ -notmatch '[\s"]') { $_ } else { '"' + (([string]$_ -replace '(\\*)"', '$1$1\"') -replace '(\\+)$', '$1$1') + '"' }
+    }) -join ' '
+    $psi = New-Object System.Diagnostics.ProcessStartInfo
+    if ($onWindows -and $cmd.Extension -match '^\.(cmd|bat)$') {
+        $psi.FileName = if ($env:ComSpec) { $env:ComSpec } else { 'cmd.exe' }
+        $psi.Arguments = '/d /s /c ""' + $cmd.Source + '" ' + $argLine + '"'
+    } else { $psi.FileName = $cmd.Source; $psi.Arguments = $argLine }
+    $psi.UseShellExecute = $false; $psi.CreateNoWindow = $true
+    $psi.RedirectStandardOutput = $true; $psi.RedirectStandardError = $true
+    $psi.StandardOutputEncoding = New-Object System.Text.UTF8Encoding($false)
+    $psi.StandardErrorEncoding = New-Object System.Text.UTF8Encoding($false)
+    $psi.EnvironmentVariables['PYTHONUTF8'] = '1'; $psi.EnvironmentVariables['PYTHONIOENCODING'] = 'utf-8'
+    try { $proc = [System.Diagnostics.Process]::Start($psi) } catch { return $result }
+    $errTask = $proc.StandardError.ReadToEndAsync()
+    $text = $proc.StandardOutput.ReadToEnd()
+    $proc.WaitForExit()
+    if ($MergeStderr) { $text += $errTask.Result }
+    $result.ExitCode = $proc.ExitCode
+    if ($text) { $result.Lines = @($text.TrimEnd("`r", "`n") -split "`r?`n") }
+    return $result
 }
-$code = $LASTEXITCODE
+
+$rewriteArgs = @('-m', 'nexus_context_compressor', 'rewrite', '--cmd', $command)
+if ($hostSettings) { $rewriteArgs += @('--host-settings', $hostSettings) }
+$child = Invoke-Utf8Child $pyBin $rewriteArgs
+# One line stays a string and several stay an array, as `& ...` captured them.
+$rewrite = foreach ($line in $child.Lines) { $line }
+$code = $child.ExitCode
 
 $decision = $null
 switch ($code) {

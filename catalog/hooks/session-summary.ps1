@@ -130,6 +130,51 @@ if ($inRepo) {
 # One plan-state line (v4.13.3 DF-3) from the installed plan_status.py, matching the
 # .sh sibling: the first interpreter that can import sys wins, so the WindowsApps
 # alias that only opens the Store is skipped.
+function Invoke-Utf8Child {
+    # Run a program and decode its output as UTF-8, not the console code page (WN-45),
+    # without SetConsoleCP. A .cmd/.bat shim runs through cmd.exe; PYTHONUTF8 and
+    # PYTHONIOENCODING reach the child only. ExitCode is -1 when it cannot start.
+    # cmd.exe re-parses its whole command line and no quoting carries arbitrary text
+    # through it (AF-1, AF-2): when an argument or the shim path holds a cmd
+    # metacharacter, a double quote or a line break, a same-named .exe/.com later on
+    # PATH runs instead, and with none the child is not started (ExitCode -1).
+    param([string]$Exe, [string[]]$Arguments, [switch]$MergeStderr)
+    $result = [pscustomobject]@{ Lines = @(); ExitCode = -1 }
+    $onWindows = [System.Environment]::OSVersion.Platform -eq [System.PlatformID]::Win32NT
+    $found = @(Get-Command $Exe -CommandType Application -ErrorAction SilentlyContinue |
+        Where-Object { -not $onWindows -or $_.Extension -match '^\.(exe|com|cmd|bat)$' })
+    if ($found.Count -eq 0) { return $result }
+    $cmd = $found[0]
+    if ($onWindows -and $cmd.Extension -match '^\.(cmd|bat)$') {
+        $unsafe = @(@($Arguments) + @($cmd.Source) | Where-Object { [string]$_ -match '[&|<>^%!"\r\n]' })
+        if ($unsafe.Count -gt 0) {
+            $cmd = $found | Where-Object { $_.Extension -match '^\.(exe|com)$' } | Select-Object -First 1
+            if (-not $cmd) { return $result }
+        }
+    }
+    $argLine = (@($Arguments) | ForEach-Object {
+        if ($_ -and $_ -notmatch '[\s"]') { $_ } else { '"' + (([string]$_ -replace '(\\*)"', '$1$1\"') -replace '(\\+)$', '$1$1') + '"' }
+    }) -join ' '
+    $psi = New-Object System.Diagnostics.ProcessStartInfo
+    if ($onWindows -and $cmd.Extension -match '^\.(cmd|bat)$') {
+        $psi.FileName = if ($env:ComSpec) { $env:ComSpec } else { 'cmd.exe' }
+        $psi.Arguments = '/d /s /c ""' + $cmd.Source + '" ' + $argLine + '"'
+    } else { $psi.FileName = $cmd.Source; $psi.Arguments = $argLine }
+    $psi.UseShellExecute = $false; $psi.CreateNoWindow = $true
+    $psi.RedirectStandardOutput = $true; $psi.RedirectStandardError = $true
+    $psi.StandardOutputEncoding = New-Object System.Text.UTF8Encoding($false)
+    $psi.StandardErrorEncoding = New-Object System.Text.UTF8Encoding($false)
+    $psi.EnvironmentVariables['PYTHONUTF8'] = '1'; $psi.EnvironmentVariables['PYTHONIOENCODING'] = 'utf-8'
+    try { $proc = [System.Diagnostics.Process]::Start($psi) } catch { return $result }
+    $errTask = $proc.StandardError.ReadToEndAsync()
+    $text = $proc.StandardOutput.ReadToEnd()
+    $proc.WaitForExit()
+    if ($MergeStderr) { $text += $errTask.Result }
+    $result.ExitCode = $proc.ExitCode
+    if ($text) { $result.Lines = @($text.TrimEnd("`r", "`n") -split "`r?`n") }
+    return $result
+}
+
 $planLine = "Plan: unavailable"
 $homeDir = if ($env:USERPROFILE) { $env:USERPROFILE } else { $HOME }
 $planStatus = Join-Path $homeDir ".nexus-hub\scripts\plan_status.py"
@@ -140,7 +185,7 @@ if (Test-Path -LiteralPath $planStatus) {
         & $command.Source -c "import sys" *> $null
         if ($LASTEXITCODE -ne 0) { continue }
         try {
-            $planOut = & $command.Source $planStatus --digest --root $projectRoot 2>$null | Select-Object -First 1
+            $planOut = (Invoke-Utf8Child $command.Source @($planStatus, '--digest', '--root', $projectRoot)).Lines | Select-Object -First 1
             if ($planOut -and "$planOut".StartsWith("Plan:")) { $planLine = "$planOut".TrimEnd("`r") }
         } catch {}
         break

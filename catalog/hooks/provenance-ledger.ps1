@@ -139,7 +139,7 @@ if ($isWrite -and $filePath) {
         if (-not (Test-Path $ledgerDir)) { New-Item -ItemType Directory -Force -Path $ledgerDir | Out-Null }
         $normPath = $filePath -replace '\\', '/'
         $hash = Get-LedgerHash -Path $filePath
-        $epoch = [int][double]::Parse((Get-Date -UFormat %s))
+        $epoch = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
         $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
         # Keep supported TSV paths whole. Larger paths and row delimiters retain
         # the SHA-256 of the entire normalized path, never a truncated identity.
@@ -193,7 +193,7 @@ if ($isWrite -and $filePath) {
 # says "look at this", not a determination that execution occurred.
 if ($isCommand -and $command -and (Test-Path -LiteralPath $ledger -PathType Leaf)) {
     $hits = New-Object System.Collections.Generic.List[string]
-    $now = [int][double]::Parse((Get-Date -UFormat %s))
+    $now = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
     foreach ($line in @([System.IO.File]::ReadAllLines($ledger, (New-Object System.Text.UTF8Encoding($false))))) {
         $parts = $line -split "`t"
         if ($parts.Count -lt 3) { continue }

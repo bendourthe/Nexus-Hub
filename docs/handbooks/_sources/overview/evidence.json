@@ -7,7 +7,7 @@
       "docs/handbooks/_sources/overview/design.css": "e3015529f81584ab0578e365c42644854d9566bfeb45035e094044b503e16921",
       "scripts/validate_skills.py": "51b5e1e74623ca51945871d08dcc78dc14f4d51723784b78d3df6523eb3a196a",
       "scripts/check_registry_entries.py": "e3860f9b8e3876098cc65debe89bd1a2e236a333530a7c2d55d504628d01ce55",
-      "scripts/lib/integrations/_catalog_adapters.py": "36f4fa103e7126692a32a5c93b56c77f2919cd2d2dad7ee6e318d259f49fa041",
+      "scripts/lib/integrations/_catalog_adapters.py": "6a8e0f1375df9ae401302b1b13a1559f093d7aecd0c5ae0c134f9dddad162647",
       "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py": "55a10ebfa2412b48243ae72ca70180f12aa80cc7f89d66cad0911d275bb9ce50",
       "catalog/skills/specialized-domains/document-to-interactive-html/scripts/dual_view.py": "cb97c1c53dd4560f3a59b9cc08d54223c4e0d49c2373bed3c20b5430607053a2",
       "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-runtime.js": "336a276024b786f95287178e1ce455328aee1c253ed3dc05709e49c58cde1ce6",
@@ -24,8 +24,8 @@
   "checks": {
     "content": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.13/development/v4.13.11-phase-7-handbook-claim-review.md",
-      "evidence_sha256": "031b83b1a2f85b3e3fc3dc00927199659694b6edd3764bc5a1fb9838068044a1"
+      "evidence": "docs/releases/v4/v4.13/development/v4.13.11-phase-8-handbook-claim-review.md",
+      "evidence_sha256": "54f4ce4ebecd15fd3780a3638a555c0d5ce938aa86b3d191a27ac4baddf0f5fe"
     },
     "build": {
       "status": "pass",

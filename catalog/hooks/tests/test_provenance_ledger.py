@@ -275,3 +275,20 @@ def test_hook_never_blocks_even_when_it_flags(run, tmp_path: Path) -> None:
     run(_write_payload(str(target)))
     proc = run(_bash_payload(f"bash {target}"))
     assert proc.returncode == 0
+
+
+def test_timestamp_is_utc_unix_epoch(run, tmp_path: Path) -> None:
+    """Both siblings write UTC epoch seconds (v4.13.11 AF-5).
+
+    PowerShell 5.1 `Get-Date -UFormat %s` returns local time, which put the .ps1
+    ledger hours away from the .sh sibling and from the 24 h correlation window.
+    """
+    import time
+
+    target = tmp_path / "script.sh"
+    target.write_text("echo hello\n", encoding="utf-8")
+    before = int(time.time())
+    assert run(_write_payload(str(target))).returncode == 0
+    after = int(time.time())
+    stamp = int(_ledger_text(run).strip().split("\t")[0])
+    assert before - 5 <= stamp <= after + 5, f"epoch {stamp} not within [{before}, {after}]"

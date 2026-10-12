@@ -2371,8 +2371,8 @@ install_vscode_extensions() {
     local repo_root="$1"
 
     write_item "Usage Monitor extensions show Claude Code, Codex (ChatGPT), GitHub Copilot, and" "$RESET"
-    write_item "Cursor usage in the status bar. Claude/Codex/Copilot install into VS Code only;" "$RESET"
-    write_item "Cursor Usage Monitor installs into Cursor only. Never cross-installed." "$RESET"
+    write_item "Cursor usage in the status bar. Claude/Codex install into VS Code only; Copilot" "$RESET"
+    write_item "into VS Code and Cursor; Cursor Usage Monitor into Cursor only." "$RESET"
     echo ""
 
     # Check for Node.js (shared by every extension)
@@ -2472,8 +2472,10 @@ install_vscode_extensions() {
         done
     fi
 
-    # Build each extension under its own vendor header. VS Code monitors install
-    # only via vscode_cli; the Cursor monitor installs only via cursor_cli. The
+    # Build each extension under its own vendor header. The Claude and Codex
+    # monitors install only via vscode_cli; the Copilot monitor installs via
+    # vscode_cli and, as its second host, cursor_cli (Copilot runs in Cursor too);
+    # the Cursor monitor installs only via cursor_cli. The
     # vendor order (Anthropic, OpenAI, Microsoft, Anysphere) is asserted by the
     # installer smoke test and must match scripts/installer.ps1.
     write_header "ANTHROPIC"
@@ -2483,7 +2485,7 @@ install_vscode_extensions() {
     build_and_install_one_extension "$repo_root/extensions/codex-usage-monitor" "nexus-hub.codex-usage-monitor" "Codex Usage Monitor" "Codex: --%" "$vscode_cli" "$vscode_label"
 
     write_header "MICROSOFT"
-    build_and_install_one_extension "$repo_root/extensions/copilot-usage-monitor" "nexus-hub.copilot-usage-monitor" "Copilot Usage Monitor" "Copilot: --%" "$vscode_cli" "$vscode_label"
+    build_and_install_one_extension "$repo_root/extensions/copilot-usage-monitor" "nexus-hub.copilot-usage-monitor" "Copilot Usage Monitor" "Copilot: --%" "$vscode_cli" "$vscode_label" "$cursor_cli" "$cursor_label"
 
     write_header "ANYSPHERE"
     build_and_install_one_extension "$repo_root/extensions/cursor-usage-monitor" "nexus-hub.cursor-usage-monitor" "Cursor Usage Monitor" "Cursor: --%" "$cursor_cli" "$cursor_label"

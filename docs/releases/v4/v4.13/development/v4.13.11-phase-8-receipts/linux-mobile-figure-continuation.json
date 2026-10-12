@@ -1,0 +1,355 @@
+{
+  "kind": "mobile figure focused RED-to-GREEN qualification, not canonical full-gate proof",
+  "retained_utc": "2026-10-12T04:59:17.981923+00:00",
+  "guide_diagnostic": {
+    "kind": "single native Command diagnostic, not a canonical full gate",
+    "started_utc": "2026-10-12T04:13:31.121921+00:00",
+    "ended_utc": "2026-10-12T04:42:16.119440+00:00",
+    "command": {
+      "name": "repo-tests-guides",
+      "argv": [
+        "/usr/local/bin/python",
+        "-m",
+        "pytest",
+        "tests/guides",
+        "-q"
+      ],
+      "cwd": ".",
+      "timeout": 1800,
+      "platforms": [],
+      "advisory": false,
+      "skip_if_missing": false,
+      "env": {},
+      "platform_timeouts": {}
+    },
+    "normalized_tree": "1c81f7a71e91ba9c3df422bde57d6041a35aea6f",
+    "head": "066235c90b1eb3de346658c8a3ef3fd6b19bced1",
+    "cpu_max": "1200000 100000",
+    "memory_max": "8589934592",
+    "profile_sha256": "5d26d00431a61b232ca4089c3667834e9e1af6d061f09eaaf95d107067714ba8",
+    "output_sha256": "0babaeb5c40a42bbce1b92a979d00c199a0a8f70b5dc7654e26535f3df1b367c",
+    "raw_tracked_paths_changed": []
+  },
+  "guide_result": {
+    "name": "repo-tests-guides",
+    "group": "",
+    "status": "fail",
+    "duration_s": 1776.0277071060846,
+    "exit_code": 1,
+    "reason": "exit 1"
+  },
+  "guide_counts_directly_retained": "1 failed, 978 passed, 1 skipped in 1775.48s",
+  "single_node_red": {
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "tests/guides/test_v41311_phase7_guide_defects.py::test_foundations_figure_fits_a_phone_screen[390]",
+      "-q"
+    ],
+    "started_utc": "2026-10-12T04:46:13.200946+00:00",
+    "ended_utc": "2026-10-12T04:46:14.827598+00:00",
+    "exit_code": 1,
+    "stdout_sha256": "6abee0e1c54ddb29c2dbb2e1ea1d9a7588ff79439526660c6455433b8f231064",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_hashes": {
+      "guides/website/nexus-hub-guide.html": "da836cf63ed4582c127773a14132e04533b1038088d312bea6e4d15cc7e908fa",
+      "guides/website/shared/opening.css": "d7a00b8b5525c89d127dca4a74f32d7c9f5160552d270ba8f051f2b8384138f2",
+      "tests/guides/test_v41311_phase7_guide_defects.py": "67cadff8c1336bddb7e276e962341da6b8bbae1c2dc6155584f649d1f17d386d"
+    }
+  },
+  "DOM_only_trials": [
+    {
+      "width": 390,
+      "state": "baseline",
+      "height": 600.34375,
+      "no_horizontal_overflow": true,
+      "positive_area_links": 6
+    },
+    {
+      "width": 390,
+      "state": "vertical-padding",
+      "height": 592.34375,
+      "no_horizontal_overflow": true,
+      "positive_area_links": 6
+    },
+    {
+      "width": 390,
+      "state": "symmetric-padding",
+      "height": 579.203125,
+      "no_horizontal_overflow": true,
+      "positive_area_links": 6
+    },
+    {
+      "width": 430,
+      "state": "baseline",
+      "height": 587.203125,
+      "no_horizontal_overflow": true,
+      "positive_area_links": 6
+    },
+    {
+      "width": 430,
+      "state": "vertical-padding",
+      "height": 579.203125,
+      "no_horizontal_overflow": true,
+      "positive_area_links": 6
+    },
+    {
+      "width": 430,
+      "state": "symmetric-padding",
+      "height": 579.203125,
+      "no_horizontal_overflow": true,
+      "positive_area_links": 6
+    },
+    {
+      "width": 1280,
+      "state": "baseline",
+      "height": 555.6875,
+      "no_horizontal_overflow": true,
+      "positive_area_links": 6
+    },
+    {
+      "width": 1280,
+      "state": "vertical-padding",
+      "height": 555.6875,
+      "no_horizontal_overflow": true,
+      "positive_area_links": 6
+    },
+    {
+      "width": 1280,
+      "state": "symmetric-padding",
+      "height": 555.6875,
+      "no_horizontal_overflow": true,
+      "positive_area_links": 6
+    }
+  ],
+  "actual_source_module": {
+    "argv": [
+      "/usr/local/bin/python",
+      "-m",
+      "pytest",
+      "tests/guides/test_v41311_phase7_guide_defects.py",
+      "-q"
+    ],
+    "cwd": "/work/Nexus-Hub-final",
+    "started_utc": "2026-10-12T04:57:59.876625+00:00",
+    "ended_utc": "2026-10-12T04:58:10.608264+00:00",
+    "elapsed_monotonic_seconds": 10.73161043797154,
+    "exit_code": 0,
+    "NEXUS_REQUIRE_RENDER": "1",
+    "source_before_sha256": {
+      "guides/website/shared/opening.css": "d22b67a4a5a9b55a025e9dcfe70cce549cfcf9c2b5540b0036f7923e3f38a015",
+      "guides/website/nexus-hub-guide.html": "1038a86524269a6e4fd34f25c6bb2be626b4f7316884fd5d2ce1eda83da5bd6c",
+      "guides/website/training.html": "c0d64dca1a9d24c3e6a6785879267604b5edc27fcbe2ad1ecbf90f9a188adce2",
+      "tests/guides/test_v41311_phase7_guide_defects.py": "67cadff8c1336bddb7e276e962341da6b8bbae1c2dc6155584f649d1f17d386d"
+    },
+    "source_after_sha256": {
+      "guides/website/shared/opening.css": "d22b67a4a5a9b55a025e9dcfe70cce549cfcf9c2b5540b0036f7923e3f38a015",
+      "guides/website/nexus-hub-guide.html": "1038a86524269a6e4fd34f25c6bb2be626b4f7316884fd5d2ce1eda83da5bd6c",
+      "guides/website/training.html": "c0d64dca1a9d24c3e6a6785879267604b5edc27fcbe2ad1ecbf90f9a188adce2",
+      "tests/guides/test_v41311_phase7_guide_defects.py": "67cadff8c1336bddb7e276e962341da6b8bbae1c2dc6155584f649d1f17d386d"
+    },
+    "stdout_sha256": "5c02a4c02fcbe0e15bd7a1fc551af6d9cf272bacbdd434c1147d97c089d8f07d",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "actual_source_module_counts_directly_retained": "...................                                                      [100%]\n19 passed in 10.30s",
+  "actual_source_probe": {
+    "browser_version": "153.0.8010.12",
+    "started_utc": "2026-10-12T04:58:10.727100+00:00",
+    "ended_utc": "2026-10-12T04:58:14.620161+00:00",
+    "temporary_style_overrides": false,
+    "source_before_sha256": {
+      "guides/website/shared/opening.css": "d22b67a4a5a9b55a025e9dcfe70cce549cfcf9c2b5540b0036f7923e3f38a015",
+      "guides/website/nexus-hub-guide.html": "1038a86524269a6e4fd34f25c6bb2be626b4f7316884fd5d2ce1eda83da5bd6c",
+      "guides/website/training.html": "c0d64dca1a9d24c3e6a6785879267604b5edc27fcbe2ad1ecbf90f9a188adce2",
+      "tests/guides/test_v41311_phase7_guide_defects.py": "67cadff8c1336bddb7e276e962341da6b8bbae1c2dc6155584f649d1f17d386d"
+    },
+    "source_after_sha256": {
+      "guides/website/shared/opening.css": "d22b67a4a5a9b55a025e9dcfe70cce549cfcf9c2b5540b0036f7923e3f38a015",
+      "guides/website/nexus-hub-guide.html": "1038a86524269a6e4fd34f25c6bb2be626b4f7316884fd5d2ce1eda83da5bd6c",
+      "guides/website/training.html": "c0d64dca1a9d24c3e6a6785879267604b5edc27fcbe2ad1ecbf90f9a188adce2",
+      "tests/guides/test_v41311_phase7_guide_defects.py": "67cadff8c1336bddb7e276e962341da6b8bbae1c2dc6155584f649d1f17d386d"
+    },
+    "rows": [
+      {
+        "width": 390,
+        "height": 579.203125,
+        "checks": {
+          "no_horizontal_overflow": true,
+          "six_positive_area_links": true,
+          "height_under_unchanged_600px_limit": true,
+          "two_by_two_reading_order": true
+        },
+        "screenshot": "390-actual-source.png",
+        "screenshot_sha256": "6fcaa757816e280b3329704ac8fe31bf0942e5cccfcdc2dad65c53ee5f9bab9e",
+        "links": [
+          {
+            "href": "#foundations/fx-harness",
+            "area": 2209.125
+          },
+          {
+            "href": "#foundations/fx-agent-platform",
+            "area": 4758.75
+          },
+          {
+            "href": "#foundations/fx-prompts",
+            "area": 21765.9375
+          },
+          {
+            "href": "#foundations/fx-context",
+            "area": 21805.875
+          },
+          {
+            "href": "#foundations/fx-tokens",
+            "area": 30867.25
+          },
+          {
+            "href": "#foundations/fx-model-lifecycle",
+            "area": 31370.90625
+          }
+        ]
+      },
+      {
+        "width": 430,
+        "height": 579.203125,
+        "checks": {
+          "no_horizontal_overflow": true,
+          "six_positive_area_links": true,
+          "height_under_unchanged_600px_limit": true,
+          "two_by_two_reading_order": true
+        },
+        "screenshot": "430-actual-source.png",
+        "screenshot_sha256": "8383ae5ea17a2e4bdf1642c1ce4d97036da3a787b21c8d80588e7cec2117a093",
+        "links": [
+          {
+            "href": "#foundations/fx-harness",
+            "area": 2209.125
+          },
+          {
+            "href": "#foundations/fx-agent-platform",
+            "area": 4758.75
+          },
+          {
+            "href": "#foundations/fx-prompts",
+            "area": 24831.5625
+          },
+          {
+            "href": "#foundations/fx-context",
+            "area": 21249.84375
+          },
+          {
+            "href": "#foundations/fx-tokens",
+            "area": 26957.8125
+          },
+          {
+            "href": "#foundations/fx-model-lifecycle",
+            "area": 35789.34375
+          }
+        ]
+      },
+      {
+        "width": 720,
+        "height": 806.25,
+        "checks": {
+          "no_horizontal_overflow": true,
+          "six_positive_area_links": true,
+          "wide_composer_beside_model": true,
+          "wide_composer_stack": true
+        },
+        "screenshot": "720-actual-source.png",
+        "screenshot_sha256": "4fc676a8c860ad90db2cebf4bc001d613a51e6c35ee78b7c796aceac630f9946",
+        "links": [
+          {
+            "href": "#foundations/fx-harness",
+            "area": 2209.125
+          },
+          {
+            "href": "#foundations/fx-agent-platform",
+            "area": 4758.75
+          },
+          {
+            "href": "#foundations/fx-prompts",
+            "area": 87501.97045898438
+          },
+          {
+            "href": "#foundations/fx-context",
+            "area": 29059.37744140625
+          },
+          {
+            "href": "#foundations/fx-tokens",
+            "area": 46016.390380859375
+          },
+          {
+            "href": "#foundations/fx-model-lifecycle",
+            "area": 155755.26171875
+          }
+        ]
+      },
+      {
+        "width": 1280,
+        "height": 555.6875,
+        "checks": {
+          "no_horizontal_overflow": true,
+          "six_positive_area_links": true,
+          "wide_composer_beside_model": true,
+          "wide_composer_stack": true
+        },
+        "screenshot": "1280-actual-source.png",
+        "screenshot_sha256": "2f0ed3193bc99267503565218f81b52e95368944ae4fbc72661de0acf02dda01",
+        "links": [
+          {
+            "href": "#foundations/fx-harness",
+            "area": 2209.125
+          },
+          {
+            "href": "#foundations/fx-agent-platform",
+            "area": 4758.75
+          },
+          {
+            "href": "#foundations/fx-prompts",
+            "area": 89028.248046875
+          },
+          {
+            "href": "#foundations/fx-context",
+            "area": 38940.313720703125
+          },
+          {
+            "href": "#foundations/fx-tokens",
+            "area": 62390.93994140625
+          },
+          {
+            "href": "#foundations/fx-model-lifecycle",
+            "area": 160191.7197265625
+          }
+        ]
+      }
+    ]
+  },
+  "resource_limitations": "No cpu.stat baseline was retained at guide diagnostic launch, so a whole-guide throttle delta is unavailable. The retained late interval has zero new throttling and includes final native execution plus idle time. No limit was changed during this focused qualification.",
+  "source_sync": {
+    "synced_utc": "2026-10-12T04:56:04.761658+00:00",
+    "paths": {
+      "guides/website/shared/opening.css": {
+        "before_sha256": "d7a00b8b5525c89d127dca4a74f32d7c9f5160552d270ba8f051f2b8384138f2",
+        "source_sha256": "d22b67a4a5a9b55a025e9dcfe70cce549cfcf9c2b5540b0036f7923e3f38a015",
+        "after_sha256": "d22b67a4a5a9b55a025e9dcfe70cce549cfcf9c2b5540b0036f7923e3f38a015",
+        "index_mode": "100644"
+      },
+      "guides/website/nexus-hub-guide.html": {
+        "before_sha256": "da836cf63ed4582c127773a14132e04533b1038088d312bea6e4d15cc7e908fa",
+        "source_sha256": "1038a86524269a6e4fd34f25c6bb2be626b4f7316884fd5d2ce1eda83da5bd6c",
+        "after_sha256": "1038a86524269a6e4fd34f25c6bb2be626b4f7316884fd5d2ce1eda83da5bd6c",
+        "index_mode": "100644"
+      },
+      "guides/website/training.html": {
+        "before_sha256": "80bbb87e0d6564414dca5239b5702757c32e10fb402bc5c72d91f568e7fea27a",
+        "source_sha256": "c0d64dca1a9d24c3e6a6785879267604b5edc27fcbe2ad1ecbf90f9a188adce2",
+        "after_sha256": "c0d64dca1a9d24c3e6a6785879267604b5edc27fcbe2ad1ecbf90f9a188adce2",
+        "index_mode": "100644"
+      }
+    }
+  },
+  "source_receipt_sha256": "e6459fbeff2d7651bc4e33a44ee6ec12b048fd569a054e2ea3f9cf40f887cd1c",
+  "raw_proof_root": ".nexus-hub/linux-validation-01a12d34/mobile-padding-proof-20261012T045917583250Z",
+  "retention_note": "Raw outputs, geometry and named screenshot files are retained privately under raw_proof_root; this receipt promotes their measured results and hashes. It is not canonical full-gate, publication or release proof."
+}

@@ -19,7 +19,7 @@ These specs are descriptive, not executable. The authoritative behavior lives in
 
 ## Distribution tiers
 
-- **Install mechanism**: every platform installs through the integration registry (`invoke_registry_platform` in `scripts/installer.sh` / `installer.ps1`, dispatching to the subclasses under `scripts/lib/integrations/`). Claude Code is the one platform that also keeps a custom installer block: that block copies its catalog tree, while the registry renders its marker-merged `CLAUDE.md`. No other platform uses installer copy blocks.
+- **Install mechanism**: every platform installs through the integration registry (`invoke_registry_platform` in `scripts/installer.sh`, `Invoke-RegistryPlatform` in `scripts/installer.ps1`, dispatching to the subclasses under `scripts/lib/integrations/`). Claude Code is the one platform that also keeps a custom installer block: that block copies its catalog tree, while the registry renders its marker-merged `CLAUDE.md`. No other platform uses installer copy blocks.
 - **"Original 4" and "extended" in the table above** are historical labels for when a platform joined the roster (the original Claude, Gemini / Antigravity 1.0, Codex, and Copilot set versus the v2.2.0+ additions). They no longer describe different install mechanisms.
 - **What each platform receives** (full file tree, skills-bearing, slash-command-only, or behavioral guardrails only) is defined in the "Platform coverage tiers" section of [`docs/policy/platform-read-contracts.md`](../policy/platform-read-contracts.md), which is re-verified at each release; each spec below records its own platform's surfaces.
 

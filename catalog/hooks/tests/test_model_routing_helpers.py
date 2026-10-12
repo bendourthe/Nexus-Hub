@@ -246,3 +246,22 @@ def test_enumerate_unrecognized_platform_is_refused_with_exit_2(impl, sandbox):
     assert r.returncode == 2
     assert "unknown platform" in r.stderr
     assert "models" not in r.stdout
+
+
+def test_enumerate_ps1_unknown_platform_exits_2_for_a_stop_preference_caller(powershell_bin):
+    """A caller running with $ErrorActionPreference = 'Stop' still sees exit 2 (AF-6).
+
+    Write-Error turned terminating under the caller's preference, so `exit 2` was
+    never reached and an in-process caller read $LASTEXITCODE 0.
+    """
+    script = _SCRIPTS / "enumerate-models.ps1"
+    command = (
+        "$ErrorActionPreference = 'Stop'; "
+        f"try {{ & '{script}' not-a-platform }} catch {{ exit 9 }}; exit $LASTEXITCODE"
+    )
+    r = subprocess.run(
+        [powershell_bin, "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command", command],
+        text=True, capture_output=True, stdin=subprocess.DEVNULL, timeout=120, check=False,
+    )
+    assert r.returncode == 2, (r.returncode, r.stderr)
+    assert "unknown platform" in r.stderr

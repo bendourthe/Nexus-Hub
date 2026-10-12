@@ -1,0 +1,1006 @@
+{
+  "schema_version": 1,
+  "kind": "Guide runtime continuation after native timeout; focused evidence and exact source transfer",
+  "release": "v4.13.11",
+  "scope": "Narrow unchanged-value DOM writes in Sky Sentinel sync and fitPanel; five behavioral controls; no final full-gate verdict",
+  "repair": {
+    "engine": "guides/website/src/sky-sentinel.js",
+    "stamped_page": "guides/website/training.html",
+    "test_module": "tests/guides/test_training_game_engine.py",
+    "mechanism": "Each sync compares the current DOM value on every call before assignment. fitPanel still measures and decides the responsive fit on every existing call, retains existing styles during intrinsic measurement, and assigns only changed transform or margin.",
+    "preserved": [
+      "All sync and fitPanel call sites",
+      "Actual simulation update, draw scheduling and state snapshot boundaries",
+      "All five ships and all 35 balance configurations",
+      "Every existing balance assertion",
+      "Three serial guide-render legs",
+      "Native 1800-second guide timeout and fixed 16 CPU/8 GiB container limits"
+    ],
+    "excluded": "renderSummary is unchanged and still called by sync when sum is true; this receipt makes no universal summary DOM-idempotence claim."
+  },
+  "observed_timeout": {
+    "scoped_receipt": ".nexus-hub/linux-validation-01a12d34/guide-observed-terminal-20261012T083031743733Z/scoped-receipt.json",
+    "scoped_receipt_sha256": "2d939a7489f812c06eaa265c86c966f1412b6f452ecfb8966f0516809853f1c5",
+    "artifact_directory": "/artifacts/guide-observed-20261012-01",
+    "native_duration_s": 1800.0188410229748,
+    "wrapper_monotonic_duration_s": 1800.0328176479088,
+    "utc_interval_s": 1719.145514,
+    "clock_cause_not_proven": true,
+    "finished_nodes": 793,
+    "started_nodes": 794,
+    "failed_reports": [],
+    "last_open_node": "tests/guides/test_v41311_deep_pass_a11y.py::test_escape_closes_the_phone_menu_and_returns_focus[guide]",
+    "last_open_node_utc_age_at_wrapper_end_s": 0.505179,
+    "actual_balance_fixture_setup_s": 399.145292,
+    "conclusion": "The complete-guide diagnostic exhausted its native ceiling after cumulative test execution; the last open node had just started. It supplies no failed-node match for the prior canonical untraced F.",
+    "historical_canonical_full": "RED: 64 passed / 1 guide TIMEOUT; historical F-node mapping remains inference.",
+    "source_count": 6596,
+    "source_hashes_unchanged": true,
+    "cpu_throttled_delta_usec": 351030,
+    "memory_events_delta_zero": true,
+    "no_live_browsers_or_zombies_before_or_after": true,
+    "native_artifact_sha256": {
+      "launch.json": "cd3d353652a93d20128235f8c299bb3014b9bbf4bdc0b9a36b92041ad478b09a",
+      "post-exit-clone-state.json": "08871695bef55444041260bbb2f61db4d6e998d6d6980f870ec018e6d2ed64f2",
+      "real-clone-index-after.bin": "5795444668f55dac6a309e742676a2761073968ebe515673b1861662ef528858",
+      "real-clone-index-before.bin": "5795444668f55dac6a309e742676a2761073968ebe515673b1861662ef528858",
+      "pytest-events.jsonl": "83b81da193cf08541ae820439fd0d222fcc9c15ab458f0dce9e326599374d539",
+      "receipt.json": "478bd8743c347f88431b5dedf2980d5c7e2c3a6a5ed9069c1d864c75019b2657",
+      "command-output.txt": "ab4ff34f69ae7f5f5b554bc71430fff69a046d0404277399074268d71f302a0c",
+      "plugin-review.diff": "94cc4d9ab1bd402d65d41b7012ceb94a1bd8db67d2f883e5f648d128396bf887"
+    }
+  },
+  "original_transfer": {
+    "files": [
+      {
+        "path": "guides/website/src/sky-sentinel.js",
+        "bytes": 394510,
+        "sha256": "f21705a41ba389f1315acac0f50e3ec641c88d7fd5b396a35cd3c03b21b0d5b4",
+        "crlf": 5992,
+        "lf": 5992
+      },
+      {
+        "path": "guides/website/training.html",
+        "bytes": 665416,
+        "sha256": "0ebd55e74281a26d3be9ef826e3b2eb6b2ef51ee4673bdbf397a8f0ec162473f",
+        "crlf": 9916,
+        "lf": 9916
+      },
+      {
+        "path": "tests/guides/test_training_game_engine.py",
+        "bytes": 98736,
+        "sha256": "382e2d462f491ca2a6a5310e45a1e6f85e0db8a046c0ca16851c0dfc23c81822",
+        "crlf": 1687,
+        "lf": 1687
+      },
+      {
+        "path": "guides/website/nexus-hub-guide.html",
+        "bytes": 503724,
+        "sha256": "1038a86524269a6e4fd34f25c6bb2be626b4f7316884fd5d2ce1eda83da5bd6c",
+        "crlf": 4432,
+        "lf": 4432
+      }
+    ],
+    "original_baseline_sha256": {
+      "guides/website/src/sky-sentinel.js": "302f23cdf31b62d27b9a326b002e719da58923139edfda917e8c817020392c28",
+      "guides/website/training.html": "c0d64dca1a9d24c3e6a6785879267604b5edc27fcbe2ad1ecbf90f9a188adce2",
+      "tests/guides/test_training_game_engine.py": "3f8ac9deee68f8f06e6e831efe0d71420fb97612801a227434ec22c69a9912b1",
+      "guides/website/nexus-hub-guide.html": "1038a86524269a6e4fd34f25c6bb2be626b4f7316884fd5d2ce1eda83da5bd6c"
+    },
+    "qualified_patch": {
+      "base": "95bee0ce647f4458836695da91e5027d47db605b",
+      "git_abbrev": 8,
+      "bytes": 24721,
+      "sha256": "683d6328e06d57e7d884fcb4d141dbc39a0a494fbfb979d2645ffc2c539b1189",
+      "exact_clone_equivalence": true,
+      "comparison": "git diff --no-ext-diff --binary --abbrev=8 95bee0ce647f4458836695da91e5027d47db605b -- guides/website/src/sky-sentinel.js guides/website/training.html tests/guides/test_training_game_engine.py"
+    },
+    "native_stamp": {
+      "command": "python scripts/stamp_guide_shared.py",
+      "exit_code": 0,
+      "output": "stamp_guide_shared: stamped 21 fragment(s) into 2 page(s); 1 region(s) changed",
+      "check_command": "python scripts/stamp_guide_shared.py --check",
+      "check_exit_code": 0,
+      "check_output": "stamp_guide_shared: OK -- 21 fragment(s) match in 2 page(s)",
+      "home_page_byte_identical": true
+    },
+    "scoped_git_diff_check_exit_code": 0,
+    "edit_guard": {
+      "session": "01a12d34-d21d-7e20-97e9-534134b149e7",
+      "standalone_check_before_each_edit": true,
+      "complete_native_diff_review_before_each_record": true,
+      "recorded_sequences": {
+        "engine": 2,
+        "tests": 2,
+        "Training": 11,
+        "home": 13
+      },
+      "test_first_read_baseline_sequence": 1,
+      "accepts_in_original": []
+    },
+    "git_metadata_note": "The original repository's default Git hash abbreviation was one character wider than the isolated clone, adding six metadata bytes to the preliminary three-file patch. Explicit --abbrev=8 proves exact patch equivalence."
+  },
+  "qualifications": [
+    "These are scoped diagnostics and browser behavioral verification, not a passing final full suite or release completion.",
+    "The baseline used one CDP CPU profile and metrics observer; the repaired comparison used a metrics-only observer. This is not a quiet-CI cap calibration.",
+    "The CPU profile attributes excessive synchronous work to fitPanel/sync and browser layout/style counters, but its large (program) bucket remains unattributed. No GPU or per-tick painting cause is claimed.",
+    "The parent held the Windows full-module retry during the comparison; one brief supervised content node was allowed. Whole-host non-overlap throughout the run was not proven.",
+    "UTC wall intervals differ from native/wrapper monotonic durations. Their cause is unproven and the measurements are retained separately.",
+    "All simulation outputs are exact-equal for all 35 configurations, and all original assertions ran. No assertion, cap, resource or profile weakening was used."
+  ],
+  "experiment_preparation": [
+    {
+      "path": "/artifacts/guide-balance-profile-20261012-01",
+      "observation": "An initial launch omitted PLAYWRIGHT_BROWSERS_PATH and skipped before simulation. It is retained separately and is not baseline pass evidence."
+    },
+    {
+      "path": "/artifacts/guide-hud-controls-20261012-01/red",
+      "observation": "An initial positive control tried to select a ship during an active paused run, which the API correctly refused. The control now resets configure before selecting Warden."
+    },
+    {
+      "path": "/artifacts/guide-hud-controls-20261012-01/green",
+      "observation": "An initial new test reused the existing shared module page and left progression false, polluting an existing HUD test. The new tests now use a function-scoped page and close it. Existing fixtures and assertions are unchanged; final original RED and repaired GREEN use identical final test bytes."
+    },
+    {
+      "observation": "Clone text writes initially normalized CRLF. The final original RED replay and repaired GREEN both preserve the original CRLF; the original transfer is byte-identical to the final qualified clone."
+    },
+    {
+      "observation": "One isolated-clone engine own-write record exceeded the two-minute clean-check window. After complete native diff review of that authorized own write, accept recorded sequence 2; no user edits were discarded. Later writes used fresh checks. No original accept was used."
+    }
+  ],
+  "open": "Parent owns final fresh full-gate validation, evidence promotion and release completion; no additional large suites were run for this transfer.",
+  "baseline_profile": {
+    "run": {
+      "kind": "focused unchanged-source balance CPU diagnostic",
+      "artifacts": "/artifacts/guide-balance-profile-20261012-02",
+      "started_utc": "2026-10-12T08:43:09.359832+00:00",
+      "native_command": {
+        "name": "repo-tests-guides",
+        "argv": [
+          "/usr/local/bin/python",
+          "-m",
+          "pytest",
+          "tests/guides",
+          "-q"
+        ],
+        "cwd": ".",
+        "timeout": 1800,
+        "platforms": [],
+        "advisory": false,
+        "skip_if_missing": false,
+        "env": {},
+        "platform_timeouts": {}
+      },
+      "diagnostic_command": {
+        "name": "repo-tests-guides",
+        "argv": [
+          "/usr/local/bin/python",
+          "-m",
+          "pytest",
+          "tests/guides/test_training_game_engine.py::test_every_ship_sits_in_the_single_target_band",
+          "-q",
+          "-x",
+          "--tb=long",
+          "--durations=5",
+          "--junitxml=/artifacts/guide-balance-profile-20261012-02/pytest-nodes.xml",
+          "-p",
+          "guide_balance_cpu"
+        ],
+        "cwd": ".",
+        "timeout": 1800,
+        "platforms": [],
+        "advisory": false,
+        "skip_if_missing": false,
+        "env": {
+          "PYTHONPATH": "/work/Nexus-Hub-final/.nexus-hub/guide-profile-20261012-01",
+          "NEXUS_BALANCE_PROFILE_OUT": "/artifacts/guide-balance-profile-20261012-02"
+        },
+        "platform_timeouts": {}
+      },
+      "resources_before": {
+        "cpu.max": "1600000 100000\n",
+        "cpu.stat": "usage_usec 52917890221\nuser_usec 48591989742\nsystem_usec 4325900479\nnr_periods 143348\nnr_throttled 18885\nthrottled_usec 13369388615\nnr_bursts 0\nburst_usec 0\n",
+        "memory.max": "8589934592\n",
+        "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+        "pids.current": "3\n"
+      },
+      "plugin_sha256": "9651a694b3f11f2a74e94f33087f16b2084932ab6e7e808b91285701a21244f8",
+      "wrapper_sha256": "c21679b6dad8dd9e9228cbcb15145abd3a573870e3c9046c9a571ad434f33ad0",
+      "environment": {
+        "HOME": "$CONTAINER_HOME",
+        "USER": "vscode",
+        "LOGNAME": "vscode",
+        "PLAYWRIGHT_BROWSERS_PATH": "/opt/ms-playwright",
+        "PIP_CONSTRAINT": "/work/Nexus-Hub-final/scripts/ci/requirements-py311.txt",
+        "NEXUS_REQUIRE_RENDER": "1"
+      },
+      "head_before": "066235c90b1eb3de346658c8a3ef3fd6b19bced1",
+      "real_clone_index_sha256_before": "5795444668f55dac6a309e742676a2761073968ebe515673b1861662ef528858",
+      "ended_utc": "2026-10-12T08:49:46.573117+00:00",
+      "duration_monotonic_s": 416.458818856976,
+      "source_hashes_unchanged": true,
+      "real_clone_index_sha256_after": "5795444668f55dac6a309e742676a2761073968ebe515673b1861662ef528858",
+      "resources_after": {
+        "cpu.max": "1600000 100000\n",
+        "cpu.stat": "usage_usec 57485753065\nuser_usec 53011769203\nsystem_usec 4473983861\nnr_periods 147518\nnr_throttled 18895\nthrottled_usec 13369518263\nnr_bursts 0\nburst_usec 0\n",
+        "memory.max": "8589934592\n",
+        "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+        "pids.current": "3\n"
+      },
+      "artifact_sha256": {
+        "cpu-summary.json": "dff8fcaadc43c4624fc7c69a8ed7ff23b5ad07b0f3f24a86f524c7d0e08c3e75",
+        "launch.json": "10ba33904032bb28333fb35aacb6eafd8ad2dcd272e8ae37fe2e679bd565c194",
+        "real-clone-index-after.bin": "5795444668f55dac6a309e742676a2761073968ebe515673b1861662ef528858",
+        "balance-fixture.json": "d1926f6832633451a574d0a86825e5bcee6b1c638d78b108cd96975d9f95cb44",
+        "balance-values.json": "fc99905a2c11975c66e0fa88e2848f648956d8518c8df565514ebdc55d3c8e31",
+        "real-clone-index-before.bin": "5795444668f55dac6a309e742676a2761073968ebe515673b1861662ef528858",
+        "browser-cpu-profile.json": "481e1cf09b8af89dc1d7bdcab98d2b07ebbdd423c161367308c0de6c756eaec5",
+        "pytest-events.jsonl": "eb97658529e1fd3acf3c03a117d89b2acfb978b726daedc1dda9a194e866288d",
+        "pytest-nodes.xml": "58c249a0b393401c1c8ff1e6589156560f8b22b6bf273446d714001a808156c1",
+        "command-output.txt": "e7c8c55350cdbe895fffc485e20b556b3267c850391250013f1f0f0f0824d558"
+      },
+      "receipt_sha256": "c32e90f67029e229aca3542049f40385a83305ad8515be69e972b980c35ab13a",
+      "result": {
+        "name": "repo-tests-guides",
+        "group": "",
+        "status": "pass",
+        "duration_s": 416.44894447003026,
+        "exit_code": 0,
+        "reason": ""
+      },
+      "source_count": 6596,
+      "relevant_source_hashes": {
+        "guides/website/src/sky-sentinel.js": "302f23cdf31b62d27b9a326b002e719da58923139edfda917e8c817020392c28",
+        "guides/website/training.html": "c0d64dca1a9d24c3e6a6785879267604b5edc27fcbe2ad1ecbf90f9a188adce2",
+        "tests/guides/test_training_game_engine.py": "3f8ac9deee68f8f06e6e831efe0d71420fb97612801a227434ec22c69a9912b1",
+        "scripts/ci/profiles.py": "5d26d00431a61b232ca4089c3667834e9e1af6d061f09eaaf95d107067714ba8",
+        "tests/guides/tools/game_balance.py": "e1ad0d70fc08a1dedc8f43ef7f4babb8986a401e7cc0d19cba300db834f3eda0",
+        "scripts/ci/run.py": "ffd9aa7ea256006a4ef21265f85377f15db8f21aed06da02d4c073e30b14f60b"
+      },
+      "test_cases": [
+        {
+          "name": "test_every_ship_sits_in_the_single_target_band",
+          "outcome": "passed"
+        }
+      ],
+      "test_counts": {
+        "passed": 1
+      },
+      "observed_properties": []
+    },
+    "fixture": {
+      "fixture_duration_monotonic_s": 413.4820437229937,
+      "started_utc": "2026-10-12T08:43:11.965093+00:00",
+      "ended_utc": "2026-10-12T08:49:45.694841+00:00",
+      "metric_deltas": {
+        "LayoutCount": 346926,
+        "RecalcStyleCount": 692700,
+        "LayoutDuration": 55.530778,
+        "RecalcStyleDuration": 47.838821,
+        "TaskDuration": 413.56221899999997
+      }
+    },
+    "sampling_interval_us": 10000,
+    "self_sampled_seconds": {
+      "fitPanel": 105.342729,
+      "sync": 15.230926,
+      "tick": 1.771989,
+      "(program)": 263.404721
+    },
+    "unattributed_program_bucket": true,
+    "metadata_correction": "The raw baseline fixture metadata includes _stats as an extra record and reports 40 configurations. Its unchanged raw balance-values contains five ships and exactly 35 actual game configurations; _stats is excluded only when interpreting the count."
+  },
+  "behavior_controls": {
+    "original_red": {
+      "kind": "focused red-final diagnostic, not full-gate proof",
+      "started_utc": "2026-10-12T09:34:39.012292+00:00",
+      "artifacts": "/artifacts/guide-hud-controls-20261012-01/red-final",
+      "native_command": {
+        "name": "repo-tests-guides",
+        "argv": [
+          "/usr/local/bin/python",
+          "-m",
+          "pytest",
+          "tests/guides",
+          "-q"
+        ],
+        "cwd": ".",
+        "timeout": 1800,
+        "platforms": [],
+        "advisory": false,
+        "skip_if_missing": false,
+        "env": {},
+        "platform_timeouts": {}
+      },
+      "diagnostic_command": {
+        "name": "repo-tests-guides",
+        "argv": [
+          "/usr/local/bin/python",
+          "-m",
+          "pytest",
+          "tests/guides/test_training_game_engine.py::test_quiet_paused_steps_advance_without_rewriting_the_hud_or_ship_cards",
+          "tests/guides/test_training_game_engine.py::test_changed_hull_ship_upgrade_and_pause_state_update_the_dom_immediately",
+          "tests/guides/test_training_game_engine.py::test_a_scaled_paused_panel_has_the_same_intrinsic_dimensions_with_styles_retained_or_cleared",
+          "tests/guides/test_training_game_engine.py::test_the_panel_and_canvas_refit_after_a_width_change_while_the_game_stays_paused",
+          "-q",
+          "--tb=long",
+          "--durations=10",
+          "--junitxml=/artifacts/guide-hud-controls-20261012-01/red-final/pytest-nodes.xml"
+        ],
+        "cwd": ".",
+        "timeout": 1800,
+        "platforms": [],
+        "advisory": false,
+        "skip_if_missing": false,
+        "env": {},
+        "platform_timeouts": {}
+      },
+      "resources_before": {
+        "cpu.max": "1600000 100000\n",
+        "cpu.stat": "usage_usec 57885054151\nuser_usec 53373573251\nsystem_usec 4511480899\nnr_periods 148708\nnr_throttled 18896\nthrottled_usec 13369528857\nnr_bursts 0\nburst_usec 0\n",
+        "memory.max": "8589934592\n",
+        "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+        "pids.current": "3\n"
+      },
+      "wrapper_sha256": "ccc1838938da378197db38198239c8fa1f82d891e6147fcc460188ce61ee8fbf",
+      "environment": {
+        "HOME": "$CONTAINER_HOME",
+        "USER": "vscode",
+        "LOGNAME": "vscode",
+        "PLAYWRIGHT_BROWSERS_PATH": "/opt/ms-playwright",
+        "PIP_CONSTRAINT": "/work/Nexus-Hub-final/scripts/ci/requirements-py311.txt",
+        "NEXUS_REQUIRE_RENDER": "1"
+      },
+      "real_clone_index_sha256_before": "5795444668f55dac6a309e742676a2761073968ebe515673b1861662ef528858",
+      "ended_utc": "2026-10-12T09:34:50.643843+00:00",
+      "duration_monotonic_s": 11.259843567037024,
+      "source_hashes_unchanged": true,
+      "real_clone_index_sha256_after": "5795444668f55dac6a309e742676a2761073968ebe515673b1861662ef528858",
+      "resources_after": {
+        "cpu.max": "1600000 100000\n",
+        "cpu.stat": "usage_usec 57936666132\nuser_usec 53420611431\nsystem_usec 4516054701\nnr_periods 148824\nnr_throttled 18896\nthrottled_usec 13369528857\nnr_bursts 0\nburst_usec 0\n",
+        "memory.max": "8589934592\n",
+        "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+        "pids.current": "3\n"
+      },
+      "artifact_sha256": {
+        "launch.json": "abdcd9e53082682d47dfa01a6510898ca6b371c78e1492e4fb1970e87c69d740",
+        "real-clone-index-after.bin": "5795444668f55dac6a309e742676a2761073968ebe515673b1861662ef528858",
+        "real-clone-index-before.bin": "5795444668f55dac6a309e742676a2761073968ebe515673b1861662ef528858",
+        "pytest-nodes.xml": "65e44deaf594fbfb158ce77e4c458ddd7ae27ed7b7b18e05f3d88a9eb4874d13",
+        "command-output.txt": "0195eb958ff88ab5c6446899ddfe3e98a6d1cb2a93a04c3f62df443340485c92"
+      },
+      "receipt_sha256": "4f5f4c5230cecb5cfc83794b12e1e0673f9ac49c7ab210172453cb0bce4da35c",
+      "result": {
+        "name": "repo-tests-guides",
+        "group": "",
+        "status": "fail",
+        "duration_s": 11.253126048017293,
+        "exit_code": 1,
+        "reason": "exit 1"
+      },
+      "source_count": 6596,
+      "relevant_source_hashes": {
+        "guides/website/src/sky-sentinel.js": "302f23cdf31b62d27b9a326b002e719da58923139edfda917e8c817020392c28",
+        "guides/website/training.html": "c0d64dca1a9d24c3e6a6785879267604b5edc27fcbe2ad1ecbf90f9a188adce2",
+        "tests/guides/test_training_game_engine.py": "382e2d462f491ca2a6a5310e45a1e6f85e0db8a046c0ca16851c0dfc23c81822",
+        "scripts/ci/profiles.py": "5d26d00431a61b232ca4089c3667834e9e1af6d061f09eaaf95d107067714ba8",
+        "tests/guides/tools/game_balance.py": "e1ad0d70fc08a1dedc8f43ef7f4babb8986a401e7cc0d19cba300db834f3eda0",
+        "scripts/ci/run.py": "ffd9aa7ea256006a4ef21265f85377f15db8f21aed06da02d4c073e30b14f60b"
+      },
+      "test_cases": [
+        {
+          "name": "test_quiet_paused_steps_advance_without_rewriting_the_hud_or_ship_cards",
+          "outcome": "failed"
+        },
+        {
+          "name": "test_changed_hull_ship_upgrade_and_pause_state_update_the_dom_immediately",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_a_scaled_paused_panel_has_the_same_intrinsic_dimensions_with_styles_retained_or_cleared[wide]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_a_scaled_paused_panel_has_the_same_intrinsic_dimensions_with_styles_retained_or_cleared[tall]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_the_panel_and_canvas_refit_after_a_width_change_while_the_game_stays_paused",
+          "outcome": "passed"
+        }
+      ],
+      "test_counts": {
+        "failed": 1,
+        "passed": 4
+      },
+      "observed_properties": [
+        {
+          "name": "hud_step_control",
+          "value": {
+            "ticks": 120,
+            "state": "paused",
+            "health": [
+              100,
+              100
+            ],
+            "text": [
+              "Score 0Hull 100 of 100Level 1 (Easy)Paused",
+              "Score 0Hull 100 of 100Level 1 (Easy)Paused"
+            ],
+            "hudMutations": 480,
+            "cardMutations": 1320
+          }
+        },
+        {
+          "name": "intrinsic_dimensions",
+          "value": {
+            "before": [
+              "scale(0.5944)",
+              "295.2px"
+            ],
+            "after": [
+              "scale(0.5944)",
+              "295.2px"
+            ],
+            "retained": [
+              1070,
+              648,
+              1800,
+              97
+            ],
+            "cleared": [
+              1070,
+              648,
+              1800,
+              97
+            ],
+            "state": "paused",
+            "shown": true,
+            "fits": true
+          }
+        },
+        {
+          "name": "intrinsic_dimensions",
+          "value": {
+            "before": [
+              "scale(0.4985)",
+              "0px"
+            ],
+            "after": [
+              "scale(0.4985)",
+              "0px"
+            ],
+            "retained": [
+              1070,
+              648,
+              1070,
+              1300
+            ],
+            "cleared": [
+              1070,
+              648,
+              1070,
+              1300
+            ],
+            "state": "paused",
+            "shown": true,
+            "fits": true
+          }
+        }
+      ]
+    },
+    "repaired_green": {
+      "kind": "focused green-final diagnostic, not full-gate proof",
+      "started_utc": "2026-10-12T09:37:31.040116+00:00",
+      "artifacts": "/artifacts/guide-hud-controls-20261012-01/green-final",
+      "native_command": {
+        "name": "repo-tests-guides",
+        "argv": [
+          "/usr/local/bin/python",
+          "-m",
+          "pytest",
+          "tests/guides",
+          "-q"
+        ],
+        "cwd": ".",
+        "timeout": 1800,
+        "platforms": [],
+        "advisory": false,
+        "skip_if_missing": false,
+        "env": {},
+        "platform_timeouts": {}
+      },
+      "diagnostic_command": {
+        "name": "repo-tests-guides",
+        "argv": [
+          "/usr/local/bin/python",
+          "-m",
+          "pytest",
+          "tests/guides/test_training_game_engine.py::test_quiet_paused_steps_advance_without_rewriting_the_hud_or_ship_cards",
+          "tests/guides/test_training_game_engine.py::test_changed_hull_ship_upgrade_and_pause_state_update_the_dom_immediately",
+          "tests/guides/test_training_game_engine.py::test_a_scaled_paused_panel_has_the_same_intrinsic_dimensions_with_styles_retained_or_cleared",
+          "tests/guides/test_training_game_engine.py::test_the_panel_and_canvas_refit_after_a_width_change_while_the_game_stays_paused",
+          "tests/guides/test_training_game_engine.py::test_the_accessible_hud_reads_hull_and_difficulty",
+          "tests/guides/test_training_game_engine.py::test_the_start_screen_offers_five_ships_and_the_full_upgrade_key",
+          "tests/guides/test_training_game_engine.py::test_both_games_share_one_start_screen",
+          "tests/guides/test_training_game_engine.py::test_choosing_a_ship_changes_the_state_and_the_rendered_form",
+          "tests/guides/test_training_game_engine.py::test_the_start_screen_fits_the_arena_with_no_scroll_bar",
+          "tests/guides/test_training_game_engine.py::test_the_end_card_sits_in_the_centre_of_the_arena",
+          "tests/guides/test_training_game_revision13.py::test_the_hud_shows_the_retries_left_on_this_level",
+          "tests/guides/test_training_game_revision14.py::test_a_revive_is_held_one_at_a_time_and_shows_in_the_hud",
+          "tests/guides/test_training_game_revision18.py::test_the_start_screen_names_the_schedule_and_still_fits",
+          "-q",
+          "--tb=long",
+          "--durations=10",
+          "--junitxml=/artifacts/guide-hud-controls-20261012-01/green-final/pytest-nodes.xml"
+        ],
+        "cwd": ".",
+        "timeout": 1800,
+        "platforms": [],
+        "advisory": false,
+        "skip_if_missing": false,
+        "env": {},
+        "platform_timeouts": {}
+      },
+      "resources_before": {
+        "cpu.max": "1600000 100000\n",
+        "cpu.stat": "usage_usec 57938125621\nuser_usec 53421704313\nsystem_usec 4516421308\nnr_periods 148870\nnr_throttled 18896\nthrottled_usec 13369528857\nnr_bursts 0\nburst_usec 0\n",
+        "memory.max": "8589934592\n",
+        "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+        "pids.current": "3\n"
+      },
+      "wrapper_sha256": "ccc1838938da378197db38198239c8fa1f82d891e6147fcc460188ce61ee8fbf",
+      "environment": {
+        "HOME": "$CONTAINER_HOME",
+        "USER": "vscode",
+        "LOGNAME": "vscode",
+        "PLAYWRIGHT_BROWSERS_PATH": "/opt/ms-playwright",
+        "PIP_CONSTRAINT": "/work/Nexus-Hub-final/scripts/ci/requirements-py311.txt",
+        "NEXUS_REQUIRE_RENDER": "1"
+      },
+      "real_clone_index_sha256_before": "5795444668f55dac6a309e742676a2761073968ebe515673b1861662ef528858",
+      "ended_utc": "2026-10-12T09:38:22.585720+00:00",
+      "duration_monotonic_s": 52.728388165007345,
+      "source_hashes_unchanged": true,
+      "real_clone_index_sha256_after": "5795444668f55dac6a309e742676a2761073968ebe515673b1861662ef528858",
+      "resources_after": {
+        "cpu.max": "1600000 100000\n",
+        "cpu.stat": "usage_usec 58196192175\nuser_usec 53658740003\nsystem_usec 4537452171\nnr_periods 149402\nnr_throttled 18896\nthrottled_usec 13369528857\nnr_bursts 0\nburst_usec 0\n",
+        "memory.max": "8589934592\n",
+        "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+        "pids.current": "3\n"
+      },
+      "artifact_sha256": {
+        "launch.json": "59c95e642b7da2c4af1c18992ca080a179e8799b6f7a639f7615a6901dcaa934",
+        "real-clone-index-after.bin": "5795444668f55dac6a309e742676a2761073968ebe515673b1861662ef528858",
+        "real-clone-index-before.bin": "5795444668f55dac6a309e742676a2761073968ebe515673b1861662ef528858",
+        "pytest-nodes.xml": "42d38775b27b5b8204e9f194cdfb1b73634c1ad6ad4ebd81793907f37d484235",
+        "command-output.txt": "f172696e72891f17be51cee96f12b9dc9b9926fffd94b2edb99220da18945fa1"
+      },
+      "receipt_sha256": "65ac831b751092152254f4bc3f970d741f4100f99aefb39d28a6ac29fb834929",
+      "result": {
+        "name": "repo-tests-guides",
+        "group": "",
+        "status": "pass",
+        "duration_s": 52.72158087301068,
+        "exit_code": 0,
+        "reason": ""
+      },
+      "source_count": 6596,
+      "relevant_source_hashes": {
+        "guides/website/src/sky-sentinel.js": "f21705a41ba389f1315acac0f50e3ec641c88d7fd5b396a35cd3c03b21b0d5b4",
+        "guides/website/training.html": "0ebd55e74281a26d3be9ef826e3b2eb6b2ef51ee4673bdbf397a8f0ec162473f",
+        "tests/guides/test_training_game_engine.py": "382e2d462f491ca2a6a5310e45a1e6f85e0db8a046c0ca16851c0dfc23c81822",
+        "scripts/ci/profiles.py": "5d26d00431a61b232ca4089c3667834e9e1af6d061f09eaaf95d107067714ba8",
+        "tests/guides/tools/game_balance.py": "e1ad0d70fc08a1dedc8f43ef7f4babb8986a401e7cc0d19cba300db834f3eda0",
+        "scripts/ci/run.py": "ffd9aa7ea256006a4ef21265f85377f15db8f21aed06da02d4c073e30b14f60b"
+      },
+      "test_cases": [
+        {
+          "name": "test_quiet_paused_steps_advance_without_rewriting_the_hud_or_ship_cards",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_changed_hull_ship_upgrade_and_pause_state_update_the_dom_immediately",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_a_scaled_paused_panel_has_the_same_intrinsic_dimensions_with_styles_retained_or_cleared[wide]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_a_scaled_paused_panel_has_the_same_intrinsic_dimensions_with_styles_retained_or_cleared[tall]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_the_panel_and_canvas_refit_after_a_width_change_while_the_game_stays_paused",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_the_accessible_hud_reads_hull_and_difficulty",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_the_start_screen_offers_five_ships_and_the_full_upgrade_key",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_both_games_share_one_start_screen",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_choosing_a_ship_changes_the_state_and_the_rendered_form[vanguard]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_choosing_a_ship_changes_the_state_and_the_rendered_form[warden]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_choosing_a_ship_changes_the_state_and_the_rendered_form[specter]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_choosing_a_ship_changes_the_state_and_the_rendered_form[talon]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_choosing_a_ship_changes_the_state_and_the_rendered_form[raptor]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_the_start_screen_fits_the_arena_with_no_scroll_bar[1280x900]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_the_start_screen_fits_the_arena_with_no_scroll_bar[1440x900]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_the_start_screen_fits_the_arena_with_no_scroll_bar[1920x1080]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_the_start_screen_fits_the_arena_with_no_scroll_bar[1366x768]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_the_start_screen_fits_the_arena_with_no_scroll_bar[1280x720]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_the_start_screen_fits_the_arena_with_no_scroll_bar[390x844]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_the_end_card_sits_in_the_centre_of_the_arena[1440x900]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_the_end_card_sits_in_the_centre_of_the_arena[1280x720]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_the_end_card_sits_in_the_centre_of_the_arena[390x844]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_the_hud_shows_the_retries_left_on_this_level[webgl]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_the_hud_shows_the_retries_left_on_this_level[2d]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_a_revive_is_held_one_at_a_time_and_shows_in_the_hud",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_the_start_screen_names_the_schedule_and_still_fits[1440x900]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_the_start_screen_names_the_schedule_and_still_fits[390x844]",
+          "outcome": "passed"
+        }
+      ],
+      "test_counts": {
+        "passed": 27
+      },
+      "observed_properties": [
+        {
+          "name": "hud_step_control",
+          "value": {
+            "ticks": 120,
+            "state": "paused",
+            "health": [
+              100,
+              100
+            ],
+            "text": [
+              "Score 0Hull 100 of 100Level 1 (Easy)Paused",
+              "Score 0Hull 100 of 100Level 1 (Easy)Paused"
+            ],
+            "hudMutations": 0,
+            "cardMutations": 0
+          }
+        },
+        {
+          "name": "intrinsic_dimensions",
+          "value": {
+            "before": [
+              "scale(0.5944)",
+              "295.2px"
+            ],
+            "after": [
+              "scale(0.5944)",
+              "295.2px"
+            ],
+            "retained": [
+              1070,
+              648,
+              1800,
+              97
+            ],
+            "cleared": [
+              1070,
+              648,
+              1800,
+              97
+            ],
+            "state": "paused",
+            "shown": true,
+            "fits": true
+          }
+        },
+        {
+          "name": "intrinsic_dimensions",
+          "value": {
+            "before": [
+              "scale(0.4985)",
+              "0px"
+            ],
+            "after": [
+              "scale(0.4985)",
+              "0px"
+            ],
+            "retained": [
+              1070,
+              648,
+              1070,
+              1300
+            ],
+            "cleared": [
+              1070,
+              648,
+              1070,
+              1300
+            ],
+            "state": "paused",
+            "shown": true,
+            "fits": true
+          }
+        }
+      ]
+    },
+    "five_new_cases": "Four new test functions, with the intrinsic-fit control parameterized for wide and tall panels",
+    "positive_controls": "Immediate hull damage, rapid upgrade, pause/resume, ship selection and repair of externally changed HUD text; visible scaled panel intrinsic retained/cleared equality; paused viewport width refit."
+  },
+  "balance_comparison": {
+    "repaired_complete_run": {
+      "kind": "focused balance diagnostic, not full-gate proof",
+      "started_utc": "2026-10-12T09:41:23.531883+00:00",
+      "artifacts": "/artifacts/guide-hud-controls-20261012-01/balance",
+      "native_command": {
+        "name": "repo-tests-guides",
+        "argv": [
+          "/usr/local/bin/python",
+          "-m",
+          "pytest",
+          "tests/guides",
+          "-q"
+        ],
+        "cwd": ".",
+        "timeout": 1800,
+        "platforms": [],
+        "advisory": false,
+        "skip_if_missing": false,
+        "env": {},
+        "platform_timeouts": {}
+      },
+      "diagnostic_command": {
+        "name": "repo-tests-guides",
+        "argv": [
+          "/usr/local/bin/python",
+          "-m",
+          "pytest",
+          "tests/guides/test_training_game_engine.py::test_every_ship_sits_in_the_single_target_band",
+          "tests/guides/test_training_game_engine.py::test_wave_damage_and_boss_kill_time_sit_in_their_band",
+          "tests/guides/test_training_game_engine.py::test_a_strength_is_paid_for_by_a_weakness",
+          "tests/guides/test_training_game_engine.py::test_every_ship_reaches_and_damages_the_boss",
+          "tests/guides/test_training_game_engine.py::test_every_weapon_upgrade_changes_a_measured_value_on_every_ship",
+          "-q",
+          "--tb=long",
+          "--durations=10",
+          "--junitxml=/artifacts/guide-hud-controls-20261012-01/balance/pytest-nodes.xml",
+          "-p",
+          "guide_balance_metrics"
+        ],
+        "cwd": ".",
+        "timeout": 1800,
+        "platforms": [],
+        "advisory": false,
+        "skip_if_missing": false,
+        "env": {
+          "PYTHONPATH": "/work/Nexus-Hub-final/.nexus-hub/guide-profile-20261012-01",
+          "NEXUS_BALANCE_METRICS_OUT": "/artifacts/guide-hud-controls-20261012-01/balance"
+        },
+        "platform_timeouts": {}
+      },
+      "resources_before": {
+        "cpu.max": "1600000 100000\n",
+        "cpu.stat": "usage_usec 58196970480\nuser_usec 53659291241\nsystem_usec 4537679238\nnr_periods 149426\nnr_throttled 18896\nthrottled_usec 13369528857\nnr_bursts 0\nburst_usec 0\n",
+        "memory.max": "8589934592\n",
+        "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+        "pids.current": "3\n"
+      },
+      "wrapper_sha256": "ccc1838938da378197db38198239c8fa1f82d891e6147fcc460188ce61ee8fbf",
+      "environment": {
+        "HOME": "$CONTAINER_HOME",
+        "USER": "vscode",
+        "LOGNAME": "vscode",
+        "PLAYWRIGHT_BROWSERS_PATH": "/opt/ms-playwright",
+        "PIP_CONSTRAINT": "/work/Nexus-Hub-final/scripts/ci/requirements-py311.txt",
+        "NEXUS_REQUIRE_RENDER": "1"
+      },
+      "real_clone_index_sha256_before": "5795444668f55dac6a309e742676a2761073968ebe515673b1861662ef528858",
+      "ended_utc": "2026-10-12T09:46:25.845359+00:00",
+      "duration_monotonic_s": 317.39162496698555,
+      "source_hashes_unchanged": true,
+      "real_clone_index_sha256_after": "5795444668f55dac6a309e742676a2761073968ebe515673b1861662ef528858",
+      "resources_after": {
+        "cpu.max": "1600000 100000\n",
+        "cpu.stat": "usage_usec 61798840481\nuser_usec 57198670953\nsystem_usec 4600169528\nnr_periods 152604\nnr_throttled 18897\nthrottled_usec 13369589702\nnr_bursts 0\nburst_usec 0\n",
+        "memory.max": "8589934592\n",
+        "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+        "pids.current": "3\n"
+      },
+      "artifact_sha256": {
+        "launch.json": "33c953f332fe86ed840d77079b3c2066bcfad7d6b908b2ccff2814d500408e51",
+        "real-clone-index-after.bin": "5795444668f55dac6a309e742676a2761073968ebe515673b1861662ef528858",
+        "balance-fixture.json": "d0aa432538089d3f9bfefe0f2332a5cb72430a2110cdd07befbf399a4f95758f",
+        "balance-values.json": "fc99905a2c11975c66e0fa88e2848f648956d8518c8df565514ebdc55d3c8e31",
+        "real-clone-index-before.bin": "5795444668f55dac6a309e742676a2761073968ebe515673b1861662ef528858",
+        "pytest-nodes.xml": "0eed31661309c4b642354f81ccfc51c2106eb12fbd786380cc5959198d11e962",
+        "command-output.txt": "ef6205409fc103fbfb1580434cd800f179d8fa4a3077835026f6af334418e683"
+      },
+      "receipt_sha256": "94f116846930e65b7029f61ef924ca93e163a127855e85a3d2ed8e435439ad4d",
+      "result": {
+        "name": "repo-tests-guides",
+        "group": "",
+        "status": "pass",
+        "duration_s": 317.3849011149723,
+        "exit_code": 0,
+        "reason": ""
+      },
+      "source_count": 6596,
+      "relevant_source_hashes": {
+        "guides/website/src/sky-sentinel.js": "f21705a41ba389f1315acac0f50e3ec641c88d7fd5b396a35cd3c03b21b0d5b4",
+        "guides/website/training.html": "0ebd55e74281a26d3be9ef826e3b2eb6b2ef51ee4673bdbf397a8f0ec162473f",
+        "tests/guides/test_training_game_engine.py": "382e2d462f491ca2a6a5310e45a1e6f85e0db8a046c0ca16851c0dfc23c81822",
+        "scripts/ci/profiles.py": "5d26d00431a61b232ca4089c3667834e9e1af6d061f09eaaf95d107067714ba8",
+        "tests/guides/tools/game_balance.py": "e1ad0d70fc08a1dedc8f43ef7f4babb8986a401e7cc0d19cba300db834f3eda0",
+        "scripts/ci/run.py": "ffd9aa7ea256006a4ef21265f85377f15db8f21aed06da02d4c073e30b14f60b"
+      },
+      "test_cases": [
+        {
+          "name": "test_every_ship_sits_in_the_single_target_band",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_wave_damage_and_boss_kill_time_sit_in_their_band[wave]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_wave_damage_and_boss_kill_time_sit_in_their_band[hunt]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_a_strength_is_paid_for_by_a_weakness",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_every_ship_reaches_and_damages_the_boss",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_every_weapon_upgrade_changes_a_measured_value_on_every_ship[vanguard]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_every_weapon_upgrade_changes_a_measured_value_on_every_ship[warden]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_every_weapon_upgrade_changes_a_measured_value_on_every_ship[specter]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_every_weapon_upgrade_changes_a_measured_value_on_every_ship[talon]",
+          "outcome": "passed"
+        },
+        {
+          "name": "test_every_weapon_upgrade_changes_a_measured_value_on_every_ship[raptor]",
+          "outcome": "passed"
+        }
+      ],
+      "test_counts": {
+        "passed": 10
+      },
+      "observed_properties": []
+    },
+    "fixture": {
+      "fixture_duration_monotonic_s": 313.58442158496473,
+      "started_utc": "2026-10-12T09:41:27.143801+00:00",
+      "ended_utc": "2026-10-12T09:46:25.276500+00:00",
+      "metric_deltas": {
+        "LayoutCount": 53578,
+        "RecalcStyleCount": 55685,
+        "LayoutDuration": 5.138765,
+        "RecalcStyleDuration": 2.733875,
+        "TaskDuration": 313.58206
+      }
+    },
+    "ships": [
+      "vanguard",
+      "warden",
+      "specter",
+      "talon",
+      "raptor"
+    ],
+    "configuration_count": 35,
+    "exact_json_equal": true,
+    "exact_bytes_equal": true,
+    "values_sha256": "fc99905a2c11975c66e0fa88e2848f648956d8518c8df565514ebdc55d3c8e31",
+    "fixture_time_delta_s": -99.89762213802896,
+    "layout_and_style_time_s": {
+      "baseline": 103.369599,
+      "repaired": 7.8726400000000005
+    }
+  },
+  "created_utc": "2026-10-12T10:17:37.869895+00:00",
+  "public_display_redaction": {
+    "unredacted_private_receipt": "nexus-v41311-ci-01a12d34:/artifacts/guide-hud-controls-20261012-01/guide-runtime-continuation.json",
+    "unredacted_private_receipt_sha256": "d0818fb2a4fe2c00988ad3543cda3c8929c7814fa9ff865e9bd7ee4de6204c5f",
+    "placeholder": "$CONTAINER_HOME",
+    "replacement_scope": "Four display-only container home prefixes; actual native capture artifacts, output hashes, source bindings and measurements are unchanged. The placeholder is not a literal executed path.",
+    "json_paths": [
+      [
+        "baseline_profile",
+        "run",
+        "environment",
+        "HOME"
+      ],
+      [
+        "behavior_controls",
+        "original_red",
+        "environment",
+        "HOME"
+      ],
+      [
+        "behavior_controls",
+        "repaired_green",
+        "environment",
+        "HOME"
+      ],
+      [
+        "balance_comparison",
+        "repaired_complete_run",
+        "environment",
+        "HOME"
+      ]
+    ]
+  }
+}

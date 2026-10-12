@@ -62,6 +62,7 @@ from .base import (
     MarkdownIntegration,
     SkillsIntegration,
     YamlIntegration,
+    long_path,
 )
 from .result import FileAction, WriteResult
 
@@ -431,7 +432,7 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
         """Write the single ``.cursor/rules/nexus-hub.mdc`` project stub."""
         rules_dst = workspace_root / self.config["rules_subdir"]
         if not ctx.dry_run:
-            rules_dst.mkdir(parents=True, exist_ok=True)
+            long_path(rules_dst).mkdir(parents=True, exist_ok=True)
         dst = rules_dst / "nexus-hub.mdc"
         body = (
             "---\n"
@@ -444,15 +445,16 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
             "`~/.cursor/` for catalog-level guidance.\n"
         )
         body_bytes = body.encode("utf-8")
-        if dst.exists():
-            if dst.read_bytes() == body_bytes:
+        dst_io = long_path(dst)  # AR-11: a deep project root passes MAX_PATH
+        if dst_io.exists():
+            if dst_io.read_bytes() == body_bytes:
                 ctx.manifest.track(self.key, str(dst))
                 return FileAction(path=str(dst), action="unchanged")
             if not ctx.dry_run:
-                dst.write_bytes(body_bytes)
+                dst_io.write_bytes(body_bytes)
             ctx.manifest.track(self.key, str(dst))
             return FileAction(path=str(dst), action="updated")
         if not ctx.dry_run:
-            dst.write_bytes(body_bytes)
+            dst_io.write_bytes(body_bytes)
         ctx.manifest.track(self.key, str(dst))
         return FileAction(path=str(dst), action="created")

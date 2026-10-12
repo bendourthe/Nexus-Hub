@@ -111,7 +111,8 @@ PLAN_STATUS="$HOME/.nexus-hub/scripts/plan_status.py"
 if [ -f "$PLAN_STATUS" ]; then
   for _py in python3 python; do
     if command -v "$_py" >/dev/null 2>&1 && "$_py" -c "import sys" >/dev/null 2>&1; then
-      _plan_out=$("$_py" "$PLAN_STATUS" --digest --root "$PROJECT_ROOT" 2>/dev/null | head -1 | tr -d '\r')
+      # UTF-8 mode: Windows Git Bash would otherwise decode through the ANSI code page.
+      _plan_out=$(PYTHONUTF8=1 PYTHONIOENCODING=utf-8 "$_py" "$PLAN_STATUS" --digest --root "$PROJECT_ROOT" 2>/dev/null | head -1 | tr -d '\r')
       case "$_plan_out" in Plan:*) PLAN_LINE="$_plan_out" ;; esac
       break
     fi

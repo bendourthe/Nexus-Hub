@@ -11,6 +11,10 @@
    card shared the name "Copy to clipboard", and scope descriptions started at a different x on
    each row because a long key outgrew a ``min-width`` column. Names are now h3 headings in the
    code role, each button names what it copies, and every row shares the card's key track.
+3. Foundations opening figure on a phone (WN-8-v41310): stacked in one column it was 1434 px tall
+   at 390 px, three screens of drawing before the page began. Below 720 px the four parts now sit
+   in a two-by-two grid and the drawing drops aria-hidden detail, so it fits under 600 px; wider
+   layouts keep the composer column beside the Model.
 
 Browser tests skip when Playwright or Chromium is missing, and fail closed under
 NEXUS_REQUIRE_RENDER=1 so CI cannot silently lose coverage.
@@ -188,3 +192,39 @@ def test_scope_descriptions_start_at_one_x_per_card(browser, width: int) -> None
             assert r["cells"] == 2 and r["sameRow"] and r["key"] <= r["x"] + 0.5, (width, card["name"], r)
         checked += len(rows)
     assert checked >= 50, checked
+
+
+FIG_JS = """() => { const f = document.querySelector('#page-foundations figure.fxo'), R = s => f.querySelector(s).getBoundingClientRect();
+  const box = r => ({ l: r.left, t: r.top, r: r.right, b: r.bottom });
+  return { height: f.getBoundingClientRect().height, scrollWidth: document.documentElement.scrollWidth, innerWidth: innerWidth,
+           p: box(R('.fxo-prow')), c: box(R('.fxo-ctx')), t: box(R('.fxo-tokrow')), m: box(R('.fxo-node')), chat: box(R('.fxo-chat')),
+           pipe: R('.fxo-pipe').width, links: [...f.querySelectorAll('a')].map(a => { const r = a.getBoundingClientRect(); return r.width * r.height; }) }; }"""
+
+
+@pytest.mark.parametrize("width", [390, 430])
+def test_foundations_figure_fits_a_phone_screen(browser, width: int) -> None:
+    """WN-8-v41310: on a phone the opening figure is one screen, its four parts a two-by-two grid in reading order."""
+    context, page = _page(browser, "#foundations", width)
+    try:
+        fig = page.evaluate(FIG_JS)
+    finally:
+        context.close()
+    assert fig["height"] <= 600, f"the figure is {fig['height']:.0f}px tall at {width}px"
+    assert fig["scrollWidth"] == fig["innerWidth"], fig["scrollWidth"]
+    p, c, t, m = fig["p"], fig["c"], fig["t"], fig["m"]
+    assert abs(p["t"] - c["t"]) <= 1 and abs(t["t"] - m["t"]) <= 1, "Prompt beside Context Window, Tokens beside Model"
+    assert abs(p["l"] - t["l"]) <= 1 and abs(c["l"] - m["l"]) <= 1 and p["r"] <= c["l"], "two columns"
+    assert max(p["b"], c["b"]) <= t["t"], "the second row starts below the first"
+    assert len(fig["links"]) == 6 and all(a > 0 for a in fig["links"]), fig["links"]
+
+
+@pytest.mark.parametrize("width", [720, 1280])
+def test_foundations_figure_keeps_the_wide_layout(browser, width: int) -> None:
+    """From 720 px the composer column still sits beside the Model, joined by the connector."""
+    context, page = _page(browser, "#foundations", width)
+    try:
+        fig = page.evaluate(FIG_JS)
+    finally:
+        context.close()
+    assert fig["m"]["l"] >= fig["chat"]["r"] and fig["pipe"] > 0, fig
+    assert fig["p"]["b"] <= fig["c"]["t"] <= fig["t"]["t"], "Prompt, Context Window, Tokens stack in the composer column"

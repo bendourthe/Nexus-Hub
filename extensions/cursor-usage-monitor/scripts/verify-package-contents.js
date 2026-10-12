@@ -35,8 +35,15 @@ const FORBIDDEN_PATTERNS = [
   /(^|\/)\.env(?:\.|$)/,
   /(^|\/)auth\.json$/i,
   /(^|\/)secrets?[^/]*$/i,
+  /(^|\/)credentials?[^/]*$/i,
+  /(^|\/)tokens?\.json$/i,
+  /\.token$/i,
+  /(^|\/)id_(?:rsa|dsa|ecdsa|ed25519)[^/]*$/i,
   /\.pem$/i,
-  /\.key$/i
+  /\.key$/i,
+  /\.p12$/i,
+  /\.pfx$/i,
+  /(^|\/)\.npmrc$/i
 ];
 
 function listPackagedFiles() {

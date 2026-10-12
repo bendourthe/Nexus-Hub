@@ -268,14 +268,17 @@ class IntegrationBase:
 
         result = WriteResult(files=remove_org_knowledge(self.key, ctx))
         for path_str in list(ctx.manifest.files_for(self.key)):
-            path = Path(path_str)
+            path = long_path(Path(path_str))
             if path.is_file():
                 if not ctx.dry_run:
                     path.unlink(missing_ok=True)
                 result.add(path_str, "removed")
             elif path.is_dir():
                 if not ctx.dry_run:
-                    shutil.rmtree(path, ignore_errors=True)
+                    try:
+                        path.rmdir()
+                    except OSError:
+                        shutil.rmtree(path, ignore_errors=True)
                 result.add(path_str, "removed")
             else:
                 result.add(path_str, "not-found")

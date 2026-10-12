@@ -137,7 +137,10 @@ def test_job_runs_inside_the_extension_directory(workflow: dict[str, Any]) -> No
 def test_gate_covers_clean_install_compile_coverage_and_packaging(
     build_steps: list[dict[str, Any]],
 ) -> None:
-    assert step_named(build_steps, "Install dependencies")["run"].strip() == "npm ci"
+    assert (
+        step_named(build_steps, "Install dependencies")["run"].strip()
+        == "npm ci --ignore-scripts"
+    )
     assert "npm run compile" in step_named(build_steps, "Compile (tsc)")["run"]
     assert (
         "npm run test:coverage"

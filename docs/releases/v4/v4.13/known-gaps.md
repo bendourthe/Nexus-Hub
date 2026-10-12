@@ -2,8 +2,8 @@
 
 **Project**: Nexus-Hub
 **Status**: released; PR #230 merged the complete 34-task plan and tag `v4.13.0` was published on 2026-09-21. Two bounded warning-class findings remain owned for future measurement work. GitHub branch protection passed a live pull-request gate test; the second trigger pilot stopped on an unproven spend bound.
-**Last updated**: 2026-10-10
-**Open items**: 96
+**Last updated**: 2026-10-12
+**Open items**: 83
 **Accounting, 2026-10-09 (v4.13.11 T006-T007)**: The Open items header is derived from current parsed state, including canonical historical owners. Patch Summary tables preserve their release-time snapshots; they do not replace the current header count. Original patch/ID identities remain in the source bodies and the reconciliation manifest.
 
 Release-scoped gaps for the evidence-driven agent improvement plan. Planned future-phase work is tracked in the plan rather than reported as completed here.
@@ -25,6 +25,14 @@ Release-scoped gaps for the evidence-driven agent improvement plan. Planned futu
 
 #### BG-7-v4130: The second pilot's per-call budget did not bound reported cost
 
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: catalog maintainer
+- **Severity**: medium - the approved USD 35 hard ceiling cannot be guaranteed when one call can exceed its USD 0.50 reservation
+- **Blocker**: user-credential - BG-7-v4130 needs a Claude Console workspace API key with a provider-enforced spend cap; the host authenticates only as claude.ai Team (preflight 2026-09-24), so no bounded paid call is possible.
+- **Acceptance**: A provider-enforced ceiling or proven per-call upper bound exists, pre-call reservation and crash-safe per-call receipts are fixed and tested, and a new protocol is frozen before any further paid call
+- **Proving command**: manual: confirm the runner authenticates with a Claude Console workspace API key whose provider-enforced spend cap is recorded in a newly frozen trigger-pilot-2 protocol
+- **Future plan**: v4.14 known-gaps sweep
+
 **Source phase**: 2026-09-23 post-release trigger follow-up. **Plan reference**: [`trigger-pilot-2/protocol.md`](../../../archives/v4/v4.13/development/trigger-pilot-2/protocol.md). **Reason**: the first two strong-tier calls reported USD 0.6540 and USD 0.6292, each above the runner's USD 0.50 per-call reservation, and both had unknown selector evidence. The process was interrupted; no complete result file exists. The aggregate check cannot guarantee the approved hard USD 35 ceiling when a call can exceed the amount reserved for it.
 
 **Owner**: catalog maintainer. **Status**: open; the second pilot is `UNMEASURED`. **Suggested next step**: establish a provider-enforced ceiling or proven per-call upper bound, fix and test pre-call reservation and crash-safe per-call receipts, then freeze a new protocol before spending again. Preserve the [aborted attempt](../../../archives/v4/v4.13/development/trigger-pilot-2/attempt.md) and the original 96-call evidence unchanged.
@@ -43,6 +51,14 @@ Release-scoped gaps for the evidence-driven agent improvement plan. Planned futu
 
 #### WN-3-v4130: The shipped catalog under-triggers on its own positive prompts
 
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: catalog maintainer
+- **Severity**: medium - the shipped catalog selected the skill on 1/8 (fast) and 3/8 (strong) positive prompts
+- **Blocker**: user-credential - WN-3-v4130 requires a new paid frozen trigger pilot, which is blocked until BG-7 establishes a provider-enforced spend cap on a Console workspace key.
+- **Acceptance**: A new frozen trigger pilot, with a candidate designed against the recorded data, decides whether the authoring guidance changes; no description changes on the strength of this finding alone
+- **Proving command**: manual: a new frozen pilot's results file records positive-prompt selection for the candidate arm against the shipped control arm
+- **Future plan**: v4.14 known-gaps sweep
+
 **Source phase**: Phase 6. **Plan reference**: T022, T023. **Reason**: the pilot's control arm is the currently shipped corpus. Across four sampled skills and eight positive prompts it selected the skill on **1/8** with the fast model and **3/8** with the strong model, while producing **zero** irrelevant selections across all 32 near-miss and trivial-edit prompts. The catalog's measured failure mode is under-triggering, not over-triggering.
 
 **Evidence**: `development/trigger-pilot-results.md` and the raw `trigger-pilot-results.json` (96/96 calls, 0 failures, 0 evidence-missing). The regression is concentrated in `skill-description-authoring` on the strong model, 2/2 to 0/2 under the candidate wording.
@@ -52,6 +68,14 @@ Release-scoped gaps for the evidence-driven agent improvement plan. Planned futu
 **Original source identity**: `v4.13.0#WN-3`; stable ID `WN-3-v4130` distinguishes this obligation from repeated IDs in other patch sections.
 
 #### WN-5-v4130: The recorded pilot run cannot be re-audited for the loose selection matcher
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: catalog maintainer
+- **Severity**: low - the matcher defect can only inflate a positive, and the MEASURED_NO_CHANGE disposition does not turn on it
+- **Blocker**: user-deferred - WN-5-v4130's 96 historical tool payloads were never retained and cannot be recovered; future runs retain selectors, so only maintainer acceptance can close the historical clause.
+- **Acceptance**: The maintainer records acceptance that the 96 historical tool payloads are unrecoverable, with future runs retaining `skill_selectors`
+- **Proving command**: manual: the ledger records the maintainer's dated acceptance of the unrecoverable historical payload gap
+- **Future plan**: v4.14 known-gaps sweep
 
 **Source phase**: Phase 7. **Plan reference**: T030 (Tier 3 deep pass, adversarial step). **Reason**: the runner scored a selection with a substring test over the whole serialized `Skill` tool input, so a call invoking a different skill while mentioning the target would have counted. The matcher is fixed and covered by tests, but the recorded 96-call run did not retain tool-call payloads, so its five positive rows cannot be re-checked directly.
 
@@ -484,6 +508,14 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 ### AR-26: No live macOS installer smoke has been recorded
 
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: installation owner on a macOS host
+- **Severity**: low - stated Low in the origin entries (macOS bash path auto-verified in CI; only the live-network one-liner is manual)
+- **Blocker**: user-deferred - AR-26 needs the macOS smoke checklist and a live --branch install on a real macOS host; the v4.13.11 host is Windows only and CI covers only the local tarball bootstrap.
+- **Acceptance**: The macOS smoke checklist and a live `--branch` install are run on a real macOS host and their results recorded
+- **Proving command**: manual: on a macOS host run `curl | bash` and a `--branch` install and record each step's result in the mac-smoke-test checklist
+- **Future plan**: v4.14 known-gaps sweep
+
 - **Current state**: every step in the v3.7 `development/mac-smoke-test.md` is still pending; CI covers the tarball bootstrap only.
 - **Owner and next step**: installation owner on a macOS host; run `curl | bash` and a `--branch` install and record results. Related to v4.4 HT-2 in the inventory above.
 - **Historical transfer note**: v3.0#DF-v30-8 and v3.7, v3.8, v3.9#WN-v37-1 on 2026-09-29 (reason: one obligation recorded four times, still open).
@@ -599,6 +631,14 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 ### AR-40: Two installer tests fail intermittently in long local runs
 
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: installer/test maintainer
+- **Severity**: low - environment-only OneDrive contention; both tests pass in isolation and in CI, not a release blocker
+- **Blocker**: user-deferred - AR-40 can only close on hosted-CI evidence plus repeated clean full installer runs, since a single green local run cannot disprove a non-deterministic OneDrive flake.
+- **Acceptance**: v4.13.1 BG-2 is verified in hosted CI and a full local installer run is clean; if either test fails in CI it is treated as a real defect
+- **Proving command**: `python -m pytest tests/installer -q`
+- **Future plan**: v4.14 known-gaps sweep
+
 - **Current state**: possibly the real-home leak that v4.13.1 BG-2 fixed for `test_selection_parity.py` (commit `ad768ca9`); unproven, and `test_org_cli.py` is not covered by that fix.
 - **Owner and next step**: installer/test maintainer; close after v4.13.1 BG-2 is verified in hosted CI and a full local installer run is clean.
 - **Historical transfer note**: v3.18.2#BG-2 on 2026-09-29 (reason: still open).
@@ -624,6 +664,14 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 ### Permissions and platform contracts
 
 ### AR-16: Permission-matcher behaviors remain unprobed
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: `platform-contract-verification` owner
+- **Severity**: medium - if the matcher admits redirects under allow rules, every trailing-wildcard baseline pattern is a file-truncation primitive
+- **Blocker**: user-credential - AR-16 NI-1 needs an interactive Claude Code session on the user's account to observe whether `echo x > file` prompts under a `Bash(echo *)` allow rule.
+- **Acceptance**: The Claude Code redirect probe and the Gemini compound-command probe each record a MATCH, DRIFT, or UNVERIFIED verdict, and the Gemini PowerShell / `cmd.exe` read-only set is decided after the Gemini splitting verdict
+- **Proving command**: manual: in a throwaway project with one `Bash(echo *)` allow rule on a current Claude Code build, observe whether `echo x > /tmp/probe` prompts, and record the verdict beside the permission findings
+- **Future plan**: v4.14 known-gaps sweep
 
 - **Current state**: output redirection under an explicit allow rule, whether Gemini splits compound commands, and a Gemini PowerShell / `cmd.exe` read-only set are all still UNVERIFIED in the v3.17 `development/permission-matcher-findings.md` and `configs/permissions/gemini-permissions.json`.
 - **Owner and next step**: `platform-contract-verification` owner; run the recorded probes against current builds.
@@ -676,6 +724,14 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 ### AR-17: Permission distribution covers few platforms and scopes
 
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: installer maintainer
+- **Severity**: low - platforms without a researched target skip with a note rather than receiving a guessed path
+- **Blocker**: vendor-feature - AR-17 DF-2 needs Gemini and Codex to document a project-scoped permission path; none was documented well enough to write.
+- **Acceptance**: Gemini and Codex project-scoped permission paths are researched, the Copilot `.vscode/settings.json` decision is recorded, and install / uninstall / repair is exposed through the `nexus-hub` CLI
+- **Proving command**: `python scripts/nexus_hub_cli.py --help`
+- **Future plan**: v4.14 known-gaps sweep
+
 - **Current state**: only Claude is wired at workspace scope; `Install-Nexus-Hub-Permissions.ps1` has no cross-platform equivalent; `configs/permissions/` covers 4 of 16 integrations.
 - **Owner and next step**: installer maintainer; research Gemini and Codex project paths, decide Copilot `.vscode/settings.json`, and add a `nexus-hub` permissions command.
 - **Historical transfer note**: v3.17.0#DF-2, v3.17.0#DF-3, and v3.17.0#DF-5 on 2026-09-29 (reason: still open).
@@ -721,6 +777,14 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-17`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.17.0`, section `v3.17.0 - agent-autonomy-toggle`, and original ID `DF-5`.
 
 ### AR-36: Unverified platform read-path residuals
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: platform-contract owner
+- **Severity**: low - stated Low in the origin entries DF-v3121-agy-cli-workflows and DF-v3121-gemini-ide-skill-dir
+- **Blocker**: user-credential - AR-36 needs authenticated Antigravity CLI and Cursor UI read-backs, Gemini Code Assist IDE observation and Nexus-AI private-repo access; the 2026-09-27 host was not signed in.
+- **Acceptance**: Authenticated Antigravity CLI and Cursor UI read-backs, Gemini Code Assist IDE observation and the Nexus-AI project-mirror read path are recorded in `docs/policy/platform-read-contracts.md`, and the maintainer decides whether `antigravity2` stops writing the retired workflow paths after October 19
+- **Proving command**: manual: with a signed-in Antigravity CLI and Cursor, read back a documented agent and a global command and record each result in `docs/policy/platform-read-contracts.md`
+- **Future plan**: v4.14 known-gaps sweep
 
 **Local clause qualification, 2026-10-10 (v4.13.11 T028)**: `platform-read-contracts.md` carries a dated Antigravity legacy-workflow retirement clause; a re-fetch of the vendor migration guide on 2026-10-10 gives October 19, 2026, earlier than the November 1 date in the archived recheck, and `check_platform_contract_freshness.py` passes. Residuals: authenticated Antigravity CLI, Cursor UI, Gemini Code Assist and Nexus-AI read-backs (user-credential), and whether the `antigravity2` adapter stops writing the retired workflow paths after October 19 (user-deferred maintainer decision).
 
@@ -796,10 +860,18 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-36`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.3.0`, section `v4.3.0 - agentic-verification-discipline`, and original ID `WN-3`.
 
-### AR-38: No invocation-policy lever on five platforms
+### AR-38: Invocation-policy support remains incomplete across five platforms
 
-- **Current state**: `docs/policy/skill-invocation-policy-levers.md` still documents none for Antigravity, OpenCode, Kimi, Hermes, and Nexus-AI.
-- **Owner and next step**: platform-contract owner; re-check each release and close when a first-party vendor document names a field.
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: platform-contract owner
+- **Severity**: low - incomplete native invocation support stays explicitly recorded for the retained platform clauses
+- **Blocker**: vendor-feature - The 2026-10-12 primary-source review qualifies Kimi's compatible model-invocation alias and documents OpenCode native metadata, whose mapper remains unimplemented. Antigravity and Hermes document no matching per-skill toggle; the inspected Nexus-AI reader does not qualify invocation enforcement.
+- **Acceptance**: All five platform clauses have a first-party invocation contract and matching delivery qualification recorded in `docs/policy/skill-invocation-policy-levers.md`; Kimi's compatible alias is already qualified, while OpenCode needs its documented metadata mapper and the remaining contracts stay unqualified.
+- **Proving command**: manual: re-check each vendor's documentation at the release pass and record the dated result in `docs/policy/skill-invocation-policy-levers.md`
+- **Future plan**: v4.14 known-gaps sweep
+
+- **Current state (2026-10-12)**: [The invocation survey](../../../policy/skill-invocation-policy-levers.md) qualifies Kimi's existing generic alias, supersedes OpenCode's historical none-documented claim with native keys and an unimplemented mapper, and preserves the Antigravity, Hermes and Nexus-AI limitations. Authenticated host enforcement and whole-code absence are not claimed.
+- **Owner and next step**: platform-contract owner; implement and prove the documented OpenCode mapper, re-check the remaining first-party contracts each release, and close only when every retained clause is qualified.
 - **Historical transfer note**: v3.20.3#DF-1 on 2026-09-29 (reason: vendor-dependent, still open).
 
 **Transfer review, 2026-10-09 (v4.13.11 T007)**: The blocks below preserve complete historical obligations and their later partial dispositions. Current remaining clauses are assessed independently; historical fixed clauses do not reopen.
@@ -838,6 +910,14 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-45`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.10`, section `v3.15.10 - end-of-task-agent-behavior`, and original ID `DF-14`.
 
 ### AR-47: The legacy Cursor global commands write is unverified and redundant
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: installer maintainer
+- **Severity**: low - stated not blocking; writing a directory Cursor ignores is harmless
+- **Blocker**: vendor-feature - AR-47 needs first-party Cursor documentation or a live read-back confirming ~/.cursor/commands is unread before the redundant write is removed.
+- **Acceptance**: First-party Cursor documentation or a live read-back confirms `~/.cursor/commands` is unread, and the redundant global write is removed with a test
+- **Proving command**: `python -m pytest tests/integrations/test_cursor.py -q`
+- **Future plan**: v4.14 known-gaps sweep
 
 - **Current state**: `scripts/lib/integrations/cursor.py` still writes both command directories and labels the global one UNVERIFIED.
 - **Owner and next step**: installer maintainer; confirm at the next Cursor contract pass, then remove the redundant write with a test.
@@ -903,6 +983,14 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 ### AR-56: Upstream-blocked hook surfaces
 
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: platform-contract owner
+- **Severity**: low - global hooks still apply; users lose only per-project hook scoping
+- **Blocker**: vendor-feature - AR-56 DF-12 needs Gemini CLI to document directly-written extension hook directories as loaded.
+- **Acceptance**: Gemini CLI documents that a directly written extension hook directory is loaded (global hooks then move there), and Kimi documents a project-scoped hook path (workspace hooks then ship through the marker-block merge)
+- **Proving command**: manual: re-check the Gemini CLI extension reference and the Kimi configuration reference at the next contract pass and record the result
+- **Future plan**: v4.14 known-gaps sweep
+
 - **Current state**: the Gemini CLI extension-packaged hook path is unused, and Kimi has no project-scoped hook path.
 - **Owner and next step**: platform-contract owner; re-check vendor docs at the next pass.
 - **Historical transfer note**: v3.15.8#DF-12 and v3.15.8#DF-13 on 2026-09-29 (reason: vendor-dependent, still open).
@@ -932,6 +1020,14 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-56`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.8`, section `v3.15.8`, and original ID `DF-13`.
 
 ### AR-57: Agent and hook delivery never observed on real Codex, Gemini CLI, Qwen, and Kimi installs
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: maintainer on a host with those tools
+- **Severity**: low - the written artifacts are test-proven; only live loading is unobserved and a wrong Windows shell degrades to a warning
+- **Blocker**: user-credential - AR-57 needs authenticated Codex, Gemini CLI, Qwen and Kimi installs to observe agent loading, hook firing and the Windows dispatch shell.
+- **Acceptance**: One live pass records agent loading, hook firing and the observed Windows dispatch shell for Codex, Gemini CLI, Qwen and Kimi in the read-contract verification block
+- **Proving command**: manual: on a host with each CLI installed, confirm the emitted agents are listed and a project-scope hook fires, and record the observed shell in the read-contract verification block
+- **Future plan**: v4.14 known-gaps sweep
 
 - **Current state**: the v3.15.8 consolidated live pass has no recorded result.
 - **Owner and next step**: maintainer on a host with those tools; one live pass recorded in the read-contract verification block.
@@ -975,6 +1071,14 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 ### Catalog, validators, and tests
 
 ### AR-04: The skill-description eval harness builds CLI flags that do not exist
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: eval-pipeline owner
+- **Severity**: medium - stated Medium on origin BG-v30-1; the live-confirmation origins DF-v30-6 and DF-v30-7 are stated Low
+- **Blocker**: user-credential - AR-04 live trigger-rate and technique checks require paid model calls under a bounded spend cap, blocked with BG-7.
+- **Acceptance**: Live trigger and technique checks run under a bounded spend cap confirm 1.0 positive / 0.0 fenced-negative per listed skill and the three eval-harness techniques
+- **Proving command**: manual: a capped live run of `scripts/optimize_skill_description.py` records per-skill trigger results; flag validity is covered by `python -m pytest tests/validators/test_eval_harness_cli_flags.py -q`
+- **Future plan**: v4.14 known-gaps sweep
 
 **Local clause qualification, 2026-10-10 (v4.13.11 T028)**: The description optimizer now builds only flags the installed CLIs accept (Claude Code 2.1.283, codex-cli 0.136.0), staging the skill in a throwaway project and reusing the trigger pilot's invocation; `tests/validators/test_eval_harness_cli_flags.py` checks every emitted flag against captured help fixtures offline and fails on the previous builder, which emitted `--skill` and `--prompt`. Residual (user-credential): the live trigger and technique checks need paid model calls under a bounded spend cap, blocked with BG-7.
 
@@ -1128,7 +1232,9 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-06`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.14.2`, section `v3.14.2`, and original ID `WN-1`.
 
-### AR-07: Many SKILL.md bodies exceed the 500-line target
+### AR-07: Many SKILL.md bodies exceed the 500-line target - CLOSED
+
+**Closure, 2026-10-10 (v4.13.11 Phase 8, maintainer decision)**: Retired as a gap item, recorded in [the decision record](../../../decisions/implemented/tooling/2026-10-10-standing-skill-quality-targets-are-not-gap-items.md). The 500-line target, the 800-line hard cap enforced by `validate_skills.py --bundles-only`, and per-edit relocation to `references/` stay in force; a standing coverage target cannot reach a terminal state in one change. Reopening trigger: a specific skill whose body length causes a measured loading failure becomes its own gap.
 
 - **Current state**: 68 of 338 exceed 500 lines including frontmatter on 2026-09-29 (for example observability-setup and multi-agent-coordinator).
 - **Owner and next step**: catalog maintainer; move long sections into `references/` whenever a skill is next edited.
@@ -1161,7 +1267,9 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-07`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.16.2`, section `v3.16.2 - loop-longevity-and-doctor-preflight`, and original ID `NI-2`.
 
-### AR-08: Missing direct tests
+### AR-08: Missing direct tests - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 8 T035)**: The last clause is closed: `scripts/ci/profiles.py` registers `tests/integrations/test_map_cli.py` as `repo-tests-integrations-map` with the code-search source on the path (4 passed locally), and the five Phase 7 integration tests that were missing from every partition are now listed too; `test_repository_suite_is_partitioned_without_coverage_gaps` and `test_every_repo_test_file_is_collected_by_ci` pass. Every earlier AR-08 clause was closed in Phases 3 and 4. See [Phase 8 verification](development/v4.13.11-last-phase-evidence.md).
 
 **Local clause qualification, 2026-10-10 (v4.13.11 Phase 4 T017)**: Strict YAML (`v3.14.3#MT-1`) is proved by seven direct and `--bundles-only` CLI tests in `tests/validators/test_validate_skills.py`. The model-routing helpers (`v3.4#DF-v34-1`) are proved by 66 hermetic tests in `catalog/hooks/tests/test_model_routing_helpers.py` across the `.sh` and `.ps1` siblings (missing tools give the documented picker fallback with no invented models; unknown platform exits 2); the exercise found BG-20, fixed. The real default guard suite (`v3.15.5#MT-4`) runs end to end in a disposable clone (slow test, about 42 s), keeping a passing edit and reverting a failing one byte for byte. That exercise found three engine defects, BG-19, all fixed with tests that fail on the previous engine. The optional `make lint` ShellCheck gate for skill scripts named in `v3.4#DF-v34-1` was not adopted. AR-08 now remains open only for terminal CI registration of `tests/integrations/test_map_cli.py`, owned by Phase 8. See [Phase 4 verification](development/v4.13.11-phase-4-evidence.md).
 
@@ -1236,7 +1344,9 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-08`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.5`, section `v3.15.5 - model-prompting-research`, and original ID `MT-4`.
 
-### AR-09: Most skills lack trigger-case evals
+### AR-09: Most skills lack trigger-case evals - CLOSED
+
+**Closure, 2026-10-10 (v4.13.11 Phase 8, maintainer decision)**: Retired as a gap item, recorded in [the decision record](../../../decisions/implemented/tooling/2026-10-10-standing-skill-quality-targets-are-not-gap-items.md). `evals/trigger-cases.json` stays optional by contract (missing warns, never fails), and trigger cases are still added when a skill is next rewritten, prioritizing dual-use and high-traffic routing collisions. Reopening trigger: a measured routing collision on a specific skill becomes its own gap.
 
 - **Current state**: 88 of 338 skills have `evals/trigger-cases.json`. Related to v4.13.0 WN-3.
 - **Owner and next step**: catalog maintainer; add cases as skills are rewritten.
@@ -1357,6 +1467,14 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 ### AR-15: v3.11 spec-kit items S5, S6, and S8 carry no status claim
 
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: not stated in source; maintainer to set
+- **Severity**: low - S5, S6 and S8 already carry recorded per-item verdicts; only the upstream re-check remains
+- **Blocker**: user-deferred - AR-15 upstream delta verification needs a fresh repository comparison against github/spec-kit, which this offline audit cannot perform.
+- **Acceptance**: A repository-delta comparison against `github/spec-kit` re-verifies S5, S6 and S8 and records a verdict per item
+- **Proving command**: manual: the next spec-kit repository-delta comparison report records an explicit verdict for S5, S6 and S8
+- **Future plan**: next spec-kit repository-delta comparison pass
+
 **Local clause qualification, 2026-10-10 (v4.13.11 T028)**: Per-item verdicts are recorded in the archived v3.11.0 spec-kit comparison: S5 delivered (`label-gated-agent-pipelines`), S6 delivered (`agent-presets`, `loop-engineering`, `agent-orchestration-primitives`), S8 delivered for `nexus-hub init --target` via AR-01 (the suggested install-docs monorepo note was not shipped). Residual (user-deferred): the upstream repository-delta re-check needs a fresh comparison against the upstream project.
 
 - **Current state**: no later record states their status; S8's functional half is AR-01.
@@ -1441,6 +1559,14 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 ### AR-28: Retired slash-command names remain in skill bodies
 
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: catalog maintainer
+- **Severity**: low - stated Low in origin DF-v32cmd-1 (prose-only staleness; menu noise resolved, hard breakages fixed)
+- **Blocker**: user-deferred - AR-28 still has about 134 retired slash-command mentions across about 25 skills (90 found for a 10-name sample), a multi-hour context-sensitive sweep.
+- **Acceptance**: No catalog skill body or style guide names a removed slash command; each old `/name` maps to its consolidated form
+- **Proving command**: `grep -rn "/generate-plan\|/refactor-project\|/analyze-spec\|/run-penetration-test" catalog`
+- **Future plan**: v4.14 known-gaps sweep
+
 - **Current state**: 134 mentions such as `/generate-plan` and `/tasks-to-issues`.
 - **Owner and next step**: catalog maintainer; one modernization sweep.
 - **Historical transfer note**: v3.2#DF-v32cmd-1 on 2026-09-29 (reason: still open).
@@ -1471,6 +1597,14 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-28`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.2`, section `Open Items`, and original ID `DF-v32cmd-1`.
 
 ### AR-33: Subprocess-driven validator tests have no coverage measurement
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: CI/test infrastructure owner
+- **Severity**: low - stated non-blocking; behavioral coverage is strong
+- **Blocker**: user-deferred - AR-33 has no subprocess coverage plumbing; adding it with a measured threshold for tests/validators is CI infrastructure deferred to its own version.
+- **Acceptance**: Subprocess coverage plumbing (`COVERAGE_PROCESS_START`) is added once for `tests/validators` in `conftest.py` and CI, with a measured threshold
+- **Proving command**: `grep -rn COVERAGE_PROCESS_START tests/validators/conftest.py .github/workflows`
+- **Future plan**: v4.14 known-gaps sweep
 
 - **Current state**: no coverage configuration or `COVERAGE_PROCESS_START` anywhere.
 - **Owner and next step**: CI/test infrastructure owner; add subprocess coverage plumbing and a threshold.
@@ -1505,6 +1639,14 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-33`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.5`, section `v3.15.5 - model-prompting-research`, and original ID `MT-2`.
 
 ### AR-34: No repository-wide Ruff baseline
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: CI owner
+- **Severity**: low - pre-existing tooling debt; the reported graph/affected.py findings are fixed
+- **Blocker**: user-deferred - AR-34 measures 214 Ruff findings in scripts/lib/integrations and 1619 repo-wide on 2026-10-10, needing a dedicated baseline-and-batches lint cycle.
+- **Acceptance**: A repository-wide Ruff baseline is set, the small findings are fixed in reviewable batches, and new findings are gated
+- **Proving command**: `python -m ruff check scripts/lib/integrations`
+- **Future plan**: v4.14 known-gaps sweep
 
 **Local clause qualification, 2026-10-10 (v4.13.11 T011)**: The inherited `v3.15.1#WN-2` clause is fixed by removing only the unused EdgeKind import and frontier assignment. Ruff F401/F841 passes; affected graph, CLI and server tests pass and a tiny actual CLI graph returns exactly tests/test_utils.py. AR-34 remains open for its broader repository-wide baseline and unrelated findings. Evidence: [Phase 3 checkpoint](development/v4.13.11-phase-3-checkpoint.json).
 
@@ -1592,7 +1734,9 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 ### Presentify
 
-### AR-18: Presentify builder and extractor limits
+### AR-18: Presentify builder and extractor limits - CLOSED
+
+**Closure, 2026-10-10 (v4.13.11 Phase 8, maintainer decision)**: The maintainer accepted the documented builder and extractor limits as by-design trade-offs, so no presentify change is scheduled. Reopening trigger: embedded media becomes a stated requirement, which then needs a size and offline strategy.
 
 **Local clause qualification, 2026-10-10 (v4.13.11 T028)**: The baseline builder gained opt-in base64 brand-font embedding (from the brand `assets_dir`, no network font reference, paths outside it refused) and gallery grouping for runs of comparable sub-hero images, with fixture tests in `tests/skills/test_presentify_brand_fonts_and_gallery.py`; the retained handbooks' rendered content is unchanged and both were re-attested. Residual (user-deferred): the remaining extractor limits.
 
@@ -1785,6 +1929,14 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-18`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.4`, section `v3.15.4 - presentify-visual-fidelity`, and original ID `DF-2`.
 
 ### AR-19: Presentify verification residuals
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: presentify owner
+- **Severity**: low - origin entries state the residuals are non-blocking and degrade cleanly
+- **Blocker**: user-deferred - AR-19 keeps live Wikimedia and Pexels source paths (Pexels needs an API key), GPU Tier-3 generation, agent-vision grading and the unimplemented composition probes; headless rendering works on this host, so only the v3.13 sample visual QA clause is locally runnable and it was not run in v4.13.11.
+- **Acceptance**: The sample-deck scorer smoke runs in the render job, and each remaining checker (live fetch smoke, agent-vision grading, Gates A, B and E, composition probes) is accepted or built
+- **Proving command**: `python -m pytest tests/skills/test_presentify_content_intent_and_accent.py -q`
+- **Future plan**: v4.14 known-gaps sweep
 
 **Local clause qualification, 2026-10-10 (v4.13.11 T028)**: `visual_qa_score.py` adds `content-intent` and `standalone-phrasing` findings and a `contrast-runtime-accent` check for `data-*accent*` values, with fixture tests in `tests/skills/test_presentify_content_intent_and_accent.py` (red before); the render job's sample smoke still exits 0. Residual (user-deferred): WN-1, MT-2, v4.9 MT-3, agent-vision grading and NI-3.
 
@@ -2324,6 +2476,14 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 ### AR-32: Usage-monitor extension test coverage
 
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: extensions owner
+- **Severity**: low - origin entries state it is not a release blocker
+- **Blocker**: user-deferred - AR-32 keeps the legacy-module coverage threshold, the extension-host modules that need a live VS Code host, and the original Codex icon artwork, none available locally.
+- **Acceptance**: The legacy Claude monitor modules are tested to the 80 percent line and statement floor, the extension-host modules are checked through the installed-VSIX method, and the Codex icon is swapped or accepted
+- **Proving command**: `npm --prefix extensions/claude-usage-monitor run test:coverage`
+- **Future plan**: v4.14 known-gaps sweep
+
 **Local clause qualification, 2026-10-10 (v4.13.11 T028)**: `extensions/claude-usage-monitor/test/recommendations.test.ts` adds 28 pure Vitest cases for the urgency and recommendation helpers (86 of 86 extension tests pass; four source mutants each fail the file). Residuals (user-deferred): the coverage threshold for the legacy modules, the modules that need a live VS Code extension host, and the original Codex icon artwork.
 
 - **Current state**: Claude `recommendations.ts`, `warningView`, and `extension.ts` lack tests; `claude-usage-monitor` has no coverage threshold while the Codex and Cursor monitors do; no live render check of the theme icon; the Codex `icon.png` is still the reconstructed 512x512 asset.
@@ -2399,6 +2559,14 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-32`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.17.0`, section `v3.17.0 - agent-autonomy-toggle`, and original ID `MT-1`.
 
 ### AR-44: The Cursor usage-monitor live visual smoke was never run
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: maintainer on a live Cursor host
+- **Severity**: low - visual smoke of an extension UI; no functional defect is recorded
+- **Blocker**: user-deferred - AR-44 needs a live Cursor host for the widened visual smoke; no Cursor session was available.
+- **Acceptance**: The status bar, three bars and three themes are observed on a live Cursor host and the result is recorded in `cursor-usage-live-smoke.md`
+- **Proving command**: manual: on a live Cursor host check the status bar, three bars and three themes and record the result in `cursor-usage-live-smoke.md`
+- **Future plan**: v4.14 known-gaps sweep
 
 - **Current state**: `cursor-usage-live-smoke.md` has no recorded result.
 - **Owner and next step**: maintainer on a live Cursor host; run status bar, three bars, and three themes and record the result.
@@ -2479,6 +2647,8 @@ No new Phase 4 implementation, regression, missing-test, or quality-gate gap rem
 
 ### AR-58: The installers still cite the pre-archive path of the install-selection contract - RESOLVED
 
+**Ratification, 2026-10-10 (v4.13.11 Phase 8)**: This installer comment edit was made in Phase 7 without being named in the approved installer list; the maintainer ratified keeping it on 2026-10-10.
+
 **Resolution, 2026-10-10 (v4.13.11 Phase 7 T028)**: The three installer comments now cite `docs/archives/v3/v3.16/development/install-selection-contract.md`, which exists; the distribution handbook was rebuilt and re-attested after the installer edits ([claim review](development/v4.13.11-phase-7-handbook-claim-review.md)). See [Phase 7 verification](development/v4.13.11-phase-7-evidence.md).
 
 - **Current state**: comments in `scripts/installer.sh` and `scripts/installer.ps1` (three lines) still name `docs/releases/v3/v3.16/development/install-selection-contract.md`, which now lives at `docs/archives/v3/v3.16/development/install-selection-contract.md`. They were deliberately not repointed: the `distribution` handbook binds the installers' bytes in `docs/handbooks/_sources/distribution/evidence.json`, so any edit makes `check_handbooks.py` report stale evidence until a content, build, and rendered review is re-run.
@@ -2493,7 +2663,9 @@ No new Phase 4 implementation, regression, missing-test, or quality-gate gap rem
 - **Owner and next step**: extensions owner; pin each manifest to the version its lockfile already resolves, one extension at a time, running that extension's build and Vitest suite before moving to the next.
 - **Historical transfer note**: recovered on 2026-09-30 from an unmerged local draft of the v4.1.0 Pi-adoption ledger (source: comparison item A3, supply-chain install hardening). The archived v4.1 ledger does not carry it (reason: still open; the manifest, lockfile, and `.npmrc` facts were re-verified on `develop` on 2026-09-30).
 
-### AR-60: Extension build workflows install with lifecycle scripts enabled
+### AR-60: Extension build workflows install with lifecycle scripts enabled - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 8 T035)**: All four usage-monitor workflows (`claude`, `codex`, `copilot`, `cursor`) now install with `npm ci --ignore-scripts`. Before the switch, each monitor was built twice in disposable copies of the repo with an isolated home and npm cache, once with plain `npm ci` and once with `--ignore-scripts`, through compile, `test:coverage`, `vsce package` and, for Cursor, `verify:package`. For every monitor the VSIX file lists (41, 43, 49, 59 entries) and every entry's bytes were identical, every compiled `out/` file was byte-identical (56, 60, 76, 96 files), and test counts matched (86, 128, 292, 313, all passing). ttf2woff2's native build already fails under plain `npm ci` and the library falls back to its prebuilt `dist` build; its only consumer is the local icon generator, which is not a CI step and still runs without install scripts, so no lifecycle-script allowlist is needed. `tests/workflows/test_copilot_usage_monitor_workflow.py` now asserts the flag on all four workflows.
 
 - **Current state**: `.github/workflows/claude-usage-monitor.yml` (line 46), `codex-usage-monitor.yml` (line 46), and `cursor-usage-monitor.yml` (line 52) run plain `npm ci`, not `npm ci --ignore-scripts` (line numbers as of 2026-09-30). The flag was held back for a specific reason: `ttf2woff2` is a native module that commonly relies on an install-time build step, so disabling lifecycle scripts could break icon generation in a way that only surfaces in CI. It is declared in all three manifests (the original draft said two of three; re-counted 2026-09-30). `.github/workflows/npm-audit.yml` does use `--ignore-scripts`, safely, because it installs only to read the dependency tree and never builds.
 - **Owner and next step**: extensions owner; run each extension's full build locally with `npm ci --ignore-scripts` and confirm the VSIX is byte-comparable. Where a native module genuinely needs its install step, add an explicit lifecycle-script allowlist rather than dropping the flag for the whole tree.
@@ -2502,6 +2674,14 @@ No new Phase 4 implementation, regression, missing-test, or quality-gate gap rem
 ### Hooks and notifications
 
 ### AR-46: The Windows notification linger was never measured
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: maintainer on a live Windows 10/11 desktop
+- **Severity**: low - the 5500 ms default works; only a shorter safe value is unmeasured
+- **Blocker**: user-deferred - AR-46 Windows toast linger needs a person watching a rendered notification to choose a value below the 5500 ms default.
+- **Acceptance**: The shortest safe `NEXUS_NOTIFY_LINGER_MS` is measured on a live Windows desktop and set in `catalog/hooks/_notify_common.sh` and its `.ps1` sibling
+- **Proving command**: manual: on a live Windows 10/11 desktop, watch rendered notifications at decreasing `NEXUS_NOTIFY_LINGER_MS` values and record the shortest safe value
+- **Future plan**: v4.14 known-gaps sweep
 
 - **Current state**: the default is still 5500 ms in `catalog/hooks/_notify_common.sh` and its `.ps1` sibling.
 - **Owner and next step**: maintainer on a live Windows 10/11 desktop; measure the shortest safe `NEXUS_NOTIFY_LINGER_MS`.
@@ -2606,6 +2786,14 @@ No new Phase 4 implementation, regression, missing-test, or quality-gate gap rem
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-35`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.14.0`, section `v3.14.0`, and original ID `DF-3`.
 
 ### AR-39: The official Claude plugin directory submission was never made
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: maintainer (manual form)
+- **Severity**: low - distribution listing only; no product defect
+- **Blocker**: user-credential - AR-39 is a manual Claude plugin-directory form submission on the maintainer's Anthropic account; README still says if Anthropic later lists.
+- **Acceptance**: The Claude plugin directory form is submitted and, after listing, the `@claude-plugins-official` install line is added to the README
+- **Proving command**: manual: confirm the submission was made and the README carries the `@claude-plugins-official` install line in place of "If Anthropic later lists..."
+- **Future plan**: v4.14 known-gaps sweep
 
 - **Current state**: README still says "If Anthropic later lists..."; the submission draft is `docs/archives/v3/v3.20/development/claude-marketplace-submission.md`.
 - **Owner and next step**: maintainer (manual form); submit, then add the install line to the README.
@@ -2986,6 +3174,14 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 ### AR-62: Exact installed helper delivery remains unproved across supported operating systems
 
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: Installer-smoke test owner
+- **Severity**: low - the exact helper expectation is qualified locally; only Linux and macOS installer receipts remain
+- **Blocker**: user-deferred - AR-62 keeps the Linux and macOS workspace-installer receipts for v1.1 DF-006 and DF-008; the Linux leg can run in a local Docker container on this host (Docker 29.2.1) but was not run in v4.13.11, and the macOS leg needs a macOS host.
+- **Acceptance**: Record an evidence-backed disposition for every current residual clause in this entry; retain unproved or account/host/human-bound clauses as PLAN. Complete original source obligations remain individually traceable below.
+- **Proving command**: manual: Follow each original source's retained command or manual protocol and record its actual output, host and scope. If the required host/account/person is unavailable, do not mark this owner resolved.
+- **Future plan**: v4.14 follow-up plan that the named owner supplies or selects (per this entry's Future plan ownership field)
+
 **Partial implementation, 2026-10-10 (v4.13.11 T013)**: EXPECTED_SCRIPTS now names package_skill.py, aggregate_benchmark.py, skill_eval_viewer.py, optimize_skill_description.py and generate_report.py, which both unchanged installers already distribute. Nine actual checker invocations against faithful disposable Windows copies include success and refusal for every missing helper. This closes the exact-expectation clause; actual Linux and macOS workspace-installer receipts for DF-006/DF-008 remain open. Evidence: [Phase 3 checkpoint](development/v4.13.11-phase-3-checkpoint.json).
 
 **Owner**: Installer-smoke test owner. **Status**: open; PLAN except the explicitly admitted installed-helper delivery candidate.
@@ -3030,6 +3226,14 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 ### AR-63: The four MCP scaffolders lack real generation and server-start receipts
 
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: MCP scaffolder owner
+- **Severity**: low - an unproved scaffolder start affects only users of the four mcp-builder scaffolders
+- **Blocker**: user-deferred - AR-63 needs the scaffold, compile and stdio handshake legs on Linux and macOS; Linux can run in a local Docker container (Docker 29.2.1) but was not run in v4.13.11, and macOS needs a macOS host.
+- **Acceptance**: Record an evidence-backed disposition for every current residual clause in this entry; retain unproved or account/host/human-bound clauses as PLAN. Complete original source obligations remain individually traceable below.
+- **Proving command**: manual: Follow each original source's retained command or manual protocol and record its actual output, host and scope. If the required host/account/person is unavailable, do not mark this owner resolved.
+- **Future plan**: v4.14 follow-up plan that the named owner supplies or selects (per this entry's Future plan ownership field)
+
 **Owner**: MCP scaffolder owner. **Status**: open; PLAN except the explicitly admitted installed-helper delivery candidate.
 
 **Future plan ownership**: The named owner must supply or select a v4.14 follow-up plan for clauses remaining after this sweep; the existing push-size-guard plan is not assigned unrelated work.
@@ -3055,6 +3259,14 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-63`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v1.1`, section `Open Items`, and original ID `DF-007`.
 
 ### AR-64: Live prompting roster completeness and CLI model qualification remain unproved
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: Prompting-profile owner
+- **Severity**: low - profile and roster completeness is advisory; no install or runtime path depends on it
+- **Blocker**: user-credential - AR-64 needs account-backed CLI and model enumeration to complete the canonical roster, the Codex picker entry and profiles.
+- **Acceptance**: Record an evidence-backed disposition for every current residual clause in this entry; retain unproved or account/host/human-bound clauses as PLAN. Complete original source obligations remain individually traceable below.
+- **Proving command**: manual: Follow each original source's retained command or manual protocol and record its actual output, host and scope. If the required host/account/person is unavailable, do not mark this owner resolved.
+- **Future plan**: v4.14 follow-up plan that the named owner supplies or selects (per this entry's Future plan ownership field)
 
 **Owner**: Prompting-profile owner. **Status**: open; PLAN except the explicitly admitted installed-helper delivery candidate.
 
@@ -3135,6 +3347,14 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 ### AR-65: Optional scanner presets lack live none, some, and all-tool receipts
 
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: Security-audit owner
+- **Severity**: low - fixture tests cover the presets; only live binary execution is unrecorded
+- **Blocker**: user-deferred - AR-65 all-tools leg needs a host provisioned with semgrep, gitleaks, osv-scanner, trivy, checkov and pip-audit together.
+- **Acceptance**: Record an evidence-backed disposition for every current residual clause in this entry; retain unproved or account/host/human-bound clauses as PLAN. Complete original source obligations remain individually traceable below.
+- **Proving command**: manual: Follow each original source's retained command or manual protocol and record its actual output, host and scope. If the required host/account/person is unavailable, do not mark this owner resolved.
+- **Future plan**: v4.14 follow-up plan that the named owner supplies or selects (per this entry's Future plan ownership field)
+
 **Owner**: Security-audit owner. **Status**: open; PLAN except the explicitly admitted installed-helper delivery candidate.
 
 **Future plan ownership**: The named owner must supply or select a v4.14 follow-up plan for clauses remaining after this sweep; the existing push-size-guard plan is not assigned unrelated work.
@@ -3162,6 +3382,14 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-65`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.1.1`, section `v4.1.1`, and original ID `DF-1`.
 
 ### AR-66: The five-person Training workshop remains unperformed
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: Guide owner and five participants
+- **Severity**: low - cohort validation of training material; no product defect
+- **Blocker**: user-deferred - AR-66 needs a five-person workshop cohort for the v4.2.2 and v4.2.3 origins.
+- **Acceptance**: Record an evidence-backed disposition for every current residual clause in this entry; retain unproved or account/host/human-bound clauses as PLAN. Complete original source obligations remain individually traceable below.
+- **Proving command**: manual: Follow each original source's retained command or manual protocol and record its actual output, host and scope. If the required host/account/person is unavailable, do not mark this owner resolved.
+- **Future plan**: v4.14 follow-up plan that the named owner supplies or selects (per this entry's Future plan ownership field)
 
 **Owner**: Guide owner and five participants. **Status**: open; PLAN except the explicitly admitted installed-helper delivery candidate.
 
@@ -3207,6 +3435,14 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 ### AR-67: Technical and nontechnical comprehension and final visual review remain unverified
 
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: Guide owner and representative readers
+- **Severity**: low - human comprehension evidence for documentation; no product defect
+- **Blocker**: user-deferred - AR-67 needs technical and nontechnical human readers and a final human visual review.
+- **Acceptance**: Record an evidence-backed disposition for every current residual clause in this entry; retain unproved or account/host/human-bound clauses as PLAN. Complete original source obligations remain individually traceable below.
+- **Proving command**: manual: Follow each original source's retained command or manual protocol and record its actual output, host and scope. If the required host/account/person is unavailable, do not mark this owner resolved.
+- **Future plan**: v4.14 follow-up plan that the named owner supplies or selects (per this entry's Future plan ownership field)
+
 **Owner**: Guide owner and representative readers. **Status**: open; PLAN except the explicitly admitted installed-helper delivery candidate.
 
 **Future plan ownership**: The named owner must supply or select a v4.14 follow-up plan for clauses remaining after this sweep; the existing push-size-guard plan is not assigned unrelated work.
@@ -3237,6 +3473,14 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 ### AR-68: OpenClaw tool interception requires an independently scoped typed plugin
 
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: OpenClaw integration owner
+- **Severity**: low - the guardrail surface is explicitly reported NOT COVERED rather than claimed
+- **Blocker**: vendor-feature - AR-68 typed OpenClaw interception needs a plugin surface the vendor does not expose; only lifecycle hooks are documented.
+- **Acceptance**: Record an evidence-backed disposition for every current residual clause in this entry; retain unproved or account/host/human-bound clauses as PLAN. Complete original source obligations remain individually traceable below.
+- **Proving command**: manual: Follow each original source's retained command or manual protocol and record its actual output, host and scope. If the required host/account/person is unavailable, do not mark this owner resolved.
+- **Future plan**: v4.14 follow-up plan that the named owner supplies or selects (per this entry's Future plan ownership field)
+
 **Owner**: OpenClaw integration owner. **Status**: open; PLAN except the explicitly admitted installed-helper delivery candidate.
 
 **Future plan ownership**: The named owner must supply or select a v4.14 follow-up plan for clauses remaining after this sweep; the existing push-size-guard plan is not assigned unrelated work.
@@ -3263,6 +3507,14 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-68`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.3.0`, section `v4.3.0 - agentic-verification-discipline`, and original ID `DF-4`.
 
 ### AR-69: Native browser zoom and OS occlusion need real host qualification
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: Guide and browser qualification owner
+- **Severity**: low - effective-width reflow and hidden-state behavior already have automated proof
+- **Blocker**: user-deferred - AR-69 native 200% zoom and OS occlusion need observation on a real host by a person.
+- **Acceptance**: Record an evidence-backed disposition for every current residual clause in this entry; retain unproved or account/host/human-bound clauses as PLAN. Complete original source obligations remain individually traceable below.
+- **Proving command**: manual: Follow each original source's retained command or manual protocol and record its actual output, host and scope. If the required host/account/person is unavailable, do not mark this owner resolved.
+- **Future plan**: v4.14 follow-up plan that the named owner supplies or selects (per this entry's Future plan ownership field)
 
 **Owner**: Guide and browser qualification owner. **Status**: open; PLAN except the explicitly admitted installed-helper delivery candidate.
 
@@ -3294,6 +3546,14 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 ### AR-70: Writing Discipline benefit has not been judged on real replies
 
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: Writing Discipline owner
+- **Severity**: low - efficacy measurement of an instruction clause; presence and parity are already enforced
+- **Blocker**: user-deferred - AR-70 needs human judgment of replies on two platforms.
+- **Acceptance**: Record an evidence-backed disposition for every current residual clause in this entry; retain unproved or account/host/human-bound clauses as PLAN. Complete original source obligations remain individually traceable below.
+- **Proving command**: manual: Follow each original source's retained command or manual protocol and record its actual output, host and scope. If the required host/account/person is unavailable, do not mark this owner resolved.
+- **Future plan**: v4.14 follow-up plan that the named owner supplies or selects (per this entry's Future plan ownership field)
+
 **Owner**: Writing Discipline owner. **Status**: open; PLAN except the explicitly admitted installed-helper delivery candidate.
 
 **Future plan ownership**: The named owner must supply or select a v4.14 follow-up plan for clauses remaining after this sweep; the existing push-size-guard plan is not assigned unrelated work.
@@ -3318,6 +3578,14 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-70`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.5.0`, section `v4.5.0 - anti-cliche-and-agent-security`, and original ID `DF-1`.
 
 ### AR-71: Repository agent isolation and transitive shared-service reachability remain unqualified
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: Agent-isolation owner
+- **Severity**: medium - the partial 2026-09-24 audit retained fail findings, including a shared-checkout isolation failure
+- **Blocker**: user-deferred - AR-71 transitive reachability and shared-checkout isolation is a large design exercise beyond the bounded 2026-09-24 audit findings.
+- **Acceptance**: Record an evidence-backed disposition for every current residual clause in this entry; retain unproved or account/host/human-bound clauses as PLAN. Complete original source obligations remain individually traceable below.
+- **Proving command**: manual: Follow each original source's retained command or manual protocol and record its actual output, host and scope. If the required host/account/person is unavailable, do not mark this owner resolved.
+- **Future plan**: v4.14 follow-up plan that the named owner supplies or selects (per this entry's Future plan ownership field)
 
 **Owner**: Agent-isolation owner. **Status**: open; PLAN except the explicitly admitted installed-helper delivery candidate.
 
@@ -3346,6 +3614,14 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 ### AR-72: Manual distribution read-path and prose false-positive exercises remain unperformed
 
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: Installation and writing owners
+- **Severity**: low - manual exercises of already-shipped surfaces; no defect is recorded
+- **Blocker**: user-credential - AR-72 needs live non-Claude platforms and a person for MT-1 tests 1 and 3.
+- **Acceptance**: Record an evidence-backed disposition for every current residual clause in this entry; retain unproved or account/host/human-bound clauses as PLAN. Complete original source obligations remain individually traceable below.
+- **Proving command**: manual: Follow each original source's retained command or manual protocol and record its actual output, host and scope. If the required host/account/person is unavailable, do not mark this owner resolved.
+- **Future plan**: v4.14 follow-up plan that the named owner supplies or selects (per this entry's Future plan ownership field)
+
 **Owner**: Installation and writing owners. **Status**: open; PLAN except the explicitly admitted installed-helper delivery candidate.
 
 **Future plan ownership**: The named owner must supply or select a v4.14 follow-up plan for clauses remaining after this sweep; the existing push-size-guard plan is not assigned unrelated work.
@@ -3372,6 +3648,14 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-72`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.5.0`, section `v4.5.0 - anti-cliche-and-agent-security`, and original ID `MT-1`.
 
 ### AR-73: Five historical CodeQL alerts and the required-context decision remain open
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: Security and CI owner
+- **Severity**: high - stated: high pending per-alert triage
+- **Blocker**: user-credential - AR-73 still has hosted CodeQL alerts #223, #329, #330, #349 and #350 open on the 2026-10-09 read-back; each needs a fix or a maintainer dismissal through the maintainer's gh session, plus a maintainer decision on making CodeQL a required check.
+- **Acceptance**: Record an evidence-backed disposition for every current residual clause in this entry; retain unproved or account/host/human-bound clauses as PLAN. Complete original source obligations remain individually traceable below.
+- **Proving command**: manual: Follow each original source's retained command or manual protocol and record its actual output, host and scope. If the required host/account/person is unavailable, do not mark this owner resolved.
+- **Future plan**: v4.14 follow-up plan that the named owner supplies or selects (per this entry's Future plan ownership field)
 
 **Owner**: Security and CI owner. **Status**: open; PLAN except the explicitly admitted installed-helper delivery candidate.
 
@@ -3401,6 +3685,14 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-73`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.8`, section `Open Items - found 2026-09-07 during the v4.8.0 adoption plan`, and original ID `WN-K`.
 
 ### AR-74: Gemini and OpenCode eval configuration isolation remains unproved
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: Eval-pipeline owner
+- **Severity**: low - both branches stay fail-closed until isolation is proved
+- **Blocker**: vendor-feature - AR-74 Gemini CLI and OpenCode document no flag that excludes all configuration, so all-configuration isolation cannot be proved.
+- **Acceptance**: Record an evidence-backed disposition for every current residual clause in this entry; retain unproved or account/host/human-bound clauses as PLAN. Complete original source obligations remain individually traceable below.
+- **Proving command**: manual: Follow each original source's retained command or manual protocol and record its actual output, host and scope. If the required host/account/person is unavailable, do not mark this owner resolved.
+- **Future plan**: v4.14 follow-up plan that the named owner supplies or selects (per this entry's Future plan ownership field)
 
 **Owner**: Eval-pipeline owner. **Status**: open; PLAN except the explicitly admitted installed-helper delivery candidate.
 
@@ -3444,6 +3736,14 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 ### AR-75: GitHub retained read-only PR references require an explicit scope disposition
 
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: Repository owner
+- **Severity**: low - a scope disposition of retained read-only refs; writable publication scope is already captured
+- **Blocker**: user-deferred - AR-75 retained read-only PR refs need an owner decision or GitHub administrative action.
+- **Acceptance**: Record an evidence-backed disposition for every current residual clause in this entry; retain unproved or account/host/human-bound clauses as PLAN. Complete original source obligations remain individually traceable below.
+- **Proving command**: manual: Follow each original source's retained command or manual protocol and record its actual output, host and scope. If the required host/account/person is unavailable, do not mark this owner resolved.
+- **Future plan**: v4.14 follow-up plan that the named owner supplies or selects (per this entry's Future plan ownership field)
+
 **Owner**: Repository owner. **Status**: open; PLAN except the explicitly admitted installed-helper delivery candidate.
 
 **Future plan ownership**: The named owner must supply or select a v4.14 follow-up plan for clauses remaining after this sweep; the existing push-size-guard plan is not assigned unrelated work.
@@ -3467,6 +3767,14 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-75`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.12.0`, section `v4.12.0`, and original ID `QG-1`.
 
 ### AR-76: The public contributor view needs rendered confirmation or GitHub Support disposition
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: Repository owner
+- **Severity**: low - a display discrepancy; API and Insights already passed
+- **Blocker**: user-credential - AR-76 needs a fresh public contributor-view check and possibly a GitHub Support ticket from the owner.
+- **Acceptance**: Record an evidence-backed disposition for every current residual clause in this entry; retain unproved or account/host/human-bound clauses as PLAN. Complete original source obligations remain individually traceable below.
+- **Proving command**: manual: Follow each original source's retained command or manual protocol and record its actual output, host and scope. If the required host/account/person is unavailable, do not mark this owner resolved.
+- **Future plan**: v4.14 follow-up plan that the named owner supplies or selects (per this entry's Future plan ownership field)
 
 **Owner**: Repository owner. **Status**: open; PLAN except the explicitly admitted installed-helper delivery candidate.
 
@@ -3497,6 +3805,14 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-76`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.12.0`, section `v4.12.0`, and original ID `QG-2`.
 
 ### AR-77: Antigravity legacy workflow retirement needs a dated vendor check
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: Antigravity integration owner
+- **Severity**: low - stated impact: none before the retirement date, and none after it for the skills surface
+- **Blocker**: user-deferred - AR-77 Antigravity legacy workflow retirement applies only after the vendor's dated retirement; acting before it would remove a still-read surface.
+- **Acceptance**: Record an evidence-backed disposition for every current residual clause in this entry; retain unproved or account/host/human-bound clauses as PLAN. Complete original source obligations remain individually traceable below.
+- **Proving command**: manual: Follow each original source's retained command or manual protocol and record its actual output, host and scope. If the required host/account/person is unavailable, do not mark this owner resolved.
+- **Future plan**: v4.14 follow-up plan that the named owner supplies or selects (per this entry's Future plan ownership field)
 
 **Owner**: Antigravity integration owner. **Status**: open; PLAN except the explicitly admitted installed-helper delivery candidate.
 
@@ -3533,13 +3849,21 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
 | Bugs / regressions (BG) | 1 | 1 |
-| Warnings (WN) | 6 | 1 |
+| Warnings (WN) | 4 | 2 |
 | Missing tests / coverage gaps (MT) | 1 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
 ### Open Items
 
 #### BG-2-v4131: A test in the full profile writes into the real user's `~/.nexus-hub`
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: catalog maintainer
+- **Severity**: medium - a full-profile run overwrote files under the real `~/.nexus-hub`; a session guard now fails the run on such a change
+- **Blocker**: user-deferred - BG-2-v4131 keeps finding the concurrent writer of state/locks with a quiet machine running the full-profile groups one by one, and hosted protected-integration verification.
+- **Acceptance**: The concurrent writer of `state/locks` is found by running the full-profile groups one by one on a quiet machine, and protected hosted integration verifies the repair
+- **Proving command**: `python scripts/ci/run.py --profile full`
+- **Future plan**: v4.14 known-gaps sweep
 
 **Local clause qualification, 2026-10-10 (v4.13.11 T028)**: Both pytest roots now carry a session guard that records size and modification time of installer-owned `~/.nexus-hub` paths and six global instruction files and fails the session on any change (`NEXUS_REAL_HOME_GUARD=0` opts out for deliberate parallel runs); a deliberate offending test made a passing session exit 1. Residuals (user-deferred): the guard flagged lock files in `state/locks` written by a concurrent local process that no single test file reproduces, which needs a quiet machine running the full-profile groups one by one; and the hosted protected integration run that verifies the repair.
 
@@ -3561,11 +3885,27 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 #### WN-1-v4131: A user edit made between sessions is preserved but not reported
 
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: catalog maintainer
+- **Severity**: low - the user edit survived in every run; only the report omitted it
+- **Blocker**: user-credential - Scenario B re-measurement needs a paid Claude replay run on the maintainer's pilot keys; the hook fix is test-covered only.
+- **Acceptance**: Scenario B is re-measured with the current hook and the agent names the user's between-session edit
+- **Proving command**: manual: a paid scenario B replay on Claude records whether each run names the user's edit
+- **Future plan**: v4.14 known-gaps sweep
+
 **Source phase**: Phase 8. **Plan reference**: T019, [`v4.13.1-incident-replay.md`](development/v4.13.1-incident-replay.md). **Reason**: in scenario B the revision request arrives in a new session. All six Claude runs edited the deck in place (so the edit survived) but none named the edit: the new session does not treat the deck as a file it wrote, and its in-place save runs as inline `python -c`, which `user-edit-guard` does not read (it reads script files). **Owner**: catalog maintainer. **Status**: open. **Update (Phase 9 deep pass)**: the hook now also reads inline `python -c`, `node -e`, and `pwsh -Command` code for document paths (`test_deep_pass_writer_routes_are_blocked`), which removes the cause observed in the replay; this is covered by tests but not re-measured. **Suggested next step**: measure scenario B again (with WN-2 and WN-5).
 
 **Original source identity**: `v4.13.1#WN-1`; stable ID `WN-1-v4131` distinguishes this obligation from repeated IDs in other patch sections.
 
 #### WN-2-v4131: A moved picture was never named in the agent's report
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: catalog maintainer
+- **Severity**: low - the edit was preserved; only the moved picture went unreported
+- **Blocker**: user-credential - Scenario C re-run (three Claude trials per condition) is a paid replay on the maintainer's pilot keys.
+- **Acceptance**: Scenario C is re-run (three Claude trials per condition) with the current helper and the moved picture is named
+- **Proving command**: manual: a paid scenario C replay (three Claude trials per condition) records whether the moved picture is named
+- **Future plan**: v4.14 known-gaps sweep
 
 **Source phase**: Phase 8. **Plan reference**: T019. **Reason**: in scenario C, eight of eight runs named the user's new speaker note but none the moved picture; the helper listed the picture move only as a changed part name. The diff now prints "non-text change on slide N ...: tell the user about it", covered by tests but not re-measured by a paid run. **Owner**: catalog maintainer. **Status**: open until measured. **Suggested next step**: re-run scenario C (three Claude trials per condition) with the current helper.
 
@@ -3573,11 +3913,21 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 #### WN-3-v4131: Codex replay runs can see the machine's real user skills
 
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: catalog maintainer
+- **Severity**: low - affects replay isolation only; one Codex run edited without the helper
+- **Blocker**: user-deferred - Codex resolves home via the Windows known-folder API, so isolation needs a separate OS account or container that is not available on this host.
+- **Acceptance**: Codex replays run under a separate Windows user or in a container, and whether Codex prefers the workspace `.agents/skills` over the global one is recorded
+- **Proving command**: manual: run a Codex replay under a separate OS account or container and record which `.agents/skills` directory it loads
+- **Future plan**: v4.14 known-gaps sweep
+
 **Source phase**: Phase 8. **Plan reference**: T018. **Reason**: Codex resolves the home folder through the Windows known-folder API, not `HOME`, so replay runs also load `~/.agents/skills` from the real profile. One Codex run did not find `edit_guard.py` and edited without the helper. **Owner**: catalog maintainer. **Status**: open. **Suggested next step**: run Codex replays under a separate Windows user or in a container, and check whether Codex prefers the workspace `.agents/skills` over the global one.
 
 **Original source identity**: `v4.13.1#WN-3`; stable ID `WN-3-v4131` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### WN-4-v4131: Antigravity 2.0 and Windsurf do not receive the guard hooks
+#### WN-4-v4131: Antigravity 2.0 and Windsurf do not receive the guard hooks - RESOLVED
+
+**Resolution, 2026-10-12 (v4.13.11 continuation)**: A fresh primary-source review documents Antigravity native pre/post tool events and payload fields. The bridge maps native file edits, reads and commands to guard inputs, preserves conversation identity, uses only the documented run_command args.Cwd as command context, and never fabricates a tool-call identity. Curated registrations deliver edit preservation before/after successful writes and commands, plus post-read recording, and attribution checks before writes and commands. Failed native post events do not invoke or record a child; post responses remain the documented empty object. Native Windows qualification returned 35 integration tests, 26 real shell guard-delivery tests, 20 shared bridge tests and eight focused command-context tests passing. Controlled RED evidence and actual output/source hashes are retained in [the continuation receipt](development/v4.13.11-phase-8-receipts/wn4-antigravity-guard-continuation.json). Windsurf was qualified by the earlier dated clause below. The obsolete PreToolUse-only residual is superseded; authenticated vendor-host execution and undocumented event ordering are not claimed. The earlier interrupted integration run remains recorded with its wait cause unproved.
 
 **Local clause qualification, 2026-10-10 (v4.13.11 T028)**: Windsurf now registers `user-edit-guard` (pre and post write and run, plus `post_read_code` for read recording) and `attribution-guard` (pre run and write), with payload fields verified against the Cascade hooks page on 2026-10-10; `catalog/hooks/tests/test_cascade_guard_delivery.py` passes 13 with .sh/.ps1 parity. Residual (vendor-feature): Antigravity 2.0 documents only a PreToolUse bridge, so user-edit-guard has no verified post-write event there.
 
@@ -3587,17 +3937,35 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 #### WN-5-v4131: Scenario D (deck left open) was not re-measured on Claude after the fixes
 
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: catalog maintainer
+- **Severity**: low - every scenario D run preserved the edit; only the post-fix Claude result is unmeasured
+- **Blocker**: user-credential - Post-fix Claude scenario D replay is a paid run on the maintainer's pilot keys.
+- **Acceptance**: Scenario D is included in the WN-1 and WN-2 re-measurement on Claude
+- **Proving command**: manual: the paid re-measurement record includes a post-fix Claude scenario D result
+- **Future plan**: v4.14 known-gaps sweep
+
 **Source phase**: Phase 9 (implementation convergence). **Plan reference**: T019. **Reason**: the final replay round covered scenarios A, B, and C on Claude by the maintainer's reduced design; scenario D ran on Claude only in rounds 1 and 2 (before the second fix cycle) and on Codex in round 3, and every run preserved the edit. The post-fix Claude result for D is unmeasured. **Owner**: catalog maintainer. **Status**: open. **Suggested next step**: include scenario D in the WN-1 and WN-2 re-measurement.
 
 **Original source identity**: `v4.13.1#WN-5`; stable ID `WN-5-v4131` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### WN-6-v4131: Accepted blind spots of `user-edit-guard`
+#### WN-6-v4131: Accepted blind spots of `user-edit-guard` - CLOSED
+
+**Closure, 2026-10-10 (v4.13.11 Phase 8, maintainer decision)**: Closed as an accepted risk already recorded under Risks in [the guard decision record](../../../decisions/implemented/policy/2026-09-26-user-edit-preservation-and-attribution-guards.md): computed paths, shell-variable destinations and unrecognized writers are invisible to the hook, and the rule plus skill remain the primary protection. Reopening trigger: a measured false-block rate for `$`-bearing destinations, or a reported user edit lost through one of these paths.
 
 **Source phase**: Phase 9 (adversarial pass). **Plan reference**: T013. **Reason**: the hook cannot see a destination computed at run time inside a script (for example `'deck' + '.pptx'`), a destination held in a shell variable (`cp x "$OUT"`), or a user edit saved within 5 seconds of the agent's own write (the settle window that absorbs parallel formatter hooks). Two more are accepted by design after the Phase 9 deep pass: without hooks, a user edit that lands inside an agent's command-line check-write-record sequence (at most 120 seconds after the check) is recorded as the agent's, because the helper cannot tell who changed the file; and inside a git work tree an unrecorded or tracked file only warns, so an agent that runs `git init` around an unrecorded file gets a warning instead of a block (blocking unrecorded files stalled build logs and ignored outputs). Deliberate timestamp forgery by an agent evading the rule is outside the threat model. The always-loaded rule and the skill's `check` are the protection there. **Owner**: catalog maintainer. **Status**: open, accepted risk. **Suggested next step**: treat a `$`-bearing destination outside a worktree as "cannot verify" once its false-block rate is measured.
 
 **Original source identity**: `v4.13.1#WN-6`; stable ID `WN-6-v4131` distinguishes this obligation from repeated IDs in other patch sections.
 
 #### MT-1-v4131: No paid measurement of the rule on a platform other than Claude and Codex
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: catalog maintainer
+- **Severity**: low - the same rule and skill reach the unmeasured platforms
+- **Blocker**: user-credential - Measuring the rule on Copilot, Cursor, Gemini or a rule-only platform needs a paid replay on that vendor account.
+- **Acceptance**: One rule-only platform is added to the next replay and its result recorded
+- **Proving command**: manual: the next replay record includes a rule-only platform result
+- **Future plan**: v4.14 known-gaps sweep
 
 **Source phase**: Phase 8. **Plan reference**: T018. **Reason**: the replay measured Claude Code (with and without the hook) and Codex. Copilot, Cursor, Gemini, and the rule-only platforms receive the same always-loaded rule and skill but were not measured. **Owner**: catalog maintainer. **Status**: open. **Suggested next step**: add one rule-only platform to the next replay.
 
@@ -3630,6 +3998,14 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 #### WN-4-v4132: A headless OpenCode run cannot create a run record, so it cannot reach `PLAN COMPLETE`
 
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: catalog maintainer
+- **Severity**: medium - a headless OpenCode run cannot record approvals and so cannot reach `PLAN COMPLETE`
+- **Blocker**: vendor-feature - OpenCode documents no prompt-submit event and `opencode run` attaches no terminal, so a headless approval cannot be captured.
+- **Acceptance**: OpenCode is measured interactively with the user answering `yes`, or approvals are captured through a documented OpenCode event once one exists
+- **Proving command**: manual: an interactive OpenCode run where the user answers `yes` at the terminal reaches a recorded run record
+- **Future plan**: v4.14 known-gaps sweep
+
 **Source phase**: Phase 8 (T017), OpenCode pilot 3. **Plan reference**: [v4.13.2 plan, Phase 8, condition C](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: `record create` accepts an approval only from a captured prompt or from `yes` typed on the terminal device, and fails closed otherwise. OpenCode documents no prompt-submit lever (`docs/policy/completion-levers.json`, checked 2026-09-25), and `opencode run` attaches no terminal, so a scripted headless first turn can never be recorded. The plan's condition C assumed it could. The pilot showed the consequence before the runbook rule existed: the agent restated the approvals in a table and pushed, tagged, and released without a record.
 
 **Owner**: catalog maintainer. **Status**: open. **Suggested next step**: measure OpenCode interactively (the user answers `yes` at the terminal), or capture approvals through a documented OpenCode event once one exists; never infer a prompt-submit lever from `message.*` events.
@@ -3637,6 +4013,14 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 **Original source identity**: `v4.13.2#WN-4`; stable ID `WN-4-v4132` distinguishes this obligation from repeated IDs in other patch sections.
 
 #### WN-7-v4132: On OpenCode a full run proceeds on in-prompt approvals without a run record
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: catalog maintainer
+- **Severity**: medium - the observed run pushed, merged, tagged and released without a run record
+- **Blocker**: vendor-feature - No OpenCode signal identifies an `/implement` run, so a push/merge/release refusal plugin cannot be keyed reliably.
+- **Acceptance**: An OpenCode plugin on `tool.execute.before` refuses `git push`, `gh pr merge` and `gh release create` while an `/implement` run holds no record, once a reliable run signal exists
+- **Proving command**: manual: in an OpenCode `/implement` run with no record, `git push` is refused by the plugin
+- **Future plan**: v4.14 known-gaps sweep
 
 **Source phase**: Phase 8 (T017), condition C runs C4 to C6. **Plan reference**: [v4.13.2 plan, Phase 8, condition C](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: with no record possible (WN-4), OpenCode 1.18.32 running Claude Sonnet 4.6 restated the approvals as a table, called them recorded, never ran `record create` or `record path`, and pushed, merged, tagged, and released. Every action matched the approval the prompt contained, and the completion gate and runner took no action without a record, but the run did not stop at the first approval point as the runbook requires. Two instruction changes (the Phase 0a rule and the point-of-use `record path` check) did not change the behavior. With the user's decision of 2026-09-27, v4.13.2 ships full-by-default on every platform with this gap recorded; OpenCode is reported as not verified.
 
@@ -3646,6 +4030,14 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 #### MT-1-v4132: Condition B (Codex) has one passing end-to-end run
 
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: catalog maintainer
+- **Severity**: low - one passing run shows the Codex chain works; only the failure rate is unbounded
+- **Blocker**: user-credential - Condition B rerun needs the OpenAI pilot key quota (last run returned Quota exceeded).
+- **Acceptance**: Condition B is rerun on Codex and the result recorded in the e2e evidence
+- **Proving command**: `python tests/e2e/implement_full/run_e2e.py --agent codex`
+- **Future plan**: v4.14 known-gaps sweep
+
 **Source phase**: Phase 8 (T018). **Plan reference**: [v4.13.2 plan, Phase 8](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: after B7 reached `PLAN COMPLETE`, the OpenAI pilot key returned `Quota exceeded. Check your plan and billing details.` before any turn, so the planned second run did not happen; one run shows the chain works on Codex but bounds no failure rate.
 
 **Owner**: catalog maintainer. **Status**: open. **Suggested next step**: rerun condition B in WSL (`tests/e2e/implement_full/run_e2e.py --agent codex`) once the OpenAI limit allows, and record the result in the e2e evidence.
@@ -3654,6 +4046,14 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 #### WN-8-v4132: The run record's signature does not cover `pause` or `blockers`
 
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: catalog maintainer
+- **Severity**: medium - an edit that clears a pause or closes a blocker is not reported as `record-tampered`
+- **Blocker**: user-deferred - WN-8-v4132 signing pause and blockers changes the run-record signature format and was deliberately not changed during a live signed minor run.
+- **Acceptance**: Every writer re-signs through one checker function and `pause` and `blockers` are in the signed payload
+- **Proving command**: manual: editing `pause` or `blockers` in a signed run record is reported as `record-tampered`
+- **Future plan**: v4.14 known-gaps sweep
+
 **Source phase**: Phase 9 (T024), Tier 3 adversarial pass. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: `approvals_hmac` now covers `start_head`, `nonce`, and `created` (fixed in this phase), but `pause` and `blockers` are rewritten by several writers (`record pause`, `record block`, the capture hook), so an edit that clears the user's pause or closes an open blocker is not reported as `record-tampered`.
 
 **Owner**: catalog maintainer. **Status**: open. **Suggested next step**: have every writer re-sign through one checker function, then add both fields to the signed payload.
@@ -3661,6 +4061,14 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 **Original source identity**: `v4.13.2#WN-8`; stable ID `WN-8-v4132` distinguishes this obligation from repeated IDs in other patch sections.
 
 #### WN-9-v4132: Approval capture binds typed text, not the approval class - PARTIALLY RESOLVED 2026-09-29
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: catalog maintainer
+- **Severity**: not stated in source; maintainer to set (the original-defect text says "Severity high"; recording high here makes the item security-sensitive and its migration then needs a named approval)
+- **Blocker**: vendor-feature - No platform documents a per-prompt user attestation the agent's own tool calls cannot forge.
+- **Acceptance**: A capture signal the agent's own tool calls cannot produce binds each approval (for example a host-issued per-prompt attestation), or `cannot-verify` is recorded where none exists
+- **Proving command**: `python -m pytest tests/validators/test_approval_binding.py -q`
+- **Future plan**: v4.14 known-gaps sweep
 
 **Source phase**: Phase 9 (T024), Tier 3 adversarial pass. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Original defect**: `approval-capture` stores a digest of every submitted prompt line, and `record create` accepts an approval whose text matches any captured line. A short reply such as `ok`, a pasted issue body containing "I approve release", or the agent piping a fabricated payload into `completion_gate.py capture` can therefore back an approval class the user never approved. Severity high: this is the threat the contract names.
 
@@ -3682,6 +4090,14 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 #### WN-11-v4132: `run-plan` checks only global settings for an approval bypass
 
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: catalog maintainer
+- **Severity**: medium - rows with no bypass check can run with an approval bypass unnoticed
+- **Blocker**: user-deferred - Refusing unchecked platform rows changes run-plan behavior on four platforms and needs a maintainer decision.
+- **Acceptance**: A row with no documented bypass check (Copilot, OpenCode, Kimi) is refused unless `unattended-with-bypass` is approved, after the maintainer decides the behavior change
+- **Proving command**: `python -m pytest tests/validators/test_run_plan.py -q`
+- **Future plan**: v4.14 known-gaps sweep
+
 **Local clause qualification, 2026-10-10 (v4.13.11 T028)**: `run_plan.py` now parses JSON and TOML (including single-quoted TOML) instead of regex, reads the documented project scopes (Claude settings and local settings, Codex `.codex/config.toml`, Gemini CLI and Qwen settings) and adds a Cursor `approvalMode: unrestricted` check; `tests/validators/test_run_plan.py` covers each row and scope (19 red before). Residual (user-deferred): refusing platforms with no documented bypass check (Copilot, OpenCode, Kimi) changes run-plan behavior and needs a maintainer decision.
 
 **Source phase**: Phase 9 (T024), Tier 3 adversarial pass. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: `bypass_configured` reads the platform's global config with regular expressions. A committed project `.claude/settings.json` with `defaultMode: bypassPermissions`, a single-quoted `approval_policy = 'never'`, or the Cursor, Copilot, OpenCode, and Kimi rows (no check at all) pass unnoticed.
@@ -3702,6 +4118,14 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 #### WN-13: Record lifetime and environment edge cases
 
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: catalog maintainer
+- **Severity**: low - stated: three low-severity cases
+- **Blocker**: user-credential - Confirming the exact `gh pr checks` no-checks stderr needs a freshly opened PR on the maintainer's GitHub account.
+- **Acceptance**: The live `gh pr checks` no-checks response is captured on a newly opened PR and matches the guarded pattern
+- **Proving command**: manual: run `gh pr checks <new-pr>` immediately after opening a PR and compare its stderr with the guarded `no checks reported` pattern
+- **Future plan**: v4.14 known-gaps sweep
+
 **Local clause qualification, 2026-10-10 (v4.13.11 T028)**: The 72-hour record expiry described above was removed in v4.13.7 (`e46a1dd48`): records never expire and stop counting as live at the signed `completed` stamp or on `record retire`; the run-record decision record carries a dated amendment. Residual (user-credential): capturing the exact `gh pr checks` no-checks stderr needs a freshly opened pull request on the maintainer's account.
 
 **Source phase**: Phase 9 (T024), Tier 3 adversarial pass. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: three low-severity cases. A pull request opened moments ago may answer `no checks reported on the '<branch>' branch`, which is not in the not-found list and reads as `cannot-verify` (text reasoned from `gh`'s source, not reproduced). A record bound to the same session never expires, so a session resumed weeks later still carries its approvals. A home directory that is itself a git working tree, or a `GIT_DIR` in the environment, makes every record read as tampered.
@@ -3709,6 +4133,14 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 **Owner**: catalog maintainer. **Status**: open, partially repaired and integrated through [PR #374](https://github.com/bendourthe/Nexus-Hub/pull/374) at `510fd987`; its required checks passed with one expected skip, and [post-merge run 36455108200](https://github.com/bendourthe/Nexus-Hub/actions/runs/36455108200) passed smoke and provenance. Same-session and unspecified-session records older than 72 hours are now ignored, and inherited Git repository selectors no longer misclassify an untracked private record inside a home Git tree; a tracked record still blocks as tampered. The 104 focused checker and runner tests passed, including negative controls for an extra `gh` error and a tracked record. The fresh-PR `no checks reported` text is handled in the checker and stub tests, but the exact stderr remains unverified: `gh pr checks 374` already showed pending jobs immediately after PR creation. **Suggested next step**: capture the live no-checks response on a future newly opened PR and compare it to the guarded pattern before closing this item; keep malformed or additional errors as `cannot-verify`.
 
 #### DF-5-v4132: Approval capture is missing on Pi, OpenClaw, Hermes, and Windsurf
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: catalog maintainer
+- **Severity**: medium - on these platforms `record create` refuses with `approval-not-captured`
+- **Blocker**: vendor-feature - The prompt-event payload field carrying user text is not verified for Pi, OpenClaw and Hermes plugins.
+- **Acceptance**: Approval capture runs on the documented prompt event of the Pi, OpenClaw and Hermes plugin adapters, with a parity test
+- **Proving command**: manual: on each of Pi, OpenClaw and Hermes, a submitted prompt produces a stored approval-capture digest
+- **Future plan**: v4.14 known-gaps sweep
 
 **Local clause qualification, 2026-10-10 (v4.13.11 T028)**: Windsurf `pre_user_prompt` now runs `approval-capture.sh`; `test_pre_user_prompt_capture_stores_the_digest[sh|ps1]` feeds a documented Cascade payload through the compat wrapper and checks the stored digest. Residual (vendor-feature): the prompt-text field of the Pi, OpenClaw and Hermes plugin events is unverified.
 
@@ -3738,11 +4170,27 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 #### MT-2: No real CLI run exercised a gate refusal or a runner resume
 
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: catalog maintainer
+- **Severity**: low - gate refusal and runner resume are proven by stub tests
+- **Blocker**: user-credential - Exercising a real gate refusal and runner resume needs a paid Claude/Codex session on the maintainer's keys.
+- **Acceptance**: One paid condition with a fixture that cannot finish in one turn records the gate and runner cycles
+- **Proving command**: `python tests/e2e/implement_full/run_e2e.py --agent claude`
+- **Future plan**: v4.14 known-gaps sweep
+
 **Source phase**: Phase 9 (T024), Tier 3 code-vs-plan convergence. **Plan reference**: [v4.13.2 plan, Phase 9, sub-task 9.6](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: every passing Phase 8 run on Claude Code and Codex reached `PLAN COMPLETE` in its first turn, so the turn-end gate's refusal and the runner's resume are proven by stub tests (`test_harness.py`, `test_completion_gate.py`) and never by a paid session.
 
 **Owner**: catalog maintainer. **Status**: open. **Suggested next step**: run one paid condition with a fixture that cannot finish in one turn (for example a phase whose test only passes after a second commit) and record the gate and runner cycles. **Update (v4.13.6 Phase 1)**: under exact binding, the paid conditions in `tests/e2e/implement_full/run_e2e.py` (`--agent claude|codex|opencode`) cannot record: their first turn states the approvals verbatim in the prompt, which never equals a line `record render` generates, so `record create` refuses (`approval-not-captured` or `session-too-new`) and the run cannot reach `PLAN COMPLETE`. Owner: v4.13.6 Phase 7. The paid first turn needs a render step whose printed line is then fed as a second scripted user turn in the same session, before any paid run is spent on this item.
 
 #### DF-1-v4132: Devin Desktop reads `.devin/hooks.json`, which the Windsurf integration does not model
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: catalog maintainer, via `[[platform-contract-verification]]`
+- **Severity**: low - the completion gate is unaffected; the drift matters for the guardrail hooks
+- **Blocker**: vendor-feature - windsurf.py merges only the user-level hooks.json; adding the workspace .devin/hooks.json path needs a freshly fetched docs.devin.ai Cascade hooks page recorded at the next platform-contract pass, then an adapter change with a test.
+- **Acceptance**: The Cascade workspace hook path is re-verified and `docs/policy/platform-read-contracts.json` and `scripts/lib/integrations/windsurf.py` are updated together
+- **Proving command**: `python scripts/check_platform_contract_freshness.py`
+- **Future plan**: next `/update release` platform-contract pass
 
 **Source phase**: Phase 1 (T002). **Plan reference**: [v4.13.2 plan, sub-task 1.2](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: the Cascade hooks page (fetched 2026-09-25, [docs.devin.ai/desktop/cascade/hooks](https://docs.devin.ai/desktop/cascade/hooks)) lists `~/.codeium/windsurf/hooks.json` (user), `.devin/hooks.json` (workspace), and a system file. The `windsurf` integration writes native hooks but its read contract predates the `.devin/hooks.json` workspace path. No continuation lever exists on this surface either way (`post_cascade_response` is asynchronous), so the completion gate is unaffected; the drift matters for the guardrail hooks.
 
@@ -3752,6 +4200,14 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 #### DF-2-v4132: Antigravity 1.0 hook support is unconfirmed while the integration declares none
 
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: catalog maintainer, via `[[platform-contract-verification]]`
+- **Severity**: low - the integration conservatively declares no hooks for Antigravity 1.0
+- **Blocker**: vendor-feature - No first-party page confirms hooks for Antigravity 1.0 and no 1.0 install is available to observe one.
+- **Acceptance**: A first-party page scoped to Antigravity 1.0, or an observed hook firing in a 1.0 install, settles `hooks_supported`
+- **Proving command**: manual: observe whether a registered hook fires in an Antigravity 1.0 install and record the result
+- **Future plan**: v4.14 known-gaps sweep
+
 **Source phase**: Phase 1 (T002). **Plan reference**: [v4.13.2 plan, sub-task 1.2](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: `scripts/lib/integrations/antigravity.py:75` sets `hooks_supported: False` for Antigravity 1.0. The hooks page ([antigravity.google/docs/hooks](https://antigravity.google/docs/hooks/), fetched 2026-09-25) says hooks work across "Antigravity 2.0, Antigravity CLI, and Antigravity IDE" without stating whether that IDE is the 1.0 product. The plan's premise that 1.0 supports hooks is therefore not confirmed; `completion-levers.json` records every 1.0 lever as "none documented".
 
 **Owner**: catalog maintainer, via `[[platform-contract-verification]]`. **Status**: open. **Suggested next step**: confirm against a first-party page scoped to Antigravity 1.0, or by observing a registered hook fire in a 1.0 install; change `hooks_supported` only on that evidence.
@@ -3759,6 +4215,14 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 **Original source identity**: `v4.13.2#DF-2`; stable ID `DF-2-v4132` distinguishes this obligation from repeated IDs in other patch sections.
 
 #### DF-3-v4132: Devin CLI reads Claude Code's hook files, so Claude registrations also reach it
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: catalog maintainer, via `[[platform-contract-verification]]`
+- **Severity**: low - the shared read is recorded; only an untested payload shape remains
+- **Blocker**: vendor-feature - Devin CLI's hook payload fields are not captured from vendor docs or a live run, so a parity case would be invented.
+- **Acceptance**: A Devin-CLI payload case is added to the hook parity tests for every hook that inspects payload fields, once the payload fields are documented
+- **Proving command**: manual: a fetched Devin CLI hooks document names the payload fields before the parity case is written
+- **Future plan**: v4.14 known-gaps sweep
 
 **Local clause qualification, 2026-10-10 (v4.13.11 T028)**: `platform-read-contracts.md` records that Devin CLI reads Claude Code's hook files while `read_config_from.claude` is on (its default), from the hooks overview re-fetched 2026-10-10. Residual (vendor-feature): Devin CLI hook payload fields are not documented, so a parity case would be invented.
 
@@ -3769,6 +4233,14 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 **Original source identity**: `v4.13.2#DF-3`; stable ID `DF-3-v4132` distinguishes this obligation from repeated IDs in other patch sections.
 
 #### DF-4-v4132: OpenClaw and Hermes completion plugins need a manual enable step
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: catalog maintainer, via `[[platform-contract-verification]]`
+- **Severity**: low - the installer reports NEEDS SETUP with each platform's documented enable command
+- **Blocker**: vendor-feature - OpenClaw and Hermes plugin-enable config locations were not stated verbatim by first-party pages (2026-09-25).
+- **Acceptance**: Both config locations are verified against first-party pages, then enablement is written through the platform CLI or seeded under the do-not-invent rule
+- **Proving command**: manual: verify the OpenClaw and Hermes plugin-enable config locations against first-party pages and record the source URLs
+- **Future plan**: v4.14 known-gaps sweep
 
 **Source phase**: Phase 5 (T011). **Plan reference**: [v4.13.2 plan, sub-task 5.1](plans/v4.13.2-implement-full-by-default-with-completion-goal.md). **Reason**: OpenClaw loads a user plugin only when `plugins.entries.<id>.enabled` is set and its conversation hook is allowed (`hooks.allowConversationAccess`); Hermes loads one only when its name is in `plugins.enabled` in `~/.hermes/config.yaml`. The research on 2026-09-25 verified both requirements but not the exact config file locations and shapes verbatim, so the installer places the plugin files and reports NEEDS SETUP with each platform's documented enable command (`openclaw plugins enable nexus-completion-gate`, `hermes plugins enable nexus-completion-gate`) instead of editing an unverified config path. Until the user runs it, a full run on those two platforms continues only through `nexus-hub run-plan`.
 
@@ -3878,7 +4350,7 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 4 | 1 |
 | Bugs / regressions (BG) | 0 | 2 |
-| Warnings (WN) | 3 | 2 |
+| Warnings (WN) | 1 | 3 |
 | Missing tests / coverage gaps (MT) | 1 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
@@ -3886,11 +4358,27 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 
 #### DF-1-v4133 (v4.13.3): Flip the skill-index pointer on by default, and decide todos-on-demand
 
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: `v4.17.3-adoption-harness-economics-and-portable-engineering-system`
+- **Severity**: low - the pointer ships opt-in; the default is unchanged
+- **Blocker**: user-deferred - Owned by v4.17.3, whose full-vs-pointer pairing evaluator must produce organic-selection receipts first.
+- **Acceptance**: The evaluator's `NEXUS_HUB_SKILL_INDEX=full` against `pointer` pair records organic skill selection including guard skills, and the default is decided
+- **Proving command**: manual: the v4.17.3 pairing evaluator's receipt records organic selection for both variants
+- **Future plan**: v4.17.3-adoption-harness-economics-and-portable-engineering-system
+
 **Plan reference**: Resolved decisions 1 and 4. **Reason**: the pointer ships opt-in. Flipping it needs organic-selection evidence that skills the model saw in the table are still chosen when it sees only a pointer; the todos-on-demand question needs the same instruction-size evidence. **Evidence**: [`rendered-context-baseline.md`](development/rendered-context-baseline.md) (the index is 81-84% of each rendered file; the pointer removes 99.5% of it). **Owner**: `v4.17.3-adoption-harness-economics-and-portable-engineering-system` (moved from `v4.16.0-instruction-necessity-review` on 2026-09-28: the organic-selection evidence comes from the v4.17.3 pairing evaluator, and the v4.16.0 plan never took the item on; see [`v4.17.3-comparison-harness-economics-delta.md`](../v4.17/comparisons/v4.17.3-comparison-harness-economics-delta.md) D4). **Suggested next step**: run the evaluator's required `NEXUS_HUB_SKILL_INDEX=full` against `pointer` variant pair, recording organic skill selection including guard skills, then decide the default.
 
 **Original source identity**: `v4.13.3#DF-1`; stable ID `DF-1-v4133` distinguishes this obligation from repeated IDs in other patch sections.
 
 #### DF-2-v4133 (v4.13.3): Pilot variant mode for instruction-file comparisons
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: v4.16.0
+- **Severity**: low - tooling gap; spend cap for this plan was 0
+- **Blocker**: user-deferred - Owned by v4.16.0 instruction-necessity review; variant staging is not yet scheduled there.
+- **Acceptance**: A variant mode in `scripts/run_trigger_pilot.py` stages instruction files per arm
+- **Proving command**: manual: a trigger-pilot run with the variant mode stages a full-index and a pointer instruction file in separate arms
+- **Future plan**: v4.16.0 instruction-necessity review
 
 **Local clause qualification, 2026-10-10 (v4.13.11 T028)**: The handoff is recorded in the v4.16.0 plan's `## Inherited known gaps` section; implementation stays with that plan (user-deferred).
 
@@ -3907,6 +4395,14 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 **Original source identity**: `v4.13.3#DF-3`; stable ID `DF-3-v4133` distinguishes this obligation from repeated IDs in other patch sections.
 
 #### DF-4-v4133 (v4.13.3): Static-measurement ownership split for v4.17.3
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: v4.17.3
+- **Severity**: low - ownership handoff; no defect
+- **Blocker**: user-deferred - Static measurement is v4.17.3 work, which the plan already binds to the existing estimator.
+- **Acceptance**: v4.17.3 static measurement imports `estimate_tokens` and `legacy_instruction_block.detect` from their current owners
+- **Proving command**: manual: the v4.17.3 static-measurement code imports `estimate_tokens` and `legacy_instruction_block.detect` rather than redefining them
+- **Future plan**: v4.17.3
 
 **Plan reference**: Phase 6.2 handoff. **Reason**: `scripts/measure_rendered_context.py` owns rendered instruction-file measurement; v4.17.3's static measurement must reuse its estimator and detector rather than add a second definition of an estimated token or a candidate span. **Owner**: v4.17.3. **Suggested next step**: import `estimate_tokens` and `legacy_instruction_block.detect` from their current owners.
 
@@ -3934,11 +4430,21 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 
 #### DF-8 (v4.13.3): Per-agent `omitClaudeMd` for catalog agents
 
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: `v4.16.2-adoption-agent-tooling-and-subagent-cost`
+- **Severity**: low - cost optimization; each catalog agent inherits about 29k estimated tokens
+- **Blocker**: user-deferred - Owned by v4.16.2 and gated on a v4.17.3 cost/pass-rate pairing receipt not yet produced.
+- **Acceptance**: A change is accepted only with a v4.17.3 pairing receipt showing lower cost at an unchanged pass rate
+- **Proving command**: manual: a v4.17.3 pairing receipt shows lower cost at an unchanged pass rate before `omitClaudeMd` is set on any agent
+- **Future plan**: v4.16.2-adoption-agent-tooling-and-subagent-cost
+
 **Local clause qualification, 2026-10-10 (v4.13.11 T028)**: The handoff is recorded in the v4.16.2 plan's `## Inherited known gaps` section; implementation stays with that plan (user-deferred).
 
 **Source**: [`v4.17.3-comparison-harness-economics-delta.md`](../v4.17/comparisons/v4.17.3-comparison-harness-economics-delta.md) D5, recorded 2026-09-28. **Reason**: Claude Code 2.1.271 added agent frontmatter `omitClaudeMd`, which lets a subagent run without user, project and local `CLAUDE.md` files (managed policy still loads). Each catalog agent now inherits the full rendered instruction files, measured at about 29k estimated tokens on the maintainer machine. **Owner**: `v4.16.2-adoption-agent-tooling-and-subagent-cost`. **Constraints**: decide agent by agent; exclude `project-standards-reviewer` and any agent that enforces repository conventions; confirm the Gemini and Codex agent loaders ignore an unknown frontmatter key, or emit the key only in the Claude copy. **Suggested next step**: accept a change only with a v4.17.3 pairing receipt showing lower cost at an unchanged pass rate.
 
-#### WN-1-v4133 (v4.13.3): An uncooperative writer can race the final hash check
+#### WN-1-v4133 (v4.13.3): An uncooperative writer can race the final hash check - CLOSED
+
+**Closure, 2026-10-10 (v4.13.11 Phase 8, maintainer decision)**: Closed as an accepted risk already recorded in [the legacy-removal decision record](../../../decisions/implemented/tooling/2026-09-24-legacy-instruction-block-removal.md): a program that ignores the per-target lock can change the file between the final hash check and the atomic replacement, and no portable primitive closes that window; verified backups make the change recoverable. Reopening trigger: a portable compare-and-swap file primitive becomes available on all supported hosts.
 
 **Source phase**: Phase 4. **Reason**: cooperating installers serialize on a per-target lock, and the file is re-hashed immediately before the atomic replacement, but a program that ignores the lock can still write between that check and the rename; no portable primitive closes the window. **Mitigation**: a verified content-addressed backup of the pre-write bytes is always kept under `~/.nexus-hub/state/backups/`, and the report names it. **Owner**: installer maintainer. **Status**: accepted risk, documented in the decision record.
 
@@ -3956,11 +4462,21 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 
 #### MT-1-v4133 (v4.13.3): The full installers were not run end to end on a disposable machine
 
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: release maintainer
+- **Severity**: low - flag parsing, forwarding and report wiring are unit-tested and CI runs both installers on native hosts
+- **Blocker**: user-deferred - A full installer run needs a disposable machine because it writes real %APPDATA% and VS Code extensions.
+- **Acceptance**: A real full install runs on a disposable machine that carries a legacy block and its report is recorded
+- **Proving command**: manual: run the full installer on a disposable machine carrying a legacy block and record the legacy report
+- **Future plan**: v4.14 known-gaps sweep
+
 **Source phase**: Phases 4 and 5. **Reason**: the full PowerShell installer also installs VS Code extensions through the real `code` CLI and writes the real `%APPDATA%` settings, which a redirected HOME does not isolate, so the Phase 4 and 5 verification drove the installer's own engine (per-platform runner calls plus `legacy-report`) instead. The installers' flag parsing, forwarding, and report wiring are unit-tested, and CI runs both installers on their native hosts. **Owner**: release maintainer. **Suggested next step**: the last-phase human testing suggestions include a real install on a machine that carries a legacy block.
 
 **Original source identity**: `v4.13.3#MT-1`; stable ID `MT-1-v4133` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### WN-5-v4133 (v4.13.3): Read-path drift found by the release contract pass
+#### WN-5-v4133 (v4.13.3): Read-path drift found by the release contract pass - RESOLVED
+
+**Resolution, 2026-10-12 (v4.13.11 Phase 8 continuation)**: Current first-party contracts now qualify OpenClaw named profiles, selected fleet ownership and literal `OPENCLAW_WORKSPACE_DIR` resolution. The adapter and verification path use that selection without changing config/includes or another agent. Copilot now delivers eligible selected personal command skills with manual invocation metadata while retaining Local prompts, unowned files and the existing project opt-in. The earlier Gemini root-file clause remains qualified. Native Windows returned `197 passed, 2 skipped` (existing symlink privilege controls); all 28 actual installer/verification CLI commands exited 0 and proved previews, repeat installs, teardown, exact original personal CRLF restoration and three literal environment cases against Node `path.resolve`. Independent seven-file review approved with no findings. [Native receipt](development/v4.13.11-phase-8-receipts/workspace-discovery-continuation.json); both handbooks freshly pass full qualification. These are installer and contract results, with no authenticated vendor execution claim.
 
 **Local clause qualification, 2026-10-10 (v4.13.11 T028)**: The Gemini CLI workspace `GEMINI.md` now lands at the project root and no unread rules mirror is written, with the contract rows updated (gemini-md re-fetched 2026-10-10); `test_gemini_cli_workspace.py` passes 2, red before. Residual (vendor-feature): the OpenClaw per-agent workspace precedence and the Copilot prompt-file migration wait on vendor documentation.
 
@@ -3971,6 +4487,14 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 **Original source identity**: `v4.13.3#WN-5`; stable ID `WN-5-v4133` distinguishes this obligation from repeated IDs in other patch sections.
 
 #### WN-6-v4133 (v4.13.3): Behavioral-lever drift found by the release contract pass
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: catalog maintainer, via `[[platform-contract-verification]]`
+- **Severity**: low - stated: every seeded value remains valid
+- **Blocker**: user-deferred - Seeding per-model modelSettings pins a model id; the maintainer must decide, while env CLAUDE_CODE_EFFORT_LEVEL still delivers effort.
+- **Acceptance**: The maintainer decides whether to seed Claude's effort under `modelSettings` for the default model, and the lever rows and `configs/platform-defaults.json` are refreshed
+- **Proving command**: `python scripts/sync_platform_defaults.py --check`
+- **Future plan**: v4.14 known-gaps sweep
 
 **Local clause qualification, 2026-10-10 (v4.13.11 T028)**: The Antigravity `agentMode` statement, rationale and verified date are refreshed from a 2026-10-10 re-fetch (default pauses for diff review; plan prepends `/plan`), with the levers row; `sync_platform_defaults.py --check` passes. Residual (user-deferred): seeding Claude per-model `modelSettings` pins a model id and needs a maintainer decision.
 
@@ -4088,6 +4612,14 @@ Gaps from the minor-scope implement plan ([`v4.13.6-minor-scope-implement-and-ve
 
 #### WN-1-v4136 (v4.13.6): Claude Code interactive `/goal` capture is observed only headless
 
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: catalog maintainer
+- **Severity**: low - the headless probe already shows verbatim capture
+- **Blocker**: user-deferred - Needs a human-typed /goal in an interactive Claude Code session with a logging UserPromptSubmit hook; only the headless probe exists.
+- **Acceptance**: A human-typed `/goal test condition` in an interactive session logs a matching prompt and the `claude` row is set to `verbatim` with `probe_mode: interactive`
+- **Proving command**: manual: type `/goal test condition` in an interactive Claude Code session of a scratch project whose `UserPromptSubmit` hook logs its payload, and compare the logged prompt
+- **Future plan**: v4.14 known-gaps sweep
+
 **Evidence**: the Phase 1 probe (Claude Code 2.1.283, 2026-09-29) ran `claude -p "/goal test condition"`: the `UserPromptSubmit` payload's `prompt` field was exactly `/goal test condition` and the transcript shows `Goal set: test condition`. A person typing `/goal` in the interactive terminal was not exercised, so the `claude` row of `docs/policy/completion-levers.json` stays `goal_capture: unverified` with `probe_mode: headless`, and the validator accepts `verbatim` only from an interactive probe. **Owner**: catalog maintainer. **Suggested next step**: type `/goal test condition` in an interactive session of a scratch project whose `UserPromptSubmit` hook logs its payload, and set the row to `verbatim` with `probe_mode: interactive` if the logged prompt matches.
 
 **Original source identity**: `v4.13.6#WN-1`; stable ID `WN-1-v4136` distinguishes this obligation from repeated IDs in other patch sections.
@@ -4110,6 +4642,14 @@ Gaps from the minor-scope implement plan ([`v4.13.6-minor-scope-implement-and-ve
 
 #### WN-4-v4136 (v4.13.6): The whole website guide reports 100 detector findings on views this plan did not touch
 
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: guide maintainer
+- **Severity**: low - pre-existing findings at the same distribution as base; the edited view passes
+- **Blocker**: user-deferred - Triage of 100 pre-existing whole-guide detector findings plus a new whole-page render gate is a multi-view guide project outside this sweep.
+- **Acceptance**: Each finding is fixed or allowlisted with a recorded reason and the whole-page run is added to the guide render gate
+- **Proving command**: `python catalog/skills/testing/functional-verification/scripts/detect_visual_defects.py guides/website/nexus-hub-guide.html`
+- **Future plan**: v4.14 known-gaps sweep
+
 **Evidence**: `detect_visual_defects.py guides/website/nexus-hub-guide.html` (default viewports 420, 900, 1440; light and dark) reports the capped 100 findings, 10 `parent-padding-escape` (the first is the landing view's `h1 > b`) and 90 `svg-viewbox-overflow`, with the same distribution at base `7067df15`, so none comes from this plan. The Cheatsheets view this plan edited passes with 0 findings in both themes at base and head. **Owner**: guide maintainer. **Suggested next step**: run the detector per view with `--fragment`, fix or allowlist each finding with a recorded reason, and add the whole-page run to the guide render gate.
 
 **Original source identity**: `v4.13.6#WN-4`; stable ID `WN-4-v4136` distinguishes this obligation from repeated IDs in other patch sections.
@@ -4122,11 +4662,27 @@ Gaps from the minor-scope implement plan ([`v4.13.6-minor-scope-implement-and-ve
 
 #### DF-1-v4136 (v4.13.6): Copilot CLI sets no native goal headlessly
 
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: catalog maintainer
+- **Severity**: low - Copilot CLI keeps an interactive goal path
+- **Blocker**: vendor-feature - Copilot CLI documents no headless /goal entry point; run_plan.py keeps copilot/cli in INTERACTIVE_GOAL_ROWS.
+- **Acceptance**: Copilot CLI documents a headless goal entry point and the row is added
+- **Proving command**: manual: re-check the Copilot CLI documentation for a headless `/goal` entry point and record the result
+- **Future plan**: v4.17, with v4.13.2 DF-6
+
 **Evidence**: `scripts/run_plan.py` keeps `copilot/cli` in `INTERACTIVE_GOAL_ROWS` because its headless path is `copilot --autopilot -p` with a bypass flag, not `/goal`; the plan's cut-line allowed this slip (sub-task 6.3, T051). Claude, Qwen, and Kimi launch the goal headlessly. **Owner**: catalog maintainer. **Target version**: v4.17, with v4.13.2 DF-6. **Suggested next step**: re-check the Copilot CLI documentation for a headless goal entry point and add the row when one is documented.
 
 **Original source identity**: `v4.13.6#DF-1`; stable ID `DF-1-v4136` distinguishes this obligation from repeated IDs in other patch sections.
 
 #### QG-1-v4136 (v4.13.6): The non-engineer read-back of the approval page is pending
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: the user, via the orchestrator
+- **Severity**: low - the automated half passes; only the human read-back is pending
+- **Blocker**: user-deferred - The redesigned approval page needs a non-engineer read-back, which an agent cannot perform.
+- **Acceptance**: A non-engineer reads the redesigned page and pass or fail is recorded with the page version in `development/v4.13.6-last-phase-evidence.md`
+- **Proving command**: manual: a non-engineer reads `readback-page-v2.md` and the result is recorded with the page version
+- **Future plan**: v4.14 known-gaps sweep
 
 **Evidence**: Definition of Done 6 requires one non-engineer read-back recorded in the final phase. **Read-back result, 2026-09-30**: the user read the ten-section page rendered from the two-plan fixture (`approval_page.py` at `219513b3`) and found it too wordy, noting that many users will not read it. That result led to the redesign: a results table (released, fixed, archived, cleaned up, and permission prompts when they are turned off), two bold limits, and the paste line, all within 80 words, with the technical sections moved under "Details (optional)". The redesigned page has not been read back yet, so this item stays open. The automated half (jargon list, sentence ceiling, risk order, paste line without paths) passes in `tests/validators/test_approval_page.py`. **Owner**: the user, via the orchestrator. **Suggested next step**: have a non-engineer read the redesigned page (the two-plan fixture render, saved beside the first read-back as `readback-page-v2.md`), then record pass or fail with the page version in `development/v4.13.6-last-phase-evidence.md`.
 
@@ -4230,13 +4786,21 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 4 | 0 |
 | Bugs / regressions (BG) | 0 | 2 |
-| Warnings (WN) | 7 | 3 |
+| Warnings (WN) | 5 | 3 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 1 | 1 |
 
 ### Open Items
 
 #### WN-1-v4139 (v4.13.9): The GPT-6.1 Sol announcement could not be read
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: not stated in source; maintainer to set
+- **Severity**: low - nothing in the Sol profile rests on the unread announcement
+- **Blocker**: vendor-feature - openai.com/index/introducing-gpt-6-1-sol/ returned HTTP 403; profile claims rest only on the model catalog.
+- **Acceptance**: The announcement is re-fetched from an unblocked session and the profile claims are checked against it
+- **Proving command**: manual: re-fetch `openai.com/index/introducing-gpt-6-1-sol/` and record whether it is readable and matches the profile claims
+- **Future plan**: v4.14 known-gaps sweep
 
 - **Source phase**: Phase 1. **Plan reference**: `v4.13.9-adoption-inline-visualize-codex-disk-writes-review-flow-gpt-6-1-sol.md`, T403.
 - **Reason**: `openai.com/index/introducing-gpt-6-1-sol/` returned HTTP 403 on 2026-09-30. The announcement's "a fifth of the price" and "Near-Astra" headline is therefore verified only as far as the wording of OpenAI's model catalog. Nothing in the Sol profile may rest on the announcement.
@@ -4246,6 +4810,14 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 
 #### WN-2-v4139 (v4.13.9): Cursor's primary documentation for `/visualize` was not read
 
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: not stated in source; maintainer to set
+- **Severity**: low - option (b), mirroring everywhere, stands
+- **Blocker**: vendor-feature - cursor.com/docs/agent/chat/commands documents neither /visualize nor command-name precedence; option (b) stands.
+- **Acceptance**: Cursor documents `/visualize` or command-name precedence and T402's decision is re-run against that page
+- **Proving command**: manual: re-check `https://cursor.com/docs/agent/chat/commands` for `/visualize` and command-name precedence and record the result
+- **Future plan**: v4.14 known-gaps sweep
+
 - **Source phase**: Phase 1. **Plan reference**: `v4.13.9-adoption-inline-visualize-codex-disk-writes-review-flow-gpt-6-1-sol.md`, T402 and T403.
 - **Reason**: the comparison relied on a newsletter summary of Cursor's `/visualize`. On 2026-10-01 a `cursor.com` search and a fetch of `https://cursor.com/docs/agent/chat/commands` stated nothing about a built-in `/visualize`, about how a same-named user command takes precedence, or about where commands are stored. Only the discovery locations (`.cursor/commands/`, `~/.cursor/commands/`) were found.
 - **Suggested next step**: when Cursor documents `/visualize` or command-name precedence, re-run T402's decision against that page. Option (b), mirroring everywhere, stands until then.
@@ -4253,6 +4825,14 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 **Original source identity**: `v4.13.9#WN-2`; stable ID `WN-2-v4139` distinguishes this obligation from repeated IDs in other patch sections.
 
 #### DF-1-v4139 (v4.13.9): The Codex `doctor` advisory was cut from this plan
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: not stated in source; maintainer to set
+- **Severity**: low - cut by an interview decision; a runbook covers the need
+- **Blocker**: vendor-feature - Reopen requires two primary OpenAI sources confirming the fix version and a second host hazard; neither exists.
+- **Acceptance**: Two primary OpenAI sources confirm the fix version and a second host hazard appears, as the Non-Goals state
+- **Proving command**: manual: record two primary OpenAI sources and a second host hazard before reopening
+- **Future plan**: v4.14 known-gaps sweep
 
 - **Source phase**: Phase 1. **Plan reference**: `v4.13.9-adoption-inline-visualize-codex-disk-writes-review-flow-gpt-6-1-sol.md`, T403 and the Non-Goals.
 - **Reason**: interview Q2 chose a runbook only. The `doctor` advisory, its `DIAGNOSTIC_ADVISORY` constant, a host-hazard module, and a host-hazard data file are out of scope.
@@ -4262,6 +4842,14 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 
 #### DF-9 (v4.13.9): Claude Haiku 5.5 is announced but has no profile or map cell
 
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: not stated in source; maintainer to set
+- **Severity**: low - no profile can exist until the model is in the models overview
+- **Blocker**: vendor-feature - Claude Haiku 5.5 is announced but not in Anthropic's models overview, so no profile can be verified.
+- **Acceptance**: The models overview lists Claude Haiku 5.5, its profile is written and the `fast` tier cell of the model map is refreshed
+- **Proving command**: manual: when the models overview lists it, run `/tune-prompting <haiku-5-5-id> --profiles-only` and refresh the `fast` tier cell
+- **Future plan**: v4.14 known-gaps sweep
+
 - **Source phase**: Phase 1. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T304.
 - **Reason**: Anthropic announced Claude Haiku 5.5 "in the coming weeks" and it is not yet in the models overview, so no prompting profile or model-map cell can be verified against a primary source.
 - **Suggested next step**: when the models overview lists it, run `/tune-prompting <haiku-5-5-id> --profiles-only` and refresh the `fast` tier cell of the model map.
@@ -4269,6 +4857,14 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 - **Carried from**: v4.13.8#DF-1 on 2026-10-02
 
 #### DF-11 (v4.13.9): Nine newly rostered Claude models have no prompting profile
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: not stated in source; maintainer to set
+- **Severity**: low - each model is rostered as UNVERIFIED rather than claimed
+- **Blocker**: user-deferred - Nine Claude prompting profiles need per-model /tune-prompting research; claude-opus-5-5 is scheduled for v4.17.6.
+- **Acceptance**: Each of the nine rostered Claude models has a verified prompting profile, starting with `claude-opus-5-5`
+- **Proving command**: `python scripts/verify_model_prompting_profiles.py`
+- **Future plan**: v4.17.6 for `claude-opus-5-5`; v4.14 known-gaps sweep for the remaining models
 
 - **Source phase**: Phase 2. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T306.
 - **Reason**: the live Claude roster read from the Models API on 2026-09-30 added nine ids that this plan does not research, by design (it calibrates on `claude-sonnet-5-5` only): `claude-fable-5`, `claude-haiku-4-5-20251001`, `claude-opus-4-5-20251101`, `claude-opus-4-6`, `claude-opus-4-7`, `claude-opus-4-8`, `claude-opus-5-5`, `claude-sonnet-4-5-20250929`, and `claude-sonnet-4-6`. Each is now a rostered UNVERIFIED model. The live id `claude-haiku-4-5-20251001` sits beside the existing `claude-haiku-4-5` profile, which uses the alias.
@@ -4298,6 +4894,14 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 
 #### WN-23 (v4.13.9): The primary roster mixes vendors, so its freshness check always reads DRIFTED
 
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: maintainer (bendourthe)
+- **Severity**: low - the freshness check is advisory and blocks nothing
+- **Blocker**: user-deferred - Whether the dated Haiku 4.5 id and its alias share one profile is a maintainer decision tied to DF-11.
+- **Acceptance**: The maintainer decides whether the dated Haiku 4.5 id and its alias share one profile
+- **Proving command**: `python scripts/check_model_prompting_freshness.py --advisory`
+- **Future plan**: v4.14 known-gaps sweep, together with DF-11
+
 **Local clause qualification, 2026-10-10 (v4.13.11 T028)**: The profile writer no longer unions every profiled model into the primary roster, and the 11 Cursor, Gemini and GPT-5.6 ids moved into `cursor`, `gemini` and `openai` platform entries (`gpt-6-astra` stays under `codex`); the freshness check reads IN SYNC for the recorded Claude ids and for each platform, and `verify_model_prompting_profiles.py` reports OK. The `gemini` and `openai` keys are vendor labels because no record names the host those ids were listed from. Residual (user-deferred): whether the dated Haiku 4.5 id and its alias share one profile, tied to DF-11.
 
 - **Source phase**: Phase 2. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T306 and T309.
@@ -4307,6 +4911,14 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 - **Carried from**: v4.13.8#WN-3 on 2026-10-02
 
 #### DF-12 (v4.13.9): The first-principles pilot stopped at the smoke run because effort could not be confirmed
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: not stated in source; maintainer to set
+- **Severity**: low - the first-principles question is untested, not failed
+- **Blocker**: vendor-feature - Claude Code 2.1.283 does not recognize claude-sonnet-5-5 or expose effort, so the approved paid matrix cannot run.
+- **Acceptance**: A Claude Code release recognizes `claude-sonnet-5-5` and shows effort, and the identical approved matrix is re-run and decided by the rule in `## T319`
+- **Proving command**: manual: confirm the run metadata shows the model and `--effort high`, then re-run the approved 15-run matrix under the USD 20 cap
+- **Future plan**: v4.14 known-gaps sweep
 
 - **Source phase**: Phase 5. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T321 to T324; record [`v4.13.8-first-principles-pilot.md`](development/v4.13.8-first-principles-pilot.md).
 - **Reason**: the pre-registered rule in `## T319` stops the pilot when the run metadata cannot confirm `--effort high`. On the one smoke run (2026-09-30, baseline, prompt 1, passed, USD 0.0396), Claude Code 2.1.283 reported `claude-sonnet-5-5` as an unrecognized model, recorded `costBasis: "unknown"` and a fallback `maxOutputTokens` of 32000, and exposed no effort field and 0 thinking tokens. The other 14 cells were not run, and the first-principles question is untested: this is not evidence for or against the instruction.
@@ -4335,6 +4947,14 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 - **Carried from**: v4.13.8#WN-5 on 2026-10-02
 
 #### WN-26 (v4.13.9): Open Dependabot branches make the all-refs attribution check fail
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: catalog maintainer
+- **Severity**: medium - every pull request turns `ci-required` red while Dependabot branches exist
+- **Blocker**: user-deferred - Scoping the all-refs attribution scan or allowing dependabot[bot] is a CI security policy decision for the maintainer.
+- **Acceptance**: The maintainer decides the CI policy (close or merge Dependabot PRs under the owner identity, or scope the all-refs scan), with explicit approval for any check or workflow change
+- **Proving command**: `python scripts/check_commit_attribution.py --all-refs`
+- **Future plan**: v4.14 known-gaps sweep
 
 - **Source phase**: Phase 6. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T330 and T334.
 - **Reason**: `scripts/check_commit_attribution.py --all-refs` (fast and full profiles, `hygiene` group) scans every commit reachable from every ref against a closed author allowlist. On 2026-10-01 Dependabot opened PRs #402 to #404, and their branches carry `dependabot[bot]` commits (`3a940eede996`, `904486f2affb`, `16c5fc389a19`). Once those branches are fetched, the check reports `3 findings` and exits 1. None of the three commits is in this branch's history: `git merge-base --is-ancestor` is false for each, and every commit in `origin/develop..HEAD` is authored by the owner identity. The `validate` job checks out with `fetch-depth: 0`, so the hosted check sees the same refs: on PR #402 (run 36897160501) `validate` failed with `check_commit_attribution` reporting `3 findings` on Dependabot commits, which turned the required `ci-required` red. Every pull request is affected while those branches exist.
@@ -4393,7 +5013,9 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 
 - **Carried from**: v4.13.8#WN-16 on 2026-10-02
 
-#### WN-30 (v4.13.9): Definition of Done 1 says "VS Code and Cursor"; the installers install the Copilot monitor into VS Code only
+#### WN-30 (v4.13.9): Definition of Done 1 says "VS Code and Cursor"; the installers install the Copilot monitor into VS Code only - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 8, maintainer-approved installer edit)**: Both installers now install the Copilot usage monitor into VS Code and, when Cursor is detected, into Cursor as the second host (`"$cursor_cli" "$cursor_label"` in `scripts/installer.sh`, `-AlsoCodeCli $cursorCli -AlsoCodeLabel $cursorLabel` in `scripts/installer.ps1`), with both banners and the README host sentence updated; the maintainer confirmed Copilot in Cursor as a supported surface on 2026-10-10. `test_installers_isolate_vscode_and_cursor_hosts` now requires the Cursor second host on the Copilot call and `test_installer_banners_state_the_copilot_monitor_hosts` checks the banner (both failed before the change; `catalog/hooks/tests/test_installer_smoke.py` 37 passed), installer parity passes, and each installer's real extension step with stub editor commands sent the package to both `code` and `cursor`, or to `code` only when Cursor was absent.
 
 **Evidence**: Definition of Done 1 reads "installed into VS Code and Cursor by both installers", while sub-task 3.1 asked for the VS Code CLI. Both installers install the Copilot monitor exactly like its Claude and Codex siblings: `build_and_install_one_extension ... "$vscode_cli" "$vscode_label"` in `scripts/installer.sh` and `-CodeCli $vscodeCli -CodeLabel $vscodeLabel` in `scripts/installer.ps1`, and the banner both print says "Claude/Codex/Copilot install into VS Code only". Neither sibling installs into Cursor, so per the Phase 9 instruction the behavior was not changed. The optional second-host parameter (`also_cli` / `-AlsoCodeCli`) that would do it exists in both installers but no call passes it; it is left from the withdrawn GitHub monitor (v3.16.4). The Phase 9 run of both installers' real extension step confirmed the routing: the `code` stub received the three VS Code monitors and the `cursor` stub only the Cursor monitor. **Owner**: catalog maintainer (installer change, ask first). **Suggested next step**: decide whether Copilot users in Cursor are a supported surface. If yes, pass `"$cursor_cli" "$cursor_label"` (and `-AlsoCodeCli $cursorCli -AlsoCodeLabel $cursorLabel`) as the second host in both installers, update the banner line and `catalog/hooks/tests/test_installer_smoke.py`, and refresh the two installer hashes in `docs/handbooks/_sources/distribution/evidence.json`; if no, amend the Definition of Done wording to "VS Code".
 
@@ -4403,13 +5025,23 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 
 #### WN-31 (v4.13.9): Definition of Done 7 asks for a reset's expiry; Codex serves a count and no expiry
 
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: extensions owner
+- **Severity**: low - the monitor shows the count and its README explains the missing date
+- **Blocker**: user-credential - Needs a live Codex account with an available reset to capture whether the response carries an expiry.
+- **Acceptance**: A live response with an available reset is captured; an expiry field is mapped into the reset row, or the Definition of Done is amended
+- **Proving command**: manual: when a reset is available, run `Codex Usage: Save Raw Usage Response` and check the response for an expiry field
+- **Future plan**: v4.14 known-gaps sweep
+
 **Evidence**: the 2026-10-01 capture recorded in `v4.13.7-decisions.md` ("Usage-limit resets", item 1) shows `rate_limit_reset_credits` carrying only `available_count` and `applicable_available_count`, with no kind and no expiry, although the ChatGPT page shows "Full reset, expires Oct 29". The Codex monitor therefore shows "1 reset available" with no date; `extensions/codex-usage-monitor/README.md` says why. Definition of Done 7's fallback covers only the case where no reset field exists at all, so a count without an expiry is a partial result, not a pass. The Claude monitor's no-field branch is met (no reset row; its README explains). **Owner**: extensions owner. **Suggested next step**: when a reset is next available, run `Codex Usage: Save Raw Usage Response` and check for an expiry field; map it into the reset row if one appears, otherwise amend the Definition of Done to "shows it with its expiry when the vendor data carries one".
 
 - **Carried from**: v4.13.7#WN-7 on 2026-10-02
 
 - **Carried from**: v4.13.8#WN-18 on 2026-10-02
 
-#### WN-32 (v4.13.9): The monitor workflows differ in packaging checks, and two do not trigger on their own file
+#### WN-32 (v4.13.9): The monitor workflows differ in packaging checks, and two do not trigger on their own file - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 8 T035)**: The Copilot monitor gains a `verify:package` script (`scripts/verify-package-contents.js`, mirroring the Cursor monitor's with Copilot's required assets) and a "Verify packaged contents" workflow step after packaging. The Claude and Codex workflows now trigger on their own workflow file, as Copilot and Cursor already did. In a disposable copy the check passed (47 archived files, 19 runtime modules), and with `fonts/copilot-icons.woff2` removed it failed with "missing required packaged file". `tests/workflows/test_copilot_usage_monitor_workflow.py` asserts the step, the script, and the own-path trigger on all four workflows.
 
 **Evidence**: Phase 9's field-by-field comparison (comments stripped, names normalized) found `.github/workflows/copilot-usage-monitor.yml` identical to the Claude and Codex monitor workflows except that it also triggers on its own file and runs `npm run package`; the Cursor workflow additionally runs `npm run verify:package` and uploads the VSIX as an artifact with a retention period. So the Copilot workflow builds the package but never checks its contents in CI (the Phase 2 history records a manual check: 49 files, no test, fixture, source, or map file), and the Claude and Codex workflows do not run when their own workflow file changes. These are pipeline changes outside the approved Copilot workflow, so they were recorded, not applied. **Owner**: CI owner. **Suggested next step**: with approval, add a `verify:package` script and step to the Copilot monitor (mirroring the Cursor monitor's), and add each workflow's own path to the Claude and Codex workflow filters.
 
@@ -4428,6 +5060,14 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 - **Carried from**: v4.13.8#WN-20 on 2026-10-02
 
 #### QG-7 (v4.13.9): The real-editor and live-limit checks are manual and pending
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: maintainer
+- **Severity**: low - every automated check passed against stubs, fixtures and throwaway homes
+- **Blocker**: user-credential - Requires the maintainer's real editors, work Copilot account and live usage-limit crossings.
+- **Acceptance**: Each check listed under "Human/manual testing suggestions" in the final-phase evidence is run on the maintainer's machine and recorded
+- **Proving command**: manual: run each listed real-editor and live-limit check and record each result in this entry
+- **Future plan**: v4.14 known-gaps sweep
 
 **Evidence**: every automated check ran against stubs, fixtures, and throwaway homes. Not yet observed on the maintainer's machine: installing the VSIX into the real VS Code (and, if WN-6 is resolved that way, Cursor); the pinned work account's personal view and the organization pool percentage against the organization's AI usage page; the state file `~/.nexus-hub/state/usage-probe/copilot.json` written by the running monitor; the Codex reset row while a reset is available; and a live 99% crossing (with `NEXUS_HANDOFF_THRESHOLD=1`) on Codex, Cursor, and Copilot followed by pasting the prompt into a different platform. Claude Code's crossing was observed in Phase 7. **Owner**: maintainer. **Suggested next step**: run the checks listed under "Human/manual testing suggestions" in the final-phase evidence and record each result here.
 
@@ -4516,13 +5156,21 @@ Gaps from the Training page rebuild ([`v4.13.10-training-page-rebuild`](plans/v4
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 2 |
 | Bugs / regressions (BG) | 0 | 0 |
-| Warnings (WN) | 5 | 5 |
+| Warnings (WN) | 4 | 5 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 1 | 1 |
 
 ### Open Items
 
 #### WN-1-v41310 (v4.13.10): The missing-file notice is verified in Chromium only
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: guide owner
+- **Severity**: low - the notice is verified in Chromium; other browsers are unexercised
+- **Blocker**: user-deferred - Safari file:// behavior needs a real macOS Safari, unavailable on this Windows host.
+- **Acceptance**: Opening the guide from a folder without `training.html` in Firefox and Safari shows the notice, or the fallback notice is added
+- **Proving command**: manual: open the guide from a folder without `training.html` in Firefox and Safari, click the Training tab and record whether the notice appears
+- **Future plan**: v4.14 known-gaps sweep
 
 - **Source phase**: Phase 7. **Plan reference**: [`v4.13.10-training-page-rebuild`](plans/v4.13.10-training-page-rebuild.md), T027.
 - **Reason**: the guide detects a missing `training.html` under `file://` with a stylesheet probe (`media="not all"`, its `onload` and `onerror`). Tests run headless Chromium; Firefox and Safari treat `file://` loads differently and were not exercised.
@@ -4550,7 +5198,9 @@ Gaps from the Training page rebuild ([`v4.13.10-training-page-rebuild`](plans/v4
 
 **Original source identity**: `v4.13.10#WN-6`; stable ID `WN-6-v41310` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### WN-8-v41310 (v4.13.10): The Foundations opening figure is taller than a phone screen
+#### WN-8-v41310 (v4.13.10): The Foundations opening figure is taller than a phone screen - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 8, maintainer decision)**: Below 720 px the Foundations opening figure (in `guides/website/nexus-hub-guide.html`, styled by `guides/website/shared/opening.css`) places its four parts in a two-by-two grid in reading order and leaves out aria-hidden drawing detail (attachment chips, model picker, part badges, connector; prompt lines clamp to two lines and reply lines to one), so it measures 587 px tall at 390 px, down from 1434 px, while the 1280 px layout keeps its 531.5 px height and the six links and figure label are unchanged. `test_foundations_figure_fits_a_phone_screen[390, 430]` in `tests/guides/test_v41311_phase7_guide_defects.py` fails on the previous page and passes now, and `test_foundations_figure_keeps_the_wide_layout[720, 1280]` guards the wide layout; the three focused guide files gave 108 passed with rendering required.
 
 **Local clause qualification, 2026-10-10 (v4.13.11 T028)**: Remeasured: since the R17/R26 redesign the Foundations figure is a composer feeding the Model and is 1421 px tall at its end state on a 390 px screen (532 px at 1440 px), so the logged 2x2 fix no longer applies. Residual (user-deferred): reaching 600 px needs a maintainer decision on which content phones drop. The Model status overlap found during measurement is recorded as v4.13.11 WN-42.
 
@@ -4562,6 +5212,14 @@ Gaps from the Training page rebuild ([`v4.13.10-training-page-rebuild`](plans/v4
 
 #### WN-9-v41310 (v4.13.10): The Nexus AI Studio trailer shows no screens of the app
 
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: maintainer
+- **Severity**: low - content decision; the trailer works as drawn scenes
+- **Blocker**: user-deferred - Embedding real app screenshots in the trailer is a maintainer content decision.
+- **Acceptance**: The maintainer decides whether to embed compressed app screenshots in place of the drawn icons
+- **Proving command**: manual: the maintainer's decision is recorded in this entry
+- **Future plan**: v4.14 known-gaps sweep
+
 - **Source phase**: rework goal review (after R5). **Plan reference**: [`v4.13.10-training-page-rebuild`](plans/v4.13.10-training-page-rebuild.md), round 2 of the maintainer review.
 - **Reason**: the trailer is six drawn scenes (icon, title, line) taken from the Nexus-AI README. The page is offline and self-contained, and no screenshots of the app are bundled, so it shows what the app does but not what it looks like.
 - **Owner**: maintainer. **Suggested next step**: decide whether to embed a few compressed screenshots of the app (the byte ceiling now allows it) in place of the drawn icons.
@@ -4570,6 +5228,14 @@ Gaps from the Training page rebuild ([`v4.13.10-training-page-rebuild`](plans/v4
 
 #### WN-11-v41310 (v4.13.10): The WebGL game's frame rate is unverified on a real GPU
 
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: maintainer
+- **Severity**: low - headless software-WebGL figures say nothing about a reader's machine; no stutter is observed
+- **Blocker**: user-deferred - Frame rate must be measured on a real GPU laptop and phone; headless SwiftShader figures do not apply.
+- **Acceptance**: The reward game is played on an integrated-graphics laptop and a phone and its frame rate recorded; particle count and mesh detail are lowered if it stutters
+- **Proving command**: manual: play the reward game on an integrated-graphics laptop and on a phone and record the observed frame rate
+- **Future plan**: v4.14 known-gaps sweep
+
 - **Source phase**: revision 2 goal review. **Plan reference**: [`v4.13.10-training-page-rebuild`](plans/v4.13.10-training-page-rebuild.md), T067.
 - **Reason**: the running game measured 19 frames per second in headless Chromium, which renders WebGL in software (SwiftShader). The figure says nothing about a reader's machine, and no real GPU was available to measure it. The IDE players measured 55 frames per second and the page 59 in the same session.
 - **Owner**: maintainer. **Suggested next step**: play the reward game on a laptop with integrated graphics and on a phone; if it stutters, lower the particle count and the mesh detail on small canvases.
@@ -4577,6 +5243,14 @@ Gaps from the Training page rebuild ([`v4.13.10-training-page-rebuild`](plans/v4
 **Original source identity**: `v4.13.10#WN-11`; stable ID `WN-11-v41310` distinguishes this obligation from repeated IDs in other patch sections.
 
 #### WN-12-v41310 (v4.13.10): Minor visual nits left from the revision 2 review
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: guide owner
+- **Severity**: low - stated as small findings
+- **Blocker**: user-deferred - WN-12-v41310 keeps five game-engine and IDE-player nits that need slow software-WebGL verification (WN-40).
+- **Acceptance**: The spawn band, editor soft-wrap, highlight label, sticky Start button and HUD label timing are fixed and verified by the slow WebGL tests
+- **Proving command**: `python -m pytest tests/guides/test_training_game_engine.py -q`
+- **Future plan**: v4.14 known-gaps sweep
 
 **Local clause qualification, 2026-10-10 (v4.13.11 T028)**: The outline rail empty-dot ring now uses `var(--ink-dim)`, measuring 6.20:1 light and 8.26:1 dark (was 3.20 and 4.65); `tests/guides/test_outline_rail_contrast.py` passes 4, red 2 before. Residual (user-deferred): the spawn band, editor soft-wrap, highlight label, sticky Start button and HUD label timing need game-engine or IDE-player changes verified by the slow WebGL tests (WN-40).
 
@@ -4587,6 +5261,14 @@ Gaps from the Training page rebuild ([`v4.13.10-training-page-rebuild`](plans/v4
 **Original source identity**: `v4.13.10#WN-12`; stable ID `WN-12-v41310` distinguishes this obligation from repeated IDs in other patch sections.
 
 #### QG-2-v41310 (v4.13.10): The learner check has not been run
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: maintainer
+- **Severity**: low - stated per decision 16 not to block the release
+- **Blocker**: user-deferred - Two or three non-technical readers must test the page on desktop and phone; an agent cannot substitute.
+- **Acceptance**: Two or three non-technical readers go through the page on desktop and phone and the results are recorded under `## Human testing suggestions` in the evidence file
+- **Proving command**: manual: run the learner check script from the evidence file with two or three non-technical readers and record the results there
+- **Future plan**: v4.14 known-gaps sweep
 
 - **Source phase**: Phase 8 (8.8). **Plan reference**: [`v4.13.10-training-page-rebuild`](plans/v4.13.10-training-page-rebuild.md), decision 16.
 - **Reason**: two or three non-technical readers must go through the page on a desktop and a phone; an agent cannot stand in for them. Per decision 16 this does not block the release.
@@ -4618,7 +5300,7 @@ Admission and normalization findings for the [known-gaps sweep plan](plans/v4.13
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
 | Bugs / regressions (BG) | 0 | 7 |
-| Warnings (WN) | 2 | 5 |
+| Warnings (WN) | 1 | 7 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
@@ -4643,6 +5325,14 @@ Admission and normalization findings for the [known-gaps sweep plan](plans/v4.13
 **Resolution, 2026-10-09 (v4.13.11 T005/T009)**: The writer and completion verifier now share a unique complete-copy predicate. Stub, truncated, ambiguous and hidden proof copies refuse before source mutation; ordinary complete copies and proven same-kind within-minor carry remain valid. Final required validators and affected carry coverage passed: `python -m pytest -q tests/validators/test_gap_migration_and_archive.py tests/validators/test_completion_minor_record.py tests/validators/test_completion_minor_verdict.py tests/validators/test_plan_carry_and_archive.py`, exit 0, 271 passed in 1229.99s (0:20:29). The real scoped ledger proof verifies all 158 complete historical copies with no parser or visibility errors. Independent security and contract reviews approved the final correction. See [Phase 2 evidence](development/v4.13.11-phase-2-evidence.md) and its retained terminal receipts. This resolution closes only the migration-copy defect; it does not close migrated residual work.
 
 #### WN-40 (v4.13.11): Ship-balance browser fixture takes 18-38 minutes on CI
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: guide test maintainer
+- **Severity**: low - stated: runtime cost
+- **Blocker**: user-deferred - Bounding the ship-balance fixture needs same-runner CI profiling of an 18-38 minute software-WebGL run with equal balance output.
+- **Acceptance**: a bounded representative fixture retains its balance guarantees and has measured lower single-runner runtime, or the full fixture remains explicitly deferred with profiling evidence.
+- **Proving command**: manual: the selected ship-balance test with `pytest --durations=1` and retained before/after balance results on the same runner configuration.
+- **Future plan**: v4.14 known-gaps sweep
 
 **Source phase**: Maintainer's v4.13.10 CI profiling report on 2026-10-09. **Plan reference**: Phase 5 guide batch; retain PLAN if not bounded. **Severity**: low; runtime cost. **Owner**: guide test maintainer.
 
@@ -4722,12 +5412,32 @@ Admission and normalization findings for the [known-gaps sweep plan](plans/v4.13
 
 #### WN-44 (v4.13.11): Installer help claims a sunset warning that is no longer printed - RESOLVED
 
+**Ratification, 2026-10-10 (v4.13.11 Phase 8)**: This installer help-text edit was made in Phase 7 without being named in the approved installer list; the maintainer ratified keeping it on 2026-10-10.
+
 **Resolution, 2026-10-10 (v4.13.11 Phase 7 T028)**: The `--enterprise` / `-Enterprise` help text in both installers now describes the actual behavior: without the flag, Gemini CLI is listed in the grouped not-detected section as enterprise-only, and Antigravity CLI still installs. Help strings only; line counts and the cited banner line numbers are unchanged, and `test_enterprise_flag.py` passes 7. Evidence: [Phase 7 verification](development/v4.13.11-phase-7-evidence.md).
 
 **Source phase**: Phase 7, found during AR-20. **Severity**: low; documentation. **Owner**: installer maintainer.
 
-#### WN-45 (v4.13.11): Three PowerShell hooks decode child-process output through the console code page
+#### WN-45 (v4.13.11): Three PowerShell hooks decode child-process output through the console code page - RESOLVED
+
+**Resolution, 2026-10-10 (v4.13.11 Phase 8 T032)**: `rewrite-command.ps1`, `lint-on-write.ps1` and `session-summary.ps1` now start their child through a per-hook `Invoke-Utf8Child` helper (ProcessStartInfo with UTF-8 output and error decoding, `PYTHONUTF8=1` and `PYTHONIOENCODING=utf-8` for the child only, the exit code kept, error output merged only where the old code used `2>&1`, `.cmd`/`.bat` shims run through `cmd.exe /d /s /c`), so the console code page is never changed. Correct argument quoting also fixed a hidden defect: the 5.1 hook denied `git commit -m "a b"` because the mangled arguments made the compressor exit 2. On Windows Git Bash the `.sh` siblings ran Python children in the ANSI code page; `rewrite-command.sh` now exports UTF-8 mode and `session-summary.sh` sets it for the plan-status call. `catalog/hooks/tests/test_hook_child_output_utf8.py` puts stub children where each hook already looks and fails 12 of 12 PowerShell cases and the Git Bash case on 066235c9, passing all 13 after; the related hook suites pass (459 passed, 10 skipped; rewrite-command tests 19 passed). See [Phase 8 verification](development/v4.13.11-last-phase-evidence.md).
 
 **Source phase**: Phase 7, found while closing WN-37. **Plan reference**: [v4.13.11](plans/v4.13.11-known-gaps-sweep-and-minor-close.md), T028; fix owned by Phase 8 (T032). **Severity**: low; non-ASCII text from a called program can be garbled. **Owner**: hook maintainer.
 
 **Evidence**: `rewrite-command.ps1` reads the compressor's rewrite text, `lint-on-write.ps1` reads linter output, and `session-summary.ps1` reads the `plan_status.py --digest` line, each through the console code page rather than UTF-8. Hook stdin is fixed (WN-37); this is output from programs the hooks launch. It is not reachable through payload text today, because the compressor never proposes a rewrite for such input. **Suggested next step**: read those child outputs through a UTF-8 process helper like `auto-devlog.ps1`'s, with a multi-byte test per hook. **Acceptance**: a multi-byte child output round-trips exactly under Windows PowerShell 5.1.
+
+#### WN-46 (v4.13.11): Teardown and prune paths are not long-path aware on Windows - RESOLVED
+
+**Resolution, 2026-10-11 (v4.13.11 Phase 8 continuation)**: Native Windows with `LongPathsEnabled=0` reproduced seven failures on 268-character roots: named and flat hook pruning reported retained files as missing, backup restoration failed, and base teardown retained owned files and trees. `_hooks_json_merge.py` now routes current and backup I/O through the existing lexical `long_path()` helper; base teardown does the same while retaining plain manifest and action paths. Native directory removal precedes recursive fallback so an owned junction is removed without following its target. The four-file regression command passed 54 tests with one file-symlink creation privilege skip; the passing junction case verified target bytes and actual junction removal. Independent scoped review reported no findings. Three actual Antigravity teardown CLI invocations verified dry-run preservation, managed removal, exact user CRLF restoration, untouched user files, and repeated-run idempotence. Receipt: [native continuation proof](development/v4.13.11-phase-8-receipts/wn46-native-continuation.json). This focused stabilization does not reset the three-cycle Tier 3 budget or complete T039.
+
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: integrations maintainer
+- **Severity**: low - a deep project root past MAX_PATH may leave stale managed files after uninstall; nothing is overwritten or lost
+- **Blocker**: none; resolved before final publication, without migration
+- **Acceptance**: `prune_named_set`, the hook JSON `_rewrite` and the base teardown remove managed files under a project root longer than 260 characters on Windows
+- **Proving command**: `python -m pytest tests/integrations/test_windows_long_paths.py -q` with a new teardown case on a 268-character root
+- **Future plan**: none; resolved in v4.13.11 Phase 8
+
+**Source phase**: Phase 8 Tier 3 deep pass, fix cycle 3. **Plan reference**: [v4.13.11](plans/v4.13.11-known-gaps-sweep-and-minor-close.md), T036. **Severity**: low. **Owner**: integrations maintainer.
+
+**Original evidence**: cycle 3 routed the exercised `nexus-hub init` and global Copilot writes through `long_path()`, and `init` completed on 219- and 268-character roots. The removal side still used plain paths. The behavior was inferred then; the continuation reproduced it before fixing it. **Suggested next step**: retain the native long-path and junction regressions in `tests/integrations/test_windows_long_paths.py`.

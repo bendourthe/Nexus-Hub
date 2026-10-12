@@ -123,3 +123,30 @@ def test_default_wire_project_surfaces_returns_none(tmp_path: Path) -> None:
             assert out is not None, f"{key} must override wire_project_surfaces"
         else:
             assert out is None, f"{key} unexpectedly overrode wire_project_surfaces"
+
+
+def test_init_reports_a_failing_platform_and_continues(
+    tmp_path: Path, monkeypatch, capsys
+) -> None:
+    """A write failure names the platform, exits 2, and the others still seed.
+
+    `init` used to end in an uncaught traceback on the first failing write
+    (v4.13.11 cycle 2 B4), while `install` already degrades per platform.
+    """
+    from scripts.lib.integrations import get
+
+    def _fail(ctx):
+        raise OSError("simulated write failure")
+
+    monkeypatch.setattr(get("cursor"), "wire_project_surfaces", _fail)
+    project = tmp_path / "project"
+    project.mkdir()
+
+    exit_code = runner_main(["init", "--target", str(project)])
+
+    err = capsys.readouterr().err
+    assert exit_code == 2
+    assert "[error:cursor]" in err and "simulated write failure" in err
+    assert "Failed integrations: ['cursor']" in err
+    assert (project / ".claude" / "settings.json").is_file()
+    assert (project / ".nexus-hub" / "install-manifest.json").is_file()

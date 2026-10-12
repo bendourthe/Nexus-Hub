@@ -789,9 +789,17 @@ def cmd_init(args: argparse.Namespace) -> int:
         template_vars={"PROJECT_NAME": args.project_name or target_root.name},
     )
     any_surfaces = False
+    failures = []
     for key in list_keys():
         integ = get(key)
-        result = integ.wire_project_surfaces(ctx)
+        try:
+            result = integ.wire_project_surfaces(ctx)
+        except Exception as exc:  # noqa: BLE001
+            # Degrade per platform as `install` does: name the platform, keep
+            # seeding the others, and still save what was written.
+            print(f"[error:{key}] {exc}", file=sys.stderr)
+            failures.append(key)
+            continue
         if result is None:
             continue
         any_surfaces = True
@@ -802,6 +810,9 @@ def cmd_init(args: argparse.Namespace) -> int:
         print("No integration provides a project-local surface.")
     if not args.dry_run:
         manifest.save(manifest_path)
+    if failures:
+        print(f"Failed integrations: {failures}", file=sys.stderr)
+        return 2
     return 0
 
 
