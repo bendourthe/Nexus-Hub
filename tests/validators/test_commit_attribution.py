@@ -66,6 +66,55 @@ def scan(root: Path, *args: str) -> int:
     return checker.main(["--all-refs", "--root", str(root), *args])
 
 
+def test_head_excludes_proposals_but_rejects_their_adoption(repo: Path) -> None:
+    commit(repo)
+    git(repo, "checkout", "-q", "-b", "proposal")
+    commit(repo, author=("dependabot[bot]", "bot@example.test"))
+    git(repo, "checkout", "-q", "main")
+    assert checker.main(["--head", "--root", str(repo)]) == 0
+    assert scan(repo) == 1
+    git(repo, "merge", "--ff-only", "proposal")
+    assert checker.main(["--head", "--root", str(repo)]) == 1
+
+
+def test_head_rejects_attribution_trailers(repo: Path) -> None:
+    commit(repo, message="Fixture\n\nMade-with: Cursor")
+    assert checker.main(["--head", "--root", str(repo)]) == 1
+
+
+def test_history_selectors_are_mutually_exclusive(repo: Path) -> None:
+    commit(repo)
+    with pytest.raises(SystemExit) as exc:
+        checker.main(["--head", "--all-refs", "--root", str(repo)])
+    assert exc.value.code == 2
+
+
+@pytest.mark.parametrize("mode", ["--head", "--all-refs"])
+def test_history_modes_reject_shallow_clones(repo: Path, tmp_path: Path, mode: str) -> None:
+    commit(repo)
+    commit(repo)
+    clone = tmp_path / "shallow"
+    git(tmp_path, "clone", "-q", "--depth=1", repo.as_uri(), str(clone))
+    assert checker.main([mode, "--root", str(clone)]) == 2
+
+
+@pytest.mark.parametrize("mode", ["--head", "--all-refs"])
+def test_history_modes_reject_grafts(repo: Path, mode: str) -> None:
+    sha = commit(repo)
+    (repo / ".git/info/grafts").write_text(sha + "\n", encoding="ascii")
+    assert checker.main([mode, "--root", str(repo)]) == 2
+
+
+def test_head_ignores_replacement_and_mailmap(repo: Path) -> None:
+    bad = commit(repo, author=CURSOR)
+    clean = commit(repo)
+    git(repo, "replace", bad, clean)
+    (repo / ".mailmap").write_text(
+        f"{TARGET[0]} <{TARGET[1]}> <{CURSOR[1]}>\n", encoding="utf-8"
+    )
+    assert checker.main(["--head", "--root", str(repo)]) == 1
+
+
 @pytest.mark.parametrize(
     "author,committer,expected",
     [
