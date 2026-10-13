@@ -46,18 +46,36 @@ if (-not (Test-Path $logFile)) {
 # --- Gather data ---
 # NEXUS_SESSION_DIGEST_NOW fixes the Generated: timestamp (tests only).
 $timestamp = if ($env:NEXUS_SESSION_DIGEST_NOW) { $env:NEXUS_SESSION_DIGEST_NOW } else { Get-Date -Format "yyyy-MM-dd HH:mm" }
-$projectName = Split-Path (Get-Location).Path -Leaf
+$projectRoot = (Get-Location).Path
+try {
+    $gitTop = (git rev-parse --show-toplevel 2>$null)
+    if ($LASTEXITCODE -eq 0 -and $gitTop) { $projectRoot = $gitTop }
+} catch {}
+$projectName = Split-Path $projectRoot -Leaf
 
 # Try to read duration from stdin JSON.
 $duration = "N/A"
 try {
-    $stdin = [Console]::In.ReadToEnd()
+    # Hook payloads are UTF-8 whatever the console code page is (WN-37): decode the raw
+    # handle and reply through UTF-8 writers rather than calling SetConsoleCP.
+    $hookUtf8 = New-Object System.Text.UTF8Encoding($false)
+    $stdin = (New-Object System.IO.StreamReader([Console]::OpenStandardInput(), $hookUtf8, $true)).ReadToEnd()
+    # Windows PowerShell 5.1 without a console drains the raw handle into [Console]::In.
+    if (-not $stdin) { $stdin = [Console]::In.ReadToEnd() }
+    $utf8Writer = New-Object System.IO.StreamWriter([Console]::OpenStandardOutput(), $hookUtf8); $utf8Writer.AutoFlush = $true; [Console]::SetOut($utf8Writer)
+    $utf8Writer = New-Object System.IO.StreamWriter([Console]::OpenStandardError(), $hookUtf8); $utf8Writer.AutoFlush = $true; [Console]::SetError($utf8Writer)
     if ($stdin) {
         $payload = $stdin | ConvertFrom-Json -ErrorAction Stop
         $parsed = $null
         if ($payload.PSObject.Properties.Name -contains 'session_duration') { $parsed = $payload.session_duration }
         elseif ($payload.PSObject.Properties.Name -contains 'duration') { $parsed = $payload.duration }
-        if ($parsed) { $duration = "$parsed" }
+        if ($parsed) {
+            $duration = "$parsed" -replace '[\r\n|]', ' '
+            if ($duration.Length -gt 64) {
+                $end = if ([char]::IsHighSurrogate($duration[63])) { 63 } else { 64 }
+                $duration = $duration.Substring(0, $end)
+            }
+        }
     }
 } catch {}
 
@@ -89,14 +107,6 @@ if ($inRepo) {
 # --- Write project-scoped context digest ---
 if ($env:NEXUS_SESSION_DIGEST -eq "off") { exit 0 }
 
-$projectRoot = (Get-Location).Path
-if ($inRepo) {
-    try {
-        $gitTop = (git rev-parse --show-toplevel 2>$null)
-        if ($LASTEXITCODE -eq 0 -and $gitTop) { $projectRoot = $gitTop }
-    } catch {}
-}
-
 $digestRel = if ($env:NEXUS_SESSION_DIGEST_PATH) { $env:NEXUS_SESSION_DIGEST_PATH } else { ".nexus/context/last-session.md" }
 $digestPath = Join-Path $projectRoot $digestRel
 $digestDir = Split-Path $digestPath -Parent
@@ -117,6 +127,71 @@ if ($inRepo) {
     $gitLine = "Git: $branch, $changedCount changed file(s)"
 }
 
+# One plan-state line (v4.13.3 DF-3) from the installed plan_status.py, matching the
+# .sh sibling: the first interpreter that can import sys wins, so the WindowsApps
+# alias that only opens the Store is skipped.
+function Invoke-Utf8Child {
+    # Run a program and decode its output as UTF-8, not the console code page (WN-45),
+    # without SetConsoleCP. A .cmd/.bat shim runs through cmd.exe; PYTHONUTF8 and
+    # PYTHONIOENCODING reach the child only. ExitCode is -1 when it cannot start.
+    # cmd.exe re-parses its whole command line and no quoting carries arbitrary text
+    # through it (AF-1, AF-2): when an argument or the shim path holds a cmd
+    # metacharacter, a double quote or a line break, a same-named .exe/.com later on
+    # PATH runs instead, and with none the child is not started (ExitCode -1).
+    param([string]$Exe, [string[]]$Arguments, [switch]$MergeStderr)
+    $result = [pscustomobject]@{ Lines = @(); ExitCode = -1 }
+    $onWindows = [System.Environment]::OSVersion.Platform -eq [System.PlatformID]::Win32NT
+    $found = @(Get-Command $Exe -CommandType Application -ErrorAction SilentlyContinue |
+        Where-Object { -not $onWindows -or $_.Extension -match '^\.(exe|com|cmd|bat)$' })
+    if ($found.Count -eq 0) { return $result }
+    $cmd = $found[0]
+    if ($onWindows -and $cmd.Extension -match '^\.(cmd|bat)$') {
+        $unsafe = @(@($Arguments) + @($cmd.Source) | Where-Object { [string]$_ -match '[&|<>^%!"\r\n]' })
+        if ($unsafe.Count -gt 0) {
+            $cmd = $found | Where-Object { $_.Extension -match '^\.(exe|com)$' } | Select-Object -First 1
+            if (-not $cmd) { return $result }
+        }
+    }
+    $argLine = (@($Arguments) | ForEach-Object {
+        if ($_ -and $_ -notmatch '[\s"]') { $_ } else { '"' + (([string]$_ -replace '(\\*)"', '$1$1\"') -replace '(\\+)$', '$1$1') + '"' }
+    }) -join ' '
+    $psi = New-Object System.Diagnostics.ProcessStartInfo
+    if ($onWindows -and $cmd.Extension -match '^\.(cmd|bat)$') {
+        $psi.FileName = if ($env:ComSpec) { $env:ComSpec } else { 'cmd.exe' }
+        $psi.Arguments = '/d /s /c ""' + $cmd.Source + '" ' + $argLine + '"'
+    } else { $psi.FileName = $cmd.Source; $psi.Arguments = $argLine }
+    $psi.UseShellExecute = $false; $psi.CreateNoWindow = $true
+    $psi.RedirectStandardOutput = $true; $psi.RedirectStandardError = $true
+    $psi.StandardOutputEncoding = New-Object System.Text.UTF8Encoding($false)
+    $psi.StandardErrorEncoding = New-Object System.Text.UTF8Encoding($false)
+    $psi.EnvironmentVariables['PYTHONUTF8'] = '1'; $psi.EnvironmentVariables['PYTHONIOENCODING'] = 'utf-8'
+    try { $proc = [System.Diagnostics.Process]::Start($psi) } catch { return $result }
+    $errTask = $proc.StandardError.ReadToEndAsync()
+    $text = $proc.StandardOutput.ReadToEnd()
+    $proc.WaitForExit()
+    if ($MergeStderr) { $text += $errTask.Result }
+    $result.ExitCode = $proc.ExitCode
+    if ($text) { $result.Lines = @($text.TrimEnd("`r", "`n") -split "`r?`n") }
+    return $result
+}
+
+$planLine = "Plan: unavailable"
+$homeDir = if ($env:USERPROFILE) { $env:USERPROFILE } else { $HOME }
+$planStatus = Join-Path $homeDir ".nexus-hub\scripts\plan_status.py"
+if (Test-Path -LiteralPath $planStatus) {
+    foreach ($candidate in @("python3", "python")) {
+        $command = Get-Command $candidate -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+        if (-not $command) { continue }
+        & $command.Source -c "import sys" *> $null
+        if ($LASTEXITCODE -ne 0) { continue }
+        try {
+            $planOut = (Invoke-Utf8Child $command.Source @($planStatus, '--digest', '--root', $projectRoot)).Lines | Select-Object -First 1
+            if ($planOut -and "$planOut".StartsWith("Plan:")) { $planLine = "$planOut".TrimEnd("`r") }
+        } catch {}
+        break
+    }
+}
+
 $lines = New-Object System.Collections.Generic.List[string]
 $lines.Add("# Last session digest")
 $lines.Add("")
@@ -127,6 +202,10 @@ $lines.Add("")
 $lines.Add("## Git context")
 $lines.Add("")
 $lines.Add($gitLine)
+$lines.Add("")
+$lines.Add("## Plan state")
+$lines.Add("")
+$lines.Add($planLine)
 # NOTE (v3.15.6): this line previously read "- Branch: `$branch`" in a
 # double-quoted string, which is broken twice over, because the backtick is
 # PowerShell's escape character: `$branch emitted the LITERAL text "$branch"

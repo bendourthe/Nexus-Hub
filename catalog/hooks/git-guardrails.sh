@@ -57,7 +57,7 @@ if command -v jq >/dev/null 2>&1; then
   COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // empty' 2>/dev/null || true)
 else
   # Fallback: basic JSON extraction via grep/sed
-  COMMAND=$(echo "$INPUT" | grep -o '"command"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | sed 's/.*"command"[[:space:]]*:[[:space:]]*"//;s/"$//' || true)
+  COMMAND=$(echo "$INPUT" | LC_ALL=C grep -o '"command"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | sed 's/.*"command"[[:space:]]*:[[:space:]]*"//;s/"$//' || true)
   # Un-escape the JSON string escapes this path leaves behind. Without this the
   # extracted command is a SINGLE line carrying a literal backslash-n, which is
   # not what the user is about to run, so any line-oriented analysis below (the

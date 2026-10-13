@@ -1,0 +1,147 @@
+{
+  "review": "read-only-hook-review",
+  "scope": [
+    "catalog/hooks/session-summary.sh",
+    "catalog/hooks/session-summary.ps1",
+    "catalog/hooks/auto-devlog.sh",
+    "catalog/hooks/auto-devlog.ps1",
+    "catalog/hooks/learning-capture.sh",
+    "catalog/hooks/learning-capture.ps1",
+    "catalog/hooks/provenance-ledger.sh",
+    "catalog/hooks/provenance-ledger.ps1",
+    "catalog/hooks/skill-tracker.py",
+    "catalog/hooks/tests/test_auto_devlog_index_guard.py",
+    "catalog/hooks/tests/test_hook_size_bound.py"
+  ],
+  "head": "ff1aa631538fcf1cbc2380b28e1e001ebd880e8d",
+  "source_sha256": {
+    "catalog/hooks/session-summary.sh": "8d2c84a6a73f6b9c2e7fb080ec1d6c8d168db3b3d29880e65db2f252e4d58e61",
+    "catalog/hooks/session-summary.ps1": "b974be2128e014a5722484908754bdf876adbcdd3cc58aa38e4325770d8c6051",
+    "catalog/hooks/auto-devlog.sh": "82a3960225dae4233ea5cc7703d14640d1ec681acba8b07f847276f9143e4eb9",
+    "catalog/hooks/auto-devlog.ps1": "cffe2ff8f93f97679a5cfab3c08d27a9d5396593c902559d36a7e7f1d9e38b7d",
+    "catalog/hooks/learning-capture.sh": "57964f44afd7ffe028436e3f392c456fd1d80550a85bf635c313bbffc413637c",
+    "catalog/hooks/learning-capture.ps1": "76e2c82aa3b8d277c38007c80094abc3c2dfb2257eac5124bfd03ef9d2aa9392",
+    "catalog/hooks/provenance-ledger.sh": "3ddd69e4059f3f1bffe658eebd7613873b5cfc2e294b77648dab2a9f0dce53f3",
+    "catalog/hooks/provenance-ledger.ps1": "959bf77f3c2cf988b2aea9c0f982d126eef5913e59b856af76fccf627f23c0e4",
+    "catalog/hooks/skill-tracker.py": "ace34dc5a02ef08c80e49202f8217404f44a5da379475de2b59226ea5dce962d",
+    "catalog/hooks/tests/test_auto_devlog_index_guard.py": "c3188aca5aacceb97a94056868c3735bada1570804d103a79ebfffd9cc5af6fa",
+    "catalog/hooks/tests/test_hook_size_bound.py": "5d326616d04a122862647ef4d3503e81b3117096669a9759b6059a854e561df6"
+  },
+  "findings": [
+    {
+      "severity": "P1",
+      "title": "Preserve trailing newline before path identity classification",
+      "location": {
+        "path": "catalog/hooks/provenance-ledger.sh",
+        "line": 103
+      },
+      "issue": "Command substitution removes all trailing LF bytes before the new row-delimiter digest decision. Two distinct input identities are recorded as the same ordinary path and no refusal marker is emitted.",
+      "recommendation": "Preserve extracted JSON field trailing bytes via a sentinel removed after assignment, or explicitly refuse delimiter-bearing fields before lossy command substitution; add an actual-hook trailing-LF regression.",
+      "reproduction": [
+        {
+          "input_path": "C:/fixture/identity.sh",
+          "expected_normalized_path_sha256": "655ef990686059262371e1e100b7b415d3f07c6ea96ab73ba8eb0df5cba6451a",
+          "ledger_path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-review-provenance-sylpxrow\\ledger\\case0.tsv",
+          "ledger_bytes_utf8": "1791594187\tNOFILE\tC:/fixture/identity.sh\n",
+          "ledger_sha256": "58fac4fb44fb9c1260cabf0b1f4c8458764505da45d45ffbcbd2c67caae3f2a2",
+          "observed_exit_code": 0,
+          "observed_stderr": ""
+        },
+        {
+          "input_path": "C:/fixture/identity.sh\n",
+          "expected_normalized_path_sha256": "bf5b012fd51d1e2662f6b2ada1423c26bcd64362a8fa27b48e845e39bf06d3fe",
+          "ledger_path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-review-provenance-sylpxrow\\ledger\\case1.tsv",
+          "ledger_bytes_utf8": "1791594188\tNOFILE\tC:/fixture/identity.sh\n",
+          "ledger_sha256": "25b9b06800f99fc8876b82482ea0b812b514ea027df29afbe92b2739d5be2daa",
+          "observed_exit_code": 0,
+          "observed_stderr": ""
+        }
+      ]
+    },
+    {
+      "severity": "P1",
+      "title": "Prove rotation through eviction instead of requiring a size decrease",
+      "location": {
+        "path": "catalog/hooks/tests/test_hook_size_bound.py",
+        "line": 930
+      },
+      "issue": "The changed complete-line byte-budget retention correctly evicts one record per append at saturation. Equal-sized records produce a plateau, but the existing test requires a decrease and fails both learning implementations independently of the retained known-breach assertions.",
+      "recommendation": "Keep the byte-cap assertion and prove old-record eviction, retained order, and intact latest-event identity after the cap is crossed.",
+      "observed_rotation_lines": [
+        "[size-bound] rotation learning-capture-sh bytes cap=2048: [200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000]",
+        "[size-bound] rotation learning-capture-ps1 bytes cap=2048: [193, 386, 579, 772, 965, 1158, 1351, 1544, 1737, 1930, 1930, 1930, 1930, 1930, 1930, 1930, 1930, 1930, 1930, 1930]"
+      ],
+      "log_path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\size-exception-proof.txt"
+    }
+  ],
+  "focused_behavior_receipt": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\focused-behavior.json",
+  "focused_behavior": {
+    "command": [
+      "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+      "-m",
+      "pytest",
+      "-q",
+      "catalog/hooks/tests/test_session_digest.py",
+      "catalog/hooks/tests/test_learning_capture.py",
+      "catalog/hooks/tests/test_auto_devlog_index_guard.py",
+      "catalog/hooks/tests/test_provenance_ledger.py",
+      "catalog/hooks/tests/test_skill_activation.py"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 399.88,
+    "pre_source_sha256": {
+      "catalog/hooks/session-summary.sh": "8d2c84a6a73f6b9c2e7fb080ec1d6c8d168db3b3d29880e65db2f252e4d58e61",
+      "catalog/hooks/session-summary.ps1": "b974be2128e014a5722484908754bdf876adbcdd3cc58aa38e4325770d8c6051",
+      "catalog/hooks/auto-devlog.sh": "82a3960225dae4233ea5cc7703d14640d1ec681acba8b07f847276f9143e4eb9",
+      "catalog/hooks/auto-devlog.ps1": "cffe2ff8f93f97679a5cfab3c08d27a9d5396593c902559d36a7e7f1d9e38b7d",
+      "catalog/hooks/learning-capture.sh": "57964f44afd7ffe028436e3f392c456fd1d80550a85bf635c313bbffc413637c",
+      "catalog/hooks/learning-capture.ps1": "76e2c82aa3b8d277c38007c80094abc3c2dfb2257eac5124bfd03ef9d2aa9392",
+      "catalog/hooks/provenance-ledger.sh": "3ddd69e4059f3f1bffe658eebd7613873b5cfc2e294b77648dab2a9f0dce53f3",
+      "catalog/hooks/provenance-ledger.ps1": "959bf77f3c2cf988b2aea9c0f982d126eef5913e59b856af76fccf627f23c0e4",
+      "catalog/hooks/skill-tracker.py": "ace34dc5a02ef08c80e49202f8217404f44a5da379475de2b59226ea5dce962d"
+    },
+    "post_source_sha256": {
+      "catalog/hooks/session-summary.sh": "8d2c84a6a73f6b9c2e7fb080ec1d6c8d168db3b3d29880e65db2f252e4d58e61",
+      "catalog/hooks/session-summary.ps1": "b974be2128e014a5722484908754bdf876adbcdd3cc58aa38e4325770d8c6051",
+      "catalog/hooks/auto-devlog.sh": "82a3960225dae4233ea5cc7703d14640d1ec681acba8b07f847276f9143e4eb9",
+      "catalog/hooks/auto-devlog.ps1": "cffe2ff8f93f97679a5cfab3c08d27a9d5396593c902559d36a7e7f1d9e38b7d",
+      "catalog/hooks/learning-capture.sh": "57964f44afd7ffe028436e3f392c456fd1d80550a85bf635c313bbffc413637c",
+      "catalog/hooks/learning-capture.ps1": "76e2c82aa3b8d277c38007c80094abc3c2dfb2257eac5124bfd03ef9d2aa9392",
+      "catalog/hooks/provenance-ledger.sh": "3ddd69e4059f3f1bffe658eebd7613873b5cfc2e294b77648dab2a9f0dce53f3",
+      "catalog/hooks/provenance-ledger.ps1": "959bf77f3c2cf988b2aea9c0f982d126eef5913e59b856af76fccf627f23c0e4",
+      "catalog/hooks/skill-tracker.py": "ace34dc5a02ef08c80e49202f8217404f44a5da379475de2b59226ea5dce962d"
+    },
+    "sources_unchanged": true,
+    "log": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\focused-behavior.txt"
+  },
+  "size_proof": {
+    "log_path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\size-exception-proof.txt",
+    "terminal_result_not_relied_on": "Worker had not supplied terminal size receipt at review checkpoint. Registered known exceptions remain in source."
+  },
+  "considered_but_rejected": [
+    {
+      "candidate": "Oversized skill identities alias after truncation",
+      "reason": "Names above64characters are explicitly refused; added regression proves two distinct64character names remain distinct."
+    },
+    {
+      "candidate": "Long supported provenance paths lose their content hash",
+      "reason": "Supported paths remain whole and content hashes are retained; new regressions exercise a real Unicode path and verify full64hex hash."
+    },
+    {
+      "candidate": "Digest markers trigger command correlation",
+      "reason": "Both implementations explicitly exclude the generated marker; regression exercises the matching command."
+    },
+    {
+      "candidate": "UTF8 rotation splits records or introduces a PowerShell BOM",
+      "reason": "Changed rotation retains complete lines and uses BOM-less UTF8; boundary regressions inspect parsed JSON and byte cap."
+    }
+  ],
+  "actions": {
+    "source_edits": false,
+    "guard_accept_or_record": false,
+    "stage_or_commit": false,
+    "passing_test_reruns": false,
+    "new_targeted_probe_only": true
+  },
+  "overall": "REQUEST_CHANGES"
+}

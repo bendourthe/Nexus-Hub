@@ -48,7 +48,10 @@ jobs:
           cache-dependency-path: extensions/copilot-usage-monitor/package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        # --ignore-scripts: no dependency lifecycle script runs (AR-60). Proven
+        # 2026-10-10 that compile, tests, and the VSIX are byte-identical without
+        # them; ttf2woff2 is used only by the local icon generator, not this job.
+        run: npm ci --ignore-scripts
 
       - name: Compile (tsc)
         run: npm run compile
@@ -58,3 +61,8 @@ jobs:
 
       - name: Package VSIX
         run: npm run package
+
+      - name: Verify packaged contents
+        # Required runtime assets present; coverage reports, sources, tests, and
+        # credential-shaped files absent (mirrors cursor-usage-monitor.yml, WN-32).
+        run: npm run verify:package

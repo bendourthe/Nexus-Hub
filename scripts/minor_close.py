@@ -492,6 +492,7 @@ def _insert_entry(text: str, version: str, item: cm.GapItem, gid: str, body: str
             text = text[:open_end] + f"#### {category or item.kind}" + nl + nl + text[open_end:]
             cat_at = open_end  # the new category ends where Open Items did: at the next `###`
         insert_at = _block_end(text, cat_at, 4)
+    level = min(level, item.level)  # keep nested source headings inside the copied item
     before = text[:insert_at]
     if before and not before.endswith(nl + nl):
         before = before.rstrip("\r\n") + nl + nl
@@ -568,7 +569,7 @@ def plan_migration(
     if target_rel in excluded:
         raise Refused("target-" + excluded[target_rel], target_rel)
     return _migration_texts(rctx, pid, source, item, target_token, (target_path, target_rel, target_before),
-                            reason, evidence, date)
+                            reason, evidence, date, ledgers=ledgers)
 
 
 def _target_ledger(rctx: ck.RepoContext, ledgers: list[cm.Ledger], target_token: str) -> tuple[Path, str, str | None]:
@@ -578,7 +579,7 @@ def _target_ledger(rctx: ck.RepoContext, ledgers: list[cm.Ledger], target_token:
     active = [l for l in targets if l.layout == "active"]
     if targets and not active:
         raise Refused("target-archived", target_token)
-    if len(active) > 1:
+    if len(targets) > 1:
         raise Refused("target-ledger-ambiguous", target_token)
     if active:
         if active[0].problems:
@@ -591,7 +592,7 @@ def _target_ledger(rctx: ck.RepoContext, ledgers: list[cm.Ledger], target_token:
 def _migration_texts(
     rctx: ck.RepoContext, pid: str, source: cm.Ledger, item: cm.GapItem, target_token: str,
     target: tuple[Path, str, str | None], reason: str, evidence: str, date: str,
-    label: str | None = None,
+    label: str | None = None, ledgers: list[cm.Ledger] | None = None,
 ) -> MigrationPlan:
     """Both files' new text for moving one open item to the next minor's `.0` section.
 
@@ -607,18 +608,14 @@ def _migration_texts(
     target_text = target_before if target_before is not None else _template(
         target_token, target_version, _project_name(rctx.root, source.text), date, nl
     )
-    target_items = cm.parse_ledger(target_text)
-    if label is None:
-        existing = cm.find_migrated_copy(
-            [cm.Ledger(target_path, target_rel, tmin, "active", target_text, target_items)],
-            target_version, source.token(), gid,
-        )
-    else:
-        existing = next(
-            ((None, copy) for copy in target_items
-             if any(f"{m.group('version')}#{m.group('id')}" == label for m in cm.PLAN_MIGRATED_FROM_RE.finditer(copy.body))),
-            None,
-        )
+    target_items, problems = cm.parse_ledger_full(target_text)
+    target_ledger = cm.Ledger(target_path, target_rel, tmin, "active", target_text, target_items, problems)
+    context = [ledger for ledger in (ledgers or [source]) if ledger.rel != target_rel] + [target_ledger]
+    copy_reason, existing = cm.migration_copy_status(
+        context, target_version, source, item, label=label, require_reason=True,
+    )
+    if copy_reason not in {"migration-copy-complete", "migration-target-missing"}:
+        raise Refused(copy_reason, pid)
     if existing is not None:
         # A re-run after a partial write: the copy exists, so never write a duplicate entry.
         target_after, new_gid, reused = target_text, existing[1].gid, True
@@ -637,6 +634,15 @@ def _migration_texts(
         target_after = _adjust_summary(target_after, _section_heading(target_after, target_version), item.kind, target_text)
         target_after = _set_header(target_after, date)
         reused = False
+    if not reused:
+        target_items, problems = cm.parse_ledger_full(target_after)
+        target_ledger = cm.Ledger(target_path, target_rel, tmin, "active", target_after, target_items, problems)
+        context = [ledger for ledger in context if ledger.rel != target_rel] + [target_ledger]
+        copy_reason, _copy = cm.migration_copy_status(
+            context, target_version, source, item, label=label, require_reason=True,
+        )
+        if copy_reason != "migration-copy-complete":
+            raise Refused(copy_reason, pid)
     source_after = source.text[: item.heading_end] + f" - MIGRATED to {target_version}" + source.text[item.heading_end:]
     source_after = _adjust_summary(source_after, item.section, item.kind, source.text)
     source_after = _set_header(source_after, date)
@@ -807,7 +813,7 @@ def cmd_carry(args: argparse.Namespace) -> int:
             plan = _migration_texts(
                 ctx, f"{token}#{key[1]}", source, item, target_token,
                 _target_ledger(ctx, ledgers, target_token), cm.PLAN_CARRY_REASON,
-                f"left open by {ctx.version}, the last plan of {token}", date, label=label,
+                f"left open by {ctx.version}, the last plan of {token}", date, label=label, ledgers=ledgers,
             )
             if not args.dry_run:
                 apply_migration(plan)

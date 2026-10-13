@@ -1,0 +1,478 @@
+{
+  "schema": 1,
+  "gap": "WN-5-v4133",
+  "scope": "Native Nexus installer and verification CLI in redirected temporary targets; no authenticated vendor application execution",
+  "native_cli_receipt_raw_sha256": "a2652cffaa326a84932d569eb923367ed124a5c2dc2561c274f5402590481df0",
+  "native_host": "nt",
+  "passed": true,
+  "commands": [
+    {
+      "label": "openclaw-preview",
+      "cwd": "$WORKTREE",
+      "started_at": "2026-10-12T09:04:00.719013+00:00",
+      "ended_at": "2026-10-12T09:04:01.026898+00:00",
+      "elapsed_seconds": 0.2970000000204891,
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command_display": "$PYTHON -m scripts.lib.integrations.runner install --scope global --target $ISOLATED_ROOT\\openclaw-profile --integrations openclaw --quiet --dry-run"
+    },
+    {
+      "label": "openclaw-install",
+      "cwd": "$WORKTREE",
+      "started_at": "2026-10-12T09:04:01.033925+00:00",
+      "ended_at": "2026-10-12T09:04:04.489155+00:00",
+      "elapsed_seconds": 3.452999999979511,
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command_display": "$PYTHON -m scripts.lib.integrations.runner install --scope global --target $ISOLATED_ROOT\\openclaw-profile --integrations openclaw --quiet"
+    },
+    {
+      "label": "openclaw-verify",
+      "cwd": "$WORKTREE",
+      "started_at": "2026-10-12T09:04:46.164704+00:00",
+      "ended_at": "2026-10-12T09:04:47.494483+00:00",
+      "elapsed_seconds": 1.327999999979511,
+      "exit_code": 0,
+      "stdout_sha256": "2653466742b5c4b8ed189042e8f1e903fa2b4883fad8d30423c7ccf2cd3246ea",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command_display": "$PYTHON -m scripts.lib.integrations.runner verify --target $ISOLATED_ROOT\\openclaw-profile"
+    },
+    {
+      "label": "openclaw-repeat-install",
+      "cwd": "$WORKTREE",
+      "started_at": "2026-10-12T09:04:47.517162+00:00",
+      "ended_at": "2026-10-12T09:05:00.297328+00:00",
+      "elapsed_seconds": 12.78200000000652,
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command_display": "$PYTHON -m scripts.lib.integrations.runner install --scope global --target $ISOLATED_ROOT\\openclaw-profile --integrations openclaw --quiet"
+    },
+    {
+      "label": "openclaw-preview-teardown",
+      "cwd": "$WORKTREE",
+      "started_at": "2026-10-12T09:05:22.231850+00:00",
+      "ended_at": "2026-10-12T09:05:22.550223+00:00",
+      "elapsed_seconds": 0.31299999996554106,
+      "exit_code": 0,
+      "stdout_sha256": "d42c3de2bdf656e14519f257a7bf757ddfcfcf923bd665d7dbc733018434ba59",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command_display": "$PYTHON -m scripts.lib.integrations.runner teardown --target $ISOLATED_ROOT\\openclaw-profile --integrations openclaw --dry-run"
+    },
+    {
+      "label": "openclaw-teardown",
+      "cwd": "$WORKTREE",
+      "started_at": "2026-10-12T09:05:23.640353+00:00",
+      "ended_at": "2026-10-12T09:05:24.595042+00:00",
+      "elapsed_seconds": 0.9529999999795109,
+      "exit_code": 0,
+      "stdout_sha256": "d42c3de2bdf656e14519f257a7bf757ddfcfcf923bd665d7dbc733018434ba59",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command_display": "$PYTHON -m scripts.lib.integrations.runner teardown --target $ISOLATED_ROOT\\openclaw-profile --integrations openclaw"
+    },
+    {
+      "label": "openclaw-repeat-teardown",
+      "cwd": "$WORKTREE",
+      "started_at": "2026-10-12T09:05:24.637519+00:00",
+      "ended_at": "2026-10-12T09:05:24.848996+00:00",
+      "elapsed_seconds": 0.2029999999795109,
+      "exit_code": 0,
+      "stdout_sha256": "04c7b66437b36626c5e85068dafdc70db73df72d2b120faa5ea99dd7b3b44b94",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command_display": "$PYTHON -m scripts.lib.integrations.runner teardown --target $ISOLATED_ROOT\\openclaw-profile --integrations openclaw"
+    },
+    {
+      "label": "copilot-preview",
+      "cwd": "$WORKTREE",
+      "started_at": "2026-10-12T09:05:24.936413+00:00",
+      "ended_at": "2026-10-12T09:05:25.598268+00:00",
+      "elapsed_seconds": 0.6559999999590218,
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command_display": "$PYTHON -m scripts.lib.integrations.runner install --scope global --target $ISOLATED_ROOT\\copilot-profile --integrations copilot --quiet --dry-run"
+    },
+    {
+      "label": "copilot-install",
+      "cwd": "$WORKTREE",
+      "started_at": "2026-10-12T09:05:25.606464+00:00",
+      "ended_at": "2026-10-12T09:05:28.748181+00:00",
+      "elapsed_seconds": 3.140999999945052,
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command_display": "$PYTHON -m scripts.lib.integrations.runner install --scope global --target $ISOLATED_ROOT\\copilot-profile --integrations copilot --quiet"
+    },
+    {
+      "label": "copilot-repeat-install",
+      "cwd": "$WORKTREE",
+      "started_at": "2026-10-12T09:05:28.847475+00:00",
+      "ended_at": "2026-10-12T09:05:30.140601+00:00",
+      "elapsed_seconds": 1.297000000020489,
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command_display": "$PYTHON -m scripts.lib.integrations.runner install --scope global --target $ISOLATED_ROOT\\copilot-profile --integrations copilot --quiet"
+    },
+    {
+      "label": "copilot-preview-teardown",
+      "cwd": "$WORKTREE",
+      "started_at": "2026-10-12T09:05:30.462262+00:00",
+      "ended_at": "2026-10-12T09:05:31.957345+00:00",
+      "elapsed_seconds": 1.5,
+      "exit_code": 0,
+      "stdout_sha256": "e932627c58700d37e9924147a1aae80239ae67f21eb946ed18550267969fa16d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command_display": "$PYTHON -m scripts.lib.integrations.runner teardown --target $ISOLATED_ROOT\\copilot-profile --integrations copilot --dry-run"
+    },
+    {
+      "label": "copilot-teardown",
+      "cwd": "$WORKTREE",
+      "started_at": "2026-10-12T09:05:32.218650+00:00",
+      "ended_at": "2026-10-12T09:05:32.596725+00:00",
+      "elapsed_seconds": 0.375,
+      "exit_code": 0,
+      "stdout_sha256": "e932627c58700d37e9924147a1aae80239ae67f21eb946ed18550267969fa16d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command_display": "$PYTHON -m scripts.lib.integrations.runner teardown --target $ISOLATED_ROOT\\copilot-profile --integrations copilot"
+    },
+    {
+      "label": "copilot-repeat-teardown",
+      "cwd": "$WORKTREE",
+      "started_at": "2026-10-12T09:05:32.632734+00:00",
+      "ended_at": "2026-10-12T09:05:32.911388+00:00",
+      "elapsed_seconds": 0.28100000007543713,
+      "exit_code": 0,
+      "stdout_sha256": "42bf17c9e8e0532a377007746f87e986574532e3aa413819edcdbbf059d5a9d8",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command_display": "$PYTHON -m scripts.lib.integrations.runner teardown --target $ISOLATED_ROOT\\copilot-profile --integrations copilot"
+    },
+    {
+      "label": "literal0-preview",
+      "cwd": "$ISOLATED_ROOT\\env0",
+      "started_at": "2026-10-12T09:05:33.188444+00:00",
+      "ended_at": "2026-10-12T09:05:33.561337+00:00",
+      "elapsed_seconds": 0.375,
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command_display": "$PYTHON -m scripts.lib.integrations.runner install --scope global --target $ISOLATED_ROOT\\env0 --integrations openclaw --quiet --dry-run"
+    },
+    {
+      "label": "literal0-install",
+      "cwd": "$ISOLATED_ROOT\\env0",
+      "started_at": "2026-10-12T09:05:33.566347+00:00",
+      "ended_at": "2026-10-12T09:05:36.966611+00:00",
+      "elapsed_seconds": 3.405999999959022,
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command_display": "$PYTHON -m scripts.lib.integrations.runner install --scope global --target $ISOLATED_ROOT\\env0 --integrations openclaw --quiet"
+    },
+    {
+      "label": "literal0-verify",
+      "cwd": "$ISOLATED_ROOT\\env0",
+      "started_at": "2026-10-12T09:05:59.453561+00:00",
+      "ended_at": "2026-10-12T09:06:00.110525+00:00",
+      "elapsed_seconds": 0.6560000000754371,
+      "exit_code": 0,
+      "stdout_sha256": "2653466742b5c4b8ed189042e8f1e903fa2b4883fad8d30423c7ccf2cd3246ea",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command_display": "$PYTHON -m scripts.lib.integrations.runner verify --target $ISOLATED_ROOT\\env0"
+    },
+    {
+      "label": "literal0-repeat",
+      "cwd": "$ISOLATED_ROOT\\env0",
+      "started_at": "2026-10-12T09:06:00.112520+00:00",
+      "ended_at": "2026-10-12T09:06:03.186668+00:00",
+      "elapsed_seconds": 3.077999999979511,
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command_display": "$PYTHON -m scripts.lib.integrations.runner install --scope global --target $ISOLATED_ROOT\\env0 --integrations openclaw --quiet"
+    },
+    {
+      "label": "literal0-teardown",
+      "cwd": "$ISOLATED_ROOT\\env0",
+      "started_at": "2026-10-12T09:06:26.481259+00:00",
+      "ended_at": "2026-10-12T09:06:27.905410+00:00",
+      "elapsed_seconds": 1.422000000020489,
+      "exit_code": 0,
+      "stdout_sha256": "9075f70c6683862052cc418699ecc56ba2b7b263028745980f2e3dc8d4762324",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command_display": "$PYTHON -m scripts.lib.integrations.runner teardown --target $ISOLATED_ROOT\\env0 --integrations openclaw"
+    },
+    {
+      "label": "literal1-preview",
+      "cwd": "$ISOLATED_ROOT\\env1",
+      "started_at": "2026-10-12T09:06:28.010267+00:00",
+      "ended_at": "2026-10-12T09:06:28.341305+00:00",
+      "elapsed_seconds": 0.3279999999795109,
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command_display": "$PYTHON -m scripts.lib.integrations.runner install --scope global --target $ISOLATED_ROOT\\env1 --integrations openclaw --quiet --dry-run"
+    },
+    {
+      "label": "literal1-install",
+      "cwd": "$ISOLATED_ROOT\\env1",
+      "started_at": "2026-10-12T09:06:28.345625+00:00",
+      "ended_at": "2026-10-12T09:06:31.611016+00:00",
+      "elapsed_seconds": 3.2660000000614673,
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command_display": "$PYTHON -m scripts.lib.integrations.runner install --scope global --target $ISOLATED_ROOT\\env1 --integrations openclaw --quiet"
+    },
+    {
+      "label": "literal1-verify",
+      "cwd": "$ISOLATED_ROOT\\env1",
+      "started_at": "2026-10-12T09:06:53.081905+00:00",
+      "ended_at": "2026-10-12T09:06:53.753037+00:00",
+      "elapsed_seconds": 0.6720000000204891,
+      "exit_code": 0,
+      "stdout_sha256": "2653466742b5c4b8ed189042e8f1e903fa2b4883fad8d30423c7ccf2cd3246ea",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command_display": "$PYTHON -m scripts.lib.integrations.runner verify --target $ISOLATED_ROOT\\env1"
+    },
+    {
+      "label": "literal1-repeat",
+      "cwd": "$ISOLATED_ROOT\\env1",
+      "started_at": "2026-10-12T09:06:53.754028+00:00",
+      "ended_at": "2026-10-12T09:06:56.624301+00:00",
+      "elapsed_seconds": 2.875,
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command_display": "$PYTHON -m scripts.lib.integrations.runner install --scope global --target $ISOLATED_ROOT\\env1 --integrations openclaw --quiet"
+    },
+    {
+      "label": "literal1-teardown",
+      "cwd": "$ISOLATED_ROOT\\env1",
+      "started_at": "2026-10-12T09:07:19.707205+00:00",
+      "ended_at": "2026-10-12T09:07:20.892374+00:00",
+      "elapsed_seconds": 1.187000000034459,
+      "exit_code": 0,
+      "stdout_sha256": "ba2e1f10c101eab9504fc5405f2c45bd378917b667916965d3c340218bddde20",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command_display": "$PYTHON -m scripts.lib.integrations.runner teardown --target $ISOLATED_ROOT\\env1 --integrations openclaw"
+    },
+    {
+      "label": "literal2-preview",
+      "cwd": "$ISOLATED_ROOT\\env2",
+      "started_at": "2026-10-12T09:07:20.994888+00:00",
+      "ended_at": "2026-10-12T09:07:21.482994+00:00",
+      "elapsed_seconds": 0.48400000005494803,
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command_display": "$PYTHON -m scripts.lib.integrations.runner install --scope global --target $ISOLATED_ROOT\\env2 --integrations openclaw --quiet --dry-run"
+    },
+    {
+      "label": "literal2-install",
+      "cwd": "$ISOLATED_ROOT\\env2",
+      "started_at": "2026-10-12T09:07:21.489080+00:00",
+      "ended_at": "2026-10-12T09:07:25.283875+00:00",
+      "elapsed_seconds": 3.797000000020489,
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command_display": "$PYTHON -m scripts.lib.integrations.runner install --scope global --target $ISOLATED_ROOT\\env2 --integrations openclaw --quiet"
+    },
+    {
+      "label": "literal2-verify",
+      "cwd": "$ISOLATED_ROOT\\env2",
+      "started_at": "2026-10-12T09:07:48.568791+00:00",
+      "ended_at": "2026-10-12T09:07:49.402663+00:00",
+      "elapsed_seconds": 0.8440000000409782,
+      "exit_code": 0,
+      "stdout_sha256": "2653466742b5c4b8ed189042e8f1e903fa2b4883fad8d30423c7ccf2cd3246ea",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command_display": "$PYTHON -m scripts.lib.integrations.runner verify --target $ISOLATED_ROOT\\env2"
+    },
+    {
+      "label": "literal2-repeat",
+      "cwd": "$ISOLATED_ROOT\\env2",
+      "started_at": "2026-10-12T09:07:49.404172+00:00",
+      "ended_at": "2026-10-12T09:07:52.433210+00:00",
+      "elapsed_seconds": 3.030999999959022,
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command_display": "$PYTHON -m scripts.lib.integrations.runner install --scope global --target $ISOLATED_ROOT\\env2 --integrations openclaw --quiet"
+    },
+    {
+      "label": "literal2-teardown",
+      "cwd": "$ISOLATED_ROOT\\env2",
+      "started_at": "2026-10-12T09:08:14.635058+00:00",
+      "ended_at": "2026-10-12T09:08:15.912763+00:00",
+      "elapsed_seconds": 1.2660000000614673,
+      "exit_code": 0,
+      "stdout_sha256": "7ea4dae22364b026dbbb267a14e52af6ac5d8869c44de6da62db7a63893d68b4",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command_display": "$PYTHON -m scripts.lib.integrations.runner teardown --target $ISOLATED_ROOT\\env2 --integrations openclaw"
+    }
+  ],
+  "observations": {
+    "openclaw": {
+      "profile": "work",
+      "selected_workspace": "$ISOLATED_ROOT\\openclaw-profile\\chosen-workspace",
+      "config_sha256": "750165acc2536ea02198079490ca18aac286c04595c82da5a0c93768ea193c63",
+      "included_config_sha256": "d9aa4c7fd7ce5c3e8216efb7cc42cb9667ce7e39b9f3b12ad88388d242e64730",
+      "other_agent_files_unchanged": {
+        "AGENTS.md": "4029e3b238ee5fd98554a701205e7074b7dfc3ea58584d69928703262258e060"
+      },
+      "installed_workspace_file_count": 1338,
+      "personal_instruction_sha256": "f9c94bd33da2d8db4797b3c80fc0ba9493c73e338a56f27419f1449da32a6420",
+      "preview_platform_files_unchanged": true,
+      "repeat_install_unchanged": true,
+      "owned_skills_remaining_after_teardown": 0,
+      "normal_default_root_created": false
+    },
+    "copilot": {
+      "owned_manual_command_skill_count": 23,
+      "command_skill_names": [
+        "commands",
+        "commit",
+        "compare",
+        "constitution",
+        "describe",
+        "grill",
+        "handoff",
+        "implement",
+        "memory",
+        "org",
+        "plan",
+        "presentify",
+        "research",
+        "review",
+        "route",
+        "session",
+        "setup",
+        "skills",
+        "spec",
+        "test",
+        "tune-prompting",
+        "update",
+        "usage",
+        "visualize"
+      ],
+      "installed_native_file_count": 122,
+      "personal_skill_sha256": "7995d308cd0d4b02ce2cb3e0621c6ad65c0f63a09faae6b3cab014689b785f4c",
+      "personal_prompt_sha256": "29512b330e07dbce5c83bd25fd432636bfc6cb2e20bdd22028031c330fd7ebd9",
+      "personal_instruction_sha256": "5022aea65c27b7a3625fb22b17ccf739d5831e64588d66f507f3342382eb129a",
+      "preview_unchanged": true,
+      "repeat_install_unchanged": true,
+      "owned_command_skills_remaining_after_teardown": 0,
+      "project_github_created": false
+    }
+  },
+  "private_inventory_fingerprints": {
+    "openclaw.installed_workspace_files_sha256": {
+      "entries": 1338,
+      "canonical_mapping_sha256": "7637411c0a30d4755ce4f5410a1f15691758134fd03775491ca59c0589686fd4"
+    },
+    "copilot.installed_native_files_sha256": {
+      "entries": 122,
+      "canonical_mapping_sha256": "2ea358dbdc2864ac0e93397ba836f0106410bfa463abdf820138a45295b4e2c1"
+    },
+    "copilot.installed_local_prompts_sha256": {
+      "entries": 24,
+      "canonical_mapping_sha256": "cbefce8a26aca2c7ba5087a7a992468559976f7489917882de251dd60d9ba09d"
+    }
+  },
+  "literal_environment": [
+    {
+      "value": "~/workspace",
+      "cwd": "$ISOLATED_ROOT\\env0",
+      "expected_workspace": "$ISOLATED_ROOT\\env0\\~\\workspace",
+      "node_path_resolve_output": "$ISOLATED_ROOT\\env0\\~\\workspace\n",
+      "node_exit_code": 0,
+      "installed_file_count": 1338,
+      "personal_crlf_sha256": "1194d3e1c49a19a264f0bf1e9fb1b76c1e957b3792ed76e56120c4fa68a6f272",
+      "preview_platform_files_unchanged": true,
+      "repeat_install_unchanged": true,
+      "owned_skills_remaining_after_teardown": 0
+    },
+    {
+      "value": "${WN5_ENV_SEGMENT}/workspace",
+      "cwd": "$ISOLATED_ROOT\\env1",
+      "expected_workspace": "$ISOLATED_ROOT\\env1\\${WN5_ENV_SEGMENT}\\workspace",
+      "node_path_resolve_output": "$ISOLATED_ROOT\\env1\\${WN5_ENV_SEGMENT}\\workspace\n",
+      "node_exit_code": 0,
+      "installed_file_count": 1338,
+      "personal_crlf_sha256": "1194d3e1c49a19a264f0bf1e9fb1b76c1e957b3792ed76e56120c4fa68a6f272",
+      "preview_platform_files_unchanged": true,
+      "repeat_install_unchanged": true,
+      "owned_skills_remaining_after_teardown": 0
+    },
+    {
+      "value": "relative-workspace",
+      "cwd": "$ISOLATED_ROOT\\env2",
+      "expected_workspace": "$ISOLATED_ROOT\\env2\\relative-workspace",
+      "node_path_resolve_output": "$ISOLATED_ROOT\\env2\\relative-workspace\n",
+      "node_exit_code": 0,
+      "installed_file_count": 1338,
+      "personal_crlf_sha256": "1194d3e1c49a19a264f0bf1e9fb1b76c1e957b3792ed76e56120c4fa68a6f272",
+      "preview_platform_files_unchanged": true,
+      "repeat_install_unchanged": true,
+      "owned_skills_remaining_after_teardown": 0
+    }
+  ],
+  "environment_path_source": "https://docs.openclaw.ai/help/environment",
+  "source_sha256": {
+    "scripts/lib/integrations/openclaw.py": "680510ff1a11cccd368f472e07e946c8f24079c44c89bc01c5f0ef1755d02252",
+    "scripts/lib/integrations/copilot.py": "2e8a4c12be6131c0f7f1ed5f70b13a67bfd704d7de5263a73d77d7e40342f902",
+    "scripts/lib/integrations/_catalog_adapters.py": "3664446975f5f56db72528a351b74c8a5589607560d6944705939665e92b1bc1",
+    "tests/integrations/test_kimi_qwen_openclaw.py": "dccaa49488bd3ff835dc6074492f7d9434b56badc3fe60b0bd578cebd569c130",
+    "tests/integrations/test_copilot_hermes_native.py": "1b2c08f6e6110011b781f4bc592539a16ce2f63e3e41221f6b3f45213865458c",
+    "scripts/lib/installer/instruction_merge.py": "df7562c0e8d6258c9b99308f901e49a9eb4d35c5c184f8fa7943126dbdcf7190",
+    "tests/installer/test_instruction_merge.py": "af48bb0288783afd19c1c42f996c5ee4740de3342a508e365dd821b8cad34545"
+  },
+  "bookkeeping": {
+    "copilot-profile\\.nexus-hub\\state\\locks\\8331cc618431c38dd478d75c69932bc8.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "env0\\.nexus-hub\\state\\locks\\13dae6e21ebee2caac99d33b274a6315.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "env1\\.nexus-hub\\state\\locks\\3f5c78d1ef6706d40c673f0e0b31e67a.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "env2\\.nexus-hub\\state\\locks\\2b3c2562bae2006b97446290fc8bdd81.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "openclaw-profile\\.nexus-hub\\state\\locks\\9cbad8b5a893f56cac4321f89dad9a06.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "earlier_failed_diagnostics": {
+    "prior_diagnostic": {
+      "sha256": "de43042a664e2b9a9d7648eea52dd821b3b59b38aa811738e2b9b6258d45e233",
+      "passed": false,
+      "cause": "Full target snapshot included the local instruction-merge lock created by preview; selected platform files were preserved."
+    },
+    "resolved_crlf_diagnostic": {
+      "sha256": "b0c7de678009dea71c52ee1be7d59d84c0aa6ed0b6cab568cd447a6186da6dce",
+      "passed": false,
+      "cause": "The preceding common helper normalized personal CRLF during teardown. This fresh run checks exact original CRLF after removal."
+    }
+  },
+  "focused_regression": {
+    "command": "python -m pytest -q -rs tests/integrations/test_kimi_qwen_openclaw.py tests/integrations/test_copilot_hermes_native.py tests/integrations/test_copilot_skills_surface.py tests/integrations/test_catalog_adapters.py tests/installer/test_instruction_merge.py",
+    "result": "197 passed, 2 skipped in 104.54s",
+    "exit_code": 0,
+    "stdout_raw_sha256": "fc06be14da4f601b3befab5e464f0fc20b970336081116f3ef6631ee709799f7",
+    "skips": "Existing Windows file/directory symlink privilege controls (WinError 1314); directory junction redirect controls passed",
+    "command_provenance": "Exact existing capture-wrapper argv recovered from the actual tool input; sys.executable was used, but its absolute interpreter path was not retained."
+  },
+  "independent_review": {
+    "verdict": "APPROVE",
+    "introduced_findings": 0,
+    "scope": "All seven source/test changes compared with frozen tree 95bee0ce647f4458836695da91e5027d47db605b",
+    "qualification": "Existing marker blank-line joining remains; exact original personal CRLF restoration is qualified by these actual cases, not arbitrary blank-line-count preservation"
+  },
+  "promotion": {
+    "verified_at_utc": "2026-10-12T09:18:27.585963+00:00",
+    "matched_command_logs": 56,
+    "matched_sources": 7,
+    "redactions": "Absolute interpreter becomes $PYTHON; temporary root and original worktree become $ISOLATED_ROOT and $WORKTREE. Large file inventories remain private with canonical mapping hashes; diagnostic absolute paths are omitted. Raw original receipt and log hashes above identify unmodified retained evidence."
+  },
+  "limits": [
+    "No authenticated native vendor UI or runtime was exercised.",
+    "Preview platform-byte comparisons exclude the redirected target .nexus-hub installer bookkeeping; local locks are listed separately.",
+    "Source hashes use actual checkout bytes."
+  ]
+}

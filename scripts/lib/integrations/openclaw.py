@@ -8,10 +8,13 @@ writes the two stable companions beside it, and flattens catalog skills plus
 command-skills into the native ``skills`` directory.
 
 Global scope resolves OpenClaw's active config and state paths through the
-documented ``OPENCLAW_CONFIG_PATH``, ``OPENCLAW_STATE_DIR``, and
-``OPENCLAW_HOME`` overrides. The workspace then resolves from
-``agents.defaults.workspace`` in the active config, ``OPENCLAW_WORKSPACE_DIR``,
-or ``<stateDir>/workspace``, in that order. Workspace scope treats the requested
+documented ``OPENCLAW_CONFIG_PATH``, ``OPENCLAW_STATE_DIR``, ``OPENCLAW_HOME``,
+and ``OPENCLAW_PROFILE`` overrides. A sole configured agent is selected
+implicitly; an explicit fleet requires ``agents.defaults.systemAgent.agentId``.
+Its per-entry workspace wins, and unpinned fleet entries derive separate
+workspaces below the configured root or state directory. The ordinary default
+resolves from ``agents.defaults.workspace``, ``OPENCLAW_WORKSPACE_DIR``, or
+``<stateDir>/workspace``. Workspace scope treats the requested
 target as the configured workspace itself; it does not invent a project-local
 ``.openclaw`` subdirectory that OpenClaw would not scan as a workspace root.
 
@@ -28,6 +31,7 @@ from __future__ import annotations
 import ast
 import json
 import os
+import re
 from pathlib import Path
 from typing import Any, ClassVar
 
@@ -514,9 +518,15 @@ def _openclaw_locations(openclaw_root: Path) -> tuple[Path, Path, Path, bool]:
         else system_home
     )
 
+    profile = os.environ.get("OPENCLAW_PROFILE", "")
+    if profile and not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]*", profile):
+        raise OpenClawConfigError("OPENCLAW_PROFILE must be a valid profile name")
+
     configured_state = os.environ.get("OPENCLAW_STATE_DIR", "").strip()
     if configured_state:
         state_dir = _resolve_workspace_path(configured_state, effective_home)
+    elif profile and profile != "default":
+        state_dir = (effective_home / f".openclaw-{profile}").resolve()
     elif configured_home:
         state_dir = (effective_home / ".openclaw").resolve()
     else:
@@ -533,10 +543,13 @@ def _openclaw_locations(openclaw_root: Path) -> tuple[Path, Path, Path, bool]:
 
 def _openclaw_is_active(openclaw_root: Path) -> bool:
     """Return whether default state or an explicit OpenClaw target is active."""
+    if os.environ.get("OPENCLAW_WORKSPACE_DIR", ""):
+        return True
     if any(
         os.environ.get(name, "").strip()
         for name in (
             "OPENCLAW_HOME",
+            "OPENCLAW_PROFILE",
             "OPENCLAW_STATE_DIR",
             "OPENCLAW_CONFIG_PATH",
             "OPENCLAW_WORKSPACE_DIR",
@@ -548,7 +561,7 @@ def _openclaw_is_active(openclaw_root: Path) -> bool:
 
 
 def _configured_workspace(openclaw_root: Path) -> Path:
-    """Resolve OpenClaw's configured default workspace without modifying config."""
+    """Resolve the profile's configured agent workspace without changing config."""
     home, state_dir, config_path, config_required = _openclaw_locations(openclaw_root)
     config = _read_openclaw_config(config_path, required=config_required)
 
@@ -564,17 +577,73 @@ def _configured_workspace(openclaw_root: Path) -> Path:
             raise OpenClawConfigError("config agents.defaults value must be an object")
         defaults = agents["defaults"]
 
+    configured_root: Path | None = None
     if "workspace" in defaults:
         configured = defaults["workspace"]
         if not isinstance(configured, str) or not configured.strip():
             raise OpenClawConfigError(
                 "config agents.defaults.workspace must be a non-empty string"
             )
-        return _resolve_workspace_path(configured, home)
+        configured_root = _resolve_workspace_path(configured, home)
 
-    from_env = os.environ.get("OPENCLAW_WORKSPACE_DIR", "").strip()
+    owner: str | None = None
+    if "systemAgent" in defaults:
+        system_agent = defaults["systemAgent"]
+        if not isinstance(system_agent, dict):
+            raise OpenClawConfigError("config agents.defaults.systemAgent must be an object")
+        if "agentId" in system_agent:
+            owner = system_agent["agentId"]
+            if not isinstance(owner, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]*", owner):
+                raise OpenClawConfigError("config systemAgent.agentId must be a valid agent ID")
+
+    if "list" in agents:
+        raise OpenClawConfigError("legacy agents.list requires OpenClaw migration before install")
+    entries = agents.get("entries")
+    if "entries" in agents:
+        if not isinstance(entries, dict) or not entries:
+            raise OpenClawConfigError("config agents.entries must be a non-empty object")
+        for agent_id, entry in entries.items():
+            if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]*", agent_id):
+                raise OpenClawConfigError("config agents.entries contains an invalid agent ID")
+            if not isinstance(entry, dict):
+                raise OpenClawConfigError(f"config agents.entries.{agent_id} must be an object")
+            if "workspace" in entry and (
+                not isinstance(entry["workspace"], str) or not entry["workspace"].strip()
+            ):
+                raise OpenClawConfigError(
+                    f"config agents.entries.{agent_id}.workspace must be a non-empty string"
+                )
+        if owner is None:
+            if len(entries) != 1:
+                raise OpenClawConfigError(
+                    "multiple agents require agents.defaults.systemAgent.agentId; "
+                    "use workspace scope for an explicitly selected workspace"
+                )
+            owner = next(iter(entries))
+        if owner not in entries:
+            raise OpenClawConfigError("config systemAgent.agentId does not name a configured agent")
+        entry = entries[owner]
+        if "workspace" in entry:
+            return _resolve_workspace_path(entry["workspace"], home)
+        if len(entries) > 1:
+            if configured_root is not None:
+                return configured_root / owner
+            return (state_dir / f"workspace-{owner}").resolve()
+    elif owner not in (None, "main"):
+        raise OpenClawConfigError("config systemAgent.agentId does not name the implicit main agent")
+
+    if configured_root is not None:
+        return configured_root
+    from_env = os.environ.get("OPENCLAW_WORKSPACE_DIR", "")
     if from_env:
-        return _resolve_workspace_path(from_env, home)
+        # OpenClaw passes this value literally to path.resolve, unlike config.
+        drive, _ = os.path.splitdrive(from_env)
+        base = (
+            os.path.abspath(drive)
+            if drive and not os.path.isabs(from_env)
+            else os.getcwd()
+        )
+        return Path(os.path.normpath(os.path.join(base, from_env)))
     return (state_dir / "workspace").resolve()
 
 

@@ -644,3 +644,41 @@ def test_windows_audit_tests_are_selected_only_on_windows():
     assert command.runs_on("windows")
     assert not command.runs_on("linux") and not command.runs_on("macos")
     assert command.timeout == 1200
+
+
+def test_platform_timeout_override_applies_only_to_its_host_class():
+    cmd = Command(name="x", argv=[PY, "-c", "pass"], timeout=1800, platform_timeouts={"windows": 2400})
+    assert cmd.timeout_on("windows") == 2400
+    assert cmd.timeout_on("linux") == 1800
+    assert cmd.timeout_on("macos") == 1800
+
+
+@pytest.mark.parametrize(
+    ("step", "shared", "windows"),
+    [("hook-tests", 1800, 2400), ("repo-tests-governance", 2700, 3600)],
+)
+def test_measured_windows_overrides_keep_shared_caps(step, shared, windows):
+    """v4.13.9 WN-38 and WN-35: only Windows is raised, from recorded runs."""
+    from scripts.ci import profiles
+
+    found = [c for g in profiles.PROFILES["full"] for c in g.commands if c.name == step]
+    assert len(found) == 1, step
+    cmd = found[0]
+    assert cmd.timeout == shared
+    assert dict(cmd.platform_timeouts) == {"windows": windows}
+    assert cmd.timeout_on("linux") == shared and cmd.timeout_on("macos") == shared
+
+
+def test_run_group_runs_each_command_with_its_host_timeout(monkeypatch):
+    seen = []
+
+    def fake_run(cmd, repo_root, secrets, quiet):
+        seen.append(cmd.timeout)
+        return run_mod.CommandResult(name=cmd.name, group="", status="pass")
+
+    monkeypatch.setattr(run_mod, "run_command", fake_run)
+    cmd = Command(name="t", argv=[PY, "-c", "pass"], timeout=10, platform_timeouts={"windows": 20})
+    group = Group(name="override-group", commands=(cmd,))
+    for host, expected in (("windows", 20), ("linux", 10)):
+        run_mod.run_group(group, host, _all_scopes(), REPO_ROOT, [], quiet=True)
+        assert seen[-1] == expected, host

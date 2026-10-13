@@ -22,4 +22,5 @@ The record lives at `~/.nexus-hub/runs/<sha256(repo root, remote URL, plan path)
 
 - A run resumes after any git operation, including removal of the plan's own worktree.
 - Records accumulate; stale records (session gone, older than 72 hours) are ignored and reported once.
+    - **Amended 2026-10-10 (v4.13.11 T028)**: the 72-hour expiry was removed in v4.13.7 (commit `e46a1dd48`). A record now never expires; it stops counting as live when the completion check stamps it `completed`, or when the user retires it with `record retire`, and a record bound to another session is ignored for that session whatever its age. See "Run record lifetime" in the completion contract and `test_an_old_record_never_expires`.
 - The HMAC and approval-origin rules raise the cost of widening an approval but are not a sandbox; the contract's threat model says so.

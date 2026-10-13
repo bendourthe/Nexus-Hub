@@ -250,3 +250,21 @@ def test_shipped_layer_reports_in_sync_against_its_own_recorded_roster(runner) -
 
     assert result.returncode == 0
     assert "IN SYNC" in result.stdout
+
+
+def test_shipped_rosters_are_split_by_platform(runner) -> None:
+    """v4.13.9 WN-23: the claude-code roster holds only Claude ids, and every profiled model
+    sits in the roster of the platform it names, each entry IN SYNC with itself."""
+    index = json.loads(
+        (REPO_ROOT / BUNDLE_REL / "assets" / "profiles-index.json").read_text(encoding="utf-8")
+    )
+    meta = index["meta"]
+    assert meta["platform"] == "claude-code"
+    assert [m for m in meta["roster"] if not m.startswith("claude-")] == []
+    rosters = {e["platform"]: e["roster"] for e in meta["platforms"]}
+    rosters[meta["platform"]] = meta["roster"]
+    misplaced = [m for m, e in index["models"].items() if m not in rosters.get(e["platform"], [])]
+    assert misplaced == []
+    for entry in meta["platforms"]:
+        result = runner(SCRIPT, REPO_ROOT, ["--platform", entry["platform"], *entry["roster"]])
+        assert "IN SYNC" in result.stdout, result.stdout

@@ -1,0 +1,301 @@
+{
+  "version": "v4.13.11",
+  "recorded_at_utc": "2026-10-13T09:38:24.689236+00:00",
+  "purpose": "Preserve selected post-install copy while satisfying the existing neutral-tone contract",
+  "source": {
+    "path": "guides/website/nexus-hub-guide.html",
+    "raw_sha256": "de18b6c3bd37ea5c43a78b4b9beac8810212d06cec4a459e834fc1c02aa6f1fe",
+    "delta": "Three your-to-the substitutions in two captions; commands, restart-first order, titles and structure retained"
+  },
+  "ci": {
+    "run_id": 38372688825,
+    "head": "4f4299a6128c4cd332f1e456b504f874d5354c91",
+    "root_cause": "Existing test_static_document_never_addresses_the_reader rejected three occurrences of your in the selected imported captions",
+    "artifacts": [
+      {
+        "artifact_id": 11801481973,
+        "bytes": 9319,
+        "archive_sha256": "25eee38b217dba6b22e9ec5bed00ee57f6404cb1b68014d3fc43dce52704e083",
+        "commands": [
+          {
+            "name": "hook-tests",
+            "status": "pass",
+            "exit_code": 0,
+            "duration_s": 1090.856601326,
+            "terminal_summary": "2464 passed, 40 skipped in 1090.01s (0:18:10)"
+          },
+          {
+            "name": "repo-tests-skills",
+            "status": "pass",
+            "exit_code": 0,
+            "duration_s": 78.54610411599992,
+            "terminal_summary": "2024 passed, 32 skipped in 78.20s (0:01:18)"
+          },
+          {
+            "name": "repo-tests-installer",
+            "status": "pass",
+            "exit_code": 0,
+            "duration_s": 108.4823800040001,
+            "terminal_summary": "550 passed, 7 skipped in 108.17s (0:01:48)"
+          },
+          {
+            "name": "repo-tests-integrations-platform-a",
+            "status": "pass",
+            "exit_code": 0,
+            "duration_s": 13.646524861999978,
+            "terminal_summary": "128 passed in 13.32s"
+          },
+          {
+            "name": "repo-tests-integrations-platform-b",
+            "status": "pass",
+            "exit_code": 0,
+            "duration_s": 22.264693828999953,
+            "terminal_summary": "246 passed, 3 skipped in 21.91s"
+          },
+          {
+            "name": "repo-tests-integrations-adapter-contracts",
+            "status": "pass",
+            "exit_code": 0,
+            "duration_s": 53.33381819100009,
+            "terminal_summary": "174 passed, 20 skipped in 53.01s"
+          },
+          {
+            "name": "repo-tests-integrations-repository-contracts",
+            "status": "pass",
+            "exit_code": 0,
+            "duration_s": 7.68174669699988,
+            "terminal_summary": "55 passed in 7.38s"
+          },
+          {
+            "name": "repo-tests-integrations-install",
+            "status": "pass",
+            "exit_code": 0,
+            "duration_s": 30.58480819700003,
+            "terminal_summary": "253 passed, 13 skipped in 30.23s"
+          },
+          {
+            "name": "repo-tests-integrations-lifecycle",
+            "status": "pass",
+            "exit_code": 0,
+            "duration_s": 40.504364441999996,
+            "terminal_summary": "145 passed, 2 skipped in 40.18s"
+          },
+          {
+            "name": "repo-tests-integrations-map",
+            "status": "pass",
+            "exit_code": 0,
+            "duration_s": 3.9733201989999998,
+            "terminal_summary": "4 passed in 3.63s"
+          },
+          {
+            "name": "repo-tests-plans",
+            "status": "pass",
+            "exit_code": 0,
+            "duration_s": 8.93394004899983,
+            "terminal_summary": "94 passed in 8.64s"
+          },
+          {
+            "name": "repo-tests-ci",
+            "status": "pass",
+            "exit_code": 0,
+            "duration_s": 9.336549198000057,
+            "terminal_summary": "111 passed in 8.85s"
+          },
+          {
+            "name": "repo-tests-guides",
+            "status": "fail",
+            "exit_code": 1,
+            "duration_s": 5.826992474000008,
+            "terminal_summary": "1 failed, 310 passed, 674 skipped, 4 warnings in 5.49s"
+          },
+          {
+            "name": "repo-tests-governance",
+            "status": "pass",
+            "exit_code": 0,
+            "duration_s": 420.89769767200005,
+            "terminal_summary": "3027 passed, 67 skipped in 420.45s (0:07:00)"
+          },
+          {
+            "name": "skill-server",
+            "status": "pass",
+            "exit_code": 0,
+            "duration_s": 1.367462956999816,
+            "terminal_summary": "43 passed in 1.00s"
+          },
+          {
+            "name": "code-search",
+            "status": "pass",
+            "exit_code": 0,
+            "duration_s": 8.031603808,
+            "terminal_summary": "385 passed in 7.53s"
+          },
+          {
+            "name": "web-fetch",
+            "status": "pass",
+            "exit_code": 0,
+            "duration_s": 2.11919402500007,
+            "terminal_summary": "29 passed in 1.64s"
+          },
+          {
+            "name": "skill-scanner",
+            "status": "pass",
+            "exit_code": 0,
+            "duration_s": 9.085023309000007,
+            "terminal_summary": "89 passed in 8.80s"
+          },
+          {
+            "name": "context-compressor",
+            "status": "pass",
+            "exit_code": 0,
+            "duration_s": 1.567784022999831,
+            "terminal_summary": "235 passed, 2 skipped in 1.23s"
+          },
+          {
+            "name": "memory",
+            "status": "pass",
+            "exit_code": 0,
+            "duration_s": 1.317912994999915,
+            "terminal_summary": "54 passed in 1.05s"
+          },
+          {
+            "name": "compression-accuracy-gate",
+            "status": "pass",
+            "exit_code": 0,
+            "duration_s": 0.3148982810000689,
+            "terminal_summary": "Compression accuracy gate PASSED (CCR 100.0%, signatures 100.0%, reduction 45.8%)."
+          }
+        ]
+      },
+      {
+        "artifact_id": 11800721828,
+        "bytes": 19886,
+        "archive_sha256": "33a1c3f520e472a63861b3a033f1716b49938ee752661d7710180d6dfc5312ae",
+        "commands": [
+          {
+            "name": "guide browser contracts: guide pages and visual detector",
+            "status": "fail",
+            "exit_code": 1,
+            "duration_s": 1191.868785888,
+            "terminal_summary": "1 failed, 698 passed, 2 skipped, 4 warnings in 1191.39s (0:19:51)"
+          }
+        ]
+      }
+    ]
+  },
+  "local": {
+    "red": {
+      "file_sha256": "da12fbbfa728c930a12e4c243b2cd646b6a8d0fcb695e5897d172de3005c442a",
+      "suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "1",
+          "skipped": "0",
+          "tests": "1",
+          "time": "1.820",
+          "timestamp": "2026-10-13T02:23:13.414831",
+          "hostname": "SP-BDOURTHE5680"
+        }
+      ]
+    },
+    "green": {
+      "file_sha256": "ca4ccc65ed8e614b03212056460e689d8a1887a2097f931d660d17482814ce53",
+      "suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "21",
+          "time": "55.242",
+          "timestamp": "2026-10-13T02:24:53.436956",
+          "hostname": "SP-BDOURTHE5680"
+        }
+      ]
+    },
+    "fast": {
+      "passed": 17,
+      "failed": 0,
+      "duration_s": 177.5
+    },
+    "browser": {
+      "observed_at_utc": "2026-10-13T09:32:00.930568+00:00",
+      "source": "guides/website/nexus-hub-guide.html",
+      "source_raw_sha256": "de18b6c3bd37ea5c43a78b4b9beac8810212d06cec4a459e834fc1c02aa6f1fe",
+      "browser_version": "151.0.7922.34",
+      "clipboard_boundary": "actual Copy button handlers wrote to an isolated in-page clipboard sink; operating-system clipboard not exercised",
+      "observations": [
+        {
+          "titles": [
+            "Restart the assistant",
+            "Check that it installed",
+            "Check or update version"
+          ],
+          "captions": [
+            "Hooks and rules load at startup, so they only take effect after a restart.",
+            "Run either command in the agentic platform to instruct the agent to display the Nexus Hub commands cheatsheet:",
+            "Run either command in a PowerShell or terminal (depending on the operating system):",
+            "nexus-hub version prints the installed version.",
+            "nexus-hub upgrade checks for the latest release and installs it."
+          ],
+          "copy_payloads": [
+            "/skills list",
+            "/commands",
+            "nexus-hub version",
+            "nexus-hub upgrade"
+          ],
+          "handler_payloads": [
+            "/skills list",
+            "/commands",
+            "nexus-hub version",
+            "nexus-hub upgrade"
+          ],
+          "horizontal_overflow": false,
+          "width": 1440,
+          "screenshot": "steps-1440.png"
+        },
+        {
+          "titles": [
+            "Restart the assistant",
+            "Check that it installed",
+            "Check or update version"
+          ],
+          "captions": [
+            "Hooks and rules load at startup, so they only take effect after a restart.",
+            "Run either command in the agentic platform to instruct the agent to display the Nexus Hub commands cheatsheet:",
+            "Run either command in a PowerShell or terminal (depending on the operating system):",
+            "nexus-hub version prints the installed version.",
+            "nexus-hub upgrade checks for the latest release and installs it."
+          ],
+          "copy_payloads": [
+            "/skills list",
+            "/commands",
+            "nexus-hub version",
+            "nexus-hub upgrade"
+          ],
+          "handler_payloads": [
+            "/skills list",
+            "/commands",
+            "nexus-hub version",
+            "nexus-hub upgrade"
+          ],
+          "horizontal_overflow": false,
+          "width": 390,
+          "screenshot": "steps-390.png"
+        }
+      ]
+    }
+  },
+  "review": {
+    "verdict": "APPROVE",
+    "findings": 0,
+    "scope": "Read-only review of the three substitutions and preserved intent"
+  },
+  "limits": [
+    "Local Chromium 151.0.7922.34 differs from hosted Chromium 153.0.8010.12",
+    "First browser probe clicked code cells rather than Copy buttons and failed before writing observation results; corrected actual-button probe passed",
+    "Isolated in-page clipboard sink was exercised; operating-system clipboard and live accounts were not",
+    "Focused passing tests do not replace required hosted checks",
+    "No test assertion, skip, timeout cap or workflow was changed"
+  ]
+}

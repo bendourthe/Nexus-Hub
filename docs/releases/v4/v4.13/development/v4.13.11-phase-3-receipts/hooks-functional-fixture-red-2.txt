@@ -1,0 +1,8 @@
+{"receipt": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\functional-byte-devlog-green\\receipt.json", "status": "FAIL", "invocations": 14, "source_unchanged": true, "elapsed_seconds": 20.95823139999993}
+
+--- STDERR ---
+Traceback (most recent call last):
+  File "C:\Users\username\AppData\Local\Temp\v41311-phase3-hooks-resume\functional-byte-devlog-final.py", line 89, in <module>
+    assert 0 < len(data) - len(prior) <= 4096 and text.count("Session auto-summary [auto]") == i + 1
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

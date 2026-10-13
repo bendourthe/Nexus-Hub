@@ -14,6 +14,7 @@ on:
     branches: [main, develop]
     paths:
       - 'extensions/claude-usage-monitor/**'
+      - '.github/workflows/claude-usage-monitor.yml'
 
 # Cancel superseded runs of the same ref (the single largest action-minute saver).
 # v3.15.8 Phase 9.3: least privilege. This workflow builds and tests only --
@@ -43,7 +44,10 @@ jobs:
           cache-dependency-path: extensions/claude-usage-monitor/package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        # --ignore-scripts: no dependency lifecycle script runs (AR-60). Proven
+        # 2026-10-10 that compile, tests, and the VSIX are byte-identical without
+        # them; ttf2woff2 is used only by the local icon generator, not this job.
+        run: npm ci --ignore-scripts
 
       - name: Compile (tsc)
         run: npm run compile

@@ -1,6 +1,6 @@
 # Prompting Profile: gemini-3.5-flash-lite
 
-**Platform**: claude-code
+**Platform**: gemini
 **Last verified**: 2026-09-08
 **Roster provenance**: `config`
 

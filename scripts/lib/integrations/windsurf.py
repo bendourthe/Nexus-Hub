@@ -59,19 +59,27 @@ workflows under `.windsurf/workflows/`.
 
 # Only catalog hooks whose Cascade event and exit/output contract are compatible
 # are registered. Each tuple is (catalog script, translated Claude tool name).
+# The guards and approval capture were added in v4.13.11 (WN-4-v4131, DF-5-v4132)
+# after the payload fields they read were verified on 2026-10-10 against
+# https://docs.devin.ai/desktop/cascade/hooks (see _cascade_hook_compat.py).
 _CASCADE_HOOKS: dict[str, tuple[tuple[str, str], ...]] = {
     "pre_run_command": (
         ("git-guardrails.sh", "Bash"),
+        ("user-edit-guard.sh", "Bash"),
+        ("attribution-guard.sh", "Bash"),
         ("memory-store-guard.sh", "Bash"),
     ),
     "pre_write_code": (
         ("secret-scan.sh", "Write"),
+        ("user-edit-guard.sh", "Write"),
+        ("attribution-guard.sh", "Write"),
         ("html-responsive-guard.sh", "Write"),
         ("large-file-guard.sh", "Write"),
         ("memory-store-guard.sh", "Write"),
         ("escalation-trigger.sh", "Write"),
     ),
     "post_write_code": (
+        ("user-edit-guard.sh", "Write"),
         ("auto-format-on-write.sh", "Write"),
         ("lint-on-write.sh", "Write"),
         ("provenance-ledger.sh", "Write"),
@@ -79,8 +87,15 @@ _CASCADE_HOOKS: dict[str, tuple[tuple[str, str], ...]] = {
         ("test-gap-notice.sh", "Write"),
         ("dependency-staleness-notice.sh", "Write"),
     ),
-    "post_run_command": (("provenance-ledger.sh", "Bash"),),
+    "post_run_command": (
+        ("user-edit-guard.sh", "Bash"),
+        ("provenance-ledger.sh", "Bash"),
+    ),
+    # user-edit-guard records the agent's reads so a later write to a file it read
+    # is not mistaken for an unrecorded one (Claude records on PostToolUse Read).
+    "post_read_code": (("user-edit-guard.sh", "Read"),),
     "pre_user_prompt": (
+        ("approval-capture.sh", ""),
         ("learning-capture.sh", ""),
         ("skill-activation-suggest.py", ""),
     ),

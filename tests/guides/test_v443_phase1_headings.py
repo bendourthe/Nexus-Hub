@@ -207,8 +207,11 @@ def test_static_document_never_addresses_the_reader(guide_text: str) -> None:
 
 TRAINING = GUIDE.with_name("training.html")
 SMALL_WORDS = {"a", "an", "and", "as", "at", "by", "for", "in", "of", "on", "or", "the", "to", "vs", "with"}
+# v4.13.11 Phase 7: a Cheatsheets card's command name is an h3 for the outline but a code
+# identifier on screen (`/describe`), so it keeps the code role and is not a keyword label.
+# test_v41311_phase7_guide_defects.py asserts those headings are exactly the command names.
 HEADINGS_JS = """() => [...document.querySelectorAll('main h1, main h2, main h3')]
-  .filter(h => h.getClientRects().length && !h.closest('figure, .pg-fig, .ide, .ss-host, .cx-preview, .tr-reward'))
+  .filter(h => h.getClientRects().length && !h.closest('figure, .pg-fig, .ide, .ss-host, .cx-preview, .tr-reward') && !h.matches('.cs-cmd .cs-name'))
   .map(h => { const c = getComputedStyle(h);
     return { tag: h.tagName, text: h.textContent.trim(), size: c.fontSize, weight: c.fontWeight, color: c.color,
              gradient: c.webkitTextFillColor === 'rgba(0, 0, 0, 0)' || /gradient/.test(c.backgroundImage) }; })"""

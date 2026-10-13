@@ -27,7 +27,7 @@ Use this skill for:
 
 **When NOT to use this skill**:
 
-- Checking current consumption against your usage window or rate limit -- use `/usage` (the `check-usage` skill); this skill is the task-time counterpart, not a consumption monitor.
+- Checking current consumption against your usage window or rate limit -- use `/usage` (the shared usage probe); this skill is the task-time counterpart, not a consumption monitor.
 - Enforcing a hard dollar spend cap on an autonomous agent -- use `[[ai-billing-safeguards]]`; routing recommends a tier, it does not block execution at a budget.
 - Choosing an API provider (Anthropic vs. Bedrock vs. Vertex vs. OpenRouter) rather than a model tier -- use `[[multi-provider-ai]]`.
 
@@ -205,7 +205,7 @@ Each platform is a small profile. Adding a platform is adding a row, not rewriti
 - [[ai-billing-safeguards]] -- hard spend caps the router respects; routing recommends a tier, billing-safeguards block at a budget.
 - [[agent-orchestration-primitives]] -- decides whether to fan out at all; routing then picks the tier each agent runs on.
 - [[implementation-plan]] -- scores plan phases to generic tier/effort and owns the dated four-provider Current model map.
-- `/usage` (the `check-usage` skill) -- the consumption-time counterpart that reports usage against limits; this skill is the planning/task-time counterpart and does not duplicate it.
+- `/usage` (the shared usage probe) -- the consumption-time counterpart that reports usage against limits; this skill is the planning/task-time counterpart and does not duplicate it.
 
 ---
 

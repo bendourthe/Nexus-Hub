@@ -1,0 +1,2337 @@
+[
+  {
+    "diagnostic_copy": false,
+    "trial": 0,
+    "calls": [
+      {
+        "id": 0,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 1,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 2,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 3,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 4,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 5,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 6,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 7,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 8,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 9,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 10,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 11,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 12,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 13,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 14,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 15,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 16,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 17,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 18,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 19,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 20,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 21,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 22,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 23,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 24,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 25,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 26,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 27,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 28,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 29,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 30,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 31,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 32,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 33,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 34,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 35,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 36,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 37,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 38,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 39,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 40,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 41,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 42,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 43,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 44,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 45,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 46,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 47,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 48,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 49,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 50,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 51,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 52,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 53,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 54,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 55,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 56,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 57,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 58,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 59,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 60,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 61,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 62,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 63,
+        "exit": 0,
+        "stderr": ""
+      }
+    ],
+    "expected": 64,
+    "actual": 64,
+    "missing": [],
+    "bytes": 111400,
+    "cap": 1048576,
+    "seconds": 4.39000000001397,
+    "sha256": "76e2c82aa3b8d277c38007c80094abc3c2dfb2257eac5124bfd03ef9d2aa9392"
+  },
+  {
+    "diagnostic_copy": false,
+    "trial": 1,
+    "calls": [
+      {
+        "id": 0,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 1,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 2,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 3,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 4,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 5,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 6,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 7,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 8,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 9,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 10,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 11,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 12,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 13,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 14,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 15,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 16,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 17,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 18,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 19,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 20,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 21,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 22,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 23,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 24,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 25,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 26,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 27,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 28,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 29,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 30,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 31,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 32,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 33,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 34,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 35,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 36,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 37,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 38,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 39,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 40,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 41,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 42,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 43,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 44,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 45,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 46,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 47,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 48,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 49,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 50,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 51,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 52,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 53,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 54,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 55,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 56,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 57,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 58,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 59,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 60,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 61,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 62,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 63,
+        "exit": 0,
+        "stderr": ""
+      }
+    ],
+    "expected": 64,
+    "actual": 64,
+    "missing": [],
+    "bytes": 111400,
+    "cap": 1048576,
+    "seconds": 4.60999999998603,
+    "sha256": "76e2c82aa3b8d277c38007c80094abc3c2dfb2257eac5124bfd03ef9d2aa9392"
+  },
+  {
+    "diagnostic_copy": false,
+    "trial": 2,
+    "calls": [
+      {
+        "id": 0,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 1,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 2,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 3,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 4,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 5,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 6,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 7,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 8,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 9,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 10,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 11,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 12,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 13,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 14,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 15,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 16,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 17,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 18,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 19,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 20,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 21,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 22,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 23,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 24,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 25,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 26,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 27,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 28,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 29,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 30,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 31,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 32,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 33,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 34,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 35,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 36,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 37,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 38,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 39,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 40,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 41,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 42,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 43,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 44,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 45,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 46,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 47,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 48,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 49,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 50,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 51,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 52,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 53,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 54,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 55,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 56,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 57,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 58,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 59,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 60,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 61,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 62,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 63,
+        "exit": 0,
+        "stderr": ""
+      }
+    ],
+    "expected": 64,
+    "actual": 64,
+    "missing": [],
+    "bytes": 111400,
+    "cap": 1048576,
+    "seconds": 6.452999999979511,
+    "sha256": "76e2c82aa3b8d277c38007c80094abc3c2dfb2257eac5124bfd03ef9d2aa9392"
+  },
+  {
+    "diagnostic_copy": false,
+    "trial": 3,
+    "calls": [
+      {
+        "id": 0,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 1,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 2,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 3,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 4,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 5,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 6,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 7,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 8,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 9,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 10,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 11,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 12,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 13,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 14,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 15,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 16,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 17,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 18,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 19,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 20,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 21,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 22,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 23,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 24,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 25,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 26,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 27,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 28,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 29,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 30,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 31,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 32,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 33,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 34,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 35,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 36,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 37,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 38,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 39,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 40,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 41,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 42,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 43,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 44,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 45,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 46,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 47,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 48,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 49,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 50,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 51,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 52,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 53,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 54,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 55,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 56,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 57,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 58,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 59,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 60,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 61,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 62,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 63,
+        "exit": 0,
+        "stderr": ""
+      }
+    ],
+    "expected": 64,
+    "actual": 64,
+    "missing": [],
+    "bytes": 111400,
+    "cap": 1048576,
+    "seconds": 5.797000000020489,
+    "sha256": "76e2c82aa3b8d277c38007c80094abc3c2dfb2257eac5124bfd03ef9d2aa9392"
+  },
+  {
+    "diagnostic_copy": false,
+    "trial": 4,
+    "calls": [
+      {
+        "id": 0,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 1,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 2,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 3,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 4,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 5,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 6,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 7,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 8,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 9,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 10,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 11,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 12,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 13,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 14,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 15,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 16,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 17,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 18,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 19,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 20,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 21,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 22,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 23,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 24,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 25,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 26,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 27,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 28,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 29,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 30,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 31,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 32,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 33,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 34,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 35,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 36,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 37,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 38,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 39,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 40,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 41,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 42,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 43,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 44,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 45,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 46,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 47,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 48,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 49,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 50,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 51,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 52,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 53,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 54,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 55,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 56,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 57,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 58,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 59,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 60,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 61,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 62,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 63,
+        "exit": 0,
+        "stderr": ""
+      }
+    ],
+    "expected": 64,
+    "actual": 63,
+    "missing": [
+      2
+    ],
+    "bytes": 109656,
+    "cap": 1048576,
+    "seconds": 4.984000000054948,
+    "sha256": "76e2c82aa3b8d277c38007c80094abc3c2dfb2257eac5124bfd03ef9d2aa9392"
+  },
+  {
+    "diagnostic_copy": true,
+    "trial": 0,
+    "calls": [
+      {
+        "id": 0,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 1,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 2,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 3,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 4,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 5,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 6,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 7,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 8,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 9,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 10,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 11,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 12,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 13,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 14,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 15,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 16,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 17,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 18,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 19,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 20,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 21,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 22,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 23,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 24,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 25,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 26,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 27,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 28,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 29,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 30,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 31,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 32,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 33,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 34,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 35,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 36,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 37,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 38,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 39,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 40,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 41,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 42,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 43,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 44,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 45,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 46,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 47,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 48,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 49,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 50,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 51,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 52,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 53,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 54,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 55,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 56,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 57,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 58,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 59,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 60,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 61,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 62,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 63,
+        "exit": 0,
+        "stderr": ""
+      }
+    ],
+    "expected": 64,
+    "actual": 64,
+    "missing": [],
+    "bytes": 111400,
+    "cap": 1048576,
+    "seconds": 6.186999999918044,
+    "sha256": "76e2c82aa3b8d277c38007c80094abc3c2dfb2257eac5124bfd03ef9d2aa9392"
+  },
+  {
+    "diagnostic_copy": true,
+    "trial": 1,
+    "calls": [
+      {
+        "id": 0,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 1,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 2,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 3,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 4,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 5,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 6,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 7,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 8,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 9,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 10,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 11,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 12,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 13,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 14,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 15,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 16,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 17,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 18,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 19,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 20,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 21,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 22,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 23,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 24,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 25,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 26,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 27,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 28,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 29,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 30,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 31,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 32,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 33,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 34,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 35,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 36,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 37,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 38,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 39,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 40,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 41,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 42,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 43,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 44,
+        "exit": 0,
+        "stderr": "APPEND: System.Management.Automation.MethodInvocationException: Exception calling \"AppendAllText\" with \"3\" argument(s): \"The process cannot access the file 'C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-learning-race\\red-stress-True-1\\.nexus\\observations.jsonl' because it is being used by another process.\" ---> System.IO.IOException: The process cannot access the file 'C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-learning-race\\red-stress-True-1\\.nexus\\observations.jsonl' because it is being used by another process.\n   at System.IO.__Error.WinIOError(Int32 errorCode, String maybeFullPath)\n   at System.IO.FileStream.Init(String path, FileMode mode, FileAccess access, Int32 rights, Boolean useRights, FileShare share, Int32 bufferSize, FileOptions options, SECURITY_ATTRIBUTES secAttrs, String msgPath, Boolean bFromProxy, Boolean useLongPath, Boolean checkHost)\n   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, String msgPath, Boolean bFromProxy, Boolean useLongPath, Boolean checkHost)\n   at System.IO.StreamWriter.CreateFile(String path, Boolean append, Boolean checkHost)\n   at System.IO.StreamWriter..ctor(String path, Boolean append, Encoding encoding, Int32 bufferSize, Boolean checkHost)\n   at System.IO.StreamWriter..ctor(String path, Boolean append, Encoding encoding)\n   at System.IO.File.InternalAppendAllText(String path, String contents, Encoding encoding)\n   at CallSite.Target(Closure , CallSite , Type , Object , Object , Object )\n   --- End of inner exception stack trace ---\n   at System.Management.Automation.ExceptionHandlingOps.CheckActionPreference(FunctionContext funcContext, Exception exception)\n   at System.Management.Automation.Interpreter.ActionCallInstruction`2.Run(InterpretedFrame frame)\n   at System.Management.Automation.Interpreter.EnterTryCatchFinallyInstruction.Run(InterpretedFrame frame)\n   at System.Management.Automation.Interpreter.EnterTryCatchFinallyInstruction.Run(InterpretedFrame frame)\n"
+      },
+      {
+        "id": 45,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 46,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 47,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 48,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 49,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 50,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 51,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 52,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 53,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 54,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 55,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 56,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 57,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 58,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 59,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 60,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 61,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 62,
+        "exit": 0,
+        "stderr": ""
+      },
+      {
+        "id": 63,
+        "exit": 0,
+        "stderr": ""
+      }
+    ],
+    "expected": 64,
+    "actual": 63,
+    "missing": [
+      44
+    ],
+    "bytes": 109660,
+    "cap": 1048576,
+    "seconds": 5.547000000020489,
+    "sha256": "76e2c82aa3b8d277c38007c80094abc3c2dfb2257eac5124bfd03ef9d2aa9392"
+  }
+]

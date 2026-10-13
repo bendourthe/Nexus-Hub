@@ -1862,6 +1862,89 @@ def _read_text_file(path: str, max_text_bytes: int) -> tuple[str, bool, bool]:
     return text, truncated, decode_fallback
 
 
+# --- secret redaction for repository walks ----------------------------------
+#
+# A walked repository is copied into a site the user may share, so text from
+# walked files passes through these detectors first. The patterns mirror
+# catalog/hooks/secret-scan.sh plus common token shapes. A match becomes
+# "[REDACTED:<category>]"; the category always comes from this fixed table,
+# never from the input, and the matched value is never logged or reported.
+
+_PEM_BLOCK_RE = re.compile(
+    r"-----BEGIN [A-Z0-9 ]*PRIVATE KEY(?: BLOCK)?-----"
+    r"(?:.*?-----END [A-Z0-9 ]*PRIVATE KEY(?: BLOCK)?-----|.*\Z)",
+    re.DOTALL,
+)
+_SECRET_RES: list = [
+    ("aws-access-key", re.compile(r"\b(?:AKIA|ASIA)[0-9A-Z]{16}\b")),
+    (
+        # Every case and separator spelling of the key name, with or without the
+        # aws prefix: aws_secret_access_key, secretAccessKey, SecretAccessKey
+        # (STS JSON), secret-access-key. A quote may close a JSON or YAML key.
+        "aws-secret-key",
+        re.compile(
+            r"(?i)((?:aws[_-]?)?secret[_-]?access[_-]?key[\"']?\s*[:=]\s*[\"']?)"
+            r"([A-Za-z0-9/+=]{40})"
+        ),
+    ),
+    ("github-token", re.compile(r"\bgh[pousr]_[A-Za-z0-9]{36,}\b")),
+    ("github-token", re.compile(r"\bgithub_pat_[A-Za-z0-9_]{50,}\b")),
+    ("slack-token", re.compile(r"\bxox[abposr]-[0-9A-Za-z-]{10,}")),
+    ("api-key", re.compile(r"\bsk-(?:[A-Za-z0-9_-]*-)?[A-Za-z0-9]{20,}")),
+    ("google-api-key", re.compile(r"\bAIza[0-9A-Za-z_-]{35}\b")),
+    ("stripe-key", re.compile(r"\b[rp]k_(?:live|test)_[0-9A-Za-z]{16,}\b")),
+    (
+        "jwt",
+        re.compile(r"\beyJ[A-Za-z0-9_-]{8,}\.eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}"),
+    ),
+    (
+        "credential-assignment",
+        re.compile(
+            r"(?i)((?:password|passwd|pwd|secret|client_secret|api[_-]?key|"
+            r"access[_-]?token|auth[_-]?token|private[_-]?key)[\"']?\s*[:=]\s*)"
+            r"(\"[^\"\s]{8,}\"|'[^'\s]{8,}'|[^\s\"'#,;()\[\]{}]{8,}(?=\s|#|$))"
+        ),
+    ),
+]
+
+
+def _redact_secrets(text: str, counts: dict) -> str:
+    """Replace secret-shaped substrings with [REDACTED:<category>] markers.
+
+    counts is updated per category; it never receives the matched value.
+    """
+    if not text:
+        return text
+
+    def _sub(category: str, keep_prefix: bool):
+        def repl(match: re.Match) -> str:
+            if keep_prefix and "[REDACTED:" in match.group(2):
+                return match.group(0)  # already redacted by a sharper detector
+            counts[category] = counts.get(category, 0) + 1
+            prefix = match.group(1) if keep_prefix else ""
+            return f"{prefix}[REDACTED:{category}]"
+
+        return repl
+
+    text = _PEM_BLOCK_RE.sub(_sub("private-key", False), text)
+    for category, rx in _SECRET_RES:
+        text = rx.sub(_sub(category, rx.groups >= 2), text)
+    return text
+
+
+def _redact_value(value, counts: dict):
+    """Redact every string in a nested section structure, except data URIs."""
+    if isinstance(value, str):
+        if value.startswith("data:"):
+            return value
+        return _redact_secrets(value, counts)
+    if isinstance(value, list):
+        return [_redact_value(item, counts) for item in value]
+    if isinstance(value, dict):
+        return {key: _redact_value(item, counts) for key, item in value.items()}
+    return value
+
+
 def _one_section(heading: str, blocks: list, kind: str = "content") -> dict:
     """A single source-index-0 section (the caller fixes source_index later)."""
     return {
@@ -2822,6 +2905,19 @@ def build_model(
         except Exception as exc:  # noqa: BLE001 - logged, then this file is skipped
             print(f"Warning: failed to extract {path}: {exc}", file=sys.stderr)
             continue
+        if walk_report is not None:
+            # A directory walk ingests files the user did not pick one by one.
+            redacted: dict = {}
+            sections = _redact_value(sections, redacted)
+            detected_title = _redact_value(detected_title, redacted)
+            if redacted:
+                cov["secrets_redacted"] = dict(sorted(redacted.items()))
+                total = walk_report.get("secrets_redacted", 0) + sum(redacted.values())
+                walk_report["secrets_redacted"] = total
+                _note(
+                    walk_report,
+                    f"secrets redacted: {rel_path} ({', '.join(sorted(redacted))})",
+                )
         index = len(sources)
         title = detected_title or Path(path).stem
         source = {"path": rel_path, "format": fmt, "title": title}
@@ -2985,6 +3081,12 @@ def main(argv: list | None = None) -> int:
             f"{walk['file_count_capped']} over the file cap.",
             file=sys.stderr,
         )
+        if walk.get("secrets_redacted"):
+            print(
+                f"NOTE: {walk['secrets_redacted']} secret-shaped value(s) replaced "
+                f"with [REDACTED:<category>] markers (see coverage.walk.notes).",
+                file=sys.stderr,
+            )
     placeholders = model.get("placeholders") or []
     if placeholders:
         print(

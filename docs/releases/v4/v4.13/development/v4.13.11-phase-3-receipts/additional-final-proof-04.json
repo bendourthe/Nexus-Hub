@@ -1,0 +1,79 @@
+{
+  "source_sha256": "bee7ab831e7f2fe2a3414952811eedff4433617d0503cb6dced012fcda8a2b39",
+  "source_sha256_at_end": "bee7ab831e7f2fe2a3414952811eedff4433617d0503cb6dced012fcda8a2b39",
+  "results": [
+    {
+      "case": "oversized-history",
+      "trial": 0,
+      "exit": 0,
+      "growth": 1743,
+      "full_old_body_preserved": true,
+      "preamble_exact": true,
+      "newest_commit_ids_exact": true,
+      "listed_commits": 10,
+      "subject_max_chars": 200,
+      "after_bytes": 19596,
+      "after_sha256": "e1e5ffe39d293bf2288f516c64597dba5ae5a5bc488606380d9e769cf2da52a1",
+      "seconds": 1.875
+    },
+    {
+      "case": "oversized-history",
+      "trial": 1,
+      "exit": 0,
+      "growth": 1743,
+      "full_old_body_preserved": true,
+      "preamble_exact": true,
+      "newest_commit_ids_exact": true,
+      "listed_commits": 10,
+      "subject_max_chars": 200,
+      "after_bytes": 21339,
+      "after_sha256": "1fabe2155f051e2c1de8db5da0482e5a2be8c7679828e286b766dcbf092c08fc",
+      "seconds": 1.766
+    },
+    {
+      "case": "oversized-history",
+      "trial": 2,
+      "exit": 0,
+      "growth": 1743,
+      "full_old_body_preserved": true,
+      "preamble_exact": true,
+      "newest_commit_ids_exact": true,
+      "listed_commits": 10,
+      "subject_max_chars": 200,
+      "after_bytes": 23082,
+      "after_sha256": "70b85bde75aa6e062269d1386c5f49deb543d82dba7f8991e7ac13d8652486c0",
+      "seconds": 1.718
+    },
+    {
+      "case": "large-body",
+      "trial": 0,
+      "exit": 0,
+      "growth": 1914,
+      "full_old_body_preserved": true,
+      "preamble_exact": true,
+      "newest_commit_ids_exact": true,
+      "listed_commits": 1,
+      "subject_max_chars": 24,
+      "after_bytes": 976773,
+      "after_sha256": "f34ab0327a70289acf3b38e5f1e0ff43c36ceab6b42db57eacf93a18bd6ebc1e",
+      "seconds": 1.531
+    },
+    {
+      "case": "large-body",
+      "trial": 1,
+      "exit": 0,
+      "growth": 1914,
+      "full_old_body_preserved": true,
+      "preamble_exact": true,
+      "newest_commit_ids_exact": true,
+      "listed_commits": 1,
+      "subject_max_chars": 24,
+      "after_bytes": 978687,
+      "after_sha256": "b0d9a7ecba734e804f54c8228fe49d18f357a68587cbd88b99ba2df334c5d0f6",
+      "seconds": 1.578
+    }
+  ],
+  "repository_edits": false,
+  "fixture_eol": "LF baseline, consistent with production pressure test",
+  "excluded_setup_attempt": "v41311-review-devlog-green-_3kfim89/fixture-eol-diagnostic.json"
+}

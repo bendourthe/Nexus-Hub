@@ -1,5 +1,9 @@
 # Known Gaps -- v1.3.0
 
+**Open items**: 0
+
+**Ledger normalization**: 2026-10-09, v4.13.11. The canonical open count above is derived from supported item headings. Summary and reconciliation count tables below retain historical release snapshots, including partial closures and explicit transfers; they are not new parser totals.
+
 This file tracks per-version unfinished work, deferred items, deviations from plan, and bugs discovered during phase implementation. The next phase plan and the version-bump checklist read this file to decide what carries forward.
 
 **Plan**: [docs/archives/v1/v1.3/plans/adoption-pm-claude-skills.md](plans/adoption-pm-claude-skills.md)
@@ -22,14 +26,18 @@ This file tracks per-version unfinished work, deferred items, deviations from pl
 
 ## Open Items
 
-### WN-001 -- Pre-existing orphan-bundle warnings carried from v1.1.5
+### WN-001 -- Pre-existing orphan-bundle warnings carried from v1.1.5 - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v1.3#WN-001` is recorded as RESOLVED for its original scope. Evidence: Same evidence as v1.1#WN-001 Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 **Source phase**: Phase 1, sub-task 1.2 (baseline validator run).
 **Plan reference**: [docs/archives/v1/v1.3/plans/adoption-pm-claude-skills.md](plans/adoption-pm-claude-skills.md) lines 65-74 (sub-task 1.2 "the 4 pre-existing per-skill bundled-resources orphan warnings ... will be tolerated as carry-over").
 **Reason**: `python scripts/validate_skills.py --bundles-only` emits 4 warnings on the framework-specialist bundle: `fastapi-expert/references/dependency-injection-patterns.md`, `nextjs-expert/references/data-fetching-patterns.md`, `react-expert/references/performance-patterns.md`, and `react-expert/references/testing-recipes.md`. None of these references are linked from their parent SKILL.md or from any other `references/*.md` in the same skill. These warnings have carried forward across v1.1.5, v1.2.x, and v1.3.0 (per CHANGELOG.md line 41 they were re-confirmed at v1.3.0 close). The Phase 1 baseline statement in this plan explicitly tolerates them as carry-over.
 **Suggested next step**: Either (a) wire each orphan file's content into the parent SKILL.md as a "see references/<file>.md for ..." link, satisfying the A13 reference-rule audit, or (b) inline the content directly into the parent SKILL.md if it is short enough and delete the references file, or (c) leave as carry-over with explicit "expected baseline" annotation in the v1.4.0 plan baseline section. Owner: not Phase 1 of `adoption-pm-claude-skills` -- this is a framework-specialist hygiene task. Track for a future v1.x.x cleanup phase.
 
-### WN-002 -- `make` and `shellcheck` unavailable on Windows dev machine; cp1252 default codec breaks inline `python -c json.load`
+### WN-002 -- `make` and `shellcheck` unavailable on Windows dev machine; cp1252 default codec breaks inline `python -c json.load` - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v1.3#WN-002` is recorded as RESOLVED for its original scope. Evidence: Makefile:8-11 now pass `encoding='utf-8'`; make-free canonical gate `scripts/ci/run.py --profile fast|full` documented in AGENTS.md:509-517 Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 **Source phase**: Phase 1, sub-task 1.2 (baseline validator run).
 **Plan reference**: [docs/archives/v1/v1.3/plans/adoption-pm-claude-skills.md](plans/adoption-pm-claude-skills.md) lines 65-74 (sub-task 1.2 prescribed `make validate`, `make lint`, `make test`).

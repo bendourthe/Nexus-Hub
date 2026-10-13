@@ -43,6 +43,36 @@ nexus_notify_label() {
   fi
 }
 
+# nexus_notify_host - print the notification title: the host these hooks serve.
+#
+# The installer copies this helper into each host's own hooks directory, so the
+# nearest known directory above it names the host (~/.kimi-code/hooks is Kimi,
+# .github/hooks/nexus-hub-scripts is Copilot). Only three levels are examined, so
+# a far ancestor cannot mislabel a copy. Anywhere else, including the catalog,
+# the title is the neutral "Nexus-Hub" rather than a guess.
+nexus_notify_host() {
+  local dir name parent depth=0
+  dir=$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd) || dir=""
+  while [ -n "$dir" ] && [ "$depth" -lt 3 ]; do
+    name=$(basename "$dir" 2>/dev/null | tr '[:upper:]' '[:lower:]')
+    case "$name" in
+      .claude) printf 'Claude Code'; return 0 ;;
+      .kimi-code) printf 'Kimi Code CLI'; return 0 ;;
+      .qwen) printf 'Qwen Code'; return 0 ;;
+      .gemini) printf 'Gemini CLI'; return 0 ;;
+      .codex) printf 'Codex'; return 0 ;;
+      .cursor) printf 'Cursor'; return 0 ;;
+      .windsurf|windsurf) printf 'Windsurf'; return 0 ;;
+      .github|.copilot) printf 'GitHub Copilot'; return 0 ;;
+    esac
+    parent=$(dirname "$dir")
+    [ "$parent" = "$dir" ] && break
+    dir="$parent"
+    depth=$((depth + 1))
+  done
+  printf 'Nexus-Hub'
+}
+
 # nexus_notify_suppressed HOOK_NAME - return 0 when this invocation must stay silent.
 #
 # Layer 3 (the switch FILE) is the one that works mid-session. An environment

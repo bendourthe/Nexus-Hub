@@ -286,6 +286,18 @@ These rows record the seven candidates from the v3.15.14 adoption cycle. Every a
 
 ---
 
+### Adopted in v4.13.11 from the v3.16 verification-gate delta comparison (re-entrancy, prompt growth, redaction boundaries)
+
+These rows record the provenance of three skill-native folds that the v3.16 delta comparison deferred to known-gaps (v3.16 CD-1, CD-3, CD-2, later v4.13 AR-12 and AR-13) and that v4.13.11 Phase 4 sub-task T016 landed. Every fold is Markdown doctrine in a skill this repository already owns. **No MCP, outbound call, API key, third-party data processor, runtime, or dependency is introduced**, and no host enforcement is claimed: the re-entrancy markers are a contract a host or operator implements, not a component Nexus-Hub ships. Per the Reverse-Engineering Attribution Rule, the upstream project is named only in this table's Rationale column, never in either skill body. Full analysis: [docs/archives/v3/v3.16/comparisons/v3.16-comparison-no-mistakes-delta.md](../archives/v3/v3.16/comparisons/v3.16-comparison-no-mistakes-delta.md).
+
+| MCP key | Current source | What it does | Outbound-call surface | Classification | Effort if RE'd | v4.13.11 action | Later action | Rationale / citation |
+|---|---|---|---|---|---|---|---|---|
+| n/a (skill, not MCP) | Delta candidate M1, an upstream recursive-validation guard | Re-entrancy and instance-identity rule: host-owned `LOOP_INSTANCE` / `LOOP_LINEAGE` markers, refusal of same-instance re-entry, ambiguous identity, and exhausted child budgets, while deliberate distinct child loops stay allowed | None. Markdown only | `skill-native` | n/a | **Adopted** as the "Re-entrancy and Instance Identity" section of `catalog/skills/workflow/loop-engineering/SKILL.md` plus the instance-identity bullet in `references/loop-schema.md`; asserted by `tests/validators/test_loop_engineering_bundle.py` | Revisit only if a supported host documents its own nesting marker, which should then be referenced rather than restated | Reverse-engineered from the contract, not the code: the no-mistakes v1.41.2 change #567 "prevent recursive validation runs", its `NO_MISTAKES_GATE` environment marker, and its `nested_gate_context` error. The upstream runtime (a compiled gate daemon) stays declined under the v3.9.0 row above |
+| n/a (skill, not MCP) | Delta candidate M3, an upstream oversized-repair-prompt fix | Names prompt-growth exhaustion in a bounded repair loop and links inter-round compaction | None. Markdown only | `skill-native` | n/a | **Adopted** as the prompt-growth paragraph of the same section, cross-linking `context-compression` and `prompt-token-optimization` | None planned | no-mistakes v1.40.2 change #526 "handle oversized Claude repair prompts". A cross-link between three existing skills; no mechanism imported |
+| n/a (skill, not MCP) | Delta candidate M2, an upstream stored-URL and error-surface credential redaction | Extends the existing BLOCK / REDACT / HASH / PASS policy to local persistence and error surfaces, with synthetic cases and a fail-closed rule for unclassified values; no second policy table | None. Markdown only; strictly reduces local plaintext-secret exposure | `skill-native` | n/a | **Adopted** as the "Local Persistence and Error Surfaces" section of `catalog/skills/security/egress-redaction/SKILL.md`; asserted by `tests/validators/test_egress_redaction_boundaries.py` | None planned | no-mistakes v1.40.3 change #469 "redact embedded credentials from stored upstream URLs and error surfaces". Only the boundary list widens; the data classes and default actions remain the single table in the skill body |
+
+---
+
 ## Summary
 
 | Bucket | Count | Notes |
@@ -322,3 +334,19 @@ No new MCP, runtime, credential, or outbound surface was added in the v3.11.0 sp
 3. For `re-full` / `re-partial` classifications, name the internal deliverable (package name, skill name) and the target release.
 4. For `vendor-intrinsic` classifications, write the 5-question audit paragraph that Phase 3 copies into the entry's `_comment`.
 5. Record the row before opening a PR that touches `catalog/mcp-configs/mcp-servers.json`. No MCP is added without a matrix row.
+
+---
+
+### Declined in v4.13.11 (conditional adoption candidates, v4.13 AR-37)
+
+These candidates waited several minors for a build-or-decline disposition. The maintainer declined them on 2026-10-10; each row keeps the trigger that would justify a plan.
+
+| MCP key | Current source | What it does | Outbound-call surface | Classification | Effort if RE'd | Action | Later action | Rationale / citation |
+|---|---|---|---|---|---|---|---|---|
+| n/a (local visual server, not MCP) | A local browser server that renders brainstorming sketches while the agent talks | Serves live visual mock-ups during ideation | None inherent; a long-running local server | declined | n/a | **Decline** | Plan only if users ask for live visual ideation | Text and the existing offline HTML outputs cover ideation; a resident server adds an always-on process. v4.13 AR-37 (v3.0 DF-v30-9). |
+| n/a (orchestration runtime, not MCP) | A portable YAML engine that runs multi-step agent workflows | Executes declared workflow graphs | None inherent; presupposes a shipped runtime | declined | n/a | **Decline** | Revisit only if host-native orchestration disappears | Hosts now ship native subagents and workflows, and `agent-orchestration-primitives` routes to them. v4.13 AR-37 (v3.6-v3.9 DF-v36-2). |
+| n/a (skill feature, not MCP) | After-the-fact intent recovery in `session-query` | Reconstructs why a past change was made from session logs | None; local logs | declined | n/a | **Decline** | Plan if a recurring audit need appears | Decision records and phase histories already capture intent at the time it is known. v4.13 AR-37 (v3.10 DF-v310-ruflo-A6). |
+| n/a (documentation note, not MCP) | A naming note for quality gates | Standardizes gate names across skills | None | declined | n/a | **Decline** | Revisit if gate names collide | `quality-gate-definitions` already owns gate vocabulary. v4.13 AR-37 (v3.9 DF-v39-nomistakes-1). |
+| n/a (hooks, not MCP) | Remaining worker-check hooks from the multi-agent comparison | Checks a worker's output at each step | None inherent | declined | n/a | **Decline** | Plan per hook when a concrete failure is observed | The shipped hooks cover the observed failures; the rest had no recorded incident. v4.13 AR-37 (v3.10 DF-v310-ruflo-A10-rest). |
+| n/a (persistent store, not MCP) | A durable store of review signals from earlier cycles | Carries reviewer findings across plan cycles | None; local storage | declined | n/a | **Decline** | Revisit if repeated review findings recur across minors | Known-gaps ledgers and `review-trapdoors` already carry recurring findings forward. v4.13 AR-37 (v3.15.7 DF-6). |
+| n/a (validator subset, not MCP) | A mechanically checkable subset of command-template tokens | Lints command templates for known tokens | None | declined | n/a | **Decline** | Plan if a token mistake ships in a command | Command files are validated by existing structure checks; no token defect has been recorded. v4.13 AR-37 (v4.0.0 MT-1). |

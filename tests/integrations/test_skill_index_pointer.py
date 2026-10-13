@@ -270,18 +270,5 @@ def test_installers_pass_the_environment_through_to_the_runner(installer: str) -
     assert ('"$py" "${args[@]}"' in text) if installer.endswith(".sh") else ("& $py @argsList" in text)
 
 
-@pytest.mark.parametrize(("installer", "codex", "copilot"), [
-    ("installer.sh", '"global" "" "codex"', '"global" "" "copilot"'),
-    ("installer.sh", '"workspace" "$target_path" "codex"', '"workspace" "$target_path" "copilot"'),
-    ("installer.ps1", '-Scope "global" -IntegrationKey "codex"', '-Scope "global" -IntegrationKey "copilot"'),
-    ("installer.ps1", '-TargetPath $targetPath -IntegrationKey "codex"', '-TargetPath $targetPath -IntegrationKey "copilot"'),
-])
-def test_installers_run_the_shared_path_provider_before_copilot(installer: str, codex: str, copilot: str) -> None:
-    """Copilot is pointer-eligible only through ~/.agents/skills, which Codex writes.
-
-    The installers call the runner once per platform, so a Copilot call that ran
-    first would render the full index until the next install. Pin the order.
-    """
-    text = (REPO_ROOT / "scripts" / installer).read_text(encoding="utf-8-sig")
-    assert text.count(codex) == 1 and text.count(copilot) == 1
-    assert text.index(codex) < text.index(copilot)
+# The Codex-before-Copilot order pin moved to test_skill_path_provider_order.py,
+# which derives every provider/consumer pair from the contract facts (DF-6-v4133).

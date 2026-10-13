@@ -49,6 +49,10 @@ code{background:var(--copy-bg);border:1px solid var(--copy-border);border-radius
 .shell{position:relative;z-index:1;}
 .container{width:100%;max-width:var(--maxw);margin:0 auto;padding:0 24px;}
 /* ---------- Header / nav ---------- */
+.skip-link{position:absolute;left:12px;top:-60px;z-index:50;padding:8px 14px;border-radius:8px;background:var(--accent);color:var(--bg-deep);font-weight:600;text-decoration:none;}
+.skip-link:focus{top:10px;}
+html[data-theme="light"] .skip-link{color:#fffdf8;}
+#app:focus{outline:none;}
 .site-header{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--nav-bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);}
 .nav{display:flex;align-items:center;gap:var(--sp-4);min-height:58px;}
 .brand{display:inline-flex;align-items:center;gap:10px;color:var(--ink);}
@@ -188,6 +192,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .fxo-clip{display:grid;place-items:center;width:22px;height:22px;border:1px solid var(--border);border-radius:6px;font-weight:700;}
 .fxo-pick{margin-right:auto;}
 .fxo-send{padding:3px 12px;border-radius:7px;background:var(--accent);color:#06201c;font-weight:800;animation:fxo-sendk 24s linear infinite;}
+html[data-theme="light"] .fxo-send{color:#fffdf8;}
 @keyframes fxo-sendk{0%,61.9%,64%,100%{filter:none;transform:none;}62%,63.5%{filter:brightness(1.35);transform:scale(.94);}}
 /* The left column reads in story order, Prompt, Context Window, Tokens, each row labelled in the same style. */
 .fxo-prow,.fxo-tokrow,.fxo-ctx{display:grid;grid-template-columns:4.75rem minmax(0,1fr);align-items:start;gap:4px 12px;color:var(--ink);text-decoration:none;}
@@ -231,8 +236,10 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 @keyframes fxo-travel{0%,62.9%{transform:translateX(-4px);opacity:0;}63%{opacity:1;}65.5%{transform:translateX(30px);opacity:1;}66%,100%{transform:translateX(30px);opacity:0;}}
 .fxo-node{flex:2 1 0;min-width:0;display:flex;flex-direction:column;gap:10px;padding:12px 14px;border:1px solid var(--border);border-radius:14px;background:var(--bg-0,var(--surface));color:var(--ink);text-decoration:none;transition:border-color .2s var(--ease);}
 .fxo-node:hover,.fxo-compose:hover{border-color:var(--accent);}
+.fxo-node--model{align-items:stretch;}
 .fxo-mhead{display:flex;align-items:center;gap:12px;}
-.fxo-mname{display:flex;flex:1;align-items:center;justify-content:space-between;gap:12px;min-width:0;}
+/* The status states share one in-flow grid cell, so the row reserves the widest state and wraps it under the name rather than painting over it. */
+.fxo-mname{display:flex;flex:1;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:2px 12px;min-width:0;}
 .fxo-name{font-size:var(--ty-h3);font-weight:700;line-height:1.2;}
 .fxo-core{position:relative;flex:none;width:52px;height:52px;}
 .fxo-core i{position:absolute;border-radius:50%;border:2px solid color-mix(in srgb,var(--accent) 70%,transparent);border-left-color:transparent;}
@@ -242,8 +249,8 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .fxo-core em{position:absolute;inset:19px;border-radius:50%;background:radial-gradient(circle,#f2feff,var(--accent) 60%,transparent 70%);animation:fxo-busy 24s ease-in-out infinite;}
 @keyframes fxo-spin{to{transform:rotate(360deg);}}
 @keyframes fxo-busy{0%,65%{transform:scale(.8);opacity:.55;box-shadow:none;}67%,84%{transform:scale(1.35);opacity:1;box-shadow:0 0 20px 5px color-mix(in srgb,var(--accent) 55%,transparent);}86%,100%{transform:scale(.9);opacity:.75;box-shadow:none;}}
-.fxo-status{position:relative;display:block;flex:1;min-height:1.4em;text-align:right;font-size:12px;font-weight:700;color:var(--teal-soft);}
-.fxo-status span{position:absolute;right:0;white-space:nowrap;opacity:0;}
+.fxo-status{display:grid;flex:1 1 auto;min-width:0;justify-items:end;text-align:right;font-size:12px;font-weight:700;color:var(--teal-soft);}
+.fxo-status span{grid-area:1/1;opacity:0;}
 @keyframes fxo-s0{0%,65.9%{opacity:0;}66%,70%{opacity:1;}70.1%,100%{opacity:0;}}
 @keyframes fxo-s1{0%,70%{opacity:0;}70.1%,73%{opacity:1;}73.1%,100%{opacity:0;}}
 @keyframes fxo-s2{0%,73%{opacity:0;}73.1%,84.5%{opacity:1;}84.6%,100%{opacity:0;}}
@@ -353,16 +360,47 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 @keyframes fxo-o5{0%,81.5%{clip-path:inset(0 100% 0 0);}82.9%,97%{clip-path:inset(0 0 0 0);}99%,100%{clip-path:inset(0 100% 0 0);}}
 .fxo-out[data-i="6"]{animation:fxo-o6 24s linear infinite;}
 @keyframes fxo-o6{0%,83.0%{clip-path:inset(0 100% 0 0);}84.4%,97%{clip-path:inset(0 0 0 0);}99%,100%{clip-path:inset(0 100% 0 0);}}
+/* Phones (WN-8-v41310): the four parts sit in a two-by-two grid in reading order (Prompt, Context Window,
+   then Tokens, Model), so the figure fits one screen (under 600px tall at 390px). The drawing drops what a
+   phone cannot show at this size: the attachment chips, the model picker, the part badges, and the
+   connector; prompt lines clamp to two lines and reply lines to one. Everything hidden is aria-hidden,
+   so the links and the figure's label are unchanged. */
 @media (max-width:719px){
-  .fxo-flow{flex-direction:column;}
-  .fxo-pipe{flex:0 0 22px;width:2px;height:22px;}
-  .fxo-pipe i{left:-3px;top:0;animation-name:fxo-travel-v;}
+  .fxo{padding:10px;}
+  .fxo-layer{padding:6px;}
+  .fxo-layer--platform{margin-top:8px;}
+  .fxo-head{gap:2px 10px;}
+  .fxo-chips li+li::before{margin:0 .35em;}
+  .fxo-flow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"p c" "t m";gap:8px;margin-top:8px;}
+  .fxo-chat{display:contents;}
+  .fxo-prow{grid-area:p;}
+  .fxo-ctx{grid-area:c;align-self:start;}
+  .fxo-tokrow{grid-area:t;align-self:start;}
+  .fxo-node{grid-area:m;}
+  .fxo-pipe,.fxo-files,.fxo-pick,.fxo-clip,.fxo-line .fxo-k{display:none;}
   .fxo-prow,.fxo-tokrow,.fxo-ctx{grid-template-columns:minmax(0,1fr);gap:4px;}
   .fxo-prow .fxo-lab{padding-top:3px;}
   .fxo-count,.fxo-keys{grid-column:1;}
-  .fxo-node--model{align-items:flex-start;}
+  .fxo-compose,.fxo-node{padding:8px 9px;gap:6px;}
+  .fxo-prompt{min-height:0;font-size:11.5px;line-height:1.35;}
+  .fxo-typed{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;}
+  .fxo-bar{justify-content:flex-end;}
+  .fxo-toks{display:flex;flex-wrap:wrap;gap:3px 2px;min-height:0;}
+  .fxo-tline{display:contents;}
+  .fxo-t{padding:0 .15em;line-height:1.3;}
+  .fxo-count{font-size:11px;}
+  .fxo-mhead{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 8px;}
+  .fxo-mname{display:contents;}
+  .fxo-core{width:36px;height:36px;}
+  .fxo-core i:nth-child(2){inset:5px;}
+  .fxo-core i:nth-child(3){inset:10px;}
+  .fxo-core em{inset:13px;}
+  .fxo-name{font-size:var(--ty-body);}
+  .fxo-status{grid-column:1/-1;justify-items:start;text-align:left;font-size:11px;line-height:1.25;}
+  .fxo-reply{min-height:0;padding:7px 8px;gap:2px;font-size:11px;line-height:1.3;}
+  .fxo-out{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+  .fxo-out--src{font-size:10.5px;}
 }
-@keyframes fxo-travel-v{0%,62.9%{transform:translateY(-4px);opacity:0;}63%{opacity:1;}65.5%{transform:translateY(18px);opacity:1;}66%,100%{transform:translateY(18px);opacity:0;}}
 
 /* ---- Cheatsheets: a guided demo of reading the page. One 8 s cycle: pick a group, find the card, choose a scope, copy the line. */
 .csf{display:grid;grid-template-columns:minmax(210px,1fr) minmax(0,2.2fr);gap:var(--sp-4);align-items:center;}
@@ -432,7 +470,7 @@ html[data-theme="light"] .hero-mark{background:#07141a;padding:5px;box-shadow:0 
 .pg-outline-list a{position:relative;display:flex;align-items:center;gap:12px;color:var(--ink-dim);text-decoration:none;}
 .pg-outline-list a:hover{color:var(--ink);}
 .pg-outline-list a:focus-visible,.pg-outline-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px;}
-.pg-outline-node{position:relative;z-index:1;flex:none;width:10px;height:10px;border-radius:50%;border:2px solid color-mix(in srgb,var(--ink-dim) 70%,transparent);background:var(--page-bg,var(--bg-0));transition:background .25s var(--ease),border-color .25s var(--ease),transform .25s var(--ease);}
+.pg-outline-node{position:relative;z-index:1;flex:none;width:10px;height:10px;border-radius:50%;border:2px solid var(--ink-dim);background:var(--page-bg,var(--bg-0));transition:background .25s var(--ease),border-color .25s var(--ease),transform .25s var(--ease);}
 .pg-outline-text{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .pg-outline-list .is-current a{color:var(--ink);font-weight:700;}
 .pg-outline-list .is-current .pg-outline-node{border-color:var(--accent);background:var(--accent);transform:scale(1.25);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 22%,transparent);}
@@ -1141,6 +1179,7 @@ main .eyebrow,main .tr-kicker{display:none;}
 <div class="shell">
 
 <!-- shared:header -->
+  <a class="skip-link" href="#app">Skip to content</a>
   <header class="site-header">
     <nav class="nav container" aria-label="Primary">
       <a class="brand" href="nexus-hub-guide.html#home" aria-label="Nexus Hub home">
@@ -1154,7 +1193,7 @@ main .eyebrow,main .tr-kicker{display:none;}
         <a href="training.html#intro" class="active" aria-current="page">Training</a>
         <a href="nexus-hub-guide.html#cheatsheets">Cheatsheets</a>
         <a class="nav-gh" href="https://github.com/bendourthe/Nexus-Hub" target="_blank" rel="noopener" aria-label="Nexus Hub on GitHub"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.53-.49-.36-.92-.88-1.16-.88-1.16-.72-.49.05-.48.05-.48.8.06 1.22.82 1.22.82.71 1.21 1.87.86 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.65 7.65 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
-        <button type="button" class="nhg-theme" id="themeToggle" aria-pressed="true" aria-label="Switch to light theme"><svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 14.5A8.5 8.5 0 1 1 9.5 3 7 7 0 0 0 21 14.5z"/></svg></button>
+        <button type="button" class="nhg-theme" id="themeToggle" aria-label="Switch to light theme"><svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 14.5A8.5 8.5 0 1 1 9.5 3 7 7 0 0 0 21 14.5z"/></svg></button>
       </div>
     </nav>
   </header>
@@ -3776,14 +3815,18 @@ main .eyebrow,main .tr-kicker{display:none;}
        query units), and this is the safety net: if the panel is still taller or wider than the
        arena, it is scaled down to fit, centred, so nothing is ever clipped. */
     function fitPanel() {
-      panel.style.transform = ""; panel.style.marginTop = "";
-      if (overlay.hidden || !overlay.clientHeight) return;
-      var ch = overlay.clientHeight, cw = overlay.clientWidth, ph = panel.offsetHeight, pw = panel.offsetWidth;
-      var k = Math.min(1, ch / Math.max(1, ph), cw / Math.max(1, pw));
-      if (k < 1) {
-        panel.style.transform = "scale(" + k.toFixed(4) + ")";
-        panel.style.marginTop = Math.max(0, (ch - ph * k) / 2).toFixed(1) + "px";
+      var transform = "", margin = "";
+      if (!overlay.hidden && overlay.clientHeight) {
+        /* Offset dimensions ignore transforms; retain the current fit while measuring. */
+        var ch = overlay.clientHeight, cw = overlay.clientWidth, ph = panel.offsetHeight, pw = panel.offsetWidth;
+        var k = Math.min(1, ch / Math.max(1, ph), cw / Math.max(1, pw));
+        if (k < 1) {
+          transform = "scale(" + k.toFixed(4) + ")";
+          margin = Math.max(0, (ch - ph * k) / 2).toFixed(1) + "px";
+        }
       }
+      if (panel.style.transform !== transform) panel.style.transform = transform;
+      if (panel.style.marginTop !== margin) panel.style.marginTop = margin;
     }
     /* R18: the cards' live previews. One loop per game draws every card while the start screen
        shows, the arena is on screen, and the tab is visible; it stops otherwise. With reduced
@@ -7481,12 +7524,17 @@ main .eyebrow,main .tr-kicker{display:none;}
       hudMarks.calm = { title: "VICTORY", map: MAPS[5].name, bars: false, chips: 0 };
       if (S.finale) finaleHud(W, H, small);
     }
+    /* A manual one-tick pilot calls sync repeatedly; unchanged DOM writes force layout. */
+    function syncText(node, text) { if (node.textContent !== text) node.textContent = text; }
+    function syncHidden(node, hidden) { hidden = !!hidden; if (node.hidden !== hidden) node.hidden = hidden; }
+    function syncAttribute(node, name, value) { if (node.getAttribute(name) !== value) node.setAttribute(name, value); }
+    function syncPresence(node, name, present) { present = !!present; if (node.hasAttribute(name) !== present) node.toggleAttribute(name, present); }
     function sync() {
       if (!S) return;
       var p = S.player;
-      hudScore.textContent = "Score " + S.score;
-      hudLives.textContent = "Hull " + Math.max(0, p.health) + " of " + S.healthMax + (p.shieldHp > 0 ? ", shield " + p.shieldHp : "");
-      hudLevel.textContent = "Level " + S.level + " (" + diff().name + ")" + (cfg.progression ? ": " + FORMS[S.level] : "") + (retriesOn() ? ". Retries left: " + retriesLeft() : "");
+      syncText(hudScore, "Score " + S.score);
+      syncText(hudLives, "Hull " + Math.max(0, p.health) + " of " + S.healthMax + (p.shieldHp > 0 ? ", shield " + p.shieldHp : ""));
+      syncText(hudLevel, "Level " + S.level + " (" + diff().name + ")" + (cfg.progression ? ": " + FORMS[S.level] : "") + (retriesOn() ? ". Retries left: " + retriesLeft() : ""));
       var extras = [];
       if (p.shieldHp > 0) extras.push("shield");
       if (p.revive > 0) extras.push("revive held");
@@ -7495,41 +7543,41 @@ main .eyebrow,main .tr-kicker{display:none;}
       if (S.trans) extras.push(S.trans.kind === "nova" ? "crossing into the Nexus dimension" : "in the wormhole");
       if (S.boss) extras.push("boss");
       var base = S.state === "idle" ? "Ready" : S.state === "running" ? "Playing" : S.state === "paused" ? "Paused" : S.victory ? "Victory" : "Game over";
-      hudState.textContent = extras.length && S.state === "running" ? base + ": " + extras.join(", ") : base;
+      syncText(hudState, extras.length && S.state === "running" ? base + ": " + extras.join(", ") : base);
       /* R37: the end card waits for the finale to play out */
-      overlay.hidden = S.state === "running" || !!(S.finale && !S.finale.done);
+      syncHidden(overlay, S.state === "running" || !!(S.finale && !S.finale.done));
       var offer = S.state === "over" && S.retryOffer;
-      overTitle.textContent = S.victory ? "Victory" : offer ? "Ship Lost" : S.state === "over" ? (S.overText || "Game over") : "";
-      overTitle.hidden = !overTitle.textContent;
+      syncText(overTitle, S.victory ? "Victory" : offer ? "Ship Lost" : S.state === "over" ? (S.overText || "Game over") : "");
+      syncHidden(overTitle, !overTitle.textContent);
       /* R41 (T123): the retry card offers the level's one retry; after it is used the end card says none are left */
-      retryBtn.hidden = !offer;
-      retryNote.hidden = !(S.state === "over" && !S.victory && retriesOn());
-      retryNote.textContent = "Retries left: 0";
-      overlay.toggleAttribute("data-retry", offer);
-      overPrize.hidden = !(S.victory && S.finale && S.finale.done);
+      syncHidden(retryBtn, !offer);
+      syncHidden(retryNote, !(S.state === "over" && !S.victory && retriesOn()));
+      syncText(retryNote, "Retries left: 0");
+      syncPresence(overlay, "data-retry", offer);
+      syncHidden(overPrize, !(S.victory && S.finale && S.finale.done));
       /* R48 (T132): the summary ends every fixed-game run, won or lost once its retries are used */
       var sum = S.state === "over" && !offer && summaryOn() && !(S.victory && !(S.finale && S.finale.done));
-      summary.hidden = !sum;
-      overlay.toggleAttribute("data-summary", sum);
+      syncHidden(summary, !sum);
+      syncPresence(overlay, "data-summary", sum);
       if (sum) renderSummary();
-      startBtn.textContent = S.state === "paused" ? "Resume" : S.state === "over" ? "Play again" : "Start game";
-      startBtn.hidden = offer;
+      syncText(startBtn, S.state === "paused" ? "Resume" : S.state === "over" ? "Play again" : "Start game");
+      syncHidden(startBtn, offer);
       /* the start screen shows on a fresh game; after a run, a button brings it back */
-      overlay.setAttribute("data-mode", S.state);
-      brand.hidden = S.state !== "idle";
+      syncAttribute(overlay, "data-mode", S.state);
+      syncHidden(brand, S.state !== "idle");
       /* R16: one start screen for every game: the same ships and the same upgrade key */
-      hangar.hidden = shipNote.hidden = key.hidden = strip.hidden = S.state !== "idle";
-      changeBtn.hidden = S.state !== "over" || offer;
+      [hangar, shipNote, key, strip].forEach(function (node) { syncHidden(node, S.state !== "idle"); });
+      syncHidden(changeBtn, S.state !== "over" || offer);
       SHIPS.forEach(function (sh) {
         var on = sh.id === S.ship.id, c = shipCards[sh.id].card;
-        c.setAttribute("aria-checked", on ? "true" : "false");
-        c.tabIndex = on ? 0 : -1;
+        syncAttribute(c, "aria-checked", on ? "true" : "false");
+        syncAttribute(c, "tabindex", on ? "0" : "-1");
       });
-      shipNote.textContent = S.ship.name + ", " + S.ship.role.toLowerCase() + ": " + S.ship.note.charAt(0).toLowerCase() + S.ship.note.slice(1) + ". " + S.ship.scheme + ".";
+      syncText(shipNote, S.ship.name + ", " + S.ship.role.toLowerCase() + ": " + S.ship.note.charAt(0).toLowerCase() + S.ship.note.slice(1) + ". " + S.ship.scheme + ".");
       if (S.state === "idle" && host.offsetParent !== null) paintCards();
       if (!overlay.hidden) fitPanel();
-      host.setAttribute("data-ss-state", S.state);
-      host.setAttribute("data-ss-ship", S.ship.id);
+      syncAttribute(host, "data-ss-state", S.state);
+      syncAttribute(host, "data-ss-ship", S.ship.id);
     }
 
     /* The explosion plays out for a moment after a run ends (one step per frame). */
@@ -7558,6 +7606,7 @@ main .eyebrow,main .tr-kicker{display:none;}
       last = 0; acc = 0;
       emit("start", { tick: S.tick });
       sync();
+      if (unseen()) return;
       wake();
       canvas.focus({ preventScroll: true });
       /* The banner and callout can push the arena below the fold; bring the whole game into view. */
@@ -7579,7 +7628,16 @@ main .eyebrow,main .tr-kicker{display:none;}
       last = 0; acc = 0;
       emit("resume", {});
       sync();
+      if (unseen()) return;
       wake();
+    }
+    /* v4.13.11 (WN-5): a host that is not rendered (its stage hidden) never fires the
+       IntersectionObserver and cannot take Escape, so start and resume pause it at once with
+       reason "stage" before asking for a frame; the reader's Start or Resume runs it later. */
+    function unseen() {
+      if (host.offsetParent !== null) return false;
+      pause("stage");
+      return true;
     }
     function withRunning(fn) {
       if (!S || S.state === "over") return false;
@@ -9265,7 +9323,6 @@ window.NexusTrainingStory = (function () {
     if (meta) meta.setAttribute("content", theme === "light" ? "#f3f1ea" : "#07141a");
     var btn = document.getElementById("themeToggle");
     if (btn) {
-      btn.setAttribute("aria-pressed", theme === "dark" ? "true" : "false");
       btn.setAttribute("aria-label", theme === "dark" ? "Switch to light theme" : "Switch to dark theme");
     }
     syncConstellation();
@@ -9280,13 +9337,36 @@ window.NexusTrainingStory = (function () {
 /* /shared:theme-js */
 
 /* shared:nav-js */
-  /* mobile nav */
+  /* skip link: both pages route on the hash, so focus main directly instead of following #app */
+  var skipLink = document.querySelector(".skip-link"), mainEl = document.getElementById("app");
+  if (skipLink && mainEl) {
+    skipLink.addEventListener("click", function (e) {
+      e.preventDefault();
+      mainEl.setAttribute("tabindex", "-1");
+      mainEl.focus();
+    });
+  }
+  /* mobile nav: the open menu covers the top of the page, so Escape closes it and returns focus to
+     the toggle, and focus leaving the menu closes it rather than reaching the content underneath */
   var navToggle = document.getElementById("navToggle");
   if (navToggle) {
+    var navMenu = document.getElementById("navLinks");
+    var closeNav = function () {
+      navMenu.classList.remove("open");
+      navToggle.setAttribute("aria-expanded", "false");
+    };
     navToggle.addEventListener("click", function () {
-      var links = document.getElementById("navLinks");
-      var open = links.classList.toggle("open");
+      var open = navMenu.classList.toggle("open");
       navToggle.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key !== "Escape" || !navMenu.classList.contains("open")) return;
+      e.preventDefault();
+      closeNav();
+      navToggle.focus();
+    });
+    document.addEventListener("focusin", function (e) {
+      if (navMenu.classList.contains("open") && e.target !== navToggle && !navMenu.contains(e.target)) closeNav();
     });
   }
 /* /shared:nav-js */

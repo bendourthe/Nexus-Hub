@@ -1,5 +1,8 @@
 # Known Gaps - v4.9
 
+**Open items**: 0
+**Ledger normalization**: 2026-10-09, v4.13.11. The canonical open count is derived from supported item headings. Summary and reconciliation count tables below retain historical release snapshots, including partial closures and explicit transfers; they are not new parser totals.
+
 **Project**: Nexus-Hub
 **Status**: released; PR #190 integrated the v4.9.0 audit work and its hosted platform gates. The remaining prompting-profile entries have source-availability or roster-qualification limits; the private workstation residue was removed separately.
 **Last updated**: 2026-09-27
@@ -8,7 +11,7 @@
 
 ### Missing tests / coverage gaps (MT)
 
-#### MT-1 - Incomplete prompting-profile coverage and roster freshness
+#### MT-1 - Incomplete prompting-profile coverage and roster freshness - MIGRATED to v4.13.0
 
 - **Source**: the post-v4.8.0 `/tune-prompting` full roster sweep.
 - **What was observed on 2026-09-08**: 12 of 16 rostered models were profiled. Four were not, each for a sourced reason rather than for lack of effort:
@@ -35,9 +38,13 @@
 
 **Account-picker recheck, 2026-09-27**: Installed Claude Code 2.1.282 opened the account-backed `/model` picker in the already trusted checkout, with Opus 5.5 selected on the Claude Team account; the picker also showed other model display names but offered no complete canonical model-ID enumeration. The session exited without selecting another model or sending an inference prompt. This establishes account picker availability of Opus 5.5, narrowing the public-catalog note above, but it does not establish the canonical ID or a complete live roster. No profile, roster hash, or `last_verified` value changed; MT-1 remains open for a supported complete-ID read path and deterministic profile qualification.
 
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-64`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.9`, section `Follow-up Items - found 2026-09-08 during post-v4.8.0 follow-up`, and original ID `MT-1`.
+
 ### Warnings (WN)
 
-#### WN-1 - Cursor and Gemini claims are family-scoped, recorded at per-model granularity
+#### WN-1 - Cursor and Gemini claims are family-scoped, recorded at per-model granularity - CLOSED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.9#WN-1 (follow-up)` is recorded as CLOSED for its original scope. Evidence: Closed 2026-09-27 after PR #348 (`44c00615`) with evidence-scope decision record Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Source**: the same sweep.
 - **What was observed**: Google documents Gemini 3.x as a unified family and publishes no per-version prompting guidance, and Cursor publishes no prompting guidance at all (its documentation covers pricing, cache rates, and plan constraints). The claims recorded for the four Gemini models and the four Cursor entries are therefore family-level or plan-level facts, recorded once per rostered model because that is the granularity the layer indexes. Each such claim carries a `note` stating the true scope.
@@ -90,7 +97,9 @@ Phase 6 adds no deferred deterministic gap. The fresh benchmark suite passes 78 
 
 Phase 7 cycle 1 resolved two non-deferrable graph-evidence findings instead of deferring them: absent query seeds and contradictory zero-match/location receipts now reject at their actual boundaries. Independent retest passes 131 cases and final implementation convergence reports zero feature gaps. The current candidate is `bd37a8b8e91ba5c28001d068445a6b3e65a97fada223e5c7b1441ab6bdb3506c`; both newly retained attempts remain informationally unavailable. [Final-phase evidence](development/last-phase-evidence.md) preserves all 37 reachable ledger dispositions, the current v4.5 prerequisite and actual Windows installation. Cycle 2 repaired the full-profile Unicode long-path failure, selected working Git Bash for local validation, and applied the presented CI changes under the user's instruction to finish Phase 7 and integration. All three initially failing profile groups pass their current-tree rerun; no failure is waived. Required hosted checks still precede integration.
 
-#### WN-1 - Private independent verification-harness cleanup was policy-blocked
+#### WN-1 - Private independent verification-harness cleanup was policy-blocked - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.9#WN-1 (v4.9.0)` is recorded as RESOLVED for its original scope. Evidence: Resolution 2026-09-24: directory removed, docs/archives/v4/v4.9/development/private-harness-residue-disposition.md Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Source phase**: Phase 7, T027 independent adversarial verification.
 - **Plan reference**: Tier 3 ancillary local harness cleanup; this is separate from benchmark projection and retained-attempt cleanup.
@@ -101,7 +110,9 @@ Phase 7 cycle 1 resolved two non-deferrable graph-evidence findings instead of d
 
 **Resolution, 2026-09-24**: The exact ignored synthetic harness directory was inspected before removal: 180 files, no tracked files, no reparse points, and only fixture/runtime copies and synthetic records. It was moved to the Windows Recycle Bin, not permanently erased. A fresh check found the source directory absent while the separate security-audit answer archive remained present. The [archived verification](development/private-harness-residue-disposition.md) records this local-only closure; it does not change any distributed artifact or the prompting-profile gaps above.
 
-#### MT-2 - Platform-specific filesystem cases need their matching host
+#### MT-2 - Platform-specific filesystem cases need their matching host - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.9#MT-2` is recorded as RESOLVED for its original scope. Evidence: RESOLVED 2026-09-22: Windows 90 pass and Ubuntu WSL 94 pass by name Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Source phase**: Phase 1, T003.
 - **Plan reference**: T002 Windows/POSIX containment and path-identity verification.
@@ -109,7 +120,7 @@ Phase 7 cycle 1 resolved two non-deferrable graph-evidence findings instead of d
 - **Suggested next step**: execute the matching platform cases during Phase 7 qualification and verify their first permitted remote CI run; retain explicit skip accounting.
 - **RESOLVED 2026-09-22 (post-release)**: On the `c0c870fa` candidate, the two affected modules reported 90 passed and nine POSIX-only skips on native Windows, with each skip reason retained. Ubuntu WSL then ran the same modules on its native `/tmp` filesystem: 94 passed and five Windows-only skips. The nine Windows-skipped cases all passed by name on Ubuntu: `test_a_link_at_the_leaf_is_rejected`, `test_a_link_at_an_ancestor_is_rejected`, `test_a_link_as_the_root_itself_is_rejected`, `test_cleanup_refuses_a_link`, `test_an_existing_destination_keeps_its_own_mode`, `test_atomic_write_refuses_a_link_destination`, `test_publication_uses_verified_directory_after_ancestor_swap`, `test_a_case_collision_inside_one_scope_is_rejected`, and `test_a_root_that_is_a_link_is_refused`. The hosted Linux test profile also passed on PR #236; the local named run supplies the per-case evidence its group-level CI report does not retain.
 
-#### MT-3 - Pre-rule handbook does not exercise the slide-specific checks
+#### MT-3 - Pre-rule handbook does not exercise the slide-specific checks - MIGRATED to v4.13.0
 
 - **Source phase**: v4.9.2 Task 6, real-artifact proof.
 - **Plan reference**: [v4.9.2 Task 6 Step 1](plans/v4.9.2-slide-build-contract-and-projection-floors.md#7-task-6-prove-it-on-a-real-artifact).
@@ -137,7 +148,11 @@ Phase 7 cycle 1 resolved two non-deferrable graph-evidence findings instead of d
 
 **Chart-line paint boundary, 2026-09-27**: A [pinned rendered-pixel probe](development/runtime-deck-all-state-2026-09-27/chart-line-paint-verification.md) checked all 31 `path.c-line` elements across 14 model-backed charts at four viewports. All 124 line-viewport observations changed pixels when hidden, all 124 invisible-line controls changed zero pixels, and a forced null stroke was rejected at every viewport. Other SVG marks and animation frames are not covered. MT-3 remains open for those boundaries, the fragment-budget failures, the absent reading-figure map, and the three static checks still `unchecked` on this deck.
 
-#### QG-1 (resolved) - The Windows CI job selects the new filesystem tests
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-19`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.9.0`, section `v4.9.0 - adoption-visa-vulnerability-agentic-harness`, and original ID `MT-3`.
+
+#### QG-1 (resolved) - The Windows CI job selects the new filesystem tests - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.9#QG-1` is recorded as RESOLVED for its original scope. Evidence: Heading "(resolved)"; hosted PR #190 merged `bd2c8968` Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 The first PR run selected the new tests and passed every Linux/macOS/Windows bootstrap and installer smoke job. Its Linux jobs exposed two test-fixture assumptions; Windows additionally exposed golden-fixture CRLF conversion. All three causes were reproduced locally and corrected in the single cycle-3 stabilization commit. Affected suites pass 97 tests with seven platform skips and 152 tests against real Git checkout bytes. This paragraph records the pre-merge state; the final hosted resolution is below. See [publication and integration](development/last-phase-evidence.md#publication-and-integration).
 

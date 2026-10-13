@@ -1,0 +1,352 @@
+{
+  "observed_at_utc": "2026-10-10T01:10:41Z",
+  "phase": 3,
+  "status": "partial; hook gate and phase commit blocked by native user-edit guard",
+  "head": "ff1aa631538fcf1cbc2380b28e1e001ebd880e8d",
+  "qualified_tasks": [
+    "T011",
+    "T012",
+    "T013"
+  ],
+  "pending_tasks": [
+    "T010",
+    "T014"
+  ],
+  "receipts": [
+    {
+      "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/tooling.json",
+      "source": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-tooling\\worker-receipt.json",
+      "raw_source_sha256": "27bc85300d974a4bde122d787cf22e28321f610aec487e6d9ebf9b24ad3a3eb2",
+      "retained_sha256": "db32bcf7183765d61aac1da890bdf76981896d17d10ef68613285c96dbe58fc2"
+    },
+    {
+      "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/tooling-functional.json",
+      "source": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-tooling\\functional-exercise.json",
+      "raw_source_sha256": "84195e800d979a9d14097613c11558ab4d9d7eb63e474cfd4d1f802fc3698aec",
+      "retained_sha256": "3d744957e5aeb44c4174deeb946950337bc976ed280dc8d0f40d58198dc9c9fa"
+    },
+    {
+      "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/tooling-mutation.json",
+      "source": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-tooling\\mutation-proof\\receipt.json",
+      "raw_source_sha256": "30f449261c75fbce5ae649c3c5c91a3b3eae5a3eec835a88864cf99e7c90374e",
+      "retained_sha256": "2c656bcd3d93915b2514ac4872c8870011216bb51f2241a140489599f772cb0d"
+    },
+    {
+      "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/smoke.json",
+      "source": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-proof.json",
+      "raw_source_sha256": "f0c26454cbb80f52958fa5ac5d8bf87b3b2638b3449d1b6745f5d0771bee285a",
+      "retained_sha256": "4eefb0ca2930f73375038229ca47efc7d58df0f51a95b6d42342789cad78140a"
+    },
+    {
+      "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/smoke-tests.json",
+      "source": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-checks\\combined-receipt.json",
+      "raw_source_sha256": "ea4c0984b0d12444ad75dc11d7d9e5ca065a7be44be85f67525381e9aadc6302",
+      "retained_sha256": "e978a8a9e840b2e08689a0735161a3456e513b049e3fd2230a6cd72efeb1d7ee"
+    },
+    {
+      "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/installer-functional.json",
+      "source": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-installer\\installer-functional-receipt.json",
+      "raw_source_sha256": "50acb53cb4a2c0f3cb358b230c83db136ee1ccb773bba0b0e35fe4f994575069",
+      "retained_sha256": "1eb20c48c7fab6990950174e2d08ef55b4528c4a0ff31b0858d42a88e959ee92"
+    },
+    {
+      "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/optimizer-functional.json",
+      "source": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-optimizer\\optimizer-functional-receipt.json",
+      "raw_source_sha256": "71b1718d4ead90d86a3844d25ebebf6fcc022bdee8a8a4c880e5d29486eefdad",
+      "retained_sha256": "4eee9fbf1d72962a75d0adbdc686b2955218af0434dbc6af8388adca66f71353"
+    },
+    {
+      "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/guard-refusal.json",
+      "source": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\guard-refusal-native.json",
+      "raw_source_sha256": "48ed344944576343735ed1a1f3c095c6834f4048091b62961f8a46c6468309c2",
+      "retained_sha256": "e48a78890b8ebc848e7a571dcae90544dd8851e350d78109db74a52616d174ad"
+    },
+    {
+      "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/hooks.json",
+      "source": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\final-receipt.json",
+      "raw_source_sha256": "4d6699836bdf6a50d2d65604a63ef81977c59275c565e43f9b77a2746f63e695",
+      "retained_sha256": "562e423cd1b59ed32f10b6f84ffd158e47d242d7b44ab747ae87ef23bf8c86de",
+      "representation": "Local account path component anonymized; raw original retained locally."
+    },
+    {
+      "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/hooks-functional-partial.json",
+      "source": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\functional-partial-receipt.json",
+      "raw_source_sha256": "7071ffbea4d8e3358e4cf4332f56f3a55a4f49d3f5a2d450e1cee435adaa462d",
+      "retained_sha256": "d912e92525d6306828289e3015eaf74fd104fee3c779257a476cbd898d81206f",
+      "representation": "Local account path component anonymized; raw original retained locally."
+    },
+    {
+      "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/hooks-behavior.json",
+      "source": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\focused-behavior.json",
+      "raw_source_sha256": "7d030ff3cc9abc746550e4d71bf6817a096fbfc343eddf26fc03e5d27eee9599",
+      "retained_sha256": "cb4c9d4f8a3a62c55bea107948258dc5e0427f9b0f6c89b4a21c4f7d2d83cc3f",
+      "representation": "Local account path component anonymized; raw original retained locally."
+    },
+    {
+      "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/hooks-size.json",
+      "source": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\size-exception-proof.json",
+      "raw_source_sha256": "b56f614a380f7022795000d1a46b850e42e2d28a98d708e623cdaa51ca730883",
+      "retained_sha256": "58845ec7bccb978a7080c889cd87f7022146afd59313a4b0ab01918affb08a00",
+      "representation": "Local account path component anonymized; raw original retained locally."
+    },
+    {
+      "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/hooks-review.json",
+      "source": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\reviewer-receipt-eaf048e80f4647faa2a3231b307f5910.json",
+      "raw_source_sha256": "5d9d14869eb37c38ab9f9ee6a676b7544f5c27bd7491df43b16310f9e1f753bd",
+      "retained_sha256": "36458fd527c00b392ea7e2b675f9e5d8b829bcdf7478a4b6b2f42c50e7c3291e",
+      "representation": "Local account path component anonymized; raw original retained locally."
+    },
+    {
+      "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/fast-gate-final.json",
+      "source": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-root\\fast-gate-final.json",
+      "raw_source_sha256": "db448e249bc1170535d9fba5acb6815b721d62b54ec0d6351c244f9abb264daf",
+      "retained_sha256": "b212b3142e9f3f7bd899b5fef321b953ed91b2e460f7ff9a2573d602e35bb5e4",
+      "representation": "Local account path component anonymized; raw original retained locally."
+    },
+    {
+      "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/fast-gate-final.txt",
+      "source": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-root\\fast-gate-final.txt",
+      "raw_source_sha256": "d93de00eb5fb93a89a47709914b794f58515d09e4cd09f04a6adcd71d4679710",
+      "retained_sha256": "f684e5de74a19f9c3e716a540282b25a2d581f2251d65ea0d7ccf60a9fd964aa",
+      "representation": "Local account path component anonymized; raw original retained locally."
+    },
+    {
+      "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/hooks-size.txt",
+      "source": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\size-exception-proof.txt",
+      "raw_source_sha256": "1ca6b250580757f59d3496ad10f25979f1b8406b9c1d4182805dc2dff43a3787",
+      "retained_sha256": "781e5f95eb1fdecd8c1b278ef544030a14e38d27c2fd40d98914c25e87869d54",
+      "representation": "Local account path components anonymized; trailing whitespace and extra blank lines at EOF normalized. Raw originals unchanged outside the repository."
+    }
+  ],
+  "qualified_counts": {
+    "tooling_tests_passed": 37,
+    "smoke_optimizer_tests_passed": 105,
+    "tooling_intentional_mutants_caught": 3,
+    "installer_cli_observations": 9,
+    "optimizer_stub_calls": 11,
+    "hook_behavior_tests_passed": 95
+  },
+  "independent_review": {
+    "tooling": "APPROVE; current three hashes match",
+    "smoke_optimizer": "APPROVE; current four hashes match",
+    "hooks": "REQUEST_CHANGES: trailing-LF identity alias and obsolete rotation-shape assertion."
+  },
+  "gap_clauses": [
+    {
+      "origin": "v3.15.1#WN-2",
+      "owner": "AR-34",
+      "disposition": "local clause qualified",
+      "remaining": "Repository-wide Ruff baseline and unrelated findings remain open."
+    },
+    {
+      "origin": "v3.15.1#MT-2",
+      "stable_id": "MT-2-v3151",
+      "owner": "AR-08",
+      "disposition": "benchmark temporary-baseline write clause qualified"
+    },
+    {
+      "origin": "v3.15.1#MT-1",
+      "stable_id": "MT-1-v3151",
+      "owner": "AR-08",
+      "disposition": "real map CLI forwarding and exits qualified",
+      "remaining": "Register tests/integrations/test_map_cli.py in the terminal canonical CI reconciliation."
+    },
+    {
+      "origin": "v1.1#MT-001",
+      "owner": "AR-08",
+      "disposition": "real executable-on-PATH optimizer clause qualified",
+      "remaining": "AR-08 strict YAML, model-helper and DEFAULT_GUARDS clauses belong to Phase 4."
+    },
+    {
+      "origins": [
+        "v1.1#DF-006",
+        "v1.1#DF-008"
+      ],
+      "owner": "AR-62",
+      "disposition": "five exact smoke expectations and faithful Windows-copy boundary qualified",
+      "remaining": "Actual Linux and macOS workspace-installer receipts remain open."
+    }
+  ],
+  "guard": {
+    "category": "user-edit-guard",
+    "session": "v41311-phase3-hooks",
+    "paths_sha256": {
+      "catalog/hooks/provenance-ledger.sh": "3ddd69e4059f3f1bffe658eebd7613873b5cfc2e294b77648dab2a9f0dce53f3",
+      "catalog/hooks/learning-capture.sh": "57964f44afd7ffe028436e3f392c456fd1d80550a85bf635c313bbffc413637c",
+      "catalog/hooks/tests/test_hook_size_bound.py": "5d326616d04a122862647ef4d3503e81b3117096669a9759b6059a854e561df6"
+    },
+    "reason": "Own writes occurred within eight seconds of clean checks, but registration arrived 127-128 seconds after checks, beyond the 120-second window.",
+    "reviewed_deltas": [
+      "provenance-ledger.sh: set PYTHONIOENCODING=utf-8 for the JSON fallback",
+      "learning-capture.sh: set PYTHONIOENCODING=utf-8 for stdin decoding",
+      "test_hook_size_bound.py: add a real helperless escaped-JSON-path refusal test"
+    ],
+    "accepted": true,
+    "required_next_step": "Three exact preserved versions were native-accepted under explicit user agreement. Complete the proved hook fixes and scoped gates; repair the missing native minor-answer command without relaxing prompt-origin validation.",
+    "skill": "C:/Users/username/.agents/skills/user-edit-preservation/SKILL.md",
+    "instruction": "A block is released only through accept after the user agrees, and every accept appears in the end-of-task summary.",
+    "required_follow_ups": [
+      {
+        "finding": "P1 Bash provenance trailing-LF path alias",
+        "proof": "Reviewer probe v41311-review-provenance-sylpxrow: plain identity.sh and same path plus LF become identical ledger paths without warning.",
+        "required_fix": "Preserve exact decoded field bytes including trailing LF through command substitution before normalization/delimiter/digest classification. A captured sentinel removed only after assignment is a minimum candidate. Full paths and hashes must remain distinct.",
+        "required_regressions": "jq and Python-helper branches: plain and LF-suffixed paths distinct; delimiter path gets bounded marker with complete normalized-path digest; marker excluded from matching. Include CR/tab siblings and no-helper refusal.",
+        "blocked_path": "catalog/hooks/provenance-ledger.sh"
+      },
+      {
+        "finding": "Rotation test asserts obsolete halve-and-shrink shape",
+        "required_fix": "Assert oldest-record eviction and newest-record retention after exceeding cap, complete valid UTF8/JSON and actual byte size <= cap, instead of strict decrease. Preserve liveness checks.",
+        "blocked_path": "catalog/hooks/tests/test_hook_size_bound.py"
+      },
+      {
+        "finding": "Bash devlog oversized event adds zero bytes",
+        "proof": "Real-jq size scenario delta0; ordinary line1 insertion is repaired. Existing guard tests positive growth only for ordinary events.",
+        "required_follow_up": "Reproduce actual hook with oversized subject and >10 commits; inspect head/pipeline early termination under pipefail. Add oversized event growth and full hash identity assertions before any minimal fix. No fix or closure claimed."
+      },
+      {
+        "finding": "13 repaired exception registrations remain",
+        "required_fix": "Remove only measured repaired keys after native preservation unblock, then run final size suite. Separate identity and devlog-liveness obligations stay open.",
+        "blocked_path": "catalog/hooks/tests/test_hook_size_bound.py"
+      },
+      {
+        "finding": "WN-37 broader git/PowerShell console encoding remains separate",
+        "qualification": "UTF8 stdin and file writes do not prove its entire obligation."
+      },
+      {
+        "finding": "Functional run incomplete",
+        "qualification": "Partial receipt retains observed Bash flows and all inputs/outputs/state hashes. PowerShell and remaining flows require fresh final-tree verification."
+      }
+    ],
+    "acceptance_receipt": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-guard-acceptance.json"
+  },
+  "ci_impact": {
+    "pipeline_edits": [],
+    "new_test_path": "tests/integrations/test_map_cli.py",
+    "terminal_reconciliation_required": true,
+    "matrix": "Preserve three serial guide-render runners and their 45-minute limits; no pytest-xdist."
+  },
+  "limits": [
+    "No whole-phase, full-suite, coverage, green integration, release, migration completion or archive completion claim.",
+    "Phase 3 post-phase sequence and one local commit remain pending; no staging or publication.",
+    "The original triage and complete historical source bodies are retained."
+  ],
+  "evidence_path_anonymization": {
+    "reason": "The unscoped fast profile detected personal account paths in release evidence.",
+    "representation": "Local account components use the explicit username placeholder. Commands and observations are actual retained results with paths anonymized; raw originals remain local and are bound by raw_source_sha256.",
+    "files": [
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-freeze-queue-assessment.json",
+        "raw_source_sha256": "e644e86e8ea1dc6bda5945dd0a24eed9f27f3d03963ea37fa062b64b86f18cf1",
+        "anonymized_sha256": "aba03c8f1cd06497958771a3055ef49af6b72b5d044f53b9cdbebda963c40e0c",
+        "raw_local_receipt": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-root\\raw-evidence-before-path-anonymization\\v4.13.11-freeze-queue-assessment.json"
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-freeze-queue-assessment.md",
+        "raw_source_sha256": "11ac01b20cdc77f65c5284c639768b47d166e69f2fda6fa17785897e60b416fb",
+        "anonymized_sha256": "da9e2f7d2abf6751ae797038a0949c534862c2204275b3ff47861357a4c944f7",
+        "raw_local_receipt": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-root\\raw-evidence-before-path-anonymization\\v4.13.11-freeze-queue-assessment.md"
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-native-run-activation.json",
+        "raw_source_sha256": "f0bfea3cfbdf47bdc9c9ae8b1cefb598d79b32b40ee89b0e9c685aee17d793a2",
+        "anonymized_sha256": "da306e0e828b42bb99d3d0ccf8499055f407f9d54b6b75a0b0b8e34c9b322d95",
+        "raw_local_receipt": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-root\\raw-evidence-before-path-anonymization\\v4.13.11-native-run-activation.json"
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-2-local-checks.json",
+        "raw_source_sha256": "660e2bbd738061b094688fb4b42c36f82d01a25413e9c78cf1ff9f9fe2ad33bd",
+        "anonymized_sha256": "d16e685ef1bf5fdcd042a8b87dc5f7e8de13124bb7126b0913cb32030724a453",
+        "raw_local_receipt": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-root\\raw-evidence-before-path-anonymization\\v4.13.11-phase-2-local-checks.json"
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-2-tests.json",
+        "raw_source_sha256": "d3f436ab0c02f468382aae9125290b87df3e4d2f8b669e8a6513968632c150c5",
+        "anonymized_sha256": "bca5290a53b3722748b9bda00d5cf84baa37b4ab1bd44280087300480023e7ee",
+        "raw_local_receipt": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-root\\raw-evidence-before-path-anonymization\\v4.13.11-phase-2-tests.json"
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-checkpoint.json",
+        "raw_source_sha256": "176c9b0e5c9062b21e6e8d1e3d6375c9f1172c7764c02a5b325a26fd82b183ec",
+        "anonymized_sha256": "4d8b92d6d0a541e7fb90d7102a38a113cebe7f50683abdf2f89ebedd0df6e664",
+        "raw_local_receipt": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-root\\raw-evidence-before-path-anonymization\\v4.13.11-phase-3-checkpoint.json"
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/guard-refusal.json",
+        "raw_source_sha256": "48ed344944576343735ed1a1f3c095c6834f4048091b62961f8a46c6468309c2",
+        "anonymized_sha256": "e48a78890b8ebc848e7a571dcae90544dd8851e350d78109db74a52616d174ad",
+        "raw_local_receipt": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-root\\raw-evidence-before-path-anonymization\\v4.13.11-phase-3-receipts\\guard-refusal.json"
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/installer-functional.json",
+        "raw_source_sha256": "50acb53cb4a2c0f3cb358b230c83db136ee1ccb773bba0b0e35fe4f994575069",
+        "anonymized_sha256": "1eb20c48c7fab6990950174e2d08ef55b4528c4a0ff31b0858d42a88e959ee92",
+        "raw_local_receipt": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-root\\raw-evidence-before-path-anonymization\\v4.13.11-phase-3-receipts\\installer-functional.json"
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/optimizer-functional.json",
+        "raw_source_sha256": "71b1718d4ead90d86a3844d25ebebf6fcc022bdee8a8a4c880e5d29486eefdad",
+        "anonymized_sha256": "4eee9fbf1d72962a75d0adbdc686b2955218af0434dbc6af8388adca66f71353",
+        "raw_local_receipt": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-root\\raw-evidence-before-path-anonymization\\v4.13.11-phase-3-receipts\\optimizer-functional.json"
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/smoke-tests.json",
+        "raw_source_sha256": "ea4c0984b0d12444ad75dc11d7d9e5ca065a7be44be85f67525381e9aadc6302",
+        "anonymized_sha256": "e978a8a9e840b2e08689a0735161a3456e513b049e3fd2230a6cd72efeb1d7ee",
+        "raw_local_receipt": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-root\\raw-evidence-before-path-anonymization\\v4.13.11-phase-3-receipts\\smoke-tests.json"
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/smoke.json",
+        "raw_source_sha256": "f0c26454cbb80f52958fa5ac5d8bf87b3b2638b3449d1b6745f5d0771bee285a",
+        "anonymized_sha256": "4eefb0ca2930f73375038229ca47efc7d58df0f51a95b6d42342789cad78140a",
+        "raw_local_receipt": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-root\\raw-evidence-before-path-anonymization\\v4.13.11-phase-3-receipts\\smoke.json"
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/tooling-functional.json",
+        "raw_source_sha256": "84195e800d979a9d14097613c11558ab4d9d7eb63e474cfd4d1f802fc3698aec",
+        "anonymized_sha256": "3d744957e5aeb44c4174deeb946950337bc976ed280dc8d0f40d58198dc9c9fa",
+        "raw_local_receipt": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-root\\raw-evidence-before-path-anonymization\\v4.13.11-phase-3-receipts\\tooling-functional.json"
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/tooling-mutation.json",
+        "raw_source_sha256": "30f449261c75fbce5ae649c3c5c91a3b3eae5a3eec835a88864cf99e7c90374e",
+        "anonymized_sha256": "2c656bcd3d93915b2514ac4872c8870011216bb51f2241a140489599f772cb0d",
+        "raw_local_receipt": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-root\\raw-evidence-before-path-anonymization\\v4.13.11-phase-3-receipts\\tooling-mutation.json"
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/tooling.json",
+        "raw_source_sha256": "27bc85300d974a4bde122d787cf22e28321f610aec487e6d9ebf9b24ad3a3eb2",
+        "anonymized_sha256": "db32bcf7183765d61aac1da890bdf76981896d17d10ef68613285c96dbe58fc2",
+        "raw_local_receipt": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-root\\raw-evidence-before-path-anonymization\\v4.13.11-phase-3-receipts\\tooling.json"
+      },
+      {
+        "path": "docs/releases/v4/v4.13/development/v4.13.11-reconciliation.json",
+        "raw_source_sha256": "4196e14327e311801e1e04f5b0712524ce4a2ed0a8147208a04577671f21d530",
+        "anonymized_sha256": "4f93011f43fc6690b20f6775decf9f30bd572fb1e2218c2e28621fbd349cca7b",
+        "raw_local_receipt": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-root\\raw-evidence-before-path-anonymization\\v4.13.11-reconciliation.json"
+      }
+    ],
+    "initial_fast_gate": {
+      "exit_code": 1,
+      "passed": 16,
+      "failed": 1,
+      "failed_check": "validate_no_personal_paths",
+      "elapsed_seconds": 162.23
+    }
+  },
+  "hook_gate": {
+    "status": "NO-GO",
+    "size_tests_passed": 17,
+    "size_tests_failed": 11,
+    "classification": "Nine retained exception registrations and two obsolete rotation-shape assertions; trailing-LF identity defect also remains.",
+    "functional": "PARTIAL, runner terminated after no progress, underlying exit -1; wrapper exit 0 is not a pass."
+  },
+  "fast_gate": {
+    "exit_code": 0,
+    "passed": 17,
+    "failed": 0,
+    "elapsed_seconds": 14.92,
+    "receipt": "docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/fast-gate-final.json"
+  },
+  "frozen_plan_hash_unchanged": "f810cd9838d5c88927d00903a11f1bdcc9771ca950d2cb113f9a0b04a19311ed",
+  "guard_resolution_observed_at_utc": "2026-10-10T02:05:24.119015+00:00"
+}

@@ -1,0 +1,233 @@
+{
+  "recorded_at": "2026-10-10T00:54:51.185460+00:00",
+  "head": "ff1aa631538fcf1cbc2380b28e1e001ebd880e8d",
+  "platform": "win32",
+  "python": "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+  "results": [
+    {
+      "case": "actual-installed-launcher-version",
+      "command": [
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-installer\\installed-artifacts\\complete\\home\\.nexus-hub\\bin\\nexus-hub.cmd",
+        "--version"
+      ],
+      "cwd": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-installer\\installed-artifacts\\complete",
+      "exit_code": 0,
+      "stdout": "nexus-hub 3.17.0\n",
+      "stderr": "",
+      "comparison": "matches"
+    },
+    {
+      "case": "complete",
+      "command": [
+        "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\scripts\\check_installer_smoke.py",
+        "--home",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-installer\\installed-artifacts\\complete\\home",
+        "--workspace",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-installer\\installed-artifacts\\complete\\workspace"
+      ],
+      "cwd": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-installer\\installed-artifacts\\complete",
+      "exit_code": 0,
+      "stdout": "installer smoke: PASS\n",
+      "stderr": "",
+      "copied_artifact_sha256": {
+        "package_skill.py": "b3b57ebfb14e430c099c39c84d6635bd787b8bb36f6c64c566ae1f033fdebac3",
+        "aggregate_benchmark.py": "ecde3cf4c4eb2544e1135ee89eaf349ac0f008d4867345bbf969f823a0ae5f1d",
+        "skill_eval_viewer.py": "c104634378b2465fb842865aba3850e4a17a084d30e0a4152f333910d5b16b89",
+        "optimize_skill_description.py": "c606c94fcaea4aba565d4e7f2ddfed7f5c4a969e3c15481d672852da7932d514",
+        "generate_report.py": "03c40c0fd95532486356bad17fb150b0e6d4cc2f16a88437a1446e135f224ea8"
+      },
+      "comparison": "matches"
+    },
+    {
+      "case": "package_skill.py",
+      "command": [
+        "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\scripts\\check_installer_smoke.py",
+        "--home",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-installer\\installed-artifacts\\package_skill.py\\home",
+        "--workspace",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-installer\\installed-artifacts\\package_skill.py\\workspace"
+      ],
+      "cwd": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-installer\\installed-artifacts\\package_skill.py",
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "installer smoke: FAIL: expected installed script is missing: package_skill.py\n",
+      "copied_artifact_sha256": {
+        "package_skill.py": "b3b57ebfb14e430c099c39c84d6635bd787b8bb36f6c64c566ae1f033fdebac3",
+        "aggregate_benchmark.py": "ecde3cf4c4eb2544e1135ee89eaf349ac0f008d4867345bbf969f823a0ae5f1d",
+        "skill_eval_viewer.py": "c104634378b2465fb842865aba3850e4a17a084d30e0a4152f333910d5b16b89",
+        "optimize_skill_description.py": "c606c94fcaea4aba565d4e7f2ddfed7f5c4a969e3c15481d672852da7932d514",
+        "generate_report.py": "03c40c0fd95532486356bad17fb150b0e6d4cc2f16a88437a1446e135f224ea8"
+      },
+      "comparison": "matches"
+    },
+    {
+      "case": "aggregate_benchmark.py",
+      "command": [
+        "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\scripts\\check_installer_smoke.py",
+        "--home",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-installer\\installed-artifacts\\aggregate_benchmark.py\\home",
+        "--workspace",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-installer\\installed-artifacts\\aggregate_benchmark.py\\workspace"
+      ],
+      "cwd": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-installer\\installed-artifacts\\aggregate_benchmark.py",
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "installer smoke: FAIL: expected installed script is missing: aggregate_benchmark.py\n",
+      "copied_artifact_sha256": {
+        "package_skill.py": "b3b57ebfb14e430c099c39c84d6635bd787b8bb36f6c64c566ae1f033fdebac3",
+        "aggregate_benchmark.py": "ecde3cf4c4eb2544e1135ee89eaf349ac0f008d4867345bbf969f823a0ae5f1d",
+        "skill_eval_viewer.py": "c104634378b2465fb842865aba3850e4a17a084d30e0a4152f333910d5b16b89",
+        "optimize_skill_description.py": "c606c94fcaea4aba565d4e7f2ddfed7f5c4a969e3c15481d672852da7932d514",
+        "generate_report.py": "03c40c0fd95532486356bad17fb150b0e6d4cc2f16a88437a1446e135f224ea8"
+      },
+      "comparison": "matches"
+    },
+    {
+      "case": "skill_eval_viewer.py",
+      "command": [
+        "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\scripts\\check_installer_smoke.py",
+        "--home",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-installer\\installed-artifacts\\skill_eval_viewer.py\\home",
+        "--workspace",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-installer\\installed-artifacts\\skill_eval_viewer.py\\workspace"
+      ],
+      "cwd": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-installer\\installed-artifacts\\skill_eval_viewer.py",
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "installer smoke: FAIL: expected installed script is missing: skill_eval_viewer.py\n",
+      "copied_artifact_sha256": {
+        "package_skill.py": "b3b57ebfb14e430c099c39c84d6635bd787b8bb36f6c64c566ae1f033fdebac3",
+        "aggregate_benchmark.py": "ecde3cf4c4eb2544e1135ee89eaf349ac0f008d4867345bbf969f823a0ae5f1d",
+        "skill_eval_viewer.py": "c104634378b2465fb842865aba3850e4a17a084d30e0a4152f333910d5b16b89",
+        "optimize_skill_description.py": "c606c94fcaea4aba565d4e7f2ddfed7f5c4a969e3c15481d672852da7932d514",
+        "generate_report.py": "03c40c0fd95532486356bad17fb150b0e6d4cc2f16a88437a1446e135f224ea8"
+      },
+      "comparison": "matches"
+    },
+    {
+      "case": "optimize_skill_description.py",
+      "command": [
+        "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\scripts\\check_installer_smoke.py",
+        "--home",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-installer\\installed-artifacts\\optimize_skill_description.py\\home",
+        "--workspace",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-installer\\installed-artifacts\\optimize_skill_description.py\\workspace"
+      ],
+      "cwd": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-installer\\installed-artifacts\\optimize_skill_description.py",
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "installer smoke: FAIL: expected installed script is missing: optimize_skill_description.py\n",
+      "copied_artifact_sha256": {
+        "package_skill.py": "b3b57ebfb14e430c099c39c84d6635bd787b8bb36f6c64c566ae1f033fdebac3",
+        "aggregate_benchmark.py": "ecde3cf4c4eb2544e1135ee89eaf349ac0f008d4867345bbf969f823a0ae5f1d",
+        "skill_eval_viewer.py": "c104634378b2465fb842865aba3850e4a17a084d30e0a4152f333910d5b16b89",
+        "optimize_skill_description.py": "c606c94fcaea4aba565d4e7f2ddfed7f5c4a969e3c15481d672852da7932d514",
+        "generate_report.py": "03c40c0fd95532486356bad17fb150b0e6d4cc2f16a88437a1446e135f224ea8"
+      },
+      "comparison": "matches"
+    },
+    {
+      "case": "generate_report.py",
+      "command": [
+        "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\scripts\\check_installer_smoke.py",
+        "--home",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-installer\\installed-artifacts\\generate_report.py\\home",
+        "--workspace",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-installer\\installed-artifacts\\generate_report.py\\workspace"
+      ],
+      "cwd": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-installer\\installed-artifacts\\generate_report.py",
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "installer smoke: FAIL: expected installed script is missing: generate_report.py\n",
+      "copied_artifact_sha256": {
+        "package_skill.py": "b3b57ebfb14e430c099c39c84d6635bd787b8bb36f6c64c566ae1f033fdebac3",
+        "aggregate_benchmark.py": "ecde3cf4c4eb2544e1135ee89eaf349ac0f008d4867345bbf969f823a0ae5f1d",
+        "skill_eval_viewer.py": "c104634378b2465fb842865aba3850e4a17a084d30e0a4152f333910d5b16b89",
+        "optimize_skill_description.py": "c606c94fcaea4aba565d4e7f2ddfed7f5c4a969e3c15481d672852da7932d514",
+        "generate_report.py": "03c40c0fd95532486356bad17fb150b0e6d4cc2f16a88437a1446e135f224ea8"
+      },
+      "comparison": "matches"
+    },
+    {
+      "case": "missing-permission",
+      "command": [
+        "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\scripts\\check_installer_smoke.py",
+        "--home",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-installer\\installed-artifacts\\missing-permission\\home",
+        "--workspace",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-installer\\installed-artifacts\\missing-permission\\workspace"
+      ],
+      "cwd": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-installer\\installed-artifacts\\missing-permission",
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "installer smoke: FAIL: permission baseline is missing or invalid at C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-installer\\installed-artifacts\\missing-permission\\workspace\\.claude\\settings.local.json: [Errno 2] No such file or directory: 'C:\\\\Users\\\\username\\\\AppData\\\\Local\\\\Temp\\\\v41311-phase3-smoke\\\\final-installer\\\\installed-artifacts\\\\missing-permission\\\\workspace\\\\.claude\\\\settings.local.json'\n",
+      "copied_artifact_sha256": {
+        "package_skill.py": "b3b57ebfb14e430c099c39c84d6635bd787b8bb36f6c64c566ae1f033fdebac3",
+        "aggregate_benchmark.py": "ecde3cf4c4eb2544e1135ee89eaf349ac0f008d4867345bbf969f823a0ae5f1d",
+        "skill_eval_viewer.py": "c104634378b2465fb842865aba3850e4a17a084d30e0a4152f333910d5b16b89",
+        "optimize_skill_description.py": "c606c94fcaea4aba565d4e7f2ddfed7f5c4a969e3c15481d672852da7932d514",
+        "generate_report.py": "03c40c0fd95532486356bad17fb150b0e6d4cc2f16a88437a1446e135f224ea8"
+      },
+      "comparison": "matches"
+    },
+    {
+      "case": "unreadable-permission",
+      "command": [
+        "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\scripts\\check_installer_smoke.py",
+        "--home",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-installer\\installed-artifacts\\unreadable-permission\\home",
+        "--workspace",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-installer\\installed-artifacts\\unreadable-permission\\workspace"
+      ],
+      "cwd": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-installer\\installed-artifacts\\unreadable-permission",
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "installer smoke: FAIL: permission baseline is missing or invalid at C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-installer\\installed-artifacts\\unreadable-permission\\workspace\\.claude\\settings.local.json: [Errno 13] Permission denied: 'C:\\\\Users\\\\username\\\\AppData\\\\Local\\\\Temp\\\\v41311-phase3-smoke\\\\final-installer\\\\installed-artifacts\\\\unreadable-permission\\\\workspace\\\\.claude\\\\settings.local.json'\n",
+      "copied_artifact_sha256": {
+        "package_skill.py": "b3b57ebfb14e430c099c39c84d6635bd787b8bb36f6c64c566ae1f033fdebac3",
+        "aggregate_benchmark.py": "ecde3cf4c4eb2544e1135ee89eaf349ac0f008d4867345bbf969f823a0ae5f1d",
+        "skill_eval_viewer.py": "c104634378b2465fb842865aba3850e4a17a084d30e0a4152f333910d5b16b89",
+        "optimize_skill_description.py": "c606c94fcaea4aba565d4e7f2ddfed7f5c4a969e3c15481d672852da7932d514",
+        "generate_report.py": "03c40c0fd95532486356bad17fb150b0e6d4cc2f16a88437a1446e135f224ea8"
+      },
+      "comparison": "matches"
+    }
+  ],
+  "source_sha256": {
+    "scripts/check_installer_smoke.py": "8c79f39f7e8494c2ef9ce521cd0ebf95be1d37245300ea793ef5dfbfc39ced9e",
+    "tests/installer/test_installer_smoke_postconditions.py": "6dec021724ec291d2415c1158f66a0a9f883f1d9208f720572d14d7a014bd38b",
+    "scripts/installer.ps1": "2524854246049cc88cb0d591dd0b92b76f4247094b6adb07fb7642eb1f195a9c",
+    "scripts/installer.sh": "e703e145913bf98e451099e9a6b0e24a073ed78f8ff1936ecbb3c5c688214a3e",
+    "scripts/package_skill.py": "b3b57ebfb14e430c099c39c84d6635bd787b8bb36f6c64c566ae1f033fdebac3",
+    "scripts/aggregate_benchmark.py": "ecde3cf4c4eb2544e1135ee89eaf349ac0f008d4867345bbf969f823a0ae5f1d",
+    "scripts/skill_eval_viewer.py": "c104634378b2465fb842865aba3850e4a17a084d30e0a4152f333910d5b16b89",
+    "scripts/optimize_skill_description.py": "c606c94fcaea4aba565d4e7f2ddfed7f5c4a969e3c15481d672852da7932d514",
+    "scripts/generate_report.py": "03c40c0fd95532486356bad17fb150b0e6d4cc2f16a88437a1446e135f224ea8"
+  },
+  "installer_delivery_proof": {
+    "scripts/installer.sh": [
+      "package_skill.py",
+      "aggregate_benchmark.py",
+      "skill_eval_viewer.py",
+      "optimize_skill_description.py",
+      "generate_report.py"
+    ],
+    "scripts/installer.ps1": [
+      "package_skill.py",
+      "aggregate_benchmark.py",
+      "skill_eval_viewer.py",
+      "optimize_skill_description.py",
+      "generate_report.py"
+    ]
+  },
+  "scope": "Faithful copied scripts and launcher with seeded valid project configuration; neither installer nor real home/profile executed or mutated.",
+  "comparison": "matches"
+}

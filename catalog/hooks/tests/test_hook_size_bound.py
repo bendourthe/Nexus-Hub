@@ -44,6 +44,7 @@ Run from the repo root (-s shows the measured table):
 from __future__ import annotations
 
 import datetime as _dt
+import hashlib
 import json
 import os
 import re
@@ -683,49 +684,10 @@ SKILL_TRACKER = Scenario(
 
 SCENARIOS = (LEARNING_CAPTURE, PROVENANCE_LEDGER, SESSION_SUMMARY, AUTO_DEVLOG, SKILL_TRACKER)
 
-# Known breaches, measured on 2026-10-03. Each entry is reported, never fixed by
-# this plan (v4.13.9 Phase 5). The test asserts the breach is STILL present and
-# then xfails, so fixing a hook makes the test fail until its entry is removed.
+# All 13 originally measured exceptions were repaired by the v4.13.11 sweep.
+# Keep the mechanism for future measured exceptions; every current scenario must pass.
 # Key: (scenario, impl, target label, event kind). Value: reason.
-# A reason starting with "[bash+jq]" applies to the .sh leg only when the bash
-# that runs it has jq on PATH (the .sh copies the field only through jq).
-_LC = "<repo>/.nexus/observations.jsonl"
-_PL = "~/.nexus-hub/cache/provenance/<session>.tsv"
-_SL = "~/.claude/session-log.md"
-_SD = "<repo>/.nexus/context/last-session.md"
-_DL = "<repo>/docs/DEVLOG.md"
-_ST = "~/.nexus-hub/state/skill-usage-<session>.json"
-KNOWN_BREACHES: dict[tuple[str, str, str, str], str] = {
-    # prompt_sample is cut to 400 chars, but hook_event_name and tool_name are
-    # copied whole: 2 x 64 KiB fields -> ~131.5 KB line (sh 131549, ps1 131543).
-    # On Linux the .sh never writes it: the payload travels in one environment
-    # string, which MAX_ARG_STRLEN caps at 128 KiB, so python fails to start
-    # (E2BIG) and the event is silently dropped (BG-14).
-    ("learning-capture", "sh", _LC, "oversized"): "[not-linux] event/tool fields untruncated",
-    ("learning-capture", "ps1", _LC, "oversized"): "event/tool fields untruncated",
-    # The path is recorded whole (65699 B line); rotation bounds LINES, not bytes,
-    # so the ledger's byte size is NEXUS_PROVENANCE_MAX x the longest path.
-    ("provenance-ledger", "sh", _PL, "oversized"): "file_path untruncated",
-    ("provenance-ledger", "ps1", _PL, "oversized"): "file_path untruncated",
-    # session_duration is copied whole into the log row and the digest (ps1
-    # always; sh only through jq, absent on the 2026-10-03 Windows host).
-    ("session-summary", "ps1", _SL, "oversized"): "duration untruncated",
-    ("session-summary", "ps1", _SL, "multibyte"): "duration untruncated",
-    ("session-summary", "ps1", _SD, "oversized"): "duration untruncated",
-    ("session-summary", "sh", _SL, "oversized"): "[bash+jq] duration untruncated",
-    ("session-summary", "sh", _SL, "multibyte"): "[bash+jq] duration untruncated",
-    ("session-summary", "sh", _SD, "oversized"): "[bash+jq] duration untruncated",
-    # Commit subjects are listed whole (up to 10 per entry, re-listed while
-    # they stay newer than the newest entry date).
-    ("auto-devlog", "ps1", _DL, "oversized"): "commit subject untruncated",
-    # Not a size breach but found by the liveness check: once a `## [` heading
-    # reaches line 1, INSERT_LINE = 0, awk's NR == 0 never matches, and every
-    # later entry is silently dropped while the hook reports "entry prepended".
-    # The .ps1 sibling splices correctly (parity divergence).
-    ("auto-devlog", "sh", _DL, "liveness"): "entries silently dropped after line-1 heading",
-    # The skill name is stored whole in the de-duplicated JSON list.
-    ("skill-tracker", "py", _ST, "oversized"): "skill name untruncated",
-}
+KNOWN_BREACHES: dict[tuple[str, str, str, str], str] = {}
 
 # --- Runner ----------------------------------------------------------------------
 
@@ -924,13 +886,29 @@ def test_rotation_holds_lowered_cap(
             observed.append(len(data) if unit == "bytes" else data.count(b"\n"))
     print(f"\n[size-bound] rotation {scenario.name}-{impl} {unit} cap={cap}: {observed}")
     assert all(v <= cap for v in observed), f"{target.label} exceeded {cap} {unit}: {observed}"
+    assert data.endswith(b"\n") and not data.startswith(b"\xef\xbb\xbf")
+    lines = data.decode("utf-8").splitlines()
+    assert 0 < len(lines) < EVENTS, "old records must be evicted after the cap is reached"
     if unit == "bytes":
-        # The rotation path was actually reached: the file shrank at least once.
-        assert any(b < a for a, b in pairwise(observed)), (
-            f"rotation path not reached within {EVENTS} events: {observed}"
-        )
+        records = [json.loads(line) for line in lines]
+        # Ordinary test events have equal byte sizes; retain every record that fits.
+        assert len(records) == min(EVENTS, cap // observed[0])
+        expected = [json.loads(scenario.payload(ctx, "normal", i))["prompt"]
+                    for i in range(EVENTS)]
+        retained = [record["prompt_sample"] for record in records]
+        assert retained == expected[-len(records):], "retain an intact suffix in input order"
+        assert retained[-1] == expected[-1], "the newest event must survive rotation"
+        assert expected[0] not in retained, "the oldest event must be evicted"
     else:
         assert observed[-1] == cap, f"expected exactly {cap} retained lines: {observed}"
+        rows = [line.split("\t") for line in lines]
+        assert all(len(row) == 3 for row in rows)
+        expected = [json.loads(scenario.payload(ctx, "normal", i))["tool_input"]["file_path"]
+                    .replace("\\", "/") for i in range(EVENTS)]
+        assert [row[2] for row in rows] == expected[-cap:]
+        assert [row[1] for row in rows] == [hashlib.sha256(
+            (ctx.repo / "src" / f"file_{i:02d}.py").read_bytes()).hexdigest()
+            for i in range(EVENTS - cap, EVENTS)]
 
 
 def test_print_measured_table() -> None:
@@ -942,3 +920,410 @@ def test_print_measured_table() -> None:
     print(" | ".join(cols))
     for row in _TABLE:
         print(" | ".join(row[c] for c in cols))
+
+
+@pytest.mark.parametrize("impl", LEARNING_CAPTURE.impls)
+def test_large_learning_event_is_live_and_utf8_rotation_is_byte_bounded(
+    request: pytest.FixtureRequest, tmp_path: Path, impl: str
+) -> None:
+    ctx = make_ctx(tmp_path)
+    prefix = _prefix(request, LEARNING_CAPTURE, impl)
+    path = LEARNING_CAPTURE.targets[0].path(ctx)
+    with real_guard(ctx.token):
+        _fire(ctx, prefix, LEARNING_CAPTURE, "oversized", 0)
+        record = json.loads(path.read_text(encoding="utf-8-sig"))
+        assert record["event"] == "E" * 128
+        assert record["tool"] == "T" * 128
+        assert record["prompt_sample"] == "P" * 400
+        assert path.stat().st_size <= 2048
+        ctx.env["NEXUS_LEARNING_MAX_BYTES"] = "2048"
+        for i in range(6):
+            _fire(ctx, prefix, LEARNING_CAPTURE, "multibyte", i)
+            assert path.stat().st_size <= 2048
+            records = [json.loads(line) for line in path.read_text(encoding="utf-8-sig").splitlines()]
+            assert records and records[-1]["event"] == "UserPromptSubmit"
+            assert records[-1]["prompt_sample"]
+            assert "\ufffd" not in records[-1]["prompt_sample"]
+
+
+@pytest.mark.parametrize("impl", SESSION_SUMMARY.impls)
+def test_session_project_name_comes_from_git_root(
+    request: pytest.FixtureRequest, tmp_path: Path, impl: str
+) -> None:
+    ctx = make_ctx(tmp_path)
+    child = ctx.repo / "nested"
+    child.mkdir()
+    prefix = _prefix(request, SESSION_SUMMARY, impl)
+    with real_guard(ctx.token):
+        proc = subprocess.run(prefix, input=b"{}", cwd=child, env=ctx.env,
+                              capture_output=True, timeout=180, check=False)
+        assert proc.returncode == 0, proc.stderr
+        digest = SESSION_SUMMARY.targets[1].path(ctx).read_text(encoding="utf-8-sig")
+        log = SESSION_SUMMARY.targets[0].path(ctx).read_text(encoding="utf-8-sig")
+        assert f"Project: {ctx.repo.name}\n" in digest
+        assert f"| {ctx.repo.name} |" in log
+        assert "Project: nested" not in digest
+
+
+@pytest.mark.parametrize("impl", PROVENANCE_LEDGER.impls)
+def test_provenance_preserves_path_hash_identity_and_excludes_digest_markers(
+    request: pytest.FixtureRequest, tmp_path: Path, impl: str
+) -> None:
+    ctx = make_ctx(tmp_path)
+    prefix = _prefix(request, PROVENANCE_LEDGER, impl)
+    ledger = PROVENANCE_LEDGER.targets[0].path(ctx)
+    folder = ctx.repo
+    for _ in range(3):
+        folder /= "\u6f22" * 16
+    folder.mkdir(parents=True)
+    target = folder / "identity.sh"
+    target.write_bytes(b"echo identity\n")
+    path = str(target)
+    norm = path.replace("\\", "/")
+    oversized = norm + "p" * OVERSIZE
+
+    def fire(payload: dict[str, object]) -> subprocess.CompletedProcess:
+        return subprocess.run(prefix, input=json.dumps(payload).encode("utf-8"),
+                              cwd=ctx.repo, env=ctx.env, capture_output=True,
+                              timeout=180, check=False)
+
+    with real_guard(ctx.token):
+        assert fire({"session_id": ctx.sid, "tool_name": "Write",
+                     "tool_input": {"file_path": path}}).returncode == 0
+        fields = ledger.read_text(encoding="utf-8").strip().split("\t")
+        assert fields[1] == hashlib.sha256(target.read_bytes()).hexdigest()
+        assert fields[2] == norm
+        proc = fire({"session_id": ctx.sid, "tool_name": "Write",
+                     "tool_input": {"file_path": oversized}})
+        assert proc.returncode == 0 and b"without path correlation" in proc.stderr
+        marker = ledger.read_text(encoding="utf-8").splitlines()[-1].split("\t")[2]
+        assert marker == "UNSUPPORTED-PATH-SHA256:" + hashlib.sha256(oversized.encode()).hexdigest()
+        proc = fire({"session_id": ctx.sid, "tool_name": "Bash",
+                     "tool_input": {"command": marker}})
+        assert proc.returncode == 0 and b"TRUST SEAM" not in proc.stderr
+
+
+def test_skill_tracker_refuses_oversized_identity_without_aliasing(tmp_path: Path) -> None:
+    ctx = make_ctx(tmp_path)
+    prefix = [sys.executable, str(_HOOKS_DIR / "skill-tracker.py")]
+    state = SKILL_TRACKER.targets[0].path(ctx)
+    names = ("k" * 63 + "a", "k" * 63 + "b", "k" * 64 + "extra")
+    with real_guard(ctx.token):
+        for name in names:
+            proc = subprocess.run(prefix, input=json.dumps({"session_id": ctx.sid,
+                                  "tool_input": {"skill": name}}).encode(),
+                                  cwd=ctx.repo, env=ctx.env, capture_output=True,
+                                  timeout=180, check=False)
+            assert proc.returncode == 0
+        assert json.loads(state.read_text(encoding="utf-8")) == sorted(names[:2])
+        assert b"exceeds 64 characters" in proc.stderr
+
+
+def test_provenance_text_fallback_refuses_unproved_json_escapes(
+    tmp_path: Path, bash_bin: str
+) -> None:
+    ctx = make_ctx(tmp_path)
+    # Exercise the real no-helper branch, rather than mimic a JSON decoder.
+    wrapper = ('command() { if [[ "$1" == "-v" && ( "$2" == "jq" || '
+               '"$2" == "python" || "$2" == "python3" ) ]]; then return 1; '
+               'else builtin command "$@"; fi; }; export -f command; exec "$@"')
+    prefix = [bash_bin, "-c", wrapper, "hook", bash_bin,
+              str(_HOOKS_DIR / "provenance-ledger.sh")]
+    ledger = PROVENANCE_LEDGER.targets[0].path(ctx)
+    with real_guard(ctx.token):
+        normal = str(ctx.repo / "exact.sh").replace("\\", "/")
+        for path in (normal, normal + "\u6f22"):
+            proc = subprocess.run(prefix, input=json.dumps({"session_id": ctx.sid,
+                                  "tool_name": "Write", "tool_input": {"file_path": path}}).encode(),
+                                  cwd=ctx.repo, env=ctx.env, capture_output=True,
+                                  timeout=180, check=False)
+            assert proc.returncode == 0
+        assert ledger.read_text().splitlines()[0].split("\t")[2] == normal
+        assert len(ledger.read_text().splitlines()) == 1
+        assert b"cannot decode" in proc.stderr
+
+
+
+@pytest.mark.parametrize("decoder", ("jq", "python"))
+def test_provenance_delimiter_paths_keep_complete_identity(
+    tmp_path: Path, bash_bin: str, decoder: str
+) -> None:
+    ctx = make_ctx(tmp_path)
+    if decoder == "jq":
+        if not _bash_has_jq(bash_bin):
+            pytest.skip("jq is not installed for the actual jq decoder leg")
+        prefix = [bash_bin, str(_HOOKS_DIR / "provenance-ledger.sh")]
+    else:
+        wrapper = ('command() { if [[ "$1" == "-v" && "$2" == "jq" ]]; '
+                   'then return 1; else builtin command "$@"; fi; }; '
+                   'export -f command; exec "$@"')
+        prefix = [bash_bin, "-c", wrapper, "hook", bash_bin,
+                  str(_HOOKS_DIR / "provenance-ledger.sh")]
+    target = ctx.repo / "exact-%-\u6f22.sh"
+    target.write_bytes(b"echo exact identity\n")
+    path = str(target)
+    norm = path.replace("\\", "/")
+    ledger = PROVENANCE_LEDGER.targets[0].path(ctx)
+
+    def fire(tool: str, fields: dict[str, str]) -> subprocess.CompletedProcess:
+        return subprocess.run(prefix, input=json.dumps({"session_id": ctx.sid,
+                              "tool_name": tool, "tool_input": fields}).encode(),
+                              cwd=ctx.repo, env=ctx.env, capture_output=True,
+                              timeout=180, check=False)
+
+    with real_guard(ctx.token):
+        proc = fire("Write", {"file_path": path})
+        assert proc.returncode == 0, proc.stderr
+        fields = ledger.read_text(encoding="utf-8").splitlines()[-1].split("\t")
+        assert len(fields) == 3 and fields[2] == norm
+        assert fields[1] == hashlib.sha256(target.read_bytes()).hexdigest()
+        markers = []
+        for delimiter in ("\n", "\n\n", "\r", "\t"):
+            proc = fire("Write", {"file_path": path + delimiter})
+            assert proc.returncode == 0, proc.stderr
+            assert b"without path correlation" in proc.stderr
+            rows = ledger.read_text(encoding="utf-8").splitlines()
+            fields = rows[-1].split("\t")
+            expected = "UNSUPPORTED-PATH-SHA256:" + hashlib.sha256(
+                (norm + delimiter).encode("utf-8")).hexdigest()
+            assert len(fields) == 3 and fields[2] == expected
+            assert fields[1] == "NOFILE"
+            markers.append(expected)
+        assert len(set(markers)) == 4
+        assert len(ledger.read_text(encoding="utf-8").splitlines()) == 5
+        for marker in markers:
+            proc = fire("Bash", {"command": marker})
+            assert proc.returncode == 0 and b"TRUST SEAM" not in proc.stderr
+        proc = fire("Bash", {"command": norm})
+        assert proc.returncode == 0 and b"TRUST SEAM" in proc.stderr
+
+
+@pytest.mark.parametrize("impl", AUTO_DEVLOG.impls)
+def test_oversized_devlog_subject_is_live_bounded_and_preserves_body(
+    request: pytest.FixtureRequest, tmp_path: Path, impl: str
+) -> None:
+    ctx = make_ctx(tmp_path)
+    prefix = _prefix(request, AUTO_DEVLOG, impl)
+    with real_guard(ctx.token):
+        AUTO_DEVLOG.setup(ctx)
+        path = AUTO_DEVLOG.targets[0].path(ctx)
+        before = path.read_bytes()
+        _fire(ctx, prefix, AUTO_DEVLOG, "oversized", 0)
+        after = path.read_bytes()
+        text = after.decode("utf-8")
+        assert 0 < len(after) - len(before) <= 4096
+        assert text.count("Session auto-summary [auto]") == 1
+        original = before.decode("utf-8").replace("\r\n", "\n")
+        preamble, original_body = original.split("## ", 1)
+        assert text.startswith(preamble)
+        assert "## " + original_body in text
+        assert "S" * 200 in text and "S" * 201 not in text
+
+
+
+@pytest.mark.parametrize("decoder", ("jq", "python", "ps1"))
+def test_provenance_refuses_nul_path_without_aliasing(
+    request: pytest.FixtureRequest, tmp_path: Path, bash_bin: str, decoder: str
+) -> None:
+    ctx = make_ctx(tmp_path)
+    if decoder == "ps1":
+        prefix = _prefix(request, PROVENANCE_LEDGER, "ps1")
+    elif decoder == "jq":
+        if not _bash_has_jq(bash_bin):
+            pytest.skip("jq is not installed for the actual jq decoder leg")
+        prefix = [bash_bin, str(_HOOKS_DIR / "provenance-ledger.sh")]
+    else:
+        wrapper = ('command() { if [[ "$1" == "-v" && "$2" == "jq" ]]; '
+                   'then return 1; else builtin command "$@"; fi; }; '
+                   'export -f command; exec "$@"')
+        prefix = [bash_bin, "-c", wrapper, "hook", bash_bin,
+                  str(_HOOKS_DIR / "provenance-ledger.sh")]
+    target = ctx.repo / "nul-%00-\u6f22.sh"
+    target.write_bytes(b"echo distinct identity\n")
+    path = str(target)
+    ledger = PROVENANCE_LEDGER.targets[0].path(ctx)
+
+    def fire(value: str, raw_nul: bool = False) -> subprocess.CompletedProcess:
+        body = json.dumps({"session_id": ctx.sid, "tool_name": "Write",
+                           "tool_input": {"file_path": value}}).encode()
+        if raw_nul:
+            body = body.replace(b"\\u0000", b"\x00")
+        return subprocess.run(prefix, input=body, cwd=ctx.repo, env=ctx.env,
+                              capture_output=True, timeout=180, check=False)
+
+    with real_guard(ctx.token):
+        for raw_nul in (True, False):
+            for invalid in (path + "\x00", "\x00" + path, path[:3] + "\x00" + path[3:]):
+                proc = fire(invalid, raw_nul)
+                assert proc.returncode == 0, proc.stderr
+                assert not ledger.exists(), "an impossible path must not create a provenance row"
+                if not raw_nul or decoder != "ps1":
+                    assert b"NUL" in proc.stderr
+                assert b"ignored null byte" not in proc.stderr
+        proc = fire(path)
+        assert proc.returncode == 0, proc.stderr
+        fields = ledger.read_text(encoding="utf-8").splitlines()[-1].split("\t")
+        assert fields[2] == path.replace("\\", "/")
+        assert fields[1] == hashlib.sha256(target.read_bytes()).hexdigest()
+        before = ledger.read_bytes()
+        for raw_nul in (True, False):
+            proc = fire(path + "\x00", raw_nul)
+            assert proc.returncode == 0, proc.stderr
+            if not raw_nul or decoder != "ps1":
+                assert b"NUL" in proc.stderr
+            assert ledger.read_bytes() == before, "invalid paths must not alias an existing recorded file"
+
+
+@pytest.mark.parametrize("impl", AUTO_DEVLOG.impls)
+def test_devlog_large_history_is_live_and_keeps_newest_ten(
+    request: pytest.FixtureRequest, tmp_path: Path, impl: str
+) -> None:
+    ctx = make_ctx(tmp_path)
+    prefix = _prefix(request, AUTO_DEVLOG, impl)
+    with real_guard(ctx.token):
+        AUTO_DEVLOG.setup(ctx)
+        path = AUTO_DEVLOG.targets[0].path(ctx)
+        before = path.read_bytes()
+        tomorrow = _dt.date.today() + _dt.timedelta(days=1)  # noqa: DTZ011
+        message = ctx.root / "history-message.txt"
+        # More output than a pipe buffer exposes an early-closing history reader.
+        for i in range(40):
+            message.write_text(f"history-{i:02d} " + "H" * 4096 + "\n", encoding="utf-8")
+            _git(ctx, "commit", "-q", "--allow-empty", "-F", str(message),
+                 date=f"{tomorrow.isoformat()}T12:00:00")
+        old = time.time() - 3600
+        os.utime(path, (old, old))
+        proc = subprocess.run(prefix, input=AUTO_DEVLOG.payload(ctx, "normal", 0).encode(),
+                              cwd=ctx.repo, env={**ctx.env, **AUTO_DEVLOG.extra_env},
+                              capture_output=True, timeout=180, check=False)
+        assert proc.returncode == 0, proc.stderr
+        after = path.read_bytes()
+        text = after.decode("utf-8")
+        assert 0 < len(after) - len(before) <= 4096
+        assert text.count("Session auto-summary [auto]") == 1
+        assert text.count("history-") == 10
+        assert "history-39 " in text and "history-30 " in text
+        assert "history-29 " not in text
+        assert "H" * 201 not in text
+        original = before.decode("utf-8").replace("\r\n", "\n")
+        preamble, original_body = original.split("## ", 1)
+        assert text.startswith(preamble)
+        assert "## " + original_body in text
+
+
+@pytest.mark.parametrize("impl", AUTO_DEVLOG.impls)
+def test_devlog_large_body_is_live_bounded_and_preserved(
+    request: pytest.FixtureRequest, tmp_path: Path, impl: str
+) -> None:
+    ctx = make_ctx(tmp_path)
+    prefix = _prefix(request, AUTO_DEVLOG, impl)
+    with real_guard(ctx.token):
+        AUTO_DEVLOG.setup(ctx)
+        path = AUTO_DEVLOG.targets[0].path(ctx)
+        # Enough matching headings to expose an early-closing first-heading reader.
+        seed = path.read_bytes().replace(b"\r\n", b"\n")
+        headings = (("\n## [2019-12-29] - " + "B" * 100 + "\n") * 8192).encode()
+        path.write_bytes(seed + headings)
+        before = path.read_bytes()
+        _fire(ctx, prefix, AUTO_DEVLOG, "normal", 0)
+        after = path.read_bytes()
+        text = after.decode("utf-8")
+        assert 0 < len(after) - len(before) <= 4096
+        assert text.count("Session auto-summary [auto]") == 1
+        original = before.decode("utf-8").replace("\r\n", "\n")
+        preamble, original_body = original.split("## ", 1)
+        assert text.startswith(preamble)
+        assert "## " + original_body in text
+
+
+def _provenance_byte_prefix(request: pytest.FixtureRequest, decoder: str) -> list[str]:
+    if decoder == "ps1":
+        return _prefix(request, PROVENANCE_LEDGER, "ps1")
+    bash = request.getfixturevalue("bash_bin")
+    if decoder == "jq":
+        if not _bash_has_jq(bash):
+            pytest.skip("jq is not installed for the actual jq decoder leg")
+        return [bash, str(_HOOKS_DIR / "provenance-ledger.sh")]
+    helpers = "jq|python|python3" if decoder == "text" else "jq"
+    wrapper = ('command() { if [[ "$1" == "-v" ]]; then case "$2" in '
+               + helpers + ') return 1;; esac; fi; builtin command "$@"; }; '
+               'export -f command; exec "$@"')
+    return [bash, "-c", wrapper, "hook", bash, str(_HOOKS_DIR / "provenance-ledger.sh")]
+
+
+@pytest.mark.parametrize("decoder", ("jq", "python", "ps1", "text"))
+@pytest.mark.parametrize("line_cap", (100, 3))
+def test_provenance_byte_and_line_caps_keep_complete_newest_suffix(
+    request: pytest.FixtureRequest, tmp_path: Path, decoder: str, line_cap: int
+) -> None:
+    ctx = make_ctx(tmp_path)
+    prefix = _provenance_byte_prefix(request, decoder)
+    ledger = PROVENANCE_LEDGER.targets[0].path(ctx)
+    byte_cap = 8192
+    rows = [f"1\t{'1' * 64}\told-{'漢' * 10000}\n".encode()]
+    rows.extend(f"{i + 2}\t{'2' * 64}\tseed-{i:02d}-{'漢' * 200}\n".encode()
+                for i in range(12))
+    with real_guard(ctx.token):
+        ledger.parent.mkdir(parents=True, exist_ok=True)
+        ledger.write_bytes(b"".join(rows))
+        env = {**ctx.env, "NEXUS_PROVENANCE_MAX_BYTES": str(byte_cap),
+               "NEXUS_PROVENANCE_MAX": str(line_cap)}
+        for i in range(4):
+            target = ctx.repo / f"new-{i}-漢-%00.sh"
+            target.write_bytes(f"echo exact-{i}\n".encode())
+            payload = json.dumps({"session_id": ctx.sid, "tool_name": "Write",
+                                  "tool_input": {"file_path": target.as_posix()}},
+                                 ensure_ascii=False).encode()
+            proc = subprocess.run(prefix, input=payload, cwd=ctx.repo, env=env,
+                                  capture_output=True, timeout=180, check=False)
+            assert proc.returncode == 0, proc.stderr
+            data = ledger.read_bytes()
+            assert data and len(data) <= byte_cap and data.endswith(b"\n")
+            assert not data.startswith(b"\xef\xbb\xbf")
+            data.decode("utf-8")
+            kept = data.splitlines(keepends=True)
+            assert 0 < len(kept) <= line_cap
+            fields = kept[-1].decode().rstrip("\n").split("\t")
+            assert len(fields) == 3 and fields[0].isdigit()
+            assert fields[1] == hashlib.sha256(target.read_bytes()).hexdigest()
+            assert fields[2] == target.as_posix()
+            rows.append(kept[-1])
+            assert kept == rows[-len(kept):], "rotation must retain the intact newest suffix"
+            assert all(len(row.decode().rstrip("\n").split("\t")) == 3 for row in kept)
+            assert rows[0] not in kept, "the inherited oversized row must be evicted"
+            if len(kept) < min(len(rows), line_cap):
+                assert len(data) + len(rows[-len(kept) - 1]) > byte_cap
+        assert data.count(b"exact-") == 0, "file contents must never enter the ledger"
+        assert not list(ledger.parent.glob(ledger.name + ".tmp*"))
+
+
+@pytest.mark.parametrize("impl", PROVENANCE_LEDGER.impls)
+@pytest.mark.parametrize("setting", ("512", "invalid", "0"))
+def test_provenance_byte_cap_configuration_keeps_a_whole_newest_row(
+    request: pytest.FixtureRequest, tmp_path: Path, impl: str, setting: str
+) -> None:
+    ctx = make_ctx(tmp_path)
+    prefix = _prefix(request, PROVENANCE_LEDGER, impl)
+    ledger = PROVENANCE_LEDGER.targets[0].path(ctx)
+    effective_cap = 8192 if setting == "512" else 1048576
+    with real_guard(ctx.token):
+        ledger.parent.mkdir(parents=True, exist_ok=True)
+        ledger.write_bytes(f"1\t{'1' * 64}\told-{'漢' * 400000}\n".encode())
+        target = ctx.repo / "configuration.sh"
+        target.write_bytes(b"echo exact configuration\n")
+        payload = json.dumps({"session_id": ctx.sid, "tool_name": "Write",
+                              "tool_input": {"file_path": target.as_posix()}}).encode()
+        proc = subprocess.run(prefix, input=payload, cwd=ctx.repo,
+                              env={**ctx.env, "NEXUS_PROVENANCE_MAX_BYTES": setting},
+                              capture_output=True, timeout=180, check=False)
+        assert proc.returncode == 0, proc.stderr
+        data = ledger.read_bytes()
+        assert 0 < len(data) <= effective_cap and data.endswith(b"\n")
+        assert not data.startswith(b"\xef\xbb\xbf")
+        fields = data.decode("utf-8").rstrip("\n").split("\t")
+        assert len(fields) == 3 and fields[0].isdigit()
+        assert fields[1] == hashlib.sha256(target.read_bytes()).hexdigest()
+        assert fields[2] == target.as_posix()
+        if setting == "512":
+            assert b"8192" in proc.stderr
+        assert not list(ledger.parent.glob(ledger.name + ".tmp*"))

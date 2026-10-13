@@ -23,6 +23,7 @@ _EVENT_NAMES = {
     "post_run_command": "PostToolUse",
     "pre_write_code": "PreToolUse",
     "post_write_code": "PostToolUse",
+    "post_read_code": "PostToolUse",
     "pre_user_prompt": "UserPromptSubmit",
     "post_cascade_response": "Stop",
 }
@@ -183,6 +184,13 @@ def translate_payload(payload: dict[str, Any], event: str, tool_name: str) -> di
             "new_string": new_text,
             "content": new_text,
         }
+    elif event == "post_read_code":
+        # Documented tool_info.file_path; may name a directory on a recursive read,
+        # which the user-edit guard skips because it records files only.
+        translated["tool_input"] = {
+            "file_path": tool_info.get("file_path", ""),
+            "path": tool_info.get("file_path", ""),
+        }
     elif event == "pre_user_prompt":
         translated["prompt"] = tool_info.get("user_prompt", "")
     elif event == "post_cascade_response":
@@ -197,6 +205,14 @@ _ANTIGRAVITY_ARG_ALIASES = {
     "absolute_path": "file_path",
     "code_content": "content",
     "new_content": "content",
+}
+
+_ANTIGRAVITY_TOOL_NAMES = {
+    "write_to_file": "Write",
+    "replace_file_content": "Edit",
+    "multi_replace_file_content": "MultiEdit",
+    "run_command": "Bash",
+    "view_file": "Read",
 }
 
 
@@ -254,11 +270,17 @@ def translate_antigravity_payload(
     """Convert Antigravity camelCase/PascalCase input to the catalog contract."""
     tool_call = payload.get("toolCall")
     call = tool_call if isinstance(tool_call, dict) else {}
+    native_name = str(call.get("name", ""))
     translated: dict[str, Any] = {
         "hook_event_name": event,
-        "tool_name": str(call.get("name", "")),
+        "tool_name": _ANTIGRAVITY_TOOL_NAMES.get(native_name, native_name),
         "tool_input": _antigravity_tool_input(call.get("args")),
     }
+    args = call.get("args")
+    if native_name == "run_command" and isinstance(args, dict):
+        cwd = args.get("Cwd")
+        if isinstance(cwd, str) and cwd:
+            translated["cwd"] = cwd
     for source, target in {
         "conversationId": "session_id",
         "transcriptPath": "transcript_path",
@@ -372,6 +394,9 @@ def translate_child_result(
         return _translate_stop(host, child, payload, stderr, returncode)
 
     if host == "antigravity":
+        if event == "PostToolUse":
+            # The native post contract has no permission decision or context fields.
+            return {}, 0
         if returncode == 2:
             return {
                 "decision": "deny",
@@ -504,6 +529,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         handler_name, command, handler_sha256
     )
     payload = _read_payload()
+    if host == "antigravity" and event == "PostToolUse" and payload.get("error"):
+        # A failed tool may overlap a user save. Never record that file as an
+        # agent write, even when the preceding pre-hook left a clean intent.
+        sys.stdout.write("{}")
+        return 0
     if host == "antigravity":
         translated = translate_antigravity_payload(payload, event)
     elif host == "copilot":

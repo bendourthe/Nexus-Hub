@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 import json
+import shutil
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -14,6 +17,13 @@ NEXUS_START_MARKER = "<!-- NEXUS_HUB_START -->"
 NEXUS_END_MARKER = "<!-- NEXUS_HUB_END -->"
 ORG_START_MARKER = "<!-- NEXUS_HUB_ORG_START -->"
 ORG_END_MARKER = "<!-- NEXUS_HUB_ORG_END -->"
+EVAL_AND_REPORT_SCRIPTS = (
+    "package_skill.py",
+    "aggregate_benchmark.py",
+    "skill_eval_viewer.py",
+    "optimize_skill_description.py",
+    "generate_report.py",
+)
 FUNCTIONAL_VERIFICATION_ARTIFACTS = (
     Path(".claude") / "skills" / "functional-verification" / "SKILL.md",
     Path(".claude")
@@ -91,6 +101,71 @@ def test_complete_install_has_no_findings(tmp_path: Path) -> None:
     workspace = tmp_path / "workspace"
     _seed(home, workspace)
     assert collect_findings(home, workspace) == []
+
+
+@pytest.fixture
+def installed_copy(tmp_path: Path) -> tuple[Path, Path]:
+    """Copy the distributed scripts and launcher into a disposable home."""
+    home = tmp_path / "home"
+    workspace = tmp_path / "workspace"
+    _seed(home, workspace)
+    repo = Path(smoke.__file__).resolve().parents[1]
+    install_root = home / ".nexus-hub"
+    for name in set(EXPECTED_SCRIPTS) | set(EVAL_AND_REPORT_SCRIPTS):
+        source = repo / "scripts" / name
+        target = install_root / "scripts" / name
+        shutil.copyfile(source, target)
+        assert target.read_bytes() == source.read_bytes()
+    bin_dir = install_root / "bin"
+    bin_dir.mkdir()
+    launcher = "nexus-hub.cmd" if smoke.os.name == "nt" else "nexus-hub"
+    shutil.copy2(repo / "scripts" / launcher, bin_dir / launcher)
+    (bin_dir / launcher).chmod(0o755)
+    return home, workspace
+
+
+def test_eval_and_report_scripts_are_literal_smoke_requirements() -> None:
+    assert set(EVAL_AND_REPORT_SCRIPTS) <= set(EXPECTED_SCRIPTS)
+
+
+@pytest.mark.parametrize("name", EVAL_AND_REPORT_SCRIPTS)
+def test_cli_rejects_a_missing_distributed_script(
+    installed_copy: tuple[Path, Path], name: str
+) -> None:
+    home, workspace = installed_copy
+    command = [
+        sys.executable, str(Path(smoke.__file__).resolve()),
+        "--home", str(home), "--workspace", str(workspace),
+    ]
+    complete = subprocess.run(command, capture_output=True, text=True, timeout=45, check=False)
+    assert complete.returncode == 0, complete.stderr
+    assert complete.stdout.strip() == "installer smoke: PASS"
+
+    (home / ".nexus-hub" / "scripts" / name).unlink()
+    incomplete = subprocess.run(command, capture_output=True, text=True, timeout=45, check=False)
+    assert incomplete.returncode == 1
+    assert incomplete.stdout == ""
+    assert incomplete.stderr.strip() == f"installer smoke: FAIL: expected installed script is missing: {name}"
+
+
+@pytest.mark.parametrize("problem", ["missing", "unreadable"])
+def test_cli_refuses_an_unreadable_or_missing_permission_artifact(
+    installed_copy: tuple[Path, Path], problem: str
+) -> None:
+    home, workspace = installed_copy
+    settings = workspace / ".claude" / "settings.local.json"
+    settings.unlink()
+    if problem == "unreadable":
+        settings.mkdir()
+    result = subprocess.run(
+        [sys.executable, str(Path(smoke.__file__).resolve()),
+         "--home", str(home), "--workspace", str(workspace)],
+        capture_output=True, text=True, timeout=45, check=False,
+    )
+    assert result.returncode == 1
+    assert result.stdout == ""
+    assert "permission baseline is missing or invalid" in result.stderr
+    assert str(settings) in result.stderr
 
 
 def test_missing_script_is_reported(tmp_path: Path) -> None:

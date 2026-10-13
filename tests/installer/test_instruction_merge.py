@@ -194,3 +194,37 @@ def test_custom_markers_round_trip(doc_path: Path) -> None:
     assert end in text
     second = remove_marker_section(doc_path, start_marker=start, end_marker=end)
     assert second.action == "removed"
+
+
+# WN-5-v4133: native teardown must preserve user line-ending bytes.
+
+@pytest.mark.parametrize(
+    ("head", "tail", "block_eol", "expected"),
+    [
+        (b"First\nSecond\n\n", b"\nTail one\nTail two\n", b"\n", b"First\nSecond\n\nTail one\nTail two\n"),
+        (b"First\r\nSecond\r\n\r\n", b"\r\nTail one\r\nTail two\r\n", b"\r\n", b"First\r\nSecond\r\n\r\nTail one\r\nTail two\r\n"),
+        (b"First\r\nSecond\n\n", b"\nTail one\r\nTail two\n", b"\n", b"First\r\nSecond\n\nTail one\r\nTail two\n"),
+        (b"First\nSecond\r\n\r\n", b"\nTail one\nTail two\r\n", b"\n", b"First\nSecond\r\n\r\nTail one\nTail two\r\n"),
+        (b"First\r\nSecond\r\n\r\n", b"", b"\r\n", b"First\r\nSecond\r\n"),
+        (b"", b"\r\nTail one\r\nTail two\r\n", b"\r\n", b"Tail one\r\nTail two\r\n"),
+    ],
+)
+def test_remove_marker_section_preserves_user_line_endings(
+    doc_path: Path, head: bytes, tail: bytes, block_eol: bytes, expected: bytes
+) -> None:
+    source = head + START.encode() + block_eol + b"Owned body" + block_eol + END.encode() + block_eol + tail
+    doc_path.write_bytes(source)
+    preview = remove_marker_section(doc_path, dry_run=True)
+    assert preview.action == "removed"
+    assert doc_path.read_bytes() == source
+    result = remove_marker_section(doc_path)
+    assert result.action == "removed"
+    assert doc_path.read_bytes() == expected
+    assert remove_marker_section(doc_path).action == "kept"
+    assert doc_path.read_bytes() == expected
+
+
+def test_remove_marker_section_crlf_only_block_deletes_file(doc_path: Path) -> None:
+    doc_path.write_bytes((START + "\r\nOwned body\r\n" + END + "\r\n").encode())
+    assert remove_marker_section(doc_path).action == "removed"
+    assert not doc_path.exists()

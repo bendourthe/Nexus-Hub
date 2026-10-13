@@ -381,6 +381,25 @@ def test_claim_only_write_preserves_secondary_platform_metadata(bundle: Path) ->
     assert _validate(bundle).returncode == 0
 
 
+def test_primary_roster_write_keeps_other_platform_models_out(bundle: Path) -> None:
+    """v4.13.9 WN-23: a primary-platform roster write must not absorb a model profiled on
+    another platform, or the primary freshness check reads DRIFTED for every such id."""
+    primary = _write(bundle, _payload({"model-a": [_claim()]}, roster=["model-a"]))
+    assert primary.returncode == 0, primary.stderr
+    secondary = _write(bundle, _payload(
+        {"other-a": [_claim()]}, platform="codex", roster=["other-a"]
+    ))
+    assert secondary.returncode == 0, secondary.stderr
+
+    refresh = _write(bundle, _payload({"model-b": [_claim()]}, roster=["model-a", "model-b"]))
+
+    assert refresh.returncode == 0, refresh.stderr
+    meta = _index(bundle)["meta"]
+    assert meta["roster"] == ["model-a", "model-b"]
+    assert meta["platforms"][0]["roster"] == ["other-a"]
+    assert _validate(bundle).returncode == 0
+
+
 def test_partial_write_leaves_a_valid_layer(bundle: Path) -> None:
     """The budget-cap case: 1 of 4 models verified must still validate."""
     payload = _payload({"model-a": [_claim()]}, roster=["model-a", "model-b", "model-c", "model-d"])

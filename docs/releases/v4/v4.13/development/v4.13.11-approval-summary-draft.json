@@ -1,0 +1,11 @@
+{
+  "outcomes": [
+    "Close small known gaps across the catalog, hooks, tests, extensions, and guide.",
+    "Keep each remaining obligation and its origin traceable when carried to v4.14.",
+    "Archive v4.13 only after its ledger and integration checks pass."
+  ],
+  "parallel": {
+    "checked": true,
+    "plans": []
+  }
+}

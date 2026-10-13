@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
 import re
 import subprocess
 import sys
@@ -467,3 +468,54 @@ class TestMainIntegration:
         # We assert the matcher logic directly instead, which is independent
         # of installed user state.
         assert command_is_allowed("Get-Process | Select-Object Name", REAL_PATTERNS)
+
+
+class TestUpdatedInputPreservesToolInput:
+    """`updatedInput` replaces the WHOLE tool input (Claude Code hooks reference,
+    PreToolUse decision control, fetched 2026-10-09), so the hook must carry
+    every field it does not rewrite. Dropping `timeout` or `run_in_background`
+    silently changes how the command runs.
+
+    Runs against an isolated home whose only allow rule is a probe command, so
+    the result does not depend on the machine's installed settings.
+    """
+
+    _EXTRA = {"timeout": 600000, "run_in_background": True, "dangerouslyDisableSandbox": False}
+
+    def _run_isolated(self, tmp_path: Path, command: str, description: str) -> dict[str, Any]:
+        home = tmp_path / "home"
+        (home / ".claude").mkdir(parents=True)
+        (home / ".claude" / "settings.json").write_text(
+            json.dumps({"permissions": {"allow": ["PowerShell(Get-NexusProbe *)"]}}),
+            encoding="utf-8",
+        )
+        env = {**os.environ, "HOME": str(home), "USERPROFILE": str(home)}
+        payload = {"tool_name": "PowerShell", "tool_input": {"command": command, "description": description, **self._EXTRA}}
+        result = subprocess.run(
+            [sys.executable, str(_HOOK_FILE)],
+            input=json.dumps(payload),
+            capture_output=True,
+            text=True,
+            env=env,
+            cwd=tmp_path,
+        )
+        assert result.returncode == 0, result.stderr
+        return json.loads(result.stdout)["hookSpecificOutput"]
+
+    def test_allowed_path_keeps_untouched_fields(self, tmp_path):
+        out = self._run_isolated(tmp_path, "Get-NexusProbe -Name x", "Probe an allowed command")
+        assert out["permissionDecision"] == "allow"
+        updated = out["updatedInput"]
+        assert updated["command"] == "Get-NexusProbe -Name x"
+        for key, value in self._EXTRA.items():
+            assert updated[key] == value, key
+
+    def test_described_path_keeps_untouched_fields(self, tmp_path):
+        out = self._run_isolated(tmp_path, "Set-NexusProbe -Name x", "Probe a non-allowed command")
+        assert out["permissionDecision"] == "ask"
+        updated = out["updatedInput"]
+        assert updated["command"].startswith("# Description: ")
+        assert updated["command"].endswith("Set-NexusProbe -Name x")
+        assert updated["description"] == "Probe a non-allowed command"
+        for key, value in self._EXTRA.items():
+            assert updated[key] == value, key

@@ -256,17 +256,42 @@ def handoff(plan: Plan) -> str:
     return "\n".join(lines)
 
 
+DIGEST_UNSAFE_RE = re.compile(r"[^A-Za-z0-9.,:_ -]")
+
+
+def digest_line(root: Path) -> str:
+    """One plain ASCII line for the session digest (v4.13.3 DF-3): the next plan
+    with open tasks, its first open phase, and the open-task count.
+
+    Version and slug only, never the title: the session-summary hook's .sh and .ps1
+    siblings print this verbatim and must write byte-identical digests.
+    """
+    plan = next_plan(root)
+    if plan is None:
+        return "Plan: none with open tasks"
+    current = next((p for p in plan.phases if p["done"] < p["total"]), None)
+    phase = f", phase {current['number']} of {len(plan.phases)}" if current else ""
+    line = (f"Plan: {plan.version} {plan.slug}{phase}, "
+            f"{plan.open_tasks} of {plan.total_tasks} tasks open")
+    return DIGEST_UNSAFE_RE.sub("", line)[:160]
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--plan", type=Path, help="plan file to report progress for")
     parser.add_argument("--next", action="store_true",
                         help="find the next plan with open tasks and print its handoff")
+    parser.add_argument("--digest", action="store_true",
+                        help="print one plan-state line for the session digest and exit 0")
     parser.add_argument("--root", type=Path, default=Path("."),
-                        help="repository root for --next")
+                        help="repository root for --next and --digest")
     args = parser.parse_args(argv)
 
+    if args.digest:
+        print(digest_line(args.root))
+        return EXIT_OK
     if not args.plan and not args.next:
-        parser.error("pass --plan <file> or --next")
+        parser.error("pass --plan <file>, --next, or --digest")
 
     if args.plan:
         if not args.plan.is_file():

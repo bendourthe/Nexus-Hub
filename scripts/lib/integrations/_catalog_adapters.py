@@ -60,14 +60,21 @@ def _write_synced(
     file is Nexus-Hub-owned, so it is (re)written whenever the bytes differ,
     independent of ``ctx.overwrite``. Returns ``unchanged`` / ``created`` /
     ``updated`` and always tracks the path in the manifest.
+
+    File operations use the extended-length form (AR-11), so a command wrapper
+    seeded into a deep repository does not fail past Windows MAX_PATH; the
+    manifest and the returned action keep the plain path.
     """
-    if dst.exists() and dst.read_bytes() == content:
+    from .base import long_path
+
+    dst_io = long_path(dst)
+    if dst_io.exists() and dst_io.read_bytes() == content:
         ctx.manifest.track(key, str(dst))
         return FileAction(path=str(dst), action="unchanged")
-    existed = dst.exists()
+    existed = dst_io.exists()
     if not ctx.dry_run:
-        dst.parent.mkdir(parents=True, exist_ok=True)
-        dst.write_bytes(content)
+        dst_io.parent.mkdir(parents=True, exist_ok=True)
+        dst_io.write_bytes(content)
     ctx.manifest.track(key, str(dst))
     return FileAction(path=str(dst), action="updated" if existed else "created")
 
@@ -419,6 +426,8 @@ def commands_to_skills(
     src_commands_dir: Path,
     dst_skills_dir: Path,
     existing_skill_names: set[str] | None = None,
+    *,
+    preserve_unowned: bool = False,
 ) -> list[FileAction]:
     """Materialize every ``catalog/commands/<name>.md`` as ``<dst>/<name>/SKILL.md``.
 
@@ -426,6 +435,8 @@ def commands_to_skills(
     ``existing_skill_names``) is skipped and logged, so a genuine skill is never
     shadowed by a command wrapper. Returns one ``FileAction`` per command written
     (or a single ``not-found`` action when the commands tree is missing).
+    ``preserve_unowned`` consults manifest ownership before entering a personal
+    skill directory that may already contain the user's own workflows.
     """
     if not src_commands_dir.exists():
         ctx.manifest.log(key, f"missing-tree: {src_commands_dir}")
@@ -448,7 +459,10 @@ def commands_to_skills(
             continue
         content = _synthesize_skill(name, md.read_text(encoding="utf-8"))
         dst = dst_skills_dir / name / "SKILL.md"
-        actions.append(_write_synced(ctx, key, dst, content))
+        if preserve_unowned:
+            actions.append(write_owned_file(ctx, key, dst, content, managed_root=dst_skills_dir))
+        else:
+            actions.append(_write_synced(ctx, key, dst, content))
     return actions
 
 

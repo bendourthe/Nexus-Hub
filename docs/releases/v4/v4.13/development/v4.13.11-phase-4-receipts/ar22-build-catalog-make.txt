@@ -1,0 +1,16 @@
+GNU Make 4.2.1
+Python 3.12.14
+REFUSE exit=2
+build-catalog refused: data/ registry files are hand-maintained and this generator would overwrite them.
+Register skills by hand, then run: python scripts/check_registry_entries.py --check --strict
+Run 'make build-catalog FORCE=1' only in a disposable copy.
+make: *** [Makefile:92: build-catalog] Error 1
+REFUSE data unchanged: yes
+data files hashed: 7
+FORCE exit=0
+
+================================================================================
+Success! templates.json created
+================================================================================
+Catalogs rebuilt.
+FORCE changed data files: 3

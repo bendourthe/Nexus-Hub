@@ -1,0 +1,99 @@
+{
+  "status": "assigned learning step complete; stopped for usage-limit weekly 99",
+  "trigger": "usage-limit weekly 99",
+  "hashes": {
+    "catalog/hooks/learning-capture.sh": "89b2616b15394ab1d28be456704748615916da97e75b4736efba194bbf9e1818",
+    "catalog/hooks/learning-capture.ps1": "7988507f130657cb5641c634bc8a1e3550dbb99425be086ee46305e260452923",
+    "catalog/hooks/tests/test_learning_capture.py": "5af3426a6a64c0cd17f305cc158673c25453d7824789c75ea057a36867c87f1e"
+  },
+  "tests": {
+    "final": {
+      "exit": 0,
+      "tests": 25,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "deselected": 338,
+      "source_stable": true
+    },
+    "red": {
+      "failed": 4,
+      "receipt": "red.json"
+    },
+    "native_mutex_branches": "mutex-branches.json"
+  },
+  "root_cause": "Actual shipped PS run lost1/64 below byte cap; diagnostic-only copy reproduced native AppendAllText IOException sharing violation. No rotation in those cases.",
+  "fix": "Bounded five-second native named destination mutex serializes PS append plus rotation; abandoned ownership and finally cleanup retained. Bash failed rename now cleans temporary file, emits degraded-rotation stderr, and breaks without discarding original records.",
+  "limits": "Concurrent PowerShell writers are covered. Mixed Bash/PowerShell writers are not claimed. Lock timeout and append IO failure retain advisory exit0 without a record, verified explicitly.",
+  "lint": {
+    "baseline": 2,
+    "current": 2,
+    "new": [],
+    "details": {
+      "HEAD": {
+        "exit": 1,
+        "diagnostics": [
+          {
+            "code": "PLW1510",
+            "message": "`subprocess.run` without explicit `check` argument",
+            "line": "    result = subprocess.run("
+          },
+          {
+            "code": "PLW1510",
+            "message": "`subprocess.run` without explicit `check` argument",
+            "line": "        result = subprocess.run([_BASH, \"-n\", str(_CAPTURE_HOOK)],"
+          }
+        ]
+      },
+      "current": {
+        "exit": 1,
+        "diagnostics": [
+          {
+            "code": "PLW1510",
+            "message": "`subprocess.run` without explicit `check` argument",
+            "line": "    result = subprocess.run("
+          },
+          {
+            "code": "PLW1510",
+            "message": "`subprocess.run` without explicit `check` argument",
+            "line": "        result = subprocess.run([_BASH, \"-n\", str(_CAPTURE_HOOK)],"
+          }
+        ]
+      }
+    }
+  },
+  "diff_check": {
+    "exit": 0,
+    "output": "warning: in the working copy of 'catalog/hooks/learning-capture.ps1', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'catalog/hooks/tests/test_learning_capture.py', LF will be replaced by CRLF the next time Git touches it\n"
+  },
+  "minor_answer_sources_unchanged": {
+    "scripts/check_plan_completion.py": "a52f69c654b776bd9f3fff27cef6618669ce0f877ec0a727a5ad7bb8e1ef26f6",
+    "scripts/completion_minor.py": "e76ad2c4715f4d9b37674aa457901f393e497c4d99c2a28715ebbb4282ce5ea8",
+    "tests/validators/test_completion_minor_record.py": "6778078323277494bb40a0e8f7f442c6b04c7edc04d6a43465a42582f15ceade",
+    "catalog/skills/workflow/implement-phase/references/completion-contract.md": "87cd771de40180db6340a8ea32ad84eb84e19734db2d68074946dc52260b0c4b"
+  },
+  "repository_state": {
+    "branch": "fix/v4.13.11-known-gaps-sweep-and-minor-close",
+    "head": "ff1aa631538fcf1cbc2380b28e1e001ebd880e8d",
+    "status": "M catalog/hooks/auto-devlog.ps1\n M catalog/hooks/auto-devlog.sh\n M catalog/hooks/learning-capture.ps1\n M catalog/hooks/learning-capture.sh\n M catalog/hooks/provenance-ledger.ps1\n M catalog/hooks/provenance-ledger.sh\n M catalog/hooks/session-summary.ps1\n M catalog/hooks/session-summary.sh\n M catalog/hooks/skill-tracker.py\n M catalog/hooks/tests/test_auto_devlog_index_guard.py\n M catalog/hooks/tests/test_eval_loop.py\n M catalog/hooks/tests/test_hook_size_bound.py\n M catalog/hooks/tests/test_learning_capture.py\n M catalog/skills/workflow/implement-phase/references/completion-contract.md\n M docs/releases/v4/v4.13/development/v4.13.11-freeze-queue-assessment.json\n M docs/releases/v4/v4.13/development/v4.13.11-freeze-queue-assessment.md\n M docs/releases/v4/v4.13/development/v4.13.11-phase-2-local-checks.json\n M docs/releases/v4/v4.13/development/v4.13.11-phase-2-tests.json\n M docs/releases/v4/v4.13/development/v4.13.11-reconciliation.json\n M docs/releases/v4/v4.13/known-gaps.md\n M docs/releases/v4/v4.13/plans/v4.13.11-known-gaps-sweep-and-minor-close.md\n M docs/todos.md\n M extensions/nexus-code-search/src/nexus_code_search/graph/affected.py\n M extensions/nexus-code-search/tests/test_context_map_measurement.py\n M scripts/check_installer_smoke.py\n M scripts/check_plan_completion.py\n M scripts/completion_minor.py\n M scripts/optimize_skill_description.py\n M tests/installer/test_installer_smoke_postconditions.py\n M tests/validators/test_completion_minor_record.py\n?? docs/releases/v4/v4.13/development/history/v4.13.11-phase-3-session.md\n?? docs/releases/v4/v4.13/development/v4.13.11-native-run-activation.json\n?? docs/releases/v4/v4.13/development/v4.13.11-phase-3-checkpoint.json\n?? docs/releases/v4/v4.13/development/v4.13.11-phase-3-checkpoint.md\n?? docs/releases/v4/v4.13/development/v4.13.11-phase-3-guard-acceptance.json\n?? docs/releases/v4/v4.13/development/v4.13.11-phase-3-preflight.json\n?? docs/releases/v4/v4.13/development/v4.13.11-phase-3-receipts/\n?? tests/integrations/test_map_cli.py"
+  },
+  "no_stage_commit_push_or_live_record_mutation": true,
+  "artifacts": {
+    "final.json": "daf62239d40383438e9f212bf66519c5c36946a9c0997def7ec68055582fdd9e",
+    "final.txt": "4fe206840f11360875ef4a077caf236f15a35374a3d68e2f55466d1d64fc9e0c",
+    "final.xml": "73447526e67b43da2fff167f4519925a82c4e68337918b663b3ed40c04ea8ebd",
+    "green.json": "ae3c01b027d350048eb12a6b5a1853c457aa4664d1700faf4506218a872cc06d",
+    "green.txt": "6e5ca558687f49444f6e4eafa2d0cdae9344a7fed872ec23572ed43aad4047e1",
+    "green.xml": "c2c974b04baf0c465091142453c84c907deb61c1a4f6621f595401329f44617e",
+    "hygiene.json": "1a3c5cd3cd438567e2fe0508102522f1d17ee6c08c6a3f61a78fffde8ef0bc69",
+    "mutex-branches.json": "763d248127b4f0a57c3a026e1ea942bc4b4297a6f7df0c2820ea7d79c123b2ba",
+    "red-concurrency.json": "6bc7193364ddec0237776324cf23a4ccc89cdfc328759178cef47b438afe0e09",
+    "red-stress.json": "e9a7d03a23fa9ab8d86fd2107bb4e935af6d86a75c82385a909b9713dd1130e0",
+    "red.json": "5376895f639707b5497f670ac6e23e498b00b8a4987c571c7516a8ccd361f825",
+    "red.txt": "14b1f0e8d8dfb0491a6f2fffdb731213979b8d59802684895704440c01b62599",
+    "red.xml": "0324cac70334dafcaccb7e5ef3311f43bfee5f7668130fbe18284b44b44d7cb7",
+    "sibling.json": "89ee7854b580ed8a92b3c6bd7df4c99525711c5f391a8f885dcac1b7559f3d8a",
+    "sibling.txt": "6793931201509066cee0d77b42c9916d72f80a0c15f4428f52934304bcc66068",
+    "sibling.xml": "bb7e12ce2d1f6ff4212ee989beaa97a5c657451937a7e4d127e3a1a78a32748b"
+  }
+}

@@ -36,6 +36,7 @@ pure function of the input model and theme.
 from __future__ import annotations
 
 import argparse
+import base64
 import hashlib
 import html
 import json
@@ -209,6 +210,58 @@ def theme_to_css(theme: dict) -> str:
     lines.append(f"  --shadow: {theme.get('shadow', 'none')};")
     lines.append("  /* NEXUS_THEME_END */")
     return "\n  ".join(lines)
+
+
+# Opt-in brand font embedding. A brand JSON lists `fonts.embed` entries; each
+# file is read from the brand's `assets_dir` (relative to the brand JSON, as
+# brand-styling specifies) and inlined as a base64 @font-face, so a custom font
+# never becomes a fetch. A theme with no `fonts.embed` emits nothing.
+_FONT_FORMATS = {
+    ".woff2": ("font/woff2", "woff2"),
+    ".woff": ("font/woff", "woff"),
+    ".ttf": ("font/ttf", "truetype"),
+    ".otf": ("font/otf", "opentype"),
+}
+_FONT_FAMILY_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9 _-]{0,63}")
+_FONT_WEIGHT_RE = re.compile(r"normal|bold|[1-9][0-9]{0,2}|1000")
+_FONT_STYLES = {"normal", "italic", "oblique"}
+MAX_EMBED_FONT_BYTES = 2 * 1024 * 1024
+
+
+def embed_font_faces(theme: dict, base_dir: Path) -> str:
+    """Return base64 @font-face rules for the theme's `fonts.embed` entries."""
+    entries = (theme.get("fonts") or {}).get("embed") or []
+    if not isinstance(entries, list):
+        raise TypeError("fonts.embed: expected a list of {family, file} entries")
+    root = (base_dir / str(theme.get("assets_dir") or ".")).resolve()
+    rules: list[str] = []
+    for index, entry in enumerate(entries):
+        where = f"fonts.embed[{index}]"
+        if not isinstance(entry, dict):
+            raise TypeError(f"{where}: expected an object")
+        family = str(entry.get("family", ""))
+        if not _FONT_FAMILY_RE.fullmatch(family):
+            raise ValueError(f"{where}.family: use letters, digits, spaces, _ or -")
+        path = (root / str(entry.get("file", ""))).resolve()
+        if not path.is_relative_to(root) or not path.is_file():
+            raise ValueError(f"{where}.file: no font file inside {root}")
+        if path.suffix.lower() not in _FONT_FORMATS:
+            raise ValueError(f"{where}.file: use one of {sorted(_FONT_FORMATS)}")
+        data = path.read_bytes()
+        if len(data) > MAX_EMBED_FONT_BYTES:
+            raise ValueError(f"{where}.file: larger than {MAX_EMBED_FONT_BYTES} bytes")
+        weight = str(entry.get("weight", "normal"))
+        style = str(entry.get("style", "normal"))
+        if not _FONT_WEIGHT_RE.fullmatch(weight) or style not in _FONT_STYLES:
+            raise ValueError(f"{where}: invalid weight or style")
+        mime, fmt = _FONT_FORMATS[path.suffix.lower()]
+        encoded = base64.b64encode(data).decode("ascii")
+        rules.append(
+            f'@font-face {{ font-family: "{family}"; '
+            f'src: url(data:{mime};base64,{encoded}) format("{fmt}"); '
+            f"font-weight: {weight}; font-style: {style}; font-display: swap; }}"
+        )
+    return "\n".join(rules)
 
 
 def aspect_to_css(layout: str) -> str:
@@ -549,6 +602,42 @@ def _render_image(block: dict) -> str:
     )
 
 
+# Baseline gallery grouping (references/interactive-features.md, "Group only
+# genuinely-secondary visuals"): a run of consecutive plain images whose
+# `page_fraction` is below the hero line and within a 2x band of each other
+# renders as one `.gallery` grid. A hero, an annotated figure, or an image with
+# no page geometry keeps its own stacked figure.
+HERO_PAGE_FRACTION = 0.5
+GALLERY_MAX_RATIO = 2.0
+
+
+def _gallery_fraction(block: dict) -> float | None:
+    if block.get("type") != "image" or block.get("annotations"):
+        return None
+    if not str(block.get("data_uri", "")).startswith("data:"):
+        return None
+    value = block.get("page_fraction")
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return None
+    return float(value) if 0 < value < HERO_PAGE_FRACTION else None
+
+
+def gallery_run(blocks: list, start: int) -> list:
+    """Return the comparable-image run starting at `start` (may be length 0 or 1)."""
+    run: list = []
+    fractions: list[float] = []
+    for block in blocks[start:]:
+        fraction = _gallery_fraction(block) if isinstance(block, dict) else None
+        if fraction is None:
+            break
+        candidate = fractions + [fraction]
+        if max(candidate) / min(candidate) > GALLERY_MAX_RATIO:
+            break
+        run.append(block)
+        fractions = candidate
+    return run
+
+
 def render_block(block: dict, theme: dict) -> str:
     """Render one content-model block; unknown types are ignored."""
     kind = block.get("type")
@@ -602,10 +691,19 @@ def render_section(section: dict, index: int, theme: dict) -> str:
             parts.append(f'<{tag} class="slide__heading">{_esc(heading)}</{tag}>')
     if subheading:
         parts.append(f'<p class="slide__subheading">{_esc(subheading)}</p>')
-    for block in section.get("blocks", []) or []:
-        rendered = render_block(block, theme)
+    blocks = section.get("blocks", []) or []
+    index_in_section = 0
+    while index_in_section < len(blocks):
+        run = gallery_run(blocks, index_in_section)
+        if len(run) >= 2:
+            figures = "".join(_render_image(block) for block in run)
+            parts.append(f'<div class="gallery">{figures}</div>')
+            index_in_section += len(run)
+            continue
+        rendered = render_block(blocks[index_in_section], theme)
         if rendered:
             parts.append(rendered)
+        index_in_section += 1
     parts.append("</div></section>")
     return "\n".join(parts)
 
@@ -652,8 +750,13 @@ def build_html(
     template_text: str,
     title: str,
     layout: str = DEFAULT_LAYOUT,
+    font_css: str = "",
 ) -> str:
-    """Populate the template's title, theme block, aspect block, and slides."""
+    """Populate the template's title, theme block, aspect block, and slides.
+
+    `font_css` (from `embed_font_faces`) is inserted as its own <style> before
+    </head>; when empty the output is unchanged.
+    """
     css = theme_to_css(theme)
     slides = render_slides(model, theme)
     safe_title = _esc(title)
@@ -666,6 +769,10 @@ def build_html(
     result = SLIDES_RE.sub(
         lambda m: f"{m.group(1)}\n{slides}\n{m.group(2)}", result, count=1
     )
+    if font_css:
+        result = result.replace(
+            "</head>", f'<style id="nexus-brand-fonts">\n{font_css}\n</style>\n</head>', 1
+        )
     return result
 
 
@@ -777,9 +884,18 @@ def main(argv: list | None = None) -> int:
 
     theme = load_theme(Path(args.theme) if args.theme else None)
     title = args.title or model.get("title", "Presentation")
+    try:
+        font_css = (
+            embed_font_faces(theme, Path(args.theme).resolve().parent)
+            if args.theme
+            else ""
+        )
+    except (ValueError, TypeError, OSError) as error:
+        print(f"Error: {error}", file=sys.stderr)
+        return 2
 
     output = build_html(
-        model, theme, template_text, title, args.layout or DEFAULT_LAYOUT
+        model, theme, template_text, title, args.layout or DEFAULT_LAYOUT, font_css
     )
     assert_no_external(output)
 

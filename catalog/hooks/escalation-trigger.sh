@@ -49,7 +49,7 @@ if [ ! -t 0 ]; then
     else
       # Fallback: basic JSON extraction via grep/sed (no jq dependency).
       FILE_PATH=$(printf '%s' "$INPUT" \
-        | grep -oE '"(file_path|path)"[[:space:]]*:[[:space:]]*"[^"]*"' \
+        | LC_ALL=C grep -oE '"(file_path|path)"[[:space:]]*:[[:space:]]*"[^"]*"' \
         | head -1 \
         | sed -E 's/.*"(file_path|path)"[[:space:]]*:[[:space:]]*"//; s/"$//' || true)
       # This text fallback reads the RAW JSON string, so it does not decode JSON

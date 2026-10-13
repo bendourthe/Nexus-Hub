@@ -1,0 +1,26 @@
+{
+  "pyjwt_version": "2.14.0",
+  "pip_audit_exit": 1,
+  "pyjwt_vulns": [
+    {
+      "id": "PYSEC-2026-4141",
+      "aliases": [
+        "CVE-2026-101918",
+        "GHSA-42vr-xj54-vc7v"
+      ],
+      "fix_versions": [
+        "2.15.0"
+      ]
+    },
+    {
+      "id": "PYSEC-2026-4183",
+      "aliases": [
+        "GHSA-x33g-cr3x-6449",
+        "CVE-2026-102275"
+      ],
+      "fix_versions": [
+        "2.15.0"
+      ]
+    }
+  ]
+}

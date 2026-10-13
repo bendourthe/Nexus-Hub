@@ -1,0 +1,156 @@
+{
+  "status": "OPEN - T010 not complete",
+  "owned_paths": [
+    "catalog/hooks/session-summary.sh",
+    "catalog/hooks/session-summary.ps1",
+    "catalog/hooks/auto-devlog.sh",
+    "catalog/hooks/auto-devlog.ps1",
+    "catalog/hooks/learning-capture.sh",
+    "catalog/hooks/learning-capture.ps1",
+    "catalog/hooks/provenance-ledger.sh",
+    "catalog/hooks/provenance-ledger.ps1",
+    "catalog/hooks/skill-tracker.py",
+    "catalog/hooks/tests/test_auto_devlog_index_guard.py",
+    "catalog/hooks/tests/test_hook_size_bound.py"
+  ],
+  "source_sha256": {
+    "catalog/hooks/session-summary.sh": "8d2c84a6a73f6b9c2e7fb080ec1d6c8d168db3b3d29880e65db2f252e4d58e61",
+    "catalog/hooks/session-summary.ps1": "b974be2128e014a5722484908754bdf876adbcdd3cc58aa38e4325770d8c6051",
+    "catalog/hooks/auto-devlog.sh": "82a3960225dae4233ea5cc7703d14640d1ec681acba8b07f847276f9143e4eb9",
+    "catalog/hooks/auto-devlog.ps1": "cffe2ff8f93f97679a5cfab3c08d27a9d5396593c902559d36a7e7f1d9e38b7d",
+    "catalog/hooks/learning-capture.sh": "57964f44afd7ffe028436e3f392c456fd1d80550a85bf635c313bbffc413637c",
+    "catalog/hooks/learning-capture.ps1": "76e2c82aa3b8d277c38007c80094abc3c2dfb2257eac5124bfd03ef9d2aa9392",
+    "catalog/hooks/provenance-ledger.sh": "3ddd69e4059f3f1bffe658eebd7613873b5cfc2e294b77648dab2a9f0dce53f3",
+    "catalog/hooks/provenance-ledger.ps1": "959bf77f3c2cf988b2aea9c0f982d126eef5913e59b856af76fccf627f23c0e4",
+    "catalog/hooks/skill-tracker.py": "ace34dc5a02ef08c80e49202f8217404f44a5da379475de2b59226ea5dce962d",
+    "catalog/hooks/tests/test_auto_devlog_index_guard.py": "c3188aca5aacceb97a94056868c3735bada1570804d103a79ebfffd9cc5af6fa",
+    "catalog/hooks/tests/test_hook_size_bound.py": "5d326616d04a122862647ef4d3503e81b3117096669a9759b6059a854e561df6"
+  },
+  "verification": {
+    "focused_behavior": {
+      "command": "python -m pytest -q catalog/hooks/tests/test_session_digest.py catalog/hooks/tests/test_learning_capture.py catalog/hooks/tests/test_auto_devlog_index_guard.py catalog/hooks/tests/test_provenance_ledger.py catalog/hooks/tests/test_skill_activation.py",
+      "exit": 0,
+      "result": "95 passed in 383.29s",
+      "receipt": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\focused-behavior.json"
+    },
+    "added_boundary_tests": {
+      "command": "python -m pytest -q catalog/hooks/tests/test_hook_size_bound.py -k 'large_learning or provenance_preserves or text_fallback'",
+      "exit": 0,
+      "result": "5 passed, 23 deselected in 26.09s",
+      "log": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\green-boundaries-2.txt"
+    },
+    "size_real_jq": {
+      "command": "python -m pytest -q -s catalog/hooks/tests/test_hook_size_bound.py",
+      "exit": 1,
+      "result": "11 failed, 17 passed in 331.94s",
+      "receipt": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\size-exception-proof.json",
+      "classification": "Nine repaired-exception registration assertions cover all 13 KNOWN_BREACHES. Two learning rotation tests require shrink despite valid 2000/1930-byte plateaus under cap 2048. No unknown size-bound breach assertion was reported. Bash oversized devlog delta is 0, so that event has no liveness proof."
+    },
+    "functional_partial": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\functional-partial-receipt.json"
+  },
+  "native_preservation": {
+    "blocked_paths": [
+      "catalog/hooks/provenance-ledger.sh",
+      "catalog/hooks/learning-capture.sh",
+      "catalog/hooks/tests/test_hook_size_bound.py"
+    ],
+    "record_exit": 3,
+    "exact_refusal_pattern": "refused: <path> changed since the agent last recorded it; run diff and review, then accept if the user agrees",
+    "refusal_audit": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\guard-refusal-native.json",
+    "check_times_utc": [
+      "2026-10-09T22:59:51Z",
+      "2026-10-09T22:59:52Z",
+      "2026-10-09T22:59:53Z"
+    ],
+    "own_write_times_utc": [
+      "2026-10-09T22:59:59.333180Z",
+      "2026-10-09T22:59:59.341167Z",
+      "2026-10-09T22:59:59.341686Z"
+    ],
+    "refused_record_times_utc": [
+      "2026-10-09T23:01:58Z",
+      "2026-10-09T23:02:00Z",
+      "2026-10-09T23:02:01Z"
+    ],
+    "cause": "Check-to-record windows exceeded120 seconds at127/128/128 seconds. Own late writes are not user-agreed. No accept/rebaseline performed.",
+    "exact_native_diff_outputs": {
+      "catalog/hooks/provenance-ledger.sh": {
+        "command": [
+          "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+          "C:/Users/username/AppData/Local/Temp/v41311-worker-guard.py",
+          "--session",
+          "v41311-phase3-hooks",
+          "diff",
+          "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\catalog\\hooks\\provenance-ledger.sh"
+        ],
+        "exit": 0,
+        "stdout": "--- agent version\n+++ current\n@@ -72,7 +72,7 @@\n     if command -v jq >/dev/null 2>&1; then\n         printf '%s' \"$INPUT\" | jq -r \"$2 // empty\" 2>/dev/null || true\n     elif [ -n \"$PY\" ]; then\n-        printf '%s' \"$INPUT\" | \"$PY\" -c '\n+        printf '%s' \"$INPUT\" | PYTHONIOENCODING=utf-8 \"$PY\" -c '\n import json, sys\n try:\n     data = json.load(sys.stdin)\n",
+        "stderr": ""
+      },
+      "catalog/hooks/learning-capture.sh": {
+        "command": [
+          "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+          "C:/Users/username/AppData/Local/Temp/v41311-worker-guard.py",
+          "--session",
+          "v41311-phase3-hooks",
+          "diff",
+          "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\catalog\\hooks\\learning-capture.sh"
+        ],
+        "exit": 0,
+        "stdout": "--- agent version\n+++ current\n@@ -68,6 +68,7 @@\n   NEXUS_LC_OBS_PATH=\"$OBS_PATH\" \\\n   NEXUS_LC_TS=\"$TIMESTAMP\" \\\n   NEXUS_LC_MAX_BYTES=\"$MAX_BYTES\" \\\n+  PYTHONIOENCODING=utf-8 \\\n   \"$PY\" -c '\n import json\n import os\n",
+        "stderr": ""
+      },
+      "catalog/hooks/tests/test_hook_size_bound.py": {
+        "command": [
+          "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+          "C:/Users/username/AppData/Local/Temp/v41311-worker-guard.py",
+          "--session",
+          "v41311-phase3-hooks",
+          "diff",
+          "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\catalog\\hooks\\tests\\test_hook_size_bound.py"
+        ],
+        "exit": 0,
+        "stdout": "--- agent version\n+++ current\n@@ -1040,3 +1040,27 @@\n             assert proc.returncode == 0\n         assert json.loads(state.read_text(encoding=\"utf-8\")) == sorted(names[:2])\n         assert b\"exceeds 64 characters\" in proc.stderr\n+\n+\n+def test_provenance_text_fallback_refuses_unproved_json_escapes(\n+    tmp_path: Path, bash_bin: str\n+) -> None:\n+    ctx = make_ctx(tmp_path)\n+    # Exercise the real no-helper branch, rather than mimic a JSON decoder.\n+    wrapper = ('command() { if [[ \"$1\" == \"-v\" && ( \"$2\" == \"jq\" || '\n+               '\"$2\" == \"python\" || \"$2\" == \"python3\" ) ]]; then return 1; '\n+               'else builtin command \"$@\"; fi; }; export -f command; exec \"$@\"')\n+    prefix = [bash_bin, \"-c\", wrapper, \"hook\", bash_bin,\n+              str(_HOOKS_DIR / \"provenance-ledger.sh\")]\n+    ledger = PROVENANCE_LEDGER.targets[0].path(ctx)\n+    with real_guard(ctx.token):\n+        normal = str(ctx.repo / \"exact.sh\").replace(\"\\\\\", \"/\")\n+        for path in (normal, normal + \"\\u6f22\"):\n+            proc = subprocess.run(prefix, input=json.dumps({\"session_id\": ctx.sid,\n+                                  \"tool_name\": \"Write\", \"tool_input\": {\"file_path\": path}}).encode(),\n+                                  cwd=ctx.repo, env=ctx.env, capture_output=True,\n+                                  timeout=180, check=False)\n+            assert proc.returncode == 0\n+        assert ledger.read_text().splitlines()[0].split(\"\\t\")[2] == normal\n+        assert len(ledger.read_text().splitlines()) == 1\n+        assert b\"cannot decode\" in proc.stderr\n",
+        "stderr": ""
+      }
+    }
+  },
+  "open": [
+    {
+      "finding": "P1 Bash provenance trailing-LF path alias",
+      "proof": "Reviewer probe v41311-review-provenance-sylpxrow: plain identity.sh and same path plus LF become identical ledger paths without warning.",
+      "required_fix": "Preserve exact decoded field bytes including trailing LF through command substitution before normalization/delimiter/digest classification. A captured sentinel removed only after assignment is a minimum candidate. Full paths and hashes must remain distinct.",
+      "required_regressions": "jq and Python-helper branches: plain and LF-suffixed paths distinct; delimiter path gets bounded marker with complete normalized-path digest; marker excluded from matching. Include CR/tab siblings and no-helper refusal.",
+      "blocked_path": "catalog/hooks/provenance-ledger.sh"
+    },
+    {
+      "finding": "Rotation test asserts obsolete halve-and-shrink shape",
+      "required_fix": "Assert oldest-record eviction and newest-record retention after exceeding cap, complete valid UTF8/JSON and actual byte size <= cap, instead of strict decrease. Preserve liveness checks.",
+      "blocked_path": "catalog/hooks/tests/test_hook_size_bound.py"
+    },
+    {
+      "finding": "Bash devlog oversized event adds zero bytes",
+      "proof": "Real-jq size scenario delta0; ordinary line1 insertion is repaired. Existing guard tests positive growth only for ordinary events.",
+      "required_follow_up": "Reproduce actual hook with oversized subject and >10 commits; inspect head/pipeline early termination under pipefail. Add oversized event growth and full hash identity assertions before any minimal fix. No fix or closure claimed."
+    },
+    {
+      "finding": "13 repaired exception registrations remain",
+      "required_fix": "Remove only measured repaired keys after native preservation unblock, then run final size suite. Separate identity and devlog-liveness obligations stay open.",
+      "blocked_path": "catalog/hooks/tests/test_hook_size_bound.py"
+    },
+    {
+      "finding": "WN-37 broader git/PowerShell console encoding remains separate",
+      "qualification": "UTF8 stdin and file writes do not prove its entire obligation."
+    },
+    {
+      "finding": "Functional run incomplete",
+      "qualification": "Partial receipt retains observed Bash flows and all inputs/outputs/state hashes. PowerShell and remaining flows require fresh final-tree verification."
+    }
+  ],
+  "qualified_behavior": "Display bounds duration64, commit subject200, learning event/tool128, prompt400. Skill identities >64 refused without truncation or collision; two64-character identities remain distinct. Tested supported multibyte provenance paths and content SHA hashes remain whole. >4096-byte or TSV-delimiter paths use whole normalized-path SHA256 markers excluded from matching, not silent truncation.4096 is a representation contract, not a Windows filesystem limit. Trailing LF flaw prevents full identity closure. Large learning events remain live in focused tests and byte rotation is bounded.",
+  "root_readme_warning": {
+    "native_diff": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\root-readme-native-diff.txt",
+    "qualification": "Entire native diff inspected and all changed areas narrated. Root README untouched, unaccepted, unrebaselined."
+  },
+  "publication": "No commits/staging/push/PR/remoteCI/main/tags/installers/guides changed."
+}

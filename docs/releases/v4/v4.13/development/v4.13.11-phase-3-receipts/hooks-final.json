@@ -1,0 +1,285 @@
+{
+  "status": "PASS",
+  "scope": "Final Phase3 hook repair validation only; root owns documentation, native GO and release workflow",
+  "current_source_sha256": {
+    "catalog/hooks/auto-devlog.sh": "bee7ab831e7f2fe2a3414952811eedff4433617d0503cb6dced012fcda8a2b39",
+    "catalog/hooks/auto-devlog.ps1": "cffe2ff8f93f97679a5cfab3c08d27a9d5396593c902559d36a7e7f1d9e38b7d",
+    "catalog/hooks/learning-capture.sh": "89b2616b15394ab1d28be456704748615916da97e75b4736efba194bbf9e1818",
+    "catalog/hooks/learning-capture.ps1": "7988507f130657cb5641c634bc8a1e3550dbb99425be086ee46305e260452923",
+    "catalog/hooks/provenance-ledger.sh": "665d73312cfe4fc08bda151c1d51a15989f11c0df63f3ae8631911dd81cfd470",
+    "catalog/hooks/provenance-ledger.ps1": "0dcfcdb09c4a3f3eaa10ea256267756910150491d1a226a654d2fa0b6fd47c7e",
+    "catalog/hooks/session-summary.sh": "8d2c84a6a73f6b9c2e7fb080ec1d6c8d168db3b3d29880e65db2f252e4d58e61",
+    "catalog/hooks/session-summary.ps1": "b974be2128e014a5722484908754bdf876adbcdd3cc58aa38e4325770d8c6051",
+    "catalog/hooks/skill-tracker.py": "ace34dc5a02ef08c80e49202f8217404f44a5da379475de2b59226ea5dce962d",
+    "catalog/hooks/tests/test_auto_devlog_index_guard.py": "c3188aca5aacceb97a94056868c3735bada1570804d103a79ebfffd9cc5af6fa",
+    "catalog/hooks/tests/test_hook_size_bound.py": "46a315738dc28f09a8e961838ca62f32adc2a9705f7a0ee8854d2eac23223a75",
+    "catalog/hooks/tests/test_learning_capture.py": "5af3426a6a64c0cd17f305cc158673c25453d7824789c75ea057a36867c87f1e"
+  },
+  "source_set_sha256": "f0316462a749f0fdfd2a70bc5358029d5eb8eca79c4116d7de3974fae31f1767",
+  "required_combined_gate": {
+    "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\combined-final-byte-devlog-green.json",
+    "sha256": "76c15ae8bab1ab781fc93764a3cbe846c20acb67a9854cd25ec74f8304de43b3",
+    "exit_code": 0,
+    "summary": [
+      "437 passed in 754.04s (0:12:34)"
+    ],
+    "skip_details": [],
+    "elapsed_seconds": 783.1266816999996,
+    "log": {
+      "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\combined-final-byte-devlog-green.txt",
+      "sha256": "e0424991145fb8762ec68cd6fa207018d97b64308875f8e16c7856223c6d0f24"
+    }
+  },
+  "focused_provenance_devlog_and_index": {
+    "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\focused-provenance-devlog-byte-final.json",
+    "sha256": "44223b866aa2fe25ea08224a13f547eac791c2651061b2831c863543ba4844a1",
+    "summary": [
+      "90 passed, 19 deselected in 507.16s (0:08:27)"
+    ],
+    "log": {
+      "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\focused-provenance-devlog-byte-final.txt",
+      "sha256": "1ff896044d7eea82495ec95fba400a84912086b2955c14b136f9e7591cabd319"
+    },
+    "test_final_mapping": {
+      "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\edits-size-eof-final.json",
+      "sha256": "2de6610c9785ce37b5725094c0182aca4bbf26e7fced3dcc82b21f19bd7da1fc"
+    },
+    "qualification": "90checks qualify unchanged final production; only one EOF LF was subsequently removed with equal Python AST, then final combined gate used the final test hash"
+  },
+  "fresh_functional_witness": {
+    "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\functional-byte-devlog-green2\\receipt.json",
+    "sha256": "d47810694c4f090364bf45aaa7b9a12adda01ac27e0ee977e0cf9dc48e621562",
+    "terminal": {
+      "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\functional-byte-devlog-green2-terminal.json",
+      "sha256": "b1ed49518d136e4dfc21f397758f12d18c69184c4293a863f256ec5cb527c999"
+    },
+    "log": {
+      "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\functional-byte-devlog-green2-terminal.txt",
+      "sha256": "7ea7a8894acbe89ae60dcc1beb1f946a0723b806d6faa6643a7739a12296bb73"
+    },
+    "actual_invocations": 16,
+    "source_unchanged": true
+  },
+  "static": {
+    "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\static-byte-devlog-green.json",
+    "sha256": "b5ab6fdf2a3e7c0393b558214edf7af2ba82cf0f10d0586bcc201dca824af3bb"
+  },
+  "independent_review": {
+    "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hook-renewed-final-noq_fyd1\\review.json",
+    "sha256": "d26b5b032ccb5eebe7c13d5994c94dbe010abf203d4a5feb7e24d4edfc7873d0"
+  },
+  "native_guarded_edits": [
+    {
+      "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\edits-provenance-byte-final-bash.json",
+      "sha256": "5627ab552c43c6c0c084b31acef94a8e3774908982550ccaab226a8f5ea4684b"
+    },
+    {
+      "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\edits-provenance-byte-final-powershell-strict.json",
+      "sha256": "74c4ae7f394ce22ea92870f2e5f0cd00515edbca71bd5e99dfc2ae123ff7cd73"
+    },
+    {
+      "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\edits-devlog-pressure-final-production.json",
+      "sha256": "0fd947a52633285732f0676d03dce77bc1ac00cc13988338daf6e1917de08459"
+    },
+    {
+      "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\edits-size-eof-final.json",
+      "sha256": "2de6610c9785ce37b5725094c0182aca4bbf26e7fced3dcc82b21f19bd7da1fc"
+    }
+  ],
+  "new_byte_cap_contract": {
+    "setting": "NEXUS_PROVENANCE_MAX_BYTES",
+    "default_bytes": 1048576,
+    "minimum_bytes": 8192,
+    "invalid_nonpositive_overflow": "default",
+    "small_positive": "clamp to8192 with stderr diagnostic",
+    "leading_zeros": "literal decimal",
+    "retention": "contiguous complete newest UTF8 TSV suffix satisfying byte and line caps",
+    "io_failure": "one replacement attempt; original appended ledger retained, temporary cleaned, explicit degraded diagnostic; cap may remain exceeded"
+  },
+  "environment": {
+    "platform": "Windows PowerShell5.1 and local Git Bash",
+    "native_linux": "not claimed by local evidence; terminal CI owns it",
+    "jq": {
+      "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\bin\\jq.exe",
+      "sha256": "a6fc67fedaf9128a3309a1e2ebb8b986aeccf70122ee46d2cb4849e423f0c627"
+    },
+    "pythonpath": "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\extensions\\nexus-code-search\\src;",
+    "pytest_addopts": "-rs",
+    "mutation": "process overrides only; no home or global configuration change"
+  },
+  "actual_pipeline_red_proofs": [
+    {
+      "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-review-devlog-pipe-241m7jrf\\receipt.json",
+      "sha256": "16ebbfbdd0a2964e6c3e28b9f725f091698a3e6867f43e98f53f25bc867286b3"
+    },
+    {
+      "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-review-devlog-selectors-b14dx7ln\\receipt.json",
+      "sha256": "a338bf5201957ac73534fa151776613ec6efd79ab27acc3666be4b55c1c13756"
+    },
+    {
+      "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-review-devlog-selectors-b14dx7ln\\heading-old-hook-receipt.json",
+      "sha256": "07de1d13370c353d112e10a2d582d39ed66e002484215562187f4390dd83c87f"
+    }
+  ],
+  "retained_failed_attempts": [
+    {
+      "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\combined-final-frozen.json",
+      "sha256": "87311a0332c8113182267ebea90afc1d9d9a7b189ebd5ca36c8d4eefaed8573e",
+      "qualification": "Retained failure or interrupted attempt; does not qualify final success",
+      "exit_code": 1,
+      "status": null,
+      "summary": [
+        "1 failed, 418 passed in 658.43s (0:10:58)"
+      ]
+    },
+    {
+      "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\combined-final-local-src.json",
+      "sha256": "88cf918b7016d543ff49e7caabf61d163aafe57e0163442cb67164a2be9a7587",
+      "qualification": "Retained failure or interrupted attempt; does not qualify final success",
+      "exit_code": 1,
+      "status": null,
+      "summary": [
+        "............"
+      ]
+    },
+    {
+      "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\combined-final.json",
+      "sha256": "2749e402f20df1a5d27620ef046ada4be2de8acb0dcdcc2cd159a8f06bfc4072",
+      "qualification": "Retained failure or interrupted attempt; does not qualify final success",
+      "exit_code": 4,
+      "status": null,
+      "summary": [
+        "E   ModuleNotFoundError: No module named 'nexus_code_search.config'"
+      ]
+    },
+    {
+      "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\devlog-history-red.json",
+      "sha256": "eb85d383041cdd937e2c4933db365b8fd0a51cdb2c077e9ca67380fe19223020",
+      "qualification": "Retained failure or interrupted attempt; does not qualify final success",
+      "exit_code": 1,
+      "status": null,
+      "summary": [
+        "1 failed, 1 passed, 35 deselected in 15.20s"
+      ]
+    },
+    {
+      "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\devlog-pressure-red.json",
+      "sha256": "dc6af98b521187bcc77b62f1fd4859fee255ef9db5b37f7e4f458e61dc87c981",
+      "qualification": "Retained failure or interrupted attempt; does not qualify final success",
+      "exit_code": 1,
+      "status": null,
+      "summary": [
+        "3 failed, 1 passed, 35 deselected in 15.84s"
+      ]
+    },
+    {
+      "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\focused-exact-boundaries.json",
+      "sha256": "daf4b1d6a0f5530775be1a605b2a1912610f08e860a974f0a8f65bee657871fc",
+      "qualification": "Retained failure or interrupted attempt; does not qualify final success",
+      "exit_code": 1,
+      "status": null,
+      "summary": [
+        "6 failed, 7 passed, 19 deselected in 98.86s (0:01:38)"
+      ]
+    },
+    {
+      "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\focused-green.json",
+      "sha256": "03b7e2af22900f9047d26981b2450ece714d344045c88aee9cab4ac8a266c33a",
+      "qualification": "Retained failure or interrupted attempt; does not qualify final success",
+      "exit_code": 1,
+      "status": null,
+      "summary": [
+        "6 failed, 7 passed, 19 deselected in 96.95s (0:01:36)"
+      ]
+    },
+    {
+      "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\functional-byte-devlog-green-terminal.json",
+      "sha256": "c2356c60e67c02fe2db24d98af6ade6163fd6c2f046a20534f474d5c4395a8a4",
+      "qualification": "Retained failure or interrupted attempt; does not qualify final success",
+      "exit_code": 1,
+      "status": "FAIL",
+      "summary": null
+    },
+    {
+      "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\functional-byte-devlog-terminal.json",
+      "sha256": "cab7c5aba0bbd28b936fdb4f9dcac9136b9ffd71b59258b935d8b78d1e2bcbc5",
+      "qualification": "Retained failure or interrupted attempt; does not qualify final success",
+      "exit_code": 1,
+      "status": "FAIL",
+      "summary": null
+    },
+    {
+      "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\provenance-byte-red.json",
+      "sha256": "02a2025452a9dc1f7c1c95a6a6daf034c970dc2e5f1ca8c4cfd0296df6ec1417",
+      "qualification": "Retained failure or interrupted attempt; does not qualify final success",
+      "exit_code": 1,
+      "status": null,
+      "summary": [
+        "11 failed, 3 passed, 39 deselected in 30.95s"
+      ]
+    },
+    {
+      "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\red-nul.json",
+      "sha256": "371db4c793e23142f2b8c53eb0d4b6f8d0aea9e8bf5203a91fc409ff361e0b2f",
+      "qualification": "Retained failure or interrupted attempt; does not qualify final success",
+      "exit_code": 1,
+      "status": null,
+      "summary": [
+        "3 failed, 32 deselected in 4.77s"
+      ]
+    },
+    {
+      "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\red-provenance.json",
+      "sha256": "6b500374e35a2da2fcfc5cc07a4193a1c6d1adc4724b4ccaa160b4410f15fa78",
+      "qualification": "Retained failure or interrupted attempt; does not qualify final success",
+      "exit_code": 1,
+      "status": null,
+      "summary": [
+        "2 failed, 30 deselected in 7.23s"
+      ]
+    },
+    {
+      "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\red-raw-nul.json",
+      "sha256": "e0fe0d8b6e27fbbc36f71d2bc81a4adbacc13bc02f5863fe0d6225ef4a0eee37",
+      "qualification": "Retained failure or interrupted attempt; does not qualify final success",
+      "exit_code": 1,
+      "status": null,
+      "summary": [
+        "2 failed, 1 passed, 32 deselected in 8.56s"
+      ]
+    },
+    {
+      "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\static-byte-devlog-final.json",
+      "sha256": "9d7201f6ccbe5e4557976afc63f54c286488a6524e0f9789340a19c24045beed",
+      "qualification": "Retained failure or interrupted attempt; does not qualify final success",
+      "exit_code": null,
+      "status": null,
+      "summary": null
+    },
+    {
+      "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\f-2f9eb8b7\\terminal-receipt.json",
+      "sha256": "4b7fd7f169ca7482dba2129c0122708bc837e928c2916d2b867d9ba44d41d678",
+      "qualification": "Retained earlier failed functional attempt; not final proof"
+    }
+  ],
+  "fixture_diagnostics": [
+    {
+      "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\functional-byte-devlog-fixture-diagnostic.json",
+      "sha256": "a4536fe1e9f334f1d6de89999a45eef45f2d1f28c12a48310e83f4d00749a4cd"
+    },
+    {
+      "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\functional-byte-devlog-repeat-diagnostic.json",
+      "sha256": "6ca790197cb2ae33714287bdfefd8bda0342c238a5277fc2b28d22c09f3cde0d"
+    }
+  ],
+  "historical_55_flow_proof": {
+    "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\f-3c600822\\terminal-receipt.json",
+    "sha256": "67e5ffc3a24e826af63ea0ac5743b157d2055905d42ce9dd53895ade1ef8c5d1",
+    "qualification": "Historical pass on earlier provenance/devlog hashes; final current witness is16actualcalls"
+  },
+  "limitations": [
+    "No release, merge, archival or minor-completion claim",
+    "No broad WN37 or mixed-runtime concurrency qualification",
+    "Older red and interrupted receipts remain failed"
+  ]
+}

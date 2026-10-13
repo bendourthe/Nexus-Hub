@@ -1,0 +1,310 @@
+{
+  "status": "PARTIAL - own task terminated after no new observations at devlog setup",
+  "time_utc": "2026-10-10T01:08:52.903132+00:00",
+  "command": [
+    "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+    "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\functional.py"
+  ],
+  "runner_pid": 61100,
+  "started_local": "2026-10-09T17:55:24-07:00",
+  "stopped_local": "2026-10-09T18:06:26.3157075-07:00",
+  "children_at_stop": 0,
+  "functional_process_exit": -1,
+  "shell_wrapper_exit": 0,
+  "terminal": "functional_exit=-1",
+  "source_sha256": {
+    "catalog/hooks/session-summary.sh": "8d2c84a6a73f6b9c2e7fb080ec1d6c8d168db3b3d29880e65db2f252e4d58e61",
+    "catalog/hooks/session-summary.ps1": "b974be2128e014a5722484908754bdf876adbcdd3cc58aa38e4325770d8c6051",
+    "catalog/hooks/auto-devlog.sh": "82a3960225dae4233ea5cc7703d14640d1ec681acba8b07f847276f9143e4eb9",
+    "catalog/hooks/auto-devlog.ps1": "cffe2ff8f93f97679a5cfab3c08d27a9d5396593c902559d36a7e7f1d9e38b7d",
+    "catalog/hooks/learning-capture.sh": "57964f44afd7ffe028436e3f392c456fd1d80550a85bf635c313bbffc413637c",
+    "catalog/hooks/learning-capture.ps1": "76e2c82aa3b8d277c38007c80094abc3c2dfb2257eac5124bfd03ef9d2aa9392",
+    "catalog/hooks/provenance-ledger.sh": "3ddd69e4059f3f1bffe658eebd7613873b5cfc2e294b77648dab2a9f0dce53f3",
+    "catalog/hooks/provenance-ledger.ps1": "959bf77f3c2cf988b2aea9c0f982d126eef5913e59b856af76fccf627f23c0e4",
+    "catalog/hooks/skill-tracker.py": "ace34dc5a02ef08c80e49202f8217404f44a5da379475de2b59226ea5dce962d",
+    "catalog/hooks/tests/test_auto_devlog_index_guard.py": "c3188aca5aacceb97a94056868c3735bada1570804d103a79ebfffd9cc5af6fa",
+    "catalog/hooks/tests/test_hook_size_bound.py": "5d326616d04a122862647ef4d3503e81b3117096669a9759b6059a854e561df6"
+  },
+  "observed_invocations": [
+    {
+      "label": "sh-learning-large",
+      "stdin_path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\functional-logs-2\\sh-learning-large.stdin.txt",
+      "stdin_bytes": 196662,
+      "stdin_sha256": "9140a521c9bac71de4b6e22f3913e281bdd9678e0a0a936344a01af1d7cf0045",
+      "stdout_bytes": 0,
+      "stderr": "",
+      "exit": "0 observed before next invocation"
+    },
+    {
+      "label": "sh-learning-malformed",
+      "stdin_path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\functional-logs-2\\sh-learning-malformed.stdin.txt",
+      "stdin_bytes": 8,
+      "stdin_sha256": "62b8125a6f6d924ec53345b5fcd58ca3ed3f5e7d51e2e146e5f1346508acce69",
+      "stdout_bytes": 0,
+      "stderr": "",
+      "exit": "0 observed before next invocation"
+    },
+    {
+      "label": "sh-learning-parallel-0",
+      "stdin_path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\functional-logs-2\\sh-learning-parallel-0.stdin.txt",
+      "stdin_bytes": 24,
+      "stdin_sha256": "17d0012b8c4981b9ae7641692d56c688980a6dcc60dc0a10ed00fe60780616fd",
+      "stdout_bytes": 0,
+      "stderr": "",
+      "exit": "0 observed before next invocation"
+    },
+    {
+      "label": "sh-learning-parallel-1",
+      "stdin_path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\functional-logs-2\\sh-learning-parallel-1.stdin.txt",
+      "stdin_bytes": 24,
+      "stdin_sha256": "b6d323abafaf3ae80aa37be5f1830490e67e8d48d80d5a4d32ce331dfeca9475",
+      "stdout_bytes": 0,
+      "stderr": "",
+      "exit": "0 observed before next invocation"
+    },
+    {
+      "label": "sh-learning-parallel-2",
+      "stdin_path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\functional-logs-2\\sh-learning-parallel-2.stdin.txt",
+      "stdin_bytes": 24,
+      "stdin_sha256": "cc17338f8e3b7fac5b6f2f141ac56b1ea3d22bb89900aa41ce7f9d222a360d24",
+      "stdout_bytes": 0,
+      "stderr": "",
+      "exit": "0 observed before next invocation"
+    },
+    {
+      "label": "sh-learning-parallel-3",
+      "stdin_path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\functional-logs-2\\sh-learning-parallel-3.stdin.txt",
+      "stdin_bytes": 24,
+      "stdin_sha256": "01dfa1387a940010dda5586e82321f97e5afadc997685e656ead27adb70dd75c",
+      "stdout_bytes": 0,
+      "stderr": "",
+      "exit": "0 observed before next invocation"
+    },
+    {
+      "label": "sh-learning-parallel-4",
+      "stdin_path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\functional-logs-2\\sh-learning-parallel-4.stdin.txt",
+      "stdin_bytes": 24,
+      "stdin_sha256": "8081989d1e503383c157e8221c969ae273252854657bda26db068b65140fcca8",
+      "stdout_bytes": 0,
+      "stderr": "",
+      "exit": "0 observed before next invocation"
+    },
+    {
+      "label": "sh-learning-parallel-5",
+      "stdin_path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\functional-logs-2\\sh-learning-parallel-5.stdin.txt",
+      "stdin_bytes": 24,
+      "stdin_sha256": "524d8af9657247cf479231582ce93e0309bcee0784f768df029f28afa85079df",
+      "stdout_bytes": 0,
+      "stderr": "",
+      "exit": "0 observed before next invocation"
+    },
+    {
+      "label": "sh-learning-parallel-6",
+      "stdin_path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\functional-logs-2\\sh-learning-parallel-6.stdin.txt",
+      "stdin_bytes": 24,
+      "stdin_sha256": "2b10e0579c474a04151f9f8b69ac69265ba6b22c4a661bbc0d3b1de945bacd93",
+      "stdout_bytes": 0,
+      "stderr": "",
+      "exit": "0 observed before next invocation"
+    },
+    {
+      "label": "sh-learning-parallel-7",
+      "stdin_path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\functional-logs-2\\sh-learning-parallel-7.stdin.txt",
+      "stdin_bytes": 24,
+      "stdin_sha256": "18e60bb77ac3c56c8cd53a264310d69b9b758976161f4c90a544f6500f3ae5af",
+      "stdout_bytes": 0,
+      "stderr": "",
+      "exit": "0 observed before next invocation"
+    },
+    {
+      "label": "sh-learning-utf8-0",
+      "stdin_path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\functional-logs-2\\sh-learning-utf8-0.stdin.txt",
+      "stdin_bytes": 3014,
+      "stdin_sha256": "d0440c469cd43d5bac5c8095fae097dbd465b795892cff192b720e41779b2581",
+      "stdout_bytes": 0,
+      "stderr": "",
+      "exit": "0 observed before next invocation"
+    },
+    {
+      "label": "sh-learning-utf8-1",
+      "stdin_path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\functional-logs-2\\sh-learning-utf8-1.stdin.txt",
+      "stdin_bytes": 3014,
+      "stdin_sha256": "d0440c469cd43d5bac5c8095fae097dbd465b795892cff192b720e41779b2581",
+      "stdout_bytes": 0,
+      "stderr": "",
+      "exit": "0 observed before next invocation"
+    },
+    {
+      "label": "sh-learning-utf8-2",
+      "stdin_path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\functional-logs-2\\sh-learning-utf8-2.stdin.txt",
+      "stdin_bytes": 3014,
+      "stdin_sha256": "d0440c469cd43d5bac5c8095fae097dbd465b795892cff192b720e41779b2581",
+      "stdout_bytes": 0,
+      "stderr": "",
+      "exit": "0 observed before next invocation"
+    },
+    {
+      "label": "sh-learning-utf8-3",
+      "stdin_path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\functional-logs-2\\sh-learning-utf8-3.stdin.txt",
+      "stdin_bytes": 3014,
+      "stdin_sha256": "d0440c469cd43d5bac5c8095fae097dbd465b795892cff192b720e41779b2581",
+      "stdout_bytes": 0,
+      "stderr": "",
+      "exit": "0 observed before next invocation"
+    },
+    {
+      "label": "sh-learning-utf8-4",
+      "stdin_path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\functional-logs-2\\sh-learning-utf8-4.stdin.txt",
+      "stdin_bytes": 3014,
+      "stdin_sha256": "d0440c469cd43d5bac5c8095fae097dbd465b795892cff192b720e41779b2581",
+      "stdout_bytes": 0,
+      "stderr": "",
+      "exit": "0 observed before next invocation"
+    },
+    {
+      "label": "sh-provenance-command",
+      "stdin_path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\functional-logs-2\\sh-provenance-command.stdin.txt",
+      "stdin_bytes": 469,
+      "stdin_sha256": "42f6a9358ce6ae7b8889609d6c6246ce0f87534f91bd665bc304d7f0eb6a55c7",
+      "stdout_bytes": 0,
+      "stderr": "[provenance-ledger] TRUST SEAM: this command references a path the agent wrote in this session:\n  - C:/Users/username/AppData/Local/Temp/v41311-phase3-hooks/functional-2/sh/iso/hsb-4d399b0579e24936a2f7c2e9fe239c3d/\u6f22\u6f22\u6f22\u6f22\u6f22\u6f22\u6f22\u6f22\u6f22\u6f22\u6f22\u6f22\u6f22\u6f22\u6f22\u6f22\u6f22\u6f22\u6f22\u6f22\u6f22\u6f22\u6f22\u6f22\u6f22\u6f22\u6f22\u6f22\u6f22\u6f22\u6f22\u6f22\u6f22\u6f22\u6f22\u6f22\u6f22\u6f22\u6f22\u6f22.sh (agent-written 1s ago, hash e32f672bc1d5)\n  A write the agent made is now reaching an executor. Confirm the command is running what you intend.\n  Advisory only. See the Limits section of the agentic-endpoint-hardening skill: a local hook cannot observe executors in other processes.\n",
+      "exit": "0 observed before next invocation"
+    },
+    {
+      "label": "sh-provenance-large",
+      "stdin_path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\functional-logs-2\\sh-provenance-large.stdin.txt",
+      "stdin_bytes": 66003,
+      "stdin_sha256": "2b54f60a21174ab6aeb399bd0d20dd1a45ee0d97add361310d558a104610384f",
+      "stdout_bytes": 0,
+      "stderr": "[provenance-ledger] recorded path digest without path correlation.\n",
+      "exit": "0 observed before next invocation"
+    },
+    {
+      "label": "sh-provenance-malformed",
+      "stdin_path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\functional-logs-2\\sh-provenance-malformed.stdin.txt",
+      "stdin_bytes": 8,
+      "stdin_sha256": "62b8125a6f6d924ec53345b5fcd58ca3ed3f5e7d51e2e146e5f1346508acce69",
+      "stdout_bytes": 0,
+      "stderr": "",
+      "exit": "0 observed before next invocation"
+    },
+    {
+      "label": "sh-provenance-marker-command",
+      "stdin_path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\functional-logs-2\\sh-provenance-marker-command.stdin.txt",
+      "stdin_bytes": 194,
+      "stdin_sha256": "60b6fead0afd3409af3f1de999bcb4816700acd92ab2c253f8d5fe64196b227e",
+      "stdout_bytes": 0,
+      "stderr": "",
+      "exit": "0 observed before next invocation"
+    },
+    {
+      "label": "sh-provenance-valid",
+      "stdin_path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\functional-logs-2\\sh-provenance-valid.stdin.txt",
+      "stdin_bytes": 478,
+      "stdin_sha256": "549c23bb187b888dbc7b2fb4eda315949cb1a22ca2cfc2e5125b916b51830173",
+      "stdout_bytes": 0,
+      "stderr": "",
+      "exit": "0 observed before next invocation"
+    },
+    {
+      "label": "sh-session-malformed",
+      "stdin_path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\functional-logs-2\\sh-session-malformed.stdin.txt",
+      "stdin_bytes": 8,
+      "stdin_sha256": "62b8125a6f6d924ec53345b5fcd58ca3ed3f5e7d51e2e146e5f1346508acce69",
+      "stdout_bytes": 0,
+      "stderr": "",
+      "exit": "0 observed before next invocation"
+    },
+    {
+      "label": "sh-session-valid",
+      "stdin_path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\functional-logs-2\\sh-session-valid.stdin.txt",
+      "stdin_bytes": 65552,
+      "stdin_sha256": "521178e157a9ec4d0d987306894fc72fba21cecad85c0aa74b52638e36ab2ec5",
+      "stdout_bytes": 0,
+      "stderr": "",
+      "exit": "0 observed before next invocation"
+    }
+  ],
+  "state_artifacts": [
+    {
+      "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\functional-2\\sh\\iso\\home\\.claude\\session-log.md",
+      "bytes": 250,
+      "sha256": "a00ff9656347411bd1c70c5121fee5488584125d94d2ce966d41651b299926f2"
+    },
+    {
+      "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\functional-2\\sh\\iso\\home\\.nexus-hub\\cache\\provenance\\hsb-4d399b0579e24936a2f7c2e9fe239c3d.tsv",
+      "bytes": 422,
+      "sha256": "4e0ea63427ced2ee568b240a4ab0f58b1d8eb0450a5af0987394f4f32556695e"
+    },
+    {
+      "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\functional-2\\sh\\iso\\hsb-4d399b0579e24936a2f7c2e9fe239c3d\\.nexus\\observations.jsonl",
+      "bytes": 2120,
+      "sha256": "a8e51101595971f4abc04a22e935254fbbc5813779d9048309175e345e6f0392",
+      "record_count": 10,
+      "parallel_prompt_count": 8,
+      "field_lengths": [
+        [
+          7,
+          0,
+          400
+        ],
+        [
+          7,
+          0,
+          0
+        ],
+        [
+          7,
+          0,
+          10
+        ],
+        [
+          7,
+          0,
+          10
+        ],
+        [
+          7,
+          0,
+          10
+        ],
+        [
+          7,
+          0,
+          10
+        ],
+        [
+          7,
+          0,
+          10
+        ],
+        [
+          7,
+          0,
+          10
+        ],
+        [
+          7,
+          0,
+          10
+        ],
+        [
+          7,
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\functional-2\\sh\\iso\\hsb-4d399b0579e24936a2f7c2e9fe239c3d\\docs\\DEVLOG.md",
+      "bytes": 46,
+      "sha256": "7c3f682a09befd4bb8499390595b942124ab30aae5ae099cadb60d07662becd0"
+    },
+    {
+      "path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\functional-2\\sh\\iso\\hsb-4d399b0579e24936a2f7c2e9fe239c3d\\.nexus\\context\\last-session.md",
+      "bytes": 220,
+      "sha256": "0f5c4b153202fcc2ccd3f71d62999240d8e7120f1c4200b2d235f698db14c5aa"
+    }
+  ],
+  "qualification": "Completed artifacts cover Bash session, learning and provenance flows only. Later devlog/fallback/skill and the PowerShell loop were not completed. No full functional PASS receipt exists."
+}

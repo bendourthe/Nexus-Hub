@@ -24,6 +24,7 @@ import os
 from collections.abc import Callable
 from pathlib import Path
 
+from .base import long_path
 from .result import FileAction
 
 Owned = Callable[[dict], bool]
@@ -31,9 +32,10 @@ Owned = Callable[[dict], bool]
 
 def _load(dst: Path) -> tuple[dict | None, str]:
     """Return (object or None, reason). None means: do not touch this file."""
-    if not dst.exists():
+    dst_io = long_path(dst)  # AR-11: a deep project root passes MAX_PATH
+    if not dst_io.exists():
         return {}, ""
-    raw = dst.read_text(encoding="utf-8")
+    raw = dst_io.read_text(encoding="utf-8")
     try:
         parsed = json.loads(raw) if raw.strip() else {}
     except json.JSONDecodeError as exc:
@@ -45,19 +47,20 @@ def _load(dst: Path) -> tuple[dict | None, str]:
 
 def _write(ctx, key: str, dst: Path, obj: dict) -> FileAction:
     content = (json.dumps(obj, indent=2) + "\n").encode("utf-8")
-    if dst.exists() and dst.read_bytes() == content:
+    dst_io = long_path(dst)  # file operations only; the manifest keeps ``dst``
+    if dst_io.exists() and dst_io.read_bytes() == content:
         ctx.manifest.track_shared(key, str(dst))
         return FileAction(path=str(dst), action="unchanged")
-    existed = dst.exists()
+    existed = dst_io.exists()
     if not ctx.dry_run:
-        dst.parent.mkdir(parents=True, exist_ok=True)
+        dst_io.parent.mkdir(parents=True, exist_ok=True)
         if existed:
             backup = dst.with_suffix(dst.suffix + ".nexus-hub.bak")
-            backup.write_bytes(dst.read_bytes())
+            long_path(backup).write_bytes(dst_io.read_bytes())
             ctx.manifest.track(key, str(backup))
-        tmp = dst.with_suffix(dst.suffix + ".nexus-hub.tmp")
+        tmp = long_path(dst.with_suffix(dst.suffix + ".nexus-hub.tmp"))
         tmp.write_bytes(content)
-        os.replace(tmp, dst)
+        os.replace(tmp, dst_io)
     # Shared, not owned: teardown must prune our entries, never unlink the file.
     ctx.manifest.track_shared(key, str(dst))
     return FileAction(path=str(dst), action="updated" if existed else "created")
@@ -72,12 +75,13 @@ def _rewrite(dst: Path, obj: dict, dry_run: bool) -> FileAction:
     existing line-ending style is kept.
     """
     backup = dst.with_suffix(dst.suffix + ".nexus-hub.bak")
-    current = dst.read_bytes()
+    dst_io, backup_io = long_path(dst), long_path(backup)
+    current = dst_io.read_bytes()
     content = (json.dumps(obj, indent=2) + "\n").encode("utf-8")
-    if backup.exists():
+    if backup_io.exists():
         try:
-            if json.loads(backup.read_text(encoding="utf-8")) == obj:
-                content = backup.read_bytes()
+            if json.loads(backup_io.read_text(encoding="utf-8")) == obj:
+                content = backup_io.read_bytes()
         except (json.JSONDecodeError, UnicodeDecodeError):
             # An unparsable backup is not reused; the freshly rendered content is written.
             pass
@@ -86,7 +90,7 @@ def _rewrite(dst: Path, obj: dict, dry_run: bool) -> FileAction:
     if current == content:
         return FileAction(path=str(dst), action="unchanged")
     if not dry_run:
-        dst.write_bytes(content)
+        dst_io.write_bytes(content)
     return FileAction(path=str(dst), action="updated")
 
 
@@ -111,7 +115,8 @@ def merge_flat_hooks(ctx, key: str, dst: Path, rendered: dict, owned: Owned) -> 
 def prune_flat_hooks(dst: Path, owned: Owned, dry_run: bool) -> FileAction:
     """Remove Nexus-Hub entries from a Cursor-shaped hooks.json."""
     existing, _ = _load(dst)
-    if not dst.exists():
+    dst_io = long_path(dst)
+    if not dst_io.exists():
         return FileAction(path=str(dst), action="not-found")
     if existing is None:
         return FileAction(path=str(dst), action="kept")
@@ -123,7 +128,7 @@ def prune_flat_hooks(dst: Path, owned: Owned, dry_run: bool) -> FileAction:
     remainder = {k: v for k, v in existing.items() if k not in ("hooks", "version")}
     if not hooks and not remainder:
         if not dry_run:
-            dst.unlink(missing_ok=True)
+            dst_io.unlink(missing_ok=True)
         return FileAction(path=str(dst), action="removed")
     out = {k: v for k, v in existing.items() if k != "hooks"}
     out["hooks"] = hooks
@@ -144,14 +149,15 @@ def merge_named_set(ctx, key: str, dst: Path, set_name: str, rendered_set: dict)
 def prune_named_set(dst: Path, set_name: str, dry_run: bool) -> FileAction:
     """Remove the ``set_name`` hook set; delete the file only when it was the last."""
     existing, _ = _load(dst)
-    if not dst.exists():
+    dst_io = long_path(dst)
+    if not dst_io.exists():
         return FileAction(path=str(dst), action="not-found")
     if existing is None or set_name not in existing:
         return FileAction(path=str(dst), action="kept" if existing is None else "unchanged")
     remainder = {k: v for k, v in existing.items() if k != set_name}
     if not remainder:
         if not dry_run:
-            dst.unlink(missing_ok=True)
+            dst_io.unlink(missing_ok=True)
         return FileAction(path=str(dst), action="removed")
     return _rewrite(dst, remainder, dry_run)
 

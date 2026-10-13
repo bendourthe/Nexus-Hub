@@ -21,6 +21,7 @@ import json
 import shutil
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 import pytest
@@ -536,3 +537,146 @@ def test_report_puts_a_blank_line_before_every_table() -> None:
     for i, line in enumerate(lines):
         if line.startswith("| ") and i and not lines[i - 1].startswith("|"):
             assert lines[i - 1].strip() == "", f"line {i}: table not preceded by a blank line"
+
+
+# ---------------------------------------------------------------------------
+# The REAL default guard suite, end to end, in a disposable clone
+# (v3.15.5 MT-4, carried as v4.13 AR-08)
+#
+# Every other apply-loop test injects fake guards. This one clones the repo's
+# committed HEAD into tmp_path and runs the working-copy engine's `apply` CLI
+# with NO --guard override, so all five DEFAULT_GUARDS execute against the
+# clone. It never writes to the repository under test. Measured on Windows 11
+# (2026-10-10): about 9 s to clone and 26-40 s for the apply, so it is marked
+# slow and bounded by an explicit subprocess timeout.
+#
+# The clone is forced to LF (core.autocrlf=false, core.eol=lf) so the byte
+# assertions are host-independent. The CRLF case is pinned separately below as
+# a known defect.
+# ---------------------------------------------------------------------------
+
+_E2E_TIMEOUT_S = 900
+_KEEP_TARGET = "catalog/skills/workflow/verification-before-completion/SKILL.md"
+_REVERT_TARGET = "catalog/skills/workflow/commit-sweep/SKILL.md"
+
+
+def _disposable_clone(dest: Path) -> Path:
+    if shutil.which("git") is None:  # pragma: no cover
+        pytest.skip("git not available")
+    lf = ["-c", "core.autocrlf=false", "-c", "core.eol=lf", "-c", "core.longpaths=true"]
+    result = subprocess.run(
+        ["git", *lf, "clone", "--quiet", "--local", *lf, str(_ROOT), str(dest)],
+        capture_output=True, text=True, check=False, timeout=300,
+    )
+    assert result.returncode == 0, f"disposable clone failed: {result.stderr}"
+    return dest
+
+
+def _unique_checklist_line(text: str) -> str:
+    for line in text.split("\n"):
+        if line.startswith("- [ ] ") and "<" not in line and text.count(line) == 1:
+            return line
+    raise AssertionError(f"no unique checklist line in {_KEEP_TARGET}")
+
+
+@pytest.mark.slow
+def test_default_guards_keep_a_passing_edit_and_restore_a_failing_one_byte_exact(tmp_path: Path) -> None:
+    clone = _disposable_clone(tmp_path / "c")
+    keep, revert = clone / _KEEP_TARGET, clone / _REVERT_TARGET
+    keep_before, revert_before = keep.read_bytes(), revert.read_bytes()
+    assert b"\r\n" not in keep_before, "fixture precondition: LF checkout"
+    keep_old = _unique_checklist_line(keep_before.decode("utf-8"))
+    keep_new = keep_old + " (disposable keep probe)"
+    assert revert_before.count(b"name: commit-sweep\n") == 1
+    payload = tmp_path / "proposals.json"
+    payload.write_text(json.dumps({"proposals": [
+        _proposal(id="keep", target=_KEEP_TARGET, target_kind="skill-verification",
+                  old=keep_old, new=keep_new),
+        # Unquoted `: ` in the frontmatter: the strict-YAML gate inside the
+        # skill-bundles guard must reject it, so the loop must revert it.
+        _proposal(id="revert", target=_REVERT_TARGET, target_kind="skill-description",
+                  old="name: commit-sweep\n", new="name: commit-sweep: broken\n"),
+    ]}), encoding="utf-8")
+
+    result = subprocess.run(
+        [sys.executable, str(_ENGINE_PATH), "apply", "--input", str(payload),
+         "--repo", str(clone), "--stamp", "disposable-e2e", "--base-branch", "HEAD", "--json"],
+        cwd=str(clone), capture_output=True, text=True, check=False, timeout=_E2E_TIMEOUT_S,
+    )
+
+    assert result.returncode == 0, result.stderr
+    out = json.loads(result.stdout)
+    assert [a["id"] for a in out["applied"]] == ["keep"]
+    assert [(q["id"], q["failing_guard"]) for q in out["quarantined"]] == [("revert", "skill-bundles")]
+    assert "frontmatter is not valid YAML" in out["quarantined"][0]["detail"]
+    assert keep.read_bytes() == keep_before.replace(
+        (keep_old + "\n").encode(), (keep_new + "\n").encode(), 1)
+    assert revert.read_bytes() == revert_before, "the reverted file must match the baseline byte for byte"
+    status = subprocess.run(["git", "status", "--porcelain"], cwd=str(clone),
+                            capture_output=True, text=True, check=True).stdout.splitlines()
+    assert status == [f" M {_KEEP_TARGET}"]
+    assert _git(clone, "rev-parse", "--abbrev-ref", "HEAD").stdout.strip() == "feat/tune-prompting-disposable-e2e"
+
+
+# ---------------------------------------------------------------------------
+# Defects found by the disposable-clone exercise and fixed in v4.13.11 Phase 4
+# (AR-08 failure modes): byte-exact apply and revert, abort instead of
+# reverting over a concurrent change, and a guard timeout that reverts.
+# ---------------------------------------------------------------------------
+
+
+def test_a_revert_restores_crlf_bytes_exactly(repo: Path) -> None:
+    target = repo / "catalog/commands/demo.md"
+    target.write_bytes(b"Run the thing.\r\n\r\nSecond line.\r\n")
+    before = target.read_bytes()
+
+    engine.apply_loop(repo, [_proposal()], engine.classify_all([_proposal()]), (FAIL_GUARD,))
+
+    assert target.read_bytes() == before
+
+
+def test_a_kept_edit_preserves_crlf_line_endings(repo: Path) -> None:
+    target = repo / "catalog/commands/demo.md"
+    target.write_bytes(b"Run the thing.\r\n\r\nSecond line.\r\n")
+    pass_guard = ("pass", (sys.executable, "-c", "raise SystemExit(0)"))
+
+    result = engine.apply_loop(repo, [_proposal()], engine.classify_all([_proposal()]), (pass_guard,))
+
+    assert len(result["applied"]) == 1
+    after = target.read_bytes()
+    assert b"Run the thing." not in after, "the edit must have been applied"
+    assert after.count(b"\r\n") == 3 and b"\n" not in after.replace(b"\r\n", b""), "CRLF must survive"
+
+
+def test_a_concurrent_edit_during_the_guards_aborts_instead_of_being_reverted(repo: Path) -> None:
+    target = repo / "catalog/commands/demo.md"
+    writer = (
+        "concurrent-writer",
+        (sys.executable, "-c",
+         (f"import io; f=io.open(r'{target.as_posix()}','a',encoding='utf-8');"
+          " f.write('CONCURRENT'); f.close(); raise SystemExit(1)")),
+    )
+
+    with pytest.raises(engine.ApplyError, match="changed while the guards ran"):
+        engine.apply_loop(repo, [_proposal()], engine.classify_all([_proposal()]), (writer,))
+
+    assert "CONCURRENT" in target.read_text(encoding="utf-8")
+
+
+def test_a_hung_guard_times_out_and_restores_the_baseline(repo: Path) -> None:
+    target = repo / "catalog/commands/demo.md"
+    # Explicit LF so the line-ending path is not what this test measures.
+    target.write_bytes(b"Run the thing.\n\nSecond line.\n")
+    before = target.read_bytes()
+    hang = ("hang", (sys.executable, "-c", "import time; time.sleep(30)"))
+
+    started = time.monotonic()
+    result = engine.apply_loop(
+        repo, [_proposal()], engine.classify_all([_proposal()]), (hang,), guard_timeout=2
+    )
+    elapsed = time.monotonic() - started
+
+    assert elapsed < 20, f"the guard was not bounded ({elapsed:.1f}s)"
+    assert target.read_bytes() == before
+    assert result["quarantined"][0]["failing_guard"] == "hang"
+    assert "timed out after 2s" in result["quarantined"][0]["detail"]

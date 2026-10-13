@@ -18,21 +18,9 @@
       "claude-sonnet-4-5-20250929",
       "claude-sonnet-4-6",
       "claude-sonnet-5",
-      "claude-sonnet-5-5",
-      "composer-2.5",
-      "composer-2.5-fast",
-      "cursor-grok-4.5",
-      "cursor-grok-4.6",
-      "gemini-3.5-flash-lite",
-      "gemini-3.6-flash",
-      "gemini-3.7-flash",
-      "gemini-3.8-flash",
-      "gpt-5.6-luna",
-      "gpt-5.6-sol",
-      "gpt-5.6-terra",
-      "gpt-6-astra"
+      "claude-sonnet-5-5"
     ],
-    "roster_hash": "0429973600acfa5ab2f3d66888607b7c9600fc51c6b75f0230e2fb3677c2d339",
+    "roster_hash": "295facc046d76472af9e055bddd5782f451fd617a27b22522caf31386315de6d",
     "platforms": [
       {
         "platform": "codex",
@@ -49,6 +37,41 @@
         ],
         "roster_hash": "b5187229e56322cc1396011fc3044e7a4966abdc8b3f08109fe6e6a61c152fc6",
         "last_verified": "2026-10-01"
+      },
+      {
+        "platform": "cursor",
+        "roster_source": "config",
+        "roster": [
+          "composer-2.5",
+          "composer-2.5-fast",
+          "cursor-grok-4.5",
+          "cursor-grok-4.6"
+        ],
+        "roster_hash": "15d0054267a5b0f978b5d1b217e0ae59b85d295e69ae55d4082fe157cc62b3eb",
+        "last_verified": "2026-09-08"
+      },
+      {
+        "platform": "gemini",
+        "roster_source": "config",
+        "roster": [
+          "gemini-3.5-flash-lite",
+          "gemini-3.6-flash",
+          "gemini-3.7-flash",
+          "gemini-3.8-flash"
+        ],
+        "roster_hash": "df6bf39c905b53e6f6e45c07c6cd4fc84de136c907c6c66eac8e0cec4e581444",
+        "last_verified": "2026-09-08"
+      },
+      {
+        "platform": "openai",
+        "roster_source": "config",
+        "roster": [
+          "gpt-5.6-luna",
+          "gpt-5.6-sol",
+          "gpt-5.6-terra"
+        ],
+        "roster_hash": "1bac74477412c8af7bd140962fa206089425b1402e5100c0361a15fba01fc59a",
+        "last_verified": "2026-09-08"
       }
     ]
   },
@@ -435,7 +458,7 @@
       ]
     },
     "composer-2.5": {
-      "platform": "claude-code",
+      "platform": "cursor",
       "last_verified": "2026-09-08",
       "claims": [
         {
@@ -457,7 +480,7 @@
       ]
     },
     "composer-2.5-fast": {
-      "platform": "claude-code",
+      "platform": "cursor",
       "last_verified": "2026-09-08",
       "claims": [
         {
@@ -479,7 +502,7 @@
       ]
     },
     "cursor-grok-4.5": {
-      "platform": "claude-code",
+      "platform": "cursor",
       "last_verified": "2026-09-08",
       "claims": [
         {
@@ -501,7 +524,7 @@
       ]
     },
     "cursor-grok-4.6": {
-      "platform": "claude-code",
+      "platform": "cursor",
       "last_verified": "2026-09-08",
       "claims": [
         {
@@ -523,7 +546,7 @@
       ]
     },
     "gemini-3.5-flash-lite": {
-      "platform": "claude-code",
+      "platform": "gemini",
       "last_verified": "2026-09-08",
       "claims": [
         {
@@ -545,7 +568,7 @@
       ]
     },
     "gemini-3.6-flash": {
-      "platform": "claude-code",
+      "platform": "gemini",
       "last_verified": "2026-09-08",
       "claims": [
         {
@@ -567,7 +590,7 @@
       ]
     },
     "gemini-3.7-flash": {
-      "platform": "claude-code",
+      "platform": "gemini",
       "last_verified": "2026-09-08",
       "claims": [
         {
@@ -589,7 +612,7 @@
       ]
     },
     "gemini-3.8-flash": {
-      "platform": "claude-code",
+      "platform": "gemini",
       "last_verified": "2026-09-08",
       "claims": [
         {
@@ -632,7 +655,7 @@
       ]
     },
     "gpt-5.6-sol": {
-      "platform": "claude-code",
+      "platform": "openai",
       "last_verified": "2026-09-25",
       "claims": [
         {
@@ -646,7 +669,7 @@
       ]
     },
     "gpt-5.6-luna": {
-      "platform": "claude-code",
+      "platform": "openai",
       "last_verified": "2026-09-25",
       "claims": [
         {
@@ -660,7 +683,7 @@
       ]
     },
     "gpt-5.6-terra": {
-      "platform": "claude-code",
+      "platform": "openai",
       "last_verified": "2026-09-25",
       "claims": [
         {

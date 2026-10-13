@@ -4,6 +4,8 @@ The durable, sourced record of whether each skills-bearing platform documents a 
 
 **Last verified**: 2026-08-24 for v3.20.3 command-skill emission. Six platforms re-checked this cycle (claude, cursor, qwen fetched in Phase 4; Codex learn.chatgpt.com re-fetched at release; copilot and the none-documented set carried from 2026-08-18/22). See Scope below for what was not.
 
+**2026-10-12 v4.13.11 CANDIDATE review**: the [dated primary-source receipt](../releases/v4/v4.13/development/v4.13.11-phase-8-receipts/platform-readonly-review-continuation.json) updates Kimi's compatible alias, OpenCode's native metadata and the limits of the Nexus-AI reader audit. Antigravity has no documented per-skill invocation switch in the fetched reference; OpenCode's native keys remain unmapped here, so AR-38 is not wholly closed. This is a source qualification, without authenticated host execution or a release freshness re-stamp.
+
 ## Scope boundary
 
 This document covers **per-skill invocation metadata only**.
@@ -19,11 +21,11 @@ An invocation-policy field is per-skill and travels inside `SKILL.md` (or a side
 
 Skills are model-invoked by default. A skill that must fire only when the human types it declares `disable-model-invocation: true` in its SKILL.md frontmatter.
 
-Command-derived skills are user-invoked. Every `catalog/commands/<name>.md` the installer materializes as a skill (the flatten path used by Claude, Codex, Cursor, Qwen, Kimi, Antigravity, OpenCode, Gemini, Gemini CLI, and Nexus-AI) is a slash dispatcher, not a model-auto-loaded catalog skill. `scripts/lib/integrations/_catalog_adapters.py` (`_synthesize_skill`) emits `disable-model-invocation: true` on that generated frontmatter. Do not hand-author a catalog skill whose description begins `Run the /X command` without the same flag; `validate_skills.py` warns (it does not fail the build).
+Command-derived skills are intended for explicit invocation. Each eligible selected command materialized as a skill, including the personal Copilot surface, receives `disable-model-invocation: true` from `_synthesize_skill` in `scripts/lib/integrations/_catalog_adapters.py`. Host enforcement depends on the documented per-platform lever below. Do not hand-author a catalog skill whose description begins `Run the /X command` without that flag; `validate_skills.py` warns rather than failing the build.
 
 Routing invariant: a user-invoked skill or slash command may delegate to model-invoked skills. It must not delegate to another user-invoked skill or command. That is the existing thin-dispatcher contract: `/implement` dispatches to `implement-phase`; it does not call `/update`.
 
-Per-platform support is the summary table below. Do not invent a lever. Discovery paths are unchanged; see [`platform-read-contracts.md`](platform-read-contracts.md).
+Per-platform support is the summary table below. Do not invent a lever. Discovery and emitted paths belong to [`platform-read-contracts.md`](platform-read-contracts.md).
 
 ## The do-not-invent rule
 
@@ -48,14 +50,14 @@ Both are recorded below as what the vendor documents, not what the summary claim
 | `codex` | VERIFIED (different shape) | `policy.allow_implicit_invocation` (default `true`, inverted polarity) | none documented | `agents/openai.yaml` sidecar | [learn.chatgpt.com](https://learn.chatgpt.com/docs/build-skills) | 2026-08-24 |
 | `qwen` | VERIFIED | `disable-model-invocation` | `user-invocable` | `SKILL.md` frontmatter | [qwenlm.github.io](https://qwenlm.github.io/qwen-code-docs/en/users/features/skills/) | 2026-08-18 |
 | `antigravity2` | UNVERIFIED | none documented | none documented | n/a | [antigravity.google](https://antigravity.google/docs/skills) | 2026-08-18 |
-| `opencode` | VERIFIED (none documented) | none documented | none documented | `SKILL.md` frontmatter | [opencode.ai](https://opencode.ai/docs/skills/) | 2026-08-22 |
-| `kimi` | VERIFIED (none documented) | none documented | none documented | `SKILL.md` frontmatter | [moonshotai.github.io](https://moonshotai.github.io/kimi-cli/en/customization/skills.html) | 2026-08-22 |
+| `opencode` | VERIFIED native keys; mapping NOT COVERED | `metadata["opencode/autoinvoke"]` | `metadata["opencode/slash"]` | `SKILL.md` metadata | [OpenCode skills](https://opencode.ai/docs/skills/) | 2026-10-12 |
+| `kimi` | VERIFIED alias | `disableModelInvocation`; accepts `disable-model-invocation` and `disable_model_invocation` | none documented | `SKILL.md` frontmatter | [Kimi skills](https://www.kimi.com/code/docs/en/kimi-code-cli/customization/skills.html) | 2026-10-12 |
 | `hermes` | VERIFIED (none documented) | none documented | none documented (see `platforms`) | `SKILL.md` frontmatter | [hermes-agent.nousresearch.com](https://hermes-agent.nousresearch.com/docs/user-guide/features/skills) | 2026-08-22 |
-| `nexus-ai` | VERIFIED (none implemented) | none implemented | none implemented | n/a (first-party sibling) | [github.com/bendourthe/Nexus-AI](https://github.com/bendourthe/Nexus-AI) | 2026-08-22 |
+| `nexus-ai` | UNVERIFIED enforcement | not qualified by the reader audit | not qualified by the reader audit | global catalog reader only | [Nexus-AI reader](https://github.com/bendourthe/Nexus-AI/blob/198ff9c877f258c775092761e3c67a6bed56b1d2/desktop/sidecar/src/skills/hubSkillReader.ts) | 2026-10-12 |
 
 "NOT SURVEYED" is deliberately distinct from "none documented". The first means nobody looked yet; the second means someone read the vendor's page and the field is not there. Collapsing the two is how an unchecked assumption becomes a recorded fact.
 
-As of 2026-08-22 the roster carries **no NOT SURVEYED rows**: the final four (`opencode`, `kimi`, `hermes`, `nexus-ai`) were surveyed against their own documentation, closing v3.17 DF-1. Every one returned "none documented", which is a finding rather than a non-answer - it means a declared field reaches those platforms and is ignored, and the distribution rule below therefore holds unchanged. `nexus-ai` is recorded as "none implemented" instead, because a first-party sibling is surveyed against its source rather than a vendor page.
+Historical 2026-08-22 survey: the final four rows (`opencode`, `kimi`, `hermes`, `nexus-ai`) removed the remaining NOT SURVEYED entries. That survey returned no documented invocation field for the three vendor pages and recorded no implementation in the then-inspected sibling source. The 2026-10-12 candidate findings supersede the Kimi and OpenCode results and limit the Nexus-AI claim to the public reader actually inspected; they do not establish whole-code absence of invocation enforcement.
 
 ## Per-platform detail
 
@@ -68,7 +70,7 @@ Both fields, with the semantics Nexus-Hub's schema adopts.
 
 ### copilot - VERIFIED
 
-Same field names and defaults as Claude, documented on the VS Code agent-skills page, which is the surface Nexus-Hub's opt-in `.github/skills/` wrapper targets.
+Same field names and defaults as Claude, documented on the VS Code agent-skills page. Nexus-Hub's project `.github/skills/` catalog wrapper remains opt-in; eligible selected global commands now also become personal `~/.copilot/skills/<name>/SKILL.md` with the generic manual-only field. The documented VS Code semantics do not by themselves prove every CLI host consumed those files.
 
 - `user-invocable`: "Controls whether the skill appears as a slash command in the chat menu. Defaults to `true`."
 - `disable-model-invocation`: "Controls whether the agent can automatically load the skill based on relevance. Defaults to `false`."
@@ -101,15 +103,13 @@ Like `claude`, `copilot`, and `cursor`, Qwen reads these from `SKILL.md`, so the
 The skills page documents only `name` (defaults to the folder name) and `description`, and states the agent decides whether to use a skill based on context. No per-skill mechanism to disable that is documented. This is a valid, expected result, not a gap to fill.
 
 
-### opencode - VERIFIED (none documented)
+### opencode - VERIFIED native keys; mapping NOT COVERED
 
-Surveyed 2026-08-22. The documentation enumerates the recognised frontmatter fields EXHAUSTIVELY ("Only these fields are recognized"): `name` (required), `description` (required), `license`, `compatibility`, and `metadata`. Neither invocation lever is among them.
+The 2026-10-12 [primary-source review](https://opencode.ai/docs/skills/) documents invocation controls under `SKILL.md` metadata: `opencode/autoinvoke` controls automatic loading and `opencode/slash` controls the slash surface. Native manual-command metadata uses `"opencode/autoinvoke": "false"` and `"opencode/slash": "true"`. The generic `disable-model-invocation` field is not that native shape, and the current Nexus-Hub adapter does not translate it. The old none-documented claim is superseded; emitted generic metadata alone does not establish suppression. AR-38 therefore retains the OpenCode mapping residual.
 
-The distinction matters for this platform: opencode does have invocation controls, but they live in `opencode.json` permission rules and agent configuration rather than in `SKILL.md` frontmatter. So a declared `disable-model-invocation` reaches opencode and is ignored, exactly as the general rule below predicts. Source: <https://opencode.ai/docs/skills/>.
+### kimi - VERIFIED compatible alias
 
-### kimi - VERIFIED (none documented)
-
-Surveyed 2026-08-22. The Kimi Code CLI skills page documents `name`, `description`, `license`, `compatibility`, `metadata`, and `type` (for flow skills). Neither lever appears. The page describes the agent deciding on its own whether to read a `SKILL.md`, which is default behavior rather than a frontmatter-controlled policy. Source: <https://moonshotai.github.io/kimi-cli/en/customization/skills.html>.
+The 2026-10-12 [Kimi skills reference](https://www.kimi.com/code/docs/en/kimi-code-cli/customization/skills.html) documents `disableModelInvocation` and explicitly accepts `disable-model-invocation` and `disable_model_invocation` aliases. Nexus-Hub's existing command-skill field therefore reaches the documented native model-invocation control without a new mapper. No user-invocation counterpart was qualified by this review, and authenticated host read-back was not performed.
 
 ### hermes - VERIFIED (none documented), with one nuance worth recording
 
@@ -117,17 +117,15 @@ Surveyed 2026-08-22. Hermes documents `name`, `description`, `version`, `platfor
 
 The nuance: `platforms` produces CONDITIONAL visibility - "When set, the skill is automatically hidden from the system prompt, `skills_list()`, and slash commands on incompatible platforms" - and the toolset fields hide skills conditionally too. That is capability-gating, not an invocation-policy toggle: it answers "does this skill apply here" rather than "may the model load it" or "may the user type it". It is recorded here so a future reader does not mistake it for a `user-invocable` counterpart and map the two together. Source: <https://hermes-agent.nousresearch.com/docs/user-guide/features/skills>.
 
-### nexus-ai - VERIFIED (none implemented)
+### nexus-ai - invocation enforcement UNVERIFIED
 
-Surveyed 2026-08-22, and surveyed differently from the rest, because this is the first-party sibling product rather than a third-party vendor. There is no external vendor page to fetch; `docs/policy/platform-read-contracts.json` classifies it MATCH-LOCAL with an empty `sources` list for exactly that reason. The authoritative source for a first-party product is its own repository, which is public: a code search across `bendourthe/Nexus-AI` for `disable-model-invocation` and for `user-invocable` returns **zero hits** for both.
-
-Recorded as "none implemented" rather than "none documented" to keep the two situations distinguishable: a third-party platform might implement a lever it has not documented, whereas here the absence is in the code itself.
+The 2026-10-12 audit fetched the public pinned and current global catalog skill reader and storage sources. Those files qualify global `~/.nexus-ai/catalog/skills` discovery; they do not prove that every mirrored surface is consumed or that invocation controls are absent throughout the repository. The earlier zero-hit search remains a historical observation, not a current whole-code absence claim. Per-skill invocation enforcement stays UNVERIFIED. [Pinned reader](https://github.com/bendourthe/Nexus-AI/blob/198ff9c877f258c775092761e3c67a6bed56b1d2/desktop/sidecar/src/skills/hubSkillReader.ts), [storage paths](https://github.com/bendourthe/Nexus-AI/blob/198ff9c877f258c775092761e3c67a6bed56b1d2/core/storage/paths.ts).
 
 ## Distribution consequence
 
-Nexus-Hub copies `SKILL.md` verbatim to every skills-bearing platform. So for `claude`, `copilot`, `cursor`, and `qwen`, a skill that declares these fields **already reaches the platform correctly with no installer change**: the fields ride inside the file the installer already copies, and a platform that does not recognise a frontmatter key ignores it.
+Nexus-Hub copies catalog `SKILL.md` verbatim and synthesizes command-skills with `disable-model-invocation: true`. Claude, Copilot, Cursor, Qwen, and Kimi document the generic key or a compatible alias, so no per-platform field translation is needed for those documented semantics. File delivery and documented semantics still do not substitute for native host execution evidence.
 
-`codex` is the only surveyed platform needing real mapping work, because its lever lives in a separate `agents/openai.yaml` sidecar with an inverted key. **That mapping is implemented** (v3.17.5 Phase 6, with maintainer approval, since it touches the installer surface): `codex_invocation_policy` in `scripts/lib/integrations/_catalog_adapters.py`, invoked from `CodexIntegration._mirror_codex` for both skill roots.
+Codex uses a separate `agents/openai.yaml` sidecar with an inverted key. That mapper is implemented (v3.17.5 Phase 6): `codex_invocation_policy` in `scripts/lib/integrations/_catalog_adapters.py`, invoked from `CodexIntegration._mirror_codex` for both skill roots. OpenCode's newly documented native metadata would also require a mapper; it is not implemented here, and AR-38 retains that residual.
 
 Three properties of that mapping are load-bearing and each has a test:
 

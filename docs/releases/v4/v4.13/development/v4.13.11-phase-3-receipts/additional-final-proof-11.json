@@ -1,0 +1,19 @@
+{
+  "red_receipt": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\functional-byte-devlog-green\\receipt.json",
+  "red_status": "FAIL",
+  "production_source_unchanged": true,
+  "devlog_sha256": "e8cc9ccef9bb1332865f6daa25ab8e991f036e2133be7adf8fbcc32af798c533",
+  "git_command": [
+    "git",
+    "-C",
+    "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\functional-byte-devlog-green\\jq-devlog\\iso\\hsb-a40280e952b7477f9c5214d5d2ecbed9",
+    "log",
+    "--format=%h",
+    "--after=2026-10-09"
+  ],
+  "git_exit_code": 0,
+  "commits_since_new_heading": 0,
+  "repeat_hook_exit_code": 0,
+  "new_entries": 0,
+  "cause": "Temp repeat reset mtime but left the newly generated heading; no new commits followed the first capture, so the second call was intentionally ineligible. Corrected positive witness restores the old-heading baseline for each call."
+}

@@ -47,9 +47,10 @@ PLAN_SESSION = "session-one"
 PASTE_HEADING = "## To approve, paste this"
 DETAILS_HEADING = "## Details (optional)"
 WORD_BUDGET = 140  # above Details, the plan's own outcome bullets excluded
-BANNED = ("HMAC", "nonce", "predicate", "schema", "worktree prune", "headRefOid", "refs/heads")
-PATH_RE = re.compile(r"(?:~/|[A-Za-z]:\\|(?<![\w/])(?:[\w.-]+/)+[\w.-]+\.[A-Za-z]{1,5}\b)")
-SCRIPT_RE = re.compile(r"\b[\w-]+\.(?:py|sh|ps1)\b")
+# The render-time rule lives in approval_page (WN-6-v4136); the tests assert the same list.
+BANNED = approval_page.PLAIN_BANNED
+PATH_RE = approval_page.PLAIN_PATH_RE
+SCRIPT_RE = approval_page.PLAIN_SCRIPT_RE
 PLAIN_RE = re.compile(r"^Approve /implement (v\d+\.\d+(?:\.\d+)?) \(approval [A-Z2-7]{8}\)$")
 GOAL_RE = re.compile(
     r"^(?:/goal|Goal:) Finish /implement (v\d+\.\d+(?:\.\d+)?) \(approval [A-Z2-7]{8}\)\. Do every step: "
@@ -717,6 +718,38 @@ def test_a_failed_page_never_replaces_the_previous_round(tmp_path, monkeypatch, 
         "record", "render", "--minor", "v0.5", "--session", SESSION, "--approvals", str(bad), "--page"])
     assert rc == ck.EXIT_MALFORMED and out == "" and "spending cap" in err
     assert path.read_bytes() == before, "the earlier valid round was replaced"
+
+
+@pytest.mark.parametrize("vendor", ["predicate", "schema", "nonce-vendor"])
+def test_a_mechanism_term_in_a_summary_value_refuses_the_page(tmp_path, monkeypatch, capsys, vendor) -> None:
+    """WN-6-v4136: a vendor name passes VENDOR_RE but may not reach the Summary."""
+    minor = _two_plan(tmp_path, monkeypatch)
+    spec = json.loads(minor.approvals().read_text(encoding="utf-8"))
+    spec["spend_caps"] = {vendor: 5}
+    bad = tmp_path / "bad.json"
+    bad.write_text(json.dumps(spec), encoding="utf-8")
+    rc, out, err = _in_process(monkeypatch, capsys, minor.work, [
+        "record", "render", "--minor", "v0.5", "--session", SESSION, "--approvals", str(bad), "--page"])
+    assert rc == ck.EXIT_MALFORMED and out == "", out
+    assert "internal term" in err and "Details" in err, err
+
+
+@pytest.mark.parametrize(
+    ("lines", "why"),
+    [
+        (["| Released | v1.2.0 |"], None),
+        (["| Released | feat/refs/heads/x |"], "internal term"),
+        (["| In parallel | HMAC checks |"], "internal term"),
+        (["| In parallel | docs/plan.md |"], "file path or script name"),
+        (["| In parallel | check_plan_completion.py |"], "file path or script name"),
+    ],
+)
+def test_assert_plain_names_the_refused_value_kind(lines: list[str], why: str | None) -> None:
+    if why is None:
+        approval_page._assert_plain(lines, "summary")
+        return
+    with pytest.raises(approval_page.PageError, match=why):
+        approval_page._assert_plain(lines, "summary")
 
 
 def test_conflicting_output_flags_open_no_round(tmp_path, monkeypatch, capsys) -> None:

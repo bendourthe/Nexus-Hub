@@ -1,10 +1,11 @@
 # Known Gaps - v3.17
 
+**Ledger normalization**: 2026-10-09, v4.13.11. The canonical open count is derived from supported item headings. Summary and reconciliation count tables below retain historical release snapshots, including partial closures and explicit transfers; they are not new parser totals.
+
 **Project**: Nexus-Hub
 **Status**: finalized; archived 2026-09-29; 0 open items (10 migrated to v4.13 as AR-05, AR-16, AR-17, AR-32, AR-33, AR-34). Per-section status lines below are historical and were written before release.
 
 **Open items**: 0
-
 **Status at last pre-archive update**: v3.17.6 RELEASED 2026-08-21 (tag `v3.17.6`, commit `1e154769`). All six phases shipped. A post-release reconciliation on 2026-08-21 walked every item: 11 closed, 5 accepted or deferred with an owner, and 1 carried into v3.17.7 (the platform read-contract full pass). MT-4 was resolved on the same day, and doing so uncovered pre-existing encoding corruption in 14 distributed template files that the obvious fix would have made permanent. No item carries a stale OPEN marker. Prior v3.17.0 through v3.17.5 records remain below.
 **Last updated**: 2026-08-21 (post-release reconciliation + MT-4 resolution)
 
@@ -63,7 +64,9 @@
 - **Why it is low risk**: it is a one-word dependency addition, and `tests-windows` is not a required status check, so a failure would show as a red push run without blocking any merge.
 - **Outcome**: it DID fail. The `develop` push run for `43f144ca` failed `tests-windows`, and `ci-required` failed with it. Root cause was not PyYAML but a bare `bash` resolving to the Windows System32 WSL launcher stub. Fixed in Phase 6; see the Phase 6 `DF-1` entry below.
 
-### NI-1 - ACCEPTED by design (re-affirmed 2026-08-21): the aggregate is a single point of failure
+### NI-1 - ACCEPTED by design (re-affirmed 2026-08-21): the aggregate is a single point of failure - CLOSED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v3.17#NI-1 (v3.17.6)` is recorded as CLOSED for its original scope. Evidence: Accepted by design, with no action named. The mitigation exists: `.github/workflows/ci.yml:827` and `tests/validators/test_ci_required_gate.py`. Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Target files**: `.github/workflows/ci.yml`, `tests/validators/test_ci_required_gate.py`
 - **What it is**: `ci-required` now stands between a broken build and a green merge for nine jobs. A bug in its verdict logic would report green over a real failure, which is strictly worse than the defect it replaced, because it would be silent.
@@ -77,14 +80,20 @@
 - **Why it now matters much less**: `docs/policy/required-checks.json` no longer contains any `job (leg)` context, and `tests/validators/test_ci_required_gate.py` fails if one is added back. The unresolvable case has been designed out of the required set rather than solved.
 - **Suggested next step**: none required.
 
-### MT-2 - DEFERRED to its own version (2026-08-21): the repository has no coverage instrumentation - MIGRATED to v4.13 (AR-33)
+### MT-2-v3176 - DEFERRED to its own version (2026-08-21): the repository has no coverage instrumentation - MIGRATED to v4.13 (AR-33) - MIGRATED to v4.13.0
 
 - **Target files**: `tests/validators/conftest.py`
 - **What it is**: every validator test invokes its script as a subprocess, deliberately, so the test exercises the CLI a maintainer runs. `coverage` therefore records nothing without `--parallel-mode` plus a `COVERAGE_PROCESS_START` shim, and the repository defines no threshold, `[tool.coverage]` section, or `--cov` flag anywhere.
 - **How the gate was satisfied**: 90% on `check_required_check_coverage.py`, measured with a one-off out-of-tree in-process probe replaying the suite's own fixtures. The probe is scratch tooling and deliberately NOT committed, since committing it would create a second, divergent way to exercise the same code.
 - **Suggested next step**: if a future version wants an enforced number, the change belongs in `conftest.py` and CI once, for all validators, not per phase.
 
-### WN-1 - ACCEPTED as environmental (2026-08-21): `make` is unavailable on the development host
+**Original source identity**: `v3.17.6#MT-2` in `v3.17.6 - ci-gate-and-branch-hygiene`; normalized stable ID `MT-2-v3176` distinguishes this obligation from repeated IDs in other patch sections.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-33`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.17.6`, section `v3.17.6 - ci-gate-and-branch-hygiene`, and original ID `MT-2`.
+
+### WN-1 - ACCEPTED as environmental (2026-08-21): `make` is unavailable on the development host - CLOSED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v3.17#WN-1 (v3.17.6)` is recorded as CLOSED for its original scope. Evidence: CI and the local gate now run through `scripts/ci/run.py` and `scripts/ci/profiles.py`, not the Makefile (see the AGENTS.md "Running Validation" section). Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Target files**: `Makefile`
 - **What it is**: the host has no `make`, so the `validate` target's new recipe lines were verified by direct script invocation plus a tab-indentation check rather than by executing the target.
@@ -129,7 +138,9 @@
 - **Why it is low risk in the failing direction**: the tests assert both directions, and the over-strict failure mode (blocking a legitimate release) is the one that would be noticed immediately rather than silently.
 - **Suggested next step**: the v3.17.6 release itself is the first real exercise. If it blocks incorrectly, the message names the branch it found and the one it expected.
 
-#### QG-3 - ACCEPTED 2026-08-21 (informational): the installer gained a copy step
+#### QG-3 - ACCEPTED 2026-08-21 (informational): the installer gained a copy step - CLOSED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v3.17#QG-3 (v3.17.6)` is recorded as CLOSED for its original scope. Evidence: The copy step is present: `scripts/installer.sh:2921-2923` and `scripts/installer.ps1:3042-3044`. Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Target files**: `scripts/installer.sh`, `scripts/installer.ps1`
 - **What it is**: `check_release_preconditions.py` is now copied to `~/.nexus-hub/scripts/` by both installers, added with explicit approval (AGENTS.md lists installer modification under "Ask first"). It is distributed rather than repo-internal because `/update release` ships to users, and a command describing a check the user does not have is prose promising something absent.
@@ -152,14 +163,18 @@
 - **Resolution**: Pattern 2 is now scoped ("Only safe when the workflow produces NO required status check"), states the Pending-versus-Success asymmetry with the vendor citation, shows the job-level `if:` form with both fail-closed halves, and flags the matrix trap. One Common Rationalizations row and one Verification item added. Full rationale in the new `references/required-status-checks.md`.
 - **Why the split**: the skill was 769 lines against the 800-line soft cap in `AGENTS.md`, whose prescribed remedy past 500 lines is a `references/` subdirectory. The rule itself stayed inline at the point of danger; only its long form moved. A correctness rule pushed entirely into a reference file is a rule the agent may never read.
 
-#### NI-3 - CHECKED, no antipattern found: `cd-pipeline-generator`
+#### NI-3 - CHECKED, no antipattern found: `cd-pipeline-generator` - CLOSED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v3.17#NI-3 (v3.17.6)` is recorded as CLOSED for its original scope. Evidence: A record of a completed audit; no work requested. Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Target files**: `catalog/skills/infrastructure/cd-pipeline-generator/SKILL.md`
 - **Finding**: no event-level path filtering anywhere (its `on:` block uses `branches:` and `workflow_dispatch` only) and no discussion of required status checks or branch protection. Nothing to correct.
 - **Why this is recorded**: the plan requires stating a null result explicitly, because a silent audit is indistinguishable from an audit never run. Recorded so a future reader knows this skill was examined rather than skipped.
 - **Not edited**: adding the rule here was considered and declined under the `AGENTS.md` scope-fit rule. The skill teaches nothing the rule corrects, so the addition would inflate Tier 2 with no defect to fix.
 
-#### NI-4 - CHECKED, no antipattern found: `cicd-integration`
+#### NI-4 - CHECKED, no antipattern found: `cicd-integration` - CLOSED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v3.17#NI-4 (v3.17.6)` is recorded as CLOSED for its original scope. Evidence: A record of a completed audit; no work requested. Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Target files**: `catalog/skills/tests-generation/cicd-integration/SKILL.md`
 - **Finding**: its only `paths:` match is a GitLab `cache:` key, not a trigger filter. Its GitHub Actions example uses `on: push` / `pull_request` with `branches: [main, develop]` and no path filter, and its Verification says "the pipeline triggers on both `push` and `pull_request` events for the protected branches" -- which is the correct advice.
@@ -174,7 +189,9 @@
 - **Why it was not fixed here**: promoting the check to `--strict` requires clearing 1042 pre-existing warnings across files this plan does not touch, which is a version-scale cleanup rather than a phase task.
 - **Suggested next step**: either baseline the existing warnings and fail only on NEW ones (the shape that makes a warning actionable), or clear the legacy templates and switch the repo-wide invocation to `--strict`. Either is a candidate for a follow-on version.
 
-#### MT-5 - ACCEPTED 2026-08-21: `cicd-architect` is 9 lines from the soft cap
+#### MT-5 - ACCEPTED 2026-08-21: `cicd-architect` is 9 lines from the soft cap - CLOSED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v3.17#MT-5 (v3.17.6)` is recorded as CLOSED for its original scope. Evidence: The split happened: `catalog/skills/infrastructure/cicd-architect/SKILL.md` is now 275 lines. Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Target files**: `catalog/skills/infrastructure/cicd-architect/SKILL.md`
 - **What it is**: the file is now 791 lines against the 800-line soft cap, beyond which `AGENTS.md` says a skill MUST be split or refactored before merge.
@@ -192,14 +209,18 @@
 - **Two findings that only appeared once the data was assembled**: `#52` is the CODE-only direction, missing only `colocation`, which proves the required set was unsatisfiable in both directions rather than merely hostile to docs. And `#50` / `#55` are zero-file back-merges, where a path-filtered required check is unsatisfiable by construction; that case needs an administrator merge legitimately and no filter tuning fixes it. Conflating it with the other four is what made the original problem look larger and vaguer than it was.
 - **The plan was deliberately NOT rewritten**: it records what was believed at authoring time. The correction lives in the decision record, which is the durable surface for settled reasoning under the three-surface split.
 
-#### QG-4 - ACCEPTED 2026-08-21 (informational): the record names six instances, not seven
+#### QG-4 - ACCEPTED 2026-08-21 (informational): the record names six instances, not seven - CLOSED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v3.17#QG-4 (v3.17.6)` is recorded as CLOSED for its original scope. Evidence: Informational; the entry says "Suggested next step: none". Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Target files**: `docs/v3/v3.17/plans/v3.17.6-ci-gate-and-branch-hygiene.md`
 - **What it is**: Phase 5's stability gate requires that "the record names the seven instances and cites the vendor doc". The vendor doc is cited with its URL and 2026-08-19 fetch date. The instance count is six, because six is what the evidence supports.
 - **Why this is the right failure**: a decision record exists to be trusted later. Padding it to seven to satisfy a gate would put an unverifiable number next to six verifiable ones and devalue all seven.
 - **Suggested next step**: none. Recorded so the gate deviation is visible rather than papered over.
 
-#### NI-5 - Recorded, not a gap: the rejected record freezes the design a future proposer will reach for first
+#### NI-5 - Recorded, not a gap: the rejected record freezes the design a future proposer will reach for first - CLOSED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v3.17#NI-5 (v3.17.6)` is recorded as CLOSED for its original scope. Evidence: "Recorded, not a gap". The record exists at `docs/decisions/rejected/tooling/2026-08-19-inverse-path-no-op-workflows.md`. Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Target files**: `docs/decisions/rejected/tooling/2026-08-19-inverse-path-no-op-workflows.md`
 - **What it is**: the inverse-path no-op-workflow approach (keep every filter, add a companion workflow on the inverse paths emitting the same job names as no-ops) is written up as a frozen proposal with the verdict on its `Status:` line, per the `rejected` lifecycle contract.
@@ -235,7 +256,9 @@
 - **What this version did instead**: made the consequence detectable rather than the cause preventable. `check_release_preconditions.py --pre-tag` reads HEAD immediately before `git tag` and aborts unless it is on the expected release branch AND equal to its remote, so a checkout that failed silently can no longer produce a mis-tagged release.
 - **Suggested next step**: none for the catalog. Recorded so the hazard is a known, mitigated condition rather than a recurring surprise.
 
-#### QG-6 - ACCEPTED: the Phase 2 Actions-minute delta needs no follow-up
+#### QG-6 - ACCEPTED: the Phase 2 Actions-minute delta needs no follow-up - CLOSED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v3.17#QG-6 (v3.17.6)` is recorded as CLOSED for its original scope. Evidence: Accepted with "no follow-up". Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Target files**: `.github/workflows/ci.yml`
 - **Measured, not estimated.** Billed minutes for the same PR shapes, before and after the migration, from the check-runs API:
@@ -249,13 +272,17 @@
 - **A correction to an earlier figure in this version**: the docs-only case was described mid-plan as "previously ran no `ci.yml` jobs at all", which is true, and the delta was then quoted as +1.38. The honest delta is **+1.08**, because 0.30 billed minutes were already being spent by `doc-colocation.yml` and `presentify-extractor.yml`.
 - **Matrix legs unchanged**: `bootstrap`, `install-smoke`, and `installer-smoke` have the same matrix shape before and after, so no expensive leg was added.
 
-#### QG-7 - CONFIRMED: the Phase 1 validator added no job and no matrix leg
+#### QG-7 - CONFIRMED: the Phase 1 validator added no job and no matrix leg - CLOSED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v3.17#QG-7 (v3.17.6)` is recorded as CLOSED for its original scope. Evidence: A confirmation record; no work. Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Target files**: `.github/workflows/ci.yml`
 - **Requirement**: Phase 6.3 asks for confirmation that the Phase 1 validator runs in the same `validate` job with no new job or matrix leg.
 - **Confirmed**: `check_required_check_coverage.py` runs as one step inside the pre-existing `validate` job. `ci.yml` went from 8 jobs to 10, and both additions (`changes`, `ci-required`) belong to Phase 2, not to the validator. A new job for the validator would have needed its own required context, which is circular given what it checks.
 
-#### NI-6 - CHECKED, recorded for a future reader: the two clean CI skills
+#### NI-6 - CHECKED, recorded for a future reader: the two clean CI skills - CLOSED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v3.17#NI-6 (v3.17.6)` is recorded as CLOSED for its original scope. Evidence: A restatement of NI-3 and NI-4; no work. Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Target files**: `catalog/skills/infrastructure/cd-pipeline-generator/SKILL.md`, `catalog/skills/tests-generation/cicd-integration/SKILL.md`
 - **Restated here because Phase 6.2 requires it**: both were audited in Phase 4 and found free of the antipattern. `cd-pipeline-generator` has no event-level path filtering and does not discuss required checks. `cicd-integration`'s only `paths:` match is a GitLab `cache:` key, and its trigger guidance is already correct. Neither was edited. Full findings at `NI-3` and `NI-4` above.
@@ -316,7 +343,9 @@ v3.17.6 shipped on 2026-08-21 (tag `v3.17.6`, commit `1e154769`). This pass walk
 
 - The platform read-contract was stamped for 3.17.6 as an explicit **carry-forward**, not a fresh pass. The full ten-platform verification was 2026-08-18. The stamp's own note requires a full pass next release rather than a second carry-forward, and `check_platform_contract_freshness.py` will fail the 3.17.7 bump until one is run. - CLOSED 2026-09-29
 
-### MT-4 resolution (2026-08-21): the 1042 warnings were two problems, and `--fix` would have destroyed one
+### Warning-count resolution history (2026-08-21): the 1042 warnings were two problems, and `--fix` would have destroyed one
+
+**v4.13.11 structural audit, 2026-10-09**: The original subsection heading ``### MT-4 resolution (2026-08-21): the 1042 warnings were two problems, and `--fix` would have destroyed one`` restated the historical MT-4 resolution and was parsed as a second item. Its separate `MT-4 - RESOLVED` entry immediately below is the canonical resolution record; the unrelated v3.17.5 MT-4 remains distinct.
 
 #### MT-4 - RESOLVED, and the count was hiding a second defect
 
@@ -514,9 +543,9 @@ v3.17.6 shipped on 2026-08-21 (tag `v3.17.6`, commit `1e154769`). This pass walk
 
 ### Retired feature-specific v3.17.0 gaps
 
-- **NI-3** (descriptor coverage) is no longer actionable because descriptors are removed from the product contract.
-- **WN-4** (hook independence under provider no-prompt modes) remains historical evidence only; Nexus-Hub no longer claims or tests that product boundary.
-- **MT-1** remains only as general Claude Usage Monitor coverage debt. The feature-specific `coverage.include` boundary and its deleted module are removed.
+- **`NI-3`** (descriptor coverage) is no longer actionable because descriptors are removed from the product contract.
+- **`WN-4`** (hook independence under provider no-prompt modes) remains historical evidence only; Nexus-Hub no longer claims or tests that product boundary.
+- **`MT-1`** remains only as general Claude Usage Monitor coverage debt. The feature-specific `coverage.include` boundary and its deleted module are removed.
 
 ### BG-9 - CLOSED in release preparation: controller removal could leave elevated provider state behind
 
@@ -556,7 +585,7 @@ v3.17.6 shipped on 2026-08-21 (tag `v3.17.6`, commit `1e154769`). This pass walk
 
 **Status**: Phase 6 finalized (2026-08-15). 12 open (NI-1, NI-2, NI-3, DF-1, DF-2, DF-3, DF-4, DF-5, WN-1, WN-2, WN-4, MT-1) and 8 closed (BG-1, BG-2, BG-3, BG-4, BG-5, BG-6, BG-7, WN-3), 0 release blockers. The full local repository suite exceeded the bounded 15-minute Windows run; focused suites and hard validators are green, and protected-branch remote CI passed on the integrated `develop` tree. Plan: [plans/v3.17.0-agent-autonomy-toggle.md](plans/v3.17.0-agent-autonomy-toggle.md).
 
-### NI-1 - OPEN: output redirection under an explicit allow rule is UNVERIFIED - MIGRATED to v4.13 (AR-16)
+### NI-1-v3170 - OPEN: output redirection under an explicit allow rule is UNVERIFIED - MIGRATED to v4.13 (AR-16) - MIGRATED to v4.13.0
 
 - **Target file**: [development/permission-matcher-findings.md](development/permission-matcher-findings.md) (Finding 2), `scripts/validate_permission_baseline.py` (the `redirect` rule)
 - **Source phase**: v3.17.0 Phase 1, sub-task 1.1
@@ -565,7 +594,11 @@ v3.17.6 shipped on 2026-08-21 (tag `v3.17.6`, commit `1e154769`). This pass walk
 - **Why it is load-bearing**: `> file` truncates its target regardless of what the command emits (`Write-Host x > f` writes nothing to the file and still truncates it). If the native matcher admits redirects under allow rules, then EVERY baseline pattern carrying a trailing wildcard is a file-destruction primitive, and no per-entry rescoping repairs that. This is a global property of the matcher, not a defect of any individual entry, which is why Phase 1.1 did not attempt to fix it per-entry.
 - **Suggested next step**: run the empirical probe named in Finding 2 against a throwaway project and a current Claude Code build: add one `Bash(echo *)` allow rule and observe whether `echo x > /tmp/probe` prompts. Phase 4 verified hook independence but did not execute this separate native-matcher probe, so the evidence remains UNVERIFIED.
 
-### NI-2 - OPEN: whether Gemini's matcher splits compound commands at all - MIGRATED to v4.13 (AR-16)
+**Original source identity**: `v3.17.0#NI-1` in `v3.17.0 - agent-autonomy-toggle`; normalized stable ID `NI-1-v3170` distinguishes this obligation from repeated IDs in other patch sections.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-16`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.17.0`, section `v3.17.0 - agent-autonomy-toggle`, and original ID `NI-1`.
+
+### NI-2-v3170 - OPEN: whether Gemini's matcher splits compound commands at all - MIGRATED to v4.13 (AR-16) - MIGRATED to v4.13.0
 
 - **Target file**: `configs/permissions/gemini-permissions.json`, [development/permission-matcher-findings.md](development/permission-matcher-findings.md) (Finding 1)
 - **Source phase**: v3.17.0 Phase 1, sub-task 1.1
@@ -573,7 +606,13 @@ v3.17.6 shipped on 2026-08-21 (tag `v3.17.6`, commit `1e154769`). This pass walk
 - **Why it matters**: under prefix semantics with no splitting, `run_shell_command(git status)` would admit `git status; rm -rf .`. The validator's conservative mode does not make that safe; it only stops Nexus-Hub from shipping patterns that depend on splitting.
 - **Suggested next step**: run a dedicated Gemini CLI matcher probe and record a MATCH, DRIFT, or UNVERIFIED verdict beside the permission findings. Phase 2 verified autonomy levers, not compound-command matcher semantics. If splitting is absent, harden the Gemini baseline under prefix-without-splitting assumptions before expanding its Windows-shell coverage.
 
-### NI-3 - OPEN by design: eight integrations have no autonomy descriptor - CLOSED earlier in this file
+**Original source identity**: `v3.17.0#NI-2` in `v3.17.0 - agent-autonomy-toggle`; normalized stable ID `NI-2-v3170` distinguishes this obligation from repeated IDs in other patch sections.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-16`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.17.0`, section `v3.17.0 - agent-autonomy-toggle`, and original ID `NI-2`.
+
+### NI-3 - OPEN by design: eight integrations have no autonomy descriptor - CLOSED earlier in this file - CLOSED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v3.17#NI-3 (v3.17.0)` is recorded as CLOSED for its original scope. Evidence: Autonomy descriptors were removed from the product contract (v3.17 ledger line 517, v3.17.2 section). Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Target files**: `docs/policy/platform-read-contracts.json`, `docs/policy/platform-read-contracts.md`, `scripts/lib/integrations/`
 - **Source phase**: v3.17.0 Phase 2, sub-tasks 2.2 and 2.4
@@ -581,7 +620,7 @@ v3.17.6 shipped on 2026-08-21 (tag `v3.17.6`, commit `1e154769`). This pass walk
 - **Why it remains open**: absence is the safe behavior. The descriptor accessor returns none and the UI or CLI reports the unsupported platform rather than approximating a broader or incomplete authority state.
 - **Suggested next step**: re-run `platform-contract-verification` when a vendor publishes a new persistent autonomy contract. Add a descriptor only after its verdict becomes MATCH and its scope fits the workspace-bound product rule.
 
-### DF-1 - OPEN: `gemini-permissions.json` ships no PowerShell or `cmd.exe` read-only set - MIGRATED to v4.13 (AR-16)
+### DF-1-v3170 - OPEN: `gemini-permissions.json` ships no PowerShell or `cmd.exe` read-only set - MIGRATED to v4.13 (AR-16) - MIGRATED to v4.13.0
 
 - **Target file**: `configs/permissions/gemini-permissions.json`, `docs/permissions-research.md`
 - **Source phase**: v3.17.0 Phase 1, sub-task 1.1 (observation only, by instruction)
@@ -589,34 +628,50 @@ v3.17.6 shipped on 2026-08-21 (tag `v3.17.6`, commit `1e154769`). This pass walk
 - **Reason it is open**: a Windows Gemini user receives a POSIX-shaped allowlist plus a bare `run_shell_command(dir)`, so their real shell is effectively uncovered. Expanding coverage is a different risk decision from rescoping and belongs with the platform-coverage work.
 - **Suggested next step**: `docs/permissions-research.md` now documents the gap. Resolve NI-2 before designing a PowerShell or general `cmd.exe` baseline, because the safe pattern shape depends on whether the matcher splits compound commands.
 
-### DF-2 - OPEN: three of four platforms have no project-scoped permission target - MIGRATED to v4.13 (AR-17)
+**Original source identity**: `v3.17.0#DF-1` in `v3.17.0 - agent-autonomy-toggle`; normalized stable ID `DF-1-v3170` distinguishes this obligation from repeated IDs in other patch sections.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-16`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.17.0`, section `v3.17.0 - agent-autonomy-toggle`, and original ID `DF-1`.
+
+### DF-2-v3170 - OPEN: three of four platforms have no project-scoped permission target - MIGRATED to v4.13 (AR-17) - MIGRATED to v4.13.0
 
 - **Target file**: `scripts/installer.sh` and `scripts/installer.ps1` (`install_permissions` / `Install-Permissions`, workspace branch)
 - **Source phase**: v3.17.0 Phase 1, sub-task 1.2
 - **Reason it is open**: workspace scope is now wired and load-bearing, but only Claude Code has a confirmed target (`.claude/settings.local.json`). The other three skip WITH A NOTE, each for a stated reason: **Gemini** and **Codex** have no project-scoped permission path documented well enough to write, and a guessed path is worse than none because it reads as configured; **Copilot**'s only surface is `.vscode/settings.json`, which is commit-visible and therefore forbidden here without an explicit maintainer decision (the same reasoning that made the v3.11.0 Copilot `.github/skills/` surface opt-in).
 - **Suggested next step**: run a permission-path-specific contract sweep for Gemini and Codex; the Phase 2 autonomy sweep answered a different question. The Copilot half needs a maintainer decision about writing to a commit-visible file, not more research.
 
-### DF-3 - OPEN: `Install-Nexus-Hub-Permissions.ps1` still has no cross-platform equivalent - MIGRATED to v4.13 (AR-17)
+**Original source identity**: `v3.17.0#DF-2` in `v3.17.0 - agent-autonomy-toggle`; normalized stable ID `DF-2-v3170` distinguishes this obligation from repeated IDs in other patch sections.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-17`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.17.0`, section `v3.17.0 - agent-autonomy-toggle`, and original ID `DF-2`.
+
+### DF-3-v3170 - OPEN: `Install-Nexus-Hub-Permissions.ps1` still has no cross-platform equivalent - MIGRATED to v4.13 (AR-17) - MIGRATED to v4.13.0
 
 - **Target file**: `scripts/Install-Nexus-Hub-Permissions.ps1`, `scripts/nexus_hub_cli.py`
 - **Source phase**: v3.17.0 Phase 1, sub-task 1.2 (deferred by that sub-task's own instruction)
 - **Reason it is open**: that helper provides install, uninstall, and backup-repair paths for all four platforms and has no bash sibling, so POSIX users have no equivalent repair route. Sub-task 1.2 forbids porting it to bash, and correctly: a second shell script would recreate exactly the dual-implementation drift this phase removed.
 - **Suggested next step**: expose install / uninstall / repair through the cross-platform `nexus-hub` CLI, whose `scripts/nexus_hub_cli.py` now includes the Phase 5 `autonomy` subcommand. One implementation, three operating systems. Phase 5 shipped autonomy only, so this separate lifecycle gap carries forward.
 
-### DF-4 - OPEN (carried from v3.15.2): Hermes is registered but not installer-wired - MIGRATED to v4.13 (AR-05)
+**Original source identity**: `v3.17.0#DF-3` in `v3.17.0 - agent-autonomy-toggle`; normalized stable ID `DF-3-v3170` distinguishes this obligation from repeated IDs in other patch sections.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-17`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.17.0`, section `v3.17.0 - agent-autonomy-toggle`, and original ID `DF-3`.
+
+### DF-4 - OPEN (carried from v3.15.2): Hermes is registered but not installer-wired - MIGRATED to v4.13 (AR-05) - MIGRATED to v4.13.0
 
 - **Target files**: `scripts/lib/integrations/hermes.py`, `scripts/installer.sh`, `scripts/installer.ps1`
 - **Source phase**: v3.15.2 DF-2, rechecked in v3.17.0 Phases 2 and 6
 - **Reason it is open**: Hermes exists in the 16-platform integration registry but is absent from both installers' 14-platform delivery roster. Hermes is currently UNVERIFIED for autonomy, so the omission does not suppress a descriptor in this release; it would become user-visible immediately if its contract later verifies.
 - **Suggested next step**: add Hermes to both installer manifests and real-installer smoke coverage in the same change that makes any Hermes integration artifact user-facing. Do not add one installer arm without the other.
 
-### DF-5 - OPEN by design: the read-only baseline covers only four of 16 integrations - MIGRATED to v4.13 (AR-17)
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-05`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.17.0`, section `v3.17.0 - agent-autonomy-toggle`, and original ID `DF-4`.
+
+### DF-5 - OPEN by design: the read-only baseline covers only four of 16 integrations - MIGRATED to v4.13 (AR-17) - MIGRATED to v4.13.0
 
 - **Target files**: `configs/permissions/`, `scripts/installer.sh`, `scripts/installer.ps1`, `docs/permissions-research.md`
 - **Source phase**: v3.17.0 Phase 6 reconciliation of the Phase 1 and Phase 2 coverage boundaries
 - **Disposition**: deliberate non-delivery. Claude Code, Codex, Gemini, and Copilot receive the existing baseline. Aider, Antigravity 1.0, Antigravity 2.0, Cursor, Gemini CLI, Hermes, Kimi, Nexus-AI, OpenClaw, OpenCode, Qwen, and Windsurf receive no Nexus-Hub read-only baseline.
 - **Why it remains open**: autonomy coverage and read-only allowlist coverage are independent. This release widened the former and deliberately did not invent permission matchers for platforms whose safe read-only contracts were not researched.
 - **Suggested next step**: handle one platform at a time through a permission-contract research and validator cycle. Do not infer baseline safety from the existence of an autonomy descriptor.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-17`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.17.0`, section `v3.17.0 - agent-autonomy-toggle`, and original ID `DF-5`.
 
 ### WN-1 - OPEN (carried, environmental): `test_bootstrap.py` PowerShell hand-off failure - RESOLVED 2026-09-29
 
@@ -625,12 +680,14 @@ v3.17.6 shipped on 2026-08-21 (tag `v3.17.6`, commit `1e154769`). This pass walk
 - **Reason it is open**: this fails in the Windows Git-Bash development environment on an environmental `tar` quirk. It is the v3.15.0 WN-1 item, which the v3.17.0 plan's dependency section predicted would recur during installer work. CI is authoritative for this test and passes.
 - **Suggested next step**: none in this cycle. Do not treat a local failure of this one test as a regression from Phase 1; the phase touched neither the bootstrap scripts nor the tarball path.
 
-### WN-2 - OPEN (pre-existing tooling debt): integration framework has no clean repository-wide Ruff baseline - MIGRATED to v4.13 (AR-34)
+### WN-2 - OPEN (pre-existing tooling debt): integration framework has no clean repository-wide Ruff baseline - MIGRATED to v4.13 (AR-34) - MIGRATED to v4.13.0
 
 - **Target file**: `scripts/lib/integrations/`
 - **Source phase**: v3.17.0 Phase 2, sub-task 2.4 (lint verification)
 - **Reason it is open**: an exploratory `python -m ruff check scripts/lib/integrations tests/integrations/test_autonomy_descriptors.py` reported 180 existing modernization, import-order, mutable-class-config, and unused-code findings across the integration framework. The Phase 2 test file passes focused Ruff validation, and Phase 2 did not suppress or introduce a new lint rule; cleaning the framework would be an unrelated broad refactor.
 - **Suggested next step**: establish a deliberate Ruff baseline or scoped rule set in a dedicated lint-maintenance cycle, then reduce the existing findings in reviewable batches rather than mixing them into a release architecture phase.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-34`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.17.0`, section `v3.17.0 - agent-autonomy-toggle`, and original ID `WN-2`.
 
 ### WN-3 - CLOSED in Phase 6: usage-monitor Vitest configs warned about the future native loader
 
@@ -639,7 +696,9 @@ v3.17.6 shipped on 2026-08-21 (tag `v3.17.6`, commit `1e154769`). This pass walk
 - **Plan reference**: 5.4 requires both extension suites and coverage gates to run cleanly.
 - **Resolution**: both configs were renamed from `.ts` to `.mts`, matching the warning-free convention already used by the GitHub and Cursor monitors. Claude passed 11 tests and Codex passed 81 tests under Vitest 4.1.10 with no native-loader warning.
 
-### WN-4 - OPEN (bounded verification): hook independence is verified only for Claude Code 2.1.156 - CLOSED earlier in this file
+### WN-4 - OPEN (bounded verification): hook independence is verified only for Claude Code 2.1.156 - CLOSED earlier in this file - CLOSED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v3.17#WN-4 (v3.17.0)` is recorded as CLOSED for its original scope. Evidence: Retired in v3.17.2: "Nexus-Hub no longer claims or tests that product boundary" (v3.17 ledger line 518). Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Target files**: `docs/policy/platform-read-contracts.md`, `docs/archive/v3/v3.17/development/history/2026-08-14_agent-autonomy-toggle-phase-4-deny-layer-and-hook-independence.md`
 - **Source phase**: v3.17.0 Phase 4, sub-task 4.1
@@ -647,13 +706,17 @@ v3.17.6 shipped on 2026-08-21 (tag `v3.17.6`, commit `1e154769`). This pass walk
 - **Why it remains open**: the result is a versioned empirical contract, not a vendor guarantee that all future permission or hook architectures preserve the same ordering.
 - **Suggested next step**: repeat the six-case probe during `platform-contract-verification` after a material Claude permission or hook architecture change. Do not generalize this evidence to other platforms.
 
-### MT-1 - OPEN (pre-existing coverage debt): Claude Usage Monitor lacks an extension-wide coverage baseline - MIGRATED to v4.13 (AR-32)
+### MT-1-v3170 - OPEN (pre-existing coverage debt): Claude Usage Monitor lacks an extension-wide coverage baseline - MIGRATED to v4.13 (AR-32) - MIGRATED to v4.13.0
 
 - **Target file**: `extensions/claude-usage-monitor/src/`, `extensions/claude-usage-monitor/vitest.config.ts`
 - **Source phase**: v3.17.0 Phase 5, sub-tasks 5.2 and 5.4
 - **Plan reference**: 5.4 requires extension coverage of at least 80 percent.
 - **Reason it is open**: the new autonomy state machine reaches 91.66 percent line coverage and is enforced at that explicit feature boundary, but enabling coverage over every imported Claude monitor module measured only 14.07 percent lines because the pre-existing provider, store, recommendation, type, and status-bar modules have little or no test coverage. Expanding those legacy tests is unrelated to the autonomy surface and would materially widen Phase 5.
 - **Suggested next step**: add tests for the legacy Claude monitor modules in risk order, then remove the `coverage.include` feature boundary once the whole extension clears the same 80 percent line and statement floor that the Codex monitor already meets.
+
+**Original source identity**: `v3.17.0#MT-1` in `v3.17.0 - agent-autonomy-toggle`; normalized stable ID `MT-1-v3170` distinguishes this obligation from repeated IDs in other patch sections.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-32`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.17.0`, section `v3.17.0 - agent-autonomy-toggle`, and original ID `MT-1`.
 
 ### BG-1 - CLOSED in Phase 1: `installer.ps1` kept mutation-capable entries on upgrade
 
@@ -816,7 +879,7 @@ Three are resolved, one is re-verified as correct-as-is, and fourteen are record
 
 | Item | Finding |
 |---|---|
-| MT-6 - Codex invocation mapping unexercised | Still accurate; containment test passes. Near-miss recorded: `skill-create/SKILL.md` mentions both field names in prose, which a grep hits and the structured check correctly does not |
+| `MT-6` - Codex invocation mapping unexercised | Still accurate; containment test passes. Near-miss recorded: `skill-create/SKILL.md` mentions both field names in prose, which a grep hits and the structured check correctly does not |
 
 ### Open, with the reason each was not closed here
 
@@ -824,35 +887,35 @@ Four need **evidence that does not exist yet** - a measurement, a vendor's curre
 
 | Item | Missing evidence |
 |---|---|
-| MT-2 - no coverage instrumentation | Repo-wide infra (parallel-mode coverage, a process-start shim, thresholds); deferred to its own version by its own entry |
-| WN-5 - prompting profiles lag the roster | Current first-party guidance for four vendors' live rosters, via a `/tune-prompting` cycle |
-| NI-1 - redirect under an explicit allow rule | An empirical probe of a live Claude Code build in a throwaway project. Cannot be self-probed reliably from inside a session whose own permission mode is a variable |
-| NI-2 - whether Gemini's matcher splits compound commands | A Gemini CLI matcher probe on an installed CLI |
+| `MT-2` - no coverage instrumentation | Repo-wide infra (parallel-mode coverage, a process-start shim, thresholds); deferred to its own version by its own entry |
+| `WN-5` - prompting profiles lag the roster | Current first-party guidance for four vendors' live rosters, via a `/tune-prompting` cycle |
+| `NI-1` - redirect under an explicit allow rule | An empirical probe of a live Claude Code build in a throwaway project. Cannot be self-probed reliably from inside a session whose own permission mode is a variable |
+| `NI-2` - whether Gemini's matcher splits compound commands | A Gemini CLI matcher probe on an installed CLI |
 
 Four are **open by design** - each records a deliberate decision with a guard or a rule behind it, so "fixing" them would mean overriding a decision rather than closing a gap:
 
 | Item | Decision |
 |---|---|
-| DF-2 - gate-DAG runner for `make validate` | The `Boundaries` rule says not to add the structure before the pain; validator wall-clock is still seconds |
-| NI-1 - `docs/solutions/` remains absent | Deliberate non-delivery |
-| NI-3 - eight integrations have no autonomy descriptor | Absence is the safe behavior; a descriptor is added only after a vendor contract verifies MATCH |
-| DF-5 - read-only baseline covers four of 16 integrations | Deliberate non-delivery; permission matchers are not invented for unresearched platforms |
+| `DF-2` - gate-DAG runner for `make validate` | The `Boundaries` rule says not to add the structure before the pain; validator wall-clock is still seconds |
+| `NI-1` - `docs/solutions/` remains absent | Deliberate non-delivery |
+| `NI-3` - eight integrations have no autonomy descriptor | Absence is the safe behavior; a descriptor is added only after a vendor contract verifies MATCH |
+| `DF-5` - read-only baseline covers four of 16 integrations | Deliberate non-delivery; permission matchers are not invented for unresearched platforms |
 
 Four are **substantial engineering work**, each its own change with its own blast radius, and each explicitly sequenced behind something:
 
 | Item | Blocked on |
 |---|---|
-| DF-1 - no PowerShell / `cmd.exe` read-only set for Gemini | NI-2 first: the safe pattern shape depends on whether the matcher splits compound commands |
-| DF-2 - three of four platforms have no project-scoped permission target | A permission-path contract sweep for Gemini and Codex, plus a maintainer decision on writing to commit-visible `.vscode/settings.json` for Copilot |
-| DF-3 - `Install-Nexus-Hub-Permissions.ps1` has no cross-platform equivalent | Exposing install / uninstall / repair through the `nexus-hub` CLI; a second shell script would recreate the dual-implementation drift that was just removed |
-| DF-4 - Hermes registered but not installer-wired | Its own entry gates it: wire both installer arms in the same change that makes a Hermes artifact user-facing, never one arm alone |
+| `DF-1` - no PowerShell / `cmd.exe` read-only set for Gemini | NI-2 first: the safe pattern shape depends on whether the matcher splits compound commands |
+| `DF-2` - three of four platforms have no project-scoped permission target | A permission-path contract sweep for Gemini and Codex, plus a maintainer decision on writing to commit-visible `.vscode/settings.json` for Copilot |
+| `DF-3` - `Install-Nexus-Hub-Permissions.ps1` has no cross-platform equivalent | Exposing install / uninstall / repair through the `nexus-hub` CLI; a second shell script would recreate the dual-implementation drift that was just removed |
+| `DF-4` - Hermes registered but not installer-wired | Its own entry gates it: wire both installer arms in the same change that makes a Hermes artifact user-facing, never one arm alone |
 
 Two are **environmental or pre-existing tooling debt**:
 
 | Item | Status |
 |---|---|
-| WN-1 (both entries) - `test_bootstrap.py` PowerShell hand-off | Same class as v3.18.2 BG-2. `tests/installer` ran clean this session (418 passed, 0 failed) - a data point, not a disproof of a non-deterministic flake |
-| WN-2 / WN-4 / MT-1 - Ruff baseline, bounded hook verification, monitor coverage baseline | Pre-existing debt predating this plan, each needing its own measurement cycle |
+| `WN-1` (both entries) - `test_bootstrap.py` PowerShell hand-off | Same class as v3.18.2 BG-2. `tests/installer` ran clean this session (418 passed, 0 failed) - a data point, not a disproof of a non-deterministic flake |
+| `WN-2` / WN-4 / MT-1 - Ruff baseline, bounded hook verification, monitor coverage baseline | Pre-existing debt predating this plan, each needing its own measurement cycle |
 
 **Why the fourteen were not closed with something.** Writing a plausible answer where evidence is missing is precisely the failure this repository has already paid for: the fabricated `.kimi/agent.yaml` shipped and had to be withdrawn in v3.15.0, and that incident is frozen as a rejected-decision record. A gap honestly marked open is a smaller cost than a gap closed with an invention.
 
@@ -862,25 +925,25 @@ Before this minor moved to `docs/archives/`, every item that this file did not a
 
 | Item | Disposition | Evidence, reason, or destination |
 |---|---|---|
-| MT-2 (line 76) | Migrated | AR-33: no Python coverage instrumentation for the subprocess-driven validator tests (no coverage configuration in the repository) |
+| `MT-2` (line 76) | Migrated | AR-33: no Python coverage instrumentation for the subprocess-driven validator tests (no coverage configuration in the repository) |
 | carry-forward (line 313) | Closed | Superseded: v3.17.7 was never cut, and `docs/policy/platform-read-contracts.json` records a full pass for v4.13.x |
-| MT-6 (line 411) | Resolved | Since v3.20.3 `codex_invocation_policy` writes the `agents/openai.yaml` sidecar for command-derived skills (`tests/integrations/test_codex_invocation_policy.py::test_dry_run_plans_command_sidecars_from_source_when_dest_is_empty`) |
-| DF-2 (line 419) | Closed | Not applicable: CI runs through `scripts/ci/run.py` profiles and no slow-validation problem is recorded; reopen as a new request if one appears |
-| NI-1 (line 433) | Closed | Design boundary, not a defect: `docs/solutions/` is created on demand |
-| WN-1 (line 445) | Resolved | `install.ps1` `Resolve-TarExe` now prefers the Windows `System32\tar.exe` (commits `69924673`, `43bae404`); the v3.18 ledger records WN-1 RESOLVED with `test_bootstrap.py` passing 5 of 5 |
-| WN-5 (line 530) | Closed | Superseded: `model-prompting-research/assets/profiles-index.json` was re-verified 2026-09-08; remaining roster freshness is v4.9 MT-1 in the v4.13 inventory |
-| NI-1 (line 555) | Migrated | AR-16: permission-matcher probes (output redirection under an allow rule, Gemini compound-command splitting, Gemini PowerShell / `cmd.exe` read-only set); `development/permission-matcher-findings.md` still says UNVERIFIED |
-| NI-2 (line 564) | Migrated | AR-16: permission-matcher probes (output redirection under an allow rule, Gemini compound-command splitting, Gemini PowerShell / `cmd.exe` read-only set); `development/permission-matcher-findings.md` still says UNVERIFIED |
-| NI-3 (line 572) | Closed earlier (stale marker) | Retired in the v3.17.2 section (autonomy descriptors removed) |
-| DF-1 (line 580) | Migrated | AR-16: permission-matcher probes (output redirection under an allow rule, Gemini compound-command splitting, Gemini PowerShell / `cmd.exe` read-only set); `development/permission-matcher-findings.md` still says UNVERIFIED |
-| DF-2 (line 588) | Migrated | AR-17: permission distribution coverage (project-scoped targets for Gemini / Codex / Copilot, a cross-platform `nexus-hub` permissions command, baseline for 4 of 16 integrations) |
-| DF-3 (line 595) | Migrated | AR-17: permission distribution coverage (project-scoped targets for Gemini / Codex / Copilot, a cross-platform `nexus-hub` permissions command, baseline for 4 of 16 integrations) |
-| DF-4 (line 602) | Migrated | AR-05: Hermes is registered (`scripts/lib/integrations/__init__.py`) but neither installer wires it; merged with v3.15.2 DF-2 and v3.16.0 NI-6 |
-| DF-5 (line 609) | Migrated | AR-17: permission distribution coverage (project-scoped targets for Gemini / Codex / Copilot, a cross-platform `nexus-hub` permissions command, baseline for 4 of 16 integrations) |
-| WN-1 (line 617) | Resolved | `install.ps1` `Resolve-TarExe` now prefers the Windows `System32\tar.exe` (commits `69924673`, `43bae404`); the v3.18 ledger records WN-1 RESOLVED with `test_bootstrap.py` passing 5 of 5 |
-| WN-2 (line 624) | Migrated | AR-34: no repository-wide Ruff baseline; `ruff check` still reports findings |
-| WN-4 (line 638) | Closed earlier (stale marker) | Retired in the v3.17.2 section (historical evidence only) |
-| MT-1 (line 646) | Migrated | AR-32: usage-monitor extension test coverage (Claude `recommendations.ts`, `warningView`, `extension.ts`; no coverage threshold in `claude-usage-monitor`) and live render check; merged with v3.14.0, v3.14.4, v3.14.5 MT-1 and v3.17.0 MT-1 |
-| NI-4 (line 754) | Closed | By design and documented: `guides/ORG_KNOWLEDGE_LAYER.md` states that no precedence row is enforced; the limit is vendor-side |
-| DF-7 (line 761) | Closed | Not applicable: the organization layer is additive by contract (`guides/ORG_KNOWLEDGE_LAYER.md`); reopen if an organization requests suppression |
-| DF-8 (line 768) | Closed | By design and documented in the Enforcement Escalation section of `guides/ORG_KNOWLEDGE_LAYER.md` |
+| `MT-6` (line 411) | Resolved | Since v3.20.3 `codex_invocation_policy` writes the `agents/openai.yaml` sidecar for command-derived skills (`tests/integrations/test_codex_invocation_policy.py::test_dry_run_plans_command_sidecars_from_source_when_dest_is_empty`) |
+| `DF-2` (line 419) | Closed | Not applicable: CI runs through `scripts/ci/run.py` profiles and no slow-validation problem is recorded; reopen as a new request if one appears |
+| `NI-1` (line 433) | Closed | Design boundary, not a defect: `docs/solutions/` is created on demand |
+| `WN-1` (line 445) | Resolved | `install.ps1` `Resolve-TarExe` now prefers the Windows `System32\tar.exe` (commits `69924673`, `43bae404`); the v3.18 ledger records WN-1 RESOLVED with `test_bootstrap.py` passing 5 of 5 |
+| `WN-5` (line 530) | Closed | Superseded: `model-prompting-research/assets/profiles-index.json` was re-verified 2026-09-08; remaining roster freshness is v4.9 MT-1 in the v4.13 inventory |
+| `NI-1` (line 555) | Migrated | AR-16: permission-matcher probes (output redirection under an allow rule, Gemini compound-command splitting, Gemini PowerShell / `cmd.exe` read-only set); `development/permission-matcher-findings.md` still says UNVERIFIED |
+| `NI-2` (line 564) | Migrated | AR-16: permission-matcher probes (output redirection under an allow rule, Gemini compound-command splitting, Gemini PowerShell / `cmd.exe` read-only set); `development/permission-matcher-findings.md` still says UNVERIFIED |
+| `NI-3` (line 572) | Closed earlier (stale marker) | Retired in the v3.17.2 section (autonomy descriptors removed) |
+| `DF-1` (line 580) | Migrated | AR-16: permission-matcher probes (output redirection under an allow rule, Gemini compound-command splitting, Gemini PowerShell / `cmd.exe` read-only set); `development/permission-matcher-findings.md` still says UNVERIFIED |
+| `DF-2` (line 588) | Migrated | AR-17: permission distribution coverage (project-scoped targets for Gemini / Codex / Copilot, a cross-platform `nexus-hub` permissions command, baseline for 4 of 16 integrations) |
+| `DF-3` (line 595) | Migrated | AR-17: permission distribution coverage (project-scoped targets for Gemini / Codex / Copilot, a cross-platform `nexus-hub` permissions command, baseline for 4 of 16 integrations) |
+| `DF-4` (line 602) | Migrated | AR-05: Hermes is registered (`scripts/lib/integrations/__init__.py`) but neither installer wires it; merged with v3.15.2 DF-2 and v3.16.0 NI-6 |
+| `DF-5` (line 609) | Migrated | AR-17: permission distribution coverage (project-scoped targets for Gemini / Codex / Copilot, a cross-platform `nexus-hub` permissions command, baseline for 4 of 16 integrations) |
+| `WN-1` (line 617) | Resolved | `install.ps1` `Resolve-TarExe` now prefers the Windows `System32\tar.exe` (commits `69924673`, `43bae404`); the v3.18 ledger records WN-1 RESOLVED with `test_bootstrap.py` passing 5 of 5 |
+| `WN-2` (line 624) | Migrated | AR-34: no repository-wide Ruff baseline; `ruff check` still reports findings |
+| `WN-4` (line 638) | Closed earlier (stale marker) | Retired in the v3.17.2 section (historical evidence only) |
+| `MT-1` (line 646) | Migrated | AR-32: usage-monitor extension test coverage (Claude `recommendations.ts`, `warningView`, `extension.ts`; no coverage threshold in `claude-usage-monitor`) and live render check; merged with v3.14.0, v3.14.4, v3.14.5 MT-1 and v3.17.0 MT-1 |
+| `NI-4` (line 754) | Closed | By design and documented: `guides/ORG_KNOWLEDGE_LAYER.md` states that no precedence row is enforced; the limit is vendor-side |
+| `DF-7` (line 761) | Closed | Not applicable: the organization layer is additive by contract (`guides/ORG_KNOWLEDGE_LAYER.md`); reopen if an organization requests suppression |
+| `DF-8` (line 768) | Closed | By design and documented in the Enforcement Escalation section of `guides/ORG_KNOWLEDGE_LAYER.md` |

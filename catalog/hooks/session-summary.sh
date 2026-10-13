@@ -14,6 +14,8 @@
 #   - Timestamp + project name + duration
 #   - One git line: `Git: <branch>, <n> changed file(s)` (v4.13.3; the
 #     harness already supplies recent commits, so the digest no longer repeats them)
+#   - One plan line from ~/.nexus-hub/scripts/plan_status.py --digest
+#     (`Plan: unavailable` when the script or Python is missing)
 #   - Files touched during the session (git diff HEAD)
 #
 # Runtime controls:
@@ -47,13 +49,18 @@ fi
 
 # --- Gather data ---
 TIMESTAMP="${NEXUS_SESSION_DIGEST_NOW:-$(date "+%Y-%m-%d %H:%M" 2>/dev/null || echo "unknown")}"
-PROJECT_NAME=$(basename "$(pwd)" 2>/dev/null || echo "unknown")
+PROJECT_ROOT="$(pwd)"
+if command -v git >/dev/null 2>&1; then
+  GIT_TOPLEVEL=$(git rev-parse --show-toplevel 2>/dev/null || true)
+  if [ -n "$GIT_TOPLEVEL" ]; then PROJECT_ROOT="$GIT_TOPLEVEL"; fi
+fi
+PROJECT_NAME=$(basename "$PROJECT_ROOT" 2>/dev/null || echo "unknown")
 
 # Try to get duration from stdin JSON
 INPUT=$(cat 2>/dev/null || true)
 DURATION="N/A"
 if [ -n "$INPUT" ] && command -v jq >/dev/null 2>&1; then
-  PARSED_DURATION=$(echo "$INPUT" | jq -r '.session_duration // .duration // empty' 2>/dev/null)
+  PARSED_DURATION=$(printf '%s' "$INPUT" | jq -r '(.session_duration // .duration // empty) | tostring | gsub("[\r\n|]"; " ") | .[0:64]' 2>/dev/null)
   if [ -n "${PARSED_DURATION:-}" ]; then
     DURATION="$PARSED_DURATION"
   fi
@@ -83,15 +90,6 @@ if [[ "${NEXUS_SESSION_DIGEST:-on}" == "off" ]]; then
   exit 0
 fi
 
-# Project root: prefer git toplevel, fall back to cwd.
-PROJECT_ROOT="$(pwd)"
-if command -v git >/dev/null 2>&1; then
-  GIT_TOPLEVEL=$(git rev-parse --show-toplevel 2>/dev/null || true)
-  if [ -n "$GIT_TOPLEVEL" ]; then
-    PROJECT_ROOT="$GIT_TOPLEVEL"
-  fi
-fi
-
 DIGEST_REL="${NEXUS_SESSION_DIGEST_PATH:-.nexus/context/last-session.md}"
 DIGEST_PATH="$PROJECT_ROOT/$DIGEST_REL"
 DIGEST_DIR="$(dirname "$DIGEST_PATH")"
@@ -103,6 +101,22 @@ if command -v git >/dev/null 2>&1 && git rev-parse --is-inside-work-tree >/dev/n
   BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "detached")
   CHANGED_COUNT=$(git status --porcelain 2>/dev/null | wc -l | tr -d ' ')
   GIT_LINE="Git: $BRANCH, $CHANGED_COUNT changed file(s)"
+fi
+
+# One plan-state line (v4.13.3 DF-3) from the installed plan_status.py, which reads
+# the plan files /implement ticks. The first interpreter that can import sys wins,
+# so a Store alias that only opens the Store is skipped, as the .ps1 sibling does.
+PLAN_LINE="Plan: unavailable"
+PLAN_STATUS="$HOME/.nexus-hub/scripts/plan_status.py"
+if [ -f "$PLAN_STATUS" ]; then
+  for _py in python3 python; do
+    if command -v "$_py" >/dev/null 2>&1 && "$_py" -c "import sys" >/dev/null 2>&1; then
+      # UTF-8 mode: Windows Git Bash would otherwise decode through the ANSI code page.
+      _plan_out=$(PYTHONUTF8=1 PYTHONIOENCODING=utf-8 "$_py" "$PLAN_STATUS" --digest --root "$PROJECT_ROOT" 2>/dev/null | head -1 | tr -d '\r')
+      case "$_plan_out" in Plan:*) PLAN_LINE="$_plan_out" ;; esac
+      break
+    fi
+  done
 fi
 
 # Use a temp file + atomic rename so a partial write never leaves a corrupt digest.
@@ -117,6 +131,10 @@ TMP_DIGEST="$(mktemp "${DIGEST_DIR}/.last-session.XXXXXX" 2>/dev/null || echo "$
   echo "## Git context"
   echo ""
   echo "$GIT_LINE"
+  echo ""
+  echo "## Plan state"
+  echo ""
+  echo "$PLAN_LINE"
   if [ -n "$CHANGED_FILES" ]; then
     echo ""
     echo "## Files touched this session"

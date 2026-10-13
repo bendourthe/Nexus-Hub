@@ -165,14 +165,14 @@ class Minor:
             cwd=self.work, env=self.env, capture_output=True, text=True, check=False,
         )
 
-    def capture(self, session: str, *texts: str) -> None:
+    def capture(self, session: str, *texts: str, at: float | None = None) -> None:
         prompts = self.runs / "prompts"
         prompts.mkdir(parents=True, exist_ok=True)
         path = prompts / f"{hashlib.sha256(session.encode()).hexdigest()}.jsonl"
         with path.open("a", encoding="utf-8") as handle:
             for text in texts:
                 d = _digest(text)
-                handle.write(json.dumps({"session": session, "prompt": d, "digests": [d], "at": time.time()}) + "\n")
+                handle.write(json.dumps({"session": session, "prompt": d, "digests": [d], "at": time.time() if at is None else at}) + "\n")
 
     def approvals(self, *extra: dict) -> Path:
         spec = {
@@ -197,7 +197,8 @@ class Minor:
 
     def paste(self, session: str, *args: str) -> str:
         """The user's session holds the /implement request, then the exact rendered line."""
-        self.capture(session, "/implement v0.5")
+        # Synthetic prior history must precede rendering despite host clock changes.
+        self.capture(session, "/implement v0.5", at=0.0)
         rendered = self.render(session, *args)
         assert rendered.returncode == 0, rendered.stdout + rendered.stderr
         line = rendered.stdout.splitlines()[0]
@@ -598,6 +599,261 @@ def test_a_pause_stops_the_minor_until_resumed(minor: Minor) -> None:
     assert minor.load().forced is None
 
 
+# --------------------------------------------------------------------------- minor blocker answers
+
+
+def _answer_blocker(minor: Minor, member: str | None = None) -> None:
+    args = ['record', 'block', '--minor', 'v0.5', '--session', SESSION,
+            '--category', 'user-edit-guard', '--evidence', 'Guarded file accepted by its owner']
+    if member is not None:
+        args += ['--member', member]
+    result = minor.run(*args)
+    assert result.returncode == ck.EXIT_BLOCKED, result.stdout + result.stderr
+
+
+@pytest.mark.parametrize('member', [None, 'v0.5.2', 'v0.5.10'])
+def test_minor_answer_closes_only_the_selected_blocker_without_widening_approvals(minor: Minor, member: str | None) -> None:
+    assert minor.create().returncode == 0
+    _answer_blocker(minor, member)
+    other = minor.run('record', 'block', '--minor', 'v0.5', '--category', 'no-progress', '--evidence', 'Unrelated blocker')
+    assert other.returncode == ck.EXIT_BLOCKED
+    before = minor.record()
+    qualification = () if member is None else ('--member', member)
+    line = minor.paste(SESSION, '--action', 'answer', '--blocker', '0', *qualification)
+    result = minor.run('record', 'answer', '--minor', 'v0.5', '--session', SESSION, '--blocker', '0', *qualification)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert result.stdout.startswith('ANSWERED blocker 0 minor v0.5')
+    after = minor.record()
+    assert after['blockers'][0]['open'] is False
+    assert after['blockers'][0]['answered']
+    assert after['blockers'][0]['answer_text'] == line
+    assert after['blockers'][1] == before['blockers'][1]
+    for key in ('members', 'approvals', 'approvals_hmac', 'nonce', 'session_id', 'pause', 'completed'):
+        assert after[key] == before[key], key
+    assert minor.load().forced == ('BLOCKED: no-progress', ck.EXIT_BLOCKED)
+
+
+def test_minor_answer_releases_the_last_blocker_but_does_not_complete_unfinished_work(minor: Minor) -> None:
+    assert minor.create().returncode == 0
+    _answer_blocker(minor, 'v0.5.2')
+    minor.paste(SESSION, '--action', 'answer', '--blocker', '0')
+    answered = minor.run('record', 'answer', '--minor', 'v0.5', '--session', SESSION, '--blocker', '0')
+    assert answered.returncode == 0, answered.stdout + answered.stderr
+    assert minor.load().forced is None
+    checked = minor.run('check-minor', 'v0.5', '--session', SESSION)
+    assert checked.returncode == ck.EXIT_INCOMPLETE, checked.stdout + checked.stderr
+    assert checked.stdout.splitlines()[0].startswith('INCOMPLETE')
+    assert minor.record()['completed'] is None
+
+
+@pytest.mark.parametrize('index', ['-1', '1'])
+def test_minor_answer_rejects_an_invalid_blocker_index_without_mutation(minor: Minor, index: str) -> None:
+    assert minor.create().returncode == 0
+    _answer_blocker(minor)
+    before = minor.record_path().read_bytes()
+    rendered = minor.render(SESSION, '--action', 'answer', '--blocker', index)
+    answered = minor.run('record', 'answer', '--minor', 'v0.5', '--session', SESSION, '--blocker', index)
+    for result in (rendered, answered):
+        assert result.returncode == ck.EXIT_MALFORMED
+        assert 'no open blocker at that index' in result.stderr
+    assert minor.record_path().read_bytes() == before
+
+
+def test_minor_answer_rejects_a_closed_blocker_without_mutation(minor: Minor) -> None:
+    assert minor.create().returncode == 0
+    _answer_blocker(minor)
+    record = minor.record()
+    record['blockers'][0]['open'] = False
+    minor.write_record(record, resign=False)
+    before = minor.record_path().read_bytes()
+    result = minor.render(SESSION, '--action', 'answer', '--blocker', '0')
+    assert result.returncode == ck.EXIT_MALFORMED
+    assert 'no open blocker at that index' in result.stderr
+    assert minor.record_path().read_bytes() == before
+
+
+@pytest.mark.parametrize('member', ['v0.5.10', 'v0.5.99', 'v0.6.2'])
+def test_minor_answer_rejects_a_wrong_member_without_mutation(minor: Minor, member: str) -> None:
+    assert minor.create().returncode == 0
+    _answer_blocker(minor, 'v0.5.2')
+    before = minor.record_path().read_bytes()
+    rendered = minor.render(SESSION, '--action', 'answer', '--blocker', '0', '--member', member)
+    answered = minor.run('record', 'answer', '--minor', 'v0.5', '--session', SESSION,
+                         '--blocker', '0', '--member', member)
+    for result in (rendered, answered):
+        assert result.returncode == ck.EXIT_MALFORMED
+        assert "--member does not match this blocker's member" in result.stderr
+    assert minor.record_path().read_bytes() == before
+
+
+def test_minor_answer_rejects_a_blocker_naming_an_unknown_member(minor: Minor) -> None:
+    assert minor.create().returncode == 0
+    _answer_blocker(minor, 'v0.5.2')
+    record = minor.record()
+    record['blockers'][0]['version'] = 'v9.9.9'
+    minor.write_record(record, resign=False)
+    before = minor.record_path().read_bytes()
+    result = minor.render(SESSION, '--action', 'answer', '--blocker', '0')
+    assert result.returncode == ck.EXIT_MALFORMED
+    assert 'blocker names a member outside this minor' in result.stderr
+    assert minor.record_path().read_bytes() == before
+
+
+@pytest.mark.parametrize('origin', ['unrendered', 'unpasted', 'quoted', 'larger-prompt', 'runner'])
+def test_minor_answer_keeps_exact_user_origin_required(minor: Minor, origin: str) -> None:
+    assert minor.create().returncode == 0
+    _answer_blocker(minor)
+    before = minor.record_path().read_bytes()
+    if origin != 'unrendered':
+        rendered = minor.render(SESSION, '--action', 'answer', '--blocker', '0')
+        assert rendered.returncode == 0, rendered.stdout + rendered.stderr
+        line = rendered.stdout.splitlines()[0]
+        if origin == 'quoted':
+            minor.capture(SESSION, '"' + line + '"')
+        elif origin == 'larger-prompt':
+            minor.capture(SESSION, 'Please continue.\n' + line)
+        elif origin == 'runner':
+            minor.capture(SESSION, line)
+            minor.env['NEXUS_RUNNER_LAUNCH'] = '1'
+    result = minor.run('record', 'answer', '--minor', 'v0.5', '--session', SESSION, '--blocker', '0')
+    assert result.returncode == ck.EXIT_BLOCKED
+    reason = 'not-rendered' if origin == 'unrendered' else 'runner-launched' if origin == 'runner' else 'approval-not-captured'
+    assert 'reason: ' + reason in result.stdout
+    assert minor.record_path().read_bytes() == before
+
+
+def test_minor_answer_refuses_an_exact_paste_from_another_session(minor: Minor) -> None:
+    assert minor.create().returncode == 0
+    _answer_blocker(minor)
+    before = minor.record_path().read_bytes()
+    rendered = minor.render('auto', '--action', 'answer', '--blocker', '0')
+    assert rendered.returncode == 0, rendered.stdout + rendered.stderr
+    minor.capture('session-two', '/implement v0.5', rendered.stdout.splitlines()[0])
+    result = minor.run('record', 'answer', '--minor', 'v0.5', '--session', 'auto', '--blocker', '0')
+    assert result.returncode == ck.EXIT_BLOCKED
+    assert 'reason: session-mismatch' in result.stdout
+    assert minor.record_path().read_bytes() == before
+
+
+@pytest.mark.parametrize(('field', 'changed'), [('category', 'no-progress'), ('version', 'v0.5.10')])
+def test_minor_answer_binds_the_category_and_actual_member(minor: Minor, field: str, changed: str) -> None:
+    assert minor.create().returncode == 0
+    _answer_blocker(minor, 'v0.5.2')
+    minor.paste(SESSION, '--action', 'answer', '--blocker', '0')
+    record = minor.record()
+    record['blockers'][0][field] = changed
+    minor.write_record(record, resign=False)
+    before = minor.record_path().read_bytes()
+    result = minor.run('record', 'answer', '--minor', 'v0.5', '--session', SESSION, '--blocker', '0')
+    assert result.returncode == ck.EXIT_BLOCKED
+    assert 'reason: page-changed' in result.stdout
+    assert minor.record_path().read_bytes() == before
+
+
+def test_minor_answer_refuses_a_claimed_text_that_is_not_the_captured_line(minor: Minor) -> None:
+    assert minor.create().returncode == 0
+    _answer_blocker(minor)
+    minor.paste(SESSION, '--action', 'answer', '--blocker', '0')
+    before = minor.record_path().read_bytes()
+    result = minor.run('record', 'answer', '--minor', 'v0.5', '--session', SESSION,
+                       '--blocker', '0', '--text', 'All approved')
+    assert result.returncode == ck.EXIT_BLOCKED
+    assert 'reason: approval-not-captured' in result.stdout
+    assert minor.record_path().read_bytes() == before
+
+
+def test_minor_answer_never_releases_a_tampered_signed_record(minor: Minor) -> None:
+    assert minor.create().returncode == 0
+    _answer_blocker(minor)
+    minor.paste(SESSION, '--action', 'answer', '--blocker', '0')
+    record = minor.record()
+    record['approvals']['classes'].append({'class': 'spend', 'bound': 999999})
+    minor.write_record(record, resign=False)
+    before = minor.record_path().read_bytes()
+    result = minor.run('record', 'answer', '--minor', 'v0.5', '--session', SESSION, '--blocker', '0')
+    assert result.returncode == ck.EXIT_BLOCKED
+    assert result.stdout.splitlines()[0] == 'BLOCKED: record-tampered'
+    assert minor.record_path().read_bytes() == before
+
+
+@pytest.mark.parametrize('blockers', [
+    {'0': {'open': True}},
+    [None],
+    [{'open': True, 'category': 'user-edit-guard', 'version': []}],
+    [{'open': True, 'category': 'user-edit-guard', 'version': {}}],
+    'bad',
+])
+def test_minor_answer_malformed_unsigned_blocker_data_is_a_usage_error(blockers: object) -> None:
+    record = {'nonce': 'f' * 32, 'members': [{'version': 'v0.5.2'}], 'blockers': blockers}
+    with pytest.raises(ck.Malformed):
+        cm.answer_page(ck, 'v0.5', record, 0, None)
+
+
+def test_minor_answer_auto_resolves_only_the_original_session(minor: Minor) -> None:
+    assert minor.create().returncode == 0
+    _answer_blocker(minor)
+    before = minor.record()
+    rendered = minor.render('auto', '--action', 'answer', '--blocker', '0')
+    assert rendered.returncode == 0, rendered.stdout + rendered.stderr
+    minor.capture(SESSION, rendered.stdout.splitlines()[0])
+    answered = minor.run('record', 'answer', '--minor', 'v0.5', '--session', 'auto', '--blocker', '0')
+    assert answered.returncode == 0, answered.stdout + answered.stderr
+    assert minor.record()['session_id'] == SESSION
+    assert minor.record()['approvals_hmac'] == before['approvals_hmac']
+    assert minor.load().forced is None
+
+
+def test_minor_answer_refuses_replay_even_if_an_unsigned_blocker_is_reopened(minor: Minor) -> None:
+    assert minor.create().returncode == 0
+    _answer_blocker(minor)
+    minor.paste(SESSION, '--action', 'answer', '--blocker', '0')
+    answered = minor.run('record', 'answer', '--minor', 'v0.5', '--session', SESSION, '--blocker', '0')
+    assert answered.returncode == 0, answered.stdout + answered.stderr
+    closed = minor.run('record', 'answer', '--minor', 'v0.5', '--session', SESSION, '--blocker', '0')
+    assert closed.returncode == ck.EXIT_MALFORMED
+    assert 'no open blocker at that index' in closed.stderr
+    record = minor.record()
+    record['blockers'][0]['open'] = True
+    minor.write_record(record, resign=False)
+    before = minor.record_path().read_bytes()
+    replayed = minor.run('record', 'answer', '--minor', 'v0.5', '--session', SESSION, '--blocker', '0')
+    assert replayed.returncode == ck.EXIT_BLOCKED
+    assert 'reason: code-used' in replayed.stdout
+    assert minor.record_path().read_bytes() == before
+
+
+def test_minor_answer_binds_the_signed_record_nonce(minor: Minor) -> None:
+    assert minor.create().returncode == 0
+    _answer_blocker(minor)
+    minor.paste(SESSION, '--action', 'answer', '--blocker', '0')
+    record = minor.record()
+    record['nonce'] = 'f' * 32
+    minor.write_record(record, resign=True)
+    before = minor.record_path().read_bytes()
+    result = minor.run('record', 'answer', '--minor', 'v0.5', '--session', SESSION, '--blocker', '0')
+    assert result.returncode == ck.EXIT_BLOCKED
+    assert 'reason: page-changed' in result.stdout
+    assert minor.record_path().read_bytes() == before
+
+
+def test_minor_answer_can_clear_a_blocker_added_after_signed_completion(minor: Minor) -> None:
+    assert minor.create().returncode == 0
+    record = minor.record()
+    record['completed'] = {'at': ck._now(), 'head': record['start_head']}
+    minor.write_record(record, resign=True)
+    _answer_blocker(minor)
+    before = minor.record()
+    minor.paste(SESSION, '--action', 'answer', '--blocker', '0')
+    result = minor.run('record', 'answer', '--minor', 'v0.5', '--session', SESSION, '--blocker', '0')
+    assert result.returncode == 0, result.stdout + result.stderr
+    after = minor.record()
+    assert after['completed'] == before['completed']
+    assert after['approvals'] == before['approvals']
+    assert after['approvals_hmac'] == before['approvals_hmac']
+    state = cm.load_minor(ck, minor.rctx(), 'v0.5', SESSION, accept_completed=True)
+    assert state.record is not None and state.forced is None
+
+
 # --------------------------------------------------------------------------- schema-1 compatibility
 
 
@@ -614,7 +870,7 @@ def _schema1_record(minor: Minor, rel: str) -> dict:
         ),
         encoding="utf-8",
     )
-    minor.capture(SESSION, f"/implement {rel}")
+    minor.capture(SESSION, f"/implement {rel}", at=0.0)
     rendered = minor.run("record", "render", rel, "--session", SESSION, "--approvals", str(spec))
     assert rendered.returncode == 0, rendered.stderr
     minor.capture(SESSION, rendered.stdout.splitlines()[0])
@@ -813,7 +1069,7 @@ def test_retiring_another_sessions_live_record_needs_the_users_paste(minor: Mino
     assert refused.returncode == ck.EXIT_BLOCKED and "reason: not-rendered" in refused.stdout
     bare = minor.run("record", "retire", rel)
     assert bare.returncode == ck.EXIT_BLOCKED
-    minor.capture("session-two", f"/implement {rel}")
+    minor.capture("session-two", f"/implement {rel}", at=0.0)
     rendered = minor.run("record", "render", rel, "--session", "session-two", "--action", "retire")
     assert rendered.returncode == 0, rendered.stderr
     line = rendered.stdout.splitlines()[0]

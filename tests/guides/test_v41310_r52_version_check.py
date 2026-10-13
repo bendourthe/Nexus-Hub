@@ -100,7 +100,7 @@ def test_version_cells_render_with_copy_chips(playwright_mod, width: int) -> Non
             )
             for item in data:
                 assert item["visible"], item
-                assert item["chip"] and item["label"] == "Copy to clipboard", item
+                assert item["chip"] and item["label"] == "Copy " + item["cmd"], item
                 assert item["inView"], f"{item['cmd']} overflows at {width}px"
                 assert item["text"] == item["cmd"], item
         finally:

@@ -1,0 +1,53 @@
+{
+  "mutants_caught": 3,
+  "repository_sources_changed_by_mutants": false,
+  "baseline_sha256_before": "46492c0e897c6c45abd1e1d6c766f535b2183519c6599fffc5b2cfe1d9457530",
+  "baseline_sha256_after": "46492c0e897c6c45abd1e1d6c766f535b2183519c6599fffc5b2cfe1d9457530",
+  "records": [
+    {
+      "case": "dropped-force",
+      "command": [
+        "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+        "-m",
+        "pytest",
+        "-q",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-tooling\\mutation-proof\\dropped-force\\test_map_mutant.py::test_map_dispatch_forwards_root_json_and_force"
+      ],
+      "expected_exit": 1,
+      "exit_code": 1,
+      "stdout": "F                                                                        [100%]\n================================== FAILURES ===================================\n_______________ test_map_dispatch_forwards_root_json_and_force ________________\n\nindexed_repo = WindowsPath('C:/Users/username/AppData/Local/Temp/pytest-of-bedourthe/pytest-10713/test_map_dispatch_forwards_roo0/repository with spaces')\n\n    def test_map_dispatch_forwards_root_json_and_force(indexed_repo: Path) -> None:\n        generated = _run_map(indexed_repo, \"--json\")\n        assert generated.returncode == 0, generated.stderr\n        payload = json.loads(generated.stdout)\n        map_path = indexed_repo / \".nexus\" / \"CONTEXT-MAP.md\"\n        assert Path(payload[\"root\"]) == indexed_repo\n        assert Path(payload[\"map_path\"]) == map_path\n        assert payload[\"files_indexed\"] == 1\n        assert payload[\"skipped\"] is False\n        original = map_path.read_text(encoding=\"utf-8\")\n        assert \"[`src`](context/src.md)\" in original\n        article = indexed_repo / \".nexus\" / \"context\" / \"src.md\"\n        assert \"src/sample.py\" in article.read_text(encoding=\"utf-8\")\n    \n        unchanged = _run_map(indexed_repo, \"--json\")\n        assert unchanged.returncode == 0, unchanged.stderr\n        assert json.loads(unchanged.stdout)[\"skipped\"] is True\n    \n        map_path.write_text(original + \"stale artifact sentinel\\n\", encoding=\"utf-8\")\n        forced = _run_map(indexed_repo, \"--force\", \"--json\")\n        assert forced.returncode == 0, forced.stderr\n>       assert json.loads(forced.stdout)[\"skipped\"] is False\nE       assert True is False\n\ntest_map_mutant.py:72: AssertionError\n=========================== short test summary info ===========================\nFAILED test_map_mutant.py::test_map_dispatch_forwards_root_json_and_force - a...\n1 failed in 2.15s\n",
+      "stderr": "",
+      "duration_seconds": 3.969
+    },
+    {
+      "case": "swallowed-lint-status",
+      "command": [
+        "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+        "-m",
+        "pytest",
+        "-q",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-tooling\\mutation-proof\\swallowed-lint-status\\test_map_mutant.py::test_map_dispatch_preserves_lint_failure"
+      ],
+      "expected_exit": 1,
+      "exit_code": 1,
+      "stdout": "F                                                                        [100%]\n================================== FAILURES ===================================\n__________________ test_map_dispatch_preserves_lint_failure ___________________\n\nindexed_repo = WindowsPath('C:/Users/username/AppData/Local/Temp/pytest-of-bedourthe/pytest-10714/test_map_dispatch_preserves_li0/repository with spaces')\n\n    def test_map_dispatch_preserves_lint_failure(indexed_repo: Path) -> None:\n        generated = _run_map(indexed_repo, \"--force\")\n        assert generated.returncode == 0, generated.stderr\n        orphan = indexed_repo / \".nexus\" / \"context\" / \"orphan.md\"\n        orphan.write_text(\"# Orphan\\n\", encoding=\"utf-8\")\n    \n        linted = _run_map(indexed_repo, \"--lint\", \"--json\")\n    \n>       assert linted.returncode == 1, linted.stderr\nE       AssertionError: \nE       assert 0 == 1\nE        +  where 0 = CompletedProcess(args=['C:\\\\Users\\\\username\\\\AppData\\\\Local\\\\Microsoft\\\\WindowsApps\\\\PythonSoftwareFoundation.Python....orphans\": [\\n    \"orphan.md\"\\n  ],\\n  \"missing_backlinks\": [\\n    \"orphan.md\"\\n  ],\\n  \"stale\": false\\n}\\n', stderr='').returncode\n\ntest_map_mutant.py:84: AssertionError\n=========================== short test summary info ===========================\nFAILED test_map_mutant.py::test_map_dispatch_preserves_lint_failure - Asserti...\n1 failed in 1.27s\n",
+      "stderr": "",
+      "duration_seconds": 3.75
+    },
+    {
+      "case": "wrong-baseline-destination",
+      "command": [
+        "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+        "-m",
+        "pytest",
+        "-q",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-tooling\\mutation-proof\\wrong-baseline-destination\\test_baseline_mutant.py::test_benchmark_cli_update_writes_only_temporary_baseline"
+      ],
+      "expected_exit": 1,
+      "exit_code": 1,
+      "stdout": "F                                                                        [100%]\n================================== FAILURES ===================================\n__________ test_benchmark_cli_update_writes_only_temporary_baseline ___________\n\ntmp_path = WindowsPath('C:/Users/username/AppData/Local/Temp/pytest-of-bedourthe/pytest-10715/test_benchmark_cli_update_writ0')\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001CD68B8BAD0>\ncapsys = <_pytest.capture.CaptureFixture object at 0x000001CD68B8BB60>\n\n    def test_benchmark_cli_update_writes_only_temporary_baseline(\n        tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture\n    ) -> None:\n        committed_path = bench.BASELINE_PATH\n        committed_hash = hashlib.sha256(committed_path.read_bytes()).hexdigest()\n        destination = tmp_path / \"temporary baseline.json\"\n        report = bench.BenchmarkReport(\n            repos=[\n                bench.RepoBenchmark(\"first\", 200, 1000, 0.8, 2, 1, 0, 0, 0),\n                bench.RepoBenchmark(\"second\", 300, 1000, 0.7, 3, 0, 1, 0, 0),\n            ]\n        )\n        expected = {\n            \"_comment\": bench.load_baseline(committed_path)[\"_comment\"],\n            \"repos\": {\n                \"first\": {\"min_reduction_ratio\": 0.75},\n                \"second\": {\"min_reduction_ratio\": 0.65},\n            },\n            \"min_aggregate_reduction\": 0.7,\n        }\n        monkeypatch.setattr(bench, \"BASELINE_PATH\", destination)\n        monkeypatch.setattr(bench, \"run_benchmark\", lambda corpus: report)\n    \n        assert bench.main([\"--update-baseline\"]) == 0\n    \n>       written = destination.read_text(encoding=\"utf-8\")\n\ntest_baseline_mutant.py:137: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\nC:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\pathlib.py:1027: in read_text\n    with self.open(mode='r', encoding=encoding, errors=errors) as f:\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\nself = WindowsPath('C:/Users/username/AppData/Local/Temp/pytest-of-bedourthe/pytest-10715/test_benchmark_cli_update_writ0/temporary baseline.json')\nmode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None\n\n    def open(self, mode='r', buffering=-1, encoding=None,\n             errors=None, newline=None):\n        \"\"\"\n        Open the file pointed to by this path and return a file object, as\n        the built-in open() function does.\n        \"\"\"\n        if \"b\" not in mode:\n            encoding = io.text_encoding(encoding)\n>       return io.open(self, mode, buffering, encoding, errors, newline)\nE       FileNotFoundError: [Errno 2] No such file or directory: 'C:\\\\Users\\\\username\\\\AppData\\\\Local\\\\Temp\\\\pytest-of-bedourthe\\\\pytest-10715\\\\test_benchmark_cli_update_writ0\\\\temporary baseline.json'\n\nC:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\pathlib.py:1013: FileNotFoundError\n---------------------------- Captured stderr call -----------------------------\nwrote baseline C:\\Users\\username\\AppData\\Local\\Temp\\pytest-of-bedourthe\\pytest-10715\\test_benchmark_cli_update_writ0\\temporary baseline.json\n=========================== short test summary info ===========================\nFAILED test_baseline_mutant.py::test_benchmark_cli_update_writes_only_temporary_baseline\n1 failed in 0.78s\n",
+      "stderr": "",
+      "duration_seconds": 2.609
+    }
+  ]
+}

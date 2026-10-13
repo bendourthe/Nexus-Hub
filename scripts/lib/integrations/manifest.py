@@ -257,12 +257,18 @@ class InstallManifest:
         return m
 
     def save(self, path: Path) -> None:
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps(self.to_dict(), indent=2), encoding="utf-8")
+        from .base import long_path  # lazy: base imports this module
+
+        io_path = long_path(path)  # AR-11: a deep project root passes MAX_PATH
+        io_path.parent.mkdir(parents=True, exist_ok=True)
+        io_path.write_text(json.dumps(self.to_dict(), indent=2), encoding="utf-8")
 
     @classmethod
     def load(cls, path: Path) -> "InstallManifest":
-        if not path.exists():
+        from .base import long_path  # lazy: base imports this module
+
+        io_path = long_path(path)
+        if not io_path.exists():
             return cls()
-        data = json.loads(path.read_text(encoding="utf-8"))
+        data = json.loads(io_path.read_text(encoding="utf-8"))
         return cls.from_dict(data)

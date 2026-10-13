@@ -1,0 +1,160 @@
+{
+  "owned_changed_paths": [
+    "scripts/check_installer_smoke.py",
+    "scripts/optimize_skill_description.py",
+    "tests/installer/test_installer_smoke_postconditions.py",
+    "catalog/hooks/tests/test_eval_loop.py"
+  ],
+  "source_sha256": {
+    "scripts/check_installer_smoke.py": "8c79f39f7e8494c2ef9ce521cd0ebf95be1d37245300ea793ef5dfbfc39ced9e",
+    "scripts/optimize_skill_description.py": "c606c94fcaea4aba565d4e7f2ddfed7f5c4a969e3c15481d672852da7932d514",
+    "tests/installer/test_installer_smoke_postconditions.py": "6dec021724ec291d2415c1158f66a0a9f883f1d9208f720572d14d7a014bd38b",
+    "catalog/hooks/tests/test_eval_loop.py": "ee739d15ead56fc689c30010d12b89f1dd35e1be3541c7bc2eb4ddbe90d1c515"
+  },
+  "test_receipt": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-checks\\combined-receipt.json",
+  "tests": "105 passed in 24.19s",
+  "functional_receipts": [
+    "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-installer\\installer-functional-receipt.json",
+    "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\final-optimizer\\optimizer-functional-receipt.json"
+  ],
+  "red_receipts": [
+    "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\red-receipt.json",
+    "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\optimizer-receipt.json"
+  ],
+  "diff_command": [
+    "git",
+    "diff",
+    "--check",
+    "--",
+    "scripts/check_installer_smoke.py",
+    "scripts/optimize_skill_description.py",
+    "tests/installer/test_installer_smoke_postconditions.py",
+    "catalog/hooks/tests/test_eval_loop.py"
+  ],
+  "diff_exit_code": 0,
+  "ruff_comparison": [
+    {
+      "command": [
+        "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+        "-m",
+        "ruff",
+        "check",
+        "--isolated",
+        "--output-format",
+        "json",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\ruff-final-baseline\\scripts\\check_installer_smoke.py",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\ruff-final-baseline\\scripts\\optimize_skill_description.py",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\ruff-final-baseline\\tests\\installer\\test_installer_smoke_postconditions.py",
+        "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-smoke\\ruff-final-baseline\\catalog\\hooks\\tests\\test_eval_loop.py"
+      ],
+      "exit_code": 1,
+      "diagnostics": 14,
+      "keys": [
+        {
+          "file": "catalog/hooks/tests/test_eval_loop.py",
+          "code": "I001",
+          "message": "Import block is un-sorted or un-formatted",
+          "count": 1
+        },
+        {
+          "file": "catalog/hooks/tests/test_eval_loop.py",
+          "code": "PLW1510",
+          "message": "`subprocess.run` without explicit `check` argument",
+          "count": 9
+        },
+        {
+          "file": "catalog/hooks/tests/test_eval_loop.py",
+          "code": "UP012",
+          "message": "Unnecessary UTF-8 `encoding` argument to `encode`",
+          "count": 1
+        },
+        {
+          "file": "scripts/optimize_skill_description.py",
+          "code": "I001",
+          "message": "Import block is un-sorted or un-formatted",
+          "count": 1
+        },
+        {
+          "file": "scripts/optimize_skill_description.py",
+          "code": "TRY004",
+          "message": "Prefer `TypeError` exception for invalid type",
+          "count": 1
+        },
+        {
+          "file": "scripts/optimize_skill_description.py",
+          "code": "RUF046",
+          "message": "Value being cast to `int` is already an integer",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "command": [
+        "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+        "-m",
+        "ruff",
+        "check",
+        "--isolated",
+        "--output-format",
+        "json",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\scripts\\check_installer_smoke.py",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\scripts\\optimize_skill_description.py",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\tests\\installer\\test_installer_smoke_postconditions.py",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\catalog\\hooks\\tests\\test_eval_loop.py"
+      ],
+      "exit_code": 1,
+      "diagnostics": 14,
+      "keys": [
+        {
+          "file": "catalog/hooks/tests/test_eval_loop.py",
+          "code": "I001",
+          "message": "Import block is un-sorted or un-formatted",
+          "count": 1
+        },
+        {
+          "file": "catalog/hooks/tests/test_eval_loop.py",
+          "code": "PLW1510",
+          "message": "`subprocess.run` without explicit `check` argument",
+          "count": 9
+        },
+        {
+          "file": "catalog/hooks/tests/test_eval_loop.py",
+          "code": "UP012",
+          "message": "Unnecessary UTF-8 `encoding` argument to `encode`",
+          "count": 1
+        },
+        {
+          "file": "scripts/optimize_skill_description.py",
+          "code": "I001",
+          "message": "Import block is un-sorted or un-formatted",
+          "count": 1
+        },
+        {
+          "file": "scripts/optimize_skill_description.py",
+          "code": "TRY004",
+          "message": "Prefer `TypeError` exception for invalid type",
+          "count": 1
+        },
+        {
+          "file": "scripts/optimize_skill_description.py",
+          "code": "RUF046",
+          "message": "Value being cast to `int` is already an integer",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "ruff_introduced_diagnostics": 0,
+  "accept_operations": [],
+  "guard_note": "All four repository edits had serialized native clean checks and write records; no accept. No additional guard log command started while coordinator investigated stalled preflight.",
+  "closure_clauses": {
+    "T013": "Five literal already-distributed helper names added; the real checker rejects each missing helper in a faithful Windows copy.",
+    "v1.1#MT-001": "One actual executable-on-PATH iteration verifies candidate generation, trigger scoring, parsed iteration/final artifact equality, test-score winner selection and byte restoration.",
+    "same_value_description_defect": "re.subn detects missing fields independently of unchanged text; unchanged preservation and missing/unterminated refusal pass."
+  },
+  "remaining_or_uncovered": [
+    "AR-62/v1.1#DF-006 and DF-008 require actual Linux/macOS workspace installer receipts; Windows faithful-copy evidence does not close those OS clauses.",
+    "No live provider/model quality, real installer run, real-home/profile mutation, staging, commit, push, PR, remote CI, main or tag operation.",
+    "14 pre-existing Ruff diagnostics are identical by file/rule/message/count to HEAD; this scope introduces none and does not claim a clean whole-file Ruff gate."
+  ]
+}

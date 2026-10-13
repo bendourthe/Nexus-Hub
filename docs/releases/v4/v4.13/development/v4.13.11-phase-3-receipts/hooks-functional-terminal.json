@@ -1,0 +1,15 @@
+{
+  "command": [
+    "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+    "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\functional-byte-devlog-green2.py"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 26.996538100065663,
+  "log": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\functional-byte-devlog-green2-terminal.txt",
+  "log_sha256": "7ea7a8894acbe89ae60dcc1beb1f946a0723b806d6faa6643a7739a12296bb73",
+  "receipt": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\functional-byte-devlog-green2\\receipt.json",
+  "receipt_sha256": "d47810694c4f090364bf45aaa7b9a12adda01ac27e0ee977e0cf9dc48e621562",
+  "status": "PASS",
+  "observations": 16,
+  "source_unchanged": true
+}

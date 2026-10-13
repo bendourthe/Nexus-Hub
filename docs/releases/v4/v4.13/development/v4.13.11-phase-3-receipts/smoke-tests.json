@@ -1,0 +1,21 @@
+{
+  "command": [
+    "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/installer/test_installer_smoke_postconditions.py",
+    "catalog/hooks/tests/test_eval_loop.py"
+  ],
+  "cwd": "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan",
+  "started_at": "2026-10-10T00:58:47.756606+00:00",
+  "elapsed_seconds": 27.749,
+  "exit_code": 0,
+  "summary": "105 passed in 24.19s",
+  "source_sha256": {
+    "scripts/check_installer_smoke.py": "8c79f39f7e8494c2ef9ce521cd0ebf95be1d37245300ea793ef5dfbfc39ced9e",
+    "tests/installer/test_installer_smoke_postconditions.py": "6dec021724ec291d2415c1158f66a0a9f883f1d9208f720572d14d7a014bd38b",
+    "catalog/hooks/tests/test_eval_loop.py": "ee739d15ead56fc689c30010d12b89f1dd35e1be3541c7bc2eb4ddbe90d1c515"
+  },
+  "head": "ff1aa631538fcf1cbc2380b28e1e001ebd880e8d"
+}

@@ -49,7 +49,10 @@ jobs:
           cache-dependency-path: extensions/cursor-usage-monitor/package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        # --ignore-scripts: no dependency lifecycle script runs (AR-60). Proven
+        # 2026-10-10 that compile, tests, and the VSIX are byte-identical without
+        # them; ttf2woff2 is used only by the local icon generator, not this job.
+        run: npm ci --ignore-scripts
 
       - name: Compile (tsc)
         run: npm run compile

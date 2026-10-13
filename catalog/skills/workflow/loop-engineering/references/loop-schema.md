@@ -146,6 +146,7 @@ Everything above describes a loop DEFINITION: the reusable template, checked int
 An instance record is a single local file per running loop, carrying:
 
 - The resolved objective for this run (the definition's `goal` with the actual target substituted in).
+- The host-owned instance identity and lineage (`LOOP_INSTANCE` and `LOOP_LINEAGE`), copied from the markers the outer invocation set, so a resumed run and any child loop can tell same-instance re-entry from a deliberate distinct child. An unfinished record with no matching marker is ambiguous identity and is refused, per the Re-entrancy and Instance Identity section of the skill body.
 - Open gates and their exact questions, so a cold start knows what it is waiting on and whom to ask.
 - Evidence pointers with their freshness stamps, so a resumed run can tell which evidence it may still trust and which it must re-validate.
 - The iteration counter, measured against the definition's `iteration_cap`.

@@ -323,12 +323,14 @@ def merge(index: dict, payload: dict) -> tuple[dict, list[str]]:
         return index, written
 
     # A roster-bearing payload explicitly refreshes the platform roster.
-    merged_roster = [m.strip() for m in roster]
-    merged_roster = sorted(set(merged_roster) | set(index["models"]))
-
     index["schema_version"] = SCHEMA_VERSION
     legacy_platform = index["meta"].get("platform")
     if legacy_platform in (None, platform):
+        # Widen only by models profiled on THIS platform: a model profiled on another
+        # platform belongs to that platform's meta.platforms entry, and absorbing it here
+        # makes the primary freshness check report it as "no longer live" (v4.13.9 WN-23).
+        profiled_here = [m for m, e in index["models"].items() if e.get("platform") == platform]
+        merged_roster = sorted({m.strip() for m in roster} | set(profiled_here))
         # Single-platform layer, or a write for the layer's primary platform: the
         # legacy keys stay the source of truth (schema 1.0.0 behavior).
         index["meta"] = {

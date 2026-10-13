@@ -68,15 +68,16 @@ def run(request, tmp_path: Path):
         env_extra: dict[str, str] | None = None,
         cwd: Path | None = None,
         clear_switch_override: bool = False,
+        hooks_dir: Path = _HOOKS_DIR,
     ) -> subprocess.CompletedProcess:
         if impl == "sh":
-            prefix = [request.getfixturevalue("bash_bin"), str(_HOOKS_DIR / f"{hook}.sh")]
+            prefix = [request.getfixturevalue("bash_bin"), str(hooks_dir / f"{hook}.sh")]
         else:
             prefix = [
                 request.getfixturevalue("powershell_bin"),
                 "-NoProfile",
                 "-File",
-                str(_HOOKS_DIR / f"{hook}.ps1"),
+                str(hooks_dir / f"{hook}.ps1"),
             ]
 
         env = {**os.environ}
@@ -270,6 +271,60 @@ def test_the_two_triggers_say_different_things(run):
     assert "Task complete" in complete, complete
     assert "Needs your input" in attention, attention
     assert complete != attention
+
+
+# ---------------------------------------------------------------------------
+# The title names the host the hooks were installed for
+# ---------------------------------------------------------------------------
+
+# Each row is a hooks directory the installer writes (relative to a home or a
+# project root) and the title a notification from there must carry. Kimi, Qwen
+# and Gemini CLI used to see "Claude Code" (v4.13.11 cycle 2 B9).
+_HOST_DIRS = [
+    ((".claude", "hooks"), "Claude Code"),
+    ((".kimi-code", "hooks"), "Kimi Code CLI"),
+    ((".qwen", "hooks"), "Qwen Code"),
+    ((".gemini", "hooks"), "Gemini CLI"),
+    ((".codex", "hooks"), "Codex"),
+    ((".cursor", "hooks"), "Cursor"),
+    ((".codeium", "windsurf", "hooks"), "Windsurf"),
+    ((".windsurf", "hooks"), "Windsurf"),
+    ((".github", "hooks", "nexus-hub-scripts"), "GitHub Copilot"),
+]
+
+
+def _install_copy(root: Path, parts: tuple) -> Path:
+    """Copy both hooks and both helpers into ``root/<parts>`` as an install would."""
+    hooks_dir = root.joinpath(*parts)
+    hooks_dir.mkdir(parents=True)
+    for stem in (*_BOTH_HOOKS, "_notify_common"):
+        for suffix in (".sh", ".ps1"):
+            source = _HOOKS_DIR / f"{stem}{suffix}"
+            (hooks_dir / source.name).write_bytes(source.read_bytes())
+    return hooks_dir
+
+
+@pytest.mark.parametrize("hook", _BOTH_HOOKS)
+@pytest.mark.parametrize("parts,title", _HOST_DIRS)
+def test_title_names_the_host_the_hook_was_installed_for(run, hook, parts, title, tmp_path):
+    hooks_dir = _install_copy(tmp_path / "home", parts)
+
+    result = run(hook, hooks_dir=hooks_dir)
+
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.split("\t", 1)[0] == title, result.stdout
+
+
+@pytest.mark.parametrize("hook", _BOTH_HOOKS)
+def test_title_falls_back_to_nexus_hub_outside_a_known_host(run, hook, tmp_path):
+    # The catalog copy and any unrecognized location get a neutral title rather
+    # than a guess at the host.
+    from_catalog = run(hook)
+    elsewhere = run(hook, hooks_dir=_install_copy(tmp_path, ("tools", "hooks")))
+
+    for result in (from_catalog, elsewhere):
+        assert result.returncode == 0, result.stderr
+        assert result.stdout.split("\t", 1)[0] == "Nexus-Hub", result.stdout
 
 
 @pytest.mark.parametrize("hook", _BOTH_HOOKS)

@@ -1,6 +1,6 @@
 # Prompting Profile: gpt-5.6-luna
 
-**Platform**: claude-code
+**Platform**: openai
 **Last verified**: 2026-09-25
 **Roster provenance**: `config`
 

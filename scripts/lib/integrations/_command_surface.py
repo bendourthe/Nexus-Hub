@@ -31,7 +31,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from ._owned import is_owned, write_owned_file
-from .base import InstallContext
+from .base import InstallContext, long_path
 from .manifest import _hash_path
 from .result import FileAction
 
@@ -52,7 +52,7 @@ def mirror_command_surface(
         ctx.manifest.log(key, f"missing: {src_dir}")
         return [FileAction(path=str(src_dir), action="not-found")]
     if not ctx.dry_run:
-        dst_dir.mkdir(parents=True, exist_ok=True)
+        long_path(dst_dir).mkdir(parents=True, exist_ok=True)
 
     current_names: set[str] = set()
     for md in sorted(src_dir.glob("*.md")):
@@ -60,11 +60,12 @@ def mirror_command_surface(
         current_names.add(out_name)
         dst = dst_dir / out_name
         content = md.read_bytes()
+        dst_io = long_path(dst)  # AR-11: deep repositories pass MAX_PATH
         if (
-            dst.is_file()
-            and not dst.is_symlink()
+            dst_io.is_file()
+            and not dst_io.is_symlink()
             and not is_owned(ctx, key, dst)
-            and dst.read_bytes() == content
+            and dst_io.read_bytes() == content
         ):
             # Byte-identical to what we would write: adopt it rather than call
             # it the user's, so a reinstall over a lost manifest stays a no-op.
@@ -95,14 +96,15 @@ def mirror_command_surface(
         if not same_dir:
             continue
         expected = recorded.get(tracked)
-        if tp.exists() and expected is not None and _hash_path(tp) != expected:
+        tp_io = long_path(tp)
+        if tp_io.exists() and expected is not None and _hash_path(tp_io) != expected:
             # Edited since we wrote it: the user's now. Keep it and stop tracking it.
             ctx.manifest.log(key, f"keep-user-edited (changed since install): {tp}")
             ctx.manifest.untrack(key, tracked)
             actions.append(FileAction(path=str(tp), action="kept", reason="user-edited"))
             continue
-        if tp.exists() and not ctx.dry_run:
-            tp.unlink()
+        if tp_io.exists() and not ctx.dry_run:
+            tp_io.unlink()
         ctx.manifest.untrack(key, tracked)
         actions.append(FileAction(path=str(tp), action="removed"))
     return actions

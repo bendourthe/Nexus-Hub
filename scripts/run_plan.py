@@ -251,32 +251,93 @@ def check_argv(argv: list[str]) -> None:
             raise RunnerError(f"refusing denylisted argument: {arg}")
 
 
-def bypass_configured(row: str) -> str | None:
-    """Return a reason when the platform's own configuration bypasses approvals."""
+# row -> (format, user-scope files under home, project-scope files under the launch
+# directory, {key: values that remove approval}). Scopes are the documented ones in
+# docs/policy/platform-defaults-levers.md: Claude `.claude/settings.json` and
+# `.claude/settings.local.json`; Codex `.codex/config.toml` (trusted projects may
+# override approval_policy and sandbox_mode since 2026-10-01); Gemini CLI and Qwen
+# `.gemini/settings.json` / `.qwen/settings.json`; Cursor CLI's project file holds
+# permissions only, so only its global `cli-config.json` is read. Copilot, OpenCode,
+# and Kimi document no approval key a file can set, so they have no row here.
+BYPASS_SETTINGS: dict[str, tuple[str, tuple[str, ...], tuple[str, ...], dict[str, set[str]]]] = {
+    "claude": (
+        "json",
+        (".claude/settings.json",),
+        (".claude/settings.json", ".claude/settings.local.json"),
+        {"defaultMode": {"bypassPermissions"}},
+    ),
+    "codex": (
+        "toml",
+        (".codex/config.toml",),
+        (".codex/config.toml",),
+        {"approval_policy": {"never"}, "sandbox_mode": {"danger-full-access"}},
+    ),
+    "gemini-cli": (
+        "json",
+        (".gemini/settings.json",),
+        (".gemini/settings.json",),
+        {"approvalMode": {"yolo"}, "defaultApprovalMode": {"yolo"}},
+    ),
+    "qwen": ("json", (".qwen/settings.json",), (".qwen/settings.json",), {"approvalMode": {"yolo"}}),
+    "cursor": ("json", (".cursor/cli-config.json",), (), {"approvalMode": {"unrestricted"}}),
+}
+
+
+def _load_toml(text: str) -> object:
+    try:
+        import tomllib  # Python 3.11+
+    except ImportError:  # pragma: no cover - installers still support 3.10
+        import tomli as tomllib  # type: ignore[no-redef]  # ImportError falls through to the text scan
+    return tomllib.loads(text)
+
+
+def _has_bypass(node: object, keys: dict[str, set[str]]) -> bool:
+    """True when any nested mapping sets one of `keys` to a bypassing value.
+    Nested keys count everywhere (a Codex profile table, Claude's `permissions`):
+    reporting a bypass that might not be active only asks for the approval."""
+    if isinstance(node, dict):
+        for key, value in node.items():
+            if isinstance(value, str) and value in keys.get(key, ()):
+                return True
+            if _has_bypass(value, keys):
+                return True
+    elif isinstance(node, list):
+        return any(_has_bypass(item, keys) for item in node)
+    return False
+
+
+def _text_has_bypass(text: str, keys: dict[str, set[str]]) -> bool:
+    """Fallback for a file that does not parse: match either quote style, so an
+    unparseable file can never hide a bypass the parser would have found."""
+    return any(
+        re.search(rf"""["']?{re.escape(key)}["']?\s*[:=]\s*["']{re.escape(value)}["']""", text)
+        for key, values in keys.items()
+        for value in values
+    )
+
+
+def bypass_configured(row: str, launch_dir: Path | None = None) -> str | None:
+    """Return a reason when the platform's own configuration, at user scope or in
+    the project the runner launches from, bypasses approvals."""
+    if row not in BYPASS_SETTINGS:
+        return None
+    fmt, user_files, project_files, keys = BYPASS_SETTINGS[row]
     home = Path(os.environ.get("USERPROFILE") or os.environ.get("HOME") or Path.home())
-    checks = {
-        "claude": (
-            home / ".claude" / "settings.json",
-            r'"defaultMode"\s*:\s*"bypassPermissions"',
-        ),
-        "codex": (
-            home / ".codex" / "config.toml",
-            r'approval_policy\s*=\s*"never"|sandbox_mode\s*=\s*"danger-full-access"',
-        ),
-        "gemini-cli": (
-            home / ".gemini" / "settings.json",
-            r'"approvalMode"\s*:\s*"yolo"',
-        ),
-        "qwen": (home / ".qwen" / "settings.json", r'"approvalMode"\s*:\s*"yolo"'),
-    }
-    if row in checks:
-        path, pattern = checks[row]
+    project = launch_dir or Path.cwd()
+    candidates = [home / rel for rel in user_files] + [project / rel for rel in project_files]
+    for path in candidates:
         try:
-            if re.search(pattern, path.read_text(encoding="utf-8")):
-                return f"{path} bypasses approvals"
+            text = path.read_text(encoding="utf-8")
         except OSError:
             # An unreadable config cannot declare a bypass; the next candidate is checked.
-            pass
+            continue
+        try:
+            found = _has_bypass(_load_toml(text) if fmt == "toml" else json.loads(text), keys)
+        except (ImportError, ValueError):
+            # ValueError covers JSONDecodeError and TOMLDecodeError.
+            found = _text_has_bypass(text, keys)
+        if found:
+            return f"{path} bypasses approvals"
     return None
 
 

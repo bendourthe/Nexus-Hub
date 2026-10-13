@@ -28,8 +28,8 @@ Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scop
 
 Dispatch the resolved scope to the retained skill:
 
-      clarify       -> clarify-spec (sequential ambiguity-resolution loop; integrates answers back into the spec)
-      analyze       -> analyze-spec (read-only cross-artifact consistency / coverage / alignment report)
+      clarify       -> ambiguity-detector (find the spec's ambiguities) + design-interview (ask them with a recommended answer each; integrate accepted answers back into the spec and a Clarifications section)
+      analyze       -> cross-artifact-analyzer (read-only cross-artifact consistency / coverage / alignment report)
       converge      -> implementation-convergence (post-implementation code-vs-plan gap assessment; appends remaining work as new tasks)
       constitution  -> project-constitution (author/amend the constitution end-to-end; placeholder collection, draft, propagation check, Sync Impact Report, write)
 
@@ -39,7 +39,7 @@ The `converge` scope takes an optional plan/tasks path (defaulting to the curren
 
 ## constitution scope and the /constitution alias
 
-The `constitution` scope drives the `project-constitution` skill - the same end-to-end governance workflow the old `/constitution` command ran. Because the constitution is cross-referenced by `/plan` (the Constitution Check gate), `analyze-spec` (the constitution-alignment pass), and `project-constitution` itself, `/constitution` is retained as a **permanent** convenience alias that forwards to `/spec constitution` (it is not a v3.x deprecation shim). The `check` sub-mode (`/spec constitution check <plan-path>`) runs the read-only Constitution Check gate against an existing plan.
+The `constitution` scope drives the `project-constitution` skill - the same end-to-end governance workflow the old `/constitution` command ran. Because the constitution is cross-referenced by `/plan` (the Constitution Check gate), `cross-artifact-analyzer` (the constitution-alignment pass), and `project-constitution` itself, `/constitution` is retained as a **permanent** convenience alias that forwards to `/spec constitution` (it is not a v3.x deprecation shim). The `check` sub-mode (`/spec constitution check <plan-path>`) runs the read-only Constitution Check gate against an existing plan.
 
 ## Notes
 

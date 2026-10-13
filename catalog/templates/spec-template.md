@@ -137,12 +137,12 @@ Anti-patterns to avoid:
 <!--
 Each entry declares something the system explicitly will NOT do, and every entry MUST carry a reason. Accepted reasons: deferred to a later release, a separate initiative, not yet validated with users, too expensive for the value it would add. A Non-Goal without a reason invites the reviewer to assume you forgot the item rather than excluded it deliberately.
 
-Boundary against Assumptions: an Assumption records a decision the reviewer can override with one line ("actually, use JWT"). A Non-Goal records scope the reviewer is being asked to confirm is excluded. If overriding the entry would change WHAT gets built rather than HOW, it belongs here. The A1 example under Assumptions below ("JWT is out of scope for this feature") is a Non-Goal wearing an Assumption's clothing; statements of that shape belong in this section.
+Boundary against Assumptions: an Assumption records a decision the reviewer can override with one line ("actually, use the shared auth service's middleware"). A Non-Goal records scope the reviewer is being asked to confirm is excluded. If overriding the entry would change WHAT gets built rather than HOW, it belongs here. A statement of the shape "X is out of scope for this feature" is always a Non-Goal, never an Assumption.
 
 This section is what `spec-quality-checklist.md`'s "Scope is clearly bounded" item and the `scope-guardian-reviewer` agent check against, and it is where the `idea-refine` stage's **Out of Scope** block lands.
 -->
 
-- **[Thing this feature will not do]**. Reason: [deferred to a later release, a separate initiative, not yet validated, or too expensive for the value, with the specific detail. Example: "deferred to v2; the mobile client that needs it is not yet scheduled."]
+- **[Thing this feature will not do]**. Reason: [deferred to a later release, a separate initiative, not yet validated, or too expensive for the value, with the specific detail. Example: "**JWT authentication**. Reason: deferred to v2; the mobile client that needs it is not yet scheduled."]
 - **[Thing this feature will not do]**. Reason: [...]
 
 ---
@@ -168,6 +168,6 @@ Remove this section entirely when the feature is purely additive and touches no 
 Document the informed-default position for every candidate ambiguity that was demoted below the 3-marker hard limit. The reviewer can override any assumption with one line; an unanswered [NEEDS CLARIFICATION] marker requires full back-and-forth. Use this section liberally - explicit assumptions are cheaper to overturn than hidden ones.
 -->
 
-- **A1**: [Assumed default that the spec relies on. Example: "Authentication uses the existing session-cookie middleware; JWT is out of scope for this feature."]
+- **A1**: [Assumed HOW default that the spec relies on and the reviewer can override in one line without changing what gets built. Example: "Authentication reuses the existing session-cookie middleware."]
 - **A2**: [...]
 - **A3**: [...]

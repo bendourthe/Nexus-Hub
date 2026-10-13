@@ -35,7 +35,12 @@ function Test-Binary {
 switch ($Platform) {
     'codex' {
         if (Test-Binary 'codex') {
-            try { & codex debug models } catch { Write-Output $pickerSentinel }
+            # try/catch does not see a native command's non-zero exit, so check
+            # $LASTEXITCODE too; this mirrors the .sh sibling's `|| sentinel`.
+            try {
+                & codex debug models
+                if ($LASTEXITCODE -ne 0) { Write-Output $pickerSentinel }
+            } catch { Write-Output $pickerSentinel }
         } else {
             Write-Output $pickerSentinel
         }
@@ -43,7 +48,10 @@ switch ($Platform) {
     }
     'antigravity' {
         if (Test-Binary 'agy') {
-            try { & agy models } catch { Write-Output $pickerSentinel }
+            try {
+                & agy models
+                if ($LASTEXITCODE -ne 0) { Write-Output $pickerSentinel }
+            } catch { Write-Output $pickerSentinel }
         } else {
             Write-Output $pickerSentinel
         }
@@ -82,7 +90,9 @@ switch ($Platform) {
         break
     }
     default {
-        Write-Error "unknown platform `"$Platform`""
+        # Not Write-Error: a caller running with $ErrorActionPreference = 'Stop'
+        # turns it terminating and `exit 2` is never reached (AF-6).
+        [Console]::Error.WriteLine("error: unknown platform `"$Platform`"")
         exit 2
     }
 }

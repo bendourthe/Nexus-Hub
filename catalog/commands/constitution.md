@@ -4,7 +4,7 @@ description: Author or amend the project constitution - the versioned governance
 
 # /constitution Command (permanent alias)
 
-`/constitution` is a **permanent** convenience alias for `/spec constitution`. It is not a v3.x deprecation shim: it is retained for the entire v3.x line and beyond, because the constitution is heavily cross-referenced by `/plan` (the Constitution Check gate), `analyze-spec` (the constitution-alignment pass), and the `project-constitution` skill itself, and a single-word entry point for it is worth keeping.
+`/constitution` is a **permanent** convenience alias for `/spec constitution`. It is not a v3.x deprecation shim: it is retained for the entire v3.x line and beyond, because the constitution is heavily cross-referenced by `/plan` (the Constitution Check gate), `cross-artifact-analyzer` (the constitution-alignment pass), and the `project-constitution` skill itself, and a single-word entry point for it is worth keeping.
 
 ## Forwarding
 

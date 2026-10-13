@@ -4,7 +4,7 @@ description: Define goals and produce a robust, phased plan. Use to plan a build
 
 # /plan Command
 
-Define the goal and produce a robust, phased plan. `/plan` is the merge point of three lineages - phased planning (`generate-plan`), goal-setting (`product-strategy` + plan-mode goals), and at-scale orchestration (dynamic workflows) - so it is robust by default and workflow-accelerated when available. It works for greenfield builds, feature additions, enhancements, refactors, bug-fix campaigns, and any other multi-step effort.
+Define the goal and produce a robust, phased plan. `/plan` is the merge point of three lineages - phased planning (`implementation-plan`), goal-setting (`product-strategy` + plan-mode goals), and at-scale orchestration (dynamic workflows) - so it is robust by default and workflow-accelerated when available. It works for greenfield builds, feature additions, enhancements, refactors, bug-fix campaigns, and any other multi-step effort.
 
 This is a thin dispatcher over the retained planning skills, following the contract in [`command-scope-mechanism.md`](../style-guides/command-scope-mechanism.md). Heavy logic stays in the skills; this file resolves scope and delegates.
 
@@ -102,14 +102,14 @@ Present the plan the way `catalog/style-guides/agent-communication.md` requires:
 Dispatch the resolved scope to the retained skill(s):
 
       goals            -> product-strategy (goal + DoD), no full plan
-      new              -> generate-plan (greenfield discovery interview)
-      feature          -> generate-plan (feature/enhancement interview) + implementation-plan
-      refactor         -> generate-plan (refactor interview)
-      from-comparison  -> generate-plan (from-comparison mode, RE-first ordering)
-      todos            -> generate-todos (bootstrap docs/todos.md)
+      new              -> implementation-plan (greenfield discovery interview)
+      feature          -> implementation-plan (feature/enhancement interview)
+      refactor         -> implementation-plan (refactor interview)
+      from-comparison  -> implementation-plan (from-comparison mode, RE-first ordering)
+      todos            -> dev-progress-tracker (bootstrap docs/todos.md, seeded from git history, existing docs, and TODO / FIXME annotations)
       issues           -> tasks-to-issues (fan tasks.md -> GitHub issues via gh)
 
-For the planning scopes, `generate-plan` preserves everything it always did: the guided discovery interview, prior-version known-gaps ingest, knowledge-base + strategy grounding, the Constitution Check + Complexity Tracking gates, and the strict `T###` task-line file-format contract. Pass any remaining arguments through unchanged.
+For the planning scopes, `implementation-plan` preserves everything it always did: the guided discovery interview, prior-version known-gaps ingest, knowledge-base + strategy grounding, the Constitution Check + Complexity Tracking gates, and the strict `T###` task-line file-format contract. Pass any remaining arguments through unchanged.
 
 ## Notes
 

@@ -1917,37 +1917,55 @@ install_workspace() {
 
         # --- Install Logic (provider-grouped) ---
         # Each provider block is gated on the --platforms subset via
-        # should_install <integration-key> (no filter => all run).
+        # should_install <integration-key> (no filter => all run). Output mirrors
+        # install_global (v4.13.11, AR-20): a provider passed to
+        # invoke_registry_platform prints its header lazily, and a platform that
+        # delivered no surface is collected into the grouped NOT DETECTED section
+        # printed once by write_undetected_group below.
+        reset_undetected_platforms
 
         # --- Anthropic -- Claude Code -------------------------------
         if should_install claude; then
         write_header "ANTHROPIC"
-        write_item "Claude Code" "$GRAY"
         local claude_dir="$target_path/.claude"
         mkdir -p "$claude_dir"
 
-        flatten_skills_into "$(catalog_src "$repo_root" skills)"   "$claude_dir/skills"   "[OK] Skills catalog installed (flattened) at: $claude_dir/skills"
-        safe_folder_copy "$(catalog_src "$repo_root" commands)" "$claude_dir/commands" "[OK] Commands installed at: $claude_dir/commands"
-        safe_folder_copy "$(catalog_src "$repo_root" agents)"   "$claude_dir/agents"   "[OK] Agents installed at: $claude_dir/agents"
-        safe_folder_copy "$repo_root/catalog/rules"    "$claude_dir/rules"    "[OK] Rules installed at: $claude_dir/rules"
+        # Same treatment as the global Claude block: run every step quietly
+        # (>/dev/null; errors still reach stderr) and render ONE checklist from
+        # the resulting on-disk state.
+        flatten_skills_into "$(catalog_src "$repo_root" skills)"   "$claude_dir/skills"   >/dev/null
+        safe_folder_copy "$(catalog_src "$repo_root" commands)" "$claude_dir/commands" >/dev/null
+        safe_folder_copy "$(catalog_src "$repo_root" agents)"   "$claude_dir/agents"   >/dev/null
+        safe_folder_copy "$repo_root/catalog/rules"    "$claude_dir/rules"    >/dev/null
         # Org rules are seeded by the registry after refresh-mode catalog pruning.
-        invoke_registry_platform "$repo_root" "workspace" "$target_path" "claude" "CLAUDE.md (instruction file)" "$languages" "true"
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "claude" "CLAUDE.md (instruction file)" "$languages" "true" >/dev/null
 
         mkdir -p "$claude_dir/mcp-configs"
-        safe_copy "$repo_root/catalog/mcp-configs/mcp-servers.json" "$claude_dir/mcp-configs/mcp-servers.json" false "[OK] MCP server config installed at: $claude_dir/mcp-configs"
+        safe_copy "$repo_root/catalog/mcp-configs/mcp-servers.json" "$claude_dir/mcp-configs/mcp-servers.json" false >/dev/null
 
-        safe_folder_copy "$repo_root/catalog/context" "$claude_dir/context" "[OK] Context installed at: $claude_dir/context"
-        safe_folder_copy "$repo_root/catalog/memory"  "$claude_dir/memory"  "[OK] Memory installed at: $claude_dir/memory"
+        safe_folder_copy "$repo_root/catalog/context" "$claude_dir/context" >/dev/null
+        safe_folder_copy "$repo_root/catalog/memory"  "$claude_dir/memory"  >/dev/null
 
-        install_git_guardrails    "$repo_root" "$claude_dir" "Workspace"
-        install_usage_display     "$repo_root" "$claude_dir" "Workspace"
-        install_require_description "$repo_root" "$claude_dir" "Workspace"
+        install_git_guardrails    "$repo_root" "$claude_dir" "Workspace" >/dev/null
+        install_usage_display     "$repo_root" "$claude_dir" "Workspace" >/dev/null
+        install_require_description "$repo_root" "$claude_dir" "Workspace" >/dev/null
+
+        # Unified checklist. The workspace CLAUDE.md lands at the project root,
+        # where Claude Code reads it; there is no Core Settings row because a
+        # workspace install does not seed core settings.
+        write_item "Claude Code" "$GRAY"
+        [ -f "$target_path/CLAUDE.md" ] && write_checklist_row "Core Files" "ok" "$target_path/CLAUDE.md"
+        [ -d "$claude_dir/skills" ]     && write_checklist_row "Skills" "ok" "$claude_dir/skills"
+        [ -d "$claude_dir/commands" ]   && write_checklist_row "Commands" "ok" "$claude_dir/commands"
+        [ -d "$claude_dir/agents" ]     && write_checklist_row "Agents" "ok" "$claude_dir/agents"
+        [ -d "$claude_dir/rules" ]      && write_checklist_row "Rules" "ok" "$claude_dir/rules"
+        if [ -f "$claude_dir/settings.json" ]; then
+            write_checklist_row "Hooks" "ok" "git-guardrails, usage, require-description"
+        fi
         fi
 
         # --- OpenAI -- Codex ----------------------------------------
         if should_install codex; then
-        write_header "OPENAI"
-        write_item "Codex" "$GRAY"
         local codex_dir="$target_path/.codex"
         mkdir -p "$codex_dir"
 
@@ -1956,14 +1974,17 @@ install_workspace() {
         # .agents/skills (flattened + command skills), and a repo-root AGENTS.md.
         # The [features] hooks switch is user-global, so a workspace install advises
         # rather than editing ~/.codex/config.toml.
-        invoke_registry_platform "$repo_root" "workspace" "$target_path" "codex" "Codex (AGENTS.md + skills + commands + agents + hooks)" "$languages" ""
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "codex" "Codex (AGENTS.md + skills + commands + agents + hooks)" "$languages" "" "OPENAI"
         fi
 
         # --- Google -- Gemini / Antigravity 1.0 + 2.0 / Gemini CLI -
-        if should_install gemini || should_install antigravity2 || should_install gemini-cli; then
+        # As in install_global, the shared GOOGLE header prints eagerly only for
+        # a platform that always renders; Gemini CLI passes the provider, so it
+        # prints the header lazily or joins the NOT DETECTED group.
+        if should_install gemini || should_install antigravity2; then
         write_header "GOOGLE"
+        fi
         if should_install gemini; then
-        write_item "Gemini IDE" "$GRAY"
         local gemini_dir="$target_path/.gemini"
         mkdir -p "$gemini_dir"
 
@@ -1984,46 +2005,40 @@ install_workspace() {
             # Project .gemini/ surfaces plus native hooks merged into
             # .gemini/settings.json; commands resolve via $GEMINI_PROJECT_DIR so
             # a committed settings file carries no absolute local path.
-            invoke_registry_platform "$repo_root" "workspace" "$target_path" "gemini-cli"   "Gemini CLI (enterprise)"
+            invoke_registry_platform "$repo_root" "workspace" "$target_path" "gemini-cli"   "Gemini CLI (enterprise)" "" "" "GOOGLE"
         else
-            write_item "Gemini CLI: skipped (sunset on 2026-06-18 for free / Google AI Pro / Ultra / GitHub-installed users). Re-run with --enterprise to install (requires paid Gemini API key); Antigravity CLI above covers the same functionality." "$DARK_YELLOW"
-        fi
+            add_undetected_platform "Gemini CLI" "enterprise-only; re-run with --enterprise"
         fi
         fi
 
         # --- Microsoft -- GitHub Copilot ----------------------------
         if should_install copilot; then
-        write_header "MICROSOFT"
         # Render .github/copilot-instructions.md via the registry so it carries the
         # {{SKILL_INDEX}} block (from base-codex.md) and is marker-merged, preserving
         # user content above and below the managed block. Fixes C6: the prior
         # hand-built body dropped the skill index and full-overwrote the file
         # (v3.11.0 Phase 7 read-contract audit).
-        invoke_registry_platform "$repo_root" "workspace" "$target_path" "copilot" "GitHub Copilot (.github/copilot-instructions.md)" "$languages"
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "copilot" "GitHub Copilot (.github/copilot-instructions.md)" "$languages" "" "MICROSOFT"
         fi
 
         # --- Anysphere -- Cursor ------------------------------------
         if should_install cursor; then
-        write_header "ANYSPHERE"
-        invoke_registry_platform "$repo_root" "workspace" "$target_path" "cursor" "Cursor"
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "cursor" "Cursor" "" "" "ANYSPHERE"
         fi
 
         # --- OpenCode -----------------------------------------------
         if should_install opencode; then
-        write_header "OPENCODE"
-        invoke_registry_platform "$repo_root" "workspace" "$target_path" "opencode" "OpenCode"
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "opencode" "OpenCode" "" "" "OPENCODE"
         fi
 
         # --- Aider --------------------------------------------------
         if should_install aider; then
-        write_header "AIDER"
-        invoke_registry_platform "$repo_root" "workspace" "$target_path" "aider" "Aider (CONVENTIONS.md)" "$languages"
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "aider" "Aider (CONVENTIONS.md)" "$languages" "" "AIDER"
         fi
 
         # --- Windsurf -----------------------------------------------
         if should_install windsurf; then
-        write_header "WINDSURF"
-        invoke_registry_platform "$repo_root" "workspace" "$target_path" "windsurf" "Windsurf (.windsurfrules)" "$languages"
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "windsurf" "Windsurf (.windsurfrules)" "$languages" "" "WINDSURF"
         fi
 
         # --- Kimi ---------------------------------------------------
@@ -2031,29 +2046,29 @@ install_workspace() {
         # workspace scope: Kimi's project config is local.toml and documents only
         # a [workspace] table, so there is no project hook path to write.
         if should_install kimi; then
-        write_header "KIMI"
-        invoke_registry_platform "$repo_root" "workspace" "$target_path" "kimi" "Kimi Code CLI (.kimi-code/)" "$languages"
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "kimi" "Kimi Code CLI (.kimi-code/)" "$languages" "" "KIMI"
         fi
 
         # --- Qwen ---------------------------------------------------
         # Project QWEN.md + .qwen/ surfaces plus native hooks merged into
         # .qwen/settings.json, resolved via $QWEN_PROJECT_DIR (v3.15.8 Phase 6).
         if should_install qwen; then
-        write_header "QWEN"
-        invoke_registry_platform "$repo_root" "workspace" "$target_path" "qwen" "Qwen Code (QWEN.md)" "$languages"
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "qwen" "Qwen Code (QWEN.md)" "$languages" "" "QWEN"
         fi
 
         # --- OpenClaw -----------------------------------------------
         if should_install openclaw; then
-        write_header "OPENCLAW"
-        invoke_registry_platform "$repo_root" "workspace" "$target_path" "openclaw" "OpenClaw (.openclaw/ SOUL+AGENTS+IDENTITY)" "$languages"
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "openclaw" "OpenClaw (.openclaw/ SOUL+AGENTS+IDENTITY)" "$languages" "" "OPENCLAW"
         fi
 
         # --- Nexus -- Nexus-AI --------------------------------------
         if should_install nexus-ai; then
-        write_header "NEXUS"
-        invoke_registry_platform "$repo_root" "workspace" "$target_path" "nexus-ai" "Nexus-AI (Local Desktop Studio)"
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "nexus-ai" "Nexus-AI (Local Desktop Studio)" "" "" "NEXUS"
         fi
+
+        # Platforms that delivered no surface at this scope (or Gemini CLI without
+        # --enterprise) were collected above; print them once, as install_global does.
+        write_undetected_group
 
         # --- Auto-Approve Permissions sub-section --------------------------
         # v3.17.0 Phase 1.2: previously absent entirely, so a --workspace install
@@ -2100,7 +2115,7 @@ resolve_python_executable() {
 # ---------------------------------------------------------------------------
 # Install selection (v3.16.1 Phase 6.1)
 #
-# Contract: docs/releases/v3/v3.16/development/install-selection-contract.md
+# Contract: docs/archives/v3/v3.16/development/install-selection-contract.md
 #
 # Resolution delegates to scripts/lib/installer/selection.py rather than being
 # reimplemented here. The plan originally called for a native implementation so
@@ -2356,8 +2371,8 @@ install_vscode_extensions() {
     local repo_root="$1"
 
     write_item "Usage Monitor extensions show Claude Code, Codex (ChatGPT), GitHub Copilot, and" "$RESET"
-    write_item "Cursor usage in the status bar. Claude/Codex/Copilot install into VS Code only;" "$RESET"
-    write_item "Cursor Usage Monitor installs into Cursor only. Never cross-installed." "$RESET"
+    write_item "Cursor usage in the status bar. Claude/Codex install into VS Code only; Copilot" "$RESET"
+    write_item "into VS Code and Cursor; Cursor Usage Monitor into Cursor only." "$RESET"
     echo ""
 
     # Check for Node.js (shared by every extension)
@@ -2457,8 +2472,10 @@ install_vscode_extensions() {
         done
     fi
 
-    # Build each extension under its own vendor header. VS Code monitors install
-    # only via vscode_cli; the Cursor monitor installs only via cursor_cli. The
+    # Build each extension under its own vendor header. The Claude and Codex
+    # monitors install only via vscode_cli; the Copilot monitor installs via
+    # vscode_cli and, as its second host, cursor_cli (Copilot runs in Cursor too);
+    # the Cursor monitor installs only via cursor_cli. The
     # vendor order (Anthropic, OpenAI, Microsoft, Anysphere) is asserted by the
     # installer smoke test and must match scripts/installer.ps1.
     write_header "ANTHROPIC"
@@ -2468,7 +2485,7 @@ install_vscode_extensions() {
     build_and_install_one_extension "$repo_root/extensions/codex-usage-monitor" "nexus-hub.codex-usage-monitor" "Codex Usage Monitor" "Codex: --%" "$vscode_cli" "$vscode_label"
 
     write_header "MICROSOFT"
-    build_and_install_one_extension "$repo_root/extensions/copilot-usage-monitor" "nexus-hub.copilot-usage-monitor" "Copilot Usage Monitor" "Copilot: --%" "$vscode_cli" "$vscode_label"
+    build_and_install_one_extension "$repo_root/extensions/copilot-usage-monitor" "nexus-hub.copilot-usage-monitor" "Copilot Usage Monitor" "Copilot: --%" "$vscode_cli" "$vscode_label" "$cursor_cli" "$cursor_label"
 
     write_header "ANYSPHERE"
     build_and_install_one_extension "$repo_root/extensions/cursor-usage-monitor" "nexus-hub.cursor-usage-monitor" "Cursor Usage Monitor" "Cursor: --%" "$cursor_cli" "$cursor_label"
@@ -3686,10 +3703,10 @@ Options:
                  Developers Blog announcement), Gemini CLI stops serving free /
                  Google AI Pro / Ultra / GitHub-installed users; this flag is
                  the only way to keep the integration after that date.
-                 Default (without --enterprise): the installer prints a sunset
-                 warning and skips the Gemini CLI install, but still installs
-                 Antigravity CLI (which covers the same functionality via the
-                 antigravity2 integration).
+                 Default (without --enterprise): Gemini CLI is skipped and
+                 listed once in the grouped NOT DETECTED section as
+                 "enterprise-only; re-run with --enterprise". Antigravity CLI
+                 still installs and covers the same functionality.
   --strict-permissions
                  Install the OPT-IN hardened Claude Code permission posture in
                  addition to the read-only auto-approve list: deny/ask entries
@@ -4293,8 +4310,11 @@ fi
 # Deliberately placed beside the --platforms validation above and BEFORE any
 # write: an invalid selector must never leave a half-installed tree. A run with
 # no selector returns immediately and takes the identical path it always did.
-resolve_selection "$REPO_ROOT"
+# The EXIT trap is registered BEFORE the stage can exist (v4.13.11, AR-10), so a
+# `set -e` failure while staging cannot leak it; cleanup_selection_stage is a
+# no-op while SELECTION_STAGE is empty.
 trap cleanup_selection_stage EXIT
+resolve_selection "$REPO_ROOT"
 if [ "$SELECTION_ACTIVE" = "1" ]; then
     echo ""
     echo "Selection: ${SELECTION_SKILL_COUNT} skills, ${SELECTION_COMMAND_COUNT} commands, ${SELECTION_AGENT_COUNT} agents"

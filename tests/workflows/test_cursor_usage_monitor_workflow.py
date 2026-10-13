@@ -137,7 +137,10 @@ def test_job_runs_inside_the_extension_directory(workflow: dict[str, Any]) -> No
 def test_gate_covers_clean_install_compile_coverage_and_packaging(
     build_steps: list[dict[str, Any]],
 ) -> None:
-    assert step_named(build_steps, "Install dependencies")["run"].strip() == "npm ci"
+    assert (
+        step_named(build_steps, "Install dependencies")["run"].strip()
+        == "npm ci --ignore-scripts"
+    )
     assert "npm run compile" in step_named(build_steps, "Compile (tsc)")["run"]
     assert (
         "npm run test:coverage"
@@ -211,10 +214,17 @@ def test_dependabot_tracks_the_new_extension() -> None:
         if entry.get("package-ecosystem") == "npm"
         and str(entry.get("directory", "")).endswith("-usage-monitor")
     ]
-    # Three, not four: the GitHub monitor was withdrawn in v3.18.2.
-    assert len(npm_monitors) == 3, (
-        "expected npm Dependabot entries for all three usage monitors"
+    # Derived from disk, so a monitor added without an entry fails here
+    # (the Copilot monitor went untracked for a release this way, v4.13.9 WN-28).
+    on_disk = {
+        f"/extensions/{path.parent.name}"
+        for path in (REPO_ROOT / "extensions").glob("*-usage-monitor/package.json")
+    }
+    tracked = {str(entry["directory"]) for entry in npm_monitors}
+    assert tracked == on_disk, (
+        f"npm Dependabot entries {sorted(tracked)} must match the usage monitors on disk {sorted(on_disk)}"
     )
+    assert len(on_disk) == 4, "claude, codex, cursor and copilot monitors are expected on disk"
     for entry in npm_monitors:
         ignored = {item["dependency-name"] for item in entry.get("ignore", [])}
         assert "@types/vscode" in ignored, (

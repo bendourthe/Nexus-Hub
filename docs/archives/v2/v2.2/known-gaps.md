@@ -1,5 +1,9 @@
 # Known Gaps -- v2.2.0
 
+**Open items**: 0
+
+**Ledger normalization**: 2026-10-09, v4.13.11. The canonical open count above is derived from supported item headings. Summary and reconciliation count tables below retain historical release snapshots, including partial closures and explicit transfers; they are not new parser totals.
+
 This file tracks per-version unfinished work, deferred items, deviations from plan, and bugs discovered during phase implementation. The next phase plan and the version-bump checklist read this file to decide what carries forward.
 
 **Plan**: [docs/archives/v2/v2.2/plans/codegraph-and-antigravity.md](plans/codegraph-and-antigravity.md)
@@ -31,6 +35,8 @@ All 12 prior open items were transferred to the v2.3.0 plan ([adoption-ecc-cyber
 (none -- all prior open items transferred to the v2.3.0 plan on 2026-05-26; see Resolved below. Full per-item Reason and Suggested-next-step context now lives in the corresponding v2.3.0 sub-task Prompt blocks.)
 
 ## Resolved
+
+### Resolved historical records
 
 | ID | Title | Category | Resolved in | Detail |
 |---|---|---|---|---|

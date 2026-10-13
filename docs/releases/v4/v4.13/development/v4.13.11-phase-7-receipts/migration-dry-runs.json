@@ -1,0 +1,666 @@
+[
+ {
+  "id": "BG-7-v4130",
+  "reason": "user-credential",
+  "evidence": "BG-7-v4130 needs a Claude Console workspace API key with a provider-enforced spend cap; the host authenticates only as claude.ai Team (preflight 2026-09-24), so no bounded paid call is possible.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#BG-7-v4130 -> v4.14#BG-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "WN-3-v4130",
+  "reason": "user-credential",
+  "evidence": "WN-3-v4130 requires a new paid frozen trigger pilot, which is blocked until BG-7 establishes a provider-enforced spend cap on a Console workspace key.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#WN-3-v4130 -> v4.14#WN-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "WN-5-v4130",
+  "reason": "user-deferred",
+  "evidence": "WN-5-v4130's 96 historical tool payloads were never retained and cannot be recovered; future runs retain selectors, so only maintainer acceptance can close the historical clause.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#WN-5-v4130 -> v4.14#WN-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "AR-26",
+  "reason": "user-deferred",
+  "evidence": "AR-26 needs the macOS smoke checklist and a live --branch install on a real macOS host; the v4.13.11 host is Windows only and CI covers only the local tarball bootstrap.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#AR-26 -> v4.14#AR-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "AR-40",
+  "reason": "user-deferred",
+  "evidence": "AR-40 can only close on hosted-CI evidence plus repeated clean full installer runs, since a single green local run cannot disprove a non-deterministic OneDrive flake.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#AR-40 -> v4.14#AR-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "AR-16",
+  "reason": "user-credential",
+  "evidence": "AR-16 NI-1 needs an interactive Claude Code session on the user's account to observe whether `echo x > file` prompts under a `Bash(echo *)` allow rule.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#AR-16 -> v4.14#AR-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "AR-17",
+  "reason": "vendor-feature",
+  "evidence": "AR-17 DF-2 needs Gemini and Codex to document a project-scoped permission path; none was documented well enough to write.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#AR-17 -> v4.14#AR-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "AR-36",
+  "reason": "user-credential",
+  "evidence": "AR-36 needs authenticated Antigravity CLI and Cursor UI read-backs, Gemini Code Assist IDE observation and Nexus-AI private-repo access; the 2026-09-27 host was not signed in.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#AR-36 -> v4.14#AR-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "AR-38",
+  "reason": "vendor-feature",
+  "evidence": "AR-38 stays open until Antigravity, OpenCode, Kimi, Hermes or Nexus-AI documents a per-skill invocation-policy field; last checked 2026-08-24.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#AR-38 -> v4.14#AR-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "AR-47",
+  "reason": "vendor-feature",
+  "evidence": "AR-47 needs first-party Cursor documentation or a live read-back confirming ~/.cursor/commands is unread before the redundant write is removed.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#AR-47 -> v4.14#AR-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "AR-56",
+  "reason": "vendor-feature",
+  "evidence": "AR-56 DF-12 needs Gemini CLI to document directly-written extension hook directories as loaded.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#AR-56 -> v4.14#AR-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "AR-57",
+  "reason": "user-credential",
+  "evidence": "AR-57 needs authenticated Codex, Gemini CLI, Qwen and Kimi installs to observe agent loading, hook firing and the Windows dispatch shell.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#AR-57 -> v4.14#AR-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "AR-04",
+  "reason": "user-credential",
+  "evidence": "AR-04 live trigger-rate and technique checks require paid model calls under a bounded spend cap, blocked with BG-7.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#AR-04 -> v4.14#AR-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "AR-07",
+  "reason": "user-deferred",
+  "evidence": "AR-07 counts 68 of 340 SKILL.md files over 500 lines on 2026-10-10; relocation is incremental per edit by policy, not a single fix.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#AR-07 -> v4.14#AR-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "AR-08",
+  "planned": "close in Phase 7/8",
+  "dry_run": null
+ },
+ {
+  "id": "AR-09",
+  "reason": "user-deferred",
+  "evidence": "AR-09 has 89 of 340 skills with evals/trigger-cases.json; coverage grows per rewrite by contract.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#AR-09 -> v4.14#AR-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "AR-15",
+  "reason": "user-deferred",
+  "evidence": "AR-15 upstream delta verification needs a fresh repository comparison against github/spec-kit, which this offline audit cannot perform.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#AR-15 -> v4.14#AR-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "AR-28",
+  "reason": "user-deferred",
+  "evidence": "AR-28 still has about 134 retired slash-command mentions across about 25 skills (90 found for a 10-name sample), a multi-hour context-sensitive sweep.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#AR-28 -> v4.14#AR-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "AR-33",
+  "reason": "user-deferred",
+  "evidence": "AR-33 has no subprocess coverage plumbing; adding it with a measured threshold for tests/validators is CI infrastructure deferred to its own version.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#AR-33 -> v4.14#AR-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "AR-34",
+  "reason": "user-deferred",
+  "evidence": "AR-34 measures 214 Ruff findings in scripts/lib/integrations and 1619 repo-wide on 2026-10-10, needing a dedicated baseline-and-batches lint cycle.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#AR-34 -> v4.14#AR-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "AR-18",
+  "reason": "user-deferred",
+  "evidence": "AR-18 extractor limits are documented by-design trade-offs awaiting the presentify owner's explicit accept-or-schedule decision.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#AR-18 -> v4.14#AR-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "AR-19",
+  "reason": "user-deferred",
+  "evidence": "AR-19 WN-1 rendered QA of the v3.13 samples needs a browser-capable render session or the CI render job.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#AR-19 -> v4.14#AR-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "AR-32",
+  "reason": "user-deferred",
+  "evidence": "AR-32 keeps the legacy-module coverage threshold, the extension-host modules that need a live VS Code host, and the original Codex icon artwork, none available locally.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#AR-32 -> v4.14#AR-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "AR-44",
+  "reason": "user-deferred",
+  "evidence": "AR-44 needs a live Cursor host for the widened visual smoke; no Cursor session was available.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#AR-44 -> v4.14#AR-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "AR-60",
+  "planned": "close in Phase 7/8",
+  "dry_run": null
+ },
+ {
+  "id": "AR-46",
+  "reason": "user-deferred",
+  "evidence": "AR-46 Windows toast linger needs a person watching a rendered notification to choose a value below the 5500 ms default.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#AR-46 -> v4.14#AR-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "AR-39",
+  "reason": "user-credential",
+  "evidence": "AR-39 is a manual Claude plugin-directory form submission on the maintainer's Anthropic account; README still says if Anthropic later lists.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#AR-39 -> v4.14#AR-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "AR-62",
+  "reason": "user-deferred",
+  "evidence": "AR-62 keeps the Linux and macOS workspace-installer receipts for v1.1 DF-006 and DF-008; the v4.13.11 host is Windows only.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#AR-62 -> v4.14#AR-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "AR-63",
+  "reason": "user-deferred",
+  "evidence": "AR-63 needs clean Linux and macOS hosts for the scaffold, compile and stdio handshake legs.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#AR-63 -> v4.14#AR-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "AR-64",
+  "reason": "user-credential",
+  "evidence": "AR-64 needs account-backed CLI and model enumeration to complete the canonical roster, the Codex picker entry and profiles.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#AR-64 -> v4.14#AR-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "AR-65",
+  "reason": "user-deferred",
+  "evidence": "AR-65 all-tools leg needs a host provisioned with semgrep, gitleaks, osv-scanner, trivy, checkov and pip-audit together.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#AR-65 -> v4.14#AR-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "AR-66",
+  "reason": "user-deferred",
+  "evidence": "AR-66 needs a five-person workshop cohort for the v4.2.2 and v4.2.3 origins.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#AR-66 -> v4.14#AR-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "AR-67",
+  "reason": "user-deferred",
+  "evidence": "AR-67 needs technical and nontechnical human readers and a final human visual review.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#AR-67 -> v4.14#AR-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "AR-68",
+  "reason": "vendor-feature",
+  "evidence": "AR-68 typed OpenClaw interception needs a plugin surface the vendor does not expose; only lifecycle hooks are documented.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#AR-68 -> v4.14#AR-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "AR-69",
+  "reason": "user-deferred",
+  "evidence": "AR-69 native 200% zoom and OS occlusion need observation on a real host by a person.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#AR-69 -> v4.14#AR-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "AR-70",
+  "reason": "user-deferred",
+  "evidence": "AR-70 needs human judgment of replies on two platforms.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#AR-70 -> v4.14#AR-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "AR-71",
+  "reason": "user-deferred",
+  "evidence": "AR-71 transitive reachability and shared-checkout isolation is a large design exercise beyond the bounded 2026-09-24 audit findings.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#AR-71 -> v4.14#AR-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "AR-72",
+  "reason": "user-credential",
+  "evidence": "AR-72 needs live non-Claude platforms and a person for MT-1 tests 1 and 3.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#AR-72 -> v4.14#AR-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "AR-73",
+  "reason": "user-credential",
+  "evidence": "AR-73 needs the hosted code-scanning alerts read with the maintainer's gh session and a maintainer decision on making CodeQL required.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#AR-73 -> v4.14#AR-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "AR-74",
+  "reason": "vendor-feature",
+  "evidence": "AR-74 Gemini CLI and OpenCode document no flag that excludes all configuration, so all-configuration isolation cannot be proved.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#AR-74 -> v4.14#AR-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "AR-75",
+  "reason": "user-deferred",
+  "evidence": "AR-75 retained read-only PR refs need an owner decision or GitHub administrative action.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#AR-75 -> v4.14#AR-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "AR-76",
+  "reason": "user-credential",
+  "evidence": "AR-76 needs a fresh public contributor-view check and possibly a GitHub Support ticket from the owner.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#AR-76 -> v4.14#AR-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "AR-77",
+  "reason": "user-deferred",
+  "evidence": "AR-77 Antigravity legacy workflow retirement applies only after the vendor's dated retirement; acting before it would remove a still-read surface.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#AR-77 -> v4.14#AR-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "BG-2-v4131",
+  "reason": "user-deferred",
+  "evidence": "BG-2-v4131 keeps finding the concurrent writer of state/locks with a quiet machine running the full-profile groups one by one, and hosted protected-integration verification.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#BG-2-v4131 -> v4.14#BG-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "WN-1-v4131",
+  "reason": "user-credential",
+  "evidence": "Scenario B re-measurement needs a paid Claude replay run on the maintainer's pilot keys; the hook fix is test-covered only.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#WN-1-v4131 -> v4.14#WN-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "WN-2-v4131",
+  "reason": "user-credential",
+  "evidence": "Scenario C re-run (three Claude trials per condition) is a paid replay on the maintainer's pilot keys.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#WN-2-v4131 -> v4.14#WN-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "WN-3-v4131",
+  "reason": "user-deferred",
+  "evidence": "Codex resolves home via the Windows known-folder API, so isolation needs a separate OS account or container that is not available on this host.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#WN-3-v4131 -> v4.14#WN-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "WN-4-v4131",
+  "reason": "vendor-feature",
+  "evidence": "Antigravity documents only a PreToolUse bridge; user-edit-guard needs a verified post-write event to record agent writes.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#WN-4-v4131 -> v4.14#WN-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "WN-5-v4131",
+  "reason": "user-credential",
+  "evidence": "Post-fix Claude scenario D replay is a paid run on the maintainer's pilot keys.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#WN-5-v4131 -> v4.14#WN-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "WN-6-v4131",
+  "reason": "user-deferred",
+  "evidence": "Accepted risk; tightening `$`-bearing destinations waits on a measured false-block rate the maintainer has not commissioned.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#WN-6-v4131 -> v4.14#WN-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "MT-1-v4131",
+  "reason": "user-credential",
+  "evidence": "Measuring the rule on Copilot, Cursor, Gemini or a rule-only platform needs a paid replay on that vendor account.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#MT-1-v4131 -> v4.14#MT-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "WN-4-v4132",
+  "reason": "vendor-feature",
+  "evidence": "OpenCode documents no prompt-submit event and `opencode run` attaches no terminal, so a headless approval cannot be captured.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#WN-4-v4132 -> v4.14#WN-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "WN-7-v4132",
+  "reason": "vendor-feature",
+  "evidence": "No OpenCode signal identifies an `/implement` run, so a push/merge/release refusal plugin cannot be keyed reliably.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#WN-7-v4132 -> v4.14#WN-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "MT-1-v4132",
+  "reason": "user-credential",
+  "evidence": "Condition B rerun needs the OpenAI pilot key quota (last run returned Quota exceeded).",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#MT-1-v4132 -> v4.14#MT-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "WN-8-v4132",
+  "reason": "user-deferred",
+  "evidence": "WN-8-v4132 signing pause and blockers changes the run-record signature format and was deliberately not changed during a live signed minor run.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#WN-8-v4132 -> v4.14#WN-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "WN-9-v4132",
+  "reason": "vendor-feature",
+  "evidence": "No platform documents a per-prompt user attestation the agent's own tool calls cannot forge.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#WN-9-v4132 -> v4.14#WN-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "WN-11-v4132",
+  "reason": "user-deferred",
+  "evidence": "Refusing unchecked platform rows changes run-plan behavior on four platforms and needs a maintainer decision.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#WN-11-v4132 -> v4.14#WN-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "WN-13",
+  "reason": "user-credential",
+  "evidence": "Confirming the exact `gh pr checks` no-checks stderr needs a freshly opened PR on the maintainer's GitHub account.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#WN-13 -> v4.14#WN-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "DF-5-v4132",
+  "reason": "vendor-feature",
+  "evidence": "The prompt-event payload field carrying user text is not verified for Pi, OpenClaw and Hermes plugins.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#DF-5-v4132 -> v4.14#DF-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "MT-2",
+  "reason": "user-credential",
+  "evidence": "Exercising a real gate refusal and runner resume needs a paid Claude/Codex session on the maintainer's keys.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#MT-2 -> v4.14#MT-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "DF-1-v4132",
+  "reason": "vendor-feature",
+  "evidence": "Cascade workspace hook path (.devin vs .windsurf) must be re-verified from docs.devin.ai at the next platform-contract pass.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#DF-1-v4132 -> v4.14#DF-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "DF-2-v4132",
+  "reason": "vendor-feature",
+  "evidence": "No first-party page confirms hooks for Antigravity 1.0 and no 1.0 install is available to observe one.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#DF-2-v4132 -> v4.14#DF-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "DF-3-v4132",
+  "reason": "vendor-feature",
+  "evidence": "Devin CLI's hook payload fields are not captured from vendor docs or a live run, so a parity case would be invented.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#DF-3-v4132 -> v4.14#DF-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "DF-4-v4132",
+  "reason": "vendor-feature",
+  "evidence": "OpenClaw and Hermes plugin-enable config locations were not stated verbatim by first-party pages (2026-09-25).",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#DF-4-v4132 -> v4.14#DF-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "DF-1-v4133",
+  "reason": "user-deferred",
+  "evidence": "Owned by v4.17.3, whose full-vs-pointer pairing evaluator must produce organic-selection receipts first.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#DF-1-v4133 -> v4.14#DF-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "DF-2-v4133",
+  "reason": "user-deferred",
+  "evidence": "Owned by v4.16.0 instruction-necessity review; variant staging is not yet scheduled there.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#DF-2-v4133 -> v4.14#DF-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "DF-4-v4133",
+  "reason": "user-deferred",
+  "evidence": "Static measurement is v4.17.3 work, which the plan already binds to the existing estimator.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#DF-4-v4133 -> v4.14#DF-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "DF-8",
+  "reason": "user-deferred",
+  "evidence": "Owned by v4.16.2 and gated on a v4.17.3 cost/pass-rate pairing receipt not yet produced.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#DF-8 -> v4.14#DF-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "WN-1-v4133",
+  "reason": "user-deferred",
+  "evidence": "Accepted risk recorded in the legacy-removal decision record; no portable primitive closes the window.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#WN-1-v4133 -> v4.14#WN-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "MT-1-v4133",
+  "reason": "user-deferred",
+  "evidence": "A full installer run needs a disposable machine because it writes real %APPDATA% and VS Code extensions.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#MT-1-v4133 -> v4.14#MT-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "WN-5-v4133",
+  "reason": "vendor-feature",
+  "evidence": "OpenClaw docs do not state precedence between per-agent and default workspace, so the profile path cannot be modeled yet.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#WN-5-v4133 -> v4.14#WN-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "WN-6-v4133",
+  "reason": "user-deferred",
+  "evidence": "Seeding per-model modelSettings pins a model id; the maintainer must decide, while env CLAUDE_CODE_EFFORT_LEVEL still delivers effort.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#WN-6-v4133 -> v4.14#WN-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "WN-1-v4136",
+  "reason": "user-deferred",
+  "evidence": "Needs a human-typed /goal in an interactive Claude Code session with a logging UserPromptSubmit hook; only the headless probe exists.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#WN-1-v4136 -> v4.14#WN-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "WN-4-v4136",
+  "reason": "user-deferred",
+  "evidence": "Triage of 100 pre-existing whole-guide detector findings plus a new whole-page render gate is a multi-view guide project outside this sweep.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#WN-4-v4136 -> v4.14#WN-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "DF-1-v4136",
+  "reason": "vendor-feature",
+  "evidence": "Copilot CLI documents no headless /goal entry point; run_plan.py keeps copilot/cli in INTERACTIVE_GOAL_ROWS.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#DF-1-v4136 -> v4.14#DF-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "QG-1-v4136",
+  "reason": "user-deferred",
+  "evidence": "The redesigned approval page needs a non-engineer read-back, which an agent cannot perform.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#QG-1-v4136 -> v4.14#QG-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "WN-1-v4139",
+  "reason": "vendor-feature",
+  "evidence": "openai.com/index/introducing-gpt-6-1-sol/ returned HTTP 403; profile claims rest only on the model catalog.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#WN-1-v4139 -> v4.14#WN-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "WN-2-v4139",
+  "reason": "vendor-feature",
+  "evidence": "cursor.com/docs/agent/chat/commands documents neither /visualize nor command-name precedence; option (b) stands.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#WN-2-v4139 -> v4.14#WN-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "DF-1-v4139",
+  "reason": "vendor-feature",
+  "evidence": "Reopen requires two primary OpenAI sources confirming the fix version and a second host hazard; neither exists.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#DF-1-v4139 -> v4.14#DF-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "DF-9",
+  "reason": "vendor-feature",
+  "evidence": "Claude Haiku 5.5 is announced but not in Anthropic's models overview, so no profile can be verified.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#DF-9 -> v4.14#DF-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "DF-11",
+  "reason": "user-deferred",
+  "evidence": "Nine Claude prompting profiles need per-model /tune-prompting research; claude-opus-5-5 is scheduled for v4.17.6.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#DF-11 -> v4.14#DF-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "WN-23",
+  "reason": "user-deferred",
+  "evidence": "Whether the dated Haiku 4.5 id and its alias share one profile is a maintainer decision tied to DF-11.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#WN-23 -> v4.14#WN-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "DF-12",
+  "reason": "vendor-feature",
+  "evidence": "Claude Code 2.1.283 does not recognize claude-sonnet-5-5 or expose effort, so the approved paid matrix cannot run.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#DF-12 -> v4.14#DF-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "WN-26",
+  "reason": "user-deferred",
+  "evidence": "Scoping the all-refs attribution scan or allowing dependabot[bot] is a CI security policy decision for the maintainer.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#WN-26 -> v4.14#WN-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "WN-30",
+  "reason": "user-deferred",
+  "evidence": "Whether Copilot-in-Cursor is a supported surface is a maintainer decision; installer edits are ask-first.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#WN-30 -> v4.14#WN-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "WN-31",
+  "reason": "user-credential",
+  "evidence": "Needs a live Codex account with an available reset to capture whether the response carries an expiry.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#WN-31 -> v4.14#WN-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "WN-32",
+  "planned": "close in Phase 7/8",
+  "dry_run": null
+ },
+ {
+  "id": "QG-7",
+  "reason": "user-credential",
+  "evidence": "Requires the maintainer's real editors, work Copilot account and live usage-limit crossings.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#QG-7 -> v4.14#QG-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "WN-37",
+  "planned": "close in Phase 7/8",
+  "dry_run": null
+ },
+ {
+  "id": "WN-1-v41310",
+  "reason": "user-deferred",
+  "evidence": "Safari file:// behavior needs a real macOS Safari, unavailable on this Windows host.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#WN-1-v41310 -> v4.14#WN-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "WN-8-v41310",
+  "reason": "user-deferred",
+  "evidence": "WN-8-v41310 reaching 600 px needs a maintainer decision on which Foundations figure content phones drop; the figure is 1421 px at 390 px.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#WN-8-v41310 -> v4.14#WN-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "WN-9-v41310",
+  "reason": "user-deferred",
+  "evidence": "Embedding real app screenshots in the trailer is a maintainer content decision.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#WN-9-v41310 -> v4.14#WN-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "WN-11-v41310",
+  "reason": "user-deferred",
+  "evidence": "Frame rate must be measured on a real GPU laptop and phone; headless SwiftShader figures do not apply.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#WN-11-v41310 -> v4.14#WN-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "WN-12-v41310",
+  "reason": "user-deferred",
+  "evidence": "WN-12-v41310 keeps five game-engine and IDE-player nits that need slow software-WebGL verification (WN-40).",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#WN-12-v41310 -> v4.14#WN-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "QG-2-v41310",
+  "reason": "user-deferred",
+  "evidence": "Two or three non-technical readers must test the page on desktop and phone; an agent cannot substitute.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#QG-2-v41310 -> v4.14#QG-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ },
+ {
+  "id": "WN-40",
+  "reason": "user-deferred",
+  "evidence": "Bounding the ship-balance fixture needs same-runner CI profiling of an 18-38 minute software-WebGL run with equal balance output.",
+  "exit": 0,
+  "dry_run": "WOULD MIGRATE v4.13#WN-40 -> v4.14#WN-1 (v4.14.0) docs/releases/v4/v4.14/known-gaps.md"
+ }
+]

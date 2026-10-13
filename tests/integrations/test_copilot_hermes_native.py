@@ -34,6 +34,19 @@ from scripts.lib.integrations.copilot import (
     CopilotIntegration,
 )
 
+
+@pytest.fixture(autouse=True)
+def _isolated_nexus_state(tmp_path_factory: pytest.TempPathFactory, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Keep the instruction-merge lock and backup state out of the real profile.
+
+    A reinstall finds an existing instruction file and takes a per-target lock under
+    the Nexus state root, which falls back to the real home unless NEXUS_HUB_HOME is
+    set. The directory sits outside tmp_path so tests that snapshot tmp_path see no
+    extra entries.
+    """
+    monkeypatch.setenv("NEXUS_HUB_HOME", str(tmp_path_factory.mktemp("nexus-home")))
+
+
 COPILOT_DEFAULT_HOOK_LOCATIONS = (
     ".github/hooks",
     "~/.copilot/hooks",
@@ -1692,3 +1705,143 @@ def test_guard_survives_a_wsl_stub_first_on_path(tmp_path, monkeypatch, capsys):
     )
     assert decision["permissionDecision"] == "allow"
     assert decision["modifiedArgs"] == {"command": "git status"}
+
+
+# WN-5-v4133: Agent Host reads manual command skills, while Local keeps prompts.
+
+@pytest.fixture
+def command_skill_ctx(install_ctx, copilot_home, tmp_path, monkeypatch):
+    repo = tmp_path / "command-source"
+    commands = repo / "catalog" / "commands"
+    commands.mkdir(parents=True)
+    for name in ("keep", "drop"):
+        (commands / f"{name}.md").write_text(
+            f"---\ndescription: {name} action\n---\n\n# {name}\n\nRun this action.\n",
+            encoding="utf-8",
+        )
+    template = repo / "templates" / "ai-instructions" / "base-codex.md"
+    template.parent.mkdir(parents=True)
+    template.write_text("# Harness\n", encoding="utf-8")
+    copilot_home.mkdir(parents=True)
+    monkeypatch.setattr("scripts.lib.integrations.copilot._vscode_user_dir", lambda *_: None)
+    monkeypatch.setattr("scripts.lib.integrations.copilot._copilot_home", lambda *_: copilot_home)
+    return replace(install_ctx, repo_root=repo, target_root=copilot_home.parent, scope="global", explicit_target=True)
+
+
+def test_global_command_skills_are_manual_only(copilot, command_skill_ctx, copilot_home):
+    result = copilot.install_global(command_skill_ctx)
+    for name in ("keep", "drop"):
+        path = copilot_home / "skills" / name / "SKILL.md"
+        text = path.read_text(encoding="utf-8")
+        assert f"name: {name}\n" in text
+        assert "disable-model-invocation: true\n" in text
+        assert f"Run the /{name} command." in text
+        assert f"# {name}\n\nRun this action.\n" in text
+        assert str(path) in command_skill_ctx.manifest.files_for("copilot")
+        assert any(action.path == str(path) and action.action == "created" for action in result.files)
+
+
+@pytest.mark.parametrize("selected", [[], ["keep"]])
+def test_global_command_skills_follow_selection(copilot, command_skill_ctx, copilot_home, selected):
+    ctx = replace(command_skill_ctx, selection={"resolved": {"commands": selected, "skills": [], "agents": []}})
+    copilot.install_global(ctx)
+    delivered = {path.parent.name for path in (copilot_home / "skills").glob("*/SKILL.md")}
+    assert delivered == set(selected)
+
+
+def test_global_command_skill_does_not_shadow_catalog_skill(copilot, command_skill_ctx, copilot_home):
+    collision = command_skill_ctx.repo_root / "catalog" / "skills" / "workflow" / "keep" / "SKILL.md"
+    collision.parent.mkdir(parents=True)
+    collision.write_text("catalog skill\n", encoding="utf-8")
+    copilot.install_global(command_skill_ctx)
+    assert not (copilot_home / "skills" / "keep" / "SKILL.md").exists()
+    assert (copilot_home / "skills" / "drop" / "SKILL.md").is_file()
+
+
+def test_global_command_skill_preserves_unowned_personal_bytes(copilot, command_skill_ctx, copilot_home):
+    path = copilot_home / "skills" / "keep" / "SKILL.md"
+    path.parent.mkdir(parents=True)
+    personal = b"Personal workflow\r\nKeep every byte.\r\n"
+    path.write_bytes(personal)
+    result = copilot.install_global(command_skill_ctx)
+    assert path.read_bytes() == personal
+    assert str(path) not in command_skill_ctx.manifest.files_for("copilot")
+    assert any(action.path == str(path) and action.action == "kept" for action in result.files)
+    copilot.install_global(command_skill_ctx)
+    assert path.read_bytes() == personal
+
+
+def test_global_command_skill_refreshes_owned_bytes_idempotently(copilot, command_skill_ctx, copilot_home):
+    copilot.install_global(command_skill_ctx)
+    path = copilot_home / "skills" / "keep" / "SKILL.md"
+    expected = path.read_bytes()
+    path.write_bytes(b"stale owned wrapper\n")
+    refreshed = copilot.install_global(command_skill_ctx)
+    assert path.read_bytes() == expected
+    assert any(action.path == str(path) and action.action == "updated" for action in refreshed.files)
+    repeated = copilot.install_global(command_skill_ctx)
+    assert any(action.path == str(path) and action.action == "unchanged" for action in repeated.files)
+
+
+def test_global_command_skills_keep_local_prompt_compatibility(
+    copilot, command_skill_ctx, copilot_home, tmp_path, monkeypatch
+):
+    user = tmp_path / "vscode-user"
+    user.mkdir()
+    monkeypatch.setattr("scripts.lib.integrations.copilot._vscode_user_dir", lambda *_: user)
+    copilot.install_global(command_skill_ctx)
+    for name in ("keep", "drop"):
+        assert (copilot_home / "skills" / name / "SKILL.md").is_file()
+        assert (user / "prompts" / f"{name}.prompt.md").read_bytes() == (
+            command_skill_ctx.repo_root / "catalog" / "commands" / f"{name}.md"
+        ).read_bytes()
+
+
+def test_global_command_skills_dry_run_and_instruction_only_do_not_seed(
+    copilot, command_skill_ctx, copilot_home
+):
+    preview = copilot.install_global(replace(command_skill_ctx, dry_run=True))
+    assert any(Path(action.path).name == "SKILL.md" for action in preview.files)
+    assert not (copilot_home / "skills").exists()
+    copilot.install_global(replace(command_skill_ctx, instruction_only=True))
+    assert not (copilot_home / "skills").exists()
+
+
+def test_global_command_skills_absent_platform_makes_no_writes(
+    copilot, command_skill_ctx, copilot_home
+):
+    copilot_home.rmdir()
+    result = copilot.install_global(command_skill_ctx)
+    assert result.detected is False
+    assert result.files == []
+    assert not copilot_home.exists()
+
+
+def test_global_command_skills_refuse_redirected_skills_root(
+    copilot, command_skill_ctx, copilot_home, tmp_path
+):
+    external = tmp_path / "external-skills"
+    external.mkdir()
+    sentinel = external / "personal.txt"
+    sentinel.write_bytes(b"keep personal content\n")
+    root = copilot_home / "skills"
+    try:
+        root.symlink_to(external, target_is_directory=True)
+    except OSError as exc:
+        if os.name != "nt":
+            pytest.skip(f"directory links unavailable: {exc}")
+        junction = subprocess.run(
+            ["cmd", "/c", "mklink", "/J", str(root), str(external)],
+            text=True, capture_output=True, check=False,
+        )
+        if junction.returncode:
+            pytest.skip(f"junctions unavailable: {junction.stderr.strip()}")
+    try:
+        result = copilot.install_global(command_skill_ctx)
+        assert list(external.iterdir()) == [sentinel]
+        assert sentinel.read_bytes() == b"keep personal content\n"
+        assert any("refuse-link-like-ancestor" in (action.reason or "") for action in result.files)
+        assert not any(str(external) in path for path in command_skill_ctx.manifest.files_for("copilot"))
+    finally:
+        if owned_files._is_junction(root):
+            root.rmdir()

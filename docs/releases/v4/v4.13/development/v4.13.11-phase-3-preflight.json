@@ -1,0 +1,363 @@
+{
+  "observed_at_utc": "2026-10-10T00:57:12Z",
+  "phase": 3,
+  "entry_head": "ff1aa631538fcf1cbc2380b28e1e001ebd880e8d",
+  "member_start_head": "002b7283a8b839588c8d0e468cbb502f594cb3e6",
+  "native_activation_receipt": "docs/releases/v4/v4.13/development/v4.13.11-native-run-activation.json",
+  "native_check": {
+    "command": "python scripts/check_plan_completion.py check-minor v4.13",
+    "exit_code": 1,
+    "verdict": "INCOMPLETE",
+    "member_gate": "met",
+    "T001_T009": "met",
+    "scope_note": "The minor verdict reads the integration ledger at origin/develop (completion_minor.py:2264-2271); unpublished local normalization is not integration completion."
+  },
+  "queue": {
+    "command": "python scripts/enumerate_plan_queue.py --root . --json",
+    "exit_code": 0,
+    "inventory_sha256": "5ac847f8775dd81ab130ff6290f6f5836c4e3c0a3a7149297b9e43f25044e0d8",
+    "plan_count": 39,
+    "errors": [],
+    "prior_assessment": "docs/releases/v4/v4.13/development/v4.13.11-freeze-queue-assessment.json",
+    "prior_assessment_sha256": "aba03c8f1cd06497958771a3055ef49af6b72b5d044f53b9cdbebda963c40e0c",
+    "future_plan_count": 27,
+    "future_hashes_and_statuses_unchanged": true,
+    "future_plans": [
+      {
+        "version": "v4.14.0",
+        "path": "docs/releases/v4/v4.14/plans/v4.14.0-push-size-guard.md",
+        "membership": "queued",
+        "source_sha256": "e30240a7ab55e709465919cbdfeac5ea1999bfd793ce4cab55af54ceaf1c5209",
+        "verdict": "Ordering impact",
+        "overlapping_paths": [
+          "docs/releases/v4/v4.14/known-gaps.md",
+          "docs/todos.md"
+        ]
+      },
+      {
+        "version": "v4.15.0",
+        "path": "docs/releases/v4/v4.15/plans/v4.15.0-adoption-manager-context-signal-discipline.md",
+        "membership": "undeclared",
+        "source_sha256": "0e3a024a89177a8908db0b7e2fee85e5df093ecb2ad793d20cc85214984d640b",
+        "verdict": "Unknown",
+        "overlapping_paths": []
+      },
+      {
+        "version": "v4.15.1",
+        "path": "docs/releases/v4/v4.15/plans/v4.15.1-adoption-de-slop-repair-discipline.md",
+        "membership": "queued",
+        "source_sha256": "e81c104fa57d5099df346032adcffab5536fb9c7a5cb98d9ed8b271686ffe66b",
+        "verdict": "Ordering impact",
+        "overlapping_paths": [
+          "data/skills.json",
+          "docs/todos.md"
+        ]
+      },
+      {
+        "version": "v4.15.2",
+        "path": "docs/releases/v4/v4.15/plans/v4.15.2-adoption-claude-code-mods.md",
+        "membership": "queued",
+        "source_sha256": "b736aa5e4703b1415e88396d7aff63cc27afa784f7999b58585e9f954ae4c607",
+        "verdict": "Ordering impact",
+        "overlapping_paths": [
+          "catalog/skills/workflow/loop-engineering/SKILL.md",
+          "catalog/skills/workflow/skill-create/SKILL.md",
+          "docs/todos.md"
+        ]
+      },
+      {
+        "version": "v4.16.0",
+        "path": "docs/releases/v4/v4.16/plans/v4.16.0-instruction-necessity-review.md",
+        "membership": "undeclared",
+        "source_sha256": "806b0eca966dd4a45f699ad167b36b961609fceea8cd6a5643367ea0c828f1a1",
+        "verdict": "Unknown",
+        "overlapping_paths": []
+      },
+      {
+        "version": "v4.16.1",
+        "path": "docs/releases/v4/v4.16/plans/v4.16.1-adoption-model-adaptive-harness.md",
+        "membership": "undeclared",
+        "source_sha256": "8f6d6f1516abecca5f4c889fd39964dfad0659560d6f7ee56ffa961c7fc59ede",
+        "verdict": "Unknown",
+        "overlapping_paths": []
+      },
+      {
+        "version": "v4.16.2",
+        "path": "docs/releases/v4/v4.16/plans/v4.16.2-adoption-agent-tooling-and-subagent-cost.md",
+        "membership": "undeclared",
+        "source_sha256": "529108ed1be9f0238752cdf5ace01fe22247876426ba04ec688820f86303d8b7",
+        "verdict": "Unknown",
+        "overlapping_paths": []
+      },
+      {
+        "version": "v4.16.3",
+        "path": "docs/releases/v4/v4.16/plans/v4.16.3-adoption-agent-experience-and-harness-economics.md",
+        "membership": "queued",
+        "source_sha256": "337d3620808a7bc9f0852ec835db8170ed33f5acae23d3589bd305b08b53c6a7",
+        "verdict": "Ordering impact",
+        "overlapping_paths": [
+          "docs/todos.md"
+        ]
+      },
+      {
+        "version": "v4.17.0",
+        "path": "docs/releases/v4/v4.17/plans/v4.17.0-adoption-frontier-agent-practice.md",
+        "membership": "undeclared",
+        "source_sha256": "c28c8cfe9ad3e08c9ee305c5001d23e592729f50cf07a1de95a1ba6ca4ed60fa",
+        "verdict": "Unknown",
+        "overlapping_paths": [
+          "scripts/ci/profiles.py"
+        ]
+      },
+      {
+        "version": "v4.17.1",
+        "path": "docs/releases/v4/v4.17/plans/v4.17.1-adoption-aika-modes.md",
+        "membership": "undeclared",
+        "source_sha256": "2c0562dc9914e0dfabf1e1dc1f1ff3c78a4057e07cb8f534f8d201f4963d600f",
+        "verdict": "Unknown",
+        "overlapping_paths": []
+      },
+      {
+        "version": "v4.17.2",
+        "path": "docs/releases/v4/v4.17/plans/v4.17.2-adoption-proactive-memory-intervention.md",
+        "membership": "queued",
+        "source_sha256": "66dfef98b71352a03f8ad5b152158ae9bacb5af0dc3f048a123bc4853d5801b8",
+        "verdict": "Ordering impact",
+        "overlapping_paths": [
+          "docs/todos.md"
+        ]
+      },
+      {
+        "version": "v4.17.3",
+        "path": "docs/releases/v4/v4.17/plans/v4.17.3-adoption-harness-economics-and-portable-engineering-system.md",
+        "membership": "queued",
+        "source_sha256": "1666b0a936d7ef82c518dfd2258e4837e8746c35860175f0c2f29f15ef3bc27f",
+        "verdict": "Ordering impact",
+        "overlapping_paths": [
+          "catalog/skills/workflow/loop-engineering/SKILL.md",
+          "docs/todos.md"
+        ]
+      },
+      {
+        "version": "v4.17.4",
+        "path": "docs/releases/v4/v4.17/plans/v4.17.4-adoption-process-safety-and-review-pipeline.md",
+        "membership": "undeclared",
+        "source_sha256": "45c5128b93adf06dd9bad99cbeebb0ae00e54b3bd3356bd6218433222fe335f3",
+        "verdict": "Unknown",
+        "overlapping_paths": [
+          "catalog/skills/workflow/loop-engineering/SKILL.md"
+        ]
+      },
+      {
+        "version": "v4.17.5",
+        "path": "docs/releases/v4/v4.17/plans/v4.17.5-adoption-agent-working-agreement.md",
+        "membership": "undeclared",
+        "source_sha256": "4e4e82991f5524cea6c21699bd57bf2420b43ac3d41603dbe5c8ec45b6046254",
+        "verdict": "Unknown",
+        "overlapping_paths": []
+      },
+      {
+        "version": "v4.17.6",
+        "path": "docs/releases/v4/v4.17/plans/v4.17.6-adoption-testing-discipline-headings-and-opus-5-5.md",
+        "membership": "queued",
+        "source_sha256": "830f92faf0f1c8c68f757c90b34f9010144496519a45284f20834c21dcaaba9d",
+        "verdict": "Ordering impact",
+        "overlapping_paths": [
+          "catalog/skills/workflow/loop-engineering/SKILL.md",
+          "docs/todos.md"
+        ]
+      },
+      {
+        "version": "v4.17.7",
+        "path": "docs/releases/v4/v4.17/plans/v4.17.7-adoption-local-hooks-and-single-item-install.md",
+        "membership": "queued",
+        "source_sha256": "f731e5a6180fa17bfd5d9e013c1497c86b7e20f555c54b2018c1b6bf1c64d46f",
+        "verdict": "Ordering impact",
+        "overlapping_paths": [
+          "docs/todos.md"
+        ]
+      },
+      {
+        "version": "v4.17.8",
+        "path": "docs/releases/v4/v4.17/plans/v4.17.8-adoption-tracer-bullet-and-leading-words.md",
+        "membership": "queued",
+        "source_sha256": "abe4f5e793cfa1d86e03d4c20296f69897b4833acbf9a782bd2a540e28f39de4",
+        "verdict": "Ordering impact",
+        "overlapping_paths": [
+          "docs/todos.md"
+        ]
+      },
+      {
+        "version": "v4.17.9",
+        "path": "docs/releases/v4/v4.17/plans/v4.17.9-adoption-pinned-rules-and-prune-compaction.md",
+        "membership": "queued",
+        "source_sha256": "306f6592e8e1187deefffbf7c43ca0d2ddf71e7c9953d460bb53c8e3aa32c7a9",
+        "verdict": "Ordering impact",
+        "overlapping_paths": [
+          "docs/todos.md"
+        ]
+      },
+      {
+        "version": "v4.17.10",
+        "path": "docs/releases/v4/v4.17/plans/v4.17.10-adoption-structural-slop-signatures.md",
+        "membership": "queued",
+        "source_sha256": "061e5f246381e8bc5bfa1aead877a64d9dad3d37f68e0c5599911eeb3749b444",
+        "verdict": "Ordering impact",
+        "overlapping_paths": [
+          "docs/todos.md"
+        ]
+      },
+      {
+        "version": "v4.17.11",
+        "path": "docs/releases/v4/v4.17/plans/v4.17.11-adoption-effort-allocation.md",
+        "membership": "queued",
+        "source_sha256": "acfdc7aa7bc97877b3c770da69537fcf322a1f2f51c76d50d9d418f0545aed8b",
+        "verdict": "Ordering impact",
+        "overlapping_paths": [
+          "docs/todos.md"
+        ]
+      },
+      {
+        "version": "v4.17.12",
+        "path": "docs/releases/v4/v4.17/plans/v4.17.12-adoption-harness-decisions-design-rules-and-cache-stability.md",
+        "membership": "queued",
+        "source_sha256": "4f1f1ac1dd8f7c1ec51f8450b846537cf84836bd5836c0b61afb461cb0074975",
+        "verdict": "Ordering impact",
+        "overlapping_paths": [
+          "docs/todos.md"
+        ]
+      },
+      {
+        "version": "v4.18.0",
+        "path": "docs/releases/v4/v4.18/plans/v4.18.0-adoption-code-rendered-animation-and-illustration-quality.md",
+        "membership": "queued",
+        "source_sha256": "8e1c835b9b9ca8f04dc604fc8ba34992b40872320b933082dd5a40e0c3be7072",
+        "verdict": "Ordering impact",
+        "overlapping_paths": [
+          "docs/todos.md"
+        ]
+      },
+      {
+        "version": "v4.18.1",
+        "path": "docs/releases/v4/v4.18/plans/v4.18.1-adoption-alignment-readability-mods-routing.md",
+        "membership": "queued",
+        "source_sha256": "b52c88f6c0babfa98668c7752a6bc5d38bbf40eafff8116bbc12f71b39ac9b64",
+        "verdict": "Ordering impact",
+        "overlapping_paths": [
+          "data/skills.json",
+          "docs/todos.md"
+        ]
+      },
+      {
+        "version": "v4.18.2",
+        "path": "docs/releases/v4/v4.18/plans/v4.18.2-adoption-self-improving-harness-loop.md",
+        "membership": "queued",
+        "source_sha256": "46b785c2cc367f5cd927f874eb168cb9f53ec7cd0177698da366fae24dfdbd80",
+        "verdict": "Ordering impact",
+        "overlapping_paths": [
+          "data/skills.json",
+          "docs/todos.md"
+        ]
+      },
+      {
+        "version": "v4.18.3",
+        "path": "docs/releases/v4/v4.18/plans/v4.18.3-adoption-html-plans-agent-verification-and-authorization-proofs.md",
+        "membership": "queued",
+        "source_sha256": "251603acb57125aaadd1e10c19e1876d07e8b1bc28467abd8c38a79b52ea33a4",
+        "verdict": "Ordering impact",
+        "overlapping_paths": [
+          "catalog/skills/workflow/loop-engineering/SKILL.md",
+          "data/skills.json",
+          "docs/todos.md"
+        ]
+      },
+      {
+        "version": "v4.18.4",
+        "path": "docs/releases/v4/v4.18/plans/v4.18.4-adoption-evals-test-trust-and-visual-agent-communication.md",
+        "membership": "queued",
+        "source_sha256": "be2d5872e67266ea2117d39598eb08250e3094c7f84ce08089bbe37b4a223ff2",
+        "verdict": "Ordering impact",
+        "overlapping_paths": [
+          "docs/todos.md"
+        ]
+      },
+      {
+        "version": "v4.18.5",
+        "path": "docs/releases/v4/v4.18/plans/v4.18.5-adoption-dashboards-motion-evidence-ledger-and-reliable-automations.md",
+        "membership": "queued",
+        "source_sha256": "28d02921d5055de18c38a495efe2c8e2bee742449063fb90fb0e38d375a3eec4",
+        "verdict": "Ordering impact",
+        "overlapping_paths": [
+          "catalog/skills/workflow/loop-engineering/SKILL.md",
+          "docs/todos.md"
+        ]
+      }
+    ],
+    "delta": "Only the subject progress markers changed from 8/40 to 9/40 tasks; origin/develop gained topology-only release/back-merge commits.",
+    "parallel": {
+      "checked": true,
+      "plans": [],
+      "reason": "Retain the explicit v4.13.11-first maintainer sequence and prior named overlap/dependency evidence; do not launch successors."
+    },
+    "prior_assessment_raw_sha256": "e644e86e8ea1dc6bda5945dd0a24eed9f27f3d03963ea37fa062b64b86f18cf1"
+  },
+  "model_routing": {
+    "skill": "catalog/skills/ai-development/model-routing/SKILL.md",
+    "score": {
+      "scope": "high",
+      "structure": "medium",
+      "context": "high",
+      "risk": "high",
+      "reasoning": "high",
+      "tier": "frontier",
+      "effort": "max",
+      "helper_exit_code": 0
+    },
+    "snapshot_validation": {
+      "exit_code": 0,
+      "valid": true,
+      "verified_as_of": "2026-10-01"
+    },
+    "official_source_check": {
+      "date": "2026-10-09",
+      "OpenAI": "https://developers.openai.com/api/docs/models",
+      "Anthropic": "https://platform.claude.com/docs/en/models/overview",
+      "Google": "https://ai.google.dev/gemini-api/docs/changelog",
+      "Cursor": "https://cursor.com/docs/models-and-pricing",
+      "selected_provider_frontier": "gpt-6-astra",
+      "selected_provider_frontier_verified": true,
+      "qualification": "Selected-provider recommendation verified; no claim that the full dated 16-cell snapshot is fresh. Google documents gemini-3.7-flash deprecation on 2026-10-08."
+    },
+    "platform_detection": {
+      "command": "detect-platform.ps1",
+      "exit_code": 0,
+      "observed": "antigravity",
+      "qualification": "Ambient helper result differs from the known active Codex conversation; not authority to switch providers."
+    },
+    "codex_enumeration": {
+      "command": "enumerate-models.ps1 codex",
+      "wrapper_exit_code": 0,
+      "usable_model_list": false,
+      "observed_error": "Installed Codex CLI rejects model_reasoning_effort=ultra; supported enum ends at xhigh.",
+      "fallback": "Continue on the current session model; no configuration writes, model switch, or downshift claimed."
+    }
+  },
+  "implementation_additions": [
+    {
+      "origin": "v1.1#MT-001",
+      "canonical_owner": "v4.13#AR-08",
+      "source": "scripts/optimize_skill_description.py",
+      "finding": "Real stub-CLI optimizer baseline evaluation rejects an unchanged description before dispatch.",
+      "authorized_ceiling": "Use substitution count instead of changed text to distinguish the missing field; preserve malformed refusal, no optimizer redesign.",
+      "verification_status": "in-progress; worker RED receipt retained"
+    }
+  ],
+  "ci_reconciliation_inputs": [
+    {
+      "path": "tests/integrations/test_map_cli.py",
+      "reason": "Canonical full profile explicitly lists integration modules; register the meaningful map boundary test in the terminal reconciliation.",
+      "phase3_pipeline_edits": "none"
+    }
+  ],
+  "evidence_path_anonymization": "Local account paths anonymized after the entry observation; original source hashes and local raw copies are retained in the Phase 3 checkpoint."
+}
