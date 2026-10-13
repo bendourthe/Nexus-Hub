@@ -56,7 +56,7 @@ Ubiquitous language for Nexus-Hub design discussions, plans, and reviews. Each t
 
 **Avoid**: golden path (means an internal-developer-platform paved road in `platform-engineer`), prototype, spike, stub path, hello world (when the work is a multi-layer feature)
 
-**Relationships**: Alias: walking skeleton. Not the same as a spike, which is thrown away. Narrower than an MVP, which is judged by user value rather than by layer coverage. Required as Phase 1 of multi-layer plans by `implementation-plan` (plan v4.17.8).
+**Relationships**: Alias: walking skeleton. Not the same as a spike, which is thrown away. Narrower than an MVP, which is judged by user value rather than by layer coverage. Required as Phase 1 of multi-layer plans by `implementation-plan` (plan v4.19.1).
 
 ## Leading Word
 
@@ -64,7 +64,7 @@ Ubiquitous language for Nexus-Hub design discussions, plans, and reviews. Each t
 
 **Avoid**: magic word, keyword, buzzword, prompt shortcut
 
-**Relationships**: Two kinds: catalog-internal (`SKIP`, `Verification`) and borrowed canonical (tracer bullet, strangler fig). Owned for skill authoring by `agent-writing-theory.md` and for prompts and briefs by `prompt-engineering` (plan v4.17.8). Not the same as Keyword Style, which governs heading form.
+**Relationships**: Two kinds: catalog-internal (`SKIP`, `Verification`) and borrowed canonical (tracer bullet, strangler fig). Owned for skill authoring by `agent-writing-theory.md` and for prompts and briefs by `prompt-engineering` (plan v4.19.1). Not the same as Keyword Style, which governs heading form.
 
 ## Tier Line
 
@@ -88,7 +88,7 @@ Ubiquitous language for Nexus-Hub design discussions, plans, and reviews. Each t
 
 **Avoid**: cleanup-first, prep refactor, refactor-and-change (the last names the violation, not the rule)
 
-**Relationships**: Owned by `refactoring-expert` (plan v4.17.12). Sequencing only; what structure to aim for is owned by `code-simplification`'s design invariants. Composes with one local commit per phase: two verified steps inside one phase commit, not two commits.
+**Relationships**: Owned by `refactoring-expert` (plan v4.14.2). Sequencing only; what structure to aim for is owned by `code-simplification`'s design invariants. Composes with one local commit per phase: two verified steps inside one phase commit, not two commits.
 
 ## Anchor Clause
 
@@ -96,4 +96,4 @@ Ubiquitous language for Nexus-Hub design discussions, plans, and reviews. Each t
 
 **Avoid**: anchor phrase, rule title, keyword (a title is what a handoff legitimately repeats)
 
-**Relationships**: Used by `tests/skills/test_rule_ownership.py` (plan v4.17.12). Narrower than rule ownership: absence of the clause does not prove a paraphrased restatement is absent.
+**Relationships**: Used by `tests/skills/test_rule_ownership.py` (plan v4.14.2). Narrower than rule ownership: absence of the clause does not prove a paraphrased restatement is absent.
