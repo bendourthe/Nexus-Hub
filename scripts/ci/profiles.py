@@ -547,10 +547,19 @@ WINDOWS_HOOKS = Group(
             timeout=1800,
             env={"NEXUS_TEST_POWERSHELL": "powershell"},
         ),
+        # Separate the independently owned attribution module from the corpus:
+        # the combined quiet-CI selection exhausted 1800 s near its tail.
+        # Both serial commands retain that bound and Windows PowerShell 5.1.
         _pytest(
             "installer + validators (Windows)",
             "tests/installer",
             "tests/validators",
+            platforms=("windows",),
+            timeout=1800,
+            env={"NEXUS_TEST_POWERSHELL": "powershell"},
+        ),
+        _pytest(
+            "Git attribution (Windows)",
             "tests/test_git_attribution.py",
             platforms=("windows",),
             timeout=1800,

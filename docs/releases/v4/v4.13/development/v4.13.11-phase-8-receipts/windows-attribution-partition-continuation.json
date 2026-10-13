@@ -1,0 +1,215 @@
+{
+  "version": "v4.13.11",
+  "recorded_at_utc": "2026-10-13T10:10:11.106872+00:00",
+  "purpose": "Partition Windows installer/validator and attribution selections at the existing module boundary",
+  "ci": {
+    "run_id": 38372688825,
+    "head": "4f4299a6128c4cd332f1e456b504f874d5354c91",
+    "windows_artifact_id": 11802716057,
+    "windows_zip_bytes": 8674,
+    "windows_zip_sha256": "04df2080c1090700496cf6482565bfc8602b487c4afd064fa6b1556f4c047f51",
+    "finished_at": "2026-10-13T09:50:09Z",
+    "commands": [
+      {
+        "name": "check_python_floor",
+        "status": "pass",
+        "duration_s": 1.9380000000000166,
+        "exit_code": 0,
+        "reason": "",
+        "terminal_line": "Python 3.11 grammar: 948 tracked files passed"
+      },
+      {
+        "name": "check_interpreter_resolution",
+        "status": "pass",
+        "duration_s": 2.703000000000003,
+        "exit_code": 0,
+        "reason": "",
+        "terminal_line": "[interpreters] every hook interpreter can execute a script."
+      },
+      {
+        "name": "hook-tests (Windows PowerShell 5.1)",
+        "status": "pass",
+        "duration_s": 1140.797,
+        "exit_code": 0,
+        "reason": "",
+        "terminal_line": "2489 passed, 15 skipped in 1139.99s (0:18:59)"
+      },
+      {
+        "name": "installer + validators (Windows)",
+        "status": "timeout",
+        "duration_s": 1800.125,
+        "exit_code": null,
+        "reason": "exceeded 1800s",
+        "terminal_line": null
+      },
+      {
+        "name": "security-audit evidence (Windows)",
+        "status": "pass",
+        "duration_s": 177.53099999999995,
+        "exit_code": 0,
+        "reason": "",
+        "terminal_line": "472 passed, 4 skipped in 177.13s (0:02:57)"
+      },
+      {
+        "name": "native integrations (Windows)",
+        "status": "pass",
+        "duration_s": 61.858999999999924,
+        "exit_code": 0,
+        "reason": "",
+        "terminal_line": "271 passed in 61.40s (0:01:01)"
+      }
+    ],
+    "all_eight_ci_artifacts": [
+      {
+        "id": 11802970790,
+        "name": "ci-aggregate-reports",
+        "bytes": 74199,
+        "sha256": "290693e65cce8328f8f346b517631dbc1823a79d1e95654a19f6ba3b712be93c"
+      },
+      {
+        "id": 11802716057,
+        "name": "ci-windows-reports",
+        "bytes": 8674,
+        "sha256": "04df2080c1090700496cf6482565bfc8602b487c4afd064fa6b1556f4c047f51"
+      },
+      {
+        "id": 11801755490,
+        "name": "ci-guide-render-report-engine",
+        "bytes": 6271,
+        "sha256": "be2ad0346fa9c642014d789fbd7d38bdac8a8fbcd1b1bd34ff17aa31663c57e9"
+      },
+      {
+        "id": 11801481973,
+        "name": "ci-test-reports",
+        "bytes": 9319,
+        "sha256": "25eee38b217dba6b22e9ec5bed00ee57f6404cb1b68014d3fc43dce52704e083"
+      },
+      {
+        "id": 11800721828,
+        "name": "ci-guide-render-report-rest",
+        "bytes": 19886,
+        "sha256": "33a1c3f520e472a63861b3a033f1716b49938ee752661d7710180d6dfc5312ae"
+      },
+      {
+        "id": 11800695995,
+        "name": "ci-guide-render-report-game",
+        "bytes": 5190,
+        "sha256": "b8613b1dec9da6bb2a934a595f6f307a2f527010a97641e9a33b8b2548fe0fcf"
+      },
+      {
+        "id": 11800375116,
+        "name": "ci-validation-reports",
+        "bytes": 14870,
+        "sha256": "4f3fa38625e05afc17b12b93a9203ea9e9b81734bc575be8dd8eb835cbd956cc"
+      },
+      {
+        "id": 11800330137,
+        "name": "ci-shell-reports",
+        "bytes": 2407,
+        "sha256": "348f63c590b9e8d79546b6cf4d6849082155eb3763264650466033d96bc8e6ed"
+      }
+    ],
+    "preservation_manifest_sha256": "eca4392097126363bcf8e2c3b0b83c8fe47660b28bf76ea94783a31656aac371"
+  },
+  "change": {
+    "file": "scripts/ci/profiles.py",
+    "raw_sha256": "1b7d4f9bb2c263638e16cc7b41b73a8f46b40000497ae21a3daa29f24d30a69d",
+    "method": "Move only tests/test_git_attribution.py from installer + validators (Windows) into the immediately adjacent serial Git attribution (Windows) command",
+    "retained": "Both commands keep Windows-only selection, NEXUS_TEST_POWERSHELL=powershell and timeout=1800; workflows, browser groups, tests, skips and assertions unchanged",
+    "budget": "The sum of independent command timeout bounds increases; the workflow job limit remains 60 minutes. This is a selection partition, not cap recalibration."
+  },
+  "collection": {
+    "recorded_at_utc": "2026-10-13T10:01:52.879365+00:00",
+    "method": "Actual local subprocess pytest --collect-only -q over original three targets and both configured partitions, NEXUS_TEST_POWERSHELL=powershell; Counter equality and zero duplicate IDs asserted before saving",
+    "local_python": "3.12.10",
+    "original_count": 3357,
+    "split_counts": [
+      3309,
+      48
+    ],
+    "multiset_equal": true,
+    "duplicates": 0,
+    "sorted_node_ids_sha256": "f5dc84c80f74c8ea4a8f85a570d4d1349e7d7d8e82ee32d2e7a0be582cfeb9c2",
+    "selection": [
+      {
+        "name": "installer + validators (Windows)",
+        "targets": [
+          "tests/installer",
+          "tests/validators"
+        ],
+        "timeout_s": 1800,
+        "platforms": [
+          "windows"
+        ],
+        "env": {
+          "NEXUS_TEST_POWERSHELL": "powershell"
+        }
+      },
+      {
+        "name": "Git attribution (Windows)",
+        "targets": [
+          "tests/test_git_attribution.py"
+        ],
+        "timeout_s": 1800,
+        "platforms": [
+          "windows"
+        ],
+        "env": {
+          "NEXUS_TEST_POWERSHELL": "powershell"
+        }
+      }
+    ],
+    "profiles_raw_sha256": "1b7d4f9bb2c263638e16cc7b41b73a8f46b40000497ae21a3daa29f24d30a69d",
+    "workflow_raw_sha256": "b3f4be0b327c2a9b2c160aff599122d474d77166af597b9666852ca6bd9abdee",
+    "limits": [
+      "Collection equivalence on local Python 3.12 is not hosted Python 3.11 execution proof",
+      "No original collection stdout files were written; the actual in-memory comparison is recorded here",
+      "All existing per-command caps and the 60-minute workflow job limit remain unchanged; summed independent command bounds increase"
+    ]
+  },
+  "local_attribution": {
+    "started_at_utc": "2026-10-13T10:00:26.429059+00:00",
+    "finished_at_utc": "2026-10-13T10:07:00.842247+00:00",
+    "python": "3.12.10",
+    "status": "pass",
+    "exit_code": 0,
+    "native_duration_s": 394.4060000000027,
+    "pytest_terminal_summary": "47 passed, 1 skipped in 391.09s (0:06:31)",
+    "native_result_file_sha256": "7d03cdf1220efe4139f1b17621ecb6002abf1f0911eb019d4f656a214c1478a1",
+    "junit_sha256": "16d6a45cebfb699233566b2ccd08b46cc3d860b80c05fb6ec26df9912e1f52fa",
+    "junit_suites": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "1",
+        "tests": "48",
+        "time": "391.107",
+        "timestamp": "2026-10-13T03:00:27.792676"
+      }
+    ],
+    "skip_names": [
+      "test_real_workspace_installer_delivers_working_guard[global-bash]"
+    ],
+    "source_sha256_before": "7c6f237fb4e6e8d2ec3704377f63a3872d3c286da90a5addf5a6ef8c78969e0b",
+    "source_sha256_after": "7c6f237fb4e6e8d2ec3704377f63a3872d3c286da90a5addf5a6ef8c78969e0b",
+    "thread_system_awake_requested": true,
+    "awake_request_cleared": true
+  },
+  "validation": {
+    "ci_engine_tests": {
+      "passed": 111,
+      "duration_s": 9.14
+    },
+    "native_cli_list": "Lists both adjacent serial Windows commands",
+    "independent_review": "APPROVE, no actionable findings on proposed and final diff"
+  },
+  "limits": [
+    "The combined Windows failure has partial progress only, no assertion failure or terminal pytest summary",
+    "The exact node running at timeout was not proven",
+    "The 3309-case local installer/validator partition was collected, not executed to a new terminal verdict",
+    "Local Python 3.12 differs from hosted Python 3.11; required hosted checks remain outstanding",
+    "No new full-profile, quiet-CI recalibration or complete integration pass is claimed",
+    "Public JUnit suite metadata omits the private machine hostname; original private JUnit bytes retain the declared hash"
+  ]
+}
