@@ -4359,30 +4359,30 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 #### DF-1-v4133 (v4.13.3): Flip the skill-index pointer on by default, and decide todos-on-demand
 
 **Carry-forward contract (v4.13.11)**:
-- **Owner**: `v4.17.3-adoption-harness-economics-and-portable-engineering-system`
+- **Owner**: `v4.15.2-adoption-harness-economics-and-portable-engineering-system`
 - **Severity**: low - the pointer ships opt-in; the default is unchanged
-- **Blocker**: user-deferred - Owned by v4.17.3, whose full-vs-pointer pairing evaluator must produce organic-selection receipts first.
+- **Blocker**: user-deferred - Owned by v4.15.2, whose full-vs-pointer pairing evaluator must produce organic-selection receipts first.
 - **Acceptance**: The evaluator's `NEXUS_HUB_SKILL_INDEX=full` against `pointer` pair records organic skill selection including guard skills, and the default is decided
-- **Proving command**: manual: the v4.17.3 pairing evaluator's receipt records organic selection for both variants
-- **Future plan**: v4.17.3-adoption-harness-economics-and-portable-engineering-system
+- **Proving command**: manual: the v4.15.2 pairing evaluator's receipt records organic selection for both variants
+- **Future plan**: v4.15.2-adoption-harness-economics-and-portable-engineering-system
 
-**Plan reference**: Resolved decisions 1 and 4. **Reason**: the pointer ships opt-in. Flipping it needs organic-selection evidence that skills the model saw in the table are still chosen when it sees only a pointer; the todos-on-demand question needs the same instruction-size evidence. **Evidence**: [`rendered-context-baseline.md`](development/rendered-context-baseline.md) (the index is 81-84% of each rendered file; the pointer removes 99.5% of it). **Owner**: `v4.17.3-adoption-harness-economics-and-portable-engineering-system` (moved from `v4.16.0-instruction-necessity-review` on 2026-09-28: the organic-selection evidence comes from the v4.17.3 pairing evaluator, and the v4.16.0 plan never took the item on; see [`v4.17.3-comparison-harness-economics-delta.md`](../v4.17/comparisons/v4.17.3-comparison-harness-economics-delta.md) D4). **Suggested next step**: run the evaluator's required `NEXUS_HUB_SKILL_INDEX=full` against `pointer` variant pair, recording organic skill selection including guard skills, then decide the default.
+**Plan reference**: Resolved decisions 1 and 4. **Reason**: the pointer ships opt-in. Flipping it needs organic-selection evidence that skills the model saw in the table are still chosen when it sees only a pointer; the todos-on-demand question needs the same instruction-size evidence. **Evidence**: [`rendered-context-baseline.md`](development/rendered-context-baseline.md) (the index is 81-84% of each rendered file; the pointer removes 99.5% of it). **Owner**: `v4.15.2-adoption-harness-economics-and-portable-engineering-system` (moved from `v4.15.0-instruction-necessity-review` on 2026-09-28: the organic-selection evidence comes from the v4.15.2 pairing evaluator, and the v4.15.0 plan never took the item on; see [`v4.15.2-comparison-harness-economics-delta.md`](../v4.15/comparisons/v4.15.2-comparison-harness-economics-delta.md) D4). **Suggested next step**: run the evaluator's required `NEXUS_HUB_SKILL_INDEX=full` against `pointer` variant pair, recording organic skill selection including guard skills, then decide the default.
 
 **Original source identity**: `v4.13.3#DF-1`; stable ID `DF-1-v4133` distinguishes this obligation from repeated IDs in other patch sections.
 
 #### DF-2-v4133 (v4.13.3): Pilot variant mode for instruction-file comparisons
 
 **Carry-forward contract (v4.13.11)**:
-- **Owner**: v4.16.0
+- **Owner**: v4.15.0
 - **Severity**: low - tooling gap; spend cap for this plan was 0
-- **Blocker**: user-deferred - Owned by v4.16.0 instruction-necessity review; variant staging is not yet scheduled there.
+- **Blocker**: user-deferred - Owned by v4.15.0 instruction-necessity review; variant staging is not yet scheduled there.
 - **Acceptance**: A variant mode in `scripts/run_trigger_pilot.py` stages instruction files per arm
 - **Proving command**: manual: a trigger-pilot run with the variant mode stages a full-index and a pointer instruction file in separate arms
-- **Future plan**: v4.16.0 instruction-necessity review
+- **Future plan**: v4.15.0 instruction-necessity review
 
-**Local clause qualification, 2026-10-10 (v4.13.11 T028)**: The handoff is recorded in the v4.16.0 plan's `## Inherited known gaps` section; implementation stays with that plan (user-deferred).
+**Local clause qualification, 2026-10-10 (v4.13.11 T028)**: The handoff is recorded in the v4.15.0 plan's `## Inherited known gaps` section; implementation stays with that plan (user-deferred).
 
-**Plan reference**: Resolved decision 6. **Reason**: `scripts/run_trigger_pilot.py` varies only SKILL.md description lines and runs with `--setting-sources project`, so it cannot compare an instruction file with the full index against one with the pointer. Spend cap for this plan: 0. **Owner**: v4.16.0. **Suggested next step**: add a variant mode that stages instruction files per arm.
+**Plan reference**: Resolved decision 6. **Reason**: `scripts/run_trigger_pilot.py` varies only SKILL.md description lines and runs with `--setting-sources project`, so it cannot compare an instruction file with the full index against one with the pointer. Spend cap for this plan: 0. **Owner**: v4.15.0. **Suggested next step**: add a variant mode that stages instruction files per arm.
 
 **Original source identity**: `v4.13.3#DF-2`; stable ID `DF-2-v4133` distinguishes this obligation from repeated IDs in other patch sections.
 
@@ -4394,33 +4394,33 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 
 **Original source identity**: `v4.13.3#DF-3`; stable ID `DF-3-v4133` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### DF-4-v4133 (v4.13.3): Static-measurement ownership split for v4.17.3
+#### DF-4-v4133 (v4.13.3): Static-measurement ownership split for v4.15.2
 
 **Carry-forward contract (v4.13.11)**:
-- **Owner**: v4.17.3
+- **Owner**: v4.15.2
 - **Severity**: low - ownership handoff; no defect
-- **Blocker**: user-deferred - Static measurement is v4.17.3 work, which the plan already binds to the existing estimator.
-- **Acceptance**: v4.17.3 static measurement imports `estimate_tokens` and `legacy_instruction_block.detect` from their current owners
-- **Proving command**: manual: the v4.17.3 static-measurement code imports `estimate_tokens` and `legacy_instruction_block.detect` rather than redefining them
-- **Future plan**: v4.17.3
+- **Blocker**: user-deferred - Static measurement is v4.15.2 work, which the plan already binds to the existing estimator.
+- **Acceptance**: v4.15.2 static measurement imports `estimate_tokens` and `legacy_instruction_block.detect` from their current owners
+- **Proving command**: manual: the v4.15.2 static-measurement code imports `estimate_tokens` and `legacy_instruction_block.detect` rather than redefining them
+- **Future plan**: v4.15.2
 
-**Plan reference**: Phase 6.2 handoff. **Reason**: `scripts/measure_rendered_context.py` owns rendered instruction-file measurement; v4.17.3's static measurement must reuse its estimator and detector rather than add a second definition of an estimated token or a candidate span. **Owner**: v4.17.3. **Suggested next step**: import `estimate_tokens` and `legacy_instruction_block.detect` from their current owners.
+**Plan reference**: Phase 6.2 handoff. **Reason**: `scripts/measure_rendered_context.py` owns rendered instruction-file measurement; v4.15.2's static measurement must reuse its estimator and detector rather than add a second definition of an estimated token or a candidate span. **Owner**: v4.15.2. **Suggested next step**: import `estimate_tokens` and `legacy_instruction_block.detect` from their current owners.
 
 **Original source identity**: `v4.13.3#DF-4`; stable ID `DF-4-v4133` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### DF-5-v4133 (v4.13.3): Shared cleanup-aware merge requirement for v4.17.3 - RESOLVED
+#### DF-5-v4133 (v4.13.3): Shared cleanup-aware merge requirement for v4.15.2 - RESOLVED
 
-**Resolution, 2026-10-10 (v4.13.11 Phase 7 T028)**: The suggested step is done: the v4.17.3 plan cites the requirement in its reuse map (line 139, `instruction_merge.merge_instruction` owns shared instruction writes) and in its writer task prompt (line 537, which also requires `test_no_integration_calls_the_primitive_directly` to stay green). The guard test passes (1 passed in `tests/integrations/test_legacy_instruction_block_cleanup.py`). See [Phase 7 verification](development/v4.13.11-phase-7-evidence.md).
+**Resolution, 2026-10-10 (v4.13.11 Phase 7 T028)**: The suggested step is done: the v4.15.2 plan cites the requirement in its reuse map (line 139, `instruction_merge.merge_instruction` owns shared instruction writes) and in its writer task prompt (line 537, which also requires `test_no_integration_calls_the_primitive_directly` to stay green). The guard test passes (1 passed in `tests/integrations/test_legacy_instruction_block_cleanup.py`). See [Phase 7 verification](development/v4.13.11-phase-7-evidence.md).
 
-**Plan reference**: Phase 6.2 handoff. **Reason**: every marker-merged instruction write now goes through `instruction_merge.merge_instruction`, guarded by `test_no_integration_calls_the_primitive_directly`. Any v4.17.3 writer of a shared instruction file must route through the same owner so consent, backups, and byte preservation hold. **Owner**: v4.17.3. **Suggested next step**: cite this requirement in the v4.17.3 plan's writer tasks.
+**Plan reference**: Phase 6.2 handoff. **Reason**: every marker-merged instruction write now goes through `instruction_merge.merge_instruction`, guarded by `test_no_integration_calls_the_primitive_directly`. Any v4.15.2 writer of a shared instruction file must route through the same owner so consent, backups, and byte preservation hold. **Owner**: v4.15.2. **Suggested next step**: cite this requirement in the v4.15.2 plan's writer tasks.
 
 **Original source identity**: `v4.13.3#DF-5`; stable ID `DF-5-v4133` distinguishes this obligation from repeated IDs in other patch sections.
 
 #### DF-6-v4133 (v4.13.3): Pointer consumer installed before its shared-path provider across installer runner calls - RESOLVED
 
-**Resolution, 2026-10-10 (v4.13.11 Phase 7 T028)**: `tests/integrations/test_skill_path_provider_order.py` derives provider and consumer pairs from the verified skill read paths by dry-running every integration at both scopes and checks both installers' run order, replacing the hand-written Codex-before-Copilot pin; moving a provider after its consumer fails it. The handoff is also recorded in the v4.16.0 plan. See [Phase 7 verification](development/v4.13.11-phase-7-evidence.md).
+**Resolution, 2026-10-10 (v4.13.11 Phase 7 T028)**: `tests/integrations/test_skill_path_provider_order.py` derives provider and consumer pairs from the verified skill read paths by dry-running every integration at both scopes and checks both installers' run order, replacing the hand-written Codex-before-Copilot pin; moving a provider after its consumer fails it. The handoff is also recorded in the v4.15.0 plan. See [Phase 7 verification](development/v4.13.11-phase-7-evidence.md).
 
-**Source phase**: Phase 5. **Reason**: the installers run the Python runner once per platform, and the runner's pointer-mode second pass only sees integrations in the same call. A consumer installed before the platform that writes its path would get the full index until the next install (fail closed, never open). **Current state (2026-09-25)**: the only such dependency among VERIFIED paths is Copilot reading Codex's `~/.agents/skills`. Both installers run Codex before Copilot at both scopes, pinned by `test_installers_run_the_shared_path_provider_before_copilot`. A simulation of the installers' exact per-platform global order on a fresh home gave the same eligible set as a single combined run (Claude, Codex, OpenCode, Copilot, Qwen). The second pass now also runs for a single integration, so an integration that renders before copying its own skills is covered. **Residual**: a future VERIFIED shared path whose provider runs later would need a new order pin. **Owner**: v4.16.0 (with DF-1). **Suggested next step**: derive the order check from the facts when a second shared-path dependency appears.
+**Source phase**: Phase 5. **Reason**: the installers run the Python runner once per platform, and the runner's pointer-mode second pass only sees integrations in the same call. A consumer installed before the platform that writes its path would get the full index until the next install (fail closed, never open). **Current state (2026-09-25)**: the only such dependency among VERIFIED paths is Copilot reading Codex's `~/.agents/skills`. Both installers run Codex before Copilot at both scopes, pinned by `test_installers_run_the_shared_path_provider_before_copilot`. A simulation of the installers' exact per-platform global order on a fresh home gave the same eligible set as a single combined run (Claude, Codex, OpenCode, Copilot, Qwen). The second pass now also runs for a single integration, so an integration that renders before copying its own skills is covered. **Residual**: a future VERIFIED shared path whose provider runs later would need a new order pin. **Owner**: v4.15.0 (with DF-1). **Suggested next step**: derive the order check from the facts when a second shared-path dependency appears.
 
 **Original source identity**: `v4.13.3#DF-6`; stable ID `DF-6-v4133` distinguishes this obligation from repeated IDs in other patch sections.
 
@@ -4431,16 +4431,16 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 #### DF-8 (v4.13.3): Per-agent `omitClaudeMd` for catalog agents
 
 **Carry-forward contract (v4.13.11)**:
-- **Owner**: `v4.16.2-adoption-agent-tooling-and-subagent-cost`
+- **Owner**: `v4.14.0-adoption-agent-tooling-and-subagent-cost`
 - **Severity**: low - cost optimization; each catalog agent inherits about 29k estimated tokens
-- **Blocker**: user-deferred - Owned by v4.16.2 and gated on a v4.17.3 cost/pass-rate pairing receipt not yet produced.
-- **Acceptance**: A change is accepted only with a v4.17.3 pairing receipt showing lower cost at an unchanged pass rate
-- **Proving command**: manual: a v4.17.3 pairing receipt shows lower cost at an unchanged pass rate before `omitClaudeMd` is set on any agent
-- **Future plan**: v4.16.2-adoption-agent-tooling-and-subagent-cost
+- **Blocker**: user-deferred - Owned by v4.14.0 and gated on a v4.15.2 cost/pass-rate pairing receipt not yet produced.
+- **Acceptance**: A change is accepted only with a v4.15.2 pairing receipt showing lower cost at an unchanged pass rate
+- **Proving command**: manual: a v4.15.2 pairing receipt shows lower cost at an unchanged pass rate before `omitClaudeMd` is set on any agent
+- **Future plan**: v4.14.0-adoption-agent-tooling-and-subagent-cost
 
-**Local clause qualification, 2026-10-10 (v4.13.11 T028)**: The handoff is recorded in the v4.16.2 plan's `## Inherited known gaps` section; implementation stays with that plan (user-deferred).
+**Local clause qualification, 2026-10-10 (v4.13.11 T028)**: The handoff is recorded in the v4.14.0 plan's `## Inherited known gaps` section; implementation stays with that plan (user-deferred).
 
-**Source**: [`v4.17.3-comparison-harness-economics-delta.md`](../v4.17/comparisons/v4.17.3-comparison-harness-economics-delta.md) D5, recorded 2026-09-28. **Reason**: Claude Code 2.1.271 added agent frontmatter `omitClaudeMd`, which lets a subagent run without user, project and local `CLAUDE.md` files (managed policy still loads). Each catalog agent now inherits the full rendered instruction files, measured at about 29k estimated tokens on the maintainer machine. **Owner**: `v4.16.2-adoption-agent-tooling-and-subagent-cost`. **Constraints**: decide agent by agent; exclude `project-standards-reviewer` and any agent that enforces repository conventions; confirm the Gemini and Codex agent loaders ignore an unknown frontmatter key, or emit the key only in the Claude copy. **Suggested next step**: accept a change only with a v4.17.3 pairing receipt showing lower cost at an unchanged pass rate.
+**Source**: [`v4.15.2-comparison-harness-economics-delta.md`](../v4.15/comparisons/v4.15.2-comparison-harness-economics-delta.md) D5, recorded 2026-09-28. **Reason**: Claude Code 2.1.271 added agent frontmatter `omitClaudeMd`, which lets a subagent run without user, project and local `CLAUDE.md` files (managed policy still loads). Each catalog agent now inherits the full rendered instruction files, measured at about 29k estimated tokens on the maintainer machine. **Owner**: `v4.14.0-adoption-agent-tooling-and-subagent-cost`. **Constraints**: decide agent by agent; exclude `project-standards-reviewer` and any agent that enforces repository conventions; confirm the Gemini and Codex agent loaders ignore an unknown frontmatter key, or emit the key only in the Claude copy. **Suggested next step**: accept a change only with a v4.15.2 pairing receipt showing lower cost at an unchanged pass rate.
 
 #### WN-1-v4133 (v4.13.3): An uncooperative writer can race the final hash check - CLOSED
 
@@ -4861,14 +4861,14 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: not stated in source; maintainer to set
 - **Severity**: low - each model is rostered as UNVERIFIED rather than claimed
-- **Blocker**: user-deferred - Nine Claude prompting profiles need per-model /tune-prompting research; claude-opus-5-5 is scheduled for v4.17.6.
+- **Blocker**: user-deferred - Nine Claude prompting profiles need per-model /tune-prompting research; claude-opus-5-5 is scheduled for v4.18.0.
 - **Acceptance**: Each of the nine rostered Claude models has a verified prompting profile, starting with `claude-opus-5-5`
 - **Proving command**: `python scripts/verify_model_prompting_profiles.py`
-- **Future plan**: v4.17.6 for `claude-opus-5-5`; v4.14 known-gaps sweep for the remaining models
+- **Future plan**: v4.18.0 for `claude-opus-5-5`; v4.14 known-gaps sweep for the remaining models
 
 - **Source phase**: Phase 2. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T306.
 - **Reason**: the live Claude roster read from the Models API on 2026-09-30 added nine ids that this plan does not research, by design (it calibrates on `claude-sonnet-5-5` only): `claude-fable-5`, `claude-haiku-4-5-20251001`, `claude-opus-4-5-20251101`, `claude-opus-4-6`, `claude-opus-4-7`, `claude-opus-4-8`, `claude-opus-5-5`, `claude-sonnet-4-5-20250929`, and `claude-sonnet-4-6`. Each is now a rostered UNVERIFIED model. The live id `claude-haiku-4-5-20251001` sits beside the existing `claude-haiku-4-5` profile, which uses the alias.
-- **Suggested next step**: `claude-opus-5-5` first, through `v4.17.6`, which already plans that profile; then `/tune-prompting <id> --profiles-only` per remaining current model. Decide whether the dated Haiku id and the alias should share one profile before profiling either again.
+- **Suggested next step**: `claude-opus-5-5` first, through `v4.18.0`, which already plans that profile; then `/tune-prompting <id> --profiles-only` per remaining current model. Decide whether the dated Haiku id and the alias should share one profile before profiling either again.
 
 - **Carried from**: v4.13.8#DF-3 on 2026-10-02
 
