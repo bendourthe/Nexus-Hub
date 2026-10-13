@@ -178,7 +178,7 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 | v4.11.1 comparison and plan prepared | 2 | 2 | 0 |
 | v4.11.1 implementation tasks complete | 25 | 25 | 0 |
 | v4.13.0 comparison and plan prepared | 2 | 2 | 0 |
-| v4.17.3 harness-economics comparison and plan prepared | 2 | 2 | 0 |
+| v4.15.2 harness-economics comparison and plan prepared | 2 | 2 | 0 |
 | v4.13.0 implementation tasks complete | 34 | 34 | 0 |
 | v4.4.5 baseline guide/test files restored | 59 | 59 | 0 |
 | Exact production-file restorations | 3 | 3 | 0 |
@@ -224,23 +224,30 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 - [x] Publish the retained-pilot control qualification through PR #298; 21 hosted checks passed with one expected skip, and post-merge run 36097633753 passed smoke and provenance at `1ae58ad5`. MT-9 is closed for the retained pilot; unmapped controls in future handbooks remain `unchecked`.
 - [x] Bind v4.9 QG-1 to PR #190's final green Windows, Linux, and aggregate checks; leave MT-2's per-case platform skip question open.
 
-## Queued work - v4.17.3 harness economics and portable engineering systems
+## Queue reorganization - 2026-10-12 speed-first release map
 
-- [ ] Implement the approved [v4.17.3 adoption plan](releases/v4/v4.17/plans/v4.17.3-adoption-harness-economics-and-portable-engineering-system.md), seeded by the [completed comparison](releases/v4/v4.17/comparisons/v4.17.3-comparison-harness-economics-and-portable-engineering-system.md). The queued plan defines five phases and 52 tasks for explicit unattended-loop outcomes, a serial repository-local harness evaluator with enforceable live-run gates, and provider-aware shared project instructions with one platform-neutral `base-agents.md` owner. Implementation is 0/5 phases and 0/52 tasks.
+- [x] Regroup the 27 queued plans from v4.14 onward into nine themed minors (v4.14 to v4.22, at most four patches each), speed and cost first, documentation and visual-class plans last. 51 files moved, references repaired, and every moved file carries a `**Renumbered**:` line; see the [reorganization record](releases/v4/v4.15/development/2026-10-12-queue-reorganization.md).
+- [x] Complete the [v4.15.3 agent-speed comparison](releases/v4/v4.15/comparisons/v4.15.3-comparison-agent-speed-kv-handoffs-mods-and-local-search.md) (Claude Code mods delta, KV-cache handoffs, AI-built Office clones, DigUp local search).
+- [ ] Operator action A1: remove the three legacy instruction spans and the duplicate skill index from `~/.claude/CLAUDE.md` with `--remove-legacy-instructions=<token>`, then re-run `measure_rendered_context.py`.
+- [ ] Run `/plan from-comparison` for v4.15.3 (A2 to A6) once v4.15.2 lands.
 
-## Queued work - v4.18.1 alignment readback, controlled language, and routing measurement
+## Queued work - v4.15.2 harness economics and portable engineering systems
 
-- [ ] Implement the [v4.18.1 plan](releases/v4/v4.18/plans/v4.18.1-adoption-alignment-readability-mods-routing.md), seeded by the [v4.18.1 comparison](releases/v4/v4.18/comparisons/v4.18.1-comparison-alignment-readability-mods-routing.md): a readback that opens `design-interview` round one, an STE-inspired register in `writing-editing`, a local never-committed routing-outcome ledger, and a counts-only report. Calibration is parked as P3. Implementation is 0/6 phases and 0/33 tasks.
-- [x] Append the 2026-10-02 source-refresh note to the [v4.15.2 mods comparison](releases/v4/v4.15/comparisons/v4.15.2-comparison-claude-code-mods.md) ahead of v4.15.2's implementation.
+- [ ] Implement the approved [v4.15.2 adoption plan](releases/v4/v4.15/plans/v4.15.2-adoption-harness-economics-and-portable-engineering-system.md), seeded by the [completed comparison](releases/v4/v4.15/comparisons/v4.15.2-comparison-harness-economics-and-portable-engineering-system.md). The queued plan defines five phases and 52 tasks for explicit unattended-loop outcomes, a serial repository-local harness evaluator with enforceable live-run gates, and provider-aware shared project instructions with one platform-neutral `base-agents.md` owner. Implementation is 0/5 phases and 0/52 tasks.
 
-## Queued work - v4.18.3 unopened defaults, agent check discipline, and authorization proofs
+## Queued work - v4.20.0 alignment readback, controlled language, and routing measurement
 
-- [ ] Implement the [v4.18.3 plan](releases/v4/v4.18/plans/v4.18.3-adoption-html-plans-agent-verification-and-authorization-proofs.md), seeded by the [v4.18.3 comparison](releases/v4/v4.18/comparisons/v4.18.3-comparison-html-plans-agent-verification-and-authorization-proofs.md): a skipped design-interview question is re-asked once or parked, never counted as agreement; plus loop check-command determinism, payload-as-data, and cuttable testing, authorization-proof, and plan-page work. Implementation is 0/8 phases and 0/41 tasks.
+- [ ] Implement the [v4.20.0 plan](releases/v4/v4.20/plans/v4.20.0-adoption-alignment-readability-mods-routing.md), seeded by the [v4.20.0 comparison](releases/v4/v4.20/comparisons/v4.20.0-comparison-alignment-readability-mods-routing.md): a readback that opens `design-interview` round one, an STE-inspired register in `writing-editing`, a local never-committed routing-outcome ledger, and a counts-only report. Calibration is parked as P3. Implementation is 0/6 phases and 0/33 tasks.
+- [x] Append the 2026-10-02 source-refresh note to the [v4.22.3 mods comparison](releases/v4/v4.22/comparisons/v4.22.3-comparison-claude-code-mods.md) ahead of v4.22.3's implementation.
 
-## Queued work - v4.18.5 reliable unattended runs, evidence-backed comparisons, and provenance visuals
+## Queued work - v4.21.1 unopened defaults, agent check discipline, and authorization proofs
 
-- [x] Complete the [v4.18.5 three-source comparison](releases/v4/v4.18/comparisons/v4.18.5-comparison-dashboards-motion-evidence-ledger-and-reliable-automations.md) (Claude Dashboards and Motion, REA, reliable agent automations); adoption target v4.18.5 confirmed by the user.
-- [ ] Implement the [v4.18.5 plan](releases/v4/v4.18/plans/v4.18.5-adoption-dashboards-motion-evidence-ledger-and-reliable-automations.md): an unattended-run protocol with a crash-safe run-ledger helper, a checked evidence ledger for `/compare`, verified cross-platform scheduling, `/visualize` query (multi-panel provenance page) and animate modes, plus cuttable built-web-bundle compare sources and MP4 export. Implementation is 0/9 phases and 0/39 tasks.
+- [ ] Implement the [v4.21.1 plan](releases/v4/v4.21/plans/v4.21.1-adoption-html-plans-agent-verification-and-authorization-proofs.md), seeded by the [v4.21.1 comparison](releases/v4/v4.21/comparisons/v4.21.1-comparison-html-plans-agent-verification-and-authorization-proofs.md): a skipped design-interview question is re-asked once or parked, never counted as agreement; plus loop check-command determinism, payload-as-data, and cuttable testing, authorization-proof, and plan-page work. Implementation is 0/8 phases and 0/41 tasks.
+
+## Queued work - v4.22.2 reliable unattended runs, evidence-backed comparisons, and provenance visuals
+
+- [x] Complete the [v4.22.2 three-source comparison](releases/v4/v4.22/comparisons/v4.22.2-comparison-dashboards-motion-evidence-ledger-and-reliable-automations.md) (Claude Dashboards and Motion, REA, reliable agent automations); adoption target v4.18.5 confirmed by the user, renumbered to v4.22.2 on 2026-10-12.
+- [ ] Implement the [v4.22.2 plan](releases/v4/v4.22/plans/v4.22.2-adoption-dashboards-motion-evidence-ledger-and-reliable-automations.md): an unattended-run protocol with a crash-safe run-ledger helper, a checked evidence ledger for `/compare`, verified cross-platform scheduling, `/visualize` query (multi-panel provenance page) and animate modes, plus cuttable built-web-bundle compare sources and MP4 export. Implementation is 0/9 phases and 0/39 tasks.
 
 ## Current work - v4.4.5 visual refinement
 
