@@ -11,7 +11,7 @@
     "strong": {
       "Anthropic": "claude-opus-5-5",
       "OpenAI": "gpt-6.1-sol",
-      "Google": "gemini-3.7-flash",
+      "Google": "gemini-3.8-flash",
       "Cursor": "grok-4.6"
     },
     "standard": {
@@ -35,7 +35,10 @@
     "2026-09-22 JUDGMENT, OpenAI tier order: the API docs call GPT-6 Astra (gpt-6-astra) 'our most capable model' ($10/$50), gpt-6-sol a performance/cost balance ($2/$10), and gpt-6-luna 'our most efficient model' ($0.1/$0.5). Astra shipped three weeks before the other two as the flagship and sits one class ABOVE Sol; it does NOT replace gpt-5.6-terra. The model picker lists Sol before Astra, so picker order is not capability order. The 'Astra-level reliability at much lower cost' claim concerns reliability measured against GPT-5.6 Sol, not capability parity with Astra.",
     "2026-10-01 (v4.13.9): every column was re-read from the four mapped sources. Anthropic: the models overview lists claude-fable-5-1, claude-opus-5-5, claude-sonnet-5-5, and claude-haiku-4-5-20251001 as current, so standard moves from claude-sonnet-5 (now legacy) to claude-sonnet-5-5; fast keeps the claude-haiku-4-5 alias of the listed dated id. OpenAI: the models catalog's flagship list is GPT-6 Astra, GPT-6.1 Sol, and GPT-6 Luna, and describes GPT-6.1 Sol as 'Near-Astra performance for complex work at a lower cost' at $2/$10, so strong moves from gpt-6-sol, which the catalog no longer lists, to gpt-6.1-sol. Google (3.8 Flash, 3.7 Flash, 3.6 Flash, 3.5 Flash-Lite) and Cursor (Grok 4.7, Grok 4.6, Composer 2.5, Composer 2.5 Fast) are unchanged.",
     "2026-10-01 JUDGMENT, standard = gpt-5.6-sol, re-checked first as the 2026-09-22 note required: OpenAI's models catalog still omits it (only GPT-5.6 Cyber remains of that family), but Cursor's models and pricing page still offers GPT-5.6 Sol, Terra, and Luna, and the Models API listing still returns gpt-5.6-sol. A host picker still offers it, so the cell is kept. When it leaves every host picker, collapse the tier onto gpt-6.1-sol at medium effort.",
-    "2026-10-07: Anthropic released Claude Haiku 5.5 (claude-haiku-5-5), listed in its overview as the fastest model in the current lineup (1M context, 128K output, adaptive thinking, default effort medium), so it replaces claude-haiku-4-5 at fast. Only the Anthropic column was re-read this day; the OpenAI, Google, and Cursor columns and verified_as_of are unchanged from 2026-10-01. Strong (claude-opus-5-5), standard (claude-sonnet-5-5), and frontier (claude-fable-5-1) are unchanged."
+    "2026-10-07: Anthropic released Claude Haiku 5.5 (claude-haiku-5-5), listed in its overview as the fastest model in the current lineup (1M context, 128K output, adaptive thinking, default effort medium), so it replaces claude-haiku-4-5 at fast. Only the Anthropic column was re-read this day; the OpenAI, Google, and Cursor columns and verified_as_of are unchanged from 2026-10-01. Strong (claude-opus-5-5), standard (claude-sonnet-5-5), and frontier (claude-fable-5-1) are unchanged.",
+    "2026-10-12 (v4.13.11 qualification): the official Gemini 3.7 Flash page marks gemini-3.7-flash deprecated and unavailable for selection in Google AI Studio. The deprecations schedule says its API endpoint is not shutting down and automatically routes requests to gemini-3.8-flash. Strong now names that canonical replacement; the compatibility endpoint is not treated as an independently selectable 3.7 model.",
+    "2026-10-12 JUDGMENT, Google strong and frontier = gemini-3.8-flash: retaining the frontier cell while replacing the deprecated strong selection deliberately collapses these two tiers onto the same canonical model. This is an operator placement judgment, not a vendor statement of distinct tier capability. The other fifteen cells are unchanged. No new effort sweep or active-host switching qualification was performed for this proposal.",
+    "2026-10-12 QUALIFICATION LIMITS: verified_as_of remains 2026-10-01 because this step rechecks only the Google deprecation, not all four provider columns. The retained Cursor Composer 2.5 source describes a Fast variant but does not independently qualify the composer-2.5-fast canonical suffix; that cell remains qualified by this limit. The six IDs from the scoped Codex account advisory describe that account-visible roster only and do not disprove vendor-global OpenAI cells. Existing profile dates and roster evidence are unchanged."
   ],
   "sources": {
     "Anthropic": [
@@ -48,7 +51,9 @@
       "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-6-astra"
     ],
     "Google": [
-      "https://ai.google.dev/gemini-api/docs/models"
+      "https://ai.google.dev/gemini-api/docs/models",
+      "https://ai.google.dev/gemini-api/docs/models/gemini-3.7-flash",
+      "https://ai.google.dev/gemini-api/docs/deprecations"
     ],
     "Cursor": [
       "https://cursor.com/docs/models-and-pricing"

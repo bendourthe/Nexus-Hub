@@ -5,8 +5,8 @@
       "docs/handbooks/_sources/distribution/model.json": "3f3b9e1222a51583962e4de248d9ac74804b03a2b3102605e8e1911c8ea3496d",
       "docs/handbooks/_sources/distribution/source.md": "495f2edd8b5046d38801c6e675385cc500b552da8231a381ff5e811db62721fa",
       "docs/handbooks/_sources/distribution/design.css": "4d2975128abe327205e8b3c4fd62d351644221e9e03bfbaa539986f3cc1b9a70",
-      "scripts/installer.ps1": "3831b81fcd1eceecd8fe80aa2c407e51fe3e45b309cba13a5e13c89a90238f1a",
-      "scripts/installer.sh": "970bdcb6ab259f5fbe746ba16b172906a1d46f0996b5ed1b506a68c1ea5443de",
+      "scripts/installer.ps1": "3c48fd1da833b6a2afd74e210ee6961946b7ac349161a0dce2522d6cdcd14adf",
+      "scripts/installer.sh": "c80e854e76bb7314ef40e97df8e85c27b7c853a428c2575b1b0464ec592f8754",
       "scripts/lib/integrations/runner.py": "5429ec6c9896b95285effe8215b2d3ca291c920bad6ccf8dec0ffa93cca7b78f",
       "scripts/lib/integrations/_catalog_adapters.py": "6a8e0f1375df9ae401302b1b13a1559f093d7aecd0c5ae0c134f9dddad162647",
       "scripts/lib/integrations/_owned.py": "abfac9b0161e9148e236532b85a854bf512c3100bc5f39fed7e8474e7fd727e4",
@@ -32,7 +32,7 @@
     "content": {
       "status": "pass",
       "evidence": "docs/releases/v4/v4.13/development/v4.13.11-phase-8-handbook-claim-review.md",
-      "evidence_sha256": "54f4ce4ebecd15fd3780a3638a555c0d5ce938aa86b3d191a27ac4baddf0f5fe"
+      "evidence_sha256": "3239a414a8912fd3f36517fed6170476063451270deee0f650a39cff95f213d0"
     },
     "build": {
       "status": "pass",
