@@ -22,6 +22,33 @@ import {
 import { CursorLiveUsageTransport } from "./providers/liveTransport";
 import { CursorSessionAdapter } from "./providers/session";
 import { registerUpdateWatcher } from "./updateWatcher";
+import { normalizeCreditReminders, writeCreditReminders } from "./creditReminders";
+
+const CREDIT_KEYS = ["creditReminderStep", "creditReminderWhenCapped"];
+
+/**
+ * Mirror the credit reminder settings into the file the Nexus-Hub usage-guard
+ * hook reads. At activation only an explicitly set value is written, so the
+ * hook's defaults apply until the user chooses otherwise. Best effort.
+ */
+function syncCreditReminders(onlyIfSet: boolean): void {
+  try {
+    const config = vscode.workspace.getConfiguration("cursorUsage");
+    const isSet = (key: string): boolean => {
+      const value = config.inspect(key);
+      return value?.globalValue !== undefined || value?.workspaceValue !== undefined || value?.workspaceFolderValue !== undefined;
+    };
+    if (onlyIfSet && !CREDIT_KEYS.some(isSet)) {
+      return;
+    }
+    writeCreditReminders(
+      "cursor",
+      normalizeCreditReminders(config.get("creditReminderStep"), config.get("creditReminderWhenCapped"), 50)
+    );
+  } catch {
+    // The hook falls back to its defaults.
+  }
+}
 
 export {
   COMMAND_IDS,
@@ -42,6 +69,14 @@ export function activate(context: vscode.ExtensionContext): void {
   // Registered first: an install that lands underneath this window leaves THIS code
   // stale, so it is the only code able to say so.
   registerUpdateWatcher(context, "Cursor Usage Monitor");
+  syncCreditReminders(true);
+  context.subscriptions.push(
+    vscode.workspace.onDidChangeConfiguration((event) => {
+      if (CREDIT_KEYS.some((key) => event.affectsConfiguration(`cursorUsage.${key}`))) {
+        syncCreditReminders(false);
+      }
+    })
+  );
   activeRuntime?.dispose();
 
   const secrets = new CursorCredentialStore(context.secrets);

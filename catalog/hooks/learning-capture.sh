@@ -57,20 +57,25 @@ fi
 
 # --- Compose and append the record ---
 TIMESTAMP=$(date -u "+%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || echo "unknown")
+MAX_BYTES="${NEXUS_LEARNING_MAX_BYTES:-1048576}"
+if ! [[ "$MAX_BYTES" =~ ^[0-9]+$ ]] || [ "$MAX_BYTES" -le 0 ]; then
+  MAX_BYTES=1048576
+fi
 
 if [ -n "$PY" ]; then
-  # Python path: parse the payload from $INPUT (passed via an env var so we do
-  # not collide with the script body) and append a JSONL line.
-  NEXUS_LC_PAYLOAD="$INPUT" \
+  # Payload travels over stdin, avoiding the environment's per-string size cap.
+  printf '%s' "$INPUT" | \
   NEXUS_LC_OBS_PATH="$OBS_PATH" \
   NEXUS_LC_TS="$TIMESTAMP" \
+  NEXUS_LC_MAX_BYTES="$MAX_BYTES" \
+  PYTHONIOENCODING=utf-8 \
   "$PY" -c '
 import json
 import os
 import sys
 
 try:
-    raw = os.environ.get("NEXUS_LC_PAYLOAD", "")
+    raw = sys.stdin.read()
     obs_path = os.environ["NEXUS_LC_OBS_PATH"]
     ts = os.environ.get("NEXUS_LC_TS", "")
     try:
@@ -85,8 +90,8 @@ try:
                 return v
         return default
 
-    event = str(first(payload, "hook_event_name", "event", "type", default="unknown"))
-    tool = str(first(payload, "tool_name", "tool", default=""))
+    event = str(first(payload, "hook_event_name", "event", "type", default="unknown"))[:128]
+    tool = str(first(payload, "tool_name", "tool", default=""))[:128]
     prompt_raw = str(first(payload, "prompt", "user_prompt", default=""))
     if len(prompt_raw) > 400:
         prompt_sample = prompt_raw[:400]
@@ -101,13 +106,28 @@ try:
     }
     with open(obs_path, "a", encoding="utf-8", newline="") as fh:
         fh.write(json.dumps(record, ensure_ascii=False) + "\n")
+    max_bytes = int(os.environ["NEXUS_LC_MAX_BYTES"])
+    if os.path.getsize(obs_path) > max_bytes:
+        with open(obs_path, "rb") as fh:
+            lines = fh.readlines()
+        kept = []
+        total = 0
+        for line in reversed(lines):
+            if total + len(line) > max_bytes:
+                break
+            kept.append(line)
+            total += len(line)
+        tmp = obs_path + ".trim." + str(os.getpid())
+        with open(tmp, "wb") as fh:
+            fh.writelines(reversed(kept))
+        os.replace(tmp, obs_path)
 except Exception:
     pass
 ' 2>/dev/null || true
 elif command -v jq >/dev/null 2>&1; then
   # jq fallback when no Python is available.
-  EVENT=$(echo "$INPUT" | jq -r '.hook_event_name // .event // .type // "unknown"' 2>/dev/null || echo "unknown")
-  TOOL_NAME=$(echo "$INPUT" | jq -r '.tool_name // .tool // ""' 2>/dev/null || true)
+  EVENT=$(printf '%s' "$INPUT" | jq -r '(.hook_event_name // .event // .type // "unknown") | tostring | .[0:128]' 2>/dev/null || echo "unknown")
+  TOOL_NAME=$(printf '%s' "$INPUT" | jq -r '(.tool_name // .tool // "") | tostring | .[0:128]' 2>/dev/null || true)
   PROMPT_SAMPLE=$(echo "$INPUT" | jq -r '(.prompt // .user_prompt // "") | tostring | .[0:400]' 2>/dev/null || true)
   RECORD=$(jq -nc \
     --arg ts "$TIMESTAMP" \
@@ -124,25 +144,29 @@ else
 fi
 
 # --- Truncate the observations file if it has grown too large ---
-MAX_BYTES="${NEXUS_LEARNING_MAX_BYTES:-1048576}"
-if ! [[ "$MAX_BYTES" =~ ^[0-9]+$ ]] || [ "$MAX_BYTES" -le 0 ]; then
-  MAX_BYTES=1048576
-fi
 SIZE=$(wc -c < "$OBS_PATH" 2>/dev/null | tr -d ' ' || echo 0)
-if [ -n "$SIZE" ] && [ "$SIZE" -gt "$MAX_BYTES" ]; then
-  # Keep the most recent half: tail by lines is portable across systems where
-  # `tail -c` and `dd` flag semantics drift between BSD and GNU userlands.
+while [ -n "$SIZE" ] && [ "$SIZE" -gt "$MAX_BYTES" ]; do
+  # Whole-line fallback rotation preserves UTF-8 and repeats until byte-bounded.
   TOTAL_LINES=$(wc -l < "$OBS_PATH" 2>/dev/null | tr -d ' ' || echo 0)
   if [ -n "$TOTAL_LINES" ] && [ "$TOTAL_LINES" -gt 1 ]; then
     KEEP=$(( TOTAL_LINES / 2 ))
     [ "$KEEP" -lt 1 ] && KEEP=1
     TMP="$OBS_PATH.trim.$$"
     if tail -n "$KEEP" "$OBS_PATH" > "$TMP" 2>/dev/null; then
-      mv -f "$TMP" "$OBS_PATH" 2>/dev/null || rm -f "$TMP" 2>/dev/null
+      if ! mv -f "$TMP" "$OBS_PATH" 2>/dev/null; then
+        rm -f "$TMP" 2>/dev/null
+        printf '%s\n' 'learning-capture: degraded-rotation; observations retained above the byte cap' >&2
+        break
+      fi
     else
       rm -f "$TMP" 2>/dev/null
+      break
     fi
+  else
+    # An individual record cannot fit this configured cap; never cut its bytes.
+    : > "$OBS_PATH"
   fi
-fi
+  SIZE=$(wc -c < "$OBS_PATH" 2>/dev/null | tr -d ' ' || echo 0)
+done
 
 exit 0

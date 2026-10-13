@@ -60,7 +60,7 @@ By participating in this project, you agree to:
    python --version
 
    # Test tools work
-   python infrastructure/tools/build_skills_catalog.py
+   python scripts/check_registry_entries.py --check --strict
    python infrastructure/tools/install_skill.py --list
    ```
 
@@ -387,9 +387,9 @@ All contributions must meet these standards:
 
 - **Test thoroughly** on multiple platforms if possible
 
-- **Update catalog** if adding/modifying skills:
+- **Update catalog** if adding/modifying skills: edit the `data/` registry files by hand as described in `AGENTS.md`, then check them (do not run the legacy generator, which overwrites the hand-maintained registry):
   ```bash
-  python infrastructure/tools/build_skills_catalog.py
+  python scripts/check_registry_entries.py --check --strict
   ```
 
 ### 2. Commit Changes

@@ -320,13 +320,13 @@
     "antigravity2": {
       "display_name": "Antigravity 2.0 + CLI",
       "source_url": "https://www.antigravity.google/docs/cli/modes/",
-      "verified": "2026-08-30",
-      "doc_statement": "The CLI modes reference documents agentMode in ~/.gemini/antigravity-cli/settings.json with values default, accept-edits, and plan. The default mode asks for confirmation before tool execution; accept-edits automatically approves edit tools and plan disables tool use.",
+      "verified": "2026-10-10",
+      "doc_statement": "The CLI modes reference documents agentMode in ~/.gemini/antigravity-cli/settings.json with values default, accept-edits, and plan. The default mode pauses for interactive diff review before modifying or creating files; accept-edits automatically approves file edits and creations; plan prepends the /plan instruction prefix to analyze and outline steps before writing code.",
       "settings": {
         "agentMode": "default"
       },
       "rationale": {
-        "agentMode": "The vendor's default mode preserves interactive confirmation before tool execution and does not silently enable automatic edits."
+        "agentMode": "The vendor's default mode keeps an interactive diff review before any file is modified or created and does not silently enable automatic edits."
       },
       "install_target": {
         "mode": "write",

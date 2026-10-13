@@ -9,6 +9,106 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.13.11] - 2026-10-13
+
+### Changed
+
+- **A usage limit asks before it hands off (v4.13.11).** Reaching a subscription usage limit no longer sends the agent straight into the handoff: users with pay-per-use credits (extra usage) were cut off mid-task. The `usage-guard` directive now tells the agent to finish or safely stop the current step and ask the user whether to continue on credits or hand off, recording the open question and the answer in the project's `.nexus-hub/usage-decision.json` (`pending`, `credits`, `wait`, or `handoff`). A `credits` answer is persisted in `~/.nexus-hub/state/usage-guard/<platform>.credits.json` for the limited window's period, so later sessions are not asked again. A pending question remains open until the final answer; choosing wait or handoff withdraws an earlier credit approval. The probe now reports the pay-per-use credit state as an `extra_credits` window on Claude Code (`extra_usage`), Codex (`credits` and `spend_control`), and Cursor (`spendLimitUsage`): capped, uncapped, none, or exhausted, with the amount spent and the limit. A capped allowance is reminded at 50%, 75%, and 90%; an uncapped one every reminder step of spend (also under a cap when enabled); an exhausted one once; and when credits are disabled, zero, or used up, the first question warns that continuing will fail and offers enabling them, waiting for the reset, or the handoff. Reminders are mid-turn only, never at turn end. The reminder step is a new setting in the Claude, Codex, and Cursor usage monitor extensions (`creditReminderStep`, default $50, or 500 credits for Codex, and `creditReminderWhenCapped`), saved to separate `~/.nexus-hub/config/credit-reminders-claude.json`, `credit-reminders-codex.json`, and `credit-reminders-cursor.json` files so concurrent editor hosts preserve each provider's settings; the existing shared `credit-reminders.json` remains a legacy fallback. Copilot reports no credit figure, so the agent says it cannot remind the user. The completion gate also lets a `/implement` turn end while the question is pending or the user chose to wait. Updated: `catalog/hooks/usage-guard.py`, `catalog/hooks/_usage_probe.py`, `scripts/completion_gate.py`, the Claude, Codex, and Cursor usage monitor extensions (new `src/creditReminders.ts`), the `session-handoff` skill (new Step 0), the Session Handoff block in all 13 instruction templates, and `docs/guides/usage-limit-handoff.md`.
+- **Known-gaps sweep and minor close (v4.13.11).** The v4.13 ledger's open items fell from 158 at admission to 83. Every remaining item carries a carry-forward contract (owner, severity, blocker, acceptance, proving command, future plan) for migration to v4.14. Closures came from fixes across hooks, repository tools, skills, templates, CI, the usage monitors, the guides and the installers, plus maintainer decisions recorded in `docs/releases/v4/v4.13/development/v4.13.11-ledger-decisions.md` and new decision records under `docs/decisions/implemented/`.
+- **The Copilot usage monitor also installs into Cursor (v4.13.11, WN-30).** Both installers pass the Cursor CLI as the Copilot monitor's second host when Cursor is detected, as the other monitors already did; banners and the README say so.
+- **Usage-monitor CI installs without lifecycle scripts (v4.13.11, AR-60, WN-32).** All four monitor workflows run `npm ci --ignore-scripts`, with byte-identical packages proven for each. The Copilot monitor gains a `verify:package` step, and both verifiers now reject credential-like files such as `credentials.json`, `*.token` and SSH keys. Both verifiers check and read the same opened runtime object, close descriptors on success or error, and reject nonregular entries without blocking.
+- **Stricter ledger parsing (v4.13.11).** `minor_close.py status` and `migrate` now refuse a ledger with duplicate unresolved gap IDs or a gap heading without an ID, instead of miscounting it.
+
+### Fixed
+
+- **Antigravity edit and attribution guards (v4.13.11, WN-4-v4131).** The native bridge maps tool, session and working-directory fields into the curated guards, records successful post-tool file state, and leaves failed post events unrecorded.
+- **Selected OpenClaw workspaces (v4.13.11, WN-5-v4133).** Global delivery honors named profiles, explicit selected-agent workspaces and documented fleet defaults; ambiguous or invalid selection is visibly refused. The workspace environment override retains native literal-path semantics.
+- **Copilot personal command-skills and instruction preservation (v4.13.11, WN-5-v4133).** Eligible selected global commands also install as ownership-aware manual-only personal skills. Local prompt compatibility and project skill opt-in remain available; teardown preserves personal instruction CRLF bytes.
+- **Training HUD and responsive fitting (v4.13.11).** Only changed HUD text, transforms and margins are written, retaining the existing responsive measurements and game balance.
+- **Command injection through `.cmd`/`.bat` shims in three PowerShell hooks (v4.13.11).** `lint-on-write.ps1`, `rewrite-command.ps1` and `session-summary.ps1` no longer hand an argument containing a cmd metacharacter, quote or line break to a `.cmd`/`.bat` target. They use a same-named `.exe` when one exists, and otherwise skip the call; `rewrite-command` then returns no permission decision. The same hooks decode child output as UTF-8 (WN-45).
+- **Deep Windows paths (v4.13.11).** `nexus-hub init` and global installs complete on project roots past the 260-character limit; `init` now names a failing platform and continues instead of raising. Teardown and hook pruning also handle deep roots, restore user hook bytes, and remove owned directory junctions without touching their targets (WN-46).
+- **PyJWT advisory GHSA-42vr-xj54-vc7v (v4.13.11).** The four `mcp`-dependent extensions require `pyjwt>=2.15.0`, and CI pins 2.15.1.
+- **Guide and Training accessibility (v4.13.11).** The phone menu closes on Escape and when focus leaves it. The Foundations figure fits below 600 px at phone widths even with Linux fallback fonts (579.20 px at 390 px and 430 px, WN-8-v41310) and names its links. Light-theme figure text reaches 4.5:1 contrast, and home headings no longer skip a level.
+- **Smaller fixes (v4.13.11).** Presentify redacts camelCase AWS secret key names. `provenance-ledger.ps1` writes UTC timestamps like its bash sibling. `enumerate-models.ps1` exits 2 for an unknown platform under a Stop error preference. Completion notices name the host they were installed for.
+
+### Capability usage
+
+- **Copilot Usage Monitor in Cursor (v4.13.11, WN-30), default-on.** Global extension installation now delivers the existing monitor to detected Cursor as well as VS Code.
+
+    - **Activation**: automatic during a global install when the Cursor CLI is detected and the monitor build/install succeeds; no additional opt-in.
+    - **Validation**: `python scripts/check_installer_parity.py` and `python -m pytest -q catalog/hooks/tests/test_installer_smoke.py -k "isolate_vscode_and_cursor_hosts or banners_state_the_copilot_monitor_hosts"`.
+    - **Rollback**: `cursor --uninstall-extension nexus-hub.copilot-usage-monitor`.
+    - **Boundary**: editor-host delivery changes; monitor authentication and GitHub permissions are unchanged.
+    - **Documentation**: [README](README.md), [PowerShell installer](scripts/installer.ps1), and [Bash installer](scripts/installer.sh).
+
+#### Antigravity guard delivery
+
+- Activation: From the Nexus-Hub checkout root, REPLACE `REPLACE_WITH_PROJECT_PATH` with the chosen project's absolute path, then run `python scripts/lib/integrations/runner.py install --scope workspace --target "REPLACE_WITH_PROJECT_PATH" --integrations antigravity2`. Native write/edit, command and read events deliver the existing guards; Windows selects PowerShell siblings, and failed post events do not record writes.
+
+- Validation: From the same checkout, with the same project-path replacement, run `python scripts/lib/integrations/runner.py doctor --target "REPLACE_WITH_PROJECT_PATH" --integrations antigravity2 --json` to read back recorded delivery and any missing or drifted files. Retained native selections passed 35 module tests, 26 shell tests, 20 shared-bridge tests and eight working-directory cases separately. This qualifies sequential local flows, with authenticated vendor-host execution and concurrent-call correlation unproven.
+
+- Rollback: From that checkout, with the same project-path replacement, preview `python scripts/lib/integrations/runner.py teardown --target "REPLACE_WITH_PROJECT_PATH" --integrations antigravity2 --dry-run`. Review its owned paths, then apply `python scripts/lib/integrations/runner.py teardown --target "REPLACE_WITH_PROJECT_PATH" --integrations antigravity2`. Only the named `nexus-hub-guardrails` set, managed instruction sections and owned artifacts are removed; global-host reversal remains unproven.
+
+- Authority: Existing local installation and edit/attribution rules apply within the approved repair scope. Delivery introduces no vendor credentials or broader approval authority.
+
+- Docs: [Platform read contracts](https://github.com/bendourthe/Nexus-Hub/blob/v4.13.11/docs/policy/platform-read-contracts.md), [native guard receipt](https://github.com/bendourthe/Nexus-Hub/blob/v4.13.11/docs/releases/v4/v4.13/development/v4.13.11-phase-8-receipts/wn4-antigravity-guard-continuation.json), [integration lifecycle](https://github.com/bendourthe/Nexus-Hub/blob/v4.13.11/scripts/lib/integrations/runner.py).
+
+#### OpenClaw selected-workspace delivery
+
+- Activation: From the checkout root, run `python scripts/lib/integrations/runner.py install --scope global --integrations openclaw` with the existing profile/configuration. Named profiles, selected-agent workspaces and documented fleet defaults are honored; ambiguous ownership visibly refuses delivery and environment paths retain literal semantics.
+
+- Validation: From the checkout root, run `python scripts/lib/integrations/runner.py doctor --target "$HOME" --integrations openclaw --json` to read back the global manifest's selected-workspace delivery and any drift. `$HOME` reads the current user's home in PowerShell and POSIX shells; it is not reassigned. The shared workspace receipt records 197 passes, two existing Windows privilege skips and 28 isolated CLI calls, covering selected workspaces, previews, repeat installation, owned removal and CRLF restoration. Authenticated vendor runtime remains unqualified.
+
+- Rollback: From the checkout root, preview `python scripts/lib/integrations/runner.py teardown --target "$HOME" --integrations openclaw --dry-run`. Review the recorded selected-workspace paths, then apply `python scripts/lib/integrations/runner.py teardown --target "$HOME" --integrations openclaw`. Owned removal preserves untracked files and other fleet workspaces.
+
+- Authority: Selected-workspace content uses existing installation permissions. This delivers workspace content, without installing native tool-interception guards or changing account authority.
+
+- Docs: [Platform read contracts](https://github.com/bendourthe/Nexus-Hub/blob/v4.13.11/docs/policy/platform-read-contracts.md), [workspace receipt](https://github.com/bendourthe/Nexus-Hub/blob/v4.13.11/docs/releases/v4/v4.13/development/v4.13.11-phase-8-receipts/workspace-discovery-continuation.json), [workspace selection implementation](https://github.com/bendourthe/Nexus-Hub/blob/v4.13.11/scripts/lib/integrations/openclaw.py).
+
+#### Copilot personal command-skill delivery
+
+- Activation: From the checkout root, run `python scripts/lib/integrations/runner.py install --scope global --integrations copilot` on a detected Copilot/VS Code installation. Eligible commands selected through profiles, modules or bundles also become personal skill wrappers; Local prompts and project opt-in remain available.
+
+- Validation: From the checkout root, run `python scripts/lib/integrations/runner.py doctor --target "$HOME" --integrations copilot --json` to read back the global manifest's Copilot delivery and any drift. `$HOME` is the current user's home in PowerShell and POSIX shells. The shared 197-pass workspace qualification includes actual isolated Copilot install/removal, unowned-file preservation and exact personal instruction CRLF restoration. Authenticated Copilot discovery and execution are not claimed.
+
+- Rollback: From the checkout root, preview `python scripts/lib/integrations/runner.py teardown --target "$HOME" --integrations copilot --dry-run`. Review the owned paths, then apply `python scripts/lib/integrations/runner.py teardown --target "$HOME" --integrations copilot`. Removal preserves personal workflows and removes only owned wrappers and managed instruction sections.
+
+- Authority: Wrappers request manual invocation through `disable-model-invocation: true` and preserve existing approval rules. Installation adds no account permission or new model-invocation authority.
+
+- Docs: [Platform read contracts](https://github.com/bendourthe/Nexus-Hub/blob/v4.13.11/docs/policy/platform-read-contracts.md), [workspace receipt](https://github.com/bendourthe/Nexus-Hub/blob/v4.13.11/docs/releases/v4/v4.13/development/v4.13.11-phase-8-receipts/workspace-discovery-continuation.json), [Copilot integration](https://github.com/bendourthe/Nexus-Hub/blob/v4.13.11/scripts/lib/integrations/copilot.py).
+
+#### Copilot Usage Monitor in Cursor
+
+- Activation: The global Bash/PowerShell installer also delivers the existing monitor to detected Cursor when Node/npm, the editor CLI and build/install are available; restart Cursor afterward. An absent Cursor host is skipped without an extra opt-in.
+
+- Validation: The WN-30 record contains 37 installer smoke passes, installer parity and actual routing with stub editor commands for both-host and Cursor-absent cases. Authenticated Cursor UI, live usage and sign-in were not qualified by those fixtures.
+
+- Rollback: Run `cursor --uninstall-extension nexus-hub.copilot-usage-monitor`. This removes the extension and does not revoke OAuth credentials.
+
+- Authority: This is the approved addition of a host for an existing monitor. Monitor authentication and GitHub permissions are unchanged.
+
+- Docs: [Monitor README](https://github.com/bendourthe/Nexus-Hub/blob/v4.13.11/extensions/copilot-usage-monitor/README.md), [installer decision](https://github.com/bendourthe/Nexus-Hub/blob/v4.13.11/docs/releases/v4/v4.13/development/v4.13.11-ledger-decisions.md), [installer regression](https://github.com/bendourthe/Nexus-Hub/blob/v4.13.11/catalog/hooks/tests/test_installer_smoke.py).
+
+#### Continue on pay-per-use credits after a usage limit
+
+- Activation: Update the global Nexus-Hub installation after v4.13.11 is released, then restart the agent host. Codex must trust its hooks through /hooks. The Claude, Codex and Cursor monitor settings expose creditReminderStep and creditReminderWhenCapped; defaults are USD 50 for Claude/Cursor and 500 credits for Codex. At the usage threshold, answer the agent's question to continue on credits, wait for reset, or hand off. Each monitor writes its own provider settings file; the hook retains the shared credit-reminders.json as a legacy fallback.
+
+- Validation: The usage probe's extra_credits window reports capped, uncapped, none, exhausted or unknown state where available. The guard remembers an explicit credit answer until the limited window resets, asks again at 50/75/90 percent of a capped allowance, applies the configured spend step when uncapped, and announces exhaustion once. The reviewed repair passed 400 focused hook tests, all three compilers and monitor suites of 63/130/316 tests. The combined candidate passed 404 hook tests and 44 separate validators, fast 17/17 and docs 10/10; fingerprints are current and both handbook preconditions pass. Offline native hook-main evidence covers pending, Stop, credit approval, reminder, withdrawal and a later-session question. Claude, Codex and Cursor monitor build-and-test jobs pass on the published feature commit. Observed live accounts were capped; uncapped inference has fixture coverage only. Feature PR #443 passed CodeQL with no open alert in either usage helper. All five required contexts, Linux, Windows and all three browser lanes passed on PR #443; it merged into develop at `dbd69d4ee50c85adfa0bdd356a63a5dca47882e3` on 2026-10-13T08:52:04Z.
+
+- Rollback: Answer wait or handoff to the guard's question to withdraw an earlier approval. For manual withdrawal, remove only the matching provider's file under ~/.nexus-hub/state/usage-guard/<platform>.credits.json. Set creditReminderStep to 0 to disable spend-step reminders; capped percentage reminders remain. To disable the guard, add usage-guard to NEXUS_DISABLED_HOOKS in the agent host's environment. These changes do not alter the provider's billing settings.
+
+- Authority: Continuing on credits requires the user's answer recorded after the guard's question in the current session. The persisted approval lasts for that usage window. The release does not enable provider billing, increase an allowance, or infer spending approval from silence. Copilot has no credit reading; unknown readings explicitly disclose that spend reminders are unavailable.
+
+- Docs: [Usage-limit guide](https://github.com/bendourthe/Nexus-Hub/blob/v4.13.11/docs/guides/usage-limit-handoff.md), [usage-credit implementation PR](https://github.com/bendourthe/Nexus-Hub/pull/443).
+
+### Qualification and carry-forward
+
+Implementation [PR #440](https://github.com/bendourthe/Nexus-Hub/pull/440) passed all five required checks in [run 38382547903](https://github.com/bendourthe/Nexus-Hub/actions/runs/38382547903) and merged into develop at `09cac67697f0c92590227f0c55293598cb5c5502`; its post-merge workflow passed. Linux and all three serial browser lanes passed: 195 engine cases, 129 game cases and 699 guide cases with two existing skips. Windows passed all seven native commands, including 3222 installer/validator cases with 43 skips and 47 attribution cases with one existing POSIX-only skip. The attribution module has its own adjacent serial command; existing 1800-second command caps and the 60-minute workflow limit remain, while the sum of independent command bounds increases. All eight raw CI artifacts and hashes are preserved. Earlier failed attempts remain recorded.
+
+CodeQL retains 53 semantic findings with zero newly added or removed findings in this repair. Twenty are reviewed, including five intentional deferred-import notices verified through 29 fresh native smoke commands; 33 lower annotations remain unreviewed. Nineteen review conversations were resolved after technical review, with alert disposition metadata unchanged. This is not a whole CodeQL clean verdict or authenticated vendor-runtime qualification. Observed usage accounts were capped; uncapped inference has fixture coverage.
+
+The reconciled ledger retains 83 residual items with explicit carry-forward contracts. The approved manifest records 83 planned transfers and 15 closures. Transfer to v4.14 and v4.13 archival follow the release; they are not completed by this changelog. [Known gaps](https://github.com/bendourthe/Nexus-Hub/blob/v4.13.11/docs/releases/v4/v4.13/known-gaps.md).
+
 ## [4.13.10] - 2026-10-09
 
 ### Added

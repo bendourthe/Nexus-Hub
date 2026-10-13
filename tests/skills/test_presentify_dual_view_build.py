@@ -495,7 +495,7 @@ def test_svg_measurements_find_broken_labels_and_preserve_readable_rendered_text
         )
         rotated = chart.locator("text[transform]")
         rotated.evaluate(
-            'node => node.setAttribute("transform", "translate(24 135) rotate(-90)")'
+            'node => node.setAttribute("transform", "translate(-2000 135) rotate(-90)")'
         )
         assert any(not item["inside"] for item in chart.evaluate(probe))
         rotated.evaluate(

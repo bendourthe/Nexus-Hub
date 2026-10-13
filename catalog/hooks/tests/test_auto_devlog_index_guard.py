@@ -163,6 +163,16 @@ def test_narrative_devlog_still_receives_an_entry(run, repo: Path) -> None:
     )
 
 
+def test_heading_at_line_one_receives_a_new_entry(run, repo: Path) -> None:
+    devlog = _write_devlog(repo, "## [2020-01-01] - original\n\nOriginal body.\n")
+    proc = run(repo)
+    assert proc.returncode == 0, (proc.stdout, proc.stderr)
+    body = devlog.read_text(encoding="utf-8")
+    assert body.startswith("## [") and "Session auto-summary [auto]" in body.splitlines()[0]
+    assert body.index("Session auto-summary [auto]") < body.index("## [2020-01-01]")
+    assert "Original body." in body
+
+
 def test_no_devlog_at_all_is_silent(run, repo: Path) -> None:
     """A project without a DEVLOG is not an error condition."""
     proc = run(repo)

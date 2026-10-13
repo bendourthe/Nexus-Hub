@@ -20,6 +20,10 @@ code{background:var(--copy-bg);border:1px solid var(--copy-border);border-radius
 .shell{position:relative;z-index:1;}
 .container{width:100%;max-width:var(--maxw);margin:0 auto;padding:0 24px;}
 /* ---------- Header / nav ---------- */
+.skip-link{position:absolute;left:12px;top:-60px;z-index:50;padding:8px 14px;border-radius:8px;background:var(--accent);color:var(--bg-deep);font-weight:600;text-decoration:none;}
+.skip-link:focus{top:10px;}
+html[data-theme="light"] .skip-link{color:#fffdf8;}
+#app:focus{outline:none;}
 .site-header{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--nav-bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);}
 .nav{display:flex;align-items:center;gap:var(--sp-4);min-height:58px;}
 .brand{display:inline-flex;align-items:center;gap:10px;color:var(--ink);}

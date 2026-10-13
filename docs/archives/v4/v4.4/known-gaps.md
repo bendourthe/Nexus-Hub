@@ -1,5 +1,8 @@
 # Known Gaps - v4.4
 
+**Open items**: 0
+**Ledger normalization**: 2026-10-09, v4.13.11. The canonical open count is derived from supported item headings. Summary and reconciliation count tables below retain historical release snapshots, including partial closures and explicit transfers; they are not new parser totals.
+
 **Project**: Nexus-Hub
 **Status**: v4.4.0 finalized 2026-09-01 at `/update release`; v4.4.1 through v4.4.5 published together as the v4.4.5 tag on 2026-09-04 (PRs #154 and #157), after the operator's Home and Foundations review lifted the publication hold
 **Last updated**: 2026-09-25 (post-release QG-446-1 disposition)
@@ -21,7 +24,9 @@
 
 #### Deferred
 
-##### DF-1 (resolved in v4.4.1) - Three platform text treatments were replaced by approved marks
+##### DF-1 (resolved in v4.4.1) - Three platform text treatments were replaced by approved marks - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.4#DF-1` is recorded as RESOLVED for its original scope. Evidence: Heading "(resolved in v4.4.1)"; closure 2026-09-24 with asset-provenance ledger Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Source phase**: Phase 1 - Home identity, platforms, installation, and comparison.
 - **Plan reference**: `docs/archives/v4/v4.4/plans/v4.4.0-guide-depth-and-training-rebuild.md` sub-task 1.2 / T002.
@@ -62,7 +67,9 @@
 
 #### Warnings
 
-##### WN-1 - Phase 1 ran one model tier below the plan's recommendation
+##### WN-1 - Phase 1 ran one model tier below the plan's recommendation - CLOSED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.4#WN-1` is recorded as CLOSED for its original scope. Evidence: Session-delta record, no tree defect; same class the v4.13 inventory dismisses for v4.5 WN-2/v4.7 WN-1 (v4.13 known-gaps.md, note after inventory table) Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Source phase**: Phase 1 routing pre-flight.
 - **Plan reference**: Phase 1 `**Recommended model tier**: frontier` / `**Recommended effort level**: max`.
@@ -70,7 +77,9 @@
 - **Impact**: None observed. Every Phase 1 gate passed, including the fail-closed browser suite, and the two load-bearing outputs (the measured vector mark and the asset ledger) were independently verified by render and by hash.
 - **Suggested next step**: Re-surface the tier recommendation at each subsequent phase pre-flight. Phases 3, 4, 5, and 7 are also rated frontier/max and carry more implementation risk than Phase 1, so the same choice should be made deliberately rather than inherited.
 
-##### WN-2 - The Phase 1 superseded-assertion register was incomplete
+##### WN-2 - The Phase 1 superseded-assertion register was incomplete - CLOSED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.4#WN-2` is recorded as CLOSED for its original scope. Evidence: Advice targeted v4.4.1 Phases 3-7, which closed; later v4.4.6 redesign was rejected by the user Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Source phase**: Phase 2 - Home identity, platform rail, and workflow loop.
 - **Plan reference**: `docs/archives/v4/v4.4/development/guide-visual-and-arcade-rebuild/phase-1-contract.md` section 2.
@@ -123,7 +132,7 @@
 - `HT-1` no human comprehension cohort - re-issued in Phase 8 with the annotated-prompt and harness-animation prompts added.
 - `HT-2` real current-host installer duty - stays with v4.4.1's release; this plan never runs a sandboxed installer.
 
-### Closed during v4.4.2
+### Resolved - Closed during v4.4.2
 
 | ID | Finding | Phase | Disposition |
 |---|---|---|---|
@@ -181,7 +190,7 @@
 **Base**: `develop` at `a376c1ae`
 **Status**: nine phases complete; published in the v4.4.5 tag on 2026-09-04 after the operator's Home and Foundations review lifted the hold.
 
-### Closed during v4.4.3
+### Resolved - Closed during v4.4.3
 
 | ID | What it was | Closed in |
 |---|---|---|
@@ -196,7 +205,7 @@
 | CV-9 | Two harness scenes whose SVG labels overlapped each other and the rings | Phase 8 |
 | CV-10 | The product addressed the reader in 55 places | Phase 1 |
 
-### Defects this plan introduced and fixed inside it
+### Resolved - Defects this plan introduced and fixed inside it
 
 | ID | Defect | Found by | Fixed in |
 |---|---|---|---|
@@ -208,7 +217,7 @@
 | BG-22 | The `.fx-mat--row` modifier lost to `.fx-mat` on source order, so the wide material row stayed two columns | direct measurement | Phase 5 |
 | BG-23 | The merged harness label was 66 characters, which cannot hold one line at 720px above the 15px floor | `test_no_heading_wraps_from_720_upward` | Phase 8 |
 
-### Pre-existing defects found and closed
+### Resolved - Pre-existing defects found and closed
 
 | ID | Defect | Note |
 |---|---|---|
@@ -236,7 +245,7 @@
 **Base**: the v4.4.3 closeout at `bcfa3413`, on the same branch (v4.4.3 was never published)
 **Status**: nine phases complete; published in the v4.4.5 tag on 2026-09-04 after the operator's Home and Foundations review lifted the hold.
 
-### Closed during v4.4.4
+### Resolved - Closed during v4.4.4
 
 | ID | What it was | Closed in |
 |---|---|---|
@@ -249,7 +258,7 @@
 | TC-7 | Two scenes taught one idea, and the platform scene's six-stage flow was unreadable | Phase 7 |
 | TC-8 | The harness showed WHERE the layers sit rather than following a request through them | Phase 8 |
 
-### Defects this plan introduced and fixed inside it
+### Resolved - Defects this plan introduced and fixed inside it
 
 | ID | Defect | Found by | Fixed in |
 |---|---|---|---|
@@ -258,7 +267,7 @@
 | BG-28 | `.cx-ex` used `--blue`, which had no light-theme override at all, measuring 1.90:1 | the contrast sweep, once the reduced-motion fix made the text visible | Phase 6 |
 | BG-29 | Three modifier classes lost to their base class on source order (`.fx-mat--row`, `.cx-row`, `.mx-tiers`) | direct measurement | Phases 5 and 6 |
 
-### Pre-existing defects found and closed
+### Resolved - Pre-existing defects found and closed
 
 | ID | Defect | Note |
 |---|---|---|
@@ -285,7 +294,7 @@
 **Base**: the v4.4.4 closeout at `3ac90bb2`, on the same branch (neither v4.4.3 nor v4.4.4 was published)
 **Status**: eight phases complete; published in the v4.4.5 tag on 2026-09-04 after the operator's Home and Foundations review lifted the hold.
 
-### Closed during v4.4.5
+### Resolved - Closed during v4.4.5
 
 | ID | What it was | Closed in |
 |---|---|---|
@@ -298,7 +307,7 @@
 | MI-7 | Agentic Platforms never said what "agentic" means, and its boundary showed one setting of three | Phase 6 |
 | MI-8 | Only one of the three harness layers stated a limit; the outer loop's work sequence was absent and its artifact chain was claimed rather than shown | Phase 7 |
 
-### Defects this plan introduced and fixed inside it
+### Resolved - Defects this plan introduced and fixed inside it
 
 | ID | Defect | Found by | Fixed in |
 |---|---|---|---|
@@ -309,7 +318,7 @@
 | BG-36 | `data-stage="output"` landed on both the phase wrapper and the harvested tiers block | the v4.4.1 chronology guard | Phase 5 |
 | BG-37 | The artifact chain shipped as four full-width chips stacked one per line. The test passed, because four identical left offsets sort perfectly well | a screenshot | Phase 7 |
 
-### Pre-existing defects found and closed
+### Resolved - Pre-existing defects found and closed
 
 | ID | Defect | Note |
 |---|---|---|
@@ -350,17 +359,120 @@ Status: local implementation complete through Phase 6; final verification and ex
 
 ### Open Items
 
-| ID | Gap and gate impact | Owner | Next step |
-|---|---|---|---|
-| BG-46 | Mobile Training introduction leaves an isolated it on the second heading line; D06/D12 are partial | Guide implementer | Apply the previewed shorter heading only after the additional bounded correction pass is authorized, then verify 320/420px in both themes. |
-| BG-47 | Fullscreen idle terminal reserves excessive blank space before its reply placeholder; D06/D12 are partial | Guide implementer | Apply the previewed idle-only sizing correction after the bounded-pass decision; verify before/after Run at all four fullscreen sizes and narrow fallback. |
-| MT-446-3 | Linux browser verification is unavailable: Ubuntu has no installed browser or Playwright runtime; installer success is separate evidence | Guide owner on Linux | Run the guide browser checks in an available Linux environment and retain engine/version/results. Do not infer Linux browser coverage from the two installer smokes. |
-| BG-48 | A hostile-input test fixture appears in the shipped describe reply and distracts from the teaching example | Guide implementer | Remove the fixture from production scene data and retain escaping coverage with test-local input; source/inline parity and the describe exercise must pass. Include in the bounded follow-up disposition. |
-| MT-446-1 | Technical and non-technical comprehension plus final user visual review are unverified; D13 and T026 remain open | Guide owner and two readers | Complete the [unassisted exercise](development/guide-learning-experience/phase-7/manual-review.md), retain actual responses, and address unclear concepts before publication. Carries HT-4. |
-| MT-446-2 | Native 200% browser zoom and OS occlusion delivery are not proven by effective-width reflow or an instrumented hidden-state test | Guide owner on the target browser/OS | Perform the environment exercise; retain browser, OS, observations, and any affected correction. Native/fallback fullscreen and reduced-motion handlers have automated proof. |
-| WN-446-1 | Existing primary guide-render CI lacks retained structured browser/JUnit artifacts; comparison is partial | CI maintainer | Review the minimal report/upload change with seven-day retention in [ci-comparison.md](development/guide-learning-experience/phase-7/ci-comparison.md), approve the pipeline change, then implement and verify it. No pipeline change was made in this guide plan. |
-| WN-446-2 | Historical CodeQL CQ-1 has no fresh remote rescan; removal of the flagged construct alone does not close the alert | Security/CI maintainer | Re-evaluate the current head on the next authorized remote scan and record the result. |
-| QG-446-1 | Full native profile: 40 command passes, three failures and one repository-test timeout. Encoding is now fixed; default Bash resolution and the unrelated v4.9 path scan remain separately classified. Complete local green gate is not established | Implementer / repository maintainer | Use [terminal disposition](development/guide-learning-experience/phase-7/full-profile-disposition.md) to isolate the repository-test stall and close remaining environment/scope findings. Do not infer the historical QG-1 assertion failures from absent current output. T027 remains open. |
+#### BG-46 - Mobile Training introduction leaves an isolated it on the second heading line; D06/D12 are partial - RESOLVED
+
+**v4.13.11 structural audit, 2026-10-09**: This heading preserves the historical table obligation and every original field below. The archived Training layout follow-up records 23 browser checks and inspected mobile captures. PR #256 merged commit bc146b3e5 at 804c3a1baedcc45e99ba8e22c7d122c1fcd4abf4 on 2026-09-23 with all required checks green; exact-SHA Post-merge run 35900053832 passed. This closes the original heading layout only, not reader comprehension or native environment coverage.
+
+**ID**: BG-46
+
+**Gap and gate impact**: Mobile Training introduction leaves an isolated it on the second heading line; D06/D12 are partial
+
+**Owner**: Guide implementer
+
+**Next step**: Apply the previewed shorter heading only after the additional bounded correction pass is authorized, then verify 320/420px in both themes.
+
+#### BG-47 - Fullscreen idle terminal reserves excessive blank space before its reply placeholder; D06/D12 are partial - RESOLVED
+
+**v4.13.11 structural audit, 2026-10-09**: This heading preserves the historical table obligation and every original field below. The archived Training layout follow-up records the compact idle terminal, completed-reply coverage floor and 23 browser checks. PR #256 merged commit bc146b3e5 at 804c3a1baedcc45e99ba8e22c7d122c1fcd4abf4 on 2026-09-23 with all required checks green; exact-SHA Post-merge run 35900053832 passed. This closes the original idle terminal layout only.
+
+**ID**: BG-47
+
+**Gap and gate impact**: Fullscreen idle terminal reserves excessive blank space before its reply placeholder; D06/D12 are partial
+
+**Owner**: Guide implementer
+
+**Next step**: Apply the previewed idle-only sizing correction after the bounded-pass decision; verify before/after Run at all four fullscreen sizes and narrow fallback.
+
+#### MT-446-3 - Linux browser verification is unavailable: Ubuntu has no installed browser or Playwright runtime; installer success is separate evidence - RESOLVED
+
+**v4.13.11 structural audit, 2026-10-09**: This heading preserves the historical table obligation and every original field below. The retained RESOLVED 2026-09-24 follow-up cites Ubuntu guide-render run 35933463823 with Playwright 1.63.0, Chromium 153.0.8010.12 and retained JUnit 384 passed / one optional skip / zero failures or errors. The linked archived Linux browser qualification closes browser availability only.
+
+**ID**: MT-446-3
+
+**Gap and gate impact**: Linux browser verification is unavailable: Ubuntu has no installed browser or Playwright runtime; installer success is separate evidence
+
+**Owner**: Guide owner on Linux
+
+**Next step**: Run the guide browser checks in an available Linux environment and retain engine/version/results. Do not infer Linux browser coverage from the two installer smokes.
+
+#### BG-48 - A hostile-input test fixture appears in the shipped describe reply and distracts from the teaching example - RESOLVED
+
+**v4.13.11 structural audit, 2026-10-09**: This heading preserves the historical table obligation and every original field below. The retained PUBLICATION VERIFIED 2026-09-23 follow-up cites PR #255 merged at 20bc793b and successful Post-merge run 35897196668. The hostile fixture was moved into test-created HTML and literal rendering was browser-proven. This closes the original production scene contamination only.
+
+**ID**: BG-48
+
+**Gap and gate impact**: A hostile-input test fixture appears in the shipped describe reply and distracts from the teaching example
+
+**Owner**: Guide implementer
+
+**Next step**: Remove the fixture from production scene data and retain escaping coverage with test-local input; source/inline parity and the describe exercise must pass. Include in the bounded follow-up disposition.
+
+#### MT-446-1 - Technical and non-technical comprehension plus final user visual review are unverified; D13 and T026 remain open - MIGRATED to v4.13.0
+
+**v4.13.11 structural audit, 2026-10-09**: This heading preserves the historical table obligation and every original field below. Existing historical dispositions remain as written; an unsupported transfer marker is not a verified migration.
+
+**ID**: MT-446-1
+
+**Gap and gate impact**: Technical and non-technical comprehension plus final user visual review are unverified; D13 and T026 remain open
+
+**Owner**: Guide owner and two readers
+
+**Next step**: Complete the [unassisted exercise](development/guide-learning-experience/phase-7/manual-review.md), retain actual responses, and address unclear concepts before publication. Carries HT-4.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-67`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.4.6`, section `v4.4.6 - guide-learning-experience`, and original ID `MT-446-1`.
+
+#### MT-446-2 - Native 200% browser zoom and OS occlusion delivery are not proven by effective-width reflow or an instrumented hidden-state test - MIGRATED to v4.13.0
+
+**v4.13.11 structural audit, 2026-10-09**: This heading preserves the historical table obligation and every original field below. Existing historical dispositions remain as written; an unsupported transfer marker is not a verified migration.
+
+**ID**: MT-446-2
+
+**Gap and gate impact**: Native 200% browser zoom and OS occlusion delivery are not proven by effective-width reflow or an instrumented hidden-state test
+
+**Owner**: Guide owner on the target browser/OS
+
+**Next step**: Perform the environment exercise; retain browser, OS, observations, and any affected correction. Native/fallback fullscreen and reduced-motion handlers have automated proof.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-69`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.4.6`, section `v4.4.6 - guide-learning-experience`, and original ID `MT-446-2`.
+
+#### WN-446-1 - Existing primary guide-render CI lacks retained structured browser/JUnit artifacts; comparison is partial - RESOLVED
+
+**v4.13.11 structural audit, 2026-10-09**: This heading preserves the historical table obligation and every original field below. The retained RESOLVED 2026-09-22 follow-up cites PR #235 run 35799198474, ci-guide-render-report expiry 2026-09-29T23:57:16Z and successful Post-merge run 35801251735. This closes missing retained hosted JUnit artifacts; no rejected redesign was restored.
+
+**ID**: WN-446-1
+
+**Gap and gate impact**: Existing primary guide-render CI lacks retained structured browser/JUnit artifacts; comparison is partial
+
+**Owner**: CI maintainer
+
+**Next step**: Review the minimal report/upload change with seven-day retention in [ci-comparison.md](development/guide-learning-experience/phase-7/ci-comparison.md), approve the pipeline change, then implement and verify it. No pipeline change was made in this guide plan.
+
+#### WN-446-2 - Historical CodeQL CQ-1 has no fresh remote rescan; removal of the flagged construct alone does not close the alert - RESOLVED
+
+**v4.13.11 structural audit, 2026-10-09**: This heading preserves the historical table obligation and every original field below. The retained RESOLVED 2026-09-25 follow-up cites successful CodeQL run 36106037432 at d6477ccf and branch-filtered open-alert results with no finding in the current guide. Historical alert #236 retained a refs/pull/156/merge instance; that separate instance and unrelated alerts remain outside this closure.
+
+**ID**: WN-446-2
+
+**Gap and gate impact**: Historical CodeQL CQ-1 has no fresh remote rescan; removal of the flagged construct alone does not close the alert
+
+**Owner**: Security/CI maintainer
+
+**Next step**: Re-evaluate the current head on the next authorized remote scan and record the result.
+
+#### QG-446-1 - Full native profile: 40 command passes, three failures and one repository-test timeout. Encoding is now fixed; default Bash resolution and the unrelated v4.9 path scan remain separately classified. Complete local green gate is not established - RESOLVED
+
+**v4.13.11 structural audit, 2026-10-09**: This heading preserves the historical table obligation and every original field below. The retained RESOLVED ON develop 2026-09-25 follow-up cites PR #319 merged at e8c34ef0 and successful exact-merge Post-merge run 36188249570 after the independent default-host interpreter proof and 61-command unfiltered local profile. It preserves the original failed run, the process-qualified precursor and superseded T027; it does not claim a full-profile rerun on the merge SHA or arbitrary Bash-hook coverage.
+
+**ID**: QG-446-1
+
+**Gap and gate impact**: Full native profile: 40 command passes, three failures and one repository-test timeout. Encoding is now fixed; default Bash resolution and the unrelated v4.9 path scan remain separately classified. Complete local green gate is not established
+
+**Owner**: Implementer / repository maintainer
+
+**Next step**: Use [terminal disposition](development/guide-learning-experience/phase-7/full-profile-disposition.md) to isolate the repository-test stall and close remaining environment/scope findings. Do not infer the historical QG-1 assertion failures from absent current output. T027 remains open.
+
+#### Historical follow-up receipts for the v4.4.6 table
+
 
 WN-446-1 follow-up, 2026-09-22: the current guide-render job now writes JUnit and uploads it with seven-day retention, and the same local guide command produced 380 passed, one optional skip, and a JUnit file. Hosted artifact retention remains to be observed before this historical gap is marked resolved; the rejected v4.4.6 redesign remains superseded.
 

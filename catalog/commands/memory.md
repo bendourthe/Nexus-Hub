@@ -6,17 +6,18 @@ description: Audit, prune, and manage CLAUDE.md and memory files across the proj
 
 Audit, prune, and reorganize the project's memory surface - CLAUDE.md and the memory files - when they grow too large, accumulate stale information, or need restructuring. `/memory` has no scopes; it runs the full audit-and-propose flow directly.
 
-This is a thin dispatcher following the contract in [`command-scope-mechanism.md`](../style-guides/command-scope-mechanism.md). The substantive audit and pruning logic lives in the retained skill; this file only delegates.
+No catalog skill owns this audit, so the procedure lives here. Pass any remaining arguments (a path or file to focus on) through as the audit scope.
 
-## Delegation
+## Procedure
 
-Dispatch directly to the retained skill:
+1. **Inventory.** Find every instruction and memory file in scope: `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, or the active platform's equivalent at the root and in subdirectories, plus the memory directories (`.claude/memory/`, the user-level memory directory, and any agent-memory directory). Report a table of file, location, line count, size, and last-modified date, and flag every file over 200 lines.
+2. **Health check.** For each file, list stale entries (they reference files, patterns, or decisions that no longer exist), duplicate entries (the same fact in more than one place), oversized files, and orphaned files (memory for removed features). Verify staleness against the current tree; do not guess.
+3. **Recommend.** Propose specific actions: entries to remove, files to split into topic files linked from the main index, entries to consolidate into one authoritative location, and files to archive or delete.
+4. **Execute with approval.** Ask before changing anything. Apply only the approved actions, then re-run the inventory and report what changed and the resulting line counts.
 
-      (any invocation) -> manage-memory
-
-The skill audits CLAUDE.md and the memory files, flags stale or oversized entries, proposes a reorganization, and applies changes only after explicit confirmation. Pass any remaining arguments through unchanged.
+Lasting facts recorded in the local persistent agent-memory store are a different surface, owned by the `agent-memory` skill; this command does not edit that store.
 
 ## Notes
 
 - This command replaces `/manage-memory` (removed in v3.2.0).
-- Keep this dispatcher thin. The memory-management procedure lives entirely in the `manage-memory` skill.
+- The `manage-memory` skill this command once delegated to was removed in v3.0.0 without a successor, so the procedure above is the command's own.

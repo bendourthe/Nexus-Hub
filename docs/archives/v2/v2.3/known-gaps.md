@@ -1,5 +1,9 @@
 # Known Gaps -- v2.3.0
 
+**Open items**: 0
+
+**Ledger normalization**: 2026-10-09, v4.13.11. The canonical open count above is derived from supported item headings. Summary and reconciliation count tables below retain historical release snapshots, including partial closures and explicit transfers; they are not new parser totals.
+
 This file tracks per-version unfinished work, deferred items, deviations from plan, and bugs discovered during phase implementation. The next phase plan and the version-bump checklist read this file to decide what carries forward.
 
 **Plan**: [docs/archives/v2/v2.3/plans/adoption-ecc-cybersec-skills.md](plans/adoption-ecc-cybersec-skills.md)
@@ -26,7 +30,9 @@ _The 15 prior open items were transferred to the v2.4.0 plan [adoption-compound-
 
 > **TRANSFERRED to the v3.0.0 plan on 2026-06-02.** DF-v23-9 was ingested into [command-consolidation-skill-security](../../v3/v3.0/plans/command-consolidation-skill-security.md) Phase 10, sub-task T047, and re-homed to the Resolved table below. Open count is now 0. The detailed entry is retained here for reference; it remains an intentional deferral with a revisit trigger (re-evaluated, not auto-built, in v3.0.0).
 
-### DF-v23-9 -- Superpowers visual brainstorming server (deferred, not built)
+### DF-v23-9 -- Superpowers visual brainstorming server (deferred, not built) - CLOSED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v2.3#DF-v23-9` is recorded as CLOSED for its original scope. Evidence: Transferred (ledger lines 27, 42) to v3.0 DF-v30-9 (docs/archives/v3/v3.0/known-gaps.md:39), now tracked as v4.13 AR-37 Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Source phase**: Phase 6 - Deferral record + polish (adoption-superpowers)
 - **Plan reference**: `docs/archive/v2/v2.3/plans/adoption-superpowers.md` (sub-task 6.1 / T021); comparison `docs/archive/v2/v2.3/comparison-superpowers.md` Section 11 (P3) / Section 13 (N3)
@@ -36,6 +42,8 @@ _The 15 prior open items were transferred to the v2.4.0 plan [adoption-compound-
 - **Revisit trigger**: build only if a user-facing need for in-session visual collaboration emerges.
 
 ## Resolved
+
+### Resolved historical records
 
 | ID | Title | Category | Resolved in | Detail |
 |---|---|---|---|---|

@@ -1,12 +1,18 @@
 # Known Gaps - v4.11
 
+**Open items**: 0
+
+**Ledger normalization**: 2026-10-09, v4.13.11. The canonical open count above is derived from supported item headings. Summary and reconciliation count tables below retain historical release snapshots, including partial closures and explicit transfers; they are not new parser totals.
+
 **Project**: Nexus-Hub
 **Status**: released family with bounded open gaps. v4.11.0 was published at tag `v4.11.0` (`0f68fa1a`) and v4.11.2 at tag `v4.11.2` (`dfe302fb`). No v4.11.1 tag exists; its cache-and-diagram implementation merged into `develop` through PR #232 at `c54dbeb4`, completing T025 as historical closure inside the later released family. The v4.10.0 work shipped inside v4.11.0, so the missing v4.10.0 tag remains an intentional skipped number rather than an unpublished release. Open entries below remain explicit hosted-scan, feature-boundary, or manual-validation limitations.
 **Last updated**: 2026-09-28
 
 ## Carried into v4.11.0 from earlier cycles - CodeQL backlog
 
-#### SEC-1 - Eight CodeQL alerts newly visible to `main`, five of them high
+#### SEC-1 - Eight CodeQL alerts newly visible to `main`, five of them high - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.11#SEC-1` is recorded as RESOLVED for its original scope. Evidence: 2026-09-28 hosted closure: alerts 278-285 `fixed` after run 36412459737 Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Source**: PR #205 (`develop` -> `main`). CodeQL compares against `main`'s baseline, and `main` had not moved since v4.9.0, so every alert accumulated across the v4.9/v4.10/v4.11 work surfaced at once.
 - **Not from this plan.** None originates in the interactive-handbooks work. Alerts 279-282 come from the v4.10 target-manifest git-trust fix, 278 and 283-284 from the v4.9.0 security-audit work, and 285 is a pre-existing cyclic import.
@@ -17,7 +23,9 @@
 - **2026-09-28 hosted closure**: [manual `main` CodeQL run 36412459737](https://github.com/bendourthe/Nexus-Hub/actions/runs/36412459737) completed successfully for Python and JavaScript/TypeScript at released SHA `0c2c2997`. GitHub's alert API then reported all eight original alerts 278-285 as `fixed`, each with `fixed_at: 2026-09-28T10:57:02Z` and no dismissal. This closes the pending default-branch transition check; it does not certify that unrelated future alerts cannot appear.
 
 ## v4.11.2 - adoption-document-and-deck-quality
-### WN-1 - Every release invalidates the distribution handbook
+### WN-1 - Every release invalidates the distribution handbook - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.11#WN-1` is recorded as RESOLVED for its original scope. Evidence: Status resolved 2026-09-22; pre-version handbook refresh in catalog/commands/update.md:60, :258 Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Status**: resolved 2026-09-22. The release workflow now refreshes mapped handbooks before version mutation and the version-upgrade skill, `/update`, and `/implement` all carry the pre-version handbook rule. This keeps the input-sensitive gate intact while moving the rebuild ahead of the pull request instead of discovering it as a CI failure.
 
@@ -78,8 +86,8 @@ passes.
 
 ### Carried from earlier cycles, unchanged by this plan
 
-- **SEC-1**: eight CodeQL alerts, five high, all test-only. Untouched here; it belongs to a change that is not a release.
-- **MT-9**: an inert control is still undetected. Needs CDP listener-chain inspection, which no phase of this plan attempted.
+- **`SEC-1`**: eight CodeQL alerts, five high, all test-only. Untouched here; it belongs to a change that is not a release.
+- **`MT-9`**: an inert control is still undetected. Needs CDP listener-chain inspection, which no phase of this plan attempted.
 
 ## v4.11.0 - interactive-handbooks-and-presentation-default
 
@@ -197,7 +205,9 @@ Both queued invocations completed and are non-passes, so the native authoring ga
 - **Resolution**: the cap is now scoped to slides only. The reading page has no stage to fit, so its directories are uncapped and content flows. The slide keeps the 200-pixel cap because it must fit a fixed stage, and it now sets `scrollbar-gutter: stable` so the scroll is visible rather than discovered.
 - **Proof**: two tests build a thirty-row directory and assert the reading view hides at most two pixels while the slide retains its cap and its reserved gutter. Negative-controlled against the original declaration, where both fail. 39 measure tests pass.
 
-#### MT-5 - No automated coverage for values fabricated mid-animation
+#### MT-5 - No automated coverage for values fabricated mid-animation - CLOSED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.11#MT-5` is recorded as CLOSED for its original scope. Evidence: v4.11.2 MT-5 resolved 2026-09-24 within the DOM-text envelope (same ledger, lines 45-58) Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Source phase**: Phase 6, T019 and T020, found by screenshot inspection in two independent runs.
 - **Plan reference**: R16 source fidelity; T019 non-vacuous checks.
@@ -244,7 +254,9 @@ Both queued invocations completed and are non-passes, so the native authoring ga
 - **Why a check was still added**: R25 names focus restoration and nothing measured it, so a regression would have shipped silently. The gate now asserts that after close `document.activeElement` is within the control that opened the deck. It reads a value the contract already promises rather than inventing a requirement, and it currently passes everywhere, which is the correct outcome for a guard rather than evidence that it is useless.
 - **Proof**: two tests, one asserting restoration on a sound fixture and one removing the opener before close so focus lands nowhere; negative-controlled. Driven through the real entry point, zero focus errors on all three round-four artifacts.
 
-#### MT-9 - A control that exists but does nothing is not detected; the obvious check does not work
+#### MT-9 - A control that exists but does nothing is not detected; the obvious check does not work - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.11#MT-9` is recorded as RESOLVED for its original scope. Evidence: Closed 2026-09-25 after PR #298 (`1ae58ad5`) for the declared-control method Closed only for declared controls with retained pilot census. Arbitrary future undeclared controls remain unchecked. Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Source phase**: Phase 6, T020, fifth qualification round, repository case.
 - **Plan reference**: R21 behavioral verification; T019 non-vacuous checks.
@@ -262,7 +274,9 @@ Both queued invocations completed and are non-passes, so the native authoring ga
 
 **Closed after protected integration, 2026-09-25 UTC**: PR #298 passed 21 hosted checks with one expected skip, merged into `develop` as `1ae58ad5`, and post-merge run 36097633753 passed smoke and provenance on that merge commit. MT-9 is closed for the declared-control method qualified against the retained pilot's complete control census; this does not retroactively test the unavailable four-button artifact, certify an arbitrary future control without an inventory, or waive the pilot's separate whole-page findings.
 
-#### MT-10 - No authored connector diagram has qualified the new geometry checks
+#### MT-10 - No authored connector diagram has qualified the new geometry checks - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.11#MT-10` is recorded as RESOLVED for its original scope. Evidence: Closed 2026-09-24 after PR #269 (`91617927`) Closed only within declared connector envelope. Unsupported path shapes remain unchecked. Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 **Source phase**: v4.11.1 Phase 5 (T013). **Plan reference**: v4.11.1 5.1.
 

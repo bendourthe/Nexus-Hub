@@ -49,6 +49,6 @@ if ([Console]::IsInputRedirected) {
     try { [void][Console]::In.ReadToEnd() } catch { }
 }
 
-Send-NexusNotification -Title "Claude Code" -Message ("Needs your input - " + (Get-NexusNotifyLabel))
+Send-NexusNotification -Title (Get-NexusNotifyHost) -Message ("Needs your input - " + (Get-NexusNotifyLabel))
 
 exit 0

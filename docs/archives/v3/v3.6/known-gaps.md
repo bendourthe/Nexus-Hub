@@ -1,9 +1,10 @@
 # Known Gaps -- v3.6.0
 
+**Ledger normalization**: 2026-10-09, v4.13.11. The canonical open count is derived from supported item headings. Summary and reconciliation count tables below retain historical release snapshots, including partial closures and explicit transfers; they are not new parser totals.
+
 **Status**: finalized; archived 2026-09-29; 0 open items (1 migrated to v4.13 as AR-37). Per-section status lines below are historical and were written before release.
 
 **Open items**: 0
-
 **Status at last pre-archive update**: v3.6.0 is in active development on `feat/spec-kit-delta-adoption`. The `adoption-spec-kit` plan (`docs/v3/v3.6/plans/adoption-spec-kit.md`) is essentially complete: Phase 1 (skill-native doctrine folds N2a + N3b), Phase 2 (the `base-*.md` parity-governance guard, N3a), Phase 3 (N1a workflow-phase hook recipe), Phase 4 (the `/skills import` hygiene gate, N6), and Phase 5 (decline-durability) have all landed; only the final `/update release` step (version bump + tag + push) remains. Phase 4 was implemented ahead of Phase 3 at the maintainer's request -- the plan declares Phase 4's prerequisites as "None", so the two are independent; Phase 3 has now landed and NI-v36-1 is resolved. While building Phase 3, a pre-existing Phase 2 test gap was found and fixed (BG-v36-1, resolved). Phase 5 made the two deliberate declines durable -- N5 (authentication framework) and N1b (third-party extension install) now have authoritative `drop-outright` rows in [docs/policy/mcp-reverse-engineering-matrix.md](../../../policy/mcp-reverse-engineering-matrix.md) -- and logged the two deferred items (N4 self-upgrade CLI, N2b portable workflow engine) as DF-v36-1 / DF-v36-2 below.
 **Last updated**: 2026-06-17 (adoption-spec-kit Phase 5)
 
@@ -23,14 +24,84 @@ This file tracks per-phase unfinished work, intentional deferrals, bugs, missing
 
 ## Open Items
 
-| ID | Category | Source phase | Plan reference | Reason | Suggested next step | Severity |
-|---|---|---|---|---|---|---|
-| WN-v33-1 - RESOLVED 2026-09-29 | WN | carried forward from v3.3.0; re-confirmed adoption-spec-kit Phases 1-4 | 1.3, 2.3, 3.3, 4.3 (Testing and Stabilization) | Local Windows verification is partially emulated: `make` is not on PATH, so `make validate` / `make lint` / `make test` were run by invoking the underlying validators and pytest directly. Re-confirmed for Phase 3 (the workflow-phase hook recipe + example hook): the direct validate chain passed green (JSON catalog integrity 256 skills; orphan-bundle audit PASS; unicode-safety 0 errors; no-personal-paths exit 0; supply-chain-iocs exit 0; workflow-security exit 0; version-sync surfaces match 3.5.0; parity guard exit 0; compression-eval gate PASS), the full `catalog/hooks/tests/` suite is 441 passed + 14 jq-skips (the new `test_workflow_phase_notice.py` is 9/9 when a `jq` shim is provided; without jq its marker cases skip cleanly, matching `old-version-docs-guard`), and the repo-level `tests/` suite reports 540 passed / 0 failed. `make lint`: ShellCheck is not on PATH, so the new hook was verified with `bash -n` (clean); no installer changed. | Confirm CI `validate` + `tests` + the `catalog/hooks/tests/` job are green on the ubuntu runner (which has `jq`, so the hook's marker cases run there). No code change expected. | Low (direct validator equivalents passed; the hook is exercised by 9 pytest cases under real jq) |
-| WN-v36-1 - RESOLVED 2026-09-29 | WN | adoption-spec-kit Phase 2; re-checked Phase 4; re-confirmed Phase 5 | 2.3, 4.3, 5.3 | In Phase 2, running the full repo-level `tests/` suite on Windows surfaced 4 failures (`tests/installer/test_branch_flag.py` x3, `tests/validators/test_session_query_extract.py::test_discover_obsidian_vault_marker` x1) -- all invoke a bash `.sh` via `bash.EXE` that returns exit 127 when the script path contains spaces ("OneDrive - Supira"). In Phase 4 the suite was run from a checkout whose path has NO spaces, and all four PASS (540 passed / 0 failed), confirming the root cause is the space-containing path, not the tests. Phase 5 re-confirmed and refined the behavior: on THIS space-containing checkout, a full `pytest tests` run does not just fail-fast -- the bash-invoking suites (`tests/installer/*` and `tests/integrations/test_parity_with_legacy_installer.py`, which shell out to both installers) HANG with no output rather than returning 127, so the full-suite run never completes here. The non-bash suites are green in isolation: `tests/validators` 199 passed (1 bash-test deselected) and `catalog/hooks/tests/` 441 passed + 14 jq-skips. The warning is retained because the hang/127 recurs on any checkout under a space-containing parent. **RESOLVED 2026-07-30 (v3.15.6 Phase 4), and the root cause recorded above is WRONG.** The cause is not the space in the path, and not any incapability of the host: it is PATH shadowing. `C:\Windows\System32\bash.exe` (the WSL launcher stub) precedes Git Bash on PATH and cannot resolve a Windows-style script path AT ALL, space or no space, so it exits 127 before executing a line. Proven on THIS space-containing checkout: with Git Bash ahead of the stub, `catalog/hooks/tests` goes from 99 failed / 361 passed to 0 failed / 460 passed, and the 4 repo-level failures named above pass as well. The "a space-free checkout works" observation was a coincidence of those checkouts also having a usable bash first on PATH. Fixed structurally by a module-level PATH repair in `catalog/hooks/tests/conftest.py` and `tests/conftest.py`, which runs before pytest imports any test module and therefore fixes every `shutil.which("bash")` and `subprocess.run(["bash", ...])` call site without editing them; both trees now pass with no PATH assistance (658 and 516, zero failures). See the v3.15.6 section of `docs/v3/v3.15/known-gaps.md` (HO-1 and DF-2). | RESOLVED; no action. The superseded suggestion (make the affected tests skip cleanly, or shell out space-safely) would have entrenched the misdiagnosis by permanently skipping tests that were always capable of passing. Do NOT cite this item as evidence that bash cannot be run on a Windows dev host. | Resolved (was Low; the diagnosis was wrong, the remedy is a one-entry PATH fix, and the failures are gone) |
-| WN-v33-2 - RESOLVED 2026-09-29 | WN | carried forward from v3.3.0 | n/a | Two benign, pre-existing global-audit warnings outside this work: the `demo-capture` orphan `.pyc` is a LOCAL-ONLY artifact (gitignored, never committed), and `git-branching-workflow` has a 169-word `overview_l1` soft-limit warning. Neither fails any gate, and neither is touched by Phase 2. | Optionally reword `git-branching-workflow`'s `overview_l1` under 150 words in a future content pass; the `.pyc` needs no repo action. | Low (local-only artifact + soft warning; no gate impact) |
-| DF-v36-2 - MIGRATED to v4.13 (AR-37) | DF | adoption-spec-kit Phase 5 (sub-task 5.2) | comparison-spec-kit.md Bucket C; plan 5.2 | N2b -- a portable, agent-agnostic declarative YAML orchestration runtime (usable across all ~40 agents) was deferred and is policy-disfavored as a runtime. The MCP Registry Policy prefers LLM-native skills over bespoke runtimes, and the harness's own Dynamic Workflows already cover orchestration on Claude Code. Only N2a's *vocabulary* (gate / persisted-resume / continue-on-error) was adopted (Phase 1), not the engine; a cross-agent YAML engine is high effort and would introduce a new runtime executing `shell`/`command` steps. Classified `re-full` (deferred), high effort. | Revisit only if cross-agent declarative orchestration (a single workflow definition driving non-Claude-Code agents) becomes a stated product goal; until then the adopted N2a vocabulary + Dynamic Workflows are the answer. | Low (deferred + policy-disfavored; vocabulary already adopted, Dynamic Workflows cover Claude Code) |
+### WN-v33-1 - RESOLVED 2026-09-29
+
+**v4.13.11 structural audit, 2026-10-09**: This heading preserves the historical table obligation and every original field below. Existing historical dispositions remain as written; an unsupported transfer marker is not a verified migration.
+
+**ID**: WN-v33-1 - RESOLVED 2026-09-29
+
+**Category**: WN
+
+**Source phase**: carried forward from v3.3.0; re-confirmed adoption-spec-kit Phases 1-4
+
+**Plan reference**: 1.3, 2.3, 3.3, 4.3 (Testing and Stabilization)
+
+**Reason**: Local Windows verification is partially emulated: `make` is not on PATH, so `make validate` / `make lint` / `make test` were run by invoking the underlying validators and pytest directly. Re-confirmed for Phase 3 (the workflow-phase hook recipe + example hook): the direct validate chain passed green (JSON catalog integrity 256 skills; orphan-bundle audit PASS; unicode-safety 0 errors; no-personal-paths exit 0; supply-chain-iocs exit 0; workflow-security exit 0; version-sync surfaces match 3.5.0; parity guard exit 0; compression-eval gate PASS), the full `catalog/hooks/tests/` suite is 441 passed + 14 jq-skips (the new `test_workflow_phase_notice.py` is 9/9 when a `jq` shim is provided; without jq its marker cases skip cleanly, matching `old-version-docs-guard`), and the repo-level `tests/` suite reports 540 passed / 0 failed. `make lint`: ShellCheck is not on PATH, so the new hook was verified with `bash -n` (clean); no installer changed.
+
+**Suggested next step**: Confirm CI `validate` + `tests` + the `catalog/hooks/tests/` job are green on the ubuntu runner (which has `jq`, so the hook's marker cases run there). No code change expected.
+
+**Severity**: Low (direct validator equivalents passed; the hook is exercised by 9 pytest cases under real jq)
+
+### WN-v36-1 - RESOLVED 2026-09-29
+
+**v4.13.11 structural audit, 2026-10-09**: This heading preserves the historical table obligation and every original field below. Existing historical dispositions remain as written; an unsupported transfer marker is not a verified migration.
+
+**ID**: WN-v36-1 - RESOLVED 2026-09-29
+
+**Category**: WN
+
+**Source phase**: adoption-spec-kit Phase 2; re-checked Phase 4; re-confirmed Phase 5
+
+**Plan reference**: 2.3, 4.3, 5.3
+
+**Reason**: In Phase 2, running the full repo-level `tests/` suite on Windows surfaced 4 failures (`tests/installer/test_branch_flag.py` x3, `tests/validators/test_session_query_extract.py::test_discover_obsidian_vault_marker` x1) -- all invoke a bash `.sh` via `bash.EXE` that returns exit 127 when the script path contains spaces ("OneDrive - Supira"). In Phase 4 the suite was run from a checkout whose path has NO spaces, and all four PASS (540 passed / 0 failed), confirming the root cause is the space-containing path, not the tests. Phase 5 re-confirmed and refined the behavior: on THIS space-containing checkout, a full `pytest tests` run does not just fail-fast -- the bash-invoking suites (`tests/installer/*` and `tests/integrations/test_parity_with_legacy_installer.py`, which shell out to both installers) HANG with no output rather than returning 127, so the full-suite run never completes here. The non-bash suites are green in isolation: `tests/validators` 199 passed (1 bash-test deselected) and `catalog/hooks/tests/` 441 passed + 14 jq-skips. The warning is retained because the hang/127 recurs on any checkout under a space-containing parent. **RESOLVED 2026-07-30 (v3.15.6 Phase 4), and the root cause recorded above is WRONG.** The cause is not the space in the path, and not any incapability of the host: it is PATH shadowing. `C:\Windows\System32\bash.exe` (the WSL launcher stub) precedes Git Bash on PATH and cannot resolve a Windows-style script path AT ALL, space or no space, so it exits 127 before executing a line. Proven on THIS space-containing checkout: with Git Bash ahead of the stub, `catalog/hooks/tests` goes from 99 failed / 361 passed to 0 failed / 460 passed, and the 4 repo-level failures named above pass as well. The "a space-free checkout works" observation was a coincidence of those checkouts also having a usable bash first on PATH. Fixed structurally by a module-level PATH repair in `catalog/hooks/tests/conftest.py` and `tests/conftest.py`, which runs before pytest imports any test module and therefore fixes every `shutil.which("bash")` and `subprocess.run(["bash", ...])` call site without editing them; both trees now pass with no PATH assistance (658 and 516, zero failures). See the v3.15.6 section of `docs/v3/v3.15/known-gaps.md` (HO-1 and DF-2).
+
+**Suggested next step**: RESOLVED; no action. The superseded suggestion (make the affected tests skip cleanly, or shell out space-safely) would have entrenched the misdiagnosis by permanently skipping tests that were always capable of passing. Do NOT cite this item as evidence that bash cannot be run on a Windows dev host.
+
+**Severity**: Resolved (was Low; the diagnosis was wrong, the remedy is a one-entry PATH fix, and the failures are gone)
+
+### WN-v33-2 - RESOLVED 2026-09-29
+
+**v4.13.11 structural audit, 2026-10-09**: This heading preserves the historical table obligation and every original field below. Existing historical dispositions remain as written; an unsupported transfer marker is not a verified migration.
+
+**ID**: WN-v33-2 - RESOLVED 2026-09-29
+
+**Category**: WN
+
+**Source phase**: carried forward from v3.3.0
+
+**Plan reference**: n/a
+
+**Reason**: Two benign, pre-existing global-audit warnings outside this work: the `demo-capture` orphan `.pyc` is a LOCAL-ONLY artifact (gitignored, never committed), and `git-branching-workflow` has a 169-word `overview_l1` soft-limit warning. Neither fails any gate, and neither is touched by Phase 2.
+
+**Suggested next step**: Optionally reword `git-branching-workflow`'s `overview_l1` under 150 words in a future content pass; the `.pyc` needs no repo action.
+
+**Severity**: Low (local-only artifact + soft warning; no gate impact)
+
+### DF-v36-2 - MIGRATED to v4.13 (AR-37) - MIGRATED to v4.13.0
+
+**v4.13.11 structural audit, 2026-10-09**: This heading preserves the historical table obligation and every original field below. Existing historical dispositions remain as written; an unsupported transfer marker is not a verified migration.
+
+**ID**: DF-v36-2 - MIGRATED to v4.13 (AR-37)
+
+**Category**: DF
+
+**Source phase**: adoption-spec-kit Phase 5 (sub-task 5.2)
+
+**Plan reference**: comparison-spec-kit.md Bucket C; plan 5.2
+
+**Reason**: N2b -- a portable, agent-agnostic declarative YAML orchestration runtime (usable across all ~40 agents) was deferred and is policy-disfavored as a runtime. The MCP Registry Policy prefers LLM-native skills over bespoke runtimes, and the harness's own Dynamic Workflows already cover orchestration on Claude Code. Only N2a's *vocabulary* (gate / persisted-resume / continue-on-error) was adopted (Phase 1), not the engine; a cross-agent YAML engine is high effort and would introduce a new runtime executing `shell`/`command` steps. Classified `re-full` (deferred), high effort.
+
+**Suggested next step**: Revisit only if cross-agent declarative orchestration (a single workflow definition driving non-Claude-Code agents) becomes a stated product goal; until then the adopted N2a vocabulary + Dynamic Workflows are the answer.
+
+**Severity**: Low (deferred + policy-disfavored; vocabulary already adopted, Dynamic Workflows cover Claude Code)
+
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-37`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.6`, section `Open Items`, and original ID `DF-v36-2`.
 
 ## Resolved
+
+### Resolved historical records
 
 | ID | Category | Source phase | Resolved in | Note |
 |---|---|---|---|---|
@@ -44,7 +115,7 @@ Before this minor moved to `docs/archives/`, every item that this file did not a
 
 | Item | Disposition | Evidence, reason, or destination |
 |---|---|---|
-| WN-v33-1 (line 24) | Resolved | the release CI run on `main` for this version passed (`gh run list --branch main`, matched by run title because tag SHAs were later rewritten) |
-| WN-v36-1 (line 25) | Resolved | The row itself records RESOLVED 2026-07-30 by the v3.15.6 test-PATH repair; it had not been moved to Resolved |
-| WN-v33-2 (line 26) | Resolved | resolved in the v3.8 ledger (`docs/archives/v3/v3.8/known-gaps.md` Resolved table, WN-v33-2) |
-| DF-v36-2 (line 27) | Migrated | AR-37: conditional adoption candidates awaiting a maintainer build-or-decline decision; merged with v3.0 DF-v30-9, v3.6-v3.9 DF-v36-2, v3.9 DF-v39-nomistakes-1, v3.10 DF-v310-ruflo-A6 and A10-rest |
+| `WN-v33-1` (line 24) | Resolved | the release CI run on `main` for this version passed (`gh run list --branch main`, matched by run title because tag SHAs were later rewritten) |
+| `WN-v36-1` (line 25) | Resolved | The row itself records RESOLVED 2026-07-30 by the v3.15.6 test-PATH repair; it had not been moved to Resolved |
+| `WN-v33-2` (line 26) | Resolved | resolved in the v3.8 ledger (`docs/archives/v3/v3.8/known-gaps.md` Resolved table, WN-v33-2) |
+| `DF-v36-2` (line 27) | Migrated | AR-37: conditional adoption candidates awaiting a maintainer build-or-decline decision; merged with v3.0 DF-v30-9, v3.6-v3.9 DF-v36-2, v3.9 DF-v39-nomistakes-1, v3.10 DF-v310-ruflo-A6 and A10-rest |

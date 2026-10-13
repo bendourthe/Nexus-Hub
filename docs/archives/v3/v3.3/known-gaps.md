@@ -1,9 +1,10 @@
 # Known Gaps -- v3.3.0
 
+**Ledger normalization**: 2026-10-09, v4.13.11. The canonical open count above is derived from supported item headings. Summary and reconciliation count tables below retain historical release snapshots, including partial closures and explicit transfers; they are not new parser totals.
+
 **Status**: finalized; archived 2026-09-29; 0 open items (0 migrated to v4.13). Per-section status lines below are historical and were written before release.
 
 **Open items**: 0
-
 **Status at last pre-archive update**: v3.3.0 `adoption-loop-engineering` was RELEASED to `main` (tag `v3.3.0`); the release reconciled the headline counts 251 -> 252 (resolving WN-v33-3). A follow-up **v3.3.1 patch** (branch `fix/loop-engineering-gaps`) then resolved the two residual gaps plus a broader cross-link cleanup: WN-v33-4 (allowlisted the 3 remaining pushy-description skills so the strict `--allow-existing` pass is clean) and BG-v33-1 (removed the dangling `[[generate-session-history]]` wikilink), and -- expanded by maintainer request -- swept ALL 12 catalog-wide dangling `[[old-command]]` wikilinks (the v3.2.0-flagged command-reference residual, in its `[[wikilink]]` form) across ~10 skills, rewriting each to the current `/command` plain-text reference (or, for `typescript-cleanup`, repointing to the real `[[javascript-cleanup]]` skill). The catalog-wide dangling-wikilink audit is now clean (0 unresolved).
 **Last updated**: 2026-06-11 (v3.3.1 patch: gap cleanup + dangling-wikilink sweep)
 
@@ -23,12 +24,46 @@ This file tracks per-phase unfinished work, intentional deferrals, bugs, missing
 
 ## Open Items
 
-| ID | Category | Source phase | Plan reference | Reason | Suggested next step | Severity |
-|---|---|---|---|---|---|---|
-| WN-v33-1 - RESOLVED 2026-09-29 | WN | adoption-loop-engineering Phase 1; re-confirmed Phase 4 / v3.3.1 | T1.5, T4.5 (Testing and Stabilization) | Local Windows verification is partially emulated: `make` is not on PATH, so `make validate` and `make scan` were run by invoking the underlying validators and the scanner directly. The full direct chain (10 validate steps + the skill-security scan) passed green in Phase 4 and again for the v3.3.1 patch. | Confirm CI `validate` and `scan` are green on the ubuntu runner. No code change expected; alternatively set a writable temp directory for local sandboxed runs. | Low (direct validator/scanner equivalents passed) |
-| WN-v33-2 - RESOLVED 2026-09-29 | WN | adoption-loop-engineering Phase 1 | T1.5 (Testing and Stabilization) | Two benign, pre-existing global-audit warnings outside this work: the `demo-capture` orphan `.pyc` is a LOCAL-ONLY artifact (gitignored at `.gitignore:60` `__pycache__/`, never committed, so it cannot appear on a clean CI checkout), and `git-branching-workflow` has a 169-word `overview_l1` soft-limit warning. Neither fails any gate. | Optionally reword `git-branching-workflow`'s `overview_l1` under 150 words in a future content pass; the `.pyc` needs no repo action. | Low (local-only artifact + soft warning; no gate impact) |
+### WN-v33-1 - RESOLVED 2026-09-29
+
+**v4.13.11 structural audit, 2026-10-09**: This heading preserves the historical table obligation and every original field below. Existing historical dispositions remain as written; an unsupported transfer marker is not a verified migration.
+
+**ID**: WN-v33-1 - RESOLVED 2026-09-29
+
+**Category**: WN
+
+**Source phase**: adoption-loop-engineering Phase 1; re-confirmed Phase 4 / v3.3.1
+
+**Plan reference**: T1.5, T4.5 (Testing and Stabilization)
+
+**Reason**: Local Windows verification is partially emulated: `make` is not on PATH, so `make validate` and `make scan` were run by invoking the underlying validators and the scanner directly. The full direct chain (10 validate steps + the skill-security scan) passed green in Phase 4 and again for the v3.3.1 patch.
+
+**Suggested next step**: Confirm CI `validate` and `scan` are green on the ubuntu runner. No code change expected; alternatively set a writable temp directory for local sandboxed runs.
+
+**Severity**: Low (direct validator/scanner equivalents passed)
+
+### WN-v33-2 - RESOLVED 2026-09-29
+
+**v4.13.11 structural audit, 2026-10-09**: This heading preserves the historical table obligation and every original field below. Existing historical dispositions remain as written; an unsupported transfer marker is not a verified migration.
+
+**ID**: WN-v33-2 - RESOLVED 2026-09-29
+
+**Category**: WN
+
+**Source phase**: adoption-loop-engineering Phase 1
+
+**Plan reference**: T1.5 (Testing and Stabilization)
+
+**Reason**: Two benign, pre-existing global-audit warnings outside this work: the `demo-capture` orphan `.pyc` is a LOCAL-ONLY artifact (gitignored at `.gitignore:60` `__pycache__/`, never committed, so it cannot appear on a clean CI checkout), and `git-branching-workflow` has a 169-word `overview_l1` soft-limit warning. Neither fails any gate.
+
+**Suggested next step**: Optionally reword `git-branching-workflow`'s `overview_l1` under 150 words in a future content pass; the `.pyc` needs no repo action.
+
+**Severity**: Low (local-only artifact + soft warning; no gate impact)
+
 
 ## Resolved
+
+### Resolved historical records
 
 | ID | Category | Source phase | Resolved in | Note |
 |---|---|---|---|---|
@@ -43,5 +78,5 @@ Before this minor moved to `docs/archives/`, every item that this file did not a
 
 | Item | Disposition | Evidence, reason, or destination |
 |---|---|---|
-| WN-v33-1 (line 24) | Resolved | the release CI run on `main` for this version passed (`gh run list --branch main`, matched by run title because tag SHAs were later rewritten) (v3.3.1 release run) |
-| WN-v33-2 (line 25) | Resolved | resolved in the v3.8 ledger (`docs/archives/v3/v3.8/known-gaps.md` Resolved table, WN-v33-2) |
+| `WN-v33-1` (line 24) | Resolved | the release CI run on `main` for this version passed (`gh run list --branch main`, matched by run title because tag SHAs were later rewritten) (v3.3.1 release run) |
+| `WN-v33-2` (line 25) | Resolved | resolved in the v3.8 ledger (`docs/archives/v3/v3.8/known-gaps.md` Resolved table, WN-v33-2) |

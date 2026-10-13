@@ -1,0 +1,243 @@
+{
+  "status": "FAIL",
+  "elapsed_seconds": 21.368369000032544,
+  "before_sha256": {
+    "catalog/hooks/provenance-ledger.sh": "665d73312cfe4fc08bda151c1d51a15989f11c0df63f3ae8631911dd81cfd470",
+    "catalog/hooks/provenance-ledger.ps1": "0dcfcdb09c4a3f3eaa10ea256267756910150491d1a226a654d2fa0b6fd47c7e",
+    "catalog/hooks/auto-devlog.sh": "bee7ab831e7f2fe2a3414952811eedff4433617d0503cb6dced012fcda8a2b39",
+    "catalog/hooks/auto-devlog.ps1": "cffe2ff8f93f97679a5cfab3c08d27a9d5396593c902559d36a7e7f1d9e38b7d",
+    "catalog/hooks/tests/test_hook_size_bound.py": "46a315738dc28f09a8e961838ca62f32adc2a9705f7a0ee8854d2eac23223a75"
+  },
+  "after_sha256": {
+    "catalog/hooks/provenance-ledger.sh": "665d73312cfe4fc08bda151c1d51a15989f11c0df63f3ae8631911dd81cfd470",
+    "catalog/hooks/provenance-ledger.ps1": "0dcfcdb09c4a3f3eaa10ea256267756910150491d1a226a654d2fa0b6fd47c7e",
+    "catalog/hooks/auto-devlog.sh": "bee7ab831e7f2fe2a3414952811eedff4433617d0503cb6dced012fcda8a2b39",
+    "catalog/hooks/auto-devlog.ps1": "cffe2ff8f93f97679a5cfab3c08d27a9d5396593c902559d36a7e7f1d9e38b7d",
+    "catalog/hooks/tests/test_hook_size_bound.py": "46a315738dc28f09a8e961838ca62f32adc2a9705f7a0ee8854d2eac23223a75"
+  },
+  "source_unchanged": true,
+  "jq_path": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\bin\\jq.exe",
+  "jq_sha256": "a6fc67fedaf9128a3309a1e2ebb8b986aeccf70122ee46d2cb4849e423f0c627",
+  "observations": [
+    {
+      "label": "jq-raw-write",
+      "command": [
+        "C:\\Program Files\\Git\\bin\\bash.EXE",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\catalog\\hooks\\provenance-ledger.sh"
+      ],
+      "cwd": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\functional-byte-devlog-final\\jq\\iso\\hsb-47a19757f4d640f9be814282f30b9d5f",
+      "exit_code": 0,
+      "stdin_sha256": "300ee1cd2fbdeb2b0cdc525cc2addf16576f25e2944c1190bdad3c5f066ba2b0",
+      "stdout_bytes": 0,
+      "stderr": "",
+      "ledger": {
+        "bytes": 384,
+        "sha256": "4d54a3cc6a96360afcc75630c3b9148173de533c382c53d8b368840b913fc674",
+        "rows": 3,
+        "exact_path": "C:/Users/username/AppData/Local/Temp/v41311-phase3-hooks-resume/functional-byte-devlog-final/jq/iso/hsb-47a19757f4d640f9be814282f30b9d5f/functional-\u6f22-%00.sh",
+        "exact_content_hash": "d61defa395f08f5e1929d14b01da0c375bcb26d84cf4359b1bee7ae146c93e4c",
+        "old_row_evicted": true
+      }
+    },
+    {
+      "label": "jq-correlate-after-rotation",
+      "command": [
+        "C:\\Program Files\\Git\\bin\\bash.EXE",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\catalog\\hooks\\provenance-ledger.sh"
+      ],
+      "cwd": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\functional-byte-devlog-final\\jq\\iso\\hsb-47a19757f4d640f9be814282f30b9d5f",
+      "exit_code": 0,
+      "stdin_sha256": "3bc5ab2207e365989e5c3124ef6ffbf034e4d16ff0d35e75dee9fac19eddf29f",
+      "stdout_bytes": 0,
+      "stderr": "[provenance-ledger] TRUST SEAM: this command references a path the agent wrote in this session:\n  - C:/Users/username/AppData/Local/Temp/v41311-phase3-hooks-resume/functional-byte-devlog-final/jq/iso/hsb-47a19757f4d640f9be814282f30b9d5f/functional-\u6f22-%00.sh (agent-written 1s ago, hash d61defa395f0)\n  A write the agent made is now reaching an executor. Confirm the command is running what you intend.\n  Advisory only. See the Limits section of the agentic-endpoint-hardening skill: a local hook cannot observe executors in other processes.\n"
+    },
+    {
+      "label": "jq-malformed-after-rotation",
+      "command": [
+        "C:\\Program Files\\Git\\bin\\bash.EXE",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\catalog\\hooks\\provenance-ledger.sh"
+      ],
+      "cwd": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\functional-byte-devlog-final\\jq\\iso\\hsb-47a19757f4d640f9be814282f30b9d5f",
+      "exit_code": 0,
+      "stdin_sha256": "69cb18c1151284aa03aa4e6840be1940f366267b30a7e9a64330cd76c68d8bb4",
+      "stdout_bytes": 0,
+      "stderr": ""
+    },
+    {
+      "label": "python-raw-write",
+      "command": [
+        "C:\\Program Files\\Git\\bin\\bash.EXE",
+        "-c",
+        "command() { if [[ \"$1\" == \"-v\" ]]; then case \"$2\" in jq) return 1;; esac; fi; builtin command \"$@\"; }; export -f command; exec \"$@\"",
+        "hook",
+        "C:\\Program Files\\Git\\bin\\bash.EXE",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\catalog\\hooks\\provenance-ledger.sh"
+      ],
+      "cwd": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\functional-byte-devlog-final\\python\\iso\\hsb-dda7eb57518e4732bd304deef21c2357",
+      "exit_code": 0,
+      "stdin_sha256": "3c36551da34a84ed3212abee17e995ee4a5430eee0e34047ad2c8b9bfa43ca19",
+      "stdout_bytes": 0,
+      "stderr": "",
+      "ledger": {
+        "bytes": 388,
+        "sha256": "a1ba960618d22ce905dd205a944c98b0a9c91749a0aaf422d3daf97b40fc1245",
+        "rows": 3,
+        "exact_path": "C:/Users/username/AppData/Local/Temp/v41311-phase3-hooks-resume/functional-byte-devlog-final/python/iso/hsb-dda7eb57518e4732bd304deef21c2357/functional-\u6f22-%00.sh",
+        "exact_content_hash": "d61defa395f08f5e1929d14b01da0c375bcb26d84cf4359b1bee7ae146c93e4c",
+        "old_row_evicted": true
+      }
+    },
+    {
+      "label": "python-correlate-after-rotation",
+      "command": [
+        "C:\\Program Files\\Git\\bin\\bash.EXE",
+        "-c",
+        "command() { if [[ \"$1\" == \"-v\" ]]; then case \"$2\" in jq) return 1;; esac; fi; builtin command \"$@\"; }; export -f command; exec \"$@\"",
+        "hook",
+        "C:\\Program Files\\Git\\bin\\bash.EXE",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\catalog\\hooks\\provenance-ledger.sh"
+      ],
+      "cwd": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\functional-byte-devlog-final\\python\\iso\\hsb-dda7eb57518e4732bd304deef21c2357",
+      "exit_code": 0,
+      "stdin_sha256": "a352997f882219bce82addc0b8ed45bd2ee4d4662887f72097228a28e4e2b441",
+      "stdout_bytes": 0,
+      "stderr": "[provenance-ledger] TRUST SEAM: this command references a path the agent wrote in this session:\n  - C:/Users/username/AppData/Local/Temp/v41311-phase3-hooks-resume/functional-byte-devlog-final/python/iso/hsb-dda7eb57518e4732bd304deef21c2357/functional-\u6f22-%00.sh (agent-written 2s ago, hash d61defa395f0)\n  A write the agent made is now reaching an executor. Confirm the command is running what you intend.\n  Advisory only. See the Limits section of the agentic-endpoint-hardening skill: a local hook cannot observe executors in other processes.\n"
+    },
+    {
+      "label": "python-malformed-after-rotation",
+      "command": [
+        "C:\\Program Files\\Git\\bin\\bash.EXE",
+        "-c",
+        "command() { if [[ \"$1\" == \"-v\" ]]; then case \"$2\" in jq) return 1;; esac; fi; builtin command \"$@\"; }; export -f command; exec \"$@\"",
+        "hook",
+        "C:\\Program Files\\Git\\bin\\bash.EXE",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\catalog\\hooks\\provenance-ledger.sh"
+      ],
+      "cwd": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\functional-byte-devlog-final\\python\\iso\\hsb-dda7eb57518e4732bd304deef21c2357",
+      "exit_code": 0,
+      "stdin_sha256": "69cb18c1151284aa03aa4e6840be1940f366267b30a7e9a64330cd76c68d8bb4",
+      "stdout_bytes": 0,
+      "stderr": ""
+    },
+    {
+      "label": "text-raw-write",
+      "command": [
+        "C:\\Program Files\\Git\\bin\\bash.EXE",
+        "-c",
+        "command() { if [[ \"$1\" == \"-v\" ]]; then case \"$2\" in jq|python|python3) return 1;; esac; fi; builtin command \"$@\"; }; export -f command; exec \"$@\"",
+        "hook",
+        "C:\\Program Files\\Git\\bin\\bash.EXE",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\catalog\\hooks\\provenance-ledger.sh"
+      ],
+      "cwd": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\functional-byte-devlog-final\\text\\iso\\hsb-7e288664d22445e193914834602b8e0d",
+      "exit_code": 0,
+      "stdin_sha256": "71124de099bb78c94b5c6f4f3110576bfd59c0864a776f7c3652d1ae8f5e665c",
+      "stdout_bytes": 0,
+      "stderr": "",
+      "ledger": {
+        "bytes": 386,
+        "sha256": "d352d807a8ab19513dc34d4450c130588792f9f4ba56429ead78ff49e2b1aa3c",
+        "rows": 3,
+        "exact_path": "C:/Users/username/AppData/Local/Temp/v41311-phase3-hooks-resume/functional-byte-devlog-final/text/iso/hsb-7e288664d22445e193914834602b8e0d/functional-\u6f22-%00.sh",
+        "exact_content_hash": "d61defa395f08f5e1929d14b01da0c375bcb26d84cf4359b1bee7ae146c93e4c",
+        "old_row_evicted": true
+      }
+    },
+    {
+      "label": "text-correlate-after-rotation",
+      "command": [
+        "C:\\Program Files\\Git\\bin\\bash.EXE",
+        "-c",
+        "command() { if [[ \"$1\" == \"-v\" ]]; then case \"$2\" in jq|python|python3) return 1;; esac; fi; builtin command \"$@\"; }; export -f command; exec \"$@\"",
+        "hook",
+        "C:\\Program Files\\Git\\bin\\bash.EXE",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\catalog\\hooks\\provenance-ledger.sh"
+      ],
+      "cwd": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\functional-byte-devlog-final\\text\\iso\\hsb-7e288664d22445e193914834602b8e0d",
+      "exit_code": 0,
+      "stdin_sha256": "44fb7d76b973c5054cbfecd5946a05d35e8ba33376493874a5c24332090c7e9e",
+      "stdout_bytes": 0,
+      "stderr": "[provenance-ledger] TRUST SEAM: this command references a path the agent wrote in this session:\n  - C:/Users/username/AppData/Local/Temp/v41311-phase3-hooks-resume/functional-byte-devlog-final/text/iso/hsb-7e288664d22445e193914834602b8e0d/functional-\u6f22-%00.sh (agent-written 1s ago, hash d61defa395f0)\n  A write the agent made is now reaching an executor. Confirm the command is running what you intend.\n  Advisory only. See the Limits section of the agentic-endpoint-hardening skill: a local hook cannot observe executors in other processes.\n"
+    },
+    {
+      "label": "text-malformed-after-rotation",
+      "command": [
+        "C:\\Program Files\\Git\\bin\\bash.EXE",
+        "-c",
+        "command() { if [[ \"$1\" == \"-v\" ]]; then case \"$2\" in jq|python|python3) return 1;; esac; fi; builtin command \"$@\"; }; export -f command; exec \"$@\"",
+        "hook",
+        "C:\\Program Files\\Git\\bin\\bash.EXE",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\catalog\\hooks\\provenance-ledger.sh"
+      ],
+      "cwd": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\functional-byte-devlog-final\\text\\iso\\hsb-7e288664d22445e193914834602b8e0d",
+      "exit_code": 0,
+      "stdin_sha256": "69cb18c1151284aa03aa4e6840be1940f366267b30a7e9a64330cd76c68d8bb4",
+      "stdout_bytes": 0,
+      "stderr": ""
+    },
+    {
+      "label": "ps1-raw-write",
+      "command": [
+        "C:\\windows\\System32\\WindowsPowerShell\\v1.0\\powershell.EXE",
+        "-NoProfile",
+        "-File",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\catalog\\hooks\\provenance-ledger.ps1"
+      ],
+      "cwd": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\functional-byte-devlog-final\\ps1\\iso\\hsb-3aad5f4c4e264eac880bb2dfd09c4d63",
+      "exit_code": 0,
+      "stdin_sha256": "dc9f0b6a2fe934441419fa7b29885d3f1c7de80f4a3a4cd58799610bbe6f7198",
+      "stdout_bytes": 0,
+      "stderr": "",
+      "ledger": {
+        "bytes": 385,
+        "sha256": "2beff561a43729efc5549e4283431077c82e575a9fffc2108be4c3bf75dd3c76",
+        "rows": 3,
+        "exact_path": "C:/Users/username/AppData/Local/Temp/v41311-phase3-hooks-resume/functional-byte-devlog-final/ps1/iso/hsb-3aad5f4c4e264eac880bb2dfd09c4d63/functional-\u6f22-%00.sh",
+        "exact_content_hash": "d61defa395f08f5e1929d14b01da0c375bcb26d84cf4359b1bee7ae146c93e4c",
+        "old_row_evicted": true
+      }
+    },
+    {
+      "label": "ps1-correlate-after-rotation",
+      "command": [
+        "C:\\windows\\System32\\WindowsPowerShell\\v1.0\\powershell.EXE",
+        "-NoProfile",
+        "-File",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\catalog\\hooks\\provenance-ledger.ps1"
+      ],
+      "cwd": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\functional-byte-devlog-final\\ps1\\iso\\hsb-3aad5f4c4e264eac880bb2dfd09c4d63",
+      "exit_code": 0,
+      "stdin_sha256": "bd84e2b5c2e134d61cf3dd25f65bdb0ef32d7fbc1679445b5fe03d326b19ac7f",
+      "stdout_bytes": 0,
+      "stderr": "[provenance-ledger] TRUST SEAM: this command references a path the agent wrote in this session:\r\n  - C:/Users/username/AppData/Local/Temp/v41311-phase3-hooks-resume/functional-byte-devlog-final/ps1/iso/hsb-3aad5f4c4e264eac880bb2dfd09c4d63/functional-?-%00.sh (agent-written 1s ago, hash d61defa395f0)\r\n  A write the agent made is now reaching an executor. Confirm the command is running what you intend.\r\n  Advisory only. See the Limits section of the agentic-endpoint-hardening skill: a local hook cannot observe executors in other processes.\r\n"
+    },
+    {
+      "label": "ps1-malformed-after-rotation",
+      "command": [
+        "C:\\windows\\System32\\WindowsPowerShell\\v1.0\\powershell.EXE",
+        "-NoProfile",
+        "-File",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\catalog\\hooks\\provenance-ledger.ps1"
+      ],
+      "cwd": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\functional-byte-devlog-final\\ps1\\iso\\hsb-3aad5f4c4e264eac880bb2dfd09c4d63",
+      "exit_code": 0,
+      "stdin_sha256": "69cb18c1151284aa03aa4e6840be1940f366267b30a7e9a64330cd76c68d8bb4",
+      "stdout_bytes": 0,
+      "stderr": ""
+    },
+    {
+      "label": "jq-devlog-pressure-0",
+      "command": [
+        "C:\\Program Files\\Git\\bin\\bash.EXE",
+        "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan\\catalog\\hooks\\auto-devlog.sh"
+      ],
+      "cwd": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\functional-byte-devlog-final\\jq-devlog\\iso\\hsb-fb1e4e54c99e4d9aa039a70c1f5e77cc",
+      "exit_code": 0,
+      "stdin_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "stdout_bytes": 0,
+      "stderr": "\u001b[0;36m[auto-devlog]\u001b[0m \u001b[0;32mentry prepended (21 commits since 2019-12-30)\u001b[0m\n"
+    }
+  ],
+  "error": "Traceback (most recent call last):\n  File \"C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\functional-byte-devlog-final.py\", line 93, in <module>\n    assert len(history) == 10 and \"history-19-\" in history[0] and \"history-10-\" in history[-1]\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n",
+  "scope": "Fresh proportional actual provenance rawUTF8/byte+line cap/correlation/malformed and Bash+PS devlog history/firstH2/body witness; earlier broader55flow receipt remains historical on old provenance/devlog hashes."
+}

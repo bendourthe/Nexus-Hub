@@ -7,6 +7,8 @@ license = {text = "MIT"}
 authors = [{name = "Benjamin Dourthe"}]
 dependencies = [
     "mcp>=1.0.0",
+    # Security floor for a transitive dependency of mcp: PyJWT <= 2.14.0 lets a nested payload raise RecursionError before signature checks (GHSA-42vr-xj54-vc7v, fixed in 2.15.0).
+    "pyjwt>=2.15.0",
     "httpx>=0.27.0",
     "beautifulsoup4>=4.12.0",
     "readability-lxml>=0.8.1",

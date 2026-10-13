@@ -569,7 +569,10 @@ FOOTER = re.compile(
     r"^\s*(?:[^\w\s]+\s*)?(?:generated|made|created|written|authored)\s+(?:with|by|using)\s+"
     r"(?:\[\s*)?" + VENDOR + MODEL_WORDS + r"(?:\s*\])?(?:\s*(?:\([^)]*\)|\[[^\]]*\]))?"
     r"(?:\s+by\s+" + VENDOR + r")?"
-    r"(?:\s*[-:,|]\s*(?:https?://\S*|\S+(?:\s+\S+){0,3}))?[\s.!]*$",
+    # Once a vendor name matched, a clause of any length after a separator is still a
+    # footer, as on the commit-msg route (`message`); a tool subject such as pandoc never
+    # reaches this point because it is not a VENDOR.
+    r"(?:\s*[-:,|]\s*(?:https?://\S*|\S.*?))?[\s.!]*$",
     re.IGNORECASE,
 )
 MARKUP = re.compile(r"<[^>]+>|[_*`~]")

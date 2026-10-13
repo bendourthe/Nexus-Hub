@@ -1,10 +1,11 @@
 # Known Gaps - v3.18
 
+**Ledger normalization**: 2026-10-09, v4.13.11. The canonical open count is derived from supported item headings. Summary and reconciliation count tables below retain historical release snapshots, including partial closures and explicit transfers; they are not new parser totals.
+
 **Project**: Nexus-Hub
 **Status**: finalized; archived 2026-09-29; 0 open items (1 migrated to v4.13 as AR-40). Per-section status lines below are historical and were written before release.
 
 **Open items**: 0
-
 **Status at last pre-archive update**: v3.18.0 (`docs-lifecycle-retention`) released. v3.18.1 (`github-usage-monitor-accuracy`) Phases 1-6 implemented on `feat/v3.18.1-github-usage-monitor-accuracy`. **Zero release blockers across both.**
 **Last updated**: 2026-08-22 (post-v3.18.2 housekeeping: v3.18.2 MT-1 closed by the v3.16 history archive pass; BG-2 recorded as an environment-only local-run flake)
 
@@ -223,7 +224,7 @@ Every item raised during v3.18.0 is closed: five fixed in code, three closed by 
 - **Scope note**: only `development/history` moved. The four `development/` contract documents (`evaluation-artifact-contract.md`, `github-entitlement-probe.md`, `install-selection-contract.md`, `selective-install-baseline.md`), plus `plans/`, `comparisons/`, and `known-gaps.md`, stay in the active tree - the retention policy ages out session histories, not contracts.
 - **Also corrected**: `docs/archive/README.md` documented only whole-major archival, so the `docs/archive/v3/` subtree created by the v3.18.0 retention pass was undocumented. It now states both rules and carries a v3 index row.
 
-### BG-2 - OPEN, environment-only: two installer tests fail non-deterministically in long local runs on OneDrive - MIGRATED to v4.13 (AR-40)
+### BG-2-v3182 - OPEN, environment-only: two installer tests fail non-deterministically in long local runs on OneDrive - MIGRATED to v4.13 (AR-40) - MIGRATED to v4.13.0
 
 - **Observed**: 2026-08-22, post-release, on this Windows working tree (an OneDrive-synced folder). Two separate long local runs each failed **one** test, and **a different one each time**: `tests/installer/test_org_cli.py::test_disconnect_requires_confirmation_and_yes_removes_state_and_cache` (1 failed / 3888 passed, full suite, 60 min) and `tests/installer/test_selection_parity.py::test_powershell_filtered_install_matches_bash` (1 failed / 417 passed, `tests/installer` only, 5 min).
 - **Both pass in isolation** (5.1s and 7.1s respectively) and **both pass in CI**: `tests (ubuntu-latest)`, `installer-smoke` on ubuntu / macos / **windows**, and `install-smoke` were all green on the v3.18.2 PRs.
@@ -233,7 +234,13 @@ Every item raised during v3.18.0 is closed: five fixed in code, three closed by 
 - **Related process failure**: the first of these was reported to the user as a passing suite, because the run was piped (`pytest ... | tail`) and the pipeline's exit code is `tail`'s, not `pytest`'s. Never read `$?` through a pipe to judge a test run; capture the exit code directly or use `PIPESTATUS`.
 - **New data point 2026-08-22 (v3.18.3 Phase 5), which does NOT close this item**: a full `tests/installer` run on this same OneDrive tree was clean (418 passed, 17 skipped, 0 failed), as was `tests/integrations` (661 passed, 1 skipped). A non-deterministic flake cannot be disproved by one green run, so the entry stays open on its stated terms. Recorded because the absence of a failure is still evidence about frequency, and because the next person needs to know a clean local run has happened rather than assuming the tests always fail here.
 
-### QG-1 - Verification performed for this release
+**Original source identity**: `v3.18.2#BG-2` in `v3.18.2 - github-usage-monitor-withdrawal`; normalized stable ID `BG-2-v3182` distinguishes this obligation from repeated IDs in other patch sections.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-40`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.18.2`, section `v3.18.2 - github-usage-monitor-withdrawal`, and original ID `BG-2`.
+
+### QG-1 - Verification performed for this release - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v3.18#QG-1` is recorded as RESOLVED for its original scope. Evidence: A verification log, not a gap; it lists passing checks. Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - `python scripts/check_version_sync.py` - all six surfaces at 3.18.2.
 - `catalog/hooks/tests/test_installer_smoke.py` - 33 passed, including the new both-hosts retirement guard, which was verified to FAIL when the retirement entry is removed.
@@ -261,7 +268,9 @@ Every item raised during v3.18.0 is closed: five fixed in code, three closed by 
 - **Resolution (2026-08-22)**: Phase 2 shipped `references/slide-navigation.md` (132 lines, all eight rule areas binary) and the Step 6 Navigation-mode bullet pointing at it in the same commit. The orphan-bundle audit passes (0 errors over 273 skills) and the prose mention in the command is now accurate.
 - **Note**: `catalog/commands/presentify.md` does carry a forward-looking PROSE mention ("following its own slide-navigation reference"), which sub-task 1.1 item 4 explicitly asked for. It names no path, so no audit or link checker can trip on it. It becomes accurate when Phase 2 lands.
 
-### WN-1 - Registry text must be derived, not retyped
+### WN-1 - Registry text must be derived, not retyped - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v3.18#WN-1` is recorded as RESOLVED for its original scope. Evidence: The body records "CLOSED 2026-08-22 (Phase 5)". The guard is `scripts/check_registry_entries.py --check --strict`. Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Target files**: `data/skills.json`, and any future hand-edit of a registry entry
 - **What happened**: `check_registry_entries.py --check --strict` compares `SKILL.md` frontmatter against the `data/skills.json` mirror character for character. Writing the same sentence twice by hand produced a one-word divergence ("scrolling" versus "scroll") that failed the gate.
@@ -274,7 +283,7 @@ Every item raised during v3.18.0 is closed: five fixed in code, three closed by 
 - The contract was proven implementable before shipping: a hand-authored five-slide sample passed a 42-check headless walkthrough (keyboard map, fragment order and idempotence, deep links with clamp/fallback branches, browser-back history, focus and live-region behavior, reduced-motion cuts, and the no-JS stacked fallback).
 - One capture-protocol fact for Phase 4: a screenshot taken mid-transition shows two slides painted together while the state is correct. The Phase 4 capture protocol must wait for transition settle (or force reduced motion) before grading, or every slide-mode run will file a phantom double-slide defect.
 
-### Phase 3 notes (2026-08-22)
+### Resolved Phase 3 notes (2026-08-22)
 
 - **BG-1 - RESOLVED in Phase 3, found and fixed in the same session**: the new engine step driver's initial `goTo` at mount never painted layer 0 (`_shown.index` starts at 0 so `crossing` was false while `active` was still -1). Caught by the render harness, not by `node --check`, which stayed green throughout - the case for the plan's render-verification step. Fixed by also gating the layer toggle on `this.active !== index`, with a comment naming the mount case.
 - Two more settle-then-assert facts for Phase 4's capture protocol, joining the Phase 2 note: a fixed sleep racing a timed animation reads mid-count values (poll for the settled state instead), and CSSOM re-serializes transform values (`scale(1.0000)` reads back as `scale(1)`), so assertions against style strings must use the serialized form.
@@ -322,4 +331,4 @@ Before this minor moved to `docs/archives/`, every item that this file did not a
 
 | Item | Disposition | Evidence, reason, or destination |
 |---|---|---|
-| BG-2 (line 222) | Migrated | AR-40: intermittent local installer-test failures in long runs; possibly the real-home leak fixed for `test_selection_parity.py` in v4.13.1 BG-2 (commit `ad768ca9`), unproven for `test_org_cli.py` |
+| `BG-2` (line 222) | Migrated | AR-40: intermittent local installer-test failures in long runs; possibly the real-home leak fixed for `test_selection_parity.py` in v4.13.1 BG-2 (commit `ad768ca9`), unproven for `test_org_cli.py` |

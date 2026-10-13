@@ -257,7 +257,7 @@ def test_summary_json_marks_undetected_platform(
     "key, expected_surfaces",
     [
         ("cursor", {"skills", "commands", "agents", "hooks", "rules", "instruction"}),
-        ("opencode", {"skills", "commands", "agents", "rules", "instruction"}),
+        ("opencode", {"skills", "commands", "agents", "instruction"}),
         ("qwen", {"skills", "commands", "agents", "instruction"}),
         ("kimi", {"skills", "instruction"}),
     ],

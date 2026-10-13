@@ -85,6 +85,44 @@ function Get-NexusNotifyLabel {
     return $name
 }
 
+function Get-NexusNotifyHost {
+    <#
+    .SYNOPSIS
+        Return the notification title: the host these hooks serve.
+    .DESCRIPTION
+        The installer copies this helper into each host's own hooks directory, so
+        the nearest known directory above it names the host (~/.kimi-code/hooks is
+        Kimi, .github/hooks/nexus-hub-scripts is Copilot). Only three levels are
+        examined, so a far ancestor cannot mislabel a copy. Anywhere else,
+        including the catalog, the title is the neutral "Nexus-Hub".
+    #>
+    $hosts = @{
+        '.claude'    = 'Claude Code'
+        '.kimi-code' = 'Kimi Code CLI'
+        '.qwen'      = 'Qwen Code'
+        '.gemini'    = 'Gemini CLI'
+        '.codex'     = 'Codex'
+        '.cursor'    = 'Cursor'
+        '.windsurf'  = 'Windsurf'
+        'windsurf'   = 'Windsurf'
+        '.github'    = 'GitHub Copilot'
+        '.copilot'   = 'GitHub Copilot'
+    }
+    try {
+        $dir = $PSScriptRoot
+        for ($depth = 0; $depth -lt 3 -and -not [string]::IsNullOrEmpty($dir); $depth++) {
+            $name = (Split-Path -Leaf $dir).ToLowerInvariant()
+            if ($hosts.ContainsKey($name)) {
+                return $hosts[$name]
+            }
+            $dir = Split-Path -Parent $dir
+        }
+    } catch {
+        # Fall through to the neutral title.
+    }
+    return 'Nexus-Hub'
+}
+
 function Test-NexusNotifySuppressed {
     <#
     .SYNOPSIS

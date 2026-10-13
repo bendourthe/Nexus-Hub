@@ -157,3 +157,54 @@ def test_non_goals_requires_a_reason_per_entry() -> None:
         "spec-template.md's Non-Goals section no longer requires a reason per "
         "entry; spec-quality-checklist.md still checks for one."
     )
+
+
+def _section(template: str, heading: str, next_heading: str) -> str:
+    body = template[template.index(f"\n## {heading}") :]
+    return body[: body.index(f"\n## {next_heading}")] if next_heading else body
+
+
+def test_assumption_example_is_an_overridable_how_default() -> None:
+    """A1 must model an Assumption, not smuggle a scope exclusion (v3.16 TR-1).
+
+    An Assumption is a HOW default the reviewer overrides in one line; a
+    statement of the shape "X is out of scope" is a Non-Goal. The example the
+    template ships is the one authors copy, so it must be the clean form.
+    """
+    template = _read(_TEMPLATE)
+    assumptions = _section(template, "Assumptions", "")
+    a1 = next(ln for ln in assumptions.splitlines() if ln.startswith("- **A1**"))
+    assert "HOW default" in a1 and "override" in a1, (
+        "A1 no longer frames the Assumption as an overridable HOW default."
+    )
+    assert "out of scope" not in a1.lower() and "JWT" not in a1, (
+        "A1 carries a scope exclusion again; that clause belongs under ## Non-Goals."
+    )
+
+
+def test_jwt_exclusion_lives_under_non_goals_with_a_reason() -> None:
+    """The scope clause removed from A1 must land as a reasoned Non-Goal example."""
+    non_goals = _section(_read(_TEMPLATE), "Non-Goals", "Invariants")
+    example_lines = [ln for ln in non_goals.splitlines() if "JWT authentication" in ln]
+    assert example_lines, "The JWT exclusion example is missing from ## Non-Goals."
+    assert all("Reason:" in ln for ln in example_lines), (
+        "The JWT Non-Goal example lost its reason; every Non-Goal MUST carry one."
+    )
+
+
+def test_template_does_not_criticize_its_own_examples() -> None:
+    """The authoring note teaches the boundary without pointing at a broken example."""
+    template = _read(_TEMPLATE)
+    non_goals = _section(template, "Non-Goals", "Invariants")
+    assert "clothing" not in template, (
+        "The template reintroduced the self-critical 'wearing an Assumption's "
+        "clothing' remark about its own example."
+    )
+    assert sum("JWT" in ln for ln in non_goals.splitlines()) == 1, (
+        "JWT should appear in ## Non-Goals only as the excluded-scope example, "
+        "not also as an Assumption override."
+    )
+    assert "A1" not in non_goals, (
+        "The Non-Goals note points at the A1 example again; with A1 fixed, the "
+        "reference is a stale self-criticism."
+    )

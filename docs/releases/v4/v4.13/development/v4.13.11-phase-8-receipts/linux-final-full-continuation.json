@@ -1,0 +1,3108 @@
+{
+  "schema": 1,
+  "intended_public_filename": "linux-final-full-continuation.json",
+  "required_local_validation_verdict": "PASS",
+  "scope": "Complete CI-parity browserless full profile, three unchanged native browser groups strictly serially, then authorized separate handbook-only browser qualification. This is local validation, not publication, release or minor completion.",
+  "source_binding": {
+    "snapshot_provenance_path": "$WORKTREE\\.nexus-hub\\linux-validation-01a12d34\\snapshot-20261012T172150383706Z\\provenance.json",
+    "snapshot_provenance_sha256": "f55c446503e60e229413f0d78f23dcc97860194ddfdf48087dff73ad4427cb84",
+    "snapshot_allowlist_path": "$WORKTREE\\.nexus-hub\\linux-validation-01a12d34\\snapshot-20261012T172150383706Z\\allowlist.nul",
+    "snapshot_allowlist_sha256": "27d060aab1e3a4ec9880345f6b146ec3643d3c49e6ca057ef498046a6bb2ce01",
+    "recorded_reconstruction_path": "$WORKTREE\\.nexus-hub\\linux-validation-01a12d34\\ci-parity-proof-20261012T190706167273Z\\browser-candidate\\candidate-provenance.json",
+    "recorded_reconstruction_sha256": "3b17baa6718cdd118ae72aaac5fe038c2eb95e4511ffb7aa8083902cfbc93677",
+    "recorded_reconstruction": {
+      "candidate_tree": "accd187c165ceac44aad3ce493e232a30bdb3c6e",
+      "head": "066235c90b1eb3de346658c8a3ef3fd6b19bced1",
+      "branch": "fix/v4.13.11-known-gaps-sweep-and-minor-close",
+      "origin_develop": "002b7283a8b839588c8d0e468cbb502f594cb3e6",
+      "local_develop": "05f53d1cc4d973405597ededfb1774f0c397dd96",
+      "origin_main": "f2cd0dbc400b76cfcea0f816c1f1a27616752745",
+      "file_count": 6604,
+      "sha256_transfer_verified": true
+    },
+    "ref_limit": "Base and main are recorded reconstruction refs, not a claim of newly measured remote heads. Local develop is not the integration base.",
+    "original_post_exit_audit_path": "$WORKTREE\\.nexus-hub\\linux-validation-01a12d34\\proof-rest-20261012T190702862667Z\\original-worktree-verification.json",
+    "original_post_exit_audit_sha256": "0efb9aa28057f0b2b7eeccaa13bff9d5d61d80aeb44d81b146906360edec19af",
+    "original_post_exit_audit": {
+      "captured_utc": "2026-10-12T19:07:05.775837+00:00",
+      "source_head_now": "066235c90b1eb3de346658c8a3ef3fd6b19bced1",
+      "source_head_matches_snapshot": true,
+      "source_index_sha256_now": "1a739c3a3bf07734571ab756a9fcbd1f9e3a480f0eb52824e117a89ede8f1fc9",
+      "source_index_matches_snapshot": true,
+      "candidate_allowlist_still_matches": true,
+      "source_raw_hashes_still_match": true,
+      "source_raw_hash_mismatch_paths": [],
+      "allowlist_path_count": 116
+    },
+    "same_read_original_index_copy_path": "$WORKTREE\\.nexus-hub\\linux-validation-01a12d34\\proof-rest-20261012T190702862667Z\\real-original-index-after-full.bin",
+    "same_read_original_index_copy_sha256": "1a739c3a3bf07734571ab756a9fcbd1f9e3a480f0eb52824e117a89ede8f1fc9"
+  },
+  "runs": {
+    "full": {
+      "scoped_receipt_path": "$WORKTREE\\.nexus-hub\\linux-validation-01a12d34\\proof-full-20261012T190648050285Z\\scoped-receipt.json",
+      "scoped_receipt_sha256": "217fbdc1d927a8184b40938fc81da816983fe9cc1eb3d376344f9d7cb468b140",
+      "terminal": {
+        "exit_code": 0,
+        "started_utc": "2026-10-12T17:37:28.335167+00:00",
+        "ended_utc": "2026-10-12T18:20:03.948176+00:00",
+        "elapsed_monotonic_seconds": 2546.203964881017,
+        "command": [
+          "/artifacts/ci-parity-20261012T172150383706Z/full-venv/bin/python",
+          "scripts/ci/run.py",
+          "--profile",
+          "full",
+          "--base",
+          "origin/develop",
+          "--quiet",
+          "--reports-dir",
+          "/artifacts/ci-parity-20261012T172150383706Z/full/native-reports"
+        ],
+        "candidate_index_tree_before": "accd187c165ceac44aad3ce493e232a30bdb3c6e",
+        "candidate_index_tree_after": "accd187c165ceac44aad3ce493e232a30bdb3c6e",
+        "normalized_working_tree_before": "accd187c165ceac44aad3ce493e232a30bdb3c6e",
+        "normalized_working_tree_after": "2dfbf239562bd88d28b9b317f4f58da70be230bd",
+        "head_before": "066235c90b1eb3de346658c8a3ef3fd6b19bced1",
+        "head_after": "066235c90b1eb3de346658c8a3ef3fd6b19bced1",
+        "real_clone_index_sha256_before": "73801d36c259964e89cd94118315965f97275614dc3f26535ab24573aed72d64",
+        "real_clone_index_sha256_after": "73801d36c259964e89cd94118315965f97275614dc3f26535ab24573aed72d64",
+        "raw_tracked_paths_changed": [
+          "extensions/claude-usage-monitor/package-lock.json",
+          "extensions/codex-usage-monitor/package-lock.json",
+          "extensions/copilot-usage-monitor/package-lock.json",
+          "extensions/cursor-usage-monitor/package-lock.json"
+        ],
+        "clone_local_diffs": {
+          "extensions/claude-usage-monitor/package-lock.json": {
+            "file": "clone-local-diffs/extensions__claude-usage-monitor__package-lock.json.diff",
+            "sha256": "fb251f9b417b1af47e9f7447a9c8c39ff064e5695106a77e0e91daa8739abcb7"
+          },
+          "extensions/codex-usage-monitor/package-lock.json": {
+            "file": "clone-local-diffs/extensions__codex-usage-monitor__package-lock.json.diff",
+            "sha256": "0b89add312396d88ee78ea575249b35815cb6afbdba8f66a783eb3f38c032298"
+          },
+          "extensions/copilot-usage-monitor/package-lock.json": {
+            "file": "clone-local-diffs/extensions__copilot-usage-monitor__package-lock.json.diff",
+            "sha256": "4ad8574e944d42eb464cb2e5b72608369cc15e5850aff51edb8971e0beffd52c"
+          },
+          "extensions/cursor-usage-monitor/package-lock.json": {
+            "file": "clone-local-diffs/extensions__cursor-usage-monitor__package-lock.json.diff",
+            "sha256": "78801fd6b048ad00cf3643394aa4443014f45fe0228d686e90f497ed023f1cc9"
+          }
+        },
+        "cpu_stat_delta": {
+          "usage_usec": 2808302606,
+          "user_usec": 1894469989,
+          "system_usec": 913832617,
+          "nr_periods": 24906,
+          "nr_throttled": 0,
+          "throttled_usec": 0,
+          "nr_bursts": 0,
+          "burst_usec": 0
+        },
+        "memory_event_delta": {
+          "low": 0,
+          "high": 0,
+          "max": 0,
+          "oom": 0,
+          "oom_kill": 0,
+          "oom_group_kill": 0
+        },
+        "limits_changed": false,
+        "fullgate_log_sha256": "31c64593693216a6b4494da9c77d880392ba7086312c0081181d83bee9d263e8",
+        "native_summary_retained": true,
+        "native_summary_sha256": "77c8c6f9d872d89860b4847e01d324877a573aca5d711c90cea229ffdd3f1bdb"
+      },
+      "native_run_result": {
+        "duration_s": 2545.7486230449285,
+        "finished_at": "2026-10-12T18:20:03Z",
+        "groups": [
+          {
+            "commands": [
+              {
+                "duration_s": 0.032970987027511,
+                "exit_code": 0,
+                "group": "catalog-parse",
+                "name": "skills.json parses",
+                "output": "",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 0.033190658083185554,
+                "exit_code": 0,
+                "group": "catalog-parse",
+                "name": "bundles.json parses",
+                "output": "",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 0.032904732041060925,
+                "exit_code": 0,
+                "group": "catalog-parse",
+                "name": "workflows.json parses",
+                "output": "",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 0.03251403500325978,
+                "exit_code": 0,
+                "group": "catalog-parse",
+                "name": "templates.json parses",
+                "output": "",
+                "reason": "",
+                "status": "pass"
+              }
+            ],
+            "name": "catalog-parse",
+            "skipped_reason": "",
+            "status": "pass"
+          },
+          {
+            "commands": [
+              {
+                "duration_s": 0.16541309107560664,
+                "exit_code": 0,
+                "group": "hygiene",
+                "name": "check_commit_attribution",
+                "output": "Attribution: 2485 commits scanned; 0 findings; 0 errors\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 2.5227959719486535,
+                "exit_code": 0,
+                "group": "hygiene",
+                "name": "validate_unicode_safety",
+                "output": "",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 1.3692949919495732,
+                "exit_code": 0,
+                "group": "hygiene",
+                "name": "validate_no_personal_paths",
+                "output": "",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 0.6673627030104399,
+                "exit_code": 0,
+                "group": "hygiene",
+                "name": "check_merge_conflict_markers",
+                "output": "check_merge_conflict_markers: 0 marker(s) in 0 file(s).\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 0.21509772795252502,
+                "exit_code": 0,
+                "group": "hygiene",
+                "name": "check_docs_conventions",
+                "output": "OK: docs conventions hold under /work/Nexus-Hub-ci-parity-20261012T172150383706Z/docs/releases/v4/v4.13\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 0.06581910699605942,
+                "exit_code": 0,
+                "group": "hygiene",
+                "name": "validate_doc_budgets",
+                "output": "  8 budgeted doc(s) within ceiling\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 0.26647773501463234,
+                "exit_code": 0,
+                "group": "hygiene",
+                "name": "check_memory_integration_budget",
+                "output": "OK   /work/Nexus-Hub-ci-parity-20261012T172150383706Z/docs/policy/memory-integration-prose.md: 222 tokens (tiktoken) / 500\n",
+                "reason": "",
+                "status": "pass"
+              }
+            ],
+            "name": "hygiene",
+            "skipped_reason": "",
+            "status": "pass"
+          },
+          {
+            "commands": [
+              {
+                "duration_s": 1.5316578600322828,
+                "exit_code": 0,
+                "group": "legacy-fingerprints",
+                "name": "build_legacy_fingerprints",
+                "output": "legacy fingerprints current (3755 lines)\n",
+                "reason": "",
+                "status": "pass"
+              }
+            ],
+            "name": "legacy-fingerprints",
+            "skipped_reason": "",
+            "status": "pass"
+          },
+          {
+            "commands": [
+              {
+                "duration_s": 1.1751142420107499,
+                "exit_code": 0,
+                "group": "interpreters",
+                "name": "check_python_floor",
+                "output": "Python 3.11 grammar: 948 tracked files passed\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 0.21587792003992945,
+                "exit_code": 0,
+                "group": "interpreters",
+                "name": "check_interpreter_resolution",
+                "output": "[interpreters] OK   bash -> /usr/bin/bash\n[interpreters] every hook interpreter can execute a script.\n",
+                "reason": "",
+                "status": "pass"
+              }
+            ],
+            "name": "interpreters",
+            "skipped_reason": "",
+            "status": "pass"
+          },
+          {
+            "commands": [
+              {
+                "duration_s": 0.7207964799599722,
+                "exit_code": 0,
+                "group": "catalog",
+                "name": "validate_skills",
+                "output": "Scanned 340 skills under catalog/skills (bundle audit)\n\nRESULT: PASS (0 errors, 66 warnings)\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 0.12000274495221674,
+                "exit_code": 0,
+                "group": "catalog",
+                "name": "check_agentskills_conformance",
+                "output": "Scanned 340 skills under /work/Nexus-Hub-ci-parity-20261012T172150383706Z/catalog/skills\nINFO: extra top-level keys beyond the agentskills.io recognized set (permitted): atlas_techniques, attribution, author, category, d3fend_techniques, language, languages, long_description, mitre_attack, mitre_f3, nist_ai_rmf, nist_csf, overview_l1, owasp_agentic, priority, summary_l0, tags, tools_required, version\nRESULT: PASS (0 errors, 340 skills scanned)\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 0.23173870402388275,
+                "exit_code": 0,
+                "group": "catalog",
+                "name": "build_framework_coverage",
+                "output": "OK: framework coverage in sync (docs/framework-coverage.md, docs/attack-navigator-layer.json)\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 0.4676527400733903,
+                "exit_code": 0,
+                "group": "catalog",
+                "name": "run_trigger_evals",
+                "output": "Scanned 340 skill descriptions under catalog/skills (threshold 0.5, margin 1.15, gate mode)\n  Routing coverage: 89/340 skills have trigger-cases.json (528 lexical case(s) evaluated, 0 non-lexical skipped)\n  WARN: 251/340 skills have no trigger-cases.json (incremental coverage; never fails the gate)\n\nRESULT: PASS (0 un-allowlisted collisions, 37 allowlisted; 0 routing failures across 89 skill(s) with cases)\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 0.16810177906882018,
+                "exit_code": 0,
+                "group": "catalog",
+                "name": "check_registry_entries",
+                "output": "  registry entries: structure and reachability agree with the catalog\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 3.7114296370418742,
+                "exit_code": 0,
+                "group": "catalog",
+                "name": "scan_skill_security",
+                "output": "Wrote sarif report to reports/skill-security.sarif\n",
+                "reason": "",
+                "status": "pass"
+              }
+            ],
+            "name": "catalog",
+            "skipped_reason": "",
+            "status": "pass"
+          },
+          {
+            "commands": [
+              {
+                "duration_s": 0.4161666319705546,
+                "exit_code": 0,
+                "group": "security",
+                "name": "scan_supply_chain_iocs",
+                "output": "",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 0.11605253501329571,
+                "exit_code": 0,
+                "group": "security",
+                "name": "validate_permission_baseline",
+                "output": "  claude-permissions.json OK (glob matcher)\n  gemini-permissions.json OK (prefix matcher)\nPermission baseline is read-only at the side-effect level.\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 0.16523087595123798,
+                "exit_code": 0,
+                "group": "security",
+                "name": "check_no_outbound",
+                "output": "check_no_outbound: OK (/work/Nexus-Hub-ci-parity-20261012T172150383706Z/extensions/nexus-context-compressor)\n",
+                "reason": "",
+                "status": "pass"
+              }
+            ],
+            "name": "security",
+            "skipped_reason": "",
+            "status": "pass"
+          },
+          {
+            "commands": [
+              {
+                "duration_s": 0.2656759409001097,
+                "exit_code": 0,
+                "group": "workflows",
+                "name": "validate_workflow_security",
+                "output": "",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 0.16530008101835847,
+                "exit_code": 0,
+                "group": "workflows",
+                "name": "check_required_check_coverage",
+                "output": "Required-check coverage: OK -- 10 declared context(s) across 2 branch(es), every one produced unconditionally.\n",
+                "reason": "",
+                "status": "pass"
+              }
+            ],
+            "name": "workflows",
+            "skipped_reason": "",
+            "status": "pass"
+          },
+          {
+            "commands": [
+              {
+                "duration_s": 1.2704007310094312,
+                "exit_code": 0,
+                "group": "claude-plugin",
+                "name": "claude plugin validate",
+                "output": "Validating marketplace manifest: /work/Nexus-Hub-ci-parity-20261012T172150383706Z/.claude-plugin/marketplace.json\n\n\u2714 Validation passed\n",
+                "reason": "",
+                "status": "pass"
+              }
+            ],
+            "name": "claude-plugin",
+            "skipped_reason": "",
+            "status": "pass"
+          },
+          {
+            "commands": [
+              {
+                "duration_s": 0.316229106974788,
+                "exit_code": 0,
+                "group": "platform-contracts",
+                "name": "check_installer_parity",
+                "output": "installer parity: PASS\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 0.11581090395338833,
+                "exit_code": 0,
+                "group": "platform-contracts",
+                "name": "check_base_template_parity",
+                "output": "base-template parity: 5 of 5 lockstep templates present (templates/ai-instructions)\n  [present] base-claude.md\n  [present] base-codex.md\n  [present] base-cursor.md\n  [present] base-gemini.md\n  [present] base-opencode.md\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 0.8182405179832131,
+                "exit_code": 0,
+                "group": "platform-contracts",
+                "name": "instruction-contracts",
+                "output": "....................................                                     [100%]\n36 passed in 0.08s\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 0.11557266407180578,
+                "exit_code": 0,
+                "group": "platform-contracts",
+                "name": "verify_platform_contracts",
+                "output": "[verify-contracts] OK: 14 platforms match the contract doc.\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 0.0685730769764632,
+                "exit_code": 0,
+                "group": "platform-contracts",
+                "name": "check_platform_contract_freshness",
+                "output": "[contract-freshness] OK: contract verified for v4.13.10 (last_verified 2026-10-09).\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 0.11532680795062333,
+                "exit_code": 0,
+                "group": "platform-contracts",
+                "name": "sync_platform_defaults",
+                "output": "  platform-defaults OK -- 14 platform(s), all derived artifacts in sync\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 0.06542095693293959,
+                "exit_code": 0,
+                "group": "platform-contracts",
+                "name": "verify_model_prompting_profiles",
+                "output": "[profile-schema] OK: 18 profiled model(s) of 14 rostered (schema 1.2.0, last verified 2026-09-30).\n  Note: 9 rostered model(s) not yet profiled (claude-fable-5, claude-haiku-4-5-20251001, claude-opus-4-5-20251101, claude-opus-4-6, claude-opus-4-7, claude-opus-4-8, claude-opus-5-5, claude-sonnet-4-5-20250929, claude-sonnet-4-6); tracked as known gaps, not a gate failure.\n",
+                "reason": "",
+                "status": "pass"
+              }
+            ],
+            "name": "platform-contracts",
+            "skipped_reason": "",
+            "status": "pass"
+          },
+          {
+            "commands": [
+              {
+                "duration_s": 0.11586882104165852,
+                "exit_code": 0,
+                "group": "docs",
+                "name": "check_doc_colocation",
+                "output": "Enforcing co-location under every major: docs/releases/v4 (docs/archives/** and docs/archive/** grandfathered)\nOK: no comparison / adoption-plan co-location mismatches under docs/releases/v4\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 0.11832027800846845,
+                "exit_code": 0,
+                "group": "docs",
+                "name": "validate_solution_frontmatter",
+                "output": "",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 0.03258939308580011,
+                "exit_code": 0,
+                "group": "docs",
+                "name": "check_incident_notes",
+                "output": "  OK powershell-sibling-parse-error-20260709.md\n  OK provenance-ledger-sibling-divergence-20260722.md\n  2 incident note(s) OK\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 0.03235493996180594,
+                "exit_code": 0,
+                "group": "docs",
+                "name": "validate_decision_records",
+                "output": "  76 decision record(s) OK\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 0.06531021394766867,
+                "exit_code": 0,
+                "group": "docs",
+                "name": "stamp_guide_counts",
+                "output": "stamp_guide_counts: OK -- 5 marker(s) match the catalog (skills=340, hooks=37, pretooluse=18, commands=21)\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 0.2655467470176518,
+                "exit_code": 0,
+                "group": "docs",
+                "name": "stamp_guide_shared",
+                "output": "stamp_guide_shared: OK -- 21 fragment(s) match in 2 page(s)\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 0.06484804302453995,
+                "exit_code": 0,
+                "group": "docs",
+                "name": "stamp_training_models",
+                "output": "stamp_training_models: OK -- the page matches the model map (verified 2026-10-01)\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 0.03247337695211172,
+                "exit_code": 0,
+                "group": "docs",
+                "name": "check_memory_provenance",
+                "output": "OK: memory provenance contract holds under /work/Nexus-Hub-ci-parity-20261012T172150383706Z/catalog/memory\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 0.11484237795230001,
+                "exit_code": 0,
+                "group": "docs",
+                "name": "check_handbooks",
+                "output": "{\n  \"candidate\": {\n    \"revision\": \"066235c90b1eb3de346658c8a3ef3fd6b19bced1\",\n    \"working_tree\": \"uncommitted\"\n  },\n  \"scope\": \"full\",\n  \"documents\": [\n    {\n      \"id\": \"overview\",\n      \"output\": \"docs/handbooks/overview.html\",\n      \"status\": \"verified\",\n      \"snapshot\": {\n        \"entry_sha256\": \"4b61ca9e0dee7f749d645a6bf77d908fe40990ab7202cd0c452e200254ef9f23\",\n        \"inputs\": {\n          \"docs/handbooks/_sources/overview/model.json\": \"6d7f14e9d6da81913906829e60343d6f92309e917e0c6a3252f2166318340807\",\n          \"docs/handbooks/_sources/overview/source.md\": \"20f7b918a2614a9ebd7d675f0cd55431635e2f65feedd4c10aef51c602aab40c\",\n          \"docs/handbooks/_sources/overview/design.css\": \"e3015529f81584ab0578e365c42644854d9566bfeb45035e094044b503e16921\",\n          \"scripts/validate_skills.py\": \"51b5e1e74623ca51945871d08dcc78dc14f4d51723784b78d3df6523eb3a196a\",\n          \"scripts/check_registry_entries.py\": \"e3860f9b8e3876098cc65debe89bd1a2e236a333530a7c2d55d504628d01ce55\",\n          \"scripts/lib/integrations/_catalog_adapters.py\": \"6a8e0f1375df9ae401302b1b13a1559f093d7aecd0c5ae0c134f9dddad162647\",\n          \"catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py\": \"55a10ebfa2412b48243ae72ca70180f12aa80cc7f89d66cad0911d275bb9ce50\",\n          \"catalog/skills/specialized-domains/document-to-interactive-html/scripts/dual_view.py\": \"cb97c1c53dd4560f3a59b9cc08d54223c4e0d49c2373bed3c20b5430607053a2\",\n          \"catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-runtime.js\": \"336a276024b786f95287178e1ce455328aee1c253ed3dc05709e49c58cde1ce6\",\n          \"catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-figures.js\": \"1891f3f4eaabc43c743d5360a6615338d65cf50ed8cc02a771d32a07c194e17d\",\n          \"catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view.css\": \"e60e94cd26d4ba622ede429d9c7862a82dea491ac1b174bd86023ac5e5245c35\",\n          \"docs/handbooks/_sources/overview/purpose-composition.html\": \"511907f9123cb68a61b67a38d7d06ddb67642e5f2871cb84410707b1d7a62beb\",\n          \"docs/handbooks/_sources/overview/authoring-composition.html\": \"e38964521614c8c0317a63d2890685e2ffed10ef2625e6d181bf994db6a4ec6c\",\n          \"docs/handbooks/_sources/overview/validation-composition.html\": \"4769181873d4f9b290a783d44986a9382771a90d7c9a4d548de46e8d0d44461f\",\n          \"docs/handbooks/_sources/overview/delivery-composition.html\": \"c7ab0ca77c7f6468d1914f17338d72a33ffe560888fb4573bafe6fe6ce5c9259\",\n          \"docs/handbooks/_sources/overview/proof-composition.html\": \"5450a7264da18cccd1423951768e9a271cb42211545464ef035dde2a2d75958f\"\n        },\n        \"output_sha256\": \"ac060fa24a632be7c0082cb73e3067abd8dec61bf13c739a8db62d001867479b\"\n      }\n    },\n    {\n      \"id\": \"distribution\",\n      \"output\": \"docs/handbooks/distribution.html\",\n      \"status\": \"verified\",\n      \"snapshot\": {\n        \"entry_sha256\": \"90b6e519dbbdebc658cdf68459bed2600a07046cadb095ade2509bc7711c1165\",\n        \"inputs\": {\n          \"docs/handbooks/_sources/distribution/model.json\": \"3f3b9e1222a51583962e4de248d9ac74804b03a2b3102605e8e1911c8ea3496d\",\n          \"docs/handbooks/_sources/distribution/source.md\": \"495f2edd8b5046d38801c6e675385cc500b552da8231a381ff5e811db62721fa\",\n          \"docs/handbooks/_sources/distribution/design.css\": \"4d2975128abe327205e8b3c4fd62d351644221e9e03bfbaa539986f3cc1b9a70\",\n          \"scripts/installer.ps1\": \"3831b81fcd1eceecd8fe80aa2c407e51fe3e45b309cba13a5e13c89a90238f1a\",\n          \"scripts/installer.sh\": \"970bdcb6ab259f5fbe746ba16b172906a1d46f0996b5ed1b506a68c1ea5443de\",\n          \"scripts/lib/integrations/runner.py\": \"5429ec6c9896b95285effe8215b2d3ca291c920bad6ccf8dec0ffa93cca7b78f\",\n          \"scripts/lib/integrations/_catalog_adapters.py\": \"6a8e0f1375df9ae401302b1b13a1559f093d7aecd0c5ae0c134f9dddad162647\",\n          \"scripts/lib/integrations/_owned.py\": \"abfac9b0161e9148e236532b85a854bf512c3100bc5f39fed7e8474e7fd727e4\",\n          \"catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py\": \"55a10ebfa2412b48243ae72ca70180f12aa80cc7f89d66cad0911d275bb9ce50\",\n          \"catalog/skills/specialized-domains/document-to-interactive-html/scripts/dual_view.py\": \"cb97c1c53dd4560f3a59b9cc08d54223c4e0d49c2373bed3c20b5430607053a2\",\n          \"catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-runtime.js\": \"336a276024b786f95287178e1ce455328aee1c253ed3dc05709e49c58cde1ce6\",\n          \"catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-figures.js\": \"1891f3f4eaabc43c743d5360a6615338d65cf50ed8cc02a771d32a07c194e17d\",\n          \"catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view.css\": \"e60e94cd26d4ba622ede429d9c7862a82dea491ac1b174bd86023ac5e5245c35\",\n          \"docs/handbooks/_sources/distribution/route-composition.html\": \"349e1382529a541ee001f589b96194205c6e0854037bae2d240f54749b6d1cb3\",\n          \"docs/handbooks/_sources/distribution/shapes-composition.html\": \"0ca661a5cd11e83a6745f00e32cb2086eaa7664845efe064e5a8863a7223fa85\",\n          \"docs/handbooks/_sources/distribution/identity-composition.html\": \"8f5ac756f4a58e3745548ea8476d1300e9dbc9683fbe44e0037c928773f69014\",\n          \"docs/handbooks/_sources/distribution/ownership-composition.html\": \"31df6a101328862f4e525a8b79cec45cb531d3404a8c97a108b48fca4ff231e3\",\n          \"docs/handbooks/_sources/distribution/verification-composition.html\": \"0c679ab8af04bab8d40146cb899e1768b795e904048ea4d95ab56fdcea986779\",\n          \"scripts/nexus_git_attribution.py\": \"2206437a578d73993e5de82424498aa20c57409deb76def7e5c02363dde5346a\",\n          \"catalog/style-guides/git-attribution.md\": \"f4abb51bdbd97f19a115024c51ba0e9a414f4e377590c05efcbdc8693ede7b29\",\n          \"scripts/lib/integrations/cursor.py\": \"9cc127d07c30153cbda24b4faf4774ae79705406c05ee466e34b5fbbe1e52f4e\",\n          \"scripts/lib/integrations/aider.py\": \"7737442015938681795878452050de557a09324651e29247de3ee231513e9798\",\n          \"configs/platform-defaults.json\": \"7c5b50fff792910769f75263cf5a75dc2f5a49d1059d7ad54ab7805e46d9095d\"\n        },\n        \"output_sha256\": \"d520007558410ed00944291b109b6e46302d5e46ced3224f54af4c640b20eac1\"\n      }\n    }\n  ],\n  \"errors\": [],\n  \"excluded\": {\n    \"docs/handbooks/_sources/overview/purpose-composition.html\": \"Retained authored fragment; assembled into the mapped handbook, not a standalone handbook.\",\n    \"docs/handbooks/_sources/overview/authoring-composition.html\": \"Retained authored fragment; assembled into the mapped handbook, not a standalone handbook.\",\n    \"docs/handbooks/_sources/overview/validation-composition.html\": \"Retained authored fragment; assembled into the mapped handbook, not a standalone handbook.\",\n    \"docs/handbooks/_sources/overview/delivery-composition.html\": \"Retained authored fragment; assembled into the mapped handbook, not a standalone handbook.\",\n    \"docs/handbooks/_sources/overview/proof-composition.html\": \"Retained authored fragment; assembled into the mapped handbook, not a standalone handbook.\",\n    \"docs/handbooks/_sources/distribution/route-composition.html\": \"Retained authored fragment; assembled into the mapped handbook, not a standalone handbook.\",\n    \"docs/handbooks/_sources/distribution/shapes-composition.html\": \"Retained authored fragment; assembled into the mapped handbook, not a standalone handbook.\",\n    \"docs/handbooks/_sources/distribution/identity-composition.html\": \"Retained authored fragment; assembled into the mapped handbook, not a standalone handbook.\",\n    \"docs/handbooks/_sources/distribution/ownership-composition.html\": \"Retained authored fragment; assembled into the mapped handbook, not a standalone handbook.\",\n    \"docs/handbooks/_sources/distribution/verification-composition.html\": \"Retained authored fragment; assembled into the mapped handbook, not a standalone handbook.\"\n  },\n  \"status\": \"pass\"\n}\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 0.11537698202300817,
+                "exit_code": 0,
+                "group": "docs",
+                "name": "check_docs_retention",
+                "output": "  docs retention: nothing due for archival (current v4.13, threshold 1 minors)\n  closed-minor archival: nothing due (no qualified minor holds active plans/comparisons)\n",
+                "reason": "",
+                "status": "pass"
+              }
+            ],
+            "name": "docs",
+            "skipped_reason": "",
+            "status": "pass"
+          },
+          {
+            "commands": [
+              {
+                "duration_s": 0.0648367889225483,
+                "exit_code": 0,
+                "group": "version",
+                "name": "check_version_sync",
+                "output": "canonical version: 4.13.10 (.claude-plugin/plugin.json)\n  [      match] data/marketplace.json: matches 4.13.10\n  [      match] scripts/installer.sh: matches 4.13.10\n  [      match] scripts/installer.ps1: matches 4.13.10\n  [      match] CHANGELOG.md: matches 4.13.10\n  [      match] README.md: matches 4.13.10\n  [      match] AGENTS.md: matches 4.13.10\n",
+                "reason": "",
+                "status": "pass"
+              }
+            ],
+            "name": "version",
+            "skipped_reason": "",
+            "status": "pass"
+          },
+          {
+            "commands": [
+              {
+                "duration_s": 1339.1438841749914,
+                "exit_code": 0,
+                "group": "tests",
+                "name": "hook-tests",
+                "output": "........................................................................ [  2%]\n........................................................................ [  5%]\n........................................................................ [  8%]\n...................................................ss................... [ 11%]\n........................................................................ [ 14%]\n........................................................................ [ 17%]\n........................................................................ [ 20%]\n........................................................................ [ 23%]\n........................................................................ [ 26%]\n........................................................................ [ 29%]\n....sssssssss........................................................... [ 32%]\n........................................................................ [ 35%]\n.......................................................sssssssssssssssss [ 38%]\nss...................................................................... [ 41%]\n........................................................................ [ 44%]\n........................................................................ [ 47%]\n........................................................................ [ 50%]\n........................................................................ [ 53%]\n........................................................................ [ 56%]\n........................................................................ [ 59%]\n........................................................................ [ 62%]\n.........ss............................................................. [ 65%]\n........................................................................ [ 68%]\n........................................................................ [ 71%]\n........................................................................ [ 74%]\n........................................................................ [ 77%]\n........................................................................ [ 80%]\n........................................................................ [ 83%]\n........................................................................ [ 86%]\n........................................................................ [ 89%]\n........................................................................ [ 92%]\n........................................................................ [ 95%]\n........................................................................ [ 98%]\n...................ss..........                                          [100%]\n2373 passed, 34 skipped in 1336.65s (0:22:16)\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 246.1110495190369,
+                "exit_code": 0,
+                "group": "tests",
+                "name": "repo-tests-skills",
+                "output": "........................................................................ [  3%]\n........................................................................ [  7%]\n........................................................................ [ 10%]\n........................................................................ [ 14%]\n........................................................................ [ 17%]\n........................................................................ [ 21%]\n........................................................................ [ 24%]\n........................................................................ [ 28%]\n........................................................................ [ 31%]\n........................................................................ [ 35%]\n...........................ss........................................... [ 38%]\n........................................................................ [ 42%]\n........................................................................ [ 45%]\n........................................................................ [ 49%]\n........................................................................ [ 52%]\n.......................................................ss...s........... [ 56%]\n....sss................................................................. [ 60%]\n........................................................................ [ 63%]\n...s..s................................................................. [ 67%]\n........................................................................ [ 70%]\n........................................................................ [ 74%]\n........................................................................ [ 77%]\n.............................s...............ss......................... [ 81%]\n........................................................................ [ 84%]\n...............................................................s........ [ 88%]\n........................................................................ [ 91%]\n........................................................................ [ 95%]\n...........................ss............................sssssssssssss.. [ 98%]\n....sss.................                                                 [100%]\n2008 passed, 48 skipped in 244.67s (0:04:04)\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 131.9648173500318,
+                "exit_code": 0,
+                "group": "tests",
+                "name": "repo-tests-installer",
+                "output": "..................s..................................................... [ 12%]\n..................................s..................................... [ 25%]\n........................................................................ [ 38%]\n..................s..................................................... [ 51%]\n................................................................s....... [ 64%]\n.........................s.............................................. [ 77%]\n............................................s........................... [ 90%]\n....................................................s                    [100%]\n550 passed, 7 skipped in 129.57s (0:02:09)\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 19.476414242992178,
+                "exit_code": 0,
+                "group": "tests",
+                "name": "repo-tests-integrations-platform-a",
+                "output": "........................................................................ [ 56%]\n........................................................                 [100%]\n128 passed in 19.13s\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 24.75453121191822,
+                "exit_code": 0,
+                "group": "tests",
+                "name": "repo-tests-integrations-platform-b",
+                "output": ".....................s.................................................. [ 28%]\n........................................................................ [ 57%]\n........................................................................ [ 86%]\n..................ss.............                                        [100%]\n246 passed, 3 skipped in 24.41s\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 56.01769921602681,
+                "exit_code": 0,
+                "group": "tests",
+                "name": "repo-tests-integrations-adapter-contracts",
+                "output": "........................................................................ [ 37%]\n...........................s............................................ [ 74%]\n...............................sssssssssssssssssss                       [100%]\n174 passed, 20 skipped in 55.50s\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 4.993941594031639,
+                "exit_code": 0,
+                "group": "tests",
+                "name": "repo-tests-integrations-repository-contracts",
+                "output": ".......................................................                  [100%]\n55 passed in 4.54s\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 34.408122473047115,
+                "exit_code": 0,
+                "group": "tests",
+                "name": "repo-tests-integrations-install",
+                "output": ".......................................ssssss........................... [ 27%]\n.............................................sss..s...........sss....... [ 54%]\n........................................................................ [ 81%]\n..................................................                       [100%]\n253 passed, 13 skipped in 33.92s\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 43.11343068105634,
+                "exit_code": 0,
+                "group": "tests",
+                "name": "repo-tests-integrations-lifecycle",
+                "output": "...................s....s............................................... [ 48%]\n........................................................................ [ 97%]\n...                                                                      [100%]\n145 passed, 2 skipped in 42.69s\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 4.0393504339735955,
+                "exit_code": 0,
+                "group": "tests",
+                "name": "repo-tests-integrations-map",
+                "output": "....                                                                     [100%]\n4 passed in 3.44s\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 6.042167452047579,
+                "exit_code": 0,
+                "group": "tests",
+                "name": "repo-tests-plans",
+                "output": "........................................................................ [ 76%]\n......................                                                   [100%]\n94 passed in 5.36s\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 9.459811047068797,
+                "exit_code": 0,
+                "group": "tests",
+                "name": "repo-tests-ci",
+                "output": "........................................................................ [ 64%]\n.......................................                                  [100%]\n================================ tests coverage ================================\n_______________ coverage: platform linux, python 3.11.13-final-0 _______________\n\nCoverage XML written to file reports/coverage-ci.xml\n111 passed in 8.04s\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 5.531742933089845,
+                "exit_code": 0,
+                "group": "tests",
+                "name": "repo-tests-guides",
+                "output": "........................................................................ [  7%]\n...................................sss....ss......ssssssssssssssssssssss [ 14%]\ns....................................................................... [ 21%]\n.........s..ssss....ssssssssssssssssssss.sssssssssssssssssssssss.sssssss [ 29%]\nssssssssssssssss.ss...sssssssssss......................sssssssssssssssss [ 36%]\nssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss [ 43%]\nssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss [ 51%]\nssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss [ 58%]\nsssssssssssssssssssssssssssssssssssssss.sssss.sssssssssss.ssssssssssssss [ 65%]\nsssssssssssssssssssssssss.....ssssssssssssssssssssssssssssssssssssssssss [ 73%]\nssss.........ssssssssssssss..sssssssssssssss...ssssssssssssssssssssssss. [ 80%]\n.ss.sssssssssss........ssssss....sssssssssssssss........................ [ 87%]\n....sssssssssssssssssss.sssssssssssssssssssssssssssssssssssssss.sss.ssss [ 95%]\nsssssssssssssss...sssss.s.ssssssssssss.sss......s                        [100%]\n=============================== warnings summary ===============================\ntests/guides/test_v441_phase2_home.py:276\n  /work/Nexus-Hub-ci-parity-20261012T172150383706Z/tests/guides/test_v441_phase2_home.py:276: DeprecationWarning: invalid escape sequence '\\s'\n    \"\"\"([id, drop]) => { const sec = document.getElementById(id).cloneNode(true);\n\ntests/guides/test_v441_phase2_home.py:287\n  /work/Nexus-Hub-ci-parity-20261012T172150383706Z/tests/guides/test_v441_phase2_home.py:287: DeprecationWarning: invalid escape sequence '\\s'\n    \"\"\"sel => { const e = document.querySelector(sel);\n\ntests/guides/test_v443_phase4_context.py:95\n  /work/Nexus-Hub-ci-parity-20261012T172150383706Z/tests/guides/test_v443_phase4_context.py:95: DeprecationWarning: invalid escape sequence '\\s'\n    \"\"\"() => {\n\ntests/guides/test_v443_phase4_context.py:132\n  /work/Nexus-Hub-ci-parity-20261012T172150383706Z/tests/guides/test_v443_phase4_context.py:132: DeprecationWarning: invalid escape sequence '\\s'\n    \"\"\"() => {\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n311 passed, 674 skipped, 4 warnings in 5.05s\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 563.4078976070741,
+                "exit_code": 0,
+                "group": "tests",
+                "name": "repo-tests-governance",
+                "output": "........................................................................ [  2%]\n........................................................................ [  4%]\n........................................................................ [  6%]\n........................................................................ [  9%]\n........................................................................ [ 11%]\n........................................................................ [ 13%]\n........................................................................ [ 16%]\n........................................................................ [ 18%]\n........................................................................ [ 20%]\n........................................................................ [ 23%]\n........................................................................ [ 25%]\n........................................................................ [ 27%]\n.............s..s....................................................... [ 30%]\n........................................................................ [ 32%]\n........................................................................ [ 34%]\n........................................................................ [ 37%]\n.................................ss..................................... [ 39%]\n........................................................................ [ 41%]\n........................................................................ [ 44%]\n........................................................................ [ 46%]\n........................................................................ [ 48%]\n...................................s.................................... [ 51%]\n........................................................................ [ 53%]\n...............................................s.s.........s............ [ 55%]\n.............sss........................................................ [ 58%]\n........................................................................ [ 60%]\n........................................................................ [ 62%]\n........................................................................ [ 65%]\n........................................................................ [ 67%]\n........................................................................ [ 69%]\n........................................................................ [ 72%]\n........................................................................ [ 74%]\n........................................................................ [ 76%]\n........................................................................ [ 79%]\n........................................................................ [ 81%]\n........................................................................ [ 83%]\n........................................................................ [ 86%]\n........................................................................ [ 88%]\n........................................................................ [ 90%]\n..ssss.s....sssssssssssssss......sssss.................................. [ 93%]\n...............................ss....................................... [ 95%]\n.............................................................ssssss.sss. [ 97%]\nss.s......s.sssss.................s.s.................................   [100%]\n3036 passed, 58 skipped in 562.63s (0:09:22)\n",
+                "reason": "",
+                "status": "pass"
+              }
+            ],
+            "name": "tests",
+            "skipped_reason": "",
+            "status": "pass"
+          },
+          {
+            "commands": [
+              {
+                "duration_s": 3.0814843530533835,
+                "exit_code": 0,
+                "group": "extension-tests",
+                "name": "skill-server",
+                "output": "...........................................                              [100%]\n43 passed in 2.16s\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 17.20085387409199,
+                "exit_code": 0,
+                "group": "extension-tests",
+                "name": "code-search",
+                "output": "........................................................................ [ 18%]\n........................................................................ [ 37%]\n........................................................................ [ 56%]\n........................................................................ [ 74%]\n........................................................................ [ 93%]\n.........................                                                [100%]\n385 passed in 16.49s\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 2.679862392018549,
+                "exit_code": 0,
+                "group": "extension-tests",
+                "name": "web-fetch",
+                "output": ".............................                                            [100%]\n29 passed in 1.87s\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 9.328694086056203,
+                "exit_code": 0,
+                "group": "extension-tests",
+                "name": "skill-scanner",
+                "output": "........................................................................ [ 80%]\n.................                                                        [100%]\n89 passed in 8.97s\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 2.8751952410675585,
+                "exit_code": 0,
+                "group": "extension-tests",
+                "name": "context-compressor",
+                "output": "........................................................................ [ 30%]\n........................................................................ [ 60%]\n..................................ss.................................... [ 91%]\n.....................                                                    [100%]\n235 passed, 2 skipped in 2.41s\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 2.6745343829970807,
+                "exit_code": 0,
+                "group": "extension-tests",
+                "name": "memory",
+                "output": "......................................................                   [100%]\n54 passed in 2.17s\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 0.41693158308044076,
+                "exit_code": 0,
+                "group": "extension-tests",
+                "name": "compression-accuracy-gate",
+                "output": "Compression accuracy gate PASSED (CCR 100.0%, signatures 100.0%, reduction 45.8%).\n",
+                "reason": "",
+                "status": "pass"
+              }
+            ],
+            "name": "extension-tests",
+            "skipped_reason": "",
+            "status": "pass"
+          }
+        ],
+        "platform": "linux",
+        "profile": "full",
+        "scope_conservative": true,
+        "scope_reason": "root-wide file changed: AGENTS.md",
+        "started_at": "2026-10-12T17:37:28Z"
+      },
+      "runtime": {
+        "python": "3.11.13 (main, Jul  1 2025, 05:28:08) [GCC 12.2.0]",
+        "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.36",
+        "git": "git version 2.50.1",
+        "node": "v24.16.0",
+        "npm": "11.13.0",
+        "shellcheck": "version: 0.9.0",
+        "powershell": "PowerShell 7.6.6",
+        "claude": "2.1.280 (Claude Code)",
+        "packages": {
+          "pytest": "9.1.1",
+          "pre-commit": null,
+          "playwright": null,
+          "pyjwt": "2.15.1",
+          "tomlkit": "0.15.1",
+          "pyyaml": "6.0.3",
+          "nexus-skill-server": "2.0.0",
+          "nexus-code-search": "2.1.0",
+          "nexus-web-fetch": "2.0.0",
+          "nexus-skill-scanner": "3.0.0",
+          "nexus-context-compressor": "3.2.0",
+          "nexus-memory": "3.19.1"
+        },
+        "uid": 1000,
+        "source_index_tree": "accd187c165ceac44aad3ce493e232a30bdb3c6e",
+        "normalized_working_tree_before": "accd187c165ceac44aad3ce493e232a30bdb3c6e",
+        "head": "066235c90b1eb3de346658c8a3ef3fd6b19bced1",
+        "origin_develop": "002b7283a8b839588c8d0e468cbb502f594cb3e6",
+        "profile_sha256": "5d26d00431a61b232ca4089c3667834e9e1af6d061f09eaaf95d107067714ba8",
+        "command": [
+          "/artifacts/ci-parity-20261012T172150383706Z/full-venv/bin/python",
+          "scripts/ci/run.py",
+          "--profile",
+          "full",
+          "--base",
+          "origin/develop",
+          "--quiet",
+          "--reports-dir",
+          "/artifacts/ci-parity-20261012T172150383706Z/full/native-reports"
+        ],
+        "lane": "full",
+        "interpreter": "/artifacts/ci-parity-20261012T172150383706Z/full-venv/bin/python",
+        "prefix": "/artifacts/ci-parity-20261012T172150383706Z/full-venv",
+        "base_prefix": "/usr/local",
+        "playwright_spec_present": false,
+        "selected_environment": {
+          "HOME": "$CONTAINER_HOME",
+          "USER": "vscode",
+          "LOGNAME": "vscode",
+          "PLAYWRIGHT_BROWSERS_PATH": "/opt/ms-playwright",
+          "PIP_CONSTRAINT": "/work/Nexus-Hub-ci-parity-20261012T172150383706Z/scripts/ci/requirements-py311.txt",
+          "CLAUDE_CONFIG_DIR": "/artifacts/full-final-repaired-20261012-01/claude-config",
+          "PYTEST_ADDOPTS": null,
+          "PYTEST_PLUGINS": null,
+          "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+          "PYTHONPATH": null,
+          "PYTHONUNBUFFERED": null,
+          "NEXUS_REQUIRE_RENDER": null,
+          "NEXUS_REAL_HOME_GUARD": null,
+          "NEXUS_HUB_HOME": null,
+          "USERPROFILE": null,
+          "PATH": "/artifacts/ci-parity-20261012T172150383706Z/full-venv/bin:/usr/local/share/nvm/current/bin:/usr/local/python/current/bin:/usr/local/py-utils/bin:/usr/local/jupyter:/usr/local/share/nvm/current/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+        }
+      },
+      "actual_cli_summary_line": "PASS: 65 passed, 0 failed, 0 skipped, 0 advisory in 2545.7s",
+      "actual_command_count": 65,
+      "actual_status_counts": {
+        "pass": 65
+      },
+      "pytest_outputs": [
+        {
+          "name": "instruction-contracts",
+          "emitted_terminal_summary": "36 passed in 0.08s",
+          "counts_from_emitted_summary": {
+            "passed": 36
+          },
+          "emitted_skip_reason_lines": [],
+          "skip_reason_limit": "Absent canonical -q skip reasons are unavailable; no per-node skip mapping is reconstructed."
+        },
+        {
+          "name": "hook-tests",
+          "emitted_terminal_summary": "2373 passed, 34 skipped in 1336.65s (0:22:16)",
+          "counts_from_emitted_summary": {
+            "passed": 2373,
+            "skipped": 34
+          },
+          "emitted_skip_reason_lines": [],
+          "skip_reason_limit": "Absent canonical -q skip reasons are unavailable; no per-node skip mapping is reconstructed."
+        },
+        {
+          "name": "repo-tests-skills",
+          "emitted_terminal_summary": "2008 passed, 48 skipped in 244.67s (0:04:04)",
+          "counts_from_emitted_summary": {
+            "passed": 2008,
+            "skipped": 48
+          },
+          "emitted_skip_reason_lines": [],
+          "skip_reason_limit": "Absent canonical -q skip reasons are unavailable; no per-node skip mapping is reconstructed."
+        },
+        {
+          "name": "repo-tests-installer",
+          "emitted_terminal_summary": "550 passed, 7 skipped in 129.57s (0:02:09)",
+          "counts_from_emitted_summary": {
+            "passed": 550,
+            "skipped": 7
+          },
+          "emitted_skip_reason_lines": [],
+          "skip_reason_limit": "Absent canonical -q skip reasons are unavailable; no per-node skip mapping is reconstructed."
+        },
+        {
+          "name": "repo-tests-integrations-platform-a",
+          "emitted_terminal_summary": "128 passed in 19.13s",
+          "counts_from_emitted_summary": {
+            "passed": 128
+          },
+          "emitted_skip_reason_lines": [],
+          "skip_reason_limit": "Absent canonical -q skip reasons are unavailable; no per-node skip mapping is reconstructed."
+        },
+        {
+          "name": "repo-tests-integrations-platform-b",
+          "emitted_terminal_summary": "246 passed, 3 skipped in 24.41s",
+          "counts_from_emitted_summary": {
+            "passed": 246,
+            "skipped": 3
+          },
+          "emitted_skip_reason_lines": [],
+          "skip_reason_limit": "Absent canonical -q skip reasons are unavailable; no per-node skip mapping is reconstructed."
+        },
+        {
+          "name": "repo-tests-integrations-adapter-contracts",
+          "emitted_terminal_summary": "174 passed, 20 skipped in 55.50s",
+          "counts_from_emitted_summary": {
+            "passed": 174,
+            "skipped": 20
+          },
+          "emitted_skip_reason_lines": [],
+          "skip_reason_limit": "Absent canonical -q skip reasons are unavailable; no per-node skip mapping is reconstructed."
+        },
+        {
+          "name": "repo-tests-integrations-repository-contracts",
+          "emitted_terminal_summary": "55 passed in 4.54s",
+          "counts_from_emitted_summary": {
+            "passed": 55
+          },
+          "emitted_skip_reason_lines": [],
+          "skip_reason_limit": "Absent canonical -q skip reasons are unavailable; no per-node skip mapping is reconstructed."
+        },
+        {
+          "name": "repo-tests-integrations-install",
+          "emitted_terminal_summary": "253 passed, 13 skipped in 33.92s",
+          "counts_from_emitted_summary": {
+            "passed": 253,
+            "skipped": 13
+          },
+          "emitted_skip_reason_lines": [],
+          "skip_reason_limit": "Absent canonical -q skip reasons are unavailable; no per-node skip mapping is reconstructed."
+        },
+        {
+          "name": "repo-tests-integrations-lifecycle",
+          "emitted_terminal_summary": "145 passed, 2 skipped in 42.69s",
+          "counts_from_emitted_summary": {
+            "passed": 145,
+            "skipped": 2
+          },
+          "emitted_skip_reason_lines": [],
+          "skip_reason_limit": "Absent canonical -q skip reasons are unavailable; no per-node skip mapping is reconstructed."
+        },
+        {
+          "name": "repo-tests-integrations-map",
+          "emitted_terminal_summary": "4 passed in 3.44s",
+          "counts_from_emitted_summary": {
+            "passed": 4
+          },
+          "emitted_skip_reason_lines": [],
+          "skip_reason_limit": "Absent canonical -q skip reasons are unavailable; no per-node skip mapping is reconstructed."
+        },
+        {
+          "name": "repo-tests-plans",
+          "emitted_terminal_summary": "94 passed in 5.36s",
+          "counts_from_emitted_summary": {
+            "passed": 94
+          },
+          "emitted_skip_reason_lines": [],
+          "skip_reason_limit": "Absent canonical -q skip reasons are unavailable; no per-node skip mapping is reconstructed."
+        },
+        {
+          "name": "repo-tests-ci",
+          "emitted_terminal_summary": "111 passed in 8.04s",
+          "counts_from_emitted_summary": {
+            "passed": 111
+          },
+          "emitted_skip_reason_lines": [],
+          "skip_reason_limit": "Absent canonical -q skip reasons are unavailable; no per-node skip mapping is reconstructed."
+        },
+        {
+          "name": "repo-tests-guides",
+          "emitted_terminal_summary": "311 passed, 674 skipped, 4 warnings in 5.05s",
+          "counts_from_emitted_summary": {
+            "passed": 311,
+            "skipped": 674
+          },
+          "emitted_skip_reason_lines": [],
+          "skip_reason_limit": "Absent canonical -q skip reasons are unavailable; no per-node skip mapping is reconstructed."
+        },
+        {
+          "name": "repo-tests-governance",
+          "emitted_terminal_summary": "3036 passed, 58 skipped in 562.63s (0:09:22)",
+          "counts_from_emitted_summary": {
+            "passed": 3036,
+            "skipped": 58
+          },
+          "emitted_skip_reason_lines": [],
+          "skip_reason_limit": "Absent canonical -q skip reasons are unavailable; no per-node skip mapping is reconstructed."
+        },
+        {
+          "name": "skill-server",
+          "emitted_terminal_summary": "43 passed in 2.16s",
+          "counts_from_emitted_summary": {
+            "passed": 43
+          },
+          "emitted_skip_reason_lines": [],
+          "skip_reason_limit": "Absent canonical -q skip reasons are unavailable; no per-node skip mapping is reconstructed."
+        },
+        {
+          "name": "code-search",
+          "emitted_terminal_summary": "385 passed in 16.49s",
+          "counts_from_emitted_summary": {
+            "passed": 385
+          },
+          "emitted_skip_reason_lines": [],
+          "skip_reason_limit": "Absent canonical -q skip reasons are unavailable; no per-node skip mapping is reconstructed."
+        },
+        {
+          "name": "web-fetch",
+          "emitted_terminal_summary": "29 passed in 1.87s",
+          "counts_from_emitted_summary": {
+            "passed": 29
+          },
+          "emitted_skip_reason_lines": [],
+          "skip_reason_limit": "Absent canonical -q skip reasons are unavailable; no per-node skip mapping is reconstructed."
+        },
+        {
+          "name": "skill-scanner",
+          "emitted_terminal_summary": "89 passed in 8.97s",
+          "counts_from_emitted_summary": {
+            "passed": 89
+          },
+          "emitted_skip_reason_lines": [],
+          "skip_reason_limit": "Absent canonical -q skip reasons are unavailable; no per-node skip mapping is reconstructed."
+        },
+        {
+          "name": "context-compressor",
+          "emitted_terminal_summary": "235 passed, 2 skipped in 2.41s",
+          "counts_from_emitted_summary": {
+            "passed": 235,
+            "skipped": 2
+          },
+          "emitted_skip_reason_lines": [],
+          "skip_reason_limit": "Absent canonical -q skip reasons are unavailable; no per-node skip mapping is reconstructed."
+        },
+        {
+          "name": "memory",
+          "emitted_terminal_summary": "54 passed in 2.17s",
+          "counts_from_emitted_summary": {
+            "passed": 54
+          },
+          "emitted_skip_reason_lines": [],
+          "skip_reason_limit": "Absent canonical -q skip reasons are unavailable; no per-node skip mapping is reconstructed."
+        }
+      ],
+      "junit": null,
+      "clock_intervals": {
+        "utc_interval_seconds": 2555.613009,
+        "monotonic_seconds": 2546.203964881017,
+        "native_duration_s": 2545.7486230449285,
+        "clock_cause": "Not established; UTC intervals and monotonic durations are recorded separately."
+      },
+      "native_artifact_inventory": {
+        "terminal.json": {
+          "sha256": "0547eeedcd2a5b00a6fc335140d3ecb956f1930718a9dd28d78a183691c584c9",
+          "bytes": 2971
+        },
+        "runtime-provenance.json": {
+          "sha256": "00ef2391fce5d2f09ac89494079b292ed02b4b47156a13f1a0a94b4611cdc9e9",
+          "bytes": 2510
+        },
+        "fullgate.log": {
+          "sha256": "31c64593693216a6b4494da9c77d880392ba7086312c0081181d83bee9d263e8",
+          "bytes": 622
+        },
+        "after.index": {
+          "sha256": "02f763c14e2935832a082627dfe7a4b7da3927d830e69aa88b81b8efdaf85817",
+          "bytes": 1011131
+        },
+        "real-clone-index-after.bin": {
+          "sha256": "73801d36c259964e89cd94118315965f97275614dc3f26535ab24573aed72d64",
+          "bytes": 1011131
+        },
+        "cgroup-before.json": {
+          "sha256": "cb259ad2d6eabb157888dcbb29e3a854503fc5adeda99e94697b21b9a26393c1",
+          "bytes": 517
+        },
+        "pip-freeze.json": {
+          "sha256": "1f1a13fa4661fc9ac67a060b5848aa40c43968f4c252f39129cdc0e091e5a32d",
+          "bytes": 2418
+        },
+        "before.index": {
+          "sha256": "73801d36c259964e89cd94118315965f97275614dc3f26535ab24573aed72d64",
+          "bytes": 1011131
+        },
+        "real-clone-index-before.bin": {
+          "sha256": "73801d36c259964e89cd94118315965f97275614dc3f26535ab24573aed72d64",
+          "bytes": 1011131
+        },
+        "raw-candidate-sha256-before.json": {
+          "sha256": "17118765656fe31de121d300c17dc31e8b906a75cd59949913269038e3113957",
+          "bytes": 1003039
+        },
+        "cgroup-after.json": {
+          "sha256": "5b3317ac78db571369efb973e5fb2f316bfdef7bc9146d0e483f92922d7e653d",
+          "bytes": 517
+        },
+        "git-boundaries.stderr.log": {
+          "sha256": "92cb64d6afefdf2cbebe4405534dcde89d352b2fa7e8803f944656162dbc889c",
+          "bytes": 1662490
+        },
+        "gate-process.json": {
+          "sha256": "564f1837ed2fa4d290c91180ee62a55cd1395d1f509dca3443dca77cd9b5c95f",
+          "bytes": 105
+        },
+        "raw-candidate-sha256-after.json": {
+          "sha256": "a5fb8d74a752fdd3812ffd1088ab1af1f3a5d8ec690e21d3808348b5b759ab05",
+          "bytes": 1003039
+        },
+        "clone-local-diffs/extensions__cursor-usage-monitor__package-lock.json.diff": {
+          "sha256": "78801fd6b048ad00cf3643394aa4443014f45fe0228d686e90f497ed023f1cc9",
+          "bytes": 1707
+        },
+        "clone-local-diffs/extensions__codex-usage-monitor__package-lock.json.diff": {
+          "sha256": "0b89add312396d88ee78ea575249b35815cb6afbdba8f66a783eb3f38c032298",
+          "bytes": 1430
+        },
+        "clone-local-diffs/extensions__claude-usage-monitor__package-lock.json.diff": {
+          "sha256": "fb251f9b417b1af47e9f7447a9c8c39ff064e5695106a77e0e91daa8739abcb7",
+          "bytes": 1434
+        },
+        "clone-local-diffs/extensions__copilot-usage-monitor__package-lock.json.diff": {
+          "sha256": "4ad8574e944d42eb464cb2e5b72608369cc15e5850aff51edb8971e0beffd52c",
+          "bytes": 1438
+        },
+        "native-reports/summary.json": {
+          "sha256": "77c8c6f9d872d89860b4847e01d324877a573aca5d711c90cea229ffdd3f1bdb",
+          "bytes": 45716
+        },
+        "native-reports/summary.md": {
+          "sha256": "66aa9fdfb88abe06b0d72740938bfb2252d29ad4e3228a29ff9eb017552d8608",
+          "bytes": 1062
+        },
+        "native-reports/junit/claude-plugin.xml": {
+          "sha256": "c475d7100e5f1bd1daf42d977ece2bdd6a1a2a19bde0a2ea8f9ebb885a1f947a",
+          "bytes": 210
+        },
+        "native-reports/junit/version.xml": {
+          "sha256": "ff3124e43be88034f5152c6e67c01584d758ef729e954d87f388c05916257dc7",
+          "bytes": 194
+        },
+        "native-reports/junit/catalog-parse.xml": {
+          "sha256": "8c835a9a2bb5d38c89693010f497be3b3dda03321a1e7d639f80f46a3e955c43",
+          "bytes": 441
+        },
+        "native-reports/junit/workflows.xml": {
+          "sha256": "8b22fdc5947f7a25ed3a1960681e5b67191fede5c99eff1c26c7f0b4084cae74",
+          "bytes": 289
+        },
+        "native-reports/junit/hygiene.xml": {
+          "sha256": "495907ea5e579eb3dc93d3b6a51c9c8c92e5c175e57c0a8e49a7fef982e55b56",
+          "bytes": 662
+        },
+        "native-reports/junit/catalog.xml": {
+          "sha256": "69d3a02807940cec021b9768d6693fa61995d72f4a551da6b586aa7d807e3fc6",
+          "bytes": 562
+        },
+        "native-reports/junit/legacy-fingerprints.xml": {
+          "sha256": "ab714e6b152858060462f9866f00f4497b24c7c89d3cecd7af7d73e07dc8d2ca",
+          "bytes": 225
+        },
+        "native-reports/junit/platform-contracts.xml": {
+          "sha256": "a63a65db51bb1c6b5e883d478ea39218338416906d0d0b4c3cb62dc36d64b95e",
+          "bytes": 756
+        },
+        "native-reports/junit/tests.xml": {
+          "sha256": "bc4fe5b27b363ae0c11ede446ad63cea1a1e1c0005ad0fba266ab16a5d5c84d5",
+          "bytes": 1198
+        },
+        "native-reports/junit/interpreters.xml": {
+          "sha256": "52b401e1e10df03c8eee42b4d0840ff68d38eba10de4f1c1056398692fa7eccf",
+          "bytes": 289
+        },
+        "native-reports/junit/security.xml": {
+          "sha256": "9ec41f0065a6f0adaf86dc4b2dabfd53347427c5b67f55366c2d3395f81ae992",
+          "bytes": 351
+        },
+        "native-reports/junit/extension-tests.xml": {
+          "sha256": "aafc691d7316a9cc6a02dbccc1c55edf4d20c8bb84ab940d4d2f133df4825ce9",
+          "bytes": 648
+        },
+        "native-reports/junit/docs.xml": {
+          "sha256": "ee898fad02635dfa3b782ab301c6dc6b6b0dba80b55e278737e71343d0a8d3ea",
+          "bytes": 821
+        },
+        "native-reports/metadata/environment.json": {
+          "sha256": "0436194c9dc311893b700f74a94e4af3830c5787c5e54dcb5f20b36a49ccea49",
+          "bytes": 524
+        }
+      }
+    },
+    "engine": {
+      "scoped_receipt_path": "$WORKTREE\\.nexus-hub\\linux-validation-01a12d34\\proof-engine-20261012T190654849335Z\\scoped-receipt.json",
+      "scoped_receipt_sha256": "3ac1a1698331f27953101f9a48a2fc3a55201700b9db09c0bc54aed6296ccc6b",
+      "terminal": {
+        "exit_code": 0,
+        "started_utc": "2026-10-12T18:23:50.948157+00:00",
+        "ended_utc": "2026-10-12T18:35:38.891647+00:00",
+        "elapsed_monotonic_seconds": 705.3258709430229,
+        "command": [
+          "/usr/local/bin/python",
+          "scripts/ci/run.py",
+          "--profile",
+          "full",
+          "--only",
+          "guide-browser-engine",
+          "--quiet",
+          "--reports-dir",
+          "/artifacts/ci-parity-20261012T172150383706Z/engine/native-reports"
+        ],
+        "candidate_index_tree_before": "accd187c165ceac44aad3ce493e232a30bdb3c6e",
+        "candidate_index_tree_after": "accd187c165ceac44aad3ce493e232a30bdb3c6e",
+        "normalized_working_tree_before": "accd187c165ceac44aad3ce493e232a30bdb3c6e",
+        "normalized_working_tree_after": "accd187c165ceac44aad3ce493e232a30bdb3c6e",
+        "head_before": "066235c90b1eb3de346658c8a3ef3fd6b19bced1",
+        "head_after": "066235c90b1eb3de346658c8a3ef3fd6b19bced1",
+        "real_clone_index_sha256_before": "db47805c9ca53934f31d8b5b5cdf601f3d624aadaa04f774ca3936d899e2b575",
+        "real_clone_index_sha256_after": "db47805c9ca53934f31d8b5b5cdf601f3d624aadaa04f774ca3936d899e2b575",
+        "raw_tracked_paths_changed": [],
+        "clone_local_diffs": {},
+        "cpu_stat_delta": {
+          "usage_usec": 6751503402,
+          "user_usec": 6416851618,
+          "system_usec": 334651784,
+          "nr_periods": 7054,
+          "nr_throttled": 18,
+          "throttled_usec": 1744659,
+          "nr_bursts": 0,
+          "burst_usec": 0
+        },
+        "memory_event_delta": {
+          "low": 0,
+          "high": 0,
+          "max": 0,
+          "oom": 0,
+          "oom_kill": 0,
+          "oom_group_kill": 0
+        },
+        "limits_changed": false,
+        "fullgate_log_sha256": "e239996208b2ec93e7e196187aed9b337da7cb07f3f8de12c24c6db60341cfbc",
+        "native_summary_retained": true,
+        "native_summary_sha256": "f4fc7840c569c4fca424078423325c9c9285463de129d0c3e0ee33a1e8821427"
+      },
+      "native_run_result": {
+        "duration_s": 704.9056491720257,
+        "finished_at": "2026-10-12T18:35:38Z",
+        "groups": [
+          {
+            "commands": [
+              {
+                "duration_s": 704.8830502009951,
+                "exit_code": 0,
+                "group": "guide-browser-engine",
+                "name": "guide browser contracts: game engine",
+                "output": "........................................................................ [ 36%]\n........................................................................ [ 73%]\n...................................................                      [100%]\n195 passed in 703.73s (0:11:43)\n",
+                "reason": "",
+                "status": "pass"
+              }
+            ],
+            "name": "guide-browser-engine",
+            "skipped_reason": "",
+            "status": "pass"
+          }
+        ],
+        "platform": "linux",
+        "profile": "full",
+        "scope_conservative": true,
+        "scope_reason": "no --base supplied; running every group",
+        "started_at": "2026-10-12T18:23:51Z"
+      },
+      "runtime": {
+        "python": "3.11.13 (main, Jul  1 2025, 05:28:08) [GCC 12.2.0]",
+        "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.36",
+        "git": "git version 2.50.1",
+        "node": "v24.16.0",
+        "npm": "11.13.0",
+        "shellcheck": "version: 0.9.0",
+        "powershell": "PowerShell 7.6.6",
+        "claude": "2.1.280 (Claude Code)",
+        "packages": {
+          "pytest": "9.1.1",
+          "pre-commit": "4.6.2",
+          "playwright": "1.63.0",
+          "pyjwt": "2.15.1",
+          "tomlkit": "0.15.1",
+          "pyyaml": "6.0.3",
+          "nexus-skill-server": "2.0.0",
+          "nexus-code-search": "2.1.0",
+          "nexus-web-fetch": "2.0.0",
+          "nexus-skill-scanner": "3.0.0",
+          "nexus-context-compressor": "3.2.0",
+          "nexus-memory": "3.19.1"
+        },
+        "uid": 1000,
+        "source_index_tree": "accd187c165ceac44aad3ce493e232a30bdb3c6e",
+        "normalized_working_tree_before": "accd187c165ceac44aad3ce493e232a30bdb3c6e",
+        "head": "066235c90b1eb3de346658c8a3ef3fd6b19bced1",
+        "origin_develop": "002b7283a8b839588c8d0e468cbb502f594cb3e6",
+        "profile_sha256": "5d26d00431a61b232ca4089c3667834e9e1af6d061f09eaaf95d107067714ba8",
+        "command": [
+          "/usr/local/bin/python",
+          "scripts/ci/run.py",
+          "--profile",
+          "full",
+          "--only",
+          "guide-browser-engine",
+          "--quiet",
+          "--reports-dir",
+          "/artifacts/ci-parity-20261012T172150383706Z/engine/native-reports"
+        ],
+        "lane": "engine",
+        "interpreter": "/usr/local/bin/python",
+        "prefix": "/usr/local",
+        "base_prefix": "/usr/local",
+        "playwright_spec_present": true,
+        "selected_environment": {
+          "HOME": "$CONTAINER_HOME",
+          "USER": "vscode",
+          "LOGNAME": "vscode",
+          "PLAYWRIGHT_BROWSERS_PATH": "/opt/ms-playwright",
+          "PIP_CONSTRAINT": "/work/Nexus-Hub-ci-parity-browser-20261012T172150383706Z/scripts/ci/requirements-py311.txt",
+          "CLAUDE_CONFIG_DIR": "/artifacts/full-final-repaired-20261012-01/claude-config",
+          "PYTEST_ADDOPTS": null,
+          "PYTEST_PLUGINS": null,
+          "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+          "PYTHONPATH": null,
+          "PYTHONUNBUFFERED": null,
+          "NEXUS_REQUIRE_RENDER": null,
+          "NEXUS_REAL_HOME_GUARD": null,
+          "NEXUS_HUB_HOME": null,
+          "USERPROFILE": null,
+          "PATH": "/usr/local/share/nvm/current/bin:/usr/local/python/current/bin:/usr/local/py-utils/bin:/usr/local/jupyter:/usr/local/share/nvm/current/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+        }
+      },
+      "actual_cli_summary_line": "PASS: 1 passed, 0 failed, 0 skipped, 0 advisory in 704.9s",
+      "actual_command_count": 1,
+      "actual_status_counts": {
+        "pass": 1
+      },
+      "pytest_outputs": [
+        {
+          "name": "guide browser contracts: game engine",
+          "emitted_terminal_summary": "195 passed in 703.73s (0:11:43)",
+          "counts_from_emitted_summary": {
+            "passed": 195
+          },
+          "emitted_skip_reason_lines": [],
+          "skip_reason_limit": "Absent canonical -q skip reasons are unavailable; no per-node skip mapping is reconstructed."
+        }
+      ],
+      "junit": {
+        "path": "$WORKTREE\\.nexus-hub\\linux-validation-01a12d34\\proof-engine-20261012T190654849335Z\\native-junit.xml",
+        "sha256": "1b632ebdffc39b1e4354aef79eb5bb9ea0179b6180b2ff490bf1d62557fc468f",
+        "testcase_count": 195,
+        "suite_attributes": [
+          {
+            "name": "pytest",
+            "errors": "0",
+            "failures": "0",
+            "skipped": "0",
+            "tests": "195",
+            "time": "703.725",
+            "timestamp": "2026-10-12T18:23:51.896001+00:00",
+            "hostname": "81e57691e8e9"
+          }
+        ],
+        "skips": [],
+        "reduction": "Successful per-node records remain in immutable raw JUnit; this receipt retains suite counts and every skip."
+      },
+      "clock_intervals": {
+        "utc_interval_seconds": 707.94349,
+        "monotonic_seconds": 705.3258709430229,
+        "native_duration_s": 704.9056491720257,
+        "clock_cause": "Not established; UTC intervals and monotonic durations are recorded separately."
+      },
+      "native_artifact_inventory": {
+        "terminal.json": {
+          "sha256": "d6c340d88ba23a3384d62c1dbc6f7a6636e1194e7827322f4253fea6b390182f",
+          "bytes": 1746
+        },
+        "runtime-provenance.json": {
+          "sha256": "b543aba78e0c3d734a16c1c8b5c4b1c0c207925330d71d34e14710fc1ac038b9",
+          "bytes": 2347
+        },
+        "fullgate.log": {
+          "sha256": "e239996208b2ec93e7e196187aed9b337da7cb07f3f8de12c24c6db60341cfbc",
+          "bytes": 438
+        },
+        "after.index": {
+          "sha256": "db47805c9ca53934f31d8b5b5cdf601f3d624aadaa04f774ca3936d899e2b575",
+          "bytes": 1011131
+        },
+        "native-child-environment.json": {
+          "sha256": "4e12d260e8b9f79aa0a731cb121bd76e3a8e389e5b0c5fbc7ed4fbcceb3e1465",
+          "bytes": 1030
+        },
+        "real-clone-index-after.bin": {
+          "sha256": "db47805c9ca53934f31d8b5b5cdf601f3d624aadaa04f774ca3936d899e2b575",
+          "bytes": 1011131
+        },
+        "cgroup-before.json": {
+          "sha256": "28d736ca4628373fa60f10fd47b240b591793dc7488d9b40ee73b598dcbaf3b4",
+          "bytes": 517
+        },
+        "pip-freeze.json": {
+          "sha256": "05abf91b4abf57d552140835bedd6de61c70af23f0aad0a1e67d0acfb3c74e0c",
+          "bytes": 3280
+        },
+        "before.index": {
+          "sha256": "db47805c9ca53934f31d8b5b5cdf601f3d624aadaa04f774ca3936d899e2b575",
+          "bytes": 1011131
+        },
+        "real-clone-index-before.bin": {
+          "sha256": "db47805c9ca53934f31d8b5b5cdf601f3d624aadaa04f774ca3936d899e2b575",
+          "bytes": 1011131
+        },
+        "raw-candidate-sha256-before.json": {
+          "sha256": "17118765656fe31de121d300c17dc31e8b906a75cd59949913269038e3113957",
+          "bytes": 1003039
+        },
+        "cgroup-after.json": {
+          "sha256": "a0d2be85c6baccd44d87368ab93cdafbb2d3abd56bd0fcc07eda08def78280ca",
+          "bytes": 517
+        },
+        "git-boundaries.stderr.log": {
+          "sha256": "92cb64d6afefdf2cbebe4405534dcde89d352b2fa7e8803f944656162dbc889c",
+          "bytes": 1662490
+        },
+        "native-junit.xml": {
+          "sha256": "1b632ebdffc39b1e4354aef79eb5bb9ea0179b6180b2ff490bf1d62557fc468f",
+          "bytes": 29553
+        },
+        "gate-process.json": {
+          "sha256": "105b74fb01f4a08d80f09c119a6f3655105b43465152cda89475f1c2a7a28d55",
+          "bytes": 105
+        },
+        "raw-candidate-sha256-after.json": {
+          "sha256": "17118765656fe31de121d300c17dc31e8b906a75cd59949913269038e3113957",
+          "bytes": 1003039
+        },
+        "native-reports/summary.json": {
+          "sha256": "f4fc7840c569c4fca424078423325c9c9285463de129d0c3e0ee33a1e8821427",
+          "bytes": 944
+        },
+        "native-reports/summary.md": {
+          "sha256": "e986cfa91cbf018760e1989661d36aaa2c9a4d2ef08c5b1b52f0f4adb94f5c6f",
+          "bytes": 537
+        },
+        "native-reports/junit/guide-browser-engine.xml": {
+          "sha256": "1f418f12f2d2421a8e480ae5b612fad1587499079648ed7823322f3c714e1f0e",
+          "bytes": 242
+        },
+        "native-reports/metadata/environment.json": {
+          "sha256": "7b0aaaa405973285a887927522c1ad1bcdb3ce1986dda2936f096d6225bf3b83",
+          "bytes": 529
+        }
+      }
+    },
+    "game": {
+      "scoped_receipt_path": "$WORKTREE\\.nexus-hub\\linux-validation-01a12d34\\proof-game-20261012T190657970437Z\\scoped-receipt.json",
+      "scoped_receipt_sha256": "f78b4e5a72fd07ffd6af8078d0ba8431841a936424353a290b0a31f64525334a",
+      "terminal": {
+        "exit_code": 0,
+        "started_utc": "2026-10-12T18:36:31.768933+00:00",
+        "ended_utc": "2026-10-12T18:42:51.344887+00:00",
+        "elapsed_monotonic_seconds": 378.23059121798724,
+        "command": [
+          "/usr/local/bin/python",
+          "scripts/ci/run.py",
+          "--profile",
+          "full",
+          "--only",
+          "guide-browser-game",
+          "--quiet",
+          "--reports-dir",
+          "/artifacts/ci-parity-20261012T172150383706Z/game/native-reports"
+        ],
+        "candidate_index_tree_before": "accd187c165ceac44aad3ce493e232a30bdb3c6e",
+        "candidate_index_tree_after": "accd187c165ceac44aad3ce493e232a30bdb3c6e",
+        "normalized_working_tree_before": "accd187c165ceac44aad3ce493e232a30bdb3c6e",
+        "normalized_working_tree_after": "accd187c165ceac44aad3ce493e232a30bdb3c6e",
+        "head_before": "066235c90b1eb3de346658c8a3ef3fd6b19bced1",
+        "head_after": "066235c90b1eb3de346658c8a3ef3fd6b19bced1",
+        "real_clone_index_sha256_before": "db47805c9ca53934f31d8b5b5cdf601f3d624aadaa04f774ca3936d899e2b575",
+        "real_clone_index_sha256_after": "db47805c9ca53934f31d8b5b5cdf601f3d624aadaa04f774ca3936d899e2b575",
+        "raw_tracked_paths_changed": [],
+        "clone_local_diffs": {},
+        "cpu_stat_delta": {
+          "usage_usec": 3095830439,
+          "user_usec": 2932280311,
+          "system_usec": 163550127,
+          "nr_periods": 3782,
+          "nr_throttled": 4,
+          "throttled_usec": 78787,
+          "nr_bursts": 0,
+          "burst_usec": 0
+        },
+        "memory_event_delta": {
+          "low": 0,
+          "high": 0,
+          "max": 0,
+          "oom": 0,
+          "oom_kill": 0,
+          "oom_group_kill": 0
+        },
+        "limits_changed": false,
+        "fullgate_log_sha256": "e2be62ff2c28889ae4bf76d69332b4df9090bb1dfdf7107dddd8234016f02ca2",
+        "native_summary_retained": true,
+        "native_summary_sha256": "b7db6965b47b94b9f41ff0f28f576b28b862bf399ea13fafe99a181b8bfc2400"
+      },
+      "native_run_result": {
+        "duration_s": 378.1393046429148,
+        "finished_at": "2026-10-12T18:42:51Z",
+        "groups": [
+          {
+            "commands": [
+              {
+                "duration_s": 378.1390784200048,
+                "exit_code": 0,
+                "group": "guide-browser-game",
+                "name": "guide browser contracts: game revisions",
+                "output": "........................................................................ [ 55%]\n.........................................................                [100%]\n129 passed in 377.57s (0:06:17)\n",
+                "reason": "",
+                "status": "pass"
+              }
+            ],
+            "name": "guide-browser-game",
+            "skipped_reason": "",
+            "status": "pass"
+          }
+        ],
+        "platform": "linux",
+        "profile": "full",
+        "scope_conservative": true,
+        "scope_reason": "no --base supplied; running every group",
+        "started_at": "2026-10-12T18:36:31Z"
+      },
+      "runtime": {
+        "python": "3.11.13 (main, Jul  1 2025, 05:28:08) [GCC 12.2.0]",
+        "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.36",
+        "git": "git version 2.50.1",
+        "node": "v24.16.0",
+        "npm": "11.13.0",
+        "shellcheck": "version: 0.9.0",
+        "powershell": "PowerShell 7.6.6",
+        "claude": "2.1.280 (Claude Code)",
+        "packages": {
+          "pytest": "9.1.1",
+          "pre-commit": "4.6.2",
+          "playwright": "1.63.0",
+          "pyjwt": "2.15.1",
+          "tomlkit": "0.15.1",
+          "pyyaml": "6.0.3",
+          "nexus-skill-server": "2.0.0",
+          "nexus-code-search": "2.1.0",
+          "nexus-web-fetch": "2.0.0",
+          "nexus-skill-scanner": "3.0.0",
+          "nexus-context-compressor": "3.2.0",
+          "nexus-memory": "3.19.1"
+        },
+        "uid": 1000,
+        "source_index_tree": "accd187c165ceac44aad3ce493e232a30bdb3c6e",
+        "normalized_working_tree_before": "accd187c165ceac44aad3ce493e232a30bdb3c6e",
+        "head": "066235c90b1eb3de346658c8a3ef3fd6b19bced1",
+        "origin_develop": "002b7283a8b839588c8d0e468cbb502f594cb3e6",
+        "profile_sha256": "5d26d00431a61b232ca4089c3667834e9e1af6d061f09eaaf95d107067714ba8",
+        "command": [
+          "/usr/local/bin/python",
+          "scripts/ci/run.py",
+          "--profile",
+          "full",
+          "--only",
+          "guide-browser-game",
+          "--quiet",
+          "--reports-dir",
+          "/artifacts/ci-parity-20261012T172150383706Z/game/native-reports"
+        ],
+        "lane": "game",
+        "interpreter": "/usr/local/bin/python",
+        "prefix": "/usr/local",
+        "base_prefix": "/usr/local",
+        "playwright_spec_present": true,
+        "selected_environment": {
+          "HOME": "$CONTAINER_HOME",
+          "USER": "vscode",
+          "LOGNAME": "vscode",
+          "PLAYWRIGHT_BROWSERS_PATH": "/opt/ms-playwright",
+          "PIP_CONSTRAINT": "/work/Nexus-Hub-ci-parity-browser-20261012T172150383706Z/scripts/ci/requirements-py311.txt",
+          "CLAUDE_CONFIG_DIR": "/artifacts/full-final-repaired-20261012-01/claude-config",
+          "PYTEST_ADDOPTS": null,
+          "PYTEST_PLUGINS": null,
+          "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+          "PYTHONPATH": null,
+          "PYTHONUNBUFFERED": null,
+          "NEXUS_REQUIRE_RENDER": null,
+          "NEXUS_REAL_HOME_GUARD": null,
+          "NEXUS_HUB_HOME": null,
+          "USERPROFILE": null,
+          "PATH": "/usr/local/share/nvm/current/bin:/usr/local/python/current/bin:/usr/local/py-utils/bin:/usr/local/jupyter:/usr/local/share/nvm/current/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+        }
+      },
+      "actual_cli_summary_line": "PASS: 1 passed, 0 failed, 0 skipped, 0 advisory in 378.1s",
+      "actual_command_count": 1,
+      "actual_status_counts": {
+        "pass": 1
+      },
+      "pytest_outputs": [
+        {
+          "name": "guide browser contracts: game revisions",
+          "emitted_terminal_summary": "129 passed in 377.57s (0:06:17)",
+          "counts_from_emitted_summary": {
+            "passed": 129
+          },
+          "emitted_skip_reason_lines": [],
+          "skip_reason_limit": "Absent canonical -q skip reasons are unavailable; no per-node skip mapping is reconstructed."
+        }
+      ],
+      "junit": {
+        "path": "$WORKTREE\\.nexus-hub\\linux-validation-01a12d34\\proof-game-20261012T190657970437Z\\native-junit.xml",
+        "sha256": "7e51f66c641467faf594581dfa544388d1138ef15392c7e53ed562e1bb4cb943",
+        "testcase_count": 129,
+        "suite_attributes": [
+          {
+            "name": "pytest",
+            "errors": "0",
+            "failures": "0",
+            "skipped": "0",
+            "tests": "129",
+            "time": "377.576",
+            "timestamp": "2026-10-12T18:36:32.282828+00:00",
+            "hostname": "81e57691e8e9"
+          }
+        ],
+        "skips": [],
+        "reduction": "Successful per-node records remain in immutable raw JUnit; this receipt retains suite counts and every skip."
+      },
+      "clock_intervals": {
+        "utc_interval_seconds": 379.575954,
+        "monotonic_seconds": 378.23059121798724,
+        "native_duration_s": 378.1393046429148,
+        "clock_cause": "Not established; UTC intervals and monotonic durations are recorded separately."
+      },
+      "native_artifact_inventory": {
+        "terminal.json": {
+          "sha256": "2c470c26b9d7a075cab2c53c9d6c3f74659d0cac94dbd057723254bf8e68a5c2",
+          "bytes": 1740
+        },
+        "runtime-provenance.json": {
+          "sha256": "f331a0e02104fbbb719f76d2a9796fbfe68c0ab5f038dd2b3bc9a937a9bfe38f",
+          "bytes": 2341
+        },
+        "fullgate.log": {
+          "sha256": "e2be62ff2c28889ae4bf76d69332b4df9090bb1dfdf7107dddd8234016f02ca2",
+          "bytes": 432
+        },
+        "after.index": {
+          "sha256": "db47805c9ca53934f31d8b5b5cdf601f3d624aadaa04f774ca3936d899e2b575",
+          "bytes": 1011131
+        },
+        "native-child-environment.json": {
+          "sha256": "a255d4208f6357997fb0af7d8827dc1bb66f121d4ff26691a3001b9ccb15f272",
+          "bytes": 1376
+        },
+        "real-clone-index-after.bin": {
+          "sha256": "db47805c9ca53934f31d8b5b5cdf601f3d624aadaa04f774ca3936d899e2b575",
+          "bytes": 1011131
+        },
+        "cgroup-before.json": {
+          "sha256": "30990f23ab0f67c1903d9053fdf248f9d84e5c2fb6b4b3a7dda3c5736a68483e",
+          "bytes": 517
+        },
+        "pip-freeze.json": {
+          "sha256": "05abf91b4abf57d552140835bedd6de61c70af23f0aad0a1e67d0acfb3c74e0c",
+          "bytes": 3280
+        },
+        "before.index": {
+          "sha256": "db47805c9ca53934f31d8b5b5cdf601f3d624aadaa04f774ca3936d899e2b575",
+          "bytes": 1011131
+        },
+        "real-clone-index-before.bin": {
+          "sha256": "db47805c9ca53934f31d8b5b5cdf601f3d624aadaa04f774ca3936d899e2b575",
+          "bytes": 1011131
+        },
+        "raw-candidate-sha256-before.json": {
+          "sha256": "17118765656fe31de121d300c17dc31e8b906a75cd59949913269038e3113957",
+          "bytes": 1003039
+        },
+        "cgroup-after.json": {
+          "sha256": "2b780a68e6e200de9dd73c30053a4ed674624d59c0b631b316244ab42120e800",
+          "bytes": 517
+        },
+        "git-boundaries.stderr.log": {
+          "sha256": "92cb64d6afefdf2cbebe4405534dcde89d352b2fa7e8803f944656162dbc889c",
+          "bytes": 1662490
+        },
+        "native-junit.xml": {
+          "sha256": "7e51f66c641467faf594581dfa544388d1138ef15392c7e53ed562e1bb4cb943",
+          "bytes": 19840
+        },
+        "gate-process.json": {
+          "sha256": "187b0a455b5ac07e3145e80472fe454278e8a7c0d57a0c0dd41b55d3fc482647",
+          "bytes": 105
+        },
+        "raw-candidate-sha256-after.json": {
+          "sha256": "17118765656fe31de121d300c17dc31e8b906a75cd59949913269038e3113957",
+          "bytes": 1003039
+        },
+        "native-reports/summary.json": {
+          "sha256": "b7db6965b47b94b9f41ff0f28f576b28b862bf399ea13fafe99a181b8bfc2400",
+          "bytes": 862
+        },
+        "native-reports/summary.md": {
+          "sha256": "89f17e74178297273da9cd5118d723c1e56266fe2f900776794ea7a4c5e7c474",
+          "bytes": 535
+        },
+        "native-reports/junit/guide-browser-game.xml": {
+          "sha256": "6e53a087870251c7bd94a7445c243d10e0618c693254ec95dd5932bd4d88361a",
+          "bytes": 241
+        },
+        "native-reports/metadata/environment.json": {
+          "sha256": "b32ef8fd46314b75043042a375b36392fa352486db538c133a04ba059dcbaf4e",
+          "bytes": 529
+        }
+      }
+    },
+    "rest": {
+      "scoped_receipt_path": "$WORKTREE\\.nexus-hub\\linux-validation-01a12d34\\proof-rest-20261012T190702862667Z\\scoped-receipt.json",
+      "scoped_receipt_sha256": "70c8b822db7cd645976d751de71f7de17008a7d6e36fe6fcad81a9f1276cd80c",
+      "terminal": {
+        "exit_code": 0,
+        "started_utc": "2026-10-12T18:43:40.279694+00:00",
+        "ended_utc": "2026-10-12T19:02:08.736103+00:00",
+        "elapsed_monotonic_seconds": 1103.9142076949356,
+        "command": [
+          "/usr/local/bin/python",
+          "scripts/ci/run.py",
+          "--profile",
+          "full",
+          "--only",
+          "guide-browser-rest",
+          "--quiet",
+          "--reports-dir",
+          "/artifacts/ci-parity-20261012T172150383706Z/rest/native-reports"
+        ],
+        "candidate_index_tree_before": "accd187c165ceac44aad3ce493e232a30bdb3c6e",
+        "candidate_index_tree_after": "accd187c165ceac44aad3ce493e232a30bdb3c6e",
+        "normalized_working_tree_before": "accd187c165ceac44aad3ce493e232a30bdb3c6e",
+        "normalized_working_tree_after": "accd187c165ceac44aad3ce493e232a30bdb3c6e",
+        "head_before": "066235c90b1eb3de346658c8a3ef3fd6b19bced1",
+        "head_after": "066235c90b1eb3de346658c8a3ef3fd6b19bced1",
+        "real_clone_index_sha256_before": "db47805c9ca53934f31d8b5b5cdf601f3d624aadaa04f774ca3936d899e2b575",
+        "real_clone_index_sha256_after": "db47805c9ca53934f31d8b5b5cdf601f3d624aadaa04f774ca3936d899e2b575",
+        "raw_tracked_paths_changed": [],
+        "clone_local_diffs": {},
+        "cpu_stat_delta": {
+          "usage_usec": 2814337530,
+          "user_usec": 2404232929,
+          "system_usec": 410104601,
+          "nr_periods": 11024,
+          "nr_throttled": 5,
+          "throttled_usec": 317360,
+          "nr_bursts": 0,
+          "burst_usec": 0
+        },
+        "memory_event_delta": {
+          "low": 0,
+          "high": 0,
+          "max": 0,
+          "oom": 0,
+          "oom_kill": 0,
+          "oom_group_kill": 0
+        },
+        "limits_changed": false,
+        "fullgate_log_sha256": "2466cc73e1c3391e048509c37a2dde1589943312f3087007479afb77acd41796",
+        "native_summary_retained": true,
+        "native_summary_sha256": "032b807569f06e03ba4be7416f8f8018c20880d0cdb5ec2b504164e450a60fc3"
+      },
+      "native_run_result": {
+        "duration_s": 1103.678957395954,
+        "finished_at": "2026-10-12T19:02:08Z",
+        "groups": [
+          {
+            "commands": [
+              {
+                "duration_s": 1103.6740376199596,
+                "exit_code": 0,
+                "group": "guide-browser-rest",
+                "name": "guide browser contracts: guide pages and visual detector",
+                "output": "........................................................................ [ 10%]\n........................................................................ [ 20%]\n........................................................................ [ 30%]\n.........s.............................................................. [ 41%]\n........................................................................ [ 51%]\n........................................................................ [ 61%]\n........................................................................ [ 71%]\n........................................................................ [ 82%]\n........................................................................ [ 92%]\n.....................................................                    [100%]\n=============================== warnings summary ===============================\ntests/guides/test_v441_phase2_home.py:276\n  /work/Nexus-Hub-ci-parity-browser-20261012T172150383706Z/tests/guides/test_v441_phase2_home.py:276: DeprecationWarning: invalid escape sequence '\\s'\n    \"\"\"([id, drop]) => { const sec = document.getElementById(id).cloneNode(true);\n\ntests/guides/test_v441_phase2_home.py:287\n  /work/Nexus-Hub-ci-parity-browser-20261012T172150383706Z/tests/guides/test_v441_phase2_home.py:287: DeprecationWarning: invalid escape sequence '\\s'\n    \"\"\"sel => { const e = document.querySelector(sel);\n\ntests/guides/test_v443_phase4_context.py:95\n  /work/Nexus-Hub-ci-parity-browser-20261012T172150383706Z/tests/guides/test_v443_phase4_context.py:95: DeprecationWarning: invalid escape sequence '\\s'\n    \"\"\"() => {\n\ntests/guides/test_v443_phase4_context.py:132\n  /work/Nexus-Hub-ci-parity-browser-20261012T172150383706Z/tests/guides/test_v443_phase4_context.py:132: DeprecationWarning: invalid escape sequence '\\s'\n    \"\"\"() => {\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n700 passed, 1 skipped, 4 warnings in 1103.07s (0:18:23)\n",
+                "reason": "",
+                "status": "pass"
+              }
+            ],
+            "name": "guide-browser-rest",
+            "skipped_reason": "",
+            "status": "pass"
+          }
+        ],
+        "platform": "linux",
+        "profile": "full",
+        "scope_conservative": true,
+        "scope_reason": "no --base supplied; running every group",
+        "started_at": "2026-10-12T18:43:40Z"
+      },
+      "runtime": {
+        "python": "3.11.13 (main, Jul  1 2025, 05:28:08) [GCC 12.2.0]",
+        "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.36",
+        "git": "git version 2.50.1",
+        "node": "v24.16.0",
+        "npm": "11.13.0",
+        "shellcheck": "version: 0.9.0",
+        "powershell": "PowerShell 7.6.6",
+        "claude": "2.1.280 (Claude Code)",
+        "packages": {
+          "pytest": "9.1.1",
+          "pre-commit": "4.6.2",
+          "playwright": "1.63.0",
+          "pyjwt": "2.15.1",
+          "tomlkit": "0.15.1",
+          "pyyaml": "6.0.3",
+          "nexus-skill-server": "2.0.0",
+          "nexus-code-search": "2.1.0",
+          "nexus-web-fetch": "2.0.0",
+          "nexus-skill-scanner": "3.0.0",
+          "nexus-context-compressor": "3.2.0",
+          "nexus-memory": "3.19.1"
+        },
+        "uid": 1000,
+        "source_index_tree": "accd187c165ceac44aad3ce493e232a30bdb3c6e",
+        "normalized_working_tree_before": "accd187c165ceac44aad3ce493e232a30bdb3c6e",
+        "head": "066235c90b1eb3de346658c8a3ef3fd6b19bced1",
+        "origin_develop": "002b7283a8b839588c8d0e468cbb502f594cb3e6",
+        "profile_sha256": "5d26d00431a61b232ca4089c3667834e9e1af6d061f09eaaf95d107067714ba8",
+        "command": [
+          "/usr/local/bin/python",
+          "scripts/ci/run.py",
+          "--profile",
+          "full",
+          "--only",
+          "guide-browser-rest",
+          "--quiet",
+          "--reports-dir",
+          "/artifacts/ci-parity-20261012T172150383706Z/rest/native-reports"
+        ],
+        "lane": "rest",
+        "interpreter": "/usr/local/bin/python",
+        "prefix": "/usr/local",
+        "base_prefix": "/usr/local",
+        "playwright_spec_present": true,
+        "selected_environment": {
+          "HOME": "$CONTAINER_HOME",
+          "USER": "vscode",
+          "LOGNAME": "vscode",
+          "PLAYWRIGHT_BROWSERS_PATH": "/opt/ms-playwright",
+          "PIP_CONSTRAINT": "/work/Nexus-Hub-ci-parity-browser-20261012T172150383706Z/scripts/ci/requirements-py311.txt",
+          "CLAUDE_CONFIG_DIR": "/artifacts/full-final-repaired-20261012-01/claude-config",
+          "PYTEST_ADDOPTS": null,
+          "PYTEST_PLUGINS": null,
+          "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+          "PYTHONPATH": null,
+          "PYTHONUNBUFFERED": null,
+          "NEXUS_REQUIRE_RENDER": null,
+          "NEXUS_REAL_HOME_GUARD": null,
+          "NEXUS_HUB_HOME": null,
+          "USERPROFILE": null,
+          "PATH": "/usr/local/share/nvm/current/bin:/usr/local/python/current/bin:/usr/local/py-utils/bin:/usr/local/jupyter:/usr/local/share/nvm/current/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+        }
+      },
+      "actual_cli_summary_line": "PASS: 1 passed, 0 failed, 0 skipped, 0 advisory in 1103.7s",
+      "actual_command_count": 1,
+      "actual_status_counts": {
+        "pass": 1
+      },
+      "pytest_outputs": [
+        {
+          "name": "guide browser contracts: guide pages and visual detector",
+          "emitted_terminal_summary": "700 passed, 1 skipped, 4 warnings in 1103.07s (0:18:23)",
+          "counts_from_emitted_summary": {
+            "passed": 700,
+            "skipped": 1
+          },
+          "emitted_skip_reason_lines": [],
+          "skip_reason_limit": "Absent canonical -q skip reasons are unavailable; no per-node skip mapping is reconstructed."
+        }
+      ],
+      "junit": {
+        "path": "$WORKTREE\\.nexus-hub\\linux-validation-01a12d34\\proof-rest-20261012T190702862667Z\\native-junit.xml",
+        "sha256": "807287731ef989dd85af67e0f716d0a05a327f80310f3d9add930b266d420141",
+        "testcase_count": 701,
+        "suite_attributes": [
+          {
+            "name": "pytest",
+            "errors": "0",
+            "failures": "0",
+            "skipped": "1",
+            "tests": "701",
+            "time": "1103.049",
+            "timestamp": "2026-10-12T18:43:40.654194+00:00",
+            "hostname": "81e57691e8e9"
+          }
+        ],
+        "skips": [
+          {
+            "classname": "tests.guides.test_nexus_hub_guide",
+            "name": "test_optional_portfolio_copy_when_env_set",
+            "attributes": {
+              "type": "pytest.skip",
+              "message": "NEXUS_HUB_PORTFOLIO_ROOT unset; sibling copy not required"
+            },
+            "reason": "/work/Nexus-Hub-ci-parity-browser-20261012T172150383706Z/tests/guides/test_nexus_hub_guide.py:1634: NEXUS_HUB_PORTFOLIO_ROOT unset; sibling copy not required"
+          }
+        ],
+        "reduction": "Successful per-node records remain in immutable raw JUnit; this receipt retains suite counts and every skip."
+      },
+      "clock_intervals": {
+        "utc_interval_seconds": 1108.456409,
+        "monotonic_seconds": 1103.9142076949356,
+        "native_duration_s": 1103.678957395954,
+        "clock_cause": "Not established; UTC intervals and monotonic durations are recorded separately."
+      },
+      "native_artifact_inventory": {
+        "terminal.json": {
+          "sha256": "6b5fc6d7ef672a4f3e6b93cdb911fffc0c257310efa4edf2310639124c74f1c1",
+          "bytes": 1742
+        },
+        "runtime-provenance.json": {
+          "sha256": "ed712be1d266718edeb12012b0dbdd33e785f8720cf3d07b850e8d2b01f541e2",
+          "bytes": 2341
+        },
+        "fullgate.log": {
+          "sha256": "2466cc73e1c3391e048509c37a2dde1589943312f3087007479afb77acd41796",
+          "bytes": 433
+        },
+        "after.index": {
+          "sha256": "db47805c9ca53934f31d8b5b5cdf601f3d624aadaa04f774ca3936d899e2b575",
+          "bytes": 1011131
+        },
+        "native-child-environment.json": {
+          "sha256": "6116318cd07376efe027ad77f21d51256052cfee363e21a605316fcee542d895",
+          "bytes": 1313
+        },
+        "real-clone-index-after.bin": {
+          "sha256": "db47805c9ca53934f31d8b5b5cdf601f3d624aadaa04f774ca3936d899e2b575",
+          "bytes": 1011131
+        },
+        "cgroup-before.json": {
+          "sha256": "4bbb912206b8e274523390acb74332e2bcda1ff79ded583b460c7ea161b3ea87",
+          "bytes": 517
+        },
+        "pip-freeze.json": {
+          "sha256": "05abf91b4abf57d552140835bedd6de61c70af23f0aad0a1e67d0acfb3c74e0c",
+          "bytes": 3280
+        },
+        "before.index": {
+          "sha256": "db47805c9ca53934f31d8b5b5cdf601f3d624aadaa04f774ca3936d899e2b575",
+          "bytes": 1011131
+        },
+        "real-clone-index-before.bin": {
+          "sha256": "db47805c9ca53934f31d8b5b5cdf601f3d624aadaa04f774ca3936d899e2b575",
+          "bytes": 1011131
+        },
+        "raw-candidate-sha256-before.json": {
+          "sha256": "17118765656fe31de121d300c17dc31e8b906a75cd59949913269038e3113957",
+          "bytes": 1003039
+        },
+        "cgroup-after.json": {
+          "sha256": "b5a0ea8e6a961d8a686627aeaf4589d4c79dad0bff73ab5c3102cc381fd147b9",
+          "bytes": 517
+        },
+        "git-boundaries.stderr.log": {
+          "sha256": "92cb64d6afefdf2cbebe4405534dcde89d352b2fa7e8803f944656162dbc889c",
+          "bytes": 1662490
+        },
+        "native-junit.xml": {
+          "sha256": "807287731ef989dd85af67e0f716d0a05a327f80310f3d9add930b266d420141",
+          "bytes": 97498
+        },
+        "gate-process.json": {
+          "sha256": "8b14472facd1a706c30b7d140dd1489f7d83306957f0fef5941697cf97c67fd8",
+          "bytes": 105
+        },
+        "raw-candidate-sha256-after.json": {
+          "sha256": "17118765656fe31de121d300c17dc31e8b906a75cd59949913269038e3113957",
+          "bytes": 1003039
+        },
+        "native-reports/summary.json": {
+          "sha256": "032b807569f06e03ba4be7416f8f8018c20880d0cdb5ec2b504164e450a60fc3",
+          "bytes": 2692
+        },
+        "native-reports/summary.md": {
+          "sha256": "c9bf553965150865dca9b044b1e776bda113e898fcb89b0e7de5171a9d4476ed",
+          "bytes": 537
+        },
+        "native-reports/junit/guide-browser-rest.xml": {
+          "sha256": "bb23bb221bd854bdcc11e78a31404b1cab74a929c6f9134f8649b4a7d752719d",
+          "bytes": 260
+        },
+        "native-reports/metadata/environment.json": {
+          "sha256": "3851b5f2deb7bc7179d8dfc44243ff7651f50c056f20c0390a828e685d01b721",
+          "bytes": 530
+        }
+      }
+    }
+  },
+  "handbook_browser_qualification": {
+    "kind": "authorized one-file browser qualification, separate from the complete native CI lanes",
+    "started_utc": "2026-10-12T19:04:01.477472+00:00",
+    "wrapper_pid": 901063,
+    "command": {
+      "name": "handbook freshness browser qualification",
+      "argv": [
+        "/usr/local/bin/python",
+        "-m",
+        "pytest",
+        "tests/skills/test_handbook_freshness.py",
+        "-q",
+        "-rs",
+        "--junitxml=/artifacts/ci-parity-20261012T172150383706Z/handbook-focus/native-junit.xml"
+      ],
+      "cwd": ".",
+      "timeout": 2700,
+      "platforms": [],
+      "advisory": false,
+      "skip_if_missing": false,
+      "env": {},
+      "platform_timeouts": {}
+    },
+    "interpreter": "/usr/local/bin/python",
+    "playwright_version": "1.63.0",
+    "pytest_version": "9.1.1",
+    "selected_environment": {
+      "HOME": "$CONTAINER_HOME",
+      "USER": "vscode",
+      "LOGNAME": "vscode",
+      "PATH": "/usr/local/share/nvm/current/bin:/usr/local/python/current/bin:/usr/local/py-utils/bin:/usr/local/jupyter:/usr/local/share/nvm/current/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+      "PLAYWRIGHT_BROWSERS_PATH": "/opt/ms-playwright",
+      "PIP_CONSTRAINT": "/work/Nexus-Hub-ci-parity-browser-20261012T172150383706Z/scripts/ci/requirements-py311.txt",
+      "NEXUS_REQUIRE_RENDER": "1",
+      "NEXUS_REAL_HOME_GUARD": null,
+      "PYTEST_ADDOPTS": null,
+      "PYTEST_PLUGINS": null,
+      "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null
+    },
+    "candidate_tree": "accd187c165ceac44aad3ce493e232a30bdb3c6e",
+    "head": "066235c90b1eb3de346658c8a3ef3fd6b19bced1",
+    "base": "002b7283a8b839588c8d0e468cbb502f594cb3e6",
+    "profile_sha256": "5d26d00431a61b232ca4089c3667834e9e1af6d061f09eaaf95d107067714ba8",
+    "run_interface_sha256": "ffd9aa7ea256006a4ef21265f85377f15db8f21aed06da02d4c073e30b14f60b",
+    "test_sha256": "da4324008839eaf8745c66b3e3cd5d7b482c47fe103d9531e78516979b3766f1",
+    "real_clone_index_sha256_before": "db47805c9ca53934f31d8b5b5cdf601f3d624aadaa04f774ca3936d899e2b575",
+    "ended_utc": "2026-10-12T19:04:07.624452+00:00",
+    "elapsed_monotonic_seconds": 6.035899098962545,
+    "result": {
+      "name": "handbook freshness browser qualification",
+      "group": "",
+      "status": "pass",
+      "duration_s": 6.035754177020863,
+      "exit_code": 0,
+      "output": "...........................                                              [100%]\n27 passed in 3.16s\n",
+      "reason": ""
+    },
+    "output_sha256": "0e4e7e3be2bc4ad56fddc0dcba729a3ceb3f0279d74ba41bf158076bebb1470f",
+    "real_clone_index_sha256_after": "db47805c9ca53934f31d8b5b5cdf601f3d624aadaa04f774ca3936d899e2b575",
+    "head_after": "066235c90b1eb3de346658c8a3ef3fd6b19bced1",
+    "candidate_tree_after": "accd187c165ceac44aad3ce493e232a30bdb3c6e",
+    "raw_tracked_paths_changed": [],
+    "junit_cases": 27,
+    "junit_skips": [],
+    "junit_sha256": "7009cc0a7c6f48bfa21a32b8d77d8c49ee64930efdfdbd4820248d6b1cb0aa31",
+    "resources_before": {
+      "captured_utc": "2026-10-12T19:04:01.410806+00:00",
+      "cpu_max": "1600000 100000",
+      "cpu_stat": {
+        "usage_usec": 99997674740,
+        "user_usec": 91715618444,
+        "system_usec": 8282056296,
+        "nr_periods": 255329,
+        "nr_throttled": 19020,
+        "throttled_usec": 13392267095,
+        "nr_bursts": 0,
+        "burst_usec": 0
+      },
+      "memory_max": "8589934592",
+      "memory_events": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    "resources_after": {
+      "captured_utc": "2026-10-12T19:04:08.030810+00:00",
+      "cpu_max": "1600000 100000",
+      "cpu_stat": {
+        "usage_usec": 100005451631,
+        "user_usec": 91720626755,
+        "system_usec": 8284824875,
+        "nr_periods": 255396,
+        "nr_throttled": 19020,
+        "throttled_usec": 13392267095,
+        "nr_bursts": 0,
+        "burst_usec": 0
+      },
+      "memory_max": "8589934592",
+      "memory_events": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      }
+    },
+    "capture_note": "Existing native run_command returns combined redacted stdout+stderr; separate raw streams are not exposed by this interface.",
+    "retained_terminal_path": "$WORKTREE\\.nexus-hub\\linux-validation-01a12d34\\ci-parity-proof-20261012T190706167273Z\\handbook-focus\\terminal.json",
+    "retained_terminal_sha256": "1477dc44dd4097327111f5322f16ff428b60204a00734a0744fc402a3ef4be12",
+    "junit_records": [
+      {
+        "classname": "tests.skills.test_handbook_freshness",
+        "name": "test_unchanged_checks_are_read_only_and_cover_both_layouts",
+        "time": "0.026"
+      },
+      {
+        "classname": "tests.skills.test_handbook_freshness",
+        "name": "test_changed_or_missing_dependency_blocks_without_replacing_original[config.json-edit]",
+        "time": "0.009"
+      },
+      {
+        "classname": "tests.skills.test_handbook_freshness",
+        "name": "test_changed_or_missing_dependency_blocks_without_replacing_original[native.py-edit]",
+        "time": "0.010"
+      },
+      {
+        "classname": "tests.skills.test_handbook_freshness",
+        "name": "test_changed_or_missing_dependency_blocks_without_replacing_original[docs/handbooks/markdown/overview.md-edit]",
+        "time": "0.009"
+      },
+      {
+        "classname": "tests.skills.test_handbook_freshness",
+        "name": "test_changed_or_missing_dependency_blocks_without_replacing_original[docs/handbooks/html/overview.html-edit]",
+        "time": "0.009"
+      },
+      {
+        "classname": "tests.skills.test_handbook_freshness",
+        "name": "test_changed_or_missing_dependency_blocks_without_replacing_original[docs/handbooks/html/overview.html-remove]",
+        "time": "0.010"
+      },
+      {
+        "classname": "tests.skills.test_handbook_freshness",
+        "name": "test_changed_or_missing_dependency_blocks_without_replacing_original[docs/handbooks/markdown/overview.md-remove]",
+        "time": "0.012"
+      },
+      {
+        "classname": "tests.skills.test_handbook_freshness",
+        "name": "test_changed_or_missing_dependency_blocks_without_replacing_original[docs/handbooks/overview.evidence.json-remove]",
+        "time": "0.009"
+      },
+      {
+        "classname": "tests.skills.test_handbook_freshness",
+        "name": "test_changed_or_missing_dependency_blocks_without_replacing_original[docs/handbooks/test-review.txt-edit]",
+        "time": "0.011"
+      },
+      {
+        "classname": "tests.skills.test_handbook_freshness",
+        "name": "test_inventory_cannot_claim_verification",
+        "time": "0.008"
+      },
+      {
+        "classname": "tests.skills.test_handbook_freshness",
+        "name": "test_narrow_scope_is_visible_and_does_not_qualify_all_outputs",
+        "time": "0.025"
+      },
+      {
+        "classname": "tests.skills.test_handbook_freshness",
+        "name": "test_unmapped_legacy_html_is_not_a_no_op",
+        "time": "0.016"
+      },
+      {
+        "classname": "tests.skills.test_handbook_freshness",
+        "name": "test_source_paths_are_unambiguous[../escape]",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.skills.test_handbook_freshness",
+        "name": "test_source_paths_are_unambiguous[/absolute]",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.skills.test_handbook_freshness",
+        "name": "test_source_paths_are_unambiguous[C:/escape]",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.skills.test_handbook_freshness",
+        "name": "test_source_paths_are_unambiguous[a\\\\b]",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.skills.test_handbook_freshness",
+        "name": "test_source_paths_are_unambiguous[a//b]",
+        "time": "0.002"
+      },
+      {
+        "classname": "tests.skills.test_handbook_freshness",
+        "name": "test_source_paths_are_unambiguous[./a]",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.skills.test_handbook_freshness",
+        "name": "test_missing_tree_and_empty_map_require_bootstrap",
+        "time": "0.010"
+      },
+      {
+        "classname": "tests.skills.test_handbook_freshness",
+        "name": "test_missing_rendered_proof_cannot_be_waived_by_known_gap",
+        "time": "0.009"
+      },
+      {
+        "classname": "tests.skills.test_handbook_freshness",
+        "name": "test_native_generator_failure_leaves_stale_output_blocked",
+        "time": "0.024"
+      },
+      {
+        "classname": "tests.skills.test_handbook_freshness",
+        "name": "test_release_pre_version_gate_blocks_before_mutation",
+        "time": "0.070"
+      },
+      {
+        "classname": "tests.skills.test_handbook_freshness",
+        "name": "test_opt_out_requires_both_declared_reason_and_absent_deck",
+        "time": "0.043"
+      },
+      {
+        "classname": "tests.skills.test_handbook_freshness",
+        "name": "test_manifest_cannot_hide_duplicate_or_excluded_output",
+        "time": "0.015"
+      },
+      {
+        "classname": "tests.skills.test_handbook_freshness",
+        "name": "test_changed_version_dependency_only_invalidates_its_document",
+        "time": "0.017"
+      },
+      {
+        "classname": "tests.skills.test_handbook_freshness",
+        "name": "test_changed_integrated_candidate_is_rechecked_without_unrelated_output_churn",
+        "time": "0.090"
+      },
+      {
+        "classname": "tests.skills.test_handbook_freshness",
+        "name": "test_native_refresh_updates_both_views_and_retains_snapshot_inputs",
+        "time": "0.838"
+      }
+    ]
+  },
+  "environment_qualification": {
+    "full": {
+      "captured_utc": "2026-10-12T17:37:00.437266+00:00",
+      "interpreter": "/artifacts/ci-parity-20261012T172150383706Z/full-venv/bin/python",
+      "python": "3.11.13 (main, Jul  1 2025, 05:28:08) [GCC 12.2.0]",
+      "prefix": "/artifacts/ci-parity-20261012T172150383706Z/full-venv",
+      "base_prefix": "/usr/local",
+      "pyvenv_cfg": "home = /usr/local/bin\ninclude-system-site-packages = false\nversion = 3.11.13\nexecutable = /usr/local/bin/python3.11\ncommand = /usr/local/bin/python -m venv /artifacts/ci-parity-20261012T172150383706Z/full-venv\n",
+      "pip_check": {
+        "argv": [
+          "/artifacts/ci-parity-20261012T172150383706Z/full-venv/bin/python",
+          "-m",
+          "pip",
+          "check"
+        ],
+        "exit_code": 0,
+        "stdout": "No broken requirements found.\n",
+        "stderr": ""
+      },
+      "playwright_spec_present": false,
+      "xdist_spec_present": false,
+      "six_editable_origins": {
+        "nexus-skill-server": {
+          "version": "2.0.0",
+          "direct_url": {
+            "dir_info": {
+              "editable": true
+            },
+            "url": "file:///work/Nexus-Hub-ci-parity-20261012T172150383706Z/extensions/nexus-skill-server"
+          },
+          "module_origin": "/work/Nexus-Hub-ci-parity-20261012T172150383706Z/extensions/nexus-skill-server/src/nexus_skill_server/__init__.py",
+          "search_locations": [
+            "/work/Nexus-Hub-ci-parity-20261012T172150383706Z/extensions/nexus-skill-server/src/nexus_skill_server"
+          ]
+        },
+        "nexus-code-search": {
+          "version": "2.1.0",
+          "direct_url": {
+            "dir_info": {
+              "editable": true
+            },
+            "url": "file:///work/Nexus-Hub-ci-parity-20261012T172150383706Z/extensions/nexus-code-search"
+          },
+          "module_origin": "/work/Nexus-Hub-ci-parity-20261012T172150383706Z/extensions/nexus-code-search/src/nexus_code_search/__init__.py",
+          "search_locations": [
+            "/work/Nexus-Hub-ci-parity-20261012T172150383706Z/extensions/nexus-code-search/src/nexus_code_search"
+          ]
+        },
+        "nexus-web-fetch": {
+          "version": "2.0.0",
+          "direct_url": {
+            "dir_info": {
+              "editable": true
+            },
+            "url": "file:///work/Nexus-Hub-ci-parity-20261012T172150383706Z/extensions/nexus-web-fetch"
+          },
+          "module_origin": "/work/Nexus-Hub-ci-parity-20261012T172150383706Z/extensions/nexus-web-fetch/src/nexus_web_fetch/__init__.py",
+          "search_locations": [
+            "/work/Nexus-Hub-ci-parity-20261012T172150383706Z/extensions/nexus-web-fetch/src/nexus_web_fetch"
+          ]
+        },
+        "nexus-skill-scanner": {
+          "version": "3.0.0",
+          "direct_url": {
+            "dir_info": {
+              "editable": true
+            },
+            "url": "file:///work/Nexus-Hub-ci-parity-20261012T172150383706Z/extensions/nexus-skill-scanner"
+          },
+          "module_origin": "/work/Nexus-Hub-ci-parity-20261012T172150383706Z/extensions/nexus-skill-scanner/src/nexus_skill_scanner/__init__.py",
+          "search_locations": [
+            "/work/Nexus-Hub-ci-parity-20261012T172150383706Z/extensions/nexus-skill-scanner/src/nexus_skill_scanner"
+          ]
+        },
+        "nexus-context-compressor": {
+          "version": "3.2.0",
+          "direct_url": {
+            "dir_info": {
+              "editable": true
+            },
+            "url": "file:///work/Nexus-Hub-ci-parity-20261012T172150383706Z/extensions/nexus-context-compressor"
+          },
+          "module_origin": "/work/Nexus-Hub-ci-parity-20261012T172150383706Z/extensions/nexus-context-compressor/src/nexus_context_compressor/__init__.py",
+          "search_locations": [
+            "/work/Nexus-Hub-ci-parity-20261012T172150383706Z/extensions/nexus-context-compressor/src/nexus_context_compressor"
+          ]
+        },
+        "nexus-memory": {
+          "version": "3.19.1",
+          "direct_url": {
+            "dir_info": {
+              "editable": true
+            },
+            "url": "file:///work/Nexus-Hub-ci-parity-20261012T172150383706Z/extensions/nexus-memory"
+          },
+          "module_origin": "/work/Nexus-Hub-ci-parity-20261012T172150383706Z/extensions/nexus-memory/src/nexus_memory/__init__.py",
+          "search_locations": [
+            "/work/Nexus-Hub-ci-parity-20261012T172150383706Z/extensions/nexus-memory/src/nexus_memory"
+          ]
+        }
+      },
+      "versions": {
+        "pytest": "9.1.1",
+        "pytest-cov": "7.1.0",
+        "tomlkit": "0.15.1",
+        "PyYAML": "6.0.3",
+        "PyJWT": "2.15.1"
+      },
+      "head": "066235c90b1eb3de346658c8a3ef3fd6b19bced1",
+      "base": "002b7283a8b839588c8d0e468cbb502f594cb3e6",
+      "candidate_index_tree": "accd187c165ceac44aad3ce493e232a30bdb3c6e",
+      "raw_file_count": 6604,
+      "profile_sha256": "5d26d00431a61b232ca4089c3667834e9e1af6d061f09eaaf95d107067714ba8",
+      "cpu_max": "1600000 100000",
+      "memory_max": "8589934592",
+      "uid": 1000,
+      "selected_environment": {
+        "PATH": "/usr/local/share/nvm/current/bin:/usr/local/python/current/bin:/usr/local/py-utils/bin:/usr/local/jupyter:/usr/local/share/nvm/current/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+        "HOME": "$CONTAINER_HOME",
+        "USER": "vscode",
+        "LOGNAME": "vscode",
+        "PLAYWRIGHT_BROWSERS_PATH": "/opt/ms-playwright",
+        "PIP_CONSTRAINT": "/work/Nexus-Hub-ci-parity-20261012T172150383706Z/scripts/ci/requirements-py311.txt",
+        "CLAUDE_CONFIG_DIR": "/artifacts/full-final-repaired-20261012-01/claude-config",
+        "PYTEST_ADDOPTS": null,
+        "PYTEST_PLUGINS": null,
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+        "NEXUS_REAL_HOME_GUARD": null,
+        "NEXUS_REQUIRE_RENDER": null
+      }
+    },
+    "browser": {
+      "captured_utc": "2026-10-12T18:23:24.088817+00:00",
+      "interpreter": "/usr/local/bin/python",
+      "python": "3.11.13 (main, Jul  1 2025, 05:28:08) [GCC 12.2.0]",
+      "pip_check": {
+        "exit_code": 0,
+        "stdout": "No broken requirements found.\n",
+        "stderr": ""
+      },
+      "playwright_version": "1.63.0",
+      "playwright_origin": "/usr/local/lib/python3.11/site-packages/playwright/__init__.py",
+      "xdist_present": false,
+      "six_editable_origins": {
+        "nexus-skill-server": {
+          "version": "2.0.0",
+          "direct_url": {
+            "dir_info": {
+              "editable": true
+            },
+            "url": "file:///work/Nexus-Hub-ci-parity-browser-20261012T172150383706Z/extensions/nexus-skill-server"
+          },
+          "module_origin": "/work/Nexus-Hub-ci-parity-browser-20261012T172150383706Z/extensions/nexus-skill-server/src/nexus_skill_server/__init__.py"
+        },
+        "nexus-code-search": {
+          "version": "2.1.0",
+          "direct_url": {
+            "dir_info": {
+              "editable": true
+            },
+            "url": "file:///work/Nexus-Hub-ci-parity-browser-20261012T172150383706Z/extensions/nexus-code-search"
+          },
+          "module_origin": "/work/Nexus-Hub-ci-parity-browser-20261012T172150383706Z/extensions/nexus-code-search/src/nexus_code_search/__init__.py"
+        },
+        "nexus-web-fetch": {
+          "version": "2.0.0",
+          "direct_url": {
+            "dir_info": {
+              "editable": true
+            },
+            "url": "file:///work/Nexus-Hub-ci-parity-browser-20261012T172150383706Z/extensions/nexus-web-fetch"
+          },
+          "module_origin": "/work/Nexus-Hub-ci-parity-browser-20261012T172150383706Z/extensions/nexus-web-fetch/src/nexus_web_fetch/__init__.py"
+        },
+        "nexus-skill-scanner": {
+          "version": "3.0.0",
+          "direct_url": {
+            "dir_info": {
+              "editable": true
+            },
+            "url": "file:///work/Nexus-Hub-ci-parity-browser-20261012T172150383706Z/extensions/nexus-skill-scanner"
+          },
+          "module_origin": "/work/Nexus-Hub-ci-parity-browser-20261012T172150383706Z/extensions/nexus-skill-scanner/src/nexus_skill_scanner/__init__.py"
+        },
+        "nexus-context-compressor": {
+          "version": "3.2.0",
+          "direct_url": {
+            "dir_info": {
+              "editable": true
+            },
+            "url": "file:///work/Nexus-Hub-ci-parity-browser-20261012T172150383706Z/extensions/nexus-context-compressor"
+          },
+          "module_origin": "/work/Nexus-Hub-ci-parity-browser-20261012T172150383706Z/extensions/nexus-context-compressor/src/nexus_context_compressor/__init__.py"
+        },
+        "nexus-memory": {
+          "version": "3.19.1",
+          "direct_url": {
+            "dir_info": {
+              "editable": true
+            },
+            "url": "file:///work/Nexus-Hub-ci-parity-browser-20261012T172150383706Z/extensions/nexus-memory"
+          },
+          "module_origin": "/work/Nexus-Hub-ci-parity-browser-20261012T172150383706Z/extensions/nexus-memory/src/nexus_memory/__init__.py"
+        }
+      },
+      "all_versions_unchanged": true,
+      "candidate_file_count": 6604,
+      "same_source_as_full_before": true,
+      "index_tree": "accd187c165ceac44aad3ce493e232a30bdb3c6e",
+      "head": "066235c90b1eb3de346658c8a3ef3fd6b19bced1",
+      "base": "002b7283a8b839588c8d0e468cbb502f594cb3e6",
+      "profile_sha256": "5d26d00431a61b232ca4089c3667834e9e1af6d061f09eaaf95d107067714ba8",
+      "cpu_max": "1600000 100000",
+      "memory_max": "8589934592",
+      "uid": 1000,
+      "browser_files": [
+        "/opt/ms-playwright/chromium-1243/chrome-linux64/chrome"
+      ],
+      "selected_environment": {
+        "PATH": "/usr/local/share/nvm/current/bin:/usr/local/python/current/bin:/usr/local/py-utils/bin:/usr/local/jupyter:/usr/local/share/nvm/current/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+        "HOME": "$CONTAINER_HOME",
+        "USER": "vscode",
+        "LOGNAME": "vscode",
+        "PLAYWRIGHT_BROWSERS_PATH": "/opt/ms-playwright",
+        "PIP_CONSTRAINT": "/work/Nexus-Hub-ci-parity-browser-20261012T172150383706Z/scripts/ci/requirements-py311.txt",
+        "CLAUDE_CONFIG_DIR": "/artifacts/full-final-repaired-20261012-01/claude-config",
+        "PYTEST_ADDOPTS": null,
+        "PYTEST_PLUGINS": null,
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+        "NEXUS_REAL_HOME_GUARD": null,
+        "NEXUS_REQUIRE_RENDER": null
+      }
+    },
+    "dependency_install": {
+      "started_utc": "2026-10-12T17:29:03.586281+00:00",
+      "ended_utc": "2026-10-12T17:29:33.738506+00:00",
+      "duration_monotonic_s": 30.041714646969922,
+      "argv": [
+        "/artifacts/ci-parity-20261012T172150383706Z/full-venv/bin/python",
+        "-m",
+        "pip",
+        "install",
+        "--quiet",
+        "-c",
+        "/work/Nexus-Hub-ci-parity-20261012T172150383706Z/scripts/ci/requirements-py311.txt",
+        "pytest",
+        "pytest-cov",
+        "tomlkit",
+        "PyYAML",
+        "-e",
+        "/work/Nexus-Hub-ci-parity-20261012T172150383706Z/extensions/nexus-skill-server[dev]",
+        "-e",
+        "/work/Nexus-Hub-ci-parity-20261012T172150383706Z/extensions/nexus-code-search[dev]",
+        "-e",
+        "/work/Nexus-Hub-ci-parity-20261012T172150383706Z/extensions/nexus-web-fetch[dev]",
+        "-e",
+        "/work/Nexus-Hub-ci-parity-20261012T172150383706Z/extensions/nexus-skill-scanner[dev]",
+        "-e",
+        "/work/Nexus-Hub-ci-parity-20261012T172150383706Z/extensions/nexus-context-compressor[dev]",
+        "-e",
+        "/work/Nexus-Hub-ci-parity-20261012T172150383706Z/extensions/nexus-memory[dev]"
+      ],
+      "exit_code": 0
+    },
+    "same_version_rebind": {
+      "started_utc": "2026-10-12T18:22:28.489183+00:00",
+      "ended_utc": "2026-10-12T18:22:45.736503+00:00",
+      "duration_monotonic_s": 17.397865066071972,
+      "argv": [
+        "/usr/local/bin/python",
+        "-m",
+        "pip",
+        "install",
+        "--quiet",
+        "--no-deps",
+        "-e",
+        "/work/Nexus-Hub-ci-parity-browser-20261012T172150383706Z/extensions/nexus-skill-server",
+        "-e",
+        "/work/Nexus-Hub-ci-parity-browser-20261012T172150383706Z/extensions/nexus-code-search",
+        "-e",
+        "/work/Nexus-Hub-ci-parity-browser-20261012T172150383706Z/extensions/nexus-web-fetch",
+        "-e",
+        "/work/Nexus-Hub-ci-parity-browser-20261012T172150383706Z/extensions/nexus-skill-scanner",
+        "-e",
+        "/work/Nexus-Hub-ci-parity-browser-20261012T172150383706Z/extensions/nexus-context-compressor",
+        "-e",
+        "/work/Nexus-Hub-ci-parity-browser-20261012T172150383706Z/extensions/nexus-memory"
+      ],
+      "exit_code": 0,
+      "before_versions": {
+        "nexus-code-search": "2.1.0",
+        "nexus-context-compressor": "3.2.0",
+        "nexus-skill-server": "2.0.0",
+        "nexus-memory": "3.19.1",
+        "nexus-web-fetch": "2.0.0",
+        "nexus-skill-scanner": "3.0.0",
+        "wheel": "0.45.1",
+        "tiktoken": "0.14.0",
+        "identify": "2.6.19",
+        "uv": "0.11.19",
+        "cfgv": "3.5.0",
+        "anyio": "4.15.1",
+        "pypdfium2": "5.13.0",
+        "packaging": "26.3",
+        "cryptography": "50.0.1",
+        "uvicorn": "0.53.0",
+        "charset-normalizer": "3.5.1",
+        "rpds-py": "2026.6.3",
+        "click": "8.5.0",
+        "pdfplumber": "0.11.10",
+        "license-expression": "30.4.4",
+        "pytest": "9.1.1",
+        "iniconfig": "2.3.0",
+        "pip": "26.2.1",
+        "cssselect": "1.3.0",
+        "CacheControl": "0.14.4",
+        "distlib": "0.4.3",
+        "typing-inspection": "0.4.4",
+        "readability-lxml": "0.9",
+        "boolean.py": "5.0",
+        "PyYAML": "6.0.3",
+        "mcp-types": "2.2.0",
+        "python-docx": "1.2.0",
+        "starlette": "1.6.0",
+        "attrs": "26.1.0",
+        "packageurl-python": "0.17.6",
+        "tree-sitter-c": "0.24.2",
+        "filelock": "4.0.1",
+        "greenlet": "3.5.6",
+        "tomli": "2.4.1",
+        "cffi": "2.1.1",
+        "tree-sitter-cpp": "0.23.4",
+        "tomlkit": "0.15.1",
+        "tree-sitter-typescript": "0.23.2",
+        "cyclonedx-python-lib": "11.12.0",
+        "mdurl": "0.1.2",
+        "defusedxml": "0.7.1",
+        "tree-sitter-php": "0.24.1",
+        "sortedcontainers": "2.4.0",
+        "markdown-it-py": "4.2.0",
+        "msgpack": "1.2.2",
+        "jsonschema-specifications": "2025.9.1",
+        "chardet": "5.2.0",
+        "RapidFuzz": "3.14.6",
+        "soupsieve": "2.9.2",
+        "tree-sitter-ruby": "0.23.1",
+        "coverage": "7.16.1",
+        "tree-sitter-python": "0.25.0",
+        "pypdf": "6.19.0",
+        "pathspec": "1.1.1",
+        "lxml_html_clean": "0.4.5",
+        "PyJWT": "2.15.1",
+        "regex": "2026.9.10",
+        "platformdirs": "4.11.12",
+        "pillow": "12.3.0",
+        "urllib3": "2.8.0",
+        "virtualenv": "21.10.0",
+        "pytest-cov": "7.1.0",
+        "pluggy": "1.6.0",
+        "tree-sitter": "0.25.2",
+        "h11": "0.16.0",
+        "tree-sitter-java": "0.23.5",
+        "tree-sitter-rust": "0.24.2",
+        "pytest-asyncio": "1.4.0",
+        "playwright": "1.63.0",
+        "tree-sitter-c-sharp": "0.23.5",
+        "sse-starlette": "3.4.11",
+        "Pygments": "2.21.0",
+        "python-discovery": "1.6.1",
+        "py-serializable": "2.1.0",
+        "httpcore": "1.0.9",
+        "referencing": "0.37.0",
+        "truststore": "0.10.4",
+        "pip-requirements-parser": "32.0.1",
+        "tree-sitter-kotlin": "1.1.0",
+        "mcp": "2.2.0",
+        "httpx": "0.28.1",
+        "beautifulsoup4": "4.15.0",
+        "requests": "2.34.2",
+        "pyee": "13.0.1",
+        "tree-sitter-go": "0.25.0",
+        "ruff": "0.17.0",
+        "idna": "3.20",
+        "pydantic_core": "2.46.5",
+        "typing_extensions": "4.16.0",
+        "tree-sitter-swift": "0.7.3",
+        "pyparsing": "3.3.3",
+        "opentelemetry-api": "1.44.0",
+        "pre_commit": "4.6.2",
+        "xlsxwriter": "3.2.9",
+        "pdfminer.six": "20260107",
+        "pydantic": "2.13.5",
+        "et_xmlfile": "2.0.0",
+        "python-multipart": "0.0.32",
+        "tomli_w": "1.2.0",
+        "pycparser": "3.0",
+        "watchdog": "6.0.0",
+        "pip_audit": "2.10.1",
+        "openpyxl": "3.1.5",
+        "certifi": "2026.7.22",
+        "httpx2": "2.13.0",
+        "httpcore2": "2.13.0",
+        "python-pptx": "1.0.2",
+        "rich": "15.0.0",
+        "nodeenv": "1.10.0",
+        "jsonschema": "4.26.0",
+        "lxml": "6.1.3",
+        "annotated-types": "0.8.0",
+        "pip_api": "0.0.35",
+        "gitdb": "4.0.12",
+        "GitPython": "3.1.41",
+        "setuptools": "75.6.0",
+        "smmap": "5.0.2"
+      },
+      "after_versions": {
+        "nexus-code-search": "2.1.0",
+        "nexus-context-compressor": "3.2.0",
+        "nexus-skill-server": "2.0.0",
+        "nexus-memory": "3.19.1",
+        "nexus-web-fetch": "2.0.0",
+        "nexus-skill-scanner": "3.0.0",
+        "wheel": "0.45.1",
+        "tiktoken": "0.14.0",
+        "identify": "2.6.19",
+        "uv": "0.11.19",
+        "cfgv": "3.5.0",
+        "anyio": "4.15.1",
+        "pypdfium2": "5.13.0",
+        "packaging": "26.3",
+        "cryptography": "50.0.1",
+        "uvicorn": "0.53.0",
+        "charset-normalizer": "3.5.1",
+        "rpds-py": "2026.6.3",
+        "click": "8.5.0",
+        "pdfplumber": "0.11.10",
+        "license-expression": "30.4.4",
+        "pytest": "9.1.1",
+        "iniconfig": "2.3.0",
+        "pip": "26.2.1",
+        "cssselect": "1.3.0",
+        "CacheControl": "0.14.4",
+        "distlib": "0.4.3",
+        "typing-inspection": "0.4.4",
+        "readability-lxml": "0.9",
+        "boolean.py": "5.0",
+        "PyYAML": "6.0.3",
+        "mcp-types": "2.2.0",
+        "python-docx": "1.2.0",
+        "starlette": "1.6.0",
+        "attrs": "26.1.0",
+        "packageurl-python": "0.17.6",
+        "tree-sitter-c": "0.24.2",
+        "filelock": "4.0.1",
+        "greenlet": "3.5.6",
+        "tomli": "2.4.1",
+        "cffi": "2.1.1",
+        "tree-sitter-cpp": "0.23.4",
+        "tomlkit": "0.15.1",
+        "tree-sitter-typescript": "0.23.2",
+        "cyclonedx-python-lib": "11.12.0",
+        "mdurl": "0.1.2",
+        "defusedxml": "0.7.1",
+        "tree-sitter-php": "0.24.1",
+        "sortedcontainers": "2.4.0",
+        "markdown-it-py": "4.2.0",
+        "msgpack": "1.2.2",
+        "jsonschema-specifications": "2025.9.1",
+        "chardet": "5.2.0",
+        "RapidFuzz": "3.14.6",
+        "soupsieve": "2.9.2",
+        "tree-sitter-ruby": "0.23.1",
+        "coverage": "7.16.1",
+        "tree-sitter-python": "0.25.0",
+        "pypdf": "6.19.0",
+        "pathspec": "1.1.1",
+        "lxml_html_clean": "0.4.5",
+        "PyJWT": "2.15.1",
+        "regex": "2026.9.10",
+        "platformdirs": "4.11.12",
+        "pillow": "12.3.0",
+        "urllib3": "2.8.0",
+        "virtualenv": "21.10.0",
+        "pytest-cov": "7.1.0",
+        "pluggy": "1.6.0",
+        "tree-sitter": "0.25.2",
+        "h11": "0.16.0",
+        "tree-sitter-java": "0.23.5",
+        "tree-sitter-rust": "0.24.2",
+        "pytest-asyncio": "1.4.0",
+        "playwright": "1.63.0",
+        "tree-sitter-c-sharp": "0.23.5",
+        "sse-starlette": "3.4.11",
+        "Pygments": "2.21.0",
+        "python-discovery": "1.6.1",
+        "py-serializable": "2.1.0",
+        "httpcore": "1.0.9",
+        "referencing": "0.37.0",
+        "truststore": "0.10.4",
+        "pip-requirements-parser": "32.0.1",
+        "tree-sitter-kotlin": "1.1.0",
+        "mcp": "2.2.0",
+        "httpx": "0.28.1",
+        "beautifulsoup4": "4.15.0",
+        "requests": "2.34.2",
+        "pyee": "13.0.1",
+        "tree-sitter-go": "0.25.0",
+        "ruff": "0.17.0",
+        "idna": "3.20",
+        "pydantic_core": "2.46.5",
+        "typing_extensions": "4.16.0",
+        "tree-sitter-swift": "0.7.3",
+        "pyparsing": "3.3.3",
+        "opentelemetry-api": "1.44.0",
+        "pre_commit": "4.6.2",
+        "xlsxwriter": "3.2.9",
+        "pdfminer.six": "20260107",
+        "pydantic": "2.13.5",
+        "et_xmlfile": "2.0.0",
+        "python-multipart": "0.0.32",
+        "tomli_w": "1.2.0",
+        "pycparser": "3.0",
+        "watchdog": "6.0.0",
+        "pip_audit": "2.10.1",
+        "openpyxl": "3.1.5",
+        "certifi": "2026.7.22",
+        "httpx2": "2.13.0",
+        "httpcore2": "2.13.0",
+        "python-pptx": "1.0.2",
+        "rich": "15.0.0",
+        "nodeenv": "1.10.0",
+        "jsonschema": "4.26.0",
+        "lxml": "6.1.3",
+        "annotated-types": "0.8.0",
+        "pip_api": "0.0.35",
+        "gitdb": "4.0.12",
+        "GitPython": "3.1.41",
+        "setuptools": "75.6.0",
+        "smmap": "5.0.2"
+      },
+      "version_differences": {}
+    }
+  },
+  "transfer": {
+    "path": "$WORKTREE\\.nexus-hub\\linux-validation-01a12d34\\ci-parity-proof-20261012T190706167273Z\\transfer-and-preservation.json",
+    "sha256": "4367e86b6274188b22664899b362e215eef08518d92667cb3a319f67e0b947e5",
+    "all_native_transfer_hashes_verified": true,
+    "native_lane_file_count": 94,
+    "qualification_and_focus_file_count": 25
+  },
+  "container_after_runs": {
+    "id": "81e57691e8e9baf088404ffcb8695b2031a9461ad2b61040dca7cfc1c9829794",
+    "image": "sha256:cada5e7c79514d66d8479181a8c8b52b918ad0c17aa5b6b9b6a9cc071d2c5943",
+    "mounts": [],
+    "nano_cpus": 16000000000,
+    "memory_bytes": 8589934592,
+    "memory_swap_bytes": 17179869184,
+    "quiet_performance_calibration": false
+  },
+  "retention_limits": [
+    "Native CommandResult.output combines retained stdout and stderr. Separate per-step streams and argv are not in the native result schema; actual render argv/environment was separately observed and retained.",
+    "Full-profile pytest skip reasons absent from native -q output are unavailable. Browser JUnit skip reasons are preserved directly.",
+    "Original index, real clone indices and private normalization indices are distinct artifacts. Full clone has only four recorded npm lock metadata changes; nothing was copied back to original.",
+    "Every earlier failed run remains immutable; these later passing CI lanes do not relabel historical failures."
+  ],
+  "proposal_reduction": "This receipt embeds all actual native RunResult objects and all handbook JUnit node IDs. Successful guide per-node records and raw 6604-file source maps remain hash-bound in the immutable raw artifacts.",
+  "display_redaction_provenance": {
+    "raw_private_receipt_sha256": "d3cd9f3dcc0e4874b40e9f25c057325c157b8def7f78d73e9a2275f0e9ea8554",
+    "raw_private_receipt_display_path": "$WORKTREE/.nexus-hub/linux-validation-01a12d34/ci-parity-proof-20261012T190706167273Z/linux-final-full-continuation.raw-private.json",
+    "reused_reducer_sha256": "03cf90e5c82fe66e43c7483f9771b0be6914b07a19cf3bda08c5bff1812ec93c",
+    "method": "Only declared display prefixes are replaced. Every exact JSON pointer and unredacted string digest is retained. Native measurements, artifact hashes, timestamps, verdicts and source bindings are unchanged.",
+    "locations": [
+      {
+        "json_pointer": "/source_binding/snapshot_provenance_path",
+        "raw_string_sha256": "0aca298dc46c233565f8cf4ee669afff06ef20539fae8bb5f1a66b0b35480bef",
+        "replacements": [
+          {
+            "prefix_alias": "windows_worktree",
+            "original_prefix_sha256": "1f6a82dd613cd96ae80db062eb9e04ba6e62d702a20a0e5cb90f89e644330d25",
+            "display_placeholder": "$WORKTREE",
+            "occurrences": 1
+          }
+        ]
+      },
+      {
+        "json_pointer": "/source_binding/snapshot_allowlist_path",
+        "raw_string_sha256": "eb331337386913d3d04e41e7246dc62e428844647f042de2f1c7032a83672ddb",
+        "replacements": [
+          {
+            "prefix_alias": "windows_worktree",
+            "original_prefix_sha256": "1f6a82dd613cd96ae80db062eb9e04ba6e62d702a20a0e5cb90f89e644330d25",
+            "display_placeholder": "$WORKTREE",
+            "occurrences": 1
+          }
+        ]
+      },
+      {
+        "json_pointer": "/source_binding/recorded_reconstruction_path",
+        "raw_string_sha256": "c0377ad57de4614ce4b8ff631879d0257457cca6d5e8b58d7b7eff264b07f473",
+        "replacements": [
+          {
+            "prefix_alias": "windows_worktree",
+            "original_prefix_sha256": "1f6a82dd613cd96ae80db062eb9e04ba6e62d702a20a0e5cb90f89e644330d25",
+            "display_placeholder": "$WORKTREE",
+            "occurrences": 1
+          }
+        ]
+      },
+      {
+        "json_pointer": "/source_binding/original_post_exit_audit_path",
+        "raw_string_sha256": "3e9b75f618aae4f6dae3ef585577c213dfe18968ee2478543d707d2dedcd6878",
+        "replacements": [
+          {
+            "prefix_alias": "windows_worktree",
+            "original_prefix_sha256": "1f6a82dd613cd96ae80db062eb9e04ba6e62d702a20a0e5cb90f89e644330d25",
+            "display_placeholder": "$WORKTREE",
+            "occurrences": 1
+          }
+        ]
+      },
+      {
+        "json_pointer": "/source_binding/same_read_original_index_copy_path",
+        "raw_string_sha256": "fc94065d82a31c43d74a6119ad0b5dd39e14e5b264ec32a7b6086c25eb899504",
+        "replacements": [
+          {
+            "prefix_alias": "windows_worktree",
+            "original_prefix_sha256": "1f6a82dd613cd96ae80db062eb9e04ba6e62d702a20a0e5cb90f89e644330d25",
+            "display_placeholder": "$WORKTREE",
+            "occurrences": 1
+          }
+        ]
+      },
+      {
+        "json_pointer": "/runs/full/scoped_receipt_path",
+        "raw_string_sha256": "46cec5ce426c9afa29e8f8b0305b50bcf1562f7c5dd1e25cef24a5ee77d20437",
+        "replacements": [
+          {
+            "prefix_alias": "windows_worktree",
+            "original_prefix_sha256": "1f6a82dd613cd96ae80db062eb9e04ba6e62d702a20a0e5cb90f89e644330d25",
+            "display_placeholder": "$WORKTREE",
+            "occurrences": 1
+          }
+        ]
+      },
+      {
+        "json_pointer": "/runs/full/runtime/selected_environment/HOME",
+        "raw_string_sha256": "e51b21d11db51d25f4d9da5cf834b4dd206aa4c8126a991c23d41d831f7f2d28",
+        "replacements": [
+          {
+            "prefix_alias": "container_home",
+            "original_prefix_sha256": "e51b21d11db51d25f4d9da5cf834b4dd206aa4c8126a991c23d41d831f7f2d28",
+            "display_placeholder": "$CONTAINER_HOME",
+            "occurrences": 1
+          }
+        ]
+      },
+      {
+        "json_pointer": "/runs/engine/scoped_receipt_path",
+        "raw_string_sha256": "c510ff219d3e065d1ea65f69ce3c582cdcdd0ea317ca6c72f9d03f9970d96202",
+        "replacements": [
+          {
+            "prefix_alias": "windows_worktree",
+            "original_prefix_sha256": "1f6a82dd613cd96ae80db062eb9e04ba6e62d702a20a0e5cb90f89e644330d25",
+            "display_placeholder": "$WORKTREE",
+            "occurrences": 1
+          }
+        ]
+      },
+      {
+        "json_pointer": "/runs/engine/runtime/selected_environment/HOME",
+        "raw_string_sha256": "e51b21d11db51d25f4d9da5cf834b4dd206aa4c8126a991c23d41d831f7f2d28",
+        "replacements": [
+          {
+            "prefix_alias": "container_home",
+            "original_prefix_sha256": "e51b21d11db51d25f4d9da5cf834b4dd206aa4c8126a991c23d41d831f7f2d28",
+            "display_placeholder": "$CONTAINER_HOME",
+            "occurrences": 1
+          }
+        ]
+      },
+      {
+        "json_pointer": "/runs/engine/junit/path",
+        "raw_string_sha256": "db3d633846721226c724b6e40ecac9c510fe7606baffdadafbdd05214dc2a7f5",
+        "replacements": [
+          {
+            "prefix_alias": "windows_worktree",
+            "original_prefix_sha256": "1f6a82dd613cd96ae80db062eb9e04ba6e62d702a20a0e5cb90f89e644330d25",
+            "display_placeholder": "$WORKTREE",
+            "occurrences": 1
+          }
+        ]
+      },
+      {
+        "json_pointer": "/runs/game/scoped_receipt_path",
+        "raw_string_sha256": "6b754a38917b4acce1511108b0fd32d60854ab3935ccf1cd872e5268e6778a06",
+        "replacements": [
+          {
+            "prefix_alias": "windows_worktree",
+            "original_prefix_sha256": "1f6a82dd613cd96ae80db062eb9e04ba6e62d702a20a0e5cb90f89e644330d25",
+            "display_placeholder": "$WORKTREE",
+            "occurrences": 1
+          }
+        ]
+      },
+      {
+        "json_pointer": "/runs/game/runtime/selected_environment/HOME",
+        "raw_string_sha256": "e51b21d11db51d25f4d9da5cf834b4dd206aa4c8126a991c23d41d831f7f2d28",
+        "replacements": [
+          {
+            "prefix_alias": "container_home",
+            "original_prefix_sha256": "e51b21d11db51d25f4d9da5cf834b4dd206aa4c8126a991c23d41d831f7f2d28",
+            "display_placeholder": "$CONTAINER_HOME",
+            "occurrences": 1
+          }
+        ]
+      },
+      {
+        "json_pointer": "/runs/game/junit/path",
+        "raw_string_sha256": "a4c30c5e8f13cb70575dcd52885488b81a4895a8666aed5470cdc351987ecf62",
+        "replacements": [
+          {
+            "prefix_alias": "windows_worktree",
+            "original_prefix_sha256": "1f6a82dd613cd96ae80db062eb9e04ba6e62d702a20a0e5cb90f89e644330d25",
+            "display_placeholder": "$WORKTREE",
+            "occurrences": 1
+          }
+        ]
+      },
+      {
+        "json_pointer": "/runs/rest/scoped_receipt_path",
+        "raw_string_sha256": "ca0b73351435e9ec3a7267506754cadd485d2d657f43b5e04f84f0793614fd02",
+        "replacements": [
+          {
+            "prefix_alias": "windows_worktree",
+            "original_prefix_sha256": "1f6a82dd613cd96ae80db062eb9e04ba6e62d702a20a0e5cb90f89e644330d25",
+            "display_placeholder": "$WORKTREE",
+            "occurrences": 1
+          }
+        ]
+      },
+      {
+        "json_pointer": "/runs/rest/runtime/selected_environment/HOME",
+        "raw_string_sha256": "e51b21d11db51d25f4d9da5cf834b4dd206aa4c8126a991c23d41d831f7f2d28",
+        "replacements": [
+          {
+            "prefix_alias": "container_home",
+            "original_prefix_sha256": "e51b21d11db51d25f4d9da5cf834b4dd206aa4c8126a991c23d41d831f7f2d28",
+            "display_placeholder": "$CONTAINER_HOME",
+            "occurrences": 1
+          }
+        ]
+      },
+      {
+        "json_pointer": "/runs/rest/junit/path",
+        "raw_string_sha256": "d610ae5e831d5ee05d9fb087cf3f92308d2553fc5474df65135217ee268c44aa",
+        "replacements": [
+          {
+            "prefix_alias": "windows_worktree",
+            "original_prefix_sha256": "1f6a82dd613cd96ae80db062eb9e04ba6e62d702a20a0e5cb90f89e644330d25",
+            "display_placeholder": "$WORKTREE",
+            "occurrences": 1
+          }
+        ]
+      },
+      {
+        "json_pointer": "/handbook_browser_qualification/selected_environment/HOME",
+        "raw_string_sha256": "e51b21d11db51d25f4d9da5cf834b4dd206aa4c8126a991c23d41d831f7f2d28",
+        "replacements": [
+          {
+            "prefix_alias": "container_home",
+            "original_prefix_sha256": "e51b21d11db51d25f4d9da5cf834b4dd206aa4c8126a991c23d41d831f7f2d28",
+            "display_placeholder": "$CONTAINER_HOME",
+            "occurrences": 1
+          }
+        ]
+      },
+      {
+        "json_pointer": "/handbook_browser_qualification/retained_terminal_path",
+        "raw_string_sha256": "2478c22602e89d1c8517c60cc589b277b0f6b680da532ea7bcbc0587349f6a57",
+        "replacements": [
+          {
+            "prefix_alias": "windows_worktree",
+            "original_prefix_sha256": "1f6a82dd613cd96ae80db062eb9e04ba6e62d702a20a0e5cb90f89e644330d25",
+            "display_placeholder": "$WORKTREE",
+            "occurrences": 1
+          }
+        ]
+      },
+      {
+        "json_pointer": "/environment_qualification/full/selected_environment/HOME",
+        "raw_string_sha256": "e51b21d11db51d25f4d9da5cf834b4dd206aa4c8126a991c23d41d831f7f2d28",
+        "replacements": [
+          {
+            "prefix_alias": "container_home",
+            "original_prefix_sha256": "e51b21d11db51d25f4d9da5cf834b4dd206aa4c8126a991c23d41d831f7f2d28",
+            "display_placeholder": "$CONTAINER_HOME",
+            "occurrences": 1
+          }
+        ]
+      },
+      {
+        "json_pointer": "/environment_qualification/browser/selected_environment/HOME",
+        "raw_string_sha256": "e51b21d11db51d25f4d9da5cf834b4dd206aa4c8126a991c23d41d831f7f2d28",
+        "replacements": [
+          {
+            "prefix_alias": "container_home",
+            "original_prefix_sha256": "e51b21d11db51d25f4d9da5cf834b4dd206aa4c8126a991c23d41d831f7f2d28",
+            "display_placeholder": "$CONTAINER_HOME",
+            "occurrences": 1
+          }
+        ]
+      },
+      {
+        "json_pointer": "/transfer/path",
+        "raw_string_sha256": "aba30d4b3f870c9fccc6a69489c84344ffbf36efac0e6149cc38195d9edcd950",
+        "replacements": [
+          {
+            "prefix_alias": "windows_worktree",
+            "original_prefix_sha256": "1f6a82dd613cd96ae80db062eb9e04ba6e62d702a20a0e5cb90f89e644330d25",
+            "display_placeholder": "$WORKTREE",
+            "occurrences": 1
+          }
+        ]
+      }
+    ]
+  }
+}

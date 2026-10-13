@@ -26,11 +26,23 @@ Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scop
 
 Dispatch the resolved scope to the retained skill:
 
-      continue  -> continue-session (reconstruct prior context and surface the next actions)
-      wrap-up   -> wrap-up-session (the full end-of-session cleanup, sync, and wrap-up commit flow)
-      history   -> generate-session-history (standalone chronological session-history document)
+      continue  -> session-handoff (resume: follow the resume steps for .nexus-hub/handoff.md when it exists) + dev-progress-tracker (read docs/todos.md), then summarize what was in progress and surface the next actions
+      wrap-up   -> the wrap-up sequence below (the full end-of-session cleanup, sync, and wrap-up commit flow)
+      history   -> session-history (standalone chronological session-history document)
 
 Pass any remaining arguments through unchanged. Heavy logic stays in the retained skills; this file only resolves scope and delegates.
+
+## wrap-up scope
+
+No single skill owns the wrap-up, so it runs these steps in order. Show the planned steps first and let the user drop any of them.
+
+1. **History first**, while the conversation context is live: apply `session-history`.
+2. **Hygiene**: `/update gitignore`, then remove debug artifacts and temporary files this session created.
+3. **Docs sync**: `/update docs`, then `/update devlog`.
+4. **Progress and gaps**: update `docs/todos.md` with `dev-progress-tracker`, and sweep deferred work with `known-gaps-tracker`.
+5. **Memory**: `/memory` when instruction or memory files changed this session.
+6. **Version (ask first)**: count commits since the last tag, recommend MAJOR / MINOR / PATCH from their conventional-commit prefixes, and run `/update version` only on confirmation.
+7. **Commit**: `/update commit` produces the wrap-up commit message.
 
 ## Notes
 

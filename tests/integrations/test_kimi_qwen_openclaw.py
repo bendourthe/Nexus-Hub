@@ -63,6 +63,7 @@ def fake_home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     monkeypatch.setattr(Path, "home", staticmethod(lambda: home))
     for name in (
         "OPENCLAW_HOME",
+        "OPENCLAW_PROFILE",
         "OPENCLAW_STATE_DIR",
         "OPENCLAW_CONFIG_PATH",
         "OPENCLAW_WORKSPACE_DIR",
@@ -664,3 +665,249 @@ def test_openclaw_invalid_selected_config_never_writes_fallback_workspace(
     assert any("config" in note.lower() and "skipped" in note.lower() for note in result.notes)
     assert not trap_workspace.exists()
     assert not (state_dir / "workspace").exists()
+
+
+# WN-5-v4133: profile and configured-agent workspace selection.
+
+@pytest.mark.parametrize("profile", ["work", "default"])
+def test_openclaw_profile_selects_its_config_and_workspace(
+    fake_home: Path, monkeypatch: pytest.MonkeyPatch, profile: str
+) -> None:
+    from scripts.lib.integrations.openclaw import _configured_workspace
+    state = fake_home / (".openclaw-work" if profile == "work" else ".openclaw")
+    state.mkdir()
+    source = b"{agents: {defaults: {workspace: 'selected-profile'}}}\r\n"
+    config = state / "openclaw.json"
+    config.write_bytes(source)
+    monkeypatch.setenv("OPENCLAW_PROFILE", profile)
+
+    assert _configured_workspace(fake_home / ".openclaw") == fake_home / "selected-profile"
+    assert config.read_bytes() == source
+
+
+def test_openclaw_profile_default_workspace_and_active_detection(
+    fake_home: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from scripts.lib.integrations.openclaw import _configured_workspace, _openclaw_is_active
+    monkeypatch.setenv("OPENCLAW_PROFILE", "work")
+    assert _openclaw_is_active(fake_home / ".openclaw")
+    assert _configured_workspace(fake_home / ".openclaw") == fake_home / ".openclaw-work" / "workspace"
+
+
+def test_openclaw_profile_keeps_explicit_state_and_config_overrides(
+    fake_home: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from scripts.lib.integrations.openclaw import _configured_workspace, _openclaw_locations
+    state = fake_home / "custom-state"
+    config = fake_home / "custom.json5"
+    source = b"{agents: {entries: {scout: {workspace: 'custom-workspace'}}}}\r\n"
+    config.write_bytes(source)
+    monkeypatch.setenv("OPENCLAW_PROFILE", "work")
+    monkeypatch.setenv("OPENCLAW_STATE_DIR", str(state))
+    monkeypatch.setenv("OPENCLAW_CONFIG_PATH", str(config))
+    home, actual_state, actual_config, required = _openclaw_locations(fake_home / ".openclaw")
+    assert (home, actual_state, actual_config, required) == (fake_home, state, config, True)
+    assert _configured_workspace(fake_home / ".openclaw") == fake_home / "custom-workspace"
+    assert config.read_bytes() == source
+
+
+@pytest.mark.parametrize(
+    ("agents", "expected"),
+    [
+        ({"entries": {"scout": {}}}, ".openclaw/workspace"),
+        ({"defaults": {"workspace": "shared"}, "entries": {"scout": {}}}, "shared"),
+        ({"defaults": {"workspace": "shared"}, "entries": {"scout": {"workspace": "scout-home"}}}, "scout-home"),
+        ({"ownership": "explicit", "defaults": {"workspace": "shared", "systemAgent": {"agentId": "beta"}}, "entries": {"alpha": {}, "beta": {}}}, "shared/beta"),
+        ({"ownership": "explicit", "defaults": {"systemAgent": {"agentId": "alpha"}}, "entries": {"alpha": {}, "beta": {}}}, ".openclaw/workspace-alpha"),
+        ({"ownership": "explicit", "defaults": {"workspace": "shared", "systemAgent": {"agentId": "beta"}}, "entries": {"alpha": {}, "beta": {"workspace": "beta-home"}}}, "beta-home"),
+    ],
+)
+def test_openclaw_selects_only_the_documented_agent_workspace(
+    fake_home: Path, monkeypatch: pytest.MonkeyPatch, agents: dict, expected: str
+) -> None:
+    import json
+    from scripts.lib.integrations.openclaw import _configured_workspace
+    state = fake_home / ".openclaw"
+    state.mkdir()
+    source = (json.dumps({"agents": agents}) + "\r\n").encode()
+    config = state / "openclaw.json"
+    config.write_bytes(source)
+    monkeypatch.setenv("OPENCLAW_WORKSPACE_DIR", str(fake_home / "environment-default"))
+    # Environment affects the ordinary default only; explicit fleet derivation
+    # and a per-entry workspace follow the documented config rules.
+    if expected == ".openclaw/workspace":
+        expected = "environment-default"
+    assert _configured_workspace(state) == fake_home / expected
+    assert config.read_bytes() == source
+
+
+@pytest.mark.parametrize(
+    "agents",
+    [
+        {"ownership": "explicit", "entries": {"main": {}, "scout": {}}},
+        {"entries": {"main": {}, "scout": {}}, "defaults": {"systemAgent": {"agentId": "missing"}}},
+        {"entries": {"scout": {}}, "defaults": {"systemAgent": {"agentId": ""}}},
+        {"entries": {"scout": {}}, "defaults": {"systemAgent": []}},
+        {"entries": {"../outside": {}}},
+        {"entries": {"scout": []}},
+        {"entries": {"scout": {"workspace": ""}}},
+        {"entries": []},
+        {"entries": {}},
+        {"list": [{"id": "main"}, {"id": "scout"}]},
+    ],
+)
+def test_openclaw_invalid_or_ambiguous_roster_makes_no_writes(
+    fake_home: Path, monkeypatch: pytest.MonkeyPatch, agents: dict
+) -> None:
+    import json
+    state = fake_home / ".openclaw"
+    state.mkdir()
+    config = state / "openclaw.json"
+    source = (json.dumps({"agents": agents}) + "\r\n").encode()
+    config.write_bytes(source)
+    monkeypatch.setenv("OPENCLAW_WORKSPACE_DIR", str(fake_home / "fallback-trap"))
+    before = {str(p.relative_to(fake_home)): p.read_bytes() for p in fake_home.rglob("*") if p.is_file()}
+
+    result = get("openclaw").install_global(_ctx(fake_home, scope="global"))
+
+    assert result.detected is False
+    assert result.files == []
+    assert any("unusable" in note and "skipped" in note for note in result.notes)
+    assert {str(p.relative_to(fake_home)): p.read_bytes() for p in fake_home.rglob("*") if p.is_file()} == before
+    assert not (fake_home / "fallback-trap").exists()
+    assert config.read_bytes() == source
+
+
+@pytest.mark.parametrize("profile", ["../escape", "work/child", " work", "work:other"])
+def test_openclaw_invalid_profile_is_refused_without_writes(
+    fake_home: Path, monkeypatch: pytest.MonkeyPatch, profile: str
+) -> None:
+    state = fake_home / ".openclaw"
+    state.mkdir()
+    config = state / "openclaw.json"
+    source = b"{}\r\n"
+    config.write_bytes(source)
+    monkeypatch.setenv("OPENCLAW_PROFILE", profile)
+    result = get("openclaw").install_global(_ctx(fake_home, scope="global"))
+    assert result.detected is False
+    assert result.files == []
+    assert list(fake_home.iterdir()) == [state]
+    assert list(state.iterdir()) == [config]
+    assert config.read_bytes() == source
+
+
+@pytest.mark.parametrize("explicit_state", [False, True])
+def test_openclaw_runner_verifies_the_selected_profile_and_state(
+    fake_home: Path, monkeypatch: pytest.MonkeyPatch, explicit_state: bool
+) -> None:
+    from scripts.lib.integrations import runner
+    from scripts.lib.integrations.openclaw import _configured_workspace
+    monkeypatch.setenv("OPENCLAW_PROFILE", "work")
+    state = fake_home / ("explicit-state" if explicit_state else ".openclaw-work")
+    state.mkdir()
+    (state / "openclaw.json").write_text(
+        "{agents: {entries: {scout: {workspace: 'verified-scout'}}}}", encoding="utf-8"
+    )
+    if explicit_state:
+        monkeypatch.setenv("OPENCLAW_STATE_DIR", str(state))
+    workspace = fake_home / "verified-scout"
+    assert _configured_workspace(fake_home / ".openclaw") == workspace
+    workspace.mkdir()
+    for name in ("AGENTS.md", "SOUL.md", "IDENTITY.md"):
+        (workspace / name).write_text("instructions\n", encoding="utf-8")
+    (workspace / "skills" / "sample").mkdir(parents=True)
+    (workspace / "skills" / "sample" / "SKILL.md").write_text("sample\n", encoding="utf-8")
+
+    checks = [entry for entry in runner._verify_checks(fake_home, fake_home) if entry[0] == "OpenClaw"]
+    assert len(checks) == 1
+    assert checks[0][1] and all(ok for _, ok in checks[0][1])
+    assert runner._resolve_contract_path("{openclaw_workspace}/AGENTS.md", fake_home, fake_home) == workspace / "AGENTS.md"
+
+
+@pytest.mark.parametrize("value", ["~/literal-workspace", "$" + "{WN5_ENV_SEGMENT}/workspace", "relative-workspace", " literal-workspace "])
+def test_openclaw_workspace_environment_is_literal_and_cwd_relative(
+    fake_home: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, value: str
+) -> None:
+    from scripts.lib.integrations.openclaw import _configured_workspace
+    cwd = tmp_path / "explicit-cwd"
+    cwd.mkdir()
+    monkeypatch.chdir(cwd)
+    monkeypatch.setenv("WN5_ENV_SEGMENT", "expanded-elsewhere")
+    monkeypatch.setenv("OPENCLAW_WORKSPACE_DIR", value)
+    assert _configured_workspace(fake_home / ".openclaw") == cwd / value
+
+
+def test_openclaw_absolute_workspace_environment_keeps_its_path(
+    fake_home: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from scripts.lib.integrations.openclaw import _configured_workspace
+    cwd = tmp_path / "explicit-cwd"
+    cwd.mkdir()
+    monkeypatch.chdir(cwd)
+    expected = tmp_path / "absolute-workspace"
+    monkeypatch.setenv("OPENCLAW_WORKSPACE_DIR", str(expected))
+    assert _configured_workspace(fake_home / ".openclaw") == expected
+
+
+def test_openclaw_config_expansion_still_wins_over_literal_environment(
+    fake_home: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from scripts.lib.integrations.openclaw import _configured_workspace
+    state = fake_home / ".openclaw"
+    state.mkdir()
+    source = b"{agents: {defaults: {workspace: '~/configured-${WN5_ENV_SEGMENT}'}}}\r\n"
+    config = state / "openclaw.json"
+    config.write_bytes(source)
+    cwd = tmp_path / "explicit-cwd"
+    cwd.mkdir()
+    monkeypatch.chdir(cwd)
+    monkeypatch.setenv("WN5_ENV_SEGMENT", "expanded")
+    monkeypatch.setenv("OPENCLAW_WORKSPACE_DIR", "~/literal-environment")
+    assert _configured_workspace(state) == fake_home / "configured-expanded"
+    assert config.read_bytes() == source
+
+
+def test_openclaw_workspace_environment_keeps_redirect_spelling(
+    fake_home: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import os
+    import subprocess
+    from scripts.lib.integrations import _owned
+    from scripts.lib.integrations.openclaw import _configured_workspace
+    cwd = tmp_path / "explicit-cwd"
+    cwd.mkdir()
+    external = tmp_path / "external-workspace"
+    external.mkdir()
+    redirect = cwd / "redirect"
+    try:
+        redirect.symlink_to(external, target_is_directory=True)
+    except OSError as exc:
+        if os.name != "nt":
+            pytest.skip(f"directory links unavailable: {exc}")
+        result = subprocess.run(
+            ["cmd", "/c", "mklink", "/J", str(redirect), str(external)],
+            text=True, capture_output=True, check=False,
+        )
+        if result.returncode:
+            pytest.skip(f"junctions unavailable: {result.stderr.strip()}")
+    try:
+        monkeypatch.chdir(cwd)
+        monkeypatch.setenv("OPENCLAW_WORKSPACE_DIR", "redirect/child")
+        assert _configured_workspace(fake_home / ".openclaw") == redirect / "child"
+        assert not list(external.iterdir())
+    finally:
+        if _owned._is_junction(redirect):
+            redirect.rmdir()
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="Windows drive-relative paths")
+@pytest.mark.parametrize("name", ["drive-relative-workspace", "drive-relative-workspace "])
+def test_openclaw_workspace_environment_keeps_drive_relative_filename(
+    fake_home: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, name: str
+) -> None:
+    from scripts.lib.integrations.openclaw import _configured_workspace
+    cwd = tmp_path / "explicit-drive-cwd"
+    cwd.mkdir()
+    monkeypatch.chdir(cwd)
+    monkeypatch.setenv("OPENCLAW_WORKSPACE_DIR", cwd.drive + name)
+    assert _configured_workspace(fake_home / ".openclaw") == cwd / name

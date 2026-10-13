@@ -7,7 +7,7 @@ import json
 import sys
 from pathlib import Path
 
-from .base import InstallContext, MarkdownIntegration, SkillsIntegration
+from .base import InstallContext, MarkdownIntegration, SkillsIntegration, long_path
 from .result import FileAction, WriteResult
 
 
@@ -135,15 +135,16 @@ class ClaudeIntegration(MarkdownIntegration, SkillsIntegration):
         result = WriteResult()
         claude_dir = (ctx.target_root / self.config["workspace_dir"]).resolve()
         if not ctx.dry_run:
-            claude_dir.mkdir(parents=True, exist_ok=True)
+            long_path(claude_dir).mkdir(parents=True, exist_ok=True)
         dst = claude_dir / "settings.json"
-        if dst.exists():
+        dst_io = long_path(dst)  # AR-11: a deep project root passes MAX_PATH
+        if dst_io.exists():
             ctx.manifest.log(self.key, f"skip-existing: {dst}")
             result.files.append(FileAction(path=str(dst), action="kept"))
             return result
         body = json.dumps(build_project_settings_stub(), indent=2) + "\n"
         if not ctx.dry_run:
-            dst.write_text(body, encoding="utf-8")
+            dst_io.write_text(body, encoding="utf-8")
         ctx.manifest.track(self.key, str(dst))
         result.files.append(FileAction(path=str(dst), action="created"))
         return result

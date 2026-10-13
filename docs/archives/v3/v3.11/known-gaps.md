@@ -1,10 +1,11 @@
 # Known Gaps - v3.11
 
+**Ledger normalization**: 2026-10-09, v4.13.11. The canonical open count is derived from supported item headings. Summary and reconciliation count tables below retain historical release snapshots, including partial closures and explicit transfers; they are not new parser totals.
+
 **Project**: Nexus-Hub
 **Status**: finalized; archived 2026-09-29; 0 open items (6 migrated to v4.13 as AR-01, AR-11, AR-21, AR-37). Per-section status lines below are historical and were written before release.
 
 **Open items**: 0
-
 **Status at last pre-archive update**: release-ready (pending `/update release` commit / merge / tag / push)
 **Last updated**: 2026-07-08
 
@@ -25,21 +26,25 @@
 
 #### Deferred
 
-##### DF-1 - Residual live-verification gaps (external platform contracts) - MIGRATED to v4.13 (AR-01)
+##### DF-1 - Residual live-verification gaps (external platform contracts) - MIGRATED to v4.13 (AR-01) - MIGRATED to v4.13.0
 
 - **Source phase**: Phase 7 (7.1 audit, residual gaps D1-D7)
 - **Plan reference**: `docs/v3/v3.11/platform-read-contracts.md` (Residual live-verification gaps)
 - **Reason**: These contracts depend on the current external platform's behavior and cannot be confirmed from the repo alone. The 7.4 `verify` and 7.5 CI smoke now REPORT/CATCH the resulting surfacing gaps, but the underlying external contracts still want a live probe.
 - **Suggested next step**: Live-probe per platform: Codex prompt read path + format (D1) and skills discovery (D2); Antigravity 2.0 root-vs-`.agents/` instruction file (D3), exact global subpath (D4), `subagents`/`rules` consumption (D5), `.agents` vs `.agent` (D6); Cursor/Copilot global slash surfaces (D7); and whether `nexus-hub init` (the launcher) passes the `init` subcommand through (the on-open hook calls it fail-open). Feed results back into codex.py / antigravity.py.
 
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-36`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.11.0`, section `v3.11.0`, and original ID `DF-1`.
+
 #### Warnings
 
-##### WN-2 - Windows MAX_PATH risk when seeding Antigravity `.agents/skills/` into a deep target - MIGRATED to v4.13 (AR-11)
+##### WN-2 - Windows MAX_PATH risk when seeding Antigravity `.agents/skills/` into a deep target - MIGRATED to v4.13 (AR-11) - MIGRATED to v4.13.0
 
 - **Source phase**: Phase 7 (7.3 auto-seed / 7.4 verify smoke)
 - **Plan reference**: 7.3
 - **Reason**: The Antigravity `.agents/skills/<name>/references/examples/...` flattened copy can exceed the Windows 260-char MAX_PATH when the target repo lives at a very deep path (observed with the OneDrive + deep-temp scratch dir during the 7.3 smoke; `shutil.copytree` raised WinError 3). A normal-depth repo is well under the limit.
 - **Suggested next step**: Consider enabling Windows long-path support in the copytree (prefix `\\?\`) or shortening the deepest bundled skill paths; low severity - most repos are far under 260 chars, and the auto-seed is fail-open.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-11`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.11.0`, section `v3.11.0`, and original ID `WN-2`.
 
 ##### WN-3 - Windows-local verification residuals (full integrations/installer suite + README_zh prose) - RESOLVED 2026-09-29
 
@@ -49,6 +54,8 @@
 - **Suggested next step**: (a) Let the CI `tests` job (Ubuntu) run the full integrations/installer suite on the release push; (b) sync `README_zh.md` catalog counts to 263 in a follow-up docs pass.
 
 ## Resolved
+
+### Resolved historical records
 
 | ID | Title | Resolved in | Notes |
 |---|---|---|---|
@@ -79,16 +86,49 @@ Operationalizes [docs/archives/v3/v3.11/comparisons/v3.11.0-comparison-spec-kit.
 
 ### Deferred
 
-- **DF-v311-speckit-S8 - monorepo member-project targeting for `nexus-hub init`** (Low). The source supports targeting a specific member project inside a monorepo; Nexus-Hub's `nexus-hub init` seeds the current repo root. Deferred for lack of demand while `--workspace` already covers non-root targets. Next step (from the comparison): add an optional path argument to `nexus-hub init` that scopes seeding to a sub-project directory, only if monorepo users request it. - MIGRATED to v4.13 (AR-01)
-- **DF-v311-kimi-refresh - Kimi Code CLI project-local convention refresh** (Low; from Phase 3). Kimi migrated to Kimi Code CLI (Node.js rewrite); the legacy `~/.kimi/` layout `kimi.py` writes is preserved and coexists (vendor migration guide), so no rewrite was made. Next step: confirm the exact Kimi-Code-CLI project-local convention from vendor docs and refresh `kimi.py` if it diverges, keeping backward compatibility. Evidence: [docs/archives/v3/v3.11/development/roster-verification.md](development/roster-verification.md). - RESOLVED 2026-09-29
+#### DF-v311-speckit-S8 - monorepo member-project targeting for `nexus-hub init` - MIGRATED to v4.13 (AR-01) - RESOLVED
+
+**v4.13.11 structural audit, 2026-10-09**: Converted this historical list obligation into a supported item heading. The complete source line is retained below; prior transfer wording alone does not prove a migration.
+
+**Original list entry**: - **DF-v311-speckit-S8 - monorepo member-project targeting for `nexus-hub init`** (Low). The source supports targeting a specific member project inside a monorepo; Nexus-Hub's `nexus-hub init` seeds the current repo root. Deferred for lack of demand while `--workspace` already covers non-root targets. Next step (from the comparison): add an optional path argument to `nexus-hub init` that scopes seeding to a sub-project directory, only if monorepo users request it. - MIGRATED to v4.13 (AR-01)
+
+**Resolution, 2026-10-09 (v4.13.11 T006)**: AR-01 already records the repaired init forwarding and optional monorepo target. Fresh `python -m pytest -q tests/installer/test_init_cli.py::test_the_real_runner_seeds_a_monorepo_subdirectory_through_the_cli` passed 1 test in 5.42 seconds, exit 0. That real installed-home CLI subprocess invokes the actual runner with `--target <temporary>/monorepo/packages/app` and verifies the target Cursor rule exists; the optional path obligation is satisfied. The full source remains below its heading and in AR-01 historical evidence.
+
+#### DF-v311-kimi-refresh - Kimi Code CLI project-local convention refresh - RESOLVED 2026-09-29
+
+**v4.13.11 structural audit, 2026-10-09**: Converted this historical list obligation into a supported item heading. The complete source line is retained below; prior transfer wording alone does not prove a migration.
+
+**Original list entry**: - **DF-v311-kimi-refresh - Kimi Code CLI project-local convention refresh** (Low; from Phase 3). Kimi migrated to Kimi Code CLI (Node.js rewrite); the legacy `~/.kimi/` layout `kimi.py` writes is preserved and coexists (vendor migration guide), so no rewrite was made. Next step: confirm the exact Kimi-Code-CLI project-local convention from vendor docs and refresh `kimi.py` if it diverges, keeping backward compatibility. Evidence: [docs/archives/v3/v3.11/development/roster-verification.md](development/roster-verification.md). - RESOLVED 2026-09-29
+
 
 ### Carried forward from v3.10.0 (reviewed, remain deferred)
 
 The three open v3.10.0 items were reviewed and neither block nor intersect this cycle; they carry forward unchanged (full text in [docs/archives/v3/v3.10/known-gaps.md](../v3.10/known-gaps.md)):
 
-- **DF-v310-ruflo-A6** (Low) - optional quality-gate-naming note; skipped, the function is already delivered by `/plan` -> `/implement` -> `/spec` + `quality-gate-definitions`. - MIGRATED to v4.13 (AR-37)
-- **DF-v310-ruflo-P4-extensions** (Low) - `nexus-hub verify` manifest excludes `extensions/` MCP-server sources (their pip install has its own integrity). - MIGRATED to v4.13 (AR-21)
-- **DF-v310-ruflo-A10-rest** (Low) - the remaining background-worker check ideas were not adopted as always-firing hooks (noise-prone or covered elsewhere). - MIGRATED to v4.13 (AR-37)
+#### DF-v310-ruflo-A6 (Low) - optional quality-gate-naming note; skipped, the function is already delivered by `/plan` -> `/implement` -> `/spec` + `quality-gate-definitions`. - MIGRATED to v4.13 (AR-37) - MIGRATED to v4.13.0
+
+**v4.13.11 structural audit, 2026-10-09**: Converted this historical list obligation into a supported item heading. The complete source line is retained below; prior transfer wording alone does not prove a migration.
+
+**Original list entry**: - **DF-v310-ruflo-A6** (Low) - optional quality-gate-naming note; skipped, the function is already delivered by `/plan` -> `/implement` -> `/spec` + `quality-gate-definitions`. - MIGRATED to v4.13 (AR-37)
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-37`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.11.0`, section `adoption-spec-kit third cycle (2026-07-08)`, and original ID `DF-v310-ruflo-A6`.
+
+#### DF-v310-ruflo-P4-extensions (Low) - `nexus-hub verify` manifest excludes `extensions/` MCP-server sources (their pip install has its own integrity). - MIGRATED to v4.13 (AR-21) - MIGRATED to v4.13.0
+
+**v4.13.11 structural audit, 2026-10-09**: Converted this historical list obligation into a supported item heading. The complete source line is retained below; prior transfer wording alone does not prove a migration.
+
+**Original list entry**: - **DF-v310-ruflo-P4-extensions** (Low) - `nexus-hub verify` manifest excludes `extensions/` MCP-server sources (their pip install has its own integrity). - MIGRATED to v4.13 (AR-21)
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-21`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.11.0`, section `adoption-spec-kit third cycle (2026-07-08)`, and original ID `DF-v310-ruflo-P4-extensions`.
+
+#### DF-v310-ruflo-A10-rest (Low) - the remaining background-worker check ideas were not adopted as always-firing hooks (noise-prone or covered elsewhere). - MIGRATED to v4.13 (AR-37) - MIGRATED to v4.13.0
+
+**v4.13.11 structural audit, 2026-10-09**: Converted this historical list obligation into a supported item heading. The complete source line is retained below; prior transfer wording alone does not prove a migration.
+
+**Original list entry**: - **DF-v310-ruflo-A10-rest** (Low) - the remaining background-worker check ideas were not adopted as always-firing hooks (noise-prone or covered elsewhere). - MIGRATED to v4.13 (AR-37)
+
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-37`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.11.0`, section `adoption-spec-kit third cycle (2026-07-08)`, and original ID `DF-v310-ruflo-A10-rest`.
 
 ### Notes
 
@@ -112,11 +152,11 @@ Before this minor moved to `docs/archives/`, every item that this file did not a
 
 | Item | Disposition | Evidence, reason, or destination |
 |---|---|---|
-| DF-1 (line 24) | Migrated | AR-01: `nexus-hub init` is unreachable through the launcher (`python scripts/nexus_hub_cli.py init --help` exits with "invalid choice: 'init'", verified 2026-09-29). D1-D4 and D6 are resolved by the living `docs/policy/platform-read-contracts.md`; the D5 and D7 residuals are merged into AR-36 |
-| WN-2 (line 33) | Migrated | AR-11: `scripts/lib/integrations/base.py` still copies skill trees with plain `shutil.copytree`, with no Windows long-path handling |
-| WN-3 (line 40) | Resolved | (a) Windows integrations and installer suites pass after the v3.15.6 test-PATH repair (`tests/conftest.py`); (b) `README_zh.md` no longer carries catalog-count prose, so the count update no longer applies |
-| DF-v311-speckit-S8 (line 78) | Migrated | AR-01: `runner.py init --target` accepts a project root, but it is unreachable through the launcher; close once `nexus-hub init --target <subdir>` works end to end |
-| DF-v311-kimi-refresh (line 79) | Resolved | `scripts/lib/integrations/kimi.py` targets `~/.kimi-code/` (v3.15.0 Phase 4); the read contract records the migration |
-| DF-v310-ruflo-A6 (line 85) | Migrated | AR-37: duplicate of the v3.10 row |
-| DF-v310-ruflo-P4-extensions (line 86) | Migrated | AR-21: duplicate of the v3.10 row |
-| DF-v310-ruflo-A10-rest (line 87) | Migrated | AR-37: duplicate of the v3.10 row |
+| `DF-1` (line 24) | Migrated | AR-01: `nexus-hub init` is unreachable through the launcher (`python scripts/nexus_hub_cli.py init --help` exits with "invalid choice: 'init'", verified 2026-09-29). D1-D4 and D6 are resolved by the living `docs/policy/platform-read-contracts.md`; the D5 and D7 residuals are merged into AR-36 |
+| `WN-2` (line 33) | Migrated | AR-11: `scripts/lib/integrations/base.py` still copies skill trees with plain `shutil.copytree`, with no Windows long-path handling |
+| `WN-3` (line 40) | Resolved | (a) Windows integrations and installer suites pass after the v3.15.6 test-PATH repair (`tests/conftest.py`); (b) `README_zh.md` no longer carries catalog-count prose, so the count update no longer applies |
+| `DF-v311-speckit-S8` (line 78) | Migrated | AR-01: `runner.py init --target` accepts a project root, but it is unreachable through the launcher; close once `nexus-hub init --target <subdir>` works end to end |
+| `DF-v311-kimi-refresh` (line 79) | Resolved | `scripts/lib/integrations/kimi.py` targets `~/.kimi-code/` (v3.15.0 Phase 4); the read contract records the migration |
+| `DF-v310-ruflo-A6` (line 85) | Migrated | AR-37: duplicate of the v3.10 row |
+| `DF-v310-ruflo-P4-extensions` (line 86) | Migrated | AR-21: duplicate of the v3.10 row |
+| `DF-v310-ruflo-A10-rest` (line 87) | Migrated | AR-37: duplicate of the v3.10 row |

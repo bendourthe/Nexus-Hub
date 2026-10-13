@@ -126,7 +126,7 @@ The user's instructions take precedence over guidelines in a skill. Routine skil
 ## Session Handoff
 
 - During multi-step work, update `.nexus-hub/handoff.md` after each verified milestone (`session-handoff` checkpoint mode).
-- On a usage-limit warning from a hook or the platform, finish or safely stop the current step, run `session-handoff`, print its prompt, and start no new work.
+- On a usage-limit warning, safely stop the current step, ask whether to use pay-per-use credits; if not, run `session-handoff`, print its prompt, and start no new work.
 - The user can run `/handoff` at any time.
 
 ## Construction Discipline

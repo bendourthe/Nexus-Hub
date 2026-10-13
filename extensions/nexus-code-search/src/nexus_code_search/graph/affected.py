@@ -26,7 +26,7 @@ import sqlite3
 from collections import deque
 from pathlib import Path, PurePosixPath
 
-from nexus_code_search.types import EdgeKind, NodeKind
+from nexus_code_search.types import NodeKind
 
 # Default test-path heuristic: paths matching any of these substrings (in
 # POSIX form) are considered tests. Matches both `tests/` directories and
@@ -187,7 +187,6 @@ def affected_tests(
 
     # BFS over the reverse-import relation.
     visited: set[str] = set(seed)
-    frontier: set[str] = set(seed)
     affected: set[str] = set()
     queue: deque[tuple[str, int]] = deque((p, 0) for p in seed)
 

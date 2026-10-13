@@ -1,0 +1,417 @@
+{
+  "schema": 1,
+  "release": "v4.13.11",
+  "gap": "WN-4-v4131",
+  "prepared_utc": "2026-10-12T10:14:20.165591+00:00",
+  "summary": "The Antigravity adapter delivers edit-preservation and attribution guards through its existing native hook bridge; the corrected bridge promotes only documented run_command args.Cwd.",
+  "current_raw_windows_checkout_sha256": {
+    "scripts/lib/integrations/antigravity.py": "4a390349cf03ef91364f1f51f41203df507b572fa85b6aaa03732ab666b26781",
+    "scripts/lib/integrations/_cascade_hook_compat.py": "b121f46e90082875e66f568b3e158469831c014389db46dd5bdff1a67e465e83",
+    "tests/integrations/test_antigravity.py": "b7af461b7fb3eabef00c9d0db408642499a4ccc7155befcc9f8a67a6ad8fab09",
+    "catalog/hooks/tests/test_antigravity_guard_delivery.py": "7dccb25dbfc853de1038836f56504503dc7129896b2ae64f7583758f8c645667"
+  },
+  "authority": {
+    "official_url": "https://www.antigravity.google/docs/hooks/",
+    "inspection_date": "2026-10-12",
+    "native_tools": [
+      "write_to_file",
+      "replace_file_content",
+      "multi_replace_file_content",
+      "run_command",
+      "view_file"
+    ],
+    "native_fields": [
+      "toolCall.name",
+      "toolCall.args",
+      "conversationId",
+      "workspacePaths",
+      "PostToolUse.error"
+    ],
+    "execution_cwd": "Only run_command args.Cwd is promoted. Mounted workspace order does not define execution cwd.",
+    "post_output": "PostToolUse emits an empty JSON object."
+  },
+  "verified_behavior": [
+    "Curated installation copies both shell siblings and registers edit/attribution pre-write and pre-command handlers plus edit post-write, post-command and post-read handlers.",
+    "Native tool names map to Write, Edit, MultiEdit, Bash and Read; documented file/content arguments reach existing guards.",
+    "conversationId is passed through as session_id; no tool_use_id is fabricated.",
+    "A failed native PostToolUse with a nonempty error does not invoke the child or change the existing edit baseline.",
+    "Real Bash and Windows PowerShell hook subprocesses refuse unread existing files and user changes outside Git, record successful read/write/command flows, and refuse a forbidden commit trailer.",
+    "One and multiple mounted-workspace controls preserve the helper's existing process-directory fallback when command Cwd is absent.",
+    "The full corrected Antigravity integration module passed all 35 selected tests in the supervised retry."
+  ],
+  "retained_runs": [
+    {
+      "label": "cwd contract RED",
+      "display_argv": [
+        "python",
+        "-m",
+        "pytest",
+        "tests/integrations/test_antigravity.py",
+        "-q",
+        "--tb=short",
+        "-k",
+        "mounted_workspaces or unsupported_cwd or keeps_command_cwd"
+      ],
+      "actual_private_argv_sha256": "436d6558fcabcddb63140c918e863d61e8aa59525301a4eb1e8ee390b57cd84c",
+      "start_utc": "2026-10-12T09:08:08.793666+00:00",
+      "end_utc": "2026-10-12T09:08:28.809322+00:00",
+      "elapsed_monotonic_seconds": 20.01500000001397,
+      "exit_code": 1,
+      "terminal_text": "7 failed, 1 passed, 27 deselected in 0.36s",
+      "stdout_sha256": "d3a91c433b0a955b7b3e8e7d72c290fb6d6576d742165ffba6897cb3fd6a01d4",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "private_artifact": ".nexus-hub/antigravity-cwd-proof-01a12d34/cwd-red.json",
+      "private_artifact_sha256": "95a0e5374d9d274f02af21dabc725b7ea5299e3226c70a0e32c62edbb83c68bc",
+      "source_hashes_before": {
+        "scripts/lib/integrations/antigravity.py": "4a390349cf03ef91364f1f51f41203df507b572fa85b6aaa03732ab666b26781",
+        "scripts/lib/integrations/_cascade_hook_compat.py": "28e9a5a2cabee13e26de3c3271f3e948d159c2da10cab6b6be4aa644b2676d35",
+        "tests/integrations/test_antigravity.py": "b7af461b7fb3eabef00c9d0db408642499a4ccc7155befcc9f8a67a6ad8fab09",
+        "catalog/hooks/tests/test_antigravity_guard_delivery.py": "7dccb25dbfc853de1038836f56504503dc7129896b2ae64f7583758f8c645667"
+      },
+      "source_hashes_after": {
+        "scripts/lib/integrations/antigravity.py": "4a390349cf03ef91364f1f51f41203df507b572fa85b6aaa03732ab666b26781",
+        "scripts/lib/integrations/_cascade_hook_compat.py": "28e9a5a2cabee13e26de3c3271f3e948d159c2da10cab6b6be4aa644b2676d35",
+        "tests/integrations/test_antigravity.py": "b7af461b7fb3eabef00c9d0db408642499a4ccc7155befcc9f8a67a6ad8fab09",
+        "catalog/hooks/tests/test_antigravity_guard_delivery.py": "7dccb25dbfc853de1038836f56504503dc7129896b2ae64f7583758f8c645667"
+      }
+    },
+    {
+      "label": "cwd shell RED",
+      "display_argv": [
+        "python",
+        "-m",
+        "pytest",
+        "catalog/hooks/tests/test_antigravity_guard_delivery.py",
+        "-q",
+        "--tb=short",
+        "-k",
+        "undeclared_command_cwd"
+      ],
+      "actual_private_argv_sha256": "f886fbfafde8795b289f975cffcb3f5d9fd4f9024bedeb415715d7f6201897b8",
+      "start_utc": "2026-10-12T09:08:28.811305+00:00",
+      "end_utc": "2026-10-12T09:08:39.923493+00:00",
+      "elapsed_monotonic_seconds": 11.10999999998603,
+      "exit_code": 1,
+      "terminal_text": "4 failed, 22 deselected in 9.22s",
+      "stdout_sha256": "76381c6cb45a9d41107ed9f455cc3f9cdf65727d005e74782487d474523bd0c0",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "private_artifact": ".nexus-hub/antigravity-cwd-proof-01a12d34/cwd-red.json",
+      "private_artifact_sha256": "95a0e5374d9d274f02af21dabc725b7ea5299e3226c70a0e32c62edbb83c68bc",
+      "source_hashes_before": {
+        "scripts/lib/integrations/antigravity.py": "4a390349cf03ef91364f1f51f41203df507b572fa85b6aaa03732ab666b26781",
+        "scripts/lib/integrations/_cascade_hook_compat.py": "28e9a5a2cabee13e26de3c3271f3e948d159c2da10cab6b6be4aa644b2676d35",
+        "tests/integrations/test_antigravity.py": "b7af461b7fb3eabef00c9d0db408642499a4ccc7155befcc9f8a67a6ad8fab09",
+        "catalog/hooks/tests/test_antigravity_guard_delivery.py": "7dccb25dbfc853de1038836f56504503dc7129896b2ae64f7583758f8c645667"
+      },
+      "source_hashes_after": {
+        "scripts/lib/integrations/antigravity.py": "4a390349cf03ef91364f1f51f41203df507b572fa85b6aaa03732ab666b26781",
+        "scripts/lib/integrations/_cascade_hook_compat.py": "28e9a5a2cabee13e26de3c3271f3e948d159c2da10cab6b6be4aa644b2676d35",
+        "tests/integrations/test_antigravity.py": "b7af461b7fb3eabef00c9d0db408642499a4ccc7155befcc9f8a67a6ad8fab09",
+        "catalog/hooks/tests/test_antigravity_guard_delivery.py": "7dccb25dbfc853de1038836f56504503dc7129896b2ae64f7583758f8c645667"
+      }
+    },
+    {
+      "label": "cwd focused GREEN",
+      "display_argv": [
+        "python",
+        "-m",
+        "pytest",
+        "tests/integrations/test_antigravity.py",
+        "-q",
+        "--tb=short",
+        "-k",
+        "mounted_workspaces or unsupported_cwd or keeps_command_cwd"
+      ],
+      "actual_private_argv_sha256": "436d6558fcabcddb63140c918e863d61e8aa59525301a4eb1e8ee390b57cd84c",
+      "start_utc": "2026-10-12T09:11:06.527536+00:00",
+      "end_utc": "2026-10-12T09:11:35.782166+00:00",
+      "elapsed_monotonic_seconds": 29.25,
+      "exit_code": 0,
+      "terminal_text": "8 passed, 27 deselected in 0.17s",
+      "stdout_sha256": "f92bd933ff42548eaae9b85ac0261b895af6611397468f7c21e70640fddde0e0",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "private_artifact": ".nexus-hub/antigravity-cwd-proof-01a12d34/cwd-green.json",
+      "private_artifact_sha256": "d0484c36aad228b898d37b9b1e201514caddf0bc46fe27f7684713b72b3ea100",
+      "source_hashes_before": {
+        "scripts/lib/integrations/antigravity.py": "4a390349cf03ef91364f1f51f41203df507b572fa85b6aaa03732ab666b26781",
+        "scripts/lib/integrations/_cascade_hook_compat.py": "b121f46e90082875e66f568b3e158469831c014389db46dd5bdff1a67e465e83",
+        "tests/integrations/test_antigravity.py": "b7af461b7fb3eabef00c9d0db408642499a4ccc7155befcc9f8a67a6ad8fab09",
+        "catalog/hooks/tests/test_antigravity_guard_delivery.py": "7dccb25dbfc853de1038836f56504503dc7129896b2ae64f7583758f8c645667"
+      },
+      "source_hashes_after": {
+        "scripts/lib/integrations/antigravity.py": "4a390349cf03ef91364f1f51f41203df507b572fa85b6aaa03732ab666b26781",
+        "scripts/lib/integrations/_cascade_hook_compat.py": "b121f46e90082875e66f568b3e158469831c014389db46dd5bdff1a67e465e83",
+        "tests/integrations/test_antigravity.py": "b7af461b7fb3eabef00c9d0db408642499a4ccc7155befcc9f8a67a6ad8fab09",
+        "catalog/hooks/tests/test_antigravity_guard_delivery.py": "7dccb25dbfc853de1038836f56504503dc7129896b2ae64f7583758f8c645667"
+      }
+    },
+    {
+      "label": "full module interrupted diagnostic",
+      "display_argv": [
+        "python",
+        "-m",
+        "pytest",
+        "tests/integrations/test_antigravity.py",
+        "-q",
+        "--tb=short"
+      ],
+      "actual_private_argv_sha256": "cdc204030fa35ac63311606ac7672ef11a18c8c41ccb88018a23f4b6bc98d8f6",
+      "start_utc": "2026-10-12T09:11:35.783300+00:00",
+      "end_utc": "2026-10-12T09:30:24.077150+00:00",
+      "elapsed_monotonic_seconds": 1128.296999999904,
+      "exit_code": 4294967295,
+      "terminal_text": "...........................",
+      "stdout_sha256": "f8f2427665aa516d47807570735aeddcbc4f4ce465a7b2a9eb2e9b97018189d2",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "private_artifact": ".nexus-hub/antigravity-cwd-proof-01a12d34/cwd-green.json",
+      "private_artifact_sha256": "d0484c36aad228b898d37b9b1e201514caddf0bc46fe27f7684713b72b3ea100",
+      "source_hashes_before": {
+        "scripts/lib/integrations/antigravity.py": "4a390349cf03ef91364f1f51f41203df507b572fa85b6aaa03732ab666b26781",
+        "scripts/lib/integrations/_cascade_hook_compat.py": "b121f46e90082875e66f568b3e158469831c014389db46dd5bdff1a67e465e83",
+        "tests/integrations/test_antigravity.py": "b7af461b7fb3eabef00c9d0db408642499a4ccc7155befcc9f8a67a6ad8fab09",
+        "catalog/hooks/tests/test_antigravity_guard_delivery.py": "7dccb25dbfc853de1038836f56504503dc7129896b2ae64f7583758f8c645667"
+      },
+      "source_hashes_after": {
+        "scripts/lib/integrations/antigravity.py": "4a390349cf03ef91364f1f51f41203df507b572fa85b6aaa03732ab666b26781",
+        "scripts/lib/integrations/_cascade_hook_compat.py": "b121f46e90082875e66f568b3e158469831c014389db46dd5bdff1a67e465e83",
+        "tests/integrations/test_antigravity.py": "b7af461b7fb3eabef00c9d0db408642499a4ccc7155befcc9f8a67a6ad8fab09",
+        "catalog/hooks/tests/test_antigravity_guard_delivery.py": "7dccb25dbfc853de1038836f56504503dc7129896b2ae64f7583758f8c645667"
+      },
+      "classification": "interrupted non-pass; partial dots are not a completion result",
+      "authorized_owned_child_stop_utc": "2026-10-12T09:30:24.0668597Z",
+      "stop_tool_chunk": "e577ce",
+      "cause": "unproved"
+    },
+    {
+      "label": "native shell GREEN",
+      "display_argv": [
+        "python",
+        "-m",
+        "pytest",
+        "catalog/hooks/tests/test_antigravity_guard_delivery.py",
+        "-q",
+        "--tb=short"
+      ],
+      "actual_private_argv_sha256": "ea044949596d1bf58a2b17a93e95fed0ab4232603daf60a246fc10f184778b0b",
+      "start_utc": "2026-10-12T09:30:24.078689+00:00",
+      "end_utc": "2026-10-12T09:31:16.031648+00:00",
+      "elapsed_monotonic_seconds": 51.938000000081956,
+      "exit_code": 0,
+      "terminal_text": "26 passed in 48.81s",
+      "stdout_sha256": "a4e841046949ecc2973907418c454595280b240d9da4d681ebcc9178e402e81b",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "private_artifact": ".nexus-hub/antigravity-cwd-proof-01a12d34/cwd-green.json",
+      "private_artifact_sha256": "d0484c36aad228b898d37b9b1e201514caddf0bc46fe27f7684713b72b3ea100",
+      "source_hashes_before": {
+        "scripts/lib/integrations/antigravity.py": "4a390349cf03ef91364f1f51f41203df507b572fa85b6aaa03732ab666b26781",
+        "scripts/lib/integrations/_cascade_hook_compat.py": "b121f46e90082875e66f568b3e158469831c014389db46dd5bdff1a67e465e83",
+        "tests/integrations/test_antigravity.py": "b7af461b7fb3eabef00c9d0db408642499a4ccc7155befcc9f8a67a6ad8fab09",
+        "catalog/hooks/tests/test_antigravity_guard_delivery.py": "7dccb25dbfc853de1038836f56504503dc7129896b2ae64f7583758f8c645667"
+      },
+      "source_hashes_after": {
+        "scripts/lib/integrations/antigravity.py": "4a390349cf03ef91364f1f51f41203df507b572fa85b6aaa03732ab666b26781",
+        "scripts/lib/integrations/_cascade_hook_compat.py": "b121f46e90082875e66f568b3e158469831c014389db46dd5bdff1a67e465e83",
+        "tests/integrations/test_antigravity.py": "b7af461b7fb3eabef00c9d0db408642499a4ccc7155befcc9f8a67a6ad8fab09",
+        "catalog/hooks/tests/test_antigravity_guard_delivery.py": "7dccb25dbfc853de1038836f56504503dc7129896b2ae64f7583758f8c645667"
+      }
+    },
+    {
+      "label": "shared bridge GREEN",
+      "display_argv": [
+        "python",
+        "-m",
+        "pytest",
+        "tests/integrations/test_aider_windsurf.py",
+        "tests/integrations/test_copilot_hermes_native.py",
+        "tests/integrations/test_completion_gate_registration.py",
+        "-q",
+        "--tb=short",
+        "-k",
+        "bridge or bash"
+      ],
+      "actual_private_argv_sha256": "be6bd5af4554c981b0613d6c9fa781757e7d4b3552cd26ffb76f0c58d312d8c8",
+      "start_utc": "2026-10-12T09:31:16.032679+00:00",
+      "end_utc": "2026-10-12T09:31:18.686059+00:00",
+      "elapsed_monotonic_seconds": 2.64000000001397,
+      "exit_code": 0,
+      "terminal_text": "20 passed, 98 deselected in 0.67s",
+      "stdout_sha256": "ad24bba42c7cd566c90f2fafde0a51342d8d5aff50cb5de9fbd2a7268db4547f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "private_artifact": ".nexus-hub/antigravity-cwd-proof-01a12d34/cwd-green.json",
+      "private_artifact_sha256": "d0484c36aad228b898d37b9b1e201514caddf0bc46fe27f7684713b72b3ea100",
+      "source_hashes_before": {
+        "scripts/lib/integrations/antigravity.py": "4a390349cf03ef91364f1f51f41203df507b572fa85b6aaa03732ab666b26781",
+        "scripts/lib/integrations/_cascade_hook_compat.py": "b121f46e90082875e66f568b3e158469831c014389db46dd5bdff1a67e465e83",
+        "tests/integrations/test_antigravity.py": "b7af461b7fb3eabef00c9d0db408642499a4ccc7155befcc9f8a67a6ad8fab09",
+        "catalog/hooks/tests/test_antigravity_guard_delivery.py": "7dccb25dbfc853de1038836f56504503dc7129896b2ae64f7583758f8c645667"
+      },
+      "source_hashes_after": {
+        "scripts/lib/integrations/antigravity.py": "4a390349cf03ef91364f1f51f41203df507b572fa85b6aaa03732ab666b26781",
+        "scripts/lib/integrations/_cascade_hook_compat.py": "b121f46e90082875e66f568b3e158469831c014389db46dd5bdff1a67e465e83",
+        "tests/integrations/test_antigravity.py": "b7af461b7fb3eabef00c9d0db408642499a4ccc7155befcc9f8a67a6ad8fab09",
+        "catalog/hooks/tests/test_antigravity_guard_delivery.py": "7dccb25dbfc853de1038836f56504503dc7129896b2ae64f7583758f8c645667"
+      }
+    },
+    {
+      "label": "single native-content replay GREEN",
+      "display_argv": [
+        "python",
+        "-m",
+        "pytest",
+        "tests/integrations/test_antigravity.py::test_antigravity_hook_bridge_exposes_native_file_content_to_guards",
+        "-q",
+        "--tb=short",
+        "-k",
+        "write_to_file"
+      ],
+      "actual_private_argv_sha256": "cd8074a3f244d190f839d5b36772cbf42febc3c0db64070cb24f7df93b5f0417",
+      "start_utc": "2026-10-12T09:36:05.522792+00:00",
+      "end_utc": "2026-10-12T09:36:08.102289+00:00",
+      "elapsed_monotonic_seconds": 2.577999999979511,
+      "exit_code": 0,
+      "terminal_text": "1 passed, 2 deselected in 0.25s",
+      "stdout_sha256": "1bbd2db65ee39ffa7794faa157aad26846ce845e4e0dd6258cf787ab01ee0c8a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "private_artifact": ".nexus-hub/antigravity-cwd-proof-01a12d34/native-content-reproduction.json",
+      "private_artifact_sha256": "a11a26994a24b6461bbd062ac67dea5fb90586a1970b2b02d1989bdd60fd8be6",
+      "source_hashes_before": {
+        "scripts/lib/integrations/antigravity.py": "4a390349cf03ef91364f1f51f41203df507b572fa85b6aaa03732ab666b26781",
+        "scripts/lib/integrations/_cascade_hook_compat.py": "b121f46e90082875e66f568b3e158469831c014389db46dd5bdff1a67e465e83",
+        "tests/integrations/test_antigravity.py": "b7af461b7fb3eabef00c9d0db408642499a4ccc7155befcc9f8a67a6ad8fab09",
+        "catalog/hooks/tests/test_antigravity_guard_delivery.py": "7dccb25dbfc853de1038836f56504503dc7129896b2ae64f7583758f8c645667"
+      },
+      "source_hashes_after": {
+        "scripts/lib/integrations/antigravity.py": "4a390349cf03ef91364f1f51f41203df507b572fa85b6aaa03732ab666b26781",
+        "scripts/lib/integrations/_cascade_hook_compat.py": "b121f46e90082875e66f568b3e158469831c014389db46dd5bdff1a67e465e83",
+        "tests/integrations/test_antigravity.py": "b7af461b7fb3eabef00c9d0db408642499a4ccc7155befcc9f8a67a6ad8fab09",
+        "catalog/hooks/tests/test_antigravity_guard_delivery.py": "7dccb25dbfc853de1038836f56504503dc7129896b2ae64f7583758f8c645667"
+      }
+    },
+    {
+      "label": "supervised full module retry GREEN",
+      "display_argv": [
+        "python",
+        "-m",
+        "pytest",
+        "tests/integrations/test_antigravity.py",
+        "-q",
+        "--tb=short",
+        "-p",
+        "no:cacheprovider"
+      ],
+      "actual_private_argv_sha256": "0c2213a6df6017f1e9749210a562cc111600901aa67d3e087d5ae05f1db66bb1",
+      "start_utc": "2026-10-12T10:04:20.565181+00:00",
+      "end_utc": "2026-10-12T10:07:04.376286+00:00",
+      "elapsed_monotonic_seconds": 162.75,
+      "exit_code": 0,
+      "terminal_text": "35 passed in 147.62s (0:02:27)",
+      "stdout_sha256": "ad17f0d94b2dcbb0f96cba6cfadb558e5363625030e295c0af01c2286f310364",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "private_capture_id": "nexus-antigravity-full-retry-f5db1p5d",
+      "private_metadata_file": "result.json",
+      "private_metadata_sha256": "83a018aef6afe87c9e26a90dd8c467dac73669a53b792dd7fc056c877416ff4a",
+      "raw_stdout_file": "stdout.bin",
+      "raw_stderr_file": "stderr.bin",
+      "controlled_environment": {
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "inherited_environment": true,
+      "effective_environment_sha256": "30d4efd19a03e0e6631ac1cccf70a60efbfc62c92c42af52b40d710ef4a047c3",
+      "inherited_test_controls": {
+        "PYTEST_ADDOPTS": null,
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+        "NEXUS_TEST_POWERSHELL": null
+      },
+      "diagnostic_supervision_seconds": 300,
+      "timed_out": false,
+      "drain_timed_out": false,
+      "source_hashes_before": {
+        "scripts/lib/integrations/antigravity.py": "4a390349cf03ef91364f1f51f41203df507b572fa85b6aaa03732ab666b26781",
+        "scripts/lib/integrations/_cascade_hook_compat.py": "b121f46e90082875e66f568b3e158469831c014389db46dd5bdff1a67e465e83",
+        "tests/integrations/test_antigravity.py": "b7af461b7fb3eabef00c9d0db408642499a4ccc7155befcc9f8a67a6ad8fab09",
+        "catalog/hooks/tests/test_antigravity_guard_delivery.py": "7dccb25dbfc853de1038836f56504503dc7129896b2ae64f7583758f8c645667"
+      },
+      "source_hashes_after": {
+        "scripts/lib/integrations/antigravity.py": "4a390349cf03ef91364f1f51f41203df507b572fa85b6aaa03732ab666b26781",
+        "scripts/lib/integrations/_cascade_hook_compat.py": "b121f46e90082875e66f568b3e158469831c014389db46dd5bdff1a67e465e83",
+        "tests/integrations/test_antigravity.py": "b7af461b7fb3eabef00c9d0db408642499a4ccc7155befcc9f8a67a6ad8fab09",
+        "catalog/hooks/tests/test_antigravity_guard_delivery.py": "7dccb25dbfc853de1038836f56504503dc7129896b2ae64f7583758f8c645667"
+      }
+    }
+  ],
+  "initial_chunk_only_runs": [
+    {
+      "label": "initial integration RED",
+      "requested_shell_command": "python -m pytest tests/integrations/test_antigravity.py -q --tb=short -k 'maps_guard_tool_names or keeps_command_cwd or post_hook_returns or failed_post or translates_host_payload or installs_hooks_and_registration'",
+      "requested_shell_command_utf8_sha256": "887eef98c811092350d5e2aa92dda1640ed8e687f81413aa7fa59d89ca7d2093",
+      "observed_result": "12 failed, 16 deselected in 4.49s",
+      "exit_code": 1,
+      "actual_tool_chunk": "bf8b37",
+      "raw_stdout_artifact": null,
+      "raw_stdout_sha256": null,
+      "qualification": "Tool-result evidence only; raw stdout was not saved. No reconstruction is claimed."
+    },
+    {
+      "label": "initial shell RED",
+      "requested_shell_command": "python -m pytest catalog/hooks/tests/test_antigravity_guard_delivery.py -q --tb=short -k 'refuses_unread or commit_attribution'",
+      "requested_shell_command_utf8_sha256": "60b3c9658d3aab2b752df4cc555e93e42e41334bae0dd0b629429a66fff4c73b",
+      "observed_result": "8 failed, 14 deselected in 9.86s",
+      "exit_code": 1,
+      "actual_tool_chunk": "660373",
+      "raw_stdout_artifact": null,
+      "raw_stdout_sha256": null,
+      "qualification": "Tool-result evidence only; raw stdout was not saved. No reconstruction is claimed."
+    },
+    {
+      "label": "initial integration GREEN",
+      "requested_shell_command": "python -m pytest tests/integrations/test_antigravity.py -q --tb=short",
+      "requested_shell_command_utf8_sha256": "a25d8a9c8b0737f0f5180084a901a046231a148402ae1bdfd5073291ca7b99ea",
+      "observed_result": "28 passed in 141.47s",
+      "exit_code": 0,
+      "actual_tool_chunk": "8052fe",
+      "raw_stdout_artifact": null,
+      "raw_stdout_sha256": null,
+      "qualification": "Tool-result evidence only; raw stdout was not saved. No reconstruction is claimed."
+    },
+    {
+      "label": "initial shell GREEN",
+      "requested_shell_command": "python -m pytest catalog/hooks/tests/test_antigravity_guard_delivery.py -q --tb=short",
+      "requested_shell_command_utf8_sha256": "4304167a2d6866888b00e22f933e5627ce4f2be0c31f503444c4898638f7a42f",
+      "observed_result": "22 passed in 47.08s",
+      "exit_code": 0,
+      "actual_tool_chunk": "0dbcee",
+      "raw_stdout_artifact": null,
+      "raw_stdout_sha256": null,
+      "qualification": "Tool-result evidence only; raw stdout was not saved. No reconstruction is claimed."
+    },
+    {
+      "label": "initial shared bridge GREEN",
+      "requested_shell_command": "python -m pytest tests/integrations/test_aider_windsurf.py tests/integrations/test_copilot_hermes_native.py tests/integrations/test_completion_gate_registration.py -q --tb=short -k 'bridge or bash'",
+      "requested_shell_command_utf8_sha256": "eaee97e22bf56c24a2277ba83ce2e1c6fd269db679076bad471f7a4b4d0c2bea",
+      "observed_result": "20 passed, 98 deselected in 1.44s",
+      "exit_code": 0,
+      "actual_tool_chunk": "bdd251",
+      "raw_stdout_artifact": null,
+      "raw_stdout_sha256": null,
+      "qualification": "Tool-result evidence only; raw stdout was not saved. No reconstruction is claimed.",
+      "summary_tool_chunk": "330f25"
+    }
+  ],
+  "hash_contract": {
+    "source": "SHA256 of actual raw Windows checkout bytes, not normalized Git blobs.",
+    "retained_actual_argv": "SHA256 of the actual private command array serialized as compact ensure_ascii JSON; display_argv substitutes only the interpreter token.",
+    "initial_requested_command": "SHA256 of the exact requested shell-command UTF-8 text; resolved private argv is not claimed.",
+    "captured_streams": "SHA256 of actual subprocess stdout/stderr bytes; JSON stream fields preserve their UTF-8 text and were re-verified.",
+    "artifacts": "SHA256 of the complete actual artifact file bytes."
+  },
+  "limitations": [
+    "The earlier full module was genuinely interrupted after 1128.297 seconds, with exit 4294967295 and partial output. The mixed-result cwd-green artifact is not an overall GREEN gate.",
+    "The suspected native-content node later passed in isolation and the full module passed on retry. The earlier wait cause remains unproved; Windows Store launcher exposure does not establish causality.",
+    "The retry disabled pytest cache and bytecode writes; these controls did not change selected tests or CI/profile caps.",
+    "Initial raw stdout was not retained; its chunk-only results are not presented as saved logs or raw hashes.",
+    "Proofs exercise the real adapter, bridge and shell hooks with documented-format payloads and isolated fixture files. No authenticated Antigravity host session or actual proposed git commit is claimed.",
+    "Sequential hook flows are qualified. Reliable native per-call IDs or concurrent-call correlation are not claimed.",
+    "Existing guard policies remain authoritative; the file-refusal proofs run outside a Git worktree, and write-attribution warning policy is not changed.",
+    "This receipt is implementation evidence; it does not establish final canonical-suite completion, publication, release or minor completion."
+  ]
+}

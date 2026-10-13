@@ -28,7 +28,14 @@ if ($env:NEXUS_HOOK_PROFILE -eq "minimal") { exit 0 }
 
 # --- Read JSON from stdin ---
 if (-not [Console]::IsInputRedirected) { exit 0 }
-$raw = [Console]::In.ReadToEnd()
+# Hook payloads are UTF-8 whatever the console code page is (WN-37): decode the raw
+# handle and reply through UTF-8 writers rather than calling SetConsoleCP.
+$hookUtf8 = New-Object System.Text.UTF8Encoding($false)
+$raw = (New-Object System.IO.StreamReader([Console]::OpenStandardInput(), $hookUtf8, $true)).ReadToEnd()
+# Windows PowerShell 5.1 without a console drains the raw handle into [Console]::In.
+if (-not $raw) { $raw = [Console]::In.ReadToEnd() }
+$utf8Writer = New-Object System.IO.StreamWriter([Console]::OpenStandardOutput(), $hookUtf8); $utf8Writer.AutoFlush = $true; [Console]::SetOut($utf8Writer)
+$utf8Writer = New-Object System.IO.StreamWriter([Console]::OpenStandardError(), $hookUtf8); $utf8Writer.AutoFlush = $true; [Console]::SetError($utf8Writer)
 if (-not $raw) { exit 0 }
 
 $filePath = $null
@@ -48,6 +55,51 @@ $fileName = try { Split-Path $filePath -Leaf } catch { $filePath }
 
 function Test-Tool { param([string]$Name) return [bool](Get-Command $Name -ErrorAction SilentlyContinue) }
 
+function Invoke-Utf8Child {
+    # Run a program and decode its output as UTF-8, not the console code page (WN-45),
+    # without SetConsoleCP. A .cmd/.bat shim runs through cmd.exe; PYTHONUTF8 and
+    # PYTHONIOENCODING reach the child only. ExitCode is -1 when it cannot start.
+    # cmd.exe re-parses its whole command line and no quoting carries arbitrary text
+    # through it (AF-1, AF-2): when an argument or the shim path holds a cmd
+    # metacharacter, a double quote or a line break, a same-named .exe/.com later on
+    # PATH runs instead, and with none the child is not started (ExitCode -1).
+    param([string]$Exe, [string[]]$Arguments, [switch]$MergeStderr)
+    $result = [pscustomobject]@{ Lines = @(); ExitCode = -1 }
+    $onWindows = [System.Environment]::OSVersion.Platform -eq [System.PlatformID]::Win32NT
+    $found = @(Get-Command $Exe -CommandType Application -ErrorAction SilentlyContinue |
+        Where-Object { -not $onWindows -or $_.Extension -match '^\.(exe|com|cmd|bat)$' })
+    if ($found.Count -eq 0) { return $result }
+    $cmd = $found[0]
+    if ($onWindows -and $cmd.Extension -match '^\.(cmd|bat)$') {
+        $unsafe = @(@($Arguments) + @($cmd.Source) | Where-Object { [string]$_ -match '[&|<>^%!"\r\n]' })
+        if ($unsafe.Count -gt 0) {
+            $cmd = $found | Where-Object { $_.Extension -match '^\.(exe|com)$' } | Select-Object -First 1
+            if (-not $cmd) { return $result }
+        }
+    }
+    $argLine = (@($Arguments) | ForEach-Object {
+        if ($_ -and $_ -notmatch '[\s"]') { $_ } else { '"' + (([string]$_ -replace '(\\*)"', '$1$1\"') -replace '(\\+)$', '$1$1') + '"' }
+    }) -join ' '
+    $psi = New-Object System.Diagnostics.ProcessStartInfo
+    if ($onWindows -and $cmd.Extension -match '^\.(cmd|bat)$') {
+        $psi.FileName = if ($env:ComSpec) { $env:ComSpec } else { 'cmd.exe' }
+        $psi.Arguments = '/d /s /c ""' + $cmd.Source + '" ' + $argLine + '"'
+    } else { $psi.FileName = $cmd.Source; $psi.Arguments = $argLine }
+    $psi.UseShellExecute = $false; $psi.CreateNoWindow = $true
+    $psi.RedirectStandardOutput = $true; $psi.RedirectStandardError = $true
+    $psi.StandardOutputEncoding = New-Object System.Text.UTF8Encoding($false)
+    $psi.StandardErrorEncoding = New-Object System.Text.UTF8Encoding($false)
+    $psi.EnvironmentVariables['PYTHONUTF8'] = '1'; $psi.EnvironmentVariables['PYTHONIOENCODING'] = 'utf-8'
+    try { $proc = [System.Diagnostics.Process]::Start($psi) } catch { return $result }
+    $errTask = $proc.StandardError.ReadToEndAsync()
+    $text = $proc.StandardOutput.ReadToEnd()
+    $proc.WaitForExit()
+    if ($MergeStderr) { $text += $errTask.Result }
+    $result.ExitCode = $proc.ExitCode
+    if ($text) { $result.Lines = @($text.TrimEnd("`r", "`n") -split "`r?`n") }
+    return $result
+}
+
 function Report-Lint {
     <#
       Run a linter and, when it produced any output, emit the .sh sibling's header
@@ -56,7 +108,7 @@ function Report-Lint {
     #>
     param([string]$Tool, [string]$Exe, [string[]]$Arguments)
     $out = $null
-    try { $out = (& $Exe @Arguments 2>&1 | Out-String) } catch { $out = $null }
+    try { $out = (Invoke-Utf8Child $Exe $Arguments -MergeStderr).Lines -join [Environment]::NewLine } catch { $out = $null }
     if (-not [string]::IsNullOrWhiteSpace($out)) {
         [Console]::Error.WriteLine("[lint] $Tool warnings for ${fileName}:")
         [Console]::Error.WriteLine($out.TrimEnd())

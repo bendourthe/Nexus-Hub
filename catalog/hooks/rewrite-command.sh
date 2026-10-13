@@ -4,6 +4,9 @@
 # PreToolUse permissionDecision. Fail-open to passthrough (never auto-allow).
 
 set -euo pipefail
+# Python children (stdin parsing, plan_status.py, the compressor) must read and
+# write UTF-8 on every host; Windows Git Bash otherwise uses the ANSI code page.
+export PYTHONUTF8=1 PYTHONIOENCODING=utf-8
 
 if ! command -v python3 >/dev/null 2>&1 && ! command -v python >/dev/null 2>&1; then
   exit 0

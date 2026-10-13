@@ -1,0 +1,8 @@
+{"receipt": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\functional-byte-devlog-final\\receipt.json", "status": "FAIL", "invocations": 13, "source_unchanged": true, "elapsed_seconds": 21.368369000032544}
+
+--- STDERR ---
+Traceback (most recent call last):
+  File "C:\Users\username\AppData\Local\Temp\v41311-phase3-hooks-resume\functional-byte-devlog-final.py", line 93, in <module>
+    assert len(history) == 10 and "history-19-" in history[0] and "history-10-" in history[-1]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

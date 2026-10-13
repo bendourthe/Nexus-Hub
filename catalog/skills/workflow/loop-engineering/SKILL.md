@@ -170,6 +170,21 @@ Stalling is one of ten loop failure modes. For all ten -- the stuck cycle above 
 
 A fourth pattern looks like a stall but is not a fault: the loop is waiting on a human-owned action (an approval, a merge, an external sign-off). Do not spend iterations busy-polling for it. A loop that re-runs waiting for a human is a no-progress signature, and the [[shipping-and-launch]] gate ends at exactly such a boundary. Hand control back with a crisp summary of what is ready and what decision is requested, and treat the human action as an external resume signal rather than a condition to spin on.
 
+## Re-entrancy and Instance Identity
+
+An `iteration_cap` bounds one level of a loop, not the recursion. When an agent working inside a running loop or verification gate triggers that same loop again, every level gets its own full cap and budget: two nested levels of a 10-iteration loop can spend 100 iterations, three can spend 1,000, and no cap ever trips. Name this failure **recursive budget multiplication**. It is a budget-multiplication path, so bound the spend with [[ai-billing-safeguards]]; and running each level in its own worktree via [[using-git-worktrees]] does not help, because isolation is not non-re-entrancy.
+
+**Instance identity is host-owned.** The outer invocation (the host driver, or the operator when re-invoking manually) assigns each running instance an identity and passes it to everything that instance starts, conventionally as two environment markers: `LOOP_INSTANCE` (the definition `name` plus the resolved target plus a run id, for example `ship-pr-until-green:pr-412:run-7`) and `LOOP_LINEAGE` (the ordered instance identities of every enclosing loop). The agent reads these markers; it never invents, edits, or clears them, because an identity the agent can rewrite cannot detect the agent re-entering itself. The same identity is recorded in the instance record (see Instance State in [references/loop-schema.md](references/loop-schema.md)). Nexus-Hub ships no runtime that sets, propagates, or enforces these markers: this is a contract the host or operator implements, and a host that does not implement it gives no protection.
+
+Before starting any loop iteration, check the lineage and apply these rules in order:
+
+1. **Refuse unintended same-instance re-entry.** If `LOOP_LINEAGE` already contains the instance you are about to start (same definition AND same resolved target), refuse the inner instance, do not proceed, and report the nesting through the loop's `handoff` with both identities. Re-entering the same instance is never a valid way to make progress.
+2. **Refuse on ambiguous identity.** If the markers are malformed, if one is present without the other, or if they are absent while an unfinished instance record for the same definition and target exists, you cannot tell whether this is re-entry. Fail closed: refuse and ask the operator to resolve the identity. Never guess "probably a new instance".
+3. **Allow deliberate distinct child loops.** A parent that deliberately starts a child loop with a different definition, or the same definition on a different target, is legitimate fan-out, not re-entry; this guard is about the same instance, never about depth. The child gets its own `LOOP_INSTANCE`, the parent's lineage plus the parent's identity as its `LOOP_LINEAGE`, and a child budget carved out of the parent's remaining budget, never added on top of it. See [[agent-orchestration-primitives]] for when fan-out is the right primitive.
+4. **Refuse an exhausted child budget.** If the parent's remaining budget (iterations, tool calls, cost, or wall time) cannot cover the child's slice, refuse to start the child and report it to the parent. A child whose slice runs out stops and reports; it does not borrow from a sibling or reset its own counters.
+
+A second recursive failure looks like a cap problem but is a size problem: **prompt-growth exhaustion**. A bounded repair loop accumulates findings, diffs, and fix history across rounds, and the prompt can exceed the model's context limit before `iteration_cap` is reached, so the loop fails on size rather than on its stopping rule. Nesting makes it worse, because a child that inherits its parent's context starts already large. The mitigation is inter-round compaction: carry forward the `state_contract` and the open findings, not the raw transcript, using [[context-compression]] for the compaction and [[prompt-token-optimization]] for the per-round token budget.
+
 ## Workflow-Control Patterns: Gate, Resume, Continue-on-Error, Bounded Fan-Out
 
 Four control patterns extend a loop's vocabulary beyond a single `exit_condition`. All four are **agent-instruction patterns** you encode in the loop body and its state file, NOT a new runtime to build. Where the host harness exposes Dynamic Workflows (the `Workflow` tool), the same shapes map onto its script (a gate is an `AskUserQuestion` between stages, resume is the workflow's native journal-based resume, continue-on-error is a per-item `try/catch` that records the failure and keeps going). In a plain `/loop` or `/goal` run you implement them with the external memory layer from Step 1.
@@ -221,6 +236,7 @@ The posture behind this -- deny host execution unless the task needs it, prefer 
 | "A loop means I do not need to understand each iteration." | That produces comprehension debt: the system changes faster than the operator's model of it. Keep state files readable and require human review at bounded checkpoints. |
 | "More agents inside the loop will make it safer." | More agents multiply coordination and token cost. Escalate only when [[agent-orchestration-primitives]] names a measured problem that the cheaper primitive cannot solve. |
 | "The check is already red, so re-running it each iteration is harmless." | Re-proving the same failure against an unchanged workspace burns the `iteration_cap` and hides no-progress. Cache the verdict against a workspace fingerprint; skip until the tree changes. |
+| "The inner run has its own `iteration_cap`, so nesting the loop inside itself is still bounded." | Caps apply per level, so nesting multiplies them. Refuse same-instance re-entry from the host-owned lineage, and carve any deliberate child's budget out of the parent's. |
 | "A higher score on the loop metric means the learning was good." | That is the reward-hacking signature. Gates must verify how the result was produced (diffs, logs, provenance), and any instinct that changes how the goal is measured needs human review before it is applied. |
 
 ## Verification
@@ -237,6 +253,8 @@ The posture behind this -- deny host execution unless the task needs it, prefer 
 - [ ] Any gate, resume, or continue-on-error step is implemented as a loop-body instruction over the memory layer (or the harness's Dynamic Workflows), not a new runtime; every gate names its `on_reject` policy (abort / skip / retry).
 - [ ] Every declared gate names its `type` (owner / safety / publication / private-data) and asks ONE concrete answerable question, and no gate trips on a step already inside the loop's authority.
 - [ ] A loop that spans sessions has a gitignored instance record, and any long-horizon loop's evidence carries a freshness window the checker re-validates.
+- [ ] The loop reads a host-owned `LOOP_INSTANCE` and `LOOP_LINEAGE`, refuses same-instance re-entry and ambiguous identity, and gives any deliberate child a distinct identity and a budget carved from the parent's remaining budget.
+- [ ] A multi-round repair loop compacts its carried context between rounds, so it cannot fail on prompt size before `iteration_cap`.
 
 ## Standards Mapping
 
@@ -254,3 +272,5 @@ This skill is tagged against the OWASP Top 10 for Agentic Applications (2026) in
 - [[ai-agent-governance]] - names the same reward-hacking failure signature for governed agents; do not restate the rule there from memory if that skill is unavailable.
 - [[session-teach-back]] - the comprehension-debt countermeasure: confirms the operator understands what a loop shipped before the gap compounds.
 - [[context-pack-builder]] - distills cross-session context into a durable memory artifact a loop can load at each iteration.
+- [[context-compression]] - the inter-round compaction that keeps a repair loop's prompt from outgrowing the context window before its cap.
+- [[prompt-token-optimization]] - per-round token budgeting for loops whose carried context grows each iteration.

@@ -219,6 +219,306 @@ def test_rerun_after_a_partial_write_never_duplicates_the_entry(repo: Close) -> 
     assert "- MIGRATED to v0.6.0" in repo.read(GAPS05)
 
 
+
+RETAINED_WARNING = WN3 + (
+    "- **Origin**: v0.4#WN-2\n"
+    "- **Owner**: repository maintainer\n"
+    "- **Acceptance**: keep both the cold-cache and retry obligations\n"
+    "- **Proving command**: `pytest -q tests/test_probe.py`\n\n"
+)
+
+
+def _damaged_copy(text: str, damage: str) -> str:
+    """Damage one real generated copy without changing the source."""
+    copy = cm.parse_ledger(text)[0]
+    body = RETAINED_WARNING.split("\n", 1)[1].strip("\n").rstrip().replace(
+        "(plans/v0.5.2-alpha.md)", "(../v0.5/plans/v0.5.2-alpha.md)"
+    )
+    provenance = "- **Migrated from**: v0.5#WN-3 on 2026-09-29 (reason: vendor-feature)"
+    if damage == "stub":
+        return text.replace(body + "\n\n", "")
+    if damage in {"origin", "owner", "acceptance", "command"}:
+        names = {"origin": "Origin", "owner": "Owner", "acceptance": "Acceptance", "command": "Proving command"}
+        line = next(line for line in text.splitlines(keepends=True) if f"**{names[damage]}**:" in line)
+        return text.replace(line, "")
+    if damage == "altered-command":
+        return text.replace("`pytest -q tests/test_probe.py`", "`pytest -q tests/test_probe.py` && true")
+    if damage == "title":
+        return text.replace("#### WN-1: The probe flakes on a cold cache", "#### WN-1: A different obligation")
+    if damage == "wrong-section":
+        return text.replace("## v0.6.0", "## v0.6.1")
+    if damage == "duplicate":
+        duplicate = text[copy.start:copy.end].replace("#### WN-1:", "#### WN-2:", 1)
+        return (text[:copy.end] + duplicate + text[copy.end:]).replace(
+            "**Open items**: 1", "**Open items**: 2"
+        ).replace("| Warnings (WN) | 1 |", "| Warnings (WN) | 2 |")
+    if damage == "duplicate-provenance":
+        return text.replace(provenance, provenance + "\n" + provenance)
+    if damage == "malformed":
+        return text.replace("### Resolved", "```\n### Resolved")
+    if damage == "reason":
+        return text.replace("(reason: vendor-feature)", "(reason: unreviewed)")
+    if damage == "comment":
+        return text.replace(body, "<!--\n" + body + "\n-->")
+    if damage == "fence":
+        return text.replace(body, "~~~\n" + body + "\n~~~")
+    if damage == "provenance-comment":
+        return text.replace(provenance, "<!--\n" + provenance + "\n-->")
+    if damage == "provenance-fence":
+        return text.replace(provenance, "~~~\n" + provenance + "\n~~~")
+    if damage == "provenance-inline":
+        return text.replace(provenance, "- Example: `" + provenance + "`")
+    if damage == "provenance-multiline":
+        return text.replace(provenance, "`\n" + provenance + "\n`")
+    if damage == "item-comment":
+        return text[:copy.start] + "<!--\n" + text[copy.start:copy.end] + "-->\n" + text[copy.end:]
+    if damage == "item-comment-cr":
+        return text[:copy.start].replace("\n", "\r") + "<!--\r" + text[copy.start:copy.end] + "-->\n" + text[copy.end:]
+    if damage == "section-comment":
+        return text.replace("## v0.6.0", "## v0.6.1\n\n<!--\n## v0.6.0\n-->")
+    raise AssertionError(damage)
+
+
+@pytest.mark.parametrize(
+    ("damage", "reason"),
+    [
+        ("stub", "migration-body-not-preserved"),
+        ("origin", "migration-body-not-preserved"),
+        ("owner", "migration-body-not-preserved"),
+        ("acceptance", "migration-body-not-preserved"),
+        ("command", "migration-body-not-preserved"),
+        ("altered-command", "migration-body-not-preserved"),
+        ("title", "migration-title-not-preserved"),
+        ("wrong-section", "migration-target-wrong-section"),
+        ("duplicate", "migration-target-ambiguous"),
+        ("duplicate-provenance", "migration-target-ambiguous"),
+        ("malformed", "migration-target-malformed"),
+        ("reason", "migration-reason-invalid"),
+        ("comment", "migration-body-not-preserved"),
+        ("fence", "migration-body-not-preserved"),
+        ("provenance-comment", "migration-provenance-hidden"),
+        ("provenance-fence", "migration-provenance-hidden"),
+        ("provenance-inline", "migration-provenance-hidden"),
+        ("provenance-multiline", "migration-provenance-hidden"),
+        ("item-comment", "migration-target-hidden"),
+        ("item-comment-cr", "migration-target-hidden"),
+        ("section-comment", "migration-target-hidden"),
+    ],
+)
+def test_incomplete_reuse_refuses_before_either_write_and_never_verifies(
+    repo: Close, damage: str, reason: str,
+) -> None:
+    repo.standard(RETAINED_WARNING)
+    repo.forge()
+    open_source = repo.read(GAPS05)
+    assert repo.migrate().returncode == 0
+    migrated_source = repo.read(GAPS05)
+    target = _damaged_copy(repo.read(GAPS06), damage)
+    repo.write(GAPS05, open_source)  # simulate loss of only the source write
+    repo.write(GAPS06, target)
+    before = [(repo.work / rel).read_bytes() for rel in (GAPS05, GAPS06)]
+    result = repo.migrate()
+    assert result.returncode == 3, result.stdout + result.stderr
+    refused = "ledger-unparsed" if damage == "malformed" else reason
+    assert result.stdout.startswith(f"REFUSED: {refused} "), result.stdout
+    assert [(repo.work / rel).read_bytes() for rel in (GAPS05, GAPS06)] == before
+
+    # A forged source marker must not turn the same damaged destination into proof.
+    repo.write(GAPS05, migrated_source)
+    status, notices = repo.gaps_minor()
+    assert status == ("cannot-verify" if damage == "malformed" else "unmet")
+    assert f"gaps.minor migration v0.5#WN-3 {reason}" in notices
+
+    # Plan-mode provenance is exact to the source patch, but content proof is shared.
+    if damage != "reason":  # historical plan reason policy is unchanged
+        repo.write(GAPS06, target.replace("v0.5#WN-3", "v0.5.2#WN-3"))
+        ledgers, _ = cm.load_ledgers(repo.work)
+        source = next(ledger for ledger in ledgers if ledger.rel == GAPS05)
+        assert not cm.plan_migration_met(ledgers, source, source.items[0])
+
+
+@pytest.mark.parametrize("newline", ["\n", "\r\n"])
+def test_complete_reconciled_copy_is_idempotent_with_added_evidence(repo: Close, newline: str) -> None:
+    repo.standard(RETAINED_WARNING.replace("\n", newline))
+    repo.forge()
+    open_source = (repo.work / GAPS05).read_bytes()
+    assert repo.migrate().returncode == 0
+    path = repo.work / GAPS06
+    target = path.read_bytes().decode("utf-8")
+    target = target.replace(
+        "### Resolved", "- **Later evidence**: retained independently on a second date" + newline + newline + "### Resolved"
+    )
+    path.write_bytes(target.encode("utf-8"))
+    target_before = path.read_bytes()
+    (repo.work / GAPS05).write_bytes(open_source)
+    result = repo.migrate()
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert path.read_bytes() == target_before
+    assert repo.gaps_minor() == ("met", [])
+    for field in ("Origin", "Owner", "Acceptance", "Proving command"):
+        assert f"**{field}**:" in target
+
+
+def test_unmatched_ticks_do_not_hide_later_paragraph_provenance(repo: Close) -> None:
+    warning = RETAINED_WARNING + (
+        "- **Literal text**: unmatched ` and a different `` run stay literal.\n\n"
+        "```text\n` and `` are only examples inside a fence.\n```\n\n"
+    )
+    repo.standard(warning)
+    repo.forge()
+    open_source = repo.read(GAPS05)
+    assert repo.migrate().returncode == 0
+    target = repo.read(GAPS06).replace(
+        "### Resolved", "- **Later evidence**: `pytest -q tests/test_probe.py`\n\n### Resolved"
+    )
+    repo.write(GAPS05, open_source)
+    repo.write(GAPS06, target)
+    result = repo.migrate()
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert repo.read(GAPS06) == target and repo.gaps_minor() == ("met", [])
+
+
+def test_consolidated_owner_requires_an_explicit_complete_original_source_block(repo: Close) -> None:
+    repo.standard(RETAINED_WARNING)
+    repo.forge()
+    open_source = repo.read(GAPS05)
+    assert repo.migrate().returncode == 0
+    target = repo.read(GAPS06).replace(
+        "#### WN-1: The probe flakes on a cold cache",
+        "#### AR-1: Several related residual obligations",
+    )
+    repo.write(GAPS05, open_source)
+    repo.write(GAPS06, target + "\nThe earlier title was WN-3: The probe flakes on a cold cache.\n")
+    rejected = repo.migrate()
+    assert rejected.returncode == 3 and "migration-title-not-preserved" in rejected.stdout
+    callout = "##### Original source: WN-3: The probe flakes on a cold cache\n\n"
+    target = target.replace("- **Source phase**: Phase 2", callout + "- **Source phase**: Phase 2")
+    for spoof in (
+        target.replace("##### Original source:", "##### Earlier heading:"),
+        target.replace(callout, "<!--\n" + callout + "-->\n"),
+        target.replace(callout, "~~~\n" + callout + "~~~\n"),
+    ):
+        repo.write(GAPS06, spoof)
+        before = [(repo.work / rel).read_bytes() for rel in (GAPS05, GAPS06)]
+        rejected = repo.migrate()
+        assert rejected.returncode == 3 and "migration-title-not-preserved" in rejected.stdout
+        assert [(repo.work / rel).read_bytes() for rel in (GAPS05, GAPS06)] == before
+    entry = cm.parse_ledger(target)[0]
+    hidden = target[:entry.start] + "<!--\n" + target[entry.start:entry.end] + "-->\n" + target[entry.end:]
+    repo.write(GAPS06, hidden)
+    before = [(repo.work / rel).read_bytes() for rel in (GAPS05, GAPS06)]
+    rejected = repo.migrate()
+    assert rejected.returncode == 3 and "migration-target-hidden" in rejected.stdout
+    assert [(repo.work / rel).read_bytes() for rel in (GAPS05, GAPS06)] == before
+    repo.write(GAPS06, target)
+    result = repo.migrate()
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert repo.read(GAPS06) == target and repo.gaps_minor() == ("met", [])
+    # H3 source owners with H4 nested source blocks must retain their body on a second migration.
+    target = target.replace("#### AR-1:", "### AR-1:").replace("##### Original source:", "#### Original source:")
+    repo.write(GAPS06, target)
+    repo.commit("complete consolidated owner")
+    repo.plan("v0.6.0", "gamma", folder=f"{V06}/plans")
+    repo.commit("next minor plan")
+    record = repo.forge(token="v0.6", bound=("v0.6#AR-1",))
+    onward = repo.migrate("v0.6#AR-1", "v0.6")
+    assert onward.returncode == 0, onward.stdout + onward.stderr
+    assert "#### Original source: WN-3: The probe flakes on a cold cache" in repo.read(
+        "docs/releases/v0/v0.7/known-gaps.md"
+    )
+    ledgers, _ = cm.load_ledgers(repo.work)
+    current = next(ledger for ledger in ledgers if ledger.rel == GAPS06)
+    earlier = next(ledger for ledger in ledgers if ledger.rel == GAPS05)
+    assert cm.verify_migration(repo.rctx(), record, "v0.6", ledgers, current, current.items[0]) == (
+        "met", "approved-migration"
+    )
+    assert cm.verify_migration(repo.rctx(), record, "v0.6", ledgers, earlier, earlier.items[0]) == (
+        "met", "in-scope-copy"
+    )
+
+
+def test_verification_follows_explicit_patch_carry_but_reuse_stays_at_minor_start(repo: Close) -> None:
+    warning = RETAINED_WARNING.replace("WN-3: The probe", "WN-3 (v0.5.2): The probe")
+    repo.standard(warning)
+    repo.forge()
+    open_source = repo.read(GAPS05)
+    assert repo.migrate().returncode == 0
+    text = repo.read(GAPS06)
+    copy = cm.parse_ledger(text)[0]
+    moved, _ = mc.carry_within(text, copy, "v0.6.1", "v0.6.0", "2026-10-09")
+    repo.write(GAPS06, moved)
+    assert "(v0.6.1): The probe" in moved and "**Carried from**: v0.6.0#WN-1" in moved
+    assert repo.gaps_minor() == ("met", [])
+    ledgers, _ = cm.load_ledgers(repo.work)
+    source = next(ledger for ledger in ledgers if ledger.rel == GAPS05)
+    qualified = moved.replace("v0.5#WN-3", "v0.5.2#WN-3")
+    repo.write(GAPS06, qualified)
+    assert cm.plan_migration_met(cm.load_ledgers(repo.work)[0], source, source.items[0])
+    repo.write(GAPS06, moved.replace("- **Carried from**: v0.6.0#WN-1 on 2026-10-09\n", ""))
+    assert "migration-target-wrong-section" in repo.gaps_minor()[1][0]
+    carried_line = "- **Carried from**: v0.6.0#WN-1 on 2026-10-09\n"
+    for opening, closing in (("<!--\n", "-->\n"), ("~~~\n", "~~~\n")):
+        repo.write(GAPS06, moved.replace(carried_line, opening + carried_line + closing))
+        assert "migration-target-wrong-section" in repo.gaps_minor()[1][0]
+    for bad_lineage in (
+        carried_line.replace("#WN-1", "#DF-999"),
+        "- Example: `" + carried_line.rstrip() + "`\n",
+        "`\n" + carried_line + "`\n",
+    ):
+        repo.write(GAPS06, moved.replace(carried_line, bad_lineage).replace("v0.5#WN-3", "v0.5.2#WN-3"))
+        assert "migration-target-wrong-section" in repo.gaps_minor()[1][0]
+        assert not cm.plan_migration_met(cm.load_ledgers(repo.work)[0], source, source.items[0])
+    repo.write(GAPS06, moved)
+    repo.write(GAPS05, open_source)
+    before = [(repo.work / rel).read_bytes() for rel in (GAPS05, GAPS06)]
+    result = repo.migrate()
+    assert result.returncode == 3 and "migration-target-wrong-section" in result.stdout
+    assert [(repo.work / rel).read_bytes() for rel in (GAPS05, GAPS06)] == before
+
+
+def test_later_target_archive_preserves_proved_repairs_and_refuses_unproved_moves(repo: Close) -> None:
+    old = "docs/archives/v0/v0.4/known-gaps.md"
+    archive = "docs/archives/v0/v0.6"
+    warning = RETAINED_WARNING + (
+        "See docs/releases/v0/v0.6/plans/future.md and docs/releases/v0/v0.5/plans/current.md.\n\n"
+    )
+    repo.write(old, ledger("v0.4", section("v0.4.0", 1, warning)))
+    repo.standard("")
+    repo.forge(bound=("v0.4#WN-3",))
+    assert repo.migrate("v0.4#WN-3").returncode == 0
+    old_before = repo.read(old)
+    repairs = mc.plan_repairs(
+        repo.work, [(old, old, old), (GAPS06, GAPS06, f"{archive}/known-gaps.md")], V06, archive,
+    )
+    for repair in repairs:
+        repo.write(repair.new_rel, repair.repaired)
+    (repo.work / GAPS06).unlink()
+    assert repo.read(old) == old_before  # archived plain mentions remain historical
+    assert "See docs/archives/v0/v0.6/plans/future.md" in repo.read(f"{archive}/known-gaps.md")
+    assert repo.gaps_minor() == ("met", [])
+    target = repo.read(f"{archive}/known-gaps.md").replace(
+        "docs/releases/v0/v0.5/plans/current.md", "docs/archives/v0/v0.5/plans/current.md"
+    )
+    repo.write(f"{archive}/known-gaps.md", target)
+    assert "migration-body-not-preserved" in repo.gaps_minor()[1][0]
+
+
+def test_active_and_archived_target_ledgers_refuse_before_either_write(repo: Close) -> None:
+    repo.standard(RETAINED_WARNING)
+    repo.forge()
+    source = repo.read(GAPS05)
+    assert repo.migrate().returncode == 0
+    target = repo.read(GAPS06)
+    repo.write(GAPS05, source)
+    archived = "docs/archives/v0/v0.6/known-gaps.md"
+    repo.write(archived, target)
+    before = [(repo.work / rel).read_bytes() for rel in (GAPS05, GAPS06, archived)]
+    result = repo.migrate()
+    assert result.returncode == 3 and "target-ledger-ambiguous" in result.stdout
+    assert [(repo.work / rel).read_bytes() for rel in (GAPS05, GAPS06, archived)] == before
+
+
+
 def test_unlisted_id_is_refused_and_nothing_is_written(repo: Close) -> None:
     repo.standard(WN3 + "#### WN-4: Another warning\n\n- **Reason**: r\n\n", wn_open=2)
     repo.forge()
@@ -486,6 +786,60 @@ def test_unparsed_ledger_cannot_be_verified(repo: Close) -> None:
     assert notices == [f"gaps.minor unparsed {GAPS05} (line 18 row)"]
 
 
+def test_a_repeated_id_on_unresolved_work_is_ambiguous() -> None:
+    assert cm.parse_ledger_full("### Open Items\n\n#### WN-3: first\n\n#### WN-3: second\n")[1] == [
+        "duplicate-id WN-3"]
+    same_section = "## v0.5.0\n\n#### WN-3: open\n\n#### WN-3: done - RESOLVED\n"
+    assert cm.parse_ledger_full(same_section)[1] == ["duplicate-id WN-3"]
+    # Patch sections reuse short ids: `v0.5.0#WN-3` and `v0.5.1#WN-3` are distinct items the
+    # carry tooling addresses by section, so a repeat across sections is never ambiguous.
+    across_sections = "## v0.5.0\n\n#### WN-3: open\n\n## v0.5.1\n\n#### WN-3: also open\n"
+    assert cm.parse_ledger_full(across_sections)[1] == []
+    resolved_twice = "## v0.5.0\n\n#### WN-3: a - RESOLVED\n\n## v0.5.1\n\n#### WN-3: b - RESOLVED\n"
+    assert cm.parse_ledger_full(resolved_twice)[1] == []
+
+
+def test_a_gap_heading_that_lost_its_id_is_unparsed() -> None:
+    template = "### Open Items\n\n" + WN3.replace("WN-3: ", "", 1)
+    assert cm.parse_ledger_full(template)[1] == ["line 3 heading-without-id"]
+    contract = "### Installer and CLI\n\n### No live smoke\n\n- **Owner**: installer owner\n- **Severity**: low\n"
+    assert cm.parse_ledger_full(contract)[1] == ["line 3 heading-without-id"]
+    migrated = "### Open Items\n\n#### Moved on - MIGRATED to v0.6.0\n"
+    assert cm.parse_ledger_full(migrated)[1] == ["line 3 heading-without-id"]
+
+
+def test_grouping_and_closed_headings_without_an_id_are_not_problems() -> None:
+    text = (
+        "## v0.5.0\n\n### Summary\n\n**Status**: shipped\n\n### Installer and CLI\n\n" + WN3
+        + "### Notes\n\n- **Reason**: one field alone is prose\n\n```\n- **Owner**: x\n- **Severity**: low\n```\n\n"
+        "#### Old finding - RESOLVED 2026-09-01\n\n- **Source phase**: 1\n- **Reason**: fixed\n\n"
+        "#### ~~NI-4~~ (RESOLVED in Phase 6.1) - closed\n\n- **Source phase**: 1\n- **Reason**: x\n\n"
+        "### Resolved\n\n#### Fixed without an id\n\n- **Source phase**: 1\n- **Reason**: x\n"
+    )
+    assert cm.parse_ledger_full(text)[1] == []
+
+
+def test_duplicate_id_is_reported_and_refuses_migration(repo: Close) -> None:
+    repo.standard(WN3 + "#### WN-3: An older copy - RESOLVED 2026-09-01\n\n")
+    repo.forge()
+    status, notices = repo.gaps_minor()
+    assert status == "unmet"
+    assert notices == [f"gaps.minor unparsed {GAPS05} (duplicate-id WN-3)", "gaps.minor open v0.5#WN-3"]
+    before = repo.read(GAPS05)
+    result = repo.migrate()
+    assert result.returncode == 3, result.stdout + result.stderr
+    assert result.stdout.startswith(f"REFUSED: ledger-unparsed ({GAPS05} duplicate-id WN-3)"), result.stdout
+    assert repo.read(GAPS05) == before and not (repo.work / GAPS06).exists()
+
+
+def test_a_gap_that_lost_its_id_keeps_the_minor_from_closing(repo: Close) -> None:
+    repo.standard(WN3.replace("WN-3: ", "", 1), wn_open=0)
+    repo.forge(bound=())
+    status, notices = repo.gaps_minor()
+    assert status == "cannot-verify"
+    assert notices == [f"gaps.minor unparsed {GAPS05} (line 18 heading-without-id)"]
+
+
 def test_self_migration_marker_is_not_accepted(repo: Close) -> None:
     prov = "- **Migrated from**: v0.5#WN-3 on 2026-09-29 (reason: user-deferred)\n\n"
     repo.standard("#### WN-3: The probe flakes - MIGRATED to v0.5.0\n\n" + prov, wn_open=0)
@@ -506,8 +860,16 @@ def test_migration_cycle_between_two_in_scope_minors_is_not_accepted(repo: Close
 
 
 def test_an_earlier_run_forward_migration_is_judged_by_its_copy(repo: Close) -> None:
-    repo.write(OLD04, ledger("v0.4", section("v0.4.0", 0, "#### WN-2: Moved on - MIGRATED to v0.5.0\n\n")))
-    copy = "#### WN-3: Moved on\n\n- **Migrated from**: v0.4#WN-2 on 2026-09-01 (reason: user-deferred)\n\n"
+    body = (
+        "- **Origin**: v0.3#WN-1\n- **Owner**: repository maintainer\n"
+        "- **Acceptance**: the vendor feature must pass the cold-cache probe\n"
+        "- **Proving command**: `pytest -q tests/test_probe.py`\n\n"
+    )
+    repo.write(OLD04, ledger("v0.4", section("v0.4.0", 0, "#### WN-2: Moved on - MIGRATED to v0.5.0\n\n" + body)))
+    copy = "#### WN-3: Moved on\n\n" + body + (
+        "- **Migrated from**: v0.4#WN-2 on 2026-09-01 (reason: user-deferred)\n"
+        "- **Carried from**: v0.5.0#WN-3 on 2026-09-02\n\n"
+    )
     repo.standard(copy)
     repo.forge(bound=())
     assert repo.gaps_minor() == ("unmet", ["gaps.minor open v0.5#WN-3"])  # the copy is open work

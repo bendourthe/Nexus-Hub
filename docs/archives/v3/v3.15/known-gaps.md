@@ -1,9 +1,12 @@
 # Known Gaps - v3.15
 
 **Project**: Nexus-Hub
-**Status**: finalized; archived 2026-09-29; 0 open items (33 migrated to v4.13 as AR-05, AR-08, AR-09, AR-18, AR-19, AR-33, AR-34, AR-37, AR-44, AR-45, AR-46, AR-47, AR-48, AR-49, AR-50, AR-51, AR-52, AR-53, AR-54, AR-55, AR-56, AR-57). Per-section status lines below are historical and were written before release.
+**Status**: archived 2026-09-29; v4.13.11 parser normalization and canonical source-owner reconciliation in progress.
+
+**Historical archive status (2026-09-29)**: finalized; archived 2026-09-29; 0 open items (33 migrated to v4.13 as AR-05, AR-08, AR-09, AR-18, AR-19, AR-33, AR-34, AR-37, AR-44, AR-45, AR-46, AR-47, AR-48, AR-49, AR-50, AR-51, AR-52, AR-53, AR-54, AR-55, AR-56, AR-57). Per-section status lines below are historical and were written before release.
 
 **Open items**: 0
+**Normalization scope, 2026-10-09 (v4.13.11 T006)**: Canonical heading suffixes record supported historical fixes, decisions, limitations, and retirements. Historical account and vendor evidence retains its original date and host scope. Rows labeled "Reference" preserve every original cell and paragraph as checkpoint or reconciliation evidence rather than creating a second obligation; the substantive source headings and their canonical owners remain the source of truth. Forward-migration markers await complete-copy verification.
 
 **Status at last pre-archive update**: `v3.15.0` through `v3.15.9` are all released and tagged (10 releases). v3.15.10 Phases 1-4 are complete locally on `feat/v3.15.10-end-of-task-behavior`: two purposeful notification triggers with repo+branch labels and a run-time kill switch, the end-of-task summary rule in all 12 substantive instruction templates, per-platform notification-coverage verification with delivery to Cursor, and the terminal gate. Awaiting `/update release`.
 **Last updated**: 2026-08-08 (v3.15.14 Phase 4 final reconciliation; release-ready, handed to `/update release`)
@@ -50,19 +53,19 @@ Cycle-wide confirmation recorded in the matrix: no adopted item introduces an MC
 
 **Closed this phase:**
 
-- **QG-1 - CLOSED.** The plan asserts a 269-skill catalog in its Overview and in sub-task 4.4; validation reports **270**. The plan's reasoning was sound (this plan creates no skill, so the count is unchanged BY THIS PLAN) but its literal figure had gone stale because a parallel workstream shipped a skill in between. The CHANGELOG entry states 270, re-derived from validator output rather than transcribed from the plan.
-- **MT-1 - CLOSED.** `tests/skills/test_spec_artifact_agreement.py` now guards the three-artifact agreement: 21 cases asserting the template carries its mandatory headings and marks them mandatory, that the skill's Verification checklist names each one, that the skill declares exactly one canonical skeleton and no rival has returned, that the checklist's scope item is bound to `## Non-Goals` **on its own line**, that a reason-per-entry item exists, that the reviewer agrees with the template's heading, and that the template still mandates a reason per Non-Goal. CI already runs `tests/skills`, so it is covered without a workflow change; the step label was updated to name it.
+- Reference: **QG-1 - CLOSED.** The plan asserts a 269-skill catalog in its Overview and in sub-task 4.4; validation reports **270**. The plan's reasoning was sound (this plan creates no skill, so the count is unchanged BY THIS PLAN) but its literal figure had gone stale because a parallel workstream shipped a skill in between. The CHANGELOG entry states 270, re-derived from validator output rather than transcribed from the plan.
+- Reference: **MT-1 - CLOSED.** `tests/skills/test_spec_artifact_agreement.py` now guards the three-artifact agreement: 21 cases asserting the template carries its mandatory headings and marks them mandatory, that the skill's Verification checklist names each one, that the skill declares exactly one canonical skeleton and no rival has returned, that the checklist's scope item is bound to `## Non-Goals` **on its own line**, that a reason-per-entry item exists, that the reviewer agrees with the template's heading, and that the template still mandates a reason per Non-Goal. CI already runs `tests/skills`, so it is covered without a workflow change; the step label was updated to name it.
 
   **The guard was mutation-tested, and the first draft failed that test.** Three mutations were applied and reverted: unbinding `## Non-Goals` from the checklist's scope item, deleting the reason-per-entry item, and repointing the skill's Verification at the rival template's six areas. The third failed correctly on the first draft, but **the first mutation passed**, because the assertion was `"Non-Goals" in checklist` and the heading is also named in the Content Quality section. The test asserted presence of a token rather than the binding. It was rewritten to check the scope line itself, and all three mutations now fail while the baseline passes 21. Recorded because a guard that passes on the defect it was written to catch would have closed MT-1 on a false guarantee.
 
 **Transferred to v3.16** (see [docs/archives/v3/v3.16/known-gaps.md](../v3.16/known-gaps.md), `TR-#` namespace):
 
-- **NI-2 becomes TR-1**: the `A1` example still phrases a Non-Goal as an Assumption. Left by plan instruction; the Non-Goals authoring note names it as the worked illustration. Fixing it while the note still points at it would remove the evidence, so the rewrite belongs to whichever cycle next touches the template.
+- Reference: **NI-2 becomes TR-1**: the `A1` example still phrases a Non-Goal as an Assumption. Left by plan instruction; the Non-Goals authoring note names it as the worked illustration. Fixing it while the note still points at it would remove the evidence, so the rewrite belongs to whichever cycle next touches the template.
 - **The spec-kit non-claim becomes TR-2**: v3.11.0 items S5, S6, and S8 were not re-examined by this article-scoped pass and carry **no status claim** in either direction. A future repository-delta comparison must verify them rather than infer from this cycle.
 
 **Closed on verification instead of transferred:**
 
-- **TR-3**: the plan directed transferring "`actions/setup-node@v4` remains tag-pinned at `.github/workflows/claude-usage-monitor.yml`:31". Verification found it SHA-pinned at line 38, along with all three siblings (`codex`, `cursor`, `github` monitor workflows), all at `@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4`, and `validate_workflow_security.py` passes. Transferring it would have carried a false open item into the v3.16 ledger. Recorded as closed rather than dropped silently, so a reader of the plan is not left expecting a transfer that never arrived.
+- Reference: **TR-3**: the plan directed transferring "`actions/setup-node@v4` remains tag-pinned at `.github/workflows/claude-usage-monitor.yml`:31". Verification found it SHA-pinned at line 38, along with all three siblings (`codex`, `cursor`, `github` monitor workflows), all at `@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4`, and `validate_workflow_security.py` passes. Transferring it would have carried a false open item into the v3.16 ledger. Recorded as closed rather than dropped silently, so a reader of the plan is not left expecting a transfer that never arrived.
 
 **Phase 1.4 remainder**: none. The plan's fourth transfer was conditional ("if Phase 1.4 revealed that `idea-refine` or `scope-guardian-reviewer` needed more than a naming reconciliation"). Both needed only the minimum change, so there is no deferred remainder to record.
 
@@ -105,7 +108,7 @@ Each item checked against the tree rather than assumed from the phase reports:
 
 #### Decisions recorded
 
-##### DC-1 - `implementation-plan` chosen over `plan-before-code` as the plan layer for D4 and D3
+##### DC-1 - `implementation-plan` chosen over `plan-before-code` as the plan layer for D4 and D3 - CLOSED
 
 - **Source phase**: v3.15.14 Phase 3.1
 - **Plan reference**: `docs/v3/v3.15/plans/v3.15.14-spec-driven-development.md` sub-task 3.1 ("or `plan-before-code` if that is the better fit for per-component design detail; pick ONE and state the choice")
@@ -113,12 +116,14 @@ Each item checked against the tree rather than assumed from the phase reports:
 - **Cost accepted**: `implementation-plan` was at 445 of the 500-line body target, against `plan-before-code`'s 353. The edits were budgeted to fit inline rather than pushed to a `references/` file, on the reasoning that both conventions are authoring-time rules that shape every sub-task written (Tier 2), not edge-case reference material (Tier 3). Final size 469 lines, 31 under the target.
 - **Suggested next step**: None. Recorded so a future reader does not re-litigate the choice, and so the Phase 3 exit-checklist item "exactly one plan-layer skill chosen" has a stated answer.
 
+**Normalization, 2026-10-09 (v4.13.11 T006)**: CLOSED. This marker records the historical decision, accepted limitation, retirement, or superseded record described here. Retained triage evidence: Decision, no action; K15 v3.15.14 Phase 4.3 "Needing no action: DF-1, EN-1, DC-1" (K15:~70).
+
 #### Advisory (no action required)
 
 - **The declined merge held.** This phase's whole risk was that closing the error-handling gap would pull architecture back into the spec, which the comparison declined because it conflicts with the normative-versus-context split and would fail `spec-quality-checklist.md`'s implementation-detail checks. Verified mechanically: `git diff --name-only` for Phase 3 lists exactly one file, `catalog/skills/workflow/implementation-plan/SKILL.md`. `spec-template.md` was not modified, its `Key Entities` prohibition ("Do not include database schemas, column types, or implementation details") is intact at line 107, and a grep of the template for retry / backoff / error-handling / schema / interface / module-boundary language returns only that prohibition line itself. The new Step 3.6 also states the boundary explicitly as an instruction to future authors: do NOT close this gap by pushing error handling, data models, interfaces, or schemas back into the spec template.
 - **The build-class provenance note is recorded in the skill body without attribution**, per the plan and the AGENTS.md reverse-engineering attribution rule. The skill says the convention is adopted on its own merits, that it was proposed on the strength of an example specification said to demonstrate it, and that the document carried no code blocks and no such labeling, so the cited evidence does not support the claim. No external article, author, newsletter, or repository is named. Full provenance goes in the Phase 4.2 matrix row.
 - **CI/CD unchanged, third phase running.** One file under `catalog/`, outside `docs/`, so `ci.yml`'s existing `paths-ignore: docs/**` trigger fires the full job set. The plan-contract suite (`tests/plans`) is the surface most at risk from a plan-template change and it passes; those tests assert the presence of required fields rather than the absence of others, so the two new template fields are additive.
-- **QG-1, MT-1, and NI-2 carry forward to Phase 4 unchanged.**
+- Reference: **QG-1, MT-1, and NI-2 carry forward to Phase 4 unchanged.**
 
 ### v3.15.14 Phase 2 checkpoint
 
@@ -139,19 +144,21 @@ Each item checked against the tree rather than assumed from the phase reports:
 
 #### Enhancements beyond the plan (recorded, not deviations)
 
-##### EN-1 - A second rationalization row was added; the plan specified one
+##### EN-1 - A second rationalization row was added; the plan specified one - CLOSED
 
 - **Source phase**: v3.15.14 Phase 2.1
 - **Plan reference**: `docs/v3/v3.15/plans/v3.15.14-spec-driven-development.md` sub-task 2.1 ("Add a Common Rationalizations row rebutting the misreading this rule invites")
 - **Reason**: the plan named the skip-the-approval misreading, which is now row 4. A second misreading is at least as likely and the plan did not name it: reading "the change is small" as qualifying for "When NOT to use" (no spec) rather than for the depth rule's bottom tier (a short spec). That is the shallow-spec-becomes-no-spec slide, and it is a different error from treating a short spec as a licence to skip approval, so one row could not rebut both without blurring. Row 5 covers it. This adds material rather than departing from the plan, so it is recorded as an enhancement rather than as DF-2.
 - **Suggested next step**: None. Recorded so the Phase 2 exit checklist item ("a third added rebutting the depth rule's misreading") reads correctly against a table that now has two additions, not one.
 
+**Normalization, 2026-10-09 (v4.13.11 T006)**: CLOSED. This marker records the historical decision, accepted limitation, retirement, or superseded record described here. Retained triage evidence: Enhancement record; same Phase 4.3 "Needing no action" list.
+
 #### Advisory (no action required)
 
 - **The full repository test surface is green.** Running `pytest tests catalog/hooks/tests` from PowerShell rather than Git Bash yielded **2580 passed, 56 skipped, 0 failed** (exit 0), plus 670 passed / 1 skipped across the five extension suites and a passing compression accuracy gate. This is a direct empirical confirmation of Phase 1's BG-16 classification: the identical tree that produced `1587 passed, 1 failed` under Git Bash produces `2580 passed, 0 failed` under PowerShell, with the difference being exactly `test_ps_standalone_extracts_and_hands_off`. BG-16's cause and suggested next step are unchanged; this entry only records that the shell-dependence was reproduced deliberately in both directions.
 - **The hard gate's integrity was proven mechanically, not by reading.** Across all of Phase 2 the file has exactly two deleted lines: the `overview_l1` frontmatter line and the old one-line "When NOT to use" paragraph. The Hard Gate block therefore has zero deleted lines, which establishes that "The gate applies regardless of how simple the change looks" and "Silence is not approval" survive verbatim without needing a string comparison to say so. The four surfaces (behavior, public API, data schema, CLI) are byte-identical between the new tier table and the merge-gate section.
 - **CI/CD unchanged, same reasoning as Phase 1.** This phase modified one file under `catalog/`, which sits outside `docs/` and therefore fires `ci.yml`'s full job set through the existing `paths-ignore: docs/**` trigger. No new surface, no new optimization opportunity.
-- **QG-1 and MT-1 carry forward unchanged.** The catalog holds 270 skills, not the 269 the plan asserts, and nothing automated yet asserts the template / checklist / skill trio stays in agreement. Both remain Phase 4 work.
+- Reference: **QG-1 and MT-1 carry forward unchanged.** The catalog holds 270 skills, not the 269 the plan asserts, and nothing automated yet asserts the template / checklist / skill trio stays in agreement. Both remain Phase 4 work.
 
 ### v3.15.14 Phase 1 checkpoint
 
@@ -190,25 +197,29 @@ Each item checked against the tree rather than assumed from the phase reports:
 
 #### Quality gates
 
-##### QG-1 - OPEN: the plan asserts a catalog count of 269; the catalog holds 270
+##### QG-1 - OPEN: the plan asserts a catalog count of 269; the catalog holds 270 - RESOLVED
 
 - **Source phase**: v3.15.14 Phase 1.5 (observed during validation)
 - **Plan reference**: same plan, Overview ("the catalog count stays at 269") and sub-task 4.4 ("catalog count is unchanged at 269 skills")
 - **Reason**: `make validate` reports `skills.json OK -- 270 skills`. The plan was authored when the catalog held 269 and a skill has landed since. The plan's underlying claim is still correct (this plan creates no new skill, so the count is unchanged BY THIS PLAN), but the literal number is stale, and Phase 4.4 would write the wrong figure into `CHANGELOG.md` if followed verbatim.
 - **Suggested next step**: In Phase 4.4, write "unchanged at 270 skills" and re-derive the number from `make validate` output at the time rather than from the plan text.
 
+**Normalization, 2026-10-09 (v4.13.11 T006)**: RESOLVED. This marker records the previously implemented fix or completed proof described here. Retained triage evidence: K15 Phase 4.3 "QG-1 - CLOSED": CHANGELOG states 270.
+
 #### Missing tests
 
-##### MT-1 - OPEN: no automated check asserts the spec artifact trio stays in agreement
+##### MT-1 - OPEN: no automated check asserts the spec artifact trio stays in agreement - RESOLVED
 
 - **Source phase**: v3.15.14 Phase 1.5
 - **Plan reference**: same plan, sub-task 1.5
 - **Reason**: The whole defect this phase fixes was a silent disagreement between three prose artifacts: the template's sections, the checklist's items, and the skill's Verification list. Phase 1 repaired the disagreement but added nothing that would detect it recurring. The existing validators cover placeholder syntax, bundle orphans, and routing vocabulary; none of them knows that the skill's Verification list is supposed to enumerate the template's headings. A future edit to any one of the three can silently desynchronize them again, which is precisely how the original defect arose.
 - **Suggested next step**: Add a small pytest under `tests/` asserting (a) `catalog/templates/spec-template.md` contains the mandatory headings `## Problem Statement`, `## User Scenarios & Testing`, `## Requirements`, `## Success Criteria`, `## Non-Goals`, (b) each of those headings is named somewhere in the `spec-driven-development` Verification section, and (c) `spec-quality-checklist.md` references `## Non-Goals`. Roughly 20 lines, no new dependency. Best placed in Phase 4 alongside the CI/CD pass so the new test is covered by the existing workflow.
 
+**Normalization, 2026-10-09 (v4.13.11 T006)**: RESOLVED. This marker records the previously implemented fix or completed proof described here. Retained triage evidence: `tests/skills/test_spec_artifact_agreement.py` exists (21 cases, mutation-tested per K15 Phase 4.3).
+
 #### Advisory (no action required)
 
-- **BG-16 re-confirmed, not re-opened**: `tests/installer/test_bootstrap.py::test_ps_standalone_extracts_and_hands_off` failed once during Phase 1.5 validation and was traced to the already-documented v3.15.12 BG-16 cause: the suite was launched from Git Bash, so `install.ps1` inherited a `PATH` resolving GNU tar 1.35 ahead of Windows bsdtar 3.8.4. The same test passes from PowerShell on the identical tree, which was verified. Phase 1 changed five Markdown files under `catalog/` and touches nothing the test exercises. No new entry is warranted; BG-16 remains the canonical record and its suggested next step is unchanged.
+- Reference: **BG-16 re-confirmed, not re-opened**: `tests/installer/test_bootstrap.py::test_ps_standalone_extracts_and_hands_off` failed once during Phase 1.5 validation and was traced to the already-documented v3.15.12 BG-16 cause: the suite was launched from Git Bash, so `install.ps1` inherited a `PATH` resolving GNU tar 1.35 ahead of Windows bsdtar 3.8.4. The same test passes from PowerShell on the identical tree, which was verified. Phase 1 changed five Markdown files under `catalog/` and touches nothing the test exercises. No new entry is warranted; BG-16 remains the canonical record and its suggested next step is unchanged.
 - **CI/CD assessed, no change proposed**: sub-task 1.5 asked for a path-filtered pipeline covering `catalog/templates/**` and `catalog/skills/**`. `.github/workflows/ci.yml` already covers both, via a `paths-ignore: docs/**` trigger (the changed directories sit outside `docs/`, so every one of them fires the full job set), and it already carries the three optimizations named: `concurrency` with `cancel-in-progress`, pip caching keyed on `.pre-commit-config.yaml`, and the expensive Windows and matrix legs gated behind `if: github.event_name != 'pull_request'`. Adding a positive `paths:` filter restricted to those two directories would NARROW coverage rather than optimize it, so none was added. Phase 4.5 should re-confirm rather than re-derive this.
 
 ## v3.15.12 - cursor live transport and github billing monitor
@@ -238,21 +249,25 @@ Each item checked against the tree rather than assumed from the phase reports:
 - **Resolution**: `CURSOR_WIRE_CONTRACT` is now `wire/v2-rpc-verified` with `verified: true`, POSTing an empty body to the RPC host behind the existing consent gate. Three probe findings are pinned by tests: field names are camelCase (Connect's proto3 JSON mapping, not the descriptor's snake_case), percentages are used as delivered and never derived (spend-over-limit gave 1078.70 against a reported 23.97), and money is minor units (limit 2000 for a 20-dollar allowance) with cycle bounds as epoch-millisecond strings. Two defects were caught during implementation: the production `FetchJsonClient` still hardcoded `method: "GET"` while every stub-based test passed, and the panel's command guard would have rendered the new button inert; both now have tests. HO-5 is superseded, since the route it was waiting to verify is not the route that exists.
 - **Superseded next step** (retained for the record): Replace the REST contract with the Connect call (`POST https://api2.cursor.sh/aiserver.v1.DashboardService/GetCurrentPeriodUsage`, `content-type: application/json`, empty `{}` body, bearer token from the existing session adapter) behind the consent gate that already exists. Confirm the field units before rendering money: the spend fields are `int32`, which strongly suggests cents rather than dollars, and formatting cents as dollars would overstate spend by 100x. Keep `verified: false` until one bounded probe on a real account confirms both the field names and the units.
 
-##### HO-5 - NARROWED, not closed: the wire contract is unverified against a live account
+##### HO-5 - NARROWED, not closed: the wire contract is unverified against a live account - CLOSED
 
 - **Source phase**: v3.15.12 Phase 1.3 - Session adapter and transport (T005 / T006)
 - **Plan reference**: `docs/v3/v3.15/plans/v3.15.12-cursor-live-transport-and-github-billing-monitor.md` (sub-tasks 1.3, 1.5)
 - **Reason**: The plan's "Prior-version gaps ingested" table records HO-5 as "Closed by Phase 1". That is **not** what shipped, and the difference matters. The consent gate, the read-only one-key adapter, the transport, and the degradation path are all implemented and tested, and the authorization boundary is recorded in `cursor-usage-auth-probe.md`. What is NOT established is that the undocumented JSON route exists at the assumed path with the assumed field names and units. Cursor documents no personal-usage API, so that can only be settled by one bounded probe using the maintainer's own signed-in session, on the maintainer's host. Rather than invent a fixture and label it verified, `CURSOR_WIRE_CONTRACT.verified` is `false`, the fixtures carry `provenance: expected-shape-unverified`, and every field name is a dot-path in one table so correcting them is a string edit. A payload that does not match is rejected, so the failure mode is "degrades to cache with a staleness label", never "renders a wrong number as live".
 - **Suggested next step**: Run the Bounded Probe Procedure in `cursor-usage-auth-probe.md` once, record the sanitized field names and units, and correct `tests/fixtures/cursor-usage/wire-contract.json` together with the `CURSOR_WIRE_CONTRACT` constant (a test asserts the two agree). HO-5 closes at that point. If the route turns out not to exist, the honest outcome is to keep the manual/cache posture and say so, not to reach for HTML scraping, which the non-goals exclude.
 
+**Normalization, 2026-10-09 (v4.13.11 T006)**: CLOSED. This marker records the historical decision, accepted limitation, retirement, or superseded record described here. Retained triage evidence: Superseded by HO-7 CLOSED (K15:232); `extensions/cursor-usage-monitor/src/providers/liveTransport.ts:44-45` `wire/v2-rpc-verified`, `verified: true`.
+
 #### Warnings
 
-##### WN-5 - Live transport requires Node 22.13+ in the extension host, and emits an experimental warning where present
+##### WN-5 - Live transport requires Node 22.13+ in the extension host, and emits an experimental warning where present - CLOSED
 
 - **Source phase**: v3.15.12 Phase 1.3 - Session adapter (T004)
 - **Plan reference**: same plan, sub-task 1.3
 - **Reason**: Reading `state.vscdb` needs SQLite. Adding `better-sqlite3` would break the plan's own "no new dependency" Constitution Check and require per-platform prebuilds in the VSIX, so the adapter uses Node's built-in `node:sqlite`, feature-detected via a guarded dynamic import. Two consequences. First, a Cursor build whose Electron ships Node 20 has no `node:sqlite`; the capability check reports `sqlite-unavailable` and the extension degrades to cache/manual, which means the plan's Definition of Done ("real numbers after exactly one consent click") is host-dependent and unproven on the maintainer's specific Cursor build. Second, `node:sqlite` is still flagged experimental upstream and emits `ExperimentalWarning: SQLite is an experimental feature` on import; in an extension host that lands in the log, not in front of the user.
 - **Suggested next step**: When running the HO-5 probe, record the Cursor version and whether the capability check reports `available` on that host. If it reports `sqlite-unavailable`, the options are a hand-rolled read-only page parser or accepting the manual posture on that host; do not add a native dependency without revisiting the Constitution Check.
+
+**Normalization, 2026-10-09 (v4.13.11 T006)**: CLOSED. This marker records the historical decision, accepted limitation, retirement, or superseded record described here. Retained triage evidence: K15:575 "WN-5 - RESOLVED": Cursor host is Electron 40.10.3 / Node 24.15.0 with `node:sqlite` available.
 
 #### Quality gates
 
@@ -266,7 +281,7 @@ Each item checked against the tree rather than assumed from the phase reports:
 #### Maintainer-only, and NOT closable by an agent
 
 - **Phase 1 exit checklist item "One consent click yields live numbers on a real host"** is unverified. It requires a human in Cursor, and it is gated on HO-5 above. Recorded rather than ticked.
-- **QG-5** (v3.15.9 Cursor live visual smoke), **QG-4** (v3.15.8 light/dark/high-contrast smoke), and **MT-5** (v3.15.8 GitHub monitor Extension Development Host activation) are re-stated unchanged. All three need a human observing rendered UI.
+- Reference: **QG-5** (v3.15.9 Cursor live visual smoke), **QG-4** (v3.15.8 light/dark/high-contrast smoke), and **MT-5** (v3.15.8 GitHub monitor Extension Development Host activation) are re-stated unchanged. All three need a human observing rendered UI.
 
 #### Deviations from the plan's stated file list (no gap, recorded for accuracy)
 
@@ -354,8 +369,8 @@ Phase 2 introduced no new numbered gap. Its one unverifiable item, three-theme v
 
 #### Carried forward unchanged
 
-- **HO-5** (narrowed: the Cursor wire contract awaits one maintainer probe) and **WN-5** (Node 22.13+ host requirement) from Phase 1.
-- **QG-4**, **QG-5**, **MT-5** remain maintainer-only. **MT-5** specifically covers GitHub monitor Extension Development Host activation, so the renamed surfaces are new copy for that smoke to read; the rename is asserted statically but has not been seen rendered in a real VS Code window.
+- Reference: **HO-5** (narrowed: the Cursor wire contract awaits one maintainer probe) and **WN-5** (Node 22.13+ host requirement) from Phase 1.
+- Reference: **QG-4**, **QG-5**, **MT-5** remain maintainer-only. **MT-5** specifically covers GitHub monitor Extension Development Host activation, so the renamed surfaces are new copy for that smoke to read; the rename is asserted statically but has not been seen rendered in a real VS Code window.
 
 ### v3.15.12 Phase 3 Summary
 
@@ -377,13 +392,15 @@ One bug found and resolved in-phase (BG-11), and it is the useful result of Phas
 
 #### Hand-offs
 
-##### HO-6 - The VS Code session premise cannot be settled from documentation, and needs a live probe with a classic-PAT control
+##### HO-6 - The VS Code session premise cannot be settled from documentation, and needs a live probe with a classic-PAT control - CLOSED
 
 - **Source phase**: v3.15.12 Phase 4.1 - T022
 - **Plan reference**: `docs/v3/v3.15/plans/v3.15.12-cursor-live-transport-and-github-billing-monitor.md` (sub-task 4.1)
 - **Reason**: The plan assumed first-party documentation would answer whether VS Code GitHub sessions are accepted by the billing endpoints. It does not. GitHub's REST endpoint reference says fine-grained PATs work for user and organization billing usage, while GitHub's own "Automating usage reporting" tutorial says the billing usage endpoints do **not** support fine-grained PATs and directs users to a classic PAT. Enterprise is the single documentary negative (fine-grained PATs and GitHub App tokens explicitly rejected). Because the reference's token section is titled "Fine-grained access tokens for...", OAuth's absence from it is **not** a rejection, so no documentary reading can rule the session path out either. That leaves a live probe as the only resolution, and a probe needs a **classic-PAT control** on an account that genuinely holds the role and has enhanced billing enabled, because insufficient role, organization OAuth-app restrictions, and SSO authorization all produce the same `403` / `404` shapes.
 - **Suggested next step**: run the probe matrix in `development/github-billing-auth-probe.md` using `src/providers/authProbe.ts`, one `/settings/billing/usage` read per credential class per level, and paste the sanitized records into that document's results table. `toMarkdownRow` emits a paste-ready row. Then T023 implements against recorded evidence rather than an assumption.
 - **This is the second maintainer gate in v3.15.12**, alongside HO-5. Both exist for the same reason: a premise that only a real host and a real account can settle.
+
+**Normalization, 2026-10-09 (v4.13.11 T006)**: CLOSED. This marker records the historical decision, accepted limitation, retirement, or superseded record described here. Retained triage evidence: GitHub usage monitor removed in v3.18.2 (`docs/decisions/implemented/architecture/2026-08-22-withdraw-the-github-usage-monitor.md`; `extensions/github-usage-monitor` absent); also answered at K15:526.
 
 #### Corrections to premises this plan inherited (recorded so they are not re-derived)
 
@@ -429,27 +446,35 @@ HO-6 is new and open. It is not a defect: it is the honest result of discovering
 
 | Item | Disposition |
 |---|---|
-| **HO-5** | **SUPERSEDED, and its stated conclusion RETRACTED.** This row previously read "CLOSED as a negative... there is no supported surface". That was wrong: it inferred the absence of a surface from its absence in the public documentation. Cursor's own client reads personal usage through `GetCurrentPeriodUsage` on `aiserver.v1.DashboardService`, verified against a live account and shipped in v3.15.13. `CURSOR_WIRE_CONTRACT.verified` is now `true`. See HO-7 |
-| **WN-5** | **RESOLVED, favorably.** Cursor's extension host is Electron 40.10.3 / Node 24.15.0 with `node:sqlite` available, well above the 22.13 floor. Answered via `ELECTRON_RUN_AS_NODE`, not by a human reading a panel |
-| **BG-11** | Resolved: the rename would have failed CI through `catalog/hooks/tests`, a tree the phase gate did not run |
-| **BG-12** | Resolved: both probe runners aborted on exit via `process.exit()` racing `node:sqlite` teardown |
-| **BG-13** | Resolved: scope escalation would have requested `admin:org` for a non-scope failure |
-| **BG-14** | Resolved: `logIn` / `logOut` were registered with no test driving them, on a stub with no `authentication` surface |
-| **QG-6** | Resolved: the Cursor workflow now triggers on `tests/fixtures/cursor-usage/**` |
+| Reference: **HO-5** | **SUPERSEDED, and its stated conclusion RETRACTED.** This row previously read "CLOSED as a negative... there is no supported surface". That was wrong: it inferred the absence of a surface from its absence in the public documentation. Cursor's own client reads personal usage through `GetCurrentPeriodUsage` on `aiserver.v1.DashboardService`, verified against a live account and shipped in v3.15.13. `CURSOR_WIRE_CONTRACT.verified` is now `true`. See HO-7 |
+| Reference: **WN-5** | **RESOLVED, favorably.** Cursor's extension host is Electron 40.10.3 / Node 24.15.0 with `node:sqlite` available, well above the 22.13 floor. Answered via `ELECTRON_RUN_AS_NODE`, not by a human reading a panel |
+| Reference: **BG-11** | Resolved: the rename would have failed CI through `catalog/hooks/tests`, a tree the phase gate did not run |
+| Reference: **BG-12** | Resolved: both probe runners aborted on exit via `process.exit()` racing `node:sqlite` teardown |
+| Reference: **BG-13** | Resolved: scope escalation would have requested `admin:org` for a non-scope failure |
+| Reference: **BG-14** | Resolved: `logIn` / `logOut` were registered with no test driving them, on a stub with no `authentication` surface |
+| Reference: **QG-6** | Resolved: the Cursor workflow now triggers on `tests/fixtures/cursor-usage/**` |
 
 #### Open at release
 
 | Item | Why it is open |
 |---|---|
-| **HO-6** - CLOSED 2026-09-29 | Narrowed to **one command the maintainer runs**. `GitHub Billing: Diagnose Authorization` acquires a session, probes once, and records the verdict. It cannot be closed by an agent: a VS Code session exists only inside the editor, and reading its token from the OS keychain is an explicit non-goal. Until it runs, an unprobed target reports `unknown`, and `unknown` is never treated as `supported` |
+| Reference: **HO-6** - CLOSED 2026-09-29 | Narrowed to **one command the maintainer runs**. `GitHub Billing: Diagnose Authorization` acquires a session, probes once, and records the verdict. It cannot be closed by an agent: a VS Code session exists only inside the editor, and reading its token from the OS keychain is an explicit non-goal. Until it runs, an unprobed target reports `unknown`, and `unknown` is never treated as `supported` |
+| Reference: **QG-4 / QG-5 / MT-5** - MIGRATED to v4.13 (AR-44) | Maintainer-only interactive smokes. **Scope widened this version**: QG-4/QG-5 now also cover the Cursor on-demand bar (currency labels, shared-scope note, over-limit clamp, dropped-bar fallback), and MT-5 now also covers the renamed GitHub surfaces and the new Authorization panel section |
+| Reference: **WN-3** - RESOLVED 2026-09-29 | Unchanged. `test_instruction_merge.py` depends on installer-suite import order (v3.15.7). Untouched by this release |
+| Reference: **DF-14 / DF-16 / DF-17** | Out of scope; carried unchanged |
+
+##### QG-v31512-5 - Cursor on-demand bar extends the outstanding live visual smoke - MIGRATED to v4.13.0
+
 | **QG-4 / QG-5 / MT-5** - MIGRATED to v4.13 (AR-44) | Maintainer-only interactive smokes. **Scope widened this version**: QG-4/QG-5 now also cover the Cursor on-demand bar (currency labels, shared-scope note, over-limit clamp, dropped-bar fallback), and MT-5 now also covers the renamed GitHub surfaces and the new Authorization panel section |
-| **WN-3** - RESOLVED 2026-09-29 | Unchanged. `test_instruction_merge.py` depends on installer-suite import order (v3.15.7). Untouched by this release |
-| **DF-14 / DF-16 / DF-17** | Out of scope; carried unchanged |
+
+**Normalization, 2026-10-09 (v4.13.11 T006)**: The table adds a real Cursor residual: currency labels, the shared-scope note, the over-limit clamp, and the dropped-bar fallback. The original `v3.15.12#QG-4`, `v3.15.12#QG-5`, and `v3.15.12#MT-5` references and all GitHub clauses are retained in the source row above; this structural heading uses a distinct ID to preserve that widened source without colliding with v3.15.9 QG-5. GitHub-only renamed surfaces and Authorization-panel checks were superseded by withdrawal of that monitor in v3.18.2; the Cursor smoke remains open under AR-44 until its canonical copy preserves the widened scope.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-44`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.12`, section `v3.15.12 - cursor live transport and github billing monitor`, and original ID `QG-v31512-5`.
 
 #### Re-checked
 
-- **WN-4**: `npm audit` reports **0 vulnerabilities** in both usage-monitor extensions. The prior entry recorded transitive `@vscode/vsce` deprecation *notices* alongside a clean audit; the audit remains clean.
-- **PR-1**: remains recorded, and **this release did not repeat it.** v3.15.12 had a plan before implementation, and every phase produced a session history. The plan was also corrected in place three times when evidence contradicted it (the breaking-id assumption, the HO-5 closure prediction, and the global auth default), rather than left describing work that did not happen.
+- Reference: **WN-4**: `npm audit` reports **0 vulnerabilities** in both usage-monitor extensions. The prior entry recorded transitive `@vscode/vsce` deprecation *notices* alongside a clean audit; the audit remains clean.
+- Reference: **PR-1**: remains recorded, and **this release did not repeat it.** v3.15.12 had a plan before implementation, and every phase produced a session history. The plan was also corrected in place three times when evidence contradicted it (the breaking-id assumption, the HO-5 closure prediction, and the global auth default), rather than left describing work that did not happen.
 
 #### Advisory, pre-existing, not introduced by this release
 
@@ -503,7 +528,7 @@ HO-6's affirmative resolution. The scope candidates are GitHub's own answers rat
 
 - **The `vscode-oauth` leg of T022c is unrun.** A session needs the editor, so per-app authorization and SSO for `GitHub for VS Code` specifically remain unverified; the `gh` result does not transfer. The in-editor diagnostic is the remaining piece, and the code is written so that target simply reports `unknown` until it is probed rather than assuming either answer.
 - **Enterprise scope is unprobed** (no enterprise slug on the reference account). - CLOSED 2026-09-29
-- **MT-5** still applies: none of the new panel copy has been seen rendered in a real VS Code window.
+- Reference: **MT-5** still applies: none of the new panel copy has been seen rendered in a real VS Code window.
 
 ### v3.15.12 Phase 4 Summary
 
@@ -532,7 +557,7 @@ Both probes were run. One premise is resolved; the other advanced but is still o
 - **Still open, and narrower than before**: OAuth-app authorization and SSO are per-app, so the `gh` result does not transfer to `GitHub for VS Code`. The remaining question is whether VS Code's provider can obtain `repo` / `user` and is authorized for the target organization. That needs an in-editor leg. Enterprise scope is unprobed (no enterprise slug on this account).
 - **Consequence for T023**: the session path can now be designed as the *likely* default with a PAT fallback, per target, instead of being treated as unavailable. No per-organization variation was observed across three organizations, which does not falsify per-target resolution (OAuth-app restrictions are a per-org setting that can differ elsewhere) but does mean the risk was not exercised here.
 
-#### HO-5 - PROBE COMPLETE: the authorized path does not work (supersedes the "advanced, still open" note below)
+#### HO-5 - PROBE COMPLETE: the authorized path does not work (supersedes the "advanced, still open" note below) - CLOSED
 
 The full authorized sequence was run on 2026-08-06. Status ladder, all pre-recorded leads:
 
@@ -572,22 +597,28 @@ Independently, Cursor's terms restrict reverse engineering, probing or scanning 
 
 **What Phase 1 delivered remains sound and worth keeping**: the consent gate, the read-only allowlisted-key adapter with a now-confirmed key name, the fail-closed transport with a fixture-pinned contract, and the degradation path that turns exactly this outcome into an explicit staleness label instead of a wrong number. The phase's defensive design is what makes this a clean negative result rather than a silent misreport.
 
+**Normalization, 2026-10-09 (v4.13.11 T006)**: CLOSED. This marker records the historical decision, accepted limitation, retirement, or superseded record described here. Retained triage evidence: Later retracted and closed by HO-7 (K15:232) with verified Connect RPC; liveTransport.ts:44-45.
+
 #### WN-5 - RESOLVED, favorably, and answerable without a human
 
 Cursor's extension host is **Electron 40.10.3 / Node 24.15.0** with `node:sqlite` **available**, well above the 22.13 floor. So the capability check reports `available` and the consent prompt does appear on this host.
 
 Recorded as maintainer-only initially, on the correct observation that the extension host is a different runtime from system Node but the wrong conclusion that only a human could inspect it. `ELECTRON_RUN_AS_NODE=1 Cursor.exe -e "..."` reports the host's Node version and module availability directly. The technique is written up in the probe doc and generalizes to any Electron-based editor.
 
-#### HO-5 - Advanced, still open (SUPERSEDED by the probe-complete entry above)
+#### HO-5 - Advanced, still open (SUPERSEDED by the probe-complete entry above) - CLOSED
 
 - **The allowlisted key name is confirmed against a real host.** `cursorAuth/accessToken` exists in `%APPDATA%\Cursor\User\globalStorage\state.vscdb` and holds a value passing the shape rule. The v3.15.9 probe could only verify that the file existed; this verifies the key.
 - **The read-only one-key adapter works end to end**: opened, read, released, reached the transport.
 - **`GET https://cursor.com/api/usage-summary` returned 401**, so no wire shape was obtained and `CURSOR_WIRE_CONTRACT` remains `verified: false`.
 - **The `401` is ambiguous** between a stale session, a wrong header form, and a wrong route. The probe boundary forbids guessing at header variations or neighbouring endpoints, so more attempts do not resolve it. Next step: sign in to Cursor and re-run; if still `401`, one re-run with `--route /api/dashboard/get-current-period-usage`, then stop and record.
 
-#### WN-5 - NOT resolved, and it would be easy to think it was
+**Normalization, 2026-10-09 (v4.13.11 T006)**: CLOSED. This marker records the historical decision, accepted limitation, retirement, or superseded record described here. Retained triage evidence: Self-marked SUPERSEDED; final closure HO-7 (K15:232).
+
+#### WN-5 - NOT resolved, and it would be easy to think it was - CLOSED
 
 The probe script reported `node:sqlite` available, but it ran on **system Node v24.13.0**. Cursor's extension host runs its own Electron Node, a different runtime. This run says nothing about the extension host, so WN-5 stays open and is answered only from inside Cursor by observing whether the panel reports the capability available.
+
+**Normalization, 2026-10-09 (v4.13.11 T006)**: CLOSED. This marker records the historical decision, accepted limitation, retirement, or superseded record described here. Retained triage evidence: Answered by K15:575 using `ELECTRON_RUN_AS_NODE=1` on Cursor's own runtime.
 
 #### BG-12 - RESOLVED same session: the probe script aborted instead of exiting
 
@@ -624,10 +655,10 @@ Both bugs are the same shape as the inert-hook failure the Phase 3 verification 
 
 ### Still open, unchanged
 
-- **QG-5** (Cursor live visual smoke), **QG-4** (light/dark/high-contrast smoke), **MT-5** (Extension Development Host activation). All three require a human observing rendered UI and **cannot be closed by an agent**. What IS verified this release: the automated surface is green (Cursor extension 132 tests, GitHub extension 103 tests, both packaging in CI). What is NOT verified is the rendered result on a live host. These are recorded as open rather than quietly folded into a passing release.
-- **HO-5** (live Cursor transport disabled by design), **WN-4** (upstream `@vscode/vsce` deprecations), **WN-3** (v3.15.7 test import order).
-- **DF-14** trigger B still undelivered on Qwen (`Stop`, verified) and Gemini CLI (`AfterAgent`, verified); Kimi's event set still unenumerated. Codex is now removed from DF-14, having been delivered.
-- **DF-16** Windows notification linger unmeasured. **DF-17** DF-1 commands residual.
+- Reference: **QG-5** (Cursor live visual smoke), **QG-4** (light/dark/high-contrast smoke), **MT-5** (Extension Development Host activation). All three require a human observing rendered UI and **cannot be closed by an agent**. What IS verified this release: the automated surface is green (Cursor extension 132 tests, GitHub extension 103 tests, both packaging in CI). What is NOT verified is the rendered result on a live host. These are recorded as open rather than quietly folded into a passing release.
+- Reference: **HO-5** (live Cursor transport disabled by design), **WN-4** (upstream `@vscode/vsce` deprecations), **WN-3** (v3.15.7 test import order).
+- Reference: **DF-14** trigger B still undelivered on Qwen (`Stop`, verified) and Gemini CLI (`AfterAgent`, verified); Kimi's event set still unenumerated. Codex is now removed from DF-14, having been delivered.
+- Reference: **DF-16** Windows notification linger unmeasured. **DF-17** DF-1 commands residual.
 - The 144 un-ticked exit-checklist boxes across six released v3.15 plans, and `session-summary.sh` carrying the same `basename "$(pwd)"` weakness the notification hooks shed.
 
 ### v3.15.11 Summary
@@ -661,24 +692,50 @@ Plus **DF-1's skills half**, resolved in Nexus-Hub's favor by first-party docume
 
 #### Hand-offs and by-design (unchanged, carried from earlier versions)
 
-- **HO-5**: live Cursor transport stays disabled until the maintainer authorizes the bounded probe. Intended shipped state, not a defect. - CLOSED 2026-09-29
-- **WN-4**: transitive `@vscode/vsce` deprecation notices; `npm audit` clean. Upstream-bounded.
-- **WN-3**: `test_instruction_merge.py` depends on installer-suite import order (v3.15.7). Untouched by this release.
+- Reference: **HO-5**: live Cursor transport stays disabled until the maintainer authorizes the bounded probe. Intended shipped state, not a defect. - CLOSED 2026-09-29
+- Reference: **WN-4**: transitive `@vscode/vsce` deprecation notices; `npm audit` clean. Upstream-bounded.
+- Reference: **WN-3**: `test_instruction_merge.py` depends on installer-suite import order (v3.15.7). Untouched by this release.
 
 #### Maintainer-only, and NOT closable by an agent
 
 These require a human at a real IDE and are the reason "all known gaps addressed" cannot be literally true at release time:
 
-- **QG-5** (v3.15.9): the Cursor live visual smoke was not executed. Still open.
-- **QG-4** (v3.15.8): interactive light/dark/high-contrast visual smoke.
-- **MT-5** (v3.15.8): GitHub monitor Extension Development Host activation coverage.
+- Reference: **QG-5** (v3.15.9): the Cursor live visual smoke was not executed. Still open.
+- Reference: **QG-4** (v3.15.8): interactive light/dark/high-contrast visual smoke.
+- Reference: **MT-5** (v3.15.8): GitHub monitor Extension Development Host activation coverage.
 
 #### Deferred, introduced by v3.15.10
 
+##### DF-14 - Completion notification trigger B remains undelivered or unverified on three platforms - MIGRATED to v4.13.0
+
 - **DF-14 - trigger B deferred on four platforms.** Qwen (`Stop`, verified) and Gemini CLI (`AfterAgent`, verified) each need a writer for their own `settings.json` layout plus a test surface; Gemini CLI is additionally enterprise-only opt-in, making it the lowest-value target. Codex (`Stop` likely) and Kimi have event sets that reachable first-party docs never enumerate, so nothing was delivered for them. Deferring is the honest output of a verification-gated phase. - MIGRATED to v4.13 (AR-45)
+
+**Normalization, 2026-10-09 (v4.13.11 T006)**: Converted the authoritative bullet to a supported gap heading. The complete original source paragraph is retained above. The residual belongs to AR-45; the canonical copy must be verified before a parsed forward-migration marker is added. The v3.15.11 follow-up removes Codex from this residual after delivery; Qwen, Gemini CLI, and Kimi retain the unperformed or unverified trigger-B obligation.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-45`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.10`, section `v3.15.10 - end-of-task-agent-behavior`, and original ID `DF-14`.
+
+##### DF-15 - Codex PermissionRequest settled in v3.15.11 - RESOLVED
+
 - **DF-15 - Codex `PermissionRequest` unsettled.** Secondary sources describe an event that would make Codex the only platform besides Claude Code able to express "blocked on the human". `openai/codex` has no `docs/hooks.md` and the reachable `docs/config.md` "Lifecycle hooks" section does not enumerate events. Highest-value open item from Phase 3, because the payoff is a genuinely new capability rather than a port.
+
+**Normalization, 2026-10-09 (v4.13.11 T006)**: Converted the authoritative bullet to a supported gap heading. The v3.15.11 Resolved subsection records verification against Codex hook implementation, delivery of both triggers, and regression tests; tests/integrations/test_codex_native.py retains the Notification-to-PermissionRequest assertion.
+
+##### DF-16 - Windows notification linger remains unmeasured - MIGRATED to v4.13.0
+
 - **DF-16 - Windows notification linger not shortened.** The 5.5-second post-`ShowBalloonTip` sleep keeps a `powershell.exe` alive per notification. Disposing a `NotifyIcon` early can cancel a queued toast on Windows 10/11, and the shortest safe value requires observing a rendered toast on a live desktop, which no test here can do. Exposed as `NEXUS_NOTIFY_LINGER_MS` to be measured rather than guessed. - MIGRATED to v4.13 (AR-46)
+
+**Normalization, 2026-10-09 (v4.13.11 T006)**: Converted the authoritative bullet to a supported gap heading. The complete original source paragraph is retained above. The residual belongs to AR-46; the canonical copy must be verified before a parsed forward-migration marker is added.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-46`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.10`, section `v3.15.10 - end-of-task-agent-behavior`, and original ID `DF-16`.
+
+##### DF-17 - Legacy Cursor global commands write remains unverified - MIGRATED to v4.13.0
+
 - **DF-17 - DF-1 commands residual.** The global `~/.cursor/commands` write is now documented as redundant (Cursor no longer documents a commands directory, Cursor 2.4 migrates commands into skills, and Nexus-Hub already ships each command as a command-skill). Retained deliberately because the risk is asymmetric: writing a directory Cursor ignores is harmless, removing one it does read silently drops coverage. Remove deliberately in a later release. - MIGRATED to v4.13 (AR-47)
+
+**Normalization, 2026-10-09 (v4.13.11 T006)**: Converted the authoritative bullet to a supported gap heading. The complete original source paragraph is retained above. The residual belongs to AR-47; the canonical copy must be verified before a parsed forward-migration marker is added.
+
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-47`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.10`, section `v3.15.10 - end-of-task-agent-behavior`, and original ID `DF-17`.
 
 #### Advisory (pre-existing or out of scope, recorded so they are not lost)
 
@@ -760,7 +817,7 @@ Phase 3 defines the Cursor usage boundary before runtime code. The data contract
 
 #### Hand-offs
 
-##### HO-5 - Authorized Cursor session/dashboard probe required before automatic credential reuse
+##### HO-5 - Authorized Cursor session/dashboard probe required before automatic credential reuse - CLOSED
 
 - **Source phase**: v3.15.9 Phase 3.2 - Auth and scrape paths
 - **Plan reference**: `docs/v3/v3.15/plans/v3.15.9-cross-provider-routing-and-cursor-usage-monitor.md` (sub-task 3.2 / T015)
@@ -768,6 +825,8 @@ Phase 3 defines the Cursor usage boundary before runtime code. The data contract
 - **Suggested next step**: Phases 4-6 intentionally ship SecretStorage, injected adapters, UX, and dual-host install without a default live transport. Before a later release enables automatic session reuse, request authorization for the bounded one-key/one-request probe in `cursor-usage-auth-probe.md`; otherwise keep the adapter disabled and preserve the cache/manual UI posture.
 
 No Phase 3 implementation, regression, warning, missing-test, or quality-gate gap remains. Phase 5's normalized SVG/font/package icon and Icons8 attribution notice are planned work, not Phase 3 deferrals.
+
+**Normalization, 2026-10-09 (v4.13.11 T006)**: CLOSED. This marker records the historical decision, accepted limitation, retirement, or superseded record described here. Retained triage evidence: Same HO-5; probe done and closed by HO-7 (K15:232), liveTransport.ts:44-45.
 
 ### v3.15.9 Phase 3 Summary
 
@@ -793,7 +852,7 @@ HO-5 remains open by design and is honored in code: no live credential, state da
 
 #### Warnings
 
-##### WN-4 - Latest VS Code packaging toolchain emits two transitive deprecation notices
+##### WN-4 - Latest VS Code packaging toolchain emits two transitive deprecation notices - MIGRATED to v4.13.0
 
 - **Source phase**: v3.15.9 Phase 4.1 - Cursor extension scaffold
 - **Plan reference**: `docs/v3/v3.15/plans/v3.15.9-cross-provider-routing-and-cursor-usage-monitor.md` (sub-task 4.1 / T020)
@@ -801,6 +860,8 @@ HO-5 remains open by design and is honored in code: no live credential, state da
 - **Suggested next step**: Re-run `npm ci` when `@vscode/vsce` updates in Phase 5/6; accept the upstream warning while audit remains clean, and remove this item when the transitive packages disappear.
 
 No new Phase 4 implementation, regression, missing-test, or quality-gate gap remains.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-49`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.9`, section `v3.15.9 - cross-provider-routing-and-cursor-usage-monitor`, and original ID `WN-4`.
 
 ### v3.15.9 Phase 4 Summary
 
@@ -898,7 +959,14 @@ WN-4 remains open: a clean `npm ci` of the latest `@vscode/vsce` toolchain still
 
 MT-5 (GitHub monitor Extension Development Host activation coverage) and QG-4 (interactive light/dark/high-contrast visual smoke) remain open in the v3.15.8 section below; both are consolidated into the maintainer's local release-readiness pass together with this release's Cursor live-smoke checklist (`docs/v3/v3.15/development/cursor-usage-live-smoke.md`). None of them blocks the v3.15.9 integration push.
 
+#### QG-5 - Cursor live visual smoke remains unobserved - MIGRATED to v4.13.0
+
 **QG-5 (NEW, open at release): the Cursor live smoke was NOT executed for v3.15.9.** The checklist at `docs/v3/v3.15/development/cursor-usage-live-smoke.md` requires a human driving a real Cursor instance to confirm the status bar, meters, dashboard, threshold warning, and theme rendering; it cannot be performed by an automated agent and no local Cursor host ran it before the tag. The maintainer authorized the release to proceed without it (2026-08-04). What IS proven for the Cursor monitor is the automated surface: 132 extension tests green with coverage thresholds held, packaging verified in CI, and installer host isolation asserted by test. What is NOT proven is the rendered visual result on a live Cursor host. Close QG-5 by running the checklist post-release and recording the outcome here; treat any finding as a v3.15.10 fix candidate. This entry exists so the release record does not imply a verification that never happened. - MIGRATED to v4.13 (AR-44)
+
+**Normalization, 2026-10-09 (v4.13.11 T006)**: Converted the authoritative prose record to a supported heading. Keep the full live-host checklist obligation open under AR-44 until its canonical source copy is verified.
+
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-44`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.9`, section `v3.15.9 - cross-provider-routing-and-cursor-usage-monitor`, and original ID `QG-5`.
 
 ### v3.15.9 Phase 7 Summary
 
@@ -936,9 +1004,9 @@ One bug was found and resolved inside Phase 7 (BG resolved: the skill-directory 
 
 ### v3.15.0 Release-readiness residuals (open, non-blocking)
 
-- **DF-1(a)** - Cursor global `~/.cursor/commands/` UNVERIFIED (kept, tracked; the confirmed project `.cursor/commands/` is the load-bearing surface). - MIGRATED to v4.13 (AR-47)
-- **WN-1** - `test_bootstrap.py` fails in the Windows Git-Bash dev env (environmental `tar`); confirmed to be verified green in CI at `/update release`.
-- **DF-5 residual** - Copilot's new native custom-agents (`.github/agents/*.agent.md`) + Preview hooks (`.github/hooks/*.json`) surfaces are not yet populated (future release). - RESOLVED 2026-09-29
+- Reference: **DF-1(a)** - Cursor global `~/.cursor/commands/` UNVERIFIED (kept, tracked; the confirmed project `.cursor/commands/` is the load-bearing surface). - MIGRATED to v4.13 (AR-47)
+- Reference: **WN-1** - `test_bootstrap.py` fails in the Windows Git-Bash dev env (environmental `tar`); confirmed to be verified green in CI at `/update release`.
+- Reference: **DF-5 residual** - Copilot's new native custom-agents (`.github/agents/*.agent.md`) + Preview hooks (`.github/hooks/*.json`) surfaces are not yet populated (future release). - RESOLVED 2026-09-29
 - **OpenCode `rules_subdir`** - the contract records "no rules/ folder" yet the integration writes a `rules_subdir`; a pre-existing note flagged in Phase 3 for a future rules-surface review (not a v3.15.0 change). - MIGRATED to v4.13 (AR-51)
 
 ### v3.15.0 Summary
@@ -961,13 +1029,17 @@ One bug was found and resolved inside Phase 7 (BG resolved: the skill-directory 
 
 #### Deferred
 
-##### DF-1 - Cursor global commands path UNVERIFIED (residual; hooks.json schema RESOLVED in Phase 2) - MIGRATED to v4.13 (AR-47)
+##### DF-1-v3150 - Cursor global commands path UNVERIFIED (residual; hooks.json schema RESOLVED in Phase 2) - MIGRATED to v4.13 (AR-47) - MIGRATED to v4.13.0
 
 - **Source phase**: v3.15.0 Phase 1.2; actioned in Phase 2 (2026-07-21)
 - **Plan reference**: Phase 2 (Cursor parity - skills, hooks.json, agents, project commands)
 - **Status**: PARTIALLY RESOLVED. **DF-1(b) hooks.json schema - RESOLVED**: [cursor.com/docs/hooks](https://cursor.com/docs/hooks) confirms `{version:1, hooks:{<event>:[{...}]}}` with the optional fields defaulted, so the integration's minimal `beforeShellExecution -> {command}` writer is schema-valid as-is (no code change). **DF-1(a) global `~/.cursor/commands/` - RESIDUAL (still UNVERIFIED)**: project `.cursor/commands/<name>.md` is officially documented (Cursor 1.6+) and confirmed, but the user-global `~/.cursor/commands/` dir has no reachable official doc and [forum.cursor.com](https://forum.cursor.com/t/personal-custom-slash-commands/133386) reports it as an open feature-request.
 - **Decision**: the global write is RETAINED per plan sub-task 2.3 and the contract's negative-only-evidence caution; it is harmless if unread.
 - **Suggested next step**: a future cycle with a reachable Cursor commands doc (or an empirical test) should confirm or drop the global `~/.cursor/commands/` write. Not blocking - the confirmed project `.cursor/commands/` surface is the load-bearing path.
+
+**Original source identity**: `v3.15.0#DF-1` in `v3.15.0 - platform-parity-all-gaps`; normalized stable ID `DF-1-v3150` distinguishes this obligation from repeated IDs in other patch sections.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-47`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.0`, section `v3.15.0 - platform-parity-all-gaps`, and original ID `DF-1`.
 
 ##### DF-2 - Qwen skills auto-load reliability (open issue #2343) - RESOLVED (mitigated in Phase 4)
 
@@ -982,12 +1054,14 @@ One bug was found and resolved inside Phase 7 (BG resolved: the skill-directory 
 - **Decision (maintainer)**: FULL migration to `~/.kimi-code/`. The integration writes AGENTS.md + native `~/.kimi-code/skills` at both scopes (global detection-gated on `~/.kimi-code`); the old `~/.kimi/` writes and the `.kimi/agent.yaml` companion are DROPPED.
 - **Residual**: a user still on the OLD "Kimi CLI" (`~/.kimi/`) no longer receives a surface (accepted trade-off); pre-existing `~/.kimi/` files are left in place. Not blocking.
 
-##### DF-4 - OpenCode plugins/hooks out of scope (RESOLVED as a documented non-gap in Phase 3.2)
+##### DF-4 - OpenCode plugins/hooks out of scope (RESOLVED as a documented non-gap in Phase 3.2) - CLOSED
 
 - **Source phase**: v3.15.0 Phase 1.2; resolved Phase 3.2 (2026-07-21)
 - **Status**: RESOLVED (decision: out of scope). A 2026-07-21 re-read of [opencode.ai/docs/plugins](https://opencode.ai/docs/plugins) confirmed plugins are JavaScript/TypeScript modules loaded by Bun; a `.sh`/`.py` script cannot be dropped into `plugins/` and run, so Nexus-Hub's shell/py hooks cannot be delivered without a JS/TS wrapper per hook.
 - **Decision**: OpenCode hooks are OUT OF SCOPE. `hooks_supported` stays `False`.
 - **Suggested next step**: none required. Revisit only if a maintainer wants OpenCode hook parity badly enough to own a JS/TS plugin wrapper.
+
+**Normalization, 2026-10-09 (v4.13.11 T006)**: CLOSED. This marker records the historical decision, accepted limitation, retirement, or superseded record described here. Retained triage evidence: Decision recorded in entry; `scripts/lib/integrations/opencode.py:77` `"hooks_supported": False`.
 
 ##### DF-5 - Copilot skill broadening + stale opt-in framing - RESOLVED (Phase 5)
 
@@ -1019,7 +1093,7 @@ One bug was found and resolved inside Phase 7 (BG resolved: the skill-directory 
 
 #### Deferred
 
-##### DF-3 - Additional frameworks / ORMs / component libs / event patterns deferred (explicit coverage, not silent) - MIGRATED to v4.13 (AR-52)
+##### DF-3-v3151 - Additional frameworks / ORMs / component libs / event patterns deferred (explicit coverage, not silent) - MIGRATED to v4.13 (AR-52) - MIGRATED to v4.13.0
 
 - **Source phase**: v3.15.1 adoption-codesight Phase 2 (2.1) + Phase 3 (3.1, 3.2)
 - **Plan reference**: Phase 2.1 / Phase 3.1 / Phase 3.2 ("verifying each with a fixture before adding the next ... Do NOT attempt every framework at once")
@@ -1030,6 +1104,10 @@ One bug was found and resolved inside Phase 7 (BG resolved: the skill-directory 
     - **Events**: declaration-strong signals (Celery task decorators, BullMQ `new Queue/Worker`, Kafka, `new EventEmitter`). Deferred: invocation-only patterns (`.delay(`, `.emit(`, Redis `.publish(`/`.subscribe(`) - too common to detect without false positives.
 - **Suggested next step**: add a detector + fixture per additional target in a follow-on pass. The map's section renderers and the accuracy harness already handle any new detector's output generically.
 
+**Original source identity**: `v3.15.1#DF-3` in `v3.15.1 - adoption-codesight`; normalized stable ID `DF-3-v3151` distinguishes this obligation from repeated IDs in other patch sections.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-52`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.1`, section `v3.15.1 - adoption-codesight`, and original ID `DF-3`.
+
 #### Warnings
 
 ##### WN-1 - Pre-existing unused `json` import in scripts/nexus_hub_cli.py - RESOLVED 2026-09-29
@@ -1038,43 +1116,61 @@ One bug was found and resolved inside Phase 7 (BG resolved: the skill-directory 
 - **Reason**: ruff flags `F401 json imported but unused` in `scripts/nexus_hub_cli.py`. The import is PRE-EXISTING (present on `develop`), not introduced by this phase, and `scripts/` is not ruff-gated in this repo's CI. Left untouched per the no-out-of-scope-cleanup rule.
 - **Suggested next step**: remove the unused import as part of a dedicated `scripts/` lint pass.
 
-##### WN-2 - Pre-existing ruff findings in graph/affected.py - MIGRATED to v4.13 (AR-34)
+##### WN-2 - Pre-existing ruff findings in graph/affected.py - MIGRATED to v4.13 (AR-34) - MIGRATED to v4.13.0
 
 - **Source phase**: v3.15.1 adoption-codesight Phase 4 (4.1)
 - **Reason**: ruff flags an unused `EdgeKind` import (F401) and an unused `frontier` local (F841) in `graph/affected.py`. Both are PRE-EXISTING; Phase 4 only ADDED `most_imported_files` (ruff-clean). The extension `src/` is not ruff-gated in this repo's CI. Left untouched per the no-out-of-scope-cleanup rule.
 - **Suggested next step**: remove both in a dedicated extension lint pass.
 
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-34`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.1`, section `v3.15.1 - adoption-codesight`, and original ID `WN-2`.
+
 #### Missing tests / coverage gaps
 
-##### MT-2 - Benchmark `--update-baseline` write path not automated-tested - MIGRATED to v4.13 (AR-08)
+##### MT-2-v3151 - Benchmark `--update-baseline` write path not automated-tested - MIGRATED to v4.13 (AR-08) - MIGRATED to v4.13.0
 
 - **Source phase**: v3.15.1 adoption-codesight Phase 5 (5.1)
 - **Reason**: `measured_baseline()` is unit-tested, but the `benchmark --update-baseline` CLI branch that OVERWRITES the committed `benchmark_baseline.json` is deliberately not exercised (a test that ran it would clobber the committed baseline). The gate path (`--check`), JSON/report output, and `--repo` mode are all tested.
 - **Suggested next step**: if desired, test `--update-baseline` against a monkeypatched `BASELINE_PATH` pointing at a temp file. Low value.
 
-##### MT-1 - Repo-level `nexus-hub map` dispatch has no automated test - MIGRATED to v4.13 (AR-08)
+**Original source identity**: `v3.15.1#MT-2` in `v3.15.1 - adoption-codesight`; normalized stable ID `MT-2-v3151` distinguishes this obligation from repeated IDs in other patch sections.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-08`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.1`, section `v3.15.1 - adoption-codesight`, and original ID `MT-2`.
+
+##### MT-1-v3151 - Repo-level `nexus-hub map` dispatch has no automated test - MIGRATED to v4.13 (AR-08) - MIGRATED to v4.13.0
 
 - **Source phase**: v3.15.1 adoption-codesight Phase 1 (1.2)
 - **Reason**: the extension test suite fully covers the map surface (generator, model, tokens, the `generate_context_map` MCP handler, and `nexus_code_search.contextmap.cli`; tool-vs-CLI byte-identity is asserted). The thin dispatch in `scripts/nexus_hub_cli.py` (a 3-line verbatim forward) is verified only by a manual smoke run, not an automated repo-level test.
 - **Suggested next step**: add a small repo-level dispatch test asserting `nexus_hub_cli.main(["map", ...])` forwards and returns the extension CLI's exit code.
 
+**Original source identity**: `v3.15.1#MT-1` in `v3.15.1 - adoption-codesight`; normalized stable ID `MT-1-v3151` distinguishes this obligation from repeated IDs in other patch sections.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-08`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.1`, section `v3.15.1 - adoption-codesight`, and original ID `MT-1`.
+
 ### v3.15.1 Resolved
 
-##### DF-1 - Overview frameworks line + Most-Imported Files section (RESOLVED)
+##### DF-1 - Overview frameworks line + Most-Imported Files section (RESOLVED) - RESOLVED
 
 - Originally Phase 1's placeholder for the Overview `Frameworks:` line and the "Most-Imported Files" section. The frameworks half was resolved in Phase 2; the Most-Imported Files half was resolved in Phase 4 (`most_imported_files` fills the section from inbound import edges, labeled distinct from symbol-level `code_impact`). Both halves shipped and are fixture-tested.
 
-##### DF-2 - nexus-code-search extension package version bump (RESOLVED, Phase 7)
+**Normalization, 2026-10-09 (v4.13.11 T006)**: RESOLVED. This marker records the previously implemented fix or completed proof described here. Retained triage evidence: Heading and entry say RESOLVED (subsection "v3.15.1 Resolved").
+
+##### DF-2 - nexus-code-search extension package version bump (RESOLVED, Phase 7) - RESOLVED
 
 - The extension carries its own package version, independent of the catalog release version. Phase 7 bumped `extensions/nexus-code-search/pyproject.toml` `2.0.0 -> 2.1.0` and refreshed the description to cover the context-map surface. This is NOT a `check_version_sync.py` surface (that guard covers the catalog release version, which `/update release` owns; the QG-2 release hold has since been reconciled by the v3.15.0/v3.15.1/v3.15.2 re-stamp).
 
-##### QG-1 - Duplicate extension-test run across ci.yml and code-search.yml (RESOLVED by decision, Phase 7)
+**Normalization, 2026-10-09 (v4.13.11 T006)**: RESOLVED. This marker records the previously implemented fix or completed proof described here. Retained triage evidence: Heading says RESOLVED, Phase 7.
+
+##### QG-1 - Duplicate extension-test run across ci.yml and code-search.yml (RESOLVED by decision, Phase 7) - CLOSED
 
 - Decision: RETAIN both. `code-search.yml` (path-filtered, cached, concurrency) is the fast scoped signal on extension changes; the always-on `tests` job in `ci.yml` is the cross-cutting safety gate. The small duplicate on extension-only changes is an intentional coverage-over-minutes trade-off. The benchmark + lint + knowledge tests run in that suite on every extension change; the context-map GitHub Action recipe is documented in the extension README.
 
-##### QG-2 - Three plans stamped v3.15.0 (release-time version reconciliation) (RESOLVED, 2026-07-22)
+**Normalization, 2026-10-09 (v4.13.11 T006)**: CLOSED. This marker records the historical decision, accepted limitation, retirement, or superseded record described here. Retained triage evidence: Heading says RESOLVED by decision, Phase 7.
+
+##### QG-2 - Three plans stamped v3.15.0 (release-time version reconciliation) (RESOLVED, 2026-07-22) - RESOLVED
 
 - Three plans under `docs/v3/v3.15/plans/` were all stamped `v3.15.0` (`platform-parity-all-gaps`, `adoption-codesight`, `adoption-awesome-llm-apps`): the comparison-versioning artifact where plans carry the authoring-cycle version, not the real adoption target. Reconciled by re-stamping the deferred plans: v3.15.0 = platform-parity-all-gaps, v3.15.1 = adoption-codesight (this plan), v3.15.2 = adoption-awesome-llm-apps (and in the v3.16 line, v3.17.0 = model-prompting-research, v3.18.2 = rtk-and-meterless).
+
+**Normalization, 2026-10-09 (v4.13.11 T006)**: RESOLVED. This marker records the previously implemented fix or completed proof described here. Retained triage evidence: Re-stamped 2026-07-22; K15 top "Scope note (version collision, RESOLVED)".
 
 ### v3.15.1 Summary
 
@@ -1118,12 +1214,16 @@ RESOLVED: DF-1 (frameworks line P2 + Most-Imported Files P4), DF-2 (extension ve
 
 #### Deferred
 
-##### DF-2 - Hermes not yet first-class installer-wired (registry-only) - MIGRATED to v4.13 (AR-05)
+##### DF-2-v3152 - Hermes not yet first-class installer-wired (registry-only) - MIGRATED to v4.13 (AR-05) - MIGRATED to v4.13.0
 
 - **Source phase**: v3.15.2 Phase 5.1 / 5.2.
 - **Plan reference**: Phase 5.1 ("no installer copy-step edit is needed because the runner is invoked automatically").
 - **Reason**: `hermes` is registered in `_register_builtins()` and installable on demand via `runner.py install --integrations hermes` (detection-gated), but the installers drive extended platforms through explicit `should_install <key>` / `invoke_registry_platform` blocks + a `known_platform_keys` list, and Hermes is intentionally NOT added to those yet (nor to the JSON `contract_checks`, which would then REQUIRE the installer reference and fail `verify_platform_contracts`). Editing the installers is an AGENTS.md "ask first" action and outside this phase's stated scope. Hermes therefore sits in the same tier as aider/windsurf/openclaw: registered + documented + runner-installable.
 - **Suggested next step**: if Hermes adoption warrants it, promote it to a default-installed platform in a follow-on - add `should_install hermes` / `invoke_registry_platform` blocks to both installers, add `hermes` to `known_platform_keys`, and add a `contract_checks` entry (with the required installer reference).
+
+**Original source identity**: `v3.15.2#DF-2` in `v3.15.2 - adoption-awesome-llm-apps`; normalized stable ID `DF-2-v3152` distinguishes this obligation from repeated IDs in other patch sections.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-05`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.2`, section `v3.15.2 - adoption-awesome-llm-apps`, and original ID `DF-2`.
 
 #### Warnings
 
@@ -1136,12 +1236,16 @@ RESOLVED: DF-1 (frameworks line P2 + Most-Imported Files P4), DF-2 (extension ve
 
 #### Missing tests / coverage gaps
 
-##### MT-1 - trigger-cases.json routing coverage is a first tranche (6/267 skills) - MIGRATED to v4.13 (AR-09)
+##### MT-1-v3152 - trigger-cases.json routing coverage is a first tranche (6/267 skills) - MIGRATED to v4.13 (AR-09) - MIGRATED to v4.13.0
 
 - **Source phase**: v3.15.2 Phase 3.3.
 - **Plan reference**: Phase 3.3 ("leave the rest of the catalog on the WARN path for incremental authoring in later releases") and Phase 6.2 ("Explicitly record the deferred incremental work ... skills still on the WARN path").
 - **Reason**: routing cases were authored for 6 distinctive-noun skills; the remaining 261 skills have no `evals/trigger-cases.json` and are on the WARN path (never fails the gate). This is by design - lexical routing cases are only meaningful for skills with distinctive description vocabulary, and command-dispatcher skills (`/plan`, `/implement`, `/review`, `/compare`, `/update`) lexically overlap their sub-skills, so they need `lexical: false` reasoning-routed cases (deferred).
 - **Suggested next step**: author further tranches incrementally in later releases; for the command dispatchers, add `lexical: false` cases covered by behavioral evals (ties into Phase 4 schema interop).
+
+**Original source identity**: `v3.15.2#MT-1` in `v3.15.2 - adoption-awesome-llm-apps`; normalized stable ID `MT-1-v3152` distinguishes this obligation from repeated IDs in other patch sections.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-09`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.2`, section `v3.15.2 - adoption-awesome-llm-apps`, and original ID `MT-1`.
 
 ### v3.15.2 Resolved
 
@@ -1188,12 +1292,16 @@ Resolution path (user-owned): reconcile the parallel re-stamp, confirm the versi
 
 #### Deferred
 
-##### DF-1 - promote the self-check eval-loop pattern into a reusable authoring convention - MIGRATED to v4.13 (AR-53)
+##### DF-1-v3153 - promote the self-check eval-loop pattern into a reusable authoring convention - MIGRATED to v4.13 (AR-53) - MIGRATED to v4.13.0
 
 - **Source phase**: v3.15.3 Phase 3.2 (deferred follow-up).
 - **Plan reference**: Phase 3.2 ("Record any deferred anti-slop follow-ups, for example promoting the self-check eval pattern into a reusable authoring convention").
 - **Reason**: `anti-slop-editing` ships a runtime self-check loop (the skill grades its own output against `references/self-check.md`, fixes, and re-checks before returning). This is a genuinely reusable authoring pattern - a skill that produces content could ship a rubric and self-grade against it - but generalizing it (a shared convention documented in AGENTS.md, or a `references/self-check.md` template other skills adopt) is out of scope for this single-skill plan.
 - **Suggested next step**: in a future cycle, evaluate promoting the self-check-loop pattern into an authoring convention (AGENTS.md guidance + an optional shared rubric template), so other content-producing skills can adopt it. Non-blocking; the pattern works today inside `anti-slop-editing`.
+
+**Original source identity**: `v3.15.3#DF-1` in `v3.15.3 - adoption-no-ai-slop`; normalized stable ID `DF-1-v3153` distinguishes this obligation from repeated IDs in other patch sections.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-53`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.3`, section `v3.15.3 - adoption-no-ai-slop`, and original ID `DF-1`.
 
 #### Not implemented
 
@@ -1254,30 +1362,42 @@ OPEN and carried as documented, non-blocking deferrals: NI-1 (description carrie
 
 #### Deferred
 
-##### DF-3 - overlay-annotation detection is a geometric heuristic (full-slide-background text is captured) - MIGRATED to v4.13 (AR-18)
+##### DF-3-v3154 - overlay-annotation detection is a geometric heuristic (full-slide-background text is captured) - MIGRATED to v4.13 (AR-18) - MIGRATED to v4.13.0
 
 - **Source phase**: v3.15.4 Phase 3.3.
 - **Plan reference**: Phase 3.3 (capture author-added overlay shapes over a picture).
 - **Reason**: the extractor assigns a non-picture shape as an annotation when its CENTER lies inside a picture AND its area is smaller than the picture. This correctly captures region rectangles and callout labels over a figure, but a full-slide BACKGROUND picture with body text on top would capture that body text as annotations (the text is, arguably, overlaid on the image). The LLM-native path re-reads under the confidence gate and applies judgment; the deterministic builder renders whatever `annotations` carries. Documented in the `extraction-runbook.md` PPTX gotchas.
 - **Suggested next step**: if this over-capture is observed in practice, tighten the heuristic (for example, skip pictures whose `page_fraction` is ~1.0 unless they are classified `map`/`diagram`/annotated, or require the annotation shape to carry a fill or a short label). Non-blocking; the primary consumer applies judgment.
 
-##### DF-1 - baseline builder does not group images into a `.gallery` (styles are latent) - MIGRATED to v4.13 (AR-18)
+**Original source identity**: `v3.15.4#DF-3` in `v3.15.4 - presentify-visual-fidelity`; normalized stable ID `DF-3-v3154` distinguishes this obligation from repeated IDs in other patch sections.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-18`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.4`, section `v3.15.4 - presentify-visual-fidelity`, and original ID `DF-3`.
+
+##### DF-1-v3154 - baseline builder does not group images into a `.gallery` (styles are latent) - MIGRATED to v4.13 (AR-18) - MIGRATED to v4.13.0
 
 - **Source phase**: v3.15.4 Phase 2.3.
 - **Plan reference**: Phase 2.3 (template image / gallery styles) and 2.1 (prominence rules; the primary target is the LLM-native authoring path).
 - **Reason**: the Phase 2.3 template now carries a token-driven `.gallery` grid with a bounded per-tile cap, but the deterministic baseline builder (`build_presentation.py`) renders each image as its own stacked `<figure>` and does not emit a `.gallery` wrapper or classify hero-vs-secondary from `page_fraction`. So on the baseline path several small images stack (each bounded by `max-height: 80vh` + `max-width`, so none crops or distorts) rather than forming a grid. The prominence-aware hero/secondary sizing and the gallery grid are the LLM-native path's job per the reference; the baseline is the "plain draft to elevate".
 - **Suggested next step**: if the baseline should render a true gallery, teach the builder to group a run of comparable-`page_fraction` images into a `.gallery` wrapper (and size a high-`page_fraction` image as a hero) in a later phase. Non-blocking.
 
-##### DF-2 - PDF embedded-raster `page_fraction` is null when the pdfplumber image-bbox count does not match the extracted raster count - MIGRATED to v4.13 (AR-18)
+**Original source identity**: `v3.15.4#DF-1` in `v3.15.4 - presentify-visual-fidelity`; normalized stable ID `DF-1-v3154` distinguishes this obligation from repeated IDs in other patch sections.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-18`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.4`, section `v3.15.4 - presentify-visual-fidelity`, and original ID `DF-1`.
+
+##### DF-2-v3154 - PDF embedded-raster `page_fraction` is null when the pdfplumber image-bbox count does not match the extracted raster count - MIGRATED to v4.13 (AR-18) - MIGRATED to v4.13.0
 
 - **Source phase**: v3.15.4 Phase 2.2 (discovered while confirming the signals).
 - **Plan reference**: Phase 2.2 ("If any is missing or frequently null, add it").
 - **Reason**: the PDF path computes `page_fraction` for an embedded raster only when pdfplumber's per-page `images` bbox list length equals the extracted raster count (the extractor's intentional geometry-alignment guard, so a bbox is never mis-assigned to the wrong raster). When the counts differ the block still carries native `width`/`height` but `page_fraction` is absent. This is NOT "frequently null" for well-formed report PDFs (the confirmed embedded-raster test yields a populated fraction), so it is documented rather than fixed; PPTX pictures and PDF rasterized-regions always carry the fraction.
 - **Suggested next step**: a later phase could add per-raster bbox matching (by size / order heuristics) to populate `page_fraction` even when the counts differ. Non-blocking; the native dimensions still provide a fallback ranking signal.
 
+**Original source identity**: `v3.15.4#DF-2` in `v3.15.4 - presentify-visual-fidelity`; normalized stable ID `DF-2-v3154` distinguishes this obligation from repeated IDs in other patch sections.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-18`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.4`, section `v3.15.4 - presentify-visual-fidelity`, and original ID `DF-2`.
+
 #### Missing tests / coverage gaps
 
-##### MT-1 - rendered-width full-width check skips without a headless browser (browser-free heuristic covers the metric)
+##### MT-1 - rendered-width full-width check skips without a headless browser (browser-free heuristic covers the metric) - RESOLVED
 
 - **Source phase**: v3.15.4 Phase 1.4.
 - **Plan reference**: Phase 1.4 ("when no headless browser is present, the helper falls back to a computed-CSS/markup heuristic and the test skips-with-note rather than failing") and the plan's Phase 7 deferral ("the headless-browser-optional degradation - structural review is weaker than a real render").
@@ -1288,7 +1408,9 @@ OPEN and carried as documented, non-blocking deferrals: NI-1 (description carrie
     - **A new `scripts/ensure_render_env.py` makes a degraded environment explicit.** It probes for an importable Playwright with a *launchable* chromium (launching is the only honest test; a cache directory can exist while the build inside it is unusable), then a local Chrome/Edge, and exits with a distinct code per state while printing the exact one-time provisioning commands. The CI job runs it as a gate before the tests, so a broken browser install fails loudly instead of degrading quietly.
 - **Observed while closing it**: on the maintainer's Windows host, Playwright and a cached chromium were ALREADY present, yet all three browser-dependent checks skipped across multiple Phase 1 and Phase 2 runs and then passed consistently after one warm-up launch. That is the strongest available argument for the explicit probe: the environment was capable the whole time, and the loop reported a clean structural pass without ever saying it had not rendered.
 
-##### MT-2 - consented stock/mix per-section integration is agent behavior (fetcher enforcement is unit-tested; end-to-end graded by Phase 5)
+**Normalization, 2026-10-09 (v4.13.11 T006)**: RESOLVED. This marker records the previously implemented fix or completed proof described here. Retained triage evidence: Entry appended "CLOSED 2026-08-11 by v3.16.5 Phase 3"; `.github/workflows/presentify-extractor.yml:151` `render:` job.
+
+##### MT-2 - consented stock/mix per-section integration is agent behavior (fetcher enforcement is unit-tested; end-to-end graded by Phase 5) - RESOLVED
 
 - **Source phase**: v3.15.4 Phase 4.5.
 - **Plan reference**: Phase 4.2 / 4.3 (image-starved-section detection + integration gate).
@@ -1297,12 +1419,18 @@ OPEN and carried as documented, non-blocking deferrals: NI-1 (description carrie
 - **CLOSED 2026-08-11 by v3.16.5 Phase 5** (appended, not rewritten - the record above stands as written). The item deferred end-to-end grading of consented per-section integration to "the Phase 5 visual-QA loop", and that loop now exists (v3.16.5 Phase 3) with the placement pass running inside it. What closes the gap is not more agent instruction but a DETERMINISTIC record check: the placement pass must write an `IMAGERY PLACEMENTS` block to the design record with one decision per section, and `visual_qa_score.py` verifies that record against the page - failing a consented run that embedded assets but left no decision trail, a record claiming more embedded assets than the page contains, or a decline with no reason. That converts "the agent should integrate or explain" from an instruction into a checkable artifact, which is what the original item was missing. The agent-vision half (is THIS image relevant to THIS section?) remains a screenshot judgment by design and is graded by rubric criterion 4.
 - **Status after v3.16.5 Phase 3** (appended, not rewritten): still OPEN, and deliberately so. Phase 3 built the render loop that HOSTS the end-to-end grading this item defers to, and the rubric's imagery-integration criterion is now graded from real screenshots rather than from markup. The remaining half - deciding WHERE imagery helps and verifying each candidate's contextual relevance - is v3.16.5 Phase 5's placement pass. Recorded here so a reader of this ledger is not left assuming Phase 3 closed it.
 
-##### MT-3 - the visual-QA loop's agent-vision grading, fan-out, and end-to-end sample-deck smoke are behavioral (the structural scorer is the unit-tested backbone) - MIGRATED to v4.13 (AR-19)
+**Normalization, 2026-10-09 (v4.13.11 T006)**: RESOLVED. This marker records the previously implemented fix or completed proof described here. Retained triage evidence: Entry appended "CLOSED 2026-08-11 by v3.16.5 Phase 5"; `visual_qa_score.py` checks the `IMAGERY PLACEMENTS` record.
+
+##### MT-3-v3154 - the visual-QA loop's agent-vision grading, fan-out, and end-to-end sample-deck smoke are behavioral (the structural scorer is the unit-tested backbone) - MIGRATED to v4.13 (AR-19) - MIGRATED to v4.13.0
 
 - **Source phase**: v3.15.4 Phase 5.5.
 - **Plan reference**: Phase 5.5 ("a test that the workflow template degrades ... an end-to-end smoke test on the sample board deck fixture asserting the loop reaches the pass bar").
 - **Reason**: the deterministic STRUCTURAL scorer (`scripts/visual_qa_score.py`) is fully unit-tested (per-criterion defect flagging, clean pass, CLI exit codes). The AGENT-VISION grading (crop, dead space, annotation placement vs source, imagery relevance, contrast), the Dynamic-Workflow fan-out, and the full render -> grade -> fix -> re-render loop are LLM-native + runtime + browser behavior, not deterministically unit-testable; the workflow template is an adapt-me artifact asserted structurally (it carries the three mandatory rules), not executed. There is no committed "sample board deck" fixture, and the loop is agent-driven, so the e2e smoke is a browser-gated / release-time verification (the Phase 7 exit checklist verifies the four observed defects on the sample deck), not a CI unit test.
 - **Suggested next step**: when a headless-browser CI job is added (gated to merges/schedule, per the plan), wire an e2e smoke that runs the scorer against a built sample-deck fixture; the agent-vision grading stays a behavioral (non-unit) check. Non-blocking.
+
+**Original source identity**: `v3.15.4#MT-3` in `v3.15.4 - presentify-visual-fidelity`; normalized stable ID `MT-3-v3154` distinguishes this obligation from repeated IDs in other patch sections.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-19`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.4`, section `v3.15.4 - presentify-visual-fidelity`, and original ID `MT-3`.
 
 ### v3.15.4 Resolved
 
@@ -1311,10 +1439,12 @@ OPEN and carried as documented, non-blocking deferrals: NI-1 (description carrie
 - **Source phase**: discovered and fixed in v3.15.4 Phase 1.3 (logged as a `# DEVIATION:` in `build_presentation.py`).
 - **Status**: RESOLVED. `TITLE_RE = <title>.*?</title>` (DOTALL) matched the template header comment's literal "<title>" mention and spanned to the real `</title>`, deleting the comment close (`-->`), the `<html>` tag, `<head>`, and the `<meta>` tags on every build - so the baseline builder had been emitting malformed HTML with no document head (unnoticed because no test checked builder output structure and `assert_no_external` strips comments before scanning). Constraining the pattern to `<title>[^<]*</title>` keeps the match to a single well-formed title element. Fixed here because Phase 1.3 requires the builder to emit a valid `<html data-aspect="...">` (the head must survive); guarded by `test_head_survives_title_substitution`.
 
-##### BG-1 - baseline builder lost theme background/foreground colors in built output (PRE-EXISTING; RESOLVED in Phase 7)
+##### BG-1 - baseline builder lost theme background/foreground colors in built output (PRE-EXISTING; RESOLVED in Phase 7) - RESOLVED
 
 - **Source phase**: discovered in v3.15.4 Phase 1.3; resolved in Phase 7.2 (a small, in-scope known-gap fix under the 9A rule).
 - **Status**: RESOLVED. `theme_to_css()` emitted `--color-background` / `--color-foreground`, but the template CSS references `var(--color-bg)` / `var(--color-fg)`, so the BUILT output left those two vars undefined and the body lost its theme background / foreground colors (the raw template rendered fine standalone). Fixed by mapping the theme's `background` / `foreground` palette keys to the `--color-bg` / `--color-fg` CSS var names in `theme_to_css` (a name-alignment only; the palette values and every other `--color-*` name are unchanged, and the template carries no `var(--color-background)` / `var(--color-foreground)` reference, so nothing else breaks). Deferred out of Phases 1-6 as orthogonal to the four observed defects; fixed in the terminal phase as a tracked, small, in-scope gap. Guarded by `test_builder_emits_matching_theme_color_vars`.
+
+**Normalization, 2026-10-09 (v4.13.11 T006)**: RESOLVED. This marker records the previously implemented fix or completed proof described here. Retained triage evidence: Heading: PRE-EXISTING; RESOLVED in Phase 7.
 
 ### v3.15.4 Summary
 
@@ -1408,13 +1538,17 @@ OPEN and carried as documented, non-blocking items (all reconciled in Phase 7 as
 
 #### Deferred
 
-##### DF-2 - model-specific content in a shared body is unguarded against HAND edits (the engine rail binds only the engine)
+##### DF-2-v3155 - model-specific content in a shared body is unguarded against HAND edits (the engine rail binds only the engine) - MIGRATED to v4.13.0
 
 - **Source phase**: v3.15.5 Phase 3.1.
 - **Plan reference**: the plan's Overview and Definition of Done ("a model-specific finding provably cannot reach a shared body (parity guard proves it)").
 - **Reason**: the plan's premise is false (see the Phase 3 paragraph above for the three-case evidence). The rail was therefore implemented in the apply engine, which makes the accurate claim: **this feature cannot autonomously write model-specific content into a shared body**. It is NOT the stronger claim that model-specific content cannot exist in a shared body, because a human hand-editing a `SKILL.md`, a command, or a `base-*.md` bypasses the engine entirely. A catalog-wide model-name gate was considered and deliberately not added in this phase: the catalog already carries pre-existing model mentions (6 matches across the `base-*.md` set and 10 SKILL.md files), several of them legitimate (`model-routing` documents tiers by name, `claude-api` names model ids), so such a gate would fail on day one and triaging those mentions is a separate decision with its own scope.
 - **Suggested next step**: decide in Phase 6 (or as its own cycle) whether to add a repo-internal `check_model_specific_leakage.py` gate. It would need an allowlist for legitimate mentions and a triage pass over the 16 existing ones. It would need NO installer edit (it belongs in the `DEV_ONLY_SCRIPTS` allowlist in `catalog/hooks/tests/test_installer_smoke.py`, alongside the three existing repo-internal guards). Until then, the residual is documented rather than closed.
 - **DISPOSITION (Phase 6.2/6.4): ACCEPTED as a documented residual, and the DoD wording corrected in the confirmation table above.** The maintainer deferred this decision to Phase 6, and the call is to accept rather than build the catalog-wide gate in this release, for three reasons. First, the DoD's *intent* is met: the autonomous path (the only one this release creates) provably cannot write model-specific content into a shared body, proven by a paired test rather than asserted. Second, the gate's blocking cost lands on pre-existing content, not on this feature: 6 matches across the `base-*.md` set and 10 SKILL.md files would fail on day one, several legitimately (`model-routing` documents tiers by name, `claude-api` names model ids), so shipping it would mean either a triage pass over unrelated skills or an allowlist large enough to blunt the guard. Third, the residual is bounded and visible: it is a human hand-edit, which already goes through review, and the corrected mechanism is now documented in three places (`references/edit-routing.md` with the three-case evidence, the SKILL.md hard-rail section, and the `/tune-prompting` command's safety posture) so no future reader inherits the false premise. **Carried forward, not closed**: a repo-internal `check_model_specific_leakage.py` remains the right long-term fix. It needs no installer edit (the `DEV_ONLY_SCRIPTS` allowlist in `catalog/hooks/tests/test_installer_smoke.py` covers repo-internal guards, with three precedents) but does need the triage pass. Recorded here for the next `/plan` ingest rather than as a v3.15.5 blocker.
+
+**Original source identity**: `v3.15.5#DF-2` in `v3.15.5 - model-prompting-research`; normalized stable ID `DF-2-v3155` distinguishes this obligation from repeated IDs in other patch sections.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-61`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.5`, section `v3.15.5 - model-prompting-research`, and original ID `DF-2`.
 
 ##### DF-1 - the new CI gate rides the existing validate job instead of a separately path-filtered job - CLOSED 2026-09-29
 
@@ -1432,12 +1566,14 @@ OPEN and carried as documented, non-blocking items (all reconciled in Phase 7 as
 - **Reason**: the validator itself is covered by 62 tests, but nothing asserts that the `Makefile` `validate` target and the `ci.yml` `validate` job actually invoke it. A future edit could silently drop either line and every test would still pass. The repo has no existing precedent for asserting Makefile-target or CI-step contents (no other gate is guarded this way), so this is a pre-existing class of gap rather than a new one. `make` is also not installed on the dev host, so the target cannot be executed locally to prove the wiring.
 - **RESOLVED in Phase 5.3**, without being the goal of that phase. `tests/skills/test_release_staleness_step.py::test_the_structural_sibling_IS_wired_into_every_gate` asserts that `verify_model_prompting_profiles.py` appears in BOTH the `Makefile` and `ci.yml`, which is exactly what this item asked for; its paired test asserts the advisory checker does NOT. So the wiring for this release's gate is now machine-checked in both directions. The broader generalization (a guard covering every `scripts/*.py` gate name, in the shape of `test_installers_copy_every_scripts_dir_py_file`) remains un-built and is a pre-existing catalog-wide gap rather than a v3.15.5 one; it is not carried forward as a v3.15.5 item.
 
-##### MT-4 - the apply loop's DEFAULT guard suite is not exercised end to end; tests inject fake guards - MIGRATED to v4.13 (AR-08)
+##### MT-4 - the apply loop's DEFAULT guard suite is not exercised end to end; tests inject fake guards - MIGRATED to v4.13 (AR-08) - MIGRATED to v4.13.0
 
 - **Source phase**: v3.15.5 Phase 3.4.
 - **Plan reference**: Phase 3.2 ("run the full guard suite") and 3.4 ("the per-edit guard loop with an injected guard failure").
 - **Reason**: the loop's control flow (apply, guard, keep-or-revert, quarantine, continue) is fully tested with injected pass/fail guards, which is what keeps the tests fast and deterministic. Running the real five-gate suite once per edit takes minutes, so no test executes `DEFAULT_GUARDS` end to end. **The realistic half of this gap was closed in-phase**: `test_every_default_guard_points_at_a_script_that_exists` asserts each default guard names a `.py` script that is actually present, and `test_the_default_suite_covers_the_gates_the_plan_requires` pins the three gates the plan names. A renamed or moved gate now fails at test time instead of quarantining every edit on a live run.
 - **Suggested next step**: what remains is a genuine end-to-end run of the real suite (one slow-marked test applying a trivial edit under `DEFAULT_GUARDS`). Phase 6.3 is the natural home. Non-blocking, and the failure direction is safe: a broken guard quarantines edits rather than letting them through.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-08`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.5`, section `v3.15.5 - model-prompting-research`, and original ID `MT-4`.
 
 ##### MT-3 - the research fan-out itself is agent behavior over live web calls and is not unit-run - CLOSED 2026-09-29
 
@@ -1446,12 +1582,16 @@ OPEN and carried as documented, non-blocking items (all reconciled in Phase 7 as
 - **Reason**: the middle of the pipeline (search, fetch, extract claims, refute) is irreducibly agent work against live vendor documentation, so it cannot be asserted deterministically. What IS covered: the two deterministic ends (the planner's work-list mapping and the writer's validate-and-merge, 91% branch coverage, cross-checked against the repo structural gate) and static assertions that the workflow template carries the three mandatory rules, its cross-links, the budget kill switch, every degradation rung, and no runtime-forbidden clock or RNG call. What is NOT covered: that a real fan-out actually retrieves primary sources, that the refuter panel rejects a bad claim in practice, and that the degradation ladder selects the right rung at runtime. This mirrors the v3.15.4 MT-3 precedent, where the structural scorer was the unit-tested backbone of an otherwise behavioral visual-QA loop.
 - **Suggested next step**: the first real `/tune-prompting` run (Phase 4 onward) is the behavioral proof, and its output is reviewable because every claim carries a citation. If stronger coverage is wanted later, record a fixture of captured search/fetch responses and replay it through a single sequential-agent run. Non-blocking.
 
-##### MT-2 - subprocess-invoked validator tests need explicit coverage plumbing, so coverage is not measured in CI - MIGRATED to v4.13 (AR-33)
+##### MT-2-v3155 - subprocess-invoked validator tests need explicit coverage plumbing, so coverage is not measured in CI - MIGRATED to v4.13 (AR-33) - MIGRATED to v4.13.0
 
 - **Source phase**: v3.15.5 Phase 1.5.
 - **Plan reference**: Phase 1.5 (stabilization) and the implement-phase coverage gate.
 - **Reason**: `tests/validators/conftest.py` runs each validator as a SUBPROCESS (deliberately, so the tests exercise the real CLI surface end users run), so a plain `pytest --cov` collects nothing from the scripts under test. Coverage for this phase was measured out-of-band with `COVERAGE_PROCESS_START` plus `coverage combine` (94% validator, 97% freshness checker, 97% combined, branch coverage on), but CI does not run coverage for `tests/validators` at all, so the number is enforced nowhere. This affects the entire pre-existing `tests/validators` suite, not only the two new scripts.
 - **Suggested next step**: if coverage enforcement is wanted for this suite, add the `COVERAGE_PROCESS_START` plumbing to the CI `tests` job once, for the whole `tests/validators` tree. Non-blocking; behavioral coverage is strong, since every documented structural rule has a dedicated failing-case test.
+
+**Original source identity**: `v3.15.5#MT-2` in `v3.15.5 - model-prompting-research`; normalized stable ID `MT-2-v3155` distinguishes this obligation from repeated IDs in other patch sections.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-33`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.5`, section `v3.15.5 - model-prompting-research`, and original ID `MT-2`.
 
 ### v3.15.5 reconciliation summary (Phase 6.2)
 
@@ -1549,14 +1689,18 @@ Beyond the two fixes: the init carve-out is implemented as a writer-identity sig
 
 #### Deferred
 
-##### DF-3 - `defaultMode` deliberately omitted from the strict overlay pending enum verification - MIGRATED to v4.13 (AR-54)
+##### DF-3-v3156 - `defaultMode` deliberately omitted from the strict overlay pending enum verification - MIGRATED to v4.13 (AR-54) - MIGRATED to v4.13.0
 
 - **Source phase**: v3.15.6 Phase 3.1.
 - **Plan reference**: Phase 3.1 ("with `defaultMode` set to ask/deny rather than auto-approve").
 - **Reason**: the instruction is not implementable as written (`ask` and `deny` are sibling array keys, not `defaultMode` values), and the key's valid value set is unverified in this repo: it appears nowhere in `guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md`, and `docs/v3/v3.16/plans/v3.17.0-agent-autonomy-toggle.md` Phase 2 schedules confirming it against official documentation. Writing an unverified enum into a user's `settings.json` risks breaking their config for no benefit, because the safest documented value (`default`) is already Claude Code's behavior. The overlay ships the verified `deny` and `ask` keys instead, and a test pins the omission so it cannot drift back in accidentally.
 - **Suggested next step**: after v3.17.0 Phase 2 verifies the `defaultMode` enum against official docs, decide whether the strict overlay should also set it. If yes, add it plus a test; if no, keep the omission and record the reasoning there. Non-blocking: the deny/ask entries deliver the hardening on their own.
 
-##### DF-1 - `ai-agent-governance` carries no SKIP clause (reciprocal carve-out not added) - MIGRATED to v4.13 (AR-55)
+**Original source identity**: `v3.15.6#DF-3` in `v3.15.6 - adoption-sandbox-escapes`; normalized stable ID `DF-3-v3156` distinguishes this obligation from repeated IDs in other patch sections.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-54`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.6`, section `v3.15.6 - adoption-sandbox-escapes`, and original ID `DF-3`.
+
+##### DF-1-v3156 - `ai-agent-governance` carries no SKIP clause (reciprocal carve-out not added) - MIGRATED to v4.13 (AR-55) - MIGRATED to v4.13.0
 
 - **Source phase**: v3.15.6 Phase 1.1 / 1.4.
 - **Plan reference**: Phase 1.1 (the description's SKIP clause fencing off deployed-service agent governance).
@@ -1564,16 +1708,22 @@ Beyond the two fixes: the init carve-out is implemented as a writer-identity sig
 - **Suggested next step**: in a future cycle, sharpen `ai-agent-governance`'s description with a SKIP clause deferring local coding-agent endpoint hardening to `agentic-endpoint-hardening` (and sync `data/skills.json`), making the pair mutually fenced like `oncall-runbook` / `runbook-writer`. The allowlist entry can stay either way. Non-blocking; routing is proven correct today.
 
 
+**Original source identity**: `v3.15.6#DF-1` in `v3.15.6 - adoption-sandbox-escapes`; normalized stable ID `DF-1-v3156` distinguishes this obligation from repeated IDs in other patch sections.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-55`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.6`, section `v3.15.6 - adoption-sandbox-escapes`, and original ID `DF-1`.
+
 #### Resolved
 
-##### DF-2 RESOLVED - the whole bare-`bash` class is gone, and the WN-v36-1 failure set with it
+##### DF-2 RESOLVED - the whole bare-`bash` class is gone, and the WN-v36-1 failure set with it - RESOLVED
 
 - **Source phase**: raised v3.15.6 Phase 2.3, resolved Phase 4.
 - **Resolution**: fixed at the root rather than per file. `conftest.py` is imported by pytest BEFORE any test module, so repairing `os.environ["PATH"]` there lands ahead of every test module's own `shutil.which("bash")` and every `subprocess.run(["bash", ...])`. One module-level repair in `catalog/hooks/tests/conftest.py` therefore fixed all 11 affected files with ZERO edits to them, and keeps working for files added later. The same repair was added at `tests/conftest.py` (outside DF-2's original scope, but the same root cause and remedy) which also de-risks the new `tests-windows` CI job, since that job runs the `tests/` tree and would otherwise depend on the runner image's PATH ordering.
 - **Evidence, measured with NO PATH assistance**: `catalog/hooks/tests` 658 passed / 36 skipped / **0 failed** (was 91 failed), and `tests/installer` + `tests/validators` 516 passed / 16 skipped / **0 failed** (was 4 failed). That is the complete 103-failure set carried across several releases as WN-v36-1, now structurally resolved rather than worked around.
 - **Note on the approved remedy**: the maintainer approved "convert the ~17 files to the `bash_bin` fixture". The PATH repair reaches the same outcome with a fraction of the diff and no risk to existing assertions; see D13. The `bash_bin` / `powershell_bin` fixtures are retained for tests that want the interpreter explicitly.
 
-##### BG-5 RESOLVED - `session-summary.ps1` never parsed, so the hook was dead on Windows since v3.11.0 (PRE-EXISTING, found by the new gate)
+**Normalization, 2026-10-09 (v4.13.11 T006)**: RESOLVED. This marker records the previously implemented fix or completed proof described here. Retained triage evidence: Heading "DF-2 RESOLVED"; PATH repair in `catalog/hooks/tests/conftest.py` per K15 correction notice.
+
+##### BG-5 RESOLVED - `session-summary.ps1` never parsed, so the hook was dead on Windows since v3.11.0 (PRE-EXISTING, found by the new gate) - RESOLVED
 
 - **Source phase**: v3.15.6 Phase 4.3, found the moment the new `.ps1` AST gate was run for the first time.
 - **Reason**: line 139 read `$lines.Add("- Branch: ``$branch``")` inside a DOUBLE-quoted string, which is broken twice over because the backtick is PowerShell's escape character. `` `$branch `` emitted the literal text `$branch` rather than the value, and the trailing backtick escaped the closing quote so the string never terminated. The parser then ran on through the following lines and reported "string is missing the terminator" 23 lines later, which is why the real cause is not where the error points.
@@ -1582,39 +1732,51 @@ Beyond the two fixes: the init carve-out is implemented as a writer-identity sig
 - **Scope note**: this file was NOT touched by this plan and the fix is technically out-of-scope cleanup. It is included because the alternative was worse: the phase adds an AST gate the maintainer approved, and shipping it would have meant either a red gate or an allowlisted permanent hole that leaves a known-broken hook broken. One line, root-caused rather than worked around.
 - **Value of the gate, demonstrated immediately**: it found a real, silent, multi-release defect on its very first run. That is the argument for keeping it unconditional rather than relying on the behavioral tests, which SKIP when no interpreter is present.
 
-##### QG-1 RESOLVED - both CI hardening diffs applied, plus a Windows leg
+**Normalization, 2026-10-09 (v4.13.11 T006)**: RESOLVED. This marker records the previously implemented fix or completed proof described here. Retained triage evidence: Heading RESOLVED; `catalog/hooks/tests/test_hook_sibling_parity.py` AST-parses every `.ps1`.
+
+##### QG-1 RESOLVED - both CI hardening diffs applied, plus a Windows leg - RESOLVED
 
 - **Source phase**: raised v3.15.6 Phase 2.3, resolved Phase 4.3.
 - **Resolution**: (1) added an unconditional PowerShell AST-parse step for `catalog/hooks/*.ps1`, which matters because the parametrized hook tests SKIP without an interpreter and a skip emits no signal; (2) removed the `|| true` that made the catalog `shellcheck` step decorative, safe because all 36 catalog `.sh` files pass `--severity=warning` with zero warnings today, so the gate starts green.
 - **Third change, beyond QG-1's original scope and the reason it matters**: a new push-only `tests-windows` job runs the hook, installer, and validator suites on a real Windows host, pinned to Windows PowerShell 5.1 via the new `NEXUS_TEST_POWERSHELL` variable. This is evidence-driven: the Phase 3 ledger BOM defect is specific to 5.1 and does NOT reproduce under the ubuntu leg's pwsh 7, so CI as previously configured would have passed a ledger that was unparseable for every Windows user. The pin gives coverage of both editions across the two legs rather than testing pwsh twice. Cost-gated to pushes only, matching `bootstrap-windows` and `install-smoke`.
 
-##### HO-2 RESOLVED - `NEXUS_HUB_INIT=1` exported by both installers, with its real scope recorded
+**Normalization, 2026-10-09 (v4.13.11 T006)**: RESOLVED. This marker records the previously implemented fix or completed proof described here. Retained triage evidence: Heading RESOLVED; Windows `tests-windows` leg documented in AGENTS.md.
+
+##### HO-2 RESOLVED - `NEXUS_HUB_INIT=1` exported by both installers, with its real scope recorded - RESOLVED
 
 - **Source phase**: raised v3.15.6 Phase 2.1, resolved Phase 3.1.
 - **Resolution**: both installers now export the marker for the `init` subcommand (`export NEXUS_HUB_INIT=1` in `installer.sh`, `$env:NEXUS_HUB_INIT = "1"` in `installer.ps1`), in lockstep per the installer-aware rule, and a test asserts both.
 - **Correction recorded with it**: the export does LESS than the plan implies, and the comment in both installers says so. Claude Code's `PreToolUse` Write/Edit hooks observe the AGENT's tool calls, not the installer's process, so `init`'s own file writes never reach `escalation-trigger` and were never going to warn. The marker is an explicit intent declaration for any hook chain that DOES wrap the installer, plus lockstep parity; the carve-out's practical consumer is an operator exporting the same variable for a deliberate setup pass in an agent session.
 - **Security framing, stated so it is not mistaken later**: this is a SELF-ASSERTED signal. An agent can set the variable itself, so it is not verified identity and must never be promoted to a boundary. It is acceptable only because the hook is advisory: the carve-out suppresses a warning and never grants a capability. Both hooks and both installers carry that caveat inline.
 
-##### HO-1 RESOLVED - hook-test verification route found; the WN-v36-1 characterization was wrong
+**Normalization, 2026-10-09 (v4.13.11 T006)**: RESOLVED. This marker records the previously implemented fix or completed proof described here. Retained triage evidence: `scripts/installer.sh:4258`, `scripts/installer.ps1:3993`.
+
+##### HO-1 RESOLVED - hook-test verification route found; the WN-v36-1 characterization was wrong - CLOSED
 
 - **Source phase**: raised v3.15.6 Phase 1.4, resolved Phase 2 pre-flight.
 - **Resolution**: route (b) works and the root cause is much smaller than the long-standing note claimed. The suite never needed a POSIX host: on Windows, `C:\Windows\System32\bash.exe` (the WSL launcher stub) **shadows Git Bash on PATH**, receives a Windows-style script path it cannot resolve, and exits 127 before executing a line. Putting Git Bash ahead of it takes the full hook suite from 99 failed / 361 passed to **0 failed / 460 passed** on the same machine, with no other change. The two remaining failing files outside `catalog/hooks/tests` (`tests/validators/test_session_query_extract.py`, `tests/installer/test_branch_flag.py`) also pass under Git Bash, closing all 103 of the failures previously carried as unavoidable.
 - **Correction to record**: the WN-v36-1 framing repeated across several releases ("bash cannot be fully exercised on the Windows dev host", covered on Linux in CI only) is **inaccurate**. It is PATH shadowing, not host incapability, and it was diagnosable at any time by asking WHICH bash answered rather than whether bash worked. A future cycle should reword that note wherever it is cited, rather than continuing to treat 103 failures as environmental.
 - **Durability**: Phase 2 also made the fix structural for the files it owns via the `bash_bin` probe fixture (see D6), so those tests are correct on any host without PATH ceremony. Extending that to the remaining files is DF-2.
 
-##### BG-1 RESOLVED - `escalation-trigger.sh` was inert in production (wrong input contract)
+**Normalization, 2026-10-09 (v4.13.11 T006)**: CLOSED. This marker records the historical decision, accepted limitation, retirement, or superseded record described here. Retained triage evidence: Heading RESOLVED; conftest PATH repair.
+
+##### BG-1 RESOLVED - `escalation-trigger.sh` was inert in production (wrong input contract) - RESOLVED
 
 - **Source phase**: v3.15.6 Phase 2.1 (discovered while implementing AC2).
 - **Reason**: the hook resolved its target path solely from `$CLAUDE_FILE_PATH`, which Claude Code does not set. All nine sibling Write/Edit hooks read `.tool_input.file_path` from the stdin JSON payload. Verified empirically: a real stdin payload produced no output at all, while the env var produced the expected warning. The hook had therefore never fired in normal operation, and it was the ONLY hook in the catalog using that contract.
 - **Resolution**: reads the stdin JSON payload first (`jq` when present, a `grep`/`sed` fallback otherwise, matching the sibling convention), treats a JSON `null` as absent, and falls back to `$CLAUDE_FILE_PATH` so any setup exporting it keeps working. Covered by tests asserting the stdin contract, the `tool_input.path` alias, the env fallback, and that stdin wins over the env var.
 - **Why it mattered here**: without this, AC2 would have added escape surfaces to a hook that cannot fire, producing a longer list that reports coverage it does not have. That is the precise failure mode the Phase 1 skill names, and it would have been invisible to a test suite that only asserted the pattern list's contents.
 
-##### BG-2 RESOLVED - the no-jq fallback did not decode JSON escapes, so Windows paths never matched
+**Normalization, 2026-10-09 (v4.13.11 T006)**: RESOLVED. This marker records the previously implemented fix or completed proof described here. Retained triage evidence: Heading RESOLVED; `catalog/hooks/tests/test_escalation_trigger.py` parametrized over both siblings.
+
+##### BG-2 RESOLVED - the no-jq fallback did not decode JSON escapes, so Windows paths never matched - RESOLVED
 
 - **Source phase**: v3.15.6 Phase 2.1 (caught by the `.sh`/`.ps1` parity test).
 - **Reason**: the `grep`/`sed` fallback reads the RAW JSON string, so a Windows path arrives as `C:\\repo\\.git\\hooks\\x`. The separator normalization then rewrote each `\\` to `//`, yielding `C://repo//.git//hooks//x`, which matches no glob. The PowerShell sibling was already correct because `ConvertFrom-Json` decodes the escape, so the two implementations disagreed.
 - **Resolution**: decode the backslash escape in the fallback branch only, before normalization (the `jq` branch needs no such step because `jq` already decodes). Covered by a backslash-path test that runs against both implementations.
 - **Note on coverage**: locally `jq` is absent, so the tests exercise the fallback branch; on a runner with `jq` present the same tests exercise the `jq` branch. The assertion is behavioral, so it is correct either way, but neither environment alone covers both branches.
+
+**Normalization, 2026-10-09 (v4.13.11 T006)**: RESOLVED. This marker records the previously implemented fix or completed proof described here. Retained triage evidence: Heading RESOLVED.
 
 ### v3.15.6 Summary
 
@@ -1646,24 +1808,30 @@ Beyond the two fixes: the init carve-out is implemented as a writer-identity sig
 
 **Three pre-existing bash defects and one of my own, all found by the harness on its first runs.** This is the same lesson as Phases 2 and 3, now on a third code path: comparing two implementations finds what inspecting one does not.
 
-##### BG-6 RESOLVED - `require-description.sh` and `require-powershell-description.sh` silently failed to block without `jq`
+##### BG-6 RESOLVED - `require-description.sh` and `require-powershell-description.sh` silently failed to block without `jq` - RESOLVED
 
 - **Source**: v3.15.6 follow-on, found by the parity harness.
 - **Reason**: under `set -euo pipefail`, a `grep` that matches nothing returns non-zero, and a failing command substitution in an assignment ABORTS the script. So on a host without `jq`, a command carrying NO description made the description `grep` fail and the hook exited 1 **before reaching its block**. The gate allowed precisely what it exists to refuse, and exit 1 reads to the harness as a hook error rather than a refusal.
 - **Severity framing**: this is a security defect, not a cosmetic one, and it is the same class as the Phase 2 finding that `escalation-trigger.sh` was inert. A control that reads its input incorrectly is not a control. Verified after the fix on this jq-less host: a description-less command now returns 2 (blocked) and a described one returns 0.
 - **Resolution**: every extraction on both branches is now guarded with `|| true`, matching the pattern Phase 2 applied to `escalation-trigger.sh`.
 
-##### BG-7 RESOLVED - `git-guardrails.sh` exited 1 on any payload carrying no command
+**Normalization, 2026-10-09 (v4.13.11 T006)**: RESOLVED. This marker records the previously implemented fix or completed proof described here. Retained triage evidence: Heading RESOLVED.
+
+##### BG-7 RESOLVED - `git-guardrails.sh` exited 1 on any payload carrying no command - RESOLVED
 
 - **Source**: v3.15.6 follow-on, found by the parity harness.
 - **Reason**: the same `set -e` interaction. An empty payload, a malformed one, or a valid payload for a non-Bash tool made the command `grep` fail and aborted the script with exit 1 instead of reaching its documented allow path. Latent in normal operation, because a Bash tool call always carries a command, but wrong for every other case.
 - **Resolution**: `|| true` on both extraction branches. A behavioural sweep of all 25 `.sh` hooks confirms the class is now empty.
 
-##### BG-8 RESOLVED - the description gates blocked on a malformed payload (both languages)
+**Normalization, 2026-10-09 (v4.13.11 T006)**: RESOLVED. This marker records the previously implemented fix or completed proof described here. Retained triage evidence: Heading RESOLVED.
+
+##### BG-8 RESOLVED - the description gates blocked on a malformed payload (both languages) - RESOLVED
 
 - **Source**: v3.15.6 follow-on. The bash half surfaced when BG-6's fix let the hooks reach their block; the PowerShell half was MY defect, caught by the parity harness on the next run.
 - **Reason**: a parse failure, or a valid payload for a different tool, is not evidence that a description is missing, so refusing there would wedge the agent on a harness quirk. `git-guardrails.sh` already documented the correct behaviour ("if we couldn't extract a command, allow"); the description gates lacked that guard. My `.ps1` versions had a narrower version of the same flaw: they failed open on a parse ERROR but still fell through to the block for a well-formed payload with no command, so a `Write` tool call was refused.
 - **Resolution**: both languages now fail open when no command can be extracted. Confirmed by four spot-checks per implementation (no-command, empty object, command-without-description, command-with-description) and by the parity suite.
+
+**Normalization, 2026-10-09 (v4.13.11 T006)**: RESOLVED. This marker records the previously implemented fix or completed proof described here. Retained triage evidence: Heading RESOLVED.
 
 ##### Advisory (documented asymmetry, not a defect)
 
@@ -1693,7 +1861,7 @@ Phase 1 added the shared finding-disposition doctrine to `pentest-reporting` and
 
 #### Warnings
 
-##### WN-3 - `test_instruction_merge.py` depends on installer-suite import order
+##### WN-3 - `test_instruction_merge.py` depends on installer-suite import order - RESOLVED
 
 - **Source phase**: v3.15.7 Phase 1 - Finding-disposition doctrine.
 - **Plan reference**: `docs/v3/v3.15/plans/v3.15.7-adoption-raptor-loop-hunt.md` (sub-task 1.3).
@@ -1701,6 +1869,8 @@ Phase 1 added the shared finding-disposition doctrine to `pentest-reporting` and
 - **Suggested next step**: break the `instruction_merge` / integrations package import cycle or add an isolated-import regression test in a later maintenance phase.
 
 The remaining v3.15.7 phases are scheduled plan work, not gaps in the completed Phase 1 scope.
+
+**Normalization, 2026-10-09 (v4.13.11 T006)**: RESOLVED. This marker records the previously implemented fix or completed proof described here. Retained triage evidence: K15:1908 resolution; `tests/installer/test_instruction_merge.py:29` fresh-interpreter import test.
 
 ### v3.15.7 Phase 1 Resolved
 
@@ -1858,28 +2028,34 @@ Phase 7 audited the repository and active v3.15 documentation layout, reconciled
 
 #### Deferred
 
-##### DF-6 - Durable monotonic-scrutiny store remains deferred - MIGRATED to v4.13 (AR-37)
+##### DF-6 - Durable monotonic-scrutiny store remains deferred - MIGRATED to v4.13 (AR-37) - MIGRATED to v4.13.0
 
 - **Source phase**: v3.15.7 Phase 7 - Known-gaps reconciliation.
 - **Plan reference**: `docs/v3/v3.15/plans/v3.15.7-adoption-raptor-loop-hunt.md` (sub-task 7.2; comparison candidate B11).
 - **Reason**: Phase 6 adopted the safety invariant that prior-cycle memory may only raise scrutiny, never establish coverage or exclude a candidate. A durable store is locally buildable but was intentionally deferred because its persistence, invalidation, and poisoning-resistance surface exceeds this patch's bounded scope.
 - **Re-entry condition**: Re-propose only with a local storage schema, explicit invalidation rules, poisoning tests, and proof that every stored signal can only increase review priority.
 
-##### DF-7 - External vulnerability-database reconnaissance remains declined
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-37`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.7`, section `v3.15.7 - adoption-raptor-loop-hunt`, and original ID `DF-6`.
+
+##### DF-7 - External vulnerability-database reconnaissance remains declined - CLOSED
 
 - **Source phase**: v3.15.7 Phase 7 - Known-gaps reconciliation.
 - **Plan reference**: `docs/v3/v3.15/comparisons/v3.15.7-comparison-raptor-loop-hunt.md` (prior-art recon via OSV, NVD, or GitHub).
 - **Reason**: Mandating this step would add third-party egress to a local skill surface and duplicate existing `dependency-security-audit` and `cve-reachability-analyzer` ownership. The MCP Registry Policy prefers those existing local skills over a new search-as-service dependency.
 - **Re-entry condition**: Reconsider only if the capability cannot be expressed through the existing local skills and a future proposal passes the registry's reverse-engineer-first audit.
 
-##### DF-8 - Provider-key cross-vendor judging remains declined
+**Normalization, 2026-10-09 (v4.13.11 T006)**: CLOSED. This marker records the historical decision, accepted limitation, retirement, or superseded record described here. Retained triage evidence: Closed by recorded decline under MCP Registry Policy; nothing owed.
+
+##### DF-8 - Provider-key cross-vendor judging remains declined - CLOSED
 
 - **Source phase**: v3.15.7 Phase 7 - Known-gaps reconciliation.
 - **Plan reference**: `docs/v3/v3.15/comparisons/v3.15.7-comparison-raptor-loop-hunt.md` (cross-vendor judge).
 - **Reason**: A mandated provider-key path would transmit source and findings to another model vendor. Nexus-Hub already owns the local `cross-model-orchestrator` path and the comparison adopted the harness-as-second-evaluator fallback instead.
 - **Re-entry condition**: Reconsider only for an explicit user-owned provider workflow with egress disclosure, hard spending controls, and no claim that a second vendor is required for correctness.
 
-##### DF-9 - Additive platform capability drift is deferred to v3.15.8
+**Normalization, 2026-10-09 (v4.13.11 T006)**: CLOSED. This marker records the historical decision, accepted limitation, retirement, or superseded record described here. Retained triage evidence: Closed by recorded decline; `cross-model-orchestrator` covers it.
+
+##### DF-9 - Additive platform capability drift is deferred to v3.15.8 - RESOLVED
 
 - **Source phase**: v3.15.7 release-time platform read-contract re-verification on 2026-08-02.
 - **Affected surfaces**: Codex custom agents and native hooks; Gemini CLI and Qwen native hooks; Kimi custom agents and TOML hook configuration; Copilot custom agents and hooks. Hermes documentation now also demonstrates category-nested skill layouts, while the current flattened child layout remains discoverable and functional.
@@ -1888,27 +2064,37 @@ Phase 7 audited the repository and active v3.15 documentation layout, reconciled
 - **Re-entry condition**: v3.15.8 must reconcile each surface against the cost-effective CI/CD foundation work, add exact contract checks only as the corresponding adapter behavior lands, and preserve shared-path ownership during install, repair, and teardown.
 - **RESOLVED (v3.15.8 Phase 9.2, 2026-08-03)**: every surface named above now has a disposition, and all 18 ownership-matrix rows are enforceable. Codex agents and hooks shipped in Phase 5; Gemini CLI and Qwen hooks in Phase 6; Kimi agents and hooks in Phase 7 (global hooks only -- no project hook path exists, recorded as DF-13); Copilot global agents in Phase 8, with Copilot hooks at both scopes and Copilot project agents established as **inherited** through Copilot's own default Claude-format read paths rather than duplicated. Hermes resolved opposite to the drift-audit premise: discovery probes only direct subdirectories, so the flattened layout is required and the category-nested example would have broken it. Contract checks were added per adapter as its behavior landed (`contract_checks` config keys plus `install_verify` surfaces for Codex, Qwen, and Kimi), shared-path ownership held throughout (`~/.agents/skills` stayed Codex-owned, `.agents/skills` Antigravity-owned, and neither Kimi nor Hermes claimed the shared agent directories), and the machine contract and its Markdown mirror were updated together in every phase. The re-entry condition is met in full; DF-9 closes here.
 
+**Normalization, 2026-10-09 (v4.13.11 T006)**: RESOLVED. This marker records the previously implemented fix or completed proof described here. Retained triage evidence: Entry "RESOLVED (v3.15.8 Phase 9.2)"; K15 Phase 9.2 table row DF-9 Resolved.
+
 ### v3.15.7 Phase 7 Resolved
 
-##### BG-1 - Usage-monitor clean-install workflows repaired
+##### BG-1 - Usage-monitor clean-install workflows repaired - RESOLVED
 
 - **Resolution**: both usage-monitor workflows now pin `actions/setup-node` by commit and use Node 22, both package manifests declare `node >=22.0.0`, and both lockfiles were rebuilt from their exact manifests with npm 10.9.4. This resolves the Claude monitor's long-standing missing and inconsistent `@emnapi` graph and the equivalent Codex monitor failure discovered on the Extra Credits commit.
 - **Evidence**: clean npm 10 installs and TypeScript compilation pass for both extensions. Claude reports 5 passing Vitest cases. Codex reports 75 passing cases and 80.55% statements, 80.29% branches, 77.19% functions, and 81% lines. The two focused GitHub workflows remain the remote release gate.
 
-##### BG-2 - First release PR exposed three CI defects
+**Normalization, 2026-10-09 (v4.13.11 T006)**: RESOLVED. This marker records the previously implemented fix or completed proof described here. Retained triage evidence: Subsection "v3.15.7 Phase 7 Resolved".
+
+##### BG-2 - First release PR exposed three CI defects - RESOLVED
 
 - **Resolution**: normalized terminal newlines in the four files rejected by the end-of-file hook; made `secret-scan.sh` fail open when `jq` cannot parse the payload, matching `secret-scan.ps1`; restored the reactivated Presentify check by pinning Ruff 0.16.1, preserving intentional security suppressions, tracking all six shebang scripts as executable, and normalizing OCR spacing in the fixture enrichment protocol; and changed Linux CI to invoke `python -m pytest` so repository-package imports resolve during skills-test collection.
 - **Evidence**: the exact malformed secret-scan parity node passes, Ruff 0.16.1 reports no findings, both OCR spacing regression cases pass within a 46-passed focused suite, all four artifacts end with LF, and the regenerated 1,194-entry manifest verifies. Release PR #28 is green at `c204162b`: validation, Presentify, full tests, bootstrap, install smoke, ShellCheck, and doc colocation all pass.
 
-##### BG-3 - Windows push-only test gate exposed interpreter and hashing defects
+**Normalization, 2026-10-09 (v4.13.11 T006)**: RESOLVED. This marker records the previously implemented fix or completed proof described here. Retained triage evidence: Same Resolved subsection.
+
+##### BG-3 - Windows push-only test gate exposed interpreter and hashing defects - RESOLVED
 
 - **Resolution**: `test_model_routing_switch.py` now invokes the exact Bash executable selected by the shared `bash_bin` probe instead of resolving the ambiguous `bash` alias again. `provenance-ledger.ps1` now computes SHA-256 through a direct .NET file stream and disposes both stream and algorithm in `finally`, avoiding the hosted Windows PowerShell 5.1 `Get-FileHash` failure while preserving the advisory hook's `NOHASH` fallback.
 - **Evidence**: the focused Windows PowerShell 5.1 regression suite reports 54 passed, including all model-routing exit contracts and both provenance hash assertions, and the changed hook passes the Windows PowerShell AST parser. The follow-up pull request and post-merge push remain the remote authority.
 
-##### WN-3 - `test_instruction_merge.py` isolated import cycle resolved
+**Normalization, 2026-10-09 (v4.13.11 T006)**: RESOLVED. This marker records the previously implemented fix or completed proof described here. Retained triage evidence: Same Resolved subsection.
+
+##### WN-3 - `test_instruction_merge.py` isolated import cycle resolved - RESOLVED
 
 - **Resolution**: `scripts/lib/installer/instruction_merge.py` now defers the `FileAction` runtime import until a result is created, so importing the merge helper no longer initializes the integrations registry and loops back through `copilot.py`. `tests/installer/test_instruction_merge.py` includes a fresh-interpreter regression test that imports the helper without preloading the registry.
 - **Evidence**: The exact former reproduction now reports 13 passed; the full installer suite reports 144 passed and 16 skipped; the changed module reports 87% branch coverage.
+
+**Normalization, 2026-10-09 (v4.13.11 T006)**: RESOLVED. This marker records the previously implemented fix or completed proof described here. Retained triage evidence: Resolution entry itself; test at `tests/installer/test_instruction_merge.py:29`.
 
 ### v3.15.7 Phase 7 Summary
 
@@ -1949,14 +2135,16 @@ Phase 1 converted DF-9 and the GitHub monitor requirements into explicit ownersh
 
 #### Quality-gate gaps
 
-##### QG-2 - Repository CI does not collect `tests/plans`
+##### QG-2 - Repository CI does not collect `tests/plans` - RESOLVED
 
 - **Source phase**: v3.15.8 Phase 1.5 - Testing and Stabilization.
 - **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 1.5 and Phase 9.3).
 - **Reason**: `.github/workflows/ci.yml` collects integration, installer, validator, and skill suites but not the new semantic contract suite under `tests/plans`. The v3.15.8 plan explicitly defers unnecessary workflow restructuring until later design and final CI reconciliation, so Phase 1 did not silently broaden the workflow.
 - **Re-entry condition**: add the Phase 1 contract suite to an appropriate existing CI job during Phase 4 design or Phase 9 reconciliation, preserving path filters, caching, concurrency cancellation, and gated expensive matrices.
 
-### v3.15.8 Phase 1 Resolved
+**Normalization, 2026-10-09 (v4.13.11 T006)**: RESOLVED. This marker records the previously implemented fix or completed proof described here. Retained triage evidence: `scripts/ci/profiles.py:359` `_pytest("repo-tests-plans", "tests/plans")`.
+
+### Resolved - v3.15.8 Phase 1
 
 - The repository-wide personal-path validator initially found a pre-existing absolute portfolio path in `docs/v3/v3.16/plans/v3.20.0-interactive-guide-redesign.md`. With explicit maintainer authorization, the path was replaced by `../online-portfolio/nexus-hub/index.html`; `python scripts/validate_no_personal_paths.py` now exits 0.
 - HO-3 was resolved in Phase 2 by retaining the documented fine-grained-token fallback in `ExtensionContext.secrets` and keeping VS Code GitHub session reuse disabled until billing-endpoint acceptance is proven by an authorized probe.
@@ -1983,14 +2171,16 @@ Phase 2 adds the independent `extensions/github-usage-monitor/` TypeScript packa
 
 #### Quality-gate gaps
 
-##### QG-3 - GitHub Usage Monitor tests are not collected by CI
+##### QG-3 - GitHub Usage Monitor tests are not collected by CI - CLOSED
 
 - **Source phase**: v3.15.8 Phase 2.5 - Testing and Stabilization.
 - **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 2.5 and Phase 4.3).
 - **Reason**: `.github/workflows/ci.yml` runs Python suites, while the focused Claude and Codex workflows collect only their own extension paths. The new GitHub monitor therefore has no remote Node 22 compile-and-coverage gate yet. Phase 4 explicitly owns a path-filtered monitor workflow, so Phase 2 does not add a partial or duplicate CI definition.
 - **Suggested next step**: implement T028 and T029 in Phase 4 with a path-filtered Node 22 workflow that uses the lockfile cache, concurrency cancellation, clean install, compile, coverage, and VSIX dry-package gates.
 
-### v3.15.8 Phase 2 Resolved
+**Normalization, 2026-10-09 (v4.13.11 T006)**: CLOSED. This marker records the historical decision, accepted limitation, retirement, or superseded record described here. Retained triage evidence: Monitor removed in v3.18.2 (decision record above; directory absent).
+
+### Resolved - v3.15.8 Phase 2
 
 | ID | Title | Resolved in | Notes |
 |---|---|---|---|
@@ -2034,7 +2224,7 @@ Phase 3 adds the GitHub Usage Monitor status item, detailed hover, theme-adaptiv
 - **Reason**: VS Code CLI 1.131.0 is installed, but this non-interactive session cannot observe or capture the Extension Development Host GUI. Automated tests verify theme tokens, semantic meter and alert labels, focus-visible styling, responsive layout, reduced motion, CSP, escaping, and unknown-limit fallback, but they are not screenshots or a human visual inspection.
 - **Suggested next step**: during Phase 4 packaging, install the locally built VSIX into an isolated Extension Development Host and capture status, hover, dashboard, settings, and warning surfaces in light, dark, high-contrast, keyboard-only, 200 percent zoom, and forced-colors modes.
 
-### v3.15.8 Phase 3 Resolved
+### Resolved - v3.15.8 Phase 3
 
 | ID | Title | Resolved in | Notes |
 |---|---|---|---|
@@ -2072,7 +2262,7 @@ Two decisions are worth recording. The focused workflow deliberately does not tr
 - **Suggested next step**: during Phase 9 CI reconciliation, either accept this divergence explicitly in the workflow comparison or, if per-path job gating is adopted repository-wide, add an installer-parity job gated to installer changes.
 - **ACCEPTED AS A RETAINED DIFFERENCE (Phase 9.3, 2026-08-03)**: the first option. The repo-wide audit confirmed that per-path job gating was NOT adopted -- every focused workflow keeps a whole-workflow `paths:` filter and `ci.yml` remains the unfiltered catch-all -- so adding installer paths to the monitor workflow would rebuild an unchanged VSIX on every installer edit with no gate that `ci.yml` does not already provide. The compensating control is now also test-asserted rather than merely described: `test_focused_workflows_filter_by_path` requires `ci.yml` to keep a `paths-ignore` filter (so it cannot quietly acquire a `paths` filter that would strand installer changes), and `test_installer_smoke.py` continues to assert both shells build every monitor in the same order. This is a deliberate, documented divergence from T028's literal wording, not an open gap.
 
-### v3.15.8 Phase 4 Resolved
+### Resolved - v3.15.8 Phase 4
 
 | ID | Title | Resolved in | Notes |
 |---|---|---|---|
@@ -2112,12 +2302,14 @@ Two upstream constraints shaped the design and are surfaced rather than papered 
 
 #### Missing tests / coverage gaps
 
-##### MT-6 - Codex agent and hook delivery is not observed against a real Codex install - MIGRATED to v4.13 (AR-57)
+##### MT-6 - Codex agent and hook delivery is not observed against a real Codex install - MIGRATED to v4.13 (AR-57) - MIGRATED to v4.13.0
 
 - **Source phase**: v3.15.8 Phase 5.3 - Testing and Stabilization.
 - **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 5.3).
 - **Reason**: the suite proves the TOML schema, the merge algebra, ownership, idempotence, cross-shell parity, and teardown against a temporary filesystem, and the read contract asserts the surfaces exist after an install. What no test can prove from here is that a running Codex build loads the emitted TOML as an agent and fires the merged hooks, because that needs an authorized Codex session on a host that has the product installed.
 - **Suggested next step**: fold a manual Codex load check into the same release-readiness pass that owns the other live verifications, then record the observed result in the read-contract verification block.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-57`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.8`, section `v3.15.8`, and original ID `MT-6`.
 
 ### v3.15.8 Phase 5 Resolved
 
@@ -2149,21 +2341,25 @@ Two constraints shaped the design. Neither platform has Codex's `commandWindows`
 
 #### Deferred
 
-##### DF-12 - Gemini CLI extension-packaged hooks are a cleaner write path left unused - MIGRATED to v4.13 (AR-56)
+##### DF-12 - Gemini CLI extension-packaged hooks are a cleaner write path left unused - MIGRATED to v4.13 (AR-56) - MIGRATED to v4.13.0
 
 - **Source phase**: v3.15.8 Phase 6.1 - Map Gemini CLI Hooks.
 - **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 6.1).
 - **Reason**: the [extension reference](https://github.com/google-gemini/gemini-cli/blob/main/docs/extensions/reference.md) documents extensions as a fourth hook-precedence layer, reading `~/.gemini/extensions/<name>/hooks/hooks.json` with `${extensionPath}` and `${/}` substitution. That would give Nexus-Hub a fully-owned directory instead of a merge into the user's main config, and would solve the absolute-path and path-separator problems outright. It is not used because the reference documents only `gemini extensions install` for populating that directory, so writing it directly would be an inferred write path of exactly the kind sub-task 6.1 says to record rather than ship; it also has no project scope, where half of this phase's delivery lives. The maintainer chose settings.json now with this recorded as a follow-on.
 - **Suggested next step**: if a later release can verify that a directly-written extension directory is loaded (or can shell out to `gemini extensions install` against a local path), migrate global-scope hooks there and keep the settings.json merge for workspace scope.
 
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-56`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.8`, section `v3.15.8`, and original ID `DF-12`.
+
 #### Missing tests / coverage gaps
 
-##### MT-7 - Windows shell dispatch for these two platforms is asserted, not observed - MIGRATED to v4.13 (AR-57)
+##### MT-7 - Windows shell dispatch for these two platforms is asserted, not observed - MIGRATED to v4.13 (AR-57) - MIGRATED to v4.13.0
 
 - **Source phase**: v3.15.8 Phase 6.3 - Testing and Stabilization.
 - **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 6.3).
 - **Reason**: the host-aware branch is fully tested in both directions, and CI runs the suite on a Windows runner, so what gets *written* on Windows is proven. What is not proven is which shell each CLI actually launches the command with. The workspace-scope command references `$env:GEMINI_PROJECT_DIR` / `$env:QWEN_PROJECT_DIR` in PowerShell syntax; if a Windows build dispatches through `cmd.exe` instead, the variable stays literal and the hook fails to find its script. Neither platform's documentation states the Windows shell, and the failure mode is bounded: Gemini CLI's exit-code contract makes any non-zero exit other than 2 a warning that lets the interaction proceed, so a wrong guess degrades to a warning rather than a block.
 - **Suggested next step**: during release readiness, run one project-scope hook on a Windows host with each CLI installed and record the observed shell in the read contract; if it is `cmd.exe`, switch the workspace reference to `%VAR%` form behind the same host check.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-57`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.8`, section `v3.15.8`, and original ID `MT-7`.
 
 ### v3.15.8 Phase 6 Resolved
 
@@ -2200,21 +2396,25 @@ Two incidental corrections came out of the work. `IntegrationBase._copy_file` is
 
 #### Deferred
 
-##### DF-13 - Kimi has no project-scoped hook path, so workspace hooks are undeliverable - MIGRATED to v4.13 (AR-56)
+##### DF-13 - Kimi has no project-scoped hook path, so workspace hooks are undeliverable - MIGRATED to v4.13 (AR-56) - MIGRATED to v4.13.0
 
 - **Source phase**: v3.15.8 Phase 7.2 - Merge Kimi TOML Hooks.
 - **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 7.2).
 - **Reason**: the matrix assumed a project `.kimi-code/config.toml`. That file does not exist -- Kimi's project-local configuration is `.kimi-code/local.toml`, which the [configuration reference](https://www.kimi.com/code/docs/en/kimi-code-cli/configuration/config-files) documents as holding only a `[workspace]` table with `additional_dir`, and `[[hooks]]` is documented exclusively in the user-level `~/.kimi-code/config.toml`. Sub-task 7.2 says to reject undocumented paths, so the workspace hook row stays finding-only with the reason recorded in the row itself rather than shipping an invented destination. The practical impact is bounded: hooks installed at global scope apply to every project, so a user loses per-project hook scoping, not the guardrails.
 - **Suggested next step**: if Kimi later documents project-scoped hooks (in `local.toml` or elsewhere), deliver them through the same marker-block merge, which is scope-agnostic already.
 
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-56`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.8`, section `v3.15.8`, and original ID `DF-13`.
+
 #### Missing tests / coverage gaps
 
-##### MT-8 - Kimi agent and hook delivery is not observed against a real Kimi install - MIGRATED to v4.13 (AR-57)
+##### MT-8 - Kimi agent and hook delivery is not observed against a real Kimi install - MIGRATED to v4.13 (AR-57) - MIGRATED to v4.13.0
 
 - **Source phase**: v3.15.8 Phase 7.3 - Testing and Stabilization.
 - **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 7.3).
 - **Reason**: the suite proves the verbatim copy, the four-field schema, comment and table preservation, rollback, duplicate suppression, host-selected commands, and teardown against a temporary filesystem, and CI runs it on Windows. What no test here can prove is that a running Kimi build lists the copied agents alongside its built-ins and fires the spliced hooks. This is the same boundary as MT-6 for Codex and MT-7 for the Gemini-CLI-class platforms.
 - **Suggested next step**: fold a Kimi load check into the same release-readiness pass that owns MT-6 and MT-7, confirming `/hooks` lists the block's entries and the agents appear in Kimi's agent list.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-57`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.8`, section `v3.15.8`, and original ID `MT-8`.
 
 ### v3.15.8 Phase 7 Resolved
 
@@ -2292,16 +2492,16 @@ Every v3.15.8 gap now has a disposition, an owner, and a next step. This is the 
 
 | ID | Disposition | Owner / next step |
 |---|---|---|
-| DF-9 | **Resolved** (Phase 9.2) | All 18 ownership-matrix rows are enforceable across Phases 5-8. Re-entry condition met in full; closed at its own entry above. |
-| DF-10 | **Retained deferral** (maintainer-blocked) | The exact 20x20 SVG and its redistribution/trademark evidence were never supplied, so Phase 3 packaged a deterministic derived icon instead of the observed 14x14 gradient PNG. Nothing in the shipped package depends on the missing asset. Re-entry is unchanged: the maintainer supplies the SVG plus provenance, or the derived icon stands. |
-| DF-11 | **Accepted retained difference** (Phase 9.3) | Per-path job gating was not adopted repo-wide, so the divergence from T028's literal wording stands with `ci.yml` as the compensating control, now test-asserted. |
-| DF-12 | **Retained deferral** (upstream-blocked) | Gemini CLI extension-packaged hooks would be a cleaner write path, but only `gemini extensions install` is documented for populating that directory and it has no project scope. Re-entry: a later release that can verify a directly-written extension directory is loaded. |
-| DF-13 | **Retained deferral** (upstream-blocked) | Kimi documents no project-scoped hook path (`local.toml` carries only `[workspace]`). Global hooks apply to every project, so the loss is per-project scoping, not the guardrails. Re-entry: upstream documenting a project hook path. |
-| MT-5 | **Transferred to v3.15.9** | `src/extension.ts` sits at 34.74% statements because activation, authorized refresh, native settings dispatch, and toast actions need an Extension Development Host harness the package does not have. Package coverage passes its thresholds (82.09% statements, 87.32% lines), so this is a coverage-shape gap rather than a release blocker, and building an EDH harness is its own piece of work. |
-| MT-6 / MT-7 / MT-8 | **Consolidated into one release-readiness live pass** | Codex agents/hooks, the Windows shell each of Gemini CLI and Qwen dispatches through, and Kimi's agents/hooks are all "written correctly, not observed running". They share one precondition -- a host with those products installed -- so they are one pass, not four. The Copilot agents-dropdown check from Phase 8 joins it. |
-| HO-4 | **Retained hand-off** (by design) | Codex hooks stay inert until the user trusts them via `/hooks`. No installer can perform an interactive trust confirmation; the install summary says so at both scopes. Nothing further to do in code. |
-| QG-2 / QG-3 | **Resolved** (Phase 4) | `ci.yml` now collects `tests/plans` and `tests/workflows`; the GitHub monitor has a path-filtered Node 22 gate. |
-| QG-4 | **Retained deferral** (environment-blocked) | The interactive light/dark/high-contrast smoke needs a GUI session this non-interactive environment cannot observe. Automated tests cover theme tokens, semantic labels, focus styling, responsive layout, reduced motion, CSP, escaping, and the unknown-limit fallback; what is missing is a human render, including the teal meter fill. Joins the same release-readiness pass as MT-6/7/8. |
+| Reference: DF-9 | **Resolved** (Phase 9.2) | All 18 ownership-matrix rows are enforceable across Phases 5-8. Re-entry condition met in full; closed at its own entry above. |
+| Reference: DF-10 | **Retained deferral** (maintainer-blocked) | The exact 20x20 SVG and its redistribution/trademark evidence were never supplied, so Phase 3 packaged a deterministic derived icon instead of the observed 14x14 gradient PNG. Nothing in the shipped package depends on the missing asset. Re-entry is unchanged: the maintainer supplies the SVG plus provenance, or the derived icon stands. |
+| Reference: DF-11 | **Accepted retained difference** (Phase 9.3) | Per-path job gating was not adopted repo-wide, so the divergence from T028's literal wording stands with `ci.yml` as the compensating control, now test-asserted. |
+| Reference: DF-12 | **Retained deferral** (upstream-blocked) | Gemini CLI extension-packaged hooks would be a cleaner write path, but only `gemini extensions install` is documented for populating that directory and it has no project scope. Re-entry: a later release that can verify a directly-written extension directory is loaded. |
+| Reference: DF-13 | **Retained deferral** (upstream-blocked) | Kimi documents no project-scoped hook path (`local.toml` carries only `[workspace]`). Global hooks apply to every project, so the loss is per-project scoping, not the guardrails. Re-entry: upstream documenting a project hook path. |
+| Reference: MT-5 | **Transferred to v3.15.9** | `src/extension.ts` sits at 34.74% statements because activation, authorized refresh, native settings dispatch, and toast actions need an Extension Development Host harness the package does not have. Package coverage passes its thresholds (82.09% statements, 87.32% lines), so this is a coverage-shape gap rather than a release blocker, and building an EDH harness is its own piece of work. |
+| Reference: MT-6 / MT-7 / MT-8 | **Consolidated into one release-readiness live pass** | Codex agents/hooks, the Windows shell each of Gemini CLI and Qwen dispatches through, and Kimi's agents/hooks are all "written correctly, not observed running". They share one precondition -- a host with those products installed -- so they are one pass, not four. The Copilot agents-dropdown check from Phase 8 joins it. |
+| Reference: HO-4 | **Retained hand-off** (by design) | Codex hooks stay inert until the user trusts them via `/hooks`. No installer can perform an interactive trust confirmation; the install summary says so at both scopes. Nothing further to do in code. |
+| Reference: QG-2 / QG-3 | **Resolved** (Phase 4) | `ci.yml` now collects `tests/plans` and `tests/workflows`; the GitHub monitor has a path-filtered Node 22 gate. |
+| Reference: QG-4 | **Retained deferral** (environment-blocked) | The interactive light/dark/high-contrast smoke needs a GUI session this non-interactive environment cannot observe. Automated tests cover theme tokens, semantic labels, focus styling, responsive layout, reduced motion, CSP, escaping, and the unknown-limit fallback; what is missing is a human render, including the teal meter fill. Joins the same release-readiness pass as MT-6/7/8. |
 
 **Nothing was deleted.** Every historical gap from v3.15.0 through v3.15.7 remains as written, including the v3.15.6 correction notice about WN-v36-1.
 
@@ -2325,60 +2525,60 @@ Before this minor moved to `docs/archives/`, every item that this file did not a
 
 | Item | Disposition | Evidence, reason, or destination |
 |---|---|---|
-| NI-2 (line 180) | Closed | Transferred to v3.16 as TR-1 (migrated from there as AR-14) |
-| BG-16 (line 220) | Resolved | `install.ps1` `Resolve-TarExe` now prefers the Windows `System32\tar.exe` (commit `69924673`); `docs/archives/v4/v4.8/known-gaps.md` records a passing re-run from Git Bash on 2026-09-06 |
-| HO-6 (line 440) | Closed | Superseded: the GitHub usage monitor was removed in v3.18.2 (`docs/decisions/implemented/architecture/2026-08-22-withdraw-the-github-usage-monitor.md`) |
-| QG-4 / QG-5 / MT-5 (line 441) | Migrated | AR-44: the Cursor usage-monitor live visual smoke (status bar, three bars, three themes) was never run; the GitHub-monitor halves of QG-4 and MT-5 are superseded by its removal |
-| WN-3 (line 442) | Resolved | Fixed later in this file (deferred `FileAction` import plus an isolated-import regression test); the v4.13 ledger confirms it |
+| Reference: NI-2 (line 180) | Closed | Transferred to v3.16 as TR-1 (migrated from there as AR-14) |
+| Reference: BG-16 (line 220) | Resolved | `install.ps1` `Resolve-TarExe` now prefers the Windows `System32\tar.exe` (commit `69924673`); `docs/archives/v4/v4.8/known-gaps.md` records a passing re-run from Git Bash on 2026-09-06 |
+| Reference: HO-6 (line 440) | Closed | Superseded: the GitHub usage monitor was removed in v3.18.2 (`docs/decisions/implemented/architecture/2026-08-22-withdraw-the-github-usage-monitor.md`) |
+| Reference: QG-4 / QG-5 / MT-5 (line 441) | Migrated | AR-44: the Cursor usage-monitor live visual smoke (status bar, three bars, three themes) was never run; the GitHub-monitor halves of QG-4 and MT-5 are superseded by its removal |
+| Reference: WN-3 (line 442) | Resolved | Fixed later in this file (deferred `FileAction` import plus an isolated-import regression test); the v4.13 ledger confirms it |
 | Enterprise scope (line 501) | Closed | Superseded: the GitHub usage monitor was removed in v3.18.2 (`docs/decisions/implemented/architecture/2026-08-22-withdraw-the-github-usage-monitor.md`) |
-| HO-5 (line 660) | Closed | Superseded by HO-7: `extensions/cursor-usage-monitor/src/liveTransport.ts` records the verified wire transport |
-| DF-14 (line 674) | Migrated | AR-45: completion notification (trigger B) is still undelivered or unverified on Qwen, Gemini CLI, and Kimi (`docs/policy/platform-read-contracts.json`); check that `_notify_common` ships wherever the Stop hook is registered |
-| DF-16 (line 676) | Migrated | AR-46: the Windows notification linger is still 5500 ms (`catalog/hooks/_notify_common.sh`) and was never measured |
-| DF-17 (line 677) | Migrated | AR-47: the redundant legacy Cursor global `~/.cursor/commands` write is still performed (`scripts/lib/integrations/cursor.py`) |
+| Reference: HO-5 (line 660) | Closed | Superseded by HO-7: `extensions/cursor-usage-monitor/src/liveTransport.ts` records the verified wire transport |
+| Reference: DF-14 (line 674) | Migrated | AR-45: completion notification (trigger B) is still undelivered or unverified on Qwen, Gemini CLI, and Kimi (`docs/policy/platform-read-contracts.json`); check that `_notify_common` ships wherever the Stop hook is registered |
+| Reference: DF-16 (line 676) | Migrated | AR-46: the Windows notification linger is still 5500 ms (`catalog/hooks/_notify_common.sh`) and was never measured |
+| Reference: DF-17 (line 677) | Migrated | AR-47: the redundant legacy Cursor global `~/.cursor/commands` write is still performed (`scripts/lib/integrations/cursor.py`) |
 | parity guard (line 681) | Migrated | AR-50: `scripts/check_base_template_parity.py` still guards only the five lockstep templates |
 | session-summary.sh (line 682) | Migrated | AR-48: `catalog/hooks/session-summary.sh` still names the project with `basename "$(pwd)"` |
 | Exit checkboxes (line 683) | Closed | Closed at archive: the released plans move to `docs/archives/` with their boxes preserved as historical evidence; the tags are the release record |
 | empty skill scaffolds (line 684) | Resolved | Removed in v3.15.14 Phase 4.1 (recorded in this file) |
 | Ruff findings (line 685) | Migrated | AR-34: repository Ruff baseline; `ruff check` still reports findings |
-| WN-4 (line 881) | Migrated | AR-49: `@vscode/vsce` transitive deprecation warnings persist in all three extension lockfiles; upstream-bounded |
-| QG-5 (line 897) | Migrated | AR-44: duplicate of the Cursor live smoke above |
-| DF-1(a) (line 935) | Migrated | AR-47: the Cursor global commands path is still UNVERIFIED (`scripts/lib/integrations/cursor.py`) |
-| DF-5 residual (line 937) | Resolved | `scripts/lib/integrations/copilot.py` now sets `agents_subdir` and `hooks_subdir` (v3.15.8 Phase 8) |
+| Reference: WN-4 (line 881) | Migrated | AR-49: `@vscode/vsce` transitive deprecation warnings persist in all three extension lockfiles; upstream-bounded |
+| Reference: QG-5 (line 897) | Migrated | AR-44: duplicate of the Cursor live smoke above |
+| Reference: DF-1(a) (line 935) | Migrated | AR-47: the Cursor global commands path is still UNVERIFIED (`scripts/lib/integrations/cursor.py`) |
+| Reference: DF-5 residual (line 937) | Resolved | `scripts/lib/integrations/copilot.py` now sets `agents_subdir` and `hooks_subdir` (v3.15.8 Phase 8) |
 | OpenCode `rules_subdir` (line 938) | Migrated | AR-51: `scripts/lib/integrations/opencode.py` still writes a `rules` folder that the read contract does not record |
-| DF-1 (line 960) | Migrated | AR-47: same residual as DF-1(a) |
-| WN-1 (line 996) | Resolved | `install.ps1` `Resolve-TarExe` now prefers the Windows `System32\tar.exe` (commit `69924673`); `docs/archives/v4/v4.8/known-gaps.md` records a passing re-run from Git Bash on 2026-09-06 |
-| QG-1 (line 1004) | Closed | Not applicable: the compression eval runs in CI and at release, and v3.15.0 was tagged |
-| DF-3 (line 1018) | Migrated | AR-52: contextmap still lists TypeORM, Drizzle, ActiveRecord, GORM, Vue, and Svelte detectors as deferred |
-| WN-1 (line 1031) | Resolved | `json` is now used in `scripts/nexus_hub_cli.py`, and Ruff F401/F841 report nothing for the file |
-| WN-2 (line 1037) | Migrated | AR-34: `graph/affected.py` still has F401 `EdgeKind` and F841 `frontier` |
-| MT-2 (line 1045) | Migrated | AR-08: no test covers `benchmark --update-baseline` |
-| MT-1 (line 1051) | Migrated | AR-08: no test covers the repo-level `nexus-hub map` dispatch |
-| DF-2 (line 1117) | Migrated | AR-05: Hermes still has zero references in either installer |
-| WN-1 (line 1126) | Closed | Not applicable: the CI `bootstrap` and `install-smoke` jobs are the named authority, and the release shipped |
-| MT-1 (line 1135) | Migrated | AR-09: trigger-case coverage is 88 of 338 skills |
-| DF-1 (line 1187) | Migrated | AR-53: no reusable self-check eval-loop authoring convention exists beyond the Markdown self-check |
-| NI-1 (line 1196) | Closed | Accepted by design: routing is shown by the trigger gate, as recorded |
-| DF-3 (line 1253) | Migrated | AR-18: presentify builder and extractor limits; merged with the v3.9, v3.12, and v3.13 extractor items (overlay-annotation over-capture) |
-| DF-1 (line 1260) | Migrated | AR-18: presentify builder and extractor limits; merged with the v3.9, v3.12, and v3.13 extractor items (`build_presentation.py` has no gallery grouping) |
-| DF-2 (line 1267) | Migrated | AR-18: presentify builder and extractor limits; merged with the v3.9, v3.12, and v3.13 extractor items (null PDF raster `page_fraction` on bbox-count mismatch) |
-| MT-3 (line 1296) | Migrated | AR-19: a sample-deck scorer smoke inside the render job is unconfirmed |
-| NI-2 (line 1398) | Resolved | `model-prompting-research` now ships 16 dated, sourced profiles (`assets/profiles-index.json`, `last_verified` 2026-09-08) |
-| DF-1 (line 1415) | Closed | By decision: same call as v3.15.1 QG-1 and v3.15.2 DF-1 |
-| MT-4 (line 1431) | Migrated | AR-08: the `DEFAULT_GUARDS` suite has no end-to-end test (`tests/skills/test_model_prompting_edit_routing.py` checks names and paths only) |
-| MT-3 (line 1438) | Closed | Superseded: real `/tune-prompting` runs produced the cited, dated profiles recorded under NI-2 |
-| MT-2 (line 1445) | Migrated | AR-33: duplicate of v3.17.6 MT-2 (no subprocess coverage plumbing) |
-| NI-1 (line 1530) | Closed | Accepted by design as a scope boundary |
-| NI-2 (line 1538) | Closed | Accepted by design as a documented limitation |
-| DF-3 (line 1548) | Migrated | AR-54: `configs/permissions/claude-permissions-strict.json` still has no `defaultMode`, and the decision was never closed |
-| DF-1 (line 1555) | Migrated | AR-55: `ai-agent-governance` description still has no SKIP clause |
-| DF-6 (line 1857) | Migrated | AR-37: conditional candidate (durable prior-cycle review-signal store) |
-| DF-10 (line 1939) | Closed | Superseded: the GitHub usage monitor was removed in v3.18.2 (`docs/decisions/implemented/architecture/2026-08-22-withdraw-the-github-usage-monitor.md`) |
-| MT-5 (line 2017) | Closed | Superseded: the GitHub usage monitor was removed in v3.18.2 (`docs/decisions/implemented/architecture/2026-08-22-withdraw-the-github-usage-monitor.md`); the coverage figure was the GitHub monitor's `extension.ts` |
-| QG-4 (line 2026) | Closed | Superseded: the GitHub usage monitor was removed in v3.18.2 (`docs/decisions/implemented/architecture/2026-08-22-withdraw-the-github-usage-monitor.md`) |
-| DF-11 (line 2063) | Closed | Superseded: the GitHub usage monitor was removed in v3.18.2 (`docs/decisions/implemented/architecture/2026-08-22-withdraw-the-github-usage-monitor.md`) |
-| HO-4 (line 2102) | Closed | Accepted by design: Codex hooks require the user's own trust step |
-| MT-6 (line 2111) | Migrated | AR-57: agent and hook delivery on Codex, Gemini CLI, Qwen, and Kimi was never observed on a real install (the planned v3.15.8 live pass has no recorded result) |
-| DF-12 (line 2148) | Migrated | AR-56: upstream-blocked hook surfaces (Gemini CLI extension-packaged hooks, Kimi project-scoped hooks); re-check at the next platform-contract pass |
-| MT-7 (line 2157) | Migrated | AR-57: agent and hook delivery on Codex, Gemini CLI, Qwen, and Kimi was never observed on a real install (the planned v3.15.8 live pass has no recorded result) |
-| DF-13 (line 2199) | Migrated | AR-56: upstream-blocked hook surfaces (Gemini CLI extension-packaged hooks, Kimi project-scoped hooks); re-check at the next platform-contract pass |
-| MT-8 (line 2208) | Migrated | AR-57: agent and hook delivery on Codex, Gemini CLI, Qwen, and Kimi was never observed on a real install (the planned v3.15.8 live pass has no recorded result) |
+| Reference: DF-1 (line 960) | Migrated | AR-47: same residual as DF-1(a) |
+| Reference: WN-1 (line 996) | Resolved | `install.ps1` `Resolve-TarExe` now prefers the Windows `System32\tar.exe` (commit `69924673`); `docs/archives/v4/v4.8/known-gaps.md` records a passing re-run from Git Bash on 2026-09-06 |
+| Reference: QG-1 (line 1004) | Closed | Not applicable: the compression eval runs in CI and at release, and v3.15.0 was tagged |
+| Reference: DF-3 (line 1018) | Migrated | AR-52: contextmap still lists TypeORM, Drizzle, ActiveRecord, GORM, Vue, and Svelte detectors as deferred |
+| Reference: WN-1 (line 1031) | Resolved | `json` is now used in `scripts/nexus_hub_cli.py`, and Ruff F401/F841 report nothing for the file |
+| Reference: WN-2 (line 1037) | Migrated | AR-34: `graph/affected.py` still has F401 `EdgeKind` and F841 `frontier` |
+| Reference: MT-2 (line 1045) | Migrated | AR-08: no test covers `benchmark --update-baseline` |
+| Reference: MT-1 (line 1051) | Migrated | AR-08: no test covers the repo-level `nexus-hub map` dispatch |
+| Reference: DF-2 (line 1117) | Migrated | AR-05: Hermes still has zero references in either installer |
+| Reference: WN-1 (line 1126) | Closed | Not applicable: the CI `bootstrap` and `install-smoke` jobs are the named authority, and the release shipped |
+| Reference: MT-1 (line 1135) | Migrated | AR-09: trigger-case coverage is 88 of 338 skills |
+| Reference: DF-1 (line 1187) | Migrated | AR-53: no reusable self-check eval-loop authoring convention exists beyond the Markdown self-check |
+| Reference: NI-1 (line 1196) | Closed | Accepted by design: routing is shown by the trigger gate, as recorded |
+| Reference: DF-3 (line 1253) | Migrated | AR-18: presentify builder and extractor limits; merged with the v3.9, v3.12, and v3.13 extractor items (overlay-annotation over-capture) |
+| Reference: DF-1 (line 1260) | Migrated | AR-18: presentify builder and extractor limits; merged with the v3.9, v3.12, and v3.13 extractor items (`build_presentation.py` has no gallery grouping) |
+| Reference: DF-2 (line 1267) | Migrated | AR-18: presentify builder and extractor limits; merged with the v3.9, v3.12, and v3.13 extractor items (null PDF raster `page_fraction` on bbox-count mismatch) |
+| Reference: MT-3 (line 1296) | Migrated | AR-19: a sample-deck scorer smoke inside the render job is unconfirmed |
+| Reference: NI-2 (line 1398) | Resolved | `model-prompting-research` now ships 16 dated, sourced profiles (`assets/profiles-index.json`, `last_verified` 2026-09-08) |
+| Reference: DF-1 (line 1415) | Closed | By decision: same call as v3.15.1 QG-1 and v3.15.2 DF-1 |
+| Reference: MT-4 (line 1431) | Migrated | AR-08: the `DEFAULT_GUARDS` suite has no end-to-end test (`tests/skills/test_model_prompting_edit_routing.py` checks names and paths only) |
+| Reference: MT-3 (line 1438) | Closed | Superseded: real `/tune-prompting` runs produced the cited, dated profiles recorded under NI-2 |
+| Reference: MT-2 (line 1445) | Migrated | AR-33: duplicate of v3.17.6 MT-2 (no subprocess coverage plumbing) |
+| Reference: NI-1 (line 1530) | Closed | Accepted by design as a scope boundary |
+| Reference: NI-2 (line 1538) | Closed | Accepted by design as a documented limitation |
+| Reference: DF-3 (line 1548) | Migrated | AR-54: `configs/permissions/claude-permissions-strict.json` still has no `defaultMode`, and the decision was never closed |
+| Reference: DF-1 (line 1555) | Migrated | AR-55: `ai-agent-governance` description still has no SKIP clause |
+| Reference: DF-6 (line 1857) | Migrated | AR-37: conditional candidate (durable prior-cycle review-signal store) |
+| Reference: DF-10 (line 1939) | Closed | Superseded: the GitHub usage monitor was removed in v3.18.2 (`docs/decisions/implemented/architecture/2026-08-22-withdraw-the-github-usage-monitor.md`) |
+| Reference: MT-5 (line 2017) | Closed | Superseded: the GitHub usage monitor was removed in v3.18.2 (`docs/decisions/implemented/architecture/2026-08-22-withdraw-the-github-usage-monitor.md`); the coverage figure was the GitHub monitor's `extension.ts` |
+| Reference: QG-4 (line 2026) | Closed | Superseded: the GitHub usage monitor was removed in v3.18.2 (`docs/decisions/implemented/architecture/2026-08-22-withdraw-the-github-usage-monitor.md`) |
+| Reference: DF-11 (line 2063) | Closed | Superseded: the GitHub usage monitor was removed in v3.18.2 (`docs/decisions/implemented/architecture/2026-08-22-withdraw-the-github-usage-monitor.md`) |
+| Reference: HO-4 (line 2102) | Closed | Accepted by design: Codex hooks require the user's own trust step |
+| Reference: MT-6 (line 2111) | Migrated | AR-57: agent and hook delivery on Codex, Gemini CLI, Qwen, and Kimi was never observed on a real install (the planned v3.15.8 live pass has no recorded result) |
+| Reference: DF-12 (line 2148) | Migrated | AR-56: upstream-blocked hook surfaces (Gemini CLI extension-packaged hooks, Kimi project-scoped hooks); re-check at the next platform-contract pass |
+| Reference: MT-7 (line 2157) | Migrated | AR-57: agent and hook delivery on Codex, Gemini CLI, Qwen, and Kimi was never observed on a real install (the planned v3.15.8 live pass has no recorded result) |
+| Reference: DF-13 (line 2199) | Migrated | AR-56: upstream-blocked hook surfaces (Gemini CLI extension-packaged hooks, Kimi project-scoped hooks); re-check at the next platform-contract pass |
+| Reference: MT-8 (line 2208) | Migrated | AR-57: agent and hook delivery on Codex, Gemini CLI, Qwen, and Kimi was never observed on a real install (the planned v3.15.8 live pass has no recorded result) |

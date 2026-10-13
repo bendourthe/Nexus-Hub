@@ -1,0 +1,393 @@
+FFFF..F.FFFFFF                                                           [100%]
+================================== FAILURES ===================================
+___ test_provenance_byte_and_line_caps_keep_complete_newest_suffix[100-jq] ____
+
+request = <FixtureRequest for <Function test_provenance_byte_and_line_caps_keep_complete_newest_suffix[100-jq]>>
+tmp_path = WindowsPath('C:/Users/username/AppData/Local/Temp/pytest-of-bedourthe/pytest-10736/test_provenance_byte_and_line_0')
+decoder = 'jq', line_cap = 100
+
+    @pytest.mark.parametrize("decoder", ("jq", "python", "ps1", "text"))
+    @pytest.mark.parametrize("line_cap", (100, 3))
+    def test_provenance_byte_and_line_caps_keep_complete_newest_suffix(
+        request: pytest.FixtureRequest, tmp_path: Path, decoder: str, line_cap: int
+    ) -> None:
+        ctx = make_ctx(tmp_path)
+        prefix = _provenance_byte_prefix(request, decoder)
+        ledger = PROVENANCE_LEDGER.targets[0].path(ctx)
+        byte_cap = 8192
+        rows = [f"1\t{'1' * 64}\told-{'漢' * 10000}\n".encode()]
+        rows.extend(f"{i + 2}\t{'2' * 64}\tseed-{i:02d}-{'漢' * 200}\n".encode()
+                    for i in range(12))
+        with real_guard(ctx.token):
+            ledger.parent.mkdir(parents=True, exist_ok=True)
+            ledger.write_bytes(b"".join(rows))
+            env = {**ctx.env, "NEXUS_PROVENANCE_MAX_BYTES": str(byte_cap),
+                   "NEXUS_PROVENANCE_MAX": str(line_cap)}
+            for i in range(4):
+                target = ctx.repo / f"new-{i}-漢-%00.sh"
+                target.write_bytes(f"echo exact-{i}\n".encode())
+                payload = json.dumps({"session_id": ctx.sid, "tool_name": "Write",
+                                      "tool_input": {"file_path": target.as_posix()}},
+                                     ensure_ascii=False).encode()
+                proc = subprocess.run(prefix, input=payload, cwd=ctx.repo, env=env,
+                                      capture_output=True, timeout=180, check=False)
+                assert proc.returncode == 0, proc.stderr
+                data = ledger.read_bytes()
+>               assert data and len(data) <= byte_cap and data.endswith(b"\n")
+E               AssertionError: assert (b'1\t1111111111111111111111111111111111111111111111111111111111111111\told-\xe6\xbc\xa2\xe6\xbc\xa2\xe6\xbc\xa2\xe6\xb...rthe/pytest-10736/test_provenance_byte_and_line_0/iso/hsb-7ee3621f008c47a9bc59b5a636fd183d/new-0-\xe6\xbc\xa2-%00.sh\n' and 38425 <= 8192)
+E                +  where 38425 = len(b'1\t1111111111111111111111111111111111111111111111111111111111111111\told-\xe6\xbc\xa2\xe6\xbc\xa2\xe6\xbc\xa2\xe6\xb...rthe/pytest-10736/test_provenance_byte_and_line_0/iso/hsb-7ee3621f008c47a9bc59b5a636fd183d/new-0-\xe6\xbc\xa2-%00.sh\n')
+
+catalog\hooks\tests\test_hook_size_bound.py:1281: AssertionError
+_ test_provenance_byte_and_line_caps_keep_complete_newest_suffix[100-python] __
+
+request = <FixtureRequest for <Function test_provenance_byte_and_line_caps_keep_complete_newest_suffix[100-python]>>
+tmp_path = WindowsPath('C:/Users/username/AppData/Local/Temp/pytest-of-bedourthe/pytest-10736/test_provenance_byte_and_line_1')
+decoder = 'python', line_cap = 100
+
+    @pytest.mark.parametrize("decoder", ("jq", "python", "ps1", "text"))
+    @pytest.mark.parametrize("line_cap", (100, 3))
+    def test_provenance_byte_and_line_caps_keep_complete_newest_suffix(
+        request: pytest.FixtureRequest, tmp_path: Path, decoder: str, line_cap: int
+    ) -> None:
+        ctx = make_ctx(tmp_path)
+        prefix = _provenance_byte_prefix(request, decoder)
+        ledger = PROVENANCE_LEDGER.targets[0].path(ctx)
+        byte_cap = 8192
+        rows = [f"1\t{'1' * 64}\told-{'漢' * 10000}\n".encode()]
+        rows.extend(f"{i + 2}\t{'2' * 64}\tseed-{i:02d}-{'漢' * 200}\n".encode()
+                    for i in range(12))
+        with real_guard(ctx.token):
+            ledger.parent.mkdir(parents=True, exist_ok=True)
+            ledger.write_bytes(b"".join(rows))
+            env = {**ctx.env, "NEXUS_PROVENANCE_MAX_BYTES": str(byte_cap),
+                   "NEXUS_PROVENANCE_MAX": str(line_cap)}
+            for i in range(4):
+                target = ctx.repo / f"new-{i}-漢-%00.sh"
+                target.write_bytes(f"echo exact-{i}\n".encode())
+                payload = json.dumps({"session_id": ctx.sid, "tool_name": "Write",
+                                      "tool_input": {"file_path": target.as_posix()}},
+                                     ensure_ascii=False).encode()
+                proc = subprocess.run(prefix, input=payload, cwd=ctx.repo, env=env,
+                                      capture_output=True, timeout=180, check=False)
+                assert proc.returncode == 0, proc.stderr
+                data = ledger.read_bytes()
+>               assert data and len(data) <= byte_cap and data.endswith(b"\n")
+E               AssertionError: assert (b'1\t1111111111111111111111111111111111111111111111111111111111111111\told-\xe6\xbc\xa2\xe6\xbc\xa2\xe6\xbc\xa2\xe6\xb...rthe/pytest-10736/test_provenance_byte_and_line_1/iso/hsb-157ab4f61c944e738fbc5bcd79028c0b/new-0-\xe6\xbc\xa2-%00.sh\n' and 38425 <= 8192)
+E                +  where 38425 = len(b'1\t1111111111111111111111111111111111111111111111111111111111111111\told-\xe6\xbc\xa2\xe6\xbc\xa2\xe6\xbc\xa2\xe6\xb...rthe/pytest-10736/test_provenance_byte_and_line_1/iso/hsb-157ab4f61c944e738fbc5bcd79028c0b/new-0-\xe6\xbc\xa2-%00.sh\n')
+
+catalog\hooks\tests\test_hook_size_bound.py:1281: AssertionError
+___ test_provenance_byte_and_line_caps_keep_complete_newest_suffix[100-ps1] ___
+
+request = <FixtureRequest for <Function test_provenance_byte_and_line_caps_keep_complete_newest_suffix[100-ps1]>>
+tmp_path = WindowsPath('C:/Users/username/AppData/Local/Temp/pytest-of-bedourthe/pytest-10736/test_provenance_byte_and_line_2')
+decoder = 'ps1', line_cap = 100
+
+    @pytest.mark.parametrize("decoder", ("jq", "python", "ps1", "text"))
+    @pytest.mark.parametrize("line_cap", (100, 3))
+    def test_provenance_byte_and_line_caps_keep_complete_newest_suffix(
+        request: pytest.FixtureRequest, tmp_path: Path, decoder: str, line_cap: int
+    ) -> None:
+        ctx = make_ctx(tmp_path)
+        prefix = _provenance_byte_prefix(request, decoder)
+        ledger = PROVENANCE_LEDGER.targets[0].path(ctx)
+        byte_cap = 8192
+        rows = [f"1\t{'1' * 64}\told-{'漢' * 10000}\n".encode()]
+        rows.extend(f"{i + 2}\t{'2' * 64}\tseed-{i:02d}-{'漢' * 200}\n".encode()
+                    for i in range(12))
+        with real_guard(ctx.token):
+            ledger.parent.mkdir(parents=True, exist_ok=True)
+            ledger.write_bytes(b"".join(rows))
+            env = {**ctx.env, "NEXUS_PROVENANCE_MAX_BYTES": str(byte_cap),
+                   "NEXUS_PROVENANCE_MAX": str(line_cap)}
+            for i in range(4):
+                target = ctx.repo / f"new-{i}-漢-%00.sh"
+                target.write_bytes(f"echo exact-{i}\n".encode())
+                payload = json.dumps({"session_id": ctx.sid, "tool_name": "Write",
+                                      "tool_input": {"file_path": target.as_posix()}},
+                                     ensure_ascii=False).encode()
+                proc = subprocess.run(prefix, input=payload, cwd=ctx.repo, env=env,
+                                      capture_output=True, timeout=180, check=False)
+                assert proc.returncode == 0, proc.stderr
+                data = ledger.read_bytes()
+>               assert data and len(data) <= byte_cap and data.endswith(b"\n")
+E               AssertionError: assert (b'1\t1111111111111111111111111111111111111111111111111111111111111111\told-\xe6\xbc\xa2\xe6\xbc\xa2\xe6\xbc\xa2\xe6\xb...6/test_provenance_byte_and_line_2/iso/hsb-83ddeaafdf9041339b1db90806c6a8bd/new-0-\xc2\xb5\xe2\x95\x9d\xc3\xb3-%00.sh\n' and 38371 <= 8192)
+E                +  where 38371 = len(b'1\t1111111111111111111111111111111111111111111111111111111111111111\told-\xe6\xbc\xa2\xe6\xbc\xa2\xe6\xbc\xa2\xe6\xb...6/test_provenance_byte_and_line_2/iso/hsb-83ddeaafdf9041339b1db90806c6a8bd/new-0-\xc2\xb5\xe2\x95\x9d\xc3\xb3-%00.sh\n')
+
+catalog\hooks\tests\test_hook_size_bound.py:1281: AssertionError
+__ test_provenance_byte_and_line_caps_keep_complete_newest_suffix[100-text] ___
+
+request = <FixtureRequest for <Function test_provenance_byte_and_line_caps_keep_complete_newest_suffix[100-text]>>
+tmp_path = WindowsPath('C:/Users/username/AppData/Local/Temp/pytest-of-bedourthe/pytest-10736/test_provenance_byte_and_line_3')
+decoder = 'text', line_cap = 100
+
+    @pytest.mark.parametrize("decoder", ("jq", "python", "ps1", "text"))
+    @pytest.mark.parametrize("line_cap", (100, 3))
+    def test_provenance_byte_and_line_caps_keep_complete_newest_suffix(
+        request: pytest.FixtureRequest, tmp_path: Path, decoder: str, line_cap: int
+    ) -> None:
+        ctx = make_ctx(tmp_path)
+        prefix = _provenance_byte_prefix(request, decoder)
+        ledger = PROVENANCE_LEDGER.targets[0].path(ctx)
+        byte_cap = 8192
+        rows = [f"1\t{'1' * 64}\told-{'漢' * 10000}\n".encode()]
+        rows.extend(f"{i + 2}\t{'2' * 64}\tseed-{i:02d}-{'漢' * 200}\n".encode()
+                    for i in range(12))
+        with real_guard(ctx.token):
+            ledger.parent.mkdir(parents=True, exist_ok=True)
+            ledger.write_bytes(b"".join(rows))
+            env = {**ctx.env, "NEXUS_PROVENANCE_MAX_BYTES": str(byte_cap),
+                   "NEXUS_PROVENANCE_MAX": str(line_cap)}
+            for i in range(4):
+                target = ctx.repo / f"new-{i}-漢-%00.sh"
+                target.write_bytes(f"echo exact-{i}\n".encode())
+                payload = json.dumps({"session_id": ctx.sid, "tool_name": "Write",
+                                      "tool_input": {"file_path": target.as_posix()}},
+                                     ensure_ascii=False).encode()
+                proc = subprocess.run(prefix, input=payload, cwd=ctx.repo, env=env,
+                                      capture_output=True, timeout=180, check=False)
+                assert proc.returncode == 0, proc.stderr
+                data = ledger.read_bytes()
+>               assert data and len(data) <= byte_cap and data.endswith(b"\n")
+E               AssertionError: assert (b'1\t1111111111111111111111111111111111111111111111111111111111111111\told-\xe6\xbc\xa2\xe6\xbc\xa2\xe6\xbc\xa2\xe6\xb...rthe/pytest-10736/test_provenance_byte_and_line_3/iso/hsb-b8faed10a6cb43a7a44d80cf1064c245/new-0-\xe6\xbc\xa2-%00.sh\n' and 38425 <= 8192)
+E                +  where 38425 = len(b'1\t1111111111111111111111111111111111111111111111111111111111111111\told-\xe6\xbc\xa2\xe6\xbc\xa2\xe6\xbc\xa2\xe6\xb...rthe/pytest-10736/test_provenance_byte_and_line_3/iso/hsb-b8faed10a6cb43a7a44d80cf1064c245/new-0-\xe6\xbc\xa2-%00.sh\n')
+
+catalog\hooks\tests\test_hook_size_bound.py:1281: AssertionError
+____ test_provenance_byte_and_line_caps_keep_complete_newest_suffix[3-ps1] ____
+
+request = <FixtureRequest for <Function test_provenance_byte_and_line_caps_keep_complete_newest_suffix[3-ps1]>>
+tmp_path = WindowsPath('C:/Users/username/AppData/Local/Temp/pytest-of-bedourthe/pytest-10736/test_provenance_byte_and_line_6')
+decoder = 'ps1', line_cap = 3
+
+    @pytest.mark.parametrize("decoder", ("jq", "python", "ps1", "text"))
+    @pytest.mark.parametrize("line_cap", (100, 3))
+    def test_provenance_byte_and_line_caps_keep_complete_newest_suffix(
+        request: pytest.FixtureRequest, tmp_path: Path, decoder: str, line_cap: int
+    ) -> None:
+        ctx = make_ctx(tmp_path)
+        prefix = _provenance_byte_prefix(request, decoder)
+        ledger = PROVENANCE_LEDGER.targets[0].path(ctx)
+        byte_cap = 8192
+        rows = [f"1\t{'1' * 64}\told-{'漢' * 10000}\n".encode()]
+        rows.extend(f"{i + 2}\t{'2' * 64}\tseed-{i:02d}-{'漢' * 200}\n".encode()
+                    for i in range(12))
+        with real_guard(ctx.token):
+            ledger.parent.mkdir(parents=True, exist_ok=True)
+            ledger.write_bytes(b"".join(rows))
+            env = {**ctx.env, "NEXUS_PROVENANCE_MAX_BYTES": str(byte_cap),
+                   "NEXUS_PROVENANCE_MAX": str(line_cap)}
+            for i in range(4):
+                target = ctx.repo / f"new-{i}-漢-%00.sh"
+                target.write_bytes(f"echo exact-{i}\n".encode())
+                payload = json.dumps({"session_id": ctx.sid, "tool_name": "Write",
+                                      "tool_input": {"file_path": target.as_posix()}},
+                                     ensure_ascii=False).encode()
+                proc = subprocess.run(prefix, input=payload, cwd=ctx.repo, env=env,
+                                      capture_output=True, timeout=180, check=False)
+                assert proc.returncode == 0, proc.stderr
+                data = ledger.read_bytes()
+                assert data and len(data) <= byte_cap and data.endswith(b"\n")
+                assert not data.startswith(b"\xef\xbb\xbf")
+                data.decode("utf-8")
+                kept = data.splitlines(keepends=True)
+                assert 0 < len(kept) <= line_cap
+                fields = kept[-1].decode().rstrip("\n").split("\t")
+                assert len(fields) == 3 and fields[0].isdigit()
+>               assert fields[1] == hashlib.sha256(target.read_bytes()).hexdigest()
+E               AssertionError: assert 'NOFILE' == '8481457aa36e...6e7c34c7713b6'
+E                 - 8481457aa36e57a8e33203232679f79eafb1e457f90261c71696e7c34c7713b6
+E                 + NOFILE
+
+catalog\hooks\tests\test_hook_size_bound.py:1288: AssertionError
+___ test_provenance_byte_cap_configuration_keeps_a_whole_newest_row[512-sh] ___
+
+request = <FixtureRequest for <Function test_provenance_byte_cap_configuration_keeps_a_whole_newest_row[512-sh]>>
+tmp_path = WindowsPath('C:/Users/username/AppData/Local/Temp/pytest-of-bedourthe/pytest-10736/test_provenance_byte_cap_confi0')
+impl = 'sh', setting = '512'
+
+    @pytest.mark.parametrize("impl", PROVENANCE_LEDGER.impls)
+    @pytest.mark.parametrize("setting", ("512", "invalid", "0"))
+    def test_provenance_byte_cap_configuration_keeps_a_whole_newest_row(
+        request: pytest.FixtureRequest, tmp_path: Path, impl: str, setting: str
+    ) -> None:
+        ctx = make_ctx(tmp_path)
+        prefix = _prefix(request, PROVENANCE_LEDGER, impl)
+        ledger = PROVENANCE_LEDGER.targets[0].path(ctx)
+        effective_cap = 8192 if setting == "512" else 1048576
+        with real_guard(ctx.token):
+            ledger.parent.mkdir(parents=True, exist_ok=True)
+            ledger.write_bytes(f"1\t{'1' * 64}\told-{'漢' * 400000}\n".encode())
+            target = ctx.repo / "configuration.sh"
+            target.write_bytes(b"echo exact configuration\n")
+            payload = json.dumps({"session_id": ctx.sid, "tool_name": "Write",
+                                  "tool_input": {"file_path": target.as_posix()}}).encode()
+            proc = subprocess.run(prefix, input=payload, cwd=ctx.repo,
+                                  env={**ctx.env, "NEXUS_PROVENANCE_MAX_BYTES": setting},
+                                  capture_output=True, timeout=180, check=False)
+            assert proc.returncode == 0, proc.stderr
+            data = ledger.read_bytes()
+>           assert 0 < len(data) <= effective_cap and data.endswith(b"\n")
+E           AssertionError: assert (1200309 <= 8192)
+E            +  where 1200309 = len(b'1\t1111111111111111111111111111111111111111111111111111111111111111\told-\xe6\xbc\xa2\xe6\xbc\xa2\xe6\xbc\xa2\xe6\xb...-of-bedourthe/pytest-10736/test_provenance_byte_cap_confi0/iso/hsb-46cc0c5bfd404427a2d1796ba926f8be/configuration.sh\n')
+
+catalog\hooks\tests\test_hook_size_bound.py:1321: AssertionError
+__ test_provenance_byte_cap_configuration_keeps_a_whole_newest_row[512-ps1] ___
+
+request = <FixtureRequest for <Function test_provenance_byte_cap_configuration_keeps_a_whole_newest_row[512-ps1]>>
+tmp_path = WindowsPath('C:/Users/username/AppData/Local/Temp/pytest-of-bedourthe/pytest-10736/test_provenance_byte_cap_confi1')
+impl = 'ps1', setting = '512'
+
+    @pytest.mark.parametrize("impl", PROVENANCE_LEDGER.impls)
+    @pytest.mark.parametrize("setting", ("512", "invalid", "0"))
+    def test_provenance_byte_cap_configuration_keeps_a_whole_newest_row(
+        request: pytest.FixtureRequest, tmp_path: Path, impl: str, setting: str
+    ) -> None:
+        ctx = make_ctx(tmp_path)
+        prefix = _prefix(request, PROVENANCE_LEDGER, impl)
+        ledger = PROVENANCE_LEDGER.targets[0].path(ctx)
+        effective_cap = 8192 if setting == "512" else 1048576
+        with real_guard(ctx.token):
+            ledger.parent.mkdir(parents=True, exist_ok=True)
+            ledger.write_bytes(f"1\t{'1' * 64}\told-{'漢' * 400000}\n".encode())
+            target = ctx.repo / "configuration.sh"
+            target.write_bytes(b"echo exact configuration\n")
+            payload = json.dumps({"session_id": ctx.sid, "tool_name": "Write",
+                                  "tool_input": {"file_path": target.as_posix()}}).encode()
+            proc = subprocess.run(prefix, input=payload, cwd=ctx.repo,
+                                  env={**ctx.env, "NEXUS_PROVENANCE_MAX_BYTES": setting},
+                                  capture_output=True, timeout=180, check=False)
+            assert proc.returncode == 0, proc.stderr
+            data = ledger.read_bytes()
+>           assert 0 < len(data) <= effective_cap and data.endswith(b"\n")
+E           AssertionError: assert (1200309 <= 8192)
+E            +  where 1200309 = len(b'1\t1111111111111111111111111111111111111111111111111111111111111111\told-\xe6\xbc\xa2\xe6\xbc\xa2\xe6\xbc\xa2\xe6\xb...-of-bedourthe/pytest-10736/test_provenance_byte_cap_confi1/iso/hsb-7f006cd26d69456d8f976fa7a3894bda/configuration.sh\n')
+
+catalog\hooks\tests\test_hook_size_bound.py:1321: AssertionError
+_ test_provenance_byte_cap_configuration_keeps_a_whole_newest_row[invalid-sh] _
+
+request = <FixtureRequest for <Function test_provenance_byte_cap_configuration_keeps_a_whole_newest_row[invalid-sh]>>
+tmp_path = WindowsPath('C:/Users/username/AppData/Local/Temp/pytest-of-bedourthe/pytest-10736/test_provenance_byte_cap_confi2')
+impl = 'sh', setting = 'invalid'
+
+    @pytest.mark.parametrize("impl", PROVENANCE_LEDGER.impls)
+    @pytest.mark.parametrize("setting", ("512", "invalid", "0"))
+    def test_provenance_byte_cap_configuration_keeps_a_whole_newest_row(
+        request: pytest.FixtureRequest, tmp_path: Path, impl: str, setting: str
+    ) -> None:
+        ctx = make_ctx(tmp_path)
+        prefix = _prefix(request, PROVENANCE_LEDGER, impl)
+        ledger = PROVENANCE_LEDGER.targets[0].path(ctx)
+        effective_cap = 8192 if setting == "512" else 1048576
+        with real_guard(ctx.token):
+            ledger.parent.mkdir(parents=True, exist_ok=True)
+            ledger.write_bytes(f"1\t{'1' * 64}\told-{'漢' * 400000}\n".encode())
+            target = ctx.repo / "configuration.sh"
+            target.write_bytes(b"echo exact configuration\n")
+            payload = json.dumps({"session_id": ctx.sid, "tool_name": "Write",
+                                  "tool_input": {"file_path": target.as_posix()}}).encode()
+            proc = subprocess.run(prefix, input=payload, cwd=ctx.repo,
+                                  env={**ctx.env, "NEXUS_PROVENANCE_MAX_BYTES": setting},
+                                  capture_output=True, timeout=180, check=False)
+            assert proc.returncode == 0, proc.stderr
+            data = ledger.read_bytes()
+>           assert 0 < len(data) <= effective_cap and data.endswith(b"\n")
+E           AssertionError: assert (1200309 <= 1048576)
+E            +  where 1200309 = len(b'1\t1111111111111111111111111111111111111111111111111111111111111111\told-\xe6\xbc\xa2\xe6\xbc\xa2\xe6\xbc\xa2\xe6\xb...-of-bedourthe/pytest-10736/test_provenance_byte_cap_confi2/iso/hsb-a67684cc49d8415484fb8e576fadfd66/configuration.sh\n')
+
+catalog\hooks\tests\test_hook_size_bound.py:1321: AssertionError
+_ test_provenance_byte_cap_configuration_keeps_a_whole_newest_row[invalid-ps1] _
+
+request = <FixtureRequest for <Function test_provenance_byte_cap_configuration_keeps_a_whole_newest_row[invalid-ps1]>>
+tmp_path = WindowsPath('C:/Users/username/AppData/Local/Temp/pytest-of-bedourthe/pytest-10736/test_provenance_byte_cap_confi3')
+impl = 'ps1', setting = 'invalid'
+
+    @pytest.mark.parametrize("impl", PROVENANCE_LEDGER.impls)
+    @pytest.mark.parametrize("setting", ("512", "invalid", "0"))
+    def test_provenance_byte_cap_configuration_keeps_a_whole_newest_row(
+        request: pytest.FixtureRequest, tmp_path: Path, impl: str, setting: str
+    ) -> None:
+        ctx = make_ctx(tmp_path)
+        prefix = _prefix(request, PROVENANCE_LEDGER, impl)
+        ledger = PROVENANCE_LEDGER.targets[0].path(ctx)
+        effective_cap = 8192 if setting == "512" else 1048576
+        with real_guard(ctx.token):
+            ledger.parent.mkdir(parents=True, exist_ok=True)
+            ledger.write_bytes(f"1\t{'1' * 64}\told-{'漢' * 400000}\n".encode())
+            target = ctx.repo / "configuration.sh"
+            target.write_bytes(b"echo exact configuration\n")
+            payload = json.dumps({"session_id": ctx.sid, "tool_name": "Write",
+                                  "tool_input": {"file_path": target.as_posix()}}).encode()
+            proc = subprocess.run(prefix, input=payload, cwd=ctx.repo,
+                                  env={**ctx.env, "NEXUS_PROVENANCE_MAX_BYTES": setting},
+                                  capture_output=True, timeout=180, check=False)
+            assert proc.returncode == 0, proc.stderr
+            data = ledger.read_bytes()
+>           assert 0 < len(data) <= effective_cap and data.endswith(b"\n")
+E           AssertionError: assert (1200309 <= 1048576)
+E            +  where 1200309 = len(b'1\t1111111111111111111111111111111111111111111111111111111111111111\told-\xe6\xbc\xa2\xe6\xbc\xa2\xe6\xbc\xa2\xe6\xb...-of-bedourthe/pytest-10736/test_provenance_byte_cap_confi3/iso/hsb-1bf770a386754b5eae2640a3952681b1/configuration.sh\n')
+
+catalog\hooks\tests\test_hook_size_bound.py:1321: AssertionError
+____ test_provenance_byte_cap_configuration_keeps_a_whole_newest_row[0-sh] ____
+
+request = <FixtureRequest for <Function test_provenance_byte_cap_configuration_keeps_a_whole_newest_row[0-sh]>>
+tmp_path = WindowsPath('C:/Users/username/AppData/Local/Temp/pytest-of-bedourthe/pytest-10736/test_provenance_byte_cap_confi4')
+impl = 'sh', setting = '0'
+
+    @pytest.mark.parametrize("impl", PROVENANCE_LEDGER.impls)
+    @pytest.mark.parametrize("setting", ("512", "invalid", "0"))
+    def test_provenance_byte_cap_configuration_keeps_a_whole_newest_row(
+        request: pytest.FixtureRequest, tmp_path: Path, impl: str, setting: str
+    ) -> None:
+        ctx = make_ctx(tmp_path)
+        prefix = _prefix(request, PROVENANCE_LEDGER, impl)
+        ledger = PROVENANCE_LEDGER.targets[0].path(ctx)
+        effective_cap = 8192 if setting == "512" else 1048576
+        with real_guard(ctx.token):
+            ledger.parent.mkdir(parents=True, exist_ok=True)
+            ledger.write_bytes(f"1\t{'1' * 64}\told-{'漢' * 400000}\n".encode())
+            target = ctx.repo / "configuration.sh"
+            target.write_bytes(b"echo exact configuration\n")
+            payload = json.dumps({"session_id": ctx.sid, "tool_name": "Write",
+                                  "tool_input": {"file_path": target.as_posix()}}).encode()
+            proc = subprocess.run(prefix, input=payload, cwd=ctx.repo,
+                                  env={**ctx.env, "NEXUS_PROVENANCE_MAX_BYTES": setting},
+                                  capture_output=True, timeout=180, check=False)
+            assert proc.returncode == 0, proc.stderr
+            data = ledger.read_bytes()
+>           assert 0 < len(data) <= effective_cap and data.endswith(b"\n")
+E           AssertionError: assert (1200309 <= 1048576)
+E            +  where 1200309 = len(b'1\t1111111111111111111111111111111111111111111111111111111111111111\told-\xe6\xbc\xa2\xe6\xbc\xa2\xe6\xbc\xa2\xe6\xb...-of-bedourthe/pytest-10736/test_provenance_byte_cap_confi4/iso/hsb-d42ede0b73074eeb8f95b7c6fd5a339f/configuration.sh\n')
+
+catalog\hooks\tests\test_hook_size_bound.py:1321: AssertionError
+___ test_provenance_byte_cap_configuration_keeps_a_whole_newest_row[0-ps1] ____
+
+request = <FixtureRequest for <Function test_provenance_byte_cap_configuration_keeps_a_whole_newest_row[0-ps1]>>
+tmp_path = WindowsPath('C:/Users/username/AppData/Local/Temp/pytest-of-bedourthe/pytest-10736/test_provenance_byte_cap_confi5')
+impl = 'ps1', setting = '0'
+
+    @pytest.mark.parametrize("impl", PROVENANCE_LEDGER.impls)
+    @pytest.mark.parametrize("setting", ("512", "invalid", "0"))
+    def test_provenance_byte_cap_configuration_keeps_a_whole_newest_row(
+        request: pytest.FixtureRequest, tmp_path: Path, impl: str, setting: str
+    ) -> None:
+        ctx = make_ctx(tmp_path)
+        prefix = _prefix(request, PROVENANCE_LEDGER, impl)
+        ledger = PROVENANCE_LEDGER.targets[0].path(ctx)
+        effective_cap = 8192 if setting == "512" else 1048576
+        with real_guard(ctx.token):
+            ledger.parent.mkdir(parents=True, exist_ok=True)
+            ledger.write_bytes(f"1\t{'1' * 64}\told-{'漢' * 400000}\n".encode())
+            target = ctx.repo / "configuration.sh"
+            target.write_bytes(b"echo exact configuration\n")
+            payload = json.dumps({"session_id": ctx.sid, "tool_name": "Write",
+                                  "tool_input": {"file_path": target.as_posix()}}).encode()
+            proc = subprocess.run(prefix, input=payload, cwd=ctx.repo,
+                                  env={**ctx.env, "NEXUS_PROVENANCE_MAX_BYTES": setting},
+                                  capture_output=True, timeout=180, check=False)
+            assert proc.returncode == 0, proc.stderr
+            data = ledger.read_bytes()
+>           assert 0 < len(data) <= effective_cap and data.endswith(b"\n")
+E           AssertionError: assert (1200309 <= 1048576)
+E            +  where 1200309 = len(b'1\t1111111111111111111111111111111111111111111111111111111111111111\told-\xe6\xbc\xa2\xe6\xbc\xa2\xe6\xbc\xa2\xe6\xb...-of-bedourthe/pytest-10736/test_provenance_byte_cap_confi5/iso/hsb-7bdc0245eb2f43c69914c6b46be2cc3f/configuration.sh\n')
+
+catalog\hooks\tests\test_hook_size_bound.py:1321: AssertionError
+11 failed, 3 passed, 39 deselected in 30.95s

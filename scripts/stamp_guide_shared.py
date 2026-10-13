@@ -52,6 +52,8 @@ WEB = Path("guides") / "website"
 MANIFEST = WEB / "shared" / "fragments.json"
 SYNTAX = {"html": ("<!-- ", " -->"), "css": ("/* ", " */"), "js": ("/* ", " */")}
 PLACEHOLDER = re.compile(r"\{\{([a-z0-9_.-]+)\}\}")
+# A shared skip link must land on one element of the page it is stamped into (v4.13.11 WN-6).
+SKIP_TARGET = re.compile(r'<a\b[^>]*\bclass="skip-link"[^>]*\bhref="#([^"]+)"')
 
 
 class StampError(RuntimeError):
@@ -168,7 +170,12 @@ def stamp(root: Path, check: bool) -> int:
             out.append(body)
             cursor = end
         out.append(text[cursor:])
-        outputs[path] = ("".join(out), crlf)
+        result = "".join(out)
+        for target in SKIP_TARGET.findall(result):
+            found = len(re.findall(r'(?<![\w-])id="' + re.escape(target) + '"', result))
+            if found != 1:
+                raise StampError(f"{page}: skip link target #{target} must match exactly one id, found {found}")
+        outputs[path] = (result, crlf)
     if check:
         for line in drift:
             print(f"stamp_guide_shared: drift -- {line} differs from guides/website/shared", file=sys.stderr)

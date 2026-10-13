@@ -88,7 +88,7 @@ TIMESTAMP=$(date "+%Y-%m-%d %H:%M" 2>/dev/null || echo "unknown")
 BRANCH=$(git -C "$GIT_ROOT" rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
 
 if [ -n "${LAST_ENTRY_DATE:-}" ]; then
-    RECENT_COMMITS=$(git -C "$GIT_ROOT" log --oneline --after="$LAST_ENTRY_DATE" 2>/dev/null | head -10)
+    RECENT_COMMITS=$(git -C "$GIT_ROOT" log --oneline -10 --after="$LAST_ENTRY_DATE" 2>/dev/null)
     BASE_HASH=$(git -C "$GIT_ROOT" log --format="%H" --before="$LAST_ENTRY_DATE" -1 2>/dev/null || true)
 else
     RECENT_COMMITS=$(git -C "$GIT_ROOT" log --oneline -10 2>/dev/null)
@@ -100,6 +100,14 @@ if [ -n "${BASE_HASH:-}" ]; then
 else
     FILES_CHANGED=$(git -C "$GIT_ROOT" diff --name-only "HEAD~${COMMIT_COUNT}" HEAD 2>/dev/null | head -20 || true)
 fi
+
+# Bound display subjects, preserving the separate commit identifier.
+# Pipe input so Git Bash does not stall preparing a large here-string.
+RECENT_COMMITS=$(printf '%s\n' "$RECENT_COMMITS" | while IFS= read -r line; do
+    [ -n "$line" ] || continue
+    subject="${line#* }"
+    printf '%s %s\n' "${line%% *}" "${subject:0:200}"
+done)
 
 # --- Optional AI enrichment path ---
 # Set AUTO_DEVLOG_AI=1 for a richer, AI-written entry (uses claude CLI + tokens).
@@ -146,9 +154,9 @@ ENTRY+="\n### Current Status\n\nAuto-captured at session end on branch \`$BRANCH
 
 # --- Prepend above the first ## heading (DEVLOG is newest-first) ---
 # awk is used instead of sed -i to avoid BSD/GNU portability issues.
-FIRST_H2_LINE=$(grep -n '^## \[' "$DEVLOG" 2>/dev/null | head -1 | cut -d: -f1)
+FIRST_H2_LINE=$(grep -m 1 -n '^## \[' "$DEVLOG" 2>/dev/null | cut -d: -f1)
 if [ -n "${FIRST_H2_LINE:-}" ] && echo "$FIRST_H2_LINE" | grep -qE '^[0-9]+$'; then
-    INSERT_LINE=$(( FIRST_H2_LINE - 1 ))
+    INSERT_LINE=$FIRST_H2_LINE
     TMPFILE=$(mktemp 2>/dev/null) || exit 0
     awk -v ins="$INSERT_LINE" -v entry="$ENTRY" '
         NR == ins { printf "%s", entry }

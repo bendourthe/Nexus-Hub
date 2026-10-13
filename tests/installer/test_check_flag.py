@@ -24,6 +24,19 @@ if str(REPO_ROOT) not in sys.path:
 from scripts.lib.integrations.runner import main as runner_main  # noqa: E402
 
 
+@pytest.fixture(autouse=True)
+def _isolated_nexus_state(tmp_path_factory: pytest.TempPathFactory, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Keep the instruction-merge lock and backup state out of the real profile.
+
+    A reinstall finds an existing instruction file and takes a per-target lock under
+    the Nexus state root, which falls back to the real home unless NEXUS_HUB_HOME is
+    set. The directory sits outside tmp_path so tests that snapshot tmp_path see no
+    extra entries.
+    """
+    monkeypatch.setenv("NEXUS_HUB_HOME", str(tmp_path_factory.mktemp("nexus-home")))
+
+
+
 def _snapshot(root: Path) -> set[Path]:
     return {p.relative_to(root) for p in root.rglob("*")}
 

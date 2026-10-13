@@ -1,0 +1,33 @@
+{
+  "recorded_at": "2026-10-09T22:52:18Z",
+  "approval_code": "NIRFZUP5",
+  "scope": "minor",
+  "minor": "v4.13",
+  "session_id": "01a11db6-720b-7f70-8a78-d7c72b70d906",
+  "member": "v4.13.11",
+  "frozen_minor_start_head": "30e94ff6418b40b598447103583e3139fe4aa08c",
+  "member_start_head": "002b7283a8b839588c8d0e468cbb502f594cb3e6",
+  "activation_merge_head": "ff1aa631538fcf1cbc2380b28e1e001ebd880e8d",
+  "run_record_path": "C:\\Users\\username\\.nexus-hub\\runs\\ccc48e9bf9c69f2d00e1d1bc40523d1677ef7c73be8d0cc55aebc24c3b3f0a92.json",
+  "run_record_sha256_at_activation": "adeae4be5a0037bc07dc0ac4a891eac2766319b945880906f7121e7a487a8a09",
+  "frozen_plan_sha256": "f810cd9838d5c88927d00903a11f1bdcc9771ca950d2cb113f9a0b04a19311ed",
+  "record_create": {
+    "exit_code": 0,
+    "observed": "RECORDED minor v4.13 nonce=f747a232e7065769830f381845d546a3"
+  },
+  "member_start": {
+    "exit_code": 0,
+    "observed": "STARTED v4.13.11 start_head=002b7283a8b839588c8d0e468cbb502f594cb3e6"
+  },
+  "develop_update": {
+    "from": "ae60a3240a538a84bf8cfc2f92b6612594e0d226",
+    "to": "002b7283a8b839588c8d0e468cbb502f594cb3e6",
+    "pull_requests": [
+      438,
+      439
+    ],
+    "changed_paths": []
+  },
+  "approval_origin": "Native record create accepted the actual user-origin whole-message paste; no capture or signed record was fabricated.",
+  "main_tag_release_authority": "Excluded from the recorded approval classes; maintainer boundary remains in force."
+}

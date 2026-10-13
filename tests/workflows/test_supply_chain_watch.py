@@ -97,3 +97,38 @@ def test_release_artifact_job_is_scoped_and_pinned() -> None:
     secrets = set(re.findall(r"secrets\.([A-Za-z_]+)", text))
     assert secrets <= {"GITHUB_TOKEN"}, f"new secret referenced: {secrets}"
     assert "--clobber" in text and "SHA256SUMS" in text
+
+
+# v4.13.11 Phase 6 (WN-39): PyJWT <= 2.14.0 lets a deeply nested payload raise
+# RecursionError before signature checks (GHSA-42vr-xj54-vc7v; also
+# GHSA-x33g-cr3x-6449). Fixed in 2.15.0.
+PYJWT_FLOOR = (2, 15, 0)
+CONSTRAINTS = REPO_ROOT / "scripts" / "ci" / "requirements-py311.txt"
+
+
+def _version(text: str) -> tuple[int, ...]:
+    return tuple(int(part) for part in re.findall(r"\d+", text)[:3])
+
+
+def test_ci_constraints_pin_a_fixed_pyjwt() -> None:
+    pins = re.findall(r"^pyjwt==([\d.]+)", CONSTRAINTS.read_text(encoding="utf-8"), re.M)
+    assert len(pins) == 1, pins
+    assert _version(pins[0]) >= PYJWT_FLOOR, f"pyjwt=={pins[0]} is affected by GHSA-42vr-xj54-vc7v"
+
+
+def test_every_extension_that_pulls_mcp_declares_the_pyjwt_floor() -> None:
+    """The CI pin protects only CI; a user's environment already holding 2.14.0
+    satisfies mcp's own `pyjwt>=2.10.1` and would not upgrade without this floor."""
+    tomllib = pytest.importorskip("tomllib")
+    checked = 0
+    for pyproject in sorted((REPO_ROOT / "extensions").glob("*/pyproject.toml")):
+        project = tomllib.loads(pyproject.read_text(encoding="utf-8"))["project"]
+        groups = [project.get("dependencies", [])] + list(project.get("optional-dependencies", {}).values())
+        for group in groups:
+            if not any(re.match(r"mcp\b", dep) for dep in group):
+                continue
+            checked += 1
+            floors = [dep for dep in group if re.match(r"pyjwt\s*>=", dep, re.I)]
+            assert floors, f"{pyproject.parent.name}: a group with mcp lacks a pyjwt floor"
+            assert _version(floors[0].split(">=", 1)[1]) >= PYJWT_FLOOR, floors[0]
+    assert checked >= 4, "expected the four MCP-serving extensions to be checked"

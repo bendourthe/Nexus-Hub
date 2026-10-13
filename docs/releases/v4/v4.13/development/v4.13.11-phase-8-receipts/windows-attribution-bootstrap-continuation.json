@@ -1,0 +1,266 @@
+{
+  "schema_version": 1,
+  "description": "Windows attribution-test bootstrap stabilization; native failures and focused repair proof remain distinct.",
+  "source_head": "73256521d5bf114e6492bc7a3fc7ebfc340da8b5",
+  "source_test_sha256": "7c6f237fb4e6e8d2ec3704377f63a3872d3c286da90a5addf5a6ef8c78969e0b",
+  "ci_timeout": {
+    "run_id": 38304672238,
+    "job_id": 115017691404,
+    "artifact_id": 11776539890,
+    "artifact_name": "ci-windows-reports",
+    "zip_bytes": 8632,
+    "zip_sha256": "d8ec73d0be3a93d0367c2f6b653cfe53607b1ade987f9af37f5b499c0d45b5cd",
+    "members": [
+      {
+        "path": "junit/interpreters.xml",
+        "bytes": 290,
+        "sha256": "87a61919fef79e710f5b6c8a1c7147ebcd935ff36b18b2000c45e2a08455ab30"
+      },
+      {
+        "path": "junit/windows-hooks.xml",
+        "bytes": 4305,
+        "sha256": "aaab12c9f0aa5b09294584e2f769738a4c851872ce7914e4f204e6e6798cd28e"
+      },
+      {
+        "path": "junit/windows-native.xml",
+        "bytes": 38727,
+        "sha256": "d34feb84f14338ea038bfd3e354b4213025bd6dde7041f86205e8ea1dcd35bf9"
+      },
+      {
+        "path": "metadata/environment.json",
+        "bytes": 472,
+        "sha256": "1faeb8e0670093afb87661d5c67ef656666658ca52f81c4265ec4b1a966d1650"
+      },
+      {
+        "path": "summary.json",
+        "bytes": 9880,
+        "sha256": "1bd90ca7613ef4886c484aa86c3c4c3c45196c16eff6d825c9413ff40c7f8f78"
+      },
+      {
+        "path": "summary.md",
+        "bytes": 2702,
+        "sha256": "c8e5f46231f578903b9bdc9022efb0da99b8ffc88b073bdebc3343d6ab7be321"
+      }
+    ],
+    "native_summary": {
+      "duration_s": 3170.5,
+      "finished_at": "2026-10-12T22:27:04Z",
+      "groups": [
+        {
+          "commands": [
+            {
+              "duration_s": 2.046999999999997,
+              "exit_code": 0,
+              "group": "interpreters",
+              "name": "check_python_floor",
+              "output": "Python 3.11 grammar: 948 tracked files passed\r\n",
+              "reason": "",
+              "status": "pass"
+            },
+            {
+              "duration_s": 4.203000000000003,
+              "exit_code": 0,
+              "group": "interpreters",
+              "name": "check_interpreter_resolution",
+              "output": "[interpreters] OK   powershell -> C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.EXE\r\n[interpreters] every hook interpreter can execute a script.\r\n",
+              "reason": "",
+              "status": "pass"
+            }
+          ],
+          "name": "interpreters",
+          "skipped_reason": "",
+          "status": "pass"
+        },
+        {
+          "commands": [
+            {
+              "duration_s": 1125.547,
+              "exit_code": 0,
+              "group": "windows-hooks",
+              "name": "hook-tests (Windows PowerShell 5.1)",
+              "output": "........................................................................ [  2%]\r\n........................................................................ [  5%]\r\n........................................................................ [  8%]\r\n........................................................................ [ 11%]\r\n........................................................................ [ 14%]\r\n........................................................................ [ 17%]\r\n........................................................................ [ 20%]\r\n........................................................................ [ 23%]\r\n........................................................................ [ 26%]\r\n........................................................................ [ 29%]\r\n....sssssssss........................................................... [ 32%]\r\n........................................................................ [ 35%]\r\n........................................................................ [ 38%]\r\n........................................................................ [ 41%]\r\n........................................................................ [ 44%]\r\n........................................................................ [ 47%]\r\n........................................................................ [ 50%]\r\n........................................................................ [ 53%]\r\n........................................................................ [ 56%]\r\n........................................................................ [ 59%]\r\n........................................................................ [ 62%]\r\n....................ss.................................................. [ 65%]\r\n...................................................ssss................. [ 68%]\r\n........................................................................ [ 71%]\r\n........................................................................ [ 74%]\r\n........................................................................ [ 77%]\r\n........................................................................ [ 80%]\r\n........................................................................ [ 83%]\r\n........................................................................ [ 86%]\r\n........................................................................ [ 89%]\r\n........................................................................ [ 92%]\r\n........................................................................ [ 95%]\r\n........................................................................ [ 98%]\r\n...............................                                          [100%]\r\n2392 passed, 15 skipped in 1124.77s (0:18:44)\r\n",
+              "reason": "",
+              "status": "pass"
+            },
+            {
+              "duration_s": 1800.1399999999999,
+              "exit_code": null,
+              "group": "windows-hooks",
+              "name": "installer + validators (Windows)",
+              "output": "...ssss...sss......s.s.s.s.s.s.s........................................ [  2%]\r\n........................................................................ [  4%]\r\n........................................................................ [  6%]\r\n..........................................ssssss........sssssssssss..... [  8%]\r\n........................................................................ [ 10%]\r\n........................................................................ [ 13%]\r\n........................................................................ [ 15%]\r\n........................................................................ [ 17%]\r\n...........s............................................................ [ 19%]\r\n........................................................................ [ 21%]\r\n........................................................................ [ 23%]\r\n........................................................................ [ 26%]\r\n........................................................................ [ 28%]\r\n........................................................................ [ 30%]\r\n........................................................................ [ 32%]\r\n........................................................................ [ 34%]\r\n........................................................................ [ 36%]\r\n........................................................................ [ 39%]\r\n........................................................................ [ 41%]\r\n........................................................................ [ 43%]\r\n........................................................................ [ 45%]\r\n........................................................................ [ 47%]\r\n........................................................................ [ 50%]\r\n........................................................................ [ 52%]\r\n........................................................................ [ 54%]\r\n........................................................................ [ 56%]\r\n........................................................................ [ 58%]\r\n........................................................................ [ 60%]\r\n........................................................................ [ 63%]\r\n..........................ssssss..ss...s................................ [ 65%]\r\n........................................................................ [ 67%]\r\n........................................................................ [ 69%]\r\n........................................................................ [ 71%]\r\n........................................................................ [ 73%]\r\n........................................................................ [ 76%]\r\n........................................................................ [ 78%]\r\n........................................................................ [ 80%]\r\n........................................................................ [ 82%]\r\n........................................................................ [ 84%]\r\n........................................................................ [ 86%]\r\n........................................................................ [ 89%]\r\n........................................................................ [ 91%]\r\n.......................................................s................ [ 93%]\r\n........................................................................ [ 95%]\r\n........................................................................ [ 97%]\r\n..........................................s",
+              "reason": "exceeded 1800s",
+              "status": "timeout"
+            },
+            {
+              "duration_s": 178.70299999999997,
+              "exit_code": 0,
+              "group": "windows-hooks",
+              "name": "security-audit evidence (Windows)",
+              "output": ".............................................s.........................s [ 15%]\r\n................s.....................s................................. [ 30%]\r\n........................................................................ [ 45%]\r\n........................................................................ [ 60%]\r\n........................................................................ [ 75%]\r\n........................................................................ [ 90%]\r\n............................................                             [100%]\r\n472 passed, 4 skipped in 178.30s (0:02:58)\r\n",
+              "reason": "",
+              "status": "pass"
+            },
+            {
+              "duration_s": 59.86000000000013,
+              "exit_code": 0,
+              "group": "windows-hooks",
+              "name": "native integrations (Windows)",
+              "output": "........................................................................ [ 26%]\r\n........................................................................ [ 53%]\r\n........................................................................ [ 79%]\r\n.......................................................                  [100%]\r\n271 passed in 59.43s\r\n",
+              "reason": "",
+              "status": "pass"
+            }
+          ],
+          "name": "windows-hooks",
+          "skipped_reason": "",
+          "status": "fail"
+        }
+      ],
+      "platform": "windows",
+      "profile": "platform",
+      "scope_conservative": true,
+      "scope_reason": "no --base supplied; running every group",
+      "started_at": "2026-10-12T21:34:14Z"
+    }
+  },
+  "local_full_selection": {
+    "raw_start_sha256": "fe4479e3a0047a60d0bb873dbeee7a3595a0ddf41d8f21659f6e6205a3bbc0af",
+    "raw_result_sha256": "d98e868cf77a96b6e0b038c3c57d9f25c20b0633b5126d87315d3720b912aef6",
+    "start": {
+      "started_at": "2026-10-12T23:30:07.954204+00:00",
+      "pid": 42192,
+      "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+      "head": "73256521d5bf114e6492bc7a3fc7ebfc340da8b5",
+      "test_sha256": "7c6f237fb4e6e8d2ec3704377f63a3872d3c286da90a5addf5a6ef8c78969e0b",
+      "command": {
+        "name": "installer + validators (Windows)",
+        "argv": [
+          "<python3.12>",
+          "-m",
+          "pytest",
+          "tests/installer",
+          "-q",
+          "tests/validators",
+          "tests/test_git_attribution.py"
+        ],
+        "cwd": ".",
+        "timeout": 1800,
+        "platforms": [
+          "windows"
+        ],
+        "advisory": false,
+        "skip_if_missing": false,
+        "env": {
+          "NEXUS_TEST_POWERSHELL": "powershell"
+        },
+        "platform_timeouts": {}
+      }
+    },
+    "result": {
+      "finished_at": "2026-10-13T00:40:28.237738+00:00",
+      "test_sha256_after": "7c6f237fb4e6e8d2ec3704377f63a3872d3c286da90a5addf5a6ef8c78969e0b",
+      "native_result": {
+        "name": "installer + validators (Windows)",
+        "group": "",
+        "status": "timeout",
+        "duration_s": 4220.204,
+        "exit_code": null,
+        "output": "...ssss...sss......s.s.s.s.s.s.s................s.s.s.s.s.s.s.s.s.s..... [  2%]\r\n........................................................................ [  4%]\r\n........................................................................ [  6%]\r\n..........................................ssssss........sssssssssss..... [  8%]\r\n..............................s......................................... [ 10%]\r\n........................................................................ [ 12%]\r\n................................................................s....... [ 15%]\r\n........................................................................ [ 17%]\r\n...........s............................................................ [ 19%]\r\n........................................................................ [ 21%]\r\n........................................................................ [ 23%]\r\n........................................................................ [ 25%]\r\n........................................................................ [ 27%]\r\n........................................................................ [ 30%]\r\n........................................................................ [ 32%]\r\n........................................................................ [ 34%]\r\n.......",
+        "reason": "exceeded 1800s"
+      }
+    }
+  },
+  "local_focused_module": {
+    "raw_start_sha256": "9e3bec2436325bf762b3116ce5fdd307f581eb7bba3c67e3c9efc0fbbec513f7",
+    "raw_result_sha256": "ddbdc1d555eed4a45814a1b97e95eda2f145e29d8027df120db31fabcd6f2fe5",
+    "start": {
+      "started_at": "2026-10-13T00:46:38.717844+00:00",
+      "pid": 16872,
+      "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+      "head": "73256521d5bf114e6492bc7a3fc7ebfc340da8b5",
+      "test_sha256": "7c6f237fb4e6e8d2ec3704377f63a3872d3c286da90a5addf5a6ef8c78969e0b",
+      "command": {
+        "name": "focused attribution guard module (Windows)",
+        "argv": [
+          "<python3.12>",
+          "-m",
+          "pytest",
+          "tests/test_git_attribution.py",
+          "-q",
+          "-rs",
+          "--durations=10"
+        ],
+        "cwd": ".",
+        "timeout": 1800,
+        "platforms": [
+          "windows"
+        ],
+        "advisory": false,
+        "skip_if_missing": false,
+        "env": {
+          "NEXUS_TEST_POWERSHELL": "powershell"
+        },
+        "platform_timeouts": {}
+      },
+      "awake_request_flags": 2147483651,
+      "previous_thread_execution_state": 2147483648
+    },
+    "result": {
+      "finished_at": "2026-10-13T00:53:58.120111+00:00",
+      "test_sha256_after": "7c6f237fb4e6e8d2ec3704377f63a3872d3c286da90a5addf5a6ef8c78969e0b",
+      "awake_request_cleared": true,
+      "native_result": {
+        "name": "focused attribution guard module (Windows)",
+        "group": "",
+        "status": "pass",
+        "duration_s": 439.3590000000004,
+        "exit_code": 0,
+        "output": "..................s.............................                         [100%]\r\n============================ slowest 10 durations =============================\r\n139.95s call     tests/test_git_attribution.py::test_real_workspace_installer_delivers_working_guard[workspace-bash]\r\n89.85s call     tests/test_git_attribution.py::test_real_workspace_installer_delivers_working_guard[global-powershell]\r\n57.72s call     tests/test_git_attribution.py::test_real_workspace_installer_delivers_working_guard[workspace-powershell]\r\n14.02s call     tests/test_git_attribution.py::test_installed_user_commit_and_checked_tag\r\n13.16s call     tests/test_git_attribution.py::test_new_branch_push_scans_what_it_adds_not_the_whole_history\r\n9.45s call     tests/test_git_attribution.py::test_workspace_wraps_override_and_passes_push_stdin\r\n7.93s call     tests/test_git_attribution.py::test_pre_push_rejects_bypassed_trailer_and_wrong_tagger\r\n7.43s call     tests/test_git_attribution.py::test_interpreter_removal_and_reinstall_preserve_special_hook_absence\r\n6.56s call     tests/test_git_attribution.py::test_workspace_guard_survives_installer_worktree_removal\r\n6.54s call     tests/test_git_attribution.py::test_update_instead_retains_git_checkout_behavior\r\n=========================== short test summary info ===========================\r\nSKIPPED [1] tests\\test_git_attribution.py:300: POSIX global venv layout is covered on Linux; Windows uses the PowerShell installer.\r\n47 passed, 1 skipped in 428.01s (0:07:08)\r\n",
+        "reason": ""
+      }
+    }
+  },
+  "local_power_events": {
+    "raw_sha256": "9a7fd93a0a609023715eef900d253bab007e97008ef44b89f592300ddda5a359",
+    "provider": "Microsoft-Windows-Kernel-Power",
+    "events": [
+      {
+        "TimeCreatedUtc": "2026-10-13T00:33:37.9895530Z",
+        "Id": 507
+      },
+      {
+        "TimeCreatedUtc": "2026-10-13T00:23:57.4997883Z",
+        "Id": 506
+      },
+      {
+        "TimeCreatedUtc": "2026-10-13T00:23:57.4873638Z",
+        "Id": 507
+      },
+      {
+        "TimeCreatedUtc": "2026-10-12T23:53:09.9526630Z",
+        "Id": 506
+      }
+    ]
+  },
+  "display_reductions": [
+    {
+      "location": "/local_full_selection/start/command/argv/0",
+      "replacement": "<python3.12>",
+      "kind": "personal interpreter-path display alias"
+    },
+    {
+      "location": "/local_focused_module/start/command/argv/0",
+      "replacement": "<python3.12>",
+      "kind": "personal interpreter-path display alias"
+    }
+  ],
+  "bounds": [
+    "The full local selection timed out with partial output and is not a passing full gate.",
+    "Observed connected-standby events and the Windows low-power wait contract explain the extended wall interval; no cap was raised.",
+    "The focused module qualifies the four-line test-only change and preserves every existing assertion and expected skip.",
+    "Local Python 3.12.10 and pytest 7.4.4 differ from CI Python 3.11.9 and pytest 9.1.1.",
+    "Neither run is a quiet-CI performance calibration or a fully functional offline MCP qualification.",
+    "Earlier interrupted reproduction and failed nested-venv diagnostic remain failed or incomplete transcript evidence."
+  ],
+  "windows_wait_reference": "https://learn.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-waitforsingleobject",
+  "awake_request_reference": "https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-setthreadexecutionstate"
+}

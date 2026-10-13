@@ -18,6 +18,7 @@ NEXUS_REQUIRE_RENDER=1.
 from __future__ import annotations
 
 import html
+import json
 import os
 import re
 from pathlib import Path
@@ -53,7 +54,7 @@ CHROME = {
 # source writes as [char]0x2713). The mockup marks each one with <var>; everything else must be
 # literal text on an installer line the mocked line cites.
 DYNAMIC = {
-    "bendourthe/Nexus-Hub@main", "main", "C:\\Users\\dev", "/Users/dev", "/home/dev", "4.13.10", "Global",
+    "bendourthe/Nexus-Hub@main", "main", "C:\\Users\\dev", "/Users/dev", "/home/dev", json.loads((ROOT / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))["version"], "Global",
     "Claude", "commands:ok, skills:ok, CLAUDE.md SKILL_INDEX:ok", "\u2713",
 }
 DYNAMIC_PATHS = ("C:\\Users\\dev\\", "/Users/dev/", "/home/dev/")
@@ -529,7 +530,8 @@ def test_the_wordmark_is_the_installers_own(playwright_mod) -> None:
     ps = _banner(sources["scripts/installer.ps1"], "function Write-NexusBanner", "'@")
     sh = _banner(sources["scripts/installer.sh"], "print_nexus_banner() {", "NEXUS_BANNER_EOF")
     assert ps == sh and len(ps.split("\n")) == 6 and "\u2588" in ps
-    raw = GUIDE.read_bytes()
+    # Compare content, not the checkout's line endings: a Windows working tree is CRLF.
+    raw = GUIDE.read_bytes().replace(b"\r\n", b"\n")
     install = raw[raw.index(b'id="nhg-install"'): raw.index(b'id="nhg-copy-status"')]
     assert all(byte < 128 for byte in install), "the install section is ASCII; box characters are character references"
     pre = re.search(rb'<pre class="tm-l tm-c tm-wm" data-src="([^"]+)">(.*?)</pre>', install, re.S)

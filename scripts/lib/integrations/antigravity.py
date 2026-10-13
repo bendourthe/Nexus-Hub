@@ -51,7 +51,7 @@ from ._catalog_adapters import (
 )
 from ._hooks_common import command_for, is_windows_host, sourced_modules
 from ._hooks_json_merge import merge_named_set, prune_named_set
-from .base import InstallContext, MarkdownIntegration, SkillsIntegration
+from .base import InstallContext, MarkdownIntegration, SkillsIntegration, long_path
 from .result import FileAction, WriteResult
 
 
@@ -147,12 +147,39 @@ class Antigravity20Integration(MarkdownIntegration, SkillsIntegration):
                         "hooks": [
                             {"command": wrapped_command_for("secret-scan.sh")},
                             {"command": wrapped_command_for("large-file-guard.sh")},
+                            {"command": wrapped_command_for("user-edit-guard.sh")},
+                            {"command": wrapped_command_for("attribution-guard.sh")},
                         ],
                     },
                     {
                         "matcher": "run_command",
                         "hooks": [
                             {"command": wrapped_command_for("git-guardrails.sh")},
+                            {"command": wrapped_command_for("user-edit-guard.sh")},
+                            {"command": wrapped_command_for("attribution-guard.sh")},
+                        ],
+                    },
+                ],
+                "PostToolUse": [
+                    {
+                        "matcher": (
+                            "write_to_file|replace_file_content|"
+                            "multi_replace_file_content"
+                        ),
+                        "hooks": [
+                            {"command": wrapped_command_for("user-edit-guard.sh", "PostToolUse")},
+                        ],
+                    },
+                    {
+                        "matcher": "run_command",
+                        "hooks": [
+                            {"command": wrapped_command_for("user-edit-guard.sh", "PostToolUse")},
+                        ],
+                    },
+                    {
+                        "matcher": "view_file",
+                        "hooks": [
+                            {"command": wrapped_command_for("user-edit-guard.sh", "PostToolUse")},
                         ],
                     },
                 ],
@@ -174,6 +201,8 @@ class Antigravity20Integration(MarkdownIntegration, SkillsIntegration):
         "secret-scan.sh",
         "large-file-guard.sh",
         "git-guardrails.sh",
+        "user-edit-guard.sh",
+        "attribution-guard.sh",
         "completion-gate.sh",
     )
 
@@ -395,8 +424,9 @@ class Antigravity20Integration(MarkdownIntegration, SkillsIntegration):
         content = json.dumps(registration, indent=2) + "\n"
         content_bytes = content.encode("utf-8")
         dst = parent / "hooks.json"
-        if dst.exists():
-            if dst.read_bytes() == content_bytes:
+        dst_io = long_path(dst)  # AR-11: a deep project root passes MAX_PATH
+        if dst_io.exists():
+            if dst_io.read_bytes() == content_bytes:
                 ctx.manifest.track_shared(self.key, str(dst))
                 return FileAction(path=str(dst), action="unchanged")
             if not ctx.overwrite:
@@ -405,10 +435,10 @@ class Antigravity20Integration(MarkdownIntegration, SkillsIntegration):
                 return merge_named_set(
                     ctx, self.key, dst, self._HOOK_SET, registration[self._HOOK_SET]
                 )
-        existed = dst.exists()
+        existed = dst_io.exists()
         if not ctx.dry_run:
-            dst.parent.mkdir(parents=True, exist_ok=True)
-            dst.write_bytes(content_bytes)
+            dst_io.parent.mkdir(parents=True, exist_ok=True)
+            dst_io.write_bytes(content_bytes)
         ctx.manifest.track_shared(self.key, str(dst))
         return FileAction(path=str(dst), action="updated" if existed else "created")
 

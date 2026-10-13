@@ -1,0 +1,27 @@
+profile: fast   platform: windows
+scope:   no --base supplied; running every group
+- catalog-parse
+  [ok  ] skills.json parses (0.2s)
+  [ok  ] bundles.json parses (0.2s)
+  [ok  ] workflows.json parses (0.2s)
+  [ok  ] templates.json parses (0.2s)
+- hygiene
+  [ok  ] check_commit_attribution (0.9s)
+  [ok  ] validate_unicode_safety (9.1s)
+  [ok  ] validate_no_personal_paths (4.0s)
+  [ok  ] check_merge_conflict_markers (2.6s)
+  [ok  ] check_docs_conventions (1.9s)
+  [ok  ] validate_doc_budgets (0.2s)
+  [ok  ] check_memory_integration_budget (0.4s)
+- interpreters
+  [ok  ] check_python_floor (3.1s)
+  [ok  ] check_interpreter_resolution (0.9s)
+- registry-consistency
+  [ok  ] check_registry_entries (0.8s)
+- workflows
+  [ok  ] validate_workflow_security (0.8s)
+  [ok  ] check_required_check_coverage (0.6s)
+- version
+  [ok  ] check_version_sync (0.3s)
+
+PASS: 17 passed, 0 failed, 0 skipped, 0 advisory in 26.5s

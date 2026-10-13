@@ -136,9 +136,11 @@ A blocker is an entry in the record's `blockers` list with exactly one category 
 
 A blocker whose question the frozen approvals already answer is rejected at write time. In a minor run, `record block --minor vX.Y [--member vX.Y.Z]` writes the blocker to the minor record; with `--member` the entry carries that `version` and the verdict reads `BLOCKED: <category> (vX.Y.Z)`. `no-progress` is written by the gate or the runner when the progress score has not increased over three consecutive refusals or cycles.
 
+To answer a minor blocker, `record render --minor vX.Y --session <id> --action answer --blocker <n> [--member vX.Y.Z]` renders its exact continuation line. After the user pastes it under Approval origin, `record answer --minor vX.Y --session <id> --blocker <n> [--member vX.Y.Z]` closes only that entry and records the pasted text on it; all frozen approval classes and their HMAC remain unchanged. The page binds the run nonce, blocker index, category and actual member. An optional `--member` must name a frozen member and match the entry. An invalid index, a closed entry or a member mismatch changes no record.
+
 ### Pause and resume
 
-`/implement pause` writes a user-origin `pause` entry (subject to the approval-origin rule, so the user pastes the rendered pause line) and is always honored; the checker then reports `PAUSED`. `/implement <plan>` resumes: the upfront round shows any open blocker and the pause, records the user's pasted answer or resume line as an approval, and clears them.
+`/implement pause` writes a user-origin `pause` entry (subject to the approval-origin rule, so the user pastes the rendered pause line) and is always honored; the checker then reports `PAUSED`. `/implement <plan>` resumes: the upfront round shows any open blocker and the pause, records the user's pasted answer or resume line as an approval, and clears the corresponding blocker or pause. A resume alone never clears blockers.
 
 ### Usage-limit handoff
 

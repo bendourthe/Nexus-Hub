@@ -97,6 +97,10 @@ DEFAULT_GUARDS: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("trigger-routing", (sys.executable, "scripts/run_trigger_evals.py", "--gate")),
 )
 
+# Per-guard bound. The real suite takes well under a minute; a guard past this is
+# hung, and a hung guard must fail (and revert its edit) rather than block forever.
+GUARD_TIMEOUT_SECONDS = 900.0
+
 PROFILE_ONLY = "profile-only"
 ELIGIBLE = "eligible"
 REJECTED = "rejected"
@@ -235,20 +239,35 @@ def ensure_working_branch(repo: Path, stamp: str, base_branch: str) -> str:
 # ---------------------------------------------------------------------------
 
 
-def run_guards(repo: Path, guards, changed: Path | None = None) -> tuple[bool, str, str]:
-    """Run every guard in order. Returns (passed, failing_guard_name, detail)."""
+def run_guards(
+    repo: Path, guards, changed: Path | None = None, timeout: float = GUARD_TIMEOUT_SECONDS
+) -> tuple[bool, str, str]:
+    """Run every guard in order. Returns (passed, failing_guard_name, detail).
+
+    A guard that exceeds `timeout` is killed and counts as a failure, so the
+    caller reverts the edit instead of blocking forever.
+    """
     for name, command in guards:
-        result = subprocess.run(
-            list(command), cwd=str(repo), capture_output=True, text=True, check=False
-        )
+        try:
+            result = subprocess.run(
+                list(command), cwd=str(repo), capture_output=True, text=True, check=False,
+                timeout=timeout,
+            )
+        except subprocess.TimeoutExpired:
+            return False, name, f"timed out after {timeout:g}s"
         if result.returncode != 0:
             detail = (result.stderr or result.stdout or "").strip().splitlines()
             return False, name, " ".join(detail[-3:])[:400] if detail else f"exit {result.returncode}"
     if changed is not None and changed.suffix == ".sh":
-        shell = subprocess.run(
-            ["shellcheck", "--severity=warning", str(changed)],
-            cwd=str(repo), capture_output=True, text=True, check=False,
-        )
+        try:
+            shell = subprocess.run(
+                ["shellcheck", "--severity=warning", str(changed)],
+                cwd=str(repo), capture_output=True, text=True, check=False, timeout=timeout,
+            )
+        except FileNotFoundError:
+            return True, "", ""  # shellcheck absent, not a failure
+        except subprocess.TimeoutExpired:
+            return False, "shellcheck", f"timed out after {timeout:g}s"
         if shell.returncode not in (0, 127):  # 127: shellcheck absent, not a failure
             detail = (shell.stdout or shell.stderr or "").strip().splitlines()
             return False, "shellcheck", " ".join(detail[:3])[:400]
@@ -256,19 +275,29 @@ def run_guards(repo: Path, guards, changed: Path | None = None) -> tuple[bool, s
 
 
 def apply_edit(path: Path, old: str, new: str) -> tuple[bool, str]:
-    """Replace the FIRST occurrence of `old` with `new`. Returns (ok, reason)."""
+    """Replace the FIRST occurrence of `old` with `new`. Returns (ok, reason).
+
+    Works on the file's exact bytes: a CRLF file stays CRLF (the anchors are
+    matched in the file's own line-ending form), and nothing else is rewritten.
+    """
     if not path.is_file():
         return False, f"target file does not exist: {path}"
-    text = path.read_text(encoding="utf-8")
+    text = path.read_bytes().decode("utf-8")
+    if "\r\n" in text:
+        old = old.replace("\r\n", "\n").replace("\n", "\r\n")
+        new = new.replace("\r\n", "\n").replace("\n", "\r\n")
     if old not in text:
         return False, "anchor text 'old' not found in the target file"
     if text.count(old) > 1:
         return False, f"anchor text 'old' is ambiguous ({text.count(old)} occurrences)"
-    path.write_text(text.replace(old, new, 1), encoding="utf-8", newline="")
+    path.write_bytes(text.replace(old, new, 1).encode("utf-8"))
     return True, ""
 
 
-def apply_loop(repo: Path, proposals: list, decisions: list[dict], guards) -> dict:
+def apply_loop(
+    repo: Path, proposals: list, decisions: list[dict], guards,
+    guard_timeout: float = GUARD_TIMEOUT_SECONDS,
+) -> dict:
     """Apply every ELIGIBLE proposal, guarding each and reverting on failure.
 
     Reverts restore an in-memory SNAPSHOT rather than running `git checkout --`.
@@ -287,22 +316,30 @@ def apply_loop(repo: Path, proposals: list, decisions: list[dict], guards) -> di
         if proposal is None:
             continue
         target = repo / proposal["target"]
-        snapshot = target.read_text(encoding="utf-8") if target.is_file() else None
+        snapshot = target.read_bytes() if target.is_file() else None
 
         ok, reason = apply_edit(target, proposal["old"], proposal["new"])
         if not ok:
             quarantined.append({**decision, "failing_guard": "apply", "detail": reason,
                                 "target": proposal["target"]})
             continue
+        edited = target.read_bytes()
 
-        passed, failing, detail = run_guards(repo, guards, target)
+        passed, failing, detail = run_guards(repo, guards, target, guard_timeout)
         if passed:
             applied.append({**decision, "target": proposal["target"]})
             continue
 
         # Auto-revert this ONE edit; the run continues with the next proposal.
+        # If the file changed while the guards ran, someone else wrote it:
+        # restoring the snapshot would destroy their change, so abort instead.
         if snapshot is not None:
-            target.write_text(snapshot, encoding="utf-8", newline="")
+            if target.read_bytes() != edited:
+                raise ApplyError(
+                    f"{proposal['target']} changed while the guards ran; refusing to revert over "
+                    "a concurrent edit (the failing edit is still applied; resolve by hand)"
+                )
+            target.write_bytes(snapshot)
         quarantined.append({**decision, "failing_guard": failing, "detail": detail,
                             "target": proposal["target"]})
 

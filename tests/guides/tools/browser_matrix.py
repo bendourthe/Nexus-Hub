@@ -166,6 +166,25 @@ def declare_groups() -> dict[str, list[dict]]:
     return g
 
 
+def context_options(c: dict) -> dict:
+    """Browser-context options for one case.
+
+    A ``zoom`` case emulates native browser zoom: a W x H window at Z00% zoom lays out
+    in a (W/Z) x (H/Z) CSS-pixel viewport painted at ``device_scale_factor`` Z, so media
+    queries see the narrower width exactly as they do under Ctrl+plus. The earlier
+    ``documentElement.style.zoom`` emulation left the media-query width at W, so the
+    header never took its narrow layout and the matrix reported overflow a real 200%
+    zoom does not have (v4.13 WN-1-v4134).
+    """
+    zoom = c.get("zoom") or 1
+    return {
+        "viewport": {"width": round(c["width"] / zoom), "height": round(c["height"] / zoom)},
+        "device_scale_factor": zoom,
+        "color_scheme": c["theme"],
+        "reduced_motion": "reduce" if c.get("reduced") else "no-preference",
+    }
+
+
 def run(groups: dict[str, list[dict]], out: pathlib.Path, label: str) -> dict:
     from playwright.sync_api import sync_playwright
 
@@ -180,8 +199,7 @@ def run(groups: dict[str, list[dict]], out: pathlib.Path, label: str) -> dict:
         browser = pw.chromium.launch()
         for group, items in groups.items():
             for c in items:
-                ctx = browser.new_context(viewport={"width": c["width"], "height": c["height"]}, color_scheme=c["theme"],
-                                          reduced_motion="reduce" if c.get("reduced") else "no-preference", device_scale_factor=1)
+                ctx = browser.new_context(**context_options(c))
                 errors: list[str] = []
                 requests: list[str] = []
                 page = ctx.new_page()
@@ -195,9 +213,6 @@ def run(groups: dict[str, list[dict]], out: pathlib.Path, label: str) -> dict:
                 else:
                     page.wait_for_function("window.NexusSeq")
                 page.wait_for_timeout(300)
-                if c.get("zoom"):
-                    page.evaluate("z => { document.documentElement.style.zoom = z; }", c["zoom"])
-                    page.wait_for_timeout(200)
                 if c.get("scroll"):
                     page.locator(c["scroll"]).first.scroll_into_view_if_needed()
                     page.wait_for_timeout(250)

@@ -204,6 +204,33 @@ Hooks are shell commands that run at specific lifecycle events:
 | 2 | Block the operation (PreToolUse only) |
 | Other | Warning (logged, does not block) |
 
+### Rewriting tool input with `updatedInput`
+
+A `PreToolUse` hook can also change a tool call's arguments before it runs. It exits 0 and prints JSON whose `hookSpecificOutput` carries `updatedInput`, usually paired with a `permissionDecision`:
+
+```json
+{
+  "hookSpecificOutput": {
+    "hookEventName": "PreToolUse",
+    "permissionDecision": "allow",
+    "updatedInput": {
+      "command": "git status --short",
+      "description": "Show working tree status",
+      "timeout": 600000
+    }
+  }
+}
+```
+
+Rules from the official Claude Code hooks reference (PreToolUse decision control, <https://code.claude.com/docs/en/hooks>, checked 2026-10-09):
+
+- `updatedInput` **replaces the entire input object**, so a hook must copy every field it does not change (for Bash, also `timeout`, `run_in_background`, and any other field the call carried). Dropping a field silently changes how the tool runs.
+- Permission rules, and a Bash command's eligibility to move to the background, are evaluated against the input the hook returns, not the input Claude sent.
+- Pair it with `"allow"` to auto-approve the rewritten call, or with `"ask"` to show the rewritten input to the user. It is ignored with `"defer"`.
+- `AskUserQuestion` and `ExitPlanMode` need `"allow"` together with an `updatedInput` that carries the answer; `"allow"` alone is not enough for those tools.
+
+The Nexus-Hub hooks that rewrite input follow the copy-every-field rule: `format-bash-description.py`, `format-powershell-description.py`, `compress-output.{sh,ps1}`, and `rewrite-command.{sh,ps1}`. A host version that ignores `updatedInput` runs the original call unchanged, so these hooks fail safe rather than losing the command.
+
 ### Workflow-phase automation recipe
 
 GitHub Spec Kit's extension system registers per-command lifecycle hooks (18 points: `before_specify`, `after_tasks`, `before_/after_plan`, ...) in a `.specify/extensions.yml` registry. That registry presupposes Spec Kit's third-party extension runtime, which Nexus-Hub deliberately declines (see the v3.6.0 Spec Kit comparison, candidate N1b). Nexus-Hub does **not** add new harness event types and does **not** import that registry. Instead, it approximates the same "run automation at a workflow-phase boundary" intent on the Claude-style event surface it already uses.

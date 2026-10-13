@@ -1,0 +1,32 @@
+{
+  "source_sha256": "7988507f130657cb5641c634bc8a1e3550dbb99425be086ee46305e260452923",
+  "results": [
+    {
+      "mode": "timeout",
+      "exit": 0,
+      "seconds": 5.454000000027008,
+      "stdout": "",
+      "stderr": "",
+      "record_exists": false,
+      "post_exit_unowned_wait": null
+    },
+    {
+      "mode": "abandoned",
+      "exit": 0,
+      "seconds": 1.047000000020489,
+      "stdout": "",
+      "stderr": "",
+      "record_exists": true,
+      "post_exit_unowned_wait": 0
+    },
+    {
+      "mode": "append-error",
+      "exit": 0,
+      "seconds": 0.40600000007543713,
+      "stdout": "",
+      "stderr": "",
+      "record_exists": false,
+      "post_exit_unowned_wait": 0
+    }
+  ]
+}

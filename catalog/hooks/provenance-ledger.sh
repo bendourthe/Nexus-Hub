@@ -40,6 +40,7 @@
 # Configuration:
 #   NEXUS_PROVENANCE_DIR    ledger directory (default ~/.nexus-hub/cache/provenance)
 #   NEXUS_PROVENANCE_MAX    max ledger lines retained per session (default 500)
+#   NEXUS_PROVENANCE_MAX_BYTES  max ledger bytes (default 1048576; minimum 8192)
 #   NEXUS_PROVENANCE_HASH_MAX_BYTES  skip hashing above this size (default 10485760)
 
 set -euo pipefail
@@ -55,32 +56,79 @@ if [[ "${NEXUS_HOOK_PROFILE:-full}" == "minimal" ]]; then exit 0; fi
 
 LEDGER_DIR="${NEXUS_PROVENANCE_DIR:-$HOME/.nexus-hub/cache/provenance}"
 MAX_LINES="${NEXUS_PROVENANCE_MAX:-500}"
+MAX_BYTES="${NEXUS_PROVENANCE_MAX_BYTES:-1048576}"
+if ! [[ "$MAX_BYTES" =~ ^[0-9]+$ ]] || ! [ "$MAX_BYTES" -gt 0 ] 2>/dev/null; then
+    MAX_BYTES=1048576
+fi
+# A supported 4096-byte path, hash and timestamp must fit as one intact row.
+if [ "$MAX_BYTES" -lt 8192 ]; then
+    MAX_BYTES=8192
+    printf '[provenance-ledger] byte cap raised to minimum 8192 for complete records.\n' >&2
+fi
 HASH_MAX_BYTES="${NEXUS_PROVENANCE_HASH_MAX_BYTES:-10485760}"
 
 # --- Read the PostToolUse payload ---
-INPUT=$(cat 2>/dev/null || true)
+# Bash command substitution drops raw NUL bytes. Detect them before decoding.
+INPUT=""
+if IFS= read -r -d '' INPUT; then
+    printf '[provenance-ledger] cannot decode payload containing NUL; skipping.\n' >&2
+    exit 0
+fi
 [ -n "${INPUT:-}" ] || exit 0
 
 # --- Field extraction (jq when available, text fallback otherwise) ---
+PY=""
+if command -v python3 >/dev/null 2>&1; then PY="python3"
+elif command -v python >/dev/null 2>&1; then PY="python"; fi
 # The fallback mirrors escalation-trigger.sh: it reads the RAW JSON string, so it
 # decodes the backslash escape before use or a Windows path would arrive doubled.
 _json_str() {
     local key="$1"
     if command -v jq >/dev/null 2>&1; then
-        printf '%s' "$INPUT" | jq -r "$2 // empty" 2>/dev/null || true
+        # ASCII escapes avoid native Windows stdout changing LF bytes to CRLF.
+        local value
+        value=$(printf '%s' "$INPUT" | jq -j "($2 // empty) | @uri" 2>/dev/null || true)
+        # Bash cannot store NUL bytes; refuse before decoding instead of aliasing a path.
+        if [ "$key" = "file_path" ] && [[ "$value" == *%00* ]]; then
+            printf '[provenance-ledger] cannot record path containing NUL; skipping.\n' >&2
+            return
+        fi
+        printf '%b' "${value//%/\\x}"
+    elif [ -n "$PY" ]; then
+        printf '%s' "$INPUT" | PYTHONIOENCODING=utf-8 "$PY" -c '
+import json, sys
+try:
+    data = json.load(sys.stdin)
+    key = sys.argv[1]
+    source = data.get("tool_input") or {} if key in ("file_path", "command") else data
+    value = source.get(key) or (source.get("path") if key == "file_path" else "")
+    if isinstance(value, str):
+        if key == "file_path" and "\x00" in value:
+            sys.stderr.write("[provenance-ledger] cannot record path containing NUL; skipping.\n")
+        else:
+            sys.stdout.buffer.write(value.encode("utf-8"))
+except (ValueError, TypeError, AttributeError):
+    pass
+' "$key" || true
     else
         local v
         v=$(printf '%s' "$INPUT" \
             | grep -oE "\"$key\"[[:space:]]*:[[:space:]]*\"[^\"]*\"" \
             | head -1 \
             | sed -E "s/.*\"$key\"[[:space:]]*:[[:space:]]*\"//; s/\"$//" || true)
+        # Only doubled backslashes are provably decodable without a JSON helper.
+        case "${v//\\\\/}" in
+            *\\*) printf '[provenance-ledger] cannot decode escaped field without a JSON helper; skipping.\n' >&2; return 1 ;;
+        esac
         printf '%s' "${v//\\\\/\\}"
     fi
 }
 
 TOOL_NAME=$(_json_str "tool_name" '.tool_name')
 SESSION_ID=$(_json_str "session_id" '.session_id')
-FILE_PATH=$(_json_str "file_path" '.tool_input.file_path // .tool_input.path')
+# A sentinel keeps Bash command substitution from stripping trailing LF bytes.
+FILE_PATH=$(_json_str "file_path" '.tool_input.file_path // .tool_input.path'; printf '.')
+FILE_PATH="${FILE_PATH%.}"
 COMMAND=$(_json_str "command" '.tool_input.command')
 
 [ "${TOOL_NAME:-}" = "null" ] && TOOL_NAME=""
@@ -144,13 +192,51 @@ if [ "$IS_WRITE" = "1" ] && [ -n "${FILE_PATH:-}" ] && [ "${FILE_PATH}" != "null
     mkdir -p "$LEDGER_DIR" 2>/dev/null || exit 0
     NORM_PATH="${FILE_PATH//\\//}"
     HASH=$(_hash_file "$FILE_PATH")
+    # TSV supports whole paths up to 4096 UTF-8 bytes, with no row delimiters.
+    # Larger filesystem paths retain their complete normalized-path identity as
+    # a digest marker, explicitly outside the command-correlation heuristic.
+    PATH_BYTES=$(printf '%s' "$NORM_PATH" | wc -c | tr -d ' ')
+    if [ "$PATH_BYTES" -gt 4096 ] || [[ "$NORM_PATH" == *$'\t'* || "$NORM_PATH" == *$'\n'* || "$NORM_PATH" == *$'\r'* ]]; then
+        PATH_HASH=""
+        if command -v sha256sum >/dev/null 2>&1; then
+            PATH_HASH=$(printf '%s' "$NORM_PATH" | sha256sum | cut -d' ' -f1)
+        elif command -v shasum >/dev/null 2>&1; then
+            PATH_HASH=$(printf '%s' "$NORM_PATH" | shasum -a 256 | cut -d' ' -f1)
+        elif command -v openssl >/dev/null 2>&1; then
+            PATH_HASH=$(printf '%s' "$NORM_PATH" | openssl dgst -sha256 | awk '{print $NF}')
+        fi
+        if ! [[ "$PATH_HASH" =~ ^[0-9a-fA-F]{64}$ ]]; then
+            printf '[provenance-ledger] unsupported TSV path and no complete SHA-256 digest; skipping.\n' >&2
+            exit 0
+        fi
+        NORM_PATH="UNSUPPORTED-PATH-SHA256:$PATH_HASH"
+        printf '[provenance-ledger] recorded path digest without path correlation.\n' >&2
+    fi
     printf '%s\t%s\t%s\n' "$(date +%s)" "$HASH" "$NORM_PATH" >> "$LEDGER" 2>/dev/null || exit 0
 
-    # Bound growth: keep only the most recent MAX_LINES entries.
+    # Retain complete newest rows under both line and UTF-8 byte caps.
     line_count=$(wc -l < "$LEDGER" 2>/dev/null | tr -d ' ' || echo 0)
-    if [ "${line_count:-0}" -gt "$MAX_LINES" ] 2>/dev/null; then
-        tail -n "$MAX_LINES" "$LEDGER" > "$LEDGER.tmp" 2>/dev/null \
-            && mv "$LEDGER.tmp" "$LEDGER" 2>/dev/null || true
+    byte_count=$(wc -c < "$LEDGER" 2>/dev/null | tr -d ' ' || echo 0)
+    if [ "${line_count:-0}" -gt "$MAX_LINES" ] 2>/dev/null || [ "${byte_count:-0}" -gt "$MAX_BYTES" ]; then
+        TMPFILE="$LEDGER.tmp.$$"
+        # The C locale counts bytes without changing the UTF-8 record contents.
+        if LC_ALL=C awk -v max_lines="$MAX_LINES" -v max_bytes="$MAX_BYTES" '
+            BEGIN { first = 1; bytes = 0 }
+            {
+                rows[NR] = $0 "\n"
+                bytes += length(rows[NR])
+                while (NR - first + 1 > max_lines || bytes > max_bytes) {
+                    bytes -= length(rows[first])
+                    delete rows[first++]
+                }
+            }
+            END { for (i = first; i <= NR; i++) printf "%s", rows[i] }
+        ' "$LEDGER" > "$TMPFILE" 2>/dev/null && mv "$TMPFILE" "$LEDGER" 2>/dev/null; then
+            :
+        else
+            rm -f "$TMPFILE" 2>/dev/null || true
+            printf '[provenance-ledger] degraded rotation; ledger retained above its cap.\n' >&2
+        fi
     fi
     exit 0
 fi
@@ -166,6 +252,7 @@ if [ "$IS_COMMAND" = "1" ] && [ -n "${COMMAND:-}" ] && [ "${COMMAND}" != "null" 
     NOW=$(date +%s)
     while IFS=$'\t' read -r ts hash path; do
         [ -n "${path:-}" ] || continue
+        case "$path" in UNSUPPORTED-PATH-SHA256:*) continue ;; esac
         base="${path##*/}"
         # Ignore very short basenames: they collide with ordinary words.
         if [ "${#base}" -lt 4 ]; then continue; fi

@@ -88,6 +88,10 @@ Write a draft that follows every Nexus-Hub convention:
 
 Descriptions themselves are authored with [[skill-description-authoring]] (trigger-noun preservation, confidence bands, clarification ceiling). This step does not replace that skill.
 
+### 4.1 Optional: ship a self-check rubric
+
+Only when the drafted skill returns content a reader consumes. Follow `references/authoring-self-check.md`: give the draft its own `references/self-check.md` that links the prose-quality checks owned by [[anti-slop-editing]] (`references/self-check.md` there) instead of restating them, adds skill-specific PASS/FAIL checks, and states a bounded evaluate/fix/recheck budget (default 3 rounds). An exhausted budget returns an owned finding, not a pass. A missing delegate or an inconclusive check is reported as not covered. The self-check never replaces independent verification: the draft's Verification section still runs under [[verification-before-completion]], and [[skill-eval-loop]] measures behavior.
+
 ### 5. Surface for review (do NOT auto-register)
 
 Present the draft inline. Do NOT write it into `catalog/skills/` or touch the three data registry files (`data/SKILL_INDEX.md`, `data/skills.json`, `data/marketplace.json`) until the maintainer approves. Once approved, registration follows the standard `AGENTS.md` "Register the skill" steps and `make validate` must pass.
@@ -115,6 +119,7 @@ And ideally clear the quality pass (`--quality --verbose`) with zero warnings.
 | "A few extra 'be careful' lines in Instructions make the skill safer" | That fails the no-op test. Delete instructions the model already obeys. Safety that changes behavior is a named guardrail paired with the allowed alternative (never auto-register; surface for review). |
 | "This domain needs a tutorial first" | A tutorial-shaped body leaves the agent without an execution path. Keep the body as the numbered procedure and move the textbook material to `references/`, where it loads only when a runbook step needs it. |
 | "Merged commits are enough; failures are not part of the skill" | Git history is success-biased. Without a revert, follow-up fix, or user-supplied counterexample, Common Rationalizations become invented warnings rather than observed failure modes. Label the evidence and cite at least one failure. |
+| "The draft's self-check rubric passed, so the skill is verified" | A self-check is the author grading its own output; it is not independent evidence. Keep the Verification section and [[verification-before-completion]]. When the round budget runs out with a FAIL, return an owned finding instead of looping or claiming a pass. |
 | "The mixed examples are obvious, so labels would be ceremony" | Unlabeled mixed traces have been measured to collapse later success. List the unlabeled items and refuse to draft until the user labels or drops them; never infer outcomes to keep moving. |
 
 ## Verification
@@ -130,6 +135,7 @@ And ideally clear the quality pass (`--quality --verbose`) with zero warnings.
 - [ ] When placed, the draft passes `python scripts/validate_skills.py --path <skill-dir>`.
 - [ ] No outbound network call was made; all analysis used local git only.
 - [ ] The draft applies all six agent-writing concepts (context pointers, two loads, leading words, negation avoidance, sediment pruning, hard/soft setup-dependency) or names the gap; the theory file is linked, not copied.
+- [ ] If the draft ships a self-check rubric, its `references/self-check.md` is linked from the draft body, links the `anti-slop-editing` checks rather than copying them, states a round budget, and reports exhausted, inconclusive, or missing-delegate checks as owned findings or not covered.
 
 ## Related Skills
 
@@ -139,3 +145,6 @@ And ideally clear the quality pass (`--quality --verbose`) with zero warnings.
 - [[devlog-generation]] - the same git-history-mining technique applied to producing a development log instead of a skill.
 - [[create-custom-command]] - when the recurring pattern is better expressed as a slash command than a skill.
 - [[skill-description-authoring]] - owns description rules and `references/agent-writing-theory.md`; this skill applies both at the draft step and does not restate them.
+- [[anti-slop-editing]] - owns the prose-quality self-check that an optional draft rubric links in step 4.1.
+- [[verification-before-completion]] - independent completion evidence; a draft's self-check never substitutes for it.
+- [[skill-eval-loop]] - measures a drafted skill's behavior with paired runs once it exists.

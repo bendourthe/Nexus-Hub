@@ -2,9 +2,12 @@
 """Fail the build on broken relative docs links and directory-name drift.
 
 Repo-internal guard (no installer copy, no .ps1 sibling). Scans Markdown
-under the canonical ``docs/v<MAJOR>/v<MAJOR>.<MINOR>/`` tree (plugin.json
-major.minor, skipping ``docs/archive/``, older minors, and future majors
-such as ``docs/v4/`` while the catalog is still 3.x) for:
+under the active minor's tree, ``docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/``
+(falling back to the legacy ``docs/v<MAJOR>/v<MAJOR>.<MINOR>/``), chosen from
+the plugin.json major.minor. ``docs/archives/``, older minors, and a future
+major that exists on disk only as planning are not scanned: historical trees
+are grandfathered by decision (docs/decisions/implemented/tooling/
+2026-10-10-docs-convention-checker-active-minor-scope.md). It checks for:
 
 - relative links and image paths whose target is missing
 - relative links whose target exists only with a different case (breaks on
@@ -102,9 +105,10 @@ def _newest_minor_under(major_dir: Path, major: int) -> Path | None:
 def find_active_minor(root: Path) -> Path | None:
     """Return the docs tree this guard should scan, or None.
 
-    Prefer the canonical plugin version's ``docs/v<MAJOR>/v<MAJOR>.<MINOR>/``.
-    That is the live minor; a future major on disk (``docs/v4/`` while the
-    catalog is 3.20.x) is planning, not the scan target -- picking it would
+    Prefer the canonical plugin version's ``docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/``,
+    then the legacy ``docs/v<MAJOR>/v<MAJOR>.<MINOR>/``. That is the live minor; a
+    future major on disk (for example ``docs/releases/v5/`` while the catalog is
+    4.x) is planning, not the scan target -- picking it would
     repeat the colocation fail-open. Without plugin.json (tmp fixtures), pick
     the newest version directory on disk. Historical minors stay unscanned:
     they carry grandfathered broken links.

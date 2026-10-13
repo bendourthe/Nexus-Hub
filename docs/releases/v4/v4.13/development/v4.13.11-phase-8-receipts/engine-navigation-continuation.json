@@ -1,0 +1,263 @@
+{
+  "version": "v4.13.11",
+  "purpose": "Final permitted implementation repair: end-card engine test readiness",
+  "candidate": {
+    "base_head": "c398a373a54e5f1a60346f34b35b6af5a9214adf",
+    "changed_file": "tests/guides/test_training_game_engine.py",
+    "changed_file_sha256": "a335c6c28e36386d845255d92a6d7a3bb1092dd252c756a91ca1727956517999",
+    "archive_sha256": "afe96f70487b2e4386ec6db2b2ed3b292f021e959a5d1cfc7f306b1731d14066",
+    "archive_entries": 8144,
+    "method": "git archive base_head with repaired engine test as sole source override"
+  },
+  "ci": {
+    "run_id": 38331894787,
+    "head": "c398a373a54e5f1a60346f34b35b6af5a9214adf",
+    "engine_failure": {
+      "artifact_id": 11783738092,
+      "archive_sha256": "1f6527bf8a301d387c89c8f6813f7349959c866f25fee23d3cc043ed4f4391a4",
+      "archive_bytes": 10635,
+      "entry_sha256": {
+        "junit/guide-browser-engine.xml": "336e14cd977105ffe044eb9d0322fdfdac54f889e476a1a3061d7793ba920f7f",
+        "junit/guide-render-engine.xml": "7b21acb05ef70fa6b78d84387eb05165514e27a79e0f8574c1bda16c5c2560e4",
+        "metadata/environment.json": "671679d77d2d04bcbbfa3e062de297263646e21124c5d63a0dd687299691bfa4",
+        "summary.json": "88fa86ae92d355e3add385468497ce6a7784a37a6feb4c5c7a0023b45a027b51",
+        "summary.md": "e5ac3f395cdc8d4ed477638d64d55936efc5254f75f3ec050fcc4b12e2c73007"
+      },
+      "native_summary": {
+        "duration_s": 1527.5889384769998,
+        "finished_at": "2026-10-13T01:49:52Z",
+        "groups": [
+          {
+            "commands": [
+              {
+                "duration_s": 1527.588754409,
+                "exit_code": 1,
+                "group": "guide-browser-engine",
+                "name": "guide browser contracts: game engine",
+                "output": "........................................................................ [ 36%]\n........................................................................ [ 73%]\n..................F................................                      [100%]\n=================================== FAILURES ===================================\n_________ test_the_end_card_sits_in_the_centre_of_the_arena[1440x900] __________\n\nbrowser = <Browser type=<BrowserType name=chromium executable_path=/home/runner/.cache/ms-playwright/chromium-1243/chrome-linux64/chrome> version=153.0.8010.12>\nviewport = (1440, 900)\n\n    @pytest.mark.parametrize(\"viewport\", [(1440, 900), (1280, 720), (390, 844)], ids=lambda v: f\"{v[0]}x{v[1]}\")\n    def test_the_end_card_sits_in_the_centre_of_the_arena(browser, viewport: tuple[int, int]) -> None:\n        \"\"\"R18 maintainer review: the game-over message sat near the top of the arena.\"\"\"\n        pg = browser.new_page(viewport={\"width\": viewport[0], \"height\": viewport[1]})\n        try:\n>           pg.goto(TRAINING.as_uri() + \"#play-buggy\")\n\ntests/guides/test_training_game_engine.py:1334: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/playwright/sync_api/_generated.py:9903: in goto\n    self._sync(\n/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/playwright/_impl/_page.py:562: in goto\n    return await self._main_frame.goto(**locals_to_params(locals()))\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/playwright/_impl/_frame.py:157: in goto\n    await self._channel.send(\n/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/playwright/_impl/_connection.py:76: in send\n    return await self._connection.wrap_api_call(\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = <playwright._impl._connection.Connection object at 0x7f964e3bad10>\ncb = <function Channel.send.<locals>.<lambda> at 0x7f964e4dff60>\nis_internal = False, title = None\n\n    async def wrap_api_call(\n        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None\n    ) -> Any:\n        if self._api_zone.get():\n            return await cb()\n        task = asyncio.current_task(self._loop)\n        parsed_st = _attach_api_call_information(\n            getattr(task, \"__pw_stack__\", None) or _capture_stack_trace(),\n            is_internal,\n            title,\n        )\n        self._api_zone.set(parsed_st)\n        try:\n            return await cb()\n        except Exception as error:\n>           raise rewrite_error(error, f\"{parsed_st['apiName']}: {error}\") from None\nE           playwright._impl._errors.TimeoutError: Page.goto: Timeout 30000ms exceeded.\nE           Call log:\nE             - navigating to \"file:///home/runner/work/Nexus-Hub/Nexus-Hub/guides/website/training.html#play-buggy\", waiting until \"load\"\n\n/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/playwright/_impl/_connection.py:632: TimeoutError\n=========================== short test summary info ============================\nFAILED tests/guides/test_training_game_engine.py::test_the_end_card_sits_in_the_centre_of_the_arena[1440x900] - playwright._impl._errors.TimeoutError: Page.goto: Timeout 30000ms exceeded.\nCall log:\n  - navigating to \"file:///home/runner/work/Nexus-Hub/Nexus-Hub/guides/website/training.html#play-buggy\", waiting until \"load\"\n1 failed, 194 passed in 1527.19s (0:25:27)\n",
+                "reason": "exit 1",
+                "status": "fail"
+              }
+            ],
+            "name": "guide-browser-engine",
+            "skipped_reason": "",
+            "status": "fail"
+          }
+        ],
+        "platform": "linux",
+        "profile": "full",
+        "scope_conservative": true,
+        "scope_reason": "no --base supplied; running every group",
+        "started_at": "2026-10-13T01:24:25Z"
+      }
+    },
+    "windows_pass": {
+      "artifact_id": 11784826489,
+      "archive_sha256": "e1f193f99c6f3bb0913f0dd24215163603722ab5987871b251086ca69b395431",
+      "archive_bytes": 8177,
+      "entry_sha256": {
+        "junit/interpreters.xml": "c40e12a8f8938df9d7630448a10eb8c7717f0f9aeab4cd9003ea2dde79e955a3",
+        "junit/windows-native.xml": "bd53cb790642c2ab856e8e05ce81e07fe53d386c6c2620e0d668a4d379f39391",
+        "junit/windows-hooks.xml": "8bd355b43873c6db89cdc64da65fb57c6ed04f545ab99f514d5d0e88d52f3bc4",
+        "metadata/environment.json": "16a92594d37a22382de3ba4fd5bbcc1346ec7b02b00438cc8bdc55ade894311d",
+        "summary.json": "80cec588864f6ac2fec15c9511782cd585e7fabd3285eedde4236f6107fc7d3e",
+        "summary.md": "1def5712fdeb9dee328e2f2b6bbdf3de33421babbac0945c16a90764d73ec281"
+      },
+      "native_summary": {
+        "duration_s": 3017.281,
+        "finished_at": "2026-10-13T02:14:23Z",
+        "groups": [
+          {
+            "commands": [
+              {
+                "duration_s": 1.9220000000000255,
+                "exit_code": 0,
+                "group": "interpreters",
+                "name": "check_python_floor",
+                "output": "Python 3.11 grammar: 948 tracked files passed\r\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 0.46900000000005093,
+                "exit_code": 0,
+                "group": "interpreters",
+                "name": "check_interpreter_resolution",
+                "output": "[interpreters] OK   powershell -> C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.EXE\r\n[interpreters] every hook interpreter can execute a script.\r\n",
+                "reason": "",
+                "status": "pass"
+              }
+            ],
+            "name": "interpreters",
+            "skipped_reason": "",
+            "status": "pass"
+          },
+          {
+            "commands": [
+              {
+                "duration_s": 1042.656,
+                "exit_code": 0,
+                "group": "windows-hooks",
+                "name": "hook-tests (Windows PowerShell 5.1)",
+                "output": "........................................................................ [  2%]\r\n........................................................................ [  5%]\r\n........................................................................ [  8%]\r\n........................................................................ [ 11%]\r\n........................................................................ [ 14%]\r\n........................................................................ [ 17%]\r\n........................................................................ [ 20%]\r\n........................................................................ [ 23%]\r\n........................................................................ [ 26%]\r\n........................................................................ [ 29%]\r\n....sssssssss........................................................... [ 32%]\r\n........................................................................ [ 35%]\r\n........................................................................ [ 38%]\r\n........................................................................ [ 41%]\r\n........................................................................ [ 44%]\r\n........................................................................ [ 47%]\r\n........................................................................ [ 50%]\r\n........................................................................ [ 53%]\r\n........................................................................ [ 56%]\r\n........................................................................ [ 59%]\r\n........................................................................ [ 62%]\r\n....................ss.................................................. [ 65%]\r\n...................................................ssss................. [ 68%]\r\n........................................................................ [ 71%]\r\n........................................................................ [ 74%]\r\n........................................................................ [ 77%]\r\n........................................................................ [ 80%]\r\n........................................................................ [ 83%]\r\n........................................................................ [ 86%]\r\n........................................................................ [ 89%]\r\n........................................................................ [ 92%]\r\n........................................................................ [ 95%]\r\n........................................................................ [ 98%]\r\n...............................                                          [100%]\r\n2392 passed, 15 skipped in 1042.08s (0:17:22)\r\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 1730.578,
+                "exit_code": 0,
+                "group": "windows-hooks",
+                "name": "installer + validators (Windows)",
+                "output": "...ssss...sss......s.s.s.s.s.s.s........................................ [  2%]\r\n........................................................................ [  4%]\r\n........................................................................ [  6%]\r\n..........................................ssssss........sssssssssss..... [  8%]\r\n........................................................................ [ 10%]\r\n........................................................................ [ 13%]\r\n........................................................................ [ 15%]\r\n........................................................................ [ 17%]\r\n...........s............................................................ [ 19%]\r\n........................................................................ [ 21%]\r\n........................................................................ [ 23%]\r\n........................................................................ [ 26%]\r\n........................................................................ [ 28%]\r\n........................................................................ [ 30%]\r\n........................................................................ [ 32%]\r\n........................................................................ [ 34%]\r\n........................................................................ [ 36%]\r\n........................................................................ [ 39%]\r\n........................................................................ [ 41%]\r\n........................................................................ [ 43%]\r\n........................................................................ [ 45%]\r\n........................................................................ [ 47%]\r\n........................................................................ [ 50%]\r\n........................................................................ [ 52%]\r\n........................................................................ [ 54%]\r\n........................................................................ [ 56%]\r\n........................................................................ [ 58%]\r\n........................................................................ [ 60%]\r\n........................................................................ [ 63%]\r\n..........................ssssss..ss...s................................ [ 65%]\r\n........................................................................ [ 67%]\r\n........................................................................ [ 69%]\r\n........................................................................ [ 71%]\r\n........................................................................ [ 73%]\r\n........................................................................ [ 76%]\r\n........................................................................ [ 78%]\r\n........................................................................ [ 80%]\r\n........................................................................ [ 82%]\r\n........................................................................ [ 84%]\r\n........................................................................ [ 86%]\r\n........................................................................ [ 89%]\r\n........................................................................ [ 91%]\r\n.......................................................s................ [ 93%]\r\n........................................................................ [ 95%]\r\n........................................................................ [ 97%]\r\n..........................................s............................. [100%]\r\n3269 passed, 44 skipped in 1730.02s (0:28:50)\r\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 179.75,
+                "exit_code": 0,
+                "group": "windows-hooks",
+                "name": "security-audit evidence (Windows)",
+                "output": ".............................................s.........................s [ 15%]\r\n................s.....................s................................. [ 30%]\r\n........................................................................ [ 45%]\r\n........................................................................ [ 60%]\r\n........................................................................ [ 75%]\r\n........................................................................ [ 90%]\r\n............................................                             [100%]\r\n472 passed, 4 skipped in 179.34s (0:02:59)\r\n",
+                "reason": "",
+                "status": "pass"
+              },
+              {
+                "duration_s": 61.90599999999995,
+                "exit_code": 0,
+                "group": "windows-hooks",
+                "name": "native integrations (Windows)",
+                "output": "........................................................................ [ 26%]\r\n........................................................................ [ 53%]\r\n........................................................................ [ 79%]\r\n.......................................................                  [100%]\r\n271 passed in 61.44s (0:01:01)\r\n",
+                "reason": "",
+                "status": "pass"
+              }
+            ],
+            "name": "windows-hooks",
+            "skipped_reason": "",
+            "status": "pass"
+          }
+        ],
+        "platform": "windows",
+        "profile": "platform",
+        "scope_conservative": true,
+        "scope_reason": "no --base supplied; running every group",
+        "started_at": "2026-10-13T01:24:06Z"
+      }
+    }
+  },
+  "controlled_diagnostic": {
+    "plugin_sha256": "3ed929c67503a3700607b9eb0578f9c3f3e23bdc0101e57ad2a5a53850fe9690",
+    "method": "Identical plugin holds one synthetic image route after DOMContentLoaded; no external request is sent.",
+    "observed_terminal_tool_outputs": [
+      {
+        "terminal_id": "d93bb2",
+        "candidate": "unchanged, uninstrumented",
+        "exit_code": 0,
+        "summary": "1 passed in 11.57s"
+      },
+      {
+        "terminal_id": "d15648",
+        "candidate": "unchanged, held-load plugin",
+        "exit_code": 1,
+        "summary": "1 failed in 31.56s",
+        "readiness_stdout": "CONTROLLED_READINESS={\"readyState\":\"interactive\",\"engineReady\":true}"
+      },
+      {
+        "terminal_id": "7ed35f",
+        "candidate": "repaired, identical held-load plugin",
+        "exit_code": 0,
+        "summary": "1 passed in 4.01s"
+      },
+      {
+        "terminal_id": "80c96b",
+        "candidate": "repaired, all three uninstrumented viewports",
+        "exit_code": 0,
+        "summary": "3 passed in 8.92s"
+      }
+    ],
+    "limits": [
+      "These are observed terminal tool outputs, not file captures.",
+      "Controlled failure proves load-event coupling; actual intermittent GitHub resource/cause remains unproven.",
+      "Held route emitted teardown cancellation noise in RED.",
+      "Local Windows Chromium 151 differs from CI Chromium 153."
+    ]
+  },
+  "complete_local_engine": {
+    "native_summary": {
+      "duration_s": 577.612904867,
+      "finished_at": "2026-10-13T02:19:44Z",
+      "groups": [
+        {
+          "commands": [
+            {
+              "duration_s": 577.6127916659998,
+              "exit_code": 0,
+              "group": "guide-browser-engine",
+              "name": "guide browser contracts: game engine",
+              "output": "........................................................................ [ 36%]\n........................................................................ [ 73%]\n...................................................                      [100%]\n195 passed in 576.95s (0:09:36)\n",
+              "reason": "",
+              "status": "pass"
+            }
+          ],
+          "name": "guide-browser-engine",
+          "skipped_reason": "",
+          "status": "pass"
+        }
+      ],
+      "platform": "linux",
+      "profile": "full",
+      "scope_conservative": true,
+      "scope_reason": "no --base supplied; running every group",
+      "started_at": "2026-10-13T02:10:04Z"
+    },
+    "junit_counts": {
+      "tests": 195,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "native_file_sha256": {
+      "junit/guide-browser-engine.xml": "43c7150d8e1f4c8812f13d8bcc60a8565194e099f7d881a5b7188ba25cdd0456",
+      "junit/guide-render-engine.xml": "675a1727df292a3822851ea7c19127879db04f14513312be732e964bb29b550c",
+      "metadata/environment.json": "085364f960d298b5ee3d133c8126fc4d5bee6514e2f895a1987407438f62e555",
+      "summary.json": "651fd07645edd7b0a8eb84e131e84ef81c2f583f6554a5f3db50dc0cb4fb17c8",
+      "summary.md": "0f4c06252c27c484a855d24280ebcdb112b4a35340f37643279d1e1efee2b826"
+    },
+    "browser_version": "153.0.8010.12",
+    "python_version": "3.11.13",
+    "resources": {
+      "cpu_limit": 16,
+      "memory_bytes": 8589934592,
+      "uid": 1000
+    },
+    "unchanged_timeout_seconds": 2700,
+    "terminal_id": "433193",
+    "source_sha256_unchanged_before_after": {
+      "tests/guides/test_training_game_engine.py": "a335c6c28e36386d845255d92a6d7a3bb1092dd252c756a91ca1727956517999",
+      "guides/website/training.html": "0ebd55e74281a26d3be9ef826e3b2eb6b2ef51ee4673bdbf397a8f0ec162473f",
+      "scripts/ci/profiles.py": "5d26d00431a61b232ca4089c3667834e9e1af6d061f09eaaf95d107067714ba8"
+    },
+    "limits": [
+      "Complete engine group only; no repeated whole Tier 3 cycle or new full-profile pass.",
+      "Browser matches CI; local Python 3.11.13 differs from CI 3.11.17.",
+      "No quiet-CI cap calibration."
+    ]
+  },
+  "independent_review": {
+    "reviewer_task": "engine_navigation_review",
+    "verdict": "APPROVE",
+    "findings": 0,
+    "scope": "Only the two-line readiness change; all assertions, three viewports and cleanup retained."
+  },
+  "fast_gate": {
+    "native_summary_sha256": "4918cc5f0793fb98ccb6c8f13f671148e199c5998e4f1eff9e92bc972f9103af",
+    "observed_terminal_id": "8ca54b",
+    "observed_summary": "PASS: 17 passed, 0 failed, 0 skipped, 0 advisory in 176.2s",
+    "exit_code": 0,
+    "disclosure": "Private native report retained unchanged; public view omits interpreter paths and command output."
+  },
+  "boundaries": [
+    "No product, installer, profile, cap, skip or assertion change.",
+    "All earlier failed runs remain failed.",
+    "Required remote checks, merge, release and minor close remain outstanding."
+  ]
+}

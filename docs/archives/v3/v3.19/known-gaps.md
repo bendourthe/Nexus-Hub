@@ -1,10 +1,11 @@
 # Known Gaps - v3.19
 
+**Ledger normalization**: 2026-10-09, v4.13.11. The canonical open count is derived from supported item headings. Summary and reconciliation count tables below retain historical release snapshots, including partial closures and explicit transfers; they are not new parser totals.
+
 **Project**: Nexus-Hub
 **Status**: finalized; archived 2026-09-29; 0 open items (3 migrated to v4.13 as AR-24, AR-42, AR-43). Per-section status lines below are historical and were written before release.
 
 **Open items**: 0
-
 **Status at last pre-archive update**: finalized
 **Last updated**: 2026-08-24
 
@@ -31,26 +32,32 @@ None.
 
 #### Deferred
 
-##### DF-2 - Docs convention checker covers only the active minor - MIGRATED to v4.13 (AR-42)
+##### DF-2 - Docs convention checker covers only the active minor - MIGRATED to v4.13 (AR-42) - MIGRATED to v4.13.0
 
 - **Source phase**: Phase 2 (triggering confidence and eval discipline, task 2.3)
 - **Plan reference**: `docs/v3/v3.19/plans/v3.19.2-rtk-and-meterless.md` (Phase 2 / link-integrity checker)
 - **Why deferred**: A first pass over the whole `docs/` tree reported 141 missing relative targets, almost all in historical minors and policy matrices. Gating them in this patch would bury the new checker under archaeology. The guard therefore scans `docs/v3/v3.19/` in a repo checkout (tests still scan a tmp `docs/` tree that has no `v3.19`).
 - **Suggested next step**: either repair historical links in a dedicated docs PR, or keep the active-minor scope and record older trees as grandfathered.
 
-##### DF-3 - Semantic reformatters cover a named short list, not ~60 command handlers - MIGRATED to v4.13 (AR-24)
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-42`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.19.2`, section `v3.19.2`, and original ID `DF-2`.
+
+##### DF-3 - Semantic reformatters cover a named short list, not ~60 command handlers - MIGRATED to v4.13 (AR-24) - MIGRATED to v4.13.0
 
 - **Source phase**: Phase 4 (compressor and hook depth, task 4.3)
 - **Plan reference**: `docs/v3/v3.19/plans/v3.19.2-rtk-and-meterless.md` (Phase 4 / semantic reformatters)
 - **Why deferred**: A dedicated command-output compressor in this class ships on the order of 60 handlers. Matching that set in one patch would dominate the release and still miss the long tail. This release ships git status, pytest/vitest/jest failures-only, and ruff/eslint/tsc grouped-by-file, each with a 60% token-reduction fixture, and documents the rest as a coverage gap.
 - **Suggested next step**: add handlers only for commands whose fixtures miss the 60% bar in real sessions; do not chase handler-count parity.
 
-##### DF-4 - Signed execution contracts stay a design study - MIGRATED to v4.13 (AR-43)
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-24`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.19.2`, section `v3.19.2`, and original ID `DF-3`.
+
+##### DF-4 - Signed execution contracts stay a design study - MIGRATED to v4.13 (AR-43) - MIGRATED to v4.13.0
 
 - **Source phase**: Phase 5 (compressor polish and session mining, task 5.4)
 - **Plan reference**: `docs/v3/v3.19/plans/v3.19.2-rtk-and-meterless.md` (Phase 5 / signed-execution-contract study)
 - **Why deferred**: A local single-user agent already has a 0/1/2/3 rewrite decision subordinated to host deny. Cryptographic signatures would add key material without blocking anything host settings cannot already refuse. Study: `docs/v3/v3.19/design/signed-execution-contract-study.md` (**# DEVIATION**: plan cited `docs/v3/v3.18/design/`). Recommendation: defer crypto; optionally adopt capability-id + TTL as an unsigned convention later.
 - **Suggested next step**: revisit only if Nexus-Hub grows a multi-executor or remote-runner surface.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-43`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.19.2`, section `v3.19.2`, and original ID `DF-4`.
 
 #### Bugs / Regressions
 
@@ -213,6 +220,6 @@ Before this minor moved to `docs/archives/`, every item that this file did not a
 
 | Item | Disposition | Evidence, reason, or destination |
 |---|---|---|
-| DF-2 (line 30) | Migrated | AR-42: `scripts/check_docs_conventions.py` still scans only the active minor; needs a recorded grandfathering decision |
-| DF-3 (line 37) | Migrated | AR-24: reformatter handlers are still the original short list; add only when a real fixture misses the reduction bar |
-| DF-4 (line 44) | Migrated | AR-43: signed execution contracts remain a design study with no decision record |
+| `DF-2` (line 30) | Migrated | AR-42: `scripts/check_docs_conventions.py` still scans only the active minor; needs a recorded grandfathering decision |
+| `DF-3` (line 37) | Migrated | AR-24: reformatter handlers are still the original short list; add only when a real fixture misses the reduction bar |
+| `DF-4` (line 44) | Migrated | AR-43: signed execution contracts remain a design study with no decision record |

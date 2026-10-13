@@ -684,6 +684,141 @@ def test_the_accessible_hud_reads_hull_and_difficulty(page) -> None:
     assert any(t.startswith("Level 2 (Medium)") for t in items), items
 
 
+@pytest.fixture
+def hud_control_page(browser):
+    pg = browser.new_page(viewport={"width": 1280, "height": 900})
+    try:
+        pg.goto(TRAINING.as_uri() + "#play-fixed")
+        pg.wait_for_function("window.SkySentinel && SkySentinel.get('fixed')")
+        pg.evaluate("SkySentinel.manual(true)")
+        yield pg
+    finally:
+        pg.close()
+
+
+def test_quiet_paused_steps_advance_without_rewriting_the_hud_or_ship_cards(hud_control_page, request) -> None:
+    page = hud_control_page
+    out = page.evaluate("""() => {
+        const g = SkySentinel.get('fixed'), host = document.querySelector('.ss-host[data-ss-id=fixed]');
+        g.configure({ defects: {}, seed: 7, threats: false, level: 1, progression: false, boss: false });
+        g.chooseShip('vanguard'); g.start(); g.pause('hud-control'); g.step(5);
+        const hud = host.querySelector('.ss-hud'), cards = host.querySelector('.ss-hangar');
+        const before = g.state(), text = hud.textContent;
+        const observer = new MutationObserver(() => {});
+        observer.observe(host, { subtree: true, childList: true, attributes: true, characterData: true });
+        for (let i = 0; i < 120; i++) g.step(1);
+        const records = observer.takeRecords(); observer.disconnect();
+        const after = g.state();
+        return { ticks: after.tick - before.tick, state: after.state,
+            health: [before.health, after.health], text: [text, hud.textContent],
+            hudMutations: records.filter(r => hud.contains(r.target)).length,
+            cardMutations: records.filter(r => cards.contains(r.target)).length };
+    }""")
+    request.node.user_properties.append(("hud_step_control", repr(out)))
+    assert out["ticks"] == 120 and out["state"] == "paused"
+    assert out["health"][0] == out["health"][1] and out["text"][0] == out["text"][1]
+    assert out["hudMutations"] == 0 and out["cardMutations"] == 0, out
+
+
+def test_changed_hull_ship_upgrade_and_pause_state_update_the_dom_immediately(hud_control_page) -> None:
+    page = hud_control_page
+    out = page.evaluate("""() => {
+        const g = SkySentinel.get('fixed'), host = document.querySelector('.ss-host[data-ss-id=fixed]');
+        const hud = () => [...host.querySelectorAll('.ss-hud-item')].map(e => e.textContent);
+        g.configure({ defects: {}, seed: 7, threats: false, level: 1, progression: false, boss: false, immune: false });
+        g.chooseShip('vanguard'); g.start(); g.pause('hud-control'); g.step(5);
+        g.forceHit('shot');
+        const hit = { state: g.state(), text: hud() };
+        g.dropPowerUp('rapid'); g.step(2); g.resume();
+        const rapid = { state: g.state(), text: hud() };
+        g.pause('hud-control');
+        const paused = { state: g.state(), text: hud() };
+        g.configure({ defects: {}, seed: 7, threats: false, level: 1, progression: false, boss: false });
+        g.chooseShip('warden');
+        const ship = { state: g.state(), text: hud(),
+            selected: host.querySelector('[data-ship=warden]').getAttribute('aria-checked'),
+            tab: host.querySelector('[data-ship=warden]').tabIndex,
+            note: host.querySelector('.ss-ship-note').textContent };
+        host.querySelector('.ss-hud-item:nth-child(2)').textContent = 'external change';
+        g.step(1);
+        const repaired = hud(); g.chooseShip('vanguard');
+        return { hit, rapid, paused, ship, repaired };
+    }""")
+    hit, rapid, paused, ship = (out[key] for key in ("hit", "rapid", "paused", "ship"))
+    assert hit["state"]["health"] < hit["state"]["healthMax"]
+    assert f'Hull {hit["state"]["health"]} of {hit["state"]["healthMax"]}' in hit["text"]
+    assert rapid["state"]["player"]["rapid"] > 0 and rapid["state"]["state"] == "running"
+    assert any("rapid" in text.lower() and text.startswith("Playing") for text in rapid["text"])
+    assert paused["state"]["state"] == "paused" and "Paused" in paused["text"]
+    assert ship["state"]["ship"] == "warden" and ship["selected"] == "true" and ship["tab"] == 0
+    assert ship["note"].startswith("Warden, ")
+    hull = f'Hull {ship["state"]["health"]} of {ship["state"]["healthMax"]}'
+    assert hull in ship["text"] and hull in out["repaired"]
+
+
+@pytest.mark.parametrize("panel_style", [{"width": "1800px"}, {"height": "1300px"}], ids=["wide", "tall"])
+def test_a_scaled_paused_panel_has_the_same_intrinsic_dimensions_with_styles_retained_or_cleared(browser, panel_style, request) -> None:
+    pg = browser.new_page(viewport={"width": 1280, "height": 900})
+    try:
+        pg.goto(TRAINING.as_uri() + "#play-fixed")
+        pg.wait_for_function("window.SkySentinel && SkySentinel.get('fixed')")
+        out = pg.evaluate("""(style) => {
+            SkySentinel.manual(true);
+            const g = SkySentinel.get('fixed'), host = document.querySelector('.ss-host[data-ss-id=fixed]');
+            g.configure({ defects: {}, seed: 7, threats: false, level: 1, progression: false, boss: false });
+            g.start(); g.pause('panel-control');
+            const panel = host.querySelector('.ss-panel'), overlay = host.querySelector('.ss-overlay');
+            Object.assign(panel.style, { maxWidth: 'none', flexShrink: '0' }, style);
+            g.step(1);
+            const before = [panel.style.transform, panel.style.marginTop];
+            const intrinsic = () => [overlay.clientWidth, overlay.clientHeight, panel.offsetWidth, panel.offsetHeight];
+            const retained = intrinsic();
+            panel.style.transform = ''; panel.style.marginTop = '';
+            const cleared = intrinsic();
+            panel.style.transform = before[0]; panel.style.marginTop = before[1];
+            g.step(1);
+            const rect = panel.getBoundingClientRect(), box = overlay.getBoundingClientRect();
+            return { before, after: [panel.style.transform, panel.style.marginTop], retained, cleared,
+                state: g.state().state, shown: panel.getClientRects().length > 0,
+                fits: rect.width <= box.width + 1 && rect.height <= box.height + 1 };
+        }""", panel_style)
+        request.node.user_properties.append(("intrinsic_dimensions", repr(out)))
+        assert out["shown"] and out["state"] == "paused" and out["before"][0].startswith("scale("), out
+        assert out["retained"] == out["cleared"], out
+        assert out["after"] == out["before"] and out["fits"], out
+    finally:
+        pg.close()
+
+
+def test_the_panel_and_canvas_refit_after_a_width_change_while_the_game_stays_paused(browser) -> None:
+    pg = browser.new_page(viewport={"width": 1440, "height": 900})
+    try:
+        pg.goto(TRAINING.as_uri() + "#play-fixed")
+        pg.wait_for_function("window.SkySentinel && SkySentinel.get('fixed')")
+        before = pg.evaluate("""() => {
+            SkySentinel.manual(true);
+            const g = SkySentinel.get('fixed');
+            g.configure({ defects: {}, seed: 7, threats: false, level: 1, progression: false, boss: false });
+            g.start(); g.pause('resize-control'); g.step(5);
+            return g.state();
+        }""")
+        pg.set_viewport_size({"width": 390, "height": 844})
+        pg.wait_for_function("(width) => SkySentinel.get('fixed').state().canvas.cssWidth < width", arg=before["canvas"]["cssWidth"])
+        after = pg.evaluate("""() => {
+            const g = SkySentinel.get('fixed'), host = document.querySelector('.ss-host[data-ss-id=fixed]');
+            const state = g.step(1), panel = host.querySelector('.ss-panel').getBoundingClientRect();
+            const overlay = host.querySelector('.ss-overlay').getBoundingClientRect();
+            return { state, shown: host.querySelector('.ss-panel').getClientRects().length > 0,
+                fits: panel.width <= overlay.width + 1 && panel.height <= overlay.height + 1 };
+        }""")
+        assert before["state"] == after["state"]["state"] == "paused"
+        assert after["state"]["tick"] == before["tick"] + 1
+        assert after["state"]["canvas"]["cssWidth"] < before["canvas"]["cssWidth"]
+        assert after["shown"] and after["fits"], after
+    finally:
+        pg.close()
+
+
 @pytest.mark.parametrize("viewport", [(1440, 900), (1280, 720), (1920, 1080), (1024, 1366)])
 def test_the_world_fills_the_frame_with_no_side_bands(browser, viewport: tuple[int, int]) -> None:
     pg = browser.new_page(viewport={"width": viewport[0], "height": viewport[1]})
@@ -1196,7 +1331,8 @@ def test_the_end_card_sits_in_the_centre_of_the_arena(browser, viewport: tuple[i
     """R18 maintainer review: the game-over message sat near the top of the arena."""
     pg = browser.new_page(viewport={"width": viewport[0], "height": viewport[1]})
     try:
-        pg.goto(TRAINING.as_uri() + "#play-buggy")
+        # The explicit engine-ready wait is this geometry test's readiness contract.
+        pg.goto(TRAINING.as_uri() + "#play-buggy", wait_until="domcontentloaded")
         pg.wait_for_function("window.SkySentinel && SkySentinel.get('fixed')")
         pg.evaluate("SkySentinel.manual(true)")
         cards = {}

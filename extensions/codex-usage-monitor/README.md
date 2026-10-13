@@ -87,7 +87,7 @@ Open Settings (`Ctrl+,`) and search "Codex Usage":
 | `codexUsage.thresholds.*` | `50` / `75` / `95` | Moderate / High / Critical urgency thresholds |
 | `codexUsage.thresholdMetric` | `highest` | Which metric the thresholds evaluate against |
 
-The thresholds and colors are application-scoped: they are read from your user settings only, so a workspace's `.vscode/settings.json` cannot change them. `refreshInterval` is clamped to 1-120 minutes.
+The thresholds and colors are application-scoped: they are read from your user settings only, so a workspace's `.vscode/settings.json` cannot change them. `codexUsage.authPath` is machine-scoped: it is read from your user settings (or remote settings on a remote host) and a workspace value is ignored, because the path decides which local credential the monitor reads and sends to the usage endpoint. `refreshInterval` is clamped to 1-120 minutes.
 
 ## How It Works
 

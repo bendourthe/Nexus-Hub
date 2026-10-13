@@ -1,0 +1,53 @@
+{
+  "file": "docs/handbooks/distribution.html",
+  "sha256": "d520007558410ed00944291b109b6e46302d5e46ced3224f54af4c640b20eac1",
+  "reading": {
+    "title": "How installation preserves ownership",
+    "pages": 1,
+    "visible_pages": 1,
+    "headings": [
+      "How installation preserves ownership",
+      "From installer to adapter",
+      "Three delivery shapes",
+      "Names remain unambiguous",
+      "Generated and user-owned files differ",
+      "Inspect outcomes, then test behavior"
+    ],
+    "scroll_width": 1280,
+    "viewport": 1280
+  },
+  "open_label": "Presentation Mode",
+  "presentation_open": {
+    "decks": 1,
+    "shown": 1,
+    "count": [
+      "1 / 5"
+    ],
+    "rect": {
+      "w": 1280,
+      "h": 860
+    }
+  },
+  "presentation_next": {
+    "decks": 1,
+    "shown": 1,
+    "count": [
+      "2 / 5"
+    ],
+    "rect": {
+      "w": 1280,
+      "h": 860
+    }
+  },
+  "after_escape": {
+    "decks": 1,
+    "shown": 0,
+    "count": [
+      "2 / 5"
+    ],
+    "rect": null
+  },
+  "page_errors": [],
+  "network_requests": [],
+  "browser": "Chromium 151.0.7922.34"
+}

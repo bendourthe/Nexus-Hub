@@ -1,0 +1,52 @@
+{
+  "source_hashes": {
+    "sh": "db4811c2cf34a7c4f81e34e90313beb677e60b149a35166690b03481d4bbf63a",
+    "ps1": "389f0ab6cb8dc5ae0cbc2fecf53ed28cfd5aab1e1eaeea181298554d60bf4e3a"
+  },
+  "source_hashes_at_end": {
+    "sh": "db4811c2cf34a7c4f81e34e90313beb677e60b149a35166690b03481d4bbf63a",
+    "ps1": "389f0ab6cb8dc5ae0cbc2fecf53ed28cfd5aab1e1eaeea181298554d60bf4e3a"
+  },
+  "results": [
+    {
+      "decoder": "jq",
+      "exit": 0,
+      "cap": 8192,
+      "before_bytes": 30099,
+      "after_bytes": 30315,
+      "rows": 4,
+      "inherited_oversized_retained": true,
+      "fresh_identity_exact": true,
+      "ledger": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-review-provenance-bytes-red-48h9lqxx\\jq\\iso\\home\\.nexus-hub\\cache\\provenance\\hsb-4f85346e3ca541a49457d18d0ffd35f4.tsv",
+      "ledger_sha256": "2a8bccfccd1b22fae1a8fc46af5bdc9a799ad952c8e09da854f13141d5d409c9",
+      "seconds": 1.078
+    },
+    {
+      "decoder": "python",
+      "exit": 0,
+      "cap": 8192,
+      "before_bytes": 30099,
+      "after_bytes": 30319,
+      "rows": 4,
+      "inherited_oversized_retained": true,
+      "fresh_identity_exact": true,
+      "ledger": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-review-provenance-bytes-red-48h9lqxx\\python\\iso\\home\\.nexus-hub\\cache\\provenance\\hsb-d22cba569baa420397c3933f28072f35.tsv",
+      "ledger_sha256": "907f867ce49fc29694ef330137a37ce004c084c9e0c8a680f847bb099ff4e615",
+      "seconds": 1.469
+    },
+    {
+      "decoder": "ps1",
+      "exit": 0,
+      "cap": 8192,
+      "before_bytes": 30099,
+      "after_bytes": 30316,
+      "rows": 4,
+      "inherited_oversized_retained": true,
+      "fresh_identity_exact": true,
+      "ledger": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-review-provenance-bytes-red-48h9lqxx\\ps1\\iso\\home\\.nexus-hub\\cache\\provenance\\hsb-bcb4ee2d0b7c4929bb13c299cee8074e.tsv",
+      "ledger_sha256": "f0a5f3641b8a29f5879a583ec140f3bb69e7a5cc24729811594f2ebcf9a626f2",
+      "seconds": 0.719
+    }
+  ],
+  "repository_edits": false
+}

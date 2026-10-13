@@ -18,6 +18,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 _SCRIPTS = (
     Path(__file__).resolve().parents[2]
     / "catalog"
@@ -48,28 +50,64 @@ def test_scripts_exist() -> None:
     assert _COMPARE.is_file(), f"missing {_COMPARE}"
 
 
+# v4.13.11 T024 (closes v4.13.9 WN-25): ask for far more entries than the target can produce,
+# so the fixture's functions are present whatever their timing rank under host load.
+_COMPLETE = 100_000
+_STEP_CALLS = 500
+_TARGET_SOURCE = (
+    "def step(i):\n"
+    "    return i * 2\n"
+    "\n"
+    "\n"
+    "def work():\n"
+    "    total = 0\n"
+    f"    for i in range({_STEP_CALLS}):\n"
+    "        total += step(i)\n"
+    "    return total\n"
+    "\n"
+    "\n"
+    "work()\n"
+)
+
+
+def _assert_profiled_fixture(functions: list[dict], target: Path, top: int) -> None:
+    """The profile is complete and records the fixture's own functions with their real call counts."""
+    assert len(functions) < top, f"{len(functions)} entries at --top {top}: the list may be truncated"
+    for fn in functions:
+        assert {"name", "ncalls", "tottime", "cumtime"} <= set(fn)
+    by_name = {fn["name"]: fn for fn in functions}
+    work = by_name.get(f"{target}:5(work)")
+    step = by_name.get(f"{target}:1(step)")
+    assert work is not None, f"work() is not in the profile: {sorted(by_name)[:20]}"
+    assert step is not None, f"step() is not in the profile: {sorted(by_name)[:20]}"
+    assert work["ncalls"] == 1
+    assert step["ncalls"] == _STEP_CALLS
+    # work() calls step(), so its cumulative time includes all of step's.
+    assert work["cumtime"] >= step["cumtime"]
+
+
 def test_profile_run_emits_profile(tmp_path: Path) -> None:
     target = tmp_path / "target.py"
-    target.write_text(
-        "def work():\n"
-        "    total = 0\n"
-        "    for i in range(100000):\n"
-        "        total += i\n"
-        "    return total\n"
-        "\n"
-        "work()\n",
-        encoding="utf-8",
-    )
+    target.write_text(_TARGET_SOURCE, encoding="utf-8")
     out = tmp_path / "profile.json"
-    result = _run(_RUN, str(target), "--out", str(out), "--top", "10")
+    result = _run(_RUN, str(target), "--out", str(out), "--top", str(_COMPLETE))
     assert result.returncode == 0, result.stderr
     assert out.is_file()
 
     data = json.loads(out.read_text(encoding="utf-8"))
-    assert data["functions"], "expected at least one profiled function"
-    assert any("work" in fn["name"] for fn in data["functions"])
-    for fn in data["functions"]:
-        assert {"name", "ncalls", "tottime", "cumtime"} <= set(fn)
+    _assert_profiled_fixture(data["functions"], target, _COMPLETE)
+
+
+def test_the_profile_assertion_rejects_a_profile_without_the_fixture(tmp_path: Path) -> None:
+    """Negative control: a profile missing work(), or one cut at --top, must not pass."""
+    target = tmp_path / "target.py"
+    step = {"name": f"{target}:1(step)", "ncalls": _STEP_CALLS, "tottime": 0.1, "cumtime": 0.1}
+    other = {"name": "<string>:1(<module>)", "ncalls": 1, "tottime": 0.0, "cumtime": 0.2}
+    with pytest.raises(AssertionError, match="work"):
+        _assert_profiled_fixture([other, step], target, _COMPLETE)
+    work = {"name": f"{target}:5(work)", "ncalls": 1, "tottime": 0.0, "cumtime": 0.1}
+    with pytest.raises(AssertionError, match="truncated"):
+        _assert_profiled_fixture([other, work, step], target, 3)
 
 
 def test_profile_run_missing_target_exits_2(tmp_path: Path) -> None:

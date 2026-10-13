@@ -1,0 +1,323 @@
+{
+  "schema": "package-verifier-race-repair-evidence-v1",
+  "scope": "The opened runtime module is checked and read through one descriptor, which is closed on success or failure. Non-regular modules including POSIX FIFOs are refused without waiting for a writer. This does not establish symlink-root confinement, an immutable multi-file graph or an atomic package snapshot.",
+  "linux": {
+    "captured_utc": "2026-10-12T20:11:31.711381+00:00",
+    "receipt_directory": "/artifacts/package-race-repair-01a12d34",
+    "environment": {
+      "uid": 1000,
+      "node": "v24.16.0",
+      "npm": "11.13.0"
+    },
+    "source_sha256": {
+      "extensions/copilot-usage-monitor/scripts/verify-package-contents.js": "91e8f6c069ddcae46421b632514246d0f6bfb3514e86e344ab70a1e7d2e7597c",
+      "extensions/cursor-usage-monitor/scripts/verify-package-contents.js": "0866c0657a1877f05d9e1379b0997ad414228a06b829ec4ae7e5b0ecac66d06c",
+      "extensions/cursor-usage-monitor/test/package-contents.test.ts": "b83e4faf75686e654ec1a154910d995aee30a014eafb7fc0f7aa8b29033827e5"
+    },
+    "native_receipts": {
+      "copilot-package.json": {
+        "argv": [
+          "npm",
+          "run",
+          "package"
+        ],
+        "cwd": "/work/package-race-repair-01a12d34/extensions/copilot-usage-monitor",
+        "started_utc": "2026-10-12T20:10:07.676589+00:00",
+        "finished_utc": "2026-10-12T20:10:09.480053+00:00",
+        "elapsed_seconds": 1.8034769060323015,
+        "exit_code": 0,
+        "output_sha256": "84b90b2899ce5d0d89063f3443abf690f3ccf5f973c913946fe30d9f3e4c8a7f",
+        "verifier_source_sha256": {
+          "copilot-usage-monitor": "91e8f6c069ddcae46421b632514246d0f6bfb3514e86e344ab70a1e7d2e7597c",
+          "cursor-usage-monitor": "0866c0657a1877f05d9e1379b0997ad414228a06b829ec4ae7e5b0ecac66d06c"
+        }
+      },
+      "copilot-test-all-final.json": {
+        "argv": [
+          "npm",
+          "test"
+        ],
+        "cwd": "/work/package-race-repair-01a12d34/extensions/copilot-usage-monitor",
+        "started_utc": "2026-10-12T20:10:05.551743+00:00",
+        "finished_utc": "2026-10-12T20:10:06.640054+00:00",
+        "elapsed_seconds": 1.0883198190713301,
+        "exit_code": 0,
+        "output_sha256": "479e1afac6046bcd259f325c5556ce2bde70e371235d58c5288feb4f41bb2322",
+        "verifier_source_sha256": {
+          "copilot-usage-monitor": "91e8f6c069ddcae46421b632514246d0f6bfb3514e86e344ab70a1e7d2e7597c",
+          "cursor-usage-monitor": "0866c0657a1877f05d9e1379b0997ad414228a06b829ec4ae7e5b0ecac66d06c"
+        }
+      },
+      "copilot-test-all.json": {
+        "argv": [
+          "npm",
+          "test"
+        ],
+        "cwd": "/work/package-race-repair-01a12d34/extensions/copilot-usage-monitor",
+        "started_utc": "2026-10-12T20:06:58.553900+00:00",
+        "finished_utc": "2026-10-12T20:06:59.675517+00:00",
+        "elapsed_seconds": 1.1216280419612303,
+        "exit_code": 1,
+        "output_sha256": "76e5c7963bd4e106b9a738b54b10623b7cc939ba897ba06ab03acb1d882ce6d6",
+        "verifier_source_sha256": {
+          "copilot-usage-monitor": "4ec04a3c0399a0545b3d404214bcafee83a0bfe5c5e34bef87a6d4dfc856d103",
+          "cursor-usage-monitor": "8db78874e528dc116c67901ff436ed491f69b6afb0b3906dbab482f139b1c35b"
+        }
+      },
+      "copilot-verify-package.json": {
+        "argv": [
+          "npm",
+          "run",
+          "verify:package"
+        ],
+        "cwd": "/work/package-race-repair-01a12d34/extensions/copilot-usage-monitor",
+        "started_utc": "2026-10-12T20:10:09.480382+00:00",
+        "finished_utc": "2026-10-12T20:10:09.996387+00:00",
+        "elapsed_seconds": 0.5160150359151885,
+        "exit_code": 0,
+        "output_sha256": "f766422e1bff14e3740fed80c8f0cbd32cda97d3fa7742ce2275d1394a885b6b",
+        "verifier_source_sha256": {
+          "copilot-usage-monitor": "91e8f6c069ddcae46421b632514246d0f6bfb3514e86e344ab70a1e7d2e7597c",
+          "cursor-usage-monitor": "0866c0657a1877f05d9e1379b0997ad414228a06b829ec4ae7e5b0ecac66d06c"
+        }
+      },
+      "cursor-package.json": {
+        "argv": [
+          "npm",
+          "run",
+          "package"
+        ],
+        "cwd": "/work/package-race-repair-01a12d34/extensions/cursor-usage-monitor",
+        "started_utc": "2026-10-12T20:10:09.996761+00:00",
+        "finished_utc": "2026-10-12T20:10:10.965899+00:00",
+        "elapsed_seconds": 0.9691467080265284,
+        "exit_code": 0,
+        "output_sha256": "d5582636b21431c272b0653528f7bf55ad9a300f2fd276facb2667cfe68c2b53",
+        "verifier_source_sha256": {
+          "copilot-usage-monitor": "91e8f6c069ddcae46421b632514246d0f6bfb3514e86e344ab70a1e7d2e7597c",
+          "cursor-usage-monitor": "0866c0657a1877f05d9e1379b0997ad414228a06b829ec4ae7e5b0ecac66d06c"
+        }
+      },
+      "cursor-test-all-final.json": {
+        "argv": [
+          "npm",
+          "test"
+        ],
+        "cwd": "/work/package-race-repair-01a12d34/extensions/cursor-usage-monitor",
+        "started_utc": "2026-10-12T20:10:06.640396+00:00",
+        "finished_utc": "2026-10-12T20:10:07.676344+00:00",
+        "elapsed_seconds": 1.035957970074378,
+        "exit_code": 0,
+        "output_sha256": "c58f77cac0c7bf77451b9575c818b4150f94efd0d572ecacbd47b7146c7e9672",
+        "verifier_source_sha256": {
+          "copilot-usage-monitor": "91e8f6c069ddcae46421b632514246d0f6bfb3514e86e344ab70a1e7d2e7597c",
+          "cursor-usage-monitor": "0866c0657a1877f05d9e1379b0997ad414228a06b829ec4ae7e5b0ecac66d06c"
+        }
+      },
+      "cursor-verify-package.json": {
+        "argv": [
+          "npm",
+          "run",
+          "verify:package"
+        ],
+        "cwd": "/work/package-race-repair-01a12d34/extensions/cursor-usage-monitor",
+        "started_utc": "2026-10-12T20:10:10.966156+00:00",
+        "finished_utc": "2026-10-12T20:10:11.421582+00:00",
+        "elapsed_seconds": 0.4554383660433814,
+        "exit_code": 0,
+        "output_sha256": "8bedb617ecfef255c5736c60c1be49b92cc2131d48b0e17371879b76a50a151f",
+        "verifier_source_sha256": {
+          "copilot-usage-monitor": "91e8f6c069ddcae46421b632514246d0f6bfb3514e86e344ab70a1e7d2e7597c",
+          "cursor-usage-monitor": "0866c0657a1877f05d9e1379b0997ad414228a06b829ec4ae7e5b0ecac66d06c"
+        }
+      },
+      "green-final-package-contents.json": {
+        "argv": [
+          "npm",
+          "test",
+          "--",
+          "test/package-contents.test.ts"
+        ],
+        "cwd": "/work/package-race-repair-01a12d34/extensions/cursor-usage-monitor",
+        "started_utc": "2026-10-12T20:10:04.684680+00:00",
+        "finished_utc": "2026-10-12T20:10:05.551246+00:00",
+        "elapsed_seconds": 0.866476989001967,
+        "exit_code": 0,
+        "output_sha256": "d13f738d43af4f25a5818af614a37ebf999f30c41f6be27dd9c499c48f24c1f1",
+        "verifier_source_sha256": {
+          "copilot-usage-monitor": "91e8f6c069ddcae46421b632514246d0f6bfb3514e86e344ab70a1e7d2e7597c",
+          "cursor-usage-monitor": "0866c0657a1877f05d9e1379b0997ad414228a06b829ec4ae7e5b0ecac66d06c"
+        }
+      },
+      "green-package-contents.json": {
+        "argv": [
+          "npm",
+          "test",
+          "--",
+          "test/package-contents.test.ts"
+        ],
+        "cwd": "/work/package-race-repair-01a12d34/extensions/cursor-usage-monitor",
+        "started_utc": "2026-10-12T20:06:58.050688+00:00",
+        "finished_utc": "2026-10-12T20:06:58.553151+00:00",
+        "elapsed_seconds": 0.5024235780583695,
+        "exit_code": 0,
+        "output_sha256": "e0bdb2ced8489c26b316808cc4048de9e233a00053094f57975e19c6450567db",
+        "verifier_source_sha256": {
+          "copilot-usage-monitor": "4ec04a3c0399a0545b3d404214bcafee83a0bfe5c5e34bef87a6d4dfc856d103",
+          "cursor-usage-monitor": "8db78874e528dc116c67901ff436ed491f69b6afb0b3906dbab482f139b1c35b"
+        }
+      },
+      "red-behavior-package-contents.json": {
+        "argv": [
+          "npm",
+          "test",
+          "--",
+          "test/package-contents.test.ts"
+        ],
+        "cwd": "/work/package-race-repair-01a12d34/extensions/cursor-usage-monitor",
+        "started_utc": "2026-10-12T20:04:50.089995+00:00",
+        "finished_utc": "2026-10-12T20:04:51.050356+00:00",
+        "elapsed_seconds": 0.9602648000000045,
+        "exit_code": 1,
+        "output_sha256": "cf3c0d54de3c4edd778615b796391f9bc35447aba4c85dd46e30c60c03d3b581",
+        "verifier_source_sha256": {
+          "copilot-usage-monitor": "8cb873dbe8555b955fd5c00cee64f0f97ea1ef226ef18a18b728e21cb30687bb",
+          "cursor-usage-monitor": "5d3c2881966f4a3d6c3eca9587d32ea6a49bc4a8bc606de158b689cf713df39c"
+        }
+      },
+      "red-fifo-package-contents.json": {
+        "argv": [
+          "npm",
+          "test",
+          "--",
+          "test/package-contents.test.ts"
+        ],
+        "cwd": "/work/package-race-repair-01a12d34/extensions/cursor-usage-monitor",
+        "started_utc": "2026-10-12T20:08:18.350638+00:00",
+        "finished_utc": "2026-10-12T20:08:23.164686+00:00",
+        "elapsed_seconds": 4.813931628013961,
+        "exit_code": 1,
+        "output_sha256": "2c8158225290e03032f717d49ed5b596802f8cb5c0e5dde5cc787f847a2f15cf"
+      },
+      "red-package-contents.json": {
+        "argv": [
+          "npm",
+          "test",
+          "--",
+          "test/package-contents.test.ts"
+        ],
+        "cwd": "/work/package-race-repair-01a12d34/extensions/cursor-usage-monitor",
+        "started_utc": "2026-10-12T20:04:05.918230+00:00",
+        "finished_utc": "2026-10-12T20:04:06.704489+00:00",
+        "elapsed_seconds": 0.7859308189945295,
+        "exit_code": 1,
+        "output_sha256": "d18685077a291d25d22f493bb83f5c09b6e6a228974c2a2a06a303086a5280ee"
+      }
+    },
+    "native_logs": {
+      "copilot-package.log": {
+        "sha256": "84b90b2899ce5d0d89063f3443abf690f3ccf5f973c913946fe30d9f3e4c8a7f",
+        "output": "\n> copilot-usage-monitor@0.1.0 package\n> vsce package --no-dependencies\n\nExecuting prepublish script 'npm run vscode:prepublish'...\n\n> copilot-usage-monitor@0.1.0 vscode:prepublish\n> npm run compile\n\n\n> copilot-usage-monitor@0.1.0 compile\n> tsc -p ./\n\n INFO  Files included in the VSIX:\ncopilot-usage-monitor-0.1.0.vsix\n\u251c\u2500 [Content_Types].xml \n\u251c\u2500 extension.vsixmanifest \n\u2514\u2500 extension/\n   \u251c\u2500 LICENSE.txt [1.08 KB]\n   \u251c\u2500 icon.png [231.85 KB]\n   \u251c\u2500 package.json [7.68 KB]\n   \u251c\u2500 readme.md \n   \u251c\u2500 fonts/ (1 file) [0.96 KB]\n   \u251c\u2500 icons/ (4 files) [7.64 KB]\n   \u2514\u2500 out/ (38 files) [233.71 KB]\n\n=> Run vsce ls --tree to see all included files.\n\n DONE  Packaged: /work/package-race-repair-01a12d34/extensions/copilot-usage-monitor/copilot-usage-monitor-0.1.0.vsix (49 files, 335.7 KB)\n"
+      },
+      "copilot-test-all-final.log": {
+        "sha256": "479e1afac6046bcd259f325c5556ce2bde70e371235d58c5288feb4f41bb2322",
+        "output": "\n> copilot-usage-monitor@0.1.0 test\n> vitest run\n\n\n\u001b[1m\u001b[30m\u001b[46m RUN \u001b[49m\u001b[39m\u001b[22m \u001b[36mv4.1.11 \u001b[39m\u001b[90m/work/package-race-repair-01a12d34/extensions/copilot-usage-monitor\u001b[39m\n\n \u001b[32m\u2713\u001b[39m test/warningView.test.ts \u001b[2m(\u001b[22m\u001b[2m2 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 6\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/settingsPanel.test.ts \u001b[2m(\u001b[22m\u001b[2m7 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 15\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/usageStore.test.ts \u001b[2m(\u001b[22m\u001b[2m21 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 34\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/recommendations.test.ts \u001b[2m(\u001b[22m\u001b[2m7 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 30\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/copilot-usage-mapping.test.ts \u001b[2m(\u001b[22m\u001b[2m29 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 22\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/usageService.test.ts \u001b[2m(\u001b[22m\u001b[2m5 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 7\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/copilot-organization.test.ts \u001b[2m(\u001b[22m\u001b[2m24 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 48\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/copilot-provider.test.ts \u001b[2m(\u001b[22m\u001b[2m29 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 49\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/no-identity-io.test.ts \u001b[2m(\u001b[22m\u001b[2m1 test\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 58\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/ui-states.test.ts \u001b[2m(\u001b[22m\u001b[2m32 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 81\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/connect-flow.test.ts \u001b[2m(\u001b[22m\u001b[2m35 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 91\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/account-selection.test.ts \u001b[2m(\u001b[22m\u001b[2m21 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 115\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/leak.test.ts \u001b[2m(\u001b[22m\u001b[2m6 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 107\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/review-regressions.test.ts \u001b[2m(\u001b[22m\u001b[2m48 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 251\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/usageStateFile.test.ts \u001b[2m(\u001b[22m\u001b[2m25 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 316\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m15 passed\u001b[39m\u001b[22m\u001b[90m (15)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m292 passed\u001b[39m\u001b[22m\u001b[90m (292)\u001b[39m\n\u001b[2m   Start at \u001b[22m 20:10:05\n\u001b[2m   Duration \u001b[22m 751ms\u001b[2m (transform 2.36s, setup 0ms, import 3.51s, tests 1.23s, environment 2ms)\u001b[22m\n\n"
+      },
+      "copilot-test-all.log": {
+        "sha256": "76e5c7963bd4e106b9a738b54b10623b7cc939ba897ba06ab03acb1d882ce6d6",
+        "output": "\n> copilot-usage-monitor@0.1.0 test\n> vitest run\n\n\n\u001b[1m\u001b[30m\u001b[46m RUN \u001b[49m\u001b[39m\u001b[22m \u001b[36mv4.1.11 \u001b[39m\u001b[90m/work/package-race-repair-01a12d34/extensions/copilot-usage-monitor\u001b[39m\n\n \u001b[32m\u2713\u001b[39m test/warningView.test.ts \u001b[2m(\u001b[22m\u001b[2m2 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 9\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/settingsPanel.test.ts \u001b[2m(\u001b[22m\u001b[2m7 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 11\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/copilot-usage-mapping.test.ts \u001b[2m(\u001b[22m\u001b[2m29 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 26\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/copilot-organization.test.ts \u001b[2m(\u001b[22m\u001b[2m24 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 48\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/usageService.test.ts \u001b[2m(\u001b[22m\u001b[2m5 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 13\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/usageStore.test.ts \u001b[2m(\u001b[22m\u001b[2m21 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 91\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/recommendations.test.ts \u001b[2m(\u001b[22m\u001b[2m7 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 107\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/copilot-provider.test.ts \u001b[2m(\u001b[22m\u001b[2m29 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 53\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/no-identity-io.test.ts \u001b[2m(\u001b[22m\u001b[2m1 test\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 62\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/connect-flow.test.ts \u001b[2m(\u001b[22m\u001b[2m35 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 99\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/ui-states.test.ts \u001b[2m(\u001b[22m\u001b[2m32 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 95\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/account-selection.test.ts \u001b[2m(\u001b[22m\u001b[2m21 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 122\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/leak.test.ts \u001b[2m(\u001b[22m\u001b[2m6 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 118\u001b[2mms\u001b[22m\u001b[39m\n \u001b[31m\u276f\u001b[39m test/usageStateFile.test.ts \u001b[2m(\u001b[22m\u001b[2m25 tests\u001b[22m\u001b[2m | \u001b[22m\u001b[31m7 failed\u001b[39m\u001b[2m)\u001b[22m\u001b[32m 208\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m personal Copilot Free\u001b[32m 6\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m Business member without billing access\u001b[32m 3\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m organization pool, captured 0.907 of 13,300\u001b[32m 5\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m organization pool near the limit\u001b[32m 2\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m organization pool exhausted\u001b[32m 2\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m organization pool, seat added this cycle\u001b[32m 2\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m carries a null reset when GitHub gave none, and nothing for missing data\u001b[32m 2\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m holds only the schema keys\u001b[32m 6\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m follows NEXUS_HOME like the probe, else ~/.nexus-hub\u001b[32m 3\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m creates the directory and writes the file atomically, leaving no temporary sibling\u001b[32m 4\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m never exposes a partial file to a reader while writes repeat\u001b[32m 38\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m removes an earlier file instead of writing one for the member state\u001b[32m 2\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m logs once and does not throw when the location is not writable\u001b[32m 5\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m removeUsageState tolerates a missing file and logs once on failure\u001b[32m 4\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m writes after each successful fetch with the status bar's precedence\u001b[32m 3\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m writes nothing when copilotUsage.writeUsageState is false, and removes the file when it is turned off\u001b[32m 1\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rewrites from the personal figure after a disconnect, and deletes the file when none remains\u001b[32m 2\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m removes the file after a disconnect when only a member figure remains\u001b[32m 2\u001b[2mms\u001b[22m\u001b[39m\n\u001b[31m     \u001b[31m\u00d7\u001b[31m finds a Python interpreter and the probe\u001b[39m\u001b[32m 8\u001b[2mms\u001b[22m\u001b[39m\n\u001b[31m     \u001b[31m\u00d7\u001b[31m personal Copilot Free parses through read_copilot\u001b[39m\u001b[32m 20\u001b[2mms\u001b[22m\u001b[39m\n\u001b[31m     \u001b[31m\u00d7\u001b[31m Business member without billing access parses through read_copilot\u001b[39m\u001b[32m 18\u001b[2mms\u001b[22m\u001b[39m\n\u001b[31m     \u001b[31m\u00d7\u001b[31m organization pool, captured 0.907 of 13,300 parses through read_copilot\u001b[39m\u001b[32m 19\u001b[2mms\u001b[22m\u001b[39m\n\u001b[31m     \u001b[31m\u00d7\u001b[31m organization pool near the limit parses through read_copilot\u001b[39m\u001b[32m 16\u001b[2mms\u001b[22m\u001b[39m\n\u001b[31m     \u001b[31m\u00d7\u001b[31m organization pool exhausted parses through read_copilot\u001b[39m\u001b[32m 15\u001b[2mms\u001b[22m\u001b[39m\n\u001b[31m     \u001b[31m\u00d7\u001b[31m organization pool, seat added this cycle parses through read_copilot\u001b[39m\u001b[32m 17\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/review-regressions.test.ts \u001b[2m(\u001b[22m\u001b[2m48 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 249\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[31m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u001b[39m\u001b[1m\u001b[41m Failed Tests 7 \u001b[49m\u001b[22m\u001b[31m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u001b[39m\n\n\u001b[41m\u001b[1m FAIL \u001b[22m\u001b[49m test/usageStateFile.test.ts\u001b[2m > \u001b[22mread_copilot cross-check\u001b[2m > \u001b[22mfinds a Python interpreter and the probe\n\u001b[31m\u001b[1mAssertionError\u001b[22m: expected false to be true // Object.is equality\u001b[39m\n\n\u001b[32m- Expected\u001b[39m\n\u001b[31m+ Received\u001b[39m\n\n\u001b[32m- true\u001b[39m\n\u001b[31m+ false\u001b[39m\n\n\u001b[36m \u001b[2m\u276f\u001b[22m test/usageStateFile.test.ts:\u001b[2m220:34\u001b[22m\u001b[39m\n    \u001b[90m218|\u001b[39m   \u001b[34mit\u001b[39m(\u001b[32m\"finds a Python interpreter and the probe\"\u001b[39m\u001b[33m,\u001b[39m () \u001b[33m=>\u001b[39m {\n    \u001b[90m219|\u001b[39m     expect(python, \"python3 or python must be on PATH for the probe cr\u2026\n    \u001b[90m220|\u001b[39m     \u001b[34mexpect\u001b[39m(fs\u001b[33m.\u001b[39m\u001b[34mexistsSync\u001b[39m(\u001b[33mPROBE\u001b[39m))\u001b[33m.\u001b[39m\u001b[34mtoBe\u001b[39m(\u001b[35mtrue\u001b[39m)\u001b[33m;\u001b[39m\n    \u001b[90m   |\u001b[39m                                  \u001b[31m^\u001b[39m\n    \u001b[90m221|\u001b[39m   })\u001b[33m;\u001b[39m\n    \u001b[90m222|\u001b[39m\n\n\u001b[31m\u001b[2m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[1/7]\u23af\u001b[22m\u001b[39m\n\n\u001b[41m\u001b[1m FAIL \u001b[22m\u001b[49m test/usageStateFile.test.ts\u001b[2m > \u001b[22mread_copilot cross-check\u001b[2m > \u001b[22mpersonal Copilot Free parses through read_copilot\n\u001b[41m\u001b[1m FAIL \u001b[22m\u001b[49m test/usageStateFile.test.ts\u001b[2m > \u001b[22mread_copilot cross-check\u001b[2m > \u001b[22mBusiness member without billing access parses through read_copilot\n\u001b[41m\u001b[1m FAIL \u001b[22m\u001b[49m test/usageStateFile.test.ts\u001b[2m > \u001b[22mread_copilot cross-check\u001b[2m > \u001b[22morganization pool, captured 0.907 of 13,300 parses through read_copilot\n\u001b[41m\u001b[1m FAIL \u001b[22m\u001b[49m test/usageStateFile.test.ts\u001b[2m > \u001b[22mread_copilot cross-check\u001b[2m > \u001b[22morganization pool near the limit parses through read_copilot\n\u001b[41m\u001b[1m FAIL \u001b[22m\u001b[49m test/usageStateFile.test.ts\u001b[2m > \u001b[22mread_copilot cross-check\u001b[2m > \u001b[22morganization pool exhausted parses through read_copilot\n\u001b[41m\u001b[1m FAIL \u001b[22m\u001b[49m test/usageStateFile.test.ts\u001b[2m > \u001b[22mread_copilot cross-check\u001b[2m > \u001b[22morganization pool, seat added this cycle parses through read_copilot\n\u001b[31m\u001b[1mAssertionError\u001b[22m: python3: can't open file '/work/package-race-repair-01a12d34/catalog/hooks/_usage_probe.py': [Errno 2] No such file or directory\n: expected 2 to be +0 // Object.is equality\u001b[39m\n\n\u001b[32m- Expected\u001b[39m\n\u001b[31m+ Received\u001b[39m\n\n\u001b[32m- 0\u001b[39m\n\u001b[31m+ 2\u001b[39m\n\n\u001b[36m \u001b[2m\u276f\u001b[22m test/usageStateFile.test.ts:\u001b[2m231:36\u001b[22m\u001b[39m\n    \u001b[90m229|\u001b[39m       encoding\u001b[33m:\u001b[39m \u001b[32m\"utf-8\"\u001b[39m\u001b[33m,\u001b[39m\n    \u001b[90m230|\u001b[39m     })\u001b[33m;\u001b[39m\n    \u001b[90m231|\u001b[39m     \u001b[34mexpect\u001b[39m(run\u001b[33m.\u001b[39mstatus\u001b[33m,\u001b[39m run\u001b[33m.\u001b[39mstderr)\u001b[33m.\u001b[39m\u001b[34mtoBe\u001b[39m(\u001b[34m0\u001b[39m)\u001b[33m;\u001b[39m\n    \u001b[90m   |\u001b[39m                                    \u001b[31m^\u001b[39m\n    \u001b[90m232|\u001b[39m     \u001b[35mconst\u001b[39m result \u001b[33m=\u001b[39m \u001b[33mJSON\u001b[39m\u001b[33m.\u001b[39m\u001b[34mparse\u001b[39m(run\u001b[33m.\u001b[39mstdout)\u001b[33m;\u001b[39m\n    \u001b[90m233|\u001b[39m     const copilot = Array.isArray(result) ? result.find((r: { platform\u2026\n\n\u001b[31m\u001b[2m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[2/7]\u23af\u001b[22m\u001b[39m\n\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[31m1 failed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[1m\u001b[32m14 passed\u001b[39m\u001b[22m\u001b[90m (15)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[31m7 failed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[1m\u001b[32m285 passed\u001b[39m\u001b[22m\u001b[90m (292)\u001b[39m\n\u001b[2m   Start at \u001b[22m 20:06:58\n\u001b[2m   Duration \u001b[22m 765ms\u001b[2m (transform 2.62s, setup 0ms, import 3.96s, tests 1.31s, environment 2ms)\u001b[22m\n\n"
+      },
+      "copilot-verify-package.log": {
+        "sha256": "f766422e1bff14e3740fed80c8f0cbd32cda97d3fa7742ce2275d1394a885b6b",
+        "output": "\n> copilot-usage-monitor@0.1.0 verify:package\n> node scripts/verify-package-contents.js\n\nVSIX content verification passed (47 archived files; 19 runtime modules).\n"
+      },
+      "cursor-package.log": {
+        "sha256": "d5582636b21431c272b0653528f7bf55ad9a300f2fd276facb2667cfe68c2b53",
+        "output": "\n> cursor-usage-monitor@0.1.0 package\n> vsce package --no-dependencies\n\nExecuting prepublish script 'npm run vscode:prepublish'...\n\n> cursor-usage-monitor@0.1.0 vscode:prepublish\n> npm run compile\n\n\n> cursor-usage-monitor@0.1.0 compile\n> tsc -p ./\n\n INFO  Files included in the VSIX:\ncursor-usage-monitor-0.1.0.vsix\n\u251c\u2500 [Content_Types].xml \n\u251c\u2500 extension.vsixmanifest \n\u2514\u2500 extension/\n   \u251c\u2500 LICENSE.txt [1.06 KB]\n   \u251c\u2500 THIRD_PARTY_NOTICES.md [0.77 KB]\n   \u251c\u2500 icon.png [8.3 KB]\n   \u251c\u2500 package.json [7.07 KB]\n   \u251c\u2500 readme.md \n   \u251c\u2500 fonts/ (1 file) [0.7 KB]\n   \u251c\u2500 icons/ (3 files) [1.9 KB]\n   \u2514\u2500 out/ (48 files) [252 KB]\n\n=> Run vsce ls --tree to see all included files.\n\n DONE  Packaged: /work/package-race-repair-01a12d34/extensions/cursor-usage-monitor/cursor-usage-monitor-0.1.0.vsix (59 files, 107.7 KB)\n"
+      },
+      "cursor-test-all-final.log": {
+        "sha256": "c58f77cac0c7bf77451b9575c818b4150f94efd0d572ecacbd47b7146c7e9672",
+        "output": "\n> cursor-usage-monitor@0.1.0 test\n> vitest run\n\n\n\u001b[1m\u001b[30m\u001b[46m RUN \u001b[49m\u001b[39m\u001b[22m \u001b[36mv4.1.11 \u001b[39m\u001b[90m/work/package-race-repair-01a12d34/extensions/cursor-usage-monitor\u001b[39m\n\n \u001b[32m\u2713\u001b[39m test/auth.test.ts \u001b[2m(\u001b[22m\u001b[2m12 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 9\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/normalizer.test.ts \u001b[2m(\u001b[22m\u001b[2m17 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 20\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/consent.test.ts \u001b[2m(\u001b[22m\u001b[2m14 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 12\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/provider.test.ts \u001b[2m(\u001b[22m\u001b[2m13 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 16\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/package-contents.test.ts \u001b[2m(\u001b[22m\u001b[2m36 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 113\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/manual-recommendations.test.ts \u001b[2m(\u001b[22m\u001b[2m12 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 12\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/usageStore.test.ts \u001b[2m(\u001b[22m\u001b[2m14 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 17\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/session.test.ts \u001b[2m(\u001b[22m\u001b[2m26 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 23\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/settings.test.ts \u001b[2m(\u001b[22m\u001b[2m9 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 24\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/liveTransport.test.ts \u001b[2m(\u001b[22m\u001b[2m38 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 31\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/onboarding.test.ts \u001b[2m(\u001b[22m\u001b[2m10 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 31\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/visual-parity.test.ts \u001b[2m(\u001b[22m\u001b[2m16 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 38\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/provenance.test.ts \u001b[2m(\u001b[22m\u001b[2m13 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 37\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/ui.test.ts \u001b[2m(\u001b[22m\u001b[2m31 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 62\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/assets.test.ts \u001b[2m(\u001b[22m\u001b[2m7 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 13\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/embedded-settings.test.ts \u001b[2m(\u001b[22m\u001b[2m11 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 9\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/wireShape.test.ts \u001b[2m(\u001b[22m\u001b[2m11 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 7\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/boundary.test.ts \u001b[2m(\u001b[22m\u001b[2m12 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 12\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/manifest.test.ts \u001b[2m(\u001b[22m\u001b[2m3 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 3\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/consentPrompt.test.ts \u001b[2m(\u001b[22m\u001b[2m8 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 6\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m test/extension.test.ts \u001b[2m(\u001b[22m\u001b[2m17 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 118\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m21 passed\u001b[39m\u001b[22m\u001b[90m (21)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m330 passed\u001b[39m\u001b[22m\u001b[90m (330)\u001b[39m\n\u001b[2m   Start at \u001b[22m 20:10:06\n\u001b[2m   Duration \u001b[22m 678ms\u001b[2m (transform 2.97s, setup 0ms, import 4.13s, tests 614ms, environment 3ms)\u001b[22m\n\n"
+      },
+      "cursor-verify-package.log": {
+        "sha256": "8bedb617ecfef255c5736c60c1be49b92cc2131d48b0e17371879b76a50a151f",
+        "output": "\n> cursor-usage-monitor@0.1.0 verify:package\n> node scripts/verify-package-contents.js\n\nVSIX content verification passed (57 archived files; 22 runtime modules).\n"
+      },
+      "green-final-package-contents.log": {
+        "sha256": "d13f738d43af4f25a5818af614a37ebf999f30c41f6be27dd9c499c48f24c1f1",
+        "output": "\n> cursor-usage-monitor@0.1.0 test\n> vitest run test/package-contents.test.ts\n\n\n\u001b[1m\u001b[30m\u001b[46m RUN \u001b[49m\u001b[39m\u001b[22m \u001b[36mv4.1.11 \u001b[39m\u001b[90m/work/package-race-repair-01a12d34/extensions/cursor-usage-monitor\u001b[39m\n\n \u001b[32m\u2713\u001b[39m test/package-contents.test.ts \u001b[2m(\u001b[22m\u001b[2m36 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 92\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m1 passed\u001b[39m\u001b[22m\u001b[90m (1)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m36 passed\u001b[39m\u001b[22m\u001b[90m (36)\u001b[39m\n\u001b[2m   Start at \u001b[22m 20:10:05\n\u001b[2m   Duration \u001b[22m 261ms\u001b[2m (transform 24ms, setup 0ms, import 39ms, tests 92ms, environment 0ms)\u001b[22m\n\n"
+      },
+      "green-package-contents.log": {
+        "sha256": "e0bdb2ced8489c26b316808cc4048de9e233a00053094f57975e19c6450567db",
+        "output": "\n> cursor-usage-monitor@0.1.0 test\n> vitest run test/package-contents.test.ts\n\n\n\u001b[1m\u001b[30m\u001b[46m RUN \u001b[49m\u001b[39m\u001b[22m \u001b[36mv4.1.11 \u001b[39m\u001b[90m/work/package-race-repair-01a12d34/extensions/cursor-usage-monitor\u001b[39m\n\n \u001b[32m\u2713\u001b[39m test/package-contents.test.ts \u001b[2m(\u001b[22m\u001b[2m34 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 22\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m1 passed\u001b[39m\u001b[22m\u001b[90m (1)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m34 passed\u001b[39m\u001b[22m\u001b[90m (34)\u001b[39m\n\u001b[2m   Start at \u001b[22m 20:06:58\n\u001b[2m   Duration \u001b[22m 147ms\u001b[2m (transform 22ms, setup 0ms, import 34ms, tests 22ms, environment 0ms)\u001b[22m\n\n"
+      },
+      "red-behavior-package-contents.log": {
+        "sha256": "cf3c0d54de3c4edd778615b796391f9bc35447aba4c85dd46e30c60c03d3b581",
+        "output": "\n> cursor-usage-monitor@0.1.0 test\n> vitest run test/package-contents.test.ts\n\n\n\u001b[1m\u001b[30m\u001b[46m RUN \u001b[49m\u001b[39m\u001b[22m \u001b[36mv4.1.11 \u001b[39m\u001b[90m/work/package-race-repair-01a12d34/extensions/cursor-usage-monitor\u001b[39m\n\n \u001b[31m\u276f\u001b[39m test/package-contents.test.ts \u001b[2m(\u001b[22m\u001b[2m34 tests\u001b[22m\u001b[2m | \u001b[22m\u001b[31m4 failed\u001b[39m\u001b[2m)\u001b[22m\u001b[32m 42\u001b[2mms\u001b[22m\u001b[39m\n\u001b[31m     \u001b[31m\u00d7\u001b[31m reads the checked object when its path is replaced after the file-type check\u001b[39m\u001b[32m 18\u001b[2mms\u001b[22m\u001b[39m\n\u001b[31m     \u001b[31m\u00d7\u001b[31m closes an opened module when reading it fails\u001b[39m\u001b[32m 3\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects a missing or non-regular entry with the module error\u001b[32m 2\u001b[2mms\u001b[22m\u001b[39m\n\u001b[31m     \u001b[31m\u00d7\u001b[31m reads the checked object when its path is replaced after the file-type check\u001b[39m\u001b[32m 6\u001b[2mms\u001b[22m\u001b[39m\n\u001b[31m     \u001b[31m\u00d7\u001b[31m closes an opened module when reading it fails\u001b[39m\u001b[32m 2\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects a missing or non-regular entry with the module error\u001b[32m 2\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m accepts a package carrying every runtime asset\u001b[32m 1\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m names a missing runtime asset\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m requires every local JavaScript module reachable from the runtime entry\u001b[32m 2\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m fails when a discovered runtime module is absent\u001b[32m 1\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m normalizes files from the generated VSIX extension directory\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the build-time artifact coverage/index.html\u001b[32m 1\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the build-time artifact src/extension.ts\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the build-time artifact test/assets.test.ts\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the build-time artifact scripts/generate-icon-font.js\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the build-time artifact node_modules/vitest/package.json\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the build-time artifact cursor-usage-monitor-0.1.0.vsix\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the build-time artifact out/extension.js.map\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the credential-shaped file .env\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the credential-shaped file config/.env.local\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the credential-shaped file auth.json\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the credential-shaped file deploy.pem\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the credential-shaped file signing.key\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the credential-shaped file secret\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the credential-shaped file secrets.json\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the credential-shaped file out/credentials.json\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the credential-shaped file credential.txt\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the credential-shaped file out/session.token\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the credential-shaped file token.json\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the credential-shaped file id_rsa\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the credential-shaped file keys/id_ed25519.pub\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the credential-shaped file signing.p12\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the credential-shaped file signing.pfx\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the credential-shaped file .npmrc\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[31m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u001b[39m\u001b[1m\u001b[41m Failed Tests 4 \u001b[49m\u001b[22m\u001b[31m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u001b[39m\n\n\u001b[41m\u001b[1m FAIL \u001b[22m\u001b[49m test/package-contents.test.ts\u001b[2m > \u001b[22mcopilot-usage-monitor runtime discovery\u001b[2m > \u001b[22mreads the checked object when its path is replaced after the file-type check\n\u001b[41m\u001b[1m FAIL \u001b[22m\u001b[49m test/package-contents.test.ts\u001b[2m > \u001b[22mcursor-usage-monitor runtime discovery\u001b[2m > \u001b[22mreads the checked object when its path is replaced after the file-type check\n\u001b[31m\u001b[1mAssertionError\u001b[22m: expected [ 'extension.js', 'replacement.js' ] to deeply equal [ 'extension.js', 'original.js' ]\u001b[39m\n\n\u001b[32m- Expected\u001b[39m\n\u001b[31m+ Received\u001b[39m\n\n\u001b[2m  [\u001b[22m\n\u001b[2m    \"extension.js\",\u001b[22m\n\u001b[32m-   \"original.js\",\u001b[39m\n\u001b[31m+   \"replacement.js\",\u001b[39m\n\u001b[2m  ]\u001b[22m\n\n\u001b[36m \u001b[2m\u276f\u001b[22m test/package-contents.test.ts:\u001b[2m79:39\u001b[22m\u001b[39m\n    \u001b[90m 77|\u001b[39m           }\n    \u001b[90m 78|\u001b[39m         })\u001b[33m;\u001b[39m\n    \u001b[90m 79|\u001b[39m         expect(discover(entry, root)).toEqual([\"extension.js\", \"origin\u2026\n    \u001b[90m   |\u001b[39m                                       \u001b[31m^\u001b[39m\n    \u001b[90m 80|\u001b[39m         \u001b[34mexpect\u001b[39m(replaced)\u001b[33m.\u001b[39m\u001b[34mtoBe\u001b[39m(\u001b[35mtrue\u001b[39m)\u001b[33m;\u001b[39m\n    \u001b[90m 81|\u001b[39m         expect(fs.readFileSync(entry, \"utf8\")).toContain(\"./replacemen\u2026\n\n\u001b[31m\u001b[2m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[1/4]\u23af\u001b[22m\u001b[39m\n\n\u001b[41m\u001b[1m FAIL \u001b[22m\u001b[49m test/package-contents.test.ts\u001b[2m > \u001b[22mcopilot-usage-monitor runtime discovery\u001b[2m > \u001b[22mcloses an opened module when reading it fails\n\u001b[41m\u001b[1m FAIL \u001b[22m\u001b[49m test/package-contents.test.ts\u001b[2m > \u001b[22mcursor-usage-monitor runtime discovery\u001b[2m > \u001b[22mcloses an opened module when reading it fails\n\u001b[31m\u001b[1mAssertionError\u001b[22m: expected +0 to be 1 // Object.is equality\u001b[39m\n\n\u001b[32m- Expected\u001b[39m\n\u001b[31m+ Received\u001b[39m\n\n\u001b[32m- 1\u001b[39m\n\u001b[31m+ 0\u001b[39m\n\n\u001b[36m \u001b[2m\u276f\u001b[22m test/package-contents.test.ts:\u001b[2m113:24\u001b[22m\u001b[39m\n    \u001b[90m111|\u001b[39m         })\u001b[33m;\u001b[39m\n    \u001b[90m112|\u001b[39m         \u001b[34mexpect\u001b[39m(() \u001b[33m=>\u001b[39m \u001b[34mdiscover\u001b[39m(entry\u001b[33m,\u001b[39m root))\u001b[33m.\u001b[39m\u001b[34mtoThrow\u001b[39m(readError)\u001b[33m;\u001b[39m\n    \u001b[90m113|\u001b[39m         \u001b[34mexpect\u001b[39m(opened)\u001b[33m.\u001b[39m\u001b[34mtoBe\u001b[39m(\u001b[34m1\u001b[39m)\u001b[33m;\u001b[39m\n    \u001b[90m   |\u001b[39m                        \u001b[31m^\u001b[39m\n    \u001b[90m114|\u001b[39m         \u001b[34mexpect\u001b[39m(descriptors\u001b[33m.\u001b[39msize)\u001b[33m.\u001b[39m\u001b[34mtoBe\u001b[39m(\u001b[34m0\u001b[39m)\u001b[33m;\u001b[39m\n    \u001b[90m115|\u001b[39m       } \u001b[35mfinally\u001b[39m {\n\n\u001b[31m\u001b[2m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[2/4]\u23af\u001b[22m\u001b[39m\n\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[31m1 failed\u001b[39m\u001b[22m\u001b[90m (1)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[31m4 failed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[1m\u001b[32m30 passed\u001b[39m\u001b[22m\u001b[90m (34)\u001b[39m\n\u001b[2m   Start at \u001b[22m 20:04:50\n\u001b[2m   Duration \u001b[22m 231ms\u001b[2m (transform 39ms, setup 0ms, import 54ms, tests 42ms, environment 0ms)\u001b[22m\n\n"
+      },
+      "red-fifo-package-contents.log": {
+        "sha256": "2c8158225290e03032f717d49ed5b596802f8cb5c0e5dde5cc787f847a2f15cf",
+        "output": "\n> cursor-usage-monitor@0.1.0 test\n> vitest run test/package-contents.test.ts\n\n\n\u001b[1m\u001b[30m\u001b[46m RUN \u001b[49m\u001b[39m\u001b[22m \u001b[36mv4.1.11 \u001b[39m\u001b[90m/work/package-race-repair-01a12d34/extensions/cursor-usage-monitor\u001b[39m\n\n \u001b[31m\u276f\u001b[39m test/package-contents.test.ts \u001b[2m(\u001b[22m\u001b[2m36 tests\u001b[22m\u001b[2m | \u001b[22m\u001b[31m2 failed\u001b[39m\u001b[2m)\u001b[22m\u001b[33m 4060\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m reads the checked object when its path is replaced after the file-type check\u001b[32m 5\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m closes an opened module when reading it fails\u001b[32m 2\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects a missing or non-regular entry with the module error\u001b[32m 2\u001b[2mms\u001b[22m\u001b[39m\n\u001b[31m     \u001b[31m\u00d7\u001b[31m rejects a FIFO without waiting for a writer\u001b[39m\u001b[33m 2024\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m reads the checked object when its path is replaced after the file-type check\u001b[32m 3\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m closes an opened module when reading it fails\u001b[32m 2\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects a missing or non-regular entry with the module error\u001b[32m 2\u001b[2mms\u001b[22m\u001b[39m\n\u001b[31m     \u001b[31m\u00d7\u001b[31m rejects a FIFO without waiting for a writer\u001b[39m\u001b[33m 2010\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m accepts a package carrying every runtime asset\u001b[32m 1\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m names a missing runtime asset\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m requires every local JavaScript module reachable from the runtime entry\u001b[32m 1\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m fails when a discovered runtime module is absent\u001b[32m 1\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m normalizes files from the generated VSIX extension directory\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the build-time artifact coverage/index.html\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the build-time artifact src/extension.ts\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the build-time artifact test/assets.test.ts\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the build-time artifact scripts/generate-icon-font.js\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the build-time artifact node_modules/vitest/package.json\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the build-time artifact cursor-usage-monitor-0.1.0.vsix\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the build-time artifact out/extension.js.map\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the credential-shaped file .env\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the credential-shaped file config/.env.local\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the credential-shaped file auth.json\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the credential-shaped file deploy.pem\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the credential-shaped file signing.key\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the credential-shaped file secret\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the credential-shaped file secrets.json\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the credential-shaped file out/credentials.json\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the credential-shaped file credential.txt\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the credential-shaped file out/session.token\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the credential-shaped file token.json\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the credential-shaped file id_rsa\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the credential-shaped file keys/id_ed25519.pub\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the credential-shaped file signing.p12\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the credential-shaped file signing.pfx\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[32m\u2713\u001b[39m rejects the credential-shaped file .npmrc\u001b[32m 0\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[31m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u001b[39m\u001b[1m\u001b[41m Failed Tests 2 \u001b[49m\u001b[22m\u001b[31m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u001b[39m\n\n\u001b[41m\u001b[1m FAIL \u001b[22m\u001b[49m test/package-contents.test.ts\u001b[2m > \u001b[22mcopilot-usage-monitor runtime discovery\u001b[2m > \u001b[22mrejects a FIFO without waiting for a writer\n\u001b[31m\u001b[1mAssertionError\u001b[22m: expected Error: spawnSync /usr/local/share/nvm/ver\u2026 { \u2026(5) } to be undefined\u001b[39m\n\n\u001b[32m- Expected:\u001b[39m\nundefined\n\n\u001b[31m+ Received:\u001b[39m\nError {\n  \"message\": \"spawnSync /usr/local/share/nvm/versions/node/v24.16.0/bin/node ETIMEDOUT\",\n  \"errno\": -110,\n  \"code\": \"ETIMEDOUT\",\n  \"syscall\": \"spawnSync /usr/local/share/nvm/versions/node/v24.16.0/bin/node\",\n  \"path\": \"/usr/local/share/nvm/versions/node/v24.16.0/bin/node\",\n  \"spawnargs\": [\n    \"-e\",\n    \"try {\nrequire(process.argv[1]).discoverRuntimeFiles(process.argv[2], process.argv[3]);\nprocess.exitCode = 1;\n} catch (error) {\nif (error.message !== 'runtime module is missing: ' + process.argv[2]) throw error;\nconsole.log(error.message);\n}\",\n    \"/work/package-race-repair-01a12d34/extensions/copilot-usage-monitor/scripts/verify-package-contents.js\",\n    \"/tmp/usage-package-fifo-ER3JJl/extension.js\",\n    \"/tmp/usage-package-fifo-ER3JJl\",\n  ],\n}\n\n\u001b[36m \u001b[2m\u276f\u001b[22m test/package-contents.test.ts:\u001b[2m149:30\u001b[22m\u001b[39m\n    \u001b[90m147|\u001b[39m           \u001b[32m\"}\"\u001b[39m\n    \u001b[90m148|\u001b[39m         ].join(\"\\n\"), script, entry, root], { encoding: \"utf8\", timeou\u2026\n    \u001b[90m149|\u001b[39m         \u001b[34mexpect\u001b[39m(result\u001b[33m.\u001b[39merror)\u001b[33m.\u001b[39m\u001b[34mtoBeUndefined\u001b[39m()\u001b[33m;\u001b[39m\n    \u001b[90m   |\u001b[39m                              \u001b[31m^\u001b[39m\n    \u001b[90m150|\u001b[39m         \u001b[34mexpect\u001b[39m(result\u001b[33m.\u001b[39mstatus\u001b[33m,\u001b[39m result\u001b[33m.\u001b[39mstderr)\u001b[33m.\u001b[39m\u001b[34mtoBe\u001b[39m(\u001b[34m0\u001b[39m)\u001b[33m;\u001b[39m\n    \u001b[90m151|\u001b[39m         expect(result.stdout.trim()).toBe(`runtime module is missing: \u2026\n\n\u001b[31m\u001b[2m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[1/2]\u23af\u001b[22m\u001b[39m\n\n\u001b[41m\u001b[1m FAIL \u001b[22m\u001b[49m test/package-contents.test.ts\u001b[2m > \u001b[22mcursor-usage-monitor runtime discovery\u001b[2m > \u001b[22mrejects a FIFO without waiting for a writer\n\u001b[31m\u001b[1mAssertionError\u001b[22m: expected Error: spawnSync /usr/local/share/nvm/ver\u2026 { \u2026(5) } to be undefined\u001b[39m\n\n\u001b[32m- Expected:\u001b[39m\nundefined\n\n\u001b[31m+ Received:\u001b[39m\nError {\n  \"message\": \"spawnSync /usr/local/share/nvm/versions/node/v24.16.0/bin/node ETIMEDOUT\",\n  \"errno\": -110,\n  \"code\": \"ETIMEDOUT\",\n  \"syscall\": \"spawnSync /usr/local/share/nvm/versions/node/v24.16.0/bin/node\",\n  \"path\": \"/usr/local/share/nvm/versions/node/v24.16.0/bin/node\",\n  \"spawnargs\": [\n    \"-e\",\n    \"try {\nrequire(process.argv[1]).discoverRuntimeFiles(process.argv[2], process.argv[3]);\nprocess.exitCode = 1;\n} catch (error) {\nif (error.message !== 'runtime module is missing: ' + process.argv[2]) throw error;\nconsole.log(error.message);\n}\",\n    \"/work/package-race-repair-01a12d34/extensions/cursor-usage-monitor/scripts/verify-package-contents.js\",\n    \"/tmp/usage-package-fifo-86fh4O/extension.js\",\n    \"/tmp/usage-package-fifo-86fh4O\",\n  ],\n}\n\n\u001b[36m \u001b[2m\u276f\u001b[22m test/package-contents.test.ts:\u001b[2m149:30\u001b[22m\u001b[39m\n    \u001b[90m147|\u001b[39m           \u001b[32m\"}\"\u001b[39m\n    \u001b[90m148|\u001b[39m         ].join(\"\\n\"), script, entry, root], { encoding: \"utf8\", timeou\u2026\n    \u001b[90m149|\u001b[39m         \u001b[34mexpect\u001b[39m(result\u001b[33m.\u001b[39merror)\u001b[33m.\u001b[39m\u001b[34mtoBeUndefined\u001b[39m()\u001b[33m;\u001b[39m\n    \u001b[90m   |\u001b[39m                              \u001b[31m^\u001b[39m\n    \u001b[90m150|\u001b[39m         \u001b[34mexpect\u001b[39m(result\u001b[33m.\u001b[39mstatus\u001b[33m,\u001b[39m result\u001b[33m.\u001b[39mstderr)\u001b[33m.\u001b[39m\u001b[34mtoBe\u001b[39m(\u001b[34m0\u001b[39m)\u001b[33m;\u001b[39m\n    \u001b[90m151|\u001b[39m         expect(result.stdout.trim()).toBe(`runtime module is missing: \u2026\n\n\u001b[31m\u001b[2m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[2/2]\u23af\u001b[22m\u001b[39m\n\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[31m1 failed\u001b[39m\u001b[22m\u001b[90m (1)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[31m2 failed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[1m\u001b[32m34 passed\u001b[39m\u001b[22m\u001b[90m (36)\u001b[39m\n\u001b[2m   Start at \u001b[22m 20:08:18\n\u001b[2m   Duration \u001b[22m 4.23s\u001b[2m (transform 26ms, setup 0ms, import 39ms, tests 4.06s, environment 0ms)\u001b[22m\n\n"
+      },
+      "red-package-contents.log": {
+        "sha256": "d18685077a291d25d22f493bb83f5c09b6e6a228974c2a2a06a303086a5280ee",
+        "output": "\n> cursor-usage-monitor@0.1.0 test\n> vitest run test/package-contents.test.ts\n\nnode:internal/modules/esm/resolve:271\n    throw new ERR_MODULE_NOT_FOUND(\n          ^\n\nError [ERR_MODULE_NOT_FOUND]: Cannot find module '/work/package-race-repair-01a12d34/extensions/cursor-usage-monitor/node_modules/.bin/dist/cli.js' imported from /work/package-race-repair-01a12d34/extensions/cursor-usage-monitor/node_modules/.bin/vitest\n    at finalizeResolution (node:internal/modules/esm/resolve:271:11)\n    at moduleResolve (node:internal/modules/esm/resolve:865:10)\n    at defaultResolve (node:internal/modules/esm/resolve:992:11)\n    at #cachedDefaultResolve (node:internal/modules/esm/loader:691:20)\n    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:708:38)\n    at ModuleLoader.resolveSync (node:internal/modules/esm/loader:740:52)\n    at #resolve (node:internal/modules/esm/loader:673:17)\n    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:593:35)\n    at ModuleJob.syncLink (node:internal/modules/esm/module_job:163:33)\n    at ModuleJob.link (node:internal/modules/esm/module_job:253:17) {\n  code: 'ERR_MODULE_NOT_FOUND',\n  url: 'file:///work/package-race-repair-01a12d34/extensions/cursor-usage-monitor/node_modules/.bin/dist/cli.js'\n}\n\nNode.js v24.16.0\n"
+      }
+    },
+    "regenerated_vsix": {
+      "copilot-usage-monitor": {
+        "path": "/work/package-race-repair-01a12d34/extensions/copilot-usage-monitor/copilot-usage-monitor-0.1.0.vsix",
+        "sha256": "a7e7ec1a2320ae123de66e705f54521025b51f48f115602d9d39a5948ffbce6b"
+      },
+      "cursor-usage-monitor": {
+        "path": "/work/package-race-repair-01a12d34/extensions/cursor-usage-monitor/cursor-usage-monitor-0.1.0.vsix",
+        "sha256": "71599ccc26d4ce5ded54111122f9f3af4edcbac8dec4214440a67a26714dabd7"
+      }
+    }
+  },
+  "windows": {
+    "argv": [
+      "node",
+      "-e",
+      "const fs=require('node:fs');const path=require('node:path');const os=require('node:os');const vm=require('node:vm');const assert=require('node:assert/strict');const crypto=require('node:crypto');const results=[];\nfor(const name of ['copilot-usage-monitor','cursor-usage-monitor']){\n const script=path.resolve('extensions',name,'scripts/verify-package-contents.js');const source=fs.readFileSync(script,'utf8');const root=fs.mkdtempSync(path.join(os.tmpdir(),'nexus-package-descriptor-'));const entry=path.join(root,'extension.js');const fds=new Map();let swapped=false;\n try{\n  fs.writeFileSync(entry,'require(\"./original\");\\n');fs.writeFileSync(path.join(root,'original.js'),'module.exports={};\\n');fs.writeFileSync(path.join(root,'replacement.js'),'module.exports={};\\n');\n  const module={exports:{}};vm.runInNewContext(source,{__dirname:path.dirname(script),module,require:(n)=>n==='node:fs'?{...fs,openSync:(p,flags)=>{const fd=fs.openSync(p,flags);fds.set(fd,p);return fd;},fstatSync:(fd)=>{const stat=fs.fstatSync(fd);if(fds.get(fd)===entry&&!swapped){swapped=true;fs.renameSync(entry,path.join(root,'checked-original.js'));fs.writeFileSync(entry,'require(\"./replacement\");\\n');}return stat;},closeSync:(fd)=>{fs.closeSync(fd);fds.delete(fd);}}:require(n)},{timeout:1000});\n  assert.deepEqual(Array.from(module.exports.discoverRuntimeFiles(entry,root)),['extension.js','original.js']);assert.equal(swapped,true);assert.equal(fds.size,0);assert.match(fs.readFileSync(entry,'utf8'),/replacement/);\n  const real=require(script);assert.throws(()=>real.discoverRuntimeFiles(path.join(root,'missing.js'),root),/runtime module is missing:/);assert.throws(()=>real.discoverRuntimeFiles(root,root),/runtime module is missing:/);\n  const errorModule={exports:{}};const readError=new Error('injected read failure');let opened=0;vm.runInNewContext(source,{__dirname:path.dirname(script),module:errorModule,require:(n)=>n==='node:fs'?{...fs,openSync:(p,flags)=>{const fd=fs.openSync(p,flags);fds.set(fd,p);opened++;return fd;},readFileSync:()=>{throw readError;},closeSync:(fd)=>{fs.closeSync(fd);fds.delete(fd);}}:require(n)},{timeout:1000});assert.throws(()=>errorModule.exports.discoverRuntimeFiles(entry,root),(e)=>e===readError);assert.equal(opened,1);assert.equal(fds.size,0);\n  results.push({module:name,cases:['actual-path-replacement','missing-entry','directory-entry','read-error-close'],status:'PASS',source_sha256:crypto.createHash('sha256').update(fs.readFileSync(script)).digest('hex')});\n } finally {for(const fd of fds.keys())fs.closeSync(fd);assert.equal(path.dirname(path.resolve(root)),path.resolve(os.tmpdir()));fs.rmSync(root,{recursive:true,force:true});}\n}\nconsole.log(JSON.stringify({platform:process.platform,node_version:process.version,O_NONBLOCK:fs.constants.O_NONBLOCK,results}));\n"
+    ],
+    "cwd": "$WINDOWS_WORKTREE",
+    "started_utc": "2026-10-12T20:11:00.697107+00:00",
+    "finished_utc": "2026-10-12T20:11:01.571662+00:00",
+    "elapsed_seconds": 0.875,
+    "exit_code": 0,
+    "output_sha256": "b84c00dc3eaeda7f1cf4e3ca13bb4fb1c62523716ac53e194e9484dca5ead214",
+    "output": "{\"platform\":\"win32\",\"node_version\":\"v24.13.0\",\"results\":[{\"module\":\"copilot-usage-monitor\",\"cases\":[\"actual-path-replacement\",\"missing-entry\",\"directory-entry\",\"read-error-close\"],\"status\":\"PASS\",\"source_sha256\":\"91e8f6c069ddcae46421b632514246d0f6bfb3514e86e344ab70a1e7d2e7597c\"},{\"module\":\"cursor-usage-monitor\",\"cases\":[\"actual-path-replacement\",\"missing-entry\",\"directory-entry\",\"read-error-close\"],\"status\":\"PASS\",\"source_sha256\":\"0866c0657a1877f05d9e1379b0997ad414228a06b829ec4ae7e5b0ecac66d06c\"}]}\n"
+  },
+  "public_provenance": {
+    "raw_private_proof_display_path": "$WINDOWS_WORKTREE/.nexus-hub/package-race-repair-01a12d34/repair-proof.json",
+    "raw_private_proof_sha256": "39eaf712edad87e9cb5957b59b4834b8eb04c8b0c9fdcef3a3d04d990abd9c90",
+    "raw_private_proof_bytes": 57746,
+    "display_redactions": [
+      {
+        "json_pointer": "/windows/cwd",
+        "alias": "$WINDOWS_WORKTREE",
+        "original_utf8_sha256": "1f6a82dd613cd96ae80db062eb9e04ba6e62d702a20a0e5cb90f89e644330d25",
+        "public_utf8_sha256": "4385cc1591fd91d87feebe3887510bec25acfeb6e0bdef14822721e1c6eca5df"
+      }
+    ],
+    "preservation": {
+      "typed_leaf_comparison": {
+        "unchanged_nonstring": 27,
+        "unchanged_string": 150,
+        "path_only_redaction": 1
+      },
+      "all_original_statuses_measurements_timestamps_hashes_and_native_logs_unchanged": true,
+      "all_embedded_native_output_hashes_recomputed": true,
+      "only_original_string_change": "/windows/cwd; personal worktree path display only"
+    },
+    "source_scope": {
+      "published_implementation_head_before_narrow_repair": "9b9cc0b448fe0934b548af2abb6c9ec58205e7a0",
+      "three_original_repair_source_hashes_match_private_proof": true,
+      "earlier_complete_full_and_browser_receipt": "linux-final-full-continuation.json",
+      "earlier_complete_full_and_browser_receipt_sha256": "a478dc018597ad7903dbc3ba37e55d0b11ef0e8e50aa4d49813263b48ece59d5",
+      "earlier_validated_snapshot": "accd187c165ceac44aad3ce493e232a30bdb3c6e",
+      "limit": "The earlier full/browser receipt binds its predecessor snapshot. This receipt proves the exact three source hashes and narrow native repair runs; it does not claim a new complete full/browser pass, a merged PR, or a release."
+    }
+  }
+}

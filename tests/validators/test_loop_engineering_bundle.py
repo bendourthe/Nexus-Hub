@@ -223,3 +223,253 @@ def test_ownership_table_records_which_owners_were_edited() -> None:
     for skill_path in OWNER_RULE_SENTENCES:
         name = skill_path.split("/")[1]
         assert f"`{name}`" in section[1], f"{name} is not listed as an edited owner"
+
+
+# --- AR-12 (v3.16.2 MT-1): gate-type parity across schema, table, library ---
+#
+# The gate types are declared in three places: the `gates` row of the Fields
+# table, the Human-Judgment Gates table, and the skill body's Verification
+# checklist. Every library and worked-example gate must use one of them. These
+# helpers return the drift they find so the mutation tests below can prove the
+# check fails on a wrong document, not only that it passes on the right one.
+
+GATE_KEYS = ("type", "question", "unblocks_on", "while_waiting")
+YAML_FENCE = re.compile(r"```yaml\n(.*?)```", flags=re.DOTALL)
+
+
+def _read(name: str) -> str:
+    return (REFERENCES / name).read_text(encoding="utf-8")
+
+
+def _gate_types_in_fields_row(schema_text: str) -> set[str]:
+    row = re.search(r"^\| `gates` \|.*$", schema_text, flags=re.MULTILINE)
+    assert row, "schema does not declare the gates field"
+    declared = re.search(r"declares its `type` \(([^)]*)\)", row.group(0))
+    assert declared, "the gates row does not enumerate its gate types"
+    return set(re.findall(r"`([a-z-]+)`", declared.group(1)))
+
+
+def _gate_types_in_judgment_table(schema_text: str) -> set[str]:
+    section = schema_text.split("## Human-Judgment Gates", 1)[1].split("\n## ", 1)[0]
+    return set(re.findall(r"^\| `([a-z-]+)` \|", section, flags=re.MULTILINE))
+
+
+def _gate_types_in_skill_verification(skill_text: str) -> set[str]:
+    section = skill_text.split("## Verification", 1)[1].split("\n## ", 1)[0]
+    declared = re.search(r"names its `type` \(([^)]*)\)", section)
+    assert declared, "the skill Verification checklist does not enumerate gate types"
+    return {t.strip() for t in declared.group(1).split("/")}
+
+
+def _yaml_gates(text: str) -> list[tuple[str, dict]]:
+    """Every gate entry in every fenced YAML block of a document."""
+    gates = []
+    for block in YAML_FENCE.findall(text):
+        loop = yaml.safe_load(block)
+        for gate in loop.get("gates") or []:
+            gates.append((loop.get("name", "?"), gate))
+    return gates
+
+
+def gate_type_parity_errors(
+    schema_text: str, library_text: str, skill_text: str
+) -> list[str]:
+    errors = []
+    table = _gate_types_in_judgment_table(schema_text)
+    if len(table) != 4:
+        errors.append(f"Human-Judgment Gates table declares {sorted(table)}, expected four")
+    for label, found in (
+        ("Fields-table gates row", _gate_types_in_fields_row(schema_text)),
+        ("skill Verification checklist", _gate_types_in_skill_verification(skill_text)),
+    ):
+        if found != table:
+            errors.append(f"{label} declares {sorted(found)}; table has {sorted(table)}")
+    for source, text in (("loop-schema.md", schema_text), ("loop-library.md", library_text)):
+        for loop_name, gate in _yaml_gates(text):
+            if gate.get("type") not in table:
+                errors.append(f"{source} {loop_name} uses undeclared type {gate.get('type')!r}")
+            missing = [k for k in GATE_KEYS if not gate.get(k)]
+            if missing:
+                errors.append(f"{source} {loop_name} gate lacks {missing}")
+    return errors
+
+
+def test_gate_types_agree_across_fields_row_table_verification_and_library() -> None:
+    errors = gate_type_parity_errors(
+        _read("loop-schema.md"), _read("loop-library.md"), _skill_body()
+    )
+    assert not errors, "\n".join(errors)
+
+
+@pytest.mark.parametrize(
+    "target,old,new",
+    [
+        ("schema", "| `private-data` | The next step", "| `private` | The next step"),
+        (
+            "schema",
+            "(`owner`, `safety`, `publication`, or `private-data`)",
+            "(`owner`, `safety`, or `publication`)",
+        ),
+        (
+            "skill",
+            "(owner / safety / publication / private-data)",
+            "(owner / safety / publication)",
+        ),
+        ("library", "  - type: safety\n", "  - type: destructive\n"),
+        ("library", "    while_waiting: Hold", "    while_waiting_note: Hold"),
+    ],
+)
+def test_gate_type_parity_check_fails_on_a_drifted_document(
+    target: str, old: str, new: str
+) -> None:
+    texts = {
+        "schema": _read("loop-schema.md"),
+        "library": _read("loop-library.md"),
+        "skill": _skill_body(),
+    }
+    assert old in texts[target], f"mutation anchor missing from {target}: {old!r}"
+    texts[target] = texts[target].replace(old, new, 1)
+    assert gate_type_parity_errors(texts["schema"], texts["library"], texts["skill"]), (
+        f"parity check accepted a drifted {target}"
+    )
+
+
+# --- AR-12 (v3.16.2 MT-1): the duplicated ship-pr-until-green block ---
+#
+# The schema's worked example and the library entry are the same loop, so its
+# `gates` block and its shared required fields exist twice. Drift between the
+# two copies is the concrete risk MT-1 named.
+
+SHARED_SHIP_PR_FIELDS = (
+    "name",
+    "goal",
+    "iteration_cap",
+    "check_command",
+    "exit_condition",
+    "driver",
+    "maturity",
+    "tags",
+)
+
+
+def _ship_pr_block(text: str) -> str:
+    blocks = [
+        b for b in YAML_FENCE.findall(text) if b.startswith("name: ship-pr-until-green\n")
+    ]
+    assert len(blocks) == 1, (
+        f"expected exactly one ship-pr-until-green block, found {len(blocks)}"
+    )
+    return blocks[0]
+
+
+def _gates_lines(block: str) -> str:
+    lines = block.splitlines()
+    start = lines.index("gates:")
+    end = start + 1
+    while end < len(lines) and lines[end].startswith(" "):
+        end += 1
+    return "\n".join(lines[start:end])
+
+
+def ship_pr_duplicate_drift(schema_text: str, library_text: str) -> list[str]:
+    schema_block = _ship_pr_block(schema_text)
+    library_block = _ship_pr_block(library_text)
+    drift = []
+    if _gates_lines(schema_block) != _gates_lines(library_block):
+        drift.append("the ship-pr-until-green gates block differs between the two files")
+    schema_loop, library_loop = yaml.safe_load(schema_block), yaml.safe_load(library_block)
+    for field in SHARED_SHIP_PR_FIELDS:
+        if schema_loop.get(field) != library_loop.get(field):
+            drift.append(f"ship-pr-until-green field {field} differs between the copies")
+    return drift
+
+
+def test_ship_pr_until_green_duplicate_blocks_are_identical() -> None:
+    drift = ship_pr_duplicate_drift(_read("loop-schema.md"), _read("loop-library.md"))
+    assert not drift, "\n".join(drift)
+
+
+@pytest.mark.parametrize(
+    "old,new",
+    [
+        ("Approve a force-push that rewrites", "Approve a force push that rewrites"),
+        ("unpushed and idle.", "unpushed."),
+        ("iteration_cap: 10\ncheck_command: gh pr checks", "iteration_cap: 12\ncheck_command: gh pr checks"),
+    ],
+)
+def test_duplicate_block_check_detects_drift_in_one_copy(old: str, new: str) -> None:
+    library = _read("loop-library.md")
+    assert old in library, f"mutation anchor missing from loop-library.md: {old!r}"
+    assert ship_pr_duplicate_drift(_read("loop-schema.md"), library.replace(old, new, 1))
+
+
+def test_duplicate_block_check_rejects_a_second_copy_in_one_file() -> None:
+    library = _read("loop-library.md")
+    second_copy = "```yaml\n" + _ship_pr_block(library) + "```\n"
+    with pytest.raises(AssertionError, match="exactly one ship-pr-until-green block"):
+        ship_pr_duplicate_drift(_read("loop-schema.md"), library + "\n" + second_copy)
+
+
+# --- AR-12 (v3.16 CD-1 and CD-3): re-entrancy, instance identity, prompt growth ---
+
+
+def _reentrancy_section() -> str:
+    body = _skill_body()
+    assert "## Re-entrancy and Instance Identity" in body, "re-entrancy section missing"
+    return body.split("## Re-entrancy and Instance Identity", 1)[1].split("\n## ", 1)[0]
+
+
+@pytest.mark.parametrize(
+    "phrase",
+    [
+        "recursive budget multiplication",
+        "Instance identity is host-owned",
+        "`LOOP_INSTANCE`",
+        "`LOOP_LINEAGE`",
+        "Refuse unintended same-instance re-entry",
+        "Refuse on ambiguous identity",
+        "Fail closed",
+        "Allow deliberate distinct child loops",
+        "never added on top of it",
+        "Refuse an exhausted child budget",
+        "prompt-growth exhaustion",
+        "inter-round compaction",
+        "Nexus-Hub ships no runtime that sets, propagates, or enforces these markers",
+    ],
+)
+def test_reentrancy_section_states_each_obligation(phrase: str) -> None:
+    assert phrase in _reentrancy_section(), f"re-entrancy section no longer states {phrase!r}"
+
+
+@pytest.mark.parametrize(
+    "name",
+    [
+        "ai-billing-safeguards",
+        "using-git-worktrees",
+        "agent-orchestration-primitives",
+        "context-compression",
+        "prompt-token-optimization",
+    ],
+)
+def test_reentrancy_section_cross_links_resolve(name: str) -> None:
+    assert f"[[{name}]]" in _reentrancy_section()
+    assert list((ROOT / "catalog" / "skills").glob(f"*/{name}/SKILL.md")), (
+        f"{name} is not a catalog skill"
+    )
+
+
+def test_reentrancy_guidance_does_not_name_the_upstream_project() -> None:
+    """Reverse-engineering attribution rule: provenance lives in the matrix row only."""
+    lowered = (_skill_body() + _read("loop-schema.md")).lower()
+    for token in ("no-mistakes", "no_mistakes", "nested_gate_context"):
+        assert token not in lowered, f"distributed artifact names the upstream: {token}"
+    matrix = (ROOT / "docs" / "policy" / "mcp-reverse-engineering-matrix.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Re-entrancy and Instance Identity" in matrix, "provenance matrix row missing"
+
+
+def test_instance_record_carries_the_host_owned_identity() -> None:
+    section = _read("loop-schema.md").split("## Instance State", 1)[1]
+    assert "`LOOP_INSTANCE` and `LOOP_LINEAGE`" in section
+    assert "ambiguous identity and is refused" in section

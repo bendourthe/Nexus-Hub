@@ -1,10 +1,11 @@
 # Known Gaps - v3.20
 
+**Ledger normalization**: 2026-10-09, v4.13.11. The canonical open count is derived from supported item headings. Summary and reconciliation count tables below retain historical release snapshots, including partial closures and explicit transfers; they are not new parser totals.
+
 **Project**: Nexus-Hub
 **Status**: finalized; archived 2026-09-29; 0 open items (4 migrated to v4.13 as AR-07, AR-09, AR-38, AR-39). Per-section status lines below are historical and were written before release.
 
 **Open items**: 0
-
 **Status at last pre-archive update**: finalized
 **Last updated**: 2026-09-28
 
@@ -31,19 +32,27 @@ None.
 
 #### Deferred
 
-##### DF-1 - No native invocation mapping for platforms with no vendor lever - MIGRATED to v4.13 (AR-38)
+##### DF-1-v3203 - No native invocation mapping for platforms with no vendor lever - MIGRATED to v4.13 (AR-38) - MIGRATED to v4.13.0
 
 - **Source phase**: Phase 4 - Invocation-policy metadata
 - **Plan reference**: `docs/v3/v3.20/plans/v3.20.3-skills-craft-and-prime-agent.md` (sub-task 4.1)
 - **Reason**: Antigravity, OpenCode, Kimi, Hermes, and Nexus-AI document no per-skill invocation-policy field. Generated command-skills still carry `disable-model-invocation: true` in SKILL.md; those hosts ignore the unknown key. Inventing a sidecar would repeat the v3.15.0 fabricated-companion failure.
 - **Suggested next step**: Revisit when a first-party vendor document names a lever. Until then keep the honest gap note in `docs/policy/skill-invocation-policy-levers.md`.
 
-##### DF-2 - Official Claude plugin directory listing not submitted - MIGRATED to v4.13 (AR-39)
+**Original source identity**: `v3.20.3#DF-1` in `v3.20.3`; normalized stable ID `DF-1-v3203` distinguishes this obligation from repeated IDs in other patch sections.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-38`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.20.3`, section `v3.20.3`, and original ID `DF-1`.
+
+##### DF-2-v3203 - Official Claude plugin directory listing not submitted - MIGRATED to v4.13 (AR-39) - MIGRATED to v4.13.0
 
 - **Source phase**: Phase 5 - Official Claude plugin marketplace listing
 - **Plan reference**: `docs/v3/v3.20/plans/v3.20.3-skills-craft-and-prime-agent.md` (sub-task 5.1)
 - **Reason**: The phase prepares the package and the maintainer packet. Live Anthropic process (fetched 2026-08-24) is the [plugin directory submission form](https://clau.de/plugin-directory-submission), not a PR to `anthropics/claude-plugins-official`. Opening either from the implement loop is out of scope.
 - **Suggested next step**: Maintainer submits the form using `docs/v3/v3.20/development/claude-marketplace-submission.md`. After listing, add the `@claude-plugins-official` install line to README.
+
+**Original source identity**: `v3.20.3#DF-2` in `v3.20.3`; normalized stable ID `DF-2-v3203` distinguishes this obligation from repeated IDs in other patch sections.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-39`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.20.3`, section `v3.20.3`, and original ID `DF-2`.
 
 #### Bugs / Regressions
 
@@ -187,21 +196,25 @@ None open. The version-directory lexical-sort defect is resolved below.
 
 #### Warnings
 
-##### WN-2 - Sixty-five SKILL.md bodies still exceed the 500-line warning tier - MIGRATED to v4.13 (AR-07)
+##### WN-2 - Sixty-five SKILL.md bodies still exceed the 500-line warning tier - MIGRATED to v4.13 (AR-07) - MIGRATED to v4.13.0
 
 - **Source phase**: Phase 3 - Size-norm remediation; recounted Phase 5
 - **Plan reference**: same plan, Phase 3 (plan cited 107; live count after relocation is 65; none exceed the 800-line hard cap)
 - **Reason**: The 800-line cap is an error; 500 is a grandfathered warning. Relocating the remaining 65 would be a separate docs-structure pass, not this plan's content expansion.
 - **Suggested next step**: Relocate long-tail sections of the longest bodies into `references/` the next time those skills are substantially edited. Do not bulk-rewrite 65 skills in a patch.
 
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-07`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.20.1`, section `v3.20.1`, and original ID `WN-2`.
+
 #### Missing Tests / Coverage Gaps
 
-##### MT-1 - Most catalog skills still lack `evals/trigger-cases.json` - MIGRATED to v4.13 (AR-09)
+##### MT-1 - Most catalog skills still lack `evals/trigger-cases.json` - MIGRATED to v4.13 (AR-09) - MIGRATED to v4.13.0
 
 - **Source phase**: Phase 4 / Phase 5
 - **Plan reference**: same plan, sub-task 4.3 (evals are optional; missing is WARN, never FAIL)
 - **Reason**: 55 of 315 skills ship trigger cases (the 40 new security skills plus 15 pre-existing). The remaining 260 are uncovered. The gate is incremental by contract.
 - **Suggested next step**: Add trigger cases when a skill is next rewritten, prioritizing dual-use and high-traffic routing collisions.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-09`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.20.1`, section `v3.20.1`, and original ID `MT-1`.
 
 #### Quality-Gate Gaps
 
@@ -273,13 +286,13 @@ Before this minor moved to `docs/archives/`, every item that this file did not a
 
 | Item | Disposition | Evidence, reason, or destination |
 |---|---|---|
-| DF-1 (line 30) | Migrated | AR-38: no documented invocation-policy lever on Antigravity, OpenCode, Kimi, Hermes, or Nexus-AI (`docs/policy/skill-invocation-policy-levers.md`) |
-| DF-2 (line 37) | Migrated | AR-39: the official Claude plugin directory submission was never made |
-| WN-3 (line 99) | Resolved | `python scripts/validate_no_personal_paths.py` completed in 12.5 s with exit 0 on 2026-09-29, skips `archive/` and `archives/`, and runs in the CI hygiene group |
-| DF-1 (line 145) | Closed | Refused by design under the reverse-engineering-first policy (`docs/policy/mcp-reverse-engineering-matrix.md`) |
-| DF-2 (line 152) | Closed | Decided: `docs/decisions/implemented/policy/2026-08-23-security-content-independent-authorship.md` |
-| DF-3 (line 159) | Closed | Decided: `docs/decisions/implemented/architecture/2026-08-23-vendor-neutral-capability-consolidation.md` |
-| DF-4 (line 166) | Closed | Decided: `docs/decisions/rejected/policy/2026-08-23-adopt-allowed-tools-frontmatter.md` |
-| DF-5 (line 173) | Closed | Marked drop-outright in the v3.20.1 comparison |
-| WN-2 (line 186) | Migrated | AR-07: 68 SKILL.md files exceed 500 lines including frontmatter (2026-09-29 count) |
-| MT-1 (line 195) | Migrated | AR-09: 88 of 338 skills have `evals/trigger-cases.json` (2026-09-29 count) |
+| `DF-1` (line 30) | Migrated | AR-38: no documented invocation-policy lever on Antigravity, OpenCode, Kimi, Hermes, or Nexus-AI (`docs/policy/skill-invocation-policy-levers.md`) |
+| `DF-2` (line 37) | Migrated | AR-39: the official Claude plugin directory submission was never made |
+| `WN-3` (line 99) | Resolved | `python scripts/validate_no_personal_paths.py` completed in 12.5 s with exit 0 on 2026-09-29, skips `archive/` and `archives/`, and runs in the CI hygiene group |
+| `DF-1` (line 145) | Closed | Refused by design under the reverse-engineering-first policy (`docs/policy/mcp-reverse-engineering-matrix.md`) |
+| `DF-2` (line 152) | Closed | Decided: `docs/decisions/implemented/policy/2026-08-23-security-content-independent-authorship.md` |
+| `DF-3` (line 159) | Closed | Decided: `docs/decisions/implemented/architecture/2026-08-23-vendor-neutral-capability-consolidation.md` |
+| `DF-4` (line 166) | Closed | Decided: `docs/decisions/rejected/policy/2026-08-23-adopt-allowed-tools-frontmatter.md` |
+| `DF-5` (line 173) | Closed | Marked drop-outright in the v3.20.1 comparison |
+| `WN-2` (line 186) | Migrated | AR-07: 68 SKILL.md files exceed 500 lines including frontmatter (2026-09-29 count) |
+| `MT-1` (line 195) | Migrated | AR-09: 88 of 338 skills have `evals/trigger-cases.json` (2026-09-29 count) |

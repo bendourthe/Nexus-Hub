@@ -72,9 +72,15 @@ class Command:
     skip_if_missing: bool = False
     #: Extra environment for this command only.
     env: Mapping[str, str] = field(default_factory=dict)
+    #: Per-host-class timeout overrides in seconds; `timeout` applies elsewhere.
+    #: Use only with a recorded measurement on that host class.
+    platform_timeouts: Mapping[str, int] = field(default_factory=dict)
 
     def runs_on(self, platform: str) -> bool:
         return not self.platforms or platform in self.platforms
+
+    def timeout_on(self, platform: str) -> int:
+        return self.platform_timeouts.get(platform, self.timeout)
 
 
 @dataclass(frozen=True)
@@ -286,7 +292,15 @@ TESTS = Group(
         # These are enforceable CI safety bounds, not local performance SLOs.
         # A contended workstation may exceed them; do not tune shared limits
         # from that observation. Recalibrate only from quiet CI measurements.
-        _pytest("hook-tests", "catalog/hooks/tests", timeout=1800),
+        # Exception, approved in v4.13.11: two Windows-only overrides (hook-tests
+        # 2400 s from a 2096.9 s run, v4.13.9 WN-38; governance 3600 s from a
+        # 3325.7 s run, v4.13.9 WN-35). Linux and macOS keep the shared caps.
+        _pytest(
+            "hook-tests",
+            "catalog/hooks/tests",
+            timeout=1800,
+            platform_timeouts={"windows": 2400},
+        ),
         # Keep the repository corpus complete but split it at stable ownership
         # boundaries. The former monolith could time out after an hour while
         # naming only a percentage; these partitions retain every collected
@@ -302,6 +316,7 @@ TESTS = Group(
             "tests/integrations/test_codex_invocation_policy.py",
             "tests/integrations/test_codex_native.py",
             "tests/integrations/test_consult.py",
+            "tests/integrations/test_gemini_cli_workspace.py",
             timeout=1800,
         ),
         _pytest(
@@ -323,6 +338,8 @@ TESTS = Group(
             "tests/integrations/test_cross_platform_flatten.py",
             "tests/integrations/test_global_command_surface.py",
             "tests/integrations/test_owned_root_preflight.py",
+            "tests/integrations/test_skill_path_provider_order.py",
+            "tests/integrations/test_windows_long_paths.py",
             timeout=1800,
         ),
         _pytest(
@@ -349,6 +366,8 @@ TESTS = Group(
             "tests/integrations/test_template_includes.py",
             "tests/integrations/test_skill_index_pointer.py",
             "tests/integrations/test_usage_guard_delivery.py",
+            "tests/integrations/test_notify_contract_guard.py",
+            "tests/integrations/test_notify_helper_delivery.py",
             timeout=1800,
         ),
         _pytest(
@@ -359,6 +378,14 @@ TESTS = Group(
             "tests/integrations/test_settings_hooks.py",
             "tests/integrations/test_teardown.py",
             timeout=1800,
+        ),
+        # The map CLI test imports nexus_code_search, which resolves only with the
+        # extension's src on the path (registered in v4.13.11, AR-08).
+        _pytest(
+            "repo-tests-integrations-map",
+            "tests/integrations/test_map_cli.py",
+            timeout=900,
+            env=_local_src_env("extensions/nexus-code-search/src"),
         ),
         _pytest("repo-tests-plans", "tests/plans", timeout=900),
         _pytest(
@@ -378,6 +405,7 @@ TESTS = Group(
             "tests/test_git_attribution.py",
             "tests/test_removed_autonomy_surface.py",
             timeout=2700,
+            platform_timeouts={"windows": 3600},
         ),
     ),
 )
@@ -519,10 +547,19 @@ WINDOWS_HOOKS = Group(
             timeout=1800,
             env={"NEXUS_TEST_POWERSHELL": "powershell"},
         ),
+        # Separate the independently owned attribution module from the corpus:
+        # the combined quiet-CI selection exhausted 1800 s near its tail.
+        # Both serial commands retain that bound and Windows PowerShell 5.1.
         _pytest(
             "installer + validators (Windows)",
             "tests/installer",
             "tests/validators",
+            platforms=("windows",),
+            timeout=1800,
+            env={"NEXUS_TEST_POWERSHELL": "powershell"},
+        ),
+        _pytest(
+            "Git attribution (Windows)",
             "tests/test_git_attribution.py",
             platforms=("windows",),
             timeout=1800,

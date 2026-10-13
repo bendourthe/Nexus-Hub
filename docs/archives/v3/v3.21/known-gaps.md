@@ -1,10 +1,11 @@
 # Known Gaps - v3.21
 
+**Ledger normalization**: 2026-10-09, v4.13.11. The canonical open count is derived from supported item headings. Summary and reconciliation count tables below retain historical release snapshots, including partial closures and explicit transfers; they are not new parser totals.
+
 **Project**: Nexus-Hub
 **Status**: finalized; archived 2026-09-29; 0 open items (1 migrated to v4.13 as AR-41). Per-section status lines below are historical and were written before release.
 
 **Open items**: 0
-
 **Status at last pre-archive update**: finalized
 **Last updated**: 2026-08-25
 
@@ -29,7 +30,7 @@ None.
 
 #### Deferred
 
-##### DF-1 - Nexus-Hub catalog has no product atlas HTML - MIGRATED to v4.13 (AR-41)
+##### DF-1 - Nexus-Hub catalog has no product atlas HTML - MIGRATED to v4.13 (AR-41) - MIGRATED to v4.13.0
 
 - **Source phase**: Phase 5 - Living docs, git hygiene, CI/CD, Goal review
 - **Plan reference**: `docs/archives/v3/v3.21/plans/v3.21.0-plan-implement-lifecycle-and-docs-architecture.md` (sub-task 5.3)
@@ -37,6 +38,8 @@ None.
 - **Suggested next step**: If maintainers want a catalog atlas, author real markdown under `docs/handbooks/markdown/` and generate HTML via `/presentify`. Until then `/update release` regenerate-and-fail-on-stale is a no-op.
 
 Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-paths scan) stay in `docs/archives/v3/v3.20/known-gaps.md`. They were reviewed this last phase and remain out of this plan's scope per Phase B.5.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-41`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.21.0`, section `v3.21.0`, and original ID `DF-1`.
 
 #### Bugs / Regressions
 
@@ -68,4 +71,4 @@ Before this minor moved to `docs/archives/`, every item that this file did not a
 
 | Item | Disposition | Evidence, reason, or destination |
 |---|---|---|
-| DF-1 (line 28) | Migrated | AR-41: product atlas; `docs/handbooks/overview.html` may satisfy it (commit `0b164f06`), but `docs/README.md` still says no atlas exists, so a maintainer decision is needed |
+| `DF-1` (line 28) | Migrated | AR-41: product atlas; `docs/handbooks/overview.html` may satisfy it (commit `0b164f06`), but `docs/README.md` still says no atlas exists, so a maintainer decision is needed |

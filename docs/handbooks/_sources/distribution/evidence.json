@@ -5,12 +5,12 @@
       "docs/handbooks/_sources/distribution/model.json": "3f3b9e1222a51583962e4de248d9ac74804b03a2b3102605e8e1911c8ea3496d",
       "docs/handbooks/_sources/distribution/source.md": "495f2edd8b5046d38801c6e675385cc500b552da8231a381ff5e811db62721fa",
       "docs/handbooks/_sources/distribution/design.css": "4d2975128abe327205e8b3c4fd62d351644221e9e03bfbaa539986f3cc1b9a70",
-      "scripts/installer.ps1": "2524854246049cc88cb0d591dd0b92b76f4247094b6adb07fb7642eb1f195a9c",
-      "scripts/installer.sh": "e703e145913bf98e451099e9a6b0e24a073ed78f8ff1936ecbb3c5c688214a3e",
-      "scripts/lib/integrations/runner.py": "8a2ee00491a75bc6ce66aedef8f824a092bb2369cb321cb76ddc338e2fec03ed",
-      "scripts/lib/integrations/_catalog_adapters.py": "36f4fa103e7126692a32a5c93b56c77f2919cd2d2dad7ee6e318d259f49fa041",
-      "scripts/lib/integrations/_owned.py": "1587357664626dc18f299f0abd85d2d31a8fe94a705611a7d52fe734f1465e90",
-      "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py": "6c6fe8535e5be98a5bd92118d6f27847dbe5edb04da52bfea78741eb0e3962d4",
+      "scripts/installer.ps1": "3c48fd1da833b6a2afd74e210ee6961946b7ac349161a0dce2522d6cdcd14adf",
+      "scripts/installer.sh": "c80e854e76bb7314ef40e97df8e85c27b7c853a428c2575b1b0464ec592f8754",
+      "scripts/lib/integrations/runner.py": "5429ec6c9896b95285effe8215b2d3ca291c920bad6ccf8dec0ffa93cca7b78f",
+      "scripts/lib/integrations/_catalog_adapters.py": "6a8e0f1375df9ae401302b1b13a1559f093d7aecd0c5ae0c134f9dddad162647",
+      "scripts/lib/integrations/_owned.py": "abfac9b0161e9148e236532b85a854bf512c3100bc5f39fed7e8474e7fd727e4",
+      "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py": "55a10ebfa2412b48243ae72ca70180f12aa80cc7f89d66cad0911d275bb9ce50",
       "catalog/skills/specialized-domains/document-to-interactive-html/scripts/dual_view.py": "cb97c1c53dd4560f3a59b9cc08d54223c4e0d49c2373bed3c20b5430607053a2",
       "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-runtime.js": "336a276024b786f95287178e1ce455328aee1c253ed3dc05709e49c58cde1ce6",
       "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-figures.js": "1891f3f4eaabc43c743d5360a6615338d65cf50ed8cc02a771d32a07c194e17d",
@@ -20,31 +20,31 @@
       "docs/handbooks/_sources/distribution/identity-composition.html": "8f5ac756f4a58e3745548ea8476d1300e9dbc9683fbe44e0037c928773f69014",
       "docs/handbooks/_sources/distribution/ownership-composition.html": "31df6a101328862f4e525a8b79cec45cb531d3404a8c97a108b48fca4ff231e3",
       "docs/handbooks/_sources/distribution/verification-composition.html": "0c679ab8af04bab8d40146cb899e1768b795e904048ea4d95ab56fdcea986779",
-      "scripts/nexus_git_attribution.py": "82c3ba17974c582b7f482df9c8c7eade7532f946036d13310cb317c68f477604",
+      "scripts/nexus_git_attribution.py": "2206437a578d73993e5de82424498aa20c57409deb76def7e5c02363dde5346a",
       "catalog/style-guides/git-attribution.md": "f4abb51bdbd97f19a115024c51ba0e9a414f4e377590c05efcbdc8693ede7b29",
-      "scripts/lib/integrations/cursor.py": "efbeeeb7150fc72e6d3e48b0f9d368f5fec3bc2cf65b7fe2a663ffb50c03cca8",
+      "scripts/lib/integrations/cursor.py": "9cc127d07c30153cbda24b4faf4774ae79705406c05ee466e34b5fbbe1e52f4e",
       "scripts/lib/integrations/aider.py": "7737442015938681795878452050de557a09324651e29247de3ee231513e9798",
-      "configs/platform-defaults.json": "46f0baf40df55710365d962830c90b0fa742933fb6f9a12201f1ba581381bff0"
+      "configs/platform-defaults.json": "7c5b50fff792910769f75263cf5a75dc2f5a49d1059d7ad54ab7805e46d9095d"
     },
-    "output_sha256": "1e2a099241b81cf7c0bd84480f759956d374e9768b8231aced654c2f2c32262b"
+    "output_sha256": "d520007558410ed00944291b109b6e46302d5e46ced3224f54af4c640b20eac1"
   },
   "checks": {
     "content": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.13/development/v4.13.2-wn6-distribution-handbook-review.md",
-      "evidence_sha256": "fdc766748ddb040b14e486bc82b321a6bc1875c381ccf19b9de80bd245f358a6"
+      "evidence": "docs/releases/v4/v4.13/development/v4.13.11-phase-8-handbook-claim-review.md",
+      "evidence_sha256": "3239a414a8912fd3f36517fed6170476063451270deee0f650a39cff95f213d0"
     },
     "build": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.13/development/v4.13.2-wn6-distribution-handbook-build.json",
-      "evidence_sha256": "072c76240ce023013480fb6609966ae5cdefbf647f0e2b3db30351da820a76a4"
+      "evidence": "docs/releases/v4/v4.13/development/v4.13.11-phase-8-receipts/distribution-build.json",
+      "evidence_sha256": "9a665f98754d36ed2d6816f1dd3c78bf8d2d8d566b8cfde92fc22495420c0f85"
     },
     "rendered": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.13/development/v4.13.2-wn6-distribution-handbook-rendered.json",
-      "evidence_sha256": "eef317161ff4a46d7743edf5c723b51aaf943fe7e7d9537e8b88d81a0b02e05e",
+      "evidence": "docs/releases/v4/v4.13/development/v4.13.11-phase-8-receipts/distribution-render.json",
+      "evidence_sha256": "ed3348526e027d6fc7d77c6ab486a5e4099ddfb971110d0b47cbc5546f50e560",
       "browser": "Chromium 151.0.7922.34",
-      "output_sha256": "1e2a099241b81cf7c0bd84480f759956d374e9768b8231aced654c2f2c32262b"
+      "output_sha256": "d520007558410ed00944291b109b6e46302d5e46ced3224f54af4c640b20eac1"
     }
   }
 }

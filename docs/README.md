@@ -8,7 +8,7 @@ This tree splits **living** docs (edited in place, describing current `main`) fr
 - [todos.md](todos.md) -- forward dashboard (may lag the branch; see v3.21 known-gaps)
 - [decisions/](decisions/README.md) -- ADRs; never release-scoped
 - [guides/](guides/) -- user guides: [usage-limit handoff](guides/usage-limit-handoff.md), [repository-native CI profiles](guides/repository-native-ci-profiles.md), [user attribution](guides/user-attribution.md), and [host-agent disk writes](guides/host-agent-disk-writes.md)
-- [handbooks/](handbooks/README.md) -- markdown source of truth plus generated HTML. This catalog has no product atlas HTML yet; do not invent one
+- [handbooks/](handbooks/README.md) -- mapped sources under `_sources/` plus generated HTML with reading and Presentation views. The [catalog overview](handbooks/overview.html) is the product atlas (authoring, validation, delivery, and evidence); [installation and ownership](handbooks/distribution.html) covers platform delivery
 - [policy/](policy/) -- installer, platform-contract, and MCP policy
 
 There is no `docs/testing/` or `docs/validation/` tree. Those paths are self-gated and are not invented here.

@@ -29,7 +29,7 @@ Classification is about whether a documented lever EXISTS. Whether Nexus-Hub can
 |---|---|---|---|---|---|---|
 | `aider` | VERIFIED | `model`, `reasoning-effort`, `thinking-tokens`, `yes-always`, `auto-commits`, `attribute-author`, `attribute-committer`, `attribute-co-authored-by`, `attribute-commit-message-author`, `attribute-commit-message-committer`, `git-commit-verify`, `read` | `.aider.conf.yml` | Exact | [aider.chat](https://aider.chat/docs/config/aider_conf.html) | 2026-09-14 |
 | `antigravity` | UNVERIFIED | - | - | - | [antigravity.google](https://antigravity.google/docs/ide/settings) | 2026-08-30 |
-| `antigravity2` | VERIFIED | `agentMode` | `~/.gemini/antigravity-cli/settings.json` | Near | [antigravity.google](https://www.antigravity.google/docs/cli/modes/) | 2026-08-30 |
+| `antigravity2` | VERIFIED | `agentMode` | `~/.gemini/antigravity-cli/settings.json` | Near | [antigravity.google](https://www.antigravity.google/docs/cli/modes/) | 2026-10-10 |
 | `claude` | VERIFIED | `effortLevel`, `model`, `env.CLAUDE_CODE_EFFORT_LEVEL` (plus per-model `modelSettings`, not seeded), `attribution.commit`, `attribution.pr` | `~/.claude/settings.json`, `.claude/settings.json` | Exact | [configuration](https://code.claude.com/docs/en/configuration), [model-config](https://code.claude.com/docs/en/model-config) | 2026-09-14 |
 | `codex` | VERIFIED | `model`, `model_reasoning_effort`, `approval_policy`, `sandbox_mode` | `~/.codex/config.toml` | Exact | [learn.chatgpt.com](https://learn.chatgpt.com/docs/config-file/config-reference) | 2026-10-01 |
 | `copilot` | VERIFIED | `model`, `permissions.disableBypassPermissionsMode`, `sandbox.enabled`, `sandbox.allowBypass` | `~/.copilot/settings.json` | Exact | [docs.github.com](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-config-dir-reference) | 2026-08-30 |
@@ -69,7 +69,7 @@ Antigravity's IDE settings documentation describes only in-app configuration: it
 
 ### antigravity2 (Antigravity 2.0 + CLI) - VERIFIED
 
-`~/.gemini/antigravity-cli/settings.json` is documented as a plain JSON settings file. The current modes reference documents `agentMode` with values `default`, `accept-edits`, and `plan`: `default` asks for confirmation before tool execution, `accept-edits` automatically approves edit tools, and `plan` disables tool use. Nexus-Hub seeds `{"agentMode": "default"}` only when the key is absent.
+`~/.gemini/antigravity-cli/settings.json` is documented as a plain JSON settings file. The current modes reference documents `agentMode` with values `default`, `accept-edits`, and `plan`: `default` pauses for interactive diff review before modifying or creating files, `accept-edits` automatically approves file edits and creations, and `plan` prepends the `/plan` instruction prefix to analyze and outline steps before writing code (re-fetched 2026-10-10; the 2026-09-28 pass first logged this wording change, v4.13.3 WN-6). Nexus-Hub seeds `{"agentMode": "default"}` only when the key is absent.
 
 **Important limitation, recorded explicitly**: the page documents **no default-model key and no reasoning-effort key**. The verified lever here is an autonomy policy only. The separate settings reference names `toolPermission`, `artifactReviewPolicy`, `enableTerminalSandbox`, and `allowNonWorkspaceAccess`, but does not provide a stable, safe value domain for automatic seeding, so those keys are deliberately omitted.
 
@@ -243,3 +243,8 @@ Scope: the v4.13.6 release re-fetched only the Claude, Cursor, and Codex skill-d
 ### 2026-10-02 - v4.13.7 targeted read-contract pass (no lever recheck)
 
 Scope: the v4.13.7 release re-fetched only the Claude, Cursor, and Codex skill-discovery pages and the Cursor hooks page for the read-contract stamp. Those pages do not document the effort, model, or approval levers, so no lever row was rechecked or reclassified this cycle. This contract remains advisory with no release freshness gate.
+
+
+### 2026-10-13 - v4.13.11 release qualification
+
+The full 17-row primary-source review of 2026-10-12 remains the detailed evidence, including PARTIAL and UNVERIFIED classifications. Current discovery-page re-fetches do not requalify every behavioral lever. Claude's current model configuration still documents per-model effort settings; Aider still documents home, repository, and current-directory YAML configuration; Pi still distinguishes trusted project and user configuration. The Codex configuration page resolved, but targeted content retrieval failed, so its lever details are carried from the dated review rather than freshly qualified. Hermes configuration was fetched without a complete lever re-review. No lever classification, seeded value, or approval policy was changed. This advisory record has no release freshness gate.

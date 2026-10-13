@@ -28,29 +28,28 @@ scripts/optimize_skill_description.py  # one file, dispatches on --cli
 Each script has a hard `assert cli in {"claude", "gemini", "codex", "opencode"}` near the top, then a per-CLI dispatch branch:
 
 ```python
-def invoke_cli(cli: str, prompt: str, skill_path: str | None) -> dict:
+def build_cli_command(cli, prompt, skill_path, model, project_dir=None) -> list[str]:
+    assert cli in {"claude", "gemini", "codex", "opencode"}
     if cli == "claude":
-        cmd = ["claude", "-p", prompt]
-        if skill_path is not None:
-            cmd.extend(["--skill", skill_path])
-        return _run(cmd)
+        if skill_path is None:
+            return ["claude", "-p", prompt, "--setting-sources", "", "--model", model]
+        return ["claude", "-p", prompt, "--model", model,
+                "--output-format", "stream-json", "--verbose",
+                "--setting-sources", "project", "--strict-mcp-config",
+                "--add-dir", str(project_dir)]
     if cli == "gemini":
-        cmd = ["gemini", "--workflow", prompt]
-        if skill_path is not None:
-            cmd.extend(["--skill-file", skill_path])
-        return _run(cmd)
+        raise RuntimeError("gemini configuration isolation is not documented")
     if cli == "codex":
-        cmd = ["codex", "exec", prompt]
+        cmd = ["codex", "exec", "--ignore-user-config", "--ignore-rules",
+               "--ephemeral", "--model", model]
         if skill_path is not None:
-            cmd.extend(["--prompt", skill_path])
-        return _run(cmd)
+            cmd += ["--cd", str(project_dir), "--skip-git-repo-check"]
+        return cmd + [prompt]
     if cli == "opencode":
-        cmd = ["opencode", "run", prompt]
-        if skill_path is not None:
-            cmd.extend(["--skill", skill_path])
-        return _run(cmd)
-    raise AssertionError(f"unsupported cli: {cli}")
+        raise RuntimeError("opencode configuration isolation is not documented")
 ```
+
+Neither shipped CLI has a flag that loads one skill file. `invoke_cli` therefore copies the SKILL.md under test into a throwaway project directory at the CLI's native project skills root and runs the CLI from there, so the skill is discovered the way a user's project skill is. An earlier version of this file documented `--skill <path>` and `--prompt <path>`; neither flag exists (v4.13 AR-04).
 
 Pros: ~50 lines of CLI-specific code per script (vs ~150 lines of duplication x 4 = 600); one bug-fix in the loop logic ships to all four CLIs at once. Cons: the parity invariant needs an explicit test (since deletion-safety no longer falls out of structure). The test exists at `catalog/hooks/tests/test_eval_loop.py::TestEvalLoopCLIAdapter`.
 
@@ -64,17 +63,20 @@ The exact CLI flag surface evolves. The findings below were verified against off
 
 **Runner**: `claude`
 
-**Isolation status**: supported with `--setting-sources ""`, which supplies an empty list of user, project, and local setting sources.
+**Isolation status**: supported. The no-skill arm uses `--setting-sources ""`, an empty list of user, project, and local setting sources. The skill arm uses `--setting-sources project` from a throwaway project directory, so the staged skill is the only project corpus and the user's catalog stays out; `--strict-mcp-config` with no `--mcp-config` drops every MCP server.
 
 **Model pin**: `--model <model>` is mandatory.
 
-**Official source**: [Claude Code CLI reference](https://code.claude.com/docs/en/cli-usage), verified 2026-09-21.
+**Official source**: [Claude Code CLI reference](https://code.claude.com/docs/en/cli-usage), verified 2026-09-21; flags re-checked against the installed `claude --help` of Claude Code 2.1.283 on 2026-10-10.
 
 ```bash
-claude -p "<prompt>" --setting-sources "" --model <model> --skill <path/to/SKILL.md>
+# cwd = <tmp>, with the skill copied to <tmp>/.claude/skills/<name>/SKILL.md
+claude -p "<prompt>" --model <model> --output-format stream-json --verbose \
+  --setting-sources project --strict-mcp-config --add-dir <tmp>
 ```
 
-- Skill loading: `--skill <path>` (the file path, not the directory).
+- Skill loading: the skill is staged in the project skills root and never forced in, so the run measures whether the model selects it. This is the invocation `scripts/run_trigger_pilot.py` used.
+- Trigger detection: a `Skill` tool call naming the skill in the stream-json transcript. The phrase heuristic applies only to plain-text output.
 - Prompt: `-p "<text>"` for one-shot non-interactive mode.
 - Token / duration capture: parse the CLI's trailing usage output when present; otherwise record that the value was estimated.
 
@@ -98,13 +100,16 @@ No invocation is emitted until a documented and tested per-run exclusion covers 
 
 **Model pin**: `--model <model>` is mandatory.
 
-**Official source**: [OpenAI Codex exec CLI source](https://github.com/openai/codex/blob/main/codex-rs/exec/src/cli.rs), verified 2026-09-21.
+**Official source**: [OpenAI Codex exec CLI source](https://github.com/openai/codex/blob/main/codex-rs/exec/src/cli.rs), verified 2026-09-21; flags re-checked against the installed `codex exec --help` of codex-cli 0.136.0 on 2026-10-10.
 
 ```bash
-codex exec --ignore-user-config --ignore-rules --ephemeral --model <model> "<prompt>" --prompt <path/to/SKILL.md>
+# the skill is copied to <tmp>/.agents/skills/<name>/SKILL.md
+codex exec --ignore-user-config --ignore-rules --ephemeral --model <model> \
+  --cd <tmp> --skip-git-repo-check "<prompt>"
 ```
 
-- Skill loading: `--prompt <path>` (the adapter's prompt-overlay contract).
+- Skill loading: the skill is staged under the `.agents/skills` project root that Codex discovers (see `docs/policy/platform-read-contracts.json`). `codex exec` has no skill-file flag.
+- Trigger detection: plain-text output, so the phrase heuristic. No live run has yet confirmed that Codex discovers the staged skill from `--cd`.
 - Prompt: positional after `exec`.
 - Token / duration capture: parse the CLI's usage output on success.
 
@@ -132,6 +137,8 @@ Isolation removes saved model and effort settings. Without an explicit pin, the 
 2. No other CLI binary name appears anywhere within the branch's body.
 3. The branch either contains the documented isolation flags and one explicit model pin or fails closed with the sourced limitation.
 4. The four runner markers in this reference exactly match the runtime branch set.
+
+A second test, `tests/validators/test_eval_harness_cli_flags.py`, checks every flag the builder emits against captured `--help` text in `tests/fixtures/cli-help/`, so a flag the CLI does not accept fails offline. Re-capture those fixtures when a CLI release changes its flags.
 
 The test is parametrized over the cross product of dispatcher and CLI, so any cross-CLI bleed introduced in the runtime command builder produces a single targeted failure pinpointing the script and branch.
 

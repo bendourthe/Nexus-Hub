@@ -2,7 +2,8 @@
 
 These rules (insight I-03 from the Nexus adoption-skill-cleaner track) are
 hard-errors at PR time: `name` must be single-line kebab-case, `description`
-must be single-line and at most 250 characters, and an absent `name` defaults
+must be single-line and at most 1024 characters (the agentskills.io limit
+that scripts/check_agentskills_conformance.py also gates), and an absent `name` defaults
 to the parent directory name (which must itself be kebab-case). A transitional
 `--allow-existing` flag, backed by scripts/validate_skills.allowlist.json,
 demotes known pre-existing violations to warnings while the catalog drains.
@@ -60,14 +61,14 @@ def test_conformant_frontmatter_has_no_format_errors(tmp_path: Path) -> None:
 
 def test_overlong_description_is_error(tmp_path: Path) -> None:
     d = tmp_path / "wordy-skill"
-    fm = {"name": "wordy-skill", "description": "x" * 251}
+    fm = {"name": "wordy-skill", "description": "x" * 1025}
     errs = validate_skills.validate_frontmatter_format(d / "SKILL.md", d, fm)
-    assert any("251 characters" in e and "max 250" in e for e in errs)
+    assert any("1025 characters" in e and "max 1024" in e for e in errs)
 
 
 def test_description_at_the_limit_is_ok(tmp_path: Path) -> None:
     d = tmp_path / "edge-skill"
-    fm = {"name": "edge-skill", "description": "x" * 250}
+    fm = {"name": "edge-skill", "description": "x" * 1024}
     assert validate_skills.validate_frontmatter_format(d / "SKILL.md", d, fm) == []
 
 
@@ -119,16 +120,16 @@ def test_grandfathered_violation_is_demoted_to_warning(tmp_path: Path) -> None:
     skill_dir = tmp_path / "wordy-skill"
     skill_dir.mkdir()
     skill_file = skill_dir / "SKILL.md"
-    skill_file.write_text(_skill_content("wordy-skill", "x" * 300), encoding="utf-8")
+    skill_file.write_text(_skill_content("wordy-skill", "x" * 1100), encoding="utf-8")
 
     # Not grandfathered -> the over-long description is a hard error.
     errs, _warns = validate_skills.validate_skill_dir(skill_dir)
-    assert any("max 250" in e for e in errs)
+    assert any("max 1024" in e for e in errs)
 
     # Grandfathered -> demoted to a warning, no error.
     key = skill_file.as_posix()
     errs2, warns2 = validate_skills.validate_skill_dir(skill_dir, {key})
-    assert not any("max 250" in e for e in errs2)
+    assert not any("max 1024" in e for e in errs2)
     assert any("grandfathered" in w for w in warns2)
 
 
@@ -139,7 +140,7 @@ def test_grandfathered_violation_is_demoted_to_warning(tmp_path: Path) -> None:
 def test_overlong_description_fails_full_validator_via_cli(tmp_path: Path) -> None:
     skill_dir = tmp_path / "wordy-skill"
     skill_dir.mkdir()
-    (skill_dir / "SKILL.md").write_text(_skill_content("wordy-skill", "x" * 300), encoding="utf-8")
+    (skill_dir / "SKILL.md").write_text(_skill_content("wordy-skill", "x" * 1100), encoding="utf-8")
     result = subprocess.run(
         [sys.executable, str(VALIDATOR), "--path", str(tmp_path)],
         capture_output=True,
@@ -148,7 +149,7 @@ def test_overlong_description_fails_full_validator_via_cli(tmp_path: Path) -> No
         cwd=REPO_ROOT,
     )
     assert result.returncode == 1, result.stdout
-    assert "max 250" in result.stdout
+    assert "max 1024" in result.stdout
 
 
 # ---------------------------------------------------------------------------
@@ -512,3 +513,141 @@ def test_bundles_only_fails_when_body_exceeds_hard_cap(tmp_path: Path) -> None:
     )
     assert result.returncode == 1, result.stdout
     assert "hard cap 800" in result.stdout
+
+
+# ---------------------------------------------------------------------------
+# Description budget agrees with the agentskills.io contract (v4.13 AR-06)
+#
+# validate_skills.py once capped descriptions at 250 characters while the
+# AGENTS.md trigger-rich rule and scripts/check_agentskills_conformance.py
+# (gated in `make validate` and CI) allow 1024. Two validators disagreeing about
+# one field is how a description that ships fine still "fails" a manual audit.
+# ---------------------------------------------------------------------------
+
+CONFORMANCE = REPO_ROOT / "scripts" / "check_agentskills_conformance.py"
+
+
+def _load_conformance():
+    spec = importlib.util.spec_from_file_location("check_agentskills_conformance", CONFORMANCE)
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_description_budget_matches_the_agentskills_conformance_gate() -> None:
+    conformance = _load_conformance()
+    assert validate_skills.DESCRIPTION_MAX_CHARS == conformance.DESCRIPTION_MAX == 1024
+
+
+def _run_full_validator(root: Path) -> subprocess.CompletedProcess:
+    return subprocess.run(
+        [sys.executable, str(VALIDATOR), "--path", str(root)],
+        capture_output=True,
+        text=True,
+        check=False,
+        cwd=REPO_ROOT,
+    )
+
+
+def test_description_at_1024_passes_full_validator_via_cli(tmp_path: Path) -> None:
+    skill_dir = tmp_path / "edge-skill"
+    skill_dir.mkdir()
+    (skill_dir / "SKILL.md").write_text(_skill_content("edge-skill", "x" * 1024), encoding="utf-8")
+    result = _run_full_validator(tmp_path)
+    assert result.returncode == 0, result.stdout
+    assert "characters (max" not in result.stdout
+
+
+def test_description_at_1025_fails_full_validator_with_named_diagnostic(tmp_path: Path) -> None:
+    skill_dir = tmp_path / "edge-skill"
+    skill_dir.mkdir()
+    (skill_dir / "SKILL.md").write_text(_skill_content("edge-skill", "x" * 1025), encoding="utf-8")
+    result = _run_full_validator(tmp_path)
+    assert result.returncode == 1, result.stdout
+    assert "description is 1025 characters (max 1024)" in result.stdout
+
+
+# ---------------------------------------------------------------------------
+# Strict-YAML frontmatter gate (v3.14.3 MT-1, carried as v4.13 AR-08)
+#
+# The tolerant parse_frontmatter() accepts an unquoted scalar containing ": "
+# that a strict consumer rejects, so the skill silently fails to load. These
+# tests feed accepted and rejected blocks through validate_frontmatter_strict_yaml
+# directly, through the PyYAML-absent heuristic, and through the --bundles-only
+# CLI mode that CI runs.
+# ---------------------------------------------------------------------------
+
+_STRICT_OK = (
+    "---\n"
+    "name: yaml-skill\n"
+    'description: "Does a thing. SKIP: unrelated work."\n'
+    'summary_l0: "short summary"\n'
+    'overview_l1: "short overview"\n'
+    "---\n\n# yaml-skill\n\nBody.\n"
+)
+
+_STRICT_BAD = (
+    "---\n"
+    "name: yaml-skill\n"
+    "description: Does a thing. SKIP: unrelated work.\n"
+    'summary_l0: "short summary"\n'
+    'overview_l1: "short overview"\n'
+    "---\n\n# yaml-skill\n\nBody.\n"
+)
+
+
+def test_strict_yaml_accepts_quoted_scalar_with_colon() -> None:
+    assert validate_skills.validate_frontmatter_strict_yaml(Path("SKILL.md"), _STRICT_OK) == []
+
+
+def test_strict_yaml_rejects_unquoted_scalar_with_colon() -> None:
+    errs = validate_skills.validate_frontmatter_strict_yaml(Path("SKILL.md"), _STRICT_BAD)
+    assert len(errs) == 1
+    assert "frontmatter is not valid YAML" in errs[0]
+    assert "quote the offending scalar" in errs[0]
+
+
+def test_strict_yaml_rejects_unclosed_flow_sequence() -> None:
+    content = _STRICT_OK.replace('summary_l0: "short summary"', "tags: [one, two")
+    errs = validate_skills.validate_frontmatter_strict_yaml(Path("SKILL.md"), content)
+    assert len(errs) == 1 and "frontmatter is not valid YAML" in errs[0]
+
+
+def test_strict_yaml_without_frontmatter_is_left_to_the_caller() -> None:
+    assert validate_skills.validate_frontmatter_strict_yaml(Path("SKILL.md"), "# no fence\n") == []
+
+
+def test_strict_yaml_heuristic_fallback_without_pyyaml(monkeypatch) -> None:
+    monkeypatch.setattr(validate_skills, "_HAS_YAML", False)
+    assert validate_skills.validate_frontmatter_strict_yaml(Path("SKILL.md"), _STRICT_OK) == []
+    errs = validate_skills.validate_frontmatter_strict_yaml(Path("SKILL.md"), _STRICT_BAD)
+    assert len(errs) == 1
+    assert "key 'description'" in errs[0] and "heuristic" in errs[0]
+
+
+def _bundles_only(root: Path) -> subprocess.CompletedProcess:
+    return subprocess.run(
+        [sys.executable, str(VALIDATOR), "--bundles-only", "--path", str(root)],
+        capture_output=True,
+        text=True,
+        check=False,
+        cwd=REPO_ROOT,
+    )
+
+
+def test_bundles_only_rejects_malformed_yaml_via_cli(tmp_path: Path) -> None:
+    skill = tmp_path / "yaml-skill"
+    skill.mkdir()
+    (skill / "SKILL.md").write_text(_STRICT_BAD, encoding="utf-8")
+    result = _bundles_only(tmp_path)
+    assert result.returncode == 1, result.stdout
+    assert "frontmatter is not valid YAML" in result.stdout
+
+
+def test_bundles_only_accepts_quoted_yaml_via_cli(tmp_path: Path) -> None:
+    skill = tmp_path / "yaml-skill"
+    skill.mkdir()
+    (skill / "SKILL.md").write_text(_STRICT_OK, encoding="utf-8")
+    result = _bundles_only(tmp_path)
+    assert result.returncode == 0, result.stdout

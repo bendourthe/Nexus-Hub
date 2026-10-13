@@ -28,9 +28,9 @@ Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scop
 
 Dispatch the resolved scope to the retained skill:
 
-      deep     -> deep-research (fan-out search, source fetch, adversarial claim verification, cited report)
-      compile  -> compile-deep-research (merge .docx/.md/.pdf/.pptx/.html/URL/.txt sources into one cited document)
-      report   -> generate-report (Markdown -> .docx / .pptx using a project or global template)
+      deep     -> deep-research-compilation (its gathering phase: fan-out search, source fetch, adversarial claim verification, cited report)
+      compile  -> deep-research-compilation (merge .docx/.md/.pdf/.pptx/.html/URL/.txt sources into one cited document)
+      report   -> generate_report.py (Markdown to .docx / .pptx using a project or global template; follow style-guides/generate-report.md)
 
 Pass any remaining arguments (the research question, source list, target format, template name) through unchanged. Heavy logic stays in the retained skills; this file only resolves scope and delegates.
 
@@ -56,7 +56,7 @@ The verifier classes involved here (deterministic for sections, duplicates, and 
 
 ## Notes
 
-- This command replaces `/compile-deep-research` and `/generate-report` (removed in v3.2.0), and surfaces the `deep-research` skill as a first-class `/research deep` scope.
-- `deep` already fans out across sources internally; it carries the scope-first token caution and adversarial verification built into the `deep-research` skill.
+- This command replaces `/compile-deep-research` and `/generate-report` (removed in v3.2.0), and surfaces the gathering phase of the `deep-research-compilation` skill as a first-class `/research deep` scope.
+- `deep` already fans out across sources internally; it carries the scope-first token caution and adversarial verification built into the `deep-research-compilation` skill's gathering phase.
 - When the user instead wants a portable brief to hand to a human researcher or an external deep-research tool, apply the `prompt-engineering` research-brief authoring technique to produce one self-contained paragraph; `/research` otherwise executes the research itself.
 - Keep this dispatcher thin. The research, compilation, and export procedures live in the retained skills; this file owns only scope resolution and delegation.

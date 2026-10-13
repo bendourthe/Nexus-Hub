@@ -50,7 +50,7 @@ def mode_tokens() -> set[str]:
 
 def _card() -> tuple[list[str], str]:
     text = GUIDE.read_text(encoding="utf-8").split('id="page-cheatsheets"', 1)[1]
-    match = re.search(r'class="cs-name">/implement</span>([\s\S]*?)</article>', text)
+    match = re.search(r'class="cs-name">/implement</h3>([\s\S]*?)</article>', text)
     assert match, "the Cheatsheets page has no /implement card"
     body = match.group(1)
     scopes = [html.unescape(s).strip() for s in re.findall(r'<div class="cs-scope"><code[^>]*>([^<]+)</code>', body)]
@@ -86,7 +86,7 @@ def test_the_card_no_longer_teaches_one_phase_as_the_default() -> None:
 
 
 def test_the_card_shows_a_minor_and_a_per_plan_example() -> None:
-    body = GUIDE.read_text(encoding="utf-8").split('class="cs-name">/implement</span>', 1)[1].split("</article>", 1)[0]
+    body = GUIDE.read_text(encoding="utf-8").split('class="cs-name">/implement</h3>', 1)[1].split("</article>", 1)[0]
     copies = re.findall(r'data-copy="(/implement[^"]*)"', body)
     assert copies[0] == "/implement v0.5"
     assert any(re.fullmatch(r"/implement [a-z0-9-]+", c) and c != "/implement v0.5" for c in copies[1:])
@@ -94,7 +94,7 @@ def test_the_card_shows_a_minor_and_a_per_plan_example() -> None:
 
 def test_the_update_card_names_the_closing_pull_request_and_the_checked_cleanup() -> None:
     text = GUIDE.read_text(encoding="utf-8").split('id="page-cheatsheets"', 1)[1]
-    body = text.split('class="cs-name">/update</span>', 1)[1].split("</article>", 1)[0]
+    body = text.split('class="cs-name">/update</h3>', 1)[1].split("</article>", 1)[0]
     release = re.search(r'<code[^>]*>release</code><span[^>]*>([^<]+)</span>', body)
     assert release, "the /update card has no release scope"
     assert "closing pull request" in release.group(1)
@@ -107,7 +107,7 @@ _SCOPES = re.compile(r"Recognized scopes: ((?:`[^`]+`(?:, )?)+)\.")
 
 def _cheatsheet_card(name: str) -> str | None:
     text = GUIDE.read_text(encoding="utf-8").split('id="page-cheatsheets"', 1)[1]
-    marker = f'class="cs-name">/{name}</span>'
+    marker = f'class="cs-name">/{name}</h3>'
     if marker not in text:
         return None
     return text.split(marker, 1)[1].split("</article>", 1)[0]

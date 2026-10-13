@@ -27,7 +27,7 @@ Use this skill for:
 
 **When NOT to use this skill**:
 
-- Checking current consumption against your usage window or rate limit -- use `/usage` (the `check-usage` skill); this skill is the task-time counterpart, not a consumption monitor.
+- Checking current consumption against your usage window or rate limit -- use `/usage` (the shared usage probe); this skill is the task-time counterpart, not a consumption monitor.
 - Enforcing a hard dollar spend cap on an autonomous agent -- use `[[ai-billing-safeguards]]`; routing recommends a tier, it does not block execution at a budget.
 - Choosing an API provider (Anthropic vs. Bedrock vs. Vertex vs. OpenRouter) rather than a model tier -- use `[[multi-provider-ai]]`.
 
@@ -106,7 +106,7 @@ The helper validates the 4x4 schema, non-empty cells, date, and official-source 
 
 **`validate` cannot catch a reshuffled column, which is why `diff` exists.** Validation grades shape: it passes any candidate whose 16 cells are non-empty strings, including one that has swapped a provider's frontier and standard models. `diff` compares each id's tier against `last-known-model-map.json` and exits 3 listing every move. Treat exit 3 as a stop: either restore the snapshot placement, or keep the move and write its reason into the plan's map section as a stated judgment. Never absorb a reported move silently, and never edit the snapshot to make `diff` quiet without that same reason. A genuinely new id is not a move and is never reported.
 
-This guard is not hypothetical. A fresh run placed Anthropic's `claude-opus-5` at `frontier` and `claude-fable-5-1` at `standard`, inverting the snapshot, and shape validation passed it; the drift reached `docs/releases/v4/v4.16/plans/v4.16.3-adoption-agent-experience-and-harness-economics.md` and recurred with different values in a later plan. Both runs re-derived the ordering from the model's own background rather than carrying the recorded judgment forward.
+This guard is not hypothetical. A fresh run placed Anthropic's `claude-opus-5` at `frontier` and `claude-fable-5-1` at `standard`, inverting the snapshot, and shape validation passed it; the drift reached `docs/releases/v4/v4.16/plans/v4.16.2-adoption-agent-experience-and-harness-economics.md` and recurred with different values in a later plan. Both runs re-derived the ordering from the model's own background rather than carrying the recorded judgment forward.
 
 If web search or official docs are unavailable, render the bundled snapshot with `model-map.sh fallback` or `model-map.ps1 fallback`. This emits `offline fallback; stale as of <snapshot-date>` from `last-known-model-map.json`. If the snapshot is missing or fails validation, run the `unavailable` command and use `assess at implementation time` in all 16 cells. Never silently reuse an undated map, invent an id, or collapse the table to the current host.
 
@@ -205,7 +205,7 @@ Each platform is a small profile. Adding a platform is adding a row, not rewriti
 - [[ai-billing-safeguards]] -- hard spend caps the router respects; routing recommends a tier, billing-safeguards block at a budget.
 - [[agent-orchestration-primitives]] -- decides whether to fan out at all; routing then picks the tier each agent runs on.
 - [[implementation-plan]] -- scores plan phases to generic tier/effort and owns the dated four-provider Current model map.
-- `/usage` (the `check-usage` skill) -- the consumption-time counterpart that reports usage against limits; this skill is the planning/task-time counterpart and does not duplicate it.
+- `/usage` (the shared usage probe) -- the consumption-time counterpart that reports usage against limits; this skill is the planning/task-time counterpart and does not duplicate it.
 
 ---
 

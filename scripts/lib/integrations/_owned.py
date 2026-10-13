@@ -19,6 +19,7 @@ import stat
 import uuid
 from pathlib import Path
 
+from .base import long_path
 from .result import FileAction
 
 
@@ -27,7 +28,20 @@ def is_owned(ctx, key: str, path: Path) -> bool:
     return str(path) in set(ctx.manifest.files_for(key))
 
 
-def _is_junction(path: Path) -> bool:
+def _spellings(path: Path) -> tuple:
+    """``path`` plus its extended-length form when that differs (AR-11).
+
+    A plain ``lstat`` past Windows MAX_PATH fails and pathlib reports that as
+    "not a link", so a link check that asked only the plain spelling would let a
+    deep redirected entry through. Asking both refuses more, never less.
+    """
+    if not isinstance(path, Path):
+        return (path,)
+    io_path = long_path(path)
+    return (path,) if io_path == path else (path, io_path)
+
+
+def _is_junction_at(path: Path) -> bool:
     checker = getattr(path, "is_junction", None)
     try:
         if checker is not None and checker():
@@ -39,14 +53,24 @@ def _is_junction(path: Path) -> bool:
     return mount_point_tag is not None and reparse_tag == mount_point_tag
 
 
+def _is_junction(path: Path) -> bool:
+    return any(_is_junction_at(spelling) for spelling in _spellings(path))
+
+
+def _is_symlink(path: Path) -> bool:
+    return any(spelling.is_symlink() for spelling in _spellings(path))
+
+
 def _is_link_like(path: Path) -> bool:
     """Return whether replacing ``path`` must not reuse its current inode."""
-    if path.is_symlink() or _is_junction(path):
+    if _is_symlink(path) or _is_junction(path):
         return True
-    try:
-        return path.lstat().st_nlink > 1
-    except OSError:
-        return False
+    for spelling in reversed(_spellings(path)):
+        try:
+            return spelling.lstat().st_nlink > 1
+        except OSError:
+            continue
+    return False
 
 
 def _relative_within(destination: Path, managed_root: Path) -> Path | None:
@@ -89,14 +113,19 @@ def _link_like_managed_ancestor(
         # target_root. Explicit roots are rejected before this helper is called.
         return None
 
-    if explicit_root and (managed_root.is_symlink() or _is_junction(managed_root)):
+    if explicit_root and _redirects(managed_root):
         return managed_root
     current = managed_root
     for part in relative.parts[:-1]:
         current /= part
-        if current.is_symlink() or _is_junction(current):
+        if _redirects(current):
             return current
     return None
+
+
+def _redirects(path: Path) -> bool:
+    """True when ``path`` is a symlink or junction, checked past MAX_PATH too."""
+    return _is_symlink(path) or _is_junction(path)
 
 
 def refuse_managed_redirect(
@@ -179,13 +208,17 @@ def write_owned_file(
     if refusal is not None:
         return refusal
 
-    entry_exists = dst.exists() or dst.is_symlink() or _is_junction(dst)
+    # File operations use the extended-length form (AR-11): the staging name adds
+    # 38 characters, so even a destination under MAX_PATH can fail without it.
+    # Ownership, the manifest, and the returned action keep the plain path.
+    dst_io = long_path(dst)
+    entry_exists = dst_io.exists() or _is_symlink(dst) or _is_junction(dst)
     if entry_exists:
         link_like = _is_link_like(dst)
         if not is_owned(ctx, key, dst) and not ctx.overwrite:
             ctx.manifest.log(key, f"skip-existing (user-authored): {dst}")
             return FileAction(path=str(dst), action="kept")
-        if not link_like and dst.is_file() and dst.read_bytes() == content:
+        if not link_like and dst_io.is_file() and dst_io.read_bytes() == content:
             ctx.manifest.track(key, str(dst))
             return FileAction(path=str(dst), action="unchanged")
         if _is_junction(dst):
@@ -193,13 +226,13 @@ def write_owned_file(
             ctx.manifest.log(key, f"{reason}: {dst}")
             return FileAction(path=str(dst), action="kept", reason=reason)
         if not ctx.dry_run:
-            dst.parent.mkdir(parents=True, exist_ok=True)
-            _atomic_replace_bytes(dst, content)
+            dst_io.parent.mkdir(parents=True, exist_ok=True)
+            _atomic_replace_bytes(dst_io, content)
         ctx.manifest.track(key, str(dst))
         return FileAction(path=str(dst), action="updated")
     if not ctx.dry_run:
-        dst.parent.mkdir(parents=True, exist_ok=True)
-        _atomic_replace_bytes(dst, content)
+        dst_io.parent.mkdir(parents=True, exist_ok=True)
+        _atomic_replace_bytes(dst_io, content)
     ctx.manifest.track(key, str(dst))
     return FileAction(path=str(dst), action="created")
 

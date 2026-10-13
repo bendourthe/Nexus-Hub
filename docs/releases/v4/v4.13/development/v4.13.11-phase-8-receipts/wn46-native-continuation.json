@@ -1,0 +1,121 @@
+{
+  "schema": 1,
+  "gap": "v4.13#WN-46",
+  "scope": "Native Windows long-path removal and user-file preservation",
+  "source_sha256": {
+    "scripts/lib/integrations/_hooks_json_merge.py": "174127c64c41b96fb41e2ea84efdeafea6783e5e85bd7e1af43c87e72679d44c",
+    "scripts/lib/integrations/base.py": "dac1c708c3f32e38da60475f747fa78a24035b6d02ad8795f1ce44aff853af5a",
+    "tests/integrations/test_windows_long_paths.py": "c61107cc9c3ecf570337226edc40e7ba5ed18d6381b005e37eb58806d9481fdd"
+  },
+  "raw_receipt_sha256": {
+    "red.txt": "33309a8da34b1597a145990a5a171d58a353799fbb0482bf891f0d8b615f05a4",
+    "green-focused.txt": "57bc78e77a6fada97bdffaaa3708fa38b9a5cac5d011b851309d28f9a407809a",
+    "green-focused-final.txt": "eb1b6ddba508d3cd281fc9bbe833cac4d2f4a1c0da598e954418be2c66ede188",
+    "green-regression.txt": "e34d04199a63a364f0664f23673712b841c430d8732a1881d8fa74b25bb9c3a5",
+    "cli-smoke.json": "8672880b62d05c2888cba3d2629a31506cf7cdb3b2e06b91b85f9fd95a764964"
+  },
+  "raw_receipt_encoding": {
+    "red.txt": "utf-16",
+    "green-focused.txt": "utf-16",
+    "green-focused-final.txt": "utf-16",
+    "green-regression.txt": "utf-16",
+    "cli-smoke.json": "utf-16"
+  },
+  "terminal_results": {
+    "red.txt": [
+      "FAILED tests/integrations/test_windows_long_paths.py::test_deep_hook_prune_preserves_user_entries_and_crlf[True-named]",
+      "FAILED tests/integrations/test_windows_long_paths.py::test_deep_hook_prune_preserves_user_entries_and_crlf[True-flat]",
+      "FAILED tests/integrations/test_windows_long_paths.py::test_deep_base_teardown_removes_owned_files_and_trees",
+      "7 failed, 1 passed, 1 skipped, 9 deselected in 0.98s",
+      "exit=1"
+    ],
+    "green-focused.txt": [
+      "tests\\integrations\\test_windows_long_paths.py:363: AssertionError",
+      "=========================== short test summary info ===========================",
+      "SKIPPED [1] tests\\integrations\\test_windows_long_paths.py:337: Windows symlink creation privilege is unavailable",
+      "1 failed, 8 passed, 1 skipped, 9 deselected in 0.68s",
+      "exit=1"
+    ],
+    "green-focused-final.txt": [
+      ".......s..                                                               [100%]",
+      "=========================== short test summary info ===========================",
+      "SKIPPED [1] tests\\integrations\\test_windows_long_paths.py:337: Windows symlink creation privilege is unavailable",
+      "9 passed, 1 skipped, 9 deselected in 0.58s",
+      "exit=0"
+    ],
+    "green-regression.txt": [
+      "................s......................................                  [100%]",
+      "=========================== short test summary info ===========================",
+      "SKIPPED [1] tests\\integrations\\test_windows_long_paths.py:337: Windows symlink creation privilege is unavailable",
+      "54 passed, 1 skipped in 224.64s (0:03:44)",
+      "exit=0"
+    ]
+  },
+  "native_cli": {
+    "root_length": 268,
+    "LongPathsEnabled": 0,
+    "native_negative_control": "prefixed file exists; plain is_file is false",
+    "dry_run_preserved_all_files": true,
+    "removed_owned_file_tree_backup_last_hook_file": true,
+    "user_file_preserved": true,
+    "user_hook_backup_restored_exact_crlf_bytes": true,
+    "user_hook_sha256": "d4ab5fadf4c8fa6fd154028ab7a74ad1d43cc502d9c7365183e9a9c137491f30",
+    "manifest_owned_and_shared_empty": true
+  },
+  "cli_commands": [
+    {
+      "arguments": [
+        "python",
+        "-m",
+        "scripts.lib.integrations.runner",
+        "teardown",
+        "--target",
+        "TEMP_ROOT_268",
+        "--integrations",
+        "antigravity2",
+        "--dry-run"
+      ],
+      "exit": 0,
+      "stderr_empty": true
+    },
+    {
+      "arguments": [
+        "python",
+        "-m",
+        "scripts.lib.integrations.runner",
+        "teardown",
+        "--target",
+        "TEMP_ROOT_268",
+        "--integrations",
+        "antigravity2"
+      ],
+      "exit": 0,
+      "stderr_empty": true
+    },
+    {
+      "arguments": [
+        "python",
+        "-m",
+        "scripts.lib.integrations.runner",
+        "teardown",
+        "--target",
+        "TEMP_ROOT_268",
+        "--integrations",
+        "antigravity2"
+      ],
+      "exit": 0,
+      "stderr_empty": true
+    }
+  ],
+  "regression_command": "python -m pytest tests/integrations/test_windows_long_paths.py tests/integrations/test_antigravity.py tests/integrations/test_cursor.py tests/integrations/test_teardown.py -q -rs",
+  "review": {
+    "result": "approved",
+    "findings": 0,
+    "scope": [
+      "scripts/lib/integrations/_hooks_json_merge.py",
+      "scripts/lib/integrations/base.py"
+    ]
+  },
+  "limitation": "Native file-symlink case skipped because Windows symlink creation privilege is unavailable; the native junction case passed",
+  "promotion": "Derived from preserved raw receipts; workstation executable and temporary-root arguments are replaced by python and TEMP_ROOT_268; stdout paths are omitted"
+}

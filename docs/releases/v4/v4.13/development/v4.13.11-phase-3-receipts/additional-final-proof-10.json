@@ -1,0 +1,24 @@
+{
+  "red_receipt": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\functional-byte-devlog-final\\receipt.json",
+  "red_status": "FAIL",
+  "production_source_unchanged": true,
+  "devlog": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks-resume\\functional-byte-devlog-final\\jq-devlog\\iso\\hsb-fb1e4e54c99e4d9aa039a70c1f5e77cc\\docs\\DEVLOG.md",
+  "devlog_sha256": "5b0610a302d208e5b31aadc3fdce7911a9cfd5a5d7ff49d5113d1ed86a819718",
+  "old_selector_history_count": 0,
+  "whole_heading_selector_history_count": 10,
+  "exact_newest_order": [
+    "history-19-",
+    "history-18-",
+    "history-17-",
+    "history-16-",
+    "history-15-",
+    "history-14-",
+    "history-13-",
+    "history-12-",
+    "history-11-",
+    "history-10-"
+  ],
+  "subjects_at_most_200": true,
+  "original_body_preserved": true,
+  "cause": "Temp witness split on substring ## inside ### What Changed, selecting no recent commits; production emitted the exact bounded newest-ten section."
+}

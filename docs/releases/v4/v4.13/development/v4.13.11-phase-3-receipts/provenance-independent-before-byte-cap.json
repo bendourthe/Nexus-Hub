@@ -1,0 +1,73 @@
+{
+  "status": "PASS",
+  "source_sha256": {
+    "catalog/hooks/provenance-ledger.sh": "db4811c2cf34a7c4f81e34e90313beb677e60b149a35166690b03481d4bbf63a",
+    "catalog/hooks/provenance-ledger.ps1": "389f0ab6cb8dc5ae0cbc2fecf53ed28cfd5aab1e1eaeea181298554d60bf4e3a",
+    "catalog/hooks/tests/test_hook_size_bound.py": "4e892fdb77e7dca1b303fb841478354d77fafb90ba2ea0854aca4587983362d7"
+  },
+  "observations": [
+    {
+      "decoder": "jq",
+      "kind": "escaped",
+      "exit": 0,
+      "ledger_unchanged": true,
+      "refusal": "NUL"
+    },
+    {
+      "decoder": "jq",
+      "kind": "raw",
+      "exit": 0,
+      "ledger_unchanged": true,
+      "refusal": "NUL"
+    },
+    {
+      "decoder": "jq",
+      "kind": "subsequent-valid",
+      "exit": 0,
+      "complete_identity": true,
+      "row_count": 2
+    },
+    {
+      "decoder": "python",
+      "kind": "escaped",
+      "exit": 0,
+      "ledger_unchanged": true,
+      "refusal": "NUL"
+    },
+    {
+      "decoder": "python",
+      "kind": "raw",
+      "exit": 0,
+      "ledger_unchanged": true,
+      "refusal": "NUL"
+    },
+    {
+      "decoder": "python",
+      "kind": "subsequent-valid",
+      "exit": 0,
+      "complete_identity": true,
+      "row_count": 2
+    },
+    {
+      "decoder": "ps1",
+      "kind": "escaped",
+      "exit": 0,
+      "ledger_unchanged": true,
+      "refusal": "NUL"
+    },
+    {
+      "decoder": "ps1",
+      "kind": "raw",
+      "exit": 0,
+      "ledger_unchanged": true,
+      "refusal": "NUL"
+    },
+    {
+      "decoder": "ps1",
+      "kind": "subsequent-valid",
+      "exit": 0,
+      "complete_identity": true,
+      "row_count": 2
+    }
+  ]
+}

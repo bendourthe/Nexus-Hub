@@ -6,9 +6,9 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.13.10 -->
+<!-- nexus-hub-version: 4.13.11 -->
 
-Nexus-Hub is the upstream skill catalog for AI coding assistants: 340 skills across 23 categories, 21 commands (plus 3 permanent aliases), 37 registered hooks, 23 agents, and 4 language rule families plus the HTML artifact rules. It installs in one step on Windows, macOS, and Linux, through 17 platform integrations: Claude Code, OpenAI Codex, Gemini and Antigravity, GitHub Copilot, Cursor, OpenCode, Qwen Code, Kimi Code CLI, Devin Desktop / Windsurf, Hermes, Pi, OpenClaw, Aider, and the sibling Nexus desktop app. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
+Nexus-Hub is the upstream skill catalog for AI coding assistants: 340 skills across 23 categories, 21 commands (plus 3 permanent aliases), 37 registered hooks, 23 agents, and 4 language rule families plus the HTML artifact rules. It installs in one step on Windows, macOS, and Linux, through 17 platform integrations: Claude Code, OpenAI Codex, Gemini and Antigravity, GitHub Copilot, Cursor, OpenCode, Qwen Code, Kimi Code CLI, Devin Desktop / Windsurf, Hermes, Pi, OpenClaw, Aider, and the sibling Nexus desktop app. The catalog is reverse-engineering-first by policy. Account usage checks are limited to each tool's own provider; the catalog has no third-party data processors or telemetry.
 
 ## Interactive Guide -- start here
 
@@ -39,6 +39,16 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v4.13.11
+
+**A choice at a usage limit.** The guard asks whether to continue on pay-per-use credits, wait or hand off. Pending questions remain open; wait or handoff withdraws an earlier credit approval. Capped allowances receive 50/75/90-percent reminders, and configurable spend steps cover uncapped allowances. Provider-specific settings files preserve simultaneous editor updates.
+
+**Delivery that preserves personal files.** Antigravity receives the existing edit and attribution guards, OpenClaw uses the selected workspace, and Copilot personal command-skills retain user-authored prompts and instructions. Deep Windows paths, teardown and hook pruning preserve user bytes and junction targets. Native fixture verification is documented separately from authenticated vendor-host checks.
+
+**Training and guide repairs.** HUD updates write changed values, responsive fitting retains arena measurements, and phone navigation supports Escape and focus exit. Contrast, heading semantics and the restart-first installation checks are corrected. The game-balance configurations are unchanged.
+
+**Verification and remaining work.** Usage-monitor package checks inspect the same opened runtime object and reject credential-like files. Windows CI reports attribution separately from installer/validator tests. The reconciled v4.13 ledger retains 83 residual items with explicit transfer contracts for v4.14; the transfer and minor archive follow the release. See [the changelog](CHANGELOG.md#41311---2026-10-13) for activation, validation, rollback, authority and qualification limits.
 
 ## What's New in v4.13.10
 
@@ -801,7 +811,7 @@ Monitor your AI coding usage from the editor status bar with a full dashboard. F
 - **Copilot Usage Monitor** (`nexus-hub.copilot-usage-monitor`): GitHub Copilot usage with teal `#0E8A85` progress bars. On a personal plan it shows the monthly quota as a percentage; on a Business or Enterprise seat without billing access it shows credits used and no percentage, because GitHub sets no personal limit; once an owner or billing manager connects a read-only organization token it shows the organization's shared AI-credit pool. See [extensions/copilot-usage-monitor/](extensions/copilot-usage-monitor/).
 - **Cursor Usage Monitor** (`nexus-hub.cursor-usage-monitor`): personal Cursor Models and Other Models included-usage meters with on-demand spend context (steel-blue `#4682B4` progress bars), for the Cursor IDE only. This release ships with live fetch disabled entirely - cached or manually-entered dashboard values drive the UI until a bounded, authorized session-reuse probe verifies a safe live path. See [extensions/cursor-usage-monitor/](extensions/cursor-usage-monitor/).
 
-Each shows usage in the status bar with a theme-aware hover and a full dashboard, and calls only its own vendor's API, for your own account (the Copilot monitor adds two organization reads when an organization is connected). Each reads a usage figure its vendor actually serves, rather than reconstructing one: the Claude and Codex monitors read your local OAuth token and query the vendor's own usage endpoint, and the Copilot monitor uses the GitHub account VS Code has signed in for it. None of them scrape a billing website or read browser cookies. An earlier monitor for GitHub Actions billing was withdrawn in v3.18.2 because GitHub serves no such figure and the reconstruction could not be made reliable; see the decision record for the full reasoning. The Copilot monitor does not repeat that problem, because GitHub serves every figure it shows. The installer isolates extensions by editor host: the Claude, Codex, and Copilot monitors install only through the VS Code CLI, and the Cursor monitor installs only through the Cursor CLI - never cross-installed. Install any one alone by pointing `code --install-extension` (or `cursor --install-extension`) at its VSIX.
+Each shows usage in the status bar with a theme-aware hover and a full dashboard, and calls only its own vendor's API, for your own account (the Copilot monitor adds two organization reads when an organization is connected). Each reads a usage figure its vendor actually serves, rather than reconstructing one: the Claude and Codex monitors read your local OAuth token and query the vendor's own usage endpoint, and the Copilot monitor uses the GitHub account the editor has signed in for it. None of them scrape a billing website or read browser cookies. An earlier monitor for GitHub Actions billing was withdrawn in v3.18.2 because GitHub serves no such figure and the reconstruction could not be made reliable; see the decision record for the full reasoning. The Copilot monitor does not repeat that problem, because GitHub serves every figure it shows. The installer routes extensions by editor host: the Claude and Codex monitors install only through the VS Code CLI, the Copilot monitor installs through the VS Code CLI and also through the Cursor CLI when Cursor is detected (Copilot runs in both editors), and the Cursor monitor installs only through the Cursor CLI. Install any one alone by pointing `code --install-extension` (or `cursor --install-extension`) at its VSIX.
 
 ### `/usage` Command
 

@@ -256,7 +256,11 @@ USAGE_MONITORS = (
     ("cursor-usage-monitor", "nexus-hub.cursor-usage-monitor", "Cursor Usage Monitor"),
 )
 
-VS_CODE_USAGE_MONITORS = USAGE_MONITORS[:-1]
+#: Monitors that install into VS Code only (Claude, Codex).
+VS_CODE_USAGE_MONITORS = USAGE_MONITORS[:2]
+#: Monitors that install into VS Code AND, as a second host, into Cursor. Copilot
+#: runs inside Cursor too, so its monitor is supported there (v4.13.11, WN-30).
+DUAL_HOST_USAGE_MONITORS = (USAGE_MONITORS[2],)
 CURSOR_USAGE_MONITOR = USAGE_MONITORS[-1]
 
 #: Extensions a previous release installed that the installers must now UNINSTALL.
@@ -404,9 +408,14 @@ def test_installers_isolate_vscode_and_cursor_hosts():
             f"{path.name} must not list the Windows Cursor install as a VS Code fallback"
         )
 
-        for _, extension_id, _ in VS_CODE_USAGE_MONITORS:
+        def call_line(extension_id: str) -> str:
+            # The rest of the monitor's own install call, so a neighbouring
+            # monitor's arguments can never satisfy or fail this monitor's check.
             idx = body.index(extension_id)
-            window = body[idx : idx + 280]
+            return body[idx : body.index("\n", idx)]
+
+        for _, extension_id, _ in VS_CODE_USAGE_MONITORS:
+            window = call_line(extension_id)
             assert "vscode_cli" in window or "vscodeCli" in window, (
                 f"{path.name} must pass the VS Code CLI into {extension_id} install"
             )
@@ -414,8 +423,25 @@ def test_installers_isolate_vscode_and_cursor_hosts():
                 f"{path.name} must not pass the Cursor CLI into {extension_id} install"
             )
 
+        # WN-30: the Copilot monitor installs into VS Code first and into Cursor
+        # as the optional second host, through the shared also_cli /
+        # -AlsoCodeCli parameter, so one VSIX reaches both editors.
+        for _, extension_id, _ in DUAL_HOST_USAGE_MONITORS:
+            window = call_line(extension_id)
+            if path is INSTALLER_SH:
+                expected = '"$vscode_cli" "$vscode_label" "$cursor_cli" "$cursor_label"'
+            else:
+                expected = (
+                    "-CodeCli $vscodeCli -CodeLabel $vscodeLabel "
+                    "-AlsoCodeCli $cursorCli -AlsoCodeLabel $cursorLabel"
+                )
+            assert window.rstrip().endswith(expected), (
+                f"{path.name} must install {extension_id} into VS Code and pass the "
+                f"Cursor CLI as its second host: expected the call to end with {expected!r}"
+            )
+
         _, cursor_id, _ = CURSOR_USAGE_MONITOR
-        cursor_window = body[body.index(cursor_id) : body.index(cursor_id) + 280]
+        cursor_window = call_line(cursor_id)
         assert "cursor_cli" in cursor_window or "cursorCli" in cursor_window, (
             f"{path.name} must pass the Cursor CLI into {cursor_id} install"
         )
@@ -426,6 +452,26 @@ def test_installers_isolate_vscode_and_cursor_hosts():
             'write_header "ANYSPHERE"' in body
             or 'Write-Header -Provider "ANYSPHERE"' in body
         ), f"{path.name} must present the Cursor monitor under an ANYSPHERE vendor header"
+
+
+def test_installer_banners_state_the_copilot_monitor_hosts():
+    """The extension banner must name the hosts each monitor actually reaches.
+
+    Before WN-30 both banners said "Claude/Codex/Copilot install into VS Code
+    only". Once Copilot also installs into Cursor, that line would tell a Cursor
+    user the monitor is absent when it is present.
+    """
+    for path in (INSTALLER_SH, INSTALLER_PS1):
+        body = path.read_text(encoding="utf-8")
+        assert "Claude/Codex/Copilot install into VS Code only" not in body, (
+            f"{path.name} still tells users the Copilot monitor is VS Code only"
+        )
+        assert "Claude/Codex install into VS Code only; Copilot" in body, (
+            f"{path.name} banner must keep Claude and Codex VS Code only"
+        )
+        assert "into VS Code and Cursor; Cursor Usage Monitor into Cursor only." in body, (
+            f"{path.name} banner must state that Copilot installs into VS Code and Cursor"
+        )
 
 
 def test_installer_ps1_surfaces_vsce_errors():

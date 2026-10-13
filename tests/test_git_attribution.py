@@ -346,6 +346,10 @@ def test_real_workspace_installer_delivers_working_guard(sandbox, runtime, scope
     if os.name == "nt" and scope == "global":
         # Exercise the real installer without discovering the host's editor
         # CLIs or optional uv/npm installations outside the disposable home.
+        # Attribution delivery is independent of optional MCP dependency installs.
+        # Keep package-index traffic out of this disposable-home guard test.
+        extra["PIP_NO_INDEX"] = "1"
+        extra["PIP_DISABLE_PIP_VERSION_CHECK"] = "1"
         extra["PATH"] = os.pathsep.join(
             [
                 str(Path(sys.executable).parent),

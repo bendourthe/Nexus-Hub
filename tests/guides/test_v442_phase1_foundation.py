@@ -260,7 +260,12 @@ def test_visible_text_says_nexus_hub_without_the_hyphen(playwright_mod) -> None:
                     clone.querySelectorAll("{RENAME_EXEMPT_SELECTOR}").forEach(e => e.remove());
                     clone.querySelectorAll('script, style').forEach(e => e.remove());
                     const text = clone.textContent;
-                    const labels = [...document.querySelectorAll('[aria-label*="Nexus-Hub" i]')].length;
+                    // A copy button's label quotes its command verbatim, and the command names the
+                    // repository; that is exempt like the command text itself.
+                    const quoted = new Set([...document.querySelectorAll('[data-copy]')].map(
+                        e => 'Copy ' + (e.getAttribute('data-copy') || '').replace(/\\s+/g, ' ').trim()));
+                    const labels = [...document.querySelectorAll('[aria-label*="Nexus-Hub" i]')]
+                        .filter(e => !quoted.has(e.getAttribute('aria-label'))).length;
                     const pseudo = [...document.querySelectorAll('.cmp-a, .cmp-b')]
                         .map(e => getComputedStyle(e, '::before').content).filter(c => /nexus-hub/i.test(c)).length;
                     return {{ text: (text.match(/Nexus-Hub/gi) || []).length, labels, pseudo,

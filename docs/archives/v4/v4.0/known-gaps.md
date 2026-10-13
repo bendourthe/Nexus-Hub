@@ -1,5 +1,8 @@
 # Known Gaps - v4.0
 
+**Open items**: 0
+**Ledger normalization**: 2026-10-09, v4.13.11. The canonical open count is derived from supported item headings. Summary and reconciliation count tables below retain historical release snapshots, including partial closures and explicit transfers; they are not new parser totals.
+
 **Project**: Nexus-Hub
 **Status**: finalized for the v4.0.0 release
 **Last updated**: 2026-09-25
@@ -44,7 +47,9 @@ None.
 
 #### Deferred
 
-##### DF-1 (resolved) - The non-lockstep templates lacked a release-gate contract check
+##### DF-1 (resolved) - The non-lockstep templates lacked a release-gate contract check - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.0#DF-1 (agent-comm)` is recorded as RESOLVED for its original scope. Evidence: Line 47 "(resolved)"; resolution 2026-09-22 aggregate suite in `make validate` and `platform-contracts` group Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Source phase**: Phase 3 - Instruction-template rollout and parity gate
 - **Plan reference**: `docs/v4/v4.0/plans/v4.0.0-agent-communication-overhaul.md` (sub-task 3.3 failure modes)
@@ -57,7 +62,9 @@ None open.
 
 #### Warnings
 
-##### WN-2 (resolved) - A concurrent branch added a thirteenth instruction template
+##### WN-2 (resolved) - A concurrent branch added a thirteenth instruction template - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.0#WN-2` is recorded as RESOLVED for its original scope. Evidence: Resolution 2026-09-22: `base-pi.md` in substantive roster Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Source phase**: Phase 8 - Architecture refactor, known-gaps reconciliation, and CI/CD
 - **What was observed**: during Phase 8 the working tree acquired unrelated in-progress work from a concurrent session (a `pi` platform integration and a `grill` command), including an untracked `templates/ai-instructions/base-pi.md`. That file is NOT on `develop` and is not part of this plan; only files tracing to this plan were staged, and this plan's eight commits contain none of it.
@@ -71,14 +78,20 @@ None.
 
 #### Missing Tests / Coverage Gaps
 
-##### MT-1 - No runtime check that a response actually follows the contract
+##### MT-1-v400 - No runtime check that a response actually follows the contract - MIGRATED to v4.13.0
 
 - **Source phase**: Phase 1 - Communication contract and decision record
 - **Plan reference**: `docs/v4/v4.0/plans/v4.0.0-agent-communication-overhaul.md` (Phase 1 design; recorded in the decision record's Consequences)
 - **Reason**: Prose tone is not machine-checkable at `PreToolUse` time. The tests in this version prove that the contract is PRESENT and IDENTICAL everywhere it should be; nothing proves that a given response OBEYED it. This was considered and rejected as a hook gate in `docs/decisions/implemented/policy/2026-08-18-agent-communication-contract.md`; the gap is recorded here so it is visible rather than implied.
 - **Suggested next step**: The mechanically checkable subset is narrow but real: a response containing a fenced command block with an unflagged `<...>`, `[...]`, or ALL-CAPS template token is detectable by pattern. If a future version wants partial enforcement, that single rule is the one worth automating; the rest stays advisory.
 
-##### MT-3 (resolved) - The local gate did not enforce the CI Python floor
+**Original source identity**: `v4.0.0#MT-1` in `v4.0.0 - agent-communication-overhaul`; normalized stable ID `MT-1-v400` distinguishes this obligation from repeated IDs in other patch sections.
+
+**Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-37`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.0.0`, section `v4.0.0 - agent-communication-overhaul`, and original ID `MT-1`.
+
+##### MT-3 (resolved) - The local gate did not enforce the CI Python floor - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.0#MT-3` is recorded as RESOLVED for its original scope. Evidence: `scripts/check_python_floor.py` exists and runs in fast/full profiles Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 - **Source phase**: Phase 5 - Architecture refactor, known-gaps reconciliation, and CI/CD
 - **Reason**: CI runs Python 3.11.16; this workstation runs 3.12.10. Syntax accepted by the newer interpreter and rejected by the older one passes every local gate and fails in CI at import time, taking out a whole job rather than one test. This is not hypothetical: it happened on this branch (BG-3 below). No local check, hook, or validator asserts that repository Python parses under the CI version.
@@ -153,7 +166,9 @@ None.
 
 #### Deferred
 
-##### DF-1 - Report artifacts are published to the run summary, not uploaded
+##### DF-1 - Report artifacts are published to the run summary, not uploaded - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.0#DF-1 (CI/CD)` is recorded as RESOLVED for its original scope. Evidence: Resolution 2026-09-22: PR #235 and #243 hosted artifacts Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 **Follow-up status, 2026-09-22**: The existing pinned `actions/upload-artifact` reference now uploads seven-day report bundles from the validation, shell, test, Windows, post-merge, and release-readiness jobs; the guide-render job also emits and uploads JUnit. The local workflow contract passed 63 tests, the fast profile passed 16 checks, and the guide command wrote JUnit after 380 passing tests and one optional skip. This gap remains open until a pull-request run proves that the artifacts are retained on GitHub.
 
@@ -165,7 +180,9 @@ None.
 - **What ships instead**: every lifecycle workflow appends `reports/summary.md` to `$GITHUB_STEP_SUMMARY` with `if: always()`, using no action at all. That satisfies the human-readable half of section 6 on every result, including a failure. The machine-readable artifacts (JUnit, `summary.json`, `metadata/environment.json`) are still WRITTEN by every run; they are simply not uploaded, so they are available inside the job and not after it.
 - **Suggested next step**: fetch the current `actions/upload-artifact` release SHA from the vendor, add one upload step per lifecycle workflow with `if: always()` and `retention-days: 7`, and remove the exemption. `scripts/validate_workflow_security.py` already fails an `upload-artifact` step that omits `retention-days`, so the guard is in place before the feature is.
 
-##### DF-2 - The `full` profile has not been run end to end on this host
+##### DF-2 - The `full` profile has not been run end to end on this host - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.0#DF-2` is recorded as RESOLVED for its original scope. Evidence: Resolution 2026-09-22: Windows full run 59/59 commands in 7,208.2 s Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 **Resolution, 2026-09-22**: After the full profile was partitioned at stable repository-test ownership boundaries, a Windows run on this development host completed all 59 commands in 7,208.2 seconds with zero failures, skips, or advisories. The [v4.12 quality-gate ledger](../v4.12/known-gaps.md) preserves the earlier timeout separately. This resolves the missing aggregate-invocation proof, not the original slow-run failure.
 
@@ -178,7 +195,9 @@ None.
 
 #### Warnings
 
-##### WN-1 - The new event topology has not been exercised against real GitHub
+##### WN-1 - The new event topology has not been exercised against real GitHub - RESOLVED
+
+**v4.13.11 terminal-state audit, 2026-10-09**: `v4.0#WN-1` is recorded as RESOLVED for its original scope. Evidence: Resolution 2026-09-22: PR #245, runs 35828718066, 35826047174, 34939156733 Historical dates, receipts and limitations below are retained; this normalization does not claim a new live run or broader implementation.
 
 **Resolution, 2026-09-22**: Docs-only PR #245 passed all five declared contexts (`validate`, `shellcheck`, `ci-required`, `colocation`, `verify`) while unrelated expensive legs skipped; its post-merge run 35828718066 passed smoke and provenance. PR #243's merge independently produced successful post-merge run 35826047174, and the tagged v4.12.0 release workflow passed run 34939156733. These hosted events exercise pull request, integration-branch push, and tag paths separately. WN-1 is resolved as a workflow-observation gap; actual branch protection settings are a separate open security decision.
 

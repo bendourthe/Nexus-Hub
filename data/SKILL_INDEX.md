@@ -283,7 +283,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | direct-corpus-interaction | developer-experience | "Search code with a hypothesis-refine-anchor-verify discipline over hybrid retrieval plus direct corpus tools" | catalog/skills/developer-experience/direct-corpus-interaction/SKILL.md |
 | agent-presets | workflow | "Ready-made agent presets that compose existing skills into one-invocation bundles" | catalog/skills/workflow/agent-presets/SKILL.md |
 | document-to-interactive-html | specialized-domains | "Create unique offline interactive reading websites with included presentations, retained sources and verified visuals" | catalog/skills/specialized-domains/document-to-interactive-html/SKILL.md |
-| egress-redaction | security | "Detect sensitive data and apply a typed block/redact/hash/pass policy before egress" | catalog/skills/security/egress-redaction/SKILL.md |
+| egress-redaction | security | "Detect sensitive data and apply a typed block/redact/hash/pass policy before egress, persistence, or errors" | catalog/skills/security/egress-redaction/SKILL.md |
 | prompt-injection-defense | security | "Recognize and resist prompt injection and poisoned tool output with instruction-origin discipline" | catalog/skills/security/prompt-injection-defense/SKILL.md |
 | false-confidence-test-audit | tests-generation | "Audit existing tests for false confidence: tests that pass regardless of correctness" | catalog/skills/tests-generation/false-confidence-test-audit/SKILL.md |
 | commit-sweep | workflow | "Sweep recent commits for cross-commit problems a per-diff review misses" | catalog/skills/workflow/commit-sweep/SKILL.md |
@@ -294,7 +294,6 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | end-of-shift-validation | workflow | "Compose tests, perf, visual, sweep, audit, review, and repair into one end-of-shift pass" | catalog/skills/workflow/end-of-shift-validation/SKILL.md |
 | agent-execution-isolation | security-operations | "Run agents in OS-level isolation with ephemeral containers and an egress boundary" | catalog/skills/security-operations/agent-execution-isolation/SKILL.md |
 | agentic-endpoint-hardening | security-operations | "Harden the coding-agent endpoint against config-write-then-executed sandbox escapes at the trust seam" | catalog/skills/security-operations/agentic-endpoint-hardening/SKILL.md |
-
 | ioc-enrichment-and-reputation-triage | security-operations | "Enrich IOCs and assign a documented reputation verdict with sources" | catalog/skills/security-operations/ioc-enrichment-and-reputation-triage/SKILL.md |
 | threat-actor-ttp-profiling | security-operations | "Profile intrusion-set behaviors and map them to ATT&CK for defense" | catalog/skills/security-operations/threat-actor-ttp-profiling/SKILL.md |
 | threat-intel-feed-operations | security-operations | "Run intel-feed ingest, scoring, expiry, and detection-value measurement" | catalog/skills/security-operations/threat-intel-feed-operations/SKILL.md |

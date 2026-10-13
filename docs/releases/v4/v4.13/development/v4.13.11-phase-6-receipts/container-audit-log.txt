@@ -1,0 +1,8 @@
+install extensions/nexus-code-search [dense,dev]
+install extensions/nexus-context-compressor [code,dev,mcp,ml]
+install extensions/nexus-memory [dev]
+install extensions/nexus-skill-scanner [dev]
+install extensions/nexus-skill-server [dev,embeddings-api,embeddings-local,embeddings-openai]
+install extensions/nexus-web-fetch [dev]
+Version: 2.15.1
+pip-audit exit=0

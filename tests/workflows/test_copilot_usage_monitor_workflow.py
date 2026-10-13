@@ -131,20 +131,27 @@ def test_job_runs_inside_the_extension_directory(workflow: dict[str, Any]) -> No
 def test_gate_covers_clean_install_compile_coverage_and_packaging(
     build_steps: list[dict[str, Any]],
 ) -> None:
-    assert step_named(build_steps, "Install dependencies")["run"].strip() == "npm ci"
+    assert (
+        step_named(build_steps, "Install dependencies")["run"].strip()
+        == "npm ci --ignore-scripts"
+    )
     assert "npm run compile" in step_named(build_steps, "Compile (tsc)")["run"]
     assert (
         "npm run test:coverage"
         in step_named(build_steps, "Unit tests with coverage (Vitest)")["run"]
     )
     assert "npm run package" in step_named(build_steps, "Package VSIX")["run"]
+    assert (
+        "npm run verify:package"
+        in step_named(build_steps, "Verify packaged contents")["run"]
+    )
 
 
 def test_the_extension_scripts_the_gate_calls_exist() -> None:
     scripts = json.loads(
         (REPO_ROOT / EXTENSION_DIR / "package.json").read_text(encoding="utf-8")
     )["scripts"]
-    for name in ("compile", "test:coverage", "package"):
+    for name in ("compile", "test:coverage", "package", "verify:package"):
         assert name in scripts, f"{EXTENSION_DIR}/package.json has no {name!r} script"
 
 
@@ -177,6 +184,21 @@ def test_monitor_workflows_share_checkout_and_node_pins(sibling: Path) -> None:
             f"{action} is pinned to {ours[action]} here but {theirs[action]} in "
             f"{sibling.name}; bump both together"
         )
+
+
+@pytest.mark.parametrize(
+    "path", (WORKFLOW, *SIBLING_MONITOR_WORKFLOWS), ids=lambda p: p.name
+)
+def test_monitor_workflows_install_without_scripts_and_watch_themselves(
+    path: Path,
+) -> None:
+    """AR-60 and WN-32: no dependency lifecycle script runs, and an edit to the
+    workflow file itself re-runs the workflow."""
+    data = load(path)
+    install = step_named(data["jobs"]["build-and-test"]["steps"], "Install dependencies")
+    assert install["run"].strip() == "npm ci --ignore-scripts"
+    own_path = f".github/workflows/{path.name}"
+    assert own_path in data[ON_KEY]["pull_request"]["paths"]
 
 
 @pytest.mark.parametrize("sibling", SIBLING_MONITOR_WORKFLOWS, ids=lambda p: p.name)

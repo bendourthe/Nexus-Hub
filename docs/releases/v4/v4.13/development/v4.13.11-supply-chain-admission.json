@@ -1,0 +1,27 @@
+{
+  "run": 37322151526,
+  "artifact": 11350332112,
+  "run_head": "4652ee709a054c407c9e85641a2e6a9b23ef9c71",
+  "artifact_sha256": "7e82ff59cfe73ef4eec06f9a2cd0391f36275b4dd2211891098a24e4ea18e2a8",
+  "extracted_json_sha256": "04ca14000ada8d61e53b52003c1d42584d49daa3c5313b7b7064f2023d50005f",
+  "findings": [
+    {
+      "name": "pyjwt",
+      "version": "2.14.0",
+      "vulnerabilities": [
+        {
+          "id": "PYSEC-2026-4141",
+          "fix_versions": [
+            "2.15.0"
+          ],
+          "aliases": [
+            "CVE-2026-101918",
+            "GHSA-42vr-xj54-vc7v"
+          ]
+        }
+      ]
+    }
+  ],
+  "advisory": "https://github.com/jpadilla/pyjwt/security/advisories/GHSA-42vr-xj54-vc7v",
+  "scope": "Confirmed uncaught request-level exception before signature verification; no demonstrated process crash or authentication bypass."
+}

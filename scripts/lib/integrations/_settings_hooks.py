@@ -70,6 +70,7 @@ from ._hooks_common import (
     script_basename,
     script_for_host,
     sibling_scripts,
+    sourced_modules,
     strip_owned_handlers,
 )
 from .result import FileAction
@@ -296,6 +297,11 @@ def build_settings_hooks(
                 emitted["matcher"] = matcher
             emitted["hooks"] = handlers
             events.setdefault(target_event, []).append(emitted)
+
+    # Shared modules are not registered anywhere, so they must be resolved from
+    # the delivered script bodies. Without this notify-on-complete is copied and
+    # registered but exits silently because _notify_common never lands (AR-45).
+    scripts |= sourced_modules(scripts, src_hooks_dir)
 
     return events, scripts, skipped
 

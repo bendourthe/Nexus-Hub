@@ -18,7 +18,8 @@ dependencies = ["tiktoken>=0.5"]
 # Phase 4 internal MCP server (context_compress + context_retrieve). Optional so
 # the engine library and CLI stay importable without the MCP runtime; server.py
 # imports mcp lazily only when the server is launched.
-mcp = ["mcp>=1.0.0"]
+# Security floor for a transitive dependency of mcp: PyJWT <= 2.14.0 lets a nested payload raise RecursionError before signature checks (GHSA-42vr-xj54-vc7v, fixed in 2.15.0).
+mcp = ["mcp>=1.0.0", "pyjwt>=2.15.0"]
 # Phase 6 ML token-dropper: public pre-trained ONNX weights, default-off. Local
 # ONNX text inference needs three standard, lightweight companions -- the runtime
 # (onnxruntime), tensor I/O (numpy), and the bundled sub-word tokenizer

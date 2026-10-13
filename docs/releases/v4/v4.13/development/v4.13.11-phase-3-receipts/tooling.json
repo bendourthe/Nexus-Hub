@@ -1,0 +1,226 @@
+{
+  "worker": "phase3_tooling",
+  "tasks": [
+    "T011",
+    "T012"
+  ],
+  "revision": "ff1aa631538fcf1cbc2380b28e1e001ebd880e8d",
+  "worktree": "C:\\Users\\username\\Documents\\Benjamin\\nexus\\Nexus-Hub-worktrees\\v41311-plan",
+  "changed_paths": [
+    "extensions/nexus-code-search/src/nexus_code_search/graph/affected.py",
+    "extensions/nexus-code-search/tests/test_context_map_measurement.py",
+    "tests/integrations/test_map_cli.py"
+  ],
+  "source_sha256": {
+    "extensions/nexus-code-search/src/nexus_code_search/graph/affected.py": "49dc8e0b7bf89de18c872055974f85f5f2bb951ff69b18bfe35d5d078a5d8412",
+    "extensions/nexus-code-search/tests/test_context_map_measurement.py": "f644cfa6dd0af18e7b4029063d62518812a0828690b150a7d728e8f57370901c",
+    "tests/integrations/test_map_cli.py": "2c4d389fa1b99fcf412760aec8334578058bf57fcb777c4324059272bf843439"
+  },
+  "completion_scope": "locally qualified subtask changes only; no whole-phase or whole-minor claim",
+  "scope": {
+    "affected": "Remove only unused EdgeKind import and frontier assignment; no traversal refactor",
+    "baseline": "Three focused tests: temporary exact JSON/newline and destination, real unwritable-directory rejection, malformed-baseline rejection; real committed baseline unchanged",
+    "map": "Four real script-entry subprocess tests: spaced root/json/cache/force, orphan-lint exit 1, malformed-argument exit 2, missing-index exit 2"
+  },
+  "gap_evidence": {
+    "v3.15#WN-2": {
+      "status": "qualified",
+      "evidence": [
+        "Ruff F401/F841 exit 0",
+        "affected graph/CLI/server regressions passed",
+        "tiny real affected CLI returned exactly tests/test_utils.py"
+      ]
+    },
+    "v3.15#MT-1": {
+      "status": "qualified",
+      "evidence": [
+        "hand-calculated synthetic report floors plus exact JSON/newline",
+        "temporary destination written",
+        "committed SHA256 unchanged",
+        "wrong-destination mutant failed the new test",
+        "real corpus public benchmark.main observed to write only a temporary baseline"
+      ]
+    },
+    "v3.15#MT-2": {
+      "status": "qualified",
+      "evidence": [
+        "scripts/nexus_hub_cli.py real entry point passes spaced root and json",
+        "force regenerates cached artifact with preserved hash metadata",
+        "lint preserves exit 1",
+        "malformed and missing-index diagnostics preserve exit 2",
+        "dropped-force and swallowed-lint-status mutants each failed the relevant new test"
+      ]
+    }
+  },
+  "tests": {
+    "passed": 37,
+    "failed": 0,
+    "skipped": 0,
+    "receipt": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-tooling\\final\\qualification.json",
+    "commands": [
+      {
+        "name": "code-search-tests",
+        "command": [
+          "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+          "-m",
+          "pytest",
+          "-q",
+          "extensions/nexus-code-search/tests/test_affected.py",
+          "extensions/nexus-code-search/tests/test_affected_cli.py",
+          "extensions/nexus-code-search/tests/test_server_affected.py",
+          "extensions/nexus-code-search/tests/test_context_map_measurement.py"
+        ],
+        "exit_code": 0,
+        "duration_seconds": 7.5,
+        "stdout": ".................................                                        [100%]\n33 passed in 2.88s\n",
+        "stderr": ""
+      },
+      {
+        "name": "map-cli-tests",
+        "command": [
+          "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+          "-m",
+          "pytest",
+          "-q",
+          "tests/integrations/test_map_cli.py"
+        ],
+        "exit_code": 0,
+        "duration_seconds": 6.485,
+        "stdout": "....                                                                     [100%]\n4 passed in 3.16s\n",
+        "stderr": ""
+      },
+      {
+        "name": "ruff",
+        "command": [
+          "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+          "-m",
+          "ruff",
+          "check",
+          "--select",
+          "F401,F841",
+          "extensions/nexus-code-search/src/nexus_code_search/graph/affected.py",
+          "extensions/nexus-code-search/tests/test_context_map_measurement.py",
+          "tests/integrations/test_map_cli.py"
+        ],
+        "exit_code": 0,
+        "duration_seconds": 0.218,
+        "stdout": "All checks passed!\n",
+        "stderr": ""
+      }
+    ]
+  },
+  "functional_observations": {
+    "count": 9,
+    "receipt": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-tooling\\functional-exercise.json",
+    "assertions": [
+      "affected tiny graph returns exactly tests/test_utils.py",
+      "map spaced root produces expected artifact",
+      "no-op and forced regeneration distinguish --force forwarding",
+      "orphan lint exit 1 and named orphan",
+      "malformed argv exit 2 and preserved diagnostic",
+      "missing index exit 2 and diagnostic",
+      "temporary benchmark baseline parse and exact formatted newline",
+      "committed benchmark baseline SHA256 unchanged"
+    ]
+  },
+  "mutation_proof": {
+    "caught": 3,
+    "receipt": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-tooling\\mutation-proof\\receipt.json",
+    "intentional_expected_failure": true
+  },
+  "baseline_sha256": "46492c0e897c6c45abd1e1d6c766f535b2183519c6599fffc5b2cfe1d9457530",
+  "diff_check": {
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "--",
+      "extensions/nexus-code-search/src/nexus_code_search/graph/affected.py",
+      "extensions/nexus-code-search/tests/test_context_map_measurement.py",
+      "tests/integrations/test_map_cli.py"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "warning: in the working copy of 'extensions/nexus-code-search/tests/test_context_map_measurement.py', LF will be replaced by CRLF the next time Git touches it\n"
+  },
+  "retained_initial_attempt": {
+    "receipt": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-tooling\\qualification.json",
+    "tests": [
+      {
+        "name": "code-search-tests",
+        "command": [
+          "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+          "-m",
+          "pytest",
+          "-q",
+          "extensions/nexus-code-search/tests/test_affected.py",
+          "extensions/nexus-code-search/tests/test_affected_cli.py",
+          "extensions/nexus-code-search/tests/test_server_affected.py",
+          "extensions/nexus-code-search/tests/test_context_map_measurement.py"
+        ],
+        "exit_code": 0,
+        "duration_seconds": 55.265,
+        "stdout": ".................................                                        [100%]\n33 passed in 12.62s\n",
+        "stderr": ""
+      },
+      {
+        "name": "map-cli-tests",
+        "command": [
+          "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+          "-m",
+          "pytest",
+          "-q",
+          "tests/integrations/test_map_cli.py"
+        ],
+        "exit_code": 1,
+        "duration_seconds": 8.61,
+        "stdout": "F...                                                                     [100%]\n================================== FAILURES ===================================\n_______________ test_map_dispatch_forwards_root_json_and_force ________________\n\nindexed_repo = WindowsPath('C:/Users/username/AppData/Local/Temp/pytest-of-bedourthe/pytest-10707/test_map_dispatch_forwards_roo0/repository with spaces')\n\n    def test_map_dispatch_forwards_root_json_and_force(indexed_repo: Path) -> None:\n        generated = _run_map(indexed_repo, \"--json\")\n        assert generated.returncode == 0, generated.stderr\n        payload = json.loads(generated.stdout)\n        map_path = indexed_repo / \".nexus\" / \"CONTEXT-MAP.md\"\n        assert Path(payload[\"map_path\"]) == map_path\n        assert payload[\"files_indexed\"] == 1\n        assert payload[\"skipped\"] is False\n        original = map_path.read_text(encoding=\"utf-8\")\n>       assert \"src/sample.py\" in original\nE       AssertionError: assert 'src/sample.py' in '# Codebase Context Map\\n<!-- nexus-context-map v4 | source-hash: 50387d5cece3ea39 | tokens: 283 -->\\n\\nThis map is a ...les\\n\\nPer-module detail lives under `.nexus/context/`:\\n\\n- [Overview](context/index.md)\\n- [`src`](context/src.md)\\n'\n\ntests\\integrations\\test_map_cli.py:60: AssertionError\n=========================== short test summary info ===========================\nFAILED tests/integrations/test_map_cli.py::test_map_dispatch_forwards_root_json_and_force\n1 failed, 3 passed in 5.12s\n",
+        "stderr": ""
+      },
+      {
+        "name": "ruff",
+        "command": [
+          "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+          "-m",
+          "ruff",
+          "check",
+          "--select",
+          "F401,F841",
+          "extensions/nexus-code-search/src/nexus_code_search/graph/affected.py",
+          "extensions/nexus-code-search/tests/test_context_map_measurement.py",
+          "tests/integrations/test_map_cli.py"
+        ],
+        "exit_code": 0,
+        "duration_seconds": 0.265,
+        "stdout": "All checks passed!\n",
+        "stderr": ""
+      }
+    ],
+    "diagnosis": "One newly written test expected src/sample.py in the top-level map; actual map links context/src.md, where the file is listed. Corrected the assertion and reran. No production dispatcher defect was found.",
+    "scratch_exercise_failure": "An initial disposable exercise assertion guessed corpus names shop_api/team_app/worker_service. Actual corpus is blog_ts/shop_api/tasks_py; corrected to observed fixture paths before successful rerun.",
+    "environment": "Initial shell module probe could not import config because extension was not installed. Scoped runs use explicit local worktree PYTHONPATH; no package or environment install was performed.",
+    "verification_iterations": 2
+  },
+  "terminal_reconciliation_input": {
+    "path": "scripts/ci/profiles.py",
+    "required": "Register tests/integrations/test_map_cli.py in a canonical full-profile integration partition and prove collection. No pipeline change was made in Phase 3.",
+    "suggested_partition": "repo-tests-integrations-repository-contracts",
+    "justification": "Inspected test_global_command_surface, test_harness_audit, test_runner_target_root and test_consult; none owns map launcher behavior, so mixing these tests into them would obscure ownership.",
+    "environment": "Remote CI already pip-installs nexus-code-search; local scoped proof explicitly points PYTHONPATH at the worktree extension source."
+  },
+  "constraints": {
+    "commits": 0,
+    "staging": 0,
+    "pushes": 0,
+    "remote_ci_runs": 0,
+    "edit_guard_accepts_invoked_by_worker": 0,
+    "installer_edits": 0,
+    "workflow_edits": 0,
+    "main_or_tag_operations": 0
+  },
+  "not_covered": [
+    "Whole test suite, renderer, release or remote CI",
+    "Optimizer MT-001 belongs to smoke worker",
+    "Native records, plan/ledger/todos/evidence/history/handoff updates belong to root"
+  ]
+}

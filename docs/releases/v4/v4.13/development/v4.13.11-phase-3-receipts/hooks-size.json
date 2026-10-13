@@ -1,0 +1,79 @@
+{
+  "command": [
+    "C:\\Users\\username\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "-s",
+    "catalog/hooks/tests/test_hook_size_bound.py"
+  ],
+  "exit": 1,
+  "elapsed_seconds": 350.7,
+  "pre_source_sha256": {
+    "catalog/hooks/session-summary.sh": "8d2c84a6a73f6b9c2e7fb080ec1d6c8d168db3b3d29880e65db2f252e4d58e61",
+    "catalog/hooks/session-summary.ps1": "b974be2128e014a5722484908754bdf876adbcdd3cc58aa38e4325770d8c6051",
+    "catalog/hooks/auto-devlog.sh": "82a3960225dae4233ea5cc7703d14640d1ec681acba8b07f847276f9143e4eb9",
+    "catalog/hooks/auto-devlog.ps1": "cffe2ff8f93f97679a5cfab3c08d27a9d5396593c902559d36a7e7f1d9e38b7d",
+    "catalog/hooks/learning-capture.sh": "57964f44afd7ffe028436e3f392c456fd1d80550a85bf635c313bbffc413637c",
+    "catalog/hooks/learning-capture.ps1": "76e2c82aa3b8d277c38007c80094abc3c2dfb2257eac5124bfd03ef9d2aa9392",
+    "catalog/hooks/provenance-ledger.sh": "3ddd69e4059f3f1bffe658eebd7613873b5cfc2e294b77648dab2a9f0dce53f3",
+    "catalog/hooks/provenance-ledger.ps1": "959bf77f3c2cf988b2aea9c0f982d126eef5913e59b856af76fccf627f23c0e4",
+    "catalog/hooks/skill-tracker.py": "ace34dc5a02ef08c80e49202f8217404f44a5da379475de2b59226ea5dce962d",
+    "catalog/hooks/tests/test_hook_size_bound.py": "5d326616d04a122862647ef4d3503e81b3117096669a9759b6059a854e561df6"
+  },
+  "post_source_sha256": {
+    "catalog/hooks/session-summary.sh": "8d2c84a6a73f6b9c2e7fb080ec1d6c8d168db3b3d29880e65db2f252e4d58e61",
+    "catalog/hooks/session-summary.ps1": "b974be2128e014a5722484908754bdf876adbcdd3cc58aa38e4325770d8c6051",
+    "catalog/hooks/auto-devlog.sh": "82a3960225dae4233ea5cc7703d14640d1ec681acba8b07f847276f9143e4eb9",
+    "catalog/hooks/auto-devlog.ps1": "cffe2ff8f93f97679a5cfab3c08d27a9d5396593c902559d36a7e7f1d9e38b7d",
+    "catalog/hooks/learning-capture.sh": "57964f44afd7ffe028436e3f392c456fd1d80550a85bf635c313bbffc413637c",
+    "catalog/hooks/learning-capture.ps1": "76e2c82aa3b8d277c38007c80094abc3c2dfb2257eac5124bfd03ef9d2aa9392",
+    "catalog/hooks/provenance-ledger.sh": "3ddd69e4059f3f1bffe658eebd7613873b5cfc2e294b77648dab2a9f0dce53f3",
+    "catalog/hooks/provenance-ledger.ps1": "959bf77f3c2cf988b2aea9c0f982d126eef5913e59b856af76fccf627f23c0e4",
+    "catalog/hooks/skill-tracker.py": "ace34dc5a02ef08c80e49202f8217404f44a5da379475de2b59226ea5dce962d",
+    "catalog/hooks/tests/test_hook_size_bound.py": "5d326616d04a122862647ef4d3503e81b3117096669a9759b6059a854e561df6"
+  },
+  "sources_unchanged": true,
+  "jq_source": {
+    "tag": "jq-1.8.2",
+    "assets": [
+      {
+        "url": "https://api.github.com/repos/jqlang/jq/releases/assets/453012788",
+        "id": 453012788,
+        "node_id": "RA_kwDOAE3WVc4bAG00",
+        "name": "jq-windows-amd64.exe",
+        "label": "",
+        "uploader": {
+          "login": "github-actions[bot]",
+          "id": 41898282,
+          "node_id": "MDM6Qm90NDE4OTgyODI=",
+          "avatar_url": "https://avatars.githubusercontent.com/in/15368?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/github-actions%5Bbot%5D",
+          "html_url": "https://github.com/apps/github-actions",
+          "followers_url": "https://api.github.com/users/github-actions%5Bbot%5D/followers",
+          "following_url": "https://api.github.com/users/github-actions%5Bbot%5D/following{/other_user}",
+          "gists_url": "https://api.github.com/users/github-actions%5Bbot%5D/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/github-actions%5Bbot%5D/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/github-actions%5Bbot%5D/subscriptions",
+          "organizations_url": "https://api.github.com/users/github-actions%5Bbot%5D/orgs",
+          "repos_url": "https://api.github.com/users/github-actions%5Bbot%5D/repos",
+          "events_url": "https://api.github.com/users/github-actions%5Bbot%5D/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/github-actions%5Bbot%5D/received_events",
+          "type": "Bot",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "content_type": "application/octet-stream",
+        "state": "uploaded",
+        "size": 1035264,
+        "digest": "sha256:a6fc67fedaf9128a3309a1e2ebb8b986aeccf70122ee46d2cb4849e423f0c627",
+        "download_count": 458543,
+        "created_at": "2026-06-20T14:10:29Z",
+        "updated_at": "2026-06-20T14:10:29Z",
+        "browser_download_url": "https://github.com/jqlang/jq/releases/download/jq-1.8.2/jq-windows-amd64.exe"
+      }
+    ]
+  },
+  "log": "C:\\Users\\username\\AppData\\Local\\Temp\\v41311-phase3-hooks\\size-exception-proof.txt"
+}

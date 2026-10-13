@@ -77,13 +77,15 @@ def few_shot_classify(ticket: str) -> dict:
     return json.loads(extract_text(response.content))
 ```
 
-**Chain-of-Thought (Step-by-Step Reasoning)**:
+**Written reasoning versus native thinking**: the written-reasoning examples below (chain-of-thought with a `<thinking>` tag, and self-consistency with "think step-by-step") are for models WITHOUT a native thinking mode, where the reply text is the only place reasoning can happen. On a model that has native thinking, do not ask for reasoning in the reply: enable the thinking feature, ask only for the answer, and read the reasoning from the returned thinking blocks when you need it. Prompts that ask a native-thinking model to write out its private reasoning can be declined by the provider's safety classifier, and they duplicate work the model already does. Check the model's prompting profile (see `model-prompting-research`) before choosing a variant; when the profile is missing, treat native-thinking support as unverified and confirm it in the provider's documentation.
+
+**Chain-of-Thought (Step-by-Step Reasoning), models without native thinking**:
 
 ```python
 def chain_of_thought_analyze(code: str, question: str) -> dict:
-    """Analyze code with explicit reasoning steps."""
+    """Analyze code with explicit reasoning steps (model has no native thinking)."""
     response = client.messages.create(
-        model="claude-sonnet-4-20250514",
+        model=NO_NATIVE_THINKING_MODEL,
         max_tokens=2048,
         messages=[{
             "role": "user",
@@ -108,16 +110,46 @@ def chain_of_thought_analyze(code: str, question: str) -> dict:
     return {"thinking": thinking, "answer": answer}
 ```
 
+**Chain-of-Thought, models with native thinking**:
+
+```python
+def native_thinking_analyze(code: str, question: str) -> dict:
+    """Analyze code with the model's own thinking; the reply carries only the answer."""
+    response = client.messages.create(
+        model=NATIVE_THINKING_MODEL,
+        max_tokens=4096,
+        thinking={"type": "adaptive", "display": "summarized"},
+        messages=[{
+            "role": "user",
+            "content": (
+                "Analyze the following code and answer the question. Consider what "
+                "the code does at a high level, its execution flow for typical inputs, "
+                "and its edge cases before answering.\n\n"
+                f"Code:\n```\n{code}\n```\n\n"
+                f"Question: {question}\n\n"
+                "Reply with the final answer only."
+            ),
+        }],
+    )
+    summary = "\n".join(b.thinking for b in response.content if b.type == "thinking")
+    answer = "\n".join(b.text for b in response.content if b.type == "text")
+    return {"thinking_summary": summary, "answer": answer}
+```
+
+The `thinking` parameter shape above follows the provider's adaptive-thinking interface; parameter names and supported values differ by model and provider, so confirm them in the model's prompting profile or vendor documentation before use.
+
 **Self-Consistency (Multiple Reasoning Paths)**:
+
+The sampled prompt below asks for written step-by-step reasoning and therefore targets a model without native thinking. On a native-thinking model, enable thinking as in the previous example and replace the instruction with "Provide your final answer on the last line after 'ANSWER: '", keeping the same answer-voting loop.
 
 ```python
 def self_consistency(question: str, num_samples: int = 5) -> str:
-    """Generate multiple reasoning paths and pick the most common answer."""
+    """Generate multiple reasoning paths and pick the most common answer (model has no native thinking)."""
     answers = []
 
     for _ in range(num_samples):
         response = client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model=NO_NATIVE_THINKING_MODEL,
             max_tokens=1024,
             temperature=0.7,  # Higher temperature for diverse paths
             messages=[{

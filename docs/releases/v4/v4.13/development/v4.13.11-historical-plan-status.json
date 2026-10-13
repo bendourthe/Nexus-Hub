@@ -1,0 +1,38 @@
+[
+  {
+    "version": "v4.13.1",
+    "path": "docs/releases/v4/v4.13/plans/v4.13.1-user-edit-preservation-and-attribution-ban.md",
+    "previous_status": "implemented; merged to `develop` by PR #337 (`f9808372`) on 2026-09-26; release held until v4.13.2 lands",
+    "current_status": "complete",
+    "published_at": "2026-09-28T10:19:36Z",
+    "tag_commit": "78c965c2076a34ba0ea017f7be17c22cf715d654",
+    "tag_ancestor_of_admitted_develop": true
+  },
+  {
+    "version": "v4.13.3",
+    "path": "docs/releases/v4/v4.13/plans/v4.13.3-adoption-agent-practice-and-harness-token-efficiency.md",
+    "previous_status": "implemented; merged into `develop` via PR #332 (`06ecc653`) on 2026-09-26; release held until v4.13.2 lands (v4.13.1 merged by PR #337 on 2026-09-26)",
+    "current_status": "complete",
+    "published_at": "2026-09-28T10:19:39Z",
+    "tag_commit": "c4b6e41b6cf026575efde99146600c40eaec1b24",
+    "tag_ancestor_of_admitted_develop": true
+  },
+  {
+    "version": "v4.13.4",
+    "path": "docs/releases/v4/v4.13/plans/v4.13.4-guide-training-rebuild.md",
+    "previous_status": null,
+    "current_status": "complete",
+    "published_at": "2026-09-29T06:49:06Z",
+    "tag_commit": "098c701f7b52289d8b43872edf6ab15628c86e7d",
+    "tag_ancestor_of_admitted_develop": true
+  },
+  {
+    "version": "v4.13.9",
+    "path": "docs/releases/v4/v4.13/plans/v4.13.9-adoption-inline-visualize-codex-disk-writes-review-flow-gpt-6-1-sol.md",
+    "previous_status": "in progress (Phases 1-4 complete 2026-10-01; Phase 5 held for v4.13.7)",
+    "current_status": "complete",
+    "published_at": "2026-10-04T12:59:32Z",
+    "tag_commit": "0cbf442c2a4e5e73646ef5ff1d71f7cbf4561dff",
+    "tag_ancestor_of_admitted_develop": true
+  }
+]

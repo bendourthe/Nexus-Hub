@@ -1,0 +1,1093 @@
+gaps.minor unmet
+archive.minor unmet
+gaps.minor open v1.1#DF-001
+gaps.minor open v1.1#DF-002
+gaps.minor open v1.1#DF-003
+gaps.minor open v1.1#QG-001
+gaps.minor open v1.1#DF-004
+gaps.minor open v1.1#WN-001
+gaps.minor open v1.1#DF-005
+gaps.minor open v1.1#DF-006
+gaps.minor open v1.1#MT-001
+gaps.minor open v1.1#DF-008
+gaps.minor open v1.1#DF-007
+gaps.minor open v1.3#WN-001
+gaps.minor open v1.3#WN-002
+gaps.minor unparsed docs/archives/v2/v2.0/known-gaps.md (line 36 row)
+gaps.minor unparsed docs/archives/v2/v2.0/known-gaps.md (line 37 row)
+gaps.minor unparsed docs/archives/v2/v2.0/known-gaps.md (line 38 row)
+gaps.minor unparsed docs/archives/v2/v2.0/known-gaps.md (line 39 row)
+gaps.minor unparsed docs/archives/v2/v2.0/known-gaps.md (line 40 row)
+gaps.minor unparsed docs/archives/v2/v2.0/known-gaps.md (line 41 row)
+gaps.minor unparsed docs/archives/v2/v2.0/known-gaps.md (line 42 row)
+gaps.minor open v2.0#DF-005
+gaps.minor unparsed docs/archives/v2/v2.1/known-gaps.md (line 29 row)
+gaps.minor unparsed docs/archives/v2/v2.1/known-gaps.md (line 35 row)
+gaps.minor unparsed docs/archives/v2/v2.1/known-gaps.md (line 36 row)
+gaps.minor unparsed docs/archives/v2/v2.2/known-gaps.md (line 37 row)
+gaps.minor unparsed docs/archives/v2/v2.2/known-gaps.md (line 38 row)
+gaps.minor unparsed docs/archives/v2/v2.2/known-gaps.md (line 39 row)
+gaps.minor unparsed docs/archives/v2/v2.2/known-gaps.md (line 40 row)
+gaps.minor unparsed docs/archives/v2/v2.2/known-gaps.md (line 41 row)
+gaps.minor unparsed docs/archives/v2/v2.2/known-gaps.md (line 42 row)
+gaps.minor unparsed docs/archives/v2/v2.2/known-gaps.md (line 43 row)
+gaps.minor unparsed docs/archives/v2/v2.2/known-gaps.md (line 44 row)
+gaps.minor unparsed docs/archives/v2/v2.2/known-gaps.md (line 45 row)
+gaps.minor unparsed docs/archives/v2/v2.2/known-gaps.md (line 46 row)
+gaps.minor unparsed docs/archives/v2/v2.2/known-gaps.md (line 47 row)
+gaps.minor unparsed docs/archives/v2/v2.2/known-gaps.md (line 48 row)
+gaps.minor unparsed docs/archives/v2/v2.2/known-gaps.md (line 49 row)
+gaps.minor unparsed docs/archives/v2/v2.2/known-gaps.md (line 50 row)
+gaps.minor unparsed docs/archives/v2/v2.2/known-gaps.md (line 51 row)
+gaps.minor unparsed docs/archives/v2/v2.2/known-gaps.md (line 52 row)
+gaps.minor unparsed docs/archives/v2/v2.3/known-gaps.md (line 42 row)
+gaps.minor unparsed docs/archives/v2/v2.3/known-gaps.md (line 43 row)
+gaps.minor unparsed docs/archives/v2/v2.3/known-gaps.md (line 44 row)
+gaps.minor unparsed docs/archives/v2/v2.3/known-gaps.md (line 45 row)
+gaps.minor unparsed docs/archives/v2/v2.3/known-gaps.md (line 46 row)
+gaps.minor unparsed docs/archives/v2/v2.3/known-gaps.md (line 47 row)
+gaps.minor unparsed docs/archives/v2/v2.3/known-gaps.md (line 48 row)
+gaps.minor unparsed docs/archives/v2/v2.3/known-gaps.md (line 49 row)
+gaps.minor unparsed docs/archives/v2/v2.3/known-gaps.md (line 50 row)
+gaps.minor unparsed docs/archives/v2/v2.3/known-gaps.md (line 51 row)
+gaps.minor unparsed docs/archives/v2/v2.3/known-gaps.md (line 52 row)
+gaps.minor unparsed docs/archives/v2/v2.3/known-gaps.md (line 53 row)
+gaps.minor unparsed docs/archives/v2/v2.3/known-gaps.md (line 54 row)
+gaps.minor unparsed docs/archives/v2/v2.3/known-gaps.md (line 55 row)
+gaps.minor unparsed docs/archives/v2/v2.3/known-gaps.md (line 56 row)
+gaps.minor unparsed docs/archives/v2/v2.3/known-gaps.md (line 57 row)
+gaps.minor unparsed docs/archives/v2/v2.3/known-gaps.md (line 58 row)
+gaps.minor unparsed docs/archives/v2/v2.3/known-gaps.md (line 59 row)
+gaps.minor unparsed docs/archives/v2/v2.3/known-gaps.md (line 60 row)
+gaps.minor unparsed docs/archives/v2/v2.3/known-gaps.md (line 61 row)
+gaps.minor unparsed docs/archives/v2/v2.3/known-gaps.md (line 62 row)
+gaps.minor unparsed docs/archives/v2/v2.3/known-gaps.md (line 63 row)
+gaps.minor unparsed docs/archives/v2/v2.3/known-gaps.md (line 64 row)
+gaps.minor unparsed docs/archives/v2/v2.3/known-gaps.md (line 65 row)
+gaps.minor unparsed docs/archives/v2/v2.3/known-gaps.md (line 66 row)
+gaps.minor unparsed docs/archives/v2/v2.3/known-gaps.md (line 67 row)
+gaps.minor unparsed docs/archives/v2/v2.3/known-gaps.md (line 68 row)
+gaps.minor unparsed docs/archives/v2/v2.3/known-gaps.md (line 69 row)
+gaps.minor open v2.3#DF-v23-9
+gaps.minor unparsed docs/archives/v2/v2.4/known-gaps.md (line 147 row)
+gaps.minor unparsed docs/archives/v2/v2.4/known-gaps.md (line 148 row)
+gaps.minor unparsed docs/archives/v2/v2.4/known-gaps.md (line 149 row)
+gaps.minor unparsed docs/archives/v2/v2.4/known-gaps.md (line 150 row)
+gaps.minor unparsed docs/archives/v2/v2.4/known-gaps.md (line 151 row)
+gaps.minor unparsed docs/archives/v2/v2.4/known-gaps.md (line 152 row)
+gaps.minor unparsed docs/archives/v2/v2.4/known-gaps.md (line 153 row)
+gaps.minor unparsed docs/archives/v2/v2.4/known-gaps.md (line 154 row)
+gaps.minor unparsed docs/archives/v2/v2.4/known-gaps.md (line 155 row)
+gaps.minor unparsed docs/archives/v2/v2.4/known-gaps.md (line 156 row)
+gaps.minor unparsed docs/archives/v2/v2.4/known-gaps.md (line 157 row)
+gaps.minor unparsed docs/archives/v2/v2.4/known-gaps.md (line 158 row)
+gaps.minor unparsed docs/archives/v2/v2.4/known-gaps.md (line 159 row)
+gaps.minor unparsed docs/archives/v2/v2.4/known-gaps.md (line 160 row)
+gaps.minor unparsed docs/archives/v2/v2.4/known-gaps.md (line 161 row)
+gaps.minor unparsed docs/archives/v2/v2.4/known-gaps.md (line 162 row)
+gaps.minor unparsed docs/archives/v2/v2.4/known-gaps.md (line 163 row)
+gaps.minor unparsed docs/archives/v2/v2.4/known-gaps.md (line 164 row)
+gaps.minor unparsed docs/archives/v2/v2.4/known-gaps.md (line 165 row)
+gaps.minor unparsed docs/archives/v2/v2.4/known-gaps.md (line 166 row)
+gaps.minor open v2.4#NI-v24-1
+gaps.minor open v2.4#DF-v24-1
+gaps.minor open v2.4#DF-v24-2
+gaps.minor open v2.4#DF-v24-3
+gaps.minor open v2.4#DF-v24-4
+gaps.minor open v2.4#DF-v24-5
+gaps.minor open v2.4#DF-v24-6
+gaps.minor open v2.4#DF-v24-7
+gaps.minor open v2.4#WN-v24-2
+gaps.minor open v2.4#WN-v24-1
+gaps.minor open v2.4#DF-v24-8
+gaps.minor open v2.4#DF-v24-9
+gaps.minor open v2.4#DF-v24-10
+gaps.minor open v2.4#WN-v24-3
+gaps.minor unparsed docs/archives/v3/v3.0/known-gaps.md (line 28 row)
+gaps.minor unparsed docs/archives/v3/v3.0/known-gaps.md (line 29 row)
+gaps.minor unparsed docs/archives/v3/v3.0/known-gaps.md (line 30 row)
+gaps.minor unparsed docs/archives/v3/v3.0/known-gaps.md (line 31 row)
+gaps.minor unparsed docs/archives/v3/v3.0/known-gaps.md (line 32 row)
+gaps.minor unparsed docs/archives/v3/v3.0/known-gaps.md (line 33 row)
+gaps.minor unparsed docs/archives/v3/v3.0/known-gaps.md (line 34 row)
+gaps.minor unparsed docs/archives/v3/v3.0/known-gaps.md (line 35 row)
+gaps.minor unparsed docs/archives/v3/v3.0/known-gaps.md (line 36 row)
+gaps.minor unparsed docs/archives/v3/v3.0/known-gaps.md (line 37 row)
+gaps.minor unparsed docs/archives/v3/v3.0/known-gaps.md (line 38 row)
+gaps.minor unparsed docs/archives/v3/v3.0/known-gaps.md (line 39 row)
+gaps.minor unparsed docs/archives/v3/v3.0/known-gaps.md (line 45 row)
+gaps.minor unparsed docs/archives/v3/v3.0/known-gaps.md (line 46 row)
+gaps.minor unparsed docs/archives/v3/v3.0/known-gaps.md (line 47 row)
+gaps.minor unparsed docs/archives/v3/v3.0/known-gaps.md (line 48 row)
+gaps.minor unparsed docs/archives/v3/v3.0/known-gaps.md (line 49 row)
+gaps.minor unparsed docs/archives/v3/v3.0/known-gaps.md (line 50 row)
+gaps.minor unparsed docs/archives/v3/v3.0/known-gaps.md (line 51 row)
+gaps.minor unparsed docs/archives/v3/v3.0/known-gaps.md (line 52 row)
+gaps.minor unparsed docs/archives/v3/v3.0/known-gaps.md (line 53 row)
+gaps.minor unparsed docs/archives/v3/v3.0/known-gaps.md (line 61 row)
+gaps.minor unparsed docs/archives/v3/v3.0/known-gaps.md (line 62 row)
+gaps.minor unparsed docs/archives/v3/v3.0/known-gaps.md (line 63 row)
+gaps.minor unparsed docs/archives/v3/v3.0/known-gaps.md (line 64 row)
+gaps.minor unparsed docs/archives/v3/v3.0/known-gaps.md (line 65 row)
+gaps.minor unparsed docs/archives/v3/v3.0/known-gaps.md (line 66 row)
+gaps.minor unparsed docs/archives/v3/v3.0/known-gaps.md (line 67 row)
+gaps.minor unparsed docs/archives/v3/v3.0/known-gaps.md (line 68 row)
+gaps.minor unparsed docs/archives/v3/v3.0/known-gaps.md (line 69 row)
+gaps.minor unparsed docs/archives/v3/v3.0/known-gaps.md (line 70 row)
+gaps.minor unparsed docs/archives/v3/v3.0/known-gaps.md (line 71 row)
+gaps.minor unparsed docs/archives/v3/v3.0/known-gaps.md (line 72 row)
+gaps.minor unparsed docs/archives/v3/v3.1/known-gaps.md (line 30 row)
+gaps.minor unparsed docs/archives/v3/v3.1/known-gaps.md (line 31 row)
+gaps.minor unparsed docs/archives/v3/v3.1/known-gaps.md (line 32 row)
+gaps.minor unparsed docs/archives/v3/v3.1/known-gaps.md (line 33 row)
+gaps.minor unparsed docs/archives/v3/v3.1/known-gaps.md (line 34 row)
+gaps.minor unparsed docs/archives/v3/v3.1/known-gaps.md (line 35 row)
+gaps.minor unparsed docs/archives/v3/v3.1/known-gaps.md (line 41 row)
+gaps.minor unparsed docs/archives/v3/v3.1/known-gaps.md (line 42 row)
+gaps.minor unparsed docs/archives/v3/v3.1/known-gaps.md (line 43 row)
+gaps.minor unparsed docs/archives/v3/v3.1/known-gaps.md (line 51 row)
+gaps.minor unparsed docs/archives/v3/v3.1/known-gaps.md (line 52 row)
+gaps.minor unparsed docs/archives/v3/v3.1/known-gaps.md (line 53 row)
+gaps.minor unparsed docs/archives/v3/v3.1/known-gaps.md (line 54 row)
+gaps.minor unparsed docs/archives/v3/v3.1/known-gaps.md (line 55 row)
+gaps.minor unparsed docs/archives/v3/v3.1/known-gaps.md (line 56 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 28 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 29 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 30 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 31 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 32 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 33 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 34 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 35 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 36 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 37 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 38 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 39 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 40 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 41 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 42 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 43 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 44 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 45 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 46 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 47 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 48 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 49 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 50 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 51 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 57 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 58 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 59 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 60 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 68 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 69 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 70 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 71 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 72 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 73 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 74 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 75 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 76 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 77 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 78 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 79 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 80 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 81 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 82 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 83 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 84 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 85 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 86 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 87 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 88 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 89 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 90 row)
+gaps.minor unparsed docs/archives/v3/v3.2/known-gaps.md (line 91 row)
+gaps.minor unparsed docs/archives/v3/v3.3/known-gaps.md (line 28 row)
+gaps.minor unparsed docs/archives/v3/v3.3/known-gaps.md (line 29 row)
+gaps.minor unparsed docs/archives/v3/v3.3/known-gaps.md (line 35 row)
+gaps.minor unparsed docs/archives/v3/v3.3/known-gaps.md (line 36 row)
+gaps.minor unparsed docs/archives/v3/v3.3/known-gaps.md (line 37 row)
+gaps.minor unparsed docs/archives/v3/v3.3/known-gaps.md (line 38 row)
+gaps.minor unparsed docs/archives/v3/v3.3/known-gaps.md (line 46 row)
+gaps.minor unparsed docs/archives/v3/v3.3/known-gaps.md (line 47 row)
+gaps.minor unparsed docs/archives/v3/v3.4/known-gaps.md (line 28 row)
+gaps.minor unparsed docs/archives/v3/v3.4/known-gaps.md (line 29 row)
+gaps.minor unparsed docs/archives/v3/v3.4/known-gaps.md (line 30 row)
+gaps.minor unparsed docs/archives/v3/v3.4/known-gaps.md (line 44 row)
+gaps.minor unparsed docs/archives/v3/v3.4/known-gaps.md (line 45 row)
+gaps.minor unparsed docs/archives/v3/v3.4/known-gaps.md (line 46 row)
+gaps.minor unparsed docs/archives/v3/v3.6/known-gaps.md (line 28 row)
+gaps.minor unparsed docs/archives/v3/v3.6/known-gaps.md (line 29 row)
+gaps.minor unparsed docs/archives/v3/v3.6/known-gaps.md (line 30 row)
+gaps.minor unparsed docs/archives/v3/v3.6/known-gaps.md (line 31 row)
+gaps.minor unparsed docs/archives/v3/v3.6/known-gaps.md (line 37 row)
+gaps.minor unparsed docs/archives/v3/v3.6/known-gaps.md (line 38 row)
+gaps.minor unparsed docs/archives/v3/v3.6/known-gaps.md (line 39 row)
+gaps.minor unparsed docs/archives/v3/v3.6/known-gaps.md (line 47 row)
+gaps.minor unparsed docs/archives/v3/v3.6/known-gaps.md (line 48 row)
+gaps.minor unparsed docs/archives/v3/v3.6/known-gaps.md (line 49 row)
+gaps.minor unparsed docs/archives/v3/v3.6/known-gaps.md (line 50 row)
+gaps.minor unparsed docs/archives/v3/v3.7/known-gaps.md (line 28 row)
+gaps.minor unparsed docs/archives/v3/v3.7/known-gaps.md (line 29 row)
+gaps.minor unparsed docs/archives/v3/v3.7/known-gaps.md (line 30 row)
+gaps.minor unparsed docs/archives/v3/v3.7/known-gaps.md (line 31 row)
+gaps.minor unparsed docs/archives/v3/v3.7/known-gaps.md (line 32 row)
+gaps.minor unparsed docs/archives/v3/v3.7/known-gaps.md (line 33 row)
+gaps.minor unparsed docs/archives/v3/v3.7/known-gaps.md (line 34 row)
+gaps.minor unparsed docs/archives/v3/v3.7/known-gaps.md (line 40 row)
+gaps.minor unparsed docs/archives/v3/v3.7/known-gaps.md (line 41 row)
+gaps.minor unparsed docs/archives/v3/v3.7/known-gaps.md (line 49 row)
+gaps.minor unparsed docs/archives/v3/v3.7/known-gaps.md (line 50 row)
+gaps.minor unparsed docs/archives/v3/v3.7/known-gaps.md (line 51 row)
+gaps.minor unparsed docs/archives/v3/v3.7/known-gaps.md (line 52 row)
+gaps.minor unparsed docs/archives/v3/v3.7/known-gaps.md (line 53 row)
+gaps.minor unparsed docs/archives/v3/v3.7/known-gaps.md (line 54 row)
+gaps.minor unparsed docs/archives/v3/v3.7/known-gaps.md (line 55 row)
+gaps.minor unparsed docs/archives/v3/v3.8/known-gaps.md (line 29 row)
+gaps.minor unparsed docs/archives/v3/v3.8/known-gaps.md (line 30 row)
+gaps.minor unparsed docs/archives/v3/v3.8/known-gaps.md (line 31 row)
+gaps.minor unparsed docs/archives/v3/v3.8/known-gaps.md (line 32 row)
+gaps.minor unparsed docs/archives/v3/v3.8/known-gaps.md (line 33 row)
+gaps.minor unparsed docs/archives/v3/v3.8/known-gaps.md (line 34 row)
+gaps.minor unparsed docs/archives/v3/v3.8/known-gaps.md (line 40 row)
+gaps.minor unparsed docs/archives/v3/v3.8/known-gaps.md (line 41 row)
+gaps.minor unparsed docs/archives/v3/v3.8/known-gaps.md (line 49 row)
+gaps.minor unparsed docs/archives/v3/v3.8/known-gaps.md (line 50 row)
+gaps.minor unparsed docs/archives/v3/v3.8/known-gaps.md (line 51 row)
+gaps.minor unparsed docs/archives/v3/v3.8/known-gaps.md (line 52 row)
+gaps.minor unparsed docs/archives/v3/v3.8/known-gaps.md (line 53 row)
+gaps.minor unparsed docs/archives/v3/v3.8/known-gaps.md (line 54 row)
+gaps.minor unparsed docs/archives/v3/v3.9/known-gaps.md (line 29 row)
+gaps.minor unparsed docs/archives/v3/v3.9/known-gaps.md (line 30 row)
+gaps.minor unparsed docs/archives/v3/v3.9/known-gaps.md (line 31 row)
+gaps.minor unparsed docs/archives/v3/v3.9/known-gaps.md (line 32 row)
+gaps.minor unparsed docs/archives/v3/v3.9/known-gaps.md (line 33 row)
+gaps.minor unparsed docs/archives/v3/v3.9/known-gaps.md (line 34 row)
+gaps.minor unparsed docs/archives/v3/v3.9/known-gaps.md (line 35 row)
+gaps.minor unparsed docs/archives/v3/v3.9/known-gaps.md (line 36 row)
+gaps.minor unparsed docs/archives/v3/v3.9/known-gaps.md (line 37 row)
+gaps.minor unparsed docs/archives/v3/v3.9/known-gaps.md (line 38 row)
+gaps.minor unparsed docs/archives/v3/v3.9/known-gaps.md (line 60 row)
+gaps.minor unparsed docs/archives/v3/v3.9/known-gaps.md (line 61 row)
+gaps.minor unparsed docs/archives/v3/v3.9/known-gaps.md (line 62 row)
+gaps.minor unparsed docs/archives/v3/v3.9/known-gaps.md (line 63 row)
+gaps.minor unparsed docs/archives/v3/v3.9/known-gaps.md (line 64 row)
+gaps.minor unparsed docs/archives/v3/v3.9/known-gaps.md (line 65 row)
+gaps.minor unparsed docs/archives/v3/v3.9/known-gaps.md (line 66 row)
+gaps.minor unparsed docs/archives/v3/v3.9/known-gaps.md (line 67 row)
+gaps.minor unparsed docs/archives/v3/v3.9/known-gaps.md (line 68 row)
+gaps.minor unparsed docs/archives/v3/v3.9/known-gaps.md (line 69 row)
+gaps.minor unparsed docs/archives/v3/v3.10/known-gaps.md (line 29 row)
+gaps.minor unparsed docs/archives/v3/v3.10/known-gaps.md (line 30 row)
+gaps.minor unparsed docs/archives/v3/v3.10/known-gaps.md (line 31 row)
+gaps.minor unparsed docs/archives/v3/v3.10/known-gaps.md (line 49 row)
+gaps.minor unparsed docs/archives/v3/v3.10/known-gaps.md (line 50 row)
+gaps.minor unparsed docs/archives/v3/v3.10/known-gaps.md (line 51 row)
+gaps.minor unparsed docs/archives/v3/v3.11/known-gaps.md (line 55 row)
+gaps.minor unparsed docs/archives/v3/v3.11/known-gaps.md (line 56 row)
+gaps.minor unparsed docs/archives/v3/v3.11/known-gaps.md (line 57 row)
+gaps.minor unparsed docs/archives/v3/v3.11/known-gaps.md (line 58 row)
+gaps.minor unparsed docs/archives/v3/v3.11/known-gaps.md (line 59 row)
+gaps.minor unparsed docs/archives/v3/v3.11/known-gaps.md (line 60 row)
+gaps.minor unparsed docs/archives/v3/v3.11/known-gaps.md (line 61 row)
+gaps.minor unparsed docs/archives/v3/v3.11/known-gaps.md (line 82 row)
+gaps.minor unparsed docs/archives/v3/v3.11/known-gaps.md (line 83 row)
+gaps.minor unparsed docs/archives/v3/v3.11/known-gaps.md (line 89 row)
+gaps.minor unparsed docs/archives/v3/v3.11/known-gaps.md (line 90 row)
+gaps.minor unparsed docs/archives/v3/v3.11/known-gaps.md (line 91 row)
+gaps.minor unparsed docs/archives/v3/v3.11/known-gaps.md (line 115 row)
+gaps.minor unparsed docs/archives/v3/v3.11/known-gaps.md (line 116 row)
+gaps.minor unparsed docs/archives/v3/v3.11/known-gaps.md (line 117 row)
+gaps.minor unparsed docs/archives/v3/v3.11/known-gaps.md (line 118 row)
+gaps.minor unparsed docs/archives/v3/v3.11/known-gaps.md (line 119 row)
+gaps.minor unparsed docs/archives/v3/v3.11/known-gaps.md (line 120 row)
+gaps.minor unparsed docs/archives/v3/v3.11/known-gaps.md (line 121 row)
+gaps.minor unparsed docs/archives/v3/v3.11/known-gaps.md (line 122 row)
+gaps.minor unparsed docs/archives/v3/v3.11/known-gaps.md (open-items-count)
+gaps.minor open v3.11#DF-1
+gaps.minor open v3.11#WN-2
+gaps.minor unparsed docs/archives/v3/v3.12/known-gaps.md (line 113 row)
+gaps.minor unparsed docs/archives/v3/v3.12/known-gaps.md (line 114 row)
+gaps.minor unparsed docs/archives/v3/v3.12/known-gaps.md (line 115 row)
+gaps.minor unparsed docs/archives/v3/v3.12/known-gaps.md (line 116 row)
+gaps.minor unparsed docs/archives/v3/v3.12/known-gaps.md (line 117 row)
+gaps.minor unparsed docs/archives/v3/v3.12/known-gaps.md (line 118 row)
+gaps.minor unparsed docs/archives/v3/v3.12/known-gaps.md (line 124 row)
+gaps.minor unparsed docs/archives/v3/v3.12/known-gaps.md (line 142 row)
+gaps.minor unparsed docs/archives/v3/v3.12/known-gaps.md (line 143 row)
+gaps.minor unparsed docs/archives/v3/v3.12/known-gaps.md (line 144 row)
+gaps.minor unparsed docs/archives/v3/v3.12/known-gaps.md (line 145 row)
+gaps.minor unparsed docs/archives/v3/v3.12/known-gaps.md (line 146 row)
+gaps.minor unparsed docs/archives/v3/v3.12/known-gaps.md (line 147 row)
+gaps.minor unparsed docs/archives/v3/v3.12/known-gaps.md (line 148 row)
+gaps.minor unparsed docs/archives/v3/v3.12/known-gaps.md (line 149 row)
+gaps.minor unparsed docs/archives/v3/v3.12/known-gaps.md (line 150 row)
+gaps.minor unparsed docs/archives/v3/v3.12/known-gaps.md (line 151 row)
+gaps.minor unparsed docs/archives/v3/v3.12/known-gaps.md (line 152 row)
+gaps.minor unparsed docs/archives/v3/v3.12/known-gaps.md (line 153 row)
+gaps.minor unparsed docs/archives/v3/v3.12/known-gaps.md (line 154 row)
+gaps.minor unparsed docs/archives/v3/v3.12/known-gaps.md (open-items-count)
+gaps.minor open v3.12#DF-1
+gaps.minor open v3.12#DF-2
+gaps.minor open v3.12#DF-3
+gaps.minor open v3.12#DF-4
+gaps.minor open v3.12#DF-5
+gaps.minor unparsed docs/archives/v3/v3.13/known-gaps.md (line 126 row)
+gaps.minor unparsed docs/archives/v3/v3.13/known-gaps.md (line 127 row)
+gaps.minor unparsed docs/archives/v3/v3.13/known-gaps.md (line 128 row)
+gaps.minor unparsed docs/archives/v3/v3.13/known-gaps.md (line 129 row)
+gaps.minor unparsed docs/archives/v3/v3.13/known-gaps.md (line 130 row)
+gaps.minor unparsed docs/archives/v3/v3.13/known-gaps.md (line 131 row)
+gaps.minor unparsed docs/archives/v3/v3.13/known-gaps.md (line 132 row)
+gaps.minor unparsed docs/archives/v3/v3.13/known-gaps.md (line 133 row)
+gaps.minor unparsed docs/archives/v3/v3.13/known-gaps.md (line 134 row)
+gaps.minor unparsed docs/archives/v3/v3.13/known-gaps.md (line 135 row)
+gaps.minor unparsed docs/archives/v3/v3.13/known-gaps.md (line 136 row)
+gaps.minor unparsed docs/archives/v3/v3.13/known-gaps.md (open-items-count)
+gaps.minor open v3.13#DF-1
+gaps.minor open v3.13#DF-2
+gaps.minor open v3.13#DF-3
+gaps.minor open v3.13#DF-4
+gaps.minor open v3.13#DF-5
+gaps.minor open v3.13#DF-6
+gaps.minor open v3.13#WN-1
+gaps.minor open v3.13#MT-2
+gaps.minor unparsed docs/archives/v3/v3.14/known-gaps.md (line 430 row)
+gaps.minor unparsed docs/archives/v3/v3.14/known-gaps.md (line 431 row)
+gaps.minor unparsed docs/archives/v3/v3.14/known-gaps.md (line 432 row)
+gaps.minor unparsed docs/archives/v3/v3.14/known-gaps.md (line 433 row)
+gaps.minor unparsed docs/archives/v3/v3.14/known-gaps.md (line 434 row)
+gaps.minor unparsed docs/archives/v3/v3.14/known-gaps.md (line 435 row)
+gaps.minor unparsed docs/archives/v3/v3.14/known-gaps.md (line 436 row)
+gaps.minor unparsed docs/archives/v3/v3.14/known-gaps.md (line 437 row)
+gaps.minor unparsed docs/archives/v3/v3.14/known-gaps.md (line 438 row)
+gaps.minor unparsed docs/archives/v3/v3.14/known-gaps.md (line 439 row)
+gaps.minor unparsed docs/archives/v3/v3.14/known-gaps.md (line 440 row)
+gaps.minor unparsed docs/archives/v3/v3.14/known-gaps.md (line 441 row)
+gaps.minor unparsed docs/archives/v3/v3.14/known-gaps.md (line 442 row)
+gaps.minor unparsed docs/archives/v3/v3.14/known-gaps.md (line 443 row)
+gaps.minor unparsed docs/archives/v3/v3.14/known-gaps.md (line 444 row)
+gaps.minor unparsed docs/archives/v3/v3.14/known-gaps.md (line 445 row)
+gaps.minor unparsed docs/archives/v3/v3.14/known-gaps.md (line 446 row)
+gaps.minor unparsed docs/archives/v3/v3.14/known-gaps.md (line 447 row)
+gaps.minor unparsed docs/archives/v3/v3.14/known-gaps.md (line 448 row)
+gaps.minor unparsed docs/archives/v3/v3.14/known-gaps.md (line 449 row)
+gaps.minor unparsed docs/archives/v3/v3.14/known-gaps.md (line 450 row)
+gaps.minor unparsed docs/archives/v3/v3.14/known-gaps.md (line 451 row)
+gaps.minor unparsed docs/archives/v3/v3.14/known-gaps.md (line 452 row)
+gaps.minor unparsed docs/archives/v3/v3.14/known-gaps.md (line 453 row)
+gaps.minor unparsed docs/archives/v3/v3.14/known-gaps.md (open-items-count)
+gaps.minor open v3.14#DF-1
+gaps.minor open v3.14#DF-3
+gaps.minor open v3.14#MT-1
+gaps.minor open v3.14#DF-1
+gaps.minor open v3.14#MT-1
+gaps.minor open v3.14#MT-1
+gaps.minor open v3.14#QG-1
+gaps.minor open v3.14#WN-1
+gaps.minor open v3.14#DF-3
+gaps.minor open v3.14#BG-1
+gaps.minor open v3.14#MT-1
+gaps.minor open v3.14#QG-1
+gaps.minor open v3.14#HO-1
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 53 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 54 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 60 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 65 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 121 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 154 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 211 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 269 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 357 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 358 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 432 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 433 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 434 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 435 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 436 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 437 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 438 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 444 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 445 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 446 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 447 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 451 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 452 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 506 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 627 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 628 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 629 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 630 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 664 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 665 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 666 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 672 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 673 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 674 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 678 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 679 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 680 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 681 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 939 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 940 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 941 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 1962 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 1997 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2041 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2079 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2080 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2295 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2296 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2297 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2298 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2299 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2300 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2301 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2302 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2303 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2304 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2328 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2329 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2330 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2331 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2332 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2334 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2335 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2336 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2337 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2343 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2344 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2345 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2346 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2348 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2349 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2350 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2351 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2352 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2353 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2354 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2355 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2356 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2357 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2358 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2359 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2360 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2361 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2362 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2363 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2364 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2365 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2366 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2367 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2368 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2369 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2370 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2371 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2372 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2373 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2374 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2375 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2376 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2377 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2378 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2379 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2380 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2381 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2382 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2383 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (line 2384 row)
+gaps.minor unparsed docs/archives/v3/v3.15/known-gaps.md (open-items-count)
+gaps.minor open v3.15#DC-1
+gaps.minor open v3.15#EN-1
+gaps.minor open v3.15#QG-1
+gaps.minor open v3.15#MT-1
+gaps.minor open v3.15#HO-5
+gaps.minor open v3.15#WN-5
+gaps.minor open v3.15#HO-6
+gaps.minor open v3.15#HO-5
+gaps.minor open v3.15#HO-5
+gaps.minor open v3.15#WN-5
+gaps.minor open v3.15#HO-5
+gaps.minor open v3.15#WN-4
+gaps.minor open v3.15#DF-1
+gaps.minor open v3.15#DF-4
+gaps.minor open v3.15#DF-3
+gaps.minor open v3.15#WN-2
+gaps.minor open v3.15#MT-2
+gaps.minor open v3.15#MT-1
+gaps.minor open v3.15#DF-1
+gaps.minor open v3.15#DF-2
+gaps.minor open v3.15#QG-1
+gaps.minor open v3.15#QG-2
+gaps.minor open v3.15#DF-2
+gaps.minor open v3.15#MT-1
+gaps.minor open v3.15#DF-1
+gaps.minor open v3.15#DF-3
+gaps.minor open v3.15#DF-1
+gaps.minor open v3.15#DF-2
+gaps.minor open v3.15#MT-1
+gaps.minor open v3.15#MT-2
+gaps.minor open v3.15#MT-3
+gaps.minor open v3.15#BG-1
+gaps.minor open v3.15#DF-2
+gaps.minor open v3.15#MT-4
+gaps.minor open v3.15#MT-2
+gaps.minor open v3.15#DF-3
+gaps.minor open v3.15#DF-1
+gaps.minor open v3.15#DF-2
+gaps.minor open v3.15#BG-5
+gaps.minor open v3.15#QG-1
+gaps.minor open v3.15#HO-2
+gaps.minor open v3.15#HO-1
+gaps.minor open v3.15#BG-1
+gaps.minor open v3.15#BG-2
+gaps.minor open v3.15#BG-6
+gaps.minor open v3.15#BG-7
+gaps.minor open v3.15#BG-8
+gaps.minor open v3.15#WN-3
+gaps.minor open v3.15#DF-6
+gaps.minor open v3.15#DF-7
+gaps.minor open v3.15#DF-8
+gaps.minor open v3.15#DF-9
+gaps.minor open v3.15#BG-1
+gaps.minor open v3.15#BG-2
+gaps.minor open v3.15#BG-3
+gaps.minor open v3.15#WN-3
+gaps.minor open v3.15#QG-2
+gaps.minor open v3.15#QG-3
+gaps.minor open v3.15#MT-6
+gaps.minor open v3.15#DF-12
+gaps.minor open v3.15#MT-7
+gaps.minor open v3.15#DF-13
+gaps.minor open v3.15#MT-8
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 257 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 258 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 259 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 260 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 261 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 262 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 415 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 416 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 466 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 467 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 595 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 596 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 597 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 598 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 599 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 600 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 601 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 602 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 603 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 604 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 605 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 826 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 827 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 828 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 829 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 830 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 831 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 832 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 833 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 834 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 835 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 836 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 837 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 838 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 839 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1012 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1020 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1021 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1022 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1023 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1024 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1025 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1026 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1030 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1031 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1335 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1336 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1337 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1338 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1339 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1340 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1341 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1342 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1343 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1344 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1345 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1346 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1347 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1348 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1349 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1350 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1351 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1352 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1353 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1354 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1355 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1356 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1357 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1358 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1359 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1360 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1361 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1362 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1363 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1364 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1365 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1366 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1367 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1368 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1369 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1370 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1371 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1372 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1373 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1374 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1375 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1376 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1377 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1378 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1379 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1380 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1381 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1382 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1383 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1384 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1385 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1386 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1387 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (line 1388 row)
+gaps.minor unparsed docs/archives/v3/v3.16/known-gaps.md (open-items-count)
+gaps.minor open v3.16#TR-1
+gaps.minor open v3.16#TR-2
+gaps.minor open v3.16#CD-1
+gaps.minor open v3.16#CD-2
+gaps.minor open v3.16#CD-3
+gaps.minor open v3.16#DF-1
+gaps.minor open v3.16#NI-1
+gaps.minor open v3.16#WN-1
+gaps.minor open v3.16#NI-2
+gaps.minor open v3.16#NI-3
+gaps.minor open v3.16#NI-4
+gaps.minor open v3.16#NI-5
+gaps.minor open v3.16#NI-6
+gaps.minor open v3.16#NI-6
+gaps.minor open v3.16#MT-1
+gaps.minor open v3.16#NI-1
+gaps.minor open v3.16#DF-1
+gaps.minor open v3.16#BG-2
+gaps.minor open v3.16#NI-2
+gaps.minor open v3.16#MT-1
+gaps.minor open v3.16#NI-2
+gaps.minor open v3.16#NI-3
+gaps.minor open v3.16#NI-5
+gaps.minor open v3.16#NI-6
+gaps.minor open v3.16#NI-2
+gaps.minor open v3.16#WN-1
+gaps.minor open v3.16#WN-2
+gaps.minor open v3.16#NI-3
+gaps.minor open v3.16#WN-3
+gaps.minor open v3.16#NI-4
+gaps.minor open v3.16#DF-2
+gaps.minor open v3.16#NI-5
+gaps.minor open v3.16#WN-4
+gaps.minor open v3.16#DF-3
+gaps.minor open v3.16#DF-4
+gaps.minor open v3.16#NI-2
+gaps.minor open v3.16#NI-3
+gaps.minor open v3.16#BG-2
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (line 517 row)
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (line 518 row)
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (line 519 row)
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (line 819 row)
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (line 827 row)
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (line 828 row)
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (line 829 row)
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (line 830 row)
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (line 836 row)
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (line 837 row)
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (line 838 row)
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (line 839 row)
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (line 845 row)
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (line 846 row)
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (line 847 row)
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (line 848 row)
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (line 854 row)
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (line 855 row)
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (line 865 row)
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (line 867 row)
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (line 868 row)
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (line 869 row)
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (line 870 row)
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (line 871 row)
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (line 872 row)
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (line 873 row)
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (line 874 row)
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (line 875 row)
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (line 876 row)
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (line 877 row)
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (line 878 row)
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (line 879 row)
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (line 880 row)
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (line 881 row)
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (line 882 row)
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (line 883 row)
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (line 884 row)
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (line 885 row)
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (line 886 row)
+gaps.minor unparsed docs/archives/v3/v3.17/known-gaps.md (open-items-count)
+gaps.minor open v3.17#NI-1
+gaps.minor open v3.17#MT-2
+gaps.minor open v3.17#WN-1
+gaps.minor open v3.17#QG-3
+gaps.minor open v3.17#NI-3
+gaps.minor open v3.17#NI-4
+gaps.minor open v3.17#MT-5
+gaps.minor open v3.17#QG-4
+gaps.minor open v3.17#NI-5
+gaps.minor open v3.17#QG-6
+gaps.minor open v3.17#QG-7
+gaps.minor open v3.17#NI-6
+gaps.minor open v3.17#MT-4
+gaps.minor open v3.17#NI-1
+gaps.minor open v3.17#NI-2
+gaps.minor open v3.17#NI-3
+gaps.minor open v3.17#DF-1
+gaps.minor open v3.17#DF-2
+gaps.minor open v3.17#DF-3
+gaps.minor open v3.17#DF-4
+gaps.minor open v3.17#DF-5
+gaps.minor open v3.17#WN-2
+gaps.minor open v3.17#WN-4
+gaps.minor open v3.17#MT-1
+gaps.minor unparsed docs/archives/v3/v3.18/known-gaps.md (line 279 row)
+gaps.minor unparsed docs/archives/v3/v3.18/known-gaps.md (line 325 row)
+gaps.minor unparsed docs/archives/v3/v3.18/known-gaps.md (open-items-count)
+gaps.minor open v3.18#BG-2
+gaps.minor open v3.18#QG-1
+gaps.minor open v3.18#WN-1
+gaps.minor unparsed docs/archives/v3/v3.19/known-gaps.md (line 216 row)
+gaps.minor unparsed docs/archives/v3/v3.19/known-gaps.md (line 217 row)
+gaps.minor unparsed docs/archives/v3/v3.19/known-gaps.md (line 218 row)
+gaps.minor unparsed docs/archives/v3/v3.19/known-gaps.md (open-items-count)
+gaps.minor open v3.19#DF-2
+gaps.minor open v3.19#DF-3
+gaps.minor open v3.19#DF-4
+gaps.minor unparsed docs/archives/v3/v3.20/known-gaps.md (line 276 row)
+gaps.minor unparsed docs/archives/v3/v3.20/known-gaps.md (line 277 row)
+gaps.minor unparsed docs/archives/v3/v3.20/known-gaps.md (line 278 row)
+gaps.minor unparsed docs/archives/v3/v3.20/known-gaps.md (line 279 row)
+gaps.minor unparsed docs/archives/v3/v3.20/known-gaps.md (line 280 row)
+gaps.minor unparsed docs/archives/v3/v3.20/known-gaps.md (line 281 row)
+gaps.minor unparsed docs/archives/v3/v3.20/known-gaps.md (line 282 row)
+gaps.minor unparsed docs/archives/v3/v3.20/known-gaps.md (line 283 row)
+gaps.minor unparsed docs/archives/v3/v3.20/known-gaps.md (line 284 row)
+gaps.minor unparsed docs/archives/v3/v3.20/known-gaps.md (line 285 row)
+gaps.minor unparsed docs/archives/v3/v3.20/known-gaps.md (open-items-count)
+gaps.minor open v3.20#DF-1
+gaps.minor open v3.20#DF-2
+gaps.minor open v3.20#WN-2
+gaps.minor open v3.20#MT-1
+gaps.minor unparsed docs/archives/v3/v3.21/known-gaps.md (line 71 row)
+gaps.minor unparsed docs/archives/v3/v3.21/known-gaps.md (open-items-count)
+gaps.minor open v3.21#DF-1
+gaps.minor open v4.0#DF-1
+gaps.minor open v4.0#WN-2
+gaps.minor open v4.0#MT-1
+gaps.minor open v4.0#MT-3
+gaps.minor open v4.0#DF-1
+gaps.minor open v4.0#DF-2
+gaps.minor open v4.0#WN-1
+gaps.minor open v4.1#DF-1
+gaps.minor open v4.1#DF-1
+gaps.minor open v4.2#DF-2
+gaps.minor open v4.2#DF-2
+gaps.minor open v4.3#DF-1
+gaps.minor open v4.3#DF-2
+gaps.minor open v4.3#DF-3
+gaps.minor open v4.3#DF-4
+gaps.minor open v4.3#DF-5
+gaps.minor open v4.3#WN-3
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 130 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 131 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 132 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 133 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 188 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 189 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 190 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 191 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 192 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 193 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 194 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 195 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 196 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 197 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 203 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 204 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 205 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 206 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 207 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 208 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 209 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 215 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 216 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 243 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 244 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 245 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 246 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 247 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 248 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 249 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 250 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 256 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 257 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 258 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 259 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 265 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 266 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 292 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 293 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 294 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 295 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 296 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 297 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 298 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 299 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 305 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 306 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 307 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 308 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 309 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 310 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 316 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 355 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 356 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 357 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 358 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 359 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 360 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 361 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 362 row)
+gaps.minor unparsed docs/archives/v4/v4.4/known-gaps.md (line 363 row)
+gaps.minor open v4.4#DF-1
+gaps.minor open v4.4#WN-1
+gaps.minor open v4.4#WN-2
+gaps.minor unparsed docs/archives/v4/v4.5/known-gaps.md (line 68 row)
+gaps.minor unparsed docs/archives/v4/v4.5/known-gaps.md (line 69 row)
+gaps.minor unparsed docs/archives/v4/v4.5/known-gaps.md (line 70 row)
+gaps.minor unparsed docs/archives/v4/v4.5/known-gaps.md (line 71 row)
+gaps.minor open v4.5#DF-1
+gaps.minor open v4.5#DF-2
+gaps.minor open v4.5#WN-2
+gaps.minor open v4.5#MT-1
+gaps.minor open v4.7#DF-2
+gaps.minor open v4.7#DF-4
+gaps.minor open v4.7#DF-5
+gaps.minor open v4.7#WN-1
+gaps.minor open v4.7#WN-2
+gaps.minor open v4.8#WN-A
+gaps.minor open v4.8#WN-C
+gaps.minor open v4.8#WN-B
+gaps.minor open v4.8#WN-D
+gaps.minor open v4.8#WN-E
+gaps.minor open v4.8#WN-F
+gaps.minor open v4.8#DF-1
+gaps.minor open v4.8#WN-G
+gaps.minor open v4.8#WN-H
+gaps.minor open v4.8#WN-I
+gaps.minor open v4.8#WN-J
+gaps.minor open v4.8#WN-K
+gaps.minor open v4.8#WN-1
+gaps.minor open v4.8#WN-3
+gaps.minor open v4.9#MT-1
+gaps.minor open v4.9#WN-1
+gaps.minor open v4.9#WN-1
+gaps.minor open v4.9#MT-2
+gaps.minor open v4.9#MT-3
+gaps.minor open v4.9#QG-1
+gaps.minor unparsed docs/archives/v4/v4.10/known-gaps.md (line 108 row)
+gaps.minor unparsed docs/archives/v4/v4.10/known-gaps.md (line 109 row)
+gaps.minor unparsed docs/archives/v4/v4.10/known-gaps.md (line 110 row)
+gaps.minor unparsed docs/archives/v4/v4.10/known-gaps.md (line 111 row)
+gaps.minor unparsed docs/archives/v4/v4.10/known-gaps.md (line 112 row)
+gaps.minor unparsed docs/archives/v4/v4.10/known-gaps.md (line 113 row)
+gaps.minor open v4.10#EV-1
+gaps.minor open v4.10#EV-2
+gaps.minor open v4.10#WN-3
+gaps.minor open v4.10#DF-1
+gaps.minor open v4.10#WN-1
+gaps.minor open v4.10#WN-2
+gaps.minor open v4.10#MT-1
+gaps.minor open v4.10#WN-4
+gaps.minor open v4.10#MT-2
+gaps.minor unparsed docs/archives/v4/v4.11/known-gaps.md (line 81 row)
+gaps.minor unparsed docs/archives/v4/v4.11/known-gaps.md (line 82 row)
+gaps.minor open v4.11#SEC-1
+gaps.minor open v4.11#WN-1
+gaps.minor open v4.11#MT-5
+gaps.minor open v4.11#MT-9
+gaps.minor open v4.11#MT-10
+gaps.minor open v4.12#BG-2
+gaps.minor open v4.12#BG-3
+gaps.minor open v4.12#WN-1
+gaps.minor open v4.12#WN-2
+gaps.minor open v4.12#WN-3
+gaps.minor open v4.12#QG-1
+gaps.minor open v4.12#QG-2
+gaps.minor open v4.12#QG-3
+gaps.minor open v4.12#QG-4
+gaps.minor open v4.12#DF-1
+gaps.minor open v4.13#BG-7
+gaps.minor open v4.13#WN-3
+gaps.minor open v4.13#WN-5
+gaps.minor open v4.13#WN-6
+gaps.minor open v4.13#AR-03
+gaps.minor open v4.13#AR-05
+gaps.minor open v4.13#AR-10
+gaps.minor open v4.13#AR-11
+gaps.minor open v4.13#AR-20
+gaps.minor open v4.13#AR-21
+gaps.minor open v4.13#AR-26
+gaps.minor open v4.13#AR-30
+gaps.minor open v4.13#AR-40
+gaps.minor open v4.13#AR-16
+gaps.minor open v4.13#AR-17
+gaps.minor open v4.13#AR-36
+gaps.minor open v4.13#AR-38
+gaps.minor open v4.13#AR-45
+gaps.minor open v4.13#AR-47
+gaps.minor open v4.13#AR-51
+gaps.minor open v4.13#AR-54
+gaps.minor open v4.13#AR-56
+gaps.minor open v4.13#AR-57
+gaps.minor open v4.13#AR-04
+gaps.minor open v4.13#AR-06
+gaps.minor open v4.13#AR-07
+gaps.minor open v4.13#AR-08
+gaps.minor open v4.13#AR-09
+gaps.minor open v4.13#AR-12
+gaps.minor open v4.13#AR-13
+gaps.minor open v4.13#AR-14
+gaps.minor open v4.13#AR-15
+gaps.minor open v4.13#AR-22
+gaps.minor open v4.13#AR-23
+gaps.minor open v4.13#AR-28
+gaps.minor open v4.13#AR-33
+gaps.minor open v4.13#AR-34
+gaps.minor open v4.13#AR-50
+gaps.minor open v4.13#AR-53
+gaps.minor open v4.13#AR-55
+gaps.minor open v4.13#AR-18
+gaps.minor open v4.13#AR-19
+gaps.minor open v4.13#AR-24
+gaps.minor open v4.13#AR-25
+gaps.minor open v4.13#AR-27
+gaps.minor open v4.13#AR-32
+gaps.minor open v4.13#AR-44
+gaps.minor open v4.13#AR-49
+gaps.minor open v4.13#AR-52
+gaps.minor open v4.13#AR-58
+gaps.minor open v4.13#AR-59
+gaps.minor open v4.13#AR-60
+gaps.minor open v4.13#AR-46
+gaps.minor open v4.13#AR-48
+gaps.minor open v4.13#AR-29
+gaps.minor open v4.13#AR-31
+gaps.minor open v4.13#AR-35
+gaps.minor open v4.13#AR-39
+gaps.minor open v4.13#AR-37
+gaps.minor open v4.13#AR-41
+gaps.minor open v4.13#AR-42
+gaps.minor open v4.13#AR-43
+gaps.minor open v4.13#BG-2
+gaps.minor open v4.13#WN-7
+gaps.minor open v4.13#WN-1
+gaps.minor open v4.13#WN-2
+gaps.minor open v4.13#WN-3
+gaps.minor open v4.13#WN-4
+gaps.minor open v4.13#WN-5
+gaps.minor open v4.13#WN-6
+gaps.minor open v4.13#MT-1
+gaps.minor open v4.13#WN-4
+gaps.minor open v4.13#WN-7
+gaps.minor open v4.13#MT-1
+gaps.minor open v4.13#WN-8
+gaps.minor open v4.13#WN-9
+gaps.minor open v4.13#WN-11
+gaps.minor open v4.13#WN-12
+gaps.minor open v4.13#WN-13
+gaps.minor open v4.13#DF-5
+gaps.minor open v4.13#DF-6
+gaps.minor open v4.13#DF-7
+gaps.minor open v4.13#MT-2
+gaps.minor open v4.13#DF-1
+gaps.minor open v4.13#DF-2
+gaps.minor open v4.13#DF-3
+gaps.minor open v4.13#DF-4
+gaps.minor open v4.13#DF-1
+gaps.minor open v4.13#DF-2
+gaps.minor open v4.13#DF-3
+gaps.minor open v4.13#DF-4
+gaps.minor open v4.13#DF-5
+gaps.minor open v4.13#DF-6
+gaps.minor open v4.13#DF-8
+gaps.minor open v4.13#WN-1
+gaps.minor open v4.13#WN-2
+gaps.minor open v4.13#MT-1
+gaps.minor open v4.13#WN-5
+gaps.minor open v4.13#WN-6
+gaps.minor open v4.13#WN-1
+gaps.minor open v4.13#WN-2
+gaps.minor open v4.13#WN-1
+gaps.minor open v4.13#WN-2
+gaps.minor open v4.13#MT-1
+gaps.minor open v4.13#WN-4
+gaps.minor open v4.13#WN-5
+gaps.minor open v4.13#DF-1
+gaps.minor open v4.13#QG-1
+gaps.minor open v4.13#QG-2
+gaps.minor open v4.13#WN-6
+gaps.minor open v4.13#WN-1
+gaps.minor open v4.13#WN-2
+gaps.minor open v4.13#DF-1
+gaps.minor open v4.13#DF-9
+gaps.minor open v4.13#DF-11
+gaps.minor open v4.13#WN-21
+gaps.minor open v4.13#WN-22
+gaps.minor open v4.13#WN-23
+gaps.minor open v4.13#DF-12
+gaps.minor open v4.13#WN-24
+gaps.minor open v4.13#WN-25
+gaps.minor open v4.13#WN-26
+gaps.minor open v4.13#BG-12
+gaps.minor open v4.13#WN-27
+gaps.minor open v4.13#WN-28
+gaps.minor open v4.13#WN-29
+gaps.minor open v4.13#WN-30
+gaps.minor open v4.13#WN-31
+gaps.minor open v4.13#WN-32
+gaps.minor open v4.13#WN-33
+gaps.minor open v4.13#QG-7
+gaps.minor open v4.13#QG-8
+gaps.minor open v4.13#WN-35
+gaps.minor open v4.13#BG-13
+gaps.minor open v4.13#BG-14
+gaps.minor open v4.13#WN-36
+gaps.minor open v4.13#WN-37
+gaps.minor open v4.13#WN-38
+gaps.minor open v4.13#WN-1
+gaps.minor open v4.13#WN-5
+gaps.minor open v4.13#WN-6
+gaps.minor open v4.13#WN-8
+gaps.minor open v4.13#WN-9
+gaps.minor open v4.13#WN-11
+gaps.minor open v4.13#WN-12
+gaps.minor open v4.13#QG-2
+gaps.minor open v4.13#WN-39
+gaps.minor open v4.13#BG-15
+gaps.minor open v4.13#WN-40
+
+Command exit: 0

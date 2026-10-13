@@ -300,8 +300,13 @@ pygments==2.21.0
     # via
     #   pytest
     #   rich
-pyjwt==2.14.0
-    # via mcp
+pyjwt==2.15.1
+    # via
+    #   nexus-code-search (extensions/nexus-code-search/pyproject.toml)
+    #   nexus-context-compressor (extensions/nexus-context-compressor/pyproject.toml)
+    #   nexus-skill-server (extensions/nexus-skill-server/pyproject.toml)
+    #   nexus-web-fetch (extensions/nexus-web-fetch/pyproject.toml)
+    #   mcp
 pyparsing==3.3.3
     # via pip-requirements-parser
 pypdf==6.19.0
