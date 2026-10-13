@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Deep Windows paths (v4.13.11).** `nexus-hub init` and global installs complete on project roots past the 260-character limit; `init` now names a failing platform and continues instead of raising. Teardown and hook pruning also handle deep roots, restore user hook bytes, and remove owned directory junctions without touching their targets (WN-46).
 - **PyJWT advisory GHSA-42vr-xj54-vc7v (v4.13.11).** The four `mcp`-dependent extensions require `pyjwt>=2.15.0`, and CI pins 2.15.1.
 - **Guide and Training accessibility (v4.13.11).** The phone menu closes on Escape and when focus leaves it. The Foundations figure fits below 600 px at phone widths even with Linux fallback fonts (579.20 px at 390 px and 430 px, WN-8-v41310) and names its links. Light-theme figure text reaches 4.5:1 contrast, and home headings no longer skip a level.
+- **Copilot usage monitor ring label (v4.13.11).** The label under the percentage in the warning view ("Organization pool") wraps onto two lines inside the ring instead of running under the progress stroke.
 - **Smaller fixes (v4.13.11).** Presentify redacts camelCase AWS secret key names. `provenance-ledger.ps1` writes UTC timestamps like its bash sibling. `enumerate-models.ps1` exits 2 for an unknown platform under a Stop error preference. Completion notices name the host they were installed for.
 
 ### Capability usage
