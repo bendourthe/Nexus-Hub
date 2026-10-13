@@ -184,7 +184,7 @@
           "default": 50,
           "minimum": 0,
           "maximum": 1000000000,
-          "description": "After you choose to continue on pay-per-use credits (extra usage) at a usage limit, Nexus-Hub reminds you each time this many US dollars more are spent. Applies when your credits have no spending cap, and also under a cap when 'Credit Reminder When Capped' is on. 0 turns these reminders off. Saved to ~/.nexus-hub/config/credit-reminders.json for the usage-guard hook."
+          "description": "After you choose to continue on pay-per-use credits (extra usage) at a usage limit, Nexus-Hub reminds you each time this many US dollars more are spent. Applies when your credits have no spending cap, and also under a cap when 'Credit Reminder When Capped' is on. 0 turns these reminders off. Saved to ~/.nexus-hub/config/credit-reminders-claude.json for the usage-guard hook; the shared credit-reminders.json is a legacy fallback."
         },
         "claudeUsage.creditReminderWhenCapped": {
           "type": "boolean",
