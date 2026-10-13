@@ -25,7 +25,7 @@
     "content": {
       "status": "pass",
       "evidence": "docs/releases/v4/v4.13/development/v4.13.11-phase-8-handbook-claim-review.md",
-      "evidence_sha256": "54f4ce4ebecd15fd3780a3638a555c0d5ce938aa86b3d191a27ac4baddf0f5fe"
+      "evidence_sha256": "3239a414a8912fd3f36517fed6170476063451270deee0f650a39cff95f213d0"
     },
     "build": {
       "status": "pass",

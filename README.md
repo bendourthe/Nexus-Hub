@@ -6,9 +6,9 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.13.10 -->
+<!-- nexus-hub-version: 4.13.11 -->
 
-Nexus-Hub is the upstream skill catalog for AI coding assistants: 340 skills across 23 categories, 21 commands (plus 3 permanent aliases), 37 registered hooks, 23 agents, and 4 language rule families plus the HTML artifact rules. It installs in one step on Windows, macOS, and Linux, through 17 platform integrations: Claude Code, OpenAI Codex, Gemini and Antigravity, GitHub Copilot, Cursor, OpenCode, Qwen Code, Kimi Code CLI, Devin Desktop / Windsurf, Hermes, Pi, OpenClaw, Aider, and the sibling Nexus desktop app. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
+Nexus-Hub is the upstream skill catalog for AI coding assistants: 340 skills across 23 categories, 21 commands (plus 3 permanent aliases), 37 registered hooks, 23 agents, and 4 language rule families plus the HTML artifact rules. It installs in one step on Windows, macOS, and Linux, through 17 platform integrations: Claude Code, OpenAI Codex, Gemini and Antigravity, GitHub Copilot, Cursor, OpenCode, Qwen Code, Kimi Code CLI, Devin Desktop / Windsurf, Hermes, Pi, OpenClaw, Aider, and the sibling Nexus desktop app. The catalog is reverse-engineering-first by policy. Account usage checks are limited to each tool's own provider; the catalog has no third-party data processors or telemetry.
 
 ## Interactive Guide -- start here
 
@@ -39,6 +39,16 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v4.13.11
+
+**A choice at a usage limit.** The guard asks whether to continue on pay-per-use credits, wait or hand off. Pending questions remain open; wait or handoff withdraws an earlier credit approval. Capped allowances receive 50/75/90-percent reminders, and configurable spend steps cover uncapped allowances. Provider-specific settings files preserve simultaneous editor updates.
+
+**Delivery that preserves personal files.** Antigravity receives the existing edit and attribution guards, OpenClaw uses the selected workspace, and Copilot personal command-skills retain user-authored prompts and instructions. Deep Windows paths, teardown and hook pruning preserve user bytes and junction targets. Native fixture verification is documented separately from authenticated vendor-host checks.
+
+**Training and guide repairs.** HUD updates write changed values, responsive fitting retains arena measurements, and phone navigation supports Escape and focus exit. Contrast, heading semantics and the restart-first installation checks are corrected. The game-balance configurations are unchanged.
+
+**Verification and remaining work.** Usage-monitor package checks inspect the same opened runtime object and reject credential-like files. Windows CI reports attribution separately from installer/validator tests. The reconciled v4.13 ledger retains 83 residual items with explicit transfer contracts for v4.14; the transfer and minor archive follow the release. See [the changelog](CHANGELOG.md#41311---2026-10-13) for activation, validation, rollback, authority and qualification limits.
 
 ## What's New in v4.13.10
 

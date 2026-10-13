@@ -18,6 +18,7 @@ NEXUS_REQUIRE_RENDER=1.
 from __future__ import annotations
 
 import html
+import json
 import os
 import re
 from pathlib import Path
@@ -53,7 +54,7 @@ CHROME = {
 # source writes as [char]0x2713). The mockup marks each one with <var>; everything else must be
 # literal text on an installer line the mocked line cites.
 DYNAMIC = {
-    "bendourthe/Nexus-Hub@main", "main", "C:\\Users\\dev", "/Users/dev", "/home/dev", "4.13.10", "Global",
+    "bendourthe/Nexus-Hub@main", "main", "C:\\Users\\dev", "/Users/dev", "/home/dev", json.loads((ROOT / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))["version"], "Global",
     "Claude", "commands:ok, skills:ok, CLAUDE.md SKILL_INDEX:ok", "\u2713",
 }
 DYNAMIC_PATHS = ("C:\\Users\\dev\\", "/Users/dev/", "/home/dev/")

@@ -243,3 +243,8 @@ Scope: the v4.13.6 release re-fetched only the Claude, Cursor, and Codex skill-d
 ### 2026-10-02 - v4.13.7 targeted read-contract pass (no lever recheck)
 
 Scope: the v4.13.7 release re-fetched only the Claude, Cursor, and Codex skill-discovery pages and the Cursor hooks page for the read-contract stamp. Those pages do not document the effort, model, or approval levers, so no lever row was rechecked or reclassified this cycle. This contract remains advisory with no release freshness gate.
+
+
+### 2026-10-13 - v4.13.11 release qualification
+
+The full 17-row primary-source review of 2026-10-12 remains the detailed evidence, including PARTIAL and UNVERIFIED classifications. Current discovery-page re-fetches do not requalify every behavioral lever. Claude's current model configuration still documents per-model effort settings; Aider still documents home, repository, and current-directory YAML configuration; Pi still distinguishes trusted project and user configuration. The Codex configuration page resolved, but targeted content retrieval failed, so its lever details are carried from the dated review rather than freshly qualified. Hermes configuration was fetched without a complete lever re-review. No lever classification, seeded value, or approval policy was changed. This advisory record has no release freshness gate.
