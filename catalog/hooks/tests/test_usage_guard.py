@@ -799,12 +799,310 @@ def test_old_session_state_is_pruned(guard, dirs, project, env):
 def test_directive_wording(guard):
     text = guard.directive("codex", {"name": "weekly", "percent": 99.0, "resets_at": "2026-10-05T00:00:00Z"})
     assert text.startswith("Usage limit: Codex weekly usage is at 99% (resets 2026-10-05T00:00:00Z).")
+    assert "ask the user before doing anything else" in text
+    assert "continue on pay-per-use credits" in text
+    assert "decision pending" in text and ".nexus-hub/usage-decision.json" in text
     assert "run the session-handoff procedure (/handoff)" in text
     assert "write .nexus-hub/handoff.md and print its paste-ready prompt" in text
-    assert "Start no new work." in text
+    assert "Start no new work until the user answers." in text
     assert "usage-limit weekly 99." in text
+    assert "cannot read pay-per-use credits here" in text
+    assert "record decision wait and stop" in text
     assert text.isascii()
     assert "—" not in text and " - " not in text
+
+
+WEEKLY = {"name": "weekly", "percent": 100.0, "resets_at": "2026-10-13T14:00:00Z"}
+
+
+@pytest.mark.parametrize(
+    ("credit", "expected"),
+    [
+        (
+            {"state": "capped", "percent": 12.5, "used": 62.5, "limit": 500.0, "unit": "USD"},
+            ["credits used so far: $62.50 of $500.00 (12.5%)", "at 50%, 75%, and 90% of the allowance"],
+        ),
+        (
+            {"state": "uncapped", "percent": None, "used": 120.0, "limit": None, "unit": "USD"},
+            ["no spending cap ($120.00 this period)", "every $50.00 spent", "credit-reminders.json"],
+        ),
+        (
+            {"state": "uncapped", "percent": None, "used": None, "limit": None, "unit": "USD"},
+            ["no spending cap", "it will not remind them"],
+        ),
+        (
+            {"state": "none", "percent": None, "used": 0.0, "limit": 0.0, "unit": "USD"},
+            ["no pay-per-use credits (disabled, or a zero allowance)", "will fail until the window resets (resets 2026-10-13T14:00:00Z)", "enables credits"],
+        ),
+        (
+            {"state": "exhausted", "percent": 100.0, "used": 500.0, "limit": 500.0, "unit": "USD"},
+            ["already used up ($500.00 of $500.00 (100%))", "raises the limit"],
+        ),
+        (
+            {"state": "capped", "percent": 16.49, "used": 824.5, "limit": 5000.0, "unit": "credit"},
+            ["824.5 credits of 5,000 credits (16.5%)"],
+        ),
+    ],
+)
+def test_directive_describes_each_credit_state(guard, credit, expected):
+    text = guard.directive("claude", WEEKLY, credit, 50.0, False)
+    for phrase in expected:
+        assert phrase in text
+    assert text.isascii() and " - " not in text
+
+
+def test_the_step_applies_under_a_cap_only_when_enabled(guard):
+    capped = {"state": "capped", "percent": 10.0, "used": 50.0, "limit": 500.0, "unit": "USD"}
+    assert "every $25.00 spent" not in guard.directive("claude", WEEKLY, capped, 25.0, False)
+    assert "every $25.00 spent" in guard.directive("claude", WEEKLY, capped, 25.0, True)
+
+
+# ----- ask first: credits or handoff (v4.13.11) ----------------------------------
+
+
+def _write_decision(project: Path, decision: str, stamp: float, **extra: Any) -> None:
+    path = project / ".nexus-hub" / "usage-decision.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({"decision": decision, "recorded_at": _iso(stamp), **extra}), encoding="utf-8")
+
+
+def _credits(
+    percent: float | None = None,
+    state: str = "capped",
+    used: float | None = None,
+    limit: float | None = 500.0,
+    unit: str = "USD",
+) -> list[dict[str, Any]]:
+    if used is None and percent is not None and limit:
+        used = percent * limit / 100
+    return [{
+        "name": "extra_credits", "percent": percent, "resets_at": None, "source": "fixture",
+        "state": state, "used": used, "limit": limit, "unit": unit,
+    }]
+
+
+def _approve(guard, dirs, project, extra: list[dict[str, Any]], session: str = "s-1") -> None:
+    guard.readings["claude"] = reading("claude", 100, extra_windows=extra)
+    assert run(guard, dirs, "claude", payload("claude", "tool", project, session=session)) is not None
+    _write_decision(project, "credits", time.time() + 1)
+    assert run(guard, dirs, "claude", payload("claude", "tool", project, session=session)) is None
+
+
+def _write_settings(env: Path, **providers: dict[str, Any]) -> None:
+    path = env / "config" / "credit-reminders.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({"providers": providers}), encoding="utf-8")
+
+
+@pytest.mark.parametrize("platform", PLATFORMS)
+@pytest.mark.parametrize("decision", ["pending", "credits", "wait", "handoff"])
+def test_a_recorded_answer_suppresses_the_turn_end_continuation(guard, dirs, project, platform, decision):
+    guard.readings[platform] = reading(platform, 100)
+    assert run(guard, dirs, platform, payload(platform, "tool", project)) is not None
+    _write_decision(project, decision, time.time() + 1)
+    assert run(guard, dirs, platform, payload(platform, "stop", project)) is None
+
+
+def test_an_answer_older_than_the_question_does_not_count(guard, dirs, project):
+    guard.readings["claude"] = reading("claude", 100)
+    _write_decision(project, "credits", time.time() - 3600)
+    run(guard, dirs, "claude", payload("claude", "tool", project))
+    assert run(guard, dirs, "claude", payload("claude", "stop", project)) is not None
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        {"decision": "credits", "recorded_at": "2099-01-01T00:00:00Z"},
+        {"decision": "yes", "recorded_at": "NOW"},
+        {"decision": ["credits"], "recorded_at": "NOW"},
+        {"decision": "credits", "recorded_at": "NOW", "platform": "codex"},
+        {"decision": "credits"},
+    ],
+)
+def test_a_malformed_or_foreign_answer_is_ignored(guard, dirs, project, body):
+    guard.readings["claude"] = reading("claude", 100)
+    run(guard, dirs, "claude", payload("claude", "tool", project))
+    if body.get("recorded_at") == "NOW":
+        body = {**body, "recorded_at": _iso(time.time() + 1)}
+    path = project / ".nexus-hub" / "usage-decision.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(body), encoding="utf-8")
+    assert run(guard, dirs, "claude", payload("claude", "stop", project)) is not None
+    assert not (guard.approval_path("claude")).exists()
+
+
+def test_a_credits_answer_is_remembered_by_later_sessions(guard, dirs, project):
+    guard.readings["claude"] = reading("claude", 100)
+    run(guard, dirs, "claude", payload("claude", "tool", project, session="a"))
+    _write_decision(project, "credits", time.time() + 1)
+    assert run(guard, dirs, "claude", payload("claude", "tool", project, session="a")) is None
+    assert guard.approval_path("claude").is_file()
+    for kind in ("prompt", "tool", "stop"):
+        assert run(guard, dirs, "claude", payload("claude", kind, project, session="b")) is None
+
+
+def test_a_pending_answer_is_not_an_approval(guard, dirs, project):
+    guard.readings["claude"] = reading("claude", 100)
+    run(guard, dirs, "claude", payload("claude", "tool", project, session="a"))
+    _write_decision(project, "pending", time.time() + 1)
+    run(guard, dirs, "claude", payload("claude", "tool", project, session="a"))
+    assert not guard.approval_path("claude").exists()
+    assert run(guard, dirs, "claude", payload("claude", "tool", project, session="b")) is not None
+
+
+def test_an_approval_ends_when_the_window_moves_to_a_new_period(guard, dirs, project):
+    guard.readings["claude"] = reading("claude", 100)
+    run(guard, dirs, "claude", payload("claude", "tool", project, session="a"))
+    _write_decision(project, "credits", time.time() + 1)
+    run(guard, dirs, "claude", payload("claude", "tool", project, session="a"))
+    guard.readings["claude"] = reading("claude", 100, resets_at="2026-10-12T00:00:00Z")
+    assert run(guard, dirs, "claude", payload("claude", "tool", project, session="b")) is not None
+
+
+def test_credit_reminders_fire_once_per_tier_and_never_at_turn_end(guard, dirs, project):
+    guard.readings["claude"] = reading("claude", 100, extra_windows=_credits(10))
+    first = run(guard, dirs, "claude", payload("claude", "tool", project))
+    assert "credits used so far: $50.00 of $500.00 (10%)" in message_of(first)
+    _write_decision(project, "credits", time.time() + 1)
+    assert run(guard, dirs, "claude", payload("claude", "tool", project)) is None
+    seen = []
+    for percent in (30, 49.9, 50, 60, 74, 80, 85, 92, 99):
+        guard.readings["claude"] = reading("claude", 100, extra_windows=_credits(percent))
+        assert run(guard, dirs, "claude", payload("claude", "stop", project)) is None
+        output = run(guard, dirs, "claude", payload("claude", "tool", project))
+        if output is not None:
+            text = message_of(output)
+            assert text.startswith("Usage credits: Claude Code pay-per-use credits used so far:")
+            assert text.isascii()
+            seen.append(percent)
+    assert seen == [50, 80, 92]
+
+
+def test_a_jump_past_several_tiers_asks_once(guard, dirs, project):
+    guard.readings["claude"] = reading("claude", 100, extra_windows=_credits(5))
+    run(guard, dirs, "claude", payload("claude", "tool", project))
+    _write_decision(project, "credits", time.time() + 1)
+    run(guard, dirs, "claude", payload("claude", "tool", project))
+    guard.readings["claude"] = reading("claude", 100, extra_windows=_credits(95))
+    assert run(guard, dirs, "claude", payload("claude", "tool", project)) is not None
+    assert run(guard, dirs, "claude", payload("claude", "tool", project, session="other")) is None
+
+
+def test_tiers_already_passed_at_approval_are_not_asked_again(guard, dirs, project):
+    guard.readings["claude"] = reading("claude", 100, extra_windows=_credits(60))
+    run(guard, dirs, "claude", payload("claude", "tool", project))
+    _write_decision(project, "credits", time.time() + 1)
+    assert run(guard, dirs, "claude", payload("claude", "tool", project)) is None
+    guard.readings["claude"] = reading("claude", 100, extra_windows=_credits(70))
+    assert run(guard, dirs, "claude", payload("claude", "tool", project)) is None
+    guard.readings["claude"] = reading("claude", 100, extra_windows=_credits(75))
+    assert run(guard, dirs, "claude", payload("claude", "tool", project)) is not None
+
+
+def test_a_credit_window_alone_never_triggers_the_usage_limit(guard, dirs, project):
+    guard.readings["claude"] = reading("claude", 10, extra_windows=_credits(100))
+    for kind in ("prompt", "tool", "stop"):
+        assert run(guard, dirs, "claude", payload("claude", kind, project)) is None
+
+
+def test_usage_limit_stop_time_counts_a_pending_question(guard, project):
+    body = payload("claude", "stop", project)
+    assert guard.usage_limit_stop_time("claude", body) is None
+    stamp = time.time() - 5
+    _write_decision(project, "pending", stamp)
+    assert guard.usage_limit_stop_time("claude", body) == pytest.approx(int(stamp), abs=1)
+    _write_decision(project, "wait", stamp)
+    assert guard.usage_limit_stop_time("claude", body) == pytest.approx(int(stamp), abs=1)
+    _write_decision(project, "credits", time.time() - 5)
+    assert guard.usage_limit_stop_time("claude", body) is None
+
+
+def test_uncapped_credits_remind_every_step_of_spend(guard, dirs, project):
+    _approve(guard, dirs, project, _credits(state="uncapped", used=20.0, limit=None))
+    seen = []
+    for used in (30, 49.99, 50, 60, 99, 100, 175, 180):
+        guard.readings["claude"] = reading(
+            "claude", 100, extra_windows=_credits(state="uncapped", used=used, limit=None)
+        )
+        assert run(guard, dirs, "claude", payload("claude", "stop", project)) is None
+        output = run(guard, dirs, "claude", payload("claude", "tool", project))
+        if output is not None:
+            assert f"${used:,.2f} this period" in message_of(output)
+            seen.append(used)
+    assert seen == [50, 100, 175]
+
+
+def test_the_step_comes_from_the_settings_file(guard, dirs, project, env):
+    _write_settings(env, claude={"step": 100, "when_capped": False})
+    _approve(guard, dirs, project, _credits(state="uncapped", used=10.0, limit=None))
+    guard.readings["claude"] = reading("claude", 100, extra_windows=_credits(state="uncapped", used=60.0, limit=None))
+    assert run(guard, dirs, "claude", payload("claude", "tool", project)) is None
+    guard.readings["claude"] = reading("claude", 100, extra_windows=_credits(state="uncapped", used=101.0, limit=None))
+    output = run(guard, dirs, "claude", payload("claude", "tool", project))
+    assert output is not None and "every $100.00 spent" in message_of(output)
+
+
+def test_a_zero_step_turns_spend_reminders_off(guard, dirs, project, env):
+    _write_settings(env, claude={"step": 0})
+    _approve(guard, dirs, project, _credits(state="uncapped", used=10.0, limit=None))
+    guard.readings["claude"] = reading("claude", 100, extra_windows=_credits(state="uncapped", used=900.0, limit=None))
+    assert run(guard, dirs, "claude", payload("claude", "tool", project)) is None
+
+
+@pytest.mark.parametrize("bad", [{"step": -5}, {"step": "50"}, {"step": True}, {"step": 1e12}, "junk"])
+def test_invalid_settings_fall_back_to_the_default_step(guard, env, bad):
+    _write_settings(env, claude=bad)
+    assert guard.reminder_settings("claude") == (50.0, False)
+    assert guard.reminder_settings("codex") == (500.0, False)
+    assert guard.reminder_settings("copilot") == (0.0, False)
+
+
+def test_a_capped_allowance_uses_the_step_too_when_enabled(guard, dirs, project, env):
+    _write_settings(env, claude={"step": 100, "when_capped": True})
+    _approve(guard, dirs, project, _credits(4))  # $20 of $500
+    seen = []
+    for used in (90, 110, 150, 210, 250, 260):
+        guard.readings["claude"] = reading("claude", 100, extra_windows=_credits(used / 5))
+        if run(guard, dirs, "claude", payload("claude", "tool", project)) is not None:
+            seen.append(used)
+    assert seen == [110, 210, 250]  # $100 and $200 steps, then the 50% tier
+
+
+def test_running_out_of_credits_is_announced_once(guard, dirs, project):
+    _approve(guard, dirs, project, _credits(95))
+    exhausted = _credits(100.0, state="exhausted")
+    guard.readings["claude"] = reading("claude", 100, extra_windows=exhausted)
+    output = run(guard, dirs, "claude", payload("claude", "tool", project))
+    text = message_of(output)
+    assert "are used up" in text and "raise the limit" in text and "further requests will fail" in text
+    for kind in ("tool", "tool", "stop"):
+        assert run(guard, dirs, "claude", payload("claude", kind, project)) is None
+    guard.readings["claude"] = reading("claude", 100, extra_windows=_credits(10))
+    run(guard, dirs, "claude", payload("claude", "tool", project))
+    guard.readings["claude"] = reading("claude", 100, extra_windows=exhausted)
+    assert run(guard, dirs, "claude", payload("claude", "tool", project)) is not None
+
+
+@pytest.mark.parametrize("state", ["none", "exhausted"])
+def test_no_usable_credits_say_continuing_will_fail(guard, dirs, project, state):
+    guard.readings["claude"] = reading("claude", 100, extra_windows=_credits(100.0 if state == "exhausted" else None, state=state, limit=0.0 if state == "none" else 500.0))
+    text = message_of(run(guard, dirs, "claude", payload("claude", "tool", project)))
+    assert "will fail" in text and "waiting for the reset" in text
+
+
+def test_a_wait_answer_is_not_an_approval(guard, dirs, project):
+    guard.readings["claude"] = reading("claude", 100)
+    run(guard, dirs, "claude", payload("claude", "tool", project, session="a"))
+    _write_decision(project, "wait", time.time() + 1)
+    assert run(guard, dirs, "claude", payload("claude", "stop", project, session="a")) is None
+    assert not guard.approval_path("claude").exists()
+
+
+@pytest.mark.parametrize("window", [{"state": "bogus"}, {"unit": "US Dollars!"}, {"unit": None}])
+def test_a_malformed_credit_reading_counts_as_unknown(guard, window):
+    data = reading("claude", 100, extra_windows=[{**_credits(10)[0], **window}])
+    assert guard.credit_info(data, time.time()) is None
 
 
 def test_no_credential_or_raw_response_reaches_output_or_state(guard, dirs, project, env):

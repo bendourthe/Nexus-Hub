@@ -28,7 +28,9 @@ Rules this module keeps:
   - The continuation reason names only predicate ids, never text from the plan.
   - The output shape follows NEXUS_GATE_FORMAT when set, else the payload shape.
   - Usage-limit handoff (v4.13.7): the stop is allowed, with no refusal counted
-    and no blocker written, only when BOTH a usage-limit handoff header newer
+    and no blocker written, only when BOTH a usage-limit handoff header (or,
+    since v4.13.11, a pending credits-or-handoff question in
+    .nexus-hub/usage-decision.json) newer
     than the last refusal exists in the repository AND the usage probe confirms a
     tracked window at or over NEXUS_HANDOFF_THRESHOLD. The record is never marked
     complete or paused. The usage-guard and probe modules are read from the
@@ -68,8 +70,9 @@ FORMATS = (
     "plugin",
 )
 USAGE_LIMIT_NOTE = (
-    "completion-gate: the run stopped for a usage-limit handoff; it resumes when "
-    "the user pastes the handoff prompt."
+    "completion-gate: the run stopped for a usage-limit handoff or the user's "
+    "credits-or-handoff answer; it resumes when the user answers or pastes the "
+    "handoff prompt."
 )
 USAGE_PROBE_SECONDS = 4.5
 REASON = (
@@ -309,7 +312,8 @@ def usage_limit_stop(payload: dict, record_path: Path, record: dict, repo_root: 
         since = _parse_time(state.get("updated")) or _parse_time(record.get("created"))
         if since is None:
             since = record_path.stat().st_mtime
-        written = guard.usage_limit_handoff_time(platform, payload, (repo_root,))
+        written_at = getattr(guard, "usage_limit_stop_time", guard.usage_limit_handoff_time)
+        written = written_at(platform, payload, (repo_root,))
         if written is None or written <= since:
             return False
         deadline = min(time.monotonic() + USAGE_PROBE_SECONDS, budget_end - BLOCK_RESERVE_SECONDS)

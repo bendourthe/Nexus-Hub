@@ -6,7 +6,27 @@ Part of Nexus-Hub (v4.13.7). Registered on ``UserPromptSubmit``,
 Cursor ``postToolUse`` / ``stop``. It reads the platform's own usage through the
 shared ``_usage_probe`` module beside it and, when a tracked window is at or over
 ``NEXUS_HANDOFF_THRESHOLD`` percent (integer 1-100, default 99), tells the agent
-to finish the current step and run the session-handoff procedure (``/handoff``).
+to finish the current step and ASK THE USER whether to continue on pay-per-use
+credits or run the session-handoff procedure (``/handoff``) (v4.13.11).
+
+User decision (v4.13.11)
+------------------------
+The agent records the question and the answer in the project's
+``.nexus-hub/usage-decision.json`` as ``{"decision": "pending" | "credits" |
+"wait" | "handoff", "recorded_at": "<UTC ISO 8601>"}``. A record dated at or
+after the guard's latest ask in this session answers it: no turn-end
+continuation follows. A ``credits`` answer is persisted per platform in
+``~/.nexus-hub/state/usage-guard/<platform>.credits.json`` for the crossing
+windows' period, so later sessions in that period are not asked again.
+
+The probe's ``extra_credits`` reading sets the wording and the reminders:
+``none`` (disabled or a zero allowance) and ``exhausted`` warn that continuing
+will fail; ``capped`` reminds at 50%, 75%, and 90%; ``uncapped`` reminds every
+``step`` of spend (``reminder_settings``; also under a cap when ``when_capped``);
+an exhausted allowance is announced once. Reminders are mid-turn only, never at
+turn end. With no reading, the agent says it cannot remind the user. The
+repository cannot plant an approval: only the guard writes the persisted
+record, and only from an answer dated after its own ask.
 
 Behavior
 --------
@@ -80,6 +100,18 @@ PERIOD_SHIFT_SECONDS = 1800
 # the turn-end reminder and satisfy the completion gate forever.
 FUTURE_SKEW_SECONDS = 300
 MAX_STDIN_BYTES = 8 * 1024 * 1024
+SUBSCRIPTION_WINDOWS = frozenset({"five_hour", "weekly", "monthly"})
+CREDIT_WINDOW = "extra_credits"
+CREDIT_STATES = frozenset({"capped", "uncapped", "none", "exhausted"})
+CREDIT_UNIT_RE = re.compile(r"^[A-Za-z]{1,12}$")
+CREDIT_TIERS = (50, 75, 90)
+# Spend between reminders, in the provider's credit unit, when no setting exists.
+DEFAULT_REMINDER_STEPS = {"claude": 50.0, "cursor": 50.0, "codex": 500.0}
+MAX_REMINDER_STEP = 1_000_000_000.0
+DECISIONS = frozenset({"pending", "credits", "wait", "handoff"})
+MAX_DECISION_BYTES = 4096
+APPROVAL_SCHEMA = 1
+APPROVAL_MAX_AGE_SECONDS = 32 * 24 * 3600
 
 DISPLAY_NAMES = {
     "claude": "Claude Code",
@@ -292,7 +324,7 @@ def classify_windows(
             continue
         percent = window.get("percent")
         name = window.get("name")
-        if not isinstance(name, str) or not name or isinstance(percent, bool):
+        if not isinstance(name, str) or name not in SUBSCRIPTION_WINDOWS or isinstance(percent, bool):
             continue
         if not isinstance(percent, (int, float)) or math.isnan(percent):
             continue
@@ -319,6 +351,66 @@ def crossing_window(result: dict[str, Any] | None, limit: int, now: float) -> di
     return classified[0][0]
 
 
+def credit_info(result: dict[str, Any] | None, now: float) -> dict[str, Any] | None:
+    """The ``extra_credits`` reading (state, percent, used, limit, unit), or None when unknown."""
+    if not result or not _usable(result, now):
+        return None
+    for window in result.get("windows") or []:
+        if not isinstance(window, dict) or window.get("name") != CREDIT_WINDOW:
+            continue
+        state, unit = window.get("state"), window.get("unit")
+        if state not in CREDIT_STATES or not isinstance(unit, str) or not CREDIT_UNIT_RE.match(unit):
+            return None
+        return {
+            "state": state,
+            "percent": _finite(window.get("percent")),
+            "used": _finite(window.get("used")),
+            "limit": _finite(window.get("limit")),
+            "unit": unit,
+        }
+    return None
+
+
+def _finite(value: object) -> float | None:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return None
+    return float(value) if math.isfinite(value) and value >= 0 else None
+
+
+def reminder_settings(platform: str) -> tuple[float, bool]:
+    """(spend step between reminders, whether the step also applies under a cap).
+
+    Read from ``~/.nexus-hub/config/credit-reminders.json``
+    (``{"providers": {"claude": {"step": 50, "when_capped": false}}}``), which
+    the usage monitor extensions write from their settings; the step is in the
+    provider's credit unit (USD for Claude Code and Cursor, credits for Codex).
+    A step of 0 turns spend reminders off.
+    """
+    step, when_capped = DEFAULT_REMINDER_STEPS.get(platform, 0.0), False
+    path = _nexus_home() / "config" / "credit-reminders.json"
+    try:
+        with path.open("r", encoding="utf-8") as handle:
+            raw = handle.read(MAX_DECISION_BYTES + 1)
+        data = json.loads(raw) if len(raw) <= MAX_DECISION_BYTES else None
+    except (OSError, ValueError):
+        data = None
+    providers = data.get("providers") if isinstance(data, dict) else None
+    entry = providers.get(platform) if isinstance(providers, dict) else None
+    if isinstance(entry, dict):
+        configured = _finite(entry.get("step"))
+        if configured is not None and configured <= MAX_REMINDER_STEP:
+            step = configured
+        if isinstance(entry.get("when_capped"), bool):
+            when_capped = entry["when_capped"]
+    return step, when_capped
+
+
+def _step_applies(credit: dict[str, Any] | None, step: float, when_capped: bool) -> bool:
+    if not credit or step <= 0 or credit["used"] is None:
+        return False
+    return credit["state"] == "uncapped" or (credit["state"] == "capped" and when_capped)
+
+
 # ----- directive and renderers --------------------------------------------------
 
 
@@ -327,18 +419,139 @@ def _format_percent(value: float) -> str:
     return text[:-2] if text.endswith(".0") else text
 
 
-def directive(platform: str, window: dict[str, Any]) -> str:
-    """The hand-off directive the session-handoff skill recognizes."""
+def _amount(value: float, unit: str) -> str:
+    if unit == "USD":
+        return f"${value:,.2f}"
+    text = f"{value:,.2f}".rstrip("0").rstrip(".")
+    return f"{text} {unit}" if unit.isupper() else f"{text} {unit}s"
+
+
+DECISION_FORMAT = (
+    'in .nexus-hub/usage-decision.json as {"decision": "<value>", '
+    '"recorded_at": "<current UTC time, ISO 8601>"}'
+)
+STEP_SETTING = (
+    "the step is the usage monitor's credit reminder setting, or "
+    "~/.nexus-hub/config/credit-reminders.json"
+)
+
+
+def _tiers_text() -> str:
+    return ", ".join(f"{t}%" for t in CREDIT_TIERS[:-1]) + f", and {CREDIT_TIERS[-1]}%"
+
+
+def _spent(credit: dict[str, Any]) -> str:
+    """How much of the allowance is spent, in the provider's own figures."""
+    unit, used, cap, percent = credit["unit"], credit["used"], credit["limit"], credit["percent"]
+    if used is not None and cap is not None:
+        text = f"{_amount(used, unit)} of {_amount(cap, unit)}"
+        return f"{text} ({_format_percent(percent)}%)" if percent is not None else text
+    if percent is not None:
+        return f"{_format_percent(percent)}% of the allowance"
+    return f"{_amount(used, unit)} this period" if used is not None else "an unknown amount"
+
+
+def _schedule(credit: dict[str, Any], step: float, when_capped: bool) -> str:
+    """When Nexus-Hub will remind the user next, or why it cannot."""
+    parts = []
+    if credit["state"] == "capped" and credit["percent"] is not None:
+        parts.append(f"at {_tiers_text()} of the allowance")
+    if _step_applies(credit, step, when_capped):
+        parts.append(f"every {_amount(step, credit['unit'])} spent ({STEP_SETTING})")
+    if not parts:
+        return (
+            "Nexus-Hub cannot track this spend (no figure, or spend reminders set to 0), "
+            "so tell the user it will not remind them"
+        )
+    return "Nexus-Hub reminds them " + " and ".join(parts)
+
+
+def _credit_note(credit: dict[str, Any] | None, when: str, step: float, when_capped: bool) -> str:
+    if credit is None:
+        return (
+            "Nexus-Hub cannot read pay-per-use credits here, so it cannot tell whether "
+            "continuing will work and cannot remind the user as credits run down; say so. "
+        )
+    if credit["state"] == "none":
+        return (
+            "This account shows no pay-per-use credits (disabled, or a zero allowance), "
+            f"so continuing will fail until the window resets{when} unless the user "
+            "first enables credits in the provider's billing settings; offer that, "
+            "waiting for the reset, or the handoff. "
+        )
+    if credit["state"] == "exhausted":
+        return (
+            f"The pay-per-use credit allowance is already used up ({_spent(credit)}), "
+            "so continuing will fail unless the user raises the limit in the "
+            "provider's billing settings; offer that, waiting for the reset, or the "
+            "handoff. "
+        )
+    if credit["state"] == "uncapped":
+        spent = f"pay-per-use credits have no spending cap ({_spent(credit)})"
+    else:
+        spent = f"pay-per-use credits used so far: {_spent(credit)}"
+    return (
+        f"Tell the user {spent}; if they continue, "
+        f"{_schedule(credit, step, when_capped)}. "
+    )
+
+
+def directive(
+    platform: str,
+    window: dict[str, Any],
+    credit: dict[str, Any] | None = None,
+    step: float = 0.0,
+    when_capped: bool = False,
+) -> str:
+    """The ask-first directive the session-handoff skill recognizes."""
     resets = window.get("resets_at")
     when = f" (resets {resets})" if isinstance(resets, str) and resets else ""
     percent = _format_percent(window["percent"])
     return (
         f"Usage limit: {DISPLAY_NAMES[platform]} {window['name']} usage is at "
-        f"{percent}%{when}. Finish or safely stop the current step, then run the "
-        "session-handoff procedure (/handoff): write .nexus-hub/handoff.md and "
-        "print its paste-ready prompt. Start no new work. Record the trigger as "
-        f"usage-limit {window['name']} {percent}. If another hook asks you to "
-        "continue, write the handoff first."
+        f"{percent}%{when}. Finish or safely stop the current step, then ask the "
+        "user before doing anything else: continue on pay-per-use credits (if "
+        "their account has them), or hand off to another agent or platform. "
+        f"{_credit_note(credit, when, step, when_capped)}Record the question "
+        f"first, decision pending, {DECISION_FORMAT}, then end the turn and wait "
+        "for the answer. Start no new work until the user answers. If they choose "
+        "credits, record decision credits and continue the task. If they choose to "
+        "wait for the reset, record decision wait and stop. If they choose the "
+        "handoff, record decision handoff and run the session-handoff procedure "
+        "(/handoff): write .nexus-hub/handoff.md and print its paste-ready prompt, "
+        f"recording the trigger as usage-limit {window['name']} {percent}. If "
+        "another hook asks you to continue, record the pending decision and ask "
+        "the user first."
+    )
+
+
+def credit_directive(
+    platform: str, credit: dict[str, Any], step: float = 0.0, when_capped: bool = False
+) -> str:
+    """The reminder sent while approved credits are spent, or once they run out."""
+    name = DISPLAY_NAMES[platform]
+    if credit["state"] == "exhausted":
+        figure = (
+            f"Usage credits: {name} pay-per-use credits are used up "
+            f"({_spent(credit)}), so further requests will fail. "
+        )
+        choices = (
+            "ask whether to raise the limit in the provider's billing settings and "
+            "continue, wait for the reset, or hand off to another agent or platform"
+        )
+    else:
+        spent = _spent(credit)
+        figure = (
+            f"Usage credits: {name} pay-per-use credits used so far: {spent}. The "
+            "user approved continuing on credits; "
+            f"{_schedule(credit, step, when_capped)}. "
+        )
+        choices = "ask whether to keep going on credits or hand off to another agent or platform"
+    return (
+        f"{figure}Finish or safely stop the current step, record decision pending "
+        f"{DECISION_FORMAT}, tell the user the figure, and {choices}. Wait for the "
+        "answer, then record decision credits and continue, wait and stop, or "
+        "handoff and run the session-handoff procedure (/handoff)."
     )
 
 
@@ -442,6 +655,8 @@ def prune_states(directory: Path, now: float) -> None:
     """Drop session state older than a week. Best effort."""
     try:
         for entry in directory.glob("*.json"):
+            if entry.name.endswith(".credits.json"):
+                continue  # expires by APPROVAL_MAX_AGE_SECONDS and window period
             try:
                 if now - entry.stat().st_mtime > STATE_RETENTION_SECONDS:
                     entry.unlink()
@@ -511,6 +726,59 @@ def usage_limit_handoff_time(
     return newest
 
 
+def usage_decision(
+    platform: str, payload: dict[str, Any], extra_roots: tuple[Path, ...] = ()
+) -> tuple[str, float] | None:
+    """The newest (decision, recorded time) from ``.nexus-hub/usage-decision.json``.
+
+    Searched like the handoff file. A record naming another platform, an unknown
+    decision, or a time beyond the clock-skew allowance is ignored.
+    """
+    newest: tuple[str, float] | None = None
+    latest_allowed = time.time() + FUTURE_SKEW_SECONDS
+    roots = list(extra_roots) + _handoff_roots(platform, payload)
+    for root in dict.fromkeys(roots):
+        path = root / ".nexus-hub" / "usage-decision.json"
+        try:
+            with path.open("r", encoding="utf-8", errors="replace") as handle:
+                raw = handle.read(MAX_DECISION_BYTES + 1)
+        except OSError:
+            continue
+        if len(raw) > MAX_DECISION_BYTES:
+            continue
+        try:
+            data = json.loads(raw)
+        except ValueError:
+            continue
+        if not isinstance(data, dict):
+            continue
+        decision = data.get("decision")
+        if not isinstance(decision, str) or decision not in DECISIONS:
+            continue
+        owner = data.get("platform")
+        if owner is not None and owner != platform:
+            continue
+        recorded = _parse_iso(data.get("recorded_at"))
+        if recorded is None or recorded > latest_allowed:
+            continue
+        if newest is None or recorded > newest[1]:
+            newest = (decision, recorded)
+    return newest
+
+
+def usage_limit_stop_time(
+    platform: str, payload: dict[str, Any], extra_roots: tuple[Path, ...] = ()
+) -> float | None:
+    """Newest evidence that a turn end is a usage-limit stop: a usage-limit
+    handoff header, or a question to the user that is pending or answered wait."""
+    found = [usage_limit_handoff_time(platform, payload, extra_roots)]
+    answer = usage_decision(platform, payload, extra_roots)
+    if answer is not None and answer[0] in ("pending", "wait"):
+        found.append(answer[1])
+    times = [t for t in found if t is not None]
+    return max(times) if times else None
+
+
 def handoff_written_since(platform: str, payload: dict[str, Any], since: float) -> bool:
     """True when a usage-limit handoff header is dated at or after ``since``."""
     written = usage_limit_handoff_time(platform, payload)
@@ -559,6 +827,96 @@ def _window_entries(state: dict[str, Any]) -> dict[str, dict[str, Any]]:
     return {k: dict(v) for k, v in raw.items() if isinstance(k, str) and isinstance(v, dict)}
 
 
+def approval_path(platform: str) -> Path:
+    return state_dir() / f"{platform}.credits.json"
+
+
+def _approved_windows(approval: dict[str, Any]) -> dict[str, Any]:
+    raw = approval.get("windows") if approval.get("schema") == APPROVAL_SCHEMA else None
+    return dict(raw) if isinstance(raw, dict) else {}
+
+
+def _approval_active(approval: dict[str, Any], crossing: list[dict[str, Any]], now: float) -> bool:
+    """True while a credits approval covers a crossing window in the same period."""
+    approved = _approved_windows(approval)
+    when = _parse_iso(approval.get("approved_at"))
+    if not approved or when is None or now - when > APPROVAL_MAX_AGE_SECONDS:
+        return False
+    return any(
+        w["name"] in approved and _same_period({"resets_at": approved[w["name"]]}, w)
+        for w in crossing
+    )
+
+
+def _approval_tiers(approval: dict[str, Any]) -> set[int]:
+    raw = approval.get("credit_tiers")
+    if not isinstance(raw, list):
+        return set()
+    return {t for t in raw if isinstance(t, int) and not isinstance(t, bool) and t in CREDIT_TIERS}
+
+
+def _approval_bucket(approval: dict[str, Any]) -> int | None:
+    raw = approval.get("amount_bucket")
+    return raw if isinstance(raw, int) and not isinstance(raw, bool) and raw >= 0 else None
+
+
+def _record_approval(
+    approval: dict[str, Any],
+    crossing: list[dict[str, Any]],
+    credit: dict[str, Any] | None,
+    reminders: tuple[float, bool],
+    stamp: str,
+    now: float,
+) -> dict[str, Any]:
+    """A credits approval for the crossing windows; what the user was just told counts as reminded."""
+    active = _approval_active(approval, crossing, now)
+    windows = _approved_windows(approval) if active else {}
+    windows.update({w["name"]: w["resets_at"] for w in crossing})
+    tiers = _approval_tiers(approval) if active else set()
+    percent = credit["percent"] if credit else None
+    if percent is not None:
+        tiers.update(t for t in CREDIT_TIERS if t <= percent)
+    step, when_capped = reminders
+    bucket = int(credit["used"] // step) if _step_applies(credit, step, when_capped) else None
+    return {
+        "schema": APPROVAL_SCHEMA,
+        "approved_at": stamp,
+        "windows": windows,
+        "credit_tiers": sorted(tiers),
+        "amount_bucket": bucket,
+        "exhausted_notified": bool(credit and credit["state"] == "exhausted"),
+    }
+
+
+def _credit_reminder(
+    approval: dict[str, Any], credit: dict[str, Any] | None, reminders: tuple[float, bool]
+) -> bool:
+    """Update the approval's reminder marks in place; True when a reminder is due now."""
+    if credit is None:
+        return False
+    if credit["state"] == "exhausted":
+        due = approval.get("exhausted_notified") is not True
+        approval["exhausted_notified"] = True
+        return due
+    approval["exhausted_notified"] = False
+    due = False
+    percent = credit["percent"]
+    if credit["state"] == "capped" and percent is not None:
+        # A figure below an asked tier means the allowance reset.
+        tiers = {t for t in _approval_tiers(approval) if t <= percent}
+        reached = [t for t in CREDIT_TIERS if t <= percent and t not in tiers]
+        due = bool(reached)
+        approval["credit_tiers"] = sorted(tiers | set(reached))
+    step, when_capped = reminders
+    if _step_applies(credit, step, when_capped):
+        current = int(credit["used"] // step)
+        marked = _approval_bucket(approval)
+        if marked is not None and current > marked:
+            due = True
+        approval["amount_bucket"] = current
+    return due
+
+
 def decide(
     platform: str,
     kind: str,
@@ -567,8 +925,11 @@ def decide(
     cleared: list[dict[str, Any]],
     state: dict[str, Any],
     now: float,
-) -> tuple[str | None, dict[str, Any]]:
-    """Return (message to emit or None, updated state).
+    credit: dict[str, Any] | None = None,
+    approval: dict[str, Any] | None = None,
+    reminders: tuple[float, bool] | None = None,
+) -> tuple[str | None, dict[str, Any], dict[str, Any]]:
+    """Return (message to emit or None, updated state, updated credits approval).
 
     A window counts as announced only once a message about it was emitted. The
     platform's prior-continuation flag (``stop_hook_active``, Cursor
@@ -577,17 +938,55 @@ def decide(
     it on every chained turn. Each window period gets at most one directive and
     one continuation; a window that falls below the clear line, or whose reset
     time moves to a new period, is forgotten so the next crossing warns again.
+
+    A user answer recorded after the latest ask settles it (no continuation);
+    a credits answer becomes the persisted approval. While an approval is
+    active, crossing windows are not announced and the only message is a
+    mid-turn credit reminder: as a capped allowance passes 50/75/90%, every
+    ``step`` of spend (always when uncapped, under a cap only when enabled), or
+    once when the allowance runs out.
     """
+    approval = dict(approval or {})
+    if reminders is None:
+        reminders = reminder_settings(platform)
     windows = _window_entries(state)
+    approved = _approved_windows(approval)
     for window in cleared:
         windows.pop(window["name"], None)
+        approved.pop(window["name"], None)
+    if approval and approved != _approved_windows(approval):
+        approval["windows"] = approved
     for window in crossing:
         entry = windows.get(window["name"])
         if entry is not None and not _same_period(entry, window):
             del windows[window["name"]]
     stamp = _iso_now(now)
+    asked = _parse_iso(state.get("asked_at")) if state.get("schema") == STATE_SCHEMA else None
+    seen = _parse_iso(state.get("answer_seen")) if state.get("schema") == STATE_SCHEMA else None
+    if asked is not None:
+        answer = usage_decision(platform, payload)
+        # Each answer is consumed once; timestamps are whole seconds.
+        if answer is not None and answer[1] >= int(asked) and (seen is None or answer[1] > seen):
+            seen = answer[1]
+            for entry in windows.values():
+                entry["continuation_sent"] = True
+            if answer[0] == "credits" and crossing:
+                approval = _record_approval(approval, crossing, credit, reminders, stamp, now)
+            asked = None
     chosen: dict[str, Any] | None = None
-    if kind != "stop":
+    reminder: str | None = None
+    if crossing and _approval_active(approval, crossing, now):
+        for window in crossing:
+            if window["name"] not in windows:
+                windows[window["name"]] = {
+                    "resets_at": window["resets_at"],
+                    "announced_at": stamp,
+                    "continuation_sent": True,
+                }
+        if kind != "stop" and _credit_reminder(approval, credit, reminders):
+            reminder = credit_directive(platform, credit, *reminders)  # type: ignore[arg-type]
+            asked = now
+    elif kind != "stop":
         for window in crossing:
             if window["name"] not in windows:
                 chosen = window
@@ -596,6 +995,7 @@ def decide(
                     "announced_at": stamp,
                     "continuation_sent": False,
                 }
+                asked = now
                 break
     else:
         pending = [w for w in crossing if not windows.get(w["name"], {}).get("continuation_sent")]
@@ -614,12 +1014,18 @@ def decide(
                     "announced_at": entry.get("announced_at") if entry else stamp,
                     "continuation_sent": True,
                 }
+                if asked is None:
+                    asked = now
                 break
     updated: dict[str, Any] = {
         "schema": STATE_SCHEMA,
         "windows": windows,
         "last_stop_continued": kind == "stop" and chosen is not None,
     }
+    if asked is not None:
+        updated["asked_at"] = _iso_now(asked)
+    if seen is not None:
+        updated["answer_seen"] = _iso_now(seen)
     if windows:
         latest = max(windows, key=lambda n: str(windows[n].get("announced_at") or ""))
         updated.update(
@@ -627,7 +1033,8 @@ def decide(
             triggered_at=windows[latest].get("announced_at"),
             continuation_sent=windows[latest].get("continuation_sent") is True,
         )
-    return (directive(platform, chosen) if chosen else None), updated
+    message = directive(platform, chosen, credit, *reminders) if chosen else reminder
+    return message, updated, approval
 
 
 def evaluate(payload: dict[str, Any], started: float, script_dir: Path | None = None) -> dict[str, Any] | None:
@@ -646,6 +1053,7 @@ def evaluate(payload: dict[str, Any], started: float, script_dir: Path | None = 
     if classified is None or time.monotonic() >= deadline:
         return None
     crossing, cleared = classified
+    credit = credit_info(result, now)
     directory = state_dir()
     path = directory / f"{platform}-{session_key(platform, payload)}.json"
     if not crossing and not path.exists():
@@ -658,7 +1066,13 @@ def evaluate(payload: dict[str, Any], started: float, script_dir: Path | None = 
         if not lock.held:
             return None
         state = load_state(path)
-        message, updated = decide(platform, kind, payload, crossing, cleared, state, now)
+        credits_path = approval_path(platform)
+        approval = load_state(credits_path)
+        message, updated, new_approval = decide(
+            platform, kind, payload, crossing, cleared, state, now, credit, approval
+        )
+        if new_approval != approval and not save_state(credits_path, new_approval):
+            return None
         if updated != state and not save_state(path, updated):
             return None
     if not state:

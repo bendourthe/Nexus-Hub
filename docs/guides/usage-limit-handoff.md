@@ -9,7 +9,7 @@ Covers: per-platform coverage, the 99% threshold and its known limitation, `/han
 A usage cap is enforced by the vendor's server. Once you hit it, the next model request is rejected and the agent gets no further turn, so nothing inside the agent can react at 100%. Nexus-Hub acts before that point, in three layers:
 
 1. **Checkpoint and `/handoff` (every platform).** The `session-handoff` skill writes `.nexus-hub/handoff.md` in the project root and prints one paste-ready prompt that another agent, on any platform, can resume from. Every installed instruction file carries a short Session Handoff rule, so the agent refreshes the file after each verified milestone during long work, and you can run `/handoff` at any time.
-2. **Automatic guard (Claude Code, Codex, Cursor, GitHub Copilot).** The `usage-guard` hook reads the platform's own usage figure. When a tracked window reaches the threshold (99% by default), it tells the agent to finish the current step, run the handoff, and start no new work. If the agent ends its turn without doing so, the guard sends one continuation asking for it.
+2. **Automatic guard (Claude Code, Codex, Cursor, GitHub Copilot).** The `usage-guard` hook reads the platform's own usage figure. When a tracked window reaches the threshold (99% by default), it tells the agent to finish the current step and ask you first: continue on pay-per-use credits, or hand off. If the agent ends its turn without asking, the guard sends one continuation asking for it. See "Continuing on pay-per-use credits" below.
 3. **Manual fallback (every other platform).** Where no usage figure can be read, the guard stays silent. Run `/handoff` yourself, or the agent runs it when the platform itself warns about limits.
 
 The handoff is printed and written locally. Nothing switches platforms for you and nothing sends the handoff anywhere.
@@ -86,7 +86,7 @@ On Copilot, also install and sign in to the Copilot Usage Monitor, which supplie
 
 ## Validation
 
-Run the probe the guard uses. It prints one JSON line and only percentages. Pick the installed copy for your platform:
+Run the probe the guard uses. It prints one JSON line with percentages and, where the platform reports them, pay-per-use credit amounts; never a credential or account detail. Pick the installed copy for your platform (in PowerShell, write `$HOME` instead of `~`):
 
 | Platform | Command |
 |---|---|
@@ -103,7 +103,31 @@ Use `python3` where `python` is not Python 3. A working reading looks like this 
 
 `status` is `ok`, `stale` (the last good reading, under 30 minutes old, after a failed fetch), or `unavailable` with a fixed-text `reason` such as "state file missing (Copilot Usage Monitor not running)". The probe always exits 0. A repeated call within the cache lifetime (300 seconds, or 60 seconds once a window reaches 90%) returns `"cached": true`.
 
-To see the directive itself, start a session with a low threshold, for example `NEXUS_HANDOFF_THRESHOLD=1`. The directive starts with `Usage limit:` and names the session-handoff procedure.
+To see the directive itself, start a session with a low threshold, for example `NEXUS_HANDOFF_THRESHOLD=1`. The directive starts with `Usage limit:` and asks the agent to put the credits-or-handoff question to you.
+
+## Continuing on pay-per-use credits (v4.13.11)
+
+Reaching a subscription limit is not treated as a decision to hand off, because your account may have pay-per-use credits (extra usage). At the threshold the agent finishes or safely stops the current step, records the open question in `.nexus-hub/usage-decision.json` as `pending`, asks you whether to continue on credits or hand off, and waits. It records your answer in the same file:
+
+- **Continue on credits**: the agent carries on with the task. The guard remembers the approval in `~/.nexus-hub/state/usage-guard/<platform>.credits.json` until the limited window resets, so new sessions in that period do not ask again.
+- **Wait for the reset**: the agent stops and starts no new work.
+- **Hand off**: the agent runs the session-handoff procedure as before.
+
+What the agent tells you, and when it asks again, depends on the credit reading (the probe's `extra_credits` window):
+
+| Credit state | At the limit | After you choose credits |
+|---|---|---|
+| Capped (a fixed allowance) | the amount spent, the limit, and the percent | asks again at 50%, 75%, and 90%; also every reminder step if `creditReminderWhenCapped` is on; once more if the allowance runs out |
+| Uncapped (no spending limit) | the amount spent this period | asks again every reminder step of spend; no figure means no reminders, and the agent says so |
+| None (credits disabled, or a zero allowance) | warns that continuing will fail until the reset unless you enable credits first; offers enabling them, waiting, or the handoff | no reminders; requests fail until credits are enabled |
+| Exhausted (allowance used up) | warns that continuing will fail unless you raise the limit; offers raising it, waiting, or the handoff | announced once; again only after the allowance resets or is raised and runs out again |
+| Unknown (no reading) | says it cannot tell whether continuing will work or remind you | no reminders |
+
+Reminders arrive during a turn, never at turn end. The reminder step is set in the Claude, Codex, and Cursor usage monitor extensions (`claudeUsage.creditReminderStep`, `codexUsage.creditReminderStep`, `cursorUsage.creditReminderStep`, each with a `creditReminderWhenCapped` switch). The extensions save it to `~/.nexus-hub/config/credit-reminders.json`, which you can also edit by hand, for example `{"providers": {"claude": {"step": 100, "when_capped": true}}}`. The step is in the provider's own unit: US dollars for Claude Code and Cursor (default 50), Codex credits for Codex (default 500). A step of 0 turns spend reminders off.
+
+Credit readings by platform: Claude Code from `extra_usage`, Codex from `credits` and `spend_control.individual_limit`, and Cursor from `spendLimitUsage` (your individual on-demand limit, else the team pool). Copilot's monitor writes no credit figure, so Copilot is always "unknown". Antigravity, Gemini CLI, Qwen Code, and Kimi Code CLI have no usage source, so the guard does not run there; the ask-first rule still reaches the agent through its instruction file when the platform itself warns about a limit.
+
+The repository cannot approve spending for you: only the guard writes the persisted approval, and only from an answer recorded after its own question in the current session. To withdraw an approval early, delete the `.credits.json` file.
 
 ## Configuration
 
@@ -136,7 +160,7 @@ On macOS, Claude Code may keep its sign-in in the login Keychain (item `Claude C
 
 ## Interaction with `/implement` runs
 
-During a full `/implement` run, the completion gate also answers turn end and would normally refuse a stop while plan work remains. It yields to a usage-limit handoff only when both hold: `.nexus-hub/handoff.md` has a `usage-limit` header written after the gate's last refusal, and the probe confirms a tracked window at or over `NEXUS_HANDOFF_THRESHOLD`. The gate then lets the turn end without counting a refusal or recording a blocker, and prints one line saying the run stopped for a usage-limit handoff. The run resumes through `/implement <plan>` when you paste the prompt.
+During a full `/implement` run, the completion gate also answers turn end and would normally refuse a stop while plan work remains. It yields to a usage-limit stop only when both hold: `.nexus-hub/handoff.md` has a `usage-limit` header, or `.nexus-hub/usage-decision.json` records a `pending` question to you, written after the gate's last refusal, and the probe confirms a tracked window at or over `NEXUS_HANDOFF_THRESHOLD`. The gate then lets the turn end without counting a refusal or recording a blocker, and prints one line saying the run stopped for a usage-limit handoff. The run resumes through `/implement <plan>` when you paste the prompt.
 
 Writing a handoff file alone never releases a run, and a workspace-scoped install, whose hooks live inside the repository, never takes this exception. The rule is owned by the "Usage-limit handoff" section of `catalog/skills/workflow/implement-phase/references/completion-contract.md`.
 

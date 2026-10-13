@@ -292,7 +292,7 @@ def test_claude_maps_five_hour_and_highest_weekly(env):
 
     assert result.status == "ok" and result.cached is False
     # session 42 beats five_hour 41; seven_day_opus 77.5 is the highest weekly.
-    assert windows(result) == {"five_hour": 42.0, "weekly": 77.5}
+    assert windows(result) == {"five_hour": 42.0, "weekly": 77.5, "extra_credits": None}
     assert all(w.source == "anthropic-oauth-usage" for w in result.windows)
     weekly = next(w for w in result.windows if w.name == "weekly")
     assert weekly.resets_at == "2026-09-25T14:00:00Z"
@@ -306,6 +306,112 @@ def test_claude_legacy_fields_and_unknown_model_window(env):
         "seven_day_future_model": {"utilization": 30},
     }
     assert windows_from(env.probe.map_claude, added) == {"weekly": 30.0}
+
+
+def _credit(windows: list[Any]) -> dict[str, Any] | None:
+    found = next((w for w in windows if w.name == "extra_credits"), None)
+    if found is None:
+        return None
+    data = found.to_dict()
+    return {k: data[k] for k in ("state", "percent", "used", "limit", "unit")}
+
+
+# Claude extra_usage shape captured live on 2026-10-12; amounts are in cents.
+CLAUDE_EXTRA = {
+    "is_enabled": True, "monthly_limit": 50000, "used_credits": 0.0, "utilization": None,
+    "currency": "USD", "decimal_places": 2, "spend_limit_reached": False,
+}
+
+
+@pytest.mark.parametrize(
+    ("change", "expected"),
+    [
+        ({}, {"state": "capped", "percent": 0.0, "used": 0.0, "limit": 500.0, "unit": "USD"}),
+        ({"used_credits": 12500, "utilization": 25.0}, {"state": "capped", "percent": 25.0, "used": 125.0, "limit": 500.0, "unit": "USD"}),
+        ({"used_credits": 12500}, {"state": "capped", "percent": 25.0, "used": 125.0, "limit": 500.0, "unit": "USD"}),
+        ({"monthly_limit": None, "used_credits": 7350}, {"state": "uncapped", "percent": None, "used": 73.5, "limit": None, "unit": "USD"}),
+        ({"is_enabled": False}, {"state": "none", "percent": None, "used": 0.0, "limit": 500.0, "unit": "USD"}),
+        ({"monthly_limit": 0}, {"state": "none", "percent": None, "used": 0.0, "limit": 0.0, "unit": "USD"}),
+        ({"spend_limit_reached": True, "used_credits": 50000}, {"state": "exhausted", "percent": 100.0, "used": 500.0, "limit": 500.0, "unit": "USD"}),
+        ({"used_credits": 50000}, {"state": "exhausted", "percent": 100.0, "used": 500.0, "limit": 500.0, "unit": "USD"}),
+        ({"currency": "EUR", "decimal_places": 0, "monthly_limit": 300, "used_credits": 30}, {"state": "capped", "percent": 10.0, "used": 30.0, "limit": 300.0, "unit": "EUR"}),
+    ],
+)
+def test_claude_extra_usage_becomes_the_credit_window(env, change, expected):
+    mapped = env.probe.map_claude({"seven_day": {"utilization": 100}, "extra_usage": {**CLAUDE_EXTRA, **change}})
+    assert next(w.percent for w in mapped if w.name == "weekly") == 100.0
+    assert _credit(mapped) == expected
+
+
+def test_claude_without_extra_usage_has_no_credit_window(env):
+    assert _credit(env.probe.map_claude({"seven_day": {"utilization": 100}})) is None
+    assert _credit(env.probe.map_claude({"seven_day": {"utilization": 100}, "extra_usage": "junk"})) is None
+
+
+# Codex shape captured live on 2026-10-12 (identifying fields removed).
+CODEX_SPEND = {
+    "credits": {"has_credits": True, "unlimited": False, "overage_limit_reached": False, "balance": None},
+    "spend_control": {
+        "reached": False,
+        "individual_limit": {
+            "unit": "credit", "limit": "5000", "used": "824.5189390182495",
+            "used_percent": 16, "reset_at": 1793491200,
+        },
+    },
+}
+
+
+@pytest.mark.parametrize(
+    ("change", "expected"),
+    [
+        ({}, ("capped", 16.49)),
+        ({"credits": {"has_credits": True, "unlimited": True}}, ("uncapped", None)),
+        ({"credits": {"has_credits": True}, "spend_control": None}, ("uncapped", None)),
+        ({"credits": {"has_credits": False}}, ("none", None)),
+        ({"credits": {"has_credits": True, "overage_limit_reached": True}}, ("exhausted", 16.49)),
+        ({"spend_control": {"reached": True, "individual_limit": {"limit": "5000", "used": "5000"}}}, ("exhausted", 100.0)),
+        ({"spend_control": {"individual_limit": {"limit": "0", "used": "0"}}}, ("none", None)),
+    ],
+)
+def test_codex_credits_become_the_credit_window(env, change, expected):
+    credit = _credit(env.probe.map_codex({**CODEX_SPEND, **change}))
+    assert credit is not None and (credit["state"], credit["percent"]) == expected
+    assert credit["unit"] == "credit"
+
+
+def test_codex_without_credits_has_no_credit_window(env):
+    assert _credit(env.probe.map_codex({k: v for k, v in CODEX_SPEND.items() if k != "credits"})) is None
+
+
+@pytest.mark.parametrize(
+    ("spend", "expected"),
+    [
+        ({"totalSpend": 369, "pooledLimit": "100000", "pooledUsed": 369, "limitType": "team"}, ("capped", 0.37, 3.69, 1000.0)),
+        ({"individualLimit": 2000, "individualUsed": 1000, "pooledLimit": "100000", "pooledUsed": 369}, ("capped", 50.0, 10.0, 20.0)),
+        ({"pooledLimit": "0", "pooledUsed": 0}, ("none", None, 0.0, 0.0)),
+        ({"totalSpend": 12345}, ("uncapped", None, 123.45, None)),
+        ({"pooledLimit": "1000", "pooledUsed": 1000}, ("exhausted", 100.0, 10.0, 10.0)),
+    ],
+)
+def test_cursor_spend_limit_usage_becomes_the_credit_window(env, spend, expected):
+    payload = {"billingCycleEnd": "1793731387000", "planUsage": {"totalPercentUsed": 0}, "spendLimitUsage": spend}
+    mapped = env.probe.map_cursor(payload)
+    assert next(w.percent for w in mapped if w.name == "monthly") == 0.0
+    credit = _credit(mapped)
+    assert credit is not None
+    assert (credit["state"], credit["percent"], credit["used"], credit["limit"]) == expected
+    assert credit["unit"] == "USD"
+
+
+def test_cursor_without_spend_data_has_no_credit_window(env):
+    assert _credit(env.probe.map_cursor({"planUsage": {"totalPercentUsed": 0}})) is None
+
+
+def test_a_cached_credit_window_round_trips_and_bad_ones_are_dropped(env):
+    good = env.probe.credit_window("uncapped", 73.5, None, "USD", None, "anthropic-oauth-usage").to_dict()
+    cache = {"windows": [good, {**good, "state": "bogus"}, {**good, "unit": "X Y"}, {**good, "source": "elsewhere"}]}
+    rebuilt = env.probe._cached_windows("claude", cache)
+    assert [w.to_dict() for w in rebuilt] == [good]
 
 
 def test_claude_request_goes_only_to_anthropic_with_beta_header(env):
@@ -661,7 +767,7 @@ def test_failure_after_ttl_returns_stale_cache_then_unavailable(env):
 
     assert stale.status == "stale" and stale.cached is True
     assert stale.reason == "endpoint timed out"
-    assert windows(stale) == {"five_hour": 42.0, "weekly": 77.5}
+    assert windows(stale) == {"five_hour": 42.0, "weekly": 77.5, "extra_credits": None}
 
     env.clock.now += 1800  # the cached data is now older than 30 minutes
     env.http.queue(TimeoutError())
@@ -699,7 +805,10 @@ def test_cache_holds_percentages_only(env):
 
     assert set(cache) == {"schema_version", "platform", "data_at", "windows"}
     for window in cache["windows"]:
-        assert set(window) == {"name", "percent", "resets_at", "source"}
+        expected = {"name", "percent", "resets_at", "source"}
+        if window["name"] == "extra_credits":
+            expected |= {"state", "used", "limit", "unit"}  # spend figures, never account data
+        assert set(window) == expected
     assert "iguana_necktie" not in json.dumps(cache)
 
 
@@ -1469,7 +1578,7 @@ def test_a_fetch_in_progress_returns_the_cached_value_without_fetching(env):
     busy = env.probe.probe("claude")
 
     assert busy.status == "stale" and busy.reason == "fetch in progress"
-    assert windows(busy) == {"five_hour": 42.0, "weekly": 77.5}
+    assert windows(busy) == {"five_hour": 42.0, "weekly": 77.5, "extra_credits": None}
     assert len(env.http.calls) == 1
     assert lock.exists(), "a loser must not remove the winner's lock"
 

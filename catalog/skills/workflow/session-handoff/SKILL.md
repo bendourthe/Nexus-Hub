@@ -1,8 +1,8 @@
 ---
 name: session-handoff
-description: Write the cross-platform resume artifact, .nexus-hub/handoff.md, and print a paste-ready prompt another agent on any platform can continue from. Make sure to use this skill whenever the user says "hand off", "handoff", "/handoff", "write a handoff", "I am about to hit my usage limit", "usage limit", "continue this in another tool", "switch to Claude Code", "switch to Codex", "switch to Cursor", "switch to Copilot", "save my progress for another agent", or "pick this up somewhere else"; whenever a hook message starting "Usage limit:" tells the agent to run the session-handoff procedure; whenever the platform itself warns that a usage limit is near; and for the rolling checkpoint refresh after a verified milestone in multi-step work. SKIP - end-of-session history documents (use session-history), compaction or summarizing within the same session (use context-compression), next-plan release handoffs (owned by /update release), and usage reporting (use /usage).
+description: Write the cross-platform resume artifact, .nexus-hub/handoff.md, and print a paste-ready prompt another agent on any platform can continue from. Make sure to use this skill whenever the user says "hand off", "handoff", "/handoff", "write a handoff", "I am about to hit my usage limit", "usage limit", "continue this in another tool", "switch to Claude Code", "switch to Codex", "switch to Cursor", "switch to Copilot", "save my progress for another agent", or "pick this up somewhere else"; whenever a hook message starting "Usage limit:" or "Usage credits:" arrives (ask about pay-per-use credits first); whenever the platform itself warns that a usage limit is near; and for the rolling checkpoint refresh after a verified milestone in multi-step work. SKIP - end-of-session history documents (use session-history), compaction or summarizing within the same session (use context-compression), next-plan release handoffs (owned by /update release), and usage reporting (use /usage).
 summary_l0: "Write .nexus-hub/handoff.md and a paste-ready prompt so another platform's agent can resume"
-overview_l1: "This skill owns one artifact: the cross-platform resume record. It writes .nexus-hub/handoff.md in the project root in a fixed format (a parseable header line with timestamp, platform, and trigger, then Goal, Done and verified, In progress, Next steps, Files touched, Constraints and decisions the user stated, Open questions and blockers, and Repository state) and prints one fenced, self-contained prompt that embeds the file, so an agent on any platform can verify the repository state and continue from Next steps without redoing finished work. Modes: manual (/handoff), usage-limit (finish or safely stop the current step, hand off, start no new work), and checkpoint (refresh after a verified milestone, no prompt). It never writes secrets, keeps .nexus-hub/ out of git through the exclude file without touching .gitignore, and carries forward unfinished steps from an earlier handoff."
+overview_l1: "This skill owns one artifact: the cross-platform resume record. It writes .nexus-hub/handoff.md in the project root in a fixed format (a parseable header line with timestamp, platform, and trigger, then Goal, Done and verified, In progress, Next steps, Files touched, Constraints and decisions the user stated, Open questions and blockers, and Repository state) and prints one fenced, self-contained prompt that embeds the file, so an agent on any platform can verify the repository state and continue from Next steps without redoing finished work. Modes: manual (/handoff), usage-limit (finish or safely stop the current step, ask the user whether to continue on pay-per-use credits, and hand off only if they decline), and checkpoint (refresh after a verified milestone, no prompt). It never writes secrets, keeps .nexus-hub/ out of git through the exclude file without touching .gitignore, and carries forward unfinished steps from an earlier handoff."
 ---
 
 # Session Handoff
@@ -15,7 +15,7 @@ The same format serves three triggers: the user running `/handoff`, a usage-limi
 
 - The user runs `/handoff`, optionally with a focus (`/handoff focus on the failing migration`).
 - The user says they are near a usage limit, or wants to continue the task in another tool or with another agent.
-- A hook injects a message that starts `Usage limit:` and names the session-handoff procedure. This is the `usage-guard` directive; follow the usage-limit mode below.
+- A hook injects a message that starts `Usage limit:` or `Usage credits:`. This is the `usage-guard` directive; follow the usage-limit mode below, which asks the user first.
 - The platform itself warns that a usage, rate, or quota limit is near.
 - Multi-step work just reached a verified milestone and the checkpoint rule in the instruction file asks for a refresh (checkpoint mode).
 
@@ -44,10 +44,31 @@ The same format serves three triggers: the user running `/handoff`, a usage-limi
 | Mode | Trigger | Header trigger value | Prints the prompt |
 |---|---|---|---|
 | manual | `/handoff`, or the user asks for a handoff | `manual` | Yes |
-| usage-limit | a `Usage limit:` directive, or a platform warning | `usage-limit WINDOW PERCENT` | Yes |
+| usage-limit | a `Usage limit:` or `Usage credits:` directive, or a platform warning, AND the user chose the handoff | `usage-limit WINDOW PERCENT` | Yes |
 | checkpoint | a verified milestone during multi-step work | `checkpoint` | No |
 
 `WINDOW` is `five_hour`, `weekly`, or `monthly`, and `PERCENT` is the number the directive reported (for example `usage-limit weekly 99.2`). For a platform warning that names no figure, use the window it names and the percent `100`, and say so in Open questions and blockers.
+
+### Step 0: In usage-limit mode, ask the user before handing off
+
+A usage-limit warning is not yet a decision to hand off: the user may have pay-per-use credits (extra usage) and prefer to keep going. Ask first, every time.
+
+1. Finish the current step if it is small, or stop at a safe point (no file half-edited, no command running).
+2. Record the open question in the project root's `.nexus-hub/usage-decision.json` (keep `.nexus-hub/` out of git as in Step 4), with the current UTC time from Step 2's command:
+
+    ```json
+    {"decision": "pending", "recorded_at": "2026-10-12T23:40:00Z"}
+    ```
+
+3. Ask the user one question, in plain words, quoting the figures the directive reported: continue on pay-per-use credits, or hand off to another agent or platform? Pass on what the directive says about credits: how much is spent and when the next reminder comes, that the account has no credits or has used them up (continuing would fail, so offer enabling or raising them, waiting for the reset, or the handoff), or that Nexus-Hub cannot read credits on this platform. Then end the turn and wait. Start no new work until they answer.
+4. Rewrite the file with the answer and a fresh `recorded_at`:
+    - **Credits**: `"decision": "credits"`, then continue the task where you stopped. Do not run this skill. The `usage-guard` hook remembers the approval for the rest of that usage period, so later sessions are not asked again. It asks once more (a `Usage credits:` message) as a capped allowance passes 50%, 75%, and 90%, every set amount of spend when there is no cap (the usage monitor's credit reminder step), and once if the credits run out. Answer each such message the same way: record `pending`, report the figures, ask, wait, record the answer.
+    - **Wait for the reset**: `"decision": "wait"`, then stop. Start no new work.
+    - **Handoff**: `"decision": "handoff"`, then continue with Step 1.
+
+Without the record, the hook cannot tell that the user was asked: it repeats the question at the end of the turn, and a `/implement` run's completion gate refuses to let the turn end. Never record `credits`, `wait`, or `handoff` on the user's behalf, and never treat silence or a queued instruction as an answer: spending money is the user's call.
+
+When the user invoked `/handoff` directly, they already chose: skip this step.
 
 ### Step 1: In usage-limit mode, settle the current step first
 
@@ -223,6 +244,8 @@ In **checkpoint mode**, do Steps 2 to 6 only: update the file in place (an updat
 
 | Rationalization | Reality |
 |---|---|
+| "The directive says usage is at 100%, so I'll write the handoff straight away." | The user may have pay-per-use credits and want to keep going. Handing off unasked stops their work and makes them restart elsewhere. Step 0 asks first. |
+| "The user said earlier to keep going no matter what, so I'll record credits." | Credits cost money and the figure changed since then. Record `pending`, ask with the current figure, and record only the answer they give now. |
 | "I'll write the handoff after this next step; there is still 1% left." | A single large turn can consume more than 1% of a 5-hour window. Once the cap is hit the agent gets no further turn, and the step and the handoff are both lost. |
 | "The file already exists from the Codex session, so I'll overwrite it with what I did." | Overwriting drops that session's unfinished Next steps, which nothing else records. Step 3 carries them forward. |
 | "I'll add `.nexus-hub/` to `.gitignore`, it's simpler." | `.gitignore` is committed, so the user's repository gains a change they never asked for. The exclude file is local. |
@@ -235,6 +258,8 @@ In **checkpoint mode**, do Steps 2 to 6 only: update the file in place (an updat
 
 ## Verification
 
+- [ ] In usage-limit mode, `.nexus-hub/usage-decision.json` held `"decision": "pending"` before the question was asked, and holds the user's own answer (`credits`, `wait`, or `handoff`) with a later `recorded_at` after it.
+- [ ] On a `credits` answer, no handoff was written and the task continued.
 - [ ] `.nexus-hub/handoff.md` exists in the project root and its first line matches `# Handoff | TIMESTAMP | PLATFORM | TRIGGER`.
 - [ ] The file contains, in order, `## Goal`, `## Done and verified`, `## In progress`, `## Next steps`, `## Files touched`, `## Constraints and decisions the user stated`, `## Open questions and blockers`, `## Repository state`.
 - [ ] Repository state shows the branch and the full HEAD SHA that `git rev-parse HEAD` prints, and lists every path in `git status --short` (or carries the no-git sentence).
