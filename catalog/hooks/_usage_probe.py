@@ -16,13 +16,16 @@ Sources (decision file v4.13.7, "Handoff guard decisions" (1) and (3)):
 - ``claude``: ``~/.claude/.credentials.json`` (macOS: the login Keychain item,
   2-second timeout) -> ``GET https://api.anthropic.com/api/oauth/usage``.
   Windows ``five_hour`` and ``weekly`` (``seven_day`` and every model-scoped
-  weekly figure, highest wins).
+  weekly figure, highest wins), plus ``extra_credits`` when ``extra_usage`` is
+  enabled with a monthly cap (absent otherwise).
 - ``codex``: ``$CODEX_HOME/auth.json`` or ``~/.codex/auth.json`` ->
   ``GET https://chatgpt.com/backend-api/wham/usage``. ``weekly`` only, chosen
-  by window length, not position.
+  by window length, not position, plus ``extra_credits`` from
+  ``spend_control.individual_limit`` when credits are enabled and capped.
 - ``cursor``: ``cursorAuth/accessToken`` from the local ``state.vscdb``, opened
   read-only -> ``POST https://api2.cursor.sh/aiserver.v1.DashboardService/
-  GetCurrentPeriodUsage``. ``monthly``, taken as delivered, never recomputed.
+  GetCurrentPeriodUsage``. ``monthly``, taken as delivered, never recomputed,
+  plus ``extra_credits`` from ``spendLimitUsage`` (individual, else pooled).
 - ``copilot``: ``~/.nexus-hub/state/usage-probe/copilot.json``, written by the
   Copilot Usage Monitor. No network call and no credential read. That path is
   also where every other provider's cache lives, so the probe never writes it.
@@ -129,6 +132,13 @@ HTTP_REASON_RE = re.compile(
 
 # A window longer than this is the weekly window (Codex classifies by length).
 SESSION_MAX_SECONDS = 6 * 3600
+# Pay-per-use credits (Claude extra_usage, Codex credits, Cursor on-demand spend).
+# Not a subscription window: usage-guard never treats it as a handoff trigger.
+# capped: an allowance with a limit; uncapped: enabled with no limit; none:
+# disabled or a zero allowance; exhausted: the limit is reached.
+CREDIT_WINDOW = "extra_credits"
+CREDIT_STATES = ("capped", "uncapped", "none", "exhausted")
+CREDIT_UNIT_RE = re.compile(r"^[A-Za-z]{1,12}$")
 
 
 class ProbeError(Exception):
@@ -140,25 +150,71 @@ class ProbeError(Exception):
 
 
 class Window:
-    """One tracked usage window."""
+    """One tracked usage window.
 
-    __slots__ = ("name", "percent", "resets_at", "source")
+    The ``extra_credits`` window also carries ``state`` (one of
+    ``CREDIT_STATES``), ``used`` and ``limit`` in ``unit`` (a currency code or
+    ``credit``); its ``percent`` is None unless the allowance is capped.
+    """
+
+    __slots__ = ("limit", "name", "percent", "resets_at", "source", "state", "unit", "used")
 
     def __init__(
-        self, name: str, percent: float, resets_at: str | None, source: str
+        self,
+        name: str,
+        percent: float | None,
+        resets_at: str | None,
+        source: str,
+        *,
+        state: str | None = None,
+        used: float | None = None,
+        limit: float | None = None,
+        unit: str | None = None,
     ) -> None:
         self.name = name
         self.percent = percent
         self.resets_at = resets_at
         self.source = source
+        self.state = state
+        self.used = used
+        self.limit = limit
+        self.unit = unit
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        data: dict[str, Any] = {
             "name": self.name,
             "percent": self.percent,
             "resets_at": self.resets_at,
             "source": self.source,
         }
+        if self.name == CREDIT_WINDOW:
+            data.update(state=self.state, used=self.used, limit=self.limit, unit=self.unit)
+        return data
+
+
+def spend_window(
+    state: str,
+    used: float | None,
+    limit: float | None,
+    unit: str,
+    resets_at: str | None,
+    source: str,
+    percent: float | None = None,
+) -> Window:
+    """The ``extra_credits`` window; a used-up allowance is ``exhausted`` whatever was claimed."""
+    if state == "capped" and used is not None and limit is not None and used >= limit:
+        state = "exhausted"
+    if state in ("capped", "exhausted"):
+        if percent is None:
+            percent = _used_percent(used, limit)
+        if percent is None and state == "exhausted":
+            percent = 100.0
+    else:
+        percent = None
+    return Window(
+        CREDIT_WINDOW, percent, resets_at, source,
+        state=state, used=used, limit=limit, unit=unit,
+    )
 
 
 class ProbeResult:
@@ -506,7 +562,32 @@ def map_claude(payload: object) -> list[Window]:
                 windows,
                 Window(name, percent, _reset_iso(limit.get("resets_at")), source),
             )
-    return [windows[n] for n in ("five_hour", "weekly") if n in windows]
+    extra = _record(data.get("extra_usage"))
+    if extra is not None:
+        windows[CREDIT_WINDOW] = _claude_spend(extra, source)
+    return [windows[n] for n in ("five_hour", "weekly", CREDIT_WINDOW) if n in windows]
+
+
+def _claude_spend(extra: dict[str, Any], source: str) -> Window:
+    """``extra_usage`` amounts are in minor units (``decimal_places``, default 2)."""
+    places = _number(extra.get("decimal_places"))
+    scale = 10 ** int(places) if places is not None and 0 <= places <= 6 else 100
+    used_raw, cap_raw = _number(extra.get("used_credits")), _number(extra.get("monthly_limit"))
+    used = used_raw / scale if used_raw is not None else None
+    cap = cap_raw / scale if cap_raw is not None else None
+    currency = extra.get("currency")
+    unit = currency if isinstance(currency, str) and CREDIT_UNIT_RE.match(currency) else "USD"
+    if extra.get("is_enabled") is not True or (cap is not None and cap <= 0):
+        state = "none"
+    elif extra.get("spend_limit_reached") is True:
+        state = "exhausted"
+    elif cap is None:
+        state = "uncapped"
+    else:
+        state = "capped"
+    return spend_window(
+        state, used, cap, unit, None, source, _percent(extra.get("utilization"))
+    )
 
 
 def _fetch_claude() -> list[Window]:
@@ -599,7 +680,42 @@ def map_codex(payload: object) -> list[Window]:
             _keep_highest(
                 weekly, Window("weekly", percent, reset, "chatgpt-wham-usage")
             )
-    return list(weekly.values())
+    credit = _codex_spend(data)
+    return list(weekly.values()) + ([credit] if credit else [])
+
+
+def _used_percent(used: object, cap: object) -> float | None:
+    used_value, cap_value = _number(used), _number(cap)
+    if used_value is None or cap_value is None or cap_value <= 0:
+        return None
+    return _percent(used_value / cap_value * 100.0)
+
+
+def _codex_spend(data: dict[str, Any]) -> Window | None:
+    """``extra_credits`` from ``credits`` and ``spend_control.individual_limit``."""
+    credits = _record(data.get("credits"))
+    if credits is None:
+        return None
+    spend = _record(data.get("spend_control")) or {}
+    limit = _record(spend.get("individual_limit")) or {}
+    used, cap = _number(limit.get("used")), _number(limit.get("limit"))
+    unit = limit.get("unit")
+    unit = unit if isinstance(unit, str) and CREDIT_UNIT_RE.match(unit) else "credit"
+    reset = _reset_iso(limit.get("reset_at"))
+    if credits.get("has_credits") is not True:
+        state = "none"
+    elif credits.get("overage_limit_reached") is True or spend.get("reached") is True:
+        state = "exhausted"
+    elif credits.get("unlimited") is True or cap is None:
+        state = "uncapped"
+    elif cap <= 0:
+        state = "none"
+    else:
+        state = "capped"
+    percent = _used_percent(used, cap)
+    if percent is None:
+        percent = _percent(limit.get("used_percent"))
+    return spend_window(state, used, cap, unit, reset, "chatgpt-wham-usage", percent)
 
 
 def _fetch_codex() -> list[Window]:
@@ -673,20 +789,45 @@ def _cursor_read_token() -> str:
 
 
 def map_cursor(payload: object) -> list[Window]:
-    """Map the usage RPC to ``monthly``: delivered percentages, never derived."""
+    """Map the usage RPC to ``monthly`` (delivered percentages, never derived) and
+    ``extra_credits`` (on-demand spend over its limit, individual before pooled)."""
     data = _record(payload)
     if data is None:
         return []
+    reset = _reset_iso(data.get("billingCycleEnd"))
+    windows: list[Window] = []
     plan = _record(data.get("planUsage")) or {}
     percent = _percent(plan.get("totalPercentUsed"))
     if percent is None:
         pools = [_percent(plan.get(k)) for k in ("autoPercentUsed", "apiPercentUsed")]
         known = [p for p in pools if p is not None]
         percent = max(known) if known else None
-    if percent is None:
-        return []
-    reset = _reset_iso(data.get("billingCycleEnd"))
-    return [Window("monthly", percent, reset, "cursor-dashboard-rpc")]
+    if percent is not None:
+        windows.append(Window("monthly", percent, reset, "cursor-dashboard-rpc"))
+    spend = _record(data.get("spendLimitUsage"))
+    if spend is not None:
+        credit = _cursor_spend(spend, reset)
+        if credit is not None:
+            windows.append(credit)
+    return windows
+
+
+def _cursor_spend(spend: dict[str, Any], reset: str | None) -> Window | None:
+    """On-demand spend in cents: the individual limit first, else the pooled one."""
+    for used_key, cap_key in (("individualUsed", "individualLimit"), ("pooledUsed", "pooledLimit")):
+        cap = _number(spend.get(cap_key))
+        if cap is None:
+            continue
+        used = _number(spend.get(used_key))
+        state = "capped" if cap > 0 else "none"
+        return spend_window(
+            state, used / 100 if used is not None else None, cap / 100, "USD", reset,
+            "cursor-dashboard-rpc",
+        )
+    total = _number(spend.get("totalSpend"))
+    if total is None:
+        return None
+    return spend_window("uncapped", total / 100, None, "USD", reset, "cursor-dashboard-rpc")
 
 
 def _fetch_cursor() -> list[Window]:
@@ -803,17 +944,25 @@ def _cached_windows(platform: str, cache: dict[str, Any]) -> list[Window]:
         entry = _record(raw)
         if entry is None:
             continue
-        percent = _percent(entry.get("percent"))
-        name = entry.get("name")
-        if percent is None or name not in ("five_hour", "weekly", "monthly"):
-            continue
         if entry.get("source") != PROVIDER_SOURCES.get(platform):
             continue
-        windows.append(
-            Window(
-                str(name), percent, _reset_iso(entry.get("resets_at")), entry["source"]
+        name = entry.get("name")
+        reset = _reset_iso(entry.get("resets_at"))
+        if name == CREDIT_WINDOW:
+            state, unit = entry.get("state"), entry.get("unit")
+            if state not in CREDIT_STATES or not isinstance(unit, str) or not CREDIT_UNIT_RE.match(unit):
+                continue
+            windows.append(
+                spend_window(
+                    str(state), _number(entry.get("used")), _number(entry.get("limit")),
+                    unit, reset, entry["source"], _percent(entry.get("percent")),
+                )
             )
-        )
+            continue
+        percent = _percent(entry.get("percent"))
+        if percent is None or name not in ("five_hour", "weekly", "monthly"):
+            continue
+        windows.append(Window(str(name), percent, reset, entry["source"]))
     return windows
 
 
@@ -854,7 +1003,7 @@ def _write_cache(platform: str, payload: dict[str, Any]) -> None:
 
 
 def _ttl_for(windows: list[Window]) -> int:
-    if any(w.percent >= NEAR_LIMIT_PERCENT for w in windows):
+    if any(w.percent is not None and w.percent >= NEAR_LIMIT_PERCENT for w in windows):
         return TTL_NEAR_LIMIT_SECONDS
     return TTL_SECONDS
 
@@ -1078,7 +1227,10 @@ def main(argv: list[str] | None = None) -> int:
     if "--json" in args:
         sys.stdout.write(json.dumps(result) + "\n")
     else:
-        parts = [f"{w['name']} {w['percent']}%" for w in result["windows"]]
+        parts = [
+            f"{w['name']} {w['percent']}%" if w["percent"] is not None else f"{w['name']} {w.get('state')}"
+            for w in result["windows"]
+        ]
         summary = ", ".join(parts) or result.get("reason") or ""
         sys.stderr.write(f"{result['platform']}: {result['status']} {summary}\n")
     return 0

@@ -202,11 +202,30 @@ def test_usage_limit_handoff_ends_the_turn_without_a_blocker(turn_end, world, pl
 
 
 @pytest.mark.parametrize("platform", ["claude", "cursor"])
+def test_a_pending_credits_question_ends_the_turn_without_a_blocker(turn_end, world, platform):
+    """v4.13.11: the agent asked the user whether to continue on pay-per-use
+    credits and is waiting; neither hook may force the turn to go on."""
+    world.prime(platform, 99.5)
+    turn_end(platform)
+    refusals = world.gate_state().get("refusals")
+    path = world.repo / ".nexus-hub" / "usage-decision.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({"decision": "pending", "recorded_at": _iso(time.time() + 2)}), encoding="utf-8")
+    gate, guard = turn_end(platform)
+    assert _continues(platform, _out(gate)) is None
+    assert NOTE in gate.stderr
+    assert _continues(platform, _out(guard)) is None
+    assert world.gate_state().get("refusals") == refusals
+    assert world.blockers() == []
+
+
+@pytest.mark.parametrize("platform", ["claude", "cursor"])
 def test_without_the_handoff_the_guard_asks_for_it(turn_end, world, platform):
     world.prime(platform, 99.5)
     gate, guard = turn_end(platform)
     message = _continues(platform, _out(guard))
     assert message and "run the session-handoff procedure (/handoff)" in message
+    assert "continue on pay-per-use credits" in message
     assert _continues(platform, _out(gate)) is not None, "the gate refuses as it always did"
     assert NOTE not in gate.stderr
 

@@ -184,6 +184,20 @@
           "type": "boolean",
           "default": true,
           "description": "Show the 'Cursor Usage: ' prefix in the status bar. Turn it off to keep the icon and figures without the words. Ignored when compactStatusBar is on, which already hides it."
+        },
+        "cursorUsage.creditReminderStep": {
+          "type": "number",
+          "scope": "application",
+          "default": 50,
+          "minimum": 0,
+          "maximum": 1000000000,
+          "description": "After you choose to continue on on-demand usage at your plan limit, Nexus-Hub reminds you each time this many US dollars more are spent. Applies when on-demand spend has no limit, and also under a limit when 'Credit Reminder When Capped' is on. 0 turns these reminders off. Saved to ~/.nexus-hub/config/credit-reminders-cursor.json for the usage-guard hook; the shared credit-reminders.json is a legacy fallback."
+        },
+        "cursorUsage.creditReminderWhenCapped": {
+          "type": "boolean",
+          "scope": "application",
+          "default": false,
+          "description": "Also remind every 'Credit Reminder Step' when on-demand spend has a limit. The limit always gets reminders at 50%, 75%, and 90%."
         }
       }
     }
