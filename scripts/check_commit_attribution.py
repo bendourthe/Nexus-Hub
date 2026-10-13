@@ -73,12 +73,12 @@ def git(root: Path, *args: str) -> bytes:
     return result.stdout
 
 
-def history_findings(root: Path) -> tuple[int, list[str]]:
-    """Scan every commit reachable from refs; reject incomplete histories."""
+def history_findings(root: Path, *, all_refs: bool = True) -> tuple[int, list[str]]:
+    """Scan full HEAD ancestry or every ref; reject incomplete histories."""
     shallow = git(root, "rev-parse", "--is-shallow-repository").strip()
     if shallow != b"false":
         raise ValueError(
-            "a shallow or unrecognized repository cannot prove all-ref history; fetch full history"
+            "a shallow or unrecognized repository cannot prove full history; fetch full history"
         )
     grafts = git(root, "rev-parse", "--git-path", "info/grafts").decode().strip()
     if (root / grafts).exists():
@@ -88,7 +88,7 @@ def history_findings(root: Path) -> tuple[int, list[str]]:
     raw = git(
         root,
         "log",
-        "--all",
+        "--all" if all_refs else "HEAD",
         "--no-use-mailmap",
         "--no-notes",
         "-z",
@@ -143,8 +143,12 @@ def main(argv: list[str] | None = None) -> int:
         default=Path.cwd(),
         help="repository root for history and pending-commit checks",
     )
-    parser.add_argument(
+    history = parser.add_mutually_exclusive_group()
+    history.add_argument(
         "--all-refs", action="store_true", help="scan full history on every ref"
+    )
+    history.add_argument(
+        "--head", action="store_true", help="scan full history reachable from HEAD"
     )
     parser.add_argument(
         "--message-file", type=Path, help="check one UTF-8 commit-message file"
@@ -155,14 +159,14 @@ def main(argv: list[str] | None = None) -> int:
         help="check Git's pending author and committer in a commit hook",
     )
     args = parser.parse_args(argv)
-    if not args.all_refs and args.message_file is None and not args.pending_commit:
-        parser.error("specify --all-refs, --message-file and/or --pending-commit")
+    if not (args.all_refs or args.head or args.message_file is not None or args.pending_commit):
+        parser.error("specify --head, --all-refs, --message-file and/or --pending-commit")
     findings: list[str] = []
     errors: list[str] = []
     commits = 0
-    if args.all_refs:
+    if args.all_refs or args.head:
         try:
-            commits, found = history_findings(args.root.resolve())
+            commits, found = history_findings(args.root.resolve(), all_refs=args.all_refs)
             findings.extend(found)
         except (OSError, ValueError, subprocess.SubprocessError) as exc:
             errors.append(f"history scan incomplete: {type(exc).__name__}: {exc}")
