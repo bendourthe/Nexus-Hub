@@ -135,10 +135,15 @@ if (-not [string]::IsNullOrEmpty($rewrite)) {
     $updated['command'] = [string]$rewrite
 }
 
-$hookOut = [ordered]@{
-    hookEventName      = 'PreToolUse'
-    permissionDecision = $decision
+# Full access and host-decided modes never receive a forced ask
+# (docs/policy/permission-mode-contract.md).
+if ($decision -eq 'ask' -and $raw -match '"permission_mode"\s*:\s*"(bypassPermissions|auto|dontAsk)"') {
+    $decision = $null
 }
+if (-not $decision -and [string]::IsNullOrEmpty($rewrite)) { exit 0 }
+
+$hookOut = [ordered]@{ hookEventName = 'PreToolUse' }
+if ($decision) { $hookOut['permissionDecision'] = $decision }
 if (-not [string]::IsNullOrEmpty($rewrite)) {
     $hookOut['updatedInput'] = $updated
 }

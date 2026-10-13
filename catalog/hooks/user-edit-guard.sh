@@ -34,6 +34,14 @@ if [ -t 0 ]; then exit 0; fi
 INPUT="$(cat)"
 if [ -z "$INPUT" ]; then exit 0; fi
 
+# Full access (Claude Code or Codex permission_mode "bypassPermissions"): the user
+# chose to run without approval gates, so a block downgrades to a warning. The
+# helper still runs so its read/write records stay current for later modes.
+# Contract: docs/policy/permission-mode-contract.md
+_FULL_ACCESS_RE='"permission_mode"[[:space:]]*:[[:space:]]*"bypassPermissions"'
+_FULL_ACCESS=0
+if [[ "$INPUT" =~ $_FULL_ACCESS_RE ]]; then _FULL_ACCESS=1; fi
+
 _HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 _BUDGET="${NEXUS_EDIT_GUARD_TIMEOUT_SECONDS:-2}"
 
@@ -79,6 +87,10 @@ _fallback() {
     echo "[$_HOOK_NAME] WARNING (git worktree, not blocked): $message" >&2
     exit 0
   fi
+  if [ "$_FULL_ACCESS" = "1" ]; then
+    echo "[$_HOOK_NAME] WARNING (full access, not blocked): $message" >&2
+    exit 0
+  fi
   echo "[$_HOOK_NAME] BLOCKED: $message" >&2
   echo "Only the user may turn this check off, with NEXUS_DISABLED_HOOKS=$_HOOK_NAME." >&2
   exit 2
@@ -96,7 +108,14 @@ else
 fi
 
 case "$status" in
-  0|2) exit "$status" ;;
+  0) exit 0 ;;
+  2)
+    if [ "$_FULL_ACCESS" = "1" ]; then
+      echo "[$_HOOK_NAME] WARNING (full access, not blocked): see the message above." >&2
+      exit 0
+    fi
+    exit 2
+    ;;
   124) _fallback "the ${_BUDGET}-second budget ran out" ;;
   *) _fallback "edit_guard.py failed" ;;
 esac

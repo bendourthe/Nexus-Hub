@@ -13,7 +13,8 @@
 #
 # Like secret-scan, this is a security gate: it does not honor
 # NEXUS_HOOK_PROFILE=minimal or NEXUS_DISABLED_HOOKS. The only override
-# is NEXUS_MEMORY_ALLOW_IN_REPO=1, the same switch the store honors.
+# is NEXUS_MEMORY_ALLOW_IN_REPO=1, the same switch the store honors, plus the
+# host's full-access mode (docs/policy/permission-mode-contract.md).
 
 set -euo pipefail
 
@@ -27,6 +28,11 @@ COLOR_RED='\033[0;31m'
 COLOR_RESET='\033[0m'
 
 INPUT=$(cat)
+# Full access (Claude Code or Codex permission_mode "bypassPermissions"): the
+# user chose to run without approval gates, so this Nexus-Hub guard steps aside.
+# Contract: docs/policy/permission-mode-contract.md
+_FULL_ACCESS_RE='"permission_mode"[[:space:]]*:[[:space:]]*"bypassPermissions"'
+if [[ "$INPUT" =~ $_FULL_ACCESS_RE ]]; then exit 0; fi
 
 _norm() {
   printf '%s' "${1//\\//}"

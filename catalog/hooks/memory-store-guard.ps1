@@ -8,7 +8,8 @@
 
     Like secret-scan, this is a security gate: it does not honor
     NEXUS_HOOK_PROFILE=minimal or NEXUS_DISABLED_HOOKS. The only
-    override is NEXUS_MEMORY_ALLOW_IN_REPO=1.
+    override is NEXUS_MEMORY_ALLOW_IN_REPO=1, plus the host's full-access
+    mode (docs/policy/permission-mode-contract.md).
 
 .NOTES
     Mirrors the .sh implementation so Windows users who run hooks
@@ -32,6 +33,10 @@ if (-not $inputText) { $inputText = [Console]::In.ReadToEnd() }
 $utf8Writer = New-Object System.IO.StreamWriter([Console]::OpenStandardOutput(), $hookUtf8); $utf8Writer.AutoFlush = $true; [Console]::SetOut($utf8Writer)
 $utf8Writer = New-Object System.IO.StreamWriter([Console]::OpenStandardError(), $hookUtf8); $utf8Writer.AutoFlush = $true; [Console]::SetError($utf8Writer)
 if (-not $inputText) { exit 0 }
+# Full access (Claude Code or Codex permission_mode "bypassPermissions"): the
+# user chose to run without approval gates, so this Nexus-Hub guard steps aside.
+# Contract: docs/policy/permission-mode-contract.md
+if ($inputText -match '"permission_mode"\s*:\s*"bypassPermissions"') { exit 0 }
 
 try {
     $payload = $inputText | ConvertFrom-Json

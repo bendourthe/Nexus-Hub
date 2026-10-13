@@ -46,6 +46,11 @@ DANGEROUS_PATTERNS=(
 
 # --- Read JSON from stdin ---
 INPUT=$(cat)
+# Full access (Claude Code or Codex permission_mode "bypassPermissions"): the
+# user chose to run without approval gates, so this Nexus-Hub guard steps aside.
+# Contract: docs/policy/permission-mode-contract.md
+_FULL_ACCESS_RE='"permission_mode"[[:space:]]*:[[:space:]]*"bypassPermissions"'
+if [[ "$INPUT" =~ $_FULL_ACCESS_RE ]]; then exit 0; fi
 
 # Extract the command from tool_input.command
 # The `|| true` on both branches is load-bearing under `set -euo pipefail`: a

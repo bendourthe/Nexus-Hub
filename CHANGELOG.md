@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Hooks respect the host's approval mode (v4.13.11).** Claude Code's Bypass permissions mode still prompted for most PowerShell commands, because `format-powershell-description.py` forced `permissionDecision: "ask"` for any command outside its allow list without reading the session mode. Hooks now follow `docs/policy/permission-mode-contract.md`. In full access (`permission_mode: "bypassPermissions"`, sent by Claude Code and Codex), every Nexus-Hub gate steps aside: the PowerShell formatter and `rewrite-command` stay silent, and `git-guardrails`, `secret-scan` and `memory-store-guard` allow the call, while `user-edit-guard` and an opted-in `escalation-trigger` block downgrade to a warning. In `auto` and `dontAsk` the security guards keep blocking, but no hook forces a prompt, so the auto-mode classifier and the dontAsk pre-approval list decide. The Antigravity bridge now answers `allow` (defer to the user's policy) instead of `ask` when a guard has no objection, so Always Proceed is honored. Cursor and Copilot expose no mode to hooks, so a guard block still applies there. Decision: `docs/decisions/implemented/policy/2026-10-13-hooks-defer-to-the-hosts-full-access-mode.md`.
 - **Antigravity edit and attribution guards (v4.13.11, WN-4-v4131).** The native bridge maps tool, session and working-directory fields into the curated guards, records successful post-tool file state, and leaves failed post events unrecorded.
 - **Selected OpenClaw workspaces (v4.13.11, WN-5-v4133).** Global delivery honors named profiles, explicit selected-agent workspaces and documented fleet defaults; ambiguous or invalid selection is visibly refused. The workspace environment override retains native literal-path semantics.
 - **Copilot personal command-skills and instruction preservation (v4.13.11, WN-5-v4133).** Eligible selected global commands also install as ownership-aware manual-only personal skills. Local prompt compatibility and project skill opt-in remain available; teardown preserves personal instruction CRLF bytes.
@@ -41,6 +42,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - **Rollback**: `cursor --uninstall-extension nexus-hub.copilot-usage-monitor`.
     - **Boundary**: editor-host delivery changes; monitor authentication and GitHub permissions are unchanged.
     - **Documentation**: [README](README.md), [PowerShell installer](scripts/installer.ps1), and [Bash installer](scripts/installer.sh).
+
+#### Full-access mode lifts the Nexus-Hub guards
+
+- Activation: automatic. Select Bypass permissions in Claude Code, or full access in Codex (if Codex reports `permission_mode: "bypassPermissions"`); no Nexus-Hub setting is involved.
+
+- Validation: From the Nexus-Hub checkout root, run `python -m pytest -q catalog/hooks/tests/test_permission_mode_contract.py catalog/hooks/tests/test_format_powershell_description.py catalog/hooks/tests/test_rewrite_command.py`.
+
+- Rollback: switch the host back to a prompting mode (default, acceptEdits, plan) or to auto, and every guard applies again. Nexus-Hub has no setting that keeps guards on under full access.
+
+- Authority: full access removes Nexus-Hub's stop on destructive git commands, secret writes, in-repo memory stores, and overwrites of user edits. It grants nothing the host's own full-access mode did not already grant, and the host's own deny rules still apply.
+
+- Docs: [Permission-mode contract](https://github.com/bendourthe/Nexus-Hub/blob/v4.13.11/docs/policy/permission-mode-contract.md).
 
 #### Antigravity guard delivery
 

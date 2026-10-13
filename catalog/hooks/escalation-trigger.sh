@@ -42,6 +42,10 @@ ESCALATION_MODE="${ESCALATION_MODE:-warn}"  # "warn" or "block"
 FILE_PATH=""
 if [ ! -t 0 ]; then
   INPUT=$(cat 2>/dev/null || true)
+  # Full access (permission_mode "bypassPermissions"): an opted-in block
+  # downgrades to the default warning. Contract: docs/policy/permission-mode-contract.md
+  _FULL_ACCESS_RE='"permission_mode"[[:space:]]*:[[:space:]]*"bypassPermissions"'
+  if [[ "$INPUT" =~ $_FULL_ACCESS_RE ]]; then ESCALATION_MODE="warn"; fi
   if [ -n "${INPUT:-}" ]; then
     if command -v jq >/dev/null 2>&1; then
       FILE_PATH=$(printf '%s' "$INPUT" \

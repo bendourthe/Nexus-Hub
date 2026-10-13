@@ -421,8 +421,12 @@ def translate_child_result(
                 output["reason"] = reason
             return output, 0
         # Empty output from a Claude guard means "no objection", not automatic
-        # approval. Antigravity requires a decision, so retain human policy flow.
-        return {"decision": "ask"}, 0
+        # approval. Antigravity requires a decision; "allow" delegates "to the
+        # next hook or default policy" (antigravity.google/docs/hooks, verified
+        # 2026-10-13), so the user's own terminal policy, including Always
+        # Proceed, decides. "ask" would prompt even under Always Proceed
+        # unless a per-command Always Allow grant existed.
+        return {"decision": "allow"}, 0
 
     if host == "copilot":
         if event == "PreToolUse" and returncode != 0:

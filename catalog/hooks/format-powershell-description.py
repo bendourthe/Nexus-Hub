@@ -43,6 +43,12 @@ import sys
 # Configuration
 _PREFIX_MAX_LEN = 120
 
+# Modes where the host decides prompts itself: auto runs its safety
+# classifier and dontAsk denies anything not pre-approved. A forced "ask"
+# would turn every unlisted command into a prompt (auto) or a denial
+# (dontAsk), so this hook only formats there.
+_HOST_DECIDED_MODES = frozenset({"auto", "dontAsk"})
+
 _PERMISSION_PREFIX = "PowerShell("
 
 
@@ -334,6 +340,14 @@ def main() -> None:
     except (json.JSONDecodeError, EOFError):
         sys.exit(0)
 
+    # Permission-mode contract (docs/policy/permission-mode-contract.md):
+    # full access runs with no Nexus-Hub involvement, and the host-decided
+    # modes keep the description but never receive a forced "ask".
+    permission_mode = data.get("permission_mode")
+    if permission_mode == "bypassPermissions":
+        sys.exit(0)
+    force_ask = permission_mode not in _HOST_DECIDED_MODES
+
     tool_input = data.get("tool_input", {})
     command = tool_input.get("command", "")
     description = tool_input.get("description", "")
@@ -399,6 +413,8 @@ def main() -> None:
     if stripped.startswith("#"):
         # Description already looks like a comment line; pass through
         # unchanged but still force user approval.
+        if not force_ask:
+            sys.exit(0)
         reason = _collapse_to_single_line(stripped.lstrip("#"))
         output = {
             "hookSpecificOutput": {
@@ -432,18 +448,16 @@ def main() -> None:
     # strip_description_box.
     updated_command = prefix + "\n# ---\n" + cleaned_command
 
-    output = {
-        "hookSpecificOutput": {
-            "hookEventName": "PreToolUse",
-            "permissionDecision": "ask",
-            "permissionDecisionReason": description_text,
-            "updatedInput": {
-                **tool_input,
-                "command": updated_command,
-                "description": description_text,
-            },
-        }
+    hook_output: dict[str, object] = {"hookEventName": "PreToolUse"}
+    if force_ask:
+        hook_output["permissionDecision"] = "ask"
+        hook_output["permissionDecisionReason"] = description_text
+    hook_output["updatedInput"] = {
+        **tool_input,
+        "command": updated_command,
+        "description": description_text,
     }
+    output = {"hookSpecificOutput": hook_output}
 
     json.dump(output, sys.stdout)
     sys.exit(0)
