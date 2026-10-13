@@ -20,8 +20,8 @@ afterEach(() => {
 
 describe("creditReminders", () => {
   it("should resolve the file under NEXUS_HOME when it is set", () => {
-    expect(creditRemindersPath({ NEXUS_HOME: "/x/home" }, "/u")).toBe(path.join("/x/home", "config", "credit-reminders.json"));
-    expect(creditRemindersPath({}, "/u")).toBe(path.join("/u", ".nexus-hub", "config", "credit-reminders.json"));
+    expect(creditRemindersPath({ NEXUS_HOME: "/x/home" }, "/u")).toBe(path.join("/x/home", "config", "credit-reminders-cursor.json"));
+    expect(creditRemindersPath({}, "/u")).toBe(path.join("/u", ".nexus-hub", "config", "credit-reminders-cursor.json"));
   });
 
   it("should fall back to the default step when the value is invalid", () => {

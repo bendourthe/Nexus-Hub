@@ -1368,3 +1368,63 @@ def test_no_state_file_is_written_while_usage_is_low(guard, dirs, project, env):
     for kind in ("prompt", "tool", "stop"):
         assert run(guard, dirs, "claude", payload("claude", kind, project)) is None
     assert not (env / "state" / "usage-guard").exists()
+
+
+@pytest.mark.parametrize("platform", ["claude", "codex", "cursor"])
+def test_pending_stop_preserves_the_later_credit_answer(guard, dirs, project, monkeypatch, platform):
+    started = int(time.time())
+    clock = [started]
+    monkeypatch.setattr(guard.time, "time", lambda: clock[0])
+    reset = _iso(started + 3600)
+    guard.readings[platform] = reading(platform, 100, resets_at=reset, extra_windows=_credits(10))
+    assert run(guard, dirs, platform, payload(platform, "tool", project, session="ask")) is not None
+    _write_decision(project, "pending", started + 1)
+    clock[0] = started + 2
+    assert run(guard, dirs, platform, payload(platform, "stop", project, session="ask")) is None
+    _write_decision(project, "credits", started + 3)
+    clock[0] = started + 4
+    assert run(guard, dirs, platform, payload(platform, CONTEXT_KINDS[platform][0], project, session="ask")) is None
+    approval = json.loads(guard.approval_path(platform).read_text(encoding="utf-8"))
+    assert approval["windows"]["weekly"] == reset
+    clock[0] = started + 5
+    assert run(guard, dirs, platform, payload(platform, "tool", project, session="later")) is None
+    guard.readings[platform] = reading(platform, 100, resets_at=reset, extra_windows=_credits(50))
+    assert "Usage credits:" in message_of(run(guard, dirs, platform, payload(platform, "tool", project, session="later")))
+
+
+@pytest.mark.parametrize("platform", ["claude", "codex", "cursor"])
+@pytest.mark.parametrize("decision", ["wait", "handoff"])
+def test_a_stopping_reminder_answer_revokes_credit_approval(guard, dirs, project, monkeypatch, platform, decision):
+    started = int(time.time())
+    clock = [started]
+    monkeypatch.setattr(guard.time, "time", lambda: clock[0])
+    reset = _iso(started + 3600)
+    guard.readings[platform] = reading(platform, 100, resets_at=reset, extra_windows=_credits(10))
+    assert run(guard, dirs, platform, payload(platform, "tool", project, session="ask")) is not None
+    _write_decision(project, "credits", started + 1)
+    clock[0] = started + 2
+    assert run(guard, dirs, platform, payload(platform, CONTEXT_KINDS[platform][0], project, session="ask")) is None
+    guard.readings[platform] = reading(platform, 100, resets_at=reset, extra_windows=_credits(50))
+    clock[0] = started + 3
+    assert "Usage credits:" in message_of(run(guard, dirs, platform, payload(platform, "tool", project, session="ask")))
+    _write_decision(project, decision, started + 4)
+    clock[0] = started + 5
+    assert run(guard, dirs, platform, payload(platform, "stop", project, session="ask")) is None
+    assert guard.load_state(guard.approval_path(platform)) == {}
+    clock[0] = started + 6
+    assert "Usage limit:" in message_of(run(guard, dirs, platform, payload(platform, "tool", project, session="later")))
+
+
+@pytest.mark.parametrize("platform", ["claude", "codex", "cursor"])
+def test_provider_reminder_file_takes_precedence_over_shared_legacy_settings(guard, env, platform):
+    _write_settings(env, **{platform: {"step": 100, "when_capped": False}})
+    provider_file = env / "config" / f"credit-reminders-{platform}.json"
+    provider_file.write_text(json.dumps({"providers": {platform: {"step": 0, "when_capped": True}}}), encoding="utf-8")
+    assert guard.reminder_settings(platform) == (0.0, True)
+
+
+@pytest.mark.parametrize("platform", ["claude", "codex", "cursor"])
+def test_malformed_provider_reminder_file_retains_shared_legacy_settings(guard, env, platform):
+    _write_settings(env, **{platform: {"step": 100, "when_capped": True}})
+    (env / "config" / f"credit-reminders-{platform}.json").write_text("{not json", encoding="utf-8")
+    assert guard.reminder_settings(platform) == (100.0, True)

@@ -380,28 +380,32 @@ def _finite(value: object) -> float | None:
 def reminder_settings(platform: str) -> tuple[float, bool]:
     """(spend step between reminders, whether the step also applies under a cap).
 
-    Read from ``~/.nexus-hub/config/credit-reminders.json``
+    Read from ``~/.nexus-hub/config/credit-reminders-<platform>.json``
+    with the shared ``credit-reminders.json`` as a legacy fallback
     (``{"providers": {"claude": {"step": 50, "when_capped": false}}}``), which
     the usage monitor extensions write from their settings; the step is in the
     provider's credit unit (USD for Claude Code and Cursor, credits for Codex).
     A step of 0 turns spend reminders off.
     """
     step, when_capped = DEFAULT_REMINDER_STEPS.get(platform, 0.0), False
-    path = _nexus_home() / "config" / "credit-reminders.json"
-    try:
-        with path.open("r", encoding="utf-8") as handle:
-            raw = handle.read(MAX_DECISION_BYTES + 1)
-        data = json.loads(raw) if len(raw) <= MAX_DECISION_BYTES else None
-    except (OSError, ValueError):
-        data = None
-    providers = data.get("providers") if isinstance(data, dict) else None
-    entry = providers.get(platform) if isinstance(providers, dict) else None
-    if isinstance(entry, dict):
-        configured = _finite(entry.get("step"))
-        if configured is not None and configured <= MAX_REMINDER_STEP:
-            step = configured
-        if isinstance(entry.get("when_capped"), bool):
-            when_capped = entry["when_capped"]
+    directory = _nexus_home() / "config"
+    paths = (directory / f"credit-reminders-{platform}.json", directory / "credit-reminders.json")
+    for path in paths:
+        try:
+            with path.open("r", encoding="utf-8") as handle:
+                raw = handle.read(MAX_DECISION_BYTES + 1)
+            data = json.loads(raw) if len(raw) <= MAX_DECISION_BYTES else None
+        except (OSError, ValueError):
+            continue
+        providers = data.get("providers") if isinstance(data, dict) else None
+        entry = providers.get(platform) if isinstance(providers, dict) else None
+        if isinstance(entry, dict):
+            configured = _finite(entry.get("step"))
+            if configured is not None and configured <= MAX_REMINDER_STEP:
+                step = configured
+            if isinstance(entry.get("when_capped"), bool):
+                when_capped = entry["when_capped"]
+            break
     return step, when_capped
 
 
@@ -431,8 +435,8 @@ DECISION_FORMAT = (
     '"recorded_at": "<current UTC time, ISO 8601>"}'
 )
 STEP_SETTING = (
-    "the step is the usage monitor's credit reminder setting, or "
-    "~/.nexus-hub/config/credit-reminders.json"
+    "the step is the usage monitor's credit reminder setting "
+    "(provider files in ~/.nexus-hub/config/; legacy credit-reminders.json is a fallback)"
 )
 
 
@@ -967,12 +971,16 @@ def decide(
         answer = usage_decision(platform, payload)
         # Each answer is consumed once; timestamps are whole seconds.
         if answer is not None and answer[1] >= int(asked) and (seen is None or answer[1] > seen):
-            seen = answer[1]
             for entry in windows.values():
                 entry["continuation_sent"] = True
-            if answer[0] == "credits" and crossing:
-                approval = _record_approval(approval, crossing, credit, reminders, stamp, now)
-            asked = None
+            # Pending permits the turn to end but leaves the question open.
+            if answer[0] != "pending":
+                seen = answer[1]
+                if answer[0] == "credits" and crossing:
+                    approval = _record_approval(approval, crossing, credit, reminders, stamp, now)
+                elif answer[0] in ("wait", "handoff"):
+                    approval = {}
+                asked = None
     chosen: dict[str, Any] | None = None
     reminder: str | None = None
     if crossing and _approval_active(approval, crossing, now):

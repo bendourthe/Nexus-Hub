@@ -4,9 +4,10 @@ import * as path from "path";
 
 /**
  * Writes this provider's pay-per-use credit reminder settings to
- * `$NEXUS_HOME/config/credit-reminders.json` (else `~/.nexus-hub/...`), the file
+ * `$NEXUS_HOME/config/credit-reminders-cursor.json` (else `~/.nexus-hub/...`), the file
  * the Nexus-Hub usage-guard hook reads (`reminder_settings`). Only this
- * provider's entry is replaced; other providers' entries are kept.
+ * provider's entry is replaced; separate provider files prevent editor hosts
+ * from overwriting another provider's settings.
  */
 export interface CreditReminderSettings {
   /** Spend between reminders, in the provider's credit unit; 0 turns them off. */
@@ -18,7 +19,7 @@ export interface CreditReminderSettings {
 export function creditRemindersPath(env: NodeJS.ProcessEnv = process.env, homeDir: string = os.homedir()): string {
   const override = env.NEXUS_HOME?.trim();
   const base = override ? override : path.join(homeDir, ".nexus-hub");
-  return path.join(base, "config", "credit-reminders.json");
+  return path.join(base, "config", "credit-reminders-cursor.json");
 }
 
 export function normalizeCreditReminders(step: unknown, whenCapped: unknown, fallbackStep: number): CreditReminderSettings {
