@@ -1,6 +1,6 @@
 # Decision: Nexus-Hub hooks defer to the host's full-access mode
 
-Status: implemented in the v4.13.12 candidate; publication pending - Nexus-Hub's security guards step aside under `permission_mode: "bypassPermissions"`, and prompt-forcing hooks no longer force `ask` in `auto`, `dontAsk`, or `bypassPermissions`. Contract: `docs/policy/permission-mode-contract.md`.
+Status: implemented - target v4.13.12; publication pending. Nexus-Hub's security guards step aside under `permission_mode: "bypassPermissions"`, and prompt-forcing hooks no longer force `ask` in `auto`, `dontAsk`, or `bypassPermissions`. Contract: `docs/policy/permission-mode-contract.md`.
 
 ## Problem
 
