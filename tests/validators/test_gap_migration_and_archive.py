@@ -177,6 +177,37 @@ def test_migrate_creates_target_from_template_with_provenance(repo: Close) -> No
     assert repo.gaps_minor() == ("met", [])
 
 
+@pytest.mark.parametrize("label", ["`plan`", "a `plan` link", "``plan``"])
+def test_migration_repoints_code_formatted_link_labels(repo: Close, label: str) -> None:
+    repo.standard(WN3.replace("[plan]", f"[{label}]"))
+    repo.forge()
+    result = repo.migrate()
+    assert result.returncode == 0, result.stdout + result.stderr
+    target = repo.read(GAPS06)
+    assert f"[{label}](../v0.5/plans/v0.5.2-alpha.md)" in target
+    assert (repo.work / V06 / "../v0.5/plans/v0.5.2-alpha.md").is_file()
+    assert repo.gaps_minor() == ("met", [])
+
+
+def test_reference_definition_with_code_label_is_repointed() -> None:
+    text = "[`plan`]: plans/alpha.md\n"
+    fixed, count = mc.rewrite_links(text, V05, V06, lambda path: path)
+    assert fixed == "[`plan`]: ../v0.5/plans/alpha.md\n"
+    assert count == 1
+
+
+def test_link_repair_preserves_code_examples_and_label_literals() -> None:
+    example = "``[`plan`](plans/alpha.md)``\n"
+    fence = "```md\n[`plan`](plans/alpha.md)\n```\n"
+    label = f"[`{V05}`](plans/alpha.md)\n"
+    text = example + fence + label
+    fixed, count = mc.rewrite_links(text, V05, V06, lambda path: path)
+    assert fixed == example + fence + label.replace("(plans/", "(../v0.5/plans/")
+    assert count == 1
+    mentioned, mentions = mc.rewrite_mentions(text, V05, "docs/archives/v0/v0.5", markdown=True)
+    assert mentioned == text and mentions == 0
+
+
 def test_migrate_into_existing_target_takes_the_next_id(repo: Close) -> None:
     repo.write(GAPS06, ledger("v0.6", section("v0.6.0", 1, "#### WN-1: Existing warning\n\n- **Reason**: r\n\n")))
     repo.standard()
@@ -947,6 +978,32 @@ def closed_minor(repo: Close) -> None:
 
 def archive(repo: Close, *extra: str) -> subprocess.CompletedProcess:
     return repo.close("archive", "--minor", "v0.5", "--link-checker", str(LINK_CHECKER), *extra)
+
+
+@pytest.mark.parametrize("line,unchecked", [
+    ("Historical `- [ ]` notation remains evidence.", False),
+    ("- [ ] Perform a manual check", True),
+    ("  - [ ] Perform a nested manual check", True),
+])
+def test_archive_register_distinguishes_quoted_checkbox_syntax(repo: Close, line: str, unchecked: bool) -> None:
+    closed_minor(repo)
+    record = repo.load(None).record
+    text = repo.read(GAPS05).replace("\n## ", "\n" + line + "\n\n## ", 1)
+    repo.write(GAPS05, text)
+    refusals = mc.register_refusals(repo.rctx(), "v0.5", record, V05)
+    matches = [r for r in refusals if r.line().startswith("REFUSED: register-unchecked-box")]
+    assert bool(matches) is unchecked, [r.line() for r in refusals]
+
+
+def test_archive_accepts_a_live_released_plan_outside_the_frozen_members(repo: Close) -> None:
+    closed_minor(repo)
+    record = repo.load(None).record
+    assert record is not None
+    record = {**record, "members": [m for m in record["members"] if m["version"] != "v0.5.2"]}
+    rel = f"{V05}/plans/v0.5.2-alpha.md"
+    repo.write(rel, repo.read(rel).replace("**Status**: complete", "**Status**: Released."))
+    refusals = mc.plan_refusals(repo.rctx(), "v0.5", record)
+    assert refusals == [], [r.line() for r in refusals]
 
 
 def test_archive_repairs_every_reference_class(repo: Close) -> None:
