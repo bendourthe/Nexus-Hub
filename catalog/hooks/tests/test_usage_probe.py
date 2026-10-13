@@ -408,7 +408,7 @@ def test_cursor_without_spend_data_has_no_credit_window(env):
 
 
 def test_a_cached_credit_window_round_trips_and_bad_ones_are_dropped(env):
-    good = env.probe.credit_window("uncapped", 73.5, None, "USD", None, "anthropic-oauth-usage").to_dict()
+    good = env.probe.spend_window("uncapped", 73.5, None, "USD", None, "anthropic-oauth-usage").to_dict()
     cache = {"windows": [good, {**good, "state": "bogus"}, {**good, "unit": "X Y"}, {**good, "source": "elsewhere"}]}
     rebuilt = env.probe._cached_windows("claude", cache)
     assert [w.to_dict() for w in rebuilt] == [good]

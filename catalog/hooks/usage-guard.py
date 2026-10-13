@@ -351,7 +351,7 @@ def crossing_window(result: dict[str, Any] | None, limit: int, now: float) -> di
     return classified[0][0]
 
 
-def credit_info(result: dict[str, Any] | None, now: float) -> dict[str, Any] | None:
+def spend_info(result: dict[str, Any] | None, now: float) -> dict[str, Any] | None:
     """The ``extra_credits`` reading (state, percent, used, limit, unit), or None when unknown."""
     if not result or not _usable(result, now):
         return None
@@ -466,7 +466,7 @@ def _schedule(credit: dict[str, Any], step: float, when_capped: bool) -> str:
     return "Nexus-Hub reminds them " + " and ".join(parts)
 
 
-def _credit_note(credit: dict[str, Any] | None, when: str, step: float, when_capped: bool) -> str:
+def _spend_note(credit: dict[str, Any] | None, when: str, step: float, when_capped: bool) -> str:
     if credit is None:
         return (
             "Nexus-Hub cannot read pay-per-use credits here, so it cannot tell whether "
@@ -512,7 +512,7 @@ def directive(
         f"{percent}%{when}. Finish or safely stop the current step, then ask the "
         "user before doing anything else: continue on pay-per-use credits (if "
         "their account has them), or hand off to another agent or platform. "
-        f"{_credit_note(credit, when, step, when_capped)}Record the question "
+        f"{_spend_note(credit, when, step, when_capped)}Record the question "
         f"first, decision pending, {DECISION_FORMAT}, then end the turn and wait "
         "for the answer. Start no new work until the user answers. If they choose "
         "credits, record decision credits and continue the task. If they choose to "
@@ -525,7 +525,7 @@ def directive(
     )
 
 
-def credit_directive(
+def spend_directive(
     platform: str, credit: dict[str, Any], step: float = 0.0, when_capped: bool = False
 ) -> str:
     """The reminder sent while approved credits are spent, or once they run out."""
@@ -888,7 +888,7 @@ def _record_approval(
     }
 
 
-def _credit_reminder(
+def _spend_reminder_due(
     approval: dict[str, Any], credit: dict[str, Any] | None, reminders: tuple[float, bool]
 ) -> bool:
     """Update the approval's reminder marks in place; True when a reminder is due now."""
@@ -983,8 +983,8 @@ def decide(
                     "announced_at": stamp,
                     "continuation_sent": True,
                 }
-        if kind != "stop" and _credit_reminder(approval, credit, reminders):
-            reminder = credit_directive(platform, credit, *reminders)  # type: ignore[arg-type]
+        if kind != "stop" and _spend_reminder_due(approval, credit, reminders):
+            reminder = spend_directive(platform, credit, *reminders)  # type: ignore[arg-type]
             asked = now
     elif kind != "stop":
         for window in crossing:
@@ -1053,7 +1053,7 @@ def evaluate(payload: dict[str, Any], started: float, script_dir: Path | None = 
     if classified is None or time.monotonic() >= deadline:
         return None
     crossing, cleared = classified
-    credit = credit_info(result, now)
+    credit = spend_info(result, now)
     directory = state_dir()
     path = directory / f"{platform}-{session_key(platform, payload)}.json"
     if not crossing and not path.exists():

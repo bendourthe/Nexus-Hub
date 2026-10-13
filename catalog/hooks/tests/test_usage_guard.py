@@ -1102,7 +1102,7 @@ def test_a_wait_answer_is_not_an_approval(guard, dirs, project):
 @pytest.mark.parametrize("window", [{"state": "bogus"}, {"unit": "US Dollars!"}, {"unit": None}])
 def test_a_malformed_credit_reading_counts_as_unknown(guard, window):
     data = reading("claude", 100, extra_windows=[{**_credits(10)[0], **window}])
-    assert guard.credit_info(data, time.time()) is None
+    assert guard.spend_info(data, time.time()) is None
 
 
 def test_no_credential_or_raw_response_reaches_output_or_state(guard, dirs, project, env):

@@ -192,7 +192,7 @@ class Window:
         return data
 
 
-def credit_window(
+def spend_window(
     state: str,
     used: float | None,
     limit: float | None,
@@ -564,11 +564,11 @@ def map_claude(payload: object) -> list[Window]:
             )
     extra = _record(data.get("extra_usage"))
     if extra is not None:
-        windows[CREDIT_WINDOW] = _claude_credit(extra, source)
+        windows[CREDIT_WINDOW] = _claude_spend(extra, source)
     return [windows[n] for n in ("five_hour", "weekly", CREDIT_WINDOW) if n in windows]
 
 
-def _claude_credit(extra: dict[str, Any], source: str) -> Window:
+def _claude_spend(extra: dict[str, Any], source: str) -> Window:
     """``extra_usage`` amounts are in minor units (``decimal_places``, default 2)."""
     places = _number(extra.get("decimal_places"))
     scale = 10 ** int(places) if places is not None and 0 <= places <= 6 else 100
@@ -585,7 +585,7 @@ def _claude_credit(extra: dict[str, Any], source: str) -> Window:
         state = "uncapped"
     else:
         state = "capped"
-    return credit_window(
+    return spend_window(
         state, used, cap, unit, None, source, _percent(extra.get("utilization"))
     )
 
@@ -680,7 +680,7 @@ def map_codex(payload: object) -> list[Window]:
             _keep_highest(
                 weekly, Window("weekly", percent, reset, "chatgpt-wham-usage")
             )
-    credit = _codex_credit(data)
+    credit = _codex_spend(data)
     return list(weekly.values()) + ([credit] if credit else [])
 
 
@@ -691,7 +691,7 @@ def _used_percent(used: object, cap: object) -> float | None:
     return _percent(used_value / cap_value * 100.0)
 
 
-def _codex_credit(data: dict[str, Any]) -> Window | None:
+def _codex_spend(data: dict[str, Any]) -> Window | None:
     """``extra_credits`` from ``credits`` and ``spend_control.individual_limit``."""
     credits = _record(data.get("credits"))
     if credits is None:
@@ -715,7 +715,7 @@ def _codex_credit(data: dict[str, Any]) -> Window | None:
     percent = _used_percent(used, cap)
     if percent is None:
         percent = _percent(limit.get("used_percent"))
-    return credit_window(state, used, cap, unit, reset, "chatgpt-wham-usage", percent)
+    return spend_window(state, used, cap, unit, reset, "chatgpt-wham-usage", percent)
 
 
 def _fetch_codex() -> list[Window]:
@@ -806,13 +806,13 @@ def map_cursor(payload: object) -> list[Window]:
         windows.append(Window("monthly", percent, reset, "cursor-dashboard-rpc"))
     spend = _record(data.get("spendLimitUsage"))
     if spend is not None:
-        credit = _cursor_credit(spend, reset)
+        credit = _cursor_spend(spend, reset)
         if credit is not None:
             windows.append(credit)
     return windows
 
 
-def _cursor_credit(spend: dict[str, Any], reset: str | None) -> Window | None:
+def _cursor_spend(spend: dict[str, Any], reset: str | None) -> Window | None:
     """On-demand spend in cents: the individual limit first, else the pooled one."""
     for used_key, cap_key in (("individualUsed", "individualLimit"), ("pooledUsed", "pooledLimit")):
         cap = _number(spend.get(cap_key))
@@ -820,14 +820,14 @@ def _cursor_credit(spend: dict[str, Any], reset: str | None) -> Window | None:
             continue
         used = _number(spend.get(used_key))
         state = "capped" if cap > 0 else "none"
-        return credit_window(
+        return spend_window(
             state, used / 100 if used is not None else None, cap / 100, "USD", reset,
             "cursor-dashboard-rpc",
         )
     total = _number(spend.get("totalSpend"))
     if total is None:
         return None
-    return credit_window("uncapped", total / 100, None, "USD", reset, "cursor-dashboard-rpc")
+    return spend_window("uncapped", total / 100, None, "USD", reset, "cursor-dashboard-rpc")
 
 
 def _fetch_cursor() -> list[Window]:
@@ -953,7 +953,7 @@ def _cached_windows(platform: str, cache: dict[str, Any]) -> list[Window]:
             if state not in CREDIT_STATES or not isinstance(unit, str) or not CREDIT_UNIT_RE.match(unit):
                 continue
             windows.append(
-                credit_window(
+                spend_window(
                     str(state), _number(entry.get("used")), _number(entry.get("limit")),
                     unit, reset, entry["source"], _percent(entry.get("percent")),
                 )
