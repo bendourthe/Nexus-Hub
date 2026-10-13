@@ -45,7 +45,11 @@ $inputText = (New-Object System.Text.UTF8Encoding($false)).GetString($inputBytes
 # chose to run without approval gates, so a block downgrades to a warning. The
 # helper still runs so its read/write records stay current for later modes.
 # Contract: docs/policy/permission-mode-contract.md
-$fullAccess = $inputText -match '"permission_mode"\s*:\s*"bypassPermissions"'
+$fullAccess = $false
+try {
+    $hostPayload = $inputText | ConvertFrom-Json -ErrorAction Stop
+    $fullAccess = $hostPayload -is [pscustomobject] -and $hostPayload.permission_mode -is [string] -and $hostPayload.permission_mode -ceq 'bypassPermissions'
+} catch { }
 
 $budget = 2.0
 if ($env:NEXUS_EDIT_GUARD_TIMEOUT_SECONDS) {

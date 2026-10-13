@@ -36,7 +36,10 @@ if (-not $inputText) { exit 0 }
 # Full access (Claude Code or Codex permission_mode "bypassPermissions"): the
 # user chose to run without approval gates, so this Nexus-Hub guard steps aside.
 # Contract: docs/policy/permission-mode-contract.md
-if ($inputText -match '"permission_mode"\s*:\s*"bypassPermissions"') { exit 0 }
+try {
+    $hostPayload = $inputText | ConvertFrom-Json -ErrorAction Stop
+    if ($hostPayload -is [pscustomobject] -and $hostPayload.permission_mode -is [string] -and $hostPayload.permission_mode -ceq 'bypassPermissions') { exit 0 }
+} catch { }
 
 try {
     $payload = $inputText | ConvertFrom-Json

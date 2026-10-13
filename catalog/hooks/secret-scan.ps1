@@ -42,7 +42,10 @@ if (-not $raw) { $raw = [Console]::In.ReadToEnd() }
 # Full access (Claude Code or Codex permission_mode "bypassPermissions"): the
 # user chose to run without approval gates, so this Nexus-Hub guard steps aside.
 # Contract: docs/policy/permission-mode-contract.md
-if ($raw -match '"permission_mode"\s*:\s*"bypassPermissions"') { exit 0 }
+try {
+    $hostPayload = $raw | ConvertFrom-Json -ErrorAction Stop
+    if ($hostPayload -is [pscustomobject] -and $hostPayload.permission_mode -is [string] -and $hostPayload.permission_mode -ceq 'bypassPermissions') { exit 0 }
+} catch { }
 $utf8Writer = New-Object System.IO.StreamWriter([Console]::OpenStandardOutput(), $hookUtf8); $utf8Writer.AutoFlush = $true; [Console]::SetOut($utf8Writer)
 $utf8Writer = New-Object System.IO.StreamWriter([Console]::OpenStandardError(), $hookUtf8); $utf8Writer.AutoFlush = $true; [Console]::SetError($utf8Writer)
 if (-not $raw) { exit 0 }

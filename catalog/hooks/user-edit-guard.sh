@@ -38,9 +38,23 @@ if [ -z "$INPUT" ]; then exit 0; fi
 # chose to run without approval gates, so a block downgrades to a warning. The
 # helper still runs so its read/write records stay current for later modes.
 # Contract: docs/policy/permission-mode-contract.md
-_FULL_ACCESS_RE='"permission_mode"[[:space:]]*:[[:space:]]*"bypassPermissions"'
+_HOST_MODE=""
+if command -v jq >/dev/null 2>&1; then
+  _HOST_MODE=$(printf '%s' "$INPUT" | jq -r 'if type == "object" and (.permission_mode | type) == "string" then .permission_mode else empty end' 2>/dev/null || true)
+elif command -v python3 >/dev/null 2>&1 || command -v python >/dev/null 2>&1; then
+  _MODE_PYTHON=$(command -v python3 || command -v python)
+  _HOST_MODE=$(printf '%s' "$INPUT" | "$_MODE_PYTHON" -c '
+import json, sys
+try:
+    payload = json.load(sys.stdin)
+    mode = payload.get("permission_mode") if isinstance(payload, dict) else None
+    if isinstance(mode, str):
+        print(mode)
+except (ValueError, TypeError):
+    pass' 2>/dev/null || true)
+fi
 _FULL_ACCESS=0
-if [[ "$INPUT" =~ $_FULL_ACCESS_RE ]]; then _FULL_ACCESS=1; fi
+if [ "$_HOST_MODE" = "bypassPermissions" ]; then _FULL_ACCESS=1; fi
 
 _HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 _BUDGET="${NEXUS_EDIT_GUARD_TIMEOUT_SECONDS:-2}"

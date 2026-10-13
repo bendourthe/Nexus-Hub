@@ -54,7 +54,10 @@ if ([Console]::IsInputRedirected) {
     if (-not $raw) { $raw = [Console]::In.ReadToEnd() }
     # Full access (permission_mode "bypassPermissions"): an opted-in block
     # downgrades to the default warning. Contract: docs/policy/permission-mode-contract.md
-    if ($raw -match '"permission_mode"\s*:\s*"bypassPermissions"') { $escalationMode = 'warn' }
+    try {
+        $hostPayload = $raw | ConvertFrom-Json -ErrorAction Stop
+        if ($hostPayload -is [pscustomobject] -and $hostPayload.permission_mode -is [string] -and $hostPayload.permission_mode -ceq 'bypassPermissions') { $escalationMode = 'warn' }
+    } catch { }
     $utf8Writer = New-Object System.IO.StreamWriter([Console]::OpenStandardOutput(), $hookUtf8); $utf8Writer.AutoFlush = $true; [Console]::SetOut($utf8Writer)
     $utf8Writer = New-Object System.IO.StreamWriter([Console]::OpenStandardError(), $hookUtf8); $utf8Writer.AutoFlush = $true; [Console]::SetError($utf8Writer)
     if ($raw) {

@@ -1,6 +1,6 @@
 # Decision: Nexus-Hub hooks defer to the host's full-access mode
 
-Status: implemented - in v4.13.11, Nexus-Hub's security guards step aside under `permission_mode: "bypassPermissions"`, and prompt-forcing hooks no longer force `ask` in `auto`, `dontAsk`, or `bypassPermissions`. Contract: `docs/policy/permission-mode-contract.md`.
+Status: implemented in the v4.13.12 candidate; publication pending - Nexus-Hub's security guards step aside under `permission_mode: "bypassPermissions"`, and prompt-forcing hooks no longer force `ask` in `auto`, `dontAsk`, or `bypassPermissions`. Contract: `docs/policy/permission-mode-contract.md`.
 
 ## Problem
 
@@ -24,6 +24,6 @@ Reopening trigger: Cursor, Copilot, or Antigravity starts exposing the approval 
 
 ## Consequences
 
-- A full-access session on Claude Code or Codex runs with no Nexus-Hub prompts or blocks. Destructive git commands, secret writes, and overwrites of user edits are no longer stopped there; that is the mode's documented meaning.
+- A session reporting the top-level `bypassPermissions` mode receives no prompts or blocks from the guards covered by this contract. Claude Code documents this value; Codex Full access remains unconfirmed. Destructive git commands, secret writes, and overwrites of user edits are no longer stopped there; that is the mode's documented meaning.
 - On Cursor, Copilot, and Antigravity a guard block still applies in full access; per-session override is `NEXUS_DISABLED_HOOKS=<guard>`.
 - New gating hooks must declare their row in the contract and test `default`, `auto`, and `bypassPermissions`.

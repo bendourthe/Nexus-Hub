@@ -1,8 +1,7 @@
 """Permission-mode contract for the Nexus-Hub security guards.
 
 A guard that blocks a tool call in the default mode must step aside when the
-host reports full access (`permission_mode: "bypassPermissions"`, sent by Claude
-Code and Codex), and must keep blocking in every other mode, auto included.
+host reports full access (`permission_mode: "bypassPermissions"`), and must keep blocking in every other mode, auto included.
 Contract: docs/policy/permission-mode-contract.md.
 
 One data-driven test covers every guard whose blocking case needs no setup;
@@ -94,5 +93,22 @@ def test_escaped_mode_text_inside_content_does_not_lift_a_guard(request, tmp_pat
         cwd=str(tmp_path),
         timeout=120,
         check=False,
+    )
+    assert result.returncode == 2, (result.stdout, result.stderr)
+
+
+@pytest.mark.parametrize("kind", ["sh", "ps1"])
+@pytest.mark.parametrize("guard,payload,extra_env", _CASES, ids=[c[0] for c in _CASES])
+@pytest.mark.parametrize("mode", [None, "default"])
+def test_nested_mode_does_not_override_the_host_mode(request, tmp_path, kind, guard, payload, extra_env, mode):
+    body = {**payload, "tool_input": {**payload["tool_input"], "permission_mode": "bypassPermissions"}}
+    if mode is not None:
+        body["permission_mode"] = mode
+    env = {**os.environ, **extra_env}
+    for key in ("NEXUS_DISABLED_HOOKS", "NEXUS_HOOK_PROFILE"):
+        env.pop(key, None)
+    result = subprocess.run(
+        _command(kind, guard, request), input=json.dumps(body), text=True,
+        capture_output=True, cwd=str(tmp_path), env=env, timeout=120, check=False,
     )
     assert result.returncode == 2, (result.stdout, result.stderr)

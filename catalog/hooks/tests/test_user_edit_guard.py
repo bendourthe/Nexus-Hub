@@ -535,3 +535,14 @@ def test_both_print_identical_stderr(request, work, tmp_path):
             outputs.append((proc.returncode, proc.stderr.replace("\r\n", "\n")))
     assert results["sh"] == results["ps1"]
     assert all(code == 2 for code, _ in results["sh"])
+
+
+def test_nested_mode_cannot_allow_an_overwrite(run, work):
+    deck = work / "deck.pptx"
+    assert run(_payload("PostToolUse", "Read", work, path=deck), work).returncode == 0
+    _user_edits(deck)
+    payload = _payload("PreToolUse", "Write", work, path=deck)
+    payload["permission_mode"] = "default"
+    payload["tool_input"]["permission_mode"] = "bypassPermissions"
+    result = run(payload, work)
+    assert result.returncode == 2, (result.stdout, result.stderr)

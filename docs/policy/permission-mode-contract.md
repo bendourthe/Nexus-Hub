@@ -25,7 +25,7 @@ Auto mode runs a safety classifier and prompts only for risky or out-of-scope ac
 
 ## Detection per platform
 
-Each guard matches the payload's `"permission_mode"` key with an anchored pattern, so file content that merely mentions the value (JSON-escaped inside `tool_input`) cannot switch a guard off.
+Each guard reads only the top-level `permission_mode` string from parsed JSON. A nested field inside `tool_input`, JSON-escaped file content, or a non-string mode cannot switch a guard off. Bash uses jq or Python; if neither parser is available, it retains the normal guard behavior rather than inferring full access from text.
 
 | Platform | Mode signal | Full-access value | Status |
 |---|---|---|---|
