@@ -23,12 +23,12 @@ def test_hygiene_and_make_validate_invoke_live_checker() -> None:
     assert len(commands) == 1
     assert commands[0][1:] == [
         "scripts/check_commit_attribution.py",
-        "--all-refs",
+        "--head",
         "--root",
         ".",
     ]
     assert (
-        "\t@python scripts/check_commit_attribution.py --all-refs --root ."
+        "\t@python scripts/check_commit_attribution.py --head --root ."
         in (ROOT / "Makefile").read_text()
     )
 
