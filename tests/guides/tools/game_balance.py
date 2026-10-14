@@ -31,7 +31,7 @@ It drives the real engine on the Training page deterministically (seed 7, ``SkyS
 
 Targets are balance dummies (``spawnDummy``): pinned, never firing, never dying. Damage is read
 from ``state().dealt``. The band and the rules it checks are in :data:`BAND`; the table and its
-reading are in docs/releases/v4/v4.13/development/v4.13.10-game-design.md, "Revision 9 (R33)
+reading are in docs/archives/v4/v4.13/development/v4.13.10-game-design.md, "Revision 9 (R33)
 balance". Run ``python tests/guides/tools/game_balance.py`` to print the table.
 """
 

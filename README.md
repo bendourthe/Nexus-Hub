@@ -48,7 +48,7 @@ The two projects are designed to be useful independently: you can install Nexus-
 
 **Verified minor finalization.** All 83 approved residual transfers are verified, with zero open source-ledger items and 83 successor obligations. Archival handles code-formatted link labels and historical release metadata while preserving its refusal checks.
 
-See [the changelog](CHANGELOG.md#41312---2026-10-13) for activation, validation, rollback and authority, and the [release qualification](docs/releases/v4/v4.13/development/v4.13.12-release-qualification.md) for the remaining runtime limits.
+See [the changelog](CHANGELOG.md#41312---2026-10-13) for activation, validation, rollback and authority, and the [release qualification](docs/archives/v4/v4.13/development/v4.13.12-release-qualification.md) for the remaining runtime limits.
 
 ## What's New in v4.13.10
 

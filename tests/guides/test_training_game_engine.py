@@ -2,7 +2,7 @@
 
 Every test drives the simulation only through ``step(n)`` with a fixed seed and
 ``SkySentinel.manual(true)``, so no test waits on real time to move the game. Design and
-rules: docs/releases/v4/v4.13/development/v4.13.10-game-design.md. Phase R10 replaced lives
+rules: docs/archives/v4/v4.13/development/v4.13.10-game-design.md. Phase R10 replaced lives
 with a health bar: each source deals its own damage, a shield adds a second bar that absorbs
 damage first, and the ``firstHitFatal`` defect turns any hit into instant destruction.
 Phase R14 (the game is now shown to players as "Nexus Defenders") added a start screen with

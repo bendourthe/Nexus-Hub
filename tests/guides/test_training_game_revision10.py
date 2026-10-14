@@ -4,7 +4,7 @@ background, the Nexus boss's entrance, agent ships, and the finale that hands of
 Like the other engine tests, every test drives the simulation through ``step(n)`` with a fixed seed
 and ``SkySentinel.manual(true)``; nothing waits on real time to move the game. The finale is the one
 part that also plays in real time on the page, and the hand-off test lets it do so once. Design and
-the per-class and per-level tables: docs/releases/v4/v4.13/development/v4.13.10-game-design.md,
+the per-class and per-level tables: docs/archives/v4/v4.13/development/v4.13.10-game-design.md,
 "Revision 10". The level-scaling tests (cadence, speed, shields) live in test_training_progression.py.
 Skipped without Playwright or Chromium; fail-closed under NEXUS_REQUIRE_RENDER=1.
 """

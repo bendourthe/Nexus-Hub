@@ -1,7 +1,7 @@
 """v4.13.9 Phase 4 (T421): draft review comments and the validated single-commit scope.
 
 These are text checks because both behaviors are skill text; the functional exercise in
-docs/releases/v4/v4.13/development/v4.13.9-review-drafts-exercise/ is the behavioral proof.
+docs/archives/v4/v4.13/development/v4.13.9-review-drafts-exercise/ is the behavioral proof.
 """
 
 from __future__ import annotations
