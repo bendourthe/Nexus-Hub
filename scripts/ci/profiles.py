@@ -549,15 +549,7 @@ WINDOWS_HOOKS = Group(
         ),
         # Separate the independently owned attribution module from the corpus:
         # the combined quiet-CI selection exhausted 1800 s near its tail.
-        # Both serial commands retain that bound and Windows PowerShell 5.1.
-        _pytest(
-            "installer + validators (Windows)",
-            "tests/installer",
-            "tests/validators",
-            platforms=("windows",),
-            timeout=1800,
-            env={"NEXUS_TEST_POWERSHELL": "powershell"},
-        ),
+        # The installer + validators corpus lives in WINDOWS_INSTALLER below.
         _pytest(
             "Git attribution (Windows)",
             "tests/test_git_attribution.py",
@@ -594,6 +586,30 @@ WINDOWS_HOOKS = Group(
             "--junitxml=reports/junit/windows-native.xml",
             platforms=("windows",),
             timeout=1200,
+            env={"NEXUS_TEST_POWERSHELL": "powershell"},
+        ),
+    ),
+)
+
+# Its own CI job: with this corpus (about 1800 s) inside windows-hooks, the
+# group measured 3534 s against the job's 3600 s cap and two runs timed out.
+# Two commands, because the combined selection also exceeded its own 1800 s
+# command bound (1784 s passing, 1800.1 s failing).
+WINDOWS_INSTALLER = Group(
+    name="windows-installer",
+    commands=(
+        _pytest(
+            "installer (Windows)",
+            "tests/installer",
+            platforms=("windows",),
+            timeout=1800,
+            env={"NEXUS_TEST_POWERSHELL": "powershell"},
+        ),
+        _pytest(
+            "validators (Windows)",
+            "tests/validators",
+            platforms=("windows",),
+            timeout=1800,
             env={"NEXUS_TEST_POWERSHELL": "powershell"},
         ),
     ),
@@ -731,7 +747,7 @@ PROFILES: dict[str, tuple[Group, ...]] = {
     ),
     # Only what differs by host. Deliberately small: a leg that runs everywhere
     # belongs in `full`, where it is paid for once.
-    "platform": (SHELL_LINT, POWERSHELL_PARSE, INTERPRETERS, WINDOWS_HOOKS),
+    "platform": (SHELL_LINT, POWERSHELL_PARSE, INTERPRETERS, WINDOWS_HOOKS, WINDOWS_INSTALLER),
     # Aggregation only. Reads what the other profiles wrote; never re-runs a
     # check, which is what makes it safe to call after a failure.
     "report": (),
