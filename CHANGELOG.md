@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Claude, Codex, GitHub Copilot and Cursor usage-alert sidebar views dismiss automatically after one minute. A new alert gets a fresh minute, and manual dismissal cancels its timer.
+
 ### Changed
 
 - CI pins `actions/checkout` to v7.0.1 (`3d3c42e5`) across all 32 workflow steps. No workflow uses `pull_request_target` or `workflow_run`, so v7's refusal of unsafe fork checkouts changes no current job.
