@@ -239,6 +239,11 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 
 - [ ] Implement the approved [v4.15.2 adoption plan](releases/v4/v4.15/plans/v4.15.2-adoption-harness-economics-and-portable-engineering-system.md), seeded by the [completed comparison](releases/v4/v4.15/comparisons/v4.15.2-comparison-harness-economics-and-portable-engineering-system.md). The queued plan defines five phases and 52 tasks for explicit unattended-loop outcomes, a serial repository-local harness evaluator with enforceable live-run gates, and provider-aware shared project instructions with one platform-neutral `base-agents.md` owner. Implementation is 0/5 phases and 0/52 tasks.
 
+## Queued work - v4.16.3 tool-output containment and per-request context attribution
+
+- [x] Complete the [v4.16.3 two-source comparison](releases/v4/v4.16/comparisons/v4.16.3-comparison-tool-output-containment-and-context-attribution.md) (context-mode MCP server, turn-inspector mod); adoption target v4.16.3 confirmed by the user on 2026-10-13.
+- [ ] Implement the [v4.16.3 plan](releases/v4/v4.16/plans/v4.16.3-adoption-tool-output-containment-and-context-attribution.md): `/usage context`, a read-only per-request report that names the call that filled the context window (must ship), plus a compute-don't-read rule with a measured eval, realized compressor savings, a raw-fetch advisory on a non-decision hook channel, and a redacted priority-tiered compaction digest gated on v4.15.1. Implementation is 0/7 phases and 0/33 tasks.
+
 ## Queued work - v4.20.0 alignment readback, controlled language, and routing measurement
 
 - [ ] Implement the [v4.20.0 plan](releases/v4/v4.20/plans/v4.20.0-adoption-alignment-readability-mods-routing.md), seeded by the [v4.20.0 comparison](releases/v4/v4.20/comparisons/v4.20.0-comparison-alignment-readability-mods-routing.md): a readback that opens `design-interview` round one, an STE-inspired register in `writing-editing`, a local never-committed routing-outcome ledger, and a counts-only report. Calibration is parked as P3. Implementation is 0/6 phases and 0/33 tasks.
