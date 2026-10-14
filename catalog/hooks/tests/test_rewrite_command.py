@@ -90,3 +90,23 @@ def test_host_deny_emits_deny_decision(run, tmp_path: Path) -> None:
     body = json.loads(proc.stdout)
     decision = body["hookSpecificOutput"]["permissionDecision"]
     assert decision == "deny"
+
+
+@pytest.mark.parametrize(
+    "mode,expected",
+    [(None, "ask"), ("default", "ask"), ("auto", None), ("dontAsk", None), ("bypassPermissions", None)],
+)
+def test_host_ask_is_forced_only_in_prompting_modes(run, tmp_path: Path, mode, expected) -> None:
+    """Permission-mode contract: full access and host-decided modes get no
+    forced ask; the host still applies its own ask rules there."""
+    settings = tmp_path / "settings.json"
+    settings.write_text(json.dumps({"permissions": {"ask": ["curl"]}}), encoding="utf-8")
+    payload = _payload("curl https://example.invalid")
+    if mode is not None:
+        payload["permission_mode"] = mode
+    proc = run(payload, {"CLAUDE_CONFIG_DIR": str(tmp_path)})
+    assert proc.returncode == 0
+    decision = None
+    if proc.stdout.strip():
+        decision = json.loads(proc.stdout)["hookSpecificOutput"].get("permissionDecision")
+    assert decision == expected, proc.stdout
