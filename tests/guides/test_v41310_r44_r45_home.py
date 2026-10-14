@@ -579,7 +579,10 @@ def test_the_mouse_right_clicks_pastes_and_the_output_streams(playwright_mod, os
             page.evaluate("window.tmOrder = []")
             page.locator(tm).scroll_into_view_if_needed()
             page.wait_for_selector(f'{tm}[data-tm-step="click"]', timeout=15000)
-            page.wait_for_timeout(250)
+            page.wait_for_function(
+                "sel => { const m = document.querySelector(sel); return m.dataset.tmStep === 'click' && getComputedStyle(m.querySelector('.tm-ms')).opacity === '1'; }",
+                arg=tm, polling="raf", timeout=15000,
+            )
             click = page.evaluate(
                 """sel => { const m = document.querySelector(sel), ms = m.querySelector('.tm-ms').getBoundingClientRect(), b = m.querySelector('.tm-body').getBoundingClientRect();
                   return { opacity: getComputedStyle(m.querySelector('.tm-ms')).opacity, inBody: ms.left > b.left && ms.left < b.right && ms.top > b.top && ms.top < b.bottom }; }""",

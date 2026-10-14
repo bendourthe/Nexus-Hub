@@ -435,7 +435,9 @@ def test_antigravity_hook_bridge_does_not_auto_approve_clean_guard_result():
     )
 
     assert wrapper_exit == 0
-    assert output["decision"] == "ask"
+    # "allow" delegates to the user's own terminal policy (Request Review still
+    # prompts, Always Proceed runs); "auto_approve" would be the auto-approval.
+    assert output == {"decision": "allow"}
 
 
 def test_antigravity_20_global_targets_corrected_ide_and_cli_paths(install_ctx: InstallContext):

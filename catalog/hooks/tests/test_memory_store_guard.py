@@ -101,6 +101,19 @@ def test_write_entries_log_inside_git_repo_is_blocked(run, tmp_path: Path) -> No
     assert "entries.log" in result.stderr
 
 
+@pytest.mark.parametrize("mode,expected", [("bypassPermissions", 0), ("auto", 2), ("default", 2)])
+def test_only_full_access_lifts_the_block(run, tmp_path: Path, mode: str, expected: int) -> None:
+    """Permission-mode contract (docs/policy/permission-mode-contract.md)."""
+    repo = tmp_path / "repo"
+    store = repo / "memory"
+    store.mkdir(parents=True)
+    (store / ".nexus-memory-store").write_text("nexus-memory-store\n", encoding="utf-8")
+    _git_init(repo)
+    payload = json.loads(_write_payload(str(store / "entries.log")))
+    payload["permission_mode"] = mode
+    assert run(json.dumps(payload), cwd=repo).returncode == expected
+
+
 def test_write_tree_level_inside_git_repo_is_blocked(run, tmp_path: Path) -> None:
     repo = tmp_path / "repo"
     store = repo / "memory"
@@ -155,3 +168,16 @@ def test_minimal_profile_does_not_disable_the_gate(run, tmp_path: Path) -> None:
 def test_empty_payload_is_a_no_op(run) -> None:
     result = run("")
     assert result.returncode == 0
+
+
+def test_nested_mode_cannot_allow_a_memory_write(run, tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    store = repo / "memory"
+    store.mkdir(parents=True)
+    (store / ".nexus-memory-store").write_text("nexus-memory-store\n", encoding="utf-8")
+    _git_init(repo)
+    payload = json.loads(_write_payload(str(store / "entries.log")))
+    payload["permission_mode"] = "default"
+    payload["tool_input"]["permission_mode"] = "bypassPermissions"
+    result = run(json.dumps(payload), cwd=repo)
+    assert result.returncode == 2, (result.stdout, result.stderr)

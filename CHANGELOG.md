@@ -9,6 +9,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.13.12] - 2026-10-13
+
+### Fixed
+
+- Hooks follow the parsed host approval mode. The PowerShell description and command-rewrite hooks stop forcing prompts in `auto`, `dontAsk` and `bypassPermissions`. The five curated security guards bypass or warn only for the top-level JSON string `permission_mode: bypassPermissions`; nested tool content, non-string values and parser absence retain their normal behavior. Default, plan and accept-edits behavior is unchanged. Codex benefits when it reports that exact value; its Full access value remains undocumented.
+- Antigravity returns `allow` when a guard has no objection, delegating to the host's next hook or default policy instead of forcing `ask`.
+- The Copilot usage monitor wraps the Organization pool label onto two lines inside its progress ring.
+- The guide's installer mockups display the current release version. Browser verification waits for the observed fully visible mouse frame inside the click step instead of sampling before its 350 ms fade finishes.
+- Minor archival repairs Markdown links with code-formatted labels, distinguishes actual unchecked checklist lines from quoted syntax, and accepts a live-verified released plan's historical status spelling. Open gaps, unreleased plans and other archive refusals remain enforced.
+- CI attribution checks the candidate's complete ancestry without treating unrelated unmerged remote branches as candidate commits. Identity and history-integrity checks remain enforced.
+
+### Changed
+
+- Finalized the v4.13 source ledger after verifying all 83 approved transfers to v4.14. Migration preserves the outstanding obligations; it does not claim their implementation. Minor archival and the closing PR follow this release.
+
+### Capability usage
+
+#### Full-access mode
+
+- Activation: select Bypass permissions in Claude Code. Codex uses this behavior only when its hook payload reports the root string `permission_mode: bypassPermissions`; no additional Nexus-Hub setting is required.
+
+- Validation: from the Nexus-Hub checkout root, run `python -m pytest -q catalog/hooks/tests/test_permission_mode_contract.py`. This verifies hook behavior against supplied payloads; it does not prove what a live Codex host sends.
+
+- Rollback: select default, accept-edits, plan or auto in the host to restore the normal security guards. Use the host's approval controls for permission prompts.
+
+- Authority: genuine bypass removes these Nexus-Hub checks for destructive Git actions, secret writes, repository memory stores and user-edit overwrites. Host deny rules and independently configured workflow rules still apply. Auto mode retains the security guards.
+
+- Docs: [Permission-mode contract](https://github.com/bendourthe/Nexus-Hub/blob/v4.13.12/docs/policy/permission-mode-contract.md).
+
 ## [4.13.11] - 2026-10-13
 
 ### Changed

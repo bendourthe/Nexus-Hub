@@ -109,7 +109,7 @@ def test_native_write_refuses_unread_existing_file(child, work, tmp_path, tool):
 def test_native_read_records_and_allows_the_next_write(child, work, tmp_path):
     _read(child, work, tmp_path)
     output, result = _run(child, "PreToolUse", _write(work), tmp_path, work)
-    assert output["decision"] == "ask", (output, result.stderr)
+    assert output["decision"] == "allow", (output, result.stderr)
     assert not result.stderr
     intent_name = ".intent-" + hashlib.sha256(SESSION.encode()).hexdigest()[:16]
     assert (tmp_path / "store" / intent_name).is_file(), "the real conversation did not key the intent"
@@ -128,7 +128,7 @@ def test_native_successful_post_write_records_actual_bytes(child, work, tmp_path
     _read(child, work, tmp_path)
     payload = _write(work)
     output, _ = _run(child, "PreToolUse", payload, tmp_path, work)
-    assert output["decision"] == "ask"
+    assert output["decision"] == "allow"
     (work / "notes.txt").write_bytes(b"new\n")
     if error is not None:
         payload["error"] = error
@@ -138,14 +138,14 @@ def test_native_successful_post_write_records_actual_bytes(child, work, tmp_path
     assert record["sha256"] == hashlib.sha256(b"new\n").hexdigest()
     assert record["from"] == "write"
     next_output, _ = _run(child, "PreToolUse", _write(work), tmp_path, work)
-    assert next_output["decision"] == "ask"
+    assert next_output["decision"] == "allow"
 
 
 def test_native_failed_post_preserves_the_prior_baseline(child, work, tmp_path):
     _read(child, work, tmp_path)
     payload = _write(work)
     output, _ = _run(child, "PreToolUse", payload, tmp_path, work)
-    assert output["decision"] == "ask"
+    assert output["decision"] == "allow"
     record_path = _record_path(tmp_path)
     before = record_path.read_bytes()
     (work / "notes.txt").write_text("user changed this during the failed tool\n", encoding="utf-8")
@@ -188,7 +188,7 @@ def test_native_post_command_records_actual_destination(child, work, tmp_path):
     _read(child, work, tmp_path)
     payload = _payload(work, "run_command", CommandLine="printf new > notes.txt", Cwd=str(work))
     output, _ = _run(child, "PreToolUse", payload, tmp_path, work)
-    assert output["decision"] == "ask"
+    assert output["decision"] == "allow"
     (work / "notes.txt").write_bytes(b"command wrote this\n")
     output, _ = _run(child, "PostToolUse", payload, tmp_path, work)
     assert output == {}

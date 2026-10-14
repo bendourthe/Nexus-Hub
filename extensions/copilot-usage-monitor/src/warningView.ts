@@ -271,10 +271,12 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      /* Keep the label inside the ring's open interior so it wraps instead of running under the stroke. */
+      padding: 0 17%;
       pointer-events: none;
     }
     .ring-pct { font-size: 30px; font-weight: 700; line-height: 1; }
-    .ring-label { font-size: 12px; opacity: 0.7; margin-top: 4px; }
+    .ring-label { font-size: 12px; opacity: 0.7; margin-top: 4px; text-align: center; line-height: 1.2; }
     /* Extra breathing room between the ring and the reset indicator. */
     .reset-box {
       display: flex;

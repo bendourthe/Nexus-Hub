@@ -46,6 +46,25 @@ DANGEROUS_PATTERNS=(
 
 # --- Read JSON from stdin ---
 INPUT=$(cat)
+# Full access (Claude Code or Codex permission_mode "bypassPermissions"): the
+# user chose to run without approval gates, so this Nexus-Hub guard steps aside.
+# Contract: docs/policy/permission-mode-contract.md
+_HOST_MODE=""
+if command -v jq >/dev/null 2>&1; then
+  _HOST_MODE=$(printf '%s' "$INPUT" | jq -r 'if type == "object" and (.permission_mode | type) == "string" then .permission_mode else empty end' 2>/dev/null || true)
+elif command -v python3 >/dev/null 2>&1 || command -v python >/dev/null 2>&1; then
+  _MODE_PYTHON=$(command -v python3 || command -v python)
+  _HOST_MODE=$(printf '%s' "$INPUT" | "$_MODE_PYTHON" -c '
+import json, sys
+try:
+    payload = json.load(sys.stdin)
+    mode = payload.get("permission_mode") if isinstance(payload, dict) else None
+    if isinstance(mode, str):
+        print(mode)
+except (ValueError, TypeError):
+    pass' 2>/dev/null || true)
+fi
+if [ "$_HOST_MODE" = "bypassPermissions" ]; then exit 0; fi
 
 # Extract the command from tool_input.command
 # The `|| true` on both branches is load-bearing under `set -euo pipefail`: a

@@ -74,7 +74,15 @@ except Exception:
 tool=dict(payload.get('tool_input') or {})
 if rewrite:
     tool['command']=rewrite
-out={'hookSpecificOutput':{'hookEventName':'PreToolUse','permissionDecision':decision}}
+# Full access and host-decided modes never receive a forced ask
+# (docs/policy/permission-mode-contract.md).
+if decision=='ask' and payload.get('permission_mode') in ('bypassPermissions','auto','dontAsk'):
+    decision=''
+if not decision and not rewrite:
+    sys.exit(0)
+out={'hookSpecificOutput':{'hookEventName':'PreToolUse'}}
+if decision:
+    out['hookSpecificOutput']['permissionDecision']=decision
 if rewrite:
     out['hookSpecificOutput']['updatedInput']=tool
 print(json.dumps(out))

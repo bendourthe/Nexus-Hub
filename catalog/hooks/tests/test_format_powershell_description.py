@@ -439,6 +439,36 @@ class TestMainIntegration:
             "Details panel, so reason is the only reliably-visible surface)"
         )
 
+    @pytest.mark.parametrize("description", ["Stops the Explorer process", "# preformatted"])
+    def test_full_access_is_silent(self, description):
+        """Permission-mode contract: in bypassPermissions the formatter adds no
+        prefix and no decision, so the host runs the command unprompted."""
+        payload = _make_payload("Stop-Process -Name explorer", description=description)
+        payload["permission_mode"] = "bypassPermissions"
+        stdout, rc = _run_hook(payload)
+        assert rc == 0
+        assert stdout.strip() == ""
+
+    @pytest.mark.parametrize("mode", ["auto", "dontAsk"])
+    def test_host_decided_modes_format_without_forcing_ask(self, mode):
+        """Auto mode's classifier and dontAsk's pre-approval list decide; a
+        forced ask would override both, so only the description is added."""
+        payload = _make_payload("Stop-Process -Name explorer", description="Stops Explorer")
+        payload["permission_mode"] = mode
+        stdout, rc = _run_hook(payload)
+        assert rc == 0
+        hso = json.loads(stdout)["hookSpecificOutput"]
+        assert "permissionDecision" not in hso
+        assert "permissionDecisionReason" not in hso
+        assert hso["updatedInput"]["command"].startswith("# Description: Stops Explorer")
+
+    @pytest.mark.parametrize("mode", ["default", "acceptEdits", "plan"])
+    def test_prompting_modes_still_ask(self, mode):
+        payload = _make_payload("Stop-Process -Name explorer", description="Stops Explorer")
+        payload["permission_mode"] = mode
+        stdout, _ = _run_hook(payload)
+        assert json.loads(stdout)["hookSpecificOutput"]["permissionDecision"] == "ask"
+
     def test_description_already_prefixed_still_asks(self):
         """If the model passes a description that already starts with '#',
         we don't re-format, but we still force user approval and surface a
