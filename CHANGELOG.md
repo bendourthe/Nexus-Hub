@@ -12,11 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Claude, Codex, GitHub Copilot and Cursor usage-alert sidebar views dismiss automatically after one minute. A new alert gets a fresh minute, and manual dismissal cancels its timer.
-<<<<<<< HEAD
-- The guide's Security Guardrails text no longer says every guard blocks whatever the prompt said. It now states that the large-file guard only warns and that the security guards step aside when the platform reports full access, such as Claude Code's Bypass permissions mode, matching the v4.13.12 permission-mode contract.
-=======
 - The Windows PowerShell 5.1 installer and validator tests run in their own `tests-windows-installer` CI job. Inside `tests-windows` the group measured 3534 s of the job's 3600 s limit and timed out twice. The installer and validator corpora also run as separate commands, since together they exceeded their own 1800 s command bound. Coverage, edition and the `ci-required` aggregate are unchanged.
->>>>>>> origin/develop
+- The guide's Security Guardrails text no longer says every guard blocks whatever the prompt said. It now states that the large-file guard only warns and that the security guards step aside when the platform reports full access, such as Claude Code's Bypass permissions mode, matching the v4.13.12 permission-mode contract.
 
 ## [4.13.12] - 2026-10-13
 
