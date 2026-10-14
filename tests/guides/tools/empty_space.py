@@ -4,7 +4,7 @@ A section's content box (inside its padding) is laid on an 8 px grid. A cell is 
 no visible text run, image, SVG, canvas, video, form control, or box with a visible
 background or border touches it. ``largest_empty_rect`` returns the largest all-empty
 rectangle as width and height in CSS pixels. Baseline and thresholds:
-docs/releases/v4/v4.13/development/v4.13.10-inventory.md.
+docs/archives/v4/v4.13/development/v4.13.10-inventory.md.
 """
 
 from __future__ import annotations

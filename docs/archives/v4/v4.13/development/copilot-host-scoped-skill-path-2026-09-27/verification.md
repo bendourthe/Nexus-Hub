@@ -1,6 +1,6 @@
 # Copilot host-scoped skill read-path qualification
 
-This v4.13.3 follow-up qualifies the personal `~/.claude/skills` read-path fact for GitHub Copilot in VS Code without extending that claim to Copilot CLI or weakening the shared Skill-Index Pointer fallback. It addresses [WN-2](../../../../../releases/v4/v4.13/known-gaps.md) and does not perform a release-wide platform-contract re-verification.
+This v4.13.3 follow-up qualifies the personal `~/.claude/skills` read-path fact for GitHub Copilot in VS Code without extending that claim to Copilot CLI or weakening the shared Skill-Index Pointer fallback. It addresses [WN-2](../../known-gaps.md) and does not perform a release-wide platform-contract re-verification.
 
 ## Evidence and boundary
 

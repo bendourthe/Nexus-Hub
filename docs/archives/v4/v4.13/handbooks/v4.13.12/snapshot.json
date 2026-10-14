@@ -1,0 +1,287 @@
+{
+  "snapshot_version": "v4.13.12",
+  "source_tag": "v4.13.12",
+  "source_commit": "9b5bba8935deb89891fdc877e6040b81d14743fc",
+  "source_archive_sha256": "de73560afec641aa762c2fb483a26c8e4365df3d5a41edeacabc55b116cee4e6",
+  "created_at_utc": "2026-10-14T06:31:38.707477+00:00",
+  "source_output_map": "docs/handbooks/handbooks.json",
+  "qualification": "Exact tagged source and output bytes. Both HTML outputs are reused unchanged from v4.13.11 and qualified against v4.13.12 by the retained review addendum. Original build/render receipts are included; this copy asserts no new build or render.",
+  "inputs_zip_sha256": "813d640dcd9c3483b7bbccf635092e99e3cbc008cd61938f75457bdceda65d5b",
+  "outputs": {
+    "overview": "ac060fa24a632be7c0082cb73e3067abd8dec61bf13c739a8db62d001867479b",
+    "distribution": "d520007558410ed00944291b109b6e46302d5e46ced3224f54af4c640b20eac1"
+  },
+  "retained_evidence": {
+    "overview": {
+      "evidence": "docs/handbooks/_sources/overview/evidence.json",
+      "checks": {
+        "content": {
+          "status": "pass",
+          "evidence": "docs/releases/v4/v4.13/development/v4.13.11-phase-8-handbook-claim-review.md",
+          "evidence_sha256": "8997340e27652cf321896461b922b0bb901a6d9cb4532ea810fd4db90bf54ca3"
+        },
+        "build": {
+          "status": "pass",
+          "evidence": "docs/releases/v4/v4.13/development/v4.13.11-phase-7-receipts/overview-build.json",
+          "evidence_sha256": "126957ccd638ee58dc8cf60770bc5ebb1f8076235c2121687ea465f38f39127a"
+        },
+        "rendered": {
+          "status": "pass",
+          "evidence": "docs/releases/v4/v4.13/development/v4.13.11-phase-7-receipts/overview-render.json",
+          "evidence_sha256": "7ff821017b47e821be528662924badc3b2749e5aaefdd5ca67e3b376846a4c76",
+          "browser": "Chromium 151.0.7922.34",
+          "output_sha256": "ac060fa24a632be7c0082cb73e3067abd8dec61bf13c739a8db62d001867479b"
+        }
+      }
+    },
+    "distribution": {
+      "evidence": "docs/handbooks/_sources/distribution/evidence.json",
+      "checks": {
+        "content": {
+          "status": "pass",
+          "evidence": "docs/releases/v4/v4.13/development/v4.13.11-phase-8-handbook-claim-review.md",
+          "evidence_sha256": "8997340e27652cf321896461b922b0bb901a6d9cb4532ea810fd4db90bf54ca3"
+        },
+        "build": {
+          "status": "pass",
+          "evidence": "docs/releases/v4/v4.13/development/v4.13.11-phase-8-receipts/distribution-build.json",
+          "evidence_sha256": "9a665f98754d36ed2d6816f1dd3c78bf8d2d8d566b8cfde92fc22495420c0f85"
+        },
+        "rendered": {
+          "status": "pass",
+          "evidence": "docs/releases/v4/v4.13/development/v4.13.11-phase-8-receipts/distribution-render.json",
+          "evidence_sha256": "ed3348526e027d6fc7d77c6ab486a5e4099ddfb971110d0b47cbc5546f50e560",
+          "browser": "Chromium 151.0.7922.34",
+          "output_sha256": "d520007558410ed00944291b109b6e46302d5e46ced3224f54af4c640b20eac1"
+        }
+      }
+    }
+  },
+  "files": [
+    {
+      "path": "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-figures.js",
+      "bytes": 3193,
+      "sha256": "1891f3f4eaabc43c743d5360a6615338d65cf50ed8cc02a771d32a07c194e17d"
+    },
+    {
+      "path": "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-runtime.js",
+      "bytes": 12093,
+      "sha256": "336a276024b786f95287178e1ce455328aee1c253ed3dc05709e49c58cde1ce6"
+    },
+    {
+      "path": "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view.css",
+      "bytes": 4003,
+      "sha256": "e60e94cd26d4ba622ede429d9c7862a82dea491ac1b174bd86023ac5e5245c35"
+    },
+    {
+      "path": "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py",
+      "bytes": 36262,
+      "sha256": "55a10ebfa2412b48243ae72ca70180f12aa80cc7f89d66cad0911d275bb9ce50"
+    },
+    {
+      "path": "catalog/skills/specialized-domains/document-to-interactive-html/scripts/dual_view.py",
+      "bytes": 46350,
+      "sha256": "cb97c1c53dd4560f3a59b9cc08d54223c4e0d49c2373bed3c20b5430607053a2"
+    },
+    {
+      "path": "catalog/style-guides/git-attribution.md",
+      "bytes": 2049,
+      "sha256": "f4abb51bdbd97f19a115024c51ba0e9a414f4e377590c05efcbdc8693ede7b29"
+    },
+    {
+      "path": "configs/platform-defaults.json",
+      "bytes": 26619,
+      "sha256": "7c5b50fff792910769f75263cf5a75dc2f5a49d1059d7ad54ab7805e46d9095d"
+    },
+    {
+      "path": "docs/handbooks/_sources/distribution/design.css",
+      "bytes": 3270,
+      "sha256": "4d2975128abe327205e8b3c4fd62d351644221e9e03bfbaa539986f3cc1b9a70"
+    },
+    {
+      "path": "docs/handbooks/_sources/distribution/evidence.json",
+      "bytes": 4113,
+      "sha256": "712675934db344f355761c8df8378d75184c863b53216974ea7c1ca85cafd02f"
+    },
+    {
+      "path": "docs/handbooks/_sources/distribution/identity-composition.html",
+      "bytes": 391,
+      "sha256": "8f5ac756f4a58e3745548ea8476d1300e9dbc9683fbe44e0037c928773f69014"
+    },
+    {
+      "path": "docs/handbooks/_sources/distribution/model.json",
+      "bytes": 5189,
+      "sha256": "3f3b9e1222a51583962e4de248d9ac74804b03a2b3102605e8e1911c8ea3496d"
+    },
+    {
+      "path": "docs/handbooks/_sources/distribution/ownership-composition.html",
+      "bytes": 403,
+      "sha256": "31df6a101328862f4e525a8b79cec45cb531d3404a8c97a108b48fca4ff231e3"
+    },
+    {
+      "path": "docs/handbooks/_sources/distribution/route-composition.html",
+      "bytes": 363,
+      "sha256": "349e1382529a541ee001f589b96194205c6e0854037bae2d240f54749b6d1cb3"
+    },
+    {
+      "path": "docs/handbooks/_sources/distribution/shapes-composition.html",
+      "bytes": 377,
+      "sha256": "0ca661a5cd11e83a6745f00e32cb2086eaa7664845efe064e5a8863a7223fa85"
+    },
+    {
+      "path": "docs/handbooks/_sources/distribution/source.md",
+      "bytes": 2147,
+      "sha256": "495f2edd8b5046d38801c6e675385cc500b552da8231a381ff5e811db62721fa"
+    },
+    {
+      "path": "docs/handbooks/_sources/distribution/verification-composition.html",
+      "bytes": 417,
+      "sha256": "0c679ab8af04bab8d40146cb899e1768b795e904048ea4d95ab56fdcea986779"
+    },
+    {
+      "path": "docs/handbooks/_sources/overview/authoring-composition.html",
+      "bytes": 373,
+      "sha256": "e38964521614c8c0317a63d2890685e2ffed10ef2625e6d181bf994db6a4ec6c"
+    },
+    {
+      "path": "docs/handbooks/_sources/overview/delivery-composition.html",
+      "bytes": 402,
+      "sha256": "c7ab0ca77c7f6468d1914f17338d72a33ffe560888fb4573bafe6fe6ce5c9259"
+    },
+    {
+      "path": "docs/handbooks/_sources/overview/design.css",
+      "bytes": 3259,
+      "sha256": "e3015529f81584ab0578e365c42644854d9566bfeb45035e094044b503e16921"
+    },
+    {
+      "path": "docs/handbooks/_sources/overview/evidence.json",
+      "bytes": 3308,
+      "sha256": "664e8ef49a5a2ecaf8dd3b5eb547a7ac4ea03cafb6e3d3e8323a10ad23e7472c"
+    },
+    {
+      "path": "docs/handbooks/_sources/overview/model.json",
+      "bytes": 4579,
+      "sha256": "6d7f14e9d6da81913906829e60343d6f92309e917e0c6a3252f2166318340807"
+    },
+    {
+      "path": "docs/handbooks/_sources/overview/proof-composition.html",
+      "bytes": 367,
+      "sha256": "5450a7264da18cccd1423951768e9a271cb42211545464ef035dde2a2d75958f"
+    },
+    {
+      "path": "docs/handbooks/_sources/overview/purpose-composition.html",
+      "bytes": 369,
+      "sha256": "511907f9123cb68a61b67a38d7d06ddb67642e5f2871cb84410707b1d7a62beb"
+    },
+    {
+      "path": "docs/handbooks/_sources/overview/source.md",
+      "bytes": 1570,
+      "sha256": "20f7b918a2614a9ebd7d675f0cd55431635e2f65feedd4c10aef51c602aab40c"
+    },
+    {
+      "path": "docs/handbooks/_sources/overview/validation-composition.html",
+      "bytes": 400,
+      "sha256": "4769181873d4f9b290a783d44986a9382771a90d7c9a4d548de46e8d0d44461f"
+    },
+    {
+      "path": "docs/handbooks/distribution.html",
+      "bytes": 39774,
+      "sha256": "d520007558410ed00944291b109b6e46302d5e46ced3224f54af4c640b20eac1"
+    },
+    {
+      "path": "docs/handbooks/distribution.html.build.json",
+      "bytes": 1851,
+      "sha256": "02cd59bd81f8a742a2741d9a7b25cf6d344981076c55c2352c7f1ab487008a89"
+    },
+    {
+      "path": "docs/handbooks/handbooks.json",
+      "bytes": 7943,
+      "sha256": "2150fe98564177982b2f7d5623c7ba73b7b32a228cbac45f37b0611d3e52d890"
+    },
+    {
+      "path": "docs/handbooks/overview.html",
+      "bytes": 38486,
+      "sha256": "ac060fa24a632be7c0082cb73e3067abd8dec61bf13c739a8db62d001867479b"
+    },
+    {
+      "path": "docs/handbooks/overview.html.build.json",
+      "bytes": 1814,
+      "sha256": "f05464aa39c767832855a9f78acce2d89235f990ae4cbbb4a0ca94213cb911df"
+    },
+    {
+      "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-7-receipts/overview-build.json",
+      "bytes": 812,
+      "sha256": "126957ccd638ee58dc8cf60770bc5ebb1f8076235c2121687ea465f38f39127a"
+    },
+    {
+      "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-7-receipts/overview-render.json",
+      "bytes": 1076,
+      "sha256": "7ff821017b47e821be528662924badc3b2749e5aaefdd5ca67e3b376846a4c76"
+    },
+    {
+      "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-8-handbook-claim-review.md",
+      "bytes": 9983,
+      "sha256": "8997340e27652cf321896461b922b0bb901a6d9cb4532ea810fd4db90bf54ca3"
+    },
+    {
+      "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-8-receipts/distribution-build.json",
+      "bytes": 847,
+      "sha256": "9a665f98754d36ed2d6816f1dd3c78bf8d2d8d566b8cfde92fc22495420c0f85"
+    },
+    {
+      "path": "docs/releases/v4/v4.13/development/v4.13.11-phase-8-receipts/distribution-render.json",
+      "bytes": 1085,
+      "sha256": "ed3348526e027d6fc7d77c6ab486a5e4099ddfb971110d0b47cbc5546f50e560"
+    },
+    {
+      "path": "scripts/check_registry_entries.py",
+      "bytes": 15470,
+      "sha256": "e3860f9b8e3876098cc65debe89bd1a2e236a333530a7c2d55d504628d01ce55"
+    },
+    {
+      "path": "scripts/installer.ps1",
+      "bytes": 219131,
+      "sha256": "0afc5a1e186706e746edcecff343b9aefd3b857c9a81163b7ce9f57606b49143"
+    },
+    {
+      "path": "scripts/installer.sh",
+      "bytes": 206106,
+      "sha256": "b461538cef87ea029b0c367c297dbc92de8db83715456b84964cf533fe1d5847"
+    },
+    {
+      "path": "scripts/lib/integrations/_catalog_adapters.py",
+      "bytes": 22486,
+      "sha256": "6a8e0f1375df9ae401302b1b13a1559f093d7aecd0c5ae0c134f9dddad162647"
+    },
+    {
+      "path": "scripts/lib/integrations/_owned.py",
+      "bytes": 11269,
+      "sha256": "abfac9b0161e9148e236532b85a854bf512c3100bc5f39fed7e8474e7fd727e4"
+    },
+    {
+      "path": "scripts/lib/integrations/aider.py",
+      "bytes": 3828,
+      "sha256": "7737442015938681795878452050de557a09324651e29247de3ee231513e9798"
+    },
+    {
+      "path": "scripts/lib/integrations/cursor.py",
+      "bytes": 22000,
+      "sha256": "9cc127d07c30153cbda24b4faf4774ae79705406c05ee466e34b5fbbe1e52f4e"
+    },
+    {
+      "path": "scripts/lib/integrations/runner.py",
+      "bytes": 60182,
+      "sha256": "5429ec6c9896b95285effe8215b2d3ca291c920bad6ccf8dec0ffa93cca7b78f"
+    },
+    {
+      "path": "scripts/nexus_git_attribution.py",
+      "bytes": 34802,
+      "sha256": "2206437a578d73993e5de82424498aa20c57409deb76def7e5c02363dde5346a"
+    },
+    {
+      "path": "scripts/validate_skills.py",
+      "bytes": 47757,
+      "sha256": "51b5e1e74623ca51945871d08dcc78dc14f4d51723784b78d3df6523eb3a196a"
+    }
+  ]
+}

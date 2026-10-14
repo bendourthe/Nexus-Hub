@@ -34,5 +34,5 @@ This is a second bounded exception to "`known-gaps.md` stays in the active tree"
 
 - [`docs/policy/docs-retention.md`](../../../policy/docs-retention.md) - the policy whose `known-gaps.md` default this record makes a second bounded exception to
 - [`2026-09-22-archive-plans-of-closed-minors.md`](2026-09-22-archive-plans-of-closed-minors.md) - the closure-based plan archival this record extends to whole minors
-- [`docs/releases/v4/v4.13/known-gaps.md`](../../../releases/v4/v4.13/known-gaps.md) - the migrated-items section
+- [`docs/releases/v4/v4.13/known-gaps.md`](../../../archives/v4/v4.13/known-gaps.md) - the migrated-items section
 - [`docs-layout-refactor`](../../../../catalog/skills/code-cleanup/docs-layout-refactor/SKILL.md) - owns the archive layout and the reference-repair procedure used here

@@ -4,7 +4,7 @@ The durable, sourced record of whether each skills-bearing platform documents a 
 
 **Last verified**: 2026-08-24 for v3.20.3 command-skill emission. Six platforms re-checked this cycle (claude, cursor, qwen fetched in Phase 4; Codex learn.chatgpt.com re-fetched at release; copilot and the none-documented set carried from 2026-08-18/22). See Scope below for what was not.
 
-**2026-10-12 v4.13.11 CANDIDATE review**: the [dated primary-source receipt](../releases/v4/v4.13/development/v4.13.11-phase-8-receipts/platform-readonly-review-continuation.json) updates Kimi's compatible alias, OpenCode's native metadata and the limits of the Nexus-AI reader audit. Antigravity has no documented per-skill invocation switch in the fetched reference; OpenCode's native keys remain unmapped here, so AR-38 is not wholly closed. This is a source qualification, without authenticated host execution or a release freshness re-stamp.
+**2026-10-12 v4.13.11 CANDIDATE review**: the [dated primary-source receipt](../archives/v4/v4.13/development/v4.13.11-phase-8-receipts/platform-readonly-review-continuation.json) updates Kimi's compatible alias, OpenCode's native metadata and the limits of the Nexus-AI reader audit. Antigravity has no documented per-skill invocation switch in the fetched reference; OpenCode's native keys remain unmapped here, so AR-38 is not wholly closed. This is a source qualification, without authenticated host execution or a release freshness re-stamp.
 
 ## Scope boundary
 

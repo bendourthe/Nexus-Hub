@@ -3,7 +3,7 @@
 **Active version:** v4.13.0
 **Mode:** original propose-only audit with a bounded application recorded below
 **Scope:** the four v4.0 paths reported by `audit-docs.py lifespan-contradictions` on `origin/develop` at `434da421`, then rechecked after `d052af9e`; this is not a whole-tree cleanup audit
-**Owner:** [v4.0 WN-2](../../../archives/v4/v4.0/known-gaps.md)
+**Owner:** [v4.0 WN-2](../v4.0/known-gaps.md)
 
 ## Summary
 
@@ -15,7 +15,7 @@
 | Cat 4 (active closure hold) | 2 |
 | **Total** | **4** |
 
-The post-tag scan still exits 1 and names exactly these four v4.0 files. Its repository-wide findings are outside this scoped report. The earlier migration-era count of 243 and the later whole-tree count of 1,419 are not a current v4.0 baseline. The minor-root `known-gaps.md` is intentionally active and is excluded by the [scoped detector correction](../../../archives/v4/v4.0/known-gaps.md); no date amnesty was applied.
+The post-tag scan still exits 1 and names exactly these four v4.0 files. Its repository-wide findings are outside this scoped report. The earlier migration-era count of 243 and the later whole-tree count of 1,419 are not a current v4.0 baseline. The minor-root `known-gaps.md` is intentionally active and is excluded by the [scoped detector correction](../v4.0/known-gaps.md); no date amnesty was applied.
 
 After rebasing this proposal onto `d052af9e`, the detector still returned exactly the four v4.0 paths in the table, with 1,388 findings across all release buckets. The broader count is context only; this proposal classifies the v4.0 subset.
 
@@ -26,7 +26,7 @@ After rebasing this proposal onto `d052af9e`, the detector still returned exactl
 | `development/ci-cd-profile-guide.md` | Cat 3 | Introduced in v4.0.0 but edited in three CI-profile commits on 2026-09-22; [README](../../../../README.md) links to it as the current usage guide. It must describe the live runner, not a frozen v4.0 state. | Propose `docs/guides/repository-native-ci-profiles.md`, with a content refresh and inbound-link repair, at the confirmation gate. |
 | `development/github-ci-settings-runbook.md` | Cat 3 | Introduced in v4.0.0, updated on 2026-08-30, and linked by the v4.0 lifecycle contract and final audit. It tells an operator how to verify current GitHub settings. | Propose `docs/runbooks/github-ci-settings.md`, with a settings read-back and inbound-link repair, at the confirmation gate. |
 | `plans/v4.0.0-agent-communication-overhaul.md` | Cat 4 | The 2026-09-06 post-tag edit changed two exit-checklist boxes against later evidence, not the plan's intended behavior. The file remains a release plan while v4.0 has open gaps. | Keep in the active v4.0 plan tree. Archive only after the whole-minor closure conditions in the [retention policy](../../../policy/docs-retention.md) hold. |
-| `plans/v4.0.0-cost-effective-ci-cd.md` | Cat 4 | Later edits record the task reconciliation and historical status without restating the failed original post-merge run as a pass. The 62 original strict task boxes remain unchecked even though the [reconciliation](../../../archives/v4/v4.0/development/ci-cd-task-reconciliation.md) traces each path. | Keep active. The current retention rule requires zero unchecked strict task lines; any audited exception needs an explicit policy decision before archiving. |
+| `plans/v4.0.0-cost-effective-ci-cd.md` | Cat 4 | Later edits record the task reconciliation and historical status without restating the failed original post-merge run as a pass. The 62 original strict task boxes remain unchecked even though the [reconciliation](../v4.0/development/ci-cd-task-reconciliation.md) traces each path. | Keep active. The current retention rule requires zero unchecked strict task lines; any audited exception needs an explicit policy decision before archiving. |
 
 The two Cat 3 documents are not deletion candidates. The retention policy explicitly permits referenced live content under a release's `development/` directory while treating a relocation to living roots as a separate refactor. Their post-tag edits are therefore classified, not silently excused or auto-moved. The plans are held by the minor's still-open state; the CI plan has an additional mechanical checkbox hold.
 

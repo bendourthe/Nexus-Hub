@@ -104,3 +104,19 @@ def test_native_zoom_lets_media_queries_collapse_the_header(chromium):
 
 def test_native_zoom_still_catches_real_overflow(chromium):
     assert _overflow(chromium, _RIGID) is True
+
+
+def test_default_capture_output_stays_outside_closed_release_trees(monkeypatch):
+    observed = {}
+
+    def capture(groups, out, label):
+        observed.update(out=out, label=label, groups=set(groups))
+        return {"failures": 0}
+
+    monkeypatch.setattr(matrix, "run", capture)
+    assert matrix.main(["--label", "archive-close-probe", "--groups", "home-sections"]) == 0
+    assert observed == {
+        "out": matrix._ROOT / ".nexus-hub" / "browser-matrix",
+        "label": "archive-close-probe",
+        "groups": {"home-sections"},
+    }

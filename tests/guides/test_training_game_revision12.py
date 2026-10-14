@@ -5,7 +5,7 @@ distinct from the wormhole between levels.
 
 Like the other engine tests, every test drives the simulation through ``step(n)`` with a fixed seed
 and ``SkySentinel.manual(true)``. Design and the per-level, per-time table:
-docs/releases/v4/v4.13/development/v4.13.10-game-design.md, "Revision 12".
+docs/archives/v4/v4.13/development/v4.13.10-game-design.md, "Revision 12".
 Skipped without Playwright or Chromium; fail-closed under NEXUS_REQUIRE_RENDER=1.
 """
 
