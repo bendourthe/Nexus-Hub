@@ -1,9 +1,9 @@
 # Known gaps - v4.13
 
 **Project**: Nexus-Hub
-**Status**: released; PR #230 merged the complete 34-task plan and tag `v4.13.0` was published on 2026-09-21. Two bounded warning-class findings remain owned for future measurement work. GitHub branch protection passed a live pull-request gate test; the second trigger pilot stopped on an unproven spend bound.
-**Last updated**: 2026-10-12
-**Open items**: 83
+**Status**: finalized; v4.13.0 through v4.13.11 are released. All 209 parsed items are resolved (126) or verified migrated to v4.14 (83); no open source items remain. The 83 successor obligations remain open in v4.14. Archival and the green administrative closing pull request are still pending.
+**Last updated**: 2026-10-13
+**Open items**: 0
 **Accounting, 2026-10-09 (v4.13.11 T006-T007)**: The Open items header is derived from current parsed state, including canonical historical owners. Patch Summary tables preserve their release-time snapshots; they do not replace the current header count. Original patch/ID identities remain in the source bodies and the reconciliation manifest.
 
 Release-scoped gaps for the evidence-driven agent improvement plan. Planned future-phase work is tracked in the plan rather than reported as completed here.
@@ -16,14 +16,14 @@ Release-scoped gaps for the evidence-driven agent improvement plan. Planned futu
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 1 |
-| Bugs / regressions (BG) | 1 | 6 |
-| Warnings (WN) | 2 | 4 |
+| Bugs / regressions (BG) | 0 | 6 |
+| Warnings (WN) | 0 | 4 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 4 |
 
 ### Open Items
 
-#### BG-7-v4130: The second pilot's per-call budget did not bound reported cost
+#### BG-7-v4130: The second pilot's per-call budget did not bound reported cost - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -49,7 +49,7 @@ Release-scoped gaps for the evidence-driven agent improvement plan. Planned futu
 
 **Resolution**: the agent-spans page links to `docs/gen-ai/gen-ai-spans.md#execute-tool-span` at the same pinned revision. That sibling table verifies `gen_ai.tool.name` as Required, call ID, description, and type as Recommended if available, and arguments and result as Opt-In. The contract now names those levels, keeps arguments, results, and descriptions absent from default traces, and has a regression assertion for the pinned sibling link and field levels. The original retrieval failure above remains historical evidence.
 
-#### WN-3-v4130: The shipped catalog under-triggers on its own positive prompts
+#### WN-3-v4130: The shipped catalog under-triggers on its own positive prompts - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -67,7 +67,7 @@ Release-scoped gaps for the evidence-driven agent improvement plan. Planned futu
 
 **Original source identity**: `v4.13.0#WN-3`; stable ID `WN-3-v4130` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### WN-5-v4130: The recorded pilot run cannot be re-audited for the loose selection matcher
+#### WN-5-v4130: The recorded pilot run cannot be re-audited for the loose selection matcher - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -506,7 +506,7 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-21`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.11.0`, section `adoption-spec-kit third cycle (2026-07-08)`, and original ID `DF-v310-ruflo-P4-extensions`.
 
-### AR-26: No live macOS installer smoke has been recorded
+### AR-26: No live macOS installer smoke has been recorded - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: installation owner on a macOS host
@@ -629,7 +629,7 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-30`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.16.0`, section `v3.16.0 - platform-defaults-config`, and original ID `NI-1`.
 
-### AR-40: Two installer tests fail intermittently in long local runs
+### AR-40: Two installer tests fail intermittently in long local runs - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: installer/test maintainer
@@ -663,7 +663,7 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 ### Permissions and platform contracts
 
-### AR-16: Permission-matcher behaviors remain unprobed
+### AR-16: Permission-matcher behaviors remain unprobed - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: `platform-contract-verification` owner
@@ -722,7 +722,7 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-16`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.17.0`, section `v3.17.0 - agent-autonomy-toggle`, and original ID `DF-1`.
 
-### AR-17: Permission distribution covers few platforms and scopes
+### AR-17: Permission distribution covers few platforms and scopes - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: installer maintainer
@@ -776,7 +776,7 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-17`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.17.0`, section `v3.17.0 - agent-autonomy-toggle`, and original ID `DF-5`.
 
-### AR-36: Unverified platform read-path residuals
+### AR-36: Unverified platform read-path residuals - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: platform-contract owner
@@ -860,7 +860,7 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-36`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.3.0`, section `v4.3.0 - agentic-verification-discipline`, and original ID `WN-3`.
 
-### AR-38: Invocation-policy support remains incomplete across five platforms
+### AR-38: Invocation-policy support remains incomplete across five platforms - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: platform-contract owner
@@ -909,7 +909,7 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-45`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.10`, section `v3.15.10 - end-of-task-agent-behavior`, and original ID `DF-14`.
 
-### AR-47: The legacy Cursor global commands write is unverified and redundant
+### AR-47: The legacy Cursor global commands write is unverified and redundant - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: installer maintainer
@@ -981,7 +981,7 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-54`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.6`, section `v3.15.6 - adoption-sandbox-escapes`, and original ID `DF-3`.
 
-### AR-56: Upstream-blocked hook surfaces
+### AR-56: Upstream-blocked hook surfaces - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: platform-contract owner
@@ -1019,7 +1019,7 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-56`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.8`, section `v3.15.8`, and original ID `DF-13`.
 
-### AR-57: Agent and hook delivery never observed on real Codex, Gemini CLI, Qwen, and Kimi installs
+### AR-57: Agent and hook delivery never observed on real Codex, Gemini CLI, Qwen, and Kimi installs - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: maintainer on a host with those tools
@@ -1070,7 +1070,7 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 ### Catalog, validators, and tests
 
-### AR-04: The skill-description eval harness builds CLI flags that do not exist
+### AR-04: The skill-description eval harness builds CLI flags that do not exist - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: eval-pipeline owner
@@ -1465,7 +1465,7 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-14`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.16`, section `Transferred in from v3.15.14 (spec-driven-development cycle)`, and original ID `TR-1`.
 
-### AR-15: v3.11 spec-kit items S5, S6, and S8 carry no status claim
+### AR-15: v3.11 spec-kit items S5, S6, and S8 carry no status claim - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: not stated in source; maintainer to set
@@ -1557,7 +1557,7 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-23`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.2`, section `Open Items`, and original ID `WN-v32hr-1`.
 
-### AR-28: Retired slash-command names remain in skill bodies
+### AR-28: Retired slash-command names remain in skill bodies - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -1596,7 +1596,7 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-28`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.2`, section `Open Items`, and original ID `DF-v32cmd-1`.
 
-### AR-33: Subprocess-driven validator tests have no coverage measurement
+### AR-33: Subprocess-driven validator tests have no coverage measurement - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: CI/test infrastructure owner
@@ -1638,7 +1638,7 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-33`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.5`, section `v3.15.5 - model-prompting-research`, and original ID `MT-2`.
 
-### AR-34: No repository-wide Ruff baseline
+### AR-34: No repository-wide Ruff baseline - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: CI owner
@@ -1928,7 +1928,7 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-18`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.4`, section `v3.15.4 - presentify-visual-fidelity`, and original ID `DF-2`.
 
-### AR-19: Presentify verification residuals
+### AR-19: Presentify verification residuals - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: presentify owner
@@ -2474,7 +2474,7 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-27`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.0`, section `Open Items`, and original ID `DF-v30-5`.
 
-### AR-32: Usage-monitor extension test coverage
+### AR-32: Usage-monitor extension test coverage - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: extensions owner
@@ -2558,7 +2558,7 @@ On 2026-09-29 every v3 minor and the remaining active content of v4.0, v4.1, v4.
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-32`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.17.0`, section `v3.17.0 - agent-autonomy-toggle`, and original ID `MT-1`.
 
-### AR-44: The Cursor usage-monitor live visual smoke was never run
+### AR-44: The Cursor usage-monitor live visual smoke was never run - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: maintainer on a live Cursor host
@@ -2673,7 +2673,7 @@ No new Phase 4 implementation, regression, missing-test, or quality-gate gap rem
 
 ### Hooks and notifications
 
-### AR-46: The Windows notification linger was never measured
+### AR-46: The Windows notification linger was never measured - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: maintainer on a live Windows 10/11 desktop
@@ -2785,7 +2785,7 @@ No new Phase 4 implementation, regression, missing-test, or quality-gate gap rem
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-35`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.14.0`, section `v3.14.0`, and original ID `DF-3`.
 
-### AR-39: The official Claude plugin directory submission was never made
+### AR-39: The official Claude plugin directory submission was never made - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: maintainer (manual form)
@@ -3172,7 +3172,7 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-61`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v3.15.5`, section `v3.15.5 - model-prompting-research`, and original ID `DF-2`.
 
-### AR-62: Exact installed helper delivery remains unproved across supported operating systems
+### AR-62: Exact installed helper delivery remains unproved across supported operating systems - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: Installer-smoke test owner
@@ -3224,7 +3224,7 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-62`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v1.1`, section `Open Items`, and original ID `DF-008`.
 
-### AR-63: The four MCP scaffolders lack real generation and server-start receipts
+### AR-63: The four MCP scaffolders lack real generation and server-start receipts - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: MCP scaffolder owner
@@ -3258,7 +3258,7 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-63`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v1.1`, section `Open Items`, and original ID `DF-007`.
 
-### AR-64: Live prompting roster completeness and CLI model qualification remain unproved
+### AR-64: Live prompting roster completeness and CLI model qualification remain unproved - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: Prompting-profile owner
@@ -3345,7 +3345,7 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-64`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.9`, section `Follow-up Items - found 2026-09-08 during post-v4.8.0 follow-up`, and original ID `MT-1`.
 
-### AR-65: Optional scanner presets lack live none, some, and all-tool receipts
+### AR-65: Optional scanner presets lack live none, some, and all-tool receipts - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: Security-audit owner
@@ -3381,7 +3381,7 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-65`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.1.1`, section `v4.1.1`, and original ID `DF-1`.
 
-### AR-66: The five-person Training workshop remains unperformed
+### AR-66: The five-person Training workshop remains unperformed - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: Guide owner and five participants
@@ -3433,7 +3433,7 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-66`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.2.3`, section `v4.2.3 - guide-refinement`, and original ID `DF-2`.
 
-### AR-67: Technical and nontechnical comprehension and final visual review remain unverified
+### AR-67: Technical and nontechnical comprehension and final visual review remain unverified - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: Guide owner and representative readers
@@ -3471,7 +3471,7 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-67`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.4.6`, section `v4.4.6 - guide-learning-experience`, and original ID `MT-446-1`.
 
-### AR-68: OpenClaw tool interception requires an independently scoped typed plugin
+### AR-68: OpenClaw tool interception requires an independently scoped typed plugin - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: OpenClaw integration owner
@@ -3506,7 +3506,7 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-68`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.3.0`, section `v4.3.0 - agentic-verification-discipline`, and original ID `DF-4`.
 
-### AR-69: Native browser zoom and OS occlusion need real host qualification
+### AR-69: Native browser zoom and OS occlusion need real host qualification - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: Guide and browser qualification owner
@@ -3544,7 +3544,7 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-69`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.4.6`, section `v4.4.6 - guide-learning-experience`, and original ID `MT-446-2`.
 
-### AR-70: Writing Discipline benefit has not been judged on real replies
+### AR-70: Writing Discipline benefit has not been judged on real replies - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: Writing Discipline owner
@@ -3577,7 +3577,7 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-70`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.5.0`, section `v4.5.0 - anti-cliche-and-agent-security`, and original ID `DF-1`.
 
-### AR-71: Repository agent isolation and transitive shared-service reachability remain unqualified
+### AR-71: Repository agent isolation and transitive shared-service reachability remain unqualified - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: Agent-isolation owner
@@ -3612,7 +3612,7 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-71`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.5.0`, section `v4.5.0 - anti-cliche-and-agent-security`, and original ID `DF-2`.
 
-### AR-72: Manual distribution read-path and prose false-positive exercises remain unperformed
+### AR-72: Manual distribution read-path and prose false-positive exercises remain unperformed - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: Installation and writing owners
@@ -3647,7 +3647,7 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-72`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.5.0`, section `v4.5.0 - anti-cliche-and-agent-security`, and original ID `MT-1`.
 
-### AR-73: Five historical CodeQL alerts and the required-context decision remain open
+### AR-73: Five historical CodeQL alerts and the required-context decision remain open - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: Security and CI owner
@@ -3684,7 +3684,7 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-73`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.8`, section `Open Items - found 2026-09-07 during the v4.8.0 adoption plan`, and original ID `WN-K`.
 
-### AR-74: Gemini and OpenCode eval configuration isolation remains unproved
+### AR-74: Gemini and OpenCode eval configuration isolation remains unproved - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: Eval-pipeline owner
@@ -3734,7 +3734,7 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-74`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.10`, section `Open Items - found 2026-09-21 during v4.10.1 implementation`, and original ID `EV-2`.
 
-### AR-75: GitHub retained read-only PR references require an explicit scope disposition
+### AR-75: GitHub retained read-only PR references require an explicit scope disposition - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: Repository owner
@@ -3766,7 +3766,7 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-75`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.12.0`, section `v4.12.0`, and original ID `QG-1`.
 
-### AR-76: The public contributor view needs rendered confirmation or GitHub Support disposition
+### AR-76: The public contributor view needs rendered confirmation or GitHub Support disposition - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: Repository owner
@@ -3804,7 +3804,7 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 **Canonical transfer, 2026-10-09 (v4.13.11 T007)**: The complete source title and body are preserved under `v4.13.0#AR-76`. This tracking-origin migration does not claim the remaining work is implemented. The destination retains the source patch `v4.12.0`, section `v4.12.0`, and original ID `QG-2`.
 
-### AR-77: Antigravity legacy workflow retirement needs a dated vendor check
+### AR-77: Antigravity legacy workflow retirement needs a dated vendor check - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: Antigravity integration owner
@@ -3848,14 +3848,14 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
-| Bugs / regressions (BG) | 1 | 1 |
-| Warnings (WN) | 4 | 2 |
-| Missing tests / coverage gaps (MT) | 1 | 0 |
+| Bugs / regressions (BG) | 0 | 1 |
+| Warnings (WN) | 0 | 2 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
 ### Open Items
 
-#### BG-2-v4131: A test in the full profile writes into the real user's `~/.nexus-hub`
+#### BG-2-v4131: A test in the full profile writes into the real user's `~/.nexus-hub` - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -3883,7 +3883,7 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 **Original source identity**: `v4.13.1#WN-7`; stable ID `WN-7-v4131` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### WN-1-v4131: A user edit made between sessions is preserved but not reported
+#### WN-1-v4131: A user edit made between sessions is preserved but not reported - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -3897,7 +3897,7 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 **Original source identity**: `v4.13.1#WN-1`; stable ID `WN-1-v4131` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### WN-2-v4131: A moved picture was never named in the agent's report
+#### WN-2-v4131: A moved picture was never named in the agent's report - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -3911,7 +3911,7 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 **Original source identity**: `v4.13.1#WN-2`; stable ID `WN-2-v4131` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### WN-3-v4131: Codex replay runs can see the machine's real user skills
+#### WN-3-v4131: Codex replay runs can see the machine's real user skills - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -3935,7 +3935,7 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 **Original source identity**: `v4.13.1#WN-4`; stable ID `WN-4-v4131` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### WN-5-v4131: Scenario D (deck left open) was not re-measured on Claude after the fixes
+#### WN-5-v4131: Scenario D (deck left open) was not re-measured on Claude after the fixes - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -3957,7 +3957,7 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 **Original source identity**: `v4.13.1#WN-6`; stable ID `WN-6-v4131` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### MT-1-v4131: No paid measurement of the rule on a platform other than Claude and Codex
+#### MT-1-v4131: No paid measurement of the rule on a platform other than Claude and Codex - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -3988,15 +3988,15 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 5 | 0 |
+| Deferred (DF) | 0 | 0 |
 | Bugs / regressions (BG) | 0 | 10 |
-| Warnings (WN) | 6 | 6 |
-| Missing tests / coverage gaps (MT) | 2 | 0 |
+| Warnings (WN) | 0 | 6 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
 ### Open Items
 
-#### WN-4-v4132: A headless OpenCode run cannot create a run record, so it cannot reach `PLAN COMPLETE`
+#### WN-4-v4132: A headless OpenCode run cannot create a run record, so it cannot reach `PLAN COMPLETE` - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -4012,7 +4012,7 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 **Original source identity**: `v4.13.2#WN-4`; stable ID `WN-4-v4132` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### WN-7-v4132: On OpenCode a full run proceeds on in-prompt approvals without a run record
+#### WN-7-v4132: On OpenCode a full run proceeds on in-prompt approvals without a run record - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -4028,7 +4028,7 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 **Original source identity**: `v4.13.2#WN-7`; stable ID `WN-7-v4132` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### MT-1-v4132: Condition B (Codex) has one passing end-to-end run
+#### MT-1-v4132: Condition B (Codex) has one passing end-to-end run - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -4044,7 +4044,7 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 **Original source identity**: `v4.13.2#MT-1`; stable ID `MT-1-v4132` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### WN-8-v4132: The run record's signature does not cover `pause` or `blockers`
+#### WN-8-v4132: The run record's signature does not cover `pause` or `blockers` - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -4060,7 +4060,7 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 **Original source identity**: `v4.13.2#WN-8`; stable ID `WN-8-v4132` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### WN-9-v4132: Approval capture binds typed text, not the approval class - PARTIALLY RESOLVED 2026-09-29
+#### WN-9-v4132: Approval capture binds typed text, not the approval class - PARTIALLY RESOLVED 2026-09-29 - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -4088,7 +4088,7 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 **Original source identity**: `v4.13.2#WN-9`; stable ID `WN-9-v4132` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### WN-11-v4132: `run-plan` checks only global settings for an approval bypass
+#### WN-11-v4132: `run-plan` checks only global settings for an approval bypass - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -4116,7 +4116,7 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 **Original source identity**: `v4.13.2#WN-12`; stable ID `WN-12-v4132` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### WN-13: Record lifetime and environment edge cases
+#### WN-13: Record lifetime and environment edge cases - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -4132,7 +4132,7 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 **Owner**: catalog maintainer. **Status**: open, partially repaired and integrated through [PR #374](https://github.com/bendourthe/Nexus-Hub/pull/374) at `510fd987`; its required checks passed with one expected skip, and [post-merge run 36455108200](https://github.com/bendourthe/Nexus-Hub/actions/runs/36455108200) passed smoke and provenance. Same-session and unspecified-session records older than 72 hours are now ignored, and inherited Git repository selectors no longer misclassify an untracked private record inside a home Git tree; a tracked record still blocks as tampered. The 104 focused checker and runner tests passed, including negative controls for an extra `gh` error and a tracked record. The fresh-PR `no checks reported` text is handled in the checker and stub tests, but the exact stderr remains unverified: `gh pr checks 374` already showed pending jobs immediately after PR creation. **Suggested next step**: capture the live no-checks response on a future newly opened PR and compare it to the guarded pattern before closing this item; keep malformed or additional errors as `cannot-verify`.
 
-#### DF-5-v4132: Approval capture is missing on Pi, OpenClaw, Hermes, and Windsurf
+#### DF-5-v4132: Approval capture is missing on Pi, OpenClaw, Hermes, and Windsurf - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -4168,7 +4168,7 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 **Original source identity**: `v4.13.2#DF-7`; stable ID `DF-7-v4132` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### MT-2: No real CLI run exercised a gate refusal or a runner resume
+#### MT-2: No real CLI run exercised a gate refusal or a runner resume - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -4182,7 +4182,7 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 **Owner**: catalog maintainer. **Status**: open. **Suggested next step**: run one paid condition with a fixture that cannot finish in one turn (for example a phase whose test only passes after a second commit) and record the gate and runner cycles. **Update (v4.13.6 Phase 1)**: under exact binding, the paid conditions in `tests/e2e/implement_full/run_e2e.py` (`--agent claude|codex|opencode`) cannot record: their first turn states the approvals verbatim in the prompt, which never equals a line `record render` generates, so `record create` refuses (`approval-not-captured` or `session-too-new`) and the run cannot reach `PLAN COMPLETE`. Owner: v4.13.6 Phase 7. The paid first turn needs a render step whose printed line is then fed as a second scripted user turn in the same session, before any paid run is spent on this item.
 
-#### DF-1-v4132: Devin Desktop reads `.devin/hooks.json`, which the Windsurf integration does not model
+#### DF-1-v4132: Devin Desktop reads `.devin/hooks.json`, which the Windsurf integration does not model - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer, via `[[platform-contract-verification]]`
@@ -4198,7 +4198,7 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 **Original source identity**: `v4.13.2#DF-1`; stable ID `DF-1-v4132` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### DF-2-v4132: Antigravity 1.0 hook support is unconfirmed while the integration declares none
+#### DF-2-v4132: Antigravity 1.0 hook support is unconfirmed while the integration declares none - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer, via `[[platform-contract-verification]]`
@@ -4214,7 +4214,7 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 **Original source identity**: `v4.13.2#DF-2`; stable ID `DF-2-v4132` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### DF-3-v4132: Devin CLI reads Claude Code's hook files, so Claude registrations also reach it
+#### DF-3-v4132: Devin CLI reads Claude Code's hook files, so Claude registrations also reach it - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer, via `[[platform-contract-verification]]`
@@ -4232,7 +4232,7 @@ Prior v3.20 items (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-
 
 **Original source identity**: `v4.13.2#DF-3`; stable ID `DF-3-v4132` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### DF-4-v4132: OpenClaw and Hermes completion plugins need a manual enable step
+#### DF-4-v4132: OpenClaw and Hermes completion plugins need a manual enable step - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer, via `[[platform-contract-verification]]`
@@ -4348,15 +4348,15 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 4 | 1 |
+| Deferred (DF) | 0 | 1 |
 | Bugs / regressions (BG) | 0 | 2 |
-| Warnings (WN) | 1 | 3 |
-| Missing tests / coverage gaps (MT) | 1 | 0 |
+| Warnings (WN) | 0 | 3 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
 ### Open Items
 
-#### DF-1-v4133 (v4.13.3): Flip the skill-index pointer on by default, and decide todos-on-demand
+#### DF-1-v4133 (v4.13.3): Flip the skill-index pointer on by default, and decide todos-on-demand - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: `v4.15.2-adoption-harness-economics-and-portable-engineering-system`
@@ -4370,7 +4370,7 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 
 **Original source identity**: `v4.13.3#DF-1`; stable ID `DF-1-v4133` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### DF-2-v4133 (v4.13.3): Pilot variant mode for instruction-file comparisons
+#### DF-2-v4133 (v4.13.3): Pilot variant mode for instruction-file comparisons - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: v4.15.0
@@ -4394,7 +4394,7 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 
 **Original source identity**: `v4.13.3#DF-3`; stable ID `DF-3-v4133` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### DF-4-v4133 (v4.13.3): Static-measurement ownership split for v4.15.2
+#### DF-4-v4133 (v4.13.3): Static-measurement ownership split for v4.15.2 - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: v4.15.2
@@ -4428,7 +4428,7 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 
 **Source phase**: Phase 4. **Reason**: `docs/decisions/implemented/tooling/2026-09-24-legacy-instruction-block-removal.md` describes shipped behavior once v4.13.3 is released. The record format requires a rewrite (Decision in present tense, Consequences) and a move, not a Status edit. **Owner**: `/update release` for v4.13.3. **Status**: resolved at the v4.13.3 release: the record moved to `docs/decisions/implemented/tooling/` with a Decision section and a Consequences section, and the capability-usage entry ships in the release notes.
 
-#### DF-8 (v4.13.3): Per-agent `omitClaudeMd` for catalog agents
+#### DF-8 (v4.13.3): Per-agent `omitClaudeMd` for catalog agents - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: `v4.14.0-adoption-agent-tooling-and-subagent-cost`
@@ -4460,7 +4460,7 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 
 **Normalization, 2026-10-09 (v4.13.11 T006)**: Parsed RESOLVED marker records the already evidenced disposition retained above. No new runtime or historical capture is claimed.
 
-#### MT-1-v4133 (v4.13.3): The full installers were not run end to end on a disposable machine
+#### MT-1-v4133 (v4.13.3): The full installers were not run end to end on a disposable machine - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: release maintainer
@@ -4486,7 +4486,7 @@ Gaps from the truthful-session-context and measured-instruction-size plan ([`v4.
 
 **Original source identity**: `v4.13.3#WN-5`; stable ID `WN-5-v4133` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### WN-6-v4133 (v4.13.3): Behavioral-lever drift found by the release contract pass
+#### WN-6-v4133 (v4.13.3): Behavioral-lever drift found by the release contract pass - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer, via `[[platform-contract-verification]]`
@@ -4602,15 +4602,15 @@ Gaps from the minor-scope implement plan ([`v4.13.6-minor-scope-implement-and-ve
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 1 | 0 |
+| Deferred (DF) | 0 | 0 |
 | Bugs / regressions (BG) | 0 | 10 |
-| Warnings (WN) | 2 | 1 |
+| Warnings (WN) | 0 | 1 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
-| Quality-gate gaps (QG) | 1 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
 
 ### Open Items
 
-#### WN-1-v4136 (v4.13.6): Claude Code interactive `/goal` capture is observed only headless
+#### WN-1-v4136 (v4.13.6): Claude Code interactive `/goal` capture is observed only headless - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -4640,7 +4640,7 @@ Gaps from the minor-scope implement plan ([`v4.13.6-minor-scope-implement-and-ve
 
 **Original source identity**: `v4.13.6#MT-1`; stable ID `MT-1-v4136` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### WN-4-v4136 (v4.13.6): The whole website guide reports 100 detector findings on views this plan did not touch
+#### WN-4-v4136 (v4.13.6): The whole website guide reports 100 detector findings on views this plan did not touch - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: guide maintainer
@@ -4660,7 +4660,7 @@ Gaps from the minor-scope implement plan ([`v4.13.6-minor-scope-implement-and-ve
 
 **Tracking alias closure, 2026-10-09 (v4.13.11 T007)**: This source repeats the obligation tracked by `v4.13.2#WN-9`. Its stable normalized owner is `v4.13.2#WN-9-v4132`. The original body is retained; the canonical owner remains open, and this marker does not claim implementation.
 
-#### DF-1-v4136 (v4.13.6): Copilot CLI sets no native goal headlessly
+#### DF-1-v4136 (v4.13.6): Copilot CLI sets no native goal headlessly - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -4674,7 +4674,7 @@ Gaps from the minor-scope implement plan ([`v4.13.6-minor-scope-implement-and-ve
 
 **Original source identity**: `v4.13.6#DF-1`; stable ID `DF-1-v4136` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### QG-1-v4136 (v4.13.6): The non-engineer read-back of the approval page is pending
+#### QG-1-v4136 (v4.13.6): The non-engineer read-back of the approval page is pending - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: the user, via the orchestrator
@@ -4784,15 +4784,15 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 4 | 0 |
+| Deferred (DF) | 0 | 0 |
 | Bugs / regressions (BG) | 0 | 2 |
-| Warnings (WN) | 5 | 3 |
+| Warnings (WN) | 0 | 3 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
-| Quality-gate gaps (QG) | 1 | 1 |
+| Quality-gate gaps (QG) | 0 | 1 |
 
 ### Open Items
 
-#### WN-1-v4139 (v4.13.9): The GPT-6.1 Sol announcement could not be read
+#### WN-1-v4139 (v4.13.9): The GPT-6.1 Sol announcement could not be read - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: not stated in source; maintainer to set
@@ -4808,7 +4808,7 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 
 **Original source identity**: `v4.13.9#WN-1`; stable ID `WN-1-v4139` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### WN-2-v4139 (v4.13.9): Cursor's primary documentation for `/visualize` was not read
+#### WN-2-v4139 (v4.13.9): Cursor's primary documentation for `/visualize` was not read - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: not stated in source; maintainer to set
@@ -4824,7 +4824,7 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 
 **Original source identity**: `v4.13.9#WN-2`; stable ID `WN-2-v4139` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### DF-1-v4139 (v4.13.9): The Codex `doctor` advisory was cut from this plan
+#### DF-1-v4139 (v4.13.9): The Codex `doctor` advisory was cut from this plan - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: not stated in source; maintainer to set
@@ -4840,7 +4840,7 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 
 **Original source identity**: `v4.13.9#DF-1`; stable ID `DF-1-v4139` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### DF-9 (v4.13.9): Claude Haiku 5.5 is announced but has no profile or map cell
+#### DF-9 (v4.13.9): Claude Haiku 5.5 is announced but has no profile or map cell - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: not stated in source; maintainer to set
@@ -4856,7 +4856,7 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 
 - **Carried from**: v4.13.8#DF-1 on 2026-10-02
 
-#### DF-11 (v4.13.9): Nine newly rostered Claude models have no prompting profile
+#### DF-11 (v4.13.9): Nine newly rostered Claude models have no prompting profile - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: not stated in source; maintainer to set
@@ -4892,7 +4892,7 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 
 - **Carried from**: v4.13.8#WN-2 on 2026-10-02
 
-#### WN-23 (v4.13.9): The primary roster mixes vendors, so its freshness check always reads DRIFTED
+#### WN-23 (v4.13.9): The primary roster mixes vendors, so its freshness check always reads DRIFTED - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: maintainer (bendourthe)
@@ -4910,7 +4910,7 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 
 - **Carried from**: v4.13.8#WN-3 on 2026-10-02
 
-#### DF-12 (v4.13.9): The first-principles pilot stopped at the smoke run because effort could not be confirmed
+#### DF-12 (v4.13.9): The first-principles pilot stopped at the smoke run because effort could not be confirmed - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: not stated in source; maintainer to set
@@ -4946,7 +4946,7 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 
 - **Carried from**: v4.13.8#WN-5 on 2026-10-02
 
-#### WN-26 (v4.13.9): Open Dependabot branches make the all-refs attribution check fail
+#### WN-26 (v4.13.9): Open Dependabot branches make the all-refs attribution check fail - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: catalog maintainer
@@ -5023,7 +5023,7 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 
 - **Carried from**: v4.13.8#WN-17 on 2026-10-02
 
-#### WN-31 (v4.13.9): Definition of Done 7 asks for a reset's expiry; Codex serves a count and no expiry
+#### WN-31 (v4.13.9): Definition of Done 7 asks for a reset's expiry; Codex serves a count and no expiry - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: extensions owner
@@ -5059,7 +5059,7 @@ Gaps from the Sonnet 5.5 profile and first-principles plan ([`v4.13.8-adoption-s
 
 - **Carried from**: v4.13.8#WN-20 on 2026-10-02
 
-#### QG-7 (v4.13.9): The real-editor and live-limit checks are manual and pending
+#### QG-7 (v4.13.9): The real-editor and live-limit checks are manual and pending - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: maintainer
@@ -5156,13 +5156,13 @@ Gaps from the Training page rebuild ([`v4.13.10-training-page-rebuild`](plans/v4
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 2 |
 | Bugs / regressions (BG) | 0 | 0 |
-| Warnings (WN) | 4 | 5 |
+| Warnings (WN) | 0 | 5 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
-| Quality-gate gaps (QG) | 1 | 1 |
+| Quality-gate gaps (QG) | 0 | 1 |
 
 ### Open Items
 
-#### WN-1-v41310 (v4.13.10): The missing-file notice is verified in Chromium only
+#### WN-1-v41310 (v4.13.10): The missing-file notice is verified in Chromium only - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: guide owner
@@ -5210,7 +5210,7 @@ Gaps from the Training page rebuild ([`v4.13.10-training-page-rebuild`](plans/v4
 
 **Original source identity**: `v4.13.10#WN-8`; stable ID `WN-8-v41310` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### WN-9-v41310 (v4.13.10): The Nexus AI Studio trailer shows no screens of the app
+#### WN-9-v41310 (v4.13.10): The Nexus AI Studio trailer shows no screens of the app - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: maintainer
@@ -5226,7 +5226,7 @@ Gaps from the Training page rebuild ([`v4.13.10-training-page-rebuild`](plans/v4
 
 **Original source identity**: `v4.13.10#WN-9`; stable ID `WN-9-v41310` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### WN-11-v41310 (v4.13.10): The WebGL game's frame rate is unverified on a real GPU
+#### WN-11-v41310 (v4.13.10): The WebGL game's frame rate is unverified on a real GPU - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: maintainer
@@ -5242,7 +5242,7 @@ Gaps from the Training page rebuild ([`v4.13.10-training-page-rebuild`](plans/v4
 
 **Original source identity**: `v4.13.10#WN-11`; stable ID `WN-11-v41310` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### WN-12-v41310 (v4.13.10): Minor visual nits left from the revision 2 review
+#### WN-12-v41310 (v4.13.10): Minor visual nits left from the revision 2 review - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: guide owner
@@ -5260,7 +5260,7 @@ Gaps from the Training page rebuild ([`v4.13.10-training-page-rebuild`](plans/v4
 
 **Original source identity**: `v4.13.10#WN-12`; stable ID `WN-12-v41310` distinguishes this obligation from repeated IDs in other patch sections.
 
-#### QG-2-v41310 (v4.13.10): The learner check has not been run
+#### QG-2-v41310 (v4.13.10): The learner check has not been run - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: maintainer
@@ -5300,7 +5300,7 @@ Admission and normalization findings for the [known-gaps sweep plan](plans/v4.13
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
 | Bugs / regressions (BG) | 0 | 7 |
-| Warnings (WN) | 1 | 7 |
+| Warnings (WN) | 0 | 7 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
@@ -5324,7 +5324,7 @@ Admission and normalization findings for the [known-gaps sweep plan](plans/v4.13
 
 **Resolution, 2026-10-09 (v4.13.11 T005/T009)**: The writer and completion verifier now share a unique complete-copy predicate. Stub, truncated, ambiguous and hidden proof copies refuse before source mutation; ordinary complete copies and proven same-kind within-minor carry remain valid. Final required validators and affected carry coverage passed: `python -m pytest -q tests/validators/test_gap_migration_and_archive.py tests/validators/test_completion_minor_record.py tests/validators/test_completion_minor_verdict.py tests/validators/test_plan_carry_and_archive.py`, exit 0, 271 passed in 1229.99s (0:20:29). The real scoped ledger proof verifies all 158 complete historical copies with no parser or visibility errors. Independent security and contract reviews approved the final correction. See [Phase 2 evidence](development/v4.13.11-phase-2-evidence.md) and its retained terminal receipts. This resolution closes only the migration-copy defect; it does not close migrated residual work.
 
-#### WN-40 (v4.13.11): Ship-balance browser fixture takes 18-38 minutes on CI
+#### WN-40 (v4.13.11): Ship-balance browser fixture takes 18-38 minutes on CI - MIGRATED to v4.14.0
 
 **Carry-forward contract (v4.13.11)**:
 - **Owner**: guide test maintainer

@@ -176,12 +176,16 @@ def repoint(dest: str, old_dir: str, new_dir: str, mapper: Callable[[str], str])
     return f"<{rebuilt}>" if angle else rebuilt
 
 
-def _outside_code(text: str, fix: Callable[[str], str], markdown: bool) -> str:
+def _outside_code(
+    text: str, fix: Callable[[str], str], markdown: bool, *, link_labels: bool = False,
+) -> str:
     """Apply `fix` to every stretch of `text` outside fenced code and inline code spans.
 
     Fences follow the one CommonMark implementation in `completion_minor.fence_mask`;
     a fence left open at the end keeps the rest of the file as code, so nothing past
     it is rewritten. Non-Markdown text has no code syntax and is fixed whole.
+    Link repair keeps code-formatted labels with their destination; mention repair
+    still protects those labels as literal code.
     """
     if not markdown:
         return fix(text)
@@ -193,7 +197,13 @@ def _outside_code(text: str, fix: Callable[[str], str], markdown: bool) -> str:
             out.append(line)
             continue
         pieces, last = [], 0
+        links = list(_INLINE_LINK_RE.finditer(line)) if link_labels else []
+        definition = _REF_DEF_RE.match(line) if link_labels else None
+        if definition is not None:
+            links.append(definition)
         for code in _CODE_SPAN_RE.finditer(line):
+            if any(link.start() <= code.start() and code.end() <= link.end("pre") for link in links):
+                continue
             pieces.append(fix(line[last:code.start()]))
             pieces.append(code.group(0))
             last = code.end()
@@ -229,7 +239,7 @@ def rewrite_links(text: str, old_dir: str, new_dir: str, mapper: Callable[[str],
             out.append(line)
         return "".join(out)
 
-    return _outside_code(text, fix, markdown=True), count
+    return _outside_code(text, fix, markdown=True, link_labels=True), count
 
 
 def _mention_patterns(old: str) -> list[re.Pattern[str]]:
@@ -834,6 +844,7 @@ def cmd_carry(args: argparse.Namespace) -> int:
 
 
 _UNCHECKED_TASK_RE = re.compile(r"^- \[ \] T\d+\b", re.MULTILINE)
+_UNCHECKED_CHECKLIST_RE = re.compile(r"^[ \t]*[-*+] \[ \](?:[ \t]|$)", re.MULTILINE)
 _STATUS_RE = re.compile(r"^\*\*Status\*\*\s*:(.*)$", re.MULTILINE | re.IGNORECASE)
 _ZERO_OPEN_RE = re.compile(r"^\*\*Open items\*\*\s*:\s*0\s*$", re.MULTILINE | re.IGNORECASE)
 _PLAN_REL_RE = re.compile(r"^docs/(?:[^/]+/)*plans/[^/]+\.md\Z", re.ASCII)
@@ -882,7 +893,7 @@ def register_refusals(
         out.append(Refused("register-not-finalized", rel))
     if any("in-progress" in s or "in progress" in s or (re.search(r"\bopen\b", s) and "no open" not in s) for s in statuses):
         out.append(Refused("register-status-open", rel))
-    if "- [ ]" in ledger.text:
+    if _UNCHECKED_CHECKLIST_RE.search(ledger.text):
         out.append(Refused("register-unchecked-box", rel))
     return out
 
@@ -903,9 +914,9 @@ def plan_refusals(rctx: ck.RepoContext, token: str, record: dict | None) -> list
             out.append(Refused("unchecked-task", plan.version))
         if plan.status == "superseded":
             continue
-        if plan.status not in cm.DONE_STATUSES and plan.version not in members:
-            out.append(Refused("queued-plan-outside-members", plan.version))
         state = cm.shipped(ck, rctx, repo, plan.version)
+        if plan.status not in cm.DONE_STATUSES and plan.version not in members and state != "met":
+            out.append(Refused("queued-plan-outside-members", plan.version))
         if state == "unmet":
             out.append(Refused("unreleased-member", plan.version))
         elif state != "met":
