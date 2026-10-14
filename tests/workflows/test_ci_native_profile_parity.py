@@ -41,9 +41,10 @@ def test_windows_workflow_has_no_second_native_test_list() -> None:
 def test_windows_installer_corpus_runs_in_its_own_job() -> None:
     """The installer corpus keeps 5.1 coverage but no longer shares the hooks job's time cap."""
     installer = next(group for group in groups_for("platform") if group.name == "windows-installer")
-    (command,) = installer.commands
-    assert {"tests/installer", "tests/validators"} <= set(command.argv)
-    assert command.env["NEXUS_TEST_POWERSHELL"] == "powershell"
+    selected = {arg for command in installer.commands for arg in command.argv if arg.startswith("tests/")}
+    assert selected == {"tests/installer", "tests/validators"}
+    assert len(installer.commands) == 2, "each corpus keeps its own command time bound"
+    assert all(command.env["NEXUS_TEST_POWERSHELL"] == "powershell" for command in installer.commands)
     hooks = next(group for group in groups_for("platform") if group.name == "windows-hooks")
     assert not any("tests/installer" in c.argv for c in hooks.commands)
     workflow = yaml.safe_load(CI.read_text(encoding="utf-8"))

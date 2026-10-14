@@ -593,12 +593,20 @@ WINDOWS_HOOKS = Group(
 
 # Its own CI job: with this corpus (about 1800 s) inside windows-hooks, the
 # group measured 3534 s against the job's 3600 s cap and two runs timed out.
+# Two commands, because the combined selection also exceeded its own 1800 s
+# command bound (1784 s passing, 1800.1 s failing).
 WINDOWS_INSTALLER = Group(
     name="windows-installer",
     commands=(
         _pytest(
-            "installer + validators (Windows)",
+            "installer (Windows)",
             "tests/installer",
+            platforms=("windows",),
+            timeout=1800,
+            env={"NEXUS_TEST_POWERSHELL": "powershell"},
+        ),
+        _pytest(
+            "validators (Windows)",
             "tests/validators",
             platforms=("windows",),
             timeout=1800,
