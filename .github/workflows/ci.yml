@@ -409,6 +409,54 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
+
+  tests-windows-installer:
+    # The installer + validators corpus under Windows PowerShell 5.1, split
+    # out of tests-windows: together they measured 3534 s of a 3600 s cap and
+    # timed out twice. Same runner, setup and edition; separate time budget.
+    needs: changes
+    runs-on: windows-latest
+    timeout-minutes: 60
+    if: ${{ !cancelled() && needs.changes.outputs.relevant != 'false' }}
+    steps:
+      - name: Enable Git long paths before checkout
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: git config --global core.longpaths true
+
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: |
+            scripts/ci/requirements-windows.in
+            scripts/ci/requirements-py311.txt
+
+      - name: Install test dependencies
+        run: python -m pip install -c scripts/ci/requirements-py311.txt -r scripts/ci/requirements-windows.in
+
+      - name: Windows installer profile group
+        # NEXUS_TEST_POWERSHELL is pinned inside the profile definition, not
+        # here, so a developer running `make ci-platform` on Windows gets the
+        # same edition under test as CI does.
+        run: python scripts/ci/run.py --profile platform --only windows-installer --reports-dir reports
+
+      - name: Publish the run summary
+        if: always()
+        shell: bash
+        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Retain Windows reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ci-windows-installer-reports
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 7
+
   bootstrap:
     # Exercise the dual-mode self-fetching bootstrap end to end on a clean
     # machine (no pre-existing clone). The bash entry point runs the FULL
@@ -760,6 +808,7 @@ jobs:
       - tests
       - guide-render
       - tests-windows
+      - tests-windows-installer
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -785,6 +834,7 @@ jobs:
           RESULT_TESTS: ${{ needs.tests.result }}
           RESULT_GUIDE_RENDER: ${{ needs['guide-render'].result }}
           RESULT_TESTS_WINDOWS: ${{ needs['tests-windows'].result }}
+          RESULT_TESTS_WINDOWS_INSTALLER: ${{ needs['tests-windows-installer'].result }}
         run: |
           python scripts/ci/run.py --profile report --reports-dir reports \
             --expect-artifact ci-validation-reports=$RESULT_VALIDATE \
@@ -793,7 +843,8 @@ jobs:
             --expect-artifact ci-guide-render-report-engine=$RESULT_GUIDE_RENDER \
             --expect-artifact ci-guide-render-report-game=$RESULT_GUIDE_RENDER \
             --expect-artifact ci-guide-render-report-rest=$RESULT_GUIDE_RENDER \
-            --expect-artifact ci-windows-reports=$RESULT_TESTS_WINDOWS
+            --expect-artifact ci-windows-reports=$RESULT_TESTS_WINDOWS \
+            --expect-artifact ci-windows-installer-reports=$RESULT_TESTS_WINDOWS_INSTALLER
 
       - name: Publish aggregate summary
         if: always()
@@ -846,6 +897,7 @@ jobs:
       - tests
       - guide-render
       - tests-windows
+      - tests-windows-installer
       - bootstrap
       - bootstrap-windows
       - install-smoke
@@ -864,6 +916,7 @@ jobs:
           R_tests: ${{ needs.tests.result }}
           R_guide_render: ${{ needs['guide-render'].result }}
           R_tests_windows: ${{ needs['tests-windows'].result }}
+          R_tests_windows_installer: ${{ needs['tests-windows-installer'].result }}
           R_bootstrap: ${{ needs.bootstrap.result }}
           R_bootstrap_windows: ${{ needs['bootstrap-windows'].result }}
           R_install_smoke: ${{ needs['install-smoke'].result }}
