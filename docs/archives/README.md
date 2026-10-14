@@ -96,3 +96,7 @@ Two distinct rules put content here, and conflating them is the easy mistake:
 Archive moves are performed by `/refactor-docs` (the `docs-layout-refactor` skill) with reference repair; see the most recent `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/docs-cleanup-report.md` for the audit trail of each move. New frozen verification records do not move source files.
 
 The v2 line was archived on 2026-06-04 alongside the v3.0.0 release (audit trail: `docs/archives/v3/v3.1/docs-cleanup-report.md`). The v3.16 `development/history` subtree (39 files) was archived on 2026-08-22 under rule 2 after v3.18.2 released; v3.17 followed with 27 files during the v3.19.0 release pass. v3.18 and v3.19 were archived in the v4 line, and v3.20 (22 files) plus v3.21 (5 files) were archived on 2026-09-06, completing the v3 line. That last pass also repaired the 20 `../../plans/` links the move broke and repointed five `DEVLOG.md` history links; it was the first run after `check_docs_retention.py` was fixed, having reported a clean tree since the layout refactor.
+
+## v4.13 minor archive
+
+The [v4.13 closure record](v4/v4.13/development/v4.13-minor-close-evidence.md) covers releases through v4.13.12, the native 392-file move, zero newly broken links and the [qualified handbook snapshot](v4/v4.13/handbooks/v4.13.12/README.md). The source ledger has zero open items; 83 obligations remain open in v4.14. Closing integration and the final native cleanup receipt remain pending.
