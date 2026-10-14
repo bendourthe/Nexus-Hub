@@ -38,6 +38,7 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
   private suggestion: UsageSuggestion | undefined;
   private urgency: UrgencyLevel = "moderate";
   private callbacks: WarningCallbacks | undefined;
+  private dismissTimer: ReturnType<typeof setTimeout> | undefined;
 
   resolveWebviewView(view: vscode.WebviewView): void {
     this.view = view;
@@ -48,6 +49,7 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
       // so the next show() re-reveals (and re-resolves) it instead of posting to a
       // disposed webview.
       if (this.view === view) {
+        this.clearDismissTimer();
         this.view = undefined;
       }
     });
@@ -77,6 +79,10 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
     urgency: UrgencyLevel,
     callbacks: WarningCallbacks,
   ): Promise<void> {
+    this.clearDismissTimer();
+    this.dismissTimer = setTimeout(() => {
+      void this.hide();
+    }, 60_000);
     this.suggestion = suggestion;
     this.urgency = urgency;
     this.callbacks = callbacks;
@@ -93,9 +99,17 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
 
   /** Dismiss the warning: flip the context key so the view and its container hide. */
   private async hide(): Promise<void> {
+    this.clearDismissTimer();
     this.suggestion = undefined;
     this.view = undefined;
     await vscode.commands.executeCommand("setContext", WARNING_ACTIVE_CONTEXT, false);
+  }
+
+  private clearDismissTimer(): void {
+    if (this.dismissTimer !== undefined) {
+      clearTimeout(this.dismissTimer);
+      this.dismissTimer = undefined;
+    }
   }
 
   private getHtml(webview: vscode.Webview): string {
