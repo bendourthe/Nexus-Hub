@@ -16,6 +16,7 @@ LOCK = "scripts/ci/requirements-py311.txt"
     (
         ("guide-render", "scripts/ci/requirements-guide-render.in", "Install guide render test dependencies"),
         ("tests-windows", "scripts/ci/requirements-windows.in", "Install test dependencies"),
+        ("tests-windows-installer", "scripts/ci/requirements-windows.in", "Install test dependencies"),
     ),
 )
 def test_scoped_pip_cache_uses_the_installed_manifest(

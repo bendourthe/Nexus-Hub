@@ -13,6 +13,7 @@ SOURCES = {
     "tests": "ci-test-reports",
     "guide-render": ("ci-guide-render-report-engine", "ci-guide-render-report-game", "ci-guide-render-report-rest"),
     "tests-windows": "ci-windows-reports",
+    "tests-windows-installer": "ci-windows-installer-reports",
 }
 
 
