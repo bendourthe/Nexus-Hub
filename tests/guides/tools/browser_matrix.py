@@ -36,7 +36,7 @@ GUIDE = _ROOT / "guides" / "website" / "nexus-hub-guide.html"
 TRAINING = _ROOT / "guides" / "website" / "training.html"
 PLAN_SLUG = "training-page-rebuild"
 PLAN_LABEL = "v4.13.10 training-page-rebuild"
-DEFAULT_OUT = _ROOT / "docs" / "releases" / "v4" / "v4.13" / "development" / PLAN_SLUG / "renders"
+DEFAULT_OUT = _ROOT / ".nexus-hub" / "browser-matrix"
 
 PAGES = ("home", "foundations", "cheatsheets")
 THEMES = ("dark", "light")

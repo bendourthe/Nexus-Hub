@@ -16,7 +16,7 @@ _SKILL_DIR = _ROOT / "catalog" / "skills" / "code-review" / "multi-agent-code-re
 _SKILL = _SKILL_DIR / "SKILL.md"
 _DRAFTS_REF = _SKILL_DIR / "references" / "draft-review-comments.md"
 _REVIEW_CMD = _ROOT / "catalog" / "commands" / "review.md"
-_EXERCISE = _ROOT / "docs" / "releases" / "v4" / "v4.13" / "development" / "v4.13.9-review-drafts-exercise" / "draft-review-comments-4f4681e.md"
+_EXERCISE = _ROOT / "docs" / "archives" / "v4" / "v4.13" / "development" / "v4.13.9-review-drafts-exercise" / "draft-review-comments-4f4681e.md"
 # Commands or APIs that would write to a pull request, merge request, or issue. Read-only use
 # (`gh pr diff`) and the prohibition text itself are not posting instructions.
 _POSTING = [

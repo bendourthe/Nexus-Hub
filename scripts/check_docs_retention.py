@@ -235,6 +235,8 @@ def legacy_transfer_is_complete(root: Path, version_dir: Path, gaps: Path) -> bo
     if minor >= 13:
         return False
     index = root / RELEASES_ROOT / "v4" / "v4.13" / "known-gaps.md"
+    if not index.exists():
+        index = root / ARCHIVES_ROOT / "v4" / "v4.13" / "known-gaps.md"
     try:
         text = index.read_text(encoding="utf-8")
         if (

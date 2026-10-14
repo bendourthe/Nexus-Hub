@@ -246,7 +246,7 @@ The v4.9 MT-3 [chart-line paint follow-up](../v4.9/development/runtime-deck-all-
 
 | Minor | Source ledger | Normalized SHA-256 |
 |---|---|---|
-| v4.0 | [ledger](../v4.0/known-gaps.md) | `3074de96b2fbf26e0ecb2a711c9c39b5ac138249a4639114c4099199eab790ad` |
+| v4.0 | [ledger](../v4.0/known-gaps.md) | `48a4c30d6614b3b80c026cc1d22c0df1998090a1d07db3ea50705a997e64dc1f` |
 | v4.1 | [ledger](../v4.1/known-gaps.md) | `ce21dcab5cd5ac09ee7270cc6e61ccb5c78ba48f7e40af0afe4807f28e2c2089` |
 | v4.2 | [ledger](../v4.2/known-gaps.md) | `1e203adeb10e056443731ae2ebc192b4424e1d8c48819afae3740d6c5bbefb81` |
 | v4.3 | [ledger](../v4.3/known-gaps.md) | `8496eeee6f6eb75241eef268fb4164a9773c8c5f3bd83cc2fb0fba08c5ddcb9b` |

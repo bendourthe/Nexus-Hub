@@ -23,7 +23,7 @@ _INDEX = _BUNDLE / "assets" / "profiles-index.json"
 _MIRROR = _BUNDLE / "references" / "models" / "gpt-6.1-sol.md"
 _WRITER = _BUNDLE / "scripts" / "write_model_prompting_profile.py"
 _VALIDATOR = _ROOT / "scripts" / "verify_model_prompting_profiles.py"
-_EVIDENCE = _ROOT / "docs" / "releases" / "v4" / "v4.13" / "development" / "v4.13.9-sol-sources"
+_EVIDENCE = _ROOT / "docs" / "archives" / "v4" / "v4.13" / "development" / "v4.13.9-sol-sources"
 _SAVED_TEXT = {
     "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-6-astra": "latest-model.txt",
     "https://developers.openai.com/api/docs/models": "models.txt",
