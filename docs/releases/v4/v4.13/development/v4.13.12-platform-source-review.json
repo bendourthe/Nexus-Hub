@@ -1,0 +1,187 @@
+{
+  "reviewed_at_utc": "2026-10-14T02:54:19+00:00",
+  "candidate": "685af4558e770b291d4977a706a1d38a10dc0df9",
+  "scope": "Sixteen primary discovery-page refreshes plus the changed Claude and Antigravity hook decision documentation. Authored review notes; no raw HTTP capture or download hash claimed.",
+  "prior_review": "v4.13.11-phase-8-receipts/platform-readonly-review-continuation.json",
+  "platforms": [
+    {
+      "id": "claude",
+      "source": [
+        "https://code.claude.com/docs/en/skills",
+        "Skill locations / Skill invocation / Legacy commands"
+      ],
+      "retrieval": "primary page opened this cycle",
+      "scope": "discovery refresh; unchanged full review retained",
+      "prior_limits": "All settings link returned browser Internal Error; a read-only urllib fetch of configuration returned HTTP 403. Existing attribution values were preserved, not declared removed."
+    },
+    {
+      "id": "codex",
+      "source": [
+        "https://learn.chatgpt.com/docs/build-skills",
+        "Explicit invocation / Where Codex loads local skills"
+      ],
+      "retrieval": "primary page opened this cycle",
+      "scope": "discovery refresh; unchanged full review retained",
+      "prior_limits": "Authenticated host consumption remains unverified."
+    },
+    {
+      "id": "cursor",
+      "source": [
+        "https://cursor.com/docs/skills",
+        "Locations / Recursive discovery / Invocation metadata"
+      ],
+      "retrieval": "primary page opened this cycle",
+      "scope": "discovery refresh; unchanged full review retained",
+      "prior_limits": "Local documentation does not prove an authenticated UI read-back or global-resource delivery to cloud/SSH workers."
+    },
+    {
+      "id": "copilot",
+      "source": [
+        "https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-custom-instructions",
+        "Personal / Repository instructions"
+      ],
+      "retrieval": "primary page opened this cycle",
+      "scope": "discovery refresh; unchanged full review retained",
+      "prior_limits": "No VS Code or CLI discovery/run test was executed. Optional skill installation stays optional unless separately changed."
+    },
+    {
+      "id": "antigravity2",
+      "source": [
+        "https://antigravity.google/docs/skills",
+        "SKILL.md / Surface locations / Slash conversion"
+      ],
+      "retrieval": "primary page opened this cycle",
+      "scope": "discovery refresh; unchanged full review retained",
+      "prior_limits": "Workflow retirement is future as of this review; no early emission removal is authorized by this date alone. No authenticated Antigravity host or hook execution was observed."
+    },
+    {
+      "id": "antigravity",
+      "source": [
+        "https://antigravity.google/docs/ide/settings",
+        "Client redirect stub"
+      ],
+      "retrieval": "primary page opened this cycle",
+      "scope": "legacy redirect only; native surface remains unverified",
+      "prior_limits": "No separate legacy-host behavior was requalified."
+    },
+    {
+      "id": "gemini",
+      "source": [
+        "https://docs.cloud.google.com/gemini/docs/codeassist/use-agentic-chat-pair-programmer",
+        "Instruction hierarchy / YOLO setting"
+      ],
+      "retrieval": "primary page opened this cycle",
+      "scope": "discovery refresh; unchanged full review retained",
+      "prior_limits": "Authenticated host consumption remains unverified."
+    },
+    {
+      "id": "gemini-cli",
+      "source": [
+        "https://geminicli.com/docs/cli/using-agent-skills/",
+        "Personal and workspace skill roots"
+      ],
+      "retrieval": "primary page opened this cycle",
+      "scope": "discovery refresh; unchanged full review retained",
+      "prior_limits": "Maximum skill depth and copied agent tool-name/body compatibility were not established by this path review."
+    },
+    {
+      "id": "windsurf",
+      "source": [
+        "https://docs.devin.ai/desktop/cascade/memories",
+        "Rules roots / AGENTS.md / Activation"
+      ],
+      "retrieval": "primary page opened this cycle",
+      "scope": "discovery refresh; unchanged full review retained",
+      "prior_limits": "Devin CLI sharing of Claude hook files remains documented; its actual payload/guard behavior was not exercised. Legacy docs.windsurf.com redirect status was not newly measured."
+    },
+    {
+      "id": "opencode",
+      "source": [
+        "https://opencode.ai/docs/skills/",
+        "Place files / Discovery / Frontmatter / Invocation metadata"
+      ],
+      "retrieval": "primary page opened this cycle",
+      "scope": "discovery refresh; unchanged full review retained",
+      "prior_limits": "No whole-configuration isolation or prompt-submit event is inferred; existing completion/evaluation gaps stay separate."
+    },
+    {
+      "id": "openclaw",
+      "source": [
+        "https://docs.openclaw.ai/concepts/agent-workspace",
+        "Default location / Per-agent override / Workspace file map"
+      ],
+      "retrieval": "primary page opened this cycle",
+      "scope": "discovery refresh; unchanged full review retained",
+      "prior_limits": "No arbitrary all-agent selection or workspace mutation policy was inferred. The repair must define intended ownership/selection and fail closed for ambiguous or invalid configuration."
+    },
+    {
+      "id": "qwen",
+      "source": [
+        "https://qwenlm.github.io/qwen-code-docs/en/users/features/skills/",
+        "Personal / Project / Invocation"
+      ],
+      "retrieval": "primary page opened this cycle",
+      "scope": "discovery refresh; unchanged full review retained",
+      "prior_limits": "Maximum skill-scanner depth was not established. New rule capability does not require automatic rule emission."
+    },
+    {
+      "id": "kimi",
+      "source": [
+        "https://www.kimi.com/code/docs/en/kimi-code-cli/customization/skills.html",
+        "Skill locations / Frontmatter / Invoking"
+      ],
+      "retrieval": "primary page opened this cycle",
+      "scope": "discovery refresh; unchanged full review retained",
+      "prior_limits": "Maximum directory-form skill depth and native host read-back were not established. No project-scoped hook path was newly inferred."
+    },
+    {
+      "id": "hermes",
+      "source": [
+        "https://hermes-agent.nousresearch.com/docs/user-guide/features/skills",
+        "External skill directories / Project-local skills"
+      ],
+      "retrieval": "primary page opened this cycle",
+      "scope": "discovery refresh; unchanged full review retained",
+      "prior_limits": "One-level tap installation does not establish maximum runtime discovery depth. No native agent/rule/hook delivery or invocation-policy lever was newly qualified."
+    },
+    {
+      "id": "pi",
+      "source": [
+        "https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/configuration.md",
+        "Paths / Context files / Trust"
+      ],
+      "retrieval": "primary page opened this cycle",
+      "scope": "discovery refresh; unchanged full review retained",
+      "prior_limits": "Sources are mutable main references. No native agent directory or separate rule directory is qualified."
+    },
+    {
+      "id": "nexus-ai",
+      "source": [
+        "https://github.com/bendourthe/Nexus-AI/blob/198ff9c877f258c775092761e3c67a6bed56b1d2/desktop/sidecar/src/skills/hubSkillReader.ts",
+        "Pinned reader"
+      ],
+      "retrieval": "retained pinned private-reader review; not re-fetched",
+      "scope": "discovery refresh; unchanged full review retained",
+      "prior_limits": "The old private/unavailable-source rationale is stale for these files. Project-local discovery, all other mirror consumption, default levers and whole-code invocation-policy absence were not qualified."
+    },
+    {
+      "id": "aider",
+      "source": [
+        "https://aider.chat/docs/config/aider_conf.html",
+        "Config file locations / Sample configuration"
+      ],
+      "retrieval": "primary page opened this cycle",
+      "scope": "discovery refresh; unchanged full review retained",
+      "prior_limits": "The existing Aider CONVENTIONS.md consumption claim was outside this bounded default audit and is not represented as newly verified."
+    }
+  ],
+  "hook_sources": [
+    "https://code.claude.com/docs/en/hooks",
+    "https://antigravity.google/docs/hooks"
+  ],
+  "limits": [
+    "Codex Full access root-mode value remains unconfirmed.",
+    "Cursor allow versus Ask every time remains unverified.",
+    "Undocumented host modes and private or legacy surfaces retain their prior qualification."
+  ]
+}

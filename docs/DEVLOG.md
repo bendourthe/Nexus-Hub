@@ -8,6 +8,7 @@ Releases from v3.0.0 onward each carry their own line. Earlier releases predate 
 
 | Date | Version | Summary | Plan | History | Gaps |
 |---|---|---|---|---|---|
+| 2026-10-13 | v4.13.12 | Host approval modes, monitor label, candidate attribution and verified minor finalization. | - | [Qualification](releases/v4/v4.13/development/v4.13.12-release-qualification.md) | [Gaps](releases/v4/v4.14/known-gaps.md) |
 | 2026-10-13 | v4.13.11 | Known-gap fixes, platform delivery preservation, usage-credit decisions, and verified release qualification. | [Plan](releases/v4/v4.13/plans/v4.13.11-known-gaps-sweep-and-minor-close.md) | [History](releases/v4/v4.13/development/history/) | [Gaps](releases/v4/v4.13/known-gaps.md) |
 | 2026-09-21 | v4.13.0 | Evidence-driven agent improvement: measured skill selection, five negative-controlled capabilities, integration-first release sequencing, guide typography, and one-minor-behind history archiving. | [Plan](releases/v4/v4.13/plans/v4.13.0-adoption-evidence-driven-agent-improvement.md) | [History](releases/v4/v4.13/development/history/) | [Gaps](releases/v4/v4.13/known-gaps.md) |
 | 2026-09-14 | v4.12.0 | User attribution across agent platforms, portable Git protection and verification fixes. | [Plan](archives/v4/v4.12/plans/v4.12.0-sole-contributor-attribution.md) | [History](archives/v4/v4.12/development/history/) | [Gaps](archives/v4/v4.12/known-gaps.md) |
