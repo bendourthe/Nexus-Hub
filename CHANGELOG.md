@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Claude, Codex, GitHub Copilot and Cursor usage-alert sidebar views dismiss automatically after one minute. A new alert gets a fresh minute, and manual dismissal cancels its timer.
 - The Windows PowerShell 5.1 installer and validator tests run in their own `tests-windows-installer` CI job. Inside `tests-windows` the group measured 3534 s of the job's 3600 s limit and timed out twice. The installer and validator corpora also run as separate commands, since together they exceeded their own 1800 s command bound. Coverage, edition and the `ci-required` aggregate are unchanged.
 
+### Changed
+
+- `/compare` and `/plan` create no branch. Their reports, plans and tracker entries are committed on the integration branch and published the same day, through a short-lived `publish/<slug>` pull request deleted at merge when the branch requires one. A version branch is created only when `/implement` starts the plan. The procedure is Step 4d of `git-branching-workflow`.
+
 ## [4.13.12] - 2026-10-13
 
 ### Fixed

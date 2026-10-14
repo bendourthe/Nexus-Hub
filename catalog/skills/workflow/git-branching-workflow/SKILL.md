@@ -80,12 +80,30 @@ Use `feat/<slug>` for features and `fix/<slug>` for fixes; the fuller work-branc
 
 Creating a branch and PUBLISHING it are separate decisions, and for multi-phase plan work they happen at different times.
 
-- Create the feature branch from the integration branch at the start of the plan, as Step 4 describes.
+- Create the feature branch from the integration branch when implementation of the plan starts (`/implement`), as Step 4 describes. Writing the plan creates no branch; see Step 4d.
 - Keep phase commits LOCAL. A non-final phase commits and stops: no push, no pull request, no remote CI. A pipeline run per phase bills to validate work the plan itself calls incomplete, and a red check on incomplete work teaches the reader to ignore red checks.
 - Push ONCE, in the plan's final phase, after the complete local gate and with explicit approval.
 - Integrate only through a reviewed pull request against the INTEGRATION branch, never the protected release branch. That pull request is the plan's first remote validation, and it tests the merge result rather than the branch tip.
 
 This applies to plan-driven work. A one-off fix on a short-lived branch is published whenever it is ready; the rule exists because a multi-phase plan multiplies the cost, not because pushing is bad. See `[[cicd-architect]]` for the pipeline half and `[[implement-phase]]` for the execution half.
+
+### Step 4d: Planning artifacts stay on the integration branch
+
+A version branch exists only once that version is being implemented. Writing a comparison (`/compare`) or a plan (`/plan`) is not implementation, so it creates no `docs/vX.Y.Z-plan`, `docs/vX.Y.Z-comparison`, or version branch.
+
+1. Write and commit planning artifacts (comparisons, plans, the tracker entry) on the integration branch, staging explicit paths as Step 5b requires.
+2. When the integration branch accepts direct pushes, push it. When it requires a pull request (as a protected `develop` usually does), publish through a short-lived pull request:
+
+    ```bash
+    git push origin HEAD:refs/heads/publish/<slug>
+    gh pr create --base develop --head publish/<slug> --title "docs(plans): <summary>"
+    gh pr merge <number> --merge --delete-branch   # once required checks are green
+    git pull --ff-only origin develop               # local develop now matches the merge
+    ```
+
+3. The `publish/<slug>` branch lives only on the remote and only until merge. No local branch is created, and nothing is left behind.
+
+A plan that never leaves a local branch is invisible to every other session and platform; one was lost that way until a later audit found it. Publishing the same day, through the integration branch, is what prevents it.
 
 ### Step 4c: What a protected branch buys you
 
@@ -157,6 +175,7 @@ This discipline is advisory on platforms without enforcement hooks. When working
 | "Fast-forward merges are cleaner, I will skip --no-ff." | Fast-forward erases the boundary of the unit you merged, making it hard to revert one feature without others. `--no-ff` keeps each unit atomic in history. |
 | "I will push each phase so the branch is backed up remotely." | A remote branch is a backup; a remote PIPELINE RUN is a bill. If durability is the goal, push a branch that triggers no validation, or keep a local mirror. Pushing into a validation trigger to get a backup pays for a full run per phase to solve a problem that is not about CI. |
 | "The workflow only runs on merges because it is filtered to develop." | Only if branch protection rejects direct pushes to develop. Without that setting the same filter fires on any developer push, and every post-merge assumption (the tree was reviewed, the gate was green) is false. The protection is what makes the filter mean what you think it means. |
+| "I will put the new plan on its own `docs/vX.Y.Z-plan` branch to keep develop clean." | A plan is not implementation. A per-plan branch is the pattern that left a finished plan stranded on a local-only branch and a dozen stale branches behind. Commit on the integration branch and publish through a short-lived pull request (Step 4d). |
 | "There is no hook on this platform, so the rule does not apply here." | The rule is the project's, not the platform's. Hooks only add a backstop where they run; on Cursor/OpenCode/Copilot the discipline is yours to keep. |
 | "I am the only session in this repo, so staging everything is fine." | You cannot see the other sessions from inside yours, and the cost of being wrong is committing or destroying work you never read. Explicit paths cost one line and remove the question. |
 | "The unexpected staged file is probably mine from earlier." | Probably is not a basis for a commit. Check it or leave it out; a file committed under the wrong message is findable only by whoever goes looking for it later. |
@@ -171,6 +190,8 @@ This discipline is advisory on platforms without enforcement hooks. When working
 - [ ] Project validation/tests ran green before any merge into the integration branch.
 - [ ] Merges into the integration branch use `--no-ff` (or the project's documented merge style).
 - [ ] A release touched the protected branch only via an integration-branch merge plus a version tag.
+- [ ] A `/compare` or `/plan` run created no local branch; its artifacts are on the integration branch, and any `publish/<slug>` branch was deleted at merge.
+- [ ] Every merged work branch is deleted locally and on the remote.
 
 ## Related Skills
 
