@@ -1332,7 +1332,7 @@ def test_the_end_card_sits_in_the_centre_of_the_arena(browser, viewport: tuple[i
     pg = browser.new_page(viewport={"width": viewport[0], "height": viewport[1]})
     try:
         # The explicit engine-ready wait is this geometry test's readiness contract.
-        pg.goto(TRAINING.as_uri() + "#play-buggy", wait_until="domcontentloaded")
+        pg.goto(TRAINING.as_uri() + "#play-buggy", wait_until="commit")
         pg.wait_for_function("window.SkySentinel && SkySentinel.get('fixed')")
         pg.evaluate("SkySentinel.manual(true)")
         cards = {}
