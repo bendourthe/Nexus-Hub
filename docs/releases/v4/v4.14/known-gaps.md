@@ -954,17 +954,17 @@
 - **Migration evidence**: Bounding the ship-balance fixture needs same-runner CI profiling of an 18-38 minute software-WebGL run with equal balance output.
 
 
-#### WN-26: Prompting profiles cannot record Claude Code's current roster
+#### WN-26: Nine legacy Claude models have no prompting profile
 
 **Carry-forward contract (v4.13.13 follow-up)**:
 - **Owner**: catalog maintainer, via `[[model-prompting-research]]`
 - **Severity**: low - stated: the profile layer is advisory and never gates a release
-- **Blocker**: vendor-feature - Claude Code exposes no scriptable model list, so a complete live Claude roster cannot be enumerated and the writer correctly refuses to add new Claude ids through a claim-only write.
-- **Acceptance**: a complete Claude Code roster is recorded with its source, `claude-haiku-5-5` is profiled from Anthropic primary sources, and the seven retired legacy ids are dropped by that roster refresh.
-- **Proving command**: `python scripts/check_model_prompting_freshness.py --advisory <complete live roster ids>` reports IN SYNC.
-- **Future plan**: next `/tune-prompting` run once a complete Claude Code roster is available.
+- **Blocker**: user-deferred - the nine ids are older models that Anthropic still serves as legacy; profiling them was outside the 2026-10-15 run, which covered current models.
+- **Acceptance**: each legacy id is either profiled from Anthropic primary sources through the deterministic writer, or dropped from the Claude Code roster after it retires on Anthropic's deprecations page.
+- **Proving command**: `python scripts/verify_model_prompting_profiles.py` reports no unprofiled rostered model.
+- **Future plan**: next `/tune-prompting` run, or the roster refresh that follows each retirement.
 
-**Source phase**: the 2026-10-15 `/tune-prompting` run. **Reason**: that run profiled 12 ids from first-party vendor pages, with 98 unique claims kept after three-skeptic refutation (1 refuted; 118 entries counting the shared claims for each of the three Gemini variants): `claude-opus-5-5` (claim-only, Claude Code platform), five GPT ids (Codex roster refreshed from its live list), and six Antigravity ids (new `antigravity` roster from its live list). `claude-haiku-5-5` stayed UNVERIFIED because it is absent from the recorded Claude Code roster, and seven retired legacy ids (`claude-fable-5`, `claude-haiku-4-5-20251001`, `claude-opus-4-5-20251101`, `claude-opus-4-6`, `claude-opus-4-7`, `claude-opus-4-8`, `claude-sonnet-4-5-20250929`) remain rostered without profiles. `check_model_prompting_freshness.py` compares only that legacy Claude Code roster, so it keeps reporting DRIFTED even though the Codex and Antigravity rosters are current. **Owner**: catalog maintainer. **Status**: open.
+**Source phase**: the 2026-10-15 `/tune-prompting` run. **Reason**: that run profiled 13 ids from first-party vendor pages, keeping 111 unique claims after three-skeptic refutation (2 refuted). It also recorded the complete generally available Claude Code roster (17 ids, `roster_source: manual`, from Anthropic's models overview, model ids and deprecations pages, because Claude Code exposes no scriptable model list), which brought the freshness check to IN SYNC. The gated Mythos ids are excluded. Nine rostered legacy ids still have no profile: `claude-fable-5`, `claude-haiku-4-5-20251001`, `claude-opus-4-5`, `claude-opus-4-5-20251101`, `claude-opus-4-6`, `claude-opus-4-7`, `claude-opus-4-8`, `claude-sonnet-4-5`, `claude-sonnet-4-5-20250929`. None is retired; `claude-sonnet-4-5-20250929` is deprecated and retires 2026-11-30. **Owner**: catalog maintainer. **Status**: open.
 ### AR-35: Antigravity legacy workflow retirement needs a dated vendor check
 
 **Carry-forward contract (v4.13.11)**:

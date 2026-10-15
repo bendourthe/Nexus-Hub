@@ -1,26 +1,29 @@
 {
   "schema_version": "1.2.0",
   "meta": {
-    "last_verified": "2026-09-30",
+    "last_verified": "2026-10-15",
     "platform": "claude-code",
-    "roster_source": "api",
+    "roster_source": "manual",
     "roster": [
       "claude-fable-5",
       "claude-fable-5-1",
       "claude-haiku-4-5",
       "claude-haiku-4-5-20251001",
+      "claude-haiku-5-5",
+      "claude-opus-4-5",
       "claude-opus-4-5-20251101",
       "claude-opus-4-6",
       "claude-opus-4-7",
       "claude-opus-4-8",
       "claude-opus-5",
       "claude-opus-5-5",
+      "claude-sonnet-4-5",
       "claude-sonnet-4-5-20250929",
       "claude-sonnet-4-6",
       "claude-sonnet-5",
       "claude-sonnet-5-5"
     ],
-    "roster_hash": "295facc046d76472af9e055bddd5782f451fd617a27b22522caf31386315de6d",
+    "roster_hash": "16252acb7c3779ffb3990dfb54f34767e398c450b150e0acd47f7508441e6848",
     "platforms": [
       {
         "platform": "cursor",
@@ -1881,6 +1884,90 @@
         {
           "claim": "Choose the reasoning level (for example medium) for each use case to balance quality against latency and cost. Higher levels make the chain-of-thought longer on average.",
           "source_url": "https://deploymentsafety.openai.com/gpt-oss",
+          "confidence": "high",
+          "scope": "model-specific"
+        }
+      ]
+    },
+    "claude-haiku-5-5": {
+      "platform": "claude-code",
+      "last_verified": "2026-10-15",
+      "claims": [
+        {
+          "claim": "Use the effort parameter, not a thinking budget or a prompt instruction, to control how much Haiku 5.5 thinks. budget_tokens no longer exists for this model.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-haiku-5-5",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "To reduce thinking, lower the effort level instead of telling the model in the prompt to answer directly, because that prompt instruction did not suppress thinking.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-haiku-5-5",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "When the model has a search tool, put today's date in the system prompt or in the search tool's description. Avoid blanket 'always search' instructions, which cause extra searches without improving answers.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-haiku-5-5",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Do not use blanket search instructions such as 'search for any present-day factual question'. In Anthropic's testing they triggered searches on half of the prompts that needed none and did not produce more correct answers.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-haiku-5-5",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "When thinking is off and JSON output is required, state in the system prompt that the JSON format applies only to the final answer and that tools are called first. Without this, the model can skip a tool call it needs.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-haiku-5-5",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "In long coding-agent system prompts, especially at low effort, add an explicit instruction to keep working until the task is done and to stop only when blocked or before a risky step.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-haiku-5-5",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Tell coding agents to run a real check that exercises a change (tests, type-checker, build, or the changed command) before reporting it done. At low and medium effort the model sometimes skips this check.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-haiku-5-5",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Send mid-task user input as a user turn, never inside a tool_result block. The model is trained to treat text in tool results as untrusted and may ignore it.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-haiku-5-5",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "For chatbots and support assistants, add a system prompt sentence saying its rules hold for the whole conversation, even when users push back. Use high effort when instruction following matters most.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-haiku-5-5",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "If reasoning-like text appears in user-facing replies, switch to adaptive thinking at medium effort instead of trying to fix it with prompt wording.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-haiku-5-5",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Assistant prefill returns a 400 error, so replace each prefill: end messages with a user turn, ask for a direct answer in the system prompt, and put continuations and reminders in the user message.",
+          "source_url": "https://platform.claude.com/docs/en/models/haiku-5-5/migration-guide",
+          "confidence": "medium",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "A forced tool_choice skips thinking. To let the model think before it calls a tool, use tool_choice auto and say in the prompt when to use the tool.",
+          "source_url": "https://platform.claude.com/docs/en/models/haiku-5-5/migration-guide",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Add the guide's suggested system prompt text to new conversations only. To change instructions partway through a conversation, put them in the newest turn, because changing system can return a 400 error when thinking blocks are sent back.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-haiku-5-5",
           "confidence": "high",
           "scope": "model-specific"
         }

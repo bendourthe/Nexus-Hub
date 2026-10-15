@@ -10,10 +10,11 @@ reference. This index exists so no mirror is an orphan bundled file.
 Each file is retrieved by model ID; its Evidence scope column describes
 what the cited source covers. No claim may be copied into a shared catalog body.
 
-30 profiled model(s):
+31 profiled model(s):
 
 - [claude-fable-5-1](models/claude-fable-5-1.md) - 18 claim(s), verified 2026-09-08
 - [claude-haiku-4-5](models/claude-haiku-4-5.md) - 1 claim(s), verified 2026-09-25
+- [claude-haiku-5-5](models/claude-haiku-5-5.md) - 13 claim(s), verified 2026-10-15
 - [claude-opus-4-6-thinking](models/claude-opus-4-6-thinking.md) - 10 claim(s), verified 2026-10-15
 - [claude-opus-5](models/claude-opus-5.md) - 12 claim(s), verified 2026-09-08
 - [claude-opus-5-5](models/claude-opus-5-5.md) - 10 claim(s), verified 2026-10-15
