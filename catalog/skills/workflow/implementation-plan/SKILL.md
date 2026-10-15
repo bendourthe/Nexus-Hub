@@ -456,6 +456,10 @@ This is a confirmation of an already-critiqued and already-grilled plan, not a f
 
 Incorporate feedback, then write the final file and re-run the Step 4 closing sanitize pass on it.
 
+### Step 6: Commit and Publish on the Integration Branch
+
+Create no branch. Commit the plan and its tracker entry on the integration branch, staging explicit paths, and publish it the same day through a short-lived `publish/<slug>` pull request when that branch requires one. The procedure and the reason belong to Step 4d of `[[git-branching-workflow]]`; the plan's version branch is created later, by `[[implement-phase]]`.
+
 ---
 
 ## Common Rationalizations
@@ -519,6 +523,7 @@ Incorporate feedback, then write the final file and re-run the Step 4 closing sa
 - `research-plan-implement` - Structured RPI workflow for a single complex feature
 - `session-history` - Document each completed phase
 - `test-driven-development` - Apply TDD within individual sub-tasks
+- `git-branching-workflow` - Owns where the finished plan is committed and how it is published (Step 4d)
 
 ---
 

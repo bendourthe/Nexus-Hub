@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI pins `actions/checkout` to v7.0.1 (`3d3c42e5`) across all 32 workflow steps. No workflow uses `pull_request_target` or `workflow_run`, so v7's refusal of unsafe fork checkouts changes no current job.
 - CodeQL pins `init`, `autobuild` and `analyze` together to v4.38.3 (`24c54180`), so the three steps never run mismatched action versions.
 - The Cursor usage monitor's development `@types/node` moves from 26.2.0 to 26.6.5 (with `undici-types` 8.9.0). Runtime code is unchanged.
+- `/compare` and `/plan` create no branch. Their reports, plans and tracker entries are committed on the integration branch and published the same day, through a short-lived `publish/<slug>` pull request deleted at merge when the branch requires one. A version branch is created only when `/implement` starts the plan. The procedure is Step 4d of `git-branching-workflow`.
 
 ## [4.13.12] - 2026-10-13
 
