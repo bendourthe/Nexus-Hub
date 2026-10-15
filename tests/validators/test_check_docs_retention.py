@@ -332,6 +332,8 @@ def test_real_v4_historical_transfer_stays_bound_after_archival() -> None:
     repo = _SCRIPT.resolve().parents[1]
     v4 = repo / module.RELEASES_ROOT / "v4"
     index = v4 / "v4.13" / "known-gaps.md"
+    if not index.exists():
+        index = repo / module.ARCHIVES_ROOT / "v4" / "v4.13" / "known-gaps.md"
     rows = [match.group(1) for match in module._LEGACY_LEDGER_ROW.finditer(index.read_text(encoding="utf-8"))]
     expected = [f"v4.{minor}" for minor in range(13) if minor != 6]
     assert sorted(rows) == sorted(expected), "historical ledger rows are missing or duplicated"
@@ -536,3 +538,24 @@ def test_missing_releases_root_warns_instead_of_reporting_clean(tmp_path: Path) 
     assert "nothing due for archival" not in proc.stdout, (
         "a missing scan root must never be reported as a clean tree"
     )
+
+
+def test_legacy_transfer_follows_the_archived_index(tmp_path: Path) -> None:
+    import importlib.util
+    import os
+
+    root, current, plan = _make_legacy_transfer(tmp_path)
+    gaps = plan.parent.parent / "known-gaps.md"
+    archived = root / "docs" / "archives" / "v4" / "v4.13" / "known-gaps.md"
+    archived.parent.mkdir(parents=True)
+    relative = Path(os.path.relpath(gaps, archived.parent)).as_posix()
+    text = current.read_text(encoding="utf-8").replace("../v4.0/known-gaps.md", relative)
+    current.replace(archived)
+    archived.write_text(text, encoding="utf-8")
+    spec = importlib.util.spec_from_file_location("cdr_archived_index", _SCRIPT)
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    assert module.legacy_transfer_is_complete(root, plan.parent.parent, gaps)
+    gaps.write_text(gaps.read_text(encoding="utf-8") + "Changed ledger.\n", encoding="utf-8")
+    assert not module.legacy_transfer_is_complete(root, plan.parent.parent, gaps)

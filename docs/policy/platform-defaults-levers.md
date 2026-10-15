@@ -39,7 +39,7 @@ Classification is about whether a documented lever EXISTS. Whether Nexus-Hub can
 | `hermes` | VERIFIED | `model.default`, `model.provider`, `agent.reasoning_effort`, `skills.write_approval`, `memory.write_approval` | `~/.hermes/config.yaml` | Exact | [hermes-agent.nousresearch.com](https://hermes-agent.nousresearch.com/docs/user-guide/configuration/) | 2026-08-30 |
 | `kimi` | VERIFIED | `default_model`, `thinking.effort`, `default_permission_mode`, `permission.rules` | `~/.kimi-code/config.toml` | Exact | [kimi.com](https://www.kimi.com/code/docs/en/kimi-code-cli/configuration/config-files.html) | 2026-08-30 |
 | `nexus-ai` | UNVERIFIED | - | - | - | see detail | 2026-08-30 |
-| `openclaw` | VERIFIED | `agents.defaults.model.primary`, `agents.defaults.model.fallbacks` | `~/.openclaw/openclaw.json` | Exact | [docs.openclaw.ai](https://docs.openclaw.ai/gateway/configuration) | 2026-08-30 |
+| `openclaw` | VERIFIED | `agents.defaults.model.primary`, `agents.defaults.model.fallbacks` | `~/.openclaw/openclaw.json` | Exact | [docs.openclaw.ai](https://docs.openclaw.ai/gateway/configuration/common-tasks) | 2026-10-15 |
 | `opencode` | VERIFIED | `model`, `small_model`, `permission`, `default_agent` | `~/.config/opencode/opencode.json`, `opencode.json` | Exact | [opencode.ai](https://opencode.ai/docs/config/) | 2026-08-30 |
 | `qwen` | VERIFIED | `model.name`, `model.reasoningEffort`, `tools.approvalMode` | `~/.qwen/settings.json`, `.qwen/settings.json` | Exact | [qwenlm.github.io](https://qwenlm.github.io/qwen-code-docs/en/users/configuration/settings/) | 2026-08-30 |
 | `windsurf` | UNVERIFIED | - | - | - | [docs.devin.ai](https://docs.devin.ai/desktop/cascade/modes) | 2026-08-30 |
@@ -131,7 +131,7 @@ Surface alignment is **Exact**: `~/.hermes` is precisely the home Nexus-Hub alre
 
 ### nexus-ai - UNVERIFIED
 
-**Reason UNVERIFIED**: the project's repository (`github.com/bendourthe/Nexus-AI`) is **private**, so no publicly-citable first-party document exists. An authenticated inspection of the repository found no user-facing behavioral-default configuration surface: the `configs/` directory contains build tooling only (dependency-cruiser, stryker, vitest), a code search for documentation of a `.nexus-ai` home config returned zero results, and no VS Code `contributes.configuration` block was found.
+**Reason UNVERIFIED**: the project's repository (`github.com/bendourthe/Nexus-AI`) is now public, and neither it nor any first-party page documents a user-facing behavioral-default configuration surface (re-checked 2026-10-15). An earlier authenticated inspection, made while the repository was private, of the repository found no user-facing behavioral-default configuration surface: the `configs/` directory contains build tooling only (dependency-cruiser, stryker, vitest), a code search for documentation of a `.nexus-ai` home config returned zero results, and no VS Code `contributes.configuration` block was found.
 
 This is recorded as UNVERIFIED rather than "not applicable" so a future reader can tell that it **was** checked. Should Nexus-AI later document a settings surface, this row becomes verifiable; note that a private-repo citation is auditable only by the maintainer, which is a legitimate but weaker form of evidence than a public vendor page.
 
@@ -248,3 +248,7 @@ Scope: the v4.13.7 release re-fetched only the Claude, Cursor, and Codex skill-d
 ### 2026-10-13 - v4.13.11 release qualification
 
 The full 17-row primary-source review of 2026-10-12 remains the detailed evidence, including PARTIAL and UNVERIFIED classifications. Current discovery-page re-fetches do not requalify every behavioral lever. Claude's current model configuration still documents per-model effort settings; Aider still documents home, repository, and current-directory YAML configuration; Pi still distinguishes trusted project and user configuration. The Codex configuration page resolved, but targeted content retrieval failed, so its lever details are carried from the dated review rather than freshly qualified. Hermes configuration was fetched without a complete lever re-review. No lever classification, seeded value, or approval policy was changed. This advisory record has no release freshness gate.
+
+### 2026-10-15 - v4.13.13 ride-along lever check
+
+Ride-along on the full read-contract pass (14 platforms re-fetched). All VERIFIED key names and config paths are unchanged. OpenClaw's cited page became an index; its keys now sit on `gateway/configuration/common-tasks`, so the source URL and verification date moved (keys unchanged, no seeding change). Nexus-AI stays UNVERIFIED with a corrected reason (repository now public; still no documented settings surface). Windsurf stays UNVERIFIED (modes page documents UI controls only). Advisory only; no freshness marker exists for this contract by design.

@@ -1,0 +1,13 @@
+{
+  "skill": "skill-create",
+  "purpose": "Route git-history-mined new-skill drafting here, not quality audits or from-scratch wizards.",
+  "cases": [
+    {"id": "pos-turn-into-skill", "prompt": "turn this into a skill", "should_trigger": true, "assert": "routes to skill-create first", "lexical": true},
+    {"id": "pos-git-history", "prompt": "draft a skill from our git history", "should_trigger": true, "assert": "routes to skill-create first", "lexical": true},
+    {"id": "pos-keep-doing", "prompt": "we keep doing this, make a skill", "should_trigger": true, "assert": "routes to skill-create first", "lexical": true},
+    {"id": "pos-generate-from-commits", "prompt": "generate a SKILL.md from these commits", "should_trigger": true, "assert": "routes to skill-create first", "lexical": true},
+    {"id": "neg-stocktake", "prompt": "audit our skills and score which SKILL.md files are low quality", "should_trigger": false, "assert": "routes to skill-stocktake, not skill-create", "lexical": true},
+    {"id": "neg-wizard", "prompt": "walk me through the interactive new-skill wizard from scratch with no git history", "should_trigger": false, "assert": "routes to create-skill-or-command, not skill-create", "lexical": true},
+    {"id": "neg-edit-one", "prompt": "edit the Instructions section of this one existing skill", "should_trigger": false, "assert": "does not route to skill-create", "lexical": true}
+  ]
+}

@@ -93,6 +93,7 @@ BOOTSTRAP_ENV_VARS = [
     "NEXUS_HUB_EXPECTED_SHA256",
     "NEXUS_HUB_CHECKSUMS",
     "NEXUS_HUB_SKIP_CHECKSUM",
+    "NEXUS_HUB_RETRY_DELAY",
 ]
 
 
@@ -150,21 +151,25 @@ def test_install_ps1_is_dual_mode() -> None:
         assert var in body, f"install.ps1 must document the {var} seam"
 
 
+# The project's own GitHub hosts, plus two hosts named only in user-facing
+# "install Python/PowerShell from ..." hints, never fetched.
+ALLOWED_URL_HOSTS = {"github.com", "raw.githubusercontent.com"}
+HINT_URL_HOSTS = {"www.python.org", "aka.ms"}
+
+
 def test_no_new_outbound_host() -> None:
     """The only outbound host the bootstrap may name is the project's own GitHub."""
+    from urllib.parse import urlparse
+
     for entry in (INSTALL_SH, INSTALL_PS1):
         body = entry.read_text(encoding="utf-8")
         for line in body.splitlines():
-            if "https://" in line and "://" in line:
-                # Allow comments/URLs only to github.com or raw.githubusercontent.com.
-                lowered = line.lower()
-                if "github.com" in lowered or "githubusercontent.com" in lowered:
-                    continue
-                # python.org / aka.ms / powershell appear only as user-facing
-                # "install Python/PowerShell from ..." hints, never as a fetch.
-                if "python.org" in lowered or "aka.ms" in lowered:
-                    continue
-                pytest.fail(f"unexpected outbound URL in {entry.name}: {line.strip()}")
+            # Compare each URL's parsed hostname exactly: a substring test would
+            # accept a lookalike such as github.com.example.net.
+            for url in re.findall(r"https?://[^\s\"'<>)`]+", line):
+                host = (urlparse(url).hostname or "").lower()
+                if host not in ALLOWED_URL_HOSTS | HINT_URL_HOSTS:
+                    pytest.fail(f"unexpected outbound URL host {host!r} in {entry.name}: {line.strip()}")
 
 
 # --- bash functional --------------------------------------------------------
@@ -469,3 +474,92 @@ Write-Host "HELPER_REMAINS=$(Test-Path -LiteralPath $root)"
     assert length > 260, f"test tree is only {length} chars; it would not exercise MAX_PATH"
     assert "HELPER_OK=True" in out, f"helper reported failure:\n{out}"
     assert "HELPER_REMAINS=False" in out, f"helper left the tree behind:\n{out}"
+
+
+# --- branch-archive download failures ----------------------------------------
+# A dropped connection is retried and reported as a network failure; only a real
+# HTTP 404 may say the branch does not exist (a transport reset was once
+# misreported as "a typo or a branch that does not exist").
+
+
+@pytest.fixture
+def not_found_url():
+    import http.server
+    import threading
+
+    class _NotFound(http.server.BaseHTTPRequestHandler):
+        def do_GET(self) -> None:  # noqa: N802 - stdlib handler name
+            self.send_response(404)
+            self.end_headers()
+
+        def log_message(self, *args: object) -> None:
+            return
+
+    server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), _NotFound)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    try:
+        yield f"http://127.0.0.1:{server.server_address[1]}/archive/refs/heads/nope.tar.gz"
+    finally:
+        server.shutdown()
+
+
+@pytest.fixture
+def refused_url():
+    import socket
+
+    with socket.socket() as sock:
+        sock.bind(("127.0.0.1", 0))
+        port = sock.getsockname()[1]
+    return f"http://127.0.0.1:{port}/archive/refs/heads/main.tar.gz"
+
+
+def _download_env(url: str, tmp_path: Path) -> dict[str, str]:
+    return {
+        **os.environ,
+        "NEXUS_HUB_FORCE_STANDALONE": "1",
+        "NEXUS_HUB_TARBALL": url,
+        "NEXUS_HUB_SRC": str(tmp_path / "src"),
+        "NEXUS_HUB_RETRY_DELAY": "0",
+    }
+
+
+def _ps(*args: str) -> list[str]:
+    return [PWSH, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(INSTALL_PS1), *args]
+
+
+@bash_functional
+def test_bash_branch_404_reports_missing_branch_without_retry(not_found_url: str, tmp_path: Path) -> None:
+    proc = _run([BASH, "install.sh"], cwd=str(REPO_ROOT), env=_download_env(not_found_url, tmp_path))
+    out = proc.stdout + proc.stderr
+    assert proc.returncode == 1, out
+    assert "does not exist" in out and "404" in out
+    assert "attempt 1 of 3" not in out
+
+
+@bash_functional
+def test_bash_branch_network_failure_retries_and_says_network(refused_url: str, tmp_path: Path) -> None:
+    proc = _run([BASH, "install.sh"], cwd=str(REPO_ROOT), env=_download_env(refused_url, tmp_path))
+    out = proc.stdout + proc.stderr
+    assert proc.returncode == 1, out
+    assert "attempt 1 of 3" in out and "attempt 2 of 3" in out
+    assert "network failure" in out
+    assert "does not exist" not in out
+
+
+@pytest.mark.skipif(not PWSH, reason="PowerShell not available")
+def test_ps_branch_404_reports_missing_branch_without_retry(not_found_url: str, tmp_path: Path) -> None:
+    proc = _run(_ps(), cwd=str(REPO_ROOT), env=_download_env(not_found_url, tmp_path))
+    out = proc.stdout + proc.stderr
+    assert proc.returncode == 1, out
+    assert "does not exist" in out and "404" in out
+    assert "attempt 1 of 3" not in out
+
+
+@pytest.mark.skipif(not PWSH, reason="PowerShell not available")
+def test_ps_branch_network_failure_retries_and_says_network(refused_url: str, tmp_path: Path) -> None:
+    proc = _run(_ps(), cwd=str(REPO_ROOT), env=_download_env(refused_url, tmp_path))
+    out = proc.stdout + proc.stderr
+    assert proc.returncode == 1, out
+    assert "attempt 1 of 3" in out and "attempt 2 of 3" in out
+    assert "network failure" in out
+    assert "does not exist" not in out

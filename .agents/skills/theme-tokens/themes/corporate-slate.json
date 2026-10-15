@@ -1,0 +1,24 @@
+{
+  "name": "corporate-slate",
+  "label": "Corporate Slate",
+  "description": "Cool grays, navy primary, restrained accent; for quarterly reviews, board decks, and formal compliance docs.",
+  "palette": {
+    "primary": "#1f3559",
+    "secondary": "#3f5a85",
+    "accent": "#2a8c8c",
+    "background": "#ffffff",
+    "foreground": "#1a1f2c",
+    "muted": "#6b7280"
+  },
+  "fonts": {
+    "heading": "'Inter', 'Helvetica Neue', system-ui, sans-serif",
+    "body": "'Inter', 'Helvetica Neue', system-ui, sans-serif",
+    "mono": "'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace"
+  },
+  "spacing": {
+    "base": 8,
+    "scale": [0.5, 1, 1.5, 2, 3, 4, 6, 8]
+  },
+  "radius": 4,
+  "shadow": "0 1px 4px rgba(31, 53, 89, 0.08)"
+}

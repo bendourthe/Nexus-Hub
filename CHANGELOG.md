@@ -9,6 +9,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.13.13] - 2026-10-15
+
+### Added
+
+- Gemini Usage Monitor (`nexus-hub.gemini-usage-monitor`), a status-bar usage monitor for the Google Antigravity IDE with the same design as the Claude, Codex, Copilot and Cursor monitors. It reads Antigravity's Models & Usage figures (the Gemini group and the Claude and GPT group, each with a 5-hour and a weekly limit) from Antigravity's local language server over `127.0.0.1` only. Alerts watch every window of both groups and suggest switching model group when the other still has quota. Both installers install it only through the Antigravity IDE launcher.
+
+### Fixed
+
+- Claude, Codex, GitHub Copilot and Cursor usage-alert sidebar views dismiss automatically after one minute. A new alert gets a fresh minute, and manual dismissal cancels its timer.
+- The Windows PowerShell 5.1 installer and validator tests run in their own `tests-windows-installer` CI job. Inside `tests-windows` the group measured 3534 s of the job's 3600 s limit and timed out twice. The installer and validator corpora also run as separate commands, since together they exceeded their own 1800 s command bound. Coverage, edition and the `ci-required` aggregate are unchanged.
+- The Windows validator command dumps every thread's stack when a single test runs past 300 s (pytest's built-in `faulthandler_timeout`), so an intermittent stall that previously ran silently to the 1800 s bound now names its test and line.
+- The Windows validator tests run as two commands split by file name and balanced by measured time, each with its own 1800 s bound. The single command took 1198-1673 s on passing runs and ran past 1800 s on four others with no test stalled, so the bound, not a hang, was the failure. A contract test proves every validator file runs in exactly one half.
+- The guide's Security Guardrails text no longer says every guard blocks whatever the prompt said. It now states that the large-file guard only warns and that the security guards step aside when the platform reports full access, such as Claude Code's Bypass permissions mode, matching the v4.13.12 permission-mode contract.
+- The `install.sh` and `install.ps1` bootstraps retry a failed branch-archive download up to three times and report the real cause. Only an HTTP 404 says the branch does not exist; a dropped or refused connection is reported as a network failure with a proxy and firewall hint, instead of "a typo or a branch that does not exist".
+- The bootstrap outbound-host test compares each URL's parsed hostname with an exact allowlist. Its substring check accepted lookalike hosts such as `github.com.example.net`, and CodeQL flagged it as incomplete URL sanitization.
+
+### Changed
+
+- CI pins `actions/checkout` to v7.0.1 (`3d3c42e5`) across all 32 workflow steps. No workflow uses `pull_request_target` or `workflow_run`, so v7's refusal of unsafe fork checkouts changes no current job.
+- CodeQL pins `init`, `autobuild` and `analyze` together to v4.38.3 (`24c54180`), so the three steps never run mismatched action versions.
+- The Cursor usage monitor's development `@types/node` moves from 26.2.0 to 26.6.5 (with `undici-types` 8.9.0). Runtime code is unchanged.
+- `/compare` and `/plan` create no branch. Their reports, plans and tracker entries are committed on the integration branch and published the same day, through a short-lived `publish/<slug>` pull request deleted at merge when the branch requires one. A version branch is created only when `/implement` starts the plan. The procedure is Step 4d of `git-branching-workflow`.
+- This repository now commits the installer-written project surfaces `.agents/` and `.cursor/commands/`; `.cursor/rules/nexus-hub.mdc` is the installer's generic stub. CodeQL ignores the two copy trees (their catalog originals stay scanned), and the merge-marker gate allowlists the copied `conflict-analyzer` skill.
+- The platform read-contract is re-verified for v4.13.13 against first-party documentation: 13 of 14 platforms match, and Windsurf/Devin now prefers `.devin/` workspace paths for skills, workflows and hooks while still reading the `.windsurf/` paths Nexus-Hub writes (tracked on the v4.14 known-gaps item DF-2). The OpenClaw lever source URL moved to its new page with the same keys.
+
+### Capability usage
+
+#### Gemini Usage Monitor in Antigravity (default-on when the Antigravity IDE is installed)
+
+- Activation: `install.sh`, `install.ps1` and `nexus-hub upgrade` install it automatically when they find the Antigravity IDE launcher (`antigravity-ide` or `antigravity`); no flag is needed.
+
+- Validation: run `antigravity-ide --list-extensions` (or `antigravity --list-extensions`) and confirm `nexus-hub.gemini-usage-monitor` is listed; the Antigravity status bar shows `Gemini Usage:`.
+
+- Rollback: run `antigravity-ide --uninstall-extension nexus-hub.gemini-usage-monitor` (or the same with `antigravity`). Its settings stay in your user settings until removed; nothing else is written.
+
+- Authority: it reads quota figures only, from Antigravity's own language server on `127.0.0.1`, using the CSRF token held in memory. It makes no internet requests of its own, cannot change quotas, models or settings, and does not read prompts or code.
+
+- Docs: [Gemini Usage Monitor README](https://github.com/bendourthe/Nexus-Hub/blob/v4.13.13/extensions/gemini-usage-monitor/README.md).
+
 ## [4.13.12] - 2026-10-13
 
 ### Fixed

@@ -24,17 +24,17 @@
   "checks": {
     "content": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.13/development/v4.13.11-phase-8-handbook-claim-review.md",
+      "evidence": "docs/archives/v4/v4.13/development/v4.13.11-phase-8-handbook-claim-review.md",
       "evidence_sha256": "8997340e27652cf321896461b922b0bb901a6d9cb4532ea810fd4db90bf54ca3"
     },
     "build": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.13/development/v4.13.11-phase-7-receipts/overview-build.json",
+      "evidence": "docs/archives/v4/v4.13/development/v4.13.11-phase-7-receipts/overview-build.json",
       "evidence_sha256": "126957ccd638ee58dc8cf60770bc5ebb1f8076235c2121687ea465f38f39127a"
     },
     "rendered": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.13/development/v4.13.11-phase-7-receipts/overview-render.json",
+      "evidence": "docs/archives/v4/v4.13/development/v4.13.11-phase-7-receipts/overview-render.json",
       "evidence_sha256": "7ff821017b47e821be528662924badc3b2749e5aaefdd5ca67e3b376846a4c76",
       "browser": "Chromium 151.0.7922.34",
       "output_sha256": "ac060fa24a632be7c0082cb73e3067abd8dec61bf13c739a8db62d001867479b"

@@ -1,0 +1,106 @@
+<!doctype html>
+<!--
+  Particle-system starter template.
+  Reference movement: Vera Molnar's plotter swarms; James Paterson's tactile loops.
+  Underlying principle: swarm as distributed individual decisions.
+  Replace this comment block and the sketch logic when adapting to a new manifesto.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Particle system starter</title>
+  <script src="https://cdn.jsdelivr.net/npm/p5@1/lib/p5.min.js"></script>
+  <style>
+    body { margin: 0; background: #f5f1ea; color: #222; font-family: ui-monospace, monospace; }
+    #canvas-host { display: block; }
+    #panel { position: fixed; top: 12px; right: 12px; background: rgba(255,255,255,0.85); padding: 10px 12px; border: 1px solid #ccc; }
+    #panel label { display: block; font-size: 11px; margin-bottom: 6px; }
+    #panel input[type=range] { width: 180px; }
+    #panel button { margin-top: 6px; background: #fff; color: #222; border: 1px solid #888; padding: 4px 8px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div id="canvas-host"></div>
+  <div id="panel">
+    <label>count <input type="range" id="count" min="50" max="2000" step="10" value="600"></label>
+    <label>damping <input type="range" id="damping" min="0.85" max="0.99" step="0.005" value="0.94"></label>
+    <label>attraction <input type="range" id="attraction" min="0" max="0.6" step="0.005" value="0.15"></label>
+    <label>noisePerturb <input type="range" id="noisePerturb" min="0" max="2.5" step="0.05" value="0.5"></label>
+    <label>seed <input type="range" id="seed" min="0" max="9999" step="1" value="7"></label>
+    <button onclick="regenerate()">Re-roll</button>
+    <span style="font-size: 10px; opacity: 0.6;">Press 's' to export PNG.</span>
+  </div>
+<script>
+let agents = [];
+let target;
+let cfg = { count: 600, damping: 0.94, attraction: 0.15, noisePerturb: 0.5, seed: 7 };
+
+function readSliders() {
+  for (const k of Object.keys(cfg)) {
+    const el = document.getElementById(k);
+    if (el) cfg[k] = parseFloat(el.value);
+  }
+}
+
+function regenerate() {
+  readSliders();
+  randomSeed(cfg.seed);
+  noiseSeed(cfg.seed);
+  agents = [];
+  for (let i = 0; i < cfg.count; i++) {
+    agents.push({
+      x: random(width),
+      y: random(height),
+      vx: random(-0.5, 0.5),
+      vy: random(-0.5, 0.5),
+      hue: random(20, 60)
+    });
+  }
+  target = createVector(width / 2, height / 2);
+  background(245, 241, 234);
+}
+
+function setup() {
+  const c = createCanvas(windowWidth, windowHeight);
+  c.parent('canvas-host');
+  colorMode(HSB, 360, 100, 100, 1);
+  document.querySelectorAll('#panel input[type=range]').forEach(el => el.addEventListener('change', regenerate));
+  regenerate();
+}
+
+function draw() {
+  noStroke();
+  fill(40, 8, 96, 0.06);
+  rect(0, 0, width, height);
+  for (const a of agents) {
+    const dx = target.x - a.x;
+    const dy = target.y - a.y;
+    a.vx += dx * 0.0001 * cfg.attraction;
+    a.vy += dy * 0.0001 * cfg.attraction;
+    const ang = noise(a.x * 0.003, a.y * 0.003) * TWO_PI * 2;
+    a.vx += cos(ang) * cfg.noisePerturb * 0.05;
+    a.vy += sin(ang) * cfg.noisePerturb * 0.05;
+    a.vx *= cfg.damping;
+    a.vy *= cfg.damping;
+    a.x += a.vx;
+    a.y += a.vy;
+    fill(a.hue, 70, 22, 0.55);
+    circle(a.x, a.y, 1.4);
+  }
+}
+
+function mouseMoved() {
+  if (target) target.set(mouseX, mouseY);
+}
+
+function keyPressed() {
+  if (key === 's' || key === 'S') saveCanvas('particle-system-' + cfg.seed, 'png');
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+  regenerate();
+}
+</script>
+</body>
+</html>

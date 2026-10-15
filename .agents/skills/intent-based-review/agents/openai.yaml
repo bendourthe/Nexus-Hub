@@ -1,0 +1,3 @@
+interface:
+  display_name: Intent-Based Code Review
+  short_description: Review AI-generated code by verifying acceptance criteria pass/fail status rather than reading implementation line-by-line. Triggers detailed inspection only for failed criteria.

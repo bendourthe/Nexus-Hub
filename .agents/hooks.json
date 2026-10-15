@@ -1,0 +1,73 @@
+{
+  "nexus-hub-guardrails": {
+    "enabled": true,
+    "PreToolUse": [
+      {
+        "matcher": "write_to_file|replace_file_content|multi_replace_file_content",
+        "hooks": [
+          {
+            "command": "python \".agents/hooks/antigravity-hook-compat.py\" antigravity PreToolUse -- powershell -NoProfile -ExecutionPolicy Bypass -File \".agents/hooks/secret-scan.ps1\""
+          },
+          {
+            "command": "python \".agents/hooks/antigravity-hook-compat.py\" antigravity PreToolUse -- powershell -NoProfile -ExecutionPolicy Bypass -File \".agents/hooks/large-file-guard.ps1\""
+          },
+          {
+            "command": "python \".agents/hooks/antigravity-hook-compat.py\" antigravity PreToolUse -- powershell -NoProfile -ExecutionPolicy Bypass -File \".agents/hooks/user-edit-guard.ps1\""
+          },
+          {
+            "command": "python \".agents/hooks/antigravity-hook-compat.py\" antigravity PreToolUse -- powershell -NoProfile -ExecutionPolicy Bypass -File \".agents/hooks/attribution-guard.ps1\""
+          }
+        ]
+      },
+      {
+        "matcher": "run_command",
+        "hooks": [
+          {
+            "command": "python \".agents/hooks/antigravity-hook-compat.py\" antigravity PreToolUse -- powershell -NoProfile -ExecutionPolicy Bypass -File \".agents/hooks/git-guardrails.ps1\""
+          },
+          {
+            "command": "python \".agents/hooks/antigravity-hook-compat.py\" antigravity PreToolUse -- powershell -NoProfile -ExecutionPolicy Bypass -File \".agents/hooks/user-edit-guard.ps1\""
+          },
+          {
+            "command": "python \".agents/hooks/antigravity-hook-compat.py\" antigravity PreToolUse -- powershell -NoProfile -ExecutionPolicy Bypass -File \".agents/hooks/attribution-guard.ps1\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "write_to_file|replace_file_content|multi_replace_file_content",
+        "hooks": [
+          {
+            "command": "python \".agents/hooks/antigravity-hook-compat.py\" antigravity PostToolUse -- powershell -NoProfile -ExecutionPolicy Bypass -File \".agents/hooks/user-edit-guard.ps1\""
+          }
+        ]
+      },
+      {
+        "matcher": "run_command",
+        "hooks": [
+          {
+            "command": "python \".agents/hooks/antigravity-hook-compat.py\" antigravity PostToolUse -- powershell -NoProfile -ExecutionPolicy Bypass -File \".agents/hooks/user-edit-guard.ps1\""
+          }
+        ]
+      },
+      {
+        "matcher": "view_file",
+        "hooks": [
+          {
+            "command": "python \".agents/hooks/antigravity-hook-compat.py\" antigravity PostToolUse -- powershell -NoProfile -ExecutionPolicy Bypass -File \".agents/hooks/user-edit-guard.ps1\""
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "command": "python \".agents/hooks/antigravity-hook-compat.py\" antigravity Stop -- powershell -NoProfile -ExecutionPolicy Bypass -File \".agents/hooks/completion-gate.ps1\""
+          }
+        ]
+      }
+    ]
+  }
+}

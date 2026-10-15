@@ -89,6 +89,10 @@ Every generated plan carries the same lifecycle, and it is worth stating up fron
 
 The full templates, prompts, and exit checklists that enforce this live in `[[implementation-plan]]`; the pipeline half lives in `[[cicd-architect]]`. This dispatcher states the guarantee and stops there.
 
+## Where the plan is committed (guarantee)
+
+`/plan` creates no branch. The plan, its tracker entry, and any regenerated queue files are committed on the integration branch (`develop` in a develop+main project) and published the same day; where that branch requires a pull request, publication goes through a short-lived `publish/<slug>` pull request that is deleted at merge. The version branch for the plan is created only when `/implement` starts it. The procedure is Step 4d of `[[git-branching-workflow]]`.
+
 ## Unicode hygiene of the written plan (guarantee)
 
 Every plan file this command writes is sanitized before it is presented: the retained skill's Step 4 closing pass runs `python scripts/validate_unicode_safety.py --strict --fix --root . --path <plan-file>` on the just-written file (and again on the final file when Step 5 rewrites it), so invisible characters and non-ASCII punctuation never reach a plan the user reads. The pass is scoped to that one file, never the repository, and a non-zero exit after the fix blocks presenting the plan. This dispatcher only surfaces the guarantee; the rules live in the `[[implementation-plan]]` skill.

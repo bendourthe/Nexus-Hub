@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:" />
+<title>{{ESCAPED:chart_title}}</title>
+<!--
+  Reference template: inline-SVG bar and line chart.
+  Use when a chart is the answer and the HTML rung is justified (see SKILL.md, "The
+  smallest useful representation"). Self-contained: no script, no external URL, no
+  external font. The Content-Security-Policy above blocks every fetch, so a payload
+  that slips past escaping still cannot load or call anything.
+
+  ESCAPING CONTRACT. Every {{ESCAPED:...}} placeholder holds a data-derived string
+  and MUST be escaped before insertion: replace & < > " ' with &amp; &lt; &gt; &quot;
+  &#39; for both text and attribute contexts. Never insert data into a tag name, an
+  attribute name, a style attribute, an href or xlink:href, an event-handler
+  attribute, or a <foreignObject>. Numbers ({{NUMBER:...}}) are computed coordinates,
+  never raw data text.
+
+  LABEL LENGTH. Labels sit at fixed positions, so shorten a category tick label past
+  16 characters and a legend label past 20 to that length ending in "...", and keep
+  the full escaped text in a <title> child of the <text> element and in the data
+  table. The axis titles have more room: shorten past 48 characters.
+
+  Replace the example series below; keep the structure: a <title> and <desc> inside
+  the SVG, text labels on every series (never color alone), and a data table that
+  carries the same values for screen readers and copy-paste.
+-->
+<style>
+  :root {
+    --ink: #1c1f26;
+    --muted: #5b626e;
+    --line: #d9dde3;
+    --bg: #fbfbfc;
+    --surface: #ffffff;
+    --series-a: #2f6f4f;
+    --series-b: #8a4b08;
+    --space: 8px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #e8eaee;
+      --muted: #a4abb6;
+      --line: #3a404a;
+      --bg: #15171b;
+      --surface: #1d2026;
+      --series-a: #7cc39d;
+      --series-b: #f0a35e;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.5;
+  }
+  .wrap {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: calc(var(--space) * 4) clamp(16px, 4vw, 32px);
+  }
+  h1 { font-size: 1.375rem; margin: 0 0 var(--space); text-wrap: balance; }
+  .lede { color: var(--muted); margin: 0 0 calc(var(--space) * 3); }
+  /* The figure is the chart's immediate scrolling wrapper: below the SVG's minimum
+     width it scrolls sideways itself, so the page never does and the scaled SVG text
+     stays legible (12px at 640 units is about 10.5px at the 560px floor). */
+  figure { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: calc(var(--space) * 2); overflow-x: auto; }
+  svg { display: block; width: 100%; min-width: 560px; height: auto; }
+  .axis line, .axis path { stroke: var(--muted); }
+  .grid line { stroke: var(--line); }
+  .tick text, .axis-label, .legend text { fill: var(--ink); font-size: 12px; }
+  .axis-label { fill: var(--muted); }
+  .bar { fill: var(--series-a); }
+  .series-line { fill: none; stroke: var(--series-b); stroke-width: 2.5; }
+  .point { fill: var(--series-b); }
+  .legend .swatch-a { fill: var(--series-a); }
+  .legend .swatch-b { fill: var(--series-b); }
+  figcaption { color: var(--muted); font-size: 0.875rem; margin-top: var(--space); }
+  .table-wrap { overflow-x: auto; margin-top: calc(var(--space) * 3); }
+  table { border-collapse: collapse; font-size: 0.875rem; }
+  th, td { border-bottom: 1px solid var(--line); padding: 4px calc(var(--space) * 1.5); text-align: left; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <h1>{{ESCAPED:chart_title}}</h1>
+  <p class="lede">{{ESCAPED:chart_subtitle}}</p>
+  <figure>
+    <svg viewBox="0 0 640 360" role="img" aria-labelledby="chart-title chart-desc">
+      <title id="chart-title">{{ESCAPED:chart_title}}</title>
+      <desc id="chart-desc">{{ESCAPED:chart_description}}</desc>
+      <g class="grid">
+        <line x1="64" y1="40" x2="608" y2="40" />
+        <line x1="64" y1="120" x2="608" y2="120" />
+        <line x1="64" y1="200" x2="608" y2="200" />
+      </g>
+      <g class="axis">
+        <line x1="64" y1="280" x2="608" y2="280" />
+        <line x1="64" y1="40" x2="64" y2="280" />
+      </g>
+      <g class="tick">
+        <text x="56" y="284" text-anchor="end">0</text>
+        <text x="56" y="204" text-anchor="end">{{ESCAPED:y_tick_1}}</text>
+        <text x="56" y="124" text-anchor="end">{{ESCAPED:y_tick_2}}</text>
+        <text x="56" y="44" text-anchor="end">{{ESCAPED:y_tick_3}}</text>
+      </g>
+      <!-- One bar per category: x, y, width, height are {{NUMBER:...}} coordinates. -->
+      <g>
+        <rect class="bar" x="96" y="160" width="72" height="120"><title>{{ESCAPED:category_1}}: {{ESCAPED:value_1}}</title></rect>
+        <rect class="bar" x="232" y="100" width="72" height="180"><title>{{ESCAPED:category_2}}: {{ESCAPED:value_2}}</title></rect>
+        <rect class="bar" x="368" y="200" width="72" height="80"><title>{{ESCAPED:category_3}}: {{ESCAPED:value_3}}</title></rect>
+        <rect class="bar" x="504" y="70" width="72" height="210"><title>{{ESCAPED:category_4}}: {{ESCAPED:value_4}}</title></rect>
+      </g>
+      <!-- Optional line series: one polyline, one circle per point. -->
+      <polyline class="series-line" points="132,150 268,120 404,170 540,90" />
+      <g>
+        <circle class="point" cx="132" cy="150" r="4" />
+        <circle class="point" cx="268" cy="120" r="4" />
+        <circle class="point" cx="404" cy="170" r="4" />
+        <circle class="point" cx="540" cy="90" r="4" />
+      </g>
+      <g class="tick">
+        <text x="132" y="300" text-anchor="middle">{{ESCAPED:category_1}}</text>
+        <text x="268" y="300" text-anchor="middle">{{ESCAPED:category_2}}</text>
+        <text x="404" y="300" text-anchor="middle">{{ESCAPED:category_3}}</text>
+        <text x="540" y="300" text-anchor="middle">{{ESCAPED:category_4}}</text>
+      </g>
+      <text class="axis-label" x="336" y="330" text-anchor="middle">{{ESCAPED:x_axis_label}}</text>
+      <text class="axis-label" x="18" y="160" text-anchor="middle" transform="rotate(-90 18 160)">{{ESCAPED:y_axis_label}}</text>
+      <!-- Legend entries stack vertically so a long first label cannot run into the second. -->
+      <g class="legend">
+        <rect class="swatch-a" x="440" y="4" width="12" height="12" />
+        <text x="458" y="14">{{ESCAPED:series_a_label}}</text>
+        <rect class="swatch-b" x="440" y="25" width="12" height="3" />
+        <text x="458" y="31">{{ESCAPED:series_b_label}}</text>
+      </g>
+    </svg>
+    <figcaption>{{ESCAPED:source_note}}</figcaption>
+  </figure>
+  <div class="table-wrap">
+    <table>
+      <caption class="lede">{{ESCAPED:table_caption}}</caption>
+      <thead><tr><th scope="col">{{ESCAPED:x_axis_label}}</th><th scope="col">{{ESCAPED:series_a_label}}</th><th scope="col">{{ESCAPED:series_b_label}}</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">{{ESCAPED:category_1}}</th><td class="num">{{ESCAPED:value_1}}</td><td class="num">{{ESCAPED:line_value_1}}</td></tr>
+        <tr><th scope="row">{{ESCAPED:category_2}}</th><td class="num">{{ESCAPED:value_2}}</td><td class="num">{{ESCAPED:line_value_2}}</td></tr>
+        <tr><th scope="row">{{ESCAPED:category_3}}</th><td class="num">{{ESCAPED:value_3}}</td><td class="num">{{ESCAPED:line_value_3}}</td></tr>
+        <tr><th scope="row">{{ESCAPED:category_4}}</th><td class="num">{{ESCAPED:value_4}}</td><td class="num">{{ESCAPED:line_value_4}}</td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+</body>
+</html>

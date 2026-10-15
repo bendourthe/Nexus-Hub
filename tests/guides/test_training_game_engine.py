@@ -2,7 +2,7 @@
 
 Every test drives the simulation only through ``step(n)`` with a fixed seed and
 ``SkySentinel.manual(true)``, so no test waits on real time to move the game. Design and
-rules: docs/releases/v4/v4.13/development/v4.13.10-game-design.md. Phase R10 replaced lives
+rules: docs/archives/v4/v4.13/development/v4.13.10-game-design.md. Phase R10 replaced lives
 with a health bar: each source deals its own damage, a shield adds a second bar that absorbs
 damage first, and the ``firstHitFatal`` defect turns any hit into instant destruction.
 Phase R14 (the game is now shown to players as "Nexus Defenders") added a start screen with
@@ -1329,10 +1329,12 @@ CARD_PROBE = """(id) => {
 @pytest.mark.parametrize("viewport", [(1440, 900), (1280, 720), (390, 844)], ids=lambda v: f"{v[0]}x{v[1]}")
 def test_the_end_card_sits_in_the_centre_of_the_arena(browser, viewport: tuple[int, int]) -> None:
     """R18 maintainer review: the game-over message sat near the top of the arena."""
-    pg = browser.new_page(viewport={"width": viewport[0], "height": viewport[1]})
+    # Keep geometry independent of the module browser's simulation and GPU state.
+    fresh_browser = browser.browser_type.launch()
     try:
+        pg = fresh_browser.new_page(viewport={"width": viewport[0], "height": viewport[1]})
         # The explicit engine-ready wait is this geometry test's readiness contract.
-        pg.goto(TRAINING.as_uri() + "#play-buggy", wait_until="domcontentloaded")
+        pg.goto(TRAINING.as_uri() + "#play-buggy", wait_until="commit")
         pg.wait_for_function("window.SkySentinel && SkySentinel.get('fixed')")
         pg.evaluate("SkySentinel.manual(true)")
         cards = {}
@@ -1357,7 +1359,7 @@ def test_the_end_card_sits_in_the_centre_of_the_arena(browser, viewport: tuple[i
             if "death" in name:
                 assert m["shown"] >= 1 and m["covered"] == 0, f"{name} {viewport}: the damage number stays visible {m}"
     finally:
-        pg.close()
+        fresh_browser.close()
 
 
 # ---------------------------------------------------------------- R18: five colours, animated previews

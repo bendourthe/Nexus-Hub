@@ -1,0 +1,12 @@
+{
+  "skill": "ccpa-compliance",
+  "purpose": "Route California CCPA/CPRA consumer-privacy work here, not to the GDPR sibling.",
+  "cases": [
+    {"id": "pos-ccpa-consumer", "prompt": "implement ccpa california consumer privacy rights", "should_trigger": true, "assert": "routes to ccpa-compliance first", "lexical": true},
+    {"id": "pos-ccpa-optout", "prompt": "add a ccpa consumer opt-out and data disclosure flow", "should_trigger": true, "assert": "routes to ccpa-compliance first", "lexical": true},
+    {"id": "pos-ccpa-cpra", "prompt": "prepare for cpra california resident data compliance", "should_trigger": true, "assert": "routes to ccpa-compliance first", "lexical": true},
+    {"id": "neg-gdpr", "prompt": "implement gdpr eu data subject rights and consent", "should_trigger": false, "assert": "routes to gdpr-compliance, not ccpa-compliance", "lexical": true},
+    {"id": "neg-docx", "prompt": "generate a word document from a template", "should_trigger": false, "assert": "routes to docx-generation, not ccpa-compliance", "lexical": true},
+    {"id": "neg-vue", "prompt": "build a vue composition api app", "should_trigger": false, "assert": "routes to vue-expert, not ccpa-compliance", "lexical": true}
+  ]
+}

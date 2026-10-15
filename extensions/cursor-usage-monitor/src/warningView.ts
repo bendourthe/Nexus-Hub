@@ -19,6 +19,7 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
   private view: vscode.WebviewView | undefined;
   private suggestion: UsageSuggestion | undefined;
   private callbacks: WarningCallbacks | undefined;
+  private dismissTimer: ReturnType<typeof setTimeout> | undefined;
 
   public constructor(private readonly extensionUri: vscode.Uri) {}
 
@@ -30,6 +31,7 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
     };
     view.onDidDispose(() => {
       if (this.view === view) {
+        this.clearDismissTimer();
         this.view = undefined;
       }
     });
@@ -51,6 +53,10 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
     suggestion: UsageSuggestion,
     callbacks: WarningCallbacks
   ): Promise<void> {
+    this.clearDismissTimer();
+    this.dismissTimer = setTimeout(() => {
+      void this.dismiss();
+    }, 60_000);
     this.suggestion = suggestion;
     this.callbacks = callbacks;
     await vscode.commands.executeCommand(
@@ -67,6 +73,7 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
   }
 
   public async dismiss(): Promise<void> {
+    this.clearDismissTimer();
     this.suggestion = undefined;
     this.callbacks?.onDismiss();
     await vscode.commands.executeCommand(
@@ -86,6 +93,13 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
       await vscode.commands.executeCommand("workbench.view.explorer");
     } catch {
       // Nothing to recover: the warning is already dismissed.
+    }
+  }
+
+  private clearDismissTimer(): void {
+    if (this.dismissTimer !== undefined) {
+      clearTimeout(this.dismissTimer);
+      this.dismissTimer = undefined;
     }
   }
 

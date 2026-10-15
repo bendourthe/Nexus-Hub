@@ -3,7 +3,7 @@ and wormhole passage from level 3 into the Nexus dimension.
 
 Like the other engine tests, every test drives the simulation through ``step(n)`` with a fixed seed
 and ``SkySentinel.manual(true)``; no test waits a fixed real time for a frame-counted sequence.
-Design: docs/releases/v4/v4.13/development/v4.13.10-game-design.md, "Revision 13".
+Design: docs/archives/v4/v4.13/development/v4.13.10-game-design.md, "Revision 13".
 Skipped without Playwright or Chromium; fail-closed under NEXUS_REQUIRE_RENDER=1.
 """
 

@@ -1407,7 +1407,7 @@ class TestContextEngineeringHandoff:
 # than against prose.
 # ---------------------------------------------------------------------------
 
-_PILOT_DIR = _ROOT / "docs" / "releases" / "v4" / "v4.13" / "development"
+_PILOT_DIR = _ROOT / "docs" / "archives" / "v4" / "v4.13" / "development"
 _PILOT_RESULTS_JSON = _PILOT_DIR / "trigger-pilot-results.json"
 _PILOT_RESULTS_MD = _PILOT_DIR / "trigger-pilot-results.md"
 _PILOT_VARIANT_B = _PILOT_DIR / "pilot-variant-b.json"

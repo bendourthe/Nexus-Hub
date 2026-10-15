@@ -1,7 +1,7 @@
 """v4.13.10 Phase 5: the Training page has no large empty areas (DoD 10).
 
 Every stage is measured at 1280 px and 390 px in both themes with the empty-rectangle
-measure recorded in docs/releases/v4/v4.13/development/v4.13.10-inventory.md. A self-test
+measure recorded in docs/archives/v4/v4.13/development/v4.13.10-inventory.md. A self-test
 proves the same measure fails on a layout like the v4.13.4 Training, so a passing result
 means the page is dense, not that the measure is blind. Skipped without Playwright or
 Chromium; fail-closed under NEXUS_REQUIRE_RENDER=1.

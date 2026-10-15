@@ -28,6 +28,8 @@ from pathlib import Path
 # A file whose SUBJECT is merge conflicts legitimately contains the markers.
 ALLOWLIST = {
     "catalog/skills/workflow/conflict-analyzer/SKILL.md",
+    # The committed Antigravity project-surface copy of the same skill.
+    ".agents/skills/conflict-analyzer/SKILL.md",
     "scripts/check_merge_conflict_markers.py",
 }
 

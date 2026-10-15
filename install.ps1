@@ -30,6 +30,8 @@
 #                                (URL base or a local directory holding
 #                                Nexus-Hub-<version>.tar.gz and SHA256SUMS);
 #                                default: the tag's GitHub Release assets
+#   NEXUS_HUB_RETRY_DELAY        seconds between branch-archive download
+#                                attempts (default: 3; tests set 0)
 #
 # Pinning (v4.7.0): `-Ref <tag-or-branch>` (consumed here, not passed on) or
 # NEXUS_HUB_REF selects what to install. A release tag (vX.Y.Z) downloads the
@@ -329,6 +331,35 @@ function Get-ReleaseFile {
     }
 }
 
+# Download a branch archive. A dropped or refused connection is retried (3
+# attempts); an HTTP 404/410 is final. Returns "ok", "not-found", "http-error"
+# or "network"; the last exception message is left in $script:DownloadDetail.
+function Get-BranchArchive {
+    param([string]$Url, [string]$Dest)
+    $delay = 3
+    if ($env:NEXUS_HUB_RETRY_DELAY -match '^\d+$') { $delay = [int]$env:NEXUS_HUB_RETRY_DELAY }
+    $state = "network"
+    for ($attempt = 1; $attempt -le 3; $attempt++) {
+        try {
+            Invoke-WebRequest -Uri $Url -OutFile $Dest -UseBasicParsing -TimeoutSec 300
+            return "ok"
+        } catch {
+            $script:DownloadDetail = $_.Exception.Message
+            # PowerShell 5.1 (WebException) and 7 (HttpResponseException) both
+            # carry Response only when the server answered.
+            $status = 0
+            try { if ($_.Exception.Response) { $status = [int]$_.Exception.Response.StatusCode } } catch { $status = 0 }
+            if ($status -eq 404 -or $status -eq 410) { return "not-found" }
+            $state = if ($status -gt 0) { "http-error" } else { "network" }
+        }
+        if ($attempt -lt 3) {
+            Write-BootstrapInfo "download attempt $attempt of 3 failed ($state); retrying in ${delay}s..."
+            Start-Sleep -Seconds $delay
+        }
+    }
+    return $state
+}
+
 function Assert-ReleaseArchiveChecksum {
     param([string]$ArchivePath, [string]$Name, [string]$Ref, [string]$Base)
     if ($env:NEXUS_HUB_SKIP_CHECKSUM -eq '1') {
@@ -451,10 +482,15 @@ function Invoke-Standalone {
             $archive = Join-Path $tmp ("nexus-hub." + $ext)
             $url = if ($tarball) { $tarball } else { "https://github.com/$repo/archive/refs/heads/$ref.$ext" }
             Write-BootstrapInfo "Downloading Nexus-Hub catalog ($repo@$ref)..."
-            try {
-                Invoke-WebRequest -Uri $url -OutFile $archive -UseBasicParsing -TimeoutSec 300
-            } catch {
-                Write-BootstrapError "could not resolve branch '$ref' in $repo (a typo or a branch that does not exist): $($_.Exception.Message). List releases at https://github.com/$repo/releases or pin one with -Ref vX.Y.Z"
+            $state = Get-BranchArchive -Url $url -Dest $archive
+            if ($state -eq "not-found") {
+                Write-BootstrapError "branch '$ref' does not exist in $repo (HTTP 404; a typo?). List releases at https://github.com/$repo/releases or pin one with -Ref vX.Y.Z"
+                exit 1
+            } elseif ($state -eq "http-error") {
+                Write-BootstrapError "could not download branch '$ref' from $repo after 3 attempts: the server returned an error ($script:DownloadDetail). Re-run, or pin a release with -Ref vX.Y.Z"
+                exit 1
+            } elseif ($state -ne "ok") {
+                Write-BootstrapError "could not download branch '$ref' from $repo after 3 attempts: network failure ($script:DownloadDetail). Re-run; if it keeps failing, check proxy or firewall access to github.com and codeload.github.com"
                 exit 1
             }
         }

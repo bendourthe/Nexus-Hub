@@ -313,7 +313,7 @@ def test_summary_publication_survives_a_failure():
 @pytest.mark.parametrize(
     ("path", "job_names"),
     [
-        (CI, ("validate", "shellcheck", "tests", "guide-render", "tests-windows")),
+        (CI, ("validate", "shellcheck", "tests", "guide-render", "tests-windows", "tests-windows-installer")),
         (POST_MERGE, ("smoke",)),
         (RELEASE, ("release-readiness",)),
     ],
@@ -544,6 +544,7 @@ def test_windows_checkouts_enable_long_paths_before_reading_the_ledger():
             checked.add((path.name, name))
     assert {
         ("ci.yml", "tests-windows"),
+        ("ci.yml", "tests-windows-installer"),
         ("ci.yml", "bootstrap-windows"),
         ("ci.yml", "install-smoke"),
         ("ci.yml", "installer-smoke"),

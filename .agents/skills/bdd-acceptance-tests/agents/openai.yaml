@@ -1,0 +1,3 @@
+interface:
+  display_name: BDD Acceptance Test Generator
+  short_description: Generate executable BDD test files from Given/When/Then acceptance criteria using pytest-bdd (Python) or Cucumber.js (JavaScript).

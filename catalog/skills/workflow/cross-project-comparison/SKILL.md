@@ -214,6 +214,10 @@ For each adoption item, explicitly document:
 
 Items classified as `drop-outright` in Step 5 belong in the NOT-recommended list, with the policy grounds for rejection cited by name.
 
+### Step 8: Commit and Publish on the Integration Branch
+
+Create no branch. Commit the report on the integration branch and publish it the same day, through a short-lived `publish/<slug>` pull request when that branch requires one, per Step 4d of `[[git-branching-workflow]]`.
+
 ## Best Practices
 
 - **Compare function, not form**: A Makefile and a justfile serve the same purpose. A `.cursorrules` file and a `.claude/skills/SKILL.md` file may encode the same knowledge differently. Look past the format to the capability.
@@ -262,3 +266,4 @@ This skill is optimized for an iterative approach:
 - [[technical-debt-analyzer]] -- quantifies the cost side of the value/effort matrix this skill builds
 - [[dependency-manager]] -- evaluate any new tool or library an adoption item introduces before recommending it
 - [[security-review]] -- deepen the Step 5 security assessment for items that add outbound calls or new dependencies
+- [[git-branching-workflow]] -- owns where the report is committed and how it is published (Step 4d)

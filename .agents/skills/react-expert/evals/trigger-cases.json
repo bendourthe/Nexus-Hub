@@ -1,0 +1,12 @@
+{
+  "skill": "react-expert",
+  "purpose": "Route React application/component work here, not to sibling framework experts.",
+  "cases": [
+    {"id": "pos-react-hooks", "prompt": "build a react component with hooks and local state", "should_trigger": true, "assert": "routes to react-expert first", "lexical": true},
+    {"id": "pos-react-render", "prompt": "optimize react rendering performance", "should_trigger": true, "assert": "routes to react-expert first", "lexical": true},
+    {"id": "pos-react-review", "prompt": "review my react component architecture", "should_trigger": true, "assert": "routes to react-expert first", "lexical": true},
+    {"id": "neg-vue", "prompt": "build a vue composition api app with pinia", "should_trigger": false, "assert": "routes to vue-expert, not react-expert", "lexical": true},
+    {"id": "neg-kubernetes", "prompt": "deploy a kubernetes cluster with helm", "should_trigger": false, "assert": "routes to kubernetes-expert, not react-expert", "lexical": true},
+    {"id": "neg-gdpr", "prompt": "implement gdpr data subject rights", "should_trigger": false, "assert": "routes to gdpr-compliance, not react-expert", "lexical": true}
+  ]
+}
