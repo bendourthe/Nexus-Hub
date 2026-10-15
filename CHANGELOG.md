@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The Windows validator tests run as two commands split by file name and balanced by measured time, each with its own 1800 s bound. The single command took 1198-1673 s on passing runs and ran past 1800 s on four others with no test stalled, so the bound, not a hang, was the failure. A contract test proves every validator file runs in exactly one half.
 - The guide's Security Guardrails text no longer says every guard blocks whatever the prompt said. It now states that the large-file guard only warns and that the security guards step aside when the platform reports full access, such as Claude Code's Bypass permissions mode, matching the v4.13.12 permission-mode contract.
 - The `install.sh` and `install.ps1` bootstraps retry a failed branch-archive download up to three times and report the real cause. Only an HTTP 404 says the branch does not exist; a dropped or refused connection is reported as a network failure with a proxy and firewall hint, instead of "a typo or a branch that does not exist".
+- The bootstrap outbound-host test compares each URL's parsed hostname with an exact allowlist. Its substring check accepted lookalike hosts such as `github.com.example.net`, and CodeQL flagged it as incomplete URL sanitization.
 
 ### Changed
 
