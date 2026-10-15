@@ -2370,9 +2370,10 @@ write_legacy_report() {
 install_vscode_extensions() {
     local repo_root="$1"
 
-    write_item "Usage Monitor extensions show Claude Code, Codex (ChatGPT), GitHub Copilot, and" "$RESET"
-    write_item "Cursor usage in the status bar. Claude/Codex install into VS Code only; Copilot" "$RESET"
+    write_item "Usage Monitor extensions show Claude Code, Codex (ChatGPT), GitHub Copilot," "$RESET"
+    write_item "Cursor, and Antigravity usage in the status bar. Claude/Codex install into VS Code only; Copilot" "$RESET"
     write_item "into VS Code and Cursor; Cursor Usage Monitor into Cursor only." "$RESET"
+    write_item "Gemini Usage Monitor installs into the Antigravity IDE only." "$RESET"
     echo ""
 
     # Check for Node.js (shared by every extension)
@@ -2472,12 +2473,40 @@ install_vscode_extensions() {
         done
     fi
 
+    # Antigravity IDE launcher (the VS Code-style CLI that accepts
+    # --install-extension). Never `agy`: that is the Antigravity agent CLI and
+    # cannot install a VSIX. Recent builds name the launcher antigravity-ide and
+    # older ones antigravity; both installs share ~/.antigravity-ide, so either
+    # puts the monitor where the running IDE reads it. The macOS bundle paths are
+    # best-effort fallbacks behind the PATH lookup.
+    local antigravity_cli=""
+    local antigravity_label="Antigravity"
+    if command -v antigravity-ide >/dev/null 2>&1; then
+        antigravity_cli="antigravity-ide"
+    elif command -v antigravity >/dev/null 2>&1; then
+        antigravity_cli="antigravity"
+    else
+        local antigravity_candidate
+        for antigravity_candidate in \
+            "/Applications/Antigravity IDE.app/Contents/Resources/app/bin/antigravity-ide" \
+            "/Applications/Antigravity.app/Contents/Resources/app/bin/antigravity-ide" \
+            "/Applications/Antigravity.app/Contents/Resources/app/bin/antigravity" \
+            "$HOME/Applications/Antigravity IDE.app/Contents/Resources/app/bin/antigravity-ide" \
+            "$HOME/Applications/Antigravity.app/Contents/Resources/app/bin/antigravity"; do
+            if [ -x "$antigravity_candidate" ]; then
+                antigravity_cli="$antigravity_candidate"
+                break
+            fi
+        done
+    fi
+
     # Build each extension under its own vendor header. The Claude and Codex
     # monitors install only via vscode_cli; the Copilot monitor installs via
     # vscode_cli and, as its second host, cursor_cli (Copilot runs in Cursor too);
-    # the Cursor monitor installs only via cursor_cli. The
-    # vendor order (Anthropic, OpenAI, Microsoft, Anysphere) is asserted by the
-    # installer smoke test and must match scripts/installer.ps1.
+    # the Cursor monitor installs only via cursor_cli; the Gemini monitor installs
+    # only via antigravity_cli. The vendor order (Anthropic, OpenAI, Microsoft,
+    # Anysphere, Google) is asserted by the installer smoke test and must match
+    # scripts/installer.ps1.
     write_header "ANTHROPIC"
     build_and_install_one_extension "$repo_root/extensions/claude-usage-monitor" "nexus-hub.claude-usage-monitor" "Claude Usage Monitor" "Claude: --%" "$vscode_cli" "$vscode_label"
 
@@ -2489,6 +2518,9 @@ install_vscode_extensions() {
 
     write_header "ANYSPHERE"
     build_and_install_one_extension "$repo_root/extensions/cursor-usage-monitor" "nexus-hub.cursor-usage-monitor" "Cursor Usage Monitor" "Cursor: --%" "$cursor_cli" "$cursor_label"
+
+    write_header "GOOGLE"
+    build_and_install_one_extension "$repo_root/extensions/gemini-usage-monitor" "nexus-hub.gemini-usage-monitor" "Gemini Usage Monitor" "Gemini Usage: --" "$antigravity_cli" "$antigravity_label"
 }
 
 # Build, package, and install one VS Code usage-monitor extension. Shared by

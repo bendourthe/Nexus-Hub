@@ -42,6 +42,7 @@ jobs:
           - claude-usage-monitor
           - codex-usage-monitor
           - cursor-usage-monitor
+          - gemini-usage-monitor
     defaults:
       run:
         working-directory: extensions/${{ matrix.extension }}

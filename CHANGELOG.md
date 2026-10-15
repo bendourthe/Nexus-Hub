@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Gemini Usage Monitor (`nexus-hub.gemini-usage-monitor`), a status-bar usage monitor for the Google Antigravity IDE with the same design as the Claude, Codex, Copilot and Cursor monitors. It reads Antigravity's Models & Usage figures (the Gemini group and the Claude and GPT group, each with a 5-hour and a weekly limit) from Antigravity's local language server over `127.0.0.1` only. Alerts watch every window of both groups and suggest switching model group when the other still has quota. Both installers install it only through the Antigravity IDE launcher.
+
 ### Fixed
 
 - Claude, Codex, GitHub Copilot and Cursor usage-alert sidebar views dismiss automatically after one minute. A new alert gets a fresh minute, and manual dismissal cancels its timer.
