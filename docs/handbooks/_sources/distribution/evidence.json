@@ -5,8 +5,8 @@
       "docs/handbooks/_sources/distribution/model.json": "3f3b9e1222a51583962e4de248d9ac74804b03a2b3102605e8e1911c8ea3496d",
       "docs/handbooks/_sources/distribution/source.md": "495f2edd8b5046d38801c6e675385cc500b552da8231a381ff5e811db62721fa",
       "docs/handbooks/_sources/distribution/design.css": "4d2975128abe327205e8b3c4fd62d351644221e9e03bfbaa539986f3cc1b9a70",
-      "scripts/installer.ps1": "11c4f5f82f4e5a69f163aadaf07a9062ee3a6675fe8c366a69f15d95a978da64",
-      "scripts/installer.sh": "1b44b824b62f781fbc6a8a495c8f9363fb694ceeb7aed82fdad30cb14e0e4fbd",
+      "scripts/installer.ps1": "024251a63c021aabdc16b9c6a0d9fb555c266fe028c528c7b9eab08f64af4b05",
+      "scripts/installer.sh": "5c08e680a6774c575bc25eec57a54d59a2c3247f24a2561121e12be8812ba09d",
       "scripts/lib/integrations/runner.py": "5429ec6c9896b95285effe8215b2d3ca291c920bad6ccf8dec0ffa93cca7b78f",
       "scripts/lib/integrations/_catalog_adapters.py": "6a8e0f1375df9ae401302b1b13a1559f093d7aecd0c5ae0c134f9dddad162647",
       "scripts/lib/integrations/_owned.py": "abfac9b0161e9148e236532b85a854bf512c3100bc5f39fed7e8474e7fd727e4",
@@ -24,15 +24,15 @@
       "catalog/style-guides/git-attribution.md": "f4abb51bdbd97f19a115024c51ba0e9a414f4e377590c05efcbdc8693ede7b29",
       "scripts/lib/integrations/cursor.py": "9cc127d07c30153cbda24b4faf4774ae79705406c05ee466e34b5fbbe1e52f4e",
       "scripts/lib/integrations/aider.py": "7737442015938681795878452050de557a09324651e29247de3ee231513e9798",
-      "configs/platform-defaults.json": "7c5b50fff792910769f75263cf5a75dc2f5a49d1059d7ad54ab7805e46d9095d"
+      "configs/platform-defaults.json": "3191c740dac13759e0b49e91887a7726c801d010f370f2696a2334df74f77ad8"
     },
     "output_sha256": "d520007558410ed00944291b109b6e46302d5e46ced3224f54af4c640b20eac1"
   },
   "checks": {
     "content": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.14/development/gemini-usage-monitor-handbook-claim-review.md",
-      "evidence_sha256": "a65daeaae81c6127df20ad8fcb7cfd05a994dd77198849d1f613d6ddb0dde0e6"
+      "evidence": "docs/releases/v4/v4.14/development/v4.13.13-release-handbook-claim-review.md",
+      "evidence_sha256": "1ca6a8c135874c3bf848432ba6e69e4e0ef338ffb57c36ae9dd1b6d26faf788d"
     },
     "build": {
       "status": "pass",
