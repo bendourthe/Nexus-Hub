@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- The merge-conflict-marker check prefilters tracked files with `git grep` and applies its exact line-anchored rule only to the candidates. It took about one second instead of 100-120 s on Windows, where it repeatedly exceeded the fast profile's 120 s step bound; findings are unchanged, including widened and CRLF markers.
+
 ## [4.13.13] - 2026-10-15
 
 ### Added

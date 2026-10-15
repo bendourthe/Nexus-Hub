@@ -45,11 +45,21 @@ TEXT_SUFFIXES = {
 
 
 def tracked_files(root: Path) -> list[Path]:
+    """Tracked text files that contain a line starting with a marker run.
+
+    `git grep` prefilters natively in about a second; reading all ~8,000
+    tracked files through Python took 100-120 s on Windows and timed out the
+    fast profile's 120 s bound. The prefilter is a superset of MARKER, so
+    `conflicts_in` still makes the exact decision on each candidate.
+    """
     result = subprocess.run(
-        ["git", "-C", str(root), "ls-files", "-z"],
+        ["git", "-C", str(root), "grep", "-l", "-z", "-E", "^(<{7,}|>{7,})"],
         capture_output=True,
-        check=True,
     )
+    if result.returncode == 1:  # git grep: no line matched anywhere
+        return []
+    if result.returncode != 0:
+        raise subprocess.CalledProcessError(result.returncode, result.args, result.stdout, result.stderr)
     return [
         Path(name)
         for name in result.stdout.decode("utf-8", "replace").split("\0")
