@@ -23,22 +23,6 @@
     "roster_hash": "295facc046d76472af9e055bddd5782f451fd617a27b22522caf31386315de6d",
     "platforms": [
       {
-        "platform": "codex",
-        "roster_source": "api",
-        "roster": [
-          "codex-auto-review",
-          "gpt-5.2",
-          "gpt-5.3-codex",
-          "gpt-5.4",
-          "gpt-5.4-mini",
-          "gpt-5.5",
-          "gpt-6-astra",
-          "gpt-6.1-sol"
-        ],
-        "roster_hash": "b5187229e56322cc1396011fc3044e7a4966abdc8b3f08109fe6e6a61c152fc6",
-        "last_verified": "2026-10-01"
-      },
-      {
         "platform": "cursor",
         "roster_source": "config",
         "roster": [
@@ -72,6 +56,36 @@
         ],
         "roster_hash": "1bac74477412c8af7bd140962fa206089425b1402e5100c0361a15fba01fc59a",
         "last_verified": "2026-09-08"
+      },
+      {
+        "platform": "codex",
+        "roster_source": "api",
+        "roster": [
+          "codex-auto-review",
+          "gpt-5.2",
+          "gpt-5.3-codex",
+          "gpt-5.4",
+          "gpt-5.4-mini",
+          "gpt-5.5",
+          "gpt-6-astra",
+          "gpt-6.1-sol"
+        ],
+        "roster_hash": "b5187229e56322cc1396011fc3044e7a4966abdc8b3f08109fe6e6a61c152fc6",
+        "last_verified": "2026-10-15"
+      },
+      {
+        "platform": "antigravity",
+        "roster_source": "api",
+        "roster": [
+          "claude-opus-4-6-thinking",
+          "claude-sonnet-4-6",
+          "gemini-3.8-flash-high",
+          "gemini-3.8-flash-low",
+          "gemini-3.8-flash-medium",
+          "gpt-oss-120b-medium"
+        ],
+        "roster_hash": "6dd4b0972d520d9e42c25ab9384183f4857689ee52eeea10faa5ed785d5b5d96",
+        "last_verified": "2026-10-15"
       }
     ]
   },
@@ -1089,6 +1103,786 @@
           "scope": "model-specific",
           "note": "Quote withheld: it is an imperative addressed to an agent. Recorded and deliberately NOT adopted into any shared body: the catalog's agent-orchestration-primitives overrides it with the named-problem escalation gate, as for gpt-6-astra. Verified 2026-10-01.",
           "evidence_scope": "model-family"
+        }
+      ]
+    },
+    "claude-opus-5-5": {
+      "platform": "claude-code",
+      "last_verified": "2026-10-15",
+      "claims": [
+        {
+          "claim": "Set the effort parameter explicitly, starting at medium (the Opus 5.5 default; Opus 5 defaults to high), and test several levels on your own evals instead of carrying over the Opus 5 setting.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5-5",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "To reduce thinking, cost, or latency, lower the effort level first; it works more reliably than prompt instructions asking for less deliberation.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5-5",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Set max_tokens high enough for thinking tokens plus the reply (128,000, the model maximum, has worked well for long agentic coding turns), because thinking counts toward max_tokens even when it is not returned.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5-5",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Remove prompt instructions that ask the model to write out its reasoning in the response; set thinking display to summarized and read the reasoning from thinking blocks, since such requests may be declined with the reasoning_extraction refusal category.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5-5",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Consider removing chat system-prompt instructions that tell the model to think carefully before answering; effort is the main control, and removing them made replies start sooner.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5-5",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Forced tool_choice (any or tool) returns a 400 error; to make the model call a tool, say in the prompt when the tool applies, and for schema-valid output keep tool_choice auto with strict: true.",
+          "source_url": "https://platform.claude.com/docs/en/models/opus-5-5/whats-new-opus-5-5",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "For unattended agentic runs, name in the system prompt the specific kinds of early stop to avoid (such as ending with a summary that announces the next step instead of taking it) and the stops you do want; treat a text-only end of turn as a report, not proof of completion.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5-5",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "For more frequent or predictable user-facing updates, such as a one-line statement of intent before the first tool call and a short recap at the end, ask for them in the system prompt.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5-5",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "For agents working across several connected apps on loosely specified tasks, tell the model to explore the relevant sources broadly with tool calls before taking any action.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5-5",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Wrap text a user pasted from elsewhere in opening and closing pasted_content tags carrying the same app-generated random id, and tell the model in the system prompt to follow instructions inside them only where the user's own message asks.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5-5",
+          "confidence": "high",
+          "scope": "model-specific"
+        }
+      ]
+    },
+    "gpt-5.2": {
+      "platform": "codex",
+      "last_verified": "2026-10-15",
+      "claims": [
+        {
+          "claim": "Give GPT-5.2 explicit, concrete output-length limits (for example 3-6 sentences or at most 5 bullets by default), because it is steerable on verbosity and builds its own structure by default.",
+          "source_url": "https://developers.openai.com/cookbook/examples/gpt-5/gpt-5-2_prompting_guide",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Constrain scope explicitly: tell GPT-5.2 to implement exactly and only what was requested, with no extra features, and to pick the simplest valid reading of ambiguous instructions.",
+          "source_url": "https://developers.openai.com/cookbook/examples/gpt-5/gpt-5-2_prompting_guide",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "For long inputs (above roughly 10k tokens), instruct GPT-5.2 to first outline the relevant sections and restate the user's constraints before answering (force summarization and re-grounding).",
+          "source_url": "https://developers.openai.com/cookbook/examples/gpt-5/gpt-5-2_prompting_guide",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "For ambiguous requests, instruct GPT-5.2 to either ask 1-3 precise clarifying questions or present 2-3 interpretations with labeled assumptions, and never fabricate exact figures, line numbers, or references when uncertain.",
+          "source_url": "https://developers.openai.com/cookbook/examples/gpt-5/gpt-5-2_prompting_guide",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "GPT-5.2 takes more tool actions than GPT-5.1 in interactive flows; use prompting (tool usage rules) to reduce unnecessary calls, and tell it to parallelize independent reads.",
+          "source_url": "https://developers.openai.com/cookbook/examples/gpt-5/gpt-5-2_prompting_guide",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "In tool-using prompts, require GPT-5.2 to briefly restate what changed, where, and what validation ran after any write or update tool call, and require verification for high-impact operations.",
+          "source_url": "https://developers.openai.com/cookbook/examples/gpt-5/gpt-5-2_prompting_guide",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "For structured extraction, always supply a schema or JSON shape and instruct GPT-5.2 to set absent fields to null rather than guessing.",
+          "source_url": "https://developers.openai.com/cookbook/examples/gpt-5/gpt-5-2_prompting_guide",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "When migrating to GPT-5.2, switch the model first without changing prompts, explicitly pin reasoning_effort to match the prior model's latency/depth profile (GPT-5.2 defaults to none), run evals, then tune prompts one change at a time.",
+          "source_url": "https://developers.openai.com/cookbook/examples/gpt-5/gpt-5-2_prompting_guide",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "With GPT-5.2 reasoning effort set to none, prompt quality matters more; if more thinking is needed, raise effort gradually toward medium and experiment.",
+          "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.2",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "When using compaction with GPT-5.2 in long agent workflows, compact after major milestones rather than every turn, and keep prompts functionally identical when resuming to avoid behavior drift.",
+          "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.2",
+          "confidence": "high",
+          "scope": "model-specific"
+        }
+      ]
+    },
+    "gpt-5.3-codex": {
+      "platform": "codex",
+      "last_verified": "2026-10-15",
+      "claims": [
+        {
+          "claim": "Use medium reasoning effort as the default for interactive coding with gpt-5.3-codex, and raise it to high or xhigh only for the hardest tasks.",
+          "source_url": "https://developers.openai.com/cookbook/examples/gpt-5/codex_prompting_guide",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "When reconstructing conversation history for gpt-5.3-codex, persist each assistant output item's phase value (commentary or final_answer) and send it back in later requests. Dropping it degrades performance.",
+          "source_url": "https://developers.openai.com/cookbook/examples/gpt-5/codex_prompting_guide",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Never attach the phase field to user messages. It belongs only on assistant items.",
+          "source_url": "https://developers.openai.com/cookbook/examples/gpt-5/codex_prompting_guide",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "With gpt-5.3-codex, mid-rollout preambles and progress updates can be prompted, which earlier Codex models did not allow. Prompt for a short acknowledgement and plan before any tool calls.",
+          "source_url": "https://developers.openai.com/cookbook/examples/gpt-5/codex_prompting_guide",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Prompt for a regular update cadence: about every 1 to 3 execution steps, and never more than 6 steps or 10 tool calls without an update. Keep most updates to 1 or 2 sentences.",
+          "source_url": "https://developers.openai.com/cookbook/examples/gpt-5/codex_prompting_guide",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Tell the model to carry the task through to completion within the current turn, including implementation and verification, rather than stopping at analysis or a partial fix.",
+          "source_url": "https://developers.openai.com/cookbook/examples/gpt-5/codex_prompting_guide",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Tell the model to maximize parallel tool calls, for example batching file reads, rather than calling tools one at a time.",
+          "source_url": "https://developers.openai.com/cookbook/examples/gpt-5/codex_prompting_guide",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Tell the model to use a dedicated tool when one exists for the action, instead of raw shell commands.",
+          "source_url": "https://developers.openai.com/cookbook/examples/gpt-5/codex_prompting_guide",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Tell the model to skip the planning tool for simple tasks, never to write single-step plans, and to reconcile every stated plan or TODO before finishing.",
+          "source_url": "https://developers.openai.com/cookbook/examples/gpt-5/codex_prompting_guide",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Truncate tool output returned to the model to about 10k tokens (estimated as bytes divided by 4), keeping half the budget for the beginning and half for the end.",
+          "source_url": "https://developers.openai.com/cookbook/examples/gpt-5/codex_prompting_guide",
+          "confidence": "high",
+          "scope": "model-specific"
+        }
+      ]
+    },
+    "gpt-5.4": {
+      "platform": "codex",
+      "last_verified": "2026-10-15",
+      "claims": [
+        {
+          "claim": "Early in a session, when there is little context, tell GPT-5.4 the prerequisites and dependencies explicitly. Its tool routing can be less reliable at that stage.",
+          "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.4",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Add a dependency-check rule: resolve prerequisite steps before taking the final action, even when that action looks obvious.",
+          "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.4",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "For long-horizon or batch tasks, add a completeness contract: the task stays incomplete until every requested item is covered or explicitly marked [blocked].",
+          "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.4",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Add tool-persistence rules: keep calling tools while another call is likely to improve correctness, and retry with a different strategy when results are empty or partial.",
+          "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.4",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Treat reasoning effort as a last-mile tuning knob. Before raising it, add completeness_contract, verification_loop and tool_persistence_rules prompt blocks, and default to none, low or medium.",
+          "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.4",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Migrate to GPT-5.4 one change at a time: switch the model string first, pin reasoning_effort, run evals, then iterate on prompts.",
+          "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.4",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Prefer prompt-only upgrades with small, targeted prompt blocks, and avoid broad prompt cleanup unrelated to the upgrade.",
+          "source_url": "https://developers.openai.com/api/docs/guides/upgrading-to-gpt-5p4",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Only request parallel tool calls for independent retrieval or lookup steps. Never parallelize steps where one result determines the next.",
+          "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.4",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "In research workflows, tell the model to cite only sources retrieved in the current workflow and never fabricate citations, URLs, IDs or quote spans.",
+          "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.4",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "For gpt-5.4-mini, put critical rules first and define explicitly when to ask, abstain or proceed, because the model is more literal and makes fewer assumptions.",
+          "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.4",
+          "confidence": "high",
+          "scope": "model-specific"
+        }
+      ]
+    },
+    "gpt-5.4-mini": {
+      "platform": "codex",
+      "last_verified": "2026-10-15",
+      "claims": [
+        {
+          "claim": "Write prompts for gpt-5.4-mini that are longer and more explicit than prompts for larger models. State missing steps, how to resolve ambiguity, and how to package the output directly, because the model is less likely to infer them.",
+          "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.4",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Put the critical rules at the top of the prompt.",
+          "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.4",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "When tool use or side effects matter, specify the full execution order step by step instead of leaving the workflow implied.",
+          "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.4",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Give separate instructions for doing an action and for reporting on it. Show the correct flow, not only the final output format.",
+          "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.4",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Define explicitly what the model should do when input is ambiguous: when to ask, when to abstain, and when to proceed.",
+          "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.4",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Specify output packaging directly: answer length, citation style, section order, and whether to ask a follow-up question. By default, gpt-5.4-mini may end with a follow-up question unless the prompt explicitly suppresses it.",
+          "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.4",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Avoid the blanket instruction \"output nothing else\". Use a scoped termination instruction tied to a concrete point in the output instead.",
+          "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.4",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Structure gpt-5.4-mini prompts with this default pattern, in order: task, critical rule, exact step order, edge cases or clarification behavior, output format, one correct example.",
+          "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.4",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Avoid implied next steps, unspecified edge cases, schema-only prompts for tool workflows, and generic instructions without structure.",
+          "source_url": "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.4",
+          "confidence": "high",
+          "scope": "model-specific"
+        }
+      ]
+    },
+    "gpt-5.5": {
+      "platform": "codex",
+      "last_verified": "2026-10-15",
+      "claims": [
+        {
+          "claim": "When migrating to GPT-5.5, start from a fresh, smaller baseline prompt instead of carrying over the older prompt stack (treat it as a new model family, not a drop-in replacement for gpt-5.2/5.4).",
+          "source_url": "https://developers.openai.com/api/docs/guides/prompt-guidance?model=gpt-5.5",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Write outcome-first prompts: state the expected outcome, success criteria, allowed side effects, evidence rules, and output shape rather than prescribing a step-by-step process.",
+          "source_url": "https://developers.openai.com/api/docs/guides/prompt-guidance?model=gpt-5.5",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Omit step-by-step process instructions unless the exact execution path genuinely matters.",
+          "source_url": "https://developers.openai.com/api/docs/guides/prompt-guidance?model=gpt-5.5",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Reserve absolute language (ALWAYS/NEVER) for true invariants such as safety rules, required output fields, or forbidden actions.",
+          "source_url": "https://developers.openai.com/api/docs/guides/prompt-guidance?model=gpt-5.5",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Do not inject the current date into GPT-5.5 prompts; the model already knows the current UTC date.",
+          "source_url": "https://developers.openai.com/api/docs/guides/prompt-guidance?model=gpt-5.5",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Use reasoning effort medium (the new default) as the starting point and raise it only when evals show a measurable quality gain.",
+          "source_url": "https://developers.openai.com/api/docs/guides/prompt-guidance?model=gpt-5.5",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Give explicit stopping rules for evidence gathering: use the minimum sufficient evidence, cite it precisely, then stop; treat retrieval budgets as stopping rules.",
+          "source_url": "https://developers.openai.com/api/docs/guides/prompt-guidance?model=gpt-5.5",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Instruct the model that missing evidence is not by itself grounds for a factual 'no' answer.",
+          "source_url": "https://developers.openai.com/api/docs/guides/prompt-guidance?model=gpt-5.5",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Because GPT-5.5 defaults to an efficient, direct style, explicitly specify personality (tone, warmth) separately from collaboration style when a different voice is needed, and use headers/bold/lists sparingly.",
+          "source_url": "https://developers.openai.com/api/docs/guides/prompt-guidance?model=gpt-5.5",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Request a short preamble when a task may be multi-step, require tool calls, or run as a long agent workflow.",
+          "source_url": "https://developers.openai.com/api/docs/guides/prompt-guidance?model=gpt-5.5",
+          "confidence": "high",
+          "scope": "model-specific"
+        }
+      ]
+    },
+    "claude-opus-4-6-thinking": {
+      "platform": "antigravity",
+      "last_verified": "2026-10-15",
+      "claims": [
+        {
+          "claim": "Opus 4.6 does not think unless you ask it to. To get thinking, explicitly send thinking: {type: \"adaptive\"} rather than relying on the default.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Do not cap thinking with budget_tokens on Opus 4.6, because that setting is deprecated there. Use adaptive thinking, control depth with effort, and use max_tokens as the hard ceiling.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Opus 4.6 explores a lot up front, so remove or weaken prompts that push for thoroughness. Replace blanket defaults such as 'Default to using [tool]' with targeted wording such as 'Use [tool] when it would enhance your understanding'. If it still over-explores, lower effort.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "When Opus 4.6 thinks too much, add explicit instructions that limit its reasoning (for example, choose an approach, commit to it, and revisit only on contradicting new information), or lower the effort setting.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Drop aggressive tool and skill triggering language written for older models, such as 'CRITICAL: You MUST use this tool when...'. Use plain wording such as 'Use this tool when...', because Opus 4.6 follows the system prompt closely and will overtrigger.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Do not prefill the final assistant turn for Opus 4.6. Prefill returns a 400 error on this model, so get the format you want from instructions or structured outputs instead.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "In agentic deployments, add a reversibility and confirmation rule to the prompt. The rule should tell Opus 4.6 to ask before destructive, hard-to-reverse or externally visible actions, such as deleting files, force-pushing or posting to external services.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Limit subagent use in the prompt. Opus 4.6 tends to spawn subagents when a direct call such as grep would be faster and enough, so say when delegating is warranted.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Add explicit minimal-scope guidance for coding work: only make changes that are requested or clearly necessary, with no extra files, abstractions or configurability. Opus 4.6 tends to over-engineer without it.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "To reduce how often an adaptive-thinking model thinks, lower the effort level first. Use system-prompt or per-message steering phrases only if thinking still triggers wrongly, and measure quality before shipping.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/thinking-steering-and-cost",
+          "confidence": "high",
+          "scope": "model-specific"
+        }
+      ]
+    },
+    "claude-sonnet-4-6": {
+      "platform": "antigravity",
+      "last_verified": "2026-10-15",
+      "claims": [
+        {
+          "claim": "Always set the effort parameter explicitly when calling Sonnet 4.6. Its API default is high, which can add unexpected latency.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/effort",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Use medium as the default effort for Sonnet 4.6 in most applications, including agentic coding, tool-heavy workflows, and code generation.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/effort",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "On Sonnet 4.6, use low effort for chat, non-coding, high-volume, or latency-sensitive workloads. Reserve high for complex reasoning where quality matters more than speed or cost.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/effort",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Do not prefill the last assistant turn on Claude 4.6 models such as Sonnet 4.6, because those requests return a 400 error. Get the output format from Structured Outputs or by asking for the structure directly.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Where a prefill was used to skip preambles, put a direct no-preamble instruction in the system prompt instead.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "On Sonnet 4.6, use adaptive thinking with the effort parameter instead of manual extended thinking with budget_tokens. budget_tokens still works on this model but is deprecated.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "To get thinking on Sonnet 4.6, request it explicitly with thinking type adaptive. Thinking is off on this model when the thinking parameter is omitted.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Dial back anti-laziness wording and aggressive \"use tools more\" instructions carried over from older prompts, because Claude 4.6 models are more proactive and may overtrigger on them.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Sonnet 4.6 tracks its remaining context window. When it runs in a harness that compacts context or saves state to files, say so in the prompt so the model does not wrap up early as it nears the limit.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        }
+      ]
+    },
+    "gemini-3.8-flash-high": {
+      "platform": "antigravity",
+      "last_verified": "2026-10-15",
+      "claims": [
+        {
+          "claim": "Do not tune temperature, top_p, or top_k for Gemini 3.8 Flash; remove them from requests.",
+          "source_url": "https://ai.google.dev/gemini-api/docs/whats-new-gemini-3.8",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "To control determinism, use thinking_level together with a response_schema or json_schema, not sampling parameters (the backend ignores those).",
+          "source_url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/guides/gemini-3-8-flash",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Choosing a level: use the low thinking level for latency-critical tasks.",
+          "source_url": "https://ai.google.dev/gemini-api/docs/whats-new-gemini-3.8",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Choosing a level: keep the default medium level for complex code and agentic work.",
+          "source_url": "https://ai.google.dev/gemini-api/docs/whats-new-gemini-3.8",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Choosing a level: use the high thinking level for deep reasoning, mathematics, and difficult multi-step tasks.",
+          "source_url": "https://ai.google.dev/gemini-api/docs/whats-new-gemini-3.8",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Choosing a level: Gemini 3.8 Flash uses more tokens on long, complex tasks by design, so lower the reasoning effort for everyday tasks.",
+          "source_url": "https://ai.google.dev/gemini-api/docs/whats-new-gemini-3.8",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Choosing a level: do not request the minimal thinking level. Gemini 3.8 Flash supports only low, medium (the default), and high, and minimal returns an error.",
+          "source_url": "https://ai.google.dev/gemini-api/docs/whats-new-gemini-3.8",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Do not prefill model turns or end the conversation history with a model-role turn. Remove prefilled turns when upgrading.",
+          "source_url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/guides/gemini-3-8-flash",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "In function calling, if Malformed_Function_Call errors are tied to text before a tool call, clean up the leading commentary that comes before tool calls.",
+          "source_url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/guides/gemini-3-8-flash",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "In function responses, separate inline instructions with blank lines (\\n\\n) and place multimodal assets inside the response payload.",
+          "source_url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/guides/gemini-3-8-flash",
+          "confidence": "high",
+          "scope": "model-specific"
+        }
+      ]
+    },
+    "gemini-3.8-flash-low": {
+      "platform": "antigravity",
+      "last_verified": "2026-10-15",
+      "claims": [
+        {
+          "claim": "Do not tune temperature, top_p, or top_k for Gemini 3.8 Flash; remove them from requests.",
+          "source_url": "https://ai.google.dev/gemini-api/docs/whats-new-gemini-3.8",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "To control determinism, use thinking_level together with a response_schema or json_schema, not sampling parameters (the backend ignores those).",
+          "source_url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/guides/gemini-3-8-flash",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Choosing a level: use the low thinking level for latency-critical tasks.",
+          "source_url": "https://ai.google.dev/gemini-api/docs/whats-new-gemini-3.8",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Choosing a level: keep the default medium level for complex code and agentic work.",
+          "source_url": "https://ai.google.dev/gemini-api/docs/whats-new-gemini-3.8",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Choosing a level: use the high thinking level for deep reasoning, mathematics, and difficult multi-step tasks.",
+          "source_url": "https://ai.google.dev/gemini-api/docs/whats-new-gemini-3.8",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Choosing a level: Gemini 3.8 Flash uses more tokens on long, complex tasks by design, so lower the reasoning effort for everyday tasks.",
+          "source_url": "https://ai.google.dev/gemini-api/docs/whats-new-gemini-3.8",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Choosing a level: do not request the minimal thinking level. Gemini 3.8 Flash supports only low, medium (the default), and high, and minimal returns an error.",
+          "source_url": "https://ai.google.dev/gemini-api/docs/whats-new-gemini-3.8",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Do not prefill model turns or end the conversation history with a model-role turn. Remove prefilled turns when upgrading.",
+          "source_url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/guides/gemini-3-8-flash",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "In function calling, if Malformed_Function_Call errors are tied to text before a tool call, clean up the leading commentary that comes before tool calls.",
+          "source_url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/guides/gemini-3-8-flash",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "In function responses, separate inline instructions with blank lines (\\n\\n) and place multimodal assets inside the response payload.",
+          "source_url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/guides/gemini-3-8-flash",
+          "confidence": "high",
+          "scope": "model-specific"
+        }
+      ]
+    },
+    "gemini-3.8-flash-medium": {
+      "platform": "antigravity",
+      "last_verified": "2026-10-15",
+      "claims": [
+        {
+          "claim": "Do not tune temperature, top_p, or top_k for Gemini 3.8 Flash; remove them from requests.",
+          "source_url": "https://ai.google.dev/gemini-api/docs/whats-new-gemini-3.8",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "To control determinism, use thinking_level together with a response_schema or json_schema, not sampling parameters (the backend ignores those).",
+          "source_url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/guides/gemini-3-8-flash",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Choosing a level: use the low thinking level for latency-critical tasks.",
+          "source_url": "https://ai.google.dev/gemini-api/docs/whats-new-gemini-3.8",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Choosing a level: keep the default medium level for complex code and agentic work.",
+          "source_url": "https://ai.google.dev/gemini-api/docs/whats-new-gemini-3.8",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Choosing a level: use the high thinking level for deep reasoning, mathematics, and difficult multi-step tasks.",
+          "source_url": "https://ai.google.dev/gemini-api/docs/whats-new-gemini-3.8",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Choosing a level: Gemini 3.8 Flash uses more tokens on long, complex tasks by design, so lower the reasoning effort for everyday tasks.",
+          "source_url": "https://ai.google.dev/gemini-api/docs/whats-new-gemini-3.8",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Choosing a level: do not request the minimal thinking level. Gemini 3.8 Flash supports only low, medium (the default), and high, and minimal returns an error.",
+          "source_url": "https://ai.google.dev/gemini-api/docs/whats-new-gemini-3.8",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Do not prefill model turns or end the conversation history with a model-role turn. Remove prefilled turns when upgrading.",
+          "source_url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/guides/gemini-3-8-flash",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "In function calling, if Malformed_Function_Call errors are tied to text before a tool call, clean up the leading commentary that comes before tool calls.",
+          "source_url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/guides/gemini-3-8-flash",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "In function responses, separate inline instructions with blank lines (\\n\\n) and place multimodal assets inside the response payload.",
+          "source_url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/guides/gemini-3-8-flash",
+          "confidence": "high",
+          "scope": "model-specific"
+        }
+      ]
+    },
+    "gpt-oss-120b-medium": {
+      "platform": "antigravity",
+      "last_verified": "2026-10-15",
+      "claims": [
+        {
+          "claim": "Always prompt gpt-oss-120b in the harmony response format. Raw or other chat templates are unsupported and degrade behavior.",
+          "source_url": "https://developers.openai.com/cookbook/articles/openai-harmony",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Set reasoning effort with a line such as 'Reasoning: medium' in the system message, not in the developer or user message. Medium is the default when the line is omitted.",
+          "source_url": "https://developers.openai.com/cookbook/articles/openai-harmony",
+          "confidence": "medium",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Put task instructions (what other APIs call the 'system prompt') in the harmony developer message under an '# Instructions' heading. Keep the system message for identity, reasoning level, channels and built-in tools.",
+          "source_url": "https://developers.openai.com/cookbook/articles/openai-harmony",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "In multi-turn conversations, remove earlier assistant turns' chain-of-thought (analysis channel) from the prompt. The exception is tool or function calling, where the prior CoT must be passed back in.",
+          "source_url": "https://developers.openai.com/cookbook/articles/openai-harmony",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Define every custom function in the developer message using harmony's TypeScript-like syntax inside a 'functions' namespace, following the format exactly to keep function calls accurate.",
+          "source_url": "https://developers.openai.com/cookbook/articles/openai-harmony",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Declare built-in tools such as browser and python in a '# Tools' section of the system message. They do not go in the developer message.",
+          "source_url": "https://developers.openai.com/cookbook/articles/openai-harmony",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "For structured output, put the response format at the end of the developer message. Because the prompt only influences the model, enforce the schema with a grammar during sampling.",
+          "source_url": "https://developers.openai.com/cookbook/articles/openai-harmony",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Show end users only final-channel messages. Do not show analysis-channel chain-of-thought unfiltered, because it is not held to the same safety standards.",
+          "source_url": "https://developers.openai.com/cookbook/articles/openai-harmony",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Put constraints that must not be overridden in the higher-priority role. The model resolves conflicts as System > Developer > User > Assistant > Tool.",
+          "source_url": "https://deploymentsafety.openai.com/gpt-oss",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Choose the reasoning level (for example medium) for each use case to balance quality against latency and cost. Higher levels make the chain-of-thought longer on average.",
+          "source_url": "https://deploymentsafety.openai.com/gpt-oss",
+          "confidence": "high",
+          "scope": "model-specific"
         }
       ]
     }

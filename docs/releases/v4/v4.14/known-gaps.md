@@ -2,8 +2,8 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Last updated**: 2026-10-13
-**Open items**: 83
+**Last updated**: 2026-10-15
+**Open items**: 84
 
 ## v4.14.0
 
@@ -14,7 +14,7 @@
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 14 | 0 |
 | Bugs / regressions (BG) | 2 | 0 |
-| Warnings (WN) | 25 | 0 |
+| Warnings (WN) | 26 | 0 |
 | Missing tests / coverage gaps (MT) | 4 | 0 |
 | Quality-gate gaps (QG) | 3 | 0 |
 
@@ -953,6 +953,18 @@
 - **Migrated from**: v4.13#WN-40 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: Bounding the ship-balance fixture needs same-runner CI profiling of an 18-38 minute software-WebGL run with equal balance output.
 
+
+#### WN-26: Prompting profiles cannot record Claude Code's current roster
+
+**Carry-forward contract (v4.13.13 follow-up)**:
+- **Owner**: catalog maintainer, via `[[model-prompting-research]]`
+- **Severity**: low - stated: the profile layer is advisory and never gates a release
+- **Blocker**: vendor-feature - Claude Code exposes no scriptable model list, so a complete live Claude roster cannot be enumerated and the writer correctly refuses to add new Claude ids through a claim-only write.
+- **Acceptance**: a complete Claude Code roster is recorded with its source, `claude-haiku-5-5` is profiled from Anthropic primary sources, and the seven retired legacy ids are dropped by that roster refresh.
+- **Proving command**: `python scripts/check_model_prompting_freshness.py --advisory <complete live roster ids>` reports IN SYNC.
+- **Future plan**: next `/tune-prompting` run once a complete Claude Code roster is available.
+
+**Source phase**: the 2026-10-15 `/tune-prompting` run. **Reason**: that run profiled 12 ids from first-party vendor pages, with 98 unique claims kept after three-skeptic refutation (1 refuted; 118 entries counting the shared claims for each of the three Gemini variants): `claude-opus-5-5` (claim-only, Claude Code platform), five GPT ids (Codex roster refreshed from its live list), and six Antigravity ids (new `antigravity` roster from its live list). `claude-haiku-5-5` stayed UNVERIFIED because it is absent from the recorded Claude Code roster, and seven retired legacy ids (`claude-fable-5`, `claude-haiku-4-5-20251001`, `claude-opus-4-5-20251101`, `claude-opus-4-6`, `claude-opus-4-7`, `claude-opus-4-8`, `claude-sonnet-4-5-20250929`) remain rostered without profiles. `check_model_prompting_freshness.py` compares only that legacy Claude Code roster, so it keeps reporting DRIFTED even though the Codex and Antigravity rosters are current. **Owner**: catalog maintainer. **Status**: open.
 ### AR-35: Antigravity legacy workflow retirement needs a dated vendor check
 
 **Carry-forward contract (v4.13.11)**:

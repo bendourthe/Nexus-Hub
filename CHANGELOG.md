@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- The per-model prompting profiles are refreshed from first-party vendor documentation: 98 claims across 12 model ids (GPT-5.2 to 5.5 for Codex, Gemini 3.8 Flash, Claude Sonnet 4.6, Claude Opus 4.6 thinking and gpt-oss-120b for Antigravity, and Claude Opus 5.5), each kept only after three independent skeptics failed to refute it (1 claim refuted). All stay in the profile layer; no shared skill body changed. The Codex roster is refreshed from its live list and Antigravity gains its own roster. Claude Haiku 5.5 remains unverified (v4.14 WN-26).
+- The model-routing map's Google frontier cell moves to `gemini-4-argon` (GA 2026-10-13); the other fifteen cells are re-confirmed on official pages.
+
 ## [4.13.13] - 2026-10-15
 
 ### Added
