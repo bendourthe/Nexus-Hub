@@ -43,10 +43,28 @@ def test_windows_installer_corpus_runs_in_its_own_job() -> None:
     installer = next(group for group in groups_for("platform") if group.name == "windows-installer")
     selected = {arg for command in installer.commands for arg in command.argv if arg.startswith("tests/")}
     assert selected == {"tests/installer", "tests/validators"}
-    assert len(installer.commands) == 2, "each corpus keeps its own command time bound"
+    assert len(installer.commands) == 3, "installer and each validator half keep their own time bound"
     assert all(command.env["NEXUS_TEST_POWERSHELL"] == "powershell" for command in installer.commands)
     hooks = next(group for group in groups_for("platform") if group.name == "windows-hooks")
     assert not any("tests/installer" in c.argv for c in hooks.commands)
     workflow = yaml.safe_load(CI.read_text(encoding="utf-8"))
     steps = workflow["jobs"]["tests-windows-installer"]["steps"]
     assert any("--only windows-installer" in str(step.get("run", "")) for step in steps)
+
+
+def test_windows_validator_halves_partition_every_test_file() -> None:
+    """Each tests/validators file runs in exactly one half, including files added later."""
+    import fnmatch
+
+    installer = next(group for group in groups_for("platform") if group.name == "windows-installer")
+    halves = [c for c in installer.commands if "tests/validators" in c.argv]
+    assert len(halves) == 2
+    ignores = [
+        [arg.split("=", 1)[1] for arg in half.argv if arg.startswith("--ignore-glob=")] for half in halves
+    ]
+    files = sorted((Path(__file__).resolve().parents[1] / "validators").glob("test_*.py"))
+    assert files
+    for path in files:
+        # pytest matches --ignore-glob with fnmatch against the full path string.
+        runs_in = [not any(fnmatch.fnmatch(str(path), g) for g in globs) for globs in ignores]
+        assert runs_in.count(True) == 1, f"{path.name} runs in {runs_in.count(True)} validator halves"
