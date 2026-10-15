@@ -31,6 +31,8 @@
 #                                (URL base or a local directory holding
 #                                Nexus-Hub-<version>.tar.gz and SHA256SUMS);
 #                                default: the tag's GitHub Release assets
+#   NEXUS_HUB_RETRY_DELAY        seconds between branch-archive download
+#                                attempts (default: 3; tests set 0)
 #
 # Pinning (v4.7.0): `--ref <tag-or-branch>` (consumed here, not passed on) or
 # NEXUS_HUB_REF selects what to install. A release tag (vX.Y.Z) downloads the
@@ -113,18 +115,38 @@ download() {
 }
 
 # Like download(), but returns 1 on failure so the caller can name the ref that
-# failed to resolve instead of printing a bare URL error.
+# failed to resolve instead of printing a bare URL error. A dropped or refused
+# connection is retried (3 attempts); an HTTP 404/410 is final. On failure
+# DOWNLOAD_FAILURE says which: not-found, http-error (wget cannot tell a 404
+# from a server error) or network.
+DOWNLOAD_FAILURE=""
 download_ok() {
-    local url="$1" dest="$2"
-    if command -v curl >/dev/null 2>&1; then
-        curl -fsSL --connect-timeout 15 --max-time 300 -o "$dest" "$url" && return 0
+    local url="$1" dest="$2" attempt=1 code rc
+    local delay="${NEXUS_HUB_RETRY_DELAY:-3}"
+    DOWNLOAD_FAILURE=""
+    if ! command -v curl >/dev/null 2>&1 && ! command -v wget >/dev/null 2>&1; then
+        log_error "no downloader available to fetch $url -- $( install_hint curl )"
         return 1
     fi
-    if command -v wget >/dev/null 2>&1; then
-        wget -q --timeout=300 -O "$dest" "$url" && return 0
-        return 1
-    fi
-    log_error "no downloader available to fetch $url -- $( install_hint curl )"
+    while [ "$attempt" -le 3 ]; do
+        if command -v curl >/dev/null 2>&1; then
+            code="$( curl -fsSL --connect-timeout 15 --max-time 300 -w '%{http_code}' -o "$dest" "$url" )" && return 0
+            case "$code" in
+                404|410) DOWNLOAD_FAILURE="not-found"; return 1 ;;
+                000|"") DOWNLOAD_FAILURE="network" ;;
+                *) DOWNLOAD_FAILURE="http-error" ;;
+            esac
+        else
+            wget -q --timeout=300 -O "$dest" "$url" && return 0
+            rc=$?
+            if [ "$rc" -eq 8 ]; then DOWNLOAD_FAILURE="http-error"; else DOWNLOAD_FAILURE="network"; fi
+        fi
+        if [ "$attempt" -lt 3 ]; then
+            log_info "download attempt $attempt of 3 failed ($DOWNLOAD_FAILURE); retrying in ${delay}s..."
+            sleep "$delay"
+        fi
+        attempt=$((attempt + 1))
+    done
     return 1
 }
 
@@ -423,7 +445,14 @@ run_standalone() {
         fi
         log_info "Downloading Nexus-Hub catalog ($repo@$ref)..."
         if ! download_ok "$url" "$archive"; then
-            log_error "could not resolve branch '$ref' in $repo (a typo or a branch that does not exist). List releases at https://github.com/$repo/releases or pin one with --ref vX.Y.Z"
+            case "$DOWNLOAD_FAILURE" in
+                not-found)
+                    log_error "branch '$ref' does not exist in $repo (HTTP 404; a typo?). List releases at https://github.com/$repo/releases or pin one with --ref vX.Y.Z" ;;
+                http-error)
+                    log_error "could not download branch '$ref' from $repo after 3 attempts: the server returned an error (a missing branch or a GitHub outage). Re-run, or pin a release with --ref vX.Y.Z" ;;
+                *)
+                    log_error "could not download branch '$ref' from $repo after 3 attempts: network failure (connection dropped or GitHub unreachable). Re-run; if it keeps failing, check proxy or firewall access to github.com and codeload.github.com" ;;
+            esac
             exit 1
         fi
     fi

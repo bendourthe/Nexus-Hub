@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Claude, Codex, GitHub Copilot and Cursor usage-alert sidebar views dismiss automatically after one minute. A new alert gets a fresh minute, and manual dismissal cancels its timer.
 - The Windows PowerShell 5.1 installer and validator tests run in their own `tests-windows-installer` CI job. Inside `tests-windows` the group measured 3534 s of the job's 3600 s limit and timed out twice. The installer and validator corpora also run as separate commands, since together they exceeded their own 1800 s command bound. Coverage, edition and the `ci-required` aggregate are unchanged.
+- The `install.sh` and `install.ps1` bootstraps retry a failed branch-archive download up to three times and report the real cause. Only an HTTP 404 says the branch does not exist; a dropped or refused connection is reported as a network failure with a proxy and firewall hint, instead of "a typo or a branch that does not exist".
 
 ## [4.13.12] - 2026-10-13
 
