@@ -6,7 +6,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.13.12 -->
+<!-- nexus-hub-version: 4.13.13 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 340 skills across 23 categories, 21 commands (plus 3 permanent aliases), 37 registered hooks, 23 agents, and 4 language rule families plus the HTML artifact rules. It installs in one step on Windows, macOS, and Linux, through 17 platform integrations: Claude Code, OpenAI Codex, Gemini and Antigravity, GitHub Copilot, Cursor, OpenCode, Qwen Code, Kimi Code CLI, Devin Desktop / Windsurf, Hermes, Pi, OpenClaw, Aider, and the sibling Nexus desktop app. The catalog is reverse-engineering-first by policy. Account usage checks are limited to each tool's own provider; the catalog has no third-party data processors or telemetry.
 
@@ -39,6 +39,18 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v4.13.13
+
+**A Gemini usage monitor.** The Antigravity IDE gets a status-bar monitor in the same design as the Claude, Codex, Copilot and Cursor monitors, reading Antigravity's local language server over `127.0.0.1` only. Usage alerts in all the monitors now dismiss themselves after one minute.
+
+**Installs that say what went wrong.** The `install.sh` and `install.ps1` bootstraps retry a failed download up to three times and report a dropped connection as a network failure; only an HTTP 404 says a branch does not exist.
+
+**Plans stay on develop.** `/compare` and `/plan` create no branch: their output is committed on the integration branch and published the same day through a short-lived pull request. A version branch is created only when `/implement` starts the plan.
+
+**Steadier Windows CI.** The Windows test jobs are split so each runs well inside its time limit, after timeouts that came from slowness rather than failing tests.
+
+See [the changelog](CHANGELOG.md#41313---2026-10-15) for the full list.
 
 ## What's New in v4.13.12
 

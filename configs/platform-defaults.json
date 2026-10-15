@@ -358,8 +358,8 @@
     },
     "openclaw": {
       "display_name": "OpenClaw",
-      "source_url": "https://docs.openclaw.ai/gateway/configuration",
-      "verified": "2026-08-30",
+      "source_url": "https://docs.openclaw.ai/gateway/configuration/common-tasks",
+      "verified": "2026-10-15",
       "doc_statement": "The only documented lever is agents.defaults.model.primary, a provider-scoped model pin with no vendor-documented safe default. There is no documented effort or approval lever.",
       "settings": {},
       "rationale": {},

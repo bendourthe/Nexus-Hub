@@ -394,6 +394,8 @@
 
 **Owner**: catalog maintainer, via `[[platform-contract-verification]]`. **Status**: open. **Suggested next step**: at the next `/update release` platform pass, re-verify the Cascade workspace hook path and update `docs/policy/platform-read-contracts.json` and `scripts/lib/integrations/windsurf.py` together.
 
+**Update 2026-10-15 (v4.13.13 platform-contract pass)**: re-verified. The Cascade hooks page still reads the workspace `.devin/hooks.json` first and the legacy `.windsurf/hooks.json` only when the `.devin/` file is absent or defines no hooks ([source](https://docs.devin.ai/desktop/cascade/hooks)). The same change now covers skills (`.devin/skills/` preferred, `.windsurf/skills/` legacy and still read; [source](https://docs.devin.ai/desktop/cascade/skills)) and workflows (`.devin/workflows/*.md` preferred, `.windsurf/workflows/*.md` fallback; [source](https://docs.devin.ai/desktop/cascade/workflows)). Nothing breaks today because the legacy paths are still read. Not fixed at release time: moving delivery paths changes `scripts/lib/integrations/windsurf.py`, `docs/policy/platform-read-contracts.json` and their tests together, which is implementation work for a v4.14 plan rather than a release-flow edit.
+
 **Original source identity**: `v4.13.2#DF-1`; stable ID `DF-1-v4132` distinguishes this obligation from repeated IDs in other patch sections.
 
 - **Migrated from**: v4.13#DF-1-v4132 on 2026-10-13 (reason: vendor-feature)
