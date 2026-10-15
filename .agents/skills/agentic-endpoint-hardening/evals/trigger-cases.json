@@ -1,0 +1,16 @@
+{
+  "skill": "agentic-endpoint-hardening",
+  "purpose": "Route local coding-agent sandbox-escape and trust-seam threat modeling here, not to the deployed-service governance, access-policy, injection-defense, or skill-scanner skills.",
+  "cases": [
+    {"id": "pos-escape-config", "prompt": "can the agent escape its sandbox by writing a config file that gets executed later", "should_trigger": true, "assert": "routes to agentic-endpoint-hardening first", "lexical": true},
+    {"id": "pos-harden-endpoint", "prompt": "harden the coding agent endpoint against the config-write-then-executed pattern", "should_trigger": true, "assert": "routes to agentic-endpoint-hardening first", "lexical": true},
+    {"id": "pos-which-writes-trusted", "prompt": "which files the agent writes get trusted and executed by a component outside the sandbox", "should_trigger": true, "assert": "routes to agentic-endpoint-hardening first", "lexical": true},
+    {"id": "pos-hookspath-fsmonitor", "prompt": "is hooksPath and fsmonitor abuse by the agent a sandbox escape", "should_trigger": true, "assert": "routes to agentic-endpoint-hardening first", "lexical": true},
+    {"id": "pos-allowlist-argument", "prompt": "a dangerous argument slipped past our safe-command allowlist, harden the trust seam", "should_trigger": true, "assert": "routes to agentic-endpoint-hardening first", "lexical": true},
+    {"id": "pos-hook-config-ran", "prompt": "the agent wrote a hook config and it executed outside the sandbox", "should_trigger": true, "assert": "routes to agentic-endpoint-hardening first", "lexical": true},
+    {"id": "neg-service-governance", "prompt": "implement the four pillars framework for our production agent fleet with tracing and credential rotation", "should_trigger": false, "assert": "routes to ai-agent-governance, not here", "lexical": true},
+    {"id": "neg-least-privilege-globs", "prompt": "configure least-privilege glob scopes so each subagent may only edit its own directory", "should_trigger": false, "assert": "routes to agent-access-policy, not here", "lexical": true},
+    {"id": "neg-poisoned-tool-output", "prompt": "this tool result carries hidden directives trying to override me, how do I resist poisoned retrieved text", "should_trigger": false, "assert": "routes to prompt-injection-defense, not here", "lexical": true},
+    {"id": "neg-scan-verdict", "prompt": "give me an install verdict for this downloaded plugin after filtering the false positives", "should_trigger": false, "assert": "routes to skill-security-scan, not here", "lexical": true}
+  ]
+}

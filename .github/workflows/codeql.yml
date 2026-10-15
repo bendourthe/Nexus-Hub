@@ -62,6 +62,13 @@ jobs:
         with:
           languages: ${{ matrix.language }}
           queries: security-and-quality
+          # .agents/ and .cursor/commands/ are installer-written copies of
+          # catalog files; the catalog originals stay scanned, so excluding the
+          # copies only stops the same findings being reported twice.
+          config: |
+            paths-ignore:
+              - .agents/**
+              - .cursor/commands/**
 
       - name: Autobuild
         uses: github/codeql-action/autobuild@24c54180a607b1449ed407dd24f251e4e9147c8d # v4

@@ -1,0 +1,48 @@
+{
+  "skill": "ransomware-leak-site-monitoring",
+  "purpose": "Route leak-blog watching here; send IR playbooks and IOC enrichment elsewhere.",
+  "cases": [
+    {
+      "id": "pos-1",
+      "prompt": "watch ransomware leak sites for our name",
+      "should_trigger": true,
+      "assert": "routes to ransomware-leak-site-monitoring first",
+      "lexical": true
+    },
+    {
+      "id": "pos-2",
+      "prompt": "victim name monitoring on leak blogs",
+      "should_trigger": true,
+      "assert": "routes to ransomware-leak-site-monitoring first",
+      "lexical": true
+    },
+    {
+      "id": "pos-3",
+      "prompt": "are we on a ransomware leak blog",
+      "should_trigger": true,
+      "assert": "routes to ransomware-leak-site-monitoring first",
+      "lexical": true
+    },
+    {
+      "id": "neg-1",
+      "prompt": "run the ransomware IR playbook",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-2",
+      "prompt": "enrich this hash",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-3",
+      "prompt": "write a decryptor",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    }
+  ]
+}

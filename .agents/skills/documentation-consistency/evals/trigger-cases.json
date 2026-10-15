@@ -1,0 +1,8 @@
+{
+  "skill": "documentation-consistency",
+  "purpose": "Route documentation link, lifespan, staleness, and cross-file consistency checks.",
+  "cases": [
+    {"id": "pos-consistency", "prompt": "audit documentation for broken links outdated references deprecated content stale docs and cross-file mismatches", "should_trigger": true, "assert": "routes to documentation-consistency first", "lexical": true},
+    {"id": "neg-weather", "prompt": "show the weather forecast for tomorrow", "should_trigger": false, "assert": "does not route to documentation-consistency", "lexical": true}
+  ]
+}

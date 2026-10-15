@@ -1,0 +1,12 @@
+{
+  "skill": "docs-layout-refactor",
+  "purpose": "Route docs-tree cleanup and lifespan classification here while keeping content accuracy, whole-project refactors, and release-note generation with their owning skills.",
+  "cases": [
+    {"id": "pos-cleanup", "prompt": "clean up our docs folder and archive stale release material", "should_trigger": true, "assert": "routes to docs-layout-refactor first", "lexical": true},
+    {"id": "pos-lifespan", "prompt": "classify these docs by lifespan before reorganizing the tree", "should_trigger": true, "assert": "routes to docs-layout-refactor first", "lexical": true},
+    {"id": "pos-messy", "prompt": "the docs folder is messy, propose a safer structure", "should_trigger": true, "assert": "routes to docs-layout-refactor first", "lexical": true},
+    {"id": "neg-accuracy", "prompt": "check whether our API documentation still matches the code", "should_trigger": false, "assert": "routes to documentation-consistency, not here", "lexical": true},
+    {"id": "neg-project", "prompt": "reorganize scripts configs CI and repository root files", "should_trigger": false, "assert": "routes to project-refactor, not here", "lexical": true},
+    {"id": "neg-release-notes", "prompt": "generate release notes from the commits since the last tag", "should_trigger": false, "assert": "routes to release-notes-writer, not here", "lexical": true}
+  ]
+}

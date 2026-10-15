@@ -1,0 +1,48 @@
+{
+  "skill": "threat-actor-ttp-profiling",
+  "purpose": "Route actor TTP dossiers here; send indicator lookups elsewhere.",
+  "cases": [
+    {
+      "id": "pos-1",
+      "prompt": "profile this threat actor",
+      "should_trigger": true,
+      "assert": "routes to threat-actor-ttp-profiling first",
+      "lexical": true
+    },
+    {
+      "id": "pos-2",
+      "prompt": "map this campaign to ATT&CK",
+      "should_trigger": true,
+      "assert": "routes to threat-actor-ttp-profiling first",
+      "lexical": true
+    },
+    {
+      "id": "pos-3",
+      "prompt": "write an intrusion set TTP profile",
+      "should_trigger": true,
+      "assert": "routes to threat-actor-ttp-profiling first",
+      "lexical": true
+    },
+    {
+      "id": "neg-1",
+      "prompt": "enrich this hash",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-2",
+      "prompt": "watch ransomware leak sites",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-3",
+      "prompt": "write a C2 implant",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    }
+  ]
+}

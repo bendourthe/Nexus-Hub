@@ -1,0 +1,24 @@
+{
+  "name": "neon-cyber",
+  "label": "Neon Cyber",
+  "description": "Black background, neon magenta and electric cyan, glow shadow, mono body; for cyberpunk decks and demo-day visuals.",
+  "palette": {
+    "primary": "#ff2bd6",
+    "secondary": "#00e5ff",
+    "accent": "#fffd54",
+    "background": "#0a0612",
+    "foreground": "#f0eaff",
+    "muted": "#7a6e8a"
+  },
+  "fonts": {
+    "heading": "'Space Grotesk', 'Orbitron', 'Inter Tight', system-ui, sans-serif",
+    "body": "'IBM Plex Mono', 'JetBrains Mono', ui-monospace, monospace",
+    "mono": "'IBM Plex Mono', 'JetBrains Mono', ui-monospace, monospace"
+  },
+  "spacing": {
+    "base": 10,
+    "scale": [0.5, 1, 1.5, 2, 3, 4, 6, 8]
+  },
+  "radius": 2,
+  "shadow": "0 0 12px rgba(255, 43, 214, 0.45), 0 0 24px rgba(0, 229, 255, 0.25)"
+}

@@ -1,0 +1,14 @@
+{
+  "skill": "typed-boundary-hygiene",
+  "purpose": "Route low-evidence TypeScript and JavaScript contracts here without colliding with prose cleanup or general type-system design.",
+  "cases": [
+    {"id": "pos-chained-assertion", "prompt": "remove this chained as unknown as assertion", "should_trigger": true, "assert": "routes to typed-boundary-hygiene first", "lexical": true},
+    {"id": "pos-unsafe-dictionary", "prompt": "replace this Record<string, unknown> contract", "should_trigger": true, "assert": "routes to typed-boundary-hygiene first", "lexical": true},
+    {"id": "pos-module-mock", "prompt": "replace this vi.mock with a real seam", "should_trigger": true, "assert": "routes to typed-boundary-hygiene first", "lexical": true},
+    {"id": "pos-safety-comment", "prompt": "this type assertion has no SAFETY comment", "should_trigger": true, "assert": "routes to typed-boundary-hygiene first", "lexical": true},
+    {"id": "neg-prose", "prompt": "de-slop this prose and keep my voice", "should_trigger": false, "assert": "routes to anti-slop-editing, not here", "lexical": true},
+    {"id": "neg-generic", "prompt": "write a reusable generic Result type in TypeScript", "should_trigger": false, "assert": "routes to typescript-expert, not here", "lexical": true},
+    {"id": "neg-eslint", "prompt": "fix this ESLint unused variable warning", "should_trigger": false, "assert": "routes to javascript-cleanup, not here", "lexical": true},
+    {"id": "neg-zod", "prompt": "design a Zod schema for this API response", "should_trigger": false, "assert": "routes to typescript-expert, not here", "lexical": true}
+  ]
+}

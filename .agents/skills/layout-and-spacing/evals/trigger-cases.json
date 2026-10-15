@@ -1,0 +1,12 @@
+{
+  "skill": "layout-and-spacing",
+  "purpose": "Route layout, spacing, density, and breakpoint structure here instead of a11y focus order or frontend architecture.",
+  "cases": [
+    {"id": "pos-spacing", "prompt": "tighten the spacing scale and grouping on this settings page", "should_trigger": true, "assert": "routes to layout-and-spacing first", "lexical": true},
+    {"id": "pos-breakpoints", "prompt": "fix the responsive structure so this layout stacks at the compact breakpoint", "should_trigger": true, "assert": "routes to layout-and-spacing first", "lexical": true},
+    {"id": "pos-rtl", "prompt": "mirror this layout with logical CSS properties for RTL", "should_trigger": true, "assert": "routes to layout-and-spacing first", "lexical": true},
+    {"id": "neg-focus", "prompt": "add a keyboard focus trap and visible focus ring to this dialog", "should_trigger": false, "assert": "routes to accessibility-engineering, not here", "lexical": true},
+    {"id": "neg-state", "prompt": "split this screen into container and presentational components with React Query", "should_trigger": false, "assert": "routes to frontend-ui-engineering, not here", "lexical": true},
+    {"id": "neg-docs", "prompt": "write a README section explaining how the page is structured", "should_trigger": false, "assert": "routes to writing-editing, not here", "lexical": true}
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "skill": "skill-description-authoring",
+  "purpose": "Route SKILL.md description rewrites and trigger-noun/compaction work here, not body drafting or general copy-editing.",
+  "cases": [
+    {"id": "pos-rewrite-description", "prompt": "rewrite this skill description so it stops under-triggering", "should_trigger": true, "assert": "routes to skill-description-authoring first", "lexical": true},
+    {"id": "pos-compact-frontmatter", "prompt": "compact this over-long SKILL.md frontmatter description and keep the trigger nouns", "should_trigger": true, "assert": "routes to skill-description-authoring first", "lexical": true},
+    {"id": "pos-confidence-bands", "prompt": "apply High/Medium/Low/Reject confidence bands and a clarification ceiling to this skill description", "should_trigger": true, "assert": "routes to skill-description-authoring first", "lexical": true},
+    {"id": "pos-context-pointers", "prompt": "sharpen the context pointers and leading words in this skill description", "should_trigger": true, "assert": "routes to skill-description-authoring first", "lexical": true},
+    {"id": "neg-skill-body", "prompt": "turn this recurring git-history workflow into a new SKILL.md", "should_trigger": false, "assert": "routes to skill-create, not skill-description-authoring", "lexical": true},
+    {"id": "neg-eval-harness", "prompt": "design an eval harness for measuring skill trigger accuracy", "should_trigger": false, "assert": "does not route to skill-description-authoring", "lexical": true},
+    {"id": "neg-copy-edit", "prompt": "de-slop this README and keep the writer's voice", "should_trigger": false, "assert": "routes to anti-slop-editing, not skill-description-authoring", "lexical": true}
+  ]
+}

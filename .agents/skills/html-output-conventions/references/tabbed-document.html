@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tabbed organization for long documents</title>
+<!--
+  Reference template: tabbed layout for a long document (e.g. an incident report
+  or a multi-section spec) so the reader is not forced to scroll a 100+ line
+  Markdown wall. Accessible tabs: ARIA roles, roving tabindex, arrow-key nav.
+  Self-contained: no external CSS/JS.
+-->
+<style>
+  :root { --ink: #1c1f26; --muted: #5b626e; --line: #e2e5ea; --accent: #2f6f4f; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--ink); background: #fbfbfc; line-height: 1.6; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 40px 24px; }
+  h1 { font-size: 1.5rem; margin: 0 0 20px; }
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); }
+  .tabs [role="tab"] { font: inherit; font-weight: 600; font-size: 0.9rem; background: none; border: none; padding: 8px 14px; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+  .tabs [role="tab"][aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+  .tabs [role="tab"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  [role="tabpanel"] { padding: 20px 2px; }
+  [role="tabpanel"][hidden] { display: none; }
+  [role="tabpanel"] h2 { font-size: 1.05rem; margin: 0 0 8px; }
+  [role="tabpanel"] p { margin: 0 0 12px; max-width: 68ch; }
+</style>
+</head>
+<body>
+  <main class="wrap">
+    <h1>Incident report: 2026-05-27 retrieval latency spike</h1>
+    <div class="tabs" role="tablist" aria-label="Report sections">
+      <button role="tab" id="tab-sum" aria-controls="panel-sum" aria-selected="true">Summary</button>
+      <button role="tab" id="tab-time" aria-controls="panel-time" aria-selected="false" tabindex="-1">Timeline</button>
+      <button role="tab" id="tab-cause" aria-controls="panel-cause" aria-selected="false" tabindex="-1">Root cause</button>
+      <button role="tab" id="tab-action" aria-controls="panel-action" aria-selected="false" tabindex="-1">Actions</button>
+    </div>
+    <section role="tabpanel" id="panel-sum" aria-labelledby="tab-sum">
+      <h2>Summary</h2>
+      <p>Hybrid retrieval p95 latency rose from 120ms to 1.4s for roughly 35 minutes. No data loss. Cause was an unbounded BM25 candidate set after a corpus import.</p>
+    </section>
+    <section role="tabpanel" id="panel-time" aria-labelledby="tab-time" hidden>
+      <h2>Timeline</h2>
+      <p>14:02 import of 40k chunks completes. 14:05 latency alert fires. 14:22 candidate cap deployed. 14:40 p95 back to baseline.</p>
+    </section>
+    <section role="tabpanel" id="panel-cause" aria-labelledby="tab-cause" hidden>
+      <h2>Root cause</h2>
+      <p>The FTS5 pre-filter cap was bypassed on the cold-index path, so the dense re-rank scored the full corpus.</p>
+    </section>
+    <section role="tabpanel" id="panel-action" aria-labelledby="tab-action" hidden>
+      <h2>Actions</h2>
+      <p>Apply the candidate cap on every path; add a regression test asserting the cap; alert on candidate-set size, not just latency.</p>
+    </section>
+  </main>
+  <script>
+    (function () {
+      var tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
+      function select(tab) {
+        tabs.forEach(function (t) {
+          var selected = t === tab;
+          t.setAttribute("aria-selected", String(selected));
+          t.tabIndex = selected ? 0 : -1;
+          document.getElementById(t.getAttribute("aria-controls")).hidden = !selected;
+        });
+        tab.focus();
+      }
+      tabs.forEach(function (tab, i) {
+        tab.addEventListener("click", function () { select(tab); });
+        tab.addEventListener("keydown", function (e) {
+          if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+            e.preventDefault();
+            var dir = e.key === "ArrowRight" ? 1 : -1;
+            select(tabs[(i + dir + tabs.length) % tabs.length]);
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

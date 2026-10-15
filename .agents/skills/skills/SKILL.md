@@ -1,0 +1,74 @@
+---
+name: skills
+description: "Run the /skills command. Browse, search, create, import, and security-scan the Nexus-Hub skill and command catalog. Use to \"find a skill for X\", \"search the catalog\", \"list all commands\", \"show the cheatsheet\", \"create a new skill / command\", \"import skills into my project\", \"scan a skill before installing it\", \"is this skill safe to install\". SKIP - running a skill you already know the name of (just invoke it) or reviewing your own project's code (use /review)."
+disable-model-invocation: true
+---
+
+# /skills Command
+
+Work with the Nexus-Hub catalog: discover skills, list the full skills-and-commands cheatsheet, scaffold a new skill or command, import skills into a project, and security-scan a skill before you install it. `/skills` is the single entry point for everything you do *to and with the catalog itself*, including the v3.0.0 pre-install security scan.
+
+This is a thin dispatcher following the contract in [`command-scope-mechanism.md`](../style-guides/command-scope-mechanism.md). The substantive logic lives in the retained skills; this file resolves scope and delegates.
+
+## Scope resolution
+
+Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scopes: `search`, `list`, `create`, `import`, `scan`.
+
+- If `$ARGUMENTS` names a recognized scope, set SCOPE and skip the menu.
+- If `$ARGUMENTS` is a search term, route it to `search` and pass it through.
+- If `$ARGUMENTS` is a skill path or directory, route it to `scan`.
+- Otherwise, present this menu and wait for a selection before doing any work:
+
+      What scope?
+        1. search  (recommended) - find relevant skills by keyword, category, or role
+        2. list    - unified cheatsheet of all skills and commands
+        3. create  - scaffold a new skill or command interactively
+        4. import  - import skills from the catalog into a project
+        5. scan    - security-scan a skill (or the whole catalog) before install
+
+      Reply with a number or a scope name.
+
+## Delegation
+
+Dispatch the resolved scope to the retained skill:
+
+      search  -> the search steps below (keyword / category / role search over the catalog)
+      list    -> read and follow style-guides/commands-cheatsheet.md (render the command cheatsheet live from the command files)
+      create  -> create-custom-command (command) / skill-create (skill drafted from recurring git patterns; a from-scratch skill follows the create steps below)
+      import  -> the import steps below (copy catalog skills into the active project)
+      scan    -> skill-security-scan (semantic adjudication; backed by nexus-skill-scanner once Phase 6 lands)
+
+Pass any remaining arguments (search term, skill name, target path) through unchanged. Heavy logic stays in the retained skills; this file only resolves scope and delegates.
+
+## search scope
+
+Use the `search_skills` MCP tool when it is available. Otherwise match the term against the skill index the installer embedded in the active instruction file (`data/SKILL_INDEX.md` in the Nexus-Hub repository) and against the `description` frontmatter of the installed skills. Return the top matches with name, category, and one-line summary, best match first.
+
+## create scope
+
+Ask whether the user wants a skill (a capability the agent loads when relevant) or a command (a `/slash` entry point). For a command, apply `create-custom-command`. For a skill with a recurring pattern in git history, apply `skill-create`. For a skill from scratch, interview for its purpose, trigger phrases, and skip cases, then scaffold `<name>/SKILL.md` with `name`, `description`, `summary_l0`, and `overview_l1` frontmatter and the When to Use, Instructions, Common Rationalizations, Verification, and Related Skills sections; write the description with `skill-description-authoring`.
+
+## list scope (command cheatsheet)
+
+`list` renders the unified command cheatsheet -- the active commands with what they do, the deprecated name each one replaces, and common multi-command workflows. It is generated **at runtime from the command files** (the installed per-platform `commands/` / `prompts/` / `workflows/` directory, or `catalog/commands/` in the repo), not from a hand-maintained table, so it always matches the commands actually present. Read and follow [`commands-cheatsheet.md`](../style-guides/commands-cheatsheet.md) (installed at `~/.nexus-hub/style-guides/commands-cheatsheet.md`) for the generation procedure and output format. An optional argument (`/skills list <term>`) filters to matching commands.
+
+## import scope (local hygiene gate)
+
+`import` copies catalog skills into the active project. Before copying a skill that comes from outside the trusted local catalog, run the v3.6.0 import-hygiene gate (`scripts/import_skills.py`, installed at `~/.nexus-hub/scripts/import_skills.py`), which enforces three LOCAL disciplines:
+
+- **HTTPS-only source validation** -- a remote source URL must be `https://` (the only carve-out is `http://localhost` for a local catalog mirror); a plain local filesystem path is always allowed. Any other URL scheme (non-loopback `http://`, `file://`, `ftp://`, ...) is refused. Run `python ~/.nexus-hub/scripts/import_skills.py validate-source <source>`.
+- **Discovery-only `install_allowed` flag** -- a skill or source entry whose metadata sets `install_allowed: false` can be listed but not installed. Run `python ~/.nexus-hub/scripts/import_skills.py check-allowed <skill-dir>`.
+- **Hash-on-import** -- every imported artifact gets a recorded SHA-256 (the hashing reuses the existing install-manifest hasher). The full gate (`vet`) runs all three and records the hashes: `python ~/.nexus-hub/scripts/import_skills.py vet <skill-dir> [--source <source>] --json`.
+
+After the gate passes, copy each chosen `catalog/skills/<category>/<name>/` folder, whole, to the active platform's project skills directory (for example `.claude/skills/<name>/`), and report the recorded hashes.
+
+This gate introduces NO outbound call or credential (remote credentialed catalog fetch is deliberately out of scope). It is ADDITIVE to, never a replacement for, the `scan` step below: always `scan` a skill sourced from outside the trusted catalog before you `import` it.
+
+## scan scope (pre-install security check)
+
+`scan` is the v3.0.0 addition. It runs the `skill-security-scan` skill over a skill you are about to import - reading the deterministic findings emitted by `nexus-skill-scanner` (Phase 6), filtering false positives (especially fenced-code examples in documentation), explaining any malicious intent, and assigning a final verdict before you install. This is the same lens `/review skill-scan` uses for the catalog dogfood. Until the Phase 6 engine lands, the scope adjudicates manually-collected findings. Always offer `scan` before `import` for skills sourced from outside the trusted catalog.
+
+## Notes
+
+- This command replaces `/search-skills`, `/commands-cheatsheet`, `/create-skill-or-command`, and `/import-skills` (removed in v3.2.0).
+- Keep this dispatcher thin. The catalog procedures live in the retained skills; this file owns only scope resolution and delegation.

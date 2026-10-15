@@ -1,0 +1,48 @@
+{
+  "skill": "tpm-measured-boot-attestation",
+  "purpose": "Route TPM attestation policy here.",
+  "cases": [
+    {
+      "id": "pos-1",
+      "prompt": "TPM quote verification",
+      "should_trigger": true,
+      "assert": "routes to tpm-measured-boot-attestation first",
+      "lexical": true
+    },
+    {
+      "id": "pos-2",
+      "prompt": "measured boot PCR policy",
+      "should_trigger": true,
+      "assert": "routes to tpm-measured-boot-attestation first",
+      "lexical": true
+    },
+    {
+      "id": "pos-3",
+      "prompt": "remote attestation policy",
+      "should_trigger": true,
+      "assert": "routes to tpm-measured-boot-attestation first",
+      "lexical": true
+    },
+    {
+      "id": "neg-1",
+      "prompt": "Secure Boot dbx only",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-2",
+      "prompt": "KMS key policy",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-3",
+      "prompt": "canary AWS key",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    }
+  ]
+}

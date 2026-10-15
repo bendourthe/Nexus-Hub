@@ -1,0 +1,48 @@
+{
+  "skill": "mobile-tls-pinning-bypass-assessment",
+  "purpose": "Route authorized pinning-bypass assessment here.",
+  "cases": [
+    {
+      "id": "pos-1",
+      "prompt": "bypass certificate pinning on our app",
+      "should_trigger": true,
+      "assert": "routes to mobile-tls-pinning-bypass-assessment first",
+      "lexical": true
+    },
+    {
+      "id": "pos-2",
+      "prompt": "Frida unpin in the lab",
+      "should_trigger": true,
+      "assert": "routes to mobile-tls-pinning-bypass-assessment first",
+      "lexical": true
+    },
+    {
+      "id": "pos-3",
+      "prompt": "mobile proxy intercept our build",
+      "should_trigger": true,
+      "assert": "routes to mobile-tls-pinning-bypass-assessment first",
+      "lexical": true
+    },
+    {
+      "id": "neg-1",
+      "prompt": "unpin a third-party banking app",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-2",
+      "prompt": "APK strings static review",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-3",
+      "prompt": "TLS cert expiry",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "skill": "cicd-architect",
+  "purpose": "Route CI/CD lifecycle, cost, event-topology, required-check, and pipeline-migration work here, while keeping the three near-neighbours routing to themselves: cd-pipeline-generator (the deployment stages), cicd-integration (wiring a test suite and its quality gates), and shipping-and-launch (post-release production verification).",
+  "cases": [
+    {"id": "pos-optimize-cost", "prompt": "optimize CI cost, our action minutes bill is out of control", "should_trigger": true, "assert": "routes to cicd-architect first", "lexical": true},
+    {"id": "pos-end-of-plan", "prompt": "make pipelines run only at the end of a plan instead of every phase", "should_trigger": true, "assert": "routes to cicd-architect first", "lexical": true},
+    {"id": "pos-repo-native", "prompt": "move CI logic into repository scripts so I can run the same checks locally", "should_trigger": true, "assert": "routes to cicd-architect first", "lexical": true},
+    {"id": "pos-runs-twice", "prompt": "why does our CI pipeline run the whole suite twice for one change", "should_trigger": true, "assert": "routes to cicd-architect first", "lexical": true},
+    {"id": "pos-stuck-pending", "prompt": "our required status check is stuck pending and the branch will not merge", "should_trigger": true, "assert": "routes to cicd-architect first", "lexical": true},
+    {"id": "pos-audit-pipeline", "prompt": "audit our GitHub Actions pipeline against a cost-aware contract", "should_trigger": true, "assert": "routes to cicd-architect first", "lexical": true},
+    {"id": "neg-deployment-stages", "prompt": "generate a blue-green deployment stage with rollback for our kubernetes cluster", "should_trigger": false, "assert": "routes to cd-pipeline-generator, not here", "lexical": true},
+    {"id": "neg-promotion-chain", "prompt": "set up dev to staging to production promotion with approval gates", "should_trigger": false, "assert": "routes to cd-pipeline-generator, not here", "lexical": true},
+    {"id": "neg-wire-tests", "prompt": "wire our pytest suite and an 80 percent coverage gate into the pipeline", "should_trigger": false, "assert": "routes to cicd-integration, not here", "lexical": true},
+    {"id": "neg-launch-verify", "prompt": "verify the production launch went well after we shipped the release", "should_trigger": false, "assert": "routes to shipping-and-launch, not here", "lexical": true},
+    {"id": "neg-cut-release", "prompt": "bump the version across every file, write the changelog, and tag it", "should_trigger": false, "assert": "routes to the /update release flow, not here", "lexical": true}
+  ]
+}

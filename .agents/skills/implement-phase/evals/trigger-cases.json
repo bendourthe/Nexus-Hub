@@ -1,0 +1,8 @@
+{
+  "skill": "implement-phase",
+  "purpose": "Route one release-plan phase through tests, evidence, docs, and commit gates.",
+  "cases": [
+    {"id": "pos-phase", "prompt": "implement one release plan phase with tests evidence documentation and commit gates", "should_trigger": true, "assert": "routes to implement-phase first", "lexical": true},
+    {"id": "neg-weather", "prompt": "show the weather forecast for tomorrow", "should_trigger": false, "assert": "does not route to implement-phase", "lexical": true}
+  ]
+}

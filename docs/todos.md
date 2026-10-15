@@ -3,10 +3,12 @@
 **Integration branch:** `develop`
 **Active work:** Historical v4.0-v4.12 plan closure is integrated and v4.13.1 through v4.13.10 are released; the maintainer published v4.13.10 at 2026-10-09T21:51:35Z. v4.13.6 ([minor-scope implement and verified cleanup](archives/v4/v4.13/plans/v4.13.6-minor-scope-implement-and-verified-cleanup.md)) shipped through PR #394; its approval-page read-back by a non-engineer is still pending. v4.13.7 ([Copilot usage monitor and usage-limit handoff](archives/v4/v4.13/plans/v4.13.7-copilot-usage-monitor-and-usage-limit-handoff.md)) shipped through PR #411; its real-editor and live-limit checks (QG-1) are still pending. v4.13.10 ([Training page rebuild](archives/v4/v4.13/plans/v4.13.10-training-page-rebuild.md)) is merged green into develop at `ae60a3240` with maintainer acceptance recorded; its maintainer-owned release is now published and its tag is present. v4.13.11 ([known-gaps sweep and minor close](archives/v4/v4.13/plans/v4.13.11-known-gaps-sweep-and-minor-close.md)) is released, and all 83 approved residual transfers are integrated. v4.13.12 is published and its 2019-entry tagged archive verifies. The v4.13 archive merged through PR #455, and the native checker reports MINOR COMPLETE. All 83 successor obligations remain tracked in v4.14. Bounded vendor, manual, and artifact-coverage gaps remain open in their known-gaps ledgers.
 **Closeout boundary:** Recovery backups with unique Git history, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim. The former 47-file recovery branch was removed after its patch was proven identical to the merged PR #259 commit.
-**Last refreshed:** 2026-10-14 UTC
-**Current fix:** Give Claude, Codex, GitHub Copilot and Cursor usage alerts a one-minute automatic dismissal. All four builds and 857 tests pass, with two skips. The compiled providers remained active at 59 seconds and dismissed at 60.1 seconds under a simulated command host; publication remains pending.
+**Last refreshed:** 2026-10-15 UTC
+**Recent fix:** Claude, Codex, GitHub Copilot and Cursor usage alerts dismiss automatically after one minute; merged green through PR #457.
 
-**Current feature:** Add the Gemini Usage Monitor for the Antigravity IDE, built from the Codex monitor's design, reading Antigravity's local language server, and installed only through the Antigravity launcher. Its 95 extension tests pass, and the maintainer confirmed it working inside Antigravity on 2026-10-14; it ships in the next release through its integration pull request.
+**Recent feature:** The Gemini Usage Monitor for the Antigravity IDE, confirmed working inside Antigravity by the maintainer on 2026-10-14, merged green through PR #465; it ships in the next release.
+
+**Next:** `/implement` v4.14.0. Under the branching rule merged in PR #463, its version branch is created at that point and not before.
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its source `known-gaps.md` under `docs/releases/` or `docs/archives/`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
 
@@ -231,6 +233,18 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 - [x] Inventory and exercise all 34 initial controls plus both dynamically created image-close controls in the retained v4.11 report pilot; 31 Chromium browser tests pass, including an inert-stage negative control, and the three declared scorer observations pass independently of the pilot's 629 page errors.
 - [x] Publish the retained-pilot control qualification through PR #298; 21 hosted checks passed with one expected skip, and post-merge run 36097633753 passed smoke and provenance at `1ae58ad5`. MT-9 is closed for the retained pilot; unmapped controls in future handbooks remain `unchecked`.
 - [x] Bind v4.9 QG-1 to PR #190's final green Windows, Linux, and aggregate checks; leave MT-2's per-case platform skip question open.
+
+## Integration batch - 2026-10-14 to 2026-10-15
+
+- [x] Usage alerts dismiss after one minute (PR #457).
+- [x] Dependency upgrades: `actions/checkout` v7.0.1 at all 32 workflow steps, CodeQL v4.38.3 for init/autobuild/analyze together, Cursor monitor `@types/node` 26.6.5 (PR #458). Dependabot PRs #446, #447 and #448 closed as superseded.
+- [x] Windows CI headroom: installer and validator tests moved into `tests-windows-installer` (PR #459), a stall trace for slow tests (PR #464), and the validator corpus split into two time-balanced halves (PR #467). The halves ran in 737 s and 917 s against 1800 s bounds.
+- [x] Guide Security Guardrails text states bypass-mode and large-file-guard behavior truthfully (PR #460, replacing closed PR #441).
+- [x] The v4.16.3 comparison and plan, stranded on a local-only branch, published (PR #461).
+- [x] `/compare` and `/plan` keep their artifacts on `develop` and publish through a short-lived `publish/<slug>` pull request; version branches are created only by `/implement` (PR #463, decision record `docs/decisions/implemented/policy/2026-10-14-planning-artifacts-stay-on-the-integration-branch.md`).
+- [x] Bootstraps retry branch-archive downloads and report a dropped connection as a network failure instead of a missing branch (PR #466).
+- [x] Branch and worktree cleanup: every merged branch and worktree removed; five unmerged branches (three v4.13.10 game WIP branches, a stranded v4.16.3 comparison branch, and the v4.17.0 push-size-guard phase 1-2 branch, dropped for a fresh start at implementation time) deleted after bundling to the release-evidence folder.
+- [ ] Fix the Cursor project-surface writer: `nexus-hub upgrade` replaced this repository's tracked, project-specific `.cursor/rules/nexus-hub.mdc` with a generic stub instead of leaving an existing file untouched.
 
 ## Queue reorganization - 2026-10-12 speed-first release map
 

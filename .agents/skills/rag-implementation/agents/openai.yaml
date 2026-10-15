@@ -1,0 +1,4 @@
+interface:
+  display_name: RAG Implementation
+  short_description: Retrieval-Augmented Generation implementation including document processing, chunking strategies, embedding, vector stores, retrieval optimization, and retrieval-quality measurement.
+    Use when building RAG pipelines, optimizing retrieval quality, or evaluating RAG systems.

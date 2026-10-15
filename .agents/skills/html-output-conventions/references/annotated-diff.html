@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Annotated diff with severity margins</title>
+<!--
+  Reference template: code-review diff with color-coded severity in the gutter.
+  Use for review surfaces where each change carries a severity (high/medium/low)
+  and an inline note. Self-contained: no external CSS/JS. Severity is conveyed
+  by both color AND a text label so it is not color-only (accessibility).
+-->
+<style>
+  :root {
+    --ink: #1c1f26;
+    --muted: #5b626e;
+    --line: #e2e5ea;
+    --add-bg: #eaf6ee;
+    --del-bg: #fbecec;
+    --hi: #b3261e;
+    --med: #b06a00;
+    --lo: #2f6f4f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: var(--ink);
+    background: #fbfbfc;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
+  h1 { font-size: 1.4rem; margin: 0 0 16px; }
+  .file { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: #fff; }
+  .file h2 { font-size: 0.85rem; margin: 0; padding: 8px 12px; background: #f4f5f7; border-bottom: 1px solid var(--line); font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+  table { border-collapse: collapse; width: 100%; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 0.8125rem; }
+  td { padding: 1px 8px; vertical-align: top; white-space: pre; }
+  td.gutter { width: 4px; padding: 0; }
+  td.ln { width: 1%; color: var(--muted); text-align: right; user-select: none; }
+  tr.add td.code { background: var(--add-bg); }
+  tr.del td.code { background: var(--del-bg); }
+  tr.high td.gutter { background: var(--hi); }
+  tr.med td.gutter { background: var(--med); }
+  tr.low td.gutter { background: var(--lo); }
+  tr.note td { background: #fffef6; color: var(--muted); white-space: normal; font-family: ui-sans-serif, system-ui, sans-serif; padding: 6px 12px; }
+  .sev { display: inline-block; font-size: 0.7rem; font-weight: 600; padding: 0 6px; border-radius: 3px; margin-right: 6px; color: #fff; }
+  .sev.high { background: var(--hi); }
+  .sev.med { background: var(--med); }
+  .sev.low { background: var(--lo); }
+</style>
+</head>
+<body>
+  <main class="wrap">
+    <h1>Review: redactSecrets.ts</h1>
+    <div class="file">
+      <h2>core/observability/redactSecrets.ts</h2>
+      <table>
+        <tbody>
+          <tr class="del high"><td class="gutter"></td><td class="ln">12</td><td class="code">-  return input.replace(awsKeyRe, "***");</td></tr>
+          <tr class="add high"><td class="gutter"></td><td class="ln">12</td><td class="code">+  return input.replace(awsKeyRe, REDACTION);</td></tr>
+          <tr class="note"><td colspan="3"><span class="sev high">HIGH</span>Hard-coded mask string diverged from the shared REDACTION constant; downstream tests assert on REDACTION.</td></tr>
+          <tr class="add med"><td class="gutter"></td><td class="ln">27</td><td class="code">+  // TODO: add fine-grained PAT pattern</td></tr>
+          <tr class="note"><td colspan="3"><span class="sev med">MED</span>TODO left in shipped code; track in known-gaps rather than inline.</td></tr>
+          <tr class="add low"><td class="gutter"></td><td class="ln">34</td><td class="code">+  const slackRe = /xox[baprs]-[A-Za-z0-9-]+/g;</td></tr>
+          <tr class="note"><td colspan="3"><span class="sev low">LOW</span>Consider anchoring the pattern to reduce false positives.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</body>
+</html>

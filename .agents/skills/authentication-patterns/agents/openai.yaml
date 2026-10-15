@@ -1,0 +1,4 @@
+interface:
+  display_name: Authentication Patterns
+  short_description: Authentication and authorization patterns including OAuth 2.0, OIDC, JWT, session management, MFA, and passkeys. Use when implementing login flows, securing APIs, or reviewing auth
+    architecture.

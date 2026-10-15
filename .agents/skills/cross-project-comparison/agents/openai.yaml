@@ -1,0 +1,3 @@
+interface:
+  display_name: Cross-Project Comparison
+  short_description: Compare the current project with an external knowledge source (Git repo, web article, or local path) to produce a structured gap analysis and adoption plan.

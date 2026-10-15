@@ -69,5 +69,6 @@ def test_the_gate_allowlists_only_its_own_subject_matter() -> None:
     # An allowlist that grows silently is how a real conflict gets excused.
     assert gate.ALLOWLIST == {
         "catalog/skills/workflow/conflict-analyzer/SKILL.md",
+        ".agents/skills/conflict-analyzer/SKILL.md",
         "scripts/check_merge_conflict_markers.py",
     }

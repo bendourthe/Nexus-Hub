@@ -1,0 +1,48 @@
+{
+  "skill": "api-rate-limit-and-abuse-detection",
+  "purpose": "Route rate-limit and stuffing-control work here.",
+  "cases": [
+    {
+      "id": "pos-1",
+      "prompt": "API rate limit bypass test",
+      "should_trigger": true,
+      "assert": "routes to api-rate-limit-and-abuse-detection first",
+      "lexical": true
+    },
+    {
+      "id": "pos-2",
+      "prompt": "credential stuffing on login API",
+      "should_trigger": true,
+      "assert": "routes to api-rate-limit-and-abuse-detection first",
+      "lexical": true
+    },
+    {
+      "id": "pos-3",
+      "prompt": "scraper throttling design",
+      "should_trigger": true,
+      "assert": "routes to api-rate-limit-and-abuse-detection first",
+      "lexical": true
+    },
+    {
+      "id": "neg-1",
+      "prompt": "BOLA on invoices",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-2",
+      "prompt": "unscoped stuffing of a public site",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-3",
+      "prompt": "JWT alg none",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "skill": "tasks-to-issues",
+  "purpose": "Route canonical release-plan task conversion into linked GitHub issues.",
+  "cases": [
+    {"id": "pos-issues", "prompt": "convert canonical release plan tasks into linked GitHub issues", "should_trigger": true, "assert": "routes to tasks-to-issues first", "lexical": true},
+    {"id": "neg-weather", "prompt": "show the weather forecast for tomorrow", "should_trigger": false, "assert": "does not route to tasks-to-issues", "lexical": true}
+  ]
+}
