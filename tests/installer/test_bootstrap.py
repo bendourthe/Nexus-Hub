@@ -151,21 +151,25 @@ def test_install_ps1_is_dual_mode() -> None:
         assert var in body, f"install.ps1 must document the {var} seam"
 
 
+# The project's own GitHub hosts, plus two hosts named only in user-facing
+# "install Python/PowerShell from ..." hints, never fetched.
+ALLOWED_URL_HOSTS = {"github.com", "raw.githubusercontent.com"}
+HINT_URL_HOSTS = {"www.python.org", "aka.ms"}
+
+
 def test_no_new_outbound_host() -> None:
     """The only outbound host the bootstrap may name is the project's own GitHub."""
+    from urllib.parse import urlparse
+
     for entry in (INSTALL_SH, INSTALL_PS1):
         body = entry.read_text(encoding="utf-8")
         for line in body.splitlines():
-            if "https://" in line and "://" in line:
-                # Allow comments/URLs only to github.com or raw.githubusercontent.com.
-                lowered = line.lower()
-                if "github.com" in lowered or "githubusercontent.com" in lowered:
-                    continue
-                # python.org / aka.ms / powershell appear only as user-facing
-                # "install Python/PowerShell from ..." hints, never as a fetch.
-                if "python.org" in lowered or "aka.ms" in lowered:
-                    continue
-                pytest.fail(f"unexpected outbound URL in {entry.name}: {line.strip()}")
+            # Compare each URL's parsed hostname exactly: a substring test would
+            # accept a lookalike such as github.com.example.net.
+            for url in re.findall(r"https?://[^\s\"'<>)`]+", line):
+                host = (urlparse(url).hostname or "").lower()
+                if host not in ALLOWED_URL_HOSTS | HINT_URL_HOSTS:
+                    pytest.fail(f"unexpected outbound URL host {host!r} in {entry.name}: {line.strip()}")
 
 
 # --- bash functional --------------------------------------------------------
