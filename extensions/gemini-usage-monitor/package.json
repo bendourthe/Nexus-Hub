@@ -1,0 +1,211 @@
+{
+  "name": "gemini-usage-monitor",
+  "displayName": "Gemini Usage Monitor",
+  "description": "Monitor your Google Antigravity IDE model quotas (Gemini and Claude/GPT, 5-hour and weekly) in the status bar with alerts and recommendations. Reads Antigravity's own local language server; nothing leaves your machine.",
+  "version": "0.1.0",
+  "publisher": "nexus-hub",
+  "icon": "icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bendourthe/Nexus-Hub.git",
+    "directory": "extensions/gemini-usage-monitor"
+  },
+  "homepage": "https://github.com/bendourthe/Nexus-Hub/tree/main/extensions/gemini-usage-monitor#readme",
+  "bugs": {
+    "url": "https://github.com/bendourthe/Nexus-Hub/issues"
+  },
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0",
+    "node": ">=22.0.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "gemini-usage.dashboard",
+        "title": "Gemini Usage: Dashboard",
+        "category": "Gemini Usage"
+      },
+      {
+        "command": "gemini-usage.refresh",
+        "title": "Gemini Usage: Refresh",
+        "category": "Gemini Usage"
+      },
+      {
+        "command": "gemini-usage.recommend",
+        "title": "Gemini Usage: Recommend",
+        "category": "Gemini Usage"
+      },
+      {
+        "command": "gemini-usage.reset",
+        "title": "Gemini Usage: Clear Data",
+        "category": "Gemini Usage"
+      },
+      {
+        "command": "gemini-usage.settings",
+        "title": "Gemini Usage: Settings",
+        "category": "Gemini Usage"
+      },
+      {
+        "command": "gemini-usage.saveRawResponse",
+        "title": "Gemini Usage: Save Raw Usage Response",
+        "category": "Gemini Usage"
+      }
+    ],
+    "icons": {
+      "gemini-icon": {
+        "description": "Antigravity icon",
+        "default": {
+          "fontPath": "./fonts/gemini-icons.woff2",
+          "fontCharacter": "\\E101"
+        }
+      }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "geminiUsageWarning",
+          "title": "Gemini Usage Warning",
+          "icon": "icons/warning.svg"
+        }
+      ]
+    },
+    "views": {
+      "geminiUsageWarning": [
+        {
+          "id": "geminiUsageWarningView",
+          "name": "Usage Warning",
+          "type": "webview",
+          "when": "geminiUsage.warningActive"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Gemini Usage Monitor",
+      "properties": {
+        "geminiUsage.autoFetch": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically read usage from Antigravity's local language server on startup and at regular intervals"
+        },
+        "geminiUsage.refreshInterval": {
+          "type": "number",
+          "default": 10,
+          "minimum": 1,
+          "maximum": 120,
+          "description": "How often (in minutes) to read usage from Antigravity"
+        },
+        "geminiUsage.showInStatusBar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show Gemini usage in the status bar"
+        },
+        "geminiUsage.compactStatusBar": {
+          "type": "boolean",
+          "default": false,
+          "description": "Use a compact status-bar label: '<icon> X% (current) Y% (week)' instead of '<icon> Gemini Usage: X% (current) Y% (week)'."
+        },
+        "geminiUsage.thresholds.moderate": {
+          "type": "number",
+          "scope": "application",
+          "default": 50,
+          "minimum": 1,
+          "maximum": 99,
+          "description": "Usage percentage at which the Moderate urgency level is triggered"
+        },
+        "geminiUsage.thresholds.high": {
+          "type": "number",
+          "scope": "application",
+          "default": 75,
+          "minimum": 1,
+          "maximum": 99,
+          "description": "Usage percentage at which the High urgency level is triggered"
+        },
+        "geminiUsage.thresholds.critical": {
+          "type": "number",
+          "scope": "application",
+          "default": 95,
+          "minimum": 1,
+          "maximum": 99,
+          "description": "Usage percentage at which the Critical urgency level is triggered"
+        },
+        "geminiUsage.notificationTimeoutSeconds": {
+          "type": "number",
+          "default": 12,
+          "minimum": 3,
+          "maximum": 60,
+          "description": "How long (in seconds) Gemini Usage notifications stay on screen before auto-dismissing. Set this so notifications never stack while VS Code is in the background. Manual dismiss via the X button is always available."
+        },
+        "geminiUsage.colors.moderate": {
+          "type": "string",
+          "scope": "application",
+          "default": "#cca700",
+          "description": "Status bar background color when usage is at the Moderate level. Use a hex color (e.g. #cca700) or 'none' to disable highlighting."
+        },
+        "geminiUsage.colors.high": {
+          "type": "string",
+          "scope": "application",
+          "default": "#f0643c",
+          "description": "Status bar background color when usage is at the High level. Use a hex color (e.g. #f0643c) or 'none' to disable highlighting."
+        },
+        "geminiUsage.colors.critical": {
+          "type": "string",
+          "scope": "application",
+          "default": "#e05555",
+          "description": "Status bar background color when usage is at the Critical level. Use a hex color (e.g. #e05555) or 'none' to disable highlighting."
+        },
+        "geminiUsage.thresholdMetric": {
+          "type": "string",
+          "default": "highest",
+          "enum": [
+            "highest",
+            "session",
+            "weekly"
+          ],
+          "enumDescriptions": [
+            "Evaluate thresholds against whichever window is highest across every Antigravity model group (Gemini and Claude/GPT)",
+            "Evaluate thresholds against the Gemini 5-hour (Current Session) usage",
+            "Evaluate thresholds against the Gemini Weekly usage"
+          ],
+          "description": "Which usage metric the urgency thresholds and notifications are evaluated against"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "package": "vsce package --no-dependencies",
+    "generate:icons": "node scripts/generate-icon-font.js && node scripts/generate-package-icon.js"
+  },
+  "devDependencies": {
+    "@types/node": "20.19.43",
+    "@types/vscode": "1.85.0",
+    "@vscode/vsce": "3.9.2",
+    "@vitest/coverage-v8": "4.1.11",
+    "fantasticon": "4.1.0",
+    "svg2ttf": "6.1.0",
+    "svgpath": "2.6.0",
+    "ttf2woff2": "8.0.1",
+    "typescript": "5.9.3",
+    "vitest": "4.1.11"
+  },
+  "keywords": [
+    "antigravity",
+    "gemini",
+    "usage",
+    "quota",
+    "rate limit"
+  ],
+  "//generate:icons": "generate-package-icon.js needs sharp only on demand. Keep it out of package.json and package-lock.json; regenerate with `npm install --no-save --package-lock=false sharp && npm run generate:icons`."
+}
