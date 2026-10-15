@@ -608,6 +608,11 @@ WINDOWS_INSTALLER = Group(
         _pytest(
             "validators (Windows)",
             "tests/validators",
+            # Two CI runs stalled silently at 52% until the 1800 s bound. A test
+            # still running after 300 s dumps every thread's stack (stdlib
+            # faulthandler, no kill), so the next stall names its test and line.
+            "-o",
+            "faulthandler_timeout=300",
             platforms=("windows",),
             timeout=1800,
             env={"NEXUS_TEST_POWERSHELL": "powershell"},
