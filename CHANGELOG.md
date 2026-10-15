@@ -9,11 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Gemini Usage Monitor (`nexus-hub.gemini-usage-monitor`), a status-bar usage monitor for the Google Antigravity IDE with the same design as the Claude, Codex, Copilot and Cursor monitors. It reads Antigravity's Models & Usage figures (the Gemini group and the Claude and GPT group, each with a 5-hour and a weekly limit) from Antigravity's local language server over `127.0.0.1` only. Alerts watch every window of both groups and suggest switching model group when the other still has quota. Both installers install it only through the Antigravity IDE launcher.
+
 ### Fixed
 
 - Claude, Codex, GitHub Copilot and Cursor usage-alert sidebar views dismiss automatically after one minute. A new alert gets a fresh minute, and manual dismissal cancels its timer.
 - The Windows PowerShell 5.1 installer and validator tests run in their own `tests-windows-installer` CI job. Inside `tests-windows` the group measured 3534 s of the job's 3600 s limit and timed out twice. The installer and validator corpora also run as separate commands, since together they exceeded their own 1800 s command bound. Coverage, edition and the `ci-required` aggregate are unchanged.
 - The Windows validator command dumps every thread's stack when a single test runs past 300 s (pytest's built-in `faulthandler_timeout`), so an intermittent stall that previously ran silently to the 1800 s bound now names its test and line.
+- The Windows validator tests run as two commands split by file name and balanced by measured time, each with its own 1800 s bound. The single command took 1198-1673 s on passing runs and ran past 1800 s on four others with no test stalled, so the bound, not a hang, was the failure. A contract test proves every validator file runs in exactly one half.
 - The guide's Security Guardrails text no longer says every guard blocks whatever the prompt said. It now states that the large-file guard only warns and that the security guards step aside when the platform reports full access, such as Claude Code's Bypass permissions mode, matching the v4.13.12 permission-mode contract.
 
 ### Changed

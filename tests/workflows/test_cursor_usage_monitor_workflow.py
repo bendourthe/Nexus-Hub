@@ -224,7 +224,7 @@ def test_dependabot_tracks_the_new_extension() -> None:
     assert tracked == on_disk, (
         f"npm Dependabot entries {sorted(tracked)} must match the usage monitors on disk {sorted(on_disk)}"
     )
-    assert len(on_disk) == 4, "claude, codex, cursor and copilot monitors are expected on disk"
+    assert len(on_disk) == 5, "claude, codex, cursor, copilot and gemini monitors are expected on disk"
     for entry in npm_monitors:
         ignored = {item["dependency-name"] for item in entry.get("ignore", [])}
         assert "@types/vscode" in ignored, (

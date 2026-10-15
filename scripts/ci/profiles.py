@@ -591,6 +591,11 @@ WINDOWS_HOOKS = Group(
     ),
 )
 
+# Complementary halves of tests/validators by file name: half A runs test_a* to
+# test_c* except test_co*; half B runs test_co* and test_d* to test_z*.
+VALIDATORS_HALF_A_IGNORES = ("--ignore-glob=*/test_co*", "--ignore-glob=*/test_[d-z]*")
+VALIDATORS_HALF_B_IGNORES = ("--ignore-glob=*/test_[ab]*", "--ignore-glob=*/test_c[!o]*")
+
 # Its own CI job: with this corpus (about 1800 s) inside windows-hooks, the
 # group measured 3534 s against the job's 3600 s cap and two runs timed out.
 # Two commands, because the combined selection also exceeded its own 1800 s
@@ -605,12 +610,26 @@ WINDOWS_INSTALLER = Group(
             timeout=1800,
             env={"NEXUS_TEST_POWERSHELL": "powershell"},
         ),
+        # The validator corpus took 1198-1673 s on passing runs and ran past its
+        # 1800 s bound on four others with no single test stalled (a stall would
+        # end the output with the faulthandler dump below). Two complementary
+        # file-name halves, balanced by measured per-file time (about 53/47),
+        # each keep that bound; every new test_*.py file lands in exactly one
+        # (tests/workflows/test_ci_native_profile_parity.py proves it).
         _pytest(
-            "validators (Windows)",
+            "validators a-c (Windows)",
             "tests/validators",
-            # Two CI runs stalled silently at 52% until the 1800 s bound. A test
-            # still running after 300 s dumps every thread's stack (stdlib
-            # faulthandler, no kill), so the next stall names its test and line.
+            *VALIDATORS_HALF_A_IGNORES,
+            "-o",
+            "faulthandler_timeout=300",
+            platforms=("windows",),
+            timeout=1800,
+            env={"NEXUS_TEST_POWERSHELL": "powershell"},
+        ),
+        _pytest(
+            "validators co-z (Windows)",
+            "tests/validators",
+            *VALIDATORS_HALF_B_IGNORES,
             "-o",
             "faulthandler_timeout=300",
             platforms=("windows",),
