@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The merge-conflict-marker check prefilters tracked files with `git grep` and applies its exact line-anchored rule only to the candidates. It took about one second instead of 100-120 s on Windows, where it repeatedly exceeded the fast profile's 120 s step bound; findings are unchanged, including widened and CRLF markers.
 
+### Changed
+
+- CI pins `actions/setup-python` to v7.0.0 (`5fda3b95`) at all 19 steps and `actions/attest-build-provenance` to v4.2.2 (`4d101475`). No workflow uses the removed `pip-install` input, every step requests Python 3.11, and the release attestation keeps `subject-path`, which v4 still accepts.
+
 ## [4.13.13] - 2026-10-15
 
 ### Added
