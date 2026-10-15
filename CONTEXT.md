@@ -97,3 +97,11 @@ Ubiquitous language for Nexus-Hub design discussions, plans, and reviews. Each t
 **Avoid**: anchor phrase, rule title, keyword (a title is what a handoff legitimately repeats)
 
 **Relationships**: Used by `tests/skills/test_rule_ownership.py` (plan v4.14.2). Narrower than rule ownership: absence of the clause does not prove a paraphrased restatement is absent.
+
+## UNGATED
+
+**Definition**: A quality-gate outcome meaning the gate could not judge the work, because it has no required criteria, or a required criterion has no evidence. For an automatic criterion, no evidence means no measured value or a zero denominator; for a manual criterion, no recorded judgment.
+
+**Avoid**: skipped, N/A, pass-by-default, inconclusive (the last is `verification-before-completion`'s word for a review that ran without a verdict)
+
+**Relationships**: One of the outcomes in `quality-gate-definitions` (plan v4.14.4), beside PASS, PARTIAL, FAIL (fixable), and FAIL (blocking). Never a kind of PASS. The user-facing "not verified" report it leads to is owned by `verification-before-completion`.
