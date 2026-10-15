@@ -1,0 +1,48 @@
+{
+  "skill": "scada-historian-threat-detection",
+  "purpose": "Route historian/HMI integrity work here.",
+  "cases": [
+    {
+      "id": "pos-1",
+      "prompt": "historian tag tampering detection",
+      "should_trigger": true,
+      "assert": "routes to scada-historian-threat-detection first",
+      "lexical": true
+    },
+    {
+      "id": "pos-2",
+      "prompt": "SCADA HMI persistence hunt",
+      "should_trigger": true,
+      "assert": "routes to scada-historian-threat-detection first",
+      "lexical": true
+    },
+    {
+      "id": "pos-3",
+      "prompt": "process-data integrity monitoring",
+      "should_trigger": true,
+      "assert": "routes to scada-historian-threat-detection first",
+      "lexical": true
+    },
+    {
+      "id": "neg-1",
+      "prompt": "write a Modbus IDS rule",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-2",
+      "prompt": "Windows credential dumping hunt",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-3",
+      "prompt": "generic disk forensics with no historian",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    }
+  ]
+}

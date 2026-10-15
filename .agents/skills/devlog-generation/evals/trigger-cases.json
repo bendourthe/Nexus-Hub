@@ -1,0 +1,62 @@
+{
+  "skill": "devlog-generation",
+  "purpose": "Maintain docs/DEVLOG.md as a bounded per-release index; route narrative elsewhere",
+  "cases": [
+    {
+      "id": "pos-1",
+      "prompt": "update the devlog",
+      "should_trigger": true,
+      "assert": "routes to devlog-generation first",
+      "lexical": true
+    },
+    {
+      "id": "pos-2",
+      "prompt": "add this release to the devlog",
+      "should_trigger": true,
+      "assert": "routes to devlog-generation first",
+      "lexical": true
+    },
+    {
+      "id": "pos-3",
+      "prompt": "the devlog is out of date, sync the devlog index",
+      "should_trigger": true,
+      "assert": "routes to devlog-generation first",
+      "lexical": true
+    },
+    {
+      "id": "pos-4",
+      "prompt": "regenerate the development log for this project",
+      "should_trigger": true,
+      "assert": "routes to devlog-generation first",
+      "lexical": true
+    },
+    {
+      "id": "neg-1",
+      "prompt": "write up what we did this session, including what failed and what we decided",
+      "should_trigger": false,
+      "assert": "routes to session-history, not here; a session narrative never enters the index",
+      "lexical": true
+    },
+    {
+      "id": "neg-2",
+      "prompt": "generate the changelog entry for this release",
+      "should_trigger": false,
+      "assert": "routes to release-notes-writer; CHANGELOG is the authoritative change record",
+      "lexical": true
+    },
+    {
+      "id": "neg-3",
+      "prompt": "record why we chose this design and which alternatives we rejected",
+      "should_trigger": false,
+      "assert": "routes to architecture-decision-record, not the index",
+      "lexical": true
+    },
+    {
+      "id": "neg-4",
+      "prompt": "what work is still open or deferred for this version",
+      "should_trigger": false,
+      "assert": "routes to known-gaps-tracker, not the index",
+      "lexical": true
+    }
+  ]
+}

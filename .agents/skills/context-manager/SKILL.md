@@ -1,0 +1,384 @@
+---
+name: context-manager
+description: Map large codebases for multi-file changes by tracing file relationships, dependencies, and change impact into a context map. Use for unfamiliar repositories and cross-file edits. SKIP - token budgets, compaction, or session handoffs.
+summary_l0: "Map file relationships and change impact across large codebases"
+overview_l1: "Use context-manager for unfamiliar codebases and multi-file changes. Map components, imports, callers, interfaces, and dependencies; record their relationships and change-impact checks in a context map. Hand off token-loading strategy to context-engineering, compaction and session-boundary summaries to context-compression, and token measurement to prompt-token-optimization. Trigger phrases: context management, large codebase, cross-file changes, related files, track dependencies, change impact, context map."
+---
+
+# Context Manager
+
+Specialized expertise in managing information and maintaining context across large codebases, ensuring consistent understanding when working on changes that span multiple files, components, or systems.
+
+## When to Use This Skill
+
+Use this skill for:
+
+- Working on changes that affect many files
+- Navigating unfamiliar or large codebases
+- Maintaining consistency across related changes
+- Synthesizing information from multiple sources
+- Tracking relationships between components
+- Ensuring changes don't break existing functionality
+
+**Trigger phrases**: "maintain context", "large codebase", "cross-file changes", "related files", "track dependencies", "understand codebase", "consistent changes", "attention budget", "context window", "progressive disclosure"
+
+## What This Skill Does
+
+Provides context management capabilities including:
+
+- **Information Synthesis**: Combining knowledge from multiple files
+- **Dependency Tracking**: Understanding component relationships
+- **Change Impact Analysis**: Predicting ripple effects
+- **Consistency Verification**: Ensuring related changes align
+- **Knowledge Persistence**: Maintaining understanding across sessions
+- **Navigation Optimization**: Efficiently exploring large codebases
+
+## Instructions
+
+### Step 0: Understand Context Fundamentals
+
+Context fundamentals are owned elsewhere and this skill hands off to them: what to load, when, and in what order belongs to `[[context-engineering]]`, whether and when to compact belongs to `[[context-compression]]`, and measuring where tokens go belongs to `[[prompt-token-optimization]]`; this skill owns the codebase map, relationship tracking, and change-impact steps below.
+
+### Step 1: Build Initial Context Map
+
+**Context Discovery Process**:
+
+```markdown
+## Context Map: [Feature/Area]
+
+### Core Components
+| Component | Purpose | Key Files | Dependencies |
+|-----------|---------|-----------|--------------|
+| [Name] | [Description] | [Paths] | [List] |
+
+### Data Flow
+```
+[Source] → [Transform] → [Store] → [Display]
+    │           │           │          │
+    ▼           ▼           ▼          ▼
+[File A]    [File B]    [File C]   [File D]
+```
+
+### Key Interfaces
+- Interface 1: [Description]
+  - Defined in: [file]
+  - Implemented by: [files]
+  - Used by: [files]
+
+### Configuration Points
+- [Config 1]: [file] - [purpose]
+- [Config 2]: [file] - [purpose]
+
+### External Dependencies
+- [Dependency]: [version] - [usage]
+```
+
+### Step 2: Track File Relationships
+
+**Relationship Types**:
+
+| Relationship | Description | Example |
+|--------------|-------------|---------|
+| **Imports** | Direct code dependency | `import { fn } from './util'` |
+| **Implements** | Interface realization | `class X implements IY` |
+| **Extends** | Inheritance | `class Child extends Parent` |
+| **Calls** | Runtime dependency | API calls, event handlers |
+| **Configures** | Configuration dependency | Config files, env vars |
+| **Tests** | Test coverage | Test files for source |
+
+**File Relationship Template**:
+
+```markdown
+## File: [path/to/file.ts]
+
+### Identity
+- **Purpose**: [Brief description]
+- **Type**: Component | Service | Utility | Config | Test
+- **Domain**: [Business domain]
+
+### Dependencies (What this file needs)
+```
+Imports:
+├── ../services/api.ts (ApiService)
+├── ../utils/helpers.ts (formatDate, parseData)
+├── ../types/models.ts (User, Order)
+└── react (useState, useEffect)
+```
+
+### Dependents (What needs this file)
+```
+Used by:
+├── ../pages/Dashboard.tsx
+├── ../components/OrderList.tsx
+└── ../tests/OrderService.test.ts
+```
+
+### Interfaces Exposed
+- `OrderService` class
+- `OrderStatus` enum
+- `createOrder()` function
+
+### Side Effects
+- Writes to localStorage
+- Makes API calls to /api/orders
+- Dispatches Redux actions
+
+### Change Impact
+If modified, verify:
+- [ ] Dashboard.tsx still works
+- [ ] OrderList.tsx displays correctly
+- [ ] Tests pass
+```
+
+### Step 3: Maintain Change Context
+
+**Change Tracking Template**:
+
+```markdown
+## Change Set: [Description]
+
+### Motivation
+[Why this change is being made]
+
+### Files Modified
+
+#### Primary Changes
+| File | Change Type | Description |
+|------|-------------|-------------|
+| [path] | Add/Modify/Delete | [What changed] |
+
+#### Cascading Changes (required for consistency)
+| File | Reason | Change |
+|------|--------|--------|
+| [path] | [dependency reason] | [What needs to change] |
+
+### Consistency Checks
+
+#### Naming Consistency
+- [ ] Function names follow pattern: [pattern]
+- [ ] Variable names follow pattern: [pattern]
+- [ ] File names follow pattern: [pattern]
+
+#### Interface Consistency
+- [ ] All implementations updated
+- [ ] Type definitions match
+- [ ] Default values consistent
+
+#### Behavior Consistency
+- [ ] Error handling consistent
+- [ ] Logging consistent
+- [ ] Null handling consistent
+
+### Verification Plan
+1. [ ] Run affected tests
+2. [ ] Verify imports resolve
+3. [ ] Check TypeScript compilation
+4. [ ] Manual verification of [specific flows]
+```
+
+### Step 4: Synthesize Cross-File Information
+
+**Pattern Recognition Template**:
+
+```markdown
+## Pattern Analysis: [Pattern Name]
+
+### Observed Instances
+| Location | Implementation | Notes |
+|----------|----------------|-------|
+| [file:line] | [code snippet] | [variations] |
+
+### Canonical Pattern
+```[language]
+// The standard way this pattern should be implemented
+[code example]
+```
+
+### Deviations
+| Location | Deviation | Reason | Action |
+|----------|-----------|--------|--------|
+| [file] | [difference] | [why] | Keep/Update |
+
+### Recommendations
+- [Recommendation 1]
+- [Recommendation 2]
+```
+
+### Step 5: Handle Context Handoffs
+
+Session-boundary summaries and handoff documents (their required contents and validation probes) are owned by `[[context-compression]]`; at a session boundary this skill hands off to it, adding the context map, file relationships, and change set from Steps 1-3 as inputs.
+
+### Step 6: Navigate Efficiently
+
+**Codebase Navigation Strategy**:
+
+```markdown
+## Navigation Guide: [Codebase/Feature Area]
+
+### Entry Points
+- **Main entry**: [file] - Start here for [use case]
+- **Config entry**: [file] - Start here for configuration
+- **API entry**: [file] - Start here for API exploration
+
+### Key Landmarks
+| What | Where | Why Important |
+|------|-------|---------------|
+| [Feature] | [path pattern] | [significance] |
+
+### Search Patterns
+| Looking for | Search strategy |
+|-------------|-----------------|
+| Component usage | Grep: `<ComponentName` |
+| Function calls | Grep: `functionName(` |
+| Type usage | Grep: `: TypeName` |
+| Config values | Grep: `CONFIG.keyName` |
+
+### Common Paths
+```
+Feature X workflow:
+[entry] → [processing] → [storage] → [display]
+
+Request lifecycle:
+[route] → [controller] → [service] → [repository]
+```
+
+### Quick References
+- Types/interfaces: `src/types/`
+- Utilities: `src/utils/`
+- Constants: `src/constants/`
+- Tests: `**/*.test.ts`
+```
+
+## Best Practices
+
+- **Map before modifying** - Understand relationships first
+- **Document discoveries** - Record non-obvious findings
+- **Track ripple effects** - Changes often cascade
+- **Verify consistency** - Check related code matches
+- **Use search effectively** - Grep/find for relationships
+- **Build incrementally** - Start narrow, expand as needed
+- **Note patterns** - Recognize and follow conventions
+- **Summarize often** - Capture context before it fades
+
+## Common Patterns
+
+### Pattern 1: Feature Boundary Mapping
+
+When starting on a feature, map its boundaries:
+
+```markdown
+## Feature: User Authentication
+
+### Boundary Map
+```
+                    ┌─────────────────────────────────────┐
+                    │         Authentication Feature       │
+                    │                                     │
+  Entry Points:     │  ┌─────────────┐                    │
+  ─────────────►    │  │ LoginPage   │                    │
+                    │  └──────┬──────┘                    │
+                    │         │                           │
+                    │  ┌──────▼──────┐   ┌─────────────┐  │
+                    │  │ AuthService │───│ TokenStore  │  │
+                    │  └──────┬──────┘   └─────────────┘  │
+                    │         │                           │
+  External:         │  ┌──────▼──────┐                    │
+  ◄────────────     │  │  Auth API   │                    │
+                    │  └─────────────┘                    │
+                    │                                     │
+                    └─────────────────────────────────────┘
+
+Internal files: [list]
+External dependencies: [list]
+```
+
+### Pattern 2: Change Impact Matrix
+
+For significant changes, build an impact matrix:
+
+```markdown
+## Change Impact: Renaming `userId` to `accountId`
+
+### Impact Matrix
+| File | Direct Change | Indirect Impact | Test Impact |
+|------|---------------|-----------------|-------------|
+| User.ts | ✓ Property rename | - | Update mocks |
+| UserService.ts | ✓ References | API contract | Update tests |
+| UserController.ts | ✓ Parameters | Route handling | Integration tests |
+| UserRepository.ts | ✓ Queries | DB compatibility | Update fixtures |
+| user.test.ts | ✓ Test updates | - | - |
+
+### Risk Assessment
+- High: Database migration needed
+- Medium: API backward compatibility
+- Low: Internal code changes
+```
+
+### Pattern 3: Cross-Cutting Concern Tracking
+
+For concerns that span multiple areas:
+
+```markdown
+## Cross-Cutting: Error Handling
+
+### Implementations Inventory
+| Layer | Implementation | File | Pattern |
+|-------|----------------|------|---------|
+| API | try/catch + response | api/*.ts | ErrorResponse |
+| Service | throw custom errors | services/*.ts | AppError |
+| UI | Error boundary | components/ErrorBoundary.tsx | React boundary |
+| Logging | Winston logger | utils/logger.ts | Structured logs |
+
+### Consistency Status
+- [x] All API routes wrapped
+- [x] Custom error classes used
+- [ ] Error boundary covers all routes (3 missing)
+- [ ] Logging consistent (varies by module)
+
+### Recommended Actions
+1. Add ErrorBoundary to routes: X, Y, Z
+2. Standardize logging format
+```
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "I will hold the whole codebase in my head; building a context map is busywork." | A mental model of a 40-file change does not survive a compaction or a long pause. The written context map is the only thing that lets a fresh turn (or a different agent) resume without re-reading everything. |
+| "I read the file once, so I do not need to track its relationships." | Reading a file in isolation hides the ripple effects. Without documented relationships, a rename in one file silently breaks three callers you never mapped, and the inconsistency only surfaces at test time. |
+| "Impact analysis slows me down; I will just make the change and run the tests." | Tests catch what they cover; an unmapped consumer with no test fails silently in production. The change-impact pass is what finds the consumer the test suite forgot. |
+
+## Verification
+
+- [ ] Initial context map created
+- [ ] File relationships documented
+- [ ] Change set tracked
+- [ ] Consistency checks defined
+- [ ] Impact analysis completed
+- [ ] Context summary prepared
+- [ ] Navigation paths documented
+- [ ] Handoff notes ready
+
+## Related Skills
+
+- [[task-coordinator]] - Breaking down coordinated work
+- [[plan-before-code]] - Initial exploration and planning
+- [[context-analysis]] - Deep codebase analysis
+- [[workflow-orchestrator]] - Managing complete workflows
+- [[code-semantic-search]] - when the repo exceeds the model's context window, retrieval over code chunks is the primary escape valve. Use it to produce a ranked chunk set and feed the top-K into the session. Nexus-Hub's internal [`nexus-code-search`](../../../../extensions/nexus-code-search/) MCP is the reference implementation (local-only, zero outbound calls).
+- See also: [SESSION_LIFECYCLE_DECISIONS](../../../../guides/reference/SESSION_LIFECYCLE_DECISIONS.md) - when to continue, `/rewind`, `/clear`, `/compact`, or delegate to a subagent
+
+---
+
+**Version**: 1.1.0
+**Last Updated**: February 2026
+**Based on**: awesome-claude-code-subagents patterns, software architecture practices
+**Attribution**: Context fundamentals adapted from [Agent-Skills-for-Context-Engineering](https://github.com/muratcankoylan/Agent-Skills-for-Context-Engineering) (MIT License)
+
+
+### Iterative Refinement Strategy
+This skill is optimized for an iterative approach:
+1. **Execute**: Perform the core steps defined above.
+2. **Review**: Critically analyze the output (coverage, quality, completeness).
+3. **Refine**: If targets aren't met, repeat the specific implementation steps with improved context.
+4. **Loop**: Continue until the definition of done is satisfied.

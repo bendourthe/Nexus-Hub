@@ -1,0 +1,208 @@
+---
+name: agent-communication
+description: "Write live chat responses to the Nexus-Hub communication contract: outcome first, plain language, copy-paste-safe commands, renumbered remaining steps after an error, and a Completed/Verified/Open/Next closing report. Use for 'summarize what you did', 'explain this to me simply', 'give me the steps', 'walk me through it', 'make this readable', 'report the results', and apply it automatically whenever composing an end-of-task report, a step-by-step instruction sequence, a command block the user will paste, or a response for a non-technical reader. SKIP: authoring standalone documents (use writing-editing), de-slopping a finished draft (use anti-slop-editing), Markdown mechanics for generated files (markdown.md governs those)."
+summary_l0: "Write live chat responses to a testable contract: outcome first, runnable commands, labeled closing report"
+overview_l1: "This skill governs how an agent writes the messages a person actually reads, as opposed to the files it writes to disk. It carries the seven-part live-response contract from catalog/style-guides/agent-communication.md: lead with the outcome and keep the language plain enough for a non-engineer; make every command block runnable exactly as pasted, filling derivable values and flagging genuinely unknowable ones with a REPLACE line; number steps with prerequisites first and expected results, and after any reported error re-issue the full remaining sequence renumbered rather than pointing back up the chat; close every task with the labeled parts Completed, Verified, Open, and Next; link detail beyond about five lines into a docs/ file instead of inlining it; and when a turn ends with work still running, open with a one-line status banner and cap the interim update at about eight lines. Worked examples live in references/response-contract.md."
+version: 1.0.0
+author: Benjamin Dourthe
+license: MIT
+category: developer-experience
+language: Multi-language
+tags: [communication, chat-response, plain-language, instructions, reporting, placeholders, ux]
+tools_required: [Read]
+---
+
+# Agent Communication
+
+Write the messages a person reads, not the files an agent writes. This skill is the working form of [`catalog/style-guides/agent-communication.md`](../../../style-guides/agent-communication.md), the canonical contract for live chat responses. The full text of that guide, plus every worked example, is in [`references/response-contract.md`](references/response-contract.md).
+
+The boundary matters. `markdown.md` governs Markdown that lands on disk (READMEs, plans, reports, skills). This skill governs what appears in the terminal or chat panel: a different reader, read once, in order, usually mid-task. If the style guide is not installed on this machine, the contract below is complete enough to act on alone; treat the guide as enrichment, not a hard dependency.
+
+## When to Use This Skill
+
+Use it whenever you are composing:
+
+- An end-of-task or end-of-phase report.
+- A step-by-step instruction sequence the user will follow.
+- A command block the user is expected to copy and paste.
+- A response to a reported error in the middle of a sequence you issued.
+- A response for someone who is not an engineer, or who has not seen this codebase.
+- A turn that ends while tests, a build, or a background task are still running.
+
+Also use it on request: "summarize what you did", "explain this to me simply", "give me the steps", "walk me through it", "make this readable", "report the results".
+
+**When NOT to use it:**
+
+- Authoring a standalone document (README, spec, article). Use `writing-editing`.
+- Removing AI-slop patterns from a finished draft. Use `anti-slop-editing`.
+- Markdown mechanics for a generated file (list spacing, fence indentation, link style). `markdown.md` governs those, and applying this skill there is a category error.
+- A one-word factual answer. A contract that adds four labeled sections to "yes, line 14" makes the response worse.
+
+## Instructions
+
+### 1. Structure the response
+
+1. Put the outcome in the first sentence. What happened, or what the answer is, before how you got there.
+2. Use headings only when the response covers 3 or more distinct topics.
+3. Bullets carry enumerable facts (files, checks, options). Reasoning stays in prose, because a bulleted argument is harder to follow than a sentence.
+4. Bold exactly one thing: the action the user must take. If there is none, bold nothing.
+5. At most one icon per section, and only as a status marker. Never in a heading.
+
+### 2. Keep the language plain
+
+1. Target a grade 7 to 8 reading level for the narrative. Code, paths, and command output are exempt.
+2. Define any unavoidable term in place, in parentheses, at first use.
+3. Name things by what they do, not by an internal codename the reader has never seen.
+4. Keep what changes the reader's next action (counts, paths, pass or fail, what is blocked). Drop what does not (abandoned approaches, the order you read files in).
+5. Do not narrate your own past process unless asked; step 8's forward-looking line and progress notes are a different thing and tell the reader what is happening now.
+
+### 3. Make every command runnable as pasted
+
+1. Derive what you can. Paths, branch names, container names, ports, and file names are almost always derivable. Look them up.
+2. For a genuinely unknowable value (a password, a remote hostname, an account id), put a **REPLACE** line before the block naming the exact token and how to find its value.
+3. Never leave angle brackets, square brackets, or ALL-CAPS template words inside a copy-paste block without that REPLACE line.
+
+Full before/after examples: [`references/response-contract.md`](references/response-contract.md).
+
+### 3.1 Say where to run it, and show what success looks like
+
+A command block answers one of the three questions a reader has. They also need **where** to run it and **how to tell it worked**. Every runnable block carries three parts:
+
+1. **Where**: the program (PowerShell, Terminal, Git Bash) and the working directory - either `cd` inside the block or a flag that makes the directory explicit, so the block is correct wherever their prompt is.
+2. **The command**, obeying the placeholder rules in step 3.
+3. **What you should see**: a separate block that looks like real output, not a description of it.
+
+The expected-output block is the most-skipped and most useful part. Where a command legitimately prints nothing, say so with a marker rather than omitting the block: "nothing happened" and "it did not run" look identical to someone who was not told which to expect. Annotate a value the reader must compare (`1712   <- was 3386`). State what is lost on the line immediately before a destructive block, never in a paragraph after it.
+
+### 3.2 Write the action out where you ask for it
+
+Every action the user must take (a command, a file to send, a value to find, a choice) is written out in full in the message that asks for it, and again in every later message that still asks for it. Never refer back: no "run the command from my earlier message", no "as above". On a long turn the earlier text is buried under tool calls, and a reference the reader cannot resolve is an instruction they cannot follow.
+
+### 3.3 Match the user's shell
+
+A command for the user's own machine parses in the shell they will paste it into, never in your tool's dialect. On Windows that is Windows PowerShell 5.1 unless the user named another shell. Never chain with `&&` or `||` (PowerShell 7+ only; 5.1 rejects the whole line before running any of it). Use one command per line, separate numbered steps, or `A; if ($?) { B }`. No heredocs, `VAR=x cmd`, `export`, Bash `$(...)`, backslash continuation, or `/tmp` paths; use `$env:NAME`. A command for a remote Linux host stays POSIX and names that host. When the shell is uncertain, one command per line with no chaining runs everywhere. Before sending, scan each user-facing block for `&&`, `||`, `<<`, a leading `VAR=`, and `export`. The full rule and example are in the style guide's section 3.3.
+
+### 3.4 Commands that cross machines or ask for input
+
+Before proposing how to run or move something on another machine, read the project's environment notes (memory, lessons, runbooks) and use the method recorded as working; never re-propose one recorded as failing. A command that prompts for input (password, passphrase, y/n, `sudo`) is its own numbered step with nothing after it in the paste, and the step says what the prompt looks like, because the terminal feeds the next pasted line in as the answer. Open each step with its machine and terminal ("In your SSH session on <host>:"), and never mix two machines in one block. Never ask the user to find a file and paste its contents into a placeholder: inline the content, on a remote shell as a quoted heredoc (`<<'EOF'`) followed by the command that runs it. Prefer the path with the fewest user actions that is known to work; offer a one-time setup (such as an SSH key) once, with its security trade-off, and never set it up unasked. Full rule and example: style guide section 3.4.
+
+### 4. Issue guided steps correctly
+
+1. State prerequisites before step 1.
+2. Number every step. One action per step. "And then" means two steps.
+3. Give an expected result wherever success is not self-evident: "expect: empty output".
+4. When the user reports an error at step N, give the fix **and** re-issue the full remaining sequence, renumbered from 1. Never write "continue with the steps above".
+
+### 5. Close with the labeled report
+
+Four parts, in order:
+
+- **Completed**: what changed, plain language, 1 to 2 lines.
+- **Verified**: the evidence. Test and validation results, counts. If nothing was run, say so.
+- **Open**: blocked, skipped, deferred, or risky items. "Nothing outstanding" when empty. Never omit it.
+- **Next**: the concrete next action, or that there is none.
+
+One optional plain-language context line may follow. Output-minimization rules never apply to this report.
+
+### 5.1 Write every Open item as a decision block
+
+A bare list of what was not done cannot be acted on. It names that a decision exists without saying what it is about, what the choices are, or which one you would take, so the reader has to reconstruct all three from a conversation they may not have followed.
+
+Each Open item carries four parts, in order:
+
+1. **What it is**, in plain language a non-engineer follows. Name what is at stake, not the mechanism.
+2. **Why it is open**: blocked on a decision, on someone else, on evidence, or on time.
+3. **Options**, usually two or three, each with its consequence. Include doing nothing where that is genuinely available, and say what it costs.
+4. **A recommendation, with its reason.** A menu with no recommendation hands the judgment to the reader, who has less context than you do.
+
+Write each item so it reads cold, without scrolling back.
+
+Keep the description OUT of the table. A table whose first row is a paragraph and whose later rows are choices gives the eye nothing to lock onto. Prose states the problem; the table compares the choices.
+
+```markdown
+### 1. Short title naming the problem
+
+One or two sentences: what it is and what it costs.
+
+| Option | Consequence |
+|---|---|
+| **Do the thing** - recommended | Why, in one clause |
+| Do nothing | What that costs |
+
+---
+```
+
+Each consequence cell is ONE clause. The table is a comparison, not an explanation; an option needing a paragraph has that paragraph above the table or nowhere. Exactly one option cell carries `- recommended`. End each item with a horizontal rule, because stacked tables with no break read as one long grid. Numbered headings let the reader answer "do 2 and 3" instead of quoting text.
+
+Two constraints keep it honest. Never manufacture options to fill the shape: where only one course exists, say so and say why. And never use the block to re-open a decision the user already made; absent new evidence, that is closed, not open.
+
+This applies wherever open items appear, not only in the closing report. A turn that ends on a question gives the question the same four parts.
+
+### 6. Link detail instead of inlining it
+
+1. More than about 5 lines of technical detail belongs in a `docs/` file, linked with a repository-relative Markdown link.
+2. A link is an addition, never a substitute. Answer the question in the response, then link the depth.
+
+### 7. Handle a turn that ends with work still running
+
+1. First line is the status banner: what is running, that no action is needed, and that you will report when it finishes.
+2. Cap the rest at about 8 lines: what you just finished, in plain language.
+3. Defer findings, design notes, and file lists to the completion report that follows.
+
+### 8. Narrate the start and the middle; format to the reader
+
+1. Before starting, say in one line what you are about to do.
+2. On a long tool-calling turn, add a brief progress note at natural boundaries so the reader can follow along; two lines at most, with the detail deferred to the completion report. This is your own narration, not tool output, so `## Output Minimization` (which governs verbose tool and command logs) is untouched.
+3. Use lists and bullet points when asked to, or when the content is multifaceted enough that they aid clarity; when the reader explicitly requests minimal formatting, drop bullets, headers, lists, and bold as asked; in conversational, personal, or emotional exchanges keep to plain prose.
+4. Harness note, for whoever configures the surrounding product rather than for the agent: when the interface collapses or hides tool output, say so in the agent's instructions, because otherwise it may run commands to show the user output the interface never displays. Name no vendor parameter; this is instruction text about the display.
+5. **Choosing the representation** -- whether an explanation is best carried as prose, a small table, pseudocode, a diagram, or a file the reader opens -- is owned by [[html-output-conventions]]. Consult its ladder and do not restate it here. This section governs formatting **within** the response; that skill governs what form the answer takes.
+
+## Common Rationalizations
+
+| Rationalization | Reality |
+|---|---|
+| "The user is technical, so jargon is fine." | Technical does not mean familiar with this repo. "The MT-1 gate failed" tells a senior engineer who has never opened this codebase nothing; "the check that stops a release when version numbers disagree failed" tells them what to do next. You also do not know who reads the transcript later. |
+| "The remaining steps are just above in the chat." | The user is in a terminal, mid-error, often on a phone or a narrow pane, with your failed step and its error output between them and the list. Reassembling a sequence from scrollback is where people skip a step and then report a second, unrelated failure that costs another round trip. |
+| "The placeholder is obvious." | It is obvious to you because you derived it. `<container-name>` pasted verbatim produces a shell error, and the user's next message is a bug report about your command rather than progress on their task. If you can derive it, you were the only party who could, and you declined. |
+| "A longer report is more complete." | A report that buries "the migration is blocked" under nine paragraphs of implementation detail has communicated less than a four-line one. Length moves the important item below the fold; the reader acts on what they see, so unbounded completeness is a reliable way to hide the one thing that mattered. |
+| "This turn is just an interim update, so structure does not matter." | An interim update is the turn most likely to be read at a glance, because the reader is waiting. If "tests are running" is the last sentence of a technical dump, they will read the dump looking for an action item that is not there. |
+| "Listing what I did not do tells them what is open." | It tells them a decision exists and nothing else. The reader still has to work out what each item means, what the choices are, and which one you would pick - using less context than you have. A decision block answers all three in four lines. |
+| "They have been following along, so they know the background." | They have been reading conclusions while you read the evidence. Any Open item must read cold, because the person deciding may be doing it hours later, or may be someone else entirely. |
+| "Recommending a choice is overstepping; I should stay neutral." | Neutrality here is abdication. You hold the evidence, so withholding a recommendation pushes judgment onto the person with less of it. Recommend, give the reason, and make the alternative genuinely available. |
+| "I already gave that command earlier in the turn." | The reader sees your closing message, not the middle of the turn, and between the two sit dozens of tool calls and status lines. "Run the command from my earlier message" sends them hunting through scrollback for text they may never find; paste the command again, complete, where you ask for it. |
+| "I labelled it Git Bash, so `&&` is fine." | Users paste into whatever terminal is open, and on Windows that is usually PowerShell 5.1, which rejects `&&` and runs none of the line. The label does not change the shell; write the command for the shell they will actually use. |
+| "`scp` is the standard way to copy a file." | Standard is not the same as working here. If the project's notes record that password `scp` to this host fails, proposing it again costs the user a failed attempt you could have predicted. Read the notes, then use the method they record as working. |
+| "Both commands fit in one block." | They fit on the screen, not in the terminal. When the first line prompts for a password, the terminal feeds the second pasted line in as the answer, so the login fails whatever the user types. A prompting command ends its paste. |
+| "The style guide covers this, so I do not need to." | The guide is a file on disk. It changes nothing unless the response you are composing right now follows it. Run the Verification checklist against the actual text before sending. |
+
+## Verification
+
+- [ ] The first sentence of the response states the outcome, not the process.
+- [ ] Every command block runs exactly as pasted, or is preceded by a REPLACE line naming each token and how to find its value.
+- [ ] Every runnable block names the program and the working directory to run it in.
+- [ ] Every runnable block is followed by an expected-output block, including a marker when the command prints nothing.
+- [ ] A destructive command states what is lost immediately before the block.
+- [ ] No unflagged angle brackets, square brackets, or ALL-CAPS template tokens sit inside a command block.
+- [ ] A response answering a reported error re-issues every remaining step, renumbered, with no back-reference.
+- [ ] Every action the user must take is written out in full where it is asked for (and again in each later message that still asks for it); nothing says "from my earlier message" or "as above".
+- [ ] Every command for the user's own machine parses in their shell (Windows: PowerShell 5.1 unless they named another); no user-facing block contains `&&`, `||`, `<<`, a leading `VAR=`, or `export`.
+- [ ] Every step opens with its machine and terminal, no block mixes two machines, and no prompting command has anything after it in the same paste.
+- [ ] No step asks the user to find a file and paste its contents, and any method for another machine is the one the project's notes record as working.
+- [ ] A task-ending response carries all four labeled parts: Completed, Verified, Open, Next.
+- [ ] The Open part is present even when its content is "nothing outstanding".
+- [ ] Every Open item states what it is in plain language, why it is open, options with consequences, and a recommendation with its reason.
+- [ ] No Open item is a bare "what I did not do" list, and none re-opens a decision the user already settled.
+- [ ] Where only one course is genuinely available, the item says so instead of inventing alternatives.
+- [ ] A turn ending with work still running opens with the status banner and stays under about 8 lines after it.
+- [ ] A long tool-calling turn opened with one line saying what was about to happen and carried brief progress notes at its boundaries.
+- [ ] Formatting matched the reader: lists where multifaceted or asked, plain prose where minimal formatting was requested or the exchange is conversational.
+- [ ] Detail beyond about 5 lines is linked to a `docs/` file, and the question asked is still answered in the response.
+- [ ] Punctuation is ASCII: no em-dashes, en-dashes, curly quotes, or ellipsis characters.
+
+## Related Skills
+
+- `writing-editing` - authors and edits standalone documents; this skill governs live responses instead.
+- `anti-slop-editing` - removes AI-slop patterns from a finished draft; complementary, applied to text you already wrote.
+- `internal-comms` - structured templates for status updates and announcements sent to an audience, rather than one-to-one chat responses.
+- `technical-writer` - audience-appropriate documentation with an information architecture; the document-side counterpart to this contract.
+- `verification-before-completion` - supplies the evidence that the **Verified** part of the closing report is required to carry.

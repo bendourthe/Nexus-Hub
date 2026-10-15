@@ -1,0 +1,12 @@
+{
+  "skill": "web-typography",
+  "purpose": "Route font loading, type scale, wrapping, and truncation here instead of heading semantics or interface wording.",
+  "cases": [
+    {"id": "pos-scale", "prompt": "set a type scale, line-height, and measure for this article", "should_trigger": true, "assert": "routes to web-typography first", "lexical": true},
+    {"id": "pos-fonts", "prompt": "load this variable font with font-display swap and woff2", "should_trigger": true, "assert": "routes to web-typography first", "lexical": true},
+    {"id": "pos-truncate", "prompt": "fix wrapping and truncation on these headings without changing the words", "should_trigger": true, "assert": "routes to web-typography first", "lexical": true},
+    {"id": "neg-outline", "prompt": "fix the heading outline so the page has one h1 and no skipped ranks", "should_trigger": false, "assert": "routes to accessibility-engineering, not here", "lexical": true},
+    {"id": "neg-copy", "prompt": "rewrite these button labels and empty-state copy", "should_trigger": false, "assert": "routes to interface-copy, not here", "lexical": true},
+    {"id": "neg-layout", "prompt": "stack this layout at the compact breakpoint with logical CSS properties", "should_trigger": false, "assert": "routes to layout-and-spacing, not here", "lexical": true}
+  ]
+}

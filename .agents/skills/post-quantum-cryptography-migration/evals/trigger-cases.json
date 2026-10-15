@@ -1,0 +1,48 @@
+{
+  "skill": "post-quantum-cryptography-migration",
+  "purpose": "Route PQC program planning here.",
+  "cases": [
+    {
+      "id": "pos-1",
+      "prompt": "post-quantum migration roadmap",
+      "should_trigger": true,
+      "assert": "routes to post-quantum-cryptography-migration first",
+      "lexical": true
+    },
+    {
+      "id": "pos-2",
+      "prompt": "hybrid Kyber TLS plan",
+      "should_trigger": true,
+      "assert": "routes to post-quantum-cryptography-migration first",
+      "lexical": true
+    },
+    {
+      "id": "pos-3",
+      "prompt": "harvest now decrypt later inventory",
+      "should_trigger": true,
+      "assert": "routes to post-quantum-cryptography-migration first",
+      "lexical": true
+    },
+    {
+      "id": "neg-1",
+      "prompt": "rotate a leaf cert this week",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-2",
+      "prompt": "write a new hash function",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-3",
+      "prompt": "JWT alg none",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    }
+  ]
+}

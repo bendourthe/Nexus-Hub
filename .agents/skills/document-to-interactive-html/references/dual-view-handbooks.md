@@ -1,0 +1,151 @@
+# Interactive reading and presentation contract
+
+This reference owns the shared output, intake, source coverage, and dual-view acceptance contract for presentify and interactive handbooks. Direct skill calls follow it too. `technical-documentation` owns handbook discovery and freshness in its `references/handbook-refresh.md`; `hallmark-design` owns contextual design review; `slide-navigation.md` owns presentation interaction. Reuse those owners instead of defining competing rules in dispatchers.
+
+
+## Slides CLONE the document's figures; they never carry a second copy
+
+Two drawings of one thing diverge on the first edit, and the divergence is
+silent because nobody re-reads the copy. The deck clones at runtime.
+
+Cloning correctly is where the defects live:
+
+1. **Renumber ids in the copy; never strip them.** A figure referencing an arrow marker by id needs that id. Stripping ids made a clone appear to work only because the ORIGINAL was still in the document to resolve against - it renders correctly right up until the original is removed, which is the worst possible failure schedule. Gated as `clone-reference-escapes-slide`, which resolves references WITHIN the slide rather than document-wide, precisely so this case is caught while it still looks fine.
+2. **Rewrite `url(#x)` and `href="#x"` literally, not by regex.** A regex over the serialized markup rewrites ids inside text content and attribute values that merely resemble references.
+3. **Append the container node, not its children.** Appending children loses the container's own attributes, including the `viewBox` every coordinate inside depends on.
+4. **Every clone holder resolves and is non-empty.** An empty holder is an absent figure, and an absent figure on a slide reads as a design choice. Gated as `empty-clone-holder`.
+
+## A slide has nowhere to scroll
+
+Overflow on a page is a scroll. Overflow on a slide is content the reader can
+never reach. Scale an offending slide to fit rather than clipping it.
+
+Gated as `slide-overflow`, measured against the fixed canvas.
+
+## Animation: order follows the narrative, and fill modes collide
+
+**Sequencing.** A step cannot begin before the thing it acts on is drawn.
+Express a group's delay as its start in the narrative, and stamp a per-child
+index from the engine rather than relying on `nth-child` - which broke when a
+list's length changed and animated the last rows first.
+
+**Fill-mode collisions.** A staggering utility that sets `opacity: 0` filling
+FORWARDS, combined with a component animating itself filling BACKWARDS, left
+four tiles permanently invisible in the source project. Nothing in the markup
+shows it. Measuring opacity after the animation window shows it immediately.
+Gated as `invisible-after-animation`.
+
+### Measure while the slide is CURRENT
+
+Every check above is taken with that slide displayed, inside the existing
+per-slide walk, after the animation window has closed.
+
+This is not a stylistic preference. Measured on this repository's own fixture,
+a probe that walks every slide at the end finds NO overflow at all, because
+`getBoundingClientRect` returns zeros inside a `display:none` slide. The defect
+is not over-reported; it is invisible to that measurement. A false alarm gets
+investigated, and a silent miss ships.
+
+
+## Resolve the output before authoring
+
+1. Default to one self-contained offline HTML file opening as a detailed scrolling page. Offer presentation as an additional view within that file. The title and global top menu use **Presentation Mode**; both always enter slide 1. A **Present chapter** control may enter its named chapter. Resume, if supplied, is a separate explicitly named action. An explicit slide deep link may enter that slide; it does not change the global button's behavior.
+2. Resolve only missing preferences. Current explicit flags and session instructions override the retained artifact/project design record; reuse the latter during maintenance. Do not repeat questions the user has answered. A remembered preference for an unrelated artifact is not authorization for network use, spending, or a new design. Record whether each value came from flag, session, retained project setting, answer, or default.
+3. Ask the reading canvas: **Full-width scrolling site**, **Standard scrolling column**, or **Portrait scrolling canvas**, with free-text supported by the host. Remove the standalone slide-deck option. `--layout full|standard|portrait|description` controls the reading page, independently of the presentation stage.
+4. Ask **Include Presentation Mode?** with **Yes (recommended)** and **No**. If yes and unresolved, ask **Presentation theme?** with **Light only**, **Dark only**, or **Random mix of light and dark for visual variety**; then **Presentation depth?** with **Concise and compact**, **Balanced**, or **Deep dive: all main-page content**. Batch independent questions within the host's limits. Theme and depth are conditional on inclusion; do not ask them after No. Random mix is a saved, intentional sequence with varied runs, not a coin toss on each visit or animation.
+5. Keep design direction (Corporate & Professional / Creative & Expressive / Technical & Precise / Surprise me / free text), interactivity (`restrained|balanced|rich|cinematic`), and additional imagery (`none|stock|ai|both`) independent. Inspect supplied assets and references before inventing a brand. Ask unresolved color schemes after extraction, offering three content-derived schemes plus free text; skip when colors are already bound. Offer source-specific section-count/size hints for page coverage after extraction. Main-page `--verbosity distilled|balanced|comprehensive`, presentation depth, and `--qa-depth light|standard|deep` are three separate axes. A request to preserve an entire source binds comprehensive page coverage and deep-dive presentation without another question.
+6. In a genuinely non-interactive run, default to reading view, full-width for slide sources or standard for reports, presentation included, mixed theme, balanced presentation depth, balanced page verbosity, and procedural imagery only. Preserve explicit requirements such as full coverage. An unanswered required question in an interactive session is not consent; continue independent work while awaiting the answer.
+
+## Implementation ownership and evidence boundaries
+
+This contract takes precedence over older mutually exclusive scroll/slide wording during the dual-view rollout. Reconcile those consumers in their owning phase; do not treat a passing legacy draft test as proof that the new runtime exists.
+
+| Concern | Owner | Consumer handoff |
+|---|---|---|
+| Output, storyboard, assembly and shared figures | This reference and the HTML skill | presentify and handbook refresh |
+| Input, focus, fullscreen and motion lifecycle | `slide-navigation.md` | Shared runtime and browser tests |
+| Claim inventory and candidate freshness | `technical-documentation`, `references/handbook-refresh.md` | docs updates and release preparation |
+| Paths and migration | `docs-layout-refactor` | Existing generators keep their source paths |
+| Contextual design and positive references | `hallmark-design` | HTML and format-specific document owners |
+| Prose | `anti-slop-editing` | Authoring and maintenance |
+| General SVG geometry | `svg-diagram-quality.md` | Figure reconstruction |
+| Rendered text, contrast and accessibility | `responsive-typography.md`, `web-typography`, `color-systems`, `accessibility-engineering` | Browser measurements; missing delegates stay uncovered |
+| PowerPoint package and native playback | `pptx-generation` | Same source mapping, themes and slide budget |
+| Fresh evidence and real-boundary exercise | `verification-before-completion`, `functional-verification` | Independent factual, visual and functional verdicts |
+
+Decisions for implementers:
+
+1. The page and deck refer to stable source-unit IDs. Each rendered figure instance gets a distinct DOM/SVG namespace, including marker, gradient, ARIA and link references. Canonical data is immutable; filters and selection belong to each instance.
+2. Fullscreen belongs to the presentation container, including its controls and nested details. A failed request leaves the fitted presentation usable. Native fullscreen exit returns to reading; an explicit fullscreen toggle may retain fitted presentation. In fitted mode, Escape closes a nested modal before the deck. Passive deep links never request fullscreen.
+3. Global entry resets to slide 1; chapter targets and explicitly named Resume are separate. Empty/invalid storyboards leave a readable page with a useful error, never a blank modal. Keyboard composition, editable controls, charts and declared scrolling regions own their native keys.
+4. Source-deck budgets count covers, dividers and appendices. Save explicit omissions for lesser presentation depths; deep dive must map all substantive page units. Reflow inside the budget; neither invisible content nor shrinking below the typography owner's floors repairs overflow.
+5. Axis titles and measured trend-line annotations may rotate where figure semantics require it and measured bounds remain legible. This narrow chart exception does not authorize rotated body labels or guessed geometry.
+6. No-JS and print retain the reading page once. Reduced motion reveals complete explanations instantly; inactive views and hidden documents stop their animation work. Native themed scrollbars and forced-color fallbacks preserve access to declared scroll regions.
+7. Authentic marks, wordmarks and photographs belong to the consuming project. Preserve their proportions, labels and subjects. Neutral fixtures may transfer a failure mechanism, never confidential source facts. Project colors and example-specific thresholds are not global rules.
+8. A deterministic build is reproducibility evidence, not a production-ready verdict. Missing render, source-fidelity or design review remains a non-pass. Evidence names final bytes, source/build dependencies, every expected instance and actual conditions. Share the final standalone file; retain rebuild sources separately.
+
+The neutral foundation under `tests/fixtures/interactive-handbooks/` in the upstream repository has an independent section/slide/figure inventory, two brands and declared negative cases. Its Phase 1 builder deliberately emits only a reading scaffold and storyboard. Phase 2 supplies the runtime, Phase 3 supplies production assembly, and Phase 6 proves the full quality matrix. Do not distribute upstream tests as a dependency of the installed skill.
+
+## Compatibility options
+
+These are command/agent authoring options, not new flags on the optional legacy baseline builder. Resolve and record them before calling existing helpers.
+
+| Input | Resolution |
+|---|---|
+| `--presentation yes|no` | Include or omit the additional view; explicit No wins over theme/depth/legacy slides and records ignored settings |
+| `--presentation-theme light|dark|mixed` | Pins presentation theme; alone implies inclusion |
+| `--presentation-depth concise|balanced|deep-dive` | Pins presentation depth; alone implies inclusion |
+| Legacy `--nav slides`, `using slide navigation`, `as slides` | Include presentation, open in reading view, briefly explain the compatibility mapping |
+| Legacy `--nav scroll` | Open in reading view; does not opt out of presentation |
+| `--mode deck|report|compile` | Source organization, never the initial output view; recognize slide-based PDFs as decks from their structure |
+| Invalid enum | Explain the invalid value and resolve that axis; never silently override a valid explicit preference |
+
+Retain a `presentation` record with `enabled`, `theme`, `depth`, `initial_slide: 1`, the resolved theme sequence, and source-to-slide mapping. Missing fields in older artifacts require migration, not an invented claim that they already satisfy this contract. The existing baseline builder, `design_seed.py`, and structural scorer remain drafting/partial-check helpers; their successful exit is not proof of dual-view delivery.
+
+## Content and composition
+
+- Build both views from shared facts and figure definitions, with independent chart/filter/modal state and unique DOM/SVG IDs. Keep page detail complete at its agreed verbosity. Concise presentation keeps the central findings, balanced covers each major topic, and deep dive covers every main-page content unit, figure, qualification, and appendix. Record omissions and merges for the chosen depth in the authoring ledger, not in executive-facing boilerplate.
+- For an existing deck, including a slide-based PDF, the output logical slide count must not exceed the source slide count. Count covers, dividers, and appendices. Preserve order; merge only where the meaning and evidence survive, recording all source mappings. Do not add continuation slides to fix CSS overflow. Within-slide tabs/builds must be visible and discoverable and cannot conceal required coverage merely to pass the count check. For a non-deck source, establish a presentation budget from content and intended duration before layout.
+- Keep the agenda's original grouping and reading order explicit, with useful links. Design each composition around its evidence: timelines, comparisons, charts, programs, or roles. Neither a uniform heading-plus-three-bullets template nor oversized empty containers meet the design goal. Sparse source dividers can remain dividers, but may be merged in the reading flow with all source anchors retained.
+- Use `figure-reconstruction.md` to reconstruct recoverable charts, maps, timelines, and diagrams as crisp interactive vectors. Preserve values, units, series, legends, labels, relationships, region boundaries, sites/cities, staff categories, and footnotes. Missing text extraction is not evidence that a figure cannot be reconstructed: inspect the rendered source and vector/image objects first. Do not invent unkeyed series, coordinates, precision, or reconcile contradictory source figures silently. An enhanced original is a documented fallback after recovery attempts, not the default shortcut.
+- Preserve photographs and clinical/product imagery with their full meaningful subject, original aspect ratio, appropriate prominence, and accessible enlargement. Use containment when cropping would lose information. Do not replace real photos with synthetic equivalents or enlarge a low-resolution crop as if it were a reconstruction. Wait for image decoding before checking layout.
+
+## Branding and visual rhythm
+
+- Compose a headerless presentation canvas, keeping section context in semantic slide content and navigation in the presentation controls. Place the authentic theme-appropriate mark/wordmark at the upper right only where measured content leaves clear space; omit it when that corner is occupied and avoid duplicating a cover's own lockup. Reflow evidence into the recovered header space. Verify the actual logo position and collisions on every slide, rather than treating asset fidelity alone as brand acceptance.
+- Apply the automatic process/comparison build rules in [slide-navigation.md](slide-navigation.md) to the individual semantic elements before first-build QA. Inspect intermediate playback and recorded targets against the figure's relationships; fading an entire process diagram together does not demonstrate its sequence.
+- Follow the supplied positive references and real brand assets. Reuse vector originals first; when a vector reconstruction is needed, match contours, proportions, gradients, spacing, and wordmark shapes against the source at small and large sizes. Do not substitute typed generic text or a guessed symbol. Provide mark and full lockup variants with legible light/dark treatments. Keep company-specific assets and confidential content local to the project.
+- Use a consistent, visibly sized SVG icon family for play, chevrons, expand, previous/next, and replay. Decorative icons are hidden from assistive technology; controls have accessible action names. Avoid tiny font-dependent arrow characters in navigation.
+- When alternating reading backgrounds is the selected style, assign themes in actual rendered order, including transition banners. Allow light banners between dark sections and dark banners between light sections; do not force all content light to accommodate dark banners. Merged/alias sections do not consume a theme step. Presentation theme policy is independent. Adapt text, diagrams, charts, controls, and focus colors to every chosen surface.
+- Keep reading transitions content-sized. Avoid adjacent redundant banners; merge their hierarchy while retaining anchors and chapter entry targets. Full-bleed waves and other decorative vectors extend past canvas edges without visible interior cutoffs. Check their animated extremes at several aspect ratios; an isolated settled screenshot does not prove continuity.
+- Style native scrollbars with transparent tracks and visible, rounded, theme-matched thumbs, including hover/focus treatment where supported. Retain wheel, touch, keyboard scrolling and forced-color accessibility. Use standard scrollbar properties with browser-specific enhancement, never hide scrollbars to mask overflow.
+- Apply the contextual and positive quality gates in `hallmark-design`. Gradients, rounded corners, motion, dramatic typography, and color variation are tools, not automatic violations. Removing them all can produce another failed design. Preserve the reference's deliberate character while fixing repetition, weak contrast, arbitrary decoration, and poor composition. No rule or score can certify that work is undetectably AI-generated.
+
+## Verify the delivered bytes
+
+1. Retain source inventory, coverage mapping, extracted/verified figure data, authored content model, brand assets, CSS/JS, build entry point, resolved options, and fingerprints. Rebuilding must use these retained inputs; a freshness `--check` is read-only and must not silently invoke generation. Do not impose a new framework or relocate an existing project generator unnecessarily.
+2. Audit all slides for source coverage and the count ceiling. Inspect every reading section and presentation slide, including adjacent section boundaries, agenda ordering, charts/maps/diagrams, images, and animated intermediate states. Compare visual quality to the supplied reference, not only a structural score. Keep factual, visual, and functional verdicts separate.
+3. Measure fitted desktop slides within the viewport after subtracting navigation chrome. Exercise 2560x1300, 1920x1080, 1366x768, 1024x640, and the implemented breakpoint boundaries on either side, with at least one intermediate aspect/height. Check every slide at each supported desktop size. Check reading/compact mode at 390x844 and relevant tablet boundaries. Compact reflow and component-local scrolling may be intentional and documented; desktop stage overflow, clipping, or unreadable text shrinking are failures. Hidden overflow is not a repair.
+4. Exercise real controls: title/global entry resets to slide 1 after deep scrolling and after a previous deck session; chapter entry targets the right slide; previous/next/Home/End, deep links/history, replay, full-screen entry/exit and denial, nested modal Escape/focus return, chart controls, map search/filter/keyboard selection, photo enlargement, and reduced motion. Deck shortcuts must disengage inside controls. Closing presentation restores reading position and focus; hidden views must not remain keyboard-active or animate offscreen.
+5. Open the actual single file offline and assert zero outbound requests, no console errors, decoded images, and readable no-JS and print fallbacks. Browser unavailability or an exhausted repair budget means a qualified non-pass with unverified checks listed, never a production-ready claim.
+6. Store evidence with final artifact hashes and rerun affected checks after edits. Do not restamp old screenshots as new verification. One-shot delivery means one user invocation with internal build, inspect, repair, and verify iterations; it does not mean accepting the first generated markup.
+
+Before dismissing a detector finding, read its owning installed HTML rule, such as `html/responsive-layout.md` for width findings. Retain the raw finding, the applicable rule exception and the rendered evidence that establishes it. Intentional styling alone is not an exception. If the owner forbids the construction, correct it and rerun; if the detector misrepresents painted geometry, retain the reproduction for independent adjudication. Record each slide's brand presence or measured occupied-space reason for omission rather than silently treating an omitted brand as covered.
+
+Verify an actual printed PDF as well as print-media geometry. Preserve the approved reading palette, or remap the complete palette including nested code and SVG labels; changing only a section background can leave light text on white. Semantic image buttons, legend names and map-directory entries remain visible, scrolling regions expand, and closed details expose their data tables. Hide action-only controls without hiding their content. Repeat the print fallback with JavaScript disabled and inspect the exported pages for missing content and contrast.
+
+## Retained authoring and measured fit
+
+Authoring emits the model, source-unit map, source inventory, figure worksheet, asset ledger, theme decisions and optional passive HTML/CSS fragments. `content-model.md` defines the accepted retained fields and build/check behavior. The default renderer is an assembly seam, not a substitute for a visual brief. Preserve stable IDs and saved mixed themes when adding content; merge reading banners before assigning the visible reading theme sequence. Record explicit source status (implemented, proposed, unavailable or contradictory) in the content rather than quietly resolving conflicts.
+
+Name each composition's intent before fitting: comparison, causal flow, editorial explanation, source table, visual index or purposeful divider. Measure regions independently: text column, figure column, actual painted plot, labels, legends and whitespace around those elements. Include descendant bounds and SVG painted geometry; a large empty SVG viewBox is not occupied evidence area. Keep legend actions outside the centered chip row. Store per-instance measurements, applicability, and min/mean/max for the inspected population; never substitute a fixed example count.
+
+Fitting is bidirectional. Retain the best layout that satisfies the source budget and rendered type floors; expand a needlessly small chart when space permits, and recompose columns or disclosed within-slide states when content collides. Occupied area, plot area and vertical span are diagnostics, not mandatory numeric fill thresholds. Do not globally shrink a fixed canvas, clip overflow, add slides, omit source units or hide controls to improve a score. At declared compact widths, use readable reflow and explicit component scrolling. At fitted desktop sizes the stage itself must not scroll.
+
+Measure after fonts are ready and images have decoded. Inspect named viewports, both neighbors of every implemented breakpoint, and animation extremes. Recheck the complete source-to-page-to-slide/state map after any merge or reflow. If coverage, budget and readable fit cannot coexist, retain the last valid composition and report the unresolved conflict; do not stamp a pass.
+
+For source-backed numbers rendered as DOM text in a presentation slide, add `source_values` to the independent measurement inventory, for example `[{"slide_id":"visits","selector":"[data-total]","text":"31"}]`. Derive the exact expected text from the source model, not from the generated HTML. `measure_handbook.py` watches text mutations and samples animation frames while the mapped slide is active, rejecting any observed visible value that differs from the expected text, including one briefly revealed by a style change between its initial, mid and final checkpoints. A missing or ambiguous selector is unverified; absent mappings report `source_value_guard: unchecked`. This guard does not inspect canvas pixels, prove that every sourced number was mapped, or validate the source computation; those claims require the figure worksheet and attestation.
+
+For presentation controls, declare `control_behaviors` independently of the generated HTML, for example `[{"slide_id":"visits","control":"#series-toggle","before":{"selector":"#series-marks","css":"display","value":"inline"},"after":{"selector":"#series-marks","css":"display","value":"none"}}]`. A state may instead use exact `text`, or `attribute` plus `value`; both states must name the same target and property with different expected values. An optional `setup` list clicks controls in order before checking `before`, so an idempotent Reset can be tested from a changed state. `measure_handbook.py` opens each declared control on its own fresh Chromium page at 1366x768 with reduced motion, activates its named slide, confirms the precondition, clicks the control, and checks the intended outcome. A missing mapping reports `control_behavior_guard: unchecked`; a `pass` covers only the declared controls, not every rendered control, keyboard path, viewport, or correctness of the author's expected outcome. Derive expected behavior from the storyboard or source and retain a separate complete control inventory before claiming generic liveness coverage.
+
+Use hallmark-design's `references/cross-format-patterns.md` for positive comparisons and contextual design review. Semantic headings need not form a repeated visible header bar. Source dividers can be content-sized in reading view while preserving the source identity and ordered chapter targets. Appropriate curves, soft depth and motion remain available; no rule mandates blandness.

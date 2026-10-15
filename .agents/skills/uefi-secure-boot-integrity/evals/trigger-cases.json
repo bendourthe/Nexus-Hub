@@ -1,0 +1,48 @@
+{
+  "skill": "uefi-secure-boot-integrity",
+  "purpose": "Route Secure Boot/dbx verification here.",
+  "cases": [
+    {
+      "id": "pos-1",
+      "prompt": "Secure Boot verification on the fleet",
+      "should_trigger": true,
+      "assert": "routes to uefi-secure-boot-integrity first",
+      "lexical": true
+    },
+    {
+      "id": "pos-2",
+      "prompt": "dbx revocation status",
+      "should_trigger": true,
+      "assert": "routes to uefi-secure-boot-integrity first",
+      "lexical": true
+    },
+    {
+      "id": "pos-3",
+      "prompt": "UEFI integrity check",
+      "should_trigger": true,
+      "assert": "routes to uefi-secure-boot-integrity first",
+      "lexical": true
+    },
+    {
+      "id": "neg-1",
+      "prompt": "write a bootkit",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-2",
+      "prompt": "TPM quote policy only",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-3",
+      "prompt": "extract a router firmware",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    }
+  ]
+}

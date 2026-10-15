@@ -1,0 +1,48 @@
+{
+  "skill": "ics-protocol-anomaly-detection",
+  "purpose": "Route ICS protocol detections here; send plant-wide IR and IT hunts elsewhere.",
+  "cases": [
+    {
+      "id": "pos-1",
+      "prompt": "Modbus function-code anomaly rules",
+      "should_trigger": true,
+      "assert": "routes to ics-protocol-anomaly-detection first",
+      "lexical": true
+    },
+    {
+      "id": "pos-2",
+      "prompt": "DNP3 outstation scan detection",
+      "should_trigger": true,
+      "assert": "routes to ics-protocol-anomaly-detection first",
+      "lexical": true
+    },
+    {
+      "id": "pos-3",
+      "prompt": "OPC-UA unauthorized method alert",
+      "should_trigger": true,
+      "assert": "routes to ics-protocol-anomaly-detection first",
+      "lexical": true
+    },
+    {
+      "id": "neg-1",
+      "prompt": "IT NetFlow threat hunt",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-2",
+      "prompt": "NERC CIP audit evidence binder",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-3",
+      "prompt": "exploit a PLC I do not own",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    }
+  ]
+}

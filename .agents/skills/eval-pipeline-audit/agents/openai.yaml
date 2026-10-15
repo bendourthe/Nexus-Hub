@@ -1,0 +1,4 @@
+interface:
+  display_name: Eval Pipeline Audit
+  short_description: Audit an existing LLM or RAG evaluation pipeline end to end, produce a gap matrix over ten evaluation concerns, and route each gap to the skill that owns the fix. Use when an evaluation
+    suite exists and its trustworthiness is in question.

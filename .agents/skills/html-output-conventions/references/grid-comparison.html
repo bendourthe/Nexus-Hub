@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Grid comparison layout</title>
+<!--
+  Reference template: N-way comparison grid.
+  Use when an artifact compares several options/designs/approaches side by side
+  (e.g. "here are 6 candidate layouts"). Self-contained: no external CSS/JS.
+  Replace the cards with the actual options; keep the grid responsive.
+-->
+<style>
+  :root {
+    --ink: #1c1f26;
+    --muted: #5b626e;
+    --line: #e2e5ea;
+    --bg: #fbfbfc;
+    --accent: #2f6f4f;
+    --space: 8px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.55;
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: calc(var(--space) * 5) calc(var(--space) * 3); }
+  h1 { font-size: 1.5rem; margin: 0 0 calc(var(--space)); }
+  .lede { color: var(--muted); margin: 0 0 calc(var(--space) * 4); max-width: 62ch; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: calc(var(--space) * 2);
+  }
+  .card {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+    padding: calc(var(--space) * 2);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space);
+  }
+  .card h2 { font-size: 1rem; margin: 0; }
+  .card .tag {
+    align-self: flex-start;
+    font-size: 0.75rem;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    padding: 1px calc(var(--space));
+  }
+  dl { margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: 2px calc(var(--space)); font-size: 0.875rem; }
+  dt { color: var(--muted); }
+  dd { margin: 0; }
+</style>
+</head>
+<body>
+  <main class="wrap">
+    <h1>Candidate approaches</h1>
+    <p class="lede">Each option is shown with the same attribute set so they can be scanned column by column. Vary emphasis, not card width, to signal a recommendation.</p>
+    <section class="grid" aria-label="Comparison of options">
+      <article class="card">
+        <span class="tag">Recommended</span>
+        <h2>Option A</h2>
+        <dl>
+          <dt>Effort</dt><dd>Low</dd>
+          <dt>Risk</dt><dd>Low</dd>
+          <dt>Notes</dt><dd>Reuses existing module seam.</dd>
+        </dl>
+      </article>
+      <article class="card">
+        <h2>Option B</h2>
+        <dl>
+          <dt>Effort</dt><dd>Medium</dd>
+          <dt>Risk</dt><dd>Medium</dd>
+          <dt>Notes</dt><dd>Needs a new dependency.</dd>
+        </dl>
+      </article>
+      <article class="card">
+        <h2>Option C</h2>
+        <dl>
+          <dt>Effort</dt><dd>High</dd>
+          <dt>Risk</dt><dd>Low</dd>
+          <dt>Notes</dt><dd>Most flexible, slowest to ship.</dd>
+        </dl>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

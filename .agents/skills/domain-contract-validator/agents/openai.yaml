@@ -1,0 +1,3 @@
+interface:
+  display_name: Domain Contract Validator
+  short_description: Define and enforce business rule assertions as automated checks using contract testing, schema validation, and invariant verification.

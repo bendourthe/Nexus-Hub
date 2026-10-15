@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Interactive tuning with copy-as-JSON</title>
+<!--
+  Reference template: interactive tuning interface that round-trips state back
+  to the agent via a "Copy as JSON" control. The form carries
+  data-nexus-artifact="true" so the Nexus desktop shell's InteractiveArtifact
+  wrapper (Phase 6.3) can render the copy control and serialize state. This
+  standalone file also ships its own copy button + script so it is runnable on
+  its own outside the shell. Self-contained: no external CSS/JS.
+
+  Scope guard: this is a controlled form-state collector only. No script
+  execution beyond reading the form's own inputs; no general HTML editor.
+-->
+<style>
+  :root { --ink: #1c1f26; --muted: #5b626e; --line: #e2e5ea; --accent: #2f6f4f; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--ink); background: #fbfbfc; line-height: 1.55; }
+  .wrap { max-width: 560px; margin: 0 auto; padding: 40px 24px; }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  .lede { color: var(--muted); margin: 0 0 28px; }
+  .field { margin-bottom: 20px; }
+  .field label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 4px; }
+  .field .row { display: flex; align-items: center; gap: 12px; }
+  input[type="range"] { flex: 1; }
+  output { font-variant-numeric: tabular-nums; min-width: 3ch; text-align: right; color: var(--muted); }
+  .check { display: flex; align-items: center; gap: 8px; }
+  .actions { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
+  button { font: inherit; font-weight: 600; padding: 8px 14px; border-radius: 6px; border: 1px solid var(--accent); background: var(--accent); color: #fff; cursor: pointer; }
+  button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .toast { color: var(--accent); font-size: 0.875rem; opacity: 0; transition: opacity 160ms; }
+  .toast.show { opacity: 1; }
+  @media (prefers-reduced-motion: reduce) { .toast { transition: none; } }
+</style>
+</head>
+<body>
+  <main class="wrap">
+    <h1>Sampler tuning</h1>
+    <p class="lede">Adjust the controls, then copy the state as JSON to hand it back to the agent.</p>
+    <form data-nexus-artifact="true" id="tuning">
+      <div class="field">
+        <label for="temperature">Temperature</label>
+        <div class="row">
+          <input type="range" id="temperature" name="temperature" min="0" max="2" step="0.05" value="1" oninput="document.getElementById('temperatureOut').value = this.value" />
+          <output id="temperatureOut" for="temperature">1</output>
+        </div>
+      </div>
+      <div class="field">
+        <label for="top_p">Top-p</label>
+        <div class="row">
+          <input type="range" id="top_p" name="top_p" min="0" max="1" step="0.01" value="0.95" oninput="document.getElementById('topPOut').value = this.value" />
+          <output id="topPOut" for="top_p">0.95</output>
+        </div>
+      </div>
+      <div class="field">
+        <label for="top_k">Top-k</label>
+        <div class="row">
+          <input type="range" id="top_k" name="top_k" min="1" max="100" step="1" value="64" oninput="document.getElementById('topKOut').value = this.value" />
+          <output id="topKOut" for="top_k">64</output>
+        </div>
+      </div>
+      <div class="field check">
+        <input type="checkbox" id="thinking" name="thinking" checked />
+        <label for="thinking" style="margin:0;font-weight:400;">Enable thinking mode</label>
+      </div>
+      <div class="actions">
+        <button type="button" id="copyJson">Copy as JSON</button>
+        <span class="toast" id="toast" role="status" aria-live="polite">Copied to clipboard</span>
+      </div>
+    </form>
+  </main>
+  <script>
+    (function () {
+      var form = document.getElementById("tuning");
+      var btn = document.getElementById("copyJson");
+      var toast = document.getElementById("toast");
+      function collect() {
+        var state = {};
+        form.querySelectorAll("input[name]").forEach(function (el) {
+          if (el.type === "checkbox") state[el.name] = el.checked;
+          else if (el.type === "range") state[el.name] = Number(el.value);
+          else state[el.name] = el.value;
+        });
+        return state;
+      }
+      btn.addEventListener("click", function () {
+        var json = JSON.stringify(collect(), null, 2);
+        var done = function () { toast.classList.add("show"); setTimeout(function () { toast.classList.remove("show"); }, 1600); };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(json).then(done, done);
+        } else {
+          done();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

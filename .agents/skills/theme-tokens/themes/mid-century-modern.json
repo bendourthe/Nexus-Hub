@@ -1,0 +1,24 @@
+{
+  "name": "mid-century-modern",
+  "label": "Mid-century Modern",
+  "description": "Mustard, teal, and cream with geometric sans and gentle radius; brand-neutral retro aesthetic.",
+  "palette": {
+    "primary": "#1d6e6e",
+    "secondary": "#d4a017",
+    "accent": "#c54b3c",
+    "background": "#f4ead5",
+    "foreground": "#1f1f1a",
+    "muted": "#7a6f5a"
+  },
+  "fonts": {
+    "heading": "'Work Sans', 'Futura', 'Inter', system-ui, sans-serif",
+    "body": "'Work Sans', 'Inter', system-ui, sans-serif",
+    "mono": "'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace"
+  },
+  "spacing": {
+    "base": 8,
+    "scale": [0.5, 1, 1.5, 2, 3, 4, 6, 8]
+  },
+  "radius": 6,
+  "shadow": "0 1px 4px rgba(29, 110, 110, 0.10)"
+}

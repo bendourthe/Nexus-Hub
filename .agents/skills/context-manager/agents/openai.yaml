@@ -1,0 +1,3 @@
+interface:
+  display_name: Context Manager
+  short_description: Map large codebases for multi-file changes by tracing file relationships, dependencies, and change impact into a context map. Use for unfamiliar repositories and cross-file edits. SKIP - token budgets, compaction, or session handoffs.

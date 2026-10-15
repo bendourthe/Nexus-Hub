@@ -1,0 +1,14 @@
+{
+  "skill": "agent-execution-isolation",
+  "purpose": "Route OS-level agent sandboxing, Landlock/seccomp, egress-proxy, and in-container credential isolation here; send host config-write escapes, agent-applied redaction, and generic Dockerfiles elsewhere.",
+  "cases": [
+    {"id": "pos-sandbox-ssh", "prompt": "how do I sandbox my coding agent so it can't read my SSH keys", "should_trigger": true, "assert": "routes to agent-execution-isolation first", "lexical": true},
+    {"id": "pos-egress-proxy", "prompt": "set up an egress proxy so my agent can't exfiltrate data", "should_trigger": true, "assert": "routes to agent-execution-isolation first", "lexical": true},
+    {"id": "pos-keys-out-of-container", "prompt": "keep real API keys out of the agent's container", "should_trigger": true, "assert": "routes to agent-execution-isolation first", "lexical": true},
+    {"id": "pos-landlock-seccomp", "prompt": "apply Landlock and seccomp so the agent process cannot open extra files or issue extra syscalls", "should_trigger": true, "assert": "routes to agent-execution-isolation first", "lexical": true},
+    {"id": "pos-isolate-container", "prompt": "isolate the agent container with network namespaces and ephemeral per-session mounts", "should_trigger": true, "assert": "routes to agent-execution-isolation first", "lexical": true},
+    {"id": "neg-config-write-escape", "prompt": "can the agent escape its sandbox by writing a config file that gets executed later", "should_trigger": false, "assert": "routes to agentic-endpoint-hardening, not here", "lexical": true},
+    {"id": "neg-redact-before-send", "prompt": "redact sensitive data before sending it across a trust boundary", "should_trigger": false, "assert": "routes to egress-redaction, not here", "lexical": true},
+    {"id": "neg-generic-dockerfile", "prompt": "write a multi-stage Dockerfile with a distroless runtime and image scanning for this API service", "should_trigger": false, "assert": "routes to containerization, not here", "lexical": true}
+  ]
+}

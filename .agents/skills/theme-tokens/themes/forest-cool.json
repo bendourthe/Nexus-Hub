@@ -1,0 +1,24 @@
+{
+  "name": "forest-cool",
+  "label": "Forest Cool",
+  "description": "Deep green primary, sage accent, parchment background; suits sustainability and slow-living content.",
+  "palette": {
+    "primary": "#2f4a36",
+    "secondary": "#5a7a5f",
+    "accent": "#8a9a64",
+    "background": "#f5f1e6",
+    "foreground": "#1a2a1f",
+    "muted": "#6b7a68"
+  },
+  "fonts": {
+    "heading": "'Lora', 'Cormorant Garamond', Georgia, serif",
+    "body": "'Lora', 'Source Serif Pro', Georgia, serif",
+    "mono": "'JetBrains Mono', 'Fira Code', ui-monospace, monospace"
+  },
+  "spacing": {
+    "base": 8,
+    "scale": [0.5, 1, 1.5, 2, 3, 4, 6, 8]
+  },
+  "radius": 6,
+  "shadow": "0 1px 3px rgba(47, 74, 54, 0.10)"
+}
