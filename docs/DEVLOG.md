@@ -8,6 +8,7 @@ Releases from v3.0.0 onward each carry their own line. Earlier releases predate 
 
 | Date | Version | Summary | Plan | History | Gaps |
 |---|---|---|---|---|---|
+| 2026-10-15 | v4.13.13 | Gemini usage monitor, self-dismissing usage alerts, installer download retries, plans kept on develop, and split Windows CI. | - | [Changelog](../CHANGELOG.md#41313---2026-10-15) | [Gaps](releases/v4/v4.14/known-gaps.md) |
 | 2026-10-13 | v4.13.12 | Host approval modes, monitor label, candidate attribution and verified minor finalization. | - | [Qualification](archives/v4/v4.13/development/v4.13.12-release-qualification.md) | [Gaps](releases/v4/v4.14/known-gaps.md) |
 | 2026-10-13 | v4.13.11 | Known-gap fixes, platform delivery preservation, usage-credit decisions, and verified release qualification. | [Plan](archives/v4/v4.13/plans/v4.13.11-known-gaps-sweep-and-minor-close.md) | [History](archives/v4/v4.13/development/history/) | [Gaps](archives/v4/v4.13/known-gaps.md) |
 | 2026-09-21 | v4.13.0 | Evidence-driven agent improvement: measured skill selection, five negative-controlled capabilities, integration-first release sequencing, guide typography, and one-minor-behind history archiving. | [Plan](archives/v4/v4.13/plans/v4.13.0-adoption-evidence-driven-agent-improvement.md) | [History](archives/v4/v4.13/development/history/) | [Gaps](archives/v4/v4.13/known-gaps.md) |
