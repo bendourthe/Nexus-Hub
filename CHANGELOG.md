@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Claude, Codex, GitHub Copilot and Cursor usage-alert sidebar views dismiss automatically after one minute. A new alert gets a fresh minute, and manual dismissal cancels its timer.
 - The Windows PowerShell 5.1 installer and validator tests run in their own `tests-windows-installer` CI job. Inside `tests-windows` the group measured 3534 s of the job's 3600 s limit and timed out twice. The installer and validator corpora also run as separate commands, since together they exceeded their own 1800 s command bound. Coverage, edition and the `ci-required` aggregate are unchanged.
 - The Windows validator command dumps every thread's stack when a single test runs past 300 s (pytest's built-in `faulthandler_timeout`), so an intermittent stall that previously ran silently to the 1800 s bound now names its test and line.
+- The Windows validator tests run as two commands split by file name and balanced by measured time, each with its own 1800 s bound. The single command took 1198-1673 s on passing runs and ran past 1800 s on four others with no test stalled, so the bound, not a hang, was the failure. A contract test proves every validator file runs in exactly one half.
 
 ### Changed
 
