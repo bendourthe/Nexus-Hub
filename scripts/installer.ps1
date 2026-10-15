@@ -2502,9 +2502,10 @@ function Invoke-RegistryPlatform {
 
 function Install-VSCodeExtensions {
     param ($RepoRoot)
-    Write-Item -Message "Usage Monitor extensions show Claude Code, Codex (ChatGPT), GitHub Copilot, and" -Color "White"
-    Write-Item -Message "Cursor usage in the status bar. Claude/Codex install into VS Code only; Copilot" -Color "White"
+    Write-Item -Message "Usage Monitor extensions show Claude Code, Codex (ChatGPT), GitHub Copilot," -Color "White"
+    Write-Item -Message "Cursor, and Antigravity usage in the status bar. Claude/Codex install into VS Code only; Copilot" -Color "White"
     Write-Item -Message "into VS Code and Cursor; Cursor Usage Monitor into Cursor only." -Color "White"
+    Write-Item -Message "Gemini Usage Monitor installs into the Antigravity IDE only." -Color "White"
     Write-Host ""
 
     # Check for Node.js (shared by every extension)
@@ -2608,12 +2609,40 @@ function Install-VSCodeExtensions {
         }
     }
 
+    # Antigravity IDE launcher (the VS Code-style CLI that accepts
+    # --install-extension). Never `agy`: that is the Antigravity agent CLI and
+    # cannot install a VSIX. Recent builds name the launcher antigravity-ide and
+    # older ones antigravity; both installs share ~/.antigravity-ide, so either
+    # puts the monitor where the running IDE reads it.
+    $antigravityCli = $null
+    $antigravityLabel = "Antigravity"
+    if (Get-Command "antigravity-ide" -ErrorAction SilentlyContinue) {
+        $antigravityCli = "antigravity-ide"
+    }
+    elseif (Get-Command "antigravity" -ErrorAction SilentlyContinue) {
+        $antigravityCli = "antigravity"
+    }
+    else {
+        $antigravityCandidates = @(
+            "$env:LOCALAPPDATA\Programs\Antigravity IDE\bin\antigravity-ide.cmd",
+            "$env:LOCALAPPDATA\Programs\Antigravity\bin\antigravity-ide.cmd",
+            "$env:LOCALAPPDATA\Programs\Antigravity\bin\antigravity.cmd"
+        )
+        foreach ($candidate in $antigravityCandidates) {
+            if ($candidate -and (Test-Path $candidate)) {
+                $antigravityCli = $candidate
+                break
+            }
+        }
+    }
+
     # Build each extension under its own vendor header. The Claude and Codex
     # monitors install only via $vscodeCli; the Copilot monitor installs via
     # $vscodeCli and, as its second host, $cursorCli (Copilot runs in Cursor too);
-    # the Cursor monitor installs only via $cursorCli. The
-    # vendor order (Anthropic, OpenAI, Microsoft, Anysphere) is asserted by the
-    # installer smoke test and must match scripts/installer.sh.
+    # the Cursor monitor installs only via $cursorCli; the Gemini monitor installs
+    # only via $antigravityCli. The vendor order (Anthropic, OpenAI, Microsoft,
+    # Anysphere, Google) is asserted by the installer smoke test and must match
+    # scripts/installer.sh.
     Write-Header -Provider "ANTHROPIC"
     Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\claude-usage-monitor") -ExtensionId "nexus-hub.claude-usage-monitor" -DisplayName "Claude Usage Monitor" -StatusHint "Claude: --%" -CodeCli $vscodeCli -CodeLabel $vscodeLabel
 
@@ -2625,6 +2654,9 @@ function Install-VSCodeExtensions {
 
     Write-Header -Provider "ANYSPHERE"
     Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\cursor-usage-monitor") -ExtensionId "nexus-hub.cursor-usage-monitor" -DisplayName "Cursor Usage Monitor" -StatusHint "Cursor: --%" -CodeCli $cursorCli -CodeLabel $cursorLabel
+
+    Write-Header -Provider "GOOGLE"
+    Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\gemini-usage-monitor") -ExtensionId "nexus-hub.gemini-usage-monitor" -DisplayName "Gemini Usage Monitor" -StatusHint "Gemini Usage: --" -CodeCli $antigravityCli -CodeLabel $antigravityLabel
 
     # Restore strict error mode
     $ErrorActionPreference = $savedErrorPref

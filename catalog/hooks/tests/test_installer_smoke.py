@@ -254,6 +254,9 @@ USAGE_MONITORS = (
     # Actions allowance the withdrawn monitor had to reconstruct.
     ("copilot-usage-monitor", "nexus-hub.copilot-usage-monitor", "Copilot Usage Monitor"),
     ("cursor-usage-monitor", "nexus-hub.cursor-usage-monitor", "Cursor Usage Monitor"),
+    # The Gemini monitor reads Antigravity's own local language server, so it
+    # installs into the Antigravity IDE only (Google, after Anysphere).
+    ("gemini-usage-monitor", "nexus-hub.gemini-usage-monitor", "Gemini Usage Monitor"),
 )
 
 #: Monitors that install into VS Code only (Claude, Codex).
@@ -261,7 +264,8 @@ VS_CODE_USAGE_MONITORS = USAGE_MONITORS[:2]
 #: Monitors that install into VS Code AND, as a second host, into Cursor. Copilot
 #: runs inside Cursor too, so its monitor is supported there (v4.13.11, WN-30).
 DUAL_HOST_USAGE_MONITORS = (USAGE_MONITORS[2],)
-CURSOR_USAGE_MONITOR = USAGE_MONITORS[-1]
+CURSOR_USAGE_MONITOR = USAGE_MONITORS[3]
+ANTIGRAVITY_USAGE_MONITOR = USAGE_MONITORS[4]
 
 #: Extensions a previous release installed that the installers must now UNINSTALL.
 #: Unshipping alone is not enough: an extension already on a user's machine keeps
@@ -452,6 +456,40 @@ def test_installers_isolate_vscode_and_cursor_hosts():
             'write_header "ANYSPHERE"' in body
             or 'Write-Header -Provider "ANYSPHERE"' in body
         ), f"{path.name} must present the Cursor monitor under an ANYSPHERE vendor header"
+
+
+def test_installers_route_the_gemini_monitor_to_antigravity_only():
+    """The Gemini monitor reads Antigravity's local language server, so it is
+    useless anywhere else: it must install through the Antigravity IDE launcher
+    alone, never through the VS Code or Cursor CLI. Detection must also never
+    pick ``agy``, the Antigravity agent CLI, which cannot install a VSIX.
+    """
+    for path in (INSTALLER_SH, INSTALLER_PS1):
+        body = path.read_text(encoding="utf-8")
+        if path is INSTALLER_SH:
+            start, cli = body.index('local antigravity_cli=""'), "antigravity_cli"
+        else:
+            start, cli = body.index("$antigravityCli = $null"), "antigravityCli"
+        detection = body[start : body.index("# Build each extension under its own vendor header", start)]
+        assert "antigravity-ide" in detection, f"{path.name} must look for the antigravity-ide launcher"
+        assert "agy" not in detection.replace("antigravity", ""), (
+            f"{path.name} must not use the agy agent CLI to install a VSIX"
+        )
+        for foreign in ("code.cmd", "cursor.cmd", "Cursor.app", "Visual Studio Code"):
+            assert foreign not in detection, f"{path.name} must not list {foreign} as an Antigravity launcher"
+
+        _, gemini_id, _ = ANTIGRAVITY_USAGE_MONITOR
+        idx = body.index(gemini_id)
+        window = body[idx : body.index("\n", idx)]
+        assert cli in window, f"{path.name} must pass the Antigravity launcher into {gemini_id} install"
+        for other in ("vscode_cli", "vscodeCli", "cursor_cli", "cursorCli", "AlsoCodeCli"):
+            assert other not in window, f"{path.name} must not pass {other} into {gemini_id} install"
+        assert 'write_header "GOOGLE"' in body or 'Write-Header -Provider "GOOGLE"' in body, (
+            f"{path.name} must present the Gemini monitor under a GOOGLE vendor header"
+        )
+        assert "Gemini Usage Monitor installs into the Antigravity IDE only." in body, (
+            f"{path.name} banner must state that the Gemini monitor is Antigravity only"
+        )
 
 
 def test_installer_banners_state_the_copilot_monitor_hosts():
