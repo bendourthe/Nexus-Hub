@@ -27,6 +27,7 @@ SIBLING_MONITOR_WORKFLOWS = (
     WORKFLOW_DIR / "claude-usage-monitor.yml",
     WORKFLOW_DIR / "codex-usage-monitor.yml",
     WORKFLOW_DIR / "cursor-usage-monitor.yml",
+    WORKFLOW_DIR / "gemini-usage-monitor.yml",
 )
 
 # PyYAML reads the bare key ``on`` as the boolean True.

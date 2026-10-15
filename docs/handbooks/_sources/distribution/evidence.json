@@ -5,8 +5,8 @@
       "docs/handbooks/_sources/distribution/model.json": "3f3b9e1222a51583962e4de248d9ac74804b03a2b3102605e8e1911c8ea3496d",
       "docs/handbooks/_sources/distribution/source.md": "495f2edd8b5046d38801c6e675385cc500b552da8231a381ff5e811db62721fa",
       "docs/handbooks/_sources/distribution/design.css": "4d2975128abe327205e8b3c4fd62d351644221e9e03bfbaa539986f3cc1b9a70",
-      "scripts/installer.ps1": "0afc5a1e186706e746edcecff343b9aefd3b857c9a81163b7ce9f57606b49143",
-      "scripts/installer.sh": "b461538cef87ea029b0c367c297dbc92de8db83715456b84964cf533fe1d5847",
+      "scripts/installer.ps1": "11c4f5f82f4e5a69f163aadaf07a9062ee3a6675fe8c366a69f15d95a978da64",
+      "scripts/installer.sh": "1b44b824b62f781fbc6a8a495c8f9363fb694ceeb7aed82fdad30cb14e0e4fbd",
       "scripts/lib/integrations/runner.py": "5429ec6c9896b95285effe8215b2d3ca291c920bad6ccf8dec0ffa93cca7b78f",
       "scripts/lib/integrations/_catalog_adapters.py": "6a8e0f1375df9ae401302b1b13a1559f093d7aecd0c5ae0c134f9dddad162647",
       "scripts/lib/integrations/_owned.py": "abfac9b0161e9148e236532b85a854bf512c3100bc5f39fed7e8474e7fd727e4",
@@ -31,8 +31,8 @@
   "checks": {
     "content": {
       "status": "pass",
-      "evidence": "docs/archives/v4/v4.13/development/v4.13.11-phase-8-handbook-claim-review.md",
-      "evidence_sha256": "8997340e27652cf321896461b922b0bb901a6d9cb4532ea810fd4db90bf54ca3"
+      "evidence": "docs/releases/v4/v4.14/development/gemini-usage-monitor-handbook-claim-review.md",
+      "evidence_sha256": "a65daeaae81c6127df20ad8fcb7cfd05a994dd77198849d1f613d6ddb0dde0e6"
     },
     "build": {
       "status": "pass",
