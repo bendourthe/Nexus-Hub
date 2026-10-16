@@ -482,24 +482,46 @@ def test_the_2d_renderer_can_be_forced_and_plays(browser, how: str) -> None:
         pg.close()
 
 
-def test_touch_controls_start_and_move(browser) -> None:
+def test_holding_a_finger_on_the_arena_starts_steers_and_fires(browser) -> None:
+    """Touch play: a held finger starts the run, fires constantly, and the ship follows the finger."""
     ctx = browser.new_context(viewport={"width": 390, "height": 844}, has_touch=True, is_mobile=True)
     pg = ctx.new_page()
     try:
         pg.goto(TRAINING.as_uri() + "#play-fixed")
         pg.wait_for_function("window.SkySentinel && SkySentinel.get('fixed')")
         pg.evaluate("SkySentinel.manual(true); SkySentinel.get('fixed').configure({ defects: {}, seed: 21, threats: false })")
-        left = pg.locator(".ss-host[data-ss-id=fixed] .ss-touch-left")
-        assert left.is_visible()
-        box = left.bounding_box()
-        assert box["height"] >= 44 and box["width"] >= 44
+        host = ".ss-host[data-ss-id=fixed]"
+        assert pg.locator(host + " .ss-touch").count() == 0, "the on-screen button pad is gone"
         assert pg.evaluate("SkySentinel.get('fixed').state().world") == {"w": 720, "h": 960}, "phones get a portrait arena"
-        x0 = pg.evaluate("SkySentinel.get('fixed').state().player.x")
-        left.dispatch_event("pointerdown")
-        pg.evaluate("SkySentinel.get('fixed').step(15)")
-        left.dispatch_event("pointerup")
-        state = pg.evaluate("SkySentinel.get('fixed').state()")
-        assert state["state"] == "running" and state["player"]["x"] < x0
+        canvas = pg.locator(host + " .ss-canvas")
+        box = canvas.bounding_box()
+        # A point in the lower-left quarter of the arena, well away from the ship's start.
+        cx, cy = box["x"] + box["width"] * 0.2, box["y"] + box["height"] * 0.8
+        touch = {"pointerType": "touch", "pointerId": 7, "isPrimary": True, "clientX": cx, "clientY": cy, "button": 0}
+        p0 = pg.evaluate("SkySentinel.get('fixed').state().player")
+        canvas.dispatch_event("pointerdown", touch)
+        pg.evaluate("SkySentinel.get('fixed').step(60)")
+        s = pg.evaluate("SkySentinel.get('fixed').state()")
+        assert s["state"] == "running", "a held finger starts the run"
+        assert s["player"]["x"] < p0["x"] - 50, "the ship flies toward the finger"
+        assert pg.evaluate("document.querySelector('" + host + "').hasAttribute('data-ss-running')")
+        assert pg.evaluate("getComputedStyle(document.querySelector('" + host + " .ss-canvas')).touchAction") == "none", \
+            "a drag on a live arena steers instead of scrolling the page"
+        assert s["playerShots"], "the ship fires while the finger is held"
+        # Drag right: the ship follows the finger.
+        x1 = s["player"]["x"]
+        canvas.dispatch_event("pointermove", {**touch, "clientX": box["x"] + box["width"] * 0.8})
+        pg.evaluate("SkySentinel.get('fixed').step(60)")
+        x2 = pg.evaluate("SkySentinel.get('fixed').state().player.x")
+        assert x2 > x1 + 50, "the ship follows the finger as it moves"
+        # Lift the finger: the ship stops and stops firing.
+        canvas.dispatch_event("pointerup", touch)
+        pg.evaluate("SkySentinel.get('fixed').step(90)")
+        s3 = pg.evaluate("SkySentinel.get('fixed').state()")
+        pg.evaluate("SkySentinel.get('fixed').step(30)")
+        s4 = pg.evaluate("SkySentinel.get('fixed').state()")
+        assert s4["player"]["x"] == s3["player"]["x"], "no finger, no movement"
+        assert not s4["playerShots"], "no finger, no fire"
     finally:
         ctx.close()
 
