@@ -1309,6 +1309,9 @@
     };
     var listeners = {};
     var held = { left: false, right: false, up: false, down: false, fire: false };
+    /* Touch play: while a finger is held on the arena the ship fires and flies toward `steer`,
+       a world point a little above the finger so the finger never hides the ship. */
+    var steer = null, steerId = null, STEER_LIFT = 64;   /* lift in CSS px */
     var world = { w: 960, h: 600 };
     var S = null;                      /* simulation state */
     var acc = 0, last = 0;
@@ -1519,7 +1522,9 @@
       downList.appendChild(li);
     });
     key.appendChild(downList);
-    var hint = el("p", "ss-hint", "Arrows or WASD move, Space or click fires, Escape pauses.");
+    var coarse = !!(window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
+    var hint = el("p", "ss-hint", coarse ? "Hold a finger on the arena: the ship follows it and fires." :
+      "Arrows or WASD move, Space or click fires, Escape pauses.");
     hint.id = "ss-hint-" + id;
     canvas.setAttribute("aria-describedby", hint.id);
     var actions = el("div", "ss-actions");
@@ -1588,22 +1593,12 @@
     var hud = el("div", "ss-hud");
     var hudScore = el("span", "ss-hud-item"), hudLives = el("span", "ss-hud-item"), hudLevel = el("span", "ss-hud-item"), hudState = el("span", "ss-hud-item");
     hud.appendChild(hudScore); hud.appendChild(hudLives); hud.appendChild(hudLevel); hud.appendChild(hudState);
-    var touch = el("div", "ss-touch");
-    touch.setAttribute("aria-label", "Touch controls");
-    var touchButtons = {};
-    [["left", "Left"], ["up", "Up"], ["down", "Down"], ["right", "Right"], ["fire", "Fire"]].forEach(function (b) {
-      var btn = el("button", "ss-touch-btn ss-touch-" + b[0], b[1]);
-      btn.type = "button";
-      btn.setAttribute("aria-label", b[1]);
-      touchButtons[b[0]] = btn;
-      touch.appendChild(btn);
-    });
     var live = el("p", "ss-live");
     live.setAttribute("aria-live", "polite");
     var fallback = el("p", "ss-fallback", "This browser cannot draw the game. The story still works: each stage describes what the game would show.");
     fallback.hidden = true;
     host.appendChild(stage);
-    if (!demo) { host.appendChild(hud); host.appendChild(touch); host.appendChild(live); }
+    if (!demo) { host.appendChild(hud); host.appendChild(live); }
     host.appendChild(fallback);
     host.setAttribute("data-ss-renderer-active", renderer);
     if (renderer === "none") { fallback.hidden = false; stage.hidden = true; }
@@ -2270,6 +2265,7 @@
       S.afterglow = REDUCED || S.finale ? 0 : 90;
       S.overReason = reason;
       held.left = held.right = held.up = held.down = held.fire = false;
+      steer = null; steerId = null;
       if (reason === "victory") {
         say("The Nexus megaship is down. Score " + S.score + ".");
       } else {
@@ -3224,6 +3220,11 @@
       else {
         var dx = (held.right ? 1 : 0) - (held.left ? 1 : 0);
         var dy = (held.down ? 1 : 0) - (held.up ? 1 : 0);
+        /* touch: head for the steer point at the ship's normal top speed, easing in on arrival */
+        if (steer) {
+          dx = Math.max(-1, Math.min(1, (steer.x - p.x) / (7 * S.ship.speed)));
+          dy = Math.max(-1, Math.min(1, (steer.y - p.y) / (6 * S.ship.speed)));
+        }
         /* R36: Freeze holds the ship in place; Scramble swaps left and right */
         if (p.freeze > 0) dx = dy = 0;
         if (p.scramble > 0) dx = -dx;
@@ -5257,6 +5258,8 @@
     function sync() {
       if (!S) return;
       var p = S.player;
+      /* while a run is live, a drag on the arena steers the ship instead of scrolling the page */
+      host.toggleAttribute("data-ss-running", S.state === "running");
       syncText(hudScore, "Score " + S.score);
       syncText(hudLives, "Hull " + Math.max(0, p.health) + " of " + S.healthMax + (p.shieldHp > 0 ? ", shield " + p.shieldHp : ""));
       syncText(hudLevel, "Level " + S.level + " (" + diff().name + ")" + (cfg.progression ? ": " + FORMS[S.level] : "") + (retriesOn() ? ". Retries left: " + retriesLeft() : ""));
@@ -5320,7 +5323,7 @@
     }
 
     /* ---------- control */
-    function releaseKeys() { held.left = held.right = held.up = held.down = held.fire = false; }
+    function releaseKeys() { held.left = held.right = held.up = held.down = held.fire = false; steer = null; steerId = null; }
     function start() {
       if (S && S.state === "over" && S.retryOffer) { retryLevel(); return; }
       if (!S || S.state === "over") reset();
@@ -5909,10 +5912,30 @@
     });
     window.addEventListener("mouseup", function () { held.fire = false; });
     canvas.addEventListener("contextmenu", function (ev) { ev.preventDefault(); });
-    Object.keys(touchButtons).forEach(function (k) {
-      var btn = touchButtons[k];
-      btn.addEventListener("pointerdown", function (ev) { ev.preventDefault(); if (finaleOwns()) { skipFinale(); sync(); return; } if (novaOwns()) { skipNova(); sync(); return; } if (!S || S.state !== "running") start(); held[k] = true; });
-      ["pointerup", "pointercancel", "pointerleave"].forEach(function (t) { btn.addEventListener(t, function () { held[k] = false; }); });
+    /* Touch and pen: hold a finger on the arena to fire constantly and steer the ship toward it.
+       The mouse keeps its click-to-fire path above. */
+    function steerTo(ev) {
+      var r = canvas.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      var m = screenMap(), k = canvas.height / r.height;
+      steer = { x: ((ev.clientX - r.left) * (canvas.width / r.width) - m.ox) / m.s,
+                y: ((ev.clientY - r.top - STEER_LIFT) * k - m.oy) / m.s };
+    }
+    canvas.addEventListener("pointerdown", function (ev) {
+      if (ev.pointerType === "mouse") return;
+      ev.preventDefault();
+      if (finaleOwns()) { skipFinale(); sync(); return; }
+      if (novaOwns()) { skipNova(); sync(); return; }
+      if (!S || S.state !== "running") start();
+      if (!S || S.state !== "running") return;
+      steerId = ev.pointerId;
+      try { canvas.setPointerCapture(ev.pointerId); } catch (err) { /* capture is best effort */ }
+      steerTo(ev);
+      held.fire = true;
+    });
+    canvas.addEventListener("pointermove", function (ev) { if (ev.pointerId === steerId && steer) steerTo(ev); });
+    ["pointerup", "pointercancel", "lostpointercapture"].forEach(function (t) {
+      canvas.addEventListener(t, function (ev) { if (ev.pointerId === steerId) { steer = null; steerId = null; held.fire = false; } });
     });
     var io = null, ro = null;
     if ("IntersectionObserver" in window) {
