@@ -194,6 +194,41 @@ def test_posix_refreshes_a_stale_profile_and_keeps_user_additions(tmp_path: Path
     assert _sync(path, windows=False) == ([], [])
 
 
+def test_posix_refresh_never_loosens_a_value_the_user_tightened(tmp_path: Path) -> None:
+    tightened = LEGACY.replace("enabled = true", "enabled = false").replace(
+        '"/home/me/extra" = "write"', '":workspace_roots" = "deny"')
+    path = _write(tmp_path, tightened)
+
+    _sync(path, windows=False)
+
+    profile = tomllib.loads(path.read_text(encoding="utf-8"))["permissions"]["default"]
+    assert profile["network"]["enabled"] is False
+    assert profile["filesystem"] == {":workspace_roots": "deny", ":minimal": "read"}
+
+
+def test_a_misplaced_user_edited_value_moves_to_the_root_unchanged(tmp_path: Path) -> None:
+    edited = APPENDED.replace('default_permissions = "default"\n',
+                              'approval_policy = "never"\ndefault_permissions = "default"\n')
+    assert tomllib.loads(edited)["projects"]["/home/me/repo"]["approval_policy"] == "never"
+    path = _write(tmp_path, edited)
+
+    changed, _ = _sync(path, windows=True)
+
+    doc = tomllib.loads(path.read_text(encoding="utf-8"))
+    assert doc["approval_policy"] == "never"
+    assert "approval_policy (moved to the root)" in changed
+    assert doc["projects"]["/home/me/repo"] == {"trust_level": "trusted"}
+
+
+def test_keys_already_at_the_root_after_the_separator_stay(tmp_path: Path) -> None:
+    rootlevel = mp._CODEX_MARKER + '\napproval_policy = "never"\n'
+    path = _write(tmp_path, rootlevel)
+
+    _sync(path, windows=False)
+
+    assert tomllib.loads(path.read_text(encoding="utf-8"))["approval_policy"] == "never"
+
+
 def test_posix_adds_the_profile_with_a_root_level_selector(tmp_path: Path) -> None:
     path = _write(tmp_path, 'model = "m"\n\n[projects.\'/r\']\ntrust_level = "trusted"\n')
 

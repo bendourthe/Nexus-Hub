@@ -12,7 +12,7 @@ The same investigation found two installer defects. The three Codex writers (`in
 
 1. Codex permissions are reconciled by one implementation, `scripts/merge_permissions.py --codex` (TOML edited through `tomlkit`), which all three writers call. Every run compares against the template instead of testing for presence.
 2. On Windows the helper writes no profile and removes a Nexus-managed one, recognized by its `network.allowed_domains` key, which only the Nexus-Hub template has written. `sandbox_mode = "workspace-write"`, seeded by `platform_defaults.py`, becomes the single sandbox setting, which every Windows sandbox mode can enforce. A profile the user authored is left untouched.
-3. On macOS and Linux the profile stays, because its read limit is enforced there (measured in the v4.13.2 end-to-end runs). The helper refreshes Nexus-owned keys, retires `":project_roots"`, keeps user-added grants and domains, and moves a misplaced selector to the root.
+3. On macOS and Linux the profile stays, because its read limit is enforced there (measured in the v4.13.2 end-to-end runs). The helper adds missing template keys and retires `":project_roots"`, but never overwrites an existing value, so a profile the user tightened (`enabled = false`, a token set to `"deny"`) is not loosened by a reinstall. It keeps user-added grants and domains, and moves a misplaced selector or approval policy to the root with its current value.
 
 ## Alternatives considered
 

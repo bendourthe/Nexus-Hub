@@ -369,28 +369,40 @@ def _codex_preamble(template_text: str) -> str:
     return "".join(lines)
 
 
-def _codex_unbind_appended_keys(text: str) -> tuple[str, list[str]]:
-    """Drop the root keys the old installers appended where TOML binds them to a table.
+def _codex_unbind_appended_keys(text: str) -> tuple[str, list[str], dict[str, Any]]:
+    """Lift the root keys the old installers appended where TOML binds them to a table.
 
     They appended ``approval_policy`` / ``default_permissions`` after the file's last
     table, so TOML read them as keys of THAT table (often a ``[projects.'...']`` entry)
-    and Codex never saw them. The separator line proves the old installer wrote them;
-    the normal sync below re-adds whichever the host needs at the root.
+    and Codex never saw them. The separator line proves the old installer wrote them.
+    Only a key that a table header precedes is lifted, and its value -- possibly edited
+    by the user since -- is returned so the caller can place it at the root unchanged.
     """
+    import tomllib
+
     out: list[str] = []
     removed: list[str] = []
+    moved: dict[str, Any] = {}
     in_block = False
+    seen_table = False
     for line in text.splitlines(keepends=True):
         stripped = line.strip()
+        key = stripped.split("=", 1)[0].strip()
         if stripped == _CODEX_MARKER:
             in_block = True
-        elif in_block and stripped.startswith("["):
+        elif stripped.startswith("["):
             in_block = False
-        elif in_block and stripped.split("=", 1)[0].strip() in ("approval_policy", "default_permissions"):
-            removed.append(stripped.split("=", 1)[0].strip() + " (misplaced under a table)")
+            seen_table = True
+        elif in_block and seen_table and key in ("approval_policy", "default_permissions"):
+            try:
+                moved[key] = tomllib.loads(stripped)[key]
+            except tomllib.TOMLDecodeError:
+                out.append(line)  # not a line the old installers wrote; leave it alone
+                continue
+            removed.append(f"{key} (misplaced under a table)")
             continue
         out.append(line)
-    return "".join(out), removed
+    return "".join(out), removed, moved
 
 
 def _codex_remove_profile(doc: Any) -> list[str]:
@@ -408,7 +420,11 @@ def _codex_remove_profile(doc: Any) -> list[str]:
 
 
 def _codex_refresh_profile(doc: Any, template: Any) -> tuple[list[str], list[str]]:
-    """POSIX: bring the managed profile's Nexus-owned keys up to the template."""
+    """POSIX: add the template's missing keys and retire tokens Nexus-Hub no longer ships.
+
+    An existing value is never overwritten: a user who tightened the managed profile
+    (``enabled = false``, a token set to ``"deny"``) must not be loosened by a reinstall.
+    """
     import tomlkit
 
     changed: list[str] = []
@@ -432,7 +448,7 @@ def _codex_refresh_profile(doc: Any, template: Any) -> tuple[list[str], list[str
                 if not missing and key in current:
                     continue
                 current[key] = existing + missing
-            elif current.get(key) == value:
+            elif key in current:
                 continue
             else:
                 current[key] = value
@@ -470,10 +486,14 @@ def codex_sync(
 
     expected_bytes = config_path.read_bytes()
     original = expected_bytes.decode(_READ_ENCODING)
-    unbound, removed = _codex_unbind_appended_keys(original)
+    unbound, removed, moved = _codex_unbind_appended_keys(original)
     doc = tomlkit.parse(unbound)
     managed = _codex_profile_is_managed(doc)
     changed: list[str] = []
+    for key, value in moved.items():
+        if key not in doc:
+            doc[key] = value
+            changed.append(f"{key} (moved to the root)")
 
     if "approval_policy" not in doc:
         doc["approval_policy"] = template["approval_policy"]
