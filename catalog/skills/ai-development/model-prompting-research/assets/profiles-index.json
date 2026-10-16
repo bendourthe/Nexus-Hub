@@ -1972,6 +1972,582 @@
           "scope": "model-specific"
         }
       ]
+    },
+    "claude-fable-5": {
+      "platform": "claude-code",
+      "last_verified": "2026-10-15",
+      "claims": [
+        {
+          "claim": "Default effort to high for most Fable 5 tasks; reserve xhigh for the most capability-sensitive workloads and use medium or low for routine work.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5.md",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Steer behaviors (verbosity, checkpointing) with one brief general instruction instead of enumerating each unwanted pattern by name.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5.md",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Add an outcome-first brevity instruction so the first sentence after finishing states what happened or what was found, with detail after.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5.md",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "On long autonomous runs, instruct the model to audit every progress claim against a tool result from the session and to say explicitly what is unverified.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5.md",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Remove instructions that ask the model to echo, transcribe, or explain its internal reasoning in the response; they can trigger the reasoning_extraction refusal. Read thinking blocks instead.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5.md",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Review skills and prompts written for earlier models and strip overly prescriptive instructions when default behavior performs better.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5.md",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "State explicit action boundaries (what to do and not do) to prevent unrequested actions such as unasked drafts or defensive git-branch backups.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5.md",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Give the reason and audience behind a request, not only the request itself, especially for long-running multi-workstream agents.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5.md",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Do not surface remaining-token or context-budget countdowns to the model; if unavoidable, add a reassurance that ample context remains.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5.md",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "For long-run prompts, make self-verification explicit and delegate it to separate fresh-context verifier subagents rather than relying on self-critique.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5.md",
+          "confidence": "high",
+          "scope": "model-specific"
+        }
+      ]
+    },
+    "claude-haiku-4-5-20251001": {
+      "platform": "claude-code",
+      "last_verified": "2026-10-15",
+      "claims": [
+        {
+          "claim": "Configure thinking on Claude Haiku 4.5 with manual extended thinking (thinking.type \"enabled\" plus budget_tokens); it does not support adaptive thinking.",
+          "source_url": "https://platform.claude.com/docs/en/models/haiku-4-5/overview",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Do not migrate Haiku 4.5 requests to thinking type \"adaptive\" (it returns a 400); keep budget_tokens until you move to a model that supports adaptive thinking.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/extended-thinking",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Steer Haiku 4.5 reasoning depth with budget_tokens, not the effort parameter: effort is not supported on this model, and on extended-thinking-only models budget_tokens sets thinking depth.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/thinking-troubleshooting",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "When tuning the extended-thinking budget, start simple tasks near the 1,024-token minimum and raise it step by step; start complex tasks at 16,000 tokens or more.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/extended-thinking",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Do not design Haiku 4.5 agent loops to rely on reasoning between tool calls: the model does not support interleaved thinking, and the interleaved-thinking beta header is ignored.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/extended-thinking",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Haiku 4.5 has context awareness. In a harness that compacts context or saves state to files, say so in the prompt so the model does not wrap up early as it nears the context limit.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Do not write your own token-budget tags into Haiku 4.5 prompts: context awareness is automatic, and the API injects the 200k budget and the remaining-token updates.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/context-windows",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Assistant prefill is a valid output-steering technique on Haiku 4.5 only when thinking is off.",
+          "source_url": "https://platform.claude.com/docs/en/models/haiku-5-5/migration-guide",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "For applications that may be asked about medicine doses, add the medication-dosing block written for Claude Haiku 4.5 to the system prompt, exactly as written. Do not reuse the block written for another model.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Size image inputs for Haiku 4.5's standard image tier: images above 1,568 pixels on the long edge, or 1,568 visual tokens, are downscaled.",
+          "source_url": "https://platform.claude.com/docs/en/models/haiku-5-5/migration-guide",
+          "confidence": "high",
+          "scope": "model-specific"
+        }
+      ]
+    },
+    "claude-opus-4-5": {
+      "platform": "claude-code",
+      "last_verified": "2026-10-15",
+      "claims": [
+        {
+          "claim": "On Claude Opus 4.5, tone down aggressive tool or skill triggering language carried over from older prompts, because the model is more responsive to the system prompt and may overtrigger.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "For Claude Opus 4.5, replace emphatic tool directives such as 'CRITICAL: You MUST use this tool when...' with plain phrasing such as 'Use this tool when...'.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "When extended thinking is disabled on Claude Opus 4.5, avoid the word 'think' and its variants in prompts. Use 'consider', 'evaluate' or 'reason through' instead.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Claude Opus 4.5 tends to overengineer by adding extra files, abstractions, or unrequested flexibility. When this happens, add explicit guidance that keeps solutions minimal.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "To keep Claude Opus 4.5 coding work in scope, add an anti-over-engineering instruction that limits changes to what was requested or is clearly necessary.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "For frontend or web-app generation with Claude Opus 4.5, include explicit design-direction guidance in the prompt. Without it, the model falls back on generic 'AI slop' patterns.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "For image-heavy tasks with Claude Opus 4.5, give the model a crop tool or agent skill so it can zoom into relevant image regions.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "On Claude Opus 4.5 (extended thinking, not adaptive), set the effort level and the thinking budget_tokens together: choose effort for the task, then size budget_tokens to the reasoning depth needed.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/effort",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Claude Opus 4.5 defaults to high effort. For token-sensitive coding work, consider setting medium effort explicitly: Anthropic reports it matches Sonnet 4.5's best SWE-bench Verified score with far fewer output tokens.",
+          "source_url": "https://www.anthropic.com/news/claude-opus-4-5",
+          "confidence": "high",
+          "scope": "model-specific"
+        }
+      ]
+    },
+    "claude-opus-4-5-20251101": {
+      "platform": "claude-code",
+      "last_verified": "2026-10-15",
+      "claims": [
+        {
+          "claim": "On Claude Opus 4.5, tone down aggressive tool or skill triggering language carried over from older prompts, because the model is more responsive to the system prompt and may overtrigger.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "For Claude Opus 4.5, replace emphatic tool directives such as 'CRITICAL: You MUST use this tool when...' with plain phrasing such as 'Use this tool when...'.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "When extended thinking is disabled on Claude Opus 4.5, avoid the word 'think' and its variants in prompts. Use 'consider', 'evaluate' or 'reason through' instead.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Claude Opus 4.5 tends to overengineer by adding extra files, abstractions, or unrequested flexibility. When this happens, add explicit guidance that keeps solutions minimal.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "To keep Claude Opus 4.5 coding work in scope, add an anti-over-engineering instruction that limits changes to what was requested or is clearly necessary.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "For frontend or web-app generation with Claude Opus 4.5, include explicit design-direction guidance in the prompt. Without it, the model falls back on generic 'AI slop' patterns.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "For image-heavy tasks with Claude Opus 4.5, give the model a crop tool or agent skill so it can zoom into relevant image regions.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "On Claude Opus 4.5 (extended thinking, not adaptive), set the effort level and the thinking budget_tokens together: choose effort for the task, then size budget_tokens to the reasoning depth needed.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/effort",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Claude Opus 4.5 defaults to high effort. For token-sensitive coding work, consider setting medium effort explicitly: Anthropic reports it matches Sonnet 4.5's best SWE-bench Verified score with far fewer output tokens.",
+          "source_url": "https://www.anthropic.com/news/claude-opus-4-5",
+          "confidence": "high",
+          "scope": "model-specific"
+        }
+      ]
+    },
+    "claude-opus-4-6": {
+      "platform": "claude-code",
+      "last_verified": "2026-10-15",
+      "claims": [
+        {
+          "claim": "For Claude Opus 4.6, tone down forceful tool or skill triggering language such as 'CRITICAL: You MUST use this tool'. The model follows the system prompt more closely and may overtrigger, so plain wording like 'Use this tool when...' works better.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "For Claude Opus 4.6, replace blanket tool defaults with conditional, targeted instructions that say when the tool helps. The model does more upfront exploration than earlier models.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "For Claude Opus 4.6, remove over-prompting written for older models, such as 'If in doubt, use [tool]'. Tools that used to undertrigger now trigger appropriately, and such phrasing causes overtriggering.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "When Claude Opus 4.6 thinks for too long and inflates token use, either add explicit instructions that limit its reasoning (for example, choose an approach and commit to it) or lower the effort setting.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "On Claude Opus 4.6, use adaptive thinking with effort to control thinking depth and cost, and use max_tokens as the hard limit. Manual budget_tokens still works on this model but is deprecated.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "On Claude Opus 4.6, thinking is off when the thinking parameter is omitted. To get thinking, set it explicitly (thinking: {type: \"adaptive\"}); unlike Claude 5 models, it is not on by default.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Do not prefill the final assistant turn when prompting Claude Opus 4.6, because the request returns a 400 error. Use structured outputs or system prompt instructions instead.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "In agentic prompts for Claude Opus 4.6, tell the model to confirm with the user before irreversible, destructive, or shared-system actions such as deleting files, force-pushing, or posting externally. Without that guidance it may take them.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "In orchestration prompts for Claude Opus 4.6, watch for and limit subagent overuse. The model may spawn subagents where a direct call such as grep would be faster and enough.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "For Claude Opus 4.6 coding work, add explicit guidance to keep solutions minimal. The model tends to create extra files, add unneeded abstractions, and build flexibility nobody asked for.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        }
+      ]
+    },
+    "claude-opus-4-7": {
+      "platform": "claude-code",
+      "last_verified": "2026-10-15",
+      "claims": [
+        {
+          "claim": "For Claude Opus 4.7, start coding and agentic workloads at xhigh effort, and use high as the minimum for most intelligence-sensitive workloads.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/effort",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Set effort explicitly on Claude Opus 4.7. The API default is high, so xhigh is never used unless the request asks for it.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/effort",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Reserve max effort on Claude Opus 4.7 for frontier problems, and move to it only when evals show measurable headroom at xhigh. On structured-output tasks, max can cause overthinking.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/effort",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "When running Claude Opus 4.7 at low effort, keep tasks short and scoped, and give it an explicit checklist when the task has multiple sections.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/effort",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "If latency forces low effort on Claude Opus 4.7, add a short, targeted instruction asking it to think carefully on multistep reasoning tasks.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/effort",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "At xhigh or max effort on Claude Opus 4.7, set a large max_tokens (start around 64k and tune) so the model has room to think and act across subagents and tool calls.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/effort",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Remove prompt scaffolding that forces interim status messages. Claude Opus 4.7 already gives regular, good-quality progress updates during long agentic traces.",
+          "source_url": "https://platform.claude.com/docs/en/models/opus-5-5/migration-guide",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "On Claude Opus 4.7, thinking is off by default. Enable it with thinking type adaptive, not a budget_tokens setting.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/thinking",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Do not send non-default temperature, top_p, or top_k to Claude Opus 4.7. Leave them out of the request and guide behavior through the prompt.",
+          "source_url": "https://platform.claude.com/docs/en/models/opus-5-5/migration-guide",
+          "confidence": "high",
+          "scope": "model-specific"
+        }
+      ]
+    },
+    "claude-opus-4-8": {
+      "platform": "claude-code",
+      "last_verified": "2026-10-15",
+      "claims": [
+        {
+          "claim": "For coding and agentic work, start at effort xhigh. For most intelligence-sensitive work, use at least high.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-4-8",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "If reasoning on complex problems is shallow, raise effort to high or xhigh instead of compensating in the prompt. If latency forces low effort, add targeted guidance asking for careful multistep thinking.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-4-8",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "When running at max or xhigh effort, set a large max output token budget. Start at 64k and tune from there.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-4-8",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Thinking is off by default on this model, so enable it explicitly with adaptive thinking. If it thinks too often (for example with large system prompts), add prompt guidance limiting thinking to multistep problems.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-4-8",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "The model follows instructions literally and does not generalize them. When an instruction should apply broadly, state its scope explicitly.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-4-8",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "The model prefers reasoning over tool calls. To get more tool use, raise effort, or say explicitly in the prompt when and how to use each tool.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-4-8",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Response length tracks task complexity. To control verbosity, add explicit concision instructions, and prefer positive examples of the target concision over 'do not' instructions.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-4-8",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Remove scaffolding that forces interim status messages. If the updates are miscalibrated, describe what they should look like and give examples.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-4-8",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "The model spawns fewer subagents by default. Say explicitly when subagents are wanted and when they are not.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-4-8",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "In code-review harnesses, tell the model to report every finding with confidence and severity, and leave filtering to a later stage. If it must self-filter, define a concrete bar rather than qualitative terms such as 'important'.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-4-8",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "In interactive coding products, put the task, intent, and constraints in the first user turn rather than spreading them across turns, use xhigh or high effort, and reduce the number of human interactions required.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-4-8",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "To break the persistent default frontend house style, give a concrete alternative design spec or have the model propose distinct directions before building. Generic negations only shift it to another fixed palette.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-4-8",
+          "confidence": "high",
+          "scope": "model-specific"
+        }
+      ]
+    },
+    "claude-sonnet-4-5": {
+      "platform": "claude-code",
+      "last_verified": "2026-10-15",
+      "claims": [
+        {
+          "claim": "When running Claude Sonnet 4.5 in a harness that compacts context or saves state to external files, tell the model so in the prompt (Sonnet 4.5 is one of the context-aware models).",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Without that harness information, a context-aware model such as Sonnet 4.5 may wrap up early near the context limit. Instruct it explicitly not to stop tasks early because of token budget concerns.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Do not add token-budget tags to Sonnet 4.5 prompts yourself. The API injects a 200k budget and per-tool-call usage warnings automatically, so prompts can refer to the budget but should not emulate it.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/context-windows",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "On Sonnet 4.5, use manual extended thinking (type enabled with budget_tokens). Adaptive thinking returns a 400 error. Keep budget_tokens until the workload moves to a newer model.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/extended-thinking",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Sonnet 4.5 runs without thinking when the thinking field is omitted. Enable it explicitly for complex tasks.",
+          "source_url": "https://platform.claude.com/docs/en/models/sonnet-5-5/migration-guide",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Size the Sonnet 4.5 extended-thinking budget to the task: at least the 1,024-token minimum, and 16,000+ tokens for complex tasks. Use batch processing above about 32k.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/extended-thinking",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "To let Sonnet 4.5 reason between tool calls, add the interleaved-thinking beta header. Its manual mode does not interleave automatically.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/extended-thinking",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Sonnet 4.5 has no effort parameter. Control reasoning depth with budget_tokens and prompt wording, not output_config.effort.",
+          "source_url": "https://platform.claude.com/docs/en/models/sonnet-5-5/migration-guide",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Prefilling the last assistant turn is still a valid output-steering technique on Sonnet 4.5. Newer Sonnet models reject it.",
+          "source_url": "https://platform.claude.com/docs/en/models/sonnet-5-5/migration-guide",
+          "confidence": "high",
+          "scope": "model-specific"
+        }
+      ]
+    },
+    "claude-sonnet-4-5-20250929": {
+      "platform": "claude-code",
+      "last_verified": "2026-10-15",
+      "claims": [
+        {
+          "claim": "When running Claude Sonnet 4.5 in a harness that compacts context or saves state to external files, tell the model so in the prompt (Sonnet 4.5 is one of the context-aware models).",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Without that harness information, a context-aware model such as Sonnet 4.5 may wrap up early near the context limit. Instruct it explicitly not to stop tasks early because of token budget concerns.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Do not add token-budget tags to Sonnet 4.5 prompts yourself. The API injects a 200k budget and per-tool-call usage warnings automatically, so prompts can refer to the budget but should not emulate it.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/context-windows",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "On Sonnet 4.5, use manual extended thinking (type enabled with budget_tokens). Adaptive thinking returns a 400 error. Keep budget_tokens until the workload moves to a newer model.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/extended-thinking",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Sonnet 4.5 runs without thinking when the thinking field is omitted. Enable it explicitly for complex tasks.",
+          "source_url": "https://platform.claude.com/docs/en/models/sonnet-5-5/migration-guide",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Size the Sonnet 4.5 extended-thinking budget to the task: at least the 1,024-token minimum, and 16,000+ tokens for complex tasks. Use batch processing above about 32k.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/extended-thinking",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "To let Sonnet 4.5 reason between tool calls, add the interleaved-thinking beta header. Its manual mode does not interleave automatically.",
+          "source_url": "https://platform.claude.com/docs/en/build-with-claude/extended-thinking",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Sonnet 4.5 has no effort parameter. Control reasoning depth with budget_tokens and prompt wording, not output_config.effort.",
+          "source_url": "https://platform.claude.com/docs/en/models/sonnet-5-5/migration-guide",
+          "confidence": "high",
+          "scope": "model-specific"
+        },
+        {
+          "claim": "Prefilling the last assistant turn is still a valid output-steering technique on Sonnet 4.5. Newer Sonnet models reject it.",
+          "source_url": "https://platform.claude.com/docs/en/models/sonnet-5-5/migration-guide",
+          "confidence": "high",
+          "scope": "model-specific"
+        }
+      ]
     }
   }
 }
