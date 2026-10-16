@@ -656,6 +656,7 @@ install_git_guardrails() {
     local repo_root="$1"
     local target_claude_dir="$2"
     local scope="$3"  # "Global" or "Workspace"
+    _nexus_core_settings_created_path=""
 
     # Materialize every shell/Python hook referenced by the full settings template.
     install_claude_hook_files "$repo_root" "$target_claude_dir" "$scope"
@@ -753,6 +754,7 @@ install_git_guardrails() {
             write_item "ERROR: Could not create $settings_file from converted settings" "$RED" >&2
             return 1
         fi
+        _nexus_core_settings_created_path="$settings_file"
         write_item "[OK] $scope settings.json created with git guardrails hook" "$GREEN"
     fi
 }
@@ -884,18 +886,13 @@ install_require_description() {
 }
 
 install_core_settings() {
-    local repo_root="$1"
-    local target_claude_dir="$2"
-    local scope="$3"
-
+    local repo_root="$1" target_claude_dir="$2" scope="$3"
     local settings_file="$target_claude_dir/settings.json"
     local template_file="$repo_root/catalog/hooks/settings.json"
-
     if [ ! -f "$settings_file" ]; then
         write_item "Skip: settings.json not found, will be created by hook installer" "$GRAY"
         return
     fi
-
     if ! command -v jq >/dev/null 2>&1; then
         write_item "Warning: jq not found, cannot seed core scalars or declared template env defaults" "$YELLOW" >&2
         write_item "  Manually copy absent core settings and template env keys from $template_file to $settings_file" "$YELLOW" >&2
@@ -905,52 +902,110 @@ install_core_settings() {
         write_item "Warning: existing settings are not a valid object; preserving settings.json" "$YELLOW" >&2
         return
     fi
-
-    local env_seed_blocked=0
     if jq -e 'has("env") and ((.env | type) != "object")' "$settings_file" >/dev/null 2>&1; then
-        env_seed_blocked=1
         write_item "Warning: existing env is not an object; preserving it and skipping template env defaults" "$YELLOW" >&2
     fi
-
-    # Existing effort scalars/overrides form one user-owned pair. Other declared
-    # env keys seed independently, so a later default reaches an old install.
-    local merged
-    if ! merged=$(jq -s '
+    local resolved_dir record_file target_name ownership can_record=1 fresh=false
+    if ! resolved_dir=$(cd "$target_claude_dir" && pwd); then
+        write_item "Warning: could not resolve core-settings ownership location" "$YELLOW" >&2
+        return
+    fi
+    target_name="${resolved_dir##*/}/settings.json"
+    record_file="${resolved_dir%/*}/.nexus-hub/core-settings-seeds.json"
+    ownership=$(jq -cn --arg target "$target_name" '{schema_version:1,target:$target,values:{},removed:[]}')
+    if [ -e "$record_file" ] || [ -L "$record_file" ]; then
+        if [ ! -L "$record_file" ] && jq -e --arg target "$target_name" '
+            type == "object" and .schema_version == 1 and .target == $target
+            and (.values | type) == "object"
+            and ((has("removed") | not) or ((.removed | type) == "array" and all(.removed[]; type == "string")))
+        ' "$record_file" >/dev/null 2>&1; then
+            ownership=$(jq -c . "$record_file")
+        else
+            can_record=0
+            write_item "Warning: invalid or unreadable core-settings seed record; existing values and record preserved" "$YELLOW" >&2
+        fi
+    fi
+    if [ "${_nexus_core_settings_created_path:-}" = "$settings_file" ]; then fresh=true; fi
+    local payload merged seed_record
+    if ! payload=$(jq -s --argjson ownership "$ownership" --argjson fresh "$fresh" '
+        def slot($key):
+            reduce ($key | split("."))[] as $part
+                ({present:true,value:.};
+                 if .present and (.value | type) == "object" and (.value | has($part))
+                 then {present:true,value:.value[$part]} else {present:false,value:null} end);
+        def writable($key):
+            reduce (($key | split("."))[:-1])[] as $part
+                ({ok:true,node:.};
+                 if .ok and (.node | type) == "object" then
+                    if (.node | has($part)) then {ok:((.node[$part] | type) == "object"),node:.node[$part]}
+                    else {ok:true,node:{}} end
+                 else {ok:false,node:null} end) | .ok;
         .[0] as $e | .[1] as $t |
-        ($e | has("effortLevel")) as $has_scalar_effort |
-        (if (($e.env | type) == "object") then
-            ($e.env | has("CLAUDE_CODE_EFFORT_LEVEL"))
-          else false end) as $has_env_effort |
-        ($has_scalar_effort or $has_env_effort) as $has_any_effort |
-        $e
-        | if $has_any_effort or ($t | has("effortLevel") | not) then .
-          else .effortLevel = $t.effortLevel end
-        | if has("model") or ($t | has("model") | not) then .
-          else .model = $t.model end
-        | if has("env") and ((.env | type) != "object") then .
-          else reduce (($t.env // {}) | to_entries[]) as $item (.;
-            if $item.key == "CLAUDE_CODE_EFFORT_LEVEL" and $has_any_effort then .
-            elif ((.env // {}) | has($item.key)) then .
-            else .env[$item.key] = $item.value end)
-          end
+        ($t | [paths(type != "object" and type != "array") as $p
+            | select($p[0] == "effortLevel" or $p[0] == "model" or $p[0] == "env" or $p[0] == "modelSettings")
+            | {key:($p | join(".")),value:getpath($p)}] | from_entries) as $desired |
+        (($ownership.values // {}) | delpaths([($ownership.removed // [])[] | [.]])) as $prior |
+        ($e | slot("effortLevel")) as $scalar | ($e | slot("env.CLAUDE_CODE_EFFORT_LEVEL")) as $env |
+        ($scalar.present and ((($prior | has("effortLevel")) and $prior.effortLevel == $scalar.value) | not)) as $user_scalar |
+        ($env.present and ((($prior | has("env.CLAUDE_CODE_EFFORT_LEVEL")) and $prior["env.CLAUDE_CODE_EFFORT_LEVEL"] == $env.value) | not)) as $user_env |
+        ($user_scalar or $user_env) as $user_pair |
+        (($user_scalar and $scalar.value != $t.effortLevel) or $user_env) as $user_alternative |
+        {config:$e,owned:$prior,removed:($ownership.removed // []),blocked:[]}
+        | if ($desired | has("env.CLAUDE_CODE_EFFORT_LEVEL") | not) then
+            if $env.present and (.owned | has("env.CLAUDE_CODE_EFFORT_LEVEL")) and $env.value == .owned["env.CLAUDE_CODE_EFFORT_LEVEL"]
+            then .config |= delpaths([["env","CLAUDE_CODE_EFFORT_LEVEL"]]) else . end
+            | .owned |= del(."env.CLAUDE_CODE_EFFORT_LEVEL")
+          else . end
+        | reduce ($desired | to_entries[]) as $entry (.;
+            $entry.key as $key | ($key | split(".")) as $path | (.config | slot($key)) as $current |
+            if (.removed | index($key)) != null then
+                if $fresh and $current.present and $current.value == $entry.value then .config |= delpaths([$path]) else . end
+                | .owned |= del(.[$key])
+            elif ($current.present | not) and (.owned | has($key)) then
+                .removed += [$key] | .owned |= del(.[$key])
+            elif $current.present then
+                if ((.owned | has($key)) and $current.value == .owned[$key]) or ($fresh and $current.value == $entry.value)
+                then .config |= setpath($path; $entry.value) | .owned[$key] = $entry.value
+                else .owned |= del(.[$key]) end
+            elif (($key == "effortLevel" or $key == "env.CLAUDE_CODE_EFFORT_LEVEL") and $user_pair)
+                 or (($key | startswith("modelSettings.")) and $user_alternative) then .
+            elif (.config | writable($key)) then .config |= setpath($path; $entry.value) | .owned[$key] = $entry.value
+            else .blocked += [$key] end)
+        | {blocked:.blocked,settings:.config,record:($ownership + {values:.owned,removed:(.removed | unique)})}
     ' "$settings_file" "$template_file" 2>/dev/null); then
         write_item "Warning: Could not merge core settings; settings.json retained" "$YELLOW" >&2
         return
     fi
-
-    if [ -n "$merged" ]; then
-        if printf '%s\n' "$merged" | jq -e --slurpfile existing "$settings_file" '. == $existing[0]' >/dev/null 2>&1; then
-            if [ "$env_seed_blocked" -eq 1 ]; then
-                write_item "[OK] Core settings unchanged; existing non-object env preserved" "$GREEN"
-            else
-                write_item "[OK] Core settings already present in settings.json" "$GREEN"
-            fi
+    if printf '%s\n' "$payload" | jq -e 'any(.blocked[]; startswith("modelSettings."))' >/dev/null; then
+        write_item "Warning: user-owned modelSettings parents are not objects; preserving them and skipping affected defaults" "$YELLOW" >&2
+    fi
+    merged=$(printf '%s\n' "$payload" | jq '.settings')
+    seed_record=$(printf '%s\n' "$payload" | jq '.record')
+    if printf '%s\n' "$merged" | jq -e --slurpfile existing "$settings_file" '. == $existing[0]' >/dev/null 2>&1; then
+        write_item "[OK] Core settings already present; existing values preserved" "$GREEN"
+    else
+        if ! printf '%s\n' "$merged" > "$settings_file"; then
+            write_item "Warning: could not write core settings" "$YELLOW" >&2
             return
         fi
-        echo "$merged" > "$settings_file"
-        write_item "[OK] $scope settings.json seeded absent core settings; existing values preserved" "$GREEN"
-    else
-        write_item "Warning: Could not merge core settings into settings.json" "$YELLOW" >&2
+        write_item "[OK] $scope settings.json seeded absent core settings or upgraded recorded seeds; user-owned values preserved" "$GREEN"
+    fi
+    if [ "$can_record" -eq 1 ] && printf '%s\n' "$seed_record" | jq -e '(.values | length) > 0 or (.removed | length) > 0' >/dev/null; then
+        if [ -f "$record_file" ] && printf '%s\n' "$seed_record" | jq -e --slurpfile old "$record_file" '. == $old[0]' >/dev/null 2>&1; then return; fi
+        local record_temp
+        if mkdir -p "${record_file%/*}" && record_temp=$(mktemp "${record_file}.nexus-XXXXXX"); then
+            if printf '%s\n' "$seed_record" > "$record_temp" && mv -f "$record_temp" "$record_file"; then return; fi
+            rm -f "$record_temp"
+        fi
+        write_item "Warning: core settings applied but seed ownership could not be recorded" "$YELLOW" >&2
+    elif [ "$can_record" -eq 1 ] && [ -f "$record_file" ]; then
+        # Preserve the valid record and any extension metadata even when ownership drains.
+        local record_temp
+        if record_temp=$(mktemp "${record_file}.nexus-XXXXXX"); then
+            if printf '%s\n' "$seed_record" > "$record_temp" && mv -f "$record_temp" "$record_file"; then return; fi
+            rm -f "$record_temp"
+        fi
+        write_item "Warning: core-settings ownership update could not be recorded" "$YELLOW" >&2
     fi
 }
 
@@ -3999,6 +4054,25 @@ run_doctor() {
 $flat
 EOF
     doctor_emit
+
+    if [ -f "$HOME/.claude/settings.json" ]; then
+        local effort_python
+        if effort_python=$(resolve_python_executable); then
+            if ! "$effort_python" -X utf8 -c '
+import sys
+from pathlib import Path
+sys.path.insert(0, sys.argv[1])
+from scripts.lib.integrations.claude import effort_override_note
+note = effort_override_note(Path(sys.argv[2]))
+if note:
+    print(note)
+' "$REPO_ROOT" "$HOME/.claude/settings.json" 2>/dev/null; then
+                echo "[doctor] Claude effort check unavailable; settings were not changed."
+            fi
+        else
+            echo "[doctor] Claude effort check unavailable without Python; settings were not changed."
+        fi
+    fi
 
     echo ""
     echo "[doctor] $n_pass complete, $n_fail incomplete, $n_skip not installed."

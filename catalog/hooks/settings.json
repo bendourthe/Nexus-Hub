@@ -2,7 +2,6 @@
   "effortLevel": "high",
   "model": "opus",
   "env": {
-    "CLAUDE_CODE_EFFORT_LEVEL": "high",
     "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet"
   },
   "hooks": {
@@ -361,5 +360,19 @@
   "attribution": {
     "commit": "",
     "pr": ""
+  },
+  "modelSettings": {
+    "claude-opus-5-5": {
+      "effortLevel": "high"
+    },
+    "claude-sonnet-5-5": {
+      "effortLevel": "high"
+    },
+    "claude-haiku-5-5": {
+      "effortLevel": "high"
+    },
+    "claude-fable-5-1": {
+      "effortLevel": "high"
+    }
   }
 }

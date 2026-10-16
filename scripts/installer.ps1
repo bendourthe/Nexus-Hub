@@ -843,6 +843,7 @@ function Install-GitGuardrails {
         [string]$TargetClaudeDir,
         [string]$Scope  # "Global" or "Workspace"
     )
+    $script:NexusCoreSettingsCreatedPath = $null
 
     # Copy every PowerShell/Python hook referenced by the full settings template,
     # including private helper modules sourced by registered hooks.
@@ -851,7 +852,7 @@ function Install-GitGuardrails {
     # Preserve the legacy explicit copies for compatibility with narrowly staged
     # source bundles while the full catalog copy above owns normal installations.
     $hooksDir = Join-Path $TargetClaudeDir "hooks"
-    if (-not (Test-Path $hooksDir)) { New-Item -ItemType Directory -Force -Path $hooksDir | Out-Null }
+    if (-not (Test-Path -LiteralPath $hooksDir)) { New-Item -ItemType Directory -Force -Path $hooksDir | Out-Null }
     Safe-Copy -Source "$RepoRoot\catalog\hooks\git-guardrails.sh" -Destination (Join-Path $hooksDir "git-guardrails.sh") -Confirm:$true -CustomMessage "✓ $Scope git guardrails hook installed at: $hooksDir"
 
     # compress-output.sh is the other PreToolUse Bash hook; it ships alongside
@@ -864,12 +865,12 @@ function Install-GitGuardrails {
     $settingsFile = Join-Path $TargetClaudeDir "settings.json"
     $templateFile = "$RepoRoot\catalog\hooks\settings.json"
 
-    if (-not (Test-Path $templateFile)) {
+    if (-not (Test-Path -LiteralPath $templateFile)) {
         Write-Item -Message "Skip: Hook template not found" -Color "DarkGray"
         return
     }
 
-    $templateRaw = Get-Content $templateFile -Raw
+    $templateRaw = Get-Content -LiteralPath $templateFile -Raw -Encoding UTF8
 
     # Global scope uses ~/.claude/ paths. The parsed template is then converted to
     # PowerShell commands so Cursor and Claude never need Bash on Windows.
@@ -879,9 +880,9 @@ function Install-GitGuardrails {
 
     $templateJson = $templateRaw | ConvertFrom-Json
 
-    if (Test-Path $settingsFile) {
+    if (Test-Path -LiteralPath $settingsFile) {
         try {
-            $existingJson = Get-Content $settingsFile -Raw | ConvertFrom-Json
+            $existingJson = Get-Content -LiteralPath $settingsFile -Raw -Encoding UTF8 | ConvertFrom-Json
             $existingJson = Merge-ManagedClaudeHooks -ExistingJson $existingJson -TemplateJson $templateJson
             Write-JsonFile -Path $settingsFile -Object $existingJson
             Convert-ClaudeHookCommandsForWindows -SettingsFile $settingsFile -RepoRoot $RepoRoot -Scope $Scope
@@ -897,6 +898,7 @@ function Install-GitGuardrails {
         # copying its POSIX commands verbatim.
         Write-JsonFile -Path $settingsFile -Object $templateJson
         Convert-ClaudeHookCommandsForWindows -SettingsFile $settingsFile -RepoRoot $RepoRoot -Scope $Scope
+        $script:NexusCoreSettingsCreatedPath = $settingsFile
         Write-Item -Message "✓ $Scope settings.json created with git guardrails hook" -Color "DarkGreen"
     }
 }
@@ -910,25 +912,25 @@ function Install-UsageDisplay {
 
     # Copy hook script
     $hooksDir = Join-Path $TargetClaudeDir "hooks"
-    if (-not (Test-Path $hooksDir)) { New-Item -ItemType Directory -Force -Path $hooksDir | Out-Null }
+    if (-not (Test-Path -LiteralPath $hooksDir)) { New-Item -ItemType Directory -Force -Path $hooksDir | Out-Null }
     Safe-Copy -Source "$RepoRoot\catalog\hooks\usage-display.sh" -Destination (Join-Path $hooksDir "usage-display.sh") -Confirm:$true -CustomMessage "✓ $Scope usage display hook installed at: $hooksDir"
 
     # Merge Stop hook config into settings.json
     $settingsFile = Join-Path $TargetClaudeDir "settings.json"
     $templateFile = "$RepoRoot\catalog\hooks\settings.json"
 
-    if (-not (Test-Path $templateFile)) {
+    if (-not (Test-Path -LiteralPath $templateFile)) {
         Write-Item -Message "Skip: Hook template not found" -Color "DarkGray"
         return
     }
 
-    if (-not (Test-Path $settingsFile)) {
+    if (-not (Test-Path -LiteralPath $settingsFile)) {
         # No existing settings.json; install_git_guardrails will create it from the
         # template (which now includes both PreToolUse and Stop hooks).
         return
     }
 
-    $templateRaw = Get-Content $templateFile -Raw
+    $templateRaw = Get-Content -LiteralPath $templateFile -Raw -Encoding UTF8
 
     # Global scope uses ~/.claude/ paths; convert the parsed hook commands below.
     if ($Scope -eq "Global") {
@@ -938,7 +940,7 @@ function Install-UsageDisplay {
     $templateJson = $templateRaw | ConvertFrom-Json
 
     try {
-        $existingJson = Get-Content $settingsFile -Raw | ConvertFrom-Json
+        $existingJson = Get-Content -LiteralPath $settingsFile -Raw -Encoding UTF8 | ConvertFrom-Json
 
         # Check if usage-display already installed
         $alreadyInstalled = $false
@@ -963,7 +965,7 @@ function Install-UsageDisplay {
             }
             else {
                 if (-not $existingJson.hooks.Stop) {
-                    $existingJson.hooks | Add-Member -NotePropertyName "Stop" -NotePropertyValue $templateJson.hooks.Stop
+                    $existingJson.hooks | Add-Member -NotePropertyName "Stop" -NotePropertyValue $templateJson.hooks.Stop -Force
                 }
                 else {
                     # Append our hook entry to existing Stop array
@@ -993,7 +995,7 @@ function Install-RequireDescription {
 
     # Copy hook scripts
     $hooksDir = Join-Path $TargetClaudeDir "hooks"
-    if (-not (Test-Path $hooksDir)) { New-Item -ItemType Directory -Force -Path $hooksDir | Out-Null }
+    if (-not (Test-Path -LiteralPath $hooksDir)) { New-Item -ItemType Directory -Force -Path $hooksDir | Out-Null }
     Safe-Copy -Source "$RepoRoot\catalog\hooks\require-description.sh" -Destination (Join-Path $hooksDir "require-description.sh") -Confirm:$true -CustomMessage "✓ $Scope require-description hook installed at: $hooksDir"
     Safe-Copy -Source "$RepoRoot\catalog\hooks\format-bash-description.py" -Destination (Join-Path $hooksDir "format-bash-description.py") -Confirm:$true -CustomMessage "✓ $Scope format-bash-description hook installed at: $hooksDir"
     Safe-Copy -Source "$RepoRoot\catalog\hooks\require-powershell-description.sh" -Destination (Join-Path $hooksDir "require-powershell-description.sh") -Confirm:$true -CustomMessage "✓ $Scope require-powershell-description hook installed at: $hooksDir"
@@ -1002,13 +1004,13 @@ function Install-RequireDescription {
     # Merge hook config into settings.json
     $settingsFile = Join-Path $TargetClaudeDir "settings.json"
 
-    if (-not (Test-Path $settingsFile)) {
+    if (-not (Test-Path -LiteralPath $settingsFile)) {
         # Install-GitGuardrails will create it from the template (which includes both Bash and PowerShell description hooks)
         return
     }
 
     try {
-        $existingJson = Get-Content $settingsFile -Raw | ConvertFrom-Json
+        $existingJson = Get-Content -LiteralPath $settingsFile -Raw -Encoding UTF8 | ConvertFrom-Json
 
         # Check Bash and PowerShell hooks separately so that an existing
         # install with only the Bash hook still picks up the PowerShell pair.
@@ -1077,7 +1079,7 @@ function Install-RequireDescription {
             }
             else {
                 if (-not $existingJson.hooks.PreToolUse) {
-                    $existingJson.hooks | Add-Member -NotePropertyName "PreToolUse" -NotePropertyValue @($entriesToAdd)
+                    $existingJson.hooks | Add-Member -NotePropertyName "PreToolUse" -NotePropertyValue @($entriesToAdd) -Force
                 }
                 else {
                     $existingArray = @($existingJson.hooks.PreToolUse)
@@ -1099,73 +1101,157 @@ function Install-RequireDescription {
 }
 
 function Install-CoreSettings {
-    param(
-        [string]$RepoRoot,
-        [string]$TargetClaudeDir,
-        [string]$Scope
-    )
+    param([string]$RepoRoot, [string]$TargetClaudeDir, [string]$Scope)
     $settingsFile = Join-Path $TargetClaudeDir "settings.json"
     $templateFile = "$RepoRoot\catalog\hooks\settings.json"
     if (-not (Test-Path -LiteralPath $settingsFile)) {
         Write-Item -Message "Skip: settings.json not found, will be created by hook installer" -Color "DarkGray"
         return
     }
-    $content = Get-Content -LiteralPath $settingsFile -Raw -Encoding UTF8
+    function Get-CoreSlot {
+        param($Document, [string]$Key)
+        $node = $Document
+        foreach ($part in $Key.Split('.')) {
+            if ($node -isnot [System.Management.Automation.PSCustomObject]) { return [pscustomobject]@{ Present=$false; Value=$null } }
+            $property = @($node.PSObject.Properties | Where-Object { $_.Name -ceq $part })
+            if ($property.Count -eq 0) { return [pscustomobject]@{ Present=$false; Value=$null } }
+            $node = $property[0].Value
+        }
+        return [pscustomobject]@{ Present=$true; Value=$node }
+    }
+    function Set-CoreValue {
+        param($Document, [string]$Key, $Value, [switch]$Remove)
+        $parts = $Key.Split('.'); $node = $Document
+        for ($i=0; $i -lt $parts.Count-1; $i++) {
+            $slot = Get-CoreSlot $node $parts[$i]
+            if (-not $slot.Present) {
+                if ($Remove) { return $false }
+                $node | Add-Member -NotePropertyName $parts[$i] -NotePropertyValue ([pscustomobject]@{})
+                $slot = Get-CoreSlot $node $parts[$i]
+            }
+            if ($slot.Value -isnot [System.Management.Automation.PSCustomObject]) { return $false }
+            $node = $slot.Value
+        }
+        $last = $parts[-1]; $slot = Get-CoreSlot $node $last
+        if ($Remove) { if ($slot.Present) { $node.PSObject.Properties.Remove($last) }; return $true }
+        if ($slot.Present) { $node.PSObject.Properties[$last].Value = $Value }
+        else { $node | Add-Member -NotePropertyName $last -NotePropertyValue $Value }
+        return $true
+    }
+    function Test-CoreEqual {
+        param($Left, $Right)
+        return (($Left | ConvertTo-Json -Depth 100 -Compress) -ceq ($Right | ConvertTo-Json -Depth 100 -Compress))
+    }
     try {
-        $existingJson = $content | ConvertFrom-Json
+        $existingJson = Get-Content -LiteralPath $settingsFile -Raw -Encoding UTF8 | ConvertFrom-Json
         $templateJson = Get-Content -LiteralPath $templateFile -Raw -Encoding UTF8 | ConvertFrom-Json
         if ($existingJson -isnot [System.Management.Automation.PSCustomObject]) {
             Write-Warning "existing settings are not a valid object; preserving settings.json"
             return
         }
-        $coreKeys = @("effortLevel", "model")
-        $applied = @()
-        # Effort remains one user-owned pair; unrelated env defaults are independent.
-        $hasScalarEffort = [bool]$existingJson.PSObject.Properties["effortLevel"]
-        $hasEnvEffort = (
-            $existingJson.PSObject.Properties["env"] -and
-            $existingJson.env -is [System.Management.Automation.PSCustomObject] -and
-            $existingJson.env.PSObject.Properties["CLAUDE_CODE_EFFORT_LEVEL"]
-        )
-        $hasAnyEffort = $hasScalarEffort -or $hasEnvEffort
-        foreach ($key in $coreKeys) {
-            if (-not $templateJson.PSObject.Properties[$key]) { continue }
-            if ($key -eq "effortLevel" -and $hasAnyEffort) { continue }
-            if ($existingJson.PSObject.Properties[$key]) { continue }
-            $templateValue = $templateJson.$key
-            $existingJson | Add-Member -NotePropertyName $key -NotePropertyValue $templateValue
-            $applied += "${key}: ${templateValue}"
+        $before = $existingJson | ConvertTo-Json -Depth 100 -Compress
+        $envSlot = Get-CoreSlot $existingJson 'env'
+        if ($envSlot.Present -and $envSlot.Value -isnot [System.Management.Automation.PSCustomObject]) {
+            Write-Warning "existing env is not an object; preserving it and skipping template env defaults"
         }
-        if ($templateJson.PSObject.Properties["env"] -and $templateJson.env -is [System.Management.Automation.PSCustomObject]) {
-            $envDefaults = @($templateJson.env.PSObject.Properties | Where-Object {
-                $_.Name -ne "CLAUDE_CODE_EFFORT_LEVEL" -or -not $hasAnyEffort
-            })
-            if ($envDefaults.Count -gt 0) {
-                if (-not $existingJson.PSObject.Properties["env"]) {
-                    $existingJson | Add-Member -NotePropertyName "env" -NotePropertyValue ([PSCustomObject]@{})
-                }
-                if ($existingJson.env -isnot [System.Management.Automation.PSCustomObject]) {
-                    Write-Warning "existing env is not an object; preserving it and skipping template env defaults"
-                }
-                else {
-                    foreach ($property in $envDefaults) {
-                        if ($existingJson.env.PSObject.Properties[$property.Name]) { continue }
-                        $existingJson.env | Add-Member -NotePropertyName $property.Name -NotePropertyValue $property.Value
-                        $applied += "env.$($property.Name)"
-                    }
+        $targetDirectory = [IO.Path]::GetFullPath($TargetClaudeDir).TrimEnd([char[]]'\/')
+        $targetName = [IO.Path]::GetFileName($targetDirectory) + '/settings.json'
+        $recordDirectory = Join-Path ([IO.Path]::GetDirectoryName($targetDirectory)) '.nexus-hub'
+        $recordFile = Join-Path $recordDirectory 'core-settings-seeds.json'
+        $seedRecord = [pscustomobject]@{ schema_version=1; target=$targetName; values=[pscustomobject]@{}; removed=@() }
+        $canRecord = $true; $recordExisted = Test-Path -LiteralPath $recordFile
+        if ($recordExisted) {
+            try {
+                if ((Get-Item -LiteralPath $recordFile -Force).Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'linked record' }
+                $loaded = Get-Content -LiteralPath $recordFile -Raw -Encoding UTF8 | ConvertFrom-Json
+                $version = Get-CoreSlot $loaded 'schema_version'; $target = Get-CoreSlot $loaded 'target'
+                $values = Get-CoreSlot $loaded 'values'; $removedSlot = Get-CoreSlot $loaded 'removed'
+                $number = $version.Value -is [int] -or $version.Value -is [long] -or $version.Value -is [double]
+                if (-not $number -or $version.Value -ne 1 -or $target.Value -cne $targetName -or $values.Value -isnot [System.Management.Automation.PSCustomObject]) { throw 'invalid record' }
+                if ($removedSlot.Present -and ($removedSlot.Value -isnot [array] -or @($removedSlot.Value | Where-Object { $_ -isnot [string] }).Count)) { throw 'invalid removals' }
+                $seedRecord = $loaded
+            } catch {
+                $canRecord = $false
+                Write-Warning "invalid or unreadable core-settings seed record; existing values and record preserved"
+            }
+        }
+        $recordBefore = $seedRecord | ConvertTo-Json -Depth 100 -Compress
+        $owned = [Collections.Specialized.OrderedDictionary]::new([StringComparer]::Ordinal)
+        foreach ($property in $seedRecord.values.PSObject.Properties) { $owned[$property.Name] = $property.Value }
+        $removed = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+        $removedSlot = Get-CoreSlot $seedRecord 'removed'
+        if ($removedSlot.Present) { foreach ($key in $removedSlot.Value) { [void]$removed.Add($key) } }
+        foreach ($key in $removed) { $owned.Remove($key) }
+        $desired = [Collections.Specialized.OrderedDictionary]::new([StringComparer]::Ordinal)
+        foreach ($key in @('effortLevel','model')) {
+            $slot = Get-CoreSlot $templateJson $key
+            if ($slot.Present) { $desired[$key] = $slot.Value }
+        }
+        if ($templateJson.env -is [System.Management.Automation.PSCustomObject]) {
+            foreach ($property in $templateJson.env.PSObject.Properties) { $desired['env.'+$property.Name] = $property.Value }
+        }
+        if ($templateJson.modelSettings -is [System.Management.Automation.PSCustomObject]) {
+            foreach ($model in $templateJson.modelSettings.PSObject.Properties) {
+                if ($model.Value -is [System.Management.Automation.PSCustomObject]) {
+                    foreach ($property in $model.Value.PSObject.Properties) { $desired['modelSettings.'+$model.Name+'.'+$property.Name] = $property.Value }
                 }
             }
         }
-        if ($applied.Count -eq 0) {
-            Write-Item -Message "[OK] Core settings already present; existing values preserved in settings.json" -Color "DarkGreen"
-            return
+        $scalar = Get-CoreSlot $existingJson 'effortLevel'; $effortEnv = Get-CoreSlot $existingJson 'env.CLAUDE_CODE_EFFORT_LEVEL'
+        $userScalar = $scalar.Present -and -not ($owned.Contains('effortLevel') -and (Test-CoreEqual $scalar.Value $owned['effortLevel']))
+        $userEnv = $effortEnv.Present -and -not ($owned.Contains('env.CLAUDE_CODE_EFFORT_LEVEL') -and (Test-CoreEqual $effortEnv.Value $owned['env.CLAUDE_CODE_EFFORT_LEVEL']))
+        $userPair = $userScalar -or $userEnv
+        $userAlternative = ($userScalar -and -not (Test-CoreEqual $scalar.Value $templateJson.effortLevel)) -or $userEnv
+        if (-not $desired.Contains('env.CLAUDE_CODE_EFFORT_LEVEL')) {
+            if ($effortEnv.Present -and $owned.Contains('env.CLAUDE_CODE_EFFORT_LEVEL') -and (Test-CoreEqual $effortEnv.Value $owned['env.CLAUDE_CODE_EFFORT_LEVEL'])) {
+                [void](Set-CoreValue $existingJson 'env.CLAUDE_CODE_EFFORT_LEVEL' $null -Remove)
+            }
+            $owned.Remove('env.CLAUDE_CODE_EFFORT_LEVEL')
         }
-        Write-JsonFile -Path $settingsFile -Object $existingJson
-        Write-Item -Message "[OK] $Scope settings.json seeded absent core settings ($($applied -join ', ')); existing values preserved" -Color "DarkGreen"
-    }
-    catch {
-        Write-Warning "Could not set core settings; settings.json retained"
+        $created = Get-Variable -Name NexusCoreSettingsCreatedPath -Scope Script -ErrorAction SilentlyContinue
+        $fresh = $created -and $created.Value -ceq $settingsFile
+        $blockedModels = $false
+        foreach ($key in $desired.Keys) {
+            $current = Get-CoreSlot $existingJson $key; $value = $desired[$key]
+            if ($removed.Contains($key)) {
+                if ($fresh -and $current.Present -and (Test-CoreEqual $current.Value $value)) { [void](Set-CoreValue $existingJson $key $null -Remove) }
+                $owned.Remove($key)
+            } elseif (-not $current.Present -and $owned.Contains($key)) {
+                [void]$removed.Add($key); $owned.Remove($key)
+            } elseif ($current.Present) {
+                if (($owned.Contains($key) -and (Test-CoreEqual $current.Value $owned[$key])) -or ($fresh -and (Test-CoreEqual $current.Value $value))) {
+                    [void](Set-CoreValue $existingJson $key $value); $owned[$key] = $value
+                } else { $owned.Remove($key) }
+            } elseif ((($key -ceq 'effortLevel' -or $key -ceq 'env.CLAUDE_CODE_EFFORT_LEVEL') -and $userPair) -or ($key.StartsWith('modelSettings.',[StringComparison]::Ordinal) -and $userAlternative)) {
+                continue
+            } elseif (Set-CoreValue $existingJson $key $value) { $owned[$key] = $value }
+            elseif ($key.StartsWith('modelSettings.',[StringComparison]::Ordinal)) { $blockedModels = $true }
+        }
+        if ($blockedModels) { Write-Warning "user-owned modelSettings parents are not objects; preserving them and skipping affected defaults" }
+        $after = $existingJson | ConvertTo-Json -Depth 100 -Compress
+        if ($after -cne $before) {
+            Write-JsonFile -Path $settingsFile -Object $existingJson
+            Write-Item -Message "[OK] $Scope settings.json seeded absent core settings or upgraded recorded seeds; user-owned values preserved" -Color 'DarkGreen'
+        } else { Write-Item -Message "[OK] Core settings already present; existing values preserved" -Color 'DarkGreen' }
+        if ($seedRecord.PSObject.Properties['removed']) { $seedRecord.removed = @($removed | Sort-Object -CaseSensitive) }
+        else { $seedRecord | Add-Member -NotePropertyName removed -NotePropertyValue @($removed | Sort-Object -CaseSensitive) }
+        $seedRecord.values = $owned
+        $recordAfter = $seedRecord | ConvertTo-Json -Depth 100 -Compress
+    } catch {
+        Write-Warning "Could not set core settings; check settings.json"
         Write-Warning "Manually copy absent core settings and template env keys from $templateFile to $settingsFile"
+        return
+    }
+    if ($canRecord -and ($recordExisted -or $owned.Count -gt 0 -or $removed.Count -gt 0) -and ($recordAfter -cne $recordBefore -or -not $recordExisted)) {
+        $recordTemp = $null
+        try {
+            [void][IO.Directory]::CreateDirectory($recordDirectory)
+            $recordTemp = Join-Path $recordDirectory ([IO.Path]::GetRandomFileName())
+            [IO.File]::WriteAllText($recordTemp, ($seedRecord | ConvertTo-Json -Depth 100), (New-Object Text.UTF8Encoding($false)))
+            if ([IO.File]::Exists($recordFile)) { [IO.File]::Replace($recordTemp, $recordFile, [NullString]::Value) }
+            else { [IO.File]::Move($recordTemp, $recordFile) }
+        } catch { Write-Warning "core settings applied but seed ownership could not be recorded" }
+        finally { if ($recordTemp -and [IO.File]::Exists($recordTemp)) { Remove-Item -LiteralPath $recordTemp -ErrorAction SilentlyContinue } }
     }
 }
 
@@ -3974,6 +4060,27 @@ function Invoke-NexusDoctor {
             Write-Host ("  PASS  {0,-38} {1}" -f $label, $detail)
             $nPass++
         }
+    }
+
+    $effortSettings = Join-Path $env:USERPROFILE '.claude/settings.json'
+    if (Test-Path -LiteralPath $effortSettings -PathType Leaf) {
+        $effortPython = Resolve-PythonExecutable
+        if ($effortPython) {
+            $effortCode = @'
+import sys
+from pathlib import Path
+sys.path.insert(0, sys.argv[1])
+from scripts.lib.integrations.claude import effort_override_note
+note = effort_override_note(Path(sys.argv[2]))
+if note:
+    print(note)
+'@
+            try {
+                $effortNote = & $effortPython -X utf8 -c $effortCode "$RepoRoot" $effortSettings 2>$null
+                foreach ($line in @($effortNote)) { if ($line) { Write-Host $line } }
+                if ($LASTEXITCODE -ne 0) { Write-Host '[doctor] Claude effort check unavailable; settings were not changed.' }
+            } catch { Write-Host '[doctor] Claude effort check unavailable; settings were not changed.' }
+        } else { Write-Host '[doctor] Claude effort check unavailable without Python; settings were not changed.' }
     }
 
     Write-Host ""

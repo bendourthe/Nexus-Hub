@@ -8,9 +8,9 @@
     "platform_id_source": "scripts/lib/integrations/__init__.py::_register_builtins - platform keys below MUST match the integration registry ids exactly, so an entry maps to its integration with no translation table.",
     "lever_contract": "docs/policy/platform-defaults-levers.md - the per-platform VERIFIED / UNVERIFIED classification with evidence. Populated in v3.16.0 Phase 2; a platform may not appear here without a VERIFIED row there.",
     "generator": "python scripts/sync_platform_defaults.py --apply   (regenerate derived artifacts)\npython scripts/sync_platform_defaults.py --check   (fail on drift; runs in `make validate` and CI)",
-    "env_precedence_warning": "Where a platform exposes both a scalar setting and an environment-variable counterpart, the env value commonly OUTRANKS the scalar. Declare both together or the scalar becomes decorative while the env value silently wins.",
+    "env_precedence_warning": "An environment override can outrank a saved scalar or per-model choice. Claude effort deliberately seeds modelSettings instead of the overriding environment variable; other platform contracts retain their existing policy.",
     "last_updated": "2026-10-16",
-    "seeding_policy": "Values are seeded with SEED-IF-ABSENT semantics: a key the user has already set is never overwritten on reinstall. Effort scalars are seeded to 'medium' by default; Claude Code is the deliberate exception at 'high' (v4.4.0), justified in its own rationale block. Approval-policy keys are seeded toward the approval-required direction. A model pin is seeded ONLY where the vendor documents a safe self-selecting value; where no such value is documented the key is listed under 'omitted' with the reason, because inventing a provider-scoped model id is the failure this file exists to prevent.",
+    "seeding_policy": "Absent defaults are seeded without replacing user-owned values. Claude alone records core values it actually seeds and may upgrade a matching recorded seed; missing or invalid ownership records preserve existing choices. Other platforms retain seed-if-absent behavior. Claude effort is high, other effort defaults remain medium unless their rationale states otherwise. Approval defaults retain the approval-required direction.",
     "install_target_note": "install_target names the file the platform's integration writes at install time, distinct from derived_artifacts (repo files generated from this source). mode='write' seeds the file; mode='already-delivered' means an existing installer path already carries the values; mode='not-writable' means the lever is declared for the record but deliberately not written, with the reason stated."
   },
   "platforms": {
@@ -18,25 +18,38 @@
       "display_name": "Claude Code",
       "source_url": "https://code.claude.com/docs/en/configuration",
       "verified": "2026-10-16",
-      "doc_statement": "The Claude Code settings reference documents effortLevel (\"Set a default effort level for models without a saved level of their own\"), model (\"Change the model Claude Code starts with\"), env (environment variables applied to every session and its subprocesses), and a per-model modelSettings key that /effort writes. The model-config page (fetched 2026-09-05) states: \"set effortLevel to low, medium, high, or xhigh as the default for models without one. max isn't accepted in either key\" (effortLevel or modelSettings), and \"max is the deepest reasoning level. Unless you set it through the CLAUDE_CODE_EFFORT_LEVEL environment variable, Claude Code applies max to the current session only\"; CLAUDE_CODE_EFFORT_LEVEL is documented as taking \"a level name or auto\" and as the higher-precedence lever. So the settings keys accept four levels and the environment variable accepts five: the two levers do not share one value set, both accept the seeded value high, and a future change to a value other than high must be checked against both (max is valid only through the environment variable, /effort, or --effort). The 2026-09-04 statement had the two surfaces the other way round and is superseded. Attribution-specific verification on 2026-09-14: the official configuration reference documents attribution.commit and attribution.pr; empty strings hide commit trailers and PR attribution. The effort/model evidence above remains dated 2026-09-05; it was not reverified in this targeted attribution pass. Targeted subagent verification on 2026-10-16: https://code.claude.com/docs/en/sub-agents#choose-a-model documents CLAUDE_CODE_SUBAGENT_MODEL. Definition model pins precede this default. Built-in Explore and Plan require the separate force flag; Nexus-Hub deliberately does not seed it. The earlier effort/model verification dates above remain unchanged.",
+      "doc_statement": "Targeted effort verification 2026-10-16: the official model-config, settings-reference, and env-vars pages document per-model modelSettings effort, saved by /effort, and the overriding CLAUDE_CODE_EFFORT_LEVEL variable. A user-scope top-level effortLevel does not set the Opus 5.5 default. Settings accept low, medium, high, or xhigh, not max. The models overview names the four current canonical model IDs seeded below; recognized provider forms resolve to their canonical entry. Attribution evidence remains dated 2026-09-14. Subagent evidence remains dated 2026-10-16: definition pins precede CLAUDE_CODE_SUBAGENT_MODEL, built-in Explore and Plan need a separate force flag, and that flag is not seeded.",
       "settings": {
         "effortLevel": "high",
         "model": "opus",
         "env": {
-          "CLAUDE_CODE_EFFORT_LEVEL": "high",
           "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet"
         },
         "attribution": {
           "commit": "",
           "pr": ""
+        },
+        "modelSettings": {
+          "claude-opus-5-5": {
+            "effortLevel": "high"
+          },
+          "claude-sonnet-5-5": {
+            "effortLevel": "high"
+          },
+          "claude-haiku-5-5": {
+            "effortLevel": "high"
+          },
+          "claude-fable-5-1": {
+            "effortLevel": "high"
+          }
         }
       },
       "rationale": {
-        "effortLevel": "high is a deliberate quality choice adopted in v4.4.0, replacing the v3.15.5 medium default. Nexus-Hub work is plan-driven and multi-step, where a shallow turn costs more in rework than the extra reasoning costs to run. Lower to medium for routine or cost-sensitive use; raise to xhigh for the deepest reasoning.",
-        "model": "opus pins the strongest tier as the default rather than leaving the account default, so a fresh install reasons at full strength unless the user opts down.",
-        "env.CLAUDE_CODE_EFFORT_LEVEL": "Mirrors effortLevel because the environment variable is the higher-precedence lever: it pins the effort past the VS Code effort toggle on every new session. If it disagreed with the scalar it would silently win.",
+        "effortLevel": "High remains the fallback for older models. Current models use explicit per-model entries, so saved /effort values remain user-owned. No max default is seeded.",
+        "model": "The opus alias selects the deliberate Opus session baseline; it is not a guarantee of the highest available model. Users can retain their own existing selection.",
         "attribution": "Empty commit and pr strings disable Claude attribution in generated commit messages and pull-request descriptions. Official settings documentation verified 2026-09-14: https://code.claude.com/docs/en/configuration . Portable Git hooks independently reject attribution trailers.",
-        "env.CLAUDE_CODE_SUBAGENT_MODEL": "The sonnet alias sets the normal default for custom agents without their own model declaration. Phase 2 pinned all reasoning-sensitive shipped agents to opus before this seed was delivered. The existing opus session baseline remains unchanged. Savings depend on the previous model and usage; no measured saving is claimed. Aliases follow the account provider mapping and do not guarantee availability. Invocation and definition choices normally win; an independently configured force override can defeat definition pins. Built-in Explore and Plan are unchanged without that force flag. Set this key to inherit for a durable opt-out; an existing user value is never replaced."
+        "env.CLAUDE_CODE_SUBAGENT_MODEL": "The sonnet alias sets the normal default for custom agents without their own model declaration. Phase 2 pinned all reasoning-sensitive shipped agents to opus before this seed was delivered. The existing opus session baseline remains unchanged. Savings depend on the previous model and usage; no measured saving is claimed. Aliases follow the account provider mapping and do not guarantee availability. Invocation and definition choices normally win; an independently configured force override can defeat definition pins. Built-in Explore and Plan are unchanged without that force flag. Set this key to inherit for a durable opt-out; an existing user value is never replaced.",
+        "modelSettings": "Seed high for the current canonical model IDs verified on 2026-10-16. Stop seeding the effort env override so /effort and Nexus-Hub Settings can persist choices. New model IDs require this list to be refreshed. Existing user values are preserved; only a current value equal to a recorded Nexus-Hub seed can be upgraded. A matching recorded legacy effort env seed is retired, never replaced with another overriding value. No record means user-owned. A later user choice equal to the last seed is indistinguishable and may upgrade; record this residual in release notes."
       },
       "derived_artifacts": [
         {
@@ -46,11 +59,12 @@
           "keys": [
             "effortLevel",
             "model",
-            "env.CLAUDE_CODE_EFFORT_LEVEL",
+            "env",
             "attribution",
-            "env.CLAUDE_CODE_SUBAGENT_MODEL"
+            "env.CLAUDE_CODE_SUBAGENT_MODEL",
+            "modelSettings"
           ],
-          "note": "The hook template is re-serialized using its detected indentation and newline convention. Declared values are changed; canonical hook bytes are preserved. Noncanonical hook JSON fails before writing rather than silently changing unrelated bytes."
+          "note": "The hook template is re-serialized using its detected indentation and newline convention. Declared values are changed; canonical hook bytes are preserved. Noncanonical hook JSON fails before writing rather than silently changing unrelated bytes. The whole env field is derived so retiring an obsolete seed removes it from repository-owned outputs; the explicit subagent key remains listed for its delivery contract."
         },
         {
           "path": "scripts/lib/integrations/claude.py",
@@ -59,12 +73,13 @@
           "keys": [
             "effortLevel",
             "model",
-            "env.CLAUDE_CODE_EFFORT_LEVEL",
+            "env",
             "attribution",
-            "env.CLAUDE_CODE_SUBAGENT_MODEL"
+            "env.CLAUDE_CODE_SUBAGENT_MODEL",
+            "modelSettings"
           ],
           "fallback_symbol": "_FALLBACK_SETTINGS",
-          "note": "The nexus-hub init project stub reads this file at runtime, so there is nothing to generate. It keeps a hardcoded fallback for installed trees that do not carry configs/; --check verifies that fallback still equals the declared values so it cannot quietly drift into stating something untrue."
+          "note": "The nexus-hub init project stub reads this file at runtime, so there is nothing to generate. It keeps a hardcoded fallback for installed trees that do not carry configs/; --check verifies that fallback still equals the declared values so it cannot quietly drift into stating something untrue. The whole env field is derived so retiring an obsolete seed removes it from repository-owned outputs; the explicit subagent key remains listed for its delivery contract."
         }
       ],
       "install_target": {

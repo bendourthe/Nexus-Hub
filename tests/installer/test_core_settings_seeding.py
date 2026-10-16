@@ -1,4 +1,4 @@
-"""Behavioral parity for Claude core-setting seed-if-absent installs."""
+"""Behavioral parity for ownership-aware Claude core-setting installs."""
 
 from __future__ import annotations
 
@@ -265,9 +265,9 @@ def test_absent_core_values_seed_from_the_high_default(
     installed = json.loads(settings.read_text(encoding="utf-8"))
     assert installed["effortLevel"] == "high"
     assert installed["model"] == "opus"
+    assert installed["modelSettings"]["claude-opus-5-5"]["effortLevel"] == "high"
     assert installed["env"] == {
         "KEEP_ME": "yes",
-        "CLAUDE_CODE_EFFORT_LEVEL": "high",
         "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet",
     }
     assert installed["customUserSetting"] == {"preserve": True}
@@ -294,8 +294,8 @@ def test_missing_env_object_is_created(
     installed = json.loads(settings.read_text(encoding="utf-8"))
     assert installed["effortLevel"] == "high"
     assert installed["model"] == "opus"
+    assert installed["modelSettings"]["claude-opus-5-5"]["effortLevel"] == "high"
     assert installed["env"] == {
-        "CLAUDE_CODE_EFFORT_LEVEL": "high",
         "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet",
     }
     assert installed["customUserSetting"] == {"preserve": True}
@@ -516,7 +516,7 @@ def test_existing_subagent_value_is_never_replaced(
 
 
 @pytest.mark.parametrize(("label", "runner"), RUNNERS)
-@pytest.mark.parametrize("raw", ["{", "[1, 2]", "null"])
+@pytest.mark.parametrize("raw", ["{", "[1, 2]", "null", "[{}]", '[{"model":"opus"}]'])
 def test_invalid_settings_root_is_preserved_without_an_exit_mismatch(
     tmp_path: Path, label: str, runner: Runner, raw: str
 ) -> None:
@@ -572,3 +572,302 @@ def test_literal_target_path_is_preserved(
         "effortLevel": "xhigh",
         "env": {"CLAUDE_CODE_SUBAGENT_MODEL": "sonnet"},
     }
+
+
+_SEED_MANIFEST = "core-settings-seeds.json"
+_OPUS_EFFORT = "modelSettings.claude-opus-5-5.effortLevel"
+
+
+def _ownership_file(settings: Path) -> Path:
+    return settings.parent.parent / ".nexus-hub" / _SEED_MANIFEST
+
+
+def _write_ownership(settings: Path, values: dict[str, object]) -> Path:
+    record = _ownership_file(settings)
+    record.parent.mkdir(parents=True, exist_ok=True)
+    record.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "target": settings.parent.name + "/settings.json",
+                "values": values,
+                "removed": [],
+                "keepMetadata": True,
+            }
+        ),
+        encoding="utf-8",
+    )
+    return record
+
+
+@pytest.mark.parametrize(("label", "runner"), RUNNERS)
+@pytest.mark.parametrize("case", ["owned", "changed", "legacy", "fresh"])
+def test_core_seed_ownership_cases(
+    tmp_path: Path, label: str, runner: Runner, case: str
+) -> None:
+    initial = (
+        {}
+        if case == "fresh"
+        else {
+            "model": "opus",
+            "effortLevel": "high",
+            "env": {
+                "CLAUDE_CODE_EFFORT_LEVEL": "medium",
+                "CLAUDE_CODE_SUBAGENT_MODEL": "inherit",
+            },
+            "modelSettings": {
+                "claude-opus-5-5": {"effortLevel": "medium", "maxEffortLevel": "xhigh"}
+            },
+            "customUserSetting": {"keep": True},
+        }
+    )
+    settings, before = _seed(tmp_path / label, initial)
+    if case in ("owned", "changed"):
+        prior = "medium" if case == "owned" else "high"
+        _write_ownership(
+            settings, {"env.CLAUDE_CODE_EFFORT_LEVEL": prior, _OPUS_EFFORT: prior}
+        )
+    proc = runner(tmp_path / label, settings.parent)
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    installed = json.loads(settings.read_text(encoding="utf-8"))
+    if case in ("owned", "fresh"):
+        assert "CLAUDE_CODE_EFFORT_LEVEL" not in installed["env"]
+        assert installed["modelSettings"]["claude-opus-5-5"]["effortLevel"] == "high"
+        record = json.loads(_ownership_file(settings).read_text(encoding="utf-8-sig"))
+        assert not _ownership_file(settings).read_bytes().startswith(b"\xef\xbb\xbf")
+        assert record["values"][_OPUS_EFFORT] == "high"
+        assert "env.CLAUDE_CODE_EFFORT_LEVEL" not in record["values"]
+        if case == "owned":
+            assert (
+                installed["modelSettings"]["claude-opus-5-5"]["maxEffortLevel"]
+                == "xhigh"
+            )
+            assert installed["customUserSetting"] == {"keep": True}
+            assert record["keepMetadata"] is True
+        else:
+            assert record["values"]["model"] == "opus"
+            assert record["values"]["effortLevel"] == "high"
+            assert record["values"]["env.CLAUDE_CODE_SUBAGENT_MODEL"] == "sonnet"
+    else:
+        assert settings.read_bytes() == before
+        if case == "legacy":
+            from scripts.lib.integrations.claude import effort_override_note
+
+            note = effort_override_note(settings)
+            assert note and "medium" in note and "/effort" in note
+            assert "Remove only env.CLAUDE_CODE_EFFORT_LEVEL" in note
+    first = settings.read_bytes()
+    second = runner(tmp_path / label, settings.parent)
+    assert second.returncode == 0, second.stdout + second.stderr
+    assert settings.read_bytes() == first
+
+
+@pytest.mark.parametrize(("label", "runner"), RUNNERS)
+@pytest.mark.parametrize(
+    "bad_record",
+    [
+        "{",
+        "null",
+        '{"schema_version":1,"target":"another/settings.json","values":{}}',
+        '[{"schema_version":1,"target":"claude/settings.json","values":{"env.CLAUDE_CODE_EFFORT_LEVEL":"medium"},"removed":[]}]',
+    ],
+)
+def test_invalid_seed_record_preserves_existing_effort(
+    tmp_path: Path, label: str, runner: Runner, bad_record: str
+) -> None:
+    template = json.loads(
+        (REPO_ROOT / "catalog/hooks/settings.json").read_text(encoding="utf-8")
+    )
+    template.pop("hooks", None)
+    template["env"]["CLAUDE_CODE_EFFORT_LEVEL"] = "medium"
+    settings, before = _seed(tmp_path / label, template)
+    record = _ownership_file(settings)
+    record.parent.mkdir(parents=True, exist_ok=True)
+    record.write_text(bad_record, encoding="utf-8")
+    proc = runner(tmp_path / label, settings.parent)
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    assert settings.read_bytes() == before
+    assert record.read_text(encoding="utf-8") == bad_record
+
+
+@pytest.mark.parametrize(("label", "runner"), RUNNERS)
+def test_removed_owned_model_effort_is_not_reseeded(
+    tmp_path: Path, label: str, runner: Runner
+) -> None:
+    settings, _ = _seed(tmp_path / label, {})
+    first = runner(tmp_path / label, settings.parent)
+    assert first.returncode == 0, first.stdout + first.stderr
+    installed = json.loads(settings.read_text(encoding="utf-8"))
+    del installed["modelSettings"]["claude-opus-5-5"]["effortLevel"]
+    settings.write_text(json.dumps(installed), encoding="utf-8")
+    for _ in range(2):
+        proc = runner(tmp_path / label, settings.parent)
+        assert proc.returncode == 0, proc.stdout + proc.stderr
+        assert (
+            "effortLevel"
+            not in json.loads(settings.read_text())["modelSettings"]["claude-opus-5-5"]
+        )
+    record = json.loads(_ownership_file(settings).read_text(encoding="utf-8-sig"))
+    assert _OPUS_EFFORT in record["removed"]
+    assert _OPUS_EFFORT not in record["values"]
+
+
+def _configure_settings_owner_harness(
+    monkeypatch: pytest.MonkeyPatch, label: str
+) -> tuple[str, str]:
+    """Exercise the real settings writers; hook copying/conversion are separate contracts."""
+    if label == "bash":
+        name = "_SH_HARNESS"
+        extra = """
+install_claude_hook_files() { :; }
+safe_copy() { :; }
+convert_claude_hook_commands_for_posix() { :; }
+merge_managed_claude_hooks() { cat "$1"; }
+eval "$(extract resolve_settings_write_target)"
+eval "$(extract install_git_guardrails)"
+eval "$(extract install_usage_display)"
+eval "$(extract install_require_description)"
+install_git_guardrails "$repo_root" "$target" "Test"
+install_usage_display "$repo_root" "$target" "Test"
+install_require_description "$repo_root" "$target" "Test"
+"""
+        marker = 'install_core_settings "$repo_root" "$target" "Test"'
+    else:
+        name = "_PS_HARNESS"
+        extra = """
+foreach ($ownerName in @('Install-GitGuardrails','Install-UsageDisplay','Install-RequireDescription')) {
+    $owner = $ast.FindAll({
+        $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] -and
+        $args[0].Name -eq $ownerName
+    }, $true) | Select-Object -First 1
+    Invoke-Expression $owner.Extent.Text
+}
+function Install-ClaudeHookFiles { }
+function Safe-Copy { }
+function Convert-ClaudeHookCommandsForWindows { }
+function Merge-ManagedClaudeHooks { param($ExistingJson, $TemplateJson) return $ExistingJson }
+Install-GitGuardrails -RepoRoot $repoRoot -TargetClaudeDir $target -Scope 'Test'
+Install-UsageDisplay -RepoRoot $repoRoot -TargetClaudeDir $target -Scope 'Test'
+Install-RequireDescription -RepoRoot $repoRoot -TargetClaudeDir $target -Scope 'Test'
+"""
+        marker = "Install-CoreSettings -RepoRoot $repoRoot -TargetClaudeDir $target -Scope 'Test'"
+    original = globals()[name]
+    assert original.count(marker) == 1
+    monkeypatch.setitem(globals(), name, original.replace(marker, extra + marker))
+    return name, original
+
+
+@pytest.mark.parametrize(("label", "runner"), RUNNERS)
+@pytest.mark.parametrize("removed", [False, True])
+def test_fresh_template_copy_handoff_records_actual_core_writes(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    label: str,
+    runner: Runner,
+    removed: bool,
+) -> None:
+    target = tmp_path / label / "claude"
+    target.mkdir(parents=True)
+    settings = target / "settings.json"
+    if removed:
+        record = _write_ownership(settings, {})
+        data = json.loads(record.read_text())
+        data["removed"] = [_OPUS_EFFORT]
+        record.write_text(json.dumps(data), encoding="utf-8")
+    name, original = _configure_settings_owner_harness(monkeypatch, label)
+    proc = runner(tmp_path / label, target)
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    installed = json.loads(settings.read_text(encoding="utf-8-sig"))
+    record = json.loads(_ownership_file(settings).read_text(encoding="utf-8-sig"))
+    expected = {"effortLevel", "model", "env.CLAUDE_CODE_SUBAGENT_MODEL"}
+    expected |= {
+        f"modelSettings.{model}.effortLevel" for model in installed["modelSettings"]
+    }
+    if removed:
+        expected.remove(_OPUS_EFFORT)
+        assert "effortLevel" not in installed["modelSettings"]["claude-opus-5-5"]
+        assert _OPUS_EFFORT in record["removed"]
+    assert set(record["values"]) == expected
+    assert "hooks" not in record["values"] and "attribution" not in record["values"]
+    assert not _ownership_file(settings).read_bytes().startswith(b"\xef\xbb\xbf")
+    settings_before = settings.read_bytes()
+    record_before = _ownership_file(settings).read_bytes()
+    monkeypatch.setitem(globals(), name, original)
+    second = runner(tmp_path / label, target)
+    assert second.returncode == 0, second.stdout + second.stderr
+    assert settings.read_bytes() == settings_before
+    assert _ownership_file(settings).read_bytes() == record_before
+
+
+@pytest.mark.parametrize(("label", "runner"), RUNNERS)
+@pytest.mark.parametrize("profile", ["ordinary", "profile [custom]"])
+def test_upgrade_writer_sequence_preserves_literal_paths_and_utf8(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    label: str,
+    runner: Runner,
+    profile: str,
+) -> None:
+    target = tmp_path / label / profile / "claude"
+    target.mkdir(parents=True)
+    settings = target / "settings.json"
+    initial = json.loads(
+        (REPO_ROOT / "catalog/hooks/settings.json").read_text(encoding="utf-8")
+    )
+    initial["hooks"] = {"PreToolUse": [], "Stop": []}
+    initial["keepUnicode"] = "caf\u00e9 \u2603"
+    settings.write_text(json.dumps(initial, ensure_ascii=False), encoding="utf-8")
+    _configure_settings_owner_harness(monkeypatch, label)
+    proc = runner(tmp_path / label, target)
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    installed = json.loads(settings.read_text(encoding="utf-8"))
+    assert installed["keepUnicode"] == initial["keepUnicode"]
+    assert "reconciled with managed hooks" in proc.stdout
+    assert installed["hooks"]["Stop"] and installed["hooks"]["PreToolUse"]
+    assert not _ownership_file(settings).exists(), (
+        "matching pre-existing values are not installer ownership"
+    )
+
+
+@pytest.mark.parametrize(("label", "runner"), RUNNERS)
+@pytest.mark.parametrize("invalid_models", [None, "preserve", []])
+def test_nonobject_model_settings_preserved_while_env_defaults_seed(
+    tmp_path: Path, label: str, runner: Runner, invalid_models: object
+) -> None:
+    settings, _ = _seed(
+        tmp_path / label,
+        {
+            "model": "opus",
+            "effortLevel": "high",
+            "modelSettings": invalid_models,
+            "env": {"KEEP": "yes"},
+        },
+    )
+    proc = runner(tmp_path / label, settings.parent)
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    installed = json.loads(settings.read_text(encoding="utf-8"))
+    assert installed["modelSettings"] == invalid_models
+    assert installed["env"] == {"KEEP": "yes", "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet"}
+
+
+@pytest.mark.parametrize(("label", "runner"), RUNNERS)
+def test_removed_legacy_override_is_user_owned_even_if_stale_value_remains(
+    tmp_path: Path, label: str, runner: Runner
+) -> None:
+    template = json.loads(
+        (REPO_ROOT / "catalog/hooks/settings.json").read_text(encoding="utf-8")
+    )
+    template.pop("hooks", None)
+    template["env"]["CLAUDE_CODE_EFFORT_LEVEL"] = "medium"
+    settings, before = _seed(tmp_path / label, template)
+    key = "env.CLAUDE_CODE_EFFORT_LEVEL"
+    record = _write_ownership(settings, {key: "medium"})
+    ownership = json.loads(record.read_text(encoding="utf-8"))
+    ownership["removed"] = [key]
+    record.write_text(json.dumps(ownership), encoding="utf-8")
+    proc = runner(tmp_path / label, settings.parent)
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    assert settings.read_bytes() == before
+    installed_record = json.loads(record.read_text(encoding="utf-8"))
+    assert key in installed_record["removed"]
+    assert key not in installed_record["values"]

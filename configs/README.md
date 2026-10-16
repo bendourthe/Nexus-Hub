@@ -56,7 +56,7 @@ Everything under `configs/` remains repo-internal. The schema and example are no
 
 1. **Edit here, never in a derived artifact.** `catalog/hooks/settings.json`'s core keys and the `nexus-hub init` stub are DERIVED. Hand-editing either is what the drift check exists to catch.
 2. **Do not invent a lever.** A platform appears in this file ONLY when a specific official vendor document names the setting, recorded with `source_url` and a `verified` date. Never seed from a blog post, a forum, an aggregator, or an analogy to another platform. Nexus-Hub has made this mistake before: the `.kimi/agent.yaml` companion was fabricated and had to be dropped in v3.15.0.
-3. **Declare env counterparts alongside their scalar.** Where a platform exposes both a scalar setting and an environment variable for the same behavior, the env value commonly outranks the scalar. Declaring only one leaves the other silently winning.
+3. **Choose compatible delivery levers.** An environment override can outrank saved effort choices. Declare one only when that override is intentional and documented. Claude effort uses per-model settings and deliberately omits `env.CLAUDE_CODE_EFFORT_LEVEL`, so saved `/effort` choices remain effective at their scope.
 4. **Behavioral defaults only.** File-discovery paths and platform capabilities belong to `docs/policy/platform-read-contracts.json`. Neither document should grow into the other.
 5. **Platform ids must match the registry.** Keys under `platforms` are the ids from `scripts/lib/integrations/__init__.py::_register_builtins`, so an entry maps to its integration with no translation table.
 
@@ -89,7 +89,7 @@ Per derived artifact:
 | `path` | string | Repo-relative path. |
 | `format` | string | `json`, `python`, and so on. |
 | `strategy` | string | `merge-keys` (generator writes the listed keys in place) or `runtime-read` (the artifact reads this file itself; nothing is generated). |
-| `keys` | array of string | Dotted paths into `settings`, for example `env.CLAUDE_CODE_EFFORT_LEVEL`. These are the keys the check compares and the generator writes. |
+| `keys` | array of string | Dotted paths into `settings`, for example `env.CLAUDE_CODE_SUBAGENT_MODEL`. These are the keys the check compares and the generator writes. |
 | `note` | string | Why this artifact is handled the way it is. |
 | `fallback_symbol` | string | `runtime-read` only. The module constant holding the offline fallback, which the check verifies still equals the declared values. |
 
@@ -122,7 +122,13 @@ Three rules govern every write, and each exists because the alternative is hosti
 2. **Never destroy what we did not write.** TOML is edited through `tomlkit`, which round-trips comments and layout. YAML existing files are only ever **appended** to, because a plain PyYAML round-trip silently strips every comment; a declared key whose top-level parent already exists is skipped rather than merged, since appending a duplicate mapping would silently win or error depending on the reader.
 3. **Degrade, never fail.** A missing source, a missing optional dependency, or an unreadable target config results in a skipped seed and a one-line note on stderr. An install must not break because a default could not be written.
 
-Claude's `already-delivered` path has one precedence-specific refinement: the global installers treat `effortLevel` and `env.CLAUDE_CODE_EFFORT_LEVEL` as one upgrade pair. If either lever already exists, the pair's exact shape is user-owned and the missing partner is not added; only a config with neither lever and an absent or object-shaped `env` receives both declared defaults. A malformed user-owned `env` is preserved and cannot receive the nested default, with a warning when that shape blocks fresh effort-pair seeding. Without that rule, adding the higher-precedence env key beside an existing scalar would pin future sessions past the VS Code effort toggle even though no existing byte was overwritten.
+Claude's `already-delivered` path records core values it actually seeds in `~/.nexus-hub/core-settings-seeds.json`. Existing user-owned values remain untouched. Only a present value equal to its recorded seed can be upgraded; a user change drops that key's ownership. The fresh-template writer passes an explicit copy result, so an existing file that merely matches the defaults is never claimed. Unknown legacy effort values are retained and doctor explains their precedence.
+
+Current Claude effort defaults use `modelSettings.<canonical-model>.effortLevel: high`, with the top-level High fallback for older models. The effort environment variable is no longer declared. A matching recorded legacy env seed is retired; an unrecorded override remains. Existing env/default-model and per-model choices are preserved. Missing counterparts to a user-owned legacy effort lever are not added, and an alternative legacy effort choice prevents new per-model defaults from silently taking over. Malformed user-owned parent objects are retained with a warning.
+
+The seed record has schema version 1, a `target` such as `.claude/settings.json`, a `values` object mapping dotted core-key paths to the last seed, and a `removed` array of deliberately absent recorded keys. It lives under the settings directory's parent in `.nexus-hub/`, so isolated profile roots remain isolated. A recorded key that disappears is retained as removed and is not seeded on later upgrades or a fresh template copy. Existing values under removed keys remain user-owned. Unknown record metadata is preserved. A malformed, unreadable, linked, or different-target record is not replaced or trusted to overwrite existing settings. Record replacement uses a sibling temporary file and an atomic rename/replace, with no UTF-8 BOM; a write failure warns rather than claiming successful ownership.
+
+This is a value-based ownership record, not proof of user intent: a later user choice identical to the last seed is indistinguishable and may upgrade. To keep a different level, select it with `/effort` after removing an unowned env override; the changed per-model value is then preserved. Higher-priority settings scopes still win. New canonical model IDs require refreshing the declared list; `max` is not a settings default.
 
 Two further gates apply, both learned the hard way during Phase 3:
 

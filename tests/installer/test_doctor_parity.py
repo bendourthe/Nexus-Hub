@@ -288,3 +288,242 @@ def test_bash_and_powershell_agree_on_the_same_state(tmp_path):
             codes.append(proc.returncode)
         results[impl] = codes
     assert results["bash"] == results["powershell"], results
+
+
+@pytest.mark.parametrize("level", ["medium", "high"])
+def test_doctor_explains_unowned_effort_without_writing(
+    doctor, tmp_path: Path, level: str
+) -> None:
+    home = make_home(tmp_path, complete=True)
+    settings = home / ".claude/settings.json"
+    settings.parent.mkdir()
+    settings.write_text(
+        json.dumps({"env": {"CLAUDE_CODE_EFFORT_LEVEL": level}, "keep": True}),
+        encoding="utf-8",
+    )
+    before = settings.read_bytes()
+    code, output = doctor(home, write_contract(tmp_path))
+    assert code == 0, output
+    assert f"CLAUDE_CODE_EFFORT_LEVEL={level}" in output
+    assert "overrides saved /effort choices" in output
+    assert "Remove only env.CLAUDE_CODE_EFFORT_LEVEL" in output
+    assert settings.read_bytes() == before
+    assert not (home / ".nexus-hub/core-settings-seeds.json").exists()
+
+
+def test_doctor_does_not_echo_unsupported_effort_values(doctor, tmp_path: Path) -> None:
+    home = make_home(tmp_path, complete=True)
+    settings = home / ".claude/settings.json"
+    settings.parent.mkdir()
+    private_value = "PRIVATE_SENTINEL_6543\nforged diagnostic"
+    settings.write_text(
+        json.dumps({"env": {"CLAUDE_CODE_EFFORT_LEVEL": private_value}}),
+        encoding="utf-8",
+    )
+    before = settings.read_bytes()
+    code, output = doctor(home, write_contract(tmp_path))
+    assert code == 0, output
+    assert "an unsupported value" in output
+    assert "PRIVATE_SENTINEL_6543" not in output and "forged diagnostic" not in output
+    assert settings.read_bytes() == before
+
+
+@pytest.mark.parametrize("json_mode", [False, True])
+def test_installed_cli_routes_read_only_effort_diagnostics(
+    tmp_path: Path, json_mode: bool
+) -> None:
+    home = tmp_path / "home"
+    settings = home / ".claude/settings.json"
+    settings.parent.mkdir(parents=True)
+    settings.write_text(
+        json.dumps({"env": {"CLAUDE_CODE_EFFORT_LEVEL": "medium"}}), encoding="utf-8"
+    )
+    before = settings.read_bytes()
+    install = home / ".nexus-hub"
+    (install / "scripts").mkdir(parents=True)
+    shutil.copyfile(
+        REPO_ROOT / "scripts/nexus_hub_cli.py", install / "scripts/nexus_hub_cli.py"
+    )
+    env = dict(
+        os.environ,
+        HOME=str(home),
+        USERPROFILE=str(home),
+        NEXUS_HUB_HOME=str(install),
+        NEXUS_HUB_SRC=str(REPO_ROOT),
+    )
+    if os.name == "nt":
+        command = [str(REPO_ROOT / "scripts/nexus-hub.cmd")]
+    else:
+        command = [sys.executable, str(install / "scripts/nexus_hub_cli.py")]
+    command += ["doctor", "--target", str(home), "--integrations", "claude"]
+    if json_mode:
+        command += ["--json"]
+    proc = subprocess.run(
+        command,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        env=env,
+        timeout=120,
+        check=False,
+    )
+    assert proc.returncode == 1, proc.stdout + proc.stderr
+    if json_mode:
+        payload = json.loads(proc.stdout)
+        assert payload["error"] == "no manifest"
+        assert len(payload["settings_notes"]) == 1
+        output = payload["settings_notes"][0]
+    else:
+        output = proc.stdout
+    assert "CLAUDE_CODE_EFFORT_LEVEL=medium" in output
+    assert "Remove only env.CLAUDE_CODE_EFFORT_LEVEL" in output
+    assert settings.read_bytes() == before
+    assert not (install / "core-settings-seeds.json").exists()
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ("{", "unreadable"),
+        ("[]", "unreadable"),
+        ('{"env":[]}', "not an object"),
+        ('{"env":{}}', None),
+    ],
+)
+def test_effort_diagnostic_handles_invalid_user_settings_read_only(
+    tmp_path: Path, raw: str, expected: str | None
+) -> None:
+    from scripts.lib.integrations.claude import effort_override_note
+
+    path = tmp_path / ".claude/settings.json"
+    path.parent.mkdir()
+    path.write_text(raw, encoding="utf-8")
+    before = path.read_bytes()
+    note = effort_override_note(path)
+    if expected is None:
+        assert note is None
+    else:
+        assert note and expected in note
+    assert path.read_bytes() == before
+    assert not (tmp_path / ".nexus-hub").exists()
+
+
+@pytest.mark.parametrize(
+    "case", ["owned", "changed", "wrong-target", "removed", "invalid-schema"]
+)
+def test_effort_diagnostic_respects_seed_ownership(tmp_path: Path, case: str) -> None:
+    from scripts.lib.integrations.claude import effort_override_note
+
+    settings = tmp_path / ".claude/settings.json"
+    settings.parent.mkdir()
+    settings.write_text(
+        json.dumps({"env": {"CLAUDE_CODE_EFFORT_LEVEL": "medium"}}), encoding="utf-8"
+    )
+    record_path = tmp_path / ".nexus-hub/core-settings-seeds.json"
+    record_path.parent.mkdir()
+    key = "env.CLAUDE_CODE_EFFORT_LEVEL"
+    record = {
+        "schema_version": 1,
+        "target": ".claude/settings.json",
+        "values": {key: "medium"},
+        "removed": [],
+    }
+    if case == "changed":
+        record["values"][key] = "high"
+    elif case == "wrong-target":
+        record["target"] = "another/settings.json"
+    elif case == "removed":
+        record["removed"] = [key]
+    elif case == "invalid-schema":
+        record["schema_version"] = True
+    record_path.write_text(json.dumps(record), encoding="utf-8")
+    before = settings.read_bytes(), record_path.read_bytes()
+    note = effort_override_note(settings)
+    assert note
+    if case == "owned":
+        assert "run nexus-hub upgrade" in note
+    else:
+        assert "Remove only env.CLAUDE_CODE_EFFORT_LEVEL" in note
+    assert (settings.read_bytes(), record_path.read_bytes()) == before
+
+
+@pytest.mark.parametrize("json_mode", [False, True])
+@pytest.mark.parametrize("integration", ["claude", "codex"])
+def test_checkout_doctor_reports_owned_install_without_writing(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    json_mode: bool,
+    integration: str,
+) -> None:
+    from scripts import nexus_hub_cli as cli
+    from scripts.lib.integrations.manifest import InstallManifest
+    from scripts.lib.integrations.result import FileAction
+
+    home = tmp_path / "home"
+    settings = home / ".claude/settings.json"
+    settings.parent.mkdir(parents=True)
+    settings.write_text(
+        json.dumps({"env": {"CLAUDE_CODE_EFFORT_LEVEL": "medium"}}), encoding="utf-8"
+    )
+    manifest = InstallManifest()
+    manifest.track(integration, str(settings))
+    manifest.record_actions(integration, [FileAction(str(settings), "created")])
+    manifest.save(home / ".nexus-hub/install-manifest.json")
+    before = {
+        p.relative_to(home): p.read_bytes() for p in home.rglob("*") if p.is_file()
+    }
+    for name in ("HOME", "USERPROFILE"):
+        monkeypatch.setenv(name, str(home))
+    monkeypatch.setenv("NEXUS_HUB_HOME", str(home / ".nexus-hub"))
+    monkeypatch.setenv("NEXUS_HUB_SRC", str(REPO_ROOT))
+    args = ["--target", str(home), "--integrations", integration]
+    if json_mode:
+        args.append("--json")
+    run_child = subprocess.run
+    observed: list[subprocess.CompletedProcess[str]] = []
+
+    def capture_child(
+        *child_args: object, **child_kwargs: object
+    ) -> subprocess.CompletedProcess[str]:
+        result = run_child(
+            *child_args,
+            **child_kwargs,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+        )
+        observed.append(result)
+        return result
+
+    monkeypatch.setattr(cli.subprocess, "run", capture_child)
+    assert cli.cmd_doctor(args) == 0
+    assert len(observed) == 1
+    output = observed[0].stdout
+    if json_mode:
+        payload = json.loads(output)
+        assert payload["counts"]["ok"] == 1
+        assert bool(payload.get("settings_notes")) == (integration == "claude")
+    else:
+        assert "checked 1 integration(s)" in output
+    assert ("Remove only env.CLAUDE_CODE_EFFORT_LEVEL" in output) == (
+        integration == "claude"
+    )
+    assert {
+        p.relative_to(home): p.read_bytes() for p in home.rglob("*") if p.is_file()
+    } == before
+
+
+def test_checkout_doctor_missing_source_reports_remediation(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from scripts import nexus_hub_cli as cli
+
+    monkeypatch.setenv("NEXUS_HUB_SRC", str(tmp_path / "not-a-source-tree"))
+    assert cli.cmd_doctor([]) == 2
+    assert (
+        "set NEXUS_HUB_SRC to a checkout or rerun the installer"
+        in capsys.readouterr().err
+    )
+    assert not list(tmp_path.iterdir())
