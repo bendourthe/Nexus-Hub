@@ -121,3 +121,35 @@ Ubiquitous language for Nexus-Hub design discussions, plans, and reviews. Each t
 **Avoid**: harness-native index, host index, memory file, platform memory (ambiguous between the two classes)
 
 **Relationships**: Proposed for `docs/policy/memory-substrate-contract.md` by plan v4.14.5. Not the same as a Harness-Native Index. Its content reaches the agent only when the host injects it, and is treated as untrusted data.
+
+## Settings Control
+
+**Definition**: One user-facing default in Nexus-Hub Settings (for example default effort) that maps to one documented key per tool and is offered only after its effect was observed in a fresh session of each tool it writes.
+
+**Avoid**: toggle, switch, preference, option (each suggests a setting with no proof behind it)
+
+**Relationships**: Defined in `scripts/lib/settings_control/catalog.json` (plan v4.14.6). Broader than a vendor key; a control fans out to one key per tool. A control's per-tool cell is either backed by a Proof Record or marked Not-Settable.
+
+## Proof Record
+
+**Definition**: The dated observation, in a fresh session of the real tool, that a settings write changed what the tool did, quoting the observed output or naming the manual observation steps.
+
+**Avoid**: test result, verification, evidence (too broad), docs check
+
+**Relationships**: Required for every Settings Control write (plan v4.14.6, Phase 1). Not the same as a vendor source URL, which proves a key is documented, not that it takes effect.
+
+## Override Layer
+
+**Definition**: Any place that can beat a user-level default in a tool's documented precedence order: an environment variable, a project or repository settings file, a managed or organization policy, a launch flag, or a choice the tool's own UI remembers.
+
+**Avoid**: higher scope, conflict, overwrite
+
+**Relationships**: Reported by `nexus-hub settings show` as `overridden-by <layer>` with a fix line (plan v4.14.6). Read by Nexus-Hub Settings, never written.
+
+## Not-Settable
+
+**Definition**: The catalog state of a tool cell for which no vendor-documented user-level key exists or no Proof Record could be produced, always shown with its reason instead of a control.
+
+**Avoid**: unsupported, disabled, greyed out, coming soon
+
+**Relationships**: Opposite of an admitted Settings Control cell (plan v4.14.6). Each Not-Settable cell a vendor could later make settable is recorded as a known gap.
