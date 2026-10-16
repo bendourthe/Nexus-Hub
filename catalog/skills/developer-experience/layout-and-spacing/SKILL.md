@@ -35,6 +35,9 @@ Use when:
 
 ## Instructions
 
+Design-system lint: hand off to `interface-review` for the runnable contract and coverage record; keep this skill's domain rules here. Follow the verifier taxonomy owned by [[multi-agent-code-review]].
+
+
 ### 1. Group by meaning, then space the groups
 
 Controls that are one action live closer than controls that are different actions. A primary button and its cancel sit in one cluster; a destructive action is separated (gap of two steps on the scale, or a divider), not packed in the same 8px row.

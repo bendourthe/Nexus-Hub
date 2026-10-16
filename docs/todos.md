@@ -1,25 +1,27 @@
 # Nexus-Hub Progress Dashboard
 
 **Integration branch:** `develop`
-**Active work:** Approved v4.14 full-minor run: seven member plans and 209 tasks. v4.14.0 Phases 1 through 3 are verified locally; its subagent default is delivered in the unpublished local tree. The 83 inherited gaps remain open for reconciliation.
+**Active work:** Approved v4.14 full-minor run: seven member plans and 209 tasks. v4.14.0 Phases 1 through 4 are verified locally; its subagent default is delivered in the unpublished local tree. The 83 inherited gaps remain open for reconciliation.
 **Closeout boundary:** Recovery backups with unique Git history, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim. The former 47-file recovery branch was removed after its patch was proven identical to the merged PR #259 commit.
 **Last refreshed:** 2026-10-16 UTC
 **Recent fix:** Claude, Codex, GitHub Copilot and Cursor usage alerts dismiss automatically after one minute; merged green through PR #457.
 
 **Recent feature:** The Gemini Usage Monitor for the Antigravity IDE, confirmed working inside Antigravity by the maintainer on 2026-10-14, merged green through PR #465; it ships in the next release.
 
-**Next:** Continue v4.14.0 Phase 4: deterministic design-system verification guidance and ownership.
+**Next:** Continue v4.14.0 Phase 5: deterministic review grouping with complete file coverage.
 
 | Metric | Current | Target |
 |---|---|---|
-| v4.14 tasks | 13/209 | 209/209 |
+| v4.14 tasks | 17/209 | 209/209 |
 | v4.14 released members | 0/7 | 7/7 |
-| v4.14.0 phases | 3/7 | 7/7 |
+| v4.14.0 phases | 4/7 | 7/7 |
 | Inherited gaps | 83 open | Resolve or approved carry |
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its source `known-gaps.md` under `docs/releases/` or `docs/archives/`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
 
 Refreshing this file to the active plan (rather than appending another version's section) keeps the dashboard from drifting to an old feature branch.
+
+- [x] Verify v4.14.0 Phase 4 locally: single-owner design-system lint contract, tested reference configuration, and explicit domain handoffs.
 
 - [x] Verify v4.14.0 Phase 3 locally: deliver absent env defaults through both installers, preserve user text and overrides, reject noncanonical hook rewrites, and document both scopes; [usage](releases/v4/v4.14/development/capability-usage-gate.md).
 
