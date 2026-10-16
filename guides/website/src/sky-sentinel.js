@@ -1650,13 +1650,15 @@
     function chooseWorld() {
       /* R18: a demo's world is 600 units tall and as wide as its host's shape */
       if (demo) { var ds = demoSize(); world = { w: clamp(Math.round(600 * ds.w / ds.h), 360, 1500), h: 600 }; return; }
-      /* Full screen follows the screen's shape: portrait on a tall or square screen (a phone, an
-         unfolded foldable), otherwise a landscape world as wide as the screen. */
+      /* Full screen takes the screen's exact shape. Wide screens (a laptop, a sideways phone) get a
+         world 600 units tall and as wide as the screen; narrower ones (an upright phone, an unfolded
+         foldable, a tablet) a world 720 units wide and as tall as the screen. The two meet at 720 x 600
+         (a 1.2 : 1 screen), so every shape from 0.45 : 1 to 2.5 : 1 fills edge to edge. */
       if (fsOn) {
         var fw = stage.clientWidth || window.innerWidth || 960, fh = stage.clientHeight || window.innerHeight || 600;
-        /* portrait is 720 units wide and as tall as the screen's shape (960 to 1600), so a phone fills edge to edge */
-        world = fh >= fw * 0.9 ? { w: 720, h: Math.max(960, Math.min(1600, Math.round(720 * fh / fw))) } :
-          { w: Math.max(960, Math.min(1500, Math.round(600 * fw / fh))), h: 600 };
+        var shape = fw / Math.max(1, fh);
+        world = shape >= 1.2 ? { w: Math.max(720, Math.min(1500, Math.round(600 * shape))), h: 600 } :
+          { w: 720, h: Math.max(600, Math.min(1600, Math.round(720 / shape))) };
         return;
       }
       /* A hidden stage measures 0 px, so fall back to the viewport before guessing landscape. */
@@ -1695,12 +1697,43 @@
       fsBtn.style.top = fsOn ? top + 8 + "px" : "";
       fsBtn.style.right = fsOn ? right + 8 + "px" : "";
     }
+    /* A run in progress that enters or leaves full screen, or whose screen rotates or unfolds while
+       in it, takes the new world shape without a restart: every position keeps its place in
+       proportion, while speeds and sizes stay in world units. */
+    function reshapeWorld(nw) {
+      var kx = nw.w / world.w, ky = nw.h / world.h;
+      if (kx === 1 && ky === 1) return;
+      function move(o) {
+        if (!o || typeof o !== "object") return;
+        if (typeof o.x === "number") o.x *= kx;
+        if (typeof o.tx === "number") o.tx *= kx;
+        if (typeof o.y === "number") o.y *= ky;
+        if (typeof o.ty === "number") o.ty *= ky;
+        if (typeof o.holdY === "number") o.holdY *= ky;
+        if (typeof o.targetY === "number") o.targetY *= ky;
+      }
+      function moveAll(list) { if (list) for (var i = 0; i < list.length; i++) move(list[i]); }
+      move(S.player); move(S.boss); move(S.blast);
+      ["enemies", "enemyShots", "shots", "asteroids", "powerUps", "effects", "popups"].forEach(function (k) { moveAll(S[k]); });
+      [S.trans, S.finale].forEach(function (o) {
+        if (o) ["hole", "exit", "start", "star", "wreck"].forEach(function (k) { move(o[k]); });
+      });
+      if (S.finale) moveAll(S.finale.debris);
+      world = nw;
+    }
+    function refitWorld() {
+      var old = world;
+      chooseWorld();
+      var nw = world;
+      world = old;
+      reshapeWorld(nw);
+    }
     function fit() {
       if (S && S.state === "idle") {
         var old = world;
         chooseWorld();
         if (world.w !== old.w || world.h !== old.h) { world = old; reset(); return; }
-      }
+      } else if (S && fsOn) refitWorld();
       var cssW = Math.max(240, stage.clientWidth || host.clientWidth || 960);
       var cssH = cssW * world.h / world.w;
       if (cssH > arenaCap()) cssH = arenaCap();
@@ -6038,6 +6071,8 @@
         try { var left = leave && leave.call(document); if (left && left.catch) left.catch(function () {}); } catch (err) { /* already out */ }
       }
       fsPaint();
+      /* back on the page, a run in progress returns to the page's world shape */
+      if (!on && S && S.state !== "idle") refitWorld();
       fit();
       window.requestAnimationFrame(fit);
       emit("fullscreen", { on: on });

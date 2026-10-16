@@ -536,16 +536,19 @@ FS_GEOM = """() => { const h = document.querySelector('.ss-host[data-ss-id=fixed
 @pytest.mark.parametrize(
     "shape",
     [
-        # (viewport, touch, expected world orientation, arena fills both axes)
-        ((1440, 900), False, "landscape", True),
-        ((390, 844), True, "portrait", True),
-        ((800, 800), True, "portrait", False),
-        ((844, 390), True, "landscape", True),
+        # (viewport, touch, expected world orientation); every shape fills the screen edge to edge
+        ((1440, 900), False, "landscape"),
+        ((390, 844), True, "portrait"),
+        ((904, 753), True, "landscape"),
+        ((753, 904), True, "portrait"),
+        ((800, 800), True, "square"),
+        ((1024, 768), True, "landscape"),
+        ((844, 390), True, "landscape"),
     ],
-    ids=["laptop", "phone", "square-foldable", "phone-landscape"],
+    ids=["laptop", "phone", "foldable-unfolded", "foldable-unfolded-upright", "square", "tablet-4x3", "phone-landscape"],
 )
 def test_the_full_screen_button_fills_the_screen_and_becomes_an_exit_cross(browser, shape) -> None:
-    (vw, vh), touch, orientation, fills = shape
+    (vw, vh), touch, orientation = shape
     ctx = browser.new_context(viewport={"width": vw, "height": vh}, has_touch=touch, is_mobile=touch)
     pg = ctx.new_page()
     try:
@@ -563,13 +566,13 @@ def test_the_full_screen_button_fills_the_screen_and_becomes_an_exit_cross(brows
         g1 = pg.evaluate(FS_GEOM)
         assert g1["label"] == "Exit full screen", "full screen turns the button into an exit cross"
         world, canvas, vp = g1["world"], g1["canvas"], g1["vp"]
-        assert (world["h"] > world["w"]) == (orientation == "portrait"), f"{orientation} world for a {vw}x{vh} screen: {world}"
+        if orientation == "square":
+            assert abs(world["w"] - world["h"]) <= 2, f"a square screen gets a square world: {world}"
+        else:
+            assert (world["h"] > world["w"]) == (orientation == "portrait"), f"{orientation} world for a {vw}x{vh} screen: {world}"
         assert abs(canvas["w"] / canvas["h"] - world["w"] / world["h"]) < 0.02, "the arena keeps the world's shape"
         assert canvas["x"] >= 0 and canvas["y"] >= 0 and canvas["x"] + canvas["w"] <= vp["w"] + 1 and canvas["y"] + canvas["h"] <= vp["h"] + 1
-        if fills:
-            assert canvas["w"] >= vp["w"] - 2 and canvas["h"] >= vp["h"] - 2, f"the arena fills the screen: {canvas} in {vp}"
-        else:
-            assert max(canvas["w"] / vp["w"], canvas["h"] / vp["h"]) > 0.98, "the arena fills one axis and centres on the other"
+        assert canvas["w"] >= vp["w"] - 2 and canvas["h"] >= vp["h"] - 2, f"the arena fills the screen: {canvas} in {vp}"
         b = g1["btn"]
         assert b["x"] + b["w"] <= canvas["x"] + canvas["w"] - 4 and b["y"] >= canvas["y"] + 4, "the cross stays on the arena's corner"
         # Play: the score, level, and retries line stops left of the button.
@@ -581,6 +584,39 @@ def test_the_full_screen_button_fills_the_screen_and_becomes_an_exit_cross(brows
         pg.wait_for_function("!SkySentinel.get('fixed').state().fullscreen.on")
         g2 = pg.evaluate(FS_GEOM)
         assert g2["label"] == "Full screen", "leaving full screen restores the button"
+    finally:
+        ctx.close()
+
+
+@pytest.mark.parametrize("viewport", [(390, 844), (904, 753), (753, 904)], ids=["phone", "foldable", "foldable-upright"])
+def test_a_run_in_progress_takes_the_full_screen_shape_and_gives_it_back(browser, viewport) -> None:
+    """Entering full screen mid-run must not keep the page's world: the arena fills the screen at once."""
+    vw, vh = viewport
+    ctx = browser.new_context(viewport={"width": vw, "height": vh}, has_touch=True, is_mobile=True)
+    pg = ctx.new_page()
+    try:
+        pg.goto(TRAINING.as_uri() + "#play-fixed")
+        pg.wait_for_function("window.SkySentinel && SkySentinel.get('fixed')")
+        btn = pg.locator(".ss-host[data-ss-id=fixed] .ss-fs")
+        btn.scroll_into_view_if_needed()
+        pg.evaluate("SkySentinel.manual(true); const g = SkySentinel.get('fixed'); g.configure({ defects: {}, seed: 21, threats: false }); g.start(); g.step(120);")
+        s0 = pg.evaluate("SkySentinel.get('fixed').state()")
+        page_world = s0["world"]
+        btn.click()
+        pg.wait_for_function("SkySentinel.get('fixed').state().fullscreen.on")
+        pg.wait_for_timeout(300)
+        g = pg.evaluate(FS_GEOM)
+        s1 = pg.evaluate("SkySentinel.get('fixed').state()")
+        assert s1["state"] == "running" and s1["score"] == s0["score"], "the run continues"
+        assert g["canvas"]["w"] >= vw - 2 and g["canvas"]["h"] >= vh - 2, f"the arena fills the screen mid-run: {g['canvas']}"
+        for axis, size in (("x", "w"), ("y", "h")):
+            before = s0["player"][axis] / page_world[size]
+            after = s1["player"][axis] / s1["world"][size]
+            assert abs(before - after) < 0.02, f"the ship keeps its place across the reshape ({axis}: {before:.3f} -> {after:.3f})"
+        btn.click()
+        pg.wait_for_function("!SkySentinel.get('fixed').state().fullscreen.on")
+        pg.wait_for_timeout(200)
+        assert pg.evaluate("SkySentinel.get('fixed').state().world") == page_world, "back on the page, the run returns to the page's world"
     finally:
         ctx.close()
 
