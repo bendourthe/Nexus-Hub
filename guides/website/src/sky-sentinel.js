@@ -1590,6 +1590,34 @@
     stage.appendChild(canvas);
     if (hudCanvas) stage.appendChild(hudCanvas);
     if (!demo) stage.appendChild(overlay);
+    /* Full screen: a button pinned to the arena's top-right corner; while full screen is on it
+       becomes an exit cross. The HUD's right-hand text starts left of it (see hudRight). */
+    var fsBtn = null, fsOn = false, fsNative = false, fsScroll = 0;
+    function fsIcon(cross) {
+      var NS = "http://www.w3.org/2000/svg", svg = document.createElementNS(NS, "svg");
+      svg.setAttribute("viewBox", "0 0 24 24"); svg.setAttribute("aria-hidden", "true"); svg.setAttribute("focusable", "false");
+      (cross ? ["M6 6l12 12", "M18 6L6 18"] : ["M4 9V4h5", "M15 4h5v5", "M20 15v5h-5", "M9 20H4v-5"]).forEach(function (d) {
+        var path = document.createElementNS(NS, "path");
+        path.setAttribute("d", d);
+        svg.appendChild(path);
+      });
+      return svg;
+    }
+    function fsPaint() {
+      if (!fsBtn) return;
+      fsBtn.textContent = "";
+      fsBtn.appendChild(fsIcon(fsOn));
+      var label = fsOn ? "Exit full screen" : "Full screen";
+      fsBtn.setAttribute("aria-label", label);
+      fsBtn.title = label;
+      fsBtn.setAttribute("data-ss-fs-on", fsOn ? "true" : "false");
+    }
+    if (!demo) {
+      fsBtn = el("button", "ss-fs");
+      fsBtn.type = "button";
+      fsPaint();
+      stage.appendChild(fsBtn);
+    }
     var hud = el("div", "ss-hud");
     var hudScore = el("span", "ss-hud-item"), hudLives = el("span", "ss-hud-item"), hudLevel = el("span", "ss-hud-item"), hudState = el("span", "ss-hud-item");
     hud.appendChild(hudScore); hud.appendChild(hudLives); hud.appendChild(hudLevel); hud.appendChild(hudState);
@@ -1622,12 +1650,50 @@
     function chooseWorld() {
       /* R18: a demo's world is 600 units tall and as wide as its host's shape */
       if (demo) { var ds = demoSize(); world = { w: clamp(Math.round(600 * ds.w / ds.h), 360, 1500), h: 600 }; return; }
+      /* Full screen follows the screen's shape: portrait on a tall or square screen (a phone, an
+         unfolded foldable), otherwise a landscape world as wide as the screen. */
+      if (fsOn) {
+        var fw = stage.clientWidth || window.innerWidth || 960, fh = stage.clientHeight || window.innerHeight || 600;
+        /* portrait is 720 units wide and as tall as the screen's shape (960 to 1600), so a phone fills edge to edge */
+        world = fh >= fw * 0.9 ? { w: 720, h: Math.max(960, Math.min(1600, Math.round(720 * fh / fw))) } :
+          { w: Math.max(960, Math.min(1500, Math.round(600 * fw / fh))), h: 600 };
+        return;
+      }
       /* A hidden stage measures 0 px, so fall back to the viewport before guessing landscape. */
       var w = host.clientWidth || window.innerWidth || 960;
       if (w < 600) { world = { w: 720, h: 960 }; return; }
       /* Landscape: 600 units tall; as wide as the arena's shape, so it fills the frame edge to edge. */
       var cssH = Math.min(w * 600 / 960, arenaCap());
       world = { w: Math.max(960, Math.min(1500, Math.round(600 * w / cssH))), h: 600 };
+    }
+    /* Full screen: centre the arena (canvas and HUD canvas) in the screen and pin the button to
+       its top-right corner; out of full screen, hand both back to the stylesheet. */
+    function fsPlace(cssW, cssH) {
+      if (!fsBtn) return;
+      var left = 0, top = 0, right = 0;
+      if (fsOn) {
+        left = Math.floor((stage.clientWidth - cssW) / 2);
+        top = Math.floor((stage.clientHeight - cssH) / 2);
+        right = Math.max(0, stage.clientWidth - left - cssW);
+      }
+      canvas.style.position = fsOn ? "absolute" : "";
+      canvas.style.left = fsOn ? left + "px" : "";
+      canvas.style.top = fsOn ? top + "px" : "";
+      canvas.style.width = fsOn ? cssW + "px" : "";
+      if (hudCanvas) {
+        hudCanvas.style.left = fsOn ? left + "px" : "0";
+        hudCanvas.style.top = fsOn ? top + "px" : "0";
+        hudCanvas.style.width = fsOn ? cssW + "px" : "100%";
+        hudCanvas.style.height = fsOn ? Math.round(cssH) + "px" : "100%";
+      }
+      /* the start and end cards stay over the arena, not over the black bars */
+      var bottom = fsOn ? Math.max(0, stage.clientHeight - top - Math.round(cssH)) : 0;
+      overlay.style.left = fsOn ? left + "px" : "";
+      overlay.style.top = fsOn ? top + "px" : "";
+      overlay.style.right = fsOn ? right + "px" : "";
+      overlay.style.bottom = fsOn ? bottom + "px" : "";
+      fsBtn.style.top = fsOn ? top + 8 + "px" : "";
+      fsBtn.style.right = fsOn ? right + 8 + "px" : "";
     }
     function fit() {
       if (S && S.state === "idle") {
@@ -1638,6 +1704,13 @@
       var cssW = Math.max(240, stage.clientWidth || host.clientWidth || 960);
       var cssH = cssW * world.h / world.w;
       if (cssH > arenaCap()) cssH = arenaCap();
+      if (fsOn) {
+        /* the largest arena of the world's shape that fits the screen, centred on black */
+        var aw = stage.clientWidth || window.innerWidth, ah = stage.clientHeight || window.innerHeight;
+        var fsc = Math.min(aw / world.w, ah / world.h);
+        cssW = Math.max(240, Math.floor(world.w * fsc)); cssH = Math.floor(world.h * fsc);
+      }
+      fsPlace(cssW, cssH);
       hudBand = Math.round((cssW < 520 ? 98 : 66) * world.h / Math.max(1, cssH));
       /* R40: the boss bar gained a stage line beneath it, so the band below it is deeper */
       hudBandBoss = Math.round((cssW < 520 ? 142 : 84) * world.h / Math.max(1, cssH));
@@ -5034,6 +5107,9 @@
       ctx.fillStyle = "rgba(2,8,12,0.55)";
       for (var k = 1; k < 10; k++) ctx.fillRect(x + w * k / 10, y, 1, h);
     }
+    /* The right edge of the HUD's right-aligned text: 14 px in, plus the full-screen button's
+       width, so the score and the level never sit under the button. */
+    function hudRight(W) { return W - 14 - (fsBtn && fsBtn.offsetWidth ? fsBtn.offsetWidth + 8 : 0); }
     function drawHud() {
       if (!S || !ctx || S.state === "idle") return;
       var dpr = canvas.width / Math.max(1, canvas.clientWidth || canvas.width);
@@ -5105,22 +5181,22 @@
       ctx.textBaseline = "middle";
       ctx.font = "800 " + (small ? 13 : 15) + "px " + hudFont;
       ctx.fillStyle = "#e6f6f8"; ctx.textAlign = "right";
-      ctx.fillText("Score " + S.score.toLocaleString("en-US"), W - 14, 18);
-      if (cfg.progression && !small) { ctx.font = "600 11.5px " + hudFont; ctx.fillStyle = "#94a3b8"; ctx.fillText(MAPS[S.mapId].name, W - 14, 36); }
+      ctx.fillText("Score " + S.score.toLocaleString("en-US"), hudRight(W), 18);
+      if (cfg.progression && !small) { ctx.font = "600 11.5px " + hudFont; ctx.fillStyle = "#94a3b8"; ctx.fillText(MAPS[S.mapId].name, hudRight(W), 36); }
       /* R41 (T123): the retries left on this level, small, under the score and the map */
       hudMarks.retry = null;
       if (retriesOn() && !S.finale) {
         var rl = retriesLeft(), rtx = "Retries left: " + rl, ry = small ? 52 : 52;
         ctx.font = "600 " + (small ? 10.5 : 11) + "px " + hudFont; ctx.fillStyle = rl ? "#7dd3c0" : "#94a3b8"; ctx.textAlign = "right";
-        ctx.fillText(rtx, W - 14, ry);
-        hudMarks.retry = { text: rtx, left: rl, x: W - 14, y: ry };
+        ctx.fillText(rtx, hudRight(W), ry);
+        hudMarks.retry = { text: rtx, left: rl, x: hudRight(W), y: ry };
       }
       /* level, its difficulty, its goal, and progress toward it */
       var d = diff(), g = goal();
       var dc = { Easy: "#4ade80", Medium: "#fbbf24", Hard: "#f87171" }[d.name];
       if (small) {
         ctx.textAlign = "right"; ctx.font = "800 11.5px " + hudFont;
-        ctx.fillStyle = dc; ctx.fillText(S.finale ? "VICTORY" : S.boss ? "FINAL BOSS" : ("LEVEL " + S.level + " - " + d.name).toUpperCase(), W - 14, 36);
+        ctx.fillStyle = dc; ctx.fillText(S.finale ? "VICTORY" : S.boss ? "FINAL BOSS" : ("LEVEL " + S.level + " - " + d.name).toUpperCase(), hudRight(W), 36);
       } else {
         ctx.textAlign = "center"; ctx.font = "800 13px " + hudFont;
         var title = S.finale ? "VICTORY" : S.boss ? "FINAL BOSS" : "LEVEL " + S.level + (cfg.progression ? ": " + FORMS[S.level].toUpperCase() : "");
@@ -5244,7 +5320,7 @@
       ctx.font = "800 " + (small ? 12 : 13) + "px " + hudFont; ctx.fillStyle = "#5eead4"; spaced(3);
       ctx.fillText("VICTORY", W / 2 + 1.5, 16); spaced(0);
       ctx.font = "800 " + (small ? 13 : 15) + "px " + hudFont; ctx.fillStyle = "#e6f6f8"; ctx.textAlign = "right";
-      ctx.fillText("Score " + S.score.toLocaleString("en-US"), W - 14, 18);
+      ctx.fillText("Score " + S.score.toLocaleString("en-US"), hudRight(W), 18);
       ctx.textAlign = "left"; ctx.font = "600 " + (small ? 11 : 11.5) + "px " + hudFont; ctx.fillStyle = "#94a3b8";
       ctx.fillText(MAPS[5].name, 14, 18);
       hudMarks.calm = { title: "VICTORY", map: MAPS[5].name, bars: false, chips: 0 };
@@ -5701,7 +5777,8 @@
             shieldsUp: b.shields.filter(function (L) { return L.hp > 0; }).length, layer: shieldLayer(b), stage: bossStage(b), coreGlow: coreGlows(b), deflects: b.deflects,
             broken: b.broken.slice(), fightTicks: b.fightT, rot: b.rot, quarter: b.q, turns: b.turns.slice(), blasted: b.blasted, agentEvery: agentEvery(b), agentCap: agentCap(b), launches: b.launches.slice(),
             hp: bossHp(b), hpMax: BOSS_HP, intro: b.entered ? null : { t: b.intro, len: b.introLen, grow: bossGrow(b), title: introTitle(b) > 0 } } : null, bossDue: S.bossDue,
-          canvas: { cssWidth: canvas.clientWidth, cssHeight: canvas.clientHeight, width: canvas.width, height: canvas.height }
+          canvas: { cssWidth: canvas.clientWidth, cssHeight: canvas.clientHeight, width: canvas.width, height: canvas.height },
+          fullscreen: { on: fsOn, native: fsNative }
         };
       },
       animating: function () { return !!S && S.state === "over" && (S.afterglow > 0 || !!(S.finale && !S.finale.done) || calmWanted()); },
@@ -5893,6 +5970,8 @@
     function novaOwns() { return novaOn() && S.state === "running" && S.trans.age >= 45 && host.offsetParent !== null; }
     window.addEventListener("keydown", function (ev) {
       if (ev.ctrlKey || ev.metaKey || ev.altKey) return;
+      /* the browser's own full screen exits on Escape; the covering fallback does the same */
+      if (ev.key === "Escape" && fsOn && !fsNative) setFs(false);
       if (finaleOwns() && (ev.key === " " || ev.key === "Enter" || ev.key === "Escape") && (document.activeElement === canvas || document.activeElement === document.body)) { skipFinale(); sync(); ev.preventDefault(); return; }
       if (novaOwns() && !ev.repeat && (ev.key === " " || ev.key === "Enter" || ev.key === "Escape") && (document.activeElement === canvas || document.activeElement === document.body)) { skipNova(); sync(); ev.preventDefault(); return; }
       if (ev.key === "Escape" && owns()) { pause("escape"); ev.preventDefault(); return; }
@@ -5933,6 +6012,49 @@
       steerTo(ev);
       held.fire = true;
     });
+    /* Full screen uses the browser's Fullscreen API where it exists; where it does not (an
+       iPhone, for one), the stage alone covers the viewport. Both look and play the same. */
+    function fsElement() { return document.fullscreenElement || document.webkitFullscreenElement || null; }
+    function setFs(on) {
+      if (!fsBtn || on === fsOn) return;
+      /* leaving full screen returns the reader to the same place on the page */
+      if (on) fsScroll = window.scrollY || 0;
+      else window.requestAnimationFrame(function () { window.scrollTo(0, fsScroll); });
+      fsOn = on;
+      stage.toggleAttribute("data-ss-fs", on);
+      document.documentElement.toggleAttribute("data-ss-fs-lock", on);
+      fsNative = false;
+      if (on) {
+        var req = stage.requestFullscreen || stage.webkitRequestFullscreen;
+        if (req) {
+          try {
+            var asked = req.call(stage);
+            fsNative = true;
+            if (asked && asked.catch) asked.catch(function () { fsNative = false; });
+          } catch (err) { fsNative = false; }
+        }
+      } else if (fsElement() === stage) {
+        var leave = document.exitFullscreen || document.webkitExitFullscreen;
+        try { var left = leave && leave.call(document); if (left && left.catch) left.catch(function () {}); } catch (err) { /* already out */ }
+      }
+      fsPaint();
+      fit();
+      window.requestAnimationFrame(fit);
+      emit("fullscreen", { on: on });
+    }
+    /* the browser left full screen on its own (Escape, a system gesture): follow it */
+    function onFsChange() {
+      if (fsOn && fsNative && fsElement() !== stage) { setFs(false); return; }
+      /* the browser restores its own scroll after leaving full screen; put the reader back after it */
+      if (!fsOn && !fsElement()) window.scrollTo(0, fsScroll);
+    }
+    document.addEventListener("fullscreenchange", onFsChange);
+    document.addEventListener("webkitfullscreenchange", onFsChange);
+    window.addEventListener("resize", function () { if (fsOn) fit(); });
+    fsBtn.addEventListener("click", function () {
+      setFs(!fsOn);
+      try { canvas.focus({ preventScroll: true }); } catch (err) { canvas.focus(); }
+    });
     canvas.addEventListener("pointermove", function (ev) { if (ev.pointerId === steerId && steer) steerTo(ev); });
     ["pointerup", "pointercancel", "lostpointercapture"].forEach(function (t) {
       canvas.addEventListener(t, function (ev) { if (ev.pointerId === steerId) { steer = null; steerId = null; held.fire = false; } });
@@ -5951,7 +6073,7 @@
       io.observe(stage);
     }
     document.addEventListener("visibilitychange", function () { paintCards(); if (calmWanted()) wake(); });
-    if ("ResizeObserver" in window) { ro = new ResizeObserver(function () { fit(); }); ro.observe(host); }
+    if ("ResizeObserver" in window) { ro = new ResizeObserver(function () { fit(); }); ro.observe(host); ro.observe(stage); }
     else window.addEventListener("resize", fit);
 
     instances[id] = api;

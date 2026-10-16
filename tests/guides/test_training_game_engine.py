@@ -526,6 +526,107 @@ def test_holding_a_finger_on_the_arena_starts_steers_and_fires(browser) -> None:
         ctx.close()
 
 
+FS_GEOM = """() => { const h = document.querySelector('.ss-host[data-ss-id=fixed]');
+  const r = e => { const b = e.getBoundingClientRect(); return { x: b.left, y: b.top, w: b.width, h: b.height }; };
+  const s = SkySentinel.get('fixed').state();
+  return { canvas: r(h.querySelector('.ss-canvas')), btn: r(h.querySelector('.ss-fs')), label: h.querySelector('.ss-fs').getAttribute('aria-label'),
+           fs: s.fullscreen, world: s.world, vp: { w: innerWidth, h: innerHeight } }; }"""
+
+
+@pytest.mark.parametrize(
+    "shape",
+    [
+        # (viewport, touch, expected world orientation, arena fills both axes)
+        ((1440, 900), False, "landscape", True),
+        ((390, 844), True, "portrait", True),
+        ((800, 800), True, "portrait", False),
+        ((844, 390), True, "landscape", True),
+    ],
+    ids=["laptop", "phone", "square-foldable", "phone-landscape"],
+)
+def test_the_full_screen_button_fills_the_screen_and_becomes_an_exit_cross(browser, shape) -> None:
+    (vw, vh), touch, orientation, fills = shape
+    ctx = browser.new_context(viewport={"width": vw, "height": vh}, has_touch=touch, is_mobile=touch)
+    pg = ctx.new_page()
+    try:
+        pg.goto(TRAINING.as_uri() + "#play-fixed")
+        pg.wait_for_function("window.SkySentinel && SkySentinel.get('fixed')")
+        btn = pg.locator(".ss-host[data-ss-id=fixed] .ss-fs")
+        btn.scroll_into_view_if_needed()
+        g0 = pg.evaluate(FS_GEOM)
+        assert g0["label"] == "Full screen" and not g0["fs"]["on"]
+        assert g0["btn"]["x"] + g0["btn"]["w"] <= g0["canvas"]["x"] + g0["canvas"]["w"] and g0["btn"]["y"] >= g0["canvas"]["y"], \
+            "the button sits in the arena's top-right corner"
+        btn.click()
+        pg.wait_for_function("SkySentinel.get('fixed').state().fullscreen.on")
+        pg.wait_for_timeout(200)
+        g1 = pg.evaluate(FS_GEOM)
+        assert g1["label"] == "Exit full screen", "full screen turns the button into an exit cross"
+        world, canvas, vp = g1["world"], g1["canvas"], g1["vp"]
+        assert (world["h"] > world["w"]) == (orientation == "portrait"), f"{orientation} world for a {vw}x{vh} screen: {world}"
+        assert abs(canvas["w"] / canvas["h"] - world["w"] / world["h"]) < 0.02, "the arena keeps the world's shape"
+        assert canvas["x"] >= 0 and canvas["y"] >= 0 and canvas["x"] + canvas["w"] <= vp["w"] + 1 and canvas["y"] + canvas["h"] <= vp["h"] + 1
+        if fills:
+            assert canvas["w"] >= vp["w"] - 2 and canvas["h"] >= vp["h"] - 2, f"the arena fills the screen: {canvas} in {vp}"
+        else:
+            assert max(canvas["w"] / vp["w"], canvas["h"] / vp["h"]) > 0.98, "the arena fills one axis and centres on the other"
+        b = g1["btn"]
+        assert b["x"] + b["w"] <= canvas["x"] + canvas["w"] - 4 and b["y"] >= canvas["y"] + 4, "the cross stays on the arena's corner"
+        # Play: the score, level, and retries line stops left of the button.
+        pg.evaluate("SkySentinel.manual(true); const g = SkySentinel.get('fixed'); g.configure({ defects: {}, seed: 21, threats: false }); g.start(); g.step(30); g.render();")
+        retry = pg.evaluate("SkySentinel.get('fixed').state().hud.retry")
+        if retry:
+            assert retry["x"] <= b["x"] - canvas["x"] - 6, f"the HUD's right-hand text clears the button: {retry} vs {b}"
+        btn.click()
+        pg.wait_for_function("!SkySentinel.get('fixed').state().fullscreen.on")
+        g2 = pg.evaluate(FS_GEOM)
+        assert g2["label"] == "Full screen", "leaving full screen restores the button"
+    finally:
+        ctx.close()
+
+
+def test_without_the_fullscreen_api_the_arena_still_covers_the_screen(browser) -> None:
+    """An iPhone has no element full screen; the stage covers the viewport instead, and Escape leaves."""
+    ctx = browser.new_context(viewport={"width": 390, "height": 844}, has_touch=True, is_mobile=True)
+    ctx.add_init_script("Element.prototype.requestFullscreen = undefined; Element.prototype.webkitRequestFullscreen = undefined;")
+    pg = ctx.new_page()
+    try:
+        pg.goto(TRAINING.as_uri() + "#play-fixed")
+        pg.wait_for_function("window.SkySentinel && SkySentinel.get('fixed')")
+        btn = pg.locator(".ss-host[data-ss-id=fixed] .ss-fs")
+        btn.scroll_into_view_if_needed()
+        btn.click()
+        pg.wait_for_function("SkySentinel.get('fixed').state().fullscreen.on")
+        pg.wait_for_timeout(200)
+        g = pg.evaluate(FS_GEOM)
+        assert g["fs"] == {"on": True, "native": False}
+        assert g["canvas"]["x"] <= 1 and g["canvas"]["y"] <= 1 and g["canvas"]["w"] >= 388 and g["canvas"]["h"] >= 842, g["canvas"]
+        assert g["label"] == "Exit full screen"
+        pg.keyboard.press("Escape")
+        pg.wait_for_function("!SkySentinel.get('fixed').state().fullscreen.on")
+        assert pg.evaluate(FS_GEOM)["label"] == "Full screen"
+    finally:
+        ctx.close()
+
+
+@pytest.mark.parametrize("viewport", [(390, 844), (360, 740)])
+def test_the_full_screen_button_never_covers_the_start_card(browser, viewport) -> None:
+    ctx = browser.new_context(viewport={"width": viewport[0], "height": viewport[1]}, has_touch=True, is_mobile=True)
+    pg = ctx.new_page()
+    try:
+        pg.goto(TRAINING.as_uri() + "#play-fixed")
+        pg.wait_for_function("window.SkySentinel && SkySentinel.get('fixed')")
+        pg.locator(".ss-host[data-ss-id=fixed] .ss-fs").scroll_into_view_if_needed()
+        hits = pg.evaluate(
+            """() => { const h = document.querySelector('.ss-host[data-ss-id=fixed]'), b = h.querySelector('.ss-fs').getBoundingClientRect();
+                return [...h.querySelectorAll('.ss-panel > :not(.ss-hangar), .ss-ship')].filter(k => k.offsetParent).map(k => [k.className, k.getBoundingClientRect()])
+                  .filter(([, r]) => r.left < b.right && r.right > b.left && r.top < b.bottom && r.bottom > b.top).map(([c]) => c); }"""
+        )
+        assert hits == [], f"the button overlaps {hits}"
+    finally:
+        ctx.close()
+
+
 def test_a_game_first_shown_on_a_phone_fills_the_width_in_portrait(browser) -> None:
     """A play stage is hidden at load, so the arena must re-choose its shape when it first appears."""
     ctx = browser.new_context(viewport={"width": 390, "height": 844}, has_touch=True, is_mobile=True)
