@@ -188,8 +188,9 @@ def test_posix_refreshes_a_stale_profile_and_keeps_user_additions(tmp_path: Path
     assert profile["filesystem"] == {
         "/home/me/extra": "write", ":minimal": "read", ":workspace_roots": "read",
     }
-    assert "my.internal.example" in profile["network"]["allowed_domains"]
-    assert "pypi.org" in profile["network"]["allowed_domains"]
+    # A user-added domain survives and the template's are unioned in. A subset check
+    # rather than `"<domain>" in list`, which code scanning misreads as URL sanitizing.
+    assert {"my.internal.example", "pypi.org"} <= set(profile["network"]["allowed_domains"])
     assert "permissions.default.filesystem.:minimal" in changed
     assert _sync(path, windows=False) == ([], [])
 
