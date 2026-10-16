@@ -4,7 +4,7 @@
 **Distribution tier**: Full file-tree (original 4, legacy copy block + registry subclass)
 **Instruction merge mode**: `shared` (marker-merged)
 **Hooks**: not supported
-**Permissions template**: `configs/permissions/codex-permissions.json`
+**Permissions template**: `configs/permissions/codex-permissions.toml`, reconciled by `scripts/merge_permissions.py --codex` on every install (macOS/Linux: a read-limited `default` profile; Windows: no profile, because Codex's unelevated sandbox cannot enforce read limits, so `sandbox_mode` applies)
 
 Codex (OpenAI) receives the full catalog as separate files plus a marker-merged `AGENTS.md`.
 

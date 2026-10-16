@@ -64,7 +64,7 @@
     {"posix": ["install_git_commit_msg_hook"], "windows": ["Install-GitCommitMsgHook"], "reason": "Git commit-message hook installation."},
     {"posix": ["ensure_codex_cli"], "windows": ["Ensure-CodexCli"], "reason": "Optional Codex CLI discovery and installation."},
     {"posix": ["merge_strict_permissions"], "windows": ["Merge-StrictPermissions"], "reason": "Strict permission overlay merge."},
-    {"posix": ["resolve_permissions_helper", "report_permissions_helper_output", "merge_permissions_via_helper", "set_permission_flag_via_helper"], "windows": ["Merge-PermissionsViaHelper"], "reason": "PowerShell keeps interpreter selection, protocol reporting, list merge, and scalar update in one helper."},
+    {"posix": ["resolve_permissions_helper", "report_permissions_helper_output", "merge_permissions_via_helper", "set_permission_flag_via_helper", "sync_codex_permissions_via_helper"], "windows": ["Merge-PermissionsViaHelper"], "reason": "PowerShell keeps interpreter selection, protocol reporting, list merge, scalar update, and the Codex TOML sync in one helper."},
     {"posix": ["install_permissions"], "windows": ["Install-Permissions"], "reason": "Permission baseline installation."},
     {"posix": ["install_global"], "windows": ["Install-Global"], "reason": "Global install flow."},
     {"posix": ["detect_languages"], "windows": ["Detect-Languages"], "reason": "Workspace language detection."},
