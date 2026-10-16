@@ -1,6 +1,7 @@
 ---
 name: planner
 description: Implementation planning before coding begins. Use for breaking down complex features into tasks, estimating effort, identifying dependencies, and producing a concrete implementation sequence. Always runs before the first code change on non-trivial work.
+model: opus
 tools: Read, Glob, Grep
 ---
 

@@ -18,7 +18,7 @@
 | Missing tests / coverage gaps (MT) | 4 | 0 |
 | Quality-gate gaps (QG) | 3 | 0 |
 
-The six standard categories contain 48 open items; 35 inherited `AR` obligations below bring the section total to 83. Phase 1 changed no gap state.
+The six standard categories contain 48 open items; 35 inherited `AR` obligations below bring the section total to 83. Phases 1 and 2 changed no gap state.
 
 ### Open Items
 

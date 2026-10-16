@@ -1,6 +1,7 @@
 ---
 name: coherence-reviewer
 description: Single-lens reviewer for a plan / spec / requirements document - checks internal consistency, completeness, and unambiguous language before any code is written. Use as one lens inside the plan-review pipeline. Read-only; returns structured findings, never edits the document.
+model: opus
 tools: Read, Glob, Grep
 ---
 

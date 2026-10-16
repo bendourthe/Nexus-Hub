@@ -1,25 +1,27 @@
 # Nexus-Hub Progress Dashboard
 
 **Integration branch:** `develop`
-**Active work:** Approved v4.14 full-minor run: seven member plans and 209 tasks. v4.14.0 Phase 1 is verified locally; its subagent default is not yet delivered. The 83 inherited gaps remain open for reconciliation.
+**Active work:** Approved v4.14 full-minor run: seven member plans and 209 tasks. v4.14.0 Phases 1 and 2 are verified locally; its subagent default is not yet delivered. The 83 inherited gaps remain open for reconciliation.
 **Closeout boundary:** Recovery backups with unique Git history, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim. The former 47-file recovery branch was removed after its patch was proven identical to the merged PR #259 commit.
 **Last refreshed:** 2026-10-16 UTC
 **Recent fix:** Claude, Codex, GitHub Copilot and Cursor usage alerts dismiss automatically after one minute; merged green through PR #457.
 
 **Recent feature:** The Gemini Usage Monitor for the Antigravity IDE, confirmed working inside Antigravity by the maintainer on 2026-10-14, merged green through PR #465; it ships in the next release.
 
-**Next:** Continue v4.14.0 Phase 2: pin shipped agents before any subagent default is delivered.
+**Next:** Continue v4.14.0 Phase 3: declare and deliver the default with real upgrade regression tests.
 
 | Metric | Current | Target |
 |---|---|---|
-| v4.14 tasks | 4/209 | 209/209 |
+| v4.14 tasks | 7/209 | 209/209 |
 | v4.14 released members | 0/7 | 7/7 |
-| v4.14.0 phases | 1/7 | 7/7 |
+| v4.14.0 phases | 2/7 | 7/7 |
 | Inherited gaps | 83 open | Resolve or approved carry |
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its source `known-gaps.md` under `docs/releases/` or `docs/archives/`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
 
 Refreshing this file to the active plan (rather than appending another version's section) keeps the dashboard from drifting to an old feature branch.
+
+- [x] Verify v4.14.0 Phase 2 locally: pin all 23 reasoning-sensitive agents, enforce their classification, and filter Claude-only aliases from other delivery paths; [rationale](releases/v4/v4.14/development/agent-pinning-rationale.md).
 
 - [x] Verify v4.14.0 Phase 1 locally: sourced subagent lever, exact-key contract guard, 45 scoped tests, and the 17-check fast profile; [evidence](releases/v4/v4.14/development/phase-1-lever-evidence.md).
 

@@ -1,6 +1,7 @@
 ---
 name: testing-reviewer
 description: Single-lens reviewer that judges whether a diff is adequately tested - coverage of new branches, edge cases, test quality, and missing regression tests. Use as one persona inside the multi-agent-code-review pipeline. Returns structured JSON findings, never writes tests.
+model: opus
 tools: Read, Glob, Grep, Bash
 ---
 

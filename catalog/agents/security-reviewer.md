@@ -1,6 +1,7 @@
 ---
 name: security-reviewer
 description: OWASP Top 10 security assessment for code changes, APIs, and infrastructure. Use before merging auth changes, payment integrations, or any code handling user input or sensitive data. Produces severity-rated findings with remediation guidance.
+model: opus
 tools: Read, Glob, Grep, Bash
 ---
 

@@ -1,6 +1,7 @@
 ---
 name: tdd-guide
 description: Test-driven development coaching using RED-GREEN-REFACTOR. Use when implementing new features or fixing bugs with a test-first approach. Enforces 80% coverage minimum and guides the full TDD cycle step by step.
+model: opus
 tools: Read, Glob, Grep, Bash
 ---
 
