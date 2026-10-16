@@ -31,11 +31,15 @@ _DEFAULTS_CANDIDATES = (
 # `python scripts/sync_platform_defaults.py --check`, which fails the build when
 # they drift away from the declared values.
 _FALLBACK_SETTINGS = {
-    "attribution": {"commit": "", "pr": ""},
+    "attribution": {
+        "commit": "",
+        "pr": "",
+    },
     "effortLevel": "high",
     "model": "opus",
     "env": {
         "CLAUDE_CODE_EFFORT_LEVEL": "high",
+        "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet",
     },
 }
 
@@ -48,7 +52,13 @@ _STUB_COMMENT = (
     "env.CLAUDE_CODE_EFFORT_LEVEL is the highest-precedence effort lever: it "
     "pins the effort past the VS Code effort toggle on every new session. "
     "Keep both effort keys aligned: set them to 'medium' for cheaper routine "
-    "work or 'xhigh' for deeper reasoning. Remove model to use your account default."
+    "work or 'xhigh' for deeper reasoning. Remove model to use your account default. "
+    "env.CLAUDE_CODE_SUBAGENT_MODEL defaults unpinned custom agents to sonnet; "
+    "the shipped reasoning-sensitive agents keep their opus definition pins. "
+    "Explore and Plan require a separate force flag, which Nexus-Hub does not seed. "
+    "An independently configured force override can defeat definition pins. "
+    "Set the subagent env key to inherit to opt out at this scope; removing it "
+    "allows a future reinstall to seed it again."
 )
 
 _STUB_PERMISSIONS = {

@@ -2,7 +2,8 @@
   "effortLevel": "high",
   "model": "opus",
   "env": {
-    "CLAUDE_CODE_EFFORT_LEVEL": "high"
+    "CLAUDE_CODE_EFFORT_LEVEL": "high",
+    "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet"
   },
   "hooks": {
     "SessionStart": [

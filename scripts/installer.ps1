@@ -1102,32 +1102,25 @@ function Install-CoreSettings {
     param(
         [string]$RepoRoot,
         [string]$TargetClaudeDir,
-        [string]$Scope  # "Global" or "Workspace"
+        [string]$Scope
     )
-
     $settingsFile = Join-Path $TargetClaudeDir "settings.json"
     $templateFile = "$RepoRoot\catalog\hooks\settings.json"
-
-    if (-not (Test-Path $settingsFile)) {
+    if (-not (Test-Path -LiteralPath $settingsFile)) {
         Write-Item -Message "Skip: settings.json not found, will be created by hook installer" -Color "DarkGray"
         return
     }
-
-    # Core defaults seeded from the template: effortLevel + model scalars, plus the
-    # env.CLAUDE_CODE_EFFORT_LEVEL override. The env var is the highest-precedence
-    # effort lever per the Claude Code docs, so it forces the effort past the VS
-    # Code effort toggle (which otherwise resets to the model default each session).
-    $content = Get-Content $settingsFile -Raw
+    $content = Get-Content -LiteralPath $settingsFile -Raw -Encoding UTF8
     try {
         $existingJson = $content | ConvertFrom-Json
-        $templateJson = Get-Content $templateFile -Raw | ConvertFrom-Json
+        $templateJson = Get-Content -LiteralPath $templateFile -Raw -Encoding UTF8 | ConvertFrom-Json
+        if ($existingJson -isnot [System.Management.Automation.PSCustomObject]) {
+            Write-Warning "existing settings are not a valid object; preserving settings.json"
+            return
+        }
         $coreKeys = @("effortLevel", "model")
         $applied = @()
-
-        # Treat the scalar and higher-precedence env lever as one user-owned
-        # pair. If either exists, preserve the pair exactly; only a config with
-        # neither effort key and an absent or object-shaped env receives both
-        # defaults.
+        # Effort remains one user-owned pair; unrelated env defaults are independent.
         $hasScalarEffort = [bool]$existingJson.PSObject.Properties["effortLevel"]
         $hasEnvEffort = (
             $existingJson.PSObject.Properties["env"] -and
@@ -1135,44 +1128,44 @@ function Install-CoreSettings {
             $existingJson.env.PSObject.Properties["CLAUDE_CODE_EFFORT_LEVEL"]
         )
         $hasAnyEffort = $hasScalarEffort -or $hasEnvEffort
-
         foreach ($key in $coreKeys) {
             if (-not $templateJson.PSObject.Properties[$key]) { continue }
             if ($key -eq "effortLevel" -and $hasAnyEffort) { continue }
+            if ($existingJson.PSObject.Properties[$key]) { continue }
             $templateValue = $templateJson.$key
-            if ($existingJson.PSObject.Properties[$key]) {
-                continue
-            }
             $existingJson | Add-Member -NotePropertyName $key -NotePropertyValue $templateValue
             $applied += "${key}: ${templateValue}"
         }
-
-        # Seed the env effort override with the scalar only when the entire
-        # effort pair is absent. Any existing pair shape remains user-owned.
-        if (-not $hasAnyEffort -and $templateJson.PSObject.Properties["env"] -and $templateJson.env.PSObject.Properties["CLAUDE_CODE_EFFORT_LEVEL"]) {
-            $envEffort = $templateJson.env.CLAUDE_CODE_EFFORT_LEVEL
-            if (-not $existingJson.PSObject.Properties["env"]) {
-                $existingJson | Add-Member -NotePropertyName "env" -NotePropertyValue ([PSCustomObject]@{})
-            }
-            if ($existingJson.env -is [System.Management.Automation.PSCustomObject] -and -not $existingJson.env.PSObject.Properties["CLAUDE_CODE_EFFORT_LEVEL"]) {
-                $existingJson.env | Add-Member -NotePropertyName "CLAUDE_CODE_EFFORT_LEVEL" -NotePropertyValue $envEffort
-                $applied += "env.CLAUDE_CODE_EFFORT_LEVEL: $envEffort"
-            }
-            elseif ($existingJson.env -isnot [System.Management.Automation.PSCustomObject]) {
-                Write-Warning "existing env is not an object; preserving it and skipping env.CLAUDE_CODE_EFFORT_LEVEL"
+        if ($templateJson.PSObject.Properties["env"] -and $templateJson.env -is [System.Management.Automation.PSCustomObject]) {
+            $envDefaults = @($templateJson.env.PSObject.Properties | Where-Object {
+                $_.Name -ne "CLAUDE_CODE_EFFORT_LEVEL" -or -not $hasAnyEffort
+            })
+            if ($envDefaults.Count -gt 0) {
+                if (-not $existingJson.PSObject.Properties["env"]) {
+                    $existingJson | Add-Member -NotePropertyName "env" -NotePropertyValue ([PSCustomObject]@{})
+                }
+                if ($existingJson.env -isnot [System.Management.Automation.PSCustomObject]) {
+                    Write-Warning "existing env is not an object; preserving it and skipping template env defaults"
+                }
+                else {
+                    foreach ($property in $envDefaults) {
+                        if ($existingJson.env.PSObject.Properties[$property.Name]) { continue }
+                        $existingJson.env | Add-Member -NotePropertyName $property.Name -NotePropertyValue $property.Value
+                        $applied += "env.$($property.Name)"
+                    }
+                }
             }
         }
-
         if ($applied.Count -eq 0) {
-            Write-Item -Message "✓ Core settings already present; existing values preserved in settings.json" -Color "DarkGreen"
+            Write-Item -Message "[OK] Core settings already present; existing values preserved in settings.json" -Color "DarkGreen"
             return
         }
         Write-JsonFile -Path $settingsFile -Object $existingJson
-        Write-Item -Message "✓ $Scope settings.json seeded absent core settings ($($applied -join ', ')); existing values preserved" -Color "DarkGreen"
+        Write-Item -Message "[OK] $Scope settings.json seeded absent core settings ($($applied -join ', ')); existing values preserved" -Color "DarkGreen"
     }
     catch {
-        Write-Warning "Could not set core settings ($($_.Exception.Message))"
-        Write-Warning "Manually copy effortLevel/model/env from $templateFile to $settingsFile"
+        Write-Warning "Could not set core settings; settings.json retained"
+        Write-Warning "Manually copy absent core settings and template env keys from $templateFile to $settingsFile"
     }
 }
 

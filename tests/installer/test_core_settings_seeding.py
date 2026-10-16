@@ -211,11 +211,11 @@ def test_global_call_surfaces_warnings_and_reports_preservation_honestly() -> No
 
     assert (
         'write_item "Warning: existing env is not an object; preserving it and '
-        'skipping env.CLAUDE_CODE_EFFORT_LEVEL" "$YELLOW" >&2'
+        'skipping template env defaults" "$YELLOW" >&2'
     ) in bash
     assert (
         'Write-Warning "existing env is not an object; preserving it and '
-        'skipping env.CLAUDE_CODE_EFFORT_LEVEL"'
+        'skipping template env defaults"'
     ) in powershell
     detail = "settings.json retained; existing values preserved (see warnings above)"
     assert f'write_checklist_row "Core Settings" "ok" "{detail}"' in bash
@@ -234,7 +234,11 @@ def test_existing_core_values_survive_core_settings_merge_byte_for_byte(
     initial = {
         "effortLevel": "low",
         "model": "sonnet",
-        "env": {"CLAUDE_CODE_EFFORT_LEVEL": "xhigh", "KEEP_ME": "yes"},
+        "env": {
+            "CLAUDE_CODE_EFFORT_LEVEL": "xhigh",
+            "CLAUDE_CODE_SUBAGENT_MODEL": "inherit",
+            "KEEP_ME": "yes",
+        },
         "customUserSetting": {"preserve": True},
     }
     settings, before = _seed(tmp_path / label, initial)
@@ -264,6 +268,7 @@ def test_absent_core_values_seed_from_the_high_default(
     assert installed["env"] == {
         "KEEP_ME": "yes",
         "CLAUDE_CODE_EFFORT_LEVEL": "high",
+        "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet",
     }
     assert installed["customUserSetting"] == {"preserve": True}
     assert "seeded absent core settings" in proc.stdout
@@ -289,7 +294,10 @@ def test_missing_env_object_is_created(
     installed = json.loads(settings.read_text(encoding="utf-8"))
     assert installed["effortLevel"] == "high"
     assert installed["model"] == "opus"
-    assert installed["env"] == {"CLAUDE_CODE_EFFORT_LEVEL": "high"}
+    assert installed["env"] == {
+        "CLAUDE_CODE_EFFORT_LEVEL": "high",
+        "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet",
+    }
     assert installed["customUserSetting"] == {"preserve": True}
 
 
@@ -314,6 +322,7 @@ def test_partial_config_seeds_only_missing_keys(
     assert installed["env"] == {
         "CLAUDE_CODE_EFFORT_LEVEL": "xhigh",
         "KEEP_ME": "yes",
+        "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet",
     }
 
 
@@ -412,7 +421,7 @@ def test_existing_scalar_with_non_object_env_preserves_pair_shape(
     assert installed["model"] == "opus"
     assert installed["env"] == invalid_env
     assert installed["customUserSetting"] == "keep"
-    assert "existing env is not an object" not in proc.stdout + proc.stderr
+    assert "existing env is not an object" in proc.stdout + proc.stderr
 
 
 def test_child_output_is_decoded_permissively() -> None:
@@ -439,3 +448,127 @@ def test_child_output_is_decoded_permissively() -> None:
             f"{runner.__name__} does not decode through _DECODE, so its output "
             "becomes None under UTF-8 mode when the child writes another code page"
         )
+
+
+@pytest.mark.parametrize(("label", "runner"), RUNNERS)
+def test_upgrade_receives_future_env_defaults_without_pinning_effort_partner(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, label: str, runner: Runner
+) -> None:
+    """An old install must receive future defaults without creating an effort override."""
+    template = json.loads(
+        (REPO_ROOT / "catalog/hooks/settings.json").read_text(encoding="utf-8")
+    )
+    template["env"].update(
+        {
+            "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet",
+            "NEXUS_FUTURE_DEFAULT": "enabled",
+        }
+    )
+    fake_repo = tmp_path / "repo"
+    hooks = fake_repo / "catalog/hooks"
+    hooks.mkdir(parents=True)
+    (hooks / "settings.json").write_text(
+        json.dumps(template, indent=2), encoding="utf-8"
+    )
+    monkeypatch.setitem(globals(), "REPO_ROOT", fake_repo)
+    initial = {
+        "model": "sonnet",
+        "effortLevel": "xhigh",
+        "env": {"KEEP_ME": "yes"},
+        "customUserSetting": {"keep": True},
+    }
+    settings, _ = _seed(tmp_path / label, initial)
+
+    proc = runner(tmp_path / label, settings.parent)
+
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    installed = json.loads(settings.read_text(encoding="utf-8"))
+    assert installed == {
+        **initial,
+        "env": {
+            "KEEP_ME": "yes",
+            "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet",
+            "NEXUS_FUTURE_DEFAULT": "enabled",
+        },
+    }
+    first = settings.read_bytes()
+    second = runner(tmp_path / label, settings.parent)
+    assert second.returncode == 0, second.stdout + second.stderr
+    assert settings.read_bytes() == first
+
+
+@pytest.mark.parametrize(("label", "runner"), RUNNERS)
+@pytest.mark.parametrize("owned_value", ["inherit", "haiku", "", None])
+def test_existing_subagent_value_is_never_replaced(
+    tmp_path: Path, label: str, runner: Runner, owned_value: object
+) -> None:
+    initial = {
+        "model": "sonnet",
+        "effortLevel": "medium",
+        "env": {"CLAUDE_CODE_SUBAGENT_MODEL": owned_value, "KEEP_ME": "yes"},
+    }
+    settings, before = _seed(tmp_path / label, initial)
+
+    proc = runner(tmp_path / label, settings.parent)
+
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    assert settings.read_bytes() == before
+
+
+@pytest.mark.parametrize(("label", "runner"), RUNNERS)
+@pytest.mark.parametrize("raw", ["{", "[1, 2]", "null"])
+def test_invalid_settings_root_is_preserved_without_an_exit_mismatch(
+    tmp_path: Path, label: str, runner: Runner, raw: str
+) -> None:
+    settings, _ = _seed(tmp_path / label, {})
+    settings.write_text(raw, encoding="utf-8", newline="")
+    before = settings.read_bytes()
+
+    proc = runner(tmp_path / label, settings.parent)
+
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    assert settings.read_bytes() == before
+    assert "settings.json" in proc.stdout + proc.stderr
+
+
+@pytest.mark.parametrize(("label", "runner"), RUNNERS)
+def test_unicode_user_values_survive_an_upgrade(
+    tmp_path: Path, label: str, runner: Runner
+) -> None:
+    initial = {
+        "model": "sonnet",
+        "effortLevel": "xhigh",
+        "customUserSetting": {"label": "caf\u00e9 \u2603"},
+    }
+    settings, _ = _seed(tmp_path / label, initial)
+    settings.write_text(
+        json.dumps(initial, ensure_ascii=False, indent=2), encoding="utf-8", newline=""
+    )
+
+    proc = runner(tmp_path / label, settings.parent)
+
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    installed = json.loads(settings.read_text(encoding="utf-8"))
+    assert installed["customUserSetting"] == initial["customUserSetting"]
+    assert installed["model"] == "sonnet"
+    assert installed["effortLevel"] == "xhigh"
+    assert installed["env"] == {"CLAUDE_CODE_SUBAGENT_MODEL": "sonnet"}
+
+
+@pytest.mark.parametrize(("label", "runner"), RUNNERS)
+def test_literal_target_path_is_preserved(
+    tmp_path: Path, label: str, runner: Runner
+) -> None:
+    settings, _ = _seed(
+        tmp_path / label / "profile [custom]",
+        {"model": "sonnet", "effortLevel": "xhigh"},
+    )
+
+    proc = runner(tmp_path / label, settings.parent)
+
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    assert json.loads(settings.read_text(encoding="utf-8")) == {
+        "model": "sonnet",
+        "effortLevel": "xhigh",
+        "env": {"CLAUDE_CODE_SUBAGENT_MODEL": "sonnet"},
+    }

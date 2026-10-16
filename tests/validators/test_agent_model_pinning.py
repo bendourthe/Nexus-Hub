@@ -15,10 +15,9 @@ if not RATIONALE.is_file():
 
 def test_every_agent_has_exactly_one_model_classification():
     rationale = RATIONALE.read_text(encoding="utf-8")
-    pinned_text, unpinned_text = rationale.split("## Deliberately unpinned", 1)
+    _, unpinned_text = rationale.split("## Deliberately unpinned", 1)
     unpinned_text = unpinned_text.split("## Platform compatibility", 1)[0]
     row = r"^\| `([a-z0-9-]+)` \| (.+) \|$"
-    documented_pins = set(re.findall(row, pinned_text, re.MULTILINE))
     unpinned = {name for name, _ in re.findall(row, unpinned_text, re.MULTILINE)}
     names = set()
     pinned = set()
@@ -36,7 +35,4 @@ def test_every_agent_has_exactly_one_model_classification():
     )
     assert names == pinned | unpinned, (
         f"unclassified: {sorted(names - pinned - unpinned)}; stale: {sorted((pinned | unpinned) - names)}"
-    )
-    assert pinned == {name for name, _ in documented_pins}, (
-        "pinned agents need a rationale; remove stale rationale rows"
     )

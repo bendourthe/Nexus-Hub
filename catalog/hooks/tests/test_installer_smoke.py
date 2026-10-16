@@ -640,16 +640,16 @@ def test_installer_ps1_fallback_literal_matches_template():
     manual-add hint.
 
     installer.ps1 seeds the core defaults dynamically from the template
-    (`$coreKeys = @("effortLevel", "model")` plus the env effort override)
+    (`$coreKeys = @("effortLevel", "model")` plus declared env defaults)
     rather than hardcoding the effort literal, so the fallback hint points the
-    user at copying effortLevel/model/env from the template file. The hint MUST
-    name those keys so it stays consistent with catalog/hooks/settings.json
+    user at copying absent core settings and template env keys. The hint MUST
+    name that absent-only policy so it stays consistent with catalog/hooks/settings.json
     whatever the shipped default value is.
     """
     body = INSTALLER_PS1.read_text(encoding="utf-8")
-    assert "Manually copy effortLevel/model/env from" in body, (
+    assert "Manually copy absent core settings and template env keys from" in body, (
         "installer.ps1 core-settings fallback must reference copying "
-        "effortLevel/model/env from the template so it tracks "
+        "absent core settings and template env keys so it tracks "
         "catalog/hooks/settings.json without a hardcoded value."
     )
 

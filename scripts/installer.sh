@@ -897,41 +897,25 @@ install_core_settings() {
     fi
 
     if ! command -v jq >/dev/null 2>&1; then
-        write_item "Warning: jq not found, cannot set core settings (effortLevel, model, env)" "$YELLOW" >&2
-        write_item "  Manually copy effortLevel/model/env from $template_file to $settings_file" "$YELLOW" >&2
+        write_item "Warning: jq not found, cannot seed core scalars or declared template env defaults" "$YELLOW" >&2
+        write_item "  Manually copy absent core settings and template env keys from $template_file to $settings_file" "$YELLOW" >&2
         return
     fi
-
-    # Core defaults seeded from the template: effortLevel + model, plus the
-    # env.CLAUDE_CODE_EFFORT_LEVEL override. The env var is the highest-precedence
-    # effort lever per the Claude Code docs, so it forces the effort past the VS
-    # Code effort toggle (which otherwise resets to the model default each session).
-    # Seed-if-absent: a reinstall must not replace a value the user already chose.
-    if jq -e '
-        has("model")
-        and (
-            has("effortLevel")
-            or (if ((.env | type) == "object") then
-                (.env | has("CLAUDE_CODE_EFFORT_LEVEL"))
-              else false end)
-        )
-    ' "$settings_file" >/dev/null 2>&1; then
-        write_item "[OK] Core settings already present or user-set; existing values preserved in settings.json" "$GREEN"
+    if ! jq -e 'type == "object"' "$settings_file" >/dev/null 2>&1; then
+        write_item "Warning: existing settings are not a valid object; preserving settings.json" "$YELLOW" >&2
         return
     fi
 
     local env_seed_blocked=0
-    if jq -e '(has("effortLevel") | not) and has("env") and ((.env | type) != "object")' "$settings_file" >/dev/null 2>&1; then
+    if jq -e 'has("env") and ((.env | type) != "object")' "$settings_file" >/dev/null 2>&1; then
         env_seed_blocked=1
-        write_item "Warning: existing env is not an object; preserving it and skipping env.CLAUDE_CODE_EFFORT_LEVEL" "$YELLOW" >&2
+        write_item "Warning: existing env is not an object; preserving it and skipping template env defaults" "$YELLOW" >&2
     fi
 
-    # Treat the scalar and higher-precedence env lever as one user-owned pair:
-    # when either exists, preserve the pair exactly. Only a config with neither
-    # effort lever and an absent or object-shaped env receives both defaults,
-    # avoiding a new env pin on upgrade.
+    # Existing effort scalars/overrides form one user-owned pair. Other declared
+    # env keys seed independently, so a later default reaches an old install.
     local merged
-    merged=$(jq -s '
+    if ! merged=$(jq -s '
         .[0] as $e | .[1] as $t |
         ($e | has("effortLevel")) as $has_scalar_effort |
         (if (($e.env | type) == "object") then
@@ -939,15 +923,20 @@ install_core_settings() {
           else false end) as $has_env_effort |
         ($has_scalar_effort or $has_env_effort) as $has_any_effort |
         $e
-        | if $has_any_effort then . else .effortLevel = $t.effortLevel end
-        | if has("model") then . else .model = $t.model end
-        | if $has_any_effort then .
-          elif has("env") then
-            if ((.env | type) == "object") then
-                .env.CLAUDE_CODE_EFFORT_LEVEL = $t.env.CLAUDE_CODE_EFFORT_LEVEL
-            else . end
-          else .env = {CLAUDE_CODE_EFFORT_LEVEL: $t.env.CLAUDE_CODE_EFFORT_LEVEL} end
-    ' "$settings_file" "$template_file" 2>/dev/null)
+        | if $has_any_effort or ($t | has("effortLevel") | not) then .
+          else .effortLevel = $t.effortLevel end
+        | if has("model") or ($t | has("model") | not) then .
+          else .model = $t.model end
+        | if has("env") and ((.env | type) != "object") then .
+          else reduce (($t.env // {}) | to_entries[]) as $item (.;
+            if $item.key == "CLAUDE_CODE_EFFORT_LEVEL" and $has_any_effort then .
+            elif ((.env // {}) | has($item.key)) then .
+            else .env[$item.key] = $item.value end)
+          end
+    ' "$settings_file" "$template_file" 2>/dev/null); then
+        write_item "Warning: Could not merge core settings; settings.json retained" "$YELLOW" >&2
+        return
+    fi
 
     if [ -n "$merged" ]; then
         if printf '%s\n' "$merged" | jq -e --slurpfile existing "$settings_file" '. == $existing[0]' >/dev/null 2>&1; then
