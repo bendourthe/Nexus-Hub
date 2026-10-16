@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `/presentify --flyover <url>` renders a live landing page as a 14.5-second 3D fly-over film (1440x1152, 60fps, H.264): one continuous camera glides down the page, rises to show it whole, and dives into the hero, which lands as a card under the user's two-line title. `references/landing-flyover.md` owns the route and keeps the user's original brief as its canonical spec, with the role mapping for pages that lack its photos or testimonial and the adaptations found on the first production run. The capture uses reduced motion so diagrams render their final frame; the render is loopback-only on the real GPU, detects the browser and ffmpeg instead of downloading them, and stops for approval of seven review stills before the final render. A homography optical-flow gate fails a dip in the glide or a zoom-in, `verify` checks every review frame against its approved still and the BT.709 tags, and `flyover_audio.py` lands a track's gap-then-hit on the card landing at about -14 LUFS. The film is the one presentify output that is not an HTML file; the single-file contract still binds every HTML output.
+
 ### Fixed
 
 - The merge-conflict-marker check prefilters tracked files with `git grep` and applies its exact line-anchored rule only to the candidates. It took about one second instead of 100-120 s on Windows, where it repeatedly exceeded the fast profile's 120 s step bound; findings are unchanged, including widened and CRLF markers.

@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Landing Fly-over</title>
+<style>
+  /* Fonts come from the capture folder, fetched once at capture time; render is offline. */
+  @font-face { font-family: "Geist"; font-weight: 500; src: url("../capture/fonts/geist-500.woff2") format("woff2"); }
+  @font-face { font-family: "Instrument Serif"; font-style: italic; src: url("../capture/fonts/instrument-serif-italic.woff2") format("woff2"); }
+  html, body { margin: 0; background: #f5f7f8; }
+  canvas { display: block; width: 1440px; height: 1152px; }
+</style>
+</head>
+<body>
+<canvas id="c" width="1440" height="1152"></canvas>
+<script type="module" src="film.js"></script>
+</body>
+</html>
