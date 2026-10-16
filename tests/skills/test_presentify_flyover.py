@@ -39,15 +39,15 @@ _SCRIPT_NAMES = ("flyover_capture.py", "flyover_render.py", "flyover_motion_chec
 _SCENE_NAMES = ("index.html", "film.js", "timeline.js")
 
 sys.path.insert(0, str(_SCRIPTS))
-import flyover_audio  # noqa: E402
-import flyover_common as fc  # noqa: E402
-import flyover_render  # noqa: E402
+import flyover_audio
+import flyover_common as fc
+import flyover_render
 
 
 def _code(path: Path) -> str:
     """JS source without comments, so prose about banned APIs does not count as a use."""
     src = path.read_text(encoding="utf-8")
-    return re.sub(r"(?m)^\s*//.*$", " ", re.sub(r"/\*.*?\*/", " ", src, flags=re.S))
+    return re.sub(r"(?m)^\s*//.*$", " ", re.sub(r"/\*.*?\*/", " ", src, flags=re.DOTALL))
 
 
 # ---------- 1. wiring ----------

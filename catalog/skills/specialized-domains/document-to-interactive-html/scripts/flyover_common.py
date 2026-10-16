@@ -15,6 +15,7 @@ import subprocess
 import sys
 import threading
 from pathlib import Path
+from typing import ClassVar
 
 SKILL_DIR = Path(__file__).resolve().parents[1]
 SCENE_DIR = SKILL_DIR / "assets" / "flyover"
@@ -65,19 +66,23 @@ def find_ffmpeg(explicit: str | None = None) -> str:
     for candidate in (explicit, os.environ.get("NEXUS_FFMPEG")):
         if candidate and Path(candidate).is_file():
             return str(Path(candidate).resolve())
-    found = shutil.which("ffmpeg")
+    found = shutil.which("ffmpeg") or _bundled_ffmpeg()
     if found:
         return found
-    try:
-        import imageio_ffmpeg  # noqa: PLC0415 - optional, lazy
-
-        return imageio_ffmpeg.get_ffmpeg_exe()
-    except Exception:  # noqa: BLE001 - any failure means "not available"
-        pass
     raise ToolMissing(
         "ffmpeg not found. Install it once (Windows: winget install Gyan.FFmpeg; macOS: brew install "
         "ffmpeg; Linux: your package manager) or point NEXUS_FFMPEG at it. These scripts never download it."
     )
+
+
+def _bundled_ffmpeg() -> str | None:
+    """The binary an installed imageio-ffmpeg ships, or None when the package or binary is absent."""
+    try:
+        import imageio_ffmpeg  # noqa: PLC0415 - optional, lazy
+
+        return imageio_ffmpeg.get_ffmpeg_exe()
+    except (ImportError, RuntimeError, OSError):
+        return None
 
 
 def ffmpeg_input(path: str | Path) -> str:
@@ -113,11 +118,11 @@ def check_caps(duration: float, fps: int, sub: int) -> int:
 
 def is_allowed(url: str, origin: str) -> bool:
     """True only for the scene's own loopback origin and inline data or blob URLs."""
-    return url == origin or url.startswith(origin + "/") or url.startswith(("data:", "blob:"))
+    return url == origin or url.startswith((origin + "/", "data:", "blob:"))
 
 
 class _SceneHandler(http.server.SimpleHTTPRequestHandler):
-    extensions_map = {**http.server.SimpleHTTPRequestHandler.extensions_map, **MIME}
+    extensions_map: ClassVar[dict[str, str]] = {**http.server.SimpleHTTPRequestHandler.extensions_map, **MIME}
 
     def log_message(self, *args: object) -> None:  # quiet
         pass

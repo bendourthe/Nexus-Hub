@@ -25,6 +25,10 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:  # annotations stay strings at runtime, so Python < 3.11 never imports Self
+    from typing import Self
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import flyover_common as fc  # noqa: E402
@@ -47,7 +51,7 @@ class Scene:
         self.blocked: list[str] = []
         self.errors: list[str] = []
 
-    def __enter__(self) -> "Scene":
+    def __enter__(self) -> Self:
         if not (self.run / "scene" / "index.html").is_file():
             raise SystemExit(f"{self.run / 'scene'} is missing; run `init {self.run}` first")
         if not (self.run / "capture" / "layers.json").is_file():
