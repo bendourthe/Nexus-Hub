@@ -1,18 +1,27 @@
 # Nexus-Hub Progress Dashboard
 
 **Integration branch:** `develop`
-**Active work:** Historical v4.0-v4.12 plan closure is integrated and v4.13.1 through v4.13.10 are released; the maintainer published v4.13.10 at 2026-10-09T21:51:35Z. v4.13.6 ([minor-scope implement and verified cleanup](archives/v4/v4.13/plans/v4.13.6-minor-scope-implement-and-verified-cleanup.md)) shipped through PR #394; its approval-page read-back by a non-engineer is still pending. v4.13.7 ([Copilot usage monitor and usage-limit handoff](archives/v4/v4.13/plans/v4.13.7-copilot-usage-monitor-and-usage-limit-handoff.md)) shipped through PR #411; its real-editor and live-limit checks (QG-1) are still pending. v4.13.10 ([Training page rebuild](archives/v4/v4.13/plans/v4.13.10-training-page-rebuild.md)) is merged green into develop at `ae60a3240` with maintainer acceptance recorded; its maintainer-owned release is now published and its tag is present. v4.13.11 ([known-gaps sweep and minor close](archives/v4/v4.13/plans/v4.13.11-known-gaps-sweep-and-minor-close.md)) is released, and all 83 approved residual transfers are integrated. v4.13.12 is published and its 2019-entry tagged archive verifies. The v4.13 archive merged through PR #455, and the native checker reports MINOR COMPLETE. All 83 successor obligations remain tracked in v4.14. Bounded vendor, manual, and artifact-coverage gaps remain open in their known-gaps ledgers.
+**Active work:** Approved v4.14 full-minor run: seven member plans and 209 tasks. v4.14.0 Phase 1 is verified locally; its subagent default is not yet delivered. The 83 inherited gaps remain open for reconciliation.
 **Closeout boundary:** Recovery backups with unique Git history, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim. The former 47-file recovery branch was removed after its patch was proven identical to the merged PR #259 commit.
-**Last refreshed:** 2026-10-15 UTC
+**Last refreshed:** 2026-10-16 UTC
 **Recent fix:** Claude, Codex, GitHub Copilot and Cursor usage alerts dismiss automatically after one minute; merged green through PR #457.
 
 **Recent feature:** The Gemini Usage Monitor for the Antigravity IDE, confirmed working inside Antigravity by the maintainer on 2026-10-14, merged green through PR #465; it ships in the next release.
 
-**Next:** `/implement` v4.14.0. Under the branching rule merged in PR #463, its version branch is created at that point and not before.
+**Next:** Continue v4.14.0 Phase 2: pin shipped agents before any subagent default is delivered.
+
+| Metric | Current | Target |
+|---|---|---|
+| v4.14 tasks | 4/209 | 209/209 |
+| v4.14 released members | 0/7 | 7/7 |
+| v4.14.0 phases | 1/7 | 7/7 |
+| Inherited gaps | 83 open | Resolve or approved carry |
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its source `known-gaps.md` under `docs/releases/` or `docs/archives/`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
 
 Refreshing this file to the active plan (rather than appending another version's section) keeps the dashboard from drifting to an old feature branch.
+
+- [x] Verify v4.14.0 Phase 1 locally: sourced subagent lever, exact-key contract guard, 45 scoped tests, and the 17-check fast profile; [evidence](releases/v4/v4.14/development/phase-1-lever-evidence.md).
 
 - [x] Implement v4.13.7 Phases 1-9 locally: the Copilot Usage Monitor (personal quota, organization pool, member credits, percentages-only state file), installer distribution and its workflow, reset availability in the Codex monitor, the `session-handoff` skill and `/handoff`, the Session Handoff rule in all 13 templates, the shared usage probe, and the `usage-guard` hook. The final phase fixed seven deep-pass findings and two CodeQL warnings; see the [last-phase evidence](archives/v4/v4.13/development/v4.13.7-last-phase-evidence.md).
 - [x] Publish v4.13.7, integrate it green, and release it: PR #411 merged into `develop` at `e6b0c51a` with every required check green, released as v4.13.7 on 2026-10-02.

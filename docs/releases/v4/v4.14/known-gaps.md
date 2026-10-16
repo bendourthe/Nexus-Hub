@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Last updated**: 2026-10-15
+**Last updated**: 2026-10-16
 **Open items**: 83
 
 ## v4.14.0
@@ -17,6 +17,8 @@
 | Warnings (WN) | 25 | 1 |
 | Missing tests / coverage gaps (MT) | 4 | 0 |
 | Quality-gate gaps (QG) | 3 | 0 |
+
+The six standard categories contain 48 open items; 35 inherited `AR` obligations below bring the section total to 83. Phase 1 changed no gap state.
 
 ### Open Items
 
