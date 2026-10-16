@@ -2,8 +2,8 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Last updated**: 2026-10-13
-**Open items**: 83
+**Last updated**: 2026-10-15
+**Open items**: 84
 
 ## v4.14.0
 
@@ -14,7 +14,7 @@
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 14 | 0 |
 | Bugs / regressions (BG) | 2 | 0 |
-| Warnings (WN) | 25 | 0 |
+| Warnings (WN) | 26 | 0 |
 | Missing tests / coverage gaps (MT) | 4 | 0 |
 | Quality-gate gaps (QG) | 3 | 0 |
 
@@ -953,6 +953,18 @@
 - **Migrated from**: v4.13#WN-40 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: Bounding the ship-balance fixture needs same-runner CI profiling of an 18-38 minute software-WebGL run with equal balance output.
 
+
+#### WN-26: Nine legacy Claude models have no prompting profile
+
+**Carry-forward contract (v4.13.13 follow-up)**:
+- **Owner**: catalog maintainer, via `[[model-prompting-research]]`
+- **Severity**: low - stated: the profile layer is advisory and never gates a release
+- **Blocker**: user-deferred - the nine ids are older models that Anthropic still serves as legacy; profiling them was outside the 2026-10-15 run, which covered current models.
+- **Acceptance**: each legacy id is either profiled from Anthropic primary sources through the deterministic writer, or dropped from the Claude Code roster after it retires on Anthropic's deprecations page.
+- **Proving command**: `python scripts/verify_model_prompting_profiles.py` reports no unprofiled rostered model.
+- **Future plan**: next `/tune-prompting` run, or the roster refresh that follows each retirement.
+
+**Source phase**: the 2026-10-15 `/tune-prompting` run. **Reason**: that run profiled 13 ids from first-party vendor pages, keeping 111 unique claims after three-skeptic refutation (2 refuted). It also recorded the complete generally available Claude Code roster (17 ids, `roster_source: manual`, from Anthropic's models overview, model ids and deprecations pages, because Claude Code exposes no scriptable model list), which brought the freshness check to IN SYNC. The gated Mythos ids are excluded. Nine rostered legacy ids still have no profile: `claude-fable-5`, `claude-haiku-4-5-20251001`, `claude-opus-4-5`, `claude-opus-4-5-20251101`, `claude-opus-4-6`, `claude-opus-4-7`, `claude-opus-4-8`, `claude-sonnet-4-5`, `claude-sonnet-4-5-20250929`. None is retired; `claude-sonnet-4-5-20250929` is deprecated and retires 2026-11-30. **Owner**: catalog maintainer. **Status**: open.
 ### AR-35: Antigravity legacy workflow retirement needs a dated vendor check
 
 **Carry-forward contract (v4.13.11)**:

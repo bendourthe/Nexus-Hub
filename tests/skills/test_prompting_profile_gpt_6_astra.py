@@ -80,9 +80,12 @@ def test_per_platform_roster_hash_mismatch_fails_the_gate(tmp_path: Path):
     bundle = tmp_path / "bundle"
     (bundle / "assets").mkdir(parents=True)
     (bundle / "references" / "models").mkdir(parents=True)
-    for entry in index["meta"]["platforms"]:
+    codex_index = None
+    for position, entry in enumerate(index["meta"]["platforms"]):
         if entry["platform"] == "codex":
             entry["roster_hash"] = "0" * 64
+            codex_index = position
+    assert codex_index is not None
     (bundle / "assets" / "profiles-index.json").write_text(
         json.dumps(index), encoding="utf-8"
     )
@@ -93,7 +96,7 @@ def test_per_platform_roster_hash_mismatch_fails_the_gate(tmp_path: Path):
     result = _run(str(_VALIDATOR), "--bundle", str(bundle))
     assert result.returncode == 1
     assert (
-        "meta.platforms[0].roster_hash does not match" in result.stdout + result.stderr
+        f"meta.platforms[{codex_index}].roster_hash does not match" in result.stdout + result.stderr
     )
 
 
