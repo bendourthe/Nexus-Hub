@@ -9,9 +9,9 @@
 | Cat 1 (delete) | 0 |
 | Cat 2 (archive) | 0 |
 | Cat 3 (stale-flag) | 0 |
-| Cat 4 (active) | 23 |
+| Cat 4 (active) | 24 |
 
-The native inventory used `--root docs --repo-root .`; every scoped record has the canonical releases layout. Phase 4 refreshed the snapshot after its phase history was created, including this report. The keep-current-version rule retains the whole in-flight minor, including earlier claim-review evidence. No file moved or was deleted.
+The native inventory used `--root docs --repo-root .`; every scoped record has the canonical releases layout. Phase 5 refreshed the snapshot after its phase history was created, including this report. The keep-current-version rule retains the whole in-flight minor, including earlier claim-review evidence. No file moved or was deleted.
 
 ## Dispositions
 
@@ -29,6 +29,7 @@ The native inventory used `--root docs --repo-root .`; every scoped record has t
 | docs/releases/v4/v4.14/development/history/v4.14.0-phase-2.md | Cat 4 | In-flight minor; 0 external references | Keep |
 | docs/releases/v4/v4.14/development/history/v4.14.0-phase-3.md | Cat 4 | In-flight minor; 0 external references | Keep |
 | docs/releases/v4/v4.14/development/history/v4.14.0-phase-4.md | Cat 4 | In-flight minor; 0 external references | Keep |
+| docs/releases/v4/v4.14/development/history/v4.14.0-phase-5.md | Cat 4 | In-flight minor; 0 external references | Keep |
 | docs/releases/v4/v4.14/development/phase-1-lever-evidence.md | Cat 4 | In-flight minor; 0 external references | Keep |
 | docs/releases/v4/v4.14/development/v4.13.13-release-handbook-claim-review.md | Cat 4 | In-flight minor; 0 external references | Keep |
 | docs/releases/v4/v4.14/docs-cleanup-report.md | Cat 4 | In-flight minor; 8 external references | Keep |
@@ -47,7 +48,7 @@ None introduced by this phase. Broad release-layout reconciliation remains Phase
 
 ## Lifespan contradictions
 
-Phases 1 through 4 created release-scoped evidence, the agent rationale, the usage note, and their phase histories. These freeze at release close. No archive or signed record was modified.
+Phases 1 through 5 created release-scoped evidence, the agent rationale, the usage note, and their phase histories. These freeze at release close. No archive or signed record was modified.
 
 ## Target tree preview
 
