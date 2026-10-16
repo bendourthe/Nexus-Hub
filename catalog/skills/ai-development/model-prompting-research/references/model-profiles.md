@@ -10,14 +10,23 @@ reference. This index exists so no mirror is an orphan bundled file.
 Each file is retrieved by model ID; its Evidence scope column describes
 what the cited source covers. No claim may be copied into a shared catalog body.
 
-31 profiled model(s):
+40 profiled model(s):
 
+- [claude-fable-5](models/claude-fable-5.md) - 10 claim(s), verified 2026-10-15
 - [claude-fable-5-1](models/claude-fable-5-1.md) - 18 claim(s), verified 2026-09-08
 - [claude-haiku-4-5](models/claude-haiku-4-5.md) - 1 claim(s), verified 2026-09-25
+- [claude-haiku-4-5-20251001](models/claude-haiku-4-5-20251001.md) - 10 claim(s), verified 2026-10-15
 - [claude-haiku-5-5](models/claude-haiku-5-5.md) - 13 claim(s), verified 2026-10-15
+- [claude-opus-4-5](models/claude-opus-4-5.md) - 9 claim(s), verified 2026-10-15
+- [claude-opus-4-5-20251101](models/claude-opus-4-5-20251101.md) - 9 claim(s), verified 2026-10-15
+- [claude-opus-4-6](models/claude-opus-4-6.md) - 10 claim(s), verified 2026-10-15
 - [claude-opus-4-6-thinking](models/claude-opus-4-6-thinking.md) - 10 claim(s), verified 2026-10-15
+- [claude-opus-4-7](models/claude-opus-4-7.md) - 9 claim(s), verified 2026-10-15
+- [claude-opus-4-8](models/claude-opus-4-8.md) - 12 claim(s), verified 2026-10-15
 - [claude-opus-5](models/claude-opus-5.md) - 12 claim(s), verified 2026-09-08
 - [claude-opus-5-5](models/claude-opus-5-5.md) - 10 claim(s), verified 2026-10-15
+- [claude-sonnet-4-5](models/claude-sonnet-4-5.md) - 9 claim(s), verified 2026-10-15
+- [claude-sonnet-4-5-20250929](models/claude-sonnet-4-5-20250929.md) - 9 claim(s), verified 2026-10-15
 - [claude-sonnet-4-6](models/claude-sonnet-4-6.md) - 9 claim(s), verified 2026-10-15
 - [claude-sonnet-5](models/claude-sonnet-5.md) - 13 claim(s), verified 2026-09-08
 - [claude-sonnet-5-5](models/claude-sonnet-5-5.md) - 36 claim(s), verified 2026-09-30
