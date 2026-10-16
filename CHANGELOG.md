@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - The merge-conflict-marker check prefilters tracked files with `git grep` and applies its exact line-anchored rule only to the candidates. It took about one second instead of 100-120 s on Windows, where it repeatedly exceeded the fast profile's 120 s step bound; findings are unchanged, including widened and CRLF markers.
+- Codex on Windows no longer refuses to start threads with "windows unelevated restricted-token sandbox cannot enforce split filesystem read restrictions directly". Nexus-Hub's read-limited permissions profile cannot be enforced by Codex's unelevated sandbox, which is also Codex's fallback when elevated setup is unavailable, so the failure was intermittent. Windows installs now write no profile and remove a previously installed one, leaving `sandbox_mode = "workspace-write"` as the only sandbox setting; macOS and Linux keep the profile. Decision: `docs/decisions/implemented/policy/2026-10-16-codex-permissions-profile-not-on-windows.md`.
+- Re-running the installer now updates an existing Codex permissions profile to the current template. The three Codex writers (`installer.sh`, `installer.ps1`, `Install-Nexus-Hub-Permissions.ps1`) skipped any config where the block already existed, so the September `":project_roots"` fix never reached existing machines. They now share one TOML-aware implementation, `scripts/merge_permissions.py --codex`, which adds missing template keys and retires dropped ones without overwriting any value the user set, and leaves a profile the user wrote untouched.
+- The old Codex append path bound `default_permissions` and `approval_policy` to the config's last table when the file ended in one, so Codex never saw them. The sync moves them to the root with their current value (on Windows the profile selector is then removed).
 
 ### Changed
 

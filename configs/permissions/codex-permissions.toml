@@ -23,6 +23,9 @@ default_permissions = "default"
 # documented key for the open project; the previous ":project_roots" is not in the
 # reference (https://learn.chatgpt.com/docs/config-file/config-reference, fetched 2026-09-27).
 # Both grant read only; write remains blocked by default.
+# Not installed on Windows: Codex's unelevated sandbox (also its fallback when elevated
+# setup is unavailable) cannot enforce split read restrictions and refuses to run, so
+# scripts/merge_permissions.py --codex removes this profile there and sandbox_mode applies.
 ":minimal" = "read"
 ":workspace_roots" = "read"
 

@@ -5,8 +5,8 @@
       "docs/handbooks/_sources/distribution/model.json": "3f3b9e1222a51583962e4de248d9ac74804b03a2b3102605e8e1911c8ea3496d",
       "docs/handbooks/_sources/distribution/source.md": "495f2edd8b5046d38801c6e675385cc500b552da8231a381ff5e811db62721fa",
       "docs/handbooks/_sources/distribution/design.css": "4d2975128abe327205e8b3c4fd62d351644221e9e03bfbaa539986f3cc1b9a70",
-      "scripts/installer.ps1": "024251a63c021aabdc16b9c6a0d9fb555c266fe028c528c7b9eab08f64af4b05",
-      "scripts/installer.sh": "5c08e680a6774c575bc25eec57a54d59a2c3247f24a2561121e12be8812ba09d",
+      "scripts/installer.ps1": "89744418baf54fcb27b28c84e3ea9f9581b1f92541f5d612253ac8abc9791522",
+      "scripts/installer.sh": "ee0e85ab2fb04b442ac38e450a537e1bb2a7cae9d47c6c09c35d1d260e99163b",
       "scripts/lib/integrations/runner.py": "5429ec6c9896b95285effe8215b2d3ca291c920bad6ccf8dec0ffa93cca7b78f",
       "scripts/lib/integrations/_catalog_adapters.py": "6a8e0f1375df9ae401302b1b13a1559f093d7aecd0c5ae0c134f9dddad162647",
       "scripts/lib/integrations/_owned.py": "abfac9b0161e9148e236532b85a854bf512c3100bc5f39fed7e8474e7fd727e4",
@@ -31,8 +31,8 @@
   "checks": {
     "content": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.14/development/v4.13.13-release-handbook-claim-review.md",
-      "evidence_sha256": "1ca6a8c135874c3bf848432ba6e69e4e0ef338ffb57c36ae9dd1b6d26faf788d"
+      "evidence": "docs/releases/v4/v4.14/development/codex-windows-sandbox-handbook-claim-review.md",
+      "evidence_sha256": "8c432669f35a2f169ae1501fc3046a2eac30556b1c83707a6e995340c1536fb8"
     },
     "build": {
       "status": "pass",
