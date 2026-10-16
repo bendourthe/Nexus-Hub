@@ -105,3 +105,19 @@ Ubiquitous language for Nexus-Hub design discussions, plans, and reviews. Each t
 **Avoid**: skipped, N/A, pass-by-default, inconclusive (the last is `verification-before-completion`'s word for a review that ran without a verdict)
 
 **Relationships**: One of the outcomes in `quality-gate-definitions` (plan v4.14.4), beside PASS, PARTIAL, FAIL (fixable), and FAIL (blocking). Never a kind of PASS. The user-facing "not verified" report it leads to is owned by `verification-before-completion`.
+
+## Harness-Native Index
+
+**Definition**: A memory file the agent itself writes during its turn with ordinary file tools, holding pointers into the `nexus-memory` substrate and harness-only preferences, which the agent repairs when it disagrees with the substrate (Claude Code's `MEMORY.md` is one).
+
+**Avoid**: host memory, native store, second store
+
+**Relationships**: Defined in `docs/policy/memory-substrate-contract.md`. Not the same as a Host-Generated Store, which the agent never writes or repairs (plan v4.14.5).
+
+## Host-Generated Store
+
+**Definition**: A memory store the host platform fills outside the agent's turn, by background extraction or consolidation, and that the vendor documents as generated state not to be edited; Codex Memories under `~/.codex/memories/` is the first instance.
+
+**Avoid**: harness-native index, host index, memory file, platform memory (ambiguous between the two classes)
+
+**Relationships**: Proposed for `docs/policy/memory-substrate-contract.md` by plan v4.14.5. Not the same as a Harness-Native Index. Its content reaches the agent only when the host injects it, and is treated as untrusted data.

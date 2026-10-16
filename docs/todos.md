@@ -253,6 +253,11 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 - [ ] Operator action A1: remove the three legacy instruction spans and the duplicate skill index from `~/.claude/CLAUDE.md` with `--remove-legacy-instructions=<token>`, then re-run `measure_rendered_context.py`.
 - [ ] Run `/plan from-comparison` for v4.15.3 (A2 to A6) once v4.15.2 lands.
 
+## Queued work - v4.14.5 Codex memory levers
+
+- [x] Complete the [v4.14.5 comparison](releases/v4/v4.14/comparisons/v4.14.5-comparison-codex-memory-models.md) (practitioner article on Codex `[memories]` model overrides, verified against OpenAI's config reference, Memories, and Models pages); adoption target v4.14.5 confirmed by the user on 2026-10-15.
+- [ ] Implement the [v4.14.5 plan](releases/v4/v4.14/plans/v4.14.5-adoption-codex-memory-levers.md): a host-generated memory store class (never read, untrusted, never copied into the substrate unconfirmed) in the memory-substrate contract, with pointers from `agent-memory` and `prompt-injection-defense` (Phase 1, no dependency); the five Codex memory levers recorded and omitted, not seeded, plus a guard that fails when any platform declares a key it omits (Phase 2, after v4.14.0 merges). Follow-on parked: a `nexus-hub doctor` warning for Codex Memories without the external-context exclusion.
+
 ## Queued work - v4.15.2 harness economics and portable engineering systems
 
 - [ ] Implement the approved [v4.15.2 adoption plan](releases/v4/v4.15/plans/v4.15.2-adoption-harness-economics-and-portable-engineering-system.md), seeded by the [completed comparison](releases/v4/v4.15/comparisons/v4.15.2-comparison-harness-economics-and-portable-engineering-system.md). The queued plan defines five phases and 52 tasks for explicit unattended-loop outcomes, a serial repository-local harness evaluator with enforceable live-run gates, and provider-aware shared project instructions with one platform-neutral `base-agents.md` owner. Implementation is 0/5 phases and 0/52 tasks.
