@@ -254,15 +254,10 @@ implementation; an absolute invites a wrong edit to make the number match.
 
 #### N.X -- Testing and Stabilization
 
-**Objective**: Generate and run all tests for this phase. Iterate until the phase is
-stable before advancing to Phase N+1.
+**Objective**: Run focused tests and cheap checks for this phase, preserving the complete-plan validation gate in the final phase.
 
 **Prompt**:
-> Generate automated tests for everything built in Phase N. This should include:
-> [list the specific kinds of automated tests appropriate for this phase: unit tests, integration
-> tests, E2E tests, performance benchmarks, etc.]. Run the tests, fix any failures, and
-> iterate until all automated tests pass and the implementation is stable. Do not proceed to
-> Phase N+1 until this phase is fully tested and verified.
+> Add or update focused tests for genuinely new behavior in Phase N, and run the affected tests plus the repository's cheap fast checks. Use [[cicd-integration]] for test selection and evidence reuse. Fix failures in this scope before advancing. Defer the full suite, project coverage collection, broad platform validation, E2E sweeps, performance benchmarks and coverage-driven augmentation to the final phase after all implementation tasks are complete. A specific expensive check runs earlier only when it is this phase's explicit deliverable or a named risk needs that check before dependent work; record the scope and reason.
 > Exercise the phase's declared Verification Expectation through [[functional-verification]] and record the observed result. The plan names the artifact, action, and expected observation; the delegated skill owns the procedure.
 > Then record this phase's CI IMPACT against `[[cicd-architect]]` without running remote CI:
 > name any new command, dependency, environment variable, test path, or artifact this phase
@@ -273,7 +268,7 @@ stable before advancing to Phase N+1.
 > still be written.
 > Do not ask the user to manually exercise an incomplete feature, and do not emit human or
 > manual testing suggestions on a non-final phase. Those belong only in the last phase.
-> After all automated tests pass, run `/generate-session-history` to document Phase N, then
+> After the focused tests pass, run `/generate-session-history` to document Phase N, then
 > create ONE local commit scoped to this phase.
 > Do NOT push, do NOT open a pull request, and do NOT start remote CI. Branch publication and
 > remote validation belong to the final phase only.
@@ -293,7 +288,7 @@ stable before advancing to Phase N+1.
 ### Phase N Exit Checklist
 
 - [ ] All sub-tasks completed
-- [ ] All tests passing (unit, integration, and any phase-specific tests)
+- [ ] Focused phase tests and cheap checks pass; comprehensive validation is scheduled once after all implementation tasks are complete
 - [ ] No known regressions from prior phases
 - [ ] Verification expectation exercised and its observable result recorded
 - [ ] CI impact recorded against the canonical contract, with no remote CI run

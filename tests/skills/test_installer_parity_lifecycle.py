@@ -57,8 +57,15 @@ def test_future_and_historical_plans_self_gate_on_multiple_installers() -> None:
 
 
 def test_planning_contract_requires_real_os_smoke_with_shared_postconditions() -> None:
+
     plan = _read(PLAN) + _read(PLAN_FINAL_PHASE)
-    assert "execute the real installers on their target operating systems" in plan
+
+    assert "real-installer proof for affected delivery boundaries" in plan
+
+    assert "Required broad target-OS coverage runs in the integration matrix" in plan
+
+    assert "recorded acceptance criterion requires that local proof" in plan
+
     assert "identical postconditions" in plan
 
 

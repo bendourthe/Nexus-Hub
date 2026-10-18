@@ -1,9 +1,11 @@
 # Nexus-Hub Progress Dashboard
 
 **Integration branch:** `develop`
-**Active work:** Approved v4.14 full-minor run, 32/209 tasks and 0/7 releases. Blocker 6 is answered and applied. Final local full 65/65, Windows 12/12, monitor 14/14 and required-render Chromium 4/4 all pass with 8268 source files unchanged. Green integration remains pending. Ledger 95 open, 6 resolved.
+**Active work:** v4.14 full-minor run, 32/209 tasks and 0/7 releases. Final local qualification passes for the first member. The new testing standard is applied and passes 385 affected tests plus 17 fast checks. Hosted integration remains pending. Ledger: 103 open, 6 resolved.
 
-**Run state:** Active. Native completion is INCOMPLETE; blocker 6 is answered.
+The original Linux installer and Windows edit-recording failures have local causal repairs and passing final gates. Their known-gap entries remain open pending required hosted integration.
+
+**Run state:** Active publication preparation. V9 full 65/65, Windows 12/12, monitor 14/14 and required-rendering guide 4/4 pass. The subsequent policy correction has actual-source focused proof with unchanged native inputs. No stabilization repush or release yet.
 
 **Closeout boundary:** Recovery backups with unique Git history, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim. The former 47-file recovery branch was removed after its patch was proven identical to the merged PR #259 commit.
 **Last refreshed:** 2026-10-18 UTC
@@ -11,18 +13,24 @@
 
 **Recent feature:** The Gemini Usage Monitor for the Antigravity IDE, confirmed working inside Antigravity by the maintainer on 2026-10-14, merged green through PR #465; it ships in the next release.
 
-**Next:** Commit Phase 7 and publish its integration PR, wait for green required checks, then continue all seven members through release, verified cleanup and native minor close.
+**Next:** Publish the reviewed stabilization once, pass required hosted merge-result checks and merge; release the first member and admit the next plan using focused intermediate verification.
 
 | Metric | Current | Target |
 |---|---|---|
 | v4.14 tasks | 32/209 | 209/209 |
 | v4.14 released members | 0/7 | 7/7 |
 | v4.14.0 phases | 6/7 | 7/7 |
-| Known gaps | 80 inherited + 15 new open | Resolve or approved carry |
+| Known gaps | 80 inherited + 23 new open | Resolve or approved carry |
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its source `known-gaps.md` under `docs/releases/` or `docs/archives/`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
 
 Refreshing this file to the active plan (rather than appending another version's section) keeps the dashboard from drifting to an old feature branch.
+
+- [x] Establish focused phase checks and complete-plan broad validation as the plan/implement standard, preserving deferred task IDs, explicit earlier acceptance and affected-input evidence reuse. Actual-source verification: 385 tests and 17 fast checks pass.
+
+- [x] Reproduce native cache replacement failure and qualify the reviewed baseline-preserving repair privately on Windows, Linux and mixed-version readers.
+
+- [ ] Pass complete final-source qualification and green hosted integration for the applied cache-publication repair.
 
 - [x] Capture native blocker 5 Z3T46TZ5 and apply its eleven exact files with fresh guards, immediate records, matching hashes and zero new accepts.
 
@@ -30,7 +38,13 @@ Refreshing this file to the active plan (rather than appending another version's
 
 - [x] Complete fresh unfiltered full and Windows final-source qualification, explicit monitor groups and four rendering-required guide cases.
 
-- [ ] Publish Phase 7 and complete green merged integration.
+- [x] Publish Phase7 once and open [PR485](https://github.com/bendourthe/Nexus-Hub/pull/485).
+
+- [x] Apply the exact blocker7 CI correction with preserved frozen patch hashes and the pinned render dependency.
+
+- [x] Reproduce the hosted rich-profile startup boundary, apply the reviewed launcher correction and pass native qualification; hosted proof remains pending.
+
+- [ ] Requalify stabilization and complete green merged integration.
 
 - [x] Verify v4.14.0 Phase 6 locally: ownership-aware per-model effort delivery, conservative legacy override handling, and read-only doctor diagnostics on both installers; 411 scoped tests and 38 separate hook smoke cases passed.
 

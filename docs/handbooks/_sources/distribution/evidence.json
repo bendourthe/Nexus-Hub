@@ -5,7 +5,7 @@
       "docs/handbooks/_sources/distribution/model.json": "f027cf220fe45326c51d238da8d950d43f2736ad90839da6c558fb2e006ccaf8",
       "docs/handbooks/_sources/distribution/source.md": "676c9003f5bcf9dc2b86791ad8e2a7a6c14347acf1cbea7ae6641da68d8c0e46",
       "docs/handbooks/_sources/distribution/design.css": "e897d6a59a2c1dbcfad89e0ba8d6c5b32ae6baa024acbc0bc26b4be63de8a7ac",
-      "scripts/installer.ps1": "83d99618d82da5c3c84dea3bc705e24d62bcef4712cf806b1eaa5bd93df560b4",
+      "scripts/installer.ps1": "164a3f60889f4fa6161df54fc7179308f5ba6474a4a213ee8f516bd04fd5643d",
       "scripts/installer.sh": "d440872e58e723e7dbd2c504501edea840864c80f484b741ac2f459af754e396",
       "scripts/lib/integrations/runner.py": "03f2c090a6401552d215e0fb1c1556f9137d07e6db6a3e1f63c0bc316beddbbe",
       "scripts/nexus_hub_cli.py": "ebaf422e77d1e9a4506b7d7c61aa1669acc4dd6161f59d6ca662152ba213d236",
@@ -33,13 +33,13 @@
   "checks": {
     "content": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/distribution-null-hook-claim-review.md",
-      "evidence_sha256": "5d03dd0fe7735194828d394d8ae74053168fdc991c4366104bc12e9e8c62c7eb"
+      "evidence": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/distribution-template-path-claim-review.md",
+      "evidence_sha256": "dc19afd858d528692d4c8d1410853274e433efd52d0258d330b6efaa055b92c6"
     },
     "build": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/distribution-null-hook-build-checks.json",
-      "evidence_sha256": "3b9ee8979a34777f46678d178009c20bb3dfa94498dd3c72cd4b537a0c2902b4"
+      "evidence": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/distribution-template-path-build-checks.json",
+      "evidence_sha256": "d9a1ceda65cbac75326018ecdf2bb5cce612d047a4c7f244f78b52f169e018b1"
     },
     "rendered": {
       "status": "pass",

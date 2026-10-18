@@ -1,0 +1,62 @@
+{
+  "scope": "T028 scoped formatter timing fixture repair; no new global deep pass",
+  "original_failure": {
+    "exit": 1,
+    "passed": 125,
+    "failed": 1,
+    "skipped": 19,
+    "pytest_seconds": 895.68,
+    "case": "test_formatter_rewrite_right_after_the_agents_write_is_not_a_user_edit[ps1]",
+    "recorded_at": "2026-10-18T11:49:33+00:00",
+    "rewrite_mtime": "2026-10-18T11:49:41.316Z",
+    "delta_seconds": 8.316,
+    "settle_seconds": 5,
+    "owner_stopped_before": [
+      "handbook",
+      "fast",
+      "source freeze",
+      "full",
+      "platform",
+      "monitor",
+      "guide"
+    ]
+  },
+  "private_candidate": {
+    "sha256": "01e83c1bc0d7faa8258e00f3bc21f1d4e68e473547423353e7016cdd686c95c8",
+    "exit": 0,
+    "passed": 8,
+    "deselected": 139,
+    "pytest_seconds": 79.22,
+    "scope": "Both actual Linux hook adapters and helper, private candidate test module; real repository interpreter fixtures",
+    "initial_harness_attempt": "Eight fixture-lookup errors; retained; no product qualification credited"
+  },
+  "review": {
+    "correctness_findings": [],
+    "adversarial_testing_findings": [],
+    "tests_executed_by_reviewers": 0,
+    "considered_rejected": [
+      "Opposite expected outcomes reject always-allow and always-block",
+      "Initial write must return zero and produce a record",
+      "Fresh per-test store has only one recorded target",
+      "Actual slide content changes; helper, adapters and policy unchanged",
+      "Existing strict and 120-second user-edit rejection tests retained"
+    ],
+    "correction": "Original correctness review said eleven seconds; retained timestamps establish8.316seconds"
+  },
+  "application": {
+    "file": "catalog/hooks/tests/test_user_edit_guard.py",
+    "before_sha256": "007a74a94929aedf3a599294bceff7a50ce6abef9c9e4d75be6ee00c90771a8b",
+    "after_sha256": "e872534ef0b869efe9a4ccc2bb18f85a3ea527d77ce4a86972c7bb3259b78140",
+    "new_edit_guard_accepts": 0,
+    "production_helper_changed": false
+  },
+  "raw_private_sha256": {
+    "linux-applied-cache-hooks.log": "f521ec7d87a8cdb7d200866d52ceb5eabeb92e7da186bf0c222fe906493cd185",
+    "linux-applied-cache-hooks.xml": "d1bd5ee678c59c2474876bfe9cbeb2b1f079618297f621076a5aa64d7b86395d",
+    "linux-applied-cache-hooks-result.json": "c95e47905ad20229e8ae0f0ff31d02315287dad71d658d12c64d6ce31a615dee",
+    "settle-timing-candidate-v2.log": "a0ceccf26e84f62c6122e45b9bd2c9431de77f0edc4ad58c21c047df99829a57",
+    "settle-timing-candidate-v2.xml": "0a23d95d3a8f7fddf88cf8db947ae3ac2aed9897b97fa71a237275b59b45315f",
+    "settle-timing-candidate-v2-result.json": "099a3504b637246624b5b038b62b4ff7702989528964c7c4d349c9f9722079b0"
+  },
+  "final_qualification": "PENDING; no current canonical full/platform or hosted integration pass claimed"
+}

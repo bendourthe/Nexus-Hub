@@ -1,0 +1,180 @@
+{
+  "raw_private_evidence_sha256": "29e504b42774aa053d89404e706af6b4b4970af9796a358721249f52aede3ccd",
+  "redaction": "Personal home path component replaced; observations and qualification limits retained",
+  "result": {
+    "kind": "retained_observations_from_completed_private_adversarial_review",
+    "evidence_scope": "Structured retention of actually observed tool results; not a terminal capture, new test execution, full-suite result, or global pass.",
+    "candidate_helper": {
+      "path": "C:\\Users\\USER\\AppData\\Local\\Temp\\nexus-v4140-native-hook-budget-oct17\\native-stabilization-oct18\\cache-path-candidate-v2\\edit_guard.py.after",
+      "observed_sha256": "ca865f9fa68cf7bf192baf4b62ca678dba9568ecad3db9bb8a3510db6b52cdb9",
+      "sha256_rechecked_at_retention": "ca865f9fa68cf7bf192baf4b62ca678dba9568ecad3db9bb8a3510db6b52cdb9"
+    },
+    "boundary_fixture": "C:\\Users\\USER\\AppData\\Local\\Temp\\nexus-v2-final-probes-wx07akq4",
+    "boundary_observations": [
+      {
+        "boundary": "workspace",
+        "env_extended_parameter": false,
+        "cache_extended": false,
+        "result": "GuardError refusing a store inside boundary",
+        "cache_created": false
+      },
+      {
+        "boundary": "workspace",
+        "env_extended_parameter": false,
+        "cache_extended": true,
+        "result": "GuardError refusing a store inside boundary",
+        "cache_created": false
+      },
+      {
+        "boundary": "workspace",
+        "env_extended_parameter": true,
+        "cache_extended": false,
+        "result": "GuardError refusing a store inside boundary",
+        "cache_created": false
+      },
+      {
+        "boundary": "workspace",
+        "env_extended_parameter": true,
+        "cache_extended": true,
+        "result": "GuardError refusing a store inside boundary",
+        "cache_created": false
+      },
+      {
+        "boundary": "sync",
+        "env_extended_parameter": false,
+        "cache_extended": false,
+        "result": "GuardError refusing a store inside boundary",
+        "cache_created": false
+      },
+      {
+        "boundary": "sync",
+        "env_extended_parameter": false,
+        "cache_extended": true,
+        "result": "GuardError refusing a store inside boundary",
+        "cache_created": false
+      },
+      {
+        "boundary": "sync",
+        "env_extended_parameter": true,
+        "cache_extended": false,
+        "result": "GuardError refusing a store inside boundary",
+        "cache_created": false
+      },
+      {
+        "boundary": "sync",
+        "env_extended_parameter": true,
+        "cache_extended": true,
+        "result": "GuardError refusing a store inside boundary",
+        "cache_created": false
+      },
+      {
+        "boundary": "git",
+        "env_extended_parameter": false,
+        "cache_extended": false,
+        "result": "GuardError refusing a store inside boundary",
+        "cache_created": false
+      },
+      {
+        "boundary": "git",
+        "env_extended_parameter": false,
+        "cache_extended": true,
+        "result": "GuardError refusing a store inside boundary",
+        "cache_created": false
+      },
+      {
+        "boundary": "git",
+        "env_extended_parameter": true,
+        "cache_extended": false,
+        "result": "GuardError refusing a store inside boundary",
+        "cache_created": false
+      },
+      {
+        "boundary": "git",
+        "env_extended_parameter": true,
+        "cache_extended": true,
+        "result": "GuardError refusing a store inside boundary",
+        "cache_created": false
+      }
+    ],
+    "boundary_notes": [
+      "For workspace, the env_extended loop parameter does not change environment; the repeated cases are retained as actually run.",
+      "Sync exclusion used OneDrive environment variable with atypical-sync basename, without a OneDrive basename match.",
+      "Deep cache ancestor paths were extended with long-folder components until ordinary spelling length was at least 285.",
+      "Git exclusion used an existing .git directory under the long ancestor."
+    ],
+    "junction_observations": [
+      {
+        "boundary": "workspace",
+        "fixture_path": "C:\\Users\\USER\\AppData\\Local\\Temp\\nexus-v2-final-probes-wx07akq4\\link-workspace",
+        "native_junction_setup_exit": 0,
+        "target_readlink_nonempty": true,
+        "result": "GuardError refusing a store inside boundary",
+        "cache_created": false
+      },
+      {
+        "boundary": "sync",
+        "fixture_path": "C:\\Users\\USER\\AppData\\Local\\Temp\\nexus-v2-final-probes-wx07akq4\\link-sync",
+        "native_junction_setup_exit": 0,
+        "target_readlink_nonempty": true,
+        "result": "GuardError refusing a store inside boundary",
+        "cache_created": false
+      },
+      {
+        "boundary": "git",
+        "fixture_path": "C:\\Users\\USER\\AppData\\Local\\Temp\\nexus-v2-final-probes-wx07akq4\\link-git",
+        "native_junction_setup_exit": 0,
+        "target_readlink_nonempty": true,
+        "result": "GuardError refusing a store inside boundary",
+        "cache_created": false
+      }
+    ],
+    "junction_notes": [
+      "Valid junctions pointed to short anchors; cache paths and the git marker were long descendants beneath those anchors."
+    ],
+    "actual_hook_fixture": "C:\\Users\\USER\\AppData\\Local\\Temp\\nexus-v2-hook-compat-iejsorgg",
+    "actual_hook_adapter": "C:/Users/USER/Documents/Benjamin/nexus/Nexus-Hub-v4.14.0-adoption-agent-tooling-and-subagent-cost/catalog/hooks/user-edit-guard.ps1",
+    "actual_hook_observations": {
+      "helper_selection": "NEXUS_EDIT_GUARD_SCRIPT selected the private before/after helper copies.",
+      "cache_spelling": "\\\\.\\C:\\...\\nexus-v2-hook-compat-iejsorgg\\cache",
+      "before_device_PostToolUse_Read": {
+        "returncode": 0,
+        "blocked_marker": false,
+        "private_text_echoed": false
+      },
+      "v2_device_PreToolUse_Write_before_user_edit": {
+        "returncode": 0,
+        "blocked_marker": false,
+        "private_text_echoed": false
+      },
+      "v2_device_PreToolUse_Write_after_user_edit": {
+        "returncode": 2,
+        "blocked_marker": true,
+        "private_text_echoed": false
+      },
+      "device_cache_final_record_count": 1,
+      "device_cache_final_copy_count": 1,
+      "v2_exact_v1_long_git_PostToolUse_Read": {
+        "returncode": 0,
+        "blocked_marker": false,
+        "private_text_echoed": false,
+        "new_target_record_exists": false,
+        "new_target_copy_exists": false
+      }
+    },
+    "exact_v1_long_git_fixture": "C:/Users/USER/AppData/Local/Temp/nexus-cache-hook-adversarial-75fqie55",
+    "other_observed_checks": {
+      "ordinary_extended_device_allowed_cache_samefile": true,
+      "ordinary_extended_device_prior_record_check_returncode": 0,
+      "source_key_matches_before": true,
+      "ordinary_extended_device_UNC_lexical_conversion_agreed": true
+    },
+    "known_limitations": [
+      "Live UNC share I/O was not run; UNC verification was lexical conversion only.",
+      "os.chdir of an extended path longer than 285 characters raised WinError 206 on this host; workspace exclusion was instead observed from a short cwd with a long descendant cache.",
+      "A separate cmd mklink fixture with a target longer than 260 characters produced an invalid junction with an empty readlink target; it was excluded as fixture failure and replaced by valid short-target junctions.",
+      "The copied long .git fixture was not independently recognized by git -C on its extended path; that command returned 128 in the earlier V1 probe.",
+      "No full test suite, Bash hook replay, live UNC share operation, or global edit-guard accept/state mutation is claimed by this receipt."
+    ],
+    "review_findings": []
+  }
+}

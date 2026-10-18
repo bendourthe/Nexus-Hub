@@ -1,0 +1,33 @@
+{
+  "approval": "DZD2S3L6",
+  "blocker": 7,
+  "official_answer": "ANSWERED blocker 7 minor v4.14",
+  "proposal_sha256": "8b1aee63278581617c529e2c24fa4e31c59b472542a45ccd9101a4aa6f0c9c3a",
+  "patch_sha256": "a6b48c5ef9abd3a2945370aeeca2b94cc4229daa7ebbe623deb6b5ce319a676a",
+  "applied": true,
+  "files": [
+    {
+      "path": ".pre-commit-config.yaml",
+      "before_sha256": "892385a2c77afbff102cee2ee91b498ac9563cd2101ce637948366533d5cf027",
+      "after_sha256": "b35466905812a96b946acfdbabe3af17843512e01b6e9ee27ef3d5f1f184892d",
+      "before_copy": "pre-commit.before",
+      "candidate_copy": "pre-commit.candidate"
+    },
+    {
+      "path": ".github/workflows/presentify-extractor.yml",
+      "before_sha256": "12bc9169404682064f56e9f1aaa0adb2e4037a50e5be51f038894d0a2c5f078e",
+      "after_sha256": "eee2159892123f8b83741546562a2a3283cdd8b5716f23cbae972f7dd91ace33",
+      "before_copy": "presentify-extractor.before",
+      "candidate_copy": "presentify-extractor.candidate"
+    }
+  ],
+  "new_guard_accepts": 0,
+  "ci_reruns": 0,
+  "repushes": 0,
+  "native_gaps_still_open": [
+    "BG-13",
+    "BG-14",
+    "BG-15"
+  ],
+  "deep_pass_counter": "3/3 unchanged"
+}

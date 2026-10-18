@@ -886,7 +886,7 @@ function Install-GitGuardrails {
 
     # Merge hook config into settings.json
     $settingsFile = Join-Path $TargetClaudeDir "settings.json"
-    $templateFile = "$RepoRoot\catalog\hooks\settings.json"
+    $templateFile = Join-Path $RepoRoot "catalog/hooks/settings.json"
 
     if (-not (Test-Path -LiteralPath $templateFile)) {
         Write-Item -Message "Skip: Hook template not found" -Color "DarkGray"
@@ -933,7 +933,7 @@ function Install-UsageDisplay {
 
     # Merge Stop hook config into settings.json
     $settingsFile = Join-Path $TargetClaudeDir "settings.json"
-    $templateFile = "$RepoRoot\catalog\hooks\settings.json"
+    $templateFile = Join-Path $RepoRoot "catalog/hooks/settings.json"
 
     if (-not (Test-Path -LiteralPath $templateFile)) {
         Write-Item -Message "Skip: Hook template not found" -Color "DarkGray"
@@ -1120,7 +1120,7 @@ function Install-RequireDescription {
 function Install-CoreSettings {
     param([string]$RepoRoot, [string]$TargetClaudeDir, [string]$Scope)
     $settingsFile = Join-Path $TargetClaudeDir "settings.json"
-    $templateFile = "$RepoRoot\catalog\hooks\settings.json"
+    $templateFile = Join-Path $RepoRoot "catalog/hooks/settings.json"
     if (-not (Test-Path -LiteralPath $settingsFile)) {
         Write-Item -Message "Skip: settings.json not found, will be created by hook installer" -Color "DarkGray"
         return

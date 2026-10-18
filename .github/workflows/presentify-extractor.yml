@@ -139,7 +139,7 @@ jobs:
       - name: Install the render + extractor dependencies
         run: >
           pip install playwright python-pptx python-docx openpyxl pdfplumber
-          pypdf pypdfium2 Pillow reportlab pytest
+          pypdf pypdfium2 Pillow reportlab pytest PyYAML
 
       # The browser download is ~130MB and changes only when Playwright's pinned
       # revision does, so it is keyed on the resolved playwright version rather

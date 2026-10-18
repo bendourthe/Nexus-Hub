@@ -1,0 +1,14 @@
+{
+  "source_sha256": "ca865f9fa68cf7bf192baf4b62ca678dba9568ecad3db9bb8a3510db6b52cdb9",
+  "injected_failure": true,
+  "save_calls_during_accept": 2,
+  "old_record_sha256": "336e51d6c1873fbe201c94a060319c2ee97f8f08d4c961ee744fe45cba65c9b5",
+  "persisted_record_sha256": "336e51d6c1873fbe201c94a060319c2ee97f8f08d4c961ee744fe45cba65c9b5",
+  "source_content_sha256": "d7a989e66112c2ede8024d320e7176c5012f813700156c98c5b179bcfcbdcbe2",
+  "cached_copy_sha256": "d7a989e66112c2ede8024d320e7176c5012f813700156c98c5b179bcfcbdcbe2",
+  "copy_matches_record": false,
+  "copy_matches_source": true,
+  "review_binding_retained": false,
+  "subsequent_diff_empty": true,
+  "isolated_store_only": true
+}

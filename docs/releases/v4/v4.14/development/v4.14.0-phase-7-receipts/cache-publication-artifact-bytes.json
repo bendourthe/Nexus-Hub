@@ -1,0 +1,209 @@
+{
+  "observed_utc": "2026-10-18T17:34:00.927302+00:00",
+  "attributes_before_sha256": "be63a42df2cac3565f378f127f3ab393b21b61e1cfc2ad88c894b7e0a5e40f56",
+  "attributes_after_sha256": "cf00e966b75d7f5e6d3838cd1c353e04fadb0df6f29e42ec5eab96b817c19ad9",
+  "scope": "Two narrow active and archived cache-publication JSON patterns; no captured bytes changed",
+  "checks": [
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-final-native-stress.json",
+      "source": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-final-native-stress.json",
+      "bytes": 117,
+      "sha256": "7b05a407d8a556e348eac7a05b13635e7e217cd975f7d429b2aeaa19c2dbaa20",
+      "git_unfiltered_oid": "e85a1beaf7b590f1aacc9974cb09a60123ab7975",
+      "git_filtered_oid": "e85a1beaf7b590f1aacc9974cb09a60123ab7975",
+      "text_attribute": "unset",
+      "bytes_preserved": true
+    },
+    {
+      "path": "docs/archives/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-final-native-stress.json",
+      "source": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-final-native-stress.json",
+      "bytes": 117,
+      "sha256": "7b05a407d8a556e348eac7a05b13635e7e217cd975f7d429b2aeaa19c2dbaa20",
+      "git_unfiltered_oid": "e85a1beaf7b590f1aacc9974cb09a60123ab7975",
+      "git_filtered_oid": "e85a1beaf7b590f1aacc9974cb09a60123ab7975",
+      "text_attribute": "unset",
+      "bytes_preserved": true
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-lint-comparison.json",
+      "source": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-lint-comparison.json",
+      "bytes": 2607,
+      "sha256": "9372daaf3d337da2aeef66b3d77df48b067ccf1d1caaca178f3239aaba6bf254",
+      "git_unfiltered_oid": "01ac94bfe883f0c1a8ff89d970660a9937e11f77",
+      "git_filtered_oid": "01ac94bfe883f0c1a8ff89d970660a9937e11f77",
+      "text_attribute": "unset",
+      "bytes_preserved": true
+    },
+    {
+      "path": "docs/archives/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-lint-comparison.json",
+      "source": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-lint-comparison.json",
+      "bytes": 2607,
+      "sha256": "9372daaf3d337da2aeef66b3d77df48b067ccf1d1caaca178f3239aaba6bf254",
+      "git_unfiltered_oid": "01ac94bfe883f0c1a8ff89d970660a9937e11f77",
+      "git_filtered_oid": "01ac94bfe883f0c1a8ff89d970660a9937e11f77",
+      "text_attribute": "unset",
+      "bytes_preserved": true
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-linux-result.json",
+      "source": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-linux-result.json",
+      "bytes": 122,
+      "sha256": "790b995db1c1a5675d1bdf24ac3edcf32910c7e20faf641134a0b7eb844be905",
+      "git_unfiltered_oid": "a12713c6842b9555e3c3e13a8ea6f6a0446b7a60",
+      "git_filtered_oid": "a12713c6842b9555e3c3e13a8ea6f6a0446b7a60",
+      "text_attribute": "unset",
+      "bytes_preserved": true
+    },
+    {
+      "path": "docs/archives/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-linux-result.json",
+      "source": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-linux-result.json",
+      "bytes": 122,
+      "sha256": "790b995db1c1a5675d1bdf24ac3edcf32910c7e20faf641134a0b7eb844be905",
+      "git_unfiltered_oid": "a12713c6842b9555e3c3e13a8ea6f6a0446b7a60",
+      "git_filtered_oid": "a12713c6842b9555e3c3e13a8ea6f6a0446b7a60",
+      "text_attribute": "unset",
+      "bytes_preserved": true
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-native-hook-results.json",
+      "source": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-native-hook-results.json",
+      "bytes": 195,
+      "sha256": "62e10414191a3443b00abf8d1145175a1fb38cc1075720c25d1be412c6d9d182",
+      "git_unfiltered_oid": "be78e6765da1d76ebb3a226e4dab870be1f7e372",
+      "git_filtered_oid": "be78e6765da1d76ebb3a226e4dab870be1f7e372",
+      "text_attribute": "unset",
+      "bytes_preserved": true
+    },
+    {
+      "path": "docs/archives/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-native-hook-results.json",
+      "source": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-native-hook-results.json",
+      "bytes": 195,
+      "sha256": "62e10414191a3443b00abf8d1145175a1fb38cc1075720c25d1be412c6d9d182",
+      "git_unfiltered_oid": "be78e6765da1d76ebb3a226e4dab870be1f7e372",
+      "git_filtered_oid": "be78e6765da1d76ebb3a226e4dab870be1f7e372",
+      "text_attribute": "unset",
+      "bytes_preserved": true
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-atomic-failure.json",
+      "source": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-atomic-failure.json",
+      "bytes": 701,
+      "sha256": "5b8179bcb0091ce8d79d6df8d6b6a1f04835894e7be736fbd315af8235ab0dfa",
+      "git_unfiltered_oid": "90028755e3394cd4e2422debc73b2f396bec874d",
+      "git_filtered_oid": "90028755e3394cd4e2422debc73b2f396bec874d",
+      "text_attribute": "unset",
+      "bytes_preserved": true
+    },
+    {
+      "path": "docs/archives/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-atomic-failure.json",
+      "source": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-atomic-failure.json",
+      "bytes": 701,
+      "sha256": "5b8179bcb0091ce8d79d6df8d6b6a1f04835894e7be736fbd315af8235ab0dfa",
+      "git_unfiltered_oid": "90028755e3394cd4e2422debc73b2f396bec874d",
+      "git_filtered_oid": "90028755e3394cd4e2422debc73b2f396bec874d",
+      "text_attribute": "unset",
+      "bytes_preserved": true
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-full-v8.json",
+      "source": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-full-v8.json",
+      "bytes": 46830,
+      "sha256": "1d27ef5dad7befa22cf52a0976bc336113e4fa1a3b09836a59d406c419b6dcef",
+      "git_unfiltered_oid": "e58a91da8455eddfdad4eb8468a951a96e66c1b5",
+      "git_filtered_oid": "e58a91da8455eddfdad4eb8468a951a96e66c1b5",
+      "text_attribute": "unset",
+      "bytes_preserved": true
+    },
+    {
+      "path": "docs/archives/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-full-v8.json",
+      "source": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-full-v8.json",
+      "bytes": 46830,
+      "sha256": "1d27ef5dad7befa22cf52a0976bc336113e4fa1a3b09836a59d406c419b6dcef",
+      "git_unfiltered_oid": "e58a91da8455eddfdad4eb8468a951a96e66c1b5",
+      "git_filtered_oid": "e58a91da8455eddfdad4eb8468a951a96e66c1b5",
+      "text_attribute": "unset",
+      "bytes_preserved": true
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-platform-v8.json",
+      "source": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-platform-v8.json",
+      "bytes": 17386,
+      "sha256": "83beae30cf0d3f62d56545b2121a378061a592060ee1a58fd099723cc403af0a",
+      "git_unfiltered_oid": "735c6c75f680558466793e30135166c13ac622bf",
+      "git_filtered_oid": "735c6c75f680558466793e30135166c13ac622bf",
+      "text_attribute": "unset",
+      "bytes_preserved": true
+    },
+    {
+      "path": "docs/archives/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-platform-v8.json",
+      "source": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-platform-v8.json",
+      "bytes": 17386,
+      "sha256": "83beae30cf0d3f62d56545b2121a378061a592060ee1a58fd099723cc403af0a",
+      "git_unfiltered_oid": "735c6c75f680558466793e30135166c13ac622bf",
+      "git_filtered_oid": "735c6c75f680558466793e30135166c13ac622bf",
+      "text_attribute": "unset",
+      "bytes_preserved": true
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-source-comparison-v8.json",
+      "source": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-source-comparison-v8.json",
+      "bytes": 179,
+      "sha256": "be784f6bc1a5c61f51bc0ba8df5c39e3f288064da5d76be0878e5da46002438b",
+      "git_unfiltered_oid": "c845616b30e106cae84a8e2112f7c45af1a50b2a",
+      "git_filtered_oid": "c845616b30e106cae84a8e2112f7c45af1a50b2a",
+      "text_attribute": "unset",
+      "bytes_preserved": true
+    },
+    {
+      "path": "docs/archives/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-source-comparison-v8.json",
+      "source": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-source-comparison-v8.json",
+      "bytes": 179,
+      "sha256": "be784f6bc1a5c61f51bc0ba8df5c39e3f288064da5d76be0878e5da46002438b",
+      "git_unfiltered_oid": "c845616b30e106cae84a8e2112f7c45af1a50b2a",
+      "git_filtered_oid": "c845616b30e106cae84a8e2112f7c45af1a50b2a",
+      "text_attribute": "unset",
+      "bytes_preserved": true
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-win5.json",
+      "source": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-win5.json",
+      "bytes": 1998,
+      "sha256": "4b3c2a52f6378e73e7073cb5ca82d0b40a4214375b8fef6536d80051bcb7f2e5",
+      "git_unfiltered_oid": "98cd1c17cb1d786a5e8119b45619538174111477",
+      "git_filtered_oid": "98cd1c17cb1d786a5e8119b45619538174111477",
+      "text_attribute": "unset",
+      "bytes_preserved": true
+    },
+    {
+      "path": "docs/archives/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-win5.json",
+      "source": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-win5.json",
+      "bytes": 1998,
+      "sha256": "4b3c2a52f6378e73e7073cb5ca82d0b40a4214375b8fef6536d80051bcb7f2e5",
+      "git_unfiltered_oid": "98cd1c17cb1d786a5e8119b45619538174111477",
+      "git_filtered_oid": "98cd1c17cb1d786a5e8119b45619538174111477",
+      "text_attribute": "unset",
+      "bytes_preserved": true
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-stabilization-applied.json",
+      "source": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-stabilization-applied.json",
+      "bytes": 5377,
+      "sha256": "fcdf3203162e2fb2508f7f2a73a0027f11acebb09693ee38e6ed871b151169b5",
+      "git_unfiltered_oid": "169f20f9992751dab78c67bd482b5ea02fed9342",
+      "git_filtered_oid": "169f20f9992751dab78c67bd482b5ea02fed9342",
+      "text_attribute": "unset",
+      "bytes_preserved": true
+    },
+    {
+      "path": "docs/archives/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-stabilization-applied.json",
+      "source": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-stabilization-applied.json",
+      "bytes": 5377,
+      "sha256": "fcdf3203162e2fb2508f7f2a73a0027f11acebb09693ee38e6ed871b151169b5",
+      "git_unfiltered_oid": "169f20f9992751dab78c67bd482b5ea02fed9342",
+      "git_filtered_oid": "169f20f9992751dab78c67bd482b5ea02fed9342",
+      "text_attribute": "unset",
+      "bytes_preserved": true
+    }
+  ],
+  "new_guard_accepts": 0
+}

@@ -1,0 +1,98 @@
+# Pre-commit hooks for AI Templates Repository
+#
+# Installation:
+#   pip install pre-commit
+#   pre-commit install
+#
+# Run manually:
+#   pre-commit run --all-files
+
+repos:
+  - repo: local
+    hooks:
+      - id: lint-templates
+        name: Lint Templates
+        entry: python tools/lint_templates.py
+        language: python
+        pass_filenames: false
+        always_run: false
+        files: '\.(md)$'
+
+      - id: build-catalogs
+        name: Build Skills & Templates Catalogs
+        entry: bash -c 'python tools/build_skills_catalog.py && python tools/build_templates_catalog.py'
+        language: system
+        pass_filenames: false
+        files: '(SKILL\.md|.*_(cleanup|code_quality|context_analysis|final_report|performance_review|security_review|testing_review|api_docs|comments|docstrings|sbom|technical_docs|user_docs|code_coverage|maintenance_cicd|mocks_fixtures|performance_testing|reward_hacking|test_cases|test_structure|unit_tests)\.md)$'
+
+      - id: check-yaml-frontmatter
+        name: Check YAML Frontmatter
+        entry: python -c "import sys; import re; content = open(sys.argv[1], encoding='utf-8').read(); sys.exit(0 if content.startswith('---') else 1)"
+        language: python
+        files: '^(code_cleanup|code_review|test_development|documentation|agent_prompts)/.*\.md$'
+        exclude: '(README|CHANGELOG|DEVLOG|TEMPLATE_FINDER|DECISION_TREES)\.md$'
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        # Retained release artifacts are captured output, not authored prose:
+        # trailing whitespace in a recorded test log is part of what the run
+        # actually printed. See the end-of-file-fixer note below.
+        exclude: '\.(md)$|^docs/(releases|archives)/.*/development/.*\.(json|html|txt|csv)$|^tests/fixtures/interactive-handbooks-qualification/|^docs/(releases|archives)/v4/v4\.14/development/v4\.14\.0-phase-7-receipts/.*\.(diff|patch)$'
+      - id: end-of-file-fixer
+        # Release evidence under docs/releases/**/assets/ (and, once archived,
+        # docs/archives/**/assets/) holds approved-bytes-only
+        # artifacts whose SHA-256 is pinned in an asset-provenance ledger and matched
+        # against the bytes embedded in the guide. Appending a newline would change
+        # every hash and break that discipline, so the fixer must not touch them.
+        #
+        # The same discipline covers retained release ARTIFACTS: the captured
+        # JSON, HTML and log output of a qualification run. Each native-authoring
+        # attempt pins SHA-256 values in its own summary.json - 69 across the
+        # v4.11.0 rounds - and generated handbooks are hash-checked by
+        # check_handbooks.py against their build record. Appending a newline
+        # rewrites a byte-for-byte record of what a generator actually produced.
+        # Authored Markdown under the same trees is NOT excluded: prose still
+        # gets the hygiene, only captured artifacts keep their bytes.
+        #
+        # The frozen qualification corpus is the same kind of thing and learned
+        # it the hard way: every file is pinned in its own frozen-manifest.json,
+        # because QG-2's benchmark is only meaningful if all three families are
+        # rebuilt from byte-identical inputs. Appending newlines to eight of its
+        # files to satisfy this hook silently invalidated the manifest, and the
+        # test that guards it caught the regression in CI.
+        exclude: '^docs/(releases|archives)/.*/assets/|^docs/(releases|archives)/.*/development/.*\.(json|html|txt|csv)$|^tests/fixtures/interactive-handbooks-qualification/|^docs/(releases|archives)/v4/v4\.14/development/v4\.14\.0-phase-7-receipts/.*\.(diff|patch)$'
+      - id: check-yaml
+        exclude: 'templates.json|skills.json'
+      - id: check-json
+        files: '\.(json)$'
+      - id: mixed-line-ending
+        args: ['--fix=lf']
+        # Two exclusions, for opposite reasons.
+        #
+        # Windows batch shims must keep CRLF (see .gitattributes:
+        # `scripts/nexus-hub.cmd text eol=crlf`). They check out as CRLF on
+        # every OS, so the global --fix=lf would rewrite them and fail the hook.
+        #
+        # Captured release artifacts keep the bytes a generator actually
+        # produced, for the reason given on end-of-file-fixer above: their
+        # SHA-256 values are pinned in the qualification summaries. Two of them
+        # carry mixed endings because that is what the generator emitted, and
+        # normalising those would edit the record rather than fix a defect. The
+        # frozen qualification corpus is pinned the same way, by its own
+        # frozen-manifest.json.
+        exclude: '\.cmd$|^docs/(releases|archives)/.*/development/.*\.(json|html|txt|csv)$|^tests/fixtures/interactive-handbooks-qualification/'
+
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.10.0.1
+    hooks:
+      - id: shellcheck
+        args: ['--severity=warning']
+        files: '^(scripts/installer\.sh|install\.sh|catalog/hooks/.*\.sh)$'
+
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v3.29.0
+    hooks:
+      - id: commitizen
+        stages: [commit-msg]

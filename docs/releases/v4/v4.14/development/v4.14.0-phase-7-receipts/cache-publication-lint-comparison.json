@@ -1,0 +1,101 @@
+{
+  "_publication": {"kind": "redacted_capture", "original_capture_sha256": "9372daaf3d337da2aeef66b3d77df48b067ccf1d1caaca178f3239aaba6bf254", "original_retained_privately": true, "redaction": "Local account identifiers replaced by <redacted:local-user>; captured result fields and counts are otherwise preserved"},
+  "baseline": [
+    {
+      "cell": null,
+      "code": "UP017",
+      "end_location": {
+        "column": 43,
+        "row": 64
+      },
+      "filename": "C:\\Users\\<redacted:local-user>\\Documents\\Benjamin\\nexus\\Nexus-Hub-v4.14.0-adoption-agent-tooling-and-subagent-cost\\catalog\\skills\\workflow\\user-edit-preservation\\scripts\\edit_guard.py",
+      "fix": {
+        "applicability": "safe",
+        "edits": [
+          {
+            "content": "import datetime as dt",
+            "end_location": {
+              "column": 22,
+              "row": 32
+            },
+            "location": {
+              "column": 1,
+              "row": 32
+            }
+          },
+          {
+            "content": "dt.UTC",
+            "end_location": {
+              "column": 43,
+              "row": 64
+            },
+            "location": {
+              "column": 28,
+              "row": 64
+            }
+          }
+        ],
+        "message": "Convert to `datetime.UTC` alias"
+      },
+      "location": {
+        "column": 28,
+        "row": 64
+      },
+      "message": "Use `datetime.UTC` alias",
+      "name": "datetime-timezone-utc",
+      "noqa_row": 64,
+      "severity": "error",
+      "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+    }
+  ],
+  "candidate": [
+    {
+      "cell": null,
+      "code": "UP017",
+      "end_location": {
+        "column": 43,
+        "row": 67
+      },
+      "filename": "C:\\Users\\<redacted:local-user>\\Documents\\Benjamin\\nexus\\Nexus-Hub-v4.14.0-adoption-agent-tooling-and-subagent-cost\\catalog\\skills\\workflow\\user-edit-preservation\\scripts\\edit_guard.py",
+      "fix": {
+        "applicability": "safe",
+        "edits": [
+          {
+            "content": "import datetime as dt",
+            "end_location": {
+              "column": 22,
+              "row": 32
+            },
+            "location": {
+              "column": 1,
+              "row": 32
+            }
+          },
+          {
+            "content": "dt.UTC",
+            "end_location": {
+              "column": 43,
+              "row": 67
+            },
+            "location": {
+              "column": 28,
+              "row": 67
+            }
+          }
+        ],
+        "message": "Convert to `datetime.UTC` alias"
+      },
+      "location": {
+        "column": 28,
+        "row": 67
+      },
+      "message": "Use `datetime.UTC` alias",
+      "name": "datetime-timezone-utc",
+      "noqa_row": 67,
+      "severity": "error",
+      "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+    }
+  ],
+  "new_findings": [],
+  "permanent_test_findings": []
+}

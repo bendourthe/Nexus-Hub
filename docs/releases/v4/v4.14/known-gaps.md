@@ -2,8 +2,8 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Last updated**: 2026-10-17
-**Open items**: 95
+**Last updated**: 2026-10-18
+**Open items**: 103
 
 ## v4.14.0
 
@@ -13,14 +13,26 @@
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 12 | 2 |
-| Bugs / regressions (BG) | 11 | 0 |
+| Bugs / regressions (BG) | 17 | 0 |
 | Warnings (WN) | 24 | 2 |
-| Missing tests / coverage gaps (MT) | 9 | 2 |
+| Missing tests / coverage gaps (MT) | 11 | 2 |
 | Quality-gate gaps (QG) | 4 | 0 |
 
-The six standard categories contain 60 open items; 35 inherited `AR` obligations below bring the section total to 95. Phases 1 through 6 changed no gap state. Phase 7 reconciles WN-13, DF-12 and DF-13 as resolved from current artifacts and retained evidence; their original bodies remain below.
+The six standard categories contain 68 open items; 35 inherited `AR` obligations below bring the section total to 103. Phases 1 through 6 changed no gap state. Phase 7 reconciles WN-13, DF-12 and DF-13 as resolved from current artifacts and retained evidence; their original bodies remain below.
 
 ### Current qualification
+
+Latest post-blocker8 checkpoint: the V8 unfiltered full profile passed all65 commands, with12,163 passing pytest executions and88 skips. Its complete Windows platform profile passed11 commands and failed only the accept-record hook case; all8,299 source files remained identical. A reviewed, privately qualified cache-publication repair is now applied with zero new accepts. BG-17 owns its actual-source and hosted predicates. Fresh full/platform/post gates remain pending on the corrected tree. Open103, resolved6, comprising80 inherited and23 new open items. Earlier checkpoint paragraphs retain their original epochs.
+
+Latest post-blocker8 checkpoint: V7 stopped at the additional Linux hook module with 125 passed, 19 skipped and one timing-fixture failure; no canonical V7 gate or source freeze started. A reviewed deterministic fixture correction is applied with zero new accepts after eight private cases passed. The guard policy is unchanged. MT-13 owns final actual-source and hosted qualification. Open 102, resolved 6, comprising 80 inherited and 22 new open items. Earlier checkpoint paragraphs below retain their original epochs.
+
+Blocker8 is answered and its exact four metadata restorations are applied. The six newly recorded CI/native findings retain their final full-profile and hosted predicates; no item is closed from bounded native successes alone. Open101, resolved6, comprising80inherited plus21new open items. New findings cannot migrate. See [current native qualification](development/v4.14.0-phase-7-receipts/blocker7-native-applied-qualification.json).
+
+Blocker7 DZD2S3L6 is answered. Its exact two CI corrections and all reviewed native repairs are applied, including the privacy-preserving Windows cache-path repair. Both full affected Windows scopes pass: 338 passed and one existing skip each, 845.76 seconds on PowerShell5.1 and 883.79 seconds on PowerShell7. The complete Windows installer passes four cases plus the repeated rich-profile upgrade, with protected host files unchanged. Six cache review lenses are clean, all20 focused cases pass, actual owner-only DACLs and private boundary/junction controls pass. These are bounded local results, not the final canonical full/platform profile or green integration. Linux qualification is terminal; read the native receipt for its actual exit. BG-12 through BG-16 and MT-12 retain their final qualification and hosted acceptance predicates. No new gap is closed by this checkpoint.
+
+Current blocker7 checkpoint: the exact CI correction and three reviewed native repairs are applied with zero new edit-guard accepts. Actual Windows affected modules each report 289 passed and two failures, both caused by long default-cache copy paths; BG-16 records that newly reproduced cause. The privacy-preserving cache V2 remains private and unapplied pending review and qualification. Original CI is terminal at 36 successful and eight failed checks. No stabilization commit, repush, merge or release has occurred. There are 101 open and six resolved obligations, comprising 80 inherited plus 21 new open items. New findings cannot migrate. Earlier paragraphs retain their original qualification epochs.
+
+Current first-publication checkpoint: PR485 is open at5734e0e21c00, with formatter/dependency CI failures and a separate unreproduced native startup failure. The fully qualified two-file/three-setting CI proposal is unapplied. There are 100 open and 6 resolved obligations, 80 inherited plus 20 new open. Linux installer and hosted Windows edit-guard failures were subsequently retained in the additional CI receipt. No new finding may migrate. Earlier qualification paragraphs below retain their original epochs.
 
 Resolved-count reconciliation: WN-26 was already resolved in its retained table row. A normal resolved heading now exposes that same entry to the native heading parser. Both the category summary and native parser report six resolved items; 95 remain open. No item changed state, no original body was discarded, and no new migration permission was added.
 
@@ -33,6 +45,90 @@ Fresh inherited-item triage preserves every original body and finds no additiona
 AR-16 remains open. The current canonical Node22 monitor profile passes all14 commands, but Claude line coverage is61.75 percent and statement coverage61.37 percent, below that inherited item's80 percent floor. Codex, Copilot, Cursor and Gemini line coverage is87.92,98.05,90.63 and84.88 percent respectively. These figures are measured local package results, not project-wide coverage or installed-VSIX/live-editor qualification. No new duplicate gap or completion claim follows. See [Node22 result](development/v4.14.0-phase-7-receipts/node22-monitor-profile.json).
 
 ### Open Items
+
+#### BG-17: Cache record publication can fail and consume reviewed baseline evidence
+
+- **Source phase**: v4.14.0 Phase7, T028/T029, complete post-blocker8 Windows qualification.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: high.
+- **Evidence**: the complete V8 Windows platform run reports 11 passing commands and one failed hook command, with 2,609 passing hook cases and one accept failure. A direct unchanged-helper writer reproduces WinError5 at atomic replacement after44 successes. Independent failure injection proves the old acceptance path can consume its review marker and replace the snapshot before matching metadata commits, producing an empty later diff. The original pytest fixture was pruned before copying; its exact original exception remains unavailable.
+- **Current correction**: bounded replacement retry retains prepared bytes; atomic metadata references an immutable private generation, with legacy-reader availability kept truthful. Reviewed content, old baselines, owner-only permissions, legacy import, explicit purge and retention grace are covered. See [applied repair](development/v4.14.0-phase-7-receipts/cache-publication-stabilization-applied.json).
+- **Acceptance**: preserve keys, approval rules, strict user-edit blocking and owner-only cache permissions; retain meaningful reviewed baselines after failed writes; pass actual-source native scopes, complete final full/platform profiles and green hosted integration.
+- **Suggested next step**: run the fresh final-source gates and integration. This new finding cannot migrate.
+
+#### MT-13: Formatter settle-window fixture depends on adapter shutdown latency
+
+- **Source phase**: v4.14.0 Phase7, T028, post-blocker8 Linux hook qualification.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: medium.
+- **Evidence**: actual Linux hooks report 125 passed, 19 skipped and one formatter-test failure. Its rewrite lands 8.316 seconds after the recorded write, outside the unchanged five-second policy. The private deterministic candidate passes eight selected cases on both actual adapters; two scoped reviews are clean. See [timing repair](development/v4.14.0-phase-7-receipts/formatter-settle-stabilization-applied.json).
+- **Acceptance**: both real Linux adapters and native Windows qualification, complete final canonical profiles and hosted integration pass with explicit inside/outside timing controls and strict user-edit blocking retained.
+- **Suggested next step**: run actual-source qualification and the final gates. This new finding cannot migrate.
+
+#### BG-16: Long Windows default-cache paths prevent edit recording
+
+- **Source phase**: v4.14.0 Phase 7, T028/T029 native stabilization after blocker7.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: medium.
+- **Evidence**: both actual Windows affected-module runs report 289 passed and two failed cases. A direct unchanged-helper probe reproduces FileNotFoundError when the staged private copy exceeds 260 characters; the same default-store cases pass under a short temporary root. A first private prefix-only candidate permits copies beneath a missed long repository marker and breaks drive-device aliases, so it is rejected and never applied. The corrected private candidate validates and writes through one resolved long-capable cache path.
+- **Acceptance**: preserve existing records, workspace/repository/sync exclusions, owner-only cache permissions and real user-edit blocking; pass both native hook adapters, affected suites, final profiles and hosted integration.
+- **Suggested next step**: complete independent review of the corrected private candidate, apply with fresh official guards, and run final qualification. This new finding cannot migrate.
+
+#### BG-14: Linux PowerShell installer boundary tests fail in first integration
+
+- **Source phase**: v4.14.0 Phase7, T029 first integration PR485.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: medium.
+- **Evidence**: Linux installer command reports 72 failed, 734 passed and 27 skipped: 36 failures each in test_core_settings_seeding.py and test_native_hook_json.py. The native hook error passes literal backslashes to .NET ReadAllText on Linux; core-seeding failures also report absent values. This does not prove that every case has one cause.
+- **Acceptance**: reproduce and correct every failing boundary without skipping Linux PowerShell cases or weakening assertions; pass full local and hosted integration qualification.
+- **Suggested next step**: inspect the retained ci-test-reports artifact, then reproduce the exact harness boundary. The pending two-file CI proposal does not fix this finding. This new finding cannot migrate.
+
+#### BG-15: Hosted Windows edit guard fails to record an agent Bash edit
+
+- **Source phase**: v4.14.0 Phase7, T029 first integration PR485, native Windows hooks.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: medium.
+- **Evidence**: Windows PowerShell5.1 hooks report 2572 passed, one failed and 15 skipped. After the agent Bash edit, test_agents_own_bash_change_is_re_recorded_not_blamed_on_the_user[ps1] receives guard exit2 at the next write. No local causal reproduction or repair is established.
+- **Acceptance**: reproduce the hosted failure, correct its cause while retaining real user-edit blocking and agent-write recording controls, and pass native and hosted integration checks.
+- **Suggested next step**: inspect the retained ci-windows-reports artifact and reproduce the complete event sequence. Do not bypass guards or accept edits to hide the failure. This new finding cannot migrate.
+
+#### BG-12: CI formatters rewrite frozen proposal patch bytes
+
+- **Source phase**: v4.14.0 Phase7, T029 first integration PR485.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: medium.
+- **Reason**: trailing-whitespace removes unified-diff context markers; the following EOF fixer trims the resulting blank tail, invalidating retained approval hashes. CI validation fails.
+- **Evidence**: the real formatter sequence fails on original active/archive/patch copies; the unapplied bounded candidate preserves all three, while three ordinary/outside controls still get corrected.
+- **Acceptance**: exact CI correction approved and applied; captured patch hashes preserved and hosted validation green.
+- **Suggested next step**: approve the bound CI stabilization proposal, apply with guards and verify the real gate. This new finding cannot migrate.
+
+#### BG-13: Hosted rich-profile PowerShell startup exits before launcher harness
+
+- **Source phase**: v4.14.0 Phase7, T029 first integration PR485, Windows installer-core.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: medium.
+- **Reason**: hosted PowerShell7.6.6 exits70 with startIndex initialization error in the rich-profile case;294 other cases pass. This does not establish an installer-code cause.
+- **Evidence**: all three actual launcher cases pass locally under both verified7.6.6 and7.6.7. No causal reproduction or repair is established.
+- **Acceptance**: reproduce the failure locally, apply its narrow root-cause correction without skipping rich-path assertions, and pass actual native qualification and hosted integration.
+- **Suggested next step**: continue matching the hosted startup environment and inspect the retained job report before any rerun. This new finding cannot migrate.
+
+#### MT-12: Minimal render job omits the full skills suite YAML dependency
+
+- **Source phase**: v4.14.0 Phase7, T029 first integration PR485.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: medium.
+- **Reason**: presentify-render collects all tests/skills, including the YAML-based installer parity contract, but its dependency command omits PyYAML.
+- **Evidence**: exact minimal dependencies reproduce collection exit2/missing yaml. Adding only existing constrainedPyYAML6.0.3 passes all3profile commands,2419tests/18skips, with rendering required. Actual workflow remains unchanged pending approval.
+- **Acceptance**: approve/apply the exact dependency addition and pass the hosted render and integration checks on the final tree.
+- **Suggested next step**: apply the bound CI stabilization proposal after native approval and requalify. This new finding cannot migrate.
 
 #### BG-11: Python 3.11 path guard accepts directory junctions within the authoring root
 

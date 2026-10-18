@@ -1,0 +1,181 @@
+{
+  "applied": true,
+  "applied_utc": "2026-10-18T17:19:04.068085+00:00",
+  "source_files": [
+    {
+      "path": "catalog/skills/workflow/user-edit-preservation/scripts/edit_guard.py",
+      "before_sha256": "ca865f9fa68cf7bf192baf4b62ca678dba9568ecad3db9bb8a3510db6b52cdb9",
+      "after_sha256": "68d688b9037303a6af9bb2278ec6c54d252fd0c8e7fb8691c2ecce15e3e73adc",
+      "lf_sha256": "107071cc18f08abba89be11f304ca096f96657741bdda8ecf0865c4f4b55b917"
+    },
+    {
+      "path": "catalog/hooks/tests/test_user_edit_guard.py",
+      "before_sha256": "e872534ef0b869efe9a4ccc2bb18f85a3ea527d77ce4a86972c7bb3259b78140",
+      "after_sha256": "491dcf9ba0746b90c5a85efa3435a4b236f74347c7262d91728af178320e797f",
+      "lf_sha256": "21e7d77d30f42b0088b26486ae629b87d888b175741ac93be5d6999efc217bf1"
+    },
+    {
+      "path": "tests/skills/test_edit_guard_publication.py",
+      "before_sha256": null,
+      "after_sha256": "5667d65c693c1fa2f8979bbfebfc9c3b80a7a37d9459ee2a3432e57559e35951",
+      "lf_sha256": "d078ccd24b440dd59373298f06518cffcdd9a04c49c411a937a1236c1fb293ae"
+    }
+  ],
+  "guard": "official installed r1 helper, serialized read/check/write/record; zero new accepts",
+  "preserved_policy_functions": [
+    "canonical",
+    "key_for",
+    "_owner_only",
+    "_may_rebaseline",
+    "session_id",
+    "_store_access_path",
+    "_store_real_path",
+    "store_dir",
+    "in_synced_root",
+    "in_worktree",
+    "protected_by_git",
+    "_regular_file"
+  ],
+  "settle_seconds": 5,
+  "accepts": {
+    "prior": 10,
+    "blocker8": 4,
+    "new": 0,
+    "total": 14
+  },
+  "pre_repair_epoch": {
+    "full_commands_passed": 65,
+    "full_pytest_executions_passed": 12163,
+    "full_skips": 88,
+    "platform_commands_passed": 11,
+    "platform_commands_failed": 1,
+    "platform_pytest_passed": 7254,
+    "platform_skips": 59,
+    "platform_failed_tests": 1,
+    "source_files_unchanged": 8299
+  },
+  "private_qualification": {
+    "new_tests_passed": 36,
+    "existing_tests_passed": 27,
+    "existing_skips": 1,
+    "linux_cases_passed": 44,
+    "native_hook_cases_each": 8,
+    "native_editions": [
+      "Windows PowerShell5.1",
+      "PowerShell7"
+    ],
+    "stress_publications": 10000,
+    "dacl_objects": 5,
+    "causal_mutants_rejected": 5,
+    "legacy_retention_red_control": "one assertion failure, one pass; corrected scope passed34",
+    "mixed_version_reader": "actual unchanged installed r1 explicitly reports no stored copy; new helper shows actual B-to-A diff; subsequent old-writer records are readable",
+    "review_lenses": [
+      "correctness",
+      "maintainability",
+      "testing",
+      "project-standards",
+      "security",
+      "reliability",
+      "adversarial",
+      "api-contract"
+    ],
+    "all_scoped_reviews_clean": true,
+    "new_lint_findings": 0,
+    "inherited_helper_lint_findings": 1
+  },
+  "unresolved": {
+    "current_actual_source_full_platform_and_post_gates": true,
+    "green_merged_integration": true,
+    "new_gap": "BG-17; cannot migrate"
+  },
+  "progress": {
+    "tasks_complete": 31,
+    "tasks_total": 209,
+    "releases_complete": 0,
+    "releases_total": 7,
+    "open_gaps": 103,
+    "resolved_gaps": 6,
+    "inherited_open": 80,
+    "new_open": 23
+  },
+  "remote": {
+    "ci_reruns": 0,
+    "stabilization_repushes": 0,
+    "merged": false,
+    "released": false
+  },
+  "global_deep_passes": "3/3 unchanged; scoped stabilization reviews only",
+  "published_evidence": [
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-full-v8.json",
+      "sha256": "9581a5c56e6f589aec44c45ebfca4da784064540ebd95d456f5041ac4c4a6d27",
+      "original_capture_sha256": "1d27ef5dad7befa22cf52a0976bc336113e4fa1a3b09836a59d406c419b6dcef",
+      "representation": "redacted_capture",
+      "original_retained_privately": true
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-platform-v8.json",
+      "sha256": "265ec6c24d1cf77f5b7ce7dc5e9dee3f2d47d41322c676b3f0d9c7c56c6e86fb",
+      "original_capture_sha256": "83beae30cf0d3f62d56545b2121a378061a592060ee1a58fd099723cc403af0a",
+      "representation": "redacted_capture",
+      "original_retained_privately": true
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-source-comparison-v8.json",
+      "sha256": "be784f6bc1a5c61f51bc0ba8df5c39e3f288064da5d76be0878e5da46002438b",
+      "original_capture_sha256": "be784f6bc1a5c61f51bc0ba8df5c39e3f288064da5d76be0878e5da46002438b",
+      "representation": "verbatim_capture",
+      "original_retained_privately": true
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-win5.json",
+      "sha256": "940272b13f69d7644026926d16775420a0c9d6d6ab87ff70a0867bc93ef18267",
+      "original_capture_sha256": "4b3c2a52f6378e73e7073cb5ca82d0b40a4214375b8fef6536d80051bcb7f2e5",
+      "representation": "redacted_capture",
+      "original_retained_privately": true
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-atomic-failure.json",
+      "sha256": "5b8179bcb0091ce8d79d6df8d6b6a1f04835894e7be736fbd315af8235ab0dfa",
+      "original_capture_sha256": "5b8179bcb0091ce8d79d6df8d6b6a1f04835894e7be736fbd315af8235ab0dfa",
+      "representation": "verbatim_capture",
+      "original_retained_privately": true
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-final-native-stress.json",
+      "sha256": "7b05a407d8a556e348eac7a05b13635e7e217cd975f7d429b2aeaa19c2dbaa20",
+      "original_capture_sha256": "7b05a407d8a556e348eac7a05b13635e7e217cd975f7d429b2aeaa19c2dbaa20",
+      "representation": "verbatim_capture",
+      "original_retained_privately": true
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-native-hook-results.json",
+      "sha256": "62e10414191a3443b00abf8d1145175a1fb38cc1075720c25d1be412c6d9d182",
+      "original_capture_sha256": "62e10414191a3443b00abf8d1145175a1fb38cc1075720c25d1be412c6d9d182",
+      "representation": "verbatim_capture",
+      "original_retained_privately": true
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-linux-result.json",
+      "sha256": "790b995db1c1a5675d1bdf24ac3edcf32910c7e20faf641134a0b7eb844be905",
+      "original_capture_sha256": "790b995db1c1a5675d1bdf24ac3edcf32910c7e20faf641134a0b7eb844be905",
+      "representation": "verbatim_capture",
+      "original_retained_privately": true
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-lint-comparison.json",
+      "sha256": "f1fe989b071b89faa8e4ee64b4f4769f0343386a9de8ec0230db8d531dff9a6b",
+      "original_capture_sha256": "9372daaf3d337da2aeef66b3d77df48b067ccf1d1caaca178f3239aaba6bf254",
+      "representation": "redacted_capture",
+      "original_retained_privately": true
+    }
+  ],
+  "evidence_publication": {
+    "boundary": "Future public repository publication",
+    "category": "Identified persons in local account paths",
+    "action": "REDACT",
+    "marker": "<redacted:local-user>",
+    "scope": "Four derived captures; five captures remain verbatim. Private original hashes are retained separately from published hashes.",
+    "prior_filter_proof": "cache-publication-artifact-bytes.json is a historical pre-redaction observation; current captured-copy checks are in cache-publication-redaction-v9.json"
+  }
+}

@@ -80,7 +80,7 @@ Every plan ends with a fail-closed last phase - "Architecture Refactor, Known-Ga
 
 Every generated plan carries the same lifecycle, and it is worth stating up front because it changes what the reader should expect while the plan runs:
 
-- **Every phase verifies locally and ends with one local commit.** Lint, tests, coverage, documentation, session history, then a single commit scoped to that phase.
+- **Every phase verifies locally and ends with one local commit.** Use focused tests, cheap checks, documentation and session history, then a single commit scoped to that phase. Defer full-suite testing, project coverage collection, broad platform validation, E2E sweeps and benchmarks until all implementation tasks are complete in the final phase, following [[cicd-integration]].
 - **No non-final phase pushes.** A non-final phase does not push, does not open a pull request, and does not start remote CI. Running the pipeline once per phase bills for validating work the author already knows is incomplete, and a red check on incomplete work teaches the reader to ignore red checks.
 - **CI impact is recorded per phase; the pipeline is reconciled once.** Each phase names what it added that CI would need to know about (a command, a dependency, an environment variable, a test path, an artifact) and whether the pipeline already covers it. Pipeline files change mid-plan only when CI/CD is that phase's explicit deliverable.
 - **The final phase owns the terminal reconciliation.** It compares the repository's existing pipeline against the canonical contract via `[[cicd-architect]]`, proposes each difference with its cost, applies what the user approves, and records what the user declines as a known gap.
