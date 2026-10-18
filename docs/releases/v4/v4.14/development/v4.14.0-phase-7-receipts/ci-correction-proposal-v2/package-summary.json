@@ -1,0 +1,8 @@
+{
+  "files": 11,
+  "manifest_sha256": "ae99076263be4a383c968086c1baf0faa0195b55e124763d9506adb1d6fab9a7",
+  "patch_sha256": "0f1caee3052d09ea294e01e6a7efd07148aa78218b84f7d6327ab27198a26409",
+  "proposal_sha256": "5db377cb6fcb97c2c9dbbc75cb0648f31b9fe34bcd079cd4fcbb63938a01c8ec",
+  "patch_checks": "PASS",
+  "six_workflows_exact_LF_and_YAML": "PASS"
+}

@@ -1,0 +1,80 @@
+{
+  "status": "APPLIED EXACT APPROVED ELEVEN-FILE CI CORRECTION",
+  "approval": "Z3T46TZ5",
+  "native_answer": "ANSWERED blocker 5 minor v4.14",
+  "recorded_utc": "2026-10-17T05:13:35.276634+00:00",
+  "manifest_sha256": "ae99076263be4a383c968086c1baf0faa0195b55e124763d9506adb1d6fab9a7",
+  "patch_sha256": "0f1caee3052d09ea294e01e6a7efd07148aa78218b84f7d6327ab27198a26409",
+  "files": [
+    {
+      "path": ".github/workflows/claude-usage-monitor.yml",
+      "before_raw_sha256": "ecd6d83acf1648450929d9899d35e1994e08e4aacd158d67dc37ec4d69d7f7f4",
+      "after_raw_sha256": "4bf13421d812d75bf6bfd733c7c7df74e1323b3bde7b71c9091b55d50bf104e6",
+      "after_file": "after/.github/workflows/claude-usage-monitor.yml.txt"
+    },
+    {
+      "path": ".github/workflows/code-search.yml",
+      "before_raw_sha256": "0aceca16bd66530be500c8c0fe52f7b2b9db2379a8358b9880b534972c9aed44",
+      "after_raw_sha256": "1fd5f4ddede8d7d0a38a39a321f7b1316078daf178f3961c932489669d64ab60",
+      "after_file": "after/.github/workflows/code-search.yml.txt"
+    },
+    {
+      "path": ".github/workflows/codex-usage-monitor.yml",
+      "before_raw_sha256": "12c03565e0831634ac432f1b454c243761eb66a3eb7c3866b67399e0ff9e4b07",
+      "after_raw_sha256": "f43a8b3df818baaf4c47346884bd7720d5a143d681a7398c4a6b8f18ab7464cf",
+      "after_file": "after/.github/workflows/codex-usage-monitor.yml.txt"
+    },
+    {
+      "path": ".github/workflows/copilot-usage-monitor.yml",
+      "before_raw_sha256": "da8b4e902076a271c603ae62e37df636b5dd6093531eb370ae9940d1cb160657",
+      "after_raw_sha256": "5610707d7681276c60c1196e45512d5229424d87d77a8a1ca7ecbee825436edb",
+      "after_file": "after/.github/workflows/copilot-usage-monitor.yml.txt"
+    },
+    {
+      "path": ".github/workflows/doc-colocation.yml",
+      "before_raw_sha256": "e2c1b86034c189c6f0be66fc2f4e19fcd284d68e8676c960d390a17195be5ff3",
+      "after_raw_sha256": "9fefc3b2e76302278f6890469eaa10658cc3b9daff45c7ba3d15e537fe55abf4",
+      "after_file": "after/.github/workflows/doc-colocation.yml.txt"
+    },
+    {
+      "path": ".github/workflows/gemini-usage-monitor.yml",
+      "before_raw_sha256": "8e72ae34ccf8566dfab74e9a688596a282955e87842020c2b0f855de58d32c81",
+      "after_raw_sha256": "03187cf22c1cc1b1f975d47b6f713bf9fdcad38b7b2359017aeadfe550e5b71b",
+      "after_file": "after/.github/workflows/gemini-usage-monitor.yml.txt"
+    },
+    {
+      "path": "scripts/ci/reporting.py",
+      "before_raw_sha256": "35c243a1a70601437765bd4809a3b882ce1b04213f9b58eaf8b91577f83f49d0",
+      "after_raw_sha256": "63fc99808a636d420c216addceeebe1a466340f67c6819da4c2b8fc5bf600a12",
+      "after_file": "after/scripts/ci/reporting.py.txt"
+    },
+    {
+      "path": "scripts/ci/verify_scenarios.py",
+      "before_raw_sha256": "f91a7cbfb018ed8d84f547b253f0be9779590069028c293fe9aaaeea2e4eda34",
+      "after_raw_sha256": "3c73bd12e45c312bbca338d3b21048bdc082ae627bd9df6640a1128c2b84d9ec",
+      "after_file": "after/scripts/ci/verify_scenarios.py.txt"
+    },
+    {
+      "path": "tests/ci/test_ci_reconciliation.py",
+      "before_raw_sha256": "0ba559ed85489b3829fada610355af98f172471ca54adea5f94d9ab40383e8f2",
+      "after_raw_sha256": "65148200f5fed6b8f305ee4af655da617acba27308247c95abf7517c2140989a",
+      "after_file": "after/tests/ci/test_ci_reconciliation.py.txt"
+    },
+    {
+      "path": "tests/ci/test_ci_scenario_boundaries.py",
+      "before_raw_sha256": "6e0bdfcc7c651be860ea10787daf3adda842d30b7e8e1109efad05821abd897b",
+      "after_raw_sha256": "6a62111ee4e7b72b8f82676608b67a477a112ee8d2e84ea70d105a060d9f4e7c",
+      "after_file": "after/tests/ci/test_ci_scenario_boundaries.py.txt"
+    },
+    {
+      "path": "tests/ci/test_ci_scenarios.py",
+      "before_raw_sha256": "8806b83526344a64f888d00b125472840f06fbecedb207a15d0df7b311bd1432",
+      "after_raw_sha256": "c2e6880e0298327a1584f0f77eb99b4c8f77c8d49d2d80cff6958d0034aeaa2f",
+      "after_file": "after/tests/ci/test_ci_scenarios.py.txt"
+    }
+  ],
+  "guard": "fresh official check and immediate record per file",
+  "new_guard_accepts": 0,
+  "remote_operations": 0,
+  "qualification": "Final actual-tree checks start after this receipt; candidate proof is retained separately"
+}

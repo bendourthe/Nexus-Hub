@@ -1,0 +1,56 @@
+{
+  "observed_utc": "2026-10-17T22:35:51.275Z",
+  "cause": "The isolated home installer matrix built monitor packages from the owned source and npm rewrote metadata in five package-lock files.",
+  "resolution": "Preserve current and recovered copies; restore only bytes matching the retained V5 SHA-256 oracle through clean official checks and immediate records.",
+  "files": [
+    {
+      "path": "extensions/claude-usage-monitor/package-lock.json",
+      "observed_sha256": "a68cd7389127aa1dcc35fe833f0d1d6009914fe1f085e87d57c14f68d6fcccba",
+      "frozen_sha256": "1a117163406fd2ff237b929b79060a9ebcdab2f87d9f4e901c9b9732ee66289c",
+      "before_copy": "claude-usage-monitor-before.json",
+      "frozen_copy": "claude-usage-monitor-frozen.json",
+      "restored_exact": true,
+      "guard_record_and_check_passed": true
+    },
+    {
+      "path": "extensions/codex-usage-monitor/package-lock.json",
+      "observed_sha256": "afe211096831e3d26d190e4c180436ac0a8fc4b3f6a0832f21fa7df0f19e5222",
+      "frozen_sha256": "3dbfa1b829d06dcc40f111303f1934ae87e63e53b3393b1b2308ace551ca524f",
+      "before_copy": "codex-usage-monitor-before.json",
+      "frozen_copy": "codex-usage-monitor-frozen.json",
+      "restored_exact": true,
+      "guard_record_and_check_passed": true
+    },
+    {
+      "path": "extensions/copilot-usage-monitor/package-lock.json",
+      "observed_sha256": "fb388efb49d927a01063e5e5a0154b8d411b25856e426f23ccdedb4661e9e912",
+      "frozen_sha256": "835f7aee8fd1cff190781da801bad5458034557a1acff59ad74e3fefe68bc366",
+      "before_copy": "copilot-usage-monitor-before.json",
+      "frozen_copy": "copilot-usage-monitor-frozen.json",
+      "restored_exact": true,
+      "guard_record_and_check_passed": true
+    },
+    {
+      "path": "extensions/gemini-usage-monitor/package-lock.json",
+      "observed_sha256": "3df85d1368ea8ea8c12f00e789dd2537f5d4abf8f5a77f74e91716a6297b26ec",
+      "frozen_sha256": "3eb3f699e410537c35ffb99df68bd87f04bb791f0a618a2ac27729242729fe83",
+      "before_copy": "gemini-usage-monitor-before.json",
+      "frozen_copy": "gemini-usage-monitor-frozen.json",
+      "restored_exact": true,
+      "guard_record_and_check_passed": true
+    },
+    {
+      "path": "extensions/cursor-usage-monitor/package-lock.json",
+      "observed_sha256": "440b4aaa695b00068c0521fd2bdcc974242fbe154107295a9d7ce445af029305",
+      "frozen_sha256": "8d72d70a0123a3f0ebdda522caa754ff6893c8d1629fb209da19001cca6c1f27",
+      "before_copy": "cursor-usage-monitor-before.json",
+      "frozen_copy": "cursor-usage-monitor-frozen.json",
+      "restored_exact": true,
+      "guard_record_and_check_passed": true
+    }
+  ],
+  "new_guard_accepts": 0,
+  "retained_proof": "Temp/nexus-v4140-lock-recovery-oct17/result.json",
+  "full_source_revalidated_by": "native-hook-serial-diagnostic.json",
+  "prevention": "Future private full-installer qualification must isolate source as well as configuration homes."
+}

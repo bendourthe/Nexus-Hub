@@ -1,0 +1,42 @@
+{
+  "status": "BLOCKER 5 OPEN; CI CORRECTION NOT APPLIED",
+  "native_record_block": {
+    "exit": 3,
+    "stdout": "BLOCKED: ci-security-change (v4.14.0)\n",
+    "stderr": ""
+  },
+  "native_answer_render": {
+    "exit": 0,
+    "stdout": "Continue /implement v4.14 past blocker 5 (approval Z3T46TZ5)\n",
+    "stderr": ""
+  },
+  "answer_captured": false,
+  "proposal": "v4.14.0-ci-correction-proposal-v2.md",
+  "proposal_sha256": "5db377cb6fcb97c2c9dbbc75cb0648f31b9fe34bcd079cd4fcbb63938a01c8ec",
+  "manifest_sha256": "ae99076263be4a383c968086c1baf0faa0195b55e124763d9506adb1d6fab9a7",
+  "patch_sha256": "0f1caee3052d09ea294e01e6a7efd07148aa78218b84f7d6327ab27198a26409",
+  "source_before_hashes_unchanged": 11,
+  "progress": {
+    "tasks_complete": 24,
+    "tasks_total": 209,
+    "released": 0,
+    "members": 7,
+    "open_gaps": 92,
+    "new_open_nonmigratable": 12
+  },
+  "verification": {
+    "ci_workflow_passed": 392,
+    "host_skipped": 19,
+    "fast_passed": 17,
+    "native_smoke_groups_passed": 3,
+    "changed_Python_Ruff_files_clean": 8,
+    "full_final_tree": "NOT QUALIFIED; earlier diagnostic failed and was cancelled before source repairs"
+  },
+  "official_guard_log_exit": 0,
+  "new_guard_accepts_after_blocker4_application": 0,
+  "blocker4_nine_accepts_receipt": "blocker-4-application.json",
+  "shared_edits": "Preserved; no shared accept or overwrite",
+  "remote_operations": 0,
+  "paid_model_API_spend_USD": 0,
+  "next": "Capture actual user answer before any CI application; final check-minor is next action"
+}

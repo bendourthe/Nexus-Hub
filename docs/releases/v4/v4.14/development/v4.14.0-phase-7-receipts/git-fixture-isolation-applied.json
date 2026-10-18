@@ -1,0 +1,56 @@
+{
+  "timestamp": "2026-10-17T07:20:13.667716+00:00",
+  "scope": "Two existing pytest conftest roots and one new six-case regression; no workflow, engine, installer, permission or secret change.",
+  "authorization": "Existing explicit user requirement to add or update necessary tests. No blocker 6 was created.",
+  "files": [
+    {
+      "path": "catalog/hooks/tests/conftest.py",
+      "before_sha256": "c2fc961cd3f5e950211ae62d7382676edf5a0abb35778f96477c64a98395f3fe",
+      "after_sha256": "4bace20c77c8da20b3497cd94ff0f101812167befb703ef7fba0927867b8bc24"
+    },
+    {
+      "path": "tests/conftest.py",
+      "before_sha256": "a77cecf82dbc5ff6e90fff80d206d02d698c5978e7158955673c4b3c27d44daa",
+      "after_sha256": "ff6e7bee93dc6ab45e028b4141df4cf8968a9c8a8b443aadfb8b3592f5df3e73"
+    },
+    {
+      "path": "catalog/hooks/tests/test_git_environment_isolation.py",
+      "before_sha256": null,
+      "after_sha256": "d5eeec9e65b62fe0daf15352f23475ac2a91caa82e2ed52cdd83daaf5c963403"
+    }
+  ],
+  "application": {
+    "guard_read": 0,
+    "guard_check": 0,
+    "guard_write_record": 0,
+    "accepts": 0,
+    "log_sha256": "af4b0c04a201db317e49be094fb4db2d99a52b8df82b207291f57d8bfb3da413"
+  },
+  "root_cause_limit": "The earlier six Git cases passed in 89.53s with caller configuration and 10.48s with private configuration. This proves configuration overhead; it does not explain the original FEEE or prove the original full timeout fixed.",
+  "candidate_evidence": {
+    "six_negative_controls": "External hooks execute before isolation via global, system and process routes for each root; external hooks then stop, local hooks still execute and caller configuration bytes stay unchanged.",
+    "narrow_red": "All four initial missing-fixture controls failed before implementation; the earlier deliberately stopped whole-conftest probe was not valid red assertion proof.",
+    "final_controls": "6 passed in 7.99s",
+    "real_guardrails_with_candidate_fixture_plugin": "94 passed in 163.47s",
+    "ruff": "New regression clean; both conftests retain the exact four existing warnings with no new findings."
+  },
+  "actual_source_rerun": {
+    "command": "python -m pytest -q --tb=short --durations=8 catalog/hooks/tests/test_git_environment_isolation.py catalog/hooks/tests/test_git_guardrails.py tests/test_git_attribution.py",
+    "summary": "147 passed, 1 skipped in 563.24s (0:09:23)",
+    "log_sha256": "3c4738a756d1b19d5bce11a4f42b6882f253cc8aa35487203eebff1f7a66dcca",
+    "powershell_edition": "7.6.7",
+    "plugin": "No injected candidate plugin; actual applied root fixtures.",
+    "edition_scope": "Hook/runtime-sensitive fixtures pin PowerShell 7.6.7; the attribution module explicitly selects Windows PowerShell 5.1 for its actual installer commands."
+  },
+  "review": {
+    "correctness": "Clean bounded review, exact hashes and independent environment-restoration probes; explicit attribution and system overrides remain effective.",
+    "standards": "Clean bounded review; original real-home guards unchanged, root fixture ASTs identical, existing CI selectors already reach the new regression."
+  },
+  "previous_full_run": {
+    "session": 11573,
+    "exit": 1,
+    "status": "Hook partition timed out after 2400.7s around half the corpus. The next partition was deliberately stopped after verifying the owned process tree. No full pass.",
+    "log_sha256": "14aca4a2be1b70225e4c59475f000600aefcab09b6b6f2831000753405157fcf"
+  },
+  "remaining": "Run the required one-command full profile on a frozen tracked tree, supported-host profile, required green integration, releases and all remaining member work. Deep-pass counter remains 3/3; no counter reset."
+}

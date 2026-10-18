@@ -1,0 +1,11 @@
+--- a/scripts/installer.ps1
++++ b/scripts/installer.ps1
+@@ -1386,7 +1386,7 @@
+                 $current = @($currentValue)
+             }
+             $merged = @($current + $overlayEntries | Select-Object -Unique)
+-            $added += ($merged.Count - $current.Count)
++            $added += @($merged | Where-Object { $current -cnotcontains $_ }).Count
+             $permissions[$key] = $merged
+         }
+ 

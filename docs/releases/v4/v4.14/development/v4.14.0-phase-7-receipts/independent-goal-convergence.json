@@ -1,0 +1,426 @@
+{
+  "raw_private_evidence_sha256": "ba6e1739e7b61c7b7d5485a7d0b7b16e5235bfdd5fe7ce3d6e9f18008df9cc81",
+  "redaction": "User-profile path components replaced in keys and values; outcomes and exact reviewed hashes retained.",
+  "qualification": "The retained result below is historical at its recorded review epoch. Its session11573-running observation is superseded by completed failing runs and current pending canonical gates. Old Windows source_hash_matches describes the older installer bytes only; it does not match the current null-hook correction. The current independent follow-up is recorded separately below.",
+  "result": {
+    "created_utc": "2026-10-17T05:56:40.393612+00:00",
+    "reviewer": "independent correctness lens retained from multi-agent-code-review",
+    "root": "C:/Users/USER\\Documents\\Benjamin\\nexus\\Nexus-Hub-v4.14.0-adoption-agent-tooling-and-subagent-cost",
+    "plan": "docs/releases/v4/v4.14/plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md",
+    "scope": "Present first-member Goal, all seven header DoD, T001-T034 and named exclusions. Retained N193/K47 full correctness review plus subsequent focused corrective reviews; this artifact records already-performed work, not a new whole-CI review.",
+    "verdict": "No remaining actionable implementation miss established in the reviewed scope. Plan and minor are NOT COMPLETE; DoD6 remains unsatisfied.",
+    "superseded_judgment": {
+      "initial": "Accepted a lint checkbox inside the fenced report example as sufficient for DoD4.",
+      "corrected": "That acceptance was too permissive under literal Phase4.2. The applied correction moves the same checkbox into the actual outer Verification; aggregate strips fenced examples and rejects old placement. Current exact source was independently verified.",
+      "receipt": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ui-verification-placement.json"
+    },
+    "dod": [
+      {
+        "source_ref": "DoD-1 / Phase1 / T001-T004",
+        "status": "source satisfied; recorded vendor evidence",
+        "artifacts": [
+          "docs/policy/platform-defaults-levers.md:33,80,82",
+          "docs/releases/v4/v4.14/development/phase-1-lever-evidence.md",
+          "tests/validators/test_platform_defaults_levers.py"
+        ],
+        "evidence": "Dated 2026-10-16 first-party subagent/model pages, exact key in VERIFIED row, key-level assertion for actual and proposed declarations.",
+        "limits": "No new vendor refetch in this follow-up."
+      },
+      {
+        "source_ref": "DoD-2 / Phase2 / T005-T007",
+        "status": "source satisfied; delivery observed",
+        "artifacts": [
+          "catalog/agents/*.md",
+          "docs/releases/v4/v4.14/development/agent-pinning-rationale.md",
+          "tests/validators/test_agent_model_pinning.py"
+        ],
+        "evidence": "Current23/23 explicit Opus; partition test and valid-Haiku mutation control. Earlier retained review established pin commit before seed commit. Current complete native receipts each report23 delivered pins.",
+        "limits": "No paid model call or measured quality claim; ordering uses prior retained review evidence."
+      },
+      {
+        "source_ref": "DoD-3 / Phase3 / T008-T013",
+        "status": "source satisfied; bounded complete-installer upgrade proof recorded",
+        "artifacts": [
+          "configs/platform-defaults.json",
+          "catalog/hooks/settings.json",
+          "scripts/sync_platform_defaults.py",
+          "scripts/lib/integrations/claude.py:111",
+          "scripts/installer.sh:888",
+          "scripts/installer.ps1:1120",
+          "tests/installer/test_core_settings_seeding.py"
+        ],
+        "evidence": "Both derived arrays carry env/subagent/modelSettings. Both native writers independently seed missing env into existing settings and preserve explicit values. Current Windows4/Linux3 complete-installer cases all deliver absolute sonnet; permanent regression includes existing settings. Malformed file roles now refuse before settings/record writes.",
+        "limits": "Optional editor/MCP dependency features and macOS are outside these native receipt claims; composite full remains pending."
+      },
+      {
+        "source_ref": "DoD-4 / Phase4.2 / T014-T017",
+        "status": "literal criterion satisfied after correction",
+        "artifacts": [
+          "catalog/skills/developer-experience/interface-review/SKILL.md:139-141",
+          "catalog/skills/developer-experience/interface-review/references/design-system-contract.md",
+          "tests/validators/test_ui_cluster_contract.py",
+          "hallmark-design/layout-and-spacing/color-systems handoffs"
+        ],
+        "evidence": "One owner, single unchanged runnable Stylelint checkbox in actual outer Verification, all3 handoffs. Independent in-memory full aggregate rejects old placement and accepts corrected. Public receipt records actual1pass0.11s, Ruff clean and registry strict PASS. Final CRLF raw hashes and normalized candidate equivalence independently checked.",
+        "limits": "Example verifies specified CSS properties; token existence/component/rendered/accessibility coverage is explicitly excluded."
+      },
+      {
+        "source_ref": "DoD-5 / Phase5 / T018-T019",
+        "status": "source satisfied; retained exact-coverage exercise",
+        "artifacts": [
+          "catalog/skills/code-review/multi-agent-code-review/SKILL.md:70-84",
+          "tests/validators/test_review_grouping_coverage.py"
+        ],
+        "evidence": "Exact distinct Unicode-sorted paths, parent-directory bundles max8, union/cardinality, deleted/binary inclusion and every-persona/every-bundle coverage. Retained N193/K47 set and cardinality were exact.",
+        "limits": "Instruction contract, not a new executable grouping engine; no token-savings claim."
+      },
+      {
+        "source_ref": "DoD-6 / Phase7 / T028-T029",
+        "status": "INCOMPLETE",
+        "artifacts": [
+          "scripts/ci/profiles.py",
+          "scripts/ci/run.py",
+          "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/blocker-5-application.json"
+        ],
+        "evidence": "Approved CI correction applied; parent reports current full profile running in session11573 without final result. Green integration is not established.",
+        "limits": "Candidate, native-subset, monitor and prior-source successes cannot establish full/integration success."
+      },
+      {
+        "source_ref": "DoD-7 / Phase6 / T030-T034",
+        "status": "source satisfied; bounded native upgrade proof recorded",
+        "artifacts": [
+          "scripts/installer.sh:888",
+          "scripts/installer.ps1:1120",
+          "scripts/lib/integrations/claude.py:124",
+          "scripts/lib/integrations/runner.py:887-919",
+          "scripts/nexus_hub_cli.py:631",
+          "tests/installer/test_core_settings_seeding.py",
+          "tests/installer/test_doctor_parity.py",
+          "docs/releases/v4/v4.14/development/phase-6-effort-evidence.md"
+        ],
+        "evidence": "Recorded matching seeds upgrade; changed/unrecorded choices and removal memory preserved; only owned legacy env retired; per-model High seeded. Doctor read-only ownership-sensitive guidance reaches bundled source-free text/JSON path. Current complete native owned cases remove legacy env, user cases retain Medium; permanent tests cover intended effort values and preservation.",
+        "limits": "Equal later user choice and recorded seed remain indistinguishable. Unknown old seed remains user-owned. No live-session effective-model/quality measurement; composite full pending."
+      }
+    ],
+    "native_receipt_review": {
+      "windows": {
+        "receipt": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/native-windows-after-blocker5.json",
+        "case_count": 4,
+        "all_exit_zero_no_errors": true,
+        "source_hash_matches": true,
+        "qualification_limit": "Actual complete Claude global installer in a private profile; no authenticated model call, optional live editor, macOS or paid quality/savings qualification. Optional dependency builds are not qualified solely by installer exit.",
+        "observed_cases": [
+          {
+            "case": "owned-upgrade",
+            "exit": 0,
+            "seconds": 458.81,
+            "absolute_subagent_value": "sonnet",
+            "legacy_effort": null,
+            "pinned_agents": 23,
+            "strict_deny_count": 22,
+            "strict_ask_count": 12,
+            "hook_commands": 50,
+            "errors": [],
+            "log": "C:/Users/USER\\AppData\\Local\\Temp\\nexus-v4140-native-windows-yjwfv657\\owned-upgrade\\installer.log"
+          },
+          {
+            "case": "user-upgrade",
+            "exit": 0,
+            "seconds": 259.95,
+            "absolute_subagent_value": "sonnet",
+            "legacy_effort": "medium",
+            "pinned_agents": 23,
+            "strict_deny_count": 22,
+            "strict_ask_count": 12,
+            "hook_commands": 50,
+            "errors": [],
+            "log": "C:/Users/USER\\AppData\\Local\\Temp\\nexus-v4140-native-windows-yjwfv657\\user-upgrade\\installer.log"
+          },
+          {
+            "case": "fresh",
+            "exit": 0,
+            "seconds": 266.0,
+            "absolute_subagent_value": "sonnet",
+            "legacy_effort": null,
+            "pinned_agents": 23,
+            "strict_deny_count": 22,
+            "strict_ask_count": 12,
+            "hook_commands": 49,
+            "errors": [],
+            "log": "C:/Users/USER\\AppData\\Local\\Temp\\nexus-v4140-native-windows-yjwfv657\\fresh\\installer.log"
+          },
+          {
+            "case": "case-upgrade",
+            "exit": 0,
+            "seconds": 513.01,
+            "absolute_subagent_value": "sonnet",
+            "legacy_effort": "medium",
+            "pinned_agents": 23,
+            "strict_deny_count": 23,
+            "strict_ask_count": 13,
+            "hook_commands": 50,
+            "errors": [],
+            "log": "C:/Users/USER\\AppData\\Local\\Temp\\nexus-v4140-native-windows-yjwfv657\\case-upgrade\\installer.log"
+          }
+        ]
+      },
+      "linux": {
+        "receipt": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/native-linux-after-blocker5.json",
+        "case_count": 3,
+        "all_exit_zero_no_errors": true,
+        "source_hash_matches": true,
+        "qualification_limit": "Actual complete Claude global installer in a private profile; no authenticated model call, optional live editor, macOS or paid quality/savings qualification. Optional dependency builds are not qualified solely by installer exit.",
+        "observed_cases": [
+          {
+            "case": "owned-upgrade",
+            "exit": 0,
+            "seconds": 325.84,
+            "absolute_subagent_value": "sonnet",
+            "legacy_effort": null,
+            "pinned_agents": 23,
+            "strict_deny_count": 22,
+            "strict_ask_count": 12,
+            "user_data_preserved": true,
+            "repeat_qualified": false,
+            "errors": [],
+            "log": "/probe/owned-upgrade/installer.log",
+            "mcp_dependency_qualification": "not covered: offline container without Node/npm; Node/VSIX and optional MCP installation are not qualified"
+          },
+          {
+            "case": "user-upgrade",
+            "exit": 0,
+            "seconds": 697.75,
+            "absolute_subagent_value": "sonnet",
+            "legacy_effort": "medium",
+            "pinned_agents": 23,
+            "strict_deny_count": 22,
+            "strict_ask_count": 12,
+            "user_data_preserved": true,
+            "repeat_qualified": true,
+            "errors": [],
+            "log": "/probe/user-upgrade/installer.log",
+            "mcp_dependency_qualification": "not covered: offline container without Node/npm; Node/VSIX and optional MCP installation are not qualified"
+          },
+          {
+            "case": "fresh",
+            "exit": 0,
+            "seconds": 326.26,
+            "absolute_subagent_value": "sonnet",
+            "legacy_effort": null,
+            "pinned_agents": 23,
+            "strict_deny_count": 22,
+            "strict_ask_count": 12,
+            "user_data_preserved": true,
+            "repeat_qualified": false,
+            "errors": [],
+            "log": "/probe/fresh/installer.log",
+            "mcp_dependency_qualification": "not covered: offline container without Node/npm; Node/VSIX and optional MCP installation are not qualified"
+          }
+        ]
+      }
+    },
+    "monitor_evidence": {
+      "status": "parent reported all14 canonical Node22 checks pass in181.6s",
+      "independently_read_in_this_followup": false,
+      "limits": "Not a composite full or remote result."
+    },
+    "task_mapping": {
+      "T001-T019": "Current implementation/reference/regression artifacts identified for Phases1-5.",
+      "T030-T034": "Phase6 ownership, per-model effort and diagnostic artifacts identified.",
+      "T020-T027": "Existing final-phase architecture/gaps/living-docs/hygiene/CI/parity/deep-pass/Goal/manual-suggestion duties require final evidence consolidation; do not append duplicates.",
+      "T028": "Current full profile pending terminal result; no pass inferred.",
+      "T029": "Publication/integration to develop incomplete; no remote green claim.",
+      "new_tasks_appended": 0
+    },
+    "exclusions": {
+      "force_flag": "Not seeded; independently configured force remains documented caveat.",
+      "session_model": "Opus unchanged.",
+      "dependency_dataflow": "Feature adds no new runtime dependency, paid model call, key or processor; CI qualification separate.",
+      "theme_catalog": "None introduced.",
+      "accessibility": "Existing owner retains contrast severity and reduced-motion.",
+      "original_lint_ruleset": "None; adaptable existing-Stylelint example only."
+    },
+    "goal_vs_plan": [
+      {
+        "question": "What did implementing this teach that the plan did not know?",
+        "answer": "Preservation requires exact-case/deep/opaque-date JSON, per-file document roles, source-free doctor routing and literal-path/isolation checks; a fenced example can mask a missing actual verification item.",
+        "evidence": "Current core/reader/doctor/CI regressions and ui-verification-placement receipt.",
+        "change_needed_now": "Consolidate fresh final evidence under existing Phase7 duties; no new task.",
+        "owner": "T024-T028"
+      },
+      {
+        "question": "What did the plan assume that turned out false?",
+        "answer": "An overriding env High still defeats saved effort choices; vendor evidence requires per-model High and retiring only owned env seeds. Generic JSON conversion and a first textual Verification heading did not prove preservation or literal section placement.",
+        "evidence": "Phase6 dated evidence and current ownership/native/placement controls.",
+        "change_needed_now": "Corrections are applied; preserve decision rationale and qualification limits.",
+        "owner": "T030-T034 and existing Phase7"
+      },
+      {
+        "question": "What would a reader of the Goal expect that no phase delivered?",
+        "answer": "No remaining implementation behavior identified after literal DoD4 repair. Final complete current-tree profile and green integration are still undelivered acceptance outcomes.",
+        "evidence": "DoD6 and open T028/T029.",
+        "change_needed_now": "Finish those gates; no duplicate code task.",
+        "owner": "T028-T029"
+      },
+      {
+        "question": "What did the maintainer ask for that no task line captured?",
+        "answer": "Full-minor request additionally requires every member release, all-gap disposition/migration, merges and cleanup, archive and terminal MINOR COMPLETE checker. Those are parent minor-run orchestration obligations, not a new first-member source miss.",
+        "evidence": "Explicit user full-minor instruction compared with first-member T001-T034.",
+        "change_needed_now": "Retain these obligations after member integration; do not claim minor completion here.",
+        "owner": "Parent /implement minor orchestration"
+      }
+    ],
+    "findings": [],
+    "considered_but_rejected": [
+      {
+        "candidate": "All23 Opus pins prevent cost reduction for shipped agents.",
+        "reason": "Pin-first quality preservation is explicit; default intentionally reaches unpinned custom agents."
+      },
+      {
+        "candidate": "Unrecorded legacy Medium remains on upgrade.",
+        "reason": "Conservative no-inferred-ownership policy explicitly preserves and diagnoses it."
+      },
+      {
+        "candidate": "UI correction duplicates lint contract or changes frontmatter.",
+        "reason": "Exactly1 command, same checkbox/frontmatter, outer Verification now literal."
+      },
+      {
+        "candidate": "Old failed/proposal receipts contradict current application.",
+        "reason": "Retained source epochs are historical; current application/native receipts identify exact current hashes."
+      },
+      {
+        "candidate": "Inherited omitClaudeMd work is silently missing.",
+        "reason": "Original v4.13#DF-8 remains current DF-9 with explicit pairing prerequisite; T021 owns disposition."
+      },
+      {
+        "candidate": "Pending full/integration should become new convergence tasks.",
+        "reason": "Already open as T028/T029; no duplicate append."
+      }
+    ],
+    "source_sha256": {
+      "configs/platform-defaults.json": "169d21bee705cc6b0b32c1afaea02c25d5fff78d234b5cce290a28f38e6a18a5",
+      "catalog/hooks/settings.json": "342cecc3f0af6356641593a7b8fb901ed740cabe1291c5a4990c563235272b6e",
+      "scripts/sync_platform_defaults.py": "5a940478750b1beab87e014c84d686bb2cf569467add60500f71ec5faee66198",
+      "scripts/installer.sh": "d440872e58e723e7dbd2c504501edea840864c80f484b741ac2f459af754e396",
+      "scripts/installer.ps1": "297cd01ddba52abbc3fbb90ffb330aff4c97e53582864b8fdca094766d8b4f67",
+      "scripts/lib/integrations/claude.py": "e222462645b683412dc917379c28ee215dde425f89fc35199922484cfe30d2ff",
+      "scripts/lib/integrations/runner.py": "03f2c090a6401552d215e0fb1c1556f9137d07e6db6a3e1f63c0bc316beddbbe",
+      "scripts/nexus_hub_cli.py": "ebaf422e77d1e9a4506b7d7c61aa1669acc4dd6161f59d6ca662152ba213d236",
+      "scripts/ci/profiles.py": "b50bca9863adb7a60e553dcaedceb869f541115ec506484db32d942ff02b1e94",
+      "scripts/ci/run.py": "8c16149609142b3f5bc8158eee0e9a1493a964eb745c2088a1290788c40aa4aa",
+      "scripts/ci/verify_scenarios.py": "3c73bd12e45c312bbca338d3b21048bdc082ae627bd9df6640a1128c2b84d9ec",
+      "catalog/skills/developer-experience/interface-review/SKILL.md": "267ba957592070d7bccca0bc749356e6c235d5ac1ab8896938a14a57db8f0d3d",
+      "catalog/skills/developer-experience/interface-review/references/design-system-contract.md": "f2d36650ba12b482ac8233bf7a9f95f572c72e9f7e3cb644ba56ce8f00f311b0",
+      "catalog/skills/developer-experience/hallmark-design/SKILL.md": "0f605197ee29b01ea364f1be8a13bd3ec32fe7012b9a0f14b9b7e9eb7023d819",
+      "catalog/skills/developer-experience/layout-and-spacing/SKILL.md": "c4d7cb7b17bb81dc33b352a04f09afd9d9798a9235e5bf98789cdc5d8ba106a0",
+      "catalog/skills/developer-experience/color-systems/SKILL.md": "8918ed987d7b7f653eb947f5828e1a33d31837abcbe92a21eff02fa898e5860b",
+      "catalog/skills/code-review/multi-agent-code-review/SKILL.md": "ba386a88644abde18c9041c2bed675e1d345459802d60989264ccf864c141f2e",
+      "tests/validators/test_platform_defaults_levers.py": "ccdbdf34531c78277dee1bef547ae540c9d2cfc25000a2b058e9637a049bab8a",
+      "tests/validators/test_agent_model_pinning.py": "411ac1be29f66f0bdd30fda9cc77ef2285dea008a6943d017553a2532c588d10",
+      "tests/validators/test_ui_cluster_contract.py": "2b0be9fa1b07d0b144f323d9154393819aedffecd2c9824650bd693dc81eb9c4",
+      "tests/validators/test_review_grouping_coverage.py": "237b443e8abad211b9080e20b73e7e5d097d5fc29de56ece6a816e20924bc92d",
+      "tests/installer/test_core_settings_seeding.py": "c692622180adf84bd96e33536b157755c834fe8bc75aa99e04ed68b41ccb26c2",
+      "tests/installer/test_doctor_parity.py": "f065bbe8d67389e60ffc2b80f203c97ac049be9658467d494c4f7f24b4ad63e5",
+      "tests/installer/test_native_json_reader.py": "d48b39a56078136f352a45b9acf3d3951158eca27192a1ed85d7f522fa96b16a",
+      "docs/releases/v4/v4.14/plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md": "732b9ba46293a8a4e2cbcb41bf95f29fa4b1da30bc764b82ae6558790ddfa77e",
+      "docs/policy/platform-defaults-levers.md": "cdff6663edf8c82ed90742019ba88e0edb96146158bed92f9a6bb003435334ac",
+      "docs/releases/v4/v4.14/development/phase-1-lever-evidence.md": "85fdb10c0d74f0da55514f9459faf808a8dff7687600e214da9eea560e6d7e0a",
+      "docs/releases/v4/v4.14/development/phase-6-effort-evidence.md": "1706b873bd50840e2b5f455ddeb8ea5dd723e3c27b0ae3282530f11070f3c72e",
+      "docs/releases/v4/v4.14/development/agent-pinning-rationale.md": "b24ea5a55345de43d5ea87b853876813d130e823e947dfaa4b49dca0e42f90d7",
+      "docs/releases/v4/v4.14/development/capability-usage-gate.md": "3798be991a944aa3ab8fbad3ba6504f5cb1c66e3942ee137bd3e9fe68d1838e8",
+      "catalog/agents/adversarial-reviewer.md": "5a49c60d66cd7afb075f9db7dc53dc4f39600ab394a19f5ba04e9e3a01d5e41d",
+      "catalog/agents/agent-native-reviewer.md": "e27b8f105b52e5ba328dcb03469614959798638e2c7940be482c8b6c7d7d321f",
+      "catalog/agents/api-contract-reviewer.md": "0603fefc883bbe43d2078a22131d27525dcc48812e2a56c846cf0cac8c20e323",
+      "catalog/agents/architect.md": "11224c753a1d9760dcb9ce23a3a912cf85d799954b1374ac5e9b53c116e45717",
+      "catalog/agents/build-error-resolver.md": "aeac0072f40b670742fedfebbad389c974398e7109afb1a64c1fa8f1dc8da9a4",
+      "catalog/agents/code-reviewer.md": "24f0e80e1949938956c2008b207ed3da7f4660dfa59ea99b7d086862f9155798",
+      "catalog/agents/coherence-reviewer.md": "5030a2e71ab30e39bff3bf0f9db9042ddd8963d1d33f90668c39bbe1326efff0",
+      "catalog/agents/design-lens-reviewer.md": "1a82d37c5add9171b90456fc5ee5ed5876750cd9ee2530b077086744ee2d7e15",
+      "catalog/agents/doc-updater.md": "cbbcd86154c675be6671e10188d8a6ab731caf5af2033ac38db793731068987e",
+      "catalog/agents/feasibility-reviewer.md": "9b16c2d56b35d6ec751685f56e93fb481e82b0dab71de36b8c52c64596074089",
+      "catalog/agents/harness-optimizer.md": "de12b1098c316da9d3e2576e1ab27a75f00e762346f8348c34afd6d12cb04764",
+      "catalog/agents/loop-operator.md": "a72044c52199f1d07932a1f4014e374d6711b86833e99fb1524e8fdde918fd5a",
+      "catalog/agents/maintainability-reviewer.md": "907e9871f76bf76090e92f4769f96e97d2e2601d5c4819489e2b08d229bebdb7",
+      "catalog/agents/performance-reviewer.md": "66f61073a962a42f14032ada319471adf29aa3c62e615937ec20f0398bb1f7c3",
+      "catalog/agents/planner.md": "e5d364332e0bb5c9a36f6d383710d7a23bf8367f946b82ded5b10e3f5eaba959",
+      "catalog/agents/product-lens-reviewer.md": "3c128bf6ee643bd721e77e76162a0bc8c9cdde2c3a8227ba79061806f847cc27",
+      "catalog/agents/project-standards-reviewer.md": "df0feceb69e8afb1db4f7944108a6e4618bb805aef1ae0992dedd18148f35758",
+      "catalog/agents/refactor-cleaner.md": "177daf906cedd3701d876748c1143623e864505a6414403258acce6959517135",
+      "catalog/agents/reliability-reviewer.md": "c3dca33cd353c66f3ce225283fd76cf40597894ad9329b11c96381392d4ddca0",
+      "catalog/agents/scope-guardian-reviewer.md": "40c9ecff50ea28a9aded26acbec1b6c5027fbac4393506efe0eff7d286cfaf1d",
+      "catalog/agents/security-reviewer.md": "1531dd888a27c2f87ed655e6ec614c1c9c2e724a9e6053a0436c134fb5d11793",
+      "catalog/agents/tdd-guide.md": "9c2a0054e2d943438caf9e628b101a99067d3896f14bf2c4b3e249d01d4e9d1b",
+      "catalog/agents/testing-reviewer.md": "519d28b50462e921c40b49746ebd1a6e2027350d18f3b9428471e3efd050a0db",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/native-windows-after-blocker5.json": "39e0fd0f628e9b56a3f4c236b40c2ec2ae4e54d8b3243ec10bd066e31edf7336",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/native-linux-after-blocker5.json": "f6b35a042c48a9ee790d9942986127d43d63173e378faa6bbd1fe6e0a1f1bb41",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ui-verification-placement.json": "5a5bf6385d843ecbfd89fb21f8bf761db363adc3e481d6511a66f15336a18608",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/blocker-5-application.json": "ff795745756bef098c87f6860db4999c424cff15d3f0e6f0ca383ba5e6a8e547",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/nonci-review-corrections-applied.json": "a00826c7ab40a3358542d2bca3f66ec5a7c1d2da77cb2f77afcf38292fbfc756"
+    },
+    "limits": "No repository/guard writes, new installers, suites, network or paid model execution for this follow-up. Artifact is private Temp only. Native receipts inspected, not rerun. Full profile session state is parent-reported and nonterminal."
+  },
+  "followup_2026_10_17": {
+    "review": "Independent read-only correctness lens; Goal and all seven current header DoD",
+    "findings": [],
+    "new_implementation_miss": false,
+    "completion": "NOT ESTABLISHED",
+    "dod": [
+      {
+        "id": 1,
+        "status": "implementation supported with retained bounded evidence; final qualification pending where applicable"
+      },
+      {
+        "id": 2,
+        "status": "implementation supported with retained bounded evidence; final qualification pending where applicable"
+      },
+      {
+        "id": 3,
+        "status": "implementation supported with retained bounded evidence; final qualification pending where applicable"
+      },
+      {
+        "id": 4,
+        "status": "implementation supported with retained bounded evidence; final qualification pending where applicable"
+      },
+      {
+        "id": 5,
+        "status": "implementation supported with retained bounded evidence; final qualification pending where applicable"
+      },
+      {
+        "id": 6,
+        "status": "INCOMPLETE"
+      },
+      {
+        "id": 7,
+        "status": "implementation supported with retained bounded evidence; final qualification pending where applicable"
+      }
+    ],
+    "prior_review_source_hashes": "57 of 58 unchanged before this documentary reconciliation; installer.ps1 alone changed to reviewed null-hook repair",
+    "current_installer_sha256": "83d99618d82da5c3c84dea3bc705e24d62bcef4712cf806b1eaa5bd93df560b4",
+    "targeted_qualification_receipt": "combined-repair-local-qualification.json",
+    "targeted_qualification_sha256": "65a226cb2d5435874a938b3b4cb2c4c077c2ce621aa4de1c93262dfe2b0532d2",
+    "qualification": "545 passing executions,16 skips,all15 original failures pass targeted;3 causal controls pass",
+    "native_windows_receipt": "Historical older installer hash; fresh final whole-installer/profile qualification pending",
+    "native_bash_receipt": "Source hash unchanged",
+    "pending": [
+      "Canonical full profile",
+      "Complete Windows platform profile",
+      "Final coverage disposition",
+      "Green merged integration"
+    ],
+    "deep_pass_counter": "3/3 unchanged",
+    "considered_but_rejected": [
+      {
+        "candidate": "Targeted green satisfies DoD6",
+        "reason": "Full and integration are explicit separate predicates"
+      },
+      {
+        "candidate": "Null-hook repair changes effort ownership",
+        "reason": "Its three conditions only initialize hook containers"
+      },
+      {
+        "candidate": "Pending gates need duplicate tasks",
+        "reason": "T028 and T029 already own them"
+      }
+    ]
+  }
+}

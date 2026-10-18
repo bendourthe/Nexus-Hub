@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "member": "v4.14.0",
+  "status": "PROPOSED NOT APPLIED",
+  "previous_answer": "VMNS7FT6 / blocker 4",
+  "files_count": 4,
+  "source_head": "d78e76d73330cd57b76e6ed424fc884f13884e31",
+  "merge_head": "d577e11037b25647aa466da4c01e1ecdadfe6aeb",
+  "patch_sha256": "774f7401d0e0852f849fb4ce75fde714c5a1cdc386aed8f8c48a49da0ee748f2",
+  "files": [
+    {
+      "path": "scripts/ci/reporting.py",
+      "before_raw_sha256": "35c243a1a70601437765bd4809a3b882ce1b04213f9b58eaf8b91577f83f49d0",
+      "after_raw_sha256": "63fc99808a636d420c216addceeebe1a466340f67c6819da4c2b8fc5bf600a12",
+      "after_file": "after/scripts/ci/reporting.py.txt"
+    },
+    {
+      "path": "scripts/ci/verify_scenarios.py",
+      "before_raw_sha256": "f91a7cbfb018ed8d84f547b253f0be9779590069028c293fe9aaaeea2e4eda34",
+      "after_raw_sha256": "3c73bd12e45c312bbca338d3b21048bdc082ae627bd9df6640a1128c2b84d9ec",
+      "after_file": "after/scripts/ci/verify_scenarios.py.txt"
+    },
+    {
+      "path": "tests/ci/test_ci_reconciliation.py",
+      "before_raw_sha256": "0ba559ed85489b3829fada610355af98f172471ca54adea5f94d9ab40383e8f2",
+      "after_raw_sha256": "65148200f5fed6b8f305ee4af655da617acba27308247c95abf7517c2140989a",
+      "after_file": "after/tests/ci/test_ci_reconciliation.py.txt"
+    },
+    {
+      "path": "tests/ci/test_ci_scenario_boundaries.py",
+      "before_raw_sha256": "6e0bdfcc7c651be860ea10787daf3adda842d30b7e8e1109efad05821abd897b",
+      "after_raw_sha256": "6a62111ee4e7b72b8f82676608b67a477a112ee8d2e84ea70d105a060d9f4e7c",
+      "after_file": "after/tests/ci/test_ci_scenario_boundaries.py.txt"
+    }
+  ],
+  "scope": "CI execution containment, valid metadata serialization, and permanent behavioral tests; no workflow YAML or branch-setting changes"
+}

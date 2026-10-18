@@ -1,0 +1,19 @@
+{
+  "command": [
+    "C:/Program Files/Git/bin/bash.exe",
+    "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\strict-single.sh",
+    "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\installer.sh",
+    "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\same-file caf\u00e9 [x]\\settings.json",
+    "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\same-file caf\u00e9 [x]\\settings.json"
+  ],
+  "code": 0,
+  "stdout": "Warning: Could not merge the strict permission overlay into settings.json\n",
+  "stderr": "",
+  "checks": {
+    "exit_zero": true,
+    "bytes_preserved": true,
+    "warned": true,
+    "no_false_success": true,
+    "no_backup": true
+  }
+}

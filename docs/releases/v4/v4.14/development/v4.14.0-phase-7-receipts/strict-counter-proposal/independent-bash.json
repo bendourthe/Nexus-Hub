@@ -1,0 +1,658 @@
+[
+  {
+    "name": "duplicates",
+    "expected": "apply",
+    "command": [
+      "C:/Program Files/Git/bin/bash.exe",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\strict-single.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\installer.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-duplicates\\settings.json",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-duplicates\\overlay.json"
+    ],
+    "candidate_sha256": "d18a5b40e106f51508f6948c92dbc09b7297035d25f0ca24655ae965011661e4",
+    "before": "{\"custom\": {\"keep\": \"yes\"}, \"permissions\": {\"allow\": [\"Read(user)\"], \"deny\": [\"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\"], \"ask\": [\"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\"]}}",
+    "overlay": "{\"_description\": \"OPT-IN hardened overlay for Claude Code, installed only with `--strict-permissions` (bash) / `-StrictPermissions` (PowerShell). It adds `deny` and `ask` entries for the execution-trigger surfaces identified by the agentic-endpoint-hardening skill. It is an OVERLAY, not a replacement: the installer merges it ON TOP of claude-permissions.json, so the read-only auto-approve list has exactly one source of truth and cannot drift between the two files.\", \"_posture_split\": \"Nexus-Hub's install default is deliberately convenience-first (allow-only auto-approve, no-prompt install) per the v3.7.0 install-UX decision. This overlay is the security-hardened opt-in. That split is intentional and documented, not an oversight: see the agentic-endpoint-hardening skill's control-layer table, where deny-by-default is layer 1.\", \"_scope_note\": \"These entries govern the AGENT's tool calls. They do NOT affect the installer's own file I/O, so `nexus-hub init` still writes .claude/settings.json and .cursor/rules/ normally: that runs as the user, not through an agent tool.\", \"_source\": \"Groups A, B, and C of the canonical execution-trigger surface list in catalog/skills/security-operations/agentic-endpoint-hardening/SKILL.md. Keep this file and that list in step; the skill is the normative source.\", \"_deny_vs_ask_rationale\": \"deny holds the surfaces where an agent write is essentially never legitimate and the blast radius is a trusted executor running code at host privilege (version-control hooks and config, and interpreter paths an editor extension auto-executes during discovery). ask holds the surfaces an agent DOES legitimately touch sometimes (a harness settings file, an editor task definition, an editor rules file), where prohibition would break real workflows but silent approval is the exact escape being defended against. This mirrors control layer 3 of the skill: require explicit approval when the agent creates host-side automation.\", \"_group_b_note\": \"The Bash entries below are a coarse hard block. A glob cannot express the interleaved-option form (`git -c protocol.version=2 -c core.hooksPath=x`), so catalog/hooks/git-guardrails.{sh,ps1} remains the thorough control for group B: it regex-matches and tolerates interleaved -c options. Both layers are defense-in-depth, and neither is a boundary.\", \"permissions\": {\"deny\": [\"Write(.git/hooks/**)\", \"Edit(.git/hooks/**)\", \"Write(.git/config)\", \"Edit(.git/config)\", \"Write(.venv/**)\", \"Edit(.venv/**)\", \"Write(venv/**)\", \"Edit(venv/**)\", \"Write(pyvenv.cfg)\", \"Edit(pyvenv.cfg)\", \"Write(**/pyvenv.cfg)\", \"Edit(**/pyvenv.cfg)\", \"Bash(git -c core.hooksPath=*)\", \"Bash(git -c core.fsmonitor=*)\", \"Bash(git config core.hooksPath*)\", \"Bash(git config core.fsmonitor*)\", \"Bash(git config --local core.hooksPath*)\", \"Bash(git config --local core.fsmonitor*)\", \"Bash(git config --global core.hooksPath*)\", \"Bash(git config --global core.fsmonitor*)\", \"Bash(git config --add core.hooksPath*)\", \"Bash(git config --add core.fsmonitor*)\"], \"ask\": [\"Write(.claude/settings.json)\", \"Edit(.claude/settings.json)\", \"Write(.claude/settings.local.json)\", \"Edit(.claude/settings.local.json)\", \"Write(.claude/hooks/**)\", \"Edit(.claude/hooks/**)\", \"Write(.vscode/tasks.json)\", \"Edit(.vscode/tasks.json)\", \"Write(.vscode/launch.json)\", \"Edit(.vscode/launch.json)\", \"Write(.cursor/**)\", \"Edit(.cursor/**)\"]}}",
+    "after_raw": "{\r\n  \"custom\": {\r\n    \"keep\": \"yes\"\r\n  },\r\n  \"permissions\": {\r\n    \"allow\": [\r\n      \"Read(user)\"\r\n    ],\r\n    \"deny\": [\r\n      \"Bash(git -c core.fsmonitor=*)\",\r\n      \"Bash(git -c core.hooksPath=*)\",\r\n      \"Bash(git config --add core.fsmonitor*)\",\r\n      \"Bash(git config --add core.hooksPath*)\",\r\n      \"Bash(git config --global core.fsmonitor*)\",\r\n      \"Bash(git config --global core.hooksPath*)\",\r\n      \"Bash(git config --local core.fsmonitor*)\",\r\n      \"Bash(git config --local core.hooksPath*)\",\r\n      \"Bash(git config core.fsmonitor*)\",\r\n      \"Bash(git config core.hooksPath*)\",\r\n      \"Edit(**/pyvenv.cfg)\",\r\n      \"Edit(.git/config)\",\r\n      \"Edit(.git/hooks/**)\",\r\n      \"Edit(.venv/**)\",\r\n      \"Edit(pyvenv.cfg)\",\r\n      \"Edit(user-denied)\",\r\n      \"Edit(venv/**)\",\r\n      \"Write(**/pyvenv.cfg)\",\r\n      \"Write(.git/config)\",\r\n      \"Write(.git/hooks/**)\",\r\n      \"Write(.venv/**)\",\r\n      \"Write(pyvenv.cfg)\",\r\n      \"Write(venv/**)\"\r\n    ],\r\n    \"ask\": [\r\n      \"Edit(.claude/hooks/**)\",\r\n      \"Edit(.claude/settings.json)\",\r\n      \"Edit(.claude/settings.local.json)\",\r\n      \"Edit(.cursor/**)\",\r\n      \"Edit(.vscode/launch.json)\",\r\n      \"Edit(.vscode/tasks.json)\",\r\n      \"Write(.claude/hooks/**)\",\r\n      \"Write(.claude/settings.json)\",\r\n      \"Write(.claude/settings.local.json)\",\r\n      \"Write(.cursor/**)\",\r\n      \"Write(.vscode/launch.json)\",\r\n      \"Write(.vscode/tasks.json)\",\r\n      \"Write(user-ask)\"\r\n    ]\r\n  }\r\n}\n",
+    "code": 0,
+    "stdout": "  Backup created: C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-duplicates\\settings.json.bak.20261016-180754\n[OK] Test STRICT permission overlay applied (34 new deny/ask entries)\n  Denied: version-control hook/config writes, interpreter paths, git execution-indirection commands\n  Ask: harness settings and hooks, editor task/launch config, editor rules\n",
+    "stderr": "",
+    "checks": {
+      "native_exit_zero": true,
+      "overlay_bytes_unchanged": true,
+      "all_shipped_entries": true,
+      "allow_unchanged": true,
+      "custom_preserved": true,
+      "applied": true,
+      "backup_matches_before": true,
+      "repeat_exit_zero": true,
+      "repeat_bytes_unchanged": true,
+      "repeat_no_new_backup": true,
+      "repeat_up_to_date": true
+    },
+    "repeat": {
+      "code": 0,
+      "stdout": "[OK] Strict deny/ask entries already up to date (0 new)\n",
+      "stderr": ""
+    }
+  },
+  {
+    "name": "already-present",
+    "expected": "unchanged",
+    "command": [
+      "C:/Program Files/Git/bin/bash.exe",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\strict-single.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\installer.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-already-present\\settings.json",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-already-present\\overlay.json"
+    ],
+    "candidate_sha256": "d18a5b40e106f51508f6948c92dbc09b7297035d25f0ca24655ae965011661e4",
+    "before": "{\"permissions\": {\"deny\": [\"Write(.git/hooks/**)\", \"Edit(.git/hooks/**)\", \"Write(.git/config)\", \"Edit(.git/config)\", \"Write(.venv/**)\", \"Edit(.venv/**)\", \"Write(venv/**)\", \"Edit(venv/**)\", \"Write(pyvenv.cfg)\", \"Edit(pyvenv.cfg)\", \"Write(**/pyvenv.cfg)\", \"Edit(**/pyvenv.cfg)\", \"Bash(git -c core.hooksPath=*)\", \"Bash(git -c core.fsmonitor=*)\", \"Bash(git config core.hooksPath*)\", \"Bash(git config core.fsmonitor*)\", \"Bash(git config --local core.hooksPath*)\", \"Bash(git config --local core.fsmonitor*)\", \"Bash(git config --global core.hooksPath*)\", \"Bash(git config --global core.fsmonitor*)\", \"Bash(git config --add core.hooksPath*)\", \"Bash(git config --add core.fsmonitor*)\"], \"ask\": [\"Write(.claude/settings.json)\", \"Edit(.claude/settings.json)\", \"Write(.claude/settings.local.json)\", \"Edit(.claude/settings.local.json)\", \"Write(.claude/hooks/**)\", \"Edit(.claude/hooks/**)\", \"Write(.vscode/tasks.json)\", \"Edit(.vscode/tasks.json)\", \"Write(.vscode/launch.json)\", \"Edit(.vscode/launch.json)\", \"Write(.cursor/**)\", \"Edit(.cursor/**)\"], \"allow\": [\"Read(user)\"]}}",
+    "overlay": "{\"_description\": \"OPT-IN hardened overlay for Claude Code, installed only with `--strict-permissions` (bash) / `-StrictPermissions` (PowerShell). It adds `deny` and `ask` entries for the execution-trigger surfaces identified by the agentic-endpoint-hardening skill. It is an OVERLAY, not a replacement: the installer merges it ON TOP of claude-permissions.json, so the read-only auto-approve list has exactly one source of truth and cannot drift between the two files.\", \"_posture_split\": \"Nexus-Hub's install default is deliberately convenience-first (allow-only auto-approve, no-prompt install) per the v3.7.0 install-UX decision. This overlay is the security-hardened opt-in. That split is intentional and documented, not an oversight: see the agentic-endpoint-hardening skill's control-layer table, where deny-by-default is layer 1.\", \"_scope_note\": \"These entries govern the AGENT's tool calls. They do NOT affect the installer's own file I/O, so `nexus-hub init` still writes .claude/settings.json and .cursor/rules/ normally: that runs as the user, not through an agent tool.\", \"_source\": \"Groups A, B, and C of the canonical execution-trigger surface list in catalog/skills/security-operations/agentic-endpoint-hardening/SKILL.md. Keep this file and that list in step; the skill is the normative source.\", \"_deny_vs_ask_rationale\": \"deny holds the surfaces where an agent write is essentially never legitimate and the blast radius is a trusted executor running code at host privilege (version-control hooks and config, and interpreter paths an editor extension auto-executes during discovery). ask holds the surfaces an agent DOES legitimately touch sometimes (a harness settings file, an editor task definition, an editor rules file), where prohibition would break real workflows but silent approval is the exact escape being defended against. This mirrors control layer 3 of the skill: require explicit approval when the agent creates host-side automation.\", \"_group_b_note\": \"The Bash entries below are a coarse hard block. A glob cannot express the interleaved-option form (`git -c protocol.version=2 -c core.hooksPath=x`), so catalog/hooks/git-guardrails.{sh,ps1} remains the thorough control for group B: it regex-matches and tolerates interleaved -c options. Both layers are defense-in-depth, and neither is a boundary.\", \"permissions\": {\"deny\": [\"Write(.git/hooks/**)\", \"Edit(.git/hooks/**)\", \"Write(.git/config)\", \"Edit(.git/config)\", \"Write(.venv/**)\", \"Edit(.venv/**)\", \"Write(venv/**)\", \"Edit(venv/**)\", \"Write(pyvenv.cfg)\", \"Edit(pyvenv.cfg)\", \"Write(**/pyvenv.cfg)\", \"Edit(**/pyvenv.cfg)\", \"Bash(git -c core.hooksPath=*)\", \"Bash(git -c core.fsmonitor=*)\", \"Bash(git config core.hooksPath*)\", \"Bash(git config core.fsmonitor*)\", \"Bash(git config --local core.hooksPath*)\", \"Bash(git config --local core.fsmonitor*)\", \"Bash(git config --global core.hooksPath*)\", \"Bash(git config --global core.fsmonitor*)\", \"Bash(git config --add core.hooksPath*)\", \"Bash(git config --add core.fsmonitor*)\"], \"ask\": [\"Write(.claude/settings.json)\", \"Edit(.claude/settings.json)\", \"Write(.claude/settings.local.json)\", \"Edit(.claude/settings.local.json)\", \"Write(.claude/hooks/**)\", \"Edit(.claude/hooks/**)\", \"Write(.vscode/tasks.json)\", \"Edit(.vscode/tasks.json)\", \"Write(.vscode/launch.json)\", \"Edit(.vscode/launch.json)\", \"Write(.cursor/**)\", \"Edit(.cursor/**)\"]}}",
+    "after_raw": "{\"permissions\": {\"deny\": [\"Write(.git/hooks/**)\", \"Edit(.git/hooks/**)\", \"Write(.git/config)\", \"Edit(.git/config)\", \"Write(.venv/**)\", \"Edit(.venv/**)\", \"Write(venv/**)\", \"Edit(venv/**)\", \"Write(pyvenv.cfg)\", \"Edit(pyvenv.cfg)\", \"Write(**/pyvenv.cfg)\", \"Edit(**/pyvenv.cfg)\", \"Bash(git -c core.hooksPath=*)\", \"Bash(git -c core.fsmonitor=*)\", \"Bash(git config core.hooksPath*)\", \"Bash(git config core.fsmonitor*)\", \"Bash(git config --local core.hooksPath*)\", \"Bash(git config --local core.fsmonitor*)\", \"Bash(git config --global core.hooksPath*)\", \"Bash(git config --global core.fsmonitor*)\", \"Bash(git config --add core.hooksPath*)\", \"Bash(git config --add core.fsmonitor*)\"], \"ask\": [\"Write(.claude/settings.json)\", \"Edit(.claude/settings.json)\", \"Write(.claude/settings.local.json)\", \"Edit(.claude/settings.local.json)\", \"Write(.claude/hooks/**)\", \"Edit(.claude/hooks/**)\", \"Write(.vscode/tasks.json)\", \"Edit(.vscode/tasks.json)\", \"Write(.vscode/launch.json)\", \"Edit(.vscode/launch.json)\", \"Write(.cursor/**)\", \"Edit(.cursor/**)\"], \"allow\": [\"Read(user)\"]}}",
+    "code": 0,
+    "stdout": "[OK] Strict deny/ask entries already up to date (0 new)\n",
+    "stderr": "",
+    "checks": {
+      "native_exit_zero": true,
+      "overlay_bytes_unchanged": true,
+      "settings_bytes_unchanged": true,
+      "up_to_date": true,
+      "no_backup": true
+    },
+    "repeat": null
+  },
+  {
+    "name": "case-parent",
+    "expected": "apply",
+    "command": [
+      "C:/Program Files/Git/bin/bash.exe",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\strict-single.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\installer.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-case-parent\\settings.json",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-case-parent\\overlay.json"
+    ],
+    "candidate_sha256": "d18a5b40e106f51508f6948c92dbc09b7297035d25f0ca24655ae965011661e4",
+    "before": "{\"custom\": {\"keep\": \"yes\"}, \"permissions\": {\"allow\": [\"Read(user)\"], \"deny\": [\"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\"], \"ask\": [\"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\"]}, \"Permissions\": {\"Deny\": [\"keep\"]}}",
+    "overlay": "{\"_description\": \"OPT-IN hardened overlay for Claude Code, installed only with `--strict-permissions` (bash) / `-StrictPermissions` (PowerShell). It adds `deny` and `ask` entries for the execution-trigger surfaces identified by the agentic-endpoint-hardening skill. It is an OVERLAY, not a replacement: the installer merges it ON TOP of claude-permissions.json, so the read-only auto-approve list has exactly one source of truth and cannot drift between the two files.\", \"_posture_split\": \"Nexus-Hub's install default is deliberately convenience-first (allow-only auto-approve, no-prompt install) per the v3.7.0 install-UX decision. This overlay is the security-hardened opt-in. That split is intentional and documented, not an oversight: see the agentic-endpoint-hardening skill's control-layer table, where deny-by-default is layer 1.\", \"_scope_note\": \"These entries govern the AGENT's tool calls. They do NOT affect the installer's own file I/O, so `nexus-hub init` still writes .claude/settings.json and .cursor/rules/ normally: that runs as the user, not through an agent tool.\", \"_source\": \"Groups A, B, and C of the canonical execution-trigger surface list in catalog/skills/security-operations/agentic-endpoint-hardening/SKILL.md. Keep this file and that list in step; the skill is the normative source.\", \"_deny_vs_ask_rationale\": \"deny holds the surfaces where an agent write is essentially never legitimate and the blast radius is a trusted executor running code at host privilege (version-control hooks and config, and interpreter paths an editor extension auto-executes during discovery). ask holds the surfaces an agent DOES legitimately touch sometimes (a harness settings file, an editor task definition, an editor rules file), where prohibition would break real workflows but silent approval is the exact escape being defended against. This mirrors control layer 3 of the skill: require explicit approval when the agent creates host-side automation.\", \"_group_b_note\": \"The Bash entries below are a coarse hard block. A glob cannot express the interleaved-option form (`git -c protocol.version=2 -c core.hooksPath=x`), so catalog/hooks/git-guardrails.{sh,ps1} remains the thorough control for group B: it regex-matches and tolerates interleaved -c options. Both layers are defense-in-depth, and neither is a boundary.\", \"permissions\": {\"deny\": [\"Write(.git/hooks/**)\", \"Edit(.git/hooks/**)\", \"Write(.git/config)\", \"Edit(.git/config)\", \"Write(.venv/**)\", \"Edit(.venv/**)\", \"Write(venv/**)\", \"Edit(venv/**)\", \"Write(pyvenv.cfg)\", \"Edit(pyvenv.cfg)\", \"Write(**/pyvenv.cfg)\", \"Edit(**/pyvenv.cfg)\", \"Bash(git -c core.hooksPath=*)\", \"Bash(git -c core.fsmonitor=*)\", \"Bash(git config core.hooksPath*)\", \"Bash(git config core.fsmonitor*)\", \"Bash(git config --local core.hooksPath*)\", \"Bash(git config --local core.fsmonitor*)\", \"Bash(git config --global core.hooksPath*)\", \"Bash(git config --global core.fsmonitor*)\", \"Bash(git config --add core.hooksPath*)\", \"Bash(git config --add core.fsmonitor*)\"], \"ask\": [\"Write(.claude/settings.json)\", \"Edit(.claude/settings.json)\", \"Write(.claude/settings.local.json)\", \"Edit(.claude/settings.local.json)\", \"Write(.claude/hooks/**)\", \"Edit(.claude/hooks/**)\", \"Write(.vscode/tasks.json)\", \"Edit(.vscode/tasks.json)\", \"Write(.vscode/launch.json)\", \"Edit(.vscode/launch.json)\", \"Write(.cursor/**)\", \"Edit(.cursor/**)\"]}}",
+    "after_raw": "{\r\n  \"custom\": {\r\n    \"keep\": \"yes\"\r\n  },\r\n  \"permissions\": {\r\n    \"allow\": [\r\n      \"Read(user)\"\r\n    ],\r\n    \"deny\": [\r\n      \"Bash(git -c core.fsmonitor=*)\",\r\n      \"Bash(git -c core.hooksPath=*)\",\r\n      \"Bash(git config --add core.fsmonitor*)\",\r\n      \"Bash(git config --add core.hooksPath*)\",\r\n      \"Bash(git config --global core.fsmonitor*)\",\r\n      \"Bash(git config --global core.hooksPath*)\",\r\n      \"Bash(git config --local core.fsmonitor*)\",\r\n      \"Bash(git config --local core.hooksPath*)\",\r\n      \"Bash(git config core.fsmonitor*)\",\r\n      \"Bash(git config core.hooksPath*)\",\r\n      \"Edit(**/pyvenv.cfg)\",\r\n      \"Edit(.git/config)\",\r\n      \"Edit(.git/hooks/**)\",\r\n      \"Edit(.venv/**)\",\r\n      \"Edit(pyvenv.cfg)\",\r\n      \"Edit(user-denied)\",\r\n      \"Edit(venv/**)\",\r\n      \"Write(**/pyvenv.cfg)\",\r\n      \"Write(.git/config)\",\r\n      \"Write(.git/hooks/**)\",\r\n      \"Write(.venv/**)\",\r\n      \"Write(pyvenv.cfg)\",\r\n      \"Write(venv/**)\"\r\n    ],\r\n    \"ask\": [\r\n      \"Edit(.claude/hooks/**)\",\r\n      \"Edit(.claude/settings.json)\",\r\n      \"Edit(.claude/settings.local.json)\",\r\n      \"Edit(.cursor/**)\",\r\n      \"Edit(.vscode/launch.json)\",\r\n      \"Edit(.vscode/tasks.json)\",\r\n      \"Write(.claude/hooks/**)\",\r\n      \"Write(.claude/settings.json)\",\r\n      \"Write(.claude/settings.local.json)\",\r\n      \"Write(.cursor/**)\",\r\n      \"Write(.vscode/launch.json)\",\r\n      \"Write(.vscode/tasks.json)\",\r\n      \"Write(user-ask)\"\r\n    ]\r\n  },\r\n  \"Permissions\": {\r\n    \"Deny\": [\r\n      \"keep\"\r\n    ]\r\n  }\r\n}\n",
+    "code": 0,
+    "stdout": "  Backup created: C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-case-parent\\settings.json.bak.20261016-180755\n[OK] Test STRICT permission overlay applied (34 new deny/ask entries)\n  Denied: version-control hook/config writes, interpreter paths, git execution-indirection commands\n  Ask: harness settings and hooks, editor task/launch config, editor rules\n",
+    "stderr": "",
+    "checks": {
+      "native_exit_zero": true,
+      "overlay_bytes_unchanged": true,
+      "all_shipped_entries": true,
+      "allow_unchanged": true,
+      "custom_preserved": true,
+      "applied": true,
+      "backup_matches_before": true,
+      "repeat_exit_zero": true,
+      "repeat_bytes_unchanged": true,
+      "repeat_no_new_backup": true,
+      "repeat_up_to_date": true
+    },
+    "repeat": {
+      "code": 0,
+      "stdout": "[OK] Strict deny/ask entries already up to date (0 new)\n",
+      "stderr": ""
+    }
+  },
+  {
+    "name": "null-parent",
+    "expected": "refuse",
+    "command": [
+      "C:/Program Files/Git/bin/bash.exe",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\strict-single.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\installer.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-null-parent\\settings.json",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-null-parent\\overlay.json"
+    ],
+    "candidate_sha256": "d18a5b40e106f51508f6948c92dbc09b7297035d25f0ca24655ae965011661e4",
+    "before": "{\"permissions\":null}",
+    "overlay": "{\"_description\": \"OPT-IN hardened overlay for Claude Code, installed only with `--strict-permissions` (bash) / `-StrictPermissions` (PowerShell). It adds `deny` and `ask` entries for the execution-trigger surfaces identified by the agentic-endpoint-hardening skill. It is an OVERLAY, not a replacement: the installer merges it ON TOP of claude-permissions.json, so the read-only auto-approve list has exactly one source of truth and cannot drift between the two files.\", \"_posture_split\": \"Nexus-Hub's install default is deliberately convenience-first (allow-only auto-approve, no-prompt install) per the v3.7.0 install-UX decision. This overlay is the security-hardened opt-in. That split is intentional and documented, not an oversight: see the agentic-endpoint-hardening skill's control-layer table, where deny-by-default is layer 1.\", \"_scope_note\": \"These entries govern the AGENT's tool calls. They do NOT affect the installer's own file I/O, so `nexus-hub init` still writes .claude/settings.json and .cursor/rules/ normally: that runs as the user, not through an agent tool.\", \"_source\": \"Groups A, B, and C of the canonical execution-trigger surface list in catalog/skills/security-operations/agentic-endpoint-hardening/SKILL.md. Keep this file and that list in step; the skill is the normative source.\", \"_deny_vs_ask_rationale\": \"deny holds the surfaces where an agent write is essentially never legitimate and the blast radius is a trusted executor running code at host privilege (version-control hooks and config, and interpreter paths an editor extension auto-executes during discovery). ask holds the surfaces an agent DOES legitimately touch sometimes (a harness settings file, an editor task definition, an editor rules file), where prohibition would break real workflows but silent approval is the exact escape being defended against. This mirrors control layer 3 of the skill: require explicit approval when the agent creates host-side automation.\", \"_group_b_note\": \"The Bash entries below are a coarse hard block. A glob cannot express the interleaved-option form (`git -c protocol.version=2 -c core.hooksPath=x`), so catalog/hooks/git-guardrails.{sh,ps1} remains the thorough control for group B: it regex-matches and tolerates interleaved -c options. Both layers are defense-in-depth, and neither is a boundary.\", \"permissions\": {\"deny\": [\"Write(.git/hooks/**)\", \"Edit(.git/hooks/**)\", \"Write(.git/config)\", \"Edit(.git/config)\", \"Write(.venv/**)\", \"Edit(.venv/**)\", \"Write(venv/**)\", \"Edit(venv/**)\", \"Write(pyvenv.cfg)\", \"Edit(pyvenv.cfg)\", \"Write(**/pyvenv.cfg)\", \"Edit(**/pyvenv.cfg)\", \"Bash(git -c core.hooksPath=*)\", \"Bash(git -c core.fsmonitor=*)\", \"Bash(git config core.hooksPath*)\", \"Bash(git config core.fsmonitor*)\", \"Bash(git config --local core.hooksPath*)\", \"Bash(git config --local core.fsmonitor*)\", \"Bash(git config --global core.hooksPath*)\", \"Bash(git config --global core.fsmonitor*)\", \"Bash(git config --add core.hooksPath*)\", \"Bash(git config --add core.fsmonitor*)\"], \"ask\": [\"Write(.claude/settings.json)\", \"Edit(.claude/settings.json)\", \"Write(.claude/settings.local.json)\", \"Edit(.claude/settings.local.json)\", \"Write(.claude/hooks/**)\", \"Edit(.claude/hooks/**)\", \"Write(.vscode/tasks.json)\", \"Edit(.vscode/tasks.json)\", \"Write(.vscode/launch.json)\", \"Edit(.vscode/launch.json)\", \"Write(.cursor/**)\", \"Edit(.cursor/**)\"]}}",
+    "after_raw": "{\"permissions\":null}",
+    "code": 0,
+    "stdout": "Warning: Could not merge the strict permission overlay into settings.json\n",
+    "stderr": "",
+    "checks": {
+      "native_exit_zero": true,
+      "overlay_bytes_unchanged": true,
+      "settings_bytes_unchanged": true,
+      "warning": true,
+      "no_false_success": true,
+      "no_backup": true
+    },
+    "repeat": null
+  },
+  {
+    "name": "array-parent",
+    "expected": "refuse",
+    "command": [
+      "C:/Program Files/Git/bin/bash.exe",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\strict-single.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\installer.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-array-parent\\settings.json",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-array-parent\\overlay.json"
+    ],
+    "candidate_sha256": "d18a5b40e106f51508f6948c92dbc09b7297035d25f0ca24655ae965011661e4",
+    "before": "{\"permissions\":[]}",
+    "overlay": "{\"_description\": \"OPT-IN hardened overlay for Claude Code, installed only with `--strict-permissions` (bash) / `-StrictPermissions` (PowerShell). It adds `deny` and `ask` entries for the execution-trigger surfaces identified by the agentic-endpoint-hardening skill. It is an OVERLAY, not a replacement: the installer merges it ON TOP of claude-permissions.json, so the read-only auto-approve list has exactly one source of truth and cannot drift between the two files.\", \"_posture_split\": \"Nexus-Hub's install default is deliberately convenience-first (allow-only auto-approve, no-prompt install) per the v3.7.0 install-UX decision. This overlay is the security-hardened opt-in. That split is intentional and documented, not an oversight: see the agentic-endpoint-hardening skill's control-layer table, where deny-by-default is layer 1.\", \"_scope_note\": \"These entries govern the AGENT's tool calls. They do NOT affect the installer's own file I/O, so `nexus-hub init` still writes .claude/settings.json and .cursor/rules/ normally: that runs as the user, not through an agent tool.\", \"_source\": \"Groups A, B, and C of the canonical execution-trigger surface list in catalog/skills/security-operations/agentic-endpoint-hardening/SKILL.md. Keep this file and that list in step; the skill is the normative source.\", \"_deny_vs_ask_rationale\": \"deny holds the surfaces where an agent write is essentially never legitimate and the blast radius is a trusted executor running code at host privilege (version-control hooks and config, and interpreter paths an editor extension auto-executes during discovery). ask holds the surfaces an agent DOES legitimately touch sometimes (a harness settings file, an editor task definition, an editor rules file), where prohibition would break real workflows but silent approval is the exact escape being defended against. This mirrors control layer 3 of the skill: require explicit approval when the agent creates host-side automation.\", \"_group_b_note\": \"The Bash entries below are a coarse hard block. A glob cannot express the interleaved-option form (`git -c protocol.version=2 -c core.hooksPath=x`), so catalog/hooks/git-guardrails.{sh,ps1} remains the thorough control for group B: it regex-matches and tolerates interleaved -c options. Both layers are defense-in-depth, and neither is a boundary.\", \"permissions\": {\"deny\": [\"Write(.git/hooks/**)\", \"Edit(.git/hooks/**)\", \"Write(.git/config)\", \"Edit(.git/config)\", \"Write(.venv/**)\", \"Edit(.venv/**)\", \"Write(venv/**)\", \"Edit(venv/**)\", \"Write(pyvenv.cfg)\", \"Edit(pyvenv.cfg)\", \"Write(**/pyvenv.cfg)\", \"Edit(**/pyvenv.cfg)\", \"Bash(git -c core.hooksPath=*)\", \"Bash(git -c core.fsmonitor=*)\", \"Bash(git config core.hooksPath*)\", \"Bash(git config core.fsmonitor*)\", \"Bash(git config --local core.hooksPath*)\", \"Bash(git config --local core.fsmonitor*)\", \"Bash(git config --global core.hooksPath*)\", \"Bash(git config --global core.fsmonitor*)\", \"Bash(git config --add core.hooksPath*)\", \"Bash(git config --add core.fsmonitor*)\"], \"ask\": [\"Write(.claude/settings.json)\", \"Edit(.claude/settings.json)\", \"Write(.claude/settings.local.json)\", \"Edit(.claude/settings.local.json)\", \"Write(.claude/hooks/**)\", \"Edit(.claude/hooks/**)\", \"Write(.vscode/tasks.json)\", \"Edit(.vscode/tasks.json)\", \"Write(.vscode/launch.json)\", \"Edit(.vscode/launch.json)\", \"Write(.cursor/**)\", \"Edit(.cursor/**)\"]}}",
+    "after_raw": "{\"permissions\":[]}",
+    "code": 0,
+    "stdout": "Warning: Could not merge the strict permission overlay into settings.json\n",
+    "stderr": "",
+    "checks": {
+      "native_exit_zero": true,
+      "overlay_bytes_unchanged": true,
+      "settings_bytes_unchanged": true,
+      "warning": true,
+      "no_false_success": true,
+      "no_backup": true
+    },
+    "repeat": null
+  },
+  {
+    "name": "bad-deny",
+    "expected": "refuse",
+    "command": [
+      "C:/Program Files/Git/bin/bash.exe",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\strict-single.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\installer.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-bad-deny\\settings.json",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-bad-deny\\overlay.json"
+    ],
+    "candidate_sha256": "d18a5b40e106f51508f6948c92dbc09b7297035d25f0ca24655ae965011661e4",
+    "before": "{\"permissions\":{\"deny\":\"user\"}}",
+    "overlay": "{\"_description\": \"OPT-IN hardened overlay for Claude Code, installed only with `--strict-permissions` (bash) / `-StrictPermissions` (PowerShell). It adds `deny` and `ask` entries for the execution-trigger surfaces identified by the agentic-endpoint-hardening skill. It is an OVERLAY, not a replacement: the installer merges it ON TOP of claude-permissions.json, so the read-only auto-approve list has exactly one source of truth and cannot drift between the two files.\", \"_posture_split\": \"Nexus-Hub's install default is deliberately convenience-first (allow-only auto-approve, no-prompt install) per the v3.7.0 install-UX decision. This overlay is the security-hardened opt-in. That split is intentional and documented, not an oversight: see the agentic-endpoint-hardening skill's control-layer table, where deny-by-default is layer 1.\", \"_scope_note\": \"These entries govern the AGENT's tool calls. They do NOT affect the installer's own file I/O, so `nexus-hub init` still writes .claude/settings.json and .cursor/rules/ normally: that runs as the user, not through an agent tool.\", \"_source\": \"Groups A, B, and C of the canonical execution-trigger surface list in catalog/skills/security-operations/agentic-endpoint-hardening/SKILL.md. Keep this file and that list in step; the skill is the normative source.\", \"_deny_vs_ask_rationale\": \"deny holds the surfaces where an agent write is essentially never legitimate and the blast radius is a trusted executor running code at host privilege (version-control hooks and config, and interpreter paths an editor extension auto-executes during discovery). ask holds the surfaces an agent DOES legitimately touch sometimes (a harness settings file, an editor task definition, an editor rules file), where prohibition would break real workflows but silent approval is the exact escape being defended against. This mirrors control layer 3 of the skill: require explicit approval when the agent creates host-side automation.\", \"_group_b_note\": \"The Bash entries below are a coarse hard block. A glob cannot express the interleaved-option form (`git -c protocol.version=2 -c core.hooksPath=x`), so catalog/hooks/git-guardrails.{sh,ps1} remains the thorough control for group B: it regex-matches and tolerates interleaved -c options. Both layers are defense-in-depth, and neither is a boundary.\", \"permissions\": {\"deny\": [\"Write(.git/hooks/**)\", \"Edit(.git/hooks/**)\", \"Write(.git/config)\", \"Edit(.git/config)\", \"Write(.venv/**)\", \"Edit(.venv/**)\", \"Write(venv/**)\", \"Edit(venv/**)\", \"Write(pyvenv.cfg)\", \"Edit(pyvenv.cfg)\", \"Write(**/pyvenv.cfg)\", \"Edit(**/pyvenv.cfg)\", \"Bash(git -c core.hooksPath=*)\", \"Bash(git -c core.fsmonitor=*)\", \"Bash(git config core.hooksPath*)\", \"Bash(git config core.fsmonitor*)\", \"Bash(git config --local core.hooksPath*)\", \"Bash(git config --local core.fsmonitor*)\", \"Bash(git config --global core.hooksPath*)\", \"Bash(git config --global core.fsmonitor*)\", \"Bash(git config --add core.hooksPath*)\", \"Bash(git config --add core.fsmonitor*)\"], \"ask\": [\"Write(.claude/settings.json)\", \"Edit(.claude/settings.json)\", \"Write(.claude/settings.local.json)\", \"Edit(.claude/settings.local.json)\", \"Write(.claude/hooks/**)\", \"Edit(.claude/hooks/**)\", \"Write(.vscode/tasks.json)\", \"Edit(.vscode/tasks.json)\", \"Write(.vscode/launch.json)\", \"Edit(.vscode/launch.json)\", \"Write(.cursor/**)\", \"Edit(.cursor/**)\"]}}",
+    "after_raw": "{\"permissions\":{\"deny\":\"user\"}}",
+    "code": 0,
+    "stdout": "Warning: Could not merge the strict permission overlay into settings.json\n",
+    "stderr": "",
+    "checks": {
+      "native_exit_zero": true,
+      "overlay_bytes_unchanged": true,
+      "settings_bytes_unchanged": true,
+      "warning": true,
+      "no_false_success": true,
+      "no_backup": true
+    },
+    "repeat": null
+  },
+  {
+    "name": "bad-overlay",
+    "expected": "refuse",
+    "command": [
+      "C:/Program Files/Git/bin/bash.exe",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\strict-single.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\installer.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-bad-overlay\\settings.json",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-bad-overlay\\overlay.json"
+    ],
+    "candidate_sha256": "d18a5b40e106f51508f6948c92dbc09b7297035d25f0ca24655ae965011661e4",
+    "before": "{\"custom\": {\"keep\": \"yes\"}, \"permissions\": {\"allow\": [\"Read(user)\"], \"deny\": [\"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\"], \"ask\": [\"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\"]}}",
+    "overlay": "{\"permissions\":[]}",
+    "after_raw": "{\"custom\": {\"keep\": \"yes\"}, \"permissions\": {\"allow\": [\"Read(user)\"], \"deny\": [\"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\", \"Edit(user-denied)\"], \"ask\": [\"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\", \"Write(user-ask)\"]}}",
+    "code": 0,
+    "stdout": "Warning: Could not merge the strict permission overlay into settings.json\n",
+    "stderr": "",
+    "checks": {
+      "native_exit_zero": true,
+      "overlay_bytes_unchanged": true,
+      "settings_bytes_unchanged": true,
+      "warning": true,
+      "no_false_success": true,
+      "no_backup": true
+    },
+    "repeat": null
+  },
+  {
+    "name": "multiple-settings",
+    "expected": "refuse",
+    "command": [
+      "C:/Program Files/Git/bin/bash.exe",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\strict-single.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\installer.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-multiple-settings\\settings.json",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-multiple-settings\\overlay.json"
+    ],
+    "candidate_sha256": "d18a5b40e106f51508f6948c92dbc09b7297035d25f0ca24655ae965011661e4",
+    "before": "{\"custom\": \"keep-first\"}\n{\"permissions\": {\"deny\": [\"Edit(injected)\"], \"ask\": []}}",
+    "overlay": "{\"_description\": \"OPT-IN hardened overlay for Claude Code, installed only with `--strict-permissions` (bash) / `-StrictPermissions` (PowerShell). It adds `deny` and `ask` entries for the execution-trigger surfaces identified by the agentic-endpoint-hardening skill. It is an OVERLAY, not a replacement: the installer merges it ON TOP of claude-permissions.json, so the read-only auto-approve list has exactly one source of truth and cannot drift between the two files.\", \"_posture_split\": \"Nexus-Hub's install default is deliberately convenience-first (allow-only auto-approve, no-prompt install) per the v3.7.0 install-UX decision. This overlay is the security-hardened opt-in. That split is intentional and documented, not an oversight: see the agentic-endpoint-hardening skill's control-layer table, where deny-by-default is layer 1.\", \"_scope_note\": \"These entries govern the AGENT's tool calls. They do NOT affect the installer's own file I/O, so `nexus-hub init` still writes .claude/settings.json and .cursor/rules/ normally: that runs as the user, not through an agent tool.\", \"_source\": \"Groups A, B, and C of the canonical execution-trigger surface list in catalog/skills/security-operations/agentic-endpoint-hardening/SKILL.md. Keep this file and that list in step; the skill is the normative source.\", \"_deny_vs_ask_rationale\": \"deny holds the surfaces where an agent write is essentially never legitimate and the blast radius is a trusted executor running code at host privilege (version-control hooks and config, and interpreter paths an editor extension auto-executes during discovery). ask holds the surfaces an agent DOES legitimately touch sometimes (a harness settings file, an editor task definition, an editor rules file), where prohibition would break real workflows but silent approval is the exact escape being defended against. This mirrors control layer 3 of the skill: require explicit approval when the agent creates host-side automation.\", \"_group_b_note\": \"The Bash entries below are a coarse hard block. A glob cannot express the interleaved-option form (`git -c protocol.version=2 -c core.hooksPath=x`), so catalog/hooks/git-guardrails.{sh,ps1} remains the thorough control for group B: it regex-matches and tolerates interleaved -c options. Both layers are defense-in-depth, and neither is a boundary.\", \"permissions\": {\"deny\": [\"Write(.git/hooks/**)\", \"Edit(.git/hooks/**)\", \"Write(.git/config)\", \"Edit(.git/config)\", \"Write(.venv/**)\", \"Edit(.venv/**)\", \"Write(venv/**)\", \"Edit(venv/**)\", \"Write(pyvenv.cfg)\", \"Edit(pyvenv.cfg)\", \"Write(**/pyvenv.cfg)\", \"Edit(**/pyvenv.cfg)\", \"Bash(git -c core.hooksPath=*)\", \"Bash(git -c core.fsmonitor=*)\", \"Bash(git config core.hooksPath*)\", \"Bash(git config core.fsmonitor*)\", \"Bash(git config --local core.hooksPath*)\", \"Bash(git config --local core.fsmonitor*)\", \"Bash(git config --global core.hooksPath*)\", \"Bash(git config --global core.fsmonitor*)\", \"Bash(git config --add core.hooksPath*)\", \"Bash(git config --add core.fsmonitor*)\"], \"ask\": [\"Write(.claude/settings.json)\", \"Edit(.claude/settings.json)\", \"Write(.claude/settings.local.json)\", \"Edit(.claude/settings.local.json)\", \"Write(.claude/hooks/**)\", \"Edit(.claude/hooks/**)\", \"Write(.vscode/tasks.json)\", \"Edit(.vscode/tasks.json)\", \"Write(.vscode/launch.json)\", \"Edit(.vscode/launch.json)\", \"Write(.cursor/**)\", \"Edit(.cursor/**)\"]}}",
+    "after_raw": "{\"custom\": \"keep-first\"}\r\n{\"permissions\": {\"deny\": [\"Edit(injected)\"], \"ask\": []}}",
+    "code": 0,
+    "stdout": "Warning: Could not merge the strict permission overlay into settings.json\n",
+    "stderr": "",
+    "checks": {
+      "native_exit_zero": true,
+      "overlay_bytes_unchanged": true,
+      "settings_bytes_unchanged": true,
+      "warning": true,
+      "no_false_success": true,
+      "no_backup": true
+    },
+    "repeat": null
+  },
+  {
+    "name": "multiple-overlay",
+    "expected": "refuse",
+    "command": [
+      "C:/Program Files/Git/bin/bash.exe",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\strict-single.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\installer.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-multiple-overlay\\settings.json",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-multiple-overlay\\overlay.json"
+    ],
+    "candidate_sha256": "d18a5b40e106f51508f6948c92dbc09b7297035d25f0ca24655ae965011661e4",
+    "before": "{\"custom\": \"keep\"}",
+    "overlay": "{\"_description\": \"OPT-IN hardened overlay for Claude Code, installed only with `--strict-permissions` (bash) / `-StrictPermissions` (PowerShell). It adds `deny` and `ask` entries for the execution-trigger surfaces identified by the agentic-endpoint-hardening skill. It is an OVERLAY, not a replacement: the installer merges it ON TOP of claude-permissions.json, so the read-only auto-approve list has exactly one source of truth and cannot drift between the two files.\", \"_posture_split\": \"Nexus-Hub's install default is deliberately convenience-first (allow-only auto-approve, no-prompt install) per the v3.7.0 install-UX decision. This overlay is the security-hardened opt-in. That split is intentional and documented, not an oversight: see the agentic-endpoint-hardening skill's control-layer table, where deny-by-default is layer 1.\", \"_scope_note\": \"These entries govern the AGENT's tool calls. They do NOT affect the installer's own file I/O, so `nexus-hub init` still writes .claude/settings.json and .cursor/rules/ normally: that runs as the user, not through an agent tool.\", \"_source\": \"Groups A, B, and C of the canonical execution-trigger surface list in catalog/skills/security-operations/agentic-endpoint-hardening/SKILL.md. Keep this file and that list in step; the skill is the normative source.\", \"_deny_vs_ask_rationale\": \"deny holds the surfaces where an agent write is essentially never legitimate and the blast radius is a trusted executor running code at host privilege (version-control hooks and config, and interpreter paths an editor extension auto-executes during discovery). ask holds the surfaces an agent DOES legitimately touch sometimes (a harness settings file, an editor task definition, an editor rules file), where prohibition would break real workflows but silent approval is the exact escape being defended against. This mirrors control layer 3 of the skill: require explicit approval when the agent creates host-side automation.\", \"_group_b_note\": \"The Bash entries below are a coarse hard block. A glob cannot express the interleaved-option form (`git -c protocol.version=2 -c core.hooksPath=x`), so catalog/hooks/git-guardrails.{sh,ps1} remains the thorough control for group B: it regex-matches and tolerates interleaved -c options. Both layers are defense-in-depth, and neither is a boundary.\", \"permissions\": {\"deny\": [\"Write(.git/hooks/**)\", \"Edit(.git/hooks/**)\", \"Write(.git/config)\", \"Edit(.git/config)\", \"Write(.venv/**)\", \"Edit(.venv/**)\", \"Write(venv/**)\", \"Edit(venv/**)\", \"Write(pyvenv.cfg)\", \"Edit(pyvenv.cfg)\", \"Write(**/pyvenv.cfg)\", \"Edit(**/pyvenv.cfg)\", \"Bash(git -c core.hooksPath=*)\", \"Bash(git -c core.fsmonitor=*)\", \"Bash(git config core.hooksPath*)\", \"Bash(git config core.fsmonitor*)\", \"Bash(git config --local core.hooksPath*)\", \"Bash(git config --local core.fsmonitor*)\", \"Bash(git config --global core.hooksPath*)\", \"Bash(git config --global core.fsmonitor*)\", \"Bash(git config --add core.hooksPath*)\", \"Bash(git config --add core.fsmonitor*)\"], \"ask\": [\"Write(.claude/settings.json)\", \"Edit(.claude/settings.json)\", \"Write(.claude/settings.local.json)\", \"Edit(.claude/settings.local.json)\", \"Write(.claude/hooks/**)\", \"Edit(.claude/hooks/**)\", \"Write(.vscode/tasks.json)\", \"Edit(.vscode/tasks.json)\", \"Write(.vscode/launch.json)\", \"Edit(.vscode/launch.json)\", \"Write(.cursor/**)\", \"Edit(.cursor/**)\"]}}\n{\"custom\": \"trailing\"}",
+    "after_raw": "{\"custom\": \"keep\"}",
+    "code": 0,
+    "stdout": "Warning: Could not merge the strict permission overlay into settings.json\n",
+    "stderr": "",
+    "checks": {
+      "native_exit_zero": true,
+      "overlay_bytes_unchanged": true,
+      "settings_bytes_unchanged": true,
+      "warning": true,
+      "no_false_success": true,
+      "no_backup": true
+    },
+    "repeat": null
+  },
+  {
+    "name": "empty-settings",
+    "expected": "refuse",
+    "command": [
+      "C:/Program Files/Git/bin/bash.exe",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\strict-single.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\installer.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-empty-settings\\settings.json",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-empty-settings\\overlay.json"
+    ],
+    "candidate_sha256": "d18a5b40e106f51508f6948c92dbc09b7297035d25f0ca24655ae965011661e4",
+    "before": "",
+    "overlay": "{\"_description\": \"OPT-IN hardened overlay for Claude Code, installed only with `--strict-permissions` (bash) / `-StrictPermissions` (PowerShell). It adds `deny` and `ask` entries for the execution-trigger surfaces identified by the agentic-endpoint-hardening skill. It is an OVERLAY, not a replacement: the installer merges it ON TOP of claude-permissions.json, so the read-only auto-approve list has exactly one source of truth and cannot drift between the two files.\", \"_posture_split\": \"Nexus-Hub's install default is deliberately convenience-first (allow-only auto-approve, no-prompt install) per the v3.7.0 install-UX decision. This overlay is the security-hardened opt-in. That split is intentional and documented, not an oversight: see the agentic-endpoint-hardening skill's control-layer table, where deny-by-default is layer 1.\", \"_scope_note\": \"These entries govern the AGENT's tool calls. They do NOT affect the installer's own file I/O, so `nexus-hub init` still writes .claude/settings.json and .cursor/rules/ normally: that runs as the user, not through an agent tool.\", \"_source\": \"Groups A, B, and C of the canonical execution-trigger surface list in catalog/skills/security-operations/agentic-endpoint-hardening/SKILL.md. Keep this file and that list in step; the skill is the normative source.\", \"_deny_vs_ask_rationale\": \"deny holds the surfaces where an agent write is essentially never legitimate and the blast radius is a trusted executor running code at host privilege (version-control hooks and config, and interpreter paths an editor extension auto-executes during discovery). ask holds the surfaces an agent DOES legitimately touch sometimes (a harness settings file, an editor task definition, an editor rules file), where prohibition would break real workflows but silent approval is the exact escape being defended against. This mirrors control layer 3 of the skill: require explicit approval when the agent creates host-side automation.\", \"_group_b_note\": \"The Bash entries below are a coarse hard block. A glob cannot express the interleaved-option form (`git -c protocol.version=2 -c core.hooksPath=x`), so catalog/hooks/git-guardrails.{sh,ps1} remains the thorough control for group B: it regex-matches and tolerates interleaved -c options. Both layers are defense-in-depth, and neither is a boundary.\", \"permissions\": {\"deny\": [\"Write(.git/hooks/**)\", \"Edit(.git/hooks/**)\", \"Write(.git/config)\", \"Edit(.git/config)\", \"Write(.venv/**)\", \"Edit(.venv/**)\", \"Write(venv/**)\", \"Edit(venv/**)\", \"Write(pyvenv.cfg)\", \"Edit(pyvenv.cfg)\", \"Write(**/pyvenv.cfg)\", \"Edit(**/pyvenv.cfg)\", \"Bash(git -c core.hooksPath=*)\", \"Bash(git -c core.fsmonitor=*)\", \"Bash(git config core.hooksPath*)\", \"Bash(git config core.fsmonitor*)\", \"Bash(git config --local core.hooksPath*)\", \"Bash(git config --local core.fsmonitor*)\", \"Bash(git config --global core.hooksPath*)\", \"Bash(git config --global core.fsmonitor*)\", \"Bash(git config --add core.hooksPath*)\", \"Bash(git config --add core.fsmonitor*)\"], \"ask\": [\"Write(.claude/settings.json)\", \"Edit(.claude/settings.json)\", \"Write(.claude/settings.local.json)\", \"Edit(.claude/settings.local.json)\", \"Write(.claude/hooks/**)\", \"Edit(.claude/hooks/**)\", \"Write(.vscode/tasks.json)\", \"Edit(.vscode/tasks.json)\", \"Write(.vscode/launch.json)\", \"Edit(.vscode/launch.json)\", \"Write(.cursor/**)\", \"Edit(.cursor/**)\"]}}",
+    "after_raw": "",
+    "code": 0,
+    "stdout": "Warning: Could not merge the strict permission overlay into settings.json\n",
+    "stderr": "",
+    "checks": {
+      "native_exit_zero": true,
+      "overlay_bytes_unchanged": true,
+      "settings_bytes_unchanged": true,
+      "warning": true,
+      "no_false_success": true,
+      "no_backup": true
+    },
+    "repeat": null
+  },
+  {
+    "name": "empty-overlay",
+    "expected": "refuse",
+    "command": [
+      "C:/Program Files/Git/bin/bash.exe",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\strict-single.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\installer.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-empty-overlay\\settings.json",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-empty-overlay\\overlay.json"
+    ],
+    "candidate_sha256": "d18a5b40e106f51508f6948c92dbc09b7297035d25f0ca24655ae965011661e4",
+    "before": "{\"custom\": \"keep\", \"permissions\": {\"allow\": [\"Read(user)\"]}}",
+    "overlay": "",
+    "after_raw": "{\"custom\": \"keep\", \"permissions\": {\"allow\": [\"Read(user)\"]}}",
+    "code": 0,
+    "stdout": "Warning: Could not merge the strict permission overlay into settings.json\n",
+    "stderr": "",
+    "checks": {
+      "native_exit_zero": true,
+      "overlay_bytes_unchanged": true,
+      "settings_bytes_unchanged": true,
+      "warning": true,
+      "no_false_success": true,
+      "no_backup": true
+    },
+    "repeat": null
+  },
+  {
+    "name": "both-empty",
+    "expected": "refuse",
+    "command": [
+      "C:/Program Files/Git/bin/bash.exe",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\strict-single.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\installer.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-both-empty\\settings.json",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-both-empty\\overlay.json"
+    ],
+    "candidate_sha256": "d18a5b40e106f51508f6948c92dbc09b7297035d25f0ca24655ae965011661e4",
+    "before": "",
+    "overlay": "",
+    "after_raw": "",
+    "code": 0,
+    "stdout": "Warning: Could not merge the strict permission overlay into settings.json\n",
+    "stderr": "",
+    "checks": {
+      "native_exit_zero": true,
+      "overlay_bytes_unchanged": true,
+      "settings_bytes_unchanged": true,
+      "warning": true,
+      "no_false_success": true,
+      "no_backup": true
+    },
+    "repeat": null
+  },
+  {
+    "name": "whitespace-settings",
+    "expected": "refuse",
+    "command": [
+      "C:/Program Files/Git/bin/bash.exe",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\strict-single.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\installer.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-whitespace-settings\\settings.json",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-whitespace-settings\\overlay.json"
+    ],
+    "candidate_sha256": "d18a5b40e106f51508f6948c92dbc09b7297035d25f0ca24655ae965011661e4",
+    "before": " \r\n\t ",
+    "overlay": "{\"_description\": \"OPT-IN hardened overlay for Claude Code, installed only with `--strict-permissions` (bash) / `-StrictPermissions` (PowerShell). It adds `deny` and `ask` entries for the execution-trigger surfaces identified by the agentic-endpoint-hardening skill. It is an OVERLAY, not a replacement: the installer merges it ON TOP of claude-permissions.json, so the read-only auto-approve list has exactly one source of truth and cannot drift between the two files.\", \"_posture_split\": \"Nexus-Hub's install default is deliberately convenience-first (allow-only auto-approve, no-prompt install) per the v3.7.0 install-UX decision. This overlay is the security-hardened opt-in. That split is intentional and documented, not an oversight: see the agentic-endpoint-hardening skill's control-layer table, where deny-by-default is layer 1.\", \"_scope_note\": \"These entries govern the AGENT's tool calls. They do NOT affect the installer's own file I/O, so `nexus-hub init` still writes .claude/settings.json and .cursor/rules/ normally: that runs as the user, not through an agent tool.\", \"_source\": \"Groups A, B, and C of the canonical execution-trigger surface list in catalog/skills/security-operations/agentic-endpoint-hardening/SKILL.md. Keep this file and that list in step; the skill is the normative source.\", \"_deny_vs_ask_rationale\": \"deny holds the surfaces where an agent write is essentially never legitimate and the blast radius is a trusted executor running code at host privilege (version-control hooks and config, and interpreter paths an editor extension auto-executes during discovery). ask holds the surfaces an agent DOES legitimately touch sometimes (a harness settings file, an editor task definition, an editor rules file), where prohibition would break real workflows but silent approval is the exact escape being defended against. This mirrors control layer 3 of the skill: require explicit approval when the agent creates host-side automation.\", \"_group_b_note\": \"The Bash entries below are a coarse hard block. A glob cannot express the interleaved-option form (`git -c protocol.version=2 -c core.hooksPath=x`), so catalog/hooks/git-guardrails.{sh,ps1} remains the thorough control for group B: it regex-matches and tolerates interleaved -c options. Both layers are defense-in-depth, and neither is a boundary.\", \"permissions\": {\"deny\": [\"Write(.git/hooks/**)\", \"Edit(.git/hooks/**)\", \"Write(.git/config)\", \"Edit(.git/config)\", \"Write(.venv/**)\", \"Edit(.venv/**)\", \"Write(venv/**)\", \"Edit(venv/**)\", \"Write(pyvenv.cfg)\", \"Edit(pyvenv.cfg)\", \"Write(**/pyvenv.cfg)\", \"Edit(**/pyvenv.cfg)\", \"Bash(git -c core.hooksPath=*)\", \"Bash(git -c core.fsmonitor=*)\", \"Bash(git config core.hooksPath*)\", \"Bash(git config core.fsmonitor*)\", \"Bash(git config --local core.hooksPath*)\", \"Bash(git config --local core.fsmonitor*)\", \"Bash(git config --global core.hooksPath*)\", \"Bash(git config --global core.fsmonitor*)\", \"Bash(git config --add core.hooksPath*)\", \"Bash(git config --add core.fsmonitor*)\"], \"ask\": [\"Write(.claude/settings.json)\", \"Edit(.claude/settings.json)\", \"Write(.claude/settings.local.json)\", \"Edit(.claude/settings.local.json)\", \"Write(.claude/hooks/**)\", \"Edit(.claude/hooks/**)\", \"Write(.vscode/tasks.json)\", \"Edit(.vscode/tasks.json)\", \"Write(.vscode/launch.json)\", \"Edit(.vscode/launch.json)\", \"Write(.cursor/**)\", \"Edit(.cursor/**)\"]}}",
+    "after_raw": " \r\r\n\t ",
+    "code": 0,
+    "stdout": "Warning: Could not merge the strict permission overlay into settings.json\n",
+    "stderr": "",
+    "checks": {
+      "native_exit_zero": true,
+      "overlay_bytes_unchanged": true,
+      "settings_bytes_unchanged": true,
+      "warning": true,
+      "no_false_success": true,
+      "no_backup": true
+    },
+    "repeat": null
+  },
+  {
+    "name": "whitespace-overlay",
+    "expected": "refuse",
+    "command": [
+      "C:/Program Files/Git/bin/bash.exe",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\strict-single.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\installer.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-whitespace-overlay\\settings.json",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-whitespace-overlay\\overlay.json"
+    ],
+    "candidate_sha256": "d18a5b40e106f51508f6948c92dbc09b7297035d25f0ca24655ae965011661e4",
+    "before": "{\"custom\": \"keep\", \"permissions\": {\"allow\": [\"Read(user)\"]}}",
+    "overlay": " \r\n\t ",
+    "after_raw": "{\"custom\": \"keep\", \"permissions\": {\"allow\": [\"Read(user)\"]}}",
+    "code": 0,
+    "stdout": "Warning: Could not merge the strict permission overlay into settings.json\n",
+    "stderr": "",
+    "checks": {
+      "native_exit_zero": true,
+      "overlay_bytes_unchanged": true,
+      "settings_bytes_unchanged": true,
+      "warning": true,
+      "no_false_success": true,
+      "no_backup": true
+    },
+    "repeat": null
+  },
+  {
+    "name": "root-array",
+    "expected": "refuse",
+    "command": [
+      "C:/Program Files/Git/bin/bash.exe",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\strict-single.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\installer.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-root-array\\settings.json",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-root-array\\overlay.json"
+    ],
+    "candidate_sha256": "d18a5b40e106f51508f6948c92dbc09b7297035d25f0ca24655ae965011661e4",
+    "before": "[{\"custom\":\"keep\"}]",
+    "overlay": "{\"_description\": \"OPT-IN hardened overlay for Claude Code, installed only with `--strict-permissions` (bash) / `-StrictPermissions` (PowerShell). It adds `deny` and `ask` entries for the execution-trigger surfaces identified by the agentic-endpoint-hardening skill. It is an OVERLAY, not a replacement: the installer merges it ON TOP of claude-permissions.json, so the read-only auto-approve list has exactly one source of truth and cannot drift between the two files.\", \"_posture_split\": \"Nexus-Hub's install default is deliberately convenience-first (allow-only auto-approve, no-prompt install) per the v3.7.0 install-UX decision. This overlay is the security-hardened opt-in. That split is intentional and documented, not an oversight: see the agentic-endpoint-hardening skill's control-layer table, where deny-by-default is layer 1.\", \"_scope_note\": \"These entries govern the AGENT's tool calls. They do NOT affect the installer's own file I/O, so `nexus-hub init` still writes .claude/settings.json and .cursor/rules/ normally: that runs as the user, not through an agent tool.\", \"_source\": \"Groups A, B, and C of the canonical execution-trigger surface list in catalog/skills/security-operations/agentic-endpoint-hardening/SKILL.md. Keep this file and that list in step; the skill is the normative source.\", \"_deny_vs_ask_rationale\": \"deny holds the surfaces where an agent write is essentially never legitimate and the blast radius is a trusted executor running code at host privilege (version-control hooks and config, and interpreter paths an editor extension auto-executes during discovery). ask holds the surfaces an agent DOES legitimately touch sometimes (a harness settings file, an editor task definition, an editor rules file), where prohibition would break real workflows but silent approval is the exact escape being defended against. This mirrors control layer 3 of the skill: require explicit approval when the agent creates host-side automation.\", \"_group_b_note\": \"The Bash entries below are a coarse hard block. A glob cannot express the interleaved-option form (`git -c protocol.version=2 -c core.hooksPath=x`), so catalog/hooks/git-guardrails.{sh,ps1} remains the thorough control for group B: it regex-matches and tolerates interleaved -c options. Both layers are defense-in-depth, and neither is a boundary.\", \"permissions\": {\"deny\": [\"Write(.git/hooks/**)\", \"Edit(.git/hooks/**)\", \"Write(.git/config)\", \"Edit(.git/config)\", \"Write(.venv/**)\", \"Edit(.venv/**)\", \"Write(venv/**)\", \"Edit(venv/**)\", \"Write(pyvenv.cfg)\", \"Edit(pyvenv.cfg)\", \"Write(**/pyvenv.cfg)\", \"Edit(**/pyvenv.cfg)\", \"Bash(git -c core.hooksPath=*)\", \"Bash(git -c core.fsmonitor=*)\", \"Bash(git config core.hooksPath*)\", \"Bash(git config core.fsmonitor*)\", \"Bash(git config --local core.hooksPath*)\", \"Bash(git config --local core.fsmonitor*)\", \"Bash(git config --global core.hooksPath*)\", \"Bash(git config --global core.fsmonitor*)\", \"Bash(git config --add core.hooksPath*)\", \"Bash(git config --add core.fsmonitor*)\"], \"ask\": [\"Write(.claude/settings.json)\", \"Edit(.claude/settings.json)\", \"Write(.claude/settings.local.json)\", \"Edit(.claude/settings.local.json)\", \"Write(.claude/hooks/**)\", \"Edit(.claude/hooks/**)\", \"Write(.vscode/tasks.json)\", \"Edit(.vscode/tasks.json)\", \"Write(.vscode/launch.json)\", \"Edit(.vscode/launch.json)\", \"Write(.cursor/**)\", \"Edit(.cursor/**)\"]}}",
+    "after_raw": "[{\"custom\":\"keep\"}]",
+    "code": 0,
+    "stdout": "Warning: Could not merge the strict permission overlay into settings.json\n",
+    "stderr": "",
+    "checks": {
+      "native_exit_zero": true,
+      "overlay_bytes_unchanged": true,
+      "settings_bytes_unchanged": true,
+      "warning": true,
+      "no_false_success": true,
+      "no_backup": true
+    },
+    "repeat": null
+  },
+  {
+    "name": "root-null",
+    "expected": "refuse",
+    "command": [
+      "C:/Program Files/Git/bin/bash.exe",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\strict-single.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\installer.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-root-null\\settings.json",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-root-null\\overlay.json"
+    ],
+    "candidate_sha256": "d18a5b40e106f51508f6948c92dbc09b7297035d25f0ca24655ae965011661e4",
+    "before": "null",
+    "overlay": "{\"_description\": \"OPT-IN hardened overlay for Claude Code, installed only with `--strict-permissions` (bash) / `-StrictPermissions` (PowerShell). It adds `deny` and `ask` entries for the execution-trigger surfaces identified by the agentic-endpoint-hardening skill. It is an OVERLAY, not a replacement: the installer merges it ON TOP of claude-permissions.json, so the read-only auto-approve list has exactly one source of truth and cannot drift between the two files.\", \"_posture_split\": \"Nexus-Hub's install default is deliberately convenience-first (allow-only auto-approve, no-prompt install) per the v3.7.0 install-UX decision. This overlay is the security-hardened opt-in. That split is intentional and documented, not an oversight: see the agentic-endpoint-hardening skill's control-layer table, where deny-by-default is layer 1.\", \"_scope_note\": \"These entries govern the AGENT's tool calls. They do NOT affect the installer's own file I/O, so `nexus-hub init` still writes .claude/settings.json and .cursor/rules/ normally: that runs as the user, not through an agent tool.\", \"_source\": \"Groups A, B, and C of the canonical execution-trigger surface list in catalog/skills/security-operations/agentic-endpoint-hardening/SKILL.md. Keep this file and that list in step; the skill is the normative source.\", \"_deny_vs_ask_rationale\": \"deny holds the surfaces where an agent write is essentially never legitimate and the blast radius is a trusted executor running code at host privilege (version-control hooks and config, and interpreter paths an editor extension auto-executes during discovery). ask holds the surfaces an agent DOES legitimately touch sometimes (a harness settings file, an editor task definition, an editor rules file), where prohibition would break real workflows but silent approval is the exact escape being defended against. This mirrors control layer 3 of the skill: require explicit approval when the agent creates host-side automation.\", \"_group_b_note\": \"The Bash entries below are a coarse hard block. A glob cannot express the interleaved-option form (`git -c protocol.version=2 -c core.hooksPath=x`), so catalog/hooks/git-guardrails.{sh,ps1} remains the thorough control for group B: it regex-matches and tolerates interleaved -c options. Both layers are defense-in-depth, and neither is a boundary.\", \"permissions\": {\"deny\": [\"Write(.git/hooks/**)\", \"Edit(.git/hooks/**)\", \"Write(.git/config)\", \"Edit(.git/config)\", \"Write(.venv/**)\", \"Edit(.venv/**)\", \"Write(venv/**)\", \"Edit(venv/**)\", \"Write(pyvenv.cfg)\", \"Edit(pyvenv.cfg)\", \"Write(**/pyvenv.cfg)\", \"Edit(**/pyvenv.cfg)\", \"Bash(git -c core.hooksPath=*)\", \"Bash(git -c core.fsmonitor=*)\", \"Bash(git config core.hooksPath*)\", \"Bash(git config core.fsmonitor*)\", \"Bash(git config --local core.hooksPath*)\", \"Bash(git config --local core.fsmonitor*)\", \"Bash(git config --global core.hooksPath*)\", \"Bash(git config --global core.fsmonitor*)\", \"Bash(git config --add core.hooksPath*)\", \"Bash(git config --add core.fsmonitor*)\"], \"ask\": [\"Write(.claude/settings.json)\", \"Edit(.claude/settings.json)\", \"Write(.claude/settings.local.json)\", \"Edit(.claude/settings.local.json)\", \"Write(.claude/hooks/**)\", \"Edit(.claude/hooks/**)\", \"Write(.vscode/tasks.json)\", \"Edit(.vscode/tasks.json)\", \"Write(.vscode/launch.json)\", \"Edit(.vscode/launch.json)\", \"Write(.cursor/**)\", \"Edit(.cursor/**)\"]}}",
+    "after_raw": "null",
+    "code": 0,
+    "stdout": "Warning: Could not merge the strict permission overlay into settings.json\n",
+    "stderr": "",
+    "checks": {
+      "native_exit_zero": true,
+      "overlay_bytes_unchanged": true,
+      "settings_bytes_unchanged": true,
+      "warning": true,
+      "no_false_success": true,
+      "no_backup": true
+    },
+    "repeat": null
+  },
+  {
+    "name": "overlay-root-array",
+    "expected": "refuse",
+    "command": [
+      "C:/Program Files/Git/bin/bash.exe",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\strict-single.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\installer.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-overlay-root-array\\settings.json",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-overlay-root-array\\overlay.json"
+    ],
+    "candidate_sha256": "d18a5b40e106f51508f6948c92dbc09b7297035d25f0ca24655ae965011661e4",
+    "before": "{\"custom\": \"keep\", \"permissions\": {\"allow\": [\"Read(user)\"]}}",
+    "overlay": "[{\"_description\": \"OPT-IN hardened overlay for Claude Code, installed only with `--strict-permissions` (bash) / `-StrictPermissions` (PowerShell). It adds `deny` and `ask` entries for the execution-trigger surfaces identified by the agentic-endpoint-hardening skill. It is an OVERLAY, not a replacement: the installer merges it ON TOP of claude-permissions.json, so the read-only auto-approve list has exactly one source of truth and cannot drift between the two files.\", \"_posture_split\": \"Nexus-Hub's install default is deliberately convenience-first (allow-only auto-approve, no-prompt install) per the v3.7.0 install-UX decision. This overlay is the security-hardened opt-in. That split is intentional and documented, not an oversight: see the agentic-endpoint-hardening skill's control-layer table, where deny-by-default is layer 1.\", \"_scope_note\": \"These entries govern the AGENT's tool calls. They do NOT affect the installer's own file I/O, so `nexus-hub init` still writes .claude/settings.json and .cursor/rules/ normally: that runs as the user, not through an agent tool.\", \"_source\": \"Groups A, B, and C of the canonical execution-trigger surface list in catalog/skills/security-operations/agentic-endpoint-hardening/SKILL.md. Keep this file and that list in step; the skill is the normative source.\", \"_deny_vs_ask_rationale\": \"deny holds the surfaces where an agent write is essentially never legitimate and the blast radius is a trusted executor running code at host privilege (version-control hooks and config, and interpreter paths an editor extension auto-executes during discovery). ask holds the surfaces an agent DOES legitimately touch sometimes (a harness settings file, an editor task definition, an editor rules file), where prohibition would break real workflows but silent approval is the exact escape being defended against. This mirrors control layer 3 of the skill: require explicit approval when the agent creates host-side automation.\", \"_group_b_note\": \"The Bash entries below are a coarse hard block. A glob cannot express the interleaved-option form (`git -c protocol.version=2 -c core.hooksPath=x`), so catalog/hooks/git-guardrails.{sh,ps1} remains the thorough control for group B: it regex-matches and tolerates interleaved -c options. Both layers are defense-in-depth, and neither is a boundary.\", \"permissions\": {\"deny\": [\"Write(.git/hooks/**)\", \"Edit(.git/hooks/**)\", \"Write(.git/config)\", \"Edit(.git/config)\", \"Write(.venv/**)\", \"Edit(.venv/**)\", \"Write(venv/**)\", \"Edit(venv/**)\", \"Write(pyvenv.cfg)\", \"Edit(pyvenv.cfg)\", \"Write(**/pyvenv.cfg)\", \"Edit(**/pyvenv.cfg)\", \"Bash(git -c core.hooksPath=*)\", \"Bash(git -c core.fsmonitor=*)\", \"Bash(git config core.hooksPath*)\", \"Bash(git config core.fsmonitor*)\", \"Bash(git config --local core.hooksPath*)\", \"Bash(git config --local core.fsmonitor*)\", \"Bash(git config --global core.hooksPath*)\", \"Bash(git config --global core.fsmonitor*)\", \"Bash(git config --add core.hooksPath*)\", \"Bash(git config --add core.fsmonitor*)\"], \"ask\": [\"Write(.claude/settings.json)\", \"Edit(.claude/settings.json)\", \"Write(.claude/settings.local.json)\", \"Edit(.claude/settings.local.json)\", \"Write(.claude/hooks/**)\", \"Edit(.claude/hooks/**)\", \"Write(.vscode/tasks.json)\", \"Edit(.vscode/tasks.json)\", \"Write(.vscode/launch.json)\", \"Edit(.vscode/launch.json)\", \"Write(.cursor/**)\", \"Edit(.cursor/**)\"]}}]",
+    "after_raw": "{\"custom\": \"keep\", \"permissions\": {\"allow\": [\"Read(user)\"]}}",
+    "code": 0,
+    "stdout": "Warning: Could not merge the strict permission overlay into settings.json\n",
+    "stderr": "",
+    "checks": {
+      "native_exit_zero": true,
+      "overlay_bytes_unchanged": true,
+      "settings_bytes_unchanged": true,
+      "warning": true,
+      "no_false_success": true,
+      "no_backup": true
+    },
+    "repeat": null
+  },
+  {
+    "name": "overlay-root-null",
+    "expected": "refuse",
+    "command": [
+      "C:/Program Files/Git/bin/bash.exe",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\strict-single.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\installer.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-overlay-root-null\\settings.json",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-overlay-root-null\\overlay.json"
+    ],
+    "candidate_sha256": "d18a5b40e106f51508f6948c92dbc09b7297035d25f0ca24655ae965011661e4",
+    "before": "{\"custom\": \"keep\", \"permissions\": {\"allow\": [\"Read(user)\"]}}",
+    "overlay": "null",
+    "after_raw": "{\"custom\": \"keep\", \"permissions\": {\"allow\": [\"Read(user)\"]}}",
+    "code": 0,
+    "stdout": "Warning: Could not merge the strict permission overlay into settings.json\n",
+    "stderr": "",
+    "checks": {
+      "native_exit_zero": true,
+      "overlay_bytes_unchanged": true,
+      "settings_bytes_unchanged": true,
+      "warning": true,
+      "no_false_success": true,
+      "no_backup": true
+    },
+    "repeat": null
+  },
+  {
+    "name": "both-multiple",
+    "expected": "refuse",
+    "command": [
+      "C:/Program Files/Git/bin/bash.exe",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\strict-single.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\installer.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-both-multiple\\settings.json",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-both-multiple\\overlay.json"
+    ],
+    "candidate_sha256": "d18a5b40e106f51508f6948c92dbc09b7297035d25f0ca24655ae965011661e4",
+    "before": "{\"custom\": \"keep\", \"permissions\": {\"allow\": [\"Read(user)\"]}}\n{}",
+    "overlay": "{\"_description\": \"OPT-IN hardened overlay for Claude Code, installed only with `--strict-permissions` (bash) / `-StrictPermissions` (PowerShell). It adds `deny` and `ask` entries for the execution-trigger surfaces identified by the agentic-endpoint-hardening skill. It is an OVERLAY, not a replacement: the installer merges it ON TOP of claude-permissions.json, so the read-only auto-approve list has exactly one source of truth and cannot drift between the two files.\", \"_posture_split\": \"Nexus-Hub's install default is deliberately convenience-first (allow-only auto-approve, no-prompt install) per the v3.7.0 install-UX decision. This overlay is the security-hardened opt-in. That split is intentional and documented, not an oversight: see the agentic-endpoint-hardening skill's control-layer table, where deny-by-default is layer 1.\", \"_scope_note\": \"These entries govern the AGENT's tool calls. They do NOT affect the installer's own file I/O, so `nexus-hub init` still writes .claude/settings.json and .cursor/rules/ normally: that runs as the user, not through an agent tool.\", \"_source\": \"Groups A, B, and C of the canonical execution-trigger surface list in catalog/skills/security-operations/agentic-endpoint-hardening/SKILL.md. Keep this file and that list in step; the skill is the normative source.\", \"_deny_vs_ask_rationale\": \"deny holds the surfaces where an agent write is essentially never legitimate and the blast radius is a trusted executor running code at host privilege (version-control hooks and config, and interpreter paths an editor extension auto-executes during discovery). ask holds the surfaces an agent DOES legitimately touch sometimes (a harness settings file, an editor task definition, an editor rules file), where prohibition would break real workflows but silent approval is the exact escape being defended against. This mirrors control layer 3 of the skill: require explicit approval when the agent creates host-side automation.\", \"_group_b_note\": \"The Bash entries below are a coarse hard block. A glob cannot express the interleaved-option form (`git -c protocol.version=2 -c core.hooksPath=x`), so catalog/hooks/git-guardrails.{sh,ps1} remains the thorough control for group B: it regex-matches and tolerates interleaved -c options. Both layers are defense-in-depth, and neither is a boundary.\", \"permissions\": {\"deny\": [\"Write(.git/hooks/**)\", \"Edit(.git/hooks/**)\", \"Write(.git/config)\", \"Edit(.git/config)\", \"Write(.venv/**)\", \"Edit(.venv/**)\", \"Write(venv/**)\", \"Edit(venv/**)\", \"Write(pyvenv.cfg)\", \"Edit(pyvenv.cfg)\", \"Write(**/pyvenv.cfg)\", \"Edit(**/pyvenv.cfg)\", \"Bash(git -c core.hooksPath=*)\", \"Bash(git -c core.fsmonitor=*)\", \"Bash(git config core.hooksPath*)\", \"Bash(git config core.fsmonitor*)\", \"Bash(git config --local core.hooksPath*)\", \"Bash(git config --local core.fsmonitor*)\", \"Bash(git config --global core.hooksPath*)\", \"Bash(git config --global core.fsmonitor*)\", \"Bash(git config --add core.hooksPath*)\", \"Bash(git config --add core.fsmonitor*)\"], \"ask\": [\"Write(.claude/settings.json)\", \"Edit(.claude/settings.json)\", \"Write(.claude/settings.local.json)\", \"Edit(.claude/settings.local.json)\", \"Write(.claude/hooks/**)\", \"Edit(.claude/hooks/**)\", \"Write(.vscode/tasks.json)\", \"Edit(.vscode/tasks.json)\", \"Write(.vscode/launch.json)\", \"Edit(.vscode/launch.json)\", \"Write(.cursor/**)\", \"Edit(.cursor/**)\"]}}\n{}",
+    "after_raw": "{\"custom\": \"keep\", \"permissions\": {\"allow\": [\"Read(user)\"]}}\r\n{}",
+    "code": 0,
+    "stdout": "Warning: Could not merge the strict permission overlay into settings.json\n",
+    "stderr": "",
+    "checks": {
+      "native_exit_zero": true,
+      "overlay_bytes_unchanged": true,
+      "settings_bytes_unchanged": true,
+      "warning": true,
+      "no_false_success": true,
+      "no_backup": true
+    },
+    "repeat": null
+  },
+  {
+    "name": "duplicate-overlay",
+    "expected": "apply",
+    "command": [
+      "C:/Program Files/Git/bin/bash.exe",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\strict-single.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\installer.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-duplicate-overlay\\settings.json",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-duplicate-overlay\\overlay.json"
+    ],
+    "candidate_sha256": "d18a5b40e106f51508f6948c92dbc09b7297035d25f0ca24655ae965011661e4",
+    "before": "{\"custom\": \"keep\", \"permissions\": {\"allow\": [\"Read(user)\"]}}",
+    "overlay": "{\"permissions\": {\"deny\": [\"Write(.git/hooks/**)\", \"Edit(.git/hooks/**)\", \"Write(.git/config)\", \"Edit(.git/config)\", \"Write(.venv/**)\", \"Edit(.venv/**)\", \"Write(venv/**)\", \"Edit(venv/**)\", \"Write(pyvenv.cfg)\", \"Edit(pyvenv.cfg)\", \"Write(**/pyvenv.cfg)\", \"Edit(**/pyvenv.cfg)\", \"Bash(git -c core.hooksPath=*)\", \"Bash(git -c core.fsmonitor=*)\", \"Bash(git config core.hooksPath*)\", \"Bash(git config core.fsmonitor*)\", \"Bash(git config --local core.hooksPath*)\", \"Bash(git config --local core.fsmonitor*)\", \"Bash(git config --global core.hooksPath*)\", \"Bash(git config --global core.fsmonitor*)\", \"Bash(git config --add core.hooksPath*)\", \"Bash(git config --add core.fsmonitor*)\", \"Write(.git/hooks/**)\", \"Edit(.git/hooks/**)\", \"Write(.git/config)\", \"Edit(.git/config)\", \"Write(.venv/**)\", \"Edit(.venv/**)\", \"Write(venv/**)\", \"Edit(venv/**)\", \"Write(pyvenv.cfg)\", \"Edit(pyvenv.cfg)\", \"Write(**/pyvenv.cfg)\", \"Edit(**/pyvenv.cfg)\", \"Bash(git -c core.hooksPath=*)\", \"Bash(git -c core.fsmonitor=*)\", \"Bash(git config core.hooksPath*)\", \"Bash(git config core.fsmonitor*)\", \"Bash(git config --local core.hooksPath*)\", \"Bash(git config --local core.fsmonitor*)\", \"Bash(git config --global core.hooksPath*)\", \"Bash(git config --global core.fsmonitor*)\", \"Bash(git config --add core.hooksPath*)\", \"Bash(git config --add core.fsmonitor*)\"], \"ask\": [\"Write(.claude/settings.json)\", \"Edit(.claude/settings.json)\", \"Write(.claude/settings.local.json)\", \"Edit(.claude/settings.local.json)\", \"Write(.claude/hooks/**)\", \"Edit(.claude/hooks/**)\", \"Write(.vscode/tasks.json)\", \"Edit(.vscode/tasks.json)\", \"Write(.vscode/launch.json)\", \"Edit(.vscode/launch.json)\", \"Write(.cursor/**)\", \"Edit(.cursor/**)\", \"Write(.claude/settings.json)\", \"Edit(.claude/settings.json)\", \"Write(.claude/settings.local.json)\", \"Edit(.claude/settings.local.json)\", \"Write(.claude/hooks/**)\", \"Edit(.claude/hooks/**)\", \"Write(.vscode/tasks.json)\", \"Edit(.vscode/tasks.json)\", \"Write(.vscode/launch.json)\", \"Edit(.vscode/launch.json)\", \"Write(.cursor/**)\", \"Edit(.cursor/**)\"]}}",
+    "after_raw": "{\r\n  \"custom\": \"keep\",\r\n  \"permissions\": {\r\n    \"allow\": [\r\n      \"Read(user)\"\r\n    ],\r\n    \"deny\": [\r\n      \"Bash(git -c core.fsmonitor=*)\",\r\n      \"Bash(git -c core.hooksPath=*)\",\r\n      \"Bash(git config --add core.fsmonitor*)\",\r\n      \"Bash(git config --add core.hooksPath*)\",\r\n      \"Bash(git config --global core.fsmonitor*)\",\r\n      \"Bash(git config --global core.hooksPath*)\",\r\n      \"Bash(git config --local core.fsmonitor*)\",\r\n      \"Bash(git config --local core.hooksPath*)\",\r\n      \"Bash(git config core.fsmonitor*)\",\r\n      \"Bash(git config core.hooksPath*)\",\r\n      \"Edit(**/pyvenv.cfg)\",\r\n      \"Edit(.git/config)\",\r\n      \"Edit(.git/hooks/**)\",\r\n      \"Edit(.venv/**)\",\r\n      \"Edit(pyvenv.cfg)\",\r\n      \"Edit(venv/**)\",\r\n      \"Write(**/pyvenv.cfg)\",\r\n      \"Write(.git/config)\",\r\n      \"Write(.git/hooks/**)\",\r\n      \"Write(.venv/**)\",\r\n      \"Write(pyvenv.cfg)\",\r\n      \"Write(venv/**)\"\r\n    ],\r\n    \"ask\": [\r\n      \"Edit(.claude/hooks/**)\",\r\n      \"Edit(.claude/settings.json)\",\r\n      \"Edit(.claude/settings.local.json)\",\r\n      \"Edit(.cursor/**)\",\r\n      \"Edit(.vscode/launch.json)\",\r\n      \"Edit(.vscode/tasks.json)\",\r\n      \"Write(.claude/hooks/**)\",\r\n      \"Write(.claude/settings.json)\",\r\n      \"Write(.claude/settings.local.json)\",\r\n      \"Write(.cursor/**)\",\r\n      \"Write(.vscode/launch.json)\",\r\n      \"Write(.vscode/tasks.json)\"\r\n    ]\r\n  }\r\n}\n",
+    "code": 0,
+    "stdout": "  Backup created: C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-duplicate-overlay\\settings.json.bak.20261016-180758\n[OK] Test STRICT permission overlay applied (34 new deny/ask entries)\n  Denied: version-control hook/config writes, interpreter paths, git execution-indirection commands\n  Ask: harness settings and hooks, editor task/launch config, editor rules\n",
+    "stderr": "",
+    "checks": {
+      "native_exit_zero": true,
+      "overlay_bytes_unchanged": true,
+      "all_shipped_entries": true,
+      "allow_unchanged": true,
+      "custom_preserved": true,
+      "applied": true,
+      "backup_matches_before": true,
+      "repeat_exit_zero": true,
+      "repeat_bytes_unchanged": true,
+      "repeat_no_new_backup": true,
+      "repeat_up_to_date": true
+    },
+    "repeat": {
+      "code": 0,
+      "stdout": "[OK] Strict deny/ask entries already up to date (0 new)\n",
+      "stderr": ""
+    }
+  },
+  {
+    "name": "literal-profile",
+    "expected": "apply",
+    "command": [
+      "C:/Program Files/Git/bin/bash.exe",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\strict-single.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\installer.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-literal-profile [x] $cash `tick ; caf\u00e9\\settings.json",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-literal-profile [x] $cash `tick ; caf\u00e9\\overlay.json"
+    ],
+    "candidate_sha256": "d18a5b40e106f51508f6948c92dbc09b7297035d25f0ca24655ae965011661e4",
+    "before": "{\"custom\": \"keep\", \"permissions\": {\"allow\": [\"Read(user)\"]}}",
+    "overlay": "{\"_description\": \"OPT-IN hardened overlay for Claude Code, installed only with `--strict-permissions` (bash) / `-StrictPermissions` (PowerShell). It adds `deny` and `ask` entries for the execution-trigger surfaces identified by the agentic-endpoint-hardening skill. It is an OVERLAY, not a replacement: the installer merges it ON TOP of claude-permissions.json, so the read-only auto-approve list has exactly one source of truth and cannot drift between the two files.\", \"_posture_split\": \"Nexus-Hub's install default is deliberately convenience-first (allow-only auto-approve, no-prompt install) per the v3.7.0 install-UX decision. This overlay is the security-hardened opt-in. That split is intentional and documented, not an oversight: see the agentic-endpoint-hardening skill's control-layer table, where deny-by-default is layer 1.\", \"_scope_note\": \"These entries govern the AGENT's tool calls. They do NOT affect the installer's own file I/O, so `nexus-hub init` still writes .claude/settings.json and .cursor/rules/ normally: that runs as the user, not through an agent tool.\", \"_source\": \"Groups A, B, and C of the canonical execution-trigger surface list in catalog/skills/security-operations/agentic-endpoint-hardening/SKILL.md. Keep this file and that list in step; the skill is the normative source.\", \"_deny_vs_ask_rationale\": \"deny holds the surfaces where an agent write is essentially never legitimate and the blast radius is a trusted executor running code at host privilege (version-control hooks and config, and interpreter paths an editor extension auto-executes during discovery). ask holds the surfaces an agent DOES legitimately touch sometimes (a harness settings file, an editor task definition, an editor rules file), where prohibition would break real workflows but silent approval is the exact escape being defended against. This mirrors control layer 3 of the skill: require explicit approval when the agent creates host-side automation.\", \"_group_b_note\": \"The Bash entries below are a coarse hard block. A glob cannot express the interleaved-option form (`git -c protocol.version=2 -c core.hooksPath=x`), so catalog/hooks/git-guardrails.{sh,ps1} remains the thorough control for group B: it regex-matches and tolerates interleaved -c options. Both layers are defense-in-depth, and neither is a boundary.\", \"permissions\": {\"deny\": [\"Write(.git/hooks/**)\", \"Edit(.git/hooks/**)\", \"Write(.git/config)\", \"Edit(.git/config)\", \"Write(.venv/**)\", \"Edit(.venv/**)\", \"Write(venv/**)\", \"Edit(venv/**)\", \"Write(pyvenv.cfg)\", \"Edit(pyvenv.cfg)\", \"Write(**/pyvenv.cfg)\", \"Edit(**/pyvenv.cfg)\", \"Bash(git -c core.hooksPath=*)\", \"Bash(git -c core.fsmonitor=*)\", \"Bash(git config core.hooksPath*)\", \"Bash(git config core.fsmonitor*)\", \"Bash(git config --local core.hooksPath*)\", \"Bash(git config --local core.fsmonitor*)\", \"Bash(git config --global core.hooksPath*)\", \"Bash(git config --global core.fsmonitor*)\", \"Bash(git config --add core.hooksPath*)\", \"Bash(git config --add core.fsmonitor*)\"], \"ask\": [\"Write(.claude/settings.json)\", \"Edit(.claude/settings.json)\", \"Write(.claude/settings.local.json)\", \"Edit(.claude/settings.local.json)\", \"Write(.claude/hooks/**)\", \"Edit(.claude/hooks/**)\", \"Write(.vscode/tasks.json)\", \"Edit(.vscode/tasks.json)\", \"Write(.vscode/launch.json)\", \"Edit(.vscode/launch.json)\", \"Write(.cursor/**)\", \"Edit(.cursor/**)\"]}}",
+    "after_raw": "{\r\n  \"custom\": \"keep\",\r\n  \"permissions\": {\r\n    \"allow\": [\r\n      \"Read(user)\"\r\n    ],\r\n    \"deny\": [\r\n      \"Bash(git -c core.fsmonitor=*)\",\r\n      \"Bash(git -c core.hooksPath=*)\",\r\n      \"Bash(git config --add core.fsmonitor*)\",\r\n      \"Bash(git config --add core.hooksPath*)\",\r\n      \"Bash(git config --global core.fsmonitor*)\",\r\n      \"Bash(git config --global core.hooksPath*)\",\r\n      \"Bash(git config --local core.fsmonitor*)\",\r\n      \"Bash(git config --local core.hooksPath*)\",\r\n      \"Bash(git config core.fsmonitor*)\",\r\n      \"Bash(git config core.hooksPath*)\",\r\n      \"Edit(**/pyvenv.cfg)\",\r\n      \"Edit(.git/config)\",\r\n      \"Edit(.git/hooks/**)\",\r\n      \"Edit(.venv/**)\",\r\n      \"Edit(pyvenv.cfg)\",\r\n      \"Edit(venv/**)\",\r\n      \"Write(**/pyvenv.cfg)\",\r\n      \"Write(.git/config)\",\r\n      \"Write(.git/hooks/**)\",\r\n      \"Write(.venv/**)\",\r\n      \"Write(pyvenv.cfg)\",\r\n      \"Write(venv/**)\"\r\n    ],\r\n    \"ask\": [\r\n      \"Edit(.claude/hooks/**)\",\r\n      \"Edit(.claude/settings.json)\",\r\n      \"Edit(.claude/settings.local.json)\",\r\n      \"Edit(.cursor/**)\",\r\n      \"Edit(.vscode/launch.json)\",\r\n      \"Edit(.vscode/tasks.json)\",\r\n      \"Write(.claude/hooks/**)\",\r\n      \"Write(.claude/settings.json)\",\r\n      \"Write(.claude/settings.local.json)\",\r\n      \"Write(.cursor/**)\",\r\n      \"Write(.vscode/launch.json)\",\r\n      \"Write(.vscode/tasks.json)\"\r\n    ]\r\n  }\r\n}\n",
+    "code": 0,
+    "stdout": "  Backup created: C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-literal-profile [x] $cash `tick ; caf\u00e9\\settings.json.bak.20261016-180758\n[OK] Test STRICT permission overlay applied (34 new deny/ask entries)\n  Denied: version-control hook/config writes, interpreter paths, git execution-indirection commands\n  Ask: harness settings and hooks, editor task/launch config, editor rules\n",
+    "stderr": "",
+    "checks": {
+      "native_exit_zero": true,
+      "overlay_bytes_unchanged": true,
+      "all_shipped_entries": true,
+      "allow_unchanged": true,
+      "custom_preserved": true,
+      "applied": true,
+      "backup_matches_before": true,
+      "repeat_exit_zero": true,
+      "repeat_bytes_unchanged": true,
+      "repeat_no_new_backup": true,
+      "repeat_up_to_date": true
+    },
+    "repeat": {
+      "code": 0,
+      "stdout": "[OK] Strict deny/ask entries already up to date (0 new)\n",
+      "stderr": ""
+    }
+  },
+  {
+    "name": "empty-settings-multi-overlay",
+    "expected": "refuse",
+    "command": [
+      "C:/Program Files/Git/bin/bash.exe",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\strict-single.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\installer.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-empty-settings-multi-overlay\\settings.json",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-empty-settings-multi-overlay\\overlay.json"
+    ],
+    "candidate_sha256": "d18a5b40e106f51508f6948c92dbc09b7297035d25f0ca24655ae965011661e4",
+    "before": "",
+    "overlay": "{\"_description\": \"OPT-IN hardened overlay for Claude Code, installed only with `--strict-permissions` (bash) / `-StrictPermissions` (PowerShell). It adds `deny` and `ask` entries for the execution-trigger surfaces identified by the agentic-endpoint-hardening skill. It is an OVERLAY, not a replacement: the installer merges it ON TOP of claude-permissions.json, so the read-only auto-approve list has exactly one source of truth and cannot drift between the two files.\", \"_posture_split\": \"Nexus-Hub's install default is deliberately convenience-first (allow-only auto-approve, no-prompt install) per the v3.7.0 install-UX decision. This overlay is the security-hardened opt-in. That split is intentional and documented, not an oversight: see the agentic-endpoint-hardening skill's control-layer table, where deny-by-default is layer 1.\", \"_scope_note\": \"These entries govern the AGENT's tool calls. They do NOT affect the installer's own file I/O, so `nexus-hub init` still writes .claude/settings.json and .cursor/rules/ normally: that runs as the user, not through an agent tool.\", \"_source\": \"Groups A, B, and C of the canonical execution-trigger surface list in catalog/skills/security-operations/agentic-endpoint-hardening/SKILL.md. Keep this file and that list in step; the skill is the normative source.\", \"_deny_vs_ask_rationale\": \"deny holds the surfaces where an agent write is essentially never legitimate and the blast radius is a trusted executor running code at host privilege (version-control hooks and config, and interpreter paths an editor extension auto-executes during discovery). ask holds the surfaces an agent DOES legitimately touch sometimes (a harness settings file, an editor task definition, an editor rules file), where prohibition would break real workflows but silent approval is the exact escape being defended against. This mirrors control layer 3 of the skill: require explicit approval when the agent creates host-side automation.\", \"_group_b_note\": \"The Bash entries below are a coarse hard block. A glob cannot express the interleaved-option form (`git -c protocol.version=2 -c core.hooksPath=x`), so catalog/hooks/git-guardrails.{sh,ps1} remains the thorough control for group B: it regex-matches and tolerates interleaved -c options. Both layers are defense-in-depth, and neither is a boundary.\", \"permissions\": {\"deny\": [\"Write(.git/hooks/**)\", \"Edit(.git/hooks/**)\", \"Write(.git/config)\", \"Edit(.git/config)\", \"Write(.venv/**)\", \"Edit(.venv/**)\", \"Write(venv/**)\", \"Edit(venv/**)\", \"Write(pyvenv.cfg)\", \"Edit(pyvenv.cfg)\", \"Write(**/pyvenv.cfg)\", \"Edit(**/pyvenv.cfg)\", \"Bash(git -c core.hooksPath=*)\", \"Bash(git -c core.fsmonitor=*)\", \"Bash(git config core.hooksPath*)\", \"Bash(git config core.fsmonitor*)\", \"Bash(git config --local core.hooksPath*)\", \"Bash(git config --local core.fsmonitor*)\", \"Bash(git config --global core.hooksPath*)\", \"Bash(git config --global core.fsmonitor*)\", \"Bash(git config --add core.hooksPath*)\", \"Bash(git config --add core.fsmonitor*)\"], \"ask\": [\"Write(.claude/settings.json)\", \"Edit(.claude/settings.json)\", \"Write(.claude/settings.local.json)\", \"Edit(.claude/settings.local.json)\", \"Write(.claude/hooks/**)\", \"Edit(.claude/hooks/**)\", \"Write(.vscode/tasks.json)\", \"Edit(.vscode/tasks.json)\", \"Write(.vscode/launch.json)\", \"Edit(.vscode/launch.json)\", \"Write(.cursor/**)\", \"Edit(.cursor/**)\"]}}\n{}",
+    "after_raw": "",
+    "code": 0,
+    "stdout": "Warning: Could not merge the strict permission overlay into settings.json\n",
+    "stderr": "",
+    "checks": {
+      "native_exit_zero": true,
+      "overlay_bytes_unchanged": true,
+      "settings_bytes_unchanged": true,
+      "warning": true,
+      "no_false_success": true,
+      "no_backup": true
+    },
+    "repeat": null
+  },
+  {
+    "name": "multi-settings-empty-overlay",
+    "expected": "refuse",
+    "command": [
+      "C:/Program Files/Git/bin/bash.exe",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\strict-single.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\installer.sh",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-multi-settings-empty-overlay\\settings.json",
+      "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-retest-b673cd38ca514d9e850c4f6ce79247bb\\case-multi-settings-empty-overlay\\overlay.json"
+    ],
+    "candidate_sha256": "d18a5b40e106f51508f6948c92dbc09b7297035d25f0ca24655ae965011661e4",
+    "before": "{\"custom\": \"keep\", \"permissions\": {\"allow\": [\"Read(user)\"]}}\n{}",
+    "overlay": "",
+    "after_raw": "{\"custom\": \"keep\", \"permissions\": {\"allow\": [\"Read(user)\"]}}\r\n{}",
+    "code": 0,
+    "stdout": "Warning: Could not merge the strict permission overlay into settings.json\n",
+    "stderr": "",
+    "checks": {
+      "native_exit_zero": true,
+      "overlay_bytes_unchanged": true,
+      "settings_bytes_unchanged": true,
+      "warning": true,
+      "no_false_success": true,
+      "no_backup": true
+    },
+    "repeat": null
+  }
+]

@@ -10,15 +10,11 @@ name: Presentify extractor
 
 on:
   workflow_dispatch:
-  # The render job below is gated to this schedule; the fast verify job opts
-  # OUT of the schedule so a cron run does not double-bill it.
-  schedule:
-    - cron: '17 4 * * 1'
   pull_request:
     branches: [main, develop]
 
 # v3.15.8 Phase 9.3: least privilege. This workflow builds and tests only --
-# no artifact upload, no gh CLI, no comments, no pushes -- so read-only
+# no gh CLI, comments or pushes; retained reports need no extra permission -- so read-only
 # contents is the complete requirement.
 permissions:
   contents: read
@@ -65,13 +61,13 @@ jobs:
           fi
 
           changed_files="$(git diff --name-only "$base" "$head")"
-          if grep -Eq '^(catalog/skills/specialized-domains/document-to-interactive-html/|catalog/commands/presentify\.md$|tests/skills/|tests/fixtures/presentify/|docs/archives/v3/v3\.12/development/fixtures/(gen_fixtures|verify_phase1|enrich_models|verify_design_seed)\.py$|docs/archives/v3/v3\.13/development/fixtures/(verify_universal_ingestion|verify_imagery)\.py$|scripts/ci/requirements(\.in|-py311\.txt)$|\.github/workflows/presentify-extractor\.yml$)' <<< "$changed_files"; then
+          if grep -Eq '^(catalog/skills/specialized-domains/document-to-interactive-html/|catalog/commands/presentify\.md$|tests/skills/|tests/fixtures/presentify/|docs/archives/v3/v3\.12/development/fixtures/(gen_fixtures|verify_phase1|enrich_models|verify_design_seed)\.py$|docs/archives/v3/v3\.13/development/fixtures/(verify_universal_ingestion|verify_imagery)\.py$|scripts/ci/|\.github/workflows/presentify-extractor\.yml$)' <<< "$changed_files"; then
             echo "presentify=true" >> "$GITHUB_OUTPUT"
           else
             echo "presentify=false" >> "$GITHUB_OUTPUT"
           fi
 
-  verify:
+  extractor-tests:
     # This job must exist on every protected PR because branch protection
     # requires its `verify` context. Its expensive steps remain path-scoped.
     needs: detect
@@ -105,61 +101,28 @@ jobs:
           pip install python-pptx python-docx openpyxl pdfplumber pypdf
           pypdfium2 Pillow reportlab rapidocr-onnxruntime ruff==0.16.1 pytest
 
-      - name: Lint the bundled scripts
+      - name: Repository-native presentify-verify profile
         if: needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
-        run: ruff check --ignore RUF100 catalog/skills/specialized-domains/document-to-interactive-html/scripts/
+        run: python scripts/ci/run.py --profile full --only presentify-verify --reports-dir reports
 
-      - name: Run the presentify skills suite (v3.15.4 Phase 1 + 2)
-        if: needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
-        # Full-width canvas + image-sizing contract (layout suite) and the
-        # extractor prominence signals (page_fraction + native width/height for
-        # PPTX and PDF). This runner installs the heavy extractor libs, so the
-        # prominence tests run here (they importorskip elsewhere). This job
-        # installs NO browser, so the three browser-dependent checks
-        # skip-with-note here by design; the `render` job below is the one that
-        # installs chromium and enforces them via NEXUS_REQUIRE_RENDER=1
-        # (v3.16.5 Phase 3, closing v3.15 MT-1). Everything else - injected-var,
-        # offline, head-integrity, CSS-heuristic band, image-cap, the four
-        # typography checks, the three SVG checks, and the extractor signals -
-        # runs browser-free.
-        run: python -m pytest tests/skills/ -v
+      - name: Publish native profile summary
+        if: always() && needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
+        shell: bash
+        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
 
-      - name: Generate fixtures
-        if: needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
-        run: python docs/archives/v3/v3.12/development/fixtures/gen_fixtures.py
-
-      - name: Run the extraction-fidelity suite (45 checks)
-        if: needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
-        run: python docs/archives/v3/v3.12/development/fixtures/verify_phase1.py
-
-      - name: Run the protocol round-trip
-        if: needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
-        run: python docs/archives/v3/v3.12/development/fixtures/enrich_models.py
-
-      - name: Run the design-entropy suite (10 checks)
-        if: needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
-        run: python docs/archives/v3/v3.12/development/fixtures/verify_design_seed.py
-
-      - name: Run the v3.13 universal-ingestion suite (28 checks)
-        if: needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
-        run: python docs/archives/v3/v3.13/development/fixtures/verify_universal_ingestion.py
-
-      - name: Run the v3.13 imagery Tier 2/3 suite (offline, no network / GPU)
-        if: needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
-        run: python docs/archives/v3/v3.13/development/fixtures/verify_imagery.py
+      - name: Retain native profile reports
+        if: always() && needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: presentify-verify-reports
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 7
 
   render:
-    # The TRUE rendered checks (v3.16.5 Phase 3, closes v3.15 known-gap MT-1,
-    # whose suggested next step was exactly "gate a headless-render job to
-    # merges/schedule so the true rendered-width check runs in CI").
-    #
-    # Gated to the weekly cron, NOT to pull requests or protected-branch pushes:
-    # a browser download plus a real render is the expensive part of this
-    # workflow, and PR feedback is already covered by the browser-free `verify`
-    # job. The schedule supplies regular deep coverage without re-testing every
-    # just-verified merge.
+    # Deterministic rendered checks gate the same merge result as extraction.
     needs: detect
-    if: github.event_name == 'schedule'
+    if: ${{ !cancelled() && needs.detect.outputs.presentify == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -194,23 +157,42 @@ jobs:
       - name: Install chromium
         run: python -m playwright install --with-deps chromium
 
-      - name: Probe the render environment (must report READY)
-        run: |
-          python catalog/skills/specialized-domains/document-to-interactive-html/scripts/ensure_render_env.py --json
-          # Exit 0 = READY_PLAYWRIGHT. Anything else means the install above did
-          # not produce a launchable browser, and the rendered checks below would
-          # silently degrade - which is the whole defect this job exists to end.
+      - name: Repository-native presentify-render profile
+        run: python scripts/ci/run.py --profile full --only presentify-render --reports-dir reports
 
-      - name: Run the presentify suite with the rendered checks ENFORCED
-        # NEXUS_REQUIRE_RENDER=1 turns the browser-dependent skips into failures.
-        # Without it a broken browser install would present as three quiet skips
-        # inside a green run, which is exactly how MT-1 went unnoticed for four
-        # minor versions.
+      - name: Publish native profile summary
+        if: always()
+        shell: bash
+        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Retain native profile reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: presentify-render-reports
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 7
+
+  verify:
+    needs: [detect, extractor-tests, render]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require detection and every selected native profile
         env:
-          NEXUS_REQUIRE_RENDER: '1'
-        run: python -m pytest tests/skills/ -v
-
-      - name: Score the calibration fixture (all structural criteria)
-        # The full-width band, image caps, overlay integrity, the four typography
-        # checks, and the three SVG checks, against the standing fixture.
-        run: python catalog/skills/specialized-domains/document-to-interactive-html/scripts/visual_qa_score.py tests/fixtures/presentify/nexus-hub-unit-test-workflow.html
+          R_detect: ${{ needs.detect.result }}
+          R_selected: ${{ needs.detect.outputs.presentify }}
+          R_extract: ${{ needs['extractor-tests'].result }}
+          R_render: ${{ needs.render.result }}
+        run: |
+          set -euo pipefail
+          test "$R_detect" = success
+          case "$R_selected" in
+            true) test "$R_extract" = success; test "$R_render" = success ;;
+            false) for result in "$R_extract" "$R_render"; do
+              case "$result" in success|skipped) ;; *) exit 1 ;; esac
+            done ;;
+            *) exit 1 ;;
+          esac

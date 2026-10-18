@@ -1,0 +1,20 @@
+{
+  "observed_utc": "2026-10-17T22:35:51.275Z",
+  "scope": "Serial actual canonical Windows PowerShell 5.1 hook Command with a private diagnostic allowance; not a canonical platform profile pass",
+  "native_powershell": "5.1.26100.9444",
+  "status": "pass",
+  "tests_passed": 2588,
+  "tests_failed": 0,
+  "pytest_seconds": 1773.58,
+  "runner_seconds": 1776.9690000000119,
+  "committed_limit_seconds": 1800,
+  "diagnostic_limit_seconds": 2700,
+  "source_files": 8259,
+  "source_unchanged": true,
+  "canonical_profile_pass": false,
+  "retained_result": "Temp/nexus-v4140-native-hook-diagnostic-oct17-result.json",
+  "retained_result_sha256": "37a63c20bb3746db152d36d63cd33779ee9a4320643737130071e6ae6f8ab185",
+  "retained_log_sha256": "b745af8cadae4c80f8ed16780377dcdf456c50e01e749fa8f3a1cade98a63b40",
+  "ci_changes": 0,
+  "new_guard_accepts": 0
+}

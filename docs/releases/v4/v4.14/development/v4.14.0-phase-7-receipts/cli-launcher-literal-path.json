@@ -1,0 +1,6 @@
+{
+  "before": "230a93f8d9d2e7f652cfcb287911373862539249da68f419103bb44ec16a92d9",
+  "after": "3535b10c4280629807042aa36c7ec426f6795fcb34c5a888e34ac121a6008e7e",
+  "scope": "Only the version-marker Set-Content call now uses LiteralPath. Strict functions unchanged.",
+  "red": "1 passed, 2 failed in 2.89s; both bracketed profiles reproduce Set-Content Encoding failure."
+}

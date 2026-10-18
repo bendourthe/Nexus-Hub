@@ -1,0 +1,22 @@
+{
+  "observed_utc": "2026-10-17T23:41:03.799349+00:00",
+  "files": [
+    {
+      "path": "extensions/cursor-usage-monitor/package-lock.json",
+      "before_sha256": "8d72d70a0123a3f0ebdda522caa754ff6893c8d1629fb209da19001cca6c1f27",
+      "after_sha256": "440b4aaa695b00068c0521fd2bdcc974242fbe154107295a9d7ce445af029305",
+      "matches_recorded_initial_source": true,
+      "change": "Remove five qualification-added peer flags"
+    },
+    {
+      "path": "extensions/gemini-usage-monitor/package-lock.json",
+      "before_sha256": "3eb3f699e410537c35ffb99df68bd87f04bb791f0a618a2ac27729242729fe83",
+      "after_sha256": "ab8040bdd045f415b0b01a31c4095698a78adb2c83a2cda26df3e85358e2adaa",
+      "matches_recorded_initial_source": true,
+      "change": "Remove qualification-induced root version normalization; retain original Git metadata"
+    }
+  ],
+  "new_guard_accepts": 0,
+  "proof": "Initial dependency installation receipt hashes match original Git CRLF bytes; qualification deltas preserved privately",
+  "earlier_attempts": "Private first helper parse error made no writes; second helper completed Cursor then refused an overly broad Gemini string-count assertion. This continuation validates Gemini by parsed root fields and equality of all other JSON data."
+}

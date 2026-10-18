@@ -1,0 +1,29 @@
+{
+  "status": "APPLIED authorized non-CI corrections only",
+  "at": "2026-10-17T04:20:06.668380+00:00",
+  "files": [
+    {
+      "path": "scripts/installer.sh",
+      "after_raw_sha256": "d440872e58e723e7dbd2c504501edea840864c80f484b741ac2f459af754e396"
+    },
+    {
+      "path": "scripts/installer.ps1",
+      "after_raw_sha256": "297cd01ddba52abbc3fbb90ffb330aff4c97e53582864b8fdca094766d8b4f67"
+    },
+    {
+      "path": "tests/installer/test_core_settings_seeding.py",
+      "after_raw_sha256": "c692622180adf84bd96e33536b157755c834fe8bc75aa99e04ed68b41ccb26c2"
+    },
+    {
+      "path": "tests/installer/test_native_json_reader.py",
+      "after_raw_sha256": "d48b39a56078136f352a45b9acf3d3951158eca27192a1ed85d7f522fa96b16a"
+    },
+    {
+      "path": "tests/validators/test_agent_model_pinning.py",
+      "after_raw_sha256": "411ac1be29f66f0bdd30fda9cc77ef2285dea008a6943d017553a2532c588d10"
+    }
+  ],
+  "CI_files_applied": false,
+  "accepts": [],
+  "full_diagnostic": "stopped before these writes; parity FAIL and hook-tests timeout 2400s retained; no full pass"
+}

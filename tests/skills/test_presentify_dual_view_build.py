@@ -10,6 +10,7 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 # playwright is installed only by the CI render job, which also sets
@@ -157,28 +158,60 @@ def test_unsafe_paths_are_rejected(project, path):
         dual.contained(project, path)
 
 
-def test_linked_ancestors_and_hardlinks_are_rejected(project, tmp_path):
-    outside = tmp_path / "outside"
-    outside.mkdir()
+def make_directory_junction(path, target):
+    command = (
+        "New-Item -ItemType Junction -Path '"
+        + str(path).replace("'", "''")
+        + "' -Target '"
+        + str(target).replace("'", "''")
+        + "' | Out-Null"
+    )
+    subprocess.run(
+        ["powershell", "-NoProfile", "-Command", command],
+        check=True,
+        capture_output=True,
+    )
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="Windows directory junction boundary")
+@pytest.mark.parametrize("location", ["inside", "outside"])
+def test_directory_junctions_are_rejected_without_symlink_fallback(project, tmp_path_factory, location):
+    target = project / "inside-target" if location == "inside" else tmp_path_factory.mktemp("outside-project")
+    target.mkdir(exist_ok=True)
+    make_directory_junction(project / "junction", target)
+    with pytest.raises(ValueError, match="linked"):
+        dual.contained(project, "junction/output.html")
+    assert not (target / "output.html").exists()
+
+
+@pytest.mark.parametrize("location", ["inside", "outside"])
+def test_linked_ancestors_and_hardlinks_are_rejected(project, tmp_path_factory, location):
+    outside = project / "inside-target" if location == "inside" else tmp_path_factory.mktemp("outside-project")
+    outside.mkdir(exist_ok=True)
     try:
         (project / "linked").symlink_to(outside, target_is_directory=True)
     except OSError:
         if sys.platform != "win32":
             raise
-        command = (
-            "New-Item -ItemType Junction -Path '"
-            + str(project / "linked").replace("'", "''")
-            + "' -Target '"
-            + str(outside).replace("'", "''")
-            + "' | Out-Null"
-        )
-        subprocess.run(
-            ["powershell", "-NoProfile", "-Command", command],
-            check=True,
-            capture_output=True,
-        )
+        make_directory_junction(project / "linked", outside)
     with pytest.raises(ValueError, match="linked"):
         dual.contained(project, "linked/output.html")
+    assert not (outside / "output.html").exists()
+
+
+def test_nonjunction_reparse_tag_preserves_regular_output_paths(project, monkeypatch):
+    folder = project / "regular"
+    folder.mkdir()
+    original = Path.lstat
+
+    def lstat(path):
+        info = original(path)
+        if path == folder:
+            return SimpleNamespace(st_mode=info.st_mode, st_reparse_tag=0x9000001A)
+        return info
+
+    monkeypatch.setattr(Path, "lstat", lstat)
+    assert dual.contained(project, "regular/new.html") == folder / "new.html"
 
 
 def test_hardlinked_output_is_rejected(project):

@@ -1,0 +1,67 @@
+{
+  "status": "CANDIDATE QUALIFIED; CI FILES NOT APPLIED",
+  "frozen_ci_suite": {
+    "command": "python -m pytest tests/ci tests/workflows -q --cov=scripts.ci",
+    "exit": 0,
+    "passed": 391,
+    "skipped": 19,
+    "seconds": 59.95,
+    "coverage_percent": 87.85625774473358
+  },
+  "frozen_fast_profile": {
+    "command": "python scripts/ci/run.py --profile fast",
+    "exit": 0,
+    "passed": 17,
+    "failed": 0,
+    "skipped": 0,
+    "advisory": 0,
+    "seconds": 10.7
+  },
+  "final_boundary_suite": {
+    "passed": 25,
+    "seconds": 10.11
+  },
+  "ruff": {
+    "changed_python_files": 7,
+    "exit": 0,
+    "diagnostics": 0
+  },
+  "independent_review": {
+    "initial_full_scope": {
+      "N": 193,
+      "K": 47,
+      "personas": 10,
+      "union_and_cardinality": true,
+      "entry_exit_hash_match": true
+    },
+    "nine_file_corrective_review": "correctness clean; security identified additional routes before final freeze",
+    "final_two_file_residual_review": "correctness and security clean with all before/after hashes matched"
+  },
+  "native_nonci_candidate": {
+    "powershell_5_1": {
+      "passed": 126,
+      "skipped": 10,
+      "seconds": 142.14
+    },
+    "powershell_7_6_7": {
+      "passed": 136,
+      "skipped": 0,
+      "seconds": 139.37
+    }
+  },
+  "applied_source": {
+    "fresh_tests": 9,
+    "parity": "PASS",
+    "powershell_AST": "PASS",
+    "bash_syntax": "PASS",
+    "shellcheck": "zero new; four inherited informational diagnostics; unfiltered exit1 retained"
+  },
+  "full_profile": "NOT QUALIFIED: diagnostic recorded parity failure and existing 2400s Windows hook timeout; stopped before source corrections, no final report/pass",
+  "scope_limits": [
+    "Local Node is 24.13.0; CI Node22 is not qualified by local24.",
+    "Current full native installers and final local/remote integration gates remain pending.",
+    "Earlier three Linux global-install cases passed at the pre-core-correction Bash hash; optional MCP/Node/editor delivery not covered.",
+    "No paid model calls, remote CI runs, repository-setting changes, publication or release."
+  ],
+  "model_API_spend_USD": 0
+}

@@ -1,0 +1,70 @@
+{
+  "new_diagnostics": [],
+  "unchanged_existing_diagnostics": [
+    {
+      "file": "scripts/ci/run.py",
+      "diagnostic": [
+        "I001",
+        "Import block is un-sorted or un-formatted",
+        "from scripts.ci import PROFILE_NAMES  # noqa: E402"
+      ]
+    },
+    {
+      "file": "scripts/ci/run.py",
+      "diagnostic": [
+        "RUF100",
+        "Unused `noqa` directive (non-enabled: `E402`)",
+        "from scripts.ci import PROFILE_NAMES  # noqa: E402"
+      ]
+    },
+    {
+      "file": "scripts/ci/run.py",
+      "diagnostic": [
+        "RUF100",
+        "Unused `noqa` directive (non-enabled: `E402`)",
+        "from scripts.ci import change_scope, reporting  # noqa: E402"
+      ]
+    },
+    {
+      "file": "scripts/ci/run.py",
+      "diagnostic": [
+        "RUF100",
+        "Unused `noqa` directive (non-enabled: `E402`)",
+        "from scripts.ci.profiles import Command, Group, detect_platform, groups_for  # noqa: E402"
+      ]
+    },
+    {
+      "file": "scripts/ci/run.py",
+      "diagnostic": [
+        "RUF100",
+        "Unused `noqa` directive (non-enabled: `E402`)",
+        "from scripts.ci.reporting import CommandResult, GroupResult, RunResult  # noqa: E402"
+      ]
+    },
+    {
+      "file": "scripts/ci/run.py",
+      "diagnostic": [
+        "UP017",
+        "Use `datetime.UTC` alias",
+        "return datetime.now(timezone.utc).strftime(\"%Y-%m-%dT%H:%M:%SZ\")"
+      ]
+    },
+    {
+      "file": "scripts/ci/run.py",
+      "diagnostic": [
+        "PLW1510",
+        "`subprocess.run` without explicit `check` argument",
+        "proc = subprocess.run(argv, capture_output=True, text=True, timeout=30)"
+      ]
+    },
+    {
+      "file": "scripts/ci/run.py",
+      "diagnostic": [
+        "I001",
+        "Import block is un-sorted or un-formatted",
+        "import json"
+      ]
+    }
+  ],
+  "files_checked": 13
+}

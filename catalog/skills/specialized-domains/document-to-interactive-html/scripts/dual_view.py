@@ -10,6 +10,7 @@ import json
 import math
 import os
 import re
+import stat
 import tempfile
 import xml.etree.ElementTree as ET
 from html.parser import HTMLParser
@@ -69,7 +70,14 @@ def contained(root: Path, relative: str) -> Path:
         raise ValueError(f"path: unsafe component in {relative}")
     target = root.joinpath(*parts)
     for part in (root, *target.parents, target):
-        if part.is_symlink() or (hasattr(part, "is_junction") and part.is_junction()):
+        try:
+            info = part.lstat()
+        except FileNotFoundError:
+            continue
+        if stat.S_ISLNK(info.st_mode) or (
+            getattr(info, "st_reparse_tag", None)
+            == getattr(stat, "IO_REPARSE_TAG_MOUNT_POINT", -1)
+        ):
             raise ValueError(f"path: linked ancestor or leaf {relative}")
     if not target.resolve().is_relative_to(root.resolve()):
         raise ValueError(f"path: escapes authoring root {relative}")

@@ -1,0 +1,166 @@
+{
+  "schema": 1,
+  "member": "v4.14.0",
+  "status": "PROPOSED NOT APPLIED",
+  "files_count": 25,
+  "source_head": "d78e76d73330cd57b76e6ed424fc884f13884e31",
+  "merge_head": "d577e11037b25647aa466da4c01e1ecdadfe6aeb",
+  "patch_sha256": "5b56ec24ff2891322989b5808a2841d723c25699bc9a177417b11ed7a80ea40e",
+  "files": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "before_raw_sha256": "d98d247377d63e30c7993f8121ab06406a7f886f6793dcc3fab80a103775fab1",
+      "after_raw_sha256": "fce6450ddecc07d4fd05f8025b8eaa9e57a02f015d28da61b4405a3aacf6ffe8"
+    },
+    {
+      "path": ".github/workflows/claude-usage-monitor.yml",
+      "before_raw_sha256": "03c79478cb77c283b2a0366dd5d10a147665a31970e6f5cbd40a1d78f86cfa57",
+      "after_raw_sha256": "ecd6d83acf1648450929d9899d35e1994e08e4aacd158d67dc37ec4d69d7f7f4"
+    },
+    {
+      "path": ".github/workflows/code-search.yml",
+      "before_raw_sha256": "8591e77620f0fc88e936ba04abc504b7e3611894e18d06a2dae1550ce3cba1ee",
+      "after_raw_sha256": "0aceca16bd66530be500c8c0fe52f7b2b9db2379a8358b9880b534972c9aed44"
+    },
+    {
+      "path": ".github/workflows/codex-usage-monitor.yml",
+      "before_raw_sha256": "0c34f01ddb62d19dc660b5324408791a439702ad03a1869e124c4e577e1b1793",
+      "after_raw_sha256": "12c03565e0831634ac432f1b454c243761eb66a3eb7c3866b67399e0ff9e4b07"
+    },
+    {
+      "path": ".github/workflows/copilot-usage-monitor.yml",
+      "before_raw_sha256": "7858a57505f3e7276d0371ac453c23b04718a5b302ade021eaa6d44d157f47d1",
+      "after_raw_sha256": "da8b4e902076a271c603ae62e37df636b5dd6093531eb370ae9940d1cb160657"
+    },
+    {
+      "path": ".github/workflows/cursor-usage-monitor.yml",
+      "before_raw_sha256": "ca0e42563f719bbad617fd1ef762df055066d6fb39c18bbc50ec29c8766a8af9",
+      "after_raw_sha256": "d5b6fdad93ad338c5abcadff98ebac9f9ead8c5d347112d628ab6596c8cfbfba"
+    },
+    {
+      "path": ".github/workflows/doc-colocation.yml",
+      "before_raw_sha256": "599d67c58f8800fc59df8fcd526d8decfb8a15bc0e30e0c97d8424105a2f0025",
+      "after_raw_sha256": "e2c1b86034c189c6f0be66fc2f4e19fcd284d68e8676c960d390a17195be5ff3"
+    },
+    {
+      "path": ".github/workflows/gemini-usage-monitor.yml",
+      "before_raw_sha256": "a73d99325054691d95801cfe57428f5aa59a51c4931e8c822363cc3689ab4b2f",
+      "after_raw_sha256": "8e72ae34ccf8566dfab74e9a688596a282955e87842020c2b0f855de58d32c81"
+    },
+    {
+      "path": ".github/workflows/nexus-memory.yml",
+      "before_raw_sha256": "7331e8dc84daffcc970d3153ba50073db102d4393f286b04ed1b7146c9452c4e",
+      "after_raw_sha256": "900f806a4b615843cf7aa531360dc7dfa7d99f239c892278e8cdbc734106214a"
+    },
+    {
+      "path": ".github/workflows/presentify-extractor.yml",
+      "before_raw_sha256": "2c45ed19982f4fa4ca4a57583463eb51b87377549114a4ee26ad968a15980c07",
+      "after_raw_sha256": "12bc9169404682064f56e9f1aaa0adb2e4037a50e5be51f038894d0a2c5f078e"
+    },
+    {
+      "path": "scripts/ci/code-search-offline.Dockerfile",
+      "before_raw_sha256": null,
+      "after_raw_sha256": "43e080a1d4e1f8350d216fe0329f351876702576be8b45c4a004779c4914c12a"
+    },
+    {
+      "path": "scripts/ci/memory-offline.Dockerfile",
+      "before_raw_sha256": null,
+      "after_raw_sha256": "6a7bb9c33487bf91e6f987530163b84b7fd1693f9a004fdb183db66222a94850"
+    },
+    {
+      "path": "scripts/ci/profiles.py",
+      "before_raw_sha256": "3f838319cc8bc9de88c9304f47f3eb8450095a85d6175eb46a7dff4731e118a8",
+      "after_raw_sha256": "b50bca9863adb7a60e553dcaedceb869f541115ec506484db32d942ff02b1e94"
+    },
+    {
+      "path": "scripts/ci/reporting.py",
+      "before_raw_sha256": "171e96207340867afcce5ced669a61b211ae5dec75766a90557ef6f7bcea529c",
+      "after_raw_sha256": "35c243a1a70601437765bd4809a3b882ce1b04213f9b58eaf8b91577f83f49d0"
+    },
+    {
+      "path": "scripts/ci/run.py",
+      "before_raw_sha256": "ffd9aa7ea256006a4ef21265f85377f15db8f21aed06da02d4c073e30b14f60b",
+      "after_raw_sha256": "8c16149609142b3f5bc8158eee0e9a1493a964eb745c2088a1290788c40aa4aa"
+    },
+    {
+      "path": "scripts/ci/verify_scenarios.py",
+      "before_raw_sha256": null,
+      "after_raw_sha256": "f91a7cbfb018ed8d84f547b253f0be9779590069028c293fe9aaaeea2e4eda34"
+    },
+    {
+      "path": "tests/ci/test_ci_reconciliation.py",
+      "before_raw_sha256": null,
+      "after_raw_sha256": "0ba559ed85489b3829fada610355af98f172471ca54adea5f94d9ab40383e8f2"
+    },
+    {
+      "path": "tests/ci/test_ci_scenario_boundaries.py",
+      "before_raw_sha256": null,
+      "after_raw_sha256": "6e0bdfcc7c651be860ea10787daf3adda842d30b7e8e1109efad05821abd897b"
+    },
+    {
+      "path": "tests/ci/test_ci_scenarios.py",
+      "before_raw_sha256": null,
+      "after_raw_sha256": "8806b83526344a64f888d00b125472840f06fbecedb207a15d0df7b311bd1432"
+    },
+    {
+      "path": "tests/workflows/test_attribution_workflow.py",
+      "before_raw_sha256": "453420897f2cfdcfec89d8669103d941d74994e9ec811daf356217687e03e286",
+      "after_raw_sha256": "08d843b8d0c51341b601e7d14ad7541388c41bf966c1f286bb518a2b8c57e376"
+    },
+    {
+      "path": "tests/workflows/test_ci_report_job.py",
+      "before_raw_sha256": "951866f74e9ee75e8c66599e7ba99ec63ee139c5f2d03ecc3018d4d85824afae",
+      "after_raw_sha256": "575b47df064e835deb3b21ccfe3ffa4cb8f1cbf35550a4e78706bc0d66dca85c"
+    },
+    {
+      "path": "tests/workflows/test_copilot_usage_monitor_workflow.py",
+      "before_raw_sha256": "0ac0d7089513f5a64af4148b207e7aa8f6eea2d4806254d176dd986f7e53c0e4",
+      "after_raw_sha256": "c2bdc1c784d5af1b9436fa99d311562612beb0c80befe7544c689b9e820d6075"
+    },
+    {
+      "path": "tests/workflows/test_cursor_usage_monitor_workflow.py",
+      "before_raw_sha256": "d2632f2d5a3c4db81c085f189e7f3feaf367ed8b743b228c88edeec30bc2f5c3",
+      "after_raw_sha256": "29957d642fdd7ecad7ed9cfb8bb6740360ec59e11d2940dddf663aad6d616517"
+    },
+    {
+      "path": "tests/workflows/test_presentify_extractor_workflow.py",
+      "before_raw_sha256": "9f1b0735cd3f285845fb57051c57f756e1c2423e674a64e4d41086d4fa5741d3",
+      "after_raw_sha256": "8ee304e52dc19b384ad544d12f6d519621cf3c0e842f04d6549efa37c86e18fd"
+    },
+    {
+      "path": "tests/workflows/test_workflow_policy_repo_wide.py",
+      "before_raw_sha256": "b929ecdfd227d943a4d53b568608c57099d867581ef14c5b896633857f1226b8",
+      "after_raw_sha256": "a0124c57995e259b9dcc5a525608f86c045177661e53a2e74db80e2e28f1061f"
+    }
+  ],
+  "qualification": {
+    "ci_contracts_passed": 347,
+    "ci_contracts_skipped": 19,
+    "ci_package_coverage_percent": 88,
+    "helper_coverage_percent": 81,
+    "native_windows_core_seconds": 335.5,
+    "native_registry_seconds": 91.0,
+    "native_workspace_seconds": 12.0,
+    "full_final_tree_ci": "pending after approval",
+    "remote_ci": "not started",
+    "paid_model_api_calls": 0,
+    "ci_contracts_seconds": 56.65,
+    "fast_profiles": {
+      "candidate": {
+        "passed": 17,
+        "duration_s": 120.31299999999464
+      },
+      "source": {
+        "passed": 17,
+        "duration_s": 120.40599999998813
+      }
+    },
+    "host_package_precondition": "Node and npm both required on child PATH before archive or installer; negative controls pass",
+    "independent_recheck": "missing Node/npm finding corrected at revision 2 helper hash",
+    "source_installer_ps_raw_sha256": "4346dc2678bdf3a1a72e0b9fc79a12d160ee7f22a7589d3b0185f93368ebd41f"
+  },
+  "application": "Check native approval, every before hash and edit guard. Apply only this patch, then verify every after hash. Draft files with a historical UTF-8 BOM are not the canonical approved bytes; patch and after hashes are authoritative.",
+  "revision": 2,
+  "supersedes": "private approval-package revision 1; never applied",
+  "helper_sha256": "f91a7cbfb018ed8d84f547b253f0be9779590069028c293fe9aaaeea2e4eda34"
+}

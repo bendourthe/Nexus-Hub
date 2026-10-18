@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `/presentify --flyover <url>` renders a live landing page as a 14.5-second 3D fly-over film (1440x1152, 60fps, H.264): one continuous camera glides down the page, rises to show it whole, and dives into the hero, which lands as a card under the user's two-line title. `references/landing-flyover.md` owns the route and keeps the user's original brief as its canonical spec, with the role mapping for pages that lack its photos or testimonial and the adaptations found on the first production run. The capture uses reduced motion so diagrams render their final frame; the render is loopback-only on the real GPU, detects the browser and ffmpeg instead of downloading them, and stops for approval of seven review stills before the final render. A homography optical-flow gate fails a dip in the glide or a zoom-in, `verify` checks every review frame against its approved still and the BT.709 tags, and `flyover_audio.py` lands a track's gap-then-hit on the card landing at about -14 LUFS. The film is the one presentify output that is not an HTML file; the single-file contract still binds every HTML output.
+
 ### Fixed
 
 - Both Claude installers record the core values they actually seed, including a fresh template copy, and upgrade only matching recorded seeds. Recorded legacy effort env overrides are retired; unrecorded or changed values remain untouched. Removed recorded keys stay removed. `nexus-hub doctor` now reaches the shared read-only effort diagnostic through the command launcher and both native preflights. A user choice equal to the last seed is indistinguishable and may upgrade; choose a different saved per-model level to retain it.

@@ -1,0 +1,33 @@
+{
+  "checked_utc": "2026-10-17T03:02:42.107785+00:00",
+  "branches": {
+    "main": {
+      "required": [
+        "ci-required",
+        "validate",
+        "shellcheck",
+        "colocation",
+        "verify"
+      ],
+      "strict": true,
+      "admins": true,
+      "force_push": false,
+      "deletions": false
+    },
+    "develop": {
+      "required": [
+        "ci-required",
+        "validate",
+        "shellcheck",
+        "colocation",
+        "verify"
+      ],
+      "strict": true,
+      "admins": true,
+      "force_push": false,
+      "deletions": false
+    }
+  },
+  "mutation": false,
+  "limits": "Merge queue, billing and fork-approval UI are not claimed inspected. The runbook documents these human-owned controls."
+}

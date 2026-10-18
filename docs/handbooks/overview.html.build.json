@@ -5,10 +5,10 @@
     "assets/dual-view.css": "e60e94cd26d4ba622ede429d9c7862a82dea491ac1b174bd86023ac5e5245c35",
     "assets/theme.json": "46a8d331bb277f1d6049da735f3ae5adf8ac60cfd81968685e3d3cc2ae321604",
     "scripts/build_presentation.py": "55a10ebfa2412b48243ae72ca70180f12aa80cc7f89d66cad0911d275bb9ce50",
-    "scripts/dual_view.py": "cb97c1c53dd4560f3a59b9cc08d54223c4e0d49c2373bed3c20b5430607053a2"
+    "scripts/dual_view.py": "26eea3abc03a35319cff431979b19848f14fc469c5a3b5ac0f6264e77da0a894"
   },
   "output": "docs/handbooks/overview.html",
-  "output_sha256": "ac060fa24a632be7c0082cb73e3067abd8dec61bf13c739a8db62d001867479b",
+  "output_sha256": "b5c39c8adebebcd8f8ef03016c6a301aaebcab8e15a259838d12a0243a8f671f",
   "schema_version": 1,
   "sources": {
     "docs/handbooks/_sources/overview/authoring-composition.html": "e38964521614c8c0317a63d2890685e2ffed10ef2625e6d181bf994db6a4ec6c",

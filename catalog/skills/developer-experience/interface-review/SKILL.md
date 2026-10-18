@@ -116,8 +116,6 @@ List real candidates you inspected and chose not to report, with the reason (own
 
 ## Verification
 
-- [ ] After adapting the referenced configuration in the consuming project, run `npm exec --no -- stylelint --config .stylelintrc.design-system.json "src/**/*.css" --max-warnings 0`; record the exit code, files covered, and a rejected-then-fixed fixture as described in the reference.
-
 - Checks that ran: ...
 - Checks not verified: ... (missing delegate, no computed styles, no browser)
 
@@ -139,6 +137,8 @@ Overflow beyond the cap goes to a ranked appendix, never deleted, never mixed in
 | "They said review the button, so I will still walk all six domains." | Single-domain request: load the owner, not this coordinator. |
 
 ## Verification
+
+- [ ] After adapting the referenced configuration in the consuming project, run `npm exec --no -- stylelint --config .stylelintrc.design-system.json "src/**/*.css" --max-warnings 0`; record the exit code, files covered, and a rejected-then-fixed fixture as described in the reference.
 
 - [ ] Scope and mode appear at the top of the report.
 - [ ] Delegates were walked in the order above, or a skip is recorded as not reviewed by name.

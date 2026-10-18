@@ -481,10 +481,57 @@ function Write-JsonFile {
     param(
         [Parameter(Mandatory = $true)][string]$Path,
         [Parameter(Mandatory = $true)]$Object,
-        [int]$Depth = 10
+        [int]$Depth = 100
     )
     $json = $Object | ConvertTo-Json -Depth $Depth
     [System.IO.File]::WriteAllText($Path, $json, (New-Object System.Text.UTF8Encoding($false)))
+}
+
+
+function Read-JsonDocument {
+    param([string]$Path)
+    $raw = [IO.File]::ReadAllText($Path, [Text.Encoding]::UTF8)
+    if ($PSVersionTable.PSVersion.Major -ge 6) {
+        if ((Get-Command ConvertFrom-Json).Parameters.ContainsKey('DateKind')) {
+            return ,(ConvertFrom-Json -InputObject $raw -AsHashtable -NoEnumerate -Depth 100 -DateKind String)
+        }
+        # Older Core shells have no DateKind switch. Use their bundled parser
+        # without date inference, preserving exact property names and array shape.
+        function Convert-JsonTokenValue {
+            param($Token)
+            if ($Token -is [Newtonsoft.Json.Linq.JObject]) {
+                $value = [Collections.Specialized.OrderedDictionary]::new([StringComparer]::Ordinal)
+                foreach ($property in $Token.Properties()) { $value[$property.get_Name()] = Convert-JsonTokenValue ($property.get_Value()) }
+                return ,$value
+            }
+            if ($Token -is [Newtonsoft.Json.Linq.JArray]) {
+                $value = [Collections.Generic.List[object]]::new()
+                foreach ($child in $Token.Children()) { $value.Add((Convert-JsonTokenValue $child)) }
+                return ,($value.ToArray())
+            }
+            return ,($Token.get_Value())
+        }
+        $reader = [Newtonsoft.Json.JsonTextReader]::new([IO.StringReader]::new($raw))
+        $reader.DateParseHandling = [Newtonsoft.Json.DateParseHandling]::None
+        $reader.MaxDepth = 100
+        try {
+            $token = [Newtonsoft.Json.Linq.JToken]::ReadFrom($reader)
+            if ($reader.Read()) { throw 'unexpected content after JSON document' }
+            return ,(Convert-JsonTokenValue $token)
+        } finally { $reader.Close() }
+    }
+    # JavaScriptSerializer recognizes escaped Microsoft date strings. Normalize
+    # only actual JSON slash escapes so opaque string values remain strings.
+    $raw = [regex]::Replace($raw, '(?<!\\)\\+/', {
+        param($match)
+        if (($match.Length - 1) % 2 -eq 1) { return $match.Value.Substring(1) }
+        return $match.Value
+    })
+    Add-Type -AssemblyName System.Web.Extensions
+    $reader = New-Object System.Web.Script.Serialization.JavaScriptSerializer
+    $reader.MaxJsonLength = [int]::MaxValue
+    $reader.RecursionLimit = 100
+    return ,($reader.DeserializeObject($raw))
 }
 
 # Copy a single managed file with conflict-only overwrite semantics (v3.7.0 /
@@ -727,7 +774,7 @@ function Convert-ClaudeHookCommandsForWindows {
         [string]$Scope
     )
 
-    if (-not (Test-Path $SettingsFile)) { return }
+    if (-not (Test-Path -LiteralPath $SettingsFile)) { return }
     $python = Resolve-PythonExecutable
     if (-not $python) { throw "Python is required to migrate Claude hook commands for Cursor compatibility" }
     $compat = Join-Path $RepoRoot "catalog\hooks\cursor-hook-compat.py"
@@ -755,86 +802,62 @@ function Install-ClaudeHookFiles {
 
 function Get-ManagedHookStem {
     param([object]$Hook)
-
-    if ($null -eq $Hook) { return "" }
-    $commandProperty = $Hook.PSObject.Properties["command"]
-    if (-not $commandProperty -or -not $commandProperty.Value) { return "" }
-    $matches = [regex]::Matches(
-        [string]$commandProperty.Value,
-        '(?<stem>[A-Za-z0-9_-]+)\.(?:sh|ps1|py)'
-    )
-    if ($matches.Count -gt 0) {
-        return $matches[$matches.Count - 1].Groups["stem"].Value
-    }
-    return [string]$commandProperty.Value
+    if ($null -eq $Hook) { return '' }
+    $command = if ($Hook -is [Collections.IDictionary]) { $Hook['command'] } else { $Hook.command }
+    if (-not $command) { return '' }
+    $matches = [regex]::Matches([string]$command, '(?<stem>[A-Za-z0-9_-]+)\.(?:sh|ps1|py)')
+    if ($matches.Count -gt 0) { return $matches[$matches.Count - 1].Groups['stem'].Value }
+    return [string]$command
 }
 
 function Merge-ManagedClaudeHooks {
     param(
-        [Parameter(Mandatory = $true)][object]$ExistingJson,
-        [Parameter(Mandatory = $true)][object]$TemplateJson
+        [Parameter(Mandatory = $true)][Collections.IDictionary]$ExistingJson,
+        [Parameter(Mandatory = $true)][Collections.IDictionary]$TemplateJson
     )
+    $hooksSlot = @($ExistingJson.GetEnumerator() | Where-Object { $_.Key -ceq 'hooks' })
+    if ($hooksSlot.Count -eq 0 -or $null -eq $existingJson['hooks']) {
+        $ExistingJson['hooks'] = [Collections.Specialized.OrderedDictionary]::new([StringComparer]::Ordinal)
+    } elseif ($ExistingJson['hooks'] -isnot [Collections.IDictionary]) { throw 'existing hooks must be an object' }
 
-    $hooksProperty = $ExistingJson.PSObject.Properties["hooks"]
-    if (-not $hooksProperty) {
-        $ExistingJson | Add-Member -NotePropertyName "hooks" -NotePropertyValue ([pscustomobject]@{})
-    }
-    elseif ($null -eq $hooksProperty.Value -or -not ($hooksProperty.Value -is [pscustomobject])) {
-        $hooksProperty.Value = [pscustomobject]@{}
-    }
-
-    foreach ($eventProperty in $TemplateJson.hooks.PSObject.Properties) {
-        $eventName = $eventProperty.Name
-        $existingEventProperty = $ExistingJson.hooks.PSObject.Properties[$eventName]
-        if (-not $existingEventProperty) {
-            $ExistingJson.hooks | Add-Member -NotePropertyName $eventName -NotePropertyValue @($eventProperty.Value)
+    foreach ($event in $TemplateJson['hooks'].GetEnumerator()) {
+        $eventName = [string]$event.Key
+        $eventSlot = @($ExistingJson['hooks'].GetEnumerator() | Where-Object { $_.Key -ceq $eventName })
+        if ($eventSlot.Count -eq 0) {
+            $ExistingJson['hooks'][$eventName] = @($event.Value)
             continue
         }
-
-        $existingEntries = @($existingEventProperty.Value)
-        foreach ($templateEntry in @($eventProperty.Value)) {
-            $templateMatcherProperty = $templateEntry.PSObject.Properties["matcher"]
-            $templateMatcher = if ($templateMatcherProperty) { [string]$templateMatcherProperty.Value } else { "" }
-            foreach ($templateHook in @($templateEntry.hooks)) {
-                $templateTypeProperty = $templateHook.PSObject.Properties["type"]
-                $templateType = if ($templateTypeProperty) { [string]$templateTypeProperty.Value } else { "" }
+        if ($ExistingJson['hooks'][$eventName] -isnot [array]) { throw 'existing hook events must be arrays' }
+        $existingEntries = @($ExistingJson['hooks'][$eventName])
+        foreach ($templateEntry in @($event.Value)) {
+            $templateMatcher = [string]$templateEntry['matcher']
+            foreach ($templateHook in @($templateEntry['hooks'])) {
+                $templateType = [string]$templateHook['type']
                 $templateStem = Get-ManagedHookStem -Hook $templateHook
                 $alreadyInstalled = $false
-
                 foreach ($existingEntry in $existingEntries) {
-                    $existingMatcherProperty = $existingEntry.PSObject.Properties["matcher"]
-                    $existingMatcher = if ($existingMatcherProperty) { [string]$existingMatcherProperty.Value } else { "" }
-                    if ($existingMatcher -ne $templateMatcher) { continue }
-                    foreach ($existingHook in @($existingEntry.hooks)) {
-                        $existingTypeProperty = $existingHook.PSObject.Properties["type"]
-                        $existingType = if ($existingTypeProperty) { [string]$existingTypeProperty.Value } else { "" }
-                        if (
-                            $existingType -eq $templateType -and
-                            (Get-ManagedHookStem -Hook $existingHook) -eq $templateStem
-                        ) {
+                    if ([string]$existingEntry['matcher'] -ne $templateMatcher) { continue }
+                    foreach ($existingHook in @($existingEntry['hooks'])) {
+                        if ([string]$existingHook['type'] -eq $templateType -and (Get-ManagedHookStem -Hook $existingHook) -eq $templateStem) {
                             $alreadyInstalled = $true
                             break
                         }
                     }
                     if ($alreadyInstalled) { break }
                 }
-
                 if (-not $alreadyInstalled) {
-                    $newEntry = [ordered]@{}
-                    foreach ($property in $templateEntry.PSObject.Properties) {
-                        if ($property.Name -ne "hooks") {
-                            $newEntry[$property.Name] = $property.Value
-                        }
+                    $newEntry = [Collections.Specialized.OrderedDictionary]::new([StringComparer]::Ordinal)
+                    foreach ($property in $templateEntry.GetEnumerator()) {
+                        if ($property.Key -cne 'hooks') { $newEntry[$property.Key] = $property.Value }
                     }
-                    $newEntry["hooks"] = @($templateHook)
-                    $existingEntries += [pscustomobject]$newEntry
+                    $newEntry['hooks'] = @($templateHook)
+                    $existingEntries += ,$newEntry
                 }
             }
         }
-        $existingEventProperty.Value = $existingEntries
+        $ExistingJson['hooks'][$eventName] = $existingEntries
     }
-
-    return $ExistingJson
+    return ,$ExistingJson
 }
 
 function Install-GitGuardrails {
@@ -870,19 +893,12 @@ function Install-GitGuardrails {
         return
     }
 
-    $templateRaw = Get-Content -LiteralPath $templateFile -Raw -Encoding UTF8
-
-    # Global scope uses ~/.claude/ paths. The parsed template is then converted to
-    # PowerShell commands so Cursor and Claude never need Bash on Windows.
-    if ($Scope -eq "Global") {
-        $templateRaw = $templateRaw -replace '(?<![~/.])\.claude/hooks/', '~/.claude/hooks/'
-    }
-
-    $templateJson = $templateRaw | ConvertFrom-Json
+    $templateJson = Read-JsonDocument $templateFile
 
     if (Test-Path -LiteralPath $settingsFile) {
         try {
-            $existingJson = Get-Content -LiteralPath $settingsFile -Raw -Encoding UTF8 | ConvertFrom-Json
+            $existingJson = Read-JsonDocument $settingsFile
+        if ($existingJson -isnot [Collections.IDictionary]) { throw 'settings root must be an object' }
             $existingJson = Merge-ManagedClaudeHooks -ExistingJson $existingJson -TemplateJson $templateJson
             Write-JsonFile -Path $settingsFile -Object $existingJson
             Convert-ClaudeHookCommandsForWindows -SettingsFile $settingsFile -RepoRoot $RepoRoot -Scope $Scope
@@ -930,24 +946,21 @@ function Install-UsageDisplay {
         return
     }
 
-    $templateRaw = Get-Content -LiteralPath $templateFile -Raw -Encoding UTF8
-
-    # Global scope uses ~/.claude/ paths; convert the parsed hook commands below.
-    if ($Scope -eq "Global") {
-        $templateRaw = $templateRaw -replace '(?<![~/.])\.claude/hooks/', '~/.claude/hooks/'
-    }
-
-    $templateJson = $templateRaw | ConvertFrom-Json
+    $templateJson = Read-JsonDocument $templateFile
 
     try {
-        $existingJson = Get-Content -LiteralPath $settingsFile -Raw -Encoding UTF8 | ConvertFrom-Json
+        $existingJson = Read-JsonDocument $settingsFile
+        if ($existingJson -isnot [Collections.IDictionary]) { throw 'settings root must be an object' }
+        $hooksSlot = @($existingJson.GetEnumerator() | Where-Object { $_.Key -ceq 'hooks' })
+        if ($hooksSlot.Count -eq 0 -or $null -eq $existingJson['hooks']) { $existingJson['hooks'] = [Collections.Specialized.OrderedDictionary]::new([StringComparer]::Ordinal) }
+        elseif ($existingJson['hooks'] -isnot [Collections.IDictionary]) { throw 'existing hooks must be an object' }
 
         # Check if usage-display already installed
         $alreadyInstalled = $false
-        if ($existingJson.hooks -and $existingJson.hooks.Stop) {
-            foreach ($hookEntry in $existingJson.hooks.Stop) {
-                foreach ($h in $hookEntry.hooks) {
-                    if ($h.command -and $h.command -like "*usage-display*") {
+        if ($existingJson['hooks'] -and $existingJson['hooks']['Stop']) {
+            foreach ($hookEntry in $existingJson['hooks']['Stop']) {
+                foreach ($h in $hookEntry['hooks']) {
+                    if ($h['command'] -and $h['command'] -like "*usage-display*") {
                         $alreadyInstalled = $true
                         break
                     }
@@ -960,18 +973,18 @@ function Install-UsageDisplay {
         }
         else {
             # Add hooks key if missing
-            if (-not $existingJson.hooks) {
-                $existingJson | Add-Member -NotePropertyName "hooks" -NotePropertyValue ([PSCustomObject]@{ Stop = $templateJson.hooks.Stop })
+            if (-not $existingJson['hooks']) {
+                $existingJson['hooks']['Stop'] = $templateJson['hooks']['Stop']
             }
             else {
-                if (-not $existingJson.hooks.Stop) {
-                    $existingJson.hooks | Add-Member -NotePropertyName "Stop" -NotePropertyValue $templateJson.hooks.Stop -Force
+                if (-not $existingJson['hooks']['Stop']) {
+                    $existingJson['hooks']['Stop'] = $templateJson['hooks']['Stop']
                 }
                 else {
                     # Append our hook entry to existing Stop array
-                    $existingArray = @($existingJson.hooks.Stop)
-                    $existingArray += $templateJson.hooks.Stop
-                    $existingJson.hooks.Stop = $existingArray
+                    $existingArray = @($existingJson['hooks']['Stop'])
+                    $existingArray += $templateJson['hooks']['Stop']
+                    $existingJson['hooks']['Stop'] = $existingArray
                 }
             }
 
@@ -1010,20 +1023,24 @@ function Install-RequireDescription {
     }
 
     try {
-        $existingJson = Get-Content -LiteralPath $settingsFile -Raw -Encoding UTF8 | ConvertFrom-Json
+        $existingJson = Read-JsonDocument $settingsFile
+        if ($existingJson -isnot [Collections.IDictionary]) { throw 'settings root must be an object' }
+        $hooksSlot = @($existingJson.GetEnumerator() | Where-Object { $_.Key -ceq 'hooks' })
+        if ($hooksSlot.Count -eq 0 -or $null -eq $existingJson['hooks']) { $existingJson['hooks'] = [Collections.Specialized.OrderedDictionary]::new([StringComparer]::Ordinal) }
+        elseif ($existingJson['hooks'] -isnot [Collections.IDictionary]) { throw 'existing hooks must be an object' }
 
         # Check Bash and PowerShell hooks separately so that an existing
         # install with only the Bash hook still picks up the PowerShell pair.
         $bashInstalled = $false
         $powershellInstalled = $false
-        if ($existingJson.hooks -and $existingJson.hooks.PreToolUse) {
-            foreach ($hookEntry in $existingJson.hooks.PreToolUse) {
-                foreach ($h in $hookEntry.hooks) {
-                    if ($h.command) {
-                        if ($h.command -like "*require-powershell-description*") {
+        if ($existingJson['hooks'] -and $existingJson['hooks']['PreToolUse']) {
+            foreach ($hookEntry in $existingJson['hooks']['PreToolUse']) {
+                foreach ($h in $hookEntry['hooks']) {
+                    if ($h['command']) {
+                        if ($h['command'] -like "*require-powershell-description*") {
                             $powershellInstalled = $true
                         }
-                        elseif ($h.command -like "*require-description*") {
+                        elseif ($h['command'] -like "*require-description*") {
                             $bashInstalled = $true
                         }
                     }
@@ -1074,17 +1091,17 @@ function Install-RequireDescription {
         }
 
         if ($entriesToAdd.Count -gt 0) {
-            if (-not $existingJson.hooks) {
-                $existingJson | Add-Member -NotePropertyName "hooks" -NotePropertyValue ([PSCustomObject]@{ PreToolUse = @($entriesToAdd) })
+            if (-not $existingJson['hooks']) {
+                $existingJson['hooks']['PreToolUse'] = @($entriesToAdd)
             }
             else {
-                if (-not $existingJson.hooks.PreToolUse) {
-                    $existingJson.hooks | Add-Member -NotePropertyName "PreToolUse" -NotePropertyValue @($entriesToAdd) -Force
+                if (-not $existingJson['hooks']['PreToolUse']) {
+                    $existingJson['hooks']['PreToolUse'] = @($entriesToAdd)
                 }
                 else {
-                    $existingArray = @($existingJson.hooks.PreToolUse)
+                    $existingArray = @($existingJson['hooks']['PreToolUse'])
                     $existingArray += $entriesToAdd
-                    $existingJson.hooks.PreToolUse = $existingArray
+                    $existingJson['hooks']['PreToolUse'] = $existingArray
                 }
             }
 
@@ -1108,12 +1125,14 @@ function Install-CoreSettings {
         Write-Item -Message "Skip: settings.json not found, will be created by hook installer" -Color "DarkGray"
         return
     }
+    # JSON key names are case-sensitive; PSCustomObject members are not.
+    function New-CoreObject { return ,([Collections.Specialized.OrderedDictionary]::new([StringComparer]::Ordinal)) }
     function Get-CoreSlot {
         param($Document, [string]$Key)
         $node = $Document
         foreach ($part in $Key.Split('.')) {
-            if ($node -isnot [System.Management.Automation.PSCustomObject]) { return [pscustomobject]@{ Present=$false; Value=$null } }
-            $property = @($node.PSObject.Properties | Where-Object { $_.Name -ceq $part })
+            if ($node -isnot [Collections.IDictionary]) { return [pscustomobject]@{ Present=$false; Value=$null } }
+            $property = @($node.GetEnumerator() | Where-Object { $_.Key -ceq $part })
             if ($property.Count -eq 0) { return [pscustomobject]@{ Present=$false; Value=$null } }
             $node = $property[0].Value
         }
@@ -1126,16 +1145,15 @@ function Install-CoreSettings {
             $slot = Get-CoreSlot $node $parts[$i]
             if (-not $slot.Present) {
                 if ($Remove) { return $false }
-                $node | Add-Member -NotePropertyName $parts[$i] -NotePropertyValue ([pscustomobject]@{})
+                $node[$parts[$i]] = New-CoreObject
                 $slot = Get-CoreSlot $node $parts[$i]
             }
-            if ($slot.Value -isnot [System.Management.Automation.PSCustomObject]) { return $false }
+            if ($slot.Value -isnot [Collections.IDictionary]) { return $false }
             $node = $slot.Value
         }
         $last = $parts[-1]; $slot = Get-CoreSlot $node $last
-        if ($Remove) { if ($slot.Present) { $node.PSObject.Properties.Remove($last) }; return $true }
-        if ($slot.Present) { $node.PSObject.Properties[$last].Value = $Value }
-        else { $node | Add-Member -NotePropertyName $last -NotePropertyValue $Value }
+        if ($Remove) { if ($slot.Present) { [void]$node.Remove($last) }; return $true }
+        $node[$last] = $Value
         return $true
     }
     function Test-CoreEqual {
@@ -1143,31 +1161,37 @@ function Install-CoreSettings {
         return (($Left | ConvertTo-Json -Depth 100 -Compress) -ceq ($Right | ConvertTo-Json -Depth 100 -Compress))
     }
     try {
-        $existingJson = Get-Content -LiteralPath $settingsFile -Raw -Encoding UTF8 | ConvertFrom-Json
-        $templateJson = Get-Content -LiteralPath $templateFile -Raw -Encoding UTF8 | ConvertFrom-Json
-        if ($existingJson -isnot [System.Management.Automation.PSCustomObject]) {
+        $existingJson = Read-JsonDocument $settingsFile
+        $templateJson = Read-JsonDocument $templateFile
+        if ($existingJson -isnot [Collections.IDictionary]) {
             Write-Warning "existing settings are not a valid object; preserving settings.json"
+            return
+        }
+        if ($templateJson -isnot [Collections.IDictionary]) {
+            Write-Warning "core settings template is not a valid object; preserving settings.json"
             return
         }
         $before = $existingJson | ConvertTo-Json -Depth 100 -Compress
         $envSlot = Get-CoreSlot $existingJson 'env'
-        if ($envSlot.Present -and $envSlot.Value -isnot [System.Management.Automation.PSCustomObject]) {
+        if ($envSlot.Present -and $envSlot.Value -isnot [Collections.IDictionary]) {
             Write-Warning "existing env is not an object; preserving it and skipping template env defaults"
         }
         $targetDirectory = [IO.Path]::GetFullPath($TargetClaudeDir).TrimEnd([char[]]'\/')
         $targetName = [IO.Path]::GetFileName($targetDirectory) + '/settings.json'
         $recordDirectory = Join-Path ([IO.Path]::GetDirectoryName($targetDirectory)) '.nexus-hub'
         $recordFile = Join-Path $recordDirectory 'core-settings-seeds.json'
-        $seedRecord = [pscustomobject]@{ schema_version=1; target=$targetName; values=[pscustomobject]@{}; removed=@() }
+        $seedRecord = New-CoreObject
+        $seedRecord['schema_version'] = 1; $seedRecord['target'] = $targetName
+        $seedRecord['values'] = New-CoreObject; $seedRecord['removed'] = @()
         $canRecord = $true; $recordExisted = Test-Path -LiteralPath $recordFile
         if ($recordExisted) {
             try {
                 if ((Get-Item -LiteralPath $recordFile -Force).Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'linked record' }
-                $loaded = Get-Content -LiteralPath $recordFile -Raw -Encoding UTF8 | ConvertFrom-Json
+                $loaded = Read-JsonDocument $recordFile
                 $version = Get-CoreSlot $loaded 'schema_version'; $target = Get-CoreSlot $loaded 'target'
                 $values = Get-CoreSlot $loaded 'values'; $removedSlot = Get-CoreSlot $loaded 'removed'
                 $number = $version.Value -is [int] -or $version.Value -is [long] -or $version.Value -is [double]
-                if (-not $number -or $version.Value -ne 1 -or $target.Value -cne $targetName -or $values.Value -isnot [System.Management.Automation.PSCustomObject]) { throw 'invalid record' }
+                if (-not $number -or $version.Value -ne 1 -or $target.Value -cne $targetName -or $values.Value -isnot [Collections.IDictionary]) { throw 'invalid record' }
                 if ($removedSlot.Present -and ($removedSlot.Value -isnot [array] -or @($removedSlot.Value | Where-Object { $_ -isnot [string] }).Count)) { throw 'invalid removals' }
                 $seedRecord = $loaded
             } catch {
@@ -1177,7 +1201,7 @@ function Install-CoreSettings {
         }
         $recordBefore = $seedRecord | ConvertTo-Json -Depth 100 -Compress
         $owned = [Collections.Specialized.OrderedDictionary]::new([StringComparer]::Ordinal)
-        foreach ($property in $seedRecord.values.PSObject.Properties) { $owned[$property.Name] = $property.Value }
+        foreach ($property in $seedRecord['values'].GetEnumerator()) { $owned[$property.Key] = $property.Value }
         $removed = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
         $removedSlot = Get-CoreSlot $seedRecord 'removed'
         if ($removedSlot.Present) { foreach ($key in $removedSlot.Value) { [void]$removed.Add($key) } }
@@ -1187,13 +1211,13 @@ function Install-CoreSettings {
             $slot = Get-CoreSlot $templateJson $key
             if ($slot.Present) { $desired[$key] = $slot.Value }
         }
-        if ($templateJson.env -is [System.Management.Automation.PSCustomObject]) {
-            foreach ($property in $templateJson.env.PSObject.Properties) { $desired['env.'+$property.Name] = $property.Value }
+        if ($templateJson['env'] -is [Collections.IDictionary]) {
+            foreach ($property in $templateJson['env'].GetEnumerator()) { $desired['env.'+$property.Key] = $property.Value }
         }
-        if ($templateJson.modelSettings -is [System.Management.Automation.PSCustomObject]) {
-            foreach ($model in $templateJson.modelSettings.PSObject.Properties) {
-                if ($model.Value -is [System.Management.Automation.PSCustomObject]) {
-                    foreach ($property in $model.Value.PSObject.Properties) { $desired['modelSettings.'+$model.Name+'.'+$property.Name] = $property.Value }
+        if ($templateJson['modelSettings'] -is [Collections.IDictionary]) {
+            foreach ($model in $templateJson['modelSettings'].GetEnumerator()) {
+                if ($model.Value -is [Collections.IDictionary]) {
+                    foreach ($property in $model.Value.GetEnumerator()) { $desired['modelSettings.'+$model.Key+'.'+$property.Key] = $property.Value }
                 }
             }
         }
@@ -1201,7 +1225,7 @@ function Install-CoreSettings {
         $userScalar = $scalar.Present -and -not ($owned.Contains('effortLevel') -and (Test-CoreEqual $scalar.Value $owned['effortLevel']))
         $userEnv = $effortEnv.Present -and -not ($owned.Contains('env.CLAUDE_CODE_EFFORT_LEVEL') -and (Test-CoreEqual $effortEnv.Value $owned['env.CLAUDE_CODE_EFFORT_LEVEL']))
         $userPair = $userScalar -or $userEnv
-        $userAlternative = ($userScalar -and -not (Test-CoreEqual $scalar.Value $templateJson.effortLevel)) -or $userEnv
+        $userAlternative = ($userScalar -and -not (Test-CoreEqual $scalar.Value $templateJson['effortLevel'])) -or $userEnv
         if (-not $desired.Contains('env.CLAUDE_CODE_EFFORT_LEVEL')) {
             if ($effortEnv.Present -and $owned.Contains('env.CLAUDE_CODE_EFFORT_LEVEL') -and (Test-CoreEqual $effortEnv.Value $owned['env.CLAUDE_CODE_EFFORT_LEVEL'])) {
                 [void](Set-CoreValue $existingJson 'env.CLAUDE_CODE_EFFORT_LEVEL' $null -Remove)
@@ -1233,9 +1257,8 @@ function Install-CoreSettings {
             Write-JsonFile -Path $settingsFile -Object $existingJson
             Write-Item -Message "[OK] $Scope settings.json seeded absent core settings or upgraded recorded seeds; user-owned values preserved" -Color 'DarkGreen'
         } else { Write-Item -Message "[OK] Core settings already present; existing values preserved" -Color 'DarkGreen' }
-        if ($seedRecord.PSObject.Properties['removed']) { $seedRecord.removed = @($removed | Sort-Object -CaseSensitive) }
-        else { $seedRecord | Add-Member -NotePropertyName removed -NotePropertyValue @($removed | Sort-Object -CaseSensitive) }
-        $seedRecord.values = $owned
+        $seedRecord['removed'] = @($removed | Sort-Object -CaseSensitive)
+        $seedRecord['values'] = $owned
         $recordAfter = $seedRecord | ConvertTo-Json -Depth 100 -Compress
     } catch {
         Write-Warning "Could not set core settings; check settings.json"
@@ -1329,35 +1352,46 @@ function Merge-StrictPermissions {
         [string]$Scope
     )
 
-    if (-not (Test-Path $OverlayFile)) {
+    if (-not (Test-Path -LiteralPath $OverlayFile)) {
         Write-Item -Message "Skip: strict permissions overlay not found" -Color "DarkGray"
         return
     }
-    if (-not (Test-Path $SettingsFile)) {
+    if (-not (Test-Path -LiteralPath $SettingsFile)) {
         Write-Item -Message "Skip: settings.json not present, cannot apply the strict overlay" -Color "DarkGray"
         return
     }
 
     try {
-        $overlay = Get-Content $OverlayFile -Raw | ConvertFrom-Json
-        $existing = Get-Content $SettingsFile -Raw | ConvertFrom-Json
+        $overlay = Read-JsonDocument $OverlayFile
+        $existing = Read-JsonDocument $SettingsFile
+        if ($existing -isnot [Collections.IDictionary] -or $overlay -isnot [Collections.IDictionary]) { throw 'settings and overlay roots must be objects' }
+        $overlaySlot = @($overlay.GetEnumerator() | Where-Object { $_.Key -ceq 'permissions' })
+        if ($overlaySlot.Count -eq 0 -or $overlay['permissions'] -isnot [Collections.IDictionary]) { throw 'overlay permissions must be an object' }
+        $permissionSlot = @($existing.GetEnumerator() | Where-Object { $_.Key -ceq 'permissions' })
+        if ($permissionSlot.Count -eq 0) {
+            $existing['permissions'] = [Collections.Specialized.OrderedDictionary]::new([StringComparer]::Ordinal)
+        } elseif ($existing['permissions'] -isnot [Collections.IDictionary]) { throw 'existing permissions must be an object' }
 
-        if (-not $existing.permissions) {
-            $existing | Add-Member -NotePropertyName "permissions" -NotePropertyValue ([PSCustomObject]@{})
-        }
-
+        $permissions = $existing['permissions']
         $added = 0
         foreach ($key in @("deny", "ask")) {
-            $overlayEntries = @($overlay.permissions.$key)
+            $overlayKey = @($overlay['permissions'].GetEnumerator() | Where-Object { $_.Key -ceq $key })
+            if ($overlayKey.Count -eq 0) { continue }
+            $overlayValue = $overlay['permissions'][$key]
+            if ($overlayValue -isnot [array] -or @($overlayValue | Where-Object { $_ -isnot [string] }).Count) { throw 'overlay deny/ask entries must be string arrays' }
+            $overlayEntries = @($overlayValue)
             if ($overlayEntries.Count -eq 0) { continue }
 
-            if (-not ($existing.permissions.PSObject.Properties.Name -contains $key)) {
-                $existing.permissions | Add-Member -NotePropertyName $key -NotePropertyValue @()
+            $currentKey = @($permissions.GetEnumerator() | Where-Object { $_.Key -ceq $key })
+            $current = @()
+            if ($currentKey.Count -gt 0) {
+                $currentValue = $permissions[$key]
+                if ($currentValue -isnot [array] -or @($currentValue | Where-Object { $_ -isnot [string] }).Count) { throw 'existing deny/ask entries must be string arrays' }
+                $current = @($currentValue)
             }
-            $current = @($existing.permissions.$key)
             $merged = @($current + $overlayEntries | Select-Object -Unique)
-            $added += ($merged.Count - $current.Count)
-            $existing.permissions.$key = $merged
+            $added += @($merged | Where-Object { $current -cnotcontains $_ }).Count
+            $permissions[$key] = $merged
         }
 
         if ($added -eq 0) {
@@ -1366,7 +1400,7 @@ function Merge-StrictPermissions {
         }
 
         $backupPath = "$SettingsFile.bak.$(Get-Date -Format 'yyyyMMdd-HHmmss')"
-        Copy-Item -Path $SettingsFile -Destination $backupPath -Force
+        Copy-Item -LiteralPath $SettingsFile -Destination $backupPath -Force
         Write-Item -Message "  Backup created: $backupPath" -Color "DarkGray"
 
         Write-JsonFile -Path $SettingsFile -Object $existing
@@ -3375,7 +3409,7 @@ function Install-CliLauncher {
     # is deliberately NOT a check_version_sync surface (never hand-edited).
     $versionFile = Join-Path $nexusHome "VERSION"
     if (-not (Test-Path $nexusHome)) { New-Item -ItemType Directory -Force -Path $nexusHome | Out-Null }
-    Set-Content -Path $versionFile -Value $script:NexusHubVersion -Encoding ascii -NoNewline
+    Set-Content -LiteralPath $versionFile -Value $script:NexusHubVersion -Encoding ascii -NoNewline
     Write-Item -Message "✓ Version marker written: $versionFile ($script:NexusHubVersion)" -Color "DarkGreen"
 
     if (-not (Test-Path $binDest)) { New-Item -ItemType Directory -Force -Path $binDest | Out-Null }
@@ -3551,17 +3585,35 @@ function Install-SkillDiscovery {
     # Check for uv
     $hasUv = $null -ne (Get-Command "uv" -ErrorAction SilentlyContinue)
 
-    if ($hasUv) {
-        Write-Item -Message "  Creating venv with uv..." -Color "White"
-        & uv venv $venvPath 2>$null | Out-Null
-        & uv pip install --python "$venvPath\Scripts\python.exe" -e $mcpServerDest 2>$null | Out-Null
+    # Optional server setup must not abort core installation or register a dead venv.
+    $venvOk = $false
+    try {
+        if ($hasUv) {
+            Write-Item -Message "  Creating venv with uv..." -Color "White"
+            & uv venv $venvPath 2>$null | Out-Null
+            if ($LASTEXITCODE -eq 0) {
+                & uv pip install --python "$venvPath\Scripts\python.exe" -e $mcpServerDest 2>$null | Out-Null
+                $venvOk = $LASTEXITCODE -eq 0
+            }
+        }
+        else {
+            Write-Item -Message "  Creating venv with $pythonCmd..." -Color "White"
+            & $pythonCmd -m venv $venvPath 2>$null | Out-Null
+            $pipExe = Join-Path $venvPath "Scripts\pip.exe"
+            if ($LASTEXITCODE -eq 0 -and (Test-Path -LiteralPath $pipExe -PathType Leaf)) {
+                & $pipExe install -q -e $mcpServerDest 2>$null | Out-Null
+                $venvOk = $LASTEXITCODE -eq 0
+            }
+        }
     }
-    else {
-        Write-Item -Message "  Creating venv with $pythonCmd..." -Color "White"
-        & $pythonCmd -m venv $venvPath 2>$null | Out-Null
-        & "$venvPath\Scripts\pip.exe" install -q -e $mcpServerDest 2>$null | Out-Null
+    catch { $venvOk = $false }
+    finally { $ErrorActionPreference = "Stop" }
+
+    if (-not $venvOk) {
+        Write-Item -Message "  Could not build the MCP server venv; skipping the local MCP servers." -Color "Yellow"
+        Write-Item -Message "  Core installation continues. Check Python venv support and dependency access, then re-run." -Color "Yellow"
+        return
     }
-    $ErrorActionPreference = "Stop"
 
     Write-Item -Message "  MCP server venv created at $venvPath" -Color "DarkGreen"
 
@@ -3571,16 +3623,17 @@ function Install-SkillDiscovery {
 
     if (-not (Test-Path $claudeSettingsDir)) { New-Item -Path $claudeSettingsDir -ItemType Directory -Force | Out-Null }
 
-    # Read existing settings as PSCustomObject (NOT hashtable) to preserve
-    # nested structures like hooks arrays during the round-trip
-    $settings = $null
-    if (Test-Path $claudeSettings) {
-        try { $settings = Get-Content $claudeSettings -Raw -Encoding UTF8 | ConvertFrom-Json }
-        catch { Write-Item -Message "  Warning: Could not parse existing settings.json, merging carefully" -Color "Yellow" }
-    }
-
-    if ($null -eq $settings) {
-        $settings = [PSCustomObject]@{}
+    # Preserve exact JSON keys and never replace an unreadable user document.
+    $settings = [Collections.Specialized.OrderedDictionary]::new([StringComparer]::Ordinal)
+    if (Test-Path -LiteralPath $claudeSettings) {
+        try {
+            $settings = Read-JsonDocument $claudeSettings
+            if ($settings -isnot [Collections.IDictionary]) { throw 'settings must be an object' }
+        }
+        catch {
+            Write-Item -Message "  Could not parse existing settings.json; preserving it and skipping MCP registration." -Color "Yellow"
+            return
+        }
     }
 
     # Install nexus-code-search into the same venv (v1.0.0+).
@@ -3676,8 +3729,12 @@ function Install-SkillDiscovery {
         env     = [PSCustomObject]@{ NEXUS_HUB_ROOT = $nexusHome }
     }
 
-    if (-not $settings.PSObject.Properties["mcpServers"]) {
-        $settings | Add-Member -NotePropertyName "mcpServers" -NotePropertyValue ([PSCustomObject]@{})
+    $serverSlot = @($settings.GetEnumerator() | Where-Object { $_.Key -ceq 'mcpServers' })
+    if ($serverSlot.Count -eq 0) {
+        $settings['mcpServers'] = [Collections.Specialized.OrderedDictionary]::new([StringComparer]::Ordinal)
+    } elseif ($settings['mcpServers'] -isnot [Collections.IDictionary]) {
+        Write-Item -Message "  Existing mcpServers is not an object; preserving settings and skipping MCP registration." -Color "Yellow"
+        return
     }
 
     foreach ($pair in @(
@@ -3688,19 +3745,13 @@ function Install-SkillDiscovery {
     )) {
         $name = $pair.Name
         $entry = $pair.Entry
-        if ($settings.mcpServers.PSObject.Properties[$name]) {
-            $settings.mcpServers.$name = $entry
-        } else {
-            $settings.mcpServers | Add-Member -NotePropertyName $name -NotePropertyValue $entry
-        }
+        $settings['mcpServers'][$name] = $entry
     }
 
     # Remove superseded legacy (devai-hub) MCP entries left by pre-rename installs;
     # they are replaced one-for-one by the nexus-* servers registered above.
     foreach ($legacy in @("devai-skill-server", "devai-code-search", "devai-web-fetch")) {
-        if ($settings.mcpServers.PSObject.Properties[$legacy]) {
-            $settings.mcpServers.PSObject.Properties.Remove($legacy)
-        }
+        [void]$settings['mcpServers'].Remove($legacy)
     }
 
     Write-JsonFile -Path $claudeSettings -Object $settings

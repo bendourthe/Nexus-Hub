@@ -1,0 +1,21 @@
+{
+  "blocker": 2,
+  "native_answer": "ANSWERED blocker 2 minor v4.14",
+  "user_approval": "G5KLMCJ7",
+  "before_strict_sha256": "893af86d12bb214fc947582545654c68a326ce6fe521b78f2b579179535bb453",
+  "after_approved_strict_sha256": "e9476616f4e0572a6fa6d6a5f617a155d34bcf07fd36ef4a7f57a9cedbc1b896",
+  "after_hook_repair_sha256": "9be0ae34d1eb0632af691dab24c8f559c40c99bf5919b4e2950d01793b6fdc9b",
+  "strict_actual_pytest": {
+    "ps51": "41 passed in 22.78s",
+    "ps7": "41 passed in 27.15s"
+  },
+  "hook_candidate_native_cases_per_runtime": 25,
+  "hook_source_scope": [
+    "Convert-ClaudeHookCommandsForWindows",
+    "Install-GitGuardrails",
+    "Install-UsageDisplay",
+    "Install-RequireDescription"
+  ],
+  "full_gate": "not run",
+  "new_gaps": "BG-3 and BG-4 await actual-tree affected/full-gate qualification"
+}

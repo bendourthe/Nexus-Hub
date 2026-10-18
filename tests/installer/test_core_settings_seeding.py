@@ -56,12 +56,9 @@ $fn = $ast.FindAll({
 if (-not $fn) { Write-Error 'Install-CoreSettings not found'; exit 3 }
 Invoke-Expression $fn.Extent.Text
 function Write-Item { param($Message, $Color) Write-Host $Message }
-function Write-JsonFile { param($Path, $Object, [int]$Depth = 100)
-    [System.IO.File]::WriteAllText(
-        $Path,
-        ($Object | ConvertTo-Json -Depth $Depth),
-        (New-Object System.Text.UTF8Encoding($false))
-    )
+foreach ($helperName in @('Read-JsonDocument', 'Write-JsonFile')) {
+    $helperAst = $ast.Find({param($node) $node -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq $helperName}, $true)
+    if ($helperAst) { Invoke-Expression $helperAst.Extent.Text }
 }
 Install-CoreSettings -RepoRoot $repoRoot -TargetClaudeDir $target -Scope 'Test'
 """
@@ -871,3 +868,109 @@ def test_removed_legacy_override_is_user_owned_even_if_stale_value_remains(
     installed_record = json.loads(record.read_text(encoding="utf-8"))
     assert key in installed_record["removed"]
     assert key not in installed_record["values"]
+
+
+@pytest.mark.parametrize(("label", "runner"), RUNNERS)
+@pytest.mark.parametrize(
+    "initial",
+    [
+        {"env": {"claude_code_subagent_model": "user"}, "effortLevel": "high"},
+        {"Model": "user-model", "effortLevel": "high"},
+        {"ENV": {"user": "keep"}, "effortLevel": "high"},
+        {"ModelSettings": {"keep": False}, "effortLevel": "high"},
+        {"env": {"VAR": "one", "var": "two"}, "effortLevel": "high"},
+        {"custom": {"Value": "one", "value": "two", "array": [{}, [], None, False]}},
+        {"modelSettings": {"claude-opus-5-5": {"EffortLevel": "user"}}},
+    ],
+)
+def test_case_distinct_user_keys_survive_core_seeding(
+    tmp_path: Path, label: str, runner: Runner, initial: dict[str, object]
+) -> None:
+    """JSON keys retain exact spelling while the documented default is delivered."""
+    settings, _ = _seed(tmp_path / label, initial)
+    result = runner(tmp_path / label, settings.parent)
+    assert result.returncode == 0, result.stdout + result.stderr
+    actual = json.loads(settings.read_text(encoding="utf-8-sig"))
+    assert actual.get("env", {}).get("CLAUDE_CODE_SUBAGENT_MODEL") == "sonnet", result.stdout + result.stderr
+    for key, value in initial.items():
+        if key == "env":
+            for name, expected in value.items():
+                assert actual[key][name] == expected
+        elif key == "modelSettings":
+            for model, properties in value.items():
+                for name, expected in properties.items():
+                    assert actual[key][model][name] == expected
+        else:
+            assert actual[key] == value
+    before_second_run = settings.read_bytes()
+    runner(tmp_path / label, settings.parent)
+    assert settings.read_bytes() == before_second_run
+
+
+@pytest.mark.parametrize(("label", "runner"), RUNNERS)
+def test_deep_user_object_survives_the_real_settings_writer(
+    tmp_path: Path, label: str, runner: Runner
+) -> None:
+    """The native writer must not replace a deep object with a truncated string."""
+    nested = {"keep": "must remain an object"}
+    for index in range(15):
+        nested = {"level" + str(index): nested}
+    settings, _ = _seed(tmp_path / label, {"custom": nested})
+    result = runner(tmp_path / label, settings.parent)
+    assert result.returncode == 0, result.stdout + result.stderr
+    actual = json.loads(settings.read_text(encoding="utf-8-sig"))
+    assert actual["env"]["CLAUDE_CODE_SUBAGENT_MODEL"] == "sonnet"
+    assert actual["custom"] == nested
+
+
+@pytest.mark.parametrize(("label", "runner"), RUNNERS)
+@pytest.mark.parametrize("raw", ['[{"model":"user","custom":{"keep":true}}]', "[]", "null", '"user"'])
+def test_nonobject_settings_keep_their_original_root_shape(
+    tmp_path: Path, label: str, runner: Runner, raw: str
+) -> None:
+    """A one-item root array must never be unwrapped into mutable settings."""
+    settings, _ = _seed(tmp_path / label, {})
+    settings.write_text(raw, encoding="utf-8")
+    before = settings.read_bytes()
+    result = runner(tmp_path / label, settings.parent)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert settings.read_bytes() == before
+    assert "preserv" in (result.stdout + result.stderr).lower()
+
+
+@pytest.mark.parametrize(("label", "runner"), RUNNERS)
+def test_core_writer_preserves_opaque_user_timestamp_strings(tmp_path: Path, label: str, runner: Runner) -> None:
+    """Applying defaults must retain JSON strings instead of interpreting dates."""
+    payload = {"custom": {"offset": "2030-01-02T03:04:05+05:30", "fraction": "2030-01-02T03:04:05.120Z", "ms": "/Date(0+0530)/"}, "env": {"OPAQUE_STAMP": "2030-01-02T03:04:05+05:30"}}
+    settings, _ = _seed(tmp_path / label, payload)
+    settings.write_text(json.dumps(payload).replace("/", "\\/"), encoding="utf-8")
+    for _ in range(2):
+        proc = runner(tmp_path / label, settings.parent)
+        assert proc.returncode == 0, proc.stdout + proc.stderr
+        actual = json.loads(settings.read_text(encoding="utf-8-sig"))
+        assert actual["custom"] == payload["custom"]
+        assert actual["env"]["OPAQUE_STAMP"] == payload["env"]["OPAQUE_STAMP"]
+
+
+@pytest.mark.parametrize(("label", "runner"), RUNNERS)
+@pytest.mark.parametrize("invalid_role", ["settings-stream", "template-stream", "template-array"])
+def test_core_merge_rejects_non_document_inputs_without_writes(tmp_path, monkeypatch, label, runner, invalid_role):
+    settings, _ = _seed(tmp_path / label, {"model": "opus", "effortLevel": "high", "env": {"CLAUDE_CODE_EFFORT_LEVEL": "medium"}})
+    record = _write_ownership(settings, {"env.CLAUDE_CODE_EFFORT_LEVEL": "medium"})
+    template_dir = tmp_path / "template/catalog/hooks"
+    template_dir.mkdir(parents=True)
+    raw = (REPO_ROOT / "catalog/hooks/settings.json").read_text(encoding="utf-8")
+    template = template_dir / "settings.json"
+    template.write_text(raw, encoding="utf-8")
+    if invalid_role == "settings-stream":
+        with settings.open("a", encoding="utf-8") as output:
+            output.write('\n{"env":{"CLAUDE_CODE_SUBAGENT_MODEL":"injected"}}\n')
+    else:
+        template.write_text(raw + "\n{}" if invalid_role == "template-stream" else "[" + raw + "]", encoding="utf-8")
+    before_settings, before_record = settings.read_bytes(), record.read_bytes()
+    monkeypatch.setattr(__import__(__name__, fromlist=["REPO_ROOT"]), "REPO_ROOT", tmp_path / "template")
+    result = runner(tmp_path / label, settings.parent)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert settings.read_bytes() == before_settings
+    assert record.read_bytes() == before_record
+    assert "warning:" in (result.stdout + result.stderr).lower()

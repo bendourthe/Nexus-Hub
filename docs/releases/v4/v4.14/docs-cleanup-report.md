@@ -59,3 +59,19 @@ The current `plans/`, `comparisons/`, `development/`, and `development/history/`
 ## Self-classification
 
 This audit is Cat 4 while v4.14 is active; it freezes with the minor at release close.
+
+## Phase 7 Current Audit
+
+The preceding 26-row table is the retained Phase 6 snapshot. The fresh native inventory reports 365 documentation records, including 154 under the active v4.14 tree, before the fixture receipt was added. Inventory exit 0; private NDJSON SHA-256: 9a3d6568c32e8fe9fbcbc5d7190ce6856a4d9044830c6aadd87da36a5de3238e. Every current minor record is retained as active release evidence. This includes approved proposals and exact after-image copies whose historical bytes must remain available; repeated hashes are intentional evidence copies. The new fixture receipt adds one active record after this inventory epoch. No file moved or was deleted, no empty folder was removed, and no frozen approval artifact was edited. Final archive and reference repair remain the minor close procedure after all seven releases.
+
+## Runtime Selection Follow-up
+
+A fresh native inventory after the runtime receipt reports 367 documentation records, including 156 active v4.14 records, with exit 0. Private NDJSON SHA-256: a8f6c5615cee4bdb2dfe93fce77d610144fae71016604552ba1bcd1a9ee32d5f. The new receipt is active verification evidence. Frozen proposal copies and their source epochs remain unchanged. No file moved, no file was deleted and no folder was removed.
+
+## Skills Repair Follow-up
+
+The fresh native inventory reports 373 documentation records, including 162 active v4.14 records, with exit 0. Private NDJSON SHA-256: bd7b7ee3a76cbfb63613754020bf084c613f915a3af5c072667dbf540e922bdb. The new repair and final-byte handbook build, claim, browser, screenshot and native-check receipts are active release evidence. Both living handbook files and their build/evidence metadata remain in their existing locations. The inventory has 31 functional rows with separate bounded source epochs. No file moved, no file was deleted, no empty folder was removed, and no frozen approval artifact changed. Archive and reference repair remain the approved minor-close procedure after all seven releases.
+
+## Final Local Gate Audit
+
+After the EOF follow-up receipt, the native inventory reports 374 documentation records, including 163 active v4.14 records, with exit0. Private NDJSON SHA-256: 2761fd2d8bbedc097ea28a8ca5a907bd515cad7a6b26a0e246c67ad336cea45b. The added receipt is active verification evidence; the two conftest changes remove only trailing blank lines and retain identical ASTs. No moves, deletions, archive actions or approval-file edits occurred.

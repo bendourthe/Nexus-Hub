@@ -332,6 +332,7 @@ TESTS = Group(
         ),
         _pytest(
             "repo-tests-integrations-adapter-contracts",
+            "tests/integrations/test_agent_model_delivery.py",
             "tests/integrations/test_base_writeresult.py",
             "tests/integrations/test_catalog_adapters.py",
             "tests/integrations/test_contract.py",
@@ -544,7 +545,7 @@ WINDOWS_HOOKS = Group(
             "hook-tests (Windows PowerShell 5.1)",
             "catalog/hooks/tests",
             platforms=("windows",),
-            timeout=1800,
+            timeout=2400,
             env={"NEXUS_TEST_POWERSHELL": "powershell"},
         ),
         # Separate the independently owned attribution module from the corpus:
@@ -639,6 +640,31 @@ WINDOWS_INSTALLER = Group(
     ),
 )
 
+WINDOWS_INSTALLER_CORE = Group(
+    name="windows-installer-core",
+    commands=(
+        Command(
+            name="PowerShell 7 runtime",
+            argv=["pwsh", "-NoProfile", "-NonInteractive", "-Command", "if ($PSVersionTable.PSVersion.Major -lt 7) { exit 1 }; $PSVersionTable.PSVersion.ToString()"],
+            platforms=("windows",),
+            timeout=60,
+        ),
+        _pytest(
+            "installer JSON and hook boundaries (PowerShell 7)",
+            "tests/installer/test_core_settings_seeding.py",
+            "tests/installer/test_optional_mcp_setup.py",
+            "tests/installer/test_strict_permissions.py",
+            "tests/installer/test_native_hook_json.py",
+            "tests/installer/test_native_json_reader.py",
+            "tests/installer/test_native_cli_launcher.py",
+            "tests/installer/test_windows_cursor_hook_wiring.py",
+            platforms=("windows",),
+            timeout=1200,
+            env={"NEXUS_TEST_POWERSHELL": "pwsh"},
+        ),
+    ),
+)
+
 GUIDE_BROWSER = Group(
     name="guide-browser",
     explicit_only=True,
@@ -706,6 +732,101 @@ PRE_COMMIT = Group(
     ),
 )
 
+# Existing workflow checks, available without a CI provider. Tool-dependent
+# scenarios are explicit so a normal full run does not install Node or Docker.
+DOC_COLOCATION = Group(
+    name="doc-colocation",
+    explicit_only=True,
+    commands=(_py("check_doc_colocation", "--verbose"),),
+)
+
+
+def _monitor_group(name: str) -> Group:
+    package = f"extensions/{name}-usage-monitor"
+    npm = "npm.cmd" if os.name == "nt" else "npm"
+    return Group(
+        name=f"{name}-usage-monitor",
+        explicit_only=True,
+        commands=(
+            Command(name=f"{name} compile", argv=[npm, "run", "compile"], cwd=package),
+            Command(name=f"{name} coverage", argv=[npm, "run", "test:coverage", "--", "--coverage.reportsDirectory", f"../../reports/coverage/{name}"], cwd=package),
+            *((Command(name=f"{name} package", argv=[npm, "run", "package"], cwd=package), Command(name=f"{name} packaged contents", argv=[npm, "run", "verify:package"], cwd=package)) if name in ("copilot", "cursor") else ()),
+        ),
+    )
+
+
+MONITOR_CHECKS = tuple(_monitor_group(name) for name in ("claude", "codex", "copilot", "cursor", "gemini"))
+
+MEMORY_TESTS = Group(
+    name="memory-tests",
+    explicit_only=True,
+    commands=(_pytest("memory native locking", "tests", cwd="extensions/nexus-memory", env=_local_src_env("src")),),
+)
+
+
+def _offline_group(name: str, package: str, benchmark: bool = False) -> Group:
+    image = f"nexus-{name}-offline"
+    check = "set -euo pipefail; test -d /sys/class/net/lo; if find /sys/class/net -mindepth 1 -maxdepth 1 ! -name lo -print -quit | grep -q .; then exit 1; fi; "
+    check += f"python -m pytest extensions/{package}/tests/ -q -p no:cacheprovider"
+    if benchmark:
+        check += f"; cd extensions/{package}; python benchmarks/harness.py --check --work /tmp/nexus-code-search-benchmark --json-out /tmp/nexus-code-search-benchmark.json --markdown-out /tmp/nexus-code-search-benchmark.md"
+    return Group(
+        name=f"{name}-offline",
+        explicit_only=True,
+        commands=(
+            Command(name=f"{name} offline image", argv=["docker", "build", "--tag", image, "--build-context", "ci=scripts/ci", "--file", f"scripts/ci/{name}-offline.Dockerfile", f"extensions/{package}"], platforms=("linux",), timeout=1200),
+            Command(name=f"{name} egress-denied checks", argv=["docker", "run", "--rm", "--network", "none", "--env", "NEXUS_CODE_SEARCH_BLOCK_NETWORK=1", "--volume", f"{REPO_ROOT}:/workspace:ro", image, "bash", "-c", check], platforms=("linux",), timeout=1200),
+        ),
+    )
+
+
+CODE_SEARCH_OFFLINE = _offline_group("code-search", "nexus-code-search", benchmark=True)
+MEMORY_OFFLINE = _offline_group("memory", "nexus-memory")
+
+PRESENTIFY_VERIFY = Group(
+    name="presentify-verify",
+    explicit_only=True,
+    commands=(
+        Command(name="Presentify bundled lint", argv=["ruff", "check", "--ignore", "RUF100", "catalog/skills/specialized-domains/document-to-interactive-html/scripts/"]),
+        _pytest("Presentify skills", "tests/skills/", timeout=1200),
+        Command(name="Presentify offline fixture checks", argv=[PY, "scripts/ci/verify_scenarios.py", "presentify-fixtures"], timeout=1200),
+    ),
+)
+
+PRESENTIFY_RENDER = Group(
+    name="presentify-render",
+    explicit_only=True,
+    commands=(
+        Command(name="Presentify render readiness", argv=[PY, "catalog/skills/specialized-domains/document-to-interactive-html/scripts/ensure_render_env.py", "--json"]),
+        _pytest("Presentify rendered skills", "tests/skills/", env={"NEXUS_REQUIRE_RENDER": "1"}, timeout=1200),
+        Command(name="Presentify calibration scoring", argv=[PY, "catalog/skills/specialized-domains/document-to-interactive-html/scripts/visual_qa_score.py", "tests/fixtures/presentify/nexus-hub-unit-test-workflow.html"]),
+    ),
+)
+
+
+def _scenario_group(name: str, scenario: str, platforms: tuple[str, ...] = ()) -> Group:
+    return Group(name=name, explicit_only=True, commands=(Command(name=name, argv=[PY, "scripts/ci/verify_scenarios.py", scenario], platforms=platforms, timeout=1800),))
+
+
+BOOTSTRAP_SMOKE = _scenario_group("bootstrap-smoke", "bootstrap")
+REGISTRY_SMOKE = _scenario_group("registry-smoke", "registry")
+WORKSPACE_SMOKE = _scenario_group("workspace-smoke", "workspace")
+HOST_PLUGIN_LOAD = _scenario_group("host-plugin-load", "plugin", ("linux",))
+CURSOR_PROFILE = Group(
+    name="cursor-profile",
+    explicit_only=True,
+    commands=(
+        Command(name="optional Cursor CLI", argv=["cursor", "--version"], platforms=("linux",), skip_if_missing=True),
+        Command(name="private Cursor profile", argv=[PY, "scripts/ci/verify_scenarios.py", "cursor-profile"], platforms=("linux",), timeout=1200),
+    ),
+)
+
+MACOS_ATTRIBUTION = Group(
+    name="macos-attribution",
+    explicit_only=True,
+    commands=(_pytest("native macOS attribution", "tests/test_git_attribution.py", "-k", "not powershell", platforms=("macos",)),),
+)
+
 RELEASE_CHECKS = Group(
     name="release-checks",
     commands=(
@@ -764,6 +885,13 @@ PROFILES: dict[str, tuple[Group, ...]] = {
         VERSION,
         TESTS,
         EXTENSION_TESTS,
+        DOC_COLOCATION,
+        *MONITOR_CHECKS,
+        MEMORY_TESTS,
+        CODE_SEARCH_OFFLINE,
+        MEMORY_OFFLINE,
+        PRESENTIFY_VERIFY,
+        PRESENTIFY_RENDER,
         GUIDE_BROWSER,
         GUIDE_BROWSER_ENGINE,
         GUIDE_BROWSER_GAME,
@@ -771,7 +899,7 @@ PROFILES: dict[str, tuple[Group, ...]] = {
     ),
     # Only what differs by host. Deliberately small: a leg that runs everywhere
     # belongs in `full`, where it is paid for once.
-    "platform": (SHELL_LINT, POWERSHELL_PARSE, INTERPRETERS, WINDOWS_HOOKS, WINDOWS_INSTALLER),
+    "platform": (SHELL_LINT, POWERSHELL_PARSE, INTERPRETERS, WINDOWS_HOOKS, WINDOWS_INSTALLER, WINDOWS_INSTALLER_CORE, BOOTSTRAP_SMOKE, REGISTRY_SMOKE, WORKSPACE_SMOKE, HOST_PLUGIN_LOAD, CURSOR_PROFILE, MACOS_ATTRIBUTION),
     # Aggregation only. Reads what the other profiles wrote; never re-runs a
     # check, which is what makes it safe to call after a failure.
     "report": (),

@@ -24,7 +24,8 @@ def test_design_contract_has_one_owner_and_complete_handoffs():
     assert "references/design-system-contract.md" in owner
     for name, body in bodies.items():
         assert "[[multi-agent-code-review]]" in body, name
-        verification = body.split("## Verification", 1)[1].split("## Related Skills", 1)[0]
+        visible_body = re.sub(r"(?ms)^```[^\n]*\n.*?^```[ \t]*$", "", body)
+        verification = visible_body.split("## Verification", 1)[1].split("## Related Skills", 1)[0]
         if name == "interface-review":
             assert "npm exec --no -- stylelint" in verification
         else:

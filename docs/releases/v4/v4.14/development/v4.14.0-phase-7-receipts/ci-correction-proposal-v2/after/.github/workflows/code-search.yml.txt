@@ -1,0 +1,58 @@
+name: code-search
+
+# Fast, path-scoped feedback for the nexus-code-search extension (v3.15.0
+# context-map Phase 1). Triggers ONLY when the extension tree or this workflow
+# changes, so unrelated commits spend no minutes here. The comprehensive,
+# always-on gate remains the `tests` job in ci.yml; this job is the quick scoped
+# signal for extension-only work.
+on:
+  # v4.0.0 event separation: the `push` leg to the same protected branches was
+  # removed. Under a pull-request-only merge policy that push IS the merge commit
+  # of the pull request that just ran, so the tree is identical and the second run
+  # cannot discover anything the first did not. See
+  # docs/policy/ci-cd-lifecycle-contract.md section 4.
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'extensions/nexus-code-search/**'
+      - '.github/workflows/code-search.yml'
+      - 'scripts/ci/**'
+      - 'scripts/ci/requirements.in'
+      - 'scripts/ci/requirements-py311.txt'
+
+# Cancel superseded runs of the same ref so only the latest commit's run
+# survives (the single largest action-minute saver).
+# v3.15.8 Phase 9.3: least privilege. This workflow builds and tests only --
+# no gh CLI, comments or pushes; retained reports need no extra permission -- so read-only
+# contents is the complete requirement.
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-network-blocked:
+    name: Test with outbound network blocked
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Repository-native code-search-offline profile
+        run: python scripts/ci/run.py --profile full --only code-search-offline --reports-dir reports
+
+      - name: Publish native profile summary
+        if: always()
+        shell: bash
+        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Retain native profile reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: code-search-offline-reports
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 7

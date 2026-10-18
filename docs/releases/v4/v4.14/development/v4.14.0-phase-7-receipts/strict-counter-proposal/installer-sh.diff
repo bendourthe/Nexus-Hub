@@ -1,0 +1,58 @@
+--- a/scripts/installer.sh
++++ b/scripts/installer.sh
+@@ -1068,14 +1068,29 @@
+     fi
+ 
+     local added
+-    added=$(jq -sr '
+-        .[0] as $s | .[1] as $o |
+-        (($s.permissions.deny // []) as $sd | ($o.permissions.deny // []) as $od |
+-          (($sd + $od) | unique | length) - ($sd | length))
+-        +
+-        (($s.permissions.ask // []) as $sa | ($o.permissions.ask // []) as $oa |
+-          (($sa + $oa) | unique | length) - ($sa | length))
+-    ' "$settings_file" "$overlay_file" 2>/dev/null)
++    if ! added=$(jq -nr '
++        def valid_permissions:
++          . as $p | type == "object" and
++          all(["deny", "ask"][]; . as $key |
++            ($p | has($key) | not) or
++            ($p[$key] | type == "array" and all(.[]; type == "string")));
++        [inputs | {path: input_filename, document: .}] as $documents |
++        if (($documents | length) != 2 or $documents[0].path == $documents[1].path)
++        then error("expected one JSON document per file")
++        else $documents[0].document as $s | $documents[1].document as $o |
++        if (($s | type) != "object" or ($o | type) != "object"
++            or ($o | has("permissions") | not)
++            or ($o.permissions | valid_permissions | not)
++            or (($s | has("permissions")) and ($s.permissions | valid_permissions | not)))
++        then error("invalid permission document")
++        else
++          (((($o.permissions.deny // []) - ($s.permissions.deny // [])) | unique | length)
++           + ((($o.permissions.ask // []) - ($s.permissions.ask // [])) | unique | length))
++        end end
++    ' "$settings_file" "$overlay_file" 2>/dev/null); then
++        write_item "Warning: Could not merge the strict permission overlay into settings.json" "$YELLOW"
++        return
++    fi
+ 
+     if [ "${added:-0}" = "0" ]; then
+         write_item "[OK] Strict deny/ask entries already up to date (0 new)" "$GREEN"
+@@ -1088,11 +1103,15 @@
+     write_item "  Backup created: $backup_path" "$GRAY"
+ 
+     local merged
+-    merged=$(jq -s '
+-        .[0] as $s | .[1] as $o |
++    merged=$(jq -n '
++        [inputs | {path: input_filename, document: .}] as $documents |
++        if (($documents | length) != 2 or $documents[0].path == $documents[1].path)
++        then error("expected one JSON document per file")
++        else $documents[0].document as $s | $documents[1].document as $o |
+         $s
+         | .permissions.deny = ((($s.permissions.deny // []) + ($o.permissions.deny // [])) | unique)
+         | .permissions.ask  = ((($s.permissions.ask  // []) + ($o.permissions.ask  // [])) | unique)
++        end
+     ' "$settings_file" "$overlay_file" 2>/dev/null)
+ 
+     if [ -n "$merged" ]; then

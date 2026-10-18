@@ -43,7 +43,7 @@ def test_detector_owns_the_presentify_path_filter() -> None:
 
 
 def test_verify_always_exists_but_heavy_steps_are_conditional() -> None:
-    verify = load()["jobs"]["verify"]
+    verify = load()["jobs"]["extractor-tests"]
     assert verify["needs"] == "detect"
     assert verify["if"] == (
         "always() && (github.event_name == 'pull_request' || "
@@ -57,10 +57,20 @@ def test_verify_always_exists_but_heavy_steps_are_conditional() -> None:
         step.get("if")
         == "needs.detect.result == 'success' && needs.detect.outputs.presentify == 'true'"
         for step in verify["steps"][1:]
+        if step.get("name") not in {"Publish native profile summary", "Retain native profile reports"}
     )
 
 
-def test_render_is_weekly_without_a_duplicate_protected_push_leg() -> None:
+def test_render_is_premerge_scoped_without_a_duplicate_protected_push_leg() -> None:
     render = load()["jobs"]["render"]
     assert render["needs"] == "detect"
-    assert render["if"] == "github.event_name == 'schedule'"
+    assert "needs.detect.outputs.presentify" in render["if"]
+    assert "schedule" not in load()[ON_KEY]
+    assert load()["jobs"]["verify"]["if"] == "always()"
+
+
+def test_report_steps_retain_selected_failures() -> None:
+    steps = load()["jobs"]["extractor-tests"]["steps"]
+    reports = [step for step in steps if step.get("name") in {"Publish native profile summary", "Retain native profile reports"}]
+    assert len(reports) == 2
+    assert all("always()" in step["if"] and "needs.detect.outputs.presentify == 'true'" in step["if"] for step in reports)

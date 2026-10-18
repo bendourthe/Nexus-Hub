@@ -17,7 +17,6 @@ in a directory nothing else writes to.
 
 from __future__ import annotations
 
-import os
 import shutil
 import subprocess
 import sys
@@ -25,6 +24,8 @@ import tempfile
 from pathlib import Path
 
 import pytest
+
+from scripts.ci.verify_scenarios import isolated_environment
 
 _ROOT = Path(__file__).resolve().parents[2]
 _SH = _ROOT / "scripts" / "installer.sh"
@@ -57,13 +58,17 @@ def short_temp():
 
 
 def _isolated_env(tmp_path: Path, temp: Path) -> tuple[dict[str, str], Path]:
+    boundary = tmp_path / "fixture-env"
+    boundary.mkdir()
+    isolated = isolated_environment(boundary)
     profile = tmp_path / "profile"
     for d in (profile, tmp_path / "appdata", tmp_path / "localappdata"):
         d.mkdir()
     env = {
-        **os.environ,
+        **isolated,
         "HOME": str(profile),
         "USERPROFILE": str(profile),
+        "CLAUDE_CONFIG_DIR": str(profile / ".claude"),
         "APPDATA": str(tmp_path / "appdata"),
         "LOCALAPPDATA": str(tmp_path / "localappdata"),
         "NEXUS_HUB_HOME": str(profile / ".nexus-hub"),

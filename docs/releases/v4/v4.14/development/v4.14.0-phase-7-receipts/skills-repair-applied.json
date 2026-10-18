@@ -1,0 +1,136 @@
+{
+  "scope": "Four-file necessary correction after the failed pinned-runtime canonical full profile",
+  "application": {
+    "bindings": [
+      {
+        "path": "tests/skills/test_installer_parity_lifecycle.py",
+        "before_sha256": "6a43bad66128e1d59ecaab3d48893db5b3cf9268b5ca27734f2efac5a2835c68",
+        "after_sha256": "7a80253f677fd5d49d64dc1614d8bb2fe7c63a9030b3156e431fc65796668fbe"
+      },
+      {
+        "path": "tests/skills/test_presentify_dual_view_build.py",
+        "before_sha256": "c1e3fa5acc3c743e2089c146b426211d45403da6647750608e4e1b73ea4f012f",
+        "after_sha256": "3158bf362d7ab44ed3ab46361a250c694723937834d9fad91ff2654088ceaf66"
+      },
+      {
+        "path": "tests/skills/test_presentify_dual_view_distribution.py",
+        "before_sha256": "e05ac6ab86567eb68ad7f72dce7960f6d782ec75549ef3a42882b879698e4ca2",
+        "after_sha256": "96d57f6be1e8ceaba411dca1aa9bd4542ed0922a289ea464386bdd1b6e779526"
+      },
+      {
+        "path": "catalog/skills/specialized-domains/document-to-interactive-html/scripts/dual_view.py",
+        "before_sha256": "cb97c1c53dd4560f3a59b9cc08d54223c4e0d49c2373bed3c20b5430607053a2",
+        "after_sha256": "26eea3abc03a35319cff431979b19848f14fc469c5a3b5ac0f6264e77da0a894"
+      }
+    ],
+    "checks": [
+      {
+        "path": "tests/skills/test_installer_parity_lifecycle.py",
+        "check": 0,
+        "record": 0
+      },
+      {
+        "path": "tests/skills/test_presentify_dual_view_build.py",
+        "check": 0,
+        "record": 0
+      },
+      {
+        "path": "tests/skills/test_presentify_dual_view_distribution.py",
+        "check": 0,
+        "record": 0
+      },
+      {
+        "path": "catalog/skills/specialized-domains/document-to-interactive-html/scripts/dual_view.py",
+        "check": 0,
+        "record": 0
+      }
+    ],
+    "accepts": 0,
+    "guard_mode": "Unmodified official store_dir/prune/cmd_check/cmd_record handlers in one serialized process; retention housekeeping once before fresh per-file checks."
+  },
+  "failed_full": {
+    "private_log": "nexus-v4140-full-pinned-runtime-final.log",
+    "exit": 1,
+    "skills": {
+      "failed": 4,
+      "passed": 2407,
+      "skipped": 19,
+      "pytest_seconds": 753.77,
+      "command_seconds": 756.1
+    },
+    "remaining_partitions": "Stopped after verifying the owned process tree; no complete full-profile pass",
+    "frozen_source_comparison": {
+      "files_before": 8246,
+      "files_after": 8246,
+      "changed": 0,
+      "missing": 0,
+      "new": 0
+    }
+  },
+  "local_reproduction": {
+    "private_log": "nexus-v4140-skills-four-repro.log",
+    "failed": 4,
+    "seconds": 8.36
+  },
+  "actual_source": {
+    "command": "python -m pytest tests/skills/test_installer_parity_lifecycle.py tests/skills/test_presentify_dual_view_build.py tests/skills/test_presentify_dual_view_distribution.py -q --tb=short",
+    "require_render": true,
+    "passed": 91,
+    "seconds": 91.84,
+    "exit": 0,
+    "private_log": "nexus-v4140-skills-repair-actual.log",
+    "log_sha256": "eec3407480814aaeb30c4f99c7e61fdab993607e739cb509f17259ece937f15f",
+    "boundary": "Real Bash and Windows PowerShell installers, installed assets, actual Chromium reading/presentation flows and protected-home guards"
+  },
+  "negative_controls": {
+    "explicit_native_junctions": {
+      "candidate_passed": 2,
+      "mount_point_check_removed_rejected": 2,
+      "nonjunction_tag_control": "Passes on both variants"
+    },
+    "ci_wiring": {
+      "baseline_host_branches_passed": 2,
+      "mutants_rejected": 6,
+      "mutations": [
+        "shared checker removed",
+        "wrong native installer",
+        "workflow delegation removed"
+      ],
+      "execution": "Actual updated test with subprocess calls mocked; not installer evidence"
+    },
+    "editor_isolation": "Both code and cursor tests require a harmless host marker, then prove inert private selection leaves that marker absent",
+    "private_proof_sha256": [
+      "53455c4b4c2dc3799f31f3448ed02de72a91e6f54290b1fc9f7acb24730f1dee",
+      "8530b50ae508fe2939cad46f575a0b45bedbed0795f811fd236ef4f0bf7ec717"
+    ]
+  },
+  "reviews": {
+    "clean_final": [
+      "correctness",
+      "project standards",
+      "maintainability",
+      "testing",
+      "combined adversarial and security"
+    ],
+    "finding_closed": "Testing review identified privilege-dependent junction coverage; explicit native Windows cases now reject a removed-check mutation."
+  },
+  "lint": {
+    "before": [
+      "I001",
+      "I001"
+    ],
+    "after": [
+      "I001",
+      "I001"
+    ],
+    "new_diagnostics": 0,
+    "limits": "Two inherited import-block warnings remain; no unfiltered-clean claim."
+  },
+  "handbooks": "handbook-check-after-skills-repair.json",
+  "limits": [
+    "Canonical full and supported-host profiles still need final-tree passes.",
+    "Green integration, publication, releases and minor close remain pending.",
+    "The global deep-pass counter remains 3/3; no counter reset or new approval/blocker was created.",
+    "No CI, workflow, installer, permission or secret source changed for this four-file repair."
+  ]
+}

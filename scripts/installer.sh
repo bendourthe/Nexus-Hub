@@ -898,7 +898,7 @@ install_core_settings() {
         write_item "  Manually copy absent core settings and template env keys from $template_file to $settings_file" "$YELLOW" >&2
         return
     fi
-    if ! jq -e 'type == "object"' "$settings_file" >/dev/null 2>&1; then
+    if ! jq -se 'length == 1 and (.[0] | type == "object")' "$settings_file" >/dev/null 2>&1; then
         write_item "Warning: existing settings are not a valid object; preserving settings.json" "$YELLOW" >&2
         return
     fi
@@ -927,7 +927,7 @@ install_core_settings() {
     fi
     if [ "${_nexus_core_settings_created_path:-}" = "$settings_file" ]; then fresh=true; fi
     local payload merged seed_record
-    if ! payload=$(jq -s --argjson ownership "$ownership" --argjson fresh "$fresh" '
+    if ! payload=$(jq -n --slurpfile existing "$settings_file" --slurpfile template "$template_file" --argjson ownership "$ownership" --argjson fresh "$fresh" '
         def slot($key):
             reduce ($key | split("."))[] as $part
                 ({present:true,value:.};
@@ -940,7 +940,10 @@ install_core_settings() {
                     if (.node | has($part)) then {ok:((.node[$part] | type) == "object"),node:.node[$part]}
                     else {ok:true,node:{}} end
                  else {ok:false,node:null} end) | .ok;
-        .[0] as $e | .[1] as $t |
+        if ($existing | length) != 1 or ($template | length) != 1
+            or ($existing[0] | type) != "object" or ($template[0] | type) != "object"
+        then error("core settings require one object per file") else . end |
+        $existing[0] as $e | $template[0] as $t |
         ($t | [paths(type != "object" and type != "array") as $p
             | select($p[0] == "effortLevel" or $p[0] == "model" or $p[0] == "env" or $p[0] == "modelSettings")
             | {key:($p | join(".")),value:getpath($p)}] | from_entries) as $desired |
@@ -972,7 +975,7 @@ install_core_settings() {
             elif (.config | writable($key)) then .config |= setpath($path; $entry.value) | .owned[$key] = $entry.value
             else .blocked += [$key] end)
         | {blocked:.blocked,settings:.config,record:($ownership + {values:.owned,removed:(.removed | unique)})}
-    ' "$settings_file" "$template_file" 2>/dev/null); then
+    ' 2>/dev/null); then
         write_item "Warning: Could not merge core settings; settings.json retained" "$YELLOW" >&2
         return
     fi
@@ -1068,14 +1071,29 @@ merge_strict_permissions() {
     fi
 
     local added
-    added=$(jq -sr '
-        .[0] as $s | .[1] as $o |
-        (($s.permissions.deny // []) as $sd | ($o.permissions.deny // []) as $od |
-          (($sd + $od) | unique | length) - ($sd | length))
-        +
-        (($s.permissions.ask // []) as $sa | ($o.permissions.ask // []) as $oa |
-          (($sa + $oa) | unique | length) - ($sa | length))
-    ' "$settings_file" "$overlay_file" 2>/dev/null)
+    if ! added=$(jq -nr '
+        def valid_permissions:
+          . as $p | type == "object" and
+          all(["deny", "ask"][]; . as $key |
+            ($p | has($key) | not) or
+            ($p[$key] | type == "array" and all(.[]; type == "string")));
+        [inputs | {path: input_filename, document: .}] as $documents |
+        if (($documents | length) != 2 or $documents[0].path == $documents[1].path)
+        then error("expected one JSON document per file")
+        else $documents[0].document as $s | $documents[1].document as $o |
+        if (($s | type) != "object" or ($o | type) != "object"
+            or ($o | has("permissions") | not)
+            or ($o.permissions | valid_permissions | not)
+            or (($s | has("permissions")) and ($s.permissions | valid_permissions | not)))
+        then error("invalid permission document")
+        else
+          (((($o.permissions.deny // []) - ($s.permissions.deny // [])) | unique | length)
+           + ((($o.permissions.ask // []) - ($s.permissions.ask // [])) | unique | length))
+        end end
+    ' "$settings_file" "$overlay_file" 2>/dev/null); then
+        write_item "Warning: Could not merge the strict permission overlay into settings.json" "$YELLOW"
+        return
+    fi
 
     if [ "${added:-0}" = "0" ]; then
         write_item "[OK] Strict deny/ask entries already up to date (0 new)" "$GREEN"
@@ -1088,11 +1106,15 @@ merge_strict_permissions() {
     write_item "  Backup created: $backup_path" "$GRAY"
 
     local merged
-    merged=$(jq -s '
-        .[0] as $s | .[1] as $o |
+    merged=$(jq -n '
+        [inputs | {path: input_filename, document: .}] as $documents |
+        if (($documents | length) != 2 or $documents[0].path == $documents[1].path)
+        then error("expected one JSON document per file")
+        else $documents[0].document as $s | $documents[1].document as $o |
         $s
         | .permissions.deny = ((($s.permissions.deny // []) + ($o.permissions.deny // [])) | unique)
         | .permissions.ask  = ((($s.permissions.ask  // []) + ($o.permissions.ask  // [])) | unique)
+        end
     ' "$settings_file" "$overlay_file" 2>/dev/null)
 
     if [ -n "$merged" ]; then

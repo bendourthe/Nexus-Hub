@@ -57,6 +57,11 @@
           "id": "ownership-text",
           "type": "paragraph",
           "text": "Owned-file writing consults the installation manifest. It can repair an artifact created by Nexus-Hub while preserving a file authored by the user. Some derived catalog materialization paths synchronize on byte difference and track their output; do not assume every copy path has identical overwrite behavior. Both installers activate user-attribution Git hooks from a digest-checked copy that survives the installer checkout; source checks accept LF/CRLF differences, but content changes require reinstall. Run nexus-hub attribution check before commits, tags and pushes. New-branch pushes scan the actual destination's history, not other remotes or stale tracking refs. Human identity and existing hooks are preserved; direct hosting API writes need separate verification."
+        },
+        {
+          "id": "core-settings-text",
+          "type": "paragraph",
+          "text": "Claude core settings keep a separate record of defaults Nexus-Hub actually wrote. A matching recorded value can upgrade; a changed value or explicit removal stays yours. An unrecorded effort override remains in place. Per-model settings supply the saved effort default; run nexus-hub doctor to identify an overriding env.CLAUDE_CODE_EFFORT_LEVEL and its key-specific fix. A choice identical to the previous seed cannot be distinguished from that seed."
         }
       ],
       "fragment": "docs/handbooks/_sources/distribution/ownership-composition.html"

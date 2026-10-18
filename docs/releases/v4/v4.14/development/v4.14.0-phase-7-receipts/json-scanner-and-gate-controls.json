@@ -1,0 +1,23 @@
+{
+  "native_reader": [
+    {
+      "version": "before",
+      "seconds": 20.015,
+      "timeout": true,
+      "limit": 20
+    },
+    {
+      "version": "candidate",
+      "exit": 0,
+      "seconds": 0.782,
+      "timeout": false,
+      "preserved": true
+    }
+  ],
+  "presentify_unconditional_success_mutation": {
+    "cases": 23,
+    "rejected_by_tests": 19,
+    "legitimate_success_cases": 4
+  },
+  "network_calls": 0
+}

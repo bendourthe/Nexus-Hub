@@ -1,0 +1,100 @@
+{
+  "verifier_class": "deterministic",
+  "old_oracle_counterexample": {
+    "started": 80537.5,
+    "taskkill_wrapper_enter": 80538.203,
+    "grandchild_ready": {
+      "pid": 8620,
+      "ready": 80537.703
+    },
+    "marker_before_actual_taskkill": true,
+    "actual_taskkill_start": 80539.546,
+    "taskkill_rc": 0,
+    "actual_taskkill_end": 80540.25,
+    "grandchild_terminated_at_cleanup_end": true,
+    "timeout_propagated": 80540.25,
+    "original_test_marker_assertion_would_fail": true
+  },
+  "delayed_cleanup_controls": [
+    {
+      "tree_cleanup": true,
+      "passed": true,
+      "elapsed_seconds": 2.391,
+      "marker_exists": false,
+      "taskkill_calls": [
+        {
+          "tree": true,
+          "delay": 1.3
+        }
+      ]
+    },
+    {
+      "tree_cleanup": false,
+      "passed": true,
+      "elapsed_seconds": 2.25,
+      "marker_exists": true,
+      "taskkill_calls": [
+        {
+          "tree": false,
+          "delay": 1.3
+        }
+      ]
+    }
+  ],
+  "parent_only_mutation": {
+    "mutation": "force parent-only cleanup for tree_cleanup=True",
+    "verifier_class": "deterministic",
+    "positive_oracle_rejected_surviving_child": true,
+    "gate_was_never_released": true,
+    "finally_attempted_grandchild_cleanup": true,
+    "grandchild_terminated_after_finally": true,
+    "taskkill_calls": [
+      {
+        "pid": 3304,
+        "is_grandchild": false,
+        "requested_tree": true,
+        "effective_tree": false
+      },
+      {
+        "pid": 45748,
+        "is_grandchild": true,
+        "requested_tree": true,
+        "effective_tree": false
+      }
+    ]
+  },
+  "windows": {
+    "passed": 2,
+    "seconds": 2.13
+  },
+  "linux_network_none": {
+    "passed": 2,
+    "seconds": 1.06,
+    "image": "mcr.microsoft.com/devcontainers/python@sha256:b726eb94f42fcddb10056835f2c474c9f9e12e717ba2b2d2f9a8b1d78feeb68b"
+  },
+  "review": {
+    "findings": [],
+    "considered_but_rejected": [
+      {
+        "candidate": "Write before cleanup race",
+        "reason": "The child cannot write until the post-cleanup release; delayed real cleanup passed"
+      },
+      {
+        "candidate": "Child never starts",
+        "reason": "Readiness must complete before the timeout starts"
+      },
+      {
+        "candidate": "Surviving child missed",
+        "reason": "Forced parent-only mutation is rejected before release"
+      },
+      {
+        "candidate": "Negative-control leak",
+        "reason": "Retained native handle confirms final survivor cleanup"
+      },
+      {
+        "candidate": "POSIX group gone with parent",
+        "reason": "The surviving child retains the group and saved real killpg reaps it"
+      }
+    ]
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "duration_s": 90.95300000000861,
+  "finished_at": "2026-10-17T02:34:22Z",
+  "groups": [
+    {
+      "commands": [
+        {
+          "duration_s": 90.95300000000861,
+          "exit_code": 0,
+          "group": "registry-smoke",
+          "name": "registry-smoke",
+          "output": "OK: global registry read-paths and host-specific project seed\r\n",
+          "reason": "",
+          "status": "pass"
+        }
+      ],
+      "name": "registry-smoke",
+      "skipped_reason": "",
+      "status": "pass"
+    }
+  ],
+  "platform": "windows",
+  "profile": "platform",
+  "scope_conservative": true,
+  "scope_reason": "no --base supplied; running every group",
+  "started_at": "2026-10-17T02:32:51Z"
+}

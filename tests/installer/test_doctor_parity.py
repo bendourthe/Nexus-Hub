@@ -527,3 +527,56 @@ def test_checkout_doctor_missing_source_reports_remediation(
         in capsys.readouterr().err
     )
     assert not list(tmp_path.iterdir())
+
+
+@pytest.mark.parametrize("json_mode", [False, True])
+@pytest.mark.parametrize("manifest_present", [False, True])
+def test_installed_doctor_without_source(
+    tmp_path: Path, json_mode: bool, manifest_present: bool
+) -> None:
+    """The shipped doctor must work with bundled scripts and no source cache."""
+    from scripts.lib.integrations.manifest import InstallManifest
+    from scripts.lib.integrations.result import FileAction
+
+    home = tmp_path / "home"
+    installed = home / ".nexus-hub"
+    scripts = installed / "scripts"
+    scripts.mkdir(parents=True)
+    shutil.copy2(REPO_ROOT / "scripts/nexus_hub_cli.py", scripts / "nexus_hub_cli.py")
+    shutil.copytree(
+        REPO_ROOT / "scripts/lib", scripts / "lib",
+        ignore=shutil.ignore_patterns("__pycache__"),
+    )
+    settings = home / ".claude/settings.json"
+    settings.parent.mkdir()
+    settings.write_text(
+        json.dumps({"env": {"CLAUDE_CODE_EFFORT_LEVEL": "medium"}}), encoding="utf-8"
+    )
+    if manifest_present:
+        manifest = InstallManifest()
+        manifest.track("claude", str(settings))
+        manifest.record_actions("claude", [FileAction(str(settings), "created")])
+        manifest.save(installed / "install-manifest.json")
+    before = {p.relative_to(home): p.read_bytes() for p in home.rglob("*") if p.is_file()}
+    env = dict(
+        os.environ, HOME=str(home), USERPROFILE=str(home), NEXUS_HUB_HOME=str(installed),
+        PYTHONDONTWRITEBYTECODE="1",
+    )
+    env.pop("NEXUS_HUB_SRC", None)
+    cmd = [sys.executable, str(scripts / "nexus_hub_cli.py"), "doctor", "--target", str(home)]
+    if json_mode:
+        cmd.append("--json")
+    result = subprocess.run(
+        cmd, cwd=tmp_path, env=env, capture_output=True, text=True,
+        encoding="utf-8", errors="replace", timeout=60, check=False,
+    )
+    assert result.returncode == (0 if manifest_present else 1), result.stderr
+    assert "Remove only env.CLAUDE_CODE_EFFORT_LEVEL" in result.stdout
+    if json_mode:
+        payload = json.loads(result.stdout)
+        if manifest_present:
+            assert payload["counts"]["ok"] == 1
+        else:
+            assert payload["error"] == "no manifest"
+    assert not (installed / "src").exists()
+    assert {p.relative_to(home): p.read_bytes() for p in home.rglob("*") if p.is_file()} == before
