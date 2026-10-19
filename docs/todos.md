@@ -1,26 +1,26 @@
 # Nexus-Hub Progress Dashboard
 
 **Integration branch:** `develop`
-**Active work:** v4.14 full-minor run, 32/209 tasks and 0/7 releases. The parallel implementation workflow is implemented and locally qualified: 419 workflow tests, 31 Linux native controls, 12 affected Windows cases and 17 fast checks pass. Merge and release remain pending. Ledger: 103 open, 6 resolved.
+**Active work:** v4.14 full-minor run, 34/209 tasks and 0/7 releases. The optimized parallel implementation workflow is merged into develop through PR485 with all 44 final PR checks and both post-merge checks passing. v4.14.0 implementation is complete; release preparation is in progress. Ledger: 80 inherited open, 29 resolved.
 
-The original Linux installer and Windows edit-recording failures have local causal repairs and passing final gates. Their known-gap entries remain open pending required hosted integration.
+The original Linux installer, Windows edit-recording and other 23 run-introduced findings now satisfy their individual acceptance gates and are resolved with preserved source bodies and hashed repair evidence.
 
-**Run state:** Workflow correction qualified locally; prepare its reviewed commit and stabilization push. PR485 first stabilization has 43 passing checks and only the corrected CodeQL test errors. No live parallel admission or release yet. Previous V9 full/platform proof is reused for unchanged inputs.
+**Run state:** PR485 merged at 8b32922ca573fb57546611267b88246c1064f1e4. Hosted Linux passed 21 commands; Windows platform, installer-core and installer profiles passed 6, 2 and 3 commands. Retained V9 full/platform proof applies only to unchanged inputs. No live parallel admission or release yet.
 
 **Closeout boundary:** Recovery backups with unique Git history, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim. The former 47-file recovery branch was removed after its patch was proven identical to the merged PR #259 commit.
-**Last refreshed:** 2026-10-18 UTC
+**Last refreshed:** 2026-10-19 UTC
 **Recent fix:** Claude, Codex, GitHub Copilot and Cursor usage alerts dismiss automatically after one minute; merged green through PR #457.
 
 **Recent feature:** The Gemini Usage Monitor for the Antigravity IDE, confirmed working inside Antigravity by the maintainer on 2026-10-14, merged green through PR #465; it ships in the next release.
 
-**Next:** Finish and verify native parallel implementation admission and ordered publication, merge the corrected workflow to develop, release v4.14.0, then admit and dispatch compatible remaining member plans in isolated worktrees.
+**Next:** Complete the current platform checks and v4.14.0 release, adopt its verified native runtime, then admit and dispatch compatible remaining plans in isolated worktrees with sequential publication and release.
 
 | Metric | Current | Target |
 |---|---|---|
-| v4.14 tasks | 32/209 | 209/209 |
+| v4.14 tasks | 34/209 | 209/209 |
 | v4.14 released members | 0/7 | 7/7 |
-| v4.14.0 phases | 6/7 | 7/7 |
-| Known gaps | 80 inherited + 23 new open | Resolve or approved carry |
+| v4.14.0 phases | 7/7 | 7/7 |
+| Known gaps | 80 inherited open, 29 resolved | Resolve or approved carry |
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its source `known-gaps.md` under `docs/releases/` or `docs/archives/`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
 
@@ -30,7 +30,7 @@ Refreshing this file to the active plan (rather than appending another version's
 
 - [x] Reproduce native cache replacement failure and qualify the reviewed baseline-preserving repair privately on Windows, Linux and mixed-version readers.
 
-- [ ] Pass complete final-source qualification and green hosted integration for the applied cache-publication repair.
+- [x] Pass complete final-source qualification and green hosted integration for the applied cache-publication repair.
 
 - [x] Capture native blocker 5 Z3T46TZ5 and apply its eleven exact files with fresh guards, immediate records, matching hashes and zero new accepts.
 
@@ -42,9 +42,9 @@ Refreshing this file to the active plan (rather than appending another version's
 
 - [x] Apply the exact blocker7 CI correction with preserved frozen patch hashes and the pinned render dependency.
 
-- [x] Reproduce the hosted rich-profile startup boundary, apply the reviewed launcher correction and pass native qualification; hosted proof remains pending.
+- [x] Reproduce the hosted rich-profile startup boundary, apply the reviewed launcher correction and pass native qualification; final hosted integration also passes.
 
-- [ ] Requalify stabilization and complete green merged integration.
+- [x] Requalify stabilization and complete green merged integration.
 
 - [x] Verify v4.14.0 Phase 6 locally: ownership-aware per-model effort delivery, conservative legacy override handling, and read-only doctor diagnostics on both installers; 411 scoped tests and 38 separate hook smoke cases passed.
 

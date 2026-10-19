@@ -5,8 +5,8 @@
       "docs/handbooks/_sources/distribution/model.json": "f027cf220fe45326c51d238da8d950d43f2736ad90839da6c558fb2e006ccaf8",
       "docs/handbooks/_sources/distribution/source.md": "676c9003f5bcf9dc2b86791ad8e2a7a6c14347acf1cbea7ae6641da68d8c0e46",
       "docs/handbooks/_sources/distribution/design.css": "e897d6a59a2c1dbcfad89e0ba8d6c5b32ae6baa024acbc0bc26b4be63de8a7ac",
-      "scripts/installer.ps1": "164a3f60889f4fa6161df54fc7179308f5ba6474a4a213ee8f516bd04fd5643d",
-      "scripts/installer.sh": "d440872e58e723e7dbd2c504501edea840864c80f484b741ac2f459af754e396",
+      "scripts/installer.ps1": "e43ebc892fa40b95ce47d148eae21873d762925f3a3b8149a384cd39393ca2f6",
+      "scripts/installer.sh": "cc7607b3d4c2b16f863a7cecba8a7d2135d3e0d21e9def770088c071d18a7c8f",
       "scripts/lib/integrations/runner.py": "03f2c090a6401552d215e0fb1c1556f9137d07e6db6a3e1f63c0bc316beddbbe",
       "scripts/nexus_hub_cli.py": "ebaf422e77d1e9a4506b7d7c61aa1669acc4dd6161f59d6ca662152ba213d236",
       "scripts/lib/integrations/claude.py": "e222462645b683412dc917379c28ee215dde425f89fc35199922484cfe30d2ff",
@@ -33,13 +33,13 @@
   "checks": {
     "content": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/distribution-template-path-claim-review.md",
-      "evidence_sha256": "dc19afd858d528692d4c8d1410853274e433efd52d0258d330b6efaa055b92c6"
+      "evidence": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/distribution-release-version-review.md",
+      "evidence_sha256": "9cd2990879c90eb7b32a3498b9485a8b6409aaab4b879ab6ba9bf0cbfeb9b29f"
     },
     "build": {
       "status": "pass",
-      "evidence": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/distribution-template-path-build-checks.json",
-      "evidence_sha256": "d9a1ceda65cbac75326018ecdf2bb5cce612d047a4c7f244f78b52f169e018b1"
+      "evidence": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/distribution-release-version-build.json",
+      "evidence_sha256": "3d90c4adc503b6d396cd9c07cdb51896902bf03040c45e8aeada0ccaba11ce81"
     },
     "rendered": {
       "status": "pass",

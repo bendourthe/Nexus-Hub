@@ -262,3 +262,7 @@ Fetched only the canonical Claude sub-agents and model-config pages. This pass v
 ### 2026-10-16 - v4.14.0 targeted effort-delivery verification
 
 The three requested Claude effort references and the current models overview were fetched. The settings-reference page exceeded the browser tool's response-size limit; the exact canonical URL returned HTTP 200 with Accept: text/markdown, 425177 bytes. The evidence records the narrower source scope, per-model saving, environment precedence, supported levels, and canonical IDs. This changes Claude effort delivery only; other platform entries retain their values and evidence dates.
+
+### 2026-10-18 - v4.14.0 scoped release verification
+
+The current platform discovery pass reuses the genuine October 16 Claude subagent and effort-delivery evidence above. Discovery references do not requalify every behavioral default. All other lever rows retain their prior dates and classifications, including partial and unverified surfaces. No memory lever, approval policy or seeded default changes in this release step. This remains an advisory record without a freshness gate.

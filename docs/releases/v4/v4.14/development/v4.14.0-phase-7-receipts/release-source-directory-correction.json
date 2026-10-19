@@ -1,0 +1,29 @@
+{
+  "cause": "The canonical version change correctly activates v4.14 docs scanning. Frozen CI proposal payloads retain canonical .github source directories; they are not invalid documentation names. One history receipt link needed its actual parent-relative target.",
+  "before": {
+    "final_fast": "16 passed, 1 failed; the single failed command reports two naming errors and one broken relative link",
+    "new_controls": "1 failed, 4 passed before the source correction"
+  },
+  "after": {
+    "guard_module": "20 passed in 3.86s",
+    "actual_cli_exit": 0,
+    "ruff_exit": 0,
+    "frozen_source_payloads_unchanged": {
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-correction-proposal-v2/after/.github/workflows/claude-usage-monitor.yml.txt": "4bf13421d812d75bf6bfd733c7c7df74e1323b3bde7b71c9091b55d50bf104e6",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-correction-proposal-v2/after/.github/workflows/code-search.yml.txt": "1fd5f4ddede8d7d0a38a39a321f7b1316078daf178f3961c932489669d64ab60",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-correction-proposal-v2/after/.github/workflows/codex-usage-monitor.yml.txt": "f43a8b3df818baaf4c47346884bd7720d5a143d681a7398c4a6b8f18ab7464cf",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-correction-proposal-v2/after/.github/workflows/copilot-usage-monitor.yml.txt": "5610707d7681276c60c1196e45512d5229424d87d77a8a1ca7ecbee825436edb",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-correction-proposal-v2/after/.github/workflows/doc-colocation.yml.txt": "9fefc3b2e76302278f6890469eaa10658cc3b9daff45c7ba3d15e537fe55abf4",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-correction-proposal-v2/after/.github/workflows/gemini-usage-monitor.yml.txt": "03187cf22c1cc1b1f975d47b6f713bf9fdcad38b7b2359017aeadfe550e5b71b",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-correction-proposal-v2/after/scripts/ci/reporting.py.txt": "63fc99808a636d420c216addceeebe1a466340f67c6819da4c2b8fc5bf600a12",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-correction-proposal-v2/after/scripts/ci/verify_scenarios.py.txt": "3c73bd12e45c312bbca338d3b21048bdc082ae627bd9df6640a1128c2b84d9ec",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-correction-proposal-v2/after/tests/ci/test_ci_reconciliation.py.txt": "65148200f5fed6b8f305ee4af655da617acba27308247c95abf7517c2140989a",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-correction-proposal-v2/after/tests/ci/test_ci_scenario_boundaries.py.txt": "6a62111ee4e7b72b8f82676608b67a477a112ee8d2e84ea70d105a060d9f4e7c",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-correction-proposal-v2/after/tests/ci/test_ci_scenarios.py.txt": "c2e6880e0298327a1584f0f77eb99b4c8f77c8d49d2d80cff6958d0034aeaa2f",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-stabilization-proposal/after/.github/workflows/presentify-extractor.yml.txt": "eee2159892123f8b83741546562a2a3283cdd8b5716f23cbae972f7dd91ace33",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-stabilization-proposal/after/.pre-commit-config.yaml.txt": "b35466905812a96b946acfdbabe3af17843512e01b6e9ee27ef3d5f1f184892d"
+    }
+  },
+  "scope": "Only the exact .github naming condition is permitted. Traversal, missing/case-sensitive links, emptiness, .unknown, .GitHub and invalid child names remain checked. No SKIP_DIR_NAMES, pipeline, permissions or frozen proposal payload changes.",
+  "new_guard_accepts": 0
+}

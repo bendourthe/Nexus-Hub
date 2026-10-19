@@ -9,17 +9,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.14.0] - 2026-10-18
+
 ### Added
 
 - `/presentify --flyover <url>` renders a live landing page as a 14.5-second 3D fly-over film (1440x1152, 60fps, H.264): one continuous camera glides down the page, rises to show it whole, and dives into the hero, which lands as a card under the user's two-line title. `references/landing-flyover.md` owns the route and keeps the user's original brief as its canonical spec, with the role mapping for pages that lack its photos or testimonial and the adaptations found on the first production run. The capture uses reduced motion so diagrams render their final frame; the render is loopback-only on the real GPU, detects the browser and ffmpeg instead of downloading them, and stops for approval of seven review stills before the final render. A homography optical-flow gate fails a dip in the glide or a zoom-in, `verify` checks every review frame against its approved still and the BT.709 tags, and `flyover_audio.py` lands a track's gap-then-hit on the card landing at about -14 LUFS. The film is the one presentify output that is not an HTML file; the single-file contract still binds every HTML output.
 
+
+Activation: Invoke `/presentify --flyover <url>` in a coding-agent session, replacing `<url>` with the landing page you control. Approve the seven review stills before a final render.
+Validation: From `catalog/skills/specialized-domains/document-to-interactive-html/`, run `python scripts/flyover_render.py verify RUN`, replacing `RUN` with the reviewed run folder. Expect exit 0 with 870 frames, BT.709 tags and approved-still comparisons.
+Rollback: Stop the run before final rendering and remove only its chosen run folder when its captures and outputs are no longer wanted. Omitting `--flyover` uses the normal presentify route; it does not remove existing films.
+Authority: Capture accesses the supplied page and optional font host. Rendering stays on loopback and requires local tools; activation grants no publication, model-service access or approval to render beyond the still-review gate.
+Docs: [Flyover workflow](catalog/skills/specialized-domains/document-to-interactive-html/references/landing-flyover.md).
+
 ### Fixed
+
+- Native JSON and installer upgrade paths preserve opaque timestamp strings, case-distinct keys, deep user data and managed hooks. Strict-overlay counting handles duplicate rules; malformed input is refused without false success or partial settings writes.
+- User-edit cache publication retains meaningful reviewed baselines across failed writes, supports private long Windows paths and preserves owner-only permissions and strict edit blocking.
+- The migration scanner recognizes the valid --!> comment ending while rejecting hidden provenance. Approval-page prose checks no longer reject a valid generated code containing HMAC; displayed text, exact capture, classes and reuse checks are unchanged.
+- CI uses repository-native profiles, explicit scenario coverage and bounded process-tree cleanup across supported runners. Linux PowerShell and Windows edit-recording boundaries have causal regression controls.
+- The offline routing map uses the documented Cursor composer-2.5 ID for both standard and fast tiers. Fast is a speed variant, not a separately verified composer-2.5-fast ID; the shared placement is an explicit judgment, with no automatic speed switch or measured savings claim.
 
 - Both Claude installers record the core values they actually seed, including a fresh template copy, and upgrade only matching recorded seeds. Recorded legacy effort env overrides are retired; unrecorded or changed values remain untouched. Removed recorded keys stay removed. `nexus-hub doctor` now reaches the shared read-only effort diagnostic through the command launcher and both native preflights. A user choice equal to the last seed is indistinguishable and may upgrade; choose a different saved per-model level to retain it.
 - Both Claude installers seed future absent template environment keys independently of existing effort settings, preserve malformed user-owned environment shapes, and keep UTF-8 values intact on Windows PowerShell 5.1. The defaults generator refuses noncanonical hook JSON before writing; existing hook registration bytes remain unchanged.
 - The merge-conflict-marker check prefilters tracked files with `git grep` and applies its exact line-anchored rule only to the candidates. It took about one second instead of 100-120 s on Windows, where it repeatedly exceeded the fast profile's 120 s step bound; findings are unchanged, including widened and CRLF markers.
 
 ### Changed
+
+- Plan and implement use focused checks while tasks are implemented and run comprehensive validation on the completed plan before release. Explicit earlier acceptance and safety checks remain required; evidence is reused only while its inputs remain unchanged.
+- Independent plans in an approved minor run can be implemented concurrently by agents in exclusive worktrees. Native dependency and read/write claims protect their boundaries; coordinator publication and releases remain sequential.
+- Current platform discovery sources were rechecked with existing compatibility limits retained. Four documentation-scoped prompting-profile advisories report drift; they do not establish account-specific retirements, and no profile was restamped by the release check.
 
 - Claude effort defaults use per-model `high` for `claude-opus-5-5`, `claude-sonnet-5-5`, `claude-haiku-5-5`, and `claude-fable-5-1`, with the top-level fallback for older models. The overriding effort env variable is no longer seeded, so saved `/effort` choices work at their scope; higher-priority settings still win. Per-model settings require Claude Code 2.1.251 or later, new model IDs require refreshing the seeded list, and `max` cannot be a settings default. [Ownership and keeping another level](configs/README.md#platform-defaultsjson).
 - Claude Code installs seed `CLAUDE_CODE_SUBAGENT_MODEL=sonnet` for unpinned custom agents, including upgrades over existing core settings. Fresh project stubs carry the same opt-out default. All 23 shipped reasoning-sensitive agents pin `opus`; existing user values remain intact. A lower-tier custom-agent default can change quality and potential cost, and no measured saving is claimed. [Activation, validation, rollback, and authority boundaries](docs/releases/v4/v4.14/development/capability-usage-gate.md).
@@ -28,6 +47,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The model-routing map's Google frontier cell moves to `gemini-4-argon` (GA 2026-10-13); the other fifteen cells are re-confirmed on official pages.
 - The Training game plays by touch on phones and tablets: hold a finger on the arena and the ship fires constantly while flying toward the finger (a little above it, so the finger never hides the ship); lift the finger to stop. This replaces the on-screen Left, Up, Down, Right, and Fire buttons, and the start screen's hint says so on touch devices. A drag on a running arena steers instead of scrolling the page; keyboard and mouse controls are unchanged.
 - The Training game has a full-screen button in the arena's top-right corner; while full screen is on it becomes an exit cross (Escape also leaves). Full screen takes the screen's exact shape, so the arena fills it edge to edge on a laptop, a phone held either way, an unfolded foldable, a tablet, or an ultrawide monitor (any shape from 0.45 : 1 to 2.5 : 1). This holds for a run already in progress too: entering full screen, rotating, or unfolding mid-run reshapes the arena with every ship, shot, and pickup kept in proportion, and leaving full screen returns the run to the page's shape. Browsers without element full screen (an iPhone) get the same layout by covering the viewport. The score, level, and retries line now ends left of the button, and on a phone the start card shows two ships above three so the button's corner stays clear. Leaving full screen returns the page to where it was.
+
+### Parallel plan execution
+
+Activation: Invoke `/implement v4.14` and approve its native minor-run page. The coordinator dispatches compatible admitted plans when agents and isolated worktrees are available; independent implementation can start before an earlier release.
+
+Validation: Run `git worktree list` and `python scripts/check_plan_completion.py check-minor v4.14` from the controller checkout to inspect worker identities and admission/publication status. INCOMPLETE remains expected while any required task, release or cleanup is outstanding.
+
+Rollback: Invoke `/implement pause` to use the native pause path at a safe point, or request serial execution before admitting more workers. Pausing preserves unfinished branches and worktrees; only verified merged work is eligible for cleanup.
+
+Authority: Workers receive exclusive implementation scopes under one parent approval and aggregate budget. Publication, merge and release remain coordinator-owned and sequential; admission grants no independent push, pipeline, signature or approval authority.
+
+Docs: [Parallel implementation and ordered release](docs/decisions/implemented/process/2026-10-18-parallel-implementation-and-ordered-release.md).
+
+### Subagent model default
+
+Activation: Applicable Claude installs and fresh project stubs seed absent `env.CLAUDE_CODE_SUBAGENT_MODEL` as `sonnet`; existing user-owned values are preserved. This default is opt-out.
+
+Validation: In PowerShell, run `(Get-Content -LiteralPath "$HOME/.claude/settings.json" -Raw | ConvertFrom-Json).env.CLAUDE_CODE_SUBAGENT_MODEL`; expect `sonnet` or the existing override. This reads configuration, not a running model invocation.
+
+Rollback: Set that exact key to `inherit` in every global/project file that declares it, retaining other settings. Removing an unrecorded key can allow a later install to seed it again.
+
+Authority: This default writes configuration without making model requests or granting tool access. All 23 shipped reasoning-sensitive agents retain explicit Opus pins, subject to independent provider force/precedence behavior. No measured saving is claimed.
+
+Docs: [Subagent default usage](docs/releases/v4/v4.14/development/capability-usage-gate.md).
+
 
 ## [4.13.13] - 2026-10-15
 

@@ -1,0 +1,548 @@
+{
+  "private_evidence_sha256": "496e8c29b942ac674af3c82175758484fc4ab1d880d453b1c56f8cc966a276d2",
+  "report": {
+    "kind": "bounded supplement to architecture-final-v6",
+    "head": "8b32922ca573fb57546611267b88246c1064f1e4",
+    "paths": [
+      {
+        "path": ".gitattributes",
+        "sha256": "cf00e966b75d7f5e6d3838cd1c353e04fadb0df6f29e42ec5eab96b817c19ad9",
+        "bytes": 3399,
+        "classification": "Stay: conventional repository tooling configuration"
+      },
+      {
+        "path": ".pre-commit-config.yaml",
+        "sha256": "b35466905812a96b946acfdbabe3af17843512e01b6e9ee27ef3d5f1f184892d",
+        "bytes": 5316,
+        "classification": "Stay: conventional repository tooling configuration"
+      },
+      {
+        "path": "catalog/commands/implement.md",
+        "sha256": "fe59c7125d039f942cd65110b7b4a679066a5f3456da9ec9253191b6384f4f33",
+        "bytes": 15243,
+        "classification": "Stay: existing command or owning skill surface"
+      },
+      {
+        "path": "catalog/commands/plan.md",
+        "sha256": "ea64604be1ed8415b7d07a478340e8bb7583b6f6b44fca68cedd2e94c58b13cf",
+        "bytes": 16824,
+        "classification": "Stay: existing command or owning skill surface"
+      },
+      {
+        "path": "catalog/commands/update.md",
+        "sha256": "c03045ed4a5f213c12330fd7f3e0c74bad1b501c4b7158a45f1373edd84666c9",
+        "bytes": 61032,
+        "classification": "Stay: existing command or owning skill surface"
+      },
+      {
+        "path": "catalog/hooks/tests/test_user_edit_guard.py",
+        "sha256": "491dcf9ba0746b90c5a85efa3435a4b236f74347c7262d91728af178320e797f",
+        "bytes": 33400,
+        "classification": "Stay: native owner regression fixture"
+      },
+      {
+        "path": "catalog/skills/infrastructure/cicd-architect/SKILL.md",
+        "sha256": "485c6dad85ee0dbd4bce3ccba36ba7b0f047e3497711d4993e59e8bd1e0f75bb",
+        "bytes": 23337,
+        "classification": "Stay: existing command or owning skill surface"
+      },
+      {
+        "path": "catalog/skills/orchestration/agent-orchestration-primitives/SKILL.md",
+        "sha256": "7cc83d12d1651e510832273eab5f67cd69a0354182a1fa4e16416930f0127382",
+        "bytes": 25498,
+        "classification": "Stay: existing command or owning skill surface"
+      },
+      {
+        "path": "catalog/skills/orchestration/multi-agent-coordinator/SKILL.md",
+        "sha256": "6f66e5016faf3d31a9eb92693943054fea84625a51d71babd2c79e9a7264978d",
+        "bytes": 45465,
+        "classification": "Stay: existing command or owning skill surface"
+      },
+      {
+        "path": "catalog/skills/tests-generation/cicd-integration/SKILL.md",
+        "sha256": "337b7f0cc5529a2e26428331daf5deb0913c79b739d7d4a464c7448418f05520",
+        "bytes": 22639,
+        "classification": "Stay: existing command or owning skill surface"
+      },
+      {
+        "path": "catalog/skills/workflow/implement-phase/SKILL.md",
+        "sha256": "07d4ae42fe92b582982fe9c7515e1a6e27e08c0f5b270d2f1dc428c9b4189595",
+        "bytes": 22939,
+        "classification": "Stay: existing command or owning skill surface"
+      },
+      {
+        "path": "catalog/skills/workflow/implement-phase/references/completion-contract.md",
+        "sha256": "6d673508e2d269ebbb060ea2237fba6f8a6c5752b1a9428f5604f3ffe51581e5",
+        "bytes": 65854,
+        "classification": "Stay: existing command or owning skill surface"
+      },
+      {
+        "path": "catalog/skills/workflow/implement-phase/references/implement-phase-runbook.md",
+        "sha256": "46d29d1a2fda8da74d478741de89a3743c08e030ebb3df4348f4ddff9d354e51",
+        "bytes": 63280,
+        "classification": "Stay: existing command or owning skill surface"
+      },
+      {
+        "path": "catalog/skills/workflow/implementation-plan/SKILL.md",
+        "sha256": "2b843ff9e8f228a57fb748e8f28bbd036115cd190390f2beb2c30bbbaeb639a1",
+        "bytes": 54465,
+        "classification": "Stay: existing command or owning skill surface"
+      },
+      {
+        "path": "catalog/skills/workflow/implementation-plan/references/mandatory-final-phase.md",
+        "sha256": "45548a9ad5e286f88b7ed04821b85fd0aedaca75b483a5b84d9fb2fa2bee17b2",
+        "bytes": 13723,
+        "classification": "Stay: existing command or owning skill surface"
+      },
+      {
+        "path": "catalog/skills/workflow/plan-queue-assessment/SKILL.md",
+        "sha256": "a679828f6d25d44e113dd118a918e05202ea963fcdde8095ac956c3346a79c89",
+        "bytes": 21920,
+        "classification": "Stay: existing command or owning skill surface"
+      },
+      {
+        "path": "catalog/skills/workflow/user-edit-preservation/scripts/edit_guard.py",
+        "sha256": "68d688b9037303a6af9bb2278ec6c54d252fd0c8e7fb8691c2ecce15e3e73adc",
+        "bytes": 66547,
+        "classification": "Stay: existing command or owning skill surface"
+      },
+      {
+        "path": "data/skills.json",
+        "sha256": "fbe15912b5d65029a285c31b882d54c46bdbc274d4bc4b4609fce8c1a470c3c2",
+        "bytes": 921625,
+        "classification": "Stay: registered generated catalog state"
+      },
+      {
+        "path": "docs/decisions/implemented/process/2026-09-23-scope-nonfinal-phase-tests-to-blast-radius.md",
+        "sha256": "1763284f491294bd3d5b6eebeb47d874b7635ada0fd6333ff9cce1cb61c5f55c",
+        "bytes": 4019,
+        "classification": "Stay: living implemented process decision"
+      },
+      {
+        "path": "docs/decisions/implemented/process/2026-10-18-complete-plan-validation-cadence.md",
+        "sha256": "3de3a940749ff9101bcc0017f33394ea4b7754e690b33a334c5a37768b04f74e",
+        "bytes": 4032,
+        "classification": "Stay: living implemented process decision"
+      },
+      {
+        "path": "docs/decisions/implemented/process/2026-10-18-parallel-implementation-and-ordered-release.md",
+        "sha256": "bd9379471873507f9a119440d8d0679b5b40e27e7a6bc4ec544e600bbddf0000",
+        "bytes": 5414,
+        "classification": "Stay: living implemented process decision"
+      },
+      {
+        "path": "docs/policy/ci-cd-lifecycle-contract.md",
+        "sha256": "adc33f3ddfc37d04c139db47a44e5fed6629bb83a247d74bd54e265165299bbe",
+        "bytes": 17005,
+        "classification": "Stay: living policy"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/2026-10-18-parallel-plan-assessment.md",
+        "sha256": "edd417491c9d09e66731d94e6b5957f7362277e23ff57586531e2728cf14dad3",
+        "bytes": 6534,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/initial-parallel-candidate-claims.json",
+        "sha256": "788b4e92c5acd92ed2f5bc8947c78cd0b2903a9e7a2711d42a16a44c907f151b",
+        "bytes": 16801,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/parallel-implementation-workflow-plan.md",
+        "sha256": "a002cf44cc31601c240ddd0d5cbf14cda7d015f42c07d790e450702cf58b563a",
+        "bytes": 8875,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/parallel-workflow-plan-review.json",
+        "sha256": "066eb42665bf0270a7e32bb337815a44bbdc8bd48fd8445e923082e9d4c9d832",
+        "bytes": 1604,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-ci-stabilization-proposal.md",
+        "sha256": "8b1aee63278581617c529e2c24fa4e31c59b472542a45ccd9101a4aa6f0c9c3a",
+        "bytes": 4532,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-lockfile-reconciliation-proposal.md",
+        "sha256": "bce88e2d7dcb9ee89196efd4fd3640a40dc0f87bed6ad7b9d8a0a3dc95f474b1",
+        "bytes": 2411,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/approval-code-prose-correction.json",
+        "sha256": "b90b4cd90dba1a2a2fb953bf1372c9d796529c931989fa81e15e8578b01e1502",
+        "bytes": 3720,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/architecture-final-v6.json",
+        "sha256": "2fbc5f6e8a64e441d54a154329b04329da8630fa208589479fde2cfb35415cb7",
+        "bytes": 32027,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/blocker7-native-applied-qualification.json",
+        "sha256": "c45791743ec669dd6ab2a32d6422b4747534577d892f2d8cc5d42d39650ec814",
+        "bytes": 7258,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/blocker8-lockfile-reconciliation-applied.json",
+        "sha256": "a954bbe3db4eb534cd0e7c51a0ab5141bd800c70abbb58ab23b3602ee848d032",
+        "bytes": 2120,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-path-adversarial-observations.json",
+        "sha256": "a383d8af71015db677aa9e45a846428e3a808c18421a3bdc36f829eeff4cf793",
+        "bytes": 7779,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-path-owner-only-acl.json",
+        "sha256": "04f0834602eaf15d0a2828879a2ee88c421121fd91dcf5bb679f693e00e3fcc7",
+        "bytes": 2649,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-path-stabilization-applied.json",
+        "sha256": "a66a9c46ab31e7910e44fed9b041eb90f7a9454535603f25d4883d925d18c775",
+        "bytes": 883,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-path-stabilization-review.json",
+        "sha256": "2fca3f14ec7733fffa172cb64ad9b955a703fa249e87b3d13fe89a42f0cfa9f9",
+        "bytes": 2034,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-path-stabilization.patch",
+        "sha256": "8ccdc94d5d5bff964f42b629439f3bd81d96173053b83acfb34f7753f8dda83f",
+        "bytes": 8697,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-actual-source-v9-checkpoint.json",
+        "sha256": "21138aee2c21a25519873f72a46b189a120eceef3256ee0da1a11a5b8e362b9b",
+        "bytes": 407,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-artifact-bytes.json",
+        "sha256": "34e94be336ca466ebd0ac78b304a135daa17fd668d3b15717ff330c34a290fe9",
+        "bytes": 11682,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-final-native-stress.json",
+        "sha256": "7b05a407d8a556e348eac7a05b13635e7e217cd975f7d429b2aeaa19c2dbaa20",
+        "bytes": 117,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-lint-comparison.json",
+        "sha256": "f1fe989b071b89faa8e4ee64b4f4769f0343386a9de8ec0230db8d531dff9a6b",
+        "bytes": 2946,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-linux-result.json",
+        "sha256": "790b995db1c1a5675d1bdf24ac3edcf32910c7e20faf641134a0b7eb844be905",
+        "bytes": 122,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-native-hook-results.json",
+        "sha256": "62e10414191a3443b00abf8d1145175a1fb38cc1075720c25d1be412c6d9d182",
+        "bytes": 195,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-atomic-failure.json",
+        "sha256": "5b8179bcb0091ce8d79d6df8d6b6a1f04835894e7be736fbd315af8235ab0dfa",
+        "bytes": 701,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-full-v8.json",
+        "sha256": "9581a5c56e6f589aec44c45ebfca4da784064540ebd95d456f5041ac4c4a6d27",
+        "bytes": 47217,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-platform-v8.json",
+        "sha256": "265ec6c24d1cf77f5b7ce7dc5e9dee3f2d47d41322c676b3f0d9c7c56c6e86fb",
+        "bytes": 17809,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-source-comparison-v8.json",
+        "sha256": "be784f6bc1a5c61f51bc0ba8df5c39e3f288064da5d76be0878e5da46002438b",
+        "bytes": 179,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-original-win5.json",
+        "sha256": "940272b13f69d7644026926d16775420a0c9d6d6ab87ff70a0867bc93ef18267",
+        "bytes": 2398,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-redaction-v9.json",
+        "sha256": "705af7797a3887c86256af02f54e536d02349f76c5f580cd6dd600bd8f2cb5cd",
+        "bytes": 10887,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-stabilization-applied.json",
+        "sha256": "21d28c188f44fbe72c9921ed6c3f638c82c22089c6fd42172b3618702f57ad94",
+        "bytes": 7604,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-stabilization-applied.json",
+        "sha256": "86eb6245c072463858e1e5666ab921805b98a91d59c4545ebf2072a939b15af9",
+        "bytes": 1172,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-stabilization-proposal/after/.github/workflows/presentify-extractor.yml.txt",
+        "sha256": "eee2159892123f8b83741546562a2a3283cdd8b5716f23cbae972f7dd91ace33",
+        "bytes": 8200,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-stabilization-proposal/after/.pre-commit-config.yaml.txt",
+        "sha256": "b35466905812a96b946acfdbabe3af17843512e01b6e9ee27ef3d5f1f184892d",
+        "bytes": 5316,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-stabilization-proposal/candidate.patch",
+        "sha256": "a6b48c5ef9abd3a2945370aeeca2b94cc4229daa7ebbe623deb6b5ce319a676a",
+        "bytes": 2189,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-stabilization-proposal/first-ci-additional-failures.json",
+        "sha256": "9950f5311ed632ee57bfac44be42a2540dd5baf41c5fe43b3464a35b8398d9f8",
+        "bytes": 19245,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-stabilization-proposal/manifest.json",
+        "sha256": "11cb16d4c77a3fe6e7fbb0280411a488a15c024af522a946689566bca29ada8d",
+        "bytes": 1291,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-stabilization-proposal/native-windows-open.json",
+        "sha256": "678a77ede69c65e82e4f315345da3d85c3409c057692aff581972471d940dabd",
+        "bytes": 1329,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-stabilization-proposal/qualification.json",
+        "sha256": "08bbd4f8fdedb302edb6babdcb301d85233991b13c67d6f76a2eadabf8f415cc",
+        "bytes": 2766,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-stabilization-proposal/review.json",
+        "sha256": "d48b1854c86954753fafae99ec53a5a4c7de624764546443888be7de9184a80f",
+        "bytes": 1250,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/codeql-migration-comment-correction.json",
+        "sha256": "b2412c48a2005ff106a3e0f62611519c3a8cdea77c5b8b709a076d4649332d5e",
+        "bytes": 3561,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/codeql-timeout-local-correction.json",
+        "sha256": "f7e2ed930c5c314caadb06a5b48172f5f0517b1b777689284edbacdf5697bb3f",
+        "bytes": 1274,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/distribution-template-path-build-checks.json",
+        "sha256": "d9a1ceda65cbac75326018ecdf2bb5cce612d047a4c7f244f78b52f169e018b1",
+        "bytes": 1585,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/distribution-template-path-claim-review.md",
+        "sha256": "dc19afd858d528692d4c8d1410853274e433efd52d0258d330b6efaa055b92c6",
+        "bytes": 1597,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/final-local-profiles-v6.json",
+        "sha256": "c83faa6ad6215ba14df1de7e570b9b4cebd7faa3ecd15fd7c770588d19f975ce",
+        "bytes": 14582,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/final-local-profiles-v9.json",
+        "sha256": "11942ccd78bbf49c45d4eefb20783dd55972f34cd1e3c54af1ffd2cc559ed074",
+        "bytes": 4037,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/formatter-settle-stabilization-applied.json",
+        "sha256": "f4e324337525d315fbe841a7fb95a6d40cdddc86ffb8d59cd8c7455c68e4e600",
+        "bytes": 2778,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/handbook-check-after-template-path-repair.json",
+        "sha256": "3baa4ec46c388ab3644bc7d63d73b121f5b16a213b4624a1fa4832c7b983c3f1",
+        "bytes": 8151,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/lockfile-reconciliation-preflight.json",
+        "sha256": "d057497c8e064841f4f109a57b8ef52daef90b0d50d7e8d8deb7c7e3d8a74f97",
+        "bytes": 1185,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/lockfile-reconciliation-proposal.json",
+        "sha256": "deaccccfc6263dc8cd0fa5c5608f7a46ad7afa9de77acfb6c839817d0e13cf97",
+        "bytes": 4793,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/lockfile-reconciliation-proposal.patch",
+        "sha256": "10ec4cdec2f8ec8eeaa271359cef7edae0ed65554e95a4753308c702f9f5e8cf",
+        "bytes": 5508,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/native-stabilization-applied.json",
+        "sha256": "5b36f2f7c0898781fc2368d54dbb13a98ed0f16e3c3953e435e7008d72757b95",
+        "bytes": 1697,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/native-stabilization-repair.patch",
+        "sha256": "e1d6569dc4bc68bd44960e863ea7361fadebf0a91c9d30a1daa5b480679df60c",
+        "bytes": 4954,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/native-stabilization-review-v2.json",
+        "sha256": "6f0cb14dec0d36d8c87ca1a4971fd8f9e5696e6422897687f320119b353fbced",
+        "bytes": 1781,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/parallel-workflow-qualification.json",
+        "sha256": "2161925b3be3401b143acf937e27d76129d01507ff200445e5466e1980cff844",
+        "bytes": 3858,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/staged-whitespace-qualification.json",
+        "sha256": "a18113b4d4c926b5ab9dd7ddf920310ebb09fa420045c1e732f01d0fd25345d1",
+        "bytes": 16976,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/validation-cadence-applied.json",
+        "sha256": "bcc05f6c0f3d95cf4364d4513d622ded134bb5087373b745221644cfaa0ee456",
+        "bytes": 6961,
+        "classification": "Stay: active .0 evidence, plan, or parallel-candidate record"
+      },
+      {
+        "path": "scripts/approval_page.py",
+        "sha256": "4610466f481034dd6f2a9601fae4b18d7bd99989eb028c20c6cf6bf5d3284eca",
+        "bytes": 43819,
+        "classification": "Stay: shared native helper owner"
+      },
+      {
+        "path": "scripts/check_plan_completion.py",
+        "sha256": "d798d5096e5882220a42234f9af5a698fefa72488ea8146a49e4f3f7757dc368",
+        "bytes": 79359,
+        "classification": "Stay: shared native helper owner"
+      },
+      {
+        "path": "scripts/completion_minor.py",
+        "sha256": "9b7b05e3df6ed522006456e2e7c371c6760f94da1f0eb7648cda2f694eae8912",
+        "bytes": 153342,
+        "classification": "Stay: shared native helper owner"
+      },
+      {
+        "path": "tests/skills/test_cicd_lifecycle_contract.py",
+        "sha256": "ccff43b56412e4a3651cf679b32e86df03ef50b0a5936dd331abec6149e7440a",
+        "bytes": 20148,
+        "classification": "Stay: native owner regression fixture"
+      },
+      {
+        "path": "tests/skills/test_edit_guard_publication.py",
+        "sha256": "5667d65c693c1fa2f8979bbfebfc9c3b80a7a37d9459ee2a3432e57559e35951",
+        "bytes": 23071,
+        "classification": "Stay: native owner regression fixture"
+      },
+      {
+        "path": "tests/skills/test_implement_lifecycle_contract.py",
+        "sha256": "c5582a70bea658a52cfc6d736e17f162ee9a4ac98b0a54c7102ceadc30a9e694",
+        "bytes": 24496,
+        "classification": "Stay: native owner regression fixture"
+      },
+      {
+        "path": "tests/skills/test_parallel_plan_workflow.py",
+        "sha256": "641b592abf7a819f823469be709e1ba1165cb179cf1babf276437173812d7e38",
+        "bytes": 5994,
+        "classification": "Stay: native owner regression fixture"
+      },
+      {
+        "path": "tests/skills/test_plan_lifecycle_contract.py",
+        "sha256": "34fce51ab48dabe1ba6a5040cdf09652fbc7da0140bf9c3d4fee29d01137c6a5",
+        "bytes": 13844,
+        "classification": "Stay: native owner regression fixture"
+      },
+      {
+        "path": "tests/validators/test_approval_page.py",
+        "sha256": "7a67976d1620c62a9b89e8f1be873bb29a324e244401255d0194c279ccc79e76",
+        "bytes": 52521,
+        "classification": "Stay: native owner regression fixture"
+      },
+      {
+        "path": "tests/validators/test_gap_migration_and_archive.py",
+        "sha256": "d694ea565b69850efbd0ec3ecbc7822c18f3247b1252100b1bf735a2c727931b",
+        "bytes": 64901,
+        "classification": "Stay: native owner regression fixture"
+      },
+      {
+        "path": "tests/validators/test_parallel_member_implementation.py",
+        "sha256": "26523ffef631ad026533bd999b4c270fc845a242f774a7e67de3fba012553bdd",
+        "bytes": 30626,
+        "classification": "Stay: native owner regression fixture"
+      },
+      {
+        "path": "tests/validators/test_plan_worktree_isolation.py",
+        "sha256": "0629910aedf48e9152b2c230374e23f1506552729b22791e028fb2cb1119e315",
+        "bytes": 12302,
+        "classification": "Stay: native owner regression fixture"
+      }
+    ],
+    "additional_paths": 88,
+    "empty_immediate_affected_parents": [],
+    "byte_identical_additional_groups": [
+      [
+        ".pre-commit-config.yaml",
+        "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-stabilization-proposal/after/.pre-commit-config.yaml.txt"
+      ]
+    ],
+    "orphan_disposition": "New workflow owners remain in existing commands, skills, scripts and tests with existing imported-reader/qualification receipts. Evidence files are retained provenance, not cleanup candidates. No zero-reference assertion is made from names or hashes.",
+    "complexity_disposition": "Retain v6 semantic review for unchanged implementation. Added workflow uses existing native coordinator/readers and isolated worktree protocol, no new root or parallel runtime. Deep proposal after/before copies are intentional provenance; no flattening or move proposed.",
+    "scope_limit": "Not a whole-repository orphan scan or proof of complexity absence. Immediate affected parent emptiness and duplicate hashes cover additional paths only. No filesystem mutation."
+  }
+}

@@ -14,7 +14,8 @@ are grandfathered by decision (docs/decisions/implemented/tooling/
   GitHub/Linux while passing on Windows)
 - empty directories
 - directory names that are not kebab-case (lowercase, digits, hyphen; dots
-  allowed so version dirs like v3.19 stay legal)
+  allowed so version dirs like v3.19 stay legal). Canonical .github source
+  directories are allowed and remain scanned
 
 Usage:
 
@@ -245,7 +246,7 @@ def check_dirs(tree: Path) -> list[str]:
     findings: list[str] = []
     for directory in iter_dirs(tree):
         name = directory.name
-        if not DIR_NAME_RE.match(name):
+        if name != ".github" and not DIR_NAME_RE.match(name):
             findings.append(f"{rel(directory, tree)}: directory name is not kebab-case")
         try:
             children = list(directory.iterdir())
