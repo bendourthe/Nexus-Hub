@@ -1,11 +1,11 @@
 # Nexus-Hub Progress Dashboard
 
 **Integration branch:** `develop`
-**Active work:** v4.14 full-minor run, 32/209 tasks and 0/7 releases. Final local qualification passes for the first member. The new testing standard is applied and passes 385 affected tests plus 17 fast checks. Hosted integration remains pending. Ledger: 103 open, 6 resolved.
+**Active work:** v4.14 full-minor run, 32/209 tasks and 0/7 releases. The parallel implementation workflow is implemented and locally qualified: 419 workflow tests, 31 Linux native controls, 12 affected Windows cases and 17 fast checks pass. Merge and release remain pending. Ledger: 103 open, 6 resolved.
 
 The original Linux installer and Windows edit-recording failures have local causal repairs and passing final gates. Their known-gap entries remain open pending required hosted integration.
 
-**Run state:** Active publication preparation. V9 full 65/65, Windows 12/12, monitor 14/14 and required-rendering guide 4/4 pass. The subsequent policy correction has actual-source focused proof with unchanged native inputs. No stabilization repush or release yet.
+**Run state:** Workflow correction qualified locally; prepare its reviewed commit and stabilization push. PR485 first stabilization has 43 passing checks and only the corrected CodeQL test errors. No live parallel admission or release yet. Previous V9 full/platform proof is reused for unchanged inputs.
 
 **Closeout boundary:** Recovery backups with unique Git history, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim. The former 47-file recovery branch was removed after its patch was proven identical to the merged PR #259 commit.
 **Last refreshed:** 2026-10-18 UTC
@@ -13,7 +13,7 @@ The original Linux installer and Windows edit-recording failures have local caus
 
 **Recent feature:** The Gemini Usage Monitor for the Antigravity IDE, confirmed working inside Antigravity by the maintainer on 2026-10-14, merged green through PR #465; it ships in the next release.
 
-**Next:** Publish the reviewed stabilization once, pass required hosted merge-result checks and merge; release the first member and admit the next plan using focused intermediate verification.
+**Next:** Finish and verify native parallel implementation admission and ordered publication, merge the corrected workflow to develop, release v4.14.0, then admit and dispatch compatible remaining member plans in isolated worktrees.
 
 | Metric | Current | Target |
 |---|---|---|

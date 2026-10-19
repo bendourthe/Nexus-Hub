@@ -153,6 +153,14 @@ is indistinguishable from a skipped check.
 |---|---|---|
 | vX.Y.Z <slug> | content / ordering / no impact / unknown | [what changes for THIS plan] |]
 
+## Implementation dependencies and ownership
+
+[REQUIRED. Apply [[plan-queue-assessment]] to list actual implementation prerequisites and their proving merged commits, complete repository-relative read paths and exclusive write paths including tests, this plan file and plan-specific evidence, plus coordinator-owned metadata deltas. Use literal file paths or directory paths ending in `/`, never globs. Task-derived touched paths are only a lower bound. Record candidate concurrent groups and any unknown compatibility. Release order is semantic-version order and is not an implementation dependency.]
+
+`{"depends_on": [], "read_paths": [], "write_paths": []}`
+
+[The coordinator owns shared known-gaps ledgers, CHANGELOG, version/release metadata and docs/todos. Workers propose those deltas separately, leaving any original implementation tasks unchecked until the coordinator applies and tests the changes. Native admission validates claims through the completion contract; [[implement-phase]] owns automatic dispatch, bounded capacity and ordered publication.]
+
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
@@ -344,6 +352,10 @@ Apply these rules when deciding how many phases to create and how to split them:
 
 ---
 
+## Parallel implementation metadata
+
+Generate the required dependency and ownership section from the queue assessment before decomposition. Specify complete source, test and evidence claims, the contract between concurrent plans, and each unknown that requires serial execution. Independent whole-plan implementation may precede earlier releases; publication remains ordered. Preserve the focused intermediate checks and complete-plan final validation below. For an already approved frozen plan, write the refreshed assessment as a release-scoped sidecar and pass its claims to native admission; do not change the frozen plan prose.
+
 ## Instructions
 
 ### Step 1: Run the Discovery Interview
@@ -475,6 +487,9 @@ Create no branch. Commit the plan and its tracker entry on the integration branc
 | "The implementer can pick the vendor while they code the slice" | That hides a blocking decision inside an implementation ticket. Mark it `decision:` and resolve it before the slices it unblocks, or two phases ship incompatible forks. |
 
 ## Verification
+
+- [ ] `## Implementation dependencies and ownership` lists actual prerequisites, complete literal read/write claims, coordinator-owned deltas, candidate concurrent groups and unknown compatibility, or an assessment sidecar supplies these for a frozen plan.
+- [ ] Implementation concurrency is assessed independently of semantic-version release order; no task requires an unrelated earlier release merely to start implementation.
 
 - [ ] Plan type, version, and slug all resolved and confirmed with the user
 - [ ] All discovery questions answered (optional "additional context" question may be skipped)

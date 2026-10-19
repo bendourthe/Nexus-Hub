@@ -7,8 +7,9 @@ session is editing.
 
 Three rules are guarded here, each owned by a different file:
 
-* ``implement-phase`` creates the worktree and reports parallel-capable plans.
-* ``/update release`` verifies integration and then tears the worktree down.
+* ``implement-phase`` creates worktrees and dispatches eligible minor workers.
+* ``/update release`` verifies integration and reconciles executor cleanup,
+  preserving active controllers and workers until final minor cleanup.
 * The mechanics stay with ``using-git-worktrees`` and the ranking with
   ``plan-queue-assessment``; this module asserts the HANDOFF exists rather than
   re-checking those skills' own rules.
@@ -69,30 +70,44 @@ def test_runbook_has_a_branch_fallback() -> None:
 # --- parallel reporting -----------------------------------------------------
 
 
-def test_runbook_reports_parallel_capable_plans() -> None:
-    t = _read(_RUNBOOK)
-    assert "Report which other plans can run in parallel" in t
-    assert "[[plan-queue-assessment]]" in t
+def _parallel_assessment() -> str:
+    text = _read(_RUNBOOK)
+    return text.split("### Phase 0c: Assess and dispatch parallel plans", 1)[1].split(
+        "\n## Phase 1:", 1
+    )[0]
 
 
-def test_parallel_report_emits_a_launch_block() -> None:
-    """A named plan with no way to start it is not an actionable report."""
-    t = _read(_RUNBOOK)
-    assert "/implement v4.17.0-<slug> in-full" in t
-    assert "a NEW terminal window" in t
+def test_runbook_assesses_and_dispatches_parallel_plans() -> None:
+    section = _parallel_assessment()
+    assert "[[plan-queue-assessment]]" in section
+    assert "single-plan invocation reports compatible queued plans" in section
+    assert "without starting plans outside its approval" in section
+    assert "minor invocation automatically dispatches eligible approved members" in section
+
+
+def test_parallel_dispatch_records_actual_worker_identity() -> None:
+    """A suggested launch is not evidence that an isolated worker exists."""
+    section = _parallel_assessment()
+    assert "launch suggestion alone is not dispatch evidence" in section
+    assert "actual returned agent handle" in section
+    assert "branch, linked worktree, base, signed claims and status" in section
+    assert "NEW terminal window" not in section
+    assert "/implement v4.17.0-<slug> in-full" not in section
 
 
 def test_parallel_report_states_its_basis_and_never_omits_itself() -> None:
-    t = _read(_RUNBOOK)
-    assert "State the overlap basis" in t
-    assert "no queued plan is parallel-capable against this one" in t
-    assert 'an absent report reads as "none checked"' in t
+    section = _parallel_assessment()
+    assert "overlap basis as named paths and prerequisites" in section
+    assert "no eligible parallel plans" in section
+    assert "named conflicts, missing prerequisites or unknowns" in section
+    assert "never omit the assessment" in section
 
 
 def test_missing_ranking_owner_is_declared_not_reconstructed() -> None:
-    t = _read(_RUNBOOK)
-    assert "mark the parallel report not covered" in t
-    assert "never reconstruct its ranking rules from memory" in t
+    section = _parallel_assessment()
+    assert "assessment owner is unavailable" in section
+    assert "mark compatibility not covered and execute serially" in section
+    assert "never reconstruct its ranking rules from memory" in section
 
 
 # --- teardown ---------------------------------------------------------------
@@ -144,7 +159,10 @@ def test_skill_body_states_all_three_guarantees() -> None:
     t = _read(_SKILL)
     assert "Worktree isolation and parallel plans" in t
     assert "not just its own branch" in t
-    assert "retires the worktree" in t
+    assert "reconciles worktree retirement after green merged integration" in t
+    assert "active-controller and active-worker exception" in t
+    assert "final minor completion still requires its cleanup evidence" in t
+    assert "Never override KEEP or force-remove a dirty worktree" in t
 
 
 def test_command_states_the_guarantee() -> None:
@@ -157,8 +175,11 @@ def test_command_states_the_guarantee() -> None:
 def test_skill_verification_covers_the_three_rules() -> None:
     t = _read(_SKILL)
     assert "created through `[[using-git-worktrees]]`" in t
-    assert "parallel-capable queued plans" in t
-    assert "retired only after a green merge" in t
+    assert "actual worker handles, exclusive signed claims, worktree/base identity and status" in t
+    assert "eligible plans dispatched when capacity opened" in t
+    assert "retirement followed the completion contract after green merged integration" in t
+    assert "exact executor KEEP and permitted minor-controller/worker deferral" in t
+    assert "final minor cleanup remains required" in t
 
 
 @pytest.mark.parametrize(

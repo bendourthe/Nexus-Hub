@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import os
 import shutil
+import signal
 import subprocess
 import sys
 import time
@@ -133,6 +134,7 @@ def test_timeout_reaps_redirected_grandchild(monkeypatch, tmp_path, tree_cleanup
     real_popen, real_run = subprocess.Popen, subprocess.run
     parents, child_handles = [], []
     child_pid = None
+    real_killpg = None
 
     def wait_until(predicate):
         deadline = time.monotonic() + 10
@@ -152,7 +154,6 @@ def test_timeout_reaps_redirected_grandchild(monkeypatch, tmp_path, tree_cleanup
         kernel.CloseHandle.argtypes = [wintypes.HANDLE]
         kernel.CloseHandle.restype = wintypes.BOOL
     else:
-        import signal
         real_killpg = os.killpg
 
     def capture_parent(argv, **kwargs):
@@ -206,12 +207,12 @@ def test_timeout_reaps_redirected_grandchild(monkeypatch, tmp_path, tree_cleanup
                 real_run(["taskkill", "/PID", str(child_pid), "/T", "/F"], capture_output=True, timeout=10, check=False)
             for handle in child_handles:
                 kernel.CloseHandle(handle)
-        else:
+        elif real_killpg is not None:
             for proc in parents:
                 try:
                     real_killpg(proc.pid, signal.SIGKILL)
                 except ProcessLookupError:
-                    pass
+                    pass  # Normal cleanup already reaped this process group.
         for proc in parents:
             proc.wait(timeout=10)
 

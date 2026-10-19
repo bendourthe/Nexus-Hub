@@ -4,7 +4,7 @@ The complete, ordered procedure for the `implement-phase` skill. `SKILL.md` link
 
 ## Phase 0: Resolve plan, version, and phase
 
-1. **Parse the invocation.** First positional arg is a plan slug, a plan file path, or a version label; later args may be a phase and/or a driver mode. Disambiguate the first arg: contains `/` or ends in `.md` -> file path; matches `v?\d+\.\d+\.\d+` -> version; matches `v\d+\.\d+` exactly -> minor scope; else -> slug. A minor scope runs every member plan that `python ~/.nexus-hub/scripts/check_plan_completion.py members vX.Y` prints, in that order, each through the driver loop below under one minor record; the membership rule, the per-plan-record refusal, and the resume rule live in the completion contract. A malformed minor token (`v0.5.x`, `v0`), a per-plan mode token after a minor, or an empty minor (`No queued plans in vX.Y`) prints usage or that line and starts nothing. Phase accepted as a number (`3`), slug (`phase-3`), or quoted name. Mode resolution: `/implement <plan>` and bare `/implement` run the FULL driver (the default since v4.13.2); `phase <N>`, `phase-N`, a quoted phase name, or `next` runs ONE phase; `phase-by-phase` is opt-in; `full` and `in-full` are aliases for the default; `/implement pause` pauses the current run. Mode tokens are later whole tokens only - do not treat a slug that contains "full" or "phase" as a substring as a mode. An unknown later token prints usage and does not start a phase.
+1. **Parse the invocation.** First positional arg is a plan slug, a plan file path, or a version label; later args may be a phase and/or a driver mode. Disambiguate the first arg: contains `/` or ends in `.md` -> file path; matches `v?\d+\.\d+\.\d+` -> version; matches `v\d+\.\d+` exactly -> minor scope; else -> slug. A minor scope runs every member plan that `python ~/.nexus-hub/scripts/check_plan_completion.py members vX.Y` prints, each through the minor coordinator below under one minor record, with compatible implementation concurrent and publication in version order; the membership rule, the per-plan-record refusal, and the resume rule live in the completion contract. A malformed minor token (`v0.5.x`, `v0`), a per-plan mode token after a minor, or an empty minor (`No queued plans in vX.Y`) prints usage or that line and starts nothing. Phase accepted as a number (`3`), slug (`phase-3`), or quoted name. Mode resolution: `/implement <plan>` and bare `/implement` run the FULL driver (the default since v4.13.2); `phase <N>`, `phase-N`, a quoted phase name, or `next` runs ONE phase; `phase-by-phase` is opt-in; `full` and `in-full` are aliases for the default; `/implement pause` pauses the current run. Mode tokens are later whole tokens only - do not treat a slug that contains "full" or "phase" as a substring as a mode. An unknown later token prints usage and does not start a phase.
 2. **Search for plans**, deduping by absolute path:
     - Canonical: `docs/v*/v*/plans/*.md` (the two-level minor-grouped scheme).
     - Legacy: `docs/v*/plans/*.md` (flat) and `docs/versions/v*/v*/plans/*.md` (old three-level), plus the pre-rename `docs/**/implementation-plan.md`.
@@ -46,32 +46,9 @@ A plan runs in a dedicated **worktree**, not merely a branch in the shared check
 
 Record the worktree path in the phase evidence file. The release step reads it to verify teardown, and a path recorded nowhere is a directory nobody removes.
 
-### Phase 0c: Report which other plans can run in parallel
+### Phase 0c: Assess and dispatch parallel plans
 
-Immediately after the pre-flight summary, tell the user which queued plans could be started **now, in a separate session**, so parallel capacity is visible at the moment they are deciding what to work on.
-
-Delegate the assessment to `[[plan-queue-assessment]]`, which owns queue inventory, staleness, and ranking by parallel compatibility. This step owns only the handoff and the launch instructions. If that skill is unavailable, say so, mark the parallel report not covered, and continue with the phase; never reconstruct its ranking rules from memory.
-
-Report only plans it classifies as non-overlapping with the subject plan's touched paths. For each, emit a ready-to-use launch block:
-
-```markdown
-### Parallel-capable: v4.17.0 - <slug>
-
-Touches `catalog/skills/security/**`; no overlap with this plan.
-
-**Where:** a NEW terminal window, any directory.
-
-    claude
-
-Then paste:
-
-    /implement v4.17.0-<slug> in-full
-
-**What you should see:** a pre-flight summary naming that plan, and a new
-worktree at `<repo-parent>/<repo-name>-v4.17.0-<slug>`.
-```
-
-Two rules keep this honest. State the overlap basis (the shared paths, or their absence) rather than asserting compatibility, and when nothing qualifies say "no queued plan is parallel-capable against this one" instead of omitting the section - an absent report reads as "none checked".
+Delegate compatibility to [[plan-queue-assessment]] and write its assessment, including named unknowns. A single-plan invocation reports compatible queued plans without starting plans outside its approval. A minor invocation automatically dispatches eligible approved members through the minor coordinator below. A launch suggestion alone is not dispatch evidence: record the actual returned agent handle, branch, linked worktree, base, signed claims and status. State the assessment's overlap basis as named paths and prerequisites, or their verified absence. If no plans qualify, explicitly report "no eligible parallel plans" with the named conflicts, missing prerequisites or unknowns; never omit the assessment. If the assessment owner is unavailable, mark compatibility not covered and execute serially; never reconstruct its ranking rules from memory or infer safety from task paths alone.
 
 ## Phase 1: Pre-implementation review
 
@@ -161,6 +138,8 @@ Run every step in strict order at the end of EVERY phase (validation first, then
 
 Used only when the resolved mode is `full` (alias `in-full`) or `phase-by-phase`. One-phase invocations skip this section and run Phase 0-8 once.
 
+A parent-bound minor worker follows the local phase sequence only: shared Phase 8 updates are proposals for the coordinator, not permission to write shared ledgers or trackers. It uses `check-member` through the coordinator instead of a standalone plan record and returns its local handoff at implementation-ready or `READY_FOR_COORDINATOR`. The minor coordinator below owns final comprehensive validation, publication and release; the standalone driver steps 3-4 do not authorize a worker to perform them.
+
 1. Resolve the plan as in Phase 0. Start at the first incomplete phase even if the user named a later start. When an earlier phase has only recorded deferred final validation pending and its implementation, focused gate and local commit are evidenced, continue with the next implementation phase without marking the deferred tasks complete. Preserve model-routing pre-flight per phase.
 2. For each incomplete phase, run the existing Phase 0-8 sequence unchanged (review, implement, lint, test, quality gate, post-phase docs). Apply the 8.11 variant above.
 3. **Stop the driver only on a terminal verdict** from `python ~/.nexus-hub/scripts/check_plan_completion.py check` (the completion contract owns what each verdict means): a named blocker, the user's pause, or completion. A failed GO/NO-GO gate that the Phase 6 budget cannot recover becomes a blocker in the closed list, not a silent stop. Context pressure is handled by compaction, and a session that ends anyway is resumed by the turn-end gate or the `nexus-hub run-plan` runner from the run record; write session history before any compaction so nothing is lost.
@@ -169,17 +148,30 @@ Used only when the resolved mode is `full` (alias `in-full`) or `phase-by-phase`
 
 ## Minor driver (`/implement vX.Y`)
 
-Used only for a minor scope. It runs every member plan from `record create --minor` through the driver loop above, one member at a time in the recorded version order, then closes the minor through one pull request. The verdicts, the member gate's refusals, and every minor-level predicate are owned by the completion contract ("Minor verdict"); this section is the procedure. `CK` below is `python ~/.nexus-hub/scripts/check_plan_completion.py`.
+Used only for a minor scope. A single coordinator owns the approved minor record and drives every member through implementation, then ordered publication and release. `CK` below is `python ~/.nexus-hub/scripts/check_plan_completion.py`. Native admission rules and verdicts belong to the completion contract; queue compatibility belongs to [[plan-queue-assessment]].
 
-### Member gate (before each member's first phase)
+Before the first worker reservation, install the matching check_plan_completion.py and completion_minor.py together and verify that turn-end gates and the runner resolve those updated helpers. Existing records without implementation claims retain their signature behavior. The first reservation adds signed controller binding; an older checker cannot verify that extended record, so do not mix helper revisions or downgrade readers after admission. Use the supported delivery path with edit preservation; never alter a record to make an older reader accept it.
 
-1. **The previous member is done.** For every member after the first, the previous member must be `PLAN COMPLETE` under the minor record (a `deferred` gap waiting for migration counts): `CK check-minor vX.Y` shows its summary as `member.<version> met`.
-2. **Fetch.** `git fetch origin --tags` so `origin/<target>` equals the live remote tip.
-3. **Back-merge.** Confirm `origin/develop` contains `main` (the previous release's back-merge): `git merge-base --is-ancestor origin/main origin/develop`. When it does not, the release's back-merge is not finished; finish it under that member's recorded `release` approval before continuing.
-4. **Branch from the gate's base.** Create the member's worktree and branch from that `origin/develop` HEAD, as in Phase 0b.
-5. **Record the start.** `CK record member-start --minor vX.Y --member vX.Y.Z --session <id> --head <that HEAD>`. It re-checks steps 1 to 3, records `start_head` in the member entry, and re-signs the record; only `STARTED vX.Y.Z start_head=<sha>` lets the member's first phase begin. `BLOCKED: member-gate (vX.Y.Z)` with its `reason:` id means the base is stale or the previous member is not done: fix that cause, never edit the record.
+### Implementation admission and automatic workers
 
-A blocker in any member stops the whole minor run: record it with `CK record block --minor vX.Y --member vX.Y.Z --category <category> --evidence <text>` and report it; do not start the next member.
+1. **Assess the frozen queue.** Read the approved members and the live source, then obtain complete dependency/read/write claims from [[plan-queue-assessment]]. Preserve frozen plan prose with a release-scoped assessment sidecar. Do not treat release order as a dependency. Unknown or conflicting claims stay serial; a real implementation prerequisite must already be merged into the proposed worker base.
+2. **Bound capacity once.** Detect the active harness's actual agent start, message and wait tools and available slots. Reserve capacity for the coordinator; admit no more workers than available slots and the remaining aggregate spend budget allow. Share the run's review and stabilization limits; never multiply caps per worker. If agent tools or worktrees are unavailable, state the reason and use serial implementation under the same ordered publication gate. Do not add a worker process engine or assume Dynamic Workflows exists.
+3. **Create and admit an eligible worker.** Through [[using-git-worktrees]], create its approved branch and linked worktree from the assessed integration commit, or reattach to its exact registered identity on resume. Write a claims JSON file with `depends_on`, `read_paths` and `write_paths`. From the controller run `CK record member-implement-start --minor vX.Y --member vX.Y.Z --session <parent-id> --repo <controller> --worktree <worker-root> --head <base-sha> --claims <claims.json>`. Proceed only on native admission; never modify or re-sign a record by hand.
+4. **Dispatch a whole-plan slice.** Invoke the actual harness agent tool with the admitted root/branch/base, parent minor/session/controller, plan and assessment paths, exclusive claims, prerequisites, testing cadence and a precise return contract through [[multi-agent-coordinator]]. Say the worker is not alone and must preserve others' edits. Include: `Do not write to persistent agent memory. You are a spawned subagent; only the parent session may record memory.` Do not invoke standalone `/implement` in a child or ask it to create approvals. Only the coordinator mutates signed state.
+5. **Implement and observe.** Each worker implements its whole plan with focused checks, plan-specific history and one local commit per phase. It proposes shared metadata deltas separately: known-gaps ledgers, CHANGELOG, version/release metadata and docs/todos are coordinator-only. At each checkpoint the coordinator invokes `CK check-member --minor vX.Y --member vX.Y.Z --session <parent-id> --repo <controller>` for a read-only projection bound to the parent approval. Record actual terminal proof, not a worker's success assertion.
+6. **Refill available slots.** Recheck merged dependencies, active claims, live worker state and remaining budget whenever capacity opens. Start another eligible member immediately without waiting for unrelated releases. Failed, interrupted and implementation-ready workers retain claims until native verified-merge retirement; a stopped handle does not free ownership. Resume the same addressable worker and registered worktree rather than creating duplicate writers. A genuine run blocker or pause stops new dispatch and reaches all workers at a safe checkpoint.
+7. **Wait locally when ready.** A worker with pending real coordinator-owned implementation tasks returns `READY_FOR_COORDINATOR`, naming original task IDs and proposed changes; those tasks stay unchecked, are not generic validation deferrals, and the plan is not yet fully implemented. Otherwise it returns implementation-ready with commit IDs, changed paths, focused proof, plan-specific evidence, pending comprehensive validation and proposed coordinator deltas. It does not push, open a pull request, merge, tag or release. The coordinator continues other eligible implementation while this member waits for its publication turn.
+
+### Ordered publication admission
+
+1. **Select the lowest unreleased member.** Native `member-start` decides predecessor readiness through the completion contract. A predecessor's pending cleanup alone does not block publication; every other predecessor predicate must pass. The coordinator completes missing release/back-merge work under that member's recorded approval. A later ready worker remains local while this gate is closed.
+2. **Refresh the base.** Fetch `origin` and tags, confirm the live target contains the prior release/back-merge, then refresh only this worker's unpublished commits onto that integration tip. Preserve its phase histories and resolve scoped conflicts; do not reset another checkout. Reassess any expanded claims before writing outside the admitted surface.
+3. **Record publication admission.** From the controller run `CK record member-start --minor vX.Y --member vX.Y.Z --session <parent-id> --repo <controller> --head <refreshed-integration-sha> [--coordinator-claims <coordinator-claims.json>]`. The optional JSON is `{"write_paths": ["<exact-relative-file>"]}` and names only coordinator changes traced to the frozen plan or standard release duties. Native admission signs those exact paths and rejects conflicts with other active workers. This records the publication base, not permission to skip final checks. Refusals remain native evidence; fix their cause without changing signed state manually.
+4. **Finish and validate the complete plan.** After publication admission the coordinator applies the signed proposed metadata and source deltas sequentially, tests them and completes their original task IDs. If a worker requested coordinator work before finishing its local phases, satisfy those tasks and resume that same worker for every remaining phase. Do not treat publication admission or READY_FOR_COORDINATOR as completed implementation or permission to push. All implementation tasks, including real coordinator-owned work, must be complete before comprehensive validation. Audit changed paths against the union of worker writes and signed coordinator paths. Run Phase 9's comprehensive local gate on the refreshed final tree, reusing only unchanged evidence through [[cicd-integration]]. A failed or uncertain affected check holds publication. Keep deferred comprehensive tasks unchecked until their passing final evidence exists.
+5. **Publish and release in order.** Run 9F once: final commit, approval scope check, first branch push, hosted required checks, and green merge. Reproduce failures locally before a bounded stabilization push. Hand off `/update release` only after current green merged integration. Verify its tag, main ancestry and back-merge before admitting the next publication. Cleanup remains required for final `MINOR COMPLETE` but does not serialize independent implementation.
+6. **Preserve completion evidence.** After independently verified merge and integration ancestry, parent-bound projections read canonical merged plan/evidence through the controller, so approved removal of the worker does not erase proof. Before merge, a missing or mismatched registered worktree is cannot-verify. Keep the controller active and retain its signed evidence through final minor close; do not rehome or reseal it by copying state.
+
+A blocker in any member stops the whole minor run: record it with `CK record block --minor vX.Y --member vX.Y.Z --category <category> --evidence <text>` and report it. Retain every worker's claims and local work for the approved continuation.
 
 ### Minor close (after the last member's release)
 
