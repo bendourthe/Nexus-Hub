@@ -809,7 +809,9 @@ def render_page(data: dict) -> str:
     ]
     out = _section(SECTIONS[0], _summary(page, display, releases, minor, target))
     pasted = _paste_section(paste)
-    _assert_plain(pasted, "paste section")
+    # Only the verified template field contains an opaque approval code.
+    plain_paste = [line.replace(f"(approval {code})", "(approval AAAAAAAA)") for line in pasted]
+    _assert_plain(plain_paste, "paste section")
     out += _section(SECTIONS[1], pasted)
     out += [f"## {SECTIONS[2]}", ""]
     for title, body in zip(DETAIL_SECTIONS, details):

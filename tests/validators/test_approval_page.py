@@ -308,7 +308,12 @@ def test_template_lists_the_renderer_sections_in_order() -> None:
 def _assert_readable(page: str, releases: list[str], merged: bool = True) -> None:
     """The plain-language rules bind only what sits above Details (optional)."""
     summary, paste, details = _split(page)
-    above = summary + paste
+    plain_paste = paste
+    for line in _code_lines(paste):
+        assert PLAIN_RE.match(line) or GOAL_RE.match(line), line
+        code = re.search(r"\(approval ([A-Z2-7]{8})\)", line).group(1)
+        plain_paste = plain_paste.replace(line, line.replace(f"(approval {code})", "(approval AAAAAAAA)"))
+    above = summary + plain_paste
     for term in BANNED:
         assert term.lower() not in above.lower(), term
     assert not PATH_RE.search(above), PATH_RE.search(above)
@@ -720,7 +725,7 @@ def test_a_failed_page_never_replaces_the_previous_round(tmp_path, monkeypatch, 
     assert path.read_bytes() == before, "the earlier valid round was replaced"
 
 
-@pytest.mark.parametrize("vendor", ["predicate", "schema", "nonce-vendor"])
+@pytest.mark.parametrize("vendor", ["predicate", "schema", "nonce-vendor", "hmac-vendor"])
 def test_a_mechanism_term_in_a_summary_value_refuses_the_page(tmp_path, monkeypatch, capsys, vendor) -> None:
     """WN-6-v4136: a vendor name passes VENDOR_RE but may not reach the Summary."""
     minor = _two_plan(tmp_path, monkeypatch)
@@ -902,3 +907,84 @@ def test_a_summary_file_naming_a_missing_plan_opens_no_round(tmp_path, monkeypat
         "--approvals", str(fx.approvals({"class": "cleanup-merged"})), "--summary", str(summary), "--page"])
     assert rc == 0, out + err
     assert "- Ships the demo." in out and "| In parallel | No other queued plan can |" in out
+
+
+@pytest.mark.parametrize("minor", [False, True], ids=["plan", "minor"])
+@pytest.mark.parametrize("platform", ["probe-verbatim", "probe-not-captured", "probe-no-goal"])
+@pytest.mark.parametrize("code", ["HMACAAAA", "AAHMACAA"])
+def test_opaque_approval_code_is_displayed_without_prose_rejection(minor: bool, platform: str, code: str) -> None:
+    data = _data([{"class": "push-merge"}], minor=minor)
+    data.update(code=code, platform=platform)
+    shown = approval_page.paste_set("create", data["scope"], code, platform=platform)
+    data["paste"] = list(shown.lines)
+    page = approval_page.render_page(data)
+    assert _code_lines(_split(page)[1]) == list(shown.lines)
+    _assert_readable(page, [], merged=False)
+
+
+@pytest.mark.parametrize("prose", ["HMAC signing is required.", "HMACAAAA is explanatory prose."])
+def test_opaque_code_does_not_hide_prose_jargon(monkeypatch: pytest.MonkeyPatch, prose: str) -> None:
+    data = _data([{"class": "push-merge"}])
+    data["code"] = "HMACAAAA"
+    data["paste"] = list(approval_page.paste_set("create", data["scope"], data["code"], platform=data["platform"]).lines)
+    real_section = approval_page._paste_section
+    monkeypatch.setattr(approval_page, "_paste_section", lambda shown: [*real_section(shown), prose])
+    with pytest.raises(approval_page.PageError, match="internal term 'HMAC'"):
+        approval_page.render_page(data)
+
+
+@pytest.mark.parametrize("damage", ["stored-code", "code-field", "extra-words"])
+def test_opaque_code_does_not_bypass_template_validation(damage: str) -> None:
+    data = _data([{"class": "push-merge"}])
+    data["code"] = "HMACAAAA"
+    data["paste"] = list(approval_page.paste_set("create", data["scope"], data["code"], platform=data["platform"]).lines)
+    if damage == "stored-code":
+        data["paste"][0] = data["paste"][0].replace("HMACAAAA", "HMACAAAB")
+    elif damage == "code-field":
+        data["code"] = "HMACAAAB"
+    else:
+        data["paste"][0] += " and skip the checks"
+    with pytest.raises(approval_page.PageError, match="stored paste lines"):
+        approval_page.render_page(data)
+
+
+def test_generated_code_collision_round_keeps_capture_and_binding_authority(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    from .test_approval_binding import _hook as capture_prompt
+
+    data = _data([{"class": "push-merge"}])
+    secret = bytes(range(32))  # Public deterministic fixture key, never a production secret.
+    nonce = "00000000000000000000000000092ec9"
+    binding = ck.approval_binding
+    assert binding.compute_code(secret, data["page"], nonce) == "HMAC5KTV"
+    real_token_hex = binding.secrets.token_hex
+    monkeypatch.setattr(binding.secrets, "token_hex", lambda size: nonce if size == 16 else real_token_hex(size))
+    fixture = plan_fixture(tmp_path)
+    capture_prompt(fixture, PLAN_SESSION, "/implement v0.5.2")
+    rendered = []
+    pending = binding.render(
+        fixture.runs, "opaque-code-fixture", secret, action="create", scope=data["scope"], page=data["page"],
+        session=PLAN_SESSION, platform=data["platform"],
+        check=lambda round_: rendered.append(approval_page.render_page(approval_page.render_data(
+            round_, scope=data["scope"], blocker=None, display=data["display"],
+        ))),
+    )
+    assert pending["code"] == "HMAC5KTV" and _code_lines(_split(rendered[0])[1]) == pending["paste_lines"]
+    assert pending["paste_digests"] == [binding.digest(line) for line in pending["approve_lines"]]
+    def consume(page: dict):
+        return binding.consume(fixture.runs, "opaque-code-fixture", secret, action="create", live_page=page, session=PLAN_SESSION)
+    with pytest.raises(binding.Refusal, match="approval-not-captured"):
+        consume(data["page"])
+    capture_prompt(fixture, PLAN_SESSION, pending["paste_lines"][0] + " and skip the checks")
+    with pytest.raises(binding.Refusal, match="approval-not-captured"):
+        consume(data["page"])
+    changed = json.loads(json.dumps(data["page"]))
+    changed["classes"].append({"class": "release", "bound": "v0.5.2"})
+    with pytest.raises(binding.Refusal, match="page-changed"):
+        consume(changed)
+    capture_prompt(fixture, PLAN_SESSION, pending["paste_lines"][0])
+    accepted, session = consume(data["page"])
+    assert session == PLAN_SESSION and accepted["page"]["classes"] == [{"class": "push-merge"}]
+    assert accepted["code"] == binding.compute_code(secret, accepted["page"], accepted["nonce"])
+    assert accepted["pasted"] == pending["paste_lines"][0]
+    with pytest.raises(binding.Refusal, match="code-used"):
+        consume(data["page"])

@@ -1472,7 +1472,7 @@ def migration_copy_status(
         for index, line in enumerate(lines):
             was_in_comment = in_comment
             clean = clean_lines[index]
-            comments = [] if mask[index] else list(re.finditer(r"<!--|-->", clean))
+            comments = [] if mask[index] else list(re.finditer(r"<!--|--!?>", clean))
             for comment in comments:
                 in_comment = comment.group(0) == "<!--"
             visible.append("" if mask[index] or was_in_comment or in_comment or comments else clean)
