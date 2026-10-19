@@ -1,12 +1,72 @@
 # Approval workflow correction evidence
 
-User-requested v4.14 correction for retained plan authorization, duplicate blocker decisions and concise manual approval. This record covers local verification and actual continuation-policy adoption; protected integration and release remain separate gates.
+User-requested v4.14 correction for retained plan authorization, duplicate blocker decisions and concise manual approval. This record separates current follow-up verification from historical cb9 proof. Protected integration and release remain separate gates.
 
 ## Behavior
 
 A genuine approved plan and trusted current full-access mode authorize actions within the recorded scope. Manual or unknown modes require a concise decision describing the action, reason and effect. Repeated observations reuse a matching pending challenge; changed conditions invalidate it. Native short replies are captured once and checked for session, freshness and replay. Available host question tools can present choices, but no direct clickable callback is claimed where the host provides no verified receipt.
 
-## Verification
+## Current qualification
+
+Original progress remains 34/209 tasks and 1/7 releases. A005 and A006 remain open pending reviewed integration and the remaining release/adoption work. Passing local qualification alone does not establish merged integration, a new release or actual production runtime adoption.
+
+| Check | Current result |
+|---|---|
+| Final expanded regression | 1092 passed, 1 failed, 3 skipped in 1221.89s; the sole failure was an inherited private run-store environment in the plugin test fixture. After correcting that fixture, the complete affected plugin module passed all 25 tests in 6.33s. Reusing unchanged passing cases yields 1093 distinct passing cases and 3 skips on the final source; this is split qualification, not a single all-green run |
+| Final usage-hook qualification | 26 passed, 0 failed in 43.49s |
+| New final fast profile | 17 passed, 0 failed, 0 skipped in 115.1s |
+| Earlier hook qualification | 50 passed in 30.23s; retained as earlier focused evidence |
+| Earlier fast profile | 17 passed in 112.4s; retained as earlier evidence, not the final profile |
+| Narrow lint comparison | 0 introduced diagnostics; 12 existing diagnostics unchanged across the five-file baseline comparison |
+| Attribution | Check exited 0; Ben Dourthe identity verified |
+| Actual continuing minor | Native check reports INCOMPLETE, exit 1 after repair |
+| CI policy and authorization | Genuine native adoption and authorization succeeded for the exact `.github/workflows/ci.yml` compatibility repair; original signed classes, nonce, start head and blockers preserved |
+| CI runner compatibility | Shellcheck uses `ubuntu-24.04`; apt pin remains `shellcheck=0.9.0-1` |
+
+The earlier affected broad run reported 766 passed, 48 failed, 31 errors and 1 skipped in 501.88s. All 79 nonpassing results were classified. Focused repair evidence below does not turn that earlier run into a pass or replace the expanded final regression reported above. Reruns are not added together as distinct passing tests.
+
+## Focused repairs
+
+| Area | Repair and observed evidence |
+|---|---|
+| Private record construction | The raw-dictionary Close fixture now uses official creation leases and fresh-byte compare-and-swap handling; the Minor forensic helper locates the original literal record key |
+| Controller trust cases | Foreign linked-controller positive fixtures are signed; unsigned off-key cases remain negative. Tamper/controller checks: 14 passed in 159.74s |
+| Runner and hooks | Real private authority and an import-safe copied trusted resolver closure preserve authentication and checker assertions. All 19 runner/hook modes passed in the full module run; the initial three-case causal check passed |
+| Copied controller | One regression passed in 9.67s with the strict diagnostic and both unchanged-byte assertions retained |
+| Exhausted budget | An actual trace showed late path rediscovery after zero remaining budget. One source line now reuses the authenticated snapshot's `record_path`, retaining the same guarded writer; its causal case passed in 6.57s |
+| Unrelated completed legacy origin | Authenticated metadata is checked before a trusted ownership predicate excludes an unrelated record with a deleted origin. Matching owners and no-predicate lookups keep full Git ownership resolution; the causal ten-case suite passed |
+| Numeric profile suffix | The catalog guard excludes entirely numeric generic machine suffixes while preserving exact local-computer matching and Office-lock behavior; source pin is recorded below |
+
+The inherited subset first reported 133 passed, 2 skipped and one forensic failure; that failed target subsequently passed its focused recheck. The runner/verdict modules first reported 109 passed and two failed targets; both failed targets subsequently passed focused causal checks. Those earlier non-green module results remain recorded as such. The expanded final run, final usage hooks and new final fast checks are reported separately above.
+
+## Runtime boundary
+
+Actual recovery completed all 60 entries and verified original old-cache bytes and physical IDs, installed scripts, retained backup and protected state during recovery; the owned marker was released. The original pre-upgrade protected-state baseline remains historically unavailable. This proves the recorded recovery boundary, not an unavailable pre-upgrade comparison.
+
+V6 passed eight private static/component groups and all five existing private fixtures. Actual production runtime adoption remains pending a verified green merge and the complete published artifact. Source-catalog guard qualification does not claim that the new guard has been deployed to the actual home.
+
+## Current source pins
+
+Observed source snapshot for this qualification:
+
+| Source | SHA256 |
+|---|---|
+| `scripts/approval_binding.py` | `3d08f845929246ca634962759789f5ca3e5d02c289ee95a797f37c70bf06cff3` |
+| `scripts/approval_page.py` | `9b8394172613eab72aab56e4f0cbfd22b22eb4ad571f7d7be8e0be89feb7c387` |
+| `scripts/completion_gate.py` | `be17dc6e290cb876399918eb2caefffab8677356f36f2533ac25239f3db14a11` |
+| `scripts/check_plan_completion.py` | `6cca36d1d8510f807c3c1bc0a732d52beea9a6c789cf0cab6e5e65fa7e43c12c` |
+| `scripts/completion_minor.py` | `e5d2dffe698f2d6a2e637c9da1b2c7b3cba8417740941317e78f5039a037192e` |
+| `scripts/run_plan.py` | `0ec1908fd71580ed8987028dbed992581fe8ecd67c9f91bc05cb2b7d3ef63786` |
+| `scripts/minor_close.py` | `af4d1298cc5a0ee005ea682db95b5fae269378ccf2b989e5d9f09e531be58377` |
+| `scripts/cleanup_merged.py` | `f7eee959b659f5a79242adcaa3274b19e5d6b3035fe788b57c5849b8d191c219` |
+| `scripts/repo_host.py` | `439bbbb5438d2f05ee72e677f03b2428d2fbf4c322088139543026688d557e18` |
+| `catalog/skills/workflow/user-edit-preservation/scripts/edit_guard.py` | `7307222c344feeb1c2194b2698458920a7ff8addf8260f91054c93946d8b48b7` |
+
+The pre-integration source `MANIFEST.sha256` snapshot has 2055 entries and SHA256 `4793aee7a6f84a337378e45cda2627ada665fe89e3f8f95bdcb0db32a8e11771`. It is recorded separately from the source-file hash rows.
+
+## Historical cb9 verification
+
+The following results belong to commit `cb9fd1e8c597689978bb4c8a8eac0a5f79aab8bc`, before the controller, ownership, budget, fixture and CI follow-ups. Its 623-case proof and seven unchanged lint diagnostics are historical and are not combined with the current narrow comparison or final split qualification.
 
 | Check | Result |
 |---|---|
@@ -24,7 +84,7 @@ A genuine approved plan and trusted current full-access mode authorize actions w
 
 Counts above deduplicate reruns. Final causal checks were repeated after the narrow compatibility and validation fixes; those reruns are not added to the total. Focused checks ran during implementation and the affected broad regression ran after implementation.
 
-## Source pins
+## Historical cb9 source pins
 
 | Source | SHA256 |
 |---|---|

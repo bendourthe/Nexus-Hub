@@ -43,7 +43,7 @@ from .test_completion_minor_record import (  # noqa: F401  (autouse fixture re-e
     _no_transport_overrides,
 )
 from .test_gap_migration_and_archive import BG2, GAPS05, LINK_CHECKER, V05, WN3, Close, ledger, section
-from .test_run_plan import Env
+from .test_run_plan import Env, authenticated_minor
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPTS = REPO_ROOT / "scripts"
@@ -600,8 +600,12 @@ print("unexpected " + " ".join(args)); sys.exit(2)
 
 
 @pytest.fixture
-def runner(tmp_path: Path) -> Env:
+def runner(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Env:
     env = Env(tmp_path)
+    authority = authenticated_minor(tmp_path / "minor-authority", monkeypatch)
+    env.repo = authority.work
+    env.record = authority.record_path()
+    env.state["record"] = str(env.record)
     env.checker.write_text(STUB_MINOR_CHECKER, encoding="utf-8")
     return env
 
@@ -611,8 +615,9 @@ def test_runner_drives_a_minor_through_check_minor(runner: Env) -> None:
     assert result.returncode == 0, result.stderr
     assert result.stdout.strip() == "MINOR COMPLETE v0.5 head nonce"
     checks = runner.calls("checker")
-    assert ["record", "path", "--minor", "v0.5"] in checks
-    assert ["check-minor", "v0.5"] in checks and ["score-minor", "v0.5"] in checks
+    assert ["record", "path", "--minor", "v0.5", "--repo", str(runner.repo)] in checks
+    assert ["check-minor", "v0.5", "--repo", str(runner.repo)] in checks
+    assert ["score-minor", "v0.5", "--repo", str(runner.repo)] in checks
     assert not any(c[0] in ("check", "score") for c in checks)
     assert runner.calls("cli")[1][4] == "Continue /implement v0.5. The completion checker still reports it incomplete."
 
@@ -666,44 +671,60 @@ def _hook_resolvers() -> tuple[str | None, str | None]:
 
 
 GATE_STUB = r'''
-import json, os, sys
-with open(os.environ["GATE_STUB_LOG"], "a", encoding="utf-8") as handle:
-    handle.write(json.dumps(sys.argv[1:]) + "\n")
-    handle.write(json.dumps(["budget", os.environ.get("NEXUS_CHECK_MINOR_BUDGET_SECONDS", "")]) + "\n")
-if sys.argv[1] == "check-minor":
-    import time
-    time.sleep(float(os.environ.get("GATE_STUB_SLEEP", "0")))
-    print(os.environ.get("GATE_STUB_LINE", "INCOMPLETE: v0.5.2:task.T001 gaps.minor"))
-    met, head = os.environ.get("GATE_STUB_SCORE", "3 abc -").split()[:2]
-    if "--json" in sys.argv and not os.environ.get("GATE_STUB_NO_JSON"):
-        print(json.dumps({"verdict": "x", "met": int(met), "head": head}))
-    sys.exit(int(os.environ.get("GATE_STUB_RC", "1")))
-if sys.argv[1] == "score-minor":
-    print("unexpected second evaluation"); sys.exit(2)
-if sys.argv[1] in ("check", "score"):
-    print("unexpected per-plan call"); sys.exit(2)
-sys.exit(3)
+import importlib.util
+import sys
+from pathlib import Path
+
+if __name__ != "__main__":
+    trusted = Path(__file__).parent / "controller" / "check_plan_completion.py"
+    sys.path.insert(0, str(trusted.parent))
+    spec = importlib.util.spec_from_file_location("_fixture_gate_controller_checker", trusted)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    resolve_minor_controller = module.resolve_minor_controller
+    Malformed = module.Malformed
+else:
+    import json, os, sys
+    with open(os.environ["GATE_STUB_LOG"], "a", encoding="utf-8") as handle:
+        handle.write(json.dumps(sys.argv[1:]) + "\n")
+        handle.write(json.dumps(["budget", os.environ.get("NEXUS_CHECK_MINOR_BUDGET_SECONDS", "")]) + "\n")
+    if sys.argv[1] == "check-minor":
+        import time
+        time.sleep(float(os.environ.get("GATE_STUB_SLEEP", "0")))
+        print(os.environ.get("GATE_STUB_LINE", "INCOMPLETE: v0.5.2:task.T001 gaps.minor"))
+        met, head = os.environ.get("GATE_STUB_SCORE", "3 abc -").split()[:2]
+        if "--json" in sys.argv and not os.environ.get("GATE_STUB_NO_JSON"):
+            print(json.dumps({"verdict": "x", "met": int(met), "head": head}))
+        sys.exit(int(os.environ.get("GATE_STUB_RC", "1")))
+    if sys.argv[1] == "score-minor":
+        print("unexpected second evaluation"); sys.exit(2)
+    if sys.argv[1] in ("check", "score"):
+        print("unexpected per-plan call"); sys.exit(2)
+    sys.exit(3)
 '''
 
 
 class GateHome:
-    def __init__(self, tmp: Path) -> None:
+    def __init__(self, tmp: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         self.root = tmp / "home"
         scripts = self.root / ".nexus-hub" / "scripts"
-        self.runs = self.root / ".nexus-hub" / "runs"
-        self.repo = tmp / "repo"
+        trusted = scripts / "controller"
+        self.authority = authenticated_minor(tmp / "minor-authority", monkeypatch)
+        self.runs = self.authority.runs
+        self.repo = self.authority.work
         self.log = tmp / "gate.log"
-        scripts.mkdir(parents=True)
-        self.runs.mkdir(parents=True)
-        self.repo.mkdir()
+        trusted.mkdir(parents=True)
+        # Real sibling closure authenticates; only verdict evaluation stays stubbed.
+        for script in SCRIPTS.glob("*.py"):
+            shutil.copyfile(script, trusted / script.name)
         shutil.copy(SCRIPTS / "completion_gate.py", scripts / "completion_gate.py")
         (scripts / "check_plan_completion.py").write_text(GATE_STUB, encoding="utf-8")
-        record = {"schema": 2, "scope": "minor", "minor": "v0.5", "session_id": SESSION, "repo_root": str(self.repo)}
-        (self.runs / "minor.json").write_text(json.dumps(record), encoding="utf-8")
 
     def env(self, **extra: str) -> dict[str, str]:
         env = {k: v for k, v in os.environ.items() if not k.startswith(("NEXUS_", "GATE_STUB"))}
-        env.update(HOME=str(self.root), USERPROFILE=str(self.root), GATE_STUB_LOG=str(self.log))
+        env.update(HOME=str(self.root), USERPROFILE=str(self.root),
+                   NEXUS_HUB_RUNS_DIR=str(self.runs), GATE_STUB_LOG=str(self.log))
         env.update(extra)
         return env
 
@@ -714,9 +735,9 @@ class GateHome:
 
 
 @pytest.fixture(params=["sh", "ps1"])
-def gate(request, tmp_path: Path):
+def gate(request, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     bash, powershell = _hook_resolvers()
-    home = GateHome(tmp_path)
+    home = GateHome(tmp_path, monkeypatch)
     if request.param == "sh" and bash is None:
         pytest.skip("no bash able to execute a hook script")
     if request.param == "ps1" and powershell is None:

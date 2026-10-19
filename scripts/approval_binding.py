@@ -645,7 +645,8 @@ def _timestamp(value: object) -> float:
     raise ValueError('missing evidence timestamp')
 
 
-def codex_transcript_context(path: Path, session: str, event: dict, allowed_cwds: set[str]) -> dict:
+def codex_transcript_context(path: Path, session: str, event: dict, allowed_cwds: set[str],
+                             *, historical_cwds: set[str] | None = None) -> dict:
     """Corroborate an existing capture against its real runtime-owned Codex transcript.
 
     This adapter supports the locally verified vscode format only. A supplied path
@@ -685,7 +686,7 @@ def codex_transcript_context(path: Path, session: str, event: dict, allowed_cwds
                         or meta.get('originator') != 'codex_vscode' or meta.get('source') != 'vscode'
                         or not isinstance(context, dict) or context.get('approval_policy') != 'never'
                         or context.get('sandbox_policy') != {'type': 'danger-full-access'}
-                        or str(Path(str(context.get('cwd', ''))).resolve()) not in allowed_cwds):
+                        or str(Path(str(context.get('cwd', ''))).resolve()) not in (allowed_cwds | (historical_cwds or set()))):
                     raise ValueError('host transcript does not establish this session full-access context')
                 matched = {'origin': 'codex-host-transcript', 'session_id': session,
                            'permission_mode': 'bypassPermissions', 'prompt_sha256': event['prompt'],
@@ -702,34 +703,58 @@ def codex_transcript_context(path: Path, session: str, event: dict, allowed_cwds
 
 
 def adopt_policy(runs: Path, record: dict, instruction: str, policy: dict,
-                 transcript: Path | None = None, allowed_cwds: set[str] | None = None) -> None:
-    """Bind an explicitly mapped policy to the latest actual user instruction, without NLP inference."""
+                 transcript: Path | None = None, allowed_cwds: set[str] | None = None,
+                 *, historical_cwds: set[str] | None = None) -> None:
+    """Bind an exact unused instruction and independently current mode, without NLP inference."""
     policy = validate_policy(policy)
     session = str(record.get('session_id') or '')
-    events = capture_events(runs, session)
-    if not events or events[-1]['prompt'] != digest(instruction):
-        raise ValueError('instruction must equal the latest genuine whole user capture')
-    event = events[-1]
-    if _timestamp(event.get('at')) <= _timestamp(record.get('created')):
+    matches = [event for event in capture_events(runs, session)
+               if event['prompt'] == digest(instruction)]
+    if not matches:
+        raise ValueError('instruction must equal a genuine whole user capture')
+    matches = [event for event in matches
+               if _timestamp(event.get('at')) > _timestamp(record.get('created'))]
+    if not matches:
         raise ValueError('policy adoption requires a user instruction after run creation')
+    approvals = record['approvals']
+    prior = approvals.get('policy_adoptions') or []
+    available = [event for event in matches if event_available(runs, session, event)]
+    current_adoption = prior[-1] if prior else {}
+    retries = [event for event in matches
+               if approvals.get('autonomy_policy') == policy
+               and current_adoption.get('prompt_sha256') == event['prompt']
+               and current_adoption.get('event_id') == event.get('event_id')
+               and current_adoption.get('at') == event.get('at')
+               and current_adoption.get('policy') == policy]
+    candidates = available or retries
+    if not candidates:
+        raise Refusal('code-used')
+    if len(candidates) != 1:
+        raise ValueError('instruction matches multiple eligible genuine captures')
+    event = candidates[0]
+    retry = not available
     context = host_capture_context(event, session)
     if context.get('permission_mode') != 'bypassPermissions':
         if transcript is None:
             raise ValueError('trusted host permission evidence is unavailable')
-        context = codex_transcript_context(transcript, session, event, allowed_cwds or set())
+        context = codex_transcript_context(transcript, session, event, allowed_cwds or set(), historical_cwds=historical_cwds)
     if context.get('permission_mode') != 'bypassPermissions':
         raise ValueError('current host mode requires a genuine manual decision')
-    approvals = record['approvals']
-    prior = approvals.get('policy_adoptions') or []
-    # Retrying the same genuine adoption is idempotent, not a second consumption.
-    if any(item.get('prompt_sha256') == event['prompt'] and item.get('policy') == policy for item in prior):
+    # Selected instruction provenance is not proof of the latest permission mode.
+    view = {**record, 'approvals': {**approvals, 'authorization_context': context}}
+    current = current_host_context(runs, view, allowed_cwds or set(), historical_cwds=historical_cwds)
+    if not full_access_authorization(record, current):
+        raise ValueError('current trusted full-access evidence is unavailable')
+    # Only an identical same-record retry may reuse already-consumed provenance.
+    if retry:
         return
     _claim_event(runs, session, event)
     approvals['authorization_context'] = context
     approvals['autonomy_policy'] = policy
     approvals.setdefault('policy_adoptions', []).append({
         'origin': 'captured-user-instruction', 'prompt_sha256': event['prompt'],
-        'event_id': event.get('event_id'), 'at': event['at'], 'policy': policy})
+        'event_id': event.get('event_id'), 'at': event['at'], 'policy': policy,
+        'current_host_context': current})
 
 
 def resolution(record: dict, index: int, fingerprint: str, evidence_file: Path | None, context: dict | None = None) -> dict:
@@ -772,7 +797,8 @@ def resolution(record: dict, index: int, fingerprint: str, evidence_file: Path |
 
 
 
-def current_host_context(runs: Path, record: dict, allowed_cwds: set[str]) -> dict:
+def current_host_context(runs: Path, record: dict, allowed_cwds: set[str],
+                         *, historical_cwds: set[str] | None = None) -> dict:
     """Refresh mode from genuine host evidence; creation mode is never sticky authority."""
     session = str(record.get('session_id') or '')
     original = record.get('approvals', {}).get('authorization_context') or {}
@@ -794,7 +820,8 @@ def current_host_context(runs: Path, record: dict, allowed_cwds: set[str]) -> di
         return current
     if original.get('origin') == 'codex-host-transcript' and original.get('transcript_path'):
         event = {'prompt': original.get('prompt_sha256'), 'at': original.get('at')}
-        context = codex_transcript_context(Path(original['transcript_path']), session, event, allowed_cwds)
+        context = codex_transcript_context(Path(original['transcript_path']), session, event, allowed_cwds,
+                                           historical_cwds=historical_cwds)
         if context.get('permission_mode') == 'bypassPermissions':
             return context
     raise ValueError('current trusted full-access evidence is unavailable')

@@ -32,6 +32,10 @@ fixed predicate ids and statuses, so a gate can hand it to a model safely.
 from __future__ import annotations
 
 import argparse
+import tempfile
+from contextlib import contextmanager
+from contextvars import ContextVar
+from functools import wraps
 import datetime as dt
 import hashlib
 import hmac
@@ -477,15 +481,209 @@ def _sign(record: dict, key: bytes) -> str:
     return hmac.new(key, _canonical(_hmac_payload(record)), hashlib.sha256).hexdigest()
 
 
+
+# Schema-2 mutation snapshots remain outside the signed JSON payload.
+class MinorConflict(Malformed):
+    """A stale or foreign controller must retry from a fresh verified snapshot."""
+
+
+class MinorSnapshot(dict):
+    def __init__(self, record: dict, path: Path, raw: bytes, ctx: RepoContext) -> None:
+        super().__init__(record)
+        self.record_path = path.resolve()
+        self.loaded_sha256 = hashlib.sha256(raw).hexdigest()
+        self.context = ctx
+
+
+_MINOR_LEASE = ContextVar('minor_record_lease', default=None)
+
+
+@contextmanager
+def _minor_os_lock(lock_path: Path, budget):
+    """One bounded stdlib OS lease; persistent sidecar is never stolen or deleted."""
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    _restrict(lock_path.parent, directory=True)
+    handle = lock_path.open('a+b')
+    locked = False
+    try:
+        _restrict(lock_path, directory=False)
+        if lock_path.stat().st_size == 0:
+            handle.write(b'0')
+            handle.flush()
+        deadline = time.monotonic() + min(3.0, budget.remaining())
+        while True:
+            handle.seek(0)
+            try:
+                if os.name == 'nt':
+                    import msvcrt
+                    msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
+                else:
+                    import fcntl
+                    fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                locked = True
+                break
+            except OSError as exc:
+                if time.monotonic() >= deadline:
+                    raise MinorConflict('minor-record-busy') from exc
+                time.sleep(0.025)
+        yield
+    finally:
+        try:
+            if locked:
+                handle.seek(0)
+                if os.name == 'nt':
+                    import msvcrt
+                    msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+                else:
+                    import fcntl
+                    fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+        finally:
+            handle.close()
+
+
+@contextmanager
+def minor_creation_lease(ctx: RepoContext, token: str):
+    """All linked roots serialize first discovery and creation for this minor."""
+    cm = _minor_module()
+    cm.parse_minor(sys.modules[__name__], token)
+    common = cm._common_dir(ctx, ctx.root)
+    if not common or not Path(common).is_absolute() or str(Path(common).resolve()) != common:
+        raise MinorConflict('creation-common-directory-unavailable')
+    identity = hashlib.sha256(_canonical([os.path.normcase(common), 'minor:' + token])).hexdigest()
+    lock_path = _runs_dir() / 'creation-locks' / (identity + '.lock')
+    with _minor_os_lock(lock_path, ctx.budget):
+        yield
+
+
+@contextmanager
+def minor_lease(path: Path, expected: str | None, ctx: RepoContext):
+    """Full-byte CAS under the unchanged original-record-adjacent lease."""
+    path = path.resolve()
+    active = _MINOR_LEASE.get()
+    if active is not None:
+        if active['path'] != path:
+            raise MinorConflict('nested-minor-record-conflict')
+        yield active
+        return
+    with _minor_os_lock(path.with_name(path.stem + '.mutation.lock'), ctx.budget):
+        raw = path.read_bytes() if path.exists() else None
+        actual = hashlib.sha256(raw).hexdigest() if raw is not None else None
+        if actual != expected:
+            raise MinorConflict('minor-record-changed')
+        current = json.loads(raw) if raw is not None else None
+        if current is not None:
+            _minor_module().require_controller(sys.modules[__name__], ctx, current, path)
+        active = {'path': path, 'expected': expected, 'ctx': ctx}
+        token = _MINOR_LEASE.set(active)
+        try:
+            yield active
+            latest = path.read_bytes() if path.exists() else None
+            latest_digest = hashlib.sha256(latest).hexdigest() if latest is not None else None
+            if latest_digest != active['expected']:
+                raise MinorConflict('minor-record-changed')
+        finally:
+            _MINOR_LEASE.reset(token)
+
+
+@contextmanager
+def minor_transaction(record: MinorSnapshot):
+    if not isinstance(record, MinorSnapshot):
+        raise MinorConflict('minor-snapshot-required')
+    with minor_lease(record.record_path, record.loaded_sha256, record.context) as lease:
+        yield lease
+
+
+def minor_operation(function):
+    """Serialize native minor entry points before consuming genuine input."""
+    @wraps(function)
+    def wrapped(args):
+        if not _scoped(args):
+            return function(args)
+        cm = _minor_module()
+        ctx = cm.repo_context(sys.modules[__name__], args)
+        path = cm.record_file(sys.modules[__name__], ctx, args.minor)
+        raw = path.read_bytes() if path.exists() else None
+        expected = hashlib.sha256(raw).hexdigest() if raw is not None else None
+        with minor_lease(path, expected, ctx):
+            return function(args)
+    return wrapped
+
+
+def resolve_minor_controller(path: Path, session: str, *, budget_seconds: float = BUDGET_SECONDS) -> tuple[RepoContext, MinorSnapshot]:
+    """Trusted siblings resolve execution identity; raw JSON is only a lookup hint."""
+    raw = path.read_bytes()
+    record = json.loads(raw)
+    key = _secret(create=False)
+    if (not isinstance(record, dict) or key is None
+            or not hmac.compare_digest(str(record.get('approvals_hmac', '')), _sign(record, key))
+            or record.get('session_id') != session):
+        raise MinorConflict('record-tampered-or-session-mismatch')
+    binding = record.get('implementation_controller') or {}
+    root = Path(str(binding.get('repo_root') or record.get('repo_root', '')))
+    ctx = RepoContext(root, Budget(min(BUDGET_SECONDS, budget_seconds)))
+    cm = _minor_module()
+    snapshot = MinorSnapshot(record, path, raw, ctx)
+    cm.require_controller(sys.modules[__name__], ctx, snapshot, snapshot.record_path)
+    if not cm._verified(sys.modules[__name__], ctx, snapshot.get('minor'), snapshot):
+        raise MinorConflict('minor-authority-unverified')
+    return ctx, snapshot
+
+
+def historical_host_cwds(record: dict) -> set[str]:
+    """Caller supplies only an authenticated record; no unsigned redirect confers authority."""
+    binding = record.get('implementation_controller') or {}
+    origin = binding.get('origin_root')
+    return {str(Path(origin).resolve())} if isinstance(origin, str) else set()
+
+
 def _write_record(path: Path, record: dict) -> None:
+    minor = record.get('schema') == SCHEMA_MINOR and record.get('scope') == 'minor'
+    if not minor:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        _restrict(path.parent, directory=True)
+        tmp = path.with_suffix(".tmp")
+        tmp.write_text(
+            json.dumps(record, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
+        _restrict(tmp, directory=False)
+        os.replace(tmp, path)
+
+        return
+    active = _MINOR_LEASE.get()
+    if minor and active is None:
+        with minor_transaction(record):
+            _write_record(path, record)
+        return
+    if minor:
+        path = path.resolve()
+        if active['path'] != path:
+            raise MinorConflict('minor-record-path-changed')
+        if isinstance(record, MinorSnapshot) and record.loaded_sha256 != active['expected']:
+            raise MinorConflict('minor-snapshot-changed')
+        raw = path.read_bytes() if path.exists() else None
+        actual = hashlib.sha256(raw).hexdigest() if raw is not None else None
+        if actual != active['expected']:
+            raise MinorConflict('minor-record-changed')
+        key = _secret(create=False)
+        if key is None or not hmac.compare_digest(str(record.get('approvals_hmac', '')), _sign(record, key)):
+            raise MinorConflict('unsigned-minor-write')
     path.parent.mkdir(parents=True, exist_ok=True)
     _restrict(path.parent, directory=True)
-    tmp = path.with_suffix(".tmp")
-    tmp.write_text(
-        json.dumps(record, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-    )
-    _restrict(tmp, directory=False)
-    os.replace(tmp, path)
+    descriptor, name = tempfile.mkstemp(prefix=path.stem + '.', suffix='.tmp', dir=path.parent)
+    tmp = Path(name)
+    try:
+        with os.fdopen(descriptor, 'w', encoding='utf-8', newline='\n') as handle:
+            json.dump(record, handle, indent=2, sort_keys=True)
+            handle.write('\n')
+        _restrict(tmp, directory=False)
+        os.replace(tmp, path)
+    finally:
+        tmp.unlink(missing_ok=True)
+    if minor:
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        active['expected'] = digest
+        if isinstance(record, MinorSnapshot):
+            record.loaded_sha256 = digest
 
 
 class RecordState:
@@ -517,10 +715,13 @@ def read_record(ctx: RepoContext, path: Path) -> dict | None:
         if tracked_rc != 1:
             return None
     try:
-        record = json.loads(path.read_text(encoding="utf-8"))
+        raw = path.read_bytes()
+        record = json.loads(raw)
     except (OSError, ValueError, UnicodeDecodeError):
         return None
-    return record if isinstance(record, dict) else None
+    if not isinstance(record, dict):
+        return None
+    return MinorSnapshot(record, path, raw, ctx) if record.get("schema") == SCHEMA_MINOR else record
 
 
 def load_record(ctx: Context, session: str | None) -> RecordState:
@@ -1844,6 +2045,7 @@ def _json_request(value: str) -> dict:
     return result
 
 
+@minor_operation
 def cmd_record_adopt_policy(args: argparse.Namespace) -> int:
     loaded = _continuation_record(args)
     if isinstance(loaded, int):
@@ -1857,7 +2059,8 @@ def cmd_record_adopt_policy(args: argparse.Namespace) -> int:
         _validate_policy_paths(ctx.root, policy)
         cwds = _host_cwds(ctx)
         approval_binding.adopt_policy(_runs_dir(), record, instruction, policy,
-            Path(args.host_transcript) if args.host_transcript else None, cwds)
+            Path(args.host_transcript) if args.host_transcript else None, cwds,
+            historical_cwds=historical_host_cwds(record))
     except (OSError, ValueError, approval_binding.Refusal) as exc:
         print(f'policy not adopted: {exc}', file=sys.stderr)
         return EXIT_BLOCKED
@@ -1867,6 +2070,7 @@ def cmd_record_adopt_policy(args: argparse.Namespace) -> int:
     return 0
 
 
+@minor_operation
 def cmd_record_authorize(args: argparse.Namespace) -> int:
     loaded = _continuation_record(args)
     if isinstance(loaded, int):
@@ -1877,7 +2081,8 @@ def cmd_record_authorize(args: argparse.Namespace) -> int:
     if _approved_remote_status(ctx, view) != 'met':
         return _blocked('approval-not-covered')
     try:
-        current = approval_binding.current_host_context(_runs_dir(), record, _host_cwds(ctx))
+        current = approval_binding.current_host_context(_runs_dir(), record, _host_cwds(ctx),
+            historical_cwds=historical_host_cwds(record))
         request = _json_request(args.request)
         _validate_scoped_paths(ctx.root, request.get('paths', []))
         event = approval_binding.authorization(view, args.approval_class, request, current)
@@ -1924,6 +2129,7 @@ def _native_user_edit_probe(ctx: RepoContext, view: dict, entry: dict, current: 
             'native_predicates_changed': False}
 
 
+@minor_operation
 def cmd_record_resolve(args: argparse.Namespace) -> int:
     loaded = _continuation_record(args)
     if isinstance(loaded, int):
@@ -1937,7 +2143,8 @@ def cmd_record_resolve(args: argparse.Namespace) -> int:
         entry = record.get('blockers', [])[args.blocker]
         if getattr(args, 'member', None) is not None and entry.get('version') != args.member:
             raise ValueError('member differs from the blocker')
-        current = approval_binding.current_host_context(_runs_dir(), record, _host_cwds(ctx))
+        current = approval_binding.current_host_context(_runs_dir(), record, _host_cwds(ctx),
+            historical_cwds=historical_host_cwds(record))
         _validate_scoped_paths(ctx.root, (entry.get('request') or {}).get('paths', []))
         if entry.get('category') == 'user-edit-guard':
             if not entry.get('open') or approval_binding.blocker_fingerprint(entry) != args.fingerprint:
@@ -2072,6 +2279,15 @@ def build_parser() -> argparse.ArgumentParser:
     block.add_argument("--why", help="why that action is needed, bound into the challenge")
     block.add_argument("--request", default="{}", help="JSON action scope, bound into blocker identity")
     block.set_defaults(func=cmd_record_block)
+    handoff = record.add_parser('controller-handoff')
+    handoff.add_argument('--minor', required=True)
+    handoff.add_argument('--session', required=True)
+    handoff.add_argument('--repo', required=True)
+    handoff.add_argument('--to', required=True)
+    handoff.add_argument('--head', required=True)
+    handoff.add_argument('--expected-generation', type=int, required=True)
+    handoff.add_argument('--apply', action='store_true')
+    handoff.set_defaults(func=lambda args: _minor_module().cmd_record_controller_handoff(sys.modules[__name__], args))
     for name, func in (('authorize', cmd_record_authorize), ('adopt-policy', cmd_record_adopt_policy), ('resolve', cmd_record_resolve)):
         operation = record.add_parser(name)
         operation.add_argument('plan', nargs='?')
@@ -2145,6 +2361,9 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
         return args.func(args)
+    except MinorConflict as exc:
+        print(f"BLOCKED: {exc}")
+        return EXIT_BLOCKED
     except Malformed as exc:
         print(f"error: {exc}", file=sys.stderr)
         return EXIT_MALFORMED

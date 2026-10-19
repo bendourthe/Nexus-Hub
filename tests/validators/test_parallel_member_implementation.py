@@ -416,12 +416,15 @@ def test_forged_binding_signature_and_copied_controller_are_rejected(
     other = worker(parallel, "v0.5.10")
     otherctx = ck.RepoContext(other, ck.Budget(30))
     copied = cm.record_file(ck, otherctx, "v0.5")
+    assert copied != parallel.record_path()
     forged = json.loads(json.dumps(good))
     forged["repo_root"] = str(
         other.resolve()
     )  # legacy unsigned fields cannot move the new signed binding
     forged["worktree"] = str(other.resolve())
     copied.write_text(json.dumps(forged), encoding="utf-8")
+    copied_before = copied.read_bytes()
+    origin_before = parallel.record_path().read_bytes()
     result = parallel.run(
         "check-member",
         "--minor",
@@ -433,7 +436,10 @@ def test_forged_binding_signature_and_copied_controller_are_rejected(
         "--repo",
         str(other),
     )
-    assert result.stdout.startswith("BLOCKED: record-tampered")
+    assert result.returncode == ck.EXIT_BLOCKED
+    assert result.stdout.strip() == "BLOCKED: controller-origin-or-common-dir-mismatch"
+    assert copied.read_bytes() == copied_before
+    assert parallel.record_path().read_bytes() == origin_before
 
 
 def test_unknown_unregistered_and_dirty_worktrees_are_refused(

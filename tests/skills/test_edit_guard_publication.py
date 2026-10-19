@@ -570,3 +570,84 @@ def test_generation_reader_accepts_a_subsequent_legacy_writer_record(guard, caps
     assert module.cmd_diff(args(path), root) == 0
     output = capsys.readouterr().out
     assert "-approved B" in output and "+approved A" in output
+
+
+@pytest.fixture
+def conflict_detector():
+    """Load only the detector; these suffix cases need no store or native guard call."""
+    spec = importlib.util.spec_from_file_location("conflict_detector_guard", SCRIPT)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.open_or_conflicting
+
+
+@pytest.mark.parametrize("name, suffix", [
+    ("claude-opus-4-5.md", "20251101"),
+    ("model.md", "123"),
+    ("model.md", "0003"),
+])
+def test_numeric_suffix_is_not_a_generic_machine_conflict(tmp_path, monkeypatch, conflict_detector, name, suffix):
+    monkeypatch.setenv("COMPUTERNAME", "WORKSTATION")
+    path = tmp_path / name
+    path.write_text("published profile\n", encoding="utf-8")
+    sibling = path.with_name(f"{path.stem}-{suffix}{path.suffix}")
+    sibling.write_text("published dated or versioned profile\n", encoding="utf-8")
+    assert conflict_detector(path) == []
+    assert path.read_text(encoding="utf-8") == "published profile\n"
+    assert sibling.read_text(encoding="utf-8") == "published dated or versioned profile\n"
+
+
+@pytest.mark.parametrize("suffix", ["MACHINE", "ABC123", "DESKTOP-4F2A9C", "ABC-123"])
+def test_machine_suffix_still_means_conflicting(tmp_path, monkeypatch, conflict_detector, suffix):
+    monkeypatch.setenv("COMPUTERNAME", "OTHERHOST")
+    path = tmp_path / "profile.md"
+    path.write_text("baseline\n", encoding="utf-8")
+    sibling = tmp_path / f"profile-{suffix}.md"
+    sibling.write_text("conflicting copy\n", encoding="utf-8")
+    assert conflict_detector(path) == [f"conflict copy {sibling.name}"]
+
+
+@pytest.mark.parametrize("computer, suffix", [
+    ("20251101", "20251101"), ("123", "123"), ("realMACHINE", "realmACHINE"),
+])
+def test_exact_local_suffix_still_blocks_including_numeric(tmp_path, monkeypatch, conflict_detector, computer, suffix):
+    monkeypatch.setenv("COMPUTERNAME", computer)
+    path = tmp_path / "profile.md"
+    path.write_text("baseline\n", encoding="utf-8")
+    sibling = tmp_path / f"profile-{suffix}.md"
+    sibling.write_text("local conflict\n", encoding="utf-8")
+    assert conflict_detector(path) == [f"conflict copy {sibling.name}"]
+
+
+@pytest.mark.parametrize("lock_name", ["~$deck.pptx", "~$ck.pptx"])
+def test_office_lock_still_blocks_beside_numeric_suffix(tmp_path, monkeypatch, conflict_detector, lock_name):
+    monkeypatch.setenv("COMPUTERNAME", "WORKSTATION")
+    path = tmp_path / "deck.pptx"
+    path.write_bytes(b"detector checks filenames only")
+    (tmp_path / "deck-20251101.pptx").write_bytes(b"dated sibling")
+    (tmp_path / lock_name).write_bytes(b"lock")
+    assert conflict_detector(path) == [f"lock file {lock_name}"]
+
+
+def test_numeric_suffix_does_not_waive_missing_record_or_changed_bytes(guard, monkeypatch, capsys):
+    module, root, work = guard
+    monkeypatch.setenv("COMPUTERNAME", "WORKSTATION")
+    path = work / "claude-opus-4-5.md"
+    path.write_text("original profile\n", encoding="utf-8")
+    sibling = work / "claude-opus-4-5-20251101.md"
+    sibling.write_text("dated profile\n", encoding="utf-8")
+    assert module.cmd_check(args(path), root) == module.EXIT_NO_RECORD
+    assert module.cmd_record(args(path), root) == module.EXIT_OK
+    key = module.key_for(path)
+    record_path = root / "records" / f"{key}.json"
+    baseline_record = record_path.read_bytes()
+    assert module.cmd_check(args(path), root) == module.EXIT_OK
+    capsys.readouterr()
+    path.write_text("user changed profile\n", encoding="utf-8")
+    assert module.cmd_check(args(path), root) == module.EXIT_CHANGED
+    observed = capsys.readouterr().out
+    assert "differs from the agent's last-known state" in observed
+    assert "open or conflicting copy" not in observed
+    assert record_path.read_bytes() == baseline_record
+    assert path.read_text(encoding="utf-8") == "user changed profile\n"
+    assert sibling.read_text(encoding="utf-8") == "dated profile\n"
