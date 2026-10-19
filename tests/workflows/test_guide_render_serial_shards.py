@@ -65,7 +65,8 @@ def test_only_windows_installer_job_can_use_pytest_workers() -> None:
         workflow = yaml.safe_load(path.read_text(encoding="utf-8"))
         if path.name == "ci.yml":
             job = workflow["jobs"]["tests-windows-installer"]
-            assert job["env"].pop("PYTEST_ADDOPTS") == "-p xdist -n 2 --dist loadfile"
+            pytest_addopts = job["env"].pop("PYTEST_ADDOPTS")
+            assert pytest_addopts == "-p xdist -n 2 --dist loadfile"
             install = next(step for step in job["steps"]
                            if step.get("name") == "Install test dependencies")
             tools = " pytest-xdist==3.8.0 execnet==2.1.2"

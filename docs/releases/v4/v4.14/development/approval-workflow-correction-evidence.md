@@ -69,6 +69,10 @@ The exact inline worker-tool versions now participate in the Windows installer c
 
 The full local native Windows installer profile also passed all three commands in 2363.5s: installer 370.6s, a-c 498.7s and co-z 1494.3s. No native command failed, skipped or was advisory. The hosted co-z command passed in 1299.6s. Test selection and timeout limits are unchanged. Unchanged source evidence is retained; the changed shared fixture is covered by the completed affected-module proof. Final corrected-head hosted validation remains required before integration.
 
+## CodeQL assertion correction
+
+The96026d912 hosted security check identified an assertion with a side effect in the workflow contract test. The dictionary removal now runs before a pure assertion; the tested workflow shape and runtime source are unchanged. Both affected workflow modules passed all7cases in1.26s, and Ruff reports zero diagnostics. The earlier complete affected-scope and native Windows qualification remain retained for unchanged inputs. Final corrected-head hosted security and integration checks remain required.
+
 ## Current source pins
 
 Observed source snapshot for this qualification:

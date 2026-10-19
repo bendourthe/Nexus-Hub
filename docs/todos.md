@@ -25,6 +25,8 @@ The original Linux installer, Windows edit-recording and other 23 run-introduced
 
 **Final CI contract qualification:** The complete local Windows profile passed all three native commands in 2363.5s. The da3019861 hosted failures are classified as one shared clock fixture issue and two stale CI assertions. The shared fixture and scoped workflow contracts are corrected; 381 affected cases pass with 19 skips, and all 41 approval cases pass under a coarse-clock probe. Rendering remains serial. Final corrected-head hosted validation is required.
 
+**CodeQL follow-up:** The workflow test now removes the worker option before asserting its exact value, preserving behavior and avoiding assertion side effects. Both affected workflow modules pass all7cases in1.26s with zero Ruff diagnostics. Final corrected-head hosted validation remains required.
+
 **Next:** Integrate the approval/CI correction through develop using the completed split regression qualification, final usage-hook and new fast proof. Adopt only the verified published matched runtime before native admission. Implement compatible plans concurrently; publish and release sequentially.
 
 | Metric | Current | Target |
