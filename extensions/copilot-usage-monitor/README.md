@@ -82,7 +82,7 @@ So the Nexus-Hub `usage-guard` hook can hand off work before a limit is reached,
 | `copilotUsage.autoFetch` | `true` | Fetch on startup and at intervals |
 | `copilotUsage.refreshInterval` | `10` | Minutes between refreshes (1-120); one minute near the moderate threshold |
 | `copilotUsage.showInStatusBar` | `true` | Show or hide the status bar item |
-| `copilotUsage.compactStatusBar` | `false` | Drop the "Copilot Usage: " label |
+| `copilotUsage.compactStatusBar` | `true` | Drop the "Copilot Usage: " label |
 | `copilotUsage.thresholds.*` | `50` / `75` / `95` | Moderate, high, and critical thresholds |
 | `copilotUsage.colors.*` | `#cca700` / `#f0643c` / `#e05555` | Status bar background per level, or `none` |
 | `copilotUsage.notificationTimeoutSeconds` | `12` | How long notifications stay on screen |
@@ -92,6 +92,8 @@ So the Nexus-Hub `usage-guard` hook can hand off work before a limit is reached,
 ## Data storage and privacy
 
 Usage figures are cached in VS Code's `globalState` on your machine. The only network requests go to `api.github.com`, redirects are refused, and the extension writes no token to settings, logs, the cache, or the state file. An organization token, when one is needed, lives only in VS Code secret storage. Connect reads your seat's organization list to offer a choice and never stores it.
+
+The dashboard's **Current Model** section is the one local read: after each successful fetch the extension opens the editor's own state database (`User/globalStorage/state.vscdb`, found beside its own storage folder) **read-only** and reads one key, `chat.currentLanguageModel.panel`, the model picked in the Chat view. It holds no login, account, or repository data, and nothing else in the database is read. When the key is absent (for example in Cursor) the section is hidden. The extension still reads no git configuration, repository remote, or gh CLI login.
 
 ## Development
 

@@ -37,7 +37,7 @@ export interface OrganizationStatus {
 export const SETTINGS_DEFAULTS: DraftState = {
   thresholds: { moderate: URGENCY_THRESHOLDS.moderate, high: URGENCY_THRESHOLDS.high, critical: URGENCY_THRESHOLDS.critical },
   colors: { moderate: DEFAULT_URGENCY_COLORS.moderate, high: DEFAULT_URGENCY_COLORS.high, critical: DEFAULT_URGENCY_COLORS.critical },
-  compact: false,
+  compact: true,
 };
 
 /** The current persisted settings, read from VS Code configuration. */
@@ -45,7 +45,7 @@ export function currentSettings(): DraftState {
   return {
     thresholds: getThresholdConfig(),
     colors: getColorConfig(),
-    compact: vscode.workspace.getConfiguration(CONFIG_SECTION).get<boolean>("compactStatusBar", false),
+    compact: vscode.workspace.getConfiguration(CONFIG_SECTION).get<boolean>("compactStatusBar", true),
   };
 }
 

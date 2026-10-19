@@ -41,7 +41,7 @@ describe("mapCodexUsageResponse", () => {
     expect(model).not.toBeNull();
     expect(model!.dataSource).toBe("api");
     expect(model!.planLabel).toBe("ChatGPT Plus");
-    expect(model!.currentModel).toBe("ChatGPT Plus");
+    expect(model!.currentModel).toBe("Codex default");
     expect(model!.lastUpdated).toBe(NOW);
 
     // Primary window -> session metric.

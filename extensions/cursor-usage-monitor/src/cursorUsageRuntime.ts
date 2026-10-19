@@ -82,6 +82,12 @@ export interface RuntimeDependencies {
    * reopen a declined decision; automation may not.
    */
   reconnectLive?: () => Promise<boolean>;
+  /**
+   * Reads the agent model selected in Cursor for the dashboard, or undefined.
+   * Called only after a successful live fetch, so it inherits the live-access
+   * consent; never throws. Absent when no reader is wired.
+   */
+  readCurrentModel?: () => Promise<string | undefined>;
   now?: () => number;
   setInterval?: (callback: () => void, delay: number) => IntervalHandle;
   clearInterval?: (handle: IntervalHandle) => void;
@@ -111,6 +117,7 @@ export class CursorUsageRuntime implements vscode.Disposable {
   ) => TimeoutHandle;
   private readonly cancelTimeout: (handle: TimeoutHandle) => void;
   private state: UsageState;
+  private currentModel: string | undefined;
   private refreshPromise: Promise<void> | undefined;
   private refreshController: AbortController | undefined;
   private refreshTimer: IntervalHandle | undefined;
@@ -216,7 +223,7 @@ export class CursorUsageRuntime implements vscode.Disposable {
   private registerCommands(): vscode.Disposable[] {
     return [
       vscode.commands.registerCommand(COMMAND_IDS.dashboard, () => {
-        this.dashboard.show(this.state);
+        this.dashboard.show(this.state, this.currentModel);
       }),
       vscode.commands.registerCommand(COMMAND_IDS.refresh, () =>
         this.refresh("manual")
@@ -281,6 +288,9 @@ export class CursorUsageRuntime implements vscode.Disposable {
       if (this.refreshIsObsolete(controller, generation)) {
         return;
       }
+      if (result.ok && result.value.source !== "manual") {
+        this.currentModel = await this.readCurrentModel();
+      }
       this.state = nextState;
       await this.renderState();
       if (reason === "manual") {
@@ -306,6 +316,14 @@ export class CursorUsageRuntime implements vscode.Disposable {
         ok: false,
         error: providerError("network-error", null)
       };
+    }
+  }
+
+  private async readCurrentModel(): Promise<string | undefined> {
+    try {
+      return await this.dependencies.readCurrentModel?.();
+    } catch {
+      return undefined;
     }
   }
 
@@ -554,7 +572,7 @@ export class CursorUsageRuntime implements vscode.Disposable {
     } else {
       this.statusBar.hide();
     }
-    this.dashboard.update(this.state);
+    this.dashboard.update(this.state, this.currentModel);
 
     if (!evaluateAlerts) {
       return;

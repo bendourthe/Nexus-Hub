@@ -80,7 +80,7 @@ Open Settings (`Ctrl+,`) and search "Gemini Usage":
 | `geminiUsage.autoFetch` | `true` | Read usage on startup and at intervals |
 | `geminiUsage.refreshInterval` | `10` | Minutes between automatic refreshes (1-120) |
 | `geminiUsage.showInStatusBar` | `true` | Show/hide the status bar item |
-| `geminiUsage.compactStatusBar` | `false` | Drop the "Gemini Usage: " label |
+| `geminiUsage.compactStatusBar` | `true` | Drop the "Gemini Usage: " label |
 | `geminiUsage.thresholds.*` | `50` / `75` / `95` | Moderate / High / Critical urgency thresholds |
 | `geminiUsage.thresholdMetric` | `highest` | `highest` watches every window of every model group; `session` and `weekly` watch the Gemini group only |
 | `geminiUsage.colors.*` | `#cca700` / `#f0643c` / `#e05555` | Status bar colors per level, or `none` |

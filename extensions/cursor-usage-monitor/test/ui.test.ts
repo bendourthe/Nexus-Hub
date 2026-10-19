@@ -27,6 +27,7 @@ import {
   createWebviewView,
   executedCommands,
   resetVscodeStub,
+  setConfiguration,
   statusItems,
   Uri,
   webviewPanels
@@ -81,6 +82,11 @@ afterEach(() => resetVscodeStub());
 
 describe("status bar and hover", () => {
   it("renders separate full and compact meters without inventing percentages", () => {
+    // The "Cursor Usage: " label is off by default (compact mode), like the sibling monitors.
+    expect(buildStatusText(fresh(), false)).toBe(
+      "$(cursor-icon)\u2002Cursor 80% \u00b7 Other 2,500 tokens"
+    );
+    setConfiguration("cursorUsage.showStatusBarLabel", true);
     expect(buildStatusText(fresh(), false)).toBe(
       "$(cursor-icon)\u2002Cursor Usage: Cursor 80% \u00b7 Other 2,500 tokens"
     );

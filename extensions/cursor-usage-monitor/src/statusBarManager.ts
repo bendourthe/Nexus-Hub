@@ -62,7 +62,7 @@ export function buildStatusText(
       ? false
       : vscode.workspace
           .getConfiguration("cursorUsage")
-          .get<boolean>("showStatusBarLabel", true);
+          .get<boolean>("showStatusBarLabel", false);
   const label = showLabel ? "Cursor Usage: " : "";
   if (state.state === "empty") {
     return `${CURSOR_ICON}${ICON_GAP}${label}--`;

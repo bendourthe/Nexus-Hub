@@ -28,23 +28,23 @@ function draft(overrides: Partial<DraftState> = {}): DraftState {
 }
 
 describe("settings persistence", () => {
-  it("round-trips the compact toggle", async () => {
-    expect(currentSettings().compact).toBe(false);
-    const persisted = await saveSettings(draft({ compact: true }));
-    expect(persisted.compact).toBe(true);
+  it("round-trips the compact toggle, which is on by default", async () => {
+    expect(currentSettings().compact).toBe(true);
+    const persisted = await saveSettings(draft({ compact: false }));
+    expect(persisted.compact).toBe(false);
     // Read back through a fresh call, not the returned value: the returned value
     // could be the draft echoed straight back and still be wrong on disk.
-    expect(currentSettings().compact).toBe(true);
+    expect(currentSettings().compact).toBe(false);
   });
 
   it("stores the toggle as showStatusBarLabel, inverted", async () => {
     // The label is what the user means by "hide the words"; compactStatusBar also
     // abbreviates the pool names, so the two are deliberately not the same setting.
-    await saveSettings(draft({ compact: true }));
-    expect(configuration.get("cursorUsage.showStatusBarLabel")).toBe(false);
     await saveSettings(draft({ compact: false }));
     expect(configuration.get("cursorUsage.showStatusBarLabel")).toBe(true);
-    expect(currentSettings().compact).toBe(false);
+    await saveSettings(draft({ compact: true }));
+    expect(configuration.get("cursorUsage.showStatusBarLabel")).toBe(false);
+    expect(currentSettings().compact).toBe(true);
   });
 
   it("round-trips the metric and thresholds", async () => {
@@ -121,7 +121,7 @@ describe("write amplification", () => {
     // like it had discarded the change.
     const { configurationUpdates } = await import("./vscode-stub");
     configurationUpdates.length = 0;
-    await saveSettings(draft({ compact: true }));
+    await saveSettings(draft({ compact: false }));
     expect(configurationUpdates).toHaveLength(1);
     expect(configurationUpdates[0]?.key).toBe("showStatusBarLabel");
   });

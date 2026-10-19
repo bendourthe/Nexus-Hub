@@ -290,6 +290,12 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 - [x] Branch and worktree cleanup: every merged branch and worktree removed; five unmerged branches (three v4.13.10 game WIP branches, a stranded v4.16.3 comparison branch, and the v4.17.0 push-size-guard phase 1-2 branch, dropped for a fresh start at implementation time) deleted after bundling to the release-evidence folder.
 - [ ] Fix the Cursor project-surface writer: `nexus-hub upgrade` replaced this repository's tracked, project-specific `.cursor/rules/nexus-hub.mdc` with a generic stub instead of leaving an existing file untouched.
 
+## Usage monitor parity - 2026-10-19
+
+- [x] Codex dashboard shows Current Model (from `config.toml`) in place of Plan; Claude dashboard gains a Limit Resets row that states the API reports no count; all five monitors default to compact status-bar mode ([decision record](decisions/implemented/architecture/2026-10-19-usage-monitor-dashboard-parity.md)).
+- [x] Copilot and Cursor show Current Model (approved 2026-10-19): Copilot reads one `state.vscdb` key as the single exception to decision 1b; Cursor reads its composer model behind live-access consent, with the consent scope bumped to v2.
+- [ ] Antigravity Current Model: capture a `GetUserStatus` response ("Save Raw Usage Response" while Antigravity is open) to verify how `last_selected_agent_model` (for example `MODEL_PLACEHOLDER_M133`) maps to a model name; until then Antigravity shows Plan.
+
 ## Queue reorganization - 2026-10-12 speed-first release map
 
 - [x] Regroup the 27 queued plans from v4.14 onward into nine themed minors (v4.14 to v4.22, at most four patches each), speed and cost first, documentation and visual-class plans last. 51 files moved, references repaired, and every moved file carries a `**Renumbered**:` line; see the [reorganization record](releases/v4/v4.15/development/2026-10-12-queue-reorganization.md).
