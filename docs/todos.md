@@ -23,6 +23,8 @@ The original Linux installer, Windows edit-recording and other 23 run-introduced
 
 **Windows CI follow-up:** The capture chronology fixture now retains strict event ordering without depending on wall-clock resolution; all41 affected tests pass. The Windows installer CI job assigns complete files to two workers with pinned dependencies and unchanged test selections/time limits. All 156 relevant workflow contracts pass. The complete local Windows profile and final hosted validation are pending.
 
+**Final CI contract qualification:** The complete local Windows profile passed all three native commands in 2363.5s. The da3019861 hosted failures are classified as one shared clock fixture issue and two stale CI assertions. The shared fixture and scoped workflow contracts are corrected; 381 affected cases pass with 19 skips, and all 41 approval cases pass under a coarse-clock probe. Rendering remains serial. Final corrected-head hosted validation is required.
+
 **Next:** Integrate the approval/CI correction through develop using the completed split regression qualification, final usage-hook and new fast proof. Adopt only the verified published matched runtime before native admission. Implement compatible plans concurrently; publish and release sequentially.
 
 | Metric | Current | Target |

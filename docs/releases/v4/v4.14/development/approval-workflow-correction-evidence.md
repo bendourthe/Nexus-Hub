@@ -59,6 +59,16 @@ The corrected-head hosted installer profile reported one approval-capture fixtur
 
 The Windows installer job now installs exact `pytest-xdist==3.8.0` and `execnet==2.1.2` and assigns whole test files to two workers. All three native commands, selected test sets and existing command/job time limits remain unchanged. A targeted static safety review found no material shared-state or nested-pytest hazard. The final workflow passed all 156 relevant CI contract checks in 1.92s. A complete local native Windows installer profile is running with the same two-worker setting; its measured outcome and final hosted validation remain pending. Broad unaffected source qualification is retained rather than repeated.
 
+## Final CI contract qualification
+
+The da3019861 hosted run completed with two primary failures. Linux passed 20 native commands; governance reported two stale workflow assertions with 3207 passing cases and 68 skips. The Windows installer job passed installer and co-z commands; a-c reported one further coarse-clock approval fixture failure, with 940 passing cases and one skip. Derived report/required-check failures are not separate causes.
+
+A private coarse-clock probe reproduced the exact repeated-paste failure (1 failed in 9.62s). The shared capture fixture now provides deterministic logical time to all capture-consuming cases, preserving production verification and real subprocess coverage. All 41 affected cases passed under that coarse-clock probe in 12.87s. The complete affected workflow folder, related CI contracts and approval module passed 381 cases with 19 skips in 22.17s; those skips remain unclaimed coverage pending final hosted validation. Rerun cases are not added together.
+
+The exact inline worker-tool versions now participate in the Windows installer cache key through its workflow file. The rendering guard permits only the reviewed two-worker installer job, retains the three serial rendering shards and dependency bans, and rejects workers elsewhere. A negative long-command case first exposed a YAML-wrapping escape (1 failed in 15.55s); disabling wrapping preserves the flag scan, and the new negative case passes in the affected scope above. Both changed workflow modules have zero Ruff diagnostics; the approval module has no introduced diagnostics and one unchanged existing UP017. Targeted independent review found no remaining material findings.
+
+The full local native Windows installer profile also passed all three commands in 2363.5s: installer 370.6s, a-c 498.7s and co-z 1494.3s. No native command failed, skipped or was advisory. The hosted co-z command passed in 1299.6s. Test selection and timeout limits are unchanged. Unchanged source evidence is retained; the changed shared fixture is covered by the completed affected-module proof. Final corrected-head hosted validation remains required before integration.
+
 ## Current source pins
 
 Observed source snapshot for this qualification:

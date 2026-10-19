@@ -29,6 +29,16 @@ def captures(tmp_path, monkeypatch):
     monkeypatch.setattr(gate, "_runs_dir", lambda: runs)
     monkeypatch.delenv("NEXUS_RUNNER_LAUNCH", raising=False)
 
+    # Whole-second seed models a coarse host clock; clock reads order fixture events.
+    now = [float(int(time.time()))]
+
+    def clock():
+        now[0] += 1.0
+        return now[0]
+
+    monkeypatch.setattr(binding, "_clock", clock)
+    monkeypatch.setattr(gate, "time", SimpleNamespace(time=clock))
+
     def capture(prompt, session=SESSION, **fields):
         monkeypatch.setattr(gate, "_read_payload", lambda: {"session_id": session, "prompt": prompt, **fields})
         assert gate.cmd_capture() == 0
@@ -552,10 +562,15 @@ def test_real_cli_capture_create_authorize_decline_answer_and_mode_change(tmp_pa
 
 def test_repeated_genuine_exact_paste_uses_one_fresh_event(captures):
     runs, capture = captures
+    initial = binding.capture_events(runs, SESSION)[-1]
     pending = render(runs, question=False)
     capture(pending['paste_lines'][0])
+    first_reply = binding.capture_events(runs, SESSION)[-1]
     assert render(runs, question=False)['nonce'] == pending['nonce']
     capture(pending['paste_lines'][0])
+    second_reply = binding.capture_events(runs, SESSION)[-1]
+    assert initial['at'] < pending['rendered_at'] < first_reply['at'] < second_reply['at']
+    assert first_reply['event_id'] != second_reply['event_id']
     assert consume(runs, pending)[0]['pasted'] == pending['paste_lines'][0]
     with pytest.raises(binding.Refusal, match='code-used'):
         consume(runs, pending)

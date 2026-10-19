@@ -435,6 +435,7 @@ jobs:
           cache-dependency-path: |
             scripts/ci/requirements-windows.in
             scripts/ci/requirements-py311.txt
+            .github/workflows/ci.yml
 
       - name: Install test dependencies
         run: python -m pip install -c scripts/ci/requirements-py311.txt -r scripts/ci/requirements-windows.in pytest-xdist==3.8.0 execnet==2.1.2
