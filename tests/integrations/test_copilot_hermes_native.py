@@ -15,6 +15,7 @@ import hashlib
 import io
 import json
 import os
+import re
 import shutil
 import stat
 import subprocess
@@ -81,14 +82,16 @@ def _catalog_agents(ctx: InstallContext) -> list[Path]:
 # ----- 8.1 Copilot global agents ------------------------------------------
 
 
-def test_every_catalog_agent_is_delivered_verbatim(copilot, install_ctx, copilot_home):
-    """Copilot reads the Claude frontmatter shape, so no transform may occur."""
+def test_every_catalog_agent_preserves_prompt_and_native_metadata(copilot, install_ctx, copilot_home):
+    """Preserve prompts and metadata while removing Claude-only model aliases."""
     copilot._install_global_agents(copilot_home, install_ctx)
     dst_dir = copilot_home / "agents"
     for src in _catalog_agents(install_ctx):
         dst = dst_dir / f"{src.stem}.agent.md"
         assert dst.exists(), f"{src.name} was not delivered"
-        assert dst.read_bytes() == src.read_bytes(), f"{src.name} was modified"
+        source = src.read_text(encoding="utf-8")
+        expected = re.sub(r"^model:.*\n", "", source, count=1, flags=re.MULTILINE)
+        assert dst.read_text(encoding="utf-8") == expected, src.name
 
 
 def test_agents_use_the_documented_agent_md_suffix(copilot, install_ctx, copilot_home):

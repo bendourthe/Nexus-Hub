@@ -1,0 +1,538 @@
+{
+  "kind": "v4.14.0_individual_gap_closure",
+  "observed_utc": "2026-10-19T03:44:52.508Z",
+  "source_ledger_sha256": "06f6f19d0d5c91ce5473385d8de60b96a4fb70dd6655339a11c24c16d46f7609",
+  "final_ledger_sha256": "b06d25611e1dd38e326baff537d487954619bcc8067d941aadbbb356cf7691bc",
+  "integration_head": "8b32922ca573fb57546611267b88246c1064f1e4",
+  "integration_receipt_sha256": "d9db0e25a929c099a5c9379472fdacd64993051c8b7f179740f2030277a906ed",
+  "scope": "23 run-introduced items only; no inherited gap closed, migrated or discarded; earlier six resolutions retained",
+  "counts_before": {
+    "open": 103,
+    "resolved": 6
+  },
+  "counts_after": {
+    "open": 80,
+    "resolved": 29
+  },
+  "items": [
+    {
+      "id": "BG-17",
+      "acceptance": "- **Acceptance**: preserve keys, approval rules, strict user-edit blocking and owner-only cache permissions; retain meaningful reviewed baselines after failed writes; pass actual-source native scopes, complete final full/platform profiles and green hosted integration.",
+      "original_body_sha256": "696750a0d565f53cd035873aa64f34421c8ca4cdf56de9887b08a04123739122",
+      "original_block_sha256": "4a964c871ee93350915718cc883faf002f3ba4810fc62348353018060b3b4b6e",
+      "repair_receipts": [
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-stabilization-applied.json",
+          "sha256": "21d28c188f44fbe72c9921ed6c3f638c82c22089c6fd42172b3618702f57ad94"
+        },
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-redaction-v9.json",
+          "sha256": "705af7797a3887c86256af02f54e536d02349f76c5f580cd6dd600bd8f2cb5cd"
+        },
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-actual-source-v9-checkpoint.json",
+          "sha256": "21138aee2c21a25519873f72a46b189a120eceef3256ee0da1a11a5b8e362b9b"
+        }
+      ],
+      "final_integration_receipt": "final-hosted-integration.json",
+      "retained_qualification_receipt": "final-local-profiles-v9.json",
+      "state_before": "open",
+      "state_after": "resolved",
+      "resolution": "The item-specific causal repair and native negative controls in the hashed repair receipts are applied. Retained complete qualification covers unchanged inputs; subsequent changed boundaries have focused and final hosted qualification. All 44 final PR checks and both post-merge checks pass at the recorded merged integration tree. Original acceptance text and body are retained."
+    },
+    {
+      "id": "MT-13",
+      "acceptance": "- **Acceptance**: both real Linux adapters and native Windows qualification, complete final canonical profiles and hosted integration pass with explicit inside/outside timing controls and strict user-edit blocking retained.",
+      "original_body_sha256": "56dabb62ea0d576fc2dcb0f031b1a2128ca22fcbfb3ab0243360e7822c643f38",
+      "original_block_sha256": "034040a0ae1889040444ad3aa86b6d4555dffeed529d97422f203075fe018ba6",
+      "repair_receipts": [
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/formatter-settle-stabilization-applied.json",
+          "sha256": "f4e324337525d315fbe841a7fb95a6d40cdddc86ffb8d59cd8c7455c68e4e600"
+        }
+      ],
+      "final_integration_receipt": "final-hosted-integration.json",
+      "retained_qualification_receipt": "final-local-profiles-v9.json",
+      "state_before": "open",
+      "state_after": "resolved",
+      "resolution": "The item-specific causal repair and native negative controls in the hashed repair receipts are applied. Retained complete qualification covers unchanged inputs; subsequent changed boundaries have focused and final hosted qualification. All 44 final PR checks and both post-merge checks pass at the recorded merged integration tree. Original acceptance text and body are retained."
+    },
+    {
+      "id": "BG-16",
+      "acceptance": "- **Acceptance**: preserve existing records, workspace/repository/sync exclusions, owner-only cache permissions and real user-edit blocking; pass both native hook adapters, affected suites, final profiles and hosted integration.",
+      "original_body_sha256": "0f7b81b9591554b5d593bec6ac510ee63a01a8703a69364cddb12bc77cfb17d5",
+      "original_block_sha256": "ef65ce5c14d675a708779132366a976ffa8c46bdb72143770ea96cbc8d5e41b9",
+      "repair_receipts": [
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-path-stabilization-applied.json",
+          "sha256": "a66a9c46ab31e7910e44fed9b041eb90f7a9454535603f25d4883d925d18c775"
+        },
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-path-stabilization-review.json",
+          "sha256": "2fca3f14ec7733fffa172cb64ad9b955a703fa249e87b3d13fe89a42f0cfa9f9"
+        },
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-path-owner-only-acl.json",
+          "sha256": "04f0834602eaf15d0a2828879a2ee88c421121fd91dcf5bb679f693e00e3fcc7"
+        },
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/blocker7-native-applied-qualification.json",
+          "sha256": "c45791743ec669dd6ab2a32d6422b4747534577d892f2d8cc5d42d39650ec814"
+        }
+      ],
+      "final_integration_receipt": "final-hosted-integration.json",
+      "retained_qualification_receipt": "final-local-profiles-v9.json",
+      "state_before": "open",
+      "state_after": "resolved",
+      "resolution": "The item-specific causal repair and native negative controls in the hashed repair receipts are applied. Retained complete qualification covers unchanged inputs; subsequent changed boundaries have focused and final hosted qualification. All 44 final PR checks and both post-merge checks pass at the recorded merged integration tree. Original acceptance text and body are retained."
+    },
+    {
+      "id": "BG-14",
+      "acceptance": "- **Acceptance**: reproduce and correct every failing boundary without skipping Linux PowerShell cases or weakening assertions; pass full local and hosted integration qualification.",
+      "original_body_sha256": "f7bd90d9671d2f15ce97cad4280c15f55e8ecc9caa9894f846a4e4b6392bbf62",
+      "original_block_sha256": "cb48e5ca7d9f38f2bbb4972befbeaf4819b0b5c93d1871e1f0b80b6ef3e25edf",
+      "repair_receipts": [
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/native-stabilization-applied.json",
+          "sha256": "5b36f2f7c0898781fc2368d54dbb13a98ed0f16e3c3953e435e7008d72757b95"
+        },
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/blocker7-native-applied-qualification.json",
+          "sha256": "c45791743ec669dd6ab2a32d6422b4747534577d892f2d8cc5d42d39650ec814"
+        },
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/distribution-template-path-build-checks.json",
+          "sha256": "d9a1ceda65cbac75326018ecdf2bb5cce612d047a4c7f244f78b52f169e018b1"
+        }
+      ],
+      "final_integration_receipt": "final-hosted-integration.json",
+      "retained_qualification_receipt": "final-local-profiles-v9.json",
+      "state_before": "open",
+      "state_after": "resolved",
+      "resolution": "The item-specific causal repair and native negative controls in the hashed repair receipts are applied. Retained complete qualification covers unchanged inputs; subsequent changed boundaries have focused and final hosted qualification. All 44 final PR checks and both post-merge checks pass at the recorded merged integration tree. Original acceptance text and body are retained."
+    },
+    {
+      "id": "BG-15",
+      "acceptance": "- **Acceptance**: reproduce the hosted failure, correct its cause while retaining real user-edit blocking and agent-write recording controls, and pass native and hosted integration checks.",
+      "original_body_sha256": "b5ba37d5f11f37f8c3431ff8f77a4e2ba3d545939d31a3392b14250b3861f415",
+      "original_block_sha256": "e78977201ac226922b26fc3ad821b7e4902006dfabdc6b04387b69fd49e508ad",
+      "repair_receipts": [
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/native-stabilization-applied.json",
+          "sha256": "5b36f2f7c0898781fc2368d54dbb13a98ed0f16e3c3953e435e7008d72757b95"
+        },
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-path-stabilization-applied.json",
+          "sha256": "a66a9c46ab31e7910e44fed9b041eb90f7a9454535603f25d4883d925d18c775"
+        },
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/blocker7-native-applied-qualification.json",
+          "sha256": "c45791743ec669dd6ab2a32d6422b4747534577d892f2d8cc5d42d39650ec814"
+        }
+      ],
+      "final_integration_receipt": "final-hosted-integration.json",
+      "retained_qualification_receipt": "final-local-profiles-v9.json",
+      "state_before": "open",
+      "state_after": "resolved",
+      "resolution": "The item-specific causal repair and native negative controls in the hashed repair receipts are applied. Retained complete qualification covers unchanged inputs; subsequent changed boundaries have focused and final hosted qualification. All 44 final PR checks and both post-merge checks pass at the recorded merged integration tree. Original acceptance text and body are retained."
+    },
+    {
+      "id": "BG-12",
+      "acceptance": "- **Acceptance**: exact CI correction approved and applied; captured patch hashes preserved and hosted validation green.",
+      "original_body_sha256": "0ed3225cf3a599c2121fc98fe6c7b9b85dd442ead015f091b5ccccd46fbb9430",
+      "original_block_sha256": "4ecda4c8684737d87a4db2e9136ec5f32e7e913b447cb12578c54a1119f55f55",
+      "repair_receipts": [
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-stabilization-applied.json",
+          "sha256": "86eb6245c072463858e1e5666ab921805b98a91d59c4545ebf2072a939b15af9"
+        },
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-stabilization-proposal/manifest.json",
+          "sha256": "11cb16d4c77a3fe6e7fbb0280411a488a15c024af522a946689566bca29ada8d"
+        }
+      ],
+      "final_integration_receipt": "final-hosted-integration.json",
+      "retained_qualification_receipt": "final-local-profiles-v9.json",
+      "state_before": "open",
+      "state_after": "resolved",
+      "resolution": "The item-specific causal repair and native negative controls in the hashed repair receipts are applied. Retained complete qualification covers unchanged inputs; subsequent changed boundaries have focused and final hosted qualification. All 44 final PR checks and both post-merge checks pass at the recorded merged integration tree. Original acceptance text and body are retained."
+    },
+    {
+      "id": "BG-13",
+      "acceptance": "- **Acceptance**: reproduce the failure locally, apply its narrow root-cause correction without skipping rich-path assertions, and pass actual native qualification and hosted integration.",
+      "original_body_sha256": "cf258006d5e8598b1059c4ecb2eb476a37fdf12060070e57fb555d826ba90ebf",
+      "original_block_sha256": "bb026e4212180087886ccdfe5a41033c262c1f16c1f8bbdb6968306f7ada2485",
+      "repair_receipts": [
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/native-stabilization-applied.json",
+          "sha256": "5b36f2f7c0898781fc2368d54dbb13a98ed0f16e3c3953e435e7008d72757b95"
+        },
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/native-stabilization-review-v2.json",
+          "sha256": "6f0cb14dec0d36d8c87ca1a4971fd8f9e5696e6422897687f320119b353fbced"
+        },
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/blocker7-native-applied-qualification.json",
+          "sha256": "c45791743ec669dd6ab2a32d6422b4747534577d892f2d8cc5d42d39650ec814"
+        }
+      ],
+      "final_integration_receipt": "final-hosted-integration.json",
+      "retained_qualification_receipt": "final-local-profiles-v9.json",
+      "state_before": "open",
+      "state_after": "resolved",
+      "resolution": "The item-specific causal repair and native negative controls in the hashed repair receipts are applied. Retained complete qualification covers unchanged inputs; subsequent changed boundaries have focused and final hosted qualification. All 44 final PR checks and both post-merge checks pass at the recorded merged integration tree. Original acceptance text and body are retained."
+    },
+    {
+      "id": "MT-12",
+      "acceptance": "- **Acceptance**: approve/apply the exact dependency addition and pass the hosted render and integration checks on the final tree.",
+      "original_body_sha256": "2cfc66e5784587bad5eac36de3f5ac70199e8e6bcb050f9e2fed2919c0f21c69",
+      "original_block_sha256": "15037864c93058f1ff470e21d76129a570f28e9668fdd8beff87945b530b15d7",
+      "repair_receipts": [
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-stabilization-applied.json",
+          "sha256": "86eb6245c072463858e1e5666ab921805b98a91d59c4545ebf2072a939b15af9"
+        },
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-stabilization-proposal/manifest.json",
+          "sha256": "11cb16d4c77a3fe6e7fbb0280411a488a15c024af522a946689566bca29ada8d"
+        }
+      ],
+      "final_integration_receipt": "final-hosted-integration.json",
+      "retained_qualification_receipt": "final-local-profiles-v9.json",
+      "state_before": "open",
+      "state_after": "resolved",
+      "resolution": "The item-specific causal repair and native negative controls in the hashed repair receipts are applied. Retained complete qualification covers unchanged inputs; subsequent changed boundaries have focused and final hosted qualification. All 44 final PR checks and both post-merge checks pass at the recorded merged integration tree. Original acceptance text and body are retained."
+    },
+    {
+      "id": "BG-11",
+      "acceptance": "- **Acceptance**: permanent native controls, complete affected modules, final local profiles and green integration pass on the applied source.",
+      "original_body_sha256": "bc2e6fa6577a6a9d95edff4fc0dee819283c416edcbc46c7b5e5525c40d50f25",
+      "original_block_sha256": "cc780f94543e1d2912433c394f9bce8a39f7658902836c073cbc8cbc88edbdf4",
+      "repair_receipts": [
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/skills-repair-applied.json",
+          "sha256": "8f2a8c32ae78e0c3982c3792cbfaea87705742b2d55d5f9dfec8c848564d5deb"
+        },
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/combined-repair-local-qualification.json",
+          "sha256": "65a226cb2d5435874a938b3b4cb2c4c077c2ce621aa4de1c93262dfe2b0532d2"
+        }
+      ],
+      "final_integration_receipt": "final-hosted-integration.json",
+      "retained_qualification_receipt": "final-local-profiles-v9.json",
+      "state_before": "open",
+      "state_after": "resolved",
+      "resolution": "The item-specific causal repair and native negative controls in the hashed repair receipts are applied. Retained complete qualification covers unchanged inputs; subsequent changed boundaries have focused and final hosted qualification. All 44 final PR checks and both post-merge checks pass at the recorded merged integration tree. Original acceptance text and body are retained."
+    },
+    {
+      "id": "MT-10",
+      "acceptance": "- **Acceptance**: the actual affected modules and final local/integration gates pass without restoring duplicated workflow commands or weakening shared postconditions.",
+      "original_body_sha256": "05307c473392320cdb76811c9f88e3408c5a1358795eddc07ab466c5d3b5fce8",
+      "original_block_sha256": "fb3b83ddf2a4a8450ab0c7fc1ac64fdc51860c9108eba709a0229bb0501e9ac8",
+      "repair_receipts": [
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/combined-repair-local-qualification.json",
+          "sha256": "65a226cb2d5435874a938b3b4cb2c4c077c2ce621aa4de1c93262dfe2b0532d2"
+        }
+      ],
+      "final_integration_receipt": "final-hosted-integration.json",
+      "retained_qualification_receipt": "final-local-profiles-v9.json",
+      "state_before": "open",
+      "state_after": "resolved",
+      "resolution": "The item-specific causal repair and native negative controls in the hashed repair receipts are applied. Retained complete qualification covers unchanged inputs; subsequent changed boundaries have focused and final hosted qualification. All 44 final PR checks and both post-merge checks pass at the recorded merged integration tree. Original acceptance text and body are retained."
+    },
+    {
+      "id": "MT-11",
+      "acceptance": "- **Acceptance**: both actual installed-bundle flows, permanent editor controls and final local/integration gates pass on the applied fixture.",
+      "original_body_sha256": "9ec98f7747d67c86d5fe63487018139623af4ba5ce90cf8978b879b4c9b1a758",
+      "original_block_sha256": "b1ad98d06ace33b4dcd167484e7d4f64218c3ea9afa08bd50f960fa611e925bf",
+      "repair_receipts": [
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/combined-repair-local-qualification.json",
+          "sha256": "65a226cb2d5435874a938b3b4cb2c4c077c2ce621aa4de1c93262dfe2b0532d2"
+        },
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/git-fixture-isolation-applied.json",
+          "sha256": "048cce0271316371b40947b96ce5b8bee1137935e61036eb52d776af9a605f9e"
+        }
+      ],
+      "final_integration_receipt": "final-hosted-integration.json",
+      "retained_qualification_receipt": "final-local-profiles-v9.json",
+      "state_before": "open",
+      "state_after": "resolved",
+      "resolution": "The item-specific causal repair and native negative controls in the hashed repair receipts are applied. Retained complete qualification covers unchanged inputs; subsequent changed boundaries have focused and final hosted qualification. All 44 final PR checks and both post-merge checks pass at the recorded merged integration tree. Original acceptance text and body are retained."
+    },
+    {
+      "id": "MT-7",
+      "acceptance": "- **Acceptance**: the exact replacement is approved and applied, its controls and final actual-tree CI/full/integration gates pass.",
+      "original_body_sha256": "3d491218838908b993b4e5f163549d4c8bb39824f2b2135b2a66d8a5d8fc0324",
+      "original_block_sha256": "61dcda8f49ee05bb338b3590b4529b0baec0e1919b327cf0c08ad5194657ed71",
+      "repair_receipts": [
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-correction-proposal-v2/manifest.json",
+          "sha256": "ae99076263be4a383c968086c1baf0faa0195b55e124763d9506adb1d6fab9a7"
+        },
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-correction-proposal-v2/qualification.json",
+          "sha256": "90c99e20cc23c0741bccb3401d46ce8ec3eb8aea2166e775aaf44e479ab4266a"
+        },
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-correction-proposal-v2/timeout-oracle-review.json",
+          "sha256": "a6b149000c9f39bd1855fb4a48706ad1bfd021bfa4095aa293e17f7888aeb0c5"
+        }
+      ],
+      "final_integration_receipt": "final-hosted-integration.json",
+      "retained_qualification_receipt": "final-local-profiles-v9.json",
+      "state_before": "open",
+      "state_after": "resolved",
+      "resolution": "The item-specific causal repair and native negative controls in the hashed repair receipts are applied. Retained complete qualification covers unchanged inputs; subsequent changed boundaries have focused and final hosted qualification. All 44 final PR checks and both post-merge checks pass at the recorded merged integration tree. Original acceptance text and body are retained."
+    },
+    {
+      "id": "QG-4",
+      "acceptance": "- **Acceptance**: the exact CI cleanup is approved and applied, then the actual-tree whitespace and final gates pass.",
+      "original_body_sha256": "ecf04b8d2db626716c18d92b66ef0bef66c006ff58097e8efd8d1ce1c98a8f5c",
+      "original_block_sha256": "9267d827ce1b18a5b03d5ef8644bd144ab336d35ea26767b204ca244db53fcab",
+      "repair_receipts": [
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-correction-proposal-v2/manifest.json",
+          "sha256": "ae99076263be4a383c968086c1baf0faa0195b55e124763d9506adb1d6fab9a7"
+        },
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-correction-proposal-v2/qualification.json",
+          "sha256": "90c99e20cc23c0741bccb3401d46ce8ec3eb8aea2166e775aaf44e479ab4266a"
+        }
+      ],
+      "final_integration_receipt": "final-hosted-integration.json",
+      "retained_qualification_receipt": "final-local-profiles-v9.json",
+      "state_before": "open",
+      "state_after": "resolved",
+      "resolution": "The item-specific causal repair and native negative controls in the hashed repair receipts are applied. Retained complete qualification covers unchanged inputs; subsequent changed boundaries have focused and final hosted qualification. All 44 final PR checks and both post-merge checks pass at the recorded merged integration tree. Original acceptance text and body are retained."
+    },
+    {
+      "id": "BG-7",
+      "acceptance": "- **Acceptance**: the source correction, permanent negative controls, final local profiles and green integration all pass on the final tree.",
+      "original_body_sha256": "c6f94d772ff13af1155d74cb9e62ea5fd3d8d6286bb6234c6f56021180758d94",
+      "original_block_sha256": "56636df19447b4257c4004c0d07881e7fc31aac3f43fa5115b7d3b8defab6a26",
+      "repair_receipts": [
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/final-review-results.json",
+          "sha256": "1277d4b7c2f6106cb77eaa9dd57837e56b21bd544b6c033db880ef2aadaaf249"
+        },
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/nonci-review-corrections-applied.json",
+          "sha256": "a00826c7ab40a3358542d2bca3f66ec5a7c1d2da77cb2f77afcf38292fbfc756"
+        },
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/combined-repair-local-qualification.json",
+          "sha256": "65a226cb2d5435874a938b3b4cb2c4c077c2ce621aa4de1c93262dfe2b0532d2"
+        }
+      ],
+      "final_integration_receipt": "final-hosted-integration.json",
+      "retained_qualification_receipt": "final-local-profiles-v9.json",
+      "state_before": "open",
+      "state_after": "resolved",
+      "resolution": "The item-specific causal repair and native negative controls in the hashed repair receipts are applied. Retained complete qualification covers unchanged inputs; subsequent changed boundaries have focused and final hosted qualification. All 44 final PR checks and both post-merge checks pass at the recorded merged integration tree. Original acceptance text and body are retained."
+    },
+    {
+      "id": "BG-8",
+      "acceptance": "- **Acceptance**: the source correction, permanent negative controls, final local profiles and green integration all pass on the final tree.",
+      "original_body_sha256": "e4ff90a6671f8e83ea2694f1c7d30e71b3893031f0928ffe3c3349260ce0c908",
+      "original_block_sha256": "9dadfdea01cb1872f68bd5e5774db7741a86f26e26788e912957e84ca89fbd83",
+      "repair_receipts": [
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/final-review-results.json",
+          "sha256": "1277d4b7c2f6106cb77eaa9dd57837e56b21bd544b6c033db880ef2aadaaf249"
+        },
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/nonci-review-corrections-applied.json",
+          "sha256": "a00826c7ab40a3358542d2bca3f66ec5a7c1d2da77cb2f77afcf38292fbfc756"
+        },
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/combined-repair-local-qualification.json",
+          "sha256": "65a226cb2d5435874a938b3b4cb2c4c077c2ce621aa4de1c93262dfe2b0532d2"
+        }
+      ],
+      "final_integration_receipt": "final-hosted-integration.json",
+      "retained_qualification_receipt": "final-local-profiles-v9.json",
+      "state_before": "open",
+      "state_after": "resolved",
+      "resolution": "The item-specific causal repair and native negative controls in the hashed repair receipts are applied. Retained complete qualification covers unchanged inputs; subsequent changed boundaries have focused and final hosted qualification. All 44 final PR checks and both post-merge checks pass at the recorded merged integration tree. Original acceptance text and body are retained."
+    },
+    {
+      "id": "BG-9",
+      "acceptance": "- **Acceptance**: the source correction, permanent negative controls, final local profiles and green integration all pass on the final tree.",
+      "original_body_sha256": "f96ba780c304230e867c7857faca117b8bd102580769e1265643f633f0c30385",
+      "original_block_sha256": "aac8a08e556eb03cb289e5323cbe2b80cdc0efd4eeab7481271d1632cbde9c6d",
+      "repair_receipts": [
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/final-review-results.json",
+          "sha256": "1277d4b7c2f6106cb77eaa9dd57837e56b21bd544b6c033db880ef2aadaaf249"
+        },
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-correction-proposal-v2/manifest.json",
+          "sha256": "ae99076263be4a383c968086c1baf0faa0195b55e124763d9506adb1d6fab9a7"
+        },
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-correction-proposal-v2/qualification.json",
+          "sha256": "90c99e20cc23c0741bccb3401d46ce8ec3eb8aea2166e775aaf44e479ab4266a"
+        }
+      ],
+      "final_integration_receipt": "final-hosted-integration.json",
+      "retained_qualification_receipt": "final-local-profiles-v9.json",
+      "state_before": "open",
+      "state_after": "resolved",
+      "resolution": "The item-specific causal repair and native negative controls in the hashed repair receipts are applied. Retained complete qualification covers unchanged inputs; subsequent changed boundaries have focused and final hosted qualification. All 44 final PR checks and both post-merge checks pass at the recorded merged integration tree. Original acceptance text and body are retained."
+    },
+    {
+      "id": "BG-10",
+      "acceptance": "- **Acceptance**: the source correction, permanent negative controls, final local profiles and green integration all pass on the final tree.",
+      "original_body_sha256": "4b99e0eaa3432e5be61eee20be6738d8528cd8df630bec00f1db6c22d1777205",
+      "original_block_sha256": "26e4748164b23f42b56c49f67addb37fb9900bd99e360925b1a4133ac0988eea",
+      "repair_receipts": [
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/final-review-results.json",
+          "sha256": "1277d4b7c2f6106cb77eaa9dd57837e56b21bd544b6c033db880ef2aadaaf249"
+        },
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-correction-proposal-v2/manifest.json",
+          "sha256": "ae99076263be4a383c968086c1baf0faa0195b55e124763d9506adb1d6fab9a7"
+        },
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-correction-proposal-v2/qualification.json",
+          "sha256": "90c99e20cc23c0741bccb3401d46ce8ec3eb8aea2166e775aaf44e479ab4266a"
+        }
+      ],
+      "final_integration_receipt": "final-hosted-integration.json",
+      "retained_qualification_receipt": "final-local-profiles-v9.json",
+      "state_before": "open",
+      "state_after": "resolved",
+      "resolution": "The item-specific causal repair and native negative controls in the hashed repair receipts are applied. Retained complete qualification covers unchanged inputs; subsequent changed boundaries have focused and final hosted qualification. All 44 final PR checks and both post-merge checks pass at the recorded merged integration tree. Original acceptance text and body are retained."
+    },
+    {
+      "id": "MT-5",
+      "acceptance": "- **Acceptance**: the source correction, permanent negative controls, final local profiles and green integration all pass on the final tree.",
+      "original_body_sha256": "b0e181496ca6a582e8255f3bcf7207dc2be0eee2bf15df5e19705a48bd36d102",
+      "original_block_sha256": "f2e20a4727e558bac240c65006d11ea9caa5a8e55b9ab5b10f1b09af8e46234b",
+      "repair_receipts": [
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/final-review-results.json",
+          "sha256": "1277d4b7c2f6106cb77eaa9dd57837e56b21bd544b6c033db880ef2aadaaf249"
+        },
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/nonci-review-corrections-applied.json",
+          "sha256": "a00826c7ab40a3358542d2bca3f66ec5a7c1d2da77cb2f77afcf38292fbfc756"
+        }
+      ],
+      "final_integration_receipt": "final-hosted-integration.json",
+      "retained_qualification_receipt": "final-local-profiles-v9.json",
+      "state_before": "open",
+      "state_after": "resolved",
+      "resolution": "The item-specific causal repair and native negative controls in the hashed repair receipts are applied. Retained complete qualification covers unchanged inputs; subsequent changed boundaries have focused and final hosted qualification. All 44 final PR checks and both post-merge checks pass at the recorded merged integration tree. Original acceptance text and body are retained."
+    },
+    {
+      "id": "MT-6",
+      "acceptance": "- **Acceptance**: the source correction, permanent negative controls, final local profiles and green integration all pass on the final tree.",
+      "original_body_sha256": "0cf0ac50526014ba25fea38df565d9571ff0dc366d29faad35606d2139103cc2",
+      "original_block_sha256": "462b1b41240de8e5993e2d4602f951501336dfeb6c0c495645f1fbcb9fc9a482",
+      "repair_receipts": [
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/final-review-results.json",
+          "sha256": "1277d4b7c2f6106cb77eaa9dd57837e56b21bd544b6c033db880ef2aadaaf249"
+        },
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/nonci-review-corrections-applied.json",
+          "sha256": "a00826c7ab40a3358542d2bca3f66ec5a7c1d2da77cb2f77afcf38292fbfc756"
+        }
+      ],
+      "final_integration_receipt": "final-hosted-integration.json",
+      "retained_qualification_receipt": "final-local-profiles-v9.json",
+      "state_before": "open",
+      "state_after": "resolved",
+      "resolution": "The item-specific causal repair and native negative controls in the hashed repair receipts are applied. Retained complete qualification covers unchanged inputs; subsequent changed boundaries have focused and final hosted qualification. All 44 final PR checks and both post-merge checks pass at the recorded merged integration tree. Original acceptance text and body are retained."
+    },
+    {
+      "id": "BG-5",
+      "acceptance": "- **Acceptance**: real reader, hook, core and MCP writes preserve opaque strings, exact keys, array/root shape and user values; permanent regressions and actual-tree/final gates pass.",
+      "original_body_sha256": "0c9deff581ec347930f6dd0f2bbd2cd9df281d00b8a3c7b0c7cf490198aa2380",
+      "original_block_sha256": "94df1fa402200aed2d40fe0e248cdfc079e66bb8e011d9e74050074ddc3d871b",
+      "repair_receipts": [
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/native-windows-current-qualification.json",
+          "sha256": "8163806e1f6bb3122acfa1cb6796ff08e06d165d90a83a9eaef2d66833fdc142"
+        },
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/combined-repair-local-qualification.json",
+          "sha256": "65a226cb2d5435874a938b3b4cb2c4c077c2ce621aa4de1c93262dfe2b0532d2"
+        }
+      ],
+      "final_integration_receipt": "final-hosted-integration.json",
+      "retained_qualification_receipt": "final-local-profiles-v9.json",
+      "state_before": "open",
+      "state_after": "resolved",
+      "resolution": "The item-specific causal repair and native negative controls in the hashed repair receipts are applied. Retained complete qualification covers unchanged inputs; subsequent changed boundaries have focused and final hosted qualification. All 44 final PR checks and both post-merge checks pass at the recorded merged integration tree. Original acceptance text and body are retained."
+    },
+    {
+      "id": "BG-6",
+      "acceptance": "- **Acceptance**: both installers count genuinely missing rules independently of user duplicates, apply every shipped deny/ask rule, leave allow and user data intact, and refuse malformed input without false success or writes; permanent regressions and final gates pass.",
+      "original_body_sha256": "0adb740cdd890d252c7201ba5fdb87c640729173337f64d325edd28a29fcc5c8",
+      "original_block_sha256": "9f979b8a4cdb471e431d319769bc70aea2607c6f81a341096d71d772adc5137f",
+      "repair_receipts": [
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/native-windows-current-qualification.json",
+          "sha256": "8163806e1f6bb3122acfa1cb6796ff08e06d165d90a83a9eaef2d66833fdc142"
+        },
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/combined-repair-local-qualification.json",
+          "sha256": "65a226cb2d5435874a938b3b4cb2c4c077c2ce621aa4de1c93262dfe2b0532d2"
+        }
+      ],
+      "final_integration_receipt": "final-hosted-integration.json",
+      "retained_qualification_receipt": "final-local-profiles-v9.json",
+      "state_before": "open",
+      "state_after": "resolved",
+      "resolution": "The item-specific causal repair and native negative controls in the hashed repair receipts are applied. Retained complete qualification covers unchanged inputs; subsequent changed boundaries have focused and final hosted qualification. All 44 final PR checks and both post-merge checks pass at the recorded merged integration tree. Original acceptance text and body are retained."
+    },
+    {
+      "id": "BG-3",
+      "acceptance": "- **Acceptance**: the approved actual-tree writer installs all existing shipped deny/ask entries, preserves allow and all user leaves, backs up pre-write bytes, remains idempotent, and refuses malformed roots/parents/lists without a write; both runtimes and the final gate pass.",
+      "original_body_sha256": "bf92d87e2939bd617ee217147a6a571895ec4074c1652650aea0fc4d28a4cd23",
+      "original_block_sha256": "c40dd873327e544e71f1d357375bbe1de7b26ddd6d53b7ded5a5d38a61b383cd",
+      "repair_receipts": [
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/native-windows-current-qualification.json",
+          "sha256": "8163806e1f6bb3122acfa1cb6796ff08e06d165d90a83a9eaef2d66833fdc142"
+        },
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/combined-repair-local-qualification.json",
+          "sha256": "65a226cb2d5435874a938b3b4cb2c4c077c2ce621aa4de1c93262dfe2b0532d2"
+        }
+      ],
+      "final_integration_receipt": "final-hosted-integration.json",
+      "retained_qualification_receipt": "final-local-profiles-v9.json",
+      "state_before": "open",
+      "state_after": "resolved",
+      "resolution": "The item-specific causal repair and native negative controls in the hashed repair receipts are applied. Retained complete qualification covers unchanged inputs; subsequent changed boundaries have focused and final hosted qualification. All 44 final PR checks and both post-merge checks pass at the recorded merged integration tree. Original acceptance text and body are retained."
+    },
+    {
+      "id": "BG-4",
+      "acceptance": "- **Acceptance**: an actual isolated native upgrade preserves unrelated case-distinct/deep data and custom hooks, adds/updates the managed hooks, converts their commands correctly and remains idempotent, with permanent regressions and the full gate passing.",
+      "original_body_sha256": "391f9f823ec9b94bf4097521a1920771d9949bcee5e7f753967c164a188e78b3",
+      "original_block_sha256": "ddd294dffd71e5e5319d991a73e46a8c260137a9ad4345a96b40226e4329ea9d",
+      "repair_receipts": [
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/native-windows-current-qualification.json",
+          "sha256": "8163806e1f6bb3122acfa1cb6796ff08e06d165d90a83a9eaef2d66833fdc142"
+        },
+        {
+          "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/combined-repair-local-qualification.json",
+          "sha256": "65a226cb2d5435874a938b3b4cb2c4c077c2ce621aa4de1c93262dfe2b0532d2"
+        }
+      ],
+      "final_integration_receipt": "final-hosted-integration.json",
+      "retained_qualification_receipt": "final-local-profiles-v9.json",
+      "state_before": "open",
+      "state_after": "resolved",
+      "resolution": "The item-specific causal repair and native negative controls in the hashed repair receipts are applied. Retained complete qualification covers unchanged inputs; subsequent changed boundaries have focused and final hosted qualification. All 44 final PR checks and both post-merge checks pass at the recorded merged integration tree. Original acceptance text and body are retained."
+    }
+  ]
+}

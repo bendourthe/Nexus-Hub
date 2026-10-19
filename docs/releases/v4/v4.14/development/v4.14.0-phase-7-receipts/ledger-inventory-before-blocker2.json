@@ -1,0 +1,432 @@
+{
+  "unreadable": [],
+  "ledgers": [
+    {
+      "path": "docs/archives/v1/v1.1/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 4,
+      "resolved": 7,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v1/v1.3/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 0,
+      "resolved": 2,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v2/v2.0/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 0,
+      "resolved": 1,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v2/v2.1/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 0,
+      "resolved": 1,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v2/v2.2/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 0,
+      "resolved": 0,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v2/v2.3/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 0,
+      "resolved": 1,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v2/v2.4/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 0,
+      "resolved": 14,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v3/v3.0/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 10,
+      "resolved": 2,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v3/v3.1/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 1,
+      "resolved": 5,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v3/v3.2/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 16,
+      "resolved": 8,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v3/v3.3/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 0,
+      "resolved": 2,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v3/v3.4/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 0,
+      "resolved": 3,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v3/v3.6/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 1,
+      "resolved": 3,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v3/v3.7/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 2,
+      "resolved": 5,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v3/v3.8/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 3,
+      "resolved": 3,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v3/v3.9/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 5,
+      "resolved": 5,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v3/v3.10/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 3,
+      "resolved": 0,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v3/v3.11/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 5,
+      "resolved": 3,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v3/v3.12/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 7,
+      "resolved": 9,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v3/v3.13/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 8,
+      "resolved": 3,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v3/v3.14/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 9,
+      "resolved": 19,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v3/v3.15/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 29,
+      "resolved": 73,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v3/v3.16/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 13,
+      "resolved": 111,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v3/v3.17/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 10,
+      "resolved": 69,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v3/v3.18/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 1,
+      "resolved": 23,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v3/v3.19/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 3,
+      "resolved": 1,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v3/v3.20/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 4,
+      "resolved": 9,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v3/v3.21/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 1,
+      "resolved": 1,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v4/v4.0/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 1,
+      "resolved": 22,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v4/v4.1/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 2,
+      "resolved": 7,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v4/v4.2/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 2,
+      "resolved": 8,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v4/v4.3/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 2,
+      "resolved": 11,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v4/v4.4/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 2,
+      "resolved": 10,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v4/v4.5/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 3,
+      "resolved": 1,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v4/v4.7/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 3,
+      "resolved": 2,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v4/v4.8/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 1,
+      "resolved": 14,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v4/v4.9/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 2,
+      "resolved": 5,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v4/v4.10/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 2,
+      "resolved": 7,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v4/v4.11/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 0,
+      "resolved": 21,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v4/v4.12/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 3,
+      "resolved": 14,
+      "problems": []
+    },
+    {
+      "path": "docs/archives/v4/v4.13/known-gaps.md",
+      "layout": "archive",
+      "open": [],
+      "migrated": 83,
+      "resolved": 126,
+      "problems": []
+    },
+    {
+      "path": "docs/releases/v4/v4.14/known-gaps.md",
+      "layout": "active",
+      "open": [
+        "BG-1",
+        "WN-1",
+        "WN-2",
+        "BG-2",
+        "WN-3",
+        "WN-4",
+        "WN-5",
+        "WN-6",
+        "MT-1",
+        "WN-7",
+        "WN-8",
+        "MT-2",
+        "WN-9",
+        "WN-10",
+        "WN-11",
+        "WN-12",
+        "DF-1",
+        "MT-3",
+        "DF-2",
+        "DF-3",
+        "DF-4",
+        "DF-5",
+        "DF-6",
+        "DF-7",
+        "DF-8",
+        "DF-9",
+        "MT-4",
+        "WN-14",
+        "WN-15",
+        "DF-10",
+        "QG-1",
+        "WN-16",
+        "WN-17",
+        "DF-11",
+        "WN-18",
+        "DF-14",
+        "WN-19",
+        "WN-20",
+        "QG-2",
+        "WN-21",
+        "WN-22",
+        "WN-23",
+        "WN-24",
+        "QG-3",
+        "WN-25",
+        "AR-35",
+        "AR-34",
+        "AR-33",
+        "AR-32",
+        "AR-31",
+        "AR-30",
+        "AR-29",
+        "AR-28",
+        "AR-27",
+        "AR-26",
+        "AR-25",
+        "AR-24",
+        "AR-23",
+        "AR-22",
+        "AR-21",
+        "AR-20",
+        "AR-19",
+        "AR-18",
+        "AR-17",
+        "AR-16",
+        "AR-15",
+        "AR-14",
+        "AR-13",
+        "AR-12",
+        "AR-11",
+        "AR-10",
+        "AR-9",
+        "AR-8",
+        "AR-7",
+        "AR-6",
+        "AR-5",
+        "AR-4",
+        "AR-3",
+        "AR-2",
+        "AR-1"
+      ],
+      "migrated": 0,
+      "resolved": 3,
+      "problems": []
+    },
+    {
+      "path": "docs/releases/v4/v4.17/known-gaps.md",
+      "layout": "active",
+      "open": [
+        "DF-1"
+      ],
+      "migrated": 0,
+      "resolved": 0,
+      "problems": []
+    }
+  ]
+}

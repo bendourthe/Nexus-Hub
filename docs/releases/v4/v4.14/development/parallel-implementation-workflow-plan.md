@@ -1,0 +1,44 @@
+# Parallel Plan Implementation and Ordered Release
+
+This change lets an approved minor-version run implement independent member plans concurrently while publishing, merging for release, tagging, and releasing members in semantic-version order. It reuses the native signed minor controller and the active harness agent tools. It does not introduce a worker process engine or weaken the existing completion evidence.
+
+## Outcome
+
+- Independent plans can enter implementation before earlier plans release. Explicit prerequisites must already be present on the worker base.
+- Each worker owns a dedicated linked Git worktree and branch, its implementation and tests, and its plan-specific history. Workers stop at implementation-ready and do not publish or release.
+- A single coordinator admits workers, writes shared release metadata, dispatches available agent tools, and serializes native state mutations, publication, integration, and release.
+- Final publication admission requires predecessor readiness, its tag back-merged into the live integration tip, refresh of the unpublished worker commits onto that tip, and full local final validation of affected inputs. The first push then starts hosted validation; merge and release require the current member green and merged. Cleanup is independent of admission; final MINOR COMPLETE still requires cleanup.
+
+## Native Contract
+
+1. Add record member-implement-start to the existing completion CLI, operating on --repo controller and --session parent. It validates the unchanged signed member scope, branch, canonical linked worktree and common Git directory, base commit, explicit dependencies and semantic implementation read/write paths. Store implementation claims inside the signed member. Preserve all approvals, nonce, frozen plan hashes and global start_head. Existing records without claims retain legacy behavior.
+2. Require dependency members to be approved and their actual merged commits ancestors of the proposed worker base; do not substitute release order for implementation dependencies. Reject self/unknown/cyclic dependencies and unknown or overlapping active claims. Treat legacy unmerged members without verified claims conservatively. Never infer complete claims from task path extraction alone. Failed, interrupted and implementation-ready workers retain their exclusive claims until their actual merged commit is verified as an ancestor of the integration base; do not release claims merely because an agent stopped. Resume reattaches idempotently to the exact registered branch/root/base/claims. No automatic abandonment or deletion is added.
+3. Use normalized literal repository-relative file/directory paths, with traversal, absolute paths, malformed aliases and symlink escapes rejected. Detect write/write and write/read conflicts, including directory prefixes and case collisions. All changed worker paths must be owned. Generic broad validators read only the isolated pinned-base snapshot and are re-executed on the refreshed final tree; these snapshot reads are recorded separately from semantic implementation dependencies. Shared known-gaps, changelog, version/release metadata and docs/todos remain coordinator-only; workers return proposed updates separately.
+4. Reuse parent approval for read-only worker projections. Resolve the signed registered worktree for local member task evidence; validate its identity, branch and frozen plan prose on every use. While implementation is active, a missing or mismatched worktree is cannot-verify, never authority to replace a root or create a standalone approval. After independently verified merge and integration ancestry, evaluate canonical merged task/evidence artifacts through the refreshed controller; legitimate approved worker removal must not erase completion evidence. The controller remains the sole record writer.
+5. Keep record member-start as publication admission. Replace previous PLAN COMPLETE requirement with every evaluated predecessor predicate passing except cleanup-only predicates. Tasks, evidence, gaps, green merged integration, published release, version synchronization and main ancestry remain mandatory; unmet or cannot-verify non-cleanup predicates refuse admission. Require prior integration/back-merge evidence; set the member publication start_head once at the refreshed integration base. Optional --coordinator-claims names exact additional coordinator write paths, validated against remaining active semantic claims and signed as coordinator_paths. Admit this ordered stage before applying those shared changes and final tests; every actual shared implementation task stays unchecked until applied and verified. Full local final validation follows all implementation work and precedes the first push. The completion predicate still proves the base and predecessor tag are ancestors of the actual merged result. A worker cannot release out of order by checking boxes.
+
+## Commands and Ownership
+
+- catalog/commands/plan.md and implement.md dispatch to their existing owners. implementation-plan and plan-queue-assessment define explicit dependency and complete read/write/coordinator path inventories, candidate waves, bounded capacity and conservative serial fallback for unknown compatibility.
+- implement-phase SKILL.md, runbook and completion-contract describe both admissions, automatic harness-tool dispatch, durable worker handle/worktree/base/claims/status, implementation-ready wait state, refreshed final validation and ordered publication. Do not invoke standalone /implement in a child.
+- agent-orchestration-primitives and multi-agent-coordinator consistently permit independent production writers with exclusive scopes and pre-agreed contracts; retain restrictions on coupled writers. One aggregate run budget, shared review/stabilization limits and available agent slots bind the entire run. Platform limitations produce an explicit serial fallback, never a false automatic-fanout claim.
+- The coordinator starts an eligible member as soon as capacity opens, without waiting for unrelated releases. It continuously rechecks dependencies, active claims and state before dispatch. A finished later member waits locally; it does not push per phase or while its publication turn is closed.
+
+## File Ownership
+
+- Native slice: scripts/completion_minor.py, scripts/check_plan_completion.py and focused validator/CLI regressions. Reuse existing helpers and signed-write APIs.
+- Workflow slice: the two commands, implementation-plan, implement-phase body/runbook/completion contract, plan-queue-assessment, orchestration-primitives and coordinator, plus their existing focused lifecycle/ownership tests.
+- Coordinator: this development record, progress/handoff and qualification evidence; the already isolated CodeQL test initialization correction. No workflow/permissions/secrets edits are planned.
+
+## Verification
+
+- Focused native tests prove two independent linked worktrees admitted before predecessor release, dependency and overlap refusals, malformed paths/root/session/branch/hash failures, idempotence, crash/resume reservation, verified-merge claim retirement, parent signature integrity and backward compatibility. A merged member remains verifiable after its approved worktree removal.
+- Release tests refuse premature publication, allow a predecessor with only cleanup still pending, refuse any other unmet or cannot-verify predecessor predicate, require fetched live integration/back-merged tag, and retain final gate checks.
+- A real disposable local Git fixture drives the public CLI for two worker worktrees and a waiting later member; fake GitHub release/merge responses are explicitly labeled and do not count as production release proof.
+- Workflow tests prove metadata/dispatch/fallback/ordered-release contract; available installer-copy behavior is verified through the existing distribution tests. Do not edit installed signed state by hand.
+- Run affected completion, gate, run-plan, lifecycle, ownership and installer-distribution tests; run fast validation and source lint. Reuse only unchanged prior broad evidence. Fix review findings in scope, publish once after implementation is complete, and verify current required hosted checks before merging PR485 to develop.
+- After merge, release v4.14.0 through the native release procedure. Reassess remaining frozen plans against live source, admit compatible plans with real native APIs, create isolated worktrees, dispatch real agents and retain their handles. Keep releases .1 through .6 sequential.
+
+## Cut Lines
+
+No new plan members, automatic renumbering, bespoke scheduler runtime, per-child approval, budget reset, unsigned run edits, force pushes, check suppression or unrelated cleanup. Native missing evidence remains visible. Existing user approvals cover this requested workflow correction and full v4.14 execution.

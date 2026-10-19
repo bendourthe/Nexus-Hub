@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "status": "ready_after_scope_corrections",
+  "plan": "docs/releases/v4/v4.14/development/parallel-implementation-workflow-plan.md",
+  "lenses": [
+    "coherence",
+    "feasibility",
+    "product",
+    "scope-guardian",
+    "design",
+    "security",
+    "adversarial"
+  ],
+  "initial_findings": 5,
+  "distinct_findings": 4,
+  "remaining_p0_p1": 0,
+  "corrections": [
+    "Separate pre-push local admission from post-push hosted merge and release checks",
+    "Require every predecessor predicate except cleanup, including member.gate",
+    "Require active worker identity but retain canonical integration evidence after legitimate worker removal",
+    "Retain exclusive claims through failed, interrupted and implementation-ready until verified integration"
+  ],
+  "followup_verdicts": {
+    "coherence": "[]",
+    "feasibility": "[]",
+    "design": "[]",
+    "product": "[]",
+    "scope_guardian": "[]",
+    "security": "[]",
+    "adversarial": "[]"
+  },
+  "confidence_pipeline": [
+    "fingerprint_deduplication",
+    "cross_lens_promotion",
+    "confidence_gate"
+  ],
+  "suppressed_findings": [],
+  "considered_but_rejected": [
+    {
+      "lens": "security",
+      "candidate": "Require operating-system isolation for this feature",
+      "reason": "Existing same-user trust model; worktrees and claims provide workflow separation, not an OS boundary"
+    }
+  ],
+  "limits": [
+    "Plan-design review only; native implementation and actual dispatch remain pending",
+    "This is the requested new workflow feature review; the existing global deep-review budget was not reset"
+  ]
+}

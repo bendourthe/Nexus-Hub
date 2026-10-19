@@ -482,24 +482,183 @@ def test_the_2d_renderer_can_be_forced_and_plays(browser, how: str) -> None:
         pg.close()
 
 
-def test_touch_controls_start_and_move(browser) -> None:
+def test_holding_a_finger_on_the_arena_starts_steers_and_fires(browser) -> None:
+    """Touch play: a held finger starts the run, fires constantly, and the ship follows the finger."""
     ctx = browser.new_context(viewport={"width": 390, "height": 844}, has_touch=True, is_mobile=True)
     pg = ctx.new_page()
     try:
         pg.goto(TRAINING.as_uri() + "#play-fixed")
         pg.wait_for_function("window.SkySentinel && SkySentinel.get('fixed')")
         pg.evaluate("SkySentinel.manual(true); SkySentinel.get('fixed').configure({ defects: {}, seed: 21, threats: false })")
-        left = pg.locator(".ss-host[data-ss-id=fixed] .ss-touch-left")
-        assert left.is_visible()
-        box = left.bounding_box()
-        assert box["height"] >= 44 and box["width"] >= 44
+        host = ".ss-host[data-ss-id=fixed]"
+        assert pg.locator(host + " .ss-touch").count() == 0, "the on-screen button pad is gone"
         assert pg.evaluate("SkySentinel.get('fixed').state().world") == {"w": 720, "h": 960}, "phones get a portrait arena"
-        x0 = pg.evaluate("SkySentinel.get('fixed').state().player.x")
-        left.dispatch_event("pointerdown")
-        pg.evaluate("SkySentinel.get('fixed').step(15)")
-        left.dispatch_event("pointerup")
-        state = pg.evaluate("SkySentinel.get('fixed').state()")
-        assert state["state"] == "running" and state["player"]["x"] < x0
+        canvas = pg.locator(host + " .ss-canvas")
+        box = canvas.bounding_box()
+        # A point in the lower-left quarter of the arena, well away from the ship's start.
+        cx, cy = box["x"] + box["width"] * 0.2, box["y"] + box["height"] * 0.8
+        touch = {"pointerType": "touch", "pointerId": 7, "isPrimary": True, "clientX": cx, "clientY": cy, "button": 0}
+        p0 = pg.evaluate("SkySentinel.get('fixed').state().player")
+        canvas.dispatch_event("pointerdown", touch)
+        pg.evaluate("SkySentinel.get('fixed').step(60)")
+        s = pg.evaluate("SkySentinel.get('fixed').state()")
+        assert s["state"] == "running", "a held finger starts the run"
+        assert s["player"]["x"] < p0["x"] - 50, "the ship flies toward the finger"
+        assert pg.evaluate("document.querySelector('" + host + "').hasAttribute('data-ss-running')")
+        assert pg.evaluate("getComputedStyle(document.querySelector('" + host + " .ss-canvas')).touchAction") == "none", \
+            "a drag on a live arena steers instead of scrolling the page"
+        assert s["playerShots"], "the ship fires while the finger is held"
+        # Drag right: the ship follows the finger.
+        x1 = s["player"]["x"]
+        canvas.dispatch_event("pointermove", {**touch, "clientX": box["x"] + box["width"] * 0.8})
+        pg.evaluate("SkySentinel.get('fixed').step(60)")
+        x2 = pg.evaluate("SkySentinel.get('fixed').state().player.x")
+        assert x2 > x1 + 50, "the ship follows the finger as it moves"
+        # Lift the finger: the ship stops and stops firing.
+        canvas.dispatch_event("pointerup", touch)
+        pg.evaluate("SkySentinel.get('fixed').step(90)")
+        s3 = pg.evaluate("SkySentinel.get('fixed').state()")
+        pg.evaluate("SkySentinel.get('fixed').step(30)")
+        s4 = pg.evaluate("SkySentinel.get('fixed').state()")
+        assert s4["player"]["x"] == s3["player"]["x"], "no finger, no movement"
+        assert not s4["playerShots"], "no finger, no fire"
+    finally:
+        ctx.close()
+
+
+FS_GEOM = """() => { const h = document.querySelector('.ss-host[data-ss-id=fixed]');
+  const r = e => { const b = e.getBoundingClientRect(); return { x: b.left, y: b.top, w: b.width, h: b.height }; };
+  const s = SkySentinel.get('fixed').state();
+  return { canvas: r(h.querySelector('.ss-canvas')), btn: r(h.querySelector('.ss-fs')), label: h.querySelector('.ss-fs').getAttribute('aria-label'),
+           fs: s.fullscreen, world: s.world, vp: { w: innerWidth, h: innerHeight } }; }"""
+
+
+@pytest.mark.parametrize(
+    "shape",
+    [
+        # (viewport, touch, expected world orientation); every shape fills the screen edge to edge
+        ((1440, 900), False, "landscape"),
+        ((390, 844), True, "portrait"),
+        ((904, 753), True, "landscape"),
+        ((753, 904), True, "portrait"),
+        ((800, 800), True, "square"),
+        ((1024, 768), True, "landscape"),
+        ((844, 390), True, "landscape"),
+    ],
+    ids=["laptop", "phone", "foldable-unfolded", "foldable-unfolded-upright", "square", "tablet-4x3", "phone-landscape"],
+)
+def test_the_full_screen_button_fills_the_screen_and_becomes_an_exit_cross(browser, shape) -> None:
+    (vw, vh), touch, orientation = shape
+    ctx = browser.new_context(viewport={"width": vw, "height": vh}, has_touch=touch, is_mobile=touch)
+    pg = ctx.new_page()
+    try:
+        pg.goto(TRAINING.as_uri() + "#play-fixed")
+        pg.wait_for_function("window.SkySentinel && SkySentinel.get('fixed')")
+        btn = pg.locator(".ss-host[data-ss-id=fixed] .ss-fs")
+        btn.scroll_into_view_if_needed()
+        g0 = pg.evaluate(FS_GEOM)
+        assert g0["label"] == "Full screen" and not g0["fs"]["on"]
+        assert g0["btn"]["x"] + g0["btn"]["w"] <= g0["canvas"]["x"] + g0["canvas"]["w"] and g0["btn"]["y"] >= g0["canvas"]["y"], \
+            "the button sits in the arena's top-right corner"
+        btn.click()
+        pg.wait_for_function("SkySentinel.get('fixed').state().fullscreen.on")
+        pg.wait_for_timeout(200)
+        g1 = pg.evaluate(FS_GEOM)
+        assert g1["label"] == "Exit full screen", "full screen turns the button into an exit cross"
+        world, canvas, vp = g1["world"], g1["canvas"], g1["vp"]
+        if orientation == "square":
+            assert abs(world["w"] - world["h"]) <= 2, f"a square screen gets a square world: {world}"
+        else:
+            assert (world["h"] > world["w"]) == (orientation == "portrait"), f"{orientation} world for a {vw}x{vh} screen: {world}"
+        assert abs(canvas["w"] / canvas["h"] - world["w"] / world["h"]) < 0.02, "the arena keeps the world's shape"
+        assert canvas["x"] >= 0 and canvas["y"] >= 0 and canvas["x"] + canvas["w"] <= vp["w"] + 1 and canvas["y"] + canvas["h"] <= vp["h"] + 1
+        assert canvas["w"] >= vp["w"] - 2 and canvas["h"] >= vp["h"] - 2, f"the arena fills the screen: {canvas} in {vp}"
+        b = g1["btn"]
+        assert b["x"] + b["w"] <= canvas["x"] + canvas["w"] - 4 and b["y"] >= canvas["y"] + 4, "the cross stays on the arena's corner"
+        # Play: the score, level, and retries line stops left of the button.
+        pg.evaluate("SkySentinel.manual(true); const g = SkySentinel.get('fixed'); g.configure({ defects: {}, seed: 21, threats: false }); g.start(); g.step(30); g.render();")
+        retry = pg.evaluate("SkySentinel.get('fixed').state().hud.retry")
+        if retry:
+            assert retry["x"] <= b["x"] - canvas["x"] - 6, f"the HUD's right-hand text clears the button: {retry} vs {b}"
+        btn.click()
+        pg.wait_for_function("!SkySentinel.get('fixed').state().fullscreen.on")
+        g2 = pg.evaluate(FS_GEOM)
+        assert g2["label"] == "Full screen", "leaving full screen restores the button"
+    finally:
+        ctx.close()
+
+
+@pytest.mark.parametrize("viewport", [(390, 844), (904, 753), (753, 904)], ids=["phone", "foldable", "foldable-upright"])
+def test_a_run_in_progress_takes_the_full_screen_shape_and_gives_it_back(browser, viewport) -> None:
+    """Entering full screen mid-run must not keep the page's world: the arena fills the screen at once."""
+    vw, vh = viewport
+    ctx = browser.new_context(viewport={"width": vw, "height": vh}, has_touch=True, is_mobile=True)
+    pg = ctx.new_page()
+    try:
+        pg.goto(TRAINING.as_uri() + "#play-fixed")
+        pg.wait_for_function("window.SkySentinel && SkySentinel.get('fixed')")
+        btn = pg.locator(".ss-host[data-ss-id=fixed] .ss-fs")
+        btn.scroll_into_view_if_needed()
+        pg.evaluate("SkySentinel.manual(true); const g = SkySentinel.get('fixed'); g.configure({ defects: {}, seed: 21, threats: false }); g.start(); g.step(120);")
+        s0 = pg.evaluate("SkySentinel.get('fixed').state()")
+        page_world = s0["world"]
+        btn.click()
+        pg.wait_for_function("SkySentinel.get('fixed').state().fullscreen.on")
+        pg.wait_for_timeout(300)
+        g = pg.evaluate(FS_GEOM)
+        s1 = pg.evaluate("SkySentinel.get('fixed').state()")
+        assert s1["state"] == "running" and s1["score"] == s0["score"], "the run continues"
+        assert g["canvas"]["w"] >= vw - 2 and g["canvas"]["h"] >= vh - 2, f"the arena fills the screen mid-run: {g['canvas']}"
+        for axis, size in (("x", "w"), ("y", "h")):
+            before = s0["player"][axis] / page_world[size]
+            after = s1["player"][axis] / s1["world"][size]
+            assert abs(before - after) < 0.02, f"the ship keeps its place across the reshape ({axis}: {before:.3f} -> {after:.3f})"
+        btn.click()
+        pg.wait_for_function("!SkySentinel.get('fixed').state().fullscreen.on")
+        pg.wait_for_timeout(200)
+        assert pg.evaluate("SkySentinel.get('fixed').state().world") == page_world, "back on the page, the run returns to the page's world"
+    finally:
+        ctx.close()
+
+
+def test_without_the_fullscreen_api_the_arena_still_covers_the_screen(browser) -> None:
+    """An iPhone has no element full screen; the stage covers the viewport instead, and Escape leaves."""
+    ctx = browser.new_context(viewport={"width": 390, "height": 844}, has_touch=True, is_mobile=True)
+    ctx.add_init_script("Element.prototype.requestFullscreen = undefined; Element.prototype.webkitRequestFullscreen = undefined;")
+    pg = ctx.new_page()
+    try:
+        pg.goto(TRAINING.as_uri() + "#play-fixed")
+        pg.wait_for_function("window.SkySentinel && SkySentinel.get('fixed')")
+        btn = pg.locator(".ss-host[data-ss-id=fixed] .ss-fs")
+        btn.scroll_into_view_if_needed()
+        btn.click()
+        pg.wait_for_function("SkySentinel.get('fixed').state().fullscreen.on")
+        pg.wait_for_timeout(200)
+        g = pg.evaluate(FS_GEOM)
+        assert g["fs"] == {"on": True, "native": False}
+        assert g["canvas"]["x"] <= 1 and g["canvas"]["y"] <= 1 and g["canvas"]["w"] >= 388 and g["canvas"]["h"] >= 842, g["canvas"]
+        assert g["label"] == "Exit full screen"
+        pg.keyboard.press("Escape")
+        pg.wait_for_function("!SkySentinel.get('fixed').state().fullscreen.on")
+        assert pg.evaluate(FS_GEOM)["label"] == "Full screen"
+    finally:
+        ctx.close()
+
+
+@pytest.mark.parametrize("viewport", [(390, 844), (360, 740)])
+def test_the_full_screen_button_never_covers_the_start_card(browser, viewport) -> None:
+    ctx = browser.new_context(viewport={"width": viewport[0], "height": viewport[1]}, has_touch=True, is_mobile=True)
+    pg = ctx.new_page()
+    try:
+        pg.goto(TRAINING.as_uri() + "#play-fixed")
+        pg.wait_for_function("window.SkySentinel && SkySentinel.get('fixed')")
+        pg.locator(".ss-host[data-ss-id=fixed] .ss-fs").scroll_into_view_if_needed()
+        hits = pg.evaluate(
+            """() => { const h = document.querySelector('.ss-host[data-ss-id=fixed]'), b = h.querySelector('.ss-fs').getBoundingClientRect();
+                return [...h.querySelectorAll('.ss-panel > :not(.ss-hangar), .ss-ship')].filter(k => k.offsetParent).map(k => [k.className, k.getBoundingClientRect()])
+                  .filter(([, r]) => r.left < b.right && r.right > b.left && r.top < b.bottom && r.bottom > b.top).map(([c]) => c); }"""
+        )
+        assert hits == [], f"the button overlaps {hits}"
     finally:
         ctx.close()
 

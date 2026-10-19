@@ -1,0 +1,19 @@
+{
+  "duration_s": 120.41,
+  "finished_at": "2026-10-17T03:12:54Z",
+  "os": "Windows",
+  "os_release": "10",
+  "platform": "windows",
+  "profile": "fast",
+  "python": "3.11.15",
+  "python_implementation": "CPython",
+  "scope_conservative": true,
+  "scope_reason": "no --base supplied; running every group",
+  "started_at": "2026-10-17T03:10:53Z",
+  "status": "PASS",
+  "tools": {
+    "git": "git version 2.52.0.windows.1",
+    "python": "3.11.15",
+    "shellcheck": "ShellCheck - shell script analysis tool"
+  }
+}

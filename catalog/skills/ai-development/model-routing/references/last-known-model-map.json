@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "verified_as_of": "2026-10-01",
+  "verified_as_of": "2026-10-18",
   "tiers": {
     "frontier": {
       "Anthropic": "claude-fable-5-1",
       "OpenAI": "gpt-6-astra",
-      "Google": "gemini-3.8-flash",
+      "Google": "gemini-4-argon",
       "Cursor": "grok-4.7"
     },
     "strong": {
@@ -24,7 +24,7 @@
       "Anthropic": "claude-haiku-5-5",
       "OpenAI": "gpt-6-luna",
       "Google": "gemini-3.5-flash-lite",
-      "Cursor": "composer-2.5-fast"
+      "Cursor": "composer-2.5"
     }
   },
   "notes": [
@@ -38,7 +38,10 @@
     "2026-10-07: Anthropic released Claude Haiku 5.5 (claude-haiku-5-5), listed in its overview as the fastest model in the current lineup (1M context, 128K output, adaptive thinking, default effort medium), so it replaces claude-haiku-4-5 at fast. Only the Anthropic column was re-read this day; the OpenAI, Google, and Cursor columns and verified_as_of are unchanged from 2026-10-01. Strong (claude-opus-5-5), standard (claude-sonnet-5-5), and frontier (claude-fable-5-1) are unchanged.",
     "2026-10-12 (v4.13.11 qualification): the official Gemini 3.7 Flash page marks gemini-3.7-flash deprecated and unavailable for selection in Google AI Studio. The deprecations schedule says its API endpoint is not shutting down and automatically routes requests to gemini-3.8-flash. Strong now names that canonical replacement; the compatibility endpoint is not treated as an independently selectable 3.7 model.",
     "2026-10-12 JUDGMENT, Google strong and frontier = gemini-3.8-flash: retaining the frontier cell while replacing the deprecated strong selection deliberately collapses these two tiers onto the same canonical model. This is an operator placement judgment, not a vendor statement of distinct tier capability. The other fifteen cells are unchanged. No new effort sweep or active-host switching qualification was performed for this proposal.",
-    "2026-10-12 QUALIFICATION LIMITS: verified_as_of remains 2026-10-01 because this step rechecks only the Google deprecation, not all four provider columns. The retained Cursor Composer 2.5 source describes a Fast variant but does not independently qualify the composer-2.5-fast canonical suffix; that cell remains qualified by this limit. The six IDs from the scoped Codex account advisory describe that account-visible roster only and do not disprove vendor-global OpenAI cells. Existing profile dates and roster evidence are unchanged."
+    "2026-10-12 QUALIFICATION LIMITS: verified_as_of remains 2026-10-01 because this step rechecks only the Google deprecation, not all four provider columns. The retained Cursor Composer 2.5 source describes a Fast variant but does not independently qualify the composer-2.5-fast canonical suffix; that cell remains qualified by this limit. The six IDs from the scoped Codex account advisory describe that account-visible roster only and do not disprove vendor-global OpenAI cells. Existing profile dates and roster evidence are unchanged.",
+    "2026-10-15: Google frontier moved from gemini-3.8-flash to gemini-4-argon, GA 2026-10-13 and described by Google as its flagship reasoning model; gemini-3.8-flash stays at strong, ending its double placement. The other fifteen cells were re-confirmed on official pages. gpt-5.6-sol is absent from OpenAI's models page but not deprecated, and Cursor still offers it with promotional pricing through 2026-11-21; collapse the OpenAI standard cell onto gpt-6.1-sol once no host picker offers it.",
+    "2026-10-18 (v4.14.0 release governance): re-fetched the current official provider catalogs and model pages. Fifteen cells and their tier placements are unchanged. JUDGMENT, Cursor fast = composer-2.5: the vendor documents composer-2.5 as the canonical Model ID and Fast as a speed variant, but the fetched pages do not establish composer-2.5-fast as a separate native ID. Standard and fast therefore share the documented model; choosing a speed variant remains client/plan-specific and no automatic speed switch or distinct-model saving is asserted. model-map.py diff reports composer-2.5 standard -> fast because the model now occupies both tiers; this duplication and its reason are deliberate. GPT-5.6 Sol remains a host-conditional legacy standard choice documented by Cursor and the OpenAI client model guide, not a guarantee for every account. No effort sweep, authenticated account roster or live switch was qualified.",
+    "2026-10-18 source preservation: sources retain historical decision references alongside this release pass's current fetched URLs. Inclusion in sources does not claim that every historical URL was re-fetched; the dated release governance receipt identifies the actual current fetch scope."
   ],
   "sources": {
     "Anthropic": [
@@ -47,16 +50,24 @@
       "https://platform.claude.com/docs/en/models/haiku-5-5/overview"
     ],
     "OpenAI": [
+      "https://developers.openai.com/api/docs/deprecations",
+      "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-6-astra",
       "https://developers.openai.com/api/docs/models",
-      "https://developers.openai.com/api/docs/guides/latest-model?model=gpt-6-astra"
+      "https://learn.chatgpt.com/docs/models",
+      "https://cursor.com/docs/models-and-pricing"
     ],
     "Google": [
+      "https://ai.google.dev/gemini-api/docs/changelog",
+      "https://ai.google.dev/gemini-api/docs/deprecations",
       "https://ai.google.dev/gemini-api/docs/models",
       "https://ai.google.dev/gemini-api/docs/models/gemini-3.7-flash",
-      "https://ai.google.dev/gemini-api/docs/deprecations"
+      "https://ai.google.dev/gemini-api/docs/models/gemini-4-argon"
     ],
     "Cursor": [
-      "https://cursor.com/docs/models-and-pricing"
+      "https://cursor.com/docs/models-and-pricing",
+      "https://cursor.com/docs/models/grok-4-7",
+      "https://cursor.com/docs/models/grok-4-6",
+      "https://cursor.com/docs/models/cursor-composer-2-5"
     ]
   }
 }

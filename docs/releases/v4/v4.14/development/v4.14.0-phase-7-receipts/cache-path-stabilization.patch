@@ -1,0 +1,186 @@
+--- a/catalog/skills/workflow/user-edit-preservation/scripts/edit_guard.py
++++ b/catalog/skills/workflow/user-edit-preservation/scripts/edit_guard.py
+@@ -96,13 +96,32 @@
+     return any(fnmatch.fnmatch(name, pattern) for pattern in SECRET_PATTERNS)
+ 
+ 
++
++def _store_access_path(path: str | Path) -> Path:
++    """Use long-capable Windows addressing only for the private cache, not source keys."""
++    value = os.path.abspath(str(path))
++    if os.name == "nt":
++        if value.startswith(("\\\\?\\", "\\\\.\\")):
++            suffix = value[4:]
++            if not (re.match(r"^[A-Za-z]:\\", suffix) or suffix[:4].casefold() == "unc\\"):
++                raise GuardError("unsupported Windows namespace for the edit-guard store")
++            value = "\\\\?\\" + suffix
++        else:
++            value = "\\\\?\\UNC\\" + value[2:] if value.startswith("\\\\") else "\\\\?\\" + value
++    return Path(value)
++
++
++def _store_real_path(path: str | Path) -> Path:
++    return Path(os.path.realpath(str(_store_access_path(path))))
++
++
+ def _synced_roots() -> list[str]:
+     roots = [os.environ.get(v, "") for v in ("OneDrive", "OneDriveCommercial", "OneDriveConsumer")]
+-    return [canonical(r) for r in roots if r]
++    return [canonical(_store_real_path(r)) for r in roots if r]
+ 
+ 
+ def in_synced_root(path: Path) -> bool:
+-    canon = canonical(path)
++    canon = canonical(_store_real_path(path))
+     if any(canon == r or canon.startswith(r + "/") for r in _synced_roots()):
+         return True
+     return any(SYNC_ROOT_NAMES.match(part) for part in Path(os.path.realpath(str(path))).parts)
+@@ -157,14 +176,20 @@
+     """The store root, refusing any location that would leak copies of user files."""
+     explicit = os.environ.get("NEXUS_EDIT_GUARD_DIR")
+     raw = explicit or str(Path.home() / ".nexus-hub" / "cache" / "edit-guard")
+-    root = Path(os.path.abspath(raw))
+-    cwd = Path(os.path.realpath(os.getcwd()))
+-    real = Path(os.path.realpath(str(root)))
++    root = _store_real_path(raw)
++    cwd = _store_real_path(os.getcwd())
++    real = root
+     # The default store sits under the home folder, so an agent working from its home (or any
+     # folder above it) is normal; only an explicitly chosen store may not sit in the workspace.
+     if explicit and (real == cwd or cwd in real.parents):
+         raise GuardError(f"refusing a store inside the current workspace: {root}")
+-    if in_git_repo(real):
++    for parent in (real, *real.parents):
++        try:
++            (parent / ".git").stat()
++        except FileNotFoundError:
++            continue
++        except OSError as exc:
++            raise GuardError(f"cannot verify store repository exclusion: {root}") from exc
+         raise GuardError(f"refusing a store inside a git repository: {root}")
+     if in_synced_root(real):
+         raise GuardError(f"refusing a store inside a synced drive (OneDrive, SharePoint, Dropbox): {root}")
+--- a/catalog/hooks/tests/test_user_edit_guard.py
++++ b/catalog/hooks/tests/test_user_edit_guard.py
+@@ -331,6 +331,22 @@
+     extra = {"NEXUS_EDIT_GUARD_DIR": ""}
+     assert run(_payload("PostToolUse", "Read", home, path=notes), home, extra).returncode == 0
+     assert run(_payload("PreToolUse", "Write", home, path=notes), home, extra).returncode == 0
++
++
++def test_long_default_store_records_then_blocks_a_user_edit(run, tmp_path):
++    base_home = tmp_path / "home"
++    home = base_home / ("x" * max(1, 170 - len(str(base_home)) - 1))
++    home.mkdir(parents=True, exist_ok=True)
++    notes = home / "notes.pptx"
++    _deck(notes, "agent version")
++    extra = {"NEXUS_EDIT_GUARD_DIR": "", "HOME": str(home), "USERPROFILE": str(home)}
++    assert run(_payload("PostToolUse", "Read", home, path=notes), home, extra).returncode == 0
++    assert run(_payload("PreToolUse", "Write", home, path=notes), home, extra).returncode == 0
++    _user_edits(notes)
++    result = run(_payload("PreToolUse", "Write", home, path=notes), home, extra)
++    assert result.returncode == 2, result.stderr
++    assert "[user-edit-guard] BLOCKED" in result.stderr
++    assert _USER_TEXT not in result.stdout + result.stderr
+ 
+ 
+ def test_existing_file_without_a_record_is_blocked(run, work):
+@@ -553,3 +569,98 @@
+     payload["tool_input"]["permission_mode"] = "bypassPermissions"
+     result = run(payload, work)
+     assert result.returncode == 2, (result.stdout, result.stderr)
++
++
++@pytest.mark.skipif(sys.platform != "win32", reason="Windows cache path namespaces")
++@pytest.mark.parametrize("spelling,expected", [
++    (r"C:\private\cache", "\\\\?\\C:\\private\\cache"),
++    ("\\\\server\\share\\cache", "\\\\?\\UNC\\server\\share\\cache"),
++    ("\\\\?\\C:\\private\\cache", "\\\\?\\C:\\private\\cache"),
++    ("\\\\?\\UNC\\server\\share\\cache", "\\\\?\\UNC\\server\\share\\cache"),
++    ("\\\\.\\C:\\private\\cache", "\\\\?\\C:\\private\\cache"),
++])
++def test_cache_namespace_keeps_the_same_drive_or_share(spelling, expected):
++    import runpy
++
++    helper = runpy.run_path(str(_HELPER))
++    assert str(helper["_store_access_path"](spelling)) == expected
++
++
++@pytest.mark.skipif(sys.platform != "win32", reason="Windows long cache privacy boundaries")
++@pytest.mark.parametrize("boundary", ["git-file", "git-directory", "workspace", "sync"])
++@pytest.mark.parametrize("extended_alias", [False, True])
++def test_long_cache_refuses_private_copy_destinations(tmp_path, monkeypatch, boundary, extended_alias):
++    import runpy
++
++    helper = runpy.run_path(str(_HELPER))
++    parent = tmp_path
++    while len(str(parent)) < 280:
++        parent /= "long-private-boundary"
++    access = Path("\\\\?\\" + str(parent))
++    access.mkdir(parents=True)
++    if boundary == "git-file":
++        (access / ".git").write_text("gitdir: other\n", encoding="utf-8")
++    elif boundary == "git-directory":
++        (access / ".git").mkdir()
++    elif boundary == "workspace":
++        monkeypatch.chdir(tmp_path)
++    else:
++        monkeypatch.setenv("OneDrive", str(access if extended_alias else parent))
++    cache = parent / "cache"
++    cache_access = access / "cache"
++    monkeypatch.setenv("NEXUS_EDIT_GUARD_DIR", str(cache_access if extended_alias else cache))
++    with pytest.raises(helper["GuardError"], match="refusing a store inside"):
++        helper["store_dir"]()
++    assert not cache_access.exists(), "refused store created private cache directories"
++
++
++@pytest.mark.skipif(sys.platform != "win32", reason="Windows cache namespace compatibility")
++@pytest.mark.parametrize("device_alias", [False, True])
++def test_existing_cache_records_survive_equivalent_windows_spelling(tmp_path, monkeypatch, device_alias):
++    import argparse
++    import runpy
++
++    helper = runpy.run_path(str(_HELPER))
++    target = tmp_path / "user-notes.txt"
++    target.write_text("agent version", encoding="utf-8")
++    ordinary = tmp_path / "cache"
++    (ordinary / "records").mkdir(parents=True)
++    (ordinary / "copies").mkdir()
++    assert helper["cmd_record"](argparse.Namespace(path=str(target), source="read", force=False), ordinary) == 0
++    prefix = "\\\\.\\" if device_alias else "\\\\?\\"
++    monkeypatch.setenv("NEXUS_EDIT_GUARD_DIR", prefix + str(ordinary))
++    root = helper["store_dir"]()
++    args = argparse.Namespace(path=str(target), stamp=False)
++    assert helper["cmd_check"](args, root) == 0
++    target.write_text("user version", encoding="utf-8")
++    assert helper["cmd_check"](args, root) == 3
++
++
++@pytest.mark.skipif(sys.platform != "win32", reason="Windows unsupported cache namespaces")
++@pytest.mark.parametrize("suffix", ["GLOBALROOT", "PIPE"])
++def test_unsupported_cache_namespace_is_rejected_before_io(suffix):
++    import runpy
++
++    helper = runpy.run_path(str(_HELPER))
++    spelling = chr(92) * 2 + ("?" if suffix == "GLOBALROOT" else ".") + chr(92) + suffix
++    with pytest.raises(helper["GuardError"], match="unsupported Windows namespace"):
++        helper["_store_access_path"](spelling)
++
++
++def test_cache_repository_probe_error_refuses_before_creating_copies(tmp_path, monkeypatch):
++    import runpy
++
++    helper = runpy.run_path(str(_HELPER))
++    cache = tmp_path / "cache"
++    monkeypatch.setenv("NEXUS_EDIT_GUARD_DIR", str(cache))
++    original = Path.stat
++
++    def denied_marker(path, *args, **kwargs):
++        if path.name == ".git":
++            raise PermissionError("private marker cannot be inspected")
++        return original(path, *args, **kwargs)
++
++    monkeypatch.setattr(Path, "stat", denied_marker)
++    with pytest.raises(helper["GuardError"], match="cannot verify store repository exclusion"):
++        helper["store_dir"]()
++    assert not cache.exists(), "unverified store created private cache directories"

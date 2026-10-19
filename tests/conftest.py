@@ -1,7 +1,6 @@
 """Repo-level pytest fixtures for the `tests/` tree.
 
-Currently one job: make `bash` resolvable on Windows, for the same reason and by
-the same mechanism as `catalog/hooks/tests/conftest.py` (v3.15.6 Phase 4 / DF-2).
+Resolves shell interpreters on Windows and isolates Git configuration for each test; the hook-test root carries the same fixtures.
 
 Why this is duplicated rather than shared: `catalog/hooks/tests/` and `tests/` are
 deliberately SEPARATE pytest roots. `.github/workflows/ci.yml` runs them as
@@ -238,3 +237,21 @@ def pytest_sessionfinish(session, exitstatus):
         else:
             print(line)
     session.exitstatus = pytest.ExitCode.TESTS_FAILED
+
+
+@pytest.fixture(autouse=True)
+def isolated_git_configuration(
+    monkeypatch: pytest.MonkeyPatch, tmp_path_factory: pytest.TempPathFactory
+) -> None:
+    """Keep synthetic repositories independent of machine Git configuration."""
+    config = tmp_path_factory.mktemp("git-config") / "config"
+    config.write_text(
+        "[user]\n    name = Test User\n    email = test@example.invalid\n"
+        "[init]\n    defaultBranch = main\n",
+        encoding="utf-8",
+    )
+    for key in tuple(os.environ):
+        if key == "GIT_CONFIG" or key.startswith("GIT_CONFIG_"):
+            monkeypatch.delenv(key, raising=False)
+    monkeypatch.setenv("GIT_CONFIG_GLOBAL", str(config))
+    monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", "1")

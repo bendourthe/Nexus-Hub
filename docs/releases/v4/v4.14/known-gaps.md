@@ -2,8 +2,8 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Last updated**: 2026-10-13
-**Open items**: 83
+**Last updated**: 2026-10-18
+**Open items**: 80
 
 ## v4.14.0
 
@@ -12,11 +12,39 @@
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 14 | 0 |
-| Bugs / regressions (BG) | 2 | 0 |
-| Warnings (WN) | 25 | 0 |
-| Missing tests / coverage gaps (MT) | 4 | 0 |
-| Quality-gate gaps (QG) | 3 | 0 |
+| Deferred (DF) | 12 | 2 |
+| Bugs / regressions (BG) | 2 | 15 |
+| Warnings (WN) | 24 | 2 |
+| Missing tests / coverage gaps (MT) | 4 | 9 |
+| Quality-gate gaps (QG) | 3 | 1 |
+
+The six standard categories contain 45 open items; 35 inherited AR obligations bring the section total to 80. The 23 findings introduced during this run are resolved after their individual acceptance gates and green merged integration passed. Together with the six previously resolved entries, there are 29 resolved items. Every original item body is retained. The remaining 80 open items are inherited obligations; their migration authority is unchanged.
+
+### Current qualification
+
+Current integration checkpoint: PR485 is merged into develop at 8b32922ca573fb57546611267b88246c1064f1e4. All 44 final PR checks and both post-merge checks pass. Individual repair receipts, retained complete qualification for unchanged inputs, and separate final qualification for changed boundaries close the 23 run-introduced findings. Native ledger totals are 80 open and 29 resolved. Release remains pending. See [individual closures](development/v4.14.0-phase-7-receipts/integration-gap-closure.json). The following checkpoint paragraphs retain their earlier evidence epochs.
+
+Latest post-blocker8 checkpoint: the V8 unfiltered full profile passed all65 commands, with12,163 passing pytest executions and88 skips. Its complete Windows platform profile passed11 commands and failed only the accept-record hook case; all8,299 source files remained identical. A reviewed, privately qualified cache-publication repair is now applied with zero new accepts. BG-17 owns its actual-source and hosted predicates. Fresh full/platform/post gates remain pending on the corrected tree. Open103, resolved6, comprising80 inherited and23 new open items. Earlier checkpoint paragraphs retain their original epochs.
+
+Latest post-blocker8 checkpoint: V7 stopped at the additional Linux hook module with 125 passed, 19 skipped and one timing-fixture failure; no canonical V7 gate or source freeze started. A reviewed deterministic fixture correction is applied with zero new accepts after eight private cases passed. The guard policy is unchanged. MT-13 owns final actual-source and hosted qualification. Open 102, resolved 6, comprising 80 inherited and 22 new open items. Earlier checkpoint paragraphs below retain their original epochs.
+
+Blocker8 is answered and its exact four metadata restorations are applied. The six newly recorded CI/native findings retain their final full-profile and hosted predicates; no item is closed from bounded native successes alone. Open101, resolved6, comprising80inherited plus21new open items. New findings cannot migrate. See [current native qualification](development/v4.14.0-phase-7-receipts/blocker7-native-applied-qualification.json).
+
+Blocker7 DZD2S3L6 is answered. Its exact two CI corrections and all reviewed native repairs are applied, including the privacy-preserving Windows cache-path repair. Both full affected Windows scopes pass: 338 passed and one existing skip each, 845.76 seconds on PowerShell5.1 and 883.79 seconds on PowerShell7. The complete Windows installer passes four cases plus the repeated rich-profile upgrade, with protected host files unchanged. Six cache review lenses are clean, all20 focused cases pass, actual owner-only DACLs and private boundary/junction controls pass. These are bounded local results, not the final canonical full/platform profile or green integration. Linux qualification is terminal; read the native receipt for its actual exit. BG-12 through BG-16 and MT-12 retain their final qualification and hosted acceptance predicates. No new gap is closed by this checkpoint.
+
+Current blocker7 checkpoint: the exact CI correction and three reviewed native repairs are applied with zero new edit-guard accepts. Actual Windows affected modules each report 289 passed and two failures, both caused by long default-cache copy paths; BG-16 records that newly reproduced cause. The privacy-preserving cache V2 remains private and unapplied pending review and qualification. Original CI is terminal at 36 successful and eight failed checks. No stabilization commit, repush, merge or release has occurred. There are 101 open and six resolved obligations, comprising 80 inherited plus 21 new open items. New findings cannot migrate. Earlier paragraphs retain their original qualification epochs.
+
+Current first-publication checkpoint: PR485 is open at5734e0e21c00, with formatter/dependency CI failures and a separate unreproduced native startup failure. The fully qualified two-file/three-setting CI proposal is unapplied. There are 100 open and 6 resolved obligations, 80 inherited plus 20 new open. Linux installer and hosted Windows edit-guard failures were subsequently retained in the additional CI receipt. No new finding may migrate. Earlier qualification paragraphs below retain their original epochs.
+
+Resolved-count reconciliation: WN-26 was already resolved in its retained table row. A normal resolved heading now exposes that same entry to the native heading parser. Both the category summary and native parser report six resolved items; 95 remain open. No item changed state, no original body was discarded, and no new migration permission was added.
+
+The completed canonical full baseline finished with 61 passing and 4 failing commands (15 failing test cases). Twelve source/test repairs are now applied and locally qualified: 545 passing executions and 16 skips across four separately recorded groups, with all 15 original failing cases passing. Three native hook controls pass, including private mutations that produce the expected failures when null compatibility or non-object rejection is removed. Seven semantic review lenses and four import-only delta reviews report no findings; changed candidates add no lint findings (10 inherited findings remain). A private-launcher PATHEXT/COMSPEC omission was reproduced and corrected without repository changes; original failed attempts remain retained. The interrupted Windows baseline is not a pass. Canonical full and complete supported Windows profiles on corrected final code, final coverage/Goal reconciliation, and green merged integration remain pending. BG-11, MT-10 and MT-11 remain open until their final local/integration predicates pass. Ledger counts and all inherited bodies are retained. No new finding can migrate. See [local qualification](development/v4.14.0-phase-7-receipts/combined-repair-local-qualification.json).
+
+Blocker5 Z3T46TZ5 is answered and its exact eleven-file CI correction is applied with matching hashes. All new run findings below remain open until their named final local and integration acceptance gates pass; requests below to approve or apply that same frozen correction are superseded by this checkpoint. No new approval is requested. Current complete Windows4-case and network-disabled Linux3-case installer matrices pass, native core/reader suites pass124/134 onPowerShell5.1/7, both handbooks verify, and all14 Node22 monitor commands pass. Detailed receipts are under development/v4.14.0-phase-7-receipts/.
+
+Fresh inherited-item triage preserves every original body and finds no additional complete resolution. AR-13's older broad statement about absent coverage configuration is historical: scripts.ci now has measured coverage, while validator subprocess startup/threshold remains missing. DF-9 remains owned by v4.14.0; the older v4.17.3 pairing reference maps through the2026-10-12 queue reorganization to v4.15.2-adoption-harness-economics-and-portable-engineering-system. No pairing is claimed. AR-5's older retirement date does not override AR-35's separately owned November1 contract.
+
+AR-16 remains open. The current canonical Node22 monitor profile passes all14 commands, but Claude line coverage is61.75 percent and statement coverage61.37 percent, below that inherited item's80 percent floor. Codex, Copilot, Cursor and Gemini line coverage is87.92,98.05,90.63 and84.88 percent respectively. These figures are measured local package results, not project-wide coverage or installed-VSIX/live-editor qualification. No new duplicate gap or completion claim follows. See [Node22 result](development/v4.14.0-phase-7-receipts/node22-monitor-profile.json).
 
 ### Open Items
 
@@ -394,12 +422,12 @@
 
 **Owner**: catalog maintainer, via `[[platform-contract-verification]]`. **Status**: open. **Suggested next step**: at the next `/update release` platform pass, re-verify the Cascade workspace hook path and update `docs/policy/platform-read-contracts.json` and `scripts/lib/integrations/windsurf.py` together.
 
-**Update 2026-10-15 (v4.13.13 platform-contract pass)**: re-verified. The Cascade hooks page still reads the workspace `.devin/hooks.json` first and the legacy `.windsurf/hooks.json` only when the `.devin/` file is absent or defines no hooks ([source](https://docs.devin.ai/desktop/cascade/hooks)). The same change now covers skills (`.devin/skills/` preferred, `.windsurf/skills/` legacy and still read; [source](https://docs.devin.ai/desktop/cascade/skills)) and workflows (`.devin/workflows/*.md` preferred, `.windsurf/workflows/*.md` fallback; [source](https://docs.devin.ai/desktop/cascade/workflows)). Nothing breaks today because the legacy paths are still read. Not fixed at release time: moving delivery paths changes `scripts/lib/integrations/windsurf.py`, `docs/policy/platform-read-contracts.json` and their tests together, which is implementation work for a v4.14 plan rather than a release-flow edit.
-
 **Original source identity**: `v4.13.2#DF-1`; stable ID `DF-1-v4132` distinguishes this obligation from repeated IDs in other patch sections.
 
 - **Migrated from**: v4.13#DF-1-v4132 on 2026-10-13 (reason: vendor-feature)
 - **Migration evidence**: windsurf.py merges only the user-level hooks.json; adding the workspace .devin/hooks.json path needs a freshly fetched docs.devin.ai Cascade hooks page recorded at the next platform-contract pass, then an adapter change with a test.
+
+**Update 2026-10-15 (v4.13.13 platform-contract pass)**: re-verified. The Cascade hooks page still reads the workspace `.devin/hooks.json` first and the legacy `.windsurf/hooks.json` only when the `.devin/` file is absent or defines no hooks ([source](https://docs.devin.ai/desktop/cascade/hooks)). The same change now covers skills (`.devin/skills/` preferred, `.windsurf/skills/` legacy and still read; [source](https://docs.devin.ai/desktop/cascade/skills)) and workflows (`.devin/workflows/*.md` preferred, `.windsurf/workflows/*.md` fallback; [source](https://docs.devin.ai/desktop/cascade/workflows)). Nothing breaks today because the legacy paths are still read. Not fixed at release time: moving delivery paths changes `scripts/lib/integrations/windsurf.py`, `docs/policy/platform-read-contracts.json` and their tests together, which is implementation work for a v4.14 plan rather than a release-flow edit.
 
 #### DF-3: Antigravity 1.0 hook support is unconfirmed while the integration declares none
 
@@ -547,27 +575,6 @@
 - **Migrated from**: v4.13#MT-1-v4133 on 2026-10-13 (reason: user-deferred)
 - **Migration evidence**: A full installer run needs a disposable machine because it writes real %APPDATA% and VS Code extensions.
 
-#### WN-13 (v4.13.3): Behavioral-lever drift found by the release contract pass
-
-**Carry-forward contract (v4.13.11)**:
-- **Owner**: catalog maintainer, via `[[platform-contract-verification]]`
-- **Severity**: low - stated: every seeded value remains valid
-- **Blocker**: user-deferred - Seeding per-model modelSettings pins a model id; the maintainer must decide, while env CLAUDE_CODE_EFFORT_LEVEL still delivers effort.
-- **Acceptance**: The maintainer decides whether to seed Claude's effort under `modelSettings` for the default model, and the lever rows and `configs/platform-defaults.json` are refreshed
-- **Proving command**: `python scripts/sync_platform_defaults.py --check`
-- **Future plan**: v4.14 known-gaps sweep
-
-**Local clause qualification, 2026-10-10 (v4.13.11 T028)**: The Antigravity `agentMode` statement, rationale and verified date are refreshed from a 2026-10-10 re-fetch (default pauses for diff review; plan prepends `/plan`), with the levers row; `sync_platform_defaults.py --check` passes. Residual (user-deferred): seeding Claude per-model `modelSettings` pins a model id and needs a maintainer decision.
-
-**Source phase**: `/update release` platform-contract verification, 2026-09-28. **Reason**: advisory lever changes (logged in `docs/policy/platform-defaults-levers.md`): Claude Code ignores a user-scope `effortLevel` on Opus 5.5 and later, so that seed no longer reaches the default model (the seeded `env.CLAUDE_CODE_EFFORT_LEVEL` still does); Codex's documented `model_reasoning_effort` and `approval_policy` value lists changed, and the page no longer names those keys as user-only; and Antigravity's `agentMode` values now describe different behavior. Every seeded value remains valid.
-
-**Owner**: catalog maintainer, via `[[platform-contract-verification]]`. **Status**: open. **Suggested next step**: seed Claude's effort under `modelSettings` for the default model, refresh the Codex and Antigravity lever rows and `configs/platform-defaults.json`, then run `python scripts/sync_platform_defaults.py --check`.
-
-**Original source identity**: `v4.13.3#WN-6`; stable ID `WN-6-v4133` distinguishes this obligation from repeated IDs in other patch sections.
-
-- **Migrated from**: v4.13#WN-6-v4133 on 2026-10-13 (reason: user-deferred)
-- **Migration evidence**: Seeding per-model modelSettings pins a model id; the maintainer must decide, while env CLAUDE_CODE_EFFORT_LEVEL still delivers effort.
-
 #### WN-14 (v4.13.6): Claude Code interactive `/goal` capture is observed only headless
 
 **Carry-forward contract (v4.13.11)**:
@@ -692,44 +699,6 @@
 
 - **Migrated from**: v4.13#DF-1-v4139 on 2026-10-13 (reason: vendor-feature)
 - **Migration evidence**: Reopen requires two primary OpenAI sources confirming the fix version and a second host hazard; neither exists.
-
-#### DF-12 (v4.13.9): Claude Haiku 5.5 is announced but has no profile or map cell
-
-**Carry-forward contract (v4.13.11)**:
-- **Owner**: not stated in source; maintainer to set
-- **Severity**: low - no profile can exist until the model is in the models overview
-- **Blocker**: vendor-feature - Claude Haiku 5.5 is announced but not in Anthropic's models overview, so no profile can be verified.
-- **Acceptance**: The models overview lists Claude Haiku 5.5, its profile is written and the `fast` tier cell of the model map is refreshed
-- **Proving command**: manual: when the models overview lists it, run `/tune-prompting <haiku-5-5-id> --profiles-only` and refresh the `fast` tier cell
-- **Future plan**: v4.14 known-gaps sweep
-
-- **Source phase**: Phase 1. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T304.
-- **Reason**: Anthropic announced Claude Haiku 5.5 "in the coming weeks" and it is not yet in the models overview, so no prompting profile or model-map cell can be verified against a primary source.
-- **Suggested next step**: when the models overview lists it, run `/tune-prompting <haiku-5-5-id> --profiles-only` and refresh the `fast` tier cell of the model map.
-
-- **Carried from**: v4.13.8#DF-1 on 2026-10-02
-
-- **Migrated from**: v4.13#DF-9 on 2026-10-13 (reason: vendor-feature)
-- **Migration evidence**: Claude Haiku 5.5 is announced but not in Anthropic's models overview, so no profile can be verified.
-
-#### DF-13 (v4.13.9): Nine newly rostered Claude models have no prompting profile
-
-**Carry-forward contract (v4.13.11)**:
-- **Owner**: not stated in source; maintainer to set
-- **Severity**: low - each model is rostered as UNVERIFIED rather than claimed
-- **Blocker**: user-deferred - Nine Claude prompting profiles need per-model /tune-prompting research; claude-opus-5-5 is scheduled for v4.18.0.
-- **Acceptance**: Each of the nine rostered Claude models has a verified prompting profile, starting with `claude-opus-5-5`
-- **Proving command**: `python scripts/verify_model_prompting_profiles.py`
-- **Future plan**: v4.18.0 for `claude-opus-5-5`; v4.14 known-gaps sweep for the remaining models
-
-- **Source phase**: Phase 2. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T306.
-- **Reason**: the live Claude roster read from the Models API on 2026-09-30 added nine ids that this plan does not research, by design (it calibrates on `claude-sonnet-5-5` only): `claude-fable-5`, `claude-haiku-4-5-20251001`, `claude-opus-4-5-20251101`, `claude-opus-4-6`, `claude-opus-4-7`, `claude-opus-4-8`, `claude-opus-5-5`, `claude-sonnet-4-5-20250929`, and `claude-sonnet-4-6`. Each is now a rostered UNVERIFIED model. The live id `claude-haiku-4-5-20251001` sits beside the existing `claude-haiku-4-5` profile, which uses the alias.
-- **Suggested next step**: `claude-opus-5-5` first, through `v4.18.0`, which already plans that profile; then `/tune-prompting <id> --profiles-only` per remaining current model. Decide whether the dated Haiku id and the alias should share one profile before profiling either again.
-
-- **Carried from**: v4.13.8#DF-3 on 2026-10-02
-
-- **Migrated from**: v4.13#DF-11 on 2026-10-13 (reason: user-deferred)
-- **Migration evidence**: Nine Claude prompting profiles need per-model /tune-prompting research; claude-opus-5-5 is scheduled for v4.17.6.
 
 #### WN-18 (v4.13.9): The primary roster mixes vendors, so its freshness check always reads DRIFTED
 
@@ -2758,5 +2727,394 @@
 
 ### Resolved
 
+#### MT-9: Offline policy test still expects inline workflow commands
+
+- **Source phase**: v4.14.0 Phase7, T024/T028 current actual offline profile.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Reason**: The approved workflow delegates to the canonical code-search-offline group, but one extension test still searched the YAML for the former inline Docker, suite and benchmark commands. Actual Linux code-search execution failed1test while384passed; memory-offline passed.
+- **Resolution**: The existing test now binds the workflow to the canonical group and checks that group's actual Linux command data: networknone, process guard, read-only source mount, loopback/extra-interface refusal, unfiltered suite and benchmark. A scoped pytest import-path fixture supports the canonical extension working directory and restores sys.path. Six weakened mutants are rejected. The first private candidate's import-context defect was corrected before any application. No workflow, engine, config, permission or secret byte changed; the user's necessary-test authorization covers this repair.
+- **Evidence**: [Actual offline profile and native test](development/v4.14.0-phase-7-receipts/offline-final-profile.json): all4canonical commands pass in85.0seconds, including385code-search tests and benchmarkbaseline; native extension-cwd file5tests pass. [Exact application](development/v4.14.0-phase-7-receipts/offline-policy-correction-applied.json) records fresh guard/check/record, final hashes and zeroaccepts. Independent correctness and standards follow-ups are clean. This test-only resolution does not certify the pending whole full-profile or hosted integration gates and does not reset the global3/3repair counter.
+
+
+#### MT-8: UI lint check hidden inside a report example
+
+- **Source phase**: v4.14.0 Phase 7, T026 Goal-vs-codebase review.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md), Phase 4.2 and DoD4.
+- **Reason**: The runnable lint checkbox was inside a fenced report example, while the requirement names the owning skill's actual Verification section. The old aggregate test matched the example and gave false confidence.
+- **Resolution**: Moved the existing unchanged checkbox into the actual Verification section and strengthened the existing validator to exclude fenced examples. The old placement fails the regression; the final placement passes. Actual-tree test, Ruff and strict registry checks pass. Independent review confirms both final hashes and literal requirement coverage.
+- **Evidence**: [Exact placement and red/green receipt](development/v4.14.0-phase-7-receipts/ui-verification-placement.json). No CI file or frozen approval artifact changed. This additional in-scope correction does not reset the exhausted global deep-pass repair counter.
+
+
+#### WN-26: Nine legacy Claude models had no prompting profile - RESOLVED 2026-10-15
+
 | ID | Title | Resolved in | Notes |
 |---|---|---|---|
+| WN-26 | Nine legacy Claude models had no prompting profile | 2026-10-15 `/tune-prompting` legacy pass | The nine legacy ids are profiled from Anthropic primary pages: 69 of 70 researched claims survived three-skeptic refutation (1 refuted), aliases share their dated model's claims, and every rostered Claude Code model now has a profile; `verify_model_prompting_profiles.py` lists no unprofiled model and `check_model_prompting_freshness.py` reports IN SYNC. |
+
+#### WN-13 (v4.13.3): Behavioral-lever drift found by the release contract pass - RESOLVED 2026-10-16
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: catalog maintainer, via `[[platform-contract-verification]]`
+- **Severity**: low - stated: every seeded value remains valid
+- **Blocker**: user-deferred - Seeding per-model modelSettings pins a model id; the maintainer must decide, while env CLAUDE_CODE_EFFORT_LEVEL still delivers effort.
+- **Acceptance**: The maintainer decides whether to seed Claude's effort under `modelSettings` for the default model, and the lever rows and `configs/platform-defaults.json` are refreshed
+- **Proving command**: `python scripts/sync_platform_defaults.py --check`
+- **Future plan**: v4.14 known-gaps sweep
+
+**Local clause qualification, 2026-10-10 (v4.13.11 T028)**: The Antigravity `agentMode` statement, rationale and verified date are refreshed from a 2026-10-10 re-fetch (default pauses for diff review; plan prepends `/plan`), with the levers row; `sync_platform_defaults.py --check` passes. Residual (user-deferred): seeding Claude per-model `modelSettings` pins a model id and needs a maintainer decision.
+
+**Source phase**: `/update release` platform-contract verification, 2026-09-28. **Reason**: advisory lever changes (logged in `docs/policy/platform-defaults-levers.md`): Claude Code ignores a user-scope `effortLevel` on Opus 5.5 and later, so that seed no longer reaches the default model (the seeded `env.CLAUDE_CODE_EFFORT_LEVEL` still does); Codex's documented `model_reasoning_effort` and `approval_policy` value lists changed, and the page no longer names those keys as user-only; and Antigravity's `agentMode` values now describe different behavior. Every seeded value remains valid.
+
+**Owner**: catalog maintainer, via `[[platform-contract-verification]]`. **Status**: open. **Suggested next step**: seed Claude's effort under `modelSettings` for the default model, refresh the Codex and Antigravity lever rows and `configs/platform-defaults.json`, then run `python scripts/sync_platform_defaults.py --check`.
+
+**Original source identity**: `v4.13.3#WN-6`; stable ID `WN-6-v4133` distinguishes this obligation from repeated IDs in other patch sections.
+
+- **Migrated from**: v4.13#WN-6-v4133 on 2026-10-13 (reason: user-deferred)
+- **Migration evidence**: Seeding per-model modelSettings pins a model id; the maintainer must decide, while env CLAUDE_CODE_EFFORT_LEVEL still delivers effort.
+
+Resolved in v4.14.0 Phase 7 (2026-10-16). The approved Phase 6 Q3 decision selects per-model High and retires only a recorded legacy effort override. The Claude lever row and configs/platform-defaults.json reflect that choice; sync_platform_defaults.py --check reports all 14 artifacts synchronized. The earlier local qualification already closed the Antigravity clause. See development/phase-6-effort-evidence.md and the Phase 6 history for the actual migration and preservation tests.
+
+#### DF-12 (v4.13.9): Claude Haiku 5.5 is announced but has no profile or map cell - RESOLVED 2026-10-16
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: not stated in source; maintainer to set
+- **Severity**: low - no profile can exist until the model is in the models overview
+- **Blocker**: vendor-feature - Claude Haiku 5.5 is announced but not in Anthropic's models overview, so no profile can be verified.
+- **Acceptance**: The models overview lists Claude Haiku 5.5, its profile is written and the `fast` tier cell of the model map is refreshed
+- **Proving command**: manual: when the models overview lists it, run `/tune-prompting <haiku-5-5-id> --profiles-only` and refresh the `fast` tier cell
+- **Future plan**: v4.14 known-gaps sweep
+
+- **Source phase**: Phase 1. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T304.
+- **Reason**: Anthropic announced Claude Haiku 5.5 "in the coming weeks" and it is not yet in the models overview, so no prompting profile or model-map cell can be verified against a primary source.
+- **Suggested next step**: when the models overview lists it, run `/tune-prompting <haiku-5-5-id> --profiles-only` and refresh the `fast` tier cell of the model map.
+
+- **Carried from**: v4.13.8#DF-1 on 2026-10-02
+
+- **Migrated from**: v4.13#DF-9 on 2026-10-13 (reason: vendor-feature)
+- **Migration evidence**: Claude Haiku 5.5 is announced but not in Anthropic's models overview, so no profile can be verified.
+
+Resolved in v4.14.0 Phase 7 (2026-10-16), reconciling artifacts already present before this phase. Anthropic's current models overview lists claude-haiku-5-5; its primary prompting guide is available. The authoritative profile index and Markdown mirror carry 13 claims dated 2026-10-15, and the source model map fast/Anthropic cell is claude-haiku-5-5. verify_model_prompting_profiles.py passes. Sources: https://platform.claude.com/docs/en/models/overview and https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-haiku-5-5. No paid model call or independent claim re-research was performed in this reconciliation.
+
+#### DF-13 (v4.13.9): Nine newly rostered Claude models have no prompting profile - RESOLVED 2026-10-16
+**Carry-forward contract (v4.13.11)**:
+- **Owner**: not stated in source; maintainer to set
+- **Severity**: low - each model is rostered as UNVERIFIED rather than claimed
+- **Blocker**: user-deferred - Nine Claude prompting profiles need per-model /tune-prompting research; claude-opus-5-5 is scheduled for v4.18.0.
+- **Acceptance**: Each of the nine rostered Claude models has a verified prompting profile, starting with `claude-opus-5-5`
+- **Proving command**: `python scripts/verify_model_prompting_profiles.py`
+- **Future plan**: v4.18.0 for `claude-opus-5-5`; v4.14 known-gaps sweep for the remaining models
+
+- **Source phase**: Phase 2. **Plan reference**: `v4.13.8-adoption-sonnet-5-5-profile-and-first-principles-test.md`, T306.
+- **Reason**: the live Claude roster read from the Models API on 2026-09-30 added nine ids that this plan does not research, by design (it calibrates on `claude-sonnet-5-5` only): `claude-fable-5`, `claude-haiku-4-5-20251001`, `claude-opus-4-5-20251101`, `claude-opus-4-6`, `claude-opus-4-7`, `claude-opus-4-8`, `claude-opus-5-5`, `claude-sonnet-4-5-20250929`, and `claude-sonnet-4-6`. Each is now a rostered UNVERIFIED model. The live id `claude-haiku-4-5-20251001` sits beside the existing `claude-haiku-4-5` profile, which uses the alias.
+- **Suggested next step**: `claude-opus-5-5` first, through `v4.18.0`, which already plans that profile; then `/tune-prompting <id> --profiles-only` per remaining current model. Decide whether the dated Haiku id and the alias should share one profile before profiling either again.
+
+- **Carried from**: v4.13.8#DF-3 on 2026-10-02
+
+- **Migrated from**: v4.13#DF-11 on 2026-10-13 (reason: user-deferred)
+- **Migration evidence**: Nine Claude prompting profiles need per-model /tune-prompting research; claude-opus-5-5 is scheduled for v4.17.6.
+
+Resolved in v4.14.0 Phase 7 (2026-10-16), reconciling the earlier ed105b281 legacy-profile commit and WN-26 resolution. Direct inspection confirms all nine IDs named below have profile entries dated 2026-10-15, with non-empty primary-source claims, matching mirrors, and no unprofiled ID in the recorded Claude roster; verify_model_prompting_profiles.py passes. This supersedes the future-work assumption below. WN-18 remains open: structurally present alias profiles do not by themselves establish the explicit alias-sharing decision.
+
+#### BG-17: Cache record publication can fail and consume reviewed baseline evidence
+
+- **Source phase**: v4.14.0 Phase7, T028/T029, complete post-blocker8 Windows qualification.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: high.
+- **Evidence**: the complete V8 Windows platform run reports 11 passing commands and one failed hook command, with 2,609 passing hook cases and one accept failure. A direct unchanged-helper writer reproduces WinError5 at atomic replacement after44 successes. Independent failure injection proves the old acceptance path can consume its review marker and replace the snapshot before matching metadata commits, producing an empty later diff. The original pytest fixture was pruned before copying; its exact original exception remains unavailable.
+- **Current correction**: bounded replacement retry retains prepared bytes; atomic metadata references an immutable private generation, with legacy-reader availability kept truthful. Reviewed content, old baselines, owner-only permissions, legacy import, explicit purge and retention grace are covered. See [applied repair](development/v4.14.0-phase-7-receipts/cache-publication-stabilization-applied.json).
+- **Acceptance**: preserve keys, approval rules, strict user-edit blocking and owner-only cache permissions; retain meaningful reviewed baselines after failed writes; pass actual-source native scopes, complete final full/platform profiles and green hosted integration.
+- **Suggested next step**: run the fresh final-source gates and integration. This new finding cannot migrate.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [cache-publication-stabilization-applied.json](development/v4.14.0-phase-7-receipts/cache-publication-stabilization-applied.json), [cache-publication-redaction-v9.json](development/v4.14.0-phase-7-receipts/cache-publication-redaction-v9.json), [cache-publication-actual-source-v9-checkpoint.json](development/v4.14.0-phase-7-receipts/cache-publication-actual-source-v9-checkpoint.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### MT-13: Formatter settle-window fixture depends on adapter shutdown latency
+
+- **Source phase**: v4.14.0 Phase7, T028, post-blocker8 Linux hook qualification.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: medium.
+- **Evidence**: actual Linux hooks report 125 passed, 19 skipped and one formatter-test failure. Its rewrite lands 8.316 seconds after the recorded write, outside the unchanged five-second policy. The private deterministic candidate passes eight selected cases on both actual adapters; two scoped reviews are clean. See [timing repair](development/v4.14.0-phase-7-receipts/formatter-settle-stabilization-applied.json).
+- **Acceptance**: both real Linux adapters and native Windows qualification, complete final canonical profiles and hosted integration pass with explicit inside/outside timing controls and strict user-edit blocking retained.
+- **Suggested next step**: run actual-source qualification and the final gates. This new finding cannot migrate.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [formatter-settle-stabilization-applied.json](development/v4.14.0-phase-7-receipts/formatter-settle-stabilization-applied.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### BG-16: Long Windows default-cache paths prevent edit recording
+
+- **Source phase**: v4.14.0 Phase 7, T028/T029 native stabilization after blocker7.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: medium.
+- **Evidence**: both actual Windows affected-module runs report 289 passed and two failed cases. A direct unchanged-helper probe reproduces FileNotFoundError when the staged private copy exceeds 260 characters; the same default-store cases pass under a short temporary root. A first private prefix-only candidate permits copies beneath a missed long repository marker and breaks drive-device aliases, so it is rejected and never applied. The corrected private candidate validates and writes through one resolved long-capable cache path.
+- **Acceptance**: preserve existing records, workspace/repository/sync exclusions, owner-only cache permissions and real user-edit blocking; pass both native hook adapters, affected suites, final profiles and hosted integration.
+- **Suggested next step**: complete independent review of the corrected private candidate, apply with fresh official guards, and run final qualification. This new finding cannot migrate.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [cache-path-stabilization-applied.json](development/v4.14.0-phase-7-receipts/cache-path-stabilization-applied.json), [cache-path-stabilization-review.json](development/v4.14.0-phase-7-receipts/cache-path-stabilization-review.json), [cache-path-owner-only-acl.json](development/v4.14.0-phase-7-receipts/cache-path-owner-only-acl.json), [blocker7-native-applied-qualification.json](development/v4.14.0-phase-7-receipts/blocker7-native-applied-qualification.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### BG-14: Linux PowerShell installer boundary tests fail in first integration
+
+- **Source phase**: v4.14.0 Phase7, T029 first integration PR485.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: medium.
+- **Evidence**: Linux installer command reports 72 failed, 734 passed and 27 skipped: 36 failures each in test_core_settings_seeding.py and test_native_hook_json.py. The native hook error passes literal backslashes to .NET ReadAllText on Linux; core-seeding failures also report absent values. This does not prove that every case has one cause.
+- **Acceptance**: reproduce and correct every failing boundary without skipping Linux PowerShell cases or weakening assertions; pass full local and hosted integration qualification.
+- **Suggested next step**: inspect the retained ci-test-reports artifact, then reproduce the exact harness boundary. The pending two-file CI proposal does not fix this finding. This new finding cannot migrate.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [native-stabilization-applied.json](development/v4.14.0-phase-7-receipts/native-stabilization-applied.json), [blocker7-native-applied-qualification.json](development/v4.14.0-phase-7-receipts/blocker7-native-applied-qualification.json), [distribution-template-path-build-checks.json](development/v4.14.0-phase-7-receipts/distribution-template-path-build-checks.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### BG-15: Hosted Windows edit guard fails to record an agent Bash edit
+
+- **Source phase**: v4.14.0 Phase7, T029 first integration PR485, native Windows hooks.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: medium.
+- **Evidence**: Windows PowerShell5.1 hooks report 2572 passed, one failed and 15 skipped. After the agent Bash edit, test_agents_own_bash_change_is_re_recorded_not_blamed_on_the_user[ps1] receives guard exit2 at the next write. No local causal reproduction or repair is established.
+- **Acceptance**: reproduce the hosted failure, correct its cause while retaining real user-edit blocking and agent-write recording controls, and pass native and hosted integration checks.
+- **Suggested next step**: inspect the retained ci-windows-reports artifact and reproduce the complete event sequence. Do not bypass guards or accept edits to hide the failure. This new finding cannot migrate.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [native-stabilization-applied.json](development/v4.14.0-phase-7-receipts/native-stabilization-applied.json), [cache-path-stabilization-applied.json](development/v4.14.0-phase-7-receipts/cache-path-stabilization-applied.json), [blocker7-native-applied-qualification.json](development/v4.14.0-phase-7-receipts/blocker7-native-applied-qualification.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### BG-12: CI formatters rewrite frozen proposal patch bytes
+
+- **Source phase**: v4.14.0 Phase7, T029 first integration PR485.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: medium.
+- **Reason**: trailing-whitespace removes unified-diff context markers; the following EOF fixer trims the resulting blank tail, invalidating retained approval hashes. CI validation fails.
+- **Evidence**: the real formatter sequence fails on original active/archive/patch copies; the unapplied bounded candidate preserves all three, while three ordinary/outside controls still get corrected.
+- **Acceptance**: exact CI correction approved and applied; captured patch hashes preserved and hosted validation green.
+- **Suggested next step**: approve the bound CI stabilization proposal, apply with guards and verify the real gate. This new finding cannot migrate.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [ci-stabilization-applied.json](development/v4.14.0-phase-7-receipts/ci-stabilization-applied.json), [manifest.json](development/v4.14.0-phase-7-receipts/ci-stabilization-proposal/manifest.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### BG-13: Hosted rich-profile PowerShell startup exits before launcher harness
+
+- **Source phase**: v4.14.0 Phase7, T029 first integration PR485, Windows installer-core.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: medium.
+- **Reason**: hosted PowerShell7.6.6 exits70 with startIndex initialization error in the rich-profile case;294 other cases pass. This does not establish an installer-code cause.
+- **Evidence**: all three actual launcher cases pass locally under both verified7.6.6 and7.6.7. No causal reproduction or repair is established.
+- **Acceptance**: reproduce the failure locally, apply its narrow root-cause correction without skipping rich-path assertions, and pass actual native qualification and hosted integration.
+- **Suggested next step**: continue matching the hosted startup environment and inspect the retained job report before any rerun. This new finding cannot migrate.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [native-stabilization-applied.json](development/v4.14.0-phase-7-receipts/native-stabilization-applied.json), [native-stabilization-review-v2.json](development/v4.14.0-phase-7-receipts/native-stabilization-review-v2.json), [blocker7-native-applied-qualification.json](development/v4.14.0-phase-7-receipts/blocker7-native-applied-qualification.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### MT-12: Minimal render job omits the full skills suite YAML dependency
+
+- **Source phase**: v4.14.0 Phase7, T029 first integration PR485.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: medium.
+- **Reason**: presentify-render collects all tests/skills, including the YAML-based installer parity contract, but its dependency command omits PyYAML.
+- **Evidence**: exact minimal dependencies reproduce collection exit2/missing yaml. Adding only existing constrainedPyYAML6.0.3 passes all3profile commands,2419tests/18skips, with rendering required. Actual workflow remains unchanged pending approval.
+- **Acceptance**: approve/apply the exact dependency addition and pass the hosted render and integration checks on the final tree.
+- **Suggested next step**: apply the bound CI stabilization proposal after native approval and requalify. This new finding cannot migrate.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [ci-stabilization-applied.json](development/v4.14.0-phase-7-receipts/ci-stabilization-applied.json), [manifest.json](development/v4.14.0-phase-7-receipts/ci-stabilization-proposal/manifest.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### BG-11: Python 3.11 path guard accepts directory junctions within the authoring root
+
+- **Source phase**: v4.14.0 Phase 7, T028 canonical full replay and native reproduction.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: medium.
+- **Reason**: Python 3.11 lacks Path.is_junction. A real junction to a target inside the authoring root passed containment even though the builder contract rejects linked ancestors. Outside-root resolution was already refused; no outside write is claimed.
+- **Evidence**: The applied lstat mount-point-tag correction refuses actual inside/outside junctions on Python 3.11 and 3.12, retains ordinary missing-output paths and nonjunction reparse semantics, and passes the complete affected modules. Explicit Windows tests reject removal of the new condition. See [repair receipt](development/v4.14.0-phase-7-receipts/skills-repair-applied.json).
+- **Acceptance**: permanent native controls, complete affected modules, final local profiles and green integration pass on the applied source.
+- **Suggested next step**: finish the canonical full, supported-host and integration gates. This new run finding cannot migrate.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [skills-repair-applied.json](development/v4.14.0-phase-7-receipts/skills-repair-applied.json), [combined-repair-local-qualification.json](development/v4.14.0-phase-7-receipts/combined-repair-local-qualification.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### MT-10: Installer parity assertions still expect inline workflow commands
+
+- **Source phase**: v4.14.0 Phase 7, T028 canonical full replay.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: medium.
+- **Reason**: Two tests looked for inline checker commands and a PowerShell smoke-home variable after the approved workflow moved execution into the repository-native workspace-smoke profile.
+- **Evidence**: The corrected tests trace the actual workflow, profile and scenario, inspect both native installer command lists, require exactly one shared checker with private-home/workspace arguments, and reject six mutations across both host branches. Mocked command controls are not installer proof; the separate actual installed-browser tests also pass.
+- **Acceptance**: the actual affected modules and final local/integration gates pass without restoring duplicated workflow commands or weakening shared postconditions.
+- **Suggested next step**: finish the remaining final gates. This new run finding cannot migrate.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [combined-repair-local-qualification.json](development/v4.14.0-phase-7-receipts/combined-repair-local-qualification.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### MT-11: Offline installed-bundle fixture still discovers host editor launchers
+
+- **Source phase**: v4.14.0 Phase 7, T028 actual Windows installed-bundle replay.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: medium.
+- **Reason**: Redirected home directories left the caller PATH intact. The scratch install reached the machine's Cursor launcher during legacy-extension discovery and stopped on its NativeCommandError.
+- **Evidence**: The fixture now reuses the existing complete isolated_environment, including inert editor launchers and redirected fallback roots. Real Bash/Windows installed-bundle browser flows pass. Both code/cursor controls first activate harmless private host markers and then prove the isolated boundary prevents invocation. Installer production code is unchanged.
+- **Acceptance**: both actual installed-bundle flows, permanent editor controls and final local/integration gates pass on the applied fixture.
+- **Suggested next step**: finish the remaining final gates. This new run finding cannot migrate.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [combined-repair-local-qualification.json](development/v4.14.0-phase-7-receipts/combined-repair-local-qualification.json), [git-fixture-isolation-applied.json](development/v4.14.0-phase-7-receipts/git-fixture-isolation-applied.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### MT-7: Timeout test can fail before successful process-tree cleanup
+
+- **Source phase**: v4.14.0 Phase 7, final CI/workflow replay.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: medium.
+- **Reason**: The child writes after 1.5 seconds while the runner starts cleanup after 0.7 seconds and allows taskkill up to 10 seconds. A marker can therefore exist even when the child is terminated before run returns. The final replay recorded one failure, 390 passes and 19 skips; its cause is not inferred solely from the counterexample.
+- **Evidence**: An independent delayed-taskkill probe proves the original oracle can fail after successful cleanup. The candidate replaces the timer with a ready/release gate and retained native process-state checks. Its positive and parent-only controls pass on Windows and network-disabled Linux; a forced parent-only mutation is rejected and its survivor is reaped. The final candidate CI/workflow suite passes 392 tests with 19 host skips. Production cleanup is unchanged.
+- **Acceptance**: the exact replacement is approved and applied, its controls and final actual-tree CI/full/integration gates pass.
+- **Suggested next step**: approve [the eleven-file CI correction revision 2](development/v4.14.0-ci-correction-proposal-v2.md), apply only its bound bytes, and run the remaining final gates. This new run finding cannot migrate.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [manifest.json](development/v4.14.0-phase-7-receipts/ci-correction-proposal-v2/manifest.json), [qualification.json](development/v4.14.0-phase-7-receipts/ci-correction-proposal-v2/qualification.json), [timeout-oracle-review.json](development/v4.14.0-phase-7-receipts/ci-correction-proposal-v2/timeout-oracle-review.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### QG-4: Approved CI bundle adds empty workflow EOF lines
+
+- **Source phase**: v4.14.0 Phase 7, final actual-tree whitespace gate.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: low.
+- **Reason**: git diff --check HEAD rejects six extra blank EOF lines introduced by the blocker-4 CI bundle.
+- **Evidence**: a separate candidate removes exactly one LF per workflow, retains the terminal newline and all other bytes, and has identical parsed YAML. An independent standards review confirms all six paths and twelve hashes; candidate git diff --check HEAD passes.
+- **Acceptance**: the exact CI cleanup is approved and applied, then the actual-tree whitespace and final gates pass.
+- **Suggested next step**: approve the eleven-file CI correction revision 2, apply its exact bytes, and rerun the source gates. This new run finding cannot migrate.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [manifest.json](development/v4.14.0-phase-7-receipts/ci-correction-proposal-v2/manifest.json), [qualification.json](development/v4.14.0-phase-7-receipts/ci-correction-proposal-v2/qualification.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### BG-7: Core merge must reject malformed per-file JSON input
+
+- **Source phase**: v4.14.0 Phase 7, T022/T025 final independent review and correction.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: high.
+- **Reason**: The Bash slurp treated a second user document as the template and could discard user bytes; a PowerShell array-shaped template could retire a recorded effort seed.
+- **Evidence**: Five authorized non-CI corrections are applied. Both-edition native suites and nine fresh source regressions pass. Full final-tree and integration gates remain pending. See [review results](development/v4.14.0-phase-7-receipts/final-review-results.json).
+- **Acceptance**: the source correction, permanent negative controls, final local profiles and green integration all pass on the final tree.
+- **Suggested next step**: apply only the approved pending CI correction where relevant, then finish final qualification. This new run finding cannot migrate.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [final-review-results.json](development/v4.14.0-phase-7-receipts/final-review-results.json), [nonci-review-corrections-applied.json](development/v4.14.0-phase-7-receipts/nonci-review-corrections-applied.json), [combined-repair-local-qualification.json](development/v4.14.0-phase-7-receipts/combined-repair-local-qualification.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### BG-8: Long backslash runs make the legacy JSON reader rescan input
+
+- **Source phase**: v4.14.0 Phase 7, T022/T025 final independent review and correction.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: low.
+- **Reason**: The slash-normalization regex retried suffixes quadratically on valid JSON without a following slash.
+- **Evidence**: The old actual 5.1 reader exceeded 20 seconds on the control; corrected reader preserved all values in 0.782 seconds. Current 5.1 and 7 native suites pass. Full gates remain pending. See [review results](development/v4.14.0-phase-7-receipts/final-review-results.json).
+- **Acceptance**: the source correction, permanent negative controls, final local profiles and green integration all pass on the final tree.
+- **Suggested next step**: apply only the approved pending CI correction where relevant, then finish final qualification. This new run finding cannot migrate.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [final-review-results.json](development/v4.14.0-phase-7-receipts/final-review-results.json), [nonci-review-corrections-applied.json](development/v4.14.0-phase-7-receipts/nonci-review-corrections-applied.json), [combined-repair-local-qualification.json](development/v4.14.0-phase-7-receipts/combined-repair-local-qualification.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### BG-9: Ambient package selectors escape disposable CI targets
+
+- **Source phase**: v4.14.0 Phase 7, T022/T025 final independent review and correction.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: high.
+- **Reason**: Inherited pip interpreter, installation, build-tracker, log, report and checkout destinations, or pip/uv configuration, can write outside the intended scratch target.
+- **Evidence**: A concrete CI-only correction disables these routes and retains constraint/index/certificate read settings. Actual parser and offline controls pass; application awaits a fresh named CI approval. See [review results](development/v4.14.0-phase-7-receipts/final-review-results.json).
+- **Acceptance**: the source correction, permanent negative controls, final local profiles and green integration all pass on the final tree.
+- **Suggested next step**: apply only the approved pending CI correction where relevant, then finish final qualification. This new run finding cannot migrate.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [final-review-results.json](development/v4.14.0-phase-7-receipts/final-review-results.json), [manifest.json](development/v4.14.0-phase-7-receipts/ci-correction-proposal-v2/manifest.json), [qualification.json](development/v4.14.0-phase-7-receipts/ci-correction-proposal-v2/qualification.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### BG-10: Metadata redaction can corrupt JSON syntax
+
+- **Source phase**: v4.14.0 Phase 7, T022/T025 final independent review and correction.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: medium.
+- **Reason**: Replacing secrets after JSON serialization can remove property/value quotes and produce unreadable environment.json.
+- **Evidence**: Two independent lenses reproduced the defect. The proposed CI correction redacts string values before serialization and preserves schema keys and native types; application awaits CI approval. See [review results](development/v4.14.0-phase-7-receipts/final-review-results.json).
+- **Acceptance**: the source correction, permanent negative controls, final local profiles and green integration all pass on the final tree.
+- **Suggested next step**: apply only the approved pending CI correction where relevant, then finish final qualification. This new run finding cannot migrate.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [final-review-results.json](development/v4.14.0-phase-7-receipts/final-review-results.json), [manifest.json](development/v4.14.0-phase-7-receipts/ci-correction-proposal-v2/manifest.json), [qualification.json](development/v4.14.0-phase-7-receipts/ci-correction-proposal-v2/qualification.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### MT-5: Agent classification accepts a valid but incorrect tier
+
+- **Source phase**: v4.14.0 Phase 7, T022/T025 final independent review and correction.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: medium.
+- **Reason**: A security-reviewer Opus-to-Haiku mutation passed the previous classification test despite the documented Opus partition.
+- **Evidence**: The applied test asserts Opus and the documented partition and rejects the valid wrong-tier mutation. Final gates remain pending. See [review results](development/v4.14.0-phase-7-receipts/final-review-results.json).
+- **Acceptance**: the source correction, permanent negative controls, final local profiles and green integration all pass on the final tree.
+- **Suggested next step**: apply only the approved pending CI correction where relevant, then finish final qualification. This new run finding cannot migrate.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [final-review-results.json](development/v4.14.0-phase-7-receipts/final-review-results.json), [nonci-review-corrections-applied.json](development/v4.14.0-phase-7-receipts/nonci-review-corrections-applied.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### MT-6: Presentify aggregate tests do not exercise failure branches
+
+- **Source phase**: v4.14.0 Phase 7, T022/T025 final independent review and correction.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: medium.
+- **Reason**: Replacing the actual required gate with unconditional success survived the previous static tests.
+- **Evidence**: The proposed CI test executes the real YAML shell body over 23 cases and kills the unconditional-success mutation in all 19 rejection cases. Application and final gates remain pending. See [review results](development/v4.14.0-phase-7-receipts/final-review-results.json).
+- **Acceptance**: the source correction, permanent negative controls, final local profiles and green integration all pass on the final tree.
+- **Suggested next step**: apply only the approved pending CI correction where relevant, then finish final qualification. This new run finding cannot migrate.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [final-review-results.json](development/v4.14.0-phase-7-receipts/final-review-results.json), [nonci-review-corrections-applied.json](development/v4.14.0-phase-7-receipts/nonci-review-corrections-applied.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### BG-5: Native JSON readers interpret opaque timestamp strings
+
+- **Source phase**: v4.14.0 Phase 7, T025 independent adversarial recheck.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md), sub-tasks 3.3, 6.2 and 7.6.
+- **Owner**: implementation maintainer.
+- **Severity**: high.
+- **Reason**: PowerShell 7 interpreted recognized ISO values as native dates and rewrote offsets or fractional spelling on the first hook write. Windows PowerShell 5.1 interpreted escaped Microsoft date strings as native dates; a zero-date value-only round trip happened to match and did not establish string opacity. Date-shaped object keys stayed unchanged.
+- **Evidence**: retained independent actual-source-adversarial report and exact native types/raw input hex at source 9be0ae34d1eb0632af691dab24c8f559c40c99bf5919b4e2950d01793b6fdc9b. The corrected reader candidate passed 10 native 5.1 checks and 20 current-7 checks, including a simulated older-Core capability path. That simulation is not a claim of a native older-Core host run.
+- **Acceptance**: real reader, hook, core and MCP writes preserve opaque strings, exact keys, array/root shape and user values; permanent regressions and actual-tree/final gates pass.
+- **Suggested next step**: qualify the applied shared-reader correction in the actual affected scope and full installer after the pending strict fix. This new run finding cannot migrate.
+
+**Current recheck**: the applied reader and hook correction passed 394 affected tests with 10 skips on PowerShell 5.1 and 226 on PowerShell 7.6.7. Independent reader 123 checks preserve exact decoded values and native string types. Full installer and final qualification remain pending.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [native-windows-current-qualification.json](development/v4.14.0-phase-7-receipts/native-windows-current-qualification.json), [combined-repair-local-qualification.json](development/v4.14.0-phase-7-receipts/combined-repair-local-qualification.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### BG-6: Duplicate permission entries can hide a missing strict overlay
+
+- **Source phase**: v4.14.0 Phase 7, T025 independent adversarial recheck.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md), sub-tasks 3.3 and 7.6.
+- **Owner**: implementation maintainer.
+- **Severity**: high.
+- **Security**: both installers can print already up to date while omitting all 22 deny and 12 ask entries from the explicitly selected strict overlay.
+- **Reason**: subtracting the original list length from a deduplicated merged length lets removed user duplicates cancel the number of missing overlay entries. Native original-source controls reproduce this for PowerShell and Bash. The earlier blocker-2 patch does not cover this newly discovered counter defect.
+- **Evidence**: [the exact paired strict proposal](development/v4.14.0-strict-counter-proposal.md) and its hash-bound receipts: 61 new, 82 existing and 24 path/empty-input checks pass on the final candidate, with two original negative controls failing as expected. Independent final Bash checks pass 23 cases plus identical-file refusal. The proposal counts missing rules and rejects malformed or multiple-document inputs while retaining Unicode filename support; it is not applied.
+- **Acceptance**: both installers count genuinely missing rules independently of user duplicates, apply every shipped deny/ask rule, leave allow and user data intact, and refuse malformed input without false success or writes; permanent regressions and final gates pass.
+- **Suggested next step**: review the concrete paired permission-writer proposal, answer its native ci-security-change blocker, then apply only its approved strict functions and run the actual gates. This new run finding cannot migrate.
+
+**Current recheck**: native blocker 3 is answered by A3FZ6XTY and the exact paired proposal is applied. The actual affected suites passed 440 tests with 10 skips on PowerShell 5.1 and 272 tests on PowerShell 7.6.7. The full Unicode upgrade/repeat also passes after a separate launcher path repair. Full-profile, CI and final qualification remain pending, so this item stays open; earlier proposal wording records the original checkpoint.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [native-windows-current-qualification.json](development/v4.14.0-phase-7-receipts/native-windows-current-qualification.json), [combined-repair-local-qualification.json](development/v4.14.0-phase-7-receipts/combined-repair-local-qualification.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### BG-3: Case-sensitive settings can skip an explicitly selected strict overlay
+
+- **Source phase**: v4.14.0 Phase 7, T025 independent adversarial verification.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md), sub-tasks 6.2 and 7.6.
+- **Owner**: implementation maintainer.
+- **Severity**: high.
+- **Security**: the requested strict deny/ask overlay is absent on the reproduced case-key inputs.
+- **Reason**: Merge-StrictPermissions still uses a case-insensitive JSON object; exact-case core delivery can preserve a lower-case user key and add its documented uppercase key, after which the strict reader warns and skips. Unrelated VAR/var pairs reproduce the same failure. The applied preservation repair does not fix this separate writer.
+- **Evidence**: [the concrete function-only proposal](development/v4.14.0-permission-writer-proposal.md), with 42 fresh native candidate checks across PowerShell 5.1 and 7. The source permission writer remains unchanged pending a live ci-security-change answer.
+- **Acceptance**: the approved actual-tree writer installs all existing shipped deny/ask entries, preserves allow and all user leaves, backs up pre-write bytes, remains idempotent, and refuses malformed roots/parents/lists without a write; both runtimes and the final gate pass.
+- **Suggested next step**: answer the native permission-writer blocker, apply only the reviewed patch after guard/hash checks, add permanent regressions and rerun the actual writer sequence. This item arose during the run and cannot be migrated or silently waived.
+
+**Current recheck**: blocker 2 is answered and its exact patch passed 41 permanent tests per PowerShell runtime, then the affected actual tree passed 368 tests. Final qualification remains pending; the separate duplicate-counter failure is BG-6. The earlier unapproved wording above records the original checkpoint.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [native-windows-current-qualification.json](development/v4.14.0-phase-7-receipts/native-windows-current-qualification.json), [combined-repair-local-qualification.json](development/v4.14.0-phase-7-receipts/combined-repair-local-qualification.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### BG-4: Legacy Windows hook writers skip case-distinct JSON
+
+- **Source phase**: v4.14.0 Phase 7, T025 independent adversarial verification.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md), sub-tasks 3.3 and 7.6.
+- **Owner**: implementation maintainer.
+- **Severity**: high.
+- **Security**: managed guardrail hooks may remain absent or stale when the legacy reader cannot represent otherwise valid unrelated settings keys.
+- **Reason**: actual Install-GitGuardrails, Install-UsageDisplay and Install-RequireDescription warn and skip on a document with unrelated VAR/var keys. The document is preserved, but the full helper sequence leaves hooks absent. The new exact-case core pair can also encounter this legacy reader on a later upgrade.
+- **Evidence**: independent native sequence reports in retained Temp adversarial-candidate3-d566fe6487bd49f8b9ee3864a0972210; the preservation checks pass while hook application remains explicitly uncovered. No claim of installed hooks is made from those green preservation counts.
+- **Acceptance**: an actual isolated native upgrade preserves unrelated case-distinct/deep data and custom hooks, adds/updates the managed hooks, converts their commands correctly and remains idempotent, with permanent regressions and the full gate passing.
+- **Suggested next step**: repair the JSON round-trip boundary for the legacy hook writers, reuse existing merge behavior and the real converter, and exercise the full sequence before publication. This item arose during the run and cannot be migrated or silently waived.
+
+**Current recheck**: the first root-only projection repair passed its bounded suite but still skipped valid case-distinct metadata inside a custom hook. The applied correction now keeps exact dictionaries through the original hook identity algorithm; its expanded candidate passed 37 native cases per runtime. The applied correction now passes the affected actual-tree suites (394 passed/10 skipped on 5.1; 226 passed on 7). Complete installer and final qualification are still pending.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [native-windows-current-qualification.json](development/v4.14.0-phase-7-receipts/native-windows-current-qualification.json), [combined-repair-local-qualification.json](development/v4.14.0-phase-7-receipts/combined-repair-local-qualification.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.

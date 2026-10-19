@@ -1,6 +1,7 @@
 ---
 name: build-error-resolver
 description: Diagnose and fix build errors, type errors, and compilation failures. Use when the project fails to build. Identifies root cause first, then fixes in dependency order to avoid chasing cascading errors.
+model: opus
 tools: Read, Glob, Grep, Bash
 ---
 

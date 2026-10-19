@@ -1,0 +1,27 @@
+[
+  {
+    "profile": "fast",
+    "exit": 0,
+    "output": "profile: fast   platform: windows\n  catalog-parse  [scope: always] (blocking)\n    - skills.json parses\n    - bundles.json parses\n    - workflows.json parses\n    - templates.json parses\n  hygiene  [scope: always]\n    - check_commit_attribution\n    - validate_unicode_safety\n    - validate_no_personal_paths\n    - check_merge_conflict_markers\n    - check_docs_conventions\n    - validate_doc_budgets\n    - check_memory_integration_budget\n  interpreters  [scope: always]\n    - check_python_floor\n    - check_interpreter_resolution\n  registry-consistency  [scope: catalog]\n    - check_registry_entries\n  workflows  [scope: workflows]\n    - validate_workflow_security\n    - check_required_check_coverage\n  version  [scope: always]\n    - check_version_sync\n"
+  },
+  {
+    "profile": "full",
+    "exit": 0,
+    "output": "profile: full   platform: windows\n  catalog-parse  [scope: always] (blocking)\n    - skills.json parses\n    - bundles.json parses\n    - workflows.json parses\n    - templates.json parses\n  hygiene  [scope: always]\n    - check_commit_attribution\n    - validate_unicode_safety\n    - validate_no_personal_paths\n    - check_merge_conflict_markers\n    - check_docs_conventions\n    - validate_doc_budgets\n    - check_memory_integration_budget\n  legacy-fingerprints  [scope: always]\n    - build_legacy_fingerprints\n  interpreters  [scope: always]\n    - check_python_floor\n    - check_interpreter_resolution\n  catalog  [scope: catalog]\n    - validate_skills\n    - check_agentskills_conformance\n    - build_framework_coverage\n    - run_trigger_evals\n    - check_registry_entries\n    - scan_skill_security\n  security  [scope: always]\n    - scan_supply_chain_iocs\n    - validate_permission_baseline\n    - check_no_outbound\n  workflows  [scope: workflows]\n    - validate_workflow_security\n    - check_required_check_coverage\n  claude-plugin  [scope: always]\n    - claude plugin validate\n  platform-contracts  [scope: platforms]\n    - check_installer_parity\n    - check_base_template_parity\n    - instruction-contracts\n    - verify_platform_contracts\n    - check_platform_contract_freshness\n    - sync_platform_defaults\n    - verify_model_prompting_profiles\n  docs  [scope: docs]\n    - check_doc_colocation\n    - validate_solution_frontmatter\n    - check_incident_notes\n    - validate_decision_records\n    - stamp_guide_counts\n    - stamp_guide_shared\n    - stamp_training_models\n    - check_memory_provenance\n    - check_handbooks\n    - check_docs_retention (advisory)\n  version  [scope: always]\n    - check_version_sync\n  tests  [scope: tests]\n    - hook-tests\n    - repo-tests-skills\n    - repo-tests-installer\n    - repo-tests-integrations-platform-a\n    - repo-tests-integrations-platform-b\n    - repo-tests-integrations-adapter-contracts\n    - repo-tests-integrations-repository-contracts\n    - repo-tests-integrations-install\n    - repo-tests-integrations-lifecycle\n    - repo-tests-integrations-map\n    - repo-tests-plans\n    - repo-tests-ci\n    - repo-tests-guides\n    - repo-tests-governance\n  extension-tests  [scope: extensions]\n    - skill-server\n    - code-search\n    - web-fetch\n    - skill-scanner\n    - context-compressor\n    - memory\n    - compression-accuracy-gate\n"
+  },
+  {
+    "profile": "platform",
+    "exit": 0,
+    "output": "profile: platform   platform: windows\n  shell-lint  [scope: always]\n    - shellcheck catalog  -- skipped on windows\n    - shellcheck installers  -- skipped on windows\n  powershell-parse  [scope: always]\n    - powershell AST parse\n  interpreters  [scope: always]\n    - check_python_floor\n    - check_interpreter_resolution\n  windows-hooks  [scope: always]\n    - hook-tests (Windows PowerShell 5.1)\n    - Git attribution (Windows)\n    - security-audit evidence (Windows)\n    - native integrations (Windows)\n  windows-installer  [scope: always]\n    - installer (Windows)\n    - validators a-c (Windows)\n    - validators co-z (Windows)\n  windows-installer-core  [scope: always]\n    - PowerShell 7 runtime\n    - installer JSON and hook boundaries (PowerShell 7)\n"
+  },
+  {
+    "profile": "report",
+    "exit": 0,
+    "output": "profile: report   platform: windows\n  (aggregation only; runs no commands)\n"
+  },
+  {
+    "profile": "release",
+    "exit": 0,
+    "output": "profile: release   platform: windows\n  release-checks  [scope: always]\n    - check_version_sync\n    - check_platform_contract_freshness\n    - check_release_preconditions (advisory)\n"
+  }
+]

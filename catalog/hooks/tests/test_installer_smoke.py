@@ -584,55 +584,25 @@ def _declared_claude_settings() -> dict:
 
 
 def test_declared_claude_effort_level_is_high():
-    """Intent guard for the shipped Claude default `high`, asserted at the source.
-
-    The default moved from `medium` to `high` in v4.4.0 so a fresh install starts
-    at the deeper reasoning tier expected by plan-driven, multi-step work. Both
-    the scalar and the `env` override are pinned, because
-    `env.CLAUDE_CODE_EFFORT_LEVEL` is the higher-precedence lever: leaving the
-    two out of step would make the scalar a no-op.
-
-    As of v3.16.0 this assertion lives against configs/platform-defaults.json
-    rather than the derived template, so the intended value is stated in exactly
-    one place. If a future change wants to move the default, edit the source and
-    the CHANGELOG together; the consistency of every derived artifact is checked
-    separately by `scripts/sync_platform_defaults.py --check`.
-    """
+    """The declared effort must respect saved per-model choices."""
     settings = _declared_claude_settings()
-    assert settings["effortLevel"] == "high", (
-        f"Expected declared effortLevel='high', got {settings['effortLevel']!r}. "
-        "If this was a deliberate change, update the CHANGELOG + test together."
-    )
-    assert settings.get("env", {}).get("CLAUDE_CODE_EFFORT_LEVEL") == "high", (
-        "env.CLAUDE_CODE_EFFORT_LEVEL must match effortLevel ('high'); it is "
-        "the higher-precedence lever, so a mismatch silently wins over the scalar."
-    )
+    assert settings["effortLevel"] == "high"
+    assert "CLAUDE_CODE_EFFORT_LEVEL" not in settings.get("env", {})
+    assert settings["modelSettings"]
+    for model, defaults in settings["modelSettings"].items():
+        assert model.startswith("claude-")
+        assert defaults["effortLevel"] == "high"
+        assert defaults["effortLevel"] != "max"
 
 
 def test_catalog_hooks_settings_matches_declared_defaults():
-    """The shipped template's core keys must equal the declared source.
-
-    catalog/hooks/settings.json is DERIVED from configs/platform-defaults.json
-    (v3.16.0). Asserting equality with the source instead of a repeated literal
-    is what stops this file from becoming a second place to edit when the
-    default moves - the exact duplication that made the v3.15.5 effort change
-    touch four declarations across two files.
-    """
-    assert SETTINGS_TEMPLATE.is_file(), f"Missing: {SETTINGS_TEMPLATE}"
+    """Both effort surfaces and ordinary env defaults derive from the source."""
     data = json.loads(SETTINGS_TEMPLATE.read_text(encoding="utf-8"))
     declared = _declared_claude_settings()
-    for key in ("effortLevel", "model"):
+    for key in ("effortLevel", "model", "modelSettings", "env"):
         assert data.get(key) == declared[key], (
-            f"catalog/hooks/settings.json {key}={data.get(key)!r} has drifted from "
-            f"the declared {declared[key]!r}. Run: "
-            "python scripts/sync_platform_defaults.py --apply"
+            f"catalog/hooks/settings.json {key} drifted; run the defaults generator"
         )
-    assert data.get("env", {}).get("CLAUDE_CODE_EFFORT_LEVEL") == declared["env"][
-        "CLAUDE_CODE_EFFORT_LEVEL"
-    ], (
-        "env.CLAUDE_CODE_EFFORT_LEVEL has drifted from the declared value. Run: "
-        "python scripts/sync_platform_defaults.py --apply"
-    )
 
 
 def test_installer_ps1_fallback_literal_matches_template():
@@ -640,16 +610,16 @@ def test_installer_ps1_fallback_literal_matches_template():
     manual-add hint.
 
     installer.ps1 seeds the core defaults dynamically from the template
-    (`$coreKeys = @("effortLevel", "model")` plus the env effort override)
+    (`$coreKeys = @("effortLevel", "model")` plus declared env defaults)
     rather than hardcoding the effort literal, so the fallback hint points the
-    user at copying effortLevel/model/env from the template file. The hint MUST
-    name those keys so it stays consistent with catalog/hooks/settings.json
+    user at copying absent core settings and template env keys. The hint MUST
+    name that absent-only policy so it stays consistent with catalog/hooks/settings.json
     whatever the shipped default value is.
     """
     body = INSTALLER_PS1.read_text(encoding="utf-8")
-    assert "Manually copy effortLevel/model/env from" in body, (
+    assert "Manually copy absent core settings and template env keys from" in body, (
         "installer.ps1 core-settings fallback must reference copying "
-        "effortLevel/model/env from the template so it tracks "
+        "absent core settings and template env keys so it tracks "
         "catalog/hooks/settings.json without a hardcoded value."
     )
 

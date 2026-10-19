@@ -388,3 +388,145 @@ def test_claude_md_quick_reference_surfaces_the_lifecycle():
     text = _read(_ROOT / "CLAUDE.md")
     assert "Plan lifecycle" in text
     assert "one LOCAL commit" in text
+
+
+def test_canonical_contract_defines_complete_plan_validation_cadence():
+
+    text = _read(CONTRACT)
+
+    cadence = text.split("### 2.4 Validation cadence", 1)[1].split("## 3.", 1)[0]
+
+    for obligation in (
+        "all implementation tasks",
+        "focused",
+        "coverage",
+        "unchanged",
+        "platform",
+        "each plan",
+    ):
+        assert obligation in cadence
+
+    assert "[[cicd-integration]]" in cadence
+
+
+def test_test_selection_owner_defines_evidence_reuse_and_invalidation():
+
+    text = _read(CICD_INTEGRATION)
+
+    body = text.split("## Plan validation selection", 1)[1].split(
+        "## What This Skill Does", 1
+    )[0]
+
+    _assert_current_evidence_rules(body)
+
+
+def _assert_current_evidence_rules(body):
+
+    receipt = body.split("3. ", 1)[1].split("4. ", 1)[0]
+
+    recovery = body.split("4. ", 1)[1].split("5. ", 1)[0]
+
+    qualification = body.split("5. ", 1)[1]
+
+    for clause in (
+        "terminal command",
+        "Reuse it only while every tested input remains unchanged",
+        "A receipt from a running command, changed source or different relevant environment is not current proof",
+    ):
+        assert clause in receipt
+
+    for clause in (
+        "cross-cutting inputs invalidate every affected scope",
+        "If their extent is uncertain, rerun the full affected profile",
+        "Do not inherit a failed scope as a pass",
+    ):
+        assert clause in recovery
+
+    for clause in (
+        "must not be labeled a fresh unfiltered full run",
+        "must all be green before release",
+        "No reuse rule permits waiving an explicit plan gate or recorded acceptance criterion",
+    ):
+        assert clause in qualification
+
+
+@pytest.mark.parametrize(
+    "prohibition",
+    [
+        "Reuse it only while every tested input remains unchanged",
+        "A receipt from a running command, changed source or different relevant environment is not current proof",
+        "cross-cutting inputs invalidate every affected scope",
+        "If their extent is uncertain, rerun the full affected profile",
+        "Do not inherit a failed scope as a pass",
+        "must not be labeled a fresh unfiltered full run",
+        "must all be green before release",
+        "No reuse rule permits waiving an explicit plan gate or recorded acceptance criterion",
+    ],
+)
+def test_evidence_contract_rejects_removed_reuse_protections(prohibition):
+
+    body = (
+        _read(CICD_INTEGRATION)
+        .split("## Plan validation selection", 1)[1]
+        .split("## What This Skill Does", 1)[0]
+    )
+
+    assert prohibition in body
+
+    with pytest.raises(AssertionError):
+        _assert_current_evidence_rules(
+            body.replace(prohibition, "Unrestricted evidence reuse is allowed")
+        )
+
+
+def test_lifecycle_owner_delegates_test_selection():
+
+    text = _read(CICD_ARCHITECT)
+
+    assert "section 2.4" in text
+
+    assert "[[cicd-integration]]" in text
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        CONTRACT,
+        CICD_ARCHITECT,
+        _ROOT
+        / "catalog/skills/workflow/implement-phase/references/implement-phase-runbook.md",
+        _ROOT
+        / "catalog/skills/workflow/implementation-plan/references/mandatory-final-phase.md",
+    ],
+)
+def test_reconciliation_does_not_start_an_early_complete_gate(path):
+
+    text = _read(path)
+
+    assert "re-run the local gate" not in text
+
+    assert "affected checks" in text
+
+    assert "[[cicd-integration]]" in text
+
+
+def test_installer_parity_does_not_force_unchanged_local_platform_matrix():
+
+    path = (
+        _ROOT
+        / "catalog/skills/workflow/implementation-plan/references/mandatory-final-phase.md"
+    )
+
+    body = (
+        _read(path)
+        .split("#### N.5 - Terminal CI/CD reconciliation", 1)[1]
+        .split("#### N.6", 1)[0]
+    )
+
+    assert "declarative cross-installer parity gate" in body
+
+    assert "affected delivery boundaries" in body
+
+    assert "unchanged installer" in body
+
+    assert "recorded acceptance criterion requires that local proof" in body

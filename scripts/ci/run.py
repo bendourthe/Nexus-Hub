@@ -48,7 +48,15 @@ def _now() -> str:
 def _tool_versions() -> dict[str, str]:
     """Best-effort versions for the report. Never fails the run."""
     tools: dict[str, str] = {"python": sys.version.split()[0]}
-    for name, argv in (("git", ["git", "--version"]), ("shellcheck", ["shellcheck", "--version"])):
+    for name, argv in (
+        ("git", ["git", "--version"]),
+        ("shellcheck", ["shellcheck", "--version"]),
+        ("node", ["node", "--version"]),
+        ("npm", ["npm.cmd" if os.name == "nt" else "npm", "--version"]),
+        ("docker", ["docker", "--version"]),
+        ("pwsh", ["pwsh", "-NoProfile", "-Command", "$PSVersionTable.PSVersion.ToString()"]),
+        ("powershell", ["powershell", "-NoProfile", "-Command", "$PSVersionTable.PSVersion.ToString()"]),
+    ):
         if not shutil.which(argv[0]):
             continue
         try:

@@ -1,0 +1,15 @@
+{
+  "observed_utc": "2026-10-18T17:34:55.536493+00:00",
+  "unit_counts": {
+    "tests": 64,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 1
+  },
+  "unit_xml_sha256": "fece960db2884f82343b53a7f34146666eb2264b2225ae9b5a8106378bb3e20b",
+  "actual_repository_source": true,
+  "linux_fast_full_platform_and_post_gates": "pending",
+  "new_guard_accepts": 0,
+  "ci_reruns": 0,
+  "stabilization_repushes": 0
+}

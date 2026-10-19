@@ -1,0 +1,106 @@
+{
+  "boundary": "release evidence prepared for public repository publication",
+  "category": "identified user path components",
+  "action": "REDACT",
+  "marker": "[redacted:user]",
+  "raw_backup": "$TEMP/nexus-v4140-private-evidence-pbrr4ec_/raw-evidence.zip",
+  "note": "Source, test outcomes and original source-code hashes are unchanged. Original artifact hashes refer to the unsanitized backup; public-copy hashes are listed separately. Public text copies use UTF-8 LF. No external send occurred.",
+  "entries": [
+    {
+      "file": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/distribution-behavior.json",
+      "findings_before": 1,
+      "raw_sha256": "17cfccaa9ce04782c0052d3a07c66bb9d8a126a2b5af2d9e307ace9334e00182",
+      "public_sha256": "747b3a64c27438245f8640c442030edca24c253bcc972e3410b16541adb46980"
+    },
+    {
+      "file": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/full-native-before-launcher-fix.json",
+      "findings_before": 11,
+      "raw_sha256": "6dfd48e1888923953db32c2da3fba962c276864ee9224b96973148e54ea9a78e",
+      "public_sha256": "082482d2d4366be38516e9f69e3ef79593b44e207df987bd8522aca7eea71c3b"
+    },
+    {
+      "file": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/full-native-current-three-profiles.json",
+      "findings_before": 10,
+      "raw_sha256": "a1514836fced3d70fed01bdefcd16d76fa58a42f92669d739dbd89d8812dc631",
+      "public_sha256": "38cbef7f81235e0ae2a57794726ef5dbe4463a44662798cade0176ba5fd809a4"
+    },
+    {
+      "file": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/full-native-unicode-after-launcher-fix.json",
+      "findings_before": 8,
+      "raw_sha256": "e6dda45a8d73e2a77b76425a976ec56605e01b03b74ff309e66e1786b4b4bd01",
+      "public_sha256": "0ec630b5c6f7fe2ab17ba40319c9506405db92b7f1630e40ab6b5f9853324b90"
+    },
+    {
+      "file": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/hook-writer-original-failures.json",
+      "findings_before": 8,
+      "raw_sha256": "edfc154875f04381500bde29f39617a538c633be075552ae1d057da37ba9b5ce",
+      "public_sha256": "d83cdee840b6ec89159962e94456248d8ebfec7af2c5920dcb2a9766dad6318f"
+    },
+    {
+      "file": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/installed-cli-current-version.json",
+      "findings_before": 1,
+      "raw_sha256": "c194633b1bc32b89f2f531e2e42482158145314bed4a3902ab3962798e7c1dfa",
+      "public_sha256": "16e5a2d321ede28f32d0e6a9671524485053ce58b4ec791765b576378676eb10"
+    },
+    {
+      "file": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/phase7-integration-merge.json",
+      "findings_before": 1,
+      "raw_sha256": "9eabc7a0859072fc41dff7f9962b53e9bbb9b6505cb13af3d1032d660b27ee40",
+      "public_sha256": "ff65da8410aad6beae4553632e5e8efc49eebfd0fd29bef5798a3434e2ce542f"
+    },
+    {
+      "file": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/source-adversarial-after-blocker2.md",
+      "findings_before": 16,
+      "raw_sha256": "0a0392b7af179ccb78ceaad6e8c50611fc4ece251e7df6b56aef11ccfe1e3508",
+      "public_sha256": "0fedffc394b9a72df4512b8b320dec42a75c0a5c310bb13c1501fed771a21e72"
+    },
+    {
+      "file": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-counter-proposal/empty-inputs.json",
+      "findings_before": 12,
+      "raw_sha256": "7a42cf13673178188e8edf39bbeaea3d14a4c8ea4c6beca654dacee3b232e399",
+      "public_sha256": "41297c4b11747f59b10923f2b431e2e3c7c1a06b0292c4b0624e7398b15e7b9a"
+    },
+    {
+      "file": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-counter-proposal/independent-bash.json",
+      "findings_before": 96,
+      "raw_sha256": "fcc3b1d9d0baaf1be477b723cf4e5aac799cbbc2a002d8b6297e569bf0895d31",
+      "public_sha256": "36b9c97b42ce8382d6ba2683e4a3e95523085e95a32537456f543eb954d03462"
+    },
+    {
+      "file": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-counter-proposal/independent-report.md",
+      "findings_before": 28,
+      "raw_sha256": "ae8f1189adabc83f3fa007c1d3fa3961628cc00f50833c0e283693bbe26eaa79",
+      "public_sha256": "99f02145e38497df1288a5aabeaceb6a0f9ecb805631be2f05838bdf9fb368bf"
+    },
+    {
+      "file": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-counter-proposal/original-negative-controls.json",
+      "findings_before": 4,
+      "raw_sha256": "927590d8b8453842259da1e5278abd3539d87d296cb9d579e672c0e0fea1c5a8",
+      "public_sha256": "f345b037f8450a7b87c260756e7f974039d67cbfc1cfdc6beb06fe0dd4487f75"
+    },
+    {
+      "file": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-counter-proposal/same-file-control.json",
+      "findings_before": 4,
+      "raw_sha256": "ed29c6623bacfca41fa2e0beab15d34e720bd7a4653fc919fe2b8fd970a0c946",
+      "public_sha256": "6bac3c5af67870b5949fc5c1671e12efefa29426475b80b0e90fd26280961334"
+    },
+    {
+      "file": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-counter-proposal/scope-audit.json",
+      "findings_before": 2,
+      "raw_sha256": "fefdccaa7a98459ea01fb3a880b7cf6bea59ee7b99f878ebc50c682bdd6a25d1",
+      "public_sha256": "f48713b821055498a985ccf34c85f7ee3c5466336130be2088a4501796ed8da0"
+    },
+    {
+      "file": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-permissions-proposal/ps51-results.json",
+      "findings_before": 144,
+      "raw_sha256": "1c040643ca475cacfccd125741500e6855f1a97782d78b568d4eba60dd60381a",
+      "public_sha256": "04b101ec322fc1425d286485351f951cd5470c29c4eeab4e3f93c196df88ba3b"
+    },
+    {
+      "file": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-permissions-proposal/ps7-results.json",
+      "findings_before": 186,
+      "raw_sha256": "f3b90dc9137410719a125b9a34556821f2bcf37e4ab6fcac94163a8c1e402053",
+      "public_sha256": "0f8684961bf1ed3f8f0c53a1927809fb211c99004fe6acb47a067045ead49c77"
+    }
+  ]
+}

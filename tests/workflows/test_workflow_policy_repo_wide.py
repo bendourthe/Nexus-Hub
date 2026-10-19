@@ -265,12 +265,14 @@ def test_claude_plugin_load_job_is_bounded_isolated_and_job_filtered() -> None:
     commands = "\n".join(str(step.get("run", "")) for step in job["steps"])
     assert "npm install --global @anthropic-ai/claude-code" in commands
     assert "--ignore-scripts @anthropic-ai/claude-code" not in commands
-    assert "CLAUDE_CONFIG_DIR" in str(job)
-    assert "runner.temp" in str(job)
-    assert "claude plugin marketplace add ./" in commands
-    assert "claude plugin install nexus-hub@nexus-hub" in commands
-    assert "claude plugin list --json" in commands
-    assert 'matches[0].get("enabled") is not True' in commands
+    assert "--profile platform --only host-plugin-load" in commands
+    helper = (WORKFLOW_DIR.parent.parent / "scripts/ci/verify_scenarios.py").read_text(encoding="utf-8")
+    assert "CLAUDE_CONFIG_DIR" in helper and "TemporaryDirectory" in helper
+    from scripts.ci.profiles import PROFILES
+    group = next(group for group in PROFILES["platform"] if group.name == "host-plugin-load")
+    assert group.commands[0].argv[-1] == "plugin"
+    assert group.commands[0].platforms == ("linux",)
+
 
 
 @pytest.mark.parametrize("path", ALL)

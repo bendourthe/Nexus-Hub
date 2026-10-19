@@ -1,0 +1,169 @@
+--- a/scripts/ci/reporting.py
++++ b/scripts/ci/reporting.py
+@@ -286,9 +286,17 @@
+     meta_dir.mkdir(parents=True, exist_ok=True)
+     path = meta_dir / "environment.json"
+     values = secret_values()
+-    escaped = [json.dumps(value)[1:-1] for value in values]
++    def redact_values(value):
++        if isinstance(value, str):
++            return redact(value, values)
++        if isinstance(value, dict):
++            return {key: redact_values(item) for key, item in value.items()}
++        if isinstance(value, list):
++            return [redact_values(item) for item in value]
++        return value
++
+     path.write_text(
+-        redact(json.dumps(environment_metadata(result, tools), indent=2, sort_keys=True), values + escaped) + "\n",
++        json.dumps(redact_values(environment_metadata(result, tools)), indent=2, sort_keys=True) + "\n",
+         encoding="utf-8",
+     )
+     return path
+--- a/scripts/ci/verify_scenarios.py
++++ b/scripts/ci/verify_scenarios.py
+@@ -52,9 +52,9 @@
+             path.mkdir(parents=True, exist_ok=True)
+     # No inherited repository/config selectors may redirect writes outside this root.
+     for key in tuple(env):
+-        if key.upper().startswith(("GIT_", "NEXUS_HUB_", "VSCODE_")) or key in ("BASH_ENV", "ENV", "PYTHONPATH"):
++        if key.upper().startswith(("GIT_", "NEXUS_HUB_", "VSCODE_")) or key.upper() in ("BASH_ENV", "ENV", "PYTHONPATH", "PIP_TARGET", "PIP_PREFIX", "PIP_ROOT", "PIP_PYTHON", "PIP_BUILD_TRACKER", "PIP_LOG", "PIP_LOG_FILE", "PIP_LOCAL_LOG", "PIP_REPORT", "PIP_SRC", "PIP_SOURCE", "PIP_SOURCE_DIR", "PIP_SOURCE_DIRECTORY", "UV_CONFIG_FILE"):
+             env.pop(key, None)
+-    env.update(GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=str(work / "gitconfig"), GIT_CONFIG_SYSTEM=os.devnull, GIT_TEMPLATE_DIR=str(work / "git-template"), NEXUS_HUB_HOME=str(home / ".nexus-hub"), NEXUS_HUB_NO_AUTOSEED="1", PYTHONUTF8="1", PYTHONDONTWRITEBYTECODE="1", PIP_DISABLE_PIP_VERSION_CHECK="1")
++    env.update(GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=str(work / "gitconfig"), GIT_CONFIG_SYSTEM=os.devnull, GIT_TEMPLATE_DIR=str(work / "git-template"), NEXUS_HUB_HOME=str(home / ".nexus-hub"), NEXUS_HUB_NO_AUTOSEED="1", PYTHONUTF8="1", PYTHONDONTWRITEBYTECODE="1", PIP_DISABLE_PIP_VERSION_CHECK="1", PIP_CONFIG_FILE=os.devnull, UV_NO_CONFIG="1")
+     for key, folder in (("NPM_CONFIG_PREFIX", "npm-prefix"), ("NPM_CONFIG_CACHE", "npm-cache"), ("PIP_CACHE_DIR", "pip-cache"), ("PYTHONUSERBASE", "python-user"), ("UV_CACHE_DIR", "uv-cache"), ("UV_TOOL_DIR", "uv-tools"), ("UV_TOOL_BIN_DIR", "uv-bin"), ("UV_PYTHON_INSTALL_DIR", "uv-python"), ("GIT_TEMPLATE_DIR", "git-template")):
+         destination = work / folder
+         destination.mkdir()
+--- a/tests/ci/test_ci_reconciliation.py
++++ b/tests/ci/test_ci_reconciliation.py
+@@ -120,3 +120,37 @@
+         execute = next(index for index, step in enumerate(steps) if step.get("name") == "Repository-native bootstrap-smoke profile")
+         assert setup < execute
+         assert steps[setup]["with"] == {"node-version": "22"}
++
++
++@pytest.mark.parametrize("detect,selected,extract,render,accepted", [
++    ("success", "true", "success", "success", True),
++    ("success", "false", "skipped", "skipped", True),
++    ("success", "false", "success", "skipped", True),
++    ("success", "false", "skipped", "success", True),
++    ("failure", "false", "skipped", "skipped", False),
++    ("cancelled", "true", "success", "success", False),
++    ("skipped", "false", "skipped", "skipped", False),
++    ("success", "", "success", "success", False),
++    ("success", "unknown", "success", "success", False),
++    *[("success", "true", bad, "success", False) for bad in ("failure", "cancelled", "skipped", "unknown")],
++    *[("success", "true", "success", bad, False) for bad in ("failure", "cancelled", "skipped", "unknown")],
++    *[("success", "false", bad, "skipped", False) for bad in ("failure", "cancelled", "unknown")],
++    *[("success", "false", "skipped", bad, False) for bad in ("failure", "cancelled", "unknown")],
++])
++def test_presentify_gate_executes_selected_result_contract(detect, selected, extract, render, accepted):
++    bash = shutil.which("bash")
++    assert bash, "Bash is required for the aggregate gate control"
++    gate = yaml.safe_load((ROOT / ".github/workflows/presentify-extractor.yml").read_text(encoding="utf-8"))["jobs"]["verify"]
++    result = subprocess.run([bash, "-c", gate["steps"][0]["run"]], env={**os.environ, "R_detect": detect, "R_selected": selected, "R_extract": extract, "R_render": render}, capture_output=True, timeout=10, check=False)
++    assert (result.returncode == 0) is accepted
++
++
++@pytest.mark.parametrize("secret", ['"profile"', '"' * 8, "\n" * 8, "\\" * 8, "value\nwith \"quotes\" and \u6f22"])
++def test_metadata_redacts_values_without_replacing_json_structure(monkeypatch, tmp_path, secret):
++    monkeypatch.setenv("TEST_PRIVATE_KEY", secret)
++    result = reporting.RunResult("full", "windows", started_at=secret)
++    path = reporting.write_metadata(result, tmp_path, {"tool": secret})
++    metadata = json.loads(path.read_text(encoding="utf-8"))
++    assert metadata["started_at"] == "[REDACTED]"
++    assert metadata["tools"]["tool"] == "[REDACTED]"
++    assert "profile" in metadata and "platform" in metadata
+--- a/tests/ci/test_ci_scenario_boundaries.py
++++ b/tests/ci/test_ci_scenario_boundaries.py
+@@ -72,3 +72,90 @@
+     monkeypatch.setattr(scenarios, "run", run)
+     scenarios.registry(tmp_path, tmp_path, {"HOME": str(tmp_path)})
+     assert (tmp_path / "project/.agents/workflows/command.md").is_file()
++
++
++@pytest.mark.parametrize("selector", ["PIP_TARGET", "PIP_PREFIX", "PIP_ROOT", "PIP_CONFIG_FILE"])
++def test_package_destination_selectors_cannot_escape_scratch(monkeypatch, tmp_path, selector):
++    import json
++    import os
++    import sys
++
++    outside = tmp_path / "outside"
++    outside.mkdir()
++    config = tmp_path / "external-pip.ini"
++    config.write_text("[global]\ntarget = " + str(outside) + "\n", encoding="utf-8")
++    for key in ("PIP_TARGET", "PIP_PREFIX", "PIP_ROOT", "PIP_CONFIG_FILE"):
++        monkeypatch.delenv(key, raising=False)
++    monkeypatch.setenv(selector, str(config if selector == "PIP_CONFIG_FILE" else outside))
++    constraint = tmp_path / "constraints.txt"
++    constraint.write_text("", encoding="utf-8")
++    monkeypatch.setenv("PIP_CONSTRAINT", str(constraint))
++    monkeypatch.setenv("PIP_INDEX_URL", "https://example.invalid/simple")
++    work = tmp_path / "scratch"
++    work.mkdir()
++    env = scenarios.isolated_environment(work)
++    parser = "from pip._internal.commands import create_command; import json; o,a=create_command('install').parse_args([]); print(json.dumps({k:getattr(o,k,None) for k in ['target_dir','prefix_path','root_path']}))"
++    parsed = subprocess.run([sys.executable, "-c", parser], cwd=work, env=env, capture_output=True, text=True, check=True, timeout=30)
++    assert all(value is None for value in json.loads(parsed.stdout).values())
++    assert not any(key in env for key in ("PIP_TARGET", "PIP_PREFIX", "PIP_ROOT"))
++    assert env["PIP_CONFIG_FILE"] == os.devnull
++    assert env["PIP_CONSTRAINT"] == str(constraint)
++    assert env["PIP_INDEX_URL"] == "https://example.invalid/simple"
++    assert list(outside.iterdir()) == []
++
++
++def test_uv_config_cannot_create_external_target_lock(monkeypatch, tmp_path):
++    import json
++    import shutil
++    import sys
++
++    uv = shutil.which("uv")
++    if not uv:
++        pytest.skip("uv not installed; destination environment controls remain mandatory")
++    outside = tmp_path / "outside"
++    outside.mkdir()
++    config = tmp_path / "uv.toml"
++    config.write_text("[pip]\ntarget = " + json.dumps(str(outside)) + "\n", encoding="utf-8")
++    monkeypatch.setenv("UV_CONFIG_FILE", str(config))
++    monkeypatch.delenv("UV_NO_CONFIG", raising=False)
++    work = tmp_path / "scratch"
++    work.mkdir()
++    env = scenarios.isolated_environment(work)
++    requirements = work / "empty.txt"
++    requirements.write_text("", encoding="utf-8")
++    result = subprocess.run([uv, "pip", "install", "--dry-run", "--offline", "--no-index", "--python", sys.executable, "-r", str(requirements)], cwd=work, env=env, capture_output=True, text=True, timeout=30, check=False)
++    assert result.returncode == 0, result.stderr
++    assert list(outside.iterdir()) == []
++    assert "UV_CONFIG_FILE" not in tuple(env) and env["UV_NO_CONFIG"] == "1"
++
++
++def test_uv_destination_config_is_disabled_even_without_uv(monkeypatch, tmp_path):
++    monkeypatch.setenv("UV_CONFIG_FILE", str(tmp_path / "external.toml"))
++    monkeypatch.setenv("UV_NO_CONFIG", "0")
++    env = scenarios.isolated_environment(tmp_path)
++    assert "UV_CONFIG_FILE" not in tuple(env) and env["UV_NO_CONFIG"] == "1"
++
++@pytest.mark.parametrize("selector,field", [
++    ("PIP_PYTHON", "python"), ("PIP_BUILD_TRACKER", None),
++    ("PIP_LOG", "log"), ("PIP_LOG_FILE", "log"), ("PIP_LOCAL_LOG", "log"),
++    ("PIP_REPORT", "json_report_file"), ("PIP_SRC", "src_dir"),
++    ("PIP_SOURCE", "src_dir"), ("PIP_SOURCE_DIR", "src_dir"), ("PIP_SOURCE_DIRECTORY", "src_dir"),
++])
++def test_pip_interpreter_and_output_selectors_are_not_inherited(monkeypatch, tmp_path, selector, field):
++    import json
++    import sys
++
++    outside = tmp_path / "outside"
++    outside.mkdir()
++    monkeypatch.setenv(selector, str(outside))
++    work = tmp_path / "scratch"
++    work.mkdir()
++    env = scenarios.isolated_environment(work)
++    assert selector not in tuple(env)
++    if field is None:
++        parser = "from pip._internal.operations.build.build_tracker import get_build_tracker; import json; c=get_build_tracker(); t=c.__enter__(); print(json.dumps(t._root)); c.__exit__(None,None,None)"
++    else:
++        parser = "from pip._internal.commands import create_command; import json; o,a=create_command('install').parse_args([]); print(json.dumps(getattr(o," + repr(field) + ",None)))"
++    parsed = subprocess.run([sys.executable, "-c", parser], cwd=work, env=env, capture_output=True, text=True, check=True, timeout=30)
++    assert json.loads(parsed.stdout) != str(outside)
++    assert list(outside.iterdir()) == []

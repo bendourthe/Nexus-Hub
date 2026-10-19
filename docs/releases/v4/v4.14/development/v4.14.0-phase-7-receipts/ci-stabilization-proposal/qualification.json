@@ -1,0 +1,97 @@
+{
+  "applied": false,
+  "head": "5734e0e21c00ffd5e287e7c683d2a611236f4aaa",
+  "formatter": {
+    "hook_revision": "pre-commit-hooks v4.5.0",
+    "actual_hook_sequence": [
+      "trailing-whitespace",
+      "end-of-file-fixer"
+    ],
+    "results": [
+      {
+        "case": "original",
+        "formatter_exits": [
+          1,
+          1
+        ],
+        "active_archive_and_patch_receipts_unchanged": [
+          false,
+          false,
+          false
+        ],
+        "ordinary_python_and_outside_patch_fixed": []
+      },
+      {
+        "case": "candidate",
+        "formatter_exits": [
+          0,
+          0
+        ],
+        "active_archive_and_patch_receipts_unchanged": [
+          true,
+          true,
+          true
+        ],
+        "ordinary_python_and_outside_patch_fixed": []
+      },
+      {
+        "case": "negative-controls",
+        "formatter_exits": [
+          1,
+          1
+        ],
+        "active_archive_and_patch_receipts_unchanged": [
+          true,
+          true,
+          true
+        ],
+        "ordinary_python_and_outside_patch_fixed": [
+          true,
+          true,
+          true
+        ]
+      }
+    ],
+    "original_source_unchanged": true,
+    "candidate_applied_to_repository": false,
+    "review": "Exact-three-setting parsed YAML comparison, bounded active/archive/extension path controls and real formatter sequence. No new independent fanout claimed."
+  },
+  "render": {
+    "baseline_collection_exit": 2,
+    "baseline_failure": "Missing yaml during skills collection",
+    "candidate_pyyaml_version": "6.0.3",
+    "candidate_profile_exit": 0,
+    "candidate_commands": [
+      {
+        "name": "Presentify render readiness",
+        "status": "pass",
+        "duration_s": 4.375
+      },
+      {
+        "name": "Presentify rendered skills",
+        "status": "pass",
+        "duration_s": 739.8910000000033
+      },
+      {
+        "name": "Presentify calibration scoring",
+        "status": "pass",
+        "duration_s": 0.20300000000861473
+      }
+    ],
+    "ci_files_applied": false
+  },
+  "render_pytest": {
+    "passed_executions": 2419,
+    "skipped": 18,
+    "pytest_seconds": 738.45,
+    "runner_seconds": 739.8910000000033,
+    "require_render": true,
+    "host": "Windows with private exact declared dependency environment plus pinned PyYAML6.0.3",
+    "raw_summary_sha256": "c478ff237aca23ce6445601076748de272d97adfd67988423d8344d2de6a628d",
+    "limits": "Windows proof is not a Linux hosted pass. Calibration command exits0 at structural-only policy with0high-severity; inherited medium missing-content-intent fixture signal remains visible, not a whole-visual clean claim."
+  },
+  "new_guard_accepts": 0,
+  "deep_pass_counter": "3/3 unchanged",
+  "ci_reruns": 0,
+  "repushes": 0
+}

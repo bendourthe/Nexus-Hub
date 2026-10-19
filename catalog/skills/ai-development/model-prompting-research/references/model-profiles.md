@@ -10,11 +10,24 @@ reference. This index exists so no mirror is an orphan bundled file.
 Each file is retrieved by model ID; its Evidence scope column describes
 what the cited source covers. No claim may be copied into a shared catalog body.
 
-18 profiled model(s):
+40 profiled model(s):
 
+- [claude-fable-5](models/claude-fable-5.md) - 10 claim(s), verified 2026-10-15
 - [claude-fable-5-1](models/claude-fable-5-1.md) - 18 claim(s), verified 2026-09-08
 - [claude-haiku-4-5](models/claude-haiku-4-5.md) - 1 claim(s), verified 2026-09-25
+- [claude-haiku-4-5-20251001](models/claude-haiku-4-5-20251001.md) - 10 claim(s), verified 2026-10-15
+- [claude-haiku-5-5](models/claude-haiku-5-5.md) - 13 claim(s), verified 2026-10-15
+- [claude-opus-4-5](models/claude-opus-4-5.md) - 9 claim(s), verified 2026-10-15
+- [claude-opus-4-5-20251101](models/claude-opus-4-5-20251101.md) - 9 claim(s), verified 2026-10-15
+- [claude-opus-4-6](models/claude-opus-4-6.md) - 10 claim(s), verified 2026-10-15
+- [claude-opus-4-6-thinking](models/claude-opus-4-6-thinking.md) - 10 claim(s), verified 2026-10-15
+- [claude-opus-4-7](models/claude-opus-4-7.md) - 9 claim(s), verified 2026-10-15
+- [claude-opus-4-8](models/claude-opus-4-8.md) - 12 claim(s), verified 2026-10-15
 - [claude-opus-5](models/claude-opus-5.md) - 12 claim(s), verified 2026-09-08
+- [claude-opus-5-5](models/claude-opus-5-5.md) - 10 claim(s), verified 2026-10-15
+- [claude-sonnet-4-5](models/claude-sonnet-4-5.md) - 9 claim(s), verified 2026-10-15
+- [claude-sonnet-4-5-20250929](models/claude-sonnet-4-5-20250929.md) - 9 claim(s), verified 2026-10-15
+- [claude-sonnet-4-6](models/claude-sonnet-4-6.md) - 9 claim(s), verified 2026-10-15
 - [claude-sonnet-5](models/claude-sonnet-5.md) - 13 claim(s), verified 2026-09-08
 - [claude-sonnet-5-5](models/claude-sonnet-5-5.md) - 36 claim(s), verified 2026-09-30
 - [composer-2.5](models/composer-2.5.md) - 2 claim(s), verified 2026-09-08
@@ -25,8 +38,17 @@ what the cited source covers. No claim may be copied into a shared catalog body.
 - [gemini-3.6-flash](models/gemini-3.6-flash.md) - 2 claim(s), verified 2026-09-08
 - [gemini-3.7-flash](models/gemini-3.7-flash.md) - 2 claim(s), verified 2026-09-08
 - [gemini-3.8-flash](models/gemini-3.8-flash.md) - 3 claim(s), verified 2026-09-08
+- [gemini-3.8-flash-high](models/gemini-3.8-flash-high.md) - 10 claim(s), verified 2026-10-15
+- [gemini-3.8-flash-low](models/gemini-3.8-flash-low.md) - 10 claim(s), verified 2026-10-15
+- [gemini-3.8-flash-medium](models/gemini-3.8-flash-medium.md) - 10 claim(s), verified 2026-10-15
+- [gpt-5.2](models/gpt-5.2.md) - 10 claim(s), verified 2026-10-15
+- [gpt-5.3-codex](models/gpt-5.3-codex.md) - 10 claim(s), verified 2026-10-15
+- [gpt-5.4](models/gpt-5.4.md) - 10 claim(s), verified 2026-10-15
+- [gpt-5.4-mini](models/gpt-5.4-mini.md) - 9 claim(s), verified 2026-10-15
+- [gpt-5.5](models/gpt-5.5.md) - 10 claim(s), verified 2026-10-15
 - [gpt-5.6-luna](models/gpt-5.6-luna.md) - 1 claim(s), verified 2026-09-25
 - [gpt-5.6-sol](models/gpt-5.6-sol.md) - 1 claim(s), verified 2026-09-25
 - [gpt-5.6-terra](models/gpt-5.6-terra.md) - 1 claim(s), verified 2026-09-25
 - [gpt-6-astra](models/gpt-6-astra.md) - 12 claim(s), verified 2026-09-05
 - [gpt-6.1-sol](models/gpt-6.1-sol.md) - 12 claim(s), verified 2026-10-01
+- [gpt-oss-120b-medium](models/gpt-oss-120b-medium.md) - 10 claim(s), verified 2026-10-15

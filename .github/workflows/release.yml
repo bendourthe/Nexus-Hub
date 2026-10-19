@@ -49,7 +49,7 @@ jobs:
           # release profile compares refs, which a shallow clone cannot do.
           fetch-depth: 0
 
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
           python-version: '3.11'
 
@@ -163,7 +163,7 @@ jobs:
           gh release upload "$tag" "dist/Nexus-Hub-${version}.tar.gz" dist/SHA256SUMS --clobber
 
       - name: Attest build provenance
-        uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4
         with:
           subject-path: dist/Nexus-Hub-${{ steps.meta.outputs.version }}.tar.gz
 

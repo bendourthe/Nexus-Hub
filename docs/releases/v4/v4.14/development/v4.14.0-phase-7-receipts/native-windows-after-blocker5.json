@@ -1,0 +1,77 @@
+{
+  "raw_evidence_sha256": "8815957c8304795927089c254df3ad812968332b51a1ba3c0c7697e186a2f54a",
+  "redaction": "User-profile path components replaced with USER; raw evidence retained privately. No outcomes or source hashes changed.",
+  "qualification_limit": "Actual complete Claude global installer in a private profile; no authenticated model call, optional live editor, macOS or paid quality/savings qualification. Optional dependency builds are not qualified solely by installer exit.",
+  "observations": {
+    "started": "2026-10-17T05:49:45.072411+00:00",
+    "source_root": "C:/Users/USER\\Documents\\Benjamin\\nexus\\Nexus-Hub-v4.14.0-adoption-agent-tooling-and-subagent-cost",
+    "host": "Windows PowerShell 5.1",
+    "source_script_sha256": "297cd01ddba52abbc3fbb90ffb330aff4c97e53582864b8fdca094766d8b4f67",
+    "cases": [
+      {
+        "case": "owned-upgrade",
+        "exit": 0,
+        "seconds": 458.81,
+        "absolute_subagent_value": "sonnet",
+        "legacy_effort": null,
+        "pinned_agents": 23,
+        "strict_deny_count": 22,
+        "strict_ask_count": 12,
+        "hook_commands": 50,
+        "errors": [],
+        "log": "C:/Users/USER\\AppData\\Local\\Temp\\nexus-v4140-native-windows-yjwfv657\\owned-upgrade\\installer.log"
+      },
+      {
+        "case": "user-upgrade",
+        "exit": 0,
+        "seconds": 259.95,
+        "absolute_subagent_value": "sonnet",
+        "legacy_effort": "medium",
+        "pinned_agents": 23,
+        "strict_deny_count": 22,
+        "strict_ask_count": 12,
+        "hook_commands": 50,
+        "errors": [],
+        "log": "C:/Users/USER\\AppData\\Local\\Temp\\nexus-v4140-native-windows-yjwfv657\\user-upgrade\\installer.log"
+      },
+      {
+        "case": "fresh",
+        "exit": 0,
+        "seconds": 266.0,
+        "absolute_subagent_value": "sonnet",
+        "legacy_effort": null,
+        "pinned_agents": 23,
+        "strict_deny_count": 22,
+        "strict_ask_count": 12,
+        "hook_commands": 49,
+        "errors": [],
+        "log": "C:/Users/USER\\AppData\\Local\\Temp\\nexus-v4140-native-windows-yjwfv657\\fresh\\installer.log"
+      },
+      {
+        "case": "case-upgrade",
+        "exit": 0,
+        "seconds": 513.01,
+        "absolute_subagent_value": "sonnet",
+        "legacy_effort": "medium",
+        "pinned_agents": 23,
+        "strict_deny_count": 23,
+        "strict_ask_count": 13,
+        "hook_commands": 50,
+        "errors": [],
+        "log": "C:/Users/USER\\AppData\\Local\\Temp\\nexus-v4140-native-windows-yjwfv657\\case-upgrade\\installer.log"
+      }
+    ],
+    "protected_host_files_unchanged": true,
+    "protected_before": {
+      "C:/Users/USER\\.claude\\settings.json": "0e6c73701cff5dcf745a7c92aaa07fbd5c10c344cb14f3a64d718e067b74d3a3",
+      "C:/Users/USER\\.gitconfig": "a11905a2dbaf7fe4a10470579b8ff9872a490eddad8ea48acb97195c88c7de6e",
+      "C:/Users/USER\\.nexus-hub\\install-manifest.json": "766eb60fcd0ce7c85a4adcaec7e511cdd874f447e25d4d9efad9e9d41aad6be2"
+    },
+    "protected_after": {
+      "C:/Users/USER\\.claude\\settings.json": "0e6c73701cff5dcf745a7c92aaa07fbd5c10c344cb14f3a64d718e067b74d3a3",
+      "C:/Users/USER\\.gitconfig": "a11905a2dbaf7fe4a10470579b8ff9872a490eddad8ea48acb97195c88c7de6e",
+      "C:/Users/USER\\.nexus-hub\\install-manifest.json": "766eb60fcd0ce7c85a4adcaec7e511cdd874f447e25d4d9efad9e9d41aad6be2"
+    },
+    "excluded_live_host_file": "VS Code settings: concurrent change in prior probe; installer-selected Claude path and redirected APPDATA do not establish exclusive ownership of that live file"
+  }
+}

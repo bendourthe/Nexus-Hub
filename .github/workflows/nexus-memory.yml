@@ -17,6 +17,7 @@ on:
     paths:
       - 'extensions/nexus-memory/**'
       - '.github/workflows/nexus-memory.yml'
+      - 'scripts/ci/**'
       - 'scripts/ci/requirements.in'
       - 'scripts/ci/requirements-py311.txt'
 
@@ -36,7 +37,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
           python-version: '3.11'
           cache: 'pip'
@@ -44,7 +45,22 @@ jobs:
             extensions/nexus-memory/pyproject.toml
             scripts/ci/requirements-py311.txt
       - run: pip install -e "extensions/nexus-memory/[dev]"
-      - run: python -m pytest extensions/nexus-memory/tests/ -q
+      - name: Repository-native memory-tests profile
+        run: python scripts/ci/run.py --profile full --only memory-tests --reports-dir reports
+
+      - name: Publish native profile summary
+        if: always()
+        shell: bash
+        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Retain native profile reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: memory-native-reports
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 7
 
   test-network-blocked:
     name: Test with outbound network blocked
@@ -52,29 +68,22 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - name: Build the offline test image
-        run: |
-          docker build --tag nexus-memory-offline --build-context ci=scripts/ci --file - extensions/nexus-memory <<'DOCKERFILE'
-          # syntax=docker/dockerfile:1
-          FROM python:3.11-slim@sha256:da047cb8f9d1d98e5c070f5300ba9f7274e33b8fc0e5be5ed88740aed1b95ba9
-          WORKDIR /workspace
-          COPY --from=ci requirements-py311.txt /package/requirements-py311.txt
-          ENV PIP_CONSTRAINT=/package/requirements-py311.txt
-          COPY pyproject.toml README.md /package/
-          COPY src /package/src
-          COPY tests /package/tests
-          RUN python -m pip install --no-cache-dir --editable "/package[dev]"
-          DOCKERFILE
-      - name: Full suite with egress denied
-        run: |
-          docker run --rm --network none \
-            --volume "${GITHUB_WORKSPACE}:/workspace:ro" \
-            nexus-memory-offline bash -c '
-            set -euo pipefail
-            test -d /sys/class/net/lo
-            ! find /sys/class/net -mindepth 1 -maxdepth 1 ! -name lo -print -quit | grep -q .
-            python -m pytest extensions/nexus-memory/tests/ -q -p no:cacheprovider
-          '
+      - name: Repository-native memory-offline profile
+        run: python scripts/ci/run.py --profile full --only memory-offline --reports-dir reports
+
+      - name: Publish native profile summary
+        if: always()
+        shell: bash
+        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Retain native profile reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: memory-offline-reports
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 7
 
   test-locking-matrix:
     # v4.0.0: was gated on `push` to a protected branch, which this workflow no
@@ -96,7 +105,7 @@ jobs:
         run: git config --global core.longpaths true
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
           python-version: '3.11'
           cache: 'pip'
@@ -104,4 +113,36 @@ jobs:
             extensions/nexus-memory/pyproject.toml
             scripts/ci/requirements-py311.txt
       - run: pip install -e "extensions/nexus-memory/[dev]"
-      - run: python -m pytest extensions/nexus-memory/tests/ -q
+      - name: Repository-native memory-tests profile
+        run: python scripts/ci/run.py --profile full --only memory-tests --reports-dir reports
+
+      - name: Publish native profile summary
+        if: always()
+        shell: bash
+        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Retain native profile reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: memory-locking-reports-${{ matrix.os }}
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 7
+
+  memory-required:
+    needs: [test, test-network-blocked, test-locking-matrix]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require every native validation result
+        env:
+          R_test: ${{ needs.test.result }}
+          R_offline: ${{ needs['test-network-blocked'].result }}
+          R_locking: ${{ needs['test-locking-matrix'].result }}
+        run: |
+          set -euo pipefail
+          for result in "$R_test" "$R_offline" "$R_locking"; do
+            test "$result" = success
+          done

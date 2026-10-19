@@ -1,0 +1,164 @@
+{
+  "windows_affected_scopes": [
+    {
+      "host": "ps51",
+      "counts": {
+        "tests": "339",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "1",
+        "time": "846.165"
+      },
+      "raw_private_result_sha256": "9276eda871b3251b121321e4698ec408bbeb0b4f3f91f1e9c456dbcf08aaf2ae",
+      "commands": [
+        "C:\\Users\\USER\\AppData\\Local\\Temp\\nexus-v4140-full-py311\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "C:\\Users\\USER\\AppData\\Local\\Temp\\nexus-v4140-native-hook-budget-oct17\\native-stabilization-oct18\\applied-cache-ps51",
+        "--junitxml",
+        "C:\\Users\\USER\\AppData\\Local\\Temp\\nexus-v4140-native-hook-budget-oct17\\native-stabilization-oct18\\applied-cache-ps51.xml",
+        "tests/skills/test_edit_guard.py",
+        "catalog/hooks/tests/test_user_edit_guard.py",
+        "tests/installer/test_native_cli_launcher.py",
+        "tests/installer/test_core_settings_seeding.py",
+        "tests/installer/test_native_hook_json.py"
+      ],
+      "qualification": "Complete five affected modules on the applied source; not the canonical full/platform profile"
+    },
+    {
+      "host": "ps7",
+      "counts": {
+        "tests": "339",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "1",
+        "time": "884.253"
+      },
+      "raw_private_result_sha256": "88a4a9ac04176d89a4e4e8092253a18dfbfefdd3199238107a19d1ea71660fd5",
+      "commands": [
+        "C:\\Users\\USER\\AppData\\Local\\Temp\\nexus-v4140-full-py311\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "C:\\Users\\USER\\AppData\\Local\\Temp\\nexus-v4140-native-hook-budget-oct17\\native-stabilization-oct18\\applied-cache-ps7",
+        "--junitxml",
+        "C:\\Users\\USER\\AppData\\Local\\Temp\\nexus-v4140-native-hook-budget-oct17\\native-stabilization-oct18\\applied-cache-ps7.xml",
+        "tests/skills/test_edit_guard.py",
+        "catalog/hooks/tests/test_user_edit_guard.py",
+        "tests/installer/test_native_cli_launcher.py",
+        "tests/installer/test_core_settings_seeding.py",
+        "tests/installer/test_native_hook_json.py"
+      ],
+      "qualification": "Complete five affected modules on the applied source; not the canonical full/platform profile"
+    }
+  ],
+  "windows_complete_installer": {
+    "raw_private_result_sha256": "a33938578bdd08e2dcc311db4d86137cb08ea41dc6b5e0048d252bc882654a4c",
+    "result": {
+      "started": "2026-10-18T06:47:13.748771+00:00",
+      "source_root": "C:\\Users\\USER\\Documents\\Benjamin\\nexus\\Nexus-Hub-v4.14.0-adoption-agent-tooling-and-subagent-cost",
+      "host": "Windows PowerShell 5.1",
+      "source_script_sha256": "164a3f60889f4fa6161df54fc7179308f5ba6474a4a213ee8f516bd04fd5643d",
+      "cases": [
+        {
+          "case": "owned-upgrade",
+          "exit": 0,
+          "seconds": 457.81,
+          "absolute_subagent_value": "sonnet",
+          "legacy_effort": null,
+          "pinned_agents": 23,
+          "strict_deny_count": 22,
+          "strict_ask_count": 12,
+          "hook_commands": 50,
+          "errors": [],
+          "log": "C:\\Users\\USER\\AppData\\Local\\Temp\\nexus-v4140-native-windows-stabilization-lqb1mb7q\\owned-upgrade\\installer.log"
+        },
+        {
+          "case": "user-upgrade",
+          "exit": 0,
+          "seconds": 352.83,
+          "absolute_subagent_value": "sonnet",
+          "legacy_effort": "medium",
+          "pinned_agents": 23,
+          "strict_deny_count": 22,
+          "strict_ask_count": 12,
+          "hook_commands": 50,
+          "errors": [],
+          "log": "C:\\Users\\USER\\AppData\\Local\\Temp\\nexus-v4140-native-windows-stabilization-lqb1mb7q\\user-upgrade\\installer.log"
+        },
+        {
+          "case": "fresh",
+          "exit": 0,
+          "seconds": 598.19,
+          "absolute_subagent_value": "sonnet",
+          "legacy_effort": null,
+          "pinned_agents": 23,
+          "strict_deny_count": 22,
+          "strict_ask_count": 12,
+          "hook_commands": 49,
+          "errors": [],
+          "log": "C:\\Users\\USER\\AppData\\Local\\Temp\\nexus-v4140-native-windows-stabilization-lqb1mb7q\\fresh\\installer.log"
+        },
+        {
+          "case": "case-upgrade",
+          "exit": 0,
+          "seconds": 835.89,
+          "absolute_subagent_value": "sonnet",
+          "legacy_effort": "medium",
+          "pinned_agents": 23,
+          "strict_deny_count": 23,
+          "strict_ask_count": 13,
+          "hook_commands": 50,
+          "errors": [],
+          "log": "C:\\Users\\USER\\AppData\\Local\\Temp\\nexus-v4140-native-windows-stabilization-lqb1mb7q\\case-upgrade\\installer.log"
+        }
+      ],
+      "protected_host_files_unchanged": true,
+      "protected_before": {
+        "C:\\Users\\USER\\.claude\\settings.json": "0e6c73701cff5dcf745a7c92aaa07fbd5c10c344cb14f3a64d718e067b74d3a3",
+        "C:\\Users\\USER\\.gitconfig": "a11905a2dbaf7fe4a10470579b8ff9872a490eddad8ea48acb97195c88c7de6e",
+        "C:\\Users\\USER\\.nexus-hub\\install-manifest.json": "766eb60fcd0ce7c85a4adcaec7e511cdd874f447e25d4d9efad9e9d41aad6be2"
+      },
+      "protected_after": {
+        "C:\\Users\\USER\\.claude\\settings.json": "0e6c73701cff5dcf745a7c92aaa07fbd5c10c344cb14f3a64d718e067b74d3a3",
+        "C:\\Users\\USER\\.gitconfig": "a11905a2dbaf7fe4a10470579b8ff9872a490eddad8ea48acb97195c88c7de6e",
+        "C:\\Users\\USER\\.nexus-hub\\install-manifest.json": "766eb60fcd0ce7c85a4adcaec7e511cdd874f447e25d4d9efad9e9d41aad6be2"
+      },
+      "excluded_live_host_file": "VS Code settings: concurrent change in prior probe; installer-selected Claude path and redirected APPDATA do not establish exclusive ownership of that live file"
+    },
+    "installed_guard_helpers": [
+      {
+        "case": "owned-upgrade",
+        "helper_sha256": "4bd7e046f80699cf287e2a82932ba4747e0a348f41a88e6963c0b2699d93bb05"
+      },
+      {
+        "case": "user-upgrade",
+        "helper_sha256": "4bd7e046f80699cf287e2a82932ba4747e0a348f41a88e6963c0b2699d93bb05"
+      },
+      {
+        "case": "fresh",
+        "helper_sha256": "4bd7e046f80699cf287e2a82932ba4747e0a348f41a88e6963c0b2699d93bb05"
+      },
+      {
+        "case": "case-upgrade",
+        "helper_sha256": "ca865f9fa68cf7bf192baf4b62ca678dba9568ecad3db9bb8a3510db6b52cdb9"
+      }
+    ],
+    "limits": "Current PowerShell installer template/core behavior only. Guard helper changed during the matrix; per-case installed hashes identify actual delivered bytes. Optional editor/MCP builds and live model quality are not established by installer exits."
+  },
+  "linux": {
+    "exit": 0,
+    "stdout_tail": "........................................................................ [ 44%]\n........................................................................ [ 88%]\n...................                                                      [100%]\n163 passed in 1603.99s (0:26:43)\n",
+    "raw_private_result_sha256": "554e3f17ecf5c77b7f2420f8e261243bdde3a122b7fb066d3444eef939acc022"
+  },
+  "final_full_profile": "not started",
+  "green_hosted_integration": false,
+  "new_guard_accepts": 0
+}

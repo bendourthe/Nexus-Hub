@@ -220,3 +220,91 @@ def test_a_vertical_list_is_not_a_card_grid() -> None:
     none of them a grid. A card grid puts cards side by side.
     """
     assert "uniform-card-grid" not in checks_in(run("clean"))
+
+
+# --- semantic controls are not content figures or card grids ------------------
+def _semantic_document(tmp_path: Path, body: str) -> dict:
+    html = tmp_path / "semantic-controls.html"
+    html.write_text(
+        '<!doctype html><html><head><meta charset="utf-8"><style>'
+        'body{font:16px Arial}svg{display:block}ol{list-style:none;padding:0}'
+        '.row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}'
+        '.row>li{height:90px;background:#eee}'
+        '</style></head><body>' + body + '</body></html>', encoding="utf-8",
+    )
+    report = audit_mod.audit(html, samples=audit_mod.TRACE_SAMPLES, oversize_multiple=3.0)
+    assert report["status"] != "unverified", report["errors"]
+    return report
+
+
+def test_compact_decorative_glyphs_keep_their_alignment_frames(tmp_path: Path) -> None:
+    glyph = '<svg width="72" height="72" viewBox="0 0 100 100"><path d="M40 40L60 60" stroke="black"/></svg>'
+    report = _semantic_document(tmp_path, '<span aria-hidden="true">' + glyph + '</span><button>' + glyph + '</button>')
+    assert report["svg_count"] == 2
+    assert "viewbox-dead-space" not in checks_in(report)
+
+
+@pytest.mark.parametrize("svg_attrs,wrapper,mark", [
+    ('', '{}', ''),  # Small unlabeled scientific ink has no icon semantics.
+    ('role="img" aria-hidden="true"', '{}', ''),
+    ('aria-hidden="true"', '<figure>{}</figure>', ''),
+    ('', '<figure><div>{}</div></figure>', ''),
+    ('aria-hidden="true"', '<figure><div>{}</div></figure>', ''),
+    ('aria-hidden="true"', '{}', 'data-dv-mark'),
+    ('aria-hidden="true"', '<div data-chart>{}</div>', ''),
+])
+def test_small_scientific_figures_remain_in_scope(tmp_path: Path, svg_attrs: str, wrapper: str, mark: str) -> None:
+    svg = '<svg width="48" height="48" viewBox="0 0 100 100" ' + svg_attrs + '><path ' + mark + ' d="M40 40L60 60" stroke="black"/></svg>'
+    assert "viewbox-dead-space" in checks_in(_semantic_document(tmp_path, wrapper.format(svg)))
+
+
+def test_large_decorative_svg_is_not_assumed_to_be_a_control_icon(tmp_path: Path) -> None:
+    svg = '<svg aria-hidden="true" width="192" height="192" viewBox="0 0 100 100"><path d="M40 40L60 60" stroke="black"/></svg>'
+    assert "viewbox-dead-space" in checks_in(_semantic_document(tmp_path, svg))
+
+
+def _step_lists(current: bool) -> str:
+    lists = []
+    for row in range(4):
+        cells = ''.join('<li' + (' aria-current="step"' if current and row < 3 and row == i else '') + '><a href="#step' + str(i) + '">Step ' + str(i) + '</a></li>' for i in range(3))
+        lists.append('<ol class="row" aria-label="Workflow">' + cells + '</ol>')
+    return ''.join(lists) + ''.join('<div id="step' + str(i) + '"></div>' for i in range(3))
+
+
+def test_repeated_active_and_before_after_step_navigation_is_not_card_composition(tmp_path: Path) -> None:
+    assert "uniform-card-grid" not in checks_in(_semantic_document(tmp_path, _step_lists(True)))
+
+
+def test_ordinary_linked_card_lists_still_trigger_the_repetition_check(tmp_path: Path) -> None:
+    report = _semantic_document(tmp_path, _step_lists(False))
+    assert next(f for f in report["findings"] if f["check"] == "uniform-card-grid")["measurement"]["count"] == 4
+
+
+def test_real_training_control_glyphs_and_step_navigation_are_not_figures_or_cards() -> None:
+    report = audit_mod.audit(ROOT / "guides/website/training.html", samples=audit_mod.TRACE_SAMPLES, oversize_multiple=3.0)
+    assert report["status"] == "pass", report
+    assert report["svg_count"] > 0, "the page must render real controls rather than an empty document"
+
+
+@pytest.mark.parametrize("kind", ["pressed", "radio", "page-dots"])
+def test_repeated_stateful_controls_are_not_content_card_composition(tmp_path: Path, kind: str) -> None:
+    if kind == "pressed":
+        group = '<div class="row" role="group" aria-label="Playback speed">' + ''.join('<button aria-pressed="' + ('true' if i == 1 else 'false') + '">Speed ' + str(i) + '</button>' for i in range(3)) + '</div>'
+    elif kind == "radio":
+        group = '<div class="row" role="radiogroup" aria-label="Choose a vehicle">' + ''.join('<button role="radio" aria-checked="' + ('true' if i == 1 else 'false') + '">Vehicle ' + str(i) + '</button>' for i in range(3)) + '</div>'
+    else:
+        group = '<div class="row">' + ''.join('<a href="#page' + str(i) + '" aria-label="Go to page ' + str(i) + '" ' + ('aria-current="page"' if i == 1 else '') + ' style="width:24px;height:24px"></a>' for i in range(3)) + '</div>'
+    assert "uniform-card-grid" not in checks_in(_semantic_document(tmp_path, group * 4))
+
+
+def test_nonstateful_button_cards_and_two_column_content_grids_stay_in_scope(tmp_path: Path) -> None:
+    group = '<div class="row" role="group">' + '<button>Read this topic</button>' * 3 + '</div>'
+    assert "uniform-card-grid" in checks_in(_semantic_document(tmp_path, group * 4))
+    pair = '<div class="row" style="grid-template-columns:repeat(2,1fr)"><div style="height:90px">Alpha</div><div style="height:90px">Beta</div></div>'
+    assert "uniform-card-grid" in checks_in(_semantic_document(tmp_path, pair * 4))
+
+
+def test_nested_decorative_subtree_can_contain_a_glyph_without_exempting_its_figure(tmp_path: Path) -> None:
+    glyph = '<svg width="72" height="72" viewBox="0 0 100 100"><path d="M40 40L60 60" stroke="black"/></svg>'
+    body = '<figure><div aria-hidden="true"><span>' + glyph + '</span></div></figure>'
+    assert "viewbox-dead-space" not in checks_in(_semantic_document(tmp_path, body))

@@ -1,0 +1,13 @@
+{
+  "command": [
+    "cmd",
+    "/d",
+    "/c",
+    "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-native-windows-_ydrlcms\\case-upgrade\\home [user] $tick`semi; caf\u00e9 \u6f22\u5b57\\.nexus-hub\\bin\\nexus-hub.cmd",
+    "--version"
+  ],
+  "exit": 0,
+  "stdout": "nexus-hub 4.13.13\n",
+  "stderr": "",
+  "source_sha256": "3535b10c4280629807042aa36c7ec426f6795fcb34c5a888e34ac121a6008e7e"
+}

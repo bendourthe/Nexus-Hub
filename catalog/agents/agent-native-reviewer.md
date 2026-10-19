@@ -1,6 +1,7 @@
 ---
 name: agent-native-reviewer
 description: Single-lens reviewer that checks a diff for agent-native design - does every new user-facing capability have an agent-accessible action AND the context an agent needs to use it? Use as a conditional persona inside the multi-agent-code-review pipeline when a change adds user-facing features. Returns structured JSON findings, never edits code.
+model: opus
 tools: Read, Glob, Grep, Bash
 ---
 

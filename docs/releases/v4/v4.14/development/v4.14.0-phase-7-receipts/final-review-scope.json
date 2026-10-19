@@ -1,0 +1,1073 @@
+{
+  "base": "d577e11037b25647aa466da4c01e1ecdadfe6aeb",
+  "head": "d78e76d73330cd57b76e6ed424fc884f13884e31 plus frozen working tree",
+  "mode": "report-only",
+  "depth": "full",
+  "headline_cap": 20,
+  "N": 193,
+  "K": 47,
+  "coverage_invariant": true,
+  "paths": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "fce6450ddecc07d4fd05f8025b8eaa9e57a02f015d28da61b4405a3aacf6ffe8"
+    },
+    {
+      "path": ".github/workflows/claude-usage-monitor.yml",
+      "sha256": "ecd6d83acf1648450929d9899d35e1994e08e4aacd158d67dc37ec4d69d7f7f4"
+    },
+    {
+      "path": ".github/workflows/code-search.yml",
+      "sha256": "0aceca16bd66530be500c8c0fe52f7b2b9db2379a8358b9880b534972c9aed44"
+    },
+    {
+      "path": ".github/workflows/codex-usage-monitor.yml",
+      "sha256": "12c03565e0831634ac432f1b454c243761eb66a3eb7c3866b67399e0ff9e4b07"
+    },
+    {
+      "path": ".github/workflows/copilot-usage-monitor.yml",
+      "sha256": "da8b4e902076a271c603ae62e37df636b5dd6093531eb370ae9940d1cb160657"
+    },
+    {
+      "path": ".github/workflows/cursor-usage-monitor.yml",
+      "sha256": "d5b6fdad93ad338c5abcadff98ebac9f9ead8c5d347112d628ab6596c8cfbfba"
+    },
+    {
+      "path": ".github/workflows/doc-colocation.yml",
+      "sha256": "e2c1b86034c189c6f0be66fc2f4e19fcd284d68e8676c960d390a17195be5ff3"
+    },
+    {
+      "path": ".github/workflows/gemini-usage-monitor.yml",
+      "sha256": "8e72ae34ccf8566dfab74e9a688596a282955e87842020c2b0f855de58d32c81"
+    },
+    {
+      "path": ".github/workflows/nexus-memory.yml",
+      "sha256": "900f806a4b615843cf7aa531360dc7dfa7d99f239c892278e8cdbc734106214a"
+    },
+    {
+      "path": ".github/workflows/presentify-extractor.yml",
+      "sha256": "12bc9169404682064f56e9f1aaa0adb2e4037a50e5be51f038894d0a2c5f078e"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "sha256": "27334f9bd2c03f67740f575b470464f5f36d73aef7fdb215abf0aedbd3659232"
+    },
+    {
+      "path": "catalog/agents/adversarial-reviewer.md",
+      "sha256": "5a49c60d66cd7afb075f9db7dc53dc4f39600ab394a19f5ba04e9e3a01d5e41d"
+    },
+    {
+      "path": "catalog/agents/agent-native-reviewer.md",
+      "sha256": "e27b8f105b52e5ba328dcb03469614959798638e2c7940be482c8b6c7d7d321f"
+    },
+    {
+      "path": "catalog/agents/api-contract-reviewer.md",
+      "sha256": "0603fefc883bbe43d2078a22131d27525dcc48812e2a56c846cf0cac8c20e323"
+    },
+    {
+      "path": "catalog/agents/architect.md",
+      "sha256": "11224c753a1d9760dcb9ce23a3a912cf85d799954b1374ac5e9b53c116e45717"
+    },
+    {
+      "path": "catalog/agents/build-error-resolver.md",
+      "sha256": "aeac0072f40b670742fedfebbad389c974398e7109afb1a64c1fa8f1dc8da9a4"
+    },
+    {
+      "path": "catalog/agents/code-reviewer.md",
+      "sha256": "24f0e80e1949938956c2008b207ed3da7f4660dfa59ea99b7d086862f9155798"
+    },
+    {
+      "path": "catalog/agents/coherence-reviewer.md",
+      "sha256": "5030a2e71ab30e39bff3bf0f9db9042ddd8963d1d33f90668c39bbe1326efff0"
+    },
+    {
+      "path": "catalog/agents/design-lens-reviewer.md",
+      "sha256": "1a82d37c5add9171b90456fc5ee5ed5876750cd9ee2530b077086744ee2d7e15"
+    },
+    {
+      "path": "catalog/agents/doc-updater.md",
+      "sha256": "cbbcd86154c675be6671e10188d8a6ab731caf5af2033ac38db793731068987e"
+    },
+    {
+      "path": "catalog/agents/feasibility-reviewer.md",
+      "sha256": "9b16c2d56b35d6ec751685f56e93fb481e82b0dab71de36b8c52c64596074089"
+    },
+    {
+      "path": "catalog/agents/harness-optimizer.md",
+      "sha256": "de12b1098c316da9d3e2576e1ab27a75f00e762346f8348c34afd6d12cb04764"
+    },
+    {
+      "path": "catalog/agents/loop-operator.md",
+      "sha256": "a72044c52199f1d07932a1f4014e374d6711b86833e99fb1524e8fdde918fd5a"
+    },
+    {
+      "path": "catalog/agents/maintainability-reviewer.md",
+      "sha256": "907e9871f76bf76090e92f4769f96e97d2e2601d5c4819489e2b08d229bebdb7"
+    },
+    {
+      "path": "catalog/agents/performance-reviewer.md",
+      "sha256": "66f61073a962a42f14032ada319471adf29aa3c62e615937ec20f0398bb1f7c3"
+    },
+    {
+      "path": "catalog/agents/planner.md",
+      "sha256": "e5d364332e0bb5c9a36f6d383710d7a23bf8367f946b82ded5b10e3f5eaba959"
+    },
+    {
+      "path": "catalog/agents/product-lens-reviewer.md",
+      "sha256": "3c128bf6ee643bd721e77e76162a0bc8c9cdde2c3a8227ba79061806f847cc27"
+    },
+    {
+      "path": "catalog/agents/project-standards-reviewer.md",
+      "sha256": "df0feceb69e8afb1db4f7944108a6e4618bb805aef1ae0992dedd18148f35758"
+    },
+    {
+      "path": "catalog/agents/refactor-cleaner.md",
+      "sha256": "177daf906cedd3701d876748c1143623e864505a6414403258acce6959517135"
+    },
+    {
+      "path": "catalog/agents/reliability-reviewer.md",
+      "sha256": "c3dca33cd353c66f3ce225283fd76cf40597894ad9329b11c96381392d4ddca0"
+    },
+    {
+      "path": "catalog/agents/scope-guardian-reviewer.md",
+      "sha256": "40c9ecff50ea28a9aded26acbec1b6c5027fbac4393506efe0eff7d286cfaf1d"
+    },
+    {
+      "path": "catalog/agents/security-reviewer.md",
+      "sha256": "1531dd888a27c2f87ed655e6ec614c1c9c2e724a9e6053a0436c134fb5d11793"
+    },
+    {
+      "path": "catalog/agents/tdd-guide.md",
+      "sha256": "9c2a0054e2d943438caf9e628b101a99067d3896f14bf2c4b3e249d01d4e9d1b"
+    },
+    {
+      "path": "catalog/agents/testing-reviewer.md",
+      "sha256": "519d28b50462e921c40b49746ebd1a6e2027350d18f3b9428471e3efd050a0db"
+    },
+    {
+      "path": "catalog/hooks/settings.json",
+      "sha256": "342cecc3f0af6356641593a7b8fb901ed740cabe1291c5a4990c563235272b6e"
+    },
+    {
+      "path": "catalog/hooks/tests/test_installer_smoke.py",
+      "sha256": "56005934ef56861dfba375dfa8ce28df5850783da880e413fbe0cae29fc105f7"
+    },
+    {
+      "path": "catalog/skills/ai-development/model-routing/SKILL.md",
+      "sha256": "06b610280b1e2b794f60cbbaea3a98a7c2087df0bde17733d77e227fb1fcd874"
+    },
+    {
+      "path": "catalog/skills/code-review/multi-agent-code-review/SKILL.md",
+      "sha256": "ba386a88644abde18c9041c2bed675e1d345459802d60989264ccf864c141f2e"
+    },
+    {
+      "path": "catalog/skills/developer-experience/color-systems/SKILL.md",
+      "sha256": "8918ed987d7b7f653eb947f5828e1a33d31837abcbe92a21eff02fa898e5860b"
+    },
+    {
+      "path": "catalog/skills/developer-experience/hallmark-design/SKILL.md",
+      "sha256": "0f605197ee29b01ea364f1be8a13bd3ec32fe7012b9a0f14b9b7e9eb7023d819"
+    },
+    {
+      "path": "catalog/skills/developer-experience/interface-review/SKILL.md",
+      "sha256": "0f255a85b7d7027e340631e866b664c5a45cdd6317e2f087b0d8b583bfccec99"
+    },
+    {
+      "path": "catalog/skills/developer-experience/interface-review/references/design-system-contract.md",
+      "sha256": "f2d36650ba12b482ac8233bf7a9f95f572c72e9f7e3cb644ba56ce8f00f311b0"
+    },
+    {
+      "path": "catalog/skills/developer-experience/layout-and-spacing/SKILL.md",
+      "sha256": "c4d7cb7b17bb81dc33b352a04f09afd9d9798a9235e5bf98789cdc5d8ba106a0"
+    },
+    {
+      "path": "configs/README.md",
+      "sha256": "7823de94d167d14ab1f030e84fa1c3890edb51fc9b5758ad7e7c0e6f83e4cdc7"
+    },
+    {
+      "path": "configs/installer-parity.json",
+      "sha256": "a8ad2145fcc35a8629d66abd851d409b2fe062cde5ad0365350e309da1550f29"
+    },
+    {
+      "path": "configs/platform-defaults.json",
+      "sha256": "169d21bee705cc6b0b32c1afaea02c25d5fff78d234b5cce290a28f38e6a18a5"
+    },
+    {
+      "path": "docs/decisions/implemented/tooling/2026-10-16-design-system-lint-contract.md",
+      "sha256": "58101edc71e89bc237afe94446eed29543225d9c3ac20a532000ec89b2c89ac1"
+    },
+    {
+      "path": "docs/decisions/proposed/tooling/2026-10-14-claude-effort-default-lever.md",
+      "sha256": "6ad18b2594210246d86b1c5b9aa42a922e7072392772b99c4db32d3ee12714b7"
+    },
+    {
+      "path": "docs/handbooks/_sources/distribution/design.css",
+      "sha256": "e897d6a59a2c1dbcfad89e0ba8d6c5b32ae6baa024acbc0bc26b4be63de8a7ac"
+    },
+    {
+      "path": "docs/handbooks/_sources/distribution/evidence.json",
+      "sha256": "73134da5858864fbbd21f5df4a3e7532e440544883e4a78e271aece417de695a"
+    },
+    {
+      "path": "docs/handbooks/_sources/distribution/model.json",
+      "sha256": "f027cf220fe45326c51d238da8d950d43f2736ad90839da6c558fb2e006ccaf8"
+    },
+    {
+      "path": "docs/handbooks/_sources/distribution/ownership-composition.html",
+      "sha256": "025422d952c71b3732e4b0c3b9b5e40e7a87d2380cb65e58e9a4ab75800d758a"
+    },
+    {
+      "path": "docs/handbooks/_sources/distribution/source.md",
+      "sha256": "676c9003f5bcf9dc2b86791ad8e2a7a6c14347acf1cbea7ae6641da68d8c0e46"
+    },
+    {
+      "path": "docs/handbooks/distribution.html",
+      "sha256": "9781047ee32684d41b11bf4bfa5b0e8489d49c9b2c849a291f1b0efcefe8a703"
+    },
+    {
+      "path": "docs/handbooks/distribution.html.build.json",
+      "sha256": "924aacb698b94868aea3dd5062a5d832f9cd7dca7123622278ccb0675bb9865c"
+    },
+    {
+      "path": "docs/handbooks/handbooks.json",
+      "sha256": "0bfb127a3bddfe3329585fb066483d17e16bd48ecbb4ca14c19380c7be9770fc"
+    },
+    {
+      "path": "docs/policy/platform-defaults-levers.md",
+      "sha256": "cdff6663edf8c82ed90742019ba88e0edb96146158bed92f9a6bb003435334ac"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/agent-pinning-rationale.md",
+      "sha256": "b24ea5a55345de43d5ea87b853876813d130e823e947dfaa4b49dca0e42f90d7"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/capability-usage-gate.md",
+      "sha256": "3798be991a944aa3ab8fbad3ba6504f5cb1c66e3942ee137bd3e9fe68d1838e8"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/history/v4.14.0-phase-1.md",
+      "sha256": "1da182281683ecfafd0320782e4ef6344c7bd20e9e5ed97943028e256d35b2b8"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/history/v4.14.0-phase-2.md",
+      "sha256": "88cfc58fa137a3578b3c35b6f08ccdf6d9bf756cda01224d10e394e41f9783d7"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/history/v4.14.0-phase-3.md",
+      "sha256": "4d4644a731f4af2cfc0c2277d54f652df37ddf2cf91d8389f23dd1624448a746"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/history/v4.14.0-phase-4.md",
+      "sha256": "5a82499e498665756a48b769bf1256027789a8b8d43648415bb29ea56d4e09c5"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/history/v4.14.0-phase-5.md",
+      "sha256": "14545e73a10c9d1fa203289541c8f66b6c257a462f5c6018ac117cea9c02dc7d"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/history/v4.14.0-phase-6.md",
+      "sha256": "e50442379ebede65ce3b1db4727db63604122ff12ca7b5e5426e06e3b8b61b17"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/phase-1-lever-evidence.md",
+      "sha256": "85fdb10c0d74f0da55514f9459faf808a8dff7687600e214da9eea560e6d7e0a"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/phase-6-effort-evidence.md",
+      "sha256": "1706b873bd50840e2b5f455ddeb8ea5dd723e3c27b0ae3282530f11070f3c72e"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-ci-proposal.md",
+      "sha256": "e20db29896e517caca4c21804e5562b476e6840a4a5560ca9e2b3e6a73336825"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-handbook-claim-review.md",
+      "sha256": "94cce8737dfd91a92c4203d054e4cb958717d8ae7f1884e876dbd7d79cc3fae4"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-last-phase-evidence.md",
+      "sha256": "2bc175376b8c8f6e6af9462c07367f2d43a2d1fe737a1d5f71b3c9336acf8fa1"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-permission-writer-proposal.md",
+      "sha256": "30fedb3edaf8d7d69313b4468c8946e7cad1500d0906b1665be4467e4fe9f8af"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/blocker-2-application.json",
+      "sha256": "59531933572c3460e2cfc2a4f653a490fca9d7611b69d141a9b3e29ae2571781"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/blocker-3-application.json",
+      "sha256": "357c90756fa6c1b7cbc9a7337c52d98a0b9152c4f5690b0802cec318a059fbe3"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/blocker-4-application.json",
+      "sha256": "f9a211ac3ab020efc96052c251da46d3b0e894feefc67691a0ea287b9a541e0a"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-reconciliation-proposal/bundle.diff",
+      "sha256": "5b56ec24ff2891322989b5808a2841d723c25699bc9a177417b11ed7a80ea40e"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-reconciliation-proposal/candidate-fast-environment.json",
+      "sha256": "c0432ceb0f9cf55a92dcf5e6d557739b9da3298a4b174422edf0c7c3a1ed4444"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-reconciliation-proposal/candidate-fast-summary.json",
+      "sha256": "e429c324455a6ad6b34bd7802d510b0e0843f5f2cfdfc0f4ea28fb643a22b9a7"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-reconciliation-proposal/ci-coverage.json",
+      "sha256": "29b33c0f71d716400ec0e77caba6a78ae92e82e9f3c0e7bbdd221ea9bd686af0"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-reconciliation-proposal/comparison.md",
+      "sha256": "34d66dc3db41e7dc4f9c65286dc36a6ffc6f443b055e420eface331f41a9fe45"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-reconciliation-proposal/external-settings-readonly.json",
+      "sha256": "2505635b82f3dc7f541297e39d65a1b29c5af8a46730ffee608d074f5f93330d"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-reconciliation-proposal/lint.json",
+      "sha256": "9e104f4d8ba9d64a288ced94596e38ae44f400e16b111ed7ceca13cd1dc1a015"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-reconciliation-proposal/manifest.json",
+      "sha256": "64a6a9feae0d07c98e2a5ac7bad3d4d1ccfc859099a7ba9e79d3da20fee3f3ea"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-reconciliation-proposal/profile-resolution.json",
+      "sha256": "3edc165ea6c33958a611b045dbf0d46238351f4850b88d1c0a029a9ef24de6b1"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-reconciliation-proposal/registry-environment.json",
+      "sha256": "2be807779af9ed0ec56b02483f4711a9f06fed45d4cc52841adbc1e950c38ed1"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-reconciliation-proposal/registry-summary.json",
+      "sha256": "acbf4d0cef748dd77879c765c7a6b513b22be7235021846fb6fdd7eb2984f9fa"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-reconciliation-proposal/review.md",
+      "sha256": "3613d2018402dc8009c558367b92e6019f5662f9311582ac338663542aaa3c21"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-reconciliation-proposal/source-fast-environment.json",
+      "sha256": "332e0ae321607704ccb89573eaaa9e54a5a42cc5756e3ae400d00c6e15545230"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-reconciliation-proposal/source-fast-summary.json",
+      "sha256": "d773c57a2445dccf1a98bb35a543b887decb627b37f9d3c212eec89c017f1989"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-reconciliation-proposal/windows-core-environment.json",
+      "sha256": "6ff3e42a54380dd4c02f8a620dfbb36d0c081ad181db44c3af66c3f5ba7a9f83"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-reconciliation-proposal/windows-core-summary.json",
+      "sha256": "582b5d56c092ceec3abdbe1aafac35fa1f0590cf74d8ee6377722f32e0dfbc8a"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-reconciliation-proposal/workspace-environment.json",
+      "sha256": "062ecaea959b0fdfd61f3f8470ee5bf63ef608c50acfdadd680146cfb3b7e059"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-reconciliation-proposal/workspace-summary.json",
+      "sha256": "420f26f52f3b0c7e725d724a4cf7fdf5763635c40c9651439a28d77555e5c6ed"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cli-launcher-literal-path.json",
+      "sha256": "c7ef960b564917c0c1e18ed6ff6fb8283db168bcd8cd8d2b5e95c17557afb4f8"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/distribution-behavior.json",
+      "sha256": "747b3a64c27438245f8640c442030edca24c253bcc972e3410b16541adb46980"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/distribution-build.json",
+      "sha256": "6dbde7a130e9bcc32f8fee06679ce59323842c9bd044c1ecc0e8da7646d4269f"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/distribution-lighthouse.json",
+      "sha256": "e65c1c89b75c826c89875bfc9692c5da8b2610cac86b7d86a25ed28a8d4a57b6"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/distribution-measure.json",
+      "sha256": "91c7904d23592737b64998db199958cab183d1fcbb3212af9a60894a30b4183e"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/distribution-ownership-slide.png",
+      "sha256": "a14ea819499562596b62031a00a5fcba79b7dd5f1c54ea8cd83c1e3a9ba55cec"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/distribution-reading-dark.png",
+      "sha256": "12e0ca612cf3d3841d1a838fbe7e66f6c8df1025486270469ed8676d4e178418"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/distribution-reading-light.png",
+      "sha256": "15bf005d2feca0fa01de5422226ec1a30feece725d4b182f85d0d9b141bdd43e"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/evidence-redaction.json",
+      "sha256": "14c6bcda0c8f9b3421492f355a42ab5f3089944f71acc7b0380b060e2d6ffd7d"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/full-native-before-launcher-fix.json",
+      "sha256": "082482d2d4366be38516e9f69e3ef79593b44e207df987bd8522aca7eea71c3b"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/full-native-current-three-profiles.json",
+      "sha256": "38cbef7f81235e0ae2a57794726ef5dbe4463a44662798cade0176ba5fd809a4"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/full-native-unicode-after-launcher-fix.json",
+      "sha256": "0ec630b5c6f7fe2ab17ba40319c9506405db92b7f1630e40ab6b5f9853324b90"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/handbook-check-after-blocker2.json",
+      "sha256": "47ca0b665e8d0cfe03a4636f524c803cead6abb8b69d138711a68d2c2de3f806"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/handbook-check-after-json-repair.json",
+      "sha256": "26f285cb77f7ba8247db77998fc6cb180a01c50700cd9d618fecbdcc48645dd9"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/handbook-check.json",
+      "sha256": "a17a8820ad10232bfe249e1a9eb9da5881a42873913023c43dc681e269507c5f"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/handbooks-current-source-check.json",
+      "sha256": "3a736698770f886409976017113f9e6b07d7fd56e3301d61c4541d2eac4b7dd0"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/handbooks-current-source-verified.json",
+      "sha256": "d0d096e152add391501a2a28e54affdf34d42be2d379be830c4ceb629ffffa8a"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/handbooks-lf-source-verified.json",
+      "sha256": "d0d096e152add391501a2a28e54affdf34d42be2d379be830c4ceb629ffffa8a"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/hook-writer-native-ps51.json",
+      "sha256": "7a96d96b4d92123b0370704383fa31c5b7d34d85230bbcfd51bbdf6e81b21997"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/hook-writer-native-ps7.json",
+      "sha256": "7a96d96b4d92123b0370704383fa31c5b7d34d85230bbcfd51bbdf6e81b21997"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/hook-writer-original-failures.json",
+      "sha256": "d83cdee840b6ec89159962e94456248d8ebfec7af2c5920dcb2a9766dad6318f"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/hook-writer-patch.diff",
+      "sha256": "a98cabe87ec696c15b4786effe786996fbe7bdf39950cba33eb84504fa73ba9f"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/installed-cli-current-version.json",
+      "sha256": "16e5a2d321ede28f32d0e6a9671524485053ce58b4ec791765b576378676eb10"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ledger-inventory-before-blocker2.json",
+      "sha256": "8f243fd6c0a040e6cb1f3ec862a6099e2b5e067d9bffde7bd259518e1ea08103"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/lossless-candidate-hook-ps51.json",
+      "sha256": "ab2a49a8adfe580c61519389221ab0929171243711575ef6486f22ba0d7c5bec"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/lossless-candidate-hook-ps7.json",
+      "sha256": "ab2a49a8adfe580c61519389221ab0929171243711575ef6486f22ba0d7c5bec"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/lossless-candidate-reader-ps51.json",
+      "sha256": "7c28cbc07098147da2151ff1f6d153c7e83e60500f685f06668fb26488e9990e"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/lossless-candidate-reader-ps7.json",
+      "sha256": "b56483665e21766f99098ccfdcaf40326bd15aa40a7ea32e76814c64728ba9db"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/lossless-nonpermission-patch.diff",
+      "sha256": "bd76e986d2725a834100b8912ca8522e4eec7bf0a9b8b69e7bfcab0ed1955c13"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/migration-bodies.json",
+      "sha256": "b06435a4ca3c34ddb637799530d502e329f6e2f476640d1ce335cc3447b84b41"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/phase7-integration-merge.json",
+      "sha256": "ff65da8410aad6beae4553632e5e8efc49eebfd0fd29bef5798a3434e2ce542f"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/source-adversarial-after-blocker2.md",
+      "sha256": "0fedffc394b9a72df4512b8b320dec42a75c0a5c310bb13c1501fed771a21e72"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-counter-proposal/baseline-ps51.json",
+      "sha256": "99257d0f2bebca394c4e6207f8eeb626d5181e8dd683f36f076e5e51b914a80f"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-counter-proposal/baseline-ps7.json",
+      "sha256": "99257d0f2bebca394c4e6207f8eeb626d5181e8dd683f36f076e5e51b914a80f"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-counter-proposal/empty-inputs.json",
+      "sha256": "41297c4b11747f59b10923f2b431e2e3c7c1a06b0292c4b0624e7398b15e7b9a"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-counter-proposal/independent-bash.json",
+      "sha256": "36b9c97b42ce8382d6ba2683e4a3e95523085e95a32537456f543eb954d03462"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-counter-proposal/independent-report.md",
+      "sha256": "99f02145e38497df1288a5aabeaceb6a0f9ecb805631be2f05838bdf9fb368bf"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-counter-proposal/installer-ps1.diff",
+      "sha256": "f3f69b2c6ef795d0ec314e1c334128cafdf26772c7da5a7bad1ca1e4cc2fe4ea"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-counter-proposal/installer-sh.diff",
+      "sha256": "814564bbcb228868d1fdb9ab43e83dea2af96e5cc4ead10f7c50050b494a7758"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-counter-proposal/new-ps51-bash.json",
+      "sha256": "185b5445962c990be0fc83bc461994d23596b056852274ec5b564ad5a0396e69"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-counter-proposal/new-ps7-bash.json",
+      "sha256": "a2fe08251517517a7921e4319bda2bbf288d41388e5f7a4b7ca5691be81018df"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-counter-proposal/original-negative-controls.json",
+      "sha256": "f345b037f8450a7b87c260756e7f974039d67cbfc1cfdc6beb06fe0dd4487f75"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-counter-proposal/paths-and-empty-inputs.json",
+      "sha256": "a607bf523bdaa96eaffd34913965815433b420d102382fb752211b577f29b0d1"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-counter-proposal/same-file-control.json",
+      "sha256": "6bac3c5af67870b5949fc5c1671e12efefa29426475b80b0e90fd26280961334"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-counter-proposal/scope-audit.json",
+      "sha256": "f48713b821055498a985ccf34c85f7ee3c5466336130be2088a4501796ed8da0"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-counter-proposal/tests.diff",
+      "sha256": "4c51c7c44da19a0339ce41b60b78ca87b9da93c2cc06e2d6fcb517b06c0daf71"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-permissions-proposal/hashes.json",
+      "sha256": "40a1d6a2395b33e4877d17a944a929206ea8667a26a8998e8607043afb492c9a"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-permissions-proposal/ps51-results.json",
+      "sha256": "04b101ec322fc1425d286485351f951cd5470c29c4eeab4e3f93c196df88ba3b"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-permissions-proposal/ps7-results.json",
+      "sha256": "0f8684961bf1ed3f8f0c53a1927809fb211c99004fe6acb47a067045ead49c77"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-permissions-proposal/scope-audit.json",
+      "sha256": "47f610e850633143f112b40a5020c155e03aade0c7d1f5a1799de32e8f834fec"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-permissions-proposal/strict-permissions.diff",
+      "sha256": "3f8e674d4a4f42081cd9f62f43fe54d429601ec74de8d2d1efc7bcce7a61b0e1"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-strict-counter-proposal.md",
+      "sha256": "45605ab18bf344d72d3ff3be3cb277adae186e43b95465a38a00da90c4927f78"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-terminal-ci-proposal.md",
+      "sha256": "8debd74392e6f76e10c915aad077d75fb3fc24a4ce4e07670b5a976ee3236dba"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/docs-cleanup-report.md",
+      "sha256": "d2aef3bbfe3c533c27117d338ec766010903b39ab0b0508baffcf992b4a986b6"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/known-gaps.md",
+      "sha256": "57d2a202f7351a859296843ec9ab792349cd3a738da6af7be95165bd6c27f4c4"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md",
+      "sha256": "732b9ba46293a8a4e2cbcb41bf95f29fa4b1da30bc764b82ae6558790ddfa77e"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/plans/v4.14.1-adoption-effort-allocation.md",
+      "sha256": "3c1fc32944b0e448afe94abc88b0d1ba70e9977f2a55e9769067b1786b5f8489"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/plans/v4.14.2-adoption-harness-decisions-design-rules-and-cache-stability.md",
+      "sha256": "486aca3faef9441f4274402132c3684b8d04a3b101b968a2d055480997bc3df7"
+    },
+    {
+      "path": "docs/todos.md",
+      "sha256": "686affc1b393b122ee74f8ae4edd91e80055501a1264d06e3414c9c0dabf1530"
+    },
+    {
+      "path": "guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md",
+      "sha256": "b84a08877b6baba4136a58880a0ecd9c4cd408226665f140c031f9f017476599"
+    },
+    {
+      "path": "scripts/ci/code-search-offline.Dockerfile",
+      "sha256": "43e080a1d4e1f8350d216fe0329f351876702576be8b45c4a004779c4914c12a"
+    },
+    {
+      "path": "scripts/ci/memory-offline.Dockerfile",
+      "sha256": "6a7bb9c33487bf91e6f987530163b84b7fd1693f9a004fdb183db66222a94850"
+    },
+    {
+      "path": "scripts/ci/profiles.py",
+      "sha256": "b50bca9863adb7a60e553dcaedceb869f541115ec506484db32d942ff02b1e94"
+    },
+    {
+      "path": "scripts/ci/reporting.py",
+      "sha256": "35c243a1a70601437765bd4809a3b882ce1b04213f9b58eaf8b91577f83f49d0"
+    },
+    {
+      "path": "scripts/ci/run.py",
+      "sha256": "8c16149609142b3f5bc8158eee0e9a1493a964eb745c2088a1290788c40aa4aa"
+    },
+    {
+      "path": "scripts/ci/verify_scenarios.py",
+      "sha256": "f91a7cbfb018ed8d84f547b253f0be9779590069028c293fe9aaaeea2e4eda34"
+    },
+    {
+      "path": "scripts/installer.ps1",
+      "sha256": "4346dc2678bdf3a1a72e0b9fc79a12d160ee7f22a7589d3b0185f93368ebd41f"
+    },
+    {
+      "path": "scripts/installer.sh",
+      "sha256": "d18a5b40e106f51508f6948c92dbc09b7297035d25f0ca24655ae965011661e4"
+    },
+    {
+      "path": "scripts/lib/integrations/antigravity.py",
+      "sha256": "20a3796531869cf4649753356ce1a5778e5fd7d135f9023029e923a4aa42e6fc"
+    },
+    {
+      "path": "scripts/lib/integrations/base.py",
+      "sha256": "a4e0dc94cd57342934eedce846739ac9bf9a7b674c75570e62734673ab8a8ed6"
+    },
+    {
+      "path": "scripts/lib/integrations/claude.py",
+      "sha256": "e222462645b683412dc917379c28ee215dde425f89fc35199922484cfe30d2ff"
+    },
+    {
+      "path": "scripts/lib/integrations/copilot.py",
+      "sha256": "1ca26c7f0132a59451372edcdae8f85cd06cda3bb9634bff049cfd37297f7ee1"
+    },
+    {
+      "path": "scripts/lib/integrations/cursor.py",
+      "sha256": "f68c2824ce2d8fc00b5fd93bd84506ca75b3ac0d675f5f8ae593da03060b8ea4"
+    },
+    {
+      "path": "scripts/lib/integrations/opencode.py",
+      "sha256": "cd7ea92c7a2fba785121f5cf8dc94a27d08da5b8af6659451818650222c08bce"
+    },
+    {
+      "path": "scripts/lib/integrations/runner.py",
+      "sha256": "03f2c090a6401552d215e0fb1c1556f9137d07e6db6a3e1f63c0bc316beddbbe"
+    },
+    {
+      "path": "scripts/nexus_hub_cli.py",
+      "sha256": "ebaf422e77d1e9a4506b7d7c61aa1669acc4dd6161f59d6ca662152ba213d236"
+    },
+    {
+      "path": "scripts/sync_platform_defaults.py",
+      "sha256": "5a940478750b1beab87e014c84d686bb2cf569467add60500f71ec5faee66198"
+    },
+    {
+      "path": "tests/ci/test_ci_reconciliation.py",
+      "sha256": "0ba559ed85489b3829fada610355af98f172471ca54adea5f94d9ab40383e8f2"
+    },
+    {
+      "path": "tests/ci/test_ci_scenario_boundaries.py",
+      "sha256": "6e0bdfcc7c651be860ea10787daf3adda842d30b7e8e1109efad05821abd897b"
+    },
+    {
+      "path": "tests/ci/test_ci_scenarios.py",
+      "sha256": "8806b83526344a64f888d00b125472840f06fbecedb207a15d0df7b311bd1432"
+    },
+    {
+      "path": "tests/installer/test_core_settings_seeding.py",
+      "sha256": "39ac0a2a31a225794529fb3a3f0bbddf09b6081e1e1f3c2cb7d3ab5631b2acba"
+    },
+    {
+      "path": "tests/installer/test_doctor_parity.py",
+      "sha256": "f065bbe8d67389e60ffc2b80f203c97ac049be9658467d494c4f7f24b4ad63e5"
+    },
+    {
+      "path": "tests/installer/test_native_cli_launcher.py",
+      "sha256": "d661b54b409fcd005b66998c2e46ecbc08939d432754b1e0b4ced1a73735f186"
+    },
+    {
+      "path": "tests/installer/test_native_hook_json.py",
+      "sha256": "a78357826e3cb8989a394c36c6dfc53220b9579f604546adc394b41cd9ffbadc"
+    },
+    {
+      "path": "tests/installer/test_native_json_reader.py",
+      "sha256": "323961b77956f68101c646a432bfc18f85cd43d29985267518d5f04a64bb1339"
+    },
+    {
+      "path": "tests/installer/test_optional_mcp_setup.py",
+      "sha256": "23e23b6fba23d2a390364630a94ff47e675fbe20bdcc72dae4154e1e96197761"
+    },
+    {
+      "path": "tests/installer/test_strict_permissions.py",
+      "sha256": "a4d6b01d4f17f4901eab06a0f250049745aaf930ba363bfcd1f16fb6f008248f"
+    },
+    {
+      "path": "tests/integrations/test_agent_model_delivery.py",
+      "sha256": "24d92d2e4c11a80278fc2a634f2769d4537936b557f006e0cad6088a1dd2696e"
+    },
+    {
+      "path": "tests/integrations/test_copilot_hermes_native.py",
+      "sha256": "6ea114d7c3007b86e0fbb55f278d85000c260a9f91aef3d2e3a0187985a3439e"
+    },
+    {
+      "path": "tests/integrations/test_cursor.py",
+      "sha256": "89f22aa7e83a232e184ca8b016a97e2563d4d1c46eb17c6736dce35e254e5bfc"
+    },
+    {
+      "path": "tests/validators/test_agent_model_pinning.py",
+      "sha256": "3582351389860bc9dfd1d26de5a11e95eabc76510093faf415a764c094e674df"
+    },
+    {
+      "path": "tests/validators/test_platform_defaults_levers.py",
+      "sha256": "ccdbdf34531c78277dee1bef547ae540c9d2cfc25000a2b058e9637a049bab8a"
+    },
+    {
+      "path": "tests/validators/test_review_grouping_coverage.py",
+      "sha256": "237b443e8abad211b9080e20b73e7e5d097d5fc29de56ece6a816e20924bc92d"
+    },
+    {
+      "path": "tests/validators/test_sync_platform_defaults.py",
+      "sha256": "b38cd77958b8c6a67aa3d8eec06d2da30e0ccb549b1e24e17bb86a569298b175"
+    },
+    {
+      "path": "tests/validators/test_ui_cluster_contract.py",
+      "sha256": "7ffb27df03210a8011d0ce6e321434df023630461c8d12c2ea3639aa958bbd0f"
+    },
+    {
+      "path": "tests/workflows/test_attribution_workflow.py",
+      "sha256": "08d843b8d0c51341b601e7d14ad7541388c41bf966c1f286bb518a2b8c57e376"
+    },
+    {
+      "path": "tests/workflows/test_ci_report_job.py",
+      "sha256": "575b47df064e835deb3b21ccfe3ffa4cb8f1cbf35550a4e78706bc0d66dca85c"
+    },
+    {
+      "path": "tests/workflows/test_copilot_usage_monitor_workflow.py",
+      "sha256": "c2bdc1c784d5af1b9436fa99d311562612beb0c80befe7544c689b9e820d6075"
+    },
+    {
+      "path": "tests/workflows/test_cursor_usage_monitor_workflow.py",
+      "sha256": "29957d642fdd7ecad7ed9cfb8bb6740360ec59e11d2940dddf663aad6d616517"
+    },
+    {
+      "path": "tests/workflows/test_presentify_extractor_workflow.py",
+      "sha256": "8ee304e52dc19b384ad544d12f6d519621cf3c0e842f04d6549efa37c86e18fd"
+    },
+    {
+      "path": "tests/workflows/test_workflow_policy_repo_wide.py",
+      "sha256": "a0124c57995e259b9dcc5a525608f86c045177661e53a2e74db80e2e28f1061f"
+    }
+  ],
+  "bundles": [
+    [
+      "CHANGELOG.md"
+    ],
+    [
+      ".github/workflows/ci.yml",
+      ".github/workflows/claude-usage-monitor.yml",
+      ".github/workflows/code-search.yml",
+      ".github/workflows/codex-usage-monitor.yml",
+      ".github/workflows/copilot-usage-monitor.yml",
+      ".github/workflows/cursor-usage-monitor.yml",
+      ".github/workflows/doc-colocation.yml",
+      ".github/workflows/gemini-usage-monitor.yml"
+    ],
+    [
+      ".github/workflows/nexus-memory.yml",
+      ".github/workflows/presentify-extractor.yml"
+    ],
+    [
+      "catalog/agents/adversarial-reviewer.md",
+      "catalog/agents/agent-native-reviewer.md",
+      "catalog/agents/api-contract-reviewer.md",
+      "catalog/agents/architect.md",
+      "catalog/agents/build-error-resolver.md",
+      "catalog/agents/code-reviewer.md",
+      "catalog/agents/coherence-reviewer.md",
+      "catalog/agents/design-lens-reviewer.md"
+    ],
+    [
+      "catalog/agents/doc-updater.md",
+      "catalog/agents/feasibility-reviewer.md",
+      "catalog/agents/harness-optimizer.md",
+      "catalog/agents/loop-operator.md",
+      "catalog/agents/maintainability-reviewer.md",
+      "catalog/agents/performance-reviewer.md",
+      "catalog/agents/planner.md",
+      "catalog/agents/product-lens-reviewer.md"
+    ],
+    [
+      "catalog/agents/project-standards-reviewer.md",
+      "catalog/agents/refactor-cleaner.md",
+      "catalog/agents/reliability-reviewer.md",
+      "catalog/agents/scope-guardian-reviewer.md",
+      "catalog/agents/security-reviewer.md",
+      "catalog/agents/tdd-guide.md",
+      "catalog/agents/testing-reviewer.md"
+    ],
+    [
+      "catalog/hooks/settings.json"
+    ],
+    [
+      "catalog/hooks/tests/test_installer_smoke.py"
+    ],
+    [
+      "catalog/skills/ai-development/model-routing/SKILL.md"
+    ],
+    [
+      "catalog/skills/code-review/multi-agent-code-review/SKILL.md"
+    ],
+    [
+      "catalog/skills/developer-experience/color-systems/SKILL.md"
+    ],
+    [
+      "catalog/skills/developer-experience/hallmark-design/SKILL.md"
+    ],
+    [
+      "catalog/skills/developer-experience/interface-review/SKILL.md"
+    ],
+    [
+      "catalog/skills/developer-experience/interface-review/references/design-system-contract.md"
+    ],
+    [
+      "catalog/skills/developer-experience/layout-and-spacing/SKILL.md"
+    ],
+    [
+      "configs/README.md",
+      "configs/installer-parity.json",
+      "configs/platform-defaults.json"
+    ],
+    [
+      "docs/todos.md"
+    ],
+    [
+      "docs/decisions/implemented/tooling/2026-10-16-design-system-lint-contract.md"
+    ],
+    [
+      "docs/decisions/proposed/tooling/2026-10-14-claude-effort-default-lever.md"
+    ],
+    [
+      "docs/handbooks/distribution.html",
+      "docs/handbooks/distribution.html.build.json",
+      "docs/handbooks/handbooks.json"
+    ],
+    [
+      "docs/handbooks/_sources/distribution/design.css",
+      "docs/handbooks/_sources/distribution/evidence.json",
+      "docs/handbooks/_sources/distribution/model.json",
+      "docs/handbooks/_sources/distribution/ownership-composition.html",
+      "docs/handbooks/_sources/distribution/source.md"
+    ],
+    [
+      "docs/policy/platform-defaults-levers.md"
+    ],
+    [
+      "docs/releases/v4/v4.14/docs-cleanup-report.md",
+      "docs/releases/v4/v4.14/known-gaps.md"
+    ],
+    [
+      "docs/releases/v4/v4.14/development/agent-pinning-rationale.md",
+      "docs/releases/v4/v4.14/development/capability-usage-gate.md",
+      "docs/releases/v4/v4.14/development/phase-1-lever-evidence.md",
+      "docs/releases/v4/v4.14/development/phase-6-effort-evidence.md",
+      "docs/releases/v4/v4.14/development/v4.14.0-ci-proposal.md",
+      "docs/releases/v4/v4.14/development/v4.14.0-handbook-claim-review.md",
+      "docs/releases/v4/v4.14/development/v4.14.0-last-phase-evidence.md",
+      "docs/releases/v4/v4.14/development/v4.14.0-permission-writer-proposal.md"
+    ],
+    [
+      "docs/releases/v4/v4.14/development/v4.14.0-strict-counter-proposal.md",
+      "docs/releases/v4/v4.14/development/v4.14.0-terminal-ci-proposal.md"
+    ],
+    [
+      "docs/releases/v4/v4.14/development/history/v4.14.0-phase-1.md",
+      "docs/releases/v4/v4.14/development/history/v4.14.0-phase-2.md",
+      "docs/releases/v4/v4.14/development/history/v4.14.0-phase-3.md",
+      "docs/releases/v4/v4.14/development/history/v4.14.0-phase-4.md",
+      "docs/releases/v4/v4.14/development/history/v4.14.0-phase-5.md",
+      "docs/releases/v4/v4.14/development/history/v4.14.0-phase-6.md"
+    ],
+    [
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/blocker-2-application.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/blocker-3-application.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/blocker-4-application.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cli-launcher-literal-path.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/distribution-behavior.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/distribution-build.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/distribution-lighthouse.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/distribution-measure.json"
+    ],
+    [
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/distribution-ownership-slide.png",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/distribution-reading-dark.png",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/distribution-reading-light.png",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/evidence-redaction.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/full-native-before-launcher-fix.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/full-native-current-three-profiles.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/full-native-unicode-after-launcher-fix.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/handbook-check-after-blocker2.json"
+    ],
+    [
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/handbook-check-after-json-repair.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/handbook-check.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/handbooks-current-source-check.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/handbooks-current-source-verified.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/handbooks-lf-source-verified.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/hook-writer-native-ps51.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/hook-writer-native-ps7.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/hook-writer-original-failures.json"
+    ],
+    [
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/hook-writer-patch.diff",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/installed-cli-current-version.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ledger-inventory-before-blocker2.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/lossless-candidate-hook-ps51.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/lossless-candidate-hook-ps7.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/lossless-candidate-reader-ps51.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/lossless-candidate-reader-ps7.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/lossless-nonpermission-patch.diff"
+    ],
+    [
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/migration-bodies.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/phase7-integration-merge.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/source-adversarial-after-blocker2.md"
+    ],
+    [
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-reconciliation-proposal/bundle.diff",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-reconciliation-proposal/candidate-fast-environment.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-reconciliation-proposal/candidate-fast-summary.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-reconciliation-proposal/ci-coverage.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-reconciliation-proposal/comparison.md",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-reconciliation-proposal/external-settings-readonly.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-reconciliation-proposal/lint.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-reconciliation-proposal/manifest.json"
+    ],
+    [
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-reconciliation-proposal/profile-resolution.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-reconciliation-proposal/registry-environment.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-reconciliation-proposal/registry-summary.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-reconciliation-proposal/review.md",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-reconciliation-proposal/source-fast-environment.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-reconciliation-proposal/source-fast-summary.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-reconciliation-proposal/windows-core-environment.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-reconciliation-proposal/windows-core-summary.json"
+    ],
+    [
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-reconciliation-proposal/workspace-environment.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-reconciliation-proposal/workspace-summary.json"
+    ],
+    [
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-counter-proposal/baseline-ps51.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-counter-proposal/baseline-ps7.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-counter-proposal/empty-inputs.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-counter-proposal/independent-bash.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-counter-proposal/independent-report.md",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-counter-proposal/installer-ps1.diff",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-counter-proposal/installer-sh.diff",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-counter-proposal/new-ps51-bash.json"
+    ],
+    [
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-counter-proposal/new-ps7-bash.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-counter-proposal/original-negative-controls.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-counter-proposal/paths-and-empty-inputs.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-counter-proposal/same-file-control.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-counter-proposal/scope-audit.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-counter-proposal/tests.diff"
+    ],
+    [
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-permissions-proposal/hashes.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-permissions-proposal/ps51-results.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-permissions-proposal/ps7-results.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-permissions-proposal/scope-audit.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-permissions-proposal/strict-permissions.diff"
+    ],
+    [
+      "docs/releases/v4/v4.14/plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md",
+      "docs/releases/v4/v4.14/plans/v4.14.1-adoption-effort-allocation.md",
+      "docs/releases/v4/v4.14/plans/v4.14.2-adoption-harness-decisions-design-rules-and-cache-stability.md"
+    ],
+    [
+      "guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md"
+    ],
+    [
+      "scripts/installer.ps1",
+      "scripts/installer.sh",
+      "scripts/nexus_hub_cli.py",
+      "scripts/sync_platform_defaults.py"
+    ],
+    [
+      "scripts/ci/code-search-offline.Dockerfile",
+      "scripts/ci/memory-offline.Dockerfile",
+      "scripts/ci/profiles.py",
+      "scripts/ci/reporting.py",
+      "scripts/ci/run.py",
+      "scripts/ci/verify_scenarios.py"
+    ],
+    [
+      "scripts/lib/integrations/antigravity.py",
+      "scripts/lib/integrations/base.py",
+      "scripts/lib/integrations/claude.py",
+      "scripts/lib/integrations/copilot.py",
+      "scripts/lib/integrations/cursor.py",
+      "scripts/lib/integrations/opencode.py",
+      "scripts/lib/integrations/runner.py"
+    ],
+    [
+      "tests/ci/test_ci_reconciliation.py",
+      "tests/ci/test_ci_scenario_boundaries.py",
+      "tests/ci/test_ci_scenarios.py"
+    ],
+    [
+      "tests/installer/test_core_settings_seeding.py",
+      "tests/installer/test_doctor_parity.py",
+      "tests/installer/test_native_cli_launcher.py",
+      "tests/installer/test_native_hook_json.py",
+      "tests/installer/test_native_json_reader.py",
+      "tests/installer/test_optional_mcp_setup.py",
+      "tests/installer/test_strict_permissions.py"
+    ],
+    [
+      "tests/integrations/test_agent_model_delivery.py",
+      "tests/integrations/test_copilot_hermes_native.py",
+      "tests/integrations/test_cursor.py"
+    ],
+    [
+      "tests/validators/test_agent_model_pinning.py",
+      "tests/validators/test_platform_defaults_levers.py",
+      "tests/validators/test_review_grouping_coverage.py",
+      "tests/validators/test_sync_platform_defaults.py",
+      "tests/validators/test_ui_cluster_contract.py"
+    ],
+    [
+      "tests/workflows/test_attribution_workflow.py",
+      "tests/workflows/test_ci_report_job.py",
+      "tests/workflows/test_copilot_usage_monitor_workflow.py",
+      "tests/workflows/test_cursor_usage_monitor_workflow.py",
+      "tests/workflows/test_presentify_extractor_workflow.py",
+      "tests/workflows/test_workflow_policy_repo_wide.py"
+    ]
+  ]
+}

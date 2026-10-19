@@ -13,10 +13,10 @@ This is a thin dispatcher over the retained `implement-phase` skill. The full pe
 `/implement` is argument-driven, not menu-driven - it infers what to do from the positional arguments:
 
 - `/implement <plan>` - run the WHOLE plan (the full driver). `<plan>` is a slug, a plan file path, a plan name, or a `vX.Y.Z` version. Every incomplete phase runs in order with a local commit at each boundary; the fail-closed last phase publishes and integrates once, then the release and cleanup follow under the approvals recorded at the start.
-- `/implement vX.Y` - run every member plan of that minor (for example `v0.5`), in semantic-version order, under one approval. A `vX.Y.Z` token still names one plan. The members are what `python ~/.nexus-hub/scripts/check_plan_completion.py members vX.Y` prints; the membership rule and the minor run record are owned by the completion contract. With no member the command prints `No queued plans in vX.Y` and starts nothing. A malformed minor token (`v0.5.x`, `v0`) or a per-plan mode token after a minor (`phase <N>`, `next`, `phase-by-phase`) prints usage and starts nothing, because those modes belong to one plan.
+- `/implement vX.Y` - run every member plan of that minor (for example `v0.5`) under one approval: automatically implement compatible members concurrently, then publish and release in semantic-version order. A `vX.Y.Z` token still names one plan. The members are what `python ~/.nexus-hub/scripts/check_plan_completion.py members vX.Y` prints; the membership rule and the minor run record are owned by the completion contract. With no member the command prints `No queued plans in vX.Y` and starts nothing. A malformed minor token (`v0.5.x`, `v0`) or a per-plan mode token after a minor (`phase <N>`, `next`, `phase-by-phase`) prints usage and starts nothing, because those modes belong to one plan.
 - `/implement` (bare) - the same full driver on the next plan: the lowest `Status: queued` plan by semantic version whose queued predecessors are merged. The resolved plan is the first line of the upfront round; when two plans qualify or the order is unclear, ask.
 - `/implement <plan> phase <N>` (also `phase-N` or `"Phase Name"`) - run exactly one phase, with the per-phase confirmation and commit prompt.
-- `/implement <plan> next` - run one phase: the first not yet marked complete.
+- `/implement <plan> next` - run one phase: the first still needing implementation or focused verification. Use the runbook's deferred-final-validation rule; pending comprehensive test tasks stay unchecked.
 - `/implement <plan> phase-by-phase` - the full loop, but after each non-final phase wait with: (1) commit and continue; (2) commit and pause; (3) other. There is no push option: a non-final phase is commit-only.
 - `/implement <plan> full` and `in-full` - accepted aliases for the default.
 - `/implement pause` - pause the current run at the next safe point. User-only: the pause must come from the user's own prompt (the pause line the checker prints, pasted by the user), is always honored, and the run resumes with `/implement <plan>`.
@@ -41,7 +41,7 @@ Dispatch to the retained skill:
 
       (any invocation) -> implement-phase
 
-The skill runs its full sequence: plan + phase resolution, pre-implementation review, subtask-by-subtask implementation, lint and format, test execution with coverage, test augmentation, the troubleshooting loop, the GO / NO-GO quality gate, and the post-phase completion sequence (gitignore, test review, CI-impact record, known-gaps update, docs cleanup audit, devlog, documentation, session history, commit message, and the commit prompt).
+The skill runs its full sequence: plan + phase resolution, pre-implementation review, subtask-by-subtask implementation, lint and format, focused test execution during implementation, final-plan coverage and test augmentation, the troubleshooting loop, the GO / NO-GO quality gate, and the post-phase completion sequence (gitignore, test review, CI-impact record, known-gaps update, docs cleanup audit, devlog, documentation, session history, commit message, and the commit prompt).
 
 ## Per-phase model-routing pre-flight (graceful degradation)
 
@@ -61,11 +61,13 @@ Before writing code, at plan entry and at every phase entry, `/implement` re-val
 
 ## Worktree isolation and parallel plans (guarantee)
 
-`/implement` isolates a plan in its own **worktree**, not merely its own branch, so a second plan can start in a separate session without switching the shared checkout underneath a running one. It then reports which queued plans are parallel-capable, with a copy-paste block for launching each in a new session. On the final phase, after the merge is green and merged, it retires the worktree: branch fully merged, tree clean, directory and branch deleted, `git worktree list` confirmed clear.
+`/implement vX.Y` separates implementation from release. The coordinator automatically dispatches eligible whole-plan workers through available harness agent tools, with exclusive claims, a dedicated branch and linked worktree for each, and the aggregate run budget. It admits another compatible plan when capacity opens without waiting for unrelated releases. A completed later worker waits locally at implementation-ready; it does not publish or release.
 
-Mechanics belong to `[[using-git-worktrees]]`; ranking and overlap detection to `[[plan-queue-assessment]]`. This command owns neither, and the procedure lives in `implement-phase`. Where worktrees are unavailable, it falls back to a branch and says so.
+The procedure and serial fallback live in `implement-phase`; [[plan-queue-assessment]] owns compatibility, [[multi-agent-coordinator]] owns worker scoping, and [[using-git-worktrees]] owns worktree mechanics. Native implementation admission and ordered publication admission are distinct gates in the completion contract. Publication waits for the preceding release and refreshed integration base; cleanup remains required for final completion. Where agent tools or worktrees are unavailable, report the limitation and execute serially under the same release gate.
 
 ## Phase lifecycle (guarantee)
+
+Use focused tests and cheap checks during implementation. Full-suite testing, project coverage collection, broad platform validation, E2E sweeps and benchmarks wait until all implementation tasks are complete in the final phase of each plan, before publication and release. The runbook applies [[cicd-integration]] for test selection, evidence reuse and correction scope.
 
 `/implement` enforces the same lifecycle `/plan` generates. Three guarantees, worth stating because they change what the reader should expect at a phase boundary:
 

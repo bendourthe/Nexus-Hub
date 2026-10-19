@@ -52,3 +52,7 @@ tests/fixtures/interactive-handbooks-qualification/** text=auto eol=lf
 docs/releases/v4/v4.9/development/interactive-handbooks/phase-6-native-attempts/**/first-build.html -text
 docs/releases/v4/v4.9/development/interactive-handbooks/phase-6-native-attempts/**/failed-final.html -text
 docs/releases/v4/v4.9/development/interactive-handbooks/phase-6-native-attempts/**/failed-final-process.svg -text
+
+# Preserve captured cache-publication evidence bytes in active and archived release trees.
+docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-*.json -text
+docs/archives/v4/v4.14/development/v4.14.0-phase-7-receipts/cache-publication-*.json -text

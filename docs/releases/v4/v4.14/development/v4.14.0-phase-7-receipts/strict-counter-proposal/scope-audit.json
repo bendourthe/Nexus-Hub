@@ -1,0 +1,37 @@
+{
+  "ps1": {
+    "source_raw_sha256": "f63818a2aaeb2d8f59c16883323b37d0bd297ada921203eaacf251b896a927c3",
+    "candidate_raw_sha256": "230a93f8d9d2e7f652cfcb287911373862539249da68f419103bb44ec16a92d9",
+    "candidate_lf_sha256": "a1e80b421ff9220a48b7761041e4c3921a4cfde191c1b5bc0e56dfecf812d158",
+    "only_strict_function_changed": true,
+    "added": 1,
+    "removed": 1,
+    "candidate_path": "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-ix7y53ij\\installer.ps1"
+  },
+  "sh": {
+    "source_raw_sha256": "5346e4283ae0f9556275469ef8e217d4b9cd9d7b883aea4d52506a1df9d62548",
+    "candidate_raw_sha256": "d18a5b40e106f51508f6948c92dbc09b7297035d25f0ca24655ae965011661e4",
+    "candidate_lf_sha256": "d18a5b40e106f51508f6948c92dbc09b7297035d25f0ca24655ae965011661e4",
+    "only_strict_function_changed": true,
+    "added": 29,
+    "removed": 10,
+    "candidate_path": "C:\\Users\\[redacted:user]\\AppData\\Local\\Temp\\nexus-v4140-strict-positional-ix7y53ij\\installer.sh"
+  },
+  "overlay": {
+    "path": "configs/permissions/claude-permissions-strict.json",
+    "raw_sha256": "bd554e624e093f7c7396d9ea44739d14a9e0397190ba826d2365e22d2efef2c8",
+    "deny": 22,
+    "ask": 12,
+    "unchanged": true
+  },
+  "status": "PROPOSED NOT APPLIED",
+  "verification": {
+    "new_cases_passed": 61,
+    "existing_cases_passed": 82,
+    "paths_and_empty_cases_passed": 24,
+    "original_controls_failed_as_expected": 2,
+    "independent_final_bash_cases_passed": 23,
+    "bash_syntax_exit": 0,
+    "shellcheck_warning_exit": 0
+  }
+}

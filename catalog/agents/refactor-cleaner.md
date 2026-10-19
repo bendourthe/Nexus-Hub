@@ -1,6 +1,7 @@
 ---
 name: refactor-cleaner
 description: Safe, behavior-preserving code refactoring. Use to remove duplication, simplify complex logic, improve naming, or restructure modules. Never changes observable behavior. Always runs the test suite before and after.
+model: opus
 tools: Read, Glob, Grep, Bash
 ---
 

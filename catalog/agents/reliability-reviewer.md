@@ -1,6 +1,7 @@
 ---
 name: reliability-reviewer
 description: Single-lens reviewer that judges a diff for runtime reliability - error handling, retries, timeouts, resource cleanup, partial-failure and idempotency behavior. Use as a conditional persona inside the multi-agent-code-review pipeline. Returns structured JSON findings, never edits code.
+model: opus
 tools: Read, Glob, Grep, Bash
 ---
 

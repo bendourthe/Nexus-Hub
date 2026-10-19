@@ -35,7 +35,7 @@ on:
   workflow_dispatch:
 
 # v3.15.8 Phase 9.3: least privilege. This workflow builds and tests only --
-# no artifact upload, no gh CLI, no comments, no pushes -- so read-only
+# no gh CLI, comments or pushes; retained reports need no extra permission -- so read-only
 # contents is the complete requirement.
 permissions:
   contents: read
@@ -51,12 +51,19 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
-      - name: Comparison / adoption-plan co-location check
-        # v3.17.7: the inline bash implementation moved to
-        # scripts/check_doc_colocation.py. It carried three fail-open defects
-        # (only the highest major scanned, a dangling seed passing, and relative
-        # `Seeded from` paths skipped entirely) that could not be unit-tested in
-        # a `run:` block. The script is a repo-internal guard: no installer copy
-        # step, no .ps1 sibling. It also runs in `make validate`, so the check is
-        # now reproducible locally instead of CI-only.
-        run: python scripts/check_doc_colocation.py --verbose
+      - name: Repository-native doc-colocation profile
+        run: python scripts/ci/run.py --profile full --only doc-colocation --reports-dir reports
+
+      - name: Publish native profile summary
+        if: always()
+        shell: bash
+        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Retain native profile reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: doc-colocation-reports
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 7

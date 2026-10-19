@@ -1,0 +1,49 @@
+{
+  "observed_utc": "2026-10-17T15:21:10.110009+00:00",
+  "scope": "distribution only; unchanged output independently checked twice",
+  "command": [
+    "python",
+    "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py",
+    "docs/handbooks/_sources/distribution/model.json",
+    "--out",
+    "docs/handbooks/distribution.html",
+    "--root",
+    ".",
+    "--check"
+  ],
+  "runs": [
+    {
+      "run": 1,
+      "exit_code": 0,
+      "verified_output_sha256": "a857627a0244f95b4966dc9c099a8d6d3f66f3ba7b3406e12a0ba8670cc8218c"
+    },
+    {
+      "run": 2,
+      "exit_code": 0,
+      "verified_output_sha256": "a857627a0244f95b4966dc9c099a8d6d3f66f3ba7b3406e12a0ba8670cc8218c"
+    }
+  ],
+  "mapped_input_changes": [
+    {
+      "path": "scripts/installer.ps1",
+      "before_sha256": "297cd01ddba52abbc3fbb90ffb330aff4c97e53582864b8fdca094766d8b4f67",
+      "after_sha256": "83d99618d82da5c3c84dea3bc705e24d62bcef4712cf806b1eaa5bd93df560b4"
+    }
+  ],
+  "all_other_mapped_inputs_unchanged": true,
+  "all_renderer_inputs_unchanged": true,
+  "entry_unchanged": true,
+  "output_sha256": "a857627a0244f95b4966dc9c099a8d6d3f66f3ba7b3406e12a0ba8670cc8218c",
+  "output_written": false,
+  "build_record_written": false,
+  "rendered_evidence_reused": {
+    "status": "pass",
+    "evidence": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/handbook-browser-after-skills-repair.json",
+    "evidence_sha256": "713b593c69e77674ec12ca9bb5f3826f6145d9ce1a85c2e179d68b3a79ece019",
+    "browser": "Chromium 153.0.8010.12",
+    "output_sha256": "a857627a0244f95b4966dc9c099a8d6d3f66f3ba7b3406e12a0ba8670cc8218c"
+  },
+  "new_browser_run": false,
+  "qualifying_test_receipt": "combined-repair-local-qualification.json",
+  "qualifying_test_receipt_sha256": "65a226cb2d5435874a938b3b4cb2c4c077c2ce621aa4de1c93262dfe2b0532d2"
+}

@@ -1,0 +1,161 @@
+{
+  "_publication": {"kind": "redacted_capture", "original_capture_sha256": "83beae30cf0d3f62d56545b2121a378061a592060ee1a58fd099723cc403af0a", "original_retained_privately": true, "redaction": "Local account identifiers replaced by <redacted:local-user>; captured result fields and counts are otherwise preserved"},
+  "duration_s": 6214.108999999997,
+  "finished_at": "2026-10-18T17:07:00Z",
+  "groups": [
+    {
+      "commands": [],
+      "name": "shell-lint",
+      "skipped_reason": "no command in this group runs on windows",
+      "status": "skip"
+    },
+    {
+      "commands": [
+        {
+          "duration_s": 1.75,
+          "exit_code": 0,
+          "group": "powershell-parse",
+          "name": "powershell AST parse",
+          "output": "OK   _notify_common.ps1\r\nOK   antigravity-cli-diff-review.ps1\r\nOK   approval-capture.ps1\r\nOK   attribution-guard.ps1\r\nOK   auto-devlog.ps1\r\nOK   auto-format-on-write.ps1\r\nOK   claude-diff-review.ps1\r\nOK   code-search-routing.ps1\r\nOK   codex-diff-review.ps1\r\nOK   completion-gate.ps1\r\nOK   compress-output.ps1\r\nOK   dependency-staleness-notice.ps1\r\nOK   escalation-trigger.ps1\r\nOK   gemini-diff-review.ps1\r\nOK   git-guardrails.ps1\r\nOK   html-responsive-guard.ps1\r\nOK   large-file-guard.ps1\r\nOK   learning-capture.ps1\r\nOK   lint-autofix.ps1\r\nOK   lint-on-write.ps1\r\nOK   memory-store-guard.ps1\r\nOK   notify-attention-required.ps1\r\nOK   notify-on-complete.ps1\r\nOK   old-version-docs-guard.ps1\r\nOK   opencode-diff-review.ps1\r\nOK   provenance-ledger.ps1\r\nOK   require-description.ps1\r\nOK   require-powershell-description.ps1\r\nOK   rewrite-command.ps1\r\nOK   secret-scan.ps1\r\nOK   session-start.ps1\r\nOK   session-summary.ps1\r\nOK   test-gap-notice.ps1\r\nOK   usage-display.ps1\r\nOK   user-edit-guard.ps1\r\nOK   workflow-phase-notice.ps1\r\nOK   generate_release_changelog.ps1\r\nOK   Install-Nexus-Hub-Permissions.ps1\r\nOK   installer.ps1\r\nOK   new-feature.ps1\r\nOK   nexus-hub-autoseed.ps1\r\nOK   install.ps1\r\n",
+          "reason": "",
+          "status": "pass"
+        }
+      ],
+      "name": "powershell-parse",
+      "skipped_reason": "",
+      "status": "pass"
+    },
+    {
+      "commands": [
+        {
+          "duration_s": 29.625,
+          "exit_code": 0,
+          "group": "interpreters",
+          "name": "check_python_floor",
+          "output": "Python 3.11 grammar: 1021 tracked files passed\r\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.5,
+          "exit_code": 0,
+          "group": "interpreters",
+          "name": "check_interpreter_resolution",
+          "output": "[interpreters] OK   powershell -> C:\\windows\\System32\\WindowsPowerShell\\v1.0\\powershell.EXE\r\n[interpreters] every hook interpreter can execute a script.\r\n",
+          "reason": "",
+          "status": "pass"
+        }
+      ],
+      "name": "interpreters",
+      "skipped_reason": "",
+      "status": "pass"
+    },
+    {
+      "commands": [
+        {
+          "duration_s": 1761.1560000000172,
+          "exit_code": 1,
+          "group": "windows-hooks",
+          "name": "hook-tests (Windows PowerShell 5.1)",
+          "output": "........................................................................ [  2%]\r\n........................................................................ [  5%]\r\n........................................................................ [  8%]\r\n........................................................................ [ 11%]\r\n........................................................................ [ 13%]\r\n........................................................................ [ 16%]\r\n........................................................................ [ 19%]\r\n........................................................................ [ 22%]\r\n........................................................................ [ 24%]\r\n........................................................................ [ 27%]\r\n........................................................................ [ 30%]\r\n........................................................................ [ 33%]\r\n........................................................................ [ 35%]\r\n........................................................................ [ 38%]\r\n........................................................................ [ 41%]\r\n........................................................................ [ 44%]\r\n........................................................................ [ 46%]\r\n........................................................................ [ 49%]\r\n........................................................................ [ 52%]\r\n........................................................................ [ 55%]\r\n........................................................................ [ 57%]\r\n........................................................................ [ 60%]\r\n........................................................................ [ 63%]\r\n........................................................................ [ 66%]\r\n........................................................................ [ 68%]\r\n........................................................................ [ 71%]\r\n........................................................................ [ 74%]\r\n........................................................................ [ 77%]\r\n........................................................................ [ 80%]\r\n........................................................................ [ 82%]\r\n........................................................................ [ 85%]\r\n........................................................................ [ 88%]\r\n........................................................................ [ 91%]\r\n........................................................................ [ 93%]\r\n........................................................................ [ 96%]\r\n..........................F............................................. [ 99%]\r\n..................                                                       [100%]\r\n================================== FAILURES ===================================\r\n________________ test_accept_after_diff_releases_the_block[sh] ________________\r\n\r\nrun = <function run.<locals>._run at 0x000001FF17C62200>\r\nwork = WindowsPath('C:/Users/<redacted:local-user>/AppData/Local/Temp/pytest-of-unknown/pytest-95/test_accept_after_diff_release0/work')\r\ntmp_path = WindowsPath('C:/Users/<redacted:local-user>/AppData/Local/Temp/pytest-of-unknown/pytest-95/test_accept_after_diff_release0')\r\n\r\n    def test_accept_after_diff_releases_the_block(run, work, tmp_path):\r\n        deck = work / \"deck.pptx\"\r\n        run(_payload(\"PostToolUse\", \"Read\", work, path=deck), work)\r\n        _user_edits(deck)\r\n        assert run(_payload(\"PreToolUse\", \"Write\", work, path=deck), work).returncode == 2\r\n        assert _guard(tmp_path, work, \"accept\", str(deck)).returncode == 3, \"accept before diff must refuse\"\r\n        assert _guard(tmp_path, work, \"diff\", str(deck)).returncode == 0\r\n>       assert _guard(tmp_path, work, \"accept\", str(deck)).returncode == 0\r\nE       AssertionError: assert 1 == 0\r\nE        +  where 1 = CompletedProcess(args=['C:\\\\Users\\\\<redacted:local-user>\\\\AppData\\\\Local\\\\Temp\\\\nexus-v4140-full-py311\\\\Scripts\\\\python.exe', 'C:\\..._after_diff_release0\\\\\\\\store\\\\\\\\records\\\\\\\\c324362aedb7e202f7de01b224f329c57c2b03ba9bcced224a4a68237a90e38b.json\\'\\n').returncode\r\nE        +    where CompletedProcess(args=['C:\\\\Users\\\\<redacted:local-user>\\\\AppData\\\\Local\\\\Temp\\\\nexus-v4140-full-py311\\\\Scripts\\\\python.exe', 'C:\\..._after_diff_release0\\\\\\\\store\\\\\\\\records\\\\\\\\c324362aedb7e202f7de01b224f329c57c2b03ba9bcced224a4a68237a90e38b.json\\'\\n') = _guard(WindowsPath('C:/Users/<redacted:local-user>/AppData/Local/Temp/pytest-of-unknown/pytest-95/test_accept_after_diff_release0'), WindowsPath('C:/Users/<redacted:local-user>/AppData/Local/Temp/pytest-of-unknown/pytest-95/test_accept_after_diff_release0/work'), 'accept', 'C:\\\\Users\\\\<redacted:local-user>\\\\AppData\\\\Local\\\\Temp\\\\pytest-of-unknown\\\\pytest-95\\\\test_accept_after_diff_release0\\\\work\\\\deck.pptx')\r\nE        +      where 'C:\\\\Users\\\\<redacted:local-user>\\\\AppData\\\\Local\\\\Temp\\\\pytest-of-unknown\\\\pytest-95\\\\test_accept_after_diff_release0\\\\work\\\\deck.pptx' = str(WindowsPath('C:/Users/<redacted:local-user>/AppData/Local/Temp/pytest-of-unknown/pytest-95/test_accept_after_diff_release0/work/deck.pptx'))\r\n\r\ncatalog\\hooks\\tests\\test_user_edit_guard.py:395: AssertionError\r\n=========================== short test summary info ===========================\r\nFAILED catalog/hooks/tests/test_user_edit_guard.py::test_accept_after_diff_releases_the_block[sh]\r\n1 failed, 2609 passed in 1759.96s (0:29:19)\r\n",
+          "reason": "exit 1",
+          "status": "fail"
+        },
+        {
+          "duration_s": 482.5469999999914,
+          "exit_code": 0,
+          "group": "windows-hooks",
+          "name": "Git attribution (Windows)",
+          "output": "..................s.............................                         [100%]\r\n47 passed, 1 skipped in 480.06s (0:08:00)\r\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 187.93799999999464,
+          "exit_code": 0,
+          "group": "windows-hooks",
+          "name": "security-audit evidence (Windows)",
+          "output": ".............................................s.......sss...........s...s [ 15%]\r\ns...............s.....................s....s............................ [ 30%]\r\n........................................................................ [ 45%]\r\n........................................................................ [ 60%]\r\n........................................................................ [ 75%]\r\n........................................................................ [ 90%]\r\n............................................                             [100%]\r\n466 passed, 10 skipped in 185.60s (0:03:05)\r\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 114.14000000001397,
+          "exit_code": 0,
+          "group": "windows-hooks",
+          "name": "native integrations (Windows)",
+          "output": ".........................................................ss............. [ 26%]\r\n........................................................................ [ 53%]\r\n........................................................................ [ 79%]\r\n.......................................................                  [100%]\r\n269 passed, 2 skipped in 112.72s (0:01:52)\r\n",
+          "reason": "",
+          "status": "pass"
+        }
+      ],
+      "name": "windows-hooks",
+      "skipped_reason": "",
+      "status": "fail"
+    },
+    {
+      "commands": [
+        {
+          "duration_s": 729.484999999986,
+          "exit_code": 0,
+          "group": "windows-installer",
+          "name": "installer (Windows)",
+          "output": "...ssss...sss......ss..s.s.s.s.s.s.s.................................... [  8%]\r\n........................................................................ [ 17%]\r\n........................................................................ [ 25%]\r\n........................................................................ [ 34%]\r\n........................................................................ [ 43%]\r\n..................ssssss................................................ [ 51%]\r\n...............ssssssssss.........sssssssssss........................... [ 60%]\r\n.........................s.............................................. [ 69%]\r\n........................................................................ [ 77%]\r\n........................................................................ [ 86%]\r\n........................................................................ [ 95%]\r\n.........................................                                [100%]\r\n789 passed, 44 skipped in 728.38s (0:12:08)\r\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 1055.125,
+          "exit_code": 0,
+          "group": "windows-installer",
+          "name": "validators a-c (Windows)",
+          "output": "................................s....................................... [  8%]\r\n........................................................................ [ 16%]\r\n........................................................................ [ 24%]\r\n........................................................................ [ 32%]\r\n........................................................................ [ 41%]\r\n........................................................................ [ 49%]\r\n........................................................................ [ 57%]\r\n........................................................................ [ 65%]\r\n........................................................................ [ 74%]\r\n........................................................................ [ 82%]\r\n........................................................................ [ 90%]\r\n........................................................................ [ 98%]\r\n...........                                                              [100%]\r\n874 passed, 1 skipped in 1052.72s (0:17:32)\r\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 1497.296000000002,
+          "exit_code": 0,
+          "group": "windows-installer",
+          "name": "validators co-z (Windows)",
+          "output": "........................................................................ [  3%]\r\n........................................................................ [  7%]\r\n........................................................................ [ 11%]\r\n........................................................................ [ 15%]\r\n........................................................................ [ 18%]\r\n........................................................................ [ 22%]\r\n........................................................................ [ 26%]\r\n........................................................................ [ 30%]\r\n........................................................................ [ 33%]\r\n........................................................................ [ 37%]\r\n........................................................................ [ 41%]\r\n........................................................................ [ 45%]\r\n........................................................................ [ 49%]\r\n........................................................................ [ 52%]\r\n........................................................................ [ 56%]\r\n........................................................................ [ 60%]\r\n........................................................................ [ 64%]\r\n........................................................................ [ 67%]\r\n........................................................................ [ 71%]\r\n........................................................................ [ 75%]\r\n........................................................................ [ 79%]\r\n........................................................................ [ 83%]\r\n........................................................................ [ 86%]\r\n.................................................................s...... [ 90%]\r\n........................................................................ [ 94%]\r\n........................................................................ [ 98%]\r\n..................................                                       [100%]\r\n1905 passed, 1 skipped in 1495.42s (0:24:55)\r\n",
+          "reason": "",
+          "status": "pass"
+        }
+      ],
+      "name": "windows-installer",
+      "skipped_reason": "",
+      "status": "pass"
+    },
+    {
+      "commands": [
+        {
+          "duration_s": 0.875,
+          "exit_code": 0,
+          "group": "windows-installer-core",
+          "name": "PowerShell 7 runtime",
+          "output": "7.6.7\r\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 353.6719999999914,
+          "exit_code": 0,
+          "group": "windows-installer-core",
+          "name": "installer JSON and hook boundaries (PowerShell 7)",
+          "output": "........................................................................ [ 24%]\r\n........................................................................ [ 48%]\r\n........................................................................ [ 73%]\r\n........................................................................ [ 97%]\r\n.......                                                                  [100%]\r\n295 passed in 352.09s (0:05:52)\r\n",
+          "reason": "",
+          "status": "pass"
+        }
+      ],
+      "name": "windows-installer-core",
+      "skipped_reason": "",
+      "status": "pass"
+    }
+  ],
+  "platform": "windows",
+  "profile": "platform",
+  "scope_conservative": true,
+  "scope_reason": "no --base supplied; running every group",
+  "started_at": "2026-10-18T15:23:26Z"
+}

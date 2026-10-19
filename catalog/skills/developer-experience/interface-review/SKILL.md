@@ -33,11 +33,17 @@ Exactly one owner per concern. This table is the cluster's source of truth. Dele
 | Font loading, type scale, wrap, truncation, visual heading size | `web-typography` | Ranks via accessibility; words via copy |
 | Palette construction, measuring the rendered pair, gamut fallbacks | `color-systems` | Severity via accessibility; applying a supplied brand JSON via `theme-tokens` / `brand-styling` |
 | Anti-slop judgment and optional polish recipes (elevation, radius, icon stroke, motion values) | `hallmark-design` | Requirements stay on accessibility |
+| Design-system lint execution and coverage | `interface-review` | Domain rules stay with the owners above; component contracts stay with `ui-component-generation` |
 | Order, coverage map, consolidation, caps, verdict | `interface-review` | Never duplicates a row above |
 
 Tie-break already used above: accessibility decides *when* contrast is required and *how bad* a miss is; color-systems *measures* and *changes* the colors.
 
 ## Instructions
+
+### Design-system lint
+
+`interface-review` owns lint execution and coverage, a measurement concern: apply [the design-system contract](references/design-system-contract.md) to the project's existing lint task. Domain owners decide the permitted values and exceptions; this runner adds no competing design policy. This extends orchestration with a repeatable measurement boundary, rather than assigning lint mechanics to `hallmark-design`'s judgment concern. Follow the verifier taxonomy owned by [[multi-agent-code-review]].
+
 
 ### 1. Resolve scope and mode; state them first
 
@@ -131,6 +137,8 @@ Overflow beyond the cap goes to a ranked appendix, never deleted, never mixed in
 | "They said review the button, so I will still walk all six domains." | Single-domain request: load the owner, not this coordinator. |
 
 ## Verification
+
+- [ ] After adapting the referenced configuration in the consuming project, run `npm exec --no -- stylelint --config .stylelintrc.design-system.json "src/**/*.css" --max-warnings 0`; record the exit code, files covered, and a rejected-then-fixed fixture as described in the reference.
 
 - [ ] Scope and mode appear at the top of the report.
 - [ ] Delegates were walked in the order above, or a skip is recorded as not reviewed by name.

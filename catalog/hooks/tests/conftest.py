@@ -1,7 +1,6 @@
 """Shared fixtures for the hook test suite.
 
-Provides interpreter resolution for the shell hooks so the suite runs on Windows
-as well as POSIX hosts.
+Provides portable shell-hook interpreters and private Git configuration for each test.
 
 Why this exists (v3.15.6 Phase 2): on Windows, `shutil.which("bash")` commonly
 resolves to `C:\\Windows\\System32\\bash.exe`, the WSL launcher stub. That stub
@@ -277,3 +276,21 @@ def pytest_sessionfinish(session, exitstatus):
         else:
             print(line)
     session.exitstatus = pytest.ExitCode.TESTS_FAILED
+
+
+@pytest.fixture(autouse=True)
+def isolated_git_configuration(
+    monkeypatch: pytest.MonkeyPatch, tmp_path_factory: pytest.TempPathFactory
+) -> None:
+    """Keep synthetic repositories independent of machine Git configuration."""
+    config = tmp_path_factory.mktemp("git-config") / "config"
+    config.write_text(
+        "[user]\n    name = Test User\n    email = test@example.invalid\n"
+        "[init]\n    defaultBranch = main\n",
+        encoding="utf-8",
+    )
+    for key in tuple(os.environ):
+        if key == "GIT_CONFIG" or key.startswith("GIT_CONFIG_"):
+            monkeypatch.delenv(key, raising=False)
+    monkeypatch.setenv("GIT_CONFIG_GLOBAL", str(config))
+    monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", "1")

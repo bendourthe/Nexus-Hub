@@ -1,0 +1,62 @@
+{
+  "observed_utc": "2026-10-17T22:35:51.275Z",
+  "scope": "Four actual isolated global Windows PowerShell 5.1 installer cases with inert editor launchers; no live editor delivery claim",
+  "source_script_sha256": "83d99618d82da5c3c84dea3bc705e24d62bcef4712cf806b1eaa5bd93df560b4",
+  "host": "Windows PowerShell 5.1",
+  "cases": [
+    {
+      "case": "owned-upgrade",
+      "exit": 0,
+      "seconds": 371.05,
+      "absolute_subagent_value": "sonnet",
+      "legacy_effort": null,
+      "pinned_agents": 23,
+      "strict_deny_count": 22,
+      "strict_ask_count": 12,
+      "hook_commands": 50,
+      "errors": []
+    },
+    {
+      "case": "user-upgrade",
+      "exit": 0,
+      "seconds": 458.33,
+      "absolute_subagent_value": "sonnet",
+      "legacy_effort": "medium",
+      "pinned_agents": 23,
+      "strict_deny_count": 22,
+      "strict_ask_count": 12,
+      "hook_commands": 50,
+      "errors": []
+    },
+    {
+      "case": "fresh",
+      "exit": 0,
+      "seconds": 383.11,
+      "absolute_subagent_value": "sonnet",
+      "legacy_effort": null,
+      "pinned_agents": 23,
+      "strict_deny_count": 22,
+      "strict_ask_count": 12,
+      "hook_commands": 49,
+      "errors": []
+    },
+    {
+      "case": "case-upgrade",
+      "exit": 0,
+      "seconds": 598.2,
+      "absolute_subagent_value": "sonnet",
+      "legacy_effort": "medium",
+      "pinned_agents": 23,
+      "strict_deny_count": 23,
+      "strict_ask_count": 13,
+      "hook_commands": 50,
+      "errors": []
+    }
+  ],
+  "protected_host_files_unchanged": true,
+  "protected_host_file_count": 3,
+  "retained_observations": "Temp/nexus-v4140-native-windows-ovrpssaj/observations.json",
+  "retained_sha256": "f8f8b56de40e6111e6bf82e674492ff3aed08af9c9592c1989f63df90d3fbfe2",
+  "source_side_effect": "npm rewrote five source package-lock files. Current and recovered copies were retained, then exact frozen bytes were restored using the official guard. See verification-lockfile-recovery.json.",
+  "live_editor_delivery_qualified": false
+}

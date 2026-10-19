@@ -1,0 +1,99 @@
+{
+  "status": "CANDIDATE QUALIFIED; ELEVEN CI FILES NOT APPLIED",
+  "recorded_utc": "2026-10-17T05:01:04.992363+00:00",
+  "ci_suite": {
+    "command": "python -m pytest tests/ci tests/workflows -q --cov=scripts.ci",
+    "exit": 0,
+    "passed": 392,
+    "skipped": 19,
+    "seconds": 67.03,
+    "coverage_percent": 88.22800495662949
+  },
+  "fast_profile": {
+    "exit": 0,
+    "passed": 17,
+    "failed": 0,
+    "skipped": 0,
+    "advisory": 0,
+    "seconds": 140.4
+  },
+  "native_platform_smokes": {
+    "exit": 0,
+    "passed": 3,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 744.8,
+    "groups": [
+      "bootstrap-smoke",
+      "registry-smoke",
+      "workspace-smoke"
+    ],
+    "limits": "Before the timeout-test-only edit, with identical production CI/installer hashes. Bootstrap acceptance proves extraction, native CLI version and host-specific prechecks; optional full installation is not inferred."
+  },
+  "ruff": {
+    "changed_python_files": 8,
+    "exit": 0,
+    "diagnostics": 0
+  },
+  "whitespace": {
+    "candidate_exit": 0,
+    "workflow_files": 6,
+    "each_delta": "one LF removed, all other bytes unchanged, terminal newline retained",
+    "yaml_equivalent": true,
+    "source_before_approval": "still has the six rejected EOF blank lines"
+  },
+  "patch": {
+    "forward_source_check": "PASS",
+    "reverse_candidate_check": "PASS"
+  },
+  "review": {
+    "full": {
+      "N": 193,
+      "K": 47,
+      "personas": 10,
+      "union_cardinality_hashes": "PASS"
+    },
+    "nine_file_corrections": "correctness clean; security found extra selectors, repaired before final delta",
+    "two_file_selector_delta": "correctness/security clean; hashes matched",
+    "six_file_EOF_delta": "standards clean; all twelve hashes matched",
+    "one_file_timeout_delta": "reliability clean; delayed cleanup and forced parent-only mutation verified"
+  },
+  "native_nonci_candidate": {
+    "powershell_5_1": {
+      "passed": 126,
+      "skipped": 10,
+      "seconds": 142.14
+    },
+    "powershell_7_6_7": {
+      "passed": 136,
+      "skipped": 0,
+      "seconds": 139.37
+    }
+  },
+  "retained_failure": {
+    "earlier_CI_replay": {
+      "failed": 1,
+      "passed": 390,
+      "skipped": 19,
+      "seconds": 65.92,
+      "test": "test_timeout_reaps_redirected_grandchild"
+    },
+    "disposition": "A deterministic counterexample proves the old oracle can fail after successful cleanup, not the actual replay failure cause. Production process-tree cleanup is unchanged; meaningful replacement and negative controls are retained."
+  },
+  "applied_source": {
+    "new_guard_accepts": 0,
+    "fresh_tests": 9,
+    "parity": "PASS",
+    "powershell_AST": "PASS",
+    "bash_syntax": "PASS",
+    "shellcheck": "zero new diagnostics; four inherited informational diagnostics; unfiltered exit1 retained"
+  },
+  "full_profile": "NOT QUALIFIED: diagnostic parity failure and 2400s hook timeout; stopped before source corrections, no final report/pass",
+  "scope_limits": [
+    "Local Node24 does not qualify hosted pinned Node22.",
+    "Final local/full, current native/offline installer qualification, remote integration and releases remain pending.",
+    "Retained complete Linux installers precede the latest core repair.",
+    "No macOS, live-editor, paid model quality or cost-savings claim."
+  ],
+  "model_API_spend_USD": 0
+}

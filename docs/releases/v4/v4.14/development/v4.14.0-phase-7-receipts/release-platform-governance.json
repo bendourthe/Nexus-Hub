@@ -1,0 +1,508 @@
+{
+  "private_evidence_sha256": "44cfa7554bd66a8b1fec2877312488637b30cc561a5d9e46633f52eccec298f0",
+  "integration_head": "8b32922ca573fb57546611267b88246c1064f1e4",
+  "report": {
+    "purpose": "Read-only v4.14.0 release platform governance preflight",
+    "checked_local_date": "2026-10-18",
+    "source_merge_commit": "8b32922ca573fb57546611267b88246c1064f1e4",
+    "observed_branch": "release/v4.14.0-finalization",
+    "target_version": "4.14.0",
+    "observed_canonical_version": "4.13.13",
+    "owner_skill": "catalog/skills/workflow/platform-contract-verification/SKILL.md",
+    "existing_evidence": {
+      "read_contract": "meta.last_verified=2026-10-15;meta.verified_for_version=4.13.13. Genuine previous-release sweep, not a current .0 stamp.",
+      "same_invocation_primary": [
+        "docs/releases/v4/v4.14/development/phase-1-lever-evidence.md: fetched2026-10-16 Claude subagents/model-config only",
+        "docs/policy/platform-defaults-levers.md: targeted .0 subagent and effort delivery logs2026-10-16; other rows preserve their evidence dates"
+      ],
+      "local_and_hosted": "Existing .0 final local/projection receipts and parent-provided44PR+2postmerge green checks cover implementation/structural proof. They do not substitute for current vendor reads. This audit does not repeat full profiles or hosted checks.",
+      "current_sweep": "No .0 primary platform sweep receipt was found in public .0 evidence or private B filename inventory before this pass."
+    },
+    "native_checks": [
+      {
+        "command": [
+          "verify_platform_contracts.py"
+        ],
+        "exit": 0,
+        "stdout": "[verify-contracts] OK: 14 platforms match the contract doc.",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "check_installer_parity.py"
+        ],
+        "exit": 0,
+        "stdout": "installer parity: PASS",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "check_platform_contract_freshness.py",
+          "--version",
+          "4.14.0"
+        ],
+        "exit": 1,
+        "stdout": "[contract-freshness] STALE: the platform read-contract was last verified for v4.13.13, but the release being cut is v4.14.0.\r\n  Re-verify each platform's current discovery format and re-stamp meta.verified_for_version (+ last_verified) in platform-read-contracts.json.\r\n  This is /update release governance step 4 (the platform-contract-verification skill).",
+        "stderr": ""
+      }
+    ],
+    "platform_assessment": [
+      {
+        "platform": "claude",
+        "classification": "MATCH_NAMED_SURFACES",
+        "sources": [
+          "https://code.claude.com/docs/en/skills",
+          "https://code.claude.com/docs/en/memory",
+          "https://code.claude.com/docs/en/sub-agents",
+          "https://code.claude.com/docs/en/hooks"
+        ],
+        "finding": "Personal/project SKILL.md, retained command Markdown, root/user instructions, Markdown subagents and settings-hook paths remain documented. No reserved synced/anthropic-skills catalog name found. Cloud/Cowork local-home limits are not expanded into coverage."
+      },
+      {
+        "platform": "codex",
+        "classification": "MATCH_NAMED_SURFACES_WITH_RETAINED_LIMITS",
+        "sources": [
+          "https://learn.chatgpt.com/docs/build-skills",
+          "https://learn.chatgpt.com/docs/agent-configuration/agents-md",
+          "https://learn.chatgpt.com/docs/agent-configuration/subagents",
+          "https://learn.chatgpt.com/docs/hooks",
+          "https://learn.chatgpt.com/docs/custom-prompts"
+        ],
+        "finding": "Shared .agents skill ladder, AGENTS hierarchy, standalone TOML agents, sibling hooks.json/inline TOML hook sources and top-level home prompts remain documented. Project prompt mirror stays unverified; skill commands remain verified delivery. No extra model/effort/memory research repeated."
+      },
+      {
+        "platform": "antigravity2",
+        "classification": "MATCH_NAMED_SURFACES_WITH_RETAINED_LIMITS",
+        "sources": [
+          "https://antigravity.google/docs/skills",
+          "https://antigravity.google/docs/subagents?tab=cli",
+          "https://antigravity.google/docs/hooks/",
+          "https://antigravity.google/docs/rules",
+          "https://antigravity.google/docs/migration/workflows-to-skills"
+        ],
+        "finding": "App/IDE global config skills, CLI antigravity-cli skills, workspace .agents skills/agents, shared hook JSON and root GEMINI/AGENTS remain documented. Existing global/workspace workflow compatibility paths appear in migration source. Unqualified CLI loose agents/workflows and nested rule activation remain unqualified."
+      },
+      {
+        "platform": "gemini",
+        "classification": "MATCH_INSTRUCTION_ONLY",
+        "sources": [
+          "https://docs.cloud.google.com/gemini/docs/codeassist/use-agentic-chat-pair-programmer"
+        ],
+        "finding": "User GEMINI.md and project/parent context hierarchy confirmed. IDE-specific skill, workflow, agent, rule and hook mirrors remain UNVERIFIED."
+      },
+      {
+        "platform": "gemini-cli",
+        "classification": "MATCH_NAMED_SURFACES",
+        "sources": [
+          "https://geminicli.com/docs/cli/skills/",
+          "https://geminicli.com/docs/cli/gemini-md/",
+          "https://geminicli.com/docs/reference/commands/",
+          "https://geminicli.com/docs/core/subagents/",
+          "https://geminicli.com/docs/hooks/"
+        ],
+        "finding": "User/project Gemini skill roots and shared aliases, root context hierarchy, TOML command directories, Markdown agents and merged settings hooks remain documented. Older cli/commands URL is an internal redirect; no target delivery change."
+      },
+      {
+        "platform": "opencode",
+        "classification": "MATCH_NAMED_SURFACES",
+        "sources": [
+          "https://opencode.ai/docs/skills/",
+          "https://opencode.ai/docs/agents/",
+          "https://opencode.ai/docs/commands/",
+          "https://opencode.ai/docs/rules/",
+          "https://opencode.ai/docs/plugins/"
+        ],
+        "finding": "Native/shared skill roots, Markdown command/agent directories and root/global AGENTS remain documented. JS/TS plugins remain the hook surface; shell/Python hook parity is not inferred."
+      },
+      {
+        "platform": "nexus-ai",
+        "classification": "SOURCE_MATCH_GLOBAL_SKILLS_ONLY",
+        "sources": [
+          "https://raw.githubusercontent.com/bendourthe/Nexus-AI/main/desktop/sidecar/src/skills/hubSkillReader.ts",
+          "https://raw.githubusercontent.com/bendourthe/Nexus-AI/main/core/storage/paths.ts"
+        ],
+        "finding": "Current public main source retains the isolated catalog root and skills reader. It also contains a command reader, but this bounded check does not newly qualify its complete consumption chain, project mirror or other surfaces. No authenticated host execution is claimed."
+      },
+      {
+        "platform": "cursor",
+        "classification": "MATCH_MODERN_SURFACES_WITH_RETAINED_LIMITS",
+        "sources": [
+          "https://cursor.com/docs/skills",
+          "https://cursor.com/docs/subagents",
+          "https://cursor.com/docs/rules",
+          "https://cursor.com/docs/hooks"
+        ],
+        "finding": "Recursive skill roots, Markdown agents, .mdc rules and global/project hook JSON remain documented. Legacy commands directories stay UNVERIFIED; command-skills provide the verified surface. Local skill discovery is not proof of cloud synchronization."
+      },
+      {
+        "platform": "copilot",
+        "classification": "MATCH_NAMED_CLI_SURFACES",
+        "sources": [
+          "https://docs.github.com/en/copilot/concepts/agents/about-agent-skills",
+          "https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-custom-instructions",
+          "https://docs.github.com/en/copilot/how-tos/copilot-cli/use-copilot-cli/invoke-custom-agents",
+          "https://docs.github.com/en/copilot/reference/hooks-reference"
+        ],
+        "finding": "Personal/project skill paths, CLI instruction files, user agents and user hooks remain documented. Existing VS Code prompt compatibility limits and project skill opt-in policy remain explicit."
+      },
+      {
+        "platform": "windsurf",
+        "classification": "KNOWN_NONBREAKING_COMPATIBILITY_DRIFT",
+        "sources": [
+          "https://docs.devin.ai/desktop/cascade/skills",
+          "https://docs.devin.ai/desktop/cascade/agents-md",
+          "https://docs.devin.ai/desktop/cascade/memories",
+          "https://docs.devin.ai/desktop/cascade/workflows",
+          "https://docs.devin.ai/desktop/cascade/hooks"
+        ],
+        "finding": "Global legacy roots remain documented. Workspace .devin skills/workflows/rules are preferred; .windsurf skill/workflow fallbacks remain supported. Workspace .windsurf hooks load only when .devin hooks are absent or empty. Existing DF-2 is not resolved by this verification and must remain explicit."
+      },
+      {
+        "platform": "openclaw",
+        "classification": "MATCH_WORKSPACE_DELIVERY_WITH_RETAINED_LIMITS",
+        "sources": [
+          "https://docs.openclaw.ai/tools/skills",
+          "https://docs.openclaw.ai/concepts/agent-workspace",
+          "https://docs.openclaw.ai/help/environment",
+          "https://docs.openclaw.ai/concepts/multi-agent"
+        ],
+        "finding": "Selected workspace skills and AGENTS remain documented with profile/state/workspace selection controls. Native lifecycle hooks do not establish tool interception coverage. Former /skills source is a same-host redirect; /tools/skills is current."
+      },
+      {
+        "platform": "qwen",
+        "classification": "MATCH_NAMED_SURFACES",
+        "sources": [
+          "https://qwenlm.github.io/qwen-code-docs/en/users/features/skills/",
+          "https://qwenlm.github.io/qwen-code-docs/en/users/features/commands/",
+          "https://qwenlm.github.io/qwen-code-docs/en/users/features/sub-agents/",
+          "https://qwenlm.github.io/qwen-code-docs/en/users/features/hooks/",
+          "https://qwenlm.github.io/qwen-code-docs/en/users/configuration/settings/"
+        ],
+        "finding": "User/project Qwen skill, command and agent roots, configured QWEN context and settings hooks remain documented. Trust/safe-mode restrictions remain host constraints; no hook schema or default is altered."
+      },
+      {
+        "platform": "kimi",
+        "classification": "MATCH_NAMED_SURFACES",
+        "sources": [
+          "https://www.kimi.com/code/docs/en/kimi-code-cli/customization/skills.html",
+          "https://www.kimi.com/code/docs/en/kimi-code-cli/customization/agents.html",
+          "https://www.kimi.com/code/docs/en/kimi-code-cli/customization/hooks.html",
+          "https://www.kimi.com/code/docs/en/kimi-code-cli/configuration/data-locations.html",
+          "https://www.kimi.com/code/docs/en/kimi-code-cli/configuration/config-files.html"
+        ],
+        "finding": "Native/shared skill roots, native/shared agent roots and global AGENTS remain documented. Hooks still use the user config array; documented project local.toml workspace surface does not establish project hook support."
+      },
+      {
+        "platform": "pi",
+        "classification": "MATCH_NAMED_SURFACES_SOURCE_ASSISTED",
+        "sources": [
+          "https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/skills.md",
+          "https://raw.githubusercontent.com/earendil-works/pi/main/packages/coding-agent/docs/prompt-templates.md",
+          "https://raw.githubusercontent.com/earendil-works/pi/main/packages/coding-agent/src/config.ts",
+          "https://raw.githubusercontent.com/earendil-works/pi/main/packages/coding-agent/src/core/resource-loader.ts"
+        ],
+        "finding": "Recursive folder skills and skill invocation remain documented, prompt templates name the native user path, and current source establishes default .pi/agent plus context/resource loading. No native agent/rule/hook delivery is newly claimed."
+      },
+      {
+        "platform": "hermes",
+        "classification": "MATCH_EMITTED_SKILLS_ONLY_ADDITIONAL_ROSTER",
+        "sources": [
+          "https://hermes-agent.nousresearch.com/docs/user-guide/features/skills"
+        ],
+        "finding": "Native user skill root, explicitly configured shared external roots and trusted project roots remain documented. No extra hook or instruction delivery qualified."
+      },
+      {
+        "platform": "aider",
+        "classification": "MATCH_CONVENTIONS_ADDITIONAL_ROSTER",
+        "sources": [
+          "https://aider.chat/docs/usage/conventions.html"
+        ],
+        "finding": "CONVENTIONS Markdown through explicit read/config remains documented. No native skill directory inferred."
+      },
+      {
+        "platform": "antigravity",
+        "classification": "RETAIN_LEGACY_UNVERIFIED_ADDITIONAL_ROSTER",
+        "sources": [],
+        "finding": "Legacy registry row remains UNVERIFIED and is not conflated with Antigravity2. No new legacy runtime claim or lever qualification."
+      }
+    ],
+    "source_fetch_inventory": [
+      {
+        "surface": "claude-instructions",
+        "url": "https://code.claude.com/docs/en/memory",
+        "marker": "~/.claude/CLAUDE.md",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "claude-agents",
+        "url": "https://code.claude.com/docs/en/sub-agents",
+        "marker": ".claude/agents",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "claude-hooks",
+        "url": "https://code.claude.com/docs/en/hooks",
+        "marker": "settings.json",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "codex-instructions",
+        "url": "https://learn.chatgpt.com/docs/agent-configuration/agents-md",
+        "marker": "AGENTS.override.md",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "codex-agents",
+        "url": "https://learn.chatgpt.com/docs/agent-configuration/subagents",
+        "marker": ".codex/agents",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "codex-hooks",
+        "url": "https://learn.chatgpt.com/docs/hooks",
+        "marker": "hooks.json",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "codex-prompts",
+        "url": "https://learn.chatgpt.com/docs/custom-prompts",
+        "marker": "prompts",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "antigravity-agents",
+        "url": "https://antigravity.google/docs/subagents?tab=cli",
+        "marker": ".agents/agents",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "antigravity-hooks",
+        "url": "https://antigravity.google/docs/hooks?tab=cli",
+        "marker": "~/.gemini/config/hooks.json",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "antigravity-rules",
+        "url": "https://antigravity.google/docs/rules",
+        "marker": "GEMINI.md",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "antigravity-workflows",
+        "url": "https://antigravity.google/docs/migration/workflows-to-skills",
+        "marker": "~/.gemini/config/workflows",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "gemini-instructions",
+        "url": "https://geminicli.com/docs/cli/gemini-md/",
+        "marker": "~/.gemini/GEMINI.md",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "gemini-commands",
+        "url": "https://geminicli.com/docs/cli/commands/",
+        "marker": "commands",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "gemini-hooks",
+        "url": "https://geminicli.com/docs/hooks/",
+        "marker": "settings.json",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "opencode-agents",
+        "url": "https://opencode.ai/docs/agents/",
+        "marker": "~/.config/opencode/agents",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "opencode-commands",
+        "url": "https://opencode.ai/docs/commands/",
+        "marker": "~/.config/opencode/commands",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "opencode-rules",
+        "url": "https://opencode.ai/docs/rules/",
+        "marker": "AGENTS.md",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "opencode-plugins",
+        "url": "https://opencode.ai/docs/plugins/",
+        "marker": "plugins",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "cursor-rules",
+        "url": "https://cursor.com/docs/rules",
+        "marker": ".cursor/rules",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "cursor-agents",
+        "url": "https://cursor.com/docs/subagents",
+        "marker": ".cursor/agents",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "cursor-hooks",
+        "url": "https://cursor.com/docs/hooks",
+        "marker": "hooks.json",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "copilot-instructions",
+        "url": "https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-custom-instructions",
+        "marker": "copilot-instructions.md",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "copilot-agents",
+        "url": "https://docs.github.com/en/copilot/how-tos/copilot-cli/use-copilot-cli/invoke-custom-agents",
+        "marker": "~/.copilot/agents",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "copilot-hooks",
+        "url": "https://docs.github.com/en/copilot/reference/hooks-reference",
+        "marker": "~/.copilot/hooks",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "windsurf-instructions",
+        "url": "https://docs.devin.ai/desktop/cascade/agents-md",
+        "marker": "AGENTS.md",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "windsurf-rules",
+        "url": "https://docs.devin.ai/desktop/cascade/memories",
+        "marker": "global_rules.md",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "windsurf-workflows",
+        "url": "https://docs.devin.ai/desktop/cascade/workflows",
+        "marker": ".devin/workflows",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "windsurf-hooks",
+        "url": "https://docs.devin.ai/desktop/cascade/hooks",
+        "marker": ".devin/hooks.json",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "kimi-agents",
+        "url": "https://www.kimi.com/code/docs/en/kimi-code-cli/customization/agents.html",
+        "marker": ".kimi-code/agents",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "kimi-hooks",
+        "url": "https://www.kimi.com/code/docs/en/kimi-code-cli/customization/hooks.html",
+        "marker": "[[hooks]]",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "kimi-locations",
+        "url": "https://www.kimi.com/code/docs/en/kimi-code-cli/configuration/data-locations.html",
+        "marker": "AGENTS.md",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "qwen-commands",
+        "url": "https://qwenlm.github.io/qwen-code-docs/en/users/features/commands/",
+        "marker": "~/.qwen/commands",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "qwen-agents",
+        "url": "https://qwenlm.github.io/qwen-code-docs/en/users/features/sub-agents/",
+        "marker": "~/.qwen/agents",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "qwen-hooks",
+        "url": "https://qwenlm.github.io/qwen-code-docs/en/users/features/hooks/",
+        "marker": "~/.qwen/settings.json",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "openclaw-workspace",
+        "url": "https://docs.openclaw.ai/concepts/agent-workspace",
+        "marker": "AGENTS.md",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "openclaw-paths",
+        "url": "https://docs.openclaw.ai/help/environment",
+        "marker": "OPENCLAW_PROFILE",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "openclaw-agents",
+        "url": "https://docs.openclaw.ai/concepts/multi-agent",
+        "marker": "workspace",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "antigravity-hooks",
+        "url": "https://antigravity.google/docs/hooks/",
+        "marker": "hooks.json",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "antigravity-cli-skills",
+        "url": "https://antigravity.google/docs/skills?tab=cli",
+        "marker": "~/.gemini/antigravity-cli/skills",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "pi-resource-paths",
+        "url": "https://raw.githubusercontent.com/earendil-works/pi/main/packages/coding-agent/docs/resource-loading.md",
+        "marker": "~/.pi/agent",
+        "checked_local_date": "2026-10-18"
+      },
+      {
+        "surface": "pi-prompts",
+        "url": "https://raw.githubusercontent.com/earendil-works/pi/main/packages/coding-agent/docs/prompt-templates.md",
+        "marker": "~/.pi/agent/prompts",
+        "checked_local_date": "2026-10-18"
+      }
+    ],
+    "source_fetch_notes": [
+      "All URLs in platform rows were opened or searched for the stated path during this current pass except the explicit legacy-antigravity row. Fetched snippets, not authenticated host consumption, are the evidence.",
+      "Antigravity hooks query/tab URL initially failed; canonical /docs/hooks/ recovered and confirmed shared global/workspace paths. General skills page recovered CLI path after tab URL failure.",
+      "OpenClaw /skills yields a same-host redirect landing page; canonical /tools/skills was fetched and verified. Gemini /docs/cli/commands redirects internally to /docs/reference/commands/. Hermes removes a trailing slash. No cross-host redirect was observed among successful discovery fetches.",
+      "Pi resource-loading.md guess was unavailable; no claim relies on it. Current config.ts/resource-loader.ts, actual skills documentation and prompt-template documentation provide retained source-assisted evidence."
+    ],
+    "proposed_source_changes": {
+      "contract_checks": "None: native checker14/14 passes and this pass establishes no new required delivery target/schema change.",
+      "install_verify": "None: preserve existing qualified and excluded surfaces.",
+      "adapters_and_installers": "No new correction proposed by this audit. Existing Devin DF-2 remains the previously known compatibility drift, not fixed or erased.",
+      "json_meta": {
+        "last_verified": "2026-10-18",
+        "verified_for_version": "4.14.0",
+        "verified_for_version_note": "v4.14.0 release pass (2026-10-18): all14 machine-contract rows assessed against current first-party discovery references; named delivered paths remain functional. Devin .devin workspace preference and legacy-hook fallback remain the known DF-2 drift. Existing Gemini IDE, Cursor legacy-command, Antigravity loose-CLI/rule-activation and Nexus-AI mirrored-surface limits remain explicit. Code-vs-contract14/14 and installer parity pass. No authenticated host-consumption claim."
+      },
+      "markdown": "Update only the leading Last verified date/version and current-pass summary; preserve historical entries and residual limitations. Record current canonical OpenClaw tools/skills and Gemini reference/commands URLs in sources/log where relevant.",
+      "lever_log": "Append a dated v4.14.0 scoped ride-along record: reuse genuine Oct16 Claude lever evidence; current discovery references do not re-qualify every behavioral default. Other lever rows retain prior dates/classifications and are carried forward, not freshly checked. Preserve UNVERIFIED rows and advisory-only gating. No new memory/model scope, seeded default or approval-policy change."
+    },
+    "required_after_root_changes": [
+      "Only root applies legitimate release metadata after reviewing the current source findings; this audit performed no restamp.",
+      "After the actual version/marker changes, rerun check_platform_contract_freshness.py --version4.14.0 and require terminal0. Current native result is correctly STALE exit1.",
+      "Run affected owner checks on the final release tree and normal release CI; reuse unaffected existing passing qualification rather than restarting comprehensive local suites without new affected input.",
+      "Retain/reconcile existing DF-2 and residual unverified gaps through the owning known-gap process; this report does not resolve or migrate any gap."
+    ],
+    "hash_contract_inputs": {
+      "json_sha256": "ff2178db5c4c34b710b26e1ae13dec00b810cd4ddc4070c19048b23a66c2aa12",
+      "markdown_sha256": "c577a3c289ba78233ffb69fef3d5f6616ac7ea6dd217952e359328459921d733",
+      "owner_skill_sha256": "d7c51fc611c2355e406de80fb5d92f82fe641da1c5ee6e6b2251ed173badbfb1"
+    },
+    "scope_limits": "No source, metadata, pipeline, settings, installer, permission, host, state, branch, worktree, CI or publication writes. Only private report. No model calls, credential reads or host memory reads. Current source checks do not establish a running authenticated installation on every platform; explicitly qualified compatibility/unverified surfaces remain excluded."
+  }
+}

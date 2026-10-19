@@ -8,3 +8,7 @@ header{border-top:8px solid #507c98}header h1{font-weight:650;letter-spacing:-.0
 @media(max-width:760px){.handbook-composition,.handbook-composition.branches{grid-template-columns:1fr}.branches ol{grid-template-columns:1fr}.branches .handbook-map li{grid-template-columns:34px 1fr}.branches .handbook-map li:before{grid-row:span 2}[data-dv-slide]{gap:24px;padding:24px}[data-dv-slide] p{font-size:20px}.handbook-map{margin-top:12px}.handbook-map li{font-size:20px}}
 
 .handbook-composition{min-width:0}.handbook-composition>div{min-width:0}.handbook-composition p{overflow-wrap:anywhere}
+
+[data-dv-slide]:has(.boundary){padding:24px;gap:14px}[data-dv-slide]:has(.boundary) h2{font-size:clamp(30px,2.8vw,42px);line-height:1.1}[data-dv-slide] .boundary{grid-template-columns:1fr;gap:14px}[data-dv-slide] .boundary>div{display:grid;grid-template-columns:1.35fr 1fr;gap:20px;align-items:start}[data-dv-slide] .boundary p{font-size:clamp(20px,1.3vw,26px);line-height:1.4;margin-block:0}[data-dv-slide] .boundary .handbook-map{border-left:0;border-top:3px dashed currentColor;margin:0;padding:10px 0 0}[data-dv-slide] .boundary ol{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}[data-dv-slide] .boundary figcaption{margin-top:8px}
+
+@media(max-width:760px){[data-dv-slide] .boundary>div,[data-dv-slide] .boundary ol{grid-template-columns:1fr}}

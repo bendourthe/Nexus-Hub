@@ -6,6 +6,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 # v4.0.0: `ci.yml` calls scripts/ci/run.py rather than naming each guard in its
 # own `run:` step, so CI reachability is resolved through the profile
 # definitions. See tests/validators/_ci_reachability.py for why greping the
@@ -156,3 +158,34 @@ def test_makefile_and_ci_invoke_the_guard() -> None:
     makefile = MAKEFILE.read_text(encoding="utf-8")
     assert "scripts/check_docs_conventions.py" in makefile
     assert_wired_into_ci("check_docs_conventions.py")
+
+@pytest.mark.parametrize(
+    ("directory", "filename", "content", "finding"),
+    [
+        (".github", "workflow.yml.txt", "name: retained\n", None),
+        (".unknown", "source.txt", "retained\n", "not kebab-case"),
+        (".GitHub", "source.txt", "retained\n", "not kebab-case"),
+        (".github/Not_Kebab", "source.txt", "retained\n", "Not_Kebab"),
+        (".github", "index.md", "[gone](no-such.md)\n", "missing relative target"),
+        (".github", "index.md", "[page](page.md)\n", "case-mismatch"),
+        (".github", None, None, "empty directory"),
+    ],
+)
+def test_github_source_tree_keeps_other_checks(
+    tmp_path: Path,
+    directory: str,
+    filename: str | None,
+    content: str | None,
+    finding: str | None,
+) -> None:
+    retained = tmp_path / "docs" / "evidence" / "after" / directory
+    retained.mkdir(parents=True)
+    if filename is not None:
+        assert content is not None
+        (retained / filename).write_text(content, encoding="utf-8")
+    if finding == "case-mismatch":
+        (retained / "Page.md").write_text("# Page\n", encoding="utf-8")
+    proc = run(tmp_path)
+    assert proc.returncode == (0 if finding is None else 1), proc.stderr
+    if finding is not None:
+        assert finding in proc.stderr

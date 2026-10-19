@@ -468,6 +468,8 @@ def _hmac_payload(record: dict) -> dict:
         # Anything that is not a schema-1 record signs the minor fields too; a schema-1
         # payload stays exactly as it was, so existing records still verify.
         fields = _SIGNED_FIELDS + _SIGNED_MINOR_FIELDS
+    if record.get("schema") != SCHEMA and "implementation_controller" in record:
+        fields += ("implementation_controller",)
     return {k: record.get(k) for k in fields}
 
 
@@ -612,8 +614,8 @@ def project(record: dict, version: str) -> dict | None:
         "remote_url": record.get("remote_url"),
         "repo": record.get("repo"),
         "session_id": record.get("session_id"),
-        "worktree": member.get("worktree") or record.get("worktree"),
-        "start_head": member.get("start_head") or record.get("start_head"),
+        "worktree": (member.get("implementation") or {}).get("worktree") or member.get("worktree") or record.get("worktree"),
+        "start_head": member.get("start_head") or (member.get("implementation") or {}).get("base_head") or record.get("start_head"),
         # The run began at the minor record's start: a gap created after it never migrates.
         "minor_start_head": record.get("start_head"),
         "nonce": record.get("nonce"),
@@ -1391,6 +1393,14 @@ def cmd_score_minor(args: argparse.Namespace) -> int:
     return _minor_module().cmd_score_minor(sys.modules[__name__], args)
 
 
+def cmd_check_member(args: argparse.Namespace) -> int:
+    return _minor_module().cmd_check_member(sys.modules[__name__], args)
+
+
+def cmd_record_member_implement_start(args: argparse.Namespace) -> int:
+    return _minor_module().cmd_record_member_implement_start(sys.modules[__name__], args)
+
+
 def cmd_record_member_start(args: argparse.Namespace) -> int:
     return _minor_module().cmd_record_member_start(sys.modules[__name__], args)
 
@@ -1766,6 +1776,13 @@ def build_parser() -> argparse.ArgumentParser:
     check_minor.add_argument("--json", action="store_true")
     check_minor.add_argument("--session")
     check_minor.set_defaults(func=cmd_check_minor)
+    member_check = sub.add_parser("check-member", help="read-only member check using parent minor approval")
+    member_check.add_argument("--minor", required=True)
+    member_check.add_argument("--member", required=True)
+    member_check.add_argument("--session", required=True)
+    member_check.add_argument("--repo", default=".", help="the parent minor controller repository")
+    member_check.add_argument("--json", action="store_true")
+    member_check.set_defaults(func=cmd_check_member)
     score_minor = sub.add_parser("score-minor", help="print the minor's monotonic progress score")
     score_minor.add_argument("minor", help="a minor scope token such as v0.5")
     score_minor.add_argument("--repo", default=".", help="a path inside the repository")
@@ -1849,6 +1866,15 @@ def build_parser() -> argparse.ArgumentParser:
     block.add_argument("--evidence", required=True)
     block.add_argument("--approval-class")
     block.set_defaults(func=cmd_record_block)
+    implement = record.add_parser("member-implement-start", help="reserve a linked worker and its implementation scopes")
+    implement.add_argument("--minor", required=True)
+    implement.add_argument("--member", required=True)
+    implement.add_argument("--session", required=True)
+    implement.add_argument("--repo", default=".", help="the parent minor controller repository")
+    implement.add_argument("--worktree", required=True, help="the dedicated canonical linked worktree")
+    implement.add_argument("--head", required=True, help="the worker branch base commit")
+    implement.add_argument("--claims", required=True, help="JSON depends_on, read_paths and write_paths")
+    implement.set_defaults(func=cmd_record_member_implement_start)
     start = record.add_parser(
         "member-start", help="pass the member gate and record the member's start_head (minor runs)"
     )
@@ -1859,6 +1885,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--head", required=True, help="the new member branch's base; must be the live integration tip"
     )
     start.add_argument("--repo", default=".", help="a path inside the repository")
+    start.add_argument("--coordinator-claims", help="JSON publication-only write_paths for coordinator updates")
     start.set_defaults(func=cmd_record_member_start)
     where = record.add_parser("path", help="print the run record's path; exit 1 when none exists")
     where.add_argument("plan", nargs="?")

@@ -1,0 +1,345 @@
+--- a/scripts/installer.ps1
++++ b/scripts/installer.ps1
+@@ -491,7 +491,42 @@
+ function Read-JsonDocument {
+     param([string]$Path)
+     $raw = [IO.File]::ReadAllText($Path, [Text.Encoding]::UTF8)
+-    if ($PSVersionTable.PSVersion.Major -ge 6) { return ,(ConvertFrom-Json -InputObject $raw -AsHashtable -NoEnumerate) }
++    if ($PSVersionTable.PSVersion.Major -ge 6) {
++        if ((Get-Command ConvertFrom-Json).Parameters.ContainsKey('DateKind')) {
++            return ,(ConvertFrom-Json -InputObject $raw -AsHashtable -NoEnumerate -Depth 100 -DateKind String)
++        }
++        # Older Core shells have no DateKind switch. Use their bundled parser
++        # without date inference, preserving exact property names and array shape.
++        function Convert-JsonTokenValue {
++            param($Token)
++            if ($Token -is [Newtonsoft.Json.Linq.JObject]) {
++                $value = [Collections.Specialized.OrderedDictionary]::new([StringComparer]::Ordinal)
++                foreach ($property in $Token.Properties()) { $value[$property.get_Name()] = Convert-JsonTokenValue ($property.get_Value()) }
++                return ,$value
++            }
++            if ($Token -is [Newtonsoft.Json.Linq.JArray]) {
++                $value = [Collections.Generic.List[object]]::new()
++                foreach ($child in $Token.Children()) { $value.Add((Convert-JsonTokenValue $child)) }
++                return ,($value.ToArray())
++            }
++            return ,($Token.get_Value())
++        }
++        $reader = [Newtonsoft.Json.JsonTextReader]::new([IO.StringReader]::new($raw))
++        $reader.DateParseHandling = [Newtonsoft.Json.DateParseHandling]::None
++        $reader.MaxDepth = 100
++        try {
++            $token = [Newtonsoft.Json.Linq.JToken]::ReadFrom($reader)
++            if ($reader.Read()) { throw 'unexpected content after JSON document' }
++            return ,(Convert-JsonTokenValue $token)
++        } finally { $reader.Close() }
++    }
++    # JavaScriptSerializer recognizes escaped Microsoft date strings. Normalize
++    # only actual JSON slash escapes so opaque string values remain strings.
++    $raw = [regex]::Replace($raw, '\\+/', {
++        param($match)
++        if (($match.Length - 1) % 2 -eq 1) { return $match.Value.Substring(1) }
++        return $match.Value
++    })
+     Add-Type -AssemblyName System.Web.Extensions
+     $reader = New-Object System.Web.Script.Serialization.JavaScriptSerializer
+     $reader.MaxJsonLength = [int]::MaxValue
+@@ -767,86 +802,62 @@
+ 
+ function Get-ManagedHookStem {
+     param([object]$Hook)
+-
+-    if ($null -eq $Hook) { return "" }
+-    $commandProperty = $Hook.PSObject.Properties["command"]
+-    if (-not $commandProperty -or -not $commandProperty.Value) { return "" }
+-    $matches = [regex]::Matches(
+-        [string]$commandProperty.Value,
+-        '(?<stem>[A-Za-z0-9_-]+)\.(?:sh|ps1|py)'
+-    )
+-    if ($matches.Count -gt 0) {
+-        return $matches[$matches.Count - 1].Groups["stem"].Value
+-    }
+-    return [string]$commandProperty.Value
++    if ($null -eq $Hook) { return '' }
++    $command = if ($Hook -is [Collections.IDictionary]) { $Hook['command'] } else { $Hook.command }
++    if (-not $command) { return '' }
++    $matches = [regex]::Matches([string]$command, '(?<stem>[A-Za-z0-9_-]+)\.(?:sh|ps1|py)')
++    if ($matches.Count -gt 0) { return $matches[$matches.Count - 1].Groups['stem'].Value }
++    return [string]$command
+ }
+ 
+ function Merge-ManagedClaudeHooks {
+     param(
+-        [Parameter(Mandatory = $true)][object]$ExistingJson,
+-        [Parameter(Mandatory = $true)][object]$TemplateJson
++        [Parameter(Mandatory = $true)][Collections.IDictionary]$ExistingJson,
++        [Parameter(Mandatory = $true)][Collections.IDictionary]$TemplateJson
+     )
+-
+-    $hooksProperty = $ExistingJson.PSObject.Properties["hooks"]
+-    if (-not $hooksProperty) {
+-        $ExistingJson | Add-Member -NotePropertyName "hooks" -NotePropertyValue ([pscustomobject]@{})
+-    }
+-    elseif ($null -eq $hooksProperty.Value -or -not ($hooksProperty.Value -is [pscustomobject])) {
+-        $hooksProperty.Value = [pscustomobject]@{}
+-    }
+-
+-    foreach ($eventProperty in $TemplateJson.hooks.PSObject.Properties) {
+-        $eventName = $eventProperty.Name
+-        $existingEventProperty = $ExistingJson.hooks.PSObject.Properties[$eventName]
+-        if (-not $existingEventProperty) {
+-            $ExistingJson.hooks | Add-Member -NotePropertyName $eventName -NotePropertyValue @($eventProperty.Value)
++    $hooksSlot = @($ExistingJson.GetEnumerator() | Where-Object { $_.Key -ceq 'hooks' })
++    if ($hooksSlot.Count -eq 0) {
++        $ExistingJson['hooks'] = [Collections.Specialized.OrderedDictionary]::new([StringComparer]::Ordinal)
++    } elseif ($ExistingJson['hooks'] -isnot [Collections.IDictionary]) { throw 'existing hooks must be an object' }
++
++    foreach ($event in $TemplateJson['hooks'].GetEnumerator()) {
++        $eventName = [string]$event.Key
++        $eventSlot = @($ExistingJson['hooks'].GetEnumerator() | Where-Object { $_.Key -ceq $eventName })
++        if ($eventSlot.Count -eq 0) {
++            $ExistingJson['hooks'][$eventName] = @($event.Value)
+             continue
+         }
+-
+-        $existingEntries = @($existingEventProperty.Value)
+-        foreach ($templateEntry in @($eventProperty.Value)) {
+-            $templateMatcherProperty = $templateEntry.PSObject.Properties["matcher"]
+-            $templateMatcher = if ($templateMatcherProperty) { [string]$templateMatcherProperty.Value } else { "" }
+-            foreach ($templateHook in @($templateEntry.hooks)) {
+-                $templateTypeProperty = $templateHook.PSObject.Properties["type"]
+-                $templateType = if ($templateTypeProperty) { [string]$templateTypeProperty.Value } else { "" }
++        if ($ExistingJson['hooks'][$eventName] -isnot [array]) { throw 'existing hook events must be arrays' }
++        $existingEntries = @($ExistingJson['hooks'][$eventName])
++        foreach ($templateEntry in @($event.Value)) {
++            $templateMatcher = [string]$templateEntry['matcher']
++            foreach ($templateHook in @($templateEntry['hooks'])) {
++                $templateType = [string]$templateHook['type']
+                 $templateStem = Get-ManagedHookStem -Hook $templateHook
+                 $alreadyInstalled = $false
+-
+                 foreach ($existingEntry in $existingEntries) {
+-                    $existingMatcherProperty = $existingEntry.PSObject.Properties["matcher"]
+-                    $existingMatcher = if ($existingMatcherProperty) { [string]$existingMatcherProperty.Value } else { "" }
+-                    if ($existingMatcher -ne $templateMatcher) { continue }
+-                    foreach ($existingHook in @($existingEntry.hooks)) {
+-                        $existingTypeProperty = $existingHook.PSObject.Properties["type"]
+-                        $existingType = if ($existingTypeProperty) { [string]$existingTypeProperty.Value } else { "" }
+-                        if (
+-                            $existingType -eq $templateType -and
+-                            (Get-ManagedHookStem -Hook $existingHook) -eq $templateStem
+-                        ) {
++                    if ([string]$existingEntry['matcher'] -ne $templateMatcher) { continue }
++                    foreach ($existingHook in @($existingEntry['hooks'])) {
++                        if ([string]$existingHook['type'] -eq $templateType -and (Get-ManagedHookStem -Hook $existingHook) -eq $templateStem) {
+                             $alreadyInstalled = $true
+                             break
+                         }
+                     }
+                     if ($alreadyInstalled) { break }
+                 }
+-
+                 if (-not $alreadyInstalled) {
+-                    $newEntry = [ordered]@{}
+-                    foreach ($property in $templateEntry.PSObject.Properties) {
+-                        if ($property.Name -ne "hooks") {
+-                            $newEntry[$property.Name] = $property.Value
+-                        }
++                    $newEntry = [Collections.Specialized.OrderedDictionary]::new([StringComparer]::Ordinal)
++                    foreach ($property in $templateEntry.GetEnumerator()) {
++                        if ($property.Key -cne 'hooks') { $newEntry[$property.Key] = $property.Value }
+                     }
+-                    $newEntry["hooks"] = @($templateHook)
+-                    $existingEntries += [pscustomobject]$newEntry
++                    $newEntry['hooks'] = @($templateHook)
++                    $existingEntries += ,$newEntry
+                 }
+             }
+         }
+-        $existingEventProperty.Value = $existingEntries
+-    }
+-
+-    return $ExistingJson
++        $ExistingJson['hooks'][$eventName] = $existingEntries
++    }
++    return ,$ExistingJson
+ }
+ 
+ function Install-GitGuardrails {
+@@ -882,29 +893,14 @@
+         return
+     }
+ 
+-    $templateRaw = Get-Content -LiteralPath $templateFile -Raw -Encoding UTF8
+-
+-    # Global scope uses ~/.claude/ paths. The parsed template is then converted to
+-    # PowerShell commands so Cursor and Claude never need Bash on Windows.
+-    if ($Scope -eq "Global") {
+-        $templateRaw = $templateRaw -replace '(?<![~/.])\.claude/hooks/', '~/.claude/hooks/'
+-    }
+-
+-    $templateJson = $templateRaw | ConvertFrom-Json
++    $templateJson = Read-JsonDocument $templateFile
+ 
+     if (Test-Path -LiteralPath $settingsFile) {
+         try {
+-            $document = Read-JsonDocument $settingsFile
+-        if ($document -isnot [Collections.IDictionary]) { throw 'settings root must be an object' }
+-        $existingJson = [pscustomobject]@{}
+-        $hookSlot = @($document.GetEnumerator() | Where-Object { $_.Key -ceq 'hooks' })
+-        if ($hookSlot.Count -gt 0) {
+-            $hookValue = ConvertFrom-Json -InputObject (ConvertTo-Json -InputObject $document['hooks'] -Depth 100)
+-            $existingJson | Add-Member -NotePropertyName 'hooks' -NotePropertyValue $hookValue
+-        }
++            $existingJson = Read-JsonDocument $settingsFile
++        if ($existingJson -isnot [Collections.IDictionary]) { throw 'settings root must be an object' }
+             $existingJson = Merge-ManagedClaudeHooks -ExistingJson $existingJson -TemplateJson $templateJson
+-            $document['hooks'] = $existingJson.hooks
+-            Write-JsonFile -Path $settingsFile -Object $document
++            Write-JsonFile -Path $settingsFile -Object $existingJson
+             Convert-ClaudeHookCommandsForWindows -SettingsFile $settingsFile -RepoRoot $RepoRoot -Scope $Scope
+             Write-Item -Message "✓ $Scope settings.json reconciled with managed hooks" -Color "DarkGreen"
+         }
+@@ -950,31 +946,21 @@
+         return
+     }
+ 
+-    $templateRaw = Get-Content -LiteralPath $templateFile -Raw -Encoding UTF8
+-
+-    # Global scope uses ~/.claude/ paths; convert the parsed hook commands below.
+-    if ($Scope -eq "Global") {
+-        $templateRaw = $templateRaw -replace '(?<![~/.])\.claude/hooks/', '~/.claude/hooks/'
+-    }
+-
+-    $templateJson = $templateRaw | ConvertFrom-Json
++    $templateJson = Read-JsonDocument $templateFile
+ 
+     try {
+-        $document = Read-JsonDocument $settingsFile
+-        if ($document -isnot [Collections.IDictionary]) { throw 'settings root must be an object' }
+-        $existingJson = [pscustomobject]@{}
+-        $hookSlot = @($document.GetEnumerator() | Where-Object { $_.Key -ceq 'hooks' })
+-        if ($hookSlot.Count -gt 0) {
+-            $hookValue = ConvertFrom-Json -InputObject (ConvertTo-Json -InputObject $document['hooks'] -Depth 100)
+-            $existingJson | Add-Member -NotePropertyName 'hooks' -NotePropertyValue $hookValue
+-        }
++        $existingJson = Read-JsonDocument $settingsFile
++        if ($existingJson -isnot [Collections.IDictionary]) { throw 'settings root must be an object' }
++        $hooksSlot = @($existingJson.GetEnumerator() | Where-Object { $_.Key -ceq 'hooks' })
++        if ($hooksSlot.Count -eq 0) { $existingJson['hooks'] = [Collections.Specialized.OrderedDictionary]::new([StringComparer]::Ordinal) }
++        elseif ($existingJson['hooks'] -isnot [Collections.IDictionary]) { throw 'existing hooks must be an object' }
+ 
+         # Check if usage-display already installed
+         $alreadyInstalled = $false
+-        if ($existingJson.hooks -and $existingJson.hooks.Stop) {
+-            foreach ($hookEntry in $existingJson.hooks.Stop) {
+-                foreach ($h in $hookEntry.hooks) {
+-                    if ($h.command -and $h.command -like "*usage-display*") {
++        if ($existingJson['hooks'] -and $existingJson['hooks']['Stop']) {
++            foreach ($hookEntry in $existingJson['hooks']['Stop']) {
++                foreach ($h in $hookEntry['hooks']) {
++                    if ($h['command'] -and $h['command'] -like "*usage-display*") {
+                         $alreadyInstalled = $true
+                         break
+                     }
+@@ -987,23 +973,22 @@
+         }
+         else {
+             # Add hooks key if missing
+-            if (-not $existingJson.hooks) {
+-                $existingJson | Add-Member -NotePropertyName "hooks" -NotePropertyValue ([PSCustomObject]@{ Stop = $templateJson.hooks.Stop })
++            if (-not $existingJson['hooks']) {
++                $existingJson['hooks']['Stop'] = $templateJson['hooks']['Stop']
+             }
+             else {
+-                if (-not $existingJson.hooks.Stop) {
+-                    $existingJson.hooks | Add-Member -NotePropertyName "Stop" -NotePropertyValue $templateJson.hooks.Stop -Force
++                if (-not $existingJson['hooks']['Stop']) {
++                    $existingJson['hooks']['Stop'] = $templateJson['hooks']['Stop']
+                 }
+                 else {
+                     # Append our hook entry to existing Stop array
+-                    $existingArray = @($existingJson.hooks.Stop)
+-                    $existingArray += $templateJson.hooks.Stop
+-                    $existingJson.hooks.Stop = $existingArray
++                    $existingArray = @($existingJson['hooks']['Stop'])
++                    $existingArray += $templateJson['hooks']['Stop']
++                    $existingJson['hooks']['Stop'] = $existingArray
+                 }
+             }
+ 
+-            $document['hooks'] = $existingJson.hooks
+-            Write-JsonFile -Path $settingsFile -Object $document
++            Write-JsonFile -Path $settingsFile -Object $existingJson
+             Convert-ClaudeHookCommandsForWindows -SettingsFile $settingsFile -RepoRoot $RepoRoot -Scope $Scope
+             Write-Item -Message "✓ $Scope settings.json updated with usage display hook" -Color "DarkGreen"
+         }
+@@ -1038,27 +1023,24 @@
+     }
+ 
+     try {
+-        $document = Read-JsonDocument $settingsFile
+-        if ($document -isnot [Collections.IDictionary]) { throw 'settings root must be an object' }
+-        $existingJson = [pscustomobject]@{}
+-        $hookSlot = @($document.GetEnumerator() | Where-Object { $_.Key -ceq 'hooks' })
+-        if ($hookSlot.Count -gt 0) {
+-            $hookValue = ConvertFrom-Json -InputObject (ConvertTo-Json -InputObject $document['hooks'] -Depth 100)
+-            $existingJson | Add-Member -NotePropertyName 'hooks' -NotePropertyValue $hookValue
+-        }
++        $existingJson = Read-JsonDocument $settingsFile
++        if ($existingJson -isnot [Collections.IDictionary]) { throw 'settings root must be an object' }
++        $hooksSlot = @($existingJson.GetEnumerator() | Where-Object { $_.Key -ceq 'hooks' })
++        if ($hooksSlot.Count -eq 0) { $existingJson['hooks'] = [Collections.Specialized.OrderedDictionary]::new([StringComparer]::Ordinal) }
++        elseif ($existingJson['hooks'] -isnot [Collections.IDictionary]) { throw 'existing hooks must be an object' }
+ 
+         # Check Bash and PowerShell hooks separately so that an existing
+         # install with only the Bash hook still picks up the PowerShell pair.
+         $bashInstalled = $false
+         $powershellInstalled = $false
+-        if ($existingJson.hooks -and $existingJson.hooks.PreToolUse) {
+-            foreach ($hookEntry in $existingJson.hooks.PreToolUse) {
+-                foreach ($h in $hookEntry.hooks) {
+-                    if ($h.command) {
+-                        if ($h.command -like "*require-powershell-description*") {
++        if ($existingJson['hooks'] -and $existingJson['hooks']['PreToolUse']) {
++            foreach ($hookEntry in $existingJson['hooks']['PreToolUse']) {
++                foreach ($h in $hookEntry['hooks']) {
++                    if ($h['command']) {
++                        if ($h['command'] -like "*require-powershell-description*") {
+                             $powershellInstalled = $true
+                         }
+-                        elseif ($h.command -like "*require-description*") {
++                        elseif ($h['command'] -like "*require-description*") {
+                             $bashInstalled = $true
+                         }
+                     }
+@@ -1109,22 +1091,21 @@
+         }
+ 
+         if ($entriesToAdd.Count -gt 0) {
+-            if (-not $existingJson.hooks) {
+-                $existingJson | Add-Member -NotePropertyName "hooks" -NotePropertyValue ([PSCustomObject]@{ PreToolUse = @($entriesToAdd) })
++            if (-not $existingJson['hooks']) {
++                $existingJson['hooks']['PreToolUse'] = @($entriesToAdd)
+             }
+             else {
+-                if (-not $existingJson.hooks.PreToolUse) {
+-                    $existingJson.hooks | Add-Member -NotePropertyName "PreToolUse" -NotePropertyValue @($entriesToAdd) -Force
++                if (-not $existingJson['hooks']['PreToolUse']) {
++                    $existingJson['hooks']['PreToolUse'] = @($entriesToAdd)
+                 }
+                 else {
+-                    $existingArray = @($existingJson.hooks.PreToolUse)
++                    $existingArray = @($existingJson['hooks']['PreToolUse'])
+                     $existingArray += $entriesToAdd
+-                    $existingJson.hooks.PreToolUse = $existingArray
++                    $existingJson['hooks']['PreToolUse'] = $existingArray
+                 }
+             }
+ 
+-            $document['hooks'] = $existingJson.hooks
+-            Write-JsonFile -Path $settingsFile -Object $document
++            Write-JsonFile -Path $settingsFile -Object $existingJson
+             $added = ($entriesToAdd | ForEach-Object { $_.matcher }) -join ", "
+             Write-Item -Message "✓ $Scope settings.json updated with description hooks ($added)" -Color "DarkGreen"
+         }

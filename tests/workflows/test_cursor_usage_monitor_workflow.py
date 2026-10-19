@@ -65,9 +65,8 @@ def test_triggers_are_path_filtered_to_the_extension(workflow: dict[str, Any]) -
     paths = triggers["pull_request"]["paths"]
     assert f"{EXTENSION_DIR}/**" in paths
     assert ".github/workflows/cursor-usage-monitor.yml" in paths
-    assert not any(path.startswith("scripts/") for path in paths), (
-        "installers are covered by ci.yml's installer smoke test"
-    )
+    assert "scripts/ci/**" in paths
+    assert not any(path.startswith("scripts/") and path != "scripts/ci/**" for path in paths)
 
 
 def test_the_workflow_does_not_rerun_itself_after_the_merge(
@@ -130,43 +129,33 @@ def test_node_setup_uses_node_22_and_the_exact_lockfile_cache(
 
 
 def test_job_runs_inside_the_extension_directory(workflow: dict[str, Any]) -> None:
-    defaults = workflow["jobs"]["build-and-test"]["defaults"]["run"]
-    assert defaults["working-directory"] == EXTENSION_DIR
+    from scripts.ci.profiles import PROFILES
+    group = next(group for group in PROFILES["full"] if group.name == "cursor-usage-monitor")
+    assert all(command.cwd == EXTENSION_DIR for command in group.commands)
 
 
 def test_gate_covers_clean_install_compile_coverage_and_packaging(
     build_steps: list[dict[str, Any]],
 ) -> None:
-    assert (
-        step_named(build_steps, "Install dependencies")["run"].strip()
-        == "npm ci --ignore-scripts"
-    )
-    assert "npm run compile" in step_named(build_steps, "Compile (tsc)")["run"]
-    assert (
-        "npm run test:coverage"
-        in step_named(build_steps, "Unit tests with V8 coverage (Vitest)")["run"]
-    )
-    assert "npm run package" in step_named(build_steps, "Package VSIX")["run"]
-    assert (
-        "npm run verify:package"
-        in step_named(build_steps, "Verify packaged contents")["run"]
-    )
+    from scripts.ci.profiles import PROFILES
+    assert step_named(build_steps, "Install dependencies")["run"].strip() == "npm ci --ignore-scripts --prefix " + EXTENSION_DIR
+    scripts = "\n".join(step.get("run", "") for step in build_steps)
+    assert "--profile full --only cursor-usage-monitor" in scripts
+    group = next(group for group in PROFILES["full"] if group.name == "cursor-usage-monitor")
+    commands = [list(command.argv) for command in group.commands]
+    for script in ("compile", "test:coverage", "package", "verify:package"):
+        assert any(script in argv for argv in commands), script
 
 
 def test_e2e_job_degrades_when_cursor_cli_is_absent(workflow: dict[str, Any]) -> None:
     e2e = workflow["jobs"]["e2e-cursor-profile"]
     assert e2e["needs"] == "build-and-test" or e2e["needs"] == ["build-and-test"]
-    install_step = step_named(
-        e2e["steps"], "Install into throwaway Cursor profile or skip-with-note"
-    )
-    script = install_step["run"]
-    assert "command -v cursor" in script
-    assert "cursor-usage-live-smoke.md" in script
-    assert "--user-data-dir" in script
-    assert "nexus-hub.cursor-usage-monitor" in script
-    assert "exit 0" in script, (
-        "missing Cursor CLI must skip-with-note, not fail the job"
-    )
+    commands = "\n".join(step.get("run", "") for step in e2e["steps"])
+    assert "--profile platform --only cursor-profile" in commands
+    from scripts.ci.profiles import PROFILES
+    group = next(group for group in PROFILES["platform"] if group.name == "cursor-profile")
+    assert group.commands[0].argv[0] == "cursor" and group.commands[0].skip_if_missing
+    assert group.commands[1].argv[-1] == "cursor-profile"
 
 
 def test_live_smoke_checklist_exists_for_ci_degrade() -> None:

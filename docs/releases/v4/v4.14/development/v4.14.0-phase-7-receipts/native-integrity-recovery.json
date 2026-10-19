@@ -1,0 +1,28 @@
+{
+  "observed_utc": "2026-10-17T15:06:25.575345+00:00",
+  "status": "integrity-recovered; implementation-incomplete",
+  "cause": "Three documentary wording edits in v4.14.0 changed the plan hash bound by the approved minor record",
+  "correction": "Restored exactly the three original phrases; seven-item header and independent evidence remain unchanged",
+  "plan_wording_reversions": 3,
+  "all_seven_member_hashes_verified": true,
+  "approval_signature_valid": true,
+  "approval_record_bytes_unchanged": true,
+  "signing_key_unchanged": true,
+  "guard_accepts": 0,
+  "native_checker": {
+    "exit_code": 1,
+    "verdict": "INCOMPLETE",
+    "completion_claim": false
+  },
+  "private_evidence": [
+    {
+      "name": "nexus-v4140-native-integrity-diagnosis-oct17.json",
+      "sha256": "b195794a90e4660c2c49c709b6dda87edc74a448e2ba5c99be1f481e5b01677e"
+    },
+    {
+      "name": "nexus-v4140-native-integrity-recovery-oct17.json",
+      "sha256": "c40155196d9d58dcdb63863730c460a0817edf25a1654b2127330aaf9f6007ed"
+    }
+  ],
+  "rule": "Approved plan text stays frozen; documentary clarifications belong in release evidence. Task checkbox and permitted Status changes retain the native normalization contract."
+}

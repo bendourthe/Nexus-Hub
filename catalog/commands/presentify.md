@@ -1,5 +1,5 @@
 ---
-description: Convert existing documents, code, data or repositories into one offline interactive reading website with included Presentation Mode by default. Use for presentify, interactive handbooks, presentation mode, slide navigation, and PDF/Word/Excel/PowerPoint-to-website requests. SKIP new document creation, one-off static charts, or simple HTML edits.
+description: Convert existing documents, code, data or repositories into one offline interactive reading website with included Presentation Mode by default. Use for presentify, interactive handbooks, presentation mode, slide navigation, PDF/Word/Excel/PowerPoint-to-website requests, and the opt-in --flyover 3D fly-over film of a live landing page. SKIP new document creation, one-off static charts, or simple HTML edits.
 ---
 
 # /presentify Command
@@ -10,6 +10,7 @@ Produce one self-contained interactive reading website. Presentation Mode is inc
 
 ```text
 /presentify <file-or-folder...> [using the style <description> | --style <description>] [--theme <name-or-path>] [--layout <full|standard|portrait|description>] [--presentation <yes|no>] [--presentation-theme <light|dark|mixed>] [--presentation-depth <concise|balanced|deep-dive>] [--nav <scroll|slides>] [--images <none|stock|ai|both>] [--interactivity <restrained|balanced|rich|cinematic>] [--verbosity <distilled|balanced|comprehensive>] [--qa-depth <light|standard|deep>] [--out <path>] [--mode <auto|deck|report|compile>]
+/presentify --flyover <url> [--track <audio-file>]
 ```
 
 ## Dispatch
@@ -29,6 +30,7 @@ Produce one self-contained interactive reading website. Presentation Mode is inc
 - `--mode auto|deck|report|compile` organizes sources. `--verbosity distilled|balanced|comprehensive` controls source-to-page coverage; `--presentation-depth` independently controls page-to-deck coverage. Comprehensive source intent binds deep-dive presentation unless an explicit conflicting choice is resolved. `--qa-depth` changes review scope, not content depth. Invalid values follow the shared usage-note/question-or-default behavior.
 - `--images none|stock|ai|both` selects additional imagery. Procedural SVG/CSS remains the always-on baseline: the old none meant no visuals; current none means nothing added. Legacy `procedural` -> `none`, `auto`/`mix` -> `both`. Stock and LOCAL AI remain opt-in, stock preferred, with existing build-time consent and provenance requirements. Hosted generation is not used. Non-interactive output stays fully offline.
 - `--interactivity restrained|balanced|rich|cinematic` preserves its current meaning. Cinematic remains opt-in and cost-gated; reduced motion is honored in both views. Supplied references, motion decisions, source ceilings and imagery boundaries survive retries.
+- `--flyover <url>` selects the landing-page fly-over route instead of a website: load `references/landing-flyover.md`, which owns its batched inputs, the stills approval stop, the motion and frame-accuracy gates, and optional `--track` music. Document inputs and website options do not combine with it. Its deliverable is an MP4 plus review stills, and the film is never embedded in or shipped beside an HTML output.
 - `--out` names the final artifact. If multiple input locations make the destination ambiguous, resolve that location before writing. Preserve user edits through the retained builder's ownership checks.
 
 ## Runtime helper manifest
@@ -48,6 +50,10 @@ All paths below are relative to the delegated `document-to-interactive-html` ski
 | Retained assembly or legacy plain draft | `scripts/build_presentation.py` |
 | Rendered geometry audit | `scripts/geometric_audit.py` |
 | Attestation completeness | `scripts/check_attestation.py` |
+| Fly-over page capture | `scripts/flyover_capture.py` |
+| Fly-over GPU render driver | `scripts/flyover_render.py` |
+| Fly-over motion gate | `scripts/flyover_motion_check.py` |
+| Fly-over music alignment | `scripts/flyover_audio.py` |
 
 ## Post-generation gate (mandatory)
 
@@ -65,6 +71,10 @@ Both exit 0 on a pass, 1 on findings, and 2 when they could not verify. **Exit 2
 is not a pass.** An unavailable renderer means the artifact is unverified, which
 is the state the whole gate exists to make visible.
 
+The `--flyover` route has no HTML artifact; its gate is `flyover_motion_check.py`
+on the preview and `flyover_render.py verify` on the film, per
+`references/landing-flyover.md`, with the same exit codes.
+
 Then render the artifact and LOOK at the region you produced. The rule is
 `catalog/rules/html/visual-self-verification.md`: a document is a visual
 artifact, its correctness lives in rendered geometry rather than in source text,
@@ -81,4 +91,4 @@ Output budget: everything produced in one reply, reasoning included, counts towa
 
 A rich-level proposal to use cinematic scroll-scrub must be confirmed after its size/cost estimate; it is never silently selected. Headless runs retain their documented offline fallback.
 
-One offline `.html` containing the reading page and, unless explicitly disabled, its presentation. All runtime assets are embedded. A valid opt-out still runs page QA plus deck/CTA absence checks; other deck checks are N/A. Share requested final artifacts only, and keep editable sources and QA evidence available for regeneration.
+One offline `.html` containing the reading page and, unless explicitly disabled, its presentation. All runtime assets are embedded. A valid opt-out still runs page QA plus deck/CTA absence checks; other deck checks are N/A. Share requested final artifacts only, and keep editable sources and QA evidence available for regeneration. The `--flyover` route instead delivers `RUN/out/film.mp4` (and `film-music.mp4` with a track) plus its approved stills, keeping the run folder for re-renders.

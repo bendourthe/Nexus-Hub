@@ -61,16 +61,45 @@ def test_documented_policy_and_registry_classification_remain_exact() -> None:
     assert "| `already-local` |" in row
 
 
-def test_ci_runs_full_suite_and_benchmark_without_container_network() -> None:
+def test_ci_runs_full_suite_and_benchmark_without_container_network(monkeypatch: pytest.MonkeyPatch) -> None:
     workflow_path = REPO_ROOT / ".github" / "workflows" / "code-search.yml"
     workflow = workflow_path.read_text(encoding="utf-8")
     assert "test-network-blocked:" in workflow
-    assert "docker run --rm --network none" in workflow
-    assert "NEXUS_CODE_SEARCH_BLOCK_NETWORK=1" in workflow
-    assert "test -d /sys/class/net/lo" in workflow
-    assert "! find /sys/class/net" in workflow
-    assert "pytest extensions/nexus-code-search/tests/" in workflow
-    assert "benchmarks/harness.py --check" in workflow
+    assert (
+        "python scripts/ci/run.py --profile full --only code-search-offline "
+        "--reports-dir reports" in workflow
+    )
+
+    monkeypatch.syspath_prepend(str(REPO_ROOT))
+
+    from scripts.ci.profiles import groups_for
+
+    group = next(group for group in groups_for("full") if group.name == "code-search-offline")
+    assert len(group.commands) == 2
+    build, run = group.commands
+    assert build.platforms == run.platforms == ("linux",)
+    assert list(build.argv[:3]) == ["docker", "build", "--tag"]
+    assert "scripts/ci/code-search-offline.Dockerfile" in build.argv
+    assert list(run.argv[:-1]) == [
+        "docker", "run", "--rm", "--network", "none",
+        "--env", "NEXUS_CODE_SEARCH_BLOCK_NETWORK=1",
+        "--volume", f"{REPO_ROOT}:/workspace:ro",
+        "nexus-code-search-offline", "bash", "-c",
+    ]
+    check = run.argv[-1]
+    assert check.startswith("set -euo pipefail; ")
+    assert "test -d /sys/class/net/lo" in check
+    assert (
+        "if find /sys/class/net -mindepth 1 -maxdepth 1 ! -name lo "
+        "-print -quit | grep -q .; then exit 1; fi" in check
+    )
+    assert "python -m pytest extensions/nexus-code-search/tests/ -q -p no:cacheprovider;" in check
+    assert (
+        "cd extensions/nexus-code-search; python benchmarks/harness.py --check "
+        "--work /tmp/nexus-code-search-benchmark "
+        "--json-out /tmp/nexus-code-search-benchmark.json "
+        "--markdown-out /tmp/nexus-code-search-benchmark.md" in check
+    )
 
 
 def test_process_guard_rejects_non_loopback_destination() -> None:

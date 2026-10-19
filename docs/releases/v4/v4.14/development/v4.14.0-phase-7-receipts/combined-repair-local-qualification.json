@@ -1,0 +1,263 @@
+{
+  "observed_utc": "2026-10-17T14:24:17.586511+00:00",
+  "status": "targeted-local-qualification-only",
+  "source_changes": [
+    {
+      "path": "guides/website/nexus-hub-guide.html",
+      "before_sha256": "41b14cd8bd4b909301f1ee9bf9a06cf6dcd1e21d8c190e48207bf3e3ed35f1aa",
+      "after_sha256": "d5ee327a5eef46d5acf13e05f719bcdd9010b302d644bfb62f8d347531761942",
+      "applied": true
+    },
+    {
+      "path": "scripts/installer.ps1",
+      "before_sha256": "297cd01ddba52abbc3fbb90ffb330aff4c97e53582864b8fdca094766d8b4f67",
+      "after_sha256": "83d99618d82da5c3c84dea3bc705e24d62bcef4712cf806b1eaa5bd93df560b4",
+      "applied": true
+    },
+    {
+      "path": "tests/installer/test_init_subcommand.py",
+      "before_sha256": "fdb876263cb83d683974d0058d21fe703f227f8bc74409568d2437e3c136e34f",
+      "after_sha256": "f3bdc314783196794a9a5913c3f9f259b0ed4f5e53005a0fc4be658e15d2b687",
+      "applied": true
+    },
+    {
+      "path": "tests/installer/test_installer_stage_cleanup.py",
+      "before_sha256": "0adf42cca272a437e775892e6ab59c038ad2c507c5c76591b9aab5a5191d7614",
+      "after_sha256": "d6b4276b831878510a38411a2d5b0113a7b6c3fbb35c932751bf24cf165a6be5",
+      "applied": true
+    },
+    {
+      "path": "tests/installer/test_managed_hook_upgrade.py",
+      "before_sha256": "12a64920da299a926d1fe36526f6fd42cf23dbe0238584ff943c821471acf340",
+      "after_sha256": "7423ae3e9c4a109b2d0c8fff280a70806cca312c3c7680ff5e2536a9ffdbe2ec",
+      "applied": true
+    },
+    {
+      "path": "tests/installer/test_native_hook_json.py",
+      "before_sha256": "a78357826e3cb8989a394c36c6dfc53220b9579f604546adc394b41cd9ffbadc",
+      "after_sha256": "5e1d681c88c9e6ae1eb91f2c9c66eab42472d70fb8c746add4a85f2bf73c5c26",
+      "applied": true
+    },
+    {
+      "path": "tests/installer/test_selection_parity.py",
+      "before_sha256": "6903915918c3e54c7d49cc29fde6ece295b6655879e2c4edc5ce1a92df805ca5",
+      "after_sha256": "dbb3094221938e29e90fd55b855946e06a05c227240656cbad2eaa3b5a8acac9",
+      "applied": true
+    },
+    {
+      "path": "tests/installer/test_workspace_install_output.py",
+      "before_sha256": "07c3da1f8a5d05b98869e7fe1b19891760b16af64ba3a7255360d362e84653d2",
+      "after_sha256": "32e3d61026851bcb425583600a2c6d72d379f521e65e3466f2c3e58f7b718dba",
+      "applied": true
+    },
+    {
+      "path": "tests/integrations/test_windows_long_paths.py",
+      "before_sha256": "c61107cc9c3ecf570337226edc40e7ba5ed18d6381b005e37eb58806d9481fdd",
+      "after_sha256": "2cc9ac5048074cf2b9421f02f3385a32361915c222a5c4ceb6d3232c0c11ad2e",
+      "applied": true
+    },
+    {
+      "path": "tests/validators/test_check_doc_colocation.py",
+      "before_sha256": "08cf840f0700442853689b804dd9a978905203422c75c34ebe2f2b1261c3d15f",
+      "after_sha256": "c414561709aaf96fa2a7e53c40ea987bc430ca1454cfd87be2cc45b89e298b2d",
+      "applied": true
+    },
+    {
+      "path": "tests/validators/test_ci_workflow_contract.py",
+      "before_sha256": "3328dbed268c316c3004c366c82d7d679a977a9a3ebe8b7f164f6376f4cdd23c",
+      "after_sha256": "61011294736226fcb8e97d27497ee2c735c4a79ed174b9b4cf04a623e9880081",
+      "applied": true
+    },
+    {
+      "path": "tests/validators/test_no_console_window.py",
+      "before_sha256": "aaf6f095595bec8ce53fae6232f77cf0e2c4b949365f14c2d08e6a92ebf167d3",
+      "after_sha256": "3efd7848bb0b11e6c7fc445853b05430e680d6a442654e267feefb8f167e307c",
+      "applied": true
+    }
+  ],
+  "review": {
+    "semantic_lenses": 7,
+    "findings": 0,
+    "import_only_delta_lenses": 4,
+    "new_lint_findings": 0,
+    "inherited_lint_findings": 10
+  },
+  "baseline_full": {
+    "passed_commands": 61,
+    "failed_commands": 4,
+    "failed_test_cases": 15,
+    "status": "FAIL"
+  },
+  "baseline_windows_platform": {
+    "status": "INTERRUPTED",
+    "reason": "Stopped before installer group to isolate inherited host editor/configuration boundaries; no timeout observed",
+    "pass_claim": false
+  },
+  "qualification": [
+    {
+      "step": "validators-guide-init-junction-py311",
+      "counts": {
+        "tests": 145,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "duration_s": 181.391,
+      "exit_code": 0
+    },
+    {
+      "step": "junction-console-py312",
+      "counts": {
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "duration_s": 8.266,
+      "exit_code": 0
+    },
+    {
+      "step": "installer-powershell51",
+      "counts": {
+        "tests": 223,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 16
+      },
+      "duration_s": 363.203,
+      "exit_code": 0
+    },
+    {
+      "step": "native-writers-powershell7",
+      "counts": {
+        "tests": 184,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "duration_s": 267.953,
+      "exit_code": 0
+    }
+  ],
+  "qualification_totals": {
+    "passing_executions": 545,
+    "skipped": 16,
+    "unique_test_count_claim": false,
+    "original_failed_cases_now_passing": 15
+  },
+  "controls": [
+    {
+      "name": "real-installer-positive",
+      "exit_code": 0,
+      "expected_exit": 0,
+      "counts": {
+        "tests": 22,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "expected_failures": 0,
+      "control_pass": true,
+      "duration_s": 34.0
+    },
+    {
+      "name": "without-null-compat",
+      "exit_code": 1,
+      "expected_exit": 1,
+      "counts": {
+        "tests": 4,
+        "failures": 4,
+        "errors": 0,
+        "skipped": 0
+      },
+      "expected_failures": 4,
+      "control_pass": true,
+      "duration_s": 7.89
+    },
+    {
+      "name": "without-shape-rejection",
+      "exit_code": 1,
+      "expected_exit": 1,
+      "counts": {
+        "tests": 18,
+        "failures": 9,
+        "errors": 0,
+        "skipped": 0
+      },
+      "expected_failures": 9,
+      "control_pass": true,
+      "duration_s": 25.0
+    }
+  ],
+  "all_controls_pass": true,
+  "source_hashes_unchanged_after_qualification": true,
+  "environment": {
+    "first_attempt": "145 and 9 test groups passed; native installer/writer groups failed because private launcher omitted Machine PATHEXT and COMSPEC",
+    "correction": "Restored actual Machine native-resolution values without source changes; reran only failed groups",
+    "original_failure_retained": true
+  },
+  "evidence": [
+    {
+      "private_evidence": "nexus-v4140-full-skills-repair-final-outcome-oct17.json",
+      "sha256": "706bdb8682182297acb06af797c45f6758e8724b61f0b107515fd52b6b971c56"
+    },
+    {
+      "private_evidence": "nexus-v4140-full-skills-repair-final-source-comparison.json",
+      "sha256": "b7697788eec4daeac8174c5a2c45514038f4debba9bbdca5ecfd0f31b8f6c164"
+    },
+    {
+      "private_evidence": "nexus-v4140-platform-frozen-interrupted-oct17.json",
+      "sha256": "f5d747954e01eb21e666ef3f096707ed3f35b7dcc5243c17e75a587b9802da18"
+    },
+    {
+      "private_evidence": "nexus-v4140-platform-frozen-source-comparison-oct17.json",
+      "sha256": "078fb9f82764c0be682cc7c58471abdddf76f8a9b40501e5f21ee6ad994731e1"
+    },
+    {
+      "private_evidence": "nexus-v4140-combined-repair-application-oct17.json",
+      "sha256": "dd352975ecb6e7028455c7467536adbd7947d089e73cef7266d9f8f73da27e97"
+    },
+    {
+      "private_evidence": "nexus-v4140-combined-repair-review-and-validation-oct17.json",
+      "sha256": "ed5311b06f8ea8a7d99ec52a4ff31a0f74338c1b9e4f5241db0f61ed045ff76b"
+    },
+    {
+      "private_evidence": "nexus-v4140-candidate-lint-v3-oct17.json",
+      "sha256": "e3cc7d449bd7d513299f323dfb3d5a00818412ff36b19a684d69933984f61e24"
+    },
+    {
+      "private_evidence": "nexus-v4140-combined-repair-actual-x89ldm2o/result.json",
+      "sha256": "c6428e4cfd769ffd45601d65a490577ac564ef49da9d8fd265ca31698edb54c8"
+    },
+    {
+      "private_evidence": "nexus-v4140-combined-repair-actual-ywu9k9hr/result.json",
+      "sha256": "a98fc5e4376735d827580829a76c227806213f1aa82835a72b0818a476d8fbca"
+    },
+    {
+      "private_evidence": "nexus-v4140-null-hook-controls-ie9zxt01/result.json",
+      "sha256": "8ce6629c648767a1c6a4facf8276e51a7a1db245fa30cd65d646d3d52613ba80"
+    },
+    {
+      "private_evidence": "nexus-v4140-windows-environment-controlled-probe-oct17.json",
+      "sha256": "ed76588538b513c1654c404ccac0f572acc30d3683f2061ea6e0d1143942e25c"
+    }
+  ],
+  "pending": [
+    "Canonical full profile on corrected final tree",
+    "Complete supported Windows platform profile",
+    "Coverage and final Goal/DoD reconciliation",
+    "Green merged integration",
+    "All seven releases and verified cleanup",
+    "Permitted migration and minor archive"
+  ],
+  "ledger_format_reconciliation": {
+    "open": 95,
+    "resolved": 6,
+    "prior_heading_parser_resolved": 5,
+    "previously_resolved_table_entry": "WN-26",
+    "old_item_states_unchanged": true,
+    "other_99_parsed_bodies_unchanged": true,
+    "MT-8": "Existing body prefix retained; WN-26 table now begins its own resolved item",
+    "new_resolution_claim": false
+  }
+}
