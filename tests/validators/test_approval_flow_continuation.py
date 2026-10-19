@@ -153,8 +153,181 @@ def test_policy_adoption_uses_real_capture_not_generated_renderer_text(captures)
     assert record["approvals"]["classes"] == classes
     assert record["approvals"]["policy_adoptions"][0]["origin"] == "captured-user-instruction"
     binding.adopt_policy(runs, record, instruction, policy)  # exact retry remains idempotent
-    with pytest.raises(ValueError, match="latest genuine"):
+    with pytest.raises(ValueError, match="genuine whole"):
         binding.adopt_policy(runs, record, "agent-generated replacement", policy)
+
+
+def test_policy_adoption_selects_unused_earlier_instruction_and_preserves_authority(captures):
+    runs, capture = captures
+    record = approved_record()
+    before = json.loads(json.dumps(record))
+    instruction = "Continue the approved full goal, including its scoped CI compatibility repair."
+    capture(instruction, permission_mode="bypassPermissions")
+    selected = binding.capture_events(runs, SESSION)[-1]
+    capture("Continue the same work.", permission_mode="bypassPermissions")
+    latest = binding.capture_events(runs, SESSION)[-1]
+    binding.adopt_policy(runs, record, instruction, {})
+    adoption = record["approvals"]["policy_adoptions"][-1]
+    assert adoption["event_id"] == selected["event_id"]
+    assert adoption["current_host_context"]["prompt_sha256"] == latest["prompt"]
+    assert not binding.event_available(runs, SESSION, selected)
+    assert binding.event_available(runs, SESSION, latest)
+    assert {key: value for key, value in record.items() if key != "approvals"} == {
+        key: value for key, value in before.items() if key != "approvals"
+    }
+    for key in ("classes", "repo", "source_branch", "target_branch"):
+        assert record["approvals"][key] == before["approvals"][key]
+
+
+@pytest.mark.parametrize("other_record", [False, True])
+def test_policy_adoption_cannot_reuse_consumed_instruction_for_changed_or_other_policy(captures, other_record):
+    runs, capture = captures
+    instruction = "Apply the reviewed same-goal policy."
+    capture(instruction, permission_mode="bypassPermissions")
+    record = approved_record()
+    binding.adopt_policy(runs, record, instruction, {})
+    target = approved_record() if other_record else record
+    if other_record:
+        target["nonce"] = "another-record"
+    before = json.loads(json.dumps(target))
+    policy = {} if other_record else {"corrections": "within-approved-scope"}
+    with pytest.raises(binding.Refusal) as refused:
+        binding.adopt_policy(runs, target, instruction, policy)
+    assert refused.value.reason == "code-used"
+    assert target == before
+
+
+def test_identical_policy_retry_rechecks_latest_mode_before_return(captures):
+    runs, capture = captures
+    instruction = "Use this approved policy."
+    capture(instruction, permission_mode="bypassPermissions")
+    record = approved_record()
+    binding.adopt_policy(runs, record, instruction, {})
+    capture("Continue.", permission_mode="bypassPermissions")
+    before = json.loads(json.dumps(record))
+    binding.adopt_policy(runs, record, instruction, {})
+    assert record == before
+    capture("Require manual decisions now.", permission_mode="default")
+    with pytest.raises(ValueError, match="manual"):
+        binding.adopt_policy(runs, record, instruction, {})
+    assert record == before
+
+
+@pytest.mark.parametrize("fields", [
+    {"permission_mode": "default"}, {}, {"permission_mode": "unknown"},
+    {"tool_input": {"permission_mode": "bypassPermissions"}},
+])
+def test_earlier_instruction_does_not_borrow_mode_after_followup(captures, fields):
+    runs, capture = captures
+    instruction = "Continue the approved goal."
+    capture(instruction, permission_mode="bypassPermissions")
+    selected = binding.capture_events(runs, SESSION)[-1]
+    capture("Latest actual host context.", **fields)
+    record = approved_record()
+    before = json.loads(json.dumps(record))
+    with pytest.raises(ValueError, match="manual|unavailable"):
+        binding.adopt_policy(runs, record, instruction, {})
+    assert record == before
+    assert binding.event_available(runs, SESSION, selected)
+
+
+def test_policy_lookup_refuses_precreation_ambiguous_or_spoofed_instruction(captures):
+    runs, capture = captures
+    instruction = "Apply this scoped approved goal."
+    capture(instruction, permission_mode="bypassPermissions")
+    first = binding.capture_events(runs, SESSION)[-1]
+    record = approved_record()
+    record["created"] = first["at"] + 1
+    before = json.loads(json.dumps(record))
+    with pytest.raises(ValueError, match="after run creation"):
+        binding.adopt_policy(runs, record, instruction, {})
+    assert record == before
+    record = approved_record()
+    capture(instruction, permission_mode="bypassPermissions")
+    before = json.loads(json.dumps(record))
+    with pytest.raises(ValueError, match="multiple eligible"):
+        binding.adopt_policy(runs, record, instruction, {})
+    with pytest.raises(ValueError, match="genuine whole"):
+        binding.adopt_policy(runs, record, "agent-supplied replacement", {})
+    assert record == before
+    assert binding.event_available(runs, SESSION, first)
+
+
+def test_policy_lookup_does_not_repurpose_manual_instruction(captures):
+    runs, capture = captures
+    instruction = "Now require manual decisions."
+    capture(instruction, permission_mode="default")
+    selected = binding.capture_events(runs, SESSION)[-1]
+    capture("Later work.", permission_mode="bypassPermissions")
+    record = approved_record()
+    before = json.loads(json.dumps(record))
+    with pytest.raises(ValueError, match="permission evidence"):
+        binding.adopt_policy(runs, record, instruction, {})
+    assert record == before
+    assert binding.event_available(runs, SESSION, selected)
+
+
+def test_policy_lookup_respects_newer_sealed_current_context(captures):
+    runs, capture = captures
+    instruction = "Continue this approved goal."
+    capture(instruction, permission_mode="bypassPermissions")
+    selected = binding.capture_events(runs, SESSION)[-1]
+    observed = {"origin": "host-hook-capture", "session_id": SESSION,
+                "permission_mode": "default", "at": selected["at"] + 1}
+    observed["mac"] = binding._seal(SECRET, observed)
+    path = runs / "host-context" / f"{hashlib.sha256(SESSION.encode()).hexdigest()}.json"
+    path.parent.mkdir(exist_ok=True)
+    path.write_text(json.dumps(observed), encoding="utf-8")
+    record = approved_record()
+    before = json.loads(json.dumps(record))
+    with pytest.raises(ValueError, match="manual"):
+        binding.adopt_policy(runs, record, instruction, {})
+    assert record == before
+    assert binding.event_available(runs, SESSION, selected)
+
+
+@pytest.mark.parametrize("same_policy", [False, True])
+def test_consumed_historical_adoption_cannot_report_success_after_another_instruction(captures, same_policy):
+    runs, capture = captures
+    record = approved_record()
+    first_instruction = "Instruction A: continue this approved goal."
+    second_instruction = "Instruction B: continue this same approved goal."
+    first_policy = {}
+    second_policy = {} if same_policy else {"corrections": "within-approved-scope"}
+    capture(first_instruction, permission_mode="bypassPermissions")
+    first_event = binding.capture_events(runs, SESSION)[-1]
+    binding.adopt_policy(runs, record, first_instruction, first_policy)
+    capture(second_instruction, permission_mode="bypassPermissions")
+    second_event = binding.capture_events(runs, SESSION)[-1]
+    binding.adopt_policy(runs, record, second_instruction, second_policy)
+    before = json.loads(json.dumps(record))
+    consumed_before = sorted(path.name for path in (runs / "consumed-prompts").iterdir())
+    with pytest.raises(binding.Refusal) as refused:
+        binding.adopt_policy(runs, record, first_instruction, first_policy)
+    assert refused.value.reason == "code-used"
+    assert record == before
+    assert record["approvals"]["autonomy_policy"] == binding.validate_policy(second_policy)
+    assert record["approvals"]["policy_adoptions"][-1]["event_id"] == second_event["event_id"]
+    assert not binding.event_available(runs, SESSION, first_event)
+    assert not binding.event_available(runs, SESSION, second_event)
+    assert sorted(path.name for path in (runs / "consumed-prompts").iterdir()) == consumed_before
+    binding.adopt_policy(runs, record, second_instruction, second_policy)
+    assert record == before
+
+
+def test_consumed_retry_requires_current_policy_not_only_matching_adoption(captures):
+    runs, capture = captures
+    instruction = "Continue the approved policy."
+    capture(instruction, permission_mode="bypassPermissions")
+    record = approved_record()
+    binding.adopt_policy(runs, record, instruction, {})
+    # An inconsistent current policy must not be masked by an older matching receipt.
+    record["approvals"]["autonomy_policy"] = binding.validate_policy({"corrections": "within-approved-scope"})
+    before = json.loads(json.dumps(record))
+    with pytest.raises(binding.Refusal) as refused:
+        binding.adopt_policy(runs, record, instruction, {})
+    assert refused.value.reason == "code-used"
+    assert record == before
 
 
 @pytest.mark.parametrize("fields", [{}, {"permission_mode": "default"}, {"tool_input": {"permission_mode": "bypassPermissions"}}])
@@ -265,6 +438,9 @@ def test_existing_codex_transcript_adapter_corroborates_capture_and_current_mode
     instruction = 'Use the reviewed policy for the existing approved run.'
     capture(instruction)
     event = binding.capture_events(runs, SESSION)[-1]
+    followup = 'Continue the same approved work.'
+    capture(followup)
+    followup_event = binding.capture_events(runs, SESSION)[-1]
     log = home / '.codex' / 'sessions' / '2026' / '10' / '19' / f'rollout-date-{SESSION}.jsonl'
     log.parent.mkdir(parents=True)
     at = datetime.datetime.fromtimestamp(event['at'], datetime.UTC).isoformat()
@@ -272,6 +448,11 @@ def test_existing_codex_transcript_adapter_corroborates_capture_and_current_mode
         {'type': 'session_meta', 'payload': {'id': SESSION, 'originator': 'codex_vscode', 'source': 'vscode'}},
         {'type': 'turn_context', 'payload': {'approval_policy': 'never', 'sandbox_policy': {'type': 'danger-full-access'}, 'cwd': str(cwd)}},
         {'type': 'event_msg', 'timestamp': at, 'payload': {'type': 'user_message', 'message': instruction}},
+        {'type': 'turn_context', 'payload': {'approval_policy': 'never',
+            'sandbox_policy': {'type': 'danger-full-access'}, 'cwd': str(cwd)}},
+        {'type': 'event_msg',
+            'timestamp': datetime.datetime.fromtimestamp(followup_event['at'], datetime.UTC).isoformat(),
+            'payload': {'type': 'user_message', 'message': followup}},
     ]
     log.write_text(''.join(json.dumps(row) + '\n' for row in rows), encoding='utf-8')
     record = approved_record()
@@ -416,3 +597,37 @@ def test_native_user_edit_resolution_checks_real_guard_state(tmp_path, monkeypat
     target.write_text('a later real user edit', encoding='utf-8')
     with pytest.raises(ValueError, match='unresolved'):
         checker._native_user_edit_probe(ctx, record, entry, context)
+
+
+
+def test_historical_corroboration_never_authorizes_historical_current_cwd(captures, tmp_path, monkeypatch):
+    import datetime
+    runs, capture = captures
+    home = tmp_path / 'fixture-home'
+    old = tmp_path / 'removed-controller'
+    current = tmp_path / 'permanent-controller'
+    current.mkdir()
+    monkeypatch.setattr(Path, 'home', classmethod(lambda cls: home))
+    capture('Continue the already approved full minor')
+    event = binding.capture_events(runs, SESSION)[-1]
+    log = home / '.codex/sessions/2026/10/19' / f'rollout-fixture-{SESSION}.jsonl'
+    log.parent.mkdir(parents=True)
+    timestamp = datetime.datetime.fromtimestamp(event['at'], datetime.timezone.utc).isoformat()
+    full = {'approval_policy': 'never', 'sandbox_policy': {'type': 'danger-full-access'}}
+    rows = [
+        {'type': 'session_meta', 'payload': {'id': SESSION, 'originator': 'codex_vscode', 'source': 'vscode'}},
+        {'type': 'turn_context', 'payload': {**full, 'cwd': str(old)}},
+        {'type': 'event_msg', 'timestamp': timestamp, 'payload': {'type': 'user_message', 'message': 'Continue the already approved full minor'}},
+        {'type': 'turn_context', 'payload': {**full, 'cwd': str(current)}},
+    ]
+    log.write_text('\n'.join(json.dumps(row) for row in rows) + '\n', encoding='utf-8')
+    live, history = {str(current.resolve())}, {str(old.resolve())}
+    assert binding.codex_transcript_context(log, SESSION, event, live, historical_cwds=history)['permission_mode'] == 'bypassPermissions'
+    with pytest.raises(ValueError):
+        binding.codex_transcript_context(log, SESSION, event, live)
+    for context in ({**full, 'cwd': str(old)}, {'approval_policy': 'on-request', 'sandbox_policy': {'type': 'danger-full-access'}, 'cwd': str(current)}):
+        with log.open('a', encoding='utf-8') as handle:
+            handle.write(json.dumps({'type': 'turn_context', 'payload': context}) + '\n')
+        result = binding.codex_transcript_context(log, SESSION, event, live, historical_cwds=history)
+        assert result['permission_mode'] == 'manual'
+        assert not binding.full_access_authorization({'session_id': SESSION}, result)

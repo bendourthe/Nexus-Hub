@@ -324,6 +324,29 @@ def usage_limit_stop(payload: dict, record_path: Path, record: dict, repo_root: 
         return False
 
 
+
+def _verified_minor_root(path: Path, record: dict, session: str) -> tuple[Path, dict]:
+    """Only the trusted installed checker sibling resolves the signed operational root."""
+    import importlib.util
+    checker = _checker()
+    if not checker.is_file() or _is_inside(checker, Path(str(record.get('repo_root', '')))):
+        raise ValueError('trusted checker unavailable')
+    name = '_nexus_gate_controller_checker'
+    spec = importlib.util.spec_from_file_location(name, checker)
+    if spec is None or spec.loader is None:
+        raise ValueError('trusted checker unavailable')
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    spec.loader.exec_module(module)
+    try:
+        ctx, verified = module.resolve_minor_controller(path, session, budget_seconds=min(5.0, _budget()))
+    except (OSError, ValueError, module.Malformed) as exc:
+        raise ValueError('minor controller cannot be verified') from exc
+    if _is_inside(checker, ctx.root):
+        raise ValueError('checker is inside operational worktree')
+    return ctx.root, verified
+
+
 def cmd_stop() -> int:
     payload = _read_payload()
     _observe_permission(payload)
@@ -334,6 +357,11 @@ def cmd_stop() -> int:
     record_path, record = found
     checker = _checker()
     repo_root = Path(str(record.get("repo_root", "")))
+    if record.get('schema') == 2:
+        try:
+            repo_root, record = _verified_minor_root(record_path, record, session)
+        except ValueError:
+            return emit_continue(resolve_format(payload), 'Minor controller verification failed; keep the run unresolved.')
     if not checker.is_file() or _is_inside(checker, repo_root):
         print(
             "completion-gate: checker not installed outside the working tree; allowing stop",

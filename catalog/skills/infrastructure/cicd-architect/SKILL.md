@@ -193,7 +193,7 @@ This is the terminal duty in every plan's final phase, and the entry point when 
 1. **Detect** the provider (Step 2). Record "none detected" rather than assuming.
 2. **Compare** the existing pipeline against every field in Steps 3 through 8: profiles, events, runner selection, required aggregate, permissions, pinning, caching, concurrency, path scoping, artifact retention, reports, deployment boundaries, failure recovery.
 3. **Propose** each difference with its cost, its risk, and the smallest change that closes it.
-4. **Approve.** Obtain explicit approval per change. Silence is not approval. A full `/implement` run's upfront approvals never cover a pipeline, permission, or secret change: each one stops that run as a `ci-security-change` blocker until the user answers it.
+4. **Approve.** Follow `[[implement-phase]]`'s [Authorization policy](../../workflow/implement-phase/references/completion-contract.md#authorization-policy) for authorization and continuation. Delegate any required manual decision and its capture to that same owner; this comparison does not impose a second consent requirement.
 5. **Apply** approved changes, then run affected checks through [[cicd-integration]]. The complete local gate follows all implementation and final-phase corrections; retain earlier complete results only under the selection owner's invalidation rules.
 6. **Record** every declined or environment-only difference as a known gap with an owner and a next step. Cross-link `[[known-gaps-tracker]]`.
 
