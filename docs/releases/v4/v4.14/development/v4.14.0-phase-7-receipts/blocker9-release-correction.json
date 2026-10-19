@@ -1,0 +1,808 @@
+{
+  "kind": "v4.14.0 approved release correction local proof",
+  "base_commit": "4cc6b8494728229989e8e8602da6bd0252e57cf5",
+  "approval": "blocker9 TNKKYJ3W",
+  "scope": "one additional PR486 correction push; no bound resets",
+  "source_sha256": {
+    "catalog/skills/specialized-domains/document-to-interactive-html/scripts/geometric_audit.py": "5a78ac334a1c25d91e1e1c3f0af4dd53baccc9408e500789768b932e299fafad",
+    "tests/skills/test_geometric_audit.py": "9bd11462987ad4513e432fbd64cf56062c0cd42c17263fd0a490d16be97d5f2f",
+    "guides/website/nexus-hub-guide.html": "edeff9e2340ccc49307c318088c8366c0120875ae476af0d53e139c38a4b9b68",
+    "guides/website/training.html": "d3d2cfa82e8464b9a3ca64eb2a28f31cb0a12c5c80ac4d9b15ade51eec7530ce"
+  },
+  "guard_reconciliation": {
+    "normalized_path_list_sha256": "3ffb83baa4fc2465841065a262972e9f3a535f220e8d4bab9ee47cbe99da4e10",
+    "normalization_count": 5978,
+    "accepted_count": 90,
+    "acceptance_rule": "exact saved bytes with CRLF replaced by LF only; official diff then accept after genuine approval",
+    "accepted": [
+      {
+        "path": "tests/installer/test_selection_parity.py",
+        "check_exit": 3,
+        "before_sha256": "dbb3094221938e29e90fd55b855946e06a05c227240656cbad2eaa3b5a8acac9",
+        "after_sha256": "83656a7d068861a978f320be8bfc5ae3369d401b9ee66731bbdd149a60adf3a5",
+        "stored_copy_sha256": "dbb3094221938e29e90fd55b855946e06a05c227240656cbad2eaa3b5a8acac9",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "tests/validators/test_platform_defaults_levers.py",
+        "check_exit": 3,
+        "before_sha256": "ccdbdf34531c78277dee1bef547ae540c9d2cfc25000a2b058e9637a049bab8a",
+        "after_sha256": "9b63f3dfc5b86b12841f018192b0d5e644e7eca5790494c00f7167f92026db3b",
+        "stored_copy_sha256": "ccdbdf34531c78277dee1bef547ae540c9d2cfc25000a2b058e9637a049bab8a",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "tests/validators/test_ci_workflow_contract.py",
+        "check_exit": 3,
+        "before_sha256": "61011294736226fcb8e97d27497ee2c735c4a79ed174b9b4cf04a623e9880081",
+        "after_sha256": "b0b05c7e0925b572b2bfde8d51c96d3c2e1630496d01a553d7b842aae652bff7",
+        "stored_copy_sha256": "61011294736226fcb8e97d27497ee2c735c4a79ed174b9b4cf04a623e9880081",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/history/v4.14.0-phase-4.md",
+        "check_exit": 3,
+        "before_sha256": "5a82499e498665756a48b769bf1256027789a8b8d43648415bb29ea56d4e09c5",
+        "after_sha256": "98b1b9bccf56a82cb5ead4ebb032151ddd00fa5e086e5f941cfb59539c6e7db5",
+        "stored_copy_sha256": "5a82499e498665756a48b769bf1256027789a8b8d43648415bb29ea56d4e09c5",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "guides/website/nexus-hub-guide.html",
+        "check_exit": 3,
+        "before_sha256": "9c6e011260d366675a608d98f55732a643aa29d5edf84a72606508d621c332c3",
+        "after_sha256": "edeff9e2340ccc49307c318088c8366c0120875ae476af0d53e139c38a4b9b68",
+        "stored_copy_sha256": "9c6e011260d366675a608d98f55732a643aa29d5edf84a72606508d621c332c3",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "tests/installer/test_workspace_install_output.py",
+        "check_exit": 3,
+        "before_sha256": "32e3d61026851bcb425583600a2c6d72d379f521e65e3466f2c3e58f7b718dba",
+        "after_sha256": "bafeac26203bb18ed334e8ba1d1ed6055f5641f37f4c2fbbe9c9cadce9d607d6",
+        "stored_copy_sha256": "32e3d61026851bcb425583600a2c6d72d379f521e65e3466f2c3e58f7b718dba",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "tests/validators/test_no_console_window.py",
+        "check_exit": 3,
+        "before_sha256": "3efd7848bb0b11e6c7fc445853b05430e680d6a442654e267feefb8f167e307c",
+        "after_sha256": "6f1969947c1cd34e0bd1c72768abfc6431733ea201301580eee340cd69a3cc11",
+        "stored_copy_sha256": "3efd7848bb0b11e6c7fc445853b05430e680d6a442654e267feefb8f167e307c",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/hook-writer-patch.diff",
+        "check_exit": 3,
+        "before_sha256": "a98cabe87ec696c15b4786effe786996fbe7bdf39950cba33eb84504fa73ba9f",
+        "after_sha256": "2990d29ae12f0db517f6de1a1749483a69ef589c02b31201c540a80e4ee62e85",
+        "stored_copy_sha256": "a98cabe87ec696c15b4786effe786996fbe7bdf39950cba33eb84504fa73ba9f",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "catalog/skills/code-review/multi-agent-code-review/SKILL.md",
+        "check_exit": 3,
+        "before_sha256": "ba386a88644abde18c9041c2bed675e1d345459802d60989264ccf864c141f2e",
+        "after_sha256": "1de62582787cff4a5f48e5aa1a6cbfbb472aa6b1d8afefff582b6b5e0a6b02eb",
+        "stored_copy_sha256": "ba386a88644abde18c9041c2bed675e1d345459802d60989264ccf864c141f2e",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "docs/decisions/implemented/process/2026-09-23-scope-nonfinal-phase-tests-to-blast-radius.md",
+        "check_exit": 3,
+        "before_sha256": "1763284f491294bd3d5b6eebeb47d874b7635ada0fd6333ff9cce1cb61c5f55c",
+        "after_sha256": "3b3b01388ce19b33d2c6622ac0811bcdc4863443943bcb792022a5406de84e54",
+        "stored_copy_sha256": "1763284f491294bd3d5b6eebeb47d874b7635ada0fd6333ff9cce1cb61c5f55c",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "tests/installer/test_init_subcommand.py",
+        "check_exit": 3,
+        "before_sha256": "f3bdc314783196794a9a5913c3f9f259b0ed4f5e53005a0fc4be658e15d2b687",
+        "after_sha256": "4ec9a7b98b083ada30341d6eeb3f1dc44e529d3c723698747837a0b07fd0818c",
+        "stored_copy_sha256": "f3bdc314783196794a9a5913c3f9f259b0ed4f5e53005a0fc4be658e15d2b687",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "scripts/approval_page.py",
+        "check_exit": 3,
+        "before_sha256": "4610466f481034dd6f2a9601fae4b18d7bd99989eb028c20c6cf6bf5d3284eca",
+        "after_sha256": "b2e718bea6e1daede15b8b7e52af4675c705a46cd000175861519007ebacf424",
+        "stored_copy_sha256": "4610466f481034dd6f2a9601fae4b18d7bd99989eb028c20c6cf6bf5d3284eca",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "tests/skills/test_cicd_lifecycle_contract.py",
+        "check_exit": 3,
+        "before_sha256": "ccff43b56412e4a3651cf679b32e86df03ef50b0a5936dd331abec6149e7440a",
+        "after_sha256": "b8d5e3db521989f3e5ed6f109d63437ecd1a8fec8fc2dc42c9ba7a628faaa4a8",
+        "stored_copy_sha256": "ccff43b56412e4a3651cf679b32e86df03ef50b0a5936dd331abec6149e7440a",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "tests/integrations/test_windows_long_paths.py",
+        "check_exit": 3,
+        "before_sha256": "2cc9ac5048074cf2b9421f02f3385a32361915c222a5c4ceb6d3232c0c11ad2e",
+        "after_sha256": "0f32abf918d9a84d38a6174c0f7e810c6d12dbeda4c2b550dff5a601a3f75da2",
+        "stored_copy_sha256": "2cc9ac5048074cf2b9421f02f3385a32361915c222a5c4ceb6d3232c0c11ad2e",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": ".pre-commit-config.yaml",
+        "check_exit": 3,
+        "before_sha256": "b35466905812a96b946acfdbabe3af17843512e01b6e9ee27ef3d5f1f184892d",
+        "after_sha256": "9a39c2314aa41679b9936d806001a31bac8a8c29640c9cc911882f1589770012",
+        "stored_copy_sha256": "b35466905812a96b946acfdbabe3af17843512e01b6e9ee27ef3d5f1f184892d",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "catalog/skills/orchestration/agent-orchestration-primitives/SKILL.md",
+        "check_exit": 3,
+        "before_sha256": "7cc83d12d1651e510832273eab5f67cd69a0354182a1fa4e16416930f0127382",
+        "after_sha256": "c6ab0b340b45422c44ec3554b591075e8e40b5b0da0400df4a7292680abb3d3a",
+        "stored_copy_sha256": "7cc83d12d1651e510832273eab5f67cd69a0354182a1fa4e16416930f0127382",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "extensions/nexus-code-search/tests/test_offline_policy.py",
+        "check_exit": 3,
+        "before_sha256": "96fcd394b9b9b9fca5499d59369234abc6a0b110194e53bb8adf29bdebf0ad4c",
+        "after_sha256": "c1963897a1dfc15c4da1cd4ef6279c21c801d4de8a0b31ba3b4c4a52bccbf5bf",
+        "stored_copy_sha256": "96fcd394b9b9b9fca5499d59369234abc6a0b110194e53bb8adf29bdebf0ad4c",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "catalog/hooks/settings.json",
+        "check_exit": 3,
+        "before_sha256": "342cecc3f0af6356641593a7b8fb901ed740cabe1291c5a4990c563235272b6e",
+        "after_sha256": "23b5eb64d308f4c2b26162d309d7f47a64b9da460204005732e04e3ef8f75c49",
+        "stored_copy_sha256": "342cecc3f0af6356641593a7b8fb901ed740cabe1291c5a4990c563235272b6e",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "tests/validators/test_gap_migration_and_archive.py",
+        "check_exit": 3,
+        "before_sha256": "d694ea565b69850efbd0ec3ecbc7822c18f3247b1252100b1bf735a2c727931b",
+        "after_sha256": "e9a7485b9b2c81086223e5b8ec5536333334268a9ff83d4e2c9497709358c480",
+        "stored_copy_sha256": "d694ea565b69850efbd0ec3ecbc7822c18f3247b1252100b1bf735a2c727931b",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "tests/installer/test_native_json_reader.py",
+        "check_exit": 3,
+        "before_sha256": "d48b39a56078136f352a45b9acf3d3951158eca27192a1ed85d7f522fa96b16a",
+        "after_sha256": "6c8c44bf6073ec96b22008efbee356a2979a13d671c8939ae5ffc66046963d41",
+        "stored_copy_sha256": "d48b39a56078136f352a45b9acf3d3951158eca27192a1ed85d7f522fa96b16a",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "catalog/skills/workflow/user-edit-preservation/scripts/edit_guard.py",
+        "check_exit": 3,
+        "before_sha256": "68d688b9037303a6af9bb2278ec6c54d252fd0c8e7fb8691c2ecce15e3e73adc",
+        "after_sha256": "107071cc18f08abba89be11f304ca096f96657741bdda8ecf0865c4f4b55b917",
+        "stored_copy_sha256": "68d688b9037303a6af9bb2278ec6c54d252fd0c8e7fb8691c2ecce15e3e73adc",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "docs/releases/v4/v4.14/plans/v4.14.1-adoption-effort-allocation.md",
+        "check_exit": 3,
+        "before_sha256": "3c1fc32944b0e448afe94abc88b0d1ba70e9977f2a55e9769067b1786b5f8489",
+        "after_sha256": "8485c8515f4a4b0795f10a65d26b1430d629ff355b7acd9c0cb63deb28a797d7",
+        "stored_copy_sha256": "3c1fc32944b0e448afe94abc88b0d1ba70e9977f2a55e9769067b1786b5f8489",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "tests/skills/test_presentify_dual_view_distribution.py",
+        "check_exit": 3,
+        "before_sha256": "96d57f6be1e8ceaba411dca1aa9bd4542ed0922a289ea464386bdd1b6e779526",
+        "after_sha256": "54539bff80d86d71adf5807d64c4d4fe2800d92d1b5238897cfb50ad11cf72e2",
+        "stored_copy_sha256": "96d57f6be1e8ceaba411dca1aa9bd4542ed0922a289ea464386bdd1b6e779526",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "extensions/claude-usage-monitor/package-lock.json",
+        "check_exit": 3,
+        "before_sha256": "1a117163406fd2ff237b929b79060a9ebcdab2f87d9f4e901c9b9732ee66289c",
+        "after_sha256": "c2323ac2fa778cffa4eff744069bad0d14c7f2cacb69b2b9ec8aeb484fd1dbd1",
+        "stored_copy_sha256": "1a117163406fd2ff237b929b79060a9ebcdab2f87d9f4e901c9b9732ee66289c",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "tests/installer/test_managed_hook_upgrade.py",
+        "check_exit": 3,
+        "before_sha256": "7423ae3e9c4a109b2d0c8fff280a70806cca312c3c7680ff5e2536a9ffdbe2ec",
+        "after_sha256": "6cbf9fbb96aab887bc790e91280a846a9e00d3537d87af6f7f605df9ab00eae8",
+        "stored_copy_sha256": "7423ae3e9c4a109b2d0c8fff280a70806cca312c3c7680ff5e2536a9ffdbe2ec",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "catalog/skills/orchestration/multi-agent-coordinator/SKILL.md",
+        "check_exit": 3,
+        "before_sha256": "6f66e5016faf3d31a9eb92693943054fea84625a51d71babd2c79e9a7264978d",
+        "after_sha256": "4d3d5cffe7e86e84d6e8bbf5467000c8a8f153bea0db79089d2176f2ea63e61f",
+        "stored_copy_sha256": "6f66e5016faf3d31a9eb92693943054fea84625a51d71babd2c79e9a7264978d",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "tests/skills/test_edit_guard_publication.py",
+        "check_exit": 3,
+        "before_sha256": "5667d65c693c1fa2f8979bbfebfc9c3b80a7a37d9459ee2a3432e57559e35951",
+        "after_sha256": "d078ccd24b440dd59373298f06518cffcdd9a04c49c411a937a1236c1fb293ae",
+        "stored_copy_sha256": "5667d65c693c1fa2f8979bbfebfc9c3b80a7a37d9459ee2a3432e57559e35951",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "docs/DEVLOG.md",
+        "check_exit": 3,
+        "before_sha256": "aee361d52d663a032829ff87ae50ca9dfb6f7c955ae4038dae3ea015a72bc16e",
+        "after_sha256": "8d63429f74d47b8f0eee7f3668f155c1e07b9dfce896f2908274ca46347e2272",
+        "stored_copy_sha256": "aee361d52d663a032829ff87ae50ca9dfb6f7c955ae4038dae3ea015a72bc16e",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "data/skills.json",
+        "check_exit": 3,
+        "before_sha256": "fbe15912b5d65029a285c31b882d54c46bdbc274d4bc4b4609fce8c1a470c3c2",
+        "after_sha256": "fd1a22e763dae5a0b3dc4a5df1591a608ecf8eb44a1f014c8ce977eff6ed561f",
+        "stored_copy_sha256": "fbe15912b5d65029a285c31b882d54c46bdbc274d4bc4b4609fce8c1a470c3c2",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "tests/conftest.py",
+        "check_exit": 3,
+        "before_sha256": "9bdb92fa7d90aa19ac454380e44736895ccb6ec69fb5d777a04c7082a90ddbaf",
+        "after_sha256": "eb51a58116f79a86746e75b8b22e39a42960dd681357aadf2fdd66e861b1bdce",
+        "stored_copy_sha256": "9bdb92fa7d90aa19ac454380e44736895ccb6ec69fb5d777a04c7082a90ddbaf",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "catalog/skills/workflow/implement-phase/references/completion-contract.md",
+        "check_exit": 3,
+        "before_sha256": "6d673508e2d269ebbb060ea2237fba6f8a6c5752b1a9428f5604f3ffe51581e5",
+        "after_sha256": "d1657569dabd9325f1713ac40b9f10a098510c36a720fa232c46cfdc53f5e783",
+        "stored_copy_sha256": "6d673508e2d269ebbb060ea2237fba6f8a6c5752b1a9428f5604f3ffe51581e5",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "catalog/hooks/tests/conftest.py",
+        "check_exit": 3,
+        "before_sha256": "26602f65cb736d30223e8bd0ed9eb31272cd6dfdc0c9cd7e051038c8fd945512",
+        "after_sha256": "b2fa45727feb240b82de8a20c175045c6fa194a7a809ceb5c4800dab3a95d56d",
+        "stored_copy_sha256": "26602f65cb736d30223e8bd0ed9eb31272cd6dfdc0c9cd7e051038c8fd945512",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "catalog/skills/workflow/implementation-plan/references/mandatory-final-phase.md",
+        "check_exit": 3,
+        "before_sha256": "45548a9ad5e286f88b7ed04821b85fd0aedaca75b483a5b84d9fb2fa2bee17b2",
+        "after_sha256": "4121a88299bf392ec763626ae3a029d0f9c728f79ab650bfb978e218042d1876",
+        "stored_copy_sha256": "45548a9ad5e286f88b7ed04821b85fd0aedaca75b483a5b84d9fb2fa2bee17b2",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "tests/skills/test_presentify_dual_view_build.py",
+        "check_exit": 3,
+        "before_sha256": "3158bf362d7ab44ed3ab46361a250c694723937834d9fad91ff2654088ceaf66",
+        "after_sha256": "ff8c519d93943d8ddebb54d989ebe38d99abc9281a42fcb9b2b6037d0da5ab1d",
+        "stored_copy_sha256": "3158bf362d7ab44ed3ab46361a250c694723937834d9fad91ff2654088ceaf66",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "extensions/cursor-usage-monitor/package-lock.json",
+        "check_exit": 3,
+        "before_sha256": "440b4aaa695b00068c0521fd2bdcc974242fbe154107295a9d7ce445af029305",
+        "after_sha256": "f82707ef1aaef9d054c1299b45c0caee5acb1b7ea44caecf869366c0eb709a32",
+        "stored_copy_sha256": "440b4aaa695b00068c0521fd2bdcc974242fbe154107295a9d7ce445af029305",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "extensions/copilot-usage-monitor/package-lock.json",
+        "check_exit": 3,
+        "before_sha256": "835f7aee8fd1cff190781da801bad5458034557a1acff59ad74e3fefe68bc366",
+        "after_sha256": "41f87e231675c98de8dda9d8ab149dc809d35c2babf851c7ef57ef46c09acef2",
+        "stored_copy_sha256": "835f7aee8fd1cff190781da801bad5458034557a1acff59ad74e3fefe68bc366",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "catalog/commands/plan.md",
+        "check_exit": 3,
+        "before_sha256": "ea64604be1ed8415b7d07a478340e8bb7583b6f6b44fca68cedd2e94c58b13cf",
+        "after_sha256": "62fb8aa393144bc0f58ab94856aa0fa4f5120794b4ed9b58b7742aac7a70dd5d",
+        "stored_copy_sha256": "ea64604be1ed8415b7d07a478340e8bb7583b6f6b44fca68cedd2e94c58b13cf",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/history/v4.14.0-phase-3.md",
+        "check_exit": 3,
+        "before_sha256": "4d4644a731f4af2cfc0c2277d54f652df37ddf2cf91d8389f23dd1624448a746",
+        "after_sha256": "6351757131606a464b9eb0b025629bb10ab76db78c760d25f9eeeb586528881a",
+        "stored_copy_sha256": "4d4644a731f4af2cfc0c2277d54f652df37ddf2cf91d8389f23dd1624448a746",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "catalog/skills/workflow/implementation-plan/SKILL.md",
+        "check_exit": 3,
+        "before_sha256": "2b843ff9e8f228a57fb748e8f28bbd036115cd190390f2beb2c30bbbaeb639a1",
+        "after_sha256": "bcedb1528abeece01e7922269da551ce40b053bc2d5ef86ae1a91501188fa342",
+        "stored_copy_sha256": "2b843ff9e8f228a57fb748e8f28bbd036115cd190390f2beb2c30bbbaeb639a1",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "tests/validators/test_ui_cluster_contract.py",
+        "check_exit": 3,
+        "before_sha256": "2b0be9fa1b07d0b144f323d9154393819aedffecd2c9824650bd693dc81eb9c4",
+        "after_sha256": "acd11e00f267ad8019f994652b1cb7e2dfcedff97b97782b0ce5c2f4f38563c1",
+        "stored_copy_sha256": "2b0be9fa1b07d0b144f323d9154393819aedffecd2c9824650bd693dc81eb9c4",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "tests/skills/test_plan_lifecycle_contract.py",
+        "check_exit": 3,
+        "before_sha256": "34fce51ab48dabe1ba6a5040cdf09652fbc7da0140bf9c3d4fee29d01137c6a5",
+        "after_sha256": "b0a1f8fa7bfa9708a1491aea5bbfa21705e88e25c64866c0ceefb8d7f558eef8",
+        "stored_copy_sha256": "34fce51ab48dabe1ba6a5040cdf09652fbc7da0140bf9c3d4fee29d01137c6a5",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "catalog/skills/workflow/implement-phase/references/implement-phase-runbook.md",
+        "check_exit": 3,
+        "before_sha256": "46d29d1a2fda8da74d478741de89a3743c08e030ebb3df4348f4ddff9d354e51",
+        "after_sha256": "882a6930175f85d9def5f7f3a7dcd92f4673abc9d33693c8a9418c25d86d247a",
+        "stored_copy_sha256": "46d29d1a2fda8da74d478741de89a3743c08e030ebb3df4348f4ddff9d354e51",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "docs/policy/platform-defaults-levers.md",
+        "check_exit": 3,
+        "before_sha256": "c4413b8f60d4028f1fd4590a145808686922b13cc2d205a04de25f0bc4d76faf",
+        "after_sha256": "eebb7eb89a1c24c356235f71cb9a04d6eaebdfec2edc9c89dd4bd43e020540e4",
+        "stored_copy_sha256": "c4413b8f60d4028f1fd4590a145808686922b13cc2d205a04de25f0bc4d76faf",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "AGENTS.md",
+        "check_exit": 3,
+        "before_sha256": "bdbdb039b12812bb188f1d7e82899676c1fbefab6bd1481d9d63f04ead1c1a97",
+        "after_sha256": "226e14a62bbd0bdeadd30cc07d3b4c57e34ae40619648923ed98f76a6c57f105",
+        "stored_copy_sha256": "bdbdb039b12812bb188f1d7e82899676c1fbefab6bd1481d9d63f04ead1c1a97",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "scripts/check_plan_completion.py",
+        "check_exit": 3,
+        "before_sha256": "d798d5096e5882220a42234f9af5a698fefa72488ea8146a49e4f3f7757dc368",
+        "after_sha256": "9d3463ee2fe1aabd0d4c14bbf7721220f95366f64848b9699221969fcbac338b",
+        "stored_copy_sha256": "d798d5096e5882220a42234f9af5a698fefa72488ea8146a49e4f3f7757dc368",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": ".claude-plugin/plugin.json",
+        "check_exit": 3,
+        "before_sha256": "ed7ee7b51a8b56721e211ef18196b975f18e44c866c1645e277a3e2d4274dfe8",
+        "after_sha256": "606e92e05696a2ccd675c8381e13c329706b7007aa2b9c38719f1122e13fcb00",
+        "stored_copy_sha256": "ed7ee7b51a8b56721e211ef18196b975f18e44c866c1645e277a3e2d4274dfe8",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "guides/website/training.html",
+        "check_exit": 3,
+        "before_sha256": "02d99057c51e07fd030b261442389d4af34f285367dbc74093411b7ced607317",
+        "after_sha256": "d3d2cfa82e8464b9a3ca64eb2a28f31cb0a12c5c80ac4d9b15ade51eec7530ce",
+        "stored_copy_sha256": "02d99057c51e07fd030b261442389d4af34f285367dbc74093411b7ced607317",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "catalog/skills/infrastructure/cicd-architect/SKILL.md",
+        "check_exit": 3,
+        "before_sha256": "485c6dad85ee0dbd4bce3ccba36ba7b0f047e3497711d4993e59e8bd1e0f75bb",
+        "after_sha256": "ea0a0ef7328fd24cd7ebc9229ff7ccb45793b189a691b1a4e8d05a0182ef935a",
+        "stored_copy_sha256": "485c6dad85ee0dbd4bce3ccba36ba7b0f047e3497711d4993e59e8bd1e0f75bb",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "docs/policy/platform-read-contracts.json",
+        "check_exit": 3,
+        "before_sha256": "d43436c0a0668537882eb07504c6b3ec36a2b78054a5d6e03987c8fd28c16683",
+        "after_sha256": "d6cf677dda85aeccffc2c96a4a4f7d1e9c1b6d2ddc24acd9284a3c4cfbe83069",
+        "stored_copy_sha256": "d43436c0a0668537882eb07504c6b3ec36a2b78054a5d6e03987c8fd28c16683",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": ".gitattributes",
+        "check_exit": 3,
+        "before_sha256": "cf00e966b75d7f5e6d3838cd1c353e04fadb0df6f29e42ec5eab96b817c19ad9",
+        "after_sha256": "1ee3a5482c38bfdf51c489e3e7c91d2f3697c460443968f2e1c88a622b4bab8f",
+        "stored_copy_sha256": "cf00e966b75d7f5e6d3838cd1c353e04fadb0df6f29e42ec5eab96b817c19ad9",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "tests/skills/test_installer_parity_lifecycle.py",
+        "check_exit": 3,
+        "before_sha256": "85cbd48aec9f3ddb2640a9c8f4dd615242c6262c509ae15582940ec98e4dd24e",
+        "after_sha256": "31e3939911df1e242b67d06c309d57e621094ed18a19c5594abaa56dbdc502a4",
+        "stored_copy_sha256": "85cbd48aec9f3ddb2640a9c8f4dd615242c6262c509ae15582940ec98e4dd24e",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "extensions/gemini-usage-monitor/package-lock.json",
+        "check_exit": 3,
+        "before_sha256": "ab8040bdd045f415b0b01a31c4095698a78adb2c83a2cda26df3e85358e2adaa",
+        "after_sha256": "f6cf1f788116388b88a7c0d17ec4498a2be71c4ff4fb995735b824a28be5a39d",
+        "stored_copy_sha256": "ab8040bdd045f415b0b01a31c4095698a78adb2c83a2cda26df3e85358e2adaa",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "tests/validators/test_plan_worktree_isolation.py",
+        "check_exit": 3,
+        "before_sha256": "0629910aedf48e9152b2c230374e23f1506552729b22791e028fb2cb1119e315",
+        "after_sha256": "832d386920b83bd35d1afeb47b7ed780653ca11de91ff47cd895c6feafc2394e",
+        "stored_copy_sha256": "0629910aedf48e9152b2c230374e23f1506552729b22791e028fb2cb1119e315",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "docs/decisions/implemented/architecture/2026-10-16-presentify-landing-flyover-route.md",
+        "check_exit": 3,
+        "before_sha256": "7cbca3a3c5b2413e27c98cf6258fdbd311a543fadff6a2bf88c01dd32b16d620",
+        "after_sha256": "22c22b13440277e81dcfda7b345cd77f9944c224d5da75c15c03c8f63286e531",
+        "stored_copy_sha256": "7cbca3a3c5b2413e27c98cf6258fdbd311a543fadff6a2bf88c01dd32b16d620",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "docs/policy/platform-read-contracts.md",
+        "check_exit": 3,
+        "before_sha256": "4dabe2fd4dc11ff6c162e521ab64e14b4ec2a836d4544bb102211997424da602",
+        "after_sha256": "5b709055307730038a60122c1bdb94648d5d380146028d2376ce883d3510fd63",
+        "stored_copy_sha256": "4dabe2fd4dc11ff6c162e521ab64e14b4ec2a836d4544bb102211997424da602",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "catalog/skills/ai-development/model-routing/SKILL.md",
+        "check_exit": 3,
+        "before_sha256": "06b610280b1e2b794f60cbbaea3a98a7c2087df0bde17733d77e227fb1fcd874",
+        "after_sha256": "c63a297a00e6b5944f22bf6a2f936752b5bd2df02b50b19e70dec38ed116dd7f",
+        "stored_copy_sha256": "06b610280b1e2b794f60cbbaea3a98a7c2087df0bde17733d77e227fb1fcd874",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "catalog/skills/ai-development/model-routing/references/last-known-model-map.json",
+        "check_exit": 3,
+        "before_sha256": "5c33fecdec5ba5edc42e74632217e9cb817995035d6a87745468025de15083bb",
+        "after_sha256": "57b6a9ffa6b07bc6cb715eb758f8fcbb7c944b1d615f2fc21b0db8c2d25198d6",
+        "stored_copy_sha256": "5c33fecdec5ba5edc42e74632217e9cb817995035d6a87745468025de15083bb",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "catalog/hooks/tests/test_user_edit_guard.py",
+        "check_exit": 3,
+        "before_sha256": "491dcf9ba0746b90c5a85efa3435a4b236f74347c7262d91728af178320e797f",
+        "after_sha256": "21e7d77d30f42b0088b26486ae629b87d888b175741ac93be5d6999efc217bf1",
+        "stored_copy_sha256": "491dcf9ba0746b90c5a85efa3435a4b236f74347c7262d91728af178320e797f",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "README.md",
+        "check_exit": 3,
+        "before_sha256": "be54f4fae37c118fcbc3b58a80bca225d5c578ddd82916b058e3ef30ef37e5d7",
+        "after_sha256": "558517c4b917ef2af96da15ff2cb645fb050111eea997a2de7ae2391ca73c0d4",
+        "stored_copy_sha256": "be54f4fae37c118fcbc3b58a80bca225d5c578ddd82916b058e3ef30ef37e5d7",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "catalog/commands/update.md",
+        "check_exit": 3,
+        "before_sha256": "c03045ed4a5f213c12330fd7f3e0c74bad1b501c4b7158a45f1373edd84666c9",
+        "after_sha256": "cc9a5c98ad4a4dfab33dde802c69509fcd04e9db0a48e60f32c0c62892d10a30",
+        "stored_copy_sha256": "c03045ed4a5f213c12330fd7f3e0c74bad1b501c4b7158a45f1373edd84666c9",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "catalog/hooks/tests/test_installer_smoke.py",
+        "check_exit": 3,
+        "before_sha256": "56005934ef56861dfba375dfa8ce28df5850783da880e413fbe0cae29fc105f7",
+        "after_sha256": "23c52a8e71dcce03c4ed5ae5c3bdcd015340112701fb4db5905931900926408c",
+        "stored_copy_sha256": "56005934ef56861dfba375dfa8ce28df5850783da880e413fbe0cae29fc105f7",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "CHANGELOG.md",
+        "check_exit": 3,
+        "before_sha256": "67a7110803ec43f3e80f1edee1886cb55d2c63d8747b79ae7c2ae4467f4f273e",
+        "after_sha256": "d8e7e21576207d318dee54f9fb5b91351b3dc4a063456a76b9c8d41568670843",
+        "stored_copy_sha256": "67a7110803ec43f3e80f1edee1886cb55d2c63d8747b79ae7c2ae4467f4f273e",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "extensions/codex-usage-monitor/package-lock.json",
+        "check_exit": 3,
+        "before_sha256": "3dbfa1b829d06dcc40f111303f1934ae87e63e53b3393b1b2308ace551ca524f",
+        "after_sha256": "d9c289fff56bef56e004e629fee45b981acd27d3b5409dbb23802f107279fe2f",
+        "stored_copy_sha256": "3dbfa1b829d06dcc40f111303f1934ae87e63e53b3393b1b2308ace551ca524f",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "catalog/skills/workflow/plan-queue-assessment/SKILL.md",
+        "check_exit": 3,
+        "before_sha256": "a679828f6d25d44e113dd118a918e05202ea963fcdde8095ac956c3346a79c89",
+        "after_sha256": "13edb98c06b7f393bfbfe64d6a2513660113e66971130fd640319340702139ba",
+        "stored_copy_sha256": "a679828f6d25d44e113dd118a918e05202ea963fcdde8095ac956c3346a79c89",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "configs/platform-defaults.json",
+        "check_exit": 3,
+        "before_sha256": "169d21bee705cc6b0b32c1afaea02c25d5fff78d234b5cce290a28f38e6a18a5",
+        "after_sha256": "022415928dd49974ef54643f90f9a58e9b1225afa3bf2385366a14f251932c58",
+        "stored_copy_sha256": "169d21bee705cc6b0b32c1afaea02c25d5fff78d234b5cce290a28f38e6a18a5",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "tests/installer/test_installer_stage_cleanup.py",
+        "check_exit": 3,
+        "before_sha256": "d6b4276b831878510a38411a2d5b0113a7b6c3fbb35c932751bf24cf165a6be5",
+        "after_sha256": "ad54ed7c681422b4af169e651f72f2772b11a8c7735a660cd3cce00429463ace",
+        "stored_copy_sha256": "d6b4276b831878510a38411a2d5b0113a7b6c3fbb35c932751bf24cf165a6be5",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "catalog/hooks/tests/test_git_environment_isolation.py",
+        "check_exit": 3,
+        "before_sha256": "d5eeec9e65b62fe0daf15352f23475ac2a91caa82e2ed52cdd83daaf5c963403",
+        "after_sha256": "2b504c258139845ebc6274c330411343224a47e284b4a98e500b9334fa1956d1",
+        "stored_copy_sha256": "d5eeec9e65b62fe0daf15352f23475ac2a91caa82e2ed52cdd83daaf5c963403",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "tests/installer/test_strict_permissions.py",
+        "check_exit": 3,
+        "before_sha256": "a4d6b01d4f17f4901eab06a0f250049745aaf930ba363bfcd1f16fb6f008248f",
+        "after_sha256": "78c094e9c6f510126b59a7b2844fcf07d8e3d87984b811b6ba9c9b57e591227c",
+        "stored_copy_sha256": "a4d6b01d4f17f4901eab06a0f250049745aaf930ba363bfcd1f16fb6f008248f",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/lossless-nonpermission-patch.diff",
+        "check_exit": 3,
+        "before_sha256": "bd76e986d2725a834100b8912ca8522e4eec7bf0a9b8b69e7bfcab0ed1955c13",
+        "after_sha256": "ec1ffca15aada9ca711d5bf9166f7c867cb7da3e843b4ece3062c280750ab105",
+        "stored_copy_sha256": "bd76e986d2725a834100b8912ca8522e4eec7bf0a9b8b69e7bfcab0ed1955c13",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "docs/policy/ci-cd-lifecycle-contract.md",
+        "check_exit": 3,
+        "before_sha256": "adc33f3ddfc37d04c139db47a44e5fed6629bb83a247d74bd54e265165299bbe",
+        "after_sha256": "76b07f0919ebe760f489c08d5c626035197fcf11f47835360128673c3682992f",
+        "stored_copy_sha256": "adc33f3ddfc37d04c139db47a44e5fed6629bb83a247d74bd54e265165299bbe",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "tests/validators/test_check_docs_conventions.py",
+        "check_exit": 3,
+        "before_sha256": "91d0fc57116f615e0e0ad83d474c38d2751fe4f3303f305c17939caec59ab0bb",
+        "after_sha256": "b4df09e271cf452eb3d363f2d314433dabec43257d64600f17936b0350b9ad7d",
+        "stored_copy_sha256": "91d0fc57116f615e0e0ad83d474c38d2751fe4f3303f305c17939caec59ab0bb",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "catalog/commands/implement.md",
+        "check_exit": 3,
+        "before_sha256": "fe59c7125d039f942cd65110b7b4a679066a5f3456da9ec9253191b6384f4f33",
+        "after_sha256": "f608a095bbe0bbf46f704e5c76dc021c24a4426d4b72e6a341f2a818da9a72fc",
+        "stored_copy_sha256": "fe59c7125d039f942cd65110b7b4a679066a5f3456da9ec9253191b6384f4f33",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "tests/skills/test_implement_lifecycle_contract.py",
+        "check_exit": 3,
+        "before_sha256": "c5582a70bea658a52cfc6d736e17f162ee9a4ac98b0a54c7102ceadc30a9e694",
+        "after_sha256": "5e2d8f76fb679472082471ea2c88cc83b1857778d4529bb99e639ff46f35d2ae",
+        "stored_copy_sha256": "c5582a70bea658a52cfc6d736e17f162ee9a4ac98b0a54c7102ceadc30a9e694",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "docs/releases/v4/v4.14/plans/v4.14.2-adoption-harness-decisions-design-rules-and-cache-stability.md",
+        "check_exit": 3,
+        "before_sha256": "486aca3faef9441f4274402132c3684b8d04a3b101b968a2d055480997bc3df7",
+        "after_sha256": "8508aaf11cde630c4a2fdf8c7bb5a00b1be0843c56cc417c44254bca8ebac996",
+        "stored_copy_sha256": "486aca3faef9441f4274402132c3684b8d04a3b101b968a2d055480997bc3df7",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "scripts/completion_minor.py",
+        "check_exit": 3,
+        "before_sha256": "9b7b05e3df6ed522006456e2e7c371c6760f94da1f0eb7648cda2f694eae8912",
+        "after_sha256": "d864c1b85c3b8fc1f97c5554cdacd1cc3d07d7e84eb9ea51fa249c55fb4384e4",
+        "stored_copy_sha256": "9b7b05e3df6ed522006456e2e7c371c6760f94da1f0eb7648cda2f694eae8912",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "catalog/skills/developer-experience/interface-review/SKILL.md",
+        "check_exit": 3,
+        "before_sha256": "267ba957592070d7bccca0bc749356e6c235d5ac1ab8896938a14a57db8f0d3d",
+        "after_sha256": "84731b2f959a0deacb4554fd8d157babbc1f29bd05e2e2ed3cedc2710a0301c7",
+        "stored_copy_sha256": "267ba957592070d7bccca0bc749356e6c235d5ac1ab8896938a14a57db8f0d3d",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "catalog/skills/developer-experience/color-systems/SKILL.md",
+        "check_exit": 3,
+        "before_sha256": "8918ed987d7b7f653eb947f5828e1a33d31837abcbe92a21eff02fa898e5860b",
+        "after_sha256": "0c4081365865d2002c5d963249b8f6b948073f8ab2e6d3d9f6e1636f824c2a70",
+        "stored_copy_sha256": "8918ed987d7b7f653eb947f5828e1a33d31837abcbe92a21eff02fa898e5860b",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "tests/validators/test_approval_page.py",
+        "check_exit": 3,
+        "before_sha256": "7a67976d1620c62a9b89e8f1be873bb29a324e244401255d0194c279ccc79e76",
+        "after_sha256": "5caf0ce0da9f3578005c7feeca15708b866a1dce89ddfcbd755e88d440e9f817",
+        "stored_copy_sha256": "7a67976d1620c62a9b89e8f1be873bb29a324e244401255d0194c279ccc79e76",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "catalog/skills/developer-experience/hallmark-design/SKILL.md",
+        "check_exit": 3,
+        "before_sha256": "0f605197ee29b01ea364f1be8a13bd3ec32fe7012b9a0f14b9b7e9eb7023d819",
+        "after_sha256": "efde576f270dec9bfc213a21d714cc844bb7c71e3baf1b8adfb0d962b0f77280",
+        "stored_copy_sha256": "0f605197ee29b01ea364f1be8a13bd3ec32fe7012b9a0f14b9b7e9eb7023d819",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "docs/releases/v4/v4.14/development/history/v4.14.0-phase-5.md",
+        "check_exit": 3,
+        "before_sha256": "14545e73a10c9d1fa203289541c8f66b6c257a462f5c6018ac117cea9c02dc7d",
+        "after_sha256": "7581449acdcc171f70546a886e763a05565358d7574fd6422163789f2462a3e5",
+        "stored_copy_sha256": "14545e73a10c9d1fa203289541c8f66b6c257a462f5c6018ac117cea9c02dc7d",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "tests/validators/test_review_grouping_coverage.py",
+        "check_exit": 3,
+        "before_sha256": "237b443e8abad211b9080e20b73e7e5d097d5fc29de56ece6a816e20924bc92d",
+        "after_sha256": "b2879b8fb360dc04b1131ae154205bbebab06ec6c6a1914648411454c35d18b6",
+        "stored_copy_sha256": "237b443e8abad211b9080e20b73e7e5d097d5fc29de56ece6a816e20924bc92d",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "scripts/check_docs_conventions.py",
+        "check_exit": 3,
+        "before_sha256": "7af0512313f149b1773085c4405bec930915bfca08c5d9a560bc6be9a0af7aad",
+        "after_sha256": "0de59463545af5e107c6c9abc23ca23c2dfa26acdb4c17391a28a359655b4ed1",
+        "stored_copy_sha256": "7af0512313f149b1773085c4405bec930915bfca08c5d9a560bc6be9a0af7aad",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "catalog/skills/developer-experience/layout-and-spacing/SKILL.md",
+        "check_exit": 3,
+        "before_sha256": "c4d7cb7b17bb81dc33b352a04f09afd9d9798a9235e5bf98789cdc5d8ba106a0",
+        "after_sha256": "672d7248132d3fa34aefa5bf0d4743ba45787ab241ddf3e31eeec6b4983c0e12",
+        "stored_copy_sha256": "c4d7cb7b17bb81dc33b352a04f09afd9d9798a9235e5bf98789cdc5d8ba106a0",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "catalog/commands/presentify.md",
+        "check_exit": 3,
+        "before_sha256": "f701a4c53ed8b2f0aec01e01be653c32d4b6b9a2b6de6a424940b1baf22ef832",
+        "after_sha256": "90d4abefbc691b31f807714d23549d0c88921c6df2935bf7614fa9c57c39f1e2",
+        "stored_copy_sha256": "f701a4c53ed8b2f0aec01e01be653c32d4b6b9a2b6de6a424940b1baf22ef832",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "catalog/skills/developer-experience/interface-review/references/design-system-contract.md",
+        "check_exit": 3,
+        "before_sha256": "f2d36650ba12b482ac8233bf7a9f95f572c72e9f7e3cb644ba56ce8f00f311b0",
+        "after_sha256": "94ad3de55badc4f15f924a878138f089b862f7a2d9b518187dbe99c13cd494a6",
+        "stored_copy_sha256": "f2d36650ba12b482ac8233bf7a9f95f572c72e9f7e3cb644ba56ce8f00f311b0",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "catalog/skills/tests-generation/cicd-integration/SKILL.md",
+        "check_exit": 3,
+        "before_sha256": "337b7f0cc5529a2e26428331daf5deb0913c79b739d7d4a464c7448418f05520",
+        "after_sha256": "6c5e27dbc6c0e716fc829c795fcadc0602eba0180e9df849f7e158e556d79ad3",
+        "stored_copy_sha256": "337b7f0cc5529a2e26428331daf5deb0913c79b739d7d4a464c7448418f05520",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "tests/skills/test_presentify_flyover.py",
+        "check_exit": 3,
+        "before_sha256": "2c6c3539efad2ae759bcba3e1f7dc19837e707ff8bb86202743d7360e15b6e0e",
+        "after_sha256": "f973973b0929b281ac3096cac6c4eb412748dc8875664fc8be9b88c5e293918f",
+        "stored_copy_sha256": "2c6c3539efad2ae759bcba3e1f7dc19837e707ff8bb86202743d7360e15b6e0e",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "data/marketplace.json",
+        "check_exit": 3,
+        "before_sha256": "1a82b2cc315552506fe6f773347c898ea625b779cf62012eaca2466b9aba10ad",
+        "after_sha256": "6bc55b81585114c604df40d802dc4092cc518fc67102c195f10687199682d26a",
+        "stored_copy_sha256": "1a82b2cc315552506fe6f773347c898ea625b779cf62012eaca2466b9aba10ad",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "catalog/skills/workflow/implement-phase/SKILL.md",
+        "check_exit": 3,
+        "before_sha256": "07d4ae42fe92b582982fe9c7515e1a6e27e08c0f5b270d2f1dc428c9b4189595",
+        "after_sha256": "3fbcfa7036f9808b49ad596a16bbbe9148c2b995fb0fc7144e7950c2d1c30483",
+        "stored_copy_sha256": "07d4ae42fe92b582982fe9c7515e1a6e27e08c0f5b270d2f1dc428c9b4189595",
+        "exact_crlf_to_lf_only": true
+      },
+      {
+        "path": "tests/validators/test_check_doc_colocation.py",
+        "check_exit": 3,
+        "before_sha256": "c414561709aaf96fa2a7e53c40ea987bc430ca1454cfd87be2cc45b89e298b2d",
+        "after_sha256": "2ec54f34453404d2b7e8a4d1daee99c2294577e4e2f7c85ea9fcbe3390a3e2f0",
+        "stored_copy_sha256": "c414561709aaf96fa2a7e53c40ea987bc430ca1454cfd87be2cc45b89e298b2d",
+        "exact_crlf_to_lf_only": true
+      }
+    ]
+  },
+  "tests": {
+    "source_geometry": {
+      "passed": 52,
+      "duration_s": 47.23,
+      "required_renderer": true
+    },
+    "generated_map_and_home_browser": {
+      "passed": 36,
+      "duration_s": 193.45,
+      "required_renderer": true
+    },
+    "ruff": "pass"
+  },
+  "training_geometry": {
+    "status": "pass",
+    "source": "guides/website/training.html",
+    "source_sha256": "d3d2cfa82e8464b9a3ca64eb2a28f31cb0a12c5c80ac4d9b15ade51eec7530ce",
+    "checks": [
+      "clipped-text",
+      "label-overlap",
+      "label-on-trace",
+      "legend-colour-collision",
+      "oversized-type",
+      "stroke-drift",
+      "legend-entry-not-drawn",
+      "tick-outside-range",
+      "viewbox-dead-space",
+      "callout-stripe-default",
+      "uniform-card-grid"
+    ],
+    "findings": [],
+    "errors": [],
+    "verification_scope": "rendered figure geometry in screen space",
+    "browser": "Chromium 153.0.8010.12",
+    "svg_count": 99
+  },
+  "manifest": {
+    "entries": 2055,
+    "sha256": "b7cdac92630601cc2d4d94af8413e1bb114c313ff7a7f2fc9cd89385f707a53f"
+  },
+  "limits": [
+    "Focused local proof, not final hosted checks or release completion.",
+    "Initial geometry CLI --json spelling was rejected before execution; the supported --out invocation is the qualifying exit0 result.",
+    "Private geometry runs are retained but do not replace adopted-source verification.",
+    "Earlier full/platform evidence remains bounded by unchanged inputs; no new whole-project deep pass is claimed."
+  ],
+  "final_static_gates": {
+    "profile": "full",
+    "only": [
+      "catalog-parse",
+      "pre-commit",
+      "hygiene",
+      "legacy-fingerprints",
+      "interpreters",
+      "catalog",
+      "security",
+      "workflows",
+      "claude-plugin",
+      "platform-contracts",
+      "docs",
+      "version"
+    ],
+    "passed": 45,
+    "failed": 0,
+    "skipped": 0,
+    "duration_s": 101.8,
+    "scope": "static release groups, not an unfiltered full test profile"
+  }
+}

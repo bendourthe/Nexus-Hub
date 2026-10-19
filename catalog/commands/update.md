@@ -346,6 +346,8 @@ This mirrors the `implement-phase` final-phase gate - `/implement` hands off to 
 
 ## Next-plan handoff (after the release is published)
 
+During an active minor run, return to the existing implement-phase coordinator after each member release. Resume or refill its admitted workers within their existing parent approval and aggregate limits. Treat the queue selector below as a hint only: never start a second standalone implementation run for a member governed by that active minor. Independent implementation can continue while publication and release remain sequential.
+
 A released plan leaves the queue in a state only the repository knows. Close the
 release by printing the handoff so the next session starts with a command rather
 than an investigation:

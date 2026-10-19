@@ -1,0 +1,297 @@
+{
+  "kind": "v4.14.0_release_finalization_local",
+  "observed_utc": "2026-10-19T04:01:44.114409+00:00",
+  "source_base": "8b32922ca573fb57546611267b88246c1064f1e4",
+  "branch": "release/v4.14.0-finalization",
+  "release_not_published_yet": true,
+  "qualification": {
+    "focused_metadata_tests": {
+      "passed": 83,
+      "seconds": 13.85,
+      "raw_log_sha256": "a36ea6873ff05f68693a5c8c21c586bc0dcbc553a2fb428018fcb26956ccdb16"
+    },
+    "docs_convention_tests": {
+      "passed": 20,
+      "seconds": 3.86,
+      "raw_log_sha256": "87107ab82a256c3b463072ec52b7b6c952da3830a15c26448ffe0f845a3c8c5e"
+    },
+    "fast": {
+      "passed": 17,
+      "failed": 0,
+      "skipped": 0,
+      "advisory": 0,
+      "seconds": 11.171000000002095,
+      "summary_sha256": "20b8985707b9c8a9f0c9287a523bc2b273be27d854c3dd0c63e3c139c0fc53df",
+      "commands": [
+        {
+          "name": "skills.json parses",
+          "status": "pass",
+          "exit": 0
+        },
+        {
+          "name": "bundles.json parses",
+          "status": "pass",
+          "exit": 0
+        },
+        {
+          "name": "workflows.json parses",
+          "status": "pass",
+          "exit": 0
+        },
+        {
+          "name": "templates.json parses",
+          "status": "pass",
+          "exit": 0
+        },
+        {
+          "name": "check_commit_attribution",
+          "status": "pass",
+          "exit": 0
+        },
+        {
+          "name": "validate_unicode_safety",
+          "status": "pass",
+          "exit": 0
+        },
+        {
+          "name": "validate_no_personal_paths",
+          "status": "pass",
+          "exit": 0
+        },
+        {
+          "name": "check_merge_conflict_markers",
+          "status": "pass",
+          "exit": 0
+        },
+        {
+          "name": "check_docs_conventions",
+          "status": "pass",
+          "exit": 0
+        },
+        {
+          "name": "validate_doc_budgets",
+          "status": "pass",
+          "exit": 0
+        },
+        {
+          "name": "check_memory_integration_budget",
+          "status": "pass",
+          "exit": 0
+        },
+        {
+          "name": "check_python_floor",
+          "status": "pass",
+          "exit": 0
+        },
+        {
+          "name": "check_interpreter_resolution",
+          "status": "pass",
+          "exit": 0
+        },
+        {
+          "name": "check_registry_entries",
+          "status": "pass",
+          "exit": 0
+        },
+        {
+          "name": "validate_workflow_security",
+          "status": "pass",
+          "exit": 0
+        },
+        {
+          "name": "check_required_check_coverage",
+          "status": "pass",
+          "exit": 0
+        },
+        {
+          "name": "check_version_sync",
+          "status": "pass",
+          "exit": 0
+        }
+      ]
+    },
+    "handbooks": "Complete post-version gate passed; distribution native builder check reproduces unchanged HTML and retained browser proof. Overview unchanged.",
+    "platforms": "Current14-row source review, native contract check, version4.14.0 freshness and cross-installer parity pass.",
+    "capability_notes": "Strict validation passes for flyover and Parallel plan execution on the exact finalized CHANGELOG section.",
+    "unicode": "Strict release scope passed; fix pass repaired zero files.",
+    "snapshot": "47-entry deterministic archive round trip verified; exact manifest stored with snapshot.",
+    "broader_implementation": "Final feature integration at8b is green with44PR+2postmerge checks; retained full/platform evidence is scoped in final-hosted-integration.json. No new unfiltered full/profile run is claimed by this release metadata pass."
+  },
+  "failed_preflight_preserved": {
+    "metadata_test": "A historical Astra provenance URL was dropped by the proposed map refresh; focused test failed, historical references were restored and the83-case rerun passed.",
+    "first_fast": "16 passed,1failed; active-minor docs check found canonical source names and one relative link. Causal repair and20checks pass, final17commands pass.",
+    "initial_handbook": "Expected stale evidence from two version-only installer assignments; exact delta reviewed and actual unchanged output verified before refreshing evidence."
+  },
+  "source_files": [
+    {
+      "path": ".claude-plugin/plugin.json",
+      "sha256": "ed7ee7b51a8b56721e211ef18196b975f18e44c866c1645e277a3e2d4274dfe8"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "bdbdb039b12812bb188f1d7e82899676c1fbefab6bd1481d9d63f04ead1c1a97"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "sha256": "67a7110803ec43f3e80f1edee1886cb55d2c63d8747b79ae7c2ae4467f4f273e"
+    },
+    {
+      "path": "MANIFEST.sha256",
+      "sha256": "387f0d8e84a5657bdef2fffa5c136c394d2264cac930bb01228c5a9c96c0597c"
+    },
+    {
+      "path": "README.md",
+      "sha256": "be54f4fae37c118fcbc3b58a80bca225d5c578ddd82916b058e3ef30ef37e5d7"
+    },
+    {
+      "path": "catalog/commands/update.md",
+      "sha256": "c03045ed4a5f213c12330fd7f3e0c74bad1b501c4b7158a45f1373edd84666c9"
+    },
+    {
+      "path": "catalog/skills/ai-development/model-routing/references/last-known-model-map.json",
+      "sha256": "5c33fecdec5ba5edc42e74632217e9cb817995035d6a87745468025de15083bb"
+    },
+    {
+      "path": "data/marketplace.json",
+      "sha256": "1a82b2cc315552506fe6f773347c898ea625b779cf62012eaca2466b9aba10ad"
+    },
+    {
+      "path": "docs/DEVLOG.md",
+      "sha256": "aee361d52d663a032829ff87ae50ca9dfb6f7c955ae4038dae3ea015a72bc16e"
+    },
+    {
+      "path": "docs/archives/v4/v4.14/handbooks/v4.14.0/README.md",
+      "sha256": "c008e99c8584302b4a6358e9f058252c5935a34c1be667f0fcee7182e9b0eb5d"
+    },
+    {
+      "path": "docs/archives/v4/v4.14/handbooks/v4.14.0/distribution.html",
+      "sha256": "a857627a0244f95b4966dc9c099a8d6d3f66f3ba7b3406e12a0ba8670cc8218c"
+    },
+    {
+      "path": "docs/archives/v4/v4.14/handbooks/v4.14.0/inputs-and-evidence.zip",
+      "sha256": "641344946f0307084f85f955f67eaced492ebf6058d8175ae9ad661b961c597d"
+    },
+    {
+      "path": "docs/archives/v4/v4.14/handbooks/v4.14.0/overview.html",
+      "sha256": "b5c39c8adebebcd8f8ef03016c6a301aaebcab8e15a259838d12a0243a8f671f"
+    },
+    {
+      "path": "docs/archives/v4/v4.14/handbooks/v4.14.0/snapshot.json",
+      "sha256": "855d0535246f6ed9adae6f47ad90442f368e118c944d8e6b66a831e432a26b8f"
+    },
+    {
+      "path": "docs/handbooks/_sources/distribution/evidence.json",
+      "sha256": "6a85cc8a43908091ae74407bb3f7482e7da86f14f8f5d7eee9b188d86162d463"
+    },
+    {
+      "path": "docs/policy/platform-defaults-levers.md",
+      "sha256": "c4413b8f60d4028f1fd4590a145808686922b13cc2d205a04de25f0bc4d76faf"
+    },
+    {
+      "path": "docs/policy/platform-read-contracts.json",
+      "sha256": "d43436c0a0668537882eb07504c6b3ec36a2b78054a5d6e03987c8fd28c16683"
+    },
+    {
+      "path": "docs/policy/platform-read-contracts.md",
+      "sha256": "4dabe2fd4dc11ff6c162e521ab64e14b4ec2a836d4544bb102211997424da602"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/history/v4.14.0-phase-7.md",
+      "sha256": "3133a8482bd76c9e6dc6cbee4562c7653871675c7c957ecc3c97e3d90dcfc46b"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-last-phase-evidence.md",
+      "sha256": "e4341dacbb55980e20ebfbfb37f5bc1b75fb88944828811d3b87304011632709"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/distribution-release-version-build.json",
+      "sha256": "3d90c4adc503b6d396cd9c07cdb51896902bf03040c45e8aeada0ccaba11ce81"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/distribution-release-version-review.md",
+      "sha256": "9cd2990879c90eb7b32a3498b9485a8b6409aaab4b879ab6ba9bf0cbfeb9b29f"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/final-hosted-integration.json",
+      "sha256": "d9db0e25a929c099a5c9379472fdacd64993051c8b7f179740f2030277a906ed"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/integration-gap-closure.json",
+      "sha256": "1065ca45201205b507c7c002bdd54ce638030fcff21e1c1a4c98d4cb40f9bedd"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/release-framework-review.json",
+      "sha256": "862f932af2015258c84c1d2f17bfe85d9db4d8434c10976f3b608383fcdd8be4"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/release-governance-architecture.json",
+      "sha256": "74e7cf1de6f282dc80d6cccb0658e207f413f17fe7765c988380b63ecd2ab5ce"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/release-governance-archived-tasks.json",
+      "sha256": "1a3a93dbc52eec20936387c815a4a95537e549bcd14223aba6be158049a144bd"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/release-governance-audit.json",
+      "sha256": "bc91ebe0f0162eaa71f967bdb19f8078a5c0dcc3cf9eca823c2e564aebd89f9e"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/release-governance-queue-impact.json",
+      "sha256": "41d363b08ec9b29aee48526357ef6ed47d7a06b0b8e2ce47a0c177f9c932a672"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/release-governance-sweep.json",
+      "sha256": "d291f1a8ee369667804cf13a33ce970715eedd31818701eeb7ce242ce23af4a5"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/release-model-governance.json",
+      "sha256": "532edc7fd06e7d73433feff82fbe7c7de6168650c30fb0caa712b2a1213b8ada"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/release-platform-governance.json",
+      "sha256": "03b29b9e6b27671b6bdcbbfc119a712ddae735d9e27cd31416322284445de173"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/release-source-directory-correction.json",
+      "sha256": "40ed0219179a62703e5063e7fa07f8abe8b3e3ab9b05b5deac8bd3cb240dee6a"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/known-gaps.md",
+      "sha256": "b06d25611e1dd38e326baff537d487954619bcc8067d941aadbbb356cf7691bc"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md",
+      "sha256": "a471886300244510fde02c0b4f330ab21e9a578c9bc94a634b92f8f491832c15"
+    },
+    {
+      "path": "docs/todos.md",
+      "sha256": "668ffbe089bf69ed37b86f76baddacd873737035a62b5395bcd625aed308138d"
+    },
+    {
+      "path": "scripts/check_docs_conventions.py",
+      "sha256": "7af0512313f149b1773085c4405bec930915bfca08c5d9a560bc6be9a0af7aad"
+    },
+    {
+      "path": "scripts/installer.ps1",
+      "sha256": "e43ebc892fa40b95ce47d148eae21873d762925f3a3b8149a384cd39393ca2f6"
+    },
+    {
+      "path": "scripts/installer.sh",
+      "sha256": "cc7607b3d4c2b16f863a7cecba8a7d2135d3e0d21e9def770088c071d18a7c8f"
+    },
+    {
+      "path": "tests/validators/test_check_docs_conventions.py",
+      "sha256": "91d0fc57116f615e0e0ad83d474c38d2751fe4f3303f305c17939caec59ab0bb"
+    }
+  ],
+  "authority": {
+    "new_guard_accepts": 0,
+    "historical_guard_accepts": 14,
+    "stabilization_repushes_used": 3,
+    "global_deep_review_passes_used": 3,
+    "explicit_ci_reruns": 0,
+    "new_worker_admissions": 0,
+    "releases": 0
+  },
+  "remaining": "Release commit, normal hosted validation and develop integration; verified cleanup; main integration, last-moment pre-tag assertion, tag, GitHub release, artifact round trip and back-merge; then remaining minor members."
+}

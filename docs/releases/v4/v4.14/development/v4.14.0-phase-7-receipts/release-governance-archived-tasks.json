@@ -1,0 +1,1574 @@
+{
+  "private_evidence_sha256": "532abd2c12d316269b8a7df7522ef3d9d6edcb3d3f0a3d880d8fd970ba41244f",
+  "report": {
+    "count": 174,
+    "items": [
+      {
+        "task": "T021",
+        "line": 313,
+        "plan": "docs/archives/v2/v2.2/plans/codegraph-and-antigravity.md",
+        "version": "v2.2.0",
+        "classification": "documented transfer, retain unchecked",
+        "evidence": "docs/archives/v2/v2.2/plans/codegraph-and-antigravity.md:313",
+        "limit": "T021 explicitly deferred to v2.3.0 as DF-001-part2; native historical ledger closure is separate from reimplementing this obsolete task."
+      },
+      {
+        "task": "T001",
+        "line": 53,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T002",
+        "line": 62,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T003",
+        "line": 71,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T004",
+        "line": 80,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T005",
+        "line": 107,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T006",
+        "line": 116,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T007",
+        "line": 125,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T008",
+        "line": 134,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T009",
+        "line": 143,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T010",
+        "line": 169,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T011",
+        "line": 178,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T012",
+        "line": 187,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T013",
+        "line": 196,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T014",
+        "line": 205,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T015",
+        "line": 231,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T016",
+        "line": 240,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T017",
+        "line": 249,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T018",
+        "line": 275,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T019",
+        "line": 282,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T020",
+        "line": 291,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T021",
+        "line": 298,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T022",
+        "line": 307,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T023",
+        "line": 314,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T024",
+        "line": 323,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T025",
+        "line": 332,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T026",
+        "line": 357,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T027",
+        "line": 366,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T028",
+        "line": 375,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T029",
+        "line": 384,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T030",
+        "line": 393,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T031",
+        "line": 402,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T032",
+        "line": 411,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T033",
+        "line": 437,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T034",
+        "line": 446,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T035",
+        "line": 455,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T036",
+        "line": 481,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T037",
+        "line": 490,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T038",
+        "line": 499,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T039",
+        "line": 508,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T040",
+        "line": 534,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T041",
+        "line": 543,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T042",
+        "line": 552,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T043",
+        "line": 561,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.0/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T044",
+        "line": 586,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historically recorded local completion, checkbox stale",
+        "evidence": "docs/archives/v3/v3.0/development/history/2026-06-04_phase-10-live-verification-release-readiness.md",
+        "limit": "History explicitly covers T044-T049; exact local release tag exists, but no new hosted evidence fetched."
+      },
+      {
+        "task": "T045",
+        "line": 595,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historically recorded explicit deferral or verification, checkbox stale",
+        "evidence": "docs/archives/v3/v3.0/development/history/2026-06-04_phase-10-live-verification-release-readiness.md",
+        "limit": "History explicitly covers T044-T049; exact local release tag exists, but no new hosted evidence fetched."
+      },
+      {
+        "task": "T046",
+        "line": 604,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historically recorded explicit deferral or verification, checkbox stale",
+        "evidence": "docs/archives/v3/v3.0/development/history/2026-06-04_phase-10-live-verification-release-readiness.md",
+        "limit": "History explicitly covers T044-T049; exact local release tag exists, but no new hosted evidence fetched."
+      },
+      {
+        "task": "T047",
+        "line": 613,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historically recorded explicit deferral or verification, checkbox stale",
+        "evidence": "docs/archives/v3/v3.0/development/history/2026-06-04_phase-10-live-verification-release-readiness.md",
+        "limit": "History explicitly covers T044-T049; exact local release tag exists, but no new hosted evidence fetched."
+      },
+      {
+        "task": "T048",
+        "line": 622,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historically recorded local completion, checkbox stale",
+        "evidence": "docs/archives/v3/v3.0/development/history/2026-06-04_phase-10-live-verification-release-readiness.md",
+        "limit": "History explicitly covers T044-T049; exact local release tag exists, but no new hosted evidence fetched."
+      },
+      {
+        "task": "T049",
+        "line": 631,
+        "plan": "docs/archives/v3/v3.0/plans/command-consolidation-skill-security.md",
+        "version": "v3.0.0",
+        "classification": "historically recorded local completion, checkbox stale",
+        "evidence": "docs/archives/v3/v3.0/development/history/2026-06-04_phase-10-live-verification-release-readiness.md",
+        "limit": "History explicitly covers T044-T049; exact local release tag exists, but no new hosted evidence fetched."
+      },
+      {
+        "task": "T001",
+        "line": 147,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T002",
+        "line": 148,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T003",
+        "line": 157,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T004",
+        "line": 166,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T005",
+        "line": 175,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T006",
+        "line": 184,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T007",
+        "line": 215,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T008",
+        "line": 216,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T009",
+        "line": 225,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T010",
+        "line": 226,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T011",
+        "line": 235,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T012",
+        "line": 236,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T013",
+        "line": 245,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T014",
+        "line": 276,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T015",
+        "line": 285,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T016",
+        "line": 294,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T017",
+        "line": 303,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T018",
+        "line": 312,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T019",
+        "line": 342,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T020",
+        "line": 351,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T021",
+        "line": 360,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T022",
+        "line": 369,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T023",
+        "line": 370,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T024",
+        "line": 379,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T025",
+        "line": 410,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T026",
+        "line": 419,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T027",
+        "line": 428,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T028",
+        "line": 437,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T029",
+        "line": 438,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T030",
+        "line": 447,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T031",
+        "line": 456,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T032",
+        "line": 488,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T033",
+        "line": 489,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T034",
+        "line": 498,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T035",
+        "line": 499,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T036",
+        "line": 508,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T037",
+        "line": 509,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T038",
+        "line": 518,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T039",
+        "line": 527,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T040",
+        "line": 536,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T041",
+        "line": 568,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T042",
+        "line": 569,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T043",
+        "line": 578,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T044",
+        "line": 579,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T045",
+        "line": 588,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T046",
+        "line": 589,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T047",
+        "line": 598,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T048",
+        "line": 599,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T049",
+        "line": 608,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T050",
+        "line": 640,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historically recorded local completion, checkbox stale",
+        "evidence": "docs/archives/v3/v3.16/development/history/2026-08-09_evals-and-selective-installation-phase-8-refactor-reconciliation-and-cicd.md",
+        "limit": "Record is local phase evidence only and explicitly predates push/release; current local release tag alone cannot prove all task acceptance."
+      },
+      {
+        "task": "T051",
+        "line": 649,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historically recorded local completion, checkbox stale",
+        "evidence": "docs/archives/v3/v3.16/development/history/2026-08-09_evals-and-selective-installation-phase-8-refactor-reconciliation-and-cicd.md",
+        "limit": "Record is local phase evidence only and explicitly predates push/release; current local release tag alone cannot prove all task acceptance."
+      },
+      {
+        "task": "T052",
+        "line": 658,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historically recorded local completion, checkbox stale",
+        "evidence": "docs/archives/v3/v3.16/development/history/2026-08-09_evals-and-selective-installation-phase-8-refactor-reconciliation-and-cicd.md",
+        "limit": "Record is local phase evidence only and explicitly predates push/release; current local release tag alone cannot prove all task acceptance."
+      },
+      {
+        "task": "T053",
+        "line": 667,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historically recorded local completion, checkbox stale",
+        "evidence": "docs/archives/v3/v3.16/development/history/2026-08-09_evals-and-selective-installation-phase-8-refactor-reconciliation-and-cicd.md",
+        "limit": "Record is local phase evidence only and explicitly predates push/release; current local release tag alone cannot prove all task acceptance."
+      },
+      {
+        "task": "T054",
+        "line": 668,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historically recorded local completion, checkbox stale",
+        "evidence": "docs/archives/v3/v3.16/development/history/2026-08-09_evals-and-selective-installation-phase-8-refactor-reconciliation-and-cicd.md",
+        "limit": "Record is local phase evidence only and explicitly predates push/release; current local release tag alone cannot prove all task acceptance."
+      },
+      {
+        "task": "T055",
+        "line": 677,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T056",
+        "line": 686,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T057",
+        "line": 687,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T058",
+        "line": 696,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T059",
+        "line": 697,
+        "plan": "docs/archives/v3/v3.16/plans/v3.16.1-evals-and-selective-installation.md",
+        "version": "v3.16.1",
+        "classification": "historical bookkeeping not independently reverified",
+        "evidence": "docs/archives/v3/v3.16/development/history/",
+        "limit": "Retained phase artifacts and exact local release tag support historical implementation context, but this audit does not invent per-task behavior/publication proof, reactivate old scope, or mark task complete."
+      },
+      {
+        "task": "T001",
+        "line": 127,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T002",
+        "line": 138,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T003",
+        "line": 149,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T004",
+        "line": 160,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T005",
+        "line": 171,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T006",
+        "line": 202,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T007",
+        "line": 213,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T008",
+        "line": 214,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T009",
+        "line": 225,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T010",
+        "line": 236,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T011",
+        "line": 247,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T012",
+        "line": 258,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T013",
+        "line": 290,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T014",
+        "line": 301,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T015",
+        "line": 312,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T016",
+        "line": 323,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T017",
+        "line": 334,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T018",
+        "line": 366,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T019",
+        "line": 367,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T020",
+        "line": 378,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T021",
+        "line": 389,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T022",
+        "line": 400,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T023",
+        "line": 411,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T024",
+        "line": 444,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T025",
+        "line": 445,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T026",
+        "line": 446,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T027",
+        "line": 457,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T028",
+        "line": 458,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T029",
+        "line": 469,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T030",
+        "line": 470,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T031",
+        "line": 481,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T032",
+        "line": 482,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T033",
+        "line": 493,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T034",
+        "line": 526,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T035",
+        "line": 527,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T036",
+        "line": 538,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T037",
+        "line": 549,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T038",
+        "line": 560,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T039",
+        "line": 561,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T040",
+        "line": 572,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T041",
+        "line": 573,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T042",
+        "line": 584,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T043",
+        "line": 616,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T044",
+        "line": 617,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T045",
+        "line": 618,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T046",
+        "line": 629,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T047",
+        "line": 630,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T048",
+        "line": 641,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T049",
+        "line": 642,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T050",
+        "line": 653,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T051",
+        "line": 654,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T052",
+        "line": 665,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T053",
+        "line": 676,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T054",
+        "line": 710,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T055",
+        "line": 721,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T056",
+        "line": 732,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T057",
+        "line": 743,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T058",
+        "line": 744,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T059",
+        "line": 755,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T060",
+        "line": 766,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T061",
+        "line": 777,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T062",
+        "line": 788,
+        "plan": "docs/archives/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md",
+        "version": "v4.0.0",
+        "classification": "historically reconciled implementation, retain original checkboxes",
+        "evidence": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "limit": "Existing 62-task reconciliation preserves original failed postmerge and later closure; this audit does not rerun old gates."
+      },
+      {
+        "task": "T026",
+        "line": 582,
+        "plan": "docs/archives/v4/v4.4/plans/v4.4.6-guide-learning-experience.md",
+        "version": "v4.4.6",
+        "classification": "superseded by user, do not resume",
+        "evidence": "docs/archives/v4/v4.4/plans/v4.4.6-guide-learning-experience.md:8",
+        "limit": "No release tag is claimed; corrected user scope owns future work."
+      },
+      {
+        "task": "T027",
+        "line": 591,
+        "plan": "docs/archives/v4/v4.4/plans/v4.4.6-guide-learning-experience.md",
+        "version": "v4.4.6",
+        "classification": "superseded by user, do not resume",
+        "evidence": "docs/archives/v4/v4.4/plans/v4.4.6-guide-learning-experience.md:8",
+        "limit": "No release tag is claimed; corrected user scope owns future work."
+      },
+      {
+        "task": "T028",
+        "line": 600,
+        "plan": "docs/archives/v4/v4.4/plans/v4.4.6-guide-learning-experience.md",
+        "version": "v4.4.6",
+        "classification": "superseded by user, do not resume",
+        "evidence": "docs/archives/v4/v4.4/plans/v4.4.6-guide-learning-experience.md:8",
+        "limit": "No release tag is claimed; corrected user scope owns future work."
+      }
+    ]
+  }
+}

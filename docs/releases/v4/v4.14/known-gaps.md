@@ -3,7 +3,7 @@
 **Project**: Nexus-Hub
 **Status**: in-progress
 **Last updated**: 2026-10-18
-**Open items**: 103
+**Open items**: 80
 
 ## v4.14.0
 
@@ -13,14 +13,16 @@
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 12 | 2 |
-| Bugs / regressions (BG) | 17 | 0 |
+| Bugs / regressions (BG) | 2 | 15 |
 | Warnings (WN) | 24 | 2 |
-| Missing tests / coverage gaps (MT) | 11 | 2 |
-| Quality-gate gaps (QG) | 4 | 0 |
+| Missing tests / coverage gaps (MT) | 4 | 9 |
+| Quality-gate gaps (QG) | 3 | 1 |
 
-The six standard categories contain 68 open items; 35 inherited `AR` obligations below bring the section total to 103. Phases 1 through 6 changed no gap state. Phase 7 reconciles WN-13, DF-12 and DF-13 as resolved from current artifacts and retained evidence; their original bodies remain below.
+The six standard categories contain 45 open items; 35 inherited AR obligations bring the section total to 80. The 23 findings introduced during this run are resolved after their individual acceptance gates and green merged integration passed. Together with the six previously resolved entries, there are 29 resolved items. Every original item body is retained. The remaining 80 open items are inherited obligations; their migration authority is unchanged.
 
 ### Current qualification
+
+Current integration checkpoint: PR485 is merged into develop at 8b32922ca573fb57546611267b88246c1064f1e4. All 44 final PR checks and both post-merge checks pass. Individual repair receipts, retained complete qualification for unchanged inputs, and separate final qualification for changed boundaries close the 23 run-introduced findings. Native ledger totals are 80 open and 29 resolved. Release remains pending. See [individual closures](development/v4.14.0-phase-7-receipts/integration-gap-closure.json). The following checkpoint paragraphs retain their earlier evidence epochs.
 
 Latest post-blocker8 checkpoint: the V8 unfiltered full profile passed all65 commands, with12,163 passing pytest executions and88 skips. Its complete Windows platform profile passed11 commands and failed only the accept-record hook case; all8,299 source files remained identical. A reviewed, privately qualified cache-publication repair is now applied with zero new accepts. BG-17 owns its actual-source and hosted predicates. Fresh full/platform/post gates remain pending on the corrected tree. Open103, resolved6, comprising80 inherited and23 new open items. Earlier checkpoint paragraphs retain their original epochs.
 
@@ -45,266 +47,6 @@ Fresh inherited-item triage preserves every original body and finds no additiona
 AR-16 remains open. The current canonical Node22 monitor profile passes all14 commands, but Claude line coverage is61.75 percent and statement coverage61.37 percent, below that inherited item's80 percent floor. Codex, Copilot, Cursor and Gemini line coverage is87.92,98.05,90.63 and84.88 percent respectively. These figures are measured local package results, not project-wide coverage or installed-VSIX/live-editor qualification. No new duplicate gap or completion claim follows. See [Node22 result](development/v4.14.0-phase-7-receipts/node22-monitor-profile.json).
 
 ### Open Items
-
-#### BG-17: Cache record publication can fail and consume reviewed baseline evidence
-
-- **Source phase**: v4.14.0 Phase7, T028/T029, complete post-blocker8 Windows qualification.
-- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
-- **Owner**: implementation maintainer.
-- **Severity**: high.
-- **Evidence**: the complete V8 Windows platform run reports 11 passing commands and one failed hook command, with 2,609 passing hook cases and one accept failure. A direct unchanged-helper writer reproduces WinError5 at atomic replacement after44 successes. Independent failure injection proves the old acceptance path can consume its review marker and replace the snapshot before matching metadata commits, producing an empty later diff. The original pytest fixture was pruned before copying; its exact original exception remains unavailable.
-- **Current correction**: bounded replacement retry retains prepared bytes; atomic metadata references an immutable private generation, with legacy-reader availability kept truthful. Reviewed content, old baselines, owner-only permissions, legacy import, explicit purge and retention grace are covered. See [applied repair](development/v4.14.0-phase-7-receipts/cache-publication-stabilization-applied.json).
-- **Acceptance**: preserve keys, approval rules, strict user-edit blocking and owner-only cache permissions; retain meaningful reviewed baselines after failed writes; pass actual-source native scopes, complete final full/platform profiles and green hosted integration.
-- **Suggested next step**: run the fresh final-source gates and integration. This new finding cannot migrate.
-
-#### MT-13: Formatter settle-window fixture depends on adapter shutdown latency
-
-- **Source phase**: v4.14.0 Phase7, T028, post-blocker8 Linux hook qualification.
-- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
-- **Owner**: implementation maintainer.
-- **Severity**: medium.
-- **Evidence**: actual Linux hooks report 125 passed, 19 skipped and one formatter-test failure. Its rewrite lands 8.316 seconds after the recorded write, outside the unchanged five-second policy. The private deterministic candidate passes eight selected cases on both actual adapters; two scoped reviews are clean. See [timing repair](development/v4.14.0-phase-7-receipts/formatter-settle-stabilization-applied.json).
-- **Acceptance**: both real Linux adapters and native Windows qualification, complete final canonical profiles and hosted integration pass with explicit inside/outside timing controls and strict user-edit blocking retained.
-- **Suggested next step**: run actual-source qualification and the final gates. This new finding cannot migrate.
-
-#### BG-16: Long Windows default-cache paths prevent edit recording
-
-- **Source phase**: v4.14.0 Phase 7, T028/T029 native stabilization after blocker7.
-- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
-- **Owner**: implementation maintainer.
-- **Severity**: medium.
-- **Evidence**: both actual Windows affected-module runs report 289 passed and two failed cases. A direct unchanged-helper probe reproduces FileNotFoundError when the staged private copy exceeds 260 characters; the same default-store cases pass under a short temporary root. A first private prefix-only candidate permits copies beneath a missed long repository marker and breaks drive-device aliases, so it is rejected and never applied. The corrected private candidate validates and writes through one resolved long-capable cache path.
-- **Acceptance**: preserve existing records, workspace/repository/sync exclusions, owner-only cache permissions and real user-edit blocking; pass both native hook adapters, affected suites, final profiles and hosted integration.
-- **Suggested next step**: complete independent review of the corrected private candidate, apply with fresh official guards, and run final qualification. This new finding cannot migrate.
-
-#### BG-14: Linux PowerShell installer boundary tests fail in first integration
-
-- **Source phase**: v4.14.0 Phase7, T029 first integration PR485.
-- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
-- **Owner**: implementation maintainer.
-- **Severity**: medium.
-- **Evidence**: Linux installer command reports 72 failed, 734 passed and 27 skipped: 36 failures each in test_core_settings_seeding.py and test_native_hook_json.py. The native hook error passes literal backslashes to .NET ReadAllText on Linux; core-seeding failures also report absent values. This does not prove that every case has one cause.
-- **Acceptance**: reproduce and correct every failing boundary without skipping Linux PowerShell cases or weakening assertions; pass full local and hosted integration qualification.
-- **Suggested next step**: inspect the retained ci-test-reports artifact, then reproduce the exact harness boundary. The pending two-file CI proposal does not fix this finding. This new finding cannot migrate.
-
-#### BG-15: Hosted Windows edit guard fails to record an agent Bash edit
-
-- **Source phase**: v4.14.0 Phase7, T029 first integration PR485, native Windows hooks.
-- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
-- **Owner**: implementation maintainer.
-- **Severity**: medium.
-- **Evidence**: Windows PowerShell5.1 hooks report 2572 passed, one failed and 15 skipped. After the agent Bash edit, test_agents_own_bash_change_is_re_recorded_not_blamed_on_the_user[ps1] receives guard exit2 at the next write. No local causal reproduction or repair is established.
-- **Acceptance**: reproduce the hosted failure, correct its cause while retaining real user-edit blocking and agent-write recording controls, and pass native and hosted integration checks.
-- **Suggested next step**: inspect the retained ci-windows-reports artifact and reproduce the complete event sequence. Do not bypass guards or accept edits to hide the failure. This new finding cannot migrate.
-
-#### BG-12: CI formatters rewrite frozen proposal patch bytes
-
-- **Source phase**: v4.14.0 Phase7, T029 first integration PR485.
-- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
-- **Owner**: implementation maintainer.
-- **Severity**: medium.
-- **Reason**: trailing-whitespace removes unified-diff context markers; the following EOF fixer trims the resulting blank tail, invalidating retained approval hashes. CI validation fails.
-- **Evidence**: the real formatter sequence fails on original active/archive/patch copies; the unapplied bounded candidate preserves all three, while three ordinary/outside controls still get corrected.
-- **Acceptance**: exact CI correction approved and applied; captured patch hashes preserved and hosted validation green.
-- **Suggested next step**: approve the bound CI stabilization proposal, apply with guards and verify the real gate. This new finding cannot migrate.
-
-#### BG-13: Hosted rich-profile PowerShell startup exits before launcher harness
-
-- **Source phase**: v4.14.0 Phase7, T029 first integration PR485, Windows installer-core.
-- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
-- **Owner**: implementation maintainer.
-- **Severity**: medium.
-- **Reason**: hosted PowerShell7.6.6 exits70 with startIndex initialization error in the rich-profile case;294 other cases pass. This does not establish an installer-code cause.
-- **Evidence**: all three actual launcher cases pass locally under both verified7.6.6 and7.6.7. No causal reproduction or repair is established.
-- **Acceptance**: reproduce the failure locally, apply its narrow root-cause correction without skipping rich-path assertions, and pass actual native qualification and hosted integration.
-- **Suggested next step**: continue matching the hosted startup environment and inspect the retained job report before any rerun. This new finding cannot migrate.
-
-#### MT-12: Minimal render job omits the full skills suite YAML dependency
-
-- **Source phase**: v4.14.0 Phase7, T029 first integration PR485.
-- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
-- **Owner**: implementation maintainer.
-- **Severity**: medium.
-- **Reason**: presentify-render collects all tests/skills, including the YAML-based installer parity contract, but its dependency command omits PyYAML.
-- **Evidence**: exact minimal dependencies reproduce collection exit2/missing yaml. Adding only existing constrainedPyYAML6.0.3 passes all3profile commands,2419tests/18skips, with rendering required. Actual workflow remains unchanged pending approval.
-- **Acceptance**: approve/apply the exact dependency addition and pass the hosted render and integration checks on the final tree.
-- **Suggested next step**: apply the bound CI stabilization proposal after native approval and requalify. This new finding cannot migrate.
-
-#### BG-11: Python 3.11 path guard accepts directory junctions within the authoring root
-
-- **Source phase**: v4.14.0 Phase 7, T028 canonical full replay and native reproduction.
-- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
-- **Owner**: implementation maintainer.
-- **Severity**: medium.
-- **Reason**: Python 3.11 lacks Path.is_junction. A real junction to a target inside the authoring root passed containment even though the builder contract rejects linked ancestors. Outside-root resolution was already refused; no outside write is claimed.
-- **Evidence**: The applied lstat mount-point-tag correction refuses actual inside/outside junctions on Python 3.11 and 3.12, retains ordinary missing-output paths and nonjunction reparse semantics, and passes the complete affected modules. Explicit Windows tests reject removal of the new condition. See [repair receipt](development/v4.14.0-phase-7-receipts/skills-repair-applied.json).
-- **Acceptance**: permanent native controls, complete affected modules, final local profiles and green integration pass on the applied source.
-- **Suggested next step**: finish the canonical full, supported-host and integration gates. This new run finding cannot migrate.
-
-#### MT-10: Installer parity assertions still expect inline workflow commands
-
-- **Source phase**: v4.14.0 Phase 7, T028 canonical full replay.
-- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
-- **Owner**: implementation maintainer.
-- **Severity**: medium.
-- **Reason**: Two tests looked for inline checker commands and a PowerShell smoke-home variable after the approved workflow moved execution into the repository-native workspace-smoke profile.
-- **Evidence**: The corrected tests trace the actual workflow, profile and scenario, inspect both native installer command lists, require exactly one shared checker with private-home/workspace arguments, and reject six mutations across both host branches. Mocked command controls are not installer proof; the separate actual installed-browser tests also pass.
-- **Acceptance**: the actual affected modules and final local/integration gates pass without restoring duplicated workflow commands or weakening shared postconditions.
-- **Suggested next step**: finish the remaining final gates. This new run finding cannot migrate.
-
-#### MT-11: Offline installed-bundle fixture still discovers host editor launchers
-
-- **Source phase**: v4.14.0 Phase 7, T028 actual Windows installed-bundle replay.
-- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
-- **Owner**: implementation maintainer.
-- **Severity**: medium.
-- **Reason**: Redirected home directories left the caller PATH intact. The scratch install reached the machine's Cursor launcher during legacy-extension discovery and stopped on its NativeCommandError.
-- **Evidence**: The fixture now reuses the existing complete isolated_environment, including inert editor launchers and redirected fallback roots. Real Bash/Windows installed-bundle browser flows pass. Both code/cursor controls first activate harmless private host markers and then prove the isolated boundary prevents invocation. Installer production code is unchanged.
-- **Acceptance**: both actual installed-bundle flows, permanent editor controls and final local/integration gates pass on the applied fixture.
-- **Suggested next step**: finish the remaining final gates. This new run finding cannot migrate.
-
-#### MT-7: Timeout test can fail before successful process-tree cleanup
-
-- **Source phase**: v4.14.0 Phase 7, final CI/workflow replay.
-- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
-- **Owner**: implementation maintainer.
-- **Severity**: medium.
-- **Reason**: The child writes after 1.5 seconds while the runner starts cleanup after 0.7 seconds and allows taskkill up to 10 seconds. A marker can therefore exist even when the child is terminated before run returns. The final replay recorded one failure, 390 passes and 19 skips; its cause is not inferred solely from the counterexample.
-- **Evidence**: An independent delayed-taskkill probe proves the original oracle can fail after successful cleanup. The candidate replaces the timer with a ready/release gate and retained native process-state checks. Its positive and parent-only controls pass on Windows and network-disabled Linux; a forced parent-only mutation is rejected and its survivor is reaped. The final candidate CI/workflow suite passes 392 tests with 19 host skips. Production cleanup is unchanged.
-- **Acceptance**: the exact replacement is approved and applied, its controls and final actual-tree CI/full/integration gates pass.
-- **Suggested next step**: approve [the eleven-file CI correction revision 2](development/v4.14.0-ci-correction-proposal-v2.md), apply only its bound bytes, and run the remaining final gates. This new run finding cannot migrate.
-
-#### QG-4: Approved CI bundle adds empty workflow EOF lines
-
-- **Source phase**: v4.14.0 Phase 7, final actual-tree whitespace gate.
-- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
-- **Owner**: implementation maintainer.
-- **Severity**: low.
-- **Reason**: git diff --check HEAD rejects six extra blank EOF lines introduced by the blocker-4 CI bundle.
-- **Evidence**: a separate candidate removes exactly one LF per workflow, retains the terminal newline and all other bytes, and has identical parsed YAML. An independent standards review confirms all six paths and twelve hashes; candidate git diff --check HEAD passes.
-- **Acceptance**: the exact CI cleanup is approved and applied, then the actual-tree whitespace and final gates pass.
-- **Suggested next step**: approve the eleven-file CI correction revision 2, apply its exact bytes, and rerun the source gates. This new run finding cannot migrate.
-
-#### BG-7: Core merge must reject malformed per-file JSON input
-
-- **Source phase**: v4.14.0 Phase 7, T022/T025 final independent review and correction.
-- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
-- **Owner**: implementation maintainer.
-- **Severity**: high.
-- **Reason**: The Bash slurp treated a second user document as the template and could discard user bytes; a PowerShell array-shaped template could retire a recorded effort seed.
-- **Evidence**: Five authorized non-CI corrections are applied. Both-edition native suites and nine fresh source regressions pass. Full final-tree and integration gates remain pending. See [review results](development/v4.14.0-phase-7-receipts/final-review-results.json).
-- **Acceptance**: the source correction, permanent negative controls, final local profiles and green integration all pass on the final tree.
-- **Suggested next step**: apply only the approved pending CI correction where relevant, then finish final qualification. This new run finding cannot migrate.
-
-#### BG-8: Long backslash runs make the legacy JSON reader rescan input
-
-- **Source phase**: v4.14.0 Phase 7, T022/T025 final independent review and correction.
-- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
-- **Owner**: implementation maintainer.
-- **Severity**: low.
-- **Reason**: The slash-normalization regex retried suffixes quadratically on valid JSON without a following slash.
-- **Evidence**: The old actual 5.1 reader exceeded 20 seconds on the control; corrected reader preserved all values in 0.782 seconds. Current 5.1 and 7 native suites pass. Full gates remain pending. See [review results](development/v4.14.0-phase-7-receipts/final-review-results.json).
-- **Acceptance**: the source correction, permanent negative controls, final local profiles and green integration all pass on the final tree.
-- **Suggested next step**: apply only the approved pending CI correction where relevant, then finish final qualification. This new run finding cannot migrate.
-
-#### BG-9: Ambient package selectors escape disposable CI targets
-
-- **Source phase**: v4.14.0 Phase 7, T022/T025 final independent review and correction.
-- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
-- **Owner**: implementation maintainer.
-- **Severity**: high.
-- **Reason**: Inherited pip interpreter, installation, build-tracker, log, report and checkout destinations, or pip/uv configuration, can write outside the intended scratch target.
-- **Evidence**: A concrete CI-only correction disables these routes and retains constraint/index/certificate read settings. Actual parser and offline controls pass; application awaits a fresh named CI approval. See [review results](development/v4.14.0-phase-7-receipts/final-review-results.json).
-- **Acceptance**: the source correction, permanent negative controls, final local profiles and green integration all pass on the final tree.
-- **Suggested next step**: apply only the approved pending CI correction where relevant, then finish final qualification. This new run finding cannot migrate.
-
-#### BG-10: Metadata redaction can corrupt JSON syntax
-
-- **Source phase**: v4.14.0 Phase 7, T022/T025 final independent review and correction.
-- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
-- **Owner**: implementation maintainer.
-- **Severity**: medium.
-- **Reason**: Replacing secrets after JSON serialization can remove property/value quotes and produce unreadable environment.json.
-- **Evidence**: Two independent lenses reproduced the defect. The proposed CI correction redacts string values before serialization and preserves schema keys and native types; application awaits CI approval. See [review results](development/v4.14.0-phase-7-receipts/final-review-results.json).
-- **Acceptance**: the source correction, permanent negative controls, final local profiles and green integration all pass on the final tree.
-- **Suggested next step**: apply only the approved pending CI correction where relevant, then finish final qualification. This new run finding cannot migrate.
-
-#### MT-5: Agent classification accepts a valid but incorrect tier
-
-- **Source phase**: v4.14.0 Phase 7, T022/T025 final independent review and correction.
-- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
-- **Owner**: implementation maintainer.
-- **Severity**: medium.
-- **Reason**: A security-reviewer Opus-to-Haiku mutation passed the previous classification test despite the documented Opus partition.
-- **Evidence**: The applied test asserts Opus and the documented partition and rejects the valid wrong-tier mutation. Final gates remain pending. See [review results](development/v4.14.0-phase-7-receipts/final-review-results.json).
-- **Acceptance**: the source correction, permanent negative controls, final local profiles and green integration all pass on the final tree.
-- **Suggested next step**: apply only the approved pending CI correction where relevant, then finish final qualification. This new run finding cannot migrate.
-
-#### MT-6: Presentify aggregate tests do not exercise failure branches
-
-- **Source phase**: v4.14.0 Phase 7, T022/T025 final independent review and correction.
-- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
-- **Owner**: implementation maintainer.
-- **Severity**: medium.
-- **Reason**: Replacing the actual required gate with unconditional success survived the previous static tests.
-- **Evidence**: The proposed CI test executes the real YAML shell body over 23 cases and kills the unconditional-success mutation in all 19 rejection cases. Application and final gates remain pending. See [review results](development/v4.14.0-phase-7-receipts/final-review-results.json).
-- **Acceptance**: the source correction, permanent negative controls, final local profiles and green integration all pass on the final tree.
-- **Suggested next step**: apply only the approved pending CI correction where relevant, then finish final qualification. This new run finding cannot migrate.
-
-#### BG-5: Native JSON readers interpret opaque timestamp strings
-
-- **Source phase**: v4.14.0 Phase 7, T025 independent adversarial recheck.
-- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md), sub-tasks 3.3, 6.2 and 7.6.
-- **Owner**: implementation maintainer.
-- **Severity**: high.
-- **Reason**: PowerShell 7 interpreted recognized ISO values as native dates and rewrote offsets or fractional spelling on the first hook write. Windows PowerShell 5.1 interpreted escaped Microsoft date strings as native dates; a zero-date value-only round trip happened to match and did not establish string opacity. Date-shaped object keys stayed unchanged.
-- **Evidence**: retained independent actual-source-adversarial report and exact native types/raw input hex at source 9be0ae34d1eb0632af691dab24c8f559c40c99bf5919b4e2950d01793b6fdc9b. The corrected reader candidate passed 10 native 5.1 checks and 20 current-7 checks, including a simulated older-Core capability path. That simulation is not a claim of a native older-Core host run.
-- **Acceptance**: real reader, hook, core and MCP writes preserve opaque strings, exact keys, array/root shape and user values; permanent regressions and actual-tree/final gates pass.
-- **Suggested next step**: qualify the applied shared-reader correction in the actual affected scope and full installer after the pending strict fix. This new run finding cannot migrate.
-
-**Current recheck**: the applied reader and hook correction passed 394 affected tests with 10 skips on PowerShell 5.1 and 226 on PowerShell 7.6.7. Independent reader 123 checks preserve exact decoded values and native string types. Full installer and final qualification remain pending.
-
-#### BG-6: Duplicate permission entries can hide a missing strict overlay
-
-- **Source phase**: v4.14.0 Phase 7, T025 independent adversarial recheck.
-- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md), sub-tasks 3.3 and 7.6.
-- **Owner**: implementation maintainer.
-- **Severity**: high.
-- **Security**: both installers can print already up to date while omitting all 22 deny and 12 ask entries from the explicitly selected strict overlay.
-- **Reason**: subtracting the original list length from a deduplicated merged length lets removed user duplicates cancel the number of missing overlay entries. Native original-source controls reproduce this for PowerShell and Bash. The earlier blocker-2 patch does not cover this newly discovered counter defect.
-- **Evidence**: [the exact paired strict proposal](development/v4.14.0-strict-counter-proposal.md) and its hash-bound receipts: 61 new, 82 existing and 24 path/empty-input checks pass on the final candidate, with two original negative controls failing as expected. Independent final Bash checks pass 23 cases plus identical-file refusal. The proposal counts missing rules and rejects malformed or multiple-document inputs while retaining Unicode filename support; it is not applied.
-- **Acceptance**: both installers count genuinely missing rules independently of user duplicates, apply every shipped deny/ask rule, leave allow and user data intact, and refuse malformed input without false success or writes; permanent regressions and final gates pass.
-- **Suggested next step**: review the concrete paired permission-writer proposal, answer its native ci-security-change blocker, then apply only its approved strict functions and run the actual gates. This new run finding cannot migrate.
-
-**Current recheck**: native blocker 3 is answered by A3FZ6XTY and the exact paired proposal is applied. The actual affected suites passed 440 tests with 10 skips on PowerShell 5.1 and 272 tests on PowerShell 7.6.7. The full Unicode upgrade/repeat also passes after a separate launcher path repair. Full-profile, CI and final qualification remain pending, so this item stays open; earlier proposal wording records the original checkpoint.
-
-#### BG-3: Case-sensitive settings can skip an explicitly selected strict overlay
-
-- **Source phase**: v4.14.0 Phase 7, T025 independent adversarial verification.
-- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md), sub-tasks 6.2 and 7.6.
-- **Owner**: implementation maintainer.
-- **Severity**: high.
-- **Security**: the requested strict deny/ask overlay is absent on the reproduced case-key inputs.
-- **Reason**: Merge-StrictPermissions still uses a case-insensitive JSON object; exact-case core delivery can preserve a lower-case user key and add its documented uppercase key, after which the strict reader warns and skips. Unrelated VAR/var pairs reproduce the same failure. The applied preservation repair does not fix this separate writer.
-- **Evidence**: [the concrete function-only proposal](development/v4.14.0-permission-writer-proposal.md), with 42 fresh native candidate checks across PowerShell 5.1 and 7. The source permission writer remains unchanged pending a live ci-security-change answer.
-- **Acceptance**: the approved actual-tree writer installs all existing shipped deny/ask entries, preserves allow and all user leaves, backs up pre-write bytes, remains idempotent, and refuses malformed roots/parents/lists without a write; both runtimes and the final gate pass.
-- **Suggested next step**: answer the native permission-writer blocker, apply only the reviewed patch after guard/hash checks, add permanent regressions and rerun the actual writer sequence. This item arose during the run and cannot be migrated or silently waived.
-
-**Current recheck**: blocker 2 is answered and its exact patch passed 41 permanent tests per PowerShell runtime, then the affected actual tree passed 368 tests. Final qualification remains pending; the separate duplicate-counter failure is BG-6. The earlier unapproved wording above records the original checkpoint.
-
-#### BG-4: Legacy Windows hook writers skip case-distinct JSON
-
-- **Source phase**: v4.14.0 Phase 7, T025 independent adversarial verification.
-- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md), sub-tasks 3.3 and 7.6.
-- **Owner**: implementation maintainer.
-- **Severity**: high.
-- **Security**: managed guardrail hooks may remain absent or stale when the legacy reader cannot represent otherwise valid unrelated settings keys.
-- **Reason**: actual Install-GitGuardrails, Install-UsageDisplay and Install-RequireDescription warn and skip on a document with unrelated VAR/var keys. The document is preserved, but the full helper sequence leaves hooks absent. The new exact-case core pair can also encounter this legacy reader on a later upgrade.
-- **Evidence**: independent native sequence reports in retained Temp adversarial-candidate3-d566fe6487bd49f8b9ee3864a0972210; the preservation checks pass while hook application remains explicitly uncovered. No claim of installed hooks is made from those green preservation counts.
-- **Acceptance**: an actual isolated native upgrade preserves unrelated case-distinct/deep data and custom hooks, adds/updates the managed hooks, converts their commands correctly and remains idempotent, with permanent regressions and the full gate passing.
-- **Suggested next step**: repair the JSON round-trip boundary for the legacy hook writers, reuse existing merge behavior and the real converter, and exercise the full sequence before publication. This item arose during the run and cannot be migrated or silently waived.
-
-**Current recheck**: the first root-only projection repair passed its bounded suite but still skipped valid case-distinct metadata inside a custom hook. The applied correction now keeps exact dictionaries through the original hook identity algorithm; its expanded candidate passed 37 native cases per runtime. The applied correction now passes the affected actual-tree suites (394 passed/10 skipped on 5.1; 226 passed on 7). Complete installer and final qualification are still pending.
 
 #### BG-1: The second pilot's per-call budget did not bound reported cost
 
@@ -3070,3 +2812,309 @@ Resolved in v4.14.0 Phase 7 (2026-10-16), reconciling artifacts already present 
 - **Migration evidence**: Nine Claude prompting profiles need per-model /tune-prompting research; claude-opus-5-5 is scheduled for v4.17.6.
 
 Resolved in v4.14.0 Phase 7 (2026-10-16), reconciling the earlier ed105b281 legacy-profile commit and WN-26 resolution. Direct inspection confirms all nine IDs named below have profile entries dated 2026-10-15, with non-empty primary-source claims, matching mirrors, and no unprofiled ID in the recorded Claude roster; verify_model_prompting_profiles.py passes. This supersedes the future-work assumption below. WN-18 remains open: structurally present alias profiles do not by themselves establish the explicit alias-sharing decision.
+
+#### BG-17: Cache record publication can fail and consume reviewed baseline evidence
+
+- **Source phase**: v4.14.0 Phase7, T028/T029, complete post-blocker8 Windows qualification.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: high.
+- **Evidence**: the complete V8 Windows platform run reports 11 passing commands and one failed hook command, with 2,609 passing hook cases and one accept failure. A direct unchanged-helper writer reproduces WinError5 at atomic replacement after44 successes. Independent failure injection proves the old acceptance path can consume its review marker and replace the snapshot before matching metadata commits, producing an empty later diff. The original pytest fixture was pruned before copying; its exact original exception remains unavailable.
+- **Current correction**: bounded replacement retry retains prepared bytes; atomic metadata references an immutable private generation, with legacy-reader availability kept truthful. Reviewed content, old baselines, owner-only permissions, legacy import, explicit purge and retention grace are covered. See [applied repair](development/v4.14.0-phase-7-receipts/cache-publication-stabilization-applied.json).
+- **Acceptance**: preserve keys, approval rules, strict user-edit blocking and owner-only cache permissions; retain meaningful reviewed baselines after failed writes; pass actual-source native scopes, complete final full/platform profiles and green hosted integration.
+- **Suggested next step**: run the fresh final-source gates and integration. This new finding cannot migrate.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [cache-publication-stabilization-applied.json](development/v4.14.0-phase-7-receipts/cache-publication-stabilization-applied.json), [cache-publication-redaction-v9.json](development/v4.14.0-phase-7-receipts/cache-publication-redaction-v9.json), [cache-publication-actual-source-v9-checkpoint.json](development/v4.14.0-phase-7-receipts/cache-publication-actual-source-v9-checkpoint.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### MT-13: Formatter settle-window fixture depends on adapter shutdown latency
+
+- **Source phase**: v4.14.0 Phase7, T028, post-blocker8 Linux hook qualification.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: medium.
+- **Evidence**: actual Linux hooks report 125 passed, 19 skipped and one formatter-test failure. Its rewrite lands 8.316 seconds after the recorded write, outside the unchanged five-second policy. The private deterministic candidate passes eight selected cases on both actual adapters; two scoped reviews are clean. See [timing repair](development/v4.14.0-phase-7-receipts/formatter-settle-stabilization-applied.json).
+- **Acceptance**: both real Linux adapters and native Windows qualification, complete final canonical profiles and hosted integration pass with explicit inside/outside timing controls and strict user-edit blocking retained.
+- **Suggested next step**: run actual-source qualification and the final gates. This new finding cannot migrate.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [formatter-settle-stabilization-applied.json](development/v4.14.0-phase-7-receipts/formatter-settle-stabilization-applied.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### BG-16: Long Windows default-cache paths prevent edit recording
+
+- **Source phase**: v4.14.0 Phase 7, T028/T029 native stabilization after blocker7.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: medium.
+- **Evidence**: both actual Windows affected-module runs report 289 passed and two failed cases. A direct unchanged-helper probe reproduces FileNotFoundError when the staged private copy exceeds 260 characters; the same default-store cases pass under a short temporary root. A first private prefix-only candidate permits copies beneath a missed long repository marker and breaks drive-device aliases, so it is rejected and never applied. The corrected private candidate validates and writes through one resolved long-capable cache path.
+- **Acceptance**: preserve existing records, workspace/repository/sync exclusions, owner-only cache permissions and real user-edit blocking; pass both native hook adapters, affected suites, final profiles and hosted integration.
+- **Suggested next step**: complete independent review of the corrected private candidate, apply with fresh official guards, and run final qualification. This new finding cannot migrate.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [cache-path-stabilization-applied.json](development/v4.14.0-phase-7-receipts/cache-path-stabilization-applied.json), [cache-path-stabilization-review.json](development/v4.14.0-phase-7-receipts/cache-path-stabilization-review.json), [cache-path-owner-only-acl.json](development/v4.14.0-phase-7-receipts/cache-path-owner-only-acl.json), [blocker7-native-applied-qualification.json](development/v4.14.0-phase-7-receipts/blocker7-native-applied-qualification.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### BG-14: Linux PowerShell installer boundary tests fail in first integration
+
+- **Source phase**: v4.14.0 Phase7, T029 first integration PR485.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: medium.
+- **Evidence**: Linux installer command reports 72 failed, 734 passed and 27 skipped: 36 failures each in test_core_settings_seeding.py and test_native_hook_json.py. The native hook error passes literal backslashes to .NET ReadAllText on Linux; core-seeding failures also report absent values. This does not prove that every case has one cause.
+- **Acceptance**: reproduce and correct every failing boundary without skipping Linux PowerShell cases or weakening assertions; pass full local and hosted integration qualification.
+- **Suggested next step**: inspect the retained ci-test-reports artifact, then reproduce the exact harness boundary. The pending two-file CI proposal does not fix this finding. This new finding cannot migrate.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [native-stabilization-applied.json](development/v4.14.0-phase-7-receipts/native-stabilization-applied.json), [blocker7-native-applied-qualification.json](development/v4.14.0-phase-7-receipts/blocker7-native-applied-qualification.json), [distribution-template-path-build-checks.json](development/v4.14.0-phase-7-receipts/distribution-template-path-build-checks.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### BG-15: Hosted Windows edit guard fails to record an agent Bash edit
+
+- **Source phase**: v4.14.0 Phase7, T029 first integration PR485, native Windows hooks.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: medium.
+- **Evidence**: Windows PowerShell5.1 hooks report 2572 passed, one failed and 15 skipped. After the agent Bash edit, test_agents_own_bash_change_is_re_recorded_not_blamed_on_the_user[ps1] receives guard exit2 at the next write. No local causal reproduction or repair is established.
+- **Acceptance**: reproduce the hosted failure, correct its cause while retaining real user-edit blocking and agent-write recording controls, and pass native and hosted integration checks.
+- **Suggested next step**: inspect the retained ci-windows-reports artifact and reproduce the complete event sequence. Do not bypass guards or accept edits to hide the failure. This new finding cannot migrate.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [native-stabilization-applied.json](development/v4.14.0-phase-7-receipts/native-stabilization-applied.json), [cache-path-stabilization-applied.json](development/v4.14.0-phase-7-receipts/cache-path-stabilization-applied.json), [blocker7-native-applied-qualification.json](development/v4.14.0-phase-7-receipts/blocker7-native-applied-qualification.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### BG-12: CI formatters rewrite frozen proposal patch bytes
+
+- **Source phase**: v4.14.0 Phase7, T029 first integration PR485.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: medium.
+- **Reason**: trailing-whitespace removes unified-diff context markers; the following EOF fixer trims the resulting blank tail, invalidating retained approval hashes. CI validation fails.
+- **Evidence**: the real formatter sequence fails on original active/archive/patch copies; the unapplied bounded candidate preserves all three, while three ordinary/outside controls still get corrected.
+- **Acceptance**: exact CI correction approved and applied; captured patch hashes preserved and hosted validation green.
+- **Suggested next step**: approve the bound CI stabilization proposal, apply with guards and verify the real gate. This new finding cannot migrate.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [ci-stabilization-applied.json](development/v4.14.0-phase-7-receipts/ci-stabilization-applied.json), [manifest.json](development/v4.14.0-phase-7-receipts/ci-stabilization-proposal/manifest.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### BG-13: Hosted rich-profile PowerShell startup exits before launcher harness
+
+- **Source phase**: v4.14.0 Phase7, T029 first integration PR485, Windows installer-core.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: medium.
+- **Reason**: hosted PowerShell7.6.6 exits70 with startIndex initialization error in the rich-profile case;294 other cases pass. This does not establish an installer-code cause.
+- **Evidence**: all three actual launcher cases pass locally under both verified7.6.6 and7.6.7. No causal reproduction or repair is established.
+- **Acceptance**: reproduce the failure locally, apply its narrow root-cause correction without skipping rich-path assertions, and pass actual native qualification and hosted integration.
+- **Suggested next step**: continue matching the hosted startup environment and inspect the retained job report before any rerun. This new finding cannot migrate.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [native-stabilization-applied.json](development/v4.14.0-phase-7-receipts/native-stabilization-applied.json), [native-stabilization-review-v2.json](development/v4.14.0-phase-7-receipts/native-stabilization-review-v2.json), [blocker7-native-applied-qualification.json](development/v4.14.0-phase-7-receipts/blocker7-native-applied-qualification.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### MT-12: Minimal render job omits the full skills suite YAML dependency
+
+- **Source phase**: v4.14.0 Phase7, T029 first integration PR485.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: medium.
+- **Reason**: presentify-render collects all tests/skills, including the YAML-based installer parity contract, but its dependency command omits PyYAML.
+- **Evidence**: exact minimal dependencies reproduce collection exit2/missing yaml. Adding only existing constrainedPyYAML6.0.3 passes all3profile commands,2419tests/18skips, with rendering required. Actual workflow remains unchanged pending approval.
+- **Acceptance**: approve/apply the exact dependency addition and pass the hosted render and integration checks on the final tree.
+- **Suggested next step**: apply the bound CI stabilization proposal after native approval and requalify. This new finding cannot migrate.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [ci-stabilization-applied.json](development/v4.14.0-phase-7-receipts/ci-stabilization-applied.json), [manifest.json](development/v4.14.0-phase-7-receipts/ci-stabilization-proposal/manifest.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### BG-11: Python 3.11 path guard accepts directory junctions within the authoring root
+
+- **Source phase**: v4.14.0 Phase 7, T028 canonical full replay and native reproduction.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: medium.
+- **Reason**: Python 3.11 lacks Path.is_junction. A real junction to a target inside the authoring root passed containment even though the builder contract rejects linked ancestors. Outside-root resolution was already refused; no outside write is claimed.
+- **Evidence**: The applied lstat mount-point-tag correction refuses actual inside/outside junctions on Python 3.11 and 3.12, retains ordinary missing-output paths and nonjunction reparse semantics, and passes the complete affected modules. Explicit Windows tests reject removal of the new condition. See [repair receipt](development/v4.14.0-phase-7-receipts/skills-repair-applied.json).
+- **Acceptance**: permanent native controls, complete affected modules, final local profiles and green integration pass on the applied source.
+- **Suggested next step**: finish the canonical full, supported-host and integration gates. This new run finding cannot migrate.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [skills-repair-applied.json](development/v4.14.0-phase-7-receipts/skills-repair-applied.json), [combined-repair-local-qualification.json](development/v4.14.0-phase-7-receipts/combined-repair-local-qualification.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### MT-10: Installer parity assertions still expect inline workflow commands
+
+- **Source phase**: v4.14.0 Phase 7, T028 canonical full replay.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: medium.
+- **Reason**: Two tests looked for inline checker commands and a PowerShell smoke-home variable after the approved workflow moved execution into the repository-native workspace-smoke profile.
+- **Evidence**: The corrected tests trace the actual workflow, profile and scenario, inspect both native installer command lists, require exactly one shared checker with private-home/workspace arguments, and reject six mutations across both host branches. Mocked command controls are not installer proof; the separate actual installed-browser tests also pass.
+- **Acceptance**: the actual affected modules and final local/integration gates pass without restoring duplicated workflow commands or weakening shared postconditions.
+- **Suggested next step**: finish the remaining final gates. This new run finding cannot migrate.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [combined-repair-local-qualification.json](development/v4.14.0-phase-7-receipts/combined-repair-local-qualification.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### MT-11: Offline installed-bundle fixture still discovers host editor launchers
+
+- **Source phase**: v4.14.0 Phase 7, T028 actual Windows installed-bundle replay.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: medium.
+- **Reason**: Redirected home directories left the caller PATH intact. The scratch install reached the machine's Cursor launcher during legacy-extension discovery and stopped on its NativeCommandError.
+- **Evidence**: The fixture now reuses the existing complete isolated_environment, including inert editor launchers and redirected fallback roots. Real Bash/Windows installed-bundle browser flows pass. Both code/cursor controls first activate harmless private host markers and then prove the isolated boundary prevents invocation. Installer production code is unchanged.
+- **Acceptance**: both actual installed-bundle flows, permanent editor controls and final local/integration gates pass on the applied fixture.
+- **Suggested next step**: finish the remaining final gates. This new run finding cannot migrate.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [combined-repair-local-qualification.json](development/v4.14.0-phase-7-receipts/combined-repair-local-qualification.json), [git-fixture-isolation-applied.json](development/v4.14.0-phase-7-receipts/git-fixture-isolation-applied.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### MT-7: Timeout test can fail before successful process-tree cleanup
+
+- **Source phase**: v4.14.0 Phase 7, final CI/workflow replay.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: medium.
+- **Reason**: The child writes after 1.5 seconds while the runner starts cleanup after 0.7 seconds and allows taskkill up to 10 seconds. A marker can therefore exist even when the child is terminated before run returns. The final replay recorded one failure, 390 passes and 19 skips; its cause is not inferred solely from the counterexample.
+- **Evidence**: An independent delayed-taskkill probe proves the original oracle can fail after successful cleanup. The candidate replaces the timer with a ready/release gate and retained native process-state checks. Its positive and parent-only controls pass on Windows and network-disabled Linux; a forced parent-only mutation is rejected and its survivor is reaped. The final candidate CI/workflow suite passes 392 tests with 19 host skips. Production cleanup is unchanged.
+- **Acceptance**: the exact replacement is approved and applied, its controls and final actual-tree CI/full/integration gates pass.
+- **Suggested next step**: approve [the eleven-file CI correction revision 2](development/v4.14.0-ci-correction-proposal-v2.md), apply only its bound bytes, and run the remaining final gates. This new run finding cannot migrate.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [manifest.json](development/v4.14.0-phase-7-receipts/ci-correction-proposal-v2/manifest.json), [qualification.json](development/v4.14.0-phase-7-receipts/ci-correction-proposal-v2/qualification.json), [timeout-oracle-review.json](development/v4.14.0-phase-7-receipts/ci-correction-proposal-v2/timeout-oracle-review.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### QG-4: Approved CI bundle adds empty workflow EOF lines
+
+- **Source phase**: v4.14.0 Phase 7, final actual-tree whitespace gate.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: low.
+- **Reason**: git diff --check HEAD rejects six extra blank EOF lines introduced by the blocker-4 CI bundle.
+- **Evidence**: a separate candidate removes exactly one LF per workflow, retains the terminal newline and all other bytes, and has identical parsed YAML. An independent standards review confirms all six paths and twelve hashes; candidate git diff --check HEAD passes.
+- **Acceptance**: the exact CI cleanup is approved and applied, then the actual-tree whitespace and final gates pass.
+- **Suggested next step**: approve the eleven-file CI correction revision 2, apply its exact bytes, and rerun the source gates. This new run finding cannot migrate.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [manifest.json](development/v4.14.0-phase-7-receipts/ci-correction-proposal-v2/manifest.json), [qualification.json](development/v4.14.0-phase-7-receipts/ci-correction-proposal-v2/qualification.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### BG-7: Core merge must reject malformed per-file JSON input
+
+- **Source phase**: v4.14.0 Phase 7, T022/T025 final independent review and correction.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: high.
+- **Reason**: The Bash slurp treated a second user document as the template and could discard user bytes; a PowerShell array-shaped template could retire a recorded effort seed.
+- **Evidence**: Five authorized non-CI corrections are applied. Both-edition native suites and nine fresh source regressions pass. Full final-tree and integration gates remain pending. See [review results](development/v4.14.0-phase-7-receipts/final-review-results.json).
+- **Acceptance**: the source correction, permanent negative controls, final local profiles and green integration all pass on the final tree.
+- **Suggested next step**: apply only the approved pending CI correction where relevant, then finish final qualification. This new run finding cannot migrate.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [final-review-results.json](development/v4.14.0-phase-7-receipts/final-review-results.json), [nonci-review-corrections-applied.json](development/v4.14.0-phase-7-receipts/nonci-review-corrections-applied.json), [combined-repair-local-qualification.json](development/v4.14.0-phase-7-receipts/combined-repair-local-qualification.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### BG-8: Long backslash runs make the legacy JSON reader rescan input
+
+- **Source phase**: v4.14.0 Phase 7, T022/T025 final independent review and correction.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: low.
+- **Reason**: The slash-normalization regex retried suffixes quadratically on valid JSON without a following slash.
+- **Evidence**: The old actual 5.1 reader exceeded 20 seconds on the control; corrected reader preserved all values in 0.782 seconds. Current 5.1 and 7 native suites pass. Full gates remain pending. See [review results](development/v4.14.0-phase-7-receipts/final-review-results.json).
+- **Acceptance**: the source correction, permanent negative controls, final local profiles and green integration all pass on the final tree.
+- **Suggested next step**: apply only the approved pending CI correction where relevant, then finish final qualification. This new run finding cannot migrate.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [final-review-results.json](development/v4.14.0-phase-7-receipts/final-review-results.json), [nonci-review-corrections-applied.json](development/v4.14.0-phase-7-receipts/nonci-review-corrections-applied.json), [combined-repair-local-qualification.json](development/v4.14.0-phase-7-receipts/combined-repair-local-qualification.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### BG-9: Ambient package selectors escape disposable CI targets
+
+- **Source phase**: v4.14.0 Phase 7, T022/T025 final independent review and correction.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: high.
+- **Reason**: Inherited pip interpreter, installation, build-tracker, log, report and checkout destinations, or pip/uv configuration, can write outside the intended scratch target.
+- **Evidence**: A concrete CI-only correction disables these routes and retains constraint/index/certificate read settings. Actual parser and offline controls pass; application awaits a fresh named CI approval. See [review results](development/v4.14.0-phase-7-receipts/final-review-results.json).
+- **Acceptance**: the source correction, permanent negative controls, final local profiles and green integration all pass on the final tree.
+- **Suggested next step**: apply only the approved pending CI correction where relevant, then finish final qualification. This new run finding cannot migrate.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [final-review-results.json](development/v4.14.0-phase-7-receipts/final-review-results.json), [manifest.json](development/v4.14.0-phase-7-receipts/ci-correction-proposal-v2/manifest.json), [qualification.json](development/v4.14.0-phase-7-receipts/ci-correction-proposal-v2/qualification.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### BG-10: Metadata redaction can corrupt JSON syntax
+
+- **Source phase**: v4.14.0 Phase 7, T022/T025 final independent review and correction.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: medium.
+- **Reason**: Replacing secrets after JSON serialization can remove property/value quotes and produce unreadable environment.json.
+- **Evidence**: Two independent lenses reproduced the defect. The proposed CI correction redacts string values before serialization and preserves schema keys and native types; application awaits CI approval. See [review results](development/v4.14.0-phase-7-receipts/final-review-results.json).
+- **Acceptance**: the source correction, permanent negative controls, final local profiles and green integration all pass on the final tree.
+- **Suggested next step**: apply only the approved pending CI correction where relevant, then finish final qualification. This new run finding cannot migrate.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [final-review-results.json](development/v4.14.0-phase-7-receipts/final-review-results.json), [manifest.json](development/v4.14.0-phase-7-receipts/ci-correction-proposal-v2/manifest.json), [qualification.json](development/v4.14.0-phase-7-receipts/ci-correction-proposal-v2/qualification.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### MT-5: Agent classification accepts a valid but incorrect tier
+
+- **Source phase**: v4.14.0 Phase 7, T022/T025 final independent review and correction.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: medium.
+- **Reason**: A security-reviewer Opus-to-Haiku mutation passed the previous classification test despite the documented Opus partition.
+- **Evidence**: The applied test asserts Opus and the documented partition and rejects the valid wrong-tier mutation. Final gates remain pending. See [review results](development/v4.14.0-phase-7-receipts/final-review-results.json).
+- **Acceptance**: the source correction, permanent negative controls, final local profiles and green integration all pass on the final tree.
+- **Suggested next step**: apply only the approved pending CI correction where relevant, then finish final qualification. This new run finding cannot migrate.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [final-review-results.json](development/v4.14.0-phase-7-receipts/final-review-results.json), [nonci-review-corrections-applied.json](development/v4.14.0-phase-7-receipts/nonci-review-corrections-applied.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### MT-6: Presentify aggregate tests do not exercise failure branches
+
+- **Source phase**: v4.14.0 Phase 7, T022/T025 final independent review and correction.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md).
+- **Owner**: implementation maintainer.
+- **Severity**: medium.
+- **Reason**: Replacing the actual required gate with unconditional success survived the previous static tests.
+- **Evidence**: The proposed CI test executes the real YAML shell body over 23 cases and kills the unconditional-success mutation in all 19 rejection cases. Application and final gates remain pending. See [review results](development/v4.14.0-phase-7-receipts/final-review-results.json).
+- **Acceptance**: the source correction, permanent negative controls, final local profiles and green integration all pass on the final tree.
+- **Suggested next step**: apply only the approved pending CI correction where relevant, then finish final qualification. This new run finding cannot migrate.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [final-review-results.json](development/v4.14.0-phase-7-receipts/final-review-results.json), [nonci-review-corrections-applied.json](development/v4.14.0-phase-7-receipts/nonci-review-corrections-applied.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### BG-5: Native JSON readers interpret opaque timestamp strings
+
+- **Source phase**: v4.14.0 Phase 7, T025 independent adversarial recheck.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md), sub-tasks 3.3, 6.2 and 7.6.
+- **Owner**: implementation maintainer.
+- **Severity**: high.
+- **Reason**: PowerShell 7 interpreted recognized ISO values as native dates and rewrote offsets or fractional spelling on the first hook write. Windows PowerShell 5.1 interpreted escaped Microsoft date strings as native dates; a zero-date value-only round trip happened to match and did not establish string opacity. Date-shaped object keys stayed unchanged.
+- **Evidence**: retained independent actual-source-adversarial report and exact native types/raw input hex at source 9be0ae34d1eb0632af691dab24c8f559c40c99bf5919b4e2950d01793b6fdc9b. The corrected reader candidate passed 10 native 5.1 checks and 20 current-7 checks, including a simulated older-Core capability path. That simulation is not a claim of a native older-Core host run.
+- **Acceptance**: real reader, hook, core and MCP writes preserve opaque strings, exact keys, array/root shape and user values; permanent regressions and actual-tree/final gates pass.
+- **Suggested next step**: qualify the applied shared-reader correction in the actual affected scope and full installer after the pending strict fix. This new run finding cannot migrate.
+
+**Current recheck**: the applied reader and hook correction passed 394 affected tests with 10 skips on PowerShell 5.1 and 226 on PowerShell 7.6.7. Independent reader 123 checks preserve exact decoded values and native string types. Full installer and final qualification remain pending.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [native-windows-current-qualification.json](development/v4.14.0-phase-7-receipts/native-windows-current-qualification.json), [combined-repair-local-qualification.json](development/v4.14.0-phase-7-receipts/combined-repair-local-qualification.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### BG-6: Duplicate permission entries can hide a missing strict overlay
+
+- **Source phase**: v4.14.0 Phase 7, T025 independent adversarial recheck.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md), sub-tasks 3.3 and 7.6.
+- **Owner**: implementation maintainer.
+- **Severity**: high.
+- **Security**: both installers can print already up to date while omitting all 22 deny and 12 ask entries from the explicitly selected strict overlay.
+- **Reason**: subtracting the original list length from a deduplicated merged length lets removed user duplicates cancel the number of missing overlay entries. Native original-source controls reproduce this for PowerShell and Bash. The earlier blocker-2 patch does not cover this newly discovered counter defect.
+- **Evidence**: [the exact paired strict proposal](development/v4.14.0-strict-counter-proposal.md) and its hash-bound receipts: 61 new, 82 existing and 24 path/empty-input checks pass on the final candidate, with two original negative controls failing as expected. Independent final Bash checks pass 23 cases plus identical-file refusal. The proposal counts missing rules and rejects malformed or multiple-document inputs while retaining Unicode filename support; it is not applied.
+- **Acceptance**: both installers count genuinely missing rules independently of user duplicates, apply every shipped deny/ask rule, leave allow and user data intact, and refuse malformed input without false success or writes; permanent regressions and final gates pass.
+- **Suggested next step**: review the concrete paired permission-writer proposal, answer its native ci-security-change blocker, then apply only its approved strict functions and run the actual gates. This new run finding cannot migrate.
+
+**Current recheck**: native blocker 3 is answered by A3FZ6XTY and the exact paired proposal is applied. The actual affected suites passed 440 tests with 10 skips on PowerShell 5.1 and 272 tests on PowerShell 7.6.7. The full Unicode upgrade/repeat also passes after a separate launcher path repair. Full-profile, CI and final qualification remain pending, so this item stays open; earlier proposal wording records the original checkpoint.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [native-windows-current-qualification.json](development/v4.14.0-phase-7-receipts/native-windows-current-qualification.json), [combined-repair-local-qualification.json](development/v4.14.0-phase-7-receipts/combined-repair-local-qualification.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### BG-3: Case-sensitive settings can skip an explicitly selected strict overlay
+
+- **Source phase**: v4.14.0 Phase 7, T025 independent adversarial verification.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md), sub-tasks 6.2 and 7.6.
+- **Owner**: implementation maintainer.
+- **Severity**: high.
+- **Security**: the requested strict deny/ask overlay is absent on the reproduced case-key inputs.
+- **Reason**: Merge-StrictPermissions still uses a case-insensitive JSON object; exact-case core delivery can preserve a lower-case user key and add its documented uppercase key, after which the strict reader warns and skips. Unrelated VAR/var pairs reproduce the same failure. The applied preservation repair does not fix this separate writer.
+- **Evidence**: [the concrete function-only proposal](development/v4.14.0-permission-writer-proposal.md), with 42 fresh native candidate checks across PowerShell 5.1 and 7. The source permission writer remains unchanged pending a live ci-security-change answer.
+- **Acceptance**: the approved actual-tree writer installs all existing shipped deny/ask entries, preserves allow and all user leaves, backs up pre-write bytes, remains idempotent, and refuses malformed roots/parents/lists without a write; both runtimes and the final gate pass.
+- **Suggested next step**: answer the native permission-writer blocker, apply only the reviewed patch after guard/hash checks, add permanent regressions and rerun the actual writer sequence. This item arose during the run and cannot be migrated or silently waived.
+
+**Current recheck**: blocker 2 is answered and its exact patch passed 41 permanent tests per PowerShell runtime, then the affected actual tree passed 368 tests. Final qualification remains pending; the separate duplicate-counter failure is BG-6. The earlier unapproved wording above records the original checkpoint.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [native-windows-current-qualification.json](development/v4.14.0-phase-7-receipts/native-windows-current-qualification.json), [combined-repair-local-qualification.json](development/v4.14.0-phase-7-receipts/combined-repair-local-qualification.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
+
+#### BG-4: Legacy Windows hook writers skip case-distinct JSON
+
+- **Source phase**: v4.14.0 Phase 7, T025 independent adversarial verification.
+- **Plan reference**: [v4.14.0 plan](plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md), sub-tasks 3.3 and 7.6.
+- **Owner**: implementation maintainer.
+- **Severity**: high.
+- **Security**: managed guardrail hooks may remain absent or stale when the legacy reader cannot represent otherwise valid unrelated settings keys.
+- **Reason**: actual Install-GitGuardrails, Install-UsageDisplay and Install-RequireDescription warn and skip on a document with unrelated VAR/var keys. The document is preserved, but the full helper sequence leaves hooks absent. The new exact-case core pair can also encounter this legacy reader on a later upgrade.
+- **Evidence**: independent native sequence reports in retained Temp adversarial-candidate3-d566fe6487bd49f8b9ee3864a0972210; the preservation checks pass while hook application remains explicitly uncovered. No claim of installed hooks is made from those green preservation counts.
+- **Acceptance**: an actual isolated native upgrade preserves unrelated case-distinct/deep data and custom hooks, adds/updates the managed hooks, converts their commands correctly and remains idempotent, with permanent regressions and the full gate passing.
+- **Suggested next step**: repair the JSON round-trip boundary for the legacy hook writers, reuse existing merge behavior and the real converter, and exercise the full sequence before publication. This item arose during the run and cannot be migrated or silently waived.
+
+**Current recheck**: the first root-only projection repair passed its bounded suite but still skipped valid case-distinct metadata inside a custom hook. The applied correction now keeps exact dictionaries through the original hook identity algorithm; its expanded candidate passed 37 native cases per runtime. The applied correction now passes the affected actual-tree suites (394 passed/10 skipped on 5.1; 226 passed on 7). Complete installer and final qualification are still pending.
+
+Resolved in v4.14.0 Phase 7 (2026-10-18). Individual causal repair and native controls: [native-windows-current-qualification.json](development/v4.14.0-phase-7-receipts/native-windows-current-qualification.json), [combined-repair-local-qualification.json](development/v4.14.0-phase-7-receipts/combined-repair-local-qualification.json). Complete retained qualification and final green merged integration satisfy this item's acceptance gates; see [closure evidence](development/v4.14.0-phase-7-receipts/integration-gap-closure.json) and [44 final PR checks plus two post-merge checks](development/v4.14.0-phase-7-receipts/final-hosted-integration.json). The original body above is preserved as historical evidence.
