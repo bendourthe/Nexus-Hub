@@ -8,6 +8,9 @@ import { afterEach, describe, expect, it, vi } from "vitest";
  * status bar, dashboard) the extension makes no filesystem read and starts no
  * process, so it cannot consult git configuration, a repository remote, or
  * the gh CLI's login. Its only filesystem writes go to the state file's folder.
+ * One approved exception (2026-10-19) is injected separately and not wired here:
+ * the Chat model read of one key from the editor's state database, pinned in
+ * currentModel.test.ts.
  */
 const io = vi.hoisted(() => ({ recording: false, fs: [] as string[], childProcess: [] as string[] }));
 

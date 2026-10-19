@@ -4,6 +4,7 @@ import { renderDashboard } from "../src/dashboardPanel";
 import { renderWarning } from "../src/warningView";
 import { METER_FILL_COLOR, type UsageState } from "../src/types";
 import type { UsageSuggestion } from "../src/recommendations";
+import { configuration } from "./vscode-stub";
 
 /**
  * Visual-parity contract with the sibling Claude and Codex monitors.
@@ -99,8 +100,11 @@ describe("hover bars", () => {
 describe("status bar label toggle", () => {
   it("can render without the 'Cursor Usage: ' prefix", () => {
     // compactStatusBar also abbreviates the pool names, so it cannot serve as a
-    // plain "hide the words" switch; this is the dedicated one.
+    // plain "hide the words" switch; this is the dedicated one. It is off by default.
+    expect(buildStatusText(fresh(), false)).not.toContain("Cursor Usage: ");
+    configuration.set("cursorUsage.showStatusBarLabel", true);
     const withLabel = buildStatusText(fresh(), false);
+    configuration.delete("cursorUsage.showStatusBarLabel");
     expect(withLabel).toContain("Cursor Usage: ");
     const compact = buildStatusText(fresh(), true);
     expect(compact).not.toContain("Cursor Usage: ");

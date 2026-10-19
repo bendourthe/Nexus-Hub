@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- The Codex Usage Monitor dashboard shows **Current Model** (the `model` saved in Codex's `config.toml`, else "Codex default") in place of the account **Plan** section.
+- The Copilot and Cursor Usage Monitor dashboards show **Current Model**: Copilot reads the Chat view's model from one key of the editor's state database (`chat.currentLanguageModel.panel`, read-only) and drops its **Plan** line; Cursor reads the selected agent model from its settings record after a live fetch. Cursor's consent prompt lists the new read and asks once more if you had already allowed live usage.
+- The Claude Usage Monitor dashboard now has a **Limit Resets** row, matching the Codex monitor. The Claude usage API still reports no reset count (re-checked 2026-10-19), so the row says so and its **Open reset page** button opens the claude.ai usage page, which lists any reset and its expiry.
+- All five usage monitors start in compact status-bar mode (no "X Usage: " label): `compactStatusBar` defaults to `true` for Claude, Codex, Copilot, and Antigravity, and `cursorUsage.showStatusBarLabel` defaults to `false`. A value you set yourself is kept. Decision record: [`2026-10-19-usage-monitor-dashboard-parity.md`](docs/decisions/implemented/architecture/2026-10-19-usage-monitor-dashboard-parity.md).
+
 ## [4.14.0] - 2026-10-18
 
 ### Added

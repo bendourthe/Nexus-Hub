@@ -43,7 +43,7 @@ import { renderWebviewDocument } from "./webview";
 export class DashboardPanel {
   private panel: vscode.WebviewPanel | undefined;
 
-  public show(state: UsageState): void {
+  public show(state: UsageState, currentModel?: string): void {
     if (this.panel === undefined) {
       this.panel = vscode.window.createWebviewPanel(
         "cursorUsageDashboard",
@@ -83,13 +83,13 @@ export class DashboardPanel {
         }
       );
     }
-    this.panel.webview.html = renderDashboard(state);
+    this.panel.webview.html = renderDashboard(state, Date.now(), undefined, currentModel);
     this.panel.reveal();
   }
 
-  public update(state: UsageState): void {
+  public update(state: UsageState, currentModel?: string): void {
     if (this.panel !== undefined) {
-      this.panel.webview.html = renderDashboard(state);
+      this.panel.webview.html = renderDashboard(state, Date.now(), undefined, currentModel);
     }
   }
 
@@ -102,12 +102,13 @@ export class DashboardPanel {
 export function renderDashboard(
   state: UsageState,
   now = Date.now(),
-  nonce?: string
+  nonce?: string,
+  currentModel?: string
 ): string {
   const body =
     state.state === "empty"
       ? renderEmpty(state.error.message)
-      : renderSnapshot(state, now);
+      : renderSnapshot(state, now, currentModel);
   return renderWebviewDocument({
     body,
     styles: dashboardStyles(),
@@ -180,7 +181,8 @@ function renderEmpty(message: string): string {
 
 function renderSnapshot(
   state: Exclude<UsageState, { state: "empty" }>,
-  now: number
+  now: number,
+  currentModel?: string
 ): string {
   const snapshot = state.data;
   const recommendation = getRecommendation(snapshot);
@@ -208,6 +210,11 @@ function renderSnapshot(
     ${extraCreditsSection(snapshot, now)}
 
     <div class="divider"></div>
+
+    ${currentModel === undefined ? "" : `<div class="section">
+      <h3>Current Model</h3>
+      <div class="model-name">${escapeHtml(currentModel)}</div>
+    </div>`}
 
     <div class="section">
       <h3>Recommendation</h3>
@@ -417,6 +424,7 @@ h3{color:var(--vscode-editor-foreground);margin:0 0 8px 0;font-size:13px;text-tr
 .urgency-high{color:#db6d28}
 .urgency-critical{color:#f85149}
 .suggested-model{margin:4px 0;font-size:13px}
+.model-name{font-size:14px;font-weight:600}
 .tips{padding-left:20px;margin:4px 0}
 .tips li{line-height:1.6;font-size:12px}
 .actions{display:flex;gap:8px;flex-wrap:wrap}

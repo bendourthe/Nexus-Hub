@@ -109,7 +109,7 @@
         },
         "geminiUsage.compactStatusBar": {
           "type": "boolean",
-          "default": false,
+          "default": true,
           "description": "Use a compact status-bar label: '<icon> X% (current) Y% (week)' instead of '<icon> Gemini Usage: X% (current) Y% (week)'."
         },
         "geminiUsage.thresholds.moderate": {

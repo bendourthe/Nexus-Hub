@@ -6,8 +6,38 @@ import {
   parseCodexCredential,
   resolveCodexAuthPath,
   readCodexCredential,
+  readCodexConfiguredModel,
   isSyntheticAccountId,
 } from "../src/providers/codex";
+
+describe("readCodexConfiguredModel", () => {
+  let dir: string;
+  beforeEach(() => {
+    dir = fs.mkdtempSync(path.join(os.tmpdir(), "codex-model-"));
+  });
+  afterEach(() => fs.rmSync(dir, { recursive: true, force: true }));
+
+  function configWith(text: string): string {
+    const file = path.join(dir, "config.toml");
+    fs.writeFileSync(file, text);
+    return file;
+  }
+
+  it("reads the top-level model key, quoted either way, with a trailing comment", () => {
+    expect(readCodexConfiguredModel(configWith('approval = "on-request"\nmodel = "gpt-6.1-sol"\n'))).toBe("gpt-6.1-sol");
+    expect(readCodexConfiguredModel(configWith("model='gpt-5-codex' # picked via /model\r\n"))).toBe("gpt-5-codex");
+  });
+
+  it("ignores a model key inside a table and look-alike keys", () => {
+    expect(readCodexConfiguredModel(configWith('[profiles.fast]\nmodel = "o4-mini"\n'))).toBeUndefined();
+    expect(readCodexConfiguredModel(configWith('model_reasoning_effort = "high"\nmodel_provider = "openai"\n'))).toBeUndefined();
+  });
+
+  it("returns undefined for a missing file or an empty value", () => {
+    expect(readCodexConfiguredModel(path.join(dir, "absent.toml"))).toBeUndefined();
+    expect(readCodexConfiguredModel(configWith('model = ""\n'))).toBeUndefined();
+  });
+});
 
 describe("parseCodexCredential", () => {
   it("parses the nested tokens shape", () => {

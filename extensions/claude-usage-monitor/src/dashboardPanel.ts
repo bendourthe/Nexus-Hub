@@ -218,6 +218,8 @@ export class DashboardPanel {
       </div>
       ` : ""}
 
+      ${resetSection()}
+
       <div class="divider"></div>
 
       <div class="section">
@@ -472,6 +474,20 @@ export class DashboardPanel {
     .empty-state .actions {
       justify-content: center;
     }
+    .reset-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-size: 13px;
+    }
+    .note {
+      font-size: 12px;
+      opacity: 0.8;
+      line-height: 1.4;
+      margin: 6px 0 0 0;
+    }
     ${settingsStylesCss()}
   </style>
 </head>
@@ -552,6 +568,24 @@ export class DashboardPanel {
 function activeSuggestion(data: UsageData): string | null {
   const trigger = pickTriggerMetric(data);
   return trigger ? buildUsageSuggestion(data, trigger)?.message ?? null : null;
+}
+
+/**
+ * The "Limit Resets" row, matching the Codex monitor's placement. The Claude
+ * usage API serves no reset count (re-checked live 2026-10-19), so the row
+ * never claims "available" or "none"; it sends the user to the claude.ai usage
+ * page, which lists any reset with its expiry date. Nothing here uses a reset.
+ */
+function resetSection(): string {
+  return `
+      <div class="section">
+        <h3>Limit Resets</h3>
+        <div class="reset-row">
+          <span>Not reported by the Claude usage API</span>
+          <button data-command="openUsagePage" class="secondary" title="claude.ai lists any reset you hold with its expiry date">Open reset page</button>
+        </div>
+        <p class="note">The claude.ai usage page shows any reset you hold and when it expires. This monitor never uses a reset.</p>
+      </div>`;
 }
 
 function escapeHtml(text: string): string {

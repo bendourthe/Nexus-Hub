@@ -8,7 +8,7 @@ export const CONSENT_STATE_KEY = "cursorUsage.liveTransportConsent";
  * adapter reads MUST bump this value, so a stored "granted" can never silently
  * authorize a larger read than the user actually agreed to.
  */
-export const CONSENT_SCOPE = "state-db-allowlisted-key+usage-json/v1";
+export const CONSENT_SCOPE = "state-db-allowlisted-key+model-key+usage-json/v2";
 
 export const CONSENT_PROMPT_TITLE =
   "Allow Cursor Usage to read your Cursor sign-in for live usage numbers?";
@@ -20,6 +20,7 @@ export const CONSENT_PROMPT_TITLE =
 export const CONSENT_PROMPT_WILL_READ: readonly string[] = [
   "Open Cursor's own application state database on this machine, read-only.",
   "Read one named key from it to reuse the Cursor session you are already signed in to.",
+  "Read Cursor's settings record from it and keep only the name of the agent model you selected, to show on the dashboard.",
   "Send one request to Cursor's own usage endpoint using that session."
 ];
 

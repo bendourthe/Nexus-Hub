@@ -82,14 +82,26 @@ describe("privacy boundary is enforced by the source, not by review", () => {
     }
   });
 
-  it("reads the state database only through the allowlisted-key adapter", () => {
+  it("reads the state database only through the allowlisted-key adapter and the model reader", () => {
     const openers = files.filter((file) =>
       /state\.vscdb|DatabaseSync/.test(readFileSync(file, "utf8"))
     );
-    // Exactly two: the adapter that opens it, and the path resolver that names the
-    // candidate. A third would be a second, unreviewed read path.
+    // Exactly three: the session adapter, the path resolver that names the
+    // candidate, and the selected-model reader (reviewed and approved 2026-10-19).
+    // A fourth would be another, unreviewed read path.
     const names = openers.map((file) => file.split(/[\\/]/).pop()).sort();
-    expect(names).toEqual(["auth.ts", "session.ts"]);
+    expect(names).toEqual(["auth.ts", "currentModel.ts", "session.ts"]);
+  });
+
+  it("lets the model reader ask for one named key, read-only, and nothing else", () => {
+    const reader = readFileSync(join(SRC, "providers", "currentModel.ts"), "utf8");
+    expect(reader).toContain('"SELECT value FROM ItemTable WHERE key = ? LIMIT 1"');
+    expect(reader).toContain("{ readOnly: true }");
+    expect(reader.match(/\.get\(/g)).toHaveLength(1);
+    expect(reader).toContain(".get(MODEL_SETTINGS_KEY)");
+    expect(reader).not.toMatch(/cursorAuth|accessToken|fetch\(/);
+    const disclosure = readFileSync(join(SRC, "providers", DISCLOSURE_FILE), "utf8");
+    expect(disclosure).toContain("keep only the name of the agent model you selected");
   });
 
   it("labels the undocumented route credential-api and never public-api", () => {

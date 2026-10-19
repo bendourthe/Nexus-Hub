@@ -109,7 +109,7 @@
         },
         "claudeUsage.compactStatusBar": {
           "type": "boolean",
-          "default": false,
+          "default": true,
           "description": "Use a compact status-bar label: '<icon> X% (current) Y% (week)' instead of '<icon> Claude Usage: X% (current) Y% (week)'."
         },
         "claudeUsage.thresholds.moderate": {
