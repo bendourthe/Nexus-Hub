@@ -182,7 +182,7 @@ The run is complete only when `python ~/.nexus-hub/scripts/check_plan_completion
 
 ## release scope: run goal
 
-The run ends on the completion checker's tool result: `PLAN COMPLETE` for a plan run or `MINOR COMPLETE` for a minor run. A published release is one required step. Verdicts and continuation authority belong to the completion contract. A missing advisory native goal does not force repeated approval or invalidate an otherwise verified run record.
+The run ends on the completion checker's tool result: `PLAN COMPLETE` for a plan run or `MINOR COMPLETE` for a minor run. A published release is one required step. Verdicts and continuation authority belong to the [completion contract](../skills/workflow/implement-phase/references/completion-contract.md). A missing advisory native goal does not force repeated approval or invalidate an otherwise verified run record.
 
 ## release scope: branch hygiene and repository settings (advisory, before the commit)
 

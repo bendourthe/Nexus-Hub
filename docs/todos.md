@@ -19,6 +19,8 @@ The original Linux installer, Windows edit-recording and other 23 run-introduced
 
 **Hosted follow-up:** PR491 initial extractor/render profiles repeated nine stale lifecycle assertions. All nine reproduced locally; the corrected three-module scope plus related CI lifecycle checks now passes 170 cases in 2.69s, with zero lint errors. Executable source is unchanged; final hosted validation remains required.
 
+**Command contract follow-up:** Five Linux governance assertions reproduced locally. Direct owner links and advisory native-goal guidance now align across implement, update and the final-phase plan template. All 252 cases in fourteen command-contract modules passed in 53.77s; the regenerated 2055-entry manifest and command source passed 17 fast checks in 55.9s. Hosted validation remains required.
+
 **Next:** Integrate the approval/CI correction through develop using the completed split regression qualification, final usage-hook and new fast proof. Adopt only the verified published matched runtime before native admission. Implement compatible plans concurrently; publish and release sequentially.
 
 | Metric | Current | Target |

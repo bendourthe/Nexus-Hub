@@ -49,6 +49,10 @@ V6 passed eight private static/component groups and all five existing private fi
 
 PR491 first-head extractor and rendered-skill jobs both reported the same nine stale lifecycle assertions. Local reproduction confirmed 9 failed and 88 passed in 0.70s. The installer-parity instruction remained a hard gate; its test assumed adjacent words and uppercase spelling. Three test modules now assert the new authorization owner, genuine manual consent, scoped trusted full-access continuation, remote-base diff and commit-count disclosure, unchanged deferred task IDs, and the retained hard multi-installer parity gate. The corrected scope, including related CI lifecycle checks, passed 170 cases in 2.69s with zero Ruff diagnostics in all three changed modules. No executable workflow source changed in this correction; previous source qualification remains applicable. The first assembled publication fast profile passed all 17 checks with no failures, skips or advisories in 187.4s. Final hosted validation remains required.
 
+## Command goal follow-up
+
+The corrected-head Linux governance group reported five stale command assertions, with 3204 passing cases and 68 skips; its other 20 profile commands passed. Local reproduction matched all five (5 failed, 13 passed in 0.20s). The two commands now link directly to their completion-contract owner. The mandatory final-phase template also stops requesting another approval paste for a missing advisory native goal, and respects supported host actions and their authorization. Refactor checks continue to require a proposal and link-integrity proof followed by matching recorded authority or a genuine manual decision. All 252 cases across fourteen identified command-contract modules passed in 53.77s. Both changed Python modules have zero Ruff diagnostics. The updated command source and regenerated manifest passed all 17 fast checks in 55.9s, with zero failures, skips or advisories. The nine native helpers are unchanged, so their retained source qualification remains applicable. Final hosted validation remains required.
+
 ## Current source pins
 
 Observed source snapshot for this qualification:
@@ -66,7 +70,7 @@ Observed source snapshot for this qualification:
 | `scripts/repo_host.py` | `439bbbb5438d2f05ee72e677f03b2428d2fbf4c322088139543026688d557e18` |
 | `catalog/skills/workflow/user-edit-preservation/scripts/edit_guard.py` | `7307222c344feeb1c2194b2698458920a7ff8addf8260f91054c93946d8b48b7` |
 
-The pre-integration source `MANIFEST.sha256` snapshot has 2055 entries and SHA256 `4793aee7a6f84a337378e45cda2627ada665fe89e3f8f95bdcb0db32a8e11771`. It is recorded separately from the source-file hash rows.
+The final command-source `MANIFEST.sha256` snapshot has 2055 entries and SHA256 `4657261d55506b9a6d45fbdd8afc731c0f7e5c704b1e21d1eb87fb7ab3ffa152`. The previous snapshot `4793aee7a6f84a337378e45cda2627ada665fe89e3f8f95bdcb0db32a8e11771` belongs to the earlier qualification above. Manifest hashes are recorded separately from the native source-file rows.
 
 ## Historical cb9 verification
 

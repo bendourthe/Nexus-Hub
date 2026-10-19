@@ -33,7 +33,7 @@ What "done" means is owned by the completion contract (`implement-phase/referenc
 
 ## Run goal
 
-The run ends on the completion checker's tool result: `PLAN COMPLETE` for a plan run and `MINOR COMPLETE` for a minor run, as `check_plan_completion.py check <plan>` or `check_plan_completion.py check-minor vX.Y` prints it. The completion contract owns both verdicts. A native goal tracker is advisory; use the supported host goal action when available, and explain any user-only action once. Missing native goal capture does not require repeated consent or replace the existing recorded run authority.
+The run ends on the completion checker's tool result: `PLAN COMPLETE` for a plan run and `MINOR COMPLETE` for a minor run, as `check_plan_completion.py check <plan>` or `check_plan_completion.py check-minor vX.Y` prints it. The [completion contract](../skills/workflow/implement-phase/references/completion-contract.md) owns both verdicts. A native goal tracker is advisory; use the supported host goal action when available, and explain any user-only action once. Missing native goal capture does not require repeated consent or replace the existing recorded run authority.
 
 ## Delegation
 
