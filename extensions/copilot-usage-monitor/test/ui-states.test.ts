@@ -88,21 +88,22 @@ describe("status bar per account state", () => {
   it.each(STATES)("%s", (_name, make, body) => {
     const mgr = new StatusBarManager(storeWith(make()), "copilot-usage.dashboard");
     mgr.refresh();
-    expect(createdStatusBarItems[0].text).toBe(`$(copilot-icon)\u2002Copilot: ${body}`);
+    expect(createdStatusBarItems[0].text).toBe(`$(copilot-icon)\u2002${body}`);
   });
 
-  it("drops the label in compact mode and shows --% (month) with no data", () => {
-    __setStubConfig("copilotUsage", "compactStatusBar", true);
+  it("is compact by default and shows the label once compact mode is turned off", () => {
     expect(statusText(orgPool("ai-credit-usage.near-limit.synthetic.json"), true)).toBe("$(copilot-icon)\u200299% (month)");
+    __setStubConfig("copilotUsage", "compactStatusBar", false);
+    expect(statusText(orgPool("ai-credit-usage.near-limit.synthetic.json"), false)).toBe("$(copilot-icon)\u2002Copilot: 99% (month)");
     const mgr = new StatusBarManager(storeWith(undefined), "x");
     mgr.refresh();
-    expect(createdStatusBarItems[0].text).toBe("$(copilot-icon)\u2002--% (month)");
+    expect(createdStatusBarItems[0].text).toBe("$(copilot-icon)\u2002Copilot: --% (month)");
   });
 
   it("shows --% (month) for the member state, and the hover explains Connect", () => {
     const mgr = new StatusBarManager(storeWith(businessMember()), "x");
     mgr.refresh();
-    expect(createdStatusBarItems[0].text).toBe("$(copilot-icon)\u2002Copilot: --% (month)");
+    expect(createdStatusBarItems[0].text).toBe("$(copilot-icon)\u2002--% (month)");
     const tooltip = (createdStatusBarItems[0].tooltip as { value: string }).value;
     expect(tooltip).toContain("Copilot Business: --% (month)");
     expect(tooltip).toContain(NOT_CONNECTED_HINT);
@@ -197,10 +198,11 @@ describe("status bar per account state", () => {
 });
 
 describe("dashboard per account state", () => {
-  it("personal Copilot Free: plan name and one teal bar per served quota", () => {
+  it("personal Copilot Free: one teal bar per served quota and no Plan section", () => {
     const { html } = dashboard(personalFree());
     expect(html).toContain("<h2>Copilot Usage Dashboard</h2>");
-    expect(html).toContain('<div class="model-name">Copilot Free</div>');
+    expect(html).not.toContain("<h3>Plan</h3>");
+    expect(html).not.toContain("Current Model");
     expect(html).toContain("<h3>Chat</h3>");
     expect(html).toContain("<h3>Code completions</h3>");
     expect(html).toContain("0% (month)");
@@ -229,7 +231,15 @@ describe("dashboard per account state", () => {
     expect(html).toContain("rounds its headline to whole credits");
     expect(html).toContain("Covers this organization only.");
     expect(html).toContain("Auto: GPT-6 Luna: <1% of the pool");
-    expect(html.indexOf("Organization Pool")).toBeLessThan(html.indexOf("Copilot Free"));
+    expect(html.indexOf("Organization Pool")).toBeLessThan(html.indexOf("<h3>Chat</h3>"));
+  });
+
+  it("shows the Chat view's model as Current Model after the divider, escaped", () => {
+    const { html } = dashboard({ ...personalFree(), currentModel: "claude-opus-5.5" });
+    expect(html).toContain('<h3>Current Model</h3>\n        <div class="model-name">claude-opus-5.5</div>');
+    expect(html.indexOf("<h3>Chat</h3>")).toBeLessThan(html.indexOf("<h3>Current Model</h3>"));
+    expect(html.indexOf("<h3>Current Model</h3>")).toBeLessThan(html.indexOf("<h3>Recommendation</h3>"));
+    expect(dashboard({ ...personalFree(), currentModel: "a<b" }).html).toContain("a&lt;b");
   });
 
   it("near the limit and exhausted: the percentage and a critical recommendation", () => {
@@ -276,7 +286,7 @@ describe("dashboard per account state", () => {
     const access = { ...personalFree(), organizationError: { code: "org-access-denied", statusCode: 403 } };
     const html = dashboard(access).html;
     expect(html).toContain("Only an organization owner can read the shared pool");
-    expect(html).toContain("Copilot Free");
+    expect(html).toContain("<h3>Chat</h3>");
     const rejected = { ...personalFree(), organizationError: { code: "org-token-rejected", statusCode: 401 } };
     expect(dashboard(rejected).html).toContain('data-command="connectOrganization" class="retry-btn">Reconnect');
     const partialPersonal = { ...orgPool("ai-credit-usage.json"), personal: undefined, personalError: { code: "choose-account" } };

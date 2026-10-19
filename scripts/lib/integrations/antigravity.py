@@ -351,9 +351,18 @@ class Antigravity20Integration(MarkdownIntegration, SkillsIntegration):
         for cfg_key, src_rel in catalog_trees:
             subdir = self.config.get(cfg_key)
             if subdir:
-                actions.append(
-                    self._copy_tree(ctx.repo_root / src_rel, root / subdir, ctx, self.key)
-                )
+                if cfg_key == "agents_subdir":
+                    from ._catalog_adapters import agents_dropping_keys
+
+                    actions.extend(
+                        agents_dropping_keys(
+                            ctx, self.key, ctx.repo_root / src_rel, root / subdir, ("model",)
+                        )
+                    )
+                else:
+                    actions.append(
+                        self._copy_tree(ctx.repo_root / src_rel, root / subdir, ctx, self.key)
+                    )
         # Gate the bespoke hooks.json + script install on the declared
         # capability (`hooks_supported`), mirroring the base-class gate so a
         # platform's hook support is declared in exactly one place. Antigravity

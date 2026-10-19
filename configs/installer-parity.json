@@ -95,6 +95,7 @@
     {"posix": ["doctor_check_surface"], "windows": ["Test-DoctorSurface"], "reason": "Doctor surface assertion."},
     {"posix": ["run_doctor"], "windows": ["Invoke-NexusDoctor"], "reason": "Doctor command flow."},
     {"posix": [], "windows": ["Restore-Title"], "reason": "PowerShell restores the host window title; Bash writes a terminal title escape without a restorable host API."},
+    {"posix": [], "windows": ["Read-JsonDocument"], "reason": "PowerShell needs an exact-case JSON reader without date inference on Windows PowerShell 5.1 and Core; Bash uses jq or Python readers at the same settings boundaries."},
     {"posix": [], "windows": ["Write-JsonFile"], "reason": "PowerShell needs a BOM-less JSON writer; Bash delegates JSON mutation to jq or Python helpers."},
     {"posix": [], "windows": ["Show-FarewellBanner"], "reason": "PowerShell factors the closing text into a function while Bash emits it inline."}
   ],

@@ -1,0 +1,372 @@
+{
+  "observed_utc": "2026-10-18T04:59:08.133505+00:00",
+  "qualification": "Final local source qualification. Green merged integration remains required; this is not release or minor completion.",
+  "full": {
+    "observed_utc": "2026-10-18T03:02:50.700Z",
+    "profile": "full",
+    "scope": "Unfiltered default full profile, no --base or --only; explicit-only groups qualified separately",
+    "started_at": "2026-10-17T23:47:20Z",
+    "finished_at": "2026-10-18T03:00:38Z",
+    "duration_s": 11597.609999999986,
+    "passed_commands": 65,
+    "failed_commands": 0,
+    "summary_sha256": "9612b42f765bccd6cdb10ca8a104e0a2f66bcc5a9c1688cbc17d5e6a7336a031",
+    "pytest_commands": 21,
+    "pytest_passing_executions": 12141,
+    "pytest_skips": 88,
+    "unique_test_count_claim": false,
+    "pytest_results": [
+      {
+        "name": "instruction-contracts",
+        "passed": 36,
+        "skipped": 0,
+        "duration_s": 7.437999999994645,
+        "summary": "36 passed in 6.32s"
+      },
+      {
+        "name": "hook-tests",
+        "passed": 2588,
+        "skipped": 0,
+        "duration_s": 1983.2660000000033,
+        "summary": "2588 passed in 1982.03s (0:33:02)"
+      },
+      {
+        "name": "repo-tests-skills",
+        "passed": 2418,
+        "skipped": 19,
+        "duration_s": 827.9530000000086,
+        "summary": "2418 passed, 19 skipped in 824.91s (0:13:44)"
+      },
+      {
+        "name": "repo-tests-installer",
+        "passed": 799,
+        "skipped": 34,
+        "duration_s": 870.609999999986,
+        "summary": "799 passed, 34 skipped in 867.86s (0:14:27)"
+      },
+      {
+        "name": "repo-tests-integrations-platform-a",
+        "passed": 128,
+        "skipped": 0,
+        "duration_s": 340.31200000000536,
+        "summary": "128 passed in 337.80s (0:05:37)"
+      },
+      {
+        "name": "repo-tests-integrations-platform-b",
+        "passed": 247,
+        "skipped": 2,
+        "duration_s": 200.64100000000326,
+        "summary": "247 passed, 2 skipped in 199.55s (0:03:19)"
+      },
+      {
+        "name": "repo-tests-integrations-adapter-contracts",
+        "passed": 211,
+        "skipped": 2,
+        "duration_s": 1434.1399999999849,
+        "summary": "211 passed, 2 skipped in 1433.00s (0:23:52)"
+      },
+      {
+        "name": "repo-tests-integrations-repository-contracts",
+        "passed": 55,
+        "skipped": 0,
+        "duration_s": 76.39100000000326,
+        "summary": "55 passed in 72.96s (0:01:12)"
+      },
+      {
+        "name": "repo-tests-integrations-install",
+        "passed": 264,
+        "skipped": 2,
+        "duration_s": 404.15600000001723,
+        "summary": "264 passed, 2 skipped in 402.42s (0:06:42)"
+      },
+      {
+        "name": "repo-tests-integrations-lifecycle",
+        "passed": 145,
+        "skipped": 2,
+        "duration_s": 254.75,
+        "summary": "145 passed, 2 skipped in 251.24s (0:04:11)"
+      },
+      {
+        "name": "repo-tests-integrations-map",
+        "passed": 4,
+        "skipped": 0,
+        "duration_s": 8.296999999991385,
+        "summary": "4 passed in 7.07s"
+      },
+      {
+        "name": "repo-tests-plans",
+        "passed": 94,
+        "skipped": 0,
+        "duration_s": 22.578000000008615,
+        "summary": "94 passed in 21.51s"
+      },
+      {
+        "name": "repo-tests-ci",
+        "passed": 205,
+        "skipped": 0,
+        "duration_s": 54.640999999974156,
+        "summary": "205 passed in 51.71s"
+      },
+      {
+        "name": "repo-tests-guides",
+        "passed": 998,
+        "skipped": 1,
+        "duration_s": 1622.9840000000258,
+        "summary": "998 passed, 1 skipped in 1621.69s (0:27:01)"
+      },
+      {
+        "name": "repo-tests-governance",
+        "passed": 3116,
+        "skipped": 22,
+        "duration_s": 3339.405999999988,
+        "summary": "3116 passed, 22 skipped in 3336.13s (0:55:36)"
+      },
+      {
+        "name": "skill-server",
+        "passed": 43,
+        "skipped": 0,
+        "duration_s": 6.01600000000326,
+        "summary": "43 passed in 3.78s"
+      },
+      {
+        "name": "code-search",
+        "passed": 384,
+        "skipped": 1,
+        "duration_s": 54.514999999984866,
+        "summary": "384 passed, 1 skipped in 53.42s"
+      },
+      {
+        "name": "web-fetch",
+        "passed": 29,
+        "skipped": 0,
+        "duration_s": 3.172000000020489,
+        "summary": "29 passed in 2.18s"
+      },
+      {
+        "name": "skill-scanner",
+        "passed": 89,
+        "skipped": 0,
+        "duration_s": 33.030999999988126,
+        "summary": "89 passed in 32.36s"
+      },
+      {
+        "name": "context-compressor",
+        "passed": 235,
+        "skipped": 2,
+        "duration_s": 3.3289999999979045,
+        "summary": "235 passed, 2 skipped in 2.30s"
+      },
+      {
+        "name": "memory",
+        "passed": 53,
+        "skipped": 1,
+        "duration_s": 19.828000000008615,
+        "summary": "53 passed, 1 skipped in 18.94s"
+      }
+    ],
+    "platform_status": "Complete supported Windows profile:12/12 pass",
+    "source_comparison_status": "8268/8268 unchanged; repeated after monitors and real Chromium cases",
+    "profile_source_sha256": "1a6363070e4e0f7c5dc98c35079aa6563ef2c04824b433d5720f145ecc7c3f78"
+  },
+  "windows": {
+    "observed_utc": "2026-10-18T04:45:17.771Z",
+    "profile": "platform",
+    "host": "windows",
+    "started_at": "2026-10-18T03:00:43Z",
+    "finished_at": "2026-10-18T04:42:48Z",
+    "duration_s": 6124.437000000005,
+    "command_statuses": {
+      "pass": 12
+    },
+    "summary_sha256": "120ce35e2b0b9c8aac52b74de27773a1ef31bb81e2816e5e80021d8677278d6d",
+    "pytest_commands": 8,
+    "pytest_passing_executions": 7233,
+    "pytest_skips": 59,
+    "unique_test_count_claim": false,
+    "pytest_results": [
+      {
+        "name": "hook-tests (Windows PowerShell 5.1)",
+        "passed": 2588,
+        "skipped": 0,
+        "duration_s": 1781.0629999999946,
+        "summary": "2588 passed in 1779.61s (0:29:39)"
+      },
+      {
+        "name": "Git attribution (Windows)",
+        "passed": 47,
+        "skipped": 1,
+        "duration_s": 440.81200000000536,
+        "summary": "47 passed, 1 skipped in 438.56s (0:07:18)"
+      },
+      {
+        "name": "security-audit evidence (Windows)",
+        "passed": 466,
+        "skipped": 10,
+        "duration_s": 201.15700000000652,
+        "summary": "466 passed, 10 skipped in 199.98s (0:03:19)"
+      },
+      {
+        "name": "native integrations (Windows)",
+        "passed": 269,
+        "skipped": 2,
+        "duration_s": 108.68700000000536,
+        "summary": "269 passed, 2 skipped in 106.89s (0:01:46)"
+      },
+      {
+        "name": "installer (Windows)",
+        "passed": 789,
+        "skipped": 44,
+        "duration_s": 692.9059999999881,
+        "summary": "789 passed, 44 skipped in 691.58s (0:11:31)"
+      },
+      {
+        "name": "validators a-c (Windows)",
+        "passed": 874,
+        "skipped": 1,
+        "duration_s": 1014.75,
+        "summary": "874 passed, 1 skipped in 1013.59s (0:16:53)"
+      },
+      {
+        "name": "validators co-z (Windows)",
+        "passed": 1905,
+        "skipped": 1,
+        "duration_s": 1477.4220000000205,
+        "summary": "1905 passed, 1 skipped in 1475.75s (0:24:35)"
+      },
+      {
+        "name": "installer JSON and hook boundaries (PowerShell 7)",
+        "passed": 295,
+        "skipped": 0,
+        "duration_s": 374.2809999999881,
+        "summary": "295 passed in 371.61s (0:06:11)"
+      }
+    ],
+    "shell_lint": "Windows-inapplicable group; not claimed as Bash qualification",
+    "profile_source_sha256": "1a6363070e4e0f7c5dc98c35079aa6563ef2c04824b433d5720f145ecc7c3f78"
+  },
+  "post_gate": {
+    "observed_utc": "2026-10-18T04:51:38.709395+00:00",
+    "monitor_exit": 0,
+    "monitor_commands": 14,
+    "monitor_all_pass": true,
+    "monitor_summary_sha256": "b6cb05a38f2be6d4b240f3cb1f97797a3b1bcd686e4335782287487ed15c2adc",
+    "guide_exit": 0,
+    "guide_counts": {
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "guide_all_pass": true,
+    "guide_xml_sha256": "c032a9d10a289671b0e988379c2177dffbcde8a2af61f0dbeaab07b679587ee5",
+    "require_render": true,
+    "source_before_count": 8268,
+    "source_after_count": 8268,
+    "changed": [],
+    "missing": [],
+    "new": [],
+    "source_unchanged": true,
+    "new_guard_accepts": 0,
+    "duration_seconds": 306.18799999999464
+  },
+  "source_comparison": {
+    "observed_utc": "2026-10-18T04:45:14.194504+00:00",
+    "before_count": 8268,
+    "after_count": 8268,
+    "changed": [],
+    "missing": [],
+    "new": [],
+    "unchanged": true
+  },
+  "coverage": {
+    "package": "scripts.ci",
+    "covered_lines": 704,
+    "valid_lines": 807,
+    "line_percent": 87.24,
+    "branches_measured": false,
+    "sha256": "83ad417cc9f02c095f3fdb68dfb5181a764ea7c133d047fab2718233c2c77e62",
+    "whole_project_claim": false,
+    "validator_subprocess_claim": false
+  },
+  "architecture_delta": {
+    "existing_scan": "architecture-current.json",
+    "current_changed_regular_files": 282,
+    "added_since_scan": [
+      "catalog/hooks/tests/conftest.py",
+      "catalog/hooks/tests/test_git_environment_isolation.py",
+      "catalog/skills/specialized-domains/document-to-interactive-html/scripts/dual_view.py",
+      "docs/handbooks/_sources/overview/evidence.json",
+      "docs/handbooks/overview.html",
+      "docs/handbooks/overview.html.build.json",
+      "docs/releases/v4/v4.14/development/history/v4.14.0-phase-7.md",
+      "docs/releases/v4/v4.14/development/v4.14.0-native-hook-budget-proposal.md",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ADVERSARIAL-REPORT.md",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/adversarial-current.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/architecture-current.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/combined-repair-local-qualification.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/distribution-null-hook-build-checks.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/distribution-null-hook-claim-review.md",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/final-local-profiles-v5.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/git-fixture-eof-followup.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/git-fixture-isolation-applied.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/handbook-browser-after-skills-repair.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/handbook-build-after-skills-repair.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/handbook-check-after-null-hook-repair.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/handbook-check-after-skills-repair.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/handbook-claims-after-skills-repair.md",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/handbook-skills-repair-contact-sheet.png",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/independent-goal-convergence.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/native-hook-budget-applied.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/native-hook-budget-candidate.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/native-hook-budget.patch",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/native-hook-serial-diagnostic.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/native-integrity-recovery.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/native-windows-current-qualification.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/node22-monitor-profile.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/offline-final-profile.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/offline-policy-correction-applied.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/qualification-metadata-cleanup.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/skills-repair-applied.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/verification-lockfile-recovery.json",
+      "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/verification-runtime-selection.json",
+      "extensions/nexus-code-search/tests/test_offline_policy.py",
+      "guides/website/nexus-hub-guide.html",
+      "tests/conftest.py",
+      "tests/installer/test_init_subcommand.py",
+      "tests/installer/test_installer_stage_cleanup.py",
+      "tests/installer/test_managed_hook_upgrade.py",
+      "tests/installer/test_selection_parity.py",
+      "tests/installer/test_workspace_install_output.py",
+      "tests/integrations/test_windows_long_paths.py",
+      "tests/skills/test_installer_parity_lifecycle.py",
+      "tests/skills/test_presentify_dual_view_build.py",
+      "tests/skills/test_presentify_dual_view_distribution.py",
+      "tests/validators/test_check_doc_colocation.py",
+      "tests/validators/test_ci_workflow_contract.py",
+      "tests/validators/test_no_console_window.py"
+    ],
+    "classification": "See architecture-final-v6.json for current complete changed scope, placements, intentional duplication and inherited independent complexity review."
+  },
+  "hygiene": {
+    "command": "python scripts/check_release_preconditions.py --branches --repo-settings",
+    "exit_code": 0,
+    "report_only": true,
+    "cleanup_candidates": [
+      "feat/presentify-flyover"
+    ],
+    "kept": [
+      "protected develop/main",
+      "unmerged current feature worktree",
+      "unrelated open-PR sandbox worktree/branch"
+    ],
+    "delete_branch_on_merge": true,
+    "description_matches_readme": true
+  },
+  "deep_pass_counter": "3/3 unchanged",
+  "new_guard_accepts": 0,
+  "pending": [
+    "Green merge-result required checks",
+    "Green merged integration",
+    "Release and verified cleanup"
+  ]
+}

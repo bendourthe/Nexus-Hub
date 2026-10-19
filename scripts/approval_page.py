@@ -81,7 +81,7 @@ GOAL_CAPTURE: dict[str, tuple[str, bool]] = {
 # Page headings, in order. approval-page.md lists the same headings; a test asserts
 # the two agree. Everything a reader must see sits above DETAILS; the plain-language
 # checks (banned terms, sentence length, word budget) apply only there.
-SECTIONS = ("Summary", "To approve, paste this", "Details (optional)")
+SECTIONS = ("Summary", "Decision", "Details (optional)")
 DETAIL_SECTIONS = (
     "What you are approving",
     "Phases",
@@ -493,6 +493,10 @@ def _approvals(page: dict, minor: bool, releases: list[str], target: str) -> lis
         raise PageError("the page lists no approval class")
     lines = ["Your paste allows each of these without asking again:"]
     lines += [f"- {_approval_line(page, n, e, minor, releases, target)}" for n, e in names.items()]
+    if page.get('autonomy'):
+        lines += ['Trusted full access continues covered actions without another permission request.',
+                  'Changed destinations, failed verification and user edits remain unresolved until addressed.',
+                  'The exact policy and planned paths are quoted in Details below.']
     return lines
 
 
@@ -656,7 +660,9 @@ def _summary(page: dict, display: dict, releases: list[str], minor: bool, target
             f"{_hours(v)} {k}" for k, v in hours.items())))
     rows.append(("In parallel", _parallel(display)))
     caps = _caps(page)
-    if caps:
+    if (page.get('autonomy') or {}).get('planned_actions'):
+        never = '**Another decision is required for actions outside the displayed scope and paid use beyond the recorded caps. Unresolved failures and changed user files still require their own evidence or decision.**'
+    elif caps:
         never = f"**Never without asking you: changes to CI, permissions, or secrets, or paid API use beyond {_joined(caps)}.**"
     else:
         never = "**Never without asking you: changes to CI, permissions, or secrets, and any paid API use.**"
@@ -765,6 +771,8 @@ def _details(page: dict, display: dict) -> list[str]:
     for excluded in page.get("excluded") or []:
         if isinstance(excluded, dict):
             rows.append(f"not included: {quoted(excluded.get('version', ''))} ({quoted(excluded.get('reason', ''))})")
+    if page.get('autonomy'):
+        rows.append('Approved-plan policy: ' + quoted(json.dumps(page['autonomy'], sort_keys=True)))
     return ["```text", *(rows or ["none"]), "```"]
 
 
@@ -777,6 +785,14 @@ def _action_page(data: dict, paste: PasteSet) -> str:
     scope = data["scope"]
     verb = {"answer": "continue past the blocker", "pause": "pause", "resume": "resume", "retire": "retire the run record"}[action]
     out = _section("What this will do", [f"This will {verb} for /implement {scope}.", "Nothing else changes."])
+    detail = data.get('page', {}).get('blocker') or {}
+    if detail:
+        out += _section('Decision details', [
+            'Requested action: ' + quoted(detail.get('purpose') or detail.get('category') or 'Continue the displayed work'),
+            'Reason: ' + quoted(detail.get('why') or 'This action needs a decision before work continues.'),
+            'Scope: ' + quoted(json.dumps(detail.get('request') or {}, sort_keys=True)),
+            'Decline leaves this action unapproved; no authority or completion predicate changes.',
+        ])
     out += _section("To approve, paste this line",
                     ["Paste this line as your whole message, with nothing added.", "", "```text", paste.lines[0], "```"])
     return "\n".join(out).rstrip() + "\n"
@@ -809,7 +825,9 @@ def render_page(data: dict) -> str:
     ]
     out = _section(SECTIONS[0], _summary(page, display, releases, minor, target))
     pasted = _paste_section(paste)
-    _assert_plain(pasted, "paste section")
+    # Only the verified template field contains an opaque approval code.
+    plain_paste = [line.replace(f"(approval {code})", "(approval AAAAAAAA)") for line in pasted]
+    _assert_plain(plain_paste, "paste section")
     out += _section(SECTIONS[1], pasted)
     out += [f"## {SECTIONS[2]}", ""]
     for title, body in zip(DETAIL_SECTIONS, details):
@@ -834,10 +852,48 @@ def render_data(pending: dict, *, scope: str, blocker: int | None, display: dict
         "blocker": blocker,
         "platform": pending.get("platform"),
         "shape": pending.get("shape"),
+        "challenge": pending['nonce'],
+        "allow_short_reply": pending.get('allow_short_reply', False),
         "paste": list(pending["paste_lines"]),
         "page": pending["page"],
         "display": display or {},
     }
+
+
+
+def question_data(data: dict) -> dict:
+    """Question-tool input is descriptive, never an invented host approval callback."""
+    action = data['action']
+    scope = data['scope']
+    effect = {
+        'create': 'Start the displayed plan and carry out its listed approvals',
+        'pause': 'Pause this run until you choose to resume it',
+        'resume': 'Resume this run in the current session',
+        'retire': 'Retire this run record and its authority',
+    }.get(action)
+    blocker = data.get('page', {}).get('blocker') or {}
+    if action == 'answer':
+        effect = {
+            'approval-not-covered': 'Allow the displayed action that needs your decision',
+            'ci-security-change': 'Allow the displayed pipeline or security change',
+            'user-edit-guard': 'Allow work to continue after reviewing the changed file',
+            'destructive-outside-approval': 'Allow the displayed destructive action',
+            'unreproducible-red-check': 'Decide whether work may continue after the reported failed check',
+            'platform-unavailable': 'Continue after the reported platform availability issue',
+            'no-progress': 'Continue the reported stalled work',
+            'record-tampered': 'Review the run integrity problem before continuing',
+        }.get(blocker.get('category'), 'Review the displayed issue before continuing')
+    question = f'{effect} for {scope}?'
+    return {'header': 'Approval', 'question': question, 'challenge': data['challenge'],
+            'options': [{'label': 'Approve', 'description': 'Continue only with the displayed scope.'},
+                        {'label': 'Decline', 'description': 'Leave the pending action unapproved.'}],
+            'review_page': render_page(data).replace('To approve, paste this line', 'Compatibility paste option').replace('Paste this line as your whole message, with nothing added.', 'For the primary decision, reply Approve, Yes or Continue. Decline leaves the action unapproved.'),
+            'action_scope': blocker.get('request') or {},
+            'purpose': blocker.get('purpose'), 'why': blocker.get('why'),
+            'capture': {'direct_question_callback_supported': False,
+                        'fallback': 'Reply Approve, Yes or Continue as your whole message in this session.',
+                        'requires_genuine_prompt_submit': True},
+            'compatibility_paste': data['paste']}
 
 
 def emit(data: dict, mode: str) -> int:
@@ -845,6 +901,9 @@ def emit(data: dict, mode: str) -> int:
 
     Returns 0, or 2 after reporting a PageError with nothing on stdout.
     """
+    if mode == 'question':
+        print(json.dumps(question_data(data), sort_keys=True))
+        return 0
     if mode == "json":
         print(json.dumps(data, sort_keys=True))
         return 0

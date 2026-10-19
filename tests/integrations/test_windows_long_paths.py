@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import os
+import stat
 import subprocess
 import sys
 from copy import deepcopy
@@ -354,7 +355,7 @@ def test_deep_base_teardown_removes_a_junction_without_touching_its_target(insta
     sentinel.write_bytes(b"keep junction target\n")
     junction = _root_of_length(install_ctx.target_root, 268) / "owned-junction"
     _winapi.CreateJunction(str(outside), str(long_path(junction)))
-    assert long_path(junction).is_junction()
+    assert long_path(junction).lstat().st_reparse_tag == stat.IO_REPARSE_TAG_MOUNT_POINT
     install_ctx.manifest.track("antigravity", str(junction))
 
     result = IntegrationBase.teardown(get_integration("antigravity"), install_ctx)

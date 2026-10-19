@@ -13,10 +13,10 @@ This is a thin dispatcher over the retained `implement-phase` skill. The full pe
 `/implement` is argument-driven, not menu-driven - it infers what to do from the positional arguments:
 
 - `/implement <plan>` - run the WHOLE plan (the full driver). `<plan>` is a slug, a plan file path, a plan name, or a `vX.Y.Z` version. Every incomplete phase runs in order with a local commit at each boundary; the fail-closed last phase publishes and integrates once, then the release and cleanup follow under the approvals recorded at the start.
-- `/implement vX.Y` - run every member plan of that minor (for example `v0.5`), in semantic-version order, under one approval. A `vX.Y.Z` token still names one plan. The members are what `python ~/.nexus-hub/scripts/check_plan_completion.py members vX.Y` prints; the membership rule and the minor run record are owned by the completion contract. With no member the command prints `No queued plans in vX.Y` and starts nothing. A malformed minor token (`v0.5.x`, `v0`) or a per-plan mode token after a minor (`phase <N>`, `next`, `phase-by-phase`) prints usage and starts nothing, because those modes belong to one plan.
+- `/implement vX.Y` - run every member plan of that minor (for example `v0.5`) under one approval: automatically implement compatible members concurrently, then publish and release in semantic-version order. A `vX.Y.Z` token still names one plan. The members are what `python ~/.nexus-hub/scripts/check_plan_completion.py members vX.Y` prints; the membership rule and the minor run record are owned by the completion contract. With no member the command prints `No queued plans in vX.Y` and starts nothing. A malformed minor token (`v0.5.x`, `v0`) or a per-plan mode token after a minor (`phase <N>`, `next`, `phase-by-phase`) prints usage and starts nothing, because those modes belong to one plan.
 - `/implement` (bare) - the same full driver on the next plan: the lowest `Status: queued` plan by semantic version whose queued predecessors are merged. The resolved plan is the first line of the upfront round; when two plans qualify or the order is unclear, ask.
 - `/implement <plan> phase <N>` (also `phase-N` or `"Phase Name"`) - run exactly one phase, with the per-phase confirmation and commit prompt.
-- `/implement <plan> next` - run one phase: the first not yet marked complete.
+- `/implement <plan> next` - run one phase: the first still needing implementation or focused verification. Use the runbook's deferred-final-validation rule; pending comprehensive test tasks stay unchecked.
 - `/implement <plan> phase-by-phase` - the full loop, but after each non-final phase wait with: (1) commit and continue; (2) commit and pause; (3) other. There is no push option: a non-final phase is commit-only.
 - `/implement <plan> full` and `in-full` - accepted aliases for the default.
 - `/implement pause` - pause the current run at the next safe point. User-only: the pause must come from the user's own prompt (the pause line the checker prints, pasted by the user), is always honored, and the run resumes with `/implement <plan>`.
@@ -27,13 +27,13 @@ Pass every resolved value (plan path, phase identifier, driver mode, remaining a
 
 ## Upfront round and completion (guarantee)
 
-A full run asks once. Before the first phase, `/implement` presents one round (under the active template's `Consequential Decisions` rule) listing every approval the run will need as exact values: the resolved plan, push and merge, the release version with its tag and publication, the release pull requests and back-merge for that version, re-pushes after a locally reproduced fix (up to 3), generated release notes, refactor moves inside plan-touched folders, spend caps, the gap types the user allows to be deferred, and each "Ask first" surface the plan names. The answers are frozen in a run record outside the working tree by `python ~/.nexus-hub/scripts/check_plan_completion.py record create`, and only after the user pastes, as their whole reply, the line that `record render` printed for the page (the completion contract's Approval origin section owns this rule). No approval recorded there is asked again. Nothing is recorded until that command prints `RECORDED`: where it cannot (a platform with no prompt-submit capture), each push, merge, and release asks at its own point. CI workflow, permission, and secret changes are never approvable in advance; they always stop the run as a named blocker.
+A full run obtains one genuine initial plan approval, then follows the completion contract's "Authorization policy" and "Approval origin" sections. The upfront page names the plan, repository, branches, releases, cleanup, spend caps, exclusions and bounded corrections. Retain a trusted host permission signal only through native capture. When the contract verifies automatic continuation within that signed scope, proceed without another consent prompt; otherwise present the concrete manual decision through the same contract. Repeated observation of an unchanged blocker reuses its pending decision. A consent decision never substitutes for passing checks, preserved user edits or a verified destination.
 
 What "done" means is owned by the completion contract (`implement-phase/references/completion-contract.md`) and decided by the plan-completion checker (`python ~/.nexus-hub/scripts/check_plan_completion.py`, installed with Nexus-Hub); this command does not restate it. On platforms that support it, a turn-end gate and the `nexus-hub run-plan` runner keep the run going until the checker's verdict is terminal. Context pressure is handled by compaction and the runner, not by stopping.
 
 ## Run goal
 
-The run ends on the completion checker's tool result: `PLAN COMPLETE` for a plan run and `MINOR COMPLETE` for a minor run, as `check_plan_completion.py check <plan>` or `check_plan_completion.py check-minor vX.Y` prints it. What each verdict requires is owned by the completion contract (`implement-phase/references/completion-contract.md`). The native goal should already be set by the user's approval paste. If it is missing in an interactive session, ask the user to paste the printed goal line again, because an agent cannot set it. `nexus-hub run-plan` is the only fully automatic path.
+The run ends on the completion checker's tool result: `PLAN COMPLETE` for a plan run and `MINOR COMPLETE` for a minor run, as `check_plan_completion.py check <plan>` or `check_plan_completion.py check-minor vX.Y` prints it. The [completion contract](../skills/workflow/implement-phase/references/completion-contract.md) owns both verdicts. A native goal tracker is advisory; use the supported host goal action when available, and explain any user-only action once. Missing native goal capture does not require repeated consent or replace the existing recorded run authority.
 
 ## Delegation
 
@@ -41,7 +41,7 @@ Dispatch to the retained skill:
 
       (any invocation) -> implement-phase
 
-The skill runs its full sequence: plan + phase resolution, pre-implementation review, subtask-by-subtask implementation, lint and format, test execution with coverage, test augmentation, the troubleshooting loop, the GO / NO-GO quality gate, and the post-phase completion sequence (gitignore, test review, CI-impact record, known-gaps update, docs cleanup audit, devlog, documentation, session history, commit message, and the commit prompt).
+The skill runs its full sequence: plan + phase resolution, pre-implementation review, subtask-by-subtask implementation, lint and format, focused test execution during implementation, final-plan coverage and test augmentation, the troubleshooting loop, the GO / NO-GO quality gate, and the post-phase completion sequence (gitignore, test review, CI-impact record, known-gaps update, docs cleanup audit, devlog, documentation, session history, commit message, and the commit prompt).
 
 ## Per-phase model-routing pre-flight (graceful degradation)
 
@@ -49,11 +49,11 @@ Before the subtask-by-subtask implementation step begins for a phase, `/implemen
 
 - **Read the plan's recommendation.** Read the target phase's `**Recommended model tier**`, `**Recommended effort level**`, and `**Rationale**` fields plus the matching two glance columns. Read `## Current model map` to resolve the concrete model for the user's selected provider. For historical plans, continue accepting the legacy `**Recommended model**` and `Rec. model / effort` fields.
 - **Refresh and re-assess.** When web access is available, refresh the four-provider candidate from official sources, validate and render it through `model-routing/scripts/model-map.{sh,ps1}`, then invoke `[[model-routing]]` to re-score the phase and enumerate the selected provider's live platform surface. When offline, use the helper's validated dated fallback. This lets a plan written before a model release pick up the newer equivalent without changing its generic intent.
-- **Apply the confirm-then-auto-execute posture on agreement.** If the re-assessment agrees with the plan, present the recommendation and, on approval, act per the platform tier - execute the switch on scriptable platforms (Codex, Antigravity `agy`, Gemini CLI), print the exact `/model` + `/effort` keystroke on Claude Code, or print the picker instruction on Cursor / Copilot / OpenCode.
-- **Surface the delta on disagreement, defaulting up.** If the re-assessment disagrees (for example, the phase scores higher than planned or the mapped model is unavailable), surface the delta and ask which to use, defaulting to the same or stronger tier (the no-degradation guarantee).
+- **Apply recorded authority on agreement.** If the re-assessment agrees with the plan, present the recommendation, verify authority through the completion contract, and act per the platform tier - execute the switch on scriptable platforms (Codex, Antigravity `agy`, Gemini CLI), print the exact `/model` + `/effort` keystroke on Claude Code, or print the picker instruction on Cursor / Copilot / OpenCode.
+- **Surface the delta on disagreement, defaulting up.** If the re-assessment disagrees (for example, the phase scores higher than planned or the mapped model is unavailable), surface the delta and apply the completion contract's authorization policy, defaulting to the same or stronger tier (the no-degradation guarantee).
 - **Degrade visibly.** If map refresh, routing, or live enumeration is unavailable, proceed on the plan's generic tier/effort or the session's current model with a one-line note. Never silently substitute a lower tier.
 
-This pre-flight is platform-agnostic. Public web research may refresh the map, but it requires no new credential or dependency; deterministic score/map validation and host enumeration/switch mechanics stay in `[[model-routing]]`. The retained `implement-phase` runbook executes the same pre-flight before its implementation stage. A phase that hits repeated test failures during the troubleshooting loop may upshift to a stronger tier or higher effort (upshift only, with confirmation, never an automatic mid-phase downshift); see the mid-task escalation rule in `[[model-routing]]`.
+This pre-flight is platform-agnostic. Public web research may refresh the map, but it requires no new credential or dependency; deterministic score/map validation and host enumeration/switch mechanics stay in `[[model-routing]]`. The retained `implement-phase` runbook executes the same pre-flight before its implementation stage. A phase that hits repeated test failures during the troubleshooting loop may upshift to a stronger tier or higher effort (upshift only, under the same authorization and spend limits, never a mid-phase downshift); see the mid-task escalation rule in `[[model-routing]]`.
 
 ## Queue re-assessment (guarantee)
 
@@ -61,17 +61,19 @@ Before writing code, at plan entry and at every phase entry, `/implement` re-val
 
 ## Worktree isolation and parallel plans (guarantee)
 
-`/implement` isolates a plan in its own **worktree**, not merely its own branch, so a second plan can start in a separate session without switching the shared checkout underneath a running one. It then reports which queued plans are parallel-capable, with a copy-paste block for launching each in a new session. On the final phase, after the merge is green and merged, it retires the worktree: branch fully merged, tree clean, directory and branch deleted, `git worktree list` confirmed clear.
+`/implement vX.Y` separates implementation from release. The coordinator automatically dispatches eligible whole-plan workers through available harness agent tools, with exclusive claims, a dedicated branch and linked worktree for each, and the aggregate run budget. It admits another compatible plan when capacity opens without waiting for unrelated releases. A completed later worker waits locally at implementation-ready; it does not publish or release.
 
-Mechanics belong to `[[using-git-worktrees]]`; ranking and overlap detection to `[[plan-queue-assessment]]`. This command owns neither, and the procedure lives in `implement-phase`. Where worktrees are unavailable, it falls back to a branch and says so.
+The procedure and serial fallback live in `implement-phase`; [[plan-queue-assessment]] owns compatibility, [[multi-agent-coordinator]] owns worker scoping, and [[using-git-worktrees]] owns worktree mechanics. Native implementation admission and ordered publication admission are distinct gates in the completion contract. Publication waits for the preceding release and refreshed integration base; cleanup remains required for final completion. Where agent tools or worktrees are unavailable, report the limitation and execute serially under the same release gate.
 
 ## Phase lifecycle (guarantee)
+
+Use focused tests and cheap checks during implementation. Full-suite testing, project coverage collection, broad platform validation, E2E sweeps and benchmarks wait until all implementation tasks are complete in the final phase of each plan, before publication and release. The runbook applies [[cicd-integration]] for test selection, evidence reuse and correction scope.
 
 `/implement` enforces the same lifecycle `/plan` generates. Three guarantees, worth stating because they change what the reader should expect at a phase boundary:
 
 - **A non-final phase finishes with a local commit and nothing else.** No push, no pull request, no remote CI, in every mode. Pushing per phase bills a full pipeline run to validate work the plan itself says is incomplete. A user who explicitly asks to push still gets it, after a one-line statement of the cost; what is removed is the default, not the authority.
 - **A non-final phase records CI impact; it does not author a pipeline.** Step 8.3 states what this phase added that CI would need to know about and whether the pipeline already covers it. Pipeline files change mid-plan only when CI/CD is that phase's explicit deliverable.
-- **The final phase owns everything remote.** It runs the terminal pipeline reconciliation via `[[cicd-architect]]`, completes the local gate, creates the final commit, obtains explicit approval, pushes ONCE, opens the integration pull request, waits for required checks against the merge result, reopens itself on red (reproducing locally before any re-push), and merges only on green.
+- **The final phase owns everything remote.** It runs the terminal pipeline reconciliation via `[[cicd-architect]]`, completes the local gate, creates the final commit, verifies publication authority through the completion contract, pushes ONCE, opens the integration pull request, waits for required checks against the merge result, reopens itself on red (reproducing locally before any re-push), and merges only on green.
 
 The procedure lives in `implement-phase` and its runbook; this dispatcher states the guarantee.
 
@@ -83,7 +85,7 @@ The `implement-phase` skill auto-detects the final phase of a plan and runs a re
 - For the documentation cleanup, standard update checks, and the version bump / changelog / tag / push (skill sub-phases 9C-9E), hand off to **`/update release`**, which runs docs + devlog + gitignore + version (via `scripts/check_version_sync.py`) + changelog + refactor, then cleans up, commits, tags, and pushes as one atomic flow.
 - Hand off only after the integration pull request is green and merged. A non-green integration holds the release.
 - Before the final-phase local/publication gate, delegate living handbook refresh to `technical-documentation` and its `references/handbook-refresh.md`; `/update release` rechecks the integrated candidate before version changes.
-- Never create a tag or push automatically; `/update release` keeps its own confirmation gates.
+- `/update release` verifies the matching recorded authority before each tag, push and publication; it delegates consent decisions to the completion contract rather than asking again.
 
 ## Optional fan-out
 

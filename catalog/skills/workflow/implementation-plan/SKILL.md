@@ -153,6 +153,14 @@ is indistinguishable from a skipped check.
 |---|---|---|
 | vX.Y.Z <slug> | content / ordering / no impact / unknown | [what changes for THIS plan] |]
 
+## Implementation dependencies and ownership
+
+[REQUIRED. Apply [[plan-queue-assessment]] to list actual implementation prerequisites and their proving merged commits, complete repository-relative read paths and exclusive write paths including tests, this plan file and plan-specific evidence, plus coordinator-owned metadata deltas. Use literal file paths or directory paths ending in `/`, never globs. Task-derived touched paths are only a lower bound. Record candidate concurrent groups and any unknown compatibility. Release order is semantic-version order and is not an implementation dependency.]
+
+`{"depends_on": [], "read_paths": [], "write_paths": []}`
+
+[The coordinator owns shared known-gaps ledgers, CHANGELOG, version/release metadata and docs/todos. Workers propose those deltas separately, leaving any original implementation tasks unchecked until the coordinator applies and tests the changes. Native admission validates claims through the completion contract; [[implement-phase]] owns automatic dispatch, bounded capacity and ordered publication.]
+
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
@@ -254,15 +262,10 @@ implementation; an absolute invites a wrong edit to make the number match.
 
 #### N.X -- Testing and Stabilization
 
-**Objective**: Generate and run all tests for this phase. Iterate until the phase is
-stable before advancing to Phase N+1.
+**Objective**: Run focused tests and cheap checks for this phase, preserving the complete-plan validation gate in the final phase.
 
 **Prompt**:
-> Generate automated tests for everything built in Phase N. This should include:
-> [list the specific kinds of automated tests appropriate for this phase: unit tests, integration
-> tests, E2E tests, performance benchmarks, etc.]. Run the tests, fix any failures, and
-> iterate until all automated tests pass and the implementation is stable. Do not proceed to
-> Phase N+1 until this phase is fully tested and verified.
+> Add or update focused tests for genuinely new behavior in Phase N, and run the affected tests plus the repository's cheap fast checks. Use [[cicd-integration]] for test selection and evidence reuse. Fix failures in this scope before advancing. Defer the full suite, project coverage collection, broad platform validation, E2E sweeps, performance benchmarks and coverage-driven augmentation to the final phase after all implementation tasks are complete. A specific expensive check runs earlier only when it is this phase's explicit deliverable or a named risk needs that check before dependent work; record the scope and reason.
 > Exercise the phase's declared Verification Expectation through [[functional-verification]] and record the observed result. The plan names the artifact, action, and expected observation; the delegated skill owns the procedure.
 > Then record this phase's CI IMPACT against `[[cicd-architect]]` without running remote CI:
 > name any new command, dependency, environment variable, test path, or artifact this phase
@@ -273,7 +276,7 @@ stable before advancing to Phase N+1.
 > still be written.
 > Do not ask the user to manually exercise an incomplete feature, and do not emit human or
 > manual testing suggestions on a non-final phase. Those belong only in the last phase.
-> After all automated tests pass, run `/generate-session-history` to document Phase N, then
+> After the focused tests pass, run `/generate-session-history` to document Phase N, then
 > create ONE local commit scoped to this phase.
 > Do NOT push, do NOT open a pull request, and do NOT start remote CI. Branch publication and
 > remote validation belong to the final phase only.
@@ -293,7 +296,7 @@ stable before advancing to Phase N+1.
 ### Phase N Exit Checklist
 
 - [ ] All sub-tasks completed
-- [ ] All tests passing (unit, integration, and any phase-specific tests)
+- [ ] Focused phase tests and cheap checks pass; comprehensive validation is scheduled once after all implementation tasks are complete
 - [ ] No known regressions from prior phases
 - [ ] Verification expectation exercised and its observable result recorded
 - [ ] CI impact recorded against the canonical contract, with no remote CI run
@@ -345,9 +348,17 @@ Apply these rules when deciding how many phases to create and how to split them:
 | Terminal refactor phase | Every plan ends with a fail-closed last phase that includes `[[functional-verification]]`'s Tier 3 deep pass. Each duty writes a section of `<version_dir>/development/<version>-last-phase-evidence.md`; an empty finding requires quoted scan output. Distinct from per-phase automated testing, which still applies to every phase. |
 | CI impact per phase | Every phase's testing sub-task RECORDS its CI impact against `[[cicd-architect]]` (new commands, dependencies, env vars, test paths, artifacts, and whether the pipeline already covers them). It does NOT author or optimize the pipeline. Actual reconciliation happens once, in the final phase, unless CI/CD is a given phase's explicit deliverable. Per-phase pipeline authorship is what produces a different topology per phase and a pipeline nobody can run locally. |
 | Local commit per phase | Every phase ends with exactly one local commit scoped to that phase. Non-final phases MUST NOT push, open a pull request, or start remote CI: seven runs on knowingly incomplete work cost seven times one run on complete work and produce worse signal, because a red check on incomplete work teaches the author to ignore red checks. |
-| Publication is terminal | The final phase owns the plan's single branch publication, the integration pull request, and the wait for required checks. Release work starts only after that integration result is green and merged. |
+| Publication is terminal | The final phase owns the single branch publication, integration pull request and required-check wait under the completion contract's authorization policy. Release starts only after green merged integration. |
 
 ---
+
+## Authorization handoff
+
+The single authorization and genuine-capture policy lives in [`completion-contract.md`](../implement-phase/references/completion-contract.md), "Authorization policy", "Manual decisions" and "Approval origin". Generated plans state scope, exclusions, limits and explicitly named paths for consequential planned actions, then delegate to that policy. A genuinely approved plan with trusted full-access evidence continues within its signed scope without repeated consent; manual decisions explain the concrete action and effect, offer Approve/Decline through available host question tools, and use genuinely captured short replies when direct clickable capture is unavailable. Do not turn every repair, derived release value or unchanged blocker observation into a new approval. Preserve spend/retry bounds, tests, edit preservation and unresolved technical conditions. Correct frozen-plan workflow guidance through an approved sidecar, not a rewrite of its signed prose.
+
+## Parallel implementation metadata
+
+Generate the required dependency and ownership section from the queue assessment before decomposition. Specify complete source, test and evidence claims, the contract between concurrent plans, and each unknown that requires serial execution. Independent whole-plan implementation may precede earlier releases; publication remains ordered. Preserve the focused intermediate checks and complete-plan final validation below. For an already approved frozen plan, write the refreshed assessment as a release-scoped sidecar and pass its claims to native admission; do not change the frozen plan prose.
 
 ## Instructions
 
@@ -481,6 +492,9 @@ Create no branch. Commit the plan and its tracker entry on the integration branc
 
 ## Verification
 
+- [ ] `## Implementation dependencies and ownership` lists actual prerequisites, complete literal read/write claims, coordinator-owned deltas, candidate concurrent groups and unknown compatibility, or an assessment sidecar supplies these for a frozen plan.
+- [ ] Implementation concurrency is assessed independently of semantic-version release order; no task requires an unrelated earlier release merely to start implementation.
+
 - [ ] Plan type, version, and slug all resolved and confirmed with the user
 - [ ] All discovery questions answered (optional "additional context" question may be skipped)
 - [ ] Research performed for unfamiliar technical areas
@@ -490,6 +504,7 @@ Create no branch. Commit the plan and its tracker entry on the integration branc
 - [ ] Every phase states a Verification Expectation beside its Stability Gate that names what a reader can run or open and the specific result they must observe, with the exercise procedure delegated to `[[functional-verification]]`
 - [ ] Every phase ends with an automated testing and stabilization sub-task that records CI impact against `[[cicd-architect]]` WITHOUT authoring or optimizing the pipeline; human/manual testing suggestions appear only in the last phase
 - [ ] Every phase ends with exactly one local commit, and every non-final phase explicitly prohibits push, pull request, and remote CI
+- [ ] Authorization delegates to the completion contract; scope, exclusions, original bounds and planned consequential paths are explicit, and no generated prompt contradicts automatic in-scope continuation or genuine manual capture.
 - [ ] The final phase owns the single branch publication, integration pull request and required checks; its living-docs task invokes `technical-documentation` through `references/handbook-refresh.md` before publication. Release rechecks the merged candidate before version mutation and affected outputs afterward; failed required evidence blocks handoff.
 - [ ] The plan's last phase is the fail-closed "Architecture Refactor, Known-Gaps Reconciliation, and CI/CD" phase (sub-tasks: N.1 architecture refactor, N.2 known-gaps across this version and other open files, N.3 living docs architecture, N.4 git-tree hygiene, N.5 terminal pipeline reconciliation via `[[cicd-architect]]` plus installer parity, N.6 Tier 3 deep pass via `[[functional-verification]]`, N.7 Goal-vs-codebase review, N.8 last-phase-only human testing, N.9 full-suite testing, N.10 publication and integration) and requires `<version_dir>/development/<version>-last-phase-evidence.md`, including `## Tier 3 deep pass`
 - [ ] Every sub-task has a complete, self-contained executable prompt

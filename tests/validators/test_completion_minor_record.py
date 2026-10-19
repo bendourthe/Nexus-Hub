@@ -214,7 +214,8 @@ class Minor:
         return ck.RepoContext(self.work, ck.Budget(60))
 
     def record_path(self) -> Path:
-        return cm.record_file(ck, self.rctx(), "v0.5")
+        """Locate the fixed-origin fixture bytes, including deliberately tampered records."""
+        return self.rctx().scoped_record_path("minor:v0.5")
 
     def record(self) -> dict:
         return json.loads(self.record_path().read_text(encoding="utf-8"))
@@ -766,14 +767,15 @@ def test_minor_answer_never_releases_a_tampered_signed_record(minor: Minor) -> N
     assert minor.create().returncode == 0
     _answer_blocker(minor)
     minor.paste(SESSION, '--action', 'answer', '--blocker', '0')
+    path = minor.record_path()
     record = minor.record()
     record['approvals']['classes'].append({'class': 'spend', 'bound': 999999})
     minor.write_record(record, resign=False)
-    before = minor.record_path().read_bytes()
+    before = path.read_bytes()
     result = minor.run('record', 'answer', '--minor', 'v0.5', '--session', SESSION, '--blocker', '0')
     assert result.returncode == ck.EXIT_BLOCKED
     assert result.stdout.splitlines()[0] == 'BLOCKED: record-tampered'
-    assert minor.record_path().read_bytes() == before
+    assert path.read_bytes() == before
 
 
 @pytest.mark.parametrize('blockers', [
@@ -1050,15 +1052,31 @@ def test_a_plan_with_a_non_canonical_version_is_malformed(minor: Minor) -> None:
     assert result.stdout.strip().startswith("MALFORMED: non-canonical version in ")
 
 
-def test_another_live_minor_record_listing_the_version_owns_it(minor: Minor) -> None:
-    _write_off_key(
+def test_another_authenticated_minor_record_listing_the_version_owns_it(minor: Minor) -> None:
+    assert minor.create().returncode == 0
+    record = minor.record()
+    record["members"] = [member for member in record["members"] if member["version"] == "v0.5.2"]
+    minor.write_record(record, resign=True)
+    observer = minor.tmp / "observer"
+    _git(minor.work, "worktree", "add", "-q", "-b", "observer", str(observer), "develop")
+    result = minor.run("members", "v0.5", "--repo", str(observer))
+    out, err = result.stdout.splitlines(), result.stderr.splitlines()
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "v0.5.2 owned-by-another-run" in err
+    assert out == [f"{MINOR_DIR}/v0.5.10-omega.md"]
+
+
+def test_unsigned_off_key_minor_record_cannot_claim_ownership(minor: Minor) -> None:
+    path = _write_off_key(
         minor,
         {"schema": 2, "scope": "minor", "minor": "v0.5", "created": ck._now(), "members": [{"version": "v0.5.2"}]},
         name="f" * 64,
     )
-    out, err, _rc = minor.members()
-    assert "v0.5.2 owned-by-another-run" in err
-    assert out == [f"{MINOR_DIR}/v0.5.10-omega.md"]
+    before = path.read_bytes()
+    result = minor.run("members", "v0.5")
+    assert result.returncode == ck.EXIT_BLOCKED
+    assert result.stdout.strip() == "BLOCKED: record-tampered"
+    assert path.read_bytes() == before
 
 
 def test_retiring_another_sessions_live_record_needs_the_users_paste(minor: Minor) -> None:
@@ -1093,6 +1111,8 @@ def test_the_owning_session_retires_its_own_live_record_directly(minor: Minor) -
 def test_a_second_session_cannot_overwrite_a_live_minor_record(minor: Minor) -> None:
     """Finding 10: a live record is resumed or completed, never replaced."""
     assert minor.create().returncode == 0
+    path = minor.record_path()
+    before = path.read_bytes()
     nonce = minor.record()["nonce"]
     live = "BLOCKED: approval-not-covered (minor record v0.5 is live; resume or complete it)"
     rendered = minor.render("session-two", "--approvals", str(minor.approvals()))
@@ -1100,7 +1120,8 @@ def test_a_second_session_cannot_overwrite_a_live_minor_record(minor: Minor) -> 
     created = minor.run(
         "record", "create", "--minor", "v0.5", "--session", "session-two", "--approvals", str(minor.approvals())
     )
-    assert (created.returncode, created.stdout.strip()) == (ck.EXIT_BLOCKED, live)
+    assert (created.returncode, created.stdout.strip()) == (ck.EXIT_BLOCKED, "BLOCKED: minor-authority-already-exists")
+    assert path.read_bytes() == before
     assert minor.record()["nonce"] == nonce
 
 

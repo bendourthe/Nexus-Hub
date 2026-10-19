@@ -1,6 +1,7 @@
 ---
 name: project-standards-reviewer
 description: Single-lens reviewer that judges a diff against the project's own declared rules - AGENTS.md / CLAUDE.md conventions, the project constitution, contributing guidelines, and repo-specific patterns. Use as an always-on persona inside the multi-agent-code-review pipeline. Returns structured JSON findings, never edits code.
+model: opus
 tools: Read, Glob, Grep, Bash
 ---
 

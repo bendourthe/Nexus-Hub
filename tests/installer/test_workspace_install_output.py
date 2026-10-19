@@ -19,7 +19,6 @@ workspace, so nothing reaches the real user's home or AI-tool configuration.
 
 from __future__ import annotations
 
-import os
 import re
 import shutil
 import subprocess
@@ -28,6 +27,8 @@ import tempfile
 from pathlib import Path
 
 import pytest
+
+from scripts.ci.verify_scenarios import isolated_environment
 
 _ROOT = Path(__file__).resolve().parents[2]
 _SH = _ROOT / "scripts" / "installer.sh"
@@ -54,13 +55,17 @@ def short_root():
 
 
 def _isolated(root: Path) -> tuple[dict[str, str], Path]:
+    boundary = root / "fixture-env"
+    boundary.mkdir()
+    isolated = isolated_environment(boundary)
     dirs = {name: root / name for name in ("h", "a", "l", "t", "ws")}
     for d in dirs.values():
         d.mkdir()
     env = {
-        **os.environ,
+        **isolated,
         "HOME": str(dirs["h"]),
         "USERPROFILE": str(dirs["h"]),
+        "CLAUDE_CONFIG_DIR": str(dirs["h"] / ".claude"),
         "APPDATA": str(dirs["a"]),
         "LOCALAPPDATA": str(dirs["l"]),
         "NEXUS_HUB_HOME": str(dirs["h"] / ".nexus-hub"),

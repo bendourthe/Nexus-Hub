@@ -1,8 +1,10 @@
 /**
- * v4.13.7 sub-task 3.6: the Claude usage response carries no reset field (one
- * live capture on 2026-10-01, v4.13.7-decisions.md "Usage-limit resets"), so the
- * plan's failure mode applies: the dashboard shows nothing about resets, and no
- * code path reaches anything but the existing usage read and token refresh.
+ * v4.13.7 sub-task 3.6: the Claude usage response carries no reset field (live
+ * captures on 2026-10-01 and 2026-10-19, v4.13.7-decisions.md "Usage-limit
+ * resets"). The dashboard still shows a Limit Resets row, matching the Codex
+ * monitor, but it states that the count is not reported and links to the
+ * claude.ai usage page; no code path reaches anything but the existing usage
+ * read and token refresh.
  */
 import * as fs from "fs";
 import * as os from "os";
@@ -37,14 +39,21 @@ describe("the captured response has no reset field", () => {
     expect(Object.keys(data).some((k) => /reset/i.test(k) && k !== "resetsAt")).toBe(false);
   });
 
-  it("renders no reset row or reset-page button", () => {
+  it("renders a reset row that claims no count and links only to the usage page", async () => {
     const data = mapClaudeUsageResponse(captured() as never, "claude-opus-4-6[1m]");
-    DashboardPanel.show(data, "just now", undefined, { onRefresh() {}, onOpenUsagePage() {} });
-    const html = createdWebviewPanels[0].webview.html;
-    expect(html).not.toContain("Limit Resets");
+    let opened = 0;
+    DashboardPanel.show(data, "just now", undefined, { onRefresh() {}, onOpenUsagePage() { opened++; } });
+    const panel = createdWebviewPanels[0];
+    const html = panel.webview.html;
+    expect(html).toContain("<h3>Limit Resets</h3>");
+    expect(html).toContain("Not reported by the Claude usage API");
+    expect(html).toContain(">Open reset page</button>");
     expect(html).not.toContain("openResetPage");
-    expect(html).not.toContain("reset available");
-    expect(html).toContain('data-command="openUsagePage"');
+    expect(html).not.toMatch(/reset(s)? available|No reset available/);
+    expect(html.indexOf("<h3>Limit Resets</h3>")).toBeLessThan(html.indexOf("<h3>Current Model</h3>"));
+    expect(html.match(/data-command="openUsagePage"/g)).toHaveLength(2);
+    await panel.webview.__dispatchMessage({ command: "openUsagePage" });
+    expect(opened).toBe(1);
   });
 });
 

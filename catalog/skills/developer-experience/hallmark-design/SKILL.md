@@ -135,6 +135,9 @@ If the project already publishes `--shadow-*`, `--radius-*`, or motion tokens, u
 
 ## Instructions
 
+Design-system lint: hand off to `interface-review` for the runnable contract and coverage record; keep this skill's domain rules here. Follow the verifier taxonomy owned by [[multi-agent-code-review]].
+
+
 ### build (default)
 
 1. Confirm the surface and its content (what is being displayed, to whom, and where it renders).

@@ -1,0 +1,24 @@
+{
+  "observed_utc": "2026-10-17T23:39:06.197703+00:00",
+  "approval_line": "Continue /implement v4.14 past blocker 6 (approval R6A3FEIP)",
+  "native_answer": "ANSWERED blocker 6 minor v4.14",
+  "native_first_line": "INCOMPLETE",
+  "target": "scripts/ci/profiles.py",
+  "before_sha256": "b50bca9863adb7a60e553dcaedceb869f541115ec506484db32d942ff02b1e94",
+  "after_sha256": "1a6363070e4e0f7c5dc98c35079aa6563ef2c04824b433d5720f145ecc7c3f78",
+  "proposal_sha256": "810960dbe78bc1d64bdd2d2204a7fb3594d023f4653e8809d487cb4a76914e9f",
+  "patch_sha256": "123e011ac94cbe945ad26cc0bed583c860de6022952825d2ef9b48c58b0d6db8",
+  "new_guard_accepts": 0,
+  "scope": "Exact approved one-field timeout change; workflow remains unchanged",
+  "actual_source_validation": {
+    "observed_utc": "2026-10-17T23:39:51.335197+00:00",
+    "pytest_exit": 0,
+    "duration_seconds": 44.84399999998277,
+    "actual_source_sha256": "1a6363070e4e0f7c5dc98c35079aa6563ef2c04824b433d5720f145ecc7c3f78",
+    "effective_windows_hook_timeout": 2400,
+    "scope": "Actual repository source and tests/ci; full and Windows platform verification pending",
+    "passing_tests": 205
+  },
+  "final_full_and_windows_profiles": "Pending fresh unfiltered final-source runs",
+  "workflow_job_cap_minutes": 60
+}

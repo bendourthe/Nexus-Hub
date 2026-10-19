@@ -1,6 +1,7 @@
 ---
 name: maintainability-reviewer
 description: Single-lens reviewer that judges a diff for long-term maintainability - naming, duplication, complexity, abstraction level, and cohesion. Use as one persona inside the multi-agent-code-review pipeline. Returns structured JSON findings, never mutates code.
+model: opus
 tools: Read, Glob, Grep, Bash
 ---
 

@@ -1,9 +1,10 @@
 # Decision: Test each non-final phase's blast radius and run the full suite at the final gate
 
-Status: implemented - non-final phases run affected tests and the fast gate; the final phase owns the complete suite, coverage threshold, and cross-phase integration tests
+Status: implemented - superseded by the 2026-10-18 complete-plan validation cadence; retained for historical rationale
 Date: 2026-09-23
 Author: Ben Dourthe
 Template: Nygard
+Superseded by: [Complete-plan validation cadence](2026-10-18-complete-plan-validation-cadence.md)
 
 ## Problem
 

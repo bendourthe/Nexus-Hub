@@ -23,6 +23,18 @@ Use this skill when you need to:
 
 **Trigger phrases**: "CI/CD tests", "GitHub Actions tests", "automated testing pipeline", "quality gates", "test automation", "GitLab CI tests", "Jenkins testing", "parallel tests"
 
+## Plan validation selection
+
+Use the lifecycle timing owned by [[cicd-architect]] and the canonical contract, section 2.4. This section owns how tests are selected and how evidence remains valid.
+
+1. During implementation, map changed behavior to its tests and smallest affected subsystem. Run focused tests, cheap repository checks and one representative boundary smoke. If the scope is uncertain, inspect dependencies and select the relevant subsystem; record remaining integration questions for final validation. Do not select the full suite merely because scope is uncertain. A known failure or safety-critical prerequisite must be resolved before dependent work.
+2. Before final validation, finish all implementation tasks, including final-phase corrections. Inventory the canonical full profile commands, coverage and required platform matrix. Run the full local gate once on the completed candidate; run cross-phase, coverage or boundary obligations separately only if the profile does not already include them. Broad E2E sweeps and benchmarks belong here unless an earlier phase explicitly needs a named check. Required platform checks remain mandatory, but do not duplicate the complete matrix locally unless a specific acceptance criterion requires it.
+3. Retain a receipt for each terminal command: source scope and fingerprint, dependencies, relevant configuration, runtime and environment, command, exit code, counts and output location. Reuse it only while every tested input remains unchanged. A receipt from a running command, changed source or different relevant environment is not current proof.
+4. After a failed check, reproduce it first, bundle related narrow fixes, then rerun failed and affected checks. Document the changed inputs and why unaffected receipts still apply. Changes to shared runtime behavior, dependencies, test discovery, fixtures, CI profiles or other cross-cutting inputs invalidate every affected scope. If their extent is uncertain, rerun the full affected profile. Do not inherit a failed scope as a pass.
+5. Reuse unchanged successful scopes only with their original commands, source fingerprints and limits visible. A combined qualification may cite retained and fresh receipts, but must not be labeled a fresh unfiltered full run. Final required CI checks still validate the merge result and must all be green before release. No reuse rule permits waiving an explicit plan gate or recorded acceptance criterion.
+
+6. For an existing plan that assigns a generic comprehensive command to an intermediate phase, keep that obligation in `## Deferred final validation` in the phase history. Record its original phase and task ID, exact command, reason for moving it, required final evidence and disposition. Rescheduling changes timing, not acceptance: leave the task unchecked and do not claim the command passed until its final result exists. An explicit prerequisite, safety requirement or recorded acceptance criterion that needs earlier proof remains blocking. Preserve the approved plan text and signed approval bindings.
+
 ## What This Skill Does
 
 ### CI/CD Components

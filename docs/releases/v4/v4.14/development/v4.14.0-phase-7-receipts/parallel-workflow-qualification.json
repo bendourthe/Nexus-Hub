@@ -1,0 +1,109 @@
+{
+  "schema": 1,
+  "status": "local_workflow_and_native_qualification_passed_hosted_integration_pending",
+  "generated_at": "2026-10-19T00:18:35.379Z",
+  "base_head": "33d11b6991ae4f29fc5fcffbf9466ca12d34ce07",
+  "native_sources": [
+    {
+      "path": "scripts/completion_minor.py",
+      "sha256": "baacb017fbd68f9e917b96a2b22fa31f4e7921679cdc6f366909011af4531a8f",
+      "bytes": 153340
+    },
+    {
+      "path": "scripts/check_plan_completion.py",
+      "sha256": "d798d5096e5882220a42234f9af5a698fefa72488ea8146a49e4f3f7757dc368",
+      "bytes": 79359
+    },
+    {
+      "path": "tests/validators/test_parallel_member_implementation.py",
+      "sha256": "26523ffef631ad026533bd999b4c270fc845a242f774a7e67de3fba012553bdd",
+      "bytes": 30626
+    }
+  ],
+  "workflow": {
+    "tests": 419,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 3.68,
+    "xml": "parallel-workflow-root-qualification-v2.xml",
+    "registry_exit": 0,
+    "decision_records": 83,
+    "decision_exit": 0,
+    "ruff_exit": 0,
+    "handbook_freshness_exit": 0,
+    "handbook_change": "Existing mapped claims and output bytes remain valid; no handbook output rebuilt"
+  },
+  "fast": {
+    "commands": 17,
+    "failed": 0,
+    "skipped": 0,
+    "advisory": 0,
+    "seconds": 124.5,
+    "exit": 0,
+    "summary": "reports/phase7-parallel-workflow-fast-oct19/summary.json"
+  },
+  "native": {
+    "final_linux": {
+      "full_new_module": {
+        "passed": 30,
+        "skipped": 0,
+        "seconds": 89.7
+      },
+      "appended_nested_escape_control": {
+        "passed": 1,
+        "seconds": 4.44,
+        "other_cases_deselected": 30
+      },
+      "network": "none",
+      "source_mount": "read_only",
+      "container": "nexus-v4140-native-stabilization:oct18-icu"
+    },
+    "final_windows_affected": {
+      "passed": 12,
+      "skipped": 1,
+      "deselected": 17,
+      "seconds": 164.26,
+      "skip": "Symlink creation requires a privilege unavailable on this Windows host; actual Linux case passes"
+    },
+    "retained_windows_v4": {
+      "new_cases": 24,
+      "seconds": 347.09,
+      "existing_compatibility_cases": 30,
+      "existing_seconds": 182.36
+    },
+    "lint": {
+      "target_version": "py310",
+      "exit": 0
+    },
+    "proof_boundary": "Real local Git repositories/worktrees and fake hosting responses prove admission and projection; they are not live GitHub release or worker-dispatch evidence"
+  },
+  "reviews": {
+    "plan_lenses": 7,
+    "api_contract": "no additional confirmed findings",
+    "standards": "three findings corrected and independently rechecked",
+    "security": {
+      "initial_finding": "Merged workers skipped write-scope audit",
+      "correction": "Audit actual historical merged contribution before retirement",
+      "independent_controls": 5,
+      "passed": 5,
+      "receipt": "parallel-native-security-v5-independent-recheck.json",
+      "receipt_sha256": "d8fc8d599f0cb26db942f24f6b27156eaf3ecf8e58aed85b9791a4d16ba8be86"
+    }
+  },
+  "known_limits": [
+    "Single-parent merge histories conservatively audit the publication span; use the supported two-parent merge workflow to preserve phase commits",
+    "Controller-host cleanup still requires a supported handoff before final cleanup, never a copied or re-signed production record",
+    "Paired native helper adoption is required before first signed worker reservation",
+    "Existing full V9 and Windows profile results qualify unchanged inputs only; no fresh unfiltered full profile after this feature is claimed",
+    "Actual remaining-plan admission and real agent worktrees occur after workflow merge and v4.14.0 release"
+  ],
+  "run_state": {
+    "tasks": "32/209",
+    "releases": "0/7",
+    "production_worker_admissions": 0,
+    "new_accepts": 0,
+    "stabilization_repushes_used": 1,
+    "ci_reruns": 0,
+    "global_deep_review_passes_used": 3
+  }
+}

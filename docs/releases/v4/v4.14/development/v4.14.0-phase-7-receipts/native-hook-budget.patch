@@ -1,0 +1,10 @@
+--- a/scripts/ci/profiles.py
++++ b/scripts/ci/profiles.py
+@@ -545,6 +545,6 @@
+             "hook-tests (Windows PowerShell 5.1)",
+             "catalog/hooks/tests",
+             platforms=("windows",),
+-            timeout=1800,
++            timeout=2400,
+             env={"NEXUS_TEST_POWERSHELL": "powershell"},
+         ),

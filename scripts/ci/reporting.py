@@ -28,7 +28,7 @@ from xml.etree import ElementTree as ET
 #: Substrings that mark an environment variable as secret-bearing. Matching on
 #: the NAME rather than trying to recognize secret-shaped VALUES: a token format
 #: changes without notice, an env var called *_TOKEN does not.
-_SECRET_NAME_HINTS = ("TOKEN", "SECRET", "PASSWORD", "PASSWD", "APIKEY", "API_KEY", "CREDENTIAL")
+_SECRET_NAME_HINTS = ("TOKEN", "SECRET", "PASSWORD", "PASSWD", "KEY", "CREDENTIAL")
 
 REDACTED = "[REDACTED]"
 
@@ -265,6 +265,8 @@ def environment_metadata(result: RunResult, tools: dict[str, str] | None = None)
     return {
         "profile": result.profile,
         "platform": result.platform,
+        "host": platform_mod.node(),
+        "shell": "none (direct process execution)",
         "os": platform_mod.system(),
         "os_release": platform_mod.release(),
         "python": platform_mod.python_version(),
@@ -283,8 +285,18 @@ def write_metadata(result: RunResult, reports_dir: Path, tools: dict[str, str] |
     meta_dir = reports_dir / "metadata"
     meta_dir.mkdir(parents=True, exist_ok=True)
     path = meta_dir / "environment.json"
+    values = secret_values()
+    def redact_values(value):
+        if isinstance(value, str):
+            return redact(value, values)
+        if isinstance(value, dict):
+            return {key: redact_values(item) for key, item in value.items()}
+        if isinstance(value, list):
+            return [redact_values(item) for item in value]
+        return value
+
     path.write_text(
-        json.dumps(environment_metadata(result, tools), indent=2, sort_keys=True) + "\n",
+        json.dumps(redact_values(environment_metadata(result, tools)), indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
     return path

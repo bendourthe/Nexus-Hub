@@ -1,0 +1,88 @@
+{
+  "created_utc": "2026-10-19T01:39:48.963Z",
+  "status": "focused_native_correction_verified_hosted_codeql_pending",
+  "base_head": "688845e03407d86374cf988c6f2f546f361ad25a",
+  "cause": "The comment-end scanner recognized --> but not valid --!>, leaving subsequent visible migration provenance incorrectly hidden.",
+  "change": {
+    "path": "scripts/completion_minor.py",
+    "old": "r\"<!--|-->\"",
+    "new": "r\"<!--|--!?>\"",
+    "crlf_preserved": true,
+    "core_exact_one_replacement": true,
+    "test_existing_bytes_preserved": true
+  },
+  "sources": [
+    {
+      "path": "scripts/completion_minor.py",
+      "sha256": "9b7b05e3df6ed522006456e2e7c371c6760f94da1f0eb7648cda2f694eae8912",
+      "bytes": 153342,
+      "crlf": 3190
+    },
+    {
+      "path": "tests/validators/test_gap_migration_and_archive.py",
+      "sha256": "d694ea565b69850efbd0ec3ecbc7822c18f3247b1252100b1bf735a2c727931b",
+      "bytes": 64901,
+      "crlf": 1296
+    }
+  ],
+  "before": {
+    "exit": 1,
+    "passed": 3,
+    "failed": 1,
+    "deselected": 101,
+    "seconds": 4.22,
+    "failure": "visible-provenance-bang-end: REFUSED migration-provenance-hidden",
+    "log": "migration-comment-codeql-before-oct19.log",
+    "xml": "migration-comment-codeql-linux-oct19/migration-comment-codeql-before-oct19.xml",
+    "production_sha256": "baacb017fbd68f9e917b96a2b22fa31f4e7921679cdc6f366909011af4531a8f"
+  },
+  "after": [
+    {
+      "platform": "Linux existing offline image; readonly source; no network",
+      "exit": 0,
+      "passed": 31,
+      "deselected": 74,
+      "seconds": 31.78,
+      "selection": "comment_endings or incomplete_reuse or complete_reconciled_copy or unmatched_ticks or member_gaps_version or migrate_creates_target or double_migration",
+      "log": "migration-comment-codeql-after-oct19.log",
+      "xml": "migration-comment-codeql-linux-oct19/migration-comment-codeql-after-oct19.xml"
+    },
+    {
+      "platform": "Windows Python 3.11",
+      "exit": 0,
+      "passed": 4,
+      "deselected": 101,
+      "seconds": 24.24,
+      "selection": "comment_endings",
+      "log": "migration-comment-codeql-windows-oct19.log",
+      "xml": "migration-comment-codeql-windows-oct19.xml"
+    }
+  ],
+  "lint": {
+    "command": "ruff check scripts/completion_minor.py tests/validators/test_gap_migration_and_archive.py --target-version py310 --output-format concise",
+    "exit": 0
+  },
+  "whitespace": {
+    "command": "git diff --check -- scripts/completion_minor.py tests/validators/test_gap_migration_and_archive.py",
+    "exit": 0
+  },
+  "boundaries": {
+    "new_guard_accepts": 0,
+    "commits": 0,
+    "pushes": 0,
+    "ci_runs": 0,
+    "production_record_writes": 0,
+    "hosting_fixtures": "Existing local gh stand-in; no production releases or hosting assertions",
+    "hosted_codeql": "Not rerun by this worker; awaiting coordinator publication"
+  },
+  "raw_private_evidence_sha256": "29ccf818d25063dce873e6d575cc5638592c1a8238f51cd5dd1259863095ddc8",
+  "hosted_finding": {
+    "commit": "688845e03407d86374cf988c6f2f546f361ad25a",
+    "check_url": "https://github.com/bendourthe/Nexus-Hub/runs/117847274900",
+    "path": "scripts/completion_minor.py",
+    "line": 1475,
+    "title": "Bad HTML filtering regexp",
+    "remaining_failures": 1
+  },
+  "evidence_reuse": "Earlier qualified parallel-admission and complete-plan evidence remains scoped to unchanged logic and inputs. The changed migration-comment boundary is revalidated by these actual Linux and Windows controls; current-head hosted validation remains required after publication."
+}

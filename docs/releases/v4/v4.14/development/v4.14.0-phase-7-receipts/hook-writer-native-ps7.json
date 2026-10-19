@@ -1,0 +1,127 @@
+[
+  {
+    "writer": "Install-GitGuardrails",
+    "case": "distinct",
+    "error": null
+  },
+  {
+    "writer": "Install-GitGuardrails",
+    "case": "near",
+    "error": null
+  },
+  {
+    "writer": "Install-GitGuardrails",
+    "case": "metadata",
+    "error": null
+  },
+  {
+    "writer": "Install-GitGuardrails",
+    "case": "deep-bracket",
+    "error": null
+  },
+  {
+    "writer": "Install-UsageDisplay",
+    "case": "distinct",
+    "error": null
+  },
+  {
+    "writer": "Install-UsageDisplay",
+    "case": "near",
+    "error": null
+  },
+  {
+    "writer": "Install-UsageDisplay",
+    "case": "metadata",
+    "error": null
+  },
+  {
+    "writer": "Install-UsageDisplay",
+    "case": "deep-bracket",
+    "error": null
+  },
+  {
+    "writer": "Install-RequireDescription",
+    "case": "distinct",
+    "error": null
+  },
+  {
+    "writer": "Install-RequireDescription",
+    "case": "near",
+    "error": null
+  },
+  {
+    "writer": "Install-RequireDescription",
+    "case": "metadata",
+    "error": null
+  },
+  {
+    "writer": "Install-RequireDescription",
+    "case": "deep-bracket",
+    "error": null
+  },
+  {
+    "writer": "upgrade",
+    "case": "distinct",
+    "error": null
+  },
+  {
+    "writer": "upgrade",
+    "case": "near",
+    "error": null
+  },
+  {
+    "writer": "upgrade",
+    "case": "metadata",
+    "error": null
+  },
+  {
+    "writer": "upgrade",
+    "case": "deep-bracket",
+    "error": null
+  },
+  {
+    "writer": "Install-GitGuardrails",
+    "raw": "[{\"keep\":true}]",
+    "error": null
+  },
+  {
+    "writer": "Install-GitGuardrails",
+    "raw": "null",
+    "error": null
+  },
+  {
+    "writer": "Install-GitGuardrails",
+    "raw": "{\"broken\":",
+    "error": null
+  },
+  {
+    "writer": "Install-UsageDisplay",
+    "raw": "[{\"keep\":true}]",
+    "error": null
+  },
+  {
+    "writer": "Install-UsageDisplay",
+    "raw": "null",
+    "error": null
+  },
+  {
+    "writer": "Install-UsageDisplay",
+    "raw": "{\"broken\":",
+    "error": null
+  },
+  {
+    "writer": "Install-RequireDescription",
+    "raw": "[{\"keep\":true}]",
+    "error": null
+  },
+  {
+    "writer": "Install-RequireDescription",
+    "raw": "null",
+    "error": null
+  },
+  {
+    "writer": "Install-RequireDescription",
+    "raw": "{\"broken\":",
+    "error": null
+  }
+]

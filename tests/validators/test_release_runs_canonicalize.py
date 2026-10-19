@@ -8,7 +8,7 @@ layout therefore carried its drift silently through every release, receiving
 only the passive "Continuing in place" notice.
 
 These tests pin BOTH halves of the fix, because each fails differently:
-engaging the flag, and NOT bypassing the confirmation gate while doing it.
+engaging the flag, and requiring scoped authority or a manual decision before moves.
 """
 
 from __future__ import annotations
@@ -53,17 +53,16 @@ def test_refactor_scope_states_the_release_rule(update_text: str) -> None:
     )
 
 
-def test_engaging_the_path_does_not_bypass_the_confirmation_gate(update_text: str) -> None:
-    """Engaging the flag must not be described as auto-applying.
-
-    The v4.0.0 capability gate published the promise that nothing moves without
-    approval. If a later edit turns this into a silent auto-migration, that
-    published promise becomes false, so the guarantee is pinned here too.
-    """
-    assert "does NOT move files" in update_text, (
-        "the refactor scope must state that engaging the path does not move files"
-    )
-    assert "nothing moves until the user approves" in update_text
+def test_engaging_the_path_requires_proposal_and_matching_authority(update_text: str) -> None:
+    """Canonicalization detection must not grant authority to apply its proposed moves."""
+    scope = update_text.split(
+        "## refactor scope (docs structure + project cleanliness)", 1
+    )[1].split("\n## ", 1)[0]
+    assert scope.index("proposal and link-integrity proof") < scope.index("Apply moves only")
+    assert "matching recorded `refactor-moves` authority" in scope
+    assert "or a manual decision through the completion contract" in scope
+    assert "Uncovered structural drift is reported for that decision" in scope
+    assert "declined changes leave the existing layout in place" in scope
 
 
 def test_skill_agrees_that_release_sets_the_flag(skill_text: str) -> None:

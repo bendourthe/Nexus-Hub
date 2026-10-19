@@ -1,0 +1,27 @@
+{
+  "duration_s": 11.968999999997322,
+  "finished_at": "2026-10-17T02:37:56Z",
+  "groups": [
+    {
+      "commands": [
+        {
+          "duration_s": 11.968999999997322,
+          "exit_code": 0,
+          "group": "workspace-smoke",
+          "name": "workspace-smoke",
+          "output": "OK: real native workspace installer and shared smoke assertions\r\n",
+          "reason": "",
+          "status": "pass"
+        }
+      ],
+      "name": "workspace-smoke",
+      "skipped_reason": "",
+      "status": "pass"
+    }
+  ],
+  "platform": "windows",
+  "profile": "platform",
+  "scope_conservative": true,
+  "scope_reason": "no --base supplied; running every group",
+  "started_at": "2026-10-17T02:37:44Z"
+}

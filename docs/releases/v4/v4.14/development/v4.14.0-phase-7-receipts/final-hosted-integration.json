@@ -1,0 +1,646 @@
+{
+  "kind": "v4.14.0_final_hosted_integration",
+  "observed_utc": "2026-10-19T03:44:52.508Z",
+  "release": "v4.14.0",
+  "source_head": "b70a39f2efc6035faf86906ef3be3a99a484ceff",
+  "integration_head": "8b32922ca573fb57546611267b88246c1064f1e4",
+  "pr": {
+    "baseRefName": "develop",
+    "headRefOid": "b70a39f2efc6035faf86906ef3be3a99a484ceff",
+    "mergeCommit": {
+      "oid": "8b32922ca573fb57546611267b88246c1064f1e4"
+    },
+    "mergedAt": "2026-10-19T03:24:04Z",
+    "number": 485,
+    "state": "MERGED",
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T02:29:57Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214397/job/117861162145",
+        "name": "changes",
+        "startedAt": "2026-10-19T02:29:40Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T02:32:10Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214269/job/117861161823",
+        "name": "Analyze (python)",
+        "startedAt": "2026-10-19T02:29:40Z",
+        "status": "COMPLETED",
+        "workflowName": "CodeQL Security Scan"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T02:29:55Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214386/job/117861161794",
+        "name": "colocation",
+        "startedAt": "2026-10-19T02:29:40Z",
+        "status": "COMPLETED",
+        "workflowName": "Doc Co-location"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T02:29:53Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214398/job/117861162142",
+        "name": "detect",
+        "startedAt": "2026-10-19T02:29:40Z",
+        "status": "COMPLETED",
+        "workflowName": "Presentify extractor"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T02:30:09Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214301/job/117861161347",
+        "name": "build-and-test",
+        "startedAt": "2026-10-19T02:29:40Z",
+        "status": "COMPLETED",
+        "workflowName": "claude-usage-monitor"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T02:30:30Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214345/job/117861161751",
+        "name": "Test with outbound network blocked",
+        "startedAt": "2026-10-19T02:29:40Z",
+        "status": "COMPLETED",
+        "workflowName": "code-search"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T02:30:08Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214275/job/117861161406",
+        "name": "build-and-test",
+        "startedAt": "2026-10-19T02:29:40Z",
+        "status": "COMPLETED",
+        "workflowName": "codex-usage-monitor"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T02:30:25Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214425/job/117861162127",
+        "name": "build-and-test",
+        "startedAt": "2026-10-19T02:29:40Z",
+        "status": "COMPLETED",
+        "workflowName": "copilot-usage-monitor"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T02:30:13Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214486/job/117861162470",
+        "name": "build-and-test",
+        "startedAt": "2026-10-19T02:29:40Z",
+        "status": "COMPLETED",
+        "workflowName": "cursor-usage-monitor"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T02:30:06Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214289/job/117861161517",
+        "name": "build-and-test",
+        "startedAt": "2026-10-19T02:29:40Z",
+        "status": "COMPLETED",
+        "workflowName": "gemini-usage-monitor"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T02:30:03Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214283/job/117861161287",
+        "name": "test",
+        "startedAt": "2026-10-19T02:29:39Z",
+        "status": "COMPLETED",
+        "workflowName": "nexus-memory"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T02:31:24Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214269/job/117861161969",
+        "name": "Analyze (javascript-typescript)",
+        "startedAt": "2026-10-19T02:29:40Z",
+        "status": "COMPLETED",
+        "workflowName": "CodeQL Security Scan"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T02:30:23Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214397/job/117861162262",
+        "name": "validate",
+        "startedAt": "2026-10-19T02:29:40Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T02:32:31Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214398/job/117861224800",
+        "name": "extractor-tests",
+        "startedAt": "2026-10-19T02:29:56Z",
+        "status": "COMPLETED",
+        "workflowName": "Presentify extractor"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T02:30:43Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214486/job/117861304758",
+        "name": "e2e-cursor-profile",
+        "startedAt": "2026-10-19T02:30:27Z",
+        "status": "COMPLETED",
+        "workflowName": "cursor-usage-monitor"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T02:30:06Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214283/job/117861161431",
+        "name": "Test with outbound network blocked",
+        "startedAt": "2026-10-19T02:29:39Z",
+        "status": "COMPLETED",
+        "workflowName": "nexus-memory"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T02:30:16Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214397/job/117861162066",
+        "name": "shellcheck",
+        "startedAt": "2026-10-19T02:29:40Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T02:35:20Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214398/job/117861224811",
+        "name": "render",
+        "startedAt": "2026-10-19T02:29:56Z",
+        "status": "COMPLETED",
+        "workflowName": "Presentify extractor"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T02:30:48Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214486/job/117861433420",
+        "name": "cursor-required",
+        "startedAt": "2026-10-19T02:30:46Z",
+        "status": "COMPLETED",
+        "workflowName": "cursor-usage-monitor"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T02:30:06Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214283/job/117861161387",
+        "name": "test-locking-matrix (ubuntu-latest)",
+        "startedAt": "2026-10-19T02:29:40Z",
+        "status": "COMPLETED",
+        "workflowName": "nexus-memory"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T02:30:32Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214283/job/117861161460",
+        "name": "test-locking-matrix (windows-latest)",
+        "startedAt": "2026-10-19T02:29:42Z",
+        "status": "COMPLETED",
+        "workflowName": "nexus-memory"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T02:30:20Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214283/job/117861161470",
+        "name": "test-locking-matrix (macos-latest)",
+        "startedAt": "2026-10-19T02:29:45Z",
+        "status": "COMPLETED",
+        "workflowName": "nexus-memory"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T03:05:13Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214397/job/117861239841",
+        "name": "tests",
+        "startedAt": "2026-10-19T02:30:12Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T02:35:27Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214398/job/117862547080",
+        "name": "verify",
+        "startedAt": "2026-10-19T02:35:23Z",
+        "status": "COMPLETED",
+        "workflowName": "Presentify extractor"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T02:30:50Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214283/job/117861389728",
+        "name": "memory-required",
+        "startedAt": "2026-10-19T02:30:46Z",
+        "status": "COMPLETED",
+        "workflowName": "nexus-memory"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T02:55:40Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214397/job/117861239849",
+        "name": "guide-render (engine, guide-browser-engine)",
+        "startedAt": "2026-10-19T02:30:37Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T02:42:45Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214397/job/117861239800",
+        "name": "guide-render (game, guide-browser-game)",
+        "startedAt": "2026-10-19T02:30:00Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T02:50:52Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214397/job/117861239811",
+        "name": "guide-render (rest, guide-browser-rest)",
+        "startedAt": "2026-10-19T02:30:00Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T03:01:27Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214397/job/117861239863",
+        "name": "tests-windows",
+        "startedAt": "2026-10-19T02:30:35Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T03:17:23Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214397/job/117861239889",
+        "name": "tests-windows-installer",
+        "startedAt": "2026-10-19T02:30:22Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T02:36:51Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214397/job/117861239903",
+        "name": "tests-windows-installer-core",
+        "startedAt": "2026-10-19T02:30:25Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T02:33:10Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214397/job/117861239821",
+        "name": "bootstrap (ubuntu-latest)",
+        "startedAt": "2026-10-19T02:30:05Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T02:34:28Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214397/job/117861239890",
+        "name": "bootstrap (macos-latest)",
+        "startedAt": "2026-10-19T02:30:14Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T02:47:03Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214397/job/117861239924",
+        "name": "bootstrap-windows",
+        "startedAt": "2026-10-19T02:30:33Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T02:30:48Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214397/job/117861239944",
+        "name": "install-smoke (ubuntu-latest)",
+        "startedAt": "2026-10-19T02:30:30Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T02:30:44Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214397/job/117861239921",
+        "name": "install-smoke (macos-latest)",
+        "startedAt": "2026-10-19T02:30:22Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T02:30:59Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214397/job/117861239840",
+        "name": "install-smoke (windows-latest)",
+        "startedAt": "2026-10-19T02:30:00Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T02:30:35Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214397/job/117861239928",
+        "name": "installer-smoke (ubuntu-latest)",
+        "startedAt": "2026-10-19T02:30:19Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T02:32:53Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214397/job/117861239852",
+        "name": "installer-smoke (macos-latest)",
+        "startedAt": "2026-10-19T02:30:12Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T02:31:01Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214397/job/117861239920",
+        "name": "installer-smoke (windows-latest)",
+        "startedAt": "2026-10-19T02:30:11Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T02:30:27Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214397/job/117861239862",
+        "name": "claude-plugin-load",
+        "startedAt": "2026-10-19T02:30:09Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T03:17:42Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214397/job/117872616359",
+        "name": "report",
+        "startedAt": "2026-10-19T03:17:25Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T03:17:49Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39190214397/job/117872693877",
+        "name": "ci-required",
+        "startedAt": "2026-10-19T03:17:45Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-19T02:31:20Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/bendourthe/Nexus-Hub/runs/117861562288",
+        "name": "CodeQL",
+        "startedAt": "2026-10-19T02:31:16Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      }
+    ],
+    "url": "https://github.com/bendourthe/Nexus-Hub/pull/485"
+  },
+  "merge_method": "merge_commit",
+  "tree_equality_verified": true,
+  "post_merge": [
+    {
+      "name": "smoke",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39194510354/job/117874243001"
+    },
+    {
+      "name": "provenance",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/bendourthe/Nexus-Hub/actions/runs/39194510354/job/117874242834"
+    }
+  ],
+  "hosted_profiles": [
+    {
+      "profile": "Linux",
+      "commands_passed": 21,
+      "commands_failed": 0,
+      "commands_skipped": 0,
+      "advisory": 0,
+      "seconds": 2057.3,
+      "job": 117861239841,
+      "log_sha256": "53069e248f2a24c652bf74fd3754778628c97ae051cc2577c4c59aa67f2dc40d"
+    },
+    {
+      "profile": "Windows platform",
+      "commands_passed": 6,
+      "commands_failed": 0,
+      "commands_skipped": 0,
+      "advisory": 0,
+      "seconds": 1811,
+      "job": 117861239863,
+      "log_sha256": "8cea683158a67ee8987e94e993310677d78dfcbf7cfcfb41a5817edc1f5bf35d"
+    },
+    {
+      "profile": "Windows installer-core",
+      "commands_passed": 2,
+      "commands_failed": 0,
+      "commands_skipped": 0,
+      "advisory": 0,
+      "seconds": 347.8,
+      "job": 117861239903,
+      "log_sha256": "96883844e694af03730f1ce57a9a72e8af60d006dd138a1bc3083ef55ac13dce"
+    },
+    {
+      "profile": "Windows installer",
+      "commands_passed": 3,
+      "commands_failed": 0,
+      "commands_skipped": 0,
+      "advisory": 0,
+      "seconds": 2778.6,
+      "job": 117861239889,
+      "log_sha256": "e3cdd68ca73f2b54702468c55f04d506b9b363456dfd20f70619c80640145bae"
+    }
+  ],
+  "source_hashes": {
+    "scripts/completion_minor.py": "9b7b05e3df6ed522006456e2e7c371c6760f94da1f0eb7648cda2f694eae8912",
+    "tests/validators/test_gap_migration_and_archive.py": "d694ea565b69850efbd0ec3ecbc7822c18f3247b1252100b1bf735a2c727931b",
+    "scripts/approval_page.py": "4610466f481034dd6f2a9601fae4b18d7bd99989eb028c20c6cf6bf5d3284eca",
+    "tests/validators/test_approval_page.py": "7a67976d1620c62a9b89e8f1be873bb29a324e244401255d0194c279ccc79e76"
+  },
+  "advisory_dispositions": {
+    "kind": "non_failing_codeql_advisory_disposition",
+    "pr": 485,
+    "source_head": "b70a39f2efc6035faf86906ef3be3a99a484ceff",
+    "reviewed_at_utc": "2026-10-19T03:23:19.889Z",
+    "codeql_and_all_hosted_checks": "44 successful",
+    "policy": "Existing required-conversation-resolution retained; no source or protection changes, no CI reruns, no new review comments",
+    "items": [
+      {
+        "thread": "PRRT_kwDOQ1hn9s6tvqUP",
+        "path": "tests/ci/test_ci_scenarios.py",
+        "line": 188,
+        "url": "https://github.com/bendourthe/Nexus-Hub/pull/485#discussion_r4309227662",
+        "title": "## CodeQL / Unnecessary lambda",
+        "disposition": "accepted_style_no_behavior_change",
+        "reason": "The lambda forwards pid and signal to os.kill in the intentional parent-only negative control. Direct-call simplification is stylistic; the control must leave the redirected grandchild alive, contrasting with real process-group cleanup.",
+        "evidence": [
+          "tests/ci/test_ci_scenarios.py:188",
+          "test_timeout_reaps_redirected_grandchild process-tree and parent-only controls",
+          "codeql-timeout-local-correction.json: 23 Linux and 23 Windows cases; final hosted suites green"
+        ]
+      },
+      {
+        "thread": "PRRT_kwDOQ1hn9s6tvqUR",
+        "path": "tests/ci/test_ci_scenarios.py",
+        "line": 147,
+        "url": "https://github.com/bendourthe/Nexus-Hub/pull/485#discussion_r4309227663",
+        "title": "## CodeQL / Module is imported with 'import' and 'import from'",
+        "disposition": "accepted_style_no_behavior_change",
+        "reason": "ctypes supplies WinDLL and WinError while ctypes.wintypes supplies explicit Windows FFI types. The mixed import style does not shadow or conflict with either binding; actual Windows controls pass.",
+        "evidence": [
+          "tests/ci/test_ci_scenarios.py:147",
+          "OpenProcess, WaitForSingleObject and CloseHandle typed Win32 boundary",
+          "final Windows platform and installer checks successful"
+        ]
+      },
+      {
+        "thread": "PRRT_kwDOQ1hn9s6tvqUW",
+        "path": "scripts/lib/integrations/claude.py",
+        "line": 178,
+        "url": "https://github.com/bendourthe/Nexus-Hub/pull/485#discussion_r4309227670",
+        "title": "## CodeQL / Empty except",
+        "disposition": "intentional_safe_fallback",
+        "reason": "Missing or unreadable ownership metadata leaves owned=False. The read-only diagnostic therefore treats the value as user-owned and advises removal only of that explicit override; it neither claims Nexus ownership nor changes settings.",
+        "evidence": [
+          "scripts/lib/integrations/claude.py:178",
+          "test_effort_diagnostic_respects_seed_ownership",
+          "test_effort_diagnostic_handles_invalid_user_settings_read_only",
+          "legacy override case in test_core_settings_seeding.py"
+        ]
+      },
+      {
+        "thread": "PRRT_kwDOQ1hn9s6tvqUZ",
+        "path": "scripts/ci/verify_scenarios.py",
+        "line": 32,
+        "url": "https://github.com/bendourthe/Nexus-Hub/pull/485#discussion_r4309227673",
+        "title": "## CodeQL / Empty except",
+        "disposition": "intentional_already_exited_cleanup",
+        "reason": "ProcessLookupError means the child process group has already exited. Cleanup still waits for the parent and re-raises the original exception. Other kill errors are not swallowed; positive cleanup and deliberate parent-only survivor controls pass.",
+        "evidence": [
+          "scripts/ci/verify_scenarios.py:32",
+          "test_timeout_reaps_redirected_grandchild",
+          "final Linux 21/21 commands and Windows installer 3/3 commands"
+        ]
+      }
+    ],
+    "source_hashes": [
+      {
+        "path": "tests/ci/test_ci_scenarios.py",
+        "sha256": "43fd6cedda6e9815333fd3169047d1f26f159a7f4555df9b974de6762e3af26e"
+      },
+      {
+        "path": "scripts/lib/integrations/claude.py",
+        "sha256": "e222462645b683412dc917379c28ee215dde425f89fc35199922484cfe30d2ff"
+      },
+      {
+        "path": "scripts/ci/verify_scenarios.py",
+        "sha256": "3c73bd12e45c312bbca338d3b21048bdc082ae627bd9df6640a1128c2b84d9ec"
+      }
+    ]
+  },
+  "qualification_reuse": {
+    "receipt": "final-local-profiles-v9.json",
+    "scope": "Retained unfiltered full 65/65 and Windows 12/12 results apply only to unchanged covered inputs. Workflow and subsequent corrections were separately qualified locally and by the final hosted checks; these are not new unfiltered 65/12 executions.",
+    "workflow_receipt": "parallel-workflow-qualification.json",
+    "migration_receipt": "codeql-migration-comment-correction.json",
+    "approval_receipt": "approval-code-prose-correction.json",
+    "post_gate": {
+      "observed_utc": "2026-10-18T23:03:46.775417+00:00",
+      "monitor_exit": 0,
+      "monitor_commands": 14,
+      "monitor_all_pass": true,
+      "monitor_summary_sha256": "5232eca270ec68a5592984108a4923f3902b5590f9e7992d9566b3e1eda0c32a",
+      "guide_exit": 0,
+      "guide_counts": {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "guide_all_pass": true,
+      "guide_xml_sha256": "143fc21a4751b0413b73321acf2daa7f7aeb4fc128fe6cdae935803236f1c64d",
+      "require_render": true,
+      "source_before_count": 8313,
+      "source_after_count": 8313,
+      "changed": [],
+      "missing": [],
+      "new": [],
+      "source_unchanged": true,
+      "new_guard_accepts": 0,
+      "duration_seconds": 153.71900000001187
+    }
+  },
+  "authority": {
+    "new_guard_accepts": 0,
+    "historical_guard_accepts": 14,
+    "global_deep_review_passes_used": 3,
+    "stabilization_repushes_used": 3,
+    "explicit_ci_reruns": 0,
+    "worker_admissions": 0,
+    "releases": 0
+  }
+}

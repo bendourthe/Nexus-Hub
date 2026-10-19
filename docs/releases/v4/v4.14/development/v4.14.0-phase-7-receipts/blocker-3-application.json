@@ -1,0 +1,17 @@
+{
+  "approval": "A3FZ6XTY",
+  "recorder": "ANSWERED blocker 3 minor v4.14",
+  "source": {
+    "ps1": {
+      "before": "f63818a2aaeb2d8f59c16883323b37d0bd297ada921203eaacf251b896a927c3",
+      "after": "230a93f8d9d2e7f652cfcb287911373862539249da68f419103bb44ec16a92d9",
+      "only_strict_function": true
+    },
+    "sh": {
+      "before": "5346e4283ae0f9556275469ef8e217d4b9cd9d7b883aea4d52506a1df9d62548",
+      "after": "d18a5b40e106f51508f6948c92dbc09b7297035d25f0ca24655ae965011661e4",
+      "only_strict_function": true
+    }
+  },
+  "tracked_regressions_applied": true
+}

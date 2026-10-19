@@ -132,7 +132,7 @@ Based on your current model and usage level, the dashboard also shows model-spec
 
 ### Usage-limit resets
 
-The claude.ai usage page can list a one-time limit reset. This monitor shows nothing about resets, because the usage response it reads (`api.anthropic.com/api/oauth/usage`) does not report them: a capture on 2026-10-01 had no reset field. The monitor does not infer a reset from percentages or dates. Check the claude.ai usage page (**Open Usage Page** in the dashboard) for resets.
+The claude.ai usage page can list a one-time limit reset with its expiry date. The dashboard has a **Limit Resets** row in the same place as the Codex monitor's, but it reads "Not reported by the Claude usage API", because the usage response this monitor reads (`api.anthropic.com/api/oauth/usage`) carries no reset count: captures on 2026-10-01 and 2026-10-19 had no reset field. The monitor never claims a reset is available or absent, and never infers one from percentages or dates. The row's **Open reset page** button opens the claude.ai usage page, which shows any reset you hold; the monitor never uses a reset itself.
 
 ### Save Raw Usage Response
 

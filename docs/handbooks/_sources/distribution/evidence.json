@@ -1,50 +1,52 @@
 {
   "snapshot": {
-    "entry_sha256": "90b6e519dbbdebc658cdf68459bed2600a07046cadb095ade2509bc7711c1165",
+    "entry_sha256": "faac6146389e696512f0bb3929c642540712758e6f1c57a06d7a07091261528c",
     "inputs": {
-      "docs/handbooks/_sources/distribution/model.json": "3f3b9e1222a51583962e4de248d9ac74804b03a2b3102605e8e1911c8ea3496d",
-      "docs/handbooks/_sources/distribution/source.md": "495f2edd8b5046d38801c6e675385cc500b552da8231a381ff5e811db62721fa",
-      "docs/handbooks/_sources/distribution/design.css": "4d2975128abe327205e8b3c4fd62d351644221e9e03bfbaa539986f3cc1b9a70",
-      "scripts/installer.ps1": "89744418baf54fcb27b28c84e3ea9f9581b1f92541f5d612253ac8abc9791522",
-      "scripts/installer.sh": "ee0e85ab2fb04b442ac38e450a537e1bb2a7cae9d47c6c09c35d1d260e99163b",
-      "scripts/lib/integrations/runner.py": "5429ec6c9896b95285effe8215b2d3ca291c920bad6ccf8dec0ffa93cca7b78f",
+      "docs/handbooks/_sources/distribution/model.json": "f027cf220fe45326c51d238da8d950d43f2736ad90839da6c558fb2e006ccaf8",
+      "docs/handbooks/_sources/distribution/source.md": "676c9003f5bcf9dc2b86791ad8e2a7a6c14347acf1cbea7ae6641da68d8c0e46",
+      "docs/handbooks/_sources/distribution/design.css": "e897d6a59a2c1dbcfad89e0ba8d6c5b32ae6baa024acbc0bc26b4be63de8a7ac",
+      "scripts/installer.ps1": "40035601f7364e5f5697e44641969140b9cf20eb99c0c583f9a78522bb7c9663",
+      "scripts/installer.sh": "105b7af86c87ebdaf9e3c430cac488fdd51f3961be1afd8ec8071013e0db257f",
+      "scripts/lib/integrations/runner.py": "03f2c090a6401552d215e0fb1c1556f9137d07e6db6a3e1f63c0bc316beddbbe",
+      "scripts/nexus_hub_cli.py": "ebaf422e77d1e9a4506b7d7c61aa1669acc4dd6161f59d6ca662152ba213d236",
+      "scripts/lib/integrations/claude.py": "e222462645b683412dc917379c28ee215dde425f89fc35199922484cfe30d2ff",
       "scripts/lib/integrations/_catalog_adapters.py": "6a8e0f1375df9ae401302b1b13a1559f093d7aecd0c5ae0c134f9dddad162647",
       "scripts/lib/integrations/_owned.py": "abfac9b0161e9148e236532b85a854bf512c3100bc5f39fed7e8474e7fd727e4",
       "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py": "55a10ebfa2412b48243ae72ca70180f12aa80cc7f89d66cad0911d275bb9ce50",
-      "catalog/skills/specialized-domains/document-to-interactive-html/scripts/dual_view.py": "cb97c1c53dd4560f3a59b9cc08d54223c4e0d49c2373bed3c20b5430607053a2",
+      "catalog/skills/specialized-domains/document-to-interactive-html/scripts/dual_view.py": "26eea3abc03a35319cff431979b19848f14fc469c5a3b5ac0f6264e77da0a894",
       "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-runtime.js": "336a276024b786f95287178e1ce455328aee1c253ed3dc05709e49c58cde1ce6",
       "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view-figures.js": "1891f3f4eaabc43c743d5360a6615338d65cf50ed8cc02a771d32a07c194e17d",
       "catalog/skills/specialized-domains/document-to-interactive-html/assets/dual-view.css": "e60e94cd26d4ba622ede429d9c7862a82dea491ac1b174bd86023ac5e5245c35",
       "docs/handbooks/_sources/distribution/route-composition.html": "349e1382529a541ee001f589b96194205c6e0854037bae2d240f54749b6d1cb3",
       "docs/handbooks/_sources/distribution/shapes-composition.html": "0ca661a5cd11e83a6745f00e32cb2086eaa7664845efe064e5a8863a7223fa85",
       "docs/handbooks/_sources/distribution/identity-composition.html": "8f5ac756f4a58e3745548ea8476d1300e9dbc9683fbe44e0037c928773f69014",
-      "docs/handbooks/_sources/distribution/ownership-composition.html": "31df6a101328862f4e525a8b79cec45cb531d3404a8c97a108b48fca4ff231e3",
+      "docs/handbooks/_sources/distribution/ownership-composition.html": "025422d952c71b3732e4b0c3b9b5e40e7a87d2380cb65e58e9a4ab75800d758a",
       "docs/handbooks/_sources/distribution/verification-composition.html": "0c679ab8af04bab8d40146cb899e1768b795e904048ea4d95ab56fdcea986779",
       "scripts/nexus_git_attribution.py": "2206437a578d73993e5de82424498aa20c57409deb76def7e5c02363dde5346a",
       "catalog/style-guides/git-attribution.md": "f4abb51bdbd97f19a115024c51ba0e9a414f4e377590c05efcbdc8693ede7b29",
-      "scripts/lib/integrations/cursor.py": "9cc127d07c30153cbda24b4faf4774ae79705406c05ee466e34b5fbbe1e52f4e",
+      "scripts/lib/integrations/cursor.py": "f68c2824ce2d8fc00b5fd93bd84506ca75b3ac0d675f5f8ae593da03060b8ea4",
       "scripts/lib/integrations/aider.py": "7737442015938681795878452050de557a09324651e29247de3ee231513e9798",
-      "configs/platform-defaults.json": "3191c740dac13759e0b49e91887a7726c801d010f370f2696a2334df74f77ad8"
+      "configs/platform-defaults.json": "022415928dd49974ef54643f90f9a58e9b1225afa3bf2385366a14f251932c58"
     },
-    "output_sha256": "d520007558410ed00944291b109b6e46302d5e46ced3224f54af4c640b20eac1"
+    "output_sha256": "a857627a0244f95b4966dc9c099a8d6d3f66f3ba7b3406e12a0ba8670cc8218c"
   },
   "checks": {
     "content": {
       "status": "pass",
       "evidence": "docs/releases/v4/v4.14/development/codex-windows-sandbox-handbook-claim-review.md",
-      "evidence_sha256": "8c432669f35a2f169ae1501fc3046a2eac30556b1c83707a6e995340c1536fb8"
+      "evidence_sha256": "04bf8728d3bbd1eba72e3aaecbca3cff911438f6c2935311a7c754edcf83767d"
     },
     "build": {
       "status": "pass",
-      "evidence": "docs/archives/v4/v4.13/development/v4.13.11-phase-8-receipts/distribution-build.json",
-      "evidence_sha256": "9a665f98754d36ed2d6816f1dd3c78bf8d2d8d566b8cfde92fc22495420c0f85"
+      "evidence": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/distribution-release-version-build.json",
+      "evidence_sha256": "3d90c4adc503b6d396cd9c07cdb51896902bf03040c45e8aeada0ccaba11ce81"
     },
     "rendered": {
       "status": "pass",
-      "evidence": "docs/archives/v4/v4.13/development/v4.13.11-phase-8-receipts/distribution-render.json",
-      "evidence_sha256": "ed3348526e027d6fc7d77c6ab486a5e4099ddfb971110d0b47cbc5546f50e560",
-      "browser": "Chromium 151.0.7922.34",
-      "output_sha256": "d520007558410ed00944291b109b6e46302d5e46ced3224f54af4c640b20eac1"
+      "evidence": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/handbook-browser-after-skills-repair.json",
+      "evidence_sha256": "713b593c69e77674ec12ca9bb5f3826f6145d9ce1a85c2e179d68b3a79ece019",
+      "browser": "Chromium 153.0.8010.12",
+      "output_sha256": "a857627a0244f95b4966dc9c099a8d6d3f66f3ba7b3406e12a0ba8670cc8218c"
     }
   }
 }

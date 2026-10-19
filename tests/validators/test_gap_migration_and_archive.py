@@ -20,6 +20,7 @@ stand-in; no case touches the network.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import subprocess
 import sys
@@ -122,7 +123,12 @@ class Close(Minor):
             "blockers": [], "pause": None, "completed": None,
         }
         record["approvals_hmac"] = ck._sign(record, ck._secret(create=True) or b"")
-        ck._write_record(rctx.scoped_record_path("minor:" + token), record)
+        path = rctx.scoped_record_path("minor:" + token)
+        with ck.minor_creation_lease(rctx, token):
+            raw = path.read_bytes() if path.exists() else None
+            expected = hashlib.sha256(raw).hexdigest() if raw is not None else None
+            with ck.minor_lease(path, expected, rctx):
+                ck._write_record(path, record)
         return record
 
     def close(self, *args: str) -> subprocess.CompletedProcess:
@@ -1263,3 +1269,34 @@ def test_register_status_and_zero_line_are_read_from_the_header_only(repo: Close
     lines = result.stdout.splitlines()
     assert f"REFUSED: register-not-finalized ({GAPS05})" in lines
     assert f"REFUSED: open-items-not-zero ({GAPS05})" in lines
+
+
+@pytest.mark.parametrize("ending", ["-->", "--!>"], ids=["standard-end", "bang-end"])
+@pytest.mark.parametrize("hidden", [False, True], ids=["visible-provenance", "hidden-provenance"])
+def test_migration_comment_endings_preserve_visible_only_provenance(repo: Close, ending: str, hidden: bool) -> None:
+    """Both HTML endings close comments; a marker inside either comment is never proof."""
+    repo.standard(RETAINED_WARNING)
+    repo.forge()
+    open_source = repo.read(GAPS05)
+    assert repo.migrate().returncode == 0
+    migrated_source = repo.read(GAPS05)
+    provenance = "- **Migrated from**: v0.5#WN-3 on 2026-09-29 (reason: vendor-feature)"
+    target = repo.read(GAPS06)
+    assert target.count(provenance) == 1
+    replacement = ("<!--\n" + provenance + "\n" + ending) if hidden else ("<!-- retained documentation\n" + ending + "\n" + provenance)
+    repo.write(GAPS06, target.replace(provenance, replacement))
+    repo.write(GAPS05, open_source)  # The generated destination survived a lost source write.
+    before = [(repo.work / rel).read_bytes() for rel in (GAPS05, GAPS06)]
+    result = repo.migrate()
+    if hidden:
+        assert result.returncode == 3 and result.stdout.startswith("REFUSED: migration-provenance-hidden "), result.stdout + result.stderr
+        assert [(repo.work / rel).read_bytes() for rel in (GAPS05, GAPS06)] == before
+    else:
+        assert result.returncode == 0, result.stdout + result.stderr
+        assert "v0.6#WN-1" in result.stdout
+        assert (repo.work / GAPS06).read_bytes() == before[1]
+    repo.write(GAPS05, migrated_source)
+    status, notices = repo.gaps_minor()
+    assert status == ("unmet" if hidden else "met"), notices
+    if hidden:
+        assert "gaps.minor migration v0.5#WN-3 migration-provenance-hidden" in notices

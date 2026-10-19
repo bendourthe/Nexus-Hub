@@ -1,0 +1,75 @@
+{
+  "started": "2026-10-17T01:31:50.052151+00:00",
+  "source_root": "C:\\Users\\[redacted:user]\\Documents\\Benjamin\\nexus\\Nexus-Hub-v4.14.0-adoption-agent-tooling-and-subagent-cost",
+  "host": "Windows PowerShell 5.1",
+  "source_script_sha256": "230a93f8d9d2e7f652cfcb287911373862539249da68f419103bb44ec16a92d9",
+  "cases": [
+    {
+      "case": "owned-upgrade",
+      "exit": 0,
+      "seconds": 178.42,
+      "absolute_subagent_value": "sonnet",
+      "legacy_effort": null,
+      "pinned_agents": 23,
+      "strict_deny_count": 22,
+      "strict_ask_count": 12,
+      "hook_commands": 50,
+      "errors": [],
+      "log": "C:\\Users\\[redacted:user]~1\\AppData\\Local\\Temp\\nexus-v4140-native-windows-xfmzb3ek\\owned-upgrade\\installer.log"
+    },
+    {
+      "case": "user-upgrade",
+      "exit": 0,
+      "seconds": 136.45,
+      "absolute_subagent_value": "sonnet",
+      "legacy_effort": "medium",
+      "pinned_agents": 23,
+      "strict_deny_count": 22,
+      "strict_ask_count": 12,
+      "hook_commands": 50,
+      "errors": [],
+      "log": "C:\\Users\\[redacted:user]~1\\AppData\\Local\\Temp\\nexus-v4140-native-windows-xfmzb3ek\\user-upgrade\\installer.log"
+    },
+    {
+      "case": "fresh",
+      "exit": 0,
+      "seconds": 143.89,
+      "absolute_subagent_value": "sonnet",
+      "legacy_effort": null,
+      "pinned_agents": 23,
+      "strict_deny_count": 22,
+      "strict_ask_count": 12,
+      "hook_commands": 49,
+      "errors": [],
+      "log": "C:\\Users\\[redacted:user]~1\\AppData\\Local\\Temp\\nexus-v4140-native-windows-xfmzb3ek\\fresh\\installer.log"
+    },
+    {
+      "case": "case-upgrade",
+      "exit": 1,
+      "seconds": 18.52,
+      "absolute_subagent_value": "sonnet",
+      "legacy_effort": "medium",
+      "pinned_agents": 23,
+      "strict_deny_count": 23,
+      "strict_ask_count": 13,
+      "hook_commands": 50,
+      "errors": [
+        "installer exit 1",
+        "repeated full upgrade changed settings or failed"
+      ],
+      "log": "C:\\Users\\[redacted:user]~1\\AppData\\Local\\Temp\\nexus-v4140-native-windows-xfmzb3ek\\case-upgrade\\installer.log"
+    }
+  ],
+  "protected_host_files_unchanged": true,
+  "protected_before": {
+    "C:\\Users\\[redacted:user]\\.claude\\settings.json": "0e6c73701cff5dcf745a7c92aaa07fbd5c10c344cb14f3a64d718e067b74d3a3",
+    "C:\\Users\\[redacted:user]\\.gitconfig": "a11905a2dbaf7fe4a10470579b8ff9872a490eddad8ea48acb97195c88c7de6e",
+    "C:\\Users\\[redacted:user]\\.nexus-hub\\install-manifest.json": "766eb60fcd0ce7c85a4adcaec7e511cdd874f447e25d4d9efad9e9d41aad6be2"
+  },
+  "protected_after": {
+    "C:\\Users\\[redacted:user]\\.claude\\settings.json": "0e6c73701cff5dcf745a7c92aaa07fbd5c10c344cb14f3a64d718e067b74d3a3",
+    "C:\\Users\\[redacted:user]\\.gitconfig": "a11905a2dbaf7fe4a10470579b8ff9872a490eddad8ea48acb97195c88c7de6e",
+    "C:\\Users\\[redacted:user]\\.nexus-hub\\install-manifest.json": "766eb60fcd0ce7c85a4adcaec7e511cdd874f447e25d4d9efad9e9d41aad6be2"
+  },
+  "excluded_live_host_file": "VS Code settings: concurrent change in prior probe; installer-selected Claude path and redirected APPDATA do not establish exclusive ownership of that live file"
+}

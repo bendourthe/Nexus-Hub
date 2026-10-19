@@ -36,15 +36,18 @@ import hashlib
 import json
 import os
 import re
+import secrets
 import shutil
 import stat
 import sys
+import time
 import zipfile
 from pathlib import Path
 
 EXIT_OK, EXIT_ERROR, EXIT_CHANGED, EXIT_NO_RECORD, EXIT_CANNOT_VERIFY = 0, 2, 3, 4, 5
 RETENTION_DAYS = 30
 COPY_CAP_BYTES = 10 * 1024 * 1024
+_CACHE_COPY_NAME = re.compile(r"\.?([0-9a-f]{64})(?:\.[0-9a-f]{32})?\.bin(?:\.[0-9]+\.tmp)?")
 DIFF_WINDOW_SECONDS = 30 * 60
 CLEAN_WINDOW_SECONDS = 120  # a CLI check-write-record sequence; a user edit inside it is a residual risk
 OFFICE_EXTS = {".pptx", ".pptm", ".docx", ".docm", ".xlsx", ".xlsm", ".potx", ".dotx", ".xltx"}
@@ -96,13 +99,32 @@ def is_secret_looking(path: Path) -> bool:
     return any(fnmatch.fnmatch(name, pattern) for pattern in SECRET_PATTERNS)
 
 
+
+def _store_access_path(path: str | Path) -> Path:
+    """Use long-capable Windows addressing only for the private cache, not source keys."""
+    value = os.path.abspath(str(path))
+    if os.name == "nt":
+        if value.startswith(("\\\\?\\", "\\\\.\\")):
+            suffix = value[4:]
+            if not (re.match(r"^[A-Za-z]:\\", suffix) or suffix[:4].casefold() == "unc\\"):
+                raise GuardError("unsupported Windows namespace for the edit-guard store")
+            value = "\\\\?\\" + suffix
+        else:
+            value = "\\\\?\\UNC\\" + value[2:] if value.startswith("\\\\") else "\\\\?\\" + value
+    return Path(value)
+
+
+def _store_real_path(path: str | Path) -> Path:
+    return Path(os.path.realpath(str(_store_access_path(path))))
+
+
 def _synced_roots() -> list[str]:
     roots = [os.environ.get(v, "") for v in ("OneDrive", "OneDriveCommercial", "OneDriveConsumer")]
-    return [canonical(r) for r in roots if r]
+    return [canonical(_store_real_path(r)) for r in roots if r]
 
 
 def in_synced_root(path: Path) -> bool:
-    canon = canonical(path)
+    canon = canonical(_store_real_path(path))
     if any(canon == r or canon.startswith(r + "/") for r in _synced_roots()):
         return True
     return any(SYNC_ROOT_NAMES.match(part) for part in Path(os.path.realpath(str(path))).parts)
@@ -157,14 +179,20 @@ def store_dir() -> Path:
     """The store root, refusing any location that would leak copies of user files."""
     explicit = os.environ.get("NEXUS_EDIT_GUARD_DIR")
     raw = explicit or str(Path.home() / ".nexus-hub" / "cache" / "edit-guard")
-    root = Path(os.path.abspath(raw))
-    cwd = Path(os.path.realpath(os.getcwd()))
-    real = Path(os.path.realpath(str(root)))
+    root = _store_real_path(raw)
+    cwd = _store_real_path(os.getcwd())
+    real = root
     # The default store sits under the home folder, so an agent working from its home (or any
     # folder above it) is normal; only an explicitly chosen store may not sit in the workspace.
     if explicit and (real == cwd or cwd in real.parents):
         raise GuardError(f"refusing a store inside the current workspace: {root}")
-    if in_git_repo(real):
+    for parent in (real, *real.parents):
+        try:
+            (parent / ".git").stat()
+        except FileNotFoundError:
+            continue
+        except OSError as exc:
+            raise GuardError(f"cannot verify store repository exclusion: {root}") from exc
         raise GuardError(f"refusing a store inside a git repository: {root}")
     if in_synced_root(real):
         raise GuardError(f"refusing a store inside a synced drive (OneDrive, SharePoint, Dropbox): {root}")
@@ -220,6 +248,37 @@ def _owner_only(path: Path, *, directory: bool) -> None:
         kernel.LocalFree(descriptor)
 
 
+def _replace_private(staging: Path, path: Path) -> None:
+    """Retry only Windows replacement contention, retaining the same private staged bytes."""
+    for attempt in range(5):
+        try:
+            os.replace(staging, path)
+            return
+        except OSError as exc:
+            if os.name != "nt" or getattr(exc, "winerror", None) != 5 or attempt == 4:
+                raise
+            time.sleep(0.01 * 2 ** attempt)
+
+
+def _copy_path(root: Path, key: str, record: dict | None = None) -> Path:
+    """Read old stores unchanged; a new snapshot name is confined to this record's key."""
+    record = record or {}
+    if "copy_name" not in record:
+        return root / "copies" / f"{key}.bin"
+    name = record["copy_name"]
+    if not isinstance(name, str) or not re.fullmatch(re.escape(key) + r"\.[0-9a-f]{32}\.bin", name):
+        raise GuardError("invalid edit-guard snapshot reference")
+    return root / "copies" / name
+
+
+def _has_copy(root: Path, key: str, record: dict) -> bool:
+    """New readers follow validated pointers; legacy readers see only fixed-file availability."""
+    if "copy_name" in record:
+        _copy_path(root, key, record)
+        return True
+    return bool(record.get("copy"))
+
+
 def _write_private(path: Path, data: bytes) -> None:
     staging = path.with_name(f".{path.name}.{os.getpid()}.tmp")
     fd = os.open(staging, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
@@ -227,9 +286,12 @@ def _write_private(path: Path, data: bytes) -> None:
         with os.fdopen(fd, "wb") as stream:
             stream.write(data)
         _owner_only(staging, directory=False)
-        os.replace(staging, path)
+        _replace_private(staging, path)
     finally:
-        staging.unlink(missing_ok=True)
+        try:
+            staging.unlink(missing_ok=True)
+        except OSError:
+            pass  # Cleanup must not turn an already committed record into a failed one.
 
 
 def load_record(root: Path, key: str) -> dict | None:
@@ -265,12 +327,37 @@ def prune(root: Path) -> int:
         if stamp < cutoff:
             _delete(root, record_path.stem)
             removed += 1
+    # Failed publications can leave private generations without a live record.
+    for copy in (root / "copies").iterdir():
+        match = _CACHE_COPY_NAME.fullmatch(copy.name)
+        if match is None:
+            continue
+        try:
+            record = load_record(root, match[1])
+            if record and _has_copy(root, match[1], record) and copy == _copy_path(root, match[1], record):
+                continue
+            if copy.stat().st_mtime >= cutoff.timestamp():
+                continue
+            copy.unlink(missing_ok=True)
+        except (OSError, GuardError):
+            continue
     return removed
 
 
+def _delete_copies(root: Path, key: str | None = None) -> None:
+    if key is not None and not re.fullmatch(r"[0-9a-f]{64}", key):
+        raise GuardError("invalid edit-guard record key")
+    for copy in (root / "copies").iterdir():
+        match = _CACHE_COPY_NAME.fullmatch(copy.name)
+        if match and (key is None or match[1] == key):
+            copy.unlink(missing_ok=True)
+
+
 def _delete(root: Path, key: str) -> None:
+    if not re.fullmatch(r"[0-9a-f]{64}", key):
+        raise GuardError("invalid edit-guard record key")
     (root / "records" / f"{key}.json").unlink(missing_ok=True)
-    (root / "copies" / f"{key}.bin").unlink(missing_ok=True)
+    _delete_copies(root, key)
 
 
 # --- fingerprints ---------------------------------------------------------------
@@ -313,10 +400,10 @@ def is_placeholder(info: os.stat_result) -> bool:
     return bool(getattr(info, "st_file_attributes", 0) & PLACEHOLDER_ATTRS)
 
 
-def fingerprint(path: Path) -> dict:
+def fingerprint(path: Path, *, suffix: str | None = None) -> dict:
     """Streamed content fingerprint; Office files by content part, excluding docProps/*."""
     info = _regular_file(path)
-    if path.suffix.lower() in OFFICE_EXTS:
+    if (suffix if suffix is not None else path.suffix).lower() in OFFICE_EXTS:
         try:
             with zipfile.ZipFile(path) as archive:
                 parts = {}
@@ -340,7 +427,7 @@ def open_or_conflicting(path: Path) -> list[str]:
     for candidate in {lock, path.with_name("~$" + path.name)}:
         if candidate.exists():
             found.append(f"lock file {candidate.name}")
-    machine = re.compile(r"^[A-Z0-9][A-Z0-9-]{2,30}$")
+    machine = re.compile(r"^(?![0-9]+$)[A-Z0-9][A-Z0-9-]{2,30}$")
     local = (os.environ.get("COMPUTERNAME") or "").upper()
     for sibling in path.parent.glob(f"{path.stem}-*{path.suffix}"):
         token = sibling.stem[len(path.stem) + 1:]
@@ -523,35 +610,71 @@ def _may_rebaseline(args, existing: dict) -> bool:
     return (now() - dt.datetime.fromisoformat(clean["at"])).total_seconds() <= CLEAN_WINDOW_SECONDS
 
 
-def cmd_record(args, root: Path) -> int:
+def cmd_record(args, root: Path, *, expected_sha256: str | None = None) -> int:
     path = Path(args.path)
     key = key_for(path)
     existing = load_record(root, key)
     current = fingerprint(path)
+    if expected_sha256 is not None and current["sha256"] != expected_sha256:
+        print("refused: the file changed after the diff was shown; run diff again")
+        return EXIT_CHANGED
     if existing and existing["sha256"] != current["sha256"] and not _may_rebaseline(args, existing):
         print(f"refused: {path} changed since the agent last recorded it; run diff and review, then accept "
               "if the user agrees")
         append_log(root, {"event": "record-refused", "path": canonical(path)})
         return EXIT_CHANGED
     copy_note = None
-    copy_path = root / "copies" / f"{key}.bin"
-    if is_secret_looking(path):
-        copy_note = "secret-looking path: no copy kept"
-        copy_path.unlink(missing_ok=True)
-    elif current["size"] > COPY_CAP_BYTES:
-        copy_note = f"over the {COPY_CAP_BYTES // (1024 * 1024)} MB copy cap: no copy kept"
-        copy_path.unlink(missing_ok=True)
-    else:
-        staging = copy_path.with_name(f".{copy_path.name}.{os.getpid()}.tmp")
-        shutil.copyfile(path, staging)
-        _owner_only(staging, directory=False)
-        os.replace(staging, copy_path)
-    record = {
-        "path": canonical(path), "display": str(path), "seq": (existing or {}).get("seq", 0) + 1,
-        "from": args.source, "at": now().isoformat(timespec="seconds"), "copy": copy_note is None,
-        "copy_note": copy_note, "mtime_ns": os.stat(path).st_mtime_ns, **current,
-    }
-    save_record(root, key, record)
+    previous_copy = _copy_path(root, key, existing)
+    copy_path = None
+    committed = False
+    created_copy = False
+    try:
+        if is_secret_looking(path):
+            copy_note = "secret-looking path: no copy kept"
+        elif current["size"] > COPY_CAP_BYTES:
+            copy_note = f"over the {COPY_CAP_BYTES // (1024 * 1024)} MB copy cap: no copy kept"
+        elif (existing and _has_copy(root, key, existing) and existing["sha256"] == current["sha256"]
+              and previous_copy.is_file()
+              and fingerprint(previous_copy, suffix=path.suffix)["sha256"] == current["sha256"]):
+            copy_path = previous_copy
+        else:
+            copy_path = root / "copies" / f"{key}.{secrets.token_hex(16)}.bin"
+            created_copy = True
+            staging = copy_path.with_name(f".{copy_path.name}.{os.getpid()}.tmp")
+            try:
+                shutil.copyfile(path, staging)
+                _owner_only(staging, directory=False)
+                _replace_private(staging, copy_path)
+            finally:
+                try:
+                    staging.unlink(missing_ok=True)
+                except OSError:
+                    pass  # Keep a busy, unpublished staging file private until pruning.
+            if fingerprint(copy_path, suffix=path.suffix)["sha256"] != current["sha256"]:
+                print("refused: the file changed while its snapshot was prepared; run diff again")
+                return EXIT_CHANGED
+        if fingerprint(path)["sha256"] != current["sha256"]:
+            print("refused: the file changed while its snapshot was prepared; run diff again")
+            return EXIT_CHANGED
+        # Preserve the legacy boolean: generation-only bytes are unavailable to old readers.
+        record = {
+            "path": canonical(path), "display": str(path), "seq": (existing or {}).get("seq", 0) + 1,
+            "from": args.source, "at": now().isoformat(timespec="seconds"), "copy": copy_path is not None and copy_path.name == f"{key}.bin",
+            "copy_note": copy_note, "mtime_ns": os.stat(path).st_mtime_ns, **current,
+        }
+        if created_copy or (copy_path is not None and existing and existing.get("copy_name")):
+            record["copy_name"] = copy_path.name
+        if existing and _has_copy(root, key, existing) and previous_copy.is_file():
+            os.utime(previous_copy, None)  # Start the old snapshot's retention grace before retiring it.
+        save_record(root, key, record)
+        committed = True
+    finally:
+        if not committed and created_copy:
+            try:
+                copy_path.unlink(missing_ok=True)
+            except OSError:
+                pass  # An unreferenced private snapshot is removed by purge/pruning.
+    # Keep old immutable generations for in-flight metadata readers; pruning removes aged orphans.
     print(f"recorded {path} (seq {record['seq']}, from {args.source})" + (f"; {copy_note}" if copy_note else ""))
     return EXIT_OK
 
@@ -588,7 +711,10 @@ def cmd_check(args, root: Path) -> int:
 
 
 def _text_equal(root: Path, key: str, path: Path) -> bool:
-    copy = root / "copies" / f"{key}.bin"
+    record = load_record(root, key)
+    if record is None or not _has_copy(root, key, record):
+        return False
+    copy = _copy_path(root, key, record)
     if not copy.is_file():
         return False
     before, after = _office_text(copy, path.suffix), _office_text(path, path.suffix)
@@ -610,8 +736,8 @@ def cmd_diff(args, root: Path) -> int:
         print(f"no record: the agent never recorded {path}")
         return EXIT_NO_RECORD
     current = fingerprint(path)
-    copy = root / "copies" / f"{key}.bin"
-    print(render_diff(path, record, current, copy if record.get("copy") else None))
+    copy = _copy_path(root, key, record)
+    print(render_diff(path, record, current, copy if _has_copy(root, key, record) else None))
     record["diffed"] = {"session": session_id(args), "sha256": current["sha256"],
                         "at": now().isoformat(timespec="seconds")}
     save_record(root, key, record)
@@ -642,9 +768,9 @@ def cmd_accept(args, root: Path) -> int:
         return EXIT_CHANGED
     args.source = "write"
     args.force = True
-    record.pop("diffed", None)
-    save_record(root, key, record)
-    status = cmd_record(args, root)
+    status = cmd_record(args, root, expected_sha256=diffed["sha256"])
+    if status != EXIT_OK:
+        return status
     append_log(root, {"event": "accept", "path": canonical(path), "display": str(path), "session": session})
     print(f"accepted: {path} re-baselined after review")
     return status
@@ -671,7 +797,8 @@ def cmd_purge(args, root: Path) -> int:
         print(f"purged {args.path}")
     else:
         for record_path in (root / "records").glob("*.json"):
-            _delete(root, record_path.stem)
+            record_path.unlink(missing_ok=True)
+        _delete_copies(root)
         (root / "log.jsonl").unlink(missing_ok=True)
         print("purged every edit-guard record")
     return EXIT_OK
@@ -1298,7 +1425,7 @@ def main(argv: list[str] | None = None) -> int:
         root = store_dir()
         prune(root)
         return handlers[args.command](args, root)
-    except GuardError as exc:
+    except (GuardError, OSError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return EXIT_ERROR
 

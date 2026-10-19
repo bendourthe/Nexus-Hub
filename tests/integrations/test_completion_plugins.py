@@ -62,6 +62,7 @@ def home(tmp_path: Path) -> Path:
 
 def _env(home: Path, **extra: str) -> dict[str, str]:
     env = dict(os.environ)
+    env["NEXUS_HUB_RUNS_DIR"] = str(home / ".nexus-hub" / "runs")
     env.update(HOME=str(home), USERPROFILE=str(home), **extra)
     return env
 

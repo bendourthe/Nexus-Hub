@@ -115,7 +115,7 @@
         },
         "codexUsage.compactStatusBar": {
           "type": "boolean",
-          "default": false,
+          "default": true,
           "description": "Use a compact status-bar label: '<icon> X% (current) Y% (week)' instead of '<icon> Codex Usage: X% (current) Y% (week)'."
         },
         "codexUsage.thresholds.moderate": {

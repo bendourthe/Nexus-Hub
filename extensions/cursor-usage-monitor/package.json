@@ -182,7 +182,7 @@
         },
         "cursorUsage.showStatusBarLabel": {
           "type": "boolean",
-          "default": true,
+          "default": false,
           "description": "Show the 'Cursor Usage: ' prefix in the status bar. Turn it off to keep the icon and figures without the words. Ignored when compactStatusBar is on, which already hides it."
         },
         "cursorUsage.creditReminderStep": {

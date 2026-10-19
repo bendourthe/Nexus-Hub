@@ -65,11 +65,9 @@ def test_triggers_are_path_filtered_to_the_extension(workflow: dict[str, Any]) -
     assert set(triggers) == {"pull_request"}
     paths = triggers["pull_request"]["paths"]
     assert sorted(paths) == sorted(
-        [f"{EXTENSION_DIR}/**", ".github/workflows/copilot-usage-monitor.yml"]
+        [f"{EXTENSION_DIR}/**", ".github/workflows/copilot-usage-monitor.yml", "scripts/ci/**"]
     )
-    assert not any(path.startswith("scripts/") for path in paths), (
-        "installers are covered by ci.yml's installer smoke test"
-    )
+    assert not any(path.startswith("scripts/") and path != "scripts/ci/**" for path in paths)
 
 
 def test_the_workflow_does_not_rerun_itself_after_the_merge(
@@ -125,27 +123,22 @@ def test_node_setup_uses_node_22_and_the_exact_lockfile_cache(
 
 
 def test_job_runs_inside_the_extension_directory(workflow: dict[str, Any]) -> None:
-    defaults = workflow["jobs"]["build-and-test"]["defaults"]["run"]
-    assert defaults["working-directory"] == EXTENSION_DIR
+    from scripts.ci.profiles import PROFILES
+    group = next(group for group in PROFILES["full"] if group.name == "copilot-usage-monitor")
+    assert all(command.cwd == EXTENSION_DIR for command in group.commands)
 
 
 def test_gate_covers_clean_install_compile_coverage_and_packaging(
     build_steps: list[dict[str, Any]],
 ) -> None:
-    assert (
-        step_named(build_steps, "Install dependencies")["run"].strip()
-        == "npm ci --ignore-scripts"
-    )
-    assert "npm run compile" in step_named(build_steps, "Compile (tsc)")["run"]
-    assert (
-        "npm run test:coverage"
-        in step_named(build_steps, "Unit tests with coverage (Vitest)")["run"]
-    )
-    assert "npm run package" in step_named(build_steps, "Package VSIX")["run"]
-    assert (
-        "npm run verify:package"
-        in step_named(build_steps, "Verify packaged contents")["run"]
-    )
+    from scripts.ci.profiles import PROFILES
+    assert step_named(build_steps, "Install dependencies")["run"].strip() == "npm ci --ignore-scripts --prefix " + EXTENSION_DIR
+    scripts = "\n".join(step.get("run", "") for step in build_steps)
+    assert "--profile full --only copilot-usage-monitor" in scripts
+    group = next(group for group in PROFILES["full"] if group.name == "copilot-usage-monitor")
+    commands = [list(command.argv) for command in group.commands]
+    for script in ("compile", "test:coverage", "package", "verify:package"):
+        assert any(script in argv for argv in commands), script
 
 
 def test_the_extension_scripts_the_gate_calls_exist() -> None:
@@ -197,7 +190,7 @@ def test_monitor_workflows_install_without_scripts_and_watch_themselves(
     workflow file itself re-runs the workflow."""
     data = load(path)
     install = step_named(data["jobs"]["build-and-test"]["steps"], "Install dependencies")
-    assert install["run"].strip() == "npm ci --ignore-scripts"
+    assert install["run"].strip() == "npm ci --ignore-scripts --prefix extensions/" + path.stem
     own_path = f".github/workflows/{path.name}"
     assert own_path in data[ON_KEY]["pull_request"]["paths"]
 

@@ -1,0 +1,245 @@
+{
+  "private_evidence_sha256": "749d380108bbac9750b3e4aab97352788cc788d616b3efb0004028cd5e30a773",
+  "integration_head": "8b32922ca573fb57546611267b88246c1064f1e4",
+  "report": {
+    "schema_version": 1,
+    "status": "advisory_drift_reported_private_map_candidate_requires_explicit_operator_judgment",
+    "created_utc": "2026-10-19T03:44:02.524Z",
+    "user_local_date": "2026-10-18",
+    "release_target": "4.14.0",
+    "scope": "Release model governance only, not prompting profile research, model invocation, account eligibility proof or source mutation.",
+    "existing_evidence": {
+      "model_map_verified_as_of": "2026-10-15",
+      "profile_meta_last_verified": "2026-10-15",
+      "phase1_record": "docs/releases/v4/v4.14/development/history/v4.14.0-phase-1.md:44 records retention of Oct15 map and inability of local enumeration to validate mapped session model; no current release advisory receipt located in scoped searches.",
+      "reused_current_invocation_openai_docs": "Earlier T017 preflight fetched current Codex configuration and models pages; reused model/client/settings distinction without re-researching prompting profiles."
+    },
+    "governing_sources": [
+      "catalog/commands/update.md release model-prompting-profile staleness step",
+      "catalog/skills/ai-development/model-prompting-research/SKILL.md",
+      "catalog/skills/ai-development/model-prompting-research/references/research-runbook.md Step1",
+      "catalog/skills/ai-development/model-routing/SKILL.md Step4"
+    ],
+    "enumeration": {
+      "source": "Current official vendor documentation, permitted explicitly by update step; not represented as a complete authenticated client picker/catalog.",
+      "helper_results": [
+        {
+          "platform": "cursor",
+          "stdout": "{\"source\":\"picker\",\"models\":[],\"note\":\"no scriptable model list; read models from the platform model picker\"}",
+          "result": "Picker sentinel, no roster supplied by helper."
+        },
+        {
+          "platform": "gemini-cli",
+          "stdout": "{\"source\":\"config\",\"models\":[],\"note\":\"read model aliases from ~/.gemini/settings.json\"}",
+          "result": "Config sentinel; user settings file was not read."
+        }
+      ],
+      "codex_local_versions": {
+        "npm": "0.136.0",
+        "ide": "0.162.0-alpha.17.2"
+      },
+      "codex_runtime_catalog": "Not invoked: debug models help documents refresh by default and --bundled to skip refresh. No refresh was allowed to modify host state under this read-only assignment. Bundled would not prove current account roster. Native help/versions were exercised, not model inference.",
+      "limitations": [
+        "The selected public lineups are narrower than full legacy or authenticated account catalogs. The checker compares literal sets and describes differences as removals, but these outputs do not prove retirement or loss of account access.",
+        "No UNKNOWN clean pass is claimed; all four supplied official-ID comparisons actually terminate DRIFTED with exit0 in advisory mode.",
+        "No arbitrary model IDs or effort enums were inferred from harness metadata. No private account configuration, credentials, global memory or installed state was read or edited."
+      ]
+    },
+    "advisory_results": [
+      {
+        "label": "claude-current-lineup",
+        "platform": null,
+        "ids": [
+          "claude-fable-5-1",
+          "claude-opus-5-5",
+          "claude-sonnet-5-5",
+          "claude-haiku-5-5"
+        ],
+        "source": "https://platform.claude.com/docs/en/models/overview",
+        "args": [
+          "scripts/check_model_prompting_freshness.py",
+          "--advisory",
+          "claude-fable-5-1",
+          "claude-opus-5-5",
+          "claude-sonnet-5-5",
+          "claude-haiku-5-5"
+        ],
+        "exit_code": 0,
+        "stdout": "[profile-freshness] DRIFTED: the profile layer was last verified 2026-10-15 against a roster that no longer matches the live one.\r\n  removed (recorded but no longer live): claude-fable-5, claude-haiku-4-5, claude-haiku-4-5-20251001, claude-opus-4-5, claude-opus-4-5-20251101, claude-opus-4-6, claude-opus-4-7, claude-opus-4-8, claude-opus-5, claude-sonnet-4-5, claude-sonnet-4-5-20250929, claude-sonnet-4-6, claude-sonnet-5\r\n  Run /tune-prompting to refresh the profile layer. This is ADVISORY:\r\n  it never blocks a release and is not a CI gate.\r\n",
+        "stderr": ""
+      },
+      {
+        "label": "codex-current-recommended-lineup",
+        "platform": "codex",
+        "ids": [
+          "gpt-6-astra",
+          "gpt-6.1-sol",
+          "gpt-6-luna"
+        ],
+        "source": "https://learn.chatgpt.com/docs/models",
+        "args": [
+          "scripts/check_model_prompting_freshness.py",
+          "--advisory",
+          "--platform",
+          "codex",
+          "gpt-6-astra",
+          "gpt-6.1-sol",
+          "gpt-6-luna"
+        ],
+        "exit_code": 0,
+        "stdout": "[profile-freshness] DRIFTED: the profile layer was last verified 2026-10-15 against a roster that no longer matches the live one.\r\n  added (live but unprofiled): gpt-6-luna\r\n  removed (recorded but no longer live): codex-auto-review, gpt-5.2, gpt-5.3-codex, gpt-5.4, gpt-5.4-mini, gpt-5.5\r\n  Run /tune-prompting to refresh the profile layer. This is ADVISORY:\r\n  it never blocks a release and is not a CI gate.\r\n",
+        "stderr": ""
+      },
+      {
+        "label": "gemini-current-text-models-relevant-to-routing",
+        "platform": "gemini",
+        "ids": [
+          "gemini-4-argon",
+          "gemini-3.8-flash",
+          "gemini-3.6-flash",
+          "gemini-3.5-flash-lite"
+        ],
+        "source": "https://ai.google.dev/gemini-api/docs/models",
+        "args": [
+          "scripts/check_model_prompting_freshness.py",
+          "--advisory",
+          "--platform",
+          "gemini",
+          "gemini-4-argon",
+          "gemini-3.8-flash",
+          "gemini-3.6-flash",
+          "gemini-3.5-flash-lite"
+        ],
+        "exit_code": 0,
+        "stdout": "[profile-freshness] DRIFTED: the profile layer was last verified 2026-09-08 against a roster that no longer matches the live one.\r\n  added (live but unprofiled): gemini-4-argon\r\n  removed (recorded but no longer live): gemini-3.7-flash\r\n  Run /tune-prompting to refresh the profile layer. This is ADVISORY:\r\n  it never blocks a release and is not a CI gate.\r\n",
+        "stderr": ""
+      },
+      {
+        "label": "cursor-current-first-party-canonical-models",
+        "platform": "cursor",
+        "ids": [
+          "grok-4.7",
+          "grok-4.6",
+          "grok-4.5",
+          "composer-2.5"
+        ],
+        "source": "https://cursor.com/docs/models-and-pricing",
+        "args": [
+          "scripts/check_model_prompting_freshness.py",
+          "--advisory",
+          "--platform",
+          "cursor",
+          "grok-4.7",
+          "grok-4.6",
+          "grok-4.5",
+          "composer-2.5"
+        ],
+        "exit_code": 0,
+        "stdout": "[profile-freshness] DRIFTED: the profile layer was last verified 2026-09-08 against a roster that no longer matches the live one.\r\n  added (live but unprofiled): grok-4.5, grok-4.6, grok-4.7\r\n  removed (recorded but no longer live): composer-2.5-fast, cursor-grok-4.5, cursor-grok-4.6\r\n  Run /tune-prompting to refresh the profile layer. This is ADVISORY:\r\n  it never blocks a release and is not a CI gate.\r\n",
+        "stderr": ""
+      }
+    ],
+    "factual_provider_checks": [
+      {
+        "provider": "Anthropic",
+        "url": "https://platform.claude.com/docs/en/models/overview",
+        "lines": "54-76",
+        "finding": "Current comparison table supplies all four retained Anthropic canonical IDs. Tier placements are retained project judgments."
+      },
+      {
+        "provider": "OpenAI",
+        "url": "https://developers.openai.com/api/docs/models",
+        "lines": "944-1040",
+        "finding": "Current flagship table confirms Astra,6.1Sol,Luna IDs. API catalog scope differs from client availability."
+      },
+      {
+        "provider": "OpenAI-client",
+        "url": "https://learn.chatgpt.com/docs/models",
+        "lines": "984-991,1070-1105",
+        "finding": "Legacy5.6 availability and model/client/settings limits are explicit; selected account access and all exact effort sets were not established."
+      },
+      {
+        "provider": "Google",
+        "url": "https://ai.google.dev/gemini-api/docs/models",
+        "lines": "94-150",
+        "finding": "All four retained Google canonical IDs appear on the current page."
+      },
+      {
+        "provider": "Google",
+        "url": "https://ai.google.dev/gemini-api/docs/deprecations",
+        "lines": "94-105",
+        "finding": "3.7Flash no longer selectable in AIStudio but its endpoint routes to3.8Flash; no blanket endpoint-retirement inference."
+      },
+      {
+        "provider": "Cursor",
+        "url": "https://cursor.com/docs/models-and-pricing",
+        "lines": "153-186",
+        "finding": "Grok4.7,Grok4.6,Composer2.5 and GPT5.6Sol remain documented; display of Fast variants does not prove a distinct native ID suffix."
+      },
+      {
+        "provider": "Cursor",
+        "url": "https://cursor.com/docs/models/grok-4-7",
+        "lines": "129-133",
+        "finding": "Canonical Model ID grok-4.7."
+      },
+      {
+        "provider": "Cursor",
+        "url": "https://cursor.com/docs/models/grok-4-6",
+        "lines": "129-133",
+        "finding": "Canonical Model ID grok-4.6."
+      },
+      {
+        "provider": "Cursor",
+        "url": "https://cursor.com/docs/models/cursor-composer-2-5",
+        "lines": "129-165,225-232",
+        "finding": "Canonical Model ID composer-2.5; Fast is a documented variant. composer-2.5-fast was not found as a distinct canonical ID."
+      }
+    ],
+    "map_candidate": {
+      "path": "C:/Users/USER/AppData/Local/Temp/nexus-v4140-native-hook-budget-oct17/v4140-release-model-map-candidate-oct19.json",
+      "sha256": "57579c793fd3f528d7174334ebb90cc796199b44bdda896b5402b07aa57190db",
+      "proposal": "Preserve15cells and existing relative placements; correct only fast.Cursor from unverified separate suffix composer-2.5-fast to documented composer-2.5, also retained at standard. This is an explicit same-model/two-tier operator judgment, not a vendor tier ranking or automated speed switch.",
+      "validation": {
+        "args": [
+          "catalog/skills/ai-development/model-routing/scripts/model-map.py",
+          "validate",
+          "C:/Users/USER/AppData/Local/Temp/nexus-v4140-native-hook-budget-oct17/v4140-release-model-map-candidate-oct19.json"
+        ],
+        "exit_code": 0,
+        "stdout": "{\"valid\": true, \"verified_as_of\": \"2026-10-18\", \"tiers\": 4, \"providers\": 4}\r\n",
+        "stderr": ""
+      },
+      "diff": {
+        "args": [
+          "catalog/skills/ai-development/model-routing/scripts/model-map.py",
+          "diff",
+          "C:/Users/USER/AppData/Local/Temp/nexus-v4140-native-hook-budget-oct17/v4140-release-model-map-candidate-oct19.json"
+        ],
+        "exit_code": 3,
+        "stdout": "{\r\n  \"reclassified\": [\r\n    {\r\n      \"provider\": \"Cursor\",\r\n      \"model\": \"composer-2.5\",\r\n      \"from_tier\": \"standard\",\r\n      \"to_tier\": \"fast\"\r\n    }\r\n  ]\r\n}\r\n",
+        "stderr": "Reclassification: Cursor `composer-2.5` moved standard -> fast\r\nTier placement is an operator judgment, not a vendor fact. Carry the snapshot placement forward, or state the reclassification and its reason in the plan.\r\n"
+      },
+      "adoption": "NOT adopted. Diff exit3 must be explicitly dispositioned; do not alter snapshot merely to silence it. Root owns source changes and can decline this proposal. Alternative: retain current snapshot and document the single-ID qualification instead of falsely claiming a fully refreshed native-ID map.",
+      "limitations": [
+        "Shape validation does not establish account availability or quality/cost equivalence.",
+        "No effort sweep or switch qualification occurred.",
+        "If adopted, mapped living documents/handbooks must receive the usual affected-input freshness handling. Frozen plan map/prose must not be edited."
+      ]
+    },
+    "preservation": {
+      "profile_index_sha256_before": "bb871a66a53ae42ed4c1244e8c14035e047f7b00ccc04451b99b1f401915cdd0",
+      "profile_index_sha256_after": "bb871a66a53ae42ed4c1244e8c14035e047f7b00ccc04451b99b1f401915cdd0",
+      "model_map_sha256_before": "a2eee414407e4bf29ff18a53897fa73e8d4f675b1af030a04304791fb12e4187",
+      "model_map_sha256_after": "a2eee414407e4bf29ff18a53897fa73e8d4f675b1af030a04304791fb12e4187",
+      "source_files_changed_by_agent": [],
+      "installed_or_host_state_changes_by_agent": [],
+      "profile_research": false,
+      "profile_restamp": false,
+      "LLM_model_requests": 0,
+      "git_mutations": 0,
+      "CI_runs": 0
+    },
+    "next": "Root records the scoped DRIFTED advisory honestly, retains profile timestamps, dispositions map candidate versus preserved-snapshot qualification, and continues release under the existing approval. No profile research swarm is required or started."
+  },
+  "disposition": "Four documentation-scoped DRIFTED advisory outcomes are retained; apparent removals are not account retirement evidence. Canonical Composer ID correction is adopted with explicit standard/fast duplication judgment. Prompting profiles remain unchanged."
+}

@@ -1,18 +1,80 @@
 # Nexus-Hub Progress Dashboard
 
 **Integration branch:** `develop`
-**Active work:** Historical v4.0-v4.12 plan closure is integrated and v4.13.1 through v4.13.10 are released; the maintainer published v4.13.10 at 2026-10-09T21:51:35Z. v4.13.6 ([minor-scope implement and verified cleanup](archives/v4/v4.13/plans/v4.13.6-minor-scope-implement-and-verified-cleanup.md)) shipped through PR #394; its approval-page read-back by a non-engineer is still pending. v4.13.7 ([Copilot usage monitor and usage-limit handoff](archives/v4/v4.13/plans/v4.13.7-copilot-usage-monitor-and-usage-limit-handoff.md)) shipped through PR #411; its real-editor and live-limit checks (QG-1) are still pending. v4.13.10 ([Training page rebuild](archives/v4/v4.13/plans/v4.13.10-training-page-rebuild.md)) is merged green into develop at `ae60a3240` with maintainer acceptance recorded; its maintainer-owned release is now published and its tag is present. v4.13.11 ([known-gaps sweep and minor close](archives/v4/v4.13/plans/v4.13.11-known-gaps-sweep-and-minor-close.md)) is released, and all 83 approved residual transfers are integrated. v4.13.12 is published and its 2019-entry tagged archive verifies. The v4.13 archive merged through PR #455, and the native checker reports MINOR COMPLETE. All 83 successor obligations remain tracked in v4.14. Bounded vendor, manual, and artifact-coverage gaps remain open in their known-gaps ledgers.
+**Active work:** v4.14 full-minor run, 34/209 tasks and 1/7 releases. The optimized parallel implementation workflow is merged into develop through PR485 with all 44 final PR checks and both post-merge checks passing. v4.14.0 is published at main commit 98d541c0942ccc40b5147c64c2bd070884b7b002; back-merge PR489 is awaiting checks. Ledger: 80 inherited open, 29 resolved.
+
+The original Linux installer, Windows edit-recording and other 23 run-introduced findings now satisfy their individual acceptance gates and are resolved with preserved source bodies and hashed repair evidence.
+
+**Run state:** PR485 merged at 8b32922ca573fb57546611267b88246c1064f1e4. Hosted Linux passed 21 commands; Windows platform, installer-core and installer profiles passed 6, 2 and 3 commands. Retained V9 full/platform proof applies only to unchanged inputs. v4.14.0 release publication is verified; live parallel admission is pending matched native runtime adoption.
+
 **Closeout boundary:** Recovery backups with unique Git history, the aborted second trigger pilot, and bounded known gaps still prevent a clean-slate claim. The former 47-file recovery branch was removed after its patch was proven identical to the merged PR #259 commit.
-**Last refreshed:** 2026-10-15 UTC
+**Last refreshed:** 2026-10-19 UTC
 **Recent fix:** Claude, Codex, GitHub Copilot and Cursor usage alerts dismiss automatically after one minute; merged green through PR #457.
 
 **Recent feature:** The Gemini Usage Monitor for the Antigravity IDE, confirmed working inside Antigravity by the maintainer on 2026-10-14, merged green through PR #465; it ships in the next release.
 
-**Next:** `/implement` v4.14.0. Under the branching rule merged in PR #463, its version branch is created at that point and not before.
+**Approval workflow:** The user-requested correction is being integrated through PR491 on `fix/v4.14-approval-flow-publish`. All 79 initial nonpassing results are classified and the identified controller, fixture and exhausted-budget failures have focused repair evidence. Genuine native CI policy adoption and authorization preserve original authority. A005/A006 remain open pending integration and release/adoption work.
+
+**Final validation:** Expanded 19-module regression: 1092 passed, 1 failed, 3 skipped in 1221.89s; the sole failure was an inherited private run-store environment in the plugin test fixture. After correcting that fixture, the complete affected plugin module passed all 25 tests in 6.33s. Reusing unchanged passing cases yields 1093 distinct passing cases and 3 skips on the final source; this is split qualification, not a single all-green run. Usage hooks: 26 passed, 0 failed in 43.49s. New fast profile: 17 passed, 0 failed, 0 skipped in 115.1s. All 19 runner/hook modes passed; narrow lint comparison has 0 introduced and 12 unchanged existing diagnostics. Earlier hooks (50 passed) and fast checks (17 passed) remain separate evidence. [Correction evidence](releases/v4/v4.14/development/approval-workflow-correction-evidence.md).
+
+**Hosted follow-up:** PR491 initial extractor/render profiles repeated nine stale lifecycle assertions. All nine reproduced locally; the corrected three-module scope plus related CI lifecycle checks now passes 170 cases in 2.69s, with zero lint errors. Executable source is unchanged; final hosted validation remains required.
+
+**Command contract follow-up:** Five Linux governance assertions reproduced locally. Direct owner links and advisory native-goal guidance now align across implement, update and the final-phase plan template. All 252 cases in fourteen command-contract modules passed in 53.77s; the regenerated 2055-entry manifest and command source passed 17 fast checks in 55.9s. Hosted validation remains required.
+
+**Windows CI follow-up:** The capture chronology fixture now retains strict event ordering without depending on wall-clock resolution; all41 affected tests pass. The Windows installer CI job assigns complete files to two workers with pinned dependencies and unchanged test selections/time limits. All 156 relevant workflow contracts pass. The complete local Windows profile and final hosted validation are pending.
+
+**Final CI contract qualification:** The complete local Windows profile passed all three native commands in 2363.5s. The da3019861 hosted failures are classified as one shared clock fixture issue and two stale CI assertions. The shared fixture and scoped workflow contracts are corrected; 381 affected cases pass with 19 skips, and all 41 approval cases pass under a coarse-clock probe. Rendering remains serial. Final corrected-head hosted validation is required.
+
+**CodeQL follow-up:** The workflow test now removes the worker option before asserting its exact value, preserving behavior and avoiding assertion side effects. Both affected workflow modules pass all7cases in1.26s with zero Ruff diagnostics. Final corrected-head hosted validation remains required.
+
+**Controller and continuation:** All 246 affected controller tests pass. Approval modules pass 101 cases with one skip; the 13 added whole-minor route cases pass, including the real CLI and redirected-route refusal. The original signed run resolved legacy blocker 10 from the genuine Continue, with all other authority and limits preserved. The fresh original native checker returns INCOMPLETE with no terminal blocker. The local corrections and regenerated 2055-entry manifest await final hosted validation and integration. Runtime adoption and actual parallel implementation remain pending.
+
+**Next:** Integrate the approval/CI correction through develop using the completed split regression qualification, final usage-hook and new fast proof. Adopt only the verified published matched runtime before native admission. Implement compatible plans concurrently; publish and release sequentially.
+
+| Metric | Current | Target |
+|---|---|---|
+| v4.14 tasks | 34/209 | 209/209 |
+| v4.14 released members | 1/7 | 7/7 |
+| v4.14.0 phases | 7/7 | 7/7 |
+| Known gaps | 80 inherited open, 29 resolved | Resolve or approved carry |
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its source `known-gaps.md` under `docs/releases/` or `docs/archives/`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
 
 Refreshing this file to the active plan (rather than appending another version's section) keeps the dashboard from drifting to an old feature branch.
+
+- [ ] Complete and integrate the [approval workflow correction](releases/v4/v4.14/development/approval-workflow-correction-plan.md), including native temporary-home flows and affected final validation.
+
+- [x] Establish focused phase checks and complete-plan broad validation as the plan/implement standard, preserving deferred task IDs, explicit earlier acceptance and affected-input evidence reuse. Actual-source verification: 385 tests and 17 fast checks pass.
+
+- [x] Reproduce native cache replacement failure and qualify the reviewed baseline-preserving repair privately on Windows, Linux and mixed-version readers.
+
+- [x] Pass complete final-source qualification and green hosted integration for the applied cache-publication repair.
+
+- [x] Capture native blocker 5 Z3T46TZ5 and apply its eleven exact files with fresh guards, immediate records, matching hashes and zero new accepts.
+
+- [x] Record native blocker 6 R6A3FEIP, apply its exact one-field timeout change with zero accepts, and pass all 205 actual-source CI engine tests.
+
+- [x] Complete fresh unfiltered full and Windows final-source qualification, explicit monitor groups and four rendering-required guide cases.
+
+- [x] Publish Phase7 once and open [PR485](https://github.com/bendourthe/Nexus-Hub/pull/485).
+
+- [x] Apply the exact blocker7 CI correction with preserved frozen patch hashes and the pinned render dependency.
+
+- [x] Reproduce the hosted rich-profile startup boundary, apply the reviewed launcher correction and pass native qualification; final hosted integration also passes.
+
+- [x] Requalify stabilization and complete green merged integration.
+
+- [x] Verify v4.14.0 Phase 6 locally: ownership-aware per-model effort delivery, conservative legacy override handling, and read-only doctor diagnostics on both installers; 411 scoped tests and 38 separate hook smoke cases passed.
+
+- [x] Verify v4.14.0 Phase 5 locally: deterministic directory bundles, bounded size, and exact coverage; the real commit produced 11 bundles for 12 changed files.
+
+- [x] Verify v4.14.0 Phase 4 locally: single-owner design-system lint contract, tested reference configuration, and explicit domain handoffs.
+
+- [x] Verify v4.14.0 Phase 3 locally: deliver absent env defaults through both installers, preserve user text and overrides, reject noncanonical hook rewrites, and document both scopes; [usage](releases/v4/v4.14/development/capability-usage-gate.md).
+
+- [x] Verify v4.14.0 Phase 2 locally: pin all 23 reasoning-sensitive agents, enforce their classification, and filter Claude-only aliases from other delivery paths; [rationale](releases/v4/v4.14/development/agent-pinning-rationale.md).
+
+- [x] Verify v4.14.0 Phase 1 locally: sourced subagent lever, exact-key contract guard, 45 scoped tests, and the 17-check fast profile; [evidence](releases/v4/v4.14/development/phase-1-lever-evidence.md).
 
 - [x] Implement v4.13.7 Phases 1-9 locally: the Copilot Usage Monitor (personal quota, organization pool, member credits, percentages-only state file), installer distribution and its workflow, reset availability in the Codex monitor, the `session-handoff` skill and `/handoff`, the Session Handoff rule in all 13 templates, the shared usage probe, and the `usage-guard` hook. The final phase fixed seven deep-pass findings and two CodeQL warnings; see the [last-phase evidence](archives/v4/v4.13/development/v4.13.7-last-phase-evidence.md).
 - [x] Publish v4.13.7, integrate it green, and release it: PR #411 merged into `develop` at `e6b0c51a` with every required check green, released as v4.13.7 on 2026-10-02.
@@ -246,6 +308,12 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 - [x] Branch and worktree cleanup: every merged branch and worktree removed; five unmerged branches (three v4.13.10 game WIP branches, a stranded v4.16.3 comparison branch, and the v4.17.0 push-size-guard phase 1-2 branch, dropped for a fresh start at implementation time) deleted after bundling to the release-evidence folder.
 - [ ] Fix the Cursor project-surface writer: `nexus-hub upgrade` replaced this repository's tracked, project-specific `.cursor/rules/nexus-hub.mdc` with a generic stub instead of leaving an existing file untouched.
 
+## Usage monitor parity - 2026-10-19
+
+- [x] Codex dashboard shows Current Model (from `config.toml`) in place of Plan; Claude dashboard gains a Limit Resets row that states the API reports no count; all five monitors default to compact status-bar mode ([decision record](decisions/implemented/architecture/2026-10-19-usage-monitor-dashboard-parity.md)).
+- [x] Copilot and Cursor show Current Model (approved 2026-10-19): Copilot reads one `state.vscdb` key as the single exception to decision 1b; Cursor reads its composer model behind live-access consent, with the consent scope bumped to v2.
+- [ ] Antigravity Current Model: capture a `GetUserStatus` response ("Save Raw Usage Response" while Antigravity is open) to verify how `last_selected_agent_model` (for example `MODEL_PLACEHOLDER_M133`) maps to a model name; until then Antigravity shows Plan.
+
 ## Queue reorganization - 2026-10-12 speed-first release map
 
 - [x] Regroup the 27 queued plans from v4.14 onward into nine themed minors (v4.14 to v4.22, at most four patches each), speed and cost first, documentation and visual-class plans last. 51 files moved, references repaired, and every moved file carries a `**Renumbered**:` line; see the [reorganization record](releases/v4/v4.15/development/2026-10-12-queue-reorganization.md).
@@ -265,6 +333,10 @@ Local feature implementation and qualification are complete: all 47 Linux full-p
 ## Queued work - v4.15.2 harness economics and portable engineering systems
 
 - [ ] Implement the approved [v4.15.2 adoption plan](releases/v4/v4.15/plans/v4.15.2-adoption-harness-economics-and-portable-engineering-system.md), seeded by the [completed comparison](releases/v4/v4.15/comparisons/v4.15.2-comparison-harness-economics-and-portable-engineering-system.md). The queued plan defines five phases and 52 tasks for explicit unattended-loop outcomes, a serial repository-local harness evaluator with enforceable live-run gates, and provider-aware shared project instructions with one platform-neutral `base-agents.md` owner. Implementation is 0/5 phases and 0/52 tasks.
+
+## Queued work - v4.15.4 checker evidence and diagnostics
+
+- [ ] Implement the confirmed [v4.15.4 plan](releases/v4/v4.15/plans/v4.15.4-checker-evidence-and-diagnostics.md): protect captured evidence, accept valid changelog headings and ledger roots, report item-specific approval gaps, expose bounded read-only detail, and detect archive reference hazards. Scope, placement and five phases confirmed on 2026-10-18; implementation is 0/5 phases and 0/23 tasks. This is a separate future run outside the frozen seven-member v4.14 approval; historical cutoffs, failure waivers, cleanup exceptions, record inheritance and cross-worktree mutation remain deferred.
 
 ## Queued work - v4.16.3 tool-output containment and per-request context attribution
 

@@ -406,10 +406,28 @@ AUDIT = r"""(options) => {
     }
   }
 
+  function decorativeGlyph(svg) {
+    const box = rectOf(svg);
+    if (!box.width || !box.height || box.width > 96 || box.height > 96) return false;
+    // Size alone cannot distinguish an icon from an unlabeled chart.
+    const figure = svg.closest('figure, .dv-figure');
+    const decorativeAncestor = svg.parentElement.closest('[aria-hidden="true"]');
+    // SVG-only aria-hidden never erases figure lineage. An independently
+    // decorative subtree inside a larger illustration can contain UI glyphs.
+    const decorativeSubtree = figure && decorativeAncestor &&
+      decorativeAncestor !== figure && figure.contains(decorativeAncestor);
+    if (svg.matches('[role="img"], [data-chart], [data-figure]') ||
+        (figure && !decorativeSubtree) ||
+        svg.closest('.dv-chart, [data-chart], [data-figure]') ||
+        svg.querySelector('text, title, desc, [data-mark], [data-dv-mark], [data-axis-tick], .tick, .axis-tick')) return false;
+    return !!svg.closest('[aria-hidden="true"], button, a, nav, [role="button"], [role="link"]');
+  }
+
   // ---- 9. a viewBox carrying dead space beyond its ink ---------------------
   // Cropping the viewBox is strictly better than moving elements: the
   // coordinates stay untouched, so nothing drifts and no annotation detaches.
   for (const svg of svgs) {
+    if (decorativeGlyph(svg)) continue;
     const vb = svg.viewBox && svg.viewBox.baseVal;
     if (!vb || !vb.width || !vb.height) continue;
     const frame = rectOf(svg);
@@ -486,13 +504,47 @@ AUDIT = r"""(options) => {
   // ---- 11. the uniform three-card grid ------------------------------------
   // Three equal cards as the answer to every piece of content. Counted by
   // shape: a container whose children are the same size, repeated.
+  // A repeated stepper is navigation, not repeated content-card composition.
+  // Require real same-document destinations and a matching list that declares
+  // its active step. Other linked or equal-sized card lists remain in scope.
+  function stepNavigationKey(container) {
+    if (!container.matches('ol, ul, [role="list"]')) return null;
+    const kids = [...container.children].filter(visible);
+    if (kids.length < 2) return null;
+    const links = [];
+    for (const kid of kids) {
+      if (kid.children.length !== 1 || !kid.firstElementChild.matches('a[href^="#"]')) return null;
+      const href = kid.firstElementChild.getAttribute('href');
+      let target;
+      try { target = decodeURIComponent(href.slice(1)); } catch (e) { return null; }
+      if (href.length < 2 || !document.getElementById(target)) return null;
+      links.push(href);
+    }
+    return new Set(links).size === links.length ? JSON.stringify(links) : null;
+  }
+  const stepNavigationKeys = new Set([...document.querySelectorAll('[aria-current="step"]')]
+    .map((current) => current.closest('ol, ul, [role="list"]'))
+    .filter(Boolean).map(stepNavigationKey).filter(Boolean));
+  function statefulControlGroup(container, kids) {
+    const role = container.getAttribute('role');
+    if (role === 'radiogroup' && kids.every((kid) =>
+        kid.matches('[role="radio"][aria-checked]') && kid.matches('button, input'))) return true;
+    if ((role === 'group' || role === 'toolbar') && kids.every((kid) =>
+        kid.matches('button[aria-pressed]'))) return true;
+    return kids.some((kid) => kid.matches('a[aria-current="page"]')) && kids.every((kid) => {
+      const box = rectOf(kid);
+      return kid.matches('a[href][aria-label]') && !kid.textContent.trim() &&
+        box.width <= 48 && box.height <= 48;
+    });
+  }
   const uniform = [];
   for (const container of document.querySelectorAll("*")) {
     if (!visible(container)) continue;
+    if (stepNavigationKeys.has(stepNavigationKey(container))) continue;
     const cs = getComputedStyle(container);
     if (!/grid|flex/.test(cs.display)) continue;
     const kids = [...container.children].filter(visible);
-    if (kids.length < 2) continue;
+    if (kids.length < 2 || statefulControlGroup(container, kids)) continue;
     const boxes = kids.map(rectOf).filter((r) => r.width && r.height);
     if (boxes.length !== kids.length) continue;
     // A CARD GRID puts cards side by side. A vertical list trivially has equal

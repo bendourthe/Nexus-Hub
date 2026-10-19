@@ -269,8 +269,8 @@ export class DashboardPanel {
       <div class="divider"></div>
 
       <div class="section">
-        <h3>Plan</h3>
-        <div class="model-name">${escapeHtml(data.planLabel ?? "Codex")}</div>
+        <h3>Current Model</h3>
+        <div class="model-name">${escapeHtml(data.currentModel)}</div>
       </div>
 
       <div class="section">

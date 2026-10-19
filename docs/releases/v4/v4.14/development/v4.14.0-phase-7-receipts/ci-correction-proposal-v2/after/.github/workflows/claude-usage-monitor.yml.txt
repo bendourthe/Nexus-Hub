@@ -1,0 +1,65 @@
+name: claude-usage-monitor
+
+# Path-filtered: runs only when the claude-usage-monitor extension changes, so it
+# costs action minutes only for that surface (mirrors presentify-extractor.yml).
+# The extension is a Node/TypeScript VSIX with a Vitest provider-test suite; the
+# repo-wide ci.yml covers Python only, so this workflow is the extension's gate.
+on:
+  # v4.0.0 event separation: the `push` leg to the same protected branches was
+  # removed. Under a pull-request-only merge policy that push IS the merge commit
+  # of the pull request that just ran, so the tree is identical and the second run
+  # cannot discover anything the first did not. See
+  # docs/policy/ci-cd-lifecycle-contract.md section 4.
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'extensions/claude-usage-monitor/**'
+      - '.github/workflows/claude-usage-monitor.yml'
+      - 'scripts/ci/**'
+
+# Cancel superseded runs of the same ref (the single largest action-minute saver).
+# v3.15.8 Phase 9.3: least privilege. This workflow builds and tests only --
+# no gh CLI, comments or pushes; retained reports need no extra permission -- so read-only
+# contents is the complete requirement.
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: extensions/claude-usage-monitor/package-lock.json
+
+      - name: Install dependencies
+        # --ignore-scripts: no dependency lifecycle script runs (AR-60). Proven
+        # 2026-10-10 that compile, tests, and the VSIX are byte-identical without
+        # them; ttf2woff2 is used only by the local icon generator, not this job.
+        run: npm ci --ignore-scripts --prefix extensions/claude-usage-monitor
+
+      - name: Repository-native claude-usage-monitor profile
+        run: python scripts/ci/run.py --profile full --only claude-usage-monitor --reports-dir reports
+
+      - name: Publish native profile summary
+        if: always()
+        shell: bash
+        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Retain native profile reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: claude-usage-monitor-reports
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 7

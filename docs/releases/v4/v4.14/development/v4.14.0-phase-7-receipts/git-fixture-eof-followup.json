@@ -1,0 +1,35 @@
+{
+  "bindings": [
+    {
+      "path": "catalog/hooks/tests/conftest.py",
+      "before_sha256": "4bace20c77c8da20b3497cd94ff0f101812167befb703ef7fba0927867b8bc24",
+      "after_sha256": "26602f65cb736d30223e8bd0ed9eb31272cd6dfdc0c9cd7e051038c8fd945512",
+      "removed_bytes": 2,
+      "ast_identical": true
+    },
+    {
+      "path": "tests/conftest.py",
+      "before_sha256": "ff6e7bee93dc6ab45e028b4141df4cf8968a9c8a8b443aadfb8b3592f5df3e73",
+      "after_sha256": "9bdb92fa7d90aa19ac454380e44736895ccb6ec69fb5d777a04c7082a90ddbaf",
+      "removed_bytes": 2,
+      "ast_identical": true
+    }
+  ],
+  "accepts": 0,
+  "controls": {
+    "command": "python -m pytest catalog/hooks/tests/test_git_environment_isolation.py -q --tb=short",
+    "passed": 6,
+    "seconds": 5.01,
+    "exit": 0
+  },
+  "native_whitespace": {
+    "command": "git diff --check HEAD",
+    "exit": 0,
+    "stdout_lines": 0,
+    "stderr_lines": 29,
+    "private_capture_sha256": "9ee828eed4201fc5b46fe7b50f828f754098febd10e85ac856bfaf37ad382a53",
+    "limits": "Normal LF-to-CRLF warnings are retained. They were promoted to a terminating error by the first private PowerShell runner, which never started the canonical full command."
+  },
+  "semantic_change": false,
+  "final_full": "Pending on the updated tree; earlier fixture and 91-case proofs retain their own source epochs."
+}

@@ -29,16 +29,16 @@ describe("StatusBarManager (Claude)", () => {
     expect(createdStatusBarItems[0].priority).toBe(105);
   });
 
-  // v3.14.5 Phase 5.2: compact-mode toggle drops the "Claude Usage: " label.
-  it("shows the full label by default and drops it when compactStatusBar is set", () => {
+  // v3.14.5 Phase 5.2: compact-mode toggle drops the "Claude Usage: " label; compact is the default.
+  it("is compact by default and shows the full label when compactStatusBar is off", () => {
     __resetStubState();
     const mgr = new StatusBarManager(emptyStore, "claude-usage.dashboard");
 
     mgr.refresh();
-    expect(createdStatusBarItems[0].text).toBe("$(claude-icon)\u2002Claude Usage: --% (current) --% (week)");
-
-    __setStubConfig("claudeUsage", "compactStatusBar", true);
-    mgr.refresh();
     expect(createdStatusBarItems[0].text).toBe("$(claude-icon)\u2002--% (current) --% (week)");
+
+    __setStubConfig("claudeUsage", "compactStatusBar", false);
+    mgr.refresh();
+    expect(createdStatusBarItems[0].text).toBe("$(claude-icon)\u2002Claude Usage: --% (current) --% (week)");
   });
 });

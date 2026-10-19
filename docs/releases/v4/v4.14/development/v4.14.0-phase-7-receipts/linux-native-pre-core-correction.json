@@ -1,0 +1,55 @@
+{
+  "timestamp": "2026-10-17T04:06:48.664230+00:00",
+  "host": "Linux container, actual Bash installer",
+  "image": "mcr.microsoft.com/devcontainers/python@sha256:b726eb94f42fcddb10056835f2c474c9f9e12e717ba2b2d2f9a8b1d78feeb68b",
+  "network": "none",
+  "source_script_sha256": "d18a5b40e106f51508f6948c92dbc09b7297035d25f0ca24655ae965011661e4",
+  "cases": [
+    {
+      "case": "owned-upgrade",
+      "exit": 0,
+      "seconds": 375.8,
+      "absolute_subagent_value": "sonnet",
+      "legacy_effort": null,
+      "pinned_agents": 23,
+      "strict_deny_count": 22,
+      "strict_ask_count": 12,
+      "user_data_preserved": true,
+      "repeat_qualified": false,
+      "errors": [],
+      "log": "/probe/owned-upgrade/installer.log",
+      "mcp_dependency_qualification": "not covered: offline container without Node/npm; Node/VSIX and optional MCP installation are not qualified"
+    },
+    {
+      "case": "user-upgrade",
+      "exit": 0,
+      "seconds": 588.15,
+      "absolute_subagent_value": "sonnet",
+      "legacy_effort": "medium",
+      "pinned_agents": 23,
+      "strict_deny_count": 22,
+      "strict_ask_count": 12,
+      "user_data_preserved": true,
+      "repeat_qualified": true,
+      "errors": [],
+      "log": "/probe/user-upgrade/installer.log",
+      "mcp_dependency_qualification": "not covered: offline container without Node/npm; Node/VSIX and optional MCP installation are not qualified"
+    },
+    {
+      "case": "fresh",
+      "exit": 0,
+      "seconds": 371.71,
+      "absolute_subagent_value": "sonnet",
+      "legacy_effort": null,
+      "pinned_agents": 23,
+      "strict_deny_count": 22,
+      "strict_ask_count": 12,
+      "user_data_preserved": true,
+      "repeat_qualified": false,
+      "errors": [],
+      "log": "/probe/fresh/installer.log",
+      "mcp_dependency_qualification": "not covered: offline container without Node/npm; Node/VSIX and optional MCP installation are not qualified"
+    }
+  ],
+  "source_epoch": "Before the subsequent core-input validation correction; not a full-installer qualification of the current Bash hash."
+}

@@ -1224,6 +1224,24 @@ def _apply_archive(
     return written
 
 
+
+def _archive_minor_guard(function):
+    """Reject stale archive authority before the existing move/commit transaction."""
+    from functools import wraps
+    @wraps(function)
+    def wrapped(args):
+        if args.plan or not args.apply:
+            return function(args)
+        rctx = _context(args)
+        record, _path = _record(rctx, args.minor, args.session)
+        if record is None:
+            return function(args)  # Existing explicit no-record archive semantics remain unchanged.
+        with ck.minor_transaction(record):
+            return function(args)
+    return wrapped
+
+
+@_archive_minor_guard
 def cmd_archive(args: argparse.Namespace) -> int:
     rctx = _context(args)
     token = args.minor
@@ -1352,6 +1370,9 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
         return args.func(args)
+    except ck.MinorConflict as exc:
+        print(f"BLOCKED: {exc}")
+        return EXIT_REFUSED
     except ck.Malformed as exc:
         print(f"error: {exc}", file=sys.stderr)
         return EXIT_USAGE

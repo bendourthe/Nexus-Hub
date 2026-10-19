@@ -1,0 +1,106 @@
+[
+  {
+    "runtime": "C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe",
+    "test": "test_strict_refuses_invalid_overlay_without_changing_user_settings",
+    "args": [
+      "powershell",
+      ""
+    ],
+    "error": null
+  },
+  {
+    "runtime": "C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe",
+    "test": "test_strict_refuses_invalid_overlay_without_changing_user_settings",
+    "args": [
+      "powershell",
+      "   "
+    ],
+    "error": null
+  },
+  {
+    "runtime": "C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe",
+    "test": "test_strict_refuses_invalid_overlay_without_changing_user_settings",
+    "args": [
+      "bash",
+      ""
+    ],
+    "error": null
+  },
+  {
+    "runtime": "C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe",
+    "test": "test_strict_refuses_invalid_overlay_without_changing_user_settings",
+    "args": [
+      "bash",
+      "   "
+    ],
+    "error": null
+  },
+  {
+    "runtime": "C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe",
+    "test": "test_bash_strict_refuses_invalid_settings_without_false_success",
+    "args": [
+      ""
+    ],
+    "error": null
+  },
+  {
+    "runtime": "C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe",
+    "test": "test_bash_strict_refuses_invalid_settings_without_false_success",
+    "args": [
+      "   "
+    ],
+    "error": null
+  },
+  {
+    "runtime": "C:/Users/[redacted:user]/AppData/Local/Temp/nexus-v4140-pwsh7-x_6i3rnl/runtime/pwsh.exe",
+    "test": "test_strict_refuses_invalid_overlay_without_changing_user_settings",
+    "args": [
+      "powershell",
+      ""
+    ],
+    "error": null
+  },
+  {
+    "runtime": "C:/Users/[redacted:user]/AppData/Local/Temp/nexus-v4140-pwsh7-x_6i3rnl/runtime/pwsh.exe",
+    "test": "test_strict_refuses_invalid_overlay_without_changing_user_settings",
+    "args": [
+      "powershell",
+      "   "
+    ],
+    "error": null
+  },
+  {
+    "runtime": "C:/Users/[redacted:user]/AppData/Local/Temp/nexus-v4140-pwsh7-x_6i3rnl/runtime/pwsh.exe",
+    "test": "test_strict_refuses_invalid_overlay_without_changing_user_settings",
+    "args": [
+      "bash",
+      ""
+    ],
+    "error": null
+  },
+  {
+    "runtime": "C:/Users/[redacted:user]/AppData/Local/Temp/nexus-v4140-pwsh7-x_6i3rnl/runtime/pwsh.exe",
+    "test": "test_strict_refuses_invalid_overlay_without_changing_user_settings",
+    "args": [
+      "bash",
+      "   "
+    ],
+    "error": null
+  },
+  {
+    "runtime": "C:/Users/[redacted:user]/AppData/Local/Temp/nexus-v4140-pwsh7-x_6i3rnl/runtime/pwsh.exe",
+    "test": "test_bash_strict_refuses_invalid_settings_without_false_success",
+    "args": [
+      ""
+    ],
+    "error": null
+  },
+  {
+    "runtime": "C:/Users/[redacted:user]/AppData/Local/Temp/nexus-v4140-pwsh7-x_6i3rnl/runtime/pwsh.exe",
+    "test": "test_bash_strict_refuses_invalid_settings_without_false_success",
+    "args": [
+      "   "
+    ],
+    "error": null
+  }
+]

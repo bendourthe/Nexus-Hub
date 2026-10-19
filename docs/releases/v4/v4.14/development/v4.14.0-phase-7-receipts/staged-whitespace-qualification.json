@@ -1,0 +1,665 @@
+{
+  "scope": "All staged paths; exact seven frozen unified-diff receipts classified separately",
+  "unfiltered_exit": 2,
+  "receipt_findings": 121,
+  "receipt_paths": [
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-correction-proposal-v2/candidate.patch",
+      "sha256": "0f1caee3052d09ea294e01e6a7efd07148aa78218b84f7d6327ab27198a26409",
+      "findings": [
+        {
+          "line": 227,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 228,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 340,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 341,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        }
+      ],
+      "disposition": "Immutable historical unified diff; preserve exact approved bytes and context markers"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/ci-reconciliation-proposal/bundle.diff",
+      "sha256": "5b56ec24ff2891322989b5808a2841d723c25699bc9a177417b11ed7a80ea40e",
+      "findings": [
+        {
+          "line": 7,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 59,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 137,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 143,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 200,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 206,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 276,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 282,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 348,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 354,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 392,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 438,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 465,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 482,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 489,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 494,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 521,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 533,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 552,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 588,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 605,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 612,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 617,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 642,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 654,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 661,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 666,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 673,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 684,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 697,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 709,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 716,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 734,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 756,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 761,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 821,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 831,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 866,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 883,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 890,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 895,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 922,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 944,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 990,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 1035,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 1044,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 1053,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 1061,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 1070,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 1076,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 1095,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 1127,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 1148,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 1242,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 1371,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 1405,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 1407,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 2019,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 2020,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 2036,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 2037,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 2040,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 2041,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 2048,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 2049,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 2075,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 2076,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 2086,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 2099,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 2100,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 2103,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 2104,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 2111,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 2112,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 2138,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 2139,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 2160,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 2161,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 2167,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 2168,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 2181,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 2182,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 2219,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 2220,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        }
+      ],
+      "disposition": "Immutable historical unified diff; preserve exact approved bytes and context markers"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/hook-writer-patch.diff",
+      "sha256": "a98cabe87ec696c15b4786effe786996fbe7bdf39950cba33eb84504fa73ba9f",
+      "findings": [
+        {
+          "line": 6,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 13,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 34,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 45,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 51,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 60,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 71,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 77,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        }
+      ],
+      "disposition": "Immutable historical unified diff; preserve exact approved bytes and context markers"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/lossless-nonpermission-patch.diff",
+      "sha256": "bd76e986d2725a834100b8912ca8522e4eec7bf0a9b8b69e7bfcab0ed1955c13",
+      "findings": [
+        {
+          "line": 48,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 70,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 167,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 172,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 183,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 206,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 216,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 231,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 270,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 279,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 294,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 318,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 339,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        }
+      ],
+      "disposition": "Immutable historical unified diff; preserve exact approved bytes and context markers"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-counter-proposal/installer-ps1.diff",
+      "sha256": "f3f69b2c6ef795d0ec314e1c334128cafdf26772c7da5a7bad1ca1e4cc2fe4ea",
+      "findings": [
+        {
+          "line": 11,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 11,
+          "kind": "new blank line at EOF",
+          "literal": "' '"
+        }
+      ],
+      "disposition": "Immutable historical unified diff; preserve exact approved bytes and context markers"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-counter-proposal/installer-sh.diff",
+      "sha256": "814564bbcb228868d1fdb9ab43e83dea2af96e5cc4ead10f7c50050b494a7758",
+      "findings": [
+        {
+          "line": 5,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 38,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 43,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 57,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        }
+      ],
+      "disposition": "Immutable historical unified diff; preserve exact approved bytes and context markers"
+    },
+    {
+      "path": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/strict-permissions-proposal/strict-permissions.diff",
+      "sha256": "3f8e674d4a4f42081cd9f62f43fe54d429601ec74de8d2d1efc7bcce7a61b0e1",
+      "findings": [
+        {
+          "line": 6,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 17,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 46,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 63,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 67,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        },
+        {
+          "line": 72,
+          "kind": "trailing whitespace",
+          "literal": "' '"
+        }
+      ],
+      "disposition": "Immutable historical unified diff; preserve exact approved bytes and context markers"
+    }
+  ],
+  "all_other_staged_paths_exit": 0,
+  "configuration_changed": false,
+  "receipt_bytes_changed": false,
+  "guard_accepts": 0
+}

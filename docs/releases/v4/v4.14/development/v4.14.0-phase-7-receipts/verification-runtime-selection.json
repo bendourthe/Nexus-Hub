@@ -1,0 +1,84 @@
+{
+  "timestamp": "2026-10-17T08:24:01.420836+00:00",
+  "classification": "ENV: private verification PATH lacked the intended python3 entrypoint.",
+  "full_run": {
+    "session": 94612,
+    "terminal_exit": 1,
+    "hook_result": "21 failed, 2567 passed in 2168.35s",
+    "command_seconds": 2169.7,
+    "timeout_seconds": 2400,
+    "remaining_profile": "Deliberately stopped in the next skills partition after the owned parent was verified.",
+    "log_sha256": "0e4194f42822706f645f736dbf757dd255074f614d4ad8e12dbca4d9b37f078e",
+    "stop_log_sha256": "183f2840bba6115b07b1d7a7b37fd47a47bb995f974b3ad7f999b659e3ef4c1d"
+  },
+  "diagnosis": {
+    "selected_runtime": "Windows Store Python 3.12.10",
+    "exception": "FileNotFoundError",
+    "winerror": 2,
+    "location": "The core checker-child spawn in the isolated-home test environment, not an actual deadline expiry.",
+    "private_probe": "Instrumented only a fresh private copy; repository core and adapters unchanged.",
+    "real_vs_synthetic_home": [
+      {
+        "runtime": "3.12.10",
+        "windows_apps": true,
+        "child_exit": 0,
+        "child_marker": true,
+        "context": "real-home"
+      },
+      {
+        "runtime": "3.12.10",
+        "windows_apps": true,
+        "exception": "FileNotFoundError",
+        "winerror": 2,
+        "context": "synthetic-home"
+      }
+    ]
+  },
+  "correction": {
+    "scope": "Only the private verification virtual environment.",
+    "entrypoint": "An exact-byte python3.exe copy of the existing python.exe venv launcher, beside that launcher and its existing pyvenv.cfg.",
+    "version": "Python 3.11.15",
+    "launcher_sha256": "de13d8017f63cb63b0b5bfd2f25e69245c9196433a224856ca1abde1e24d0cb7",
+    "production_source_changes": 0,
+    "ci_changes": 0,
+    "permission_changes": 0,
+    "secret_changes": 0,
+    "accepts": 0
+  },
+  "controlled_results": [
+    {
+      "label": "store-selected-red",
+      "exit": 1,
+      "summary": "21 failed in 35.63s",
+      "log_sha256": "f6043f8c44a8f1e71bff953ce126ab948e62959900883074dfdbc0b2382a3821"
+    },
+    {
+      "label": "pinned-py311-green",
+      "exit": 0,
+      "summary": "21 passed in 34.52s",
+      "log_sha256": "f17cf685ccf7fbb31ad5c85518623da6ec6438fa36210d4a3b90390f337615d9"
+    }
+  ],
+  "affected_complete_modules": [
+    {
+      "edition": "Windows PowerShell 5.1",
+      "summary": "76 passed in 72.38s (0:01:12)\r",
+      "log_sha256": "524a2eb240e18f799f42cec44ced6873d95b235b501eaf776949a636604c939b"
+    },
+    {
+      "edition": "PowerShell 7.6.7",
+      "summary": "76 passed in 82.89s (0:01:22)\r",
+      "log_sha256": "8ea4f25e4500f6d0c4475907f73dd0abadb5cff1cdf33a762ef5049292cf2191"
+    }
+  ],
+  "source_comparison": {
+    "timestamp": "2026-10-17T08:23:14.433252+00:00",
+    "baseline_files": 8245,
+    "changed": [],
+    "missing": [],
+    "new": []
+  },
+  "evidence_limit": "The first red subset log was overwritten by the first green retry. Original canonical full failure log and private WinError2 diagnostic remain retained; the separate controlled red log above is a new reproduction, not the original epoch.",
+  "authorization": "Existing necessary verification work; no new blocker, approval capture or signed-record amendment.",
+  "remaining": "A NEW one-command full profile with the intended runtime, supported-host profile, full coverage disposition and green integration. These scoped passes do not turn either stopped full run into a pass. Deep-pass counter remains 3/3; task progress remains 24/209 and releases 0/7."
+}

@@ -153,7 +153,14 @@ def test_final_phase_runs_the_six_step_reconciliation(final_phase: str):
     for step in ("DETECT", "COMPARE", "PROPOSE", "APPROVAL", "APPLY", "RECORD"):
         assert step in body, f"the reconciliation is missing its {step} step"
     assert "none detected" in body, "a repository with no pipeline must be recorded, not assumed"
-    assert "silence is not approval" in body.lower()
+    owner_link = "../../implement-phase/references/completion-contract.md#authorization-policy"
+    assert f"[Authorization policy]({owner_link})" in body
+    assert "without adding a second consent requirement" in body
+    owner = (FINAL_PHASE_REF.parent / owner_link.split("#", 1)[0]).resolve()
+    assert owner == (
+        _ROOT / "catalog/skills/workflow/implement-phase/references/completion-contract.md"
+    ).resolve()
+    assert "### Authorization policy" in owner.read_text(encoding="utf-8")
 
 
 def test_final_phase_records_declined_differences_as_known_gaps(final_phase: str):
@@ -283,3 +290,45 @@ def test_final_phase_reference_is_the_only_copy_of_the_template(plan_skill: str,
     """Two copies of a template drift. The body keeps the rule, the reference the block."""
     assert "#### N.5 - Terminal CI/CD reconciliation" not in plan_skill
     assert "#### N.5 - Terminal CI/CD reconciliation" in final_phase
+
+
+@pytest.mark.parametrize("surface", ["command", "template"])
+def test_planning_defers_comprehensive_validation_until_plan_is_implemented(surface):
+
+    text = (PLAN_CMD if surface == "command" else PLAN_SKILL).read_text(
+        encoding="utf-8"
+    )
+
+    assert "focused" in text.lower()
+
+    assert "coverage" in text.lower()
+
+    assert "all implementation tasks" in text
+
+
+def test_non_final_template_excludes_long_validation_by_default(plan_skill):
+
+    body = plan_skill.split("#### N.X -- Testing and Stabilization", 1)[1].split(
+        "## Complexity Tracking", 1
+    )[0]
+
+    assert "focused tests" in body
+
+    assert "full suite" in body and "final phase" in body
+
+    assert "Generate automated tests for everything built" not in body
+
+    assert "performance benchmarks, etc." not in body
+
+
+def test_terminal_template_checks_completion_before_long_gate(final_phase):
+
+    body = final_phase.split("#### N.9 - Testing and Stabilization", 1)[1].split(
+        "#### N.10", 1
+    )[0]
+
+    assert "all implementation tasks" in body
+
+    assert "repeated" in body and "already" in body
+
+    assert "coverage" in body

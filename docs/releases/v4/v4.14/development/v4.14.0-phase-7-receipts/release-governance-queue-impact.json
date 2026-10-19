@@ -1,0 +1,3296 @@
+{
+  "private_evidence_sha256": "e094a0a47c53447ec55d9bb20f05967025a2663cedd76be0e560e4a0c5fe71a7",
+  "report": {
+    "head": "8b32922ca573fb57546611267b88246c1064f1e4",
+    "declared_queued": 23,
+    "additional_open_candidates": 8,
+    "items": [
+      {
+        "version": "v4.14.1",
+        "path": "docs/releases/v4/v4.14/plans/v4.14.1-adoption-effort-allocation.md",
+        "status": "queued",
+        "touched_intersection": [
+          "catalog/skills/ai-development/model-routing/SKILL.md",
+          "catalog/skills/workflow/implement-phase/SKILL.md",
+          "catalog/skills/workflow/implement-phase/references/implement-phase-runbook.md",
+          "docs/releases/v4/v4.14/known-gaps.md"
+        ],
+        "affected_task_lines": [
+          {
+            "task": "T004",
+            "line": 204,
+            "paths": [
+              "docs/releases/v4/v4.14/known-gaps.md"
+            ]
+          },
+          {
+            "task": "T005",
+            "line": 205,
+            "paths": [
+              "docs/releases/v4/v4.14/known-gaps.md"
+            ]
+          },
+          {
+            "task": "T008",
+            "line": 269,
+            "paths": [
+              "catalog/skills/ai-development/model-routing/SKILL.md"
+            ]
+          },
+          {
+            "task": "T011",
+            "line": 272,
+            "paths": [
+              "catalog/skills/workflow/implement-phase/references/implement-phase-runbook.md"
+            ]
+          },
+          {
+            "task": "T013",
+            "line": 326,
+            "paths": [
+              "catalog/skills/workflow/implement-phase/references/implement-phase-runbook.md"
+            ]
+          },
+          {
+            "task": "T014",
+            "line": 327,
+            "paths": [
+              "catalog/skills/workflow/implement-phase/SKILL.md"
+            ]
+          },
+          {
+            "task": "T017",
+            "line": 408,
+            "paths": [
+              "catalog/skills/workflow/implement-phase/references/implement-phase-runbook.md"
+            ]
+          },
+          {
+            "task": "T021",
+            "line": 489,
+            "paths": [
+              "docs/releases/v4/v4.14/known-gaps.md"
+            ]
+          }
+        ],
+        "scope": "literal path overlap is a candidate impact, not semantic acceptance or reordering",
+        "global_workflow_impact": {
+          "reason": "Merged .0 workflow governs future execution: focused checks during implementation, comprehensive gate once at plan end; eligible implementations may run concurrently, release remains ordered. This applies to pending lifecycle tasks even without a literal source overlap.",
+          "task_lines": [
+            {
+              "task": "T001",
+              "line": 201
+            },
+            {
+              "task": "T002",
+              "line": 202
+            },
+            {
+              "task": "T003",
+              "line": 203
+            },
+            {
+              "task": "T004",
+              "line": 204
+            },
+            {
+              "task": "T005",
+              "line": 205
+            },
+            {
+              "task": "T006",
+              "line": 206
+            },
+            {
+              "task": "T020",
+              "line": 488
+            },
+            {
+              "task": "T021",
+              "line": 489
+            },
+            {
+              "task": "T022",
+              "line": 490
+            },
+            {
+              "task": "T023",
+              "line": 491
+            },
+            {
+              "task": "T024",
+              "line": 492
+            },
+            {
+              "task": "T025",
+              "line": 493
+            },
+            {
+              "task": "T026",
+              "line": 494
+            },
+            {
+              "task": "T027",
+              "line": 495
+            },
+            {
+              "task": "T028",
+              "line": 496
+            },
+            {
+              "task": "T029",
+              "line": 497
+            }
+          ]
+        },
+        "disposition": "Retain plan and version ownership; rebase pending implementation against released .0 and inspect listed existing owners before edits. No task is auto-complete or removed by path overlap.",
+        "membership_scope": "Declared queued"
+      },
+      {
+        "version": "v4.14.2",
+        "path": "docs/releases/v4/v4.14/plans/v4.14.2-adoption-harness-decisions-design-rules-and-cache-stability.md",
+        "status": "queued",
+        "touched_intersection": [
+          "catalog/commands/implement.md",
+          "catalog/skills/ai-development/model-routing/SKILL.md",
+          "catalog/skills/workflow/implement-phase/references/implement-phase-runbook.md",
+          "docs/releases/v4/v4.14/known-gaps.md"
+        ],
+        "affected_task_lines": [
+          {
+            "task": "T002",
+            "line": 157,
+            "paths": [
+              "docs/releases/v4/v4.14/known-gaps.md"
+            ]
+          },
+          {
+            "task": "T012",
+            "line": 257,
+            "paths": [
+              "catalog/skills/workflow/implement-phase/references/implement-phase-runbook.md"
+            ]
+          },
+          {
+            "task": "T015",
+            "line": 318,
+            "paths": [
+              "catalog/skills/ai-development/model-routing/SKILL.md"
+            ]
+          },
+          {
+            "task": "T016",
+            "line": 319,
+            "paths": [
+              "catalog/commands/implement.md"
+            ]
+          }
+        ],
+        "scope": "literal path overlap is a candidate impact, not semantic acceptance or reordering",
+        "global_workflow_impact": {
+          "reason": "Merged .0 workflow governs future execution: focused checks during implementation, comprehensive gate once at plan end; eligible implementations may run concurrently, release remains ordered. This applies to pending lifecycle tasks even without a literal source overlap.",
+          "task_lines": [
+            {
+              "task": "T001",
+              "line": 156
+            },
+            {
+              "task": "T002",
+              "line": 157
+            },
+            {
+              "task": "T003",
+              "line": 172
+            },
+            {
+              "task": "T004",
+              "line": 173
+            },
+            {
+              "task": "T005",
+              "line": 186
+            },
+            {
+              "task": "T022",
+              "line": 435
+            },
+            {
+              "task": "T023",
+              "line": 446
+            },
+            {
+              "task": "T024",
+              "line": 457
+            },
+            {
+              "task": "T025",
+              "line": 507
+            },
+            {
+              "task": "T026",
+              "line": 514
+            },
+            {
+              "task": "T027",
+              "line": 521
+            },
+            {
+              "task": "T028",
+              "line": 528
+            },
+            {
+              "task": "T029",
+              "line": 535
+            },
+            {
+              "task": "T030",
+              "line": 542
+            },
+            {
+              "task": "T031",
+              "line": 549
+            },
+            {
+              "task": "T032",
+              "line": 556
+            },
+            {
+              "task": "T033",
+              "line": 563
+            },
+            {
+              "task": "T034",
+              "line": 570
+            }
+          ]
+        },
+        "disposition": "Retain plan and version ownership; rebase pending implementation against released .0 and inspect listed existing owners before edits. No task is auto-complete or removed by path overlap.",
+        "membership_scope": "Declared queued"
+      },
+      {
+        "version": "v4.14.3",
+        "path": "docs/releases/v4/v4.14/plans/v4.14.3-adoption-argon-enforcement-and-replayable-gates.md",
+        "status": "queued",
+        "touched_intersection": [
+          "catalog/skills/ai-development/model-routing/SKILL.md",
+          "docs/releases/v4/v4.14/known-gaps.md"
+        ],
+        "affected_task_lines": [
+          {
+            "task": "T004",
+            "line": 209,
+            "paths": [
+              "catalog/skills/ai-development/model-routing/SKILL.md"
+            ]
+          },
+          {
+            "task": "T009",
+            "line": 284,
+            "paths": [
+              "docs/releases/v4/v4.14/known-gaps.md"
+            ]
+          },
+          {
+            "task": "T012",
+            "line": 335,
+            "paths": [
+              "docs/releases/v4/v4.14/known-gaps.md"
+            ]
+          }
+        ],
+        "scope": "literal path overlap is a candidate impact, not semantic acceptance or reordering",
+        "global_workflow_impact": {
+          "reason": "Merged .0 workflow governs future execution: focused checks during implementation, comprehensive gate once at plan end; eligible implementations may run concurrently, release remains ordered. This applies to pending lifecycle tasks even without a literal source overlap.",
+          "task_lines": [
+            {
+              "task": "T001",
+              "line": 150
+            },
+            {
+              "task": "T009",
+              "line": 284
+            },
+            {
+              "task": "T010",
+              "line": 295
+            },
+            {
+              "task": "T011",
+              "line": 328
+            },
+            {
+              "task": "T012",
+              "line": 335
+            },
+            {
+              "task": "T013",
+              "line": 342
+            },
+            {
+              "task": "T014",
+              "line": 349
+            },
+            {
+              "task": "T015",
+              "line": 356
+            },
+            {
+              "task": "T016",
+              "line": 363
+            },
+            {
+              "task": "T017",
+              "line": 370
+            },
+            {
+              "task": "T018",
+              "line": 377
+            },
+            {
+              "task": "T019",
+              "line": 384
+            },
+            {
+              "task": "T020",
+              "line": 391
+            }
+          ]
+        },
+        "disposition": "Retain plan and version ownership; rebase pending implementation against released .0 and inspect listed existing owners before edits. No task is auto-complete or removed by path overlap.",
+        "membership_scope": "Declared queued"
+      },
+      {
+        "version": "v4.14.4",
+        "path": "docs/releases/v4/v4.14/plans/v4.14.4-adoption-gate-outcomes-and-opt-in-git-guard.md",
+        "status": "queued",
+        "touched_intersection": [
+          "catalog/hooks/settings.json",
+          "catalog/skills/workflow/implement-phase/references/implement-phase-runbook.md",
+          "docs/releases/v4/v4.14/known-gaps.md"
+        ],
+        "affected_task_lines": [
+          {
+            "task": "T004",
+            "line": 204,
+            "paths": [
+              "catalog/skills/workflow/implement-phase/references/implement-phase-runbook.md"
+            ]
+          },
+          {
+            "task": "T013",
+            "line": 416,
+            "paths": [
+              "catalog/hooks/settings.json"
+            ]
+          },
+          {
+            "task": "T016",
+            "line": 477,
+            "paths": [
+              "docs/releases/v4/v4.14/known-gaps.md"
+            ]
+          }
+        ],
+        "scope": "literal path overlap is a candidate impact, not semantic acceptance or reordering",
+        "global_workflow_impact": {
+          "reason": "Merged .0 workflow governs future execution: focused checks during implementation, comprehensive gate once at plan end; eligible implementations may run concurrently, release remains ordered. This applies to pending lifecycle tasks even without a literal source overlap.",
+          "task_lines": [
+            {
+              "task": "T001",
+              "line": 164
+            },
+            {
+              "task": "T015",
+              "line": 470
+            },
+            {
+              "task": "T016",
+              "line": 477
+            },
+            {
+              "task": "T017",
+              "line": 484
+            },
+            {
+              "task": "T018",
+              "line": 491
+            },
+            {
+              "task": "T019",
+              "line": 498
+            },
+            {
+              "task": "T020",
+              "line": 505
+            },
+            {
+              "task": "T021",
+              "line": 512
+            },
+            {
+              "task": "T022",
+              "line": 522
+            },
+            {
+              "task": "T023",
+              "line": 529
+            },
+            {
+              "task": "T024",
+              "line": 536
+            }
+          ]
+        },
+        "disposition": "Retain plan and version ownership; rebase pending implementation against released .0 and inspect listed existing owners before edits. No task is auto-complete or removed by path overlap.",
+        "membership_scope": "Declared queued"
+      },
+      {
+        "version": "v4.14.5",
+        "path": "docs/releases/v4/v4.14/plans/v4.14.5-adoption-codex-memory-levers.md",
+        "status": "queued",
+        "touched_intersection": [
+          "configs/platform-defaults.json",
+          "docs/policy/platform-defaults-levers.md",
+          "tests/validators/test_sync_platform_defaults.py"
+        ],
+        "affected_task_lines": [
+          {
+            "task": "T007",
+            "line": 243,
+            "paths": [
+              "docs/policy/platform-defaults-levers.md"
+            ]
+          },
+          {
+            "task": "T008",
+            "line": 254,
+            "paths": [
+              "configs/platform-defaults.json"
+            ]
+          },
+          {
+            "task": "T009",
+            "line": 272,
+            "paths": [
+              "tests/validators/test_sync_platform_defaults.py"
+            ]
+          }
+        ],
+        "scope": "literal path overlap is a candidate impact, not semantic acceptance or reordering",
+        "global_workflow_impact": {
+          "reason": "Merged .0 workflow governs future execution: focused checks during implementation, comprehensive gate once at plan end; eligible implementations may run concurrently, release remains ordered. This applies to pending lifecycle tasks even without a literal source overlap.",
+          "task_lines": [
+            {
+              "task": "T001",
+              "line": 148
+            },
+            {
+              "task": "T005",
+              "line": 197
+            },
+            {
+              "task": "T006",
+              "line": 232
+            },
+            {
+              "task": "T012",
+              "line": 295
+            },
+            {
+              "task": "T013",
+              "line": 328
+            },
+            {
+              "task": "T014",
+              "line": 335
+            },
+            {
+              "task": "T015",
+              "line": 342
+            },
+            {
+              "task": "T016",
+              "line": 349
+            },
+            {
+              "task": "T017",
+              "line": 356
+            },
+            {
+              "task": "T018",
+              "line": 363
+            },
+            {
+              "task": "T019",
+              "line": 370
+            },
+            {
+              "task": "T020",
+              "line": 377
+            },
+            {
+              "task": "T021",
+              "line": 384
+            },
+            {
+              "task": "T022",
+              "line": 391
+            }
+          ]
+        },
+        "disposition": "Retain plan and version ownership; rebase pending implementation against released .0 and inspect listed existing owners before edits. No task is auto-complete or removed by path overlap.",
+        "membership_scope": "Declared queued"
+      },
+      {
+        "version": "v4.14.6",
+        "path": "docs/releases/v4/v4.14/plans/v4.14.6-nexus-hub-settings-extension.md",
+        "status": "queued",
+        "touched_intersection": [
+          "catalog/hooks/tests/test_installer_smoke.py",
+          "scripts/ci/profiles.py",
+          "scripts/installer.ps1",
+          "scripts/installer.sh",
+          "scripts/nexus_hub_cli.py"
+        ],
+        "affected_task_lines": [
+          {
+            "task": "T014",
+            "line": 487,
+            "paths": [
+              "scripts/nexus_hub_cli.py"
+            ]
+          },
+          {
+            "task": "T015",
+            "line": 498,
+            "paths": [
+              "scripts/ci/profiles.py"
+            ]
+          },
+          {
+            "task": "T022",
+            "line": 681,
+            "paths": [
+              "scripts/installer.ps1"
+            ]
+          },
+          {
+            "task": "T024",
+            "line": 683,
+            "paths": [
+              "catalog/hooks/tests/test_installer_smoke.py"
+            ]
+          },
+          {
+            "task": "T031",
+            "line": 901,
+            "paths": [
+              "scripts/installer.sh"
+            ]
+          },
+          {
+            "task": "T032",
+            "line": 902,
+            "paths": [
+              "catalog/hooks/tests/test_installer_smoke.py"
+            ]
+          },
+          {
+            "task": "T035",
+            "line": 946,
+            "paths": [
+              "CHANGELOG.md"
+            ]
+          }
+        ],
+        "scope": "literal path overlap is a candidate impact, not semantic acceptance or reordering",
+        "global_workflow_impact": {
+          "reason": "Merged .0 workflow governs future execution: focused checks during implementation, comprehensive gate once at plan end; eligible implementations may run concurrently, release remains ordered. This applies to pending lifecycle tasks even without a literal source overlap.",
+          "task_lines": [
+            {
+              "task": "T001",
+              "line": 250
+            },
+            {
+              "task": "T005",
+              "line": 310
+            },
+            {
+              "task": "T007",
+              "line": 337
+            },
+            {
+              "task": "T011",
+              "line": 415
+            },
+            {
+              "task": "T016",
+              "line": 516
+            },
+            {
+              "task": "T020",
+              "line": 634
+            },
+            {
+              "task": "T023",
+              "line": 682
+            },
+            {
+              "task": "T025",
+              "line": 701
+            },
+            {
+              "task": "T030",
+              "line": 848
+            },
+            {
+              "task": "T036",
+              "line": 961
+            },
+            {
+              "task": "T037",
+              "line": 994
+            },
+            {
+              "task": "T038",
+              "line": 1007
+            },
+            {
+              "task": "T039",
+              "line": 1014
+            },
+            {
+              "task": "T040",
+              "line": 1021
+            },
+            {
+              "task": "T041",
+              "line": 1028
+            },
+            {
+              "task": "T042",
+              "line": 1037
+            },
+            {
+              "task": "T043",
+              "line": 1044
+            },
+            {
+              "task": "T044",
+              "line": 1058
+            },
+            {
+              "task": "T045",
+              "line": 1065
+            },
+            {
+              "task": "T046",
+              "line": 1072
+            }
+          ]
+        },
+        "disposition": "Retain plan and version ownership; rebase pending implementation against released .0 and inspect listed existing owners before edits. No task is auto-complete or removed by path overlap.",
+        "membership_scope": "Declared queued"
+      },
+      {
+        "version": "v4.15.0",
+        "path": "docs/releases/v4/v4.15/plans/v4.15.0-instruction-necessity-review.md",
+        "status": "unknown (no parseable Status line)",
+        "touched_intersection": [
+          "catalog/commands/update.md"
+        ],
+        "affected_task_lines": [
+          {
+            "task": "T208",
+            "line": 254,
+            "paths": [
+              "catalog/commands/update.md"
+            ]
+          },
+          {
+            "task": "T215",
+            "line": 351,
+            "paths": [
+              ".github/workflows/ci.yml"
+            ]
+          }
+        ],
+        "scope": "literal path overlap is a candidate impact, not semantic acceptance or reordering",
+        "global_workflow_impact": {
+          "reason": "Merged .0 workflow governs future execution: focused checks during implementation, comprehensive gate once at plan end; eligible implementations may run concurrently, release remains ordered. This applies to pending lifecycle tasks even without a literal source overlap.",
+          "task_lines": [
+            {
+              "task": "T201",
+              "line": 151
+            },
+            {
+              "task": "T202",
+              "line": 152
+            },
+            {
+              "task": "T203",
+              "line": 153
+            },
+            {
+              "task": "T206",
+              "line": 252
+            },
+            {
+              "task": "T207",
+              "line": 253
+            },
+            {
+              "task": "T209",
+              "line": 255
+            },
+            {
+              "task": "T210",
+              "line": 256
+            },
+            {
+              "task": "T211",
+              "line": 347
+            },
+            {
+              "task": "T212",
+              "line": 348
+            },
+            {
+              "task": "T213",
+              "line": 349
+            },
+            {
+              "task": "T214",
+              "line": 350
+            },
+            {
+              "task": "T216",
+              "line": 352
+            },
+            {
+              "task": "T217",
+              "line": 353
+            },
+            {
+              "task": "T218",
+              "line": 354
+            },
+            {
+              "task": "T219",
+              "line": 355
+            },
+            {
+              "task": "T220",
+              "line": 356
+            }
+          ]
+        },
+        "disposition": "Retain plan and version ownership; rebase pending implementation against released .0 and inspect listed existing owners before edits. No task is auto-complete or removed by path overlap.",
+        "membership_scope": "Open-task candidate with undeclared or prose lifecycle status; audited for safety without asserting queue admission or rewriting frozen status."
+      },
+      {
+        "version": "v4.15.1",
+        "path": "docs/releases/v4/v4.15/plans/v4.15.1-adoption-model-adaptive-harness.md",
+        "status": "unknown (no parseable Status line)",
+        "touched_intersection": [],
+        "affected_task_lines": [
+          {
+            "task": "T114",
+            "line": 379,
+            "paths": [
+              ".github/workflows/ci.yml"
+            ]
+          }
+        ],
+        "scope": "literal path overlap is a candidate impact, not semantic acceptance or reordering",
+        "global_workflow_impact": {
+          "reason": "Merged .0 workflow governs future execution: focused checks during implementation, comprehensive gate once at plan end; eligible implementations may run concurrently, release remains ordered. This applies to pending lifecycle tasks even without a literal source overlap.",
+          "task_lines": [
+            {
+              "task": "T101",
+              "line": 184
+            },
+            {
+              "task": "T102",
+              "line": 185
+            },
+            {
+              "task": "T103",
+              "line": 186
+            },
+            {
+              "task": "T104",
+              "line": 187
+            },
+            {
+              "task": "T105",
+              "line": 188
+            },
+            {
+              "task": "T106",
+              "line": 189
+            },
+            {
+              "task": "T109",
+              "line": 277
+            },
+            {
+              "task": "T110",
+              "line": 375
+            },
+            {
+              "task": "T111",
+              "line": 376
+            },
+            {
+              "task": "T112",
+              "line": 377
+            },
+            {
+              "task": "T113",
+              "line": 378
+            },
+            {
+              "task": "T115",
+              "line": 380
+            },
+            {
+              "task": "T116",
+              "line": 381
+            },
+            {
+              "task": "T117",
+              "line": 382
+            },
+            {
+              "task": "T118",
+              "line": 383
+            },
+            {
+              "task": "T119",
+              "line": 384
+            }
+          ]
+        },
+        "disposition": "Retain plan and version ownership; rebase pending implementation against released .0 and inspect listed existing owners before edits. No task is auto-complete or removed by path overlap.",
+        "membership_scope": "Open-task candidate with undeclared or prose lifecycle status; audited for safety without asserting queue admission or rewriting frozen status."
+      },
+      {
+        "version": "v4.15.2",
+        "path": "docs/releases/v4/v4.15/plans/v4.15.2-adoption-harness-economics-and-portable-engineering-system.md",
+        "status": "queued",
+        "touched_intersection": [
+          "docs/policy/platform-defaults-levers.md",
+          "docs/todos.md",
+          "scripts/installer.ps1",
+          "scripts/installer.sh",
+          "scripts/lib/integrations/base.py",
+          "scripts/lib/integrations/claude.py"
+        ],
+        "affected_task_lines": [
+          {
+            "task": "T054",
+            "line": 875,
+            "paths": [
+              "docs/policy/platform-defaults-levers.md"
+            ]
+          },
+          {
+            "task": "T028",
+            "line": 878,
+            "paths": [
+              "scripts/lib/integrations/base.py"
+            ]
+          },
+          {
+            "task": "T029",
+            "line": 879,
+            "paths": [
+              "scripts/lib/integrations/claude.py"
+            ]
+          },
+          {
+            "task": "T030",
+            "line": 880,
+            "paths": [
+              "scripts/installer.sh"
+            ]
+          },
+          {
+            "task": "T031",
+            "line": 881,
+            "paths": [
+              "scripts/installer.ps1"
+            ]
+          },
+          {
+            "task": "T045",
+            "line": 896,
+            "paths": [
+              "docs/todos.md"
+            ]
+          }
+        ],
+        "scope": "literal path overlap is a candidate impact, not semantic acceptance or reordering",
+        "global_workflow_impact": {
+          "reason": "Merged .0 workflow governs future execution: focused checks during implementation, comprehensive gate once at plan end; eligible implementations may run concurrently, release remains ordered. This applies to pending lifecycle tasks even without a literal source overlap.",
+          "task_lines": [
+            {
+              "task": "T001",
+              "line": 849
+            },
+            {
+              "task": "T002",
+              "line": 850
+            },
+            {
+              "task": "T006",
+              "line": 854
+            },
+            {
+              "task": "T012",
+              "line": 860
+            },
+            {
+              "task": "T014",
+              "line": 862
+            },
+            {
+              "task": "T015",
+              "line": 863
+            },
+            {
+              "task": "T022",
+              "line": 870
+            },
+            {
+              "task": "T024",
+              "line": 873
+            },
+            {
+              "task": "T027",
+              "line": 877
+            },
+            {
+              "task": "T028",
+              "line": 878
+            },
+            {
+              "task": "T029",
+              "line": 879
+            },
+            {
+              "task": "T033",
+              "line": 883
+            },
+            {
+              "task": "T037",
+              "line": 887
+            },
+            {
+              "task": "T038",
+              "line": 888
+            },
+            {
+              "task": "T039",
+              "line": 889
+            },
+            {
+              "task": "T040",
+              "line": 890
+            },
+            {
+              "task": "T041",
+              "line": 891
+            },
+            {
+              "task": "T055",
+              "line": 892
+            },
+            {
+              "task": "T042",
+              "line": 893
+            },
+            {
+              "task": "T043",
+              "line": 894
+            },
+            {
+              "task": "T044",
+              "line": 895
+            },
+            {
+              "task": "T046",
+              "line": 897
+            },
+            {
+              "task": "T047",
+              "line": 898
+            },
+            {
+              "task": "T048",
+              "line": 899
+            },
+            {
+              "task": "T049",
+              "line": 900
+            },
+            {
+              "task": "T050",
+              "line": 901
+            },
+            {
+              "task": "T051",
+              "line": 902
+            },
+            {
+              "task": "T052",
+              "line": 903
+            }
+          ]
+        },
+        "disposition": "Retain plan and version ownership; rebase pending implementation against released .0 and inspect listed existing owners before edits. No task is auto-complete or removed by path overlap.",
+        "membership_scope": "Declared queued"
+      },
+      {
+        "version": "v4.16.0",
+        "path": "docs/releases/v4/v4.16/plans/v4.16.0-adoption-pinned-rules-and-prune-compaction.md",
+        "status": "queued",
+        "touched_intersection": [
+          "catalog/hooks/settings.json"
+        ],
+        "affected_task_lines": [
+          {
+            "task": "T008",
+            "line": 273,
+            "paths": [
+              "catalog/hooks/settings.json"
+            ]
+          },
+          {
+            "task": "T011",
+            "line": 276,
+            "paths": [
+              "CHANGELOG.md"
+            ]
+          },
+          {
+            "task": "T013",
+            "line": 341,
+            "paths": [
+              "CHANGELOG.md"
+            ]
+          },
+          {
+            "task": "T019",
+            "line": 421,
+            "paths": [
+              "CHANGELOG.md"
+            ]
+          },
+          {
+            "task": "T023",
+            "line": 477,
+            "paths": [
+              "CHANGELOG.md"
+            ]
+          },
+          {
+            "task": "T027",
+            "line": 542,
+            "paths": [
+              "CHANGELOG.md"
+            ]
+          },
+          {
+            "task": "T035",
+            "line": 627,
+            "paths": [
+              "CHANGELOG.md"
+            ]
+          }
+        ],
+        "scope": "literal path overlap is a candidate impact, not semantic acceptance or reordering",
+        "global_workflow_impact": {
+          "reason": "Merged .0 workflow governs future execution: focused checks during implementation, comprehensive gate once at plan end; eligible implementations may run concurrently, release remains ordered. This applies to pending lifecycle tasks even without a literal source overlap.",
+          "task_lines": [
+            {
+              "task": "T001",
+              "line": 192
+            },
+            {
+              "task": "T002",
+              "line": 193
+            },
+            {
+              "task": "T004",
+              "line": 195
+            },
+            {
+              "task": "T010",
+              "line": 275
+            },
+            {
+              "task": "T011",
+              "line": 276
+            },
+            {
+              "task": "T015",
+              "line": 417
+            },
+            {
+              "task": "T019",
+              "line": 421
+            },
+            {
+              "task": "T028",
+              "line": 620
+            },
+            {
+              "task": "T029",
+              "line": 621
+            },
+            {
+              "task": "T030",
+              "line": 622
+            },
+            {
+              "task": "T031",
+              "line": 623
+            },
+            {
+              "task": "T032",
+              "line": 624
+            },
+            {
+              "task": "T033",
+              "line": 625
+            },
+            {
+              "task": "T034",
+              "line": 626
+            },
+            {
+              "task": "T036",
+              "line": 628
+            },
+            {
+              "task": "T037",
+              "line": 629
+            }
+          ]
+        },
+        "disposition": "Retain plan and version ownership; rebase pending implementation against released .0 and inspect listed existing owners before edits. No task is auto-complete or removed by path overlap.",
+        "membership_scope": "Declared queued"
+      },
+      {
+        "version": "v4.16.1",
+        "path": "docs/releases/v4/v4.16/plans/v4.16.1-adoption-proactive-memory-intervention.md",
+        "status": "queued",
+        "touched_intersection": [
+          "catalog/skills/ai-development/model-routing/SKILL.md"
+        ],
+        "affected_task_lines": [
+          {
+            "task": "T010",
+            "line": 399,
+            "paths": [
+              "catalog/skills/ai-development/model-routing/SKILL.md"
+            ]
+          }
+        ],
+        "scope": "literal path overlap is a candidate impact, not semantic acceptance or reordering",
+        "global_workflow_impact": {
+          "reason": "Merged .0 workflow governs future execution: focused checks during implementation, comprehensive gate once at plan end; eligible implementations may run concurrently, release remains ordered. This applies to pending lifecycle tasks even without a literal source overlap.",
+          "task_lines": [
+            {
+              "task": "T001",
+              "line": 200
+            },
+            {
+              "task": "T004",
+              "line": 251
+            },
+            {
+              "task": "T011",
+              "line": 414
+            },
+            {
+              "task": "T012",
+              "line": 460
+            },
+            {
+              "task": "T013",
+              "line": 475
+            },
+            {
+              "task": "T014",
+              "line": 509
+            },
+            {
+              "task": "T015",
+              "line": 520
+            },
+            {
+              "task": "T016",
+              "line": 529
+            },
+            {
+              "task": "T017",
+              "line": 538
+            },
+            {
+              "task": "T018",
+              "line": 547
+            },
+            {
+              "task": "T019",
+              "line": 556
+            },
+            {
+              "task": "T020",
+              "line": 565
+            },
+            {
+              "task": "T021",
+              "line": 574
+            },
+            {
+              "task": "T022",
+              "line": 583
+            },
+            {
+              "task": "T023",
+              "line": 592
+            }
+          ]
+        },
+        "disposition": "Retain plan and version ownership; rebase pending implementation against released .0 and inspect listed existing owners before edits. No task is auto-complete or removed by path overlap.",
+        "membership_scope": "Declared queued"
+      },
+      {
+        "version": "v4.16.2",
+        "path": "docs/releases/v4/v4.16/plans/v4.16.2-adoption-agent-experience-and-harness-economics.md",
+        "status": "queued",
+        "touched_intersection": [
+          "catalog/skills/ai-development/model-routing/SKILL.md",
+          "catalog/skills/workflow/implementation-plan/SKILL.md",
+          "catalog/skills/workflow/plan-queue-assessment/SKILL.md"
+        ],
+        "affected_task_lines": [
+          {
+            "task": "T001",
+            "line": 825,
+            "paths": [
+              "catalog/skills/ai-development/model-routing/SKILL.md"
+            ]
+          },
+          {
+            "task": "T002",
+            "line": 826,
+            "paths": [
+              "catalog/skills/ai-development/model-routing/SKILL.md"
+            ]
+          },
+          {
+            "task": "T014",
+            "line": 838,
+            "paths": [
+              "catalog/skills/workflow/implementation-plan/SKILL.md"
+            ]
+          },
+          {
+            "task": "T016",
+            "line": 840,
+            "paths": [
+              "catalog/skills/workflow/plan-queue-assessment/SKILL.md"
+            ]
+          }
+        ],
+        "scope": "literal path overlap is a candidate impact, not semantic acceptance or reordering",
+        "global_workflow_impact": {
+          "reason": "Merged .0 workflow governs future execution: focused checks during implementation, comprehensive gate once at plan end; eligible implementations may run concurrently, release remains ordered. This applies to pending lifecycle tasks even without a literal source overlap.",
+          "task_lines": [
+            {
+              "task": "T004",
+              "line": 828
+            },
+            {
+              "task": "T005",
+              "line": 829
+            },
+            {
+              "task": "T015",
+              "line": 839
+            },
+            {
+              "task": "T023",
+              "line": 847
+            },
+            {
+              "task": "T024",
+              "line": 848
+            },
+            {
+              "task": "T025",
+              "line": 849
+            },
+            {
+              "task": "T026",
+              "line": 850
+            },
+            {
+              "task": "T027",
+              "line": 851
+            },
+            {
+              "task": "T028",
+              "line": 852
+            },
+            {
+              "task": "T029",
+              "line": 853
+            },
+            {
+              "task": "T030",
+              "line": 854
+            },
+            {
+              "task": "T031",
+              "line": 855
+            },
+            {
+              "task": "T032",
+              "line": 856
+            }
+          ]
+        },
+        "disposition": "Retain plan and version ownership; rebase pending implementation against released .0 and inspect listed existing owners before edits. No task is auto-complete or removed by path overlap.",
+        "membership_scope": "Declared queued"
+      },
+      {
+        "version": "v4.16.3",
+        "path": "docs/releases/v4/v4.16/plans/v4.16.3-adoption-tool-output-containment-and-context-attribution.md",
+        "status": "queued",
+        "touched_intersection": [],
+        "affected_task_lines": [],
+        "scope": "literal path overlap is a candidate impact, not semantic acceptance or reordering",
+        "global_workflow_impact": {
+          "reason": "Merged .0 workflow governs future execution: focused checks during implementation, comprehensive gate once at plan end; eligible implementations may run concurrently, release remains ordered. This applies to pending lifecycle tasks even without a literal source overlap.",
+          "task_lines": [
+            {
+              "task": "T001",
+              "line": 189
+            },
+            {
+              "task": "T004",
+              "line": 238
+            },
+            {
+              "task": "T005",
+              "line": 253
+            },
+            {
+              "task": "T010",
+              "line": 353
+            },
+            {
+              "task": "T012",
+              "line": 403
+            },
+            {
+              "task": "T013",
+              "line": 416
+            },
+            {
+              "task": "T016",
+              "line": 479
+            },
+            {
+              "task": "T018",
+              "line": 532
+            },
+            {
+              "task": "T023",
+              "line": 621
+            },
+            {
+              "task": "T024",
+              "line": 654
+            },
+            {
+              "task": "T025",
+              "line": 661
+            },
+            {
+              "task": "T026",
+              "line": 668
+            },
+            {
+              "task": "T027",
+              "line": 675
+            },
+            {
+              "task": "T028",
+              "line": 682
+            },
+            {
+              "task": "T029",
+              "line": 689
+            },
+            {
+              "task": "T030",
+              "line": 696
+            },
+            {
+              "task": "T031",
+              "line": 703
+            },
+            {
+              "task": "T032",
+              "line": 710
+            },
+            {
+              "task": "T033",
+              "line": 717
+            }
+          ]
+        },
+        "disposition": "No literal direct changed-owner task reference found; retain pending scope and apply the shared execution/release workflow. Absence of path overlap is not proof of no semantic dependency.",
+        "membership_scope": "Declared queued"
+      },
+      {
+        "version": "v4.17.0",
+        "path": "docs/releases/v4/v4.17/plans/v4.17.0-push-size-guard.md",
+        "status": "Authored 2026-09-11; implementation not started, 0/23 tasks and 0/5 phases complete.",
+        "touched_intersection": [
+          "catalog/hooks/tests/test_installer_smoke.py",
+          "docs/releases/v4/v4.14/known-gaps.md",
+          "scripts/installer.ps1",
+          "scripts/installer.sh"
+        ],
+        "affected_task_lines": [
+          {
+            "task": "T010",
+            "line": 262,
+            "paths": [
+              "scripts/installer.sh"
+            ]
+          },
+          {
+            "task": "T011",
+            "line": 270,
+            "paths": [
+              "scripts/installer.ps1"
+            ]
+          },
+          {
+            "task": "T012",
+            "line": 278,
+            "paths": [
+              "catalog/hooks/tests/test_installer_smoke.py"
+            ]
+          },
+          {
+            "task": "T020",
+            "line": 378,
+            "paths": [
+              "docs/releases/v4/v4.14/known-gaps.md"
+            ]
+          }
+        ],
+        "scope": "literal path overlap is a candidate impact, not semantic acceptance or reordering",
+        "global_workflow_impact": {
+          "reason": "Merged .0 workflow governs future execution: focused checks during implementation, comprehensive gate once at plan end; eligible implementations may run concurrently, release remains ordered. This applies to pending lifecycle tasks even without a literal source overlap.",
+          "task_lines": [
+            {
+              "task": "T001",
+              "line": 136
+            },
+            {
+              "task": "T002",
+              "line": 146
+            },
+            {
+              "task": "T003",
+              "line": 156
+            },
+            {
+              "task": "T004",
+              "line": 166
+            },
+            {
+              "task": "T008",
+              "line": 226
+            },
+            {
+              "task": "T009",
+              "line": 236
+            },
+            {
+              "task": "T013",
+              "line": 286
+            },
+            {
+              "task": "T017",
+              "line": 336
+            },
+            {
+              "task": "T018",
+              "line": 362
+            },
+            {
+              "task": "T019",
+              "line": 370
+            },
+            {
+              "task": "T020",
+              "line": 378
+            },
+            {
+              "task": "T021",
+              "line": 386
+            },
+            {
+              "task": "T022",
+              "line": 394
+            },
+            {
+              "task": "T023",
+              "line": 402
+            }
+          ]
+        },
+        "disposition": "Retain plan and version ownership; rebase pending implementation against released .0 and inspect listed existing owners before edits. No task is auto-complete or removed by path overlap.",
+        "membership_scope": "Open-task candidate with undeclared or prose lifecycle status; audited for safety without asserting queue admission or rewriting frozen status."
+      },
+      {
+        "version": "v4.17.1",
+        "path": "docs/releases/v4/v4.17/plans/v4.17.1-adoption-process-safety-and-review-pipeline.md",
+        "status": "unknown (no parseable Status line)",
+        "touched_intersection": [
+          "catalog/hooks/settings.json",
+          "catalog/skills/code-review/multi-agent-code-review/SKILL.md"
+        ],
+        "affected_task_lines": [
+          {
+            "task": "T010",
+            "line": 249,
+            "paths": [
+              "catalog/hooks/settings.json"
+            ]
+          },
+          {
+            "task": "T012",
+            "line": 322,
+            "paths": [
+              "catalog/skills/code-review/multi-agent-code-review/SKILL.md"
+            ]
+          },
+          {
+            "task": "T018",
+            "line": 386,
+            "paths": [
+              "catalog/skills/code-review/multi-agent-code-review/SKILL.md"
+            ]
+          },
+          {
+            "task": "T028",
+            "line": 546,
+            "paths": [
+              ".github/workflows/ci.yml"
+            ]
+          }
+        ],
+        "scope": "literal path overlap is a candidate impact, not semantic acceptance or reordering",
+        "global_workflow_impact": {
+          "reason": "Merged .0 workflow governs future execution: focused checks during implementation, comprehensive gate once at plan end; eligible implementations may run concurrently, release remains ordered. This applies to pending lifecycle tasks even without a literal source overlap.",
+          "task_lines": [
+            {
+              "task": "T001",
+              "line": 169
+            },
+            {
+              "task": "T002",
+              "line": 170
+            },
+            {
+              "task": "T003",
+              "line": 171
+            },
+            {
+              "task": "T004",
+              "line": 172
+            },
+            {
+              "task": "T005",
+              "line": 173
+            },
+            {
+              "task": "T017",
+              "line": 385
+            },
+            {
+              "task": "T024",
+              "line": 542
+            },
+            {
+              "task": "T025",
+              "line": 543
+            },
+            {
+              "task": "T026",
+              "line": 544
+            },
+            {
+              "task": "T027",
+              "line": 545
+            },
+            {
+              "task": "T029",
+              "line": 547
+            },
+            {
+              "task": "T030",
+              "line": 548
+            },
+            {
+              "task": "T031",
+              "line": 549
+            },
+            {
+              "task": "T032",
+              "line": 550
+            },
+            {
+              "task": "T033",
+              "line": 551
+            }
+          ]
+        },
+        "disposition": "Retain plan and version ownership; rebase pending implementation against released .0 and inspect listed existing owners before edits. No task is auto-complete or removed by path overlap.",
+        "membership_scope": "Open-task candidate with undeclared or prose lifecycle status; audited for safety without asserting queue admission or rewriting frozen status."
+      },
+      {
+        "version": "v4.17.2",
+        "path": "docs/releases/v4/v4.17/plans/v4.17.2-adoption-agent-working-agreement.md",
+        "status": "unknown (no parseable Status line)",
+        "touched_intersection": [
+          "catalog/skills/orchestration/agent-orchestration-primitives/SKILL.md"
+        ],
+        "affected_task_lines": [
+          {
+            "task": "T010",
+            "line": 244,
+            "paths": [
+              "catalog/skills/orchestration/agent-orchestration-primitives/SKILL.md"
+            ]
+          },
+          {
+            "task": "T019",
+            "line": 369,
+            "paths": [
+              ".github/workflows/ci.yml"
+            ]
+          }
+        ],
+        "scope": "literal path overlap is a candidate impact, not semantic acceptance or reordering",
+        "global_workflow_impact": {
+          "reason": "Merged .0 workflow governs future execution: focused checks during implementation, comprehensive gate once at plan end; eligible implementations may run concurrently, release remains ordered. This applies to pending lifecycle tasks even without a literal source overlap.",
+          "task_lines": [
+            {
+              "task": "T001",
+              "line": 125
+            },
+            {
+              "task": "T002",
+              "line": 126
+            },
+            {
+              "task": "T003",
+              "line": 127
+            },
+            {
+              "task": "T004",
+              "line": 128
+            },
+            {
+              "task": "T005",
+              "line": 181
+            },
+            {
+              "task": "T008",
+              "line": 242
+            },
+            {
+              "task": "T009",
+              "line": 243
+            },
+            {
+              "task": "T012",
+              "line": 295
+            },
+            {
+              "task": "T013",
+              "line": 296
+            },
+            {
+              "task": "T015",
+              "line": 365
+            },
+            {
+              "task": "T016",
+              "line": 366
+            },
+            {
+              "task": "T017",
+              "line": 367
+            },
+            {
+              "task": "T018",
+              "line": 368
+            },
+            {
+              "task": "T020",
+              "line": 370
+            },
+            {
+              "task": "T021",
+              "line": 371
+            },
+            {
+              "task": "T022",
+              "line": 372
+            },
+            {
+              "task": "T023",
+              "line": 373
+            },
+            {
+              "task": "T024",
+              "line": 374
+            }
+          ]
+        },
+        "disposition": "Retain plan and version ownership; rebase pending implementation against released .0 and inspect listed existing owners before edits. No task is auto-complete or removed by path overlap.",
+        "membership_scope": "Open-task candidate with undeclared or prose lifecycle status; audited for safety without asserting queue admission or rewriting frozen status."
+      },
+      {
+        "version": "v4.18.0",
+        "path": "docs/releases/v4/v4.18/plans/v4.18.0-adoption-testing-discipline-headings-and-opus-5-5.md",
+        "status": "queued",
+        "touched_intersection": [
+          "catalog/agents/tdd-guide.md",
+          "catalog/skills/orchestration/agent-orchestration-primitives/SKILL.md"
+        ],
+        "affected_task_lines": [
+          {
+            "task": "T006",
+            "line": 233,
+            "paths": [
+              "catalog/agents/tdd-guide.md"
+            ]
+          },
+          {
+            "task": "T026",
+            "line": 550,
+            "paths": [
+              "catalog/skills/orchestration/agent-orchestration-primitives/SKILL.md"
+            ]
+          }
+        ],
+        "scope": "literal path overlap is a candidate impact, not semantic acceptance or reordering",
+        "global_workflow_impact": {
+          "reason": "Merged .0 workflow governs future execution: focused checks during implementation, comprehensive gate once at plan end; eligible implementations may run concurrently, release remains ordered. This applies to pending lifecycle tasks even without a literal source overlap.",
+          "task_lines": [
+            {
+              "task": "T001",
+              "line": 161
+            },
+            {
+              "task": "T004",
+              "line": 164
+            },
+            {
+              "task": "T009",
+              "line": 236
+            },
+            {
+              "task": "T015",
+              "line": 345
+            },
+            {
+              "task": "T016",
+              "line": 414
+            },
+            {
+              "task": "T021",
+              "line": 478
+            },
+            {
+              "task": "T029",
+              "line": 553
+            },
+            {
+              "task": "T030",
+              "line": 612
+            },
+            {
+              "task": "T031",
+              "line": 613
+            },
+            {
+              "task": "T032",
+              "line": 614
+            },
+            {
+              "task": "T033",
+              "line": 615
+            },
+            {
+              "task": "T034",
+              "line": 729
+            },
+            {
+              "task": "T035",
+              "line": 730
+            },
+            {
+              "task": "T036",
+              "line": 731
+            },
+            {
+              "task": "T037",
+              "line": 732
+            },
+            {
+              "task": "T038",
+              "line": 733
+            },
+            {
+              "task": "T039",
+              "line": 734
+            },
+            {
+              "task": "T040",
+              "line": 735
+            },
+            {
+              "task": "T041",
+              "line": 736
+            },
+            {
+              "task": "T042",
+              "line": 737
+            },
+            {
+              "task": "T043",
+              "line": 738
+            }
+          ]
+        },
+        "disposition": "Retain plan and version ownership; rebase pending implementation against released .0 and inspect listed existing owners before edits. No task is auto-complete or removed by path overlap.",
+        "membership_scope": "Declared queued"
+      },
+      {
+        "version": "v4.18.1",
+        "path": "docs/releases/v4/v4.18/plans/v4.18.1-adoption-local-hooks-and-single-item-install.md",
+        "status": "queued",
+        "touched_intersection": [
+          "guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md",
+          "scripts/lib/integrations/runner.py",
+          "scripts/nexus_hub_cli.py"
+        ],
+        "affected_task_lines": [
+          {
+            "task": "T010",
+            "line": 267,
+            "paths": [
+              "scripts/nexus_hub_cli.py"
+            ]
+          },
+          {
+            "task": "T011",
+            "line": 268,
+            "paths": [
+              "scripts/lib/integrations/runner.py"
+            ]
+          },
+          {
+            "task": "T014",
+            "line": 375,
+            "paths": [
+              "guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md"
+            ]
+          }
+        ],
+        "scope": "literal path overlap is a candidate impact, not semantic acceptance or reordering",
+        "global_workflow_impact": {
+          "reason": "Merged .0 workflow governs future execution: focused checks during implementation, comprehensive gate once at plan end; eligible implementations may run concurrently, release remains ordered. This applies to pending lifecycle tasks even without a literal source overlap.",
+          "task_lines": [
+            {
+              "task": "T001",
+              "line": 150
+            },
+            {
+              "task": "T002",
+              "line": 151
+            },
+            {
+              "task": "T003",
+              "line": 152
+            },
+            {
+              "task": "T004",
+              "line": 153
+            },
+            {
+              "task": "T005",
+              "line": 154
+            },
+            {
+              "task": "T007",
+              "line": 208
+            },
+            {
+              "task": "T008",
+              "line": 209
+            },
+            {
+              "task": "T009",
+              "line": 266
+            },
+            {
+              "task": "T011",
+              "line": 268
+            },
+            {
+              "task": "T015",
+              "line": 376
+            },
+            {
+              "task": "T017",
+              "line": 378
+            },
+            {
+              "task": "T018",
+              "line": 490
+            },
+            {
+              "task": "T019",
+              "line": 491
+            },
+            {
+              "task": "T020",
+              "line": 492
+            },
+            {
+              "task": "T021",
+              "line": 493
+            },
+            {
+              "task": "T022",
+              "line": 494
+            },
+            {
+              "task": "T023",
+              "line": 495
+            },
+            {
+              "task": "T024",
+              "line": 496
+            },
+            {
+              "task": "T025",
+              "line": 497
+            },
+            {
+              "task": "T026",
+              "line": 498
+            },
+            {
+              "task": "T027",
+              "line": 499
+            }
+          ]
+        },
+        "disposition": "Retain plan and version ownership; rebase pending implementation against released .0 and inspect listed existing owners before edits. No task is auto-complete or removed by path overlap.",
+        "membership_scope": "Declared queued"
+      },
+      {
+        "version": "v4.18.2",
+        "path": "docs/releases/v4/v4.18/plans/v4.18.2-adoption-de-slop-repair-discipline.md",
+        "status": "queued",
+        "touched_intersection": [
+          "data/skills.json"
+        ],
+        "affected_task_lines": [
+          {
+            "task": "T015",
+            "line": 453,
+            "paths": [
+              "data/skills.json"
+            ]
+          }
+        ],
+        "scope": "literal path overlap is a candidate impact, not semantic acceptance or reordering",
+        "global_workflow_impact": {
+          "reason": "Merged .0 workflow governs future execution: focused checks during implementation, comprehensive gate once at plan end; eligible implementations may run concurrently, release remains ordered. This applies to pending lifecycle tasks even without a literal source overlap.",
+          "task_lines": [
+            {
+              "task": "T001",
+              "line": 182
+            },
+            {
+              "task": "T002",
+              "line": 193
+            },
+            {
+              "task": "T005",
+              "line": 236
+            },
+            {
+              "task": "T008",
+              "line": 314
+            },
+            {
+              "task": "T012",
+              "line": 390
+            },
+            {
+              "task": "T016",
+              "line": 471
+            },
+            {
+              "task": "T017",
+              "line": 510
+            },
+            {
+              "task": "T018",
+              "line": 521
+            },
+            {
+              "task": "T019",
+              "line": 532
+            },
+            {
+              "task": "T020",
+              "line": 544
+            },
+            {
+              "task": "T021",
+              "line": 555
+            },
+            {
+              "task": "T022",
+              "line": 566
+            },
+            {
+              "task": "T023",
+              "line": 577
+            },
+            {
+              "task": "T024",
+              "line": 588
+            },
+            {
+              "task": "T025",
+              "line": 599
+            },
+            {
+              "task": "T026",
+              "line": 610
+            },
+            {
+              "task": "T027",
+              "line": 621
+            },
+            {
+              "task": "T028",
+              "line": 632
+            }
+          ]
+        },
+        "disposition": "Retain plan and version ownership; rebase pending implementation against released .0 and inspect listed existing owners before edits. No task is auto-complete or removed by path overlap.",
+        "membership_scope": "Declared queued"
+      },
+      {
+        "version": "v4.19.0",
+        "path": "docs/releases/v4/v4.19/plans/v4.19.0-adoption-frontier-agent-practice.md",
+        "status": "unknown (no parseable Status line)",
+        "touched_intersection": [
+          "scripts/ci/profiles.py"
+        ],
+        "affected_task_lines": [
+          {
+            "task": "T014",
+            "line": 401,
+            "paths": [
+              "scripts/ci/profiles.py"
+            ]
+          },
+          {
+            "task": "T028",
+            "line": 671,
+            "paths": [
+              ".github/workflows/ci.yml"
+            ]
+          }
+        ],
+        "scope": "literal path overlap is a candidate impact, not semantic acceptance or reordering",
+        "global_workflow_impact": {
+          "reason": "Merged .0 workflow governs future execution: focused checks during implementation, comprehensive gate once at plan end; eligible implementations may run concurrently, release remains ordered. This applies to pending lifecycle tasks even without a literal source overlap.",
+          "task_lines": [
+            {
+              "task": "T001",
+              "line": 156
+            },
+            {
+              "task": "T002",
+              "line": 169
+            },
+            {
+              "task": "T004",
+              "line": 200
+            },
+            {
+              "task": "T005",
+              "line": 237
+            },
+            {
+              "task": "T010",
+              "line": 313
+            },
+            {
+              "task": "T015",
+              "line": 416
+            },
+            {
+              "task": "T017",
+              "line": 471
+            },
+            {
+              "task": "T019",
+              "line": 499
+            },
+            {
+              "task": "T023",
+              "line": 576
+            },
+            {
+              "task": "T024",
+              "line": 623
+            },
+            {
+              "task": "T025",
+              "line": 634
+            },
+            {
+              "task": "T026",
+              "line": 647
+            },
+            {
+              "task": "T027",
+              "line": 660
+            },
+            {
+              "task": "T029",
+              "line": 683
+            },
+            {
+              "task": "T030",
+              "line": 695
+            },
+            {
+              "task": "T031",
+              "line": 707
+            },
+            {
+              "task": "T032",
+              "line": 719
+            },
+            {
+              "task": "T033",
+              "line": 730
+            }
+          ]
+        },
+        "disposition": "Retain plan and version ownership; rebase pending implementation against released .0 and inspect listed existing owners before edits. No task is auto-complete or removed by path overlap.",
+        "membership_scope": "Open-task candidate with undeclared or prose lifecycle status; audited for safety without asserting queue admission or rewriting frozen status."
+      },
+      {
+        "version": "v4.19.1",
+        "path": "docs/releases/v4/v4.19/plans/v4.19.1-adoption-tracer-bullet-and-leading-words.md",
+        "status": "queued",
+        "touched_intersection": [
+          "catalog/skills/infrastructure/cicd-architect/SKILL.md",
+          "catalog/skills/workflow/implementation-plan/SKILL.md"
+        ],
+        "affected_task_lines": [
+          {
+            "task": "T002",
+            "line": 167,
+            "paths": [
+              "catalog/skills/workflow/implementation-plan/SKILL.md"
+            ]
+          },
+          {
+            "task": "T005",
+            "line": 222,
+            "paths": [
+              "catalog/skills/workflow/implementation-plan/SKILL.md"
+            ]
+          },
+          {
+            "task": "T017",
+            "line": 354,
+            "paths": [
+              "catalog/skills/infrastructure/cicd-architect/SKILL.md"
+            ]
+          },
+          {
+            "task": "T019",
+            "line": 356,
+            "paths": [
+              "catalog/skills/infrastructure/cicd-architect/SKILL.md"
+            ]
+          }
+        ],
+        "scope": "literal path overlap is a candidate impact, not semantic acceptance or reordering",
+        "global_workflow_impact": {
+          "reason": "Merged .0 workflow governs future execution: focused checks during implementation, comprehensive gate once at plan end; eligible implementations may run concurrently, release remains ordered. This applies to pending lifecycle tasks even without a literal source overlap.",
+          "task_lines": [
+            {
+              "task": "T001",
+              "line": 166
+            },
+            {
+              "task": "T003",
+              "line": 168
+            },
+            {
+              "task": "T004",
+              "line": 169
+            },
+            {
+              "task": "T007",
+              "line": 224
+            },
+            {
+              "task": "T021",
+              "line": 411
+            },
+            {
+              "task": "T022",
+              "line": 412
+            },
+            {
+              "task": "T023",
+              "line": 491
+            },
+            {
+              "task": "T024",
+              "line": 492
+            },
+            {
+              "task": "T025",
+              "line": 493
+            },
+            {
+              "task": "T026",
+              "line": 494
+            },
+            {
+              "task": "T028",
+              "line": 496
+            },
+            {
+              "task": "T029",
+              "line": 497
+            },
+            {
+              "task": "T030",
+              "line": 498
+            },
+            {
+              "task": "T031",
+              "line": 499
+            },
+            {
+              "task": "T032",
+              "line": 500
+            }
+          ]
+        },
+        "disposition": "Retain plan and version ownership; rebase pending implementation against released .0 and inspect listed existing owners before edits. No task is auto-complete or removed by path overlap.",
+        "membership_scope": "Declared queued"
+      },
+      {
+        "version": "v4.20.0",
+        "path": "docs/releases/v4/v4.20/plans/v4.20.0-adoption-alignment-readability-mods-routing.md",
+        "status": "queued",
+        "touched_intersection": [
+          "catalog/commands/plan.md",
+          "catalog/skills/workflow/implement-phase/references/implement-phase-runbook.md",
+          "catalog/skills/workflow/implementation-plan/SKILL.md",
+          "data/skills.json"
+        ],
+        "affected_task_lines": [
+          {
+            "task": "T004",
+            "line": 205,
+            "paths": [
+              "catalog/skills/workflow/implementation-plan/SKILL.md"
+            ]
+          },
+          {
+            "task": "T005",
+            "line": 206,
+            "paths": [
+              "catalog/commands/plan.md"
+            ]
+          },
+          {
+            "task": "T013",
+            "line": 278,
+            "paths": [
+              "data/skills.json"
+            ]
+          },
+          {
+            "task": "T018",
+            "line": 351,
+            "paths": [
+              "catalog/skills/workflow/implement-phase/references/implement-phase-runbook.md"
+            ]
+          },
+          {
+            "task": "T020",
+            "line": 363,
+            "paths": [
+              "CHANGELOG.md"
+            ]
+          }
+        ],
+        "scope": "literal path overlap is a candidate impact, not semantic acceptance or reordering",
+        "global_workflow_impact": {
+          "reason": "Merged .0 workflow governs future execution: focused checks during implementation, comprehensive gate once at plan end; eligible implementations may run concurrently, release remains ordered. This applies to pending lifecycle tasks even without a literal source overlap.",
+          "task_lines": [
+            {
+              "task": "T001",
+              "line": 148
+            },
+            {
+              "task": "T002",
+              "line": 159
+            },
+            {
+              "task": "T024",
+              "line": 475
+            },
+            {
+              "task": "T025",
+              "line": 482
+            },
+            {
+              "task": "T026",
+              "line": 489
+            },
+            {
+              "task": "T027",
+              "line": 496
+            },
+            {
+              "task": "T028",
+              "line": 503
+            },
+            {
+              "task": "T029",
+              "line": 510
+            },
+            {
+              "task": "T030",
+              "line": 517
+            },
+            {
+              "task": "T031",
+              "line": 524
+            },
+            {
+              "task": "T032",
+              "line": 531
+            },
+            {
+              "task": "T033",
+              "line": 538
+            }
+          ]
+        },
+        "disposition": "Retain plan and version ownership; rebase pending implementation against released .0 and inspect listed existing owners before edits. No task is auto-complete or removed by path overlap.",
+        "membership_scope": "Declared queued"
+      },
+      {
+        "version": "v4.20.1",
+        "path": "docs/releases/v4/v4.20/plans/v4.20.1-adoption-manager-context-signal-discipline.md",
+        "status": "unknown (no parseable Status line)",
+        "touched_intersection": [
+          "catalog/hooks/tests/test_installer_smoke.py",
+          "catalog/skills/code-review/multi-agent-code-review/SKILL.md",
+          "catalog/skills/workflow/plan-queue-assessment/SKILL.md",
+          "data/skills.json",
+          "scripts/installer.sh"
+        ],
+        "affected_task_lines": [
+          {
+            "task": "T005",
+            "line": 221,
+            "paths": [
+              "catalog/hooks/tests/test_installer_smoke.py"
+            ]
+          },
+          {
+            "task": "T008",
+            "line": 309,
+            "paths": [
+              "catalog/skills/code-review/multi-agent-code-review/SKILL.md"
+            ]
+          },
+          {
+            "task": "T014",
+            "line": 348,
+            "paths": [
+              "catalog/skills/workflow/plan-queue-assessment/SKILL.md"
+            ]
+          },
+          {
+            "task": "T034",
+            "line": 632,
+            "paths": [
+              "data/skills.json"
+            ]
+          },
+          {
+            "task": "T044",
+            "line": 800,
+            "paths": [
+              ".github/workflows/ci.yml"
+            ]
+          },
+          {
+            "task": "T045",
+            "line": 801,
+            "paths": [
+              "scripts/installer.sh"
+            ]
+          },
+          {
+            "task": "T051",
+            "line": 880,
+            "paths": [
+              "CHANGELOG.md"
+            ]
+          }
+        ],
+        "scope": "literal path overlap is a candidate impact, not semantic acceptance or reordering",
+        "global_workflow_impact": {
+          "reason": "Merged .0 workflow governs future execution: focused checks during implementation, comprehensive gate once at plan end; eligible implementations may run concurrently, release remains ordered. This applies to pending lifecycle tasks even without a literal source overlap.",
+          "task_lines": [
+            {
+              "task": "T006",
+              "line": 245
+            },
+            {
+              "task": "T007",
+              "line": 291
+            },
+            {
+              "task": "T020",
+              "line": 396
+            },
+            {
+              "task": "T021",
+              "line": 397
+            },
+            {
+              "task": "T029",
+              "line": 521
+            },
+            {
+              "task": "T030",
+              "line": 522
+            },
+            {
+              "task": "T038",
+              "line": 683
+            },
+            {
+              "task": "T039",
+              "line": 684
+            },
+            {
+              "task": "T040",
+              "line": 746
+            },
+            {
+              "task": "T041",
+              "line": 758
+            },
+            {
+              "task": "T042",
+              "line": 770
+            },
+            {
+              "task": "T043",
+              "line": 782
+            },
+            {
+              "task": "T046",
+              "line": 813
+            },
+            {
+              "task": "T047",
+              "line": 835
+            },
+            {
+              "task": "T048",
+              "line": 847
+            },
+            {
+              "task": "T049",
+              "line": 859
+            },
+            {
+              "task": "T050",
+              "line": 879
+            },
+            {
+              "task": "T051",
+              "line": 880
+            }
+          ]
+        },
+        "disposition": "Retain plan and version ownership; rebase pending implementation against released .0 and inspect listed existing owners before edits. No task is auto-complete or removed by path overlap.",
+        "membership_scope": "Open-task candidate with undeclared or prose lifecycle status; audited for safety without asserting queue admission or rewriting frozen status."
+      },
+      {
+        "version": "v4.20.2",
+        "path": "docs/releases/v4/v4.20/plans/v4.20.2-adoption-aika-modes.md",
+        "status": "unknown (no parseable Status line)",
+        "touched_intersection": [],
+        "affected_task_lines": [],
+        "scope": "literal path overlap is a candidate impact, not semantic acceptance or reordering",
+        "global_workflow_impact": {
+          "reason": "Merged .0 workflow governs future execution: focused checks during implementation, comprehensive gate once at plan end; eligible implementations may run concurrently, release remains ordered. This applies to pending lifecycle tasks even without a literal source overlap.",
+          "task_lines": [
+            {
+              "task": "T001",
+              "line": 143
+            },
+            {
+              "task": "T002",
+              "line": 155
+            },
+            {
+              "task": "T003",
+              "line": 168
+            },
+            {
+              "task": "T005",
+              "line": 198
+            },
+            {
+              "task": "T008",
+              "line": 269
+            },
+            {
+              "task": "T010",
+              "line": 322
+            },
+            {
+              "task": "T011",
+              "line": 358
+            },
+            {
+              "task": "T014",
+              "line": 401
+            },
+            {
+              "task": "T015",
+              "line": 453
+            },
+            {
+              "task": "T016",
+              "line": 464
+            },
+            {
+              "task": "T017",
+              "line": 478
+            },
+            {
+              "task": "T018",
+              "line": 490
+            },
+            {
+              "task": "T019",
+              "line": 501
+            },
+            {
+              "task": "T020",
+              "line": 513
+            },
+            {
+              "task": "T021",
+              "line": 525
+            },
+            {
+              "task": "T022",
+              "line": 537
+            },
+            {
+              "task": "T023",
+              "line": 549
+            },
+            {
+              "task": "T024",
+              "line": 560
+            }
+          ]
+        },
+        "disposition": "No literal direct changed-owner task reference found; retain pending scope and apply the shared execution/release workflow. Absence of path overlap is not proof of no semantic dependency.",
+        "membership_scope": "Open-task candidate with undeclared or prose lifecycle status; audited for safety without asserting queue admission or rewriting frozen status."
+      },
+      {
+        "version": "v4.21.0",
+        "path": "docs/releases/v4/v4.21/plans/v4.21.0-adoption-self-improving-harness-loop.md",
+        "status": "queued",
+        "touched_intersection": [
+          "docs/todos.md"
+        ],
+        "affected_task_lines": [
+          {
+            "task": "T028",
+            "line": 548,
+            "paths": [
+              "docs/todos.md"
+            ]
+          }
+        ],
+        "scope": "literal path overlap is a candidate impact, not semantic acceptance or reordering",
+        "global_workflow_impact": {
+          "reason": "Merged .0 workflow governs future execution: focused checks during implementation, comprehensive gate once at plan end; eligible implementations may run concurrently, release remains ordered. This applies to pending lifecycle tasks even without a literal source overlap.",
+          "task_lines": [
+            {
+              "task": "T001",
+              "line": 167
+            },
+            {
+              "task": "T002",
+              "line": 168
+            },
+            {
+              "task": "T004",
+              "line": 170
+            },
+            {
+              "task": "T011",
+              "line": 232
+            },
+            {
+              "task": "T017",
+              "line": 358
+            },
+            {
+              "task": "T026",
+              "line": 546
+            },
+            {
+              "task": "T027",
+              "line": 547
+            },
+            {
+              "task": "T029",
+              "line": 549
+            },
+            {
+              "task": "T030",
+              "line": 550
+            },
+            {
+              "task": "T031",
+              "line": 551
+            },
+            {
+              "task": "T032",
+              "line": 552
+            },
+            {
+              "task": "T033",
+              "line": 553
+            },
+            {
+              "task": "T034",
+              "line": 554
+            },
+            {
+              "task": "T035",
+              "line": 555
+            }
+          ]
+        },
+        "disposition": "Retain plan and version ownership; rebase pending implementation against released .0 and inspect listed existing owners before edits. No task is auto-complete or removed by path overlap.",
+        "membership_scope": "Declared queued"
+      },
+      {
+        "version": "v4.21.1",
+        "path": "docs/releases/v4/v4.21/plans/v4.21.1-adoption-html-plans-agent-verification-and-authorization-proofs.md",
+        "status": "queued",
+        "touched_intersection": [
+          "catalog/commands/plan.md",
+          "scripts/approval_page.py",
+          "tests/validators/test_approval_page.py"
+        ],
+        "affected_task_lines": [
+          {
+            "task": "T006",
+            "line": 227,
+            "paths": [
+              "scripts/approval_page.py"
+            ]
+          },
+          {
+            "task": "T007",
+            "line": 228,
+            "paths": [
+              "tests/validators/test_approval_page.py"
+            ]
+          },
+          {
+            "task": "T027",
+            "line": 431,
+            "paths": [
+              "catalog/commands/plan.md"
+            ]
+          }
+        ],
+        "scope": "literal path overlap is a candidate impact, not semantic acceptance or reordering",
+        "global_workflow_impact": {
+          "reason": "Merged .0 workflow governs future execution: focused checks during implementation, comprehensive gate once at plan end; eligible implementations may run concurrently, release remains ordered. This applies to pending lifecycle tasks even without a literal source overlap.",
+          "task_lines": [
+            {
+              "task": "T001",
+              "line": 176
+            },
+            {
+              "task": "T003",
+              "line": 178
+            },
+            {
+              "task": "T009",
+              "line": 230
+            },
+            {
+              "task": "T032",
+              "line": 560
+            },
+            {
+              "task": "T033",
+              "line": 561
+            },
+            {
+              "task": "T034",
+              "line": 562
+            },
+            {
+              "task": "T035",
+              "line": 563
+            },
+            {
+              "task": "T036",
+              "line": 564
+            },
+            {
+              "task": "T037",
+              "line": 565
+            },
+            {
+              "task": "T038",
+              "line": 566
+            },
+            {
+              "task": "T039",
+              "line": 567
+            },
+            {
+              "task": "T040",
+              "line": 568
+            },
+            {
+              "task": "T041",
+              "line": 569
+            }
+          ]
+        },
+        "disposition": "Retain plan and version ownership; rebase pending implementation against released .0 and inspect listed existing owners before edits. No task is auto-complete or removed by path overlap.",
+        "membership_scope": "Declared queued"
+      },
+      {
+        "version": "v4.21.2",
+        "path": "docs/releases/v4/v4.21/plans/v4.21.2-adoption-evals-test-trust-and-visual-agent-communication.md",
+        "status": "queued",
+        "touched_intersection": [],
+        "affected_task_lines": [],
+        "scope": "literal path overlap is a candidate impact, not semantic acceptance or reordering",
+        "global_workflow_impact": {
+          "reason": "Merged .0 workflow governs future execution: focused checks during implementation, comprehensive gate once at plan end; eligible implementations may run concurrently, release remains ordered. This applies to pending lifecycle tasks even without a literal source overlap.",
+          "task_lines": [
+            {
+              "task": "T001",
+              "line": 154
+            },
+            {
+              "task": "T003",
+              "line": 172
+            },
+            {
+              "task": "T004",
+              "line": 181
+            },
+            {
+              "task": "T007",
+              "line": 224
+            },
+            {
+              "task": "T014",
+              "line": 317
+            },
+            {
+              "task": "T016",
+              "line": 350
+            },
+            {
+              "task": "T017",
+              "line": 358
+            },
+            {
+              "task": "T018",
+              "line": 366
+            },
+            {
+              "task": "T019",
+              "line": 396
+            },
+            {
+              "task": "T020",
+              "line": 404
+            },
+            {
+              "task": "T021",
+              "line": 412
+            },
+            {
+              "task": "T022",
+              "line": 420
+            },
+            {
+              "task": "T023",
+              "line": 428
+            },
+            {
+              "task": "T024",
+              "line": 436
+            },
+            {
+              "task": "T025",
+              "line": 444
+            },
+            {
+              "task": "T026",
+              "line": 452
+            },
+            {
+              "task": "T027",
+              "line": 460
+            },
+            {
+              "task": "T028",
+              "line": 468
+            }
+          ]
+        },
+        "disposition": "No literal direct changed-owner task reference found; retain pending scope and apply the shared execution/release workflow. Absence of path overlap is not proof of no semantic dependency.",
+        "membership_scope": "Declared queued"
+      },
+      {
+        "version": "v4.22.0",
+        "path": "docs/releases/v4/v4.22/plans/v4.22.0-adoption-structural-slop-signatures.md",
+        "status": "queued",
+        "touched_intersection": [],
+        "affected_task_lines": [],
+        "scope": "literal path overlap is a candidate impact, not semantic acceptance or reordering",
+        "global_workflow_impact": {
+          "reason": "Merged .0 workflow governs future execution: focused checks during implementation, comprehensive gate once at plan end; eligible implementations may run concurrently, release remains ordered. This applies to pending lifecycle tasks even without a literal source overlap.",
+          "task_lines": [
+            {
+              "task": "T001",
+              "line": 167
+            },
+            {
+              "task": "T002",
+              "line": 168
+            },
+            {
+              "task": "T003",
+              "line": 169
+            },
+            {
+              "task": "T004",
+              "line": 170
+            },
+            {
+              "task": "T005",
+              "line": 236
+            },
+            {
+              "task": "T006",
+              "line": 237
+            },
+            {
+              "task": "T007",
+              "line": 238
+            },
+            {
+              "task": "T008",
+              "line": 239
+            },
+            {
+              "task": "T022",
+              "line": 458
+            },
+            {
+              "task": "T023",
+              "line": 536
+            },
+            {
+              "task": "T024",
+              "line": 537
+            },
+            {
+              "task": "T025",
+              "line": 538
+            },
+            {
+              "task": "T026",
+              "line": 539
+            },
+            {
+              "task": "T027",
+              "line": 617
+            },
+            {
+              "task": "T028",
+              "line": 618
+            },
+            {
+              "task": "T029",
+              "line": 619
+            },
+            {
+              "task": "T030",
+              "line": 620
+            },
+            {
+              "task": "T031",
+              "line": 621
+            },
+            {
+              "task": "T032",
+              "line": 622
+            },
+            {
+              "task": "T033",
+              "line": 623
+            },
+            {
+              "task": "T034",
+              "line": 624
+            },
+            {
+              "task": "T035",
+              "line": 625
+            },
+            {
+              "task": "T036",
+              "line": 626
+            }
+          ]
+        },
+        "disposition": "No literal direct changed-owner task reference found; retain pending scope and apply the shared execution/release workflow. Absence of path overlap is not proof of no semantic dependency.",
+        "membership_scope": "Declared queued"
+      },
+      {
+        "version": "v4.22.1",
+        "path": "docs/releases/v4/v4.22/plans/v4.22.1-adoption-code-rendered-animation-and-illustration-quality.md",
+        "status": "queued",
+        "touched_intersection": [],
+        "affected_task_lines": [
+          {
+            "task": "T026",
+            "line": 544,
+            "paths": [
+              ".github/workflows/ci.yml"
+            ]
+          }
+        ],
+        "scope": "literal path overlap is a candidate impact, not semantic acceptance or reordering",
+        "global_workflow_impact": {
+          "reason": "Merged .0 workflow governs future execution: focused checks during implementation, comprehensive gate once at plan end; eligible implementations may run concurrently, release remains ordered. This applies to pending lifecycle tasks even without a literal source overlap.",
+          "task_lines": [
+            {
+              "task": "T001",
+              "line": 134
+            },
+            {
+              "task": "T002",
+              "line": 145
+            },
+            {
+              "task": "T003",
+              "line": 156
+            },
+            {
+              "task": "T004",
+              "line": 167
+            },
+            {
+              "task": "T005",
+              "line": 180
+            },
+            {
+              "task": "T006",
+              "line": 191
+            },
+            {
+              "task": "T019",
+              "line": 434
+            },
+            {
+              "task": "T020",
+              "line": 445
+            },
+            {
+              "task": "T021",
+              "line": 456
+            },
+            {
+              "task": "T022",
+              "line": 516
+            },
+            {
+              "task": "T023",
+              "line": 523
+            },
+            {
+              "task": "T024",
+              "line": 530
+            },
+            {
+              "task": "T025",
+              "line": 537
+            },
+            {
+              "task": "T026",
+              "line": 544
+            },
+            {
+              "task": "T027",
+              "line": 551
+            },
+            {
+              "task": "T028",
+              "line": 558
+            },
+            {
+              "task": "T029",
+              "line": 565
+            },
+            {
+              "task": "T030",
+              "line": 572
+            },
+            {
+              "task": "T031",
+              "line": 579
+            }
+          ]
+        },
+        "disposition": "Retain plan and version ownership; rebase pending implementation against released .0 and inspect listed existing owners before edits. No task is auto-complete or removed by path overlap.",
+        "membership_scope": "Declared queued"
+      },
+      {
+        "version": "v4.22.2",
+        "path": "docs/releases/v4/v4.22/plans/v4.22.2-adoption-dashboards-motion-evidence-ledger-and-reliable-automations.md",
+        "status": "queued",
+        "touched_intersection": [],
+        "affected_task_lines": [],
+        "scope": "literal path overlap is a candidate impact, not semantic acceptance or reordering",
+        "global_workflow_impact": {
+          "reason": "Merged .0 workflow governs future execution: focused checks during implementation, comprehensive gate once at plan end; eligible implementations may run concurrently, release remains ordered. This applies to pending lifecycle tasks even without a literal source overlap.",
+          "task_lines": [
+            {
+              "task": "T001",
+              "line": 144
+            },
+            {
+              "task": "T018",
+              "line": 343
+            },
+            {
+              "task": "T029",
+              "line": 503
+            },
+            {
+              "task": "T030",
+              "line": 532
+            },
+            {
+              "task": "T031",
+              "line": 540
+            },
+            {
+              "task": "T032",
+              "line": 548
+            },
+            {
+              "task": "T033",
+              "line": 556
+            },
+            {
+              "task": "T034",
+              "line": 564
+            },
+            {
+              "task": "T035",
+              "line": 572
+            },
+            {
+              "task": "T036",
+              "line": 580
+            },
+            {
+              "task": "T037",
+              "line": 588
+            },
+            {
+              "task": "T038",
+              "line": 596
+            },
+            {
+              "task": "T039",
+              "line": 604
+            }
+          ]
+        },
+        "disposition": "No literal direct changed-owner task reference found; retain pending scope and apply the shared execution/release workflow. Absence of path overlap is not proof of no semantic dependency.",
+        "membership_scope": "Declared queued"
+      },
+      {
+        "version": "v4.22.3",
+        "path": "docs/releases/v4/v4.22/plans/v4.22.3-adoption-claude-code-mods.md",
+        "status": "queued",
+        "touched_intersection": [
+          "guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md"
+        ],
+        "affected_task_lines": [
+          {
+            "task": "T009",
+            "line": 289,
+            "paths": [
+              "guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md"
+            ]
+          },
+          {
+            "task": "T011",
+            "line": 291,
+            "paths": [
+              "guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md"
+            ]
+          },
+          {
+            "task": "T019",
+            "line": 392,
+            "paths": [
+              "CHANGELOG.md"
+            ]
+          },
+          {
+            "task": "T025",
+            "line": 484,
+            "paths": [
+              ".github/workflows/ci.yml"
+            ]
+          }
+        ],
+        "scope": "literal path overlap is a candidate impact, not semantic acceptance or reordering",
+        "global_workflow_impact": {
+          "reason": "Merged .0 workflow governs future execution: focused checks during implementation, comprehensive gate once at plan end; eligible implementations may run concurrently, release remains ordered. This applies to pending lifecycle tasks even without a literal source overlap.",
+          "task_lines": [
+            {
+              "task": "T006",
+              "line": 202
+            },
+            {
+              "task": "T007",
+              "line": 287
+            },
+            {
+              "task": "T012",
+              "line": 292
+            },
+            {
+              "task": "T019",
+              "line": 392
+            },
+            {
+              "task": "T020",
+              "line": 393
+            },
+            {
+              "task": "T021",
+              "line": 480
+            },
+            {
+              "task": "T022",
+              "line": 481
+            },
+            {
+              "task": "T024",
+              "line": 483
+            },
+            {
+              "task": "T026",
+              "line": 485
+            },
+            {
+              "task": "T027",
+              "line": 486
+            },
+            {
+              "task": "T028",
+              "line": 487
+            },
+            {
+              "task": "T029",
+              "line": 488
+            },
+            {
+              "task": "T030",
+              "line": 489
+            }
+          ]
+        },
+        "disposition": "Retain plan and version ownership; rebase pending implementation against released .0 and inspect listed existing owners before edits. No task is auto-complete or removed by path overlap.",
+        "membership_scope": "Declared queued"
+      }
+    ]
+  }
+}

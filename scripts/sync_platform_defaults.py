@@ -19,9 +19,9 @@ Two constraints shape the implementation, and both come from real hazards:
 1. ``catalog/hooks/settings.json`` carries the entire hook registration block
    (SessionStart / PreToolUse / PostToolUse / UserPromptSubmit / Notification /
    Stop / PreCompact / SessionEnd) alongside the four core keys this script
-   owns. The generator therefore updates only the declared keys IN PLACE and
-   leaves everything else byte-identical. It never serializes a fresh object
-   over the file.
+   owns. The generator re-serializes JSON with the detected indentation and
+   newline convention. Canonical hook bytes remain unchanged; noncanonical hook
+   JSON fails before a write rather than silently losing unrelated formatting.
 
 2. This repository runs ``core.autocrlf=true`` with ``* text=auto``, so the
    working tree materializes CRLF on Windows while git stores LF. Writing a
@@ -260,14 +260,17 @@ def check_merge_keys(
 def apply_merge_keys(
     settings: dict[str, Any], artifact: dict[str, Any], repo_root: Path
 ) -> bool:
-    """Update only the declared keys in place. Returns True when bytes changed."""
+    """Re-serialize declared keys; reject noncanonical hooks before writing."""
     path = _artifact_path(artifact, repo_root)
     original = read_text_raw(path)
     newline = detect_newline(original)
     indent = detect_indent(original)
-    # json.loads preserves insertion order into the resulting dict (3.7+), so
-    # re-dumping keeps the original key order and leaves the hooks block intact.
+    # Re-serialization is byte-safe for hooks only when their input is canonical.
     data = json.loads(original)
+    if "hooks" in data and render_json(data, indent, newline) != original:
+        raise SourceError(
+            f"{path}: noncanonical hook JSON; refusing to rewrite hook bytes"
+        )
     for key in artifact["keys"]:
         set_key(data, key, resolve_key(settings, key))
     updated = render_json(data, indent=indent, newline=newline)

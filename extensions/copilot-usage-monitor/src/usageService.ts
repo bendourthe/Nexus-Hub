@@ -15,6 +15,8 @@ export class UsageService {
   constructor(
     private readonly personal: UsageProvider,
     private readonly organization: OrganizationProvider,
+    /** Reads the Chat view's selected model for display; absent means no read. */
+    private readonly readCurrentModel?: () => Promise<string | undefined>,
   ) {}
 
   async fetchAll(nowMs = Date.now()): Promise<UsageFetchResult> {
@@ -35,6 +37,10 @@ export class UsageService {
         data.organization = { ...org.data, fetchedAt: nowMs };
       } else if (org) {
         data.organizationError = { code: org.error.code, statusCode: org.error.statusCode };
+      }
+      const currentModel = await this.readCurrentModel?.().catch(() => undefined);
+      if (currentModel) {
+        data.currentModel = currentModel;
       }
       return { success: true, data, rateLimited };
     }

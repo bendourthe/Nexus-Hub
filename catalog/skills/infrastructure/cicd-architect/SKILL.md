@@ -69,6 +69,8 @@ Three rules follow, and they are the ones most often broken:
 - **A pipeline file changes only when the pipeline is the current phase's explicit deliverable.** Otherwise the phase records its CI impact in prose and changes nothing.
 - **A push event cannot prove a merge.** Merge-only semantics come from branch protection, which is an external repository setting. A branch-filtered `push` workflow means "merge or release" only in a repository that rejects direct pushes to that branch. Say so explicitly whenever you write one.
 
+Apply the validation cadence in the canonical contract, section 2.4: focused checks during implementation, then comprehensive validation after all implementation tasks are complete in each plan. Delegate test selection, unchanged-result reuse and correction invalidation to [[cicd-integration]].
+
 ### Step 2: Detect the provider
 
 Never assume. Look for, in order:
@@ -191,8 +193,8 @@ This is the terminal duty in every plan's final phase, and the entry point when 
 1. **Detect** the provider (Step 2). Record "none detected" rather than assuming.
 2. **Compare** the existing pipeline against every field in Steps 3 through 8: profiles, events, runner selection, required aggregate, permissions, pinning, caching, concurrency, path scoping, artifact retention, reports, deployment boundaries, failure recovery.
 3. **Propose** each difference with its cost, its risk, and the smallest change that closes it.
-4. **Approve.** Obtain explicit approval per change. Silence is not approval. A full `/implement` run's upfront approvals never cover a pipeline, permission, or secret change: each one stops that run as a `ci-security-change` blocker until the user answers it.
-5. **Apply** approved changes in the current phase, then re-run the local gate.
+4. **Approve.** Follow `[[implement-phase]]`'s [Authorization policy](../../workflow/implement-phase/references/completion-contract.md#authorization-policy) for authorization and continuation. Delegate any required manual decision and its capture to that same owner; this comparison does not impose a second consent requirement.
+5. **Apply** approved changes, then run affected checks through [[cicd-integration]]. The complete local gate follows all implementation and final-phase corrections; retain earlier complete results only under the selection owner's invalidation rules.
 6. **Record** every declined or environment-only difference as a known gap with an owner and a next step. Cross-link `[[known-gaps-tracker]]`.
 
 The comparison concludes PASS only when every required field has observable evidence. "Looks fine" is not evidence, and neither is a green run: a green run on a pipeline that never checks a thing is green for the wrong reason.

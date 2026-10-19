@@ -1,0 +1,206 @@
+{
+  "duration_s": 120.40599999998813,
+  "finished_at": "2026-10-17T03:12:54Z",
+  "groups": [
+    {
+      "commands": [
+        {
+          "duration_s": 0.23399999999674037,
+          "exit_code": 0,
+          "group": "catalog-parse",
+          "name": "skills.json parses",
+          "output": "",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.20399999999790452,
+          "exit_code": 0,
+          "group": "catalog-parse",
+          "name": "bundles.json parses",
+          "output": "",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.28100000000267755,
+          "exit_code": 0,
+          "group": "catalog-parse",
+          "name": "workflows.json parses",
+          "output": "",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.34399999999732245,
+          "exit_code": 0,
+          "group": "catalog-parse",
+          "name": "templates.json parses",
+          "output": "",
+          "reason": "",
+          "status": "pass"
+        }
+      ],
+      "name": "catalog-parse",
+      "skipped_reason": "",
+      "status": "pass"
+    },
+    {
+      "commands": [
+        {
+          "duration_s": 0.5620000000053551,
+          "exit_code": 0,
+          "group": "hygiene",
+          "name": "check_commit_attribution",
+          "output": "Attribution: 2604 commits scanned; 0 findings; 0 errors\r\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 86.56299999999464,
+          "exit_code": 0,
+          "group": "hygiene",
+          "name": "validate_unicode_safety",
+          "output": "",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 1.875,
+          "exit_code": 0,
+          "group": "hygiene",
+          "name": "validate_no_personal_paths",
+          "output": "",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.5310000000026776,
+          "exit_code": 0,
+          "group": "hygiene",
+          "name": "check_merge_conflict_markers",
+          "output": "check_merge_conflict_markers: 0 marker(s) in 0 file(s).\r\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.3119999999908032,
+          "exit_code": 0,
+          "group": "hygiene",
+          "name": "check_docs_conventions",
+          "output": "OK: docs conventions hold under C:\\Users\\[redacted:user]\\Documents\\Benjamin\\nexus\\Nexus-Hub-v4.14.0-adoption-agent-tooling-and-subagent-cost\\docs\\releases\\v4\\v4.22\r\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.1880000000091968,
+          "exit_code": 0,
+          "group": "hygiene",
+          "name": "validate_doc_budgets",
+          "output": "  8 budgeted doc(s) within ceiling\r\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.8119999999908032,
+          "exit_code": 0,
+          "group": "hygiene",
+          "name": "check_memory_integration_budget",
+          "output": "OK   <implementation-root>/docs/policy/memory-integration-prose.md: 222 tokens (tiktoken) / 500\r\n",
+          "reason": "",
+          "status": "pass"
+        }
+      ],
+      "name": "hygiene",
+      "skipped_reason": "",
+      "status": "pass"
+    },
+    {
+      "commands": [
+        {
+          "duration_s": 26.860000000000582,
+          "exit_code": 0,
+          "group": "interpreters",
+          "name": "check_python_floor",
+          "output": "Python 3.11 grammar: 1012 tracked files passed\r\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.6090000000112923,
+          "exit_code": 0,
+          "group": "interpreters",
+          "name": "check_interpreter_resolution",
+          "output": "[interpreters] OK   powershell -> C:\\windows\\System32\\WindowsPowerShell\\v1.0\\powershell.EXE\r\n[interpreters] every hook interpreter can execute a script.\r\n",
+          "reason": "",
+          "status": "pass"
+        }
+      ],
+      "name": "interpreters",
+      "skipped_reason": "",
+      "status": "pass"
+    },
+    {
+      "commands": [
+        {
+          "duration_s": 0.3279999999940628,
+          "exit_code": 0,
+          "group": "registry-consistency",
+          "name": "check_registry_entries",
+          "output": "  registry entries: structure and reachability agree with the catalog\r\n",
+          "reason": "",
+          "status": "pass"
+        }
+      ],
+      "name": "registry-consistency",
+      "skipped_reason": "",
+      "status": "pass"
+    },
+    {
+      "commands": [
+        {
+          "duration_s": 0.3129999999946449,
+          "exit_code": 0,
+          "group": "workflows",
+          "name": "validate_workflow_security",
+          "output": "",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 0.25,
+          "exit_code": 0,
+          "group": "workflows",
+          "name": "check_required_check_coverage",
+          "output": "Required-check coverage: OK -- 10 declared context(s) across 2 branch(es), every one produced unconditionally.\r\n",
+          "reason": "",
+          "status": "pass"
+        }
+      ],
+      "name": "workflows",
+      "skipped_reason": "",
+      "status": "pass"
+    },
+    {
+      "commands": [
+        {
+          "duration_s": 0.13999999999941792,
+          "exit_code": 0,
+          "group": "version",
+          "name": "check_version_sync",
+          "output": "canonical version: 4.13.13 (.claude-plugin/plugin.json)\r\n  [      match] data/marketplace.json: matches 4.13.13\r\n  [      match] scripts/installer.sh: matches 4.13.13\r\n  [      match] scripts/installer.ps1: matches 4.13.13\r\n  [      match] CHANGELOG.md: matches 4.13.13\r\n  [      match] README.md: matches 4.13.13\r\n  [      match] AGENTS.md: matches 4.13.13\r\n",
+          "reason": "",
+          "status": "pass"
+        }
+      ],
+      "name": "version",
+      "skipped_reason": "",
+      "status": "pass"
+    }
+  ],
+  "platform": "windows",
+  "profile": "fast",
+  "scope_conservative": true,
+  "scope_reason": "no --base supplied; running every group",
+  "started_at": "2026-10-17T03:10:53Z"
+}

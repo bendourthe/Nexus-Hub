@@ -47,17 +47,17 @@ describe("StatusBarManager (Codex)", () => {
     expect(createdStatusBarItems[0].priority).toBe(103);
   });
 
-  // v3.14.5 Phase 5.2: compact-mode toggle drops the "Codex Usage: " label.
-  it("shows the full label by default and drops it when compactStatusBar is set", () => {
+  // v3.14.5 Phase 5.2: compact-mode toggle drops the "Codex Usage: " label; compact is the default.
+  it("is compact by default and shows the full label when compactStatusBar is off", () => {
     __resetStubState();
     const mgr = new StatusBarManager(dataStore(42, 10), "codex-usage.dashboard");
 
     mgr.refresh();
-    expect(createdStatusBarItems[0].text).toBe("$(codex-icon)\u2002Codex Usage: 42% (current) 10% (week)");
-
-    __setStubConfig("codexUsage", "compactStatusBar", true);
-    mgr.refresh();
     expect(createdStatusBarItems[0].text).toBe("$(codex-icon)\u200242% (current) 10% (week)");
+
+    __setStubConfig("codexUsage", "compactStatusBar", false);
+    mgr.refresh();
+    expect(createdStatusBarItems[0].text).toBe("$(codex-icon)\u2002Codex Usage: 42% (current) 10% (week)");
   });
 
   // v3.14.6 issue 3: a weekly-only plan (no 5-hour "session" window) must not
@@ -67,7 +67,7 @@ describe("StatusBarManager (Codex)", () => {
     const mgr = new StatusBarManager(dataStore(UNTRACKED_PERCENT, 91), "codex-usage.dashboard");
 
     mgr.refresh();
-    expect(createdStatusBarItems[0].text).toBe("$(codex-icon)\u2002Codex Usage: 91% (week)");
+    expect(createdStatusBarItems[0].text).toBe("$(codex-icon)\u200291% (week)");
   });
 
   it("renders Extra Credits as a second tooltip progress bar after Weekly", () => {
@@ -100,6 +100,6 @@ describe("StatusBarManager (Codex)", () => {
     const mgr = new StatusBarManager(emptyStore, "codex-usage.dashboard");
 
     mgr.refresh();
-    expect(createdStatusBarItems[0].text).toBe("$(codex-icon)\u2002Codex Usage: --");
+    expect(createdStatusBarItems[0].text).toBe("$(codex-icon)\u2002--");
   });
 });

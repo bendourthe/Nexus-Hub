@@ -87,8 +87,8 @@ describe("DashboardPanel", () => {
 
     instance.update(usageData({ weeklyAllModels: { percent: 55, resetsIn: "2d", resetsAt: null } }), "3 min ago");
     expect(panel.webview.html).toContain('style="width: 55%;"');
-    DashboardPanel.updateIfOpen(usageData({ planLabel: "Enterprise" }), "4 min ago", undefined);
-    expect(panel.webview.html).toContain("Enterprise");
+    DashboardPanel.updateIfOpen(usageData({ currentModel: "gpt-5-codex" }), "4 min ago", undefined);
+    expect(panel.webview.html).toContain("gpt-5-codex");
 
     DashboardPanel.revealSettings();
     await panel.webview.__dispatchMessage({ command: "refresh" });
@@ -111,6 +111,14 @@ describe("DashboardPanel", () => {
     )).toHaveLength(2);
   });
 
+  it("shows the current model in place of the plan", () => {
+    const html = renderDashboard(usageData({ currentModel: "gpt-6.1-sol", planLabel: "ChatGPT Plus" }));
+    expect(html).toContain("<h3>Current Model</h3>");
+    expect(html).toContain('<div class="model-name">gpt-6.1-sol</div>');
+    expect(html).not.toContain("<h3>Plan</h3>");
+    expect(html).not.toContain("ChatGPT Plus");
+  });
+
   it("renders actionable and rate-limited empty states without alarming cached-data users", () => {
     const callbacks = { onRefresh: vi.fn(), onOpenUsagePage: vi.fn() };
     const instance = DashboardPanel.show(undefined, "never", { code: "rate-limited" }, callbacks);
@@ -129,7 +137,7 @@ describe("DashboardPanel", () => {
   it("renders additional limits, escapes labels, and distinguishes manual data", () => {
     const html = renderDashboard(usageData({
       dataSource: "manual",
-      planLabel: "Team <Admin>",
+      currentModel: "gpt <beta>",
       additionalLimits: [{
         label: "Review & Work",
         percent: 25,
@@ -140,7 +148,7 @@ describe("DashboardPanel", () => {
     }));
 
     expect(html).toContain("Review &amp; Work");
-    expect(html).toContain("Team &lt;Admin&gt;");
+    expect(html).toContain("gpt &lt;beta&gt;");
     expect(html).toContain("Credits: unlimited");
     expect(html).toContain("Manually entered just now");
     expect(html).toContain(`data-resets-at="${Date.UTC(2026, 7, 3)}"`);

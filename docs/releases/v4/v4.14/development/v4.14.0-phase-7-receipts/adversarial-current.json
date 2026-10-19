@@ -1,0 +1,600 @@
+{
+  "raw_private_evidence_sha256": "4a051b3ba90d697f89ec586fa0a945f8580ee2feb67d76cd6b49d197f2bed14d",
+  "redaction": "User-profile path components sanitized in keys and values; bindings and observations retained.",
+  "result": {
+    "created_utc": "2026-10-17T06:02:16.021110+00:00",
+    "root": "C:/Users/USER\\Documents\\Benjamin\\nexus\\Nexus-Hub-v4.14.0-adoption-agent-tooling-and-subagent-cost",
+    "scope": "Bounded follow-up to the N193/K47 ten-persona review; current approved eleven-file CI correction, five non-CI source/test repairs, two UI Verification placement paths, and all 26 functional inventory rows. No fresh full review or release verdict is implied.",
+    "mode": "read-only; private artifact only",
+    "verifier_classes": [
+      "deterministic",
+      "evidence-based"
+    ],
+    "actionable_current_findings": [],
+    "approved_ci_bindings": [
+      {
+        "path": ".github/workflows/claude-usage-monitor.yml",
+        "sha256": "4bf13421d812d75bf6bfd733c7c7df74e1323b3bde7b71c9091b55d50bf104e6",
+        "approved_after_match": true
+      },
+      {
+        "path": ".github/workflows/code-search.yml",
+        "sha256": "1fd5f4ddede8d7d0a38a39a321f7b1316078daf178f3961c932489669d64ab60",
+        "approved_after_match": true
+      },
+      {
+        "path": ".github/workflows/codex-usage-monitor.yml",
+        "sha256": "f43a8b3df818baaf4c47346884bd7720d5a143d681a7398c4a6b8f18ab7464cf",
+        "approved_after_match": true
+      },
+      {
+        "path": ".github/workflows/copilot-usage-monitor.yml",
+        "sha256": "5610707d7681276c60c1196e45512d5229424d87d77a8a1ca7ecbee825436edb",
+        "approved_after_match": true
+      },
+      {
+        "path": ".github/workflows/doc-colocation.yml",
+        "sha256": "9fefc3b2e76302278f6890469eaa10658cc3b9daff45c7ba3d15e537fe55abf4",
+        "approved_after_match": true
+      },
+      {
+        "path": ".github/workflows/gemini-usage-monitor.yml",
+        "sha256": "03187cf22c1cc1b1f975d47b6f713bf9fdcad38b7b2359017aeadfe550e5b71b",
+        "approved_after_match": true
+      },
+      {
+        "path": "scripts/ci/reporting.py",
+        "sha256": "63fc99808a636d420c216addceeebe1a466340f67c6819da4c2b8fc5bf600a12",
+        "approved_after_match": true
+      },
+      {
+        "path": "scripts/ci/verify_scenarios.py",
+        "sha256": "3c73bd12e45c312bbca338d3b21048bdc082ae627bd9df6640a1128c2b84d9ec",
+        "approved_after_match": true
+      },
+      {
+        "path": "tests/ci/test_ci_reconciliation.py",
+        "sha256": "65148200f5fed6b8f305ee4af655da617acba27308247c95abf7517c2140989a",
+        "approved_after_match": true
+      },
+      {
+        "path": "tests/ci/test_ci_scenario_boundaries.py",
+        "sha256": "6a62111ee4e7b72b8f82676608b67a477a112ee8d2e84ea70d105a060d9f4e7c",
+        "approved_after_match": true
+      },
+      {
+        "path": "tests/ci/test_ci_scenarios.py",
+        "sha256": "c2e6880e0298327a1584f0f77eb99b4c8f77c8d49d2d80cff6958d0034aeaa2f",
+        "approved_after_match": true
+      }
+    ],
+    "nonci_bindings": [
+      {
+        "path": "scripts/installer.sh",
+        "after_raw_sha256": "d440872e58e723e7dbd2c504501edea840864c80f484b741ac2f459af754e396"
+      },
+      {
+        "path": "scripts/installer.ps1",
+        "after_raw_sha256": "297cd01ddba52abbc3fbb90ffb330aff4c97e53582864b8fdca094766d8b4f67"
+      },
+      {
+        "path": "tests/installer/test_core_settings_seeding.py",
+        "after_raw_sha256": "c692622180adf84bd96e33536b157755c834fe8bc75aa99e04ed68b41ccb26c2"
+      },
+      {
+        "path": "tests/installer/test_native_json_reader.py",
+        "after_raw_sha256": "d48b39a56078136f352a45b9acf3d3951158eca27192a1ed85d7f522fa96b16a"
+      },
+      {
+        "path": "tests/validators/test_agent_model_pinning.py",
+        "after_raw_sha256": "411ac1be29f66f0bdd30fda9cc77ef2285dea008a6943d017553a2532c588d10"
+      }
+    ],
+    "ui_bindings": [
+      {
+        "path": "catalog/skills/developer-experience/interface-review/SKILL.md",
+        "original_raw_sha256": "0f255a85b7d7027e340631e866b664c5a45cdd6317e2f087b0d8b583bfccec99",
+        "final_raw_sha256": "267ba957592070d7bccca0bc749356e6c235d5ac1ab8896938a14a57db8f0d3d",
+        "final_LF_normalized_sha256": "84731b2f959a0deacb4554fd8d157babbc1f29bd05e2e2ed3cedc2710a0301c7",
+        "final_bytes": 10080
+      },
+      {
+        "path": "tests/validators/test_ui_cluster_contract.py",
+        "original_raw_sha256": "7ffb27df03210a8011d0ce6e321434df023630461c8d12c2ea3639aa958bbd0f",
+        "final_raw_sha256": "2b0be9fa1b07d0b144f323d9154393819aedffecd2c9824650bd693dc81eb9c4",
+        "final_LF_normalized_sha256": "acd11e00f267ad8019f994652b1cb7e2dfcedff97b97782b0ce5c2f4f38563c1",
+        "final_bytes": 2090
+      }
+    ],
+    "input_boundary_map": [
+      {
+        "rows": [
+          1,
+          2,
+          3,
+          14
+        ],
+        "source": "Declared defaults and catalog frontmatter",
+        "boundary": "Generator, real installers and per-platform adapters",
+        "hostile_controls": "Valid Haiku substitution is rejected by the actual Opus roster assertion; non-Claude model metadata is stripped while prompts remain. Version/provider behavior is documented, not exercised through a paid model call."
+      },
+      {
+        "rows": [
+          4,
+          5,
+          6
+        ],
+        "source": "Existing user settings, ownership record, removals, scope and repeat runs",
+        "boundary": "Native global/workspace core merge",
+        "hostile_controls": "Owned unchanged seed retirement, changed/unowned preservation, removed-key memory, malformed/linked/wrong-target records and metadata preservation. Current full Windows/Linux profiles bind the production source; workspace remains retained same-production-hash candidate proof."
+      },
+      {
+        "rows": [
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          15,
+          16
+        ],
+        "source": "JSON text/root shape, case-distinct keys, opaque timestamps, deep objects, long slash runs, permission duplicates, literal Unicode paths and optional setup failures",
+        "boundary": "Actual Read-JsonDocument, core/hook/strict/MCP writers and installed launcher",
+        "hostile_controls": "Malformed streams/array template rejection precedes writes; 65536-backslash control, exact-case and date controls, duplicate-rule negative controls and full current native profiles. Optional MCP dependency success and native older-Core hosts remain outside the observed claim."
+      },
+      {
+        "rows": [
+          13
+        ],
+        "source": "Doctor CLI arguments, manifest availability and unsupported effort values",
+        "boundary": "Copied source-free entry point and bundled read-only diagnostic",
+        "hostile_controls": "Text/JSON and healthy/missing-manifest controls preserve file bytes and suppress arbitrary override values. Authenticated host sessions are not covered."
+      },
+      {
+        "rows": [
+          17,
+          18
+        ],
+        "source": "Consumer CSS and UI skill structure",
+        "boundary": "Stylelint fixture and literal outer Verification ownership check",
+        "hostile_controls": "Four invalid CSS cases reject and repaired case passes in retained proof. Current two-file placement hashes match; direct current test passes after ignoring fenced examples. Token existence/types, CSS-in-JS, accessibility and rendered design quality remain separate."
+      },
+      {
+        "rows": [
+          19
+        ],
+        "source": "Complete changed path set, including binary/deleted paths",
+        "boundary": "Deterministic parent-directory bundles of at most eight paths",
+        "hostile_controls": "N193/K47 union/count equality and before/after hashes were independently checked in the prior full pass. Later source deltas are separately reviewed; no token savings is inferred."
+      },
+      {
+        "rows": [
+          20
+        ],
+        "source": "Authored handbook model and current source-claim snapshots",
+        "boundary": "Builders/checker and retained Chromium reading/slide controls",
+        "hostile_controls": "Both palettes and 200-state retained proof are tied to unchanged rendered bytes. No new browser run, native GUI, Safari/Firefox, physical zoom or accessibility certification is claimed."
+      },
+      {
+        "rows": [
+          21,
+          22,
+          23
+        ],
+        "source": "CLI subprocess trees, inherited package/editor/Git selectors and exit/timeouts",
+        "boundary": "Canonical command runner, private scenarios and actual OS process state",
+        "hostile_controls": "Pip/uv destination/parser sentinels, ten additional selector controls, inert editor launchers and private editor stores. Ready/release plus parent-only controls distinguish a surviving child; forced cleanup mutation fails and survivor is reaped. Retained native Windows/Linux process proof is not a container escape test."
+      },
+      {
+        "rows": [
+          24
+        ],
+        "source": "Secret-bearing environment values containing quotes, newline, backslash and Unicode",
+        "boundary": "Metadata values-first redaction, serialization and JSON parser",
+        "hostile_controls": "Original quoted-profile counterexample now passes on actual source with preserved profile key and redacted started_at. Permanent five-value controls and independent retained reproductions cover the repaired route."
+      },
+      {
+        "rows": [
+          25,
+          26
+        ],
+        "source": "Workflow detector/child statuses and monitor package/test inputs",
+        "boundary": "Actual YAML aggregate shell and canonical Node22 command groups",
+        "hostile_controls": "All 23 aggregate combinations include 19 rejection cases killed by unconditional-success mutation. Current Node22 fourteen-command compile/coverage/package run passes. Hosted integration and live editor delivery remain pending."
+      }
+    ],
+    "inventory_rows": [
+      {
+        "row": 1,
+        "feature": "Dated Claude effort lever and four per-model High defaults",
+        "input_source": "all declared settings",
+        "boundary": "sync_platform_defaults.py --check",
+        "evidence": "C:/Users/USER\\Documents\\Benjamin\\nexus\\Nexus-Hub-v4.14.0-adoption-agent-tooling-and-subagent-cost\\docs\\releases\\v4\\v4.14\\development\\phase-1-lever-evidence.md",
+        "evidence_sha256": "85fdb10c0d74f0da55514f9459faf808a8dff7687600e214da9eea560e6d7e0a",
+        "bounded_observation": "Phase 1/6 primary-source records; all 14 generated defaults stay synchronized",
+        "environment": "Windows; first-party evidence",
+        "acceptance_limit": "Final platform-contract and release qualification"
+      },
+      {
+        "row": 2,
+        "feature": "All 23 reasoning-sensitive agent pins",
+        "input_source": "23 shipped agents",
+        "boundary": "global installer agent delivery",
+        "evidence": "C:/Users/USER\\Documents\\Benjamin\\nexus\\Nexus-Hub-v4.14.0-adoption-agent-tooling-and-subagent-cost\\docs\\releases\\v4\\v4.14\\development\\v4.14.0-phase-7-receipts\\native-windows-after-blocker5.json",
+        "evidence_sha256": "39e0fd0f628e9b56a3f4c236b40c2ec2ae4e54d8b3243ec10bd066e31edf7336",
+        "bounded_observation": "Explicit Opus and rationale-partition assertions; valid Haiku mutation is rejected on current source",
+        "environment": "Windows 5.1; Linux Bash",
+        "acceptance_limit": "Final local/integration gates"
+      },
+      {
+        "row": 3,
+        "feature": "Unpinned custom-agent absolute Sonnet default",
+        "input_source": "pre-existing and absent settings",
+        "boundary": "global installer core writer",
+        "evidence": "C:/Users/USER\\Documents\\Benjamin\\nexus\\Nexus-Hub-v4.14.0-adoption-agent-tooling-and-subagent-cost\\docs\\releases\\v4\\v4.14\\development\\v4.14.0-phase-7-receipts\\native-linux-after-blocker5.json",
+        "evidence_sha256": "f6b35a042c48a9ee790d9942986127d43d63173e378faa6bbd1fe6e0a1f1bb41",
+        "bounded_observation": "Current complete Windows and network-disabled Linux global upgrades/fresh installs deliver Sonnet",
+        "environment": "Windows 5.1; Linux Bash",
+        "acceptance_limit": "Complete installer qualification at current hashes"
+      },
+      {
+        "row": 4,
+        "feature": "Owned legacy effort retirement",
+        "input_source": "recorded unchanged medium seed",
+        "boundary": "global installer core writer",
+        "evidence": "C:/Users/USER\\Documents\\Benjamin\\nexus\\Nexus-Hub-v4.14.0-adoption-agent-tooling-and-subagent-cost\\docs\\releases\\v4\\v4.14\\development\\v4.14.0-phase-7-receipts\\native-windows-after-blocker5.json",
+        "evidence_sha256": "39e0fd0f628e9b56a3f4c236b40c2ec2ae4e54d8b3243ec10bd066e31edf7336",
+        "bounded_observation": "Native ownership, unchanged-value, user-override and legacy cases in both edition suites",
+        "environment": "Windows 5.1; Linux Bash",
+        "acceptance_limit": "Full local/integration gates"
+      },
+      {
+        "row": 5,
+        "feature": "User changes, removal memory and unknown ownership metadata",
+        "input_source": "user effort, removals and metadata",
+        "boundary": "actual core merge and repeat install",
+        "evidence": "C:/Users/USER\\Documents\\Benjamin\\nexus\\Nexus-Hub-v4.14.0-adoption-agent-tooling-and-subagent-cost\\docs\\releases\\v4\\v4.14\\development\\phase-6-effort-evidence.md",
+        "evidence_sha256": "1706b873bd50840e2b5f455ddeb8ea5dd723e3c27b0ae3282530f11070f3c72e",
+        "bounded_observation": "Both-edition native ownership/repeat and fresh-template handoff controls",
+        "environment": "PowerShell 5.1/7; Bash",
+        "acceptance_limit": "Full final-tree installer/gates"
+      },
+      {
+        "row": 6,
+        "feature": "Global and workspace scope boundary",
+        "input_source": "private global and workspace targets",
+        "boundary": "global core writer; workspace scenario",
+        "evidence": "C:/Users/USER\\Documents\\Benjamin\\nexus\\Nexus-Hub-v4.14.0-adoption-agent-tooling-and-subagent-cost\\docs\\releases\\v4\\v4.14\\development\\capability-usage-gate.md",
+        "evidence_sha256": "3798be991a944aa3ab8fbad3ba6504f5cb1c66e3942ee137bd3e9fe68d1838e8",
+        "bounded_observation": "Core call-order/scope assertions; retained actual workspace smoke",
+        "environment": "Windows; candidate workspace",
+        "acceptance_limit": "Candidate native workspace scenario passes; final actual-tree gates remain"
+      },
+      {
+        "row": 7,
+        "feature": "Exact-case and deep JSON preservation",
+        "input_source": "case-different keys and depth15",
+        "boundary": "native reader and complete rich-profile upgrade",
+        "evidence": "C:/Users/USER\\Documents\\Benjamin\\nexus\\Nexus-Hub-v4.14.0-adoption-agent-tooling-and-subagent-cost\\docs\\releases\\v4\\v4.14\\development\\v4.14.0-phase-7-receipts\\native-windows-after-blocker5.json",
+        "evidence_sha256": "39e0fd0f628e9b56a3f4c236b40c2ec2ae4e54d8b3243ec10bd066e31edf7336",
+        "bounded_observation": "Native reader and core suites plus retained affected hook/MCP controls",
+        "environment": "PowerShell 5.1/7; Linux Bash",
+        "acceptance_limit": "Full affected hook/MCP/strict and full installer at current reader hash"
+      },
+      {
+        "row": 8,
+        "feature": "Opaque ISO and escaped Microsoft date strings",
+        "input_source": "ISO and escaped Microsoft date strings",
+        "boundary": "actual native JSON reader",
+        "evidence": "C:/Users/USER\\Documents\\Benjamin\\nexus\\Nexus-Hub-v4.14.0-adoption-agent-tooling-and-subagent-cost\\docs\\releases\\v4\\v4.14\\development\\v4.14.0-phase-7-receipts\\lossless-candidate-reader-ps51.json",
+        "evidence_sha256": "7c28cbc07098147da2151ff1f6d153c7e83e60500f685f06668fb26488e9990e",
+        "bounded_observation": "Native reader string/root/type controls on 5.1 and current Core; older-Core capability simulation identified as simulation",
+        "environment": "PowerShell 5.1/7",
+        "acceptance_limit": "Native older-Core host coverage is not claimed"
+      },
+      {
+        "row": 9,
+        "feature": "Malformed settings/template rejection",
+        "input_source": "multiple JSON documents and array template",
+        "boundary": "actual core writer negative controls",
+        "evidence": "C:/Users/USER\\Documents\\Benjamin\\nexus\\Nexus-Hub-v4.14.0-adoption-agent-tooling-and-subagent-cost\\docs\\releases\\v4\\v4.14\\development\\v4.14.0-phase-7-receipts\\nonci-review-corrections-applied.json",
+        "evidence_sha256": "a00826c7ab40a3358542d2bca3f66ec5a7c1d2da77cb2f77afcf38292fbfc756",
+        "bounded_observation": "Six core input-role controls preserve settings and ownership bytes; nine fresh source regressions pass",
+        "environment": "PowerShell 5.1/7; Bash",
+        "acceptance_limit": "Full final-tree gates"
+      },
+      {
+        "row": 10,
+        "feature": "Long backslash-run handling",
+        "input_source": "65536 backslashes",
+        "boundary": "actual legacy native reader",
+        "evidence": "C:/Users/USER\\Documents\\Benjamin\\nexus\\Nexus-Hub-v4.14.0-adoption-agent-tooling-and-subagent-cost\\docs\\releases\\v4\\v4.14\\development\\v4.14.0-phase-7-receipts\\nonci-review-corrections-applied.json",
+        "evidence_sha256": "a00826c7ab40a3358542d2bca3f66ec5a7c1d2da77cb2f77afcf38292fbfc756",
+        "bounded_observation": "Old actual reader times out at 20 seconds; corrected actual reader preserves values in 0.782 seconds; permanent long-run control",
+        "environment": "PowerShell 5.1",
+        "acceptance_limit": "Full final-tree gates"
+      },
+      {
+        "row": 11,
+        "feature": "Strict overlay with duplicates, malformed roots and literal Unicode paths",
+        "input_source": "duplicates, malformed roots, literal profile",
+        "boundary": "global strict installer and core negative controls",
+        "evidence": "C:/Users/USER\\Documents\\Benjamin\\nexus\\Nexus-Hub-v4.14.0-adoption-agent-tooling-and-subagent-cost\\docs\\releases\\v4\\v4.14\\development\\v4.14.0-phase-7-receipts\\native-windows-after-blocker5.json",
+        "evidence_sha256": "39e0fd0f628e9b56a3f4c236b40c2ec2ae4e54d8b3243ec10bd066e31edf7336",
+        "bounded_observation": "Retained 440/272 affected suites and complete native profiles; strict functions are unchanged by the core repair",
+        "environment": "PowerShell 5.1/7; Linux Bash",
+        "acceptance_limit": "Shared-reader/current-hash full qualification"
+      },
+      {
+        "row": 12,
+        "feature": "Hook arrays, custom metadata and literal paths",
+        "input_source": "custom hook plus managed hook set",
+        "boundary": "global installer hook delivery",
+        "evidence": "C:/Users/USER\\Documents\\Benjamin\\nexus\\Nexus-Hub-v4.14.0-adoption-agent-tooling-and-subagent-cost\\docs\\releases\\v4\\v4.14\\development\\v4.14.0-phase-7-receipts\\native-windows-after-blocker5.json",
+        "evidence_sha256": "39e0fd0f628e9b56a3f4c236b40c2ec2ae4e54d8b3243ec10bd066e31edf7336",
+        "bounded_observation": "Retained real-writer controls and full Windows upgrades",
+        "environment": "Windows PowerShell 5.1",
+        "acceptance_limit": "Current reader full qualification"
+      },
+      {
+        "row": 13,
+        "feature": "Source-free, read-only Doctor text and JSON",
+        "input_source": "healthy/missing manifest and invalid override",
+        "boundary": "copied source-free doctor text/JSON",
+        "evidence": "C:/Users/USER\\Documents\\Benjamin\\nexus\\Nexus-Hub-v4.14.0-adoption-agent-tooling-and-subagent-cost\\docs\\releases\\v4\\v4.14\\development\\phase-6-effort-evidence.md",
+        "evidence_sha256": "1706b873bd50840e2b5f455ddeb8ea5dd723e3c27b0ae3282530f11070f3c72e",
+        "bounded_observation": "Actual copied-entry-point healthy/missing-manifest and override controls; review rechecks discovery and unchanged bytes",
+        "environment": "Windows copied installed layout",
+        "acceptance_limit": "Final integrated distribution smoke"
+      },
+      {
+        "row": 14,
+        "feature": "Non-Claude metadata delivery",
+        "input_source": "Claude-only model metadata",
+        "boundary": "actual target adapters",
+        "evidence": "C:/Users/USER\\Documents\\Benjamin\\nexus\\Nexus-Hub-v4.14.0-adoption-agent-tooling-and-subagent-cost\\docs\\releases\\v4\\v4.14\\development\\history\\v4.14.0-phase-2.md",
+        "evidence_sha256": "88cfc58fa137a3578b3c35b6f08ccdf6d9bf756cda01224d10e394e41f9783d7",
+        "bounded_observation": "Actual adapter and registry controls; same prompt bodies retained",
+        "environment": "Windows/Python contract harness",
+        "acceptance_limit": "Final target-specific integration qualification"
+      },
+      {
+        "row": 15,
+        "feature": "Optional MCP first-venv failure handling",
+        "input_source": "first venv failure and existing install",
+        "boundary": "actual native failure/upgrade controls",
+        "evidence": "C:/Users/USER\\Documents\\Benjamin\\nexus\\Nexus-Hub-v4.14.0-adoption-agent-tooling-and-subagent-cost\\docs\\releases\\v4\\v4.14\\development\\v4.14.0-phase-7-receipts\\full-native-current-three-profiles.json",
+        "evidence_sha256": "38cbef7f81235e0ae2a57794726ef5dbe4463a44662798cade0176ba5fd809a4",
+        "bounded_observation": "Retained native failure/upgrade controls and complete Windows profiles",
+        "environment": "PowerShell 5.1/7; retained epoch",
+        "acceptance_limit": "Current full native installer and optional dependency qualification"
+      },
+      {
+        "row": 16,
+        "feature": "Literal-path Unicode CLI launcher",
+        "input_source": "Unicode/bracket profile",
+        "boundary": "installed launcher --version",
+        "evidence": "C:/Users/USER\\Documents\\Benjamin\\nexus\\Nexus-Hub-v4.14.0-adoption-agent-tooling-and-subagent-cost\\docs\\releases\\v4\\v4.14\\development\\v4.14.0-phase-7-receipts\\cli-launcher-literal-path.json",
+        "evidence_sha256": "c7ef960b564917c0c1e18ed6ff6fb8283db168bcd8cd8d2b5e95c17557afb4f8",
+        "bounded_observation": "Retained original-source failure and corrected installed-launcher controls",
+        "environment": "Windows PowerShell 5.1/7",
+        "acceptance_limit": "Current full native bootstrap/installer qualification"
+      },
+      {
+        "row": 17,
+        "feature": "Runnable design-system lint contract",
+        "input_source": "four invalid and one repaired fixture; old placement",
+        "boundary": "actual Stylelint fixture; contract validator",
+        "evidence": "C:/Users/USER\\Documents\\Benjamin\\nexus\\Nexus-Hub-v4.14.0-adoption-agent-tooling-and-subagent-cost\\docs\\releases\\v4\\v4.14\\development\\v4.14.0-phase-7-receipts\\ui-verification-placement.json",
+        "evidence_sha256": "5a5bf6385d843ecbfd89fb21f8bf761db363adc3e481d6511a66f15336a18608",
+        "bounded_observation": "Actual five-case Stylelint exercise rejects four invalid cases and accepts repaired fixture; literal Verification placement corrected and regression passes",
+        "environment": "Node; Python current source",
+        "acceptance_limit": "Token existence, token types, rendered quality and accessibility are explicitly outside this lint example"
+      },
+      {
+        "row": 18,
+        "feature": "UI skill handoffs",
+        "input_source": "domain handoffs and outer Verification",
+        "boundary": "contract validator and ownership review",
+        "evidence": "C:/Users/USER\\Documents\\Benjamin\\nexus\\Nexus-Hub-v4.14.0-adoption-agent-tooling-and-subagent-cost\\docs\\releases\\v4\\v4.14\\development\\history\\v4.14.0-phase-4.md",
+        "evidence_sha256": "5a82499e498665756a48b769bf1256027789a8b8d43648415bb29ea56d4e09c5",
+        "bounded_observation": "UI contract test and source ownership review",
+        "environment": "Python current source; static review",
+        "acceptance_limit": "Final documentation/gate checks"
+      },
+      {
+        "row": 19,
+        "feature": "Deterministic directory review grouping",
+        "input_source": "193 paths and47 bundles",
+        "boundary": "actual deterministic review bundling",
+        "evidence": "C:/Users/USER\\Documents\\Benjamin\\nexus\\Nexus-Hub-v4.14.0-adoption-agent-tooling-and-subagent-cost\\docs\\releases\\v4\\v4.14\\development\\v4.14.0-phase-7-receipts\\final-review-results.json",
+        "evidence_sha256": "1277d4b7c2f6106cb77eaa9dd57837e56b21bd544b6c033db880ef2aadaaf249",
+        "bounded_observation": "All 193 paths occur exactly once across 47 bundles; ten selected personas cover every bundle",
+        "environment": "read-only ten-persona review",
+        "acceptance_limit": "Final changed-source delta is reviewed separately; no token-savings claim"
+      },
+      {
+        "row": 20,
+        "feature": "Maintained handbook reading and slide views",
+        "input_source": "both palettes, reading/slide modes and200 states",
+        "boundary": "retained browser and actual builder --check",
+        "evidence": "C:/Users/USER\\Documents\\Benjamin\\nexus\\Nexus-Hub-v4.14.0-adoption-agent-tooling-and-subagent-cost\\docs\\releases\\v4\\v4.14\\development\\v4.14.0-phase-7-receipts\\handbook-check-after-blocker5.json",
+        "evidence_sha256": "68ac4a9bea280ec7ee78d555ec8beff3ef20edd1d69f43f0b0c4ca60bd5b8182",
+        "bounded_observation": "Retained headless Chromium 200-state proof, both palettes and Lighthouse 100; authored HTML unchanged",
+        "environment": "Chromium retained exact renderer/output bytes",
+        "acceptance_limit": "Current source-claim snapshot and both builders verified; unchanged rendered bytes retain prior browser proof"
+      },
+      {
+        "row": 21,
+        "feature": "CI command engine, process-tree cleanup and failure artifacts",
+        "input_source": "failure, timeout and success commands",
+        "boundary": "canonical command engine and native timeout controls",
+        "evidence": "C:/Users/USER\\Documents\\Benjamin\\nexus\\Nexus-Hub-v4.14.0-adoption-agent-tooling-and-subagent-cost\\docs\\releases\\v4\\v4.14\\development\\v4.14.0-phase-7-receipts\\ci-correction-proposal-v2\\qualification.json",
+        "evidence_sha256": "90c99e20cc23c0741bccb3401d46ce8ec3eb8aea2166e775aaf44e479ab4266a",
+        "bounded_observation": "Final candidate 392 tests, 19 skips and 88.23 percent CI coverage; ready/release and parent-only controls on Windows and Linux",
+        "environment": "Windows; network-disabled Linux",
+        "acceptance_limit": "Apply approved CI correction, then full final-tree and remote checks"
+      },
+      {
+        "row": 22,
+        "feature": "Disposable CI package/editor/Git boundaries",
+        "input_source": "ambient selectors and write sentinels",
+        "boundary": "actual pip/uv parsers and isolated scenarios",
+        "evidence": "C:/Users/USER\\Documents\\Benjamin\\nexus\\Nexus-Hub-v4.14.0-adoption-agent-tooling-and-subagent-cost\\docs\\releases\\v4\\v4.14\\development\\v4.14.0-phase-7-receipts\\ci-correction-proposal-v2\\package-summary.json",
+        "evidence_sha256": "4a6de47de0863cc2aed96bf3f4b84f8c2d13b19d684476a26f1d67d4dbeea494",
+        "bounded_observation": "Actual pip/uv parser and sentinel controls; ten additional selector controls; independent final security recheck",
+        "environment": "Windows; final private candidate same hashes",
+        "acceptance_limit": "Candidate bootstrap, registry and workspace scenarios pass; final required host groups remain"
+      },
+      {
+        "row": 23,
+        "feature": "Timeout oracle and intentional survivor cleanup",
+        "input_source": "ready/release and delayed cleanup",
+        "boundary": "native retained process state and parent-only control",
+        "evidence": "C:/Users/USER\\Documents\\Benjamin\\nexus\\Nexus-Hub-v4.14.0-adoption-agent-tooling-and-subagent-cost\\docs\\releases\\v4\\v4.14\\development\\v4.14.0-phase-7-receipts\\ci-correction-proposal-v2\\timeout-oracle-review.json",
+        "evidence_sha256": "a6b149000c9f39bd1855fb4a48706ad1bfd021bfa4095aa293e17f7888aeb0c5",
+        "bounded_observation": "Native ready/release controls, delayed cleanup and a forced parent-only mutation; retained handle confirms survivor reaping",
+        "environment": "Windows; network-disabled Linux",
+        "acceptance_limit": "Exact test applied under blocker5; final gates pending"
+      },
+      {
+        "row": 24,
+        "feature": "Metadata JSON redaction",
+        "input_source": "quote/newline/backslash/Unicode secrets",
+        "boundary": "metadata JSON writer and parser",
+        "evidence": "C:/Users/USER\\Documents\\Benjamin\\nexus\\Nexus-Hub-v4.14.0-adoption-agent-tooling-and-subagent-cost\\docs\\releases\\v4\\v4.14\\development\\v4.14.0-phase-7-receipts\\ci-correction-proposal-v2\\qualification.json",
+        "evidence_sha256": "90c99e20cc23c0741bccb3401d46ce8ec3eb8aea2166e775aaf44e479ab4266a",
+        "bounded_observation": "Quote/newline/backslash/Unicode controls and two independent reproductions; proposed values-first repair",
+        "environment": "Python; candidate identical applied hash",
+        "acceptance_limit": "Exact repair applied under blocker5; final full/integration gates pending"
+      },
+      {
+        "row": 25,
+        "feature": "Required Presentify gate outcomes",
+        "input_source": "23 status combinations and success mutation",
+        "boundary": "actual extracted YAML shell body",
+        "evidence": "C:/Users/USER\\Documents\\Benjamin\\nexus\\Nexus-Hub-v4.14.0-adoption-agent-tooling-and-subagent-cost\\docs\\releases\\v4\\v4.14\\development\\v4.14.0-phase-7-receipts\\ci-correction-proposal-v2\\qualification.json",
+        "evidence_sha256": "90c99e20cc23c0741bccb3401d46ce8ec3eb8aea2166e775aaf44e479ab4266a",
+        "bounded_observation": "Actual YAML shell body across 23 cases; unconditional-success mutation killed in all 19 rejection cases",
+        "environment": "Bash behavioral harness",
+        "acceptance_limit": "Exact permanent controls applied under blocker5; full/integration gates pending"
+      },
+      {
+        "row": 26,
+        "feature": "Five usage-monitor groups",
+        "input_source": "compile, coverage and two packaged-content checks",
+        "boundary": "canonical14 command profile",
+        "evidence": "C:/Users/USER\\Documents\\Benjamin\\nexus\\Nexus-Hub-v4.14.0-adoption-agent-tooling-and-subagent-cost\\docs\\releases\\v4\\v4.14\\development\\v4.14.0-last-phase-evidence.md",
+        "evidence_sha256": "bbeb9ef00c331951a4bc4f835fd4ccf1b83156d28531313adae0f7943b3b1612",
+        "bounded_observation": "Actual14-command compile/coverage/package profile passed on Node22.23.3 in181.6 seconds",
+        "environment": "Node22.23.3/npm10.9.9 current run; Node24 retained",
+        "acceptance_limit": "Current Node22 local profile passes; live editor delivery and green hosted integration remain pending"
+      }
+    ],
+    "retained_proof": {
+      "native_windows": {
+        "source_sha256": "297cd01ddba52abbc3fbb90ffb330aff4c97e53582864b8fdca094766d8b4f67",
+        "cases": [
+          "owned-upgrade",
+          "user-upgrade",
+          "fresh",
+          "case-upgrade"
+        ],
+        "all_exit_zero": true,
+        "protected_host_hashes_unchanged": true,
+        "limit": "Four primary cases observed in receipt; rich-profile repeat success also described in current checkpoint. Optional dependencies and the concurrently edited live VS Code file are not qualified."
+      },
+      "native_linux": {
+        "source_sha256": "d440872e58e723e7dbd2c504501edea840864c80f484b741ac2f459af754e396",
+        "cases": [
+          "owned-upgrade",
+          "user-upgrade",
+          "fresh"
+        ],
+        "all_exit_zero": true,
+        "network": "none",
+        "user_repeat_qualified": true
+      },
+      "native_core_reader": {
+        "powershell51_passed": 124,
+        "powershell51_inapplicable_skips": 10,
+        "powershell7_passed": 134,
+        "basis": "Current retained checkpoint; not rerun by this review"
+      },
+      "candidate_ci": {
+        "passed": 392,
+        "skipped": 19,
+        "coverage_percent": 88.22800495662949,
+        "binding": "All eleven applied hashes equal approved candidate after-files; candidate result is not a new actual-tree full-profile pass"
+      },
+      "current_small_rechecks": [
+        "Quoted-profile metadata counterexample now parses valid JSON and redacts its value",
+        "Existing test_design_contract_has_one_owner_and_complete_handoffs executed directly and passed"
+      ]
+    },
+    "corrected_prior_findings": {
+      "ledger_references": [
+        "BG-3",
+        "BG-4",
+        "BG-5",
+        "BG-6",
+        "BG-7",
+        "BG-8",
+        "BG-9",
+        "BG-10",
+        "MT-5",
+        "MT-6",
+        "MT-7",
+        "QG-4"
+      ],
+      "disposition": "Repairs and bounded controls inspected; this follow-up neither changes ledger disposition nor substitutes for final gates."
+    },
+    "considered_but_rejected": [
+      {
+        "candidate": "Metadata redaction breaks JSON structure",
+        "reason": "The original deterministic counterexample is now rejected by the values-first implementation and passes actual-source recheck."
+      },
+      {
+        "candidate": "Timeout test passes without child startup or misses a survivor",
+        "reason": "Readiness is required before timeout; native process state is checked before release; forced parent-only cleanup is caught and its intentional survivor reaped."
+      },
+      {
+        "candidate": "Pip/uv ambient selectors escape private package targets",
+        "reason": "Exact applied selector/config repair is backed by real parser and write-sentinel controls, including ten additional selectors. This is route-complete for the enumerated paths, not a general sandbox guarantee."
+      },
+      {
+        "candidate": "UI runnable check remains only inside its report example",
+        "reason": "The sole checkbox is outside fenced examples in the owning skill's literal outer Verification; current direct regression passes."
+      },
+      {
+        "candidate": "Required gate accepts failed, unknown or cancelled selected results",
+        "reason": "Actual YAML shell is exercised across accepted/rejected states, with unconditional-success mutation rejected in every negative case."
+      }
+    ],
+    "suppressed_unproven": [
+      {
+        "candidate": "Concurrent local offline profiles may execute another checkout's fixed Docker image tag",
+        "confidence": 50,
+        "requires_verification": true,
+        "disposition": "Retained below confidence gate, not refuted or classified as route-complete. No Docker race reproduction performed in this follow-up."
+      }
+    ],
+    "uncovered_and_live_limits": [
+      "Parent reports canonical full profile session11573 still running. No completion or pass inferred from partial output; this reviewer did not poll or interrupt it.",
+      "No green hosted integration, PR merge, release, backmerge, final ledger closure, archive or MINOR COMPLETE result is established.",
+      "No actual macOS installer, native older PowerShell Core host, live editor/plugin session, paid model execution, quality comparison or measured token/dollar saving is established.",
+      "Optional MCP dependency installation is not qualified solely by complete installer exit. Offline Linux intentionally has no Node/npm/optional dependency coverage.",
+      "Retained historical failure/proposal receipts remain historical; applied receipts and exact source hashes establish current repair epoch."
+    ],
+    "operations": {
+      "repository_edits": 0,
+      "guard_store_edits": 0,
+      "heavy_suite_runs": 0,
+      "new_tests_written": 0,
+      "network_calls": 0,
+      "paid_calls": 0,
+      "new_fanout": 0
+    }
+  }
+}

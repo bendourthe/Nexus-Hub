@@ -114,5 +114,5 @@ def test_presentify_dispatch_exercises_full_check_without_pr_metadata(
     assert proc.returncode == 0, proc.stderr
     assert output.read_text().strip() == "presentify=true"
     assert (
-        "github.event_name == 'workflow_dispatch'" in workflow["jobs"]["verify"]["if"]
+        workflow["jobs"]["verify"]["if"] == "always()"
     )

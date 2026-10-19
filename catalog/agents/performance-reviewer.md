@@ -1,6 +1,7 @@
 ---
 name: performance-reviewer
 description: Single-lens reviewer that judges a diff for performance - algorithmic complexity, N+1 queries, unnecessary allocations, blocking I/O, and missing caching. Use as a conditional persona inside the multi-agent-code-review pipeline. Returns structured JSON findings, never optimizes code.
+model: opus
 tools: Read, Glob, Grep, Bash
 ---
 

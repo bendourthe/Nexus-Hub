@@ -195,7 +195,7 @@ jobs:
 
   shellcheck:
     # Required status check. Runs unconditionally.
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -417,6 +417,8 @@ jobs:
     needs: changes
     runs-on: windows-latest
     timeout-minutes: 60
+    env:
+      PYTEST_ADDOPTS: "-p xdist -n 2 --dist loadfile"
     if: ${{ !cancelled() && needs.changes.outputs.relevant != 'false' }}
     steps:
       - name: Enable Git long paths before checkout
@@ -433,9 +435,10 @@ jobs:
           cache-dependency-path: |
             scripts/ci/requirements-windows.in
             scripts/ci/requirements-py311.txt
+            .github/workflows/ci.yml
 
       - name: Install test dependencies
-        run: python -m pip install -c scripts/ci/requirements-py311.txt -r scripts/ci/requirements-windows.in
+        run: python -m pip install -c scripts/ci/requirements-py311.txt -r scripts/ci/requirements-windows.in pytest-xdist==3.8.0 execnet==2.1.2
 
       - name: Windows installer profile group
         # NEXUS_TEST_POWERSHELL is pinned inside the profile definition, not
@@ -453,6 +456,51 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: ci-windows-installer-reports
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 7
+
+  tests-windows-installer-core:
+    # PowerShell 7 has a different JSON reader; 5.1 remains in its existing job.
+    needs: changes
+    runs-on: windows-latest
+    timeout-minutes: 30
+    if: ${{ !cancelled() && needs.changes.outputs.relevant != 'false' }}
+    steps:
+      - name: Enable Git long paths before checkout
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: git config --global core.longpaths true
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: |
+            scripts/ci/requirements-windows.in
+            scripts/ci/requirements-py311.txt
+
+      - name: Install test dependencies
+        run: python -m pip install -c scripts/ci/requirements-py311.txt -r scripts/ci/requirements-windows.in
+
+      - name: PowerShell 7 installer boundary group
+        # NEXUS_TEST_POWERSHELL is pinned inside the profile definition, not
+        # here, so a developer running `make ci-platform` on Windows gets the
+        # same edition under test as CI does.
+        run: python scripts/ci/run.py --profile platform --only windows-installer-core --reports-dir reports
+
+      - name: Publish the run summary
+        if: always()
+        shell: bash
+        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Retain Windows reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ci-windows-installer-core-reports
           path: reports/
           if-no-files-found: warn
           retention-days: 7
@@ -488,63 +536,26 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Build a GitHub-shaped catalog tarball from the checkout
-        run: git archive --format=tar.gz --prefix=Nexus-Hub-main/ -o "$RUNNER_TEMP/catalog.tar.gz" HEAD
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
 
-      - name: bash standalone bootstrap end-to-end (no prior clone) + nexus-hub --version
-        run: |
-          set -uo pipefail
-          # macOS mktemp needs an explicit template; this form is GNU- and BSD-safe.
-          home="$(mktemp -d "${TMPDIR:-/tmp}/nexus-ci.XXXXXX")/home"
-          mkdir -p "$home"
-          HOME="$home" NEXUS_HUB_FORCE_STANDALONE=1 NEXUS_HUB_TARBALL="$RUNNER_TEMP/catalog.tar.gz" \
-            bash install.sh < /dev/null || echo "core installer exited non-zero (rc=$?); asserting artifacts"
-          test -f "$home/.nexus-hub/src/scripts/installer.sh" \
-            || { echo "FAIL: bootstrap did not extract the catalog to ~/.nexus-hub/src"; exit 1; }
-          test -d "$home/.nexus-hub" \
-            || { echo "FAIL: ~/.nexus-hub not populated"; exit 1; }
-          echo "OK: standalone bootstrap populated $home/.nexus-hub"
-          launcher="$home/.nexus-hub/bin/nexus-hub"
-          core="$home/.nexus-hub/src/scripts/nexus_hub_cli.py"
-          export NEXUS_HUB_HOME="$home/.nexus-hub"
-          if [ -x "$launcher" ]; then
-            ver="$("$launcher" --version)" \
-              || { echo "FAIL: nexus-hub launcher --version exited non-zero"; exit 1; }
-            echo "launcher: $ver"
-          elif [ -f "$core" ]; then
-            echo "WARN: launcher not installed; checking the extracted CLI core"
-            ver="$(python3 "$core" --version)" \
-              || { echo "FAIL: nexus_hub_cli.py --version exited non-zero"; exit 1; }
-            echo "core: $ver"
-          else
-            echo "FAIL: neither the nexus-hub launcher nor the CLI core is present"; exit 1
-          fi
-          printf '%s\n' "$ver" | grep -qE 'nexus-hub [0-9]+\.[0-9]+\.[0-9]+' \
-            || { echo "FAIL: unexpected --version output: $ver"; exit 1; }
-          echo "OK: nexus-hub --version works ($ver)"
+      - name: Repository-native bootstrap-smoke profile
+        run: python scripts/ci/run.py --profile platform --only bootstrap-smoke --reports-dir reports
 
-      - name: bash missing-tool simulation exits non-zero with a clear message
-        run: |
-          set -uo pipefail
-          bash_bin="$(command -v bash)"
-          out="$(PATH='' NEXUS_HUB_FORCE_STANDALONE=1 "$bash_bin" install.sh 2>&1)" && rc=0 || rc=$?
-          printf '%s\n' "$out"
-          test "$rc" -ne 0 || { echo "FAIL: expected a non-zero exit"; exit 1; }
-          printf '%s\n' "$out" | grep -qi curl || { echo "FAIL: message did not name curl/wget"; exit 1; }
-          echo "OK: missing-tool path exits $rc with a clear message"
+      - name: Publish native profile summary
+        if: always()
+        shell: bash
+        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
 
-      - name: PowerShell bootstrap AST parse + precheck (pwsh)
-        shell: pwsh
-        run: |
-          $errs = $null
-          $null = [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path ./install.ps1).Path, [ref]$null, [ref]$errs)
-          if ($errs -and $errs.Count -gt 0) { $errs | ForEach-Object { Write-Host $_.Message }; exit 1 }
-          Write-Host "install.ps1 AST OK"
-          $env:NEXUS_HUB_FORCE_STANDALONE = '1'
-          $env:NEXUS_HUB_PRECHECK_ONLY = '1'
-          pwsh -NoProfile -File ./install.ps1
-          if ($LASTEXITCODE -ne 0) { Write-Host "FAIL: precheck exit $LASTEXITCODE"; exit 1 }
-          Write-Host "OK: pwsh precheck passed"
+      - name: Retain native profile reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ci-bootstrap-reports-${{ matrix.os }}
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 7
 
   bootstrap-windows:
     # The `irm | iex` standalone flow is a Windows-native path that only a
@@ -571,43 +582,26 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Build a GitHub-shaped catalog tarball from the checkout
-        shell: bash
-        run: git archive --format=tar.gz --prefix=Nexus-Hub-main/ -o "$RUNNER_TEMP/catalog.tar.gz" HEAD
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
 
-      - name: PowerShell standalone bootstrap end-to-end + nexus-hub --version
-        shell: powershell
-        run: |
-          $nxHome = Join-Path $env:RUNNER_TEMP ("nexus-home-" + [System.Guid]::NewGuid().ToString("N"))
-          New-Item -ItemType Directory -Force -Path $nxHome | Out-Null
-          $env:USERPROFILE = $nxHome
-          $env:HOME = $nxHome
-          $env:NEXUS_HUB_FORCE_STANDALONE = '1'
-          $env:NEXUS_HUB_TARBALL = (Join-Path $env:RUNNER_TEMP 'catalog.tar.gz')
-          # Windows PowerShell 5.1 is the documented floor and the `irm | iex`
-          # default on Windows. Tolerate the core installer's exit code; the
-          # extraction and version assertions below are the real gate.
-          & .\install.ps1
-          Write-Host "bootstrap rc=$LASTEXITCODE (asserting artifacts below)"
-          $nx = Join-Path $nxHome '.nexus-hub'
-          if (-not (Test-Path (Join-Path $nx 'src\scripts\installer.ps1'))) { Write-Host 'FAIL: bootstrap did not extract the catalog to ~/.nexus-hub/src'; exit 1 }
-          if (-not (Test-Path $nx)) { Write-Host 'FAIL: ~/.nexus-hub not populated'; exit 1 }
-          Write-Host "OK: standalone bootstrap populated $nx"
-          $env:NEXUS_HUB_HOME = $nx
-          $launcher = Join-Path $nx 'bin\nexus-hub.cmd'
-          $core = Join-Path $nx 'src\scripts\nexus_hub_cli.py'
-          if (Test-Path $launcher) {
-            $ver = (& $launcher --version | Out-String).Trim()
-            Write-Host "launcher: $ver"
-          } elseif (Test-Path $core) {
-            Write-Host 'WARN: launcher not installed; checking the extracted CLI core'
-            $ver = (& python $core --version | Out-String).Trim()
-            Write-Host "core: $ver"
-          } else {
-            Write-Host 'FAIL: neither the nexus-hub launcher nor the CLI core is present'; exit 1
-          }
-          if ("$ver" -notmatch 'nexus-hub \d+\.\d+\.\d+') { Write-Host "FAIL: unexpected --version output: $ver"; exit 1 }
-          Write-Host "OK: nexus-hub --version works ($ver)"
+      - name: Repository-native bootstrap-smoke profile
+        run: python scripts/ci/run.py --profile platform --only bootstrap-smoke --reports-dir reports
+
+      - name: Publish native profile summary
+        if: always()
+        shell: bash
+        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Retain native profile reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ci-bootstrap-windows-reports
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 7
 
   install-smoke:
     # Prove the catalog lands at each platform's real read-path and that the
@@ -636,60 +630,22 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Global registry install into a throwaway HOME, then verify read-paths (bash)
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          set -uo pipefail
-          home="$(mktemp -d "${TMPDIR:-/tmp}/nx-smoke.XXXXXX")/home"
-          mkdir -p "$home"
-          HOME="$home" python scripts/lib/integrations/runner.py install --scope global \
-            --integrations claude,codex,gemini,antigravity2,opencode --overwrite --quiet
-          out="$(HOME="$home" python scripts/lib/integrations/runner.py verify --target "$home" 2>&1 || true)"
-          printf '%s\n' "$out"
-          for expect in \
-            "Claude -- commands:ok, skills:ok" \
-            "Codex / ChatGPT -- ~/.agents/skills:ok" \
-            "Gemini IDE -- GEMINI.md:ok" \
-            "Antigravity 2.0 IDE (global) -- skills:ok" \
-            "OpenCode -- skills:ok"; do
-            printf '%s\n' "$out" | grep -qF "$expect" \
-              || { echo "FAIL: read-path not populated: $expect"; exit 1; }
-          done
-          echo "OK: global platform read-paths populated on ${{ matrix.os }}"
+      - name: Repository-native registry-smoke profile
+        run: python scripts/ci/run.py --profile platform --only registry-smoke --reports-dir reports
 
-      - name: Project auto-seed smoke (Linux only) - init seeds .agents/workflows
-        if: runner.os == 'Linux'
+      - name: Publish native profile summary
+        if: always()
         shell: bash
-        run: |
-          set -uo pipefail
-          repo="$(mktemp -d "${TMPDIR:-/tmp}/nx-proj.XXXXXX")/proj"
-          mkdir -p "$repo"
-          git -C "$repo" init -q
-          python scripts/lib/integrations/runner.py init --target "$repo" --quiet
-          test -n "$(ls -A "$repo/.agents/workflows" 2>/dev/null)" \
-            || { echo "FAIL: init did not populate .agents/workflows in the current repo"; exit 1; }
-          echo "OK: project auto-seed populated .agents/workflows"
+        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
 
-      - name: Global registry install into a throwaway HOME, then verify read-paths (PowerShell)
-        if: runner.os == 'Windows'
-        shell: powershell
-        run: |
-          $h = Join-Path $env:RUNNER_TEMP ("nx-" + [System.Guid]::NewGuid().ToString("N"))
-          New-Item -ItemType Directory -Force -Path $h | Out-Null
-          $env:USERPROFILE = $h; $env:HOME = $h
-          & python scripts\lib\integrations\runner.py install --scope global --integrations claude,codex,gemini,antigravity2,opencode --overwrite --quiet
-          $out = (& python scripts\lib\integrations\runner.py verify --target $h | Out-String)
-          Write-Host $out
-          foreach ($expect in @(
-            "Claude -- commands:ok, skills:ok",
-            "Codex / ChatGPT -- ~/.agents/skills:ok",
-            "Gemini IDE -- GEMINI.md:ok",
-            "Antigravity 2.0 IDE (global) -- skills:ok",
-            "OpenCode -- skills:ok")) {
-            if ($out -notmatch [regex]::Escape($expect)) { Write-Host "FAIL: read-path not populated: $expect"; exit 1 }
-          }
-          Write-Host "OK: global platform read-paths populated (Windows)"
+      - name: Retain native profile reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ci-registry-smoke-reports-${{ matrix.os }}
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 7
 
   installer-smoke:
     # Run the REAL platform-native installers into redirected HOME and workspace
@@ -716,48 +672,30 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Real workspace install and shared assertions (POSIX)
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          set -euo pipefail
-          smoke_root="$RUNNER_TEMP/nexus-installer-smoke"
-          home="$smoke_root/home"
-          workspace="$smoke_root/workspace"
-          mkdir -p "$home" "$workspace"
-          HOME="$home" USERPROFILE="$home" NEXUS_HUB_HOME="$home/.nexus-hub" \
-            python scripts/nexus_hub_cli.py org connect "$PWD/configs/examples/org-bundle-example" --force
-          HOME="$home" USERPROFILE="$home" NEXUS_HUB_NO_AUTOSEED=1 \
-            bash scripts/installer.sh --workspace "$workspace" --platforms claude --yes
-          HOME="$home" USERPROFILE="$home" NEXUS_HUB_HOME="$home/.nexus-hub" \
-            python scripts/check_installer_smoke.py --home "$home" --workspace "$workspace"
-
-      - name: Real workspace install and shared assertions (Windows PowerShell 5.1)
-        if: runner.os == 'Windows'
-        shell: powershell
-        run: |
-          $smokeRoot = Join-Path $env:RUNNER_TEMP 'nexus-installer-smoke'
-          $smokeHome = Join-Path $smokeRoot 'home'
-          $workspace = Join-Path $smokeRoot 'workspace'
-          New-Item -ItemType Directory -Force -Path $smokeHome, $workspace | Out-Null
-          $env:USERPROFILE = $smokeHome
-          $env:HOME = $smokeHome
-          $env:NEXUS_HUB_HOME = Join-Path $smokeHome '.nexus-hub'
-          $env:NEXUS_HUB_NO_AUTOSEED = '1'
-          $orgBundle = (Resolve-Path 'configs\examples\org-bundle-example').Path
-          & python scripts\nexus_hub_cli.py org connect $orgBundle --force
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          & powershell -NoProfile -ExecutionPolicy Bypass -File scripts\installer.ps1 -Workspace $workspace -Platforms claude -Yes
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          & python scripts\check_installer_smoke.py --home $smokeHome --workspace $workspace
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-      - name: User attribution through native macOS Git and installer
+      - name: Install native macOS attribution test dependencies
         if: runner.os == 'macOS'
+        run: python -m pip install --quiet pytest PyYAML
+
+      - name: Repository-native workspace-smoke profile
+        run: python scripts/ci/run.py --profile platform --only workspace-smoke --reports-dir reports
+
+      - name: Native macOS attribution profile
+        if: runner.os == 'macOS'
+        run: python scripts/ci/run.py --profile platform --only macos-attribution --reports-dir reports/attribution
+
+      - name: Publish native profile summary
+        if: always()
         shell: bash
-        run: |
-          python -m pip install --quiet pytest PyYAML
-          python -m pytest -q tests/test_git_attribution.py -k 'not powershell'
+        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Retain native profile reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ci-workspace-smoke-reports-${{ matrix.os }}
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 7
 
   claude-plugin-load:
     # This catches the achieved-property defect that manifest schema checks,
@@ -779,27 +717,22 @@ jobs:
       - name: Install the Claude Code host with its native binary
         run: npm install --global @anthropic-ai/claude-code@2.1.280
 
-      - name: Install and verify Nexus-Hub from an isolated host configuration
-        env:
-          CLAUDE_CONFIG_DIR: ${{ runner.temp }}/nexus-claude-plugin-${{ github.run_id }}-${{ github.job }}
-        run: |
-          set -euo pipefail
-          mkdir -p "${CLAUDE_CONFIG_DIR}"
-          claude plugin marketplace add ./
-          claude plugin install nexus-hub@nexus-hub
-          listing="${CLAUDE_CONFIG_DIR}/plugin-list.json"
-          claude plugin list --json | tee "${listing}"
-          python - "${listing}" <<'PY'
-          import json
-          import sys
-          from pathlib import Path
+      - name: Repository-native host-plugin-load profile
+        run: python scripts/ci/run.py --profile platform --only host-plugin-load --reports-dir reports
 
-          installed = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
-          matches = [item for item in installed if item.get("id") == "nexus-hub@nexus-hub"]
-          if len(matches) != 1 or matches[0].get("enabled") is not True:
-              raise SystemExit("nexus-hub@nexus-hub is not installed and enabled")
-          print("OK: nexus-hub@nexus-hub is installed and enabled")
-          PY
+      - name: Publish native profile summary
+        if: always()
+        shell: bash
+        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Retain native profile reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ci-host-plugin-reports
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 7
 
   report:
     needs:
@@ -809,6 +742,12 @@ jobs:
       - guide-render
       - tests-windows
       - tests-windows-installer
+      - tests-windows-installer-core
+      - bootstrap
+      - bootstrap-windows
+      - install-smoke
+      - installer-smoke
+      - claude-plugin-load
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -835,6 +774,12 @@ jobs:
           RESULT_GUIDE_RENDER: ${{ needs['guide-render'].result }}
           RESULT_TESTS_WINDOWS: ${{ needs['tests-windows'].result }}
           RESULT_TESTS_WINDOWS_INSTALLER: ${{ needs['tests-windows-installer'].result }}
+          RESULT_TESTS_WINDOWS_INSTALLER_CORE: ${{ needs['tests-windows-installer-core'].result }}
+          RESULT_BOOTSTRAP: ${{ needs.bootstrap.result }}
+          RESULT_BOOTSTRAP_WINDOWS: ${{ needs['bootstrap-windows'].result }}
+          RESULT_INSTALL_SMOKE: ${{ needs['install-smoke'].result }}
+          RESULT_INSTALLER_SMOKE: ${{ needs['installer-smoke'].result }}
+          RESULT_CLAUDE_PLUGIN_LOAD: ${{ needs['claude-plugin-load'].result }}
         run: |
           python scripts/ci/run.py --profile report --reports-dir reports \
             --expect-artifact ci-validation-reports=$RESULT_VALIDATE \
@@ -844,7 +789,18 @@ jobs:
             --expect-artifact ci-guide-render-report-game=$RESULT_GUIDE_RENDER \
             --expect-artifact ci-guide-render-report-rest=$RESULT_GUIDE_RENDER \
             --expect-artifact ci-windows-reports=$RESULT_TESTS_WINDOWS \
-            --expect-artifact ci-windows-installer-reports=$RESULT_TESTS_WINDOWS_INSTALLER
+            --expect-artifact ci-windows-installer-reports=$RESULT_TESTS_WINDOWS_INSTALLER \
+            --expect-artifact ci-windows-installer-core-reports=$RESULT_TESTS_WINDOWS_INSTALLER_CORE \
+            --expect-artifact ci-bootstrap-reports-ubuntu-latest=$RESULT_BOOTSTRAP \
+            --expect-artifact ci-bootstrap-reports-macos-latest=$RESULT_BOOTSTRAP \
+            --expect-artifact ci-bootstrap-windows-reports=$RESULT_BOOTSTRAP_WINDOWS \
+            --expect-artifact ci-registry-smoke-reports-ubuntu-latest=$RESULT_INSTALL_SMOKE \
+            --expect-artifact ci-registry-smoke-reports-macos-latest=$RESULT_INSTALL_SMOKE \
+            --expect-artifact ci-registry-smoke-reports-windows-latest=$RESULT_INSTALL_SMOKE \
+            --expect-artifact ci-workspace-smoke-reports-ubuntu-latest=$RESULT_INSTALLER_SMOKE \
+            --expect-artifact ci-workspace-smoke-reports-macos-latest=$RESULT_INSTALLER_SMOKE \
+            --expect-artifact ci-workspace-smoke-reports-windows-latest=$RESULT_INSTALLER_SMOKE \
+            --expect-artifact ci-host-plugin-reports=$RESULT_CLAUDE_PLUGIN_LOAD
 
       - name: Publish aggregate summary
         if: always()
@@ -898,6 +854,7 @@ jobs:
       - guide-render
       - tests-windows
       - tests-windows-installer
+      - tests-windows-installer-core
       - bootstrap
       - bootstrap-windows
       - install-smoke
@@ -917,6 +874,7 @@ jobs:
           R_guide_render: ${{ needs['guide-render'].result }}
           R_tests_windows: ${{ needs['tests-windows'].result }}
           R_tests_windows_installer: ${{ needs['tests-windows-installer'].result }}
+          R_tests_windows_installer_core: ${{ needs['tests-windows-installer-core'].result }}
           R_bootstrap: ${{ needs.bootstrap.result }}
           R_bootstrap_windows: ${{ needs['bootstrap-windows'].result }}
           R_install_smoke: ${{ needs['install-smoke'].result }}

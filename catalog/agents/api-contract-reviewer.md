@@ -1,6 +1,7 @@
 ---
 name: api-contract-reviewer
 description: Single-lens reviewer that judges a diff for API and interface contract impact - breaking changes, backward compatibility, versioning, schema and serialization compatibility. Use as a conditional persona inside the multi-agent-code-review pipeline. Returns structured JSON findings, never edits code.
+model: opus
 tools: Read, Glob, Grep, Bash
 ---
 

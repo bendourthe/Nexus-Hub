@@ -397,20 +397,20 @@ describe("end to end: Connect, refresh, Disconnect (Phase 6 verification expecta
       const text = (): string => String(createdStatusBarItems[0].text);
 
       await controller.refresh(OCT_2);
-      expect(text()).toContain("Copilot: --% (month)");
+      expect(text()).toContain("\u2002--% (month)");
 
       messageAnswers.push(CONNECT_CHOICE);
       expect(await connectOrganization(secrets.asSecretStorage(), fake.fetch, auth, OCT_2)).toBe("connected");
       expect(secrets.values.has(ORG_TOKEN_SECRET_KEY)).toBe(false);
       await controller.refresh(OCT_2);
-      expect(text()).toContain("Copilot: 99% (month)");
+      expect(text()).toContain("\u200299% (month)");
       const state = fs.readFileSync(statePath, "utf-8");
       expect(state).toContain('"percent": 99.25');
       expect(state).not.toContain(SEAT_ORG);
 
       await disconnectOrganization(secrets.asSecretStorage());
       await controller.organizationRemoved();
-      expect(text()).toContain("Copilot: --% (month)");
+      expect(text()).toContain("\u2002--% (month)");
       expect([...secrets.values.keys()]).toEqual([]);
     } finally {
       fs.rmSync(dir, { recursive: true, force: true });

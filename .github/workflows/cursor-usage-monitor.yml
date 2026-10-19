@@ -22,6 +22,7 @@ on:
       - 'extensions/cursor-usage-monitor/**'
       - 'tests/fixtures/cursor-usage/**'
       - '.github/workflows/cursor-usage-monitor.yml'
+      - 'scripts/ci/**'
 
 # Read-only: the job builds and tests, and publishes nothing.
 permissions:
@@ -36,9 +37,6 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    defaults:
-      run:
-        working-directory: extensions/cursor-usage-monitor
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
@@ -52,23 +50,10 @@ jobs:
         # --ignore-scripts: no dependency lifecycle script runs (AR-60). Proven
         # 2026-10-10 that compile, tests, and the VSIX are byte-identical without
         # them; ttf2woff2 is used only by the local icon generator, not this job.
-        run: npm ci --ignore-scripts
+        run: npm ci --ignore-scripts --prefix extensions/cursor-usage-monitor
 
-      - name: Compile (tsc)
-        run: npm run compile
-
-      - name: Unit tests with V8 coverage (Vitest)
-        # vitest.config.mts carries the coverage thresholds, so a coverage
-        # regression fails this step rather than being reported and ignored.
-        run: npm run test:coverage
-
-      - name: Package VSIX
-        run: npm run package
-
-      - name: Verify packaged contents
-        # Required runtime assets present; coverage reports, sources, tests, and
-        # credential-shaped files absent.
-        run: npm run verify:package
+      - name: Repository-native cursor-usage-monitor profile
+        run: python scripts/ci/run.py --profile full --only cursor-usage-monitor --reports-dir reports
 
       - name: Upload VSIX artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -76,6 +61,20 @@ jobs:
           name: cursor-usage-monitor-vsix
           path: extensions/cursor-usage-monitor/*.vsix
           if-no-files-found: error
+          retention-days: 7
+
+      - name: Publish native profile summary
+        if: always()
+        shell: bash
+        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Retain native profile reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: cursor-usage-monitor-reports
+          path: reports/
+          if-no-files-found: warn
           retention-days: 7
 
   e2e-cursor-profile:
@@ -91,28 +90,34 @@ jobs:
           name: cursor-usage-monitor-vsix
           path: packed-vsix
 
-      - name: Install into throwaway Cursor profile or skip-with-note
-        # GitHub-hosted ubuntu-latest runners do not ship the Cursor CLI.
-        # When `cursor` is absent, document the degrade and require the local
-        # live-smoke checklist instead of failing the workflow. When present
-        # (self-hosted or future images), install into an isolated user-data
-        # directory and assert the extension id is listed.
+      - name: Repository-native optional Cursor profile
+        run: python scripts/ci/run.py --profile platform --only cursor-profile --reports-dir reports
+
+      - name: Publish native profile summary
+        if: always()
+        shell: bash
+        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Retain native profile reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: cursor-profile-reports
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 7
+
+  cursor-required:
+    needs: [build-and-test, e2e-cursor-profile]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require build and selected optional-host scenario
+        env:
+          R_build: ${{ needs['build-and-test'].result }}
+          R_profile: ${{ needs['e2e-cursor-profile'].result }}
         run: |
           set -euo pipefail
-          VSIX="$(ls -1 packed-vsix/*.vsix | head -n 1)"
-          echo "Packaged VSIX: ${VSIX}"
-          if ! command -v cursor >/dev/null 2>&1; then
-            echo "::notice::Cursor CLI not available on this runner; skipping profile install E2E."
-            echo "Required local verification: docs/archives/v3/v3.15/development/cursor-usage-live-smoke.md"
-            exit 0
-          fi
-          PROFILE_DIR="${RUNNER_TEMP}/cursor-nexus-e2e-profile"
-          mkdir -p "${PROFILE_DIR}"
-          cursor --user-data-dir "${PROFILE_DIR}" --install-extension "${VSIX}" --force
-          cursor --user-data-dir "${PROFILE_DIR}" --list-extensions | tee "${RUNNER_TEMP}/cursor-extensions.txt"
-          grep -qx 'nexus-hub.cursor-usage-monitor' "${RUNNER_TEMP}/cursor-extensions.txt"
-          if cursor --user-data-dir "${PROFILE_DIR}" --list-extensions | grep -E 'nexus-hub\.(claude|codex|github)-usage-monitor'; then
-            echo "VS Code-only monitors must not appear in the Cursor profile" >&2
-            exit 1
-          fi
-          echo "Cursor profile E2E install verified."
+          test "$R_build" = success
+          test "$R_profile" = success

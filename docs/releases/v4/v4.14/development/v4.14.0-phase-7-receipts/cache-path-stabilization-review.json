@@ -1,0 +1,51 @@
+{
+  "lenses": [
+    "correctness",
+    "maintainability",
+    "testing",
+    "project-standards",
+    "security",
+    "adversarial"
+  ],
+  "findings": [],
+  "reviewed_helper_sha256": "ca865f9fa68cf7bf192baf4b62ca678dba9568ecad3db9bb8a3510db6b52cdb9",
+  "reviewed_tests_sha256": "007a74a94929aedf3a599294bceff7a50ce6abef9c9e4d75be6ee00c90771a8b",
+  "reviewers_ran_full_suites": false,
+  "focused": {
+    "passed": 20,
+    "skipped": 0,
+    "seconds": 32.04,
+    "receipt": "C:\\Users\\USER\\AppData\\Local\\Temp\\nexus-v4140-native-hook-budget-oct17\\native-stabilization-oct18\\cache-v2-native-final-result.json"
+  },
+  "rejected_v1": {
+    "applied": false,
+    "findings": [
+      "Long repository-marker validation used ordinary paths before extended writes",
+      "Drive-device paths incorrectly converted to UNC"
+    ]
+  },
+  "independent_actual_probes": {
+    "permissions": "Five actual Windows security descriptors have protected owner-only DACLs",
+    "boundaries": "12 ordinary/extended workspace, sync and repository permutations and three valid junction aliases refused; no cache created",
+    "compatibility": "Existing record visible through device alias; actual PS1 unchanged write allows and user edit blocks with no private text echoed"
+  },
+  "considered_rejected": [
+    {
+      "candidate": "Source key migration",
+      "reason": "canonical/key_for are unchanged; actual old-record reuse passes"
+    },
+    {
+      "candidate": "Reuse in_git_repo for cache checks",
+      "reason": "Private cache needs explicit fail-closed stat errors; shared worktree behavior stays unchanged"
+    },
+    {
+      "candidate": "POSIX receives Windows namespace",
+      "reason": "Address conversion is conditional on nt; live POSIX suite pending"
+    }
+  ],
+  "limits": [
+    "Live network-share I/O is untested; exact UNC notation conversion is tested",
+    "Full applied-source and hosted integration qualification remain pending",
+    "Concurrent directory replacement remains a pre-existing check-then-use limitation"
+  ]
+}

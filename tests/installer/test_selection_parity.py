@@ -35,6 +35,8 @@ from pathlib import Path
 
 import pytest
 
+from scripts.ci.verify_scenarios import isolated_environment
+
 _ROOT = Path(__file__).resolve().parents[2]
 _SH = _ROOT / "scripts" / "installer.sh"
 _PS1 = _ROOT / "scripts" / "installer.ps1"
@@ -331,13 +333,17 @@ _CAPTURE = {"capture_output": True, "text": True, "encoding": "utf-8", "errors":
 
 
 def _isolated_install_env(tmp_path: Path) -> dict[str, str]:
+    boundary = tmp_path / "fixture-env"
+    boundary.mkdir()
+    isolated = isolated_environment(boundary)
     profile = tmp_path / "profile"
     profile.mkdir()
     appdata = tmp_path / "appdata"
     appdata.mkdir()
     localappdata = tmp_path / "localappdata"
     localappdata.mkdir()
-    return {**os.environ, "HOME": str(profile), "USERPROFILE": str(profile),
+    return {**isolated, "HOME": str(profile), "USERPROFILE": str(profile),
+            "CLAUDE_CONFIG_DIR": str(profile / ".claude"),
             "APPDATA": str(appdata), "LOCALAPPDATA": str(localappdata),
             "NEXUS_HUB_HOME": str(profile / ".nexus-hub"),
             "GIT_CONFIG_GLOBAL": str(profile / ".gitconfig")}

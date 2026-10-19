@@ -29,3 +29,9 @@ No claim is false, and no source edit is needed.
 ## Build and render
 
 The handbook output digest is unchanged (`d5200075...`), because the rendered page does not depend on these input bytes. The existing build and render receipts recorded in `docs/handbooks/_sources/distribution/evidence.json` therefore remain valid, following the precedent of the [v4.13.13 release claim review](v4.13.13-release-handbook-claim-review.md). Only the snapshot's two input digests and this content evidence are updated.
+
+## Merge onto develop
+
+`origin/develop` (`1224a4dd`) was merged into this branch after the v4.14.0 release changed the same two inputs (the installers' version line). The recorded snapshot taken from develop differs from a recomputed one only in the two installer digests: `installer.ps1` `e43ebc89...` to `40035601...`, and `installer.sh` `cc7607b3...` to `105b7af8...`. The entry digest and the output digest are unchanged.
+
+The installer difference between develop and the merged tree is exactly this branch's change: the added and removed lines of `git diff <merge-base> HEAD` and of `git diff origin/develop` hash identically for both installers (82 changed lines in `installer.ps1`, 85 in `installer.sh`). The claims reviewed above therefore still hold, the build and render receipts remain valid, and only the two input digests and this content evidence are updated.

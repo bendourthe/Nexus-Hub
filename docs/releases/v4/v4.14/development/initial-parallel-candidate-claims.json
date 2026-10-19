@@ -1,0 +1,267 @@
+{
+  "status": "candidate_claims_not_admitted",
+  "inspected_head": "33d11b6991ae4f29fc5fcffbf9466ca12d34ce07",
+  "required_refresh": [
+    "Use the actual develop tip after the workflow correction merges and v4.14.0 releases",
+    "Resolve the actual v4.14.0 integration merge commit and verify it is an ancestor of each worker base",
+    "Recheck these inventories against that source",
+    "Reserve the exact worker branch, canonical linked worktree, baseline and claims through native APIs",
+    "Do not replace a frozen plan's prose or model-map section"
+  ],
+  "dependency_contract": {
+    "v4.14.1": {
+      "candidate_dependency_versions": [
+        "v4.14.0"
+      ],
+      "dependency_merge_commit": null,
+      "reason": "No intrinsic Phase 1 prerequisite is declared, but v4.14.0 changes model-routing/SKILL.md and the new workflow changes the commands, implementation-plan and runbook that this plan subsequently edits. Taking their merged result as the baseline avoids implementing against obsolete contracts.",
+      "depends_on_v4.14.5": false,
+      "publication_predecessor": "v4.14.0"
+    },
+    "v4.14.5": {
+      "candidate_dependency_versions": [
+        "v4.14.0"
+      ],
+      "dependency_merge_commit": null,
+      "reason": "Phase 1 is independent, but Phase 2 explicitly requires v4.14.0 merged to develop and rereads its defaults source, lever contract and lever tests.",
+      "depends_on_v4.14.1": false,
+      "publication_predecessor": "v4.14.4"
+    }
+  },
+  "v4.14.1": {
+    "worker_write_paths": [
+      "catalog/commands/implement.md",
+      "catalog/commands/plan.md",
+      "catalog/skills/ai-development/model-routing/SKILL.md",
+      "catalog/skills/ai-development/model-routing/references/effort-modifiers.md",
+      "catalog/skills/ai-development/model-routing/scripts/model-map.py",
+      "catalog/skills/ai-development/prompt-engineering/references/effort-level-strategy.md",
+      "catalog/skills/workflow/implement-phase/SKILL.md",
+      "catalog/skills/workflow/implement-phase/references/implement-phase-runbook.md",
+      "catalog/skills/workflow/implement-phase/references/verification-behaviors.md",
+      "catalog/skills/workflow/implementation-plan/SKILL.md",
+      "docs/policy/model-routing-in-plan-and-implement.md",
+      "scripts/plan_status.py",
+      "tests/plans/test_v3_15_9_model_routing_helpers.py",
+      "tests/validators/test_plan_status.py",
+      "docs/decisions/proposed/policy/2026-09-28-raise-only-verification-effort.md",
+      "docs/releases/v4/v4.14/plans/v4.14.1-adoption-effort-allocation.md",
+      "docs/releases/v4/v4.14/development/v4.14.1-admission.md",
+      "docs/releases/v4/v4.14/development/v4.14.1-plan-status-baseline.txt",
+      "docs/releases/v4/v4.14/development/v4.14.1-last-phase-evidence.md",
+      "docs/releases/v4/v4.14/development/v4.14.1-phase-receipts",
+      "docs/releases/v4/v4.14/development/history/v4.14.1-phase-1.md",
+      "docs/releases/v4/v4.14/development/history/v4.14.1-phase-2.md",
+      "docs/releases/v4/v4.14/development/history/v4.14.1-phase-3.md",
+      "docs/releases/v4/v4.14/development/history/v4.14.1-phase-4.md",
+      "docs/releases/v4/v4.14/development/history/v4.14.1-phase-5.md"
+    ],
+    "write_limits": {
+      "own_plan": "Only task/status changes allowed by the existing frozen-run contract; no prose, membership or model-map edits.",
+      "new_reference_and_receipt_directories": "Only this plan's artifacts.",
+      "decision_date": "2026-09-28 is the plan's documented decision date; confirm this exact filename before registering claims.",
+      "new_tests": "Put modifier cases in the existing helper test file, avoiding an unnecessary additional test path."
+    },
+    "semantic_read_paths_besides_owned_files": [
+      "configs/platform-defaults.json",
+      "catalog/hooks/settings.json",
+      "docs/policy/platform-defaults-levers.md",
+      "catalog/skills/ai-development/prompt-engineering/references/step-8-optimize-cost-and-latency.md",
+      "catalog/skills/ai-development/model-routing/references/last-known-model-map.json",
+      "catalog/skills/ai-development/model-prompting-research/references/models/claude-opus-5-5.md",
+      "catalog/commands/route.md",
+      "catalog/commands/update.md",
+      "tests/plans/test_v3_15_9_routing_contract.py",
+      "tests/fixtures/model-routing",
+      "docs/decisions/README.md",
+      "docs/decisions/implemented/policy/2026-08-31-seed-high-claude-effort-for-new-installs.md",
+      "docs/decisions/proposed/tooling/2026-10-14-claude-effort-default-lever.md",
+      "docs/releases/v4/v4.14/comparisons/v4.14.1-comparison-effort-allocation.md",
+      "docs/releases/v4/v4.14/plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md",
+      "docs/releases/v4/v4.15/plans/v4.15.1-adoption-model-adaptive-harness.md",
+      "docs/releases/v4/v4.16/plans/v4.16.1-adoption-proactive-memory-intervention.md",
+      "docs/releases/v4/v4.16/plans/v4.16.2-adoption-agent-experience-and-harness-economics.md",
+      "docs/releases/v4/v4.18/plans/v4.18.0-adoption-testing-discipline-headings-and-opus-5-5.md",
+      "catalog/skills/bug-fixing/bug-reproduction-test-generator/SKILL.md",
+      "catalog/skills/tests-generation/mutation-testing/SKILL.md",
+      "catalog/skills/tests-generation/property-based-test-generator/SKILL.md",
+      "catalog/skills/tests-generation/metamorphic-test-generator/SKILL.md",
+      "catalog/skills/tests-generation/performance-testing/SKILL.md",
+      "catalog/skills/tests-generation/fuzzing-input-generator/SKILL.md",
+      "catalog/skills/orchestration/adversarial-verifier/SKILL.md",
+      "catalog/skills/developer-experience/direct-corpus-interaction/SKILL.md",
+      "catalog/skills/testing/functional-verification/SKILL.md"
+    ],
+    "coordinator_delta_tasks": {
+      "T004": "Add the lower-direction measurement gap to the shared v4.14 ledger.",
+      "T005": "Add the raise-direction measurement gap to the shared v4.14 ledger.",
+      "T021": "Apply reconciled shared known-gap updates.",
+      "T029": "Publication and integration remain coordinator-only."
+    },
+    "coordinator_proposal_artifact": "docs/releases/v4/v4.14/development/v4.14.1-phase-receipts/coordinator-deltas.json",
+    "focused_proof": [
+      "Existing routing helper and contract tests",
+      "plan_status --check exit codes and exact stderr",
+      "Modifier combinations, uncertain and malformed-input cases",
+      "Actual score CLI outputs and below-effort fixture",
+      "Two failure-class guidance scenarios",
+      "Verification-behavior delegation and gate exercise"
+    ]
+  },
+  "v4.14.5": {
+    "worker_write_paths": [
+      "docs/policy/memory-substrate-contract.md",
+      "catalog/skills/workflow/agent-memory/SKILL.md",
+      "catalog/skills/security/prompt-injection-defense/SKILL.md",
+      "tests/validators/test_sync_platform_defaults.py",
+      "docs/decisions/implemented/tooling/2026-10-15-omitted-defaults-are-never-seeded.md",
+      "docs/decisions/implemented/policy/2026-10-15-codex-memory-external-context-not-seeded.md",
+      "docs/releases/v4/v4.14/plans/v4.14.5-adoption-codex-memory-levers.md",
+      "docs/releases/v4/v4.14/development/v4.14.5-admission.md",
+      "docs/releases/v4/v4.14/development/v4.14.5-last-phase-evidence.md",
+      "docs/releases/v4/v4.14/development/v4.14.5-phase-receipts",
+      "docs/releases/v4/v4.14/development/history/v4.14.5-phase-1.md",
+      "docs/releases/v4/v4.14/development/history/v4.14.5-phase-2.md",
+      "docs/releases/v4/v4.14/development/history/v4.14.5-phase-3.md"
+    ],
+    "write_limits": {
+      "own_plan": "Only permitted task/status changes.",
+      "skill_frontmatter": "Both changed skills explicitly retain their frontmatter.",
+      "defaults_changes": "Return proposals; do not edit the two shared contract paths during concurrent implementation.",
+      "other_platform_settings": "No changes.",
+      "native_host_memory": "No reads or writes."
+    },
+    "semantic_read_paths_besides_owned_files": [
+      "configs/platform-defaults.json",
+      "docs/policy/platform-defaults-levers.md",
+      "scripts/lib/integrations/platform_defaults.py",
+      "scripts/lib/integrations/base.py",
+      "scripts/lib/integrations/_codex_native.py",
+      "scripts/lib/integrations/lifecycle.py",
+      "scripts/sync_platform_defaults.py",
+      "tests/validators/test_platform_defaults_levers.py",
+      "tests/validators/test_platform_defaults_seeding.py",
+      "tests/validators/_ci_reachability.py",
+      "docs/decisions/README.md",
+      "docs/releases/v4/v4.14/comparisons/v4.14.5-comparison-codex-memory-models.md",
+      "docs/releases/v4/v4.14/plans/v4.14.0-adoption-agent-tooling-and-subagent-cost.md",
+      "docs/releases/v4/v4.16/plans/v4.16.1-adoption-proactive-memory-intervention.md"
+    ],
+    "coordinator_write_paths_for_this_plan": [
+      "configs/platform-defaults.json",
+      "docs/policy/platform-defaults-levers.md"
+    ],
+    "coordinator_delta_tasks": {
+      "T007": "Apply five documented not-seeded levers and the scoped verification-log row.",
+      "T008": "Apply Codex omitted entries and meta.omitted, preserving settings, derived_artifacts and other platforms.",
+      "T014": "Apply shared gap reconciliation including the parked doctor warning.",
+      "T022": "Publication and integration remain coordinator-only.",
+      "phase_1_and_2_changelog_duties": "Apply worker-proposed changelog text."
+    },
+    "coordinator_proposal_artifact": "docs/releases/v4/v4.14/development/v4.14.5-phase-receipts/coordinator-deltas.json",
+    "candidate_defaults_fixture": "docs/releases/v4/v4.14/development/v4.14.5-phase-receipts/platform-defaults-candidate.json",
+    "focused_proof": [
+      "Four contract scenarios, with deciding passages",
+      "Omitted-key pure function and real baseline file test",
+      "One red case per baseline omitted key",
+      "Additional candidate-file cases for all five proposed Codex omitted keys",
+      "Malformed settings or omitted shapes fail visibly",
+      "Empty memories-table ancestor case",
+      "Temporary-home Codex seeding with medium positive control and no memory keys",
+      "Coordinator reruns real-file cases after applying T007 and T008"
+    ]
+  },
+  "shared_coordinator_only": {
+    "paths": [
+      "docs/todos.md",
+      "docs/releases/v4/v4.14/known-gaps.md",
+      "CHANGELOG.md",
+      "docs/README.md",
+      "docs/DEVLOG.md",
+      "data/SKILL_INDEX.md",
+      "data/skills.json",
+      "data/marketplace.json",
+      "data/bundles.json"
+    ],
+    "additional_sets": [
+      "Other open known-gaps files identified by the final reconciliation",
+      "Version, plugin, extension and release metadata selected by the canonical release procedure",
+      "Shared handbooks and generated outputs only if a source-grounded final check requires updates",
+      "Signed controller record and parent handoff"
+    ],
+    "rules": [
+      "Workers return proposed deltas in their exclusive receipt directories.",
+      "Tasks whose actual required shared changes remain unapplied stay unchecked.",
+      "Skill body-only changes do not require speculative registry edits: descriptions and counts remain unchanged; the registry checker checks editorial size fields for shape.",
+      "Unexpected refactor or stabilization writes require a refreshed claim before any edit.",
+      "No new CI, permissions or secrets changes are pre-authorized."
+    ]
+  },
+  "generic_validation_inputs": {
+    "not_semantic_live_read_reservations": [
+      "All docs/**/plans/*.md and release-version manifest for plan_status baseline and compatibility comparisons",
+      "All queued plan documents for enumerate_plan_queue",
+      "All skills and their bundled files for bundle and conformance validation",
+      "All relevant templates for base-template parity",
+      "All decision records for the decision validator",
+      "Repository inputs reached by the fast/full profiles",
+      "All open gap ledgers for final reconciliation",
+      "Living docs, handbooks and generated outputs for final architecture checks",
+      "Pipeline and installer files for final CI/CD and distribution comparison"
+    ],
+    "worker_disposition": "Read only the worker's isolated pinned-base snapshot. Record input/base hashes and scope. These reads must not subscribe to another worker's unpublished edits or imply final integration validity.",
+    "coordinator_disposition": "Refresh the unpublished worker onto its publication base, apply its queued deltas, rerun required current-tree and affected broad checks once at plan finalization, and invalidate stale receipts.",
+    "plan_status_special_case": "Capture the initial baseline on the pinned tree. At finalization compare the baseline-commit script with the changed script on the SAME refreshed current plan tree; historical saved output alone is not the comparand."
+  },
+  "overlap_verdict": {
+    "functional_write_write": [],
+    "semantic_read_write_without_split": [
+      {
+        "reader": "v4.14.1",
+        "writer": "v4.14.5",
+        "path": "configs/platform-defaults.json",
+        "reason": "The effort strategy names this file as default authority."
+      },
+      {
+        "reader": "v4.14.1",
+        "writer": "v4.14.5",
+        "path": "docs/policy/platform-defaults-levers.md",
+        "reason": "The routing policy explicitly delegates install-default facts here."
+      }
+    ],
+    "resolution": "Hold both v4.14.5 deltas under coordinator ownership until that plan's publication turn. Both workers may read the merged v4.14.0 versions. No remaining direct functional semantic collision was found under this split.",
+    "shared_orchestration": "Model-routing preflight and workflow instructions must use the merged pinned coordinator baseline. They must not become dependencies on v4.14.1's unpublished command/router edits.",
+    "safe_to_admit_now": false,
+    "conditional_first_wave": [
+      "v4.14.1",
+      "v4.14.5"
+    ]
+  },
+  "uncertainties_and_required_checks": [
+    "Actual v4.14.0 merge commit and refreshed worker bases do not exist in this preparation; null is intentional.",
+    "Current root workflow files are being edited by the owning agents. Both workers must consume their merged versions before making their own changes.",
+    "v4.14.1 T017 says Codex supports only low/medium/high, but the current defaults source and lever contract already document model-dependent levels through ultra. Verify the active official host/model contract and record the implementation correction without changing frozen plan prose.",
+    "v4.14.1's current effort-strategy default paragraph still describes environment pinning that v4.14.0 changes. Preserve the actual shipped default and reconcile the stale description explicitly.",
+    "The v4.18.0 predecessor plan remains queued, while the claude-opus-5-5 profile already exists. Do not infer a plan's merged status from that file's existence.",
+    "The current plan_status vocabulary remains low/medium/high/max; xhigh is not present. Do not expand the grammar solely because a host supports more levels.",
+    "The imported seeder load_source deliberately returns an empty object on absent or malformed data. The new real-file guard test must explicitly reject missing/invalid loaded shape rather than silently testing an empty platform set.",
+    "The omitted-key guard must explicitly test the required empty-table ancestor example; a simple declared.startswith(omitted + '.') implementation misses it.",
+    "Final architecture, gap and stabilization duties are not unlimited worker write authority. Return out-of-scope findings for coordinator disposition and refresh claims if an actual source fix is needed.",
+    "The existing aggregate deep-review and stabilization limits remain shared; concurrent workers do not receive reset budgets.",
+    "Check existing active claims and later sessions touching agent-memory before actual admission."
+  ],
+  "live_official_lookup_at_phase_entry": {
+    "both_plans": "Revalidate the active provider model and effort support through model-routing. Plan tables are dated evidence, not current availability.",
+    "v4.14.1": [
+      "Active host effort knob and selected model support",
+      "Model-specific effort defaults when updating the model-neutral strategy",
+      "Current owner guidance for cache-preserving effort switches"
+    ],
+    "v4.14.5": [
+      "https://learn.chatgpt.com/docs/customization/memories",
+      "https://learn.chatgpt.com/docs/config-file/config-reference",
+      "Five setting names/defaults, generated-store warning, reset control, external-context exclusion limits and profile-scope support"
+    ],
+    "scope_limit": "This preparation did not fetch vendor pages and makes no current vendor-fact verification claim."
+  }
+}

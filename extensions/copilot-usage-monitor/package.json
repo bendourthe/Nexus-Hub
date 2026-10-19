@@ -136,7 +136,7 @@
         },
         "copilotUsage.compactStatusBar": {
           "type": "boolean",
-          "default": false,
+          "default": true,
           "description": "Use a compact status-bar label: '<icon> X% (pool)' instead of '<icon> Copilot Usage: X% (pool)'."
         },
         "copilotUsage.thresholds.moderate": {

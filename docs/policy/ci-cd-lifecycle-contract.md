@@ -28,7 +28,7 @@ The canonical order is fixed. A conforming harness MUST NOT offer a transition t
   local phase work
         |
         v
-  local phase gate  (lint, tests, coverage, docs, session history)
+  local phase gate  (focused tests, cheap checks, docs, session history)
         |
         v
   local phase commit                     <-- repeats, once per phase
@@ -85,6 +85,17 @@ The canonical order is fixed. A conforming harness MUST NOT offer a transition t
 ### 2.3 What a push event cannot prove
 
 A version control push event carries no evidence that the update came from a reviewed merge. Merge-only semantics are therefore an EXTERNAL repository-settings contract, not something a pipeline file can assert. A conforming repository MUST protect its integration and release branches so that direct pushes are rejected; only then does a branch-filtered push workflow reliably represent a merge or a release operation. Section 9 lists the settings.
+
+### 2.4 Validation cadence (MUST)
+
+Rationale: [Complete-plan validation cadence](../decisions/implemented/process/2026-10-18-complete-plan-validation-cadence.md).
+
+- A non-final phase MUST use focused tests and cheap lint, build and boundary checks. Full-suite tests, project coverage collection, coverage-driven augmentation, broad platform validation, E2E sweeps, performance benchmarks and whole-plan deep passes MUST wait until all implementation tasks, including final-phase refactors and known-gap fixes, are complete. An earlier expensive check requires the phase to name it as an explicit deliverable or explain the specific risk that blocks dependent work.
+- Each plan MUST complete the full local gate before publication and receive green required integration checks before release. A minor run applies this boundary to each plan, not only the last plan of the minor.
+- Comprehensive checks inherited from intermediate phases of an existing plan MAY move to its final gate with their original task IDs and required evidence tracked through [[cicd-integration]]. Their tasks MUST remain unchecked until that evidence exists. Earlier prerequisites and recorded acceptance criteria remain binding.
+- Phase review MUST reuse terminal results for unchanged tested inputs instead of rerunning identical checks. Test selection, receipts and invalidation follow [[cicd-integration]].
+- Final validation MUST inventory canonical command coverage and avoid separately repeating checks already included in a profile. Required operating-system and shell coverage MUST remain intact; the platform matrix runs at integration, with extra local platform proof only where a plan, affected boundary or acceptance criterion requires it.
+- Corrections MUST first reproduce the failure and validate affected checks. Unaffected evidence may be retained only through [[cicd-integration]]; invalidated or uncertain coverage must be rerun. Required failures cannot be bypassed, and scoped or reused results MUST NOT be described as a fresh unfiltered full-profile run.
 
 ## 3. Repository-native profiles
 
@@ -156,7 +167,7 @@ The final phase of every plan MUST run this procedure. It is a comparison, not a
 2. Compare. Evaluate the existing pipeline against every field in this contract: profiles, events, runner selection, required aggregate, permissions, dependency and action pinning, caching, concurrency, path scoping, artifact retention, reports, deployment boundaries, failure recovery.
 3. Propose. Present each difference with its cost, its risk, and the smallest change that closes it.
 4. Approve. Obtain explicit approval per change. Silence is not approval.
-5. Apply. Make the approved changes in the current phase and re-run the local gate.
+5. Apply. Make the approved changes and run affected checks selected through [[cicd-integration]]. Defer comprehensive validation until the completed-candidate gate in section 2.4; an existing full result follows the same evidence-invalidation rules.
 6. Record. Write every declined or environment-only difference into the version's known-gaps file with an owner and a next step.
 
 The comparison concludes PASS only when every required field has observable evidence. "Looks fine" is not evidence.

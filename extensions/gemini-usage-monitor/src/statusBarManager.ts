@@ -136,7 +136,7 @@ export class StatusBarManager {
   private statusText(data: UsageData | undefined, staleLabel: string): string {
     const compact = vscode.workspace
       .getConfiguration("geminiUsage")
-      .get<boolean>("compactStatusBar", false);
+      .get<boolean>("compactStatusBar", true);
     const label = compact ? "" : "Gemini Usage: ";
     if (!data) {
       return `${ANTIGRAVITY_ICON}${ICON_GAP}${label}--${staleLabel}`;

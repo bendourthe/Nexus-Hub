@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "status": "scoped_local_fix_qualified_hosted_verification_pending",
+  "source": "tests/ci/test_ci_scenarios.py",
+  "source_sha256": "43fd6cedda6e9815333fd3169047d1f26f159a7f4555df9b974de6762e3af26e",
+  "observed_ci": {
+    "head": "33d11b6991ae4f29fc5fcffbf9466ca12d34ce07",
+    "check": "CodeQL",
+    "errors": 2,
+    "issue": "Potentially uninitialized POSIX cleanup locals in timeout test"
+  },
+  "correction": "Initialize the optional cleanup function and import signal at module scope; preserve real surviving-child negative control",
+  "results": [
+    {
+      "platform": "Windows",
+      "exit": 0,
+      "passed": 23,
+      "seconds": 4.08,
+      "log": "codeql-timeout-native-checks-oct19.log"
+    },
+    {
+      "platform": "Linux disposable container with procps",
+      "exit": 0,
+      "passed": 23,
+      "seconds": 1.26,
+      "log": "codeql-timeout-linux-procps-oct19.log"
+    }
+  ],
+  "lint_exit": 0,
+  "retained_failed_prerequisite_probe": {
+    "passed": 21,
+    "failed": 2,
+    "reason": "The original minimal Linux container did not contain ps",
+    "log": "codeql-timeout-linux-checks-oct19.log"
+  },
+  "limits": [
+    "No new hosted CodeQL success claimed",
+    "No hosted rerun or repush triggered for this correction yet"
+  ]
+}

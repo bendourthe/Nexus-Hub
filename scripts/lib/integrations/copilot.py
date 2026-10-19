@@ -35,7 +35,12 @@ from typing import Optional
 
 from scripts.lib.installer.instruction_merge import merge_instruction
 
-from ._catalog_adapters import _split_frontmatter, catalog_skill_names, commands_to_skills
+from ._catalog_adapters import (
+    _drop_frontmatter_keys,
+    _split_frontmatter,
+    catalog_skill_names,
+    commands_to_skills,
+)
 from ._command_surface import mirror_command_surface
 from ._copilot_native import build_copilot_hooks
 from ._owned import refuse_managed_redirect, remove_dir_if_empty, write_owned_file
@@ -251,11 +256,10 @@ class CopilotIntegration(MarkdownIntegration):
         *,
         managed_root: Path | None = None,
     ) -> list[FileAction]:
-        """Copy catalog agents to ``~/.copilot/agents/<name>.agent.md``, verbatim.
+        """Copy catalog agents to ``~/.copilot/agents/<name>.agent.md``.
 
-        Copilot accepts the catalog's Claude-style frontmatter as-is, so this is a
-        validated copy rather than a transform -- the same conclusion Phase 7
-        reached for Kimi. Writes go through ``write_owned_file`` so a user-authored
+        The prompt and accepted metadata are retained; Claude-only model aliases
+        are removed so Copilot retains its own model selection. Writes go through ``write_owned_file`` so a user-authored
         agent at the same path is preserved and a drifted owned one is repaired.
         """
         return self._install_agents(
@@ -276,7 +280,7 @@ class CopilotIntegration(MarkdownIntegration):
             return [FileAction(path=str(src_dir), action="not-found")]
         actions: list[FileAction] = []
         for md in sorted(src_dir.glob("*.md")):
-            content = md.read_bytes()
+            content = _drop_frontmatter_keys(md.read_bytes(), ("model",))
             reason = self.agent_skip_reason(content.decode("utf-8"))
             if reason is not None:
                 ctx.manifest.log(self.key, f"skip agent ({reason}): {md.name}")

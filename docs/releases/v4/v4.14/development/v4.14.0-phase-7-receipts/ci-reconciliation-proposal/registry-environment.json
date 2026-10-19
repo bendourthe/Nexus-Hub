@@ -1,0 +1,24 @@
+{
+  "duration_s": 90.95,
+  "finished_at": "2026-10-17T02:34:22Z",
+  "host": "[redacted:host]",
+  "os": "Windows",
+  "os_release": "10",
+  "platform": "windows",
+  "profile": "platform",
+  "python": "3.11.15",
+  "python_implementation": "CPython",
+  "scope_conservative": true,
+  "scope_reason": "no --base supplied; running every group",
+  "shell": "none (direct process execution)",
+  "started_at": "2026-10-17T02:32:51Z",
+  "status": "PASS",
+  "tools": {
+    "docker": "Docker version 29.2.1, build a5c7197",
+    "git": "git version 2.52.0.windows.1",
+    "node": "v24.13.0",
+    "npm": "11.6.2",
+    "powershell": "5.1.26100.9444",
+    "python": "3.11.15"
+  }
+}

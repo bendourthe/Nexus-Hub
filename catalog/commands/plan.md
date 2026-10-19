@@ -72,22 +72,28 @@ Every plan this command generates is challenged before it is presented. The gate
 
 Every generated plan records the plans already queued around it. Before decomposition, the enumerated queue is assessed through `[[plan-queue-assessment]]`, and the plan carries a required `## Queued predecessors` section giving a verdict and named evidence per queued plan, or an explicit "No queued predecessors." line. A plan authored against one codebase state is then re-validatable against the later state it actually runs in, rather than being executed as written months after its assumptions stopped holding. The rule lives in that skill; this dispatcher states the guarantee.
 
+Implementation dependencies are separate from release order. The planner records `## Implementation dependencies and ownership` through [[implementation-plan]], using the compatibility evidence owned by [[plan-queue-assessment]]. Independent whole plans may implement concurrently in isolated worktrees; publication and release remain sequential. Unknown compatibility keeps implementation serial. Existing frozen plans use a release-scoped assessment sidecar rather than rewritten approved prose.
+
 ## Mandatory final phase (planning scopes)
 
-Every plan ends with a fail-closed last phase - "Architecture Refactor, Known-Gaps Reconciliation, and CI/CD" - that includes independent Goal-vs-codebase review, a last-phase evidence file, and the living handbook architecture check. Automated tests still end every phase; human/manual testing suggestions wait until that last phase. A new plan takes the version the placement rule in `[[plan-queue-assessment]]` assigns by priority (applied in `[[implementation-plan]]` Step 4.6), so version order matches build order; when that needs existing plans renumbered, the proposal is shown for confirmation first. This is part of the plan contract, not a dispatcher responsibility: the template and the duties live in the `[[implementation-plan]]` skill. This dispatcher only surfaces the guarantee; it does not duplicate the template.
+Every plan ends with a fail-closed last phase - "Architecture Refactor, Known-Gaps Reconciliation, and CI/CD" - that includes independent Goal-vs-codebase review, a last-phase evidence file, and the living handbook architecture check. Automated tests still end every phase; human/manual testing suggestions wait until that last phase. A new plan takes the version the placement rule in `[[plan-queue-assessment]]` assigns by priority (applied in `[[implementation-plan]]` Step 4.6), so version order matches release order; when that needs existing plans renumbered, the proposal is shown for confirmation first. This is part of the plan contract, not a dispatcher responsibility: the template and the duties live in the `[[implementation-plan]]` skill. This dispatcher only surfaces the guarantee; it does not duplicate the template.
 
 ## Plan lifecycle (guarantee)
 
 Every generated plan carries the same lifecycle, and it is worth stating up front because it changes what the reader should expect while the plan runs:
 
-- **Every phase verifies locally and ends with one local commit.** Lint, tests, coverage, documentation, session history, then a single commit scoped to that phase.
+- **Every phase verifies locally and ends with one local commit.** Use focused tests, cheap checks, documentation and session history, then a single commit scoped to that phase. Defer full-suite testing, project coverage collection, broad platform validation, E2E sweeps and benchmarks until all implementation tasks are complete in the final phase, following [[cicd-integration]].
 - **No non-final phase pushes.** A non-final phase does not push, does not open a pull request, and does not start remote CI. Running the pipeline once per phase bills for validating work the author already knows is incomplete, and a red check on incomplete work teaches the reader to ignore red checks.
 - **CI impact is recorded per phase; the pipeline is reconciled once.** Each phase names what it added that CI would need to know about (a command, a dependency, an environment variable, a test path, an artifact) and whether the pipeline already covers it. Pipeline files change mid-plan only when CI/CD is that phase's explicit deliverable.
-- **The final phase owns the terminal reconciliation.** It compares the repository's existing pipeline against the canonical contract via `[[cicd-architect]]`, proposes each difference with its cost, applies what the user approves, and records what the user declines as a known gap.
-- **The final phase owns publication.** One branch push, with explicit approval, then the integration pull request, which is the plan's first remote validation and runs against the merge result. A red required check reopens the final phase.
+- **The final phase owns the terminal reconciliation.** It compares the existing pipeline against the canonical contract via `[[cicd-architect]]`, explains each difference and its cost, and applies changes under the completion contract's authorization policy. Record declined or out-of-scope changes as known gaps.
+- **The final phase owns publication.** One branch push under the completion contract's authorization policy, then the integration pull request, which is the plan's first remote validation and runs against the merge result. A red required check reopens the final phase.
 - **Release work waits for green integration.** `/update release` starts only after the integration result is green and merged.
 
 The full templates, prompts, and exit checklists that enforce this live in `[[implementation-plan]]`; the pipeline half lives in `[[cicd-architect]]`. This dispatcher states the guarantee and stops there.
+
+## Approval handoff
+
+Plan approval and execution authority follow the single policy in [`completion-contract.md`](../skills/workflow/implement-phase/references/completion-contract.md), "Authorization policy" and "Approval origin". Describe the concrete outcomes, limits, exclusions and required corrections before the initial decision. An approved plan in trusted full access continues within that signed scope without repeated consent; manual decisions use the available host question tool and a genuinely captured short reply when clickable capture is unavailable. Creating or reviewing a plan alone grants no execution authority. Do not rewrite a frozen plan to repair approval wording; use an approved release-scoped correction sidecar.
 
 ## Where the plan is committed (guarantee)
 

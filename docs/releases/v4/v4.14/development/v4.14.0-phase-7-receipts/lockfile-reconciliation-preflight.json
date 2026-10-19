@@ -1,0 +1,25 @@
+{
+  "review": "Independent project-standards lens, corrected proposal and exact four current/proposed pairs",
+  "findings": [],
+  "prior_finding": "Personal path in public manifest; corrected before native binding",
+  "proposal_sha256": "bce88e2d7dcb9ee89196efd4fd3640a40dc0f87bed6ad7b9d8a0a3dc95f474b1",
+  "manifest_sha256": "deaccccfc6263dc8cd0fa5c5608f7a46ad7afa9de77acfb6c839817d0e13cf97",
+  "patch_sha256": "10ec4cdec2f8ec8eeaa271359cef7edae0ed65554e95a4753308c702f9f5e8cf",
+  "verified": "18 metadata fields only; no dependency versions or integrity changes; CRLF and current copies preserved",
+  "focused_personal_path_validator_exit": 0,
+  "guard_accepts_before_genuine_approval": 0,
+  "considered_rejected": [
+    {
+      "candidate": "CRLF/Git-LF inequality is a dependency change",
+      "reason": "Normalized content matches; exact proposed bytes retain CRLF"
+    },
+    {
+      "candidate": "Gemini restoration direction reversed",
+      "reason": "Patch and prose both restore two root fields from0.1.0 to0.2.11"
+    },
+    {
+      "candidate": "Approval permits other changes",
+      "reason": "Exactly four accepts and bound restorations; hash drift stops"
+    }
+  ]
+}

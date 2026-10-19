@@ -1,0 +1,83 @@
+--- a/scripts/installer.ps1
++++ b/scripts/installer.ps1
+@@ -739,7 +739,7 @@
+         [string]$Scope
+     )
+ 
+-    if (-not (Test-Path $SettingsFile)) { return }
++    if (-not (Test-Path -LiteralPath $SettingsFile)) { return }
+     $python = Resolve-PythonExecutable
+     if (-not $python) { throw "Python is required to migrate Claude hook commands for Cursor compatibility" }
+     $compat = Join-Path $RepoRoot "catalog\hooks\cursor-hook-compat.py"
+@@ -894,9 +894,17 @@
+ 
+     if (Test-Path -LiteralPath $settingsFile) {
+         try {
+-            $existingJson = Get-Content -LiteralPath $settingsFile -Raw -Encoding UTF8 | ConvertFrom-Json
++            $document = Read-JsonDocument $settingsFile
++        if ($document -isnot [Collections.IDictionary]) { throw 'settings root must be an object' }
++        $existingJson = [pscustomobject]@{}
++        $hookSlot = @($document.GetEnumerator() | Where-Object { $_.Key -ceq 'hooks' })
++        if ($hookSlot.Count -gt 0) {
++            $hookValue = ConvertFrom-Json -InputObject (ConvertTo-Json -InputObject $document['hooks'] -Depth 100)
++            $existingJson | Add-Member -NotePropertyName 'hooks' -NotePropertyValue $hookValue
++        }
+             $existingJson = Merge-ManagedClaudeHooks -ExistingJson $existingJson -TemplateJson $templateJson
+-            Write-JsonFile -Path $settingsFile -Object $existingJson
++            $document['hooks'] = $existingJson.hooks
++            Write-JsonFile -Path $settingsFile -Object $document
+             Convert-ClaudeHookCommandsForWindows -SettingsFile $settingsFile -RepoRoot $RepoRoot -Scope $Scope
+             Write-Item -Message "✓ $Scope settings.json reconciled with managed hooks" -Color "DarkGreen"
+         }
+@@ -952,7 +960,14 @@
+     $templateJson = $templateRaw | ConvertFrom-Json
+ 
+     try {
+-        $existingJson = Get-Content -LiteralPath $settingsFile -Raw -Encoding UTF8 | ConvertFrom-Json
++        $document = Read-JsonDocument $settingsFile
++        if ($document -isnot [Collections.IDictionary]) { throw 'settings root must be an object' }
++        $existingJson = [pscustomobject]@{}
++        $hookSlot = @($document.GetEnumerator() | Where-Object { $_.Key -ceq 'hooks' })
++        if ($hookSlot.Count -gt 0) {
++            $hookValue = ConvertFrom-Json -InputObject (ConvertTo-Json -InputObject $document['hooks'] -Depth 100)
++            $existingJson | Add-Member -NotePropertyName 'hooks' -NotePropertyValue $hookValue
++        }
+ 
+         # Check if usage-display already installed
+         $alreadyInstalled = $false
+@@ -987,7 +1002,8 @@
+                 }
+             }
+ 
+-            Write-JsonFile -Path $settingsFile -Object $existingJson
++            $document['hooks'] = $existingJson.hooks
++            Write-JsonFile -Path $settingsFile -Object $document
+             Convert-ClaudeHookCommandsForWindows -SettingsFile $settingsFile -RepoRoot $RepoRoot -Scope $Scope
+             Write-Item -Message "✓ $Scope settings.json updated with usage display hook" -Color "DarkGreen"
+         }
+@@ -1022,7 +1038,14 @@
+     }
+ 
+     try {
+-        $existingJson = Get-Content -LiteralPath $settingsFile -Raw -Encoding UTF8 | ConvertFrom-Json
++        $document = Read-JsonDocument $settingsFile
++        if ($document -isnot [Collections.IDictionary]) { throw 'settings root must be an object' }
++        $existingJson = [pscustomobject]@{}
++        $hookSlot = @($document.GetEnumerator() | Where-Object { $_.Key -ceq 'hooks' })
++        if ($hookSlot.Count -gt 0) {
++            $hookValue = ConvertFrom-Json -InputObject (ConvertTo-Json -InputObject $document['hooks'] -Depth 100)
++            $existingJson | Add-Member -NotePropertyName 'hooks' -NotePropertyValue $hookValue
++        }
+ 
+         # Check Bash and PowerShell hooks separately so that an existing
+         # install with only the Bash hook still picks up the PowerShell pair.
+@@ -1100,7 +1123,8 @@
+                 }
+             }
+ 
+-            Write-JsonFile -Path $settingsFile -Object $existingJson
++            $document['hooks'] = $existingJson.hooks
++            Write-JsonFile -Path $settingsFile -Object $document
+             $added = ($entriesToAdd | ForEach-Object { $_.matcher }) -join ", "
+             Write-Item -Message "✓ $Scope settings.json updated with description hooks ($added)" -Color "DarkGreen"
+         }

@@ -1,0 +1,265 @@
+[
+  {
+    "test": "test_installer_sh_declares_flag_and_helper",
+    "case": {},
+    "error": null
+  },
+  {
+    "test": "test_installer_ps1_declares_flag_and_helper",
+    "case": {},
+    "error": null
+  },
+  {
+    "test": "test_both_installers_gained_the_flag_in_lockstep",
+    "case": {},
+    "error": null
+  },
+  {
+    "test": "test_ho2_intent_marker_exported_by_both_installers",
+    "case": {},
+    "error": null
+  },
+  {
+    "test": "test_overlay_is_valid_json_with_deny_and_ask",
+    "case": {},
+    "error": null
+  },
+  {
+    "test": "test_overlay_omits_defaultmode",
+    "case": {},
+    "error": null
+  },
+  {
+    "test": "test_overlay_does_not_duplicate_the_allow_list",
+    "case": {},
+    "error": null
+  },
+  {
+    "test": "test_deny_covers_the_canonical_surfaces",
+    "case": {
+      "needle": ".git/hooks/**"
+    },
+    "error": null
+  },
+  {
+    "test": "test_deny_covers_the_canonical_surfaces",
+    "case": {
+      "needle": ".git/config"
+    },
+    "error": null
+  },
+  {
+    "test": "test_deny_covers_the_canonical_surfaces",
+    "case": {
+      "needle": ".venv/**"
+    },
+    "error": null
+  },
+  {
+    "test": "test_deny_covers_the_canonical_surfaces",
+    "case": {
+      "needle": "pyvenv.cfg"
+    },
+    "error": null
+  },
+  {
+    "test": "test_deny_covers_the_canonical_surfaces",
+    "case": {
+      "needle": "core.hooksPath"
+    },
+    "error": null
+  },
+  {
+    "test": "test_deny_covers_the_canonical_surfaces",
+    "case": {
+      "needle": "core.fsmonitor"
+    },
+    "error": null
+  },
+  {
+    "test": "test_ask_covers_the_legitimately_edited_surfaces",
+    "case": {
+      "needle": ".claude/settings.json"
+    },
+    "error": null
+  },
+  {
+    "test": "test_ask_covers_the_legitimately_edited_surfaces",
+    "case": {
+      "needle": ".claude/hooks/**"
+    },
+    "error": null
+  },
+  {
+    "test": "test_ask_covers_the_legitimately_edited_surfaces",
+    "case": {
+      "needle": ".vscode/tasks.json"
+    },
+    "error": null
+  },
+  {
+    "test": "test_ask_covers_the_legitimately_edited_surfaces",
+    "case": {
+      "needle": ".cursor/**"
+    },
+    "error": null
+  },
+  {
+    "test": "test_deny_and_ask_do_not_overlap",
+    "case": {},
+    "error": null
+  },
+  {
+    "test": "test_powershell_merge_is_additive_and_idempotent",
+    "case": {},
+    "error": null
+  },
+  {
+    "test": "test_bash_merge_is_additive_and_idempotent",
+    "case": {},
+    "error": null
+  },
+  {
+    "test": "test_merge_is_a_no_op_without_a_settings_file",
+    "case": {},
+    "error": null
+  },
+  {
+    "test": "test_default_install_does_not_reference_the_overlay_unconditionally",
+    "case": {},
+    "error": null
+  },
+  {
+    "test": "test_native_strict_writer_preserves_json_and_backs_up_once",
+    "case": {
+      "case": "ordinary"
+    },
+    "error": null
+  },
+  {
+    "test": "test_native_strict_writer_preserves_json_and_backs_up_once",
+    "case": {
+      "case": "deep"
+    },
+    "error": null
+  },
+  {
+    "test": "test_native_strict_writer_preserves_json_and_backs_up_once",
+    "case": {
+      "case": "near"
+    },
+    "error": null
+  },
+  {
+    "test": "test_native_strict_writer_preserves_json_and_backs_up_once",
+    "case": {
+      "case": "distinct"
+    },
+    "error": null
+  },
+  {
+    "test": "test_native_strict_writer_preserves_json_and_backs_up_once",
+    "case": {
+      "case": "bracket"
+    },
+    "error": null
+  },
+  {
+    "test": "test_native_strict_writer_preserves_json_and_backs_up_once",
+    "case": {
+      "case": "case-metadata"
+    },
+    "error": null
+  },
+  {
+    "test": "test_native_strict_writer_preserves_json_and_backs_up_once",
+    "case": {
+      "case": "absent-parent"
+    },
+    "error": null
+  },
+  {
+    "test": "test_native_strict_writer_refuses_malformed_custom_data",
+    "case": {
+      "raw": "{\"custom\":"
+    },
+    "error": null
+  },
+  {
+    "test": "test_native_strict_writer_refuses_malformed_custom_data",
+    "case": {
+      "raw": "[{\"custom\":\"keep\"}]"
+    },
+    "error": null
+  },
+  {
+    "test": "test_native_strict_writer_refuses_malformed_custom_data",
+    "case": {
+      "raw": "null"
+    },
+    "error": null
+  },
+  {
+    "test": "test_native_strict_writer_refuses_malformed_custom_data",
+    "case": {
+      "raw": "\"keep\""
+    },
+    "error": null
+  },
+  {
+    "test": "test_native_strict_writer_refuses_malformed_custom_data",
+    "case": {
+      "raw": "{\"permissions\":null}"
+    },
+    "error": null
+  },
+  {
+    "test": "test_native_strict_writer_refuses_malformed_custom_data",
+    "case": {
+      "raw": "{\"permissions\":[]}"
+    },
+    "error": null
+  },
+  {
+    "test": "test_native_strict_writer_refuses_malformed_custom_data",
+    "case": {
+      "raw": "{\"permissions\":\"keep\"}"
+    },
+    "error": null
+  },
+  {
+    "test": "test_native_strict_writer_refuses_malformed_custom_data",
+    "case": {
+      "raw": "{\"permissions\":false}"
+    },
+    "error": null
+  },
+  {
+    "test": "test_native_strict_writer_refuses_malformed_custom_data",
+    "case": {
+      "raw": "{\"permissions\":{\"deny\":null}}"
+    },
+    "error": null
+  },
+  {
+    "test": "test_native_strict_writer_refuses_malformed_custom_data",
+    "case": {
+      "raw": "{\"permissions\":{\"deny\":\"keep\"}}"
+    },
+    "error": null
+  },
+  {
+    "test": "test_native_strict_writer_refuses_malformed_custom_data",
+    "case": {
+      "raw": "{\"permissions\":{\"deny\":[\"keep\",7]}}"
+    },
+    "error": null
+  },
+  {
+    "test": "test_native_strict_writer_refuses_malformed_custom_data",
+    "case": {
+      "raw": "{\"permissions\":{\"ask\":\"keep\"}}"
+    },
+    "error": null
+  }
+]

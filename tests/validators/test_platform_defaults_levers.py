@@ -262,6 +262,33 @@ def test_no_platform_in_defaults_without_a_verified_classification(rows: dict[st
     )
 
 
+@pytest.mark.parametrize("future_default", [False, True], ids=["catalog", "proposed-default"])
+def test_subagent_model_default_has_key_level_evidence(
+    rows: dict[str, Row], future_default: bool
+):
+    """A verified platform alone cannot authorize a new, undocumented env key.
+
+    Exercise the proposed declaration before the delivery phase seeds it, so
+    this gate cannot pass vacuously while that prerequisite is still missing.
+    """
+    declared = json.loads(DEFAULTS.read_text(encoding="utf-8"))["platforms"]
+    key = "CLAUDE_CODE_SUBAGENT_MODEL"
+    if future_default:
+        declared["claude"]["settings"].setdefault("env", {})[key] = "sonnet"
+    for platform, entry in declared.items():
+        if key not in entry.get("settings", {}).get("env", {}):
+            continue
+        row = rows.get(platform)
+        assert row is not None and row.is_verified, (
+            f"{platform}: env.{key} requires a VERIFIED vendor-evidence row"
+        )
+        documented = set(re.findall(r"`([^`]+)`", row.keys))
+        assert key in documented or f"env.{key}" in documented, (
+            f"{platform}: env.{key} is declared without key-level evidence in "
+            f"{CONTRACT.name}; verify and name that exact lever before seeding it"
+        )
+
+
 def test_defaults_source_urls_agree_with_the_contract(rows: dict[str, Row]):
     """A declared platform must cite the same document the contract verified."""
     declared = json.loads(DEFAULTS.read_text(encoding="utf-8"))["platforms"]

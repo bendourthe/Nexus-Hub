@@ -1,0 +1,36 @@
+{
+  "duration_s": 335.54700000000594,
+  "finished_at": "2026-10-17T02:36:53Z",
+  "groups": [
+    {
+      "commands": [
+        {
+          "duration_s": 0.6100000000005821,
+          "exit_code": 0,
+          "group": "windows-installer-core",
+          "name": "PowerShell 7 runtime",
+          "output": "7.6.7\r\n",
+          "reason": "",
+          "status": "pass"
+        },
+        {
+          "duration_s": 334.93700000000536,
+          "exit_code": 0,
+          "group": "windows-installer-core",
+          "name": "installer JSON and hook boundaries (PowerShell 7)",
+          "output": "........................................................................ [ 26%]\r\n........................................................................ [ 52%]\r\n........................................................................ [ 78%]\r\n...........................................................              [100%]\r\n275 passed in 333.87s (0:05:33)\r\n",
+          "reason": "",
+          "status": "pass"
+        }
+      ],
+      "name": "windows-installer-core",
+      "skipped_reason": "",
+      "status": "pass"
+    }
+  ],
+  "platform": "windows",
+  "profile": "platform",
+  "scope_conservative": true,
+  "scope_reason": "no --base supplied; running every group",
+  "started_at": "2026-10-17T02:31:17Z"
+}

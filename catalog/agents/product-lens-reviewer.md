@@ -1,6 +1,7 @@
 ---
 name: product-lens-reviewer
 description: Single-lens reviewer for a plan / spec / requirements document - checks whether it actually serves the user and the stated problem, with clear success metrics and the right scope for the outcome. Use as one lens inside the plan-review pipeline. Read-only; returns structured findings.
+model: opus
 tools: Read, Glob, Grep
 ---
 

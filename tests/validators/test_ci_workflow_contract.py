@@ -445,17 +445,25 @@ def test_offline_extension_builds_receive_the_same_constraints(name: str):
     paths = triggers(WORKFLOW_DIR / f"{name}.yml")["pull_request"]["paths"]
     assert "scripts/ci/requirements.in" in paths
     assert "scripts/ci/requirements-py311.txt" in paths
-    assert "--build-context ci=scripts/ci" in text
-    assert "FROM python:3.11-slim@sha256:da047cb8f9d1d98e5c070f5300ba9f7274e33b8fc0e5be5ed88740aed1b95ba9" in text
-    assert "COPY --from=ci requirements-py311.txt /package/requirements-py311.txt" in text
-    assert "ENV PIP_CONSTRAINT=/package/requirements-py311.txt" in text
+    group_name = "code-search-offline" if name == "code-search" else "memory-offline"
+    assert f"scripts/ci/run.py --profile full --only {group_name}" in text
+    build, _ = profile_group(group_name).commands
+    assert build.argv[:2] == ["docker", "build"]
+    assert build.argv[build.argv.index("--build-context") + 1] == "ci=scripts/ci"
+    dockerfile = (REPO_ROOT / build.argv[build.argv.index("--file") + 1]).read_text(encoding="utf-8")
+    assert "FROM python:3.11-slim@sha256:da047cb8f9d1d98e5c070f5300ba9f7274e33b8fc0e5be5ed88740aed1b95ba9" in dockerfile
+    assert "COPY --from=ci requirements-py311.txt /package/requirements-py311.txt" in dockerfile
+    assert "ENV PIP_CONSTRAINT=/package/requirements-py311.txt" in dockerfile
     if name == "code-search":
-        assert "git=1:2.47.3-0+deb13u1" in text
+        assert "git=1:2.47.3-0+deb13u1" in dockerfile
 
 
 def test_presentify_lock_changes_reach_its_path_detector():
     text = (WORKFLOW_DIR / "presentify-extractor.yml").read_text(encoding="utf-8")
-    assert r"scripts/ci/requirements(\.in|-py311\.txt)$" in text
+    detector = re.search(r"grep -Eq '([^']+)'", text)
+    assert detector, "the workflow has no path detector"
+    for path in ("scripts/ci/requirements.in", "scripts/ci/requirements-py311.txt"):
+        assert re.search(detector.group(1), path), f"the detector misses {path}"
 
 
 def test_non_python_ci_tools_have_explicit_versions():

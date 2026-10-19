@@ -1,0 +1,104 @@
+{
+  "private_evidence_sha256": "10e25ad34a64f34886d901df94781cb8fd924d4ef065bfd8b9a5bedf0130564c",
+  "report": {
+    "kind": "v4.14.0 bounded read-only release-governance audit",
+    "observed_utc": "2026-10-19T03:57:10.858Z",
+    "head": "8b32922ca573fb57546611267b88246c1064f1e4",
+    "mutable_source": "Root is concurrently applying release metadata and snapshot; this report does not freeze or approve that tree.",
+    "reusable": [
+      {
+        "receipt": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/architecture-final-v6.json",
+        "scope": "282 prior changed regular files, explicit duplicate/orphan/complexity dispositions; supplemented for88 additional merged paths, no repeat broad review."
+      },
+      {
+        "receipt": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/integration-gap-closure.json",
+        "scope": "23 run-introduced gaps closed individually against actual44PR+2postmerge checks. Does not close80 inherited gaps."
+      },
+      {
+        "receipt": "docs/archives/v4/v4.0/development/ci-cd-task-reconciliation.md",
+        "scope": "62 archived tasks individually reconciled; original failed postmerge preserved."
+      },
+      {
+        "receipt": "docs/archives/v4/v4.13/handbooks/v4.13.12/snapshot.json",
+        "scope": "Preserve exact tagged old snapshot; it does not substitute for newly versioned .0 content."
+      }
+    ],
+    "fresh": {
+      "ledgers": {
+        "count": 43,
+        "all_known_gap_files": 43,
+        "unreadable": 0,
+        "parse_problem_ledgers": 0,
+        "open": 81,
+        "open_ownership": {
+          "v4.14": 80,
+          "v4.17": 1
+        },
+        "all_have_existing_reason_next_step": true,
+        "semantic_body_changes_since_base": [
+          "docs/releases/v4/v4.14/known-gaps.md#DF-2"
+        ],
+        "disposition": "All81 retained open with exact existing recorded reason/next-step lines, raw hashes, source lines and unchanged version ownership in sweep JSON. This read-only inventory makes no renewed approval/deferral decision and no migration or resolution."
+      },
+      "archived_tasks": {
+        "count": 174,
+        "plans": 5,
+        "dispositions": "archived-task-dispositions JSON lists every task individually;97 remain historical bookkeeping not independently reverified,62 have explicit reconciliation,8 have local completion history,3 explicit historical verification/deferral,3 superseded and1 transferred. Do not auto-tick or reopen174 tasks."
+      },
+      "queue": {
+        "entries": 32,
+        "declared_queued": 23,
+        "additional_open_candidates": 8,
+        "with_literal_changed_task_paths": 26,
+        "report": "release-governance-queue-impact-review-oct19.json",
+        "scope": "Every pending queued plan plus8 unclear-status open candidates audited for direct task-path and shared workflow impact; exact task lines provided, no reordering/edit/admission asserted."
+      },
+      "gitignore": {
+        "command": "git ls-files -ci --exclude-standard",
+        "tracked_ignored": 0
+      },
+      "docs_layout": {
+        "command": "python -B -X utf8 catalog/skills/code-cleanup/docs-layout-refactor/scripts/audit-docs.py inventory --root ./docs --repo-root . --include-archive",
+        "exit": 0,
+        "rows": 3574,
+        "legacy_path_candidates": [],
+        "scope": "Inventory covers3574 docs entries; native layout field groups both current archive/active under releases, so canonical path detection is evaluated separately. No canonicalize-layout execution: that command moves files and has no dry-run."
+      },
+      "retention": {
+        "command": "python -B -X utf8 scripts/check_docs_retention.py --root . --quiet",
+        "exit": 0,
+        "findings": 0
+      },
+      "project_refactor": {
+        "supplement": "release-governance-architecture-supplement-oct19.json",
+        "additional_paths": 88,
+        "empty_immediate_affected_parents": 0,
+        "intentional_duplicate_groups": 1,
+        "proposed_moves_or_deletes": 0,
+        "limits": "Bounded changed-path supplement plus prior semantic review; no whole-repository zero-orphan/complexity assertion."
+      },
+      "snapshot": {
+        "closure": "release-governance-snapshot-closure-oct19.json",
+        "files": 47,
+        "destination": "docs/archives/v4/v4.14/handbooks/v4.14.0",
+        "root_reports_created": true,
+        "source_observation": "snapshot.json now exists; creation/roundtrip proof belongs to root, not this read-only report."
+      }
+    },
+    "remaining": [
+      "Root should retain this current reconciliation/queue impact evidence in release records; no historical checkbox rewrite or new migration is needed merely because unchecked boxes exist.",
+      "Root owns snapshot roundtrip/integrity validation, final source manifest generation, staged whitespace and release gates after metadata settles.",
+      "97 historical task entries remain explicitly not independently reverified. This is preserved bookkeeping uncertainty; no new material .0-release-blocking behavioral contradiction was found by this bounded sweep."
+    ],
+    "no_writes": "Only private files under B were written. No source, host, config, state, approvals, branches, CI or publication mutation."
+  },
+  "coordinator_disposition": {
+    "inherited_v414_open_items": "Retain the 80 inherited obligations in the active minor with their exact recorded reasons and next steps until remaining member implementation and final approved migration reconciliation. This patch does not close the minor or add migration authority. Feasible repairs already completed in this run are the 23 individually evidenced resolutions.",
+    "other_minor": "The single v4.17 obligation retains its recorded owner and existing reason; no transfer or implementation outside this run is inferred.",
+    "historical_tasks": "Preserve the 174 individual classifications, including 97 unverified bookkeeping entries, without auto-ticking or reopening archived historical implementation. No current release-blocking behavioral contradiction was established.",
+    "canonicalize_layout_engaged": true,
+    "canonicalization_proposals": [],
+    "source_payloads": "The exact canonical .github source directory spelling is retained; the naming guard continues to scan its children, links and emptiness.",
+    "snapshot": "The 47-entry v4.14.0 snapshot was independently created and round-trip checked by the coordinator; snapshot.json records actual candidate and dirty-source provenance."
+  }
+}

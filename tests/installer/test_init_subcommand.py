@@ -66,10 +66,8 @@ def test_init_creates_claude_settings_stub(tmp_path: Path) -> None:
     )["platforms"]["claude"]["settings"]
     assert data["effortLevel"] == declared["effortLevel"]
     assert data["model"] == declared["model"]
-    assert (
-        data["env"]["CLAUDE_CODE_EFFORT_LEVEL"]
-        == declared["env"]["CLAUDE_CODE_EFFORT_LEVEL"]
-    )
+    assert data["env"] == declared["env"]
+    assert data["modelSettings"] == declared["modelSettings"]
 
 
 def test_init_never_overwrites_existing_claude_settings(tmp_path: Path) -> None:

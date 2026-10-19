@@ -1,0 +1,51 @@
+{
+  "source": "scripts/ci/profiles.py",
+  "before_sha256": "b50bca9863adb7a60e553dcaedceb869f541115ec506484db32d942ff02b1e94",
+  "after_sha256": "1a6363070e4e0f7c5dc98c35079aa6563ef2c04824b433d5720f145ecc7c3f78",
+  "change": "Only WINDOWS_HOOKS hook-tests (Windows PowerShell 5.1) timeout 1800 to 2400 seconds",
+  "applied": false,
+  "workflow_job_cap_minutes": 60,
+  "actual_serial_seconds": 1776.9690000000119,
+  "actual_tests_passed": 2588,
+  "previous_canonical_timeout_seconds": 1800.937,
+  "source_files_unchanged": 8259,
+  "validation": {
+    "observed_utc": "2026-10-17T22:33:27.118409+00:00",
+    "profile_graph_delta": [
+      {
+        "path": "/platform/windows-hooks/commands/0/timeout",
+        "before": 1800,
+        "after": 2400
+      }
+    ],
+    "pytest_exit": 0,
+    "duration_seconds": 58.030999999988126,
+    "actual_source_unchanged": true,
+    "candidate_applied": false,
+    "scope": "In-process candidate configuration with original source __file__; unchanged engine and repository tests. Forks read the unchanged repository. No full/platform or hosted pass claimed."
+  },
+  "ci_tests_passed": 205,
+  "ci_tests_seconds": 55.88,
+  "review": {
+    "mode": "Direct review of one constant change; multi-agent skill trivial-diff exception",
+    "findings": [],
+    "considered_but_rejected": [
+      {
+        "candidate": "Increase the enclosing job timeout",
+        "reason": "The measured hook, attribution, security and interpreter work fits the unchanged 60-minute job; the candidate changes only the command cap."
+      },
+      {
+        "candidate": "Split or skip hook tests",
+        "reason": "All 2588 actual tests pass; preserving their selection is the smaller correction."
+      },
+      {
+        "candidate": "Change other command budgets",
+        "reason": "The other 11 native profile commands passed."
+      },
+      {
+        "candidate": "Add a test hardcoding 2400",
+        "reason": "It would mirror a reversible numeric policy; existing CI tests and complete profile-data comparison verify the actual impact."
+      }
+    ]
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "original_sha256": "893af86d12bb214fc947582545654c68a326ce6fe521b78f2b579179535bb453",
+  "candidate_raw_sha256": "e9476616f4e0572a6fa6d6a5f617a155d34bcf07fd36ef4a7f57a9cedbc1b896",
+  "candidate_lf_sha256": "8b8f7f7c932b17543e5ab02d3b05d9418ba7db6efddbb12d31ab3f655729df07",
+  "newline": "CRLF",
+  "scope": "Merge-StrictPermissions only",
+  "diff_lines": 73
+}

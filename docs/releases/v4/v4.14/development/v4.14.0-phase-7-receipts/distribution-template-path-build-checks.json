@@ -1,0 +1,44 @@
+{
+  "scope": "distribution unchanged output, twice checked",
+  "runs": [
+    {
+      "run": 1,
+      "exit": 0,
+      "stdout": "",
+      "stderr": "Verified retained handbook: a857627a0244f95b4966dc9c099a8d6d3f66f3ba7b3406e12a0ba8670cc8218c\n"
+    },
+    {
+      "run": 2,
+      "exit": 0,
+      "stdout": "",
+      "stderr": "Verified retained handbook: a857627a0244f95b4966dc9c099a8d6d3f66f3ba7b3406e12a0ba8670cc8218c\n"
+    }
+  ],
+  "command": [
+    "python",
+    "catalog/skills/specialized-domains/document-to-interactive-html/scripts/build_presentation.py",
+    "docs/handbooks/_sources/distribution/model.json",
+    "--out",
+    "docs/handbooks/distribution.html",
+    "--root",
+    ".",
+    "--check"
+  ],
+  "changed_mapped_input": {
+    "path": "scripts/installer.ps1",
+    "before_sha256": "83d99618d82da5c3c84dea3bc705e24d62bcef4712cf806b1eaa5bd93df560b4",
+    "after_sha256": "164a3f60889f4fa6161df54fc7179308f5ba6474a4a213ee8f516bd04fd5643d"
+  },
+  "all_other_inputs_unchanged": true,
+  "render_dependencies_unchanged": true,
+  "output_sha256": "a857627a0244f95b4966dc9c099a8d6d3f66f3ba7b3406e12a0ba8670cc8218c",
+  "output_written": false,
+  "new_browser_run": false,
+  "retained_rendered_evidence": {
+    "status": "pass",
+    "evidence": "docs/releases/v4/v4.14/development/v4.14.0-phase-7-receipts/handbook-browser-after-skills-repair.json",
+    "evidence_sha256": "713b593c69e77674ec12ca9bb5f3826f6145d9ce1a85c2e179d68b3a79ece019",
+    "browser": "Chromium 153.0.8010.12",
+    "output_sha256": "a857627a0244f95b4966dc9c099a8d6d3f66f3ba7b3406e12a0ba8670cc8218c"
+  }
+}
