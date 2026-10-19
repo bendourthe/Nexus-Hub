@@ -20,6 +20,7 @@ stand-in; no case touches the network.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import subprocess
 import sys
@@ -122,7 +123,12 @@ class Close(Minor):
             "blockers": [], "pause": None, "completed": None,
         }
         record["approvals_hmac"] = ck._sign(record, ck._secret(create=True) or b"")
-        ck._write_record(rctx.scoped_record_path("minor:" + token), record)
+        path = rctx.scoped_record_path("minor:" + token)
+        with ck.minor_creation_lease(rctx, token):
+            raw = path.read_bytes() if path.exists() else None
+            expected = hashlib.sha256(raw).hexdigest() if raw is not None else None
+            with ck.minor_lease(path, expected, rctx):
+                ck._write_record(path, record)
         return record
 
     def close(self, *args: str) -> subprocess.CompletedProcess:

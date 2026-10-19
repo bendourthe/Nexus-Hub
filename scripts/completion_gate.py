@@ -42,9 +42,11 @@ from __future__ import annotations
 
 import datetime as dt
 import hashlib
+import hmac
 import importlib.util
 import json
 import os
+import secrets
 import subprocess
 import sys
 import time
@@ -322,8 +324,32 @@ def usage_limit_stop(payload: dict, record_path: Path, record: dict, repo_root: 
         return False
 
 
+
+def _verified_minor_root(path: Path, record: dict, session: str) -> tuple[Path, dict]:
+    """Only the trusted installed checker sibling resolves the signed operational root."""
+    import importlib.util
+    checker = _checker()
+    if not checker.is_file() or _is_inside(checker, Path(str(record.get('repo_root', '')))):
+        raise ValueError('trusted checker unavailable')
+    name = '_nexus_gate_controller_checker'
+    spec = importlib.util.spec_from_file_location(name, checker)
+    if spec is None or spec.loader is None:
+        raise ValueError('trusted checker unavailable')
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    spec.loader.exec_module(module)
+    try:
+        ctx, verified = module.resolve_minor_controller(path, session, budget_seconds=min(5.0, _budget()))
+    except (OSError, ValueError, module.Malformed) as exc:
+        raise ValueError('minor controller cannot be verified') from exc
+    if _is_inside(checker, ctx.root):
+        raise ValueError('checker is inside operational worktree')
+    return ctx.root, verified
+
+
 def cmd_stop() -> int:
     payload = _read_payload()
+    _observe_permission(payload)
     session = _session(payload)
     found = find_record(session)
     if found is None:
@@ -331,6 +357,11 @@ def cmd_stop() -> int:
     record_path, record = found
     checker = _checker()
     repo_root = Path(str(record.get("repo_root", "")))
+    if record.get('schema') == 2:
+        try:
+            repo_root, record = _verified_minor_root(record_path, record, session)
+        except ValueError:
+            return emit_continue(resolve_format(payload), 'Minor controller verification failed; keep the run unresolved.')
     if not checker.is_file() or _is_inside(checker, repo_root):
         print(
             "completion-gate: checker not installed outside the working tree; allowing stop",
@@ -443,6 +474,7 @@ def _prune(prompts: Path) -> None:
 
 def cmd_capture() -> int:
     payload = _read_payload()
+    _observe_permission(payload)
     if "cursor_version" in payload:
         # Cursor's prompt-submit parser expects one JSON object on stdout.
         sys.stdout.write('{"continue":true}\n')
@@ -463,7 +495,22 @@ def cmd_capture() -> int:
         with path.open("a", encoding="utf-8") as handle:
             # `at` lets record create require a prompt from before the round was
             # rendered, so a fresh agent-launched session cannot carry the paste.
-            entry = {"session": session, "prompt": whole, "digests": [whole], "at": time.time()}
+            entry = {"session": session, "prompt": whole, "digests": [whole], "at": time.time(),
+                     "event_id": secrets.token_hex(16)}
+            mode = payload.get('permission_mode')
+            if isinstance(mode, str):
+                entry['permission_mode'] = mode
+            # Only the installed renderer can present a sealed active short-answer round.
+            # No callback fields or agent-provided tool result are interpreted as user input.
+            try:
+                active = json.loads((_runs_dir() / 'questions' / f'{hashlib.sha256(session.encode()).hexdigest()}.json').read_text(encoding='utf-8'))
+                key = (_runs_dir() / '.secret').read_bytes()
+                body = {k: v for k, v in active.items() if k != 'mac'}
+                mac = hmac.new(key, json.dumps(body, sort_keys=True, separators=(',', ':'), ensure_ascii=True).encode(), hashlib.sha256).hexdigest()
+                if active.get('session') == session and hmac.compare_digest(str(active.get('mac', '')), mac):
+                    entry['question'] = {k: active[k] for k in ('key', 'nonce')}
+            except (OSError, ValueError, KeyError, TypeError):
+                pass
             handle.write(json.dumps(entry) + "\n")
         os.chmod(path, 0o600)
         _prune(prompts)
@@ -483,6 +530,29 @@ def main(argv: list[str] | None = None) -> int:
     print("usage: completion_gate.py stop|capture", file=sys.stderr)
     return 0
 
+
+
+
+def _observe_permission(payload: dict) -> None:
+    """Retain the current host-reported mode for continuation, including downgrades."""
+    session = _session(payload)
+    if not session or os.environ.get('NEXUS_RUNNER_LAUNCH') == '1':
+        return
+    try:
+        runs = _runs_dir()
+        key = (runs / '.secret').read_bytes()
+        mode = payload.get('permission_mode')
+        body = {'origin': 'host-hook-capture', 'session_id': session,
+                'permission_mode': mode if isinstance(mode, str) else None, 'at': time.time()}
+        body['mac'] = hmac.new(key, json.dumps(body, sort_keys=True, separators=(',', ':'), ensure_ascii=True).encode(), hashlib.sha256).hexdigest()
+        folder = runs / 'host-context'
+        folder.mkdir(parents=True, exist_ok=True)
+        path = folder / f'{hashlib.sha256(session.encode()).hexdigest()}.json'
+        path.write_text(json.dumps(body), encoding='utf-8')
+        os.chmod(folder, 0o700)
+        os.chmod(path, 0o600)
+    except (OSError, ValueError):
+        pass  # no observation grants no additional authority
 
 if __name__ == "__main__":
     raise SystemExit(main())

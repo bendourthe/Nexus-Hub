@@ -2,7 +2,7 @@
 name: user-edit-preservation
 description: "Use whenever you are about to change, regenerate, re-save, copy over, rebuild, or re-publish any file you read or wrote earlier: decks, documents, spreadsheets, PDFs, generated HTML, handbooks, configs, source files, and copies on OneDrive, SharePoint, Dropbox, or shared drives. Trigger phrases: update the deck, revise the report, change slide N, regenerate the document, rebuild it, re-export, copy it to my OneDrive, save over it, refresh the handbook, apply these edits to my file. Fires even when you plan to rerun your own generator script, because a rerun overwrites whatever the user changed since. SKIP only for a file you are creating new in this step that did not exist before."
 summary_l0: "Detect and carry forward user edits before changing any file you read or wrote earlier"
-overview_l1: "This skill owns what an agent does before changing a file it read or wrote earlier. The user may have edited that file since, in an editor, in PowerPoint, or through a synced drive, and regenerating it from a script or copying a fresh build over it silently destroys their work. The skill drives the bundled edit_guard.py helper: record the file after every read and write, check it before every change, and on a detected change stop, show the diff, tell the user what changed, treat their file as the source of truth, carry their edits into the change, and list suggestions separately without applying them. It covers files the helper cannot compare (placeholders, non-text Office changes, unrecorded existing files), open files and conflict copies, and recovery when an edit was already lost. A block is released only through accept after the user agrees, and every accept appears in the end-of-task summary."
+overview_l1: "This skill owns what an agent does before changing a file it read or wrote earlier. The user may have edited that file since, in an editor, in PowerPoint, or through a synced drive, and regenerating it from a script or copying a fresh build over it silently destroys their work. The skill drives the bundled edit_guard.py helper: record the file after every read and write, check it before every change, and on a detected change stop, show the diff, tell the user what changed, treat their file as the source of truth, carry their edits into the change, and list suggestions separately without applying them. It covers files the helper cannot compare (placeholders, non-text Office changes, unrecorded existing files), open files and conflict copies, and recovery when an edit was already lost. A block is released through accept after genuine user agreement or the narrowly scoped automatic baseline-adoption path in this skill, and every accept appears with its actual provenance in the end-of-task summary."
 ---
 
 # User-Edit Preservation
@@ -30,6 +30,8 @@ python <this-skill>/scripts/edit_guard.py accept <path>
 python <this-skill>/scripts/edit_guard.py log
 ```
 
+Approval policy is owned by the implement-phase [completion contract](../implement-phase/references/completion-contract.md#authorization-policy). A hook's full-access silence does not waive these preservation checks. Only the contract's verified scoped authorization can replace a repeated baseline-consent question; the inspection and current-content preservation below still run.
+
 Set `NEXUS_EDIT_GUARD_SESSION` (or pass `--session`) to one value for the whole session, so `accept` can tell your own `diff` apart from another session's.
 
 1. **Record after every read and write.** After you read a file you may later change, run `record <path> --from read`. After you write one, run `record <path> --from write` right away: a record of a changed file is accepted only within two minutes of your own clean `check` of it, and otherwise refused until `diff` and `accept`. After a command you ran changed a tracked file (a generator script, a converter), run `record <path> --from command`. A `record --from read` that exits 3 means the file changed since you last recorded it: go to step 3 before anything else.
@@ -43,7 +45,7 @@ Set `NEXUS_EDIT_GUARD_SESSION` (or pass `--session`) to one value for the whole 
     | 5 | Cannot verify (an online-only placeholder) | Go to step 4. Never download it to check, and never overwrite it. |
     | 2 | Error (missing, unreadable, a link, a corrupt archive) | Report the error; do not treat it as unchanged. |
 
-3. **On a detected change (exit 3), stop and report before any write.** Run `diff <path>` and read all of it. Treat the user's current file as the source of truth: never restore your earlier version, and never regenerate it from your script unless that script already includes their changes. Then end your turn with this reply, all three parts, before writing anything:
+3. **On a detected change (exit 3), inspect before any write.** Run `diff <path>` and read all of it. Treat the user's current file as the source of truth: never restore your earlier version, and never regenerate it from your script unless that script already includes their changes. First check the narrow automatic path below. When it does not apply, end your turn with this reply, all three parts, before writing anything:
 
     ```text
     What you changed: <each user edit, in plain words: which slide, paragraph, section, or cells, and what it now says>
@@ -51,11 +53,13 @@ Set `NEXUS_EDIT_GUARD_SESSION` (or pass `--session`) to one value for the whole 
     Plan: <your requested change, applied on top of their current file with every edit kept>. Shall I go ahead?
     ```
 
-    Write only after the user says yes: run `accept <path>`, make the change ON their current file (open and edit it, or merge their edits into your working copy), then `record <path> --from write`. Apply a suggestion only if they ask. `accept` works only after your `diff` of that exact content in this session.
+    On the manual path, write only after genuine user agreement: run `accept <path>`, make the change ON their current file (open and edit it, or merge their edits into your working copy), then `record <path> --from write`. Apply a suggestion only if they ask. `accept` works only after your `diff` of that exact content in this session.
+    **Automatic baseline adoption in an approved full-access run.** Apply only when the completion contract's native `record authorize` verifies the reviewed `ask-first:user-edit-baseline` action and exact repository-relative path, using `--request '{"paths":["literal/path"]}'`. Run the official `diff` in this session and inspect every difference. Preserve all current user content, including fully understood line-ending-only changes, and prepare the requested edit on that current content. An unreadable, non-text, unknown or conflicting difference, open file or conflict copy does not qualify. Retain the native authorization receipt and diff evidence, run the official `accept <path>` on that exact inspected baseline, require a clean official `check <path>`, apply only the requested scoped edit, and immediately `record <path> --from write`. Report "automatic baseline adoption under the approved plan" and what was preserved. Do not say the user just agreed, forge a capture event or silently restore the old baseline. If the file changes again, repeat the official check and diff; old evidence cannot authorize new content.
+
 4. **When the change cannot be compared** (exit 5, or `diff` reports "non-text change" or "no stored copy"): tell the user the file changed since you last saw it and that the difference cannot be shown as text. Ask them to describe the change, or review the file together. Never overwrite it on the assumption that nothing important changed.
 5. **When the file is open or a conflict copy exists:** ask the user to save and close it, and to resolve the conflict copy (`name-MACHINE.ext`) themselves. Then run `check` again.
 6. **If an edit was already lost:** say so plainly, point the user to the file's version history (OneDrive or SharePoint "Version history", or `git log` / `git show` for a tracked file), and never overwrite that file again without step 2. No tool here restores it for you.
-7. **End-of-task summary:** run `log` and list every `accept` from this task under **Completed**, naming the file and what you carried forward.
+7. **End-of-task summary:** run `log` and list every `accept` under **Completed**, naming the file, preserved edits and actual authority: genuine user agreement or automatic baseline adoption with the native receipt.
 
 ## Common Rationalizations
 
@@ -74,7 +78,7 @@ Set `NEXUS_EDIT_GUARD_SESSION` (or pass `--session`) to one value for the whole 
 - [ ] `record` ran after each read and write of every file you later changed (`log` and the store show the records).
 - [ ] `check` ran immediately before each change to an existing file, and its exit code was acted on as in the table.
 - [ ] After any exit 3, `diff` output was shown to or summarized for the user, their changes are present in the final file, and suggestions were listed separately and not applied unasked.
-- [ ] No `accept` ran before the user agreed; every `accept` is listed in the end-of-task summary.
+- [ ] Every `accept` follows genuine user agreement or the exact automatic path above with a native scoped authorization receipt and official diff of the current content; each is listed with its true provenance.
 - [ ] No file that returned exit 4 or 5 was overwritten without the user's explicit go-ahead.
 
 ## Related Skills

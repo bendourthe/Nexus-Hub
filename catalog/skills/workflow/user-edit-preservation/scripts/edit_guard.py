@@ -427,7 +427,7 @@ def open_or_conflicting(path: Path) -> list[str]:
     for candidate in {lock, path.with_name("~$" + path.name)}:
         if candidate.exists():
             found.append(f"lock file {candidate.name}")
-    machine = re.compile(r"^[A-Z0-9][A-Z0-9-]{2,30}$")
+    machine = re.compile(r"^(?![0-9]+$)[A-Z0-9][A-Z0-9-]{2,30}$")
     local = (os.environ.get("COMPUTERNAME") or "").upper()
     for sibling in path.parent.glob(f"{path.stem}-*{path.suffix}"):
         token = sibling.stem[len(path.stem) + 1:]
