@@ -53,6 +53,12 @@ PR491 first-head extractor and rendered-skill jobs both reported the same nine s
 
 The corrected-head Linux governance group reported five stale command assertions, with 3204 passing cases and 68 skips; its other 20 profile commands passed. Local reproduction matched all five (5 failed, 13 passed in 0.20s). The two commands now link directly to their completion-contract owner. The mandatory final-phase template also stops requesting another approval paste for a missing advisory native goal, and respects supported host actions and their authorization. Refactor checks continue to require a proposal and link-integrity proof followed by matching recorded authority or a genuine manual decision. All 252 cases across fourteen identified command-contract modules passed in 53.77s. Both changed Python modules have zero Ruff diagnostics. The updated command source and regenerated manifest passed all 17 fast checks in 55.9s, with zero failures, skips or advisories. The nine native helpers are unchanged, so their retained source qualification remains applicable. Final hosted validation remains required.
 
+## Windows CI follow-up
+
+The corrected-head hosted installer profile reported one approval-capture fixture failure (940 other cases passed and one skipped in that batch), plus a co-z validator batch timeout at 1800.1s. Coarse Windows clock resolution could make the initial prompt and first render share a timestamp; the verifier correctly requires strict ordering. The affected test now gives the initial prompt, render and reply explicit logical timestamps while retaining real private signing, question nonce, consumption and replay checks. All 41 cases in the affected module passed in 15.81s. Ruff reports 0 introduced diagnostics and one unchanged existing UP017.
+
+The Windows installer job now installs exact `pytest-xdist==3.8.0` and `execnet==2.1.2` and assigns whole test files to two workers. All three native commands, selected test sets and existing command/job time limits remain unchanged. A targeted static safety review found no material shared-state or nested-pytest hazard. The final workflow passed all 156 relevant CI contract checks in 1.92s. A complete local native Windows installer profile is running with the same two-worker setting; its measured outcome and final hosted validation remain pending. Broad unaffected source qualification is retained rather than repeated.
+
 ## Current source pins
 
 Observed source snapshot for this qualification:

@@ -8,6 +8,7 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -58,10 +59,19 @@ def approved_record():
                 {"class": "ci-security-change", "paths": [".github/workflows/ci.yml"]}]}}}
 
 
-def test_same_render_keeps_pending_code_nonce_and_capture(captures):
+def test_same_render_keeps_pending_code_nonce_and_capture(captures, monkeypatch):
     runs, capture = captures
+    initial = binding.capture_events(runs, SESSION)[-1]
+    now = [initial["at"] + 1.0]
+    monkeypatch.setattr(binding, "_clock", lambda: now[0])
+    monkeypatch.setattr(gate, "time", SimpleNamespace(time=lambda: now[0]))
     first = render(runs)
+    now[0] += 1.0
     capture("Approve")
+    reply = binding.capture_events(runs, SESSION)[-1]
+    assert initial["at"] < first["rendered_at"] < reply["at"]
+    assert reply["question"] == {"key": "fixture", "nonce": first["nonce"]}
+    now[0] += 1.0
     second = render(runs)
     assert second == first
     consumed, session = consume(runs, second)

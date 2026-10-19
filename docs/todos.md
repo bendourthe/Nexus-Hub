@@ -21,6 +21,8 @@ The original Linux installer, Windows edit-recording and other 23 run-introduced
 
 **Command contract follow-up:** Five Linux governance assertions reproduced locally. Direct owner links and advisory native-goal guidance now align across implement, update and the final-phase plan template. All 252 cases in fourteen command-contract modules passed in 53.77s; the regenerated 2055-entry manifest and command source passed 17 fast checks in 55.9s. Hosted validation remains required.
 
+**Windows CI follow-up:** The capture chronology fixture now retains strict event ordering without depending on wall-clock resolution; all41 affected tests pass. The Windows installer CI job assigns complete files to two workers with pinned dependencies and unchanged test selections/time limits. All 156 relevant workflow contracts pass. The complete local Windows profile and final hosted validation are pending.
+
 **Next:** Integrate the approval/CI correction through develop using the completed split regression qualification, final usage-hook and new fast proof. Adopt only the verified published matched runtime before native admission. Implement compatible plans concurrently; publish and release sequentially.
 
 | Metric | Current | Target |
