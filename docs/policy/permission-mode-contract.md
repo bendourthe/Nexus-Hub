@@ -1,6 +1,6 @@
 # Permission-mode contract for Nexus-Hub hooks
 
-Summary: how Nexus-Hub hooks behave under each host approval mode (Claude Code default, acceptEdits, plan, auto, dontAsk, bypassPermissions; Codex, Cursor, GitHub Copilot, and Google Antigravity equivalents). Read it before adding or changing any hook that blocks a tool call or returns a permission decision. Key topics: full access means no Nexus-Hub gate, auto mode keeps the deterministic guards but never forces a prompt, the mode signal each platform exposes, and the platforms where full access cannot be detected.
+Summary: how Nexus-Hub hooks behave under each host approval mode (Claude Code default, acceptEdits, plan, auto, dontAsk, bypassPermissions; Codex, Cursor, GitHub Copilot, and Google Antigravity equivalents). Read it before adding or changing any hook that blocks a tool call or returns a permission decision. Key topics: full access removes redundant consent prompts while verification remains, auto mode keeps the deterministic guards but never forces a prompt, the mode signal each platform exposes, and the platforms where full access cannot be detected.
 
 ## Rule
 
@@ -18,6 +18,12 @@ Prompt-forcing hooks: `format-powershell-description.py`, `rewrite-command.{sh,p
 Security guards: `git-guardrails`, `secret-scan`, `memory-store-guard`, `user-edit-guard`, and `escalation-trigger` when `ESCALATION_MODE=block`.
 
 Not covered, by design: advisory hooks that only warn (`large-file-guard`, `escalation-trigger` in its default `warn` mode), and workflow and authoring rules the user configured independently of approvals (`require-description`, `require-powershell-description`, `attribution-guard`, `html-responsive-guard`, `old-version-docs-guard`, `code-search-routing`, `usage-guard`, `completion-gate`, and the opt-in `skill-guard`). They never raise an approval prompt; they reject a malformed or policy-breaking call so the agent can correct it.
+
+## Approved-run continuation
+
+The completion contract's [Authorization policy](../../catalog/skills/workflow/implement-phase/references/completion-contract.md#authorization-policy) owns plan and minor continuation. A genuine initial approval plus a trusted captured top-level `permission_mode: "bypassPermissions"` can authorize automatic continuation within the signed scope and original bounds. Hook-level silence alone creates no run authority. Native authorization rechecks current trusted host context, including later downgrades; old full-access evidence is not permanent permission. Legacy records without that context require native adoption of a genuinely captured user instruction; never edit a signed record or infer host mode from workspace text.
+
+Completion gates retain technical verification: an incomplete predicate, failed check, unavailable evidence, tampered record or user-edit conflict is not resolved by full access. Correct authorized conditions, verify the fresh result and retain automatic provenance. Manual or unknown-mode decisions follow the contract's concise question and genuine short-reply capture path; do not add duplicate prompts for unchanged observations. The workflow never changes the host permission mode or global configuration.
 
 ## Auto mode
 

@@ -441,12 +441,17 @@ def member_entry(ck: ModuleType, spec: dict, plan: Plan) -> dict:
 
 def create_page(ck: ModuleType, rctx: RepoContext, token: str, spec: dict, membership: Membership, repo: str) -> dict:
     """The canonical data the minor approval page shows; the code is derived from it."""
+    try:
+        ck._validate_policy_paths(rctx.root, spec.get('autonomy') or {})
+    except ValueError as exc:
+        raise ck.Malformed(str(exc)) from exc
     members = [member_entry(ck, spec, plan) for plan in membership.members]
     _, minor_classes = _split_classes(ck, spec)
     names = {c.get("class") for c in minor_classes}
     migratable = next((c.get("bound") for c in minor_classes if c.get("class") == "gap-migration"), []) or []
     check_migratable(ck, rctx.root, minor_classes)
     return {
+        'autonomy': approval_binding.validate_policy(spec['autonomy']) if spec.get('autonomy') else None,
         "action": "create",
         "scope": {"kind": "minor", "minor": token},
         "members": [
@@ -634,7 +639,9 @@ def answer_page(ck: ModuleType, token: str, record: dict, index: int | None, mem
     if category not in ck.BLOCKER_CATEGORIES:
         raise ck.Malformed("unknown blocker category")
     page = action_page(token, "answer", str(record.get("nonce", "")))
-    page["blocker"] = {"index": index, "category": category, "version": version}
+    page["blocker"] = {"index": index, "category": category, "version": version,
+                       "fingerprint": approval_binding.blocker_fingerprint(entry), "request": entry.get("request") or {},
+                       "purpose": entry.get("purpose"), "why": entry.get("why")}
     return page
 
 
@@ -888,6 +895,7 @@ def cmd_record_render(ck: ModuleType, args: argparse.Namespace) -> int:
             session=session,
             blocker=blocker,
             platform=args.platform,
+            allow_short_reply=mode == "question",
             check=lambda pending: approval_page.render_page(
                 approval_page.render_data(pending, scope=token, blocker=blocker, display=display)
             ),
@@ -961,6 +969,8 @@ def cmd_record_create(ck: ModuleType, args: argparse.Namespace) -> int:
             "classes": [{**c, "text": paste} for c in minor_classes],
             "spend_caps": page["spend_caps"],
             "page_sha256": hashlib.sha256(approval_binding.canonical(page)).hexdigest(),
+            "authorization_context": pending.get('capture'),
+            "autonomy_policy": page.get('autonomy'),
         },
         "blockers": [],
         "pause": None,
@@ -1003,7 +1013,7 @@ def cmd_record_answer(ck: ModuleType, args: argparse.Namespace) -> int:
         return consumed
     pending, _session = consumed
     if args.text is not None and approval_binding.normalize(args.text) not in {
-        approval_binding.normalize(x) for x in pending["paste_lines"]
+        approval_binding.normalize(x) for x in [*pending["paste_lines"], approval_binding.pasted(pending)]
     }:
         return ck._refused("approval-not-captured")
     record["blockers"][args.blocker].update(
@@ -1031,7 +1041,7 @@ def cmd_record_action(ck: ModuleType, args: argparse.Namespace, action: str) -> 
         return consumed
     pending, session = consumed
     if args.text is not None and approval_binding.normalize(args.text) not in {
-        approval_binding.normalize(x) for x in pending["paste_lines"]
+        approval_binding.normalize(x) for x in [*pending["paste_lines"], approval_binding.pasted(pending)]
     }:
         return ck._refused("approval-not-captured")
     if action == "pause":
@@ -3030,10 +3040,12 @@ def cmd_record_block(ck: ModuleType, args: argparse.Namespace) -> int:
     if args.approval_class and args.approval_class in approved:
         print(f"rejected: the approvals already answer {args.approval_class}", file=sys.stderr)
         return ck.EXIT_MALFORMED
-    entry = {"category": args.category, "evidence": args.evidence[:2000], "open": True, "at": ck._now()}
+    entry = {"category": args.category, "evidence": args.evidence[:2000], "open": True, "at": ck._now(),
+             'approval_class': args.approval_class, 'request': ck._json_request(getattr(args, 'request', '{}')),
+             'purpose': getattr(args, 'purpose', None), 'why': getattr(args, 'why', None)}
     if member is not None:
         entry["version"] = args.member
-    record.setdefault("blockers", []).append(entry)
+    approval_binding.add_blocker(record, entry)
     ck._write_record(record_file(ck, rctx, token), record)
     suffix = f" ({args.member})" if member is not None else ""
     print(f"BLOCKED: {args.category}{suffix}")

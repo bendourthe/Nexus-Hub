@@ -476,7 +476,22 @@ def run(plan_arg: str, row: str, max_cycles: int) -> int:
         raise RunnerError(f"run record unreadable: {record_path}") from exc
     approved = {c.get("class") for c in record.get("approvals", {}).get("classes", [])}
     reason = bypass_configured(row)
-    if reason and "unattended-with-bypass" not in approved:
+    full_access = False
+    context = record.get('approvals', {}).get('authorization_context') or {}
+    if (context.get('origin') in {'host-hook-capture', 'codex-host-transcript'}
+            and context.get('permission_mode') == 'bypassPermissions'
+            and context.get('session_id') == record.get('session_id')):
+        # record path only locates a file. A terminal check must authenticate it before this mode is trusted.
+        verified_rc, verified_out = _checker_run(scope.check())
+        if verified_rc not in (0, 1, 3, 4) or verified_out.startswith('BLOCKED: record-tampered'):
+            raise RunnerError('run record authorization could not be verified')
+        import approval_binding
+        try:
+            current = approval_binding.current_host_context(record_path.parent, record, {str(Path.cwd().resolve())})
+            full_access = approval_binding.full_access_authorization(record, current)
+        except ValueError:
+            full_access = False
+    if reason and "unattended-with-bypass" not in approved and not full_access:
         raise RunnerError(
             f"{reason}; approve the unattended-with-bypass class upfront or remove the setting"
         )

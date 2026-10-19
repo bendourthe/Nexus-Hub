@@ -602,6 +602,8 @@ def project(record: dict, version: str) -> dict | None:
         "tag": member.get("tag") or version,
         "cleanup": cleanup,
         "classes": [*(own.get("classes") or []), *(minor.get("classes") or [])],
+        "authorization_context": minor.get('authorization_context'),
+        "autonomy_policy": minor.get('autonomy_policy'),
         "page_sha256": minor.get("page_sha256"),
     }
     return {
@@ -1282,6 +1284,11 @@ def _approvals_from_file(path: str, minor: bool = False) -> dict:
     defer = next((c.get("bound") for c in classes if c["class"] == "defer-gaps"), []) or []
     if not set(defer) <= GAP_TYPES:
         raise Malformed("defer-gaps bound must list gap types from NI DF BG MT WN QG")
+    try:
+        if 'autonomy' in spec:
+            approval_binding.validate_policy(spec['autonomy'])
+    except ValueError as exc:
+        raise Malformed(str(exc)) from exc
     return spec
 
 
@@ -1298,6 +1305,10 @@ def _refused(reason: str) -> int:
 
 
 def _create_page(ctx: Context, spec: dict) -> dict:
+    try:
+        _validate_policy_paths(ctx.root, spec.get('autonomy') or {})
+    except ValueError as exc:
+        raise Malformed(str(exc)) from exc
     return approval_binding.create_page(
         rel=ctx.rel,
         version=ctx.version,
@@ -1315,14 +1326,18 @@ def _action_page(ctx: Context, record: dict, action: str, blocker: int | None) -
         if blocker is None or not 0 <= blocker < len(blockers) or not blockers[blocker].get("open"):
             raise Malformed("no open blocker at that index")
         category = blockers[blocker].get("category")
-    return approval_binding.action_page(
+    page = approval_binding.action_page(
         action,
         rel=ctx.rel,
         version=ctx.version,
         record_nonce=str(record.get("nonce", "")),
         blocker=blocker,
         category=category,
+        fingerprint=approval_binding.blocker_fingerprint(blockers[blocker]) if action == 'answer' else None,
     )
+    if action == 'answer':
+        page['blocker'].update(request=blockers[blocker].get('request') or {}, purpose=blockers[blocker].get('purpose'), why=blockers[blocker].get('why'))
+    return page
 
 
 def _round_key(ctx: Context) -> str:
@@ -1350,7 +1365,7 @@ def _consume(
         )
     except approval_binding.Refusal as refusal:
         return _refused(refusal.reason)
-    if text is not None and normalize(text) not in {normalize(x) for x in pending["paste_lines"]}:
+    if text is not None and normalize(text) not in {normalize(x) for x in [*pending["paste_lines"], approval_binding.pasted(pending)]}:
         # The round is spent either way: a claimed text that is not the pasted line is not an approval.
         return _refused("approval-not-captured")
     return pending, bound
@@ -1461,6 +1476,7 @@ def cmd_record_render(args: argparse.Namespace) -> int:
             session=session,
             blocker=blocker,
             platform=args.platform,
+            allow_short_reply=mode == "question",
             check=lambda pending: approval_page.render_page(data_of(pending)),
         )
     except approval_binding.Refusal as refusal:
@@ -1472,6 +1488,12 @@ def cmd_record_render(args: argparse.Namespace) -> int:
 
 
 def render_mode(args: argparse.Namespace) -> str:
+    if getattr(args, "question", False):
+        if args.json or args.page:
+            raise Malformed("--question cannot be combined with --json or --page")
+        if args.session == "auto":
+            raise Malformed("--question needs an explicit bound session")
+        return "question"
     """`record render` prints JSON, the plain-language page, or the bare paste line(s)."""
     if args.json and args.page:
         raise Malformed("choose one of --json and --page")
@@ -1512,6 +1534,8 @@ def cmd_record_create(args: argparse.Namespace) -> int:
         # The user approved the page, and the pasted line is their verbatim text.
         "classes": [{**c, "text": paste} for c in spec["classes"]],
         "page_sha256": hashlib.sha256(approval_binding.canonical(page)).hexdigest(),
+        "authorization_context": pending.get('capture'),
+        "autonomy_policy": page.get('autonomy'),
     }
     record = {
         "schema": SCHEMA,
@@ -1740,20 +1764,198 @@ def cmd_record_block(args: argparse.Namespace) -> int:
             file=sys.stderr,
         )
         return EXIT_MALFORMED
-    record.setdefault("blockers", []).append(
-        {
-            "category": args.category,
-            "evidence": args.evidence[:2000],
-            "open": True,
-            "at": _now(),
-        }
-    )
+    entry = {'category': args.category, 'evidence': args.evidence[:2000], 'open': True, 'at': _now(),
+             'approval_class': args.approval_class, 'request': _json_request(getattr(args, 'request', '{}')),
+             'purpose': getattr(args, 'purpose', None), 'why': getattr(args, 'why', None)}
+    approval_binding.add_blocker(record, entry)
     _write_record(ctx.record_path(), record)
     print(f"BLOCKED: {args.category}")
     return EXIT_BLOCKED
 
 
 # --------------------------------------------------------------------------- cli
+
+
+
+def _continuation_record(args: argparse.Namespace) -> tuple[RepoContext, dict, dict, Path] | int:
+    """Load the verified owner and scoped view, including open blockers but never tampering."""
+    if _scoped(args):
+        module = _minor_module()
+        ctx = module.repo_context(sys.modules[__name__], args)
+        state = module.load_minor(sys.modules[__name__], ctx, args.minor, args.session, accept_completed=True)
+        record = state.record
+        if record is None:
+            return state.forced[1] if state.forced else EXIT_MALFORMED
+        view = project(record, args.member) if getattr(args, 'member', None) else record
+        if view is None:
+            raise Malformed('member is not in this approved minor')
+        if state.forced:
+            first = next((item for item in record.get('blockers', []) if isinstance(item, dict) and item.get('open')), None)
+            suffix = f" ({first['version']})" if first and first.get('version') else ''
+            allowed = f"BLOCKED: {first.get('category')}{suffix}" if first else None
+            if state.forced[0] != allowed:
+                print(state.forced[0])
+                return state.forced[1]
+        path = module.record_file(sys.modules[__name__], ctx, args.minor)
+    else:
+        loaded = _load_for_update(args)
+        if isinstance(loaded, int):
+            return loaded
+        ctx, record = loaded
+        view, path = record, ctx.record_path()
+    if record.get('pause'):
+        print('PAUSED')
+        return EXIT_PAUSED
+    if record.get('completed'):
+        return _blocked('approval-not-covered')
+    return ctx, record, view, path
+
+
+def _validate_scoped_paths(root: Path, paths: object) -> None:
+    if not isinstance(paths, list) or not all(isinstance(path, str) for path in paths):
+        raise ValueError('request paths must be a list of literal repository paths')
+    for path in paths:
+        # Reuse the policy literal-path validator and then inspect actual filesystem routing.
+        approval_binding.validate_policy({'planned_actions': [{'class': 'ask-first:path-scope', 'paths': [path]}]})
+        if not (root / path).resolve().is_relative_to(root.resolve()):
+            raise ValueError('a scoped path escapes the approved repository through a link')
+
+
+def _validate_policy_paths(root: Path, value: object) -> None:
+    policy = approval_binding.validate_policy(value)
+    _validate_scoped_paths(root, policy['correction_paths'])
+    for item in policy['planned_actions']:
+        _validate_scoped_paths(root, item['paths'])
+
+
+def _host_cwds(ctx: RepoContext) -> set[str]:
+    paths = {str(ctx.root.resolve())}
+    paths.update(str(Path(line[9:]).resolve()) for line in ctx._git_out('worktree', 'list', '--porcelain').splitlines() if line.startswith('worktree '))
+    return paths
+
+
+def _json_request(value: str) -> dict:
+    try:
+        result = json.loads(value)
+    except ValueError as exc:
+        raise Malformed('request must be a JSON object') from exc
+    if not isinstance(result, dict):
+        raise Malformed('request must be a JSON object')
+    return result
+
+
+def cmd_record_adopt_policy(args: argparse.Namespace) -> int:
+    loaded = _continuation_record(args)
+    if isinstance(loaded, int):
+        return loaded
+    ctx, record, _view, path = loaded
+    if args.session != record.get('session_id'):
+        return _refused('session-mismatch')
+    try:
+        instruction = Path(args.instruction_file).read_text(encoding='utf-8')
+        policy = json.loads(Path(args.policy).read_text(encoding='utf-8'))
+        _validate_policy_paths(ctx.root, policy)
+        cwds = _host_cwds(ctx)
+        approval_binding.adopt_policy(_runs_dir(), record, instruction, policy,
+            Path(args.host_transcript) if args.host_transcript else None, cwds)
+    except (OSError, ValueError, approval_binding.Refusal) as exc:
+        print(f'policy not adopted: {exc}', file=sys.stderr)
+        return EXIT_BLOCKED
+    record['approvals_hmac'] = _sign(record, _secret(create=False) or b'')
+    _write_record(path, record)
+    print('ADOPTED approved-plan policy from genuine captured user instruction')
+    return 0
+
+
+def cmd_record_authorize(args: argparse.Namespace) -> int:
+    loaded = _continuation_record(args)
+    if isinstance(loaded, int):
+        return loaded
+    ctx, record, view, path = loaded
+    if args.session != record.get('session_id'):
+        return _refused('session-mismatch')
+    if _approved_remote_status(ctx, view) != 'met':
+        return _blocked('approval-not-covered')
+    try:
+        current = approval_binding.current_host_context(_runs_dir(), record, _host_cwds(ctx))
+        request = _json_request(args.request)
+        _validate_scoped_paths(ctx.root, request.get('paths', []))
+        event = approval_binding.authorization(view, args.approval_class, request, current)
+    except ValueError as exc:
+        print(f'authorization not covered: {exc}', file=sys.stderr)
+        return EXIT_BLOCKED
+    event['member'] = getattr(args, 'member', None)
+    events = record['approvals'].setdefault('continuations', [])
+    if event not in events:
+        events.append(event)
+        record['approvals_hmac'] = _sign(record, _secret(create=False) or b'')
+        _write_record(path, record)
+    print('AUTHORIZED ' + json.dumps(event, sort_keys=True))
+    return 0
+
+
+def _native_user_edit_probe(ctx: RepoContext, view: dict, entry: dict, current: dict) -> dict:
+    """Only the unchanged installed official guard can establish that an edit condition is clean."""
+    import argparse
+    import contextlib
+    import io
+    import runpy
+    policy = approval_binding.validate_policy(view.get('approvals', {}).get('autonomy_policy') or {})
+    allowed = sorted({path for item in policy['planned_actions']
+                      if item['class'] == 'ask-first:user-edit-baseline' for path in item['paths']})
+    paths = (entry.get('request') or {}).get('paths') or allowed
+    _validate_scoped_paths(ctx.root, paths)
+    approval_binding.authorization(view, 'ask-first:user-edit-baseline', {'paths': paths}, current)
+    guard = Path.home() / '.agents' / 'skills' / 'user-edit-preservation' / 'scripts' / 'edit_guard.py'
+    if not guard.is_file() or any(guard.resolve().is_relative_to(Path(root)) for root in _host_cwds(ctx)):
+        raise ValueError('official guard is unavailable outside the repository')
+    functions = runpy.run_path(str(guard))
+    store = functions['store_dir']()
+    checks = []
+    for path in paths:
+        args = argparse.Namespace(path=str(ctx.root / path), session=str(view.get('session_id')), stamp=False)
+        with contextlib.redirect_stdout(io.StringIO()):
+            code = functions['cmd_check'](args, store)
+        if code != 0:
+            raise ValueError('official user-edit check still reports an unresolved condition')
+        checks.append({'path': path, 'exit_code': code})
+    return {'origin': 'native-user-edit-check', 'fingerprint': approval_binding.blocker_fingerprint(entry),
+            'guard_sha256': hashlib.sha256(guard.read_bytes()).hexdigest(), 'checks': checks,
+            'native_predicates_changed': False}
+
+
+def cmd_record_resolve(args: argparse.Namespace) -> int:
+    loaded = _continuation_record(args)
+    if isinstance(loaded, int):
+        return loaded
+    ctx, record, view, path = loaded
+    if args.session != record.get('session_id'):
+        return _refused('session-mismatch')
+    if _approved_remote_status(ctx, view) != 'met':
+        return _blocked('approval-not-covered')
+    try:
+        entry = record.get('blockers', [])[args.blocker]
+        if getattr(args, 'member', None) is not None and entry.get('version') != args.member:
+            raise ValueError('member differs from the blocker')
+        current = approval_binding.current_host_context(_runs_dir(), record, _host_cwds(ctx))
+        _validate_scoped_paths(ctx.root, (entry.get('request') or {}).get('paths', []))
+        if entry.get('category') == 'user-edit-guard':
+            if not entry.get('open') or approval_binding.blocker_fingerprint(entry) != args.fingerprint:
+                raise ValueError('blocker is closed or its condition changed')
+            result = _native_user_edit_probe(ctx, view, entry, current)
+        else:
+            result = approval_binding.resolution(view, args.blocker, args.fingerprint,
+                        Path(args.evidence_file) if args.evidence_file else None, current)
+    except (OSError, ValueError, IndexError, TypeError) as exc:
+        print(f'condition not resolved: {exc}', file=sys.stderr)
+        return EXIT_BLOCKED
+    entry.update(open=False, answered=_now(), resolution=result)
+    # Blockers are mutable, but automatic provenance is also retained inside the signed approvals.
+    record['approvals'].setdefault('resolutions', []).append({'blocker': args.blocker, **result})
+    record['approvals_hmac'] = _sign(record, _secret(create=False) or b'')
+    _write_record(path, record)
+    print(f'RESOLVED blocker {args.blocker} ({result["origin"]})')
+    return 0
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -1819,6 +2021,7 @@ def build_parser() -> argparse.ArgumentParser:
     render.add_argument("--blocker", type=int, help="open blocker index (answer)")
     render.add_argument("--member", help="with --minor answer: require this blocker's member version")
     render.add_argument("--json", action="store_true", help="print the canonical page data")
+    render.add_argument('--question', action='store_true', help='print an honest concise question and captured short-reply fallback')
     render.add_argument(
         "--page", action="store_true", help="print the plain-language approval page"
     )
@@ -1865,7 +2068,28 @@ def build_parser() -> argparse.ArgumentParser:
     block.add_argument("--category", required=True)
     block.add_argument("--evidence", required=True)
     block.add_argument("--approval-class")
+    block.add_argument("--purpose", help="concrete action displayed for the decision")
+    block.add_argument("--why", help="why that action is needed, bound into the challenge")
+    block.add_argument("--request", default="{}", help="JSON action scope, bound into blocker identity")
     block.set_defaults(func=cmd_record_block)
+    for name, func in (('authorize', cmd_record_authorize), ('adopt-policy', cmd_record_adopt_policy), ('resolve', cmd_record_resolve)):
+        operation = record.add_parser(name)
+        operation.add_argument('plan', nargs='?')
+        _add_minor_scope(operation)
+        operation.add_argument('--session', required=True)
+        operation.add_argument('--member')
+        if name == 'authorize':
+            operation.add_argument('--approval-class', required=True)
+            operation.add_argument('--request', default='{}', help='JSON fields matching the frozen action scope')
+        elif name == 'adopt-policy':
+            operation.add_argument('--instruction-file', required=True)
+            operation.add_argument('--policy', required=True)
+            operation.add_argument('--host-transcript', help='canonical runtime-owned Codex session log, when old captures omitted mode')
+        else:
+            operation.add_argument('--blocker', type=int, required=True)
+            operation.add_argument('--fingerprint', required=True)
+            operation.add_argument('--evidence-file', help='fresh condition-repair receipt; no shell commands are executed')
+        operation.set_defaults(func=func)
     implement = record.add_parser("member-implement-start", help="reserve a linked worker and its implementation scopes")
     implement.add_argument("--minor", required=True)
     implement.add_argument("--member", required=True)
