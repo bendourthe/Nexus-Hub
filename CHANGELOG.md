@@ -24,6 +24,7 @@ Docs: [Flyover workflow](catalog/skills/specialized-domains/document-to-interact
 
 ### Fixed
 
+- Geometry checks distinguish compact decorative interface glyphs, step navigation and stateful controls from scientific figures and repeated content-card grids. Scientific labels, marks and nested figure lineage remain covered.
 - Native JSON and installer upgrade paths preserve opaque timestamp strings, case-distinct keys, deep user data and managed hooks. Strict-overlay counting handles duplicate rules; malformed input is refused without false success or partial settings writes.
 - User-edit cache publication retains meaningful reviewed baselines across failed writes, supports private long Windows paths and preserves owner-only permissions and strict edit blocking.
 - The migration scanner recognizes the valid --!> comment ending while rejecting hidden provenance. Approval-page prose checks no longer reject a valid generated code containing HMAC; displayed text, exact capture, classes and reuse checks are unchanged.
